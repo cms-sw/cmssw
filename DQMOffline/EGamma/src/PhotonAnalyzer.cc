@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/17 16:57:25 $ 
+ **  $Date: 2008/09/17 18:06:44 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -144,8 +144,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   vector<string> parts;
   parts.push_back("AllEcal");
   parts.push_back("Barrel");
-  parts.push_back("EndcapMinus");
-  parts.push_back("EndcapPlus");
+  parts.push_back("Endcaps");
+
 
   vector<string> types;
   types.push_back("All");
@@ -188,24 +188,19 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	currentFolder << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
 	dbe_->setCurrentFolder(currentFolder.str());
 
-	for(int part=0;part!=4;++part){ //loop over different parts of the ecal
+	for(int part=0;part!=3;++part){ //loop over different parts of the ecal
 
 	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part], eBin,eMin, eMax));
 	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part], etBin,etMin, etMax));
 	  h_r9_part_.push_back(dbe_->book1D("r9"+parts[part],types[type]+" Photon r9: "+parts[part],r9Bin,r9Min, r9Max));
 	  h_hOverE_part_.push_back(dbe_->book1D("hOverE"+parts[part],types[type]+" Photon H/E: "+parts[part],r9Bin,r9Min, 1));
 	  h_nPho_part_.push_back(dbe_->book1D("nPho"+parts[part],"Number of "+types[type]+" Photons per Event: "+parts[part], 10,-0.5,9.5));
-
-	  if(part==0){
-	    h_phoDistribution_part_.push_back(dbe_->book2D("Distribution"+parts[part],"Distribution of "+types[type]+" Photons in Eta/Phi: "+parts[part],phiBin,phiMin,phiMax,etaBin,-2.5,2.5));
-	  }	  
-	  if(part==1){
-	    h_phoDistribution_part_.push_back(dbe_->book2D("Distribution"+parts[part],"Distribution of "+types[type]+" Photons in Eta/Phi: "+parts[part],360,phiMin,phiMax,170,-1.5,1.5));
-	  }
-	  if(part >= 2){
-	    h_phoDistribution_part_.push_back(dbe_->book2D("Distribution"+parts[part],"Distribution of "+types[type]+" Photons in X/Y: "+parts[part],100,-150,150,100,-150,150));
-	  }
 	}
+
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionAllEcal","Distribution of "+types[type]+" Photons in Eta/Phi: AllEcal",phiBin,phiMin,phiMax,etaBin,-2.5,2.5));
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionBarrel","Distribution of "+types[type]+" Photons in Eta/Phi: Barrel",360,phiMin,phiMax,170,-1.5,1.5));
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapMinus","Distribution of "+types[type]+" Photons in X/Y: EndcapMinus",100,-150,150,100,-150,150));
+	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapPlus","Distribution of "+types[type]+" Photons in X/Y: EndcapPlus",100,-150,150,100,-150,150));
 
 	h_phoE_isol_.push_back(h_phoE_part_);
 	h_phoE_part_.clear();
@@ -223,7 +218,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 	h_phoEta_isol_.push_back(dbe_->book1D("phoEta",types[type]+" Photon Eta ",etaBin,etaMin, etaMax)) ;
 	h_phoPhi_isol_.push_back(dbe_->book1D("phoPhi",types[type]+" Photon Phi ",phiBin,phiMin,phiMax)) ;
-	p_r9VsEt_isol_.push_back(dbe_->bookProfile("r9VsEt",types[type]+" Photon r9 vs. Transverse Energy",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
+	h_r9VsEt_isol_.push_back(dbe_->book2D("r9VsEt2D",types[type]+" Photon r9 vs. Transverse Energy",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
+	p_r9VsEt_isol_.push_back(dbe_->book1D("r9VsEt",types[type]+" Photon r9 vs. Transverse Energy",etBin,etMin,etMax));
 
 
       }
@@ -246,6 +242,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       h_phoEta_isol_.clear();
       h_phoPhi_.push_back(h_phoPhi_isol_);
       h_phoPhi_isol_.clear();
+      h_r9VsEt_.push_back(h_r9VsEt_isol_);
+      h_r9VsEt_isol_.clear();
       p_r9VsEt_.push_back(p_r9VsEt_isol_);
       p_r9VsEt_isol_.clear();
       
@@ -259,13 +257,16 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	currentFolder << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/Conversions";
 	dbe_->setCurrentFolder(currentFolder.str());
 
-	for(int part=0;part!=4;++part){ //loop over different parts of the ecal
+	for(int part=0;part!=3;++part){ //loop over different parts of the ecal
 
 	  h_nConv_part_.push_back(dbe_->book1D("nConv"+parts[part],"Number Of Conversions per Event:  "+parts[part] ,10,-0.5, 9.5));
 	  h_eOverPTracks_part_.push_back(dbe_->book1D("eOverPTracks"+parts[part],"E/P of Conversions: "+parts[part] ,100, 0., 5.));
-	  h_dPhiTracksAtVtx_part_.push_back(dbe_->book1D("dPhiTracksAtVtx"+parts[part], "  #delta#phi of Conversion Tracks at Vertex: "+parts[part],dPhiTracksBin,dPhiTracksMin,dPhiTracksMax)); 
+	  
+	  h_dPhiTracksAtVtx_part_.push_back(dbe_->book1D("dPhiTracksAtVtx"+parts[part], "  #delta#phi of Conversion Tracks at Vertex: "+parts[part],dPhiTracksBin,dPhiTracksMin,dPhiTracksMax));
 	  h_dCotTracks_part_.push_back(dbe_->book1D("dCotTracks"+parts[part],"#delta cotg(#Theta) of Conversion Tracks: "+parts[part],dEtaTracksBin,dEtaTracksMin,dEtaTracksMax)); 
 
+	  h_dPhiTracksAtEcal_part_.push_back(dbe_->book1D("dPhiTracksAtEcal"+parts[part], "  #delta#phi of Conversion Tracks at Ecal: "+parts[part],dPhiTracksBin,0.,dPhiTracksMax)); 
+	  h_dEtaTracksAtEcal_part_.push_back(dbe_->book1D("dEtaTracksAtEcal"+parts[part], "  #delta#eta of Conversion Tracks at Ecal: "+parts[part],dEtaTracksBin,dEtaTracksMin,dEtaTracksMax)); 
 	}
 
 	h_nConv_isol_.push_back(h_nConv_part_);
@@ -276,11 +277,18 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_dPhiTracksAtVtx_part_.clear();
 	h_dCotTracks_isol_.push_back(h_dCotTracks_part_);
 	h_dCotTracks_part_.clear();
+	h_dPhiTracksAtEcal_isol_.push_back(h_dPhiTracksAtEcal_part_);
+	h_dPhiTracksAtEcal_part_.clear();
+	h_dEtaTracksAtEcal_isol_.push_back(h_dEtaTracksAtEcal_part_);
+	h_dEtaTracksAtEcal_part_.clear();
+
 
 	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta ",etaBin,etaMin, etaMax)) ;
 	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi ",phiBin,phiMin,phiMax)) ;
 	h_convVtxRvsZ_isol_.push_back(dbe_->book2D("convVtxRvsZ",types[type]+" Photon Reco conversion vtx position",100, 0., 280.,200,0., 120.));
-
+	h_nHitsVsEta_isol_.push_back(dbe_->book2D("nHitsVsEta2D",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta",etaBin,etaMin, etaMax,etaBin,0, 16));
+	p_nHitsVsEta_isol_.push_back(dbe_->book1D("nHitsVsEta",types[type]+" Photons: Tracks from conversions: Mean Number of  Hits vs Eta",etaBin,etaMin, etaMax));	
+	h_tkChi2_isol_.push_back(dbe_->book1D("tkChi2",types[type]+" Photons: Tracks from conversions: #chi^{2} of all tracks", 100, 0., 20.0));  
       }
 
       h_nConv_.push_back(h_nConv_isol_);
@@ -291,13 +299,23 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       h_dPhiTracksAtVtx_isol_.clear();
       h_dCotTracks_.push_back(h_dCotTracks_isol_);
       h_dCotTracks_isol_.clear();
-      
+      h_dPhiTracksAtEcal_.push_back(h_dPhiTracksAtEcal_isol_);
+      h_dPhiTracksAtEcal_isol_.clear();  
+      h_dEtaTracksAtEcal_.push_back(h_dEtaTracksAtEcal_isol_);
+      h_dEtaTracksAtEcal_isol_.clear();
+    
       h_phoConvEta_.push_back(h_phoConvEta_isol_);
       h_phoConvEta_isol_.clear();
       h_phoConvPhi_.push_back(h_phoConvPhi_isol_);
       h_phoConvPhi_isol_.clear();
       h_convVtxRvsZ_.push_back(h_convVtxRvsZ_isol_);
       h_convVtxRvsZ_isol_.clear();
+      h_tkChi2_.push_back(h_tkChi2_isol_);
+      h_tkChi2_isol_.clear();
+      h_nHitsVsEta_.push_back(h_nHitsVsEta_isol_);
+      h_nHitsVsEta_isol_.clear(); 
+      p_nHitsVsEta_.push_back(p_nHitsVsEta_isol_);
+      p_nHitsVsEta_isol_.clear();
   
     }
 
@@ -321,12 +339,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Get the recontructed  photons
   Handle<reco::PhotonCollection> photonHandle; 
   e.getByLabel(photonProducer_, photonCollection_ , photonHandle);
+  if ( !photonHandle.isValid()) return;
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
  
 
   // grab PhotonId objects  
   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
   e.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
+  if ( !photonIDMapColl.isValid()) return;
   const reco::PhotonIDAssociationCollection *phoMap = photonIDMapColl.product();
 
 
@@ -334,19 +354,16 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   //esup.get<CaloGeometryRecord>().get(theCaloGeom_);
 
   // Create array to hold #photons/event information
-  int nPho[100][3][4];
+  int nPho[100][3][3];
 
   for (int cut=0; cut!=100; ++cut){
     for (int type=0; type!=3; ++type){
-      for (int part=0; part!=4; ++part){
+      for (int part=0; part!=3; ++part){
 	nPho[cut][type][part] = 0;
       }
     }
   }
 
-
-  if ( !photonHandle.isValid()) return;
-  if ( !photonIDMapColl.isValid()) return;
 
   int photonCounter = 0;
 
@@ -430,7 +447,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	h_phoEta_[cut][0]->Fill( (*iPho).superCluster()->eta() );
 	h_phoPhi_[cut][0]->Fill( (*iPho).superCluster()->phi() );      
     
-	p_r9VsEt_[cut][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
+	h_r9VsEt_[cut][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
 
 
 	// iso/noniso photons histograms
@@ -448,19 +465,15 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	h_phoEta_[cut][type]->Fill( (*iPho).superCluster()->eta() );
 	h_phoPhi_[cut][type]->Fill( (*iPho).superCluster()->phi() );      
 
-	p_r9VsEt_[cut][type]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
+	h_r9VsEt_[cut][type]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
 
 
 	//filling both types of histograms for different ecal parts
 	int part = 0;
 	if ( phoIsInBarrel )
 	  part = 1;
-	if ( phoIsInEndcap ) {
-	  if (phoIsInEndcapMinus)
-	    part = 2;
-	  else if (phoIsInEndcapPlus)
-	    part = 3;
-	}
+	if ( phoIsInEndcap )
+	  part = 2;
 
 	h_phoE_[cut][0][part]->Fill( (*iPho).energy() );
 	h_phoEt_[cut][0][part]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
@@ -471,8 +484,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	nPho[cut][0][part]++;
 	h_nConv_[cut][0][part]->Fill(float( (*iPho).conversions().size() ));
 
-	if (part == 1)  h_phoDistribution_[cut][0][part]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
-	else  h_phoDistribution_[cut][0][part]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+	if ( phoIsInBarrel )  h_phoDistribution_[cut][0][1]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
+	if ( phoIsInEndcapMinus )  h_phoDistribution_[cut][0][2]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+	if ( phoIsInEndcapPlus )  h_phoDistribution_[cut][0][3]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 
 
 	h_phoE_[cut][type][part]->Fill( (*iPho).energy() );
@@ -484,13 +498,16 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	nPho[cut][type][part]++;
 	h_nConv_[cut][type][part]->Fill(float( (*iPho).conversions().size() ));
 
-	if (part == 1)  h_phoDistribution_[cut][type][part]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
-	else  h_phoDistribution_[cut][type][part]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );	
+       	if ( phoIsInBarrel )  h_phoDistribution_[cut][type][1]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
+	if ( phoIsInEndcapMinus )  h_phoDistribution_[cut][type][2]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+	if ( phoIsInEndcapPlus )  h_phoDistribution_[cut][type][3]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 
 	//loop over conversions
 
 	std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
 	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
+
+	  reco::ConversionRef aConv=conversions[iConv];
 
 	  h_phoConvEta_[cut][0]->Fill( conversions[iConv]->caloCluster()[0]->eta()  );
 	  h_phoConvPhi_[cut][0]->Fill( conversions[iConv]->caloCluster()[0]->phi()  );  
@@ -508,7 +525,18 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 	  std::vector<reco::TrackRef> tracks = conversions[iConv]->tracks();
+
+	  for (unsigned int i=0; i<tracks.size(); i++) {
+	    h_tkChi2_[cut][0] ->Fill (tracks[i]->normalizedChi2()) ; 
+	    h_tkChi2_[cut][type] ->Fill (tracks[i]->normalizedChi2()) ; 
+	    h_nHitsVsEta_[cut][0]->Fill(  conversions[iConv]->caloCluster()[0]->eta(),   float(tracks[i]->numberOfValidHits() ) );
+	    h_nHitsVsEta_[cut][type]->Fill(  conversions[iConv]->caloCluster()[0]->eta(),   float(tracks[i]->numberOfValidHits() ) );
+	  }
+
 	  float  DPhiTracksAtVtx = -99;
+	  float  dPhiTracksAtEcal= -99;
+	  float  dEtaTracksAtEcal= -99;
+
 
 	  if ( tracks.size() > 1 ) {
 	    float phiTk1= tracks[0]->innerMomentum().phi();
@@ -518,33 +546,48 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  }
 
 
+	  if (aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
+	    float recoPhi1 = aConv->ecalImpactPosition()[0].phi();
+	    float recoPhi2 = aConv->ecalImpactPosition()[1].phi();
+	    float recoEta1 = aConv->ecalImpactPosition()[0].eta();
+	    float recoEta2 = aConv->ecalImpactPosition()[1].eta();
+
+	    recoPhi1 = phiNormalization(recoPhi1);
+	    recoPhi2 = phiNormalization(recoPhi2);
+
+	    dPhiTracksAtEcal = recoPhi1 -recoPhi2;
+	    dPhiTracksAtEcal = phiNormalization( dPhiTracksAtEcal );
+	    dEtaTracksAtEcal = recoEta1 -recoEta2;
+
+	  }
+
 	  h_eOverPTracks_[cut][0][0] ->Fill( conversions[iConv]->EoverP() ) ;
 	  h_eOverPTracks_[cut][type][0] ->Fill( conversions[iConv]->EoverP() ) ;
 	  h_dCotTracks_[cut][0][0] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );	  
 	  h_dCotTracks_[cut][type][0] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );	  
 	  h_dPhiTracksAtVtx_[cut][0][0]->Fill( DPhiTracksAtVtx);
 	  h_dPhiTracksAtVtx_[cut][type][0]->Fill( DPhiTracksAtVtx);
-
-
-	  //filling both types of histograms for different ecal parts
-
-	  int part = 0;
-	  if ( phoIsInBarrel )
-	    part = 1;
-	  if ( phoIsInEndcap ) {
-	    if (phoIsInEndcapMinus)
-	      part = 2;
-	    else if (phoIsInEndcapPlus)
-	      part = 3;
-	  }
-
+	  h_dPhiTracksAtEcal_[cut][0][0]->Fill( fabs(dPhiTracksAtEcal));
+	  h_dPhiTracksAtEcal_[cut][type][0]->Fill( fabs(dPhiTracksAtEcal));
+	  h_dEtaTracksAtEcal_[cut][0][0]->Fill( dEtaTracksAtEcal);
+	  h_dEtaTracksAtEcal_[cut][type][0]->Fill( dEtaTracksAtEcal);
 	  
+	  //filling both types of histograms for different ecal parts
+	  int part = 0;
+	  if ( phoIsInBarrel ) part = 1;
+ 	  if ( phoIsInEndcap ) part = 2;
+
 	  h_eOverPTracks_[cut][0][part] ->Fill( conversions[iConv]->EoverP() ) ;
 	  h_eOverPTracks_[cut][type][part] ->Fill( conversions[iConv]->EoverP() ) ;
 	  h_dCotTracks_[cut][0][part] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );	  
 	  h_dCotTracks_[cut][type][part] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );	  
 	  h_dPhiTracksAtVtx_[cut][0][part]->Fill( DPhiTracksAtVtx);
 	  h_dPhiTracksAtVtx_[cut][type][part]->Fill( DPhiTracksAtVtx);
+	  h_dPhiTracksAtEcal_[cut][0][part]->Fill( fabs(dPhiTracksAtEcal));
+	  h_dPhiTracksAtEcal_[cut][type][part]->Fill( fabs(dPhiTracksAtEcal));
+	  h_dEtaTracksAtEcal_[cut][0][part]->Fill( dEtaTracksAtEcal);
+	  h_dEtaTracksAtEcal_[cut][type][part]->Fill( dEtaTracksAtEcal);
+
 
 
 	}//end loop over conversions
@@ -557,7 +600,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   //filling number of photons per event histograms
   for (int cut=0; cut !=numberOfSteps_; ++cut) {
     for(int type=0;type!=3;++type){
-      for(int part=0;part!=4;++part){
+      for(int part=0;part!=3;++part){
 	h_nPho_[cut][type][part]-> Fill (float(nPho[cut][type][part]));
       }
     }
@@ -569,9 +612,13 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
-
 void PhotonAnalyzer::endJob()
 {
+
+  vector<string> types;
+  types.push_back("All");
+  types.push_back("Isolated");
+  types.push_back("Nonisolated");
 
   for (int cut=0; cut !=numberOfSteps_; ++cut) {
 
@@ -582,20 +629,38 @@ void PhotonAnalyzer::endJob()
      doProfileX( h_ecalSum_[cut], p_ecalSum_[cut]);
      doProfileX( h_hcalSum_[cut], p_hcalSum_[cut]);
 
+
      stringstream currentFolder;
      currentFolder << "Egamma/PhotonAnalyzer/IsolationVariables/Et above " << cut*cutStep_ << " GeV";
      dbe_->setCurrentFolder(currentFolder.str());
 
+     dbe_->removeElement(h_nTrackIsolSolid_[cut]->getName());
+     dbe_->removeElement(h_trackPtSumSolid_[cut]->getName());
+     dbe_->removeElement(h_nTrackIsolHollow_[cut]->getName());
+     dbe_->removeElement(h_trackPtSumHollow_[cut]->getName());
+     dbe_->removeElement(h_ecalSum_[cut]->getName());
+     dbe_->removeElement(h_hcalSum_[cut]->getName());
 
-     dbe_->removeElement("nIsoTracksSolid2D");
-     dbe_->removeElement("nIsoTracksHollow2D");
-     dbe_->removeElement("isoPtSumSolid2D");
-     dbe_->removeElement("isoPtSumHollow2D");
-     dbe_->removeElement("ecalSum2D");
-     dbe_->removeElement("hcalSum2D");
+     for(int type=0;type!=3;++type){
+       doProfileX( h_nHitsVsEta_[cut][type], p_nHitsVsEta_[cut][type]);
+       doProfileX( h_r9VsEt_[cut][type], p_r9VsEt_[cut][type]);
+       currentFolder.str("");
+       currentFolder << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
+       dbe_->setCurrentFolder(currentFolder.str());
+       dbe_->removeElement("r9VsEt2D");
+       currentFolder << "/Conversions";
+       dbe_->setCurrentFolder(currentFolder.str());
+       dbe_->removeElement("nHitsVsEta2D");
+     }
+
+
 
 
   }
+
+
+
+
 
 
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
