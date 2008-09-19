@@ -17,6 +17,9 @@ public:
 
   virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
+      virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+							  double             dR ) const ;
+
 private:
   /// helper methods for getClosestCell
   int etaRing(HcalSubdetector bc, double abseta) const;
