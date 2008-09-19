@@ -384,10 +384,11 @@ def testCmsDriver(cpu,dir,cmsver,candle):
     cmd  = Commands[cpu][0]
     noExit = True
     stepreg = re.compile("--step=([^ ]*)")
+    previousCmdOnline = ""
     for line in open(os.path.join(dir,"SimulationCandles_%s.txt" % (cmsver))):
         if (not line.lstrip().startswith("#")) and not (line.isspace() or len(line) == 0): 
             cmdonline  = line.split("@@@",1)[0]
-            if cmsdrvreg.search(cmdonline):
+            if cmsdrvreg.search(cmdonline) and not previousCmdOnline == cmdonline:
                 stepbeingrun = "Unknown"
                 matches = stepreg.search(cmdonline)
                 if not matches == None:
@@ -406,6 +407,7 @@ def testCmsDriver(cpu,dir,cmsver,candle):
                         xstatus = out & 0xffff # Mask out all bits except the first 16 
                         print "FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig)
                         sys.exit()
+            previousCmdOnline = cmdonline
     
 
 def runCmsInput(cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):

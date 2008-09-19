@@ -232,7 +232,7 @@ def main():
     print "\n Creating HTML files..."
     # create HTML files
     createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
-
+    sys.exit()
     print "\n Copy profiling logs to staging directory..."
     # Copy over profiling logs...
     getDirnameDirs(repdir,stage)
@@ -1234,7 +1234,11 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 else:
 
                     try:
-                        idfile  = open(os.path.join(repdir,"REGRESSION.%s.vs.%s" % (prevrev,CMSSW_VERSION)))
+                        globpath = os.path.join(repdir,"REGRESSION.%s.vs.*" % (prevrev))
+                        globs = glob.glob(globpath)
+                        if len(globs) < 1:
+                            raise IOError(2,globpath,"File does not exist","File does not exist")
+                        idfile  = open(globs[0])
                         oldpath = ""
                         for line in idfile:
                             oldpath = line
@@ -1381,14 +1385,14 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                       "Table showing current release CPU times in secs.",
                                       "CPU Times (s)",3)                        
                 else:
-
+                    print "Regression"
 
                     ####
                     #
                     # Create the table data structure
                     #
                     cpu_time_tab =  populateFromTupleRoot("cpu_time_tuple",repdir,"timing-regress.root",pureg)
-
+                    
 
                     ###########
                     #
@@ -1396,6 +1400,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     #
 
                     (ordered_keys,table_dict) = cpu_time_tab.getTable()
+                    print table_dict
                     cols = len(ordered_keys)
                     if len(table_dict) > 1 and cols > 0:
                         createHTMLtab(INDEX,table_dict,ordered_keys,
