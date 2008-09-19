@@ -92,13 +92,25 @@ sub new {
 		'EE_crystal_readout_strip'=>\&define_EE_crystal_readout_strip,
 		'EE_crystal_trigger_strip'=>\&define_EE_crystal_trigger_strip,
 		'EE_elec_crystal_number'=>\&define_EE_elec_crystal_number,
+                'EE_readout_tower_xyz'=>\&define_EE_readout_tower_xyz,
+                'EE_readout_tower_zseccu'=>\&define_EE_readout_tower_zseccu,
+		'EE_HV_channel'=>\&define_EE_HV_channel,
+		'EE_LV_channel'=>\&define_EE_LV_channel,
 
 		#endcap mappings
 		'EE_readout_tower_to_EE_crystal_number'=>\&define_EE_readout_tower_to_EE_crystal_number,
 		'EE_trigger_tower_to_EE_crystal_number'=>\&define_EE_trigger_tower_to_EE_crystal_number,
 		'EE_crystal_number_to_EE_trigger_tower'=>\&define_EE_crystal_number_to_EE_trigger_tower,
 		'EE_crystal_number_to_EE_readout_tower'=>\&define_EE_crystal_number_to_EE_readout_tower,
-		'EE_crystal_readout_strip_to_EE_crystal_number'=>\&define_EE_crystal_readout_strip_to_EE_crystal_number
+		'EE_crystal_readout_strip_to_EE_crystal_number'=>\&define_EE_crystal_readout_strip_to_EE_crystal_number,
+		   'EE_crystal_number_to_EE_LV_channel'		   => \&define_EE_crystal_number_to_EE_LV_channel,
+		   'EE_crystal_number_to_EE_HV_channel'		   => \&define_EE_crystal_number_to_EE_HV_channel,
+		   'EE_readout_tower_xyz_to_EE_readout_tower'=>\&define_EE_readout_tower_xyz_to_EE_readout_tower,
+		   'EE_readout_tower_xyz_to_EE_HV_channel'=>\&define_EE_readout_tower_xyz_to_EE_HV_channel,
+		   'EE_readout_tower_xyz_to_EE_LV_channel'=>\&define_EE_readout_tower_xyz_to_EE_LV_channel,
+		   'EE_crystal_number_to_EE_sector'		   => \&define_EE_crystal_number_to_EE_sector,
+		   'EE_sector_to_EE_crystal_number'		   => \&define_EE_sector_to_EE_crystal_number,
+                'EE_readout_tower_zseccu_to_EE_readout_tower'=>\&define_EE_readout_tower_zseccu_to_EE_readout_tower
 
 	 };
 
@@ -236,7 +248,7 @@ sub define_EE_sector {
 	foreach my $side (1,-1) {
 		my $sideIndex = $side + 1;
 		foreach my $sector (1..9) {
-			my $logic_id = sprintf "2000001%01d%02d", $sideIndex, $sector;
+			my $logic_id = sprintf "2011001%01d%02d", $sideIndex, $sector;
 			push @logic_ids, $logic_id;
 			push @channel_ids, [$side, $sector];
 		}
@@ -729,6 +741,220 @@ sub define_EE_elec_crystal_number {
 		channel_ids => \@channel_ids};
 
 }
+
+
+sub define_EE_HV_channel {
+
+	my $name = "EE_HV_channel";
+	my $idnames = ["dee", "channel"];
+	my $description = "HV channel by Dee and chan in the Endcaps";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	foreach my $D (1..4) {
+	    foreach my $chan (1..13) {
+		my $logic_id = sprintf "20600%02d0%02d", $D, $chan;
+			push @logic_ids, $logic_id;
+			push @channel_ids, [$D, $chan];
+		}
+	}
+
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+
+
+sub define_EE_LV_channel {
+
+	my $name = "EE_LV_channel";
+	my $idnames = ["dee", "channel"];
+	my $description = "LV channel by Dee and chan in the Endcaps";
+
+	my @channel_ids;
+	my @logic_ids;
+
+
+	foreach my $D (1..4) {
+	    foreach my $chan (10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88) {
+		my $logic_id = sprintf "20700%02d0%02d", $D, $chan;
+			push @logic_ids, $logic_id;
+			push @channel_ids, [$D, $chan];
+		}
+	}
+
+	return {name => $name, idnames => $idnames,
+		description => $description, logic_ids => \@logic_ids,
+		channel_ids => \@channel_ids};
+
+}
+
+
+sub define_EE_readout_tower_xyz {
+
+    my $name = "EE_readout_tower_xyz";
+    my $idnames = ["iz","ix","iy"];
+    my $description = "Readout Towers in the Endcaps by zxy";
+
+    my @channel_ids;
+    my @logic_ids;
+
+        #opening file
+    open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+        #reading it into an array
+    my @lines = <FILE>;
+        #getting the first line out
+    shift @lines;
+
+        #temp variables
+    my $ix;
+    my $iy;
+    my $iz;
+
+    my $DCC;
+    my $readout_tower;
+
+    my @ids;
+    my @ixs;
+    my @iys;
+    my @izs;
+
+    my $count=-1;
+    foreach my $line (@lines) {
+
+	my @channels = split (/ /, $line);
+
+	$ix= $channels[0];
+	$iy= $channels[1];
+	$iz= $channels[2];
+
+
+                #id =DCC-600 ROTower;
+	$DCC=$channels[4]+600;
+	my $id = sprintf "20800%03d%02d", $DCC,$channels[5];
+	my $ifound=-1;
+	for my $i (0..$count) {
+	    if($id== $ids[$i]) {
+		$ifound=$i;
+		if( $ix<= $ixs[$i] && $iy<= $iys[$i] ) {
+		    $ixs[$i]=$ix;
+		    $iys[$i]=$iy;
+		}
+
+		last;
+	    }
+	}
+    
+	if($ifound==-1) {
+	    $count++;
+	    push @ids, $id;
+	    push @ixs, $ix;
+	    push @iys, $iy;
+	    push @izs, $iz;
+	}
+
+    }
+
+    for my $i (0..$count) {
+	push @logic_ids, $ids[$i];
+	push @channel_ids, [$izs[$i], $ixs[$i], $iys[$i]];
+    }
+
+    return {name => $name, idnames => $idnames,
+                description => $description, logic_ids => \@logic_ids,
+	    channel_ids => \@channel_ids};
+}
+
+sub define_EE_readout_tower_zseccu {
+
+    my $name = "EE_readout_tower_zseccu";
+    my $idnames = ["iz","sector","ccuid"];
+    my $description = "Readout Towers in the EE by z sector ccuid";
+
+    my @channel_ids;
+    my @logic_ids;
+
+        #opening file
+    open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+        #reading it into an array
+    my @lines = <FILE>;
+        #getting the first line out
+    shift @lines;
+
+        #temp variables
+    my $ix;
+    my $iy;
+    my $iz;
+
+
+    my @ids;
+    my @ixs;
+    my @iys;
+    my @izs;
+
+    my $count=-1;
+    foreach my $line (@lines) {
+
+	my @channels = split (/ /, $line);
+
+	$ix= $channels[0];
+	$iy= $channels[1];
+	$iz= $channels[2];
+
+	my $sideIndex = $channels[2] + 1;
+
+        
+	my $DCC=$channels[4];
+	my $sector=0;
+	if($DCC<10) {
+	    if($DCC<=3){
+		$sector=$DCC+6;
+	    } else {
+		$sector=$DCC-3;
+	    } 
+	}else {
+	    if($DCC<=48){
+		$sector=$DCC-39;
+	    } else {
+		$sector=$DCC-48;
+	    }
+	} 
+	my $ccu_id=$channels[13];
+
+
+	my $id = sprintf "209%02d%03d%02d", $sideIndex, $sector,$ccu_id;
+	my $ifound=-1;
+	for my $i (0..$count) {
+	    if($id== $ids[$i]) {
+		$ifound=$i;
+		last;
+	    }
+	}
+    
+	if($ifound==-1) {
+	    $count++;
+	    push @ids, $id;
+	    push @ixs, $sector;
+	    push @iys, $ccu_id;
+	    push @izs, $iz;
+	}
+
+    }
+
+    for my $i (0..$count) {
+	push @logic_ids, $ids[$i];
+	push @channel_ids, [$izs[$i], $ixs[$i], $iys[$i]];
+    }
+
+    return {name => $name, idnames => $idnames,
+                description => $description, logic_ids => \@logic_ids,
+	    channel_ids => \@channel_ids};
+}
+
+
 
 sub define_ECAL {
   my $name = "ECAL";
@@ -1362,6 +1588,132 @@ sub define_EE_trigger_tower_to_EE_crystal_number {
 	};
 
 }
+sub define_EE_crystal_number_to_EE_sector {
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "EE_sector";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+
+	my $ix;
+	my $iy;
+	my $side;
+	my $logic_id;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		my $sideIndex = $side + 1;
+		my $DCC = $channels[4];
+		my $sector=0;
+		if($DCC<10) {
+		    if($DCC<=3){
+			$sector=$DCC+6;
+		    } else {
+			$sector=$DCC-3;
+		    } 
+		}else {
+		    if($DCC<=48){
+			$sector=$DCC-39;
+		    } else {
+			$sector=$DCC-48;
+		    }
+		} 
+		my $logic_id =sprintf "2011001%01d%02d", $sideIndex, $sector;
+
+		if($side!=1) {
+		#xtal number ids: side, ix, iy
+		push @channel_ids, [$side, $ix, $iy];
+		push @logic_ids, $logic_id;
+	    }
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+
+sub define_EE_sector_to_EE_crystal_number {
+
+	my $name = "EE_sector";	
+	my $maps_to = "EE_crystal_number";
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+	#temp variables
+
+	my $ix;
+	my $iy;
+	my $sideIndex;
+	my $logic_id;
+
+
+	foreach my $line (@lines) {
+
+	        my @channels = split (/ /, $line);
+
+		$ix = $channels[0];
+		$iy = $channels[1];
+		my $side=$channels[2];
+		$sideIndex = $channels[2] + 1;
+
+		my $DCC = $channels[4];
+		my $sector=0;
+		if($DCC<10) {
+		    if($DCC<=3){
+			$sector=$DCC+6;
+		    } else {
+			$sector=$DCC-3;
+		    } 
+		}else {
+		    if($DCC<=48){
+			$sector=$DCC-39;
+		    } else {
+			$sector=$DCC-48;
+		    }
+		} 
+
+		#trigger tower ids: TCC, trigger tower
+		push @channel_ids, [$side, $sector];
+
+		#xtal number logic id: 201XYYYZZZ XX=TCC, YY=trigger tower
+		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
+		push @logic_ids, $logic_id;
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
 
 sub define_EE_crystal_number_to_EE_readout_tower {
 
@@ -1467,6 +1819,329 @@ sub define_EE_readout_tower_to_EE_crystal_number {
 
 }
 
+
+sub define_EE_readout_tower_xyz_to_EE_readout_tower {
+
+	my $name = "EE_readout_tower_xyz";
+    my $maps_to = "EE_readout_tower";
+
+    my @channel_ids;
+    my @logic_ids;
+
+        #opening file
+    open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+        #reading it into an array
+    my @lines = <FILE>;
+        #getting the first line out
+    shift @lines;
+
+        #temp variables
+    my $ix;
+    my $iy;
+    my $iz;
+
+    my $DCC;
+    my $readout_tower;
+
+    my @ids;
+    my @ixs;
+    my @iys;
+    my @izs;
+
+    my $count=-1;
+    foreach my $line (@lines) {
+
+	my @channels = split (/ /, $line);
+
+	$ix= $channels[0];
+	$iy= $channels[1];
+	$iz= $channels[2];
+
+
+                #id =DCC-600 ROTower;
+	$DCC=$channels[4]+600;
+	my $id = sprintf "20000%03d%02d", $DCC,$channels[5];
+	my $ifound=-1;
+	for my $i (0..$count) {
+	    if($id== $ids[$i]) {
+		$ifound=$i;
+		if( $ix<= $ixs[$i] && $iy<= $iys[$i] ) {
+		    $ixs[$i]=$ix;
+		    $iys[$i]=$iy;
+		}
+		last;
+	    }
+	}
+    
+	if($ifound==-1) {
+	    $count++;
+	    push @ids, $id;
+	    push @ixs, $ix;
+	    push @iys, $iy;
+	    push @izs, $iz;
+	}
+
+    }
+
+    for my $i (0..$count) {
+	push @logic_ids, $ids[$i];
+	push @channel_ids, [$izs[$i], $ixs[$i], $iys[$i]];
+    }
+
+    return {		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids};
+}
+
+sub define_EE_readout_tower_zseccu_to_EE_readout_tower {
+
+	my $name = "EE_readout_tower_zseccu";
+    my $maps_to = "EE_readout_tower";
+
+    my @channel_ids;
+    my @logic_ids;
+
+        #opening file
+    open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+        #reading it into an array
+    my @lines = <FILE>;
+        #getting the first line out
+    shift @lines;
+
+        #temp variables
+    my $ix;
+    my $iy;
+    my $iz;
+
+    my $DCC;
+    my $readout_tower;
+
+    my @ids;
+    my @ixs;
+    my @iys;
+    my @izs;
+
+    my $count=-1;
+    foreach my $line (@lines) {
+
+	my @channels = split (/ /, $line);
+
+	$ix= $channels[0];
+	$iy= $channels[1];
+	$iz= $channels[2];
+
+
+	my $sideIndex = $channels[2] + 1;
+
+        
+	$DCC=$channels[4];
+	my $sector=0;
+	if($DCC<10) {
+	    if($DCC<=3){
+		$sector=$DCC+6;
+	    } else {
+		$sector=$DCC-3;
+	    } 
+	}else {
+	    if($DCC<=48){
+		$sector=$DCC-39;
+	    } else {
+		$sector=$DCC-48;
+	    }
+	} 
+	my $ccu_id=$channels[13];
+
+
+
+
+
+
+
+
+                #id =DCC-600 ROTower;
+	$DCC=$channels[4]+600;
+	my $id = sprintf "20000%03d%02d", $DCC,$channels[5];
+	my $ifound=-1;
+	for my $i (0..$count) {
+	    if($id== $ids[$i]) {
+		$ifound=$i;
+		last;
+	    }
+	}
+    
+	if($ifound==-1) {
+	    $count++;
+	    push @ids, $id;
+	    push @ixs, $sector;
+	    push @iys, $ccu_id;
+	    push @izs, $iz;
+	}
+
+    }
+
+    for my $i (0..$count) {
+	push @logic_ids, $ids[$i];
+	push @channel_ids, [$izs[$i], $ixs[$i], $iys[$i]];
+    }
+
+    return {		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids};
+}
+
+sub define_EE_readout_tower_xyz_to_EE_HV_channel {
+
+	my $name = "EE_readout_tower_xyz";
+    my $maps_to = "EE_HV_channel";
+
+    my @channel_ids;
+    my @logic_ids;
+
+        #opening file
+    open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+        #reading it into an array
+    my @lines = <FILE>;
+        #getting the first line out
+    shift @lines;
+
+        #temp variables
+    my $ix;
+    my $iy;
+    my $iz;
+
+    my $DCC;
+    my $readout_tower;
+
+    my @ids;
+    my @ixs;
+    my @iys;
+    my @izs;
+    my @logi;
+
+    my $count=-1;
+    foreach my $line (@lines) {
+
+	my @channels = split (/ /, $line);
+
+	$ix= $channels[0];
+	$iy= $channels[1];
+	$iz= $channels[2];
+	my $Dee=$channels[14];
+	my $hv=$channels[15];
+
+                #id =DCC-600 ROTower;
+	$DCC=$channels[4]+600;
+	my $id = sprintf "20000%03d%02d", $DCC,$channels[5];
+	my $logic_id = sprintf "20600%02d0%02d", $Dee, $hv;
+	my $ifound=-1;
+	for my $i (0..$count) {
+	    if($id== $ids[$i]) {
+		$ifound=$i;
+		if( $ix<= $ixs[$i] && $iy<= $iys[$i] ) {
+		    $ixs[$i]=$ix;
+		    $iys[$i]=$iy;
+		}
+		last;
+	    }
+	}
+    
+	if($ifound==-1) {
+	    $count++;
+	    push @ids, $id;
+	    push @ixs, $ix;
+	    push @iys, $iy;
+	    push @izs, $iz;
+	    push @logi, $logic_id;
+	}
+
+    }
+
+    for my $i (0..$count) {
+	push @logic_ids, $logi[$i];
+	push @channel_ids, [$izs[$i], $ixs[$i], $iys[$i]];
+    }
+
+    return {		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids};
+}
+
+sub define_EE_readout_tower_xyz_to_EE_LV_channel {
+
+	my $name = "EE_readout_tower_xyz";
+    my $maps_to = "EE_LV_channel";
+
+    my @channel_ids;
+    my @logic_ids;
+
+        #opening file
+    open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+        #reading it into an array
+    my @lines = <FILE>;
+        #getting the first line out
+    shift @lines;
+
+        #temp variables
+    my $ix;
+    my $iy;
+    my $iz;
+
+    my $DCC;
+    my $readout_tower;
+
+    my @ids;
+    my @ixs;
+    my @iys;
+    my @izs;
+    my @logi;
+
+    my $count=-1;
+    foreach my $line (@lines) {
+
+	my @channels = split (/ /, $line);
+
+	$ix= $channels[0];
+	$iy= $channels[1];
+	$iz= $channels[2];
+	my $Dee=$channels[14];
+	my $lv=$channels[16];
+
+                #id =DCC-600 ROTower;
+	$DCC=$channels[4]+600;
+	my $id = sprintf "20000%03d%02d", $DCC,$channels[5];
+	my $logic_id = sprintf "20700%02d0%02d", $Dee, $lv;
+	my $ifound=-1;
+	for my $i (0..$count) {
+	    if($id== $ids[$i]) {
+		$ifound=$i;
+		if( $ix<= $ixs[$i] && $iy<= $iys[$i] ) {
+		    $ixs[$i]=$ix;
+		    $iys[$i]=$iy;
+		}
+		last;
+	    }
+	}
+    
+	if($ifound==-1) {
+	    $count++;
+	    push @ids, $id;
+	    push @ixs, $ix;
+	    push @iys, $iy;
+	    push @izs, $iz;
+	    push @logi, $logic_id;
+	}
+
+    }
+
+    for my $i (0..$count) {
+	push @logic_ids, $logi[$i];
+	push @channel_ids, [$izs[$i], $ixs[$i], $iys[$i]];
+    }
+
+    return {		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids};
+}
+
+
+
+
 sub define_EE_crystal_readout_strip_to_EE_crystal_number {
 
 	my $name = "EE_crystal_readout_strip";
@@ -1525,6 +2200,117 @@ sub define_EE_crystal_readout_strip_to_EE_crystal_number {
 	};
 
 }
+
+
+
+
+sub define_EE_crystal_number_to_EE_HV_channel {
+
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "EE_HV_channel";
+
+
+	#temp variables
+	my $Dee;
+	my $hv;	
+	my $ix;
+	my $iy;
+	my $side;
+
+	my $logic_id;
+
+	foreach my $line (@lines) {
+
+		my @channels = split (/ /, $line);
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		$Dee = $channels[14];
+		$hv = $channels[15];
+		my $sideIndex = $side + 1;
+
+		#EE_crystal_number logicId
+		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
+		push @logic_ids, $logic_id;
+
+		push @channel_ids, [$Dee, $hv];
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+sub define_EE_crystal_number_to_EE_LV_channel {
+
+
+	my @channel_ids;
+	my @logic_ids;
+
+	#opening file
+	open (FILE , "CMSSW.txt") || die ("could not open EE numbering file");
+	#reading it into an array
+	my @lines = <FILE>;
+	#getting the first line out	
+	shift @lines;
+
+
+
+	my $name = "EE_crystal_number";
+	my $maps_to = "EE_LV_channel";
+
+
+	#temp variables
+	my $Dee;
+	my $lv;	
+	my $ix;
+	my $iy;
+	my $side;
+
+	my $logic_id;
+
+	foreach my $line (@lines) {
+
+		my @channels = split (/ /, $line);
+		$ix = $channels[0];
+		$iy = $channels[1];
+		$side = $channels[2];
+		$Dee = $channels[14];
+		$lv = $channels[16];
+		my $sideIndex = $side + 1;
+
+		#EE_crystal_number logicId
+		my $logic_id = sprintf "201%01d%03d%03d", $sideIndex, $ix, $iy;
+		push @logic_ids, $logic_id;
+
+		push @channel_ids, [$Dee, $lv];
+
+	}
+
+	return { 
+		name => $name, maps_to => $maps_to, 
+		logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	};
+
+}
+
+
 
 
 sub define_EB_crystal_number_to_EB_trigger_tower {
