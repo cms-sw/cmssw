@@ -143,7 +143,7 @@ int main( int argc, char** argv ){
     std::cout<<"logDb:\t"<<logConnect<<'\n';
     std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
     std::cout<<"tag:\t"<<destTag<<'\n';
-    std::cout<<"fromTime:\t"<<form<<'\n';
+    std::cout<<"fromTime:\t"<<from<<'\n';
     std::cout<<"sinceTime:\t"<<since<<'\n';
     std::cout<<"authPath:\t"<<authPath<<'\n';
     std::cout<<"use Blob streamer"<<blobStreamerName<<'\n';
@@ -222,21 +222,21 @@ int main( int argc, char** argv ){
     int size=0;
     {
       // to be streamlined
-      IOVProxy iov(destdb,iovtoken,false);
+      cond::IOVProxy iov(destdb,iovtoken,false);
       size = iov.size();
-      payload = iovmanager.find(iovtoken,fromTime);
+      payload = iovmanager.payloadToken(iovtoken,from);
       if (payload.empty()) {
-	std::cerr <<"[Error] no payload found for time " << fromTime << std::endl;
+	std::cerr <<"[Error] no payload found for time " << from << std::endl;
 	return 1;
       }
       if ( (iov.end()-1)->token()==payload) {
-	std::cerr <<"[Warning] payload for time " << fromTime 
+	std::cerr <<"[Warning] payload for time " << from
 		  <<" equal to last inserted payload, no new IOV will be created" <<  std::endl;
 	return 0;
       }
-      if (payload == iovmanager.find(iovtoken,sinceTime)) {
-	std::cerr <<"[Warning] payload for time " << fromTime 
-		  <<" equal to payload valid at time "<< sinceTime
+      if (payload == iovmanager.payloadToken(iovtoken,since)) {
+	std::cerr <<"[Warning] payload for time " << from 
+		  <<" equal to payload valid at time "<< since
 		  <<", no new IOV will be created" <<  std::endl;
 	return 0;
       }
@@ -253,7 +253,7 @@ int main( int argc, char** argv ){
       //logdb->releaseWriteLock();
     }
     cond::UserLogInfo a;
-    a.provenance=sourceConnect+"/"+inputTag;
+    a.provenance=sourceConnect+"/"+destTag;
     a.usertext="duplicateIOV V1.0;";
     {
       std::ostringstream ss; 
@@ -266,7 +266,7 @@ int main( int argc, char** argv ){
     //append it
     std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor());
     destdb.start(false);
-    editor.append(sinceTime,payload);
+    editor.append(since,payload);
     destdb.commit();
  
 
