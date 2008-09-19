@@ -53,6 +53,9 @@ void cond::ConnectionConfiguration::disablePoolAutomaticCleanUp(){
 bool cond::ConnectionConfiguration::isPoolAutomaticCleanUpEnabled() const{
   return m_enablePoolAutomaticCleanUp;
 }
+void cond::ConnectionConfiguration::setMonitorLevel(coral::monitor::Level level){
+  m_monitorLevel = level;
+}
 coral::monitor::Level 
 cond::ConnectionConfiguration::monitorLevel() const{
   return m_monitorLevel;

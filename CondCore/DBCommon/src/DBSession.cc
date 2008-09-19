@@ -64,17 +64,20 @@ void cond::DBSession::open(){
   //load authentication service
   std::vector< seal::IHandle<coral::IAuthenticationService> > v_authsvc;
   if( m_sessionConfig->authenticationMethod()== cond::XML ) {
-    m_loader->load( "CORAL/Services/XMLAuthenticationService" );
+    m_loader->load( "COND/Services/XMLAuthenticationService" );
     boost::filesystem::path authPath( m_sessionConfig->authName() );
-    authPath /= boost::filesystem::path("authentication.xml");
+    if(boost::filesystem::is_directory(m_sessionConfig->authName())){
+      std::cout << "## path:"<<m_sessionConfig->authName()<< " is directory."<<std::endl;
+      authPath /= boost::filesystem::path("authentication.xml");
+    }
     std::string authName=authPath.string();
     size_t nchildren=m_loader->context()->children();
     for( size_t i=0; i<nchildren; ++i ){
       seal::Handle<seal::PropertyManager> pmgr=m_loader->context()->child(i)->component<seal::PropertyManager>();
       std::string scopeName=pmgr->scopeName();
       //std::cout << "Scope: \"" << scopeName << "\"" << std::endl;
-      if( scopeName=="CORAL/Services/XMLAuthenticationService" ){
-	pmgr->property("AuthenticationFile")->set(authName);
+      if( scopeName=="COND/Services/XMLAuthenticationService" ){
+        pmgr->property("AuthenticationFile")->set(authName);
       }
     }
   }else{
@@ -97,6 +100,10 @@ void cond::DBSession::open(){
   }
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
   cond::ConnectionConfiguration* conConfig=m_sessionConfig->connectionConfiguration();
+  if(m_sessionConfig->isSQLMonitoringOn()){
+    m_loader->load( "COND/Services/SQLMonitoringService");
+    conConfig->setMonitorLevel(coral::monitor::Trace);
+  }
   if( conConfig ){
     if( conConfig->isConnectionSharingEnabled() ){
       conserviceConfig.enableConnectionSharing();
@@ -113,16 +120,16 @@ void cond::DBSession::open(){
     if( m_sessionConfig->hasBlobStreamService() ){
       std::string streamerName=m_sessionConfig->blobStreamerName();
       if(streamerName.empty()){
-	m_loader->load( "COND/Services/DefaultBlobStreamingService" );
+        m_loader->load( "COND/Services/DefaultBlobStreamingService" );
       }else{
-	m_loader->load(streamerName);
+        m_loader->load(streamerName);
       }
-    std::vector< seal::IHandle<pool::IBlobStreamingService> > v_blobsvc;
-    m_context->query( v_blobsvc );
-    if ( v_blobsvc.empty() ) {
-      throw cond::Exception( "could not locate the BlobStreamingService" );
+      std::vector< seal::IHandle<pool::IBlobStreamingService> > v_blobsvc;
+      m_context->query( v_blobsvc );
+      if ( v_blobsvc.empty() ) {
+        throw cond::Exception( "could not locate the BlobStreamingService" );
+      }
     }
-  }
   }
 }
 coral::IConnectionService& 

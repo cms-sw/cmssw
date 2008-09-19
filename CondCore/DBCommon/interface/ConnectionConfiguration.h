@@ -105,6 +105,9 @@ namespace cond{
      * Returns true if the parallel thread for idle pool cleaning up is enabled
      */
     bool isPoolAutomaticCleanUpEnabled() const;
+
+    // set the monitoring level
+    void setMonitorLevel(coral::monitor::Level level);
     // monitoring level
     coral::monitor::Level monitorLevel() const;
   private:

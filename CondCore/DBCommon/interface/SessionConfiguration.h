@@ -24,11 +24,13 @@ namespace cond{
     void setAuthenticationPath( const std::string& p );
     void setBlobStreamer( const std::string& name );
     void setMessageLevel( cond::MessageLevel l );
+    void startSQLMonitoring();
     cond::AuthenticationMethod authenticationMethod() const;
     bool hasBlobStreamService() const;
     std::string blobStreamerName() const;
     cond::MessageLevel messageLevel() const;
     std::string authName() const;
+    bool isSQLMonitoringOn() const;
   private:
     cond::AuthenticationMethod m_authMethod;
     std::string m_authPath;
@@ -36,6 +38,7 @@ namespace cond{
     std::string m_blobstreamerName;
     cond::MessageLevel m_messageLevel;
     cond::ConnectionConfiguration* m_conConfig;
+    bool m_isSQLMonitoringOn;
   };
 }
 #endif

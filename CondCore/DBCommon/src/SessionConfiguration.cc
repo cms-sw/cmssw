@@ -1,7 +1,7 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 //#include <iostream>
-cond::SessionConfiguration::SessionConfiguration():m_authMethod(cond::Env),m_hasBlobstreamer(false),m_blobstreamerName(""),m_messageLevel(cond::Error),m_conConfig(new ConnectionConfiguration){}
+cond::SessionConfiguration::SessionConfiguration():m_authMethod(cond::Env),m_hasBlobstreamer(false),m_blobstreamerName(""),m_messageLevel(cond::Error),m_conConfig(new ConnectionConfiguration),m_isSQLMonitoringOn(false){}
 cond::SessionConfiguration::~SessionConfiguration(){
   delete m_conConfig;
 }
@@ -26,6 +26,10 @@ void
 cond::SessionConfiguration::setMessageLevel( cond::MessageLevel l ){
   m_messageLevel=l;
 }
+void 
+cond::SessionConfiguration::startSQLMonitoring(){
+  m_isSQLMonitoringOn=true;
+}
 cond::AuthenticationMethod 
 cond::SessionConfiguration::authenticationMethod() const{
   return m_authMethod;
@@ -46,3 +50,8 @@ std::string
 cond::SessionConfiguration::authName() const{
   return m_authPath;
 }
+bool
+cond::SessionConfiguration::isSQLMonitoringOn() const{
+  return m_isSQLMonitoringOn;
+}
+
