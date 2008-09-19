@@ -4,6 +4,7 @@
 
 #include <string>
 #include <map>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
@@ -31,6 +32,9 @@
 
 // pixel gain payload access (offline version)
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+
+
+
 
 // For the random numbers
 namespace CLHEP {
@@ -242,7 +246,8 @@ class SiPixelDigitizerAlgorithm  {
     float moduleThickness; // sensor thickness 
     //  int digis; 
     const PixelGeomDetUnit* _detp;
-    uint32_t detID;     // Det id
+    //    uint32_t detID;     // Det id
+    int detID;
 
     std::vector<PSimHit> _PixelHits; //cache
     const PixelTopology* topol;
@@ -303,11 +308,16 @@ class SiPixelDigitizerAlgorithm  {
     void make_digis();
     void pixel_inefficiency();
     bool use_ineff_from_db_;
+
+    bool use_module_killing_; // if we want to disable dead pixel modules
+
     void pixel_inefficiency_db(); 
        // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
     SiPixelGainCalibrationOfflineService * theSiPixelGainCalibrationService_;    
     float missCalibrate(int col, int row, float amp) const;  
     LocalVector DriftDirection();
+
+    void module_killing(); 
 
    // For random numbers
     CLHEP::RandFlat *flatDistribution_;

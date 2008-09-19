@@ -22,6 +22,10 @@
 // Change the TOF cut to lower and upper limit. d.k. 7/07
 // Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
 // tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
+// 
+// September 2008: V. Cuplov
+// Disable Pixel modules which are declared dead in the configuration python file
+// 
  
 #include <vector>
 #include <iostream>
@@ -61,6 +65,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
   use_ineff_from_db_(conf_.getParameter<bool>("useDB")),
+  use_module_killing_(conf_.getParameter<bool>("killModules")), //use this boolean to kill dead modules
   theSiPixelGainCalibrationService_(0)
 {
   using std::cout;
@@ -140,6 +145,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //pixel inefficiency
   // the first 3 settings [0],[1],[2] are for the barrel pixels
   // the next  3 settings [3],[4],[5] are for the endcaps (undecided how)  
+
   if (thePixelLuminosity==-1) {  // No indefficiency, all 100% efficient
     pixelInefficiency=false;
     for (int i=0; i<6;i++) {
@@ -173,7 +179,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       }
     }
 
-  // Include also luminosity ratre dependent inefficieny
+  // Include also luminosity rate dependent inefficieny
   } else if (thePixelLuminosity>0) { // Include effciency
     pixelInefficiency=true;
     // Default efficiencies 
@@ -203,7 +209,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
     }
     
-  } // end the pixel inefficinecy part
+  } // end the pixel inefficiency part
 
 
 
@@ -441,14 +447,22 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       } //  end if 
     } // end for 
 
+      // ves 
+    if(use_module_killing_) {
+      module_killing();
+    } // end if use_module_killing
+      // ves
+
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
 
     if((pixelInefficiency>0) && (_signal.size()>0)) 
       pixel_inefficiency(); // Kill some pixels
+
     if(use_ineff_from_db_ && (_signal.size()>0))
       pixel_inefficiency_db();
 
+      
     delete pIndexConverter;
   }
 
@@ -600,7 +614,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     return;
   }  
 
-  // tangen of Lorentz angl
+  // tangen of Lorentz angle
   //float TanLorenzAngleX = driftDir.x()/driftDir.z(); 
   //float TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
 
@@ -939,6 +953,9 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 			       << " List pixels passing threshold ";
 #endif  
   
+
+  // Loop over hit pixels
+
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     
     float signalInElectrons = (*i).second ;   // signal in electrons
@@ -952,6 +969,8 @@ void SiPixelDigitizerAlgorithm::make_digis() {
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
       int adc=0;  // ADC count as integer
       
+
+
       // Do the miss calibration for calibration studies only.
       if(doMissCalibrate) {
 	int row = ip.first;  // X in row
@@ -1293,6 +1312,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   return theDriftDirection;
 }
 
+//****************************************************************************************************
 void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
   if(!use_ineff_from_db_)
     return;
@@ -1313,4 +1333,58 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
     } // end if
   } // end pixel loop
 } // end pixel_indefficiency
+
+
+//****************************************************************************************************
+void SiPixelDigitizerAlgorithm::module_killing(void){
+  if(!use_module_killing_)
+    return;
+  
+  //  this  should only be done once! and Parameters should be a class member SiPixelDigitizerAlgorithm of so it's always accessible
+  //  std::cout << "Current DETID in module_killing function call " << detID << std::endl;
+  
+  bool isbad=false;
+  int detid = detID;
+  
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters DeadModules = conf_.getParameter<Parameters>("DeadModules");
+  Parameters::iterator itDeadModules=DeadModules.begin();
+  
+  for(; itDeadModules != DeadModules.end(); ++itDeadModules){
+    int Dead_detID = itDeadModules->getParameter<int>("Dead_detID"); 
+    if(detid==Dead_detID){
+      isbad=true;
+      break;
+    }
+  }
+  
+  if(!isbad)
+    return;
+  
+  std::string Module = itDeadModules->getParameter<std::string>("Module");
+  
+  if(Module=="whole"){
+    for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
+      // make pixel amplitude =0, pixel will be lost at clusterization    
+      i->second.set(0.); // reset amplitude, 
+      //      std::cout << "We removed pixel hits for   " << detID << " and " << Module << std::endl;
+      }
+  } // end if Module=="whole""
+  
+  
+  for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
+    pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
+    
+	if(Module=="tbmA" && ip.first>=80 && ip.first<=159){
+	  i->second.set(0.); // reset amplitude, 
+	  //	  std::cout << "We removed pixel hits for   " << detID << " and " << Module << std::endl;
+	}// end if Module=="tbmA"
+	
+	if( Module=="tbmB" && ip.first<=79){
+	  i->second.set(0.); // reset amplitude, 
+	  //	  std::cout << "We removed pixel hits for   " << detID << " and " << Module << std::endl;
+	}// end if Module=="tbmB"
+  } // end pixel loop 
+} // end module_killing
+
 
