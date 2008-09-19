@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/18 16:26:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/19 07:18:45 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -90,6 +90,8 @@ HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
   using namespace edm;
   
+  cout << endl;
+
   // get event products
   iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
@@ -113,6 +115,8 @@ HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   } else {
     analyzeTrigger(triggerName_);
   }
+
+  cout << endl;
   
   return;
   
@@ -196,7 +200,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nPhotons>0) {
 	cout << "   Photons: " << nPhotons << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nPhotons; ++i) {
-	  cout << i << " " << photonIds_[i]
+	  cout << "   " << i << " " << photonIds_[i]
 	       << " " << photonRefs_[i]->pt()
 	       << endl;
 	}
@@ -207,7 +211,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nElectrons>0) {
 	cout << "   Electrons: " << nElectrons << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nElectrons; ++i) {
-	  cout << i << " " << electronIds_[i]
+	  cout << "   " << i << " " << electronIds_[i]
 	       << " " << electronRefs_[i]->pt()
 	       << endl;
 	}
@@ -218,7 +222,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nMuons>0) {
 	cout << "   Muons: " << nMuons << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nMuons; ++i) {
-	  cout << i << " " << muonIds_[i]
+	  cout << "   " << i << " " << muonIds_[i]
 	       << " " << muonRefs_[i]->pt()
 	       << endl;
 	}
@@ -229,7 +233,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nJets>0) {
 	cout << "   Jets: " << nJets << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nJets; ++i) {
-	  cout << i << " " << jetIds_[i]
+	  cout << "   " << i << " " << jetIds_[i]
 	       << " " << jetRefs_[i]->pt()
 	       << endl;
 	}
@@ -240,7 +244,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nComposites>0) {
 	cout << "   Composites: " << nComposites << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nComposites; ++i) {
-	  cout << i << " " << compositeIds_[i]
+	  cout << "   " << i << " " << compositeIds_[i]
 	       << " " << compositeRefs_[i]->pt()
 	       << endl;
 	}
@@ -251,7 +255,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nMETs>0) {
 	cout << "   METs: " << nMETs << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nMETs; ++i) {
-	  cout << i << " " << metIds_[i]
+	  cout << "   " << i << " " << metIds_[i]
 	       << " " << metRefs_[i]->pt()
 	       << endl;
 	}
@@ -262,7 +266,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nHTs>0) {
 	cout << "   HTs: " << nHTs << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nHTs; ++i) {
-	  cout << i << " " << htIds_[i]
+	  cout << "   " << i << " " << htIds_[i]
 	       << " " << htRefs_[i]->pt()
 	       << endl;
 	}
@@ -273,7 +277,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nPixTracks>0) {
 	cout << "   PixTracks: " << nPixTracks << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nPixTracks; ++i) {
-	  cout << i << " " << pixtrackIds_[i]
+	  cout << "   " << i << " " << pixtrackIds_[i]
 	       << " " << pixtrackRefs_[i]->pt()
 	       << endl;
 	}
@@ -284,7 +288,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nL1EM>0) {
 	cout << "   L1EM: " << nL1EM << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1EM; ++i) {
-	  cout << i << " " << l1emIds_[i]
+	  cout << "   " << i << " " << l1emIds_[i]
 	       << " " << l1emRefs_[i]->pt()
 	       << endl;
 	}
@@ -295,7 +299,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nL1Muon>0) {
 	cout << "   L1Muon: " << nL1Muon << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1Muon; ++i) {
-	  cout << i << " " << l1muonIds_[i]
+	  cout << "   " << i << " " << l1muonIds_[i]
 	       << " " << l1muonRefs_[i]->pt()
 	       << endl;
 	}
@@ -306,7 +310,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nL1Jet>0) {
 	cout << "   L1Jet: " << nL1Jet << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1Jet; ++i) {
-	  cout << i << " " << l1jetIds_[i]
+	  cout << "   " << i << " " << l1jetIds_[i]
 	       << " " << l1jetRefs_[i]->pt()
 	       << endl;
 	}
@@ -317,7 +321,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       if (nL1EtMiss>0) {
 	cout << "   L1EtMiss: " << nL1EtMiss << "  - the objects: # id pt" << endl;
 	for (unsigned int i=0; i!=nL1EtMiss; ++i) {
-	  cout << i << " " << l1etmissIds_[i]
+	  cout << "   " << i << " " << l1etmissIds_[i]
 	       << " " << l1etmissRefs_[i]->pt()
 	       << endl;
 	}

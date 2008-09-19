@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/11 13:19:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/19 07:18:45 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -75,6 +75,8 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
   using namespace edm;
   
+  cout << endl;
+
   // get event products
   iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
@@ -99,6 +101,8 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     analyzeTrigger(triggerName_);
   }
   
+  cout << endl;
+
   return;
   
 }
