@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 01:08:46 CET 2008
-// $Id$
+// $Id: L1TriggerKeyDummyProd.cc,v 1.1 2008/03/03 21:52:18 wsun Exp $
 //
 //
 
@@ -42,22 +42,44 @@ L1TriggerKeyDummyProd::L1TriggerKeyDummyProd(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this);
+  bool subsystemKeysOnly =
+    iConfig.getParameter< bool >( "subsystemKeysOnly" ) ;
+
+  std::string label = subsystemKeysOnly ? "SubsystemKeysOnly" : "" ;
+  setWhatProduced(this, label);
 
    //now do what ever other initialization is needed
    m_key.setTSCKey( iConfig.getParameter< std::string >( "tscKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kCSCTF,
+			  iConfig.getParameter< std::string >( "csctfKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kDTTF,
+			  iConfig.getParameter< std::string >( "dttfKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kRPC,
+			  iConfig.getParameter< std::string >( "rpcKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kGMT,
+			  iConfig.getParameter< std::string >( "gmtKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kRCT,
+			  iConfig.getParameter< std::string >( "rctKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kGCT,
+			  iConfig.getParameter< std::string >( "gctKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kGT,
+			  iConfig.getParameter< std::string >( "gtKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKey::kTSP0,
+			  iConfig.getParameter< std::string >( "tsp0Key" ) ) ;
 
-   typedef std::vector< edm::ParameterSet > SubsystemKeys;
-   SubsystemKeys keys =
-     iConfig.getParameter< SubsystemKeys >( "subsystemKeys" ) ;
-
-   for( SubsystemKeys::const_iterator it = keys.begin ();
-	it != keys.end() ;
-	++it )
+   if( !subsystemKeysOnly )
      {
-       m_key.add( it->getParameter< std::string >( "record" ),
-		  it->getParameter< std::string >( "type" ),
-		  it->getParameter< std::string >( "key" ) ) ;
+       typedef std::vector< edm::ParameterSet > ObjectKeys;
+       ObjectKeys keys = iConfig.getParameter< ObjectKeys >( "objectKeys" ) ;
+
+       for( ObjectKeys::const_iterator it = keys.begin ();
+	    it != keys.end() ;
+	    ++it )
+	 {
+	   m_key.add( it->getParameter< std::string >( "record" ),
+		      it->getParameter< std::string >( "type" ),
+		      it->getParameter< std::string >( "key" ) ) ;
+	 }
      }
 }
 
