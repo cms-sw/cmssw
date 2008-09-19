@@ -1051,6 +1051,8 @@ void SiStripGainFromData::getPeakOfLandau(TH1* InputHisto, double* FitResults, d
     FitResults[2] = width;
     FitResults[3] = width_err;
     FitResults[4] = chi2overndf;
+
+    delete MyLandau;
 }
 
 
