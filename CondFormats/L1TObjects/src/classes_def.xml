@@ -96,7 +96,7 @@
   <class name="L1GtCastorTemplate"/>
   <class name="std::vector<L1GtCastorTemplate>"/>
   <class name="std::vector<std::vector<L1GtCastorTemplate> >"/>
-  <class name="L1GtHfBitCountsTemplate"/>
+<!--  <class name="L1GtHfBitCountsTemplate"/>
   <class name="L1GtHfBitCountsTemplate::ObjectParameter"/>
   <class name="std::vector<L1GtHfBitCountsTemplate::ObjectParameter>"/>
   <class name="std::vector<L1GtHfBitCountsTemplate>"/>
@@ -105,7 +105,7 @@
   <class name="L1GtHfRingEtSumsTemplate::ObjectParameter"/>
   <class name="std::vector<L1GtHfRingEtSumsTemplate::ObjectParameter>"/>
   <class name="std::vector<L1GtHfRingEtSumsTemplate>"/>
-  <class name="std::vector<std::vector<L1GtHfRingEtSumsTemplate> >"/>
+  <class name="std::vector<std::vector<L1GtHfRingEtSumsTemplate> >"/> -->
   <class name="L1GtCorrelationTemplate"/>
   <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
   <class name="std::vector<L1GtCorrelationTemplate>"/>
