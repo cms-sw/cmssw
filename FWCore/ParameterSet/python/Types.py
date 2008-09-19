@@ -17,7 +17,7 @@ class _Untracked(object):
     def __getattr__(self,name):
         """A factory which allows syntax untracked.name(value) to construct an
         instance of 'name' class which is set to be untracked"""
-        if name == "__bases__": raise AttributeError  # isclass uses __bases__ to recognize class objects 
+        if name == "__bases__": raise AttributeError  # isclass uses __bases__ to recognize class objects
         class Factory(object):
             def __init__(self,name):
                 self.name = name
@@ -210,6 +210,51 @@ class LuminosityBlockID(_ParameterTypeBase):
     def insertInto(self, parameterSet, myname):
         parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
 
+
+class CmsRange(_ParameterTypeBase):
+    def __init__(self, start, startSub, end, endSub):
+        super(CmsRange,self).__init__()
+        self.__start    = start
+        self.__startSub = startSub
+        self.__end      = end
+        self.__endSub   = endSub
+    def start(self):
+        return self.__start
+    def startSub(self):
+        return self.__startSub
+    def end(self):
+        return self.__end
+    def endSub(self):
+        return self.__startSub
+    @staticmethod
+    def _isValid(value):
+        return True
+    @staticmethod
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        value = value.replace(' ','')
+        parts = value.split("-")
+        startParts = parts[0].split(":")
+        endParts   = parts[1].split(":")
+        if startParts[1].lower() == "max":
+            startParts[1] = "0"
+        if startParts[1].lower() == "min":
+            startParts[1] = "1"
+        if endParts[1].lower() == "max":
+            endParts[1] = "0"
+        if endParts[1].lower() == "min":
+            endParts[1] = "1"
+        return CmsRange(int(startParts[0]), int(startParts[1]),
+                        int(endParts[0]), int(endParts[1]))
+    def pythonValue(self, options=PrintOptions()):
+          return str(self.__start) + ', ' + str(self.__startSub) + ', ' \
+               + str(self.__end)   + ', ' + str(self.__endSub)
+    def cppID(self, parameterSet):
+        return parameterSet.newCmsRange(self.start(), self.startSub(),self.end(), self.endSub())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addCmsRange(self.isTracked(), myname, self.cppID(parameterSet))
+
+
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
@@ -368,7 +413,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
 class vint32(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vint32,self).__init__(*arg,**args)
-        
+
     @staticmethod
     def _itemIsValid(item):
         return int32._isValid(item)
@@ -393,7 +438,7 @@ class vuint32(_ValidatingParameterListBase):
         parameterSet.addVUInt32(self.isTracked(), myname, self.value())
 
 
-    
+
 class vint64(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vint64,self).__init__(*arg,**args)
@@ -421,7 +466,7 @@ class vuint64(_ValidatingParameterListBase):
         parameterSet.addVUInt64(self.isTracked(), myname, self.value())
 
 
-    
+
 class vdouble(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vdouble,self).__init__(*arg,**args)
@@ -512,7 +557,7 @@ class VInputTag(_ValidatingParameterListBase):
     def insertInto(self, parameterSet, myname):
         cppTags = list()
         for i in self:
-            item = i 
+            item = i
             if isinstance(item, str):
                 item = InputTag(i)
             cppTags.append(item.cppTag(parameterSet))
@@ -541,6 +586,27 @@ class VEventID(_ValidatingParameterListBase):
         parameterSet.addVEventID(self.isTracked(), myname, cppIDs)
 
 
+class VCmsRange(_ValidatingParameterListBase):
+    def __init__(self,*arg,**args):
+        super(VCmsRange,self).__init__(*arg,**args)
+    @staticmethod
+    def _itemIsValid(item):
+        return CmsRange._isValid(item)
+    def configValueForItem(self,item,options):
+        return CmsRange.formatValueForConfig(item)
+    def pythonValueForItem(self,item, options):
+        return item.dumpPython(options)
+    @staticmethod
+    def _valueFromString(value):
+        return VCmsRange(*_ValidatingParameterListBase._itemsFromStrings(value,VCmsRange._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        cppIDs = list()
+        for i in self:
+            item = i
+            if isinstance(item, str):
+                item = CmsRange._valueFromString(item)
+            cppIDs.append(item.cppID(parameterSet))
+        parameterSet.addVCmsRange(self.isTracked(), myname, cppIDs)
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
@@ -586,6 +652,14 @@ if __name__ == "__main__":
             pass
         def addVLuminosityBlockID(self,*pargs,**kargs):
             pass
+        def addCmsRange(self,*pargs,**kargs):
+            pass
+        def newCmsRange(self,*pargs,**kargs):
+            pass
+        def addVCmsRange(self,*pargs,**kargs):
+            pass
+        def newVCmsRange(self,*pargs,**kargs):
+            pass
     class testTypes(unittest.TestCase):
         def testint32(self):
             i = int32(1)
@@ -602,7 +676,7 @@ if __name__ == "__main__":
             self.assertRaises(ValueError,uint32,"i")
             self.assertRaises(ValueError,uint32,-1)
             i = uint32._valueFromString("0xA")
-            self.assertEqual(i.value(),10)  
+            self.assertEqual(i.value(),10)
 
         def testvint32(self):
             v = vint32()
@@ -688,7 +762,7 @@ if __name__ == "__main__":
             s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
             self.assertEqual(s1.type_(), "PoolSource")
             self.assertEqual(s1.configValue(),
-"""PoolSource { 
+"""PoolSource { """+"""
     vstring fileNames = {
         'foo.root'
     }
@@ -727,5 +801,21 @@ if __name__ == "__main__":
             self.assertEqual( repr(vlid2[0]), "'1:2'" )
             pset = PSetTester()
             vlid.insertInto(pset,'foo')
-            
+
+        def testCmsRange(self):
+            range1 = CmsRange(1, 2, 3, 4)
+            range2 = CmsRange._valueFromString("1:2 - 3:4")
+            range3 = CmsRange._valueFromString("1:MIN - 3:MAX")
+            self.assertEqual(repr(range1), repr(range1))
+            self.assertEqual(repr(range3), "cms.CmsRange(1, 1, 3, 0)")
+            pset = PSetTester()
+            range1.insertInto(pset,'foo')
+            range2.insertInto(pset,'bar')
+        def testVCmsRange(self):
+            v1 = VCmsRange(CmsRange(1, 2, 3, 4))
+            v2 = VCmsRange("1:2-3:4", "5:MIN-7:MAX")
+            self.assertEqual( repr(v1[0]), "cms.CmsRange(1, 2, 3, 4)" )
+            pset = PSetTester()
+            v2.insertInto(pset,'foo')
+
     unittest.main()
