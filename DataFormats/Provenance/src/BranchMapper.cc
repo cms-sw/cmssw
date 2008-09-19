@@ -90,7 +90,8 @@ namespace edm {
     return it->second->branchID();
   }
 
-  static bool fpred(const BranchMapper::eiSet::value_type &a, const BranchMapper::eiSet::value_type &b) {
+  bool
+  BranchMapper::fpred(eiSet::value_type const& a, eiSet::value_type const& b) {
     return a.productID() < b.productID();
   }
 

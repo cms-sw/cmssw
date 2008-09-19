@@ -43,11 +43,12 @@ namespace edm {
     ProductID maxProductID() const;
 
   private:
-    void readProvenance() const;
-    virtual void readProvenance_() const {}
-
     typedef std::set<EventEntryInfo> eiSet;
     typedef std::map<ProductID, eiSet::const_iterator> eiMap;
+    static bool fpred(eiSet::value_type const& a, eiSet::value_type const& b);
+
+    void readProvenance() const;
+    virtual void readProvenance_() const {}
 
     eiSet entryInfoSet_;
 
