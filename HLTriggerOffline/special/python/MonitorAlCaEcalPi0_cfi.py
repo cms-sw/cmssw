@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalPi0Mon = cms.EDFilter("DQMSourcePi0",
+EcalPi0Mon = cms.EDFilter("DQMHLTSourcePi0",
     seleS4S9GammaOne = cms.double(0.85),
     prescaleFactor = cms.untracked.int32(1),
     seleMinvMaxPi0 = cms.double(0.22),
