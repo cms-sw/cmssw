@@ -187,6 +187,9 @@ int main( int argc, char** argv ){
     conHandler.connect(&session);
     std::string iovtoken;
     cond::TimeType iovtype;
+    std::string timetypestr;
+
+    
     if( destConnect.find("sqlite_fip:") != std::string::npos ){
       cond::FipProtocolParser p;
       destConnect=p.getRealConnect(destConnect);
@@ -206,7 +209,7 @@ int main( int argc, char** argv ){
       metadata.getEntryByTag(destTag,entry);
       iovtoken=entry.iovtoken;
       iovtype=entry.timetype;
-      std::string const & timetypestr = cond::timeTypeSpecs[iovtype].name;
+      timetypestr = cond::timeTypeSpecs[iovtype].name;
        
       coralDB.commit();
       if(debug){
@@ -253,7 +256,7 @@ int main( int argc, char** argv ){
       //logdb->releaseWriteLock();
     }
     cond::UserLogInfo a;
-    a.provenance=sourceConnect+"/"+destTag;
+    a.provenance=destConnect+"/"+destTag;
     a.usertext="duplicateIOV V1.0;";
     {
       std::ostringstream ss; 
