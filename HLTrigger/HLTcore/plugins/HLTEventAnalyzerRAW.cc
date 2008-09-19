@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/18 15:12:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/18 16:26:06 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -139,7 +139,7 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
        << triggerName << " [" << triggerIndex << "]" << endl;
   // modules on this trigger path
   const unsigned int m(hltConfig_.size(triggerIndex));
-  const vector<string> moduleLabels(hltConfig_.moduleLabels(triggerIndex));
+  const vector<string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
 
   // Results from TriggerResults product
   cout << " Trigger path status:"

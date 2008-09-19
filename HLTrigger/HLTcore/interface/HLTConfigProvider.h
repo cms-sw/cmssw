@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2008/09/05 17:05:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/06 12:01:51 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -41,6 +41,9 @@ class HLTConfigProvider {
   unsigned int size(unsigned int trigger) const;
   unsigned int size(const std::string& trigger) const;
 
+  /// HLT ConfDB table name
+  const std::string& tableName() const;
+
   /// names of trigger paths
   const std::vector<std::string>& triggerNames() const;
   const std::string& triggerName(unsigned int triggerIndex) const;
@@ -71,6 +74,7 @@ class HLTConfigProvider {
 
   edm::ParameterSet ProcessPSet_;
 
+  std::string tableName_;
   std::vector<std::string> triggerNames_;
   std::vector<std::vector<std::string> > moduleLabels_;
 

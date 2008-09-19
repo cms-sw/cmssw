@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/11 13:19:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/12 09:23:05 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -24,6 +24,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    registry_    = pset::Registry::instance();
 
    ProcessPSet_ = ParameterSet();
+   tableName_   = "@@Unknown@@";
 
    triggerNames_.clear();
    moduleLabels_.clear();
@@ -38,13 +39,21 @@ bool HLTConfigProvider::init(const std::string& processName)
    // processName) from pset registry
    ParameterSetID ProcessPSetID;
    for (edm::pset::Registry::const_iterator i = registry_->begin(); i != registry_->end(); ++i) {
-     if (i->second.exists("@process_name") and i->second.getParameter<std::string>("@process_name") == processName_)
+     if (i->second.exists("@process_name") and i->second.getParameter<string>("@process_name") == processName_)
        ProcessPSetID = i->first;
    }
    if (ProcessPSetID==ParameterSetID()) return false;
 
    // Obtain ParameterSet from ParameterSetID
    if (!(registry_->getMapped(ProcessPSetID,ProcessPSet_))) return false;
+
+   // Obtain HLT PSet containing table name (available only in 2_1_10++ files)
+   if (ProcessPSet_.exists("HLTConfigVersion")) {
+     const ParameterSet HLTPSet(ProcessPSet_.getParameter<ParameterSet>("HLTConfigVersion"));
+     if (HLTPSet.exists("tableName")) {
+       tableName_=HLTPSet.getParameter<string>("tableName");
+     }
+   }
 
    // Extract trigger paths, which are paths but with endpaths to be
    // removed, from ParameterSet
@@ -95,6 +104,8 @@ void HLTConfigProvider::dump (const std::string& what) const {
      cout << "HLTConfigProvider::dump: ProcessName = " << processName_ << endl;
    } else if (what=="ProcessPSet") {
      cout << "HLTConfigProvider::dump: ProcessPSet = " << endl << ProcessPSet_ << endl;
+   } else if (what=="TableName") {
+     cout << "HLTConfigProvider::dump: TableName = " << tableName_ << endl;
    } else if (what=="Triggers") {
      cout << "HLTConfigProvider::dump: Triggers: " << endl;
      const unsigned int n(size());
@@ -137,6 +148,9 @@ unsigned int HLTConfigProvider::size(const std::string& trigger) const {
   return size(triggerIndex(trigger));
 }
 
+const std::string& HLTConfigProvider::tableName() const {
+  return tableName_;
+}
 const std::vector<std::string>& HLTConfigProvider::triggerNames() const {
   return triggerNames_;
 }
@@ -179,9 +193,17 @@ unsigned int HLTConfigProvider::moduleIndex(const std::string& trigger, const st
 }
 
 const std::string HLTConfigProvider::moduleType(const std::string& module) const {
-  return modulePSet(module).getParameter<std::string>("@module_type");
+  if (ProcessPSet_.exists(module)) {
+    return modulePSet(module).getParameter<std::string>("@module_type");
+  } else {
+    return "";
+  }
 }
 
 const edm::ParameterSet HLTConfigProvider::modulePSet(const std::string& module) const {
-  return ProcessPSet_.getParameter<edm::ParameterSet>(module);
+  if (ProcessPSet_.exists(module)) {
+    return ProcessPSet_.getParameter<edm::ParameterSet>(module);
+  } else {
+    return edm::ParameterSet();
+  }
 }
