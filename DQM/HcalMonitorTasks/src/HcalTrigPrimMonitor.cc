@@ -109,6 +109,13 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 //Electronics Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Electronics Plots");
+    type = "HBHE Sliding Pair Sum Maxes";
+    me_HBHE_ZS_SlidingSum = m_dbe->book1D(type,type,128,0,128);
+    type = "HF Sliding Pair Sum Maxes";
+    me_HF_ZS_SlidingSum   = m_dbe->book1D(type,type,128,0,128);
+    type = "HO Sliding Pair Sum Maxes";
+    me_HO_ZS_SlidingSum   = m_dbe->book1D(type,type,128,0,128);
+
     type = "TP vs Digi";
     TPvsDigi_       = m_dbe->book2D(type,type,128,0,128,200,0,200);
     TPvsDigi_->setAxisTitle("lin ADC digi",1);
@@ -259,17 +266,48 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
     {    
       cout<<"HcalTrigPrimMonitor:  no tp digis"<<endl;;
     }
-
   try{
     for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j){
        HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-       for(int i=0; i<digi.size(); ++i) data[i]=digi.sample(i).adc();
+       for(int i=0; i<digi.size(); ++i) {
+	 data[i]=digi.sample(i).adc();
+	 if (i==0) maxsum = data[i];
+	 else if ((data[i] + data[i-1] ) > maxsum) 
+	   maxsum = data[i] + data[i-1];
+       }
        set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
+       me_HBHE_ZS_SlidingSum->Fill(maxsum);
     } // for (HBHEDigiCollection...)
   } // try 
-  catch (...) {    
-    cout <<"HcalTrigPrimMonitor:  no hcal digis"<<endl;
-  }
+  catch (...) {    }  
+  try{
+    for(HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j){
+       HFDataFrame digi = (const HFDataFrame)(*j);
+       for(int i=0; i<digi.size(); ++i) {
+	 data[i]=digi.sample(i).adc();
+	 if (i==0) maxsum = data[i];
+	 else if ((data[i] + data[i-1] ) > maxsum) 
+	   maxsum = data[i] + data[i-1];
+       }
+       //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
+       me_HF_ZS_SlidingSum->Fill(maxsum);
+    } // for (HFDigiCollection...)
+  } // try 
+  catch (...) {   }  
+  try{
+    for(HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); ++j){
+       HODataFrame digi = (const HODataFrame)(*j);
+       for(int i=0; i<digi.size(); ++i) {
+	 data[i]=digi.sample(i).adc();
+	 if (i==0) maxsum = data[i];
+	 else if ((data[i] + data[i-1] ) > maxsum) 
+	   maxsum = data[i] + data[i-1];
+       }
+       //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
+       me_HO_ZS_SlidingSum->Fill(maxsum);
+    } // for (HODigiCollection...)
+  } // try 
+  catch (...) {      }
 
   // Correlation plots...
   int eta,phi;

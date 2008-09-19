@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2008/06/30 21:50:17 $
-  * $Revision: 1.12 $
+  * $Date: 2008/07/09 19:36:49 $
+  * $Revision: 1.13 $
   * \author W. Fisher - FNAL
   */
  static const float TrigMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -85,6 +85,9 @@ private:  ///Monitoring elements
   MonitorElement* TS_MAX_;
   MonitorElement* TPvsDigi_;
 
+  MonitorElement* me_HBHE_ZS_SlidingSum;
+  MonitorElement* me_HF_ZS_SlidingSum;
+  MonitorElement* me_HO_ZS_SlidingSum;
 
   MonitorElement* OCC_ETA;
   MonitorElement* OCC_PHI;
@@ -97,6 +100,8 @@ private:  ///Monitoring elements
   MonitorElement* EN_MAP_GEO;
   MonitorElement* EN_ELEC_VME;
   MonitorElement* EN_ELEC_DCC;
+
+
 // not so nice , but very useful for correlation plots...
   void   ClearEvent(){
              memset(adc_data,  0,(sizeof(float)*100*72*5*10));
@@ -133,6 +138,7 @@ private:  ///Monitoring elements
   float tp_data    [100][73][5][10];
   char  Is_adc_Data[100][73][5];
   char  Is_tp_Data [100][73][5];
+  float maxsum;  //for running sum-of-two sliding window calculations
 };
 
 #endif
