@@ -10,6 +10,8 @@ namespace cond {
 
     DecodingKey();
 
+    virtual ~DecodingKey(){}
+
     bool readFromFile(const std::string& keyFileName);
 
     bool readFromString(const std::string& content);

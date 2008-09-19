@@ -10,6 +10,8 @@ namespace cond {
 
     FileReader();
 
+    virtual ~FileReader(){}
+
     bool read(const std::string& fileName);
 
     const std::string& content() const;
