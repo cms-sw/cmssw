@@ -2,6 +2,11 @@
 
 import FWCore.ParameterSet.Config as cms
 
+
+HLTConfigVersion = cms.PSet(
+  tableName = cms.string('/dev/CMSSW_2_1_5/HLT/V6')
+)
+
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
