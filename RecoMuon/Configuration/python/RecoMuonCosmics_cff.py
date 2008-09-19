@@ -213,7 +213,7 @@ allmuonsNoDriftBarrelOnly = cms.Sequence(muonsNoDriftBarrelOnly*STAMuonsNoDriftB
 # Final sequence
 muonrecoforcosmicsNoDriftBarrelOnly = cms.Sequence(muontrackingforcosmicsNoDriftBarrelOnly*allmuonsNoDriftBarrelOnly)
 
-### Final sequence for barrel only ###xs
+### Final sequence for barrel only ###
 muonRecoBarrelGR = cms.Sequence(muonrecoforcosmicsBarrelOnly+muonrecoforcosmics1LegBarrelOnly+muonrecoforcosmicsNoDriftBarrelOnly)
 
 ##############################################
@@ -231,7 +231,9 @@ cosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.MuonNavigationParameters.Barr
 cosmicMuonsEndCapsOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedEndCapsOnly'
 
 # Global muon track producer
-# ---> to be added
+globalCosmicMuonsEndCapsOnly = globalCosmicMuons.clone()
+globalCosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
+globalCosmicMuonsEndCapsOnly.MuonCollectionLabel = 'cosmicMuonsEndCapsOnly'
 
 # Muon Id producer
 STAMuonsEndCapsOnly = muons.clone()
@@ -239,23 +241,50 @@ STAMuonsEndCapsOnly.inputCollectionLabels = ['cosmicMuonsEndCapsOnly']
 STAMuonsEndCapsOnly.inputCollectionTypes = ['outer tracks']
 STAMuonsEndCapsOnly.fillIsolation = False
 
+GLBMuonsEndCapsOnly = muons.clone()
+GLBMuonsEndCapsOnly.inputCollectionLabels = ['globalCosmicMuonsEndCapsOnly']
+GLBMuonsEndCapsOnly.inputCollectionTypes = ['links']
+GLBMuonsEndCapsOnly.fillIsolation = False
+
+muonsEndCapsOnly = muons.clone()
+muonsEndCapsOnly.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsEndCapsOnly', 'cosmicMuonsEndCapsOnly']
+muonsEndCapsOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsEndCapsOnly.fillIsolation = False
+
 # Sequences
 
 # Stand Alone Tracking
 STAmuontrackingforcosmicsEnsCapsOnly = cms.Sequence(CosmicMuonSeedEndCapsOnly*cosmicMuonsEndCapsOnly)
 
 # Stand Alone Tracking plus global tracking
-muontrackingforcosmicsEndCapsOnly = cms.Sequence(STAmuontrackingforcosmicsEnsCapsOnly)
+muontrackingforcosmicsEndCapsOnly = cms.Sequence(STAmuontrackingforcosmicsEnsCapsOnly*globalCosmicMuonsEndCapsOnly)
 
 # Stand Alone Tracking plus muon ID
 STAmuonrecoforcosmicsEndCapsOnly = cms.Sequence(STAmuontrackingforcosmicsEnsCapsOnly*STAMuonsEndCapsOnly)
 
 # all muons id
-allmuonsEndCapsOnly = cms.Sequence(STAMuonsEndCapsOnly)
+allmuonsEndCapsOnly = cms.Sequence(muonsEndCapsOnly*STAMuonsEndCapsOnly*GLBMuonsEndCapsOnly)
 
 # Final sequence
 muonrecoforcosmicsEndCapsOnly = cms.Sequence(muontrackingforcosmicsEndCapsOnly*allmuonsEndCapsOnly)
-muonRecoEndCapsGR = cms.Sequence(muonrecoforcosmicsEndCapsOnly)
+
+########
+
+# Beam halo in Encaps only. GLB reco only is needed
+globalBeamHaloMuonEndCapslOnly = globalCosmicMuonsEndCapsOnly.clone()
+globalBeamHaloMuonEndCapslOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksBeamHaloMuon'
+
+# Muon Id producer
+muonsBeamHaloEndCapsOnly = muons.clone()           
+muonsBeamHaloEndCapsOnly.inputCollectionLabels = ['ctfWithMaterialTracksBeamHaloMuon', 'globalBeamHaloMuonEndCapslOnly', 'cosmicMuonsEndCapsOnly']
+muonsBeamHaloEndCapsOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsBeamHaloEndCapsOnly.fillIsolation = False
+
+# Sequences
+muonrecoBeamHaloEndCapsOnly = cms.Sequence(globalBeamHaloMuonEndCapslOnly*muonsBeamHaloEndCapsOnly)
+
+### Final sequence for endcaps only ###
+muonRecoEndCapsGR = cms.Sequence(muonrecoforcosmicsEndCapsOnly*muonrecoBeamHaloEndCapsOnly)
 
 ##############################################
 
