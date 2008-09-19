@@ -8,6 +8,7 @@
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/SQLReport.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "CondCore/IOVService/interface/IOVService.h"
@@ -28,21 +29,18 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <limits>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include <cstdlib>
+//#include <cstdlib>
 #include<sstream>
 
 
 int main( int argc, char** argv ){
-  
+
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_export_iov [options] \n");
   visible.add_options()
@@ -58,6 +56,7 @@ int main( int argc, char** argv ){
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
     ("blobStreamer,B",boost::program_options::value<std::string>(),"BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)")
     ("logDB,l",boost::program_options::value<std::string>(),"logDB(optional")
+    ("sql","dump the sql output (optional)")
     ("debug","switch on debug mode")
     ("help,h", "help message")
     ;
@@ -73,6 +72,8 @@ int main( int argc, char** argv ){
 
   std::string authPath(".");
   std::string configuration_filename;
+  bool sqlOutput=false;
+  std::string sqlOutputFileName("sqlmonitoring.out");
   bool debug=false;
   std::string blobStreamerName("COND/Services/TBufferBlobStreamingService");
   boost::program_options::variables_map vm;
@@ -85,10 +86,10 @@ int main( int argc, char** argv ){
     if( vm.count("configFile") ){
       configuration_filename=vm["configFile"].as<std::string>();
       if (! configuration_filename.empty()){
-	std::fstream configuration_file;
-	configuration_file.open(configuration_filename.c_str(), std::fstream::in);
-	boost::program_options::store(boost::program_options::parse_config_file(configuration_file,desc), vm);
-	configuration_file.close();
+        std::fstream configuration_file;
+        configuration_file.open(configuration_filename.c_str(), std::fstream::in);
+        boost::program_options::store(boost::program_options::parse_config_file(configuration_file,desc), vm);
+        configuration_file.close();
       }
     }
     if(!vm.count("sourceConnect")){
@@ -138,6 +139,9 @@ int main( int argc, char** argv ){
     if(vm.count("BlobStreamerName")){
       blobStreamerName=vm["blobStreamerName"].as<std::string>();
     }
+    if(vm.count("sql")){
+      sqlOutput=true;
+    }
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
     std::cerr << er.what()<<std::endl;
@@ -158,9 +162,6 @@ int main( int argc, char** argv ){
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
   }
   //
-  edmplugin::PluginManager::Config config;
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-
   if (!dictlibrary.empty())
   try {
     seal::SharedLibrary::load( dictlibrary );
@@ -178,18 +179,20 @@ int main( int argc, char** argv ){
 
   session.configuration().setAuthenticationMethod(cond::XML);
   session.configuration().setBlobStreamer(blobStreamerName);
+  if(sqlOutput){
+    session.configuration().startSQLMonitoring();
+  }
 
-  std::string pathval("CORAL_AUTH_PATH=");
-  pathval+=authPath;
-  ::putenv(const_cast<char*>(pathval.c_str()));
+  //std::string pathval("CORAL_AUTH_PATH=");
+  //pathval+=authPath;
+  //::putenv(const_cast<char*>(pathval.c_str()));
+  session.configuration().setAuthenticationPath(authPath);
 
   cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("mysourcedb",sourceConnect,-1);
   conHandler.registerConnection("mydestdb",destConnect,-1);
   if (!logConnect.empty()) 
     conHandler.registerConnection("logdb",logConnect,-1);
-
-
   try{
     session.open();
     
@@ -209,7 +212,7 @@ int main( int argc, char** argv ){
       sourceCoralDB.start(true);
       cond::MetaData  sourceMetadata(sourceCoralDB);
       if( !sourceMetadata.hasTag(inputTag) ){
-	throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
+        throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
       }
       //sourceiovtoken=sourceMetadata->getToken(inputTag);
       cond::MetaDataEntry entry;
@@ -219,38 +222,36 @@ int main( int argc, char** argv ){
       
       sourceCoralDB.commit();
       if(debug){
-	std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
-	std::cout<<"source iov type "<<sourceiovtype<<std::endl;
+        std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
+        std::cout<<"source iov type "<<sourceiovtype<<std::endl;
       }
     }
     
     // find tag in destination
     {
       try {
-	cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
-	coralDB.start(false);
+        cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
+        coralDB.start(false);
 	
 	
-	// we need to clean this
-	cond::ObjectRelationalMappingUtility mappingUtil(&(coralDB.coralSessionProxy()) );
-	if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
-	  mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
-	}
-	
-	
-	cond::MetaData  metadata(coralDB);
-	if( metadata.hasTag(destTag) ){
-	  cond::MetaDataEntry entry;
-	  metadata.getEntryByTag(destTag,entry);
-	  destiovtoken=entry.iovtoken;
-	  if (sourceiovtype!=entry.timetype) {
-	    // throw...
-	  }
+        // we need to clean this
+        cond::ObjectRelationalMappingUtility mappingUtil(&(coralDB.coralSessionProxy()) );
+        if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
+          mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
+        }
+        cond::MetaData  metadata(coralDB);
+        if( metadata.hasTag(destTag) ){
+          cond::MetaDataEntry entry;
+          metadata.getEntryByTag(destTag,entry);
+          destiovtoken=entry.iovtoken;
+          if (sourceiovtype!=entry.timetype) {
+            // throw...
+          }
         }
         coralDB.commit();
       } catch(...){ }// throw if no db available...
       if(debug){
-	std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
+        std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
       }
     }
     
@@ -264,7 +265,6 @@ int main( int argc, char** argv ){
 
     since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
     till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
-
 
     int oldSize=0;
     if (!newIOV) {
@@ -281,21 +281,19 @@ int main( int argc, char** argv ){
     std::auto_ptr<cond::Logger> logdb;
     if (!logConnect.empty()) {
       logdb.reset(new cond::Logger(conHandler.getConnection("logdb")));
-      //logdb->getWriteLock();
+      logdb->getWriteLock();
       logdb->createLogDBIfNonExist();
-      //logdb->releaseWriteLock();
+      logdb->releaseWriteLock();
     }
     cond::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
     a.usertext="exportIOV V1.0;";
     {
       std::ostringstream ss; 
-      ss << "since="<< since
-	 <<", till="<< till <<";";
+      ss << "since="<< since <<", till="<< till <<";";
       a.usertext +=ss.str();
     }
 
-     
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
     destdb.start(false);
@@ -311,13 +309,14 @@ int main( int argc, char** argv ){
       destCoralDB.start(false);
       destMetadata.addMapping(destTag,destiovtoken,sourceiovtype);
       if(debug){
-	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
-	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
+        std::cout<<"dest iov token "<<destiovtoken<<std::endl;
+        std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
       }
       destCoralDB.commit();
     }
     delete editor;
 
+    ::sleep(1);
 
     // grab info
     destdb.start(true);
@@ -346,6 +345,12 @@ int main( int argc, char** argv ){
       logdb->releaseWriteLock();
     }
 
+    if(sqlOutput){
+      cond::SQLReport report(session);
+      report.reportForConnection(sourceConnect);
+      report.reportForConnection(destConnect);
+      report.putOnFile();
+    }
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){
