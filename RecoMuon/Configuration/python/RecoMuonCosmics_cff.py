@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMuon.StandAloneMuonProducer.standAloneCosmicMuons_cff import *
-
-
 ######################## Cosmic Reco #############################
 
 ## Full detector ##
@@ -304,6 +301,7 @@ lhcMuonSeedBarrelOnly.EnableCSCMeasurement = False
 lhcStandAloneMuonsBarrelOnly = standAloneMuons.clone()
 lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.BWFilterParameters.EnableCSCMeasurement = False
 lhcStandAloneMuonsBarrelOnly.InputObjects = 'lhcMuonSeedBarrelOnly'
+#lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.NavigationType = 'Direct'
 
 # Seqeunces
 lhcMuonBarrelOnly = cms.Sequence(lhcMuonSeedBarrelOnly*lhcStandAloneMuonsBarrelOnly)
@@ -320,6 +318,7 @@ lhcMuonSeedEndCapsOnly.EnableDTMeasurement = False
 lhcStandAloneMuonsEndCapsOnly = standAloneMuons.clone()
 lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.BWFilterParameters.EnableDTMeasurement = False
 lhcStandAloneMuonsEndCapsOnly.InputObjects = 'lhcMuonSeedEndCapsOnly'
+#lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.NavigationType = 'Direct'
 
 # Seqeunces
 lhcMuonEndCapsOnly = cms.Sequence(lhcMuonSeedEndCapsOnly*lhcStandAloneMuonsEndCapsOnly)
