@@ -47,7 +47,9 @@ namespace cms
     TrackDetectorAssociator   trackAssociator_;
     TrackAssociatorParameters trackAssociatorParameters_;
     bool useTrackAssociatorPositions_;
-    
+    bool useRecHits_;
+    bool useHO_; 
+    double towerEtThreshold_;
   };
 }
 

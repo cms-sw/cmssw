@@ -14,11 +14,12 @@ struct MuonMETInfo {
   bool useAverage;
   //if using in FWLite, this should be false
   bool useTkAssociatorPositions;
+  bool useHO;
 
   MuonMETInfo():
   ecalE(0), hcalE(0), hoE(0),
   ecalPos(0,0,0),hcalPos(0,0,0), hoPos(0,0,0),
-  useAverage(0), useTkAssociatorPositions(0){ }
+  useAverage(0), useTkAssociatorPositions(0),useHO(0){ }
 
 };
   

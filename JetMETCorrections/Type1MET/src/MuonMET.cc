@@ -47,7 +47,10 @@ namespace cms
     uncorMETInputTag_    = iConfig.getParameter<edm::InputTag>("uncorMETInputTag");
     muonsInputTag_       = iConfig.getParameter<edm::InputTag>("muonsInputTag");
     useTrackAssociatorPositions_ = iConfig.getParameter<bool>("useTrackAssociatorPositions");
-    
+    useRecHits_          = iConfig.getParameter<bool>("useRecHits");
+    useHO_               = iConfig.getParameter<bool>("useHO");
+    towerEtThreshold_    = iConfig.getParameter<double>("towerEtThreshold");
+ 
     edm::ParameterSet trackAssociatorParams =
       iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
     trackAssociatorParameters_.loadParameters(trackAssociatorParams);
@@ -84,7 +87,9 @@ namespace cms
 		 trackAssociator_,
 		 trackAssociatorParameters_,
 		 &*output,
-		 useTrackAssociatorPositions_);
+		 useTrackAssociatorPositions_,
+                 useRecHits_, useHO_,
+		 towerEtThreshold_);
 	
 	iEvent.put(output);                                        //Put output into Event
       }
@@ -99,7 +104,9 @@ namespace cms
 		 trackAssociator_,
 		 trackAssociatorParameters_,
 		 &*output,
-		 useTrackAssociatorPositions_);
+		 useTrackAssociatorPositions_,
+                 useRecHits_, useHO_,
+		 towerEtThreshold_);
 	
 	iEvent.put( output );                                        //Put output into Event
       }

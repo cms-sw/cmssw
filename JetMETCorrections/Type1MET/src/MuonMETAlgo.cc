@@ -11,6 +11,7 @@
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -50,8 +51,11 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
 						     TrackDetectorAssociator& trackAssociator,
 						     TrackAssociatorParameters& trackAssociatorParameters,
 						     vector<T>* v_corMET,
-						     bool useTrackAssociatorPositions) {
-						     
+						     bool useTrackAssociatorPositions,
+						     bool useRecHits,
+						     bool useHO,
+						     double towerEtThreshold) {
+  
   
   edm::ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -86,6 +90,7 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
     MuonMETInfo muMETInfo;
     muMETInfo.useAverage = useAverage;
     muMETInfo.useTkAssociatorPositions = useTrackAssociatorPositions;
+    muMETInfo.useHO = useHO;
     
     TrackRef mu_track = mus_it->combinedMuon();
     TrackDetMatchInfo info = 
@@ -93,18 +98,34 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::Event& iEvent,
 				trackAssociator.getFreeTrajectoryState(iSetup, *mu_track),
 				trackAssociatorParameters);
     if(useTrackAssociatorPositions) {
-      
       muMETInfo.ecalPos  = info.trkGlobPosAtEcal;
       muMETInfo.hcalPos  = info.trkGlobPosAtHcal;
       muMETInfo.hoPos    = info.trkGlobPosAtHO;
     }
     
     if(!useAverage) {
-      muMETInfo.ecalE    = info.crossedEnergy(TrackDetMatchInfo::TowerEcal);
-      muMETInfo.hcalE    = info.crossedEnergy(TrackDetMatchInfo::TowerHcal);
-      muMETInfo.hoE      = info.crossedEnergy(TrackDetMatchInfo::TowerHO);
+
+      if(useRecHits) {
+	muMETInfo.ecalE = mus_it->calEnergy().emS9;
+	muMETInfo.hcalE = mus_it->calEnergy().hadS9;
+	if(useHO) //muMETInfo.hoE is 0 by default
+	  muMETInfo.hoE   = mus_it->calEnergy().hoS9;
+      } else {// use Towers (this is the default)
+	//only include towers whose Et > 0.5 since 
+	//by default the MET only includes towers with Et > 0.5
+	vector<const CaloTower*> towers = info.crossedTowers;
+	for(vector<const CaloTower*>::const_iterator it = towers.begin();
+	    it != towers.end(); it++) {
+	  if( (*it)->et() <  towerEtThreshold) continue;
+	  muMETInfo.ecalE =+ (*it)->emEt();
+	  muMETInfo.hcalE =+ (*it)->hadEt();
+	  if(useHO)
+	    muMETInfo.hoE =+ (*it)->outerEt();
+	}
+      }//use Towers
     }
-      
+  
+    
     sumMuEt += mus_it->et();
     double metxBeforeCorr = corMETX;
     double metyBeforeCorr = corMETY;
@@ -339,17 +360,27 @@ void MuonMETAlgo::correctMETforMuon(double& metx, double& mety, double bfield, i
     
     double temp = 0.0;
     
-    if(fabs(mu_eta) < 0.2)
-      temp = 3.3*(1-0.00038*mu_p); 
-    if(fabs(mu_eta) > 0.2 && fabs(mu_eta) < 1.1) 
-      temp = (2.93 - 0.129*fabs(mu_eta))*(1-0.00038*mu_p);
-    if(fabs(mu_eta) > 1.1 && fabs(mu_eta) < 1.4) 
-      temp = 33.46-48.9*fabs(mu_eta)+18.48*pow(fabs(mu_eta),2);
-    if(fabs(mu_eta) > 1.4 && fabs(mu_eta))
-      temp = 2.863 - 1.093*fabs(mu_eta);
-
+    if(muonMETInfo.useHO) {
+      //for the Towers, with HO
+      if(fabs(mu_eta) < 0.2)
+	temp = 2.75*(1-0.00003*mu_p);
+      if(fabs(mu_eta) > 0.2 && fabs(mu_eta) < 1.0)
+	temp = (2.38+0.0144*fabs(mu_eta))*(1-0.0003*mu_p);
+      if(fabs(mu_eta) > 1.0 && fabs(mu_eta) < 1.3)
+	temp = 7.413-5.12*fabs(mu_eta);
+      if(fabs(mu_eta) > 1.3)
+	temp = 2.084-0.743*fabs(mu_eta);
+    } else {
+      if(fabs(mu_eta) < 1.0)
+	temp = 2.33*(1-0.0004*mu_p);
+      if(fabs(mu_eta) > 1.0 && fabs(mu_eta) < 1.3)
+	temp = (7.413-5.12*fabs(mu_eta))*(1-0.0003*mu_p);
+      if(fabs(mu_eta) > 1.3)
+	temp = 2.084-0.743*fabs(mu_eta);
+    }
 
     double dep = temp*dEdx_normalization/dEdx_numerator;
+    if(dep < 0.5) dep = 0;
     //use the average phi of the 3 subdetectors
     if(fabs(mu_eta) < 1.3) {
       metx += dep*cos((ecalPhi+hcalPhi+hoPhi)/3);
@@ -370,12 +401,16 @@ void MuonMETAlgo::run(const edm::Event& iEvent,
 		      TrackDetectorAssociator& trackAssociator,
 		      TrackAssociatorParameters& trackAssociatorParameters,
 		      METCollection *corMET,
-		      bool useTrackAssociatorPositions) {
+		      bool useTrackAssociatorPositions,
+		      bool useRecHits,
+		      bool useHO,
+		      double towerEtThreshold) {
 		     
   
   return MuonMETAlgo_run(iEvent, iSetup, uncorMET, Muons, 
 			 trackAssociator, trackAssociatorParameters,
-			 corMET, useTrackAssociatorPositions);
+			 corMET, useTrackAssociatorPositions,
+			 useRecHits, useHO, towerEtThreshold);
 }
 
 
@@ -387,12 +422,16 @@ void MuonMETAlgo::run(const edm::Event& iEvent,
 		      TrackDetectorAssociator& trackAssociator,
 		      TrackAssociatorParameters& trackAssociatorParameters,
 		      CaloMETCollection *corMET,
-		      bool useTrackAssociatorPositions) {
+		      bool useTrackAssociatorPositions,
+		      bool useRecHits,
+		      bool useHO,
+		      double towerEtThreshold) {
 		      
   
   return MuonMETAlgo_run(iEvent, iSetup, uncorMET, Muons,
 			 trackAssociator, trackAssociatorParameters,
-			 corMET, useTrackAssociatorPositions);
+			 corMET, useTrackAssociatorPositions,
+			 useRecHits, useHO, towerEtThreshold);
 }
 
 
