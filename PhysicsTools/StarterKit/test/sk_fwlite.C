@@ -3,6 +3,10 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TCanvas.h"
+#include "TLegend.h"
 #endif
 
 #include <iostream>
@@ -13,7 +17,7 @@ void sk_fwlite()
 {
    
    
-  TFile  * file = new TFile("/uscms_data/d1/rappocc/PatAnalyzerSkeletonSkim.root");
+  TFile  * file = new TFile("PatAnalyzerKitSkim.root");
 
   using namespace std;
 
