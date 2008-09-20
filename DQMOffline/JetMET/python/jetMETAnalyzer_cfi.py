@@ -47,7 +47,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     CaloMETCollectionLabel     = cms.InputTag("met"),
     CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
     ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
-    TriggerSummaryLabel        = cms.InputTag("TriggerResults::HLT")
+    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT")
 )
 
 
