@@ -20,16 +20,15 @@
 
 
 ######################
-set RefRelease=CMSSW_2_1_0_pre9
+set RefRelease=CMSSW_2_1_9
 set NewRelease=$CMSSW_VERSION
 set Algo=""
 #set Quality=""
 set Quality="highPurity"
 #set Tracks="generalTracks"
 set Tracks="cutsRecoTracks"
-set GlobalTag = IDEAL_V5
-#set RefSelection=IDEAL_V5_noPU_out_of_the_box
-set RefSelection=IDEAL_V5_noPU_highPuritySelection
+set GlobalTag = IDEAL_V9
+set RefSelection=${GlobalTag}_noPU_${Algo}${Quality}
 set NewSelection=${GlobalTag}_noPU_${Algo}${Quality}
 set RefRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance
 set NewRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance
@@ -38,7 +37,7 @@ set NewRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction
 #set Sequence=iterative
 #set Sequence=newConfiguration
 #set Sequence=re_tracking
-#set Sequence=only_validation
+set Sequence=only_validation
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10  RelValSingleMuPt100) 
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10 RelValSingleMuPt100) 
 #set samples=(RelValSingleMuPt100)
@@ -72,7 +71,7 @@ foreach sample($samples)
     if($sample == RelValZPrimeEEM4000) then
     sed s/NEVENT/1000/g tmp0.cfg >! tmp1.cfg
     else if($sample == RelValQCD_Pt_3000_3500) then
-    sed s/NEVENT/5000/g tmp0.cfg >! tmp1.cfg
+    sed s/NEVENT/1000/g tmp0.cfg >! tmp1.cfg
     else if($sample == RelValTTbar) then
     sed s/NEVENT/5000/g tmp0.cfg >! tmp1.cfg
     else if($sample == RelValSingleMuPt1) then
@@ -144,9 +143,11 @@ foreach sample($samples)
     echo "copying cff file for sample: " $sample
     cp $sample.cff $NewRepository/$NewRelease/$NewSelection/$sample
 
-    echo "copying cfg file for sample: " $sample
+    echo "copying cfg and log file for sample: " $sample
     #cp $sample.cfg $NewRepository/$NewRelease/$NewSelection/$sample
     cp $sample.py $NewRepository/$NewRelease/$NewSelection/$sample
+    cp $sample.log $NewRepository/$NewRelease/$NewSelection/$sample
+
     rm tmp*.C
     rm *.pdf
 
