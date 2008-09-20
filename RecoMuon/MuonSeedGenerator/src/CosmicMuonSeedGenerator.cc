@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2008/03/10 15:40:50 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/09/13 20:16:01 $
+ *  $Revision: 1.23 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -147,7 +147,9 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
         output->push_back(*seed);
     }
 
-  event.put(output);
+    event.put(output);
+    seeds.clear();
+
 }
 
 
@@ -301,7 +303,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
   edm::OwnVector<TrackingRecHit> container;
   TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
   result.push_back(theSeed); 
-
+  delete seedTSOS;
   return result;
 }
 
