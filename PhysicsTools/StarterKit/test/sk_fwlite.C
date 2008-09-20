@@ -17,7 +17,7 @@ void sk_fwlite()
 {
    
    
-  TFile  * file = new TFile("PatAnalyzerKitSkim.root");
+  TFile  * file = new TFile("PatAnalyzerSkeletonSkim.root");
 
   using namespace std;
 
