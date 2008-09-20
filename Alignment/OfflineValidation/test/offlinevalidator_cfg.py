@@ -14,9 +14,17 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 process.MessageLogger.statistics.append('cout')
 
 ##
+## Process options
+##
+process.options = cms.untracked.PSet(
+    Rethrow = cms.untracked.vstring("ProductNotFound") # make this exception fatal
+    )
+
+##
 ## Conditions
 ##
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
+#process.load("CalibTracker.Configuration.Tracker_FakeConditions_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
 process.GlobalTag.globaltag = 'IDEAL_V5::All' # 'CRUZET4_V3P::All'
@@ -48,19 +56,28 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 ## Load DBSetup (if needed)
 ##
 from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
-process.trackerAlignment = poolDBESSource.clone()
-process.trackerAlignment.connect = 'frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'
-process.trackerAlignment.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('TrackerAlignmentRcd'),
-    tag = cms.string('TrackerIdealGeometry210_mc') 
-), 
-    cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        # tag = cms.string('TrackerIdealGeometryErrors210_mc') # for APE = 0
-        tag = cms.string('TrackerSurveyLASOnlyScenarioErrors210_mc')
-    ))
+process.trackerAlignment = poolDBESSource.clone(
+    connect = 'frontier://FrontierProd/CMS_COND_21X_ALIGNMENT', # or your sqlite file
+    toGet = cms.VPSet(
+      cms.PSet(
+        record = cms.string('TrackerAlignmentRcd'),
+        tag = cms.string('TrackerIdealGeometry210_mc') # your tag
+        )
+      )
+    )
 process.prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
 
+# APE always zero:
+process.myTrackerAlignmentErr = poolDBESSource.clone(
+    connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
+    toGet = cms.VPSet(
+      cms.PSet(
+        record = cms.string('TrackerAlignmentErrorRcd'),
+        tag = cms.string('TrackerIdealGeometryErrors210_mc')
+        )
+      )
+    )
+process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
 
 ##
 ## Input File(s)
@@ -68,16 +85,10 @@ process.prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignmen
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     ##
-    ## 21X RelVal Samples, please replace accordingly
+    ## 218 RelVal Sample, please replace accordingly
     ##
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/06D7B343-365C-DD11-AD13-001617E30D00.root',
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/08056306-445C-DD11-A35C-000423D992A4.root',
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/1C1712DA-365C-DD11-870A-001617C3B79A.root',
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/1CA078CB-375C-DD11-96D2-001617E30D4A.root',
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/2282BAF4-345C-DD11-83BF-001617C3B710.root',
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/2CA50990-3B5C-DD11-8305-000423D6C8E6.root',
-    '/store/relval/CMSSW_2_1_0_pre10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/3014096D-375C-DD11-A2C0-001617E30F4C.root'
-    ##
+    '/store/relval/CMSSW_2_1_8/RelValZMM/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMuonIsolated_v1/0003/A8583C5E-0283-DD11-8D18-000423D987FC.root'
+#    ##
     ## CRUZET 4 ALCARECO (on CAF)
     ##
 #    '/store/data/Commissioning08/Cosmics/ALCARECO/CRUZET4_V2_StreamTkAlCosmics0T_CRUZET4_v2/0006/000690AE-E771-DD11-93D6-000423D996C8.root',
@@ -96,7 +107,7 @@ process.source = cms.Source("PoolSource",
 ## Maximum number of Events
 ##
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+#    input = cms.untracked.int32(100)
 )
 
 ##
@@ -110,7 +121,8 @@ process.TFileService = cms.Service("TFileService",
 ## Load and Configure track selection for alignment
 ##
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-# process.AlignmentTrackSelector.src = "ALCARECOTkAlCosmicsCTF0T" e.g. for cosmics ALCARECO
+# process.AlignmentTrackSelector.src = "ALCARECOTkAlCosmicsCTF0T" #e.g. for cosmics ALCARECO
+process.AlignmentTrackSelector.src = "ALCARECOTkAlMuonIsolated" #e.g. for cosmics ALCARECO
 process.AlignmentTrackSelector.applyBasicCuts = False #True
 #process.AlignmentTrackSelector.ptMin   = .3
 
@@ -128,17 +140,24 @@ process.load("Alignment.OfflineValidation.TrackerOfflineValidation_cfi")
 process.TrackerOfflineValidation.Tracks = 'TrackRefitter'
 process.TrackerOfflineValidation.trajectoryInput = 'TrackRefitter'
 process.TrackerOfflineValidation.moduleLevelHistsTransient = True
-process.TrackerOfflineValidation.TH1ResModules = cms.PSet(
-    xmin = cms.double(-0.5),
-    Nbinx = cms.int32(300),
-    xmax = cms.double(0.5)
-)
-process.TrackerOfflineValidation.TH1NormResModules = cms.PSet(
-    xmin = cms.double(-3.0),
-    Nbinx = cms.int32(300),
-    xmax = cms.double(3.0)
-)
-
+process.TrackerOfflineValidation.TH1XprimeResStripModules.xmin = -0.2
+process.TrackerOfflineValidation.TH1XprimeResStripModules.Nbinx = 100
+process.TrackerOfflineValidation.TH1XprimeResStripModules.xmax = 0.2
+#
+process.TrackerOfflineValidation.TH1XprimeResPixelModules.xmin = -0.1
+process.TrackerOfflineValidation.TH1XprimeResPixelModules.Nbinx = 100
+process.TrackerOfflineValidation.TH1XprimeResPixelModules.xmax = 0.1
+# Other used binnings you might want to replace:
+#process.TrackerOfflineValidation.TH1YResPixelModules
+#process.TrackerOfflineValidation.TH1NormYResPixelModules
+#process.TrackerOfflineValidation.TH1NormXprimeResPixelModules
+#process.TrackerOfflineValidation.TH1XResPixelModules
+#process.TrackerOfflineValidation.TH1NormXResPixelModules
+#process.TrackerOfflineValidation.TH1YResStripModules
+#process.TrackerOfflineValidation.TH1NormYResStripModules
+#process.TrackerOfflineValidation.TH1NormXprimeResStripModules
+#process.TrackerOfflineValidation.TH1XResStripModules
+#process.TrackerOfflineValidation.TH1NormXResStripModules
 
 ##
 ## PATH
