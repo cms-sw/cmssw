@@ -306,15 +306,63 @@ template<> inline L1DataEmulDigi
 DEutils<CSCCorrelatedLCTDigiCollection_>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
   int errt = aflag;
-  double x1 = (aflag!=4) ? itd->getKeyWG() : itm->getKeyWG();
-  double x2 = (aflag!=4) ? itd->getStrip() : itm->getStrip();
-  double x3 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
+  double x1 = (aflag!=4) ? itd->getStrip() : itm->getStrip();
+  double x2 = (aflag!=4) ? itd->getKeyWG() : itm->getKeyWG();
+  double x3 = (aflag!=4) ? itd->getTrknmb(): itm->getTrknmb();
   //multiple subsystem ctp,ctf
   L1DataEmulDigi digi(-1,cid, x1,x2,x3, errt);
-  //note: no data word and rank defined for candidate
   int dq = (aflag==4)?0:itd->getQuality();
   int eq = (aflag==3)?0:itm->getQuality();
   digi.setRank((float)dq,(float)eq);
+ // Pack LCT digi members into 32-bit data words.
+  static const int kValidBitWidth     = 1; // Reverse the order of the 1st
+  static const int kQualityBitWidth   = 4; // frame to keep the valid bit
+  static const int kPatternBitWidth   = 4; // first and quality second, as
+  static const int kWireGroupBitWidth = 7; // is done in ALCT and CLCT.
+  static const int kHalfstripBitWidth = 8;
+  static const int kBendBitWidth      = 1;
+  static const int kBxBitWidth        = 1;
+  // Use sync_err and bx0_local bits to store MPC link.
+  static const int kMPCLinkBitWidth   = 2;
+  static const int kCSCIdBitWidth     = 4;
+  // While packing, check that the right number of bits is retained.
+  unsigned shift = 0, dw = 0, ew = 0;
+  dw  =  itd->isValid()    & ((1<<kValidBitWidth)-1);
+  dw += (itd->getQuality() & ((1<<kQualityBitWidth)-1))   <<
+    (shift += kValidBitWidth);
+  dw += (itd->getPattern() & ((1<<kPatternBitWidth)-1))   <<
+    (shift += kQualityBitWidth);
+  dw += (itd->getKeyWG()   & ((1<<kWireGroupBitWidth)-1)) <<
+    (shift += kPatternBitWidth);
+  dw += (itd->getStrip()   & ((1<<kHalfstripBitWidth)-1)) <<
+    (shift += kWireGroupBitWidth);
+  dw += (itd->getBend()    & ((1<<kBendBitWidth)-1))      <<
+    (shift += kHalfstripBitWidth);
+  dw += (itd->getBX()      & ((1<<kBxBitWidth)-1))        <<
+    (shift += kBendBitWidth);
+  dw += (itd->getMPCLink() & ((1<<kMPCLinkBitWidth)-1))   <<
+    (shift += kBxBitWidth);
+  dw += (itd->getCSCID()   & ((1<<kCSCIdBitWidth)-1))     <<
+    (shift += kMPCLinkBitWidth);
+  shift = 0;
+  ew  =  itm->isValid()    & ((1<<kValidBitWidth)-1);
+  ew += (itm->getQuality() & ((1<<kQualityBitWidth)-1))   <<
+    (shift += kValidBitWidth);
+  ew += (itm->getPattern() & ((1<<kPatternBitWidth)-1))   <<
+    (shift += kQualityBitWidth);
+  ew += (itm->getKeyWG()   & ((1<<kWireGroupBitWidth)-1)) <<
+    (shift += kPatternBitWidth);
+  ew += (itm->getStrip()   & ((1<<kHalfstripBitWidth)-1)) <<
+    (shift += kWireGroupBitWidth);
+  ew += (itm->getBend()    & ((1<<kBendBitWidth)-1))      <<
+    (shift += kHalfstripBitWidth);
+  ew += (itm->getBX()      & ((1<<kBxBitWidth)-1))        <<
+    (shift += kBendBitWidth);
+  ew += (itm->getMPCLink() & ((1<<kMPCLinkBitWidth)-1))   <<
+    (shift += kBxBitWidth);
+  ew += (itm->getCSCID()   & ((1<<kCSCIdBitWidth)-1))     <<
+    (shift += kMPCLinkBitWidth);
+  digi.setData(dw, ew);
   return digi;
 }
 
@@ -322,13 +370,45 @@ template<> inline L1DataEmulDigi
 DEutils<CSCALCTDigiCollection_>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
   int errt = aflag;
-  double x1 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
   double x2 = (aflag!=4) ? itd->getKeyWG () : itm->getKeyWG ();
-  L1DataEmulDigi digi(dedefs::CTP,cid, x1,x2,0, errt);
-  //note: no data word defined for candidate
+  double x3 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
+  L1DataEmulDigi digi(dedefs::CTP,cid, 0,x2,x3, errt);
   int dq = (aflag==4)?0:itd->getQuality();
   int eq = (aflag==3)?0:itm->getQuality();
   digi.setRank((float)dq,(float)eq);
+  // Pack anode digi members into 17-bit data words.
+  static const int kValidBitWidth     = 1;
+  static const int kQualityBitWidth   = 2;
+  static const int kAccelBitWidth     = 1;
+  static const int kPatternBBitWidth  = 1;
+  static const int kWireGroupBitWidth = 7;
+  static const int kBxBitWidth        = 5;
+  // While packing, check that the right number of bits is retained.
+  unsigned shift = 0, dw = 0, ew = 0;
+  dw  =  itd->isValid()        & ((1<<kValidBitWidth)-1);
+  dw += (itd->getQuality()     & ((1<<kQualityBitWidth)-1))   <<
+    (shift += kValidBitWidth);
+  dw += (itd->getAccelerator() & ((1<<kAccelBitWidth)-1))     <<
+    (shift += kQualityBitWidth);
+  dw += (itd->getCollisionB()  & ((1<<kPatternBBitWidth)-1))  <<
+    (shift += kAccelBitWidth);
+  dw += (itd->getKeyWG()       & ((1<<kWireGroupBitWidth)-1)) <<
+    (shift += kPatternBBitWidth);
+  dw += (itd->getBX()          & ((1<<kBxBitWidth)-1))        <<
+    (shift += kWireGroupBitWidth);
+  shift = 0;
+  ew  =  itm->isValid()        & ((1<<kValidBitWidth)-1);
+  ew += (itm->getQuality()     & ((1<<kQualityBitWidth)-1))   <<
+    (shift += kValidBitWidth);
+  ew += (itm->getAccelerator() & ((1<<kAccelBitWidth)-1))     <<
+    (shift += kQualityBitWidth);
+  ew += (itm->getCollisionB()  & ((1<<kPatternBBitWidth)-1))  <<
+    (shift += kAccelBitWidth);
+  ew += (itm->getKeyWG()       & ((1<<kWireGroupBitWidth)-1)) <<
+    (shift += kPatternBBitWidth);
+  ew += (itm->getBX()          & ((1<<kBxBitWidth)-1))        <<
+    (shift += kWireGroupBitWidth);
+  digi.setData(dw, ew);
   return digi;
 }
 template<> inline L1DataEmulDigi 
@@ -338,10 +418,47 @@ DEutils<CSCCLCTDigiCollection_>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   double x1 = (aflag!=4) ? itd->getKeyStrip() : itm->getKeyStrip();
   double x3 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
   L1DataEmulDigi digi(dedefs::CTP,cid, x1,0,x3, errt);
-  //note: no data word defined for candidate
   int dq = (aflag==4)?0:itd->getQuality();
   int eq = (aflag==3)?0:itm->getQuality();
   digi.setRank((float)dq,(float)eq);
+  // Pack cathode digi members into 19-bit data words.
+  static const int kValidBitWidth     = 1;
+  static const int kQualityBitWidth   = 3;
+  static const int kPatternBitWidth   = 4;
+  static const int kBendBitWidth      = 1;
+  static const int kHalfstripBitWidth = 5;
+  static const int kCFEBBitWidth      = 3;
+  static const int kBxBitWidth        = 2;
+  // While packing, check that the right number of bits is retained.
+  unsigned shift = 0, dw = 0, ew = 0;
+  dw  =  itd->isValid()    & ((1<<kValidBitWidth)-1);
+  dw += (itd->getQuality() & ((1<<kQualityBitWidth)-1))   <<
+    (shift += kValidBitWidth);
+  dw += (itd->getPattern() & ((1<<kPatternBitWidth)-1))   <<
+    (shift += kQualityBitWidth);
+  dw += (itd->getBend()    & ((1<<kBendBitWidth)-1))      <<
+    (shift += kPatternBitWidth);
+  dw += (itd->getStrip()   & ((1<<kHalfstripBitWidth)-1)) <<
+    (shift += kBendBitWidth);
+  dw += (itd->getCFEB()    & ((1<<kCFEBBitWidth)-1))      <<
+    (shift += kHalfstripBitWidth);
+  dw += (itd->getBX()      & ((1<<kBxBitWidth)-1))        <<
+    (shift += kCFEBBitWidth);
+  shift = 0;
+  ew  =  itm->isValid()    & ((1<<kValidBitWidth)-1);
+  ew += (itm->getQuality() & ((1<<kQualityBitWidth)-1))   <<
+    (shift += kValidBitWidth);
+  ew += (itm->getPattern() & ((1<<kPatternBitWidth)-1))   <<
+    (shift += kQualityBitWidth);
+  ew += (itm->getBend()    & ((1<<kBendBitWidth)-1))      <<
+    (shift += kPatternBitWidth);
+  ew += (itm->getStrip()   & ((1<<kHalfstripBitWidth)-1)) <<
+    (shift += kBendBitWidth);
+  ew += (itm->getCFEB()    & ((1<<kCFEBBitWidth)-1))      <<
+    (shift += kHalfstripBitWidth);
+  ew += (itm->getBX()      & ((1<<kBxBitWidth)-1))        <<
+    (shift += kCFEBBitWidth);
+  digi.setData(dw, ew);
   return digi;
 }
 
@@ -506,8 +623,8 @@ DEutils<CSCCorrelatedLCTDigiCollection_>::de_equal(const cand_type& lhs, const c
   val &= (lhs.getStrip()   == rhs.getStrip()  );
   val &= (lhs.getPattern() == rhs.getPattern());
   val &= (lhs.getBend()    == rhs.getBend()   );
-  val &= (lhs.getMPCLink() == rhs.getMPCLink()); 
   val &= (lhs.getBX()      == rhs.getBX()     );    
+  val &= (lhs.getMPCLink() == rhs.getMPCLink()); 
   val &= (lhs.getCSCID()   == rhs.getCSCID()  );
   return val;
   //return lhs==rhs;
@@ -645,21 +762,21 @@ DEutils<CSCCorrelatedLCTDigiCollection_>::de_equal_loc(const cand_type& lhs, con
   bool val = true;
   val &= (lhs.getCSCID() == rhs.getCSCID() );
   val &= (lhs.getStrip() == rhs.getStrip() );
-  val &= (lhs.getKeyWG()   == rhs.getKeyWG()  );
+  val &= (lhs.getKeyWG() == rhs.getKeyWG() );
   return val;
 }
 
 template <> inline bool 
 DEutils<CSCALCTDigiCollection_>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
-  val &= (lhs.getTrknmb()  == rhs.getTrknmb() );
-  val &= (lhs.getKeyWG()   == rhs.getKeyWG()  );
+  val &= (lhs.getTrknmb() == rhs.getTrknmb() );
+  val &= (lhs.getKeyWG()  == rhs.getKeyWG()  );
   return val;
 }
 template <> inline bool 
 DEutils<CSCCLCTDigiCollection_>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
-  //val &= (lhs.getTrknmb()  == rhs.getTrknmb() );
+  val &= (lhs.getTrknmb()   == rhs.getTrknmb()   );
   val &= (lhs.getKeyStrip() == rhs.getKeyStrip() );
   return val;
 }
@@ -963,18 +1080,18 @@ template <>
 inline std::string DEutils<CSCCorrelatedLCTDigiCollection_>::print(col_cit it) const {
   std::stringstream ss;
   ss 
-    << " ltc#:"     << it->getTrknmb()
-    << " val:"      << it->isValid()
-    << " qua:"      << it->getQuality() 
-    << " mpc-link:" << it->getMPCLink()
-    << " strip:"    << it->getStrip()
-    << "("          << ((it->getStripType() == 0) ? 'D' : 'H') << ")"
-    << " bend:"     << ((it->getBend() == 0) ? 'L' : 'R')
-    << " patt:"     << it->getCLCTPattern()
-    <<"  key-wire:" << it->getKeyWG()
-    << " bx:"       << it->getBX()
-    << std::endl;
-  //ss << *it;
+    //<< " ltc#:"     << it->getTrknmb()
+    //<< " val:"      << it->isValid()
+    //<< " qua:"      << it->getQuality() 
+    //<< " strip:"    << it->getStrip()
+    //<< " bend:"     << ((it->getBend() == 0) ? 'L' : 'R')
+    //<< " patt:"     << it->getCLCTPattern()
+    //<<"  key wire:" << it->getKeyWG()
+    //<< " bx:"       << it->getBX()
+    //<< " mpc-link:" << it->getMPCLink()
+    //<< " csc id:"   << it->getCSCID()
+    //<< std::endl;
+    << *it;
   return ss.str();
 }
 
