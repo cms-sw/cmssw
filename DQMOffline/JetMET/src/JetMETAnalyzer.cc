@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/12 19:13:26 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/09/19 15:11:14 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -41,6 +41,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   theCaloMETCollectionLabel     = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
   theCaloMETNoHFCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETNoHFCollectionLabel");
+
+  theTriggerResultsLabel    = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   
 //theSCJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoSCJetAnalysis",true);
 //theICJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoICJetAnalysis",true);
