@@ -300,15 +300,17 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if correlated LCTs from TF, read needed info from TP data digis
       iEvent.getByLabel("muonCSCDigis", "MuonCSCALCTDigi"     ,ctp_ano_data_);
       iEvent.getByLabel("muonCSCDigis", "MuonCSCCLCTDigi"     ,ctp_cat_data_);
+      iEvent.getByLabel(m_DEsource[CTP][0].label(),"MPCSORTED",ctp_lct_data_);
     } else {
-      iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_ano_data_);
-      iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_cat_data_);
+      iEvent.getByLabel(m_DEsource[CTP][0].label(),"MuonCSCALCTDigi",ctp_ano_data_);
+      iEvent.getByLabel(m_DEsource[CTP][0].label(),"MuonCSCCLCTDigi",ctp_cat_data_);
+      iEvent.getByLabel(m_DEsource[CTP][0].label(),"MuonCSCCorrelatedLCTDigi",ctp_lct_data_);
     }
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_ano_emul_);
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_cat_emul_);
-    iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_lct_data_);
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_lct_emul_);
   }
+
   ///place candidates into vectors
   //Anode LCT
   CSCALCTDigiCollection_ ctp_ano_data_v, ctp_ano_emul_v;
@@ -408,12 +410,14 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       // Extract full 12-bit BX word from ALCT data collections.
       int full_anode_bx = -999;
-      const CSCALCTDigiCollection::Range& arange = ctp_ano_data_->get(detid);
-      for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
-       digiIt != arange.second; digiIt++) {
-	if ((*digiIt).isValid()) {
-	  full_anode_bx = (*digiIt).getFullBX();
-	  break;
+      if(ctp_ano_data_.isValid()) {
+	const CSCALCTDigiCollection::Range& arange = ctp_ano_data_->get(detid);
+	for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
+	     digiIt != arange.second; digiIt++) {
+	  if ((*digiIt).isValid()) {
+	    full_anode_bx = (*digiIt).getFullBX();
+	    break;
+	  }
 	}
       }
 
@@ -443,7 +447,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   ctp_lct_data =&ctp_lct_data_v;
   ctp_lct_emul =&ctp_lct_emul_v;
-  
+
+
   // -- CTF [cathode strip chamber track finder]
   edm::Handle<L1MuRegionalCandCollection> ctf_data, ctf_emul;
   edm::Handle<L1CSCTrackCollection> ctf_trk_data_, ctf_trk_emul_; 
@@ -640,28 +645,28 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =     rct_em_emul .isValid();
   isValidDE[RCT][0]&=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
   isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] =gct_isolaem_emul .isValid();
-  isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1] =gct_noisoem_emul .isValid();
-  isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1] =gct_cenjets_emul .isValid();
-  isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1] =gct_forjets_emul .isValid();
-  isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1] =gct_taujets_emul .isValid();
+  isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1]&=gct_noisoem_emul .isValid();
+  isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1]&=gct_cenjets_emul .isValid();
+  isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1]&=gct_forjets_emul .isValid();
+  isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&=gct_taujets_emul .isValid();
   isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
   isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
-//isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
+//isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1]&=    dtf_trk_emul_.isValid();
   isValidDE[CTP][0] =     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
-  isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1] =    ctp_cat_emul_.isValid();
-  isValidDE[CTP][0]&=     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
+  isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
+  isValidDE[CTP][0]&=     ctp_lct_data_.isValid(); isValidDE[CTP][1]&=    ctp_lct_emul_.isValid();
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
-//isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1] =   ctf_trk_emul_ .isValid();
-//isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1] =   ctf_sta_emul_ .isValid();
+//isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1]&=   ctf_trk_emul_ .isValid();
+//isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1]&=   ctf_sta_emul_ .isValid();
   isValidDE[RPC][0] =     rpc_cen_data .isValid(); isValidDE[RPC][1] =    rpc_cen_emul .isValid();
   isValidDE[RPC][0]&=     rpc_for_data .isValid(); isValidDE[RPC][1]&=    rpc_for_emul .isValid();
   isValidDE[LTC][0] =         ltc_data .isValid(); isValidDE[LTC][1] =        ltc_emul .isValid();
   isValidDE[GMT][0] =         gmt_data .isValid(); isValidDE[GMT][1] =        gmt_emul .isValid();
-//isValidDE[GMT][0]&=     gmt_rdt_data_.isValid(); isValidDE[GMT][1] =    gmt_rdt_emul_.isValid();
+//isValidDE[GMT][0]&=     gmt_rdt_data_.isValid(); isValidDE[GMT][1]&=    gmt_rdt_emul_.isValid();
   isValidDE[GLT][0] =     glt_rdt_data .isValid(); isValidDE[GLT][1] =    glt_rdt_emul .isValid();
-//isValidDE[GLT][0]&=     glt_evm_data .isValid(); isValidDE[GLT][1] =    glt_evm_emul .isValid();
-//isValidDE[GLT][0]&=     glt_obj_data .isValid(); isValidDE[GLT][1] =    glt_obj_emul .isValid();
+//isValidDE[GLT][0]&=     glt_evm_data .isValid(); isValidDE[GLT][1]&=    glt_evm_emul .isValid();
+//isValidDE[GLT][0]&=     glt_obj_data .isValid(); isValidDE[GLT][1]&=    glt_obj_emul .isValid();
 
   bool isValid[DEnsys];
   for(int i=0; i<DEnsys; i++) {
