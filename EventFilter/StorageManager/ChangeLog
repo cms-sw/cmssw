@@ -1,3 +1,12 @@
+2008-09-20  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-15
+	* Added protection against NULL registry data pointers in 
+	  StorageManager::receiveRegistryMessage().  Added clearing of the
+	  SMFUSenderList in the enabling() method of StorageManager.
+	  These changes will hopefully reduce or eliminate the occasional
+	  crashes of the SM at the beginning of runs.
+
 2008-09-16  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-14
