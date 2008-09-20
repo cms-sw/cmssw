@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.81 2008/09/14 10:36:32 biery Exp $
+// $Id: StorageManager.cc,v 1.82 2008/09/16 07:52:02 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -375,6 +375,9 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   {
     char* regPtr = smrbsenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
+
+    if (regPtr != NULL) {
+
     unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
 
@@ -496,6 +499,19 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
       throw excpt;
     }
+
+    }
+    else {
+      char tidString[32];
+      sprintf(tidString, "%d", msg->hltTid);
+      std::string logMsg = "receiveRegistryMessage: Skipping ";
+      logMsg.append("NULL registry data for URL ");
+      logMsg.append(msg->hltURL);
+      logMsg.append(" and Tid ");
+      logMsg.append(tidString);
+      FDEBUG(9) << logMsg << std::endl;
+      LOG4CPLUS_ERROR(this->getApplicationLogger(), logMsg);
+    }  // end if regPtr != NULL
 
     string hltClassName(msg->hltClassName);
     sendDiscardMessage(msg->fuID, 
@@ -4437,6 +4453,8 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
+
+    smrbsenders_.clear();
     
     fileList_.clear();
     eventsInFile_.clear();
