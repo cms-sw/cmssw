@@ -15,6 +15,14 @@ SMFUSenderList::SMFUSenderList()
   FDEBUG(10) << "SMFUSenderList: Making a SMFUSenderList" << endl;
 }
 
+void SMFUSenderList::clear()
+{
+  boost::mutex::scoped_lock sl(list_lock_);
+  senderlist_.clear();
+  numberOfRB_ = 0;
+  numberOfOM_ = 0;
+}
+
 unsigned int SMFUSenderList::size()
 {
   boost::mutex::scoped_lock sl(list_lock_);

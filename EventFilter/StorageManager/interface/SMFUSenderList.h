@@ -23,6 +23,7 @@ class SMFUSenderList  //< list of data senders with thread-safe access
 
   // following method uses the list lock
 
+  void clear();
   /// number of registered data senders
   unsigned int size();
   unsigned int numberOfRB() const { return numberOfRB_;}
