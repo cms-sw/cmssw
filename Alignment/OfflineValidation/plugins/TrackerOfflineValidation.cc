@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.15 2008/09/16 15:04:18 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.16 2008/09/19 15:23:11 flucke Exp $
 //
 //
 
@@ -173,7 +173,7 @@ private:
   bool isDetOrDetUnit(align::StructureType type);
 
   TH1* bookTH1F(bool isTransient, TFileDirectory& tfd, const char* histName, const char* histTitle, 
-		int nBinsX, float lowX, float highX);
+		int nBinsX, double lowX, double highX);
 
   void getBinning(uint32_t subDetId, TrackerOfflineValidation::HistogrammType residualtype, 
 		  int &nBinsX, double &lowerBoundX, double &upperBoundX);
@@ -455,15 +455,6 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
   TrackerAlignableId aliid;
   const DetId id = ali.id();
 
-  // binnings for module level histogramms are steerable via cfg file
-  int32_t i_residuals_Nbins = 0, i_residuals_NbinsY = 0, i_normres_Nbins = 0;
-  double d_residual_xmin = 0., d_residual_xmax = 0., 
-         d_normres_xmin = 0., d_normres_xmax = 0.,
-         d_residual_ymin = 0., d_residual_ymax = 0. ;
-  this->getBinning(id.subdetId(), XResidual, i_residuals_Nbins, d_residual_xmin, d_residual_xmax );
-  this->getBinning(id.subdetId(), NormXResidual, i_normres_Nbins, d_normres_xmin, d_normres_xmax );
-  this->getBinning(id.subdetId(), YprimeResidual, i_residuals_NbinsY, d_residual_ymin, d_residual_ymax);
-
   // comparing subdetandlayer to subdetIds gives a warning at compile time
   // -> subdetandlayer could also be pair<uint,uint> but this has to be adapted
   // in AlignableObjId 
@@ -511,30 +502,38 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
   
   if( this->isDetOrDetUnit( subtype ) ) {
     ModuleHistos &histStruct = this->getHistStructFromMap(id);
-    
+    int nbins = 0;
+    double xmin = 0., xmax = 0.;
+
     // decide via cfg if hists in local coordinates should be booked 
     if(lCoorHistOn_) {
+      this->getBinning(id.subdetId(), XResidual, nbins, xmin, xmax);
       histStruct.ResHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
 					   histoname.str().c_str(),histotitle.str().c_str(),		     
-					   i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+					   nbins, xmin, xmax);
+      this->getBinning(id.subdetId(), NormXResidual, nbins, xmin, xmax);
       histStruct.NormResHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd,
 					       normhistoname.str().c_str(),normhistotitle.str().c_str(),
-					       i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+					       nbins, xmin, xmax);
     } 
+    this->getBinning(id.subdetId(), XprimeResidual, nbins, xmin, xmax);
     histStruct.ResXprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
 					       xprimehistoname.str().c_str(),xprimehistotitle.str().c_str(),
-					       i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+					       nbins, xmin, xmax);
+    this->getBinning(id.subdetId(), NormXprimeResidual, nbins, xmin, xmax);
     histStruct.NormResXprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
 						   normxprimehistoname.str().c_str(),normxprimehistotitle.str().c_str(),
-						   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+						   nbins, xmin, xmax);
 
     if( this->isPixel(subdetandlayer.first) || stripYResiduals_ ) {
+      this->getBinning(id.subdetId(), YprimeResidual, nbins, xmin, xmax);
       histStruct.ResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd,
 						 yprimehistoname.str().c_str(),yprimehistotitle.str().c_str(),
-						 i_residuals_NbinsY,d_residual_ymin,d_residual_ymax);
+						 nbins, xmin, xmax);
+      this->getBinning(id.subdetId(), NormYprimeResidual, nbins, xmin, xmax);
       histStruct.NormResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient_, tfd, 
 						     normyprimehistoname.str().c_str(),normyprimehistotitle.str().c_str(),
-						     i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+						     nbins, xmin, xmax);
     }
 
   }
@@ -543,7 +542,7 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
 
 
 TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, TFileDirectory& tfd, const char* histName, const char* histTitle, 
-		int nBinsX, float lowX, float highX)
+		int nBinsX, double lowX, double highX)
 {
   if(isTransient) {
     vDeleteObjects_.push_back(new TH1F(histName, histTitle, nBinsX, lowX, highX));
@@ -897,8 +896,8 @@ TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Aligna
     if(  !(this->isDetOrDetUnit( (alivec)[iComp]->alignableObjectId()) )
 	 || (alivec)[0]->components().size() > 1 ) {
       TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
-      collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, v_profiles);
-      v_levelProfiles.push_back(bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
+      this->collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, v_profiles);
+      v_levelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
       for(uint n = 0; n < v_profiles.size(); ++n) {
 	this->summarizeBinInContainer(n+1, v_levelProfiles[iComp], v_profiles[n] );
 	v_levelProfiles[iComp].sumXResiduals_->Add(v_profiles[n].sumXResiduals_);
@@ -976,37 +975,36 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
 						<< "No summary histogramm for hierarchy level " 
 						<< aliobjid.typeToName(subtype);      
   }
-  int32_t i_residuals_Nbins = 0, i_residuals_NbinsY = 0, i_normres_Nbins = 0;
-  double d_residual_xmin = 0, d_residual_xmax = 0, 
-         d_residual_ymin = 0, d_residual_ymax = 0,
-         d_normres_xmin  = 0, d_normres_xmax  = 0;
   DetId aliDetId = ali.id(); 
-  this->getBinning(aliDetId.subdetId(), XprimeResidual, i_residuals_Nbins , d_residual_xmin, d_residual_xmax);
-  this->getBinning(aliDetId.subdetId(), NormXprimeResidual, i_normres_Nbins , d_normres_xmin, d_normres_xmax);
-  this->getBinning(aliDetId.subdetId(), YprimeResidual, i_residuals_NbinsY, d_residual_ymin, d_residual_ymax);
+  int nbins = 0;
+  double xmin = 0., xmax = 0.;
+  this->getBinning(aliDetId.subdetId(), XprimeResidual, nbins, xmin, xmax);
   sumContainer.sumXResiduals_ = tfd.make<TH1F>(Form("h_Xprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 				Form("X' Residual for %s %d in %s ",aliobjid.typeToName(alitype).c_str(),i,
 				     aliobjid.typeToName(type).c_str(),aliobjid.typeToName(subtype).c_str()),
-				i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+					       nbins, xmin, xmax);
   
+  this->getBinning(aliDetId.subdetId(), NormXprimeResidual, nbins, xmin, xmax);
   sumContainer.sumNormXResiduals_ = tfd.make<TH1F>(Form("h_NormXprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 						   Form("Normalized X' Residual for %s %d in %s ",
 							aliobjid.typeToName(alitype).c_str(),i,
 							aliobjid.typeToName(type).c_str(),
 							aliobjid.typeToName(subtype).c_str()),
-						   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+						   nbins, xmin, xmax);
 
+  this->getBinning(aliDetId.subdetId(), YprimeResidual, nbins, xmin, xmax);
   sumContainer.sumYResiduals_ = tfd.make<TH1F>(Form("h_Yprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 				Form("Y' Residual for %s %d in %s ",aliobjid.typeToName(alitype).c_str(),i,
 				     aliobjid.typeToName(type).c_str(),aliobjid.typeToName(subtype).c_str()),
-				i_residuals_NbinsY,d_residual_ymin,d_residual_ymax);
+					       nbins, xmin, xmax);
 
+  this->getBinning(aliDetId.subdetId(), NormYprimeResidual, nbins, xmin, xmax);
   sumContainer.sumNormYResiduals_ = tfd.make<TH1F>(Form("h_NormYprime_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 						   Form("Normalized Y' Residual for %s %d in %s ",
 							aliobjid.typeToName(alitype).c_str(),i,
 							aliobjid.typeToName(type).c_str(),
 							aliobjid.typeToName(subtype).c_str()),
-						   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+						   nbins, xmin, xmax);
 
   
   // special case I: For DetUnits and Detwith  only one subcomponent start filling summary histos
