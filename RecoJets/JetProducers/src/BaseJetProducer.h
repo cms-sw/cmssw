@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.5 2008/06/23 14:35:15 oehler Exp $
+ * $Id: BaseJetProducer.h,v 1.6 2008/09/10 12:09:28 oehler Exp $
  *
  ************************************************************/
 
@@ -44,7 +44,7 @@ namespace cms
     double mEtInputCut;
     double mEInputCut;
     double mJetPtMin;
-    int mVertexCaloJet;
+    bool mVertexCorrectedInput;
     //should be: 0 (none), 1 (correct constituents), 2 (correct final jets), 3 (use built-in method of CaloTowers)
     edm::InputTag mPVCollection;
   };
