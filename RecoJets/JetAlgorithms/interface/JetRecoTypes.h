@@ -3,7 +3,7 @@
 
 // Types used in Jet Reconstruction
 // F.Ratnikov, UMd
-// $Id: JetRecoTypes.h,v 1.5 2007/09/20 21:05:01 fedor Exp $
+// $Id: JetRecoTypes.h,v 1.6 2008/09/10 12:08:41 oehler Exp $
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 class ProtoJet;
@@ -50,7 +50,7 @@ namespace JetReco {
     inline void setIndex(unsigned nIndex){mIndex=nIndex;}
     inline bool operator! () const {return !mCandidate;}
   private:
-    const value_type* mCandidate;
+    const value_type* mCandidate; //version used in algorithms
     const value_type* oCandidate; //original, use for constituents
     unsigned mIndex;
   };
