@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/06/02 11:08:58 $
- * $Revision: 1.13 $
+ * $Date: 2008/06/09 11:08:05 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.13 2008/06/02 11:08:58 tapper Exp $
+ * $Id: L1TGCT.h,v 1.14 2008/06/09 11:08:05 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.14  2008/06/09 11:08:05  tapper
+ * Removed electron sub-folders with histograms per eta and phi bin.
+ *
  * Revision 1.13  2008/06/02 11:08:58  tapper
  * Added HF ring histograms....
  *
@@ -152,9 +155,12 @@ private:
   //HF Rings stuff
   MonitorElement* l1GctHFRing0PosEtaNegEta_;
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
-  MonitorElement* l1GctHFTowerCountPosEtaNegEta_;
-  MonitorElement* l1GctHFTowerCountPosEta_;
-  MonitorElement* l1GctHFTowerCountNegEta_;
+  MonitorElement* l1GctHFRing0TowerCountPosEtaNegEta_;
+  MonitorElement* l1GctHFRing1TowerCountPosEtaNegEta_;
+  MonitorElement* l1GctHFRing0TowerCountPosEta_;
+  MonitorElement* l1GctHFRing0TowerCountNegEta_;
+  MonitorElement* l1GctHFRing1TowerCountPosEta_;
+  MonitorElement* l1GctHFRing1TowerCountNegEta_;
   MonitorElement* l1GctHFRing0ETSumPosEta_;
   MonitorElement* l1GctHFRing0ETSumNegEta_;
   MonitorElement* l1GctHFRing1ETSumPosEta_;
@@ -179,6 +185,31 @@ private:
   MonitorElement* l1GctNonIsoEmRankDiff01_;
   MonitorElement* l1GctNonIsoEmRankDiff12_;
   MonitorElement* l1GctNonIsoEmRankDiff23_;
+
+  //GCT jet stuff
+  MonitorElement* l1GctCenJetsRankCand0_;
+  MonitorElement* l1GctCenJetsRankCand1_;
+  MonitorElement* l1GctCenJetsRankCand2_;
+  MonitorElement* l1GctCenJetsRankCand3_;
+  MonitorElement* l1GctForJetsRankCand0_;
+  MonitorElement* l1GctForJetsRankCand1_;
+  MonitorElement* l1GctForJetsRankCand2_;
+  MonitorElement* l1GctForJetsRankCand3_;
+  MonitorElement* l1GctTauJetsRankCand0_;
+  MonitorElement* l1GctTauJetsRankCand1_;
+  MonitorElement* l1GctTauJetsRankCand2_;
+  MonitorElement* l1GctTauJetsRankCand3_;
+
+  MonitorElement* l1GctCenJetsRankDiff01_;
+  MonitorElement* l1GctCenJetsRankDiff12_;
+  MonitorElement* l1GctCenJetsRankDiff23_;
+  MonitorElement* l1GctForJetsRankDiff01_;
+  MonitorElement* l1GctForJetsRankDiff12_;
+  MonitorElement* l1GctForJetsRankDiff23_;
+  MonitorElement* l1GctTauJetsRankDiff01_;
+  MonitorElement* l1GctTauJetsRankDiff12_;
+  MonitorElement* l1GctTauJetsRankDiff23_;
+
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
