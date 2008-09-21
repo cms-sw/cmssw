@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/06/24 23:50:52 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/09/16 11:48:04 $
+ *  $Revision: 1.20 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -30,6 +30,7 @@ class Trajectory;
 class TrajectoryMeasurement;
 class CosmicMuonUtilities;
 class DirectMuonNavigation;
+class MuonBestMeasurementFinder;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
@@ -70,6 +71,8 @@ public:
 
   DirectMuonNavigation* navigation() const {return theNavigation;}
 
+  MuonBestMeasurementFinder* bestMeasurementFinder() const {return theBestMeasurementFinder;}
+
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
@@ -86,8 +89,6 @@ private:
   void reverseTrajectory(Trajectory&) const;
 
   void reverseTrajectoryDirection(Trajectory&) const;
-
-  double computeNDOF(const Trajectory&) const;
 
   /// check if the trajectory iterates the same hit more than once
   bool selfDuplicate(const Trajectory&) const;
@@ -114,6 +115,8 @@ private:
   const MuonServiceProxy* theService;
   CosmicMuonSmoother* theSmoother;
 
+  MuonBestMeasurementFinder* theBestMeasurementFinder;
+
   std::string thePropagatorName;
 
   bool theTraversingMuonFlag;
@@ -122,6 +125,7 @@ private:
   int theNTraversing;
   int theNSuccess;
 
+  unsigned long long theCacheId_DG;
   edm::Handle<CSCRecHit2DCollection> cschits_;
   edm::Handle<DTRecHitCollection> dthits_;
 
