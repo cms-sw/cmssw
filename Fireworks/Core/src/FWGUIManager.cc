@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.73 2008/08/25 00:08:29 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.74 2008/08/29 02:33:04 dmytro Exp $
 //
 
 // system include files
@@ -802,7 +802,14 @@ FWGUIManager::promptForConfigurationFile()
    new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
                     kFDSave,&fi);
    dir = fi.fIniDir;
-   writeToConfigurationFile_(fi.fFilename);   
+   if (fi.fFilename != 0) { // to handle "cancel" button properly
+	std::string name = fi.fFilename;
+	// if the extension isn't already specified by hand, specify it now
+	std::string ext = kSaveFileTypes[fi.fFileTypeIdx + 1] + 1;
+	if (ext.size() != 0 && name.find(ext) == name.npos)
+	     name += ext;
+	writeToConfigurationFile_(name);
+   }
 }
 
 void 
