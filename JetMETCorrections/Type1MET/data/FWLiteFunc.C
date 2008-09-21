@@ -190,6 +190,9 @@ void correctMETforMuon(double& metx, double& mety, double bfield, int muonCharge
     }
   }
   
+  //being safe...
+  if(!muonMETInfo.useHO) muonMETInfo.hoE = 0;
+
   //for isolated muons
   if(!muonMETInfo.useAverage) {
     
@@ -214,18 +217,28 @@ void correctMETforMuon(double& metx, double& mety, double bfield, int muonCharge
     double dEdx_numerator     = -(11.4 + 0.96*fabs(log(mu_p*2.8)) + 0.033*mu_p*(1.0 - pow(mu_p, -0.33)) )*1e-3;
     
     double temp = 0.0;
-    
-    if(fabs(mu_eta) < 0.2)
-      temp = 3.3*(1-0.00038*mu_p); 
-    if(fabs(mu_eta) > 0.2 && fabs(mu_eta) < 1.1) 
-      temp = (2.93 - 0.129*fabs(mu_eta))*(1-0.00038*mu_p);
-    if(fabs(mu_eta) > 1.1 && fabs(mu_eta) < 1.4) 
-      temp = 33.46-48.9*fabs(mu_eta)+18.48*pow(fabs(mu_eta),2);
-    if(fabs(mu_eta) > 1.4 && fabs(mu_eta))
-      temp = 2.863 - 1.093*fabs(mu_eta);
 
+    if(muonMETInfo.useHO) {
+      //for the Towers, with HO
+      if(fabs(mu_eta) < 0.2)
+        temp = 2.75*(1-0.00003*mu_p);
+      if(fabs(mu_eta) > 0.2 && fabs(mu_eta) < 1.0)
+        temp = (2.38+0.0144*fabs(mu_eta))*(1-0.0003*mu_p);
+      if(fabs(mu_eta) > 1.0 && fabs(mu_eta) < 1.3)
+        temp = 7.413-5.12*fabs(mu_eta);
+      if(fabs(mu_eta) > 1.3)
+        temp = 2.084-0.743*fabs(mu_eta);
+    } else {
+      if(fabs(mu_eta) < 1.0)
+        temp = 2.33*(1-0.0004*mu_p);
+      if(fabs(mu_eta) > 1.0 && fabs(mu_eta) < 1.3)
+        temp = (7.413-5.12*fabs(mu_eta))*(1-0.0003*mu_p);
+      if(fabs(mu_eta) > 1.3)
+        temp = 2.084-0.743*fabs(mu_eta);
+    }
 
     double dep = temp*dEdx_normalization/dEdx_numerator;
+    if(dep < 0.5) dep = 0.0;
     //use the average phi of the 3 subdetectors
     if(fabs(mu_eta) < 1.3) {
       metx += dep*cos((ecalPhi+hcalPhi+hoPhi)/3);
