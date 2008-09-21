@@ -428,7 +428,8 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     stepsStr = ",".join(unprofiledSteps)
 
     simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
-    OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
+    OutputFile = "%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
+    OutputFileOption = "--fileout=%s" % OutputFile
 
     InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex - 1)
 
@@ -442,6 +443,7 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
                           CustomisePythonFragment,
                           cmsDriverOptions) )
     simcandles.write( "%s @@@ None @@@ None\n\n" % (Command))
+    return OutputFile
 
 def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions):
     fstIdx = -1
@@ -450,21 +452,21 @@ def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptio
     else:
         fstIdx = AllSteps.index(steps[0])
     CustomisePythonFragment = pythonFragment("GEN,SIM")
-    writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0)        
-    return fstIdx
+    OutputFile = writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0) 
+    return (fstIdx, OutputFile)
 
 def setOutputFileOption(acandle,endstep):
     return "%s_%s.root" % ( FileName[acandle],endstep)
 
 def writeCommands(simcandles,
-                 Profile,
-                 acandle,
-                 steps,
-                 NumberOfEvents,
-                 cmsDriverOptions,
-                 bypasshlt,                  
-                 stepIndex = 0,
-                 qcd = False):
+                  Profile,
+                  acandle,
+                  steps,
+                  NumberOfEvents,
+                  cmsDriverOptions,
+                  bypasshlt,                  
+                  stepIndex = 0,
+                  qcd = False):
 
     OutputStep = ""
 
@@ -473,6 +475,8 @@ def writeCommands(simcandles,
 
     userSteps = steps
     SavedProfile = []
+    fstROOTfile = True
+    fstROOTfileStr = ""
 
     if qcd :
         steps.pop()
@@ -482,7 +486,10 @@ def writeCommands(simcandles,
         userSteps = steps
     else:
         if not (steps[0] == AllSteps[0]):
-            stepIndex = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
+            (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,fstROOTfile)
+            if fstROOTfile:
+                fstROOTfileStr = rootFileStr
+                fstROOTfile = False
             start = -1
             if "-" in steps[0]:
                 start = AllSteps.index(steps[0].split("-")[0])
@@ -553,6 +560,9 @@ def writeCommands(simcandles,
             writeStepHead(simcandles,acandle,stepToWrite)
 
             OutputFile = setOutputFileOption(acandle,stepToWrite)
+            if fstROOTfile:
+                fstROOTfileStr = OutputFile
+                fstROOTfile = False
             OutputFileOption = "--fileout=" + OutputFile
 
             for prof in Profile:
@@ -646,10 +656,11 @@ def writeCommands(simcandles,
             stepIndex += len(hypsteps)            
         else:
             stepIndex +=1
+    return fstROOTfileStr
 
-def prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions):
+def prepareQcdCommand(rootinput,thecandle,NumberOfEvents,cmsDriverOptions):
 
-    InputFileOption  = "--filein file:%s_GEN,SIM.root " % (FileName[thecandle])
+    InputFileOption  = "--filein file:%s" % (rootinput)
     OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
 
     return (
@@ -670,6 +681,8 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
 
     EventContent = {'GEN,SIM': 'FEVTDEBUGHLT', 'DIGI': 'FEVTDEBUGHLT'}
 
+    digiPUrootIN = ""
+    qcdStr = Candles[6]    
     for acandle in Candle:
         print '*Candle ' + acandle
         
@@ -677,20 +690,23 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         # If the first profiling we run is EdmSize we need to create the root file first
         #
 
-        writeCommands(simcandles,
-                      Profile,
-                      acandle,
-                      steps,
-                      NumberOfEvents,
-                      cmsDriverOptions,
-                      bypasshlt)
+        fstoutfile = writeCommands(simcandles,
+                                   Profile,
+                                   acandle,
+                                   steps,
+                                   NumberOfEvents,
+                                   cmsDriverOptions,
+                                   bypasshlt)
+        if qcdStr == acandle:
+            digiPUrootIN = fstoutfile
+            
 
     # Add the extra "step" DIGI with PILE UP only for QCD_80_120:
     # After digi pileup steps:
     # Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
 
 
-    qcdStr = Candles[6]
+
     if qcdStr in Candle and MIN_REQ_TS_EVENTS <= NumberOfEvents:
         thecandle = getFstOccur(qcdStr, Candle)
 
@@ -703,7 +719,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
             if 'EdmSize' in prof:
                 Command = "%s_DIGI_PILEUP.root " % (FileName[thecandle])
             else:
-                Command = prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions)
+                Command = prepareQcdCommand(digiPUrootIN,thecandle,NumberOfEvents,cmsDriverOptions)
 
             if _noprof:
                 simcandles.write("%s @@@ None @@@ None \n" % Command)
