@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/09/16 11:47:00 $
- *  $Revision: 1.38 $
+ *  $Date: 2008/09/21 19:49:17 $
+ *  $Revision: 1.39 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -497,7 +497,7 @@ void CosmicMuonTrajectoryBuilder::buildSecondHalf(Trajectory& traj) {
   if ( (traj.firstMeasurement().recHit()->globalPosition().perp()
       < traj.lastMeasurement().recHit()->globalPosition().perp()) ) {
     LogTrace(category_)<<"inside-out: reverseTrajectory"; 
-//FIXME    reverseTrajectory(traj);
+    reverseTrajectory(traj);
   }
   TrajectoryStateOnSurface tsos = traj.lastMeasurement().updatedState();
   if ( !tsos.isValid() ) tsos = traj.lastMeasurement().predictedState();
