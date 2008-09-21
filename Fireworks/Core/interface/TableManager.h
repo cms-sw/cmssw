@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Jul  6 23:28:39 EDT 2008
-// $Id: TableManager.h,v 1.1 2008/07/07 03:59:54 chrjones Exp $
+// $Id: TableManager.h,v 1.2 2008/07/12 08:13:13 jmuelmen Exp $
 //
 
 // system include files
@@ -44,6 +44,8 @@ public:
    virtual const std::string title() const { return ""; }
    virtual void Selection (int row, int mask) { } 
    virtual void selectRows () { } 
+     virtual int table_row_to_index (int) const { return 0; }
+     virtual int index_to_table_row (int) const { return 0; }
 };
 
 

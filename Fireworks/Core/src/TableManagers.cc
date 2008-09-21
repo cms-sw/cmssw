@@ -43,7 +43,7 @@ FWTableManager::FWTableManager ()
        title_frame	(0),
        item	(0)
 {
-
+     m_print_index = true;
 }
 
 void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height,

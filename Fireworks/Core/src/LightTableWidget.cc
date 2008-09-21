@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <assert.h>
+#include <math.h>
 #include <sstream>
 #include <iostream>
 
@@ -221,21 +222,28 @@ void LightTableManager::format (std::vector<std::string> &ret,
                                 std::vector<int> &col_width,
                                 int)
 {
+     int print_idx = m_print_index ? 1 : 0;
      ret.reserve(NumberOfRows() + preamble() - 1); // col titles, horizontal line
      std::vector<std::string> titles = GetTitles(0);
-     col_width.reserve(titles.size());
+     col_width.reserve(titles.size() + print_idx);
+     if (print_idx) {
+	  int idx_len = 1;
+	  if (NumberOfRows() != 0)
+	       idx_len = (int)floor(log(NumberOfRows()) / log(10)) + 1;
+	  col_width.push_back(std::max(idx_len, 3));
+     }
      for (std::vector<std::string>::const_iterator i = titles.begin();
 	  i != titles.end(); ++i) {
 	  col_width.push_back(i->length());
      }
-     std::vector<std::string> row_content;
+     std::vector<std::string> row_content(NumberOfCols());
      for (int row = 0; row < NumberOfRows(); ++row) {
 	  FillCells(row, 0, row + 1, NumberOfCols(), row_content);
 	  for (std::vector<std::string>::const_iterator i = row_content.begin();
 	       i != row_content.end(); ++i) {
 	       const int length = i->length();
-	       if (col_width[i - row_content.begin()] < length)
-		    col_width[i - row_content.begin()] = length;
+	       if (col_width[i - row_content.begin() + print_idx] < length)
+		    col_width[i - row_content.begin() + print_idx] = length;
 	  }
      }
      int total_len = 0;
@@ -253,8 +261,12 @@ void LightTableManager::format (std::vector<std::string> &ret,
      }
      //      ret.push_back(std::string(total_len, '-')); 
      char *p = s;
+     if (print_idx) {
+	  p += snprintf(p, sEnd-p,"%*s", col_width[0] + 1, "idx");
+	  assert(p<=sEnd);
+     }
      for (unsigned int i = 0; i < titles.size(); ++i) {
-	  p += snprintf(p, sEnd-p,"%*s", col_width[i] + 1, titles[i].c_str());
+	  p += snprintf(p, sEnd-p,"%*s", col_width[i + print_idx] + 1, titles[i].c_str());
 	  assert(p<=sEnd);
      }
      ret.push_back(s);
@@ -269,11 +281,19 @@ void LightTableManager::format (std::vector<std::string> &ret,
 	  // 	  }
 	  FillCells(row, 0, row + 1, NumberOfCols(), row_content);
 	  char *p = s;
-	  for (unsigned int i = 0; i < row_content.size(); ++i) {
-	       p += snprintf(p, sEnd-p,"%*s", col_width[i] + 1, row_content[i].c_str());
+	  if (print_idx) {
+	       p += snprintf(p, sEnd-p,"%*d", col_width[0] + 1, table_row_to_index(row));
 	       if(p>sEnd) {
 		    std::cout <<"exceeded row size of "<<total_len+1<<" with '"<<p
-			      <<"'\n while adding row "<<row<<" column "<<i<<" with value '"<<row_content[i]<<"'"<< std::endl;
+			      <<"'\n while adding row "<<row<<" column "<<0<<" with value " << table_row_to_index(row) << std::endl;
+	       }
+	       assert(p<=sEnd);
+	  }
+	  for (unsigned int i = 0; i < row_content.size(); ++i) {
+	       p += snprintf(p, sEnd-p,"%*s", col_width[i + print_idx] + 1, row_content[i].c_str());
+	       if(p>sEnd) {
+		    std::cout <<"exceeded row size of "<<total_len+1<<" with '"<<p
+			      <<"'\n while adding row "<<row<<" column "<<i + print_idx<<" with value '"<<row_content[i]<<"'"<< std::endl;
 	       }
 	       assert(p<=sEnd);
 	  }
@@ -285,18 +305,22 @@ void LightTableManager::format (std::vector<std::string> &ret,
 
 void LightTableManager::sort (int col, bool reset) 
 {
-   if (reset) {
-      sort_asc_ = true;
-      sort_col_ = col; 
-   } else { 
-      if (sort_col_ == col) {
-         sort_asc_ = not sort_asc_;
-      } else {
-         sort_asc_ = true;
-      }
-      sort_col_ = col;
-   }
-   Sort(sort_col_, sort_asc_);
+     int print_idx = m_print_index ? 1 : 0;
+     col -= print_idx;
+     if (col < 0)
+	  return;
+     if (reset) {
+	  sort_asc_ = true;
+	  sort_col_ = col; 
+     } else { 
+	  if (sort_col_ == col) {
+	       sort_asc_ = not sort_asc_;
+	  } else {
+	       sort_asc_ = true;
+	  }
+	  sort_col_ = col;
+     }
+     Sort(sort_col_, sort_asc_);
 }
 
 void LightTableManager::resort ()

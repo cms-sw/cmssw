@@ -16,7 +16,7 @@ class TGGC;
 
 class LightTableManager : public TableManager {
 public:
-     LightTableManager():sort_asc_(true), sort_col_(0) {}
+     LightTableManager():sort_asc_(true), sort_col_(0), m_print_index(false) {}
      
      void format (std::vector<std::string> &ret, 
 		  std::vector<int> &col_widths,
@@ -27,8 +27,9 @@ public:
      virtual bool rowIsSelected(int row) const = 0;      
      virtual bool rowIsVisible (int row) const { return true; }
 private:
-   bool sort_asc_;
-   int sort_col_;
+     bool 		sort_asc_;
+     int 		sort_col_;
+     bool		m_print_index;
 };
 
 
