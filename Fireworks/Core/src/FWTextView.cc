@@ -896,6 +896,7 @@ void FWTextView::changesDone (const CmsShowMain *)
 	  (*i)->vis_indices.clear();
 	  if ((*i)->item == 0)
 	       continue;
+	  (*i)->widget->SetTextColor((*i)->item->m_displayProperties.color());
 	  for (unsigned int j = 0; j < (*i)->item->m_itemInfos.size(); ++j) {
 	       if ((*i)->item->m_itemInfos[j].displayProperties().isVisible()) {
 		    (*i)->vis_indices.insert(j);
