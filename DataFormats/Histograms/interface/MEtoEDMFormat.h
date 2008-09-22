@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/08/09 16:09:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/17 09:22:53 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -72,8 +72,28 @@ class MEtoEDM
   bool mergeProduct(const MEtoEDM<T> &newMEtoEDM) {
     const MEtoEdmObjectVector &newMEtoEDMObject = 
       newMEtoEDM.getMEtoEdmObject();
+    bool warn = false;
+    std::vector<bool> tmp(newMEtoEDMObject.size(), false);
     for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
-      MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
+      unsigned int j = 0;
+      while (j < newMEtoEDMObject.size() &&
+             (strcmp(MEtoEdmObject[i].name.c_str(),
+                     newMEtoEDMObject[j].name.c_str()) != 0)) ++j;
+      if (j < newMEtoEDMObject.size()) {
+        MEtoEdmObject[i].object.Add(&newMEtoEDMObject[j].object);
+        tmp[j] = true;
+      } else {
+        warn = true;
+      }
+    }
+    for (unsigned int j = 0; j < newMEtoEDMObject.size(); ++j) {
+      if (!tmp[j]) {
+        warn = true;
+        MEtoEdmObject.push_back(newMEtoEDMObject[j]);
+      }
+    }
+    if (warn) {
+      std::cout << "WARNING: problem found in MEtoEDM::mergeProducts()" << std::endl;
     }
     return true;
   }
