@@ -35,6 +35,7 @@ private:
   int  findLayer( const MaterialAccountingDetector & detector );
 
   void saveParameters(const char* name);
+  void saveXml(const char* name);
   void saveLayerPlots();
   
   edm::InputTag                             m_material;
@@ -44,12 +45,10 @@ private:
   bool                                      m_saveSummaryPlot;
   bool                                      m_saveDetailedPlots;
   bool                                      m_saveParameters;
+  bool                                      m_saveXml;
   std::vector<MaterialAccountingGroup *>    m_groups;
   std::vector<std::string>                  m_groupNames;
   TrackingMaterialPlotter *                 m_plotter;
 };
-
-
-
 
 #endif // TrackingMaterialAnalyser_h

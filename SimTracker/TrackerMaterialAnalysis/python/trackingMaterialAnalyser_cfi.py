@@ -8,6 +8,7 @@ trackingMaterialAnalyser = cms.EDFilter("TrackingMaterialAnalyser",
     SaveSummaryPlot         = cms.bool(True),
     SaveDetailedPlots       = cms.bool(False),
     SaveParameters          = cms.bool(True),
+    SaveXML                 = cms.bool(True),
     Groups = cms.vstring(
         'TrackerRecMaterialPixelBarrelLayer0_Z0', 
         'TrackerRecMaterialPixelBarrelLayer0_Z20', 

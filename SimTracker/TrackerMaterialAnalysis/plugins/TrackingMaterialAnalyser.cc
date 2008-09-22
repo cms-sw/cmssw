@@ -47,6 +47,7 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_saveSummaryPlot         = iPSet.getParameter<bool>("SaveSummaryPlot");
   m_saveDetailedPlots       = iPSet.getParameter<bool>("SaveDetailedPlots");
   m_saveParameters          = iPSet.getParameter<bool>("SaveParameters");
+  m_saveXml                 = iPSet.getParameter<bool>("SaveXML");
   if (m_saveSummaryPlot)
     m_plotter               = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
   else
@@ -86,6 +87,23 @@ void TrackingMaterialAnalyser::saveParameters(const char* name)
 }
 
 //-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::saveXml(const char* name)
+{
+  std::ofstream xml(name);
+  xml << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << std::endl;
+  xml << "<Groups>" << std::endl;
+  for (unsigned int i = 0; i < m_groups.size(); ++i) {
+    MaterialAccountingGroup & layer = *(m_groups[i]);
+    xml << "  <Group name=\"" << layer.name() << "\">\n"
+        << "    <Parameter name=\"TrackerRadLength\" value=\"" << layer.averageRadiationLengths() << "\"/>"
+        << "    <Parameter name=\"TrackerXi\" value=\"" << layer.averageEnergyLoss() << "\"/>"
+        << "  </Group>\n" 
+        << std::endl;
+  }
+  xml << "</Groudp>" << std::endl;
+}
+
+//-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::saveLayerPlots()
 {
   for (unsigned int i = 0; i < m_groups.size(); ++i) {
@@ -99,6 +117,9 @@ void TrackingMaterialAnalyser::endJob(void)
 {
   if (m_saveParameters)
     saveParameters("parameters");
+
+  if (m_saveXml)
+    saveXml("parameters.xml");
 
   if (m_saveDetailedPlots)
     saveLayerPlots();
