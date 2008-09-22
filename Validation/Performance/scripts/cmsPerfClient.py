@@ -81,9 +81,9 @@ def optionparse():
         parser.error("ERROR: outfile %s already exists" % outfile)
         sys.exit()
 
-    if not options.cmscmdfile == "":
-        parser.error("ERROR: You can not specify a command file and command string")
-        sys.exit()
+    #if not options.cmscmdfile == "":
+    #    parser.error("ERROR: You can not specify a command file and command string")
+    #    sys.exit()
 
     cmsperf_cmds = []
 
@@ -94,21 +94,25 @@ def optionparse():
     else:
         
         cmdfile = os.path.abspath(cmscmdfile)
+        print cmdfile
         if os.path.isfile(cmdfile):
             try:
                 execfile(cmdfile)
-                cmsperf_cmds = listperfsuitekeywords                
+                #cmsperf_cmds = listperfsuitekeywords
+                cmsperf_cmds = listperfsuitekeywords
             except (SyntaxError), detail:
-                parser.error("ERROR: %s must be a valid python file")
+                parser.error("ERROR: %s must be a valid python file" % cmdfile)
                 sys.exit()
             except (NameError), detail:
-                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
+                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program: %s" % (cmdfile,str(detail)))
                 sys.exit()
+            except :
+                raise
             if not type(cmsperf_cmds) == type([]):
-                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
+                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 2" % cmdfile)
                 sys.exit()
-            if not _isValidCmdsDef(cmsperf_cmds):
-                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
+            if not _isValidPerfCmdsDef(cmsperf_cmds):
+                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 3" % cmdfile)
                 sys.exit()                
                 
         else:
@@ -164,7 +168,7 @@ class Worker(threading.Thread):
         data = request_benchmark(self.__perfcmds, self.__host, self.__port)
         self.__queue.put((self.__host, data))
 
-def runclient(perfcmds, hosts, port):
+def runclient(perfcmds, hosts, port, outfile):
     queue = Queue.Queue()
     # start all threads
     workers = []

@@ -64,7 +64,7 @@ def optionparse():
         _DEFAULTS["perfsuitedir"] = outputdir
         
     port = 0        
-    if options.port == -1:
+    if options.port == 0:
         port = 8000
     else:
         port = options.port
@@ -136,33 +136,33 @@ def request_benchmark(cmds):
     outs = []
     i = 0
     for cmd in cmds:
-        curperfdir = os.path.join(getCPSkeyword("perfsuitedir"    , cmds),str(i))
+        curperfdir = os.path.join(getCPSkeyword("perfsuitedir"    , cmd),str(i))
         if not os.path.exists(curperfdir):
             os.mkdir(curperfdir)
-        logfile = os.path.join(getCPSkeyword("perfsuitedir"         , cmds), str(i), "cmsPerfSuite.log")
-        if cmds.has_key("logfile"):
-            logfile = os.path.join(getCPSkeyword("logfile"          , cmds), "cmsPerfSuite.log")
+        logfile = os.path.join(getCPSkeyword("perfsuitedir"         , cmd), str(i), "cmsPerfSuite.log")
+        if cmd.has_key("logfile"):
+            logfile = os.path.join(getCPSkeyword("logfile"          , cmd), "cmsPerfSuite.log")
             if os.path.exists(logfile):
                 logfile = logfile + str(i)
-        cps.runPerfSuite(castordir        = getCPSkeyword("castordir"       , cmds),
+        cps.runPerfSuite(castordir        = getCPSkeyword("castordir"       , cmd),
                          perfsuitedir     = curperfdir                             ,
-                         TimeSizeEvents   = getCPSkeyword("TimeSizeEvents"  , cmds),
-                         IgProfEvents     = getCPSkeyword("IgProfEvents"    , cmds),
-                         ValgrindEvents   = getCPSkeyword("ValgrindEvents"  , cmds),
-                         cmsScimark       = getCPSkeyword("cmsScimark"      , cmds),
-                         cmsScimarkLarge  = getCPSkeyword("cmsScimarkLarge" , cmds),
-                         cmsdriverOptions = getCPSkeyword("cmsdriverOptions", cmds),
-                         stepOptions      = getCPSkeyword("stepOptions"     , cmds),
-                         quicktest        = getCPSkeyword("quicktest"       , cmds),
-                         profilers        = getCPSkeyword("profilers"       , cmds),
-                         cpus             = getCPSkeyword("cpus"            , cmds),
-                         cores            = getCPSkeyword("cores"           , cmds),
-                         prevrel          = getCPSkeyword("prevrel"         , cmds),
-                         isAllCandles     = getCPSkeyword("isAllCandles"    , cmds),
-                         candles          = getCPSkeyword("candles"         , cmds),
-                         bypasshlt        = getCPSkeyword("bypasshlt"       , cmds),
-                         runonspare       = getCPSkeyword("runonspare"      , cmds),
-                         logfile          = logfile                                )
+                         TimeSizeEvents   = getCPSkeyword("TimeSizeEvents"  , cmd),
+                         IgProfEvents     = getCPSkeyword("IgProfEvents"    , cmd),
+                         ValgrindEvents   = getCPSkeyword("ValgrindEvents"  , cmd),
+                         cmsScimark       = getCPSkeyword("cmsScimark"      , cmd),
+                         cmsScimarkLarge  = getCPSkeyword("cmsScimarkLarge" , cmd),
+                         cmsdriverOptions = getCPSkeyword("cmsdriverOptions", cmd),
+                         stepOptions      = getCPSkeyword("stepOptions"     , cmd),
+                         quicktest        = getCPSkeyword("quicktest"       , cmd),
+                         profilers        = getCPSkeyword("profilers"       , cmd),
+                         cpus             = getCPSkeyword("cpus"            , cmd),
+                         cores            = getCPSkeyword("cores"           , cmd),
+                         prevrel          = getCPSkeyword("prevrel"         , cmd),
+                         isAllCandles     = getCPSkeyword("isAllCandles"    , cmd),
+                         candles          = getCPSkeyword("candles"         , cmd),
+                         bypasshlt        = getCPSkeyword("bypasshlt"       , cmd),
+                         runonspare       = getCPSkeyword("runonspare"      , cmd),
+                         logfile          = logfile                               )
         if _returnlog:
             outs.append(readlog(logfile))
         else:
@@ -172,7 +172,7 @@ def request_benchmark(cmds):
     return outs
 
 def _main():
-    sport = optionparse()
+    (sport, outputdir) = optionparse()
     server_thread = threading.Thread(target = runserv(sport))
     server_thread.setDaemon(True) # Allow process to finish if this is the only remaining thread
     server_thread.start()
