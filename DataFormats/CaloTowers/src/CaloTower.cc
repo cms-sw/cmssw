@@ -16,9 +16,9 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
 		     GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
   id_(id),
+  emPosition_(emPos), hadPosition_(hadPos), 
   emE_(emE), hadE_(hadE), outerE_(outerE),
-  emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
-  emPosition_(emPos), hadPosition_(hadPos)  {}
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
 
 
 CaloTower::CaloTower(const CaloTowerDetId& id,
@@ -28,12 +28,12 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
 		     GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
   id_(id),
+  emPosition_(emPos), hadPosition_(hadPos),
   emE_(emE), hadE_(hadE), outerE_(outerE),
-  emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
-  emPosition_(emPos), hadPosition_(hadPos)  {}
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
 
 
-// reacalculated momentum-related quantities wrt user provided vertex Z position
+// recalculated momentum-related quantities wrt user provided vertex Z position
 
 
 math::PtEtaPhiMLorentzVector CaloTower::hadP4(double vtxZ) const {
@@ -73,7 +73,7 @@ math::PtEtaPhiMLorentzVector CaloTower::emP4(double vtxZ) const {
 }
 
 
-// reacalculated momentum-related quantities wrt user provided 3D vertex 
+// recalculated momentum-related quantities wrt user provided 3D vertex 
 
 
 math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
