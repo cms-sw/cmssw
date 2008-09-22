@@ -14,7 +14,7 @@ int main( int argc, char** argv ){
   boost::program_options::options_description visible("Usage: cmscond_encode_db_file [options] \n");
   visible.add_options()
     ("inputFileName,i",boost::program_options::value<std::string>(),"input filename (optional, def=authentication.xml)")
-    ("outputFileName,o",boost::program_options::value<std::string>(),"output filename (optional, def=database.dat)")
+    ("outputFileName,o",boost::program_options::value<std::string>(),"output filename (required)")
     ("encodingKey,k",boost::program_options::value<std::string>(),"encoding password (required)")
     ("decode,d","decode (optional)")
     ("debug","switch on debug mode")
@@ -22,7 +22,7 @@ int main( int argc, char** argv ){
     ;
   desc.add(visible);
   std::string inputFileName("authentication.xml");
-  std::string outputFileName("database.dat");
+  std::string outputFileName("");
   std::string key("");
   bool decode=false;
   bool debug=false;
@@ -39,6 +39,11 @@ int main( int argc, char** argv ){
     }
     if( vm.count("outputFileName")){
       outputFileName=vm["outputFileName"].as<std::string>();
+    }
+    if(outputFileName.empty()){
+      std::cerr <<"[Error] no outputFileName[o] option given \n";
+      std::cerr<<" please do "<<argv[0]<<" --help \n";
+      return 1;
     }
     if(vm.count("encodingKey")){
       key=vm["encodingKey"].as<std::string>();
