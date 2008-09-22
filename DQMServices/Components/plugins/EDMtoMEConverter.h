@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/07/17 09:08:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/08/08 15:29:01 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -66,7 +66,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void respondToOpenInputFile(const edm::FileBlock&);
 
-  virtual void convert(const edm::Run&);
+  virtual void convert(const edm::Run&, const bool endrun);
 
   typedef std::vector<uint32_t> TagList;
 

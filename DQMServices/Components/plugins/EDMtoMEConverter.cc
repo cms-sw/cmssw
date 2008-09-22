@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2008/08/09 16:08:21 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/09/22 16:01:39 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -120,7 +120,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
                               const edm::EventSetup& iSetup)
 {
   if (convertOnEndRun) {
-    convert(iRun);
+    convert(iRun, true);
   }
   return;
 }
@@ -138,7 +138,7 @@ void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
     if (prescaleFactor > 0 &&
         iLumi.id().luminosityBlock() % prescaleFactor == 0) {
       const edm::Run& iRun = iLumi.getRun();
-      convert(iRun);
+      convert(iRun, false);
     }
   }
   return;
@@ -150,7 +150,7 @@ void EDMtoMEConverter::analyze(const edm::Event& iEvent,
   return;
 }
 
-void EDMtoMEConverter::convert(const edm::Run& iRun)
+void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_convert";
 
@@ -700,8 +700,16 @@ void EDMtoMEConverter::convert(const edm::Run& iRun)
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
+          int ival = 0;
+          if ( endrun ) {
+            if (name.find("processedEvents") != std::string::npos) {
+              if (MonitorElement* me = dbe->get(dir+"/"+name)) {
+                ival = me->getIntValue();
+              }
+            }
+          }
           me7[i] = dbe->bookInt(name);
-          me7[i]->Fill(metoedmobject[i].object);
+          me7[i]->Fill(metoedmobject[i].object+ival);
         } // end define new monitor elements
 
         // attach taglist
