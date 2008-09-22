@@ -340,6 +340,10 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
     dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData");
 
+    rctRegDataOcc1D_ =
+      dbe->book1D("rctRegDataOcc1D", "1D region occupancy from data",
+      CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctRegEmulOcc1D_ =
       dbe->book1D("rctRegEmulOcc1D", "1D region occupancy from emulator",
       CHNLBINS, CHNLMIN, CHNLMAX);
@@ -1014,8 +1018,11 @@ if(first)
     if(ireg->mip())       rctBitDataMip2D_      ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->quiet())     rctBitDataQuiet2D_    ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->fineGrain()) rctBitDataFineGrain2D_->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->et() > 0)    rctRegDataOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi());
-
+    if(ireg->et() > 0)
+      {
+      rctRegDataOcc1D_      ->Fill(PHIBINS*ireg->gctEta() + ireg->gctPhi());
+      rctRegDataOcc2D_      ->Fill(ireg->gctEta(), ireg->gctPhi());
+      }
     // to show bad channels in 2D inefficiency:
     if(ireg->overFlow())  rctBitEmulOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.00001);
     if(ireg->tauVeto())   rctBitEmulTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi(), 0.00001);
@@ -1339,6 +1346,7 @@ if(first)
         rctRegUnmatchedDataOcc2D_->Fill(regionDataEta[i], regionDataPhi[i]);
 
         // we try a new definition of overefficiency:
+        DivideME1D(rctRegUnmatchedDataOcc1D_, rctRegDataOcc1D_, rctRegOvereff1D_);
         DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
 
         if(singlechannelhistos_) rctRegOvereffChannel_[chnl]->Fill(regionDataRank[i]);

@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/06/30 07:34:36 $
- * $Revision: 1.5 $
+ * $Date: 2008/07/25 13:06:48 $
+ * $Revision: 1.6 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.5 2008/06/30 07:34:36 asavin Exp $
+ * $Id: L1TdeRCT.h,v 1.6 2008/07/25 13:06:48 weinberg Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.6  2008/07/25 13:06:48  weinberg
+ * added GCT region/bit information
+ *
  * Revision 1.5  2008/06/30 07:34:36  asavin
  * TPGs inculded in the RCT code
  *
@@ -100,6 +103,7 @@ private:
   DQMStore * dbe;
 
   // begin region information
+  MonitorElement *rctRegDataOcc1D_;
   MonitorElement *rctRegEmulOcc1D_;
   MonitorElement *rctRegMatchedOcc1D_;
   MonitorElement *rctRegUnmatchedDataOcc1D_;
