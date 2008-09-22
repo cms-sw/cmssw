@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.4 2008/07/05 14:32:43 chrjones Exp $
+// $Id: FWGlimpseView.h,v 1.5 2008/07/17 10:11:32 dmytro Exp $
 //
 
 // system include files
@@ -67,19 +67,22 @@ class FWGlimpseView : public FWViewBase
    
       void updateScale( double scale );
       void showAxes( );
+      void showCylinder( );
 
       // ---------- member data --------------------------------
       TEvePad* m_pad;
       TEveViewer* m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveScene* m_scene;
+      TEveElement*  m_cylinder;
       
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
       Double_t*  m_cameraFOV;
-   
+
       // FWDoubleParameter m_scaleParam;
       FWBoolParameter   m_showAxes;
+      FWBoolParameter   m_showCylinder;
       FWEveValueScaler* m_scaler;
 };
 

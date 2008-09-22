@@ -1259,6 +1259,11 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Show Cylinder", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
   topaaaa.addValue("0.429789");
   topaaa.addKeyValue("cameraMatrix0Lego", topaaaa);
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.9 2008/07/17 10:11:32 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.10 2008/07/17 23:02:41 dmytro Exp $
 //
 
 // system include files
@@ -48,11 +48,14 @@
 #include "TEveRGBAPalette.h"
 #include "TEveLegoEventHandler.h"
 #include "TGLWidget.h"
+#include "TGLScenePad.h"
+#include "TGLFontManager.h"
 #include "TEveTrans.h"
 #include "TGeoTube.h"
 #include "TEveGeoNode.h"
 #include "TEveGeoShapeExtract.h"
 #include "TEveStraightLineSet.h"
+#include "TEveText.h"
 #include "TGeoArb8.h"
 
 // user include files
@@ -79,8 +82,10 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
  m_cameraMatrix(0),
  m_cameraMatrixBase(0),
  m_cameraFOV(0),
+ m_cylinder(0),
  // m_scaleParam(this,"Energy scale", static_cast<double>(iScaler->scale()), 0.01, 1000.),
  m_showAxes(this, "Show Axes", true ),
+ m_showCylinder(this, "Show Cylinder", true),
  m_scaler(iScaler)
 {
    m_pad = new TEvePad;
@@ -106,50 +111,83 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
    
-   /*
+
+   // create 3D axes
+   TGLFont::EMode fontMode = TGLFont::kPixmap;
+   Int_t fs = 14;
+   Color_t fcol = kGray+1;
+   
+   // X axis
    TEveStraightLineSet* xAxis = new TEveStraightLineSet( "GlimpseXAxis" );
    xAxis->SetPickable(kTRUE);
    xAxis->SetTitle("Energy Scale, 100 GeV, X-axis (LHC center)");
    xAxis->IncDenyDestroy();
-   xAxis->SetLineColor(kGray);
-   xAxis->AddLine(0,0,0,100,0,0);
+   xAxis->SetLineStyle(3);
+   xAxis->SetLineColor(fcol);
+   xAxis->AddLine(-100,0,0,100,0,0);
    gEve->AddElement(xAxis, ns);
 
-   TEveStraightLineSet* yAxis = new TEveStraightLineSet( "GlimpseXAxis" );
+   TEveText* xTxt = new TEveText( "X+" );
+   xTxt->PtrMainTrans()->SetPos(100-fs, -fs, 0);
+   xTxt->SetFontMode(fontMode);
+   xTxt->SetMainColor(fcol);
+   gEve->AddElement(xTxt, ns);
+
+   // Y axis
+   TEveStraightLineSet* yAxis = new TEveStraightLineSet( "GlimpseYAxis" );
    yAxis->SetPickable(kTRUE);
    yAxis->SetTitle("Energy Scale, 100 GeV, Y-axis (upward)");
    yAxis->IncDenyDestroy();
-   yAxis->SetLineColor(kGray);
-   yAxis->AddLine(0,0,0,0,100,0);
+   yAxis->SetLineColor(fcol);
+   yAxis->SetLineStyle(3);
+   yAxis->AddLine(0,-100,0,0,100,0);
    gEve->AddElement(yAxis, ns);
 
-   TEveStraightLineSet* zAxis = new TEveStraightLineSet( "GlimpseXAxis" );
+   TEveText* yTxt = new TEveText( "Y+" );
+   yTxt->PtrMainTrans()->SetPos(0, 100-fs, 0);
+   yTxt->SetFontMode(fontMode);
+   yTxt->SetMainColor(fcol);
+   gEve->AddElement(yTxt, ns);
+
+   // Z axis
+   TEveStraightLineSet* zAxis = new TEveStraightLineSet( "GlimpseZAxis" );
    zAxis->SetPickable(kTRUE);
    zAxis->SetTitle("Energy Scale, 100 GeV, Z-axis (west, along beam)");
    zAxis->IncDenyDestroy();
-   zAxis->SetLineColor(kGray);
-   zAxis->AddLine(0,0,0,0,0,100);
+   zAxis->SetLineColor(fcol);
+   zAxis->AddLine(0,0,-100,0,0,100);
    gEve->AddElement(zAxis, ns);
-   */
-   /*
-   // made detector outline
+
+   TEveText* zTxt = new TEveText( "Z+" );
+   zTxt->PtrMainTrans()->SetPos(0, -fs,  100 - zTxt->GetExtrude()*2);
+   zTxt->SetFontMode(fontMode);
+   zTxt->SetMainColor(fcol);
+   gEve->AddElement(zTxt, ns);
+
+   
+   // made detector outline in wireframe scene
+
+   TEveScene* wns = gEve->SpawnNewScene(Form("Wireframe %s", staticTypeName().c_str()));
+   nv->AddScene(wns);
+   TGLScene* gls  = wns->GetGLScene();
+   gls->SetStyle(TGLRnrCtx::kWireFrame);
+   gls->SetLOD(TGLRnrCtx::kLODMed);
+
    TGeoTube* tube = new TGeoTube(129,130,310);
    TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", tube, kWhite);
-   TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, ns);
-   element->SetPickable(kFALSE);
-   element->SetMainTransparency(98);
-   gEve->AddElement(element, ns);
-   */
+   m_cylinder = TEveGeoShape::ImportShapeExtract(extract, wns);
+   m_cylinder->SetPickable(kFALSE);
+   m_cylinder->SetMainColor(kGray+3);  
    
    /*
    TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);
    TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", cube, Color_t(TColor::GetColor("#202020")) );
    TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, ns);
    element->SetPickable(kFALSE);
-   element->SetMainTransparency(50);
+   element->SetMainTransparency(80);
    gEve->AddElement(element, ns);
    */
-   
+
    /*
    TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
    outline->SetPickable(kTRUE);
@@ -173,6 +211,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    */
    // m_scaleParam.changed_.connect(boost::bind(&FWGlimpseView::updateScale,this,_1));
    m_showAxes.changed_.connect(boost::bind(&FWGlimpseView::showAxes,this));
+   m_showCylinder.changed_.connect(boost::bind(&FWGlimpseView::showCylinder,this));
 }
 
 FWGlimpseView::~FWGlimpseView()
@@ -303,6 +342,18 @@ FWGlimpseView::showAxes( )
      m_embeddedViewer->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
    else
      m_embeddedViewer->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, 0);
+}
+
+
+void 
+FWGlimpseView::showCylinder( ) 
+{ 
+   if ( m_showCylinder.value() )
+     m_cylinder->SetRnrState(kTRUE);
+   else
+     m_cylinder->SetRnrState(kFALSE);
+
+   gEve->Redraw3D();
 }
 
 //
