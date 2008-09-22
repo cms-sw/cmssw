@@ -67,7 +67,6 @@ void cond::DBSession::open(){
     m_loader->load( "COND/Services/XMLAuthenticationService" );
     boost::filesystem::path authPath( m_sessionConfig->authName() );
     if(boost::filesystem::is_directory(m_sessionConfig->authName())){
-      std::cout << "## path:"<<m_sessionConfig->authName()<< " is directory."<<std::endl;
       authPath /= boost::filesystem::path("authentication.xml");
     }
     std::string authName=authPath.string();
