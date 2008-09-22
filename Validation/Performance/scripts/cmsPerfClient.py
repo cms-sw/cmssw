@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle
+import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
 
 PROG_NAME = os.path.basename(sys.argv[0])
@@ -154,7 +154,7 @@ def request_benchmark(perfcmds,shost,sport):
         print "ERROR: XML-RPC could not be parsed:", detail
     except xmlrpclib.ProtocolError, detail:
         print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
-    except Fault, detail:
+    except exceptions, detail:
         print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
         print detail
 

@@ -131,45 +131,50 @@ def getCPSkeyword(key,dict):
 
 
 def request_benchmark(cmds):
-    # input is a list of dictionaries each defining the
-    #   keywords to cmsperfsuite
-    outs = []
-    i = 0
-    for cmd in cmds:
-        curperfdir = os.path.join(getCPSkeyword("perfsuitedir"    , cmd),str(i))
-        if not os.path.exists(curperfdir):
-            os.mkdir(curperfdir)
-        logfile = os.path.join(getCPSkeyword("perfsuitedir"         , cmd), str(i), "cmsPerfSuite.log")
-        if cmd.has_key("logfile"):
-            logfile = os.path.join(getCPSkeyword("logfile"          , cmd), "cmsPerfSuite.log")
-            if os.path.exists(logfile):
-                logfile = logfile + str(i)
-        cps.runPerfSuite(castordir        = getCPSkeyword("castordir"       , cmd),
-                         perfsuitedir     = curperfdir                             ,
-                         TimeSizeEvents   = getCPSkeyword("TimeSizeEvents"  , cmd),
-                         IgProfEvents     = getCPSkeyword("IgProfEvents"    , cmd),
-                         ValgrindEvents   = getCPSkeyword("ValgrindEvents"  , cmd),
-                         cmsScimark       = getCPSkeyword("cmsScimark"      , cmd),
-                         cmsScimarkLarge  = getCPSkeyword("cmsScimarkLarge" , cmd),
-                         cmsdriverOptions = getCPSkeyword("cmsdriverOptions", cmd),
-                         stepOptions      = getCPSkeyword("stepOptions"     , cmd),
-                         quicktest        = getCPSkeyword("quicktest"       , cmd),
-                         profilers        = getCPSkeyword("profilers"       , cmd),
-                         cpus             = getCPSkeyword("cpus"            , cmd),
-                         cores            = getCPSkeyword("cores"           , cmd),
-                         prevrel          = getCPSkeyword("prevrel"         , cmd),
-                         isAllCandles     = getCPSkeyword("isAllCandles"    , cmd),
-                         candles          = getCPSkeyword("candles"         , cmd),
-                         bypasshlt        = getCPSkeyword("bypasshlt"       , cmd),
-                         runonspare       = getCPSkeyword("runonspare"      , cmd),
-                         logfile          = logfile                               )
-        if _returnlog:
-            outs.append(readlog(logfile))
-        else:
-            outs.append(cph.harvest(curperfdir))
-        i += 1
+    try:
+        # input is a list of dictionaries each defining the
+        #   keywords to cmsperfsuite
+        outs = []
+        i = 0
+        for cmd in cmds:
+            curperfdir = os.path.join(getCPSkeyword("perfsuitedir"    , cmd),str(i))
+            if not os.path.exists(curperfdir):
+                os.mkdir(curperfdir)
+            logfile = os.path.join(getCPSkeyword("perfsuitedir"         , cmd), str(i), "cmsPerfSuite.log")
+            if cmd.has_key("logfile"):
+                logfile = os.path.join(getCPSkeyword("logfile"          , cmd), "cmsPerfSuite.log")
+                if os.path.exists(logfile):
+                    logfile = logfile + str(i)
+            cps.runPerfSuite(castordir        = getCPSkeyword("castordir"       , cmd),
+                             perfsuitedir     = curperfdir                             ,
+                             TimeSizeEvents   = getCPSkeyword("TimeSizeEvents"  , cmd),
+                             IgProfEvents     = getCPSkeyword("IgProfEvents"    , cmd),
+                             ValgrindEvents   = getCPSkeyword("ValgrindEvents"  , cmd),
+                             cmsScimark       = getCPSkeyword("cmsScimark"      , cmd),
+                             cmsScimarkLarge  = getCPSkeyword("cmsScimarkLarge" , cmd),
+                             cmsdriverOptions = getCPSkeyword("cmsdriverOptions", cmd),
+                             stepOptions      = getCPSkeyword("stepOptions"     , cmd),
+                             quicktest        = getCPSkeyword("quicktest"       , cmd),
+                             profilers        = getCPSkeyword("profilers"       , cmd),
+                             cpus             = getCPSkeyword("cpus"            , cmd),
+                             cores            = getCPSkeyword("cores"           , cmd),
+                             prevrel          = getCPSkeyword("prevrel"         , cmd),
+                             isAllCandles     = getCPSkeyword("isAllCandles"    , cmd),
+                             candles          = getCPSkeyword("candles"         , cmd),
+                             bypasshlt        = getCPSkeyword("bypasshlt"       , cmd),
+                             runonspare       = getCPSkeyword("runonspare"      , cmd),
+                             logfile          = logfile                               )
+            if _returnlog:
+                outs.append(readlog(logfile))
+            else:
+                outs.append(cph.harvest(curperfdir))
+            i += 1
 
-    return outs
+        return outs
+    except exceptions, detail:
+        # wrap the entire function in try except so we can log the error at client and server
+        print detail
+        raise
 
 def _main():
     (sport, outputdir) = optionparse()
