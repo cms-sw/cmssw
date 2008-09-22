@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# Geometry and Magnetic Field
-from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.MagneticField_40T_cff import *
+# Define arbitrary tracker material groups
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from SimTracker.TrackerMaterialAnalysis.trackingMaterialGroups_cff import *
+
+# Analyze and plot the tracking material
 from SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_cfi import *
