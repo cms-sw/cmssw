@@ -4,7 +4,7 @@ import cmsPerfSuite as cps
 import cmsPerfHarvest as cph
 from cmsPerfCommons import Candles
 import optparse as opt
-import socket, os, sys, SimpleXMLRPCServer, threading
+import socket, os, sys, SimpleXMLRPCServer, threading, exceptions
 
 _outputdir  = os.getcwd()
 _reqnumber  = 0
