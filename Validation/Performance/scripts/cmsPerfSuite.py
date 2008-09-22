@@ -161,6 +161,7 @@ Legal entries for individual candles (--candle option):
     outputdir        = options.outputdir
 
     if not logfile == None:
+        logfile = os.path.abspath(logfile)
         logdir = os.path.dirname(logfile)
         if not os.path.exists(logdir):
             parser.error("Directory to output logfile does not exist")
@@ -218,22 +219,22 @@ Legal entries for individual candles (--candle option):
         ValgrindEvents  = 0
         IgProfEvents    = 0
         TimeSizeEvents  = 1
-    if not cmsdriverOptions == "":
-        cmsdriverOptions = "--cmsdriver=" + cmsdriverOptions
 
-    if cmsdriverOptions != "":
+    if not cmsdriverOptions == "":
+        cmsdriverOptions = "--cmsdriver=" + cmsdriverOptions        
         print "Running cmsDriver.py with the special user defined options: %s" % cmsdriverOptions
         
         #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
         cmsdriverOptions= '"%s"' % (cmsdriverOptions)
-    if stepOptions !="":
+        
+    if not stepOptions == "":
         print "Running user defined steps only: %s" % stepOptions
         
         #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
         stepOptions='"--usersteps=%s"' % (stepOptions)
-    if candleoption !="":
+    if not candleoption == "":
         print "Running only %s candle, instead of the whole suite" % candleoption
-    print "This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s" %(host,cores,cpu)
+
 
     
     isAllCandles = candleoption == ""
@@ -378,8 +379,9 @@ def benchmarks(cpu,pfdir,name,bencher,large=False):
     else:
         redirect = " >& "
 
+    logh.write("pfdir " + pfdir + " name " + name + "\n")
     for i in range(bencher):
-        command= cmd + redirect + os.path.join(pfdir,name)
+        command= cmd + redirect + os.path.join(pfdir,name)        
         printFlush(command + " [%s/%s]" % (i+1,bencher))
         runcmd(command)
         logh.flush()
@@ -510,7 +512,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
                  cpus             = [1]        ,
                  cores            = 4          ,
                  prevrel          = ""         ,
-                 isAllCandles     = True       ,
+                 isAllCandles     = False      ,
                  candles          = Candles    ,
                  bypasshlt        = False      ,
                  runonspare       = True       ,
@@ -526,6 +528,17 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             logh.write(detail + "\n")
 
     try:
+
+        if not cmsdriverOptions == "":
+            logh.write("Running cmsDriver.py with the special user defined options: %s\n" % cmsdriverOptions)
+        
+        if not stepOptions == "":
+            logh.write("Running user defined steps only: %s\n" % stepOptions)
+
+        if not len(candles) == len(Candles):
+            logh.write("Running only %s candle, instead of the whole suite\n" % str(candles))
+        
+        logh.write("This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s\n" %(host,cores,cpu)        )
         path=os.path.abspath(".")
         logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s\n" % (getDate(),host,path,user))
         showtags=os.popen4("showtags -r")[1].read()
@@ -579,7 +592,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             for core in range(cores):
                 if (not core in cpus) and runonspare:
                     logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
-                    command="taskset -c %s cmsScimarkLaunch.csh %s &" % (str(core), str(core))
+                    command="taskset -c %s \"cd %s ; cmsScimarkLaunch.csh %s\" &" % (str(core), perfsuitedir, str(core))
                     logh.write(command + "\n")
 
                     #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
