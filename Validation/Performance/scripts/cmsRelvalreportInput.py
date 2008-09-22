@@ -559,7 +559,10 @@ def writeCommands(simcandles,
 
             writeStepHead(simcandles,acandle,stepToWrite)
 
-            OutputFile = setOutputFileOption(acandle,stepToWrite)
+            outfile = stepToWrite
+            if qcd:
+                outfile = qcdStep + "_PILEUP"
+            OutputFile = setOutputFileOption(acandle,outfile)
             if fstROOTfile:
                 fstROOTfileStr = OutputFile
                 fstROOTfile = False
