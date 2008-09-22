@@ -15,4 +15,4 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:material.root')
 )
 
-process.p = cms.Path(process.trackingMaterialAnalyser)
+process.path = cms.Path(process.trackingMaterialAnalyser)

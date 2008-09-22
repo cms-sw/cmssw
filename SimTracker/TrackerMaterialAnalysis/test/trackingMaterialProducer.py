@@ -13,6 +13,7 @@ process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 # detector simulation (Geant4-based) with tracking material accounting 
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
+# message logger
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
@@ -30,6 +31,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
+
 process.source = cms.Source("MCFileSource",
     # from http://cmsdoc.cern.ch/cms/data/CMSSW/Validation/Geometry/data/single_neutrino.random.dat
     fileNames = cms.untracked.vstring('file:single_neutrino.random.dat')
@@ -42,5 +44,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:material.root')
 )
 
-process.p = cms.Path(process.VtxSmeared*process.trackingMaterialProducer)
+process.path = cms.Path(process.VtxSmeared*process.trackingMaterialProducer)
 process.outpath = cms.EndPath(process.out)

@@ -6,9 +6,7 @@ process = cms.Process("Geometry")
 
 # random number generator service for these modules
 process.load("SimTracker.TrackerMaterialAnalysis.randomNumberGeneratorService_cfi")
-
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
 process.load("SimTracker.TrackerMaterialAnalysis.single10GeVNeutrino_cfi")
 
 # gaussian Vertex Smearing
@@ -17,6 +15,7 @@ process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 # detector simulation (Geant4-based) with tracking material accounting 
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
+# message logger
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
@@ -41,5 +40,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:material.root')
 )
 
-process.p = cms.Path(process.VtxSmeared*process.trackingMaterialProducer)
+process.path = cms.Path(process.VtxSmeared*process.trackingMaterialProducer)
 process.outpath = cms.EndPath(process.out)
