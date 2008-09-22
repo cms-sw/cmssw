@@ -24,5 +24,5 @@
 #  can be defined as:
 
 listperfsuitekeywords = [{                                                                                            }, # empty dictionary = default run
-                         {"TimeSizeEvents": 25, "cores": [1,2], "candles": ["MinBias"]                                }, 
-                         {"TimeSizeEvents": 10, "runonspare": False, "cmsdriverOptions": "--conditions=FakeConditions"}]
+                         {"TimeSizeEvents": 25, "IgProfEvents" :0, "ValgrindEvents":0, "cores": [1,2], "candles": ["MinBias"]                                }, 
+                         {"TimeSizeEvents": 10, "IgProfEvents" :0, "ValgrindEvents":0,  "runonspare": False, "cmsdriverOptions": "--conditions=FakeConditions"}]
