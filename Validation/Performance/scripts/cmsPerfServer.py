@@ -199,7 +199,7 @@ def request_benchmark(cmds):
                              bypasshlt        = cmdwdefs["bypasshlt"]       ,
                              runonspare       = cmdwdefs["runonspare"]      ,
                              logfile          = cmdwdefs["logfile"]         )
-            if _returnlog:
+            if _logreturn:
                 outs.append(readlog(logfile))
             else:
                 outs.append(cph.harvest(curperfdir))
