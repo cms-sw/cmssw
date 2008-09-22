@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.2 2008/05/16 15:30:07 bainbrid Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.3 2008/05/26 13:37:25 giordano Exp $
+// Latest tag:  $Name: V03-00-03 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -22,6 +22,7 @@ class SiStripNoises;
 class SiStripQuality;
 class SiStripThreshold;
 class DcuDetIdMap;
+class SiStripApvGain;
 
 class SiStripCondObjBuilderFromDb {
   
@@ -46,6 +47,7 @@ class SiStripCondObjBuilderFromDb {
   SiStripNoises    *  getNoises()     {checkUpdate(); return noises_;}  
   SiStripThreshold *  getThreshold()  {checkUpdate(); return threshold_;}  
   SiStripQuality   *  getQuality()    {checkUpdate(); return quality_;}  
+  SiStripApvGain* getApvGain() { checkUpdate(); return gain_; }  
 
   void getValue(SiStripFedCabling* & val){ val = getFedCabling();}
   void getValue(SiStripPedestals * & val){ val = getPedestals(); }  
@@ -53,6 +55,7 @@ class SiStripCondObjBuilderFromDb {
   void getValue(SiStripThreshold * & val){ val = getThreshold(); }  
   void getValue(SiStripQuality   * & val){ val = getQuality();   }  
   void getValue(SiStripBadStrip  * & val){ val = new SiStripBadStrip(* (const SiStripBadStrip*) getQuality());   }  
+  void getValue( SiStripApvGain*& val ){ val = getApvGain(); }  
   
 
  protected:
@@ -71,6 +74,7 @@ class SiStripCondObjBuilderFromDb {
   SiStripNoises      *noises_;  
   SiStripThreshold   *threshold_;  
   SiStripQuality     *quality_;  
+  SiStripApvGain* gain_;
   
 };
 
