@@ -10,7 +10,7 @@ _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
 _dryrun   = False
 _debug    = False
 _unittest = False
-_verbose  = False 
+_verbose  = True
 logh = sys.stdout
 
 try:
@@ -379,9 +379,8 @@ def benchmarks(cpu,pfdir,name,bencher,large=False):
     else:
         redirect = " >& "
 
-    logh.write("pfdir " + pfdir + " name " + name + "\n")
     for i in range(bencher):
-        command= cmd + redirect + os.path.join(pfdir,name)        
+        command= cmd + redirect + os.path.join(pfdir,os.path.basename(name))        
         printFlush(command + " [%s/%s]" % (i+1,bencher))
         runcmd(command)
         logh.flush()
