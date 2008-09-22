@@ -66,6 +66,18 @@ FastSimRecoLocalTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 
+
+#####################################################################
+# CaloJet+Tracks are apparently saved nowhere
+# Let's save them in the fast simulation (AOD only)
+#####################################################################
+FastSimCJPT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+         'keep *_JetPlusTrackZSPCorJetIcone5_*_*',
+         'keep *_ZSPJetCorJetIcone5_*_*'
+    )
+)
+
 #####################################################################
 # The Calo RecHits are also different
 #####################################################################
@@ -163,6 +175,7 @@ AODEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
+AODEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
 
 #####################################################################
 #
@@ -187,6 +200,7 @@ AODSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputComman
 AODSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
 
 #####################################################################
 #
