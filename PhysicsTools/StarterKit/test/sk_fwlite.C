@@ -1,12 +1,13 @@
 #include "DataFormats/FWLite/interface/Handle.h"
-
-
-#if !defined(__CINT__) && !defined(__MAKECINT__)
-#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/FWLite/interface/Event.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+
+
+#if !defined(__CINT__) && !defined(__MAKECINT__)
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #endif
 
 #include <iostream>
