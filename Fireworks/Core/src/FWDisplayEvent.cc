@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.56 2008/07/17 10:11:32 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.57 2008/07/17 23:02:41 dmytro Exp $
 //
 
 // system include files
@@ -148,7 +148,7 @@ m_viewManager( new FWViewManagerManager(m_changeManager.get())),
                                                                          m_configFileName));
     }
   gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
-  TEveTrackProjected::SetBreakTracks(kFALSE);
+  TEveTrack::SetDefaultBreakProjectedTracks(kFALSE);
   m_guiManager->processGUIEvents();
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.39 2008/08/24 13:22:55 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.40 2008/08/25 00:08:29 dmytro Exp $
 //
 
 // system include files
@@ -254,7 +254,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       gROOT->SetMacroPath((std::string("./:")+macPath).c_str());  
       
       gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
-      TEveTrackProjected::SetBreakTracks(kFALSE);
+      TEveTrack::SetDefaultBreakProjectedTracks(kFALSE);
 
       m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
       m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
