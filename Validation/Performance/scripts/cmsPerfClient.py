@@ -16,6 +16,44 @@ def optionparse():
             if isdict:
                 for key in item:
                     out = out and key in validPerfSuitKeys
+                    if   key == "cpus":
+                        out = out and type(item[key]) == type([])
+                    elif key == "cores":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "castordir":
+                        out = out and type(item[key]) == type("")
+                    elif key == "perfsuitedir":
+                        out = out and type(item[key]) == type("")
+                    elif key == "TimeSizeEvents":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "ValgrindEvents":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "IgProfEvents":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "cmsScimark":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "cmsScimarkLarge":
+                        out = out and type(item[key]) == type(123)
+                    elif key == "cmsdriverOptions":
+                        out = out and type(item[key]) == type("")
+                    elif key == "stepOptions":
+                        out = out and type(item[key]) == type("")
+                    elif key == "quicktest":
+                        out = out and type(item[key]) == type(False)
+                    elif key == "profilers":
+                        out = out and type(item[key]) == type("")
+                    elif key == "prevrel":
+                        out = out and type(item[key]) == type("")
+                    elif key == "isAllCandles":
+                        out = out and type(item[key]) == type(False)
+                    elif key == "candles":
+                        out = out and type(item[key]) == type([])
+                    elif key == "bypasshlt":
+                        out = out and type(item[key]) == type(False)
+                    elif key == "runonspare":
+                        out = out and type(item[key]) == type(False)
+                    elif key == "logfile":
+                        out = out and type(item[key]) == type("")
         return out
 
     parser = opt.OptionParser(usage=("""%s [Options]""" % PROG_NAME))

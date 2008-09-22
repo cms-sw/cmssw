@@ -378,7 +378,6 @@ def benchmarks(cpu,pfdir,name,bencher,large=False):
     else:
         redirect = " >& "
 
-    print bencher
     for i in range(bencher):
         command= cmd + redirect + os.path.join(pfdir,name)
         printFlush(command + " [%s/%s]" % (i+1,bencher))
@@ -576,7 +575,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         #First submit the cmsScimark benchmarks on the unused cores:
         scimark = ""
         scimarklarge = ""
-        if not _unittest:    
+        if not _unittest:
             for core in range(cores):
                 if (not core in cpus) and runonspare:
                     logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
