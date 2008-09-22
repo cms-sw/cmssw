@@ -885,7 +885,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   options_->GetOpt("root","muon_branch",muonbranchname); 
   muonsBranch_= tree_->GetBranch(muonbranchname.c_str());
   if(!muonsBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : gsfrecTracks_branch not found : " 
+    cerr<<"PFRootEventManager::ReadOptions : muon_branch not found : " 
         <<muonbranchname<< endl; 
   } 
   //nuclear
