@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.12 2008/08/24 00:29:51 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.13 2008/08/27 13:28:45 chrjones Exp $
 //
 
 // system include files
@@ -277,33 +277,35 @@ void
 CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
   if (iItem != m_item) {
      disconnectAll();
-    m_item = iItem;
-    m_objectLabel->SetText(iItem->name().c_str());
-    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()),kFALSE);
-    m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
-     m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
-     m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
-    m_filterError->Clear();
-    m_selectError->Clear();
-    m_nameEntry->SetText(iItem->name().c_str());
-    m_typeEntry->SetText(iItem->type()->GetName());
-    m_moduleEntry->SetText(iItem->moduleLabel().c_str());
-    m_instanceEntry->SetText(iItem->productInstanceLabel().c_str());
-    m_processEntry->SetText(iItem->processName().c_str());
-    //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
-    m_colorSelectWidget->SetEnabled(kTRUE);
-    m_isVisibleButton->SetEnabled(kTRUE);
-    m_filterExpressionEntry->SetEnabled(kTRUE);
-    m_selectExpressionEntry->SetEnabled(kTRUE);
-    m_filterButton->SetEnabled(kTRUE);
-    m_selectButton->SetEnabled(kTRUE);
-    m_selectAllButton->SetEnabled(kTRUE);
-    m_removeButton->SetEnabled(kTRUE);
-    m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
-    m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
-    //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
-    m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
-    Layout();
+     m_item = iItem;
+     if(0 != m_item) {
+        m_objectLabel->SetText(iItem->name().c_str());
+        m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()),kFALSE);
+        m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
+        m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
+        m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
+        m_filterError->Clear();
+        m_selectError->Clear();
+        m_nameEntry->SetText(iItem->name().c_str());
+        m_typeEntry->SetText(iItem->type()->GetName());
+        m_moduleEntry->SetText(iItem->moduleLabel().c_str());
+        m_instanceEntry->SetText(iItem->productInstanceLabel().c_str());
+        m_processEntry->SetText(iItem->processName().c_str());
+        //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
+        m_colorSelectWidget->SetEnabled(kTRUE);
+        m_isVisibleButton->SetEnabled(kTRUE);
+        m_filterExpressionEntry->SetEnabled(kTRUE);
+        m_selectExpressionEntry->SetEnabled(kTRUE);
+        m_filterButton->SetEnabled(kTRUE);
+        m_selectButton->SetEnabled(kTRUE);
+        m_selectAllButton->SetEnabled(kTRUE);
+        m_removeButton->SetEnabled(kTRUE);
+        m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
+        m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
+        //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
+        m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
+     }
+     Layout();
   }
 }
 
@@ -324,6 +326,8 @@ CmsShowEDI::removeItem() {
    if(kMBApply == chosen) { 
       m_item->destroy();
       m_item = 0;
+      //make sure the ROOT global editor does not try to use this
+      gEve->EditElement(0);
       gEve->Redraw3D();
    }
 }
