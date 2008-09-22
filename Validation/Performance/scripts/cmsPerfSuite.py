@@ -7,7 +7,10 @@ from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog
 global ERRORS 
 ERRORS = 0
 _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
-_dryrun = False
+_dryrun   = False
+_debug    = False
+_unittest = False
+_verbose  = False 
 logh = sys.stdout
 
 try:

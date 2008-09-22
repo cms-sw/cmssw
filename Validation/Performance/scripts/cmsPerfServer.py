@@ -64,7 +64,7 @@ def optionparse():
         _DEFAULTS["perfsuitedir"] = outputdir
         
     port = 0        
-    if options.port == 0:
+    if options.port == -1:
         port = 8000
     else:
         port = options.port

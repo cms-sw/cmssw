@@ -154,6 +154,9 @@ def request_benchmark(perfcmds,shost,sport):
         print "ERROR: XML-RPC could not be parsed:", detail
     except xmlrpclib.ProtocolError, detail:
         print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
+    except Fault, detail:
+        print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
+        print detail
 
 class Worker(threading.Thread):
 
