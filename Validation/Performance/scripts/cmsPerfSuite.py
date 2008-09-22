@@ -290,25 +290,26 @@ def runCmdSet(cmd):
 
 def printFlush(command):
     if _verbose:
-        logh.write(command)
-    logh.flush()
+        logh.write(command + "\n")
+        logh.flush()
 
 def runcmd(command):
     process  = os.popen(command)
     cmdout   = process.read()
     exitstat = process.close()
     if _verbose:
-        logh.write(cmdout)
+        logh.write(cmdout + "\n")
+        logh.flush()
     return exitstat
 
 def getDate():
     return time.ctime()
 
 def printDate():
-    logh.write(getDate())
+    logh.write(getDate() + "\n")
 
 def getPrereqRoot(rootdir,rootfile):
-    logh.write("WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file"   % (rootdir + "/" +rootfile))
+    logh.write("WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file\n"   % (rootdir + "/" +rootfile))
 
     if not os.path.exists(rootdir):
         os.system("mkdir -p %s" % rootdir)
@@ -317,22 +318,22 @@ def getPrereqRoot(rootdir,rootfile):
         log.write(cmd)
         os.system(cmd)
     if not os.path.exists(rootdir + "/" + rootfile):
-        logh.write("ERROR: We can not run QCD profiling please create root file %s to run QCD profiling." % (rootdir + "/" + rootfile))
+        logh.write("ERROR: We can not run QCD profiling please create root file %s to run QCD profiling.\n" % (rootdir + "/" + rootfile))
 
 
 def checkQcdConditions(candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
-        logh.write("WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REQ_TS_EVENTS)
+        logh.write("WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored\n" % MIN_REQ_TS_EVENTS)
         
         
     rootfilepath = rootdir + "/" + rootfile
     if not os.path.exists(rootfilepath):
         getPrereqRoot(rootdir,rootfile)
         if not os.path.exists(rootfilepath) and not _debug:
-            logh.write("ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting..." % rootfilepath)
+            logh.write("ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting...\n" % rootfilepath)
             sys.exit()
     else:
-        logh.write("%s Root file for QCD exists. Good!!!" % (rootdir + "/" + rootfile))
+        logh.write("%s Root file for QCD exists. Good!!!\n" % (rootdir + "/" + rootfile))
     return candles
 
 def mkCandleDir(pfdir,candle,profiler):
@@ -353,13 +354,13 @@ def displayErrors(file):
     try:
         for line in open(file,"r"):
             if "cerr" in line:
-                logh.write("ERROR: %s" % line)
+                logh.write("ERROR: %s\n" % line)
                 ERRORS += 1
     except OSError, detail:
-        logh.write("WARNING: %s" % detail)
+        logh.write("WARNING: %s\n" % detail)
         ERRORS += 1        
     except IOError, detail:
-        logh.write("WARNING: %s" % detail)
+        logh.write("WARNING: %s\n" % detail)
         ERRORS += 1
     
 
@@ -377,6 +378,7 @@ def benchmarks(cpu,pfdir,name,bencher,large=False):
     else:
         redirect = " >& "
 
+    print bencher
     for i in range(bencher):
         command= cmd + redirect + os.path.join(pfdir,name)
         printFlush(command + " [%s/%s]" % (i+1,bencher))
@@ -392,7 +394,7 @@ def runCmsReport(cpu,dir,cmsver,candle):
         exitstat = runCmdSet(cmds)
         
     if _unittest and (not exitstat == None):
-        logh.write("ERROR: CMS Report returned a non-zero exit status ")
+        logh.write("ERROR: CMS Report returned a non-zero exit status \n")
         sys.exit()
 
 def testCmsDriver(cpu,dir,cmsver,candle):
@@ -411,17 +413,17 @@ def testCmsDriver(cpu,dir,cmsver,candle):
                     stepbeingrun = matches.groups()[0]
                 if "PILEUP" in cmdonline:
                     stepbeingrun += "_PILEUP"
-                logh.write(cmdonline)
+                logh.write(cmdonline + "\n")
                 cmds = ("cd %s"      % (dir),
                         "%s  >& ../cmsdriver_unit_test_%s_%s.log"    % (cmdonline,candle,stepbeingrun))
                 if _dryrun:
-                    logh.write(cmds)
+                    logh.write(cmds + "\n")
                 else:
                     out = runCmdSet(cmds)                    
                     if not out == None:
                         sig     = out >> 16    # Get the top 16 bits
                         xstatus = out & 0xffff # Mask out all bits except the first 16 
-                        logh.write("FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig))
+                        logh.write("FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s\n" % (xstatus,stepbeingrun,candle,sig))
                         sys.exit()
             previousCmdOnline = cmdonline
     
@@ -442,7 +444,7 @@ def runCmsInput(cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):
                                           bypass))
     exitstat = runCmdSet(cmds)
     if _unittest and (not exitstat == None):
-        logh.write("ERROR: CMS Report Input returned a non-zero exit status " )
+        logh.write("ERROR: CMS Report Input returned a non-zero exit status \n" )
 
 def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name,profilers,bypasshlt):
     valgrind = Name == "Valgrind"
@@ -465,9 +467,9 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
 
             if valgrind:
                 if candle == "SingleMuMinusPt10" : 
-                    logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle" % candle    )
+                    logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                 else:
-                    logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle)
+                    logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
                     cpIgProfGenSim(adir,candle)                
 
             if _unittest:
@@ -489,10 +491,10 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
 
                 for proflog in proflogs:
                     globpath = os.path.join(adir,"%s_*_%s.log" % (CandFname[candle],proflog))
-                    logh.write("Looking for logs that match %s" % globpath)
+                    logh.write("Looking for logs that match %s\n" % globpath)
                     logs     = glob.glob(globpath)
                     for log in logs:
-                        logh.write("Found log" % log)
+                        logh.write("Found log %s\n" % log)
                         displayErrors(log)
 
 def runPerfSuite(castordir        = _CASTOR_DIR,
@@ -522,172 +524,178 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         try:
             logh = open(logfile,"a")
         except (OSError, IOError), detail:
-            logh.write(detail)
+            logh.write(detail + "\n")
 
-    path=os.path.abspath(".")
-    logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s" % (getDate(),host,path,user))
-    showtags=os.popen4("showtags -r")[1].read()
-    logh.write(showtags)
-    
-    #For the log:
-    if _verbose:
-        logh.write("The performance suite results tarball will be stored in CASTOR at %s" % castordir)
-        logh.write("%s TimeSize events" % TimeSizeEvents)
-        logh.write("%s IgProf events"   % IgProfEvents)
-        logh.write("%s Valgrind events" % ValgrindEvents)
-        logh.write("%s cmsScimark benchmarks before starting the tests"      % cmsScimark)
-        logh.write("%s cmsScimarkLarge benchmarks before starting the tests" % cmsScimarkLarge)
-        
-    #Actual script actions!
-    #Will have to fix the issue with the matplotlib pie-charts:
-    #Used to source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh
-    #Need an alternative in the release
+    try:
+        path=os.path.abspath(".")
+        logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s\n" % (getDate(),host,path,user))
+        showtags=os.popen4("showtags -r")[1].read()
+        logh.write(showtags + "\n")
 
-    #Command Handling:
+        #For the log:
+        if _verbose:
+            logh.write("The performance suite results tarball will be stored in CASTOR at %s\n" % castordir)
+            logh.write("%s TimeSize events\n" % TimeSizeEvents)
+            logh.write("%s IgProf events\n"   % IgProfEvents)
+            logh.write("%s Valgrind events\n" % ValgrindEvents)
+            logh.write("%s cmsScimark benchmarks before starting the tests\n"      % cmsScimark)
+            logh.write("%s cmsScimarkLarge benchmarks before starting the tests\n" % cmsScimarkLarge)
+
+        #Actual script actions!
+        #Will have to fix the issue with the matplotlib pie-charts:
+        #Used to source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh
+        #Need an alternative in the release
+
+        #Command Handling:
 
 
-    if len(cpus) > 1:
-        for cpu in cpus:
-            cpupath = os.path.join(perfsuitedir,"cpu_%s" % cpu)
-            if not os.path.exists(cpupath):
-                os.mkdir(cpupath)
-            
-    
-    Commands = {}
-    AllScripts = Scripts + AuxiliaryScripts
-
-    for cpu in cpus:
-        Commands[cpu] = []
-
-    for script in AllScripts:
-        which="which " + script
-        
-        #Logging the actual version of cmsDriver.py, cmsRelvalreport.py, cmsSimPyRelVal.pl
-        whichstdout=os.popen4(which)[1].read()
-        logh.write(whichstdout)
-        if script in Scripts:
+        if len(cpus) > 1:
             for cpu in cpus:
-                command="taskset -c %s %s" % (cpu,script)
-                Commands[cpu].append(command)
-            
-    #First submit the cmsScimark benchmarks on the unused cores:
-    scimark = ""
-    scimarklarge = ""
-    if not _unittest:    
-        for core in range(cores):
-            if (not core in cpus) and runonspare:
-                logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core))
-                command="taskset -c %s cmsScimarkLaunch.csh %s &" % (str(core), str(core))
-                logh.write(command)
-            
-                #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
-                #cpus so it makes no sense to try reading its stdout/err 
-                os.popen4(command)
-    logh.flush()
-            
-    #dont do benchmarking if in debug mode... saves time
-    benching = not _debug
-    if benching and not _unittest:
-        #Submit the cmsScimark benchmarks on the cpu where the suite will be run:        
-        scimark      = open(os.path.join(perfsuitedir,"cmsScimark2.log")      ,"w")        
-        scimarklarge = open(os.path.join(perfsuitedir,"cmsScimark2_large.log"),"w")
-        if cmsScimark > 0:
-            logh.write("Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu))
-            benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
+                cpupath = os.path.join(perfsuitedir,"cpu_%s" % cpu)
+                if not os.path.exists(cpupath):
+                    os.mkdir(cpupath)
 
-        if cmsScimarkLarge > 0:
-            logh.write("Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu))
-            benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
 
-    if not profilers == "":
-        # which profile sets should we go into if custom profiles have been selected
-        runTime     = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["0", "1", "2", "3"]))
-        runIgProf   = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["4", "5", "6", "7"]))
-        runValgrind = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["8", "9"]))
-        if not runTime:
-            TimeSizeEvents = 0
-        if not runIgProf:
-            IgProfEvents   = 0
-        if not runValgrind:
-            ValgrindEvents = 0
+        Commands = {}
+        AllScripts = Scripts + AuxiliaryScripts
 
-    #TimeSize tests:
-    if TimeSizeEvents > 0:
-        logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents)
-        printDate()
+        for cpu in cpus:
+            Commands[cpu] = []
+
+        for script in AllScripts:
+            which="which " + script
+
+            #Logging the actual version of cmsDriver.py, cmsRelvalreport.py, cmsSimPyRelVal.pl
+            whichstdout=os.popen4(which)[1].read()
+            logh.write(whichstdout + "\n")
+            if script in Scripts:
+                for cpu in cpus:
+                    command="taskset -c %s %s" % (cpu,script)
+                    Commands[cpu].append(command)
+
+        #First submit the cmsScimark benchmarks on the unused cores:
+        scimark = ""
+        scimarklarge = ""
+        if not _unittest:    
+            for core in range(cores):
+                if (not core in cpus) and runonspare:
+                    logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
+                    command="taskset -c %s cmsScimarkLaunch.csh %s &" % (str(core), str(core))
+                    logh.write(command + "\n")
+
+                    #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
+                    #cpus so it makes no sense to try reading its stdout/err 
+                    os.popen4(command)
         logh.flush()
-        simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize",profilers,bypasshlt)
 
-    #IgProf tests:
-    if IgProfEvents > 0:
-        logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents)
-        printDate()
+        #dont do benchmarking if in debug mode... saves time
+        benching = not _debug
+        if benching and not _unittest:
+            #Submit the cmsScimark benchmarks on the cpu where the suite will be run:        
+            scimark      = open(os.path.join(perfsuitedir,"cmsScimark2.log")      ,"w")        
+            scimarklarge = open(os.path.join(perfsuitedir,"cmsScimark2_large.log"),"w")
+            if cmsScimark > 0:
+                logh.write("Starting with %s cmsScimark on cpu%s\n"       % (cmsScimark,cpu))
+                benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
+
+            if cmsScimarkLarge > 0:
+                logh.write("Following with %s cmsScimarkLarge on cpu%s\n" % (cmsScimarkLarge,cpu))
+                benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
+
+        if not profilers == "":
+            # which profile sets should we go into if custom profiles have been selected
+            runTime     = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["0", "1", "2", "3"]))
+            runIgProf   = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["4", "5", "6", "7"]))
+            runValgrind = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["8", "9"]))
+            if not runTime:
+                TimeSizeEvents = 0
+            if not runIgProf:
+                IgProfEvents   = 0
+            if not runValgrind:
+                ValgrindEvents = 0
+
+        #TimeSize tests:
+        if TimeSizeEvents > 0:
+            logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
+            printDate()
+            logh.flush()
+            simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize",profilers,bypasshlt)
+
+        #IgProf tests:
+        if IgProfEvents > 0:
+            logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
+            printDate()
+            logh.flush()
+            IgCandles = candles
+            #By default run IgProf only on QCD_80_120 candle
+            if isAllCandles:
+                IgCandles = [ "QCD_80_120" ]
+            simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf",profilers,bypasshlt)
+
+        #Valgrind tests:
+        if ValgrindEvents > 0:
+            logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each\n" % ValgrindEvents)
+            printDate()
+            logh.flush()
+            valCandles = candles
+
+            if isAllCandles:
+                cmds=[]
+                #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
+                valCandles = [ "QCD_80_120" ]
+
+            #Besides always run, only once the GEN,SIM step on SingleMu:
+            valCandles.append("SingleMuMinusPt10")
+            #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
+            #usercandles=candleoption.split(",")
+            simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind",profilers,bypasshlt)
+
+        if benching and not _unittest:
+            #Ending the performance suite with the cmsScimark benchmarks again:
+            if cmsScimark > 0:
+                logh.write("Ending with %s cmsScimark on cpu%s\n"         % (cmsScimark,cpu))
+                benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
+
+            if cmsScimarkLarge > 0:
+                logh.write("Following with %s cmsScimarkLarge on cpu%s\n" % (cmsScimarkLarge,cpu))
+                benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
+
+        #Stopping all cmsScimark jobs and analysing automatically the logfiles
+        logh.write("Stopping all cmsScimark jobs\n")
+        stopcmd = "cd %s ; %s" % (perfsuitedir,AuxiliaryScripts[2])
+        printFlush(stopcmd)
+        printFlush(os.popen4(stopcmd)[1].read())
+
+        if not prevrel == "":
+            crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=cmssw_version)
+
+        #Create a tarball of the work directory
+        TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
+        AbsTarFile = os.path.join(perfsuitedir,TarFile)
+        tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
+        printFlush(tarcmd)
+        printFlush(os.popen4(tarcmd)[1].read())
+
+        #Archive it on CASTOR
+        castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(castordir,TarFile))
+
+        printFlush(castorcmd)
+        printFlush(os.popen4(castorcmd)[1].read())
+
+        #End of script actions!
+
+        #Print a time stamp at the end:
+        date=time.ctime(time.time())
+        logh.write("Performance Suite finished running at %s on %s in directory %s\n" % (date,host,path))
+        if ERRORS == 0:
+            logh.write("There were no errors detected in any of the log files!\n")
+        else:
+            logh.write("ERROR: There were %s errors detected in the log files, please revise!\n" % ERRORS)
+    except:
         logh.flush()
-        IgCandles = candles
-        #By default run IgProf only on QCD_80_120 candle
-        if isAllCandles:
-            IgCandles = [ "QCD_80_120" ]
-        simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf",profilers,bypasshlt)
-
-    #Valgrind tests:
-    if ValgrindEvents > 0:
-        logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents)
-        printDate()
-        logh.flush()
-        valCandles = candles
-
-        if isAllCandles:
-            cmds=[]
-            #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
-            valCandles = [ "QCD_80_120" ]
-
-        #Besides always run, only once the GEN,SIM step on SingleMu:
-        valCandles.append("SingleMuMinusPt10")
-        #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
-        #usercandles=candleoption.split(",")
-        simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind",profilers,bypasshlt)
-
-    if benching and not _unittest:
-        #Ending the performance suite with the cmsScimark benchmarks again:
-        if cmsScimark > 0:
-            logh.write("Ending with %s cmsScimark on cpu%s" % (cmsScimark,cpu))
-            benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
-    
-        if cmsScimarkLarge > 0:
-            logh.write("Following with %s cmsScimarkLarge on cpu%s" % (cmsScimarkLarge,cpu))
-            benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
-    
-    #Stopping all cmsScimark jobs and analysing automatically the logfiles
-    logh.write("Stopping all cmsScimark jobs")
-    stopcmd = "cd %s ; %s" % (perfsuitedir,AuxiliaryScripts[2])
-    printFlush(stopcmd)
-    printFlush(os.popen4(stopcmd)[1].read())
-
-    if not prevrel == "":
-        crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=cmssw_version)
-
-    #Create a tarball of the work directory
-    TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
-    AbsTarFile = os.path.join(perfsuitedir,TarFile)
-    tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
-    printFlush(tarcmd)
-    printFlush(os.popen4(tarcmd)[1].read())
-    
-    #Archive it on CASTOR
-    castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(castordir,TarFile))
-
-    printFlush(castorcmd)
-    printFlush(os.popen4(castorcmd)[1].read())
-
-    #End of script actions!
-
-    #Print a time stamp at the end:
-    date=time.ctime(time.time())
-    logh.write("Performance Suite finished running at %s on %s in directory %s" % (date,host,path))
-    if ERRORS == 0:
-        logh.write("There were no errors detected in any of the log files!")
-    else:
-        logh.write("ERROR: There were %s errors detected in the log files, please revise!" % ERRORS)
+        if not logh.isatty():
+            logh.close()
+        raise
 
 if __name__ == "__main__":
     #Let's check the command line arguments
