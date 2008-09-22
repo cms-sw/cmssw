@@ -43,7 +43,7 @@ IsoDepositVetoFactory::make(const char *string) {
     boost::cmatch match;
     
     if (regex_match(string, match, ecalSwitch)) {
-        return new SwitchingEcalVeto(make(match[2].first), (match[1].first == "Barrel") );
+        return new SwitchingEcalVeto(make(match[2].first), (match[1] == "Barrel") );
     } else if (regex_match(string, match, threshold)) {
         return new ThresholdVeto(atof(match[1].first));
     } else if (regex_match(string, match, cone)) {
