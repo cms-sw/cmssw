@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, time, sys, re, glob, exceptions
+import os, time, sys, re, glob
 import optparse as opt
 import cmsRelRegress as crr
 from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog

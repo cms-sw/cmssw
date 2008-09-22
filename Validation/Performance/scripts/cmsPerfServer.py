@@ -135,7 +135,7 @@ def getCPSkeyword(key,dict):
 
 
 def request_benchmark(cmds):
-    global _outputdir
+    global _outputdir, _reqnumber
     try:
         # input is a list of dictionaries each defining the
         #   keywords to cmsperfsuite
