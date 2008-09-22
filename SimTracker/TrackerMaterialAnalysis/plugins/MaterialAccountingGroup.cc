@@ -177,7 +177,7 @@ void MaterialAccountingGroup::savePlot(TProfile * plot, float average, const std
 std::string MaterialAccountingGroup::info(void) const
 {
   std::stringstream out;
-  out << std::setw(32) << std::left << m_name << std::right << std::fixed;;
+  out << std::setw(48) << std::left << m_name << std::right << std::fixed;;
   out << "BBox: " << std::setprecision(1) << std::setw(6) << m_boundingbox.range_z().first << " < Z < " << std::setprecision(1) << std::setw(6) << m_boundingbox.range_z().second;
   out << ", "     << std::setprecision(1) << std::setw(5) << m_boundingbox.range_r().first << " < R < " << std::setprecision(1) << std::setw(5) << m_boundingbox.range_r().second;
   out << "   Elements: " << std::setw(6) << m_elements.size();

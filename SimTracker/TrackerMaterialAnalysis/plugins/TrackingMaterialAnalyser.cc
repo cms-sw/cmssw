@@ -95,8 +95,8 @@ void TrackingMaterialAnalyser::saveXml(const char* name)
   for (unsigned int i = 0; i < m_groups.size(); ++i) {
     MaterialAccountingGroup & layer = *(m_groups[i]);
     xml << "  <Group name=\"" << layer.name() << "\">\n"
-        << "    <Parameter name=\"TrackerRadLength\" value=\"" << layer.averageRadiationLengths() << "\"/>"
-        << "    <Parameter name=\"TrackerXi\" value=\"" << layer.averageEnergyLoss() << "\"/>"
+        << "    <Parameter name=\"TrackerRadLength\" value=\"" << layer.averageRadiationLengths() << "\"/>\n"
+        << "    <Parameter name=\"TrackerXi\" value=\"" << layer.averageEnergyLoss() << "\"/>\n"
         << "  </Group>\n" 
         << std::endl;
   }
