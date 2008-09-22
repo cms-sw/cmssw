@@ -26,14 +26,7 @@ void PFBlockElementBrem::Dump(ostream& out,
  
   if( !GsftrackRefPF_.isNull() ) {
 
-    // COLIN
-    // the following relies on the presence of PFRecBrem in the event.
-    // these objects are used in a transient way, and for most people they
-    // are not there, which leads to a "product not found" error.
-    // please access the charge in another way.
-    // double charge = ((*GsftrackRefPF()).PFRecBrem()[(indPoint_-2)]).charge();
-    
-    double charge = -999;
+    double charge = 0.;
     double dp =  deltaP_;
     double sigmadp = sigmadeltaP_;
     int indextrj = (indPoint_-2);
