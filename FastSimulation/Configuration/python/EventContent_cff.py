@@ -175,7 +175,7 @@ AODEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
-AODEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
+#AODEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
 
 #####################################################################
 #
@@ -200,7 +200,7 @@ AODSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputComman
 AODSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
+#AODSIMEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
 
 #####################################################################
 #
