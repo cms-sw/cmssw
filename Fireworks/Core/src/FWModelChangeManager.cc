@@ -8,16 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.7 2008/07/29 13:22:28 chrjones Exp $
+// $Id: FWModelChangeManager.cc,v 1.8 2008/09/05 21:02:10 dmytro Exp $
 //
 
 // system include files
 #include <boost/shared_ptr.hpp>
 #include <boost/mem_fn.hpp>
+#include <exception>
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 //
@@ -108,7 +110,23 @@ FWModelChangeManager::endChanges()
             guard = true;
             changeSignalsAreComing_();
          }
-         m_itemChangeSignals[(*itChanges)->id()](*itChanges);
+         FWItemChangeSignal& signal = m_itemChangeSignals[(*itChanges)->id()];
+         //loop over the slots ourself so we can control the behavior in case of a failure
+         FWItemChangeSignal::slot_list_type slots = signal.slots();
+         for(FWItemChangeSignal::slot_list_type::iterator itSlot=slots.begin(), itEnd = slots.end();
+             itSlot != itEnd;
+             ++itSlot) {
+            try {
+               (*itSlot)(*itChanges);
+            } catch(const cms::Exception& iE) {
+               std::cerr <<(*itChanges)->name()<<" had the failure\n"<<iE.what()<<std::endl;
+            } catch(const std::bad_alloc& iE) {
+               std::cerr <<"Ran out of memory while processing "<<(*itChanges)->name()<<std::endl;
+               exit(1);
+            } catch(const std::exception& iE) {
+               std::cerr <<(*itChanges)->name()<<" had the failure\n"<<iE.what()<<std::endl;
+            }
+         }
       }
       m_itemChanges.clear();
 
@@ -122,7 +140,22 @@ FWModelChangeManager::endChanges()
                guard = true;
                changeSignalsAreComing_();
             }
-            (*itSignal)(*itChanges);
+            //loop over the slots ourself so we can control the behavior in case of a failure
+            FWModelChangeSignal::slot_list_type slots = itSignal->slots();
+            for(FWModelChangeSignal::slot_list_type::iterator itSlot=slots.begin(), itEnd = slots.end();
+                itSlot != itEnd;
+                ++itSlot) {
+               try {
+                  (*itSlot)(*itChanges);
+               } catch(const cms::Exception& iE) {
+                  std::cerr <<(*itChanges).begin()->item()->name()<<" had the failure\n"<<iE.what()<<std::endl;
+               } catch(const std::bad_alloc& iE) {
+                  std::cerr <<"Ran out of memory while processing "<<(*itChanges).begin()->item()->name()<<std::endl;
+                  exit(1);
+               } catch(const std::exception& iE) {
+                  std::cerr <<(*itChanges).begin()->item()->name()<<" had the failure\n"<<iE.what()<<std::endl;
+               }
+            }
             itChanges->clear();
          }
       }
