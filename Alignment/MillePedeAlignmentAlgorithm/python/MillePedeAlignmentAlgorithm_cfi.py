@@ -38,8 +38,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         options = cms.vstring('entries 50', # min. number of measurements (parameters with less will be skipped)
             # "chisqcut  20.0  4.5", # simple chi^2 cut for outliers OR ...
             # "outlierdownweighting 3", "dwfractioncut 0.1" #, # ... 3x Huber down weighting OR...
-            'outlierdownweighting 4', 
-            'dwfractioncut 0.2', 
+            'outlierdownweighting 5', 'dwfractioncut 0.2',
             'bandwidth 6'), # for method sparseGMRES for preconditioning
 
         # Special selection of parameters to fix, use as reference coordinate system etc.
