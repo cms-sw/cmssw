@@ -538,7 +538,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         if not len(candles) == len(Candles):
             logh.write("Running only %s candle, instead of the whole suite\n" % str(candles))
         
-        logh.write("This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s\n" %(host,cores,cpu)        )
+        logh.write("This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s\n" %(host,cores,cpus))
         path=os.path.abspath(".")
         logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s\n" % (getDate(),host,path,user))
         showtags=os.popen4("showtags -r")[1].read()
