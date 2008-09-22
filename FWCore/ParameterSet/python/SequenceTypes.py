@@ -337,29 +337,6 @@ class _SequenceIgnore(_UnarySequenceOperator):
         return '-%s' %self._operand.dumpSequenceConfig()
     def dumpSequencePython(self):
         return 'cms.ignore(%s)' %self._operand.dumpSequencePython()
-    def _findDependencies(self,knownDeps, presentDeps):
-        self._operand._findDependencies(knownDeps, presentDeps)
-    def fillNamesList(self, l, processDict):
-        l.append(self.dumpSequenceConfig())
-    def _clonesequence(self, lookuptable):
-        return type(self)(self._operand._clonesequence(lookuptable))
-    def _replace(self, original, replacement):
-        if self._operand == original:
-            self._operand = replacement
-        else:
-            self._operand._replace(original, replacement)
-    def _remove(self, original):
-        if (self._operand == original): return (None, True)
-        (self._operand, found) = self._operand._remove(original)
-        if self._operand == None: return (None, True)
-        return (self, found)
-    def resolve(self, processDict):
-        self._operand = self._operand.resolve(processDict)
-        return self
-    def isOperation(self):
-        return True
-    def _visitSubNodes(self,visitor):
-        self._operand.visitNode(visitor)
 
 def ignore(seq):
     """The EDFilter passed as an argument will be run but its filter value will be ignored
