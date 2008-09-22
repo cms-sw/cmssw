@@ -148,7 +148,7 @@ def request_benchmark(cmds):
             _reqnumber += 1
         os.mkdir(topdir)
         for cmd in cmds:
-            curperfdir = os.path.join(topdir,str(i))        
+            curperfdir = os.path.abspath(os.path.join(topdir,str(i)))
             if not os.path.exists(curperfdir):
                 os.mkdir(curperfdir)
             logfile = os.path.join(curperfdir, "cmsPerfSuite.log")
