@@ -184,6 +184,10 @@ Legal entries for individual candles (--candle option):
     else:
         outputdir = os.path.abspath(outputdir)
 
+    if not os.path.isdir(outputdir):
+        parser.error("%s is not a valid output directory" % outputdir)
+        sys.exit()
+
     if not numetcomreg.search(cpu):
         parser.error("cpu option needs to be a comma separted list of ints or a single int")
         sys.exit()
@@ -222,20 +226,12 @@ Legal entries for individual candles (--candle option):
 
     if not cmsdriverOptions == "":
         cmsdriverOptions = "--cmsdriver=" + cmsdriverOptions        
-        print "Running cmsDriver.py with the special user defined options: %s" % cmsdriverOptions
-        
         #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
         cmsdriverOptions= '"%s"' % (cmsdriverOptions)
         
     if not stepOptions == "":
-        print "Running user defined steps only: %s" % stepOptions
-        
         #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
         stepOptions='"--usersteps=%s"' % (stepOptions)
-    if not candleoption == "":
-        print "Running only %s candle, instead of the whole suite" % candleoption
-
-
     
     isAllCandles = candleoption == ""
     candles = {}

@@ -486,7 +486,7 @@ def writeCommands(simcandles,
         userSteps = steps
     else:
         if not (steps[0] == AllSteps[0]):
-            (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions,fstROOTfile)
+            (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
             if fstROOTfile:
                 fstROOTfileStr = rootFileStr
                 fstROOTfile = False
