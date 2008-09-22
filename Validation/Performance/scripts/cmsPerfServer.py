@@ -6,6 +6,8 @@ from cmsPerfCommons import Candles
 import optparse as opt
 import socket, os, sys, SimpleXMLRPCServer, threading
 
+_outputdir  = os.getcwd()
+_reqnumber  = 0
 _logreturn  = True
 _PROG_NAME  = os.path.basename(sys.argv[0])
 _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
@@ -30,7 +32,7 @@ _DEFAULTS   = {"castordir"        : _CASTOR_DIR,
                "logfile"          : os.path.join(os.getcwd(),"cmsPerfSuite.log")}
 
 def optionparse():
-
+    global _outputdir
     parser = opt.OptionParser(usage=("""%s [Options]""" % _PROG_NAME))
 
     parser.add_option('-p',
@@ -68,6 +70,8 @@ def optionparse():
         port = 8000
     else:
         port = options.port
+
+    _outputdir = outputdir
 
     return (port,outputdir)
 
@@ -131,20 +135,27 @@ def getCPSkeyword(key,dict):
 
 
 def request_benchmark(cmds):
+    global _outputdir
     try:
         # input is a list of dictionaries each defining the
         #   keywords to cmsperfsuite
         outs = []
         i = 0
+        exists = True
+        while exists:
+            topdir = os.path.join(_outputdir,"request_" + str(_reqnumber))
+            exists = os.path.exists(topdir)
+            _reqnumber += 1
+        os.mkdir(topdir)
         for cmd in cmds:
-            curperfdir = os.path.join(getCPSkeyword("perfsuitedir"    , cmd),str(i))
+            curperfdir = os.path.join(topdir,str(i))        
             if not os.path.exists(curperfdir):
                 os.mkdir(curperfdir)
-            logfile = os.path.join(getCPSkeyword("perfsuitedir"         , cmd), str(i), "cmsPerfSuite.log")
-            if cmd.has_key("logfile"):
-                logfile = os.path.join(getCPSkeyword("logfile"          , cmd), "cmsPerfSuite.log")
-                if os.path.exists(logfile):
-                    logfile = logfile + str(i)
+            logfile = os.path.join(curperfdir, "cmsPerfSuite.log")
+            #if cmd.has_key("logfile"):
+            #    logfile = os.path.join(getCPSkeyword("logfile"          , cmd), "cmsPerfSuite.log")
+            if os.path.exists(logfile):
+                logfile = logfile + str(i)
             cps.runPerfSuite(castordir        = getCPSkeyword("castordir"       , cmd),
                              perfsuitedir     = curperfdir                             ,
                              TimeSizeEvents   = getCPSkeyword("TimeSizeEvents"  , cmd),
