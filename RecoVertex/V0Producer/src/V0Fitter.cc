@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.28 2008/06/25 17:53:09 drell Exp $
+// $Id: V0Fitter.cc,v 1.29 2008/07/02 22:53:54 kaulmer Exp $
 //
 //
 
@@ -70,6 +70,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   kShortMassCut = theParameters.getParameter<double>(string("kShortMassCut"));
   lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
   impactParameterCut = theParameters.getParameter<double>(string("impactParameterCut"));
+  mPiPiCut = theParameters.getParameter<double>(string("mPiPiCut"));
 
   // FOR DEBUG:
   //initFileOutput();
@@ -199,7 +200,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       // Assume pion masses and do a wide mass cut.  First, we need the
       //  track momenta.
-      /*      
+            
       double posESq = positiveTrackRef->momentum().Mag2() + piMassSquared;
       double negESq = negativeTrackRef->momentum().Mag2() + piMassSquared;
       double posE = sqrt(posESq);
@@ -209,8 +210,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double totalPSq = 
 	(positiveTrackRef->momentum() + negativeTrackRef->momentum()).Mag2();
       double mass = sqrt( totalESq - totalPSq);
-      if( mass > 0.7 ) continue;
-      */
+      if( mass > mPiPiCut ) continue;
+      
       //^^^Next, need to make sure the above works with signal/background studies
 
       //----->> Finished making cuts.

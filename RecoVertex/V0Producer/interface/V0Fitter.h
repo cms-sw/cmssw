@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.12 2008/04/28 23:32:42 drell Exp $
+// $Id: V0Fitter.h,v 1.13 2008/06/20 22:44:33 drell Exp $
 //
 //
 
@@ -101,6 +101,7 @@ class V0Fitter {
   double kShortMassCut;
   double lambdaMassCut;
   double impactParameterCut;
+  double mPiPiCut;
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);

@@ -29,8 +29,9 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     rVtxCut = cms.double(0.0),
     vtxSignificanceCut = cms.double(22.0),
     kShortMassCut = cms.double(0.07),
-    lambdaMassCut = cms.double(0.25),
+    lambdaMassCut = cms.double(0.05),
     impactParameterCut = cms.double(0.05),
+    mPiPiCut = cms.double(0.7),
 
     # These parameters decide whether or not to reconstruct
     #  specific V0 particles
