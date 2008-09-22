@@ -240,13 +240,6 @@ Legal entries for individual candles (--candle option):
     else:
         candles = candleoption.split(",")
 
-    qcdWillRun = (not isAllCandles) and "QCD_80_120" in candles 
-    if qcdWillRun:
-        candles = checkQcdConditions(candles,
-                                     TimeSizeEvents,
-                                     "./%s_%s" % ("MinBias","TimeSize"),
-                                     "%s_cfi_GEN_SIM.root" % "MinBias")
-
     return (castordir       ,
             TimeSizeEvents  ,
             IgProfEvents    ,
@@ -522,7 +515,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         except (OSError, IOError), detail:
             logh.write(detail + "\n")
 
-    try:
+    try:        
 
         if not cmsdriverOptions == "":
             logh.write("Running cmsDriver.py with the special user defined options: %s\n" % cmsdriverOptions)
@@ -620,6 +613,13 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
                 IgProfEvents   = 0
             if not runValgrind:
                 ValgrindEvents = 0
+
+        qcdWillRun = (not isAllCandles) and "QCD_80_120" in candles 
+        if qcdWillRun:
+            candles = checkQcdConditions(candles,
+                                         TimeSizeEvents,
+                                         os.path.join(perfsuitedir,"%s_%s" % ("MinBias","TimeSize")),
+                                         "%s_cfi_GEN_SIM.root" % "MinBias")
 
         #TimeSize tests:
         if TimeSizeEvents > 0:
