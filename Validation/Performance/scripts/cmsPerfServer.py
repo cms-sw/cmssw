@@ -170,8 +170,8 @@ def request_benchmark(cmds):
             cmdwdefs["cpus"]             = getCPSkeyword("cpus"            , cmd)
             cmdwdefs["cores"]            = getCPSkeyword("cores"           , cmd)
             cmdwdefs["prevrel"]          = getCPSkeyword("prevrel"         , cmd)
+            cmdwdefs["candles"]          = getCPSkeyword("candles"         , cmd)                                    
             cmdwdefs["isAllCandles"]     = not len(Candles) == len(cmdwdefs["candles"])
-            cmdwdefs["candles"]          = getCPSkeyword("candles"         , cmd)                        
             cmdwdefs["bypasshlt"]        = getCPSkeyword("bypasshlt"       , cmd)
             cmdwdefs["runonspare"]       = getCPSkeyword("runonspare"      , cmd)
             cmdwdefs["logfile"]          = logfile
