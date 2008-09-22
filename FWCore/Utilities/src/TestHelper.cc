@@ -1,5 +1,5 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.6 2006/10/12 14:29:02 paterno Exp $
+// $Id: TestHelper.cc,v 1.7 2007/06/14 02:01:01 wmtan Exp $
 //------------------------------------------------------------
 #include <cerrno>
 #include <cstdlib>
@@ -18,6 +18,9 @@
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 namespace bf=boost::filesystem;
+
+//man pages for environ say you must declare it as such
+extern char** environ;
 
 int run_script(const std::string& shell, const std::string& script)
 {
