@@ -473,7 +473,7 @@ class VariablePower : public CachingVariable {
     addDescriptionLine(ss.str());
     arg.m[arg.n]=this;
   }
-  ~Power(){}
+  ~VariablePower(){}
  
  //concrete calculation of the variable
   CachingVariable::evalType eval(const edm::Event & iEvent) const;
