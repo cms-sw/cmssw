@@ -242,8 +242,14 @@ namespace edm
     return *missingTypes_.get();
   }
 
-  void checkDictionaries(std::string const& name, bool transient) {
-    checkType(Type::ByName(name), transient);
+  void checkDictionaries(std::string const& name, bool noComponents) {
+    Type null;
+    Type t = Type::ByName(name);
+    if (t == null) {
+      missingTypes().insert(name);
+      return;
+    }
+    checkType(Type::ByName(name), noComponents);
   }
 
   void checkAllDictionaries() {
