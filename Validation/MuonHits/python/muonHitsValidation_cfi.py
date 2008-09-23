@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # SimHits Validation Analyzer after Simulation
 validSimHit = cms.EDAnalyzer("MuonSimHitsValidAnalyzer",
     # Name of the root file which will contain the histos
-    DT_outputFile = cms.untracked.string('DTSimHitsPlots_200pre4.root'),
+    DT_outputFile = cms.untracked.string('DTSimHitsPlots.root'),
+#    DT_outputFile = cms.untracked.string(''), 
     Name = cms.untracked.string('MuonSimHitsValidAnalyzer'),
     RPCHitsSrc = cms.InputTag("g4SimHits","MuonRPCHits"),
     Verbosity = cms.untracked.int32(0), ## verbosity inclusive.

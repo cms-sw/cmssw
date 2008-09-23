@@ -39,7 +39,7 @@ void DoCompare_DT( ){
  label[5] = "SuperLayer_occupancy";
  label[6] = "Layer_occupancy";
  label[7] = "Wire_occupancy";
- label[8] = "DT_energy_loss";
+ label[8] = "DT_energy_loss_keV";
  label[9] = "chamber_occupancy";
  label[10] = "Momentum_at_MB1";
  label[11] = "Momentum_at_MB4";

@@ -81,9 +81,8 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
 
   // ----------------------
 
-
- bookHistos_DT();
-
+    bookHistos_DT();
+ 
 /*
    // get hold of back-end interface CSC
   dbeCSC_ = 0;
@@ -138,7 +137,12 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
 
 MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer() 
 {
- theDTFile->Close();
+ if ( DToutputFile_.size() != 0 ) 
+   {
+    LogInfo("OutputInfo") << " DT MuonHits histos file is closed " ;
+    theDTFile->Close();
+   }   
+   
 // theCSCFile->Close();
 // theRPCFile->Close();
 }
@@ -184,8 +188,14 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
   meGlobalEta =0 ;
   meGlobalPhi =0 ;
 
-  theDTFile = new TFile(DToutputFile_.c_str(),"RECREATE");
-  theDTFile->cd();
+  if ( DToutputFile_.size() != 0 ) {
+   theDTFile = new TFile(DToutputFile_.c_str(),"RECREATE");
+   theDTFile->cd();
+   LogInfo("OutputInfo") << " DT MuonHits histograms will be saved to '" << DToutputFile_.c_str() << "'";
+  } else {
+   LogInfo("OutputInfo") << " DT MuonHits histograms will NOT be saved";
+  }
+
 
   Char_t histo_n[100];
   Char_t histo_t[100];
@@ -195,18 +205,18 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
  
     sprintf (histo_n, "Number_of_all_DT_hits" );
     sprintf (histo_t, "Number_of_all_DT_hits" );
-    meAllDTHits = dbeDT_->book1D(histo_n, histo_t,  150, 1.0, 151.0) ;
+    meAllDTHits = dbeDT_->book1D(histo_n, histo_t,  200, 1.0, 201.0) ;
  
     sprintf (histo_n, "Number_of_muon_DT_hits" );
     sprintf (histo_t, "Number_of_muon_DT_hits" );
-    meMuDTHits  = dbeDT_->book1D(histo_n, histo_t, 50, 1.0, 51.0);
+    meMuDTHits  = dbeDT_->book1D(histo_n, histo_t, 150, 1.0, 151.0);
 
     sprintf (histo_n, "Tof_of_hits " );
     sprintf (histo_t, "Tof_of_hits " );
     meToF = dbeDT_->book1D(histo_n, histo_t, 100, -0.5, 50.) ;
 
-    sprintf (histo_n, "DT_energy_loss" );
-    sprintf (histo_t, "DT_energy_loss" );
+    sprintf (histo_n, "DT_energy_loss_keV" );
+    sprintf (histo_t, "DT_energy_loss_keV" );
     meEnergyLoss  = dbeDT_->book1D(histo_n, histo_t, 100, 0.0, 10.0);
 
     sprintf (histo_n, "Momentum_at_MB1" );
@@ -786,7 +796,16 @@ void MuonSimHitsValidAnalyzer::saveHistos_CSC()
 
 void MuonSimHitsValidAnalyzer::endJob()
 {
+
+ if ( DToutputFile_.size() != 0 ) {
   saveHistos_DT();
+  LogInfo("OutputInfo") << " DT MuonHits histos already saved" ;
+ } else {
+    LogInfo("OutputInfo") << " DT MuonHits histos NOT saved";
+  }
+
+
+
 //  saveHistos_CSC();
 //  saveHistos_RPC(); 
   if (verbosity > 0)
