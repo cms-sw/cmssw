@@ -91,7 +91,7 @@ def harvest(perfdir):
                 print "Error: could not determine valid cpu id from %s ! Skipping..." % base
 
     else:
-        out[None] = visit(perfdir)
+        out["None"] = visit(perfdir)
         
     return out  
 
