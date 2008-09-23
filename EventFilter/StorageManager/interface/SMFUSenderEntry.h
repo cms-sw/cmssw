@@ -15,7 +15,7 @@
 namespace stor {
 
   typedef std::vector<toolbox::mem::Reference*> FrameRefCollection;
-  typedef std::vector<unsigned char> RegData;
+  typedef boost::shared_ptr< std::vector<unsigned char> > RegData;
 
 struct SMFUSenderRegCollection // used to stored collection of INIT messages
 {
