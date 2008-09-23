@@ -416,13 +416,13 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   }
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
-  if ( subDir_.empty() ) subDir_ = "RecoMuonV/";
-  if ( subDir_[subDir_.size()-1] != '/' ) subDir_ += "/";
+  if ( subDir_.empty() ) subDir_ = "RecoMuonV";
+  if ( subDir_[subDir_.size()-1] == '/' ) subDir_.erase(subDir_.size()-1);
 
   // book histograms
   theDQM->cd();
 
-  theDQM->setCurrentFolder(subDir_+"Muons/");
+  theDQM->setCurrentFolder(subDir_+"/Muons");
 
   commonME_ = new CommonME;
   trkMuME_ = new MuonME;
@@ -443,17 +443,21 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", hDim.nHits, 0, hDim.nHits);
 
   // - histograms on tracking variables
-  string trkDirName = trkMuLabel_.label() + "_" + trkMuLabel_.instance() + "_" + trkMuAssocLabel_.label();
-  string staDirName = staMuLabel_.label() + "_" + staMuLabel_.instance() + "_" + staMuAssocLabel_.label();
-  string glbDirName = glbMuLabel_.label() + "_" + glbMuLabel_.instance() + "_" + glbMuAssocLabel_.label();
+  theDQM->setCurrentFolder(subDir_+"/Trk");
+  theDQM->bookString("TrackLabel", trkMuLabel_.label()+"_"+trkMuLabel_.instance());
+  theDQM->bookString("AssocLabel", trkMuAssocLabel_.label());
 
-  std::replace(trkDirName.begin(), trkDirName.end(), ':', '_');
-  std::replace(staDirName.begin(), staDirName.end(), ':', '_');
-  std::replace(glbDirName.begin(), glbDirName.end(), ':', '_');
+  theDQM->setCurrentFolder(subDir_+"/Sta");
+  theDQM->bookString("TrackLabel", staMuLabel_.label()+"_"+staMuLabel_.instance());
+  theDQM->bookString("AssocLabel", staMuAssocLabel_.label());
 
-  trkMuME_->bookHistograms(theDQM, subDir_+trkDirName, hDim);
-  staMuME_->bookHistograms(theDQM, subDir_+staDirName, hDim);
-  glbMuME_->bookHistograms(theDQM, subDir_+glbDirName, hDim);
+  theDQM->setCurrentFolder(subDir_+"/Glb");
+  theDQM->bookString("TrackLabel", glbMuLabel_.label()+"_"+glbMuLabel_.instance());
+  theDQM->bookString("AssocLabel", glbMuAssocLabel_.label());
+  
+  trkMuME_->bookHistograms(theDQM, subDir_+"/Trk", hDim);
+  staMuME_->bookHistograms(theDQM, subDir_+"/Sta", hDim);
+  glbMuME_->bookHistograms(theDQM, subDir_+"/Glb", hDim);
 
   theDQM->showDirStructure();
 
