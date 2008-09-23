@@ -25,12 +25,14 @@ void productid_cint()
   TFile f1("prodmerge.root");
   fwlite::Event ev(&f1);
   fwlite::Handle<vector<edmtest::Thing> > pThing;
+  fwlite::Handle<vector<edmtest::OtherThing> > oThing;
 
   // test that getProcessHistory() and getBranchName() work before getting the first event
   const vector<string>& hist = ev.getProcessHistory();
   for (unsigned int i=0; i != hist.size(); ++i) {
     cout << hist.at(i) << " " << pThing.getBranchNameFor(ev,"Thing","",hist.at(i).c_str()) << endl;
   }
+  cout << "No such thing: "<< pThing.getBranchNameFor(ev,"NoSuchThing") << endl;
   
   for (ev.toBegin(); ! ev.atEnd(); ++ev) {
     edm::EventID id = ev.id();
@@ -47,6 +49,8 @@ void productid_cint()
       cout <<pThing.ref().at(i).a<<" ";
     }
     cout << endl;
+    oThing.getByLabel(ev,"OtherThing","","FOO");
+    cout << "Nonexistent other thing valid: " << oThing.isValid() << " failedToGet: " << oThing.failedToGet() << endl;
   }
 
   bool t = ev.to(1,2);
