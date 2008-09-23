@@ -580,7 +580,8 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             for core in range(cores):
                 if (not core in cpus) and runonspare:
                     logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu "+str(core) + "\n")
-                    command="taskset -c %s \"cd %s ; cmsScimarkLaunch.csh %s\" &" % (str(core), perfsuitedir, str(core))
+                    subcmd = "cd %s ; cmsScimarkLaunch.csh %s" % (perfsuitedir, str(core))            
+                    command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
                     logh.write(command + "\n")
 
                     #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
@@ -669,7 +670,8 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
 
         #Stopping all cmsScimark jobs and analysing automatically the logfiles
         logh.write("Stopping all cmsScimark jobs\n")
-        stopcmd = "cd %s ; %s" % (perfsuitedir,AuxiliaryScripts[2])
+        subcmd = "cd %s ; %s" % (perfsuitedir,AuxiliaryScripts[2])
+        stopcmd = "sh -c \"%s\"" % subcmd
         printFlush(stopcmd)
         printFlush(os.popen4(stopcmd)[1].read())
 
@@ -680,7 +682,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
         AbsTarFile = os.path.join(perfsuitedir,TarFile)
         tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
-        printflush(tarcmd)
+        printFlush(tarcmd)
         printFlush(os.popen4(tarcmd)[1].read())
 
         #Archive it on CASTOR
