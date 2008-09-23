@@ -1,16 +1,16 @@
 /**
  * \class HLTLevel1GTSeed
- * 
- * 
- * Description: filter L1 bits and extract seed objects from L1 GT for HLT algorithms.  
+ *
+ *
+ * Description: filter L1 bits and extract seed objects from L1 GT for HLT algorithms.
  *
  * Implementation:
- *    This class is an HLTFilter (-> EDFilter). It implements: 
+ *    This class is an HLTFilter (-> EDFilter). It implements:
  *      - filtering on Level-1 bits, given via a logical expression of algorithm names
  *      - extraction of the seed objects from L1 GT object map record
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -94,7 +94,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
     // InputTag for L1 muon collection
     m_l1MuonCollectionTag = parSet.getParameter<edm::InputTag>("L1MuonCollectionTag");
 
-    // 
+    //
     saveTags_ = parSet.getUntrackedParameter<bool>("saveTags",false);
 
     if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
@@ -107,7 +107,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
         m_l1AlgoSeeds.reserve((m_l1AlgoLogicParser.operandTokenVector()).size());
         m_l1AlgoSeeds = m_l1AlgoLogicParser.expressionSeedsOperandList();
         size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
-       
+
         //
         m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
         m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
@@ -118,28 +118,28 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) {
     if (m_l1TechTriggerSeeding) {
         convertStringToBitNumber();
     }
-        
-    LogDebug("HLTLevel1GTSeed") << "\n" 
-        << "L1 Seeding via Technical Triggers      " << m_l1TechTriggerSeeding 
+
+    LogDebug("HLTLevel1GTSeed") << "\n"
+        << "L1 Seeding via Technical Triggers      " << m_l1TechTriggerSeeding
         << "\n"
-        << "L1 Seeds Logical Expression:           " << m_l1SeedsLogicalExpression 
-        << "\n" 
+        << "L1 Seeds Logical Expression:           " << m_l1SeedsLogicalExpression
+        << "\n"
         << "Input tag for L1 GT DAQ record:        " << m_l1GtReadoutRecordTag.label()
-        << " \n" 
+        << " \n"
         << "Input tag for L1 GT object map record: " << m_l1GtObjectMapTag.label()
-        << " \n" 
+        << " \n"
         << "Input tag for L1 extra collections:    " << m_l1CollectionsTag.label()
-        << " \n" 
+        << " \n"
         << "Input tag for L1 muon  collections:    " << m_l1MuonCollectionTag.label()
-        << " \n" 
+        << " \n"
         << std::endl;
 
     // register the products
     produces<trigger::TriggerFilterObjectWithRefs>();
-    
+
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
-    
+
     m_l1GtTmAlgoCacheID = 0ULL;
     m_l1GtTmTechCacheID = 0ULL;
 
@@ -202,30 +202,30 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         }
 
     }
-    
-    
-    
+
+
+
     // seeding done via technical trigger bits
     if (m_l1TechTriggerSeeding) {
 
-        // get / update the trigger mask from the EventSetup 
+        // get / update the trigger mask from the EventSetup
         // local cache & check on cacheIdentifier
-        unsigned long long l1GtTmTechCacheID = 
+        unsigned long long l1GtTmTechCacheID =
             evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
         if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-            
+
             edm::ESHandle< L1GtTriggerMask > l1GtTmTech;
-            evSetup.get< L1GtTriggerMaskTechTrigRcd >().get( l1GtTmTech );        
+            evSetup.get< L1GtTriggerMaskTechTrigRcd >().get( l1GtTmTech );
             m_l1GtTmTech = l1GtTmTech.product();
-            
+
             m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
-            
+
             m_l1GtTmTechCacheID = l1GtTmTechCacheID;
 
         }
 
-        // get Global Trigger technical trigger word, update the tokenResult members 
+        // get Global Trigger technical trigger word, update the tokenResult members
         // from m_l1AlgoLogicParser and get the result for the logical expression
         const std::vector<bool>& gtTechTrigWord = gtReadoutRecord->technicalTriggerWord();
         updateAlgoLogicParser(gtTechTrigWord, m_triggerMaskTechTrig, physicsDaqPartition);
@@ -234,54 +234,55 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         iEvent.put(filterObject);
 
         bool seedsResult = m_l1AlgoLogicParser.expressionResult();
-        
+
         if (seedsResult) {
             return true;
         } else {
-            return false;            
+            return false;
         }
-        
+
     }
-    
+
     // seeding via physics algorithms
 
-    // get / update the trigger menu from the EventSetup 
+    // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
         evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
-        
+        (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+
         m_l1GtMenuCacheID = l1GtMenuCacheID;
-        
+
         // update also the tokenNumber members (holding the bit numbers) from m_l1AlgoLogicParser
         updateAlgoLogicParser(m_l1GtMenu);
     }
-    
-    // get / update the trigger mask from the EventSetup 
+
+    // get / update the trigger mask from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtTmAlgoCacheID = 
+    unsigned long long l1GtTmAlgoCacheID =
         evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
     if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMask > l1GtTmAlgo;
-        evSetup.get< L1GtTriggerMaskAlgoTrigRcd >().get( l1GtTmAlgo );        
+        evSetup.get< L1GtTriggerMaskAlgoTrigRcd >().get( l1GtTmAlgo );
         m_l1GtTmAlgo = l1GtTmAlgo.product();
-        
+
         m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
-        
+
         m_l1GtTmAlgoCacheID = l1GtTmAlgoCacheID;
 
     }
-    
-    
-    // get Global Trigger decision word, update the tokenResult members 
+
+
+    // get Global Trigger decision word, update the tokenResult members
     // from m_l1AlgoLogicParser and get the result for the logical expression
     const std::vector<bool>& gtDecisionWord = gtReadoutRecord->decisionWord();
     updateAlgoLogicParser(gtDecisionWord, m_triggerMaskAlgoTrig, physicsDaqPartition);
@@ -333,11 +334,11 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     // loop over the list of required algorithms for seeding
     int iAlgo = -1;
-    
-    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator 
+
+    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
         itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
 
-        // 
+        //
         iAlgo++;
         //
         int algBit = (*itSeed).tokenNumber;
@@ -346,7 +347,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
         //LogTrace("HLTLevel1GTSeed")
         //    << "\nHLTLevel1GTSeed::filter "
-        //    << "\n  Algoritm " << algName << " with bit number " << algBit 
+        //    << "\n  Algoritm " << algName << " with bit number " << algBit
         //    << " in the object map seed list"
         //    << "\n  Algorithm result = " << algResult << "\n"
         //    << std::endl;
@@ -359,12 +360,12 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
         // algorithm result is true - get object map, loop over conditions in the algorithm
         const L1GlobalTriggerObjectMap* objMap = gtObjectMapRecord->getObjectMap(algBit);
-        
-        const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = 
+
+        const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap =
             objMap->operandTokenVector();
-        
+
         const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn = *(m_l1AlgoSeedsRpn.at(iAlgo));
-        
+
         const std::vector< const std::vector<L1GtObject>* >&  algoSeedsObjTypeVec = m_l1AlgoSeedsObjType[iAlgo];
 
         //
@@ -373,36 +374,36 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         // get list of required conditions for seeding - loop over
         std::vector<L1GtLogicParser::OperandToken> condSeeds =
             logicParserConditions.expressionSeedsOperandList();
-        
+
         if (edm::isDebugEnabled() ) {
-            
-            LogTrace("HLTLevel1GTSeed") 
+
+            LogTrace("HLTLevel1GTSeed")
                 << "\n  HLTLevel1GTSeed::filter "
                << "\n    condSeeds.size() = "
-                << condSeeds.size() 
+                << condSeeds.size()
                 << std::endl;
 
 
             for (size_t i = 0; i < condSeeds.size(); ++i) {
 
-                LogTrace("HLTLevel1GTSeed") 
-                << "      " << std::setw(5) << (condSeeds[i]).tokenNumber << "\t" 
-                << std::setw(25) << (condSeeds[i]).tokenName << "\t" 
-                << (condSeeds[i]).tokenResult 
+                LogTrace("HLTLevel1GTSeed")
+                << "      " << std::setw(5) << (condSeeds[i]).tokenNumber << "\t"
+                << std::setw(25) << (condSeeds[i]).tokenName << "\t"
+                << (condSeeds[i]).tokenResult
                 << std::endl;
             }
 
-            LogTrace("HLTLevel1GTSeed") 
+            LogTrace("HLTLevel1GTSeed")
                 << std::endl;
         }
 
-        for (std::vector<L1GtLogicParser::OperandToken>::const_iterator 
+        for (std::vector<L1GtLogicParser::OperandToken>::const_iterator
             itCond = condSeeds.begin(); itCond != condSeeds.end(); itCond++) {
 
             std::string cndName = (*itCond).tokenName;
             int cndNumber = (*itCond).tokenNumber;
             bool cndResult = (*itCond).tokenResult;
-            
+
             const std::vector<L1GtObject>* cndObjTypeVec = algoSeedsObjTypeVec.at(cndNumber);
 
             //LogTrace("HLTLevel1GTSeed")
@@ -417,15 +418,15 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             }
 
             // loop over combinations for a given condition
-            
+
             const CombinationsInCond* cndComb = objMap->getCombinationsInCond(cndNumber);
 
-            for (std::vector<SingleCombInCond>::const_iterator 
+            for (std::vector<SingleCombInCond>::const_iterator
                 itComb = (*cndComb).begin(); itComb != (*cndComb).end(); itComb++) {
 
                 // loop over objects in a combination for a given condition
                 int iObj = 0;
-                for (SingleCombInCond::const_iterator 
+                for (SingleCombInCond::const_iterator
                     itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
 
                     // get object type and push indices on the list
@@ -433,7 +434,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
                     //LogTrace("HLTLevel1GTSeed")
                     //    << "\n    HLTLevel1GTSeed::filter "
-                    //    << "\n      Add object of type " << objTypeVal 
+                    //    << "\n      Add object of type " << objTypeVal
                     //    << " and index " << (*itObject) << " to the seed list."
                     //    << std::endl;
 
@@ -557,7 +558,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         edm::InputTag l1IsoEGTag( edm::InputTag(m_l1CollectionsTag.label(), "Isolated") );
         iEvent.getByLabel(l1IsoEGTag, l1IsoEG);
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listIsoEG.begin(); itObj != listIsoEG.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1IsoEG,l1extra::L1EmParticleRef(l1IsoEG, *itObj));
@@ -571,7 +572,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         edm::InputTag l1NoIsoEGTag( edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") );
         iEvent.getByLabel(l1NoIsoEGTag, l1NoIsoEG);
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listNoIsoEG.begin(); itObj != listNoIsoEG.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1NoIsoEG,l1extra::L1EmParticleRef(l1NoIsoEG, *itObj));
@@ -585,7 +586,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         edm::InputTag l1CenJetTag( edm::InputTag(m_l1CollectionsTag.label(), "Central") );
         iEvent.getByLabel(l1CenJetTag, l1CenJet);
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listCenJet.begin(); itObj != listCenJet.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1CenJet,l1extra::L1JetParticleRef(l1CenJet, *itObj));
@@ -599,7 +600,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         edm::InputTag l1ForJetTag( edm::InputTag(m_l1CollectionsTag.label(), "Forward") );
         iEvent.getByLabel(l1ForJetTag, l1ForJet);
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listForJet.begin(); itObj != listForJet.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1ForJet,l1extra::L1JetParticleRef(l1ForJet, *itObj));
@@ -626,21 +627,21 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1CollectionsTag.label(), l1EnergySums);
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1ETM,l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
 
         }
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listETT.begin(); itObj != listETT.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1ETT,l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
 
         }
 
-        for (std::list<int>::const_iterator 
+        for (std::list<int>::const_iterator
             itObj = listHTT.begin(); itObj != listHTT.end(); ++itObj) {
 
             filterObject->addObject(trigger::TriggerL1HTT,l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
@@ -667,7 +668,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     //
     //    }
 
-    
+
     if ( edm::isDebugEnabled() ) {
         LogDebug("HLTLevel1GTSeed")
             << "\nHLTLevel1GTSeed::filter "
@@ -678,7 +679,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
         std::vector<l1extra::L1EmParticleRef> seedsL1IsoEG;
         std::vector<l1extra::L1EmParticleRef> seedsL1NoIsoEG;
-        
+
         std::vector<l1extra::L1JetParticleRef> seedsL1CenJet;
         std::vector<l1extra::L1JetParticleRef> seedsL1ForJet;
         std::vector<l1extra::L1JetParticleRef> seedsL1TauJet;
@@ -687,32 +688,32 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         std::vector<l1extra::L1EtMissParticleRef> seedsL1ETT;
         std::vector<l1extra::L1EtMissParticleRef> seedsL1HTT;
 
-        filterObject->getObjects(trigger::TriggerL1Mu, seedsL1Mu);       
-        const size_t sizeSeedsL1Mu = seedsL1Mu.size();        
-                
-        filterObject->getObjects(trigger::TriggerL1IsoEG, seedsL1IsoEG);       
-        const size_t sizeSeedsL1IsoEG = seedsL1IsoEG.size();        
+        filterObject->getObjects(trigger::TriggerL1Mu, seedsL1Mu);
+        const size_t sizeSeedsL1Mu = seedsL1Mu.size();
 
-        filterObject->getObjects(trigger::TriggerL1NoIsoEG, seedsL1NoIsoEG);       
-        const size_t sizeSeedsL1NoIsoEG = seedsL1NoIsoEG.size();        
+        filterObject->getObjects(trigger::TriggerL1IsoEG, seedsL1IsoEG);
+        const size_t sizeSeedsL1IsoEG = seedsL1IsoEG.size();
 
-        filterObject->getObjects(trigger::TriggerL1CenJet, seedsL1CenJet);       
-        const size_t sizeSeedsL1CenJet = seedsL1CenJet.size();        
+        filterObject->getObjects(trigger::TriggerL1NoIsoEG, seedsL1NoIsoEG);
+        const size_t sizeSeedsL1NoIsoEG = seedsL1NoIsoEG.size();
 
-        filterObject->getObjects(trigger::TriggerL1ForJet, seedsL1ForJet);       
-        const size_t sizeSeedsL1ForJet = seedsL1ForJet.size();        
-        
-        filterObject->getObjects(trigger::TriggerL1TauJet, seedsL1TauJet);       
-        const size_t sizeSeedsL1TauJet = seedsL1TauJet.size();        
-        
-        filterObject->getObjects(trigger::TriggerL1ETM, seedsL1ETM);       
-        const size_t sizeSeedsL1ETM = seedsL1ETM.size();        
-        
-        filterObject->getObjects(trigger::TriggerL1ETT, seedsL1ETT);       
-        const size_t sizeSeedsL1ETT = seedsL1ETT.size();        
-        
-        filterObject->getObjects(trigger::TriggerL1HTT, seedsL1HTT);       
-        const size_t sizeSeedsL1HTT = seedsL1HTT.size();        
+        filterObject->getObjects(trigger::TriggerL1CenJet, seedsL1CenJet);
+        const size_t sizeSeedsL1CenJet = seedsL1CenJet.size();
+
+        filterObject->getObjects(trigger::TriggerL1ForJet, seedsL1ForJet);
+        const size_t sizeSeedsL1ForJet = seedsL1ForJet.size();
+
+        filterObject->getObjects(trigger::TriggerL1TauJet, seedsL1TauJet);
+        const size_t sizeSeedsL1TauJet = seedsL1TauJet.size();
+
+        filterObject->getObjects(trigger::TriggerL1ETM, seedsL1ETM);
+        const size_t sizeSeedsL1ETM = seedsL1ETM.size();
+
+        filterObject->getObjects(trigger::TriggerL1ETT, seedsL1ETT);
+        const size_t sizeSeedsL1ETT = seedsL1ETT.size();
+
+        filterObject->getObjects(trigger::TriggerL1HTT, seedsL1HTT);
+        const size_t sizeSeedsL1HTT = seedsL1HTT.size();
 
         LogTrace("HLTLevel1GTSeed") << "  L1Mu seeds:      " << sizeSeedsL1Mu << "\n"
             << "  L1IsoEG seeds:   " << sizeSeedsL1IsoEG << "\n"
@@ -721,17 +722,17 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
             << "  L1ForJet seeds:  " << sizeSeedsL1ForJet << "\n"
             << "  L1TauJet seeds:  " << sizeSeedsL1TauJet << "\n"
             << "  L1ETM seeds:     " << sizeSeedsL1ETM << "\n"
-            << "  L1ETT seeds:     " << sizeSeedsL1ETT << "\n" 
-            << "  L1HTT seeds:     " << sizeSeedsL1HTT << "\n" 
-            << std::endl; 
+            << "  L1ETT seeds:     " << sizeSeedsL1ETT << "\n"
+            << "  L1HTT seeds:     " << sizeSeedsL1HTT << "\n"
+            << std::endl;
 
         for (size_t i = 0; i != sizeSeedsL1Mu; i++) {
 
             l1extra::L1MuonParticleRef obj = l1extra::L1MuonParticleRef(seedsL1Mu[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1Mu     " << "\t"
-                << "q*PT = " << obj->charge()*obj->pt() << "\t" 
+                << "q*PT = " << obj->charge()*obj->pt() << "\t"
                 << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi();
         }
@@ -739,10 +740,10 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         for (size_t i = 0; i != sizeSeedsL1IsoEG; i++) {
 
             l1extra::L1EmParticleRef obj = l1extra::L1EmParticleRef(seedsL1IsoEG[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1IsoEG   " << "\t"
-                << "ET =   " << obj->et() << "\t" 
+                << "ET =   " << obj->et() << "\t"
                 << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi();
         }
@@ -750,10 +751,10 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         for (size_t i = 0; i != sizeSeedsL1NoIsoEG; i++) {
 
             l1extra::L1EmParticleRef obj = l1extra::L1EmParticleRef(seedsL1NoIsoEG[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1NoIsoEG" << "\t"
-                << "ET =   " << obj->et() << "\t" 
+                << "ET =   " << obj->et() << "\t"
                 << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi();
         }
@@ -761,10 +762,10 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         for (size_t i = 0; i != sizeSeedsL1CenJet; i++) {
 
             l1extra::L1JetParticleRef obj = l1extra::L1JetParticleRef(seedsL1CenJet[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1CenJet " << "\t"
-                << "ET =   " << obj->et() << "\t" 
+                << "ET =   " << obj->et() << "\t"
                 << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi();
         }
@@ -772,21 +773,21 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         for (size_t i = 0; i != sizeSeedsL1ForJet; i++) {
 
             l1extra::L1JetParticleRef obj = l1extra::L1JetParticleRef(seedsL1ForJet[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1ForJet " << "\t"
-                << "ET =   " << obj->et() << "\t" 
+                << "ET =   " << obj->et() << "\t"
                 << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi();
         }
-        
+
         for (size_t i = 0; i != sizeSeedsL1TauJet; i++) {
 
             l1extra::L1JetParticleRef obj = l1extra::L1JetParticleRef(seedsL1TauJet[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1TauJet " << "\t"
-                << "ET =   " << obj->et() << "\t" 
+                << "ET =   " << obj->et() << "\t"
                 << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi();
         }
@@ -794,17 +795,17 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         for (size_t i = 0; i != sizeSeedsL1ETM; i++) {
 
             l1extra::L1EtMissParticleRef obj = l1extra::L1EtMissParticleRef(seedsL1ETM[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1ETM    " << "\t"
-                << "ET =   " << obj->et() << "\t" 
+                << "ET =   " << obj->et() << "\t"
                 << "phi =  " << obj->phi();
         }
 
         for (size_t i = 0; i != sizeSeedsL1ETT; i++) {
 
             l1extra::L1EtMissParticleRef obj = l1extra::L1EtMissParticleRef(seedsL1ETT[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
                 << "L1ETT    " << "\t"
                 << "ET =   " << obj->et();
@@ -813,20 +814,20 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
         for (size_t i = 0; i != sizeSeedsL1HTT; i++) {
 
             l1extra::L1EtMissParticleRef obj = l1extra::L1EtMissParticleRef(seedsL1HTT[i]);
-            
+
             LogTrace("HLTLevel1GTSeed")
-                << "L1HTT    " << "\t" 
-                << "ET =   " << obj->et(); 
+                << "L1HTT    " << "\t"
+                << "ET =   " << obj->et();
         }
 
         LogTrace("HLTLevel1GTSeed") << " \n\n"
             << std::endl;
 
-        
+
     }
 
     //
-    
+
     iEvent.put(filterObject);
 
     return seedsResult;
@@ -845,13 +846,13 @@ const std::vector<L1GtObject>* HLTLevel1GTSeed::objectTypeVec(
         foundCond = true;
         return (&((itCond->second)->objectType()));
     }
-    
+
     if ( !foundCond) {
 
         // it should never be happen, all conditions are in the maps
         throw cms::Exception("FailModule")
-        << "\nCondition " << cndName << " not found in the condition map" 
-        << " for chip number " << chipNr  
+        << "\nCondition " << cndName << " not found in the condition map"
+        << " for chip number " << chipNr
         << std::endl;
     }
 
@@ -866,10 +867,10 @@ const std::vector<L1GtObject>* HLTLevel1GTSeed::objectTypeVec(
 void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
 
     const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
-    
-    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector = 
+
+    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
         m_l1AlgoLogicParser.operandTokenVector();
-        
+
     size_t jSeed = 0;
     size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
 
@@ -880,41 +881,41 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
 
             int bitNr = (itAlgo->second).algoBitNumber();
             int chipNr = (itAlgo->second).algoChipNumber();
-            
+
             (algOpTokenVector[i]).tokenNumber = bitNr;
-            
-            // algOpTokenVector and m_l1AlgoSeeds must have the same ordering 
-            // of the algorithms 
+
+            // algOpTokenVector and m_l1AlgoSeeds must have the same ordering
+            // of the algorithms
             if (jSeed < l1AlgoSeedsSize) {
-                
-                //LogTrace("HLTLevel1GTSeed") << "(m_l1AlgoSeeds[jSeed]).tokenName: " 
-                //    << (m_l1AlgoSeeds[jSeed]).tokenName 
+
+                //LogTrace("HLTLevel1GTSeed") << "(m_l1AlgoSeeds[jSeed]).tokenName: "
+                //    << (m_l1AlgoSeeds[jSeed]).tokenName
                 //    << std::endl;
-                
+
                 if ((m_l1AlgoSeeds[jSeed]).tokenName == (algOpTokenVector[i]).tokenName) {
 
                     (m_l1AlgoSeeds[jSeed]).tokenNumber = bitNr;
-                    
-                    const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector = 
+
+                    const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector =
                         (itAlgo->second).algoRpnVector();
-                    size_t aRpnVectorSize = aRpnVector.size(); 
-                    
+                    size_t aRpnVectorSize = aRpnVector.size();
+
                     m_l1AlgoSeedsRpn.push_back(&aRpnVector);
-                    
+
                     // loop over RpnVector to fill for each condition the object type
                     std::vector< const std::vector<L1GtObject>*> tmpObjTypeVec;
                     tmpObjTypeVec.reserve(aRpnVectorSize);
 
                     for (size_t opI = 0; opI < aRpnVectorSize; ++opI) {
-                        
+
                         std::string cName = (aRpnVector[opI]).operand;
-                        
+
                         if (!cName.empty()) {
-                            
+
                             tmpObjTypeVec.push_back(objectTypeVec(chipNr, cName));
 
-                            //LogTrace("HLTLevel1GTSeed") 
-                            //    << "    Push object vector for condition: " << cName 
+                            //LogTrace("HLTLevel1GTSeed")
+                            //    << "    Push object vector for condition: " << cName
                             //    << std::endl;
                         }
                     }
@@ -928,15 +929,15 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
         else {
 
             throw cms::Exception("FailModule")
-                << "\nAlgorithm  " << (algOpTokenVector[i]).tokenName 
+                << "\nAlgorithm  " << (algOpTokenVector[i]).tokenName
                 << " not found in the trigger menu " << l1GtMenu->gtTriggerMenuName()
                 << std::endl;
 
         }
-        
+
     }
-    
-    // 
+
+    //
     if (edm::isDebugEnabled() ) {
         bool newMenu = true;
         debugPrint(newMenu);
@@ -947,7 +948,7 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
 
 // update the tokenResult members from m_l1AlgoLogicParser
 // for a new event
-void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord, 
+void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord,
         const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition) {
 
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
@@ -956,10 +957,10 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord,
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
         int iBit = (algOpTokenVector[i]).tokenNumber;
         bool iResult = gtWord.at(iBit);
-        
+
         int triggerMaskBit = triggerMask[iBit] & (1 << physicsDaqPartition);
         //LogTrace("HLTLevel1GTSeed")
-        //<< "\nTrigger bit: " << iBit 
+        //<< "\nTrigger bit: " << iBit
         //<< " mask = " << triggerMaskBit
         //<< " DAQ partition " << physicsDaqPartition
         //<< std::endl;
@@ -971,18 +972,18 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord,
             //<< "\nMasked trigger: " << iBit << ". Result set to false\n"
             //<< std::endl;
         }
-        
+
         (algOpTokenVector[i]).tokenResult = iResult;
-    
+
     }
 
     for (size_t i = 0; i < m_l1AlgoSeeds.size(); ++i) {
         int iBit = (m_l1AlgoSeeds[i]).tokenNumber;
         bool iResult = gtWord.at(iBit);
-        
+
         int triggerMaskBit = triggerMask[iBit] & (1 << physicsDaqPartition);
         //LogTrace("HLTLevel1GTSeed")
-        //<< "\nTrigger bit: " << iBit 
+        //<< "\nTrigger bit: " << iBit
         //<< " mask = " << triggerMaskBit
         //<< " DAQ partition " << physicsDaqPartition
         //<< std::endl;
@@ -994,9 +995,9 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord,
             //<< "\nMasked trigger: " << iBit << ". Result set to false\n"
             //<< std::endl;
         }
-        
+
         (m_l1AlgoSeeds[i]).tokenResult = iResult;
-    
+
     }
 
     if (edm::isDebugEnabled() ) {
@@ -1014,7 +1015,7 @@ void HLTLevel1GTSeed::convertStringToBitNumber() {
         m_l1AlgoLogicParser.operandTokenVector();
 
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
-        
+
         std::string bitString = (algOpTokenVector[i]).tokenName;
         std::istringstream bitStream(bitString);
         int bitInt;
@@ -1026,11 +1027,11 @@ void HLTLevel1GTSeed::convertStringToBitNumber() {
             << "\n  Conversion to integer failed for " << bitString
             << std::endl;
         }
-        
+
         (algOpTokenVector[i]).tokenNumber = bitInt;
-        
+
     }
-    
+
 
     for (size_t i = 0; i < m_l1AlgoSeeds.size(); ++i) {
 
@@ -1045,18 +1046,18 @@ void HLTLevel1GTSeed::convertStringToBitNumber() {
             << "\n  Conversion to integer failed for " << bitString
             << std::endl;
         }
-        
+
         (m_l1AlgoSeeds[i]).tokenNumber = bitInt;
     }
-    
-    
+
+
 }
 
 // debug print grouped in a single function
 // can be called for a new menu (bool "true") or for a new event
 void HLTLevel1GTSeed::debugPrint(bool newMenu) {
-    
-    
+
+
 
     if (m_l1TechTriggerSeeding) {
         LogDebug("HLTLevel1GTSeed")
@@ -1079,7 +1080,7 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) {
                     << ")\n   update event quantities." << std::endl;
         }
     }
-    
+
     std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
         m_l1AlgoLogicParser.operandTokenVector();
 
@@ -1089,84 +1090,84 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) {
 
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
 
-        LogTrace("HLTLevel1GTSeed") << "      " 
-            << std::setw(5) << (algOpTokenVector[i]).tokenNumber << "\t" 
-            << std::setw(25) << (algOpTokenVector[i]).tokenName << "\t" 
-            << (algOpTokenVector[i]).tokenResult 
+        LogTrace("HLTLevel1GTSeed") << "      "
+            << std::setw(5) << (algOpTokenVector[i]).tokenNumber << "\t"
+            << std::setw(25) << (algOpTokenVector[i]).tokenName << "\t"
+            << (algOpTokenVector[i]).tokenResult
             << std::endl;
     }
 
-    LogTrace("HLTLevel1GTSeed") 
+    LogTrace("HLTLevel1GTSeed")
         << std::endl;
 
-    LogTrace("HLTLevel1GTSeed") 
+    LogTrace("HLTLevel1GTSeed")
         << "\nupdateAlgoLogicParser: m_l1AlgoSeeds.size() = "
-        << m_l1AlgoSeeds.size() 
+        << m_l1AlgoSeeds.size()
         << std::endl;
 
     for (size_t i = 0; i < m_l1AlgoSeeds.size(); ++i) {
 
-        LogTrace("HLTLevel1GTSeed") 
-        << "      " << std::setw(5) << (m_l1AlgoSeeds[i]).tokenNumber << "\t" 
-        << std::setw(25) << (m_l1AlgoSeeds[i]).tokenName << "\t" 
-        << (m_l1AlgoSeeds[i]).tokenResult 
+        LogTrace("HLTLevel1GTSeed")
+        << "      " << std::setw(5) << (m_l1AlgoSeeds[i]).tokenNumber << "\t"
+        << std::setw(25) << (m_l1AlgoSeeds[i]).tokenName << "\t"
+        << (m_l1AlgoSeeds[i]).tokenResult
         << std::endl;
     }
 
-    LogTrace("HLTLevel1GTSeed") 
+    LogTrace("HLTLevel1GTSeed")
         << std::endl;
- 
+
 
     if (!newMenu) {
         return;
     }
-    
-    LogTrace("HLTLevel1GTSeed") 
+
+    LogTrace("HLTLevel1GTSeed")
         << "\nupdateAlgoLogicParser: m_l1AlgoSeedsRpn.size() = "
-        << m_l1AlgoSeedsRpn.size() 
+        << m_l1AlgoSeedsRpn.size()
         << std::endl;
 
     for (size_t i = 0; i < m_l1AlgoSeedsRpn.size(); ++i) {
 
-        LogTrace("HLTLevel1GTSeed") 
-            << "  Rpn vector size: " << (m_l1AlgoSeedsRpn[i])->size() 
+        LogTrace("HLTLevel1GTSeed")
+            << "  Rpn vector size: " << (m_l1AlgoSeedsRpn[i])->size()
             << std::endl;
 
         for (size_t j = 0; j < (m_l1AlgoSeedsRpn[i])->size(); ++j) {
 
-            LogTrace("HLTLevel1GTSeed") 
+            LogTrace("HLTLevel1GTSeed")
                 << "      ( " << (*(m_l1AlgoSeedsRpn[i]))[j].operation << ", "
                 << (*(m_l1AlgoSeedsRpn[i]))[j].operand << " )" << std::endl;
 
         }
     }
 
-    LogTrace("HLTLevel1GTSeed") 
+    LogTrace("HLTLevel1GTSeed")
         << std::endl;
-    
-    LogTrace("HLTLevel1GTSeed") 
-        << "\nupdateAlgoLogicParser: " 
+
+    LogTrace("HLTLevel1GTSeed")
+        << "\nupdateAlgoLogicParser: "
         << "algorithms in seed expression: m_l1AlgoSeedsObjType.size() = "
-        << m_l1AlgoSeedsObjType.size() 
+        << m_l1AlgoSeedsObjType.size()
         << std::endl;
 
     for (size_t i = 0; i < m_l1AlgoSeedsObjType.size(); ++i) {
 
-        LogTrace("HLTLevel1GTSeed") 
-            << "  Conditions for an algorithm: vector size: " 
-            << (m_l1AlgoSeedsObjType[i]).size() 
+        LogTrace("HLTLevel1GTSeed")
+            << "  Conditions for an algorithm: vector size: "
+            << (m_l1AlgoSeedsObjType[i]).size()
             << std::endl;
 
         for (size_t j = 0; j < (m_l1AlgoSeedsObjType[i]).size(); ++j) {
 
-            LogTrace("HLTLevel1GTSeed") 
-                << "    Condition object type vector: size: " 
-                << ((m_l1AlgoSeedsObjType[i])[j])->size() 
+            LogTrace("HLTLevel1GTSeed")
+                << "    Condition object type vector: size: "
+                << ((m_l1AlgoSeedsObjType[i])[j])->size()
                 << std::endl;
 
             for (size_t k = 0; k < ((m_l1AlgoSeedsObjType[i])[j])->size(); ++k) {
-                
-                
+
+
                 L1GtObject obj = (*((m_l1AlgoSeedsObjType[i])[j]))[k];
                 LogTrace("HLTLevel1GTSeed") << "      " << obj << " ";
 
@@ -1177,7 +1178,7 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) {
         }
     }
 
-    LogTrace("HLTLevel1GTSeed") 
+    LogTrace("HLTLevel1GTSeed")
         << std::endl;
 
 

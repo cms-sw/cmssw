@@ -89,6 +89,7 @@ L1GtTriggerMenu::L1GtTriggerMenu(const L1GtTriggerMenu& rhs)
 
     // rebuild condition map to update the pointers
     // (only physics conditions are included in it)
+    m_conditionMap.resize(rhs.m_conditionMap.size());
     (*this).buildGtConditionMap();
 
     // copy algorithm map
@@ -143,6 +144,7 @@ L1GtTriggerMenu& L1GtTriggerMenu::operator=(const L1GtTriggerMenu& rhs) {
 
     // rebuild condition map to update the pointers
     // (only physics conditions are included in it)
+    m_conditionMap.resize(rhs.m_conditionMap.size());
     (*this).buildGtConditionMap();
 
     // return the object
@@ -158,6 +160,25 @@ void L1GtTriggerMenu::setGtConditionMap(const std::vector<ConditionMap>& condMap
 // build the condition maps
 void L1GtTriggerMenu::buildGtConditionMap() {
 
+    // clear the conditions from the maps, if any
+    for (std::vector<ConditionMap>::iterator itCondOnChip =
+            m_conditionMap.begin(); itCondOnChip != m_conditionMap.end(); itCondOnChip++) {
+
+        itCondOnChip->clear();
+
+    }
+
+    // always check that the size of the condition map is greater than the size
+    // of the specific condition vector
+    size_t condMapSize = m_conditionMap.size();
+
+    //
+    size_t vecMuonSize = m_vecMuonTemplate.size();
+    if (condMapSize < vecMuonSize) {
+        m_conditionMap.resize(vecMuonSize);
+        condMapSize = m_conditionMap.size();
+    }
+
     int chipNr = -1;
 
     for (std::vector<std::vector<L1GtMuonTemplate> >::iterator
@@ -171,8 +192,15 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
+    }
+
+    //
+    size_t vecCaloSize = m_vecCaloTemplate.size();
+    if (condMapSize < vecCaloSize) {
+        m_conditionMap.resize(vecCaloSize);
+        condMapSize = m_conditionMap.size();
     }
 
     chipNr = -1;
@@ -187,8 +215,15 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
+    }
+
+    //
+    size_t vecEnergySumSize = m_vecEnergySumTemplate.size();
+    if (condMapSize < vecEnergySumSize) {
+        m_conditionMap.resize(vecEnergySumSize);
+        condMapSize = m_conditionMap.size();
     }
 
     chipNr = -1;
@@ -203,8 +238,15 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
+    }
+
+    //
+    size_t vecJetCountsSize = m_vecJetCountsTemplate.size();
+    if (condMapSize < vecJetCountsSize) {
+        m_conditionMap.resize(vecJetCountsSize);
+        condMapSize = m_conditionMap.size();
     }
 
     chipNr = -1;
@@ -219,10 +261,17 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
     }
 
+
+    //
+    size_t vecCastorSize = m_vecCastorTemplate.size();
+    if (condMapSize < vecCastorSize) {
+        m_conditionMap.resize(vecCastorSize);
+        condMapSize = m_conditionMap.size();
+    }
 
     chipNr = -1;
     for (std::vector<std::vector<L1GtCastorTemplate> >::iterator
@@ -236,8 +285,15 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
+    }
+
+    //
+    size_t vecHfBitCountsSize = m_vecHfBitCountsTemplate.size();
+    if (condMapSize < vecHfBitCountsSize) {
+        m_conditionMap.resize(vecHfBitCountsSize);
+        condMapSize = m_conditionMap.size();
     }
 
     chipNr = -1;
@@ -252,8 +308,15 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
+    }
+
+    //
+    size_t vecHfRingEtSumsSize = m_vecHfRingEtSumsTemplate.size();
+    if (condMapSize < vecHfRingEtSumsSize) {
+        m_conditionMap.resize(vecHfRingEtSumsSize);
+        condMapSize = m_conditionMap.size();
     }
 
     chipNr = -1;
@@ -268,8 +331,15 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
+    }
+
+    //
+    size_t vecCorrelationSize = m_vecCorrelationTemplate.size();
+    if (condMapSize < vecCorrelationSize) {
+        m_conditionMap.resize(vecCorrelationSize);
+        condMapSize = m_conditionMap.size();
     }
 
     chipNr = -1;
@@ -284,7 +354,7 @@ void L1GtTriggerMenu::buildGtConditionMap() {
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
+            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
     }
 

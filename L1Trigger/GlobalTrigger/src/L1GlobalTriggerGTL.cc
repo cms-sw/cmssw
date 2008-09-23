@@ -189,6 +189,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
         edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
         evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
+        (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
 
