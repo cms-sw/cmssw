@@ -75,9 +75,6 @@ namespace edm {
   void
   ProductRegistry::setProductIDs(unsigned int startingID) {
     throwIfNotFrozen();
-    if (nextID_ <= productList_.size()) {
-      nextID_ = productList_.size() + 1 ;
-    }
     if (startingID < nextID_) {
       startingID = nextID_;
     }
@@ -179,6 +176,8 @@ namespace edm {
 	if (i->second.present()) {
 	  differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
 	  differences << "    but not in previous files.\n";
+	} else {
+	  productList_.insert(*i);
 	}
 	++i;
       } else if (i == e || j != s && j->first < i->first) {

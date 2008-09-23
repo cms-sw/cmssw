@@ -340,9 +340,6 @@ namespace edm {
     typedef ProductRegistry::ProductList ProductList;
     edm::Service<edm::ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList(), reg->nextID());
-/*
-    // Don't prune the product registry until merging is enhanced to handle
-    // product registry entries in subsequent input files.
     ProductList & pList  = const_cast<ProductList &>(pReg.productList());
     std::set<BranchID>::iterator end = branchesWithStoredHistory_.end();
     for (ProductList::iterator it = pList.begin(); it != pList.end(); ) {
@@ -351,11 +348,12 @@ namespace edm {
 	ProductList::iterator itCopy = it;
 	++it;
 	pList.erase(itCopy);
+	
       } else {
 	++it;
       }
     }
-*/
+
     ProductRegistry * ppReg = &pReg;
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);
