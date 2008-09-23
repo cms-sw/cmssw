@@ -15,7 +15,7 @@ from CondCore.Utilities import iovInspector as inspect
 db = rdbms.getDB(dbName)
 tags = db.allTags()
 
-tag = 'l1triggerscaler_test'
+tag = 'l1triggerscaler_test_v2'
 
 try :
     log = db.lastLogEntry(tag)
