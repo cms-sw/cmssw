@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoProducer.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauProducer.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDecayModeDeterminator.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByIsolation.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstElectron.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon.h"
@@ -13,6 +14,7 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauProducer);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeDeterminator);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon);
