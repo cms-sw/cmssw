@@ -36,9 +36,7 @@
  <class name="edm::BranchEntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
- <class name="edm::BranchChildren">
-   <field name="parentLookup_" transient="true"/>
- </class>
+ <class name="edm::BranchChildren"/>
  <class name="edm::EventEntryInfo">
    <field name="moduleDescriptionID_" transient="true"/>
    <field name="entryDescriptionPtr_" transient="true"/>

@@ -27,11 +27,6 @@ namespace edm {
     // Insert a new child for the given parent.
     void insertChild(BranchID parent, BranchID child);
 
-    // Look up all the ancestors of the given child, and insert them
-    // into ancestors. N.B.: this does not clear out ancestors first;
-    // it only appends *new* elements to the collection.
-    void appendToAncestors(BranchID child, BranchIDSet& ancestors) const;
-
     // Look up all the descendents of the given parent, and insert them
     // into descendents. N.B.: this does not clear out descendents first;
     // it only appends *new* elements to the collection.
@@ -40,10 +35,8 @@ namespace edm {
   private:
     typedef std::map<BranchID, BranchIDSet> map_t;
     map_t childLookup_;
-    mutable map_t parentLookup_;
 
     void append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const;
-    void fillParentLookupIfNecessary_() const;
   };
 
 }

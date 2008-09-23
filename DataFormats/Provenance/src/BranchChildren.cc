@@ -18,7 +18,6 @@ namespace edm {
   void
   BranchChildren::clear() {
     childLookup_.clear();
-    parentLookup_.clear();
   }
 
   void
@@ -32,30 +31,8 @@ namespace edm {
   }
 
   void
-  BranchChildren::appendToAncestors(BranchID child, BranchIDSet& ancestors) const {
-    fillParentLookupIfNecessary_();
-    ancestors.insert(child);
-    append_(parentLookup_, child, ancestors);
-  }
-
-  void
   BranchChildren::appendToDescendents(BranchID parent, BranchIDSet& descendents) const {
     descendents.insert(parent);
     append_(childLookup_, parent, descendents);
-  }
-
-  void
-  BranchChildren::fillParentLookupIfNecessary_() const {
-    if (parentLookup_.empty()) {
-      // for each parent ...
-      for (map_t::const_iterator parent = childLookup_.begin(), e = childLookup_.end(); parent != e; ++parent) {
-	// for each child of that parent
-	for (BranchIDSet::const_iterator ci = parent->second.begin(), ce = parent->second.end();
-		 ci != ce; ++ci) {
-		// insert the BranchID of the parent into the set of BranchIDs for this child.
-	  parentLookup_[*ci].insert(parent->first);
-	}	    
-      }
-    }
   }
 }
