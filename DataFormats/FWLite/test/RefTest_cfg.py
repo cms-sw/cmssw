@@ -29,5 +29,13 @@ process.out2 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('good2.root')
 )
 
+process.out_other = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep edmtestOtherThings_*_*_*', 
+        'keep *_TriggerResults_*_*'),
+    fileName = cms.untracked.string('other_only.root')
+)
+
+
 process.p = cms.Path(process.Thing*process.OtherThing)
-process.outp = cms.EndPath(process.out*process.out2)
+process.outp = cms.EndPath(process.out*process.out2*process.out_other)
