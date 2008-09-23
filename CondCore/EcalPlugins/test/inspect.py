@@ -21,7 +21,7 @@ def dumpSummaries(dbname):
 
 
 
-import sys, DLFCN
+import sys, os, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
