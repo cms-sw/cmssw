@@ -54,6 +54,15 @@
   <class name="edm::RefProd<std::vector<reco::PFTau> >"/>
   <class name="edm::RefVector<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >" />
+
+  <class name="reco::PFTauDecayMode"/>
+  <class name="std::vector<reco::PFTauDecayMode>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTauDecayMode> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTauDecayMode> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode> >"/>
+  <class name="edm::reftobase::Holder<reco::CompositeCandidate, edm::Ref<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode> > >" />
+  <class name="edm::Association<std::vector<reco::PFTauDecayMode> >"/>
   
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
