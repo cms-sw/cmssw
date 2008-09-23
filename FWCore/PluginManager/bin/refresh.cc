@@ -204,13 +204,21 @@ int main (int argc, char **argv)
       path loadableFile(directory);
       loadableFile /=(*itFile);
       listener.nameAndTypes_.clear();
-      edmplugin::SharedLibrary lib(loadableFile);
+      try {
+         edmplugin::SharedLibrary lib(loadableFile);
       
-      //PluginCapabilities is special, the plugins do not call it.  Instead, for each shared library load
-      // we need to ask it to try to find plugins
-      PluginCapabilities::get()->tryToFind(lib);
+         //PluginCapabilities is special, the plugins do not call it.  Instead, for each shared library load
+         // we need to ask it to try to find plugins
+         PluginCapabilities::get()->tryToFind(lib);
       
-      ltp[*itFile]=listener.nameAndTypes_;
+         ltp[*itFile]=listener.nameAndTypes_;
+      } catch(const cms::Exception& iException) {
+         if(iException.category() == "PluginLibraryLoadError") {
+            std::cerr <<"Caught exception "<<iException.what()<<" will ignore "<<*itFile<<" and continue."<<std::endl;
+         } else {
+            throw;
+         }
+      }
     }
     
     if(removeMissingFiles) {
@@ -240,7 +248,7 @@ int main (int argc, char **argv)
     }
     CacheParser::write(ltp,cf);
   }catch(std::exception& iException) {
-    std::cout <<"Caught exception "<<iException.what()<<std::endl;
+    std::cerr <<"Caught exception "<<iException.what()<<std::endl;
     returnValue = 1;
   }
 
