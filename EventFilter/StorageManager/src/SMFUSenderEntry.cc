@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.11 2008/09/23 15:04:58 biery Exp $
+ $Id: SMFUSenderEntry.cc,v 1.12 2008/09/23 19:07:44 biery Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -280,8 +280,17 @@ void SMFUSenderEntry::shrinkRegistryData(const std::string outModName)
   uint32 *msgSizePtr = (uint32*) (((uint32) msgPtr) + sizeof(uint8));
   *msgSizePtr = newSize;
 
-  // re-size (shrink) the vector
-  tmpRegData->resize(newSize);
+  // re-sizing (shrinking) the vector vector does not work
+  // --> probably its capacity can only grow.
+  //tmpRegData->resize(newSize);
+  //tmpRegData->reserve(newSize);
+
+  // copy the registry data to a smaller vector
+  RegData newRegData(new std::vector<unsigned char>(newSize+32));
+  std::copy(&(*tmpRegData)[0], &(*tmpRegData)[newSize], &(*newRegData)[0]);
+
+  // replace the old vector with the new one in the data map
+  registryCollection_.registryDataMap_[outModName] = newRegData;
 }
 
 bool SMFUSenderEntry::regIsCopied(const std::string outModName) //const
