@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.7 2008/04/09 19:44:06 dsr Exp $
+// $Id: Handle.h,v 1.8 2008/07/24 20:38:45 dsr Exp $
 //
 
 // system include files
@@ -27,10 +27,13 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/FWLite/interface/ErrorThrower.h"
 #endif
 
 // forward declarations
 namespace fwlite {
+   class ErrorThrower;
+   
 template <class T>
 class Handle
 {
@@ -42,18 +45,27 @@ class Handle
       // of reco::JetTracksAssociation::Container
       typedef edm::Wrapper<T> TempWrapT;
 
-      Handle() : data_(0){}
-      //virtual ~Handle();
+   Handle() : data_(0), errorThrower_(ErrorThrower::unsetErrorThrower()) {}
+      ~Handle() { delete errorThrower_;}
 
       // ---------- const member functions ---------------------
-      const T* ptr() const { return data_;}
-      const T& ref() const { return *data_;}
+      bool isValid() const { return data_ != 0; }
+   
+      ///Returns true only if Handle was used in a 'get' call and the data could not be found
+      bool failedToGet() const {return errorThrower_ != 0; }
+   
+      T const* product() const { check(); return data_;}
+
+      const T* ptr() const { check(); return data_;}
+      const T& ref() const { check(); return *data_;}
   
       const T* operator->() const {
+        check();
         return data_;
       }
   
       const T& operator*() const {
+        check();
         return *data_;
       }
       // ---------- static member functions --------------------
@@ -76,12 +88,20 @@ class Handle
                           iProductInstanceLabel,
                           iProcessLabel,
                           pTemp);
+        delete errorThrower_;
+        errorThrower_ = 0;
+        if(0==temp) {
+           errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
+                                                                           iModuleLabel,
+                                                                           iProductInstanceLabel,
+                                                                           iProcessLabel);
+        }
         data_ = temp->product();
         if(data_==0) {
-          iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
-                                               iModuleLabel,
-                                               iProductInstanceLabel,
-                                               iProcessLabel);
+           errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
+                                                                            iModuleLabel,
+                                                                            iProductInstanceLabel,
+                                                                            iProcessLabel);
         }
       }
 
@@ -96,14 +116,22 @@ class Handle
                         iProductInstanceLabel,
                         iProcessLabel,
                         pTemp);
-      data_ = temp->product();
-      if(data_==0) {
-        iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
-                                             iModuleLabel,
-                                             iProductInstanceLabel,
-                                             iProcessLabel);
+         delete errorThrower_;
+         errorThrower_ = 0;
+         if(0==temp) {
+            errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
+                                                                            iModuleLabel,
+                                                                            iProductInstanceLabel,
+                                                                            iProcessLabel);
+         }
+         data_ = temp->product();
+         if(data_==0) {
+            errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
+                                                                             iModuleLabel,
+                                                                             iProductInstanceLabel,
+                                                                             iProcessLabel);
+         }
       }
-    }
 
     const std::string getBranchNameFor(const fwlite::Event& iEvent, 
                                        const char* iModuleLabel,
@@ -125,13 +153,29 @@ class Handle
                                      iProcessLabel);
     }
 
+   void swap( Handle<T>& iOther) {
+      const T* temp = data_;
+      data_ = iOther.data_;
+      iOther.data_ = temp;
+      ErrorThrower* tempE = errorThrower_;
+      errorThrower_ = iOther.errorThrower_;
+      iOther.errorThrower = tempE;
+   }
    private:
-      //Handle(const Handle&); // stop default
+      void check() const { if(errorThrower_) { errorThrower_->throwIt();} }
 
-      //const Handle& operator=(const Handle&); // stop default
+      Handle(const Handle<T>& iOther) 
+      : data_(iOther.data_),
+        errorThrower_( iOther.errorThrower_? iOther.errorThrower->clone(): 0) {}
+   
+      const Handle<T>& operator=(const Handle<T>& iOther) {
+         Handle<T> temp(iOther);
+         swap(iOther);
+      }
 
       // ---------- member data --------------------------------
       const T* data_;
+      ErrorThrower*  errorThrower_;
 };
 
 }
