@@ -516,7 +516,8 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             logh.write(detail + "\n")
 
     try:        
-
+        if not prevrel == "":
+            logh.write("Production of regression information has been requested with release directory %s" % prevrel)
         if not cmsdriverOptions == "":
             logh.write("Running cmsDriver.py with the special user defined options: %s\n" % cmsdriverOptions)
         
@@ -546,7 +547,6 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         #Used to source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh
         #Need an alternative in the release
 
-        #Command Handling:
 
 
         if len(cpus) > 1:
@@ -602,60 +602,60 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
                 logh.write("Following with %s cmsScimarkLarge on cpu%s\n" % (cmsScimarkLarge,cpu))
                 benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
 
-##         if not profilers == "":
-##             # which profile sets should we go into if custom profiles have been selected
-##             runTime     = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["0", "1", "2", "3"]))
-##             runIgProf   = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["4", "5", "6", "7"]))
-##             runValgrind = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["8", "9"]))
-##             if not runTime:
-##                 TimeSizeEvents = 0
-##             if not runIgProf:
-##                 IgProfEvents   = 0
-##             if not runValgrind:
-##                 ValgrindEvents = 0
+        if not profilers == "":
+            # which profile sets should we go into if custom profiles have been selected
+            runTime     = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["0", "1", "2", "3"]))
+            runIgProf   = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["4", "5", "6", "7"]))
+            runValgrind = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["8", "9"]))
+            if not runTime:
+                TimeSizeEvents = 0
+            if not runIgProf:
+                IgProfEvents   = 0
+            if not runValgrind:
+                ValgrindEvents = 0
 
-##         qcdWillRun = (not isAllCandles) and "QCD_80_120" in candles 
-##         if qcdWillRun:
-##             candles = checkQcdConditions(candles,
-##                                          TimeSizeEvents,
-##                                          os.path.join(perfsuitedir,"%s_%s" % ("MinBias","TimeSize")),
-##                                          "%s_cfi_GEN_SIM.root" % "MinBias")
+        qcdWillRun = (not isAllCandles) and "QCD_80_120" in candles 
+        if qcdWillRun:
+            candles = checkQcdConditions(candles,
+                                         TimeSizeEvents,
+                                         os.path.join(perfsuitedir,"%s_%s" % ("MinBias","TimeSize")),
+                                         "%s_cfi_GEN_SIM.root" % "MinBias")
 
-##         #TimeSize tests:
-##         if TimeSizeEvents > 0:
-##             logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
-##             printDate()
-##             logh.flush()
-##             simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize",profilers,bypasshlt)
+        #TimeSize tests:
+        if TimeSizeEvents > 0:
+            logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
+            printDate()
+            logh.flush()
+            simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize",profilers,bypasshlt)
 
-##         #IgProf tests:
-##         if IgProfEvents > 0:
-##             logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
-##             printDate()
-##             logh.flush()
-##             IgCandles = candles
-##             #By default run IgProf only on QCD_80_120 candle
-##             if isAllCandles:
-##                 IgCandles = [ "QCD_80_120" ]
-##             simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf",profilers,bypasshlt)
+        #IgProf tests:
+        if IgProfEvents > 0:
+            logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
+            printDate()
+            logh.flush()
+            IgCandles = candles
+            #By default run IgProf only on QCD_80_120 candle
+            if isAllCandles:
+                IgCandles = [ "QCD_80_120" ]
+            simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf",profilers,bypasshlt)
 
-##         #Valgrind tests:
-##         if ValgrindEvents > 0:
-##             logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each\n" % ValgrindEvents)
-##             printDate()
-##             logh.flush()
-##             valCandles = candles
+        #Valgrind tests:
+        if ValgrindEvents > 0:
+            logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each\n" % ValgrindEvents)
+            printDate()
+            logh.flush()
+            valCandles = candles
 
-##             if isAllCandles:
-##                 cmds=[]
-##                 #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
-##                 valCandles = [ "QCD_80_120" ]
+            if isAllCandles:
+                cmds=[]
+                #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
+                valCandles = [ "QCD_80_120" ]
 
-##             #Besides always run, only once the GEN,SIM step on SingleMu:
-##             valCandles.append("SingleMuMinusPt10")
-##             #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
-##             #usercandles=candleoption.split(",")
-##             simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind",profilers,bypasshlt)
+            #Besides always run, only once the GEN,SIM step on SingleMu:
+            valCandles.append("SingleMuMinusPt10")
+            #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
+            #usercandles=candleoption.split(",")
+            simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind",profilers,bypasshlt)
 
         if benching and not _unittest:
             #Ending the performance suite with the cmsScimark benchmarks again:
