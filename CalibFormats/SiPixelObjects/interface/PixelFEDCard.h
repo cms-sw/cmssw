@@ -98,7 +98,7 @@ namespace pos{
     int SpecialDac;
  
     // Control register and delays for the TTCrx
-    int CoarseDel,ClkDes2,FineDes2Del;
+    int CoarseDel,ClkDes2,FineDes2Del,FineDes1Del;
  
     //Main control reg for determining the DAQ mode
     int Ccntrl; // "CtrlReg" in LAD_C
