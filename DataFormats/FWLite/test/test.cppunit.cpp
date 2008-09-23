@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.5 2008/01/22 18:43:25 muzaffar Exp $
+$Id: test.cppunit.cpp,v 1.6 2008/09/23 15:53:34 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -28,6 +28,10 @@ class testRefInROOT: public CppUnit::TestFixture
   CPPUNIT_TEST(testAllLabels);
   CPPUNIT_TEST(testGoodChain);
   CPPUNIT_TEST(testTwoGoodFiles);
+   CPPUNIT_TEST(testHandleErrors);
+   CPPUNIT_TEST(testMissingRef);
+   CPPUNIT_TEST(testMissingData);
+
   // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
   //CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents,std::exception);
@@ -59,6 +63,8 @@ public:
   void failOneBadFile();
   void testGoodChain();
   void testHandleErrors();
+   void testMissingRef();
+   void testMissingData();
   // void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
 
@@ -167,15 +173,48 @@ void testRefInROOT::failOneBadFile()
   testEvent(events);
 }
 
+void testRefInROOT::testMissingRef()
+{
+   TFile file("other_only.root");
+   fwlite::Event events(&file);
+   
+   for(events.toBegin(); not events.atEnd(); ++events) {
+      
+      fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+      pOthers.getByLabel(events,"OtherThing","testUserTag");
+      for(edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin(), itEnd=pOthers->end() ;
+          itOther != itEnd; ++itOther) {
+         //std::cout <<"getting ref"<<std::endl;
+         CPPUNIT_ASSERT(not itOther->ref.isAvailable());
+         CPPUNIT_ASSERT_THROW(itOther->ref.get(), cms::Exception);
+      }
+   }
+}
+
+void testRefInROOT::testMissingData()
+{
+   TFile file("good.root");
+   fwlite::Event events(&file);
+   
+   for(events.toBegin(); not events.atEnd(); ++events) {
+      
+      fwlite::Handle<edmtest::OtherThingCollection> pOthers;
+      pOthers.getByLabel(events,"NotHereOtherThing");
+      
+      CPPUNIT_ASSERT(not pOthers.isValid());
+      CPPUNIT_ASSERT(pOthers.failedToGet());
+      CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+   }
+}
 
 void testRefInROOT::testHandleErrors()
 {
    fwlite::Handle<edmtest::ThingCollection> pThings ;
-   CPPUNIT_ASSERT_THROW(*pThings,edm::Exception);
+   CPPUNIT_ASSERT_THROW(*pThings,cms::Exception);
    
    //try copy constructor
-   fwlite::Handle<edmtest::ThingCollection> pThings2(pThings2) ;
-   CPPUNIT_ASSERT_THROW(*pThings2,edm::Exception);
+   fwlite::Handle<edmtest::ThingCollection> pThings2(pThings) ;
+   CPPUNIT_ASSERT_THROW(*pThings2,cms::Exception);
    
 }
 
