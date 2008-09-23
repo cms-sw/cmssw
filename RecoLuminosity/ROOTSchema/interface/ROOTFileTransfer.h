@@ -2,21 +2,26 @@
 #define _HCAL_HLX_ROOTFILETRANSFER_H_
 
 #include <string>
-#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
 
 namespace HCAL_HLX{
 
-  class ROOTFileTransfer: public TimeStamp{
+  class ROOTFileTransfer{
   public:
     ROOTFileTransfer();
     ~ROOTFileTransfer();
      
-    void SetFileName( std::string fileName );
-    int TransferFile( );
+    void SetFileName( const std::string &fileName ){ fileName_ = fileName; }
+    void SetInputDir( const std::string &dirName ){ dirName_ = dirName; }
+    void SetEtSumOnly( const bool &bEtSumOnly ){ bEtSumOnly_ = bEtSumOnly; }
+    void SetFileType( const std::string &fileType );
 
+    int TransferFile();
   private:
     std::string fileName_;
     std::string dirName_;
+    std::string fileType_;
+
+    bool bEtSumOnly_;
   };
 }
 

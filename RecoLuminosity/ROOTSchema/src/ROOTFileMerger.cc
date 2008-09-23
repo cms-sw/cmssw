@@ -10,19 +10,13 @@
 #include <TFile.h>
 #include <TChain.h>
 
-HCAL_HLX::ROOTFileMerger::ROOTFileMerger():minSectionNumber_(99999), 
-					   RFWriter_(0), 
-					   RFReader_(0),
-					   lumiSection_(0)
+HCAL_HLX::ROOTFileMerger::ROOTFileMerger():minSectionNumber_(99999)
 {
-    Init();
-}
 
-HCAL_HLX::ROOTFileMerger::~ROOTFileMerger(){
-  CleanUp();
-}
+  RFWriter_    = NULL;
+  RFReader_    = NULL;
+  lumiSection_ = NULL;
 
-void HCAL_HLX::ROOTFileMerger::Init(){
   RFWriter_ = new ROOTFileWriter;
   if( RFWriter_ == 0 ){
     // Could not allocate memory.
@@ -39,10 +33,12 @@ void HCAL_HLX::ROOTFileMerger::Init(){
   if( lumiSection_ == 0 ){
     // Could not allocate memory.
     // Do something.
-  }    
+  }
+
+  RFWriter_->SetMerge(true);
 }
 
-void HCAL_HLX::ROOTFileMerger::CleanUp(){
+HCAL_HLX::ROOTFileMerger::~ROOTFileMerger(){
 
   if( RFWriter_ != 0){
     delete RFWriter_;
@@ -57,38 +53,67 @@ void HCAL_HLX::ROOTFileMerger::CleanUp(){
   }
 }
 
+bool HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, const unsigned int minSectionNumber ){
+#ifdef DEBUG
+  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
-void HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, bool bCMSLive){
     /*
-       TChain::Merge and TTree::CloneTree leak because we used TTree::Bronch to create the tree.
+      TChain::Merge and TTree::CloneTree leak because we used TTree::Bronch to create the tree.
     */
-
-    RFReader_->SetRunNumber(runNumber);
-    unsigned int firstSectionNumber = RFReader_->GetFirstSectionNumber();
-
-    RFWriter_->SetFileName(runNumber, firstSectionNumber);
-        
-    int nentries = RFReader_->GetNumEntries();
   
-    for(int i = 0; i < nentries; i++){
-      RFReader_->GetEntry(i, *lumiSection_);
-
-      // Must fill Threshold eventually  right now it contains fake data.
-      RFWriter_->FillTree(*lumiSection_);
-    }
+  RFReader_->CreateFileNameList();
+  
+  // RFWriter_->SetFileName(runNumber, firstSectionNumber);
+  RFWriter_->OpenFile(runNumber, minSectionNumber);
+  
+  unsigned int nentries = RFReader_->GetEntries();
+  if( nentries == 0 ){
+    RFWriter_->CloseFile();
+    return false;
+  }
+  
+  for(unsigned int iEntry = 0; iEntry < nentries; ++iEntry ){
+    memset( lumiSection_, 0, sizeof(LUMI_SECTION));
+    RFReader_->GetEntry(iEntry);
+    RFReader_->GetLumiSection(*lumiSection_);
     
-    RFWriter_->CloseTree();
+    // Must fill Threshold eventually  right now it contains fake data.
+    RFWriter_->FillTree(*lumiSection_);
+  }
+  
+  return RFWriter_->CloseFile();
+}
+
+void HCAL_HLX::ROOTFileMerger::SetInputDir( const std::string &dirName){
+
+  RFReader_->SetDir(dirName);
 }
 
 void HCAL_HLX::ROOTFileMerger::SetOutputDir(const std::string &dirName){
+
   RFWriter_->SetDir(dirName);
 }
 
 std::string HCAL_HLX::ROOTFileMerger::GetOutputFileName(){
+
   return RFWriter_->GetFileName();
 }
 
 void HCAL_HLX::ROOTFileMerger::SetEtSumOnly(bool bEtSumOnly){
+
   RFWriter_->SetEtSumOnly(bEtSumOnly);
   RFReader_->SetEtSumOnly(bEtSumOnly);
 }
+
+void HCAL_HLX::ROOTFileMerger::SetFileType( const std::string &fileType ){
+
+  RFWriter_->SetFileType( fileType );
+  RFReader_->SetFileType( fileType );
+}
+
+void HCAL_HLX::ROOTFileMerger::SetDate( const std::string &date ){
+  
+  RFWriter_->SetDate( date );
+  RFReader_->SetDate( date );
+}  

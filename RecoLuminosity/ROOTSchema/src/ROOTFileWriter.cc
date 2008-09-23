@@ -18,36 +18,39 @@
 #include <TTree.h>
 #include <TFile.h>
 
-HCAL_HLX::ROOTFileWriter::ROOTFileWriter(){}
+HCAL_HLX::ROOTFileWriter::ROOTFileWriter():bMerge_(false){
 
-HCAL_HLX::ROOTFileWriter::~ROOTFileWriter(){}
+  Init(); // ROOTFileBase
+}
 
-void HCAL_HLX::ROOTFileWriter::CreateTree(){
+HCAL_HLX::ROOTFileWriter::~ROOTFileWriter(){
 
-  if(fileName_ == ""){
-    std::cout << "*** File Name was not set ***" << std::endl;
-    CleanUp();
-    exit(1);
-  }
+  CleanUp(); // ROOTFileBase
+}
 
-  std::string FullPath;
+bool HCAL_HLX::ROOTFileWriter::OpenFile(const HCAL_HLX::LUMI_SECTION &localSection){
 
-  FullPath = dirName_;
-//   if( !endOfRun_ ){ 
-//     FullPath += runDir_;
-//     endOfRun_ = false;
-//   }
-  FullPath +=  fileName_;
-  
-  m_file = new TFile(FullPath.c_str(), "RECREATE");
+  return OpenFile( localSection.hdr.runNumber,
+		   localSection.hdr.sectionNumber);
+}
 
-  if(!m_file){
-    std::cout << " *** Couldn't make or open file: " << fileName_ << " *** " << std::endl;
-    CleanUp();
-    exit(1);
+bool HCAL_HLX::ROOTFileWriter::OpenFile( const unsigned int runNumber, 
+					 const unsigned int sectionNumber){
+
+  SetFileName( runNumber, sectionNumber);
+
+  m_file = new TFile( (dirName_ + fileName_).c_str(), "RECREATE");
+  if( !m_file ){
+    return false;
   }
 
   m_file->cd();
+  CreateTree();
+
+  return true;
+}
+
+void HCAL_HLX::ROOTFileWriter::CreateTree(){
   
   m_tree   = new TTree("LumiTree","");
 
@@ -80,33 +83,10 @@ void HCAL_HLX::ROOTFileWriter::CreateTree(){
       MakeBranch(lumiSection_->lhc[iHLX], &LHCPtr_[iHLX], iHLX);
     }
   }
-
-}
-
-void HCAL_HLX::ROOTFileWriter::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-  if(fileName_ == ""){
-    std::cout << "*** File Name was not set ***" << std::endl;
-    return;
-  }
-  
-  memcpy( lumiSection_, &localSection, sizeof(HCAL_HLX::LUMI_SECTION));
-
-  InsertInformation(); // To be modified later.
-
-  m_tree->Fill();
-
-#ifdef DEBUG
-  //  m_tree->Print();
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 }
 
 template< class T >
-void HCAL_HLX::ROOTFileWriter::MakeBranch(const T &in, T **out, int HLXNum){
+void HCAL_HLX::ROOTFileWriter::MakeBranch(const T &in, T **out, const int HLXNum){
   
   const std::string typeName = typeid(T).name();
   std::string className;
@@ -127,13 +107,18 @@ void HCAL_HLX::ROOTFileWriter::MakeBranch(const T &in, T **out, int HLXNum){
   numString << std::setfill('0') << std::setw(2) << HLXNum;
   branchName = branchName + numString.str() + ".";
   m_tree->Bronch(branchName.c_str(), className.c_str(), out, 1);
+}
 
+void HCAL_HLX::ROOTFileWriter::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
+
+  memcpy( lumiSection_, &localSection, sizeof(HCAL_HLX::LUMI_SECTION));
+
+  InsertInformation(); // To be modified later.
+
+  m_tree->Fill();
 }
 
 void HCAL_HLX::ROOTFileWriter::InsertInformation(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   // This information will eventually come from the lms cell
   Threshold_->OccThreshold1Set1 = 51;
@@ -158,24 +143,17 @@ void HCAL_HLX::ROOTFileWriter::InsertInformation(){
   RingSet_->EtSumRings = "33L,34L,35S,36S";
 }
 
-void HCAL_HLX::ROOTFileWriter::CloseTree(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-  if(fileName_ == ""){
-    std::cout << "*** File Name was not set ***" << std::endl;
-    return;
-  }
-
-  m_file->Write();
+bool HCAL_HLX::ROOTFileWriter::CloseFile(){
+  
+  m_tree->Write();
   m_file->Close();
-
+  
   if(m_file != NULL){
     delete m_file;
-  //delete m_tree; // NO!!! root does this when you delete m_file
+    //delete m_tree; // NO!!! root does this when you delete m_file
     m_file = NULL;
     m_tree = NULL;
   }
-
+  
+  return true;
 }

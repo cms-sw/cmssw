@@ -14,63 +14,50 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.4 2008/09/16 22:10:24 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.5 2008/09/17 23:18:24 ahunt Exp $
 //
 //
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoLuminosity/ROOTSchema/interface/LumiFileWriter.hh"
+#include "RecoLuminosity/ROOTSchema/interface/ROOTSchema.h"
+#include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
-// ROOT Schema Headers
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileMerger.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileTransfer.h"
+// CMSSW
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
-#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
-
-#include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTSchema.h"
-#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.hh"
-
-#include "RecoLuminosity/ROOTSchema/interface/LumiFileWriter.hh"
+// system include files
+#include <iostream>
 
 LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
 
    // TCP Receiver configuration
    unsigned int listenPort = iConfig.getUntrackedParameter< unsigned int >("SourcePort", 51002);
    unsigned int AquireMode = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
-   std::string  DistribIP  = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcS2F17-19");
+   std::string  DistribIP  = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcS2F17-18");
    reconTime               = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",60);
 
-   HLXTCP.SetPort(listenPort);
-   HLXTCP.SetMode(AquireMode);
-   HLXTCP.SetIP(DistribIP);
+   HLXTCP_ = new HCAL_HLX::TCPReceiver( listenPort, DistribIP, AquireMode );
+
+   LumiSchema_ = new HCAL_HLX::ROOTSchema();
 
    // ROOTFileWriter configuration
-   bool         EtSumOnly       = iConfig.getUntrackedParameter< bool >("EtSumOnly", false);
-   std::string lumiFileDir = iConfig.getUntrackedParameter< std::string  >("LumiFileDir","./");
+   std::string lumiFileDir  = iConfig.getUntrackedParameter< std::string  >("LumiFileDir","./");
+   std::string lumiFileType = iConfig.getUntrackedParameter< std::string  >("LumiFileType","RAW");
 
-   lumiSchema.SetDir( lumiFileDir );
-   lumiSchema.SetEtSumOnly( EtSumOnly );
+   LumiSchema_->SetLSDir( lumiFileDir );
+   LumiSchema_->SetFileType( lumiFileType );
 
    //ROOTFileMerger configuration
    std::string  MergedOutputDir = iConfig.getUntrackedParameter< std::string  >("MergedOutDir", "./");
 
-   RFM.SetOutputDir(MergedOutputDir);
-   RFM.SetEtSumOnly( EtSumOnly );
+   LumiSchema_->SetMergeDir(MergedOutputDir);
 
    // HTML Generator configuration
    unsigned int NBINS        = iConfig.getUntrackedParameter< unsigned int >("NBINS",     297);  // 12 BX per bin
@@ -78,69 +65,48 @@ LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
    double       XMAX         = iConfig.getUntrackedParameter< double       >("XMAX",      3564);
    std::string  webOutputDir = iConfig.getUntrackedParameter< std::string  >("WBMOutDir", "./");
 
-   webPage.SetOutputDir(webOutputDir);
-   webPage.SetHistoBins( NBINS, XMIN, XMAX );
+   LumiSchema_->SetWebDir(webOutputDir);
+   LumiSchema_->SetHistoBins( NBINS, XMIN, XMAX );
    
-   bMerge_    = iConfig.getUntrackedParameter< bool   >("MergeFiles", false );
-   bWBM_      = iConfig.getUntrackedParameter< bool   >("CreateWebPage", false );
-   MergeRate_ = iConfig.getUntrackedParameter< unsigned int >("MergeRate", 1 );
+   bMerge_    = iConfig.getUntrackedParameter< bool >("MergeFiles", false );
+   bWBM_      = iConfig.getUntrackedParameter< bool >("CreateWebPage", false );
    bTransfer_ = iConfig.getUntrackedParameter< bool >("TransferToDBS", false );
-   bTest_     = iConfig.getUntrackedParameter< bool >("Test", false );
 
-   lastRun_ = 0;
-
+   LumiSchema_->SetMergeFiles( bMerge_ );
+   LumiSchema_->SetTransferFiles( bTransfer_ );
+   LumiSchema_->SetCreateWebPage( bWBM_ );
+   
+   lumiSection_ = new HCAL_HLX::LUMI_SECTION;
 }
 
 LumiFileWriter::~LumiFileWriter()
 {
  
+  delete HLXTCP_;
+  delete LumiSchema_;
+
+  delete lumiSection_;
+
 }
 
 void LumiFileWriter::analyze(const edm::Event& iEvent, 
-			     const edm::EventSetup& iSetup)
-{
-  using namespace edm;
+			     const edm::EventSetup& iSetup){
   
-  while(HLXTCP.IsConnected() == false){
-    if(HLXTCP.Connect() != 1){
+  while(HLXTCP_->IsConnected() == false){
+    if(HLXTCP_->Connect() != 1){
       std::cout << " Reconnect in " << reconTime << " seconds." <<  std::endl;
       sleep(reconTime);
     }
   }
     
-  if( HLXTCP.ReceiveLumiSection(localSection) == 1 ){
+  if( HLXTCP_->ReceiveLumiSection(*lumiSection_) == 1 ){
     
-    std::cout << "Writing LS file" << std::endl;
-    lumiSchema.ProcessSection(localSection);
-    
-    lastRun_ = localSection.hdr.runNumber;
-    lastCMSLive_  = localSection.hdr.bCMSLive;
-
-    if( bWBM_ ){
-      std::cout << "Create Web page" << std::endl; 
-      webPage.ReplaceFile(lumiSchema.GetFileName());
-      webPage.CreateWebPage();
-    }
+    std::cout << "Processing LumiSection" << std::endl;
+    LumiSchema_->ProcessSection(*lumiSection_);
     
   }else{
-
-    HLXTCP.Disconnect();
-
-    if( bMerge_ ){
-      if( lastRun_ != 0 ){
-	if( LSCount_ % MergeRate_ == 0 ){
-	  std::cout << "Merge files" << std::endl;    
-	  RFM.Merge( lastRun_ , lastCMSLive_ );
-	}
-	
-	if( bTransfer_ ){
-	  std::cout << "Transfer files" << std::endl;    
-	  RFT.SetFileName( RFM.GetOutputFileName() );
-	  RFT.TransferFile( );
-	}
-	lastRun_ = 0;
-      }
-    }
+    HLXTCP_->Disconnect();
+    LumiSchema_->EndRun();
   }
 }
 
@@ -155,13 +121,8 @@ void
 LumiFileWriter::endJob() {
 
   if(bTest_){
-    HLXTCP.Disconnect();
-    
-    if( bTransfer_ ){
-      std::cout << "Transfer files" << std::endl;    
-      RFT.SetFileName( RFM.GetOutputFileName() );
-      RFT.TransferFile( );
-    }
+    HLXTCP_->Disconnect();
+    LumiSchema_->EndRun();
   }
 }
 

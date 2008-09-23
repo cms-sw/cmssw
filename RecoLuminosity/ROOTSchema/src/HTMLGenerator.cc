@@ -1,9 +1,10 @@
+#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.hh"
+#include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
+
 // STL Headers
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include <iomanip>
-
 
 // ROOT Headers
 #include <TH1F.h>
@@ -16,19 +17,16 @@
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
-// mkdir
-#include <sys/types.h>
-#include <sys/stat.h>
+HCAL_HLX::HTMLGenerator::HTMLGenerator(){
 
-#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.hh"
-
-HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
+  RFReader_    = new ROOTFileReader;
+  lumiSection_ = new LUMI_SECTION;
 
   // TODO: read config file
 
   plotExt_   = "png";     // config file
   outputDir_ = "./";      // config file
-  writeMode_  = 0777;
+  writeMode_  = 0775;
   
   previousRunNumber = 0;
 
@@ -148,6 +146,9 @@ HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
 
 HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
   
+  delete RFReader_;
+  delete lumiSection_;
+
   delete c1_;
 
   delete HLXHistos_[0];
@@ -171,13 +172,13 @@ HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
 
 }
 
-// ******** Main function ******
-
-void HCAL_HLX::HTMLGenerator::CreateWebPage(){
-
-  GetEntry(0,lumiSection_);
+// ******** Main function ****** 
+void HCAL_HLX::HTMLGenerator::CreateWebPage(const std::string &fileName, const unsigned int iEntry){
+ 
+  RFReader_->SetFileName( fileName );
+  RFReader_->GetEntry( iEntry );
+  RFReader_->GetLumiSection( *lumiSection_ );
     
-  MakeDir( outputDir_ + GetRunDir(), writeMode_ );
   MakeDir( outputDir_ + GetRunDir() + GetLSDir(), writeMode_ );
 
   for(unsigned int iHLX = 0; iHLX < 36; ++iHLX){
@@ -202,7 +203,16 @@ void HCAL_HLX::HTMLGenerator::CreateWebPage(){
   GenerateSectionPage();
   GenerateRunPage();
   GenerateIndexPage();
+}
 
+// *********** Set Functions *************
+
+void HCAL_HLX::HTMLGenerator::SetInputDir(const std::string &inDir ){
+  RFReader_->SetDir( inDir );
+}
+
+void HCAL_HLX::HTMLGenerator::SetFileType( const std::string &fileType){
+  RFReader_->SetFileType( fileType );
 }
 
 // ************* Get Directory name functions ****************
@@ -213,9 +223,9 @@ std::string HCAL_HLX::HTMLGenerator::GetRunDir(){
   std::stringstream dirName;
   
   dirName.str(std::string());
-  dirName << std::setw(3) << std::setfill('0') << (lumiSection_.hdr.runNumber / 1000000)
-	  << "/" << std::setw(3) << std::setfill('0') << (lumiSection_.hdr.runNumber % 1000000) / 1000
-	  << "/" << std::setw(3) << std::setfill('0') << (lumiSection_.hdr.runNumber % 1000)
+  dirName << std::setw(3) << std::setfill('0') << (lumiSection_->hdr.runNumber / 1000000)
+	  << "/" << std::setw(3) << std::setfill('0') << (lumiSection_->hdr.runNumber % 1000000) / 1000
+	  << "/" << std::setw(3) << std::setfill('0') << (lumiSection_->hdr.runNumber % 1000)
 	  << "/";
 
   return dirName.str();
@@ -225,7 +235,7 @@ std::string HCAL_HLX::HTMLGenerator::GetLSDir(){
 
   std::stringstream dirName;
   dirName.str(std::string());    
-  dirName << std::setw(4) << std::setfill('0') << lumiSection_.hdr.sectionNumber << "/";
+  dirName << std::setw(4) << std::setfill('0') << lumiSection_->hdr.sectionNumber << "/";
 
   return dirName.str();
 }
@@ -259,15 +269,15 @@ void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
   }
 
 
-  if( lumiSection_.hdr.runNumber != previousRunNumber  ){
+  if( lumiSection_->hdr.runNumber != previousRunNumber  ){
     std::stringstream runLine;
     runLine << "<a href = \"" 
 	    << GetRunDir() 
 	    << "index.html\"> Run - " 
-	    << lumiSection_.hdr.runNumber << "</a>  " 
+	    << lumiSection_->hdr.runNumber << "</a>  " 
 	    << TimeStampLong() 
 	    << "</br>"; 
-    previousRunNumber = lumiSection_.hdr.runNumber;
+    previousRunNumber = lumiSection_->hdr.runNumber;
     InsertLineBefore( fileName, runLine.str(), "</body>"); 
   }
 
@@ -282,7 +292,7 @@ void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
   if(!fileExists(fileName)){
     std::stringstream fileTitle;
 
-    fileTitle << "Luminosity File Reader - Run " << lumiSection_.hdr.runNumber;
+    fileTitle << "Luminosity File Reader - Run " << lumiSection_->hdr.runNumber;
     MakeEmptyWebPage(fileName, fileTitle.str());
   }
 
@@ -291,8 +301,8 @@ void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
   sectionLine << "<a href = \"" 
 	      <<  GetLSDir() 
 	      <<  "index.html\"> Run - " 
-	      << lumiSection_.hdr.runNumber << " Section " 
-	      << lumiSection_.hdr.sectionNumber << "</a>  " 
+	      << lumiSection_->hdr.runNumber << " Section " 
+	      << lumiSection_->hdr.sectionNumber << "</a>  " 
 	      << TimeStampLong() << "</br>";
 
   InsertLineBefore( fileName, sectionLine.str(), "</body>");
@@ -310,8 +320,8 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
 
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
-  fileStr << "Luminosity File Reader - " << "Run " << lumiSection_.hdr.runNumber << " - " 
-	  << " Lumi Section - " << lumiSection_.hdr.sectionNumber << std::endl;
+  fileStr << "Luminosity File Reader - " << "Run " << lumiSection_->hdr.runNumber << " - " 
+	  << " Lumi Section - " << lumiSection_->hdr.sectionNumber << std::endl;
   fileStr << "</title>" << std::endl; 
   fileStr << "<body>" << std::endl;
   
@@ -348,20 +358,20 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     unsigned int MaxLHCBX = 0;
     float AvgEtSum = 0.0;
     for( int iBX = 100; iBX < 3500; ++iBX){
-      AvgEtSum += lumiSection_.etSum[iHLX].data[iBX];
-      if( lumiSection_.etSum[iHLX].data[iBX] > MaxEt ){
-	MaxEt = lumiSection_.etSum[iHLX].data[iBX];
+      AvgEtSum += lumiSection_->etSum[iHLX].data[iBX];
+      if( lumiSection_->etSum[iHLX].data[iBX] > MaxEt ){
+	MaxEt = lumiSection_->etSum[iHLX].data[iBX];
 	MaxEtBX = iBX;
       }
       
-      if( lumiSection_.lhc[iHLX].data[iBX] > MaxLHC ){
-	MaxLHC = lumiSection_.lhc[iHLX].data[iBX];
+      if( lumiSection_->lhc[iHLX].data[iBX] > MaxLHC ){
+	MaxLHC = lumiSection_->lhc[iHLX].data[iBX];
 	MaxLHCBX = iBX;
       }
 
     }
 
-    AvgEtSum /= (3400.0*lumiSection_.hdr.numOrbits);
+    AvgEtSum /= (3400.0*lumiSection_->hdr.numOrbits);
 
     if( AvgEtSum > MaxAvgEt ){
       MaxAvgEt = AvgEtSum;
@@ -377,8 +387,6 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     
     MaxLHCSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], MaxLHCBX );
     MaxLHCSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxLHCBX );
-
-    //    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgEtSum: " << AvgEtSum << std::endl;
   }
 
   gStyle->SetOptStat(0);
@@ -409,12 +417,12 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     float AvgOccSet2 = 0.0;
     
     for( int iBX = 100; iBX < 3500; ++iBX){ 
-      AvgOccSet1 += lumiSection_.occupancy[iHLX].data[0][iBX];
-      AvgOccSet2 += lumiSection_.occupancy[iHLX].data[3][iBX];
+      AvgOccSet1 += lumiSection_->occupancy[iHLX].data[0][iBX];
+      AvgOccSet2 += lumiSection_->occupancy[iHLX].data[3][iBX];
     }
 
-    AvgOccSet1 /= (3400.0*lumiSection_.hdr.numOrbits);
-    AvgOccSet2 /= (3400.0*lumiSection_.hdr.numOrbits);
+    AvgOccSet1 /= (3400.0*lumiSection_->hdr.numOrbits);
+    AvgOccSet2 /= (3400.0*lumiSection_->hdr.numOrbits);
 
     if( AvgOccSet1 > MaxOcc ){
       MaxOcc = AvgOccSet1;
@@ -442,7 +450,6 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
       OccSummary_->Fill( iEta_[iHLX] + 7, iPhi_[iHLX], AvgOccSet2 );
     }
 
-    //    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgOccSet1: " << AvgOccSet1 << " AvgOccSet2: " << AvgOccSet2 << std::endl;
   }
 
   picName = outputDir_ + GetRunDir() + GetLSDir() + "OccSummary.png";
@@ -450,10 +457,10 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   OccSummary_->Draw("colz");
   c1_->SaveAs(picName.c_str());
 
-  fileStr << "<a href=\"EtSummary.png\"><img src=\"EtSummary.png\" width=\"45%\"></a>" << std::endl; 
-  fileStr << "<a href=\"OccSummary.png\"><img src=\"OccSummary.png\" width=\"45%\"></a></br>" << std::endl; 
-  fileStr << "<a href=\"MaxEtSummary.png\"><img src=\"MaxEtSummary.png\" width=\"45%\"></a>" << std::endl; 
-  fileStr << "<a href=\"MaxLHCSummary.png\"><img src=\"MaxLHCSummary.png\" width=\"45%\"></a></br>" << std::endl; 
+  fileStr << "<img src=\"EtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
+  fileStr << "<img src=\"OccSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
+  fileStr << "<img src=\"MaxEtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
+  fileStr << "<img src=\"MaxLHCSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
 
   fileStr << "<hr>" << std::endl;  
   fileStr << "<H2>" << std::endl;
@@ -471,6 +478,53 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   }
   
   fileStr << "</H3>" << std::endl;
+
+  fileStr << "<map name='HLXSummary'>" << std::endl;
+
+  fileStr << "<area shape='rect' coords='70,47,160,68' href='HLX05/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,69,160,89' href='HLX04/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,90,160,110' href='HLX03/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,111,160,131' href='HLX02/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,132,160,152' href='HLX01/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,153,160,173' href='HLX00/index.html' >" << std::endl;
+
+  fileStr << "<area shape='rect' coords='70,174,160,194' href='HLX17/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,195,160,215' href='HLX16/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,216,160,236' href='HLX15/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,238,160,257' href='HLX14/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,258,160,278' href='HLX13/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,279,160,299' href='HLX12/index.html' >" << std::endl;
+
+  fileStr << "<area shape='rect' coords='70,300,160,320' href='HLX29/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,321,160,341' href='HLX28/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,342,160,362' href='HLX27/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,363,160,383' href='HLX26/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,384,160,404' href='HLX25/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='70,404,160,425' href='HLX24/index.html' >" << std::endl;
+
+  fileStr << "<area shape='rect' coords='532,47,625,68' href='HLX11/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,69,625,89' href='HLX10/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,90,625,110' href='HLX09/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,111,625,131' href='HLX08/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,132,625,152' href='HLX07/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,153,625,173' href='HLX06/index.html' >" << std::endl;
+
+  fileStr << "<area shape='rect' coords='532,174,625,194' href='HLX23/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,195,625,215' href='HLX22/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,216,625,236' href='HLX21/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,238,625,257' href='HLX20/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,258,625,278' href='HLX19/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,279,625,299' href='HLX18/index.html' >" << std::endl;
+
+  fileStr << "<area shape='rect' coords='532,300,625,320' href='HLX35/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,321,625,341' href='HLX34/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,342,625,362' href='HLX33/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,363,625,383' href='HLX32/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,384,625,404' href='HLX31/index.html' >" << std::endl;
+  fileStr << "<area shape='rect' coords='532,404,625,425' href='HLX30/index.html' >" << std::endl;
+
+  fileStr << "</map>" << std::endl;
+
   fileStr << "</body>" << std::endl;
   fileStr << "</html>" << std::endl;
 
@@ -492,8 +546,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << lumiSection_.hdr.runNumber
-	  << " Lumi Section " << lumiSection_.hdr.sectionNumber 
+	  << "Run " << lumiSection_->hdr.runNumber
+	  << " Lumi Section " << lumiSection_->hdr.sectionNumber 
 	  << HLXToHFMap_[HLXID]
 	  << std::endl;
   fileStr << "</title>" << std::endl; 
@@ -501,8 +555,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
 
   fileStr << "<H1>" << std::endl;
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << lumiSection_.hdr.runNumber << " - " 
-	  << " Lumi Section " << lumiSection_.hdr.sectionNumber << " - " 
+	  << "Run " << lumiSection_->hdr.runNumber << " - " 
+	  << " Lumi Section " << lumiSection_->hdr.sectionNumber << " - " 
 	  << HLXToHFMap_[HLXID]
 	  << std::endl;
   fileStr << "</H1>" << std::endl;
@@ -549,10 +603,6 @@ void HCAL_HLX::HTMLGenerator::SetHistoBins(unsigned int NBins, double XMin, doub
 
 void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID){
 
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
   for(unsigned int iHisto = 0; iHisto < 8; ++iHisto ){
     HLXHistos_[iHisto]->Reset();
     std::stringstream HistoTitle;
@@ -570,7 +620,7 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
 
   // The noise range is arbitrary
   for( unsigned int iBX = 2750; iBX < 3250; ++iBX ){
-    EtSumNoise[iBX % 4] += lumiSection_.etSum[HLXID].data[iBX];
+    EtSumNoise[iBX % 4] += lumiSection_->etSum[HLXID].data[iBX];
   }
   
   EtSumNoise[0] /= 125.0;
@@ -580,13 +630,13 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
 
   for(unsigned int iBX = 0; iBX < 3564; ++iBX ){
    
-    HLXHistos_[7]->Fill( iBX, lumiSection_.lhc[HLXID].data[iBX]);
+    HLXHistos_[7]->Fill( iBX, lumiSection_->lhc[HLXID].data[iBX]);
    
-    if( lumiSection_.hdr.numOrbits > 0){
-      HLXHistos_[0]->Fill( iBX, (lumiSection_.etSum[HLXID].data[iBX] - EtSumNoise[iBX % 4]) / (float)(lumiSection_.hdr.numOrbits));
+    if( lumiSection_->hdr.numOrbits > 0){
+      HLXHistos_[0]->Fill( iBX, (lumiSection_->etSum[HLXID].data[iBX] - EtSumNoise[iBX % 4]) / (float)(lumiSection_->hdr.numOrbits));
        
       for(int k = 0; k < 6; k++){
-	HLXHistos_[k+1]->Fill(iBX, ((float)(lumiSection_.occupancy[HLXID].data[k][iBX]) / (float)(lumiSection_.hdr.numOrbits)));
+	HLXHistos_[k+1]->Fill(iBX, ((float)(lumiSection_->occupancy[HLXID].data[k][iBX]) / (float)(lumiSection_->hdr.numOrbits)));
       }
     }
   }
@@ -601,52 +651,15 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
     std::string plotFileName =  HLXPicsDir +  HistoNames[ iHisto ] + "." + plotExt_;
     c1_->SaveAs(plotFileName.c_str());
   }
-
-#ifdef DEBUG
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 }
 
-void HCAL_HLX::HTMLGenerator::GenerateComparePlots(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
+void HCAL_HLX::HTMLGenerator::GenerateComparePlots(){}
 
+void HCAL_HLX::HTMLGenerator::GenerateComparePage(){}
 
-#ifdef DEBUG
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-}
+void HCAL_HLX::HTMLGenerator::GenerateAveragePlots(){}
 
-void HCAL_HLX::HTMLGenerator::GenerateComparePage(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-#ifdef DEBUG
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-}
-
-void HCAL_HLX::HTMLGenerator::GenerateAveragePlots(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-#ifdef DEBUG
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-}
-
-void HCAL_HLX::HTMLGenerator::GenerateAveragePage(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-#ifdef DEBUG
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-}
+void HCAL_HLX::HTMLGenerator::GenerateAveragePage(){}
 
 void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoName){
 
@@ -664,8 +677,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoNam
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << lumiSection_.hdr.runNumber 
-	  << " Lumi Section " << lumiSection_.hdr.sectionNumber 
+	  << "Run " << lumiSection_->hdr.runNumber 
+	  << " Lumi Section " << lumiSection_->hdr.sectionNumber 
 	  << " - " << HistoName
 	  << std::endl;
   fileStr << "</title>" << std::endl; 
@@ -673,8 +686,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoNam
 
   fileStr << "<H1>" << std::endl;
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << lumiSection_.hdr.runNumber 
-	  << " Lumi Section " << lumiSection_.hdr.sectionNumber 
+	  << "Run " << lumiSection_->hdr.runNumber 
+	  << " Lumi Section " << lumiSection_->hdr.sectionNumber 
 	  << " - " << HistoName
 	  << std::endl;
   fileStr << "</H1>" << std::endl;
@@ -700,7 +713,6 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    MakeDir(pageDir + "/Pics" , writeMode_ );
    
    fileName = pageDir + "index.html";
-   std::cout << "********* " << fileName << " **********" << std::endl;
 
    std::ofstream fileStr;
    
@@ -709,8 +721,8 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    fileStr << "<html>" << std::endl;
    fileStr << "<title>" << std::endl; 
    fileStr << "Luminosity File Reader - " 
-	   << "Run " << lumiSection_.hdr.runNumber 
-	   << " Lumi Section " << lumiSection_.hdr.sectionNumber 
+	   << "Run " << lumiSection_->hdr.runNumber 
+	   << " Lumi Section " << lumiSection_->hdr.sectionNumber 
 	   << " Luminosity" 
 	   << std::endl;
    fileStr << "</title>" << std::endl; 
@@ -718,8 +730,8 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    
    fileStr << "<H1>" << std::endl;
    fileStr << "Luminosity File Reader - " 
-	   << "Run " << lumiSection_.hdr.runNumber 
-	   << " Lumi Section " << lumiSection_.hdr.sectionNumber 
+	   << "Run " << lumiSection_->hdr.runNumber 
+	   << " Lumi Section " << lumiSection_->hdr.sectionNumber 
 	   << " - Luminosity "
 	   << std::endl;
    fileStr << "</H1>" << std::endl;
@@ -739,24 +751,21 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
      if( Bin < 1 ) Bin = 0;
      if( Bin > (int)NBins_ ) Bin = NBins_ + 1;
 
-     ETLumiHisto_->    Fill(iBX, lumiSection_.lumiDetail.ETLumi[iBX]);
-     ETLumiHisto_->    SetBinError(  Bin, lumiSection_.lumiDetail.ETLumiErr[iBX]);
-     OccLumiSet1Histo_->Fill(iBX, lumiSection_.lumiDetail.OccLumi[0][iBX]);
-     OccLumiSet1Histo_->SetBinError(  Bin, lumiSection_.lumiDetail.OccLumiErr[0][iBX]);
-     OccLumiSet2Histo_->Fill(iBX, lumiSection_.lumiDetail.OccLumi[1][iBX]);
-     OccLumiSet2Histo_->SetBinError(  Bin, lumiSection_.lumiDetail.OccLumiErr[1][iBX]);
+     ETLumiHisto_->    Fill(iBX, lumiSection_->lumiDetail.ETLumi[iBX]);
+     ETLumiHisto_->    SetBinError(  Bin, lumiSection_->lumiDetail.ETLumiErr[iBX]);
+     OccLumiSet1Histo_->Fill(iBX, lumiSection_->lumiDetail.OccLumi[0][iBX]);
+     OccLumiSet1Histo_->SetBinError(  Bin, lumiSection_->lumiDetail.OccLumiErr[0][iBX]);
+     OccLumiSet2Histo_->Fill(iBX, lumiSection_->lumiDetail.OccLumi[1][iBX]);
+     OccLumiSet2Histo_->SetBinError(  Bin, lumiSection_->lumiDetail.OccLumiErr[1][iBX]);
    }
 
    ETLumiHisto_->Draw();
-   std::cout << "Saving ETLumi Histo" << std::endl;
    c1_->SaveAs( (pageDir + "/Pics/EtSumLumi.png").c_str() );
-   OccLumiSet1Histo_->Draw();
-   std::cout << "Saving Occ Lumi 1 Histo" << std::endl;
-   c1_->SaveAs( (pageDir + "/Pics/OccLumiSet1.png").c_str() ); 
-   OccLumiSet2Histo_->Draw();
-   std::cout << "Saving Occ Lumi 2 Histo" << std::endl;
-   c1_->SaveAs( (pageDir + "/Pics/OccLumiSet2.png").c_str() );
 
-   std::cout << "Deleting Histograms" << std::endl;
+   OccLumiSet1Histo_->Draw();
+   c1_->SaveAs( (pageDir + "/Pics/OccLumiSet1.png").c_str() ); 
+
+   OccLumiSet2Histo_->Draw();
+   c1_->SaveAs( (pageDir + "/Pics/OccLumiSet2.png").c_str() );
 
 }

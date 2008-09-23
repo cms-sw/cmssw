@@ -1,5 +1,8 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
 
+// C
+#include <cstring> // memset
+
 // STL
 #include <iomanip>
 #include <sstream>
@@ -14,64 +17,33 @@
 #include <TChain.h>
 
 HCAL_HLX::ROOTFileReader::ROOTFileReader(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
   
   mChain_ = new TChain("LumiTree");
+  Init();
 }
 
 HCAL_HLX::ROOTFileReader::~ROOTFileReader(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
+  CleanUp();
   delete mChain_;  
 }
 
-bool HCAL_HLX::ROOTFileReader::SetRunNumber( const unsigned int runNumber, const std::string &month){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
+int HCAL_HLX::ROOTFileReader::CreateFileNameList(){
 
-  std::stringstream runDir;
-  runDir.str(std::string());
-  
-  std::string month_;
-
-  if( month == "" ){
-    month_ = TimeStampYYYYMM();
-  }else{
-    month_ = month;
-  }
-
-  runDir << dirName_ << "/" << month << "/" << std::setw(9) << std::setfill('0') << runNumber << "/";
-
-  if( opendir( runDir.str().c_str()) == NULL ){
-    return false;
-  }
-
-  return CreateFileNameList( runDir.str() );
-}
-
-int HCAL_HLX::ROOTFileReader::CreateFileNameList( const std::string &runDir ){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
+  // Look for files that follow the standard naming convention.
   DIR *dp;
   struct dirent *dirp;
   std::string tempFileName;
 
   std::vector< std::string > fileNames;
-
   fileNames.clear();
 
-  if( runDir == ""){
+  if( dirName_ == ""){
     return false;
   }
-
-  if( ( dp = opendir( runDir.c_str() )  ) == NULL ){
+  
+  // Check directory existance.
+  if( ( dp = opendir( dirName_.c_str() )  ) == NULL ){
     closedir(dp);
     return false;
   }
@@ -79,54 +51,47 @@ int HCAL_HLX::ROOTFileReader::CreateFileNameList( const std::string &runDir ){
   while( (dirp = readdir(dp)) != NULL ){
     tempFileName = dirp->d_name;
     if(tempFileName.substr(0,8) == "CMS_LUMI" ){
-      fileNames.push_back(runDir + "/" + tempFileName);
+      fileNames.push_back( dirName_ + tempFileName);
     }
   }
   closedir(dp);
 
   if( fileNames.size() == 0 ){
-    return 0;
+    return false;
   }
 
   sort(fileNames.begin(), fileNames.end());
   return ReplaceFile( fileNames );
 }
 
-int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string &fileName){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-  
+int HCAL_HLX::ROOTFileReader::SetFileName(const std::string &fileName){  
+
   std::vector< std::string > tempVecOfStrings;
 
   tempVecOfStrings.clear();
-  tempVecOfStrings.push_back(fileName);
-  return ReplaceFile( tempVecOfStrings );
+  tempVecOfStrings.push_back( dirName_ + fileName);
 
+  return ReplaceFile( tempVecOfStrings );
 }
 
 int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::vector< std::string> &fileNames){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-  // replacing a file changes the run number and section number automatically.
+  // ReplaceFile is called by either SetFileName or CreateFileNameList.
   
-  mChain_->Reset();
-
-  for( std::vector< std::string >::const_iterator VoS = fileNames.begin(); VoS != fileNames.end(); ++VoS){
+  delete mChain_;
+  mChain_ = new TChain("LumiTree");
+  
+  for( std::vector< std::string >::const_iterator VoS = fileNames.begin(); 
+       VoS != fileNames.end(); 
+       ++VoS){
     mChain_->Add((*VoS).c_str());
   }
 
-  numEntries_ = mChain_->GetEntries();
+  CreateTree();
 
-  return 0;
+  return mChain_->GetEntries();
 }
 
 void HCAL_HLX::ROOTFileReader::CreateTree(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   Header_  = &(lumiSection_->hdr);
   Summary_ = &(lumiSection_->lumiSummary);
@@ -165,67 +130,50 @@ void HCAL_HLX::ROOTFileReader::CreateTree(){
   mChain_->SetBranchAddress("Trigger_Deadtime.", &TriggerDeadtime_, &b_TriggerDeadtime);
   mChain_->SetBranchAddress("HF_Ring_Set.",      &RingSet_,         &b_RingSet);
 
-
 }
 
-int HCAL_HLX::ROOTFileReader::GetNumEntries(){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
+unsigned int HCAL_HLX::ROOTFileReader::GetEntries(){
 
-  return numEntries_;
+  return mChain_->GetEntries();
 }
 
-int HCAL_HLX::ROOTFileReader::GetEntry(int entry, HCAL_HLX::LUMI_SECTION& localSection){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
+int HCAL_HLX::ROOTFileReader::GetEntry( int entry ){
 
   int bytes =  mChain_->GetEntry(entry);
-  memcpy(&localSection, lumiSection_, sizeof(HCAL_HLX::LUMI_SECTION));
   return bytes;
 }
 
+int HCAL_HLX::ROOTFileReader::GetLumiSection( HCAL_HLX::LUMI_SECTION& localSection){
+
+  memcpy(&localSection, lumiSection_, sizeof(HCAL_HLX::LUMI_SECTION));
+  return 0;
+}
+
 int HCAL_HLX::ROOTFileReader::GetThreshold(HCAL_HLX::LUMI_THRESHOLD&  localThreshold){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   memcpy(&localThreshold, Threshold_, sizeof(localThreshold));
   return 0;
 }
 
 int HCAL_HLX::ROOTFileReader::GetHFRingSet(HCAL_HLX::LUMI_HF_RING_SET& localRingSet){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   memcpy(&localRingSet, RingSet_, sizeof(localRingSet));
   return 0;
 }
 
 int HCAL_HLX::ROOTFileReader::GetL1Trigger(HCAL_HLX::LEVEL1_TRIGGER& localL1Trigger){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   memcpy(&localL1Trigger, L1Trigger_, sizeof(localL1Trigger));
   return 0;
 }
 
 int HCAL_HLX::ROOTFileReader::GetHLT(HCAL_HLX::HLT& localHLT){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   memcpy(&localHLT, HLT_, sizeof(localHLT));
   return 0;
 }
 
 int HCAL_HLX::ROOTFileReader::GetTriggerDeadtime(HCAL_HLX::TRIGGER_DEADTIME& localTD){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
   memcpy(&localTD, TriggerDeadtime_, sizeof(localTD));
   return 0;

@@ -9,31 +9,28 @@ ahunt@princeton.edu
 */
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
-#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
-#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
 
 #include <string>
 #include <sstream>
 
 namespace HCAL_HLX{
 
-  class ROOTFileBase: public HCAL_HLX::TimeStamp, public FileToolKit{
+  class ROOTFileBase{
     
   public:
     
     ROOTFileBase();
     virtual ~ROOTFileBase();
     
-    void SetDir(const std::string &dir);
+    void SetDir( const std::string &dir );
 
-    void SetFileType(const std::string &type);
+    void SetFileType( const std::string &type );
+    void SetDate( const std::string &date);
 
     void SetFileName(const HCAL_HLX::LUMI_SECTION &lumiSection);
+
     void SetFileName(unsigned int runNumber, 
-		     unsigned int sectionNumber, 
-		     bool bCMSLive = "false",
-		     const std::string &type = "",
-		     const std::string &data = "");
+		     unsigned int sectionNumber);
 
     std::string GetDir(){ return dirName_; }
     std::string GetFileName(){ return fileName_; }
@@ -70,10 +67,6 @@ namespace HCAL_HLX{
     bool bEtSumOnly_;
     std::string date_;
     std::string fileType_;
-    unsigned int previousRun_;
-    std::stringstream runDir_;
-    bool endOfRun_;
-
   };
 }
 #endif

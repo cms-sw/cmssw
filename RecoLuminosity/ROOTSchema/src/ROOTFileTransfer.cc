@@ -2,32 +2,23 @@
 #include <sstream>
 #include <iostream>
 
-HCAL_HLX::ROOTFileTransfer::ROOTFileTransfer(){
+HCAL_HLX::ROOTFileTransfer::ROOTFileTransfer():fileName_(""),
+					       dirName_(""),
+					       fileType_("RAW")
+{}
 
-  fileName_ = "";
+HCAL_HLX::ROOTFileTransfer::~ROOTFileTransfer(){}
 
-  dirName_ = "";
 
-}
-
-HCAL_HLX::ROOTFileTransfer::~ROOTFileTransfer(){
-}
-
-void HCAL_HLX::ROOTFileTransfer::SetFileName(std::string fileName ){
-
-   fileName_ = fileName;
-
-   dirName_ = "/cms/mon/data/dqm/lumi/root/store/lumi/" + TimeStampYYYYMM();  // FIX
-
+void HCAL_HLX::ROOTFileTransfer::SetFileType( const std::string &fileType ){
+  
+  fileType_ = fileType;
 }
 
 int HCAL_HLX::ROOTFileTransfer::TransferFile(){
 
   int errorCode;
   std::stringstream commandLine;
-
-  std::cout << "fileName: " << fileName_ << std::endl;
-  std::cout << "dirName: " << dirName_ << std::endl;
 
   if( fileName_ == "" ){
     // No File set
@@ -36,10 +27,10 @@ int HCAL_HLX::ROOTFileTransfer::TransferFile(){
 
     //Transfer File to Offline DB
     commandLine.str(std::string());
-    commandLine << "xferWrapper.sh " << dirName_ << " " << fileName_;
+    commandLine << "lumiTransferScript.sh " << dirName_ << " " << fileName_ << " " << fileType_;
     std::system(commandLine.str().c_str()); 
     
   }
   return 0;
-
 }
+

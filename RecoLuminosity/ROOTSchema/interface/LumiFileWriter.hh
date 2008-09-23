@@ -1,6 +1,13 @@
 #ifndef __LUMIFILEWRITER_H__
 #define __LUMIFILEWRITER_H__
 
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+namespace HCAL_HLX{
+  class TCPReceiver;
+  class ROOTSchema;
+  struct LUMI_SECTION;
+}
 
 class LumiFileWriter : public edm::EDAnalyzer {
    public:
@@ -14,13 +21,10 @@ class LumiFileWriter : public edm::EDAnalyzer {
       virtual void endJob() ;
 
  
-      HCAL_HLX::TCPReceiver      HLXTCP;  
-      HCAL_HLX::LUMI_SECTION     localSection;
-      HCAL_HLX::ROOTSchema       lumiSchema;
-      HCAL_HLX::ROOTFileMerger   RFM;
-      HCAL_HLX::ROOTFileTransfer RFT;
-      HCAL_HLX::HTMLGenerator    webPage;
-      
+      HCAL_HLX::TCPReceiver*      HLXTCP_;  
+      HCAL_HLX::LUMI_SECTION*     lumiSection_;
+      HCAL_HLX::ROOTSchema*       LumiSchema_;
+
       unsigned int reconTime;
 
       bool bMerge_;
@@ -28,12 +32,6 @@ class LumiFileWriter : public edm::EDAnalyzer {
       bool bTransfer_;
       bool bTest_;
 
-      unsigned int lastRun_;
-      bool lastCMSLive_;
-
-      unsigned int LSCount_;
-      unsigned int MergeRate_;
-      
 };
 
 #endif

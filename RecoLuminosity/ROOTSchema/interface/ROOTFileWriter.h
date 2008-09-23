@@ -19,18 +19,22 @@ class TFile;
 class TTree;
 
 namespace HCAL_HLX{
-
   
-  class ROOTFileWriter: public HCAL_HLX::ROOTFileBase{
+  class ROOTFileWriter: public ROOTFileBase{
     
   public:
     
     ROOTFileWriter();
     ~ROOTFileWriter();
 
+    bool OpenFile(const HCAL_HLX::LUMI_SECTION &lumiSection);
+    bool OpenFile(const unsigned int runNumber, 
+		  const unsigned int sectionNumber);
+
     void FillTree(const HCAL_HLX::LUMI_SECTION &localSection);
-    void InsertInformation();
-    void CloseTree();    
+    bool CloseFile();    
+
+    void SetMerge( const bool bMerge ){ bMerge_ = bMerge; }
 
   protected:
 
@@ -38,8 +42,12 @@ namespace HCAL_HLX{
     template< class T >
       void MakeBranch(const T &in, T **out, int HLXNum);
 
+    void InsertInformation();
+
     TFile* m_file;
     TTree* m_tree;
+
+    bool bMerge_;
     
   };
 }

@@ -16,19 +16,19 @@ namespace HCAL_HLX{
     ROOTFileMerger();
     ~ROOTFileMerger();
     
-    void SetInputDir( const std::string &inputDir);
+    void SetInputDir(  const std::string &inputDir);
     void SetOutputDir( const std::string &outputDir);
-    void SetEtSumOnly( bool bEtSumOnly);
+
+    void SetEtSumOnly( const bool bEtSumOnly );
+    void SetFileType(  const std::string &fileType);
+    void SetDate(      const std::string & date);
 
     std::string GetInputFileName();
     std::string GetOutputFileName();
     
-    void Merge(const unsigned int runNumber, bool bCMSLive);
+    bool Merge(const unsigned int runNumber, const unsigned int minSecNum);
     
   private:
-
-    void Init();
-    void CleanUp();
 
     unsigned int minSectionNumber_;
     

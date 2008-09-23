@@ -1,5 +1,4 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
-#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
 
 #include <sstream>
 #include <iostream>
@@ -23,17 +22,10 @@ HCAL_HLX::ROOTFileBase::ROOTFileBase():filePrefix_("CMS_LUMI_RAW"),
 				       dirName_("./"),
 				       bEtSumOnly_(false),
 				       date_(""),
-				       fileType_("RAW"),
-				       previousRun_(0)
-{
+				       fileType_("RAW")
+{}
 
-  Init();
-}
-
-HCAL_HLX::ROOTFileBase::~ROOTFileBase(){
-
-  CleanUp();
-}
+HCAL_HLX::ROOTFileBase::~ROOTFileBase(){}
 
 void HCAL_HLX::ROOTFileBase::Init(){
 
@@ -64,50 +56,23 @@ void HCAL_HLX::ROOTFileBase::SetDir(const std::string& dirName){
 
 void HCAL_HLX::ROOTFileBase::SetFileType(const std::string &fileType){
   
-  if( !( fileType == "RAW" || fileType == "VDM" || fileType == "ET")){
-    fileType_ == "RAW";
-  }else{
-    fileType_ = fileType;
-  }
-  
-  if( fileType_ == "ET" && !bEtSumOnly_ ){
-    SetEtSumOnly( true );
-  }
-  
-  if( fileType_ != "ET" && bEtSumOnly_ ){
-    SetEtSumOnly(false);
-  }  
+  fileType_ = fileType;
 }
 
-void HCAL_HLX::ROOTFileBase::SetFileName(unsigned int runNumber, 
-					 unsigned int sectionNumber, 
-					 bool bCMSLive,
-					 const std::string &type,
-					 const std::string &date){
- 
-  if( previousRun_ != runNumber){
-    runDir_.str(std::string(""));
-    runDir_ << std::setw(9) << std::setfill('0') << runNumber << "/";
-    MakeDir(runDir_.str(), 0777 );
-  }
+void HCAL_HLX::ROOTFileBase::SetDate(const std::string &date){
 
-  if( date == "" ){
-    date_ = TimeStampYYYYMMDD();
-  }else{
-    date_ = date;
-  }
+  date_ = date;
+}
 
-  if( type != "" ){
-    SetFileType(type);
-  }
+void HCAL_HLX::ROOTFileBase::SetFileName(const unsigned int runNumber, 
+					 const unsigned int sectionNumber ){
   
   std::stringstream fileName;
   fileName.str(std::string());
   
   fileName << "CMS_LUMI_" << fileType_ << "_" << date_ << "_"
 	   << std::setfill('0') << std::setw(9) << runNumber << "_"
-	   << std::setfill('0') << std::setw(4) << sectionNumber << "_"
-	   << bCMSLive << ".root";
+	   << std::setfill('0') << std::setw(4) << sectionNumber << ".root";
   
   fileName_ = fileName.str();
   
@@ -117,16 +82,10 @@ void HCAL_HLX::ROOTFileBase::SetFileName(unsigned int runNumber,
 void HCAL_HLX::ROOTFileBase::SetFileName(const HCAL_HLX::LUMI_SECTION &lumiSection){
 
   SetFileName( lumiSection.hdr.runNumber,
-	       lumiSection.hdr.sectionNumber,
-	       lumiSection.hdr.bCMSLive,
-	       fileType_,
-	       TimeStampYYYYMMDD(lumiSection.hdr.timestamp));
+	       lumiSection.hdr.sectionNumber);
 }
 
 void HCAL_HLX::ROOTFileBase::SetEtSumOnly( bool bEtSumOnly ){
 
   bEtSumOnly_ = bEtSumOnly;
-  if( fileType_ != "ET" && bEtSumOnly_ ){
-    SetFileType("ET");
-  }
 } 

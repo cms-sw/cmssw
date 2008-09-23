@@ -19,35 +19,32 @@ class TBranch;
 namespace HCAL_HLX{
 
   class ROOTFileReader: public ROOTFileBase{
+    
   public:
     ROOTFileReader();
     ~ROOTFileReader();
 
-    // For automatic replacement of files.
-    bool SetRunNumber( const unsigned int runNumber, const std::string &month = "");
     // For manual replacment of files.
-    int ReplaceFile(const std::string &fileName);
-    int ReplaceFile(const std::vector< std::string > &fileNames);
+    int SetFileName(const std::string &fileName);
+    int CreateFileNameList(); // Call after SetDir.
 
+    int GetEntry(int entry);
+
+    int GetLumiSection( HCAL_HLX::LUMI_SECTION& section);
     int GetThreshold(HCAL_HLX::LUMI_THRESHOLD&   threshold);
     int GetHFRingSet(HCAL_HLX::LUMI_HF_RING_SET& ringSet);
     int GetL1Trigger(HCAL_HLX::LEVEL1_TRIGGER&   l1trigger);
     int GetHLT(HCAL_HLX::HLT& hlt);
     int GetTriggerDeadtime(HCAL_HLX::TRIGGER_DEADTIME& TD);
 
-    int GetEntry(int entry, HCAL_HLX::LUMI_SECTION& section);
-    int GetNumEntries();
-    int GetFirstSectionNumber(){ return firstSecNum_; }
+    unsigned int GetEntries();
     
   private:    
 
-    int CreateFileNameList( const std::string &runDir);
+    int ReplaceFile(const std::vector< std::string > &fileNames);
     void CreateTree();
 
-    unsigned int numEntries_;
-    unsigned int firstSecNum_;
-
-    TChain* mChain_;
+    TChain *mChain_;
 
     // Branches
     // LUMI_SECTION
@@ -65,8 +62,6 @@ namespace HCAL_HLX{
     TBranch *b_HLT;
     TBranch *b_TriggerDeadtime;
     TBranch *b_RingSet;
-
-
   };
 }
 
