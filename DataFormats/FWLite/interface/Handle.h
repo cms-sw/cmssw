@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.9 2008/09/23 15:52:48 chrjones Exp $
+// $Id: Handle.h,v 1.10 2008/09/23 16:34:41 dsr Exp $
 //
 
 // system include files
@@ -44,10 +44,18 @@ class Handle
       // very long expansions.  First noticed for the expansion
       // of reco::JetTracksAssociation::Container
       typedef edm::Wrapper<T> TempWrapT;
-
-   Handle() : data_(0), errorThrower_(ErrorThrower::unsetErrorThrower()) {}
+ 
+      Handle() : data_(0), errorThrower_(ErrorThrower::unsetErrorThrower()) {}
       ~Handle() { delete errorThrower_;}
 
+      Handle(const Handle<T>& iOther) : data_(iOther.data_),
+      errorThrower_( iOther.errorThrower_? iOther.errorThrower_->clone(): 0) {}
+   
+      const Handle<T>& operator=(const Handle<T>& iOther) {
+         Handle<T> temp(iOther);
+         swap(iOther);
+      }
+   
       // ---------- const member functions ---------------------
       bool isValid() const { return data_ != 0; }
    
@@ -166,14 +174,6 @@ class Handle
    private:
       void check() const { if(errorThrower_) { errorThrower_->throwIt();} }
 
-      Handle(const Handle<T>& iOther) 
-      : data_(iOther.data_),
-        errorThrower_( iOther.errorThrower_? iOther.errorThrower->clone(): 0) {}
-   
-      const Handle<T>& operator=(const Handle<T>& iOther) {
-         Handle<T> temp(iOther);
-         swap(iOther);
-      }
 
       // ---------- member data --------------------------------
       const T* data_;
