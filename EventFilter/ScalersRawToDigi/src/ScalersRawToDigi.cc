@@ -41,8 +41,8 @@ class ScalersRawToDigi : public edm::EDProducer
 // Constructor
 ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig)
 {
-  produces<L1TriggerScalers>();
-  produces<LumiScalers>();
+  produces<L1TriggerScalersCollection>();
+  produces<LumiScalersCollection>();
 }
 
 // Destructor
@@ -58,9 +58,9 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByLabel("source" , rawdata);
 
-  std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection(1));
+  std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
   std::auto_ptr<L1TriggerScalersCollection> 
-    pTrigger(new L1TriggerScalersCollection(1));
+    pTrigger(new L1TriggerScalersCollection());
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
