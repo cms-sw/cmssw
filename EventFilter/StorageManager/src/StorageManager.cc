@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.82 2008/09/16 07:52:02 biery Exp $
+// $Id: StorageManager.cc,v 1.83 2008/09/20 12:51:18 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -374,132 +374,139 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   if(status == 1)
   {
     char* regPtr = smrbsenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
-                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
+                                                msg->hltLocalId, msg->hltInstance,
+                                                msg->hltTid, dmoduleLabel, msg->fuID);
 
     if (regPtr != NULL) {
 
-    unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
-                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
+      unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
+                                                        msg->hltLocalId, msg->hltInstance,
+                                                        msg->hltTid, dmoduleLabel, msg->fuID);
 
-    // attempt to add the INIT message to our collection
-    // of INIT messages.  (This assumes that we have a full INIT message
-    // at this point.)  (In principle, this could be done in the
-    // FragmentCollector::processHeader method, but then how would we
-    // propogate errors back to this code?  If/when we move the collecting
-    // of INIT message fragments into FragmentCollector::processHeader,
-    // we'll have to solve that problem.
-    boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();
+      // attempt to add the INIT message to our collection
+      // of INIT messages.  (This assumes that we have a full INIT message
+      // at this point.)  (In principle, this could be done in the
+      // FragmentCollector::processHeader method, but then how would we
+      // propogate errors back to this code?  If/when we move the collecting
+      // of INIT message fragments into FragmentCollector::processHeader,
+      // we'll have to solve that problem.
+      boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();
 
-    InitMsgView testmsg(regPtr);
-    try
-    {
-      // TODO - couple the addIfUnique and getLastElement calls either with a
-      // change to the API or a mutex
-      if (initMsgCollection->addIfUnique(testmsg))
+      InitMsgView testmsg(regPtr);
+      try
       {
-        // if the addition of the INIT message to the collection worked,
-        // then we know that it is unique, etc. and we need to send it
-        // off to the Fragment Collector which passes it to the
-        // appropriate SM output stream(s)
-        InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
-        FDEBUG(9) << "Saved serialized registry for Event Server, size "
-                  << regSz << std::endl;
-        // queue for output
-        EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-        // don't have the correct run number yet
-        new (b.buffer()) stor::FragEntry(&(*serializedProds)[0], &(*serializedProds)[0], serializedProds->size(),
-                                         1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
-        b.commit(sizeof(stor::FragEntry));
-        // this is checked ok by default
-        smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
-
-        // add this output module to the monitoring
-        bool alreadyStoredOutMod = false;
-        std::string moduleLabel = testmsg.outputModuleLabel();
-        uint32 moduleId = testmsg.outputModuleId();
-        if(modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end())  alreadyStoredOutMod = true;
-        if(!alreadyStoredOutMod) {
-          modId2ModOutMap_.insert(std::make_pair(moduleId,moduleLabel));
-          receivedEventsMap_.insert(std::make_pair(moduleLabel,0));
-        }
-
-        // limit this (and other) interaction with the InitMsgCollection
-        // to a single thread so that we can present a coherent
-        // picture to consumers
-        boost::mutex::scoped_lock sl(consumerInitMsgLock_);
-
-        // check if any currently connected consumers did not specify
-        // an HLT output module label and we now have multiple, different,
-        // INIT messages.  If so, we need to complain because the
-        // SelectHLTOutput parameter needs to be specified when there
-        // is more than one HLT output module (and correspondingly, more
-        // than one INIT message)
-        if (initMsgCollection->size() > 1)
+        // TODO - couple the addIfUnique and getLastElement calls either with a
+        // change to the API or a mutex
+        if (initMsgCollection->addIfUnique(testmsg))
         {
-          boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
-          std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
-            eventServer->getConsumerTable();
-          std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
-            consumerIter;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               consumerIter++)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          // if the addition of the INIT message to the collection worked,
+          // then we know that it is unique, etc. and we need to send it
+          // off to the Fragment Collector which passes it to the
+          // appropriate SM output stream(s)
+          InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
+          FDEBUG(9) << "Saved serialized registry for Event Server, size "
+                    << regSz << std::endl;
+          // queue for output
+          EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
+          // don't have the correct run number yet
+          new (b.buffer()) stor::FragEntry(&(*serializedProds)[0], &(*serializedProds)[0], serializedProds->size(),
+                                           1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
+          b.commit(sizeof(stor::FragEntry));
+          // this is checked ok by default
+          smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+                                       msg->hltLocalId, msg->hltInstance,
+                                       msg->hltTid, dmoduleLabel, msg->fuID);
 
-            // for regular consumers, we need to test whether the consumer
-            // configuration specified an HLT output module
-            if (! consPtr->isProxyServer())
+          // add this output module to the monitoring
+          bool alreadyStoredOutMod = false;
+          std::string moduleLabel = testmsg.outputModuleLabel();
+          uint32 moduleId = testmsg.outputModuleId();
+          if(modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end())  alreadyStoredOutMod = true;
+          if(!alreadyStoredOutMod) {
+            modId2ModOutMap_.insert(std::make_pair(moduleId,moduleLabel));
+            receivedEventsMap_.insert(std::make_pair(moduleLabel,0));
+          }
+
+          // limit this (and other) interaction with the InitMsgCollection
+          // to a single thread so that we can present a coherent
+          // picture to consumers
+          boost::mutex::scoped_lock sl(consumerInitMsgLock_);
+
+          // check if any currently connected consumers did not specify
+          // an HLT output module label and we now have multiple, different,
+          // INIT messages.  If so, we need to complain because the
+          // SelectHLTOutput parameter needs to be specified when there
+          // is more than one HLT output module (and correspondingly, more
+          // than one INIT message)
+          if (initMsgCollection->size() > 1)
+          {
+            boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
+            std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+              eventServer->getConsumerTable();
+            std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+              consumerIter;
+            for (consumerIter = consumerTable.begin();
+                 consumerIter != consumerTable.end();
+                 consumerIter++)
             {
-              if (consPtr->getHLTOutputSelection().empty())
+              boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+
+              // for regular consumers, we need to test whether the consumer
+              // configuration specified an HLT output module
+              if (! consPtr->isProxyServer())
               {
-                // store a warning message in the consumer pipe to be
-                // sent to the consumer at the next opportunity
-                std::string errorString;
-                errorString.append("ERROR: The configuration for this ");
-                errorString.append("consumer does not specify an HLT output ");
-                errorString.append("module.\nPlease specify one of the HLT ");
-                errorString.append("output modules listed below as the ");
-                errorString.append("SelectHLTOutput parameter ");
-                errorString.append("in the InputSource configuration.\n");
-                errorString.append(initMsgCollection->getSelectionHelpString());
-                errorString.append("\n");
-                consPtr->setRegistryWarning(errorString);
+                if (consPtr->getHLTOutputSelection().empty())
+                {
+                  // store a warning message in the consumer pipe to be
+                  // sent to the consumer at the next opportunity
+                  std::string errorString;
+                  errorString.append("ERROR: The configuration for this ");
+                  errorString.append("consumer does not specify an HLT output ");
+                  errorString.append("module.\nPlease specify one of the HLT ");
+                  errorString.append("output modules listed below as the ");
+                  errorString.append("SelectHLTOutput parameter ");
+                  errorString.append("in the InputSource configuration.\n");
+                  errorString.append(initMsgCollection->getSelectionHelpString());
+                  errorString.append("\n");
+                  consPtr->setRegistryWarning(errorString);
+                }
               }
             }
           }
         }
+        else
+        {
+          // even though this INIT message wasn't added to the collection,
+          // it was still verified to be "OK" by virtue of the fact that
+          // there was no exception.
+          FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
+          smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+                                       msg->hltLocalId, msg->hltInstance,
+                                       msg->hltTid, dmoduleLabel, msg->fuID);
+        }
       }
-      else
+      catch(cms::Exception& excpt)
       {
-        // even though this INIT message wasn't added to the collection,
-        // it was still verified to be "OK" by virtue of the fact that
-        // there was no exception.
-        FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
-        smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
+        char tidString[32];
+        sprintf(tidString, "%d", msg->hltTid);
+        std::string logMsg = "receiveRegistryMessage: Error processing a ";
+        logMsg.append("registry message from URL ");
+        logMsg.append(msg->hltURL);
+        logMsg.append(" and Tid ");
+        logMsg.append(tidString);
+        logMsg.append(":\n");
+        logMsg.append(excpt.what());
+        logMsg.append("\n");
+        logMsg.append(initMsgCollection->getSelectionHelpString());
+        FDEBUG(9) << logMsg << std::endl;
+        LOG4CPLUS_ERROR(this->getApplicationLogger(), logMsg);
+
+        throw excpt;
       }
-    }
-    catch(cms::Exception& excpt)
-    {
-      char tidString[32];
-      sprintf(tidString, "%d", msg->hltTid);
-      std::string logMsg = "receiveRegistryMessage: Error processing a ";
-      logMsg.append("registry message from URL ");
-      logMsg.append(msg->hltURL);
-      logMsg.append(" and Tid ");
-      logMsg.append(tidString);
-      logMsg.append(":\n");
-      logMsg.append(excpt.what());
-      logMsg.append("\n");
-      logMsg.append(initMsgCollection->getSelectionHelpString());
-      FDEBUG(9) << logMsg << std::endl;
-      LOG4CPLUS_ERROR(this->getApplicationLogger(), logMsg);
 
-      throw excpt;
-    }
-
+      smrbsenders_.shrinkRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
+                                      msg->hltLocalId, msg->hltInstance,
+                                      msg->hltTid, dmoduleLabel, msg->fuID);
     }
     else {
       char tidString[32];
