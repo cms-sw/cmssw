@@ -172,6 +172,36 @@ HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
 
 }
 
+// ******** Configuration *******
+
+void HCAL_HLX::HTMLGenerator::SetEtSumOnly( const bool bEtSumOnly ){
+  bEtSumOnly_ = bEtSumOnly;
+  RFReader_->SetEtSumOnly( bEtSumOnly );
+}
+
+void HCAL_HLX::HTMLGenerator::SetHistoBins(unsigned int NBins, double XMin, double XMax){
+
+  NBins_ = NBins;
+
+  if( XMax < XMin){
+    XMax_ = XMin;
+    XMin_ = XMax;
+  }else{
+    XMax_ = XMax;
+    XMin_ = XMin;
+  }
+
+  for( unsigned int iHisto = 0; iHisto < 8; ++iHisto){
+    HLXHistos_[iHisto]->SetBins(NBins_, XMin_, XMax_);
+  }
+  ETLumiHisto_->SetBins(NBins_, XMin_, XMax_);
+  OccLumiSet1Histo_->SetBins(NBins_, XMin_, XMax_);
+  OccLumiSet2Histo_->SetBins(NBins_, XMin_, XMax_);
+
+  BinWidth_ = (unsigned int )(XMax_ - XMin_)/NBins_;
+
+}
+
 // ******** Main function ****** 
 void HCAL_HLX::HTMLGenerator::CreateWebPage(const std::string &fileName, const unsigned int iEntry){
  
@@ -194,7 +224,9 @@ void HCAL_HLX::HTMLGenerator::CreateWebPage(const std::string &fileName, const u
   GenerateComparePlots();
   GenerateComparePage();
 
-  GenerateLumiPage();
+  if( !bEtSumOnly_ ){
+    GenerateLumiPage();
+  }
 
   for(unsigned int iHisto = 0; iHisto < 8; ++iHisto){
     GenerateHistoGroupPage(HistoNames[iHisto]);
@@ -208,10 +240,12 @@ void HCAL_HLX::HTMLGenerator::CreateWebPage(const std::string &fileName, const u
 // *********** Set Functions *************
 
 void HCAL_HLX::HTMLGenerator::SetInputDir(const std::string &inDir ){
+
   RFReader_->SetDir( inDir );
 }
 
 void HCAL_HLX::HTMLGenerator::SetFileType( const std::string &fileType){
+
   RFReader_->SetFileType( fileType );
 }
 
@@ -280,7 +314,6 @@ void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
     previousRunNumber = lumiSection_->hdr.runNumber;
     InsertLineBefore( fileName, runLine.str(), "</body>"); 
   }
-
 }
 
 void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
@@ -325,14 +358,20 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "</title>" << std::endl; 
   fileStr << "<body>" << std::endl;
   
-  for(int unsigned iHisto = 0; iHisto < 8; ++iHisto){
-    fileStr << "<a href=\"" 
-	    << HistoNames[iHisto] 
-	    << "/index.html\" >" 
-	    << HistoNames[iHisto] <<  "</a></br>" << std::endl;
-  }
+  fileStr << "<a href=\"" 
+	  << HistoNames[0] 
+	  << "/index.html\" >" 
+	  << HistoNames[0] <<  "</a></br>" << std::endl;
 
-  fileStr << "<a href=\"Luminosity/index.html\">Luminosity</a>" << std::endl;
+  if( !bEtSumOnly_ ){
+    for(int unsigned iHisto = 1; iHisto < 8; ++iHisto){
+      fileStr << "<a href=\"" 
+	      << HistoNames[iHisto] 
+	      << "/index.html\" >" 
+	      << HistoNames[iHisto] <<  "</a></br>" << std::endl;
+    }
+    fileStr << "<a href=\"Luminosity/index.html\">Luminosity</a>" << std::endl;
+  }
 
   fileStr << "</br>" << std::endl;
   fileStr << "</br>" << std::endl;
@@ -341,126 +380,130 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "Summary" << std::endl;
   fileStr << "<hr>" << std::endl;
 
-  // Summary Plots
-  // Et Sum Summary
   c1_->cd();
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(1);
 
+  // Et Sum Summary
   EtSummary_->Reset();
   MaxEtSummary_->Reset();
-  MaxLHCSummary_->Reset();
-  float MaxAvgEt = 0.0;
-  float MinAvgEt = 1000000000.0;
 
-  for( int iHLX = 0; iHLX < 36; ++iHLX){
-    float MaxEt = -1;
+  float MaxAvgEt = 0.0;
+  float MinAvgEt = 1000000000.0; 
+  for( unsigned int iHLX = 0; iHLX < 36; ++iHLX ){
+
+    float MaxEt = -1.0;
     unsigned int MaxEtBX = 0;
-    float MaxLHC = -1;
-    unsigned int MaxLHCBX = 0;
     float AvgEtSum = 0.0;
-    for( int iBX = 100; iBX < 3500; ++iBX){
+
+    for( unsigned int iBX = static_cast<unsigned int>(XMin_); iBX < XMax_; ++iBX){
+      // Total Et Sum from all BX for each HLX.
       AvgEtSum += lumiSection_->etSum[iHLX].data[iBX];
+      
+      // Find the BX with the max Et sum for each HLX.
       if( lumiSection_->etSum[iHLX].data[iBX] > MaxEt ){
 	MaxEt = lumiSection_->etSum[iHLX].data[iBX];
 	MaxEtBX = iBX;
       }
-      
-      if( lumiSection_->lhc[iHLX].data[iBX] > MaxLHC ){
-	MaxLHC = lumiSection_->lhc[iHLX].data[iBX];
-	MaxLHCBX = iBX;
-      }
+    }    
+    // Divide by the number of bunch crossings times the number of orbits
+    // to get the average et sum per wedge.
+    AvgEtSum /= ((XMax_ - XMin_)*lumiSection_->hdr.numOrbits);
 
-    }
+    if( AvgEtSum > MaxAvgEt ) MaxAvgEt = AvgEtSum;
+    if( AvgEtSum < MinAvgEt ) MinAvgEt = AvgEtSum;
 
-    AvgEtSum /= (3400.0*lumiSection_->hdr.numOrbits);
-
-    if( AvgEtSum > MaxAvgEt ){
-      MaxAvgEt = AvgEtSum;
-    }
-    if( AvgEtSum < MinAvgEt ){
-      MinAvgEt = AvgEtSum;
-    }
-    EtSummary_->Fill( iEta_[iHLX], iPhi_[iHLX], AvgEtSum );
+    EtSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], AvgEtSum );
     EtSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], AvgEtSum );
-    
+
     MaxEtSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], MaxEtBX );
     MaxEtSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxEtBX );
-    
-    MaxLHCSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], MaxLHCBX );
-    MaxLHCSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxLHCBX );
   }
 
-  gStyle->SetOptStat(0);
-  gStyle->SetPalette(1);
+  fileStr << "<img src=\"EtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
+  fileStr << "<img src=\"MaxEtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
 
   std::string picName = outputDir_ + GetRunDir() + GetLSDir() + "EtSummary." + plotExt_;
   EtSummary_->GetZaxis()->SetRangeUser( MinAvgEt - 0.0000001, MaxAvgEt + 0.0000001 );
   EtSummary_->Draw("colz");
   c1_->SaveAs(picName.c_str());
-
+  
   picName = outputDir_ + GetRunDir() + GetLSDir() + "MaxEtSummary." + plotExt_;
   MaxEtSummary_->GetZaxis()->SetRangeUser( 0, 3564 );
   MaxEtSummary_->Draw("colz");
   c1_->SaveAs(picName.c_str());
-
-  picName = outputDir_ + GetRunDir() + GetLSDir() + "MaxLHCSummary." + plotExt_;
-  MaxLHCSummary_->GetZaxis()->SetRangeUser( 0, 3564 );
-  MaxLHCSummary_->Draw("colz");
-  c1_->SaveAs(picName.c_str());
-
-  // Occupancy Summary
-  OccSummary_->Reset();
-  float MaxOcc = 0.0;
-  float MinOcc = 1000000000.0;
-
-  for( int iHLX = 0; iHLX < 36; ++iHLX){
-    float AvgOccSet1 = 0.0;
-    float AvgOccSet2 = 0.0;
+  
+  if( !bEtSumOnly_ ){
+    // LHC and Occ Summary
+    MaxLHCSummary_->Reset();
+    OccSummary_->Reset();
     
-    for( int iBX = 100; iBX < 3500; ++iBX){ 
-      AvgOccSet1 += lumiSection_->occupancy[iHLX].data[0][iBX];
-      AvgOccSet2 += lumiSection_->occupancy[iHLX].data[3][iBX];
+    float MaxOcc = 0.0;
+    float MinOcc = 1000000000.0;
+    
+    for( int iHLX = 0; iHLX < 36; ++iHLX){
+      float MaxLHC = -1;
+      unsigned int MaxLHCBX = 0;
+      
+      // Find average occupancy.
+      float AvgOccSet1 = 0.0;
+      float AvgOccSet2 = 0.0;
+      
+      for( int iBX = 100; iBX < 3500; ++iBX){ 
+	AvgOccSet1 += lumiSection_->occupancy[iHLX].data[0][iBX];
+	AvgOccSet2 += lumiSection_->occupancy[iHLX].data[3][iBX];
+	if( lumiSection_->lhc[iHLX].data[iBX] > MaxLHC ){
+	  MaxLHC = lumiSection_->lhc[iHLX].data[iBX];
+	  MaxLHCBX = iBX;
+	}
+      }
+      
+      AvgOccSet1 /= (3400.0*lumiSection_->hdr.numOrbits);
+      AvgOccSet2 /= (3400.0*lumiSection_->hdr.numOrbits);
+      
+      // Find the range of occupancy set 1.
+      if( AvgOccSet1 > MaxOcc ){
+	MaxOcc = AvgOccSet1;
+      }
+      if( AvgOccSet1 < MinOcc ){
+	MinOcc = AvgOccSet1;
+      }
+      
+      // Find the range of occupancy set 1.
+      if( AvgOccSet2 > MaxOcc ){
+	MaxOcc = AvgOccSet2;
+      }
+      if( AvgOccSet1 < MinOcc ){
+	MinOcc = AvgOccSet1;
+      }
+    
+      if( iEta_[iHLX] > 0 ){
+	OccSummary_->Fill( iEta_[iHLX] +7 , iPhi_[iHLX], AvgOccSet1 );
+	OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet2 );
+      }
+      
+      if( iEta_[iHLX] < 0 ){
+	OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet1 );
+	OccSummary_->Fill( iEta_[iHLX] + 7, iPhi_[iHLX], AvgOccSet2 );
+      }
+      
+      MaxLHCSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], MaxLHCBX );
+      MaxLHCSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxLHCBX );
     }
 
-    AvgOccSet1 /= (3400.0*lumiSection_->hdr.numOrbits);
-    AvgOccSet2 /= (3400.0*lumiSection_->hdr.numOrbits);
+    picName = outputDir_ + GetRunDir() + GetLSDir() + "MaxLHCSummary." + plotExt_;
+    MaxLHCSummary_->GetZaxis()->SetRangeUser( 0, 3564 );
+    MaxLHCSummary_->Draw("colz");
+    c1_->SaveAs(picName.c_str());
+    
+    picName = outputDir_ + GetRunDir() + GetLSDir() + "OccSummary.png";
+    OccSummary_->GetZaxis()->SetRangeUser( MinOcc - 0.0000001, MaxOcc + 0.0000001 );
+    OccSummary_->Draw("colz");
+    c1_->SaveAs(picName.c_str());
 
-    if( AvgOccSet1 > MaxOcc ){
-      MaxOcc = AvgOccSet1;
-    }
-    if( AvgOccSet1 < MinOcc ){
-      MinOcc = AvgOccSet1;
-    }
-
-    if( AvgOccSet2 > MaxOcc ){
-      MaxOcc = AvgOccSet2;
-    }
-    if( AvgOccSet1 < MinOcc ){
-      MinOcc = AvgOccSet1;
-    }
-
-    // Reset then fill.
-
-    if( iEta_[iHLX] > 0 ){
-      OccSummary_->Fill( iEta_[iHLX] +7 , iPhi_[iHLX], AvgOccSet1 );
-      OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet2 );
-    }
-
-    if( iEta_[iHLX] < 0 ){
-      OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet1 );
-      OccSummary_->Fill( iEta_[iHLX] + 7, iPhi_[iHLX], AvgOccSet2 );
-    }
-
+    fileStr << "<img src=\"OccSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
+    fileStr << "<img src=\"MaxLHCSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
   }
-
-  picName = outputDir_ + GetRunDir() + GetLSDir() + "OccSummary.png";
-  OccSummary_->GetZaxis()->SetRangeUser( MinOcc - 0.0000001, MaxOcc + 0.0000001 );
-  OccSummary_->Draw("colz");
-  c1_->SaveAs(picName.c_str());
-
-  fileStr << "<img src=\"EtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
-  fileStr << "<img src=\"OccSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
-  fileStr << "<img src=\"MaxEtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
-  fileStr << "<img src=\"MaxLHCSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
 
   fileStr << "<hr>" << std::endl;  
   fileStr << "<H2>" << std::endl;
@@ -468,6 +511,7 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "<hr>" << std::endl;
   fileStr << "</H2>" << std::endl;
   fileStr << "<H3>" << std::endl;
+  fileStr << "<verbatim>" << std::endl;
 
   for(unsigned int iHLX = 0; iHLX < 36; ++iHLX){
     fileStr << "<a href=\"HLX" 
@@ -476,52 +520,38 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
 	    << HLXToHFMap_[iHLX]
 	    << "</a> </br>" << std::endl;
   }
-  
+
+  fileStr << "</verbatim>" << std::endl;  
   fileStr << "</H3>" << std::endl;
 
+
+  
+  // Create HTML map.  Get it to scale.....
+  unsigned int HFPlusLeftEdge   = 532;
+  unsigned int HFPlusRightEdge  = 625;
+  unsigned int HFMinusLeftEdge  = 70;
+  unsigned int HFMinusRightEdge = 160;
+  
+  unsigned int BoxTop = 47;
+  unsigned int BoxHeight = 20;
+
+  unsigned int HTMLMap_[] = { 5,4,3,2,1,0,
+			      17,16,15,14,13,12,
+			      29,28,27,26,25,24,
+			      11,10,9,8,7,6,
+			      23,22,21,20,19,18,
+			      35,34,33,32,31,30 };
+
   fileStr << "<map name='HLXSummary'>" << std::endl;
+  for( unsigned int iBox = 0; iBox < 18; ++iBox ){
+    fileStr << "<area shape='rect' coords='" << HFMinusLeftEdge << "," << BoxTop + iBox*(BoxHeight + 1)
+	    << "," << HFMinusRightEdge << "," << BoxTop + (iBox + 1)*(BoxHeight + 1) -1 << "' href='HLX" 
+	    << std::setw(2) << std::setfill('0') << HTMLMap_[iBox] << "/index.html' >" << std::endl;
 
-  fileStr << "<area shape='rect' coords='70,47,160,68' href='HLX05/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,69,160,89' href='HLX04/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,90,160,110' href='HLX03/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,111,160,131' href='HLX02/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,132,160,152' href='HLX01/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,153,160,173' href='HLX00/index.html' >" << std::endl;
-
-  fileStr << "<area shape='rect' coords='70,174,160,194' href='HLX17/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,195,160,215' href='HLX16/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,216,160,236' href='HLX15/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,238,160,257' href='HLX14/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,258,160,278' href='HLX13/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,279,160,299' href='HLX12/index.html' >" << std::endl;
-
-  fileStr << "<area shape='rect' coords='70,300,160,320' href='HLX29/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,321,160,341' href='HLX28/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,342,160,362' href='HLX27/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,363,160,383' href='HLX26/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,384,160,404' href='HLX25/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='70,404,160,425' href='HLX24/index.html' >" << std::endl;
-
-  fileStr << "<area shape='rect' coords='532,47,625,68' href='HLX11/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,69,625,89' href='HLX10/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,90,625,110' href='HLX09/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,111,625,131' href='HLX08/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,132,625,152' href='HLX07/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,153,625,173' href='HLX06/index.html' >" << std::endl;
-
-  fileStr << "<area shape='rect' coords='532,174,625,194' href='HLX23/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,195,625,215' href='HLX22/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,216,625,236' href='HLX21/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,238,625,257' href='HLX20/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,258,625,278' href='HLX19/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,279,625,299' href='HLX18/index.html' >" << std::endl;
-
-  fileStr << "<area shape='rect' coords='532,300,625,320' href='HLX35/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,321,625,341' href='HLX34/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,342,625,362' href='HLX33/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,363,625,383' href='HLX32/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,384,625,404' href='HLX31/index.html' >" << std::endl;
-  fileStr << "<area shape='rect' coords='532,404,625,425' href='HLX30/index.html' >" << std::endl;
+    fileStr << "<area shape='rect' coords='" << HFPlusLeftEdge << "," << BoxTop + iBox*(BoxHeight + 1)
+	    << "," << HFPlusRightEdge << "," << BoxTop + (iBox + 1)*(BoxHeight + 1) -1 << "' href='HLX"
+	    << std::setw(2) << std::setfill('0') << HTMLMap_[iBox + 18] << "/index.html' >" << std::endl;
+  }
 
   fileStr << "</map>" << std::endl;
 
@@ -529,13 +559,11 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "</html>" << std::endl;
 
   fileStr.close();
-
 }
 
 void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
 
   // make HLX directory
-
   std::stringstream fileName;
   fileName.str(std::string());
   fileName << outputDir_ << GetRunDir() << GetLSDir() << GetHLXDir(HLXID)  << "index.html";
@@ -562,44 +590,37 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
   fileStr << "</H1>" << std::endl;
   fileStr << "<hr>" << std::endl;
 
-  fileStr << "<a href=\"Pics/"<< HistoNames[0] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[0] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl; 
-  fileStr << "<a href=\"Pics/"<< HistoNames[7] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[7] << "." << plotExt_ << "\" width=\"30%\"></a></br>"<< std::endl; 
-
-  fileStr << "<a href=\"Pics/"<< HistoNames[1] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[1] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
-  fileStr << "<a href=\"Pics/"<< HistoNames[2] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[2] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl; 
-  fileStr << "<a href=\"Pics/"<< HistoNames[3] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[3] << "." << plotExt_ << "\" width=\"30%\"></a></br>" << std::endl;
-
-  fileStr << "<a href=\"Pics/"<< HistoNames[4] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[4] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
-  fileStr << "<a href=\"Pics/"<< HistoNames[5] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[5] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
-  fileStr << "<a href=\"Pics/"<< HistoNames[6] << "." << plotExt_ << "\"><img src=\"Pics/" << HistoNames[6] << "." << plotExt_ << "\" width=\"30%\"></a></br>"<< std::endl;
+  // Et Sum
+  fileStr << "<a href=\"Pics/"<< HistoNames[0] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	  << HistoNames[0] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
+  
+  if( !bEtSumOnly_ ){
+    // LHC
+    fileStr << "<a href=\"Pics/"<< HistoNames[7] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[7] << "." << plotExt_ << "\" width=\"30%\"></a></br>"<< std::endl; 
+    
+    // Occupancy Set 1
+    fileStr << "<a href=\"Pics/"<< HistoNames[1] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[1] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
+    fileStr << "<a href=\"Pics/"<< HistoNames[2] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[2] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl; 
+    fileStr << "<a href=\"Pics/"<< HistoNames[3] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[3] << "." << plotExt_ << "\" width=\"30%\"></a></br>" << std::endl;
+    
+    // Occupancy Set 2
+    fileStr << "<a href=\"Pics/"<< HistoNames[4] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[4] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
+    fileStr << "<a href=\"Pics/"<< HistoNames[5] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[5] << "." << plotExt_ << "\" width=\"30%\"></a>"     << std::endl;
+    fileStr << "<a href=\"Pics/"<< HistoNames[6] << "." << plotExt_ << "\"><img src=\"Pics/" 
+	    << HistoNames[6] << "." << plotExt_ << "\" width=\"30%\"></a></br>"<< std::endl;
+  }
 
   fileStr << "</body>" << std::endl;
   fileStr << "</html>" << std::endl;  
   fileStr.close();
 }
 
-void HCAL_HLX::HTMLGenerator::SetHistoBins(unsigned int NBins, double XMin, double XMax){
-
-  NBins_ = NBins;
-
-  if( XMax < XMin){
-    XMax_ = XMin;
-    XMin_ = XMax;
-  }else{
-    XMax_ = XMax;
-    XMin_ = XMin;
-  }
-
-  for( unsigned int iHisto = 0; iHisto < 8; ++iHisto){
-    HLXHistos_[iHisto]->SetBins(NBins_, XMin_, XMax_);
-  }
-  ETLumiHisto_->SetBins(NBins_, XMin_, XMax_);
-  OccLumiSet1Histo_->SetBins(NBins_, XMin_, XMax_);
-  OccLumiSet2Histo_->SetBins(NBins_, XMin_, XMax_);
-
-  BinWidth_ = (unsigned int )(XMax_ - XMin_)/NBins_;
-
-}
 
 void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID){
 
@@ -610,33 +631,38 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
     HistoTitle << HistoNames[iHisto] << " - " << HLXToHFMap_[HLXID];
     HLXHistos_[iHisto]->SetTitle(HistoTitle.str().c_str());
   }
-
-  double EtSumNoise[4];
   
-  EtSumNoise[0] = 0;
-  EtSumNoise[1] = 0;
-  EtSumNoise[2] = 0;
-  EtSumNoise[3] = 0;
-
-  // The noise range is arbitrary
-  for( unsigned int iBX = 2750; iBX < 3250; ++iBX ){
-    EtSumNoise[iBX % 4] += lumiSection_->etSum[HLXID].data[iBX];
-  }
-  
-  EtSumNoise[0] /= 125.0;
-  EtSumNoise[1] /= 125.0;
-  EtSumNoise[2] /= 125.0;
-  EtSumNoise[3] /= 125.0;
-
-  for(unsigned int iBX = 0; iBX < 3564; ++iBX ){
-   
-    HLXHistos_[7]->Fill( iBX, lumiSection_->lhc[HLXID].data[iBX]);
-   
-    if( lumiSection_->hdr.numOrbits > 0){
+  if( lumiSection_->hdr.numOrbits > 0 ){
+    
+    double EtSumNoise[4];
+    
+    EtSumNoise[0] = 0;
+    EtSumNoise[1] = 0;
+    EtSumNoise[2] = 0;
+    EtSumNoise[3] = 0;
+    
+    // The noise range is arbitrary.
+    for( unsigned int iBX = 2750; iBX < 3250; ++iBX ){
+      EtSumNoise[iBX % 4] += lumiSection_->etSum[HLXID].data[iBX];
+    }
+    
+    EtSumNoise[0] /= 125.0;
+    EtSumNoise[1] /= 125.0;
+    EtSumNoise[2] /= 125.0;
+    EtSumNoise[3] /= 125.0;
+    
+    for(unsigned int iBX = 0; iBX < 3564; ++iBX ){
+      
       HLXHistos_[0]->Fill( iBX, (lumiSection_->etSum[HLXID].data[iBX] - EtSumNoise[iBX % 4]) / (float)(lumiSection_->hdr.numOrbits));
-       
-      for(int k = 0; k < 6; k++){
-	HLXHistos_[k+1]->Fill(iBX, ((float)(lumiSection_->occupancy[HLXID].data[k][iBX]) / (float)(lumiSection_->hdr.numOrbits)));
+    }
+    
+    if( !bEtSumOnly_ ){
+      for(unsigned int iBX = 0; iBX < 3564; ++iBX ){
+	HLXHistos_[7]->Fill( iBX, lumiSection_->lhc[HLXID].data[iBX]);
+	
+	for(unsigned int k = 0; k < 6; ++k){
+	  HLXHistos_[k+1]->Fill(iBX, ((float)(lumiSection_->occupancy[HLXID].data[k][iBX]) / (float)(lumiSection_->hdr.numOrbits)));
+	}
       }
     }
   }
@@ -646,10 +672,19 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
   //c1->SetLogy();
   // Draw Histograms and make pngs
   c1_->cd();
-  for(unsigned int iHisto = 0; iHisto < 8; ++iHisto ){
-    HLXHistos_[iHisto]->Draw();
-    std::string plotFileName =  HLXPicsDir +  HistoNames[ iHisto ] + "." + plotExt_;
-    c1_->SaveAs(plotFileName.c_str());
+
+  // Draw and save Et Sum histogram.
+  HLXHistos_[0]->Draw();
+  std::string plotFileName =  HLXPicsDir +  HistoNames[0 ] + "." + plotExt_;
+  c1_->SaveAs(plotFileName.c_str());
+
+  // Draw and save LHC and occupancy histograms.
+  if( !bEtSumOnly_ ){
+    for(unsigned int iHisto = 1; iHisto < 8; ++iHisto ){
+      HLXHistos_[iHisto]->Draw();
+      std::string plotFileName =  HLXPicsDir +  HistoNames[ iHisto ] + "." + plotExt_;
+      c1_->SaveAs(plotFileName.c_str());
+    }
   }
 }
 
@@ -767,5 +802,4 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
 
    OccLumiSet2Histo_->Draw();
    c1_->SaveAs( (pageDir + "/Pics/OccLumiSet2.png").c_str() );
-
 }

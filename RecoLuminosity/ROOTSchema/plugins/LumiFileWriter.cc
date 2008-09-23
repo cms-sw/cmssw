@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.5 2008/09/17 23:18:24 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.6 2008/09/23 08:18:48 ahunt Exp $
 //
 //
 
@@ -28,11 +28,11 @@
 // CMSSW
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// system include files
+// STL
 #include <iostream>
 
 LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
@@ -44,7 +44,6 @@ LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
    reconTime               = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",60);
 
    HLXTCP_ = new HCAL_HLX::TCPReceiver( listenPort, DistribIP, AquireMode );
-
    LumiSchema_ = new HCAL_HLX::ROOTSchema();
 
    // ROOTFileWriter configuration

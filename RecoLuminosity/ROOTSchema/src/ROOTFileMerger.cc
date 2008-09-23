@@ -2,8 +2,6 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
  
-
-#include <iostream>
 #include <iomanip>
 #include <cstdio>
 
@@ -54,9 +52,6 @@ HCAL_HLX::ROOTFileMerger::~ROOTFileMerger(){
 }
 
 bool HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, const unsigned int minSectionNumber ){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
 
     /*
       TChain::Merge and TTree::CloneTree leak because we used TTree::Bronch to create the tree.

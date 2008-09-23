@@ -28,7 +28,7 @@ namespace HCAL_HLX{
 
     void SetInputDir(  const std::string &inputDir);
     void SetOutputDir( const std::string &outDir){ outputDir_ = outDir; }
-    void SetEtSumOnly( const bool bEtSumOnly ){ bEtSumOnly_ = bEtSumOnly; }
+    void SetEtSumOnly( const bool bEtSumOnly );
     void SetHistoBins( unsigned int NBins, double XMin, double XMax);
     void SetFileType(  const std::string &fileType );
 

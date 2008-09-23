@@ -1,6 +1,5 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileTransfer.h"
 #include <sstream>
-#include <iostream>
 
 HCAL_HLX::ROOTFileTransfer::ROOTFileTransfer():fileName_(""),
 					       dirName_(""),
@@ -16,7 +15,7 @@ void HCAL_HLX::ROOTFileTransfer::SetFileType( const std::string &fileType ){
 }
 
 int HCAL_HLX::ROOTFileTransfer::TransferFile(){
-
+  
   int errorCode;
   std::stringstream commandLine;
 

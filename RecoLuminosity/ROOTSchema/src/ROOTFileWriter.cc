@@ -1,7 +1,6 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
 
 #include <sstream>
-#include <iostream>
 #include <typeinfo>
 #include <iomanip>
 #include <vector>

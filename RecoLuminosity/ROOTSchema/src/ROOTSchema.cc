@@ -20,16 +20,11 @@ The worker layer does not do any error checking.  This is called by the user lay
 
 #include <iomanip>
 
-HCAL_HLX::ROOTSchema::ROOTSchema():RFMerger_(NULL),
-				   RFTransfer_(NULL),
-				   LumiHTML_(NULL),
-				   RFWriter_(NULL),
-				   previousRun_(0),
-				   firstSectionNumber_(0),
+HCAL_HLX::ROOTSchema::ROOTSchema():RFMerger_(NULL), RFTransfer_(NULL),
+				   LumiHTML_(NULL), RFWriter_(NULL),
+				   previousRun_(0), firstSectionNumber_(0),
 				   startTime_(0),
-				   bMerge_(0),
-				   bWBM_(0),
-				   bTransfer_(0),
+				   bMerge_(0), bWBM_(0), bTransfer_(0),
 				   bEtSumOnly_(false),
 				   fileType_("RAW"),
 				   lsDir_(""),
@@ -89,34 +84,14 @@ HCAL_HLX::ROOTSchema::~ROOTSchema(){
 
 void HCAL_HLX::ROOTSchema::SetEtSumOnly(const bool bEtSumOnly){
   
-  if( bEtSumOnly_ != bEtSumOnly ){
-
-    bEtSumOnly_ = bEtSumOnly;
-
-    if( bEtSumOnly_ && fileType_ != "ET" ){
-      fileType_ = "ET";
-    }
-    if( !bEtSumOnly_ && fileType_ == "ET" ){
-      fileType_ = "RAW"; // Default to RAW.
-    }
-
-    RFWriter_->SetEtSumOnly( bEtSumOnly_ );
-    RFMerger_->SetEtSumOnly( bEtSumOnly_ );
-    LumiHTML_->SetEtSumOnly( bEtSumOnly_ );
-    RFTransfer_->SetEtSumOnly( bEtSumOnly_ );
-
-    RFWriter_->SetFileType(fileType_);
-    RFMerger_->SetFileType(fileType_);
-    LumiHTML_->SetFileType(fileType_);
-    RFTransfer_->SetFileType(fileType_);
-  }
+  bEtSumOnly_ = bEtSumOnly;
 }
 
 void HCAL_HLX::ROOTSchema::SetFileType( const std::string &fileType ){
 
-  if( fileType_ == fileType ){
+  if( fileType_ != fileType ){
     fileType_ = fileType;
-    if( !( fileType_ == "RAW" || fileType_ == "VDM" || fileType_ == "ET" )){
+    if(  (fileType_ != "RAW") && (fileType_ != "VDM") && (fileType_ != "ET") ){
       fileType_ = "RAW";  // Default to RAW.
     }
     
@@ -136,7 +111,9 @@ void HCAL_HLX::ROOTSchema::SetFileType( const std::string &fileType ){
     LumiHTML_->SetFileType(fileType_);
     RFMerger_->SetFileType(fileType_);
     RFTransfer_->SetFileType(fileType_);
+
   }
+
 }
 
 // ******** LS Writer *********
@@ -199,11 +176,8 @@ void HCAL_HLX::ROOTSchema::SetHistoBins(const int NBins, const double XMin, cons
 bool HCAL_HLX::ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSection){
 
   if( (previousRun_) != (lumiSection.hdr.runNumber) ){
-
-    if( previousRun_ != 0 ){
-      EndRun();
-    }
-
+    EndRun();
+    
     // Keep track of run information.
     previousRun_        = lumiSection.hdr.runNumber;
     firstSectionNumber_ = lumiSection.hdr.sectionNumber;
@@ -224,6 +198,7 @@ bool HCAL_HLX::ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSect
     RFMerger_->SetInputDir(  lsDir_ + dateDir_ + runDir_ );
     RFMerger_->SetOutputDir( mergeDir_ + dateDir_ );
     LumiHTML_->SetInputDir(  lsDir_ + dateDir_ + runDir_ );
+    RFTransfer_->SetInputDir( mergeDir_ + dateDir_ );
   }
 
   // Write individual lumi section files.
@@ -246,6 +221,7 @@ void HCAL_HLX::ROOTSchema::EndRun(){
       
       if( bTransfer_ ){
 	RFTransfer_->SetFileName( RFMerger_->GetOutputFileName());
+	RFTransfer_->TransferFile();
       }
     }
     previousRun_ = 0;

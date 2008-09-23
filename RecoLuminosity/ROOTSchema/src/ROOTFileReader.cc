@@ -99,9 +99,10 @@ void HCAL_HLX::ROOTFileReader::CreateTree(){
 
   mChain_->SetBranchAddress("Header.",  &Header_,  &b_Header);
 
-  mChain_->SetBranchAddress("Summary.", &Summary_, &b_Summary);
-  mChain_->SetBranchAddress("Detail.",  &Detail_,  &b_Detail);
-
+  if( !bEtSumOnly_ ){
+    mChain_->SetBranchAddress("Summary.", &Summary_, &b_Summary);
+    mChain_->SetBranchAddress("Detail.",  &Detail_,  &b_Detail);
+  }
 
   for(unsigned int iHLX = 0; iHLX < 36; ++iHLX){
     std::stringstream branchName;
@@ -111,25 +112,28 @@ void HCAL_HLX::ROOTFileReader::CreateTree(){
     branchName << "ETSum" << std::setw(2) << std::setfill('0') << iHLX << ".";
     mChain_->SetBranchAddress(branchName.str().c_str(), &EtSumPtr_[iHLX], &b_ETSum[iHLX]);
 
-    OccupancyPtr_[iHLX] = &(lumiSection_->occupancy[iHLX]);
-    branchName.str(std::string());
-    branchName << "Occupancy" << std::setw(2) << std::setfill('0') << iHLX << ".";
-    mChain_->SetBranchAddress(branchName.str().c_str(), &OccupancyPtr_[iHLX], &b_Occupancy[iHLX]);
-    
-    LHCPtr_[iHLX] = &(lumiSection_->lhc[iHLX]);
-    branchName.str(std::string());
-    branchName << "LHC" << std::setw(2) << std::setfill('0') << iHLX << ".";
-    mChain_->SetBranchAddress(branchName.str().c_str(), &LHCPtr_[iHLX], &b_LHC[iHLX]);
-    
+    if( !bEtSumOnly_ ){
+      OccupancyPtr_[iHLX] = &(lumiSection_->occupancy[iHLX]);
+      branchName.str(std::string());
+      branchName << "Occupancy" << std::setw(2) << std::setfill('0') << iHLX << ".";
+      mChain_->SetBranchAddress(branchName.str().c_str(), &OccupancyPtr_[iHLX], &b_Occupancy[iHLX]);
+      
+      LHCPtr_[iHLX] = &(lumiSection_->lhc[iHLX]);
+      branchName.str(std::string());
+      branchName << "LHC" << std::setw(2) << std::setfill('0') << iHLX << ".";
+      mChain_->SetBranchAddress(branchName.str().c_str(), &LHCPtr_[iHLX], &b_LHC[iHLX]);
+    }
+
   }
 
   // OTHER
-  mChain_->SetBranchAddress("Threshold.",        &Threshold_,       &b_Threshold);
-  mChain_->SetBranchAddress("Level1_Trigger.",   &L1Trigger_,       &b_L1Trigger);
-  mChain_->SetBranchAddress("HLT.",              &HLT_,             &b_HLT);
-  mChain_->SetBranchAddress("Trigger_Deadtime.", &TriggerDeadtime_, &b_TriggerDeadtime);
-  mChain_->SetBranchAddress("HF_Ring_Set.",      &RingSet_,         &b_RingSet);
-
+  if( !bEtSumOnly_ ){
+    mChain_->SetBranchAddress("Threshold.",        &Threshold_,       &b_Threshold);
+    mChain_->SetBranchAddress("Level1_Trigger.",   &L1Trigger_,       &b_L1Trigger);
+    mChain_->SetBranchAddress("HLT.",              &HLT_,             &b_HLT);
+    mChain_->SetBranchAddress("Trigger_Deadtime.", &TriggerDeadtime_, &b_TriggerDeadtime);
+    mChain_->SetBranchAddress("HF_Ring_Set.",      &RingSet_,         &b_RingSet);
+  }
 }
 
 unsigned int HCAL_HLX::ROOTFileReader::GetEntries(){
