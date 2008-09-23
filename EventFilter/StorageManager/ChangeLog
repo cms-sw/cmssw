@@ -1,3 +1,13 @@
+2008-09-23  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-16
+	* Reduced the number of copies of INIT messages kept in memory.
+	  This should eliminate the out-of-memory crashes that we have
+	  observed when testing with large numbers of filter units and
+	  a large HLT configuration. (Crashes were seen when the RBSender
+	  web page was visited and when multiple runs were started without
+	  intervening destroy/configure transitions.)
+
 2008-09-20  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-15
