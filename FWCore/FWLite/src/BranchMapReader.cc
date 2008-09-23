@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.1 2008/06/03 17:35:03 dsr Exp $
+// $Id: BranchMapReader.cc,v 1.2 2008/06/12 22:21:30 dsr Exp $
 //
 
 // system include files
@@ -110,12 +110,13 @@ namespace fwlite {
       TBranch* entryInfoBranch_;
       edm::EventEntryInfoVector  eventEntryInfoVector_;
       edm::EventEntryInfoVector* pEventEntryInfoVector_;
+      bool mapperFilled_;
     };
 
     BranchMapReaderStrategyV8::BranchMapReaderStrategyV8(TFile* file, int fileVersion,
       BranchMapReader::eeiMap& eventInfoMap, BranchMapReader::bidToDesc& branchDescriptionMap)
     : Strategy(file, fileVersion, eventInfoMap, branchDescriptionMap),
-      eventEntryInfoVector_(), pEventEntryInfoVector_(&eventEntryInfoVector_)
+      eventEntryInfoVector_(), pEventEntryInfoVector_(&eventEntryInfoVector_), mapperFilled_(false)
     {
       updateFile(file);
     }
@@ -125,7 +126,7 @@ namespace fwlite {
       // std::cout << "v8 updateevent " << newevent << std::endl;
       if (newevent != eventEntry_) {
         eventEntry_ = newevent;
-        return updateMap();
+        mapperFilled_ = false;
       }
       return true;
     }
@@ -133,6 +134,7 @@ namespace fwlite {
     bool BranchMapReaderStrategyV8::updateFile(TFile* file)
     {
       BranchMapReader::Strategy::updateFile(file);
+      mapperFilled_ = false;
       entryInfoBranch_ = 0;
       TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::eventMetaDataTreeName().c_str()) );
       // std::cout << "metaDataTree " << metaDataTree << std::endl;
@@ -168,16 +170,22 @@ namespace fwlite {
 
     bool BranchMapReaderStrategyV8::updateMap()
     {
+      if (mapperFilled_) {
+        return true;
+      }
+
       eventInfoMap_ = emptyMapper;
       assert (entryInfoBranch_);
 
       entryInfoBranch_->GetEntry(eventEntry_);
+
       for (std::vector<edm::EventEntryInfo>::const_iterator it = pEventEntryInfoVector_->begin(), 
            itEnd = pEventEntryInfoVector_->end();
            it != itEnd; ++it) {
         eventInfoMap_.insert(*it);
         // std::cout << "v8 updatemap " << it->productID() << " " << it->branchID() << std::endl;
       }
+      mapperFilled_ = true;
       return true;
     }
   }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.h,v 1.2 2008/06/12 22:21:30 dsr Exp $
+// $Id: BranchMapReader.h,v 1.3 2008/08/22 02:00:13 wmtan Exp $
 //
 
 // system include files
@@ -71,12 +71,11 @@ namespace fwlite {
     bool updateFile(TFile* file);
     bool updateEvent(Long_t eventEntry);
     const edm::BranchDescription productToBranch(const edm::ProductID& pid) const {
+      strategy_->updateMap();
       edm::BranchID bid = eventInfoMap_.productToBranch(pid);
       bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
       if (branchDescriptionMap_.end() == bdi) {
-        throw cms::Exception("MissingProductID") 
-           <<"could not find product ID "<<pid
-           <<" in the present file.\n";
+        return edm::BranchDescription();
       }
       return bdi->second;
     }
