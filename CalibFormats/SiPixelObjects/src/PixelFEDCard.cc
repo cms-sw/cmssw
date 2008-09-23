@@ -223,6 +223,8 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       CoarseDel   = atoi(tableMat[1][colM["REG2_TTCRX_CDLA"]].c_str()  ) ;
       ClkDes2     = atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]].c_str() ) ;
       FineDes2Del = atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]].c_str()  ) ;
+      FineDes1Del = 0xe; // Only initialize to default value, do not put it in 
+                         // params_fed.dat or in database! (viktor)
       
       Ccntrl       = atoi(tableMat[1][colM["CENTER_CTRL"]].c_str()  ) ;
       modeRegister = atoi(tableMat[1][colM["CENTER_MODE"]].c_str()  ) ;
@@ -622,9 +624,12 @@ PixelFEDCard::PixelFEDCard(string fileName):
   fscanf(infile,"TTCrx Coarse Delay Register 2:%d\n",&CoarseDel);
   fscanf(infile,"TTCrc      ClkDes2 Register 3:%x\n",&ClkDes2);
   fscanf(infile,"TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",&FineDes2Del);
+  FineDes1Del = 0xe; // Only initialize to default value, do not put it in 
+                     // params_fed.dat or in database! (viktor)
   if(localDEBUG)printf("TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
   if(localDEBUG)printf("TTCrc      ClkDes2 Register 3:%x\n",ClkDes2);
   if(localDEBUG)printf("TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
+  if(localDEBUG)printf("TTCrc Fine Dlay ClkDes1 Reg 0:%d\n",FineDes1Del);
   
   // Control register
   fscanf(infile,"Center Chip Control Reg:%x\n",&Ccntrl);
@@ -838,6 +843,7 @@ void PixelFEDCard::clear(void)
   CoarseDel    = 0;
   ClkDes2      = 0;
   FineDes2Del  = 0;
+  FineDes1Del  = 0;
   Ccntrl       = 0;
   modeRegister = 0;
   Nadcg        = 0;
@@ -975,6 +981,7 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
   fprintf(outfile,"TTCrc      ClkDes2 Register 3:0x%x\n",ClkDes2);
   fprintf(outfile,"TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
+  // We do not write TTCrc Fine Dlay ClkDes1 Reg 0 (FineDes1Del) into file...
   
   // Control register
   fprintf(outfile,"Center Chip Control Reg:0x%x\n",Ccntrl);
