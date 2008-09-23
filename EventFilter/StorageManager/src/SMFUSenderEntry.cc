@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.10 2008/09/13 20:18:23 biery Exp $
+ $Id: SMFUSenderEntry.cc,v 1.11 2008/09/23 15:04:58 biery Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -253,6 +253,35 @@ char* SMFUSenderEntry::getregistryData(const std::string outModName)
    // this could be dangerous
    RegData tmpRegData = registryCollection_.registryDataMap_[outModName];
    return (char*) &(*tmpRegData)[0];
+}
+
+/**
+ * 23-Sep-2008, KAB
+ * This method is a temporary hack.  It can *not* be called until after
+ * all use of the registry data has been completed.
+ */
+void SMFUSenderEntry::shrinkRegistryData(const std::string outModName)
+{
+  // fetch information about the existing registry
+  RegData tmpRegData = registryCollection_.registryDataMap_[outModName];
+  InitMsgView initView(&(*tmpRegData)[0]);
+  uint32 fullSize = initView.size();
+  uint32 dataSize = initView.descLength();
+  uint32 newSize = fullSize - dataSize;
+  uint8 *msgPtr;
+
+  // set the data size to zero
+  msgPtr = const_cast<uint8*>(initView.descData());
+  uint32 *dataSizePtr = (uint32*) (((uint32) msgPtr) - sizeof(uint32));
+  *dataSizePtr = 0;
+
+  // set the full message size to the new size
+  msgPtr = initView.startAddress();
+  uint32 *msgSizePtr = (uint32*) (((uint32) msgPtr) + sizeof(uint8));
+  *msgSizePtr = newSize;
+
+  // re-size (shrink) the vector
+  tmpRegData->resize(newSize);
 }
 
 bool SMFUSenderEntry::regIsCopied(const std::string outModName) //const

@@ -63,6 +63,10 @@ class SMFUSenderList  //< list of data senders with thread-safe access
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
     const std::string outModName, const uint32 fuID);
+  void shrinkRegistryData(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid, 
+    const std::string outModName, const uint32 fuID);
   unsigned int getRegistrySize(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 

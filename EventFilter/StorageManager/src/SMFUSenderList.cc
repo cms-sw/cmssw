@@ -333,6 +333,20 @@ char* SMFUSenderList::getRegistryData(const char* hltURL,
   }
 }
 
+void SMFUSenderList::shrinkRegistryData(const char* hltURL,
+    const char* hltClassName, const unsigned int hltLocalId,
+    const unsigned int hltInstance, const unsigned int hltTid, 
+    const std::string outModName, const uint32 fuID)
+{  
+  boost::mutex::scoped_lock sl(list_lock_);
+  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
+                                                                hltInstance, hltTid, fuID, outModName);
+  if(foundPos != NULL)
+  {
+    foundPos->shrinkRegistryData(outModName);
+  }
+}
+
 unsigned int SMFUSenderList::getRegistrySize(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
