@@ -28,4 +28,5 @@ egammaHcalIsolation.absolut = False
 egammaHOE.emObjectProducer = 'electronFilter'
 egammaEcalIsolation.emObjectProducer = 'electronFilter'
 egammaEcalIsolation.absolut = False
-
+egammaBasicClusterMerger.src = cms.VInputTag(cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"), cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"))
+egammaSuperClusterMerger.src =cms.VInputTag(cms.InputTag("correctedHybridSuperClusters"), cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"))
