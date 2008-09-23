@@ -495,8 +495,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	//loop over digi vector (ie between begin and end pointers in range)
 	//CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_lct_data_->get((*mit).first)
 	//for (vecIt vit = ctpRange.first; vit != ctpRange.second; vit++) {
-	for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
-	     vit != ctp_lct_data_->get((*mit).first).second; vit++) 
+	for (vecIt vit = ldc.get((*mit).first).first; 
+	     vit != ldc.get((*mit).first).second; vit++) 
 	  ctf_trk_data_v.push_back(*vit);
     }
     ctf_trk_data = &ctf_trk_data_v;
@@ -506,8 +506,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       ctf_trc_emul_v.push_back(L1MuRegionalCand(tcit->first.getDataWord(), tcit->first.bx()));
       CSCCorrelatedLCTDigiCollection ldc = tcit->second;
       for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++)
-	for (vecIt vit = ctp_lct_emul_->get((*mit).first).first; 
-	     vit != ctp_lct_emul_->get((*mit).first).second; vit++) 
+	for (vecIt vit = ldc.get((*mit).first).first; 
+	     vit != ldc.get((*mit).first).second; vit++) 
 	  ctf_trk_emul_v.push_back(*vit);
     }
     ctf_trk_emul = &ctf_trk_emul_v;
