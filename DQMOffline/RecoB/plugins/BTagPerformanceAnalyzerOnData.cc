@@ -365,9 +365,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
   }
 }
 
-
-void BTagPerformanceAnalyzerOnData::endJob()
-{
+void BTagPerformanceAnalyzerOnData::endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es){
   if (finalize == false) return;
   setTDRStyle();
   for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
