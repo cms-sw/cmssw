@@ -10,10 +10,24 @@ def dumpSummaries(dbname):
             #        log = db.lastLogEntry(tag)
             #        print log.getState()
             iov = inspect.Iov(db,tag)
-            #        print iov.list()
             for x in  iov.summaries():
                 print x[1],x[2],x[3]
             #        print iov.trend("",[0,2,12])
+        except RuntimeError :
+            print " no iov? in", tag
+    
+    iov=0
+
+def dumpContents(dbname):
+    db = rdbms.getDB(dbName)
+    tags = db.allTags()
+    
+    for tag in tags.split() :
+        try :
+            iov = inspect.Iov(db,tag)
+            for x in  iov.list():
+                print x[1],x[2]
+                print inspect.PayLoad(db,x[0])
         except RuntimeError :
             print " no iov? in", tag
     
@@ -29,7 +43,7 @@ a = FWIncantation()
 os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS()
 
-dbName = "sqlite_file:mydb.db"
+dbName = "sqlite_file:testExample.db"
 
 # dbName =  "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL"
 #logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
@@ -38,3 +52,4 @@ dbName = "sqlite_file:mydb.db"
 from CondCore.Utilities import iovInspector as inspect
 
 dumpSummaries(dbName)
+dumpContents(dbName)
