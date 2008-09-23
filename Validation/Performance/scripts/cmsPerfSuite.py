@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, time, sys, re, glob
+import os, time, sys, re, glob, exceptions
 import optparse as opt
 import cmsRelRegress as crr
 from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog
@@ -680,7 +680,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
         AbsTarFile = os.path.join(perfsuitedir,TarFile)
         tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
-        printFlush(tarcmd)
+        printflush(tarcmd)
         printFlush(os.popen4(tarcmd)[1].read())
 
         #Archive it on CASTOR
@@ -698,7 +698,8 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             logh.write("There were no errors detected in any of the log files!\n")
         else:
             logh.write("ERROR: There were %s errors detected in the log files, please revise!\n" % ERRORS)
-    except:
+    except exceptions.Exception, detail:
+        logh.write(str(detail) + "\n")
         logh.flush()
         if not logh.isatty():
             logh.close()

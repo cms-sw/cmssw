@@ -204,9 +204,9 @@ def request_benchmark(cmds):
             else:
                 outs.append(cph.harvest(curperfdir))
             i += 1
-
+            
         return outs
-    except exceptions, detail:
+    except exceptions.Exception, detail:
         # wrap the entire function in try except so we can log the error at client and server
         print detail
         raise
