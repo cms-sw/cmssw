@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.4 2007/12/15 00:20:46 wmtan Exp $
+$Id: test.cppunit.cpp,v 1.5 2008/01/22 18:43:25 muzaffar Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -58,6 +58,7 @@ public:
   void testTwoGoodFiles();
   void failOneBadFile();
   void testGoodChain();
+  void testHandleErrors();
   // void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
 
@@ -164,6 +165,18 @@ void testRefInROOT::failOneBadFile()
   fwlite::Event events(&file);
   
   testEvent(events);
+}
+
+
+void testRefInROOT::testHandleErrors()
+{
+   fwlite::Handle<edmtest::ThingCollection> pThings ;
+   CPPUNIT_ASSERT_THROW(*pThings,edm::Exception);
+   
+   //try copy constructor
+   fwlite::Handle<edmtest::ThingCollection> pThings2(pThings2) ;
+   CPPUNIT_ASSERT_THROW(*pThings2,edm::Exception);
+   
 }
 
 void testRefInROOT::testTwoGoodFiles()
