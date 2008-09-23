@@ -72,7 +72,7 @@ def visit(visitdir):
     return out
         
 
-def harvest(perfdir, outfile):
+def harvest(perfdir):
     cpureg = re.compile("cpu_([0-9][0-9]*)")
     out = {}
     globpath = os.path.join(perfdir, "cpu_*")
@@ -97,4 +97,4 @@ def harvest(perfdir, outfile):
 
 if __name__ == "__main__":
     (perfdir, outfile) = optionParse()
-    print harvest(perfdir, outfile)
+    print harvest(perfdir)
