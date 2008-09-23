@@ -13,10 +13,20 @@
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include <algorithm>
 #include <sstream>
 
 namespace edm {
+  namespace {
+    void checkDicts(BranchDescription const& productDesc) {
+      if (productDesc.transient()) {
+        checkDictionaries(productDesc.fullClassName(), true);
+      } else {
+    	checkDictionaries(wrappedClassName(productDesc.fullClassName()), false);
+      }
+    }
+  }
 
   ProductRegistry::ProductRegistry() :
       productList_(),
@@ -42,7 +52,7 @@ namespace edm {
     assert(productDesc.produced());
     throwIfFrozen();
     productDesc.init();
-    checkDictionaries(productDesc.fullClassName(), productDesc.transient());
+    checkDicts(productDesc);
     productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     addCalled(productDesc,fromListener);
   }
