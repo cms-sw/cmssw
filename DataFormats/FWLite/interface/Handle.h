@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.8 2008/07/24 20:38:45 dsr Exp $
+// $Id: Handle.h,v 1.9 2008/09/23 15:52:48 chrjones Exp $
 //
 
 // system include files
@@ -95,6 +95,7 @@ class Handle
                                                                            iModuleLabel,
                                                                            iProductInstanceLabel,
                                                                            iProcessLabel);
+	   return;
         }
         data_ = temp->product();
         if(data_==0) {
@@ -123,6 +124,7 @@ class Handle
                                                                             iModuleLabel,
                                                                             iProductInstanceLabel,
                                                                             iProcessLabel);
+	    return;
          }
          data_ = temp->product();
          if(data_==0) {
