@@ -14,7 +14,7 @@ process.load("Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff"
 process.load("Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(100)
 )
 
 process.options = cms.untracked.PSet(
@@ -34,7 +34,7 @@ process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNa
 
 
 readFiles.extend( (
-           '/store/relval/CMSSW_2_1_9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/04419036-F385-DD11-B3A7-001617C3B6E8.root',
+                  '/store/relval/CMSSW_2_1_9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/04419036-F385-DD11-B3A7-001617C3B6E8.root',
                   '/store/relval/CMSSW_2_1_9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/0A28F869-F285-DD11-AF3C-001617DBD5B2.root',
                   '/store/relval/CMSSW_2_1_9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/162C4B5E-F585-DD11-872A-001617C3B64C.root',
                   '/store/relval/CMSSW_2_1_9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/205E6CE3-F485-DD11-9D53-001617C3B76A.root',
@@ -63,7 +63,7 @@ process.report = cms.EDFilter("HLTrigReport",
 
 process.out = cms.OutputModule("PoolOutputModule",
     process.OutALCARECOEcalCalElectron,
-    fileName = cms.untracked.string('/tmp/palmale/Zee_219.root')
+    fileName = cms.untracked.string('Zee_219.root')
 )
 
 process.pathALCARECOEcalCalElectron = cms.Path(process.report*process.seqALCARECOEcalCalElectron)

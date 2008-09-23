@@ -7,6 +7,7 @@ OutALCARECOEcalCalElectron = cms.PSet(
     outputCommands = cms.untracked.vstring('drop  *', 
         'keep  *_electronFilter_*_*', 
         'keep  *_alCaIsolatedElectrons_*_*', 
+        'keep recoCaloMETs_met_*_*',
         'keep edmTriggerResults_TriggerResults__*', 
         'keep edmHepMCProduct_*_*_*',                                   
         'keep *_egammaEcalIsolation_*_*', 
