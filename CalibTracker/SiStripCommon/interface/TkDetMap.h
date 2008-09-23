@@ -58,13 +58,15 @@ class TkLayerMap{
 
  private:
 
-  void createTIBL12();
-  void createTIBL34();
-  void createTOBL12();
-  void createTOBL36();
-  void createTID13();
-  void createTEC();
+  void createTIB12(std::vector<uint32_t>& TkDetIdList, int layer){createTest(TkDetIdList); }
+  void createTIB34(std::vector<uint32_t>& TkDetIdList, int layer){createTest(TkDetIdList); }
+  void createTOB12(std::vector<uint32_t>& TkDetIdList, int layer){createTest(TkDetIdList); }
+  void createTOB36(std::vector<uint32_t>& TkDetIdList, int layer);
+  void createTID13 (std::vector<uint32_t>& TkDetIdList,  int layer){createTest(TkDetIdList); }
+  //void createTEC(std::vector<uint32_t>& TkDetIdList);
+  void createTest(std::vector<uint32_t>& TkDetIdList);
 
+ private:
   std::map<uint32_t,XYbin> DetToBin;
   std::vector<uint32_t> binToDet;
 
@@ -83,7 +85,7 @@ class TkDetMap{
 
   const TkLayerMap::XYbin& getXY(uint32_t&);
   std::string getLayerName(int& in);
-  TkLayerMap::TkLayerEnum FindLayer(uint32_t& detid);
+  int16_t FindLayer(uint32_t& detid);
 
   void getComponents(int& layer,
 		     int& nchX,double& lowX,double& highX,
@@ -91,11 +93,13 @@ class TkDetMap{
  private:
 
   void doMe();
+  int16_t layerSearch(uint32_t detid);
 
+ private:
   typedef std::map<int,TkLayerMap*> detmapType;
   detmapType TkMap;
   uint32_t cached_detid;
-  TkLayerMap::TkLayerEnum cached_layer;
+  int16_t cached_layer;
   TkLayerMap::XYbin cached_XYbin;
   detmapType::const_iterator cached_iterator;
 };

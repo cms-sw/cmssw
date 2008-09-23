@@ -14,6 +14,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 
 #include <math.h>
@@ -69,14 +71,20 @@ void testTkHistoMap::endJob(void)
 void testTkHistoMap::analyze(const edm::Event& iEvent, 
 				     const edm::EventSetup& iSetup )
 {   
+  SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
+  std::vector<uint32_t> TkDetIdList,fullTkDetIdList=fr->getAllDetIds();
 
-  uint32_t det=436260900;
-  float val=60900;
-  tkhisto->setBinContent(det,val);
-  det=436260904;
-  val=60904;
-  //  tkhisto->setBinContent(det,val);
-  tkhisto->fill(det,val);
+  SiStripSubStructure siStripSubStructure;
+
+  //extract  vector of module in the layer
+  siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,3,0,0);
+  
+  float value;
+  for(size_t i=0;i<TkDetIdList.size();++i){
+    value = TkDetIdList[i]%1000000;
+    //    tkhisto->fill(TkDetIdList[i],value);
+    tkhisto->setBinContent(TkDetIdList[i],value);
+  }
 }
 
 

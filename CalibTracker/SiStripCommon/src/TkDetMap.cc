@@ -1,24 +1,158 @@
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "iostream"
 
 TkLayerMap::TkLayerMap(int in){
 
-  LogTrace("TkLayerMap") <<"TkLayerMap::constructor ";
+  LogTrace("TkLayerMap") <<" TkLayerMap::constructor for layer " << in;
 
   SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
 
   std::vector<uint32_t> TkDetIdList=fr->getAllDetIds();
-  std::vector<uint32_t> LayerDetIdList;
-  LogTrace("TkLayerMap") << TkDetIdList.size() << " reduced size " << LayerDetIdList.size();
+   
+  switch (in)
+    {
+    case TkLayerMap::TIB_L1:
+      createTIB12(TkDetIdList,1);
+      break;
+    case TkLayerMap::TIB_L2:
+      createTIB12(TkDetIdList,2);
+      break;
+    case TkLayerMap::TIB_L3:
+      createTIB34(TkDetIdList,3);
+      break;
+    case TkLayerMap::TIB_L4:         
+      createTIB34(TkDetIdList,4);
+      break;
+    case TkLayerMap::TID_D1:
+      createTID13(TkDetIdList,1); 
+      break;
+    case TkLayerMap::TID_D2:
+      createTID13(TkDetIdList,2); 
+      break;
+    case TkLayerMap::TID_D3:
+      createTID13(TkDetIdList,3); 
+      break;
+    case TkLayerMap::TOB_L1:
+      createTOB12(TkDetIdList,1); 
+      break;
+    case TkLayerMap::TOB_L2:
+      createTOB12(TkDetIdList,2); 
+      break;
+    case TkLayerMap::TOB_L3:
+      createTOB36(TkDetIdList,3); 
+      break;
+    case TkLayerMap::TOB_L4:
+      createTOB36(TkDetIdList,4); 
+      break;
+    case TkLayerMap::TOB_L5:
+      createTOB36(TkDetIdList,5); 
+      break;
+    case TkLayerMap::TOB_L6:
+      createTOB36(TkDetIdList,6); 
+      break;
+    case TkLayerMap::TEC_W1:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W2:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W3:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W4:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W5: 
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W6:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W7:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W8:
+      createTest(TkDetIdList); 
+      break;
+    case TkLayerMap::TEC_W9:
+      createTest(TkDetIdList); 
+      break;
+    };
+}
 
+void TkLayerMap::createTOB36(std::vector<uint32_t>& TkDetIdList,int layer){
+
+  int Nrod;
+  switch (layer){
+  case 3:
+    Nrod=54;
+    break;
+  case 4:
+    Nrod=60;
+    break;
+  case 5:
+    Nrod=66;
+    break;
+  case 6:
+    Nrod=74;
+    break;
+  }
+
+  nchX=12;
+  lowX=-6;
+  highX=6;
+  nchY=Nrod;
+  lowY=0;
+  highY=Nrod;
+
+  binToDet.resize(nchX*nchY);
+
+  std::vector<uint32_t> LayerDetIdList, DetIdList;
+  SiStripSubStructure siStripSubStructure;
+
+  //extract  vector of module in the layer
+  siStripSubStructure.getTOBDetectors(TkDetIdList,LayerDetIdList,layer,0,0);
+
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTOB36] layer " << layer  << " number of dets " << LayerDetIdList.size();
+  XYbin xybin;
+
+  for(int zmin_plus=1;zmin_plus<3;zmin_plus++) //loop on Z- and Z+
+    for(int rod=1;rod<=Nrod;rod++){
+      DetIdList.clear();
+      siStripSubStructure.getTOBDetectors(LayerDetIdList,DetIdList,layer,0,rod);
+      LogTrace("TkLayerMap") << "[TkLayerMap::rod] " << rod <<  "  size " << DetIdList.size();
+      for(size_t j=0;j<DetIdList.size();++j){
+	if(j/6==0){
+	  xybin.ix=6-j;
+	  xybin.iy=rod;
+	}else{
+	  xybin.ix=j+1;
+	  xybin.iy=rod;
+	}
+	xybin.x=lowX+xybin.ix-0.5;
+	xybin.y=rod-0.5;
+	
+	DetToBin[DetIdList[j]]=xybin;
+	binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdList[j];
+	LogTrace("TkLayerMap") << "[TkLayerMap::createTOB36] " << DetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+      }
+    }
+}
+
+void TkLayerMap::createTest(std::vector<uint32_t>& TkDetIdList){
+
+  std::vector<uint32_t> LayerDetIdList;
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTest] " << TkDetIdList.size() << " reduced size " << LayerDetIdList.size();
 
   SiStripSubStructure siStripSubStructure;
   siStripSubStructure.getTOBDetectors(TkDetIdList,LayerDetIdList,3,0,1);
 
-  LogTrace("TkLayerMap") << TkDetIdList.size() << " reduced size " << LayerDetIdList.size();
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTest] " << TkDetIdList.size() << " reduced size " << LayerDetIdList.size();
 
  
   nchX=3;
@@ -40,61 +174,12 @@ TkLayerMap::TkLayerMap(int in){
     DetToBin[LayerDetIdList[i]]=xybin;
     binToDet[(theix-1)+nchX*(theiy-1)]=LayerDetIdList[i];
     
-    LogTrace("TkLayerMap") << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTest] "<< xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
 
     XYbin xybin2 =   DetToBin[LayerDetIdList[i]];
-    LogTrace("TkLayerMap") << xybin2.ix << " " << xybin2.iy  << " " << xybin2.x << " " << xybin2.y ;
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTest] "<< xybin2.ix << " " << xybin2.iy  << " " << xybin2.x << " " << xybin2.y ;
   }
 
-/*
-  switch (in)
-    {
-    case TkLayerMap::TIB_L1:
-
-    case TkLayerMap::TIB_L2:
-
-    case TkLayerMap::TIB_L3:
-
-    case TkLayerMap::TIB_L4:         
-
-    case TkLayerMap::TID_D1:
-
-    case TkLayerMap::TID_D2:
-
-    case TkLayerMap::TID_D3:
-
-    case TkLayerMap::TOB_L1:
-
-    case TkLayerMap::TOB_L2:
-
-    case TkLayerMap::TOB_L3:
-
-    case TkLayerMap::TOB_L4:
-
-    case TkLayerMap::TOB_L5:
-
-    case TkLayerMap::TOB_L6:
-
-    case TkLayerMap::TEC_W1:
-
-    case TkLayerMap::TEC_W2:
-
-    case TkLayerMap::TEC_W3:
-
-    case TkLayerMap::TEC_W4:
-
-    case TkLayerMap::TEC_W5: 
-
-    case TkLayerMap::TEC_W6:
-
-    case TkLayerMap::TEC_W7:
-
-    case TkLayerMap::TEC_W8:
-
-    case TkLayerMap::TEC_W9:
-
-    };
-*/
 }
 
 
@@ -136,28 +221,48 @@ TkDetMap::~TkDetMap(){
 
 const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid){
 
-  LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid;
-
+  LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << " layer " << cached_layer << " XY " << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
   if(detid==cached_detid)
     return cached_XYbin;
 
   /*FIXME*/
   //if (layer!=INVALID)
   FindLayer(detid);
-  LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
+  LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << " layer " << cached_layer << " XY " << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
   return cached_XYbin;
 }
 
-TkLayerMap::TkLayerEnum TkDetMap::FindLayer(uint32_t& detid){ 
+int16_t TkDetMap::FindLayer(uint32_t& detid){ 
 
   if(detid==cached_detid)
     return cached_layer;
 
   cached_detid=detid;
-  cached_layer=TkLayerMap::TOB_L1;  /*FIXME*/ 
-  cached_iterator=TkMap.find(cached_layer);
+
+  int16_t layer=layerSearch(detid);
+  LogTrace("TkDetMap") <<"[FindLayer] detid "<< detid << " layer " << layer;
+  if(layer!=cached_layer){
+    cached_layer=layer;  
+    cached_iterator=TkMap.find(cached_layer);
+  }
   cached_XYbin=cached_iterator->second->getXY(detid);
+
   return cached_layer;
+}
+
+
+int16_t TkDetMap::layerSearch(uint32_t detid){
+  switch((detid>>25)&0x7){
+  case SiStripDetId::TIB:
+    return ((detid>>14)&0x7);
+  case SiStripDetId::TID:
+    return 4+((detid>>11)&0x3);
+  case SiStripDetId::TOB:
+    return 7+((detid>>14)&0x7);
+  case SiStripDetId::TEC:
+    return 13+((detid>>14)&0xF);
+  }
+  return 0;
 }
 
 void TkDetMap::getComponents(int& layer,
