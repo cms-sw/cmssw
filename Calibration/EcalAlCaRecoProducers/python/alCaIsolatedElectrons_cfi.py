@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#  AlCaElectrons producer
 alCaIsolatedElectrons = cms.EDProducer("AlCaElectronsProducer",
     electronLabel = cms.InputTag("electronFilter"),
     alcaEndcapHitCollection = cms.string('alcaEndcapHits'),
@@ -8,6 +7,7 @@ alCaIsolatedElectrons = cms.EDProducer("AlCaElectronsProducer",
     etaSize = cms.int32(5),
     ebRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     alcaBarrelHitCollection = cms.string('alcaBarrelHits'),
+    eventWeight = cms.double(1.0),
     eeRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 )
 
