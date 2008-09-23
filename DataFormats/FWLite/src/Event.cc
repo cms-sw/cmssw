@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.19 2008/07/24 20:38:44 dsr Exp $
+// $Id: Event.cc,v 1.20 2008/07/30 19:18:41 dsr Exp $
 //
 
 // system include files
@@ -59,6 +59,8 @@ private:
     };
   }
   typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > DataMap;
+  // empty object used to signal that the branch requested was not found
+  static internal::Data branchNotFound;
 
 //
 // constructors and destructor
@@ -338,7 +340,7 @@ Event::getBranchDataFor(const std::type_info& iInfo,
         if(0!=branch) { break; }
       }
       if(0==branch) {
-        throw cms::Exception("NoBranch")<<"The file does not contain a branch beginning with '"<<name<<"'";
+        return branchNotFound;
       }
       //do we already have this one?
       if(0!=lastLabel) {
@@ -360,7 +362,7 @@ Event::getBranchDataFor(const std::type_info& iInfo,
       //we have all the pieces
       branch = findBranch(eventTree,name,key.process());
       if(0==branch){
-        throw cms::Exception("NoBranch")<<"The file does not contain a branch named '"<<name<<key.process()<<"'";
+        return branchNotFound;
       }
     }
     //cache the info
@@ -428,7 +430,10 @@ Event::getBranchNameFor(const std::type_info& iInfo,
   internal::Data& theData = 
     Event::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
-  return std::string(theData.branch_->GetName());
+  if (0 != theData.branch_) {
+    return std::string(theData.branch_->GetName());
+  }
+  return std::string("");
 }
 
 void 
@@ -447,13 +452,16 @@ Event::getByLabel(const std::type_info& iInfo,
   internal::Data& theData = 
     Event::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
                       
-  Long_t eventIndex = branchMap_.getEventEntry();
-  if(eventIndex != theData.lastEvent_) {
-    //haven't gotten the data for this event
-    //std::cout <<" getByLabel getting data"<<std::endl;
-    getBranchData(getter_.get(), eventIndex, theData);
+  if (0 != theData.branch_) {
+    Long_t eventIndex = branchMap_.getEventEntry();
+    if(eventIndex != theData.lastEvent_) {
+      //haven't gotten the data for this event
+      //std::cout <<" getByLabel getting data"<<std::endl;
+      getBranchData(getter_.get(), eventIndex, theData);
+    }
+    *pOData = theData.obj_.Address();
   }
-  *pOData = theData.obj_.Address();
+  //std::cout << "getByLabel " << *pOData << std::endl;
 }
 
 edm::EventID
@@ -573,9 +581,12 @@ Event::getByProductID(edm::ProductID const& iID) const
                  k.process(),
                  &dummy);
       //std::cout <<"  called"<<std::endl;
+      if (0 == dummy) {
+        return 0;
+      }
       itData = data_.find(k);
       assert(itData != data_.end());
-      assert(0!=dummy);
+      //assert(0!=dummy);
       assert(dummy == itData->second->obj_.Address());
     }
     itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
