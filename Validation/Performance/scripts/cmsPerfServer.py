@@ -8,7 +8,7 @@ import socket, os, sys, SimpleXMLRPCServer, threading, exceptions
 
 _outputdir  = os.getcwd()
 _reqnumber  = 0
-_logreturn  = True
+_logreturn  = False
 _PROG_NAME  = os.path.basename(sys.argv[0])
 _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
 _DEFAULTS   = {"castordir"        : _CASTOR_DIR,
