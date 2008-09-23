@@ -48,7 +48,7 @@ def visit_timesize_steps(candle,profsetdir):
                     if step == None:
                         print "Error: could not resolve step something is wrong"
                         step = "None"                                           
-                    out[("TimingReport",step)] = cpr.getTimingLogData(globule)
+                    out["TimingReport"] = {step: cpr.getTimingLogData(globule)}
                 except (OSError, IOError), detail:
                     print detail
             else:
@@ -77,7 +77,7 @@ def visit(visitdir):
                             if key == None:
                                 print "Error: could not resolve key something is wrong"
                                 key = "None"                                
-                            out[(candle,key)] = visit_timesize_steps(candle,globule)
+                            out[candle] = {key: visit_timesize_steps(candle,globule)}
     return out
         
 
