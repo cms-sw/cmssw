@@ -214,6 +214,7 @@ def runclient(perfcmds, hosts, port, outfile):
     # start all threads
     workers = []
     for host in hosts:
+        print "Submitting jobs to %s..." % host
         w = Worker(host, port, perfcmds, queue)
         w.start()                
         workers.append(w)
@@ -230,6 +231,7 @@ def runclient(perfcmds, hosts, port, outfile):
             #cleanup
             presentBenchmarkData(perfcmds,queue,outfile)
             raise
+    print "All job results received"
     presentBenchmarkData(perfcmds,queue,outfile)    
 
 def _main():

@@ -45,6 +45,9 @@ def visit_timesize_steps(candle,profsetdir):
             if found:
                 step = found.groups()[0]
                 try:
+                    if step == None:
+                        print "Error: could not resolve step something is wrong"
+                        step = "None"                                           
                     out[("TimingReport",step)] = cpr.getTimingLogData(globule)
                 except (OSError, IOError), detail:
                     print detail
@@ -68,6 +71,12 @@ def visit(visitdir):
                         if out.has_key((candle,key)):
                             print "Error: we already have a profset that matches %s" % str((candle,key))
                         else:
+                            if candle == None:
+                                print "Error: could not resolve candle something is wrong"
+                                candle = "None"
+                            if key == None:
+                                print "Error: could not resolve key something is wrong"
+                                key = "None"                                
                             out[(candle,key)] = visit_timesize_steps(candle,globule)
     return out
         
@@ -86,6 +95,9 @@ def harvest(perfdir):
                 if out.has_key(cpuid):
                     print "Error: we already have a cpu run with this id %s ! Skipping..." % cpuid
                 else:
+                    if cpuid == None:
+                        print "Error: could not resolve cpuid something is wrong"
+                        cpuid = "None"
                     out[cpuid] = visit(globule)                
             else:
                 print "Error: could not determine valid cpu id from %s ! Skipping..." % base
