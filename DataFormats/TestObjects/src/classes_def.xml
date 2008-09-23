@@ -13,6 +13,7 @@
  <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
  <class name="edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> >"/>
  <class name="std::vector<edmtest::Simple>"/>
+ <class name="edm::Wrapper<std::vector<edmtest::Simple> >"/>
  <class name="std::vector<edmtest::Simple*>"/>
  <class name="std::vector<edmtest::SimpleDerived>"/>
  <class name="std::vector<edmtest::SimpleDerived*>"/>

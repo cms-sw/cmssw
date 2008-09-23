@@ -48,6 +48,7 @@ struct dictionary {
   edm::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > > dummy22;
   std::vector<edmtestprod::Simple> dummy23;
   std::vector<edmtest::Simple> dummy231;
+  edm::Wrapper<std::vector<edmtest::Simple> > dummy231w;
   edm::RefProd<std::vector<edmtest::Simple> > dummy232;
   edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > dummy24;
   edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > > dummy25;
