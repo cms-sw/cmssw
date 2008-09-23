@@ -63,7 +63,7 @@ unsigned int PixelGlobalDelay25::getDelay(unsigned int offset) const{
 unsigned int PixelGlobalDelay25::getCyclicDelay(unsigned int offset) const{
   unsigned int ret=offset+delay_;
   if (ret > 120) ret-=50;
-  std::cout<<"PixelGlobalDelay25::getDelay("<<offset<<") returns "<<ret<<endl;
+  std::cout<<"PixelGlobalDelay25::getCyclicDelay("<<offset<<") returns "<<ret<<endl;
   return ret;
 }
 
