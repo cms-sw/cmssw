@@ -553,6 +553,10 @@ Event::getByProductID(edm::ProductID const& iID) const
     //std::cout <<" not found"<<std::endl;
     edm::BranchDescription bDesc = branchMap_.productToBranch(iID);
 
+    if (!bDesc.branchID().isValid()) {
+      return 0;
+    }
+
     //std::cout <<"  get Type for class"<<std::endl;
     //Calculate the key from the branch description
     ROOT::Reflex::Type type( ROOT::Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
