@@ -7,6 +7,7 @@ l1demon = cms.EDFilter("L1TDEMON",
     DataEmulCompareSource = cms.InputTag("l1compare"),
     DQMStore = cms.untracked.bool(True),
     VerboseFlag = cms.untracked.int32(0),
+    RunInFilterFarm = cms.untracked.bool(False)
 )
 
 

@@ -14,6 +14,11 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/");
   histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
+
+  runInFF_ = iConfig.getUntrackedParameter<bool> ("RunInFilterFarm", false);
+  if(verbose())
+    std::cout << "Filter farm run setting? " << runInFF_
+	      << "\n" << std::flush;
   
   if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
     histFile_ = "";
@@ -62,10 +67,43 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     // dbe->rmdir(histFolder_);
   }
 
+  //physical values disabled now, waiting for scale procedure 
+  //const double tpi = 6.2832;
+  //const double amin=   -0.5;
+  //const double amax=tpi+0.5;
+  
+  //                           ETP,  HTP,  RCT, GCT, DTP, DTF,  CTP, CTF, RPC,LTC, GMT,GLT
+  int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,  160, 255, 255,  0, 255,0};
+  double phiMinim[DEnsys] = {  0.5,  0.5, -0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,   0,0};
+  double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255,159.5, 255, 255,  0, 255,0};
+  
+  int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,  120,  20,  20,  0, 20,0};
+  double etaMinim[DEnsys] = {-17.5,-17.5, -0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,  0,0};
+  double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,119.5,  63,  63,  0, 63,0};
+  
+  int    x3NBins [DEnsys] = {    0,    0,    0,   0,   4,   0,    0,   0,   0,  0,   0,0};
+  double x3Minim [DEnsys] = {    0,    0,    0,   0, 0.5,   0,    0,   0,   0,  0,   0,0};
+  double x3Maxim [DEnsys] = {    0,    0,    0,   0, 4.5,   0,    0,   0,   0,  0,   0,0};
+  
+  int    rnkNBins[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
+  double rnkMinim[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
+  double rnkMaxim[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
+  //assume for 
+  for(int i=0; i<DEnsys; i++) {rnkNBins[i]=63;rnkMinim[i]=0.5;rnkMaxim[i]=63.5;}//rank 0x3f->63
+  rnkNBins[DTP]=7; rnkMinim[DTP]=-0.5;rnkMaxim[DTP]=6.5;  //rank 0-6
+  rnkNBins[CTP]=16;rnkMinim[CTP]=-0.5;rnkMaxim[CTP]=15.5; //quality 0-15
+  
+  /*--notes 
+    RCT: global index ieta (0-21)=[22,-0.5,21.5] , iphi (0-17)=[18,-0.5,17.5]; crate (18) card (7)
+    GCT: phi index (0-17); eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z -> 0.17
+    DTP: usc 0..11; uwh -2..2; ust 1..4;
+    CTP: rank is quality 0..15
+  */
+
   if(dbe) {
 
-    dbe->setCurrentFolder(std::string(histFolder_+"common/"));
-    
+    if(!runInFF_)
+      dbe->setCurrentFolder(std::string(histFolder_+"common/"));
 
     for(int j=0; j<2; j++) {
       std::string lbl("sysncand"); 
@@ -77,47 +115,19 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     const int nerr = 5; 
     errordist = dbe->book1D("errorflag","errorflag",nerr, 0, nerr);
 
-    //physical values disabled now, waiting for scale procedure 
-    //const double tpi = 6.2832;
-    //const double amin=   -0.5;
-    //const double amax=tpi+0.5;
-
-    //                           ETP,  HTP,  RCT, GCT, DTP, DTF,  CTP, CTF, RPC,LTC, GMT,GLT
-    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,  160, 255, 255,  0, 255,0};
-    double phiMinim[DEnsys] = {  0.5,  0.5, -0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,   0,0};
-    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255,159.5, 255, 255,  0, 255,0};
-				     	       	      		    
-    int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,  120,  20,  20,  0, 20,0};
-    double etaMinim[DEnsys] = {-17.5,-17.5, -0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,  0,0};
-    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,119.5,  63,  63,  0, 63,0};
-					       	   
-    int    x3NBins [DEnsys] = {    0,    0,    0,   0,   4,   0,    0,   0,   0,  0,   0,0};
-    double x3Minim [DEnsys] = {    0,    0,    0,   0, 0.5,   0,    0,   0,   0,  0,   0,0};
-    double x3Maxim [DEnsys] = {    0,    0,    0,   0, 4.5,   0,    0,   0,   0,  0,   0,0};
-
-    int    rnkNBins[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
-    double rnkMinim[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
-    double rnkMaxim[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
-    //assume for 
-    for(int i=0; i<DEnsys; i++) {rnkNBins[i]=63;rnkMinim[i]=0.5;rnkMaxim[i]=63.5;}//rank 0x3f->63
-    rnkNBins[DTP]=7; rnkMinim[DTP]=-0.5;rnkMaxim[DTP]=6.5;  //rank 0-6
-    rnkNBins[CTP]=16;rnkMinim[CTP]=-0.5;rnkMaxim[CTP]=15.5; //quality 0-15
-
-    /*--notes 
-      RCT: global index ieta (0-21)=[22,-0.5,21.5] , iphi (0-17)=[18,-0.5,17.5]; crate (18) card (7)
-      GCT: phi index (0-17); eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z -> 0.17
-      DTP: usc 0..11; uwh -2..2; ust 1..4;
-      CTP: rank is quality 0..15
-    */
-
     for(int j=0; j<DEnsys; j++) {
 
-      dbe->setCurrentFolder(std::string(histFolder_+SystLabelExt[j]));
+      if(!runInFF_)
+	dbe->setCurrentFolder(std::string(histFolder_+SystLabelExt[j]));
 
       std::string lbl("");
       lbl.clear();
       lbl+=SystLabel[j];lbl+="ErrorFlag"; 
       errortype[j] = dbe->book1D(lbl.data(),lbl.data(), nerr, 0, nerr);
+
+      // skip next histos if running in filter farm
+      if(runInFF_)
+	continue;
 
       //
       lbl.clear();
@@ -170,8 +180,10 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
       lbl+=SystLabel[j];lbl+="masked"; 
       masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
     }
+  }
 
-    ///correlation
+  if(dbe && !runInFF_) {
+    /// correlation (skip if running in filter farm)
     dbe->setCurrentFolder(histFolder_+"xcorr");
     const int ncorr = 3;
     std::string corrl[ncorr] = {"phi","eta","rank"};
@@ -217,6 +229,11 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
       errortype[i]->setBinLabel(j+1,errLabel[j]);
     }
   }
+
+  // done if running in filter farm
+  if(runInFF_)
+    return;
+
   for(int i=0; i<DEnsys; i++) {
     etaphi [i]->setAxisTitle("eta",1);
     etaphi [i]->setAxisTitle("phi",2);
@@ -452,6 +469,10 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     errordist     ->Fill(type);
     errortype[sid]->Fill(type);
 
+    // skip next if running in filter farm
+    if(runInFF_)
+      continue;
+
     //exclude agreeing cands
     wei=1.; if(!type) wei=0.;
     if(etav!=nullVal && phiv!=nullVal)
@@ -530,6 +551,14 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     
   }//close loop over dedigi-cands
+
+
+  // done if running in filter farm
+  if(runInFF_)
+    return;
+
+  // hBxDiffAllFed hBxDiffAllFedSpread hBxOccyAllFedSpread
+
 
   ///GT mon info
   if(isComp[GLT]) {

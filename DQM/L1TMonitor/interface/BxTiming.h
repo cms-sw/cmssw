@@ -65,6 +65,9 @@ class BxTiming : public edm::EDAnalyzer {
   // dqm common
   DQMStore* dbe;
  
+  // running in filter farm? (use reduced set of me's)
+  bool runInFF_;
+
   // readout l1 systems
   static const int norb_ = 3564;  // bx per orbit
   static const int half_norb_ = norb_ / 2; // for calculating the difference between two BX numbers

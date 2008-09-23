@@ -23,6 +23,11 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
   histFolder_ = iConfig.getUntrackedParameter<std::string>
     ("HistFolder", "L1T/BXSynch/");
 
+  runInFF_ = iConfig.getUntrackedParameter<bool> ("RunInFilterFarm", false);
+  if(verbose())
+    std::cout << "Filter farm run setting?" << runInFF_
+	      << "\n" << std::flush;
+
   listGtBits_ = iConfig.getUntrackedParameter<std::vector<int> > ("GtBitList", std::vector<int>(1,0));
   if(listGtBits_.size()==1 && listGtBits_.at(0)==-1) {
     int ngtbits = 128;
@@ -68,7 +73,13 @@ BxTiming::beginJob(const edm::EventSetup&) {
   dbe = edm::Service<DQMStore>().operator->();
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
-    dbe->rmdir(histFolder_);
+    //dbe->rmdir(histFolder_);
+  }
+
+  /// initialize counters  
+  for(int i=0; i<nfed_;i++) {
+    nBxDiff[i][0]=0; nBxDiff[i][1]=nbig_; nBxDiff[i][2]=-1*nbig_;
+    nBxOccy[i][0]=0; nBxOccy[i][1]=nbig_; nBxOccy[i][2]=-1*nbig_;
   }
 
   std::string lbl("");
@@ -102,11 +113,13 @@ BxTiming::beginJob(const edm::EventSetup&) {
     refName+=fedRef_;
 
   /// book the histograms
+
+  const int dbx = nbig_;
+
   if(dbe) {
 
     dbe->setCurrentFolder(histFolder_);
 
-    const int dbx = nbig_;
     hBxDiffAllFed = dbe->bookProfile("BxDiffAllFed", "BxDiffAllFed", 
 				     nfed_ + 1, -0.5, nfed_+0.5, 
                                      2*dbx+1, -1*dbx-0.5,dbx+0.5
@@ -119,6 +132,16 @@ BxTiming::beginJob(const edm::EventSetup&) {
       hBxOccyAllFedSpread[i] = dbe->book1D(lbl.data(),lbl.data(), nfed_ + 1, -0.5, nfed_+0.5); 
     }
 
+    lbl.clear();lbl+="BxOccyAllFed";
+    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+
+  }
+
+  // following histos defined only when not runing in the ff
+  if(dbe && !runInFF_) {
+    
+    dbe->setCurrentFolder(histFolder_);
+    
     for(int i=0; i<NSYS; i++) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
       int nfeds = fedRange_[i].second - fedRange_[i].first + 1;
@@ -128,8 +151,8 @@ BxTiming::beginJob(const edm::EventSetup&) {
 					  2*dbx+1,-1*dbx-0.5,dbx+0.5);
     }
 
+
     lbl.clear();lbl+="BxOccyAllFed";
-    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
     hBxOccyOneFed = new MonitorElement*[nfed_];
     dbe->setCurrentFolder(histFolder_+"SingleFed/");
     for(int i=0; i<nfed_; i++) {
@@ -170,15 +193,22 @@ BxTiming::beginJob(const edm::EventSetup&) {
     hBxOccyAllFedSpread[i]->setAxisTitle("FED ID",1); 
     hBxOccyAllFedSpread[i]->setAxisTitle(lbl,2);
   }
+
+  hBxOccyAllFed->setAxisTitle("bx",1);
+  lbl.clear(); lbl+="Combined FED occupancy";
+  hBxOccyAllFed->setAxisTitle(lbl,2);
+ 
+  // skip next if running in filter farm
+  if(runInFF_)
+    return;
+
   for(int i=0; i<NSYS; i++) {
     lbl.clear(); lbl+=SysLabel[i]; lbl+=" FED ID";
     hBxDiffSysFed[i]->setAxisTitle(lbl,1);
     lbl.clear(); lbl+="BX("; lbl+=SysLabel[i]; lbl+=")-BX(";lbl+=refName; lbl+=")";
     hBxDiffSysFed[i]->setAxisTitle(lbl,2);
   }
-  hBxOccyAllFed->setAxisTitle("bx",1);
-  lbl.clear(); lbl+="Combined FED occupancy";
-  hBxOccyAllFed->setAxisTitle(lbl,2);
+
   for(int i=0; i<nfed_; i++) {
     hBxOccyOneFed[i] ->setAxisTitle("bx",1);
     lbl.clear(); lbl+=" FED "; char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii; lbl+=" occupancy";
@@ -199,15 +229,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
       hBxOccyTrigBit[i][j]->setAxisTitle(lbl,2);
     }
   }
-  
-
-  /// initialize counters  
-  for(int i=0; i<nfed_;i++) {
-    nBxDiff[i][0]=0; nBxDiff[i][1]=nbig_; nBxDiff[i][2]=-1*nbig_;
-    nBxOccy[i][0]=0; nBxOccy[i][1]=nbig_; nBxOccy[i][2]=-1*nbig_;
-  }
-
-  
+    
   if(verbose())
     std::cout << "BxTiming::beginJob()  end.\n" << std::flush;
 }
@@ -301,6 +323,15 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		<< "\n" << std::flush;
 
     hBxDiffAllFed->Fill(i,bxDiff);
+    
+    //if(ttype==1) //skip if not a physics trigger
+    hBxOccyAllFed->Fill(bx);
+
+
+    // done if running in filter farm
+    if(runInFF_)
+      continue;
+
     for(int j=0; j<NSYS; j++)
       if(i>=fedRange_[j].first && i<=fedRange_[j].second)
           hBxDiffSysFed[j]->Fill(i,bxDiff);
@@ -325,7 +356,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	hBxOccyGtTrigType[ttype-1]->Fill(bx);
 
     if(ttype!=1) continue; //skip if not a physics trigger
-    hBxOccyAllFed->Fill(bx);
+    //hBxOccyAllFed->Fill(bx);
     hBxOccyOneFed[i]->Fill(bx);
 
   }

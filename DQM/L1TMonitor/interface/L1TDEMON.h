@@ -58,6 +58,9 @@ class L1TDEMON : public edm::EDAnalyzer {
   DQMStore* dbe;
   bool monitorDaemon_;
  
+  // running in filter farm? (use reduced set of me's)
+  bool runInFF_;
+
   // counters
   int nEvt_;
   int deSysCount[dedefs::DEnsys];
