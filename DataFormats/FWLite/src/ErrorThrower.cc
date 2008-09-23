@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 23 10:06:39 EDT 2008
-// $Id$
+// $Id: ErrorThrower.cc,v 1.1 2008/09/23 15:49:32 chrjones Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ namespace {
       
       void throwIt() const {
 
-         edm::TypeID type(type_);
+         edm::TypeID type(*type_);
          throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
          <<"'\n  productInstance='"<<((0!=instance_)?instance_:"")<<"'\n  process='"<<((0!=process_)?process_:"")<<"'\n"
          "but no data is available for this Event";
@@ -53,7 +53,7 @@ namespace {
       
       void throwIt() const {
          
-         edm::TypeID type(type_);
+         edm::TypeID type(*type_);
          throw edm::Exception(edm::errors::ProductNotFound)<<"No branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
          <<"'\n  productInstance='"<<((0!=instance_)?instance_:"")<<"'\n  process='"<<((0!=process_)?process_:"")<<"'";
       }
