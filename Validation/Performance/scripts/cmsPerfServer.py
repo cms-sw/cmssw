@@ -208,6 +208,10 @@ def request_benchmark(cmds):
         return outs
     except exceptions.Exception, detail:
         # wrap the entire function in try except so we can log the error at client and server
+        logh = open(os.path.join(os.getcwd(),"error.log"),"a")
+        logh.write(str(detail) + "\n")
+        logh.flush()
+        logh.close()
         print detail
         sys.stdout.flush()
         raise
