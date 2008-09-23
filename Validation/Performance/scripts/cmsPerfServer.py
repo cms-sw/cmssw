@@ -53,8 +53,6 @@ def optionparse():
                       metavar='<DIR>',
                       )
 
-
-
     (options, args) = parser.parse_args()
 
     outputdir = options.outputdir
@@ -87,9 +85,11 @@ def runserv(sport):
         server.register_function(request_benchmark)
     except socket.error, detail:
         print "ERROR: Could not initialise server:", detail
+        sys.stdout.flush()        
         sys.exit()
 
-    print "Running server on port %s... " % sport        
+    print "Running server on port %s... " % sport
+    sys.stdout.flush()    
     while True:
         try:
             server.handle_request()
@@ -209,6 +209,7 @@ def request_benchmark(cmds):
     except exceptions.Exception, detail:
         # wrap the entire function in try except so we can log the error at client and server
         print detail
+        sys.stdout.flush()
         raise
 
 def _main():
