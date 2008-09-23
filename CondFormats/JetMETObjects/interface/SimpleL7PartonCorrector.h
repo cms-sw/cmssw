@@ -24,6 +24,8 @@ class SimpleL7PartonCorrector {
   SimpleL7PartonCorrector (const SimpleL7PartonCorrector&);
   SimpleL7PartonCorrector& operator= (const SimpleL7PartonCorrector&);
   SimpleJetCorrectorParameters* mParameters;
+  double theResponseFunction(double fEta, double fPt) const;
+
 };
 
 #endif
