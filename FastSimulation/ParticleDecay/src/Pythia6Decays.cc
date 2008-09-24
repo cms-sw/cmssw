@@ -20,7 +20,13 @@ Pythia6Decays::Pythia6Decays(int seed,double comE)
   // Create a new Pythia6Random steering
   pyrand = new Pythia6Random(seed);
   // Initialize PYTHIA decay tables...
-  call_pyinit( "CMS", "p", "p", comE );
+  if(pyint1.vint[289]==0)
+    {
+      std::cout << " It seems that pythia has not been initialized. Since Pythia is needed";
+      std::cout << " to simulate the particle decays. FAMOS will call PYINIT " << std::endl;
+      std::cout << " Note that the centre-of-mass energy does not overwrite the generator settings " << std::endl;
+      call_pyinit( "CMS", "p", "p", comE );
+    }
 
 }
 
