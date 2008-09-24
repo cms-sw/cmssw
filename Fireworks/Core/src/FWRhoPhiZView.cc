@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.21 2008/07/09 14:37:15 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.22 2008/07/13 21:53:28 chrjones Exp $
 //
 
 #define private public
@@ -39,6 +39,7 @@
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
 #include "TEveCalo.h"
+#include "TEveProjectionAxes.h"
 #include "TEveScalableStraightLineSet.h"
 #include "TH2F.h"
 
@@ -169,6 +170,10 @@ m_cameraMatrix(0)
    m_viewer=nv;
    //this is needed so if a TEveElement changes this view will be informed
    gEve->AddElement(nv, gEve->GetViewers());
+
+   TEveProjectionAxes* axes = new TEveProjectionAxes(m_projMgr);
+   ns->AddElement(axes);
+   gEve->AddToListTree(axes, kTRUE);
    
    gEve->AddElement(m_projMgr,ns);
    //ev->ResetCurrentCamera();
