@@ -93,6 +93,7 @@ def runserv(sport):
     while True:
         try:
             server.handle_request()
+            sys.stdout.flush()
         except (KeyboardInterrupt, SystemExit):
             #cleanup
             server.server_close()            

@@ -206,8 +206,13 @@ class Worker(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        data = request_benchmark(self.__perfcmds, self.__host, self.__port)
-        self.__queue.put((self.__host, data))
+        try:
+            data = request_benchmark(self.__perfcmds, self.__host, self.__port)
+            self.__queue.put((self.__host, data))
+        except exceptions.Exception, detail:
+            print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
+            print detail
+            sys.stdout.flush()
 
 def runclient(perfcmds, hosts, port, outfile):
     queue = Queue.Queue()
@@ -223,6 +228,7 @@ def runclient(perfcmds, hosts, port, outfile):
     while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),workers)):
         try:            
             time.sleep(2.0)
+            sys.stdout.flush()
         except (KeyboardInterrupt, SystemExit):
             #cleanup
             presentBenchmarkData(perfcmds,queue,outfile)            
@@ -261,19 +267,6 @@ def presentBenchmarkData(perfcmds,q,outfile):
                         # command that was passed in the config file
     while not q.empty():
         (host, data) = q.get()
-##         newdata = []
-##         i = 0
-##         for dat in data:
-##             keywdict = {}
-##             if i < len(perfcmds): 
-##                 keywdict = perfcmds[i]
-##             else:
-##                 keywdict = {None: "Could not match up commands passed in via config file with cmds returned"}  
-##             if len(keywdict) == 0:
-##                 keywdict = {None: "Defaults in cmsPerfServer were used"}
-            
-##             newdata.append((keywdict,dat))
-##             i += 1
         out.append((host,data))
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
