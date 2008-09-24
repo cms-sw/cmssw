@@ -1,5 +1,5 @@
 import coral
-import IdGenerator, Node, DBImpl
+import CommonUtils, IdGenerator, Node, DBImpl
 class  tagInventory(object):
     """Class manages tag inventory 
     """
@@ -7,8 +7,8 @@ class  tagInventory(object):
         """Input: coral session handle
         """
         self.__session = session
-        self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
-        self.__tagInventoryIDName = 'TAGINVENTORY_IDS'
+        self.__tagInventoryTableName=CommonUtils.inventoryTableName()
+        self.__tagInventoryIDName=CommonUtils.inventoryIDTableName()
         self.__tagInventoryTableColumns = {'tagid':'unsigned long', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string'}
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname']
         #self.__tagInventoryTableUniqueColumns = ['tagname']
@@ -103,6 +103,7 @@ class  tagInventory(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+        
     def addEntriesReplaceService( self, newservicename ):
         """ clone all existing entries only servicename in pfn are different
         return collection of new (oldtagid,newtagid) pair 
@@ -379,64 +380,13 @@ class  tagInventory(object):
             transaction.rollback()
             raise Exception, str(e)
 
-    def copyInventory( self, sourceconnect, rowcachesize=1024):
-        """copy entire inventory from an external source.
-        The destination inventory must be empty. If not so, it will be cleaned implicitly 
-        """
-        my_transaction=self.__session.transaction()
-        source_session=svc.connect( sourceconnect,accessMode = coral.access_ReadOnly )
-        source_transaction=source_session.transaction()
-        
-        try:
-            self.createInventoryTable()
-            my_transaction.start(False)
-            #copy inventory table
-            data=coral.AttributeList()
-            my_editor=self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).dataEditor()
-            source_transaction.start(True)
-            source_query=source_session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
-            conditionData=coral.AttributeList()
-            source_query.setCondition('',conditionData)
-            source_query.setRowCacheSize(rowcachesize)
-            source_query.defineOutput(data)
-            bulkOperation=my_editor.bulkInsert(data,rowcachesize)
-            cursor=source_query.execute()
-            for row in cursor:
-                bulkOperation.processNextIteration()
-            bulkOperation.flush()
-            del bulkOperation
-            del source_query
-            #copy inventory id table
-            source_query=source_session.nominalSchema().tableHandle(self.__tagInventoryIDName).newQuery()
-            iddata=coral.AttributeList()
-            source_query.setCondition('',conditionData)
-            source_query.setRowCacheSize(rowcachesize)
-            source_query.defineOutput(iddata)
-            bulkOperation=my_editor.bulkInsert(iddata,rowcachesize)
-
-            cursor=source_query.execute()
-            for row in cursor:
-                bulkOperation.processNextIteration()
-            bulkOperation.flush()
-            del bulkOperation
-            del source_query
-            
-            source_transaction.commit()
-            my_transaction.commit()
-        except Exception, e:
-            source_transaction.rollback()
-            my_transaction.rollback()
-            del source_session
-            raise Exception, str(e)
-        del source_session
-
     def bulkInsertEntries( self, entries ): 
         """insert a chunk of entries.
-        Input: entries [{tagname:string , pfn:string , recordname:string , objectname:string, labelname:string }]
-        Output: tagids of the inserted entries. If tag already exists, old tagid is returned
+        Input: entries [{tagid:unsigned long, tagname:string , pfn:string , recordname:string , objectname:string, labelname:string }]
+        Output: {oldtagid:newtagid} of the inserted entries. If tag already exists, old tagid is returned
         """
         transaction=self.__session.transaction()
-        results=[]
+        results={}
         ihad=[]
         try:
             if self.existInventoryTable():
@@ -447,17 +397,17 @@ class  tagInventory(object):
             for e in entries:
                 for n in ihad:
                     if n.tagname==e['tagname'] and n.pfn==e['pfn']:
-                        results.append(n.tagid)
+                        results[n.tagid]=n.tagid
                         entries.remove(e)
             transaction.start(False)
-            query = self.__schema.tableHandle(self.__tagInventoryIDName).newQuery()
+            query=self.__session.nominalSchema().tableHandle(self.__tagInventoryIDName).newQuery()
             query.addToOutputList('nextID')
             query.setForUpdate()
             cursor = query.execute()
             nextid=0
             while cursor.next():
                 nextid=cursor.currentRow()[0].data()
-            idEditor = self.__schema.tableHandle(self.__tagInventoryIDName).dataEditor()
+            idEditor = self.__session.nominalSchema().tableHandle(self.__tagInventoryIDName).dataEditor()
             inputData = coral.AttributeList()
             inputData.extend( 'delta', 'unsigned long' )
 
@@ -469,7 +419,7 @@ class  tagInventory(object):
             inputData['delta'].setData(delta)
             idEditor.updateRows('nextID = nextID + :delta','',inputData)
 
-            dataEditor = self.__schema.tableHandle(self.__tagInventoryTableName).dataEditor()
+            dataEditor=self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).dataEditor()
             insertdata=coral.AttributeList()
             insertdata.extend('tagid','unsigned long')
             insertdata.extend('tagname','string')
@@ -486,11 +436,13 @@ class  tagInventory(object):
                 insertdata['objectname'].setData(entry['objectname'])
                 insertdata['labelname'].setData(entry['labelname'])
                 bulkOperation.processNextIteration()
-                nextid++
+                results[entry['tagid']]=nextid
+                nextid=nextid+1
             bulkOperation.flush()
             transaction.commit()
             del bulkOperation
             del query
+            return results
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
@@ -539,6 +491,14 @@ if __name__ == "__main__":
         print 'new tag ids ',newtagids
         print 'TESTING modifyEntriesReplaceService'
         inv.modifyEntriesReplaceService('oracle://cms_orcoff_int9r')
+        print 'TESTING bulkInsertEntries'
+        entries=[]
+        entries.append({'tagid':10,'tagname':'tag1','pfn':'dbdb','recordname':'myrcd','objectname':'bobo','labelname':''})
+        entries.append({'tagid':11,'tagname':'tag2','pfn':'dbdb','recordname':'mdrcd','objectname':'bobo','labelname':''})
+        entries.append({'tagid':12,'tagname':'tag3','pfn':'dbdb','recordname':'ndrcd','objectname':'bobo','labelname':''})
+        entries.append({'tagid':13,'tagname':'tag4','pfn':'dbdb','recordname':'ndrcd','objectname':'bobo','labelname':''})
+        a=inv.bulkInsertEntries(entries)
+        print a
         del session
         
     except Exception, e:
