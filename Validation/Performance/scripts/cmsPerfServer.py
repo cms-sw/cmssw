@@ -156,53 +156,53 @@ def request_benchmark(cmds):
                 logfile = logfile + str(i)
 
             cmdwdefs = {}
-            cmdwdefs["castordir"]        = getCPSkeyword("castordir"       , cmd)
-            cmdwdefs["perfsuitedir"]     = curperfdir                      
-            cmdwdefs["TimeSizeEvents"]   = getCPSkeyword("TimeSizeEvents"  , cmd)
-            cmdwdefs["IgProfEvents"]     = getCPSkeyword("IgProfEvents"    , cmd)
-            cmdwdefs["ValgrindEvents"]   = getCPSkeyword("ValgrindEvents"  , cmd)
-            cmdwdefs["cmsScimark"]       = getCPSkeyword("cmsScimark"      , cmd)
-            cmdwdefs["cmsScimarkLarge"]  = getCPSkeyword("cmsScimarkLarge" , cmd)
+            cmdwdefs["castordir"       ] = getCPSkeyword("castordir"       , cmd)
+            cmdwdefs["perfsuitedir"    ] = curperfdir                      
+            cmdwdefs["TimeSizeEvents"  ] = getCPSkeyword("TimeSizeEvents"  , cmd)
+            cmdwdefs["IgProfEvents"    ] = getCPSkeyword("IgProfEvents"    , cmd)
+            cmdwdefs["ValgrindEvents"  ] = getCPSkeyword("ValgrindEvents"  , cmd)
+            cmdwdefs["cmsScimark"      ] = getCPSkeyword("cmsScimark"      , cmd)
+            cmdwdefs["cmsScimarkLarge" ] = getCPSkeyword("cmsScimarkLarge" , cmd)
             cmdwdefs["cmsdriverOptions"] = getCPSkeyword("cmsdriverOptions", cmd)
-            cmdwdefs["stepOptions"]      = getCPSkeyword("stepOptions"     , cmd)
-            cmdwdefs["quicktest"]        = getCPSkeyword("quicktest"       , cmd)
-            cmdwdefs["profilers"]        = getCPSkeyword("profilers"       , cmd)
-            cmdwdefs["cpus"]             = getCPSkeyword("cpus"            , cmd)
-            cmdwdefs["cores"]            = getCPSkeyword("cores"           , cmd)
-            cmdwdefs["prevrel"]          = getCPSkeyword("prevrel"         , cmd)
-            cmdwdefs["candles"]          = getCPSkeyword("candles"         , cmd)                                    
-            cmdwdefs["isAllCandles"]     = not len(Candles) == len(cmdwdefs["candles"])
-            cmdwdefs["bypasshlt"]        = getCPSkeyword("bypasshlt"       , cmd)
-            cmdwdefs["runonspare"]       = getCPSkeyword("runonspare"      , cmd)
-            cmdwdefs["logfile"]          = logfile
+            cmdwdefs["stepOptions"     ] = getCPSkeyword("stepOptions"     , cmd)
+            cmdwdefs["quicktest"       ] = getCPSkeyword("quicktest"       , cmd)
+            cmdwdefs["profilers"       ] = getCPSkeyword("profilers"       , cmd)
+            cmdwdefs["cpus"            ] = getCPSkeyword("cpus"            , cmd)
+            cmdwdefs["cores"           ] = getCPSkeyword("cores"           , cmd)
+            cmdwdefs["prevrel"         ] = getCPSkeyword("prevrel"         , cmd)
+            cmdwdefs["candles"         ] = getCPSkeyword("candles"         , cmd)                                    
+            cmdwdefs["isAllCandles"    ] = not len(Candles) == len(cmdwdefs["candles"])
+            cmdwdefs["bypasshlt"       ] = getCPSkeyword("bypasshlt"       , cmd)
+            cmdwdefs["runonspare"      ] = getCPSkeyword("runonspare"      , cmd)
+            cmdwdefs["logfile"         ] = logfile
             logh = open(logfile,"w")
             logh.write("This perfsuite run was configured with the following options:\n")
             logh.write(str(cmdwdefs) + "\n")
             logh.close()
             
-            cps.runPerfSuite(castordir        = cmdwdefs["castordir"]       ,
-                             perfsuitedir     = cmdwdefs["perfsuitedir"]    ,
-                             TimeSizeEvents   = cmdwdefs["TimeSizeEvents"]  ,
-                             IgProfEvents     = cmdwdefs["IgProfEvents"]    ,
-                             ValgrindEvents   = cmdwdefs["ValgrindEvents"]  , 
-                             cmsScimark       = cmdwdefs["cmsScimark"]      ,
-                             cmsScimarkLarge  = cmdwdefs["cmsScimarkLarge"] ,
+            cps.runPerfSuite(castordir        = cmdwdefs["castordir"       ],
+                             perfsuitedir     = cmdwdefs["perfsuitedir"    ],
+                             TimeSizeEvents   = cmdwdefs["TimeSizeEvents"  ],
+                             IgProfEvents     = cmdwdefs["IgProfEvents"    ],
+                             ValgrindEvents   = cmdwdefs["ValgrindEvents"  ], 
+                             cmsScimark       = cmdwdefs["cmsScimark"      ],
+                             cmsScimarkLarge  = cmdwdefs["cmsScimarkLarge" ],
                              cmsdriverOptions = cmdwdefs["cmsdriverOptions"],
-                             stepOptions      = cmdwdefs["stepOptions"]     ,
-                             quicktest        = cmdwdefs["quicktest"]       ,
-                             profilers        = cmdwdefs["profilers"]       ,
-                             cpus             = cmdwdefs["cpus"]            ,
-                             cores            = cmdwdefs["cores"]           ,
-                             prevrel          = cmdwdefs["prevrel"]         ,
-                             isAllCandles     = cmdwdefs["isAllCandles"]    ,
-                             candles          = cmdwdefs["candles"]         ,
-                             bypasshlt        = cmdwdefs["bypasshlt"]       ,
-                             runonspare       = cmdwdefs["runonspare"]      ,
-                             logfile          = cmdwdefs["logfile"]         )
+                             stepOptions      = cmdwdefs["stepOptions"     ],
+                             quicktest        = cmdwdefs["quicktest"       ],
+                             profilers        = cmdwdefs["profilers"       ],
+                             cpus             = cmdwdefs["cpus"            ],
+                             cores            = cmdwdefs["cores"           ],
+                             prevrel          = cmdwdefs["prevrel"         ],
+                             isAllCandles     = cmdwdefs["isAllCandles"    ],
+                             candles          = cmdwdefs["candles"         ],
+                             bypasshlt        = cmdwdefs["bypasshlt"       ],
+                             runonspare       = cmdwdefs["runonspare"      ],
+                             logfile          = cmdwdefs["logfile"         ])
             if _logreturn:
                 outs.append(readlog(logfile))
             else:
-                outs.append(cph.harvest(curperfdir))
+                outs.append((cmdwdefs,cph.harvest(curperfdir)))
             i += 1
             
         return outs

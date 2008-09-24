@@ -261,20 +261,20 @@ def presentBenchmarkData(perfcmds,q,outfile):
                         # command that was passed in the config file
     while not q.empty():
         (host, data) = q.get()
-        newdata = []
-        i = 0
-        for dat in data:
-            keywdict = {}
-            if i < len(perfcmds): 
-                keywdict = perfcmds[i]
-            else:
-                keywdict = {None: "Could not match up commands passed in via config file with cmds returned"}  
-            if len(keywdict) == 0:
-                keywdict = {None: "Defaults in cmsPerfServer were used"}
+##         newdata = []
+##         i = 0
+##         for dat in data:
+##             keywdict = {}
+##             if i < len(perfcmds): 
+##                 keywdict = perfcmds[i]
+##             else:
+##                 keywdict = {None: "Could not match up commands passed in via config file with cmds returned"}  
+##             if len(keywdict) == 0:
+##                 keywdict = {None: "Defaults in cmsPerfServer were used"}
             
-            newdata.append((keywdict,dat))
-            i += 1
-        out.append((host,newdata))
+##             newdata.append((keywdict,dat))
+##             i += 1
+        out.append((host,data))
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
     oh.close()
