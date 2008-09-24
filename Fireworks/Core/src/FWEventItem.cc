@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.23 2008/07/22 09:29:11 jmuelmen Exp $
+// $Id: FWEventItem.cc,v 1.24 2008/07/22 09:44:28 jmuelmen Exp $
 //
 
 // system include files
@@ -364,6 +364,13 @@ FWEventItem::data(const std::type_info& iInfo) const
 	 }
          return 0;
       }
+      if(0==wrapper) {
+         if ( ! m_printedNoDataError ) {
+	    std::cerr << "Failed to get "<<name()<<" because branch does not exist in this file"<<std::endl;
+	    m_printedNoDataError = true;
+	 }
+         return 0;         
+      }
 //       printf("%s: wrapper address: 0x%x 0x%x 0x%x\n", name().c_str(), wrapper, &wrapper, *(int *)wrapper);
       std::string fullbranch_classname = (edm::TypeID(iInfo)).friendlyClassName();
       std::string fullbranch_module, fullbranch_product, fullbranch_process;
@@ -383,11 +390,6 @@ FWEventItem::data(const std::type_info& iInfo) const
       m_fullBranchName += fullbranch_process;
 //       printf("full branch name for event item %s is %s\n", name().c_str(), m_fullBranchName.c_str());
 
-      if(wrapper==0) {
-          //should report a problem
-          std::cerr<<"failed getByLabel"<<std::endl;
-          return 0;
-      }
       //Get Reflex to do the work
       Object wrapperObj(m_wrapperType,wrapper);
 
