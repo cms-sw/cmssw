@@ -850,6 +850,8 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 		assert(source->isTrained());
 
 		Calibration::VarProcessor *proc = source->getCalibration();
+		if (!proc)
+			continue;
 
 		autoClean.add(proc);
 		processors.push_back(CalibratedProcessor(source, proc));
@@ -903,6 +905,8 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 			return 0;
 
 		Calibration::VarProcessor *proc = source->getCalibration();
+		if (!proc)
+			continue;
 
 		processors.push_back(CalibratedProcessor(source, proc));
 	}
