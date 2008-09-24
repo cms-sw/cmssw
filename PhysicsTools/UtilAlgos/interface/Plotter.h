@@ -79,12 +79,10 @@ class VariablePlotter : public Plotter {
     Directory & insertedDirectory = directories_[dir];
 
     //create the actual directory in TFile: name is <dir>
-    insertedDirectory.dir=new TFileDirectory(edm::Service<TFileService>()->mkdir(dir));
-    insertedDirectory.dirName=dir;
-
-    //make a dummy histo???
-    //    insertedDirectory.dir->make<TH1F>((dir+"dummy").c_str(),"dummy",10,0.,1.);
-    //    insertedDirectory.dir->mkdir("testSubDir");
+    if (!insertedDirectory.dir){
+      insertedDirectory.dir=new TFileDirectory(edm::Service<TFileService>()->mkdir(dir));
+      insertedDirectory.dirName=dir;
+    }
 
     //remember which directory name this is
     currentDir_=dir;
@@ -103,10 +101,13 @@ class VariablePlotter : public Plotter {
 
     //not found? insert a new directory with this name
     if (subDirectoryFindIterator==currentSetOfSubDirectories.end()){
+      edm::LogInfo("VariablePlotter")<<" gonna clone histograms for :"<<subDir<<" in "<<currentDir_;
       SubDirectory & insertedDir = currentSetOfSubDirectories[subDir];
       subDirectoryToUse = &insertedDir;
-      insertedDir.dir=new TFileDirectory(currentDirectory.dir->mkdir(subDir));
-      insertedDir.dirName=subDir;
+      if (!insertedDir.dir){
+	insertedDir.dir=new TFileDirectory(currentDirectory.dir->mkdir(subDir));
+	insertedDir.dirName=subDir;
+      }
 
       //create a copy from the master copy
       DirectoryHistos::iterator masterHistogramIterator=master_.begin();
@@ -189,7 +190,7 @@ class VariablePlotter : public Plotter {
 
   class SubDirectory {
   public:
-    SubDirectory() : dir(0){}
+    SubDirectory() : dirName(""),dir(0){}
     std::string dirName;
     DirectoryHistos histos;
     TFileDirectory * dir;
@@ -198,7 +199,7 @@ class VariablePlotter : public Plotter {
 
   class Directory {
   public:
-    Directory() : dir(0){}
+    Directory() : dirName(""),dir(0){}
     std::string dirName;
     SubDirectories subDir;
     TFileDirectory * dir;
