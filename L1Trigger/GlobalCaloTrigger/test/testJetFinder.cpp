@@ -150,7 +150,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   
   //Get the outputted data and store locally
   outputJets = myJetFinder->getRawJets();
-  outputHt = myJetFinder->getHt().value();
+  outputHt = myJetFinder->getHtStrip0().value() + myJetFinder->getHtStrip1().value();
 
   sumOfJetHt = 0;
   for (RawJetsVector::const_iterator it=outputJets.begin(); it!=outputJets.end(); ++it) {
@@ -213,7 +213,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   //get all the data again - should all be empty
   outputRegions = myJetFinder->getInputRegions();
   outputJets = myJetFinder->getRawJets();
-  outputHt = myJetFinder->getHt().value();
+  outputHt = myJetFinder->getHtStrip0().value() + myJetFinder->getHtStrip1().value();
   stripSum0 = myJetFinder->getEtStrip0().value();
   stripSum1 = myJetFinder->getEtStrip1().value();
   
