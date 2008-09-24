@@ -22,6 +22,8 @@ namespace {
     Printer() : i(0){}
     void reset() { i=0;}
     void doB(float const & item) {
+      ss << i <<":"<< item << "\n";
+      i++;
     }
     void doE(float const & item) {
       ss << i <<":"<< item << "\n";
