@@ -15,11 +15,11 @@ PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     GsfRecoCollection = cms.InputTag("pixelMatchGsfElectrons"),
     # Photon will be marked as being near phi module boundary if
     #  it is closer than this.  Currently half a crystal.
-    #  1 Ecal Crystal = 0.0174 rad
+    #  1 Ecal Crystal = 0.0174 radians = 1 degree
     modulePhiBoundary =   cms.double(0.0087),
     # Photon will be marked as being near an eta boundary if
     #  it is between the 0th and 1st element, or the 2nd and 3rd, or the 4th and 5th...
-    moduleEtaBoundary = cms.vdouble(0.0, 0.05, 0.4, 0.5, 0.75, 0.85, 1.1, 1.2, 1.4, 1.6),
+    moduleEtaBoundary = cms.vdouble(0.0, 0.02, 0.43, 0.46, 0.78, 0.81, 1.13, 1.15, 1.45, 1.58),
     trackProducer = cms.InputTag("generalTracks"),
     doCutBased = cms.bool(True),
     #switches
