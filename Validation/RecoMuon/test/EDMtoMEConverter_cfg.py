@@ -1,5 +1,3 @@
-# The following comments couldn"t be translated into the new config version:
-#sigma(pt) vs 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EDMtoMEConvert")
@@ -21,8 +19,8 @@ process.source = cms.Source("PoolSource",
 
 process.postProcessorMuonMultiTrack = cms.EDFilter("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/MultiTrack/*"),
-    effCmds = cms.vstring("",),
-    resCmds = cms.vstring("cotThetares_vs_eta '#sigma(cot(#theta)) vs #eta' cotThetares_vs_eta",
+    efficiency = cms.vstring("",),
+    resolution = cms.vstring("cotThetares_vs_eta '#sigma(cot(#theta)) vs #eta' cotThetares_vs_eta",
                           "cotThetares_vs_pt '#sigma(cot(#theta)) vs p_{T}' cotThetares_vs_pt",
                           "dxypull_vs_eta 'd_{xy} Pull vs #eta' dxypull_vs_eta",
                           "dxyres_vs_eta '#sigma(d_{xy}) vs #eta' dxyres_vs_eta",
@@ -51,7 +49,7 @@ process.postProcessorRecoMuon = cms.EDFilter("PostProcessor",
     subDir = cms.untracked.string("RecoMuonV/RecoMuon_*"),
     commands = cms.vstring(""),
 
-    effCmds = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
+    efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
                           "Trk/EffPt  'Efficiency vs p_{T}' Trk/P   Muons/SimP  ",
                           "Trk/EffEta 'Efficiency vs #eta'  Trk/Eta Muons/SimEta",
                           "Trk/EffPhi 'Efficiency vs #phi'  Trk/Phi Muons/SimPhi",
@@ -64,7 +62,7 @@ process.postProcessorRecoMuon = cms.EDFilter("PostProcessor",
                           "Glb/EffEta 'Efficiency vs #eta'  Glb/Eta Muons/SimEta",
                           "Glb/EffPhi 'Efficiency vs #phi'  Glb/Phi Muons/SimPhi"),
 
-    resCmds = cms.vstring("Trk/ErrP_vs_P      '#sigma(p) vs p'           Trk/ErrP_vs_P     ",
+    resolution = cms.vstring("Trk/ErrP_vs_P      '#sigma(p) vs p'           Trk/ErrP_vs_P     ",
                           "Trk/ErrP_vs_Eta    '#sigma(p) vs #eta'        Trk/ErrP_vs_Eta   ",
                           "Trk/ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       Trk/ErrPt_vs_Pt   ",
                           "Trk/ErrPt_vs_Eta   '#sigma(p) vs #eta'        Trk/ErrPt_vs_Eta  ",
