@@ -24,16 +24,14 @@ DoHLTTau = cms.Path(HLTBeginSequence+hltTauPrescaler+hltTauL1SeedFilter+HLTCaloT
 
 # read the b-jet HLT paths
 from FastSimulation.HighLevelTrigger.OpenHLT_BJet_cff import *
-DoHLTBTag = cms.Path( 
-    HLTBeginSequence + 
-    openHltBL1seedsLowEnergy +
-    HLTBCommonL2recoSequence + 
-    HLTBLifetimeL25recoSequence + 
-    HLTBLifetimeL25recoSequenceRelaxed + 
-    HLTBSoftmuonL25recoSequence + 
-    OpenHLTBLifetimeL3recoSequence + 
-    OpenHLTBLifetimeL3recoSequenceRelaxed + 
-    HLTBSoftmuonL3recoSequence+
+DoHLTBTag = cms.Path(
+    HLTBeginSequence +
+    HLTBCommonL2recoSequence +
+    OpenHLTBLifetimeL25recoSequence +
+    OpenHLTBSoftmuonL25recoSequence +
+    OpenHLTBLifetimeL3recoSequence +
+    OpenHLTBLifetimeL3recoSequenceRelaxed +
+    OpenHLTBSoftmuonL3recoSequence +
     cms.SequencePlaceholder("HLTEndSequence")
 )
 
