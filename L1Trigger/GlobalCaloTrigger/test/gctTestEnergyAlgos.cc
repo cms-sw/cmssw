@@ -56,7 +56,7 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
       etVector.mag = etVector.mag >> 2;
       maxEtForThisEta = MAX_ET_FORWARD;
     } 
-    //cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << endl;
+    //cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
 
     bool regionOf = etVector.mag > maxEtForThisEta;
     L1CaloRegion temp(etVector.mag, regionOf, true, false, false, etaRegion, phiRegion);
