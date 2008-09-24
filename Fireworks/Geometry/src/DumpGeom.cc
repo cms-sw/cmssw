@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.13 2008/08/09 00:19:14 case Exp $
+// $Id: DumpGeom.cc,v 1.15 2008/08/24 21:49:24 case Exp $
 //
 //
 
@@ -572,55 +572,6 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
        //       std::cout << "CSC chamber: " << detid1a.rawId() << " \tname: " << name << std::endl;
        idToName_[detid1a.rawId()] = name;
      }
-/* We don't need layers for now, till we get geometry for them fixed
-    int jend   = chamberId.endcap();
-    int jstat  = chamberId.station();
-    int jring  = chamberId.ring();
-    int jch    = chamberId.chamber();
-
-    // Create the component layers of this chamber   
-    // We're taking the z as the z of the wire plane within the layer (middle of gas gap)
-
-    // Specify global z of layer by offsetting from centre of chamber: since layer 1 
-    // is nearest to IP in stations 1/2 but layer 6 is nearest in stations 3/4, 
-    // we need to adjust sign of offset appropriately...
-    int localZwrtGlobalZ = +1;
-    if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
-    int globalZ = +1;
-    if ( jend == 2 ) globalZ = -1;
-    for ( short j = 1; j <= 6; ++j ) {
-      CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
-
-      // centre of chamber is at global z = gtran[2]
-      // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
-      // NOT USED RIGHT NOW float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
-
-      unsigned int rawid = layerId.rawId();
-
-      // COULD MODIFY name so that we have the "fake/hack" layer name since we don't know what it is at 
-      // this point.  THERE MAY BE A FIX to this by iterating separately over a different filter 
-      // which looks at the layers only.  Anyway, there is a real pain here in that we can not do this
-      // right now anyway because of the depth (level_) limit in root software the "Woops!!!" error.
-      // mf:ME11AlumFrame is the name of the chamber, then ME11 or ME1A is the layer... can not dist...
-      //   names are ?  ME1A_ActiveGasVol?
-      //   names are ?  ME11_ActiveGasVol?
-      //  OR ME11_Layer?  I choose the layer name.
-      // 	 std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
-      // 	 std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
-      // 	 name = baseName + "/" + prefName + "_ActiveGasVol_";
-      // 	 std::ostringstream ostr;
-      // 	 ostr << j;
-      // 	 name += ostr.str();
-      idToName_[rawid] = name;
-      std::cout << "chamber id: " << rawid << " \tname: " << name << std::endl;
-
-      // same rotation as chamber
-      // same x and y as chamber
-      //	 layerPosition( gtran[0], gtran[1], zlayer );
-
-
-    } // layer construction within chamber
-    */ 
      
     doSubDets = fview.nextSibling(); // go to next chamber
   }
@@ -775,34 +726,6 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
      doSubDets = fview.nextSibling(); // go to next
     }
 
-// //   int n=0;
-//   std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalEndcap);
-//   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-// //     n++;
-// //     const CaloCellGeometry* cell=geom->getGeometry(*i);
-// //     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
-// //     assert (closestCell == EEDetId(*i) );
-//     unsigned int tid(*i);
-//     std::vector<int> tint = geom->getDDNavType(tid);
-//     DDExpandedView epv(cview);
-//     epv.goTo(tint);
-// //     if (tid == 872420050 || tid == 872420051 ) {
-// //       std::cout << "DumpGeom::detId = " << tid ;
-// //       std::cout << " fvgeohist: " << epv.geoHistory() << std::endl;
-// //     }
-
-// //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
-//     // build map here
-//     std::stringstream s;
-//     s << "/cms:World_1";
-//     DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
-//     ++ancestor; // skip the first ancestor
-//     for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
-//       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
-      
-//     std::string name = s.str();
-//     idToName_[tid] = name;
-//   }
   }
 
   // preshower
@@ -856,29 +779,6 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
      doSubDets = fview.nextSibling(); // go to next
     }
 
-// //   int n=0;
-//   std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalPreshower);
-//   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-// //     n++;
-// //     const CaloCellGeometry* cell=geom->getGeometry(*i);
-// //     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
-// //     assert (closestCell == EEDetId(*i) );
-//     unsigned int tid(*i);
-//     std::vector<int> tint = geom->getDDNavType(tid);
-//     DDExpandedView epv(cview);
-//     epv.goTo(tint);
-//     //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
-//     // build map here
-//     std::stringstream s;
-//     s << "/cms:World_1";
-//     DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
-//     ++ancestor; // skip the first ancestor
-//     for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
-//       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
-      
-//     std::string name = s.str();
-//     idToName_[tid] = name;
-//   }
   }
 
 }
@@ -918,26 +818,75 @@ void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
      RPCDetId rpcid(detid);
      //     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
      RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
+     
+     std::stringstream s;
+     s << "/cms:World_1";
+     DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
+     DDGeoHistory::const_iterator endancestor;
+     ++ancestor; // skip the first ancestor
+     // in station 3 or 4 AND NOT in endcap, then fix.
+     if ( ( rpcid.station() == 3 || rpcid.station() == 4 ) && std::abs(rpcid.region()) != 1 ) {
+       endancestor = fview.geoHistory().end();
+     } else {
+       endancestor = fview.geoHistory().end() - 1;
+     }
+     //      ++ancestor; // skip the first TWO ancestors
+     for ( ; ancestor != endancestor; ++ ancestor )
+       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+     
+     std::string name = s.str();
+     
+     //Chamber level?      unsigned int rawid = chid.rawId();
+     unsigned int rawid = rpcid.rawId();
+     
+     //     std::cout << idToName_.size() << " " << "RPC chamber id: " << rawid << " \tname: " << name << std::endl;
+     
+     //I assume that we only care to change the +1 region of the endcap (from CSCGeometryBuilderFromDDD)
+     if ( rpcid.region() == 1 ) {
+       DDTranslation tran    = fview.translation();
+       DDRotationMatrix rota = fview.rotation();//.Inverse();
+       Surface::PositionType pos(tran.x()/cm,tran.y()/cm, tran.z()/cm);
+       //       std::cout << tran << std::endl;
+       //       std::cout << fview.geoHistory().back().absTranslation() << std::endl;
+       DD3Vector x, y, z;
+       rota.GetComponents(x,y,z);
+       Surface::RotationType rot (float(x.X()),float(x.Y()),float(x.Z()),
+				  float(y.X()),float(y.Y()),float(y.Z()),
+				  float(z.X()),float(z.Y()),float(z.Z())); 
+       //       std::cout << rawid << " before: " << std::endl << rot << std::endl;
+       //       std::cout << "ddd" << rota;
+       //only to get ALL outputted.       if ( rpcid.region() == 1 ) {    
+       //Change of axes for the forward
+       Basic3DVector<float> newX(1.,0.,0.);
+       Basic3DVector<float> newY(0.,0.,1.);
+       if (tran.z() > 0. ) {
+	 newY *= -1;
+	 //	 DDRotationMatrix rotb(x.X(), y.X(), z.X(), x.Z(), y.Z(), z.Z(), -y.X(), -y.Y(), -z.Z());
+	 DDRotationMatrix rotb(x.X(), z.X(), -y.X(), x.Y(), z.Y(), -y.Y(), x.Z(), z.Z(), -y.Z()); 
+	 //	 std::cout <<" transformed dd: " << rotb << std::endl;
+       } else {
+	 //	 DDRotationMatrix rotb(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z()); 
+	 DDRotationMatrix rotb(x.X(), z.X(), y.X(), x.Y(), z.Y(), y.Y(), x.Z(), z.Z(), y.Z()); 
+	 //	 std::cout <<" transformed dd: " << rotb << std::endl;
+       }
+       Basic3DVector<float> newZ(0.,1.,0.);
+       rot.rotateAxes (newX, newY,newZ);
 
-      std::stringstream s;
-      s << "/cms:World_1";
-      DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
-      ++ancestor; // skip the first ancestor
-      //      ++ancestor; // skip the first TWO ancestors
-      for ( ; ancestor != fview.geoHistory().end() - 1; ++ ancestor )
-	s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
-      
-      std::string name = s.str();
-      
-      //Chamber level?      unsigned int rawid = chid.rawId();
-      unsigned int rawid = rpcid.rawId();
+       //       std::cout << "after: " << std::endl << rot << std::endl;
 
-      //      std::cout << idToName_.size() << " " << "RPC chamber id: " << rawid << " \tname: " << name << std::endl;
-      
-      idToName_[rawid] = name;
-      //      std::cout << " " << idToName_.size() << std::endl;
-      
-      doChamber = fview.nextSibling(); // go to next chamber
+//        std::cout << " new dd: " << std::endl;
+//        std::cout << rot.xx() << ", " << rot.yx() << ", " << rot.zx() << std::endl;
+//        std::cout << rot.xy() << ", " << rot.yy() << ", " << rot.zy() << std::endl;
+//        std::cout << rot.xz() << ", " << rot.yz() << ", " << rot.zz() << std::endl;
+       Basic3DVector<float> thetran(tran.X(), tran.Y(), tran.Z());
+       thetran = rot * thetran;
+       //       std::cout << thetran.x() << ", " << thetran.y() << ", " << thetran.z() << std::endl;
+     }      
+     
+     idToName_[rawid] = name;
+     //      std::cout << " " << idToName_.size() << std::endl;
+     
+     doChamber = fview.nextSibling(); // go to next chamber
    }
 }
 
