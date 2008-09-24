@@ -35,13 +35,8 @@ l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
 
 p = cms.Path(
-#    cms.SequencePlaceholder("RawToDigi")
-    (csctfDigis+dttfDigis+gctDigis+gtDigis #+gtEvmDigis+siPixelDigis+siStripDigis
-     +ecalDigis+ecalPreshowerDigis+hcalDigis#+muonCSCDigis
-     +muonDTDigis+muonRPCDigis)
-#    *cms.SequencePlaceholder("L1HardwareValidation")
-    *(deEcal+deHcal+deRct+deGct+deDt+deDttf#+deCsc
-      +deCsctf+deRpc+deGmt+deGt*l1compare)
+    cms.SequencePlaceholder("RawToDigi")
+    *cms.SequencePlaceholder("L1HardwareValidation")
     *(l1demon
       +l1demonecal
       +l1tderct
