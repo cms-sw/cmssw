@@ -152,7 +152,7 @@ class DBCopy(object):
 	trees=[]
         try:
            source_transaction.start(True)
-	   tablelist=self.__sourcesession.nominalSchema().listTables()
+	   tablelist=list(self.__sourcesession.nominalSchema().listTables())
 	   source_transaction.commit()
 	except Exception, e:
 	   source_transaction.rollback()
@@ -169,17 +169,18 @@ class DBCopy(object):
 	   raise 'Error: '+CommonUtils.inventoryIDTableName()+' does not exist'
 	
 	for tablename in tablelist:
-	   treename=''
 	   posbeg=tablename.find('TAGTREE_TABLE_')
 	   if posbeg != -1:
 	      treename=tablename[posbeg+len('TAGTREE_TABLE_'):]
-	      alltablelist.append(tablename)
-	      treeidtabname=CommonUtils.treeIDTableName(treename)
-	      if tablename.find(treeidtabname) != -1:
-	         alltablelist.append(treeidtabname)
-		 trees.append[treename]
-	      else:
-	         alltablelist.remove(treetabname)
+              trees.append(treename)
+        for tree in trees:
+            try:
+              tablelist.index(CommonUtils.treeIDTableName(tree))
+            except ValueError:
+              print 'non-existing id table for tree ',tree  
+              continue
+            alltablelist.append(CommonUtils.treeTableName(tree))
+            alltablelist.append(CommonUtils.treeIDTableName(tree))
 	#schema preparation
 	inv=tagInventory.tagInventory(self.__destsession)
 	inv.createInventoryTable()
@@ -196,11 +197,12 @@ class DBCopy(object):
 	    source_query=self.__sourcesession.nominalSchema().tableHandle(mytable).newQuery()
 	    conditionData=coral.AttributeList()
 	    source_query.setCondition('',conditionData)
-	    source_query.setRowCacheSize(rowcachesize)
+	    source_query.setRowCacheSize(self.__rowcachesize)
+            my_editor.rowBuffer(data)
 	    source_query.defineOutput(data)
-	    bulkOperation=my_editor.bulkInsert(data,rowcachesize)
+	    bulkOperation=my_editor.bulkInsert(data,self.__rowcachesize)
 	    cursor=source_query.execute()
-            while cursor.next() is True:
+            while cursor.next():
 	       bulkOperation.processNextIteration()
 	    bulkOperation.flush()
 	    del bulkOperation
@@ -235,5 +237,19 @@ if __name__ == "__main__":
         print str(e)
         del sourcesession
         del destsession
- 
-    
+     
+    sourcesession = svc.connect( 'sqlite_file:source.db',
+                                 accessMode = coral.access_Update )
+    destsession = svc.connect( 'sqlite_file:dest2.db',
+                                 accessMode = coral.access_Update )
+    try:
+        dbcp=DBCopy(sourcesession,destsession,1024)
+        print "TEST full dbCopy"
+        dbcp.copyDB()
+        del sourcesession
+        del destsession
+    except Exception, e:
+        print "Failed in unit test"
+        print str(e)
+        del sourcesession
+        del destsession
