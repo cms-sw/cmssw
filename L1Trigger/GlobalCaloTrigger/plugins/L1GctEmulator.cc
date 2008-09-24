@@ -54,6 +54,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
+  produces<L1GctEtMissCollection>("missingHt");
   produces<L1GctJetCountsCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
@@ -190,6 +191,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
   std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
   std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
+  std::auto_ptr<L1GctEtMissCollection>  htMissResult(new L1GctEtMissCollection (m_gct->getHtMissCollection() ) );
 
   // create the jet counts digis
   std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
@@ -207,6 +209,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   e.put(etTotResult);
   e.put(etHadResult);
   e.put(etMissResult);
+  e.put(htMissResult,"missingHt");
   e.put(jetCountResult);
   e.put(hfBitCountResult);
   e.put(hfRingEtSumResult);
