@@ -260,9 +260,9 @@ TtSemiLepKinFitter::Param TtSemiLepKinFitProducer<LeptonCollection>::param(unsig
 {
   TtSemiLepKinFitter::Param result;
   switch(val){
-  case 0 : result=TtSemiLepKinFitter::kEMom;       break;
-  case 1 : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
-  case 2 : result=TtSemiLepKinFitter::kEtThetaPhi; break;
+  case TtSemiLepKinFitter::kEMom       : result=TtSemiLepKinFitter::kEMom;       break;
+  case TtSemiLepKinFitter::kEtEtaPhi   : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
+  case TtSemiLepKinFitter::kEtThetaPhi : result=TtSemiLepKinFitter::kEtThetaPhi; break;
   default: 
     throw cms::Exception("WrongConfig") 
       << "Chosen jet parametrization is not supported: " << val << "\n";
@@ -276,14 +276,14 @@ TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constr
 {
   TtSemiLepKinFitter::Constraint result;
   switch(val){
-  case 0 : result=TtSemiLepKinFitter::kWHadMass;     break;
-  case 1 : result=TtSemiLepKinFitter::kWLepMass;     break;
-  case 2 : result=TtSemiLepKinFitter::kTopHadMass;   break;
-  case 3 : result=TtSemiLepKinFitter::kTopLepMass;   break;
-  case 4 : result=TtSemiLepKinFitter::kNeutrinoMass; break;
+  case TtSemiLepKinFitter::kWHadMass     : result=TtSemiLepKinFitter::kWHadMass;     break;
+  case TtSemiLepKinFitter::kWLepMass     : result=TtSemiLepKinFitter::kWLepMass;     break;
+  case TtSemiLepKinFitter::kTopHadMass   : result=TtSemiLepKinFitter::kTopHadMass;   break;
+  case TtSemiLepKinFitter::kTopLepMass   : result=TtSemiLepKinFitter::kTopLepMass;   break;
+  case TtSemiLepKinFitter::kNeutrinoMass : result=TtSemiLepKinFitter::kNeutrinoMass; break;
   default: 
     throw cms::Exception("WrongConfig") 
-      << "Chosen fit contraint is not supported: " << val << "\n";
+      << "Chosen fit constraint is not supported: " << val << "\n";
     break;
   }
   return result;

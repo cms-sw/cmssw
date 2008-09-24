@@ -21,9 +21,9 @@ class TtSemiLepKinFitter {
   
  public:
   
-  // supported contraints
+  // supported constraints
   enum Constraint 
-    { kWHadMass, 
+    { kWHadMass = 1, 
       kWLepMass, 
       kTopHadMass, 
       kTopLepMass, 

@@ -13,7 +13,7 @@
 //                          Max iterations =  200, 
 //                          deltaS        <= 5e-5,
 //                          maxF          <= 1e-4
-//                          no contraints
+//                          no constraints
 TtSemiLepKinFitter::TtSemiLepKinFitter() : 
   fitter_(0), hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
   jetParam_(kEMom), lepParam_(kEMom), metParam_(kEMom), maxNrIter_(200), maxDeltaS_( 5e-5), maxF_(1e-4) 
@@ -154,7 +154,7 @@ void TtSemiLepKinFitter::setupFitter()
   fitter_->addMeasParticle(lepton_);
   fitter_->addMeasParticle(neutrino_);
 
-  // add contraints
+  // add constraints
   for(unsigned int i=0; i<constrList_.size(); i++){
     fitter_->addConstraint(massConstr_[constrList_[i]]);
   }
