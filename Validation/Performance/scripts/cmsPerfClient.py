@@ -85,15 +85,6 @@ def optionparse():
                       metavar='<MACHINES>',
                       )
 
-##     parser.add_option('-c',
-##                       '--cps-cmd',
-##                       type="string",
-##                       dest='cmsperfcmd',
-##                       default="",
-##                       help='The cmsPerfSuite.py command to run',
-##                       metavar='<COMMAND>',
-##                       )
-
     parser.add_option('-f',
                       '--cmd-file',
                       type="string",
