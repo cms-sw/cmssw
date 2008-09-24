@@ -18,9 +18,11 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
   m_whichJetFinder(jfType),
   phiPosition(iphi),
   m_exSum(0), m_eySum(0),
+  m_hxSum(0), m_hySum(0),
   m_etSum(0), m_htSum(0),
   m_hfSums(),
   m_exSumPipe(), m_eySumPipe(),
+  m_hxSumPipe(), m_hySumPipe(),
   m_etSumPipe(), m_htSumPipe(),
   m_hfSumsPipe()
 {
@@ -105,6 +107,8 @@ std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
   s << "i_phi = " << card.phiPosition << endl;;
   s << "Ex " << card.m_exSum << endl;
   s << "Ey " << card.m_eySum << endl;
+  s << "Hx " << card.m_hxSum << endl;
+  s << "Hy " << card.m_hySum << endl;
   s << "Et " << card.m_etSum << endl;
   s << "Ht " << card.m_htSum << endl;
   s << "JetFinder A : " << endl << (*card.m_jetFinderA);
@@ -142,6 +146,8 @@ void L1GctJetLeafCard::resetProcessor()
 {
   m_exSum.reset();
   m_eySum.reset();
+  m_hxSum.reset();
+  m_hySum.reset();
   m_etSum.reset();
   m_htSum.reset();
   m_hfSums.reset();
@@ -151,6 +157,8 @@ void L1GctJetLeafCard::resetPipelines()
 {
   m_exSumPipe.reset(numOfBx());
   m_eySumPipe.reset(numOfBx());
+  m_hxSumPipe.reset(numOfBx());
+  m_hySumPipe.reset(numOfBx());
   m_etSumPipe.reset(numOfBx());
   m_htSumPipe.reset(numOfBx());
   m_hfSumsPipe.reset(numOfBx());
@@ -173,6 +181,7 @@ void L1GctJetLeafCard::process() {
   m_jetFinderC->process();
 
   // Finish Et and Ht sums for the Leaf Card
+  // First Et and missing Et
   std::vector< etTotalType > etStripSum(6);
   etStripSum.at(0) = m_jetFinderA->getEtStrip0();
   etStripSum.at(1) = m_jetFinderA->getEtStrip1();
@@ -195,10 +204,29 @@ void L1GctJetLeafCard::process() {
     m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
   }
 
-  m_htSum =
-    m_jetFinderA->getHt() +
-    m_jetFinderB->getHt() +
-    m_jetFinderC->getHt();
+  // Exactly the same procedure for Ht and missing Ht
+  // Note using etTotalType for the strips but the output sum is etHadType
+  std::vector< etTotalType > htStripSum(6);
+  htStripSum.at(0) = m_jetFinderA->getHtStrip0();
+  htStripSum.at(1) = m_jetFinderA->getHtStrip1();
+  htStripSum.at(2) = m_jetFinderB->getHtStrip0();
+  htStripSum.at(3) = m_jetFinderB->getHtStrip1();
+  htStripSum.at(4) = m_jetFinderC->getHtStrip0();
+  htStripSum.at(5) = m_jetFinderC->getHtStrip1();
+
+  m_htSum.reset();
+  m_hxSum.reset();
+  m_hySum.reset();
+
+  for (unsigned i=0; i<6; ++i) {
+    m_htSum = m_htSum + htStripSum.at(i);
+  }
+
+  for (unsigned i=0; i<3; ++i) {
+    unsigned jphi = 2*(phiPosition*3+i);
+    m_hxSum = m_hxSum + exComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
+    m_hySum = m_hySum + eyComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
+  }
 
   m_hfSums = 
     m_jetFinderA->getHfSums() +
@@ -208,6 +236,8 @@ void L1GctJetLeafCard::process() {
   // Store the outputs in pipelines
   m_exSumPipe.store  (m_exSum,  bxRel());
   m_eySumPipe.store  (m_eySum,  bxRel());
+  m_hxSumPipe.store  (m_hxSum,  bxRel());
+  m_hySumPipe.store  (m_hySum,  bxRel());
   m_etSumPipe.store  (m_etSum,  bxRel());
   m_htSumPipe.store  (m_htSum,  bxRel());
   m_hfSumsPipe.store (m_hfSums, bxRel());

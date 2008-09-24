@@ -159,7 +159,8 @@ public:
   JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
   etTotalType getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
   etTotalType getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
-  etHadType   getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
+  etTotalType getHtStrip0() const { return m_outputHtStrip0; }  ///< Get the total calibrated energy in jets (Ht) in strip 0
+  etTotalType getHtStrip1() const { return m_outputHtStrip1; }  ///< Get the total calibrated energy in jets (Ht) in strip 1
 
   hfTowerSumsType getHfSums() const { return m_outputHfSums; }  ///< Get the Hf tower Et sums and tower-over-threshold counts
 
@@ -223,7 +224,8 @@ public:
   /// output Et strip sums and Ht
   etTotalType m_outputEtStrip0;
   etTotalType m_outputEtStrip1;
-  etHadType   m_outputHt;
+  etTotalType m_outputHtStrip0;
+  etTotalType m_outputHtStrip1;
 
   hfTowerSumsType m_outputHfSums;
     
@@ -247,7 +249,7 @@ public:
   etTotalType calcEtStrip(const UShort strip) const;
 
   /// Calculates total calibrated energy in jets (Ht) sum
-  etHadType   calcHt() const;
+  etTotalType calcHtStrip(const UShort strip) const;
   
   /// Calculates Et sum and number of towers over threshold in Hf
   hfTowerSumsType calcHfSums() const;

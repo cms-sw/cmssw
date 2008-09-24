@@ -91,6 +91,10 @@ public:
   /// get the Ey output
   etComponentType getOutputEy() const { return m_eySum; }
     
+  /// get the output Ht components
+  etComponentType getOutputHx() const { return m_hxSum; }
+  etComponentType getOutputHy() const { return m_hySum; }
+    
   /// get the Et output
   etTotalType getOutputEt() const { return m_etSum; }
   etHadType   getOutputHt() const { return m_htSum; }
@@ -103,6 +107,10 @@ public:
    
   /// get the Ey output history
   std::vector< etComponentType > getAllOutputEy() const { return m_eySumPipe.contents; }
+
+  /// get the output Ht components history
+  std::vector< etComponentType > getAllOutputHx() const { return m_hxSumPipe.contents; }
+  std::vector< etComponentType > getAllOutputHy() const { return m_hySumPipe.contents; }
     
   /// get the Et output history
   std::vector< etTotalType > getAllOutputEt() const { return m_etSumPipe.contents; }
@@ -138,6 +146,8 @@ public:
 
   etComponentType m_exSum;
   etComponentType m_eySum;
+  etComponentType m_hxSum;
+  etComponentType m_hySum;
   etTotalType m_etSum;
   etHadType   m_htSum;
 
@@ -146,6 +156,8 @@ public:
   // stored copies of output data
   Pipeline<etComponentType> m_exSumPipe;
   Pipeline<etComponentType> m_eySumPipe;
+  Pipeline<etComponentType> m_hxSumPipe;
+  Pipeline<etComponentType> m_hySumPipe;
   Pipeline<etTotalType>     m_etSumPipe;
   Pipeline<etHadType>       m_htSumPipe;
   Pipeline<hfTowerSumsType> m_hfSumsPipe;

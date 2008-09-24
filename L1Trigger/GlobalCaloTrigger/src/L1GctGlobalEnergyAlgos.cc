@@ -24,6 +24,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
   m_plusWheelJetFpga(wheelJetFpga.at(1)),
   m_minusWheelJetFpga(wheelJetFpga.at(0)),
   m_metComponents(0,0, L1GctMet::cordicTranslate),
+  m_mhtComponents(0,0, L1GctMet::floatingPoint),
   m_exValPlusWheel(), m_eyValPlusWheel(),
   m_etValPlusWheel(), m_htValPlusWheel(),
   m_exVlMinusWheel(), m_eyVlMinusWheel(),
@@ -81,12 +82,22 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
       << "Minus Wheel Jet Fpga pointer has not been set!\n";
     }
 
+    // Set the scale for missing Ht
+    //+++!!! THIS SHOULD EVENTUALLY COME FROM CondFormats !!!+++
+    // A shift of 3 bits corresponds to a scale factor of 8
+    // (with respect to the Ht scale defined elsewhere)
+    //+++!!! THIS SHOULD EVENTUALLY COME FROM CondFormats !!!+++
+    m_mhtComponents.setBitShift(3);
+
     // Setup to perform the Hf sums
     m_hfSumProcessor = new L1GctGlobalHfSumAlgos(wheelJetFpga);
 }
 
 L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 {
+  if (m_hfSumProcessor != 0) {
+    delete m_hfSumProcessor;
+  }
 }
 
 ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
@@ -154,6 +165,10 @@ void L1GctGlobalEnergyAlgos::resetProcessor() {
   m_etVlMinusWheel.reset();
   m_htValPlusWheel.reset();
   m_htVlMinusWheel.reset();
+  m_hxValPlusWheel.reset();
+  m_hxVlMinusWheel.reset();
+  m_hyValPlusWheel.reset();
+  m_hyVlMinusWheel.reset();
   for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
     m_jcValPlusWheel.at(i).reset();
     m_jcVlMinusWheel.at(i).reset();
@@ -165,16 +180,24 @@ void L1GctGlobalEnergyAlgos::resetPipelines() {
   m_outputEtMissPhi.reset (numOfBx());
   m_outputEtSum.reset     (numOfBx());
   m_outputEtHad.reset     (numOfBx());
+  m_outputHtMiss.reset    (numOfBx());
+  m_outputHtMissPhi.reset (numOfBx());
   m_outputJetCounts.reset (numOfBx());
 
   m_exValPlusPipe.reset (numOfBx());
   m_eyValPlusPipe.reset (numOfBx());
   m_etValPlusPipe.reset (numOfBx());
   m_htValPlusPipe.reset (numOfBx());
+  m_hxValPlusPipe.reset (numOfBx());
+  m_hyValPlusPipe.reset (numOfBx());
+
   m_exVlMinusPipe.reset (numOfBx());
   m_eyVlMinusPipe.reset (numOfBx());
   m_etVlMinusPipe.reset (numOfBx());
   m_htVlMinusPipe.reset (numOfBx());
+  m_hxVlMinusPipe.reset (numOfBx());
+  m_hyVlMinusPipe.reset (numOfBx());
+
   m_jcValPlusPipe.reset (numOfBx());
   m_jcVlMinusPipe.reset (numOfBx());
 
@@ -186,11 +209,15 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
   m_eyValPlusWheel = m_plusWheelFpga->getOutputEy();
   m_etValPlusWheel = m_plusWheelFpga->getOutputEt();
   m_htValPlusWheel = m_plusWheelJetFpga->getOutputHt();
+  m_hxValPlusWheel = m_plusWheelJetFpga->getOutputHx();
+  m_hyValPlusWheel = m_plusWheelJetFpga->getOutputHy();
   
   m_exVlMinusWheel = m_minusWheelFpga->getOutputEx();
   m_eyVlMinusWheel = m_minusWheelFpga->getOutputEy();
   m_etVlMinusWheel = m_minusWheelFpga->getOutputEt();
   m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
+  m_hxVlMinusWheel = m_minusWheelJetFpga->getOutputHx();
+  m_hyVlMinusWheel = m_minusWheelJetFpga->getOutputHy();
 
   //
   for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
@@ -210,16 +237,22 @@ void L1GctGlobalEnergyAlgos::process()
   m_eyValPlusPipe.store(m_eyValPlusWheel, bxRel());
   m_etValPlusPipe.store(m_etValPlusWheel, bxRel());
   m_htValPlusPipe.store(m_htValPlusWheel, bxRel());
+  m_hxValPlusPipe.store(m_hxValPlusWheel, bxRel());
+  m_hyValPlusPipe.store(m_hyValPlusWheel, bxRel());
+
   m_exVlMinusPipe.store(m_exVlMinusWheel, bxRel());
   m_eyVlMinusPipe.store(m_eyVlMinusWheel, bxRel());
   m_etVlMinusPipe.store(m_etVlMinusWheel, bxRel());
   m_htVlMinusPipe.store(m_htVlMinusWheel, bxRel());
+  m_hxVlMinusPipe.store(m_hxVlMinusWheel, bxRel());
+  m_hyVlMinusPipe.store(m_hyVlMinusWheel, bxRel());
+
   m_jcValPlusPipe.store(m_jcValPlusWheel, bxRel());
   m_jcVlMinusPipe.store(m_jcVlMinusWheel, bxRel());
 
   // Process to produce the outputs
   etComponentType ExSum, EySum;
-  etmiss_vec EtMissing;
+  etmiss_vec EtMissing, HtMissing;
 
   //
   //-----------------------------------------------------------------------------
@@ -232,6 +265,28 @@ void L1GctGlobalEnergyAlgos::process()
 
   m_outputEtMiss.store    (EtMissing.mag, bxRel());
   m_outputEtMissPhi.store (EtMissing.phi, bxRel());
+
+  //
+  //-----------------------------------------------------------------------------
+  // Form the Hx and Hy sums
+  ExSum = m_hxValPlusWheel + m_hxVlMinusWheel;
+  EySum = m_hyValPlusWheel + m_hyVlMinusWheel;
+  // Execute the missing Et algorithm
+  m_mhtComponents.setComponents(-ExSum, -EySum);
+  HtMissing = m_mhtComponents.metVector();
+
+  // Store 6 bits each of magnitude and phi angle.
+  // Note EtMissPhi is 7 bits so we keep the range (0-70)
+  // and lose the LSB.
+  static const unsigned MAX_HT_VALUE = 0x3f;
+  static const unsigned PHI_HT_MASK  = 0x7e;
+  if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
+    HtMissing.mag.setValue(MAX_HT_VALUE);
+  }
+  HtMissing.phi.setValue(HtMissing.phi.value() & PHI_HT_MASK);
+
+  m_outputHtMiss.store    (HtMissing.mag, bxRel());
+  m_outputHtMissPhi.store (HtMissing.phi, bxRel());
 
   //
   //-----------------------------------------------------------------------------
@@ -323,6 +378,36 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
   } else if (wheel==1) {
     m_htVlMinusWheel.setValue(energy);
     m_htVlMinusWheel.setOverFlow(overflow);
+  }
+}
+
+
+//----------------------------------------------------------------------------------------------
+// set input data per wheel: x component of Ht
+//
+void L1GctGlobalEnergyAlgos::setInputWheelHx(unsigned wheel, unsigned energy, bool overflow)
+{
+  if (wheel==0) {
+    m_hxValPlusWheel.setValue(energy);
+    m_hxValPlusWheel.setOverFlow(overflow);
+  } else if (wheel==1) {
+    m_hxVlMinusWheel.setValue(energy);
+    m_hxVlMinusWheel.setOverFlow(overflow);
+  }
+}
+
+
+//----------------------------------------------------------------------------------------------
+// set input data per wheel: y component of Ht
+//
+void L1GctGlobalEnergyAlgos::setInputWheelHy(unsigned wheel, unsigned energy, bool overflow)
+{
+  if (wheel==0) {
+    m_hyValPlusWheel.setValue(energy);
+    m_hyValPlusWheel.setOverFlow(overflow);
+  } else if (wheel==1) {
+    m_hyVlMinusWheel.setValue(energy);
+    m_hyVlMinusWheel.setOverFlow(overflow);
   }
 }
 

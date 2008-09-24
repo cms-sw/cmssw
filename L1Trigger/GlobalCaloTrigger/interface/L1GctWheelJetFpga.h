@@ -32,6 +32,7 @@ class L1GctWheelJetFpga : public L1GctProcessor
 public:
   typedef std::vector<L1GctJetCand> JetVector;
   typedef L1GctUnsignedInt<L1GctEtHad::kEtHadNBits> EtHadType;
+  typedef L1GctJetLeafCard::etComponentType etComponentType;
   typedef L1GctJetLeafCard::hfTowerSumsType hfTowerSumsType;
 
   /// Max number of jets of each type we output.
@@ -81,6 +82,10 @@ public:
   /// get the input Ht
   EtHadType inputHt(unsigned leafnum) const { return m_inputHt.at(leafnum); }
     
+  /// get the input Ht components
+  etComponentType inputHx(unsigned leafnum) const { return m_inputHx.at(leafnum); }
+  etComponentType inputHy(unsigned leafnum) const { return m_inputHy.at(leafnum); }
+    
   /// get the input Hf Sums
   hfTowerSumsType inputHfSums(unsigned leafnum) const { return m_inputHfSums.at(leafnum); }
 
@@ -95,6 +100,10 @@ public:
     
   /// get the output Ht
   EtHadType getOutputHt() const { return m_outputHt; }
+
+  /// get the output Ht components
+  etComponentType getOutputHx() const { return m_outputHx; }
+  etComponentType getOutputHy() const { return m_outputHy; }
 
   /// get the output Hf Sums
   hfTowerSumsType getOutputHfSums() const { return m_outputHfSums; }
@@ -143,6 +152,10 @@ private:
   // input Ht sums from each leaf card
   std::vector< EtHadType > m_inputHt;
 
+  // input Ht component sums from each leaf card
+  std::vector< etComponentType > m_inputHx;
+  std::vector< etComponentType > m_inputHy;
+
   // input Hf Et sums from each leaf card
   std::vector< hfTowerSumsType > m_inputHfSums;
 
@@ -153,6 +166,8 @@ private:
     
   // data sent to GlobalEnergyAlgos
   EtHadType m_outputHt;
+  etComponentType m_outputHx;
+  etComponentType m_outputHy;
   hfTowerSumsType m_outputHfSums;
   std::vector< L1GctJetCount<3> > m_outputJc;
       

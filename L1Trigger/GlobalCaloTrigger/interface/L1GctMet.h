@@ -50,6 +50,11 @@ class L1GctMet
   void setAlgoType(const metAlgoType algo) { m_algoType = algo; }
   metAlgoType getAlgoType() const { return m_algoType; }
 
+  // set and get the bit shift
+  // This parameter can be used to scale the output relative to the input
+  void setBitShift(const unsigned nbits) { m_bitShift = nbits; }
+  unsigned getBitShift() const { return m_bitShift; }
+
  private:
 
   struct etmiss_internal {
@@ -59,7 +64,8 @@ class L1GctMet
 
   etComponentType m_exComponent;
   etComponentType m_eyComponent;
-  metAlgoType m_algoType;
+  metAlgoType     m_algoType;
+  unsigned short  m_bitShift;
 
   etmiss_internal cordicTranslateAlgo (const int ex, const int ey) const;
   etmiss_internal oldGctAlgo          (const int ex, const int ey) const;

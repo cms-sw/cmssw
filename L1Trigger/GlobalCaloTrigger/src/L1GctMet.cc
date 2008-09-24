@@ -5,13 +5,15 @@
 L1GctMet::L1GctMet(const unsigned ex, const unsigned ey, const L1GctMet::metAlgoType algo) :
   m_exComponent(ex),
   m_eyComponent(ey),
-  m_algoType(algo)
+  m_algoType(algo),
+  m_bitShift(0)
 { }
 
 L1GctMet::L1GctMet(const etComponentType& ex, const etComponentType& ey, const metAlgoType algo) :
   m_exComponent(ex),
   m_eyComponent(ey),
-  m_algoType(algo)
+  m_algoType(algo),
+  m_bitShift(0)
 { }
 
 L1GctMet::~L1GctMet() {}
@@ -40,8 +42,12 @@ L1GctMet::metVector () const
       break;
     }
 
-  // Discard the least significant bit of the result
-  result.mag.setValue(algoResult.mag>>1);
+  // Discard the least significant bits of the result
+  // NB One extra LSB is added during the conversion of strip sums
+  // to x and y components (in the JetLeafCard).
+  // The parameter m_bitShift allows us to discard additional LSB
+  // in order to change the output scale. 
+  result.mag.setValue(algoResult.mag>>(1+m_bitShift));
   result.phi.setValue(algoResult.phi);
 
   result.mag.setOverFlow( result.mag.overFlow() || m_exComponent.overFlow() || m_eyComponent.overFlow() );

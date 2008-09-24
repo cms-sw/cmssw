@@ -157,6 +157,9 @@ public:
   /// Etmiss output to GT
   L1GctEtMissCollection  getEtMissCollection() const;
 
+  /// Htmiss output to GT
+  L1GctEtMissCollection  getHtMissCollection() const;
+
   // Jet Count output to GT
   L1GctJetCountsCollection getJetCountsCollection() const;
 

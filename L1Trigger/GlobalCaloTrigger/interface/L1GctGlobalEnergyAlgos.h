@@ -79,6 +79,9 @@ public:
 	void setInputWheelEt(unsigned wheel, unsigned energy, bool overflow);
 	/// set input Ht value per wheel (0 or 1); not used in normal operation
 	void setInputWheelHt(unsigned wheel, unsigned energy, bool overflow);
+	/// set input Ht component values per wheel (0 or 1); not used in normal operation
+	void setInputWheelHx(unsigned wheel, unsigned energy, bool overflow);
+	void setInputWheelHy(unsigned wheel, unsigned energy, bool overflow);
 
 	/// set input jet count (number 0-11) per wheel (0 or 1); not used in normal operation
         void setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count);
@@ -106,10 +109,16 @@ public:
 	inline std::vector< etTotalType > getInputEtValPlusWheel() const { return m_etValPlusPipe.contents; }
 	/// return input Ht value wheel 1
 	inline std::vector< etHadType   > getInputHtValPlusWheel() const { return m_htValPlusPipe.contents; }
+	/// return input Ht component values wheel 1
+	inline std::vector< etComponentType > getInputHxValPlusWheel() const { return m_hxValPlusPipe.contents; }
+	inline std::vector< etComponentType > getInputHyValPlusWheel() const { return m_hyValPlusPipe.contents; }
 	/// return input Et value wheel 0
 	inline std::vector< etTotalType > getInputEtVlMinusWheel() const { return m_etVlMinusPipe.contents; }
 	/// return input Ht value wheel 0
 	inline std::vector< etHadType   > getInputHtVlMinusWheel() const { return m_htVlMinusPipe.contents; }
+	/// return input Ht value wheel 0
+	inline std::vector< etComponentType > getInputHxVlMinusWheel() const { return m_hxVlMinusPipe.contents; }
+	inline std::vector< etComponentType > getInputHyVlMinusWheel() const { return m_hyVlMinusPipe.contents; }
 	/// return input jet count (number 0-11) wheel 1
        inline std::vector< L1GctJetCount<3> > getInputJcValPlusWheel() const {return m_jcValPlusPipe.contents; }
 	/// return input jet count (number 0-11) wheel 0
@@ -124,6 +133,10 @@ public:
 	inline std::vector< etTotalType >   getEtSumColl()     const { return m_outputEtSum.contents; }
 	/// return std::vector< output calibrated jet Et
 	inline std::vector< etHadType >     getEtHadColl()     const { return m_outputEtHad.contents; }
+	/// return output missing Ht magnitude
+	inline std::vector< etMissType >    getHtMissColl()    const { return m_outputHtMiss.contents; }
+	/// return output missing Ht value
+	inline std::vector< etMissPhiType > getHtMissPhiColl() const { return m_outputHtMissPhi.contents; }
 
 	/// return a particular jet count
 	inline L1GctJetCount<5> getJetCount(const unsigned jcnum, const unsigned bx) const
@@ -150,18 +163,24 @@ public:
 	// Here's the class that does the Hf sums
 	L1GctGlobalHfSumAlgos* m_hfSumProcessor;
 
-	// Missing Et
+	// Missing Et and missing Ht
 	L1GctMet m_metComponents;
+	L1GctMet m_mhtComponents;
 
 	// input data
 	etComponentType m_exValPlusWheel;
 	etComponentType m_eyValPlusWheel;
 	etTotalType m_etValPlusWheel;
 	etHadType   m_htValPlusWheel;
+	etComponentType m_hxValPlusWheel;
+	etComponentType m_hyValPlusWheel;
+
 	etComponentType m_exVlMinusWheel;
 	etComponentType m_eyVlMinusWheel;
 	etTotalType m_etVlMinusWheel;
 	etHadType   m_htVlMinusWheel;
+	etComponentType m_hxVlMinusWheel;
+	etComponentType m_hyVlMinusWheel;
 
         std::vector< L1GctJetCount<3> > m_jcValPlusWheel;
         std::vector< L1GctJetCount<3> > m_jcVlMinusWheel;
@@ -171,10 +190,15 @@ public:
 	Pipeline< etComponentType > m_eyValPlusPipe;
 	Pipeline< etTotalType > m_etValPlusPipe;
 	Pipeline< etHadType >   m_htValPlusPipe;
+	Pipeline< etComponentType > m_hxValPlusPipe;
+	Pipeline< etComponentType > m_hyValPlusPipe;
+
 	Pipeline< etComponentType > m_exVlMinusPipe;
 	Pipeline< etComponentType > m_eyVlMinusPipe;
 	Pipeline< etTotalType > m_etVlMinusPipe;
 	Pipeline< etHadType >   m_htVlMinusPipe;
+	Pipeline< etComponentType > m_hxVlMinusPipe;
+	Pipeline< etComponentType > m_hyVlMinusPipe;
 
         Pipeline< L1GctJetCount<3> > m_jcValPlusPipe;
         Pipeline< L1GctJetCount<3> > m_jcVlMinusPipe;
@@ -184,6 +208,8 @@ public:
 	Pipeline<etMissPhiType> m_outputEtMissPhi;
 	Pipeline<etTotalType>   m_outputEtSum;
 	Pipeline<etHadType>     m_outputEtHad;
+	Pipeline<etMissType>    m_outputHtMiss;
+	Pipeline<etMissPhiType> m_outputHtMissPhi;
 
 	Pipeline<L1GctJetCount<5> > m_outputJetCounts;
 

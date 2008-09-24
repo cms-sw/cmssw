@@ -33,11 +33,13 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
   m_rawCentralJets(MAX_RAW_CJETS),
   m_rawForwardJets(MAX_RAW_FJETS),
   m_inputHt(MAX_LEAF_CARDS),
+  m_inputHx(MAX_LEAF_CARDS),
+  m_inputHy(MAX_LEAF_CARDS),
   m_inputHfSums(MAX_LEAF_CARDS),
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
   m_tauJets(MAX_JETS_OUT),
-  m_outputHt(0), m_outputHfSums(),
+  m_outputHt(0), m_outputHx(0), m_outputHy(0), m_outputHfSums(),
   m_outputJc(N_JET_COUNTERS)
 {
   checkSetup();
@@ -181,9 +183,13 @@ void L1GctWheelJetFpga::resetProcessor()
   for (unsigned int i=0; i<MAX_LEAF_CARDS; ++i)
   {
     m_inputHt.at(i).reset();
+    m_inputHx.at(i).reset();
+    m_inputHy.at(i).reset();
     m_inputHfSums.at(i).reset();
   }
   m_outputHt.reset();
+  m_outputHx.reset();
+  m_outputHy.reset();
   m_outputHfSums.reset();
   for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
   {
@@ -209,6 +215,8 @@ void L1GctWheelJetFpga::fetchInput()
         
     // Deal with the Ht inputs
     m_inputHt.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHt();
+    m_inputHx.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHx();
+    m_inputHy.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHy();
 
     // Deal with the Hf tower sum inputs
     m_inputHfSums.at(iLeaf) = m_inputLeafCards.at(iLeaf)->getOutputHfSums();
@@ -245,6 +253,8 @@ void L1GctWheelJetFpga::process()
 
   //Ht processing
   m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
+  m_outputHx = m_inputHx.at(0) + m_inputHx.at(1) + m_inputHx.at(2);
+  m_outputHy = m_inputHy.at(0) + m_inputHy.at(1) + m_inputHy.at(2);
 
   //Hf tower sums processing
   m_outputHfSums = m_inputHfSums.at(0) + m_inputHfSums.at(1) + m_inputHfSums.at(2);

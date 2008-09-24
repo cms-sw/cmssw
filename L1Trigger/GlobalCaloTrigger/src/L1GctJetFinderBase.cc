@@ -28,7 +28,8 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_inputRegions(MAX_REGIONS_IN),
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
-  m_outputEtStrip0(0), m_outputEtStrip1(0), m_outputHt(0),
+  m_outputEtStrip0(0), m_outputEtStrip1(0),
+  m_outputHtStrip0(0), m_outputHtStrip1(0),
   m_outputHfSums(),
   m_outputJetsPipe(MAX_JETS_OUT)
 {
@@ -103,7 +104,8 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
 //     }
   os << "Output Et strip 0 " << algo.m_outputEtStrip0 << endl;
   os << "Output Et strip 1 " << algo.m_outputEtStrip1 << endl;
-  os << "Output Ht " << algo.m_outputHt << endl;
+  os << "Output Ht strip 0 " << algo.m_outputHtStrip0 << endl;
+  os << "Output Ht strip 1 " << algo.m_outputHtStrip1 << endl;
   os << endl;
 
   return os;
@@ -128,7 +130,8 @@ void L1GctJetFinderBase::resetProcessor()
 
   m_outputEtStrip0 = 0;
   m_outputEtStrip1 = 0;
-  m_outputHt = 0;
+  m_outputHtStrip0 = 0;
+  m_outputHtStrip1 = 0;
 
   m_outputHfSums.reset();
 }
@@ -237,7 +240,8 @@ void L1GctJetFinderBase::doEnergySums()
   m_outputEtStrip1 = calcEtStrip(1);
 
   //calculate the Ht
-  m_outputHt = calcHt();
+  m_outputHtStrip0 = calcHtStrip(0);
+  m_outputHtStrip1 = calcHtStrip(1);
 
   //calculate the Hf tower Et sums and tower-over-threshold counts
   m_outputHfSums = calcHfSums();
@@ -270,7 +274,7 @@ L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcEtStrip(const UShort str
 }
 
 // Calculates total calibrated energy in jets (Ht) sum
-L1GctJetFinderBase::etHadType L1GctJetFinderBase::calcHt() const
+L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort strip) const
 {    
   unsigned ht = 0;
   bool of = false;
@@ -278,8 +282,10 @@ L1GctJetFinderBase::etHadType L1GctJetFinderBase::calcHt() const
   {
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
-      ht += m_outputJets.at(i).calibratedEt(m_jetEtCalLut);
-      of |= m_outputJets.at(i).overFlow();
+      if (m_outputJets.at(i).rctPhi() == strip) {
+	ht += m_outputJets.at(i).calibratedEt(m_jetEtCalLut);
+	of |= m_outputJets.at(i).overFlow();
+      }
     }
   }
   etHadType temp(ht);
