@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/08/17 23:11:02 $
- * $Revision: 1.32 $
+ * $Date: 2008/09/05 21:09:00 $
+ * $Revision: 1.33 $
  * \author W. Fisher
  *
 */
@@ -41,6 +41,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalBeamMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalExpertMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLaserMonitor.h"
@@ -186,6 +187,7 @@ public:
   HcalDataFormatMonitor*  dfMon_;
   HcalRecHitMonitor*      rhMon_;
   HcalBeamMonitor*        beamMon_;
+  HcalExpertMonitor*      expertMon_;
   HcalPedestalMonitor*    pedMon_;
   HcalLEDMonitor*         ledMon_;
   HcalLaserMonitor*       laserMon_;

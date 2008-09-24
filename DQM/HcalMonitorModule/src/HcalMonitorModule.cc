@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/09/12 16:12:48 $
- * $Revision: 1.76 $
+ * $Date: 2008/09/15 16:08:46 $
+ * $Revision: 1.77 $
  * \author W Fisher
  *
 */
@@ -30,6 +30,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   deadMon_ = NULL;   tpMon_ = NULL;
   ctMon_ = NULL;     beamMon_ = NULL;
   laserMon_ = NULL;
+  expertMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
@@ -126,6 +127,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     beamMon_->setup(ps, dbe_);
   }
 
+  if (ps.getUntrackedParameter<bool>("ExpertMonitor",false)){
+    if(debug_) cout << "HcalMonitorModule: Expert monitor flag is on...."<<endl;
+    expertMon_ = new HcalExpertMonitor();
+    expertMon_->setup(ps, dbe_);
+  }
+
+  
 
   if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
     if(debug_) cout << "HcalMonitorModule: Hcal Analysis flag is on...." << endl;
@@ -347,6 +355,7 @@ void HcalMonitorModule::endJob(void) {
   if (tpMon_!=NULL) tpMon_->done();
   if (ctMon_!=NULL) ctMon_->done();
   if (beamMon_!=NULL) beamMon_->done();
+  if (expertMon_!=NULL) expertMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
   return;
 }
@@ -369,6 +378,7 @@ void HcalMonitorModule::reset(){
   if(tpMon_!=NULL) tpMon_->reset();
   if(ctMon_!=NULL) ctMon_->reset();
   if(beamMon_!=NULL) beamMon_->reset();
+  if(expertMon_!=NULL) expertMon_->reset();
 }
 
 //--------------------------------------------------------
@@ -598,6 +608,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       cpu_timer.reset(); cpu_timer.start();
     }
   
+  // Beam Monitor task
   if ((beamMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_)
     {
       beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi);
@@ -660,6 +671,22 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       cpu_timer.stop();
       if (tpMon_!=NULL) cout <<"TIMER:: TRIGGERPRIMITIVE MONITOR ->"<<cpu_timer.cpuTime()<<endl;
     }
+
+  // Expert monitor plots
+  if (expertMon_ != NULL) 
+    {
+      expertMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
+			       *hbhe_digi,*ho_digi,*hf_digi,
+			       *tp_digi,
+			       *rawraw,*report,*readoutMap_);
+    }
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (expertMon_!=NULL) cout <<"TIMER:: EXPERT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
 
   if(ievt_%1000 == 0)
     cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
