@@ -49,26 +49,33 @@ class L1GctValidation : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
       edm::InputTag m_energy_tag;
+      edm::InputTag m_missHt_tag;
 
       TH1F* theSumEtInLsb;
       TH1F* theSumHtInLsb;
       TH1F* theMissEtInLsb;
+      TH1F* theMissHtInLsb;
       TH1F* theSumEtInGeV;
       TH1F* theSumHtInGeV;
       TH1F* theMissEtInGeV;
       TH1F* theMissEtAngle;
       TH2F* theMissEtVector;
+      TH1F* theMissHtInGeV;
+      TH1F* theMissHtAngle;
+      TH2F* theMissHtVector;
+
+      TH2F* theMissEtVsMissHt;
+      TH2F* theMissEtVsMissHtAngle;
 
       std::vector<TH1F*> theJetCounts;
-  // !!!+++
-  // The following needs updating for new Hf sums code
-  // !!!+++
-/*       TH1F* theHfRing0EtSumPositiveEta; */
-/*       TH1F* theHfRing0EtSumNegativeEta; */
-/*       TH1F* theHfRing1EtSumPositiveEta; */
-/*       TH1F* theHfRing1EtSumNegativeEta; */
-/*       TH1F* theHfTowerCountPositiveEta; */
-/*       TH1F* theHfTowerCountNegativeEta; */
+      TH1F* theHfRing0EtSumPositiveEta;
+      TH1F* theHfRing0EtSumNegativeEta;
+      TH1F* theHfRing1EtSumPositiveEta;
+      TH1F* theHfRing1EtSumNegativeEta;
+      TH1F* theHfRing0CountPositiveEta;
+      TH1F* theHfRing0CountNegativeEta;
+      TH1F* theHfRing1CountPositiveEta;
+      TH1F* theHfRing1CountNegativeEta;
 
 };
 #endif

@@ -15,7 +15,8 @@
 #include <math.h>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
-   m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("inputTag",edm::InputTag("gctDigis")))
+  m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("inputTag", edm::InputTag("gctDigis"))),
+  m_missHt_tag(iConfig.getUntrackedParameter<edm::InputTag>("missHtTag",edm::InputTag("gctDigis:missingHt")))
 {
 }
 
@@ -55,6 +56,8 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel( m_energy_tag, sumHtColl ) ;
   Handle< L1GctEtMissCollection >  missEtColl ;
   iEvent.getByLabel( m_energy_tag, missEtColl ) ;
+  Handle< L1GctEtMissCollection >  missHtColl ;
+  iEvent.getByLabel( m_missHt_tag, missHtColl ) ;
 
   double etTot = 0.0;
   for (L1GctEtTotalCollection::const_iterator jbx=sumEtColl->begin(); jbx!=sumEtColl->end(); jbx++) {
@@ -79,33 +82,70 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
+  double htMiss = 0.0;
+  double htMAng = 0.0;
+  for (L1GctEtMissCollection::const_iterator jbx=missHtColl->begin(); jbx!=missHtColl->end(); jbx++) {
+    if (jbx->bx()==0) {
+      htMiss = static_cast<double>(jbx->et());
+      int phibin = jbx->phi();
+      if (phibin>=36) phibin -= 72;
+      double htMPhi = static_cast<double>(phibin);
+
+      htMAng = (htMPhi+0.5)*M_PI/36.;
+    }
+  }
+
   theSumEtInLsb->Fill(etTot);
   theSumHtInLsb->Fill(etHad);
   theMissEtInLsb->Fill(etMiss);
+  theMissHtInLsb->Fill(htMiss);
   theSumEtInGeV->Fill(etTot*lsbForEt);
   theSumHtInGeV->Fill(etHad*lsbForHt);
   theMissEtInGeV->Fill(etMiss*lsbForEt);
   theMissEtAngle->Fill(etMAng);
   theMissEtVector->Fill(etMiss*lsbForEt*cos(etMAng),etMiss*lsbForEt*sin(etMAng));
+  theMissHtInGeV->Fill(htMiss*lsbForHt*8.);
+  theMissHtAngle->Fill(htMAng);
+  theMissHtVector->Fill(htMiss*lsbForHt*cos(htMAng)*8.,htMiss*lsbForHt*sin(htMAng)*8.);
+
+  theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMiss*lsbForHt*8);
+  theMissEtVsMissHtAngle->Fill(etMAng, htMAng);
 
   // Get jet counts from the event
   Handle< L1GctJetCountsCollection > jetCountColl ;
   iEvent.getByLabel( m_energy_tag, jetCountColl ) ;
 
   for (L1GctJetCountsCollection::const_iterator jbx=jetCountColl->begin(); jbx!=jetCountColl->end(); jbx++) {
-    for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
-      theJetCounts.at(jc)->Fill(jbx->count(jc));
+    if (jbx->bx()==0) {
+      for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
+	theJetCounts.at(jc)->Fill(jbx->count(jc));
+      }
     }
 
-  // !!!+++
-  // The following needs updating for new Hf sums code
-  // !!!+++
-//     theHfRing0EtSumPositiveEta->Fill(jbx->hfRing0EtSumPositiveEta());  
-//     theHfRing0EtSumNegativeEta->Fill(jbx->hfRing0EtSumNegativeEta());  
-//     theHfRing1EtSumPositiveEta->Fill(jbx->hfRing1EtSumPositiveEta());  
-//     theHfRing1EtSumNegativeEta->Fill(jbx->hfRing1EtSumNegativeEta());  
-//     theHfTowerCountPositiveEta->Fill(jbx->hfTowerCountPositiveEta());  
-//     theHfTowerCountNegativeEta->Fill(jbx->hfTowerCountNegativeEta());  
+  }
+
+  // Get minbias trigger quantities from HF
+  Handle<L1GctHFRingEtSumsCollection> HFEtSumsColl;
+  Handle<L1GctHFBitCountsCollection>  HFCountsColl;
+  iEvent.getByLabel( m_energy_tag, HFEtSumsColl ) ;
+  iEvent.getByLabel( m_energy_tag, HFCountsColl ) ;
+
+  for (L1GctHFRingEtSumsCollection::const_iterator es = HFEtSumsColl->begin(); es != HFEtSumsColl->end(); es++) {
+    if (es->bx()==0) {
+      theHfRing0EtSumPositiveEta->Fill(es->etSum(0));  
+      theHfRing0EtSumNegativeEta->Fill(es->etSum(1));  
+      theHfRing1EtSumPositiveEta->Fill(es->etSum(2));  
+      theHfRing1EtSumNegativeEta->Fill(es->etSum(3));
+    }
+  }  
+
+  for (L1GctHFBitCountsCollection::const_iterator bc = HFCountsColl->begin(); bc != HFCountsColl->end(); bc++) {
+    if (bc->bx()==0) {
+      theHfRing0CountPositiveEta->Fill(bc->bitCount(0));  
+      theHfRing0CountNegativeEta->Fill(bc->bitCount(1));  
+      theHfRing1CountPositiveEta->Fill(bc->bitCount(2));  
+      theHfRing1CountNegativeEta->Fill(bc->bitCount(3));
+    }
   }
 
 }
@@ -124,6 +164,8 @@ L1GctValidation::beginJob(const edm::EventSetup&)
                                     128, 0., 2048.); 
   theMissEtInLsb  = dir0.make<TH1F>("MissEtInLsb",  "Missing Et magnitude (GCT units)",
                                     128, 0., 1024.); 
+  theMissHtInLsb  = dir0.make<TH1F>("MissHtInLsb",  "Missing Ht magnitude (GCT units)",
+                                    64, 0., 63.); 
   theSumEtInGeV   = dir0.make<TH1F>("SumEtInGeV",   "Total Et (in GeV)",
                                     100, 0., 1000.); 
   theSumHtInGeV   = dir0.make<TH1F>("SumHtInGeV",   "Total Ht (in GeV)",
@@ -134,8 +176,18 @@ L1GctValidation::beginJob(const edm::EventSetup&)
                                     72, -M_PI, M_PI);
   theMissEtVector = dir0.make<TH2F>("MissEtVector", "Missing Ex vs Missing Ey",
                                     100, -100., 100., 100, -100., 100.); 
+  theMissHtInGeV  = dir0.make<TH1F>("MissHtInGeV",  "Missing Ht magnitude (in GeV)",
+                                    100, 0., 500.); 
+  theMissHtAngle  = dir0.make<TH1F>("MissHtAngle",  "Missing Ht angle",
+                                    72, -M_PI, M_PI);
+  theMissHtVector = dir0.make<TH2F>("MissHtVector", "Missing Hx vs Missing Hy",
+                                    100, -100., 100., 100, -100., 100.); 
+  theMissEtVsMissHt = dir0.make<TH2F>("MissEtVsMissHt", "Missing Et vs Missing Ht",
+				      100, 0., 500., 100, 0., 500.);
+  theMissEtVsMissHtAngle = dir0.make<TH2F>("MissEtVsMissHtAngle", "Angle correlation Missing Et vs Missing Ht",
+					   72, -M_PI, M_PI, 72, -M_PI, M_PI);
 
-  TFileDirectory dir1 = fs->mkdir("L1GctJetCounts");
+  TFileDirectory dir1 = fs->mkdir("L1GctHfSumsAndJetCounts");
 
   for (unsigned jc=0; jc<L1GctJetCounts::MAX_TOTAL_COUNTS; jc++) {
     std::stringstream ss;
@@ -154,18 +206,22 @@ L1GctValidation::beginJob(const edm::EventSetup&)
   // !!!+++
   // The following needs updating for new Hf sums code
   // !!!+++
-//   theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",
-//                                                60, 0., 30.);
-//   theHfRing0EtSumNegativeEta = dir1.make<TH1F>("HfRing0EtSumNegativeEta", "Hf Inner Ring0 Et eta-",
-//                                                60, 0., 30.);
-//   theHfRing1EtSumPositiveEta = dir1.make<TH1F>("HfRing1EtSumPositiveEta", "Hf Inner Ring1 Et eta+",
-//                                                60, 0., 30.);
-//   theHfRing1EtSumNegativeEta = dir1.make<TH1F>("HfRing1EtSumNegativeEta", "Hf Inner Ring1 Et eta-",
-//                                                60, 0., 30.);
-//   theHfTowerCountPositiveEta = dir1.make<TH1F>("HfTowerCountPositiveEta", "Hf Threshold bits eta+",
-//                                                20, 0., 20.);
-//   theHfTowerCountNegativeEta = dir1.make<TH1F>("HfTowerCountNegativeEta", "Hf Threshold bits eta-",
-//                                                20, 0., 20.);
+  theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",
+                                               60, 0., 30.);
+  theHfRing0EtSumNegativeEta = dir1.make<TH1F>("HfRing0EtSumNegativeEta", "Hf Inner Ring0 Et eta-",
+                                               60, 0., 30.);
+  theHfRing1EtSumPositiveEta = dir1.make<TH1F>("HfRing1EtSumPositiveEta", "Hf Inner Ring1 Et eta+",
+                                               60, 0., 30.);
+  theHfRing1EtSumNegativeEta = dir1.make<TH1F>("HfRing1EtSumNegativeEta", "Hf Inner Ring1 Et eta-",
+                                               60, 0., 30.);
+  theHfRing0CountPositiveEta = dir1.make<TH1F>("HfRing0CountPositiveEta", "Hf Threshold bits Ring0 eta+",
+                                               20, 0., 20.);
+  theHfRing0CountNegativeEta = dir1.make<TH1F>("HfRing0CountNegativeEta", "Hf Threshold bits Ring0 eta-",
+                                               20, 0., 20.);
+  theHfRing1CountPositiveEta = dir1.make<TH1F>("HfRing1CountPositiveEta", "Hf Threshold bits Ring1 eta+",
+                                               20, 0., 20.);
+  theHfRing1CountNegativeEta = dir1.make<TH1F>("HfRing1CountNegativeEta", "Hf Threshold bits Ring1 eta-",
+                                               20, 0., 20.);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
