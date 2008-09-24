@@ -5,7 +5,8 @@
 import FWCore.ParameterSet.Config as cms
 
 dimuonsEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoTracks_generalTracks_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep recoTracks_generalTracks_*_*', 
         'keep recoTracks_globalMuons_*_*', 
         'keep recoTracks_standAloneMuons_*_*', 
         'keep recoMuons_muons_*_*', 
@@ -31,8 +32,9 @@ dimuonsEventContent = cms.PSet(
 )
 dimuonsEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('dimuonsPath', 
-            'dimuonsOneTrackPath')
+        SelectEvents = cms.vstring(
+           'dimuonsPath',
+           'dimuonsOneTrackPath')
     )
 )
 

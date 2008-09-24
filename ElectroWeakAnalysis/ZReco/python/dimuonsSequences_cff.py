@@ -4,8 +4,8 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 #  include "PhysicsTools/RecoAlgos/data/goodMuons.cfi"
 from PhysicsTools.PatAlgos.cleaningLayer0.muonCleaner_cfi import *
 from PhysicsTools.PatAlgos.recoLayer0.muonIsolation_cff import *
-from PhysicsTools.PatAlgos.triggerLayer0.muonHLTProducer_cfi import *
-from PhysicsTools.PatAlgos.triggerLayer0.muonHLTMatch_cfi import *
+from PhysicsTools.PatAlgos.triggerLayer0.patTrigProducer_cfi import *
+from PhysicsTools.PatAlgos.triggerLayer0.patTrigMatcher_cfi import *
 from PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff import *
 from PhysicsTools.RecoAlgos.goodTracks_cfi import *
@@ -22,7 +22,7 @@ from ElectroWeakAnalysis.ZReco.dimuonsOneTrack_cfi import *
 from ElectroWeakAnalysis.ZReco.dimuonsGlobal_cfi import *
 from ElectroWeakAnalysis.ZReco.dimuonsOneStandAloneMuon_cfi import *
 from ElectroWeakAnalysis.ZReco.mcTruthForDimuons_cff import *
-patLayer0 = cms.Sequence(patAODMuonIsolation*allLayer0Muons*patLayer0MuonIsolation*muonHLTProducer*muonHLTMatch*muonMatch)
+patLayer0 = cms.Sequence(patAODMuonIsolation*allLayer0Muons*muonMatch*patLayer0MuonIsolation*patHLT1MuonNonIso*muonTrigMatchHLT1MuonNonIso)
 patLayer1 = cms.Sequence(layer1Muons)
 goodMuonRecoForDimuon = cms.Sequence(patLayer0*patLayer1*goodTracks*goodTrackIsolations*goodMuonIsolations*muonIsolations)
 allLayer0Muons.isolation.tracker = cms.PSet(
@@ -35,6 +35,7 @@ allLayer0Muons.isolation.tracker = cms.PSet(
 muonMatch.maxDeltaR = 0.15
 muonMatch.maxDPtRel = 1.0
 muonMatch.resolveAmbiguities = False
+allLayer1Muons.trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"))
 selectedLayer1Muons.src = 'allLayer1Muons'
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 goodMuonIsolations.src = 'selectedLayer1Muons'
