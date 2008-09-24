@@ -8,10 +8,10 @@ from DQMOffline.JetMET.jetMETAnalyzer_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 #from DQMOffline.EGamma.egammaDQMOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
-#from DQMOffline.RecoB.dqmAnalyzer_cff import *
-#from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
+from DQMOffline.RecoB.dqmAnalyzer_cff import *
+from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 
-#DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaDQMOffline)
+#DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaDQMOffline*pvMonitor*bTagPlots)
 
-DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source)
+DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*pvMonitor*bTagPlots)
 
