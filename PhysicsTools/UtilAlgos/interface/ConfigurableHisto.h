@@ -315,6 +315,9 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 	if (!splitter) continue;
 	if (!splitter->compute(e)) continue;
 	uint slot=(uint)  (*splitter)(e);
+	if (slot>=i->second.size()){
+	  edm::LogError("SplittingConfigurableHisto")<<"slot index: "<<slot<<" is bigger than slots size: "<<i->second.size()<<" from variable value: "<<(*splitter)(e);
+	  continue;}
 	//fill in the proper slot
 	i->second[slot]->fill(e);
       }
@@ -325,6 +328,9 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
       if (!splitter_->compute(e)){
 	return;}
       uint slot=(uint) (*splitter_)(e);
+      if (slot>=subHistos_.size()){
+	edm::LogError("SplittingConfigurableHisto")<<"slot index: "<<slot<<" is bigger than slots size: "<< subHistos_.size() <<" from variable value: "<<(*splitter_)(e);
+	return;}
       subHistos_[slot]->fill(e);
     }
   }
