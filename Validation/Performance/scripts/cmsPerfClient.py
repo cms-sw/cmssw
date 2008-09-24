@@ -209,7 +209,7 @@ class Worker(threading.Thread):
         try:
             data = request_benchmark(self.__perfcmds, self.__host, self.__port)
             self.__queue.put((self.__host, data))
-        except exceptions.Exception, detail:
+        except (exceptions.Exception, xmlrpclib.Fault), detail:
             print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
             print detail
             sys.stdout.flush()

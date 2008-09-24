@@ -66,18 +66,18 @@ def visit(visitdir):
                 base = os.path.basename(globule)
                 found = profsetreg.search(base)
                 if found:
-                    key = found.groups()[0]
-                    if key == "TimeSize": # Just do timesize for now!
-                        if out.has_key((candle,key)):
-                            print "Error: we already have a profset that matches %s" % str((candle,key))
+                    profset = found.groups()[0]
+                    if profset == "TimeSize": # Just do timesize for now!
+                        if out.has_key((candle,profset)):
+                            print "Error: we already have a profset that matches %s" % str((candle,profset))
                         else:
                             if candle == None:
                                 print "Error: could not resolve candle something is wrong"
                                 candle = "None"
-                            if key == None:
-                                print "Error: could not resolve key something is wrong"
-                                key = "None"                                
-                            out[candle] = {key: visit_timesize_steps(candle,globule)}
+                            if profset == None:
+                                print "Error: could not resolve profset something is wrong"
+                                profset = "None"                                
+                            out[candle] = {profset: visit_timesize_steps(candle,globule)}
     return out
         
 
@@ -91,7 +91,7 @@ def harvest(perfdir):
             base  = os.path.basename(globule)
             found = cpureg.search(base)
             if found:
-                cpuid = int(found.groups()[0])
+                cpuid = found.groups()[0]
                 if out.has_key(cpuid):
                     print "Error: we already have a cpu run with this id %s ! Skipping..." % cpuid
                 else:

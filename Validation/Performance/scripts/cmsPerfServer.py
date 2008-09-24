@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import cmsSimPerfPublish as cspp
-import cmsPerfSuite as cps
-import cmsPerfHarvest as cph
+import cmsPerfSuite      as cps
+import cmsPerfHarvest    as cph
 from cmsPerfCommons import Candles
 import optparse as opt
 import socket, os, sys, SimpleXMLRPCServer, threading, exceptions
@@ -137,6 +137,9 @@ def getCPSkeyword(key,dict):
 
 def request_benchmark(cmds):
     global _outputdir, _reqnumber
+    print "Commands received running perfsuite for these jobs:"
+    print cmds
+    sys.stdout.flush()
     try:
         # input is a list of dictionaries each defining the
         #   keywords to cmsperfsuite
@@ -172,7 +175,7 @@ def request_benchmark(cmds):
             cmdwdefs["cores"           ] = getCPSkeyword("cores"           , cmd)
             cmdwdefs["prevrel"         ] = getCPSkeyword("prevrel"         , cmd)
             cmdwdefs["candles"         ] = getCPSkeyword("candles"         , cmd)                                    
-            cmdwdefs["isAllCandles"    ] = not len(Candles) == len(cmdwdefs["candles"])
+            cmdwdefs["isAllCandles"    ] = len(Candles) == len(cmdwdefs["candles"])
             cmdwdefs["bypasshlt"       ] = getCPSkeyword("bypasshlt"       , cmd)
             cmdwdefs["runonspare"      ] = getCPSkeyword("runonspare"      , cmd)
             cmdwdefs["logfile"         ] = logfile
