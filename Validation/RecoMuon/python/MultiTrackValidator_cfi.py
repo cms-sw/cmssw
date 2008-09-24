@@ -6,6 +6,7 @@ from Validation.RecoMuon.associators_cff import *
 multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     dirName = cms.string('RecoMuonV/MultiTrack/'),
     out = cms.string(''),
+    outputFile = cms.string(''),
 
     sim = cms.string('g4SimHits'),
     label_tp_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
