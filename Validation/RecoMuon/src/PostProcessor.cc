@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/08/19 15:45:17 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/23 05:08:04 $
+ *  $Revision: 1.6 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -27,8 +27,8 @@ typedef vector<string> vstring;
 PostProcessor::PostProcessor(const ParameterSet& pset)
 {
   commands_ = pset.getParameter<vstring>("commands");
-  effCmds_ = pset.getParameter<vstring>("effCmds");
-  resCmds_ = pset.getParameter<vstring>("resCmds");
+  effCmds_ = pset.getParameter<vstring>("efficiency");
+  resCmds_ = pset.getParameter<vstring>("resolution");
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
   subDir_ = pset.getUntrackedParameter<string>("subDir");
