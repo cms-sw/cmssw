@@ -1,33 +1,51 @@
 # The following comments couldn't be translated into the new config version:
 
+# "MSTJ(41)=1              !Switch off Pythia QED bremsshtrahlung",
+
+# W decays
+
 # Higgs decays
 
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PythiaUESettings_cfi import *
+from GeneratorInterface.Pythia6Interface.TauolaSettings_cff import *
 source = cms.Source("PythiaSource",
     pythiaPylistVerbosity = cms.untracked.int32(1),
-    UseTauola = cms.untracked.bool(False),
     # put here the efficiency of your filter (1. if no filter)
     filterEfficiency = cms.untracked.double(1.0),
-    comEnergy = cms.untracked.double(10000.0),
-    UseTauolaPolarization = cms.untracked.bool(False),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-#    GeneratorParameters = cms.PSet(
-#        parameterSets = cms.vstring('generator'),
-#        generator = cms.vstring('TAUOLA = 0 0 0   ! TAUOLA ')
-#    ),
-    #untracked bool UseTauola = false
-    #untracked bool UseTauolaPolarization = false
     # put here the cross section of your process (in pb)
-    crossSection = cms.untracked.double(0.388),
+    crossSection = cms.untracked.double(0.325),
     maxEventsToPrint = cms.untracked.int32(3),
+    comEnergy = cms.untracked.double(10000.0),
+    ExternalGenerators = cms.PSet(
+        Tauola = cms.untracked.PSet(
+            TauolaPolar,
+            TauolaDefaultInputCards
+        ),
+        parameterSets = cms.vstring('Tauola')
+    ),
+    UseExternalGenerators = cms.untracked.bool(True),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
-        processParameters = cms.vstring('PMAS(25,1)=135.0        !mass of Higgs', 
-            'MSEL=0                  !user selection for process', 
+        processParameters = cms.vstring('PMAS(25,1)=165.0        !mass of Higgs', 
+            'MSEL=0                  ! user selection for process', 
+            'MSUB(102)=1             !ggH', 
             'MSUB(123)=1             !ZZ fusion to H', 
             'MSUB(124)=1             !WW fusion to H', 
+            'MDME(190,1) = 0            !W decay into dbar u', 
+            'MDME(191,1) = 0            !W decay into dbar c', 
+            'MDME(192,1) = 0            !W decay into dbar t', 
+            'MDME(194,1) = 0            !W decay into sbar u', 
+            'MDME(195,1) = 0            !W decay into sbar c', 
+            'MDME(196,1) = 0            !W decay into sbar t', 
+            'MDME(198,1) = 0            !W decay into bbar u', 
+            'MDME(199,1) = 0            !W decay into bbar c', 
+            'MDME(200,1) = 0            !W decay into bbar t', 
+            'MDME(206,1) = 1            !W decay into e+ nu_e', 
+            'MDME(207,1) = 1            !W decay into mu+ nu_mu', 
+            'MDME(208,1) = 1            !W decay into tau+ nu_tau', 
             'MDME(210,1)=0           !Higgs decay into dd', 
             'MDME(211,1)=0           !Higgs decay into uu', 
             'MDME(212,1)=0           !Higgs decay into ss', 
@@ -38,13 +56,14 @@ source = cms.Source("PythiaSource",
             'MDME(217,1)=0           !Higgs decay into Higgs decay', 
             'MDME(218,1)=0           !Higgs decay into e nu e', 
             'MDME(219,1)=0           !Higgs decay into mu nu mu', 
-            'MDME(220,1)=1           !Higgs decay into tau tau', 
+            'MDME(220,1)=0           !Higgs decay into tau nu tau', 
             'MDME(221,1)=0           !Higgs decay into Higgs decay', 
             'MDME(222,1)=0           !Higgs decay into g g', 
             'MDME(223,1)=0           !Higgs decay into gam gam', 
             'MDME(224,1)=0           !Higgs decay into gam Z', 
             'MDME(225,1)=0           !Higgs decay into Z Z', 
-            'MDME(226,1)=0           !Higgs decay into W W'),
+            'MDME(226,1)=1           !Higgs decay into W W'),
+        # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
     )

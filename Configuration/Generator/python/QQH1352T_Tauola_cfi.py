@@ -7,16 +7,16 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.PythiaUESettings_cfi import *
 source = cms.Source("PythiaSource",
     pythiaPylistVerbosity = cms.untracked.int32(1),
-    UseTauola = cms.untracked.bool(False),
+    UseTauola = cms.untracked.bool(True),
     # put here the efficiency of your filter (1. if no filter)
     filterEfficiency = cms.untracked.double(1.0),
     comEnergy = cms.untracked.double(10000.0),
-    UseTauolaPolarization = cms.untracked.bool(False),
+    UseTauolaPolarization = cms.untracked.bool(True),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-#    GeneratorParameters = cms.PSet(
-#        parameterSets = cms.vstring('generator'),
-#        generator = cms.vstring('TAUOLA = 0 0 0   ! TAUOLA ')
-#    ),
+    GeneratorParameters = cms.PSet(
+        parameterSets = cms.vstring('generator'),
+        generator = cms.vstring('TAUOLA = 0 0 0   ! TAUOLA ')
+    ),
     #untracked bool UseTauola = false
     #untracked bool UseTauolaPolarization = false
     # put here the cross section of your process (in pb)
