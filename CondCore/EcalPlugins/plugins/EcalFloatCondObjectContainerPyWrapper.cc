@@ -19,9 +19,15 @@
 
 namespace {
   struct Printer {
-    void doit(float const & item) {
-      ss << item << " ";
+    Printer() : i(0){}
+    void reset() { i=0;}
+    void doB(float const & item) {
     }
+    void doE(float const & item) {
+      ss << i <<":"<< item << "\n";
+      i++;
+    }
+    int i;
     std::stringstream ss;
   };
 }
@@ -129,9 +135,10 @@ namespace cond {
   std::string
   PayLoadInspector<EcalFloatCondObjectContainer>::dump() const {
     Printer p;
-    std::for_each(object->barrelItems().begin(),object->barrelItems().end(),boost::bind(&Printer::doit,boost::ref(p),_1));
+    std::for_each(object->barrelItems().begin(),object->barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
     p.ss <<"\n";
-    std::for_each(object->endcapItems().begin(),object->endcapItems().end(),boost::bind(&Printer::doit,boost::ref(p),_1));
+    p.reset();
+    std::for_each(object->endcapItems().begin(),object->endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
     p.ss << std::endl;
     return p.ss.str();
   }
