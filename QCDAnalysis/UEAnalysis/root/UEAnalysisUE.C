@@ -88,7 +88,7 @@ void UEAnalysisUE::Begin(TFile * f, string hltBit)
 
   h2d_averageParticlePt_vs_numParticles = 
     new TH2D("h2d_averageParticlePt_vs_numParticles",
-	     "h2d_averageParticlePt_vs_numParticles;N(particles);<p_{T}(particle)> (GeV/c)",100,0.5,100.5,100,0.,50.);
+	     "h2d_averageParticlePt_vs_numParticles;N(particles);<p_{T}(particle)> (GeV/c)",100,0.5,100.5,100,0.,10.);
   h2d_averageTrackPt_vs_numTracks = 
     new TH2D("h2d_averageTrackPt_vs_numTracks",
 	     "h2d_averageTrackPt_vs_numTracks;N(tracks);<p_{T}(track)> (GeV/c)",100,0.5,100.5,100,0.,50.);
