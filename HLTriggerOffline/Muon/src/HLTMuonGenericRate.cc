@@ -144,7 +144,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	MatchStruct newMatchStruct;
 	newMatchStruct.genCand = genParticle;
 	genMatches.push_back(newMatchStruct);
-	if (pt > theMinPtCut &&  pt > genMuonPt && fabs(eta) < theMaxEtaCut)
+	if ( pt > genMuonPt && fabs(eta) < theMaxEtaCut )
 	  genMuonPt = pt;
   } } }
 
@@ -163,7 +163,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	MatchStruct newMatchStruct;
 	newMatchStruct.recCand = &*muon;
 	recMatches.push_back(newMatchStruct);
-	if ( pt > theMinPtCut && pt > recMuonPt && fabs(eta) < theMaxEtaCut ) 
+	if ( pt > recMuonPt && fabs(eta) < theMaxEtaCut ) 
 	  recMuonPt = pt;
   } } } 
   
