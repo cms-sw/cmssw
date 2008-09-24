@@ -23,11 +23,11 @@ recoMuonValidator = cms.EDFilter("RecoMuonValidator",
     #
     nBinP = cms.untracked.uint32(50),
     minP = cms.untracked.double(0.0),
-    maxP = cms.untracked.double(1000.0),
+    maxP = cms.untracked.double(200.0),
 
     nBinPt = cms.untracked.uint32(50),
     minPt = cms.untracked.double(0.0),
-    maxPt = cms.untracked.double(1000.0),
+    maxPt = cms.untracked.double(200.0),
 
     doAbsEta = cms.untracked.bool(True),
     nBinEta = cms.untracked.uint32(50),
