@@ -78,11 +78,15 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
   //Are you in the gap between EE and Ecal Barrel (EB)?
   if (fabs(feta-1.479)<.1) isEBEEGap=true; 
 
-  // Set isEBGap if photon is closer than "modulePhiBoundary_" (set in cfg)
-  // to a phi module/supermodule boundary (same thing)
-  if (phi < 0) phi += TMath::Pi()*2.;
-  Float_t phiRelative = fmod( phi , 20*TMath::Pi()/180 ) - 10*TMath::Pi()/180;
-  if ( fabs(phiRelative) < modulePhiBoundary_ ) isEBGap=true;
+  // Set isEBGap if photon is 
+  //  in the barrel (|eta| < 1.5), and 
+  //  photon is closer than "modulePhiBoundary_" (set in cfg)
+  //  to a phi module/supermodule boundary (same thing)
+  if (feta < 1.5) {
+    if (phi < 0) phi += TMath::Pi()*2.;
+    Float_t phiRelative = fmod( phi , 20*TMath::Pi()/180 ) - 10*TMath::Pi()/180;
+    if ( fabs(phiRelative) < modulePhiBoundary_ ) isEBGap=true;
+  }
 
   // Set isEBGap if photon is between specific eta values 
   // in the "moduleEtaBoundary_" variable.
