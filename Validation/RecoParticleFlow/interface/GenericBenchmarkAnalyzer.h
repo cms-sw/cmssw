@@ -1,22 +1,23 @@
-#ifndef PFBENCHMARKANALYZER_H
-#define PFBENCHMARKANALYZER_H
+#ifndef GENERICBENCHMARKANALYZER_H
+#define GENERICBENCHMARKANALYZER_H
 
 // author: Mike Schmitt (The University of Florida)
 // date: 11/7/2007
+// extension: Leo Neuhaus & Joanna Weng 09.2008
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
+#include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include <string>
 #include <map>
 
-class PFBenchmarkAnalyzer: public edm::EDAnalyzer, public PFBenchmarkAna {
+class GenericBenchmarkAnalyzer: public edm::EDAnalyzer, public GenericBenchmark {
 public:
 
-  explicit PFBenchmarkAnalyzer(const edm::ParameterSet&);
-  virtual ~PFBenchmarkAnalyzer();
+  explicit GenericBenchmarkAnalyzer(const edm::ParameterSet&);
+  virtual ~GenericBenchmarkAnalyzer();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
@@ -26,8 +27,8 @@ public:
 
   // Inputs from Configuration File
   std::string outputFile_;
-  std::string inputTruthLabel_;
-  std::string inputRecoLabel_;
+  edm::InputTag inputTruthLabel_;
+  edm::InputTag inputRecoLabel_;
   std::string benchmarkLabel_;
   bool plotAgainstRecoQuantities_;
   double recPt_cut;
@@ -35,4 +36,4 @@ public:
   double deltaR_cut;
 };
 
-#endif // PFBENCHMARKANALYZER_H
+#endif // GENERICBENCHMARKANALYZER_H

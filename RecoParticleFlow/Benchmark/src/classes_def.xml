@@ -1,5 +1,5 @@
 <lcgdict>
   <class name="PFBenchmarkAlgo"/>
-  <class name="PFBenchmarkAna"/>
+  <class name="GenericBenchmark"/>
   <class name="PFJetBenchmark"/>
 </lcgdict>

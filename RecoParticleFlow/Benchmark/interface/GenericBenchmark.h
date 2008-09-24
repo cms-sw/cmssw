@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_Benchmark_PFBenchmarkAna_h
-#define RecoParticleFlow_Benchmark_PFBenchmarkAna_h
+#ifndef RecoParticleFlow_Benchmark_GenericBenchmark_h
+#define RecoParticleFlow_Benchmark_GenericBenchmark_h
 
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
 
@@ -15,11 +15,11 @@
 class DQMStore; // CMSSW_2_X_X
 //class DaqMonitorBEInterface; // CMSSW_1_X_X
 
-class PFBenchmarkAna {
+class GenericBenchmark{
 public:
 
-  PFBenchmarkAna();
-  virtual ~PFBenchmarkAna();
+  GenericBenchmark();
+  virtual ~GenericBenchmark();
 
   void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true); // CMSSW_2_X_X
   //void setup(DaqMonitorBEInterface *DQM = NULL); // CMSSW_1_X_X
@@ -69,4 +69,4 @@ protected:
 };
 
 
-#endif // RecoParticleFlow_Benchmark_PFBenchmarkAna_h
+#endif // RecoParticleFlow_Benchmark_GenericBenchmark_h

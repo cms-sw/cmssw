@@ -1,6 +1,9 @@
-#include "Validation/RecoParticleFlow/interface/PFBenchmarkAnalyzer.h"
+#include "Validation/RecoParticleFlow/interface/GenericBenchmarkAnalyzer.h"
 // author: Mike Schmitt, University of Florida
 // first version 11/7/2007
+// extension: Leo Neuhaus & Joanna Weng 09.2008
+// Performs matching and basic resolution plots of 2 candidate
+// (or candidate based) collections
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -9,6 +12,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -31,11 +35,11 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-PFBenchmarkAnalyzer::PFBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
+GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
 {
 
-  inputTruthLabel_             = iConfig.getParameter<std::string>("InputTruthLabel");
-  inputRecoLabel_              = iConfig.getParameter<std::string>("InputRecoLabel");
+  inputTruthLabel_             = iConfig.getParameter<edm::InputTag>("InputTruthLabel");
+  inputRecoLabel_              = iConfig.getParameter<edm::InputTag>("InputRecoLabel");
   outputFile_                  = iConfig.getUntrackedParameter<std::string>("OutputFile");
   benchmarkLabel_              = iConfig.getParameter<std::string>("BenchmarkLabel"); 
   plotAgainstRecoQuantities_   = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
@@ -44,14 +48,14 @@ PFBenchmarkAnalyzer::PFBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
   deltaR_cut                    = iConfig.getParameter<double>("deltaRMax");
 
   if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str()<< "'";
   else edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 
 }
 
-PFBenchmarkAnalyzer::~PFBenchmarkAnalyzer() { }
+GenericBenchmarkAnalyzer::~GenericBenchmarkAnalyzer() { }
 
-void PFBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
+void GenericBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
 
   // get ahold of back-end interface
@@ -68,15 +72,15 @@ void PFBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
 }
 
-void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
   // Typedefs to use views
   typedef edm::View<reco::Candidate> candidateCollection ;
-  typedef edm::View<reco::Candidate> pfcandidateCollection ;
+  typedef edm::View<reco::Candidate> candidateCollection ;
   
   const candidateCollection *truth_candidates;
-  const pfcandidateCollection *reco_candidates;
+  const candidateCollection *reco_candidates;
  
   // ==========================================================
   // Retrieve!
@@ -89,7 +93,7 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     truth_candidates = truth_hnd.product();
 
     // Get Reco Candidates (PFlow, CaloJet, etc.)
-    Handle<pfcandidateCollection> reco_hnd;
+    Handle<candidateCollection> reco_hnd;
     iEvent.getByLabel(inputRecoLabel_, reco_hnd);
     reco_candidates = reco_hnd.product();
 
@@ -115,7 +119,7 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 }
 
-void PFBenchmarkAnalyzer::endJob() 
+void GenericBenchmarkAnalyzer::endJob() 
 {
 
   // Store the DAQ Histograms

@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
+#include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // CMSSW_2_X_X
@@ -31,11 +31,11 @@
 
 
 
-PFBenchmarkAna::PFBenchmarkAna() {}
+GenericBenchmark::GenericBenchmark() {}
 
-PFBenchmarkAna::~PFBenchmarkAna() {}
+GenericBenchmark::~GenericBenchmark() {}
 
-void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) { 
+void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) { 
 
   // CMSSW_2_X_X
   // use bare Root if no DQM (FWLite applications)
@@ -121,7 +121,7 @@ void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 }
 
 
-void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, double recPt_cut, double maxEta_cut, double deltaR_cut) {
+void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, double recPt_cut, double maxEta_cut, double deltaR_cut) {
 
   // loop over reco particles
   for (unsigned int i = 0; i < RecoCollection->size(); i++) {
@@ -190,7 +190,7 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
 
 }
 
-void PFBenchmarkAna::write(std::string Filename) {
+void GenericBenchmark::write(std::string Filename) {
 
   if (Filename.size() != 0 && file_)
     file_->Write(Filename.c_str());

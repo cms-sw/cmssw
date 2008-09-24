@@ -1,34 +1,21 @@
 // -*- C++ -*-
 //
-// Package:    JetAna
-// Class:      JetAna
+// Package:    
+// Class:   PFJetBenchmarkAnalyzer.cc    
 // 
-/**\class JetAna JetAna.cc Work/JetAna/src/JetAna.cc
+/**\class PFJetBenchmarkAnalyzer PFJetBenchmarkAnalyzer.cc
 
  Description: <one line class summary>
 
  Implementation:
 
-module pfJetAnalyzer = JetAna 
- { 
-   string InputTruthLabel = 'iterativeCone5GenJets'
-   string InputRecoLabel  = 'iterativeCone5PFJets'
-   untracked string OutputFile = 'PFJetTester_data.root'
-   bool PlotAgainstRecoQuantities = true
-   string BenchmarkLabel = 'ParticleFlow'
-   double recPt = 22 # -1 means no cut
-   double maxEta = 3 # -1 means no cut
-
-   bool pfjBenchmarkDebug = 0
-   double deltaRMax = 0.1
- }
 
 */
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: JetAna.cc,v 1.1 2008/07/17 13:21:20 weng Exp $
-//
+// $Id: JetAna.cc,v 1.2 2008/07/31 19:32:32 weng Exp $
+// Extensions by Joanna Weng
 //
 
 
@@ -52,7 +39,7 @@ module pfJetAnalyzer = JetAna
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -61,10 +48,10 @@ using namespace std;
 // class decleration
 
  
-class JetAna : public edm::EDAnalyzer {
+class PFJetBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
-  explicit JetAna(const edm::ParameterSet&);
-  ~JetAna();
+  explicit PFJetBenchmarkAnalyzer(const edm::ParameterSet&);
+  ~PFJetBenchmarkAnalyzer();
 
 
 private:
@@ -78,8 +65,8 @@ private:
 
 //neuhaus - comment
 PFJetBenchmark PFJetBenchmark_;
-string sGenJetAlgo;
-string sJetAlgo;
+InputTag sGenJetAlgo;
+InputTag sJetAlgo;
 string outjetfilename;
 bool pfjBenchmarkDebug;
 bool PlotAgainstReco;
@@ -99,14 +86,14 @@ DQMStore * dbe_;
 //
 // constructors and destructor
 //
-JetAna::JetAna(const edm::ParameterSet& iConfig)
+PFJetBenchmarkAnalyzer::PFJetBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
 
 {
   //now do what ever initialization is needed
   sGenJetAlgo = 
-    iConfig.getParameter<string>("InputTruthLabel");
+    iConfig.getParameter<InputTag>("InputTruthLabel");
   sJetAlgo = 
-    iConfig.getParameter<string>("InputRecoLabel");
+    iConfig.getParameter<InputTag>("InputRecoLabel");
   outjetfilename = 
     iConfig.getUntrackedParameter<string>("OutputFile");
   pfjBenchmarkDebug = 
@@ -136,7 +123,7 @@ JetAna::JetAna(const edm::ParameterSet& iConfig)
 }
 
 
-JetAna::~JetAna()
+PFJetBenchmarkAnalyzer::~PFJetBenchmarkAnalyzer()
 {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
@@ -149,32 +136,32 @@ JetAna::~JetAna()
 
 // ------------ method called to for each event  ------------
 void
-JetAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+PFJetBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  // get gen jet collection
   Handle<GenJetCollection> genjets;
-  iEvent.getByLabel(sGenJetAlgo.data(), genjets);
+  iEvent.getByLabel(sGenJetAlgo.label(), genjets);
 
   // get rec PFJet collection
   Handle<PFJetCollection> pfjets;
-  iEvent.getByLabel(sJetAlgo.data(), pfjets);   
+  iEvent.getByLabel(sJetAlgo.label(), pfjets);   
   PFJetBenchmark_.process(*pfjets, *genjets);
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-JetAna::beginJob(const edm::EventSetup&)
+PFJetBenchmarkAnalyzer::beginJob(const edm::EventSetup&)
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-JetAna::endJob() {
+PFJetBenchmarkAnalyzer::endJob() {
 //  PFJetBenchmark_.save();
   PFJetBenchmark_.write();
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(JetAna);
+DEFINE_FWK_MODULE(PFJetBenchmarkAnalyzer);
