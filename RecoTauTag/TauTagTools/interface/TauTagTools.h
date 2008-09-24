@@ -35,6 +35,7 @@ namespace TauTagTools{
   PFCandidateRefVector filteredPFNeutrHadrCands(PFCandidateRefVector theInitialPFCands,double NeutrHadrCand_HcalclusminEt);
   PFCandidateRefVector filteredPFGammaCands(PFCandidateRefVector theInitialPFCands,double GammaCand_EcalclusminEt);
   math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField*,TrackRef); 
+
   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
   //binary predicate classes for sorting a list of indexes corresponding to PFRefVectors...(as they can't use STL??)
@@ -75,6 +76,72 @@ namespace TauTagTools{
      double minChargedPt_;
      const PFCandidateRefVector& myVector;
   };
+
+  //binary predicate classes for sorting vectors of candidates
+  template <class T>
+  class sortByAscendingPt
+  {
+     public:
+     bool operator()(const T& candA, const T& candB)
+     {
+        return (candA.pt() > candB.pt());
+     }
+     bool operator()(const T* candA, const T* candB)
+     {
+        return (candA->pt() > candB->pt());
+     }
+  };
+
+  template <class T>
+  class sortByDescendingPt
+  {
+     public:
+     bool operator()(const T& candA, const T& candB)
+     {
+        return (candA.pt() < candB.pt());
+     }
+     bool operator()(const T* candA, const T* candB)
+     {
+        return (candA->pt() < candB->pt());
+     }
+  };
+
+  template <class T>
+  class sortByOpeningAngleAscending
+  {
+     public:
+     sortByOpeningAngleAscending(const math::XYZVector& theAxis, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&)):axis(theAxis),myMetricFunction(ptrToMetricFunction){};
+     bool operator()(const T& candA, const T& candB)
+     {
+        return ( myMetricFunction(axis, candA.momentum()) > myMetricFunction(axis, candB.momentum()) );
+     }
+     bool operator()(const T* candA, const T* candB)
+     {
+        return ( myMetricFunction(axis, candA->momentum()) > myMetricFunction(axis, candB->momentum()) );
+     }
+     private:
+        math::XYZVector axis;
+        double (*myMetricFunction)(const math::XYZVector&, const math::XYZVector&);
+  };
+
+  template <class T>
+  class sortByOpeningAngleDescending
+  {
+     public:
+     sortByOpeningAngleDescending(const math::XYZVector& theAxis, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&)):axis(theAxis),myMetricFunction(ptrToMetricFunction){};
+     bool operator()(const T& candA, const T& candB)
+     {
+        return ( myMetricFunction(axis, candA.momentum()) < myMetricFunction(axis, candB.momentum()) );
+     }
+     bool operator()(const T* candA, const T* candB)
+     {
+        return ( myMetricFunction(axis, candA->momentum()) < myMetricFunction(axis, candB->momentum()) );
+     }
+     private:
+        math::XYZVector axis;
+        double (*myMetricFunction)(const math::XYZVector&, const math::XYZVector&);
+  };
+
 }
 
 #endif
