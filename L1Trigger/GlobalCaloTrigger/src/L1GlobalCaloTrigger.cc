@@ -596,6 +596,19 @@ L1GctEtMissCollection  L1GlobalCaloTrigger::getEtMissCollection() const {
   return result;
 }
 
+L1GctEtMissCollection  L1GlobalCaloTrigger::getHtMissCollection() const {
+  L1GctEtMissCollection result(m_numOfBx);
+  int bx = m_bxStart;
+  for (int i=0; i<m_numOfBx; i++) {
+    L1GctEtMiss temp(theEnergyFinalStage->getHtMissColl().at(i).value(),
+                     theEnergyFinalStage->getHtMissPhiColl().at(i).value(),
+                     false,
+		     bx++ );
+    result.at(i) = temp;
+  }
+  return result;
+}
+
 L1GctJetCountsCollection L1GlobalCaloTrigger::getJetCountsCollection() const {
   L1GctJetCountsCollection result(m_numOfBx);
   int bx = m_bxStart;
@@ -611,12 +624,14 @@ L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const
   if (getHfSumProcessor() != 0) {
     int bx = m_bxStart;
     for (int i=0; i<m_numOfBx; i++) {
-      L1GctHFBitCounts temp = L1GctHFBitCounts::fromGctEmulator(static_cast<uint8_t>(bx),
-								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(i),
-								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing2).at(i),
-								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(i),
-								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing2).at(i));
+      L1GctHFBitCounts temp =
+	L1GctHFBitCounts::fromGctEmulator(static_cast<int16_t>(bx),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing2).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(i),
+					  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing2).at(i));
       result.at(i) = temp;
+      bx++;
     }
   }
   return result;
@@ -627,12 +642,14 @@ L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() con
   if (getHfSumProcessor() != 0) {
     int bx = m_bxStart;
     for (int i=0; i<m_numOfBx; i++) {
-      L1GctHFRingEtSums temp = L1GctHFRingEtSums::fromGctEmulator(static_cast<uint8_t>(bx),
-								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing1).at(i),
-								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing2).at(i),
-								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(i),
-								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(i));
+      L1GctHFRingEtSums temp =
+	L1GctHFRingEtSums::fromGctEmulator(static_cast<int16_t>(bx),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing1).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing2).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(i),
+					   getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(i));
       result.at(i) = temp;
+      bx++;
     }
   }
   return result;
