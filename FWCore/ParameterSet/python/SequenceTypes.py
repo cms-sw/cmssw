@@ -1,5 +1,5 @@
 
-from Mixins import _ConfigureComponent
+from Mixins import _ConfigureComponent, PrintOptions
 from Mixins import _Labelable, _Unlabelable
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import *
@@ -45,10 +45,11 @@ class _Sequenceable(object):
         visitor.enter(self)
         self._visitSubNodes(visitor)
         visitor.leave(self)
-    def fillModulesList(self, l):
-        # hope everything put into the process has a label
-        l.add(self.label_())
     def findHardDependencies(self, sequenceName, dependencyDict):
+        pass
+
+class _SequenceLeaf(_Sequenceable):
+    def __init__(self):
         pass
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
@@ -147,13 +148,14 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return deps
     def nameInProcessDesc_(self, myname):
         return myname
-    def fillNamesList(self, l, processDict):
-        return self._seq.fillNamesList(l, processDict)
     def insertInto(self, parameterSet, myname, processDict):
         # represented just as a list of names in the ParameterSet
         l = []
+        #resolver = ResolveVisitor(processDict)
+        lister = DecoratedNodeNameVisitor(l)
+        #self.visit(resolver)
         self.resolve(processDict)
-        self.fillNamesList(l, processDict)
+        self.visit(lister)
         parameterSet.addVString(True, myname, l)
     def visit(self,visitor):
         """Passes to visitor's 'enter' and 'leave' method each item describing the module sequence.
@@ -161,8 +163,6 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         item's 'enter' and 'leave' calls.
         """
         self._seq.visitNode(visitor)
-    def fillModulesList(self, l):
-        self._seq.fillModulesList(l)
     def findHardDependencies(self, sequenceName, dependencyDict):
         self._seq.findHardDependencies(self.label_(), dependencyDict)
 
@@ -217,9 +217,6 @@ class _SequenceOperator(_Sequenceable):
         self._left = self._left.resolve(processDict)
         self._right = self._right.resolve(processDict)
         return self
-    def fillNamesList(self, l, processDict):
-        self._left.fillNamesList(l, processDict)
-        self._right.fillNamesList(l, processDict)
     def isOperation(self):
         return True
     def _visitSubNodes(self,visitor):
@@ -229,9 +226,6 @@ class _SequenceOperator(_Sequenceable):
         """Precedence order for this operation, the larger the value the higher the precedence"""
         raise RuntimeError("_precedence must be overwritten by inheriting classes")
         return 0
-    def fillModulesList(self, l):
-        self._left.fillModulesList(l)
-        self._right.fillModulesList(l)
 
 
 class _SequenceOpAids(_SequenceOperator):
@@ -249,9 +243,11 @@ class _SequenceOpAids(_SequenceOperator):
     def findHardDependencies(self, sequenceName, dependencyDict):
         # everything on the RHS depends on everything on the LHS
         rhs = set()
-        self._right.fillModulesList(rhs)
+        moduleNames = NodeNameVisitor(rhs)
+        self._right.visitNode(moduleNames)
         lhs = set()
-        self._left.fillModulesList(lhs)
+        moduleNames = NodeNameVisitor(lhs)
+        self._left.visitNode(moduleNames)
         dep = _HardDependency(sequenceName, lhs)
         for rhsmodule in rhs:
             if not rhsmodule in dependencyDict:
@@ -289,8 +285,6 @@ class _UnarySequenceOperator(_Sequenceable):
            raise RuntimeError("This operator cannot accept a sequence")
     def _findDependencies(self,knownDeps, presentDeps):
         self._operand._findDependencies(knownDeps, presentDeps)
-    def fillNamesList(self, l, processDict):
-        l.append(self.dumpSequenceConfig())
     def _clonesequence(self, lookuptable):
         return type(self)(self._operand._clonesequence(lookuptable))
     def _replace(self, original, replacement):
@@ -310,8 +304,6 @@ class _UnarySequenceOperator(_Sequenceable):
         return True
     def _visitSubNodes(self,visitor):
         self._operand.visitNode(visitor)
-    def fillModulesList(self, l):
-        self._operand.fillModulesList(l)
     def findHardDependencies(self, sequenceName, dependencyDict):
         pass
 
@@ -395,12 +387,6 @@ class SequencePlaceholder(_Sequenceable):
             lookuptable[id(self)]=clone
             lookuptable[id(clone)]=clone
         return lookuptable[id(self)]
-    def fillNamesList(self, l, processDict):
-        """ Resolves SequencePlaceholders """
-        if not self._name in processDict:
-            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved")
-        else:
-            processDict[self._name].fillNamesList(l, processDict)
     def copy(self):
         returnValue =SequencePlaceholder.__new__(type(self))
         returnValue.__init__(self._name)
@@ -434,11 +420,13 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         # I don't think we need the processDict
         processDict = dict()
         dependencyDict = dict()
-        names = list()
+        names = set()
+        namesVisitor = NodeNameVisitor(names)
         ok = True
         errors = list()
         for seq in self:
-            seq.fillNamesList(names, processDict) 
+            seq.visit(namesVisitor)
+            #seq.fillNamesList(names, processDict) 
             seq.findHardDependencies('schedule', dependencyDict)
         # dependencyDict is (label, list of _HardDependency objects,
         # where a _HardDependency contains a set of strings from one sequence
@@ -459,9 +447,71 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
                 pass
 
 
+class SequenceVisitor(object):
+    def __init__(self,d):
+        self.deps = d
+    def enter(self,visitee):
+        if isinstance(visitee,Sequence):
+            self.deps.append(visitee)
+        pass
+    def leave(self,visitee):
+        pass
+
+
+class ModuleNodeVisitor(object):
+    def __init__(self,l):
+        self.l = l
+    def enter(self,visitee):
+        if isinstance(visitee,_SequenceLeaf):
+            l.append(visitee)
+        pass
+    def leave(self,visitee):
+        pass
+
+
+class NodeNameVisitor(object):
+    """ takes a set as input"""
+    def __init__(self,l):
+        self.l = l
+    def enter(self,visitee):
+        if isinstance(visitee,_SequenceLeaf):
+            self.l.add(visitee.label_())
+        pass
+    def leave(self,visitee):
+        pass
+
+
+class DecoratedNodeNameVisitor(object):
+    """ Adds any '!' or '-' needed.  Takes a list"""
+    def __init__(self,l):
+        self.l = l
+    def enter(self,visitee):
+        if isinstance(visitee,_SequenceLeaf):
+            self.l.append(visitee.label_())
+        pass
+    def leave(self,visitee):
+        if isinstance(visitee,_UnarySequenceOperator):
+           self.l[-1] = visitee.dumpSequenceConfig()
+
+
+class ResolveVisitor(object):
+    """ Doesn't seem to work """
+    def __init__(self,processDict):
+        self.processDict = processDict
+    def enter(self,visitee):
+        if isinstance(visitee, SequencePlaceholder):
+            if not visitee._name in self.processDict:
+                print str(self.processDict.keys())
+                raise RuntimeError("The SequencePlaceholder "+visitee._name+ " cannot be resolved.\n Known keys are:"+str(self.processDict.keys()))
+            visitee = self.processDict[visitee._name]
+    def leave(self,visitee):
+       if isinstance(visitee, SequencePlaceholder):
+           pass
+
+
 if __name__=="__main__":
     import unittest
-    class DummyModule(_Labelable, _Sequenceable):
+    class DummyModule(_Labelable, _SequenceLeaf):
         def __init__(self,name):
             self.setLabel(name)
     class TestModuleCommand(unittest.TestCase):
@@ -495,14 +545,14 @@ if __name__=="__main__":
             p8 = Path((a+b)*c)
             self.assertEqual(p8.dumpPython(None),"cms.Path((process.a+process.b)*process.c)\n")
             l = list()
-            d = dict()
-            p.fillNamesList(l, d)
+            namesVisitor = DecoratedNodeNameVisitor(l)
+            p.visit(namesVisitor)
             self.assertEqual(l, ['a', 'b'])
-            l = list()
-            p5.fillNamesList(l, d)
+            l[:] = []
+            p5.visit(namesVisitor)
             self.assertEqual(l, ['a', '-b'])
-            l = list()
-            p7.fillNamesList(l, d)
+            l[:] = []
+            p7.visit(namesVisitor)
             self.assertEqual(l, ['a', '!b'])
 
         def testVisitor(self):
@@ -559,11 +609,14 @@ if __name__=="__main__":
             d['s1'] = s1
             d['s2'] = s2
             d['s3'] = s3
-            p.fillNamesList(l, d)
-            self.assertEqual(l, ['m1', 'm2'])
+            #resolver = ResolveVisitor(d)
+            #p.visit(resolver)
+            namesVisitor = DecoratedNodeNameVisitor(l)
+            p.visit(namesVisitor)
+            self.assertEqual(l, ['m1'])
             p.resolve(d)
-            l = list()
-            p.fillNamesList(l, d)
+            l[:] = []
+            p.visit(namesVisitor)
             self.assertEqual(l, ['m1', 'm2'])
         def testReplace(self):
             m1 = DummyModule("m1")
@@ -575,21 +628,22 @@ if __name__=="__main__":
             s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
             s2 = Sequence(m1*m2)
             s3 = Sequence(~m1*s2)  
-            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}  
             l = []
-            s1.fillNamesList(l,d)
+            namesVisitor = DecoratedNodeNameVisitor(l)
+            s1.visit(namesVisitor)
             self.assertEqual(l,['m1', '!m2', 'm1', 'm2', '-m2'])
             s1.replace(m2,m3)
-            l = []
-            s1.fillNamesList(l,d)
+            l[:] = []
+            s1.visit(namesVisitor)
             self.assertEqual(l,['m1', '!m3', 'm1', 'm3', '-m3'])
             s2 = Sequence(m1*m2)
             s3 = Sequence(~m1*s2)
-            s3.fillNamesList(l,d)
-            self.assertEqual(l,['m1', '!m3', 'm1', 'm3', '-m3', '!m1', 'm1', 'm2'])
-            l= []
+            l[:] = []
+            s3.visit(namesVisitor)
+            self.assertEqual(l,['!m1', 'm1', 'm2'])
+            l[:] = []
             s3.replace(s2,m1)
-            s3.fillNamesList(l,d)
+            s3.visit(namesVisitor)
             self.assertEqual(l,['!m1', 'm1'])
         def testRemove(self):
             m1 = DummyModule("m1")
@@ -597,26 +651,28 @@ if __name__=="__main__":
             m3 = DummyModule("m3")
             s1 = Sequence(m1*m2+~m3)
             s2 = Sequence(m1*s1)
+            l = []
+            namesVisitor = DecoratedNodeNameVisitor(l)
             d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}  
-            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm2', '!m3'])
-            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1', 'm2', '!m3'])
+            l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm2', '!m3'])
+            l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', 'm2', '!m3'])
             s1.remove(m2)
-            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', '!m3'])
-            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1', '!m3'])
+            l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', '!m3'])
+            l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', '!m3'])
             s2.remove(m3)
-            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1'])
-            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1'])
+            l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1'])
+            l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1'])
             s1 = Sequence( m1 + m2 + m1 + m2 )
-            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm2', 'm1', 'm2'])
+            l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm2', 'm1', 'm2'])
             s1.remove(m2) 
-            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1', 'm2'])
+            l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', 'm2'])
             s1 = Sequence( m1 + m3 )
             s2 = Sequence( m2 + ignore(m3) + s1 + m3 )
-            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', '-m3', 'm1', 'm3', 'm3'])
+            l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m2', '-m3', 'm1', 'm3', 'm3'])
             s2.remove(s1)
-            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', '-m3', 'm3'])
+            l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m2', '-m3', 'm3'])
             s2.remove(m3)
-            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', 'm3'])
+            l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m2', 'm3'])
             s1 = Sequence(m1*m2*m3)
             self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1*process.m2*process.m3)\n")
             s1.remove(m2)
