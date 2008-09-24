@@ -233,7 +233,7 @@ std::vector<float> EcalClusterLazyTools::covariances(const reco::BasicCluster &c
 
 std::vector<float> EcalClusterLazyTools::localCovariances(const reco::BasicCluster &cluster, float w0 )
 {
-        return EcalClusterTools::localCovariances( cluster, getEcalRecHitCollection(cluster), topology_, geometry_, w0 );
+        return EcalClusterTools::localCovariances( cluster, getEcalRecHitCollection(cluster), topology_, w0 );
 }
 double EcalClusterLazyTools::zernike20( const reco::BasicCluster &cluster, double R0, bool logW, float w0 )
 {

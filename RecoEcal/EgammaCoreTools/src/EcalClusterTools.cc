@@ -1,6 +1,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -469,6 +471,27 @@ math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster 
         return meanPosition / e5x5( cluster, recHits, topology );
 }
 
+//returns mean energy weighted eta/phi in crystal coordinates
+//iPhi is not defined for endcap and is returned as zero
+//return <eta,phi>
+std::pair<float,float>  EcalClusterTools::meanClusterPositionInCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology)
+{
+  float meanEta=0.;
+  float meanPhi=0.;
+  
+   std::vector<DetId> v_id = matrixDetId( topology, getMaximum( cluster, recHits ).first, -2, 2, -2, 2 );
+        for ( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
+		float crysIEta =getIEta(*it);
+		float crysIPhi =getIPhi(*it);
+                meanEta = meanEta + recHitEnergy( *it, recHits ) * crysIEta;
+		meanPhi = meanPhi + recHitEnergy( *it, recHits ) * crysIPhi;	
+        }
+	float energy5x5 = e5x5( cluster, recHits, topology );
+	meanEta /=energy5x5;
+	meanPhi /=energy5x5;
+	return std::make_pair<float,float>(meanEta,meanPhi);
+}
+
 
 
 std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry, float w0)
@@ -531,23 +554,29 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 }
 
 
-//this is only defined for the barrel, it falls back on the covariances method for endcap
+
+
+
+
+//for the barrel, covIEtaIEta,covIEtaIPhi and covIPhiIPhi are defined but only covIEtaIEta has been actively studied
+//for the endcap, only covIEtaIEta is defined, covIEtaIPhi and covIPhiIPhi are zeroed
 //instead of using absolute eta/phi it counts crystals normalised so that it gives identical results to normal covariances except near the cracks where of course its better 
-std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry, float w0)
+//it also does not require any eta correction function in the endcap
+//it is multipled by an approprate crystal size to ensure it gives similar values to covariances(...)
+std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology,float w0)
 {
-  //first check if its in the endcap and if so fall back on normal covariances
-  std::vector<DetId> v_id = cluster.getHitsByDetId();
-  if(v_id[0].subdetId()== EcalEndcap) return covariances(cluster,recHits,topology,geometry,w0);
+  
+
 
         float e_5x5 = e5x5( cluster, recHits, topology );
         float covEtaEta, covEtaPhi, covPhiPhi;
 
         if (e_5x5 > 0.) {
                 //double w0_ = parameterMap_.find("W0")->second;
-               
-                math::XYZVector meanPosition = meanClusterPosition( cluster, recHits, topology, geometry );
+	        std::vector<DetId> v_id = cluster.getHitsByDetId();
+	        std::pair<float,float> meanEtaPhi =  meanClusterPositionInCrysCoord( cluster, recHits, topology );
 	
-
+	
 
                 // now we can calculate the covariances
                 double numeratorEtaEta = 0;
@@ -555,13 +584,18 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
                 double numeratorPhiPhi = 0;
                 double denominator     = 0;
 
+		//these allow us to scale the localCov by the crystal size 
+		//so that the localCovs have the same average value as the normal covs
 		const double barrelCrysSize = 0.01745; //approximate size of crystal in eta,phi in barrel
+		const double endcapCrysSize = 0.0447; //the approximate crystal size sigmaEtaEta was corrected to in the endcap
 
                 DetId id = getMaximum( v_id, recHits ).first;
+
+		bool isBarrel=id.subdetId()==EcalBarrel;
+
+		const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
+		
 	
-		GlobalPoint seedPos = geometry->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
-		double dEtaSeedMean = meanPosition.eta() - seedPos.eta();
-		double dPhiSeedMean = meanPosition.phi() - seedPos.phi();
                 CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
                 for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
 		  for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
@@ -569,14 +603,26 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
                                 cursor.offsetBy( eastNr, northNr);
                                 float energy = recHitEnergy( *cursor, recHits );
 
+				
                                 if ( energy <= 0 ) continue;
 			
-				double dPhi = northNr*barrelCrysSize -dPhiSeedMean;
-                                if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
-                                if (dPhi < - Geom::pi()) { dPhi = Geom::twoPi() + dPhi; }
-				//calonavigator has east (-ve eta) as postive x hence the minus sign
-                                double dEta = -1*eastNr*barrelCrysSize - dEtaSeedMean;
-
+				float crysIEta = getIEta(*cursor);
+				float crysIPhi = getIPhi(*cursor);
+				double dEta = crysIEta - meanEtaPhi.first;
+				double dPhi = crysIPhi - meanEtaPhi.second;
+			
+				//no iEta=0 in barrel, so if go from positive to negative
+				//need to reduce abs(detEta) by 1
+				if(isBarrel){ 
+				  if(crysIEta*meanEtaPhi.first<0){ // -1 to 1 transition
+				    if(crysIEta>0) dEta--;
+				    else dEta++;
+				  }
+				}
+				if(isBarrel){ //if barrel, need to map into 0-180 
+				  if (dPhi > + 180) { dPhi = 360 - dPhi; }
+				  if (dPhi < - 180) { dPhi = 360 + dPhi; }
+				}
                                 double w = 0.;
                                 w = std::max(0.0, w0 + log( energy / e_5x5 ));
 
@@ -586,10 +632,10 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
                                 numeratorPhiPhi += w * dPhi * dPhi;
                         }
                 }
-
-                covEtaEta = numeratorEtaEta / denominator;
-                covEtaPhi = numeratorEtaPhi / denominator;
-                covPhiPhi = numeratorPhiPhi / denominator;
+		//multiplying by crysSize to make the values compariable to normal covariances
+                covEtaEta =  crysSize*crysSize* numeratorEtaEta / denominator;
+                covEtaPhi =  crysSize*crysSize* numeratorEtaPhi / denominator;
+                covPhiPhi =  crysSize*crysSize* numeratorPhiPhi / denominator;
         } else {
                 // Warn the user if there was no energy in the cells and return zeroes.
                 //       std::cout << "\ClusterShapeAlgo::Calculate_Covariances:  no energy in supplied cells.\n";
@@ -696,4 +742,43 @@ double EcalClusterTools::calc_AbsZernikeMoment(const reco::BasicCluster &cluster
                 }
         }
         return sqrt(Re*Re+Im*Im);
+}
+
+//returns the crystal 'eta' from the det id
+//it is defined as the number of crystals from the centre in the eta direction
+//for the barrel with its eta/phi geometry it is always integer
+//for the endcap it is fractional due to the x/y geometry
+float  EcalClusterTools::getIEta(const DetId& id)
+{
+  if(id.det()==DetId::Ecal){
+    if(id.subdetId()==EcalBarrel){
+      EBDetId ebId(id);
+      return ebId.ieta();
+    }else if(id.subdetId()==EcalEndcap){
+      EEDetId eeId(id);
+      //want to map 1=-50,50=-1,51=1 and 100 to 50 so sub off one if zero or neg
+      int iXNorm  = eeId.ix()-50;
+      if(iXNorm<=0) iXNorm--; 
+      int iYNorm  = eeId.iy()-50;
+      if(iYNorm<=0) iYNorm--;
+      
+      return std::sqrt(iXNorm*iXNorm+iYNorm*iYNorm);
+    }
+  }
+  return 0.;    
+}
+
+//returns the crystal 'phi' from the det id
+//it is defined as the number of crystals from the centre in the phi direction
+//for the barrel with its eta/phi geometry it is always integer
+//for the endcap it is not defined 
+float  EcalClusterTools::getIPhi(const DetId& id)
+{
+  if(id.det()==DetId::Ecal){
+    if(id.subdetId()==EcalBarrel){
+      EBDetId ebId(id);
+      return ebId.iphi();
+    }
+  }
+  return 0.;    
 }
