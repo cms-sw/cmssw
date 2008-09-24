@@ -1282,19 +1282,19 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 	      // Also, first bins around eta,phi are empty.
 	      // Thus, eta,phi must be shifted by +2 (+1 for bin count, +1 to ignore empty row)
 	      
-	      if (fabs(eta-41)==29 && depth==2)
+	      if (fabs(eta-41)==29 && depth>=2)
 		// This value of eta is shared by HB, HE -- add their values together.  Maybe average them at some point instead?
 		{
 		  // raw pedestals
-		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][2]; // HF
-		  double myval2 = rawpedsum[eta][phi][0]/pedcounts[eta][phi][0]; // HE
+		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; // HF
+		  double myval2 = rawpedsum[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]; // HE
 		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
-		  double RMS = 1.0*rawpedsum2[eta][phi][2]/pedcounts[eta][phi][2]-myval*myval;
+		  double RMS = 1.0*rawpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
 		  RMS=pow(fabs(RMS),0.5); // HF
 		  hfHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  hfHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 
-		  double RMS2 = 1.0*rawpedsum2[eta][phi][0]/pedcounts[eta][phi][0]-myval2*myval2;
+		  double RMS2 = 1.0*rawpedsum2[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]-myval2*myval2;
 		  RMS2=pow(fabs(RMS2),0.5); // HE
 		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
 		  heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval2);
@@ -1302,16 +1302,16 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 
 		  
 		  // subtracted pedestals
-		  myval= subpedsum[eta][phi][2]/pedcounts[eta][phi][2]; // HF
-		  myval2 = subpedsum[eta][phi][0]/pedcounts[eta][phi][0]; // HE
+		  myval= subpedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; // HF
+		  myval2 = subpedsum[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]; // HE
 		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
-		  RMS = 1.0*subpedsum2[eta][phi][2]/pedcounts[eta][phi][2]-myval*myval;
+		  RMS = 1.0*subpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
 		  
 		  RMS=pow(fabs(RMS),0.5); // HF
 		  hfHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  hfHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 
-		  RMS2 = 1.0*subpedsum2[eta][phi][0]/pedcounts[eta][phi][0]-myval2*myval2;
+		  RMS2 = 1.0*subpedsum2[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]-myval2*myval2;
 	
 		  RMS2=pow(fabs(RMS2),0.5); // HE
 		  heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval2);
