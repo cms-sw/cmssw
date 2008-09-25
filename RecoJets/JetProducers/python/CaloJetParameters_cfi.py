@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Standard CalooJets parameters
-# $Id: CaloJetParameters_cfi.py,v 1.4 2008/08/20 16:10:09 oehler Exp $
+# $Id: CaloJetParameters_cfi.py,v 1.5 2008/09/20 17:49:54 oehler Exp $
 CaloJetParameters = cms.PSet(
     src = cms.InputTag("towerMaker"),
     verbose = cms.untracked.bool(False),
@@ -9,7 +9,7 @@ CaloJetParameters = cms.PSet(
     inputEtMin = cms.double(0.5),
     jetType = cms.untracked.string('CaloJet'),
     inputEMin = cms.double(0.0),
-    correctInputToSignalVertex = cms.bool(False),
+    correctInputToSignalVertex = cms.bool(True),
     pvCollection = cms.InputTag('offlinePrimaryVertices')
 )
 
