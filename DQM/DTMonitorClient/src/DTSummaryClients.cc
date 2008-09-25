@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/07 21:38:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/09/25 10:54:54 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -107,7 +107,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   // reset the monitor elements
   summaryReportMap->Reset();
   summaryReport->Reset();
-  for(int ii = 0; ii != 6; ++ii) {
+  for(int ii = 0; ii != 5; ++ii) {
     theSummaryContents[ii]->Reset();
   }
 
