@@ -459,7 +459,7 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
                     logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                 else:
                     logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-                    cpIgProfGenSim(adir,candle)                
+                    cprootfile(adir,candle)                
 
             if _unittest:
                 # Run cmsDriver.py
