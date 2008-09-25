@@ -25,7 +25,7 @@ DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
 DEF_SIMUL  = "/afs/cern.ch/cms/sdt/web/performance/simulation"
 TMP_DIR    = ""
 cpFileFilter = ( "*.root", ) # Unix pattern matching not regex
-cpDirFilter  = (          ) # Unix pattern matching not regex
+cpDirFilter  = (           ) # Unix pattern matching not regex
 
 TimeSizeNumOfEvents = 100
 IgProfNumOfEvents   = 5
@@ -275,9 +275,6 @@ def get_environ():
     else:
         BASE_PERFORMANCE="%s/src/Validation/Performance"  % CMS_RELEASE_BASE
 
-#   DEF_RELVAL = "%s"     % (DEF_RELVAL,CMSSW_VERSION)
-#    DEF_SIMUL  = "%s%s"     % (DEF_SIMUL ,CMSSW_VERSION)
-
     return (LocalPath,ShowTagsResult)
 
 ###############
@@ -305,8 +302,6 @@ def optionparse():
     devel  = opt.OptionGroup(parser, "Developer Options",
                                      "Caution: use these options at your own risk."
                                      "It is believed that some of them bite.\n")
-    #parser.set_defaults(debug=False)
-
     parser.add_option(
         '--relval',
         action="store_true",
@@ -417,8 +412,6 @@ def getStageRepDirs(options,args):
             split       = base.split(".")
             previousrev = split[1]
             currentrel  = split[3]
-            #if not currentrel == CMSSW_VERSION:
-            #    CMSSW_VERSION = currentrel
             print "Regression Identification file exists, renaming report title for regression report. Old ver: %s" % previousrev
         else:
             print "No regression ID file exists and previous release name was not specified. Producing normal report."
@@ -558,8 +551,7 @@ def scanReportArea(repdir):
 
     cmsScimarkResults = []
     for adir in cmsScimarkDir:
-        htmlfiles = glob.glob(adir + "/*.html") #filter(htmlreg.search,dc.listdir(dir))
-        #htmlfiles = map(lambda x : dir + "/" + x,htmlfiles)
+        htmlfiles = glob.glob(adir + "/*.html") 
         map(cmsScimarkResults.append,htmlfiles)
 
     ExecutionDateLast = ""
@@ -614,33 +606,124 @@ def getOutputNames(base,reportName):
     nologext = matches.groups()[0]
     return (nologext,outd)
 
+def rootfile_cmp(x,y):
+    (fname,x) = x
+    (fname,y) = y
+    x = os.path.basename(x)
+    y = os.path.basename(y)
+    stepreg = re.compile("%s_(..*)\.root" % fname)
+    if stepreg.search(x):
+        x = stepreg.search(x).groups()[0]
+    if stepreg.search(y):
+        y = stepreg.search(y).groups()[0]
+    return step_cmp(x,y)
+
+def dirname_cmp(x,y):
+    (candle,prof,x) = x
+    (candle,prof,y) = y
+    x = os.path.basename(x)
+    y = os.path.basename(y)
+    stepreg = re.compile("%s_(..*)_%s" % (candle,prof))
+    if stepreg.search(x):
+        x = stepreg.search(x).groups()[0]
+    if stepreg.search(y):
+        y = stepreg.search(y).groups()[0]
+    return step_cmp(x,y)
+
+def reg_dirname_cmp(x,y):
+    (candle,prof,x) = x
+    (candle,prof,y) = y
+    x = os.path.basename(x)
+    y = os.path.basename(y)
+    stepreg = re.compile("%s_(..*)_%s_regression" % (candle,prof))
+    if stepreg.search(x):
+        x = stepreg.search(x).groups()[0]
+    if stepreg.search(y):
+        y = stepreg.search(y).groups()[0]
+    return step_cmp(x,y)
+
+def logrep_cmp(x,y):
+    (fname,x) = x
+    (fname,y) = y    
+    x = os.path.basename(x)
+    y = os.path.basename(y)
+    stepreg = re.compile(".*_(..*)_TimingReport.log")
+    if stepreg.search(x):
+        x = stepreg.search(x).groups()[0]
+    if stepreg.search(y):
+        y = stepreg.search(y).groups()[0]
+    return step_cmp(x,y)
+
+def timerep_cmp(x,y):
+    (fname,x) = x
+    (fname,y) = y        
+    x = os.path.basename(x)
+    y = os.path.basename(y)
+    stepreg = re.compile("%s_(..*)_TimingReport" % fname)
+    if stepreg.search(x):
+        x = stepreg.search(x).groups()[0]
+    if stepreg.search(y):
+        y = stepreg.search(y).groups()[0]
+    return step_cmp(x,y)
+
 def step_cmp(x,y):
-    xstr = os.path.basename(x)
-    ystr = os.path.basename(y)
+    xstr = x
+    ystr = y
     x_idx = -1
     y_idx = -1
     bestx_idx = -1
     besty_idx = -1
+    sndbst_x = -1
+    sndbst_y = -1
+    last_x = -1
+    last_y = -1        
     for i in range(len(Step)):
-        if Step[i] in xstr and x_idx == -1:
-            bestx_idx = i
-        if Step[i] in ystr and y_idx == -1:
-            besty_idx = i
+        stepreg = re.compile("^%s.*" % Step[i])
+        # fallback
+        if Step[i] in xstr and sndbst_x == -1:         
+            last_x = i
+        if Step[i] in ystr and sndbst_y == -1:                     
+            last_y = i        
+        # second best
+        if xstr in Step[i] and bestx_idx == -1:         
+            sndbst_x = i
+        if ystr in Step[i] and besty_idx == -1:                     
+            sndbst_y = i
+        # next best
+        if stepreg.search(xstr) and x_idx == -1: 
+            bestx_idx = i # If an exact match has not been found but something similar has, set x best index
+        if stepreg.search(ystr) and y_idx == -1:
+            besty_idx = i # If an exact match has not been found but something similar has, set y best index
+        # actual
         if Step[i] == xstr and x_idx == -1:
-            x_idx = i
+            x_idx = i     # if an exact match has been found then set x index
         if Step[i] == ystr and y_idx == -1:
-            y_idx = i
+            y_idx = i     # if an exact match has been found then set y index
         if not ( x_idx == -1 or y_idx == -1):
-            break
+            break         # if an exact match has been found for both, stop
 
+    # use best match if we still can't find indices
     if x_idx == -1:
         x_idx = bestx_idx
     if y_idx == -1:
         y_idx = besty_idx
-    
+
+    # use second best if we still can't find indices
+    if x_idx == -1:
+        x_idx = sndbst_x
+    if y_idx == -1:
+        y_idx = sndbst_y
+
+    # use fallback if we still can't find indices
+    if x_idx == -1:
+        x_idx = last_x
+    if y_idx == -1:
+        y_idx = last_y
+
     if x_idx == -1 or y_idx == -1:
-        print "WARNING: No steps could be found in SimpleMemReport names when sorting for correcting the order of the graphs."
-    
+        print "WARNING: No valid step names could be found in the logfiles or root filenames being sorted: x: %s y: %s." % (xstr,ystr)
+        print "x", x_idx, "y", y_idx
+
     if x_idx < y_idx:
         return -1
     elif x_idx == y_idx:
@@ -670,11 +753,9 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         ProfileTemplateLowCaps=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step.lower(),CurrentProfile),Profiler)        
         ProfileReportLink = glob.glob(ProfileTemplate)
         #print ProfileReportLink
-        #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplate)
         if len(ProfileReportLink) > 0:
             if not reduce(lambda x,y: x or y,map(lambda x: CurrentCandle in x,ProfileReportLink)):# match with caps try low caps
                 ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
-            #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplateLowCaps)
         else:
             ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
         ProfileReportLink = map(lambda x: _stripbase(repdir,x),ProfileReportLink)
@@ -800,14 +881,11 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         CAND.write("\n</tr></table>")                                
 
 
-                            #if _debug > 0:
-                            #    assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
-
-
-
                             elif prof == "SimpleMemReport":
                                 simMemReports = glob.glob(os.path.join(LocalPath,"%s_*_%s" % (CandFname[CurrentCandle],prof)))
-                                simMemReports.sort(cmp=step_cmp)
+                                simMemReports = map(lambda x: (CandFname[CurrentCandle],prof,x), simMemReports )
+                                simMemReports.sort(cmp=dirname_cmp)
+                                simMemReports = map(lambda x: x[2], simMemReports )
                                 if len(simMemReports) > 0:
                                     if not printed:
                                         CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))
@@ -846,8 +924,10 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                 if len(regresses) > 0:
                                     if not printed:
                                         CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))                                        
-                                        printed = True                                    
-                                    regresses.sort(cmp=step_cmp)
+                                        printed = True
+                                    regresses = map(lambda x: (CandFname[CurrentCandle],prof,x),regresses)                                        
+                                    regresses.sort(cmp=reg_dirname_cmp)                                    
+                                    regresses = map(lambda x: x[2],regresses)
                                     for rep in regresses:
                                         base  = os.path.basename(rep)
                                         found = stepreg.search(base)
@@ -861,15 +941,10 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                             htmlpage = "objects_pp.html"
                                         CAND.write("<a href=\"%s/%s/%s\">%s %s regression report</a><br/>\n" % (LocalDirname,base,htmlpage,prof,step))
                                         
-                                        
-                    
-                    #CandleLogFiles = getcmd("sh -c 'find %s -name \"*.log\" 2> /dev/null'" % LocalPath)
                     CandleLogFiles = []
                     if os.path.exists(LocalPath):
                         thedir = os.listdir(LocalPath)
                         CandleLogFiles = filter(lambda x: (x.endswith(".log") or x.endswith("EdmSize")) and not os.path.isdir(x) and os.path.exists(x), map(lambda x: os.path.abspath(os.path.join(LocalPath,x)),thedir))                    
-                    #CandleLogFiles = filter("".__ne__,CandleLogFiles.strip().split("\n"))
-
 
                     if (len(CandleLogFiles)>0):
                         
@@ -972,7 +1047,9 @@ def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
         fname = CandFname[cand]
         globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
         stepDirs = glob.glob(globpath)
-        stepDirs.sort(cmp=step_cmp)
+        stepDirs = map(lambda x: (fname,x), stepDirs)
+        stepDirs.sort(cmp=timerep_cmp)
+        stepDirs = map(lambda x: x[1], stepDirs)
         stepreg = re.compile("%s_(.*)_TimingReport" % fname)
         createNewRow = True
         curRow = None
@@ -1044,7 +1121,6 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
 
 
     INDEX.write("<h3>%s</h3>\n" % header)
-    #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
     INDEX.write("<table>\n")
     INDEX.write("<caption>%s</caption>\n" % caption)
     INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">%s</th></tr></thead>" % (colspan,name)) 
@@ -1150,7 +1226,6 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
     pubdreg   = re.compile("PublicationDate")
     candhreg  = re.compile("CandlesHere")
     #Loop line by line to build our index.html based on the template one
-    #TEMPLATE =  #||die "Couldn't open file $TemplateHtml - $!\n"
     #Copy the perf_style.css file from Validation/Performance/doc
 
     CandlTmpltHTML="%s/doc/candle.html" % BASE_PERFORMANCE
@@ -1174,15 +1249,13 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 if prevrev == "":
                     fsize_tab = Table()
 
-                    #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
-                    #(ordered_keys,table_dict) = fsize_tab.getTable()
-                    #cols = len(ordered_keys)
-
                     for cand in Candles:
                         fname = CandFname[cand]
                         globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
                         rootfiles = glob.glob(globpath)
-                        rootfiles.sort(cmp=step_cmp)
+                        rootfiles = map(lambda x: (fname,x), rootfiles)
+                        rootfiles.sort(cmp=rootfile_cmp)
+                        rootfiles = map(lambda x: x[1], rootfiles)
                         stepreg = re.compile("%s_(.*).root" % fname)
                         createNewRow = True
                         curRow = None
@@ -1247,15 +1320,13 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         oldpath = oldpath.strip()
                         fsize_tab = Table()
 
-                        #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
-                        #(ordered_keys,table_dict) = fsize_tab.getTable()
-                        #cols = len(ordered_keys)
-
                         for cand in Candles:
                             fname = CandFname[cand]
                             globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
                             rootfiles = glob.glob(globpath)
-                            rootfiles.sort(cmp=step_cmp)
+                            rootfiles = map(lambda x: (fname,x), rootfiles)
+                            rootfiles.sort(cmp=rootfile_cmp)
+                            rootfiles = map(lambda x: x[1], rootfiles)
                             stepreg = re.compile("%s_(.*).root" % fname)
                             createNewRow = True
                             curRow = None
@@ -1324,15 +1395,13 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 if prevrev == "":
                     time_tab = Table()
 
-                    #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
-                    #(ordered_keys,table_dict) = fsize_tab.getTable()
-                    #cols = len(ordered_keys)
-
                     for cand in Candles:
                         fname = CandFname[cand]
                         globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport.log" % fname)
                         logfiles = glob.glob(globpath)
-                        logfiles.sort(cmp=step_cmp)
+                        logfiles = map(lambda x: (fname,x), logfiles)
+                        logfiles.sort(cmp=logrep_cmp)                        
+                        logfiles = map(lambda x: x[1], logfiles)
                         stepreg = re.compile("%s_(.*)_TimingReport.log" % fname)
                         createNewRow = True
                         curRow = None
@@ -1363,7 +1432,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             try:
                                 mean = mean / float(i)
                             except ZeroDivisionError, detail:
-                                print "WARNING: Could not calculate mean CPU time in log", log
+                                print "WARNING: Could not calculate mean CPU time from log because no events could be parsed", log
 
                             if "PILEUP" in step:
                                 puRow.addEntry(realstep,mean)
@@ -1445,10 +1514,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     globs = glob.glob(globpath)
                     if len(globs) > 0:
                         candlHTML = "%s.html" % acandle
-                        #INDEX.write("<table><th colspan=\"3\">")
                         INDEX.write("<a href=\"./%s\"> %s </a>" % (candlHTML,acandle))
                         INDEX.write("<br />\n")
-                        # INDEX.write("</th><tr><td>")
                     
                         candlHTML=os.path.join(WebArea,candlHTML)
                         createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
@@ -1566,10 +1633,6 @@ def copytree4(src,dest,keepTop=True):
             dontFilter = True
             filterExist = not len(filter) == 0
             if filterExist:
-                #for patt in filter:
-                #    if fnmatch.fnmatch(node,patt):
-                #        dontFilter = False
-                #        break
                 dontFilter = not reduce(lambda x,y: x or y,map(lambda x: fnmatch.fnmatch(node,x),filter))
             if dontFilter:
                 node = os.path.join(curdir,node) # convert to absolute path
