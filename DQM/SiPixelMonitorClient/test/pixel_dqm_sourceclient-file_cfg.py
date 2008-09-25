@@ -43,6 +43,7 @@ process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
 process.SiPixelRawDataErrorSource.saveFile = False
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
+process.SiPixelRawDataErrorSource.reducedSet = False
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
@@ -138,7 +139,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -157,9 +158,10 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 
 process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
-    ActionOnLumiSection = cms.untracked.bool(True),
+    ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
-    HighResolutionOccupancy = cms.untracked.bool(True)
+    HighResolutionOccupancy = cms.untracked.bool(True),
+    NoiseRateCutValue = cms.untracked.double(0.0001)
 )
 
 process.qTester = cms.EDFilter("QualityTester",
@@ -181,7 +183,8 @@ process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
+process.p = cms.Path(process.Reco*process.qTester*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 #process.p = cms.Path(process.DQMmodules*process.DIGImonitor*process.sipixelEDAClient)
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'

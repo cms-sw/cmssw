@@ -2,6 +2,7 @@
 #define _SiPixelInformationExtractor_h_
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
@@ -10,6 +11,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
 #include "xgi/Utils.h"
 #include "xgi/Method.h"
@@ -27,6 +36,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <boost/cstdint.hpp>
+
 class DQMStore;
 class SiPixelEDAClient;
 class SiPixelWebInterface;
@@ -103,7 +114,10 @@ class SiPixelInformationExtractor {
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup);
   
-  void findNoisyPixels (         DQMStore                               * bei);
+  void findNoisyPixels (         DQMStore                               * bei,
+                                 bool                                     init,
+				 float                                    noiseRate,
+                                 edm::EventSetup const                  & eSetup);
   
   void createImages             (DQMStore                               * bei);
   
@@ -189,6 +203,14 @@ class SiPixelInformationExtractor {
   int count;
   int errcount;
   bool gotDigis;
+  
+  ofstream myfile_;  
+  int nevents_;
+  std::map< uint32_t , std::vector< std::pair< int , int > > >  noisyDetIds_;
+  bool endOfModules_;
+  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
+  MonitorElement * EventRateBarrelPixels;
+  MonitorElement * EventRateEndcapPixels;
   
   MonitorElement * SummaryReport;
   MonitorElement * SummaryReportMap;

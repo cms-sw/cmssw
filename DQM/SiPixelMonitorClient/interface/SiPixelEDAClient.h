@@ -68,6 +68,7 @@ private:
   int evtOffsetForInit_;
   std::string summaryXMLfile_;
   bool hiRes_;
+  double noiseRate_;
 
   std::ostringstream html_out_;
 };
