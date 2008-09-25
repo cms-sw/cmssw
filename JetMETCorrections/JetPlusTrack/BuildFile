@@ -1,14 +1,27 @@
 <use name=boost>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/TrackReco>
 <use name=JetMETCorrections/Objects>
 <use name=TrackingTools/TrackAssociator>
+<use name=TrackingTools/TrajectoryState>
+<use name=SimTracker/TrackAssociation>
+<use name=SimTracker/TrackerHitAssociation>
+<use name=SimDataFormats/TrackerDigiSimLink>
+<use name=SimDataFormats/Track>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/Records>
+<use name=TrackingTools/TrajectoryState>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/DataRecord>
-<use name=DataFormats/VertexReco>
-<use name=TrackingTools/TrajectoryState>
+<use name=SimDataFormats/HepMCProduct>
 <export>
    <lib name=JetMETCorrectionsJetPlusTrack>
-   <use name=CondFormats/DataRecord>
-   <use name=JetMETCorrections/Objects>
-   <use name=TrackingTools/TrackAssociator>
+   <use name=SimTracker/TrackerHitAssociation>
+   <use name=SimTracker/TrackAssociation>
 </export>
