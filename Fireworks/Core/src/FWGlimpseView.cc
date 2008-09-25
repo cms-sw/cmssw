@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.10 2008/07/17 23:02:41 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.11 2008/09/22 19:20:58 amraktad Exp $
 //
 
 // system include files
@@ -172,6 +172,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TGLScene* gls  = wns->GetGLScene();
    gls->SetStyle(TGLRnrCtx::kWireFrame);
    gls->SetLOD(TGLRnrCtx::kLODMed);
+   gls->SetSelectable(kFALSE);
 
    TGeoTube* tube = new TGeoTube(129,130,310);
    TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", tube, kWhite);
