@@ -251,7 +251,7 @@ namespace cond {
    
    m_iov.markUpdate();
    if (p==m_iov->iov.begin() )
-     m_iov->firstsince=(*p).first;
+     m_iov->firstsince=(*p).first+1;
    else 
      (*(p-1)).first=(*p).first;
    m_iov->iov.erase(p);
