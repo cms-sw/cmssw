@@ -91,5 +91,8 @@ namespace { struct dictionary {
     L1GtLogicParser::OperandToken dummy110;
     std::vector<L1GtLogicParser::OperandToken> dummy111;
 
+    L1GtLogicParser::TokenRPN dummy140;
+    std::vector<L1GtLogicParser::TokenRPN> dummy141;
+
 }; }
 
