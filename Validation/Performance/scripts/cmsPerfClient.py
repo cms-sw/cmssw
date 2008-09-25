@@ -90,7 +90,7 @@ def optionparse():
                       '--cmd-file',
                       type="string",
                       dest='cmscmdfile',
-                      action="append"
+                      action="append",
                       default=[],
                       help='A files of cmsPerfSuite.py commands to execute on the machines, if more than one of these options is passed and the number of these options is the same as the number of machines, the x-th machine will use the x-th config file.',
                       metavar='<PATH>',
@@ -119,7 +119,7 @@ def optionparse():
     cmsperf_cmds = []
 
     cmscmdfiles = options.cmscmdfile
-    if len(cmscmdfile) <= 0:
+    if len(cmscmdfiles) <= 0:
         parser.error("A valid python file defining a list of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
         sys.exit()
     else:
@@ -228,7 +228,8 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
         w = Worker(host, port, perfcmds[cmdindex[host]], queue)
         w.start()                
         workers.append(w)
-        
+    print "All jobs submitted, waiting for results..."
+    sys.stdout.flush()
     # run until all servers have returned data
     while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),workers)):
         try:            

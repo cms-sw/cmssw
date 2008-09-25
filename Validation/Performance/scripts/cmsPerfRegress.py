@@ -670,7 +670,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         (stepname2, data2) = curinfo2
 
         if not stepname1 == stepname2:
-            print "WARNING: Could not compare %s step and %s step because they are not the same step" % (step1,step2)
+            print "WARNING: Could not compare %s step and %s step because they are not the same step" % (stepname1,stepname2)
             print " Searching for next occurence"
             x = 1
             if not (i + 1) > len(info1):
