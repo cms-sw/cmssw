@@ -62,6 +62,9 @@ private:
   double thePtMax;
   double theMinPtCut;
   double theMaxEtaCut;
+  double theL1DrCut;
+  double theL2DrCut;
+  double theL3DrCut;
 
   std::vector<double> theNSigmas;
   unsigned int theNumberOfObjects;

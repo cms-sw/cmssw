@@ -56,7 +56,9 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   thePtMax     = pset.getUntrackedParameter<double>      ("PtMax");
   theNbins     = pset.getUntrackedParameter<unsigned int>("Nbins");
   theMinPtCut  = pset.getUntrackedParameter<double>      ("MinPtCut");
-  theMaxEtaCut = pset.getUntrackedParameter<double>      ("MaxEtaCut");
+  theL1DrCut   = pset.getUntrackedParameter<double>      ("L1DrCut");
+  theL2DrCut   = pset.getUntrackedParameter<double>      ("L2DrCut");
+  theL3DrCut   = pset.getUntrackedParameter<double>      ("L3DrCut");
 
   theMotherParticleId = pset.getUntrackedParameter<unsigned int> 
                         ("MotherParticleId");
@@ -247,7 +249,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
                                   // equals theL1ReferenceThreshold
 
     if ( pt > theL1ReferenceThreshold ) {
-      double maxDeltaR = 0.4;
+      double maxDeltaR = theL1DrCut;
       numL1Cands++;
       if ( m_useMuonFromGenerator ){
 	int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
@@ -277,7 +279,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     for ( size_t candNum = 0; candNum < hltCands[i].size(); candNum++ ) {
 
       int triggerLevel = ( i < ( numHltLabels / 2 ) ) ? 2 : 3;
-      double maxDeltaR = ( triggerLevel == 2 ) ? 0.05 : 0.015;
+      double maxDeltaR = ( triggerLevel == 2 ) ? theL2DrCut : theL3DrCut;
 
       RecoChargedCandidateRef hltCand = hltCands[i][candNum];
       double eta = hltCand->eta();
