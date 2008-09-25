@@ -99,6 +99,8 @@ void HLTMuonGenericRate::finish()
   NumberOfL1Events  ->Fill(theNumberOfL1Events  );
   NumberOfL1Orphans ->Fill(theNumberOfL1Orphans );
   NumberOfHltOrphans->Fill(theNumberOfHltOrphans); 
+  MinPtCut          ->Fill(theMinPtCut          );
+  MaxEtaCut         ->Fill(theMaxEtaCut         );
 
   if ( m_makeNtuple ) {
     theFile->cd();
@@ -435,10 +437,12 @@ void HLTMuonGenericRate::begin()
     newFolder = "HLT/Muon/RateEfficiencies/" + dirLabel;
     dbe_->setCurrentFolder( newFolder.Data() );
 
-    NumberOfEvents     = dbe_->bookInt("NumberOfEvents");
-    NumberOfL1Events   = dbe_->bookInt("NumberOfL1Events");
-    NumberOfL1Orphans  = dbe_->bookInt("NumberOfL1Orphans");
+    NumberOfEvents     = dbe_->bookInt("NumberOfEvents"    );
+    NumberOfL1Events   = dbe_->bookInt("NumberOfL1Events"  );
+    NumberOfL1Orphans  = dbe_->bookInt("NumberOfL1Orphans" );
     NumberOfHltOrphans = dbe_->bookInt("NumberOfHltOrphans");
+    MinPtCut           = dbe_->bookFloat("MinPtCut" );
+    MaxEtaCut          = dbe_->bookFloat("MaxEtaCut");
 
     dbe_->cd();
     newFolder = "HLT/Muon/Distributions/" + dirLabel;

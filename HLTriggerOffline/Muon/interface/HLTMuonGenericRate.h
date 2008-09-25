@@ -99,6 +99,8 @@ private:
   MonitorElement *NumberOfL1Events;
   MonitorElement *NumberOfL1Orphans;
   MonitorElement *NumberOfHltOrphans;
+  MonitorElement *MinPtCut;
+  MonitorElement *MaxEtaCut;
   int theNumberOfEvents;
   int theNumberOfL1Events;
   int theNumberOfL1Orphans;
