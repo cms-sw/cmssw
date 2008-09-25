@@ -15,7 +15,9 @@
 //
 // For FAMOS
 //
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"  
+//#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"  
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerGSRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerGSMatchedRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"                         
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"                         
 
@@ -42,18 +44,15 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
 					    tGeometry_->idToDet(p->geographicalId())),
 					   p->getType()
 					   ) );
-    
   }else if (const ProjectedSiStripRecHit2D* ph = dynamic_cast<const ProjectedSiStripRecHit2D*>(p)) {
     return ProjectedRecHit2D::build(tGeometry_->idToDet(p->geographicalId()),
 				    tGeometry_->idToDet(ph->originalHit().geographicalId()),
-							ph,stripCPE);
+				    ph,stripCPE);
   } else if ( const SiTrackerGSRecHit2D* gh = dynamic_cast<const SiTrackerGSRecHit2D*>(p)) {
-    return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
-
-  } else if ( const SiTrackerGSMatchedRecHit2D* gh = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(p)) {
-    return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+    return ( TSiTrackerGSRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); //gh 
+  } else if ( const SiTrackerGSMatchedRecHit2D* ghm = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(p)) {
+    return ( TSiTrackerGSMatchedRecHit::build(tGeometry_->idToDet(p->geographicalId()), ghm )); 
   } 
-  
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type"; 
 }
 
