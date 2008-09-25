@@ -344,12 +344,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       if ( genMatches[i].l1Cand ) {
 	hEtaPassGen[1]->Fill(eta);
 	hPhiPassGen[1]->Fill(phi);
-      }
-      for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
-	if ( genMatches[i].hltCands[j] ) {
-	  hEtaPassGen[j+2]->Fill(eta);
-	  hPhiPassGen[j+2]->Fill(phi);
-  } } } }
+	for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
+	  bool foundAllPreviousCands = true;
+	  for ( size_t k = 0; k < j; k++ ) 
+	    if ( !genMatches[i].hltCands[k] ) 
+	      foundAllPreviousCands = false;
+	  if ( foundAllPreviousCands && genMatches[i].hltCands[j] ) {
+	    hEtaPassGen[j+2]->Fill(eta);
+	    hPhiPassGen[j+2]->Fill(phi);
+  } } } } }
 
   for ( size_t i = 0; i < recMatches.size(); i++ ) {
     double pt  = recMatches[i].recCand->pt();
@@ -361,12 +364,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       if ( recMatches[i].l1Cand ) {
 	hEtaPassRec[1]->Fill(eta);
 	hPhiPassRec[1]->Fill(phi);
-      }
-      for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
-	if ( recMatches[i].hltCands[j] ) {
-	  hEtaPassRec[j+2]->Fill(eta);
-	  hPhiPassRec[j+2]->Fill(phi);
-  } } } }
+	for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
+	  bool foundAllPreviousCands = true;
+	  for ( size_t k = 0; k < j; k++ ) 
+	    if ( !recMatches[i].hltCands[k] ) 
+	      foundAllPreviousCands = false;
+	  if ( foundAllPreviousCands && recMatches[i].hltCands[j] ) {
+	    hEtaPassRec[j+2]->Fill(eta);
+	    hPhiPassRec[j+2]->Fill(phi);
+  } } } } }
 
 }
 
