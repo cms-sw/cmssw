@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os
+import coral
 from optparse import OptionParser, Option, OptionValueError
 from CondCore.TagCollection import DBCopy,tagInventory,TagTree
 
