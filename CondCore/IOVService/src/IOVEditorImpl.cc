@@ -195,6 +195,8 @@ namespace cond {
    if (p==m_iov->iov.end()) {
      // closed range???
      tillTime=timeTypeSpecs[timetype()].endValue;
+     (*(p-1)).first=sinceTime-1;
+
    }
    else {
 

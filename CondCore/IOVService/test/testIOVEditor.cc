@@ -41,7 +41,7 @@ int main(){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
     editor->updateClosure(300);
-    pos=editor->insert(500, "pay500tok");
+    pos=editor->insert(500, "pay301tok");
     std::cout<<"inserted 500 payload at position "<<pos<<std::endl;
     try {
       pos=editor->append(5, "pay5tok");
