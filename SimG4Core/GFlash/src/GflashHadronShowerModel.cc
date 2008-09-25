@@ -26,10 +26,7 @@ GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* e
   theHisto = GflashHistogram::instance();
 
   theGflashStep = new G4Step();
-  theGflashNavigator = new G4Navigator();
   theGflashTouchableHandle = new G4TouchableHistory();
-
-  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
 }
 
@@ -79,6 +76,9 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
 
 void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 {
+  theGflashNavigator = new G4Navigator();
+  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
+
   // Kill the parameterised particle:
 
   fastStep.ProposeTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
@@ -94,7 +94,7 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   
   std::vector<GflashEnergySpot>::const_iterator spotIter    = energySpotList.begin();
   std::vector<GflashEnergySpot>::const_iterator spotIterEnd = energySpotList.end();
-  
+
    for( ; spotIter != spotIterEnd; spotIter++){
 
     // to make a different time for each fake step. (+1.0 is arbitrary)
@@ -108,9 +108,9 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
     theGflashStep->GetPostStepPoint()->SetPosition(spotIter->getPosition());
     theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
 
-    //put touchable for each energy spot
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchable(spotIter->getPosition(),theGflashTouchableHandle(), false);
+    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
     theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
+
     theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
     
     // Send G4Step information to Hit/Dig if the volume is sensitive
@@ -121,7 +121,7 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
     if( aCurrentVolume != 0 ) {
       theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
       G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
-      
+
       if( aSensitive != 0 ) {
 	aSensitive->Hit(theGflashStep);
       }
@@ -131,6 +131,7 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   fastStep.KillPrimaryTrack();
   fastStep.ProposePrimaryTrackPathLength(0.0);
 
+  delete theGflashNavigator;
 }
 
 G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& fastTrack)
@@ -147,8 +148,6 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
 
   if((particleType == G4PionPlus::PionPlusDefinition() && procName == "WrappedPionPlusInelastic") || 
      (particleType == G4PionMinus::PionMinusDefinition() && procName == "WrappedPionMinusInelastic")) {
-
-    G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
 
     //skip to the second interaction if the first inelastic is a quasi-elastic like interaction
     //@@@ the cut may be optimized later
@@ -179,7 +178,7 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
       theHisto->preStepPosition->Fill(preStep->GetPosition().getRho()/cm);
       theHisto->postStepPosition->Fill(postStep->GetPosition().getRho()/cm);
       theHisto->deltaStep->Fill((postStep->GetPosition() - preStep->GetPosition()).getRho()/cm);
-      theHisto->kineticEnergy->Fill(energy);
+      theHisto->kineticEnergy->Fill(fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV);
       theHisto->energyLoss->Fill(fabs(fastTrack.GetPrimaryTrack()->GetStep()->GetDeltaEnergy()/GeV));
       theHisto->energyRatio->Fill(leadingEnergy/preStep->GetTotalEnergy());
     }
@@ -202,7 +201,7 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   else {
     G4StepPoint* postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
-    Gflash::CalorimeterNumber kCalor = theProfile->getCalorimeterNumber(postStep->GetPosition().getRho()/cm);
+    Gflash::CalorimeterNumber kCalor = theProfile->getCalorimeterNumber(postStep->GetPosition()/cm);
     G4double distOut = 9999.0;
     //exclude the region where the shower starting point is outside parameterization envelopes
     if(kCalor==Gflash::kNULL) {
