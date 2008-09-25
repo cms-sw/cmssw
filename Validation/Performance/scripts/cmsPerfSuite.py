@@ -334,9 +334,9 @@ def mkCandleDir(pfdir,candle,profiler):
     #runCmdSet(cmd)
     return adir
 
-def cpIgProfGenSim(dir,candle):
+def cprootfile(dir,candle):
     cmds = ("cd %s" % dir,
-            "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,candle))
+            "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
     runCmdSet(cmds)
 
 def displayErrors(file):

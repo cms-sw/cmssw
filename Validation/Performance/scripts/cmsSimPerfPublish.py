@@ -920,7 +920,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                             elif prof == "EdmSize" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof == "valgrind":
                                 regresPath = os.path.join(LocalPath,"%s_*_%s_regression" % (CandFname[CurrentCandle],prof))
                                 regresses  = glob.glob(regresPath)
-                                stepreg = re.compile("%s_([^_]*)_%s_regression" % (CandFname[CurrentCandle],prof))
+                                stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s_regression" % (CandFname[CurrentCandle],prof))
                                 if len(regresses) > 0:
                                     if not printed:
                                         CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))                                        
@@ -1070,7 +1070,7 @@ def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
                     createPURow = False
                     puRow = Row(table)                
             rootf = os.path.join(stepdir,rootfile)
-            
+
             if os.path.exists(rootf):
                 f = ROOT.TFile(rootf)
 
@@ -1242,7 +1242,18 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 if prevrev == "":
                     INDEX.write("Simulation Performance Reports for %s\n" % CMSSW_VERSION)
                 else:
-                    INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))
+                    globpath = os.path.join(repdir,"REGRESSION.%s.vs.*" % (prevrev))
+                    globs = glob.glob(globpath)
+                    if len(globs) < 1:
+                        pass
+                    else:
+                        latestreg = re.compile("REGRESSION.%s.vs.(.*)" % prevrev)
+                        found = latestreg.search(os.path.basename(globs[0]))
+                        if found:
+                            latestrel = found.groups()[0]
+                            INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,latestrel))                                                        
+                        else:
+                            INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))                            
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
             elif fsizereg.search(NewFileLine):
