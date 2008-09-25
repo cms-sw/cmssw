@@ -34,9 +34,9 @@ namespace cond{
 				  ) = 0;
     /// insert a payload with known since in any position
     virtual unsigned int 
-    cond::IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
-				     const std::string& payloadToken
-				     )=0;
+    freeInsert( cond::Time_t sinceTime ,
+    	        const std::string& payloadToken
+	       )=0;
     /// Bulk insert of iov chunck
     virtual void bulkInsert( std::vector< std::pair<cond::Time_t,std::string> >& values ) = 0;
     /// Update the closure of the iov sequence

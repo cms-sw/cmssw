@@ -2,6 +2,7 @@
 #include "StorageSvc/DbReflex.h"
 #include <typeinfo>
 #include "cxxabi.h"
+#include <iostream>
 
 namespace pool {  void genMD5(const std::string& s, void* code);  }
 
@@ -21,11 +22,14 @@ namespace cond {
 	  pool::genMD5(type.Name(ROOT::Reflex::SCOPED),buff);
 	  s = ((pool::Guid*)buff)->toString();
 	}
+//       std::cout << "CondCore::ClassID: CLID for Reflex type " << type.Name(ROOT::Reflex::SCOPED) 
+//                 << " is " << s << std::endl;
       }
       else {
 	// only for test
 	int status=0;
 	std::string name = __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status);
+//	std::cout << "CondCore::ClassID: Warning no Reflex type for " << name << std::endl;
 	char buff[20];
 	pool::genMD5(name,buff);
 	s = ((pool::Guid*)buff)->toString();
