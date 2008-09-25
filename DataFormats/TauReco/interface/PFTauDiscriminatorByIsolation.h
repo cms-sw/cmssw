@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationVector<PFTauRefProd,std::vector<int> > PFTauDiscriminatorByIsolationBase;
+  typedef edm::AssociationVector<PFTauRefProd,std::vector<float> > PFTauDiscriminatorByIsolationBase;
   
   class PFTauDiscriminatorByIsolation : public PFTauDiscriminatorByIsolationBase {
   public:
