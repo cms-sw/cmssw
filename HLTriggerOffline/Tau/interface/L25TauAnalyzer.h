@@ -1,107 +1,68 @@
-// -*- C++ -*-
-//
-// Package:    L25TauAnalyzer
 // Class:      L25TauAnalyzer
-// 
-/**\class L25TauAnalyzer L25TauAnalyzer.cc HLTriggerOffline/Tau/src/L25TauAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Eduardo Luiggi
+// Original Author:  Eduardo Luiggi, modified by Sho Maruyama
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id$
-//
-//
-
-
-// system include files
+// $Id: L25TauAnalyzer.h,v 1.3 2008/05/15 19:16:59 eluiggi Exp $
 #include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "HepMC/GenParticle.h"
-#include "TLorentzVector.h"
-#include <vector>
-#include <string>
-#include <TTree.h>
-#include <TFile.h>
-#include "TH1D.h"
-#include "TH1.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "TH1F.h"
-#
-//
-
-  typedef math::XYZTLorentzVectorD   LV;
-  typedef std::vector<LV>            LVColl;
-
-// class decleration
-//
+#include "TH2F.h"
 
 class L25TauAnalyzer : public edm::EDAnalyzer {
    public:
       explicit L25TauAnalyzer(const edm::ParameterSet&);
       ~L25TauAnalyzer();
-
    private:
-
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      bool match(const LV& recoJet, const LVColl& matchingObject);       
-      //bool match(const CaloJet& caloJet, const LVColl& matchingObject);      
-      
-      edm::InputTag jetTagSrc_;
-      edm::InputTag jetMCTagSrc_;
-      edm::InputTag caloJets_;
-      std::string rootFile_;	   //Output File Name
-      
-      int nTracksInIsolationRing_;
-      float rMatch_;
-      float rSig_;
-      float rIso_;
-      float minPtIsoRing_;
-      float ptLeadTk_;
-      float mcMatch_;
-      bool signal_;
-      
-      TFile *l25file;		   //File to store the histos...
-      TTree *l25tree;
-      
-      //TH1F *matchedJetsPt;
-
-      int isolated;
-      int ecalIsoJets;
-      int numPixTrkInJet;
-      int numQPixTrkInJet;
-      int numCaloJets;
-      float jetPt;
-      float jetE;
-      float jetEta;
-      float jetPhi;	
-      float leadSignalTrackPt;
-      float leadTrkJetDeltaR; 
-      bool l2match;
-      bool l25match;
-      bool hasLeadTrk;
+    
+      edm::InputTag   tauSource;
+      edm::InputTag l25JetSource;
+      edm::InputTag l25PtCutSource;
+      edm::InputTag l25IsoSource;
+      TH1F* tauPt;
+      TH1F* tauInvPt;
+      TH1F* tauEt;
+      TH1F* tauEta;
+      TH1F* tauPhi;
+      TH1F* tauTjDR;
+      TH1F* tauTrkC05;
+      TH1F* tauTrkIso;
+      TH1F* tauTrkSig;
+      TH1F* l25Et;
+      TH1F* l25Phi;
+      TH1F* l25Eta;
+      TH1F* l25Pt;
+      TH1F* l25PtCut;
+      TH1F* l25InvPt;
+      TH1F* l25Iso;
+      TH1F* l25TjDR;
+      TH1F* l25TrkQPx;
+      TH1F* leadDR;
+      TH2F* Pt;
+      TH2F* Et;
+      TH2F* Eta;
+      TH2F* Phi;
+      TH2F* TjDR;
+      TH2F* TrkC05;
+      TH2F* TrkSig;
+      TH1F* effInvPt;
+      TH1F* effPtCut;
+      TH1F* effIso;
+      TH1F* effDR;
+      TH1F* matchDR;
+      double matchingCone;
 };
