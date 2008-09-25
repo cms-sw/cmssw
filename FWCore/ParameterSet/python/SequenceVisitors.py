@@ -5,14 +5,14 @@ from Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer
 class PathValidator(object):
     def enter(self,visitee):
         if isinstance(visitee,OutputModule):
-            raise ValueError("Path cannot have a "+visitee.label_())
+            raise ValueError("Path cannot have an OutputModule, "+visitee.label_())
     def leave(self,visitee):
         pass
 
 class EndPathValidator(object):
     def enter(self,visitee):
         if isinstance(visitee,EDProducer) or isinstance(visitee,EDFilter):
-            raise ValueError("EndPath cannot have a "+visitee.label_())
+            raise ValueError("EndPath cannot have an EDProducer or an EDFilter, "+visitee.label_())
     def leave(self,visitee):
         pass
 
