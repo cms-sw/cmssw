@@ -39,6 +39,12 @@ namespace cond{
 	       )=0;
     /// Bulk insert of iov chunck
     virtual void bulkInsert( std::vector< std::pair<cond::Time_t,std::string> >& values ) = 0;
+
+    // delete entry at a given time
+    virtual  unsigned int deleteEntry(cond::Time_t time,
+					bool withPayload=false ) = 0;
+
+
     /// Update the closure of the iov sequence
     virtual void updateClosure( cond::Time_t newtillTime ) = 0;
     virtual void deleteEntries( bool withPayload=false ) = 0;

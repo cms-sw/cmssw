@@ -123,7 +123,7 @@ namespace cond {
   }
   
   unsigned int 
-  cond::IOVEditorImpl::append( cond::Time_t sinceTime ,
+  IOVEditorImpl::append( cond::Time_t sinceTime ,
 			       const std::string& payloadToken
 			       ){
     if( m_token.empty() ) {
@@ -163,7 +163,7 @@ namespace cond {
   }
 
  unsigned int 
-  cond::IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
+ IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
 			       const std::string& payloadToken
 			       ){
     if( m_token.empty() ) {
@@ -217,6 +217,43 @@ namespace cond {
    return p - m_iov->iov.begin();
 
     
+  }
+
+
+
+  // delete entry at a given time
+  unsigned int 
+  IOVEditorImpl::deleteEntry(cond::Time_t time,
+			       bool withPayload) {
+   if( m_token.empty() ) {
+      throw cond::Exception("cond::IOVEditorImpl::deleteEntry cannot delete from non-existing IOV index");
+    }
+    
+    if(!m_isActive) {
+      this->init();
+    }
+    
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntry cannot delete from empty IOV index");
+    
+
+   if(!validTime(time)||time<firstSince())
+     throw cond::Exception("cond::IOVEditorImpl::deleteEntry time not in IOVs range");
+
+   IOV::iterator p = m_iov->find(time);
+   if (p==m_iov->iov.end())
+     throw cond::Exception("cond::IOVEditorImpl::deleteEntry time not in IOVs range");
+
+   int n = p=m_iov->iov.begin();
+   if(withPayload) {
+     cond::GenericRef ref(*m_pooldb,(*p).second);
+     ref.markDelete();
+   }
+
+   m_iov.markUpdate();
+   m_iov->iov.erase(p);
+
+   return n;
+
   }
 
 
