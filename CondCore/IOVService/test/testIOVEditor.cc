@@ -144,11 +144,11 @@ int main(){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
 
-    pos=editor->append(193, "pay193tok");
+    pos=editor->append(593, "pay193tok");
     std::cout<<"inserted 193 payload at position "<<pos<<std::endl;
  
 
-    pos=editor->deleteEntry(193);
+    pos=editor->deleteEntry(593);
     std::cout<<"deleted entry 193 payload at position "<<pos<<std::endl;
 
     pos=editor->deleteEntry(160);

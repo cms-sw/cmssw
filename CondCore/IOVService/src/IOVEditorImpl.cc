@@ -248,8 +248,12 @@ namespace cond {
      cond::GenericRef ref(*m_pooldb,(*p).second);
      ref.markDelete();
    }
-
+   
    m_iov.markUpdate();
+   if (p==m_iov->iov.begin() )
+     m_iov->firstsince=(*p).first;
+   else 
+     (*(p-1)).first=(*p).first;
    m_iov->iov.erase(p);
 
    return n;
