@@ -50,17 +50,6 @@ def makeAlcaHarvestingConfig(datasetName, runNumber,
 
     process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-    process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-
-    #  //
-    # // Set the GlobalTag
-    #//
-    process.GlobalTag.globaltag = globalTag
-    process.prefer("GlobalTag")
-
-    process.load("Configuration.StandardSequences.Geometry_cff")
-
     process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
         )
@@ -113,9 +102,6 @@ def makeAlcaHarvestingConfig(datasetName, runNumber,
 
     process.p1 = cms.Path(
         process.EDMtoMEConverter*process.dqmSaver)
-
-    msg = "ALCA Harvesting Not tested Yet"
-    raise NotImplementedError, msg
 
     return process
 
