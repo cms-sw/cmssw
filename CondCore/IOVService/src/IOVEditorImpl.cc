@@ -212,7 +212,7 @@ namespace cond {
      (*p).first=sinceTime-1;
      p++;
    }
-   m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
+   p = m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
    m_iov.markUpdate();
    return p - m_iov->iov.begin();
 
