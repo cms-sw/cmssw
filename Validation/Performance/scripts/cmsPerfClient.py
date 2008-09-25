@@ -79,9 +79,10 @@ def optionparse():
     parser.add_option('-m',
                       '--machines',
                       type="string",
+                      action="append",
                       dest='machines',
-                      default="",
-                      help='A comma separated list of the machines to run the benchmarking on',
+                      default=[],
+                      help='Machines to run the benchmarking on, for each machine add another one of these options',
                       metavar='<MACHINES>',
                       )
 
@@ -89,8 +90,9 @@ def optionparse():
                       '--cmd-file',
                       type="string",
                       dest='cmscmdfile',
-                      default="",
-                      help='A file of cmsPerfSuite.py commands to execute on the machines',
+                      action="append"
+                      default=[],
+                      help='A files of cmsPerfSuite.py commands to execute on the machines, if more than one of these options is passed and the number of these options is the same as the number of machines, the x-th machine will use the x-th config file.',
                       metavar='<PATH>',
                       )      
 
@@ -116,62 +118,74 @@ def optionparse():
 
     cmsperf_cmds = []
 
-    cmscmdfile = options.cmscmdfile
-    if cmscmdfile == "":
+    cmscmdfiles = options.cmscmdfile
+    if len(cmscmdfile) <= 0:
         parser.error("A valid python file defining a list of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
         sys.exit()
     else:
-        
-        cmdfile = os.path.abspath(cmscmdfile)
-        print cmdfile
-        if os.path.isfile(cmdfile):
-            try:
-                execfile(cmdfile)
-                #cmsperf_cmds = listperfsuitekeywords
-                cmsperf_cmds = listperfsuitekeywords
-            except (SyntaxError), detail:
-                parser.error("ERROR: %s must be a valid python file" % cmdfile)
-                sys.exit()
-            except (NameError), detail:
-                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program: %s" % (cmdfile,str(detail)))
-                sys.exit()
-            except :
-                raise
-            if not type(cmsperf_cmds) == type([]):
-                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 2" % cmdfile)
-                sys.exit()
-            if not _isValidPerfCmdsDef(cmsperf_cmds):
-                parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 3" % cmdfile)
-                sys.exit()                
-                
-        else:
-            parser.error("ERROR: %s is not a file" % cmdfile)
-            sys.exit()
+        for cmscmdfile in cmscmdfiles:
+            cmdfile = os.path.abspath(cmscmdfile)
+            print cmdfile
+            if os.path.isfile(cmdfile):
+                try:
+                    execfile(cmdfile)
+                    cmsperf_cmds.append(listperfsuitekeywords)
+                except (SyntaxError), detail:
+                    parser.error("ERROR: %s must be a valid python file" % cmdfile)
+                    sys.exit()
+                except (NameError), detail:
+                    parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program: %s" % (cmdfile,str(detail)))
+                    sys.exit()
+                except :
+                    raise
+                if not type(cmsperf_cmds[-1]) == type([]):
+                    parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 2" % cmdfile)
+                    sys.exit()
+                if not _isValidPerfCmdsDef(cmsperf_cmds[-1]):
+                    parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 3" % cmdfile)
+                    sys.exit()                
 
+            else:
+                parser.error("ERROR: %s is not a file" % cmdfile)
+                sys.exit()
+            
     port = 0        
     if options.port == -1:
         port = 8000
     else:
         port = options.port
 
-    machines = []
+    machines = options.machines
     
-    if "," in options.machines:
-        machines = options.machines.split(",")
-        machines = map(lambda x: x.strip(),machines)
-    else:
-        machines = [ options.machines.strip() ]
-
     if len(machines) <= 0:
-        parser.error("you must specify at least one machine to benchmark")
+        parser.error("you must specify at least one machine to benchmark")        
+    else:
+        machines = map(lambda x: x.strip(),machines)
 
     for machine in machines:
         try:
             output = socket.getaddrinfo(machine,port)
         except socket.gaierror:
             parser.error("ERROR: Can not resolve machine address %s (must be ip{4,6} or hostname)" % machine)
+            sys.exit()
 
-    return (cmsperf_cmds, port, machines, outfile)
+    cmdindex = {} # define an index that defines the commands to be run for each machine to be perfsuite'd
+    if len(cmsperf_cmds) == 1:
+        for machine in machines:
+            # each value is the index in cmsperf_cmds that the machine will run
+            # in this case all machines run the same set of commands
+            cmdindex[machine] = 0 
+    else:
+        if not len(cmsperf_cmds) == len(machines):
+            parser.error("if more than one configuration file was specified you must specify a configuration file for each machine.")
+            sys.exit()
+            
+        for i in range(len(machines)):
+            # each value is the index in cmsperf_cmds that the machine will run
+            # in this case each machine runs the i-th configuration file passed as an option
+            cmdindex[machine] = i         
+
+    return (cmsperf_cmds, port, machines, outfile, cmdindex)
 
 def request_benchmark(perfcmds,shost,sport):
     try:
@@ -205,13 +219,13 @@ class Worker(threading.Thread):
             print detail
             sys.stdout.flush()
 
-def runclient(perfcmds, hosts, port, outfile):
+def runclient(perfcmds, hosts, port, outfile, cmdindex):
     queue = Queue.Queue()
     # start all threads
     workers = []
     for host in hosts:
         print "Submitting jobs to %s..." % host
-        w = Worker(host, port, perfcmds, queue)
+        w = Worker(host, port, perfcmds[cmdindex[host]], queue)
         w.start()                
         workers.append(w)
         
@@ -222,18 +236,18 @@ def runclient(perfcmds, hosts, port, outfile):
             sys.stdout.flush()
         except (KeyboardInterrupt, SystemExit):
             #cleanup
-            presentBenchmarkData(perfcmds,queue,outfile)            
+            presentBenchmarkData(queue,outfile)            
             raise
         except:
             #cleanup
-            presentBenchmarkData(perfcmds,queue,outfile)
+            presentBenchmarkData(queue,outfile)
             raise
     print "All job results received"
-    presentBenchmarkData(perfcmds,queue,outfile)    
+    presentBenchmarkData(queue,outfile)    
 
 def _main():
-    (cmsperf_cmds, port, hosts, outfile) = optionparse()
-    runclient(cmsperf_cmds, hosts, port, outfile)
+    (cmsperf_cmds, port, hosts, outfile, cmdindex) = optionparse()
+    runclient(cmsperf_cmds, hosts, port, outfile, cmdindex)
 
 
 ########################################
@@ -243,16 +257,18 @@ def _main():
 # list of command outputs [ dictionary of cpus {   }  ]
 # For example:
 # returned data     = [ cmd_output1, cmd_output2 ... ]
-# cmd_output1       = { cpuid1 : cpu_output1, cpuid2 : cpu_output2 ... }
-# cpu_output1       = { (candle1, profset1) : profset_output1, (candle2,profset2) : profset_output2 ... }
-# profset_output1   = { (profiletype1, step1) : list_of_cputimes1, ... }
+# cmd_output1       = { cpuid1 : cpu_output1, cpuid2 : cpu_output2 ... }     # cpuid is "None" if there was only one cpu used
+# cpu_output1       = { candle1  : profset_output1, candle2 : profset_output2 ... }
+# profset_output1   = { profset1 : profile_output1, ... }
+# profile_output1   = { profiletype1: step_output1, ... }
+# step_output1      = { step1: list_of_cpu_times, ... }
 # list_of_cpu_times = [ (evt_num1, secs1), ... ]
 
 ###########
 #
 # We now massage the data so that each command output from each server has the command keywords tuple'd with it
 #
-def presentBenchmarkData(perfcmds,q,outfile):
+def presentBenchmarkData(q,outfile):
     print "Pickling data to file..."
     out = []            # match up the commands with each
                         # command that was passed in the config file
