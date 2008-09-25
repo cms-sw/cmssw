@@ -52,6 +52,18 @@ namespace pos{
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const ;
     virtual void writeXML(                                                              std::ofstream *out) const ;
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const ;
+    virtual void writeXMLHeader(pos::PixelConfigKey key, 
+				int version, 
+				std::string path, 
+				std::ofstream *fedstream, 
+				std::ofstream *roclvlstream, 
+				std::ofstream *tbmlvlsteram) const ;
+    virtual void writeXML(std::ofstream *fedstream,
+			  std::ofstream *rocstream,
+			  std::ofstream *tbmstream) const ;
+    virtual void writeXMLTrailer(std::ofstream *fedstream,
+				 std::ofstream *recostream,
+				 std::ofstream *tbmstream) const ;
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
 
 

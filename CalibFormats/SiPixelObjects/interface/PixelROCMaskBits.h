@@ -36,8 +36,8 @@ namespace pos{
 
     void writeBinary(std::ofstream& out) const;
 
-    void writeASCII(std::ofstream& out) const;
-//    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
+    void writeASCII(std::ofstream&  out) const;
+    void writeXML(  std::ofstream * out) const;
 
     PixelROCName name() const {return rocid_;}
 

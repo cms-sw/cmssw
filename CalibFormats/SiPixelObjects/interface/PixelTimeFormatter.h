@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <sys/time.h>
 
 namespace pos{
   class PixelTimeFormatter
@@ -24,7 +25,7 @@ namespace pos{
       std::string date ;
       time( &aclock );		  
       thisTime = localtime( &aclock ); 
-      
+       
       sprintf(theDate,
 	      "%d-%02d-%02d %02d:%02d:%02d", thisTime->tm_year+1900,
 	      thisTime->tm_mon+1,
@@ -35,6 +36,19 @@ namespace pos{
       date = theDate ;
       std::cout << "[PixelTimeFormatter::getTime()]\t\t\t\t    Time: " << date << std::endl ;					  
       return date ;
+    }
+
+    static std::string getmSecTime(void) 
+    {
+      char theDate[20] ;
+      struct timeval msecTime;
+      gettimeofday(&msecTime, (struct timezone *)0) ;
+      
+      sprintf(theDate,
+	      "%d-%d", 
+	      (unsigned int)msecTime.tv_sec,
+	      (unsigned int)msecTime.tv_usec ); 
+      return std::string(theDate) ;
     }
   } ;
 }

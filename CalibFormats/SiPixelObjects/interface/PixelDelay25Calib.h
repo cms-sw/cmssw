@@ -30,10 +30,21 @@ namespace pos{
     ~PixelDelay25Calib();
 
     virtual void writeASCII(std::string dir="") const;
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
+    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
+    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+				  int version, 
+				  std::string path, 
+				  std::ofstream *out,
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
+				  ) const ;
+    virtual void writeXML( 	  std::ofstream *out,			     	   			    
+			   	  std::ofstream *out1 = NULL ,
+			   	  std::ofstream *out2 = NULL ) const ;
+    virtual void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
+				  ) const ;
 
     std::set<std::string>& portcardList() {return portcardNames_;}
     bool allPortcards() {return allPortcards_;}

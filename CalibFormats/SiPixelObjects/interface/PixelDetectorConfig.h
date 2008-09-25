@@ -55,12 +55,23 @@ namespace pos{
     const std::map<PixelROCName, PixelROCStatus>& getROCsList() const { return rocs_; } ; // Added by Dario (March 3, 2008)
 
     void writeASCII(std::string dir="") const;
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const  ;
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
+    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const ;
+    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+				  int version, 
+				  std::string path, 
+				  std::ofstream *out,
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
+				  ) const ;
+    virtual void writeXML(        std::ofstream *out,					   	 	    
+			   	  std::ofstream *out1 = NULL ,
+			   	  std::ofstream *out2 = NULL )  const ;
+    virtual void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
+				  ) const ;
 
-    bool containsModule(const PixelModuleName& moduleToFind) const;
+    bool containsModule(const PixelModuleName& moduleToFind) const ;
 
     std::set <unsigned int> getFEDs(PixelNameTranslation* translation) const;
     std::map <unsigned int, std::set<unsigned int> > getFEDsAndChannels(PixelNameTranslation* translation) const;
@@ -72,6 +83,7 @@ namespace pos{
     std::vector<PixelModuleName> modules_;   
 
     std::map<PixelROCName, PixelROCStatus> rocs_;
+    
  
   };
 }
