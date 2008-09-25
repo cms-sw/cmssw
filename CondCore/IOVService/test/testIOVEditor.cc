@@ -21,9 +21,9 @@ int main(){
     editor->create(10,cond::timestamp);
     pos=editor->insert(20,"pay010tok");
     std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
-    pos=editor->insert(40, "pay020tok");
+    pos=editor->insert(40, "pay021tok");
     std::cout<<"inserted 40 payload at position "<<pos<<std::endl;
-    pos=editor->insert(60, "pay040tok");
+    pos=editor->insert(60, "pay041tok");
     std::cout<<"inserted 60 payload at position "<<pos<<std::endl;
     pos=editor->append(120,"pay120tok");
     std::cout<<"inserted 120 payload at position "<<pos<<std::endl;
