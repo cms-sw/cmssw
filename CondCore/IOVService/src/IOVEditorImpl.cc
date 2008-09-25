@@ -162,6 +162,64 @@ namespace cond {
 
   }
 
+ unsigned int 
+  cond::IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
+			       const std::string& payloadToken
+			       ){
+    if( m_token.empty() ) {
+      throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to non-existing IOV index");
+    }
+    
+    if(!m_isActive) {
+      this->init();
+    }
+    
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot insert  to empty IOV index");
+    
+
+   if(!validTime(sinceTime))
+      throw cond::Exception("cond::IOVEditorImpl::freeInsert time not in global range");
+
+
+ 
+   if (sinceTime<firstSince()) {
+     m_iov->iov.insert(m_iov->iov.begin(),IOV::Item(firstSince(),payloadToken));
+     m_iov->firstsince=sinceTime;
+     m_iov.markUpdate();
+    return 0;
+   }
+
+   // insert after found one.
+   cond::Time_t tillTime;
+   IOV::iterator p = m_iov->find(sinceTime);
+   if (p==m_iov->iov.end()) {
+     // closed range???
+     tillTime=timeTypeSpecs[timetype()].endValue;
+   }
+   else {
+
+     {
+       // check for existing since
+       if (p==m_iov->iov.begin() ) {
+	 if (firstSince()==sinceTime)
+	   throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
+       } else
+	 if ((*(p-1)).first==sinceTime-1)
+	   throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
+     }
+
+     tillTime=(*p).first;
+     (*p).first=sinceTime-1;
+     p++;
+   }
+   m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
+   m_iov.markUpdate();
+   return p - m_iov->iov.begin();
+
+    
+  }
+
+
   void 
   IOVEditorImpl::deleteEntries(bool withPayload){
     if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntries cannot delete to non-existing IOV index");

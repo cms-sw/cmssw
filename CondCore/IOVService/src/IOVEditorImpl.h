@@ -32,6 +32,12 @@ namespace cond{
     virtual unsigned int append(  cond::Time_t sinceTime,
 				  const std::string& payloadToken
 				  );
+    
+    /// insert a payload with known since in any position
+    unsigned int 
+    cond::IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
+				     const std::string& payloadToken
+				     );
 
     virtual void deleteEntries( bool withPayload=false );
 
