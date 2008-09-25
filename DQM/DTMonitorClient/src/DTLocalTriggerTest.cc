@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 15:16:34 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/08/18 12:37:12 $
+ *  $Revision: 1.24 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -63,15 +63,15 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& c){
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-	  for (int sect=1; sect<=12; ++sect){
-	    //bookSectorHistos(wh,sect,"","CorrectBXPhi");
-	    bookSectorHistos(wh,sect,"","CorrFractionPhi");
-	    bookSectorHistos(wh,sect,"","2ndFractionPhi");
-	    if (hwSource!="DCC") {
-	    //bookSectorHistos(wh,sect,"","CorrectBXTheta");
-	    bookSectorHistos(wh,sect,"","HFractionTheta");
-	    }
-	  }
+	  // for (int sect=1; sect<=12; ++sect){
+// 	    //bookSectorHistos(wh,sect,"","CorrectBXPhi");
+// 	    bookSectorHistos(wh,sect,"","CorrFractionPhi");
+// 	    bookSectorHistos(wh,sect,"","2ndFractionPhi");
+// 	    if (hwSource!="DCC") {
+// 	    //bookSectorHistos(wh,sect,"","CorrectBXTheta");
+// 	    bookSectorHistos(wh,sect,"","HFractionTheta");
+// 	    }
+// 	  }
 	  bookWheelHistos(wh,"","CorrectBXPhi");
 	  bookWheelHistos(wh,"","ResidualBXPhi");
 	  bookWheelHistos(wh,"","CorrFractionPhi");
@@ -133,68 +133,79 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    TH2F * BXvsQual      = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
 	    TH1F * BestQual      = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
 	    TH2F * Flag1stvsQual = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId)));
-	    if (BXvsQual && Flag1stvsQual && BestQual && BestQual->GetEntries()>1) {
-	      
-	      TH1D* BXHH    = BXvsQual->ProjectionY("",6,7,"");
-	      TH1D* Flag1st = Flag1stvsQual->ProjectionY();
-	      int BXOK_bin  = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
-	      double BXMean = BXHH->GetEntries()>=1 ? BXHH->GetMean() : 51;
-	      double BX_OK  = BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
-	      double trigsFlag2nd = Flag1st->GetBinContent(2);
-	      double trigs = Flag1st->GetEntries();
-	      double besttrigs = BestQual->GetEntries();
-	      double besttrigsCorr = 0;
-	      delete BXHH;
-	      delete Flag1st;
+	    if (BXvsQual && Flag1stvsQual && BestQual) {
 
-	      for (int i=5;i<=7;++i)
-		besttrigsCorr+=BestQual->GetBinContent(i);
+	      int corrSummary   = 1;
+	      int secondSummary = 1;
+
+	      if (BestQual->GetEntries()>1) {
 	      
-	      if( secME[sector_id].find(fullName("CorrFractionPhi")) == secME[sector_id].end() ){
-		//bookSectorHistos(wh,sect,"","CorrectBXPhi");
-		bookSectorHistos(wh,sect,"","CorrFractionPhi");
-		bookSectorHistos(wh,sect,"","2ndFractionPhi");
-	      }
-	      if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-		bookWheelHistos(wh,"","ResidualBXPhi");
-		bookWheelHistos(wh,"","CorrectBXPhi");
-		bookWheelHistos(wh,"","CorrFractionPhi");
-		bookWheelHistos(wh,"","2ndFractionPhi");
-		bookWheelHistos(wh,"","TriggerInclusivePhi");
-	      }
-	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
-	      //innerME->find(fullName("CorrectBXPhi"))->second->setBinContent(stat,BX_OK);
-	      innerME->find(fullName("CorrFractionPhi"))->second->setBinContent(stat,besttrigsCorr/besttrigs);
-	      innerME->find(fullName("2ndFractionPhi"))->second->setBinContent(stat,trigsFlag2nd/trigs);
+		TH1D* BXHH    = BXvsQual->ProjectionY("",6,7,"");
+		TH1D* Flag1st = Flag1stvsQual->ProjectionY();
+		int BXOK_bin  = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
+		double BXMean = BXHH->GetEntries()>=1 ? BXHH->GetMean() : 51;
+		double BX_OK  = BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
+		double trigsFlag2nd = Flag1st->GetBinContent(2);
+		double trigs = Flag1st->GetEntries();
+		double besttrigs = BestQual->GetEntries();
+		double besttrigsCorr = 0;
+		delete BXHH;
+		delete Flag1st;
+
+		for (int i=5;i<=7;++i)
+		  besttrigsCorr+=BestQual->GetBinContent(i);
+
+		double corrFrac   = besttrigsCorr/besttrigs;
+		double secondFrac = trigsFlag2nd/trigs;
+		if (corrFrac < parameters.getUntrackedParameter<double>("corrFracError",.5)){
+		  corrSummary = 2;
+		}
+		else if (corrFrac < parameters.getUntrackedParameter<double>("corrFracWarning",.6)){
+		  corrSummary = 3;
+		}
+		else {
+		  corrSummary = 0;
+		}
+		if (secondFrac > parameters.getUntrackedParameter<double>("secondFracError",.2)){
+		  secondSummary = 2;
+		}
+		else if (secondFrac > parameters.getUntrackedParameter<double>("secondFracWarning",.1)){
+		  secondSummary = 3;
+		}
+		else {
+		  secondSummary = 0;
+		}
+		
+		// if( secME[sector_id].find(fullName("CorrFractionPhi")) == secME[sector_id].end() ){
+// 		  //bookSectorHistos(wh,sect,"","CorrectBXPhi");
+// 		  bookSectorHistos(wh,sect,"","CorrFractionPhi");
+// 		  bookSectorHistos(wh,sect,"","2ndFractionPhi");
+// 		}
+		if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
+		  bookWheelHistos(wh,"","ResidualBXPhi");
+		  bookWheelHistos(wh,"","CorrectBXPhi");
+		  bookWheelHistos(wh,"","CorrFractionPhi");
+		  bookWheelHistos(wh,"","2ndFractionPhi");
+		  bookWheelHistos(wh,"","TriggerInclusivePhi");
+		}
+		//std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
+		//innerME->find(fullName("CorrectBXPhi"))->second->setBinContent(stat,BX_OK);
+		//innerME->find(fullName("CorrFractionPhi"))->second->setBinContent(stat,corrFrac);
+		//innerME->find(fullName("2ndFractionPhi"))->second->setBinContent(stat,secondFrac);
 	   
-	      innerME = &(whME[wh]);
-	      innerME->find(fullName("CorrectBXPhi"))->second->setBinContent(sect,stat,BX_OK+0.00001);
-	      innerME->find(fullName("ResidualBXPhi"))->second->setBinContent(sect,stat,round(25.*(BXMean-BX_OK))+0.00001);
-	      innerME->find(fullName("CorrFractionPhi"))->second->setBinContent(sect,stat,besttrigsCorr/besttrigs);
-	      innerME->find(fullName("TriggerInclusivePhi"))->second->setBinContent(sect,stat,besttrigs);
-	      innerME->find(fullName("2ndFractionPhi"))->second->setBinContent(sect,stat,trigsFlag2nd/trigs);
+		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
+		innerME->find(fullName("CorrectBXPhi"))->second->setBinContent(sect,stat,BX_OK+0.00001);
+		innerME->find(fullName("ResidualBXPhi"))->second->setBinContent(sect,stat,round(25.*(BXMean-BX_OK))+0.00001);
+		innerME->find(fullName("CorrFractionPhi"))->second->setBinContent(sect,stat,corrFrac);
+		innerME->find(fullName("TriggerInclusivePhi"))->second->setBinContent(sect,stat,besttrigs);
+		innerME->find(fullName("2ndFractionPhi"))->second->setBinContent(sect,stat,secondFrac);
 	    
+	      }
+
+		whME[wh].find(fullName("CorrFractionSummary"))->second->setBinContent(sect,stat,corrSummary);
+		whME[wh].find(fullName("2ndFractionSummary"))->second->setBinContent(sect,stat,secondSummary);
+
 	    }
-
-// 	    // Perform analysis on DCC exclusive plots (Phi)
-// 	    TH2F * QualvsPhirad  = getHisto<TH2F>(dbe->get(getMEName("QualvsPhirad","LocalTriggerPhi", chId)));
-// 	    TH2F * QualvsPhibend = getHisto<TH2F>(dbe->get(getMEName("QualvsPhibend","LocalTriggerPhi", chId)));
-// 	    if (QualvsPhirad && QualvsPhibend) {
-	      
-// 	      TH1D* phiR = QualvsPhirad->ProjectionX();
-// 	      TH1D* phiB = QualvsPhibend->ProjectionX("_px",5,7,"");
-
-// 	      if( chambME[indexCh].find(fullName("TrigDirectionPhi")) == chambME[indexCh].end() ){
-// 		bookChambHistos(chId,"TrigDirectionPhi");
-// 		bookChambHistos(chId,"TrigPositionPhi");
-// 	      }
-// 	      std::map<std::string,MonitorElement*> *innerME = &(chambME[indexCh]);
-// 	      for (int i=-1;i<(phiB->GetNbinsX()+1);i++)
-// 		innerME->find(fullName("TrigDirectionPhi"))->second->setBinContent(i,phiB->GetBinContent(i));
-// 	      for (int i=-1;i<(phiR->GetNbinsX()+1);i++)
-// 		innerME->find(fullName("TrigPositionPhi"))->second->setBinContent(i,phiR->GetBinContent(i));
-	     
-// 	    }
 
 	    // Perform DCC/DDU common plot analysis (Theta ones)	    
 	    TH2F * ThetaBXvsQual = getHisto<TH2F>(dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
@@ -209,19 +220,19 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      double trigsH   = ThetaBestQual->GetBinContent(4);
 	      delete BXH; 
 	      
-	      if( secME[sector_id].find(fullName("HFractionTheta")) == secME[sector_id].end() ){
-		// bookSectorHistos(wh,sect,"","CorrectBXTheta");
-		bookSectorHistos(wh,sect,"","HFractionTheta");
-	      }
-	      std::map<std::string,MonitorElement*> *innerME = &(secME.find(sector_id)->second);
+	      // if( secME[sector_id].find(fullName("HFractionTheta")) == secME[sector_id].end() ){
+// 		// bookSectorHistos(wh,sect,"","CorrectBXTheta");
+// 		bookSectorHistos(wh,sect,"","HFractionTheta");
+// 	      }
+	      //std::map<std::string,MonitorElement*> *innerME = &(secME.find(sector_id)->second);
 	      // innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(stat,BX_OK);
-	      innerME->find(fullName("HFractionTheta"))->second->setBinContent(stat,trigsH/trigs);
+	      //innerME->find(fullName("HFractionTheta"))->second->setBinContent(stat,trigsH/trigs);
 
 	      if( whME[wh].find(fullName("HFractionTheta")) == whME[wh].end() ){
 		bookWheelHistos(wh,"","CorrectBXTheta");
 		bookWheelHistos(wh,"","HFractionTheta");
 	      }
-	      innerME = &(whME.find(wh)->second);
+	      std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
 	      innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect,stat,BX_OK);
 	      innerME->find(fullName("HFractionTheta"))->second->setBinContent(sect,stat,trigsH/trigs);
 	    
@@ -233,68 +244,43 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
     }
   }	
 
-  // Summary Plots
-  map<int,map<string,MonitorElement*> >::const_iterator imapIt = secME.begin();
-  map<int,map<string,MonitorElement*> >::const_iterator mapEnd = secME.end();
-
-  for(; imapIt != mapEnd; ++imapIt){
-    int sector = ((*imapIt).first-1)/5 + 1;
-    int wheel  = ((*imapIt).first-1)%5 - 2;
-
-    for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
-      trigSource = (*iTr);
-      for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
-	hwSource = (*iHw);
-
-	MonitorElement *testME = (*imapIt).second.find(fullName("CorrFractionPhi"))->second;
-	bool hasEntries = testME->getEntries()>=1;
-	const QReport *testQReport = testME->getQReport("TrigCorrFracInRange");
-
-	if (testQReport) {
-	  int err = testQReport->getBadChannels().size();	  
-	  if (err<0 || err>4) err=4;
-	  cmsME.find(fullName("CorrFractionSummary"))->second->setBinContent(sector,wheel+3,err);
-	  vector<dqm::me_util::Channel> badChannels = testQReport->getBadChannels();
-	  int cherr[4];
-	  for (int i=0;i<4;++i) 
-	    cherr[i] = hasEntries? 0 : 1;
-	  if (hasEntries) {
-	      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		   channel != badChannels.end(); channel++) {
-		     cherr[(*channel).getBin()-1] = 2 ; 
-		   }
+  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
+    trigSource = (*iTr);
+    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
+      hwSource = (*iHw);  
+      for (int wh=-2; wh<=2; ++wh){
+	std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
+	TH2F* corrWhSummary   = getHisto<TH2F>(innerME->find(fullName("CorrFractionSummary"))->second);
+	TH2F* secondWhSummary = getHisto<TH2F>(innerME->find(fullName("2ndFractionSummary"))->second);
+	for (int sect=1; sect<=12; ++sect){
+	  int corrErr      = 0;
+	  int secondErr    = 0;
+	  int corrNoData   = 0;
+	  int secondNoData = 0;
+	  for (int stat=1; stat<=4; ++stat){
+	    switch (static_cast<int>(corrWhSummary->GetBinContent(sect,stat))) {
+	    case 1:
+	      corrNoData++;
+	    case 2:
+	      corrErr++;
+	    }
+	    switch (static_cast<int>(secondWhSummary->GetBinContent(sect,stat))) {
+	    case 1:
+	      secondNoData++;
+	    case 2:
+	      secondErr++;
+	    }
 	  }
-	  for (int i=0;i<4;++i)
-	    whME.find(wheel)->second.find(fullName("CorrFractionSummary"))->second->setBinContent(sector,i+1,cherr[i]);
-	}
-
-	testME = (*imapIt).second.find(fullName("2ndFractionPhi"))->second;
-	hasEntries = testME->getEntries()>=1;
-	testQReport = testME->getQReport("Trig2ndFracInRange");
-
-	if (testQReport) {
-	  int err = testQReport->getBadChannels().size();	  
-	  if (err<0 || err>4 || !hasEntries) err=4;
-	  cmsME.find(fullName("2ndFractionSummary"))->second->setBinContent(sector,wheel+3,err);
-	  vector<dqm::me_util::Channel> badChannels = testQReport->getBadChannels();
-	  int cherr[4];
-	  for (int i=0;i<4;++i) 
-	    cherr[i] = hasEntries? 0 : 1;
-	  if (hasEntries) {
-	      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		   channel != badChannels.end(); channel++) {
-		     cherr[(*channel).getBin()-1] = 2 ; 
-		   }
-	  }
-	  for (int i=0;i<4;++i)
-	    whME.find(wheel)->second.find(fullName("2ndFractionSummary"))->second->setBinContent(sector,i+1,cherr[i]);
+	  if (corrNoData == 4)   corrErr   = 5;
+	  if (secondNoData == 4) secondErr = 5;
+	  cmsME.find(fullName("CorrFractionSummary"))->second->setBinContent(sect,wh+3,corrErr);
+	  cmsME.find(fullName("2ndFractionSummary"))->second->setBinContent(sect,wh+3,secondErr);
 	}
       }
     }
   }
 
 }
-
 
 // void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
   
