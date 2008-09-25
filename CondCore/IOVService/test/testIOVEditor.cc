@@ -68,13 +68,21 @@ int main(){
     // test freeInsert
     std::cout<<"\nfreeInsert "<<std::endl;
     pos=editor->freeInsert(5,"pay005tok");
+    std::cout<<"inserted 5 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(12,"pay012tok");
+    std::cout<<"inserted 12 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(50,"pay050tok");
+    std::cout<<"inserted 50 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(119,"pay119tok");
+    std::cout<<"inserted 119 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(141,"pay141tok");
+    std::cout<<"inserted 141 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(142,"pay142tok");
+    std::cout<<"inserted 142 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(399,"pay399tok");
+    std::cout<<"inserted 399 payload at position "<<pos<<std::endl;
     pos=editor->freeInsert(521,"pay521tok");
+    std::cout<<"inserted 521 payload at position "<<pos<<std::endl;
     try {
       pos=editor->freeInsert(5, "payNOtok");
       std::cout<<"shall not apped payload at position "<<pos<<std::endl;
