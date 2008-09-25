@@ -7,7 +7,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // class GeomDetUnit;
 
@@ -82,7 +82,17 @@ private:
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 		 const PixelClusterParameterEstimator* cpe,
 		 float weight, float annealing) : 
-    TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe) {}
+    //    TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe) {}
+    TransientTrackingRecHit(geom, *rh, weight, annealing) , theCPE(cpe) {
+    const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
+    if (gdu){
+      PixelClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
+      theHitData = SiPixelRecHit(lval.first, lval.second,geom->geographicalId(),rh->cluster());
+    }else{
+      edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
+      theHitData = SiPixelRecHit(*rh);
+    }
+  }
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
