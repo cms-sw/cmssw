@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/24 12:24:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/09/07 21:38:28 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -88,11 +88,14 @@ void DTSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
 }
 
 
-void DTSummaryClients::analyze(const edm::Event& e, const edm::EventSetup& context){
+void DTSummaryClients::analyze(const edm::Event& event, const edm::EventSetup& context){
 
    nevents++;
-   edm::LogVerbatim ("DTSummaryClient") << "[DTSummaryClients]: "<<nevents<<" events";
-   
+   if(nevents%1000 == 0)
+     edm::LogVerbatim("DTSummaryClient") << "[DTSummaryClients] Analyze #Run: " << event.id().run()
+					 << " #Event: " << event.id().event()
+					 << "LS: " << event.luminosityBlock()	
+					 << endl;
 }
 
 
@@ -100,6 +103,13 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   
   LogVerbatim ("DTSummaryClient")
     <<"[DTSummaryClients]: End of LS transition, performing the DQM client operation";
+
+  // reset the monitor elements
+  summaryReportMap->Reset();
+  summaryReport->Reset();
+  for(int ii = 0; ii != 6; ++ii) {
+    theSummaryContents[ii]->Reset();
+  }
 
   bool noDTData = false;
 
@@ -127,7 +137,8 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   }
   
   } else {
-    cout <<  "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" <<endl;
+    LogError("DTSummaryClient")
+      << "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" <<endl;
   }
 
   double totalStatus = 0;
@@ -145,11 +156,15 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       int nFailingChambers = 0;
       for(int sector=1; sector<=12; sector++){ // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations
-	  if(wheelOccupancySummary->getBinContent(sector, station) != 4) {
+	  double chamberStatus = wheelOccupancySummary->getBinContent(sector, station);
+
+	  if(chamberStatus != 4) {
 	    summaryReportMap->Fill(sector, wheel, 0.25);
 	  } else {
 	    nFailingChambers++;
 	  }
+// 	  cout << " sector (" << sector << ") status on the map is: "
+// 	       << summaryReportMap->getBinContent(sector, wheel+3) << endl;
 	}
 
       }
@@ -157,7 +172,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       totalStatus += (48.-nFailingChambers)/48.;
     } else {
       occupancyFound = false;
-      cout << " Wheel Occupancy Summary not found with name: " << str.str() << endl;
+      LogError("DTSummaryClient") << " Wheel Occupancy Summary not found with name: " << str.str() << endl;
     }
   }
 
