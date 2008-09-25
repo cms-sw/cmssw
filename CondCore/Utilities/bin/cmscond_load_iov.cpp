@@ -68,7 +68,7 @@ namespace{
     
 int main( int argc, char** argv ){
   boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_load_iov [options] inputFile \n");
+  boost::program_options::options_description visible("Load a new IOV collection using already existing payloads as described in a text file.\n Usage: cmscond_load_iov [options] inputFile \n options");
   visible.add_options()
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
@@ -178,7 +178,7 @@ int main( int argc, char** argv ){
       coraldb.commit();
     }
 
-    // FIXME need to get timetype from input!!!!
+    
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
