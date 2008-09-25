@@ -73,7 +73,6 @@ def getParameters():
                       '--report-type',
                       type="choice",
                       choices= ("timing", "simplememory","edmsize","igprof","callgrind",""),
-                      #store = "store_choices",#["Timing","SimpleMemory"],
                       help='Type of report to perform regrssion on. Default is TimingReport.' ,
                       default="timing",
                       dest='reporttype')      
@@ -116,8 +115,6 @@ def setBatch():
     #a large number of events... PyRoot seg-faults.
     #Set ROOT in batch mode to avoid canvases popping up!
     ROOT.gROOT.SetBatch(1)
-    #ROOT.gEnv.SetValue("Root.MemStat",0)
-    #ROOT.gEnv.SetValue("Root.ObjectStat",0)    
 
 def createROOT(outdir,filename):
 
@@ -270,8 +267,6 @@ def getLimits(data,secsperbin):
 
     last_event=data[-1][0]
 
-    #print 'last event =',last_event    
-
     return (min_val,max_val,interval,npoints,last_event)
 
 def setupSuperimpose(graph1,graph2,last_event,max_val,reporttype=0, title = ""):
@@ -313,7 +308,6 @@ def getTimingDiff(data1,data2,npoints,last_event,orig_max_val):
     data3 = []
     for x in range(len(data2)):
         try:
-            #avgEventNum = (data2[x][0] + data1[x][0]) / 2
             if data2[x][0] == data1[x][0]:
                 avgEventNum = data2[x][0]
                 diffSecs    = data2[x][1] - data1[x][1]                
@@ -346,12 +340,11 @@ def getTimingDiff(data1,data2,npoints,last_event,orig_max_val):
     min_val=min_val-interval*0.2
     max_val=max_val+interval*0.2
     interval=int(max_val-min_val)
-    #print min_val
+
     # Determine the max value to be something that makes the scale similar to what
     # the original graph had. Unless we can't seem the maximum value.
 
     new_max = min_val + orig_max_val
-    #print "new max", new_max, "min_val", min_val, "max_val", max_val
     if new_max < max_val:
         pass
     else :
@@ -362,7 +355,6 @@ def getTimingDiff(data1,data2,npoints,last_event,orig_max_val):
     graph.GetXaxis().SetTitle("Event Number")
     graph.GetYaxis().SetTitle("Change in processing time between revs (s)")    
     graph.GetYaxis().SetTitleOffset(1.3)
-    #graph.GetYaxis().SetTitle("s")
     graph.SetLineColor(2)
     graph.SetMarkerStyle(8)
     graph.SetMarkerSize(.7)
@@ -385,9 +377,6 @@ def drawGraphs(graph1,graph2,avg1,avg2,leg):
     graph2.Draw("LP")
     avg1.Draw("Same")
     avg2.Draw("Same")
-#    legPad = ROOT.TPad("legend","Trans pad",0,0,1,1)
-#    legPad.cd()
-#    legPad.Draw()
     leg.Draw()
     return graph_canvas
 
@@ -458,8 +447,6 @@ def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
         prevRevName  = os.path.basename(tail)
         
     releaseNames = ["Previous (%s)" % prevRevName,_cmsver]        
-    #rss_graph  = ROOT.TGraph(npoints)
-    #newSimplGraph(rss_graph,values[1],graph_num)
 
     #fill the graphs
     graphs = []
@@ -473,7 +460,6 @@ def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
 
         graph = ROOT.TGraph(npoints)
         graph.SetTitle(value)
-        #graph.SetName('%s_graph' % value)
         graph.SetLineColor(colors[graph_num])
         graph.SetMarkerStyle(8)
         graph.SetMarkerSize(.7)
@@ -496,10 +482,7 @@ def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
                 peak = vals_dict[value]
             if vals_dict[value] < minim:
                 minim = vals_dict[value]
-            #if value == values[0]:
             graph.SetPoint(point_counter, event_number, vals_dict[value])
-            #else:
-            #rss_graph.SetPoint(point_counter, event_number, vals_dict["rss"])
             total += vals_dict[value]
             rms   += vals_dict[value] * vals_dict[value]
             point_counter+=1
@@ -516,7 +499,6 @@ def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
         leg.AddEntry(graph     , "Peak: %s" % str(peak)                , "l")
         graphs.append(graph)
         idx += 1
-        #rss_graph.GetXaxis().SetRangeUser(0,last_event+1)    
 
     return (graphs[0] , last_event, peaks[0], minims[0], graphs[1], last_event, peaks[1], minims[1])
 
@@ -535,7 +517,6 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     first = True
     for x in range(len(data2)):
         try:
-            #eventNum = (data2[x][0] + data1[x][0]) / 2
             (evtnum2,valdict2) = data2[x]
             (evtnum1,valdict1) = data1[x]
             if evtnum2 == evtnum1:
@@ -568,12 +549,10 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     min_val=min_val-interval*0.2
     max_val=max_val+interval*0.2
     interval=int(max_val-min_val)
-    #print min_val
     # Determine the max value to be something that makes the scale similar to what
     # the original graph had. Unless we can't seem the maximum value.
 
     new_max = min_val + orig_max_val
-    #print "new max", new_max, "min_val", min_val, "max_val", max_val
     if new_max < max_val:
         pass
     else :
@@ -589,7 +568,6 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     graph.SetMarkerSize(.7)
     graph.SetMarkerColor(1)
     graph.SetLineWidth(3)    
-    #graph.GetYaxis().SetTitle("s")
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
     leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
@@ -750,9 +728,6 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         (vsizePerfDiffgraph, vsizeleg) = getMemDiff(data1,data2,npoints2,vsize_lstevt, (vsize_max - vsize_min), stepname1, rss=False)
         (rssPerfDiffgraph, rssleg)     = getMemDiff(data1,data2,npoints2,rss_lstevt  , (rss_max - rss_min)    , stepname1, rss=True )        
         
-    ##     avg_line1 = getMeanLines(mean1,last_event1,0)
-    ##     avg_line2 = getMeanLines(mean2,last_event2,1)
-
         vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, vsize_min_val, vsize_max_val, vsize_lstevt, legs[0], "vsize", stepname1)
         rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , rss_min_val, rss_max_val, rss_lstevt, legs[1], "rss"  , stepname1)
         vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, vsizeleg, "vsize", stepname1)         
@@ -841,8 +816,6 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     hsStack  = ROOT.THStack("hsStack","Histogram Comparison")
     leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
     histoleg = ROOT.TLegend(0.5,0.8,0.89,0.89)    
-    #if not nbins1 == nbins2:
-    #    print "ERRORL bin1 %s is not the same size as bin2 %s" % (nbins1,nbins2)
 
     (graph1,histo1,mean1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
     hsStack.Add(histo1)
@@ -867,35 +840,7 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     newrootfile = None
     if batch:
 
-        newrootfile = createROOT(outdir,rootfilename)
-
-##         (rootfile1, rootfile2) = (oldLogfile, newLogfile)
-##         rootreg = re.compile("(.*)_TimingReport.log")
-##         found = rootreg.search(oldLogfile)
-##         if found:
-##             rootfile1 = found.groups()[0] + ".root"
-##         found = rootreg.search(newLogfile)
-##         if found:
-##             rootfile2 = found.groups()[0] + ".root"
-
-##         (fsize1, fsize2) = (0.0, 0.0)
-##         if os.path.exists(rootfile1):
-##             statinfo = os.stat(rootfile1)
-##             fsize1 = statinfo.st_size
-##         if os.path.exists(rootfile2):
-##             statinfo = os.stat(rootfile2)
-##             fsize2 = statinfo.st_size
-
-##         fs_t = ROOT.TTree()
-##         fs1 = array("i", [0])
-##         fs2 = array("i", [0])
-##         fs1[0] = fsize1
-##         fs2[0] = fsize2
-
-##         fs_t.Branch("fsize1",fs1,"fsize1/I")
-##         fs_t.Branch("fsize2",fs2,"fsize2/I")
-##         fs_t.Fill()
-##         fs_t.Write("fsize_tuple",ROOT.TObject.kOverwrite)        
+        newrootfile = createROOT(outdir,rootfilename)      
 
         cput = ROOT.TTree()
         #  array(typecode, initializer)
@@ -970,9 +915,6 @@ def perfreport(perftype,file1,file2,outdir):
     else:               # Callgrind
         proftype = "-ff"
 
-    # -c xml.file
-    #
-
     cmssw_base = ""
     cmssw_data = ""
     try:
@@ -1046,8 +988,6 @@ def cmpIgProfReport(outdir,file1,file2):
         os.close(th2)
         os.remove(tfile1)
         os.remove(tfile2)
-        #ungzip(file1,th1)
-        #ungzip(file2,th2)
         ungzip2(file1,tfile1)
         ungzip2(file2,tfile2)        
 
