@@ -31,6 +31,8 @@ int main(){
     std::cout<<"inserted 140 payload at position "<<pos<<std::endl;
     pos=editor->append(160, "pay160tok");
     std::cout<<"inserted 160 payload at position "<<pos<<std::endl;
+    pos=editor->append(170, "pay170tok");
+    std::cout<<"inserted 170 payload at position "<<pos<<std::endl;
     try {
       pos=editor->insert(999999, "pay4tok");
       std::cout<<"shall not append payload at position "<<pos<<std::endl;
@@ -118,6 +120,45 @@ int main(){
     catch(const cond::Exception& er){
       std::cout<<"expected error "<<er.what()<<std::endl;
     }
+ 
+
+    editor->updateClosure(900);
+
+
+    std::cout<<"delete entry "<<std::endl;
+
+    
+    try {
+      pos=editor->deleteEntry(5);
+      std::cout<<"shall not delete payload at position "<<pos<<std::endl;
+    }
+    catch(const cond::Exception& er){
+      std::cout<<"expected error "<<er.what()<<std::endl;
+    }
+
+    try {
+      pos=editor->deleteEntry(5000);
+      std::cout<<"shall not delete payload at position "<<pos<<std::endl;
+    }
+    catch(const cond::Exception& er){
+      std::cout<<"expected error "<<er.what()<<std::endl;
+    }
+
+    pos=editor->append(193, "pay193tok");
+    std::cout<<"inserted 193 payload at position "<<pos<<std::endl;
+ 
+
+    pos=editor->deleteEntry(193);
+    std::cout<<"deleted entry 193 payload at position "<<pos<<std::endl;
+
+    pos=editor->deleteEntry(160);
+    std::cout<<"deleted entry 160 payload at position "<<pos<<std::endl;
+    pos=editor->deleteEntry(11);
+    std::cout<<"deleted entry 11 payload at position "<<pos<<std::endl;
+    pos=editor->deleteEntry(45);
+    std::cout<<"deleted entry 45 payload at position "<<pos<<std::endl;
+    pos=editor->deleteEntry(141);
+    std::cout<<"deleted entry 141 payload at position "<<pos<<std::endl;
  
 
 

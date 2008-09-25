@@ -243,7 +243,7 @@ namespace cond {
    if (p==m_iov->iov.end())
      throw cond::Exception("cond::IOVEditorImpl::deleteEntry time not in IOVs range");
 
-   int n = p=m_iov->iov.begin();
+   int n = p-m_iov->iov.begin();
    if(withPayload) {
      cond::GenericRef ref(*m_pooldb,(*p).second);
      ref.markDelete();

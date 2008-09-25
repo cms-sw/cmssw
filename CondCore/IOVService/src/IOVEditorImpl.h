@@ -39,6 +39,11 @@ namespace cond{
                const std::string& payloadToken
       	      );
 
+    // delete entry at a given time
+    virtual  unsigned int deleteEntry(cond::Time_t time,
+					bool withPayload=false );
+
+
     virtual void deleteEntries( bool withPayload=false );
 
     virtual void import( const std::string& sourceIOVtoken );
