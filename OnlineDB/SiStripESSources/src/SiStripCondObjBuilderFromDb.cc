@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.7 2008/06/06 08:05:12 bainbrid Exp $
-// Latest tag:  $Name: V03-00-03 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.8 2008/09/22 18:06:51 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -254,9 +254,9 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	uint16_t gain_setting = anal->getGain();
 	float gain_value = 0.8;
 	if      ( gain_setting == 0 ) { gain_value = anal->getMeasGain0(); }
-	else if ( gain_setting == 1 ) { gain_value = anal->getMeasGain0(); }
-	else if ( gain_setting == 2 ) { gain_value = anal->getMeasGain0(); }
-	else if ( gain_setting == 3 ) { gain_value = anal->getMeasGain0(); }
+	else if ( gain_setting == 1 ) { gain_value = anal->getMeasGain1(); }
+	else if ( gain_setting == 2 ) { gain_value = anal->getMeasGain2(); }
+	else if ( gain_setting == 3 ) { gain_value = anal->getMeasGain3(); }
 	else {
 	  edm::LogWarning(mlESSources_)
 	    << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
