@@ -183,7 +183,7 @@ namespace cond {
 
  
    if (sinceTime<firstSince()) {
-     m_iov->iov.insert(m_iov->iov.begin(),IOV::Item(firstSince(),payloadToken));
+     m_iov->iov.insert(m_iov->iov.begin(),IOV::Item(firstSince()-1,payloadToken));
      m_iov->firstsince=sinceTime;
      m_iov.markUpdate();
     return 0;

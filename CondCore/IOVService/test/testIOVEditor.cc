@@ -69,8 +69,8 @@ int main(){
     std::cout<<"\nfreeInsert "<<std::endl;
     pos=editor->freeInsert(5,"pay005tok");
     pos=editor->freeInsert(12,"pay012tok");
-    pos=editor->freeInsert(50,"pay141tok");
-    pos=editor->freeInsert(119,"pay141tok");
+    pos=editor->freeInsert(50,"pay050tok");
+    pos=editor->freeInsert(119,"pay119tok");
     pos=editor->freeInsert(141,"pay141tok");
     pos=editor->freeInsert(142,"pay142tok");
     pos=editor->freeInsert(399,"pay399tok");
