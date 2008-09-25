@@ -647,7 +647,7 @@ def logrep_cmp(x,y):
     (fname,y) = y    
     x = os.path.basename(x)
     y = os.path.basename(y)
-    stepreg = re.compile(".*_(..*)_TimingReport.log")
+    stepreg = re.compile("%s_(..*)_TimingReport.log" % fname)
     if stepreg.search(x):
         x = stepreg.search(x).groups()[0]
     if stepreg.search(y):
@@ -1413,6 +1413,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         logfiles = map(lambda x: (fname,x), logfiles)
                         logfiles.sort(cmp=logrep_cmp)                        
                         logfiles = map(lambda x: x[1], logfiles)
+
                         stepreg = re.compile("%s_(.*)_TimingReport.log" % fname)
                         createNewRow = True
                         curRow = None
