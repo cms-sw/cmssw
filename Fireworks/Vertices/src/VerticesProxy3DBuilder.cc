@@ -35,7 +35,7 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
   const reco::VertexCollection * vertices;  
   item->get(vertices);
   if (vertices == 0) {
-    std::cout <<"failed to get primary vertices" << std::endl;
+     // std::cout <<"failed to get primary vertices" << std::endl;
     return;
   }
   
