@@ -175,8 +175,6 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
 
     // Simulated d0
     double d0Sim = - (-v.x()*sin(p.phi()) + v.y()*cos(p.phi()));
-//    double d0Sim = - ((beamSpot_.x0()-v.x())*sin(p.phi()) +
-//                      (v.y()-beamSpot_.y0())*cos(p.phi()));
 
     // Calculate the d0 pull
     double d0Pull = std::abs(-track->dxy(beamSpot_) - d0Sim) / track->d0Error();
