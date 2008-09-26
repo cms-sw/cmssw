@@ -7,6 +7,20 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 #include "HLTMessages.h"
 
+typedef const char * MissingCollectionInfo;
+  
+template <class T>
+static inline
+bool checkCollection(edm::Handle<T> & handle, std::vector<MissingCollectionInfo> & missing, const char * description) 
+{
+  bool valid = handle.isValid();
+  if (not valid) {
+    missing.push_back( description );
+    handle.clear();
+  }
+  return valid;
+}
+
 // Boiler-plate constructor definition of an analyzer module:
 HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
@@ -146,42 +160,37 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   iEvent.getByLabel(MuLinkTag_,  mulinks);
   iEvent.getByLabel(HLTTau_, taus);
 
-  
   // check the objects...
-  typedef const char * MissingCollectionInfo;
   std::vector<MissingCollectionInfo> missing;
 
-  if (not recjets.isValid()      ) { missing.push_back( kRecjets );       recjets.clear(); }
-  if (not genjets.isValid()      ) { missing.push_back( kGenjets );       genjets.clear(); }
-  if (not recmet.isValid()       ) { missing.push_back( kRecmet );        recmet.clear(); }
-  if (not genmet.isValid()       ) { missing.push_back( kGenmet );        genmet.clear(); }
-  if (not caloTowers.isValid()   ) { missing.push_back( kCaloTowers );    caloTowers.clear(); }
-  if (not ht.isValid()           ) { missing.push_back( kHt );            ht.clear(); }
-  if (not electrons.isValid()    ) { missing.push_back( kElectrons );     electrons.clear(); }
-  if (not photons.isValid()      ) { missing.push_back( kPhotons );       photons.clear(); }
-  if (not muon.isValid()         ) { missing.push_back( kMuon );          muon.clear(); }
-  if (not taus.isValid()         ) { missing.push_back( kTaus );          taus.clear(); }
-
-  if (not hltresults.isValid()   ) { missing.push_back( kHltresults );    hltresults.clear(); }
-  if (not l1extemi.isValid()     ) { missing.push_back( kL1extemi );      l1extemi.clear(); }
-  if (not l1extemn.isValid()     ) { missing.push_back( kL1extemn );      l1extemn.clear(); }
-  if (not l1extmu.isValid()      ) { missing.push_back( kL1extmu );       l1extmu.clear(); }
-  if (not l1extjetc.isValid()    ) { missing.push_back( kL1extjetc );     l1extjetc.clear(); }
-  if (not l1extjetf.isValid()    ) { missing.push_back( kL1extjetf );     l1extjetf.clear(); }
-  if (not l1exttaujet.isValid()  ) { missing.push_back( kL1exttaujet );   l1exttaujet.clear(); }
-  if (not l1extmet.isValid()     ) { missing.push_back( kL1extmet );      l1extmet.clear(); }
-  if (not l1GtRR.isValid()       ) { missing.push_back( kL1GtRR );        l1GtRR.clear(); }
-  if (not l1GtOMRec.isValid()    ) { missing.push_back( kL1GtOMRec );     l1GtOMRec.clear(); }
-  if (not l1GctCounts.isValid()  ) { missing.push_back( kL1GctCounts );   l1GctCounts.clear(); }
-  
-  if (not mctruth.isValid()      ) { missing.push_back( kMctruth );       mctruth.clear(); }
-  if (not genEventScale.isValid()) { missing.push_back( kGenEventScale ); genEventScale.clear(); }
-
-  if (not mucands2.isValid()     ) { missing.push_back( kMucands2 );      mucands2.clear(); }
-  if (not mucands3.isValid()     ) { missing.push_back( kMucands3 );      mucands3.clear(); }
-  if (not isoMap2.isValid()      ) { missing.push_back( kIsoMap2 );       isoMap2.clear(); }
-  if (not isoMap3.isValid()      ) { missing.push_back( kIsoMap3 );       isoMap3.clear(); }
-  if (not mulinks.isValid()      ) { missing.push_back( kMulinks );       mulinks.clear(); }
+  checkCollection(recjets,        missing, kRecjets);
+  checkCollection(genjets,        missing, kGenjets);
+  checkCollection(recmet,         missing, kRecmet);
+  checkCollection(genmet,         missing, kGenmet);
+  checkCollection(caloTowers,     missing, kCaloTowers);
+  checkCollection(ht,             missing, kHt);
+  checkCollection(electrons,      missing, kElectrons);
+  checkCollection(photons,        missing, kPhotons);
+  checkCollection(muon,           missing, kMuon);
+  checkCollection(taus,           missing, kTaus);
+  checkCollection(hltresults,     missing, kHltresults);
+  checkCollection(l1extemi,       missing, kL1extemi);
+  checkCollection(l1extemn,       missing, kL1extemn);
+  checkCollection(l1extmu,        missing, kL1extmu);
+  checkCollection(l1extjetc,      missing, kL1extjetc);
+  checkCollection(l1extjetf,      missing, kL1extjetf);
+  checkCollection(l1exttaujet,    missing, kL1exttaujet);
+  checkCollection(l1extmet,       missing, kL1extmet);
+  checkCollection(l1GtRR,         missing, kL1GtRR);
+  checkCollection(l1GtOMRec,      missing, kL1GtOMRec);
+  checkCollection(l1GctCounts,    missing, kL1GctCounts);
+  checkCollection(mctruth,        missing, kMctruth);
+  checkCollection(genEventScale,  missing, kGenEventScale);
+  checkCollection(mucands2,       missing, kMucands2);
+  checkCollection(mucands3,       missing, kMucands3);
+  checkCollection(isoMap2,        missing, kIsoMap2);
+  checkCollection(isoMap3,        missing, kIsoMap3);
+  checkCollection(mulinks,        missing, kMulinks);
 
   if (not missing.empty() && (errCnt < errMax())) {
     errCnt++;
