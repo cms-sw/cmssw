@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/30 16:20:33 $
- * $Revision: 1.13 $
+ * $Date: 2008/09/06 10:04:18 $
+ * $Revision: 1.14 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -26,6 +26,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
@@ -241,12 +242,32 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xipt = ipt-0.5;
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
+
+      TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );
+      float integral = h01->GetEntries();
+      if( integral != 0 ) h01->Scale( integral );
+      
       if(flag == EcalSrFlag::SRF_FULL){
         EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
+      } else {
+	EBFullReadoutSRFlagMap_->Fill(-1,-18);
       }
+
+      if( integral != 0 ) h01->Scale( 1.0/h01->GetEntries() );
+
+
+      TH2F *h02 = UtilsClient::getHisto<TH2F*>( EBReadoutUnitForcedBitMap_ );
+      integral = h02->GetEntries();
+      if( integral != 0 ) h02->Scale( integral );
+
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
         EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
+      } else { 
+	EBReadoutUnitForcedBitMap_->Fill(-1,-18);
       }
+      
+      if( integral != 0 ) h02->Scale( 1.0/h02->GetEntries() );
+
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
@@ -270,13 +291,30 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
 
+      TH2F *h03 = UtilsClient::getHisto<TH2F*>( EBLowInterestTriggerTowerFlagMap_ );
+      float integral = h03->GetEntries();
+      if( integral != 0 ) h03->Scale( integral );
+
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
         EBLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
+      } else {
+	EBLowInterestTriggerTowerFlagMap_->Fill(-1,-18);
       }
 
+      if( integral != 0 ) h03->Scale( 1.0/h03->GetEntries() );
+
+
+      TH2F *h04 = UtilsClient::getHisto<TH2F*>( EBHighInterestTriggerTowerFlagMap_ );
+      integral = h04->GetEntries();
+      if( integral != 0 ) h04->Scale( integral );
+      
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
         EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
+      } else {
+	EBHighInterestTriggerTowerFlagMap_->Fill(-1,-18);
       }
+
+      if( integral != 0 ) h04->Scale( 1.0/h04->GetEntries() );
 
     }
   } else {

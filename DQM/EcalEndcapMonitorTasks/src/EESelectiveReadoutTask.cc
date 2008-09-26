@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/07/30 19:30:01 $
- * $Revision: 1.11 $
+ * $Date: 2008/09/06 10:04:18 $
+ * $Revision: 1.12 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -26,6 +26,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h>
@@ -327,6 +328,15 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy-0.5;
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
+
+      TH2F *h01[2];
+      float integral[2];
+      for(int iside=0;iside<2;iside++) {
+	h01[iside] = UtilsClient::getHisto<TH2F*>( EEFullReadoutSRFlagMap_[iside] );
+	integral[iside] = h01[iside]->GetEntries();
+	if( integral[iside] != 0 ) h01[iside]->Scale( integral[iside] );
+      }
+
       if(flag == EcalSrFlag::SRF_FULL){
 	if( zside < 0 ) {
 	  EEFullReadoutSRFlagMap_[0]->Fill(xix,xiy);
@@ -334,7 +344,27 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	else {
 	  EEFullReadoutSRFlagMap_[1]->Fill(xix,xiy);
 	}
+      } else {
+	if( zside < 0 ) {
+	  EEFullReadoutSRFlagMap_[0]->Fill(-1,-1);
+	}
+	else {
+	  EEFullReadoutSRFlagMap_[1]->Fill(-1,-1);
+	}
       }
+
+      for(int iside=0;iside<2;iside++) {
+	if( integral[iside] != 0 ) h01[iside]->Scale( 1.0/integral[iside] );
+      }
+
+
+      TH2F *h02[2];
+      for(int iside=0;iside<2;iside++) {
+        h02[iside] = UtilsClient::getHisto<TH2F*>( EEReadoutUnitForcedBitMap_[iside] );
+        integral[iside] = h02[iside]->GetEntries();
+        if( integral[iside] != 0 ) h02[iside]->Scale( integral[iside] );
+      }
+
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
 	if( zside < 0 ) {
 	  EEReadoutUnitForcedBitMap_[0]->Fill(xix,xiy);
@@ -342,7 +372,19 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	else {
 	  EEReadoutUnitForcedBitMap_[1]->Fill(xix,xiy);
 	}
+      } else {
+	if( zside < 0 ) {
+	  EEReadoutUnitForcedBitMap_[0]->Fill(-1,1);
+	}
+	else {
+	  EEReadoutUnitForcedBitMap_[1]->Fill(-1,1);
+	}
       }
+
+      for(int iside=0;iside<2;iside++) {
+        if( integral[iside] != 0 ) h02[iside]->Scale( 1.0/integral[iside] );
+      }
+
     }
   } else {
     LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
@@ -376,6 +418,14 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         float xix = ix-0.5;
         float xiy = iy-0.5;
 
+	TH2F *h03[2];
+	float integral[2];
+	for(int iside=0;iside<2;iside++) {
+	  h03[iside] = UtilsClient::getHisto<TH2F*>( EELowInterestTriggerTowerFlagMap_[iside] );
+	  integral[iside] = h03[iside]->GetEntries();
+	  if( integral[iside] != 0 ) h03[iside]->Scale( integral[iside] );
+	}
+
         if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
 	  if ( ismt >= 1 && ismt <= 9 ) {
 	    EELowInterestTriggerTowerFlagMap_[0]->Fill(xix,xiy);
@@ -383,7 +433,26 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	  else {
 	    EELowInterestTriggerTowerFlagMap_[1]->Fill(xix,xiy);
 	  }
-        }
+        } else {
+	  if ( ismt >= 1 && ismt <= 9 ) {
+	    EELowInterestTriggerTowerFlagMap_[0]->Fill(-1,-1);
+	  }
+	  else {
+	    EELowInterestTriggerTowerFlagMap_[1]->Fill(-1,-1);
+	  }
+	}
+
+	for(int iside=0;iside<2;iside++) {
+	  if( integral[iside] != 0 ) h03[iside]->Scale( 1.0/integral[iside] );
+	}
+
+
+	TH2F *h04[2];
+	for(int iside=0;iside<2;iside++) {
+	  h04[iside] = UtilsClient::getHisto<TH2F*>( EEHighInterestTriggerTowerFlagMap_[iside] );
+	  integral[iside] = h04[iside]->GetEntries();
+	  if( integral[iside] != 0 ) h04[iside]->Scale( integral[iside] );
+	}
 
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
           if ( ismt >= 1 && ismt <= 9 ) {
@@ -392,7 +461,18 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	  else {
 	    EEHighInterestTriggerTowerFlagMap_[1]->Fill(xix,xiy);
 	  }
-        }
+        } else {
+          if ( ismt >= 1 && ismt <= 9 ) {
+	    EEHighInterestTriggerTowerFlagMap_[0]->Fill(-1,-1);
+	  }
+	  else {
+	    EEHighInterestTriggerTowerFlagMap_[1]->Fill(-1,-1);
+	  }
+	}
+
+	for(int iside=0;iside<2;iside++) {
+	  if( integral[iside] != 0 ) h04[iside]->Scale( 1.0/integral[iside] );
+	}
 
       }
 
