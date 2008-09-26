@@ -24,8 +24,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/09/11 17:51:36 $ 
- **  $Revision: 1.8 $
+ **  $Date: 2008/09/26 17:16:53 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -98,6 +98,9 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
 
+  edm::InputTag label_tp_;
+
+
   std::string conversionOITrackProducer_;
   std::string conversionIOTrackProducer_;
 
@@ -167,6 +170,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_SimConvZ_[2];
   //
   MonitorElement* h_simTkPt_;
+  MonitorElement* h_simTkEta_;
 
 
 
