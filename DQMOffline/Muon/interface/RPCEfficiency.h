@@ -170,13 +170,11 @@ class RPCEfficiency : public edm::EDAnalyzer {
       bool incldtMB4;
       bool inclcsc;
       bool debug;
-      double MinimalResidual;
-      double MinimalResidualRB4;
+      double rangestrips;
+      double rangestripsRB4;
       double MinCosAng;
       double MaxD;
       double MaxDrb4;
-      double MaxStripToCountInAverage;
-      double MaxStripToCountInAverageRB4;
       int dupli;
       std::string muonRPCDigis;
       std::string cscSegments;
@@ -189,5 +187,6 @@ class RPCEfficiency : public edm::EDAnalyzer {
       bool EffSaveRootFile;
       std::string EffRootFileName;
       std::string nameInLog;
+
       DQMStore * dbe;
 };

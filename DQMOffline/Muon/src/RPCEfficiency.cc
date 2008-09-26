@@ -51,22 +51,19 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
-  MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
+  rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",1.);
+  rangestripsRB4=iConfig.getUntrackedParameter<double>("rangestripsRB4",4.);
   dupli = iConfig.getUntrackedParameter<int>("DuplicationCorrection",2); 
-  MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
-  MaxStripToCountInAverage=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverage",5.);
-  MaxStripToCountInAverageRB4=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverageRB4",7.);
   muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
   cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
   dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
 
-  // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
-  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFirst.root"); 
+  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
 
 
   //Interface
@@ -112,57 +109,70 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
   statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
   
-  folder = "Muons/MuonSegEff/Residuals";
+  if(debug) std::cout<<"booking Global histograms Change statistics"<<std::endl;
+
+  folder = "Muons/MuonSegEff/Residuals/Barrel";
   dbe->setCurrentFolder(folder);
 
   //Barrel
-  hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",101,-10.,10.);
 
-  hGlobalResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",101,-10.,10.);
 
-  hGlobalResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
+
+  if(debug) std::cout<<"Booking Residuals for EndCap"<<std::endl;
+  folder = "Muons/MuonSegEff/Residuals/EndCap";
+  dbe->setCurrentFolder(folder);
 
   //Endcap  
-  hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
 
-  hGlobalResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
 
-  hGlobalResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
+  
   if(debug) ofrej.open("rejected.txt");
+
+  if(debug) std::cout<<"Rejected done"<<std::endl;
+
 }
 
 void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+
+  if(debug) std::cout<<"Begin Begin RUN"<<std::endl;
+
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
@@ -333,16 +343,13 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	std::string nameRoll = rpcsrv.name();
 	std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
 	sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+
 	sprintf(layerLabel ,"%s",nameRoll.c_str());
 	RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rpcId);
-	if(debug) std::cout <<"Digi Roll Name"<<nameRoll<<std::endl;
 	for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 	  int stripDetected=digiIt->strip();
 	  sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
-	  if(debug) std::cout <<"Digi \t Filling BX with"<<digiIt->bx()<<std::endl;
 	  meMap[meIdRPC]->Fill(digiIt->bx());
-	  if(debug) std::cout <<"Digi \t Filling stripDetected with "<<stripDetected<<std::endl;
-	  
 	  if(rpcId.region()==0) sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
 	  else sprintf(meIdRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
 	  meMap[meIdRPC]->Fill(stripDetected); //have a look to this!
@@ -362,7 +369,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
     if(all4DSegments->size()>0){
-      statistics->Fill(2);
+      if(all4DSegments->size()<=16) statistics->Fill(2);
 
       if(debug) std::cout<<"\t Number of DT Segments in this event = "<<all4DSegments->size()<<std::endl;
   
@@ -474,11 +481,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
 	    
 		if(debug) std::cout<<"DT  \t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-		if(debug) std::cout<<"DT  \t \t \t Does the extrapolation go inside this roll?"<<std::endl;
-
 		if(debug) std::cout<<"DT  \t \t \t Corner of the Roll = ("<<rsize*0.5<<","<<stripl*0.5<<")"<<std::endl;
-		if(debug) std::cout<<"DT \t \t \t Info About the Point Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
-			 <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
+		if(debug) std::cout<<"DT \t \t \t Info About the Point Extrapolated in X Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
+				   <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
+		if(debug) std::cout<<"DT  \t \t \t Does the extrapolation go inside this roll?"<<std::endl;
 
 		if(fabs(PointExtrapolatedRPCFrame.z()) < 10. && 
 		   fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
@@ -488,15 +494,31 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 		  RPCDetId  rollId = rollasociated->id();
 		  
+		  RPCGeomServ rpcsrv(rollId);
+		  std::string nameRoll = rpcsrv.name();
+		  if(debug) std::cout<<"DT  \t \t \t \t The RPCName is "<<nameRoll<<std::endl;		    
 		  const float stripPredicted = 
 		    rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-		
-		  if(debug) std::cout<<"DT  \t \t \t \t Candidate"<<rollId<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-	      		
-		  bool anycoincidence=false;
-		  int stripCounter = 0;
 		  
+		  if(debug) std::cout<<"DT  \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;		  
+		  //---- HISTOGRAM STRIP PREDICTED FROM DT ----
+		  char detUnitLabel[128];
+		  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+		  sprintf(layerLabel ,"%s",nameRoll.c_str());
+		    
+		  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+		    
+		  sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+		  if(debug) std::cout<<"DT \t \t \t \t Filling Expected for "<<meIdDT<<" with "<<stripPredicted<<std::endl;
+		  meMap[meIdDT]->Fill(stripPredicted);
+		    
+		  //-----------------------------------------------------
+		  
+
+		  //-------RecHitPart Just For Residual--------
 		  int countRecHits = 0;
+		  int stripCounter = 0;
+		  float minres = 3000.;
 		  
 		  if(debug) std::cout<<"DT  \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
 		  typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
@@ -505,88 +527,68 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 		  for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
 		    countRecHits++;
+		    LocalPoint recHitPos=recHit->localPosition();
+		    float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
+		    if(debug) std::cout<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
+		    if(res<minres){
+		      minres=res;
+		      stripCounter = recHit->clusterSize();
+		    }
 		  }
+		  //-------------------------------------------
+		  
+		    
+		  //--------- Working with digis -----------------
+		  
+		  bool anycoincidence=false;
+		  int stripDetected = -1;
 
-		  if(debug) std::cout<<"DT  \t \t \t \t Does the roll has less than 2 recHit?"<<std::endl;
-
-		  if(countRecHits<=1){
-		    if(debug) std::cout<<"DT  \t \t \t \t Yes"<<countRecHits<<std::endl;
+		  if(countRecHits==0){
+		    if(debug) std::cout <<"DT \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
+		  }else{
+		    assert(minres!=3000);     
 		    
-		    //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
+		    if(debug) std::cout<<"DT  \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual="<<minres<<std::endl;
 		    
-		    RPCGeomServ rpcsrv(rollId);
-		    std::string nameRoll = rpcsrv.name();
-		    
-		    if(debug) std::cout<<"DT  \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-		    
-		    char detUnitLabel[128];
-		    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		    sprintf(layerLabel ,"%s",nameRoll.c_str());
-		    
-		    std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		    
-		    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-		    if(debug) std::cout<<"DT \t \t \t \t Filling Expected for "<<meIdDT<<" with "<<stripPredicted<<std::endl;
-		    meMap[meIdDT]->Fill(stripPredicted);
-		    
-		    //-----------------------------------------------------
-		    
-		    
-		    //--------- Working with RPC RecHits -----------------
-		    
-		    if(countRecHits==0){
-		      if(debug) std::cout <<"DT \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
-		    }else{     
-		      //loop RPCRecHits for given roll
-		      for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
-			LocalPoint recHitPos=recHit->localPosition();
-			stripCounter = recHit->clusterSize();
-
-			if(debug) std::cout<<"DT \t \t \t \t \t Rec Hit Local Point"<<recHitPos<<std::endl;
-			if(debug) std::cout<<"DT  \t \t \t \t \t Rec Hit Cluster Size "<<recHit->clusterSize()<<std::endl;
-			
-			float meanrescms = fabs(PointExtrapolatedRPCFrame.x()- recHitPos.x());          
-			
-			if(debug) std::cout<<"DT  \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" recHitPos.x="<<recHitPos.x()<<std::endl;
-			
-			if(meanrescms/stripw<recHit->clusterSize()*0.5+1.){
-			  anycoincidence = true;
-			  if(debug) std::cout<<"DT  \t \t \t \t \t MeanRes="<<meanrescms<<"cm"<<std::endl;
-			  
-			  //-----RESIDUALS----------
-			  if(debug) std::cout<<"DT  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<meanrescms<<std::endl;
-			  if(rollId.station()==1&&rollId.layer()==1)     { if(stripCounter==1*dupli) hGlobalResClu1La1->Fill(meanrescms); if(stripCounter==2*dupli) hGlobalResClu2La1->Fill(meanrescms); if(stripCounter==3*dupli) hGlobalResClu3La1->Fill(meanrescms);}
-			  else if(rollId.station()==1&&rollId.layer()==2){ if(stripCounter==1*dupli) hGlobalResClu1La2->Fill(meanrescms); if(stripCounter==2*dupli) hGlobalResClu2La2->Fill(meanrescms); if(stripCounter==3*dupli) hGlobalResClu3La2->Fill(meanrescms);}
-			  else if(rollId.station()==2&&rollId.layer()==1){ if(stripCounter==1*dupli) hGlobalResClu1La3->Fill(meanrescms); if(stripCounter==2*dupli) hGlobalResClu2La3->Fill(meanrescms); if(stripCounter==3*dupli) hGlobalResClu3La3->Fill(meanrescms);}
-			  else if(rollId.station()==2&&rollId.layer()==2){ if(stripCounter==1*dupli) hGlobalResClu1La4->Fill(meanrescms); if(stripCounter==2*dupli) hGlobalResClu2La4->Fill(meanrescms); if(stripCounter==3*dupli) hGlobalResClu3La4->Fill(meanrescms);}
-			  else if(rollId.station()==3)                   { if(stripCounter==1*dupli) hGlobalResClu1La5->Fill(meanrescms); if(stripCounter==2*dupli) hGlobalResClu2La5->Fill(meanrescms); if(stripCounter==3*dupli) hGlobalResClu3La5->Fill(meanrescms);}
-			  //------------------------
-			  
-			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-			  if(debug) std::cout<<"DT \t \t \t \t \t COINCIDENCE!!! Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
-			  meMap[meIdRPC]->Fill(stripPredicted);
-			}
+		    RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());       
+		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+		      if((fabs(float(digiIt->strip())-stripPredicted))/stripw<=rangestrips){
+			anycoincidence=true;
+			stripDetected=digiIt->strip();
 		      }
 		    }
+		  }
+		  if(anycoincidence){
+		    assert(stripDetected!=-1);
+		    if(debug) std::cout<<"DT  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
+		    if(debug) std::cout<<"DT  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
 		    
-		    //----------------------------------------------------
+		    //-----RESIDUALS----------
+		    if(debug) std::cout<<"DT  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<std::endl;
+		    if(rollId.station()==1&&rollId.layer()==1)     { if(stripCounter==1*dupli) hGlobalResClu1La1->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2La1->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3La1->Fill(minres);}
+		    else if(rollId.station()==1&&rollId.layer()==2){ if(stripCounter==1*dupli) hGlobalResClu1La2->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2La2->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3La2->Fill(minres);}
+		    else if(rollId.station()==2&&rollId.layer()==1){ if(stripCounter==1*dupli) hGlobalResClu1La3->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2La3->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3La3->Fill(minres);}
+		    else if(rollId.station()==2&&rollId.layer()==2){ if(stripCounter==1*dupli) hGlobalResClu1La4->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2La4->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3La4->Fill(minres);}
+		    else if(rollId.station()==3)                   { if(stripCounter==1*dupli) hGlobalResClu1La5->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2La5->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3La5->Fill(minres);}
+		    //------------------------
 		    
-		    
-		    if(anycoincidence==false) {
-		      
-		      if(debug) std::cout<<"DT \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
-		      if(debug) ofrej<<"DTs \t Wh "<<dtWheel
-				     <<"\t St "<<dtStation
-				     <<"\t Se "<<dtSector
-				     <<"\t Roll "<<rollasociated->id()
-				     <<"\t Event "
-				     <<iEvent.id().event()
-				     <<"\t Run "	
-				     <<iEvent.id().run()	
-				     <<std::endl;
-		    }
-		  }else{
-		    if(debug) std::cout<<"DT \t \t \t \t \t This roll has more than 1 recHit, no prediction was done, counting as prediction outside.N RecHit="<<countRecHits<<std::endl;
+		    sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+		    if(debug) std::cout<<"DT \t \t \t \t \t COINCIDENCE!!! Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
+		    meMap[meIdRPC]->Fill(stripPredicted);
+		  }
+		  else{
+		    RPCGeomServ rpcsrv(rollasociated->id());
+		    std::string nameRoll = rpcsrv.name();
+		    if(debug) std::cout<<"DT \t \t \t \t \t A roll was ineficient in event "<<iEvent.id().event()<<std::endl;
+		    if(debug) ofrej<<"DTs \t Wh "<<dtWheel
+				   <<"\t St "<<dtStation
+				   <<"\t Se "<<dtSector
+				   <<"\t Roll "<<nameRoll
+				   <<"\t Event "
+				   <<iEvent.id().event()
+				   <<"\t Run "	
+				   <<iEvent.id().run()	
+				   <<std::endl;
 		  }
 		}else {
 		  if(debug) std::cout<<"DT \t \t \t \t No the prediction is outside of this roll"<<std::endl;
@@ -727,8 +729,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    if(debug) std::cout<<"MB4 \t \t \t Y Predicted in MB3DTLocal= "<<Y<<"cm"<<std::endl;
 		    if(debug) std::cout<<"MB4 \t \t \t Z Predicted in MB3DTLocal= "<<Z<<"cm"<<std::endl;
 
-		
-
 		    float extrapolatedDistance = sqrt((X-Xo3)*(X-Xo3)+(Y-Yo3)*(Y-Yo3)+(Z-Zo3)*(Z-Zo3));
 
 		    if(extrapolatedDistance<=MaxDrb4){ 
@@ -741,6 +741,10 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      LocalPoint PointExtrapolatedRPCFrame = RPCSurfaceRB4.toLocal(GlobalPointExtrapolated);
 
 		      if(debug) std::cout<<"MB4 \t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
+		      if(debug) std::cout<<"MB4 \t \t \t Corner of the Roll = ("<<rsize*0.5<<","<<stripl*0.5<<")"<<std::endl;
+		      if(debug) std::cout<<"MB4 \t \t \t Info About the Point Extrapolated in X Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
+					 <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
+	
 		      if(debug) std::cout<<"MB4 \t \t \t Does the extrapolation go inside this roll?"<<std::endl;
 		
 		      if(fabs(PointExtrapolatedRPCFrame.z()) < 10.  &&
@@ -748,111 +752,105 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			 fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 
 			if(debug) std::cout<<"MB4 \t \t \t \t yes"<<std::endl;
+			
 			RPCDetId  rollId = rollasociated->id();
-		    
+
+			RPCGeomServ rpcsrv(rollId);
+			std::string nameRoll = rpcsrv.name();
+			if(debug) std::cout<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
 			const float stripPredicted=
 			  rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 		  
-			if(debug) std::cout<<"MB4 \t \t \t \t Candidate"<<rollId<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-		    
-			bool anycoincidence=false;
-			int stripCounter = 0;
+			if(debug) std::cout<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
+			//--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
+			char detUnitLabel[128];
+			sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+			sprintf(layerLabel ,"%s",nameRoll.c_str());
+			
+			std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+			
+			if(debug) std::cout<<"MB4 \t \t \t \t \t Filling Expected"<<std::endl;
+			sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+			meMap[meIdDT]->Fill(stripPredicted);
+			//-------------------------------------------------
+			
 
+			//-------RecHitPart Just For Residual--------
 			int countRecHits = 0;
+			int stripCounter = 0;
+			float minres = 3000.;
 			
 			if(debug) std::cout<<"MB4 \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
-			RPCDigiCollection::Range rpcRangeDigi = rpcDigis->get(rollasociated->id());
-
-
-			if(debug) std::cout<<"MB4  \t \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
 			typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
 			rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 			RPCRecHitCollection::const_iterator recHit;
 			
 			for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
 			  countRecHits++;
+			  LocalPoint recHitPos=recHit->localPosition();
+			  float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
+			  if(debug) std::cout<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
+			  if(res<minres){
+			    minres=res;
+			    stripCounter = recHit->clusterSize();
+			  }
 			}		
-
-			if(debug) std::cout<<"MB4  \t \t \t \t \t Does the roll has less than 2 recHit?"<<std::endl;
-
-			if(countRecHits<=1){
-			  if(debug) std::cout<<"MB4  \t \t \t \t \t Yes"<<countRecHits<<std::endl;
-
-			  //--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
-			  
-			  RPCGeomServ rpcsrv(rollId);
-			  std::string nameRoll = rpcsrv.name();
-			  
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-			  
-			  char detUnitLabel[128];
-			  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-			  sprintf(layerLabel ,"%s",nameRoll.c_str());
-			  
-			  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-			  
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t Filling Expected"<<std::endl;
-			  sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-			  meMap[meIdDT]->Fill(stripPredicted);
-			  //-------------------------------------------------
+			//-------------------------------------------
 			
 
-			  //--------- Working with RPC RecHits -----------------
-		    
-			  if(countRecHits==0){
-			    if(debug) std::cout <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
-			  }else{     
-			    //loop RPCRecHits for given roll
-			    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
-			      LocalPoint recHitPos=recHit->localPosition();
-			      stripCounter = recHit->clusterSize();
-
-			      float meanrescms = fabs(PointExtrapolatedRPCFrame.x()-recHitPos.x());          
-		      
-			      if(debug) std::cout<<"MB4  \t \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" recHitPos.x="<<recHitPos.x()<<std::endl;
-					      		      
-			      if(meanrescms/stripw<recHit->clusterSize()*0.5+1.){
-				anycoincidence=true;
-			    
-				if(debug) std::cout<<"MB4 \t \t \t \t \t Coincidence PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" recHitPos.x="<<recHitPos.x()<<std::endl;
-		      		
-				//-----RESIDUALS----------
-				if(rollId.station()==4){ 
-				  if(stripCounter==1*dupli) hGlobalResClu1La6->Fill(meanrescms);
-				  else if(stripCounter==2*dupli) hGlobalResClu2La6->Fill(meanrescms);
-				  else if(stripCounter==3*dupli) hGlobalResClu3La6->Fill(meanrescms);
-				}
-				//--------------------------------
-
-				sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-				if(debug) std::cout<<"MB4 \t \t \t \t \t \t COINCIDENCE!!! Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
-				meMap[meIdRPC]->Fill(stripPredicted);
-			      }
+			//--------- Working with digis -----------------
+			bool anycoincidence=false;
+			int stripDetected = -1;			
+			
+			if(countRecHits==0){
+			  if(debug) std::cout <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
+			}else{     
+			  assert(minres!=3000); 
+			  
+			  if(debug) std::cout<<"MB4  \t \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual ="<<minres<<std::endl;
+			  RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());       
+			  for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+			    if((fabs(float(digiIt->strip())-stripPredicted))/stripw<=rangestripsRB4){
+			      anycoincidence=true;
+			      stripDetected=digiIt->strip();
 			    }
-			  }
-
-			  //----------------------------------------------------
-
-			  if(anycoincidence==false){
-
-			    if(debug) std::cout<<"MB4 \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
-			    if(debug) ofrej<<"MB4 \t Wh "<<dtWheel
-					   <<"\t St "<<dtStation
-					   <<"\t Se "<<dtSector
-					   <<"\t Roll "<<rollasociated->id()
-					   <<"\t Event "
-					   <<iEvent.id().event()
-					   <<"\t Run "
-					   <<iEvent.id().run()
-					   <<std::endl;
-			  }
-			}else{
-			  if(debug) std::cout<<"MB4 \t \t \t \t \t This roll has more than 1 recHit, no prediction was done, counting as prediction outside.N RecHit="<<countRecHits<<std::endl;
+			  }    
+			}
+			if(anycoincidence){
+			  assert(stripDetected!=-1);
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestripsRB4<<std::endl;			  
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
+		   
+			  //-----RESIDUALS----------
+			  assert(rollId.station()==4);
+			  if(stripCounter==1*dupli) hGlobalResClu1La6->Fill(minres);
+			  else if(stripCounter==2*dupli) hGlobalResClu2La6->Fill(minres);
+			  else if(stripCounter==3*dupli) hGlobalResClu3La6->Fill(minres);
+			  //--------------------------------
+			  
+			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t COINCIDENCE!!! Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl; 
+			  meMap[meIdRPC]->Fill(stripPredicted);
+			}
+			else{
+			  RPCGeomServ rpcsrv(rollasociated->id());
+			  std::string nameRoll = rpcsrv.name();
+			  if(debug) std::cout<<"MB4 \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
+			  if(debug) ofrej<<"MB4 \t Wh "<<dtWheel
+					 <<"\t St "<<dtStation
+					 <<"\t Se "<<dtSector
+					 <<"\t Roll "<<nameRoll
+					 <<"\t Event "
+					 <<iEvent.id().event()
+					 <<"\t Run "
+					 <<iEvent.id().run()
+					 <<std::endl;
 			}
 		      }else{
 			if(debug) std::cout<<"MB4 \t \t \t \t No the prediction is outside of this roll"<<std::endl;
 		      }
-		    }else{
+		    }//Condition for the right match
+		    else{
 		      if(debug) std::cout<<"MB4 \t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
 		    }
 		  }//loop over all the rollsasociated
@@ -1062,107 +1060,114 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
 
 		  if(debug) std::cout<<"CSC \t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
-		  if(debug) std::cout<<"CSC \t \t \t Does the extrapolation go inside this roll????"<<std::endl;
-
+		  if(debug) std::cout<<"CSC \t \t \t Corner of the Roll = ("<<rsize*0.5<<","<<stripl*0.5<<")"<<std::endl;
+		  if(debug) std::cout<<"CSC \t \t \t Info About the Point Extrapolated in X Abs ("<<fabs(PointExtrapolatedRPCFrame.x())<<","
+				     <<fabs(PointExtrapolatedRPCFrame.y())<<","<<fabs(PointExtrapolatedRPCFrame.z())<<")"<<std::endl;
 		  if(debug) std::cout<<"CSC \t \t \t dz="
 				     <<fabs(PointExtrapolatedRPCFrame.z())<<" dx="
 				     <<fabs(PointExtrapolatedRPCFrame.x())<<" dy="
 				     <<fabs(PointExtrapolatedRPCFrame.y())<<std::endl;
 		  
-	    	      
+		  if(debug) std::cout<<"CSC \t \t \t Does the extrapolation go inside this roll????"<<std::endl;
+
 		  if(fabs(PointExtrapolatedRPCFrame.z()) < 10. && 
 		     fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
 		     fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
-
+		    
 		    if(debug) std::cout<<"CSC \t \t \t \t yes"<<std::endl;
 
 		    RPCDetId  rollId = rollasociated->id();
 		    
+		    RPCGeomServ rpcsrv(rollId);
+		    std::string nameRoll = rpcsrv.name();
+		    if(debug) std::cout<<"CSC \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
+
 		    const float stripPredicted = 
 		      rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 
 		    if(debug) std::cout<<"CSC  \t \t \t \t \t Candidate"<<rollId<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-	      	
-		    bool anycoincidence = false;
+		    //--------- HISTOGRAM STRIP PREDICTED FROM CSC  -------------------
+		    
+		    char detUnitLabel[128];
+		    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+		    sprintf(layerLabel ,"%s",nameRoll.c_str());
+		    
+		    std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+		    
+		    if(debug) std::cout<<"CSC \t \t \t \t Filling Expected"<<std::endl;
+		    sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
+		    meMap[meIdCSC]->Fill(stripPredicted);
+		    //--------------------------------------------------------------------
+	    		
+		    
+		    //-------RecHitPart Just For Residual--------
 		    int stripCounter = 0;
-
 		    int countRecHits = 0;
-
+		    float minres = 3000.;
+		    
 		    if(debug) std::cout<<"CSC  \t \t \t \t \t Getting RecHits in Roll Asociated"<<std::endl;
 		    typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
 		    rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 		    RPCRecHitCollection::const_iterator recHit;
 
+
 		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
 		      countRecHits++;
+		      LocalPoint recHitPos=recHit->localPosition();
+		      float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction."<<std::endl;
+		      if(res<minres){
+			minres=res;
+			stripCounter = recHit->clusterSize();
+		      }
 		    }
-		    
-		    if(debug) std::cout<<"CSC  \t \t \t \t \t Does the roll has less than 2 recHit?"<<std::endl;
-
-		    if(countRecHits<=1){
-		      if(debug) std::cout<<"CSC  \t \t \t \t \t Yes"<<countRecHits<<std::endl;
-
-		      //--------- HISTOGRAM STRIP PREDICTED FROM CSC  -------------------
-		      RPCGeomServ rpcsrv(rollId);
-		      std::string nameRoll = rpcsrv.name();
-		      
-		      if(debug) std::cout<<"CSC \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-
-		      char detUnitLabel[128];
-		      sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		      sprintf(layerLabel ,"%s",nameRoll.c_str());
-		      
-		      std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		      
-		      if(debug) std::cout<<"CSC \t \t \t \t Filling Expected"<<std::endl;
-		      sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
-		      meMap[meIdCSC]->Fill(stripPredicted);
-		      //--------------------------------------------------------------------
-	    
-		      
-		      //--------- Working with RPC RecHits -----------------
-		    
-		      if(countRecHits==0){
-			if(debug) std::cout <<"CSC \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
-		      }else{  
-			//loop RPCRecHits for given roll
-			for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
-			  LocalPoint recHitPos=recHit->localPosition();
-			  stripCounter = recHit->clusterSize();
-			  
-			  if(debug) std::cout<<"CSC \t \t \t \t \t \t Rec Hit Local Point"<<recHitPos<<std::endl;
-			  if(debug) std::cout<<"CSC \t \t \t \t \t \t Rec Hit Cluster Size "<<recHit->clusterSize()<<std::endl;
-					      
-			  float meanrescms = fabs(PointExtrapolatedRPCFrame.x()-recHitPos.x());
+		    //-------------------------------------------
 		  
-			  if(debug) std::cout<<"CSC \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" recHitPos.x="<<recHitPos.x()<<std::endl;
-		 
-			  if(meanrescms/stripw<recHit->clusterSize()*0.5+1.){
-			    anycoincidence=true;
-			    if(debug) std::cout<<"CSC \t \t \t \t \t MeanRes="<<meanrescms<<"cm"<<std::endl;
-			    
-			    //----RESIDUALS----
-			    //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
-			    //here we should fill the residuals
-			    //------------------------
-
-			    sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
-			      if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
-			    meMap[meIdRPC]->Fill(stripPredicted);
-			  }
+		    
+		    //--------- Working with digis -----------------
+		    
+		    bool anycoincidence = false;
+		    int stripDetected = -1;
+		    
+		    if(countRecHits==0){
+		      if(debug) std::cout <<"CSC \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT"<<std::endl;
+		    }else{  
+		      assert(minres!=3000); 
+		      
+		      if(debug) std::cout<<"CSC \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" Minimal Residual"<<minres<<std::endl;
+		      
+		      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());       
+		      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+			if((fabs(float(digiIt->strip())-stripPredicted))/stripw<=rangestrips){
+			  anycoincidence=true;
+			  stripDetected=digiIt->strip();
 			}
 		      }
-		      
-		      //----------------------------------------------------
-
-		      if(anycoincidence==false) {
-
+		      if(anycoincidence){
+			assert(stripDetected!=-1);
+			if(debug) std::cout<<"CSC  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
+			if(debug) std::cout<<"CSC  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
+			//----RESIDUALS----
+			if(rollId.ring()==2&&rollId.roll()==1){if(stripCounter==1*dupli) hGlobalResClu1R2A->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2R2A->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3R2A->Fill(minres);}
+			if(rollId.ring()==2&&rollId.roll()==2){if(stripCounter==1*dupli) hGlobalResClu1R2B->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2R2B->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3R2B->Fill(minres);}
+			if(rollId.ring()==2&&rollId.roll()==3){if(stripCounter==1*dupli) hGlobalResClu1R2C->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2R2C->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3R2C->Fill(minres);}
+			if(rollId.ring()==3&&rollId.roll()==1){if(stripCounter==1*dupli) hGlobalResClu1R3A->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2R3A->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3R3A->Fill(minres);}
+			if(rollId.ring()==3&&rollId.roll()==2){if(stripCounter==1*dupli) hGlobalResClu1R3B->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2R3B->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3R3B->Fill(minres);}
+			if(rollId.ring()==3&&rollId.roll()==3){if(stripCounter==1*dupli) hGlobalResClu1R3C->Fill(minres); if(stripCounter==2*dupli) hGlobalResClu2R3C->Fill(minres); if(stripCounter==3*dupli) hGlobalResClu3R3C->Fill(minres);}
+			//------------------------
+			sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+			if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
+			meMap[meIdRPC]->Fill(stripPredicted);
+		      }
+		      else{
+			RPCGeomServ rpcsrv(rollasociated->id());
+			std::string nameRoll = rpcsrv.name();
 			if(debug) std::cout<<"CSC \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
 			if(debug) ofrej<<"CSC \t EndCap "<<rpcRegion
 				       <<"\t cscStation "<<cscStation
 				       <<"\t cscRing "<<cscRing			   
 				       <<"\t cscChamber "<<cscChamber
-				       <<"\t Roll "<<rollasociated->id()
+				       <<"\t Roll "<<nameRoll
 				       <<"\t Event "<<iEvent.id().event()
 				       <<"\t CSCId "<<CSCId
 				       <<"\t Event "	
@@ -1171,10 +1176,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				       <<iEvent.id().run()
 				       <<std::endl;
 		      }
-		    }else{
-		      if(debug) std::cout<<"CSC \t \t \t \t \t This roll has more than 1 recHit, no prediction was done, counting as prediction outside.N RecHit="<<countRecHits<<std::endl;
 		    }
-		  }else {
+		  }else{
 		    if(debug) std::cout<<"CSC \t \t \t \t No the prediction is outside of this roll"<<std::endl;
 		  }//Condition for the right match
 		}else{//if extrapolation distance D is not too long
@@ -1197,6 +1200,7 @@ void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
   if (EffSaveRootFile){
     dbe->save(EffRootFileName);
   }
+  
 }
 
 
