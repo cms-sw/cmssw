@@ -23,14 +23,14 @@ int main(){
     std::cout<<"inserted payload 10 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(11,11,"pay011tok");
     std::cout<<"inserted payload 11 at position "<<pos<<std::endl;
-    pos=editor->replaceInterval(12,12,"pay011tok");
-    std::cout<<"inserted payload 11 at position "<<pos<<std::endl;
+    pos=editor->replaceInterval(12,12,"pay012tok");
+    std::cout<<"inserted payload 12 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(15,60,"pay015tok");
     std::cout<<"inserted payload 15 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(30,35,"pay030tok");
     std::cout<<"inserted payload 30 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(32,32,"pay030tok");
-    std::cout<<"inserted payload 30 at position "<<pos<<std::endl;
+    std::cout<<"inserted payload 32 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(90,90,"pay090tok");
     std::cout<<"inserted payload 90 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(91,91,"pay091tok");

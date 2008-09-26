@@ -253,14 +253,16 @@ namespace cond {
        if (sinceTime>firstSince()) b++;
      } else if( b!=m_iov->iov.end() && sinceTime > (*(b-1)).first+1) b++;
      if (e!=m_iov->iov.end() && (*e).first==tillTime) e++;
-     if(deletePayload) {
-       for ( IOV::iterator p=b; p!=e; p++) {
-	 cond::GenericRef ref(*m_pooldb,(*p).second);
-	 ref.markDelete();
-	 ref.reset();
+     if (e>b) {
+       if(deletePayload) {
+	 for ( IOV::iterator p=b; p!=e; p++) {
+	   cond::GenericRef ref(*m_pooldb,(*p).second);
+	   ref.markDelete();
+	   ref.reset();
+	 }
        }
+       m_iov->iov.erase(b,e);
      }
-     m_iov->iov.erase(b,e);
    }
    IOV::iterator p = m_iov->find(sinceTime);
    IOV::iterator e = m_iov->find(tillTime);
