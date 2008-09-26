@@ -291,7 +291,7 @@ namespace cond {
    std::string oldPayload = (*(p-1)).second;
    p = m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
    if (oldTill>tillTime) // split old interval
-     p=m_iov->iov.insert(p+1,IOV::Item(oldTill,oldPayload);
+     p=m_iov->iov.insert(p+1,IOV::Item(oldTill,oldPayload));
    m_iov.markUpdate();
    return p - m_iov->iov.begin();
 
