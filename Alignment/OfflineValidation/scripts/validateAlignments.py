@@ -152,6 +152,8 @@ process.TrackerOfflineValidation.TH1NormResModules = cms.PSet(
  ##
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackHitFilter*process.TrackRefitter*process.TrackerOfflineValidation)
 
+"""
+
 intoNTuplesTemplate="""
 import FWCore.ParameterSet.Config as cms
 
