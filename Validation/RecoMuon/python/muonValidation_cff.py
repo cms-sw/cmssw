@@ -98,3 +98,5 @@ recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToGlbTrackAssociation'
 # Muon validation sequence
 muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc+staMuonTrackVTrackAssoc+glbMuonTrackVTrackAssoc
                                  +recoMuonVMuAssoc+recoMuonVTrackAssoc)
+
+recoMuonValidation = cms.Sequence(muonSelector_seq*muonAssociation_seq*muonValidation_seq)
