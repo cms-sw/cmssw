@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
+#include "PhysicsTools/Utilities/interface/StringObjectSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
@@ -260,14 +261,24 @@ class ExpressionVariable : public CachingVariable {
       std::string expr=arg.iConfig.getParameter<std::string>("expr");
       index_=arg.iConfig.getParameter<uint>("index");
       f_ = new StringObjectFunction<Object>(expr);
-      if (arg.iConfig.exists("order")){
-	std::string order=arg.iConfig.getParameter<std::string>("order");
-	forder_ = new StringObjectFunction<Object>(order);
-      }
-      else forder_ =0;
       addDescriptionLine("calculating: "+expr);
       std::stringstream ss;
       ss<<"on object at index: "<<index_<<" of: "<<src_;
+
+      if (arg.iConfig.exists("order")){
+	std::string order=arg.iConfig.getParameter<std::string>("order");
+	forder_ = new StringObjectFunction<Object>(order);
+	ss<<" after sorting according to: "<<order;
+      }else forder_ =0;
+
+      if (arg.iConfig.exists("selection")){
+	std::string selection=arg.iConfig.getParameter<std::string>("selection");
+	selector_ = new StringObjectSelector<Object>(selection);
+	ss<<" and selecting only: "<<selection;
+      }else selector_=0;
+
+
+
       addDescriptionLine(ss.str());	ss.str("");
       arg.m[arg.n] = this;
     }
@@ -349,6 +360,7 @@ class ExpressionVariable : public CachingVariable {
   ~ExpressionVariable(){
     if (f_) delete f_;
     if (forder_) delete forder_;
+    if (selector_) delete selector_;
   }
 
   CachingVariable::evalType eval(const edm::Event & iEvent) const {
@@ -364,14 +376,16 @@ class ExpressionVariable : public CachingVariable {
     }
 
     //get the ordering right first. if required
-    if (forder_){
-      std::vector<const Object*> copyToSort(oH->size());
-      for (uint i=0;i!=oH->size();++i)
-	copyToSort[i]= &(*oH)[index_];
+    if (selector_ || forder_){
+      std::vector<const Object*> copyToSort(0);
+      copyToSort.reserve(oH->size());
+      for (uint i=0;i!=oH->size();++i){
+        if (selector_ && !((*selector_)((*oH)[i]))) continue;
+        copyToSort.push_back(&(*oH)[i]);
+      }
+      if (index_ >= copyToSort.size()) return std::make_pair(false,0);
+      if (forder_) std::sort(copyToSort.begin(), copyToSort.end(), sortByStringFunction<Object>(forder_));
       
-      std::sort(copyToSort.begin(), copyToSort.end(), sortByStringFunction<Object>(forder_));
-      
-      //    const Object & o = (*oH)[index_];
       const Object * o = copyToSort[index_];
       return std::make_pair(true,(*f_)(*o));
     }
@@ -386,6 +400,7 @@ class ExpressionVariable : public CachingVariable {
   uint index_;
   StringObjectFunction<Object> * f_;
   StringObjectFunction<Object> * forder_;
+  StringObjectSelector<Object> * selector_;
 };
 
 
