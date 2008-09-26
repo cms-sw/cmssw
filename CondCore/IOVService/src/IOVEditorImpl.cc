@@ -278,8 +278,10 @@ namespace cond {
      if (p!=m_iov->iov.end()) p++;
      else {
        // pad....
-       if (m_iov->iov.back().first<sinceTime-1)
-	 p=m_iov->iov.insert(p,IOV::Item(sinceTime-1,invalidToken));
+       if (m_iov->iov.back().first<sinceTime-1) {
+	 p=m_iov->iov.push_back(p,IOV::Item(sinceTime-1,invalidToken));
+	 p=m_iov->iov.end();
+       }
      }
      oldTill =  (*(p-1)).first;
      (*(p-1)).first=sinceTime-1;
