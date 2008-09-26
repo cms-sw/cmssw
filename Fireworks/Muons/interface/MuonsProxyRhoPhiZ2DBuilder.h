@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.6 2008/07/20 18:28:03 dmytro Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.7 2008/08/18 06:28:41 dmytro Exp $
 //
 
 // system include files
@@ -31,6 +31,10 @@ namespace reco
 {
    class Muon;
    class TrackExtra;
+}
+namespace fw
+{
+   class NamedCounter;
 }
 
 class TEveTrack;
@@ -49,10 +53,6 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
-      static void build(const FWEventItem* iItem, 
-			TEveElementList** product, 
-			bool showEndcap,
-			bool onlyTracks = false);
       
       static void addMatchInformation( const reco::Muon* muon,
 				       const FWEventItem* iItem,
@@ -65,9 +65,14 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 				      const FWEventItem* iItem );
       static TEveVector firstMatch( const reco::Muon* muon,
 				    const FWEventItem* iItem );
-      //static void addHitsAsPathMarks( const reco::TrackExtra* recoTrack,
-      //				      const DetIdToMatrix* geom,
-      //			      TEveTrack* eveTrack );
+      
+      static void buildMuon(const FWEventItem* iItem,
+			    const reco::Muon* muon,
+			    TEveElementList* tList,
+			    const fw::NamedCounter& counter,
+			    bool showEndcap,
+			    bool onlyTracks = false);
+   
       // ---------- member functions ---------------------------
    
    private:
@@ -79,6 +84,11 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       static bool buggyMuon( const reco::Muon* muon,
 			     const DetIdToMatrix* geom );
+   
+      static void build(const FWEventItem* iItem, 
+			TEveElementList** product, 
+			bool showEndcap,
+			bool onlyTracks = false);
    
       MuonsProxyRhoPhiZ2DBuilder(const MuonsProxyRhoPhiZ2DBuilder&); // stop default
 

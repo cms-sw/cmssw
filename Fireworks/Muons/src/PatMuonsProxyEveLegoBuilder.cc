@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Muons
-// Class  :     MuonsProxyEveLegoBuilder
+// Class  :     PatMuonsProxyEveLegoBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.cc,v 1.4 2008/07/17 10:04:18 dmytro Exp $
+// $Id: PatMuonsProxyEveLegoBuilder.cc,v 1.4 2008/07/17 10:04:18 dmytro Exp $
 //
 
 // system include files
@@ -25,12 +25,13 @@
 #include "TEveManager.h"
 
 // user include files
-#include "Fireworks/Muons/interface/MuonsProxyEveLegoBuilder.h"
+#include "Fireworks/Muons/interface/PatMuonsProxyEveLegoBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -45,21 +46,21 @@
 //
 // constructors and destructor
 //
-MuonsProxyEveLegoBuilder::MuonsProxyEveLegoBuilder()
+PatMuonsProxyEveLegoBuilder::PatMuonsProxyEveLegoBuilder()
 {
 }
 
-// MuonsProxyEveLegoBuilder::MuonsProxyEveLegoBuilder(const MuonsProxyEveLegoBuilder& rhs)
+// PatMuonsProxyEveLegoBuilder::PatMuonsProxyEveLegoBuilder(const PatMuonsProxyEveLegoBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-MuonsProxyEveLegoBuilder::~MuonsProxyEveLegoBuilder()
+PatMuonsProxyEveLegoBuilder::~PatMuonsProxyEveLegoBuilder()
 {
 }
 
 void
-MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+PatMuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -71,12 +72,12 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
       tList->DestroyElements();
    }
    
-   const reco::MuonCollection* muons=0;
+   const std::vector<pat::Muon>* muons=0;
    iItem->get(muons);
    if(0 == muons ) return;
    
    fw::NamedCounter counter("moun");
-   for ( reco::MuonCollection::const_iterator muon = muons->begin(); 
+   for ( std::vector<pat::Muon>::const_iterator muon = muons->begin(); 
 	 muon != muons->end(); ++muon, ++counter )
      {
 	char title[1024];
@@ -120,5 +121,5 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
      }
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(MuonsProxyEveLegoBuilder,reco::MuonCollection,"Muons");
+REGISTER_FW3DLEGODATAPROXYBUILDER(PatMuonsProxyEveLegoBuilder,std::vector<pat::Muon>,"PatMuons");
 

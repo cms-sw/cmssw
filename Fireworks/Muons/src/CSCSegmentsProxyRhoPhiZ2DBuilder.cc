@@ -57,7 +57,7 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    iItem->get(segments);
    
    if(0 == segments ) {
-      std::cout <<"failed to get CSC segments"<<std::endl;
+      // std::cout <<"failed to get CSC segments"<<std::endl;
       return;
    }
    unsigned int index = 0;

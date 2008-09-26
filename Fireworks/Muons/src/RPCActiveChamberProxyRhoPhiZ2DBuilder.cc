@@ -113,7 +113,10 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 		   localPoint[1] = hit->localPosition().y();
 		   localPoint[2] = hit->localPosition().z();
 	     
+		   if ( (*chamberId).layer() == 1 && (*chamberId).station() < 3 ) localPoint[0] = -localPoint[0];
 		   matrix->LocalToMaster( localPoint, globalPoint );
+		   // printf("RPC id: %d \t(%0.2f,%0.2f,%0.2f)->(%0.2f,%0.2f,%0.2f)\n",
+		   // (*chamberId).rawId(), localPoint[0], localPoint[1], localPoint[2], globalPoint[0], globalPoint[1], globalPoint[2]);
 		   pointSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
 		}
 	   }
