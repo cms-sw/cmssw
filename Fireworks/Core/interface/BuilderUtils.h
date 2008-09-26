@@ -32,6 +32,10 @@ namespace fw {
 			   double max_r = 120,
 			   double max_z = 300,
 			   double magnetic_field = 4 );
+   TEveTrack* getEveTrack( const reco::Candidate& track,
+			   double max_r = 120,
+			   double max_z = 300,
+			   double magnetic_field = 4 );
    
    TEveGeoShapeExtract* getShapeExtract( const char* name,
 					 TGeoBBox* shape,

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.21 2008/07/13 21:53:28 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.22 2008/07/20 18:22:00 dmytro Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@
 #include "TGLWidget.h"
 #include "TEveTrans.h"
 #include "TEveStraightLineSet.h"
+#include "TEveLegoOverlay.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -147,7 +148,20 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    //CDJ This is done too early setCameras();
    //m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
    //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
-   
+   if (list->HasChildren())
+     {
+	TEveCaloLego* lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
+	if (lego) {
+	   TEveLegoOverlay* overlay = new TEveLegoOverlay();
+	   overlay->SetShowPlane(kFALSE);
+	   overlay->SetShowPerspective(kFALSE);
+	   overlay->RefAxisAttrib().SetLabelSize(0.02);
+	   overlay->RefAxisAttrib().SetLabelColor(kWhite);
+	   ev->AddOverlayElement(overlay);
+	   overlay->SetCaloLego(lego);
+	   gEve->AddElement(overlay, ns);
+	}
+     }
 }
 
 FWEveLegoView::~FWEveLegoView()

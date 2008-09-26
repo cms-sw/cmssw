@@ -83,20 +83,22 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
       return &idToMatrix_[id];
    } else if ( detId.subdetId() == MuonSubdetId::RPC ) {
      RPCDetId rpcid(detId);
-     std::cout << "id: " << detId.rawId() << std::endl;
+      // std::cout << "id: " << detId.rawId() << std::endl;
      if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
-       std::cout << "before: " << std::endl;
-       (*(manager_->GetCurrentMatrix())).Print();
+       // std::cout << "before: " << std::endl;
+       // (*(manager_->GetCurrentMatrix())).Print();
        TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
        if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
        idToMatrix_[id] = m;
-       std::cout << "after: " << std::endl;
-       m.Print();
+       // std::cout << "after: " << std::endl;
+       // m.Print();
        return &idToMatrix_[id];
-     } else {
-       std::cout << "BARREL station: " << rpcid.station() << std::endl;
-       (*(manager_->GetCurrentMatrix())).Print();
-     }
+     } 
+      /* else {
+	std::cout << "BARREL station: " << rpcid.station() << std::endl;
+	(*(manager_->GetCurrentMatrix())).Print();
+       }
+      */
    }      
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
    

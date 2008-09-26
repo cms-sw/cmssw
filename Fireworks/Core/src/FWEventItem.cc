@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.24 2008/07/22 09:44:28 jmuelmen Exp $
+// $Id: FWEventItem.cc,v 1.25 2008/09/24 14:50:55 chrjones Exp $
 //
 
 // system include files
@@ -341,7 +341,6 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
 const void* 
 FWEventItem::data(const std::type_info& iInfo) const
 {
-  //std::cerr <<"asked to get data "<<m_type->GetName()<<std::endl;
   using namespace ROOT::Reflex;
   //At the moment this is a programming error
   assert(iInfo == *(m_type->GetTypeInfo()) );

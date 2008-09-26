@@ -62,6 +62,27 @@ TEveTrack* fw::getEveTrack( const reco::Track& track,
    return trk;
 }
 
+TEveTrack* fw::getEveTrack( const reco::Candidate& track,
+			    double max_r /* = 120 */,
+			    double max_z /* = 300 */,
+			    double magnetic_field /* = 4 */ )
+{
+   TEveTrackPropagator *propagator = new TEveTrackPropagator();
+   propagator->SetMagField( - magnetic_field );
+   propagator->SetMaxR( max_r );
+   propagator->SetMaxZ( max_z );
+
+   TEveRecTrack t;
+   t.fBeta = 1.;
+   t.fP = TEveVector( track.px(), track.py(), track.pz() );
+   t.fV = TEveVector( track.vertex().x(), track.vertex().y(), track.vertex().z() );
+   t.fSign = track.charge();
+   TEveTrack* trk = new TEveTrack(&t, propagator);
+   trk->MakeTrack();
+   return trk;
+}
+
+
 std::string fw::NamedCounter::str() const
 {
    std::stringstream s;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.11 2008/09/22 19:20:58 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.12 2008/09/25 16:57:33 amraktad Exp $
 //
 
 // system include files
@@ -79,10 +79,10 @@
 //
 FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list, 
                              FWEveValueScaler* iScaler):
+ m_cylinder(0),
  m_cameraMatrix(0),
  m_cameraMatrixBase(0),
  m_cameraFOV(0),
- m_cylinder(0),
  // m_scaleParam(this,"Energy scale", static_cast<double>(iScaler->scale()), 0.01, 1000.),
  m_showAxes(this, "Show Axes", true ),
  m_showCylinder(this, "Show Cylinder", true),
