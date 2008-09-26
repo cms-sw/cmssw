@@ -279,7 +279,7 @@ namespace cond {
      else {
        // pad....
        if (m_iov->iov.back().first<sinceTime-1) {
-	 p=m_iov->iov.push_back(p,IOV::Item(sinceTime-1,invalidToken));
+	 p=m_iov->iov.push_back(IOV::Item(sinceTime-1,invalidToken));
 	 p=m_iov->iov.end();
        }
      }
