@@ -5,8 +5,8 @@
  *
  *  Misc. common simple typedefs
  *
- *  $Date: 2007/12/07 13:39:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/07 16:05:16 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -51,7 +51,9 @@ namespace trigger
     TriggerMET         = 97,
     TriggerHT          = 98,
     TriggerTrack       = 99,
-    TriggerCluster     =100
+    TriggerCluster     =100,
+    TriggerMETSig      =101,
+    TriggerELongit     =102
 
   };
 
