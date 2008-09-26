@@ -254,7 +254,7 @@ namespace cond {
      // pad....
      if (m_iov->iov.back().first<sinceTime-1) 
        m_iov->iov.push_back(IOV::Item(sinceTime-1,invalidToken));
-     m_iov->iov.push_back(IOV::Item(tillTime,payLoadToken));
+     m_iov->iov.push_back(IOV::Item(tillTime,payloadToken));
      m_iov.markUpdate();
      return m_iov->iov.size()-1;
    }
