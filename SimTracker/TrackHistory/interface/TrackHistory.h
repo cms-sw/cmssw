@@ -23,7 +23,7 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
-//! This class trace the simulted and generated history of a given track.
+//! This class traces the simulated and generated history of a given track.
 class TrackHistory
 {
 
@@ -44,11 +44,11 @@ public:
     //! Constructor by pset.
     /* Creates a TrackHistory with association given by pset.
 
-       /param[in] pset with the consfiguration values
+       /param[in] pset with the configuration values
     */
     TrackHistory(const edm::ParameterSet &);
 
-    //! Pre-process event information (for accessing reconstraction information)
+    //! Pre-process event information (for accessing reconstruction information)
     void newEvent(const edm::Event &, const edm::EventSetup &);
 
     //! Set the depth of the history.
@@ -84,7 +84,7 @@ public:
        /param[in] TrackRef to a reco::track
        /param[out] boolean that is false when a fake track is detected
     */
-    bool evaluate (edm::RefToBase<reco::Track>);
+    bool evaluate (reco::TrackBaseRef);
 
     //! Return the initial tracking particle from the history.
     const TrackingParticleRef & simParticle() const
@@ -99,7 +99,7 @@ public:
         return genParticleTrail_[genParticleTrail_.size()-1];
     }
 
-    //! Return all the simulated vertexes in the history.
+    //! Return all the simulated vertices in the history.
     const SimVertexTrail & simVertexTrail() const
     {
         return simVertexTrail_;
@@ -162,7 +162,7 @@ private:
 
     reco::RecoToSimCollection association_;
 
-    TrackingParticleRef match ( edm::RefToBase<reco::Track> );
+    TrackingParticleRef match ( reco::TrackBaseRef );
 };
 
 #endif

@@ -30,7 +30,7 @@ void JetVetoedTracksAssociationDRVertex::produce (
         for (unsigned t = 0; t < fTracks.size(); ++t)
         {
             double dR2 = deltaR2 (jetEta, jetPhi, trackP3s[t].eta(), trackP3s[t].phi());
-            classifier.evaluate( edm::RefToBase<reco::Track>(fTracks[t]) );
+            classifier.evaluate( reco::TrackBaseRef(fTracks[t]) );
             if (
                 dR2 < mDeltaR2Threshold &&
                 (

@@ -100,7 +100,7 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
         {
             LogDebug("TrackHistory") << "No GenParticle image for " << tpr->pdgId() << " moving on to the parent particle." << std::endl;
 
-            // select the original source in case of combined vertexes
+            // select the original source in case of combined vertices
             bool flag = false;
             TrackingVertex::tp_iterator itd, its;
 
@@ -147,7 +147,7 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
 }
 
 
-bool TrackHistory::evaluate ( edm::RefToBase<reco::Track> tr )
+bool TrackHistory::evaluate ( reco::TrackBaseRef tr )
 {
     TrackingParticleRef tpr( match(tr) );
 
@@ -161,52 +161,26 @@ bool TrackHistory::evaluate ( edm::RefToBase<reco::Track> tr )
 }
 
 
-TrackingParticleRef TrackHistory::match ( edm::RefToBase<reco::Track> tr )
+TrackingParticleRef TrackHistory::match ( reco::TrackBaseRef tr )
 {
     TrackingParticleRef tpr;
-    std::vector<std::pair<TrackingParticleRef, double> > tp;
 
-    try
-    {
-        tp = association_[tr];
-    }
-    catch (edm::Exception event)
-    {
+    reco::RecoToSimCollection::const_iterator pos = association_.find(tr);
+    if (pos == association_.end())
         return tpr;
-    }
 
-    double m = 0;
+    const std::vector<std::pair<TrackingParticleRef, double> > &tp = pos->val;
 
-    for (std::size_t i=0; i<tp.size(); i++)
+    double m = bestMatchByMaxValue_ ? -1e30 : 1e30;
+
+    for (std::size_t i = 0; i < tp.size(); i++)
     {
-        if ( bestMatchByMaxValue_ )
+        if (bestMatchByMaxValue_ ? (tp[i].second > m) : (tp[i].second < m))
         {
-            if (i && tp[i].second > m)
-            {
-                tpr = tp[i].first;
-                m = tp[i].second;
-            }
-            else
-            {
-                tpr = tp[i].first;
-                m = tp[i].second;
-            }
-        }
-        else
-        {
-            if (i && tp[i].second < m)
-            {
-                tpr = tp[i].first;
-                m = tp[i].second;
-            }
-            else
-            {
-                tpr = tp[i].first;
-                m = tp[i].second;
-            }
+            tpr = tp[i].first;
+            m = tp[i].second;
         }
     }
 
     return tpr;
 }
-

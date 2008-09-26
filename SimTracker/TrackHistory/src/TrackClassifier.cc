@@ -3,6 +3,7 @@
  */
 
 #include <math.h>
+#include <cstdlib>
 #include <iostream>
 
 #include "HepPDT/ParticleID.hh"
@@ -10,10 +11,13 @@
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 
-#define update(a,b) a = a | b;
+#define update(a, b) do { (a) = (a) | (b); } while(0)
 
-
-TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) : tracer_(pset)
+TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) :
+    hepMCLabel_(pset.getUntrackedParameter<edm::InputTag>("hepMC")),
+    beamSpotLabel_(pset.getUntrackedParameter<edm::InputTag>("beamSpot")),
+    tracer_(pset),
+    quality_(pset)
 {
     // Initialize flags
     reset();
@@ -25,11 +29,14 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) : tracer_(pset)
     badD0Pull_ = pset.getUntrackedParameter<double>("badD0Pull");
 
     // Set the minimum decay length for detecting long decays
-    longLivedDecayLenght_ = pset.getUntrackedParameter<double>("longLivedDecayLenght");
+    longLivedDecayLength_ = pset.getUntrackedParameter<double>("longLivedDecayLength");
 
-    // Set the distance for clustering vertexes
+    // Set the distance for clustering vertices
     float vertexClusteringDistance = pset.getUntrackedParameter<double>("vertexClusteringDistance");
     vertexClusteringSqDistance_ = vertexClusteringDistance * vertexClusteringDistance;
+
+    // Set the number of innermost layers to check for bad hits
+    numberOfInnerLayers_ = pset.getUntrackedParameter<unsigned int>("numberOfInnerLayers");
 }
 
 
@@ -38,8 +45,11 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
     // Get the new event information for the tracer
     tracer_.newEvent(event, setup);
 
+    // Get the new event information for the track quality analyser
+    quality_.newEvent(event, setup);
+
     // Get hepmc of the event
-    event.getByLabel("source", mcInformation_);
+    event.getByLabel(hepMCLabel_, mcInformation_);
 
     // Magnetic field
     setup.get<IdealMagneticFieldRecord>().get(magneticField_);
@@ -47,15 +57,21 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
     // Get the partivle data table
     setup.getData(particleDataTable_);
 
-    // Trasient track builder
+    // get the beam spot
+    edm::Handle<reco::BeamSpot> beamSpot;
+    event.getByLabel(beamSpotLabel_, beamSpot);
+    beamSpot_ = reco::TrackBase::Point(
+                          beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
+
+    // Transient track builder
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
 
-    // Create the list of primary vertexes associated to the event
-    genPrimaryVertexes();
+    // Create the list of primary vertices associated to the event
+    genPrimaryVertices();
 }
 
 
-TrackClassifier const & TrackClassifier::evaluate (edm::RefToBase<reco::Track> const & track)
+TrackClassifier const & TrackClassifier::evaluate (reco::TrackBaseRef const & track)
 {
     // Initializing the category vector
     reset();
@@ -69,6 +85,9 @@ TrackClassifier const & TrackClassifier::evaluate (edm::RefToBase<reco::Track> c
         // Get all the information related to the simulation details
         simulationInformation();
 
+        // Analyse the track reconstruction quality
+	qualityInformation(track);
+
         // Get hadron flavor of the initial hadron
         hadronFlavor();
 
@@ -78,7 +97,7 @@ TrackClassifier const & TrackClassifier::evaluate (edm::RefToBase<reco::Track> c
         // Get information about conversion and other interactions
         conversionInteraction();
 
-        // Get geometrical information about the vertexes
+        // Get geometrical information about the vertices
         vertexInformation();
 
         // Check for unkown classification
@@ -111,7 +130,7 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
     // Get information about conversion and other interactions
     conversionInteraction();
 
-    // Get geometrical information about the vertexes
+    // Get geometrical information about the vertices
     vertexInformation();
 
     // Check for unkown classification
@@ -121,7 +140,7 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
 }
 
 
-void TrackClassifier::reconstructionInformation(edm::RefToBase<reco::Track> const & track)
+void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track)
 {
     TrackingParticleRef tpr = tracer_.simParticle();
 
@@ -145,19 +164,22 @@ void TrackClassifier::reconstructionInformation(edm::RefToBase<reco::Track> cons
 
     TSCPBuilderNoMaterial tscpBuilder;
 
-    TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
-                ftsAtProduction,
-                GlobalPoint(0,0,0)
-            );
+    GlobalPoint theBS(beamSpot_.x(), beamSpot_.y(), beamSpot_.z());
 
-    GlobalPoint v = tsAtClosestApproach.theState().position();
+    TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
+                                                ftsAtProduction, theBS );
+
+
+    GlobalVector v = tsAtClosestApproach.theState().position() - theBS;
     GlobalVector p = tsAtClosestApproach.theState().momentum();
 
     // Simulated d0
-    double d0Sim = - (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
+    double d0Sim = - (-v.x()*sin(p.phi()) + v.y()*cos(p.phi()));
+//    double d0Sim = - ((beamSpot_.x0()-v.x())*sin(p.phi()) +
+//                      (v.y()-beamSpot_.y0())*cos(p.phi()));
 
     // Calculate the d0 pull
-    double d0Pull = fabs( track->d0() - d0Sim ) / track->d0Error();
+    double d0Pull = std::abs(-track->dxy(beamSpot_) - d0Sim) / track->d0Error();
 
     // Return true if d0Pull > badD0Pull sigmas
     flags_[TrackCategories::Bad] = (d0Pull > badD0Pull_);
@@ -167,9 +189,39 @@ void TrackClassifier::reconstructionInformation(edm::RefToBase<reco::Track> cons
 void TrackClassifier::simulationInformation()
 {
     // Get the event id for the initial TP.
-    EncodedEventId eventId = tracer_.simParticleTrail()[0]->eventId();
+    EncodedEventId eventId = tracer_.simParticle()->eventId();
     // Check for signal events
     flags_[TrackCategories::SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
+}
+
+
+void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
+{
+    // run the hit-by-hit reconstruction quality analysis
+    quality_.evaluate(tracer_.simParticleTrail(), track);
+
+    unsigned int maxLayers = std::min(numberOfInnerLayers_,
+                                      quality_.numberOfLayers());
+
+    // check the innermost layers for bad hits
+    for(unsigned int i = 0; i < maxLayers; i++)
+    {
+         const TrackQuality::Layer &layer = quality_.layer(i);
+
+         // check all hits in that layer
+         for(unsigned int j = 0; j < layer.hits.size(); j++)
+         {
+             const TrackQuality::Layer::Hit &hit = layer.hits[j];
+
+             // In those cases the bad hit was used by track reconstruction
+             if (hit.state == TrackQuality::Layer::Noise ||
+                 hit.state == TrackQuality::Layer::Misassoc)
+             {
+                 flags_[TrackCategories::BadInnerHits] = true;
+                 return; // we found a bad one, we are done here
+             }
+         }
+    }
 }
 
 
@@ -191,10 +243,10 @@ void TrackClassifier::hadronFlavor()
 
 void TrackClassifier::decayProcesses()
 {
-    // Get the generated vetexes from track history
+    // Get the generated vetices from track history
     TrackHistory::GenVertexTrail const & genVertexTrail = tracer_.genVertexTrail();
 
-    // Loop over the generated vertexes
+    // Loop over the generated vertices
     for (TrackHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end(); ++ivertex)
     {
         // Get the pointer to the vertex by removing the const-ness (no const methos in HepMC::GenVertex)
@@ -208,7 +260,7 @@ void TrackClassifier::decayProcesses()
         )
         {
             // Collect the pdgid of the parent
-            int pdgid = abs((*iparent)->pdg_id());
+            int pdgid = std::abs((*iparent)->pdg_id());
             // Get particle type
             HepPDT::ParticleID particleID(pdgid);
 
@@ -221,8 +273,8 @@ void TrackClassifier::decayProcesses()
                 if (particleData)
                 {
                     bool longlived = false;
-                    // Check if their life time is bigger than longLivedDecayLenght_
-                    if ( particleData->lifetime() > longLivedDecayLenght_ )
+                    // Check if their life time is bigger than longLivedDecayLength_
+                    if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
                         update(flags_[TrackCategories::BWeakDecay], particleID.hasBottom());
@@ -271,7 +323,7 @@ void TrackClassifier::conversionInteraction()
             // Look for the original source track
             if ( parentVertex.isNonnull() )
             {
-                // select the original source in case of combined vertexes
+                // select the original source in case of combined vertices
                 bool flag = false;
                 TrackingVertex::tp_iterator itd, its;
 
@@ -288,7 +340,7 @@ void TrackClassifier::conversionInteraction()
                 }
                 // Collect the pdgid of the original source track
                 if ( its != parentVertex->sourceTracks_end() )
-                    pdgid = abs((*its)->pdgId());
+                    pdgid = std::abs((*its)->pdgId());
                 else
                     pdgid = 0;
             }
@@ -314,7 +366,7 @@ void TrackClassifier::conversionInteraction()
                     {
                         bool longlived = false;
                         // Check if their life time is bigger than 1e-14
-                        if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLenght_ )
+                        if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                         {
                             // Check for B, C weak decays and long lived decays
                             update(flags_[TrackCategories::BWeakDecay], particleID.hasBottom());
@@ -441,7 +493,7 @@ void TrackClassifier::vertexInformation()
     else if ( counter == 1 )
         flags_[TrackCategories::SecondaryVertex] = true;
     else
-        flags_[TrackCategories::TierciaryVertex] = true;
+        flags_[TrackCategories::TertiaryVertex] = true;
 }
 
 
@@ -474,7 +526,7 @@ bool TrackClassifier::isCharged(const HepMC::GenParticle * p)
 }
 
 
-void TrackClassifier::genPrimaryVertexes()
+void TrackClassifier::genPrimaryVertices()
 {
     genpvs_.clear();
 
@@ -501,7 +553,7 @@ void TrackClassifier::genPrimaryVertexes()
                     break;
                 }
 
-            // Reject those vertexes with parent vertexes
+            // Reject those vertices with parent vertices
             if (hasParentVertex) continue;
 
             // Get the position of the vertex
@@ -528,7 +580,7 @@ void TrackClassifier::genPrimaryVertexes()
             if (ientry == genpvs_.end())
                 ientry = genpvs_.insert(ientry,pv);
 
-            // Add the vertex barcodes to the new or existent vertexes
+            // Add the vertex barcodes to the new or existent vertices
             ientry->genVertex.push_back((*ivertex)->barcode());
 
             // Collect final state descendants
@@ -550,7 +602,7 @@ void TrackClassifier::genPrimaryVertexes()
                         ientry->ptot.setE(ientry->ptot.e() + m.e());
                         ientry->ptsq += m.perp() * m.perp();
 
-                        if ( m.perp() > 0.8 && fabs(m.pseudoRapidity()) < 2.5 && isCharged(*idecendants) ) ientry->nGenTrk++;
+                        if ( m.perp() > 0.8 && std::abs(m.pseudoRapidity()) < 2.5 && isCharged(*idecendants) ) ientry->nGenTrk++;
                     }
             }
             idx++;

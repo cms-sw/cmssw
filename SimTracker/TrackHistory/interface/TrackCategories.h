@@ -34,7 +34,9 @@ struct TrackCategories
         Interaction,
         PrimaryVertex,
         SecondaryVertex,
-        TierciaryVertex,
+        TertiaryVertex,
+        TierciaryVertex = TertiaryVertex,
+        BadInnerHits,
         Unknown
     };
 

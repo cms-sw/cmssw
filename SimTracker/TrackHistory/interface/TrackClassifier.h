@@ -2,6 +2,7 @@
  *  TrackClassifier.h
  *
  *  Created by Victor Eduardo Bazterra on 5/29/07.
+ *  Minor additions by Christophe Saout on 9/26/08.
  *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
@@ -9,8 +10,13 @@
 #ifndef TrackClassifier_h
 #define TrackClassifier_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -18,6 +24,7 @@
 
 #include "SimTracker/TrackHistory/interface/TrackCategories.h"
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
+#include "SimTracker/TrackHistory/interface/TrackQuality.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -38,7 +45,7 @@ public:
     void newEvent(edm::Event const &, edm::EventSetup const &);
 
     //! Classify the RecoTrack in categories.
-    TrackClassifier const & evaluate (edm::RefToBase<reco::Track> const &);
+    TrackClassifier const & evaluate (reco::TrackBaseRef const &);
 
     //! Classify the TrackingParticle in categories.
     TrackClassifier const & evaluate (TrackingParticleRef const &);
@@ -46,7 +53,7 @@ public:
     //! Classify the RecoTrack in categories.
     TrackClassifier const & evaluate (reco::TrackRef const & track)
     {
-        return evaluate( edm::RefToBase<reco::Track>(track) );
+        return evaluate( reco::TrackBaseRef(track) );
     }
 
     //! Returns track flag for a given category.
@@ -67,15 +74,21 @@ public:
         return tracer_;
     }
 
+    //! Returns a reference to the track quality used in the classification.
+    TrackQuality const & quality() const
+    {
+        return quality_;
+    }
+
 private:
+
+    const edm::InputTag hepMCLabel_;
+    const edm::InputTag beamSpotLabel_;
 
     double badD0Pull_;
-
-    double longLivedDecayLenght_;
-
+    double longLivedDecayLength_;
     double vertexClusteringSqDistance_;
-
-private:
+    unsigned int numberOfInnerLayers_;
 
     struct G4
     {
@@ -105,6 +118,8 @@ private:
 
     TrackHistory tracer_;
 
+    TrackQuality quality_;
+
     edm::ESHandle<MagneticField> magneticField_;
 
     edm::Handle<edm::HepMCProduct> mcInformation_;
@@ -113,6 +128,8 @@ private:
 
     edm::ESHandle<TransientTrackBuilder> transientTrackBuilder_;
 
+    reco::TrackBase::Point beamSpot_;
+
     //! Reset the categories flags.
     void reset()
     {
@@ -120,10 +137,13 @@ private:
     }
 
     //! Classify all the tracks by their association and reconstruction information
-    void reconstructionInformation(edm::RefToBase<reco::Track> const &);
+    void reconstructionInformation(reco::TrackBaseRef const &);
 
     //! Get all the information related to the simulation details
-    void simulationInformation();
+    void simulationInformation();  
+
+    //! Classify all the tracks by their reconstruction quality
+    void qualityInformation(reco::TrackBaseRef const &);
 
     //! Get hadron flavor of the initial hadron
     void hadronFlavor();
@@ -134,7 +154,7 @@ private:
     //! Get information about conversion and other interactions
     void conversionInteraction();
 
-    //! Get geometrical information about the vertexes
+    //! Get geometrical information about the vertices
     void vertexInformation();
 
     // Check for unkown classification
@@ -167,7 +187,7 @@ private:
     // Auxiliary function to get the generated primary vertex
     bool isFinalstateParticle(const HepMC::GenParticle *);
     bool isCharged(const HepMC::GenParticle *);
-    void genPrimaryVertexes();
+    void genPrimaryVertices();
 
 };
 

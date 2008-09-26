@@ -18,7 +18,8 @@ const char * TrackCategories::Names[] = {
   "Interaction",
   "PrimaryVertex",
   "SecondaryVertex",
-  "TierciaryVertex",
+  "TertiaryVertex",
+  "BadInnerHits",
   "Unknown"
 };
 
@@ -42,7 +43,8 @@ names.push_back("Conversion");
 names.push_back("Interaction");
 names.push_back("PrimaryVertex");
 names.push_back("SecondaryVertex");
-names.push_back("TierciaryVertex");
+names.push_back("TertiaryVertex");
+names.push_back("BadInnerHits");
 names.push_back("Unknown");
 
 }*/
