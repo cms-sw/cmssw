@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/09/11 17:51:19 $ 
- **  $Revision: 1.9 $
+ **  $Date: 2008/09/26 17:16:46 $ 
+ **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -93,6 +93,8 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
     photonCollection_ = pset.getParameter<std::string>("photonCollection");
 
    
+    label_tp_   = pset.getParameter<edm::InputTag>("label_tp");
+
     barrelEcalHits_   = pset.getParameter<edm::InputTag>("barrelEcalHits");
     endcapEcalHits_   = pset.getParameter<edm::InputTag>("endcapEcalHits");
 
@@ -393,7 +395,8 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     h_SimConvPhi_[1] = dbe_->book1D("VisSimConvPhi"," Visible Sim Conversion  Phi ",phiBin,phiMin,phiMax) ;
     h_SimConvR_[1] = dbe_->book1D("VisSimConvR"," Visible Sim Conversion Radius ",rBin,rMin,rMax) ;
     h_SimConvZ_[1] = dbe_->book1D("VisSimConvZ"," Visible Sim Conversion Z ",zBin,zMin,zMax) ;
-    h_simTkPt_ = dbe_->book1D("simTkPt","Sim conversion tracks pt ",etBin,0.,etMax);
+    h_simTkPt_ = dbe_->book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
+    h_simTkEta_ = dbe_->book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
    
 
     dbe_->setCurrentFolder("Egamma/PhotonValidator/Photons");
@@ -723,8 +726,8 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
 
     histname="hTkD0";
     h_TkD0_[0]=dbe_->book1D(histname+"All"," Reco Track D0*q: All ",100,-0.1,0.6);
-    h_TkD0_[1]=dbe_->book1D(histname+"Barrel"," Reco Track D0*q: All ",100,-0.1,0.6);
-    h_TkD0_[2]=dbe_->book1D(histname+"Endcap"," Reco Track D0*q: All ",100,-0.1,0.6);
+    h_TkD0_[1]=dbe_->book1D(histname+"Barrel"," Reco Track D0*q: Barrel ",100,-0.1,0.6);
+    h_TkD0_[2]=dbe_->book1D(histname+"Endcap"," Reco Track D0*q: Endcap ",100,-0.1,0.6);
 
 
 
@@ -839,7 +842,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   // Get electron tracking truth
   edm::Handle<TrackingParticleCollection> ElectronTPHandle;
-  e.getByLabel("mergedtruth","MergedTrackTruth",ElectronTPHandle);
+  e.getByLabel(label_tp_,ElectronTPHandle);
+  //  e.getByLabel("mergedtruth","MergedTrackTruth",ElectronTPHandle);
   const TrackingParticleCollection trackingParticles = *(ElectronTPHandle.product());
 
   //// Track association with TrackingParticles
@@ -959,6 +963,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	
 	for ( vector<TrackingParticleRef>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
 	  h_simTkPt_ -> Fill ( (*iTrk)->pt() );
+	  h_simTkEta_ -> Fill ( (*iTrk)->eta() );
+
 	}
 
 	////////// Denominators for conversion efficiencies
