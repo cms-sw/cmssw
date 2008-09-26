@@ -10,6 +10,7 @@
 
 #include <qstring.h>
 #include <qregexp.h>
+#include <math.h>
 
 #include <iostream>
 using namespace std;
@@ -226,31 +227,64 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
+	   (*iv)=="GainNPoints1d"||(*iv)=="GainHighPoint1d"||
+	   (*iv)=="GainLowPoint1d"||(*iv)=="GainEndPoint1d"||
+	   (*iv)=="GainFitResult2d"||(*iv)=="GainDynamicRange2d"||
+	   (*iv)=="GainSaturate2d"||
 	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
 	   (*iv)=="pixelAliveSummary"  || (*iv) == "SiPixelErrorsCalibDigis") 
 	  prefix="SUMCAL"; 
       }
-      if((*iv).find("residual")!=string::npos ||        // track residuals
-         prefix == "SUMCAL"){                           // calibrations
-        string tag = prefix + "_" + (*iv) + "_mean_" 
+      MonitorElement* temp; string tag;
+      if((*iv).find("residual")!=string::npos){                           // track residuals
+        tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(bei, tag);
-        sum_mes.push_back(temp);
-        if((*iv)!="pixelAliveSummary" && (*iv) != "SiPixelErrorsCalibDigis"){
-	  tag = prefix + "_" + (*iv) + "_RMS_" 
-                                + currDir.substr(currDir.find(dir_name));
-	}else if((*iv) == "SiPixelErrorsCalibDigis"){
-	  tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
-	}else{
-	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
-                                + currDir.substr(currDir.find(dir_name));
-	}
         temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
+	tag = prefix + "_" + (*iv) + "_RMS_" 
+                              + currDir.substr(currDir.find(dir_name));
+        temp = getSummaryME(bei, tag);
+        sum_mes.push_back(temp);
+      }else if(prefix == "SUMCAL"){                  // calibrations
+        if((*iv)=="Gain1d" || (*iv)=="GainChi2NDF1d" || (*iv)=="GainChi2Prob1d" ||
+	   (*iv)=="GainNPoints1d" || (*iv)=="GainHighPoint1d" ||
+	   (*iv)=="GainLowPoint1d" || (*iv)=="GainEndPoint1d" || 
+	   (*iv)=="GainDynamicRange2d" || (*iv)=="GainSaturate2d" ||
+	   (*iv)=="Pedestal1d" ||
+	   (*iv)=="ScurveChi2ProbSummary" || (*iv)=="ScurveFitResultSummary" ||
+	   (*iv)=="ScurveSigmasSummary" || (*iv)=="ScurveThresholdSummary"){                    
+          tag = prefix + "_" + (*iv) + "_mean_" 
+                                  + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+          tag = prefix + "_" + (*iv) + "_RMS_" 
+                                  + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}else if((*iv) == "SiPixelErrorsCalibDigis"){
+	  tag = prefix + "_" + (*iv) + "_NCalibErrors_"
+	                        + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}else if((*iv)=="GainFitResult2d"){
+	  tag = prefix + "_" + (*iv) + "_NNegativeFits_"
+	                        + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}else if((*iv)=="pixelAliveSummary"){
+	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
+                                + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	  tag = prefix + "_" + (*iv) + "_mean_"
+                                + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}
       }else{
-        string tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
-	MonitorElement* temp = getSummaryME(bei, tag);
+        tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
+	temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
         if((*iv)=="ndigis"){
 	  tag = prefix + "_" + (*iv) + "FREQ_" 
@@ -289,8 +323,22 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
-	      if (sname.find("_RMS_")!=string::npos){
+	      if (sname.find("_RMS_")!=string::npos && 
+	          sname.find("GainDynamicRange2d")==string::npos && 
+		  sname.find("GainSaturate2d")==string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
+	      }else if (sname.find("GainDynamicRange2d")!=string::npos ||
+		       sname.find("GainSaturate2d")!=string::npos){
+		float SumOfEntries=0.; float SumOfSquaredEntries=0.; int SumOfPixels=0;
+		for(int cols=1; cols!=me->getNbinsX()+1; cols++) for(int rows=1; rows!=me->getNbinsY()+1; rows++){
+		  SumOfEntries+=me->getBinContent(cols,rows);
+		  SumOfSquaredEntries+=(me->getBinContent(cols,rows))*(me->getBinContent(cols,rows));
+		  SumOfPixels++;
+		}
+		float MeanInZ = SumOfEntries / float(SumOfPixels);
+		float RMSInZ = sqrt(SumOfSquaredEntries/float(SumOfPixels));
+		if(sname.find("_mean_")!=string::npos) (*isum)->Fill(ndet, MeanInZ);
+		if(sname.find("_RMS_")!=string::npos) (*isum)->Fill(ndet, RMSInZ);
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
 	        //cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinContent(me->getNbinsX()-1)<<" , "<<me->getBinContent(me->getNbinsX())<<endl;
 		float nlast = me->getBinContent(me->getNbinsX());
@@ -301,6 +349,12 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	                sname.find("FREQ_")!=string::npos){
 		float nall = me->getEntries();
 		(*isum)->Fill(ndet, nall);
+	      }else if (sname.find("GainFitResult2d")!=string::npos){
+	        int NegFitPixels=0;
+	        for(int cols=1; cols!=me->getNbinsX()+1; cols++) for(int rows=1; rows!=me->getNbinsY()+1; rows++){
+		  if(me->getBinContent(cols,rows)<0.) NegFitPixels++;
+		}
+		(*isum)->Fill(ndet, float(NegFitPixels));
 	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
@@ -313,6 +367,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if(sname.find("_NCalibErrors_")!=string::npos){
 		title = "Number of CalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else if(sname.find("_NNegativeFits_")!=string::npos){
+		title = "Number of pixels with neg. fit result " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("FREQ_")!=string::npos){
 		title = "NEvents with digis per module"; 
               }else{
@@ -387,31 +443,64 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
+	   (*iv)=="GainNPoints1d"||(*iv)=="GainHighPoint1d"||
+	   (*iv)=="GainLowPoint1d"||(*iv)=="GainEndPoint1d"||
+	   (*iv)=="GainFitResult2d"||(*iv)=="GainDynamicRange2d"||
+	   (*iv)=="GainSaturate2d"||
 	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
 	   (*iv)=="pixelAliveSummary" || (*iv)=="SiPixelErrorsCalibDigis")
 	  prefix="SUMCAL"; 
       }
-      if((*iv).find("residual")!=string::npos ||            // track residuals
-         prefix == "SUMCAL"){                               // calibrations
-        string tag = prefix + "_" + (*iv) + "_mean_" 
+      string tag; MonitorElement* temp;
+      if((*iv).find("residual")!=string::npos){             // track residuals
+        tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(bei, tag);
-        sum_mes.push_back(temp);
-        if((*iv)!="pixelAliveSummary" && (*iv)!="SiPixelErrorsCalibDigis"){
-	  tag = prefix + "_" + (*iv) + "_RMS_" 
-                                + currDir.substr(currDir.find(dir_name));
-	}else if((*iv) == "SiPixelErrorsCalibDigis"){
-	  tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
-	}else{
-	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
-                                + currDir.substr(currDir.find(dir_name));
-	}
         temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
+	tag = prefix + "_" + (*iv) + "_RMS_" 
+                              + currDir.substr(currDir.find(dir_name));
+        temp = getSummaryME(bei, tag);
+        sum_mes.push_back(temp);
+      }else if(prefix == "SUMCAL"){                  // calibrations
+        if((*iv)=="Gain1d" || (*iv)=="GainChi2NDF1d" || (*iv)=="GainChi2Prob1d" ||
+	   (*iv)=="GainNPoints1d" || (*iv)=="GainHighPoint1d" ||
+	   (*iv)=="GainLowPoint1d" || (*iv)=="GainEndPoint1d" || 
+	   (*iv)=="GainDynamicRange2d" || (*iv)=="GainSaturate2d" ||
+	   (*iv)=="Pedestal1d" ||
+	   (*iv)=="ScurveChi2ProbSummary" || (*iv)=="ScurveFitResultSummary" ||
+	   (*iv)=="ScurveSigmasSummary" || (*iv)=="ScurveThresholdSummary"){                    
+          tag = prefix + "_" + (*iv) + "_mean_" 
+                                  + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+          tag = prefix + "_" + (*iv) + "_RMS_" 
+                                  + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}else if((*iv) == "SiPixelErrorsCalibDigis"){
+	  tag = prefix + "_" + (*iv) + "_NCalibErrors_"
+	                        + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}else if((*iv)=="GainFitResult2d"){
+	  tag = prefix + "_" + (*iv) + "_NNegativeFits_"
+	                        + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}else if((*iv)=="pixelAliveSummary"){
+	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
+                                + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	  tag = prefix + "_" + (*iv) + "_mean_"
+                                + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}
       }else{
-        string tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
-	MonitorElement* temp = getSummaryME(bei, tag);
+        tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
+	temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
         if((*iv)=="ndigis"){
 	  tag = prefix + "_" + (*iv) + "FREQ_" 
@@ -448,8 +537,22 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
-	      if (sname.find("_RMS_")!=string::npos){
+	      if (sname.find("_RMS_")!=string::npos && 
+	          sname.find("GainDynamicRange2d")==string::npos && 
+		  sname.find("GainSaturate2d")==string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
+	      }else if (sname.find("GainDynamicRange2d")!=string::npos ||
+		       sname.find("GainSaturate2d")!=string::npos){
+		float SumOfEntries=0.; float SumOfSquaredEntries=0.; int SumOfPixels=0;
+		for(int cols=1; cols!=me->getNbinsX()+1; cols++) for(int rows=1; rows!=me->getNbinsY()+1; rows++){
+		  SumOfEntries+=me->getBinContent(cols,rows);
+		  SumOfSquaredEntries+=(me->getBinContent(cols,rows))*(me->getBinContent(cols,rows));
+		  SumOfPixels++;
+		}
+		float MeanInZ = SumOfEntries / float(SumOfPixels);
+		float RMSInZ = sqrt(SumOfSquaredEntries/float(SumOfPixels));
+		if(sname.find("_mean_")!=string::npos) (*isum)->Fill(ndet, MeanInZ);
+		if(sname.find("_RMS_")!=string::npos) (*isum)->Fill(ndet, RMSInZ);
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
 		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = (me->getTH1F())->Integral(1,11);
@@ -458,6 +561,12 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	                sname.find("FREQ_")!=string::npos){
 		float nall = me->getEntries();
 		(*isum)->Fill(ndet, nall);
+	      }else if (sname.find("GainFitResult2d")!=string::npos){
+	        int NegFitPixels=0;
+	        for(int cols=1; cols!=me->getNbinsX()+1; cols++) for(int rows=1; rows!=me->getNbinsY()+1; rows++){
+		  if(me->getBinContent(cols,rows)<0.) NegFitPixels++;
+		}
+		(*isum)->Fill(ndet, float(NegFitPixels));
 	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
@@ -470,6 +579,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("_NCalibErrors_")!=string::npos){
 		title = "NCalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else if(sname.find("_NNegativeFits_")!=string::npos){
+		title = "Number of pixels with neg. fit result " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("FREQ_")!=string::npos){
 		title = "NEvents with digis per module"; 
 	      }else{
@@ -692,6 +803,13 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
+	     (*iv)=="GainNPoints1d_mean" || (*iv)=="GainNPoints1d_RMS" ||
+	     (*iv)=="GainHighPoint1d_mean" || (*iv)=="GainHighPoint1d_RMS" ||
+	     (*iv)=="GainLowPoint1d_mean" || (*iv)=="GainLowPoint1d_RMS" ||
+	     (*iv)=="GainEndPoint1d_mean" || (*iv)=="GainEndPoint1d_RMS" ||
+	     (*iv)=="GainFitResult2d_mean" || (*iv)=="GainFitResult2d_RMS" ||
+	     (*iv)=="GainDynamicRange2d_mean" || (*iv)=="GainDynamicRange2d_RMS" ||
+	     (*iv)=="GainSaturate2d_mean" || (*iv)=="GainSaturate2d_RMS" ||
 	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
 	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix" ||
@@ -841,6 +959,13 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
+	     (*iv)=="GainNPoints1d_mean" || (*iv)=="GainNPoints1d_RMS" ||
+	     (*iv)=="GainHighPoint1d_mean" || (*iv)=="GainHighPoint1d_RMS" ||
+	     (*iv)=="GainLowPoint1d_mean" || (*iv)=="GainLowPoint1d_RMS" ||
+	     (*iv)=="GainEndPoint1d_mean" || (*iv)=="GainEndPoint1d_RMS" ||
+	     (*iv)=="GainFitResult2d_mean" || (*iv)=="GainFitResult2d_RMS" ||
+	     (*iv)=="GainDynamicRange2d_mean" || (*iv)=="GainDynamicRange2d_RMS" ||
+	     (*iv)=="GainSaturate2d_mean" || (*iv)=="GainSaturate2d_RMS" ||
 	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
 	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix"

@@ -1334,7 +1334,7 @@ void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei,
 //  cout<<"... leaving SiPixelInformationExtractor::getHistosFromPath!"<<endl;
 }
 
-void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
+void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float noiseRate_) {
 //std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
   bei->cd();
   bei->setCurrentFolder("Pixel/EventInfo");
@@ -1371,15 +1371,17 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
   SummaryHCpI = bei->bookFloat("Pixel_HalfCylinder_pI");
   SummaryHCpO = bei->bookFloat("Pixel_HalfCylinder_pO");
   bei->cd();  
-  bei->setCurrentFolder("Pixel/Barrel");
-  EventRateBarrelPixels = bei->book1D("barrelEventRate","Digi event rate for all Barrel pixels",1000,0.,0.01);
-  EventRateBarrelPixels->setAxisTitle("Event Rate",1);
-  EventRateBarrelPixels->setAxisTitle("Number of Pixels",2);
-  bei->cd();  
-  bei->setCurrentFolder("Pixel/Endcap");
-  EventRateEndcapPixels = bei->book1D("endcapEventRate","Digi event rate for all Endcap pixels",1000,0.,0.01);
-  EventRateEndcapPixels->setAxisTitle("Event Rate",1);
-  EventRateEndcapPixels->setAxisTitle("Number of Pixels",2);
+  if(noiseRate_>=0.){
+    bei->setCurrentFolder("Pixel/Barrel");
+    EventRateBarrelPixels = bei->book1D("barrelEventRate","Digi event rate for all Barrel pixels",1000,0.,0.01);
+    EventRateBarrelPixels->setAxisTitle("Event Rate",1);
+    EventRateBarrelPixels->setAxisTitle("Number of Pixels",2);
+    bei->cd();  
+    bei->setCurrentFolder("Pixel/Endcap");
+    EventRateEndcapPixels = bei->book1D("endcapEventRate","Digi event rate for all Endcap pixels",1000,0.,0.01);
+    EventRateEndcapPixels->setAxisTitle("Event Rate",1);
+    EventRateEndcapPixels->setAxisTitle("Number of Pixels",2);
+  }
 }
 
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 

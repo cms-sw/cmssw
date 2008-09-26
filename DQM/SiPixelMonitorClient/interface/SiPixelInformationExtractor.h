@@ -105,7 +105,8 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  void bookGlobalQualityFlag    (DQMStore                               * bei);
+  void bookGlobalQualityFlag    (DQMStore                               * bei,
+                                 float                                    noiseRate);
 
   void computeGlobalQualityFlag (DQMStore                               * bei,
                                  bool                                     init);

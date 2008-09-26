@@ -151,7 +151,7 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     //cout << " Creating occupancy plots" << endl;
     sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     //cout << " Booking summary report ME's" << endl;
-    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_);
+    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_);
   }
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
   sipixelWebInterface_->performAction();
@@ -188,7 +188,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
-    sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, eSetup);
+    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, eSetup);
   }   
          
   // -- Create TrackerMap  according to the frequency
@@ -236,7 +236,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
-    sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, eSetup);
+    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, eSetup);
   }
   
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;

@@ -8,6 +8,20 @@
      <MonElement name="GainChi2Prob1d_mean">	     </MonElement> 
      <MonElement name="Pedestal1d_RMS">	             </MonElement> 
      <MonElement name="Pedestal1d_mean">	     </MonElement> 
+     <MonElement name="GainNPoints1d_RMS">	</MonElement> 
+     <MonElement name="GainNPoints1d_mean">	</MonElement> 
+     <MonElement name="GainHighPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainHighPoint1d_mean">	</MonElement> 
+     <MonElement name="GainLowPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainLowPoint1d_mean">	</MonElement> 
+     <MonElement name="GainEndPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainEndPoint1d_mean">	</MonElement> 
+     <MonElement name="GainFitResult2d">	</MonElement> 
+     <MonElement name="GainDynamicRange2d_RMS">	</MonElement> 
+     <MonElement name="GainDynamicRange2d_mean">	</MonElement> 
+     <MonElement name="GainSaturate2d_RMS">	</MonElement> 
+     <MonElement name="GainSaturate2d_mean">	</MonElement> 
+     <MonElement name="SiPixelErrorsCalibDigis">	</MonElement> 
      <MonElement name="ScurveChi2ProbSummary_RMS">    </MonElement> 
      <MonElement name="ScurveChi2ProbSummary_mean">   </MonElement> 
      <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
@@ -23,6 +37,14 @@
      <MonElement name="GainChi2NDF1d">	         </MonElement> 
      <MonElement name="GainChi2Prob1d">	         </MonElement> 
      <MonElement name="Pedestal1d">	         </MonElement> 
+     <MonElement name="GainNPoints1d">	</MonElement> 
+     <MonElement name="GainHighPoint1d">	</MonElement> 
+     <MonElement name="GainLowPoint1d">	</MonElement> 
+     <MonElement name="GainEndPoint1d">	</MonElement> 
+     <MonElement name="GainFitResult2d">	</MonElement> 
+     <MonElement name="GainDynamicRange2d">	</MonElement> 
+     <MonElement name="GainSaturate2d">	</MonElement> 
+     <MonElement name="SiPixelErrorsCalibDigis">	</MonElement> 
      <MonElement name="ScurveChi2ProbSummary">    </MonElement> 
      <MonElement name="ScurveFitResultSummary">  </MonElement> 
      <MonElement name="ScurveSigmasSummary">     </MonElement> 
@@ -37,6 +59,20 @@
      <MonElement name="GainChi2Prob1d_mean">	     </MonElement> 
      <MonElement name="Pedestal1d_RMS">	             </MonElement> 
      <MonElement name="Pedestal1d_mean">	     </MonElement> 
+     <MonElement name="GainNPoints1d_RMS">	</MonElement> 
+     <MonElement name="GainNPoints1d_mean">	</MonElement> 
+     <MonElement name="GainHighPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainHighPoint1d_mean">	</MonElement> 
+     <MonElement name="GainLowPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainLowPoint1d_mean">	</MonElement> 
+     <MonElement name="GainEndPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainEndPoint1d_mean">	</MonElement> 
+     <MonElement name="GainFitResult2d">	</MonElement> 
+     <MonElement name="GainDynamicRange2d_RMS">	</MonElement> 
+     <MonElement name="GainDynamicRange2d_mean">	</MonElement> 
+     <MonElement name="GainSaturate2d_RMS">	</MonElement> 
+     <MonElement name="GainSaturate2d_mean">	</MonElement> 
+     <MonElement name="SiPixelErrorsCalibDigis">	</MonElement> 
      <MonElement name="ScurveChi2ProbSummary_RMS">    </MonElement> 
      <MonElement name="ScurveChi2ProbSummary_mean">   </MonElement> 
      <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
@@ -51,6 +87,14 @@
      <MonElement name="GainChi2NDF1d">	         </MonElement> 
      <MonElement name="GainChi2Prob1d">	         </MonElement> 
      <MonElement name="Pedestal1d">	         </MonElement> 
+     <MonElement name="GainNPoints1d">	</MonElement> 
+     <MonElement name="GainHighPoint1d">	</MonElement> 
+     <MonElement name="GainLowPoint1d">	</MonElement> 
+     <MonElement name="GainEndPoint1d">	</MonElement> 
+     <MonElement name="GainFitResult2d">	</MonElement> 
+     <MonElement name="GainDynamicRange2d">	</MonElement> 
+     <MonElement name="GainSaturate2d">	</MonElement> 
+     <MonElement name="SiPixelErrorsCalibDigis">	</MonElement> 
      <MonElement name="ScurveChi2ProbSummary">    </MonElement> 
      <MonElement name="ScurveFitResultSummary">  </MonElement> 
      <MonElement name="ScurveSigmasSummary">     </MonElement> 
@@ -65,6 +109,20 @@
      <MonElement name="GainChi2Prob1d_mean">	     </MonElement> 
      <MonElement name="Pedestal1d_RMS">	             </MonElement> 
      <MonElement name="Pedestal1d_mean">	     </MonElement> 
+     <MonElement name="GainNPoints1d_RMS">	</MonElement> 
+     <MonElement name="GainNPoints1d_mean">	</MonElement> 
+     <MonElement name="GainHighPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainHighPoint1d_mean">	</MonElement> 
+     <MonElement name="GainLowPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainLowPoint1d_mean">	</MonElement> 
+     <MonElement name="GainEndPoint1d_RMS">	</MonElement> 
+     <MonElement name="GainEndPoint1d_mean">	</MonElement> 
+     <MonElement name="GainFitResult2d">	</MonElement> 
+     <MonElement name="GainDynamicRange2d_RMS">	</MonElement> 
+     <MonElement name="GainDynamicRange2d_mean">	</MonElement> 
+     <MonElement name="GainSaturate2d_RMS">	</MonElement> 
+     <MonElement name="GainSaturate2d_mean">	</MonElement> 
+     <MonElement name="SiPixelErrorsCalibDigis">	</MonElement> 
      <MonElement name="ScurveChi2ProbSummary_RMS">    </MonElement> 
      <MonElement name="ScurveChi2ProbSummary_mean">   </MonElement> 
      <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
@@ -77,7 +135,7 @@
 </SummaryPlot>
 
 <QTests>
-<QTestMessageLimit name="limit" value="100">
+<QTestMessageLimit name="limit" value="0">
 </QTestMessageLimit>
 </QTests>
 
@@ -85,5 +143,10 @@
 <SourceType name="source" code="10">
 </SourceType>
 </Source>
+
+<Calib>
+<CalibType name="use" value="1">
+</CalibType>
+</Calib>
 
 </MonElementConfiguration> 
