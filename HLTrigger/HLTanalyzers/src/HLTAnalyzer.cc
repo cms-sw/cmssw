@@ -187,7 +187,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     errCnt++;
     std::stringstream out;       
     out <<  "OpenHLT analyer - missing collections:";
-    BOOST_FOREACH(const MissingCollectionInfo entry, missing)
+    BOOST_FOREACH(const MissingCollectionInfo & entry, missing)
       out << "\n\t" << entry;
     edm::LogPrint("OpenHLT") << out.str() << std::endl; 
     if (errCnt == errMax())
