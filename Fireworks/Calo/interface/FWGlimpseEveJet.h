@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FWGlimpseEveJet.h,v 1.2 2008/07/09 18:23:39 chrjones Exp $
+// $Id: FWGlimpseEveJet.h,v 1.3 2008/07/09 18:24:34 chrjones Exp $
 //
 
 // system include files
@@ -27,14 +27,14 @@
 
 // forward declarations
 namespace reco {
-   class CaloJet;
+   class Jet;
 }
 
 class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
 {
 
    public:
-      FWGlimpseEveJet(const reco::CaloJet* iJet,
+      FWGlimpseEveJet(const reco::Jet* iJet,
                       const Text_t* iName, const Text_t* iTitle="");
       virtual ~FWGlimpseEveJet();
 
@@ -56,7 +56,7 @@ class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
       const FWGlimpseEveJet& operator=(const FWGlimpseEveJet&); // stop default
 
       // ---------- member data --------------------------------
-      const reco::CaloJet* m_jet;
+      const reco::Jet* m_jet;
       //NOTE: need to hold our own color since TEveBoxSet doesn't so that
       // If we later call GetMainColor we'd always get white back
       Color_t m_color;

@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     CaloJetGlimpseProxyBuilder
+// Class  :     PatJetGlimpseProxyBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.9 2008/07/16 16:09:23 chrjones Exp $
+// $Id: PatJetGlimpseProxyBuilder.cc,v 1.9 2008/07/16 16:09:23 chrjones Exp $
 //
 
 // system include files
@@ -23,12 +23,11 @@
 #include "TEveBoxSet.h"
 
 // user include files
-#include "Fireworks/Calo/interface/CaloJetGlimpseProxyBuilder.h"
+#include "Fireworks/Calo/interface/PatJetGlimpseProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
@@ -44,52 +43,35 @@
 //
 // constructors and destructor
 //
-CaloJetGlimpseProxyBuilder::CaloJetGlimpseProxyBuilder()
+PatJetGlimpseProxyBuilder::PatJetGlimpseProxyBuilder()
 {
 }
 
-// CaloJetGlimpseProxyBuilder::CaloJetGlimpseProxyBuilder(const CaloJetGlimpseProxyBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
 
-CaloJetGlimpseProxyBuilder::~CaloJetGlimpseProxyBuilder()
+PatJetGlimpseProxyBuilder::~PatJetGlimpseProxyBuilder()
 {
 }
-
-//
-// assignment operators
-//
-// const CaloJetGlimpseProxyBuilder& CaloJetGlimpseProxyBuilder::operator=(const CaloJetGlimpseProxyBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   CaloJetGlimpseProxyBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
 
 void
-CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+PatJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"JetsLego",true);
+      tList =  new TEveElementList(iItem->name().c_str(),"GlimpseJets",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
    } else {
       tList->DestroyElements();
    }
    
-   const reco::CaloJetCollection* jets=0;
+   const std::vector<pat::Jet>* jets=0;
    iItem->get(jets);
    if(0==jets) return;
    
    fw::NamedCounter counter("jet");
 
-   for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
       char title[1024]; 
       sprintf(title,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
@@ -106,5 +88,5 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    }
 }
 
-REGISTER_FWGLIMPSEDATAPROXYBUILDER(CaloJetGlimpseProxyBuilder,reco::CaloJetCollection,"Jets");
+REGISTER_FWGLIMPSEDATAPROXYBUILDER(PatJetGlimpseProxyBuilder,std::vector<pat::Jet>,"PatJets");
 

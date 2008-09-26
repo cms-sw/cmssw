@@ -8,14 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id: FWGlimpseEveJet.cc,v 1.1 2008/07/04 23:56:28 chrjones Exp $
+// $Id: FWGlimpseEveJet.cc,v 1.2 2008/07/09 18:23:39 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 
 
 //
@@ -31,7 +31,7 @@ namespace {
 //
 // constructors and destructor
 //
-FWGlimpseEveJet::FWGlimpseEveJet(const reco::CaloJet* iJet,
+FWGlimpseEveJet::FWGlimpseEveJet(const reco::Jet* iJet,
                                  const Text_t* iName, const Text_t* iTitle):
 TEveBoxSet(iName, iTitle),
 m_jet(iJet),
@@ -80,9 +80,22 @@ FWGlimpseEveJet::setScale(float iScale)
    
    dir *= height;
    pos.Set(0.0,0.0,0.0);
-   double eta_size = sqrt(m_jet->etaetaMoment());
+   // check availability of consituents
+   reco::Jet::Constituents c = m_jet->getJetConstituents();
+   bool haveData = true;
+   for ( reco::Jet::Constituents::const_iterator itr = c.begin(); itr != c.end(); ++itr )
+     if ( ! itr->isAvailable() ) {
+	haveData = false;
+	break;
+     }
+   double eta_size = 0.5;
+   double phi_size = 0.5;   
+   if ( haveData ){
+      eta_size = sqrt(m_jet->etaetaMoment());
+      phi_size = sqrt(m_jet->phiphiMoment());
+   }
+   
    double theta_size = fabs(getTheta(m_jet->eta()+eta_size)-getTheta(m_jet->eta()-eta_size));
-   double phi_size = sqrt(m_jet->phiphiMoment());
    AddEllipticCone(pos, dir, theta_size*height, phi_size*height);
 
    SetMainColor(color);

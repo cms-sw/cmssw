@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.3 2008/05/12 15:38:00 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.4 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,9 @@
 // forward declarations
 
 class TEveGeoShapeExtract;
+namespace fw {
+   class NamedCounter;
+}
 class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
 
@@ -40,6 +43,19 @@ class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
+      static std::pair<int,int>        getiEtaRange( const reco::Jet& jet );
+      static std::pair<double,double>  getPhiRange( const reco::Jet& jet );
+      static double getTheta( double eta ) { return 2*atan(exp(-eta)); }
+      
+      static void buildJetRhoPhi(const FWEventItem* iItem,
+				 const reco::Jet* jet, 
+				 TEveElementList* tList,
+				 const fw::NamedCounter& counter);
+   
+      static void buildJetRhoZ(  const FWEventItem* iItem,
+				 const reco::Jet* jet, 
+				 TEveElementList* tList,
+				 const fw::NamedCounter& counter);
 
       // ---------- member functions ---------------------------
    
@@ -50,11 +66,6 @@ class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void buildRhoZ(const FWEventItem* iItem, 
                                TEveElementList** product);
 
-      std::pair<int,int>        getiEtaRange( const reco::CaloJet& jet );
-      std::pair<double,double>  getPhiRange( const reco::CaloJet& jet );
-     
-      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
-   
       CaloJetProxyRhoPhiZ2DBuilder(const CaloJetProxyRhoPhiZ2DBuilder&); // stop default
 
       const CaloJetProxyRhoPhiZ2DBuilder& operator=(const CaloJetProxyRhoPhiZ2DBuilder&); // stop default
