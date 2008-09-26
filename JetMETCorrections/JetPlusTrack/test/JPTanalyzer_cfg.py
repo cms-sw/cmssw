@@ -41,7 +41,7 @@ process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
 
 # test QCD file from 210 RelVal is on /castor/cern.ch/user/a/anikiten/jpt210qcdfile/
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source("PoolSource",
@@ -49,7 +49,10 @@ process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/FC999068-DB60-DD11-9694-001A92971B16.root')
 # cmssw218
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/0C66A939-8F82-DD11-8442-0019DB29C614.root')
-     fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_8/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0002/0C66A939-8F82-DD11-8442-0019DB29C614.root')
+#     fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_8/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0002/0C66A939-8F82-DD11-8442-0019DB29C614.root')
+     fileNames = cms.untracked.vstring(
+'/store/relval/CMSSW_2_1_9/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/000AD2A4-6E86-DD11-AA99-000423D9863C.root',
+'/store/relval/CMSSW_2_1_9/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/02D641CC-6D86-DD11-B1AA-001617C3B64C.root')
 )
 
 process.dump = cms.EDFilter("EventContentAnalyzer")
