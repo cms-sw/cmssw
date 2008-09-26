@@ -52,13 +52,14 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   if ( m_useMuonFromReco )
     theRecoLabel         = pset.getUntrackedParameter<string>("RecoLabel");
 
-  thePtMin     = pset.getUntrackedParameter<double>      ("PtMin");
-  thePtMax     = pset.getUntrackedParameter<double>      ("PtMax");
   theNbins     = pset.getUntrackedParameter<unsigned int>("Nbins");
-  theMinPtCut  = pset.getUntrackedParameter<double>      ("MinPtCut");
-  theL1DrCut   = pset.getUntrackedParameter<double>      ("L1DrCut");
-  theL2DrCut   = pset.getUntrackedParameter<double>      ("L2DrCut");
-  theL3DrCut   = pset.getUntrackedParameter<double>      ("L3DrCut");
+  thePtMin     = pset.getUntrackedParameter<double>("PtMin");
+  thePtMax     = pset.getUntrackedParameter<double>("PtMax");
+  theMinPtCut  = pset.getUntrackedParameter<double>("MinPtCut");
+  theMaxEtaCut = pset.getUntrackedParameter<double>("MaxEtaCut");
+  theL1DrCut   = pset.getUntrackedParameter<double>("L1DrCut");
+  theL2DrCut   = pset.getUntrackedParameter<double>("L2DrCut");
+  theL3DrCut   = pset.getUntrackedParameter<double>("L3DrCut");
 
   theMotherParticleId = pset.getUntrackedParameter<unsigned int> 
                         ("MotherParticleId");
