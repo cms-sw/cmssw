@@ -254,7 +254,7 @@ namespace cond {
      // pad....
      if (m_iov->iov.back().first<sinceTime-1) 
        m_iov->iov.push_back(IOV::Item(sinceTime-1,invalidToken));
-     m_iov->iov.push_back(IOV::Item(tillTime,payoadToken));
+     m_iov->iov.push_back(IOV::Item(tillTime,payLoadToken));
      m_iov.markUpdate();
      return m_iov->iov.size()-1;
    }
@@ -277,7 +277,7 @@ namespace cond {
        m_iov->iov.erase(b,e);
      }
      b=m_iov->iov.begin();
-     m_iov->iov.push_front(b,IOV::Item(tillTime,payloadToken));
+     m_iov->iov.insert(b,IOV::Item(tillTime,payloadToken));
      m_iov->firstsince=sinceTime;
      m_iov.markUpdate();
      return 0;
