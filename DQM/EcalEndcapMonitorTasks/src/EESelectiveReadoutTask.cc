@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/09/06 10:04:18 $
- * $Revision: 1.12 $
+ * $Date: 2008/09/26 15:07:01 $
+ * $Revision: 1.13 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -184,7 +184,7 @@ void EESelectiveReadoutTask::cleanup(void){
 
     if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
     EEDccEventSize_ = 0;
-    
+
     if ( EEReadoutUnitForcedBitMap_[0] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[0]->getName() );
     EEReadoutUnitForcedBitMap_[0] = 0;
 
@@ -291,17 +291,17 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     EEFirstFED[0] = 601; // EE-
     EEFirstFED[1] = 646; // EE+
     for(int zside=0; zside<2; zside++) {
-      
+
       int firstFedOnSide=EEFirstFED[zside];
-      
+
       for ( int iDcc = 0; iDcc < 9; ++iDcc ) {
 
 	int ism = 0;
 	if ( zside == 0 ) ism = iDcc+1;
 	else ism = 10+iDcc;
-	
+
 	EEDccEventSize_->Fill(ism, ((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte );
-	
+
       }
     }
 
@@ -405,7 +405,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       int ismt = Numbers::iSM( idt );
 
       vector<DetId> crystals = Numbers::crystals( idt );
-      
+
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
         EEDetId id = crystals[i];
@@ -482,7 +482,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   }
 
   // Data Volume
-  
+
   double aLowInterest[2];
   double aHighInterest[2];
   double aAnyInterest[2];

@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/09/06 10:04:18 $
- * $Revision: 1.14 $
+ * $Date: 2008/09/26 15:07:00 $
+ * $Revision: 1.15 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -246,7 +246,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );
       float integral = h01->GetEntries();
       if( integral != 0 ) h01->Scale( integral );
-      
+
       if(flag == EcalSrFlag::SRF_FULL){
         EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
       } else {
@@ -262,10 +262,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
         EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
-      } else { 
+      } else {
 	EBReadoutUnitForcedBitMap_->Fill(-1,-18);
       }
-      
+
       if( integral != 0 ) h02->Scale( 1.0/h02->GetEntries() );
 
     }
@@ -307,7 +307,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       TH2F *h04 = UtilsClient::getHisto<TH2F*>( EBHighInterestTriggerTowerFlagMap_ );
       integral = h04->GetEntries();
       if( integral != 0 ) h04->Scale( integral );
-      
+
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
         EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       } else {
