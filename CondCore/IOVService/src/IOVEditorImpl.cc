@@ -227,9 +227,9 @@ namespace cond {
   IOVEditorImpl::replaceInterval(cond::Time_t sinceTime,
 				 cond::Time_t tillTime,
 				 const std::string& payloadToken,
-				 bool deletePayload=false) {
+				 bool deletePayload=) {
 
-    static const string invalidToken(":");
+    static const std::string invalidToken(":");
 
     if( m_token.empty() ) {
      throw cond::Exception("cond::IOVEditorImpl::replaceInterval cannot edit an non-existing IOV index");
@@ -256,7 +256,7 @@ namespace cond {
      if (e-b>1) {
        b++;
        if(deletePayload) {
-	 for ( IOV::iterator p=b;,p!=e;p++) {
+	 for ( IOV::iterator p=b; p!=e; p++) {
 	   cond::GenericRef ref(*m_pooldb,(*p).second);
 	   ref.markDelete();
 	   ref.reset();
@@ -267,7 +267,7 @@ namespace cond {
    }
    IOV::iterator p = m_iov->find(sinceTime);
    IOV::iterator e = m_iov->find(tillTime);
-   if (e-b>1)
+   if (e-p>1)
      throw cond::Exception("cond::IOVEditorImpl::replaceInterval vincenzo logic has a fault!!!!");
 
    cond::Time_t oldTill;
