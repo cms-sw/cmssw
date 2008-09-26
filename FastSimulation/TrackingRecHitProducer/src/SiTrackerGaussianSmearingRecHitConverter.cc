@@ -115,6 +115,10 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 #ifdef FAMOS_DEBUG
   std::cout << (useCMSSWPixelParameterization? "CMSSW" : "ORCA") << " pixel parametrization chosen in config file." << std::endl;
 #endif
+
+  //Clusters
+  GevPerElectron =  conf.getParameter<double>("GevPerElectron");
+  ElectronsPerADC =  conf.getParameter<double>("ElectronsPerADC");
   
   //
   // TIB
@@ -731,15 +735,18 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 			     error.yy()+lape.yy() );
       }
       
+      float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
+
       //create cluster
       theClusters[trackID].push_back(
-                                       new FastTrackerCluster(position, error, det,
+                                      new FastTrackerCluster(position, error, det,
                                                               simHitCounter, trackID,
                                                               eeID,
-                                                              (*isim).energyLoss())
+							      //(*isim).energyLoss())
+                                                             chargeADC)
                                     );
       
-      // std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " << (*isim).energyLoss() << std::endl;
+      //       std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " <<chargeADC << std::endl;
       
       // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
 
