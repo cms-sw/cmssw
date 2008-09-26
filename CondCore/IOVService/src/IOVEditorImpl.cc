@@ -227,7 +227,7 @@ namespace cond {
   IOVEditorImpl::replaceInterval(cond::Time_t sinceTime,
 				 cond::Time_t tillTime,
 				 const std::string& payloadToken,
-				 bool deletePayload=) {
+				 bool deletePayload) {
 
     static const std::string invalidToken(":");
 

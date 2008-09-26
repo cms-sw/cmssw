@@ -48,7 +48,7 @@ namespace cond{
 					 cond::Time_t tillTime,
 					 const std::string& payloadToken,
 					 bool deletePayload=false);
-
+    
 
     virtual void deleteEntries( bool withPayload=false );
 
