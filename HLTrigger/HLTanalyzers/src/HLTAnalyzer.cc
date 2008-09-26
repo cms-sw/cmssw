@@ -7,15 +7,15 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 #include "HLTMessages.h"
 
-typedef const char * MissingCollectionInfo;
+typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
   
 template <class T>
 static inline
-bool checkCollection(edm::Handle<T> & handle, std::vector<MissingCollectionInfo> & missing, const char * description) 
+bool checkCollection(std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const char * description) 
 {
   bool valid = handle.isValid();
   if (not valid) {
-    missing.push_back( description );
+    missing.push_back( std::make_pair(description, & name) );
     handle.clear();
   }
   return valid;
@@ -184,41 +184,41 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // check the objects...
   std::vector<MissingCollectionInfo> missing;
 
-  checkCollection(recjets,        missing, kRecjets);
-  checkCollection(genjets,        missing, kGenjets);
-  checkCollection(recmet,         missing, kRecmet);
-  checkCollection(genmet,         missing, kGenmet);
-  checkCollection(caloTowers,     missing, kCaloTowers);
-  checkCollection(ht,             missing, kHt);
-  checkCollection(electrons,      missing, kElectrons);
-  checkCollection(photons,        missing, kPhotons);
-  checkCollection(muon,           missing, kMuon);
-  checkCollection(taus,           missing, kTaus);
-  checkCollection(hltresults,     missing, kHltresults);
-  checkCollection(l1extemi,       missing, kL1extemi);
-  checkCollection(l1extemn,       missing, kL1extemn);
-  checkCollection(l1extmu,        missing, kL1extmu);
-  checkCollection(l1extjetc,      missing, kL1extjetc);
-  checkCollection(l1extjetf,      missing, kL1extjetf);
-  checkCollection(l1exttaujet,    missing, kL1exttaujet);
-  checkCollection(l1extmet,       missing, kL1extmet);
-  checkCollection(l1GtRR,         missing, kL1GtRR);
-  checkCollection(l1GtOMRec,      missing, kL1GtOMRec);
-  checkCollection(l1GctCounts,    missing, kL1GctCounts);
-  checkCollection(mctruth,        missing, kMctruth);
-  checkCollection(genEventScale,  missing, kGenEventScale);
-  checkCollection(mucands2,       missing, kMucands2);
-  checkCollection(mucands3,       missing, kMucands3);
-  checkCollection(isoMap2,        missing, kIsoMap2);
-  checkCollection(isoMap3,        missing, kIsoMap3);
-  checkCollection(mulinks,        missing, kMulinks);
+  checkCollection(missing, recjets,         recjets_,           kRecjets);
+  checkCollection(missing, genjets,         genjets_,           kGenjets);
+  checkCollection(missing, recmet,          recmet_,            kRecmet);
+  checkCollection(missing, genmet,          genmet_,            kGenmet);
+  checkCollection(missing, caloTowers,      calotowers_,        kCaloTowers);
+  checkCollection(missing, ht,              ht_,                kHt);
+  checkCollection(missing, electrons,       Electron_,          kElectrons);
+  checkCollection(missing, photons,         Photon_,            kPhotons);
+  checkCollection(missing, muon,            muon_,              kMuon);
+  checkCollection(missing, taus,            HLTTau_,            kTaus);
+  checkCollection(missing, hltresults,      hltresults_,        kHltresults);
+  checkCollection(missing, l1extemi,        m_l1extraemi,       kL1extemi);
+  checkCollection(missing, l1extemn,        m_l1extraemn,       kL1extemn);
+  checkCollection(missing, l1extmu,         m_l1extramu,        kL1extmu);
+  checkCollection(missing, l1extjetc,       m_l1extrajetc,      kL1extjetc);
+  checkCollection(missing, l1extjetf,       m_l1extrajetf,      kL1extjetf);
+  checkCollection(missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet);
+  checkCollection(missing, l1extmet,        m_l1extramet,       kL1extmet);
+  checkCollection(missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR);
+  checkCollection(missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec);
+  checkCollection(missing, l1GctCounts,     gctCounts_,         kL1GctCounts);
+  checkCollection(missing, mctruth,         mctruth_,           kMctruth);
+  checkCollection(missing, genEventScale,   genEventScale_,     kGenEventScale);
+  checkCollection(missing, mucands2,        MuCandTag2_,        kMucands2);
+  checkCollection(missing, mucands3,        MuCandTag3_,        kMucands3);
+  checkCollection(missing, isoMap2,         MuIsolTag2_,        kIsoMap2);
+  checkCollection(missing, isoMap3,         MuIsolTag3_,        kIsoMap3);
+  checkCollection(missing, mulinks,         MuLinkTag_,         kMulinks);
 
   if (not missing.empty() && (errCnt < errMax())) {
     errCnt++;
     std::stringstream out;       
-    out <<  "OpenHLT analyer - missing collections:";
+    out <<  "OpenHLT analyser - missing collections:";
     BOOST_FOREACH(const MissingCollectionInfo & entry, missing)
-      out << "\n\t" << entry;
+      out << "\n\t" << entry.first << ": " << entry.second->encode();
     edm::LogPrint("OpenHLT") << out.str() << std::endl; 
     if (errCnt == errMax())
       edm::LogWarning("OpenHLT") << "Maximum error count reached -- No more messages will be printed.";
