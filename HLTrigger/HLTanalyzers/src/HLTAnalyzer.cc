@@ -45,7 +45,12 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
   gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
-  gctCounts_        = conf.getParameter<edm::InputTag> ("l1GctCounts");
+
+  // only keep the module label for GCT in 2.X.X - comment from Pedrame:
+  //    As far as I (pragmatically) know, this is the way it works up to 2XX series; 
+  //    I know that Len is working on making it work in 3XX series.
+  gctCounts_        = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctCounts").label(), "" );
+  
   MuCandTag2_       = conf.getParameter<edm::InputTag> ("MuCandTag2");
   MuIsolTag2_       = conf.getParameter<edm::InputTag> ("MuIsolTag2");
   MuCandTag3_       = conf.getParameter<edm::InputTag> ("MuCandTag3");
@@ -53,7 +58,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
   HLTTau_           = conf.getParameter<edm::InputTag> ("HLTTau");
 
-  m_file = 0;                  // set to null
+  m_file = 0;   // set to null
   errCnt = 0;
 
   // read run parameters with a default value 
@@ -148,7 +153,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // L1 info
   iEvent.getByLabel(gtReadoutRecord_, l1GtRR);
   iEvent.getByLabel(gtObjectMap_, l1GtOMRec);
-  iEvent.getByLabel(gctCounts_.label(), "", l1GctCounts);
+  iEvent.getByLabel(gctCounts_, l1GctCounts);
   // MC info
   iEvent.getByLabel(genEventScale_, genEventScale );
   iEvent.getByLabel(mctruth_, mctruth);
