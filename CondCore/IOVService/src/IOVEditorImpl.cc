@@ -245,29 +245,26 @@ namespace cond {
    if(!validTime(sinceTime)||!validTime(tillTime)||tillTime<sinceTime)
      throw cond::Exception("cond::IOVEditorImpl::replaceInterval times not in IOVs range");
 
-   // check firstsince
-   if (tillTime<firstSince()) {
-   }
-
    {
      IOV::iterator b = m_iov->find(sinceTime);
      IOV::iterator e = m_iov->find(tillTime);
      // start cleaning
-     if (e-b>1) {
-       b++;
-       if(deletePayload) {
-	 for ( IOV::iterator p=b; p!=e; p++) {
-	   cond::GenericRef ref(*m_pooldb,(*p).second);
-	   ref.markDelete();
-	   ref.reset();
-	 }
+     if (b==m_iov->iov.begin()) {
+       if (sinceTime>firstSince()) b++;
+     } else if( sinceTime > (*(b-1)).first+1) b++;
+     if (e!==m_iov->iov.end() && (*e).first==tillTime) e++;
+     if(deletePayload) {
+       for ( IOV::iterator p=b; p!=e; p++) {
+	 cond::GenericRef ref(*m_pooldb,(*p).second);
+	 ref.markDelete();
+	 ref.reset();
        }
-       m_iov->iov.erase(b,e);
      }
+     m_iov->iov.erase(b,e);
    }
    IOV::iterator p = m_iov->find(sinceTime);
    IOV::iterator e = m_iov->find(tillTime);
-   if (e-p>1)
+   if (e-p>1) 
      throw cond::Exception("cond::IOVEditorImpl::replaceInterval vincenzo logic has a fault!!!!");
 
    cond::Time_t oldTill;
