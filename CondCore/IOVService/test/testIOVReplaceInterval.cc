@@ -37,6 +37,31 @@ int main(){
     std::cout<<"inserted payload 91 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(92,100,"pay092tok");
     std::cout<<"inserted payload 92 at position "<<pos<<std::endl;
+
+    {    
+      std::string token=editor->token();
+      cond::IOVIterator* it=iovmanager.newIOVIterator(token);
+      std::cout<<"forward iterator "<<std::endl;
+      pooldb.start(true);
+      while( it->next() ){
+	std::cout<<"payloadToken "<<it->payloadToken();
+	std::cout<<", since "<<it->validity().first;
+	std::cout<<", till "<<it->validity().second<<std::endl;
+      }
+      delete it;
+    }
+
+    pos=editor->replaceInterval(10,10,"pay010newtok");
+    std::cout<<"inserted new payload 10 at position "<<pos<<std::endl;
+    pos=editor->replaceInterval(12,12,"pay012newtok");
+    std::cout<<"inserted new payload 12 at position "<<pos<<std::endl;
+    pos=editor->replaceInterval(10,10,"pay010newtok");
+    std::cout<<"inserted new payload 10 at position "<<pos<<std::endl;
+    pos=editor->replaceInterval(15,15,"pay015newtok");
+    std::cout<<"inserted new payload 15 at position "<<pos<<std::endl;
+    pos=editor->replaceInterval(60,60,"pay015newtok");
+    std::cout<<"inserted new payload 60 at position "<<pos<<std::endl;
+
     pos=editor->replaceInterval(85,95,"pay085tok");
     std::cout<<"inserted payload 85 at position "<<pos<<std::endl;
 
