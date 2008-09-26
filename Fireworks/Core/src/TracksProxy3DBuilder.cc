@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.17 2008/08/30 16:08:55 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.18 2008/09/26 21:45:44 dmytro Exp $
 //
 
 // system include files
@@ -153,6 +153,8 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
    }
    
    TEveTrack* trk = new TEveTrack(&t,propagator);
+   if ( outsideIn ) 
+     trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
    trk->SetMainColor(color);
    
    if ( !outsideIn ) {
