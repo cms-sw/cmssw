@@ -25,17 +25,17 @@ int main(){
     std::cout<<"inserted payload 11 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(12,12,"pay012tok");
     std::cout<<"inserted payload 12 at position "<<pos<<std::endl;
-    pos=editor->replaceInterval(15,60,"pay015tok");
+    pos=editor->replaceInterval(15,60,"pay015-60tok");
     std::cout<<"inserted payload 15 at position "<<pos<<std::endl;
-    pos=editor->replaceInterval(30,35,"pay030tok");
+    pos=editor->replaceInterval(30,35,"pay030-35tok");
     std::cout<<"inserted payload 30 at position "<<pos<<std::endl;
-    pos=editor->replaceInterval(32,32,"pay030tok");
+    pos=editor->replaceInterval(32,32,"pay032tok");
     std::cout<<"inserted payload 32 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(90,90,"pay090tok");
     std::cout<<"inserted payload 90 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(91,91,"pay091tok");
     std::cout<<"inserted payload 91 at position "<<pos<<std::endl;
-    pos=editor->replaceInterval(92,100,"pay092tok");
+    pos=editor->replaceInterval(92,100,"pay092-100tok");
     std::cout<<"inserted payload 92 at position "<<pos<<std::endl;
 
     {    
@@ -62,7 +62,7 @@ int main(){
     pos=editor->replaceInterval(60,60,"pay060newtok");
     std::cout<<"inserted new payload 60 at position "<<pos<<std::endl;
 
-    pos=editor->replaceInterval(85,95,"pay085tok");
+    pos=editor->replaceInterval(85,95,"pay085-95tok");
     std::cout<<"inserted payload 85 at position "<<pos<<std::endl;
 
 
