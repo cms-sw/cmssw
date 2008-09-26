@@ -44,6 +44,12 @@ namespace cond{
 					bool withPayload=false );
 
 
+    virtual unsigned int replaceInterval(cond::Time_t sinceTime,
+					 cond::Time_t tillTime,
+					 const std::string& payloadToken,
+					 bool deletePayload=false);
+
+
     virtual void deleteEntries( bool withPayload=false );
 
     virtual void import( const std::string& sourceIOVtoken );

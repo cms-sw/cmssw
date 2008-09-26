@@ -214,6 +214,7 @@ namespace cond {
      (*p).first=sinceTime-1;
      p++;
    }
+
    p = m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
    m_iov.markUpdate();
    return p - m_iov->iov.begin();
@@ -221,6 +222,76 @@ namespace cond {
     
   }
 
+
+  unsigned int 
+  IOVEditorImpl::replaceInterval(cond::Time_t sinceTime,
+				 cond::Time_t tillTime,
+				 const std::string& payloadToken,
+				 bool deletePayload=false) {
+
+    static const string invalidToken(":");
+
+    if( m_token.empty() ) {
+     throw cond::Exception("cond::IOVEditorImpl::replaceInterval cannot edit an non-existing IOV index");
+    }
+    
+    if(!m_isActive) {
+      this->init();
+    }
+    
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::replaceInterval cannot replace in an empty IOV index");
+    
+
+   if(!validTime(sinceTime)||!validTime(tillTime)||tillTime<sinceTime)
+     throw cond::Exception("cond::IOVEditorImpl::replaceInterval times not in IOVs range");
+
+   // check firstsince
+   if (tillTime<firstSince()) {
+   }
+
+   {
+     IOV::iterator b = m_iov->find(sinceTime);
+     IOV::iterator e = m_iov->find(tillTime);
+     // start cleaning
+     if (e-b>1) {
+       b++;
+       if(deletePayload) {
+	 for ( IOV::iterator p=b;,p!=e;p++) {
+	   cond::GenericRef ref(*m_pooldb,(*p).second);
+	   ref.markDelete();
+	   ref.reset();
+	 }
+       }
+       m_iov->iov.erase(b,e);
+     }
+   }
+   IOV::iterator p = m_iov->find(sinceTime);
+   IOV::iterator e = m_iov->find(tillTime);
+   if (e-b>1)
+     throw cond::Exception("cond::IOVEditorImpl::replaceInterval vincenzo logic has a fault!!!!");
+
+   cond::Time_t oldTill;
+
+   if (sinceTime<firstSince()) {
+     oldTill = firstSince()-1;
+     m_iov->firstsince=sinceTime;
+   }else {
+     if (p!=m_iov->iov.end()) p++;
+     else {
+       // pad....
+       if (m_iov->iov.back().first<sinceTime-1)
+	 p=m_iov->iov.insert(p,IOV::Item(sinceTime-1,invalidToken));
+     }
+     oldTill =  (*(p-1)).first;
+     (*(p-1)).first=sinceTime-1;
+   }
+   p = m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
+   if (oldTill>tillTime) // split old interval
+     p=m_iov->iov.insert(p+1,IOV::Item(oldTill,(*(p-1)).second));
+   m_iov.markUpdate();
+   return p - m_iov->iov.begin();
+
+  }
 
 
   // delete entry at a given time
