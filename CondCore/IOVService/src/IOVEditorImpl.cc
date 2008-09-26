@@ -84,7 +84,7 @@ namespace cond {
     if(!validTime(tillTime))
       throw cond::Exception("cond::IOVEditorImpl::insert time not in global range");
   
-    if(tillTime<=firstSince() ||
+    if(tillTime<firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::insert IOV not in range");
  
@@ -105,7 +105,7 @@ namespace cond {
     if(!validTime(values.back().first))
       throw cond::Exception("cond::IOVEditorImpl::bulkInsert last time not in global range");
 
-   if(tillTime<=firstSince() ||
+   if(tillTime<firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
     
