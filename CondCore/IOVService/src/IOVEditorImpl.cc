@@ -248,17 +248,13 @@ namespace cond {
   
    IOV::iterator b = m_iov->find(sinceTime);
    IOV::iterator e = m_iov->find(tillTime);
-   cond::Time_t newSince=sinceTime;
-   cond::Time_t newTill=tillTime;
-
+ 
    
    if (b==m_iov->iov.end()) {
      // pad....
-     if (m_iov->iov.back().first<sinceTime-1) {
+     if (m_iov->iov.back().first<sinceTime-1) 
        m_iov->iov.push_back(IOV::Item(sinceTime-1,invalidToken));
-       p=m_iov->iov.end();
-     }
-     m_iov->iov.push_back(IOV::Item(tillTime,payoadTokenToken));
+     m_iov->iov.push_back(IOV::Item(tillTime,payoadToken));
      m_iov.markUpdate();
      return m_iov->iov.size()-1;
    }
@@ -267,7 +263,7 @@ namespace cond {
      m_iov->firstsince=sinceTime;
      // pad
      if (tillTime<firstSince()-1)
-       m_iov->iov.push_front(IOV::Item(firstSince()-1,invalidToken));
+       b=m_iov->iov.insert(b,IOV::Item(firstSince()-1,invalidToken));
      else  { 
        // cleanup
        if (e!=m_iov->iov.end() && (*e).first==tillTime) e++;
@@ -280,7 +276,8 @@ namespace cond {
        }
        m_iov->iov.erase(b,e);
      }
-     m_iov->iov.push_front(IOV::Item(tillTime,payloadToken));
+     b=m_iov->iov.begin();
+     m_iov->iov.push_front(b,IOV::Item(tillTime,payloadToken));
      m_iov->firstsince=sinceTime;
      m_iov.markUpdate();
      return 0;
@@ -310,7 +307,7 @@ namespace cond {
      }
    }
    m_iov->iov.erase(b,e);
-
+   
    b = m_iov->find(sinceTime);
    e = m_iov->find(tillTime);
    if (e-b>1) 
