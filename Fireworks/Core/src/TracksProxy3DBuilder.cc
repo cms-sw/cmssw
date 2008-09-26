@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.16 2008/08/29 02:31:27 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.17 2008/08/30 16:08:55 dmytro Exp $
 //
 
 // system include files
@@ -126,23 +126,42 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
    
    // we have 3 states for sure, bust some of them may overlap.
    // POCA can be either initial point of trajector if we deal 
-   // with normal track or just one more state.
-   // 
-   // ignore POCA for a sec.
+   // with normal track or just one more state. So we need first 
+   // to decide where is the origin of the track.
+   
+   bool outsideIn = ( track.innerPosition().x()*track.innerMomentum().x()+
+		      track.innerPosition().y()*track.outerMomentum().y() < 0 );
    
    TEveRecTrack t;
    t.fBeta = 1.;
-
-   t.fV = TEveVector( track.innerPosition().x(), 
-		      track.innerPosition().y(), 
-		      track.innerPosition().z() );
-   t.fP = TEveVector( track.innerMomentum().x(), 
-		      track.innerMomentum().y(), 
-		      track.innerMomentum().z() );
-   
    t.fSign = track.charge();
+
+   if ( outsideIn ) {
+      t.fV = TEveVector( track.innerPosition().x(), 
+			 track.innerPosition().y(), 
+			 track.innerPosition().z() );
+      t.fP = TEveVector( track.innerMomentum().x(), 
+			 track.innerMomentum().y(), 
+			 track.innerMomentum().z() );
+   } else {
+      t.fV = TEveVector( track.vertex().x(), 
+			 track.vertex().y(), 
+			 track.vertex().z() );
+      t.fP = TEveVector( track.px(), 
+			 track.py(), 
+			 track.pz() );
+   }
+   
    TEveTrack* trk = new TEveTrack(&t,propagator);
    trk->SetMainColor(color);
+   
+   if ( !outsideIn ) {
+      TEvePathMark mark( TEvePathMark::kDaughter );
+      mark.fV = TEveVector( track.innerPosition().x(), 
+			    track.innerPosition().y(), 
+			    track.innerPosition().z() );
+      trk->AddPathMark( mark );
+   }
    
    TEvePathMark mark1( TEvePathMark::kDecay );
    mark1.fV = TEveVector( track.outerPosition().x(), 
