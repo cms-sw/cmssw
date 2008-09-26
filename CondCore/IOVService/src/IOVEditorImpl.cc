@@ -275,20 +275,23 @@ namespace cond {
      oldTill = firstSince()-1;
      m_iov->firstsince=sinceTime;
    }else {
-     if (p!=m_iov->iov.end()) p++;
-     else {
+     if (p==m_iov->iov.end()) {
        // pad....
        if (m_iov->iov.back().first<sinceTime-1) {
 	 m_iov->iov.push_back(IOV::Item(sinceTime-1,invalidToken));
 	 p=m_iov->iov.end();
        }
+       else
+	 // check since and make space
+	 if (p==m_iov->iov.begin() || (*(p-1)).first<sinceTime-1) p++;
      }
      oldTill =  (*(p-1)).first;
      (*(p-1)).first=sinceTime-1;
    }
+   std::string oldPayload = (*(p-1)).second;
    p = m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
    if (oldTill>tillTime) // split old interval
-     p=m_iov->iov.insert(p+1,IOV::Item(oldTill,(*(p-1)).second));
+     p=m_iov->iov.insert(p+1,IOV::Item(oldTill,oldPayload);
    m_iov.markUpdate();
    return p - m_iov->iov.begin();
 
