@@ -7,11 +7,18 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-# PRODUCE A SQLITE FILE
-
+#################################
+# Produce a SQLITE FILE
+#
 process.CondDBCommon.connect = "sqlite_file:EarlyCollision.db"
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-
+#################################
+#
+# upload conditions to orcon
+#
+#process.CondDBCommon.connect = "oracle://cms_orcon_prod/CMS_COND_21X_BEAMSPOT"
+#process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+#################################
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
