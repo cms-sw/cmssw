@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.12 2008/07/16 13:51:01 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.13 2008/07/17 10:04:18 dmytro Exp $
 //
 
 // system include files
@@ -84,41 +84,10 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      iItem->get(electrons);
      if (electrons == 0) return;
      fw::NamedCounter counter("electron");
-     const double r = 122;
      // loop over electrons
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron,++counter) {
-	const unsigned int nBuffer = 1024;
-	char title[nBuffer]; 
-	snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
-	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
-        container->OpenCompound();
-        //guarantees that CloseCompound will be called no matter what happens
-        boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-
-	assert(electron->superCluster().isNonnull());
-	std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
-	std::vector<double> phis;
-	for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-	   const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
-	   if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
-	}
-	
-	std::pair<double,double> phiRange = fw::getPhiRange( phis, electron->phi() );
-	TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1, 
-					   phiRange.first * 180 / M_PI - 0.5,  
-					   phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal 
-	TEveGeoShapeExtract *sc = fw::getShapeExtract( "supercluster", sc_box, tList->GetMainColor() );
-	TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
-	element->SetPickable(kTRUE);
-	container->AddElement(element);
-	
-	TEveTrack* track = fw::getEveTrack( *(electron->gsfTrack()) );
-	track->SetMainColor( iItem->defaultDisplayProperties().color() );
-	container->AddElement(track);
-	container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
-	container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
-	tList->AddElement(container);
+	buildElectronRhoPhi( iItem, &*electron, tList, counter);
      }
 
 }
@@ -141,45 +110,101 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      iItem->get(electrons);
      if (electrons == 0) return;
      fw::NamedCounter counter("electron");
-     double z_ecal = 302; // ECAL endcap inner surface
-     double r_ecal = 122;
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron, ++counter) {
-	const unsigned int nBuffer = 1024;
-	char title[nBuffer]; 
-	snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
-	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
-        container->OpenCompound();
-        //guarantees that CloseCompound will be called no matter what happens
-        boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-        
-	assert(electron->superCluster().isNonnull());
-	std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
-	double theta_max = 0;
-	double theta_min = 10;
-	for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-	   const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
-	   if ( matrix ) {
-	      double r = sqrt( matrix->GetTranslation()[0]*matrix->GetTranslation()[0] +
-			       matrix->GetTranslation()[1]*matrix->GetTranslation()[1] );
-	      double theta = atan2(r,matrix->GetTranslation()[2]);
-	      if ( theta > theta_max ) theta_max = theta;
-	      if ( theta < theta_min ) theta_min = theta;
-	   }
-	}
-	
-	TEveTrack* track = fw::getEveTrack( *(electron->gsfTrack()) );
-	track->SetMainColor( iItem->defaultDisplayProperties().color() );
-	container->AddElement(track);
-	
-	// expand theta range by the size of a crystal to avoid segments of zero length
-	if ( theta_min <= theta_max ) 
-	  fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003, 
-				       electron->phi(), iItem->defaultDisplayProperties().color() );
-	container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
-	container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
-	tList->AddElement(container);
+	buildElectronRhoZ( iItem, &*electron, tList, counter);
      }
 }
+
+void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoPhi(const FWEventItem* iItem,
+							 const reco::GsfElectron* electron,
+							 TEveElementList* tList,
+							 const fw::NamedCounter& counter)
+{
+   const unsigned int nBuffer = 1024;
+   const double r = 122;
+   char title[nBuffer]; 
+   snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
+   TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+   container->OpenCompound();
+   //guarantees that CloseCompound will be called no matter what happens
+   boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+   
+   if ( electron->superCluster().isAvailable() ) {
+      std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
+      std::vector<double> phis;
+      for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
+	 const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
+	 if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
+      }
+      std::pair<double,double> phiRange = fw::getPhiRange( phis, electron->phi() );
+      TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1, 
+					 phiRange.first * 180 / M_PI - 0.5,  
+					 phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal 
+      TEveGeoShapeExtract *sc = fw::getShapeExtract( "supercluster", sc_box, tList->GetMainColor() );
+      TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
+      element->SetPickable(kTRUE);
+      container->AddElement(element);
+   }
+   
+   TEveTrack* track(0);
+   if ( electron->gsfTrack().isAvailable() )
+     track = fw::getEveTrack( *(electron->gsfTrack()) );
+   else
+     track = fw::getEveTrack( *electron );
+   track->SetMainColor( iItem->defaultDisplayProperties().color() );
+   container->AddElement(track);
+   container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+   container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
+   tList->AddElement(container);
+}
+
+void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoZ(const FWEventItem* iItem,
+						       const reco::GsfElectron* electron,
+						       TEveElementList* tList,
+						       const fw::NamedCounter& counter)
+{
+   const unsigned int nBuffer = 1024;
+   double z_ecal = 302; // ECAL endcap inner surface
+   double r_ecal = 122;
+   char title[nBuffer]; 
+   snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
+   TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+   container->OpenCompound();
+   //guarantees that CloseCompound will be called no matter what happens
+   boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+        
+   if ( electron->superCluster().isAvailable() ) {
+      double theta_max = 0;
+      double theta_min = 10;
+      std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
+      for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
+	 const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
+	 if ( matrix ) {
+	    double r = sqrt( matrix->GetTranslation()[0]*matrix->GetTranslation()[0] +
+			     matrix->GetTranslation()[1]*matrix->GetTranslation()[1] );
+	    double theta = atan2(r,matrix->GetTranslation()[2]);
+	    if ( theta > theta_max ) theta_max = theta;
+	    if ( theta < theta_min ) theta_min = theta;
+	 }
+      }
+      // expand theta range by the size of a crystal to avoid segments of zero length
+      fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003, 
+				   electron->phi(), iItem->defaultDisplayProperties().color() );
+   }
+   
+   TEveTrack* track(0);
+   if ( electron->gsfTrack().isAvailable() )
+     track = fw::getEveTrack( *(electron->gsfTrack()) );
+   else
+     track = fw::getEveTrack( *electron );
+   track->SetMainColor( iItem->defaultDisplayProperties().color() );
+   container->AddElement(track);
+   
+   container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+   container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
+   tList->AddElement(container);
+}
+   
 
 REGISTER_FWRPZ2DDATAPROXYBUILDER(ElectronsProxyRhoPhiZ2DBuilder,reco::PixelMatchGsfElectronCollection,"Electrons");

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/11 19:09:17 jmuelmen Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/06/09 19:54:04 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,12 @@
 // forward declarations
 
 class TEveGeoShapeExtract;
+namespace reco {
+   class GsfElectron;
+}
+namespace fw {
+   class NamedCounter;
+}
 
 class ElectronsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
@@ -39,6 +45,15 @@ class ElectronsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
+      static void buildElectronRhoPhi(const FWEventItem* iItem,
+				      const reco::GsfElectron* electron,
+				      TEveElementList* tList,
+				      const fw::NamedCounter& counter);
+
+      static void buildElectronRhoZ(  const FWEventItem* iItem,
+				      const reco::GsfElectron* electron,
+				      TEveElementList* tList,
+				      const fw::NamedCounter& counter);
 
       // ---------- member functions ---------------------------
 
