@@ -28,14 +28,16 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			 const Chi2MeasurementEstimatorBase*   estimator,
 			 const TransientTrackingRecHitBuilder* recHitBuilder,
 			 const MeasurementTracker*             measurementTracker,
-			 const TrajectoryFilter*               filter):
+			 const TrajectoryFilter*               filter,
+                         const TrajectoryFilter*               inOutFilter):
   theUpdator(updator),
   thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
   theEstimator(estimator),theTTRHBuilder(recHitBuilder),
   theMeasurementTracker(measurementTracker),
   theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
   theForwardPropagator(0),theBackwardPropagator(0),
-  theFilter(filter)
+  theFilter(filter),
+  theInOutFilter(inOutFilter)
 {}
  
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
@@ -114,24 +116,40 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 }
 
 
-bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj) const
+bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) const
 {
-  return theFilter->toBeContinued(traj);
+  // Called after each new hit is added to the trajectory, to see if it is 
+  // worth continuing to build this track candidate.
+  if (inOut) {
+    if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
+    return theInOutFilter->toBeContinued(traj);
+  } else {
+    return theFilter->toBeContinued(traj);
+  }
 }
 
 
- bool BaseCkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
+ bool BaseCkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj, bool inOut) const
 {
-  return theFilter->qualityFilter(traj);
+  // Called after building a trajectory is completed, to see if it is good enough
+  // to keep.
+  if (inOut) {
+    if (theInOutFilter == 0) edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: trying to use dedicated filter for in-out tracking phase, when none specified";
+    return theInOutFilter->qualityFilter(traj);
+  } else {
+    return theFilter->qualityFilter(traj);
+  }
 }
 
 
 void 
 BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
-				       TrajectoryContainer& result) const
+				       TrajectoryContainer& result,
+                                       bool inOut) const
 {
   // quality check
-  if ( !qualityFilter(tmptraj) )  return;
+  //  std::cout<<"ADDTORESULT "<<inOut<<" "<<tmptraj.foundHits()<<" "<<qualityFilter(tmptraj, inOut)<<std::endl;
+  if ( !qualityFilter(tmptraj, inOut) )  return;
   Trajectory traj = tmptraj.toTrajectory();	
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
@@ -139,10 +157,11 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
 }
 void 
 BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
-				       TempTrajectoryContainer& result) const
+				       TempTrajectoryContainer& result,
+                                       bool inOut) const
 {
   // quality check
-  if ( !qualityFilter(tmptraj) )  return;
+  if ( !qualityFilter(tmptraj, inOut) )  return;
   // discard latest dummy measurements
   TempTrajectory traj = tmptraj;
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();

@@ -43,6 +43,7 @@ namespace cms
     bool theTrajectoryOutput;
     bool useSplitting;
     bool doSeedingRegionRebuilding;
+    bool cleanTrajectoryAfterInOut;
 
     std::string theTrajectoryBuilderName;
     const TrajectoryBuilder*  theTrajectoryBuilder;
@@ -59,7 +60,6 @@ namespace cms
     const NavigationSchool*       theNavigationSchool;
     
     RedundantSeedCleaner*  theSeedCleaner;
-
 
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}

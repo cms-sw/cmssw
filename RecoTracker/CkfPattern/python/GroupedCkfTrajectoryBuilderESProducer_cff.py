@@ -21,8 +21,11 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 # MeasurementTracker
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
-# trajectory filtering
+# trajectory filtering for out-in tracking phase
 from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
+# specific filter for in-out tracking phase.
+ckfBaseInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+ckfBaseInOutTrajectoryFilter.ComponentName = 'ckfBaseInOutTrajectoryFilter'
 #
 from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
 

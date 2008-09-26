@@ -59,7 +59,8 @@ public:
 			   const Chi2MeasurementEstimatorBase*   estimator,
 			   const TransientTrackingRecHitBuilder* RecHitBuilder,
 			   const MeasurementTracker*             measurementTracker,
-			   const TrajectoryFilter*               filter);
+			   const TrajectoryFilter*               filter,
+			   const TrajectoryFilter*               inOutFilter = 0);
 
   virtual ~BaseCkfTrajectoryBuilder();
 
@@ -94,12 +95,16 @@ public:
 
   TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
-  bool toBeContinued( TempTrajectory& traj) const;
+  /** Called after each new hit is added to the trajectory, to see if building this track should be continued */
+  // If inOut is true, this is being called part-way through tracking, after the in-out tracking phase is complete.
+  // If inOut is false, it is called at the end of tracking.
+  bool toBeContinued( TempTrajectory& traj, bool inOut = false) const;
 
-  bool qualityFilter( const TempTrajectory& traj) const;
+  /** Called at end of track building, to see if track should be kept */
+  bool qualityFilter( const TempTrajectory& traj, bool inOut = false) const;
   
-  void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;    
-  void addToResult( TempTrajectory& traj, TempTrajectoryContainer& result) const;    
+  void addToResult( TempTrajectory& traj, TrajectoryContainer& result, bool inOut = false) const;    
+  void addToResult( TempTrajectory& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
  
   StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
@@ -131,8 +136,8 @@ public:
 
   //  TrajectoryFilter*              theMinPtCondition;
   //  TrajectoryFilter*              theMaxHitsCondition;
-  const TrajectoryFilter* theFilter;
-
+  const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
+  const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
 
 };
 

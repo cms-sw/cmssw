@@ -31,7 +31,8 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
 			      const Chi2MeasurementEstimatorBase*   estimator,
 			      const TransientTrackingRecHitBuilder* RecHitBuilder,
 			      const MeasurementTracker*             measurementTracker,
-			      const TrajectoryFilter*               filter);
+			      const TrajectoryFilter*               filter,
+			      const TrajectoryFilter*               inOutFilter);
 
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder(){}
@@ -111,12 +112,14 @@ private :
   bool advanceOneLayer( TempTrajectory& traj, 
 			const TrajectoryFilter* regionalCondition,
 			const Propagator* propagator, 
+                        bool inOut,
 			TempTrajectoryContainer& newCand, 
 			TempTrajectoryContainer& result) const;
 
   void groupedLimitedCandidates( TempTrajectory& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
+                                 bool inOut,
 				 TempTrajectoryContainer& result) const;
 
   /// try to find additional hits in seeding region
