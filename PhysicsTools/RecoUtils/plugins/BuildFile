@@ -7,4 +7,5 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/Utilities>
 <use name=DataFormats/Candidate>
+<use name=DataFormats/HepMCCandidate>
 </library>

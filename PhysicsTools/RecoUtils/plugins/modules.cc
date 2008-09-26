@@ -17,8 +17,13 @@ DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventVetoSelector, "CandidateS
 
 namespace configurableAnalysis{
   char Candidate[]="reco::Candidate";
+  char GenParticle[]="reco::GenParticle";
 }
 
+#include "DataFormats/Candidate/interface/Candidate.h"
 typedef ExpressionVariable<reco::Candidate,configurableAnalysis::Candidate> CandidateExpressionVariable;
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+typedef ExpressionVariable<reco::GenParticle,configurableAnalysis::GenParticle> GenParticleExpressionVariable;
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, CandidateExpressionVariable, "CandidateExpressionVariable");
+DEFINE_EDM_PLUGIN(CachingVariableFactory, GenParticleExpressionVariable, "GenParticleExpressionVariable");
