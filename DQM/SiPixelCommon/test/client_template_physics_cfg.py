@@ -5,6 +5,7 @@ process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = 'source'
 process.siPixelDigis.IncludeErrors = True
@@ -18,6 +19,7 @@ process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
 process.SiPixelRawDataErrorSource.saveFile = False
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
+process.SiPixelRawDataErrorSource.reducedSet = False
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
@@ -58,6 +60,13 @@ process.SiPixelRecHitSource.bladeOn = False
 process.SiPixelRecHitSource.ringOn = False
 process.SiPixelRecHitSource.diskOn = False
 
+process.load("DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi")
+process.SiPixelTrackResidualSource.TrackCandidateProducer = 'ckfTrackCandidatesP5'
+process.SiPixelTrackResidualSource.debug = False
+
+process.load("DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff")
+
+
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -86,19 +95,20 @@ process.MessageLogger = cms.Service("MessageLogger",
         'SiPixelClusterSource', 
         'SiPixelRecHitSource', 
         'sipixelEDAClient'),
-    cout = cms.untracked.PSet(
+    TEXTFILE = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('cout')
+    destinations = cms.untracked.vstring('TEXTFILE')
 )
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
 process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
-    ActionOnLumiSection = cms.untracked.bool(True),
+    ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
-    HighResolutionOccupancy = cms.untracked.bool(True)
+    HighResolutionOccupancy = cms.untracked.bool(True),
+    NoiseRateCutValue = cms.untracked.double(-1.)
 )
 
 process.qTester = cms.EDFilter("QualityTester",
@@ -118,8 +128,11 @@ process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
+process.TRAmonitor = cms.Sequence(process.SiPixelTrackResidualSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
+process.p = cms.Path(process.RecoForDQMCosmic*process.qTester*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.TRAmonitor*process.sipixelEDAClient*process.dqmSaver)
+
+# cms.Path(process.RecoFor*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
