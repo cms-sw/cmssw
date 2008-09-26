@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.2 2008/08/27 12:22:05 chrjones Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.3 2008/09/09 17:28:27 chrjones Exp $
 //
 
 // system include files
@@ -138,7 +138,7 @@ FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask
 namespace {
    class ChangeFocusTimer : public TTimer {
    public:
-      ChangeFocusTimer::ChangeFocusTimer(TGWindow* iWindow) :
+      ChangeFocusTimer(TGWindow* iWindow) :
       TTimer(100),
       m_window(iWindow) {}
       virtual Bool_t Notify() {
