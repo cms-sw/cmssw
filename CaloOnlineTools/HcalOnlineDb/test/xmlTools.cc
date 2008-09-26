@@ -100,7 +100,7 @@ int main( int argc, char **argv )
     ("old-qie-file", po::value<string>(), "Old QIE table ASCII file")
     ("qie", "Generate new QIE table file")
     ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
-    ("test-sebastian", "Test area for Sebastian Ellis")
+    ("test-new-developer", "Test area for a new developer")
     ;
 
   try{
@@ -380,8 +380,8 @@ int main( int argc, char **argv )
     }
 
 
-    if (vm.count("test-sebastian")) {
-      cout << "Hello, Sebastian! What would you like to do?.." << "\n";
+    if (vm.count("test-new-developer")) {
+      cout << "Wazzup, dude?! What would you like to do?.." << "\n";
       return 0;
     }
     

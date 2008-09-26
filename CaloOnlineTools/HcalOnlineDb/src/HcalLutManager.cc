@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <cstdlib>  // For srand() and rand()
+
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
 #include "occi.h"
@@ -870,51 +872,78 @@ string HcalLutManager::get_time_stamp( time_t _time )
 
 int HcalLutManager::test_xml_access( string _tag, string _filename )
 {
-  local_connect( _filename, "HCALmapHBEF.txt", "HCALmapHO.txt" );
+  local_connect( _filename, "backup/HCALmapHBEF.txt", "backup/HCALmapHO.txt" );
 
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  int map_size = _map . size();
+  cout << "EMap contains " << map_size << " channels" << endl;
+
+  // make sure that all init is done
+  vector<unsigned int> _lut;
+  _lut = getLutFromXml( _tag, 1107313727, hcal::ConfigurationDatabase::LinearizerLUT );
+
+
+  cout << endl << "Testing direct parsing of the LUT XML" << endl;
   struct timeval _t;
   gettimeofday( &_t, NULL );
-  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  vector<unsigned int> _lut = getLutFromXml( _tag, 1107312779, hcal::ConfigurationDatabase::LinearizerLUT );
+  double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
+  test_direct_xml_parsing(_filename);
   gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  LutXml::get_checksum( _lut );
-  _lut = getLutFromXml( _tag, 1140869389, hcal::ConfigurationDatabase::LinearizerLUT );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = getLutFromXml( _tag, 1207997189, hcal::ConfigurationDatabase::LinearizerLUT );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = getLutFromXml( _tag, 1174471427, hcal::ConfigurationDatabase::LinearizerLUT );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = getLutFromXml( _tag, 1140878737, hcal::ConfigurationDatabase::CompressionLUT );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  LutXml::get_checksum( _lut );
+  cout << "parsing took that much time: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << endl;
 
-  /*
-  for (map<int,LMapRow>::const_iterator l=lmap->get_map().begin(); l!=lmap->get_map().end(); l++){
-    _lut = getLutFromXml( _tag, l->first, hcal::ConfigurationDatabase::LinearizerLUT );
+
+  gettimeofday( &_t, NULL );
+  _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
+  cout << "before loop over random LUTs: " << _time << endl;
+  int _raw_id;
+
+  // loop over random LUTs
+  for (int _iter=0; _iter<100; _iter++){
     gettimeofday( &_t, NULL );
-    //cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;    
-  }
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;    
-  */
+    //cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
 
+    // select valid random emap channel
+    while(1){
+      int _key = (rand() % map_size);
+      //_key = 3356;
+      if( (_map[_key].subdet.find("HB")!=string::npos ||
+	   _map[_key].subdet.find("HE")!=string::npos ||
+	   _map[_key].subdet.find("HO")!=string::npos ||
+	   _map[_key].subdet.find("HF")!=string::npos ) &&
+	  _map[_key].subdet.size()==2
+	  ){
+	HcalSubdetector _subdet;
+	if ( _map[_key].subdet.find("HB")!=string::npos ) _subdet = HcalBarrel;
+	else if ( _map[_key].subdet.find("HE")!=string::npos ) _subdet = HcalEndcap;
+	else if ( _map[_key].subdet.find("HO")!=string::npos ) _subdet = HcalOuter;
+	else if ( _map[_key].subdet.find("HF")!=string::npos ) _subdet = HcalForward;
+	else _subdet = HcalOther;
+	HcalDetId _detid(_subdet, _map[_key].ieta, _map[_key].iphi, _map[_key].idepth);
+	_raw_id = _detid.rawId();
+	break;
+      }
+    }
+    _lut = getLutFromXml( _tag, _raw_id, hcal::ConfigurationDatabase::LinearizerLUT );
+    
+    gettimeofday( &_t, NULL );
+  }
+  double d_time = _t.tv_sec+_t.tv_usec/1000000.0 - _time;
+  cout << "after the loop over random LUTs: " << _time+d_time << endl;  
+  cout << "total time: " << d_time << endl;  
+  
   cout << "LUT length = " << _lut . size() << endl;
   for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
     {
       cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
       break;
     }
-
-
+  
   db -> disconnect();
-
+  
   delete db;
   db = 0;
-
+  
   return 0;
 }
 
@@ -1160,4 +1189,16 @@ void HcalLutManager::test_emap( void ){
       }
     }
   }
+}
+
+
+
+
+
+int HcalLutManager::test_direct_xml_parsing( string _filename ){
+  XMLDOMBlock _xml(_filename);
+  //DOMElement * data_set_elem = (DOMElement *)(document -> getElementsByTagName( XMLProcessor::_toXMLCh( "DATA_SET" ) ) -> item(0));  
+  DOMNodeList * brick_list = _xml . getDocument() ->  getElementsByTagName( XMLProcessor::_toXMLCh( "CFGBrick" ));  
+  cout << "amount of LUT bricks: " << brick_list->getLength() << endl;
+  return 0;
 }

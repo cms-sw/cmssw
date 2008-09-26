@@ -73,6 +73,7 @@ class HcalLutManager{
   // tests
   //    reading LUTs from a local XML
   int test_xml_access( string _tag, string _filename );
+  int test_direct_xml_parsing( string _filename );
   void test_emap(void);
   
   // connect to local XML file with LUTs and local ASCII file with LMAP
