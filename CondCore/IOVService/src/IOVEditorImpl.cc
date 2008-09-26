@@ -271,7 +271,7 @@ namespace cond {
 
    cond::Time_t oldTill;
 
-   if (sinceTime<firstSince()) {
+   if (sinceTime<=firstSince()) {
      oldTill = firstSince()-1;
      m_iov->firstsince=sinceTime;
    }else {

@@ -59,7 +59,7 @@ int main(){
     std::cout<<"inserted new payload 10 at position "<<pos<<std::endl;
     pos=editor->replaceInterval(15,15,"pay015newtok");
     std::cout<<"inserted new payload 15 at position "<<pos<<std::endl;
-    pos=editor->replaceInterval(60,60,"pay015newtok");
+    pos=editor->replaceInterval(60,60,"pay060newtok");
     std::cout<<"inserted new payload 60 at position "<<pos<<std::endl;
 
     pos=editor->replaceInterval(85,95,"pay085tok");
