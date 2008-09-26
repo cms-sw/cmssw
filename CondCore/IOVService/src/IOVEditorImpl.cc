@@ -252,7 +252,7 @@ namespace cond {
      if (b==m_iov->iov.begin()) {
        if (sinceTime>firstSince()) b++;
      } else if( sinceTime > (*(b-1)).first+1) b++;
-     if (e!==m_iov->iov.end() && (*e).first==tillTime) e++;
+     if (e!=m_iov->iov.end() && (*e).first==tillTime) e++;
      if(deletePayload) {
        for ( IOV::iterator p=b; p!=e; p++) {
 	 cond::GenericRef ref(*m_pooldb,(*p).second);
