@@ -2351,7 +2351,23 @@ bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, 
 	}
       }
       else if(1==Ring){
-	//pass = true;
+        float theCenter = 0.95;
+        float theCutEdge = 151.53;
+        if(2==Station){
+          theCenter = - 0.955;
+          theCutEdge = 84.83;
+        }
+        else if(3==Station){
+          theCenter = - 0.97;
+          theCutEdge = 74.85;
+        }
+        else if(4==Station){
+          theCenter = -0.94;
+          theCutEdge = 64.71;
+        }
+        if(Y >Yborder && fabs(Y-theCenter)<theCutEdge){
+          pass = true;
+        }
       }
     }
     else if(1==Station){
