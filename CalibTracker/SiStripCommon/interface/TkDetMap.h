@@ -58,9 +58,9 @@ class TkLayerMap{
 
  private:
 
-  void createTIB12(std::vector<uint32_t>& TkDetIdList, int layer){createTest(TkDetIdList); }
-  void createTIB34(std::vector<uint32_t>& TkDetIdList, int layer){createTest(TkDetIdList); }
-  void createTOB12(std::vector<uint32_t>& TkDetIdList, int layer){createTest(TkDetIdList); }
+  void createTIB12(std::vector<uint32_t>& TkDetIdList, int layer);
+  void createTIB34(std::vector<uint32_t>& TkDetIdList, int layer);
+  void createTOB12(std::vector<uint32_t>& TkDetIdList, int layer);
   void createTOB36(std::vector<uint32_t>& TkDetIdList, int layer);
   void createTID13 (std::vector<uint32_t>& TkDetIdList,  int layer){createTest(TkDetIdList); }
   //void createTEC(std::vector<uint32_t>& TkDetIdList);

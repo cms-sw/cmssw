@@ -85,6 +85,254 @@ TkLayerMap::TkLayerMap(int in){
     };
 }
 
+
+void TkLayerMap::createTIB12(std::vector<uint32_t>& TkDetIdList,int layer){
+
+  uint32_t Nstring_ext;
+  std::vector<uint32_t> SingleExtString;
+  switch (layer){
+  case 1:
+    Nstring_ext=30; 
+    SingleExtString.push_back(8);
+    SingleExtString.push_back(15);
+    SingleExtString.push_back(23);
+    SingleExtString.push_back(30);
+    break;
+  case 2:
+    Nstring_ext=38;
+    SingleExtString.push_back(10);
+    SingleExtString.push_back(19);
+    SingleExtString.push_back(29);
+    SingleExtString.push_back(38);
+    break;
+  }
+
+  nchX=12;
+  lowX=-6;
+  highX=6;
+  nchY=2*(Nstring_ext+1);
+  lowY=-1.*(Nstring_ext+1.);
+  highY=(Nstring_ext+1);
+
+  binToDet.resize(nchX*nchY);
+
+  std::vector<uint32_t> LayerDetIdListExt, LayerDetIdListInt, DetIdListExt, DetIdListInt;
+  SiStripSubStructure siStripSubStructure;
+
+  //extract  vector of module in the layer
+  siStripSubStructure.getTIBDetectors(TkDetIdList,LayerDetIdListExt,layer,0,2,0);
+  siStripSubStructure.getTIBDetectors(TkDetIdList,LayerDetIdListInt,layer,0,1,0);
+
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTIB12] layer " << layer  << " number of dets ext " << LayerDetIdListExt.size() << " number of dets int " << LayerDetIdListInt.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
+
+  XYbin xybin;
+  uint32_t idx_ext=0, idx_int=0, idx_single=0;
+
+  while (idx_ext<Nstring_ext){
+    DetIdListInt.clear();
+    DetIdListExt.clear();
+    
+    idx_ext++;
+    if(idx_ext==SingleExtString[idx_single]){
+      idx_single++;
+    }else{
+      idx_int++;
+      siStripSubStructure.getTIBDetectors(LayerDetIdListInt,DetIdListInt,layer,0,1,idx_int);
+      std::sort(DetIdListInt.begin(),DetIdListInt.end());
+    }
+    siStripSubStructure.getTIBDetectors(LayerDetIdListExt,DetIdListExt,layer,0,2,idx_ext);
+    std::sort(DetIdListExt.begin(),DetIdListExt.end());
+    
+    int intStart=0,extStart=1;
+    if(layer==2){
+      intStart=1; 
+      extStart=0;
+    }
+
+    LogTrace("TkLayerMap") << "[TkLayerMap::ext string] " << idx_ext <<  "  size " << DetIdListExt.size() << " int " << idx_int << " size " << DetIdListInt.size();
+    
+    for(size_t j=0;j<DetIdListInt.size();++j){
+      if(j/6==0){ //stereo/mono, Z-
+	xybin.ix=6-2*(j/2)-intStart;
+	xybin.iy=idx_ext+(j&0x1)*(Nstring_ext+2); //DetId stereo are odd, mono are even,so after sorting detid stereo have j=0,2,etc
+      }else{ //stereo/mono, Z+
+	xybin.ix=2*(j/2)+2-intStart;
+	xybin.iy=idx_ext+(j&0x1)*(Nstring_ext+2); //DetId stereo are odd, mono are even,so after sorting detid stereo have j=0,2,etc
+      }
+      xybin.x=lowX+xybin.ix-0.5;
+      xybin.y=lowY+xybin.iy-0.5;
+	
+      DetToBin[DetIdListInt[j]]=xybin;
+      binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdListInt[j];
+      LogTrace("TkLayerMap") << "[TkLayerMap::createTIB12] Int " << DetIdListInt[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    }
+
+    for(size_t j=0;j<DetIdListExt.size();++j){
+      if(j/6==0){ //stereo/mono, Z-
+	xybin.ix=6-2*(j/2)-extStart;
+	xybin.iy=idx_ext+(j&0x1)*(Nstring_ext+2); //DetId stereo are odd, mono are even,so after sorting detid stereo have j=0,2,etc
+      }else{ //stereo/mono, Z+
+	xybin.ix=2*(j/2)+2-extStart;
+	xybin.iy=idx_ext+(j&0x1)*(Nstring_ext+2); //DetId stereo are odd, mono are even,so after sorting detid stereo have j=0,2,etc
+      }
+      xybin.x=lowX+xybin.ix-0.5;
+      xybin.y=lowY+xybin.iy-0.5;
+	
+      DetToBin[DetIdListExt[j]]=xybin;
+      binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdListExt[j];
+      LogTrace("TkLayerMap") << "[TkLayerMap::createTIB12] Ext " << DetIdListExt[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    }
+  }
+}
+
+void TkLayerMap::createTIB34(std::vector<uint32_t>& TkDetIdList,int layer){
+
+  uint32_t Nstring_ext;
+  std::vector<uint32_t> SingleExtString;
+  switch (layer){
+  case 3:
+    Nstring_ext=46; 
+    SingleExtString.push_back(23);
+    SingleExtString.push_back(46);
+    break;
+  case 4:
+    Nstring_ext=56;
+    SingleExtString.push_back(14);
+    SingleExtString.push_back(28);
+    SingleExtString.push_back(42);
+    SingleExtString.push_back(56);
+    break;
+  }
+
+  nchX=12;
+  lowX=-6;
+  highX=6;
+  nchY=Nstring_ext;
+  lowY=0;
+  highY=nchY;
+
+  binToDet.resize(nchX*nchY);
+
+  std::vector<uint32_t> LayerDetIdListExt, LayerDetIdListInt, DetIdListExt, DetIdListInt;
+  SiStripSubStructure siStripSubStructure;
+
+  //extract  vector of module in the layer
+  siStripSubStructure.getTIBDetectors(TkDetIdList,LayerDetIdListExt,layer,0,2,0);
+  siStripSubStructure.getTIBDetectors(TkDetIdList,LayerDetIdListInt,layer,0,1,0);
+
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTIB34] layer " << layer  << " number of dets ext " << LayerDetIdListExt.size() << " number of dets int " << LayerDetIdListInt.size();
+
+  XYbin xybin;
+  uint32_t idx_ext=0, idx_int=0, idx_single=0;
+
+  while (idx_ext<Nstring_ext){
+    DetIdListInt.clear();
+    DetIdListExt.clear();
+    
+    idx_ext++;
+    if(idx_ext==SingleExtString[idx_single]){
+      idx_single++;
+    }else{
+      idx_int++;
+      siStripSubStructure.getTIBDetectors(LayerDetIdListInt,DetIdListInt,layer,0,1,idx_int);
+      std::sort(DetIdListInt.begin(),DetIdListInt.end());
+    }
+    siStripSubStructure.getTIBDetectors(LayerDetIdListExt,DetIdListExt,layer,0,2,idx_ext);
+    std::sort(DetIdListExt.begin(),DetIdListExt.end());
+    
+    int intStart=0,extStart=1;
+    if(layer==4){
+      intStart=1; 
+      extStart=0;
+    }
+
+    LogTrace("TkLayerMap") << "[TkLayerMap::ext string] " << idx_ext <<  "  size " << DetIdListExt.size() << " int " << idx_int << " size " << DetIdListInt.size();
+
+    for(size_t j=0;j<DetIdListInt.size();++j){
+      if(j/3==0){ //mono, Z-
+	xybin.ix=6-2*j-intStart;
+      }else{ //mono, Z+
+	xybin.ix=2*j+2-intStart;
+      }
+      xybin.iy=idx_ext; 
+      xybin.x=lowX+xybin.ix-0.5;
+      xybin.y=lowY+xybin.iy-0.5;
+	
+      DetToBin[DetIdListInt[j]]=xybin;
+      binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdListInt[j];
+      LogTrace("TkLayerMap") << "[TkLayerMap::createTIB34] Int " << DetIdListInt[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    }
+
+    for(size_t j=0;j<DetIdListExt.size();++j){
+      if(j/3==0){ //mono, Z-
+	xybin.ix=6-2*j-extStart;
+      }else{ //mono, Z+
+	xybin.ix=2*j+2-extStart;
+      }
+      xybin.iy=idx_ext; 
+      xybin.x=lowX+xybin.ix-0.5;
+      xybin.y=lowY+xybin.iy-0.5;
+	
+      DetToBin[DetIdListExt[j]]=xybin;
+      binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdListExt[j];
+      LogTrace("TkLayerMap") << "[TkLayerMap::createTIB34] Ext " << DetIdListExt[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    }
+  }
+}
+
+void TkLayerMap::createTOB12(std::vector<uint32_t>& TkDetIdList,int layer){
+
+  int Nrod;
+  switch (layer){
+  case 1:
+    Nrod=42;
+    break;
+  case 2:
+    Nrod=48;
+    break;
+  }
+
+  nchX=12;
+  lowX=-6;
+  highX=6;
+  nchY=2*(Nrod+1);
+  lowY=-1*(Nrod-1);
+  highY=(Nrod+1);
+
+  binToDet.resize(nchX*nchY);
+
+  std::vector<uint32_t> LayerDetIdList, DetIdList;
+  SiStripSubStructure siStripSubStructure;
+
+  //extract  vector of module in the layer
+  siStripSubStructure.getTOBDetectors(TkDetIdList,LayerDetIdList,layer,0,0);
+
+  LogTrace("TkLayerMap") << "[TkLayerMap::createTOB12] layer " << layer  << " number of dets " << LayerDetIdList.size();
+  XYbin xybin;
+
+  for(int rod=1;rod<=Nrod;rod++){
+    DetIdList.clear();
+    siStripSubStructure.getTOBDetectors(LayerDetIdList,DetIdList,layer,0,rod);
+    std::sort(DetIdList.begin(),DetIdList.end());
+    LogTrace("TkLayerMap") << "[TkLayerMap::rod] " << rod <<  "  size " << DetIdList.size();
+    for(size_t j=0;j<DetIdList.size();++j){
+      if(j/6<2){ //stereo/mono, Z-
+	xybin.ix=6-j/2;
+	xybin.iy=rod+(j&0x1)*(Nrod+2); //DetId stereo are odd, mono are even,so after sorting detid stereo have j=0,2,etc
+      }else{ //stereo/mono, Z+
+	xybin.ix=j/2+1;
+	xybin.iy=rod+(j&0x1)*(Nrod+2); //DetId stereo are odd, mono are even,so after sorting detid stereo have j=0,2,etc
+      }
+      xybin.x=lowX+xybin.ix-0.5;
+      xybin.y=lowY+xybin.iy-0.5;
+      
+      DetToBin[DetIdList[j]]=xybin;
+      binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdList[j];
+      LogTrace("TkLayerMap") << "[TkLayerMap::createTOB12] " << DetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    }
+  } 
+}
+
 void TkLayerMap::createTOB36(std::vector<uint32_t>& TkDetIdList,int layer){
 
   int Nrod;
@@ -121,28 +369,30 @@ void TkLayerMap::createTOB36(std::vector<uint32_t>& TkDetIdList,int layer){
   LogTrace("TkLayerMap") << "[TkLayerMap::createTOB36] layer " << layer  << " number of dets " << LayerDetIdList.size();
   XYbin xybin;
 
-  for(int zmin_plus=1;zmin_plus<3;zmin_plus++) //loop on Z- and Z+
-    for(int rod=1;rod<=Nrod;rod++){
-      DetIdList.clear();
-      siStripSubStructure.getTOBDetectors(LayerDetIdList,DetIdList,layer,0,rod);
-      LogTrace("TkLayerMap") << "[TkLayerMap::rod] " << rod <<  "  size " << DetIdList.size();
-      for(size_t j=0;j<DetIdList.size();++j){
-	if(j/6==0){
-	  xybin.ix=6-j;
-	  xybin.iy=rod;
-	}else{
-	  xybin.ix=j+1;
-	  xybin.iy=rod;
-	}
-	xybin.x=lowX+xybin.ix-0.5;
-	xybin.y=rod-0.5;
-	
-	DetToBin[DetIdList[j]]=xybin;
-	binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdList[j];
-	LogTrace("TkLayerMap") << "[TkLayerMap::createTOB36] " << DetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+  for(int rod=1;rod<=Nrod;rod++){
+    DetIdList.clear();
+    siStripSubStructure.getTOBDetectors(LayerDetIdList,DetIdList,layer,0,rod);
+    std::sort(DetIdList.begin(),DetIdList.end());
+    LogTrace("TkLayerMap") << "[TkLayerMap::rod] " << rod <<  "  size " << DetIdList.size();
+    for(size_t j=0;j<DetIdList.size();++j){
+      if(j/6==0){
+	xybin.ix=6-j;
+	xybin.iy=rod;
+      }else{
+	xybin.ix=j+1;
+	xybin.iy=rod;
       }
+      xybin.x=lowX+xybin.ix-0.5;
+      xybin.y=lowY+xybin.iy-0.5;
+      
+      DetToBin[DetIdList[j]]=xybin;
+      binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=DetIdList[j];
+      LogTrace("TkLayerMap") << "[TkLayerMap::createTOB36] " << DetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
     }
+  }
 }
+
+
 
 void TkLayerMap::createTest(std::vector<uint32_t>& TkDetIdList){
 

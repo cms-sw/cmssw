@@ -77,9 +77,18 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
   SiStripSubStructure siStripSubStructure;
 
   //extract  vector of module in the layer
-  siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,3,0,0);
+  siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
   
   float value;
+  for(size_t i=0;i<TkDetIdList.size();++i){
+    value = TkDetIdList[i]%1000000;
+    //    tkhisto->fill(TkDetIdList[i],value);
+    tkhisto->setBinContent(TkDetIdList[i],value);
+  }
+
+
+
+  siStripSubStructure.getTIBDetectors(fullTkDetIdList,TkDetIdList,0,0,0,0);  
   for(size_t i=0;i<TkDetIdList.size();++i){
     value = TkDetIdList[i]%1000000;
     //    tkhisto->fill(TkDetIdList[i],value);
