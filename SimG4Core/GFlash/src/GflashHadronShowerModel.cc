@@ -3,13 +3,8 @@
 #include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
-#include "G4VSensitiveDetector.hh"
-#include "G4VPhysicalVolume.hh"
-
 #include "G4PionMinus.hh"
 #include "G4PionPlus.hh"
-#include "G4TransportationManager.hh"
-#include "G4TouchableHandle.hh"
 #include "G4VProcess.hh"
 #include "G4RegionStore.hh"
 #include "G4FastSimulationManager.hh"
@@ -24,16 +19,11 @@ GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* e
 {
   theProfile = new GflashHadronShowerProfile(envelope,parSet);
   theHisto = GflashHistogram::instance();
-
-  theGflashStep = new G4Step();
-  theGflashTouchableHandle = new G4TouchableHistory();
-
 }
 
 GflashHadronShowerModel::~GflashHadronShowerModel()
 {
   if(theProfile) delete theProfile;
-  if(theGflashStep) delete theGflashStep;
 }
 
 G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition& particleType)
@@ -76,63 +66,18 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
 
 void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 {
-  theGflashNavigator = new G4Navigator();
-  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
   // Kill the parameterised particle:
 
   fastStep.ProposeTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
 
-  // Parameterize shower shape and get resultant energy spots
-  theProfile->clearSpotList();
   theProfile->hadronicParameterization(fastTrack);
-
-  std::vector<GflashEnergySpot>& energySpotList = theProfile->getEnergySpotList();
-
-  // Make hits
-  G4double timeGlobal = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetGlobalTime();
-  
-  std::vector<GflashEnergySpot>::const_iterator spotIter    = energySpotList.begin();
-  std::vector<GflashEnergySpot>::const_iterator spotIterEnd = energySpotList.end();
-
-   for( ; spotIter != spotIterEnd; spotIter++){
-
-    // to make a different time for each fake step. (+1.0 is arbitrary)
-    timeGlobal += 0.0001*nanosecond;
-
-    // fill equivalent changes to a (fake) step associated with a spot 
-
-    theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
-    theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
-    theGflashStep->GetPreStepPoint()->SetPosition(spotIter->getPosition());
-    theGflashStep->GetPostStepPoint()->SetPosition(spotIter->getPosition());
-    theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
-
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
-    theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
-
-    theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
-    
-    // Send G4Step information to Hit/Dig if the volume is sensitive
-    // Copied from G4SteppingManager.cc
-
-    G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-
-    if( aCurrentVolume != 0 ) {
-      theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
-      G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
-
-      if( aSensitive != 0 ) {
-	aSensitive->Hit(theGflashStep);
-      }
-    }
-  }
 
   fastStep.KillPrimaryTrack();
   fastStep.ProposePrimaryTrackPathLength(0.0);
 
-  delete theGflashNavigator;
 }
+
 
 G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& fastTrack)
 {

@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.4 2008/02/29 23:40:55 syjun Exp $
+// $Id: GflashEMShowerModel.h,v 1.5 2008/06/03 21:35:51 dwjang Exp $
 // GEANT4 tag $Name:  $
 //
 //
@@ -44,12 +44,9 @@
 #define GflashEMShowerModel_h
 
 #include "G4VFastSimulationModel.hh"
-#include "G4TouchableHandle.hh"
-#include "G4Navigator.hh"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class GflashEMShowerProfile;
-class G4Step;
 
 class GflashEMShowerModel : public G4VFastSimulationModel {
 
@@ -68,9 +65,6 @@ private:
 
   edm::ParameterSet theParSet;
   GflashEMShowerProfile *theProfile;
-  G4Step *theGflashStep;
-  G4Navigator *theGflashNavigator;
-  G4TouchableHandle  theGflashTouchableHandle;
 
 };
 #endif

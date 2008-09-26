@@ -5,11 +5,13 @@
 #include "SimG4Core/GFlash/interface/GflashNameSpace.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4VFastSimulationModel.hh"
+#include "G4TouchableHandle.hh"
+#include "G4Navigator.hh"
 #include "CLHEP/Random/RandGaussQ.h"
 #include <vector>
 
-class GflashEnergySpot;
 class GflashHistogram;
+class G4Step;
 
 class GflashEMShowerProfile 
 {
@@ -20,18 +22,18 @@ public:
   GflashEMShowerProfile (G4Region* envelope, edm::ParameterSet parSet);
   ~GflashEMShowerProfile ();
 
-  void clearSpotList() { aEnergySpotList.clear(); }
   void parameterization(const G4FastTrack& fastTrack);
-  std::vector<GflashEnergySpot> &getEnergySpotList() {return aEnergySpotList;}; 
   Gflash::CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
 
 private:  
 
   edm::ParameterSet theParSet;
-  std::vector<GflashEnergySpot> aEnergySpotList;
 
   GflashHistogram* theHisto;
   GflashTrajectory* theHelix;
+  G4Step *theGflashStep;
+  G4Navigator *theGflashNavigator;
+  G4TouchableHandle  theGflashTouchableHandle;
 
   CLHEP::RandGaussQ* theRandGauss;
   Gflash::CalorimeterNumber jCalorimeter;

@@ -101,7 +101,7 @@ void GflashG4Watcher::update(const EndOfEvent* g4Event){
   nHits_->Fill(gflashObject_->hits.size());
   outEnergy_->Fill(outEnergy/GeV);
 
-  watcherTree_->Fill();
+  //  watcherTree_->Fill();
 
 }
 

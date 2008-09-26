@@ -1,5 +1,4 @@
 #include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -8,6 +7,10 @@
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "CLHEP/GenericFunctions/LogGamma.hh"
 #include "Randomize.hh"
+#include "G4TransportationManager.hh"
+#include "G4TouchableHandle.hh"
+#include "G4VSensitiveDetector.hh"
+#include "G4VPhysicalVolume.hh"
 
 //#include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
@@ -19,6 +22,9 @@ GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope, edm::Pa
   showerType   = -1;
   jCalorimeter = Gflash::kNULL;
   theHelix = new GflashTrajectory;
+  theGflashStep = new G4Step();
+  theGflashTouchableHandle = new G4TouchableHistory();
+
   theHisto = GflashHistogram::instance();
   theBField = parSet.getParameter<double>("bField");
 
@@ -40,6 +46,7 @@ GflashHadronShowerProfile::~GflashHadronShowerProfile()
   delete theHelix;
   delete theRandGauss;
   delete theRandGamma;
+  if(theGflashStep) delete theGflashStep;
 }
 
 Gflash::CalorimeterNumber GflashHadronShowerProfile::getCalorimeterNumber(const G4ThreeVector position)
@@ -156,12 +163,14 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
   G4int totalNumberOfSpots = 0;
 
-  //empty energy spot vector for a new track
-  aEnergySpotList.clear();
-
   double scaleLateral = 0.0;
 
   Gflash::CalorimeterNumber whichCalor = jCalorimeter;
+
+  // navigator and time information is needed for making a fake step
+  theGflashNavigator = new G4Navigator();
+  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
+  G4double timeGlobal = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetGlobalTime();
 
   while(stepLengthLeft > 0.0) {
 
@@ -261,7 +270,6 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     R50 *= scaleLateral;
 
-    GflashEnergySpot eSpot;
 
     for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
 
@@ -290,19 +298,51 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
         rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() +
         rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
-      eSpot.setEnergy(sampleSpotEnergy*GeV);
-      eSpot.setPosition(SpotPosition*cm);
-
-      if(getCalorimeterNumber(SpotPosition)!=Gflash::kNULL) aEnergySpotList.push_back(eSpot);
-
       //@@@debugging histograms
       if(theHisto->getStoreFlag()) {
 	theHisto->rshower->Fill(rShower);
 	theHisto->lateralx->Fill(rShower*std::cos(azimuthalAngle));
 	theHisto->lateraly->Fill(rShower*std::sin(azimuthalAngle));
       }
-    }
-  }
+
+      sampleSpotEnergy *= GeV;
+      SpotPosition *= cm;
+
+      // to make a different time for each fake step. (+1.0 is arbitrary)
+      timeGlobal += 0.0001*nanosecond;
+
+      // fill equivalent changes to a (fake) step associated with a spot 
+
+      theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
+      theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
+      theGflashStep->GetPreStepPoint()->SetPosition(SpotPosition);
+      theGflashStep->GetPostStepPoint()->SetPosition(SpotPosition);
+      theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
+
+      theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(SpotPosition,G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
+      theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
+      
+      theGflashStep->SetTotalEnergyDeposit(sampleSpotEnergy);
+    
+      // Send G4Step information to Hit/Dig if the volume is sensitive
+
+      G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
+      if( aCurrentVolume == 0 ) continue;
+
+      G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
+      if(lv->GetRegion()->GetName() != "GflashRegion") continue;
+
+      theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
+      G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
+
+      if( aSensitive == 0 ) continue;
+      aSensitive->Hit(theGflashStep);
+
+    } // end of for spot iteration
+
+  } // end of while for longitudinal integration
+
+  delete theGflashNavigator;
 
 }
 

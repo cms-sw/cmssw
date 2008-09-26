@@ -7,22 +7,17 @@
 #include "G4VProcess.hh"
 #include "G4VPhysicalVolume.hh" 
 #include "G4LogicalVolume.hh"
-#include "G4VSensitiveDetector.hh"
 #include "G4TransportationManager.hh"
 #include "G4RegionStore.hh"
 #include "G4FastSimulationManager.hh"
 
 #include "SimG4Core/GFlash/interface/GflashEMShowerModel.h"
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 
 GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelope, edm::ParameterSet parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
 
   theProfile = new GflashEMShowerProfile(envelope,parSet);
-  theGflashStep = new G4Step();
-  theGflashNavigator = new G4Navigator();
-  theGflashTouchableHandle = new G4TouchableHistory();
 
 }
 
@@ -31,8 +26,6 @@ GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelop
 GflashEMShowerModel::~GflashEMShowerModel() {
 
   if(theProfile) delete theProfile;
-  if(theGflashStep) delete theGflashStep;
-  if(theGflashNavigator) delete theGflashNavigator;
 }
 
 G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleType) { 
@@ -75,54 +68,8 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 // -----------------------------------------------------------------------------------
 void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
-  // Initialize energySpotList
-  theProfile->clearSpotList();
-
   // Do actual parameterization. The result of parameterization is energySpotList
   theProfile->parameterization(fastTrack);
-  std::vector<GflashEnergySpot>& energySpotList = theProfile->getEnergySpotList();
-
-  // The following procedure is creating fake G4Steps from GflashEnergySpot.
-  // The time is not meaningful but G4Step requires that information to make a step unique.
-  // Uniqueness of G4Step is important otherwise hits won't be created.
-  G4double timeGlobal = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetGlobalTime();
-
-  std::vector<GflashEnergySpot>::const_iterator spotIter    = energySpotList.begin();
-  std::vector<GflashEnergySpot>::const_iterator spotIterEnd = energySpotList.end();
-
-  for( ; spotIter != spotIterEnd; spotIter++){
-
-    // to make a different time for each fake step. (0.03 nsec is corresponding to 1cm step size)
-    timeGlobal += 0.0001*nanosecond;
-
-    // fill equivalent changes to a (fake) step associated with a spot 
-
-    theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
-    theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
-    theGflashStep->GetPreStepPoint()->SetPosition(spotIter->getPosition());
-    theGflashStep->GetPostStepPoint()->SetPosition(spotIter->getPosition());
-    theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
-
-    //put touchable for each energy spot so that touchable history keeps track of each step.
-    theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
-    theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
-    theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
-    
-    // Send G4Step information to Hit/Digi if the volume is sensitive
-    // Copied from G4SteppingManager.cc
-    
-    G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-
-    if( aCurrentVolume != 0 ) {
-      theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
-      G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
-      
-      if( aSensitive != 0 ) {
-	aSensitive->Hit(theGflashStep);
-      }
-    }
-  }
 
   // Kill the parameterised particle:
   fastStep.KillPrimaryTrack();

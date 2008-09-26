@@ -67,7 +67,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
   theHisto = GflashHistogram::instance();
   if(thePar.getParameter<bool>("GflashHistogram")) {
     theHisto->setStoreFlag(true);
-    theHisto->bookHistogram();
+    theHisto->bookHistogram(thePar.getParameter<std::string>("GflashHistogramName"));
   }
 
 }

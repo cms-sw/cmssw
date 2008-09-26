@@ -1,9 +1,13 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.7 2008/08/05 16:30:27 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.8 2008/08/13 00:16:20 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
 #include "Randomize.hh"
+#include "G4TransportationManager.hh"
+#include "G4VPhysicalVolume.hh" 
+#include "G4LogicalVolume.hh"
+#include "G4VSensitiveDetector.hh"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -20,7 +24,12 @@
 GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterSet parSet) : theParSet(parSet)
 {
   theHelix = new GflashTrajectory;
+  theGflashStep = new G4Step();
+  theGflashNavigator = 0;
+  theGflashTouchableHandle = new G4TouchableHistory();
+
   theHisto = GflashHistogram::instance();
+
   jCalorimeter = Gflash::kNULL;
   theBField = parSet.getParameter<double>("bField");
   theGflash5x5EnergyScale_a = parSet.getParameter<double>("gflash5x5EnergyScale_a");
@@ -53,6 +62,7 @@ GflashEMShowerProfile::~GflashEMShowerProfile()
 {
   delete theHelix;
   delete theRandGauss;
+  if(theGflashStep) delete theGflashStep;
 }
 
 
@@ -166,6 +176,16 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   //step increment along the shower direction
   G4double deltaStep = 0.0;
 
+
+  // The time is not meaningful but G4Step requires that information to make a step unique.
+  // Uniqueness of G4Step is important otherwise hits won't be created.
+  G4double timeGlobal = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetGlobalTime();
+
+  // this needs to be deleted manually at the end of this loop.
+  theGflashNavigator = new G4Navigator();
+  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
+
+
   // loop for longitudinal integration
   while(energy > 0.0 && stepLengthLeft > 0.0) { 
 
@@ -236,7 +256,6 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
     // Deposition of spots according to lateral distr.
     G4double emSpotEnergy = deltaEnergy / nSpotsInStep;
-    GflashEnergySpot eSpot;
 
     if(theHisto->getStoreFlag()) {
       theHisto->dEdz->Fill(zInX0-0.5,deltaEnergy);
@@ -275,9 +294,44 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 	rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() +
 	rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
-      // put energy and position to a spot
-      eSpot.setEnergy(emSpotEnergy*GeV*e25Scale);
-      eSpot.setPosition(SpotPosition*cm);
+      emSpotEnergy *= e25Scale*GeV;
+      SpotPosition *= cm;
+
+      //---------------------------------------------------
+      // fill a fake step to send it to hit maker
+      //---------------------------------------------------
+
+      // to make a different time for each fake step. (0.03 nsec is corresponding to 1cm step size)
+      timeGlobal += 0.0001*nanosecond;
+
+      // fill equivalent changes to a (fake) step associated with a spot 
+
+      theGflashStep->SetTrack(const_cast<G4Track*>(fastTrack.GetPrimaryTrack()));
+      theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
+      theGflashStep->GetPreStepPoint()->SetPosition(SpotPosition);
+      theGflashStep->GetPostStepPoint()->SetPosition(SpotPosition);
+      theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
+
+      //put touchable for each energy spot so that touchable history keeps track of each step.
+      theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(SpotPosition,G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
+      theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
+      theGflashStep->SetTotalEnergyDeposit(emSpotEnergy);
+    
+      // Send G4Step information to Hit/Digi if the volume is sensitive
+      // Copied from G4SteppingManager.cc
+    
+      G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
+      if( aCurrentVolume == 0 ) continue;
+
+      G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
+      if(lv->GetRegion()->GetName() != "GflashRegion") continue;
+
+      theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
+      G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
+      
+      if( aSensitive == 0 ) continue;
+      aSensitive->Hit(theGflashStep);
+
 
       // for histogramming      
       G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
@@ -287,15 +341,15 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 	theHisto->dx->Fill(rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
 	theHisto->xdz->Fill(zInX0-0.5,rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
 	theHisto->dndz_spot->Fill(zInX0_spot);
-	theHisto->rzSpots->Fill(SpotPosition.z(),SpotPosition.r());
+	theHisto->rzSpots->Fill(SpotPosition.z()/cm,SpotPosition.r()/cm);
 	theHisto->rArm->Fill(rShower/Gflash::rMoliere[jCalorimeter]);
       }
-
-      // to be returned
-      aEnergySpotList.push_back(eSpot);
       
-    }
-  }
+    } // end of for spot iteration
+
+  } // end of while for longitudinal integration
+
+  delete theGflashNavigator;
 
 }
 

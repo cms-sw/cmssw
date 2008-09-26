@@ -14,9 +14,9 @@ GflashHistogram::GflashHistogram() :
 {
 }
 
-void GflashHistogram::bookHistogram(TString histFileName) 
+void GflashHistogram::bookHistogram(std::string histFileName) 
 {
-  histFile_ = new TFile(histFileName,"RECREATE");
+  histFile_ = new TFile(histFileName.c_str(),"RECREATE");
 
   TH1::AddDirectory(kTRUE);
 

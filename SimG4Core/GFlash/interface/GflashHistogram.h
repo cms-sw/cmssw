@@ -11,6 +11,7 @@
 #include <TProfile.h>
 #include <TString.h>
 
+#include <string>
 
 class GflashHistogram : public TObject {
 
@@ -21,7 +22,7 @@ class GflashHistogram : public TObject {
   GflashHistogram();
   ~GflashHistogram();
 
-  void bookHistogram(TString histFileName="gflash_histogram.root");
+  void bookHistogram(std::string histFileName="gflash_histogram.root");
   void setStoreFlag(bool flag) { theStoreFlag = flag; }
   bool getStoreFlag() { return theStoreFlag; }
 

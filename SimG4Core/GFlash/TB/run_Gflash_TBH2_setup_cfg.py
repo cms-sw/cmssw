@@ -45,6 +45,7 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashEMShowerModel = cms.bool(True),
     GflashHadronShowerModel = cms.bool(True),
     GflashHistogram = cms.bool(True),
+    GflashHistogramName = cms.string('gflash_histogram_h2.root'),
     bField = cms.double(0.0),
     gflash5x5EnergyScale_a = cms.double(1.03551),
     gflash5x5EnergyScale_b = cms.double(0),

@@ -10,11 +10,12 @@
 #include "G4VFastSimulationModel.hh"
 #include "G4Step.hh"
 #include "G4TouchableHandle.hh"
+#include "G4Navigator.hh"
 
 #include <vector>
 
-class GflashEnergySpot;
 class GflashHistogram;
+class G4Step;
 
 class GflashHadronShowerProfile 
 {
@@ -26,9 +27,7 @@ public:
   ~GflashHadronShowerProfile ();
 
   Gflash::CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
-  void clearSpotList() { aEnergySpotList.clear(); }
   void hadronicParameterization(const G4FastTrack& fastTrack);
-  std::vector<GflashEnergySpot>& getEnergySpotList() {return aEnergySpotList;}; 
 
 private:
   void loadParameters(const G4FastTrack& fastTrack);
@@ -50,7 +49,6 @@ private:
   edm::ParameterSet theParSet;
   G4int showerType ; 
   Gflash::CalorimeterNumber jCalorimeter ;
-  std::vector<GflashEnergySpot> aEnergySpotList;
   G4double theBField;
 
   G4double energyToDeposit; 
@@ -70,6 +68,9 @@ private:
   //  GflashMediaMap* theMediaMap;
   GflashHistogram* theHisto;
   GflashTrajectory* theHelix;
+  G4Step *theGflashStep; 
+  G4Navigator *theGflashNavigator;
+  G4TouchableHandle  theGflashTouchableHandle;
 
   CLHEP::RandGaussQ* theRandGauss;
   CLHEP::RandGamma*  theRandGamma;
