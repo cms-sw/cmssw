@@ -40,8 +40,24 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   muon_             = conf.getParameter<edm::InputTag> ("muon");
   mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
   genEventScale_    = conf.getParameter<edm::InputTag> ("genEventScale");
-  l1extramc_        = conf.getParameter<std::string>   ("l1extramc");
+
+  // keep this separate from l1extramc_ as needed by FastSim:
+  //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
+  //    The {FastSim+OpenHLT} package runs on the head of HLTrigger/HLTanalyzers 
+  //    where there is purposefully this duplication because FastSim does the 
+  //    simulation of muons seperately, and needs the same collection. 
   l1extramu_        = conf.getParameter<std::string>   ("l1extramu");
+  m_l1extramu       = edm::InputTag(l1extramu_, "");
+  
+  // read the L1Extra collection name, and add the instance names as needed
+  l1extramc_        = conf.getParameter<std::string>   ("l1extramc");
+  m_l1extraemi      = edm::InputTag(l1extramc_, "Isolated");
+  m_l1extraemn      = edm::InputTag(l1extramc_, "NonIsolated");
+  m_l1extrajetc     = edm::InputTag(l1extramc_, "Central");
+  m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
+  m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
+  m_l1extramet      = edm::InputTag(l1extramc_, "");
+
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
   gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
@@ -142,14 +158,14 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   iEvent.getByLabel(Photon_, photons);
   // HLT results
   iEvent.getByLabel(hltresults_, hltresults);
-  //  L1 Extra Info
-  iEvent.getByLabel(l1extramc_, "Isolated", l1extemi);
-  iEvent.getByLabel(l1extramc_, "NonIsolated", l1extemn);
-  iEvent.getByLabel(l1extramu_, l1extmu);
-  iEvent.getByLabel(l1extramc_, "Central", l1extjetc);
-  iEvent.getByLabel(l1extramc_, "Forward", l1extjetf);
-  iEvent.getByLabel(l1extramc_, "Tau", l1exttaujet);
-  iEvent.getByLabel(l1extramc_, l1extmet);
+  // L1 Extra Info
+  iEvent.getByLabel(m_l1extramu, l1extmu);
+  iEvent.getByLabel(m_l1extraemi, l1extemi);
+  iEvent.getByLabel(m_l1extraemn, l1extemn);
+  iEvent.getByLabel(m_l1extrajetc, l1extjetc);
+  iEvent.getByLabel(m_l1extrajetf, l1extjetf);
+  iEvent.getByLabel(m_l1extrataujet, l1exttaujet);
+  iEvent.getByLabel(m_l1extramet, l1extmet);
   // L1 info
   iEvent.getByLabel(gtReadoutRecord_, l1GtRR);
   iEvent.getByLabel(gtObjectMap_, l1GtOMRec);

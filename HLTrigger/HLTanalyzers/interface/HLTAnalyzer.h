@@ -56,6 +56,14 @@ private:
   edm::InputTag recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
   edm::InputTag Electron_,Photon_,muon_;
   std::string l1extramc_, l1extramu_;
+  edm::InputTag m_l1extramu;
+  edm::InputTag m_l1extraemi;
+  edm::InputTag m_l1extraemn;
+  edm::InputTag m_l1extrajetc;
+  edm::InputTag m_l1extrajetf;
+  edm::InputTag m_l1extrataujet;
+  edm::InputTag m_l1extramet;
+
   edm::InputTag particleMapSource_,mctruth_; 
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctCounts_;
