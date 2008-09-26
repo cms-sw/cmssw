@@ -64,6 +64,8 @@ int main(){
 
     pos=editor->replaceInterval(85,95,"pay085-95tok");
     std::cout<<"inserted payload 85 at position "<<pos<<std::endl;
+    pos=editor->replaceInterval(5,5,"pay005newtok");
+    std::cout<<"inserted new payload 5 at position "<<pos<<std::endl;
 
 
     std::string token=editor->token();

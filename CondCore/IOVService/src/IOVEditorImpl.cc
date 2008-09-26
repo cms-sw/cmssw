@@ -260,7 +260,6 @@ namespace cond {
    }
 
    if (sinceTime<firstSince()) {
-     m_iov->firstsince=sinceTime;
      // pad
      if (tillTime<firstSince()-1)
        b=m_iov->iov.insert(b,IOV::Item(firstSince()-1,invalidToken));
