@@ -2,9 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TestPhotonValidator")
 
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+
+process.load('Configuration/StandardSequences/GeometryPilot2_cff')
 process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi")
@@ -13,9 +17,11 @@ process.load("RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidator_cfi")
-process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("Validation.RecoEgamma.tpSelection_cfi")
+
 
 process.DQMStore = cms.Service("DQMStore");
 
@@ -69,12 +75,14 @@ TrackAssociatorByHits.Cut_RecoToSim = 0.5
 TrackAssociatorByHits.Quality_SimToReco = 0.5
 
 
+
+
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
     fileName = cms.untracked.string('pippo.root')
 )
 
-process.p1 = cms.Path(process.photonValidation)
+process.p1 = cms.Path(process.myTrackingParticle*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
 
 
