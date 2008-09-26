@@ -15,6 +15,7 @@ TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
 bool
 TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 {
+	if (!tk.stateAtBeamLine().isValid()) return false;
 	bool IPSigCut = tk.stateAtBeamLine().transverseImpactParameter().significance()<maxD0Sig_;
 	bool pTCut    = tk.impactPointState().globalMomentum().transverse() > minPt_;
 	bool normChi2Cut  = tk.normalizedChi2() < maxNormChi2_;
