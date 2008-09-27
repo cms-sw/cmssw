@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWBoolParameter.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWBoolParameter.cc,v 1.1 2008/06/20 05:57:06 dmytro Exp $
 //
 
 // system include files
@@ -66,9 +66,10 @@ FWBoolParameter::~FWBoolParameter()
 void 
 FWBoolParameter::setFrom(const FWConfiguration& iFrom)
 {
-   assert(0!=iFrom.valueForKey(name()));
-   std::istringstream s(iFrom.valueForKey(name())->value());
-   s>>m_value;
+   if (const FWConfiguration* config = iFrom.valueForKey(name()) ) {
+      std::istringstream s(config->value());
+      s>>m_value;
+   }
    changed_(m_value);
 }
 
