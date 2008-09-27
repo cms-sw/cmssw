@@ -1655,13 +1655,13 @@ DQMStore::open(const std::string &filename,
   if (verbose_)
     std::cout << "DQMStore::open: reading from file '" << filename << "'\n";
 
-  TFile f(filename.c_str());
-  if (f.IsZombie())
+  TFile *f = TFile::Open(filename.c_str());
+  if (f->IsZombie())
     throw cms::Exception("DQMStore")
       << "Failed to open file '" << filename << "'";
 
-  unsigned n = readDirectory(&f, overwrite, onlypath, prepend, "");
-  f.Close();
+  unsigned n = readDirectory(f, overwrite, onlypath, prepend, "");
+  f->Close();
 
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
