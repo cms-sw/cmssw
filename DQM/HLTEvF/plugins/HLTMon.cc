@@ -150,6 +150,10 @@ HLTMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       fillHistos<reco::ElectronCollection>(triggerObj,iEvent,n);break;
     case 93: //Muon 
       fillHistos<reco::RecoChargedCandidateCollection>(triggerObj,iEvent,n);break;
+    case 95: //Jet
+      fillHistos<reco::CaloJetCollection>(triggerObj,iEvent,n);break;
+    case 97: //MET
+      fillHistos<reco::CaloMETCollection>(triggerObj,iEvent,n);break;
     case 100: // TriggerCluster
       fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,iEvent,n);break;
     default: throw(cms::Exception("Release Validation Error")<< "HLT output type not implemented: theHLTOutputTypes[n]" );
