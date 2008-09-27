@@ -1662,6 +1662,7 @@ DQMStore::open(const std::string &filename,
 
   unsigned n = readDirectory(f, overwrite, onlypath, prepend, "");
   f->Close();
+  delete f;
 
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
