@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.26 2008/07/21 16:44:38 charaf Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.29 2008/09/16 08:22:15 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -167,10 +167,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
         std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB")      substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
         else if (det_layer_pair.first == "TOB") substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
-        else if (det_layer_pair.first == "TID" && lnumber > 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,lnumber,0,0);
-        else if (det_layer_pair.first == "TID" && lnumber < 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,lnumber,0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber > 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,lnumber,0,0,0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber < 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,lnumber,0,0,0,0);
+        else if (det_layer_pair.first == "TID" && lnumber > 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
+        else if (det_layer_pair.first == "TID" && lnumber < 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
+        else if (det_layer_pair.first == "TEC" && lnumber > 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
+        else if (det_layer_pair.first == "TEC" && lnumber < 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
 
 	int subdetid;
 	int subsubdetid;
@@ -527,7 +527,7 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
   //nr. of digis per module
   if(moduleswitchnumdigison) {
     hid = hidmanager.createHistoId("NumberOfDigis","det",detid);
-    mod_single.NumberOfDigis = bookME1D("TH1NumberOfDigis", hid.c_str());
+    mod_single.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, 0.5, 20.5);
     dqmStore_->tag(mod_single.NumberOfDigis, detid);
     mod_single.NumberOfDigis->setAxisTitle("number of digis in one detector module");
     mod_single.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
@@ -610,13 +610,14 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
     }
     // # of Digis 
     if(layerswitchnumdigisprofon) {
-      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile("NumberOfDigiProfile","NumberOfDigiProfile",
-                           ndets, 0.5, ndets+0.5,50, -5.0, 95.0);      
+      std::string hid = hidmanager.createHistoLayer("NumberOfDigiProfile","layer",label,"");
+      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5,21, -0.5, 20.5);      
     }
 
     // # of Digis 
     if(layerswitchdigiadcprofon) {
-      layerMEs.LayerDigiADCProfile = dqmStore_->bookProfile("DigiADCProfile","DigiADCProfile", ndets, 0.5, ndets+0.5, 50, 0.0, 255.0);      
+      std::string hid = hidmanager.createHistoLayer("DigiADCProfile","layer",label,"");      
+      layerMEs.LayerDigiADCProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5, 64, -0.5, 255.5);      
     }
 
     LayerMEsMap[label]=layerMEs;
@@ -664,10 +665,6 @@ void SiStripMonitorDigi::getLayerLabel(uint32_t detid, std::string& label, int& 
   }
   label = label_str.str();
 }
-
-    
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripMonitorDigi);
