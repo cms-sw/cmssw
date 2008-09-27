@@ -79,6 +79,17 @@ namespace {
 
 typedef std::pair<TrackQuality::Layer::SubDet, short int> DetLayer;
 
+// in case multiple hits were found, figure out the highest priority
+static const int statePriorities[] = {
+    /* Unknown */  3,
+    /* Good */     5,
+    /* Missed */   0,
+    /* Noise */    6,
+    /* Bad */      2,
+    /* Dead */     4,
+    /* Misassoc */ 1
+};
+
 static DetLayer getDetLayer(DetId detId)
 {
     TrackQuality::Layer::SubDet det = TrackQuality::Layer::Invalid;
@@ -305,14 +316,9 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
         do
         {
             // update our best hit pointer
-            if ( !best ||
-                 ( ( best->state == Layer::Noise ||
-                     best->state == Layer::Missed ||
-                     best->state == Layer::Misassoc ) &&
-                   hit->state != Layer::Noise &&
-                   hit->state != Layer::Missed &&
-                   hit->state != Layer::Misassoc ) ||
-                 best->simTrackId == NonMatchedTrackId )
+            if (!best ||
+                statePriorities[hit->state] > statePriorities[best->state] ||
+                best->simTrackId == NonMatchedTrackId)
             {
                 best = &*hit;
             }
