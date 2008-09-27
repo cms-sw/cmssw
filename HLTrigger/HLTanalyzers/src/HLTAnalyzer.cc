@@ -11,8 +11,9 @@ typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
   
 template <class T>
 static inline
-bool checkCollection(std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const char * description) 
+bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const char * description) 
 {
+  event.getByLabel(name, handle);
   bool valid = handle.isValid();
   if (not valid) {
     missing.push_back( std::make_pair(description, & name) );
@@ -92,8 +93,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 //   cout << "-------------------------------------------------------" << endl;  
 
   // open the tree file
-  m_file=new TFile(_HistName.c_str(), "RECREATE");
-  m_file->cd();
+  m_file = new TFile(_HistName.c_str(), "RECREATE");
+  if (m_file)
+    m_file->cd();
 
   // Initialize the tree
   HltTree = new TTree("HltTree", "");
@@ -143,77 +145,40 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<MuonTrackLinksCollection>             mulinks;
   edm::Handle<reco::HLTTauCollection>               taus;
 
-  // Extract objects (event fragments)
-  // Reco Jets and Missing ET
-  iEvent.getByLabel(recjets_, recjets);
-  iEvent.getByLabel(genjets_, genjets);
-  iEvent.getByLabel(recmet_,  recmet);
-  iEvent.getByLabel(genmet_,  genmet);
-  iEvent.getByLabel(calotowers_, caloTowers);
-  iEvent.getByLabel(ht_, ht);
-  // Reco Muons
-  iEvent.getByLabel(muon_, muon);
-  // Reco EGamma
-  iEvent.getByLabel(Electron_, electrons);
-  iEvent.getByLabel(Photon_, photons);
-  // HLT results
-  iEvent.getByLabel(hltresults_, hltresults);
-  // L1 Extra Info
-  iEvent.getByLabel(m_l1extramu, l1extmu);
-  iEvent.getByLabel(m_l1extraemi, l1extemi);
-  iEvent.getByLabel(m_l1extraemn, l1extemn);
-  iEvent.getByLabel(m_l1extrajetc, l1extjetc);
-  iEvent.getByLabel(m_l1extrajetf, l1extjetf);
-  iEvent.getByLabel(m_l1extrataujet, l1exttaujet);
-  iEvent.getByLabel(m_l1extramet, l1extmet);
-  // L1 info
-  iEvent.getByLabel(gtReadoutRecord_, l1GtRR);
-  iEvent.getByLabel(gtObjectMap_, l1GtOMRec);
-  iEvent.getByLabel(gctCounts_, l1GctCounts);
-  // MC info
-  iEvent.getByLabel(genEventScale_, genEventScale );
-  iEvent.getByLabel(mctruth_, mctruth);
-  // OpenHLT info
-  iEvent.getByLabel(MuCandTag2_, mucands2);
-  iEvent.getByLabel(MuCandTag3_, mucands3);
-  iEvent.getByLabel(MuIsolTag2_, isoMap2);
-  iEvent.getByLabel(MuIsolTag3_, isoMap3);
-  iEvent.getByLabel(MuLinkTag_,  mulinks);
-  iEvent.getByLabel(HLTTau_, taus);
-
-  // check the objects...
+  // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
 
-  checkCollection(missing, recjets,         recjets_,           kRecjets);
-  checkCollection(missing, genjets,         genjets_,           kGenjets);
-  checkCollection(missing, recmet,          recmet_,            kRecmet);
-  checkCollection(missing, genmet,          genmet_,            kGenmet);
-  checkCollection(missing, caloTowers,      calotowers_,        kCaloTowers);
-  checkCollection(missing, ht,              ht_,                kHt);
-  checkCollection(missing, electrons,       Electron_,          kElectrons);
-  checkCollection(missing, photons,         Photon_,            kPhotons);
-  checkCollection(missing, muon,            muon_,              kMuon);
-  checkCollection(missing, taus,            HLTTau_,            kTaus);
-  checkCollection(missing, hltresults,      hltresults_,        kHltresults);
-  checkCollection(missing, l1extemi,        m_l1extraemi,       kL1extemi);
-  checkCollection(missing, l1extemn,        m_l1extraemn,       kL1extemn);
-  checkCollection(missing, l1extmu,         m_l1extramu,        kL1extmu);
-  checkCollection(missing, l1extjetc,       m_l1extrajetc,      kL1extjetc);
-  checkCollection(missing, l1extjetf,       m_l1extrajetf,      kL1extjetf);
-  checkCollection(missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet);
-  checkCollection(missing, l1extmet,        m_l1extramet,       kL1extmet);
-  checkCollection(missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR);
-  checkCollection(missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec);
-  checkCollection(missing, l1GctCounts,     gctCounts_,         kL1GctCounts);
-  checkCollection(missing, mctruth,         mctruth_,           kMctruth);
-  checkCollection(missing, genEventScale,   genEventScale_,     kGenEventScale);
-  checkCollection(missing, mucands2,        MuCandTag2_,        kMucands2);
-  checkCollection(missing, mucands3,        MuCandTag3_,        kMucands3);
-  checkCollection(missing, isoMap2,         MuIsolTag2_,        kIsoMap2);
-  checkCollection(missing, isoMap3,         MuIsolTag3_,        kIsoMap3);
-  checkCollection(missing, mulinks,         MuLinkTag_,         kMulinks);
+  getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
+  getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
+  getCollection( iEvent, missing, recmet,          recmet_,            kRecmet );
+  getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
+  getCollection( iEvent, missing, caloTowers,      calotowers_,        kCaloTowers );
+  getCollection( iEvent, missing, ht,              ht_,                kHt );
+  getCollection( iEvent, missing, electrons,       Electron_,          kElectrons );
+  getCollection( iEvent, missing, photons,         Photon_,            kPhotons );
+  getCollection( iEvent, missing, muon,            muon_,              kMuon );
+  getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
+  getCollection( iEvent, missing, hltresults,      hltresults_,        kHltresults );
+  getCollection( iEvent, missing, l1extemi,        m_l1extraemi,       kL1extemi );
+  getCollection( iEvent, missing, l1extemn,        m_l1extraemn,       kL1extemn );
+  getCollection( iEvent, missing, l1extmu,         m_l1extramu,        kL1extmu );
+  getCollection( iEvent, missing, l1extjetc,       m_l1extrajetc,      kL1extjetc );
+  getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
+  getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
+  getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
+  getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR );
+  getCollection( iEvent, missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec );
+  getCollection( iEvent, missing, l1GctCounts,     gctCounts_,         kL1GctCounts );
+  getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
+  getCollection( iEvent, missing, genEventScale,   genEventScale_,     kGenEventScale );
+  getCollection( iEvent, missing, mucands2,        MuCandTag2_,        kMucands2 );
+  getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
+  getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
+  getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
+  getCollection( iEvent, missing, mulinks,         MuLinkTag_,         kMulinks );
 
-  if (not missing.empty() && (errCnt < errMax())) {
+  // print missing collections
+  if (not missing.empty() and (errCnt < errMax())) {
     errCnt++;
     std::stringstream out;       
     out <<  "OpenHLT analyser - missing collections:";
@@ -236,22 +201,25 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree
-  m_file->cd();
+  if (m_file)
+    m_file->cd();
   HltTree->Fill();
 }
 
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.
 void HLTAnalyzer::endJob() {
 
-  m_file->cd(); 
+  if (m_file)
+    m_file->cd();
+
   HltTree->Write();
   delete HltTree;
   HltTree = 0;
 
-  if (m_file!=0) { // if there was a tree file...
-    m_file->Write(); // write out the branches
-    delete m_file; // close and delete the file
-    m_file=0; // set to zero to clean up
+  if (m_file) {         // if there was a tree file...
+    m_file->Write();    // write out the branches
+    delete m_file;      // close and delete the file
+    m_file = 0;         // set to zero to clean up
   }
 
 }
