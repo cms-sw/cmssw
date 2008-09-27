@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2007/12/20 16:25:43 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/06/29 21:44:20 $
+ *  $Revision: 1.6 $
  *  \author Suchandra Dutta
   */
 
@@ -31,6 +31,7 @@ class SiStripUtility
  static void getMEStatusColor(int status, int& rval, int&gval, int& bval);
  static void getMEStatusColor(int status, int& icol, std::string& tag);
  static int getMEStatus(MonitorElement* me);
+ static int getMEStatus(MonitorElement* me, int& bad_channels);
  static void getModuleFolderList(DQMStore* dqm_store, std::vector<std::string>& m_ids);
 };
 
