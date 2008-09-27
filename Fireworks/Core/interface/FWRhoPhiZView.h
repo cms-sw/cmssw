@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.11 2008/07/01 04:30:10 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.12 2008/07/09 14:37:15 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class TGLMatrix;
 class TEveCalo2D;
 class FWRhoPhiZViewManager;
 class TEveScene;
+class TEveProjectionAxes;
 
 class FWRhoPhiZView : public FWViewBase
 {
@@ -61,6 +62,7 @@ class FWRhoPhiZView : public FWViewBase
       void resetCamera();
       void destroyElements();
       void replicateGeomElement(TEveElement*);
+      void showProjectionAxes( );
       virtual void setFrom(const FWConfiguration&);
 
       //returns the new element created from this import
@@ -91,10 +93,12 @@ class FWRhoPhiZView : public FWViewBase
       std::string m_typeName;
       TEveScene* m_scene;
       double m_caloScale;
+      TEveProjectionAxes* m_axes;
    
       // parameters
       FWDoubleParameter  m_caloDistortion;
       FWDoubleParameter  m_muonDistortion;
+      FWBoolParameter    m_showProjectionAxes;
       FWBoolParameter    m_compressMuon;
       FWDoubleParameter  m_caloFixedScale;
       FWBoolParameter    m_caloAutoScale;

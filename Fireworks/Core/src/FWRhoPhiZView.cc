@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.22 2008/07/13 21:53:28 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.23 2008/09/24 17:58:38 amraktad Exp $
 //
 
 #define private public
@@ -99,8 +99,10 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
 m_projType(iProjType),
 m_typeName(iName),
 m_caloScale(1),
+m_axes(0),
 m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
 m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
+m_showProjectionAxes(this,"Show projection axes", false),
 m_compressMuon(this,"Compress detectors",false),
 m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
 m_caloAutoScale(this,"Calo auto scale",false),
@@ -124,7 +126,6 @@ m_cameraMatrix(0)
    
    //m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
    //m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
-   
    if ( iProjType == TEveProjection::kPT_RPhi ) {
       // compression
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
@@ -171,13 +172,13 @@ m_cameraMatrix(0)
    //this is needed so if a TEveElement changes this view will be informed
    gEve->AddElement(nv, gEve->GetViewers());
 
-   TEveProjectionAxes* axes = new TEveProjectionAxes(m_projMgr);
-   ns->AddElement(axes);
-   gEve->AddToListTree(axes, kTRUE);
+   m_axes = new TEveProjectionAxes(m_projMgr);
+   ns->AddElement(m_axes);
+   gEve->AddToListTree(m_axes, kTRUE);
    
    gEve->AddElement(m_projMgr,ns);
    //ev->ResetCurrentCamera();
-   
+   m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));   
 }
 
 // FWRhoPhiZView::FWRhoPhiZView(const FWRhoPhiZView& rhs)
@@ -481,6 +482,15 @@ FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
    }
 }
 
+void FWRhoPhiZView::showProjectionAxes( ) 
+{
+   if ( !m_axes ) return; // just in case
+   if ( m_showProjectionAxes.value() )
+     m_axes->SetRnrState(kTRUE);
+   else
+     m_axes->SetRnrState(kFALSE);
+   gEve->Redraw3D();
+}
 
 //
 // static member functions
