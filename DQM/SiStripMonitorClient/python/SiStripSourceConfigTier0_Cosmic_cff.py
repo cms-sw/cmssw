@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+# SiStripMonitorDigi ####
+from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
+SiStripMonitorDigi.Mod_On = False
+
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
@@ -77,6 +81,6 @@ SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals
 
 SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackMon_bhmuon)
+SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs)
 
 
