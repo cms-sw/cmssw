@@ -27,7 +27,8 @@ RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 10);
   eventInfoPath_ = ps.getUntrackedParameter<string>("EventInfoPath", "RPC/EventInfo");
   prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC/RecHits");
-  verbose_=ps.getUntrackedParameter<unsigned int>("VerboseLevel", 0);
+  verbose_=ps.getUntrackedParameter<bool>("VerboseLevel", 0);
+  minHitsInRoll_=ps.getUntrackedParameter<unsigned int>("MinimunHitsPerRoll", 2000);
 
 }
 
@@ -118,7 +119,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   //  segmentNames.push_back("RPC_DataIntegrity");
   // segmentNames.push_back("RPC_Timing");
 
-  for(int i=0; i<segmentNames.size(); i++){
+  for(unsigned int i=0; i<segmentNames.size(); i++){
     if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]) ) {
       dbe_->removeElement(me->getName());
     }
@@ -129,7 +130,9 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
 
 void RPCEventSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
 
-void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {}
+void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {
+  nLumiSegs_=iEvent.luminosityBlock();
+}
 
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
@@ -138,11 +141,9 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
    nLumiSegs_ = lumiSeg.id().luminosityBlock();
    //nLumiSegs_++;
 
-   cout<<"lumi # "<<nLumiSegs_<<" prescale "<<prescaleFactor_<<" " <<nLumiSegs_%prescaleFactor_ <<endl;
-
   //check some statements and prescale Factor
   if(enableReportSummary_  &&  (nLumiSegs_%prescaleFactor_ == 0)) {
-  cout<<"yes  "<<endl;
+ 
   ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
  
@@ -162,6 +163,10 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	 MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
 	 if (!myMe)continue;
+	 
+	 //check for enough statistics
+	 if (myMe->getMean() < minHitsInRoll_) continue;
+
 	 const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
 	 if(!theOccupancyQReport) continue;
 	 vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
@@ -230,9 +235,10 @@ void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float>
       float Good=0;
       for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
 	//Fill report summary map, a TH2F ME.
-	if ((*meItr).second.second != 0) 
+	if ((*meItr).second.second != 0) {
+	  //	  cout<<"i'm here"<<(*itr).first<<"_"<< region<<endl;
 	  reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
-	else reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first,-1);
+      }  else reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first,-1);
 	Good += (*meItr).second.first;
 	Rolls  += (*meItr).second.second;
       }
@@ -241,7 +247,7 @@ void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float>
       //Fill wheel/disk report summary
       meName.str("");
       meName<<eventInfoPath_<<path<<(*itr).first;
-      cout<<"am here 1  "<<meName.str()<<endl;
+
       MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
       if (Rolls != 0)  reportSummaryContents->Fill(Good/Rolls);
       else reportSummaryContents->Fill(-1);
@@ -250,7 +256,7 @@ void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float>
     for (int j=0; j<=4; j++){
       meName.str("");
       meName<<eventInfoPath_<<path<<j;
-      cout<<"am here 2  "<<meName.str()<<endl;
+
       MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
       if ( reportSummaryContents == NULL) continue;
 	reportSummaryContents->Fill(-1);

@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/08/15 15:44:18 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/08/19 14:33:50 $
+ *  $Revision: 1.5 $
  *  \author Anna Cimmino
  *   
  */
@@ -71,7 +71,7 @@ public:
   int prescaleFactor_;
   bool verbose_;
   DQMStore* dbe_;
-
+  int minHitsInRoll_;
   int nLumiSegs_;
   
   float allRolls_;

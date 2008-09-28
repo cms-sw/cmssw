@@ -85,11 +85,14 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
    //get roll number      
    RPCGeomServ RPCnumber(id);
    int nr = RPCnumber.chambernr();
+   //get segment (valid only if endcap)
+   RPCGeomServ RPCsegment(id);
+   int seg = RPCsegment.segment();
    
    // Loop over the digis of this DetUnit 
    for (RPCDigiCollection::const_iterator digiIt = range.first;digiIt!=range.second;++digiIt) {
      if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips() )
-       std::cout <<" XXXX  Problem with detector "<< id << ", strip # " << digiIt->strip() << std::endl;
+       LogVerbatim ("rpcmonitorerror") <<" XXXX  Problem with detector "<< id << ", strip # " << digiIt->strip();
      else {  
        for (RPCDigiCollection::const_iterator digiIt2 = digiIt; digiIt2!=range.second; ++digiIt2) {
 	 int dstrip = digiIt->strip() - digiIt2->strip();
@@ -120,13 +123,14 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 		   if(roll==1) myRoll="A";
 		   else if(roll==2) myRoll="B";
 		   else if(roll==3) myRoll="C";
+		   else if(roll==3) myRoll="D";
 		   name.str("");
 		   name<<"Ring"<<ring<<"_"<<myRoll;
 		   me->setBinLabel((ring-1)*3+roll, name.str(), 2); 
 		 }
 	       }
 	     }
-	     me->Fill((id.sector()-1)*6 + id.subsector(), (id.ring()-1)*3+id.roll());
+	     me->Fill(seg, (id.ring()-1)*3+id.roll()); 
 	   } else { // Barrel ( region == 0 ).
 	
 	     name.str("");
