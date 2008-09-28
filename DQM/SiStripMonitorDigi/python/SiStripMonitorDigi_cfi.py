@@ -71,6 +71,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         ymin = cms.double(0.0)
     ),
 
+    Mod_On = cms.bool(True),
     #select detectors
     detectorson = cms.PSet(
         tidon = cms.bool(True),
