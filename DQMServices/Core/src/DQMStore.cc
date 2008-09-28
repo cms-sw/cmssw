@@ -1656,7 +1656,7 @@ DQMStore::open(const std::string &filename,
     std::cout << "DQMStore::open: reading from file '" << filename << "'\n";
 
   TFile *f = TFile::Open(filename.c_str());
-  if (f->IsZombie())
+  if (!f || f->IsZombie())
     throw cms::Exception("DQMStore")
       << "Failed to open file '" << filename << "'";
 
