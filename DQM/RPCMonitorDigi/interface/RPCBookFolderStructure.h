@@ -1,7 +1,7 @@
 /** \class RPCBookFolderStructure
  *
- *  $Date: 2008/05/30 09:12:50 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/06/25 14:41:10 $
+ *  $Revision: 1.1 $
  * \author Anna Cimmino (INFN Napoli)
  *
  * Create folder structure for DQM histo saving
@@ -23,7 +23,7 @@ class RPCBookFolderStructure {
 	myStream.str("");
   
 	if(detId.region() ==  0) 
-	  myStream <<"Barrel/Wheel_"<<detId.ring()<<"/station_"<<detId.station()<<"/sector_"<<detId.sector();
+	  myStream <<"Barrel/Wheel_"<<detId.ring()<<"/sector_"<<detId.sector()<<"/station_"<<detId.station();
 	else if(detId.region() == -1) 
 	  myStream <<"Endcap-/Disk_"<<detId.station()<<"/ring_"<<detId.ring()<<"/sector_"<<detId.sector();
 	else if(detId.region() ==  1) 

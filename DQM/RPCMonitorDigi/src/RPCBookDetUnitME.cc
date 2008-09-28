@@ -174,7 +174,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   os<<"BXWithData_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
   myMe = dbe->get(folder+"/"+os.str());
   if(myMe)  meMap[os.str()]=myMe;
-  else  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+  else  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 10, 0.5, 10.5);
 
   return meMap;
 }
@@ -194,9 +194,15 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   meMap[os.str()] = dbe->book1D(os.str(), os.str(),20, 0.5, 20.5);
 
   os.str("");
-  if (region!=0) ring = ring*region;
-  os<<"1DOccupancy_"<<ringType<<"_"<<ring;
-  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
+  os<<"1DOccupancy_"<<ringType<<"_";
+  if (region!=0){
+    ring = ring*region;
+    os<<ring;
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 6, 0.5, 6.5);
+  }else{
+     os<<ring;
+     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
+  }
 
   os.str("");
   os<<"BxDistribution_"<<ringType<<"_"<<ring;

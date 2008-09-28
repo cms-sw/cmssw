@@ -43,7 +43,7 @@ RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
 RPCMonitorDigi::~RPCMonitorDigi(){}
 
 void RPCMonitorDigi::beginJob(EventSetup const&){
-  LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
+  LogInfo (nameInLog) <<"Beginning DQMMonitorDigi lllllllllllll " ;
   
   /// get hold of back-end interface
   dbe = Service<DQMStore>().operator->();
@@ -54,15 +54,28 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
   ClusterSize_for_Barrel = dbe->book1D("ClusterSize_for_Barrel", "ClusterSize for Barrel", 20, 0.5, 20.5);
   ClusterSize_for_EndcapForward = dbe->book1D("ClusterSize_for_EndcapForward", "ClusterSize for ForwardEndcap",  20, 0.5, 20.5);
   ClusterSize_for_EndcapBackward = dbe->book1D("ClusterSize_for_EndcapBackward", "ClusterSize for BackwardEndcap", 20, 0.5, 20.5);
+
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
 
-  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "NumberOfDigis for Barrel", 20, 0.5, 20.5);
-  NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
+  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "NumberOfDigis for Barrel", 200, 0.5, 200.5);
+  NumberOfDigis_for_EndcapForward = dbe -> book1D("NumberOfDigi_for_EndcapForward", "NumberOfDigis for EndcapForward", 200, 0.5, 200.5);
+  NumberOfDigis_for_EndcapBackward = dbe -> book1D("NumberOfDigi_for_EndcapBackward", "NumberOfDigis for EndcapBackward", 200, 0.5, 200.5);
 
-  SameBxDigisMe_ = dbe->book1D("SameBXDigis", "Digis with same bx", 20, 0.5, 20.5);  
+  NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
+  NumberOfClusters_for_EndcapForward = dbe -> book1D("NumberOfClusters_for_EndcapForward", "NumberOfDigis for EndcapForward", 20, 0.5, 20.5);
+  NumberOfClusters_for_EndcapBackward = dbe -> book1D("NumberOfClusters_for_EndcapBackward", "NumberOfDigis for EndcapBackward", 20, 0.5, 20.5);
+
+  SameBxDigisMeBarrel_ = dbe->book1D("SameBXDigis_Barrel", "Digis with same bx", 20, 0.5, 20.5);  
+ //  SameBxDigisMeEndcapForward_ = dbe->book1D("SameBXDigis_EndcapForward", "Digis with same bx", 20, 0.5, 20.5);  
+//   SameBxDigisMeEndcapBackward_ = dbe->book1D("SameBXDigis_EndcapBackward", "Digis with same bx", 20, 0.5, 20.5);  
 
   BarrelOccupancy = dbe -> book2D("BarrelOccupancy", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
+<<<<<<< RPCMonitorDigi.cc
+  EndcapForwardOccupancy = dbe -> book2D("EndcapForwardOccupancy", "EndcapForward Occupancy Wheel vs Sector", 6, 0.5, 6.5, 4, -2, 2);
+  EndcapBackwardOccupancy = dbe -> book2D("EndcapBackwardOccupancy", "EndcapBackward Occupancy Wheel vs Sector", 6, 0.5, 6.5, 4, -2, 2);
+=======
   EndcapOccupancy = dbe -> book2D("EndcapOccupancy", "Endcap Ocupancy Ring vs Disk", 6, 0.6, 6.5, 6, 0.5, 6.5);
+>>>>>>> 1.54
 
   stringstream binLabel;
   for (int i = 1; i<13; i++){
@@ -88,6 +101,7 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
 }
 
 void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
+  LogInfo (nameInLog) <<"Begin Run " ;
   //if mergeRuns_ skip reset
   //if merge remember to safe at job end and not at run end
   if (mergeRuns_) return;
@@ -110,12 +124,28 @@ void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
     }
   }
   
-  //Reset All Global histos
+  //Reset All Global histos !!!!!!!!!!!!!!!!!!!!!!
   ClusterSize_for_Barrel->Reset();
   ClusterSize_for_EndcapForward ->Reset();
   ClusterSize_for_EndcapBackward->Reset();
   ClusterSize_for_BarrelandEndcaps->Reset(); 
-  SameBxDigisMe_->Reset();
+  
+  NumberOfDigis_for_Barrel ->Reset();
+  NumberOfDigis_for_EndcapForward ->Reset();
+  NumberOfDigis_for_EndcapBackward->Reset();
+
+  NumberOfClusters_for_Barrel ->Reset();
+  NumberOfClusters_for_EndcapForward->Reset(); 
+  NumberOfClusters_for_EndcapBackward ->Reset();
+
+
+  SameBxDigisMeBarrel_->Reset();
+ //  SameBxDigisMeEndcapForward_->Reset();
+//   SameBxDigisMeEndcapBackward_ ->Reset();
+  
+  BarrelOccupancy ->Reset();
+  EndcapForwardOccupancy ->Reset();
+  EndcapBackwardOccupancy->Reset();
 }
 
 void RPCMonitorDigi::endJob(void)
@@ -167,9 +197,6 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     string nameRoll = RPCname.name();
  
     stringstream os;
-    //  RPCGeomServ RPCnumber(detId);
-    //int nr = RPCnumber.chambernr();
-    
 
     rpcdqm::utils prova;
     int nr = prova.detId2RollNr(detId);
@@ -212,6 +239,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     strips.clear(); 
     bxs.clear();
  
+
     //get the RecHits associated to the roll
     typedef pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
     rangeRecHits recHitCollection =  rpcHits->get(detId);
@@ -223,14 +251,17 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     //loop on digis of given roll
      for (digiItr =(*collectionItr ).second.first;digiItr != (*collectionItr ).second.second; ++digiItr){
       int strip= (*digiItr).strip();
-      vector<int>::iterator itrStrips = find( strips.begin(),strips.end(),strip);
+      int bx=(*digiItr).bx();
+      // pair<int, int> stripBx(strip,bx);
+     
+      //skip 
+      vector<int>::const_iterator itrStrips = find(strips.begin(),strips.end(),strip);
       if(itrStrips!=strips.end() && strips.size()!=0) continue;
       ++numberOfDigi;
       strips.push_back(strip);
       
       //get bx number for this digi
-      int bx=(*digiItr).bx();
-      vector<int>::iterator existingBX = find(bxs.begin(),bxs.end(),bx);
+      vector<int>::const_iterator existingBX = find(bxs.begin(),bxs.end(),bx);
       if(existingBX==bxs.end())bxs.push_back(bx);
    
       //adding new histo C.Carrillo & A. Cimmino
@@ -255,9 +286,19 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"BxDistribution_"<<ringType<<"_"<<ring;
       meRingMap[os.str()]->Fill(bx);
    
+<<<<<<< RPCMonitorDigi.cc
+      if(detId.region()==0)
+	BarrelOccupancy -> Fill(detId.sector(), ring);
+      else if(detId.region()==1)
+   	EndcapForwardOccupancy -> Fill(detId.sector(), ring);
+      else if(detId.region()==-1)
+   	EndcapBackwardOccupancy -> Fill(detId.sector(), ring);
+
+=======
       if(detId.region()==0) BarrelOccupancy -> Fill(detId.sector(), ring); //BarrelOcucpancy
       else EndcapOccupancy -> Fill(ring+3, detId.sector());                //EndcappOccupancy 
       
+>>>>>>> 1.54
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(strip, nr);
@@ -392,7 +433,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	    os<<"ClusterSize_vs_Strip_"<<nameRoll;
 	    meMap[os.str()]->Fill(firstStrip+index,mult);
 	  }
-	
+
 	  os.str("");
 	  os<<"ClusterSize_vs_LowerSrip_"<<nameRoll;
 	  meMap[os.str()]->Fill(firstStrip,mult);
@@ -419,9 +460,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	  os<<"RecHitDX_"<<nameRoll;
 	  meMap[os.str()]->Fill(error.xx());	   
 	}
-	
 	numberOfHits++;
-	
       }/// end loop on RPCRecHits for given roll
       
 
@@ -438,20 +477,24 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       
       if(detId.region()==0)
 	NumberOfClusters_for_Barrel -> Fill(numbOfClusters);
-
+      else if (detId.region()==1)
+	NumberOfClusters_for_EndcapForward -> Fill(numbOfClusters);
+      else if(detId.region()==-1)
+	NumberOfClusters_for_EndcapBackward -> Fill(numbOfClusters);
       os.str("");
       os<<"NumberOfClusters_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(numbOfClusters);
     }
   }/// end loop on RPC Digi Collection
  
-  //fill global histo
+  //fill global histo at the end of the event
       NumberOfDigis_for_Barrel ->Fill(totalNumberDigi[2][1]);
- 
+      NumberOfDigis_for_EndcapForward ->Fill(totalNumberDigi[3][1]);
+      NumberOfDigis_for_EndcapBackward ->Fill(totalNumberDigi[1][1]);
+
   //adding new histo C.Carrillo & A. Cimmino
   for (map<int, int>::const_iterator myItr= bxMap.begin(); 
        myItr!=bxMap.end(); myItr++){
-    SameBxDigisMe_ ->Fill((*myItr).second);
-
+    SameBxDigisMeBarrel_ ->Fill((*myItr).second);///must be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   } 
 }

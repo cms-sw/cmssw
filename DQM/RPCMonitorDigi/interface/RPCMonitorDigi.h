@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2008/05/27 17:17:43 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/09/16 17:08:13 $
+ *  $Revision: 1.18 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -54,26 +54,38 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	
 	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
 	int counter;
-	/// back-end interface
+	/// DQM store 
 	DQMStore * dbe;
         //MonitorElement * GlobalZYHitCoordinates;
         //MonitorElement * GlobalZXHitCoordinates;
         //MonitorElement * GlobalZPhiHitCoordinates;
         
 	MonitorElement * NumberOfDigis_for_Barrel;
+	MonitorElement * NumberOfDigis_for_EndcapForward;
+	MonitorElement * NumberOfDigis_for_EndcapBackward;
+
 	MonitorElement * NumberOfClusters_for_Barrel;
+	MonitorElement * NumberOfClusters_for_EndcapForward;
+	MonitorElement * NumberOfClusters_for_EndcapBackward;
+
 	MonitorElement * ClusterSize_for_Barrel;
         MonitorElement * ClusterSize_for_EndcapForward;
         MonitorElement * ClusterSize_for_EndcapBackward;
+	
 	MonitorElement * ClusterSize_for_BarrelandEndcaps;
 
 	MonitorElement * BarrelOccupancy;
+<<<<<<< RPCMonitorDigi.h
+	MonitorElement * EndcapForwardOccupancy;
+	MonitorElement * EndcapBackwardOccupancy;
+=======
 	MonitorElement * EndcapOccupancy;
+>>>>>>> 1.18
 
-	MonitorElement * NumberofClusters_for_Barrel;
+	MonitorElement * 	SameBxDigisMeBarrel_;
+	MonitorElement * 	SameBxDigisMeEndcapForward_;
+	MonitorElement * 	SameBxDigisMeEndcapBackward_ ;
 
-	MonitorElement * SameBxDigisMe_;
-        
 	std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
         std::map<std::pair<int,int>, std::map<std::string, MonitorElement*> >  meWheelDisk;
 	
