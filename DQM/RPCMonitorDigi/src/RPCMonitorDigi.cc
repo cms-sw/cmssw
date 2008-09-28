@@ -70,13 +70,9 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
 //   SameBxDigisMeEndcapBackward_ = dbe->book1D("SameBXDigis_EndcapBackward", "Digis with same bx", 20, 0.5, 20.5);  
 
   BarrelOccupancy = dbe -> book2D("BarrelOccupancy", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
-<<<<<<< RPCMonitorDigi.cc
-  EndcapForwardOccupancy = dbe -> book2D("EndcapForwardOccupancy", "EndcapForward Occupancy Wheel vs Sector", 6, 0.5, 6.5, 4, -2, 2);
-  EndcapBackwardOccupancy = dbe -> book2D("EndcapBackwardOccupancy", "EndcapBackward Occupancy Wheel vs Sector", 6, 0.5, 6.5, 4, -2, 2);
-=======
-  EndcapOccupancy = dbe -> book2D("EndcapOccupancy", "Endcap Ocupancy Ring vs Disk", 6, 0.6, 6.5, 6, 0.5, 6.5);
->>>>>>> 1.54
-
+  EndcapForwardOccupancy = dbe -> book2D("EndcapForwardOccupancy", "EndcapForward Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, -2, 2);
+  EndcapBackwardOccupancy = dbe -> book2D("EndcapBackwardOccupancy", "EndcapBackward Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, -2, 2);
+ 
   stringstream binLabel;
   for (int i = 1; i<13; i++){
     binLabel.str("");
@@ -91,11 +87,12 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
     if(i<7) {
       binLabel.str("");
       if (i<4) binLabel<<"Disk"<<i-4; else  binLabel<<"Disk"<<i-3;
-      EndcapOccupancy -> setBinLabel(i, binLabel.str(), 1);
-      
+      EndcapForwardOccupancy -> setBinLabel(i, binLabel.str(), 1);
+      EndcapBackwardOccupancy -> setBinLabel(i, binLabel.str(), 1);
       binLabel.str("");
       binLabel<<"Sect"<<i;
-      EndcapOccupancy -> setBinLabel(i, binLabel.str(), 2);
+      EndcapForwardOccupancy -> setBinLabel(i, binLabel.str(), 2);
+      EndcapBackwardOccupancy -> setBinLabel(i, binLabel.str(), 1);
     }
   }
 }
@@ -286,7 +283,6 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"BxDistribution_"<<ringType<<"_"<<ring;
       meRingMap[os.str()]->Fill(bx);
    
-<<<<<<< RPCMonitorDigi.cc
       if(detId.region()==0)
 	BarrelOccupancy -> Fill(detId.sector(), ring);
       else if(detId.region()==1)
@@ -294,11 +290,6 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       else if(detId.region()==-1)
    	EndcapBackwardOccupancy -> Fill(detId.sector(), ring);
 
-=======
-      if(detId.region()==0) BarrelOccupancy -> Fill(detId.sector(), ring); //BarrelOcucpancy
-      else EndcapOccupancy -> Fill(ring+3, detId.sector());                //EndcappOccupancy 
-      
->>>>>>> 1.54
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(strip, nr);
