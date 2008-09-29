@@ -27,4 +27,24 @@ muonrecowith_TeVRefinemen = cms.Sequence(muontracking_with_TeVRefinement*muonIdP
 # Muon Reconstruction plus Isolation
 muonreco_plus_isolation = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
 
+########################################################
 
+# Sequence for cosmic reconstruction
+
+# Seed generator
+from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
+
+# Stand alone muon track producer
+from RecoMuon.CosmicMuonProducer.cosmicMuons_cff import *
+
+# Global muon track producer
+from RecoMuon.CosmicMuonProducer.globalCosmicMuons_cff import *
+
+# Muon Id producer
+muonsFromCosmics = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+
+muonsFromCosmics.inputCollectionLabels = ['generalTracks', 'globalCosmicMuons', 'cosmicMuons']
+muonsFromCosmics.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsFromCosmics.fillIsolation = False
+
+muoncosmicreco = cms.Sequence(CosmicMuonSeed*cosmicMuons*globalCosmicMuons*muonsFromCosmics)
