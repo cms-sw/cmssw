@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/08 07:53:36 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/07/09 13:04:11 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -246,6 +246,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 
   using namespace std;
   using namespace edm;
+  using namespace reco;
   using namespace trigger;
 
   vector<Handle<C> > collections;
@@ -275,6 +276,16 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 	const size_type n(collections[ic]->size());
 	for (size_type i=0; i!=n; ++i) {
 	  toc_.push_back(TriggerObject( (*collections[ic])[i] ));
+	  if ( (typeid(C)==typeid(CaloMETCollection)) ||
+	       (typeid(C)==typeid(    METCollection)) ) {
+	    // add scalar [Calo]MET quantities
+	    const MET* met(dynamic_cast<const MET*>( &(*collections[ic])[i]) );
+	    // store each scalar [Calo]MET observable in the pt_
+	    // component of a new TriggerObject
+	    toc_.push_back(TriggerObject(TriggerHT     ,met->sumEt()         ,0.0,0.0,0.0));
+	    toc_.push_back(TriggerObject(TriggerMETSig ,met->mEtSig()        ,0.0,0.0,0.0));
+	    toc_.push_back(TriggerObject(TriggerELongit,met->e_longitudinal(),0.0,0.0,0.0));
+	  }
 	}
 	tags_.push_back(collectionTag);
 	keys_.push_back(toc_.size());
@@ -293,6 +304,7 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
 
   using namespace std;
   using namespace edm;
+  using namespace reco;
   using namespace trigger;
 
   assert(ids.size()==refs.size());
@@ -315,7 +327,21 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
 	   << endl;
     }
     assert(offset_.find(pid)!=offset_.end()); // else unknown pid
-    keys_.push_back(offset_[pid]+refs[i].key());
+    // handle scalar [Calo]MET quantities
+    if ( (typeid(C)==typeid(CaloMETCollection)) ||
+	 (typeid(C)==typeid(    METCollection)) ) {
+      if (ids[i]==TriggerHT) {
+	keys_.push_back(offset_[pid]+4*refs[i].key()+1);
+      } else if (ids[i]==TriggerMETSig) {
+	keys_.push_back(offset_[pid]+4*refs[i].key()+2);
+      } else if (ids[i]==TriggerELongit) {
+	keys_.push_back(offset_[pid]+4*refs[i].key()+3);
+      } else {
+	keys_.push_back(offset_[pid]+4*refs[i].key()+0);
+      }
+    } else {
+      keys_.push_back(offset_[pid]+refs[i].key());
+    }
     ids_.push_back(ids[i]);
   }
 
