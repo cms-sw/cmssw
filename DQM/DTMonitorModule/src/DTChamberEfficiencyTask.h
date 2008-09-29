@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2007/11/06 17:30:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/01 00:39:54 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -47,6 +47,9 @@ public:
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
+  /// BeginRun
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -75,7 +78,9 @@ private:
   
   // Switch for verbosity
   bool debug;
-  
+  // The running mode
+  bool onlineMonitor;
+
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
 

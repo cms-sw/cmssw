@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/05/06 13:26:46 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -65,6 +65,10 @@ void DTChamberEfficiencyTask::beginJob(const edm::EventSetup& context){
   // parameter to use for the exstrapolated segment check
   theMinCloseDist = parameters.getParameter<double>("minCloseDist");
 
+  // the running modality
+  onlineMonitor = parameters.getUntrackedParameter<bool>("onlineMonitor");
+  
+
 }
 
 
@@ -73,7 +77,7 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
   if(debug)
     cout<<"[DTChamberEfficiencyTask]: Begin of LS transition"<<endl;
   
-  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0 && onlineMonitor) {
     for(map<DTChamberId, vector<MonitorElement*> > ::const_iterator histo = histosPerCh.begin();
 	histo != histosPerCh.end();
 	histo++) {
@@ -87,12 +91,29 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
 }
 
 
+void DTChamberEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetup& setup){
+  
+  // Get the DT Geometry
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
+  // Loop over all the chambers
+  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  for (; ch_it != ch_end; ++ch_it) {
+    // histo booking
+    bookHistos((*ch_it)->id());
+  }
+
+}
+
+
 
 void DTChamberEfficiencyTask::endJob(){
  if(debug)
     cout<<"[DTChamberEfficiencyTask] endjob called!"<<endl;
  
-  theDbe->rmdir("DT/DTChamberEfficiencyTask");
+ theDbe->save("testMonitoring.root");
+ theDbe->rmdir("DT/DTChamberEfficiencyTask");
 }
   
 
@@ -151,139 +172,138 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
     cout << "[DTChamberEfficiencyTask] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
   
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
-
   // Get the 4D rechit collection from the event
   event.getByLabel(theRecHits4DLabel, segs);
 
   int bottom=0, top=0;
 
-  // Loop over all the wheels
-  for (int wheel=-2; wheel<=2; wheel++) {
-    // Loop over all the sectors
-    for (int sector=1; sector<=12; sector++) {
-      // Loop over all the chambers
-      for (int station=1; station<=4; station++) {
 
-	DTChamberId MidId(wheel, station, sector);
+  // Loop over all the chambers
+  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  for (; ch_it != ch_end; ++ch_it) {
+    
+    DTChamberId ch = (*ch_it)->id();
+    int wheel =  ch.wheel();
+    int sector = ch.sector();
+    int station = ch.station();
 
-	// get efficiency for MB1 using MB2 and MB3	
-	if( station == 1 ) {
-	  bottom = 2;
-	  top = 3;
-	}
 
-	// get efficiency for MB2 using MB1 and MB3
-	if( station == 2 ) {
-	  bottom = 1;
-	  top = 3;
-	}
+    DTChamberId MidId(wheel, station, sector);
+    
+    // get efficiency for MB1 using MB2 and MB3	
+    if( station == 1 ) {
+      bottom = 2;
+      top = 3;
+    }
+    
+    // get efficiency for MB2 using MB1 and MB3
+    if( station == 2 ) {
+      bottom = 1;
+      top = 3;
+    }
 
-	// get efficiency for MB2 using MB2 and MB4
-	if( station == 3 ) {
-	  bottom = 2;
-	  top = 4;
-	}
+    // get efficiency for MB2 using MB2 and MB4
+    if( station == 3 ) {
+      bottom = 2;
+      top = 4;
+    }
+    
+    // get efficiency for MB4 using MB2 and MB3
+    if( station == 4 ) {
+      bottom = 2;
+      top = 3;
+    }
 
-	// get efficiency for MB4 using MB2 and MB3
-	if( station == 4 ) {
-	  bottom = 2;
-	  top = 3;
-	}
+    // Select events with (good) segments in Bot and Top
+    DTChamberId BotId(wheel, bottom, sector);
+    DTChamberId TopId(wheel, top, sector);	
+    
+    // Get segments in the bottom chambers (if any)
+    DTRecSegment4DCollection::range segsBot= segs->get(BotId);
+    int nSegsBot=segsBot.second-segsBot.first;
+    // check if any segments is there
+    if (nSegsBot==0) continue;
 
-	// Select events with (good) segments in Bot and Top
-	DTChamberId BotId(wheel, bottom, sector);
-	DTChamberId TopId(wheel, top, sector);	
-	
-	// Get segments in the bottom chambers (if any)
-	DTRecSegment4DCollection::range segsBot= segs->get(BotId);
-	int nSegsBot=segsBot.second-segsBot.first;
-	// check if any segments is there
-	if (nSegsBot==0) continue;
-	if(histosPerCh.find(MidId) == histosPerCh.end()){
-	  bookHistos(MidId);
-	}
-	vector<MonitorElement *> histos =  histosPerCh[MidId];  
-
-	// Get segments in the top chambers (if any)
-	DTRecSegment4DCollection::range segsTop= segs->get(TopId);
-	int nSegsTop=segsTop.second-segsTop.first;
-	
-	// Select one segment for the bottom chamber
-	const DTRecSegment4D& bestBotSeg= getBestSegment(segsBot);
-
-	// Select one segment for the top chamber
-	DTRecSegment4D* pBestTopSeg=0;
-	if (nSegsTop>0) 
-	  pBestTopSeg = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop));
-	//if top chamber is MB4 sector 10, consider also sector 14
-	if (TopId.station() == 4 && TopId.sector() == 10) {
-	  DTChamberId TopId14(wheel, top, 14);
-	  DTRecSegment4DCollection::range segsTop14= segs->get(TopId14);
-	  int nSegsTop14=segsTop14.second-segsTop14.first;
-	  nSegsTop+=nSegsTop14;
-	  if (nSegsTop14) {
-	    DTRecSegment4D* pBestTopSeg14 = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop14));
-	    // get best between sector 10 and 14
-	    pBestTopSeg = const_cast<DTRecSegment4D*>(getBestSegment(pBestTopSeg, pBestTopSeg14));
-	  }
-	}
-	if (!pBestTopSeg) continue;
-	const DTRecSegment4D& bestTopSeg= *pBestTopSeg;
-	
-	DTRecSegment4DCollection::range segsMid= segs->get(MidId);
-	int nSegsMid=segsMid.second-segsMid.first;
-	
-	// very trivial efficiency, just count segments
-	histos[1]->Fill(0);
-	if (nSegsMid>0) histos[1]->Fill(1);
-
-	// get position at Mid by interpolating the position (not direction) of best
-	// segment in Bot and Top to Mid surface
-	LocalPoint posAtMid = interpolate(bestBotSeg, bestTopSeg, MidId);
-	
-	// is best segment good enough?
-	if (isGoodSegment(bestBotSeg) && isGoodSegment(bestTopSeg)) {
-	  histos[2]->Fill(posAtMid.x(),posAtMid.y());
-	  //check if interpolation fall inside middle chamber
-	  if ((dtGeom->chamber(MidId))->surface().bounds().inside(posAtMid)) {
-	    histos[3]->Fill(posAtMid.x(),posAtMid.y());	    
-	    if (nSegsMid>0) {
-
-	      histos[1]->Fill(2);
-	      histos[4]->Fill(posAtMid.x(),posAtMid.y());
-
-	      const DTRecSegment4D& bestMidSeg= getBestSegment(segsMid);
-	      // check if middle segments is good enough
-	      if (isGoodSegment(bestMidSeg)) {
+    vector<MonitorElement *> histos =  histosPerCh[MidId];  
+    
+    // Get segments in the top chambers (if any)
+    DTRecSegment4DCollection::range segsTop= segs->get(TopId);
+    int nSegsTop=segsTop.second-segsTop.first;
+    
+    // Select one segment for the bottom chamber
+    const DTRecSegment4D& bestBotSeg= getBestSegment(segsBot);
+    
+    // Select one segment for the top chamber
+    DTRecSegment4D* pBestTopSeg=0;
+    if (nSegsTop>0) 
+      pBestTopSeg = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop));
+    //if top chamber is MB4 sector 10, consider also sector 14
+    if (TopId.station() == 4 && TopId.sector() == 10) {
+      DTChamberId TopId14(wheel, top, 14);
+      DTRecSegment4DCollection::range segsTop14= segs->get(TopId14);
+      int nSegsTop14=segsTop14.second-segsTop14.first;
+      nSegsTop+=nSegsTop14;
+      if (nSegsTop14) {
+	DTRecSegment4D* pBestTopSeg14 = const_cast<DTRecSegment4D*>(&getBestSegment(segsTop14));
+	// get best between sector 10 and 14
+	pBestTopSeg = const_cast<DTRecSegment4D*>(getBestSegment(pBestTopSeg, pBestTopSeg14));
+      }
+    }
+    if (!pBestTopSeg) continue;
+    const DTRecSegment4D& bestTopSeg= *pBestTopSeg;
+    
+    DTRecSegment4DCollection::range segsMid= segs->get(MidId);
+    int nSegsMid=segsMid.second-segsMid.first;
+    
+    // very trivial efficiency, just count segments
+    histos[1]->Fill(0);
+    if (nSegsMid>0) histos[1]->Fill(1);
+    
+    // get position at Mid by interpolating the position (not direction) of best
+    // segment in Bot and Top to Mid surface
+    LocalPoint posAtMid = interpolate(bestBotSeg, bestTopSeg, MidId);
+    
+    // is best segment good enough?
+    if (isGoodSegment(bestBotSeg) && isGoodSegment(bestTopSeg)) {
+      histos[2]->Fill(posAtMid.x(),posAtMid.y());
+      //check if interpolation fall inside middle chamber
+      if ((dtGeom->chamber(MidId))->surface().bounds().inside(posAtMid)) {
+	histos[3]->Fill(posAtMid.x(),posAtMid.y());	    
+	if (nSegsMid>0) {
+	  
+	  histos[1]->Fill(2);
+	  histos[4]->Fill(posAtMid.x(),posAtMid.y());
+	  
+	  const DTRecSegment4D& bestMidSeg= getBestSegment(segsMid);
+	  // check if middle segments is good enough
+	  if (isGoodSegment(bestMidSeg)) {
 		
-		histos[5]->Fill(posAtMid.x(),posAtMid.y());
-		LocalPoint midSegPos=bestMidSeg.localPosition();
-		
-		// check if middle segments is also close enough
-		double dist;
-		if (bestMidSeg.hasPhi()) { 
-		  if (bestTopSeg.hasZed() && bestBotSeg.hasZed() && bestMidSeg.hasZed()) { 
-		    dist = (midSegPos-posAtMid).mag();
-		  } else {
+	    histos[5]->Fill(posAtMid.x(),posAtMid.y());
+	    LocalPoint midSegPos=bestMidSeg.localPosition();
+	    
+	    // check if middle segments is also close enough
+	    double dist;
+	    if (bestMidSeg.hasPhi()) { 
+	      if (bestTopSeg.hasZed() && bestBotSeg.hasZed() && bestMidSeg.hasZed()) { 
+		dist = (midSegPos-posAtMid).mag();
+	      } else {
 		    dist = fabs((midSegPos-posAtMid).x());
-		  }
-		} else {
-		  dist = fabs((midSegPos-posAtMid).y());
-		}
-		if (dist < theMinCloseDist ) {
-		  histos[6]->Fill(posAtMid.x(),posAtMid.y());
-		}
-		histos[0]->Fill(dist);
- 
 	      }
+	    } else {
+	      dist = fabs((midSegPos-posAtMid).y());
 	    }
+	    if (dist < theMinCloseDist ) {
+	      histos[6]->Fill(posAtMid.x(),posAtMid.y());
+	    }
+	    histos[0]->Fill(dist);
+	    
 	  }
 	}
-      } // loop over stations
-    } // loop over sectors
-  } // loop over wheels
+      }
+    }
+  }// loop over stations
+
 }
 
 
