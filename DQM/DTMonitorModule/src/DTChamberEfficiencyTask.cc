@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 13:26:46 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/09/29 10:25:28 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -112,7 +112,6 @@ void DTChamberEfficiencyTask::endJob(){
  if(debug)
     cout<<"[DTChamberEfficiencyTask] endjob called!"<<endl;
  
- theDbe->save("testMonitoring.root");
  theDbe->rmdir("DT/DTChamberEfficiencyTask");
 }
   
