@@ -139,23 +139,23 @@ namespace edmtest {
   // Produces an DoubleProduct instance.
   //
 
-  class DoubleProducer : public edm::EDProducer {
+  class ToyDoubleProducer : public edm::EDProducer {
   public:
-    explicit DoubleProducer(edm::ParameterSet const& p) : 
+    explicit ToyDoubleProducer(edm::ParameterSet const& p) : 
       value_(p.getParameter<double>("dvalue")) {
       produces<DoubleProduct>();
     }
-    explicit DoubleProducer(double d) : value_(d) {
+    explicit ToyDoubleProducer(double d) : value_(d) {
       produces<DoubleProduct>();
     }
-    virtual ~DoubleProducer() { }
+    virtual ~ToyDoubleProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
   private:
     double value_;
   };
 
   void
-  DoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  ToyDoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
 
     // Make output
     std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
@@ -924,7 +924,7 @@ using edmtest::FailingProducer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
 using edmtest::Int16_tProducer;
-using edmtest::DoubleProducer;
+using edmtest::ToyDoubleProducer;
 using edmtest::SCSimpleProducer;
 using edmtest::OVSimpleProducer;
 using edmtest::VSimpleProducer;
@@ -946,7 +946,7 @@ DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(Int16_tProducer);
-DEFINE_FWK_MODULE(DoubleProducer);
+DEFINE_FWK_MODULE(ToyDoubleProducer);
 DEFINE_FWK_MODULE(SCSimpleProducer);
 DEFINE_FWK_MODULE(OVSimpleProducer);
 DEFINE_FWK_MODULE(VSimpleProducer);
