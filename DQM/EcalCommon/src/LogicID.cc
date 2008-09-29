@@ -1,12 +1,12 @@
-// $Id: LogicID.cc,v 1.16 2008/09/29 10:39:55 dellaric Exp $
+// $Id: LogicID.cc,v 1.17 2008/09/29 12:16:47 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.16 $
-  \date $Date: 2008/09/29 10:39:55 $
+  \version $Revision: 1.17 $
+  \date $Date: 2008/09/29 12:16:47 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -65,7 +65,7 @@ EcalLogicID LogicID::getEcalLogicID( const char* name,
 
   if( strcmp(name, "EE") == 0 ) {
     return( EcalLogicID( "EE",
-                         2000000000 ) );
+                         2000000000UL ) );
   }
   if( strcmp(name, "EE_crystal_number") == 0 ) {
     return( EcalLogicID( "EE_crystal_number",
