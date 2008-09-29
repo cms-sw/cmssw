@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "IOPool/Common/interface/ClassFiller.h"
 
 #include "TTreeCache.h"
 
@@ -35,7 +34,6 @@ namespace edm {
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
     branchIDsToReplace_() {
-    ClassFiller();
     if (secondaryFileSequence_) {
       std::set<BranchID> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry().productList();
