@@ -16,6 +16,7 @@ patLayer0EventContent = cms.PSet(
         'keep *_layer0JetCorrFactors_*_*', 
         'keep recoGenJetsedmAssociation_*_*_*', 
         'keep *_iterativeCone5GenJets_*_*', 
+        'keep *_tauGenJets_*_*', 
         'keep *_genMet_*_*', 
         'keep recoMuons_muons__*',                       # for Layer 1 MET, to be fixed
         'keep recoMuons_paramMuons_ParamGlobalMuons_*',  # for Layer 1 MET, to be fixed
