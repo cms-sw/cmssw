@@ -74,9 +74,9 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
 //      BPix_Pxl_FEC_1
 //     string fullFECName = tableMat[r][colM["PIXEL_FEC"]] ;
 //     fullFECName.replace(0,13,"") ;
-     fecnumber = atoi(tableMat[r][colM["PIXEL_FEC"]].c_str()) ;
-     crate     = atoi(tableMat[r][colM["CRATE"]].c_str()) ;
-     string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
+     fecnumber = atoi(tableMat[r][colM["PIXFEC_NAME"]].c_str()) ;
+     crate     = atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) ;
+     string hexVMEAddr = tableMat[r][colM["VME_ADDR"]] ;
      sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
      PixelFECParameters tmp;
      
