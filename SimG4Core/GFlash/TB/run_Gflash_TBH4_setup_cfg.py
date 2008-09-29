@@ -90,10 +90,8 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHadronShowerModel = cms.bool(True),
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_histogram_h4.root'),
-    gflash5x5EnergyScale_b = cms.double(-1.3e-05),
     GflashHadronPhysics = cms.string('QGSP_BERT'),
-    gflash5x5EnergyScale_a = cms.double(1.011156),
-    emLateral_pList = cms.vdouble(1.8686, -0.00443)
+    tuning_pList = cms.vdouble()
 )
 process.ecal_notCont_sim.EBs25notContainment = 1.0
 process.ecal_notCont_sim.EEs25notContainment = 1.0

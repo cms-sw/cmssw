@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.8 2008/08/13 00:16:20 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.9 2008/09/26 17:01:24 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -32,8 +32,6 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterS
 
   jCalorimeter = Gflash::kNULL;
   theBField = parSet.getParameter<double>("bField");
-  theGflash5x5EnergyScale_a = parSet.getParameter<double>("gflash5x5EnergyScale_a");
-  theGflash5x5EnergyScale_b = parSet.getParameter<double>("gflash5x5EnergyScale_b");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -45,15 +43,7 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterS
   }
   theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
 
-  theEMLateral_pList = parSet.getParameter<std::vector<double> >("emLateral_pList");
-
-  std::cout << "------------ tuning parameters --------------" << std::endl;
-  std::cout << "theGflash5x5EnergyScale_a : " << theGflash5x5EnergyScale_a << std::endl;
-  std::cout << "theGflash5x5EnergyScale_b : " << theGflash5x5EnergyScale_b << std::endl;
-  std::cout << "theEMLateral_pList[0]     : " << theEMLateral_pList[0] << std::endl;
-  std::cout << "theEMLateral_pList[1]     : " << theEMLateral_pList[1] << std::endl;
-  std::cout << "theEMLateral_pList[2]     : " << theEMLateral_pList[2] << std::endl;
-  std::cout << "theEMLateral_pList[3]     : " << theEMLateral_pList[3] << std::endl;
+  theTuning_pList = parSet.getParameter<std::vector<double> >("tuning_pList");
 
 }
 
@@ -84,8 +74,6 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4double logEinc = std::log(incomingEnergy);
   G4double y = incomingEnergy / Gflash::criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
   G4double logY = std::log(y);
-
-  G4double e25Scale = theGflash5x5EnergyScale_a + theGflash5x5EnergyScale_b*incomingEnergy;
 
   G4double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876); // total number of spots
 
@@ -147,7 +135,8 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
   // @@@ dwjang, intial tuning by comparing 20-150GeV TB data
   // the width of energy response is not yet tuned.
-  z1 *= theEMLateral_pList[0] + theEMLateral_pList[1] * std::tanh(theEMLateral_pList[2]*std::log(incomingEnergy) - theEMLateral_pList[3]);
+  G4double e25Scale = 1.03551;
+  z1 *= 9.76972e-01 - 3.85026e-01 * std::tanh(1.82790e+00*std::log(incomingEnergy) - 3.66237e+00);
   p1 *= 0.96;
 
   // preparation of longitudinal integration

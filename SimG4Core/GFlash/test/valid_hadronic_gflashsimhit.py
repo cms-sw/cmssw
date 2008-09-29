@@ -44,7 +44,7 @@ process.source = cms.Source("FlatRandomEGunSource",
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/GFlash'
-process.g4SimHits.Physics.GFlash = cms.PSet(
+
 process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHadronPhysics = cms.string('QGSP_BERT'),
     GflashEMShowerModel = cms.bool(True),
@@ -52,9 +52,7 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_had.root'),
     bField = cms.double(4.0),
-    gflash5x5EnergyScale_a = cms.double(1.03551),
-    gflash5x5EnergyScale_b = cms.double(0),
-    emLateral_pList = cms.vdouble(9.76972e-01, -3.85026e-01, 1.82790e+00, 3.66237e+00)
+    tuning_pList = cms.vdouble()
 )
 
 process.g4SimHits.Watchers = cms.VPSet(

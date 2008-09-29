@@ -38,11 +38,9 @@ private:
   CLHEP::RandGaussQ* theRandGauss;
   Gflash::CalorimeterNumber jCalorimeter;
   G4double theBField;
-  G4double theGflash5x5EnergyScale_a;
-  G4double theGflash5x5EnergyScale_b;
 
   // temporary addition for tuning parameters
-  std::vector<double> theEMLateral_pList;
+  std::vector<double> theTuning_pList;
 
 };
 
