@@ -166,7 +166,7 @@ void testGenericHandle::getbyLabelTest() {
   ep.setLuminosityBlockPrincipal(lbp);
   const edm::BranchDescription& branchFromRegistry = it->second;
   boost::shared_ptr<edm::EventEntryDescription> entryDescriptionPtr(new edm::EventEntryDescription);
-  entryDescriptionPtr->moduleDescriptionID_ = branchFromRegistry.moduleDescriptionID();
+  entryDescriptionPtr->moduleDescriptionID() = branchFromRegistry.moduleDescriptionID();
   std::auto_ptr<edm::EventEntryInfo> branchEntryInfoPtr(
       new edm::EventEntryInfo(branchFromRegistry.branchID(),
                               edm::productstatus::present(),

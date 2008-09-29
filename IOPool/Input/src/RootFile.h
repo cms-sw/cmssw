@@ -229,7 +229,7 @@ namespace edm {
           std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	  // Throws parents away for now.
-	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
+	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID(), it->second.oldProductID());
 	  mapper->insert(entry);
        }
       }

@@ -295,7 +295,7 @@ namespace edm {
 	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
 	// This throws away the parentage information, for now.
 	EventEntryDescription eid;
-	eid.moduleDescriptionID_ = entryDescriptionBuffer.moduleDescriptionID_;
+	eid.moduleDescriptionID() = entryDescriptionBuffer.moduleDescriptionID();
         registry.insertMapped(eid);
       }
     } else {

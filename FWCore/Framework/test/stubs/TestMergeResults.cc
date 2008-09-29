@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.9 2008/06/27 20:21:27 wdd Exp $
+// $Id: TestMergeResults.cc,v 1.10 2008/06/30 21:51:53 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -224,7 +224,7 @@ namespace edmtest
       edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
       e.getByLabel(tag, h_thing);
       std::string expectedParent = expectedParents_[parentIndex_];
-      BranchID actualParentBranchID = h_thing.provenance()->entryDescription().parents_[0];
+      BranchID actualParentBranchID = h_thing.provenance()->entryDescription().parents()[0];
 
       // There ought to be a get that uses the BranchID as an argument, but
       // there is not at the moment so we get the Provenance first and use that
