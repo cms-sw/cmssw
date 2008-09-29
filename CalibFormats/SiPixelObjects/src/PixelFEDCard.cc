@@ -205,9 +205,8 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
     {
       first = false ;
       //VME base address 
-      string fakeHex = "0x" + tableMat[1][colM["VME_ADDRS_HEX"]] ;
       //Fed Base Address
-      sscanf(fakeHex.c_str(),"%lx",&FEDBASE_0);
+      sscanf(tableMat[1][colM["VME_ADDRS_HEX"]].c_str(),"%lx",&FEDBASE_0);
       //      sscanf(tableMat[1][colM["PIXEL_FED"]].c_str(), "PxlFED_%ld",&fedNumber);
       fedNumber    = atoi(tableMat[1][colM["PIXEL_FED"]].c_str()		) ;
       //Settable optical input parameters (one for each 12-receiver)		
@@ -239,7 +238,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       Nfifo1Bzlvl  = atoi(tableMat[1][colM["NORTH_FIFO1_BZ_LVL"]].c_str()	) ;
       NCfifo1Bzlvl = atoi(tableMat[1][colM["NORTHCENTER_FIFO1_BZ_LVL"]].c_str() ) ;
       SCfifo1Bzlvl = atoi(tableMat[1][colM["SOUTHCENTER_FIFO1_BZ_LVL"]].c_str() ) ;
-      Sfifo1Bzlvl  = atoi(tableMat[1][colM["SOUTTH_FIFO1_BZ_LVL"]].c_str()	) ;
+      Sfifo1Bzlvl  = atoi(tableMat[1][colM["SOUTH_FIFO1_BZ_LVL"]].c_str()	) ;
 
       //Bits (1st 8) used to mask TBM trailer bits
       N_TBMmask    = atoi(tableMat[1][colM["NORTH_TBMMASK"]].c_str()	     	) ;
@@ -503,11 +502,11 @@ void PixelFEDCard::readDBROCLevels(std::vector<std::vector<std::string> > &table
 
   for(int r = firstRow + 1 ; r < lastRow ; r++)    //Goes to every row of the Matrix (MUST BE 36, one for each FED channel)
     {
-      ROC_L0[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1] = atoi(tableMat[r][colM["ROC_L0"]].c_str()) ;
-      ROC_L1[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1] = atoi(tableMat[r][colM["ROC_L1"]].c_str()) ;
-      ROC_L2[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1] = atoi(tableMat[r][colM["ROC_L2"]].c_str()) ;
-      ROC_L3[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1] = atoi(tableMat[r][colM["ROC_L3"]].c_str()) ;
-      ROC_L4[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1] = atoi(tableMat[r][colM["ROC_L4"]].c_str()) ;
+      ROC_L0[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())] = atoi(tableMat[r][colM["ROC_L0"]].c_str()) ;
+      ROC_L1[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())] = atoi(tableMat[r][colM["ROC_L1"]].c_str()) ;
+      ROC_L2[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())] = atoi(tableMat[r][colM["ROC_L2"]].c_str()) ;
+      ROC_L3[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())] = atoi(tableMat[r][colM["ROC_L3"]].c_str()) ;
+      ROC_L4[atoi(tableMat[r][colM["FED_CHAN"]].c_str())-1][atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())] = atoi(tableMat[r][colM["ROC_L4"]].c_str()) ;
     }
   
 }
