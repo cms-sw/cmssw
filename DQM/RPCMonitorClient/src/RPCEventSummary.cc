@@ -165,7 +165,7 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	 if (!myMe)continue;
 	 
 	 //check for enough statistics
-	 if (myMe->getMean() < minHitsInRoll_) continue;
+	 if (myMe->getEntries() < minHitsInRoll_) continue;
 
 	 const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
 	 if(!theOccupancyQReport) continue;
