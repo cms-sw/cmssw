@@ -6,33 +6,30 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/CommonOptions.h"
+
+//#include <boost/program_options.hpp>
 #include <iostream>
 int main( int argc, char** argv ){
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_schema_iov [options] \n");
-  visible.add_options()
-    ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
-    ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
+  cond::CommonOptions myopt("cmscond_schema_iov");
+  myopt.addConnect();
+  myopt.addAuthentication(true);
+  myopt.visibles().add_options()
     ("create","create iov schema")
     ("drop","drop iov schema")
     ("truncate","truncate iov schema")
-    ("debug,d","switch on debug mode")
-    ("help,h", "help message")
     ;
-  desc.add(visible);
+  myopt.description().add( myopt.visibles() );
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).run(), vm);
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
     std::cerr << er.what()<<std::endl;
     return 1;
   }
   if (vm.count("help")) {
-    std::cout << visible <<std::endl;;
+    std::cout <<myopt.visibles() <<std::endl;;
     return 0;
   }
   std::string connect;

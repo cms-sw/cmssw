@@ -7,6 +7,16 @@ cond::CommonOptions::CommonOptions( const std::string& commandname):m_name(comma
     ;
   m_description->add(*m_visible);
 }
+
+cond::CommonOptions::CommonOptions( const std::string& commandname,
+				    const std::string& positionparameter):m_name(commandname),m_description(new boost::program_options::options_description("options")),m_visible(new boost::program_options::options_description(std::string("Usage: ")+m_name+std::string(" [options] ")+positionparameter+std::string(" \n")) ){
+  m_visible->add_options()
+    ("debug","switch on debug mode")
+    ("help,h", "help message")
+    ;
+  m_description->add(*m_visible);
+}
+
 cond::CommonOptions::~CommonOptions(){
   delete m_visible;
   m_visible=0;

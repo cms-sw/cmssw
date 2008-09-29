@@ -19,8 +19,6 @@
 
 
 int main( int argc, char** argv ){
-  //boost::program_options::options_description desc("options");
-  //boost::program_options::options_description visible("Usage: cmscond_delete_iov [options] \n");
   cond::CommonOptions myopt("cmscond_delete_iov");
   myopt.addConnect();
   myopt.addAuthentication(true);

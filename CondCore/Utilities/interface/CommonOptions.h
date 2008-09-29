@@ -7,6 +7,8 @@ namespace cond{
   class CommonOptions{
   public:
     explicit CommonOptions( const std::string& commandname);
+    CommonOptions( const std::string& commandname,
+		   const std::string& positionparameter);
     ~CommonOptions();
     void addAuthentication(const bool withEnvironmentAuth=true);
     void addConnect();
