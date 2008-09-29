@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/22 16:49:18 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/05/06 14:02:08 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -76,6 +76,21 @@ void DTChamberEfficiencyTest::beginLuminosityBlock(LuminosityBlock const& lumiSe
 }
 
 
+void DTChamberEfficiencyTest::beginRun(const edm::Run& run, const edm::EventSetup& setup){
+  
+  // Get the DT Geometry
+  setup.get<MuonGeometryRecord>().get(muonGeom);
+
+  // Loop over all the chambers
+  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  for (; ch_it != ch_end; ++ch_it) {
+    // histo booking
+    bookHistos((*ch_it)->id());
+  }
+
+}
+
 void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
@@ -135,10 +150,6 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       int lastBinY=(*GoodSegDen_histo_root).GetNbinsY();
       TH1D* proyN=GoodCloseSegNum_histo_root->ProjectionY();
       TH1D* proyD=GoodSegDen_histo_root->ProjectionY();
-	  
-
-      // Book Efficiency Histos
-      if (xEfficiencyHistos.find(HistoName) == xEfficiencyHistos.end()) bookHistos(chID);
 	  
       for(int xBin=1; xBin<=lastBinX; xBin++) {
 	if(proxD->GetBinContent(xBin)!=0){
