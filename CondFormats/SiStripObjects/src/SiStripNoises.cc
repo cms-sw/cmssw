@@ -147,7 +147,7 @@ void SiStripNoises::allNoises(std::vector<float> &noises, const Range& range) co
     size_t mysize  = ((range.second-range.first) << 3) / 9;
     size_t size = noises.size();
     if (mysize < size) throw cms::Exception("CorruptedData") 
-            << "[SiStripNoises::allNoises] Requested noise for " << noises.size() << " strips, I have it only for " << size << " strips\n";
+            << "[SiStripNoises::allNoises] Requested noise for " << noises.size() << " strips, I have it only for " << mysize << " strips\n";
     size_t size8 = size & (~0x7), carry = size & 0x7; // we have an optimized way of unpacking 8 strips
     const uint8_t *ptr = (&*range.second) - 1;
     std::vector<float>::iterator out = noises.begin(), end8 = noises.begin() + size8;

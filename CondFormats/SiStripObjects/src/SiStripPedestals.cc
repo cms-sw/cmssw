@@ -142,7 +142,7 @@ SiStripPedestals::allPeds  (std::vector<int>   & peds,  const Range& range) cons
     size_t mysize  = ((range.second-range.first) << 3) / 10;
     size_t size = peds.size();
     if (mysize < size) throw cms::Exception("CorruptedData") 
-            << "[SiStripPedestalss::allPets] Requested pedestals for " << peds.size() << " strips, I have it only for " << size << " strips\n";
+            << "[SiStripPedestals::allPeds] Requested pedestals for " << peds.size() << " strips, I have it only for " << mysize << " strips\n";
     size_t size4 = size & (~0x3), carry = size & 0x3; // we have an optimized way of unpacking 4 strips
     const uint8_t *ptr = reinterpret_cast<const uint8_t *>(&*range.second) - 1;
     std::vector<int>::iterator out = peds.begin(), end4 = peds.begin() + size4;
