@@ -76,21 +76,9 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
     for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
       {
 	PixelROCName rocid( tableMat[r][colM["ROC_NAME"]] );
-	// tableMat[r][colM["TRIM_BLOB"]].copy(c , 2080 );
-	// unsigned char *bits = (unsigned char* )(tableMat[r][colM["TRIM_BLOB"]].c_str());
-	//bits = (unsigned char)(tableMat[r][colM["TRIM_BLOB"]].c_str());
-	PixelROCTrimBits tmp;     // Have to add like this  PixelROCTrimBits tmp(rocid , bits ); 
-	std::istringstream istring ;
-	istring.str(base64_decode(tableMat[r][colM["TRIM_CLOB"]])) ;
-	tmp.read(rocid, istring) ;
-// 	bits = tableMat[r][colM["TRIM_CLOB"]];
-	//std::cout<<rocid<<std::endl;
-	// std::cout<<bits.size()<<std::endl;
-// 	tmp.setROCTrimBits(rocid, bits);
+	PixelROCTrimBits tmp;     
+	tmp.read(rocid, base64_decode(tableMat[r][colM["TRIM_BITS"]])) ;
 	trimbits_.push_back(tmp);
-	//std::cout<<"Pase por aqui:"<<r<<std::endl;
-	// dacValue = atoi(tableMat[r][colM["VALUE"]].c_str());
-	// pDSM.insert(pair<string,pair<string,int> >(currentRocName.str(),pair<string,int>(dacName,dacValue)));
       }//end for r 
     //std::cout<<trimbits_.size()<<std::endl;
 } //end contructor with databasa table

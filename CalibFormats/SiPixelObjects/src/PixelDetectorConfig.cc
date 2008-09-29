@@ -20,6 +20,7 @@ using namespace pos;
 
 PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","",""){
 
+  std::string mthn = "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    " ;
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
@@ -52,7 +53,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
   }//end for
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
-      std::cerr << "[PixelDetectorConfig::PixelDetectorConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+      std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
       assert(0);
     }
   }
@@ -86,7 +87,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
   }//end for r
 
-  std::cout<<"Number of Modules in Detector Configuration Class:"<<getNModules()<<std::endl;
+  std::cout << mthn << "Number of Modules in Detector Configuration Class:" << getNModules() << std::endl;
 
 }//end constructor
 

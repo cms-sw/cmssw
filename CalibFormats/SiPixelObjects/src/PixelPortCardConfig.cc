@@ -264,14 +264,14 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	       && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  //cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else if(type_ == "bpix" && settingName.find("AOH") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH" and "Gain"
 	      && settingName.find("AOH_") == string::npos                                                            // must not contain AOH_ 'cause this is for forward
 	      && settingName.find("123")  == string::npos && settingName.find("456") == string::npos )               // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  //cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else // no special handling for this name
 	{
@@ -288,6 +288,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	      i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
 	    }
 	  pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
+          /*
 	  cout << mthn << "Setting\t" << "|"<<settingName<<"|->"<<nameDBtoFileConversion_[settingName] 
 	       << "\twith pair:\t(" 
 	       << i2c_address
@@ -295,6 +296,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	       << i2c_values
 	       << ")"
 	       << endl ;
+	  */
 	  device_.push_back(p);
 	}
     } // End of table columns

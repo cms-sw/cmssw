@@ -22,10 +22,11 @@
 using namespace pos;
 using namespace std;
 
+//================================================================================================================
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
-
-  std::cout<<"Table Size in const:"<<tableMat.size()<<std::endl;
+ std::string mthn = "[PixelMaskAllPixels::PixelMaskAllPixels()]\t\t    " ;
+ std::cout<< mthn << "Table Size in const:"<<tableMat.size()<<std::endl;
 
  std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;
@@ -65,7 +66,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
    {
      if(colM.find(colNames[n]) == colM.end())
        {
-	 std::cerr << "[PixelMaskAllPixels::PixelMaskAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	 std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	 assert(0);
        }
    }
@@ -74,26 +75,22 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
     std::string currentRocName = tableMat[r][colM["ROC_NAME"]]  ;               
     PixelROCName rocid(currentRocName);
     PixelROCMaskBits tmp;
-    std::istringstream istring ;
-    istring.str(base64_decode(tableMat[r][colM["KILL_MASK"]])) ;
-    tmp.read(rocid,istring);
+    tmp.read(rocid,base64_decode(tableMat[r][colM["KILL_MASK"]])) ; // decode back from specially base64-encoded data for XML 
     maskbits_.push_back(tmp);
-  }//end for r 
-//std::cout<<maskbits_.size()<<std::endl;
+  }                                                      //end for r 
 }
 
+//================================================================================================================
 // modified by MR on 18-04-2008 10:02:00
 PixelMaskAllPixels::PixelMaskAllPixels():PixelMaskBase("","",""){;}
 
+//================================================================================================================
 void PixelMaskAllPixels::addROCMaskBits(PixelROCMaskBits bits)
 {
   maskbits_.push_back(bits);
 }
 
-//**********************************************************************
-
-
-
+//================================================================================================================
 PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
   PixelMaskBase("","",""){
 
@@ -199,12 +196,14 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
 	
     }
     
+//================================================================================================================
 const PixelROCMaskBits& PixelMaskAllPixels::getMaskBits(int ROCId) const {
 
   return maskbits_[ROCId];
 
 }
 
+//================================================================================================================
 PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
 
   for(unsigned int i=0;i<maskbits_.size();i++){
@@ -215,6 +214,7 @@ PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
 
 }
 
+//================================================================================================================
 void PixelMaskAllPixels::writeBinary(std::string filename) const{
 
   
@@ -227,7 +227,7 @@ void PixelMaskAllPixels::writeBinary(std::string filename) const{
 
 }
 
-
+//================================================================================================================
 void PixelMaskAllPixels::writeASCII(std::string dir) const{
 
   if (dir!="") dir+="/";
