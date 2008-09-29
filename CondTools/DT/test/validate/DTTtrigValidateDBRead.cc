@@ -68,7 +68,7 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                       tTId.stationId,
                       tTId.sectorId,
                       tTId.slId,
-                      tTrig, tTrms );
+                      tTrig, tTrms, DTTimeUnits::counts );
     if ( status ) logFile << "ERROR while getting sl Ttrig "
                           << tTId.wheelId   << " "
                           << tTId.stationId << " "
@@ -97,7 +97,7 @@ void DTTtrigValidateDBRead::analyze(const edm::Event& e,
                       sta,
                       sec,
                       qua,
-                      tTrig, tTrms );
+                      tTrig, tTrms, DTTimeUnits::counts );
     if ( ( fabs( cktrig - tTrig ) > 0.1    ) ||
          ( fabs( ckrms  - tTrms ) > 0.0001 ) )
          logFile << "MISMATCH IN WRITING AND READING sl Ttrig "

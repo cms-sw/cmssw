@@ -51,7 +51,7 @@ namespace edmtest {
                   trigId.slId,
                   trigId.layerId,
                   trigId.cellId,
-                  trigTime, trigTrms );
+                  trigTime, trigTrms, DTTimeUnits::counts );
       std::cout << trigId.wheelId   << " "
                 << trigId.stationId << " "
                 << trigId.sectorId  << " "

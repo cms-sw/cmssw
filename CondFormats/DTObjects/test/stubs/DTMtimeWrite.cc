@@ -67,7 +67,11 @@ namespace edmtest {
                   >> qua
                   >> mti
                   >> rms ) {
-      status = mTime->set( whe, sta, sec, qua, mti, rms );
+      status = mTime->set( whe, sta, sec, qua, mti, rms,
+                           DTVelocityUnits::cm_per_ns );
+//                           DTVelocityUnits::cm_per_count );
+//                           DTTimeUnits::ns );
+//                           DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -109,7 +113,8 @@ namespace edmtest {
                   >> qua
                   >> mti
                   >> rms ) {
-      status = mTime->get( whe, sta, sec, qua, ckmti, ckrms );
+      status = mTime->get( whe, sta, sec, qua, ckmti, ckrms,
+                           DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:13:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/15 18:14:45 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -111,7 +111,8 @@ void DTPerformanceHandler::getNewObjects() {
                 >> meanEfficiency ) {
     status = dtPerf->set( whe, sta, sec, qua,
                           meanT0, meanTtrig, meanMtime, meanNoise,
-                          meanAfterPulse, meanResolution, meanEfficiency );
+                          meanAfterPulse, meanResolution, meanEfficiency,
+                          DTTimeUnits::counts );
     std::cout << whe << " "
               << sta << " "
               << sec << " "

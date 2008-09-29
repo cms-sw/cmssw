@@ -67,7 +67,8 @@ namespace edmtest {
                   >> qua
                   >> tri
                   >> rms ) {
-      status = tTrig->set( whe, sta, sec, qua, tri, rms );
+      status = tTrig->set( whe, sta, sec, qua, tri, rms,
+                           DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -111,7 +112,8 @@ namespace edmtest {
                   >> qua
                   >> tri
                   >> rms ) {
-      status = tTrig->get( whe, sta, sec, qua, cktri, ckrms );
+      status = tTrig->get( whe, sta, sec, qua, cktri, ckrms,
+                           DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/21 15:13:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/25 16:19:57 $
+ *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -90,7 +90,7 @@ void DTMtimeValidateHandler::addNewObject( int runNumber ) {
               mTrms = random() *  2.0 / 0x7fffffff;
               mTime += 370.0;
               status = mT->set( whe, sta, sec, qua,
-                                mTime, mTrms );
+                                mTime, mTrms, DTTimeUnits::counts );
               outFile << whe << " "
                       << sta << " "
                       << sec << " "
@@ -104,7 +104,7 @@ void DTMtimeValidateHandler::addNewObject( int runNumber ) {
                                     << qua << " , status = "
                                     << status << std::endl;
               status = mT->get( whe, sta, sec, qua,
-                                ckmt, ckrms );
+                                ckmt, ckrms, DTTimeUnits::counts );
               if ( status ) logFile << "ERROR while checking sl Mtime "
                                     << whe << " "
                                     << sta << " "

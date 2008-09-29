@@ -51,7 +51,10 @@ namespace edmtest {
                   mTimeId.slId,
                   mTimeId.layerId,
                   mTimeId.cellId,
-                  mTTime, mTTrms );
+//                  mTTime, mTTrms, DTVelocityUnits::cm_per_ns );
+//                  mTTime, mTTrms, DTVelocityUnits::cm_per_count );
+//                  mTTime, mTTrms, DTTimeUnits::ns );
+                  mTTime, mTTrms, DTTimeUnits::counts );
       std::cout << mTimeId.wheelId   << " "
                 << mTimeId.stationId << " "
                 << mTimeId.sectorId  << " "

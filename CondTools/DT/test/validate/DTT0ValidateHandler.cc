@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/21 15:13:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/25 16:19:57 $
+ *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -97,7 +97,7 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
               t0mean -= 4.0;
 //              t0rms  /= 4.0;
               status = t0->set( whe, sta, sec, qua, lay, cel,
-                                t0mean, t0rms );
+                                t0mean, t0rms, DTTimeUnits::counts );
               outFile << whe << " "
                       << sta << " "
                       << sec << " "
@@ -115,7 +115,7 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
                                     << cel << " , status = "
                                     << status << std::endl;
               status = t0->get( whe, sta, sec, qua, lay, cel,
-                                ckmean, ckrms );
+                                ckmean, ckrms, DTTimeUnits::counts );
               if ( status ) logFile << "ERROR while checking cell T0 "
                                     << whe << " "
                                     << sta << " "

@@ -68,7 +68,7 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e,
                       mTId.stationId,
                       mTId.sectorId,
                       mTId.slId,
-                      mTime, mTrms );
+                      mTime, mTrms, DTTimeUnits::counts );
     if ( status ) logFile << "ERROR while getting sl Mtime "
                           << mTId.wheelId   << " "
                           << mTId.stationId << " "
@@ -97,7 +97,7 @@ void DTMtimeValidateDBRead::analyze(const edm::Event& e,
                       sta,
                       sec,
                       qua,
-                      mTime, mTrms );
+                      mTime, mTrms, DTTimeUnits::counts );
     if ( ( fabs( ckmt  - mTime ) > 0.1    ) ||
          ( fabs( ckrms - mTrms ) > 0.0001 ) )
          logFile << "MISMATCH IN WRITING AND READING sl Mtime "

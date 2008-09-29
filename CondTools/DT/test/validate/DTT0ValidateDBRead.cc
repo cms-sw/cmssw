@@ -73,7 +73,7 @@ void DTT0ValidateDBRead::analyze( const edm::Event& e,
                       t0Id.slId,
                       t0Id.layerId,
                       t0Id.cellId,
-                      t0mean, t0rms );
+                      t0mean, t0rms, DTTimeUnits::counts );
     if ( status ) logFile << "ERROR while getting cell T0 "
                           << t0Id.wheelId   << " "
                           << t0Id.stationId << " "
@@ -110,7 +110,7 @@ void DTT0ValidateDBRead::analyze( const edm::Event& e,
                       qua,
                       lay,
                       cel,
-                      t0mean, t0rms );
+                      t0mean, t0rms, DTTimeUnits::counts );
     if ( ( fabs( ckmean - t0mean ) > 0.0001 ) ||
          ( fabs( ckrms  - t0rms  ) > 0.0001 ) )
          logFile << "MISMATCH IN WRITING AND READING cell T0 "

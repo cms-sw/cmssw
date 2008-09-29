@@ -71,7 +71,8 @@ namespace edmtest {
                   >> cel
                   >> t0m
                   >> rms ) {
-      status = t0->set( whe, sta, sec, qua, lay, cel, t0m, rms );
+      status = t0->set( whe, sta, sec, qua, lay, cel, t0m, rms,
+                        DTTimeUnits::counts );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "

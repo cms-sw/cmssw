@@ -6,8 +6,8 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2007/10/30 17:30:20 $
- *  $Revision: 1.6.6.1 $
+ *  $Date: 2007/12/07 15:00:45 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "CondFormats/DTObjects/interface/DTVelocityUnits.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
@@ -86,7 +87,7 @@ class DTMtime {
                int      slId,
                float&  mTime,
                float&  mTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+               DTTimeUnits::type unit ) const
       { return get( wheelId, stationId, sectorId, slId, 0, 0,
                     mTime, mTrms, unit ); };
   int slMtime( int   wheelId,
@@ -97,18 +98,18 @@ class DTMtime {
                int    cellId,
                float&  mTime,
                float&  mTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+               DTTimeUnits::type unit ) const
       { return get( wheelId, stationId, sectorId, slId, layerId, cellId,
                     mTime, mTrms, unit ); };
   int slMtime( const DTSuperLayerId& id,
                float&  mTime,
                float&  mTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+               DTTimeUnits::type unit ) const
       { return get( id, mTime, mTrms, unit ); };
   int slMtime( const DetId& id,
                float&  mTime,
                float&  mTrms,
-               DTTimeUnits::type unit = DTTimeUnits::counts ) const
+               DTTimeUnits::type unit ) const
       { return get( id, mTime, mTrms, unit ); };
   int get( int   wheelId,
            int stationId,
@@ -116,7 +117,14 @@ class DTMtime {
            int      slId,
            float&  mTime,
            float&  mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+           DTTimeUnits::type unit ) const;
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float&  mTime,
+           float&  mTrms,
+           DTVelocityUnits::type unit ) const;
   int get( int   wheelId,
            int stationId,
            int  sectorId,
@@ -125,15 +133,32 @@ class DTMtime {
            int    cellId,
            float&  mTime,
            float&  mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+           DTTimeUnits::type unit ) const;
+  int get( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float&  mTime,
+           float&  mTrms,
+           DTVelocityUnits::type unit ) const;
   int get( const DTSuperLayerId& id,
            float&  mTime,
            float&  mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+           DTTimeUnits::type unit ) const;
+  int get( const DTSuperLayerId& id,
+           float&  mTime,
+           float&  mTrms,
+           DTVelocityUnits::type unit ) const;
   int get( const DetId& id,
            float&  mTime,
            float&  mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+           DTTimeUnits::type unit ) const;
+  int get( const DetId& id,
+           float&  mTime,
+           float&  mTrms,
+           DTVelocityUnits::type unit ) const;
   float unit() const;
 
   /// access version
@@ -150,7 +175,7 @@ class DTMtime {
                   int      slId,
                   float   mTime,
                   float   mTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts )
+                  DTTimeUnits::type unit )
       { return set( wheelId, stationId, sectorId, slId, 0, 0,
                     mTime, mTrms, unit ); };
   int setSLMtime( int   wheelId,
@@ -161,18 +186,18 @@ class DTMtime {
                   int    cellId,
                   float   mTime,
                   float   mTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts )
+                  DTTimeUnits::type unit )
       { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
                     mTime, mTrms, unit ); };
   int setSLMtime( const DTSuperLayerId& id,
                   float   mTime,
                   float   mTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts )
+                  DTTimeUnits::type unit )
       { return set( id, mTime, mTrms, unit ); };
   int setSLMtime( const DetId& id,
                   float   mTime,
                   float   mTrms,
-                  DTTimeUnits::type unit = DTTimeUnits::counts )
+                  DTTimeUnits::type unit )
       { return set( id, mTime, mTrms, unit ); };
   int set( int   wheelId,
            int stationId,
@@ -180,7 +205,14 @@ class DTMtime {
            int      slId,
            float   mTime,
            float   mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts );
+           DTTimeUnits::type unit );
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           float   mTime,
+           float   mTrms,
+           DTVelocityUnits::type unit );
   int set( int   wheelId,
            int stationId,
            int  sectorId,
@@ -189,15 +221,32 @@ class DTMtime {
            int    cellId,
            float   mTime,
            float   mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts );
+           DTTimeUnits::type unit );
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           float   mTime,
+           float   mTrms,
+           DTVelocityUnits::type unit );
   int set( const DTSuperLayerId& id,
            float   mTime,
            float   mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts );
+           DTTimeUnits::type unit );
+  int set( const DTSuperLayerId& id,
+           float   mTime,
+           float   mTrms,
+           DTVelocityUnits::type unit );
   int set( const DetId& id,
            float   mTime,
            float   mTrms,
-           DTTimeUnits::type unit = DTTimeUnits::counts );
+           DTTimeUnits::type unit );
+  int set( const DetId& id,
+           float   mTime,
+           float   mTrms,
+           DTVelocityUnits::type unit );
   void setUnit( float unit );
 
   /// Access methods to data

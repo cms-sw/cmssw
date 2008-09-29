@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:13:41 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/15 18:14:42 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -99,7 +99,8 @@ void DTMtimeHandler::getNewObjects() {
                 >> qua
                 >> mti
                 >> rms ) {
-    status = mTime->set( whe, sta, sec, qua, mti, rms );
+    status = mTime->set( whe, sta, sec, qua, mti, rms,
+                         DTTimeUnits::counts );
     std::cout << whe << " "
               << sta << " "
               << sec << " "
