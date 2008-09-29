@@ -5,7 +5,7 @@
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/RootAutoLibraryLoader/interface/TransientStreamer.h"
+#include "IOPool/Common/interface/TransientStreamer.h"
 #include "Cintex/Cintex.h"
 #include "TH1.h"
 #include "G__ci.h"
