@@ -3,7 +3,7 @@
 
 
 //
-// $Id$
+// $Id: TriggerPrimitive.h,v 1.3 2008/06/08 12:23:59 vadler Exp $
 //
 
 
@@ -19,7 +19,7 @@
    to store the trigger object id from trigger::TriggerObject::id_.
 
   \author   Volker Adler
-  \version  $Id$
+  \version  $Id: TriggerPrimitive.h,v 1.3 2008/06/08 12:23:59 vadler Exp $
 */
 
 
@@ -40,7 +40,6 @@ namespace pat {
     public:
 
       TriggerPrimitive();
-      TriggerPrimitive( const pat::TriggerPrimitive & aTrigPrim );
       TriggerPrimitive( const reco::Particle::LorentzVector & aVec, const std::string aFilt = "", const int aType = 0, const int id = 0 );
       TriggerPrimitive( const reco::Particle::PolarLorentzVector & aVec, const std::string aFilt = "", const int aType = 0, const int id = 0 );
       virtual ~TriggerPrimitive();
