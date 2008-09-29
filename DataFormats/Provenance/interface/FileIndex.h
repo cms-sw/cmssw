@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.6 2008/08/26 21:23:44 wdd Exp $
+$Id: FileIndex.h,v 1.7 2008/08/29 19:01:39 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ $Id: FileIndex.h,v 1.6 2008/08/26 21:23:44 wdd Exp $
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 #include <iosfwd>
 
@@ -87,14 +88,27 @@ namespace edm {
 
       bool allEventsInEntryOrder() const;
 
-    private:
-
       enum SortState { kNotSorted, kSorted_Run_Lumi_Event, kSorted_Run_Lumi_EventEntry};
 
+      struct Transients {
+	Transients();
+	bool allInEntryOrder_;
+	bool resultCached_;
+	SortState sortState_;
+      };
+
+      void setDefaultTransients() const {
+	transients_ = Transients();
+      };
+
+    private:
+
+      bool& allInEntryOrder() const {return transients_.get().allInEntryOrder_;}
+      bool& resultCached() const {return transients_.get().resultCached_;}
+      SortState& sortState() const {return transients_.get().sortState_;}
+
       std::vector<Element> entries_;
-      mutable bool allEventsInEntryOrder_; //! transient
-      mutable bool resultCached_; //! transient
-      mutable SortState sortState_; //! transient
+      mutable Transient<Transients> transients_;
   };
 
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh);
