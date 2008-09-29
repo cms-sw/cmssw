@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripGainBuilderFromDb.h,v 1.1 2008/09/22 18:06:50 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripGainBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripGainBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripGainBuilderFromDb_H
@@ -17,7 +17,6 @@ class SiStripGainBuilderFromDb : public SiStripGainESSource {
   
   /** Builds pedestals using info from configuration database. */
   virtual SiStripApvGain* makeGain();
-  
   
  protected:
   

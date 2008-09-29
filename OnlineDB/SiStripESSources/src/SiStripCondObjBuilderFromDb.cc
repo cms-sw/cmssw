@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.8 2008/09/22 18:06:51 bainbrid Exp $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.9 2008/09/25 09:42:45 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
@@ -24,6 +24,10 @@
 
 using namespace std;
 using namespace sistrip;
+
+// -----------------------------------------------------------------------------
+/** */
+float SiStripCondObjBuilderFromDb::defaultGainValue_ = 0.8;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -120,6 +124,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
   }
 
 #ifdef USING_NEW_DATABASE_MODEL
+
   // Retrieve gain from configuration database
   SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions = 
     db->getAnalysisDescriptions( CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN );
@@ -130,6 +135,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
       << " No opto-scan analysis descriptions found!";
     return;
   }
+
 #endif
   
   // Retrieve list of active DetIds
@@ -220,63 +226,57 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  noises_->setData( 0., inputNoises );
 	  //edm::LogWarning(mlESSources_) << "TEST default values for " << *det_id << " strip " << istrip << std::endl;
 	}
-	inputApvGain.push_back(0.8); // First APV
-	inputApvGain.push_back(0.8); // Second APV
+
+	// Added by R.B. 
+	inputApvGain.push_back(defaultGainValue_); // APV0
+	inputApvGain.push_back(defaultGainValue_); // APV1
+
 	continue;
       }
 
-      // Added by R.B. ----------------------------------------
 
+
+      // Added by R.B. ----------------------------------------
+      
 #ifdef USING_NEW_DATABASE_MODEL
+
       SiStripConfigDb::AnalysisDescriptionsV::const_iterator iii = anal_descriptions.begin();
       SiStripConfigDb::AnalysisDescriptionsV::const_iterator jjj = anal_descriptions.end();
       while ( iii != jjj ) {
-	CommissioningAnalysisDescription* anal = *iii;
-	if ( !anal ) { iii = jjj; break; }
-	uint16_t fed_id = anal->getFedId();
-	uint16_t fed_ch = SiStripFedKey::fedCh( anal->getFeUnit(), anal->getFeChan() );
+	CommissioningAnalysisDescription* tmp = *iii;
+	uint16_t fed_id = tmp->getFedId();
+	uint16_t fed_ch = SiStripFedKey::fedCh( tmp->getFeUnit(), tmp->getFeChan() );
 	if ( fed_id == ipair->fedId() && fed_ch == ipair->fedCh() ) { break; }
 	iii++;
       }
-      OptoScanAnalysisDescription* anal = dynamic_cast<OptoScanAnalysisDescription*>(*iii);
-      if ( iii == jjj || !anal ) { 
-	edm::LogWarning(mlESSources_)
-	  << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	  << " Unable to find opto scan analysis description for"
-	  << " DetId: " << *det_id 
-	  << " FedId: " << ipair->fedId() 
-	  << " FedCh: " << ipair->fedCh() 
-	  << " APV pair number " << apvPair
-	  << " Writing default values...";
-	inputApvGain.push_back(0.8); // First APV
-	inputApvGain.push_back(0.8); // Second APV
-      } else {
+
+      OptoScanAnalysisDescription* anal = 0;
+      if ( iii != jjj ) { anal = dynamic_cast<OptoScanAnalysisDescription*>(*iii); }
+      if ( anal ) {
 	uint16_t gain_setting = anal->getGain();
-	float gain_value = 0.8;
+	float gain_value = defaultGainValue_;
 	if      ( gain_setting == 0 ) { gain_value = anal->getMeasGain0(); }
 	else if ( gain_setting == 1 ) { gain_value = anal->getMeasGain1(); }
 	else if ( gain_setting == 2 ) { gain_value = anal->getMeasGain2(); }
 	else if ( gain_setting == 3 ) { gain_value = anal->getMeasGain3(); }
-	else {
-	  edm::LogWarning(mlESSources_)
-	    << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	    << " Unexpected gain setting retrieve from opto-scan analysis description!"
-	    << " Gain setting: " << gain_setting
-	    << " DetId: " << *det_id 
-	    << " FedId: " << ipair->fedId() 
-	    << " FedCh: " << ipair->fedCh() 
-	    << " APV pair number " << apvPair
-	    << " Writing default values...";
-	}
-	inputApvGain.push_back( gain_value ); // First APV
-	inputApvGain.push_back( gain_value ); // Second APV
+	else { /* invalid gain setting! */ }
+	inputApvGain.push_back( gain_value ); // APV0
+	inputApvGain.push_back( gain_value ); // APV1
+      } else {
+	inputApvGain.push_back(defaultGainValue_); // APV0
+	inputApvGain.push_back(defaultGainValue_); // APV1
       }
-#else
-      inputApvGain.push_back(0.8); // First APV
-      inputApvGain.push_back(0.8); // Second APV
+
+#else //@@ old database model
+
+      inputApvGain.push_back(defaultGainValue_); // APV0
+      inputApvGain.push_back(defaultGainValue_); // APV1
+
 #endif
       
       // Above added by R.B. ----------------------------------------
+
+
 
       //if(*det_id==369158216)
       //edm::LogWarning(mlESSources_) << "TEST this is my  vector<FedChannelConnection> entry " 

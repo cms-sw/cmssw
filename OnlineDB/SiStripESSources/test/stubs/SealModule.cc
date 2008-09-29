@@ -12,3 +12,6 @@ DEFINE_ANOTHER_FWK_MODULE(test_PedestalsBuilder);
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(test_NoiseBuilder);
+
+#include "OnlineDB/SiStripESSources/test/stubs/testSiStripGainBuilderFromDb.h"
+DEFINE_ANOTHER_FWK_MODULE(testSiStripGainBuilderFromDb);
