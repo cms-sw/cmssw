@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.12 2008/09/25 16:57:33 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.13 2008/09/26 07:08:58 dmytro Exp $
 //
 
 // system include files
@@ -89,7 +89,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
  m_scaler(iScaler)
 {
    m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
+   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    nv->SetGLViewer(ev);

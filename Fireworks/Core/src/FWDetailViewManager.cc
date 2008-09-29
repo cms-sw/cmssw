@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.12 2008/04/01 15:43:08 dmytro Exp $
+// $Id: FWDetailViewManager.cc,v 1.13 2008/04/07 21:37:38 dmytro Exp $
 //
 
 // system include files
@@ -109,7 +109,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      frame->AddFrame(hf,new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY));
      text_view = new TGTextView(hf,20,20);
      hf->AddFrame(text_view, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandY));
-     TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0);
+     TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0, 0);
      TEveViewer* nv = new TEveViewer();
      nv->SetGLViewer(v);
      nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.23 2008/09/24 17:58:38 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.24 2008/09/27 16:57:59 dmytro Exp $
 //
 
 #define private public
@@ -153,7 +153,7 @@ m_cameraMatrix(0)
    m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    
    m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
+   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(iName.c_str());
    nv->SetGLViewer(ev);

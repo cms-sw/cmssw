@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:     Core
@@ -8,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.22 2008/07/20 18:22:00 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.23 2008/09/26 07:08:58 dmytro Exp $
 //
 
 // system include files
@@ -86,7 +87,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
  m_cameraSet(false)
 {
    m_pad = new TEvePad;
-   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
+   TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    nv->SetGLViewer(ev);

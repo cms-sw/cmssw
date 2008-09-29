@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: ElectronView.cc,v 1.1.2.1 2008/03/06 18:46:11 jmuelmen Exp $
+// $Id: ElectronView.cc,v 1.2 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ void ElectronView::event ()
      // connect the close-window button to something useful
      frame->Connect("CloseWindow()", "ElectronView", this, "close_wm()");
      frame->SetCleanup(kDeepCleanup);
-     TGLEmbeddedViewer* v = new TGLEmbeddedViewer(frame, 0);
+     TGLEmbeddedViewer* v = new TGLEmbeddedViewer(frame, 0, 0);
      TEveViewer* nv = new TEveViewer();
      nv->SetGLViewer(v);
      nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
