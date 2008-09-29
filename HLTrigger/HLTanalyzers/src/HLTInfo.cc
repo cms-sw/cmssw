@@ -408,7 +408,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     std::cout<<"F "<<L1GctCounts->hfRing1EtSumNegativeEta()<<std::endl;
     */
 
-    
+    /* disable filling of variables untill jetcount object code is stabilized in CMSSW_3_X
     for (L1GctJetCountsCollection::const_iterator jbx=L1GctCounts->begin(); jbx!=L1GctCounts->end(); jbx++) {
       l1hfTowerCountPositiveEta = (int)(* jbx).hfTowerCountPositiveEta();
       l1hfTowerCountNegativeEta = (int)(* jbx).hfTowerCountNegativeEta();
@@ -417,6 +417,14 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
       l1hfRing1EtSumPositiveEta = (int)(* jbx).hfRing1EtSumPositiveEta();
       l1hfRing1EtSumNegativeEta = (int)(* jbx).hfRing1EtSumNegativeEta();
     }
+    */
+    l1hfTowerCountPositiveEta = -999;
+    l1hfTowerCountNegativeEta = -999;
+    l1hfRing0EtSumPositiveEta = -999;
+    l1hfRing0EtSumNegativeEta = -999;
+    l1hfRing1EtSumPositiveEta = -999;
+    l1hfRing1EtSumNegativeEta = -999;
+
   } else {
     if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
   }
