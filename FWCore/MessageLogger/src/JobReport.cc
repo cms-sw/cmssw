@@ -17,7 +17,7 @@
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.41 2008/06/24 21:39:22 ewv Exp $
+// $Id: JobReport.cc,v 1.42 2008/07/22 14:00:11 evansde Exp $
 //
 
 
@@ -25,7 +25,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include <iostream>
 #include <sstream>
+
+
 
 namespace edm
 {
@@ -70,16 +73,20 @@ namespace edm
   template <typename S>
     S&
     print (S& os,
-		JobReport::LumiSectionReport const& rep){
-      os << "\n<LumiSection>\n"
-	 << "<LumiSectionNumber Value=\""
-	 << rep.lumiSectionId
-	 << "\"/>\n"
-	 << "<RunNumber Value=\""
-	 << rep.runNumber
-	 << "\"/>\n"
-	 << "</LumiSection>\n";
-
+	   JobReport::RunReport const& rep){
+    os << "\n<Run ID=\"" 
+       <<rep.runNumber
+       << "\">\n";
+    
+    std::set<unsigned int>::iterator il;
+    for (il = rep.lumiSections.begin(); il != rep.lumiSections.end();
+	 ++il){
+      os << "   <LumiSection ID=\"" << *il << "\"/>\n";
+      
+    }
+    
+    os << "</Run>\n";
+    
 
 	return os;
      }
@@ -90,8 +97,9 @@ namespace edm
   std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f){
     return print(os,f);
   }
-  std::ostream& operator<< (std::ostream& os, JobReport::LumiSectionReport const& rep) {
-    return print(os,rep);
+
+  std::ostream& operator<< (std::ostream& os, JobReport::RunReport const& f){
+    return print(os,f);
   }
 
   //To talk to MessageLogger directly
@@ -101,9 +109,13 @@ namespace edm
   edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::OutputFile const& f){
     return print(os,f);
   }
-  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::LumiSectionReport const& rep) {
-    return print(os,rep);
+  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::RunReport const& f){
+    return print(os,f);
   }
+//  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::LumiSectionReport const& rep) {
+//    return print(os,rep);
+//  }
+//
 
 
     JobReport::InputFile& JobReport::JobReportImpl::getInputFileForToken(JobReport::Token t) {
@@ -201,13 +213,14 @@ namespace edm
     void JobReport::JobReportImpl::writeInputFile(JobReport::InputFile const& f){
       if(ost_) {
         *ost_ <<f ;
-	*ost_ << "\n<LumiSections>";
-	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
-	for (iLumi = f.lumiSections.begin();
-	     iLumi != f.lumiSections.end(); iLumi++){
-	  *ost_ << *iLumi;
+	*ost_ << "\n<Runs>";
+	std::map<JobReport::RunNumber, JobReport::RunReport>::const_iterator iRun;
+	for (iRun = f.runReports.begin();
+	     iRun != f.runReports.end(); iRun++){
+	  *ost_ << iRun->second;
 	}
-	*ost_ << "\n</LumiSections>\n";
+	*ost_ << "\n</Runs>\n";
+
         *ost_ << "</InputFile>\n";
 
 
@@ -235,13 +248,13 @@ namespace edm
 	*ost_ << "\n<File>";
         *ost_ <<f;
 
-	*ost_ << "\n<LumiSections>";
-	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
-	for (iLumi = f.lumiSections.begin();
-	     iLumi != f.lumiSections.end(); iLumi++){
-	  *ost_ << *iLumi;
+	*ost_ << "\n<Runs>";
+	std::map<JobReport::RunNumber, JobReport::RunReport>::const_iterator iRun;
+	for (iRun = f.runReports.begin();
+	     iRun != f.runReports.end(); iRun++){
+	  *ost_ << iRun->second;
 	}
-	*ost_ << "\n</LumiSections>\n";
+	*ost_ << "\n</Runs>\n";
 
 	*ost_ << "\n<Inputs>";
  	std::vector<JobReport::Token>::const_iterator iInput;
@@ -297,7 +310,67 @@ namespace edm
     }
   }
 
-  void JobReport::JobReportImpl::associateLumiSection(JobReport::LumiSectionReport const&  rep){
+  void JobReport::JobReportImpl::associateRun(unsigned int runNumber){
+    std::vector<Token> openFiles = openOutputFiles();
+    std::vector<Token>::iterator iToken;
+    for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
+      JobReport::OutputFile & theFile = outputFiles_[*iToken];
+      std::cout << "Associating " << runNumber 
+		<< " To file: " << theFile.logicalFileName << std::endl;
+      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
+      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
+	    ++iRun){
+	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
+
+      }
+	
+      
+      //
+      // check run is known to file
+      // if not, add a run report for that run     
+      if (theFile.runReports.count(runNumber) == 0){
+	JobReport::RunReport newReport = JobReport::RunReport();
+	newReport.runNumber = runNumber;
+	theFile.runReports.insert(
+		 std::make_pair(runNumber, newReport)
+		 );
+      }
+      
+    }
+  }
+
+  void JobReport::JobReportImpl::associateInputRun(unsigned int runNumber){
+    std::vector<Token> openFiles = openInputFiles();
+    std::vector<Token>::iterator iToken;
+    for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
+      JobReport::InputFile & theFile = inputFiles_[*iToken];
+      std::cout << "Associating " << runNumber 
+		<< " To file: " << theFile.logicalFileName << std::endl;
+      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
+      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
+	    ++iRun){
+	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
+
+      }
+	
+      
+      //
+      // check run is known to file
+      // if not, add a run report for that run     
+      if (theFile.runReports.count(runNumber) == 0){
+	JobReport::RunReport newReport = JobReport::RunReport();
+	newReport.runNumber = runNumber;
+	theFile.runReports.insert(
+		 std::make_pair(runNumber, newReport)
+		 );
+      }
+      
+
+    }
+  }
+
+
+  void JobReport::JobReportImpl::associateLumiSection(unsigned int runNumber, unsigned int lumiSect){
     std::vector<Token> openFiles = openOutputFiles();
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
@@ -305,75 +378,83 @@ namespace edm
       // Loop over all open output files
       //
       JobReport::OutputFile & theFile = outputFiles_[*iToken];
-      //
-      // check known lumi sections for each file
-      //
-      std::vector<JobReport::LumiSectionReport>::iterator iLumi;
-      bool lumiKnownByFile = false;
-      for (iLumi = theFile.lumiSections.begin();
-	   iLumi != theFile.lumiSections.end(); iLumi++){
+      
+      std::cout << "Associating " << runNumber << "." << lumiSect
+		<< " To file: " << theFile.logicalFileName << std::endl;
+      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
+      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
+	    ++iRun){
+	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
 
-	if ( (iLumi->lumiSectionId == rep.lumiSectionId) &&
-	     (iLumi->runNumber == rep.runNumber) ){
-	  //
-	  // This file already has this lumi section associated to it
-	  // dont report it twice
-
-	  lumiKnownByFile = true;
-	}
       }
-      if (lumiKnownByFile == false){
-	//
-	// New lumi section for file: associate lumi section with it.
-	//
-	JobReport::LumiSectionReport newReport;
-	newReport.runNumber = rep.runNumber;
-	newReport.lumiSectionId = rep.lumiSectionId;
-	theFile.lumiSections.push_back(newReport);
+	
+      
+      //
+      // check run is known to file
+      // if not, add a run report for that run     
+      if (theFile.runReports.count(runNumber) == 0){
+	JobReport::RunReport newReport = JobReport::RunReport();
+	newReport.runNumber = runNumber;
+	theFile.runReports.insert(
+		 std::make_pair(runNumber, newReport)
+		 );
       }
+      
+      //
+      // Get the run report for this run, now that it either was created
+      // or already existed
+      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator finder;
+      finder = theFile.runReports.find(runNumber);
+      
+      //
+      // add the lumi section to the report, the lumi list is a Set
+      // so duplicates dont matter 
+      (finder->second).lumiSections.insert(lumiSect);
     }
-
-
   }
 
 
-  void JobReport::JobReportImpl::associateInputLumiSection(JobReport::LumiSectionReport const&  rep){
+  void JobReport::JobReportImpl::associateInputLumiSection(unsigned int runNumber, unsigned int lumiSect){
     std::vector<Token> openFiles = openInputFiles();
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
       //
-      // Loop over all open output files
+      // Loop over all open input files
       //
       JobReport::InputFile & theFile = inputFiles_[*iToken];
-      //
-      // check known lumi sections for each file
-      //
-      std::vector<JobReport::LumiSectionReport>::iterator iLumi;
-      bool lumiKnownByFile = false;
-      for (iLumi = theFile.lumiSections.begin();
-	   iLumi != theFile.lumiSections.end(); iLumi++){
 
-	if ( (iLumi->lumiSectionId == rep.lumiSectionId) &&
-	     (iLumi->runNumber == rep.runNumber) ){
-	  //
-	  // This file already has this lumi section associated to it
-	  // dont report it twice
+      std::cout << "Associating " << runNumber << "." << lumiSect
+		<< " To file: " << theFile.logicalFileName << std::endl;
+      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
+      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
+	    ++iRun){
+	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
 
-	  lumiKnownByFile = true;
-	}
       }
-      if (lumiKnownByFile == false){
-	//
-	// New lumi section for file: associate lumi section with it.
-	//
-	JobReport::LumiSectionReport newReport;
-	newReport.runNumber = rep.runNumber;
-	newReport.lumiSectionId = rep.lumiSectionId;
-	theFile.lumiSections.push_back(newReport);
+	
+
+      //
+      // check run is known to file
+      // if not, add a run report for that run     
+      if (theFile.runReports.count(runNumber) == 0){
+	JobReport::RunReport newReport = JobReport::RunReport();
+	newReport.runNumber = runNumber;
+	theFile.runReports.insert(
+		 std::make_pair(runNumber, newReport)
+		 );
       }
+      
+      //
+      // Get the run report for this run, now that it either was created
+      // or already existed
+      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator finder;
+      finder = theFile.runReports.find(runNumber);
+      
+      //
+      // add the lumi section to the report, the lumi list is a Set
+      // so duplicates dont matter 
+      (finder->second).lumiSections.insert(lumiSect);
     }
-
-
   }
   JobReport::~JobReport() {
     impl_->writeGeneratorInfo();
@@ -449,7 +530,7 @@ namespace edm
     {
       JobReport::InputFile& f = impl_->getInputFileForToken(fileToken);
       f.numEventsRead++;
-      f.runsSeen.insert(run);
+      //f.runsSeen.insert(run);
     }
 
     void
@@ -575,7 +656,7 @@ namespace edm
     {
       JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
       f.numEventsWritten++;
-      f.runsSeen.insert(run);
+      //f.runsSeen.insert(run);
     }
 
 
@@ -636,17 +717,20 @@ namespace edm
 
   void
   JobReport::reportLumiSection(unsigned int run, unsigned int lumiSectId){
-    JobReport::LumiSectionReport lumiRep;
-    lumiRep.runNumber = run;
-    lumiRep.lumiSectionId = lumiSectId;
-    impl_->associateLumiSection(lumiRep);
+    impl_->associateLumiSection(run, lumiSectId);
   }
   void
   JobReport::reportInputLumiSection(unsigned int run, unsigned int lumiSectId){
-    JobReport::LumiSectionReport lumiRep;
-    lumiRep.runNumber = run;
-    lumiRep.lumiSectionId = lumiSectId;
-    impl_->associateInputLumiSection(lumiRep);
+    impl_->associateInputLumiSection(run, lumiSectId);
+  }
+
+  void
+  JobReport::reportRunNumber(unsigned int run){
+    impl_->associateRun(run);
+  }
+  void
+  JobReport::reportInputRunNumber(unsigned int run){
+    impl_->associateInputRun(run);
   }
 
 
@@ -896,12 +980,12 @@ namespace edm
       msg << *f;
 
       msg << "\n<LumiSections>";
-      std::vector<JobReport::LumiSectionReport>::iterator iLumi;
-      for (iLumi = f->lumiSections.begin();
-	   iLumi != f->lumiSections.end(); iLumi++){
-	msg << *iLumi;
-      }
-      msg << "\n</LumiSections>\n";
+      //std::vector<JobReport::LumiSectionReport>::iterator iLumi;
+      //for (iLumi = f->lumiSections.begin();
+      //     iLumi != f->lumiSections.end(); iLumi++){
+      //  msg << *iLumi;
+      //}
+      //msg << "\n</LumiSections>\n";
       msg << "\n<Inputs>";
       std::vector<JobReport::Token>::iterator iInput;
       for (iInput = f->contributingInputs.begin();
