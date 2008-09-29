@@ -39,6 +39,10 @@ photonTrigMatchHLT1PhotonRelaxed = cms.EDFilter("PATTrigMatcher",
 photonTrigMatchHLT2Photon = cms.EDFilter("PATTrigMatcher",
     src     = cms.InputTag("allLayer0Photons"),
     matched = cms.InputTag("patHLT2Photon"),
+    maxDPtRel = cms.double(1.0),
+    maxDeltaR = cms.double(0.2),
+    resolveAmbiguities    = cms.bool(True),
+    resolveByMatchQuality = cms.bool(False),
 )
 
 # matches to HLT2PhotonRelaxed
