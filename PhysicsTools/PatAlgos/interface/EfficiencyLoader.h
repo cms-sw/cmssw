@@ -1,8 +1,8 @@
 #ifndef PhysicsTools_PatAlgos_EfficiencyLoader_h
 #define PhysicsTools_PatAlgos_EfficiencyLoader_h
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+#include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
@@ -33,7 +33,7 @@ class EfficiencyLoader {
     private:
         std::vector<std::string>   names_;
         std::vector<edm::InputTag> tags_;
-        mutable std::vector<edm::Handle< edm::ValueMap<Measurement1DFloat> > > handles_;
+        mutable std::vector<edm::Handle< edm::ValueMap<pat::LookupTableRecord> > > handles_;
 }; // class
 
 template<typename T, typename R>
