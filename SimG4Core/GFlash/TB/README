@@ -12,15 +12,8 @@ official compilation chain or test area.
 So trick is that we keep everything in TB directory but when one
 wants to build this producer one can copy BuildFile to test area
 and specify file path accordingly.
-To do that, one needs to replace the following line in BuildFile
+To do that, one needs to copy BuildFile to ../test directory.
 
-file="TreeProducerCalibSimul.cc TreeMatrixCalib.cc"
-
-with
-
-file="../TB/TreeProducerCalibSimul.cc ../TB/TreeMatrixCalib.cc"
-
-after copying BuildFile to ../test directory.
 If there is any question about this, send an email to dwjang@fnal.gov
 
 -----------------------------------------------------------------------------------

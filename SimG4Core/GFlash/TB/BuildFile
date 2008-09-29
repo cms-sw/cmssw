@@ -4,7 +4,7 @@
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
 <use name=root>
-<library name=SimG4CoreGFlashTBTreeProducerCalibSimul file="TreeProducerCalibSimul.cc TreeMatrixCalib.cc">
+<library name=SimG4CoreGFlashTBTreeProducerCalibSimul file="../TB/TreeProducerCalibSimul.cc ../TB/TreeMatrixCalib.cc">
   <flags EDM_PLUGIN=1>
 </library>
 
