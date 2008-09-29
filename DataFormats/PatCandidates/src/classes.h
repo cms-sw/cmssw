@@ -22,6 +22,8 @@
 
 #include "DataFormats/PatCandidates/interface/Vertexing.h"
 
+#include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
+
 // vvvv Needed to fix dictionaries missing in 169pre2
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -240,6 +242,8 @@ namespace {
     edm::Wrapper<edm::ValueMap<reco::PhotonID> > VMphId;
 
     edm::Wrapper<edm::ValueMap<pat::VertexAssociation> > wVMVA;
+
+    edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> > wLUT;
 
     }
 }

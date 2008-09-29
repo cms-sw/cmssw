@@ -235,6 +235,10 @@
   <class name="edm::ValueMap<reco::PhotonID>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::PhotonID> >" />
  
+  <class name="pat::LookupTableRecord" />
+  <class name="std::vector<pat::LookupTableRecord>" />
+  <class name="edm::ValueMap<pat::LookupTableRecord>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
  
  </selection>
  <exclusion>
