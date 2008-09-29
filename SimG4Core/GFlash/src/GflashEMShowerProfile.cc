@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.9 2008/09/26 17:01:24 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.10 2008/09/29 17:25:27 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -16,7 +16,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
@@ -68,7 +67,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4ThreeVector showerMomentum = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
 
   //find the calorimeter at the shower starting point
-  jCalorimeter = getCalorimeterNumber(showerStartingPosition);
+  jCalorimeter = Gflash::getCalorimeterNumber(showerStartingPosition);
 
   G4double incomingEnergy   = fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV;
   G4double logEinc = std::log(incomingEnergy);
@@ -342,33 +341,3 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
 }
 
-
-Gflash::CalorimeterNumber GflashEMShowerProfile::getCalorimeterNumber(const G4ThreeVector position)
-{
-  Gflash::CalorimeterNumber index = Gflash::kNULL;
-  G4double eta = position.getEta();
-
-  //central
-  if (fabs(eta) < Gflash::EtaMax[Gflash::kESPM] || fabs(eta) < Gflash::EtaMax[Gflash::kHB]) {
-    if(position.getRho() > Gflash::Rmin[Gflash::kESPM] && 
-       position.getRho() < Gflash::Rmax[Gflash::kESPM] ) {
-      index = Gflash::kESPM;
-    }
-    if(position.getRho() > Gflash::Rmin[Gflash::kHB] && 
-       position.getRho() < Gflash::Rmax[Gflash::kHB]) {
-      index = Gflash::kHB;
-    }
-  }
-  //forward
-  else if (fabs(eta) > Gflash::EtaMin[Gflash::kENCA] || fabs(eta) > Gflash::EtaMin[Gflash::kHE]) {
-    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kENCA] &&  
-	fabs(position.getZ()) < Gflash::Zmax[Gflash::kENCA] ) {
-      index = Gflash::kENCA;
-    }
-    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kHE] &&  
-	fabs(position.getZ()) < Gflash::Zmax[Gflash::kHE] ) {
-      index = Gflash::kHE;
-    }
-  }
-  return index;
-}

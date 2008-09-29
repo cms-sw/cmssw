@@ -26,7 +26,6 @@ public:
   GflashHadronShowerProfile (G4Region* envelope, edm::ParameterSet parSet);
   ~GflashHadronShowerProfile ();
 
-  Gflash::CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
   void hadronicParameterization(const G4FastTrack& fastTrack);
 
 private:

@@ -1,6 +1,6 @@
 #include "SimG4Core/GFlash/interface/GflashHadronShowerModel.h"
 #include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
+#include "SimG4Core/GFlash/interface/GflashNameSpace.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
 #include "G4PionMinus.hh"
@@ -146,7 +146,7 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   else {
     G4StepPoint* postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
-    Gflash::CalorimeterNumber kCalor = theProfile->getCalorimeterNumber(postStep->GetPosition()/cm);
+    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition()/cm);
     G4double distOut = 9999.0;
     //exclude the region where the shower starting point is outside parameterization envelopes
     if(kCalor==Gflash::kNULL) {

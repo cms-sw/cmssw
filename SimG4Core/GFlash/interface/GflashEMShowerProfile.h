@@ -23,7 +23,6 @@ public:
   ~GflashEMShowerProfile ();
 
   void parameterization(const G4FastTrack& fastTrack);
-  Gflash::CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
 
 private:  
 

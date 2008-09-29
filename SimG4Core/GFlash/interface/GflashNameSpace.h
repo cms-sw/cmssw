@@ -2,6 +2,7 @@
 #define GflashNameSpace_H 
 
 #include "globals.hh"
+#include "G4ThreeVector.hh"
 
 namespace Gflash {
 
@@ -14,6 +15,8 @@ namespace Gflash {
     kNumberCalorimeter
   };
   
+  CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
+
   //                                            EB     HB     EE     HE
   const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95}; // in cm
   const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10};

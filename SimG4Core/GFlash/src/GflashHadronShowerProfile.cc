@@ -49,35 +49,6 @@ GflashHadronShowerProfile::~GflashHadronShowerProfile()
   if(theGflashStep) delete theGflashStep;
 }
 
-Gflash::CalorimeterNumber GflashHadronShowerProfile::getCalorimeterNumber(const G4ThreeVector position)
-{
-  Gflash::CalorimeterNumber index = Gflash::kNULL;
-  G4double eta = position.getEta();
-
-  //central
-  if (fabs(eta) < Gflash::EtaMax[Gflash::kESPM] || fabs(eta) < Gflash::EtaMax[Gflash::kHB]) {
-    if(position.getRho() > Gflash::Rmin[Gflash::kESPM] && 
-       position.getRho() < Gflash::Rmax[Gflash::kESPM] ) {
-      index = Gflash::kESPM;
-    }
-    if(position.getRho() > Gflash::Rmin[Gflash::kHB] && 
-       position.getRho() < Gflash::Rmax[Gflash::kHB]) {
-      index = Gflash::kHB;
-    }
-  }
-  //forward
-  else if (fabs(eta) > Gflash::EtaMin[Gflash::kENCA] || fabs(eta) > Gflash::EtaMin[Gflash::kHE]) {
-    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kENCA] &&  
-	fabs(position.getZ()) < Gflash::Zmax[Gflash::kENCA] ) {
-      index = Gflash::kENCA;
-    }
-    if( fabs(position.getZ()) > Gflash::Zmin[Gflash::kHE] &&  
-	fabs(position.getZ()) < Gflash::Zmax[Gflash::kHE] ) {
-      index = Gflash::kHE;
-    }
-  }
-  return index;
-}
 
 void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fastTrack)
 {
@@ -107,7 +78,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   G4ThreeVector momentumShower = fastTrack.GetPrimaryTrack()->GetMomentum()/GeV;
 
   //find the calorimeter at the shower starting point
-  jCalorimeter = getCalorimeterNumber(positionShower);
+  jCalorimeter = Gflash::getCalorimeterNumber(positionShower);
 
   //get all necessary parameters for hadronic shower profiles including energyToDeposit
   loadParameters(fastTrack);
@@ -200,7 +171,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     //get proper energy scale 
       
-    whichCalor = getCalorimeterNumber(trajectoryShowino.getPosition());
+    whichCalor = Gflash::getCalorimeterNumber(trajectoryShowino.getPosition());
     deltaEnergy =  heightProfile*divisionStep*energyScale[whichCalor];    
 
     //@@@ When depthShower is inside Hcal, the sampling fluctuation for deposited
