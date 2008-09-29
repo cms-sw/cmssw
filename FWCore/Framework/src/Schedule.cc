@@ -253,7 +253,8 @@ namespace edm {
 	  itProdInfoEnd = prodsList.end();
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
-      if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
+      if(processName_ == itProdInfo->second.processName() &&
+         unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
 	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
 	demandBranches_.push_back(bd);
       }
