@@ -859,38 +859,38 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
                                                Double_t Peak, Double_t SD)
 {
-   // Total Means signal plus background
+  // Total Means signal plus background
 
-   const Double_t BinWidth  = Total.GetXaxis()->GetBinWidth(1);
-   const Int_t nbins = Total.GetNbinsX();
-   const Double_t xmin = Total.GetXaxis()->GetXmin();
+  const Double_t BinWidth  = Total.GetXaxis()->GetBinWidth(1);
+  const Int_t nbins = Total.GetNbinsX();
+  const Double_t xmin = Total.GetXaxis()->GetXmin();
 
-   const Int_t PeakBin = (Int_t)((Peak - xmin)/BinWidth + 1); // Peak
-   Int_t SDBin = (Int_t)(SD/BinWidth); // Standard deviation
-   if (SDBin == 0) SDBin = 1; // Protection
-   const Int_t I = 3*SDBin; // Interval
-   const Int_t D = 10*SDBin;  // Distance from peak
+  const Int_t PeakBin = (Int_t)((Peak - xmin)/BinWidth + 1); // Peak
+  Int_t SDBin = (Int_t)(SD/BinWidth); // Standard deviation
+  if (SDBin == 0) SDBin = 1; // Protection
+  const Int_t I = 3*SDBin; // Interval
+  const Int_t D = 10*SDBin;  // Distance from peak
 
-   const Double_t IntegralRight = Total.Integral(PeakBin + D, PeakBin + D + I);
-   const Double_t IntegralLeft = Total.Integral(PeakBin - D - I, PeakBin - D);
+  const Double_t IntegralRight = Total.Integral(PeakBin + D, PeakBin + D + I);
+  const Double_t IntegralLeft = Total.Integral(PeakBin - D - I, PeakBin - D);
 
-   double SubValue = 0.0;
-   double NewValue = 0.0;
+  double SubValue = 0.0;
+  double NewValue = 0.0;
 
-   const double Slope     = (IntegralRight - IntegralLeft)/(double)((2*D + I )*(I+1));
-   const double Intercept = IntegralLeft/(double)(I+1) - ((double)PeakBin - (double)D - (double)I/2.0)*Slope;
+  const double Slope     = (IntegralRight - IntegralLeft)/(double)((2*D + I )*(I+1));
+  const double Intercept = IntegralLeft/(double)(I+1) - ((double)PeakBin - (double)D - (double)I/2.0)*Slope;
 
-   for(Int_t bin = 1; bin < (nbins + 1); bin++){
-      SubValue = Slope*bin + Intercept;
-      if(SubValue < 0)
-         SubValue = 0;
+  for(Int_t bin = 1; bin < (nbins + 1); bin++){
+    SubValue = Slope*bin + Intercept;
+    if(SubValue < 0)
+      SubValue = 0;
 
-      NewValue = Total.GetBinContent(bin)-SubValue;
-      if(NewValue > 0){
-         Result.SetBinContent(bin, NewValue);
-      }
-   }
-   Result.SetEntries(Result.Integral());
+    NewValue = Total.GetBinContent(bin)-SubValue;
+    if(NewValue > 0){
+      Result.SetBinContent(bin, NewValue);
+    }
+  }
+  Result.SetEntries(Result.Integral());
 }
 // ********************************************************************** //
 
@@ -898,21 +898,21 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
 void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< double > bins,
 					string &bvar2, double bvar2Lo, double bvar2Hi )
 {
-   outRootFile_->cd();
-   TChain *nFitTree = new TChain();
-   nFitTree->Add((fileName+"/fitter_tree").c_str());
+  outRootFile_->cd();
+  TChain *nFitTree = new TChain();
+  nFitTree->Add((fileName+"/fitter_tree").c_str());
 
-   //return;
-   cout << "Here in Zll fitter" << endl;
+  //return;
+  cout << "Here in Zll fitter" << endl;
    
-   string hname = "fit_eff_" + bvar;
-   string htitle = "Efficiency vs " + bvar;
-   int bnbins = bins.size()-1;
-   cout << "The number of bins is " << bnbins << endl;
-   TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
+  string hname = "fit_eff_" + bvar;
+  string htitle = "Efficiency vs " + bvar;
+  int bnbins = bins.size()-1;
+  cout << "The number of bins is " << bnbins << endl;
+  TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
 
-   for( int bin=0; bin<bnbins; ++bin )
-   {
+  for( int bin=0; bin<bnbins; ++bin )
+    {
 
       // The fit variable - lepton invariant mass
       RooRealVar Mass("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
@@ -930,7 +930,7 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
       RooRealVar Var2(bvar2.c_str(),bvar2.c_str(),bvar2Lo,bvar2Hi,bunits.c_str());
 
       // The weighting
-      RooRealVar Weight("Weight","Weight",0.0,10000.0);
+      RooRealVar Weight("Weight","Weight",1.0);
 
       // Make the category variable that defines the two fits,
       // namely whether the probe passes or fails the eff criteria.
@@ -943,11 +943,11 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
       // Add the TTree as our data set ... with the weight in case 
       // we are using chained MC
       RooDataSet* data = new RooDataSet("fitData","fitData", fitTree_,
-      				RooArgSet(ProbePass,Mass,Var1,Var2,Weight),"","");
+					RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
       // Above command doesn't work in root 5.18 (lovely) so we have this
       // silly workaround with TChain for now
       // RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
-      //					RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
+      // 				     RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
       //RooDataSet* data = new RooDataSet("fitData",fileName.c_str(),"fitter_tree",
       //				RooArgSet(ProbePass,Mass,Var1,Weight));
 
@@ -972,50 +972,50 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
       // If the user has set a range, make the variable float
       if( signalMean_.size() == 3 )
-      {
-	 signalMean.setRange(signalMean_[1],signalMean_[2]);
-	 signalMean.setConstant(false);
-      }
+	{
+	  signalMean.setRange(signalMean_[1],signalMean_[2]);
+	  signalMean.setConstant(false);
+	}
       if( signalWidth_.size() == 3 )
-      {
-	 signalWidth.setRange(signalWidth_[1],signalWidth_[2]);
-	 signalWidth.setConstant(false);
-      }
+	{
+	  signalWidth.setRange(signalWidth_[1],signalWidth_[2]);
+	  signalWidth.setConstant(false);
+	}
       if( signalSigma_.size() == 3 )
-      {
-	 signalSigma.setRange(signalSigma_[1],signalSigma_[2]);
-	 signalSigma.setConstant(false);
-      }
+	{
+	  signalSigma.setRange(signalSigma_[1],signalSigma_[2]);
+	  signalSigma.setConstant(false);
+	}
       if( signalWidthL_.size() == 3 )
-      {
-	 signalWidthL.setRange(signalWidthL_[1],signalWidthL_[2]);
-	 signalWidthL.setConstant(false);
-      }
+	{
+	  signalWidthL.setRange(signalWidthL_[1],signalWidthL_[2]);
+	  signalWidthL.setConstant(false);
+	}
       if( signalWidthR_.size() == 3 )
-      {
-	 signalWidthR.setRange(signalWidthR_[1],signalWidthR_[2]);
-	 signalWidthR.setConstant(false);
-      }
+	{
+	  signalWidthR.setRange(signalWidthR_[1],signalWidthR_[2]);
+	  signalWidthR.setConstant(false);
+	}
   
-//       // Voigtian
-         RooVoigtian signalVoigtPdf("signalVoigtPdf", "signalVoigtPdf", 
- 				 Mass, signalMean, signalWidth, signalSigma);
+      //       // Voigtian
+      RooVoigtian signalVoigtPdf("signalVoigtPdf", "signalVoigtPdf", 
+				 Mass, signalMean, signalWidth, signalSigma);
 
-//       // Bifurcated Gaussian
-       RooBifurGauss signalGaussBifurPdf("signalGaussBifurPdf", "signalGaussBifurPdf", 
- 					Mass, signalMean, signalWidthL, signalWidthR);
+      //       // Bifurcated Gaussian
+      RooBifurGauss signalGaussBifurPdf("signalGaussBifurPdf", "signalGaussBifurPdf", 
+					Mass, signalMean, signalWidthL, signalWidthR);
 
       // Bifurcated Gaussian fraction
       RooRealVar bifurGaussFrac("bifurGaussFrac","bifurGaussFrac",bifurGaussFrac_[0]);
       if( bifurGaussFrac_.size() == 3 )
-      {
-	 bifurGaussFrac.setRange(bifurGaussFrac_[1],bifurGaussFrac_[2]);
-	 bifurGaussFrac.setConstant(false);
-      } 
+	{
+	  bifurGaussFrac.setRange(bifurGaussFrac_[1],bifurGaussFrac_[2]);
+	  bifurGaussFrac.setConstant(false);
+	} 
 
       // The total signal PDF
-       RooAddPdf  signalShapePdf("signalShapePdf", "signalShapePdf",
- 				 signalVoigtPdf,signalGaussBifurPdf,bifurGaussFrac);
+      RooAddPdf  signalShapePdf("signalShapePdf", "signalShapePdf",
+				signalVoigtPdf,signalGaussBifurPdf,bifurGaussFrac);
 
 
       // ********** Construct background shape PDF ********** //
@@ -1029,25 +1029,25 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
       // If the user has specified a range, let the bkg shape 
       // variables float in the fit
       if( bkgAlpha_.size() == 3 )
-      {
-	 bkgAlpha.setRange(bkgAlpha_[1],bkgAlpha_[2]);
-	 bkgAlpha.setConstant(false);
-      }
+	{
+	  bkgAlpha.setRange(bkgAlpha_[1],bkgAlpha_[2]);
+	  bkgAlpha.setConstant(false);
+	}
       if( bkgBeta_.size() == 3 )
-      {
-	 bkgBeta.setRange(bkgBeta_[1],bkgBeta_[2]);
-	 bkgBeta.setConstant(false);
-      }
+	{
+	  bkgBeta.setRange(bkgBeta_[1],bkgBeta_[2]);
+	  bkgBeta.setConstant(false);
+	}
       if( bkgGamma_.size() == 3 )
-      {
-	 bkgGamma.setRange(bkgGamma_[1],bkgGamma_[2]);
-	 bkgGamma.setConstant(false);
-      }
+	{
+	  bkgGamma.setRange(bkgGamma_[1],bkgGamma_[2]);
+	  bkgGamma.setConstant(false);
+	}
       if( bkgPeak_.size() == 3 )
-      {
-	 bkgPeak.setRange(bkgPeak_[1],bkgPeak_[2]);
-	 bkgPeak.setConstant(false);
-      }
+	{
+	  bkgPeak.setRange(bkgPeak_[1],bkgPeak_[2]);
+	  bkgPeak.setConstant(false);
+	}
 
       // CMS Background shape
       RooCMSShapePdf bkgShapePdf("bkgShapePdf","bkgShapePdf", 
@@ -1061,25 +1061,25 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
       // If ranges are specifed these are floating variables
       if( efficiency_.size() == 3 )
-      {
-	 efficiency.setRange(efficiency_[1],efficiency_[2]);
-	 efficiency.setConstant(false);
-      }
+	{
+	  efficiency.setRange(efficiency_[1],efficiency_[2]);
+	  efficiency.setConstant(false);
+	}
       if( numSignal_.size() == 3 )
-      {
-	 numSignal.setRange(numSignal_[1],numSignal_[2]);
-	 numSignal.setConstant(false);
-      }
+	{
+	  numSignal.setRange(numSignal_[1],numSignal_[2]);
+	  numSignal.setConstant(false);
+	}
       if( numBkgPass_.size() == 3 )
-      {
-	 numBkgPass.setRange(numBkgPass_[1],numBkgPass_[2]);
-	 numBkgPass.setConstant(false);
-      }
+	{
+	  numBkgPass.setRange(numBkgPass_[1],numBkgPass_[2]);
+	  numBkgPass.setConstant(false);
+	}
       if( numBkgFail_.size() == 3 )
-      {
-	 numBkgFail.setRange(numBkgFail_[1],numBkgFail_[2]);
-	 numBkgFail.setConstant(false);
-      }
+	{
+	  numBkgFail.setRange(numBkgFail_[1],numBkgFail_[2]);
+	  numBkgFail.setConstant(false);
+	}
       
 
       RooFormulaVar numSigPass("numSigPass","numSignal*efficiency", 
@@ -1118,27 +1118,27 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
       RooCatType* type;
       TIterator* catIter = simCat.typeIterator();
       while( (type=(RooCatType*)catIter->Next()) )
-      {
-	 // Retrieve the PDF for this simCat state
-	 RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
-	 RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
+	{
+	  // Retrieve the PDF for this simCat state
+	  RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
+	  RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
 
-	 if (pdf && dset && dset->numEntries(kTRUE)!=0.) 
-	 {               
-	    cout << "GOF Entries " << dset->numEntries() << " " 
-		 << type->GetName() << std::endl;
-	    if( (string)type->GetName() == "pass" ) 
-	    {
-	       npassR = dset->numEntries(); 
-	       cout << "Pass " << npassR << endl; 
+	  if (pdf && dset && dset->numEntries(kTRUE)!=0.) 
+	    {               
+	      cout << "GOF Entries " << dset->numEntries() << " " 
+		   << type->GetName() << std::endl;
+	      if( (string)type->GetName() == "pass" ) 
+		{
+		  npassR = dset->numEntries(); 
+		  cout << "Pass " << npassR << endl; 
+		}
+	      else if( (string)type->GetName() == "fail" ) 
+		{
+		  nfailR = dset->numEntries();
+		  cout << "Fail " << nfailR << endl; 
+		}
 	    }
-	    else if( (string)type->GetName() == "fail" ) 
-	    {
-	       nfailR = dset->numEntries();
-	       cout << "Fail " << nfailR << endl; 
-	    }
-	 }
-      }
+	}
       // End the pass fail counting.
 
       // Return if there's nothing to fit
@@ -1151,31 +1151,31 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
       // The user chooses between binnned/unbinned fitting
       if( unbinnedFit_ )
-      {
-	 cout << "Starting unbinned fit using LL." << endl;
-	 RooNLLVar nll("nll","nll",totalPdf,*data,kTRUE);
-	 RooMinuit m(nll);
-	 m.setErrorLevel(0.5);
-	 m.setStrategy(2);
-	 m.hesse();
-	 m.migrad();
-	 m.hesse();
-	 m.minos();
-	 fitResult = m.save();
-      }
+	{
+	  cout << "Starting unbinned fit using LL." << endl;
+	  RooNLLVar nll("nll","nll",totalPdf,*data,kTRUE);
+	  RooMinuit m(nll);
+	  m.setErrorLevel(0.5);
+	  m.setStrategy(2);
+	  m.hesse();
+	  m.migrad();
+	  m.hesse();
+	  m.minos();
+	  fitResult = m.save();
+	}
       else
-      {
-	 cout << "Starting binned fit using Chi2." << endl;
-	 RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(RooAbsData::SumW2),Extended(kTRUE));
-	 RooMinuit m(chi2);
-	 m.setErrorLevel(0.5); // <<< HERE
-	 m.setStrategy(2);
-	 m.hesse();
-	 m.migrad();
-	 m.hesse();
-	 m.minos();
-	 fitResult = m.save();
-      }
+	{
+	  cout << "Starting binned fit using Chi2." << endl;
+	  RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(RooAbsData::SumW2),Extended(kTRUE));
+	  RooMinuit m(chi2);
+	  m.setErrorLevel(0.5); // <<< HERE
+	  m.setStrategy(2);
+	  m.hesse();
+	  m.migrad();
+	  m.hesse();
+	  m.minos();
+	  fitResult = m.save();
+	}
 
       fitResult->Print("v");
 
@@ -1271,407 +1271,407 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
       if(data) delete data;
       if(bdata) delete bdata;
       if(c) delete c;
-   }
+    }
 
-   outRootFile_->cd();
-   effhist.Write();
-   if(nFitTree) delete nFitTree;
-   return;
+  outRootFile_->cd();
+  effhist.Write();
+  if(nFitTree) delete nFitTree;
+  return;
 }
 // ************************************** //
 
 // ********** Z -> l+l- Fitter ********** //
 void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vector< double > bins1,
-					  string &bvar2, vector< double > bins2 )
+  string &bvar2, vector< double > bins2 )
 {
-   outRootFile_->cd();
-   TChain *nFitTree = new TChain();
-   nFitTree->Add((fileName+"/fitter_tree").c_str());
+outRootFile_->cd();
+TChain *nFitTree = new TChain();
+nFitTree->Add((fileName+"/fitter_tree").c_str());
 
-   //return;
-   cout << "Here in Zll fitter" << endl;
+//return;
+cout << "Here in Zll fitter" << endl;
    
-   string hname = "fit_eff_" + bvar1 + "_" + bvar2;
-   string htitle = "Efficiency: " + bvar1 + " vs " + bvar2;
-   int bnbins1 = bins1.size()-1;
-   int bnbins2 = bins2.size()-1;
-   cout << "The number of bins is " << bnbins1 << ":" << bnbins2 << endl;
-   TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
+string hname = "fit_eff_" + bvar1 + "_" + bvar2;
+string htitle = "Efficiency: " + bvar1 + " vs " + bvar2;
+int bnbins1 = bins1.size()-1;
+int bnbins2 = bins2.size()-1;
+cout << "The number of bins is " << bnbins1 << ":" << bnbins2 << endl;
+TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
 
-   for( int bin1=0; bin1<bnbins1; ++bin1 )
-   {
-      for( int bin2=0; bin2<bnbins2; ++bin2 )
-      {
-	 // The fit variable - lepton invariant mass
-	 RooRealVar Mass("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
-	 Mass.setBins(massNbins_);
+for( int bin1=0; bin1<bnbins1; ++bin1 )
+{
+  for( int bin2=0; bin2<bnbins2; ++bin2 )
+    {
+      // The fit variable - lepton invariant mass
+      RooRealVar Mass("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
+      Mass.setBins(massNbins_);
 
-	 // The binning variables
-	 string bunits = "GeV";
-	 double lowEdge1 = bins1[bin1];
-	 double highEdge1 = bins1[bin1+1];
-	 if( bvar1 == "Eta" || bvar1 == "Phi" ) bunits = "";
-	 RooRealVar Var1(bvar1.c_str(),bvar1.c_str(),lowEdge1,highEdge1,bunits.c_str());
+      // The binning variables
+      string bunits = "GeV";
+      double lowEdge1 = bins1[bin1];
+      double highEdge1 = bins1[bin1+1];
+      if( bvar1 == "Eta" || bvar1 == "Phi" ) bunits = "";
+      RooRealVar Var1(bvar1.c_str(),bvar1.c_str(),lowEdge1,highEdge1,bunits.c_str());
 
-	 bunits = "GeV";
-	 double lowEdge2 = bins2[bin2];
-	 double highEdge2 = bins2[bin2+1];
-	 if( bvar2 == "Eta" || bvar2 == "Phi" ) bunits = "";
-	 RooRealVar Var2(bvar2.c_str(),bvar2.c_str(),lowEdge2,highEdge2,bunits.c_str());
+      bunits = "GeV";
+      double lowEdge2 = bins2[bin2];
+      double highEdge2 = bins2[bin2+1];
+      if( bvar2 == "Eta" || bvar2 == "Phi" ) bunits = "";
+      RooRealVar Var2(bvar2.c_str(),bvar2.c_str(),lowEdge2,highEdge2,bunits.c_str());
 
-	 // The weighting
-	 RooRealVar Weight("Weight","Weight",0.0,10000.0);
+      // The weighting
+      RooRealVar Weight("Weight","Weight",1.0);
 
-	 // Make the category variable that defines the two fits,
-	 // namely whether the probe passes or fails the eff criteria.
-	 RooCategory ProbePass("ProbePass","sample");
-	 ProbePass.defineType("pass",1);
-	 ProbePass.defineType("fail",0);  
+      // Make the category variable that defines the two fits,
+      // namely whether the probe passes or fails the eff criteria.
+      RooCategory ProbePass("ProbePass","sample");
+      ProbePass.defineType("pass",1);
+      ProbePass.defineType("fail",0);  
 
-	 cout << "Made fit variables" << endl;
+      cout << "Made fit variables" << endl;
 
-	 // Add the TTree as our data set ... with the weight in case 
-	 // we are using chained MC
-	 RooDataSet* data = new RooDataSet("fitData","fitData",fitTree_,
-					   RooArgSet(ProbePass,Mass,Var1,Var2,Weight),"","");
+      // Add the TTree as our data set ... with the weight in case 
+      // we are using chained MC
+      RooDataSet* data = new RooDataSet("fitData","fitData",fitTree_,
+      				   RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
 
-	 // Above command doesn't work in root 5.18 (lovely) so we have this
-	 // silly workaround with TChain for now
-	 // RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
-	 //				   RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
+      // Above command doesn't work in root 5.18 (lovely) so we have this
+      // silly workaround with TChain for now
+      // RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
+      //				RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
 
 
-	 //data->get()->Print();
-	 data->setWeightVar("Weight");
-	 data->get()->Print();
+      //data->get()->Print();
+      data->setWeightVar("Weight");
+      data->get()->Print();
 
-	 cout << "Made dataset" << endl;
+      cout << "Made dataset" << endl;
 
-	 RooDataHist *bdata = new RooDataHist("bdata","Binned Data",
-					      RooArgList(Mass,ProbePass),*data);
+      RooDataHist *bdata = new RooDataHist("bdata","Binned Data",
+					   RooArgList(Mass,ProbePass),*data);
  
-	 // ********** Construct signal shape PDF ********** //
+      // ********** Construct signal shape PDF ********** //
 
-	 // Signal PDF variables
-	 RooRealVar signalMean("signalMean","signalMean",signalMean_[0]);
-	 RooRealVar signalWidth("signalWidth","signalWidth",signalWidth_[0]);
-	 RooRealVar signalSigma("signalSigma","signalSigma",signalSigma_[0]);
-	 RooRealVar signalWidthL("signalWidthL","signalWidthL",signalWidthL_[0]);
-	 RooRealVar signalWidthR("signalWidthR","signalWidthR",signalWidthR_[0]);
+      // Signal PDF variables
+      RooRealVar signalMean("signalMean","signalMean",signalMean_[0]);
+      RooRealVar signalWidth("signalWidth","signalWidth",signalWidth_[0]);
+      RooRealVar signalSigma("signalSigma","signalSigma",signalSigma_[0]);
+      RooRealVar signalWidthL("signalWidthL","signalWidthL",signalWidthL_[0]);
+      RooRealVar signalWidthR("signalWidthR","signalWidthR",signalWidthR_[0]);
 
-	 // If the user has set a range, make the variable float
-	 if( signalMean_.size() == 3 )
-	 {
-	    signalMean.setRange(signalMean_[1],signalMean_[2]);
-	    signalMean.setConstant(false);
-	 }
-	 if( signalWidth_.size() == 3 )
-	 {
-	    signalWidth.setRange(signalWidth_[1],signalWidth_[2]);
-	    signalWidth.setConstant(false);
-	 }
-	 if( signalSigma_.size() == 3 )
-	 {
-	    signalSigma.setRange(signalSigma_[1],signalSigma_[2]);
-	    signalSigma.setConstant(false);
-	 }
-	 if( signalWidthL_.size() == 3 )
-	 {
-	    signalWidthL.setRange(signalWidthL_[1],signalWidthL_[2]);
-	    signalWidthL.setConstant(false);
-	 }
-	 if( signalWidthR_.size() == 3 )
-	 {
-	    signalWidthR.setRange(signalWidthR_[1],signalWidthR_[2]);
-	    signalWidthR.setConstant(false);
-	 }
+      // If the user has set a range, make the variable float
+      if( signalMean_.size() == 3 )
+	{
+	  signalMean.setRange(signalMean_[1],signalMean_[2]);
+	  signalMean.setConstant(false);
+	}
+      if( signalWidth_.size() == 3 )
+	{
+	  signalWidth.setRange(signalWidth_[1],signalWidth_[2]);
+	  signalWidth.setConstant(false);
+	}
+      if( signalSigma_.size() == 3 )
+	{
+	  signalSigma.setRange(signalSigma_[1],signalSigma_[2]);
+	  signalSigma.setConstant(false);
+	}
+      if( signalWidthL_.size() == 3 )
+	{
+	  signalWidthL.setRange(signalWidthL_[1],signalWidthL_[2]);
+	  signalWidthL.setConstant(false);
+	}
+      if( signalWidthR_.size() == 3 )
+	{
+	  signalWidthR.setRange(signalWidthR_[1],signalWidthR_[2]);
+	  signalWidthR.setConstant(false);
+	}
   
-	 // Voigtian
-	 RooVoigtian signalVoigtPdf("signalVoigtPdf", "signalVoigtPdf", 
-				    Mass, signalMean, signalWidth, signalSigma);
+      // Voigtian
+      RooVoigtian signalVoigtPdf("signalVoigtPdf", "signalVoigtPdf", 
+				 Mass, signalMean, signalWidth, signalSigma);
 
-	 // Bifurcated Gaussian
-	 RooBifurGauss signalGaussBifurPdf("signalGaussBifurPdf", "signalGaussBifurPdf", 
-					   Mass, signalMean, signalWidthL, signalWidthR);
+      // Bifurcated Gaussian
+      RooBifurGauss signalGaussBifurPdf("signalGaussBifurPdf", "signalGaussBifurPdf", 
+					Mass, signalMean, signalWidthL, signalWidthR);
 
-	 // Bifurcated Gaussian fraction
-	 RooRealVar bifurGaussFrac("bifurGaussFrac","bifurGaussFrac",bifurGaussFrac_[0]);
-	 if( bifurGaussFrac_.size() == 3 )
-	 {
-	    bifurGaussFrac.setRange(bifurGaussFrac_[1],bifurGaussFrac_[2]);
-	    bifurGaussFrac.setConstant(false);
-	 } 
+      // Bifurcated Gaussian fraction
+      RooRealVar bifurGaussFrac("bifurGaussFrac","bifurGaussFrac",bifurGaussFrac_[0]);
+      if( bifurGaussFrac_.size() == 3 )
+	{
+	  bifurGaussFrac.setRange(bifurGaussFrac_[1],bifurGaussFrac_[2]);
+	  bifurGaussFrac.setConstant(false);
+	} 
 
-	 // The total signal PDF
-	 RooAddPdf  signalShapePdf("signalShapePdf", "signalShapePdf",
-				   signalVoigtPdf,signalGaussBifurPdf,bifurGaussFrac);
+      // The total signal PDF
+      RooAddPdf  signalShapePdf("signalShapePdf", "signalShapePdf",
+				signalVoigtPdf,signalGaussBifurPdf,bifurGaussFrac);
 
-	 // ********** Construct background shape PDF ********** //
+      // ********** Construct background shape PDF ********** //
 
-	 // Background PDF variables
-	 RooRealVar bkgAlpha("bkgAlpha","bkgAlpha",bkgAlpha_[0]);
-	 RooRealVar bkgBeta("bkgBeta","bkgBeta",bkgBeta_[0]);
-	 RooRealVar bkgGamma("bkgGamma","bkgGamma",bkgGamma_[0]);
-	 RooRealVar bkgPeak("bkgPeak","bkgPeak",bkgPeak_[0]);
+      // Background PDF variables
+      RooRealVar bkgAlpha("bkgAlpha","bkgAlpha",bkgAlpha_[0]);
+      RooRealVar bkgBeta("bkgBeta","bkgBeta",bkgBeta_[0]);
+      RooRealVar bkgGamma("bkgGamma","bkgGamma",bkgGamma_[0]);
+      RooRealVar bkgPeak("bkgPeak","bkgPeak",bkgPeak_[0]);
 
-	 // If the user has specified a range, let the bkg shape 
-	 // variables float in the fit
-	 if( bkgAlpha_.size() == 3 )
-	 {
-	    bkgAlpha.setRange(bkgAlpha_[1],bkgAlpha_[2]);
-	    bkgAlpha.setConstant(false);
-	 }
-	 if( bkgBeta_.size() == 3 )
-	 {
-	    bkgBeta.setRange(bkgBeta_[1],bkgBeta_[2]);
-	    bkgBeta.setConstant(false);
-	 }
-	 if( bkgGamma_.size() == 3 )
-	 {
-	    bkgGamma.setRange(bkgGamma_[1],bkgGamma_[2]);
-	    bkgGamma.setConstant(false);
-	 }
-	 if( bkgPeak_.size() == 3 )
-	 {
-	    bkgPeak.setRange(bkgPeak_[1],bkgPeak_[2]);
-	    bkgPeak.setConstant(false);
-	 }
+      // If the user has specified a range, let the bkg shape 
+      // variables float in the fit
+      if( bkgAlpha_.size() == 3 )
+	{
+	  bkgAlpha.setRange(bkgAlpha_[1],bkgAlpha_[2]);
+	  bkgAlpha.setConstant(false);
+	}
+      if( bkgBeta_.size() == 3 )
+	{
+	  bkgBeta.setRange(bkgBeta_[1],bkgBeta_[2]);
+	  bkgBeta.setConstant(false);
+	}
+      if( bkgGamma_.size() == 3 )
+	{
+	  bkgGamma.setRange(bkgGamma_[1],bkgGamma_[2]);
+	  bkgGamma.setConstant(false);
+	}
+      if( bkgPeak_.size() == 3 )
+	{
+	  bkgPeak.setRange(bkgPeak_[1],bkgPeak_[2]);
+	  bkgPeak.setConstant(false);
+	}
 
-	 // CMS Background shape
-	 RooCMSShapePdf bkgShapePdf("bkgShapePdf","bkgShapePdf", 
-				    Mass,bkgAlpha,bkgBeta,bkgGamma,bkgPeak);
+      // CMS Background shape
+      RooCMSShapePdf bkgShapePdf("bkgShapePdf","bkgShapePdf", 
+				 Mass,bkgAlpha,bkgBeta,bkgGamma,bkgPeak);
 
-	 // Now define some efficiency/yield variables  
-	 RooRealVar efficiency("efficiency","efficiency",efficiency_[0]);
-	 RooRealVar numSignal("numSignal","numSignal",numSignal_[0]);
-	 RooRealVar numBkgPass("numBkgPass","numBkgPass",numBkgPass_[0]);
-	 RooRealVar numBkgFail("numBkgFail","numBkgFail",numBkgFail_[0]);
+      // Now define some efficiency/yield variables  
+      RooRealVar efficiency("efficiency","efficiency",efficiency_[0]);
+      RooRealVar numSignal("numSignal","numSignal",numSignal_[0]);
+      RooRealVar numBkgPass("numBkgPass","numBkgPass",numBkgPass_[0]);
+      RooRealVar numBkgFail("numBkgFail","numBkgFail",numBkgFail_[0]);
 
-	 // If ranges are specifed these are floating variables
-	 if( efficiency_.size() == 3 )
-	 {
-	    efficiency.setRange(efficiency_[1],efficiency_[2]);
-	    efficiency.setConstant(false);
-	 }
-	 if( numSignal_.size() == 3 )
-	 {
-	    numSignal.setRange(numSignal_[1],numSignal_[2]);
-	    numSignal.setConstant(false);
-	 }
-	 if( numBkgPass_.size() == 3 )
-	 {
-	    numBkgPass.setRange(numBkgPass_[1],numBkgPass_[2]);
-	    numBkgPass.setConstant(false);
-	 }
-	 if( numBkgFail_.size() == 3 )
-	 {
-	    numBkgFail.setRange(numBkgFail_[1],numBkgFail_[2]);
-	    numBkgFail.setConstant(false);
-	 }
+      // If ranges are specifed these are floating variables
+      if( efficiency_.size() == 3 )
+	{
+	  efficiency.setRange(efficiency_[1],efficiency_[2]);
+	  efficiency.setConstant(false);
+	}
+      if( numSignal_.size() == 3 )
+	{
+	  numSignal.setRange(numSignal_[1],numSignal_[2]);
+	  numSignal.setConstant(false);
+	}
+      if( numBkgPass_.size() == 3 )
+	{
+	  numBkgPass.setRange(numBkgPass_[1],numBkgPass_[2]);
+	  numBkgPass.setConstant(false);
+	}
+      if( numBkgFail_.size() == 3 )
+	{
+	  numBkgFail.setRange(numBkgFail_[1],numBkgFail_[2]);
+	  numBkgFail.setConstant(false);
+	}
       
 
-	 RooFormulaVar numSigPass("numSigPass","numSignal*efficiency", 
-				  RooArgList(numSignal,efficiency) );
-	 RooFormulaVar numSigFail("numSigFail","numSignal*(1.0 - efficiency)", 
-				  RooArgList(numSignal,efficiency) );
+      RooFormulaVar numSigPass("numSigPass","numSignal*efficiency", 
+			       RooArgList(numSignal,efficiency) );
+      RooFormulaVar numSigFail("numSigFail","numSignal*(1.0 - efficiency)", 
+			       RooArgList(numSignal,efficiency) );
 
-	 RooArgList componentspass(signalShapePdf,bkgShapePdf);
-	 RooArgList yieldspass(numSigPass, numBkgPass);
-	 RooArgList componentsfail(signalShapePdf,bkgShapePdf);
-	 RooArgList yieldsfail(numSigFail, numBkgFail);	  
+      RooArgList componentspass(signalShapePdf,bkgShapePdf);
+      RooArgList yieldspass(numSigPass, numBkgPass);
+      RooArgList componentsfail(signalShapePdf,bkgShapePdf);
+      RooArgList yieldsfail(numSigFail, numBkgFail);	  
 
-	 RooAddPdf sumpass("sumpass","fixed extended sum pdf",componentspass,yieldspass);
-	 RooAddPdf sumfail("sumfail","fixed extended sum pdf",componentsfail, yieldsfail);
+      RooAddPdf sumpass("sumpass","fixed extended sum pdf",componentspass,yieldspass);
+      RooAddPdf sumfail("sumfail","fixed extended sum pdf",componentsfail, yieldsfail);
   
-	 // The total simultaneous fit ...
-	 RooSimultaneous totalPdf("totalPdf","totalPdf",ProbePass);
-	 ProbePass.setLabel("pass");
-	 totalPdf.addPdf(sumpass,ProbePass.getLabel());
-	 totalPdf.Print();
-	 ProbePass.setLabel("fail");
-	 totalPdf.addPdf(sumfail,ProbePass.getLabel());
-	 totalPdf.Print();
+      // The total simultaneous fit ...
+      RooSimultaneous totalPdf("totalPdf","totalPdf",ProbePass);
+      ProbePass.setLabel("pass");
+      totalPdf.addPdf(sumpass,ProbePass.getLabel());
+      totalPdf.Print();
+      ProbePass.setLabel("fail");
+      totalPdf.addPdf(sumfail,ProbePass.getLabel());
+      totalPdf.Print();
 
-	 // Count the number of passing and failing probes in the region
-	 // making sure we have enough to fit ...
-	 cout << "About to count the number of events" << endl;
-	 int npassR = (int)data->sumEntries("ProbePass==1");
-	 int nfailR = (int)data->sumEntries("ProbePass==0");
-	 cout << "Num pass " << npassR << endl;
-	 cout << "Num fail " << nfailR << endl;
+      // Count the number of passing and failing probes in the region
+      // making sure we have enough to fit ...
+      cout << "About to count the number of events" << endl;
+      int npassR = (int)data->sumEntries("ProbePass==1");
+      int nfailR = (int)data->sumEntries("ProbePass==0");
+      cout << "Num pass " << npassR << endl;
+      cout << "Num fail " << nfailR << endl;
 
-	 RooAbsCategoryLValue& simCat = (RooAbsCategoryLValue&) totalPdf.indexCat();
+      RooAbsCategoryLValue& simCat = (RooAbsCategoryLValue&) totalPdf.indexCat();
    
-	 TList* dsetList = const_cast<RooAbsData*>((RooAbsData*)data)->split(simCat);
-	 RooCatType* type;
-	 TIterator* catIter = simCat.typeIterator();
-	 while( (type=(RooCatType*)catIter->Next()) )
-	 {
-	    // Retrieve the PDF for this simCat state
-	    RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
-	    RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
+      TList* dsetList = const_cast<RooAbsData*>((RooAbsData*)data)->split(simCat);
+      RooCatType* type;
+      TIterator* catIter = simCat.typeIterator();
+      while( (type=(RooCatType*)catIter->Next()) )
+	{
+	  // Retrieve the PDF for this simCat state
+	  RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
+	  RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
 
-	    if (pdf && dset && dset->numEntries(kTRUE)!=0.) 
+	  if (pdf && dset && dset->numEntries(kTRUE)!=0.) 
 	    {               
-	       cout << "GOF Entries " << dset->numEntries() << " " 
-		    << type->GetName() << std::endl;
-	       if( (string)type->GetName() == "pass" ) 
-	       {
+	      cout << "GOF Entries " << dset->numEntries() << " " 
+		   << type->GetName() << std::endl;
+	      if( (string)type->GetName() == "pass" ) 
+		{
 		  npassR = dset->numEntries(); 
 		  cout << "Pass " << npassR << endl; 
-	       }
-	       else if( (string)type->GetName() == "fail" ) 
-	       {
+		}
+	      else if( (string)type->GetName() == "fail" ) 
+		{
 		  nfailR = dset->numEntries();
 		  cout << "Fail " << nfailR << endl; 
-	       }
+		}
 	    }
-	 }
-	 // End the pass fail counting.
+	}
+      // End the pass fail counting.
 
-	 // Return if there's nothing to fit
-	 if( npassR==0 && nfailR==0 ) return;
+      // Return if there's nothing to fit
+      if( npassR==0 && nfailR==0 ) return;
 
-	 cout << "**** About to start the fitter ****" << endl;
+      cout << "**** About to start the fitter ****" << endl;
 
-	 // ********* Do the Actual Fit ********** //  
-	 RooFitResult *fitResult = 0;
+      // ********* Do the Actual Fit ********** //  
+      RooFitResult *fitResult = 0;
 
-	 // The user chooses between binnned/unbinned fitting
-	 if( unbinnedFit_ )
-	 {
-	    cout << "Starting unbinned fit using LL." << endl;
-	    RooNLLVar nll("nll","nll",totalPdf,*data,kTRUE);
-	    RooMinuit m(nll);
-	    m.setErrorLevel(0.5);
-	    m.setStrategy(2);
-	    m.hesse();
-	    m.migrad();
-	    m.hesse();
-	    m.minos();
-	    fitResult = m.save();
-	 }
-	 else
-	 {
-	    cout << "Starting binned fit using Chi2." << endl;
-	    RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(RooAbsData::SumW2),Extended(kTRUE));
-	    RooMinuit m(chi2);
-	    m.setErrorLevel(0.5); // <<< HERE
-	    m.setStrategy(2);
-	    m.hesse();
-	    m.migrad();
-	    m.hesse();
-	    m.minos();
-	    fitResult = m.save();
-	 }
+      // The user chooses between binnned/unbinned fitting
+      if( unbinnedFit_ )
+	{
+	  cout << "Starting unbinned fit using LL." << endl;
+	  RooNLLVar nll("nll","nll",totalPdf,*data,kTRUE);
+	  RooMinuit m(nll);
+	  m.setErrorLevel(0.5);
+	  m.setStrategy(2);
+	  m.hesse();
+	  m.migrad();
+	  m.hesse();
+	  m.minos();
+	  fitResult = m.save();
+	}
+      else
+	{
+	  cout << "Starting binned fit using Chi2." << endl;
+	  RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(RooAbsData::SumW2),Extended(kTRUE));
+	  RooMinuit m(chi2);
+	  m.setErrorLevel(0.5); // <<< HERE
+	  m.setStrategy(2);
+	  m.hesse();
+	  m.migrad();
+	  m.hesse();
+	  m.minos();
+	  fitResult = m.save();
+	}
 
-	 fitResult->Print("v");
+      fitResult->Print("v");
 
-	 std::cout << "Signal yield: " << numSignal.getVal() << " +- "
-		   << numSignal.getError() << " + " << numSignal.getAsymErrorHi()
-		   <<" - "<< numSignal.getAsymErrorLo() << std::endl;
-	 std::cout << "Efficiency: "<< efficiency.getVal() << " +- "
-		   << efficiency.getError() << " + " << efficiency.getAsymErrorHi()
-		   <<" + "<< efficiency.getAsymErrorLo() << std::endl;
+      std::cout << "Signal yield: " << numSignal.getVal() << " +- "
+		<< numSignal.getError() << " + " << numSignal.getAsymErrorHi()
+		<<" - "<< numSignal.getAsymErrorLo() << std::endl;
+      std::cout << "Efficiency: "<< efficiency.getVal() << " +- "
+		<< efficiency.getError() << " + " << efficiency.getAsymErrorHi()
+		<<" + "<< efficiency.getAsymErrorLo() << std::endl;
 
-	 // Fill the efficiency hist
-	 effhist.SetBinContent(bin1+1,bin2+1,efficiency.getVal());
-	 effhist.SetBinError(bin1+1,bin2+1,efficiency.getError());
+      // Fill the efficiency hist
+      effhist.SetBinContent(bin1+1,bin2+1,efficiency.getVal());
+      effhist.SetBinError(bin1+1,bin2+1,efficiency.getError());
 
-	 // ********** Make and save Canvas for the plots ********** //
-	 //outRootFile_->cd();
+      // ********** Make and save Canvas for the plots ********** //
+      //outRootFile_->cd();
 
-	 int font_num = 42;
-	 double font_size = 0.05;
+      int font_num = 42;
+      double font_size = 0.05;
 
-	 TStyle fitStyle("fitStyle","Style for Fit Plots");
-	 fitStyle.Reset("Plain");
-	 fitStyle.SetFillColor(10);
-	 fitStyle.SetTitleFillColor(10);
-	 fitStyle.SetTitleStyle(0000);
-	 fitStyle.SetStatColor(10);
-	 fitStyle.SetErrorX(0);
-	 fitStyle.SetEndErrorSize(10);
-	 fitStyle.SetPadBorderMode(0);
-	 fitStyle.SetFrameBorderMode(0);
+      TStyle fitStyle("fitStyle","Style for Fit Plots");
+      fitStyle.Reset("Plain");
+      fitStyle.SetFillColor(10);
+      fitStyle.SetTitleFillColor(10);
+      fitStyle.SetTitleStyle(0000);
+      fitStyle.SetStatColor(10);
+      fitStyle.SetErrorX(0);
+      fitStyle.SetEndErrorSize(10);
+      fitStyle.SetPadBorderMode(0);
+      fitStyle.SetFrameBorderMode(0);
 
-	 fitStyle.SetTitleFont(font_num);
-	 fitStyle.SetTitleFontSize(font_size);
-	 fitStyle.SetTitleFont(font_num, "XYZ");
-	 fitStyle.SetTitleSize(font_size, "XYZ");
-	 fitStyle.SetTitleXOffset(0.9);
-	 fitStyle.SetTitleYOffset(1.05);
-	 fitStyle.SetLabelFont(font_num, "XYZ");
-	 fitStyle.SetLabelOffset(0.007, "XYZ");
-	 fitStyle.SetLabelSize(font_size, "XYZ");
-	 fitStyle.cd();
+      fitStyle.SetTitleFont(font_num);
+      fitStyle.SetTitleFontSize(font_size);
+      fitStyle.SetTitleFont(font_num, "XYZ");
+      fitStyle.SetTitleSize(font_size, "XYZ");
+      fitStyle.SetTitleXOffset(0.9);
+      fitStyle.SetTitleYOffset(1.05);
+      fitStyle.SetLabelFont(font_num, "XYZ");
+      fitStyle.SetLabelOffset(0.007, "XYZ");
+      fitStyle.SetLabelSize(font_size, "XYZ");
+      fitStyle.cd();
 
-	 ostringstream oss1;
-	 oss1 << bin1;
-	 ostringstream oss2;
-	 oss2 << bin2;
-	 string cname = "fit_canvas_" + bvar1 + "_" + oss1.str() + "_" + bvar2 + "_" + oss2.str();
-	 TCanvas *c = new TCanvas(cname.c_str(),"Sum over Modes, Signal Region",1000,1500);
-	 c->Divide(1,2);
-	 c->cd(1);
-	 c->SetFillColor(10);
+      ostringstream oss1;
+      oss1 << bin1;
+      ostringstream oss2;
+      oss2 << bin2;
+      string cname = "fit_canvas_" + bvar1 + "_" + oss1.str() + "_" + bvar2 + "_" + oss2.str();
+      TCanvas *c = new TCanvas(cname.c_str(),"Sum over Modes, Signal Region",1000,1500);
+      c->Divide(1,2);
+      c->cd(1);
+      c->SetFillColor(10);
 
-	 TPad *lhs = (TPad*)gPad;
-	 lhs->Divide(2,1);
-	 lhs->cd(1);
+      TPad *lhs = (TPad*)gPad;
+      lhs->Divide(2,1);
+      lhs->cd(1);
 
-	 RooPlot* frame1 = Mass.frame();
-	 frame1->SetTitle("Passing Tag-Probes");
-	 frame1->SetName("pass");
-	 data->plotOn(frame1,Cut("ProbePass==1"));
-	 ProbePass.setLabel("pass");
-	 totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data));
-	 totalPdf.plotOn(frame1,Slice(ProbePass),Components(bkgShapePdf),
-			 LineStyle(kDashed),ProjWData(Mass,*data));
-	 frame1->Draw("e0");
-	 //outRootFile_->cd();
+      RooPlot* frame1 = Mass.frame();
+      frame1->SetTitle("Passing Tag-Probes");
+      frame1->SetName("pass");
+      data->plotOn(frame1,Cut("ProbePass==1"));
+      ProbePass.setLabel("pass");
+      totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data));
+      totalPdf.plotOn(frame1,Slice(ProbePass),Components(bkgShapePdf),
+		      LineStyle(kDashed),ProjWData(Mass,*data));
+      frame1->Draw("e0");
+      //outRootFile_->cd();
 
-	 lhs->cd(2);
-	 RooPlot* frame2 = Mass.frame();
-	 frame2->SetTitle("Failing Tag-Probes");
-	 frame2->SetName("fail");
-	 data->plotOn(frame2,Cut("ProbePass==0"));
-	 ProbePass.setLabel("fail");
-	 totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data));
-	 totalPdf.plotOn(frame2,Slice(ProbePass),Components(bkgShapePdf),
-			 LineStyle(kDashed),ProjWData(Mass,*data));
-	 frame2->Draw("e0");
-	 //outRootFile_->cd();
+      lhs->cd(2);
+      RooPlot* frame2 = Mass.frame();
+      frame2->SetTitle("Failing Tag-Probes");
+      frame2->SetName("fail");
+      data->plotOn(frame2,Cut("ProbePass==0"));
+      ProbePass.setLabel("fail");
+      totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data));
+      totalPdf.plotOn(frame2,Slice(ProbePass),Components(bkgShapePdf),
+		      LineStyle(kDashed),ProjWData(Mass,*data));
+      frame2->Draw("e0");
+      //outRootFile_->cd();
 
-	 c->cd(2);
-	 RooPlot* frame3 = Mass.frame();
-	 frame3->SetTitle("All Tag-Probes");
-	 frame3->SetName("total");
-	 data->plotOn(frame3);
-	 totalPdf.plotOn(frame3,ProjWData(Mass,*data));
-	 totalPdf.plotOn(frame3,Components(bkgShapePdf),
-			 LineStyle(kDashed),ProjWData(Mass,*data));
-	 totalPdf.paramOn(frame3);
-	 frame3->Draw("e0");
-	 outRootFile_->cd();
+      c->cd(2);
+      RooPlot* frame3 = Mass.frame();
+      frame3->SetTitle("All Tag-Probes");
+      frame3->SetName("total");
+      data->plotOn(frame3);
+      totalPdf.plotOn(frame3,ProjWData(Mass,*data));
+      totalPdf.plotOn(frame3,Components(bkgShapePdf),
+		      LineStyle(kDashed),ProjWData(Mass,*data));
+      totalPdf.paramOn(frame3);
+      frame3->Draw("e0");
+      outRootFile_->cd();
 		
-	 //outRootFile_->cd();
-	 c->Write();
+      //outRootFile_->cd();
+      c->Write();
 
-	 std::cout << "Finished with fitter - fit results saved to " << fileName << std::endl;
+      std::cout << "Finished with fitter - fit results saved to " << fileName << std::endl;
 
-	 if(data) delete data;
-	 if(bdata) delete bdata;
-	 if(c) delete c;
-      }
+      if(data) delete data;
+      if(bdata) delete bdata;
+      if(c) delete c;
+    }
 
-   }
+}
 
-   outRootFile_->cd();
-   effhist.Write();
+ outRootFile_->cd();
+ effhist.Write();
 
-   if(nFitTree) delete nFitTree;
-   return;
+ if(nFitTree) delete nFitTree;
+ return;
 }
 // ************************************** //
 

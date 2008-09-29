@@ -26,7 +26,7 @@ class eTriggerCandProducer : public edm::EDProducer
 
   // ----------member data ---------------------------
       
-  std::string _inputProducer;
+  edm::InputTag _inputProducer;
   edm::InputTag triggerEventTag_;
   edm::InputTag hltTag_;
   double delRMatchingCut_;

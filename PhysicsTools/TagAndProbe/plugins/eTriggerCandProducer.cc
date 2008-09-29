@@ -15,7 +15,7 @@
 eTriggerCandProducer::eTriggerCandProducer(const edm::ParameterSet& iConfig )
 {
 
-  _inputProducer = iConfig.getParameter<std::string>("InputProducer");
+  _inputProducer = iConfig.getParameter<edm::InputTag>("InputProducer");
 
    // **************** Trigger ******************* //
    const edm::InputTag dTriggerEventTag("hltTriggerSummaryAOD","","HLT");

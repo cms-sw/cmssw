@@ -9,12 +9,12 @@
 eidCandProducer::eidCandProducer(const edm::ParameterSet &params)
 {
 
+  const edm::InputTag allelectrons("pixelMatchGsfElectrons");
   electronCollection_ = 
-    params.getUntrackedParameter<std::string>("electronCollection", 
-					      "pixelMatchGsfElectrons");
-  electronLabelLoose_= 
-    params.getUntrackedParameter<std::string>("electronLabelLoose", 
-					    "eidRobustLoose");
+    params.getUntrackedParameter<edm::InputTag>("electronCollection", 
+						allelectrons);
+  electronLabel_= 
+    params.getParameter<edm::InputTag>("electronLabelLoose");
 
    produces<reco::GsfElectronCollection>();
 }
@@ -52,7 +52,7 @@ void eidCandProducer::produce(edm::Event &event,
   //Read electron ID results
   edm::Handle<edm::ValueMap<float> > eIDValueMap; 
   //Robust-Loose 
-  event.getByLabel( electronLabelLoose_ , eIDValueMap); 
+  event.getByLabel( electronLabel_ , eIDValueMap); 
   const edm::ValueMap<float> & eIDmapL = *eIDValueMap;
 
 

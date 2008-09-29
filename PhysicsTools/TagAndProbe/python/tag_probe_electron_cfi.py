@@ -12,37 +12,56 @@ from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 #  Probe --> Passing Probe   =  
 #  SC --> GsfElectron --> isolation --> id --> Trigger
 #
-# 
+#
+
+
+
+
 #  SuperClusters  ################
 # 
 HybridSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
     src = cms.InputTag("correctedHybridSuperClusters"),
     particleType = cms.string('gamma')
 )
+EBSuperClusters = cms.EDFilter("CandViewSelector",
+    src = cms.InputTag("HybridSuperClusters"),
+    cut = cms.string('abs( eta ) < 1.4442')
+)
+
 
 
 EndcapSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
     src = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     particleType = cms.string('gamma')
 )
-
-EBSuperClusters = cms.EDFilter("CandViewSelector",
-    src = cms.InputTag("HybridSuperClusters"),
-    cut = cms.string('abs( eta ) < 1.4442')
-)
-
 EESuperClusters = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("EndcapSuperClusters"),
     cut = cms.string('abs( eta ) > 1.560 & abs( eta ) < 2.5')
 )
+
+
 
 allSuperClusters = cms.EDFilter("CandViewMerger",
     src = cms.VInputTag(cms.InputTag("EBSuperClusters"), cms.InputTag("EESuperClusters"))
 )
 
 
-# Duplicate Removal 
-gsfElectrons = cms.EDFilter("ElectronDuplicateRemover",
+# My final selection of superCluster candidates 
+theSuperClusters = cms.EDFilter("CandViewSelector",
+    src = cms.InputTag("allSuperClusters"),
+    cut = cms.string('et  > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')
+)
+
+sc_sequence = cms.Sequence( (HybridSuperClusters * EBSuperClusters + EndcapSuperClusters * EESuperClusters) *allSuperClusters * theSuperClusters)
+
+
+
+
+
+
+
+#  GsfElectron
+electrons = cms.EDFilter("ElectronDuplicateRemover",
     src = cms.untracked.string('pixelMatchGsfElectrons'),
     ptMin = cms.untracked.double(20.0),
     EndcapMinEta = cms.untracked.double(1.56),
@@ -51,99 +70,45 @@ gsfElectrons = cms.EDFilter("ElectronDuplicateRemover",
     EndcapMaxEta = cms.untracked.double(2.5)
 )
 
-# 
+theGsfElectrons = cms.EDFilter("GsfElectronSelector",
+    src = cms.InputTag("electrons"),
+    cut = cms.string('et > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')
+)
+
 #  isolation  ################
-# 
-isolatedElectronCands = cms.EDProducer("IsolatedElectronCandProducer",
+theIsolation = cms.EDProducer("IsolatedElectronCandProducer",
     absolut = cms.bool(False),
-    trackProducer = cms.InputTag("generalTracks"),
+    trackProducer = cms.InputTag('generalTracks'),
     isoCut = cms.double(0.2),
     intRadius = cms.double(0.02),
-    electronProducer = cms.InputTag("gsfElectrons"),
+    electronProducer = cms.InputTag('theGsfElectrons'),
     extRadius = cms.double(0.2),
     ptMin = cms.double(1.5),
     maxVtxDist = cms.double(0.1)
 )
 
-
 # Cut-based Robust electron ID  ######
-#
-
 from RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi import *
-
 import RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi
+eidRobust = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
+eidRobust.src = cms.InputTag('theIsolation')
 
-eidRobustLoose = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
-
-
-
-RobustElectronCands = cms.EDProducer("eidCandProducer",
-    #electronCollection = cms.untracked.string('isolatedElectronCands'),  
-    electronLabelLoose = cms.untracked.string('eidRobustLoose')
+theId = cms.EDProducer("eidCandProducer",
+    electronCollection = cms.untracked.InputTag('theIsolation'),  
+    electronLabelLoose = cms.InputTag('eidRobust')
 )
 
-
-# 
 # Trigger  ##################
-# 
-HLTRobustElectronCands = cms.EDProducer("eTriggerCandProducer",
-    #InputProducer = cms.string('RobustElectronCands'),              
-    InputProducer = cms.string('pixelMatchGsfElectrons'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT"),
+theHLT = cms.EDProducer("eTriggerCandProducer",
+    InputProducer = cms.InputTag('theId'),              
     hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter","","HLT")
-  
-
 )
 
-# 
-#  All Tag / Probe Collections  ###############
-# 
-# SuperCluster
-theSuperClusters = cms.EDFilter("CandViewSelector",
-    src = cms.InputTag("allSuperClusters"),
-    cut = cms.string('et  > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')
-)
+electron_sequence = cms.Sequence(electrons * theGsfElectrons * theIsolation * eidRobust * theId * theHLT)
 
-#  GsfElectron
-gsfSelection = cms.EDFilter("GsfElectronSelector",
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string('et > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')
-)
 
-theGsfElectrons = cms.EDProducer("GsfElectronShallowCloneProducer",
-    src = cms.InputTag("gsfSelection")
-)
 
-#  isolation
-isoSelection = cms.EDFilter("GsfElectronSelector",
-    src = cms.InputTag("isolatedElectronCands"),
-    cut = cms.string('et > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')
-)
 
-theIsolation = cms.EDProducer("GsfElectronShallowCloneProducer",
-    src = cms.InputTag("isoSelection")
-)
-
-#  id 
-idSelection = cms.EDFilter("GsfElectronSelector",
-    src = cms.InputTag("RobustElectronCands"),
-    cut = cms.string('et > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')
-)
-
-theId = cms.EDProducer("GsfElectronShallowCloneProducer",
-    src = cms.InputTag("idSelection")
-)
-
-#  trigger
-hltSelection = cms.EDFilter("GsfElectronSelector",
-    #src = cms.InputTag('HLTRobustElectronCands'),                            
-    src = cms.InputTag('pixelMatchGsfElectrons'),                   
-    cut = cms.string('et > 20.0 | ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5))')                           
-)
-
-theHLT = cms.EDProducer("GsfElectronShallowCloneProducer",
-    src = cms.InputTag("hltSelection")
-)
 
 # 
 #  All Tag / Probe Association Maps  ###############
@@ -156,6 +121,7 @@ theHLT = cms.EDProducer("GsfElectronShallowCloneProducer",
 # Passing Probe can be one of the following collections: 
 # "theGsfElectrons", "theIsolation", "theId", "theHLT".
 #
+
 tpMapSuperClusters = cms.EDProducer("TagProbeProducer",
     MassMaxCut = cms.untracked.double(120.0),
     TagCollection = cms.InputTag("theHLT"),
@@ -184,10 +150,21 @@ tpMapId = cms.EDProducer("TagProbeProducer",
     ProbeCollection = cms.InputTag("theId")
 )
 
+
+tpMap_sequence = cms.Sequence(tpMapSuperClusters + tpMapGsfElectrons + tpMapIsolation + tpMapId)
+
+
+
+
+
+
+
 # 
 #  All Truth-matched collections  ###################
 # 
 # find generator particles matching by DeltaR
+
+
 SuperClustersMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
     pdgId = cms.vint32(11),
     src = cms.InputTag("theSuperClusters"),
@@ -223,5 +200,12 @@ HLTMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matched = cms.InputTag("genParticles")
 )
 
-lepton_cands = cms.Sequence(genParticles+HybridSuperClusters+EndcapSuperClusters+EBSuperClusters+EESuperClusters+allSuperClusters+gsfElectrons+isolatedElectronCands+eidRobustLoose+RobustElectronCands+HLTRobustElectronCands+theSuperClusters+gsfSelection+theGsfElectrons+isoSelection+theIsolation+idSelection+theId+hltSelection+theHLT+tpMapSuperClusters+tpMapGsfElectrons+tpMapIsolation+tpMapId+SuperClustersMatch+GsfElectronsMatch+IsolationMatch+IdMatch+HLTMatch)
+
+truthMatch_sequence = cms.Sequence(SuperClustersMatch + GsfElectronsMatch + IsolationMatch + IdMatch + HLTMatch)
+
+
+
+
+
+lepton_cands = cms.Sequence(genParticles * sc_sequence * electron_sequence * tpMap_sequence * truthMatch_sequence)
 

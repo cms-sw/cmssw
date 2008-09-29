@@ -26,8 +26,8 @@ class eidCandProducer : public edm::EDProducer
       
   // ----------member data ---------------------------
 
-  std::string electronCollection_;
-  std::string electronLabelLoose_;
+  edm::InputTag electronCollection_;
+  edm::InputTag electronLabel_;
 };
 
 #endif
