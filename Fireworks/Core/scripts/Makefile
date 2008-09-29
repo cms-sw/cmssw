@@ -34,9 +34,9 @@ cleanall: cleancore cleandisplay
 
 cleancore: 
 	$(QUIET) echo "removing temporary core objects and output library..."; \
-	rm -rf tmp/cms lib$(LibCore).$(SO_EXT); echo "done"
+	rm -rf tmp/cms; rm libCMSDataFormats.$(SO_EXT); echo "done"
 
 cleandisplay: 
 	$(QUIET) echo "removing temporary project objects and output libraries..."; \
-	rm -rf tmp/src lib$(LibProject).$(SO_EXT); echo "done"
+	rm -rf tmp/src; rm libCMSShow.$(SO_EXT); echo "done"
 
