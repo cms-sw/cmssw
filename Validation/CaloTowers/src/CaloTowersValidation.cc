@@ -46,25 +46,25 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     meEnergyHcalvsEcal    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
 
     sprintf (histo, "CaloTowersTask_energy_OUTER_%s",sub ) ;
-    meEnergyHO    = dbe_->book1D(histo, histo, 520, -20, 500);   
+    meEnergyHO    = dbe_->book1D(histo, histo, 440, -200, 2000);   
 
     sprintf (histo, "CaloTowersTask_energy_HCAL_%s",sub ) ;
-    meEnergyHcal    = dbe_->book1D(histo, histo, 520, -20, 500);  
+    meEnergyHcal    = dbe_->book1D(histo, histo, 440, -200, 2000);  
 
     sprintf (histo, "CaloTowersTask_energy_ECAL_%s",sub ) ;
-    meEnergyEcal    = dbe_->book1D(histo, histo, 520, -20, 500); 
+    meEnergyEcal    = dbe_->book1D(histo, histo, 440, -200, 2000); 
 
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_%s",sub ) ;
-    meNumFiredTowers = dbe_->book1D(histo, histo, 500, 0, 500); 
+    meNumFiredTowers = dbe_->book1D(histo, histo, 440, 0, 2000); 
 
     sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_%s",sub ) ;
-    meEnergyEcalTower = dbe_->book1D(histo, histo, 520 , -20, 500); 
+    meEnergyEcalTower = dbe_->book1D(histo, histo, 440, -200, 2000); 
   
     sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_%s",sub ) ;
-    meEnergyHcalTower = dbe_->book1D(histo, histo, 520 , -20 , 500); 
+    meEnergyHcalTower = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
 
     sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_%s",sub ) ;
-    meTotEnergy = dbe_->book1D(histo, histo,500, 0., 500.) ;
+    meTotEnergy = dbe_->book1D(histo, histo,400, 0., 2000.) ;
     
     sprintf  (histo, "CaloTowersTask_map_energy_%s",sub );
     mapEnergy = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
@@ -74,10 +74,10 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     mapEnergyEcal = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
     sprintf  (histo, "CaloTowersTask_MET_%s",sub ) ;
-    MET = dbe_->book1D(histo, histo, 500, 0. , 500. ) ;
+    MET = dbe_->book1D(histo, histo, 500, 0. , 1000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_%s",sub ) ;
-    SET = dbe_->book1D(histo, histo, 300, 0. , 1500. ) ;
+    SET = dbe_->book1D(histo, histo, 500, 0. , 5000. ) ;
     
     sprintf  (histo, "CaloTowersTask_phi_MET_%s",sub ) ;
     phiMET = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
