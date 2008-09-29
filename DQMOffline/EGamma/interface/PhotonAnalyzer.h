@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -23,7 +23,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/11 15:40:39 $ 
+ **  $Date: 2008/09/19 15:13:50 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -61,6 +61,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   float  phiNormalization( float& a);
   void doProfileX(TH2 * th2, MonitorElement* me);
   void doProfileX(MonitorElement * th2m, MonitorElement* me);
+  void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
 
       
   std::string fName_;
@@ -69,6 +70,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   int nEvt_;
   int nEntry_;
+
+  unsigned int prescaleFactor_;
+
 
   edm::ParameterSet parameters_;
            
@@ -88,10 +92,40 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   int isolationStrength_; 
 
+  /// parameters needed for pizero finding
+  double clusSeedThr_;
+  int clusEtaSize_;
+  int clusPhiSize_;
+
+  double seleXtalMinEnergy_;
+
+  bool ParameterLogWeighted_;
+  double ParameterX0_;
+  double ParameterT0_barl_;
+  double ParameterW0_;
+
+  double selePtGammaOne_;
+  double selePtGammaTwo_;
+  double selePtPi0_;
+  double seleS4S9GammaOne_;
+  double seleS4S9GammaTwo_;
+  double selePi0BeltDR_;
+  double selePi0BeltDeta_;
+  double selePi0Iso_;
+  double seleMinvMaxPi0_;
+  double seleMinvMinPi0_;
+ 
+
+
   std::stringstream currentFolder_;
 
-  /// Pi0 invariant mass in EB
-  MonitorElement * hMinvPi0EB_;
+
+  MonitorElement*  hMinvPi0EB_;
+  MonitorElement*  hPt1Pi0EB_;
+  MonitorElement*  hPt2Pi0EB_;
+  MonitorElement*  hIsoPi0EB_;
+  MonitorElement*  hPtPi0EB_;
+
 
   std::vector<MonitorElement*> h_nTrackIsolSolid_;
   std::vector<MonitorElement*> h_trackPtSumSolid_;
@@ -190,5 +224,16 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
 
 };
+
+
+class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
+{
+public:
+  bool operator()(EcalRecHit x, EcalRecHit y) 
+  { 
+    return (x.energy() > y.energy()); 
+  }
+};
+
 
 #endif
