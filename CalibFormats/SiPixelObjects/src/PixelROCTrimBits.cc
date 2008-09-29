@@ -40,7 +40,7 @@ std::cout << "Error casting variable." << std::endl;
 // Added by Dario: handles the base_64-decoded strings from aDB read
 int PixelROCTrimBits::read(const PixelROCName rocid, std::string in){
  rocid_=rocid;
- for( int i=0; i<520; i++)
+ for( int i=0; i<(int)sizeof(bits_); i++)
  {
   bits_[i] = in.at(i) ;
  }
