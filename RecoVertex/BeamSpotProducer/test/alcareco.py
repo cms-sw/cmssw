@@ -62,7 +62,10 @@ process.d0_phi_analyzer.BSAnalyzerParameters.TrackCollection = 'TrackRefitter'
 #process.d0_phi_analyzer.InputBeamWidth = 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'  # take your favourite
+#process.GlobalTag.globaltag = 'IDEAL_V9::All'  # take your favourite
+
+process.GlobalTag.connect = "sqlite_file:/afs/cern.ch/user/f/futyand/public/globaltag/10PB_21X.db"
+process.GlobalTag.globaltag = '10PB_V1::All'
 
 process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 # process.TrackRefitter.src = 'generalTracks' # should be default
