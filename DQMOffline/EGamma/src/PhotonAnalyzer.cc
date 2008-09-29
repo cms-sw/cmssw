@@ -55,7 +55,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/19 15:44:48 $ 
+ **  $Date: 2008/09/29 12:41:42 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -358,7 +358,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       p_nHitsVsEta_isol_.clear();
   
     }
-<<<<<<< PhotonAnalyzer.cc
+
 
     currentFolder_.str("");
     currentFolder_ << "Egamma/PhotonAnalyzer/PiZero";
@@ -379,9 +379,6 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     hIsoPi0EB_ = dbe_->book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
     hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
     
-
-=======
->>>>>>> 1.24
     
   }
  
