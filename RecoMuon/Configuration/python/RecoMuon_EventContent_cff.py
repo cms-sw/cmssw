@@ -44,7 +44,9 @@ RecoMuonAOD = cms.PSet(
 )
 # RECO content
 RecoMuonRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*',
+                                           'keep *_ancientMuonSeed_*_*',
+                                           'keep *_mergedStandAloneMuonSeeds_*_*',
                                            'keep TrackingRecHitsOwned_globalMuons_*_*', 
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
                                            # Cosmics
