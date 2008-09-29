@@ -13,7 +13,9 @@ dtChamberEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiencyTask",
     # interval of lumi block after which we reset the histos
     ResetCycle = cms.untracked.int32(10000),
     # the running mode
-    onlineMonitor = cms.untracked.bool(False)
+    onlineMonitor = cms.untracked.bool(False),
+    # the analysis mode
+    detailedAnalysis = cms.untracked.bool(False)                                       
 )
 
 

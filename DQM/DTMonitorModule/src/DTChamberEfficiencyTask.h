@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2008/03/01 00:39:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/29 10:25:35 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -80,6 +80,8 @@ private:
   bool debug;
   // The running mode
   bool onlineMonitor;
+  // The analysis mode
+  bool detailedAnalysis;
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;

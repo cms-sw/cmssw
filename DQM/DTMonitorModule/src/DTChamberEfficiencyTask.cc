@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/29 10:25:28 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/09/29 10:29:47 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -67,7 +67,9 @@ void DTChamberEfficiencyTask::beginJob(const edm::EventSetup& context){
 
   // the running modality
   onlineMonitor = parameters.getUntrackedParameter<bool>("onlineMonitor");
-  
+
+  // the analysis mode
+  detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis");
 
 }
 
@@ -147,20 +149,22 @@ void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
   // e- check of the middle segment quality 
   // f- check if the distance between the reconstructed and the exstrapolated segments is ok
 
-  histos.push_back(theDbe->book1D("hDistSegFromExtrap"+HistoName, "Distance segments from extrap position ",200,0.,200.));
-  // histo for efficiency from segment counting
-  histos.push_back(theDbe->book1D("hNaiveEffSeg"+HistoName, "Naive eff ",10,0.,10.)); 
-  // histo for efficiency with cuts a-/c-
-  histos.push_back(theDbe->book2D("hEffSegVsPosDen"+HistoName,"Eff vs local position (all) ",25,-250.,250., 25,-250.,250.));
+
   // histo for efficiency with cuts a-/c-/d-
   histos.push_back(theDbe->book2D("hEffGoodSegVsPosDen"+HistoName,"Eff vs local position (good) ",25,-250.,250., 25,-250.,250.));
-  // histo for efficiency with cuts a-/b-/c-/d-
-  histos.push_back(theDbe->book2D("hEffSegVsPosNum"+HistoName, "Eff vs local position ",25,-250.,250., 25,-250.,250.));
-  // histo for efficiency with cuts a-/b-/c-/d-/e-
-  histos.push_back(theDbe->book2D("hEffGoodSegVsPosNum"+HistoName, "Eff vs local position (good segs) ", 25,-250.,250., 25,-250.,250.));
   // histo for efficiency with cuts a-/b-/c-/d-/e-/f-
   histos.push_back(theDbe->book2D("hEffGoodCloseSegVsPosNum"+HistoName, "Eff vs local position (good and close segs) ", 25,-250.,250., 25,-250.,250.));
-
+  if(detailedAnalysis){
+    histos.push_back(theDbe->book1D("hDistSegFromExtrap"+HistoName, "Distance segments from extrap position ",200,0.,200.));
+    // histo for efficiency from segment counting
+    histos.push_back(theDbe->book1D("hNaiveEffSeg"+HistoName, "Naive eff ",10,0.,10.));
+    // histo for efficiency with cuts a-/c-
+  histos.push_back(theDbe->book2D("hEffSegVsPosDen"+HistoName,"Eff vs local position (all) ",25,-250.,250., 25,-250.,250.));    
+    // histo for efficiency with cuts a-/b-/c-/d-
+    histos.push_back(theDbe->book2D("hEffSegVsPosNum"+HistoName, "Eff vs local position ",25,-250.,250., 25,-250.,250.));
+    // histo for efficiency with cuts a-/b-/c-/d-/e-
+    histos.push_back(theDbe->book2D("hEffGoodSegVsPosNum"+HistoName, "Eff vs local position (good segs) ", 25,-250.,250., 25,-250.,250.));
+  }
   histosPerCh[chId] = histos;
 }
 
@@ -255,9 +259,11 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
     DTRecSegment4DCollection::range segsMid= segs->get(MidId);
     int nSegsMid=segsMid.second-segsMid.first;
     
-    // very trivial efficiency, just count segments
-    histos[1]->Fill(0);
-    if (nSegsMid>0) histos[1]->Fill(1);
+    if(detailedAnalysis){
+      // very trivial efficiency, just count segments
+      histos[3]->Fill(0);
+      if (nSegsMid>0) histos[3]->Fill(1);
+    }
     
     // get position at Mid by interpolating the position (not direction) of best
     // segment in Bot and Top to Mid surface
@@ -265,20 +271,24 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
     
     // is best segment good enough?
     if (isGoodSegment(bestBotSeg) && isGoodSegment(bestTopSeg)) {
-      histos[2]->Fill(posAtMid.x(),posAtMid.y());
+      if(detailedAnalysis)
+	histos[4]->Fill(posAtMid.x(),posAtMid.y());
       //check if interpolation fall inside middle chamber
       if ((dtGeom->chamber(MidId))->surface().bounds().inside(posAtMid)) {
-	histos[3]->Fill(posAtMid.x(),posAtMid.y());	    
+	histos[0]->Fill(posAtMid.x(),posAtMid.y());	    
 	if (nSegsMid>0) {
-	  
-	  histos[1]->Fill(2);
-	  histos[4]->Fill(posAtMid.x(),posAtMid.y());
-	  
+
+	  if(detailedAnalysis){
+	    histos[3]->Fill(2);
+	    histos[5]->Fill(posAtMid.x(),posAtMid.y());
+	  }
+
 	  const DTRecSegment4D& bestMidSeg= getBestSegment(segsMid);
 	  // check if middle segments is good enough
 	  if (isGoodSegment(bestMidSeg)) {
-		
-	    histos[5]->Fill(posAtMid.x(),posAtMid.y());
+	
+	    if(detailedAnalysis)
+	      histos[6]->Fill(posAtMid.x(),posAtMid.y());
 	    LocalPoint midSegPos=bestMidSeg.localPosition();
 	    
 	    // check if middle segments is also close enough
@@ -293,10 +303,10 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 	      dist = fabs((midSegPos-posAtMid).y());
 	    }
 	    if (dist < theMinCloseDist ) {
-	      histos[6]->Fill(posAtMid.x(),posAtMid.y());
+	      histos[1]->Fill(posAtMid.x(),posAtMid.y());
 	    }
-	    histos[0]->Fill(dist);
-	    
+	    if(detailedAnalysis)
+	      histos[2]->Fill(dist);
 	  }
 	}
       }
