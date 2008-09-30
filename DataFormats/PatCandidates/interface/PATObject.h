@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.13 2008/07/30 01:09:33 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.14 2008/09/29 09:42:01 gpetrucc Exp $
  *
  */
 
@@ -17,17 +17,23 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
+#include <string>
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+
 namespace pat {
 
   template <class ObjectType>
   class PATObject : public ObjectType {
     public:
+
+      typedef  ObjectType             base_type;
 
       /// default constructor
       PATObject();
@@ -136,6 +142,21 @@ namespace pat {
       /// Embed the generator level particle(s) in this PATObject
       /// Note that generator level particles can only be all embedded or all not embedded.
       void embedGenParticle() ;
+
+      /// Returns user-defined data
+      /// 
+      virtual pat::UserData const * userDataObject(std::string key) const;
+      /// Set user-defined data
+      void addUserData( const std::string label,
+			const pat::UserData & data );
+      
+      /// Set user-defined doubles and ints
+      virtual double userDouble( std::string key ) const;
+      void addUserData( const std::string label,
+			const double data );
+      virtual int userInt( std::string key ) const;
+      void addUserData( const std::string label,
+			const int data );
  
     protected:
       // reference back to the original object
@@ -170,7 +191,16 @@ namespace pat {
       std::vector<reco::GenParticleRef> genParticleRef_;
       /// vector to hold an embedded generator level particle
       std::vector<reco::GenParticle>    genParticleEmbedded_; 
-   
+
+      /// User data object
+      std::vector<std::string>                      userDataLabels_;
+      edm::OwnVector<pat::UserData>                 userDataObjects_;
+      // User double values
+      std::vector<std::string>                      userDoubleLabels_;
+      std::vector<double>                           userDoubles_;
+      // User int values
+      std::vector<std::string>                      userIntLabels_;
+      std::vector<int>                              userInts_;
   };
 
 
@@ -376,6 +406,64 @@ namespace pat {
             if (ref->isNonnull() && ((*ref)->pdgId() == pdgId) && ((*ref)->status() == status)) return *ref;
         }
         return reco::GenParticleRef();
+  }
+
+
+  template <class ObjectType>
+  pat::UserData const * PATObject<ObjectType>::userDataObject( std::string key ) const
+  {
+    std::vector<std::string>::const_iterator it = std::find(userDataLabels_.begin(), userDataLabels_.end(), key);
+    if (it != userDataLabels_.end()) {
+        return & userDataObjects_[it - userDataLabels_.begin()];
+    }
+    return 0;
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addUserData( const std::string label,
+					   const pat::UserData & data )
+  {
+    userDataLabels_.push_back(label);
+    userDataObjects_.push_back(data.clone() );
+  }
+
+
+
+  template <class ObjectType>
+  double PATObject<ObjectType>::userDouble( std::string key ) const
+  {
+    std::vector<std::string>::const_iterator it = std::find(userDoubleLabels_.begin(), userDoubleLabels_.end(), key);
+    if (it != userDoubleLabels_.end()) {
+        return userDoubles_[it - userDoubleLabels_.begin()];
+    }
+    return 0.0;
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addUserData( const std::string label,
+					   const double data )
+  {
+    userDoubleLabels_.push_back(label);
+    userDoubles_.push_back( data );
+  }
+
+
+  template <class ObjectType>
+  int PATObject<ObjectType>::userInt( std::string key ) const
+  {
+    std::vector<std::string>::const_iterator it = std::find(userIntLabels_.begin(), userIntLabels_.end(), key);
+    if (it != userIntLabels_.end()) {
+        return userInts_[it - userIntLabels_.begin()];
+    }
+    return 0;
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addUserData( const std::string label,
+					   const int data )
+  {
+    userIntLabels_.push_back(label);
+    userInts_.push_back( data );
   }
 
 }

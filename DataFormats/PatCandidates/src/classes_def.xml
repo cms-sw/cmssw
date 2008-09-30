@@ -15,6 +15,7 @@
   <class name="std::pair<unsigned int, float>" />
 
   <class name="std::vector<reco::GenParticleRef>" />
+
   <class name="pat::PATObject<pat::ElectronType>" />
   <class name="pat::PATObject<pat::MuonType>" />
   <class name="pat::PATObject<pat::TauType>" />
@@ -235,17 +236,55 @@
   <class name="edm::ValueMap<reco::PhotonID>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::PhotonID> >" />
  
+
+  <class name="edm::Ptr<pat::UserData>" />
+  <class name="std::vector<edm::Ptr<pat::UserData> >" />
+  <class name="edm::ValueMap<edm::Ptr<pat::UserData> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > >" />
+
+  <class name="edm::Ptr<double>" />
+  <class name="std::vector<edm::Ptr<double> >" />
+  <class name="edm::ValueMap<edm::Ptr<double> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<double> > >" />
+
+  <class name="edm::Ptr<int>" />
+  <class name="std::vector<edm::Ptr<int> >" />
+  <class name="edm::ValueMap<edm::Ptr<int> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<int> > >" />
+
+
+  <class name="pat::UserData" />
+  <class name="std::vector<pat::UserData>" />
+  <class name="pat::UserDataRef" />
+  <class name="edm::RefProd<pat::UserDataCollection>" />
+  <class name="pat::UserDataRefVector" />
+  <class name="edm::Wrapper<std::vector<pat::UserData> >" />
+  <class name="edm::Wrapper<pat::UserData >" />
+
+  <class name="edm::RefToBase<pat::UserData>" />
+  <class name="std::vector<pat::UserData*>" />
+  <class name="edm::OwnVector<pat::UserData, edm::ClonePolicy<pat::UserData> >" />
+  <class name="edm::reftobase::IndirectHolder<pat::UserData>" />
+  <class name="edm::reftobase::Holder<pat::UserData, pat::UserDataRef >" />
+  <class name="edm::reftobase::RefHolder<pat::UserDataRef >" />
+
+
+
   <class name="pat::LookupTableRecord" />
   <class name="std::vector<pat::LookupTableRecord>" />
   <class name="edm::ValueMap<pat::LookupTableRecord>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
  
+
  </selection>
  <exclusion>
   <class name="edm::OwnVector<pat::TriggerPrimitive, edm::ClonePolicy<pat::TriggerPrimitive> >">
    <method name="sort" />
   </class>
   <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
+   <method name="sort" />
+  </class>
+  <class name="edm::OwnVector<pat::UserData, edm::ClonePolicy<pat::UserData> >">
    <method name="sort" />
   </class>
  </exclusion>

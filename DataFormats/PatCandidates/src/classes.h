@@ -12,6 +12,7 @@
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
 
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 
@@ -58,6 +59,7 @@ namespace pat {
   typedef edm::Ref<std::vector<pat::GenericParticle> > GenericParticleRef;
   typedef edm::Ref<std::vector<pat::Hemisphere> > HemisphereRef;
 
+
   typedef edm::Ref<std::vector<pat::ElectronType> > ElectronTypeRef;
   typedef edm::Ref<std::vector<pat::MuonType> >     MuonTypeRef;
   typedef edm::Ref<std::vector<pat::TauType> >      TauTypeRef;
@@ -77,6 +79,10 @@ namespace pat {
   typedef edm::RefVector<std::vector<pat::PFParticle> > PFParticleRefVector;
   typedef edm::RefVector<std::vector<pat::GenericParticle> > GenericParticleRefVector;
   typedef edm::RefVector<std::vector<pat::Hemisphere> > HemisphereRefVector;
+
+  typedef edm::Ref<std::vector<pat::UserData> > UserDataRef;
+  typedef edm::RefVector<std::vector<pat::UserData> > UserDataRefVector;
+
 }
 
 
@@ -217,7 +223,7 @@ namespace {
     edm::reftobase::Holder<pat::METType, pat::METRef>     rbh2MET;
     edm::reftobase::RefHolder<pat::METRef> rhMET;
     edm::reftobase::Holder<reco::Candidate, pat::METRef> rbh3MET;
-
+    
     edm::reftobase::Holder<reco::Candidate, pat::ParticleRef> hParticle;
     edm::reftobase::RefHolder<pat::ParticleRef> rhParticle;
  
@@ -243,6 +249,26 @@ namespace {
 
     edm::Wrapper<edm::ValueMap<pat::VertexAssociation> > wVMVA;
 
+    edm::Ptr<pat::UserData>                  ptr_userdata;
+
+    pat::UserData                              userdata;
+    std::vector<pat::UserData>                 userData_vec;
+    pat::UserDataRef          userData_ref;
+    edm::RefProd<pat::UserDataCollection>      userData_refPRod;
+    pat::UserDataRefVector    userData_refVector;
+    edm::Wrapper<std::vector<pat::UserData> >  userData_wvec;
+    edm::Wrapper<pat::UserData>                userData_wrapper;
+
+
+    edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > > wvmpuserdata;
+    edm::Wrapper<edm::ValueMap<edm::Ptr<double> > > wvmpuserdouble;
+    edm::Wrapper<edm::ValueMap<edm::Ptr<int> > > wvmpuserint;
+
+    edm::RefToBase<pat::UserData>                                     rb_userdata;
+    edm::reftobase::IndirectHolder<pat::UserData>                     rbh_userdata;
+    edm::reftobase::Holder<pat::UserData, pat::UserDataRef >   rbhr_userdata;
+    edm::reftobase::RefHolder<pat::UserDataRef >               rbhrh_userdata;
+    
     edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> > wLUT;
 
     }
