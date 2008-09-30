@@ -82,7 +82,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-process.p1 = cms.Path(process.myTrackingParticle*process.photonValidation)
+process.p1 = cms.Path(process.tpSelection*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
 
 
