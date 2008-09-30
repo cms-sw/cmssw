@@ -14,10 +14,8 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
-
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
@@ -31,7 +29,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/CommonOptions.h"
 #include <iterator>
 #include <limits>
 #include <iostream>
@@ -42,23 +40,20 @@
 
 
 int main( int argc, char** argv ){
-  
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_duplicate_iov [options] \n");
-  visible.add_options()
-    ("connection,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if no plugin available)")
+  cond::CommonOptions myopt("cmscond_duplicate_iov");
+  myopt.addConnect();
+  myopt.addAuthentication(false);
+  myopt.addDictionary();
+  myopt.addBlobStreamer();
+  myopt.addFileConfig();
+  myopt.addLogDB();
+  myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
     ("fromTime,f",boost::program_options::value<cond::Time_t>(),"a valid time of payload to append (required)")
     ("sinceTime,s",boost::program_options::value<cond::Time_t>(),"since time of new iov(required)")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
-    ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
-    ("blobStreamer,B",boost::program_options::value<std::string>(),"BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)")
-    ("logDB,l",boost::program_options::value<std::string>(),"logDB(optional")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
     ;
-  desc.add(visible);
+  myopt.description().add( myopt.visibles() );
+
   std::string destConnect;
   std::string dictionary;
   std::string destTag;
@@ -73,9 +68,9 @@ int main( int argc, char** argv ){
   std::string blobStreamerName("COND/Services/TBufferBlobStreamingService");
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.visibles()).run(), vm);
     if (vm.count("help")) {
-      std::cout << visible <<std::endl;;
+      std::cout << myopt.visibles() <<std::endl;;
       return 0;
     }
     if( vm.count("configFile") ){
@@ -83,7 +78,7 @@ int main( int argc, char** argv ){
       if (! configuration_filename.empty()){
 	std::fstream configuration_file;
 	configuration_file.open(configuration_filename.c_str(), std::fstream::in);
-	boost::program_options::store(boost::program_options::parse_config_file(configuration_file,desc), vm);
+	boost::program_options::store(boost::program_options::parse_config_file(configuration_file,myopt.visibles()), vm);
 	configuration_file.close();
       }
     }
@@ -120,8 +115,6 @@ int main( int argc, char** argv ){
     
    if(vm.count("logDB"))
       logConnect = vm["logDB"].as<std::string>();
-
-
 
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
