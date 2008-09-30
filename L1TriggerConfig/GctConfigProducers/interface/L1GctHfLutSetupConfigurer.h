@@ -49,9 +49,8 @@ class L1GctHfLutSetupConfigurer {
   // ----------member data ---------------------------
 
   // Threshold values to be stored in the HfLutSetup
-  // In principle these could vary for different lut types
-  // but make them all the same for now 
-  std::vector<unsigned> m_thresholds;
+  std::vector<unsigned> m_etSumThresholds;
+  std::vector<unsigned> m_countThresholds;
 
 };
 
