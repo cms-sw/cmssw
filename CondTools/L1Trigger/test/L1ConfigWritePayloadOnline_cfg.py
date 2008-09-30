@@ -21,6 +21,9 @@ process.load("L1TriggerConfig.RCTConfigProducers.L1RCTConfigOnline_cfi")
 
 # writer modules
 process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")
+process.L1CondDBPayloadWriter.offlineDB = cms.string('sqlite_file:l1config.db')
+#process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
+#process.L1CondDBPayloadWriter.offlineAuthentication = '/nfshome0/xiezhen/conddb'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -39,13 +42,10 @@ process.orcon = cms.ESSource("PoolDBESSource",
         tag = cms.string('L1TriggerKeyList_IDEAL')
     ))
 )
-
-process.p = cms.Path(process.L1CondDBPayloadWriter)
 process.orcon.connect = cms.string('sqlite_file:l1config.db')
 #process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
-#process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
-process.L1CondDBPayloadWriter.offlineDB = cms.string('sqlite_file:l1config.db')
-#process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
-#process.L1CondDBPayloadWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
+#process.orcon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+
+process.p = cms.Path(process.L1CondDBPayloadWriter)
 
 
