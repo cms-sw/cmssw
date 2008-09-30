@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
-#include "PhysicsTools/Utilities/interface/StringObjectSelector.h"
+#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
@@ -273,7 +273,7 @@ class ExpressionVariable : public CachingVariable {
 
       if (arg.iConfig.exists("selection")){
 	std::string selection=arg.iConfig.getParameter<std::string>("selection");
-	selector_ = new StringObjectSelector<Object>(selection);
+	selector_ = new StringCutObjectSelector<Object>(selection);
 	ss<<" and selecting only: "<<selection;
       }else selector_=0;
 
@@ -400,7 +400,7 @@ class ExpressionVariable : public CachingVariable {
   uint index_;
   StringObjectFunction<Object> * f_;
   StringObjectFunction<Object> * forder_;
-  StringObjectSelector<Object> * selector_;
+  StringCutObjectSelector<Object> * selector_;
 };
 
 
