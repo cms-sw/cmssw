@@ -46,26 +46,64 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   std::string theCaloTowerCollectionLabel;
 
+  int isub;
   // eta limits to calcualte MET, SET (not to include HF if not needed)
-  double etaMax;
-  double etaMin;
+  double etaMax[3];
+  double etaMin[3];
 
-  MonitorElement* meEnergyHcalvsEcal;
-  MonitorElement* meEnergyHO; 
-  MonitorElement* meEnergyEcal; 
-  MonitorElement* meEnergyHcal; 
-  MonitorElement* meNumFiredTowers;
+  // HB
+  MonitorElement* meEnergyHcalvsEcal_HB;
+  MonitorElement* meEnergyHO_HB; 
+  MonitorElement* meEnergyEcal_HB; 
+  MonitorElement* meEnergyHcal_HB; 
+  MonitorElement* meNumFiredTowers_HB;
 
-  MonitorElement* meEnergyEcalTower;
-  MonitorElement* meEnergyHcalTower;
-  MonitorElement* meTotEnergy;
+  MonitorElement* meEnergyEcalTower_HB;
+  MonitorElement* meEnergyHcalTower_HB;
+  MonitorElement* meTotEnergy_HB;
 
-  MonitorElement* mapEnergy;
-  MonitorElement* mapEnergyEcal;
-  MonitorElement* mapEnergyHcal;
-  MonitorElement* MET;
-  MonitorElement* SET;
-  MonitorElement* phiMET;
+  MonitorElement* mapEnergy_HB;
+  MonitorElement* mapEnergyEcal_HB;
+  MonitorElement* mapEnergyHcal_HB;
+  MonitorElement* MET_HB;
+  MonitorElement* SET_HB;
+  MonitorElement* phiMET_HB;
+
+  // HE
+  MonitorElement* meEnergyHcalvsEcal_HE;
+  MonitorElement* meEnergyHO_HE; 
+  MonitorElement* meEnergyEcal_HE; 
+  MonitorElement* meEnergyHcal_HE; 
+  MonitorElement* meNumFiredTowers_HE;
+
+  MonitorElement* meEnergyEcalTower_HE;
+  MonitorElement* meEnergyHcalTower_HE;
+  MonitorElement* meTotEnergy_HE;
+
+  MonitorElement* mapEnergy_HE;
+  MonitorElement* mapEnergyEcal_HE;
+  MonitorElement* mapEnergyHcal_HE;
+  MonitorElement* MET_HE;
+  MonitorElement* SET_HE;
+  MonitorElement* phiMET_HE;
+
+  // HF
+  MonitorElement* meEnergyHcalvsEcal_HF;
+  MonitorElement* meEnergyHO_HF; 
+  MonitorElement* meEnergyEcal_HF; 
+  MonitorElement* meEnergyHcal_HF; 
+  MonitorElement* meNumFiredTowers_HF;
+
+  MonitorElement* meEnergyEcalTower_HF;
+  MonitorElement* meEnergyHcalTower_HF;
+  MonitorElement* meTotEnergy_HF;
+
+  MonitorElement* mapEnergy_HF;
+  MonitorElement* mapEnergyEcal_HF;
+  MonitorElement* mapEnergyHcal_HF;
+  MonitorElement* MET_HF;
+  MonitorElement* SET_HF;
+  MonitorElement* phiMET_HF;
 
 
 };
