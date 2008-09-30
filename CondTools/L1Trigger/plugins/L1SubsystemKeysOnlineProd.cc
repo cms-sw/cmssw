@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Aug 21 20:00:59 CEST 2008
-// $Id$
+// $Id: L1SubsystemKeysOnlineProd.cc,v 1.1 2008/09/19 19:22:59 wsun Exp $
 //
 //
 
@@ -117,39 +117,41 @@ L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 				  "TRIGGERSUP_CONF",
 				  "TRIGGERSUP_CONF.TS_KEY",
 				  m_omdsReader.singleAttribute( m_tscKey ) ) ;
-       if( subkeyResults.second.size() != 1 ) // check query successful
+
+       if( subkeyResults.queryFailed() ||
+	   subkeyResults.numberRows() != 1 ) // check query successful
 	 {
 	   edm::LogError( "L1-O2O" ) << "Problem with subsystem keys." ;
 	   return pL1TriggerKey ;
 	 }
 
-       const coral::AttributeList& row = subkeyResults.second.front() ;
+       std::string csctfKey, dttfKey, rpcKey, gmtKey, rctKey, gctKey, gtKey ;
 
-       std::string csctfKey = row[ "CSCTF_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "CSCTF_KEY", csctfKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kCSCTF, csctfKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "CSCTF_KEY " << csctfKey ;
 
-       std::string dttfKey = row[ "DTTF_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "DTTF_KEY", dttfKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kDTTF, dttfKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "DTTF_KEY " << dttfKey ;
 
-       std::string rpcKey = row[ "RPC_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "RPC_KEY", rpcKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kRPC, rpcKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "RPC_KEY " << rpcKey ;
 
-       std::string gmtKey = row[ "GMT_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "GMT_KEY", gmtKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kGMT, gmtKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "GMT_KEY " << gmtKey ;
 
-       std::string rctKey = row[ "RCT_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "RCT_KEY", rctKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kRCT, rctKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "RCT_KEY " << rctKey ;
 
-       std::string gctKey = row[ "GCT_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "GCT_KEY", gctKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kGCT, gctKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "GCT_KEY " << gctKey ;
 
-       std::string gtKey = row[ "GT_KEY" ].data< std::string >() ;
+       subkeyResults.fillVariable( "GT_KEY", gtKey ) ;
        pL1TriggerKey->setSubsystemKey( L1TriggerKey::kGT, gtKey ) ;
        edm::LogVerbatim( "L1-O2O" ) << "GT_KEY " << gtKey ;
 
