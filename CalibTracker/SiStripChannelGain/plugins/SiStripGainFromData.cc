@@ -73,7 +73,7 @@ using namespace reco;
 using namespace std;
 using namespace __gnu_cxx;
 
-struct stAPVPairGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Thickness; double MPV; double Gain; double PreviousGain;};
+struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Thickness; double MPV; double Gain; double PreviousGain;};
 
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
@@ -110,6 +110,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       double       MaxTrackChiOverNdf;
       bool         AllowSaturation;
       bool         FirstSetOfConstants;
+      int          CalibrationLevel;
 
       std::string  AlgoMode;
       std::string  OutputGains;
@@ -123,7 +124,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH2F*	   Tracks_P_Vs_Eta;
       TH2F*        Tracks_Pt_Vs_Eta;
 
-      TH1F*        NumberOfEntriesByAPVPair;
+      TH1F*        NumberOfEntriesByAPV;
       TH1F*        HChi2OverNDF;
       TH1F*        HTrackChi2OverNDF;
       TH1F*        HTrackHits;
@@ -246,8 +247,8 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 		 template <class T> bool operator () (const T& PseudoDetId1, const T& PseudoDetId2) { return PseudoDetId1==PseudoDetId2; }
       };
 
-      std::vector<stAPVPairGain*> APVsCollOrdered;
-      hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual > APVsColl;
+      std::vector<stAPVGain*> APVsCollOrdered;
+      hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual > APVsColl;
 };
 
 SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig)
@@ -273,6 +274,9 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : Con
    MaxTrackChiOverNdf  = iConfig.getUntrackedParameter<double>  ("MaxTrackChiOverNdf" ,  3);
    AllowSaturation     = iConfig.getUntrackedParameter<bool>    ("AllowSaturation"    ,  false);
    FirstSetOfConstants = iConfig.getUntrackedParameter<bool>    ("FirstSetOfConstants",  true);
+
+   CalibrationLevel    = iConfig.getUntrackedParameter<int>     ("CalibrationLevel"   ,  0);
+
 
    if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 )
    VInputFiles         = iConfig.getParameter<vector<string> >("VInputFiles");
@@ -389,7 +393,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       MPV_Vs_Error               = new TH2F ("MPV_Vs_Error"   , "MPV_Vs_Error"    ,600,0,600     ,500 ,0   ,50);
       Entries_Vs_Error           = new TH2F ("Entries_Vs_Error","Entries_Vs_Error",1000,0,10000  ,500 ,0   ,50); 
 
-      NumberOfEntriesByAPVPair   = new TH1F ("NumberOfEntriesByAPVPair", "NumberOfEntriesByAPVPair", 1000, 0,10000);
+      NumberOfEntriesByAPV   = new TH1F ("NumberOfEntriesByAPV"   , "NumberOfEntriesByAPV"   , 10000, 0,10000);
       HChi2OverNDF               = new TH1F ("Chi2OverNDF","Chi2OverNDF", 500, 0,25);
 
       MPVs                       = new TH1F ("MPVs", "MPVs", 600,0,600);
@@ -431,7 +435,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
           double Thick = DetUnit->surface().bounds().thickness();
 
           for(unsigned int j=0;j<NAPV;j++){
-                stAPVPairGain* APV = new stAPVPairGain;
+                stAPVGain* APV = new stAPVGain;
                 APV->Index         = Id;
                 APV->DetId         = Detid.rawId();
                 APV->APVId         = j;
@@ -524,7 +528,6 @@ SiStripGainFromData::algoEndJob() {
          file->Close();
          delete file;
       }
-
    }
 
    JobInfo->Fill(1,NEvent);
@@ -533,17 +536,53 @@ SiStripGainFromData::algoEndJob() {
    JobInfo->Fill(6,ERun);
    JobInfo->Fill(7,EEvent);
 
+
    if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
       TH1D* Proj = NULL;
       double* FitResults = new double[5];
       I=0;
-      for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
       if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
-         stAPVPairGain* APV = it->second;
+         stAPVGain* APV = it->second;
 
          int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
          Proj = APV_Charge->ProjectionY(" ",bin,bin,"e");
+         Proj = (TH1D*)Proj->Clone();
          if(Proj==NULL)continue;
+
+	 // ADD PROJECTTIONS COMMING FROM THE SECOND APV IN THE PAIR
+         if(CalibrationLevel==1){
+            int SecondAPVId = APV->APVId;
+            if(SecondAPVId%2==0){
+		SecondAPVId = SecondAPVId+1;
+	    }else{
+                SecondAPVId = SecondAPVId-1;
+	    }
+	    stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
+
+            int bin2 = APV_Charge->GetXaxis()->FindBin(APV2->Index);
+            TH1D* Proj2 = APV_Charge->ProjectionY(" ",bin2,bin2,"e");
+            if(Proj2!=NULL){
+		Proj->Add(Proj2,1);
+	    }
+         }else if(CalibrationLevel>1){
+//	     printf("%8i %i--> %4.0f + %4.0f\n",APV->DetId, APV->APVId, 0.0, Proj->GetEntries());
+             for(hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual >::iterator it2 = APVsColl.begin();it2!=APVsColl.end();it2++){
+                stAPVGain* APV2 = it2->second;
+             
+                if(APV2->DetId != APV->DetId)continue;
+		if(APV2->APVId == APV->APVId)continue;
+
+                int bin2 = APV_Charge->GetXaxis()->FindBin(APV2->Index);
+                TH1D* Proj2 = APV_Charge->ProjectionY(" ",bin2,bin2,"e");
+                if(Proj2!=NULL){
+//                   printf("%8i %i--> %4.0f + %4.0f\n",APV2->DetId, APV2->APVId, Proj->GetEntries(), Proj2->GetEntries());
+                   Proj->Add(Proj2,1);
+                }
+             }          
+//             printf("%8i %i--> %4.0f Full\n",APV->DetId, APV->APVId, Proj->GetEntries());
+         }
+
 
          getPeakOfLandau(Proj,FitResults);
          APV->MPV = FitResults[0];
@@ -573,7 +612,7 @@ SiStripGainFromData::algoEndJob() {
             MPV_Vs_Error->Fill(FitResults[0],FitResults[1]);
             Entries_Vs_Error->Fill(Proj->GetEntries(),FitResults[1]);
          }
-         NumberOfEntriesByAPVPair->Fill(Proj->GetEntries());
+         NumberOfEntriesByAPV->Fill(Proj->GetEntries());
          delete Proj;
 
 
@@ -582,15 +621,15 @@ SiStripGainFromData::algoEndJob() {
 
          APV_PathLengthM->SetBinContent(APV->Index, Proj->GetMean(1)      );
          APV_PathLengthM->SetBinError  (APV->Index, Proj->GetMeanError(1) );
-         delete Proj;
+//         delete Proj;
       }
 
       unsigned int GOOD = 0;
       unsigned int BAD  = 0;
       double MPVmean = MPVs->GetMean();
-      for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
 
-         stAPVPairGain*   APV = it->second;
+         stAPVGain*   APV = it->second;
          if(APV->MPV>0){
 	     APV->Gain = APV->MPV / MPVmean; // APV->MPV;
              GOOD++;
@@ -764,8 +803,8 @@ SiStripGainFromData::algoEndJob() {
       fprintf(Gains,"NEvents = %i\n",NEvent);
       fprintf(Gains,"Number of APVs = %i\n",APVsColl.size());
       fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD));
-      for(std::vector<stAPVPairGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
-         stAPVPairGain* APV = *it;
+      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+         stAPVGain* APV = *it;
          fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       }
       fclose(Gains);
@@ -882,7 +921,7 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    uint32_t                DetId       = Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
    int                     APVId       = FirstStrip/128;
-   stAPVPairGain*          APV         = APVsColl[(DetId<<3) | APVId];
+   stAPVGain*          APV         = APVsColl[(DetId<<3) | APVId];
    bool                    Saturation  = false;
    bool                    Overlaping  = false;
    int                     Charge      = 0;
@@ -1069,7 +1108,7 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
    int PreviousDetId = -1; 
    for(unsigned int a=0;a<APVsCollOrdered.size();a++)
    {
-      stAPVPairGain* APV = APVsCollOrdered[a];
+      stAPVGain* APV = APVsCollOrdered[a];
       if(APV==NULL){ printf("Bug\n"); continue; }
       if(APV->DetId != PreviousDetId){
          if(theSiStripVector!=NULL){
@@ -1080,7 +1119,6 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
  	 theSiStripVector = new std::vector<float>;
          PreviousDetId = APV->DetId;
       }
-//      printf("%i | %i | %f\n", APV->DetId,APV->APVId,APV->Gain);
       printf("%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       theSiStripVector->push_back(APV->Gain);
 //      theSiStripVector->push_back(APV->Gain);
