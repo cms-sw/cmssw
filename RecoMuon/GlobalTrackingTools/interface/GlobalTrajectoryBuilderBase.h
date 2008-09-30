@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/03/20 20:52:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/14 16:27:27 $
+ *  $Revision: 1.6 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -134,6 +134,40 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
     ///
     const MuonServiceProxy* service() const { return theService; }
+
+    /// Ordering along increasing radius (for DT rechits)
+    struct RadiusComparatorInOut{
+      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a,
+		      const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+	return a->det()->surface().position().perp() < b->det()->surface().position().perp(); 
+      }
+    };
+
+    /// Ordering along increasing zed (for CSC rechits)
+    struct ZedComparatorInOut{  
+      bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a, 
+		       const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+	return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z()); 
+      }
+    };
+
+    /// Ordering DT then CSC (for overlap regions)
+    struct ComparatorInOut{
+      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a,
+		      const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+	bool barrel_a = ( a->det()->subDetector() == GeomDetEnumerators::DT ||
+			  a->det()->subDetector() == GeomDetEnumerators::RPCBarrel );
+	
+	bool barrel_b = ( b->det()->subDetector() == GeomDetEnumerators::DT ||
+			  b->det()->subDetector() == GeomDetEnumerators::RPCBarrel );
+	
+	//	if ( barrel_a && barrel_b )      return  a->det()->surface().position().perp() < b->det()->surface().position().perp(); 
+	if ( barrel_a && barrel_b )      return  a->globalPosition().perp() < b->globalPosition().perp(); 
+	else if ( !barrel_a && !barrel_b )      return  fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
+	else if ( barrel_a && !barrel_b  )  return true;
+	else if ( !barrel_a && barrel_b  )  return false;
+      }
+    };
 
   protected:
 

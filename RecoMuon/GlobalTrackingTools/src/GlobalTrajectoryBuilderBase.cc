@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/14 16:29:04 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/09/16 20:39:10 $
+ *  $Revision: 1.21 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -498,6 +498,8 @@ void GlobalTrajectoryBuilderBase::checkMuonHits(const reco::Track& muon,
     LogTrace(theCategory)<< "reverse order: ";
     stable_sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
   }
+
+  stable_sort(all.begin(),all.end(),ComparatorInOut());
   
   int station1 = -999;
   int station2 = -999;
