@@ -131,8 +131,7 @@ process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.TRAmonitor = cms.Sequence(process.SiPixelTrackResidualSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
 process.p = cms.Path(process.RecoForDQMCosmic*process.qTester*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.TRAmonitor*process.sipixelEDAClient*process.dqmSaver)
-
-# cms.Path(process.RecoFor*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
+# process.p = cms.Path(process.Reco*process.qTester*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient*process.dqmSaver)
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
