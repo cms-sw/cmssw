@@ -17,7 +17,7 @@
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.42 2008/07/22 14:00:11 evansde Exp $
+// $Id: JobReport.cc,v 1.43 2008/09/29 19:14:03 evansde Exp $
 //
 
 
@@ -315,15 +315,6 @@ namespace edm
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
       JobReport::OutputFile & theFile = outputFiles_[*iToken];
-      std::cout << "Associating " << runNumber 
-		<< " To file: " << theFile.logicalFileName << std::endl;
-      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
-      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
-	    ++iRun){
-	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
-
-      }
-	
       
       //
       // check run is known to file
@@ -344,14 +335,6 @@ namespace edm
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
       JobReport::InputFile & theFile = inputFiles_[*iToken];
-      std::cout << "Associating " << runNumber 
-		<< " To file: " << theFile.logicalFileName << std::endl;
-      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
-      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
-	    ++iRun){
-	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
-
-      }
 	
       
       //
@@ -379,14 +362,6 @@ namespace edm
       //
       JobReport::OutputFile & theFile = outputFiles_[*iToken];
       
-      std::cout << "Associating " << runNumber << "." << lumiSect
-		<< " To file: " << theFile.logicalFileName << std::endl;
-      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
-      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
-	    ++iRun){
-	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
-
-      }
 	
       
       //
@@ -422,16 +397,6 @@ namespace edm
       // Loop over all open input files
       //
       JobReport::InputFile & theFile = inputFiles_[*iToken];
-
-      std::cout << "Associating " << runNumber << "." << lumiSect
-		<< " To file: " << theFile.logicalFileName << std::endl;
-      std::map<JobReport::RunNumber, JobReport::RunReport>::iterator iRun;
-      for ( iRun = theFile.runReports.begin(); iRun != theFile.runReports.end();
-	    ++iRun){
-	std::cout << iRun->first <<  "  " << iRun->second << std::endl;
-
-      }
-	
 
       //
       // check run is known to file
