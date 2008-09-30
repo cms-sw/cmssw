@@ -35,7 +35,9 @@
 
 
 L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig) :
-  m_outputFileName(iConfig.getUntrackedParameter<std::string>("filename","gctLutContents.txt")),
+  m_jetRanksOutFileName(iConfig.getUntrackedParameter<std::string>("jetRanksFilename","gctJetRanksContents.txt")),
+  m_jetCountOutFileName(iConfig.getUntrackedParameter<std::string>("jetCountFilename","gctJetCountContents.txt")),
+  m_hfSumLutOutFileName(iConfig.getUntrackedParameter<std::string>("hfSumLutFilename","gctHfSumLutContents.txt")),
   m_gct(new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder)),
   m_jetEtCalibLut(new L1GctJetEtCalibrationLut())
 {
@@ -65,24 +67,38 @@ L1GctPrintLuts::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 L1GctPrintLuts::beginJob(const edm::EventSetup& c)
 {
+  // get config data from EventSetup
+  configureGct(c);
+
   // Write to a new file
   struct stat buffer ;
-  if ( !stat(  m_outputFileName.c_str(), &buffer ) ) {
-    edm::LogWarning("LutFileExists") << "File " << m_outputFileName << " already exists. It will not be overwritten." << std::endl; 
+  if ( !stat(  m_jetRanksOutFileName.c_str(), &buffer ) ) {
+    edm::LogWarning("LutFileExists") << "File " << m_jetRanksOutFileName << " already exists. It will not be overwritten." << std::endl; 
   } else {
 
     std::ofstream file;
-    file.open(  m_outputFileName.c_str() );
+    file.open(  m_jetRanksOutFileName.c_str() );
 
     if (file.good()) {
-      // get config data from EventSetup
-      configureGct(c);
       // Print the calibration lut contents
       file << " Gct lookup table printout \n"
            << "===========================\n\n"
 	   << "Jet Et Calibration lut contents\n" << std::endl;
       file << *m_jetEtCalibLut << std::endl;
+    } else {
+      edm::LogWarning("LutFileError") << "Error opening file " << m_jetRanksOutFileName << ". No lookup tables written." << std::endl;
+    }
+    file.close();
+  }
 
+  if ( !stat(  m_jetCountOutFileName.c_str(), &buffer ) ) {
+    edm::LogWarning("LutFileExists") << "File " << m_jetCountOutFileName << " already exists. It will not be overwritten." << std::endl; 
+  } else {
+
+    std::ofstream file;
+    file.open(  m_jetCountOutFileName.c_str() );
+
+    if (file.good()) {
       // Print the jet counter luts
       for (int wheel=0; wheel<m_gct->N_WHEEL_CARDS; wheel++) {
 	// Could get the actual number of filled counters from the
@@ -96,7 +112,20 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
 	  file << *m_gct->getWheelJetFpgas().at(wheel)->getJetCounter(ctr)->getJetCounterLut() << std::endl;
 	}
       }
+    } else {
+      edm::LogWarning("LutFileError") << "Error opening file " << m_jetCountOutFileName << ". No lookup tables written." << std::endl;
+    }
+    file.close();
+  }
 
+  if ( !stat(  m_hfSumLutOutFileName.c_str(), &buffer ) ) {
+    edm::LogWarning("LutFileExists") << "File " << m_hfSumLutOutFileName << " already exists. It will not be overwritten." << std::endl; 
+  } else {
+
+    std::ofstream file;
+    file.open(  m_hfSumLutOutFileName.c_str() );
+
+    if (file.good()) {
       // Print the Hf luts
       file << "\n\n Hf ring jet bit count luts:" << std::endl;
       file << "\n Positive eta, ring1" << std::endl;
@@ -117,7 +146,7 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
       file << "\n Negative eta, ring2" << std::endl;
       file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumNegEtaRing2) << std::endl;
     } else {
-      edm::LogWarning("LutFileError") << "Error opening file " << m_outputFileName << ". No lookup tables written." << std::endl;
+      edm::LogWarning("LutFileError") << "Error opening file " << m_hfSumLutOutFileName << ". No lookup tables written." << std::endl;
     }
     file.close();
   }
