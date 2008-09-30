@@ -55,7 +55,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/29 12:41:42 $ 
+ **  $Date: 2008/09/29 12:48:24 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -219,6 +219,11 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       p_ecalSum_.push_back(dbe_->book1D("ecalSum","Avg Ecal Sum in the Iso Cone",etaBin,etaMin, etaMax));
       p_hcalSum_.push_back(dbe_->book1D("hcalSum","Avg Hcal Sum in the Iso Cone",etaBin,etaMin, etaMax));
    
+      //Efficiency histograms
+
+      p_efficiencyVsEta_.push_back(dbe_->book1D("EfficiencyVsEta","Fraction of isolated Photons  vs. Eta",etaBin,etaMin, etaMax));
+      p_efficiencyVsEt_.push_back(dbe_->book1D("EfficiencyVsEt","Fraction of isolated Photons vs. Et",etBin,etMin, etMax));
+
 
       // Photon histograms
 
@@ -958,38 +963,53 @@ void PhotonAnalyzer::endJob()
 
   for (int cut=0; cut !=numberOfSteps_; ++cut) {
 
-     doProfileX( h_nTrackIsolSolid_[cut], p_nTrackIsolSolid_[cut]);
-     doProfileX( h_trackPtSumSolid_[cut], p_trackPtSumSolid_[cut]);
-     doProfileX( h_nTrackIsolHollow_[cut], p_nTrackIsolHollow_[cut]);
-     doProfileX( h_trackPtSumHollow_[cut], p_trackPtSumHollow_[cut]);
-     doProfileX( h_ecalSum_[cut], p_ecalSum_[cut]);
-     doProfileX( h_hcalSum_[cut], p_hcalSum_[cut]);
+    //making efficiency plots
+    
+    MonitorElement * EtaNum = h_phoEta_[cut][1];
+    MonitorElement * EtaDen = h_phoEta_[cut][0];
+    dividePlots(p_efficiencyVsEta_[cut],EtaNum,EtaDen);
+    
+    MonitorElement * EtNum = h_phoEt_[cut][1][0];
+    MonitorElement * EtDen = h_phoEt_[cut][0][0];
+    dividePlots(p_efficiencyVsEt_[cut],EtNum,EtDen);
+    
 
+    //making isolation variable profiles
 
-     currentFolder_.str("");
-     currentFolder_ << "Egamma/PhotonAnalyzer/IsolationVariables/Et above " << cut*cutStep_ << " GeV";
-     dbe_->setCurrentFolder(currentFolder_.str());
+    doProfileX( h_nTrackIsolSolid_[cut], p_nTrackIsolSolid_[cut]);
+    doProfileX( h_trackPtSumSolid_[cut], p_trackPtSumSolid_[cut]);
+    doProfileX( h_nTrackIsolHollow_[cut], p_nTrackIsolHollow_[cut]);
+    doProfileX( h_trackPtSumHollow_[cut], p_trackPtSumHollow_[cut]);
+    doProfileX( h_ecalSum_[cut], p_ecalSum_[cut]);
+    doProfileX( h_hcalSum_[cut], p_hcalSum_[cut]);
+    
+    
+    //removing unneeded plots
 
-     dbe_->removeElement(h_nTrackIsolSolid_[cut]->getName());
-     dbe_->removeElement(h_trackPtSumSolid_[cut]->getName());
-     dbe_->removeElement(h_nTrackIsolHollow_[cut]->getName());
-     dbe_->removeElement(h_trackPtSumHollow_[cut]->getName());
-     dbe_->removeElement(h_ecalSum_[cut]->getName());
-     dbe_->removeElement(h_hcalSum_[cut]->getName());
-
-     for(int type=0;type!=3;++type){
-       doProfileX( h_nHitsVsEta_[cut][type], p_nHitsVsEta_[cut][type]);
-       doProfileX( h_r9VsEt_[cut][type], p_r9VsEt_[cut][type]);
-       currentFolder_.str("");
-       currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
-       dbe_->setCurrentFolder(currentFolder_.str());
-       dbe_->removeElement("r9VsEt2D");
-       currentFolder_ << "/Conversions";
-       dbe_->setCurrentFolder(currentFolder_.str());
-       dbe_->removeElement("nHitsVsEta2D");
-     }
-
-
+    currentFolder_.str("");
+    currentFolder_ << "Egamma/PhotonAnalyzer/IsolationVariables/Et above " << cut*cutStep_ << " GeV";
+    dbe_->setCurrentFolder(currentFolder_.str());
+    
+    dbe_->removeElement(h_nTrackIsolSolid_[cut]->getName());
+    dbe_->removeElement(h_trackPtSumSolid_[cut]->getName());
+    dbe_->removeElement(h_nTrackIsolHollow_[cut]->getName());
+    dbe_->removeElement(h_trackPtSumHollow_[cut]->getName());
+    dbe_->removeElement(h_ecalSum_[cut]->getName());
+    dbe_->removeElement(h_hcalSum_[cut]->getName());
+    
+    for(int type=0;type!=3;++type){
+      doProfileX( h_nHitsVsEta_[cut][type], p_nHitsVsEta_[cut][type]);
+      doProfileX( h_r9VsEt_[cut][type], p_r9VsEt_[cut][type]);
+      currentFolder_.str("");
+      currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
+      dbe_->setCurrentFolder(currentFolder_.str());
+      dbe_->removeElement("r9VsEt2D");
+      currentFolder_ << "/Conversions";
+      dbe_->setCurrentFolder(currentFolder_.str());
+      dbe_->removeElement("nHitsVsEta2D");
+    }
+    
+    
 
 
   }
@@ -1052,3 +1072,20 @@ void PhotonAnalyzer::doProfileX(MonitorElement * th2m, MonitorElement* me) {
   doProfileX(th2m->getTH2F(), me);
 }
 
+
+
+
+void  PhotonAnalyzer::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator){
+  double value,err;
+  for (int j=1; j<=numerator->getNbinsX(); j++){
+    if (denominator->getBinContent(j)!=0){
+      value = ((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));
+      err = sqrt( value*(1-value) / ((double) denominator->getBinContent(j)) );
+      dividend->setBinContent(j, value);
+      dividend->setBinError(j,err);
+    }
+    else {
+      dividend->setBinContent(j, 0);
+    }
+  }
+}
