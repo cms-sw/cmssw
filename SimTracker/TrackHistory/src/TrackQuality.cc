@@ -39,48 +39,55 @@
 
 // #define DEBUG_TRACK_QUALITY
 
-namespace {
-    static const uint32_t NonMatchedTrackId = (uint32_t)-1;
+namespace
+{
+static const uint32_t NonMatchedTrackId = (uint32_t)-1;
 
-    struct MatchedHit {
-        DetId detId;
-        uint32_t simTrackId;
-        EncodedEventId collision;
-        int recHitId;
-        TrackQuality::Layer::State state;
+struct MatchedHit
+{
+    DetId detId;
+    uint32_t simTrackId;
+    EncodedEventId collision;
+    int recHitId;
+    TrackQuality::Layer::State state;
 
-        bool operator < (const MatchedHit &other) const
-        {
-            if (detId < other.detId)
-                return true;
-            else if (detId > other.detId)
-                return false;
-            else if (collision < other.collision)
-                return true;
-            else if (other.collision < collision)
-                return false;
-            else
-                return simTrackId < other.simTrackId;
-        }
+    bool operator < (const MatchedHit &other) const
+    {
+        if (detId < other.detId)
+            return true;
+        else if (detId > other.detId)
+            return false;
+        else if (collision < other.collision)
+            return true;
+        else if (other.collision < collision)
+            return false;
+        else
+            return simTrackId < other.simTrackId;
+    }
 
-        bool operator == (const MatchedHit &other) const
-        {
-            return detId == other.detId &&
-                   collision == other.collision &&
-                   simTrackId == other.simTrackId;
-        }
-    };
+    bool operator == (const MatchedHit &other) const
+    {
+        return detId == other.detId &&
+               collision == other.collision &&
+               simTrackId == other.simTrackId;
+    }
+};
 
-    static bool operator < (const MatchedHit &hit, DetId detId)
-    { return hit.detId < detId; }
-    static bool operator < (DetId detId, const MatchedHit &hit)
-    { return detId < hit.detId; }
+static bool operator < (const MatchedHit &hit, DetId detId)
+{
+    return hit.detId < detId;
+}
+static bool operator < (DetId detId, const MatchedHit &hit)
+{
+    return detId < hit.detId;
+}
 }
 
 typedef std::pair<TrackQuality::Layer::SubDet, short int> DetLayer;
 
 // in case multiple hits were found, figure out the highest priority
-static const int statePriorities[] = {
+static const int statePriorities[] =
+{
     /* Unknown */  3,
     /* Good */     5,
     /* Missed */   0,
@@ -95,10 +102,10 @@ static DetLayer getDetLayer(DetId detId)
     TrackQuality::Layer::SubDet det = TrackQuality::Layer::Invalid;
     short int layer = 0;
 
-    switch(detId.det())
+    switch (detId.det())
     {
     case DetId::Tracker:
-        switch(detId.subdetId())
+        switch (detId.subdetId())
         {
         case PixelSubdetector::PixelBarrel:
             det = TrackQuality::Layer::PixelBarrel;
@@ -130,12 +137,13 @@ static DetLayer getDetLayer(DetId detId)
             break;
 
         default:
-            /* should not get here */;
+            /* should not get here */
+            ;
         }
         break;
 
     case DetId::Muon:
-        switch(detId.subdetId())
+        switch (detId.subdetId())
         {
         case MuonSubdetId::DT:
             det = TrackQuality::Layer::MuonDT;
@@ -156,19 +164,21 @@ static DetLayer getDetLayer(DetId detId)
             break;
 
         default:
-            /* should not get here */;
+            /* should not get here */
+            ;
         }
         break;
 
     default:
-        /* should not get here */;
+        /* should not get here */
+        ;
     }
 
     return DetLayer(det, layer);
 }
 
 TrackQuality::TrackQuality(const edm::ParameterSet &config) :
-    associatorPSet_(config.getParameter<edm::ParameterSet>("hitAssociator"))
+        associatorPSet_(config.getParameter<edm::ParameterSet>("hitAssociator"))
 {
 }
 
@@ -183,8 +193,8 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
     std::vector<MatchedHit> matchedHits;
 
     // iterate over reconstructed hits
-    for(trackingRecHit_iterator hit = tr->recHitsBegin();
-        hit != tr->recHitsEnd(); ++hit)
+    for (trackingRecHit_iterator hit = tr->recHitsBegin();
+            hit != tr->recHitsEnd(); ++hit)
     {
         // on which module the hit lies
         DetId detId = (*hit)->geographicalId();
@@ -198,7 +208,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
             matchedHit.detId = detId;
             matchedHit.simTrackId = NonMatchedTrackId;
             // check why hit wasn't valid and propagate information
-            switch((*hit)->getType())
+            switch ((*hit)->getType())
             {
             case TrackingRecHit::inactive:
                 matchedHit.state = Layer::Dead;
@@ -212,7 +222,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
                 matchedHit.state = Layer::Missed;
             }
             matchedHit.recHitId = hit - tr->recHitsBegin();
-            matchedHits.push_back(matchedHit); 
+            matchedHits.push_back(matchedHit);
             continue;
         }
 
@@ -227,13 +237,13 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
             matchedHit.simTrackId = NonMatchedTrackId;
             matchedHit.state = Layer::Noise;
             matchedHit.recHitId = hit - tr->recHitsBegin();
-            matchedHits.push_back(matchedHit); 
+            matchedHits.push_back(matchedHit);
             continue;
         }
 
         // register all simulated tracks contributing
-        for(std::vector<SimHitIdpr>::const_iterator i = simIds.begin();
-            i != simIds.end(); ++i)
+        for (std::vector<SimHitIdpr>::const_iterator i = simIds.begin();
+                i != simIds.end(); ++i)
         {
             MatchedHit matchedHit;
             matchedHit.detId = detId;
@@ -246,7 +256,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
                 // assume hit was mismatched (until possible confirmation)
                 matchedHit.state = Layer::Misassoc;
             matchedHit.recHitId = hit - tr->recHitsBegin();
-            matchedHits.push_back(matchedHit); 
+            matchedHits.push_back(matchedHit);
         }
     }
 
@@ -256,13 +266,13 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
     std::vector<MatchedHit>::size_type size = matchedHits.size();
 
     // now iterate over simulated hits and compare (tracks in chain first)
-    for(SimParticleTrail::const_iterator track = spt.begin();
-        track != spt.end(); ++track)
+    for (SimParticleTrail::const_iterator track = spt.begin();
+            track != spt.end(); ++track)
     {
         // iterate over all hits in track
-        for(std::vector<PSimHit>::const_iterator hit =
-                        (*track)->pSimHit_begin();
-            hit != (*track)->pSimHit_end(); ++hit)
+        for (std::vector<PSimHit>::const_iterator hit =
+                    (*track)->pSimHit_begin();
+                hit != (*track)->pSimHit_end(); ++hit)
         {
             MatchedHit matchedHit;
             matchedHit.detId = DetId(hit->detUnitId());
@@ -271,8 +281,8 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
 
             // find range of reconstructed hits belonging to this module
             std::pair<std::vector<MatchedHit>::iterator,
-                      std::vector<MatchedHit>::iterator>
-                range = std::equal_range(
+            std::vector<MatchedHit>::iterator>
+            range = std::equal_range(
                         matchedHits.begin(),
                         matchedHits.begin() + size,
                         matchedHit.detId);
@@ -306,8 +316,8 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
     LayerHitMap layerHitMap;
 
     // iterate over all simulated/reconstructed hits again
-    for(std::vector<MatchedHit>::const_iterator hit = matchedHits.begin();
-        hit != matchedHits.end();)
+    for (std::vector<MatchedHit>::const_iterator hit = matchedHits.begin();
+            hit != matchedHits.end();)
     {
         // we can have multiple reco-to-sim matches per module, find best one
         const MatchedHit *best = 0;
@@ -317,21 +327,22 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
         {
             // update our best hit pointer
             if (!best ||
-                statePriorities[hit->state] > statePriorities[best->state] ||
-                best->simTrackId == NonMatchedTrackId)
+                    statePriorities[hit->state] > statePriorities[best->state] ||
+                    best->simTrackId == NonMatchedTrackId)
             {
                 best = &*hit;
             }
             ++hit;
-        } while(hit != matchedHits.end() &&
+        }
+        while (hit != matchedHits.end() &&
                 hit->detId == best->detId);
 
         // ignore hit in case track reco was looking at the wrong module
         if (best->simTrackId != NonMatchedTrackId ||
-	    best->state != Layer::Missed)
+                best->state != Layer::Missed)
         {
             layerHitMap.insert(std::make_pair(
-                    getDetLayer(best->detId), best));
+                                   getDetLayer(best->detId), best));
         }
     }
 
@@ -341,8 +352,8 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
     std::cout << "---------------------" << std::endl;
 #endif
     // now prepare final collection
-    for(LayerHitMap::const_iterator hit = layerHitMap.begin();
-        hit != layerHitMap.end(); ++hit)
+    for (LayerHitMap::const_iterator hit = layerHitMap.begin();
+            hit != layerHitMap.end(); ++hit)
     {
 #ifdef DEBUG_TRACK_QUALITY
         std::cout
@@ -354,8 +365,8 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
         // find out if we need to start a new layer
         Layer *layer = layers_.empty() ? 0 : &layers_.back();
         if (!layer ||
-            hit->first.first != layer->subDet ||
-            hit->first.second != layer->layer)
+                hit->first.first != layer->subDet ||
+                hit->first.second != layer->layer)
         {
             Layer newLayer;
             newLayer.subDet = hit->first.first;

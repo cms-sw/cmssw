@@ -140,7 +140,7 @@ private:
     void reconstructionInformation(reco::TrackBaseRef const &);
 
     //! Get all the information related to the simulation details
-    void simulationInformation();  
+    void simulationInformation();
 
     //! Classify all the tracks by their reconstruction quality
     void qualityInformation(reco::TrackBaseRef const &);

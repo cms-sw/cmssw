@@ -28,25 +28,29 @@ class TrackQuality
 public:
     typedef std::vector<TrackingParticleRef> SimParticleTrail;
 
-    struct Layer {
-        enum SubDet {
+    struct Layer
+    {
+        enum SubDet
+        {
             Invalid = 0,
             PixelBarrel, PixelForward,
             StripTIB, StripTID, StripTOB, StripTEC,
             MuonDT, MuonCSC, MuonRPCBarrel, MuonRPCEndcap
         };
 
-        enum State {
+        enum State
+        {
             Unknown = 0,
             Good,
             Missed,
             Noise,
-	    Bad,
-	    Dead,
+            Bad,
+            Dead,
             Misassoc
         };
 
-        struct Hit {
+        struct Hit
+        {
             short int recHitId;
             State state;
         };
@@ -71,10 +75,16 @@ public:
     void evaluate(SimParticleTrail const &, reco::TrackBaseRef const &);
 
     //! Return the number of layers with simulated and/or reconstructed hits
-    unsigned int numberOfLayers() const { return layers_.size(); }
+    unsigned int numberOfLayers() const
+    {
+        return layers_.size();
+    }
 
     //! Return information about the given layer by index
-    const Layer &layer(unsigned int index) const { return layers_[index]; }
+    const Layer &layer(unsigned int index) const
+    {
+        return layers_[index];
+    }
 
 private:
     const edm::ParameterSet associatorPSet_;

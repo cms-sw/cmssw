@@ -14,10 +14,10 @@
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
 TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) :
-    hepMCLabel_(pset.getUntrackedParameter<edm::InputTag>("hepMC")),
-    beamSpotLabel_(pset.getUntrackedParameter<edm::InputTag>("beamSpot")),
-    tracer_(pset),
-    quality_(pset)
+        hepMCLabel_(pset.getUntrackedParameter<edm::InputTag>("hepMC")),
+        beamSpotLabel_(pset.getUntrackedParameter<edm::InputTag>("beamSpot")),
+        tracer_(pset),
+        quality_(pset)
 {
     // Initialize flags
     reset();
@@ -61,7 +61,7 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
     edm::Handle<reco::BeamSpot> beamSpot;
     event.getByLabel(beamSpotLabel_, beamSpot);
     beamSpot_ = reco::TrackBase::Point(
-                          beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
+                    beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
 
     // Transient track builder
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
@@ -86,7 +86,7 @@ TrackClassifier const & TrackClassifier::evaluate (reco::TrackBaseRef const & tr
         simulationInformation();
 
         // Analyse the track reconstruction quality
-	qualityInformation(track);
+        qualityInformation(track);
 
         // Get hadron flavor of the initial hadron
         hadronFlavor();
@@ -167,7 +167,7 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
     GlobalPoint theBS(beamSpot_.x(), beamSpot_.y(), beamSpot_.z());
 
     TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
-                                                ftsAtProduction, theBS );
+                ftsAtProduction, theBS );
 
 
     GlobalVector v = tsAtClosestApproach.theState().position() - theBS;
@@ -202,23 +202,23 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
                                       quality_.numberOfLayers());
 
     // check the innermost layers for bad hits
-    for(unsigned int i = 0; i < maxLayers; i++)
+    for (unsigned int i = 0; i < maxLayers; i++)
     {
-         const TrackQuality::Layer &layer = quality_.layer(i);
+        const TrackQuality::Layer &layer = quality_.layer(i);
 
-         // check all hits in that layer
-         for(unsigned int j = 0; j < layer.hits.size(); j++)
-         {
-             const TrackQuality::Layer::Hit &hit = layer.hits[j];
+        // check all hits in that layer
+        for (unsigned int j = 0; j < layer.hits.size(); j++)
+        {
+            const TrackQuality::Layer::Hit &hit = layer.hits[j];
 
-             // In those cases the bad hit was used by track reconstruction
-             if (hit.state == TrackQuality::Layer::Noise ||
-                 hit.state == TrackQuality::Layer::Misassoc)
-             {
-                 flags_[TrackCategories::BadInnerHits] = true;
-                 return; // we found a bad one, we are done here
-             }
-         }
+            // In those cases the bad hit was used by track reconstruction
+            if (hit.state == TrackQuality::Layer::Noise ||
+                    hit.state == TrackQuality::Layer::Misassoc)
+            {
+                flags_[TrackCategories::BadInnerHits] = true;
+                return; // we found a bad one, we are done here
+            }
+        }
     }
 }
 
