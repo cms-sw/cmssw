@@ -1,11 +1,12 @@
 //
-// $Id: PATMuonProducer.cc,v 1.12 2008/07/21 17:18:38 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.13 2008/07/30 01:11:35 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -26,7 +27,9 @@ using namespace pat;
 
 
 PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false),
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+
 {
   // general configurables
   muonSrc_             = iConfig.getParameter<edm::InputTag>( "muonSource" );
@@ -83,6 +86,11 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
      }
   }
 
+  // Check to see if the user wants to add user data
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
+  }
 
   // produces vector of muons
   produces<std::vector<Muon> >();
@@ -124,7 +132,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // construct the Muon from the ref -> save ref to original object
     unsigned int idx = itMuon - muons->begin();
     edm::RefToBase<MuonType> muonsRef = muons->refAt(idx);
-
+    edm::Ptr<MuonType> muonsPtr = muons->ptrAt(idx);
+    
     Muon aMuon(muonsRef);
     if (embedTrack_) aMuon.embedTrack();
     if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
@@ -179,6 +188,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[muonsRef]);
     }
 
+    if ( useUserData_ ) {
+      userDataHelper_.add( aMuon, muonsPtr, iEvent, iSetup );
+    }
+    
     // add sel to selected
     patMuons->push_back(aMuon);
   }

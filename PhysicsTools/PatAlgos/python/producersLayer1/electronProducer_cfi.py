@@ -10,6 +10,26 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # General configurables
     electronSource = cms.InputTag("allLayer0Electrons"),
 
+                                    
+    # user data to add
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userDoubles = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(""),
+      userFunctionLabels = cms.vstring("")
+    ),
+
     # Embedding of AOD items
     embedTrack        = cms.bool(False), ## whether to embed in AOD externally stored track (note: gsf electrons don't have a track)
     embedGsfTrack     = cms.bool(False), ## whether to embed in AOD externally stored gsf track

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.13 2008/07/21 17:18:38 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.14 2008/09/01 14:35:48 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -24,7 +24,8 @@ using namespace pat;
 
 
 PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 {
 
   // general configurables
@@ -124,6 +125,13 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
+  // Check to see if the user wants to add user data
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
+  }
+
+
   // produces vector of muons
   produces<std::vector<Electron> >();
 
@@ -175,6 +183,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     // construct the Electron from the ref -> save ref to original object
     unsigned int idx = itElectron - electrons->begin();
     edm::RefToBase<ElectronType> elecsRef = electrons->refAt(idx);
+    edm::Ptr<ElectronType> electronPtr = electrons->ptrAt(idx);
     Electron anElectron(elecsRef);
     if (embedGsfTrack_) anElectron.embedGsfTrack();
     if (embedSuperCluster_) anElectron.embedSuperCluster();
@@ -230,6 +239,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
             ids[i].second = (*idhandles[i])[elecsRef];    
         }
         anElectron.setLeptonIDs(ids);
+    }
+    
+
+    if ( useUserData_ ) {
+      userDataHelper_.add( anElectron, electronPtr, iEvent, iSetup );
     }
     
     // add sel to selected

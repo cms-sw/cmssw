@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
 */
 
 
@@ -34,6 +34,8 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include <string>
 
@@ -90,6 +92,9 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
   };
 
 

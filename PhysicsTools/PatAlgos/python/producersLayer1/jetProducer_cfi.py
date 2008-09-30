@@ -3,6 +3,26 @@ import FWCore.ParameterSet.Config as cms
 allLayer1Jets = cms.EDProducer("PATJetProducer",
     # General configurables
     jetSource = cms.InputTag("allLayer0Jets"),
+
+                               
+    # user data to add
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userDoubles = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(""),
+      userFunctionLabels = cms.vstring("")
+    ),
     
     # Embedding of AOD items
     embedCaloTowers = cms.bool(True), ## switch on/off embedding of supercluster (externally stored in AOD)

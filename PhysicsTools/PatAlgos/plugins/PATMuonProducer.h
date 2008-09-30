@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.10 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATMuonProducer.h,v 1.11 2008/07/30 01:11:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.10 2008/07/08 21:24:50 gpetrucc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.11 2008/07/30 01:11:35 gpetrucc Exp $
 */
 
 
@@ -29,6 +29,9 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include <string>
 
@@ -76,6 +79,9 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::Muon>      userDataHelper_;
 
   };
 

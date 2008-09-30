@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.3 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATMETProducer.h,v 1.4 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.3 2008/06/08 12:24:03 vadler Exp $
+  \version  $Id: PATMETProducer.h,v 1.4 2008/06/24 22:58:24 gpetrucc Exp $
 */
 
 
@@ -25,6 +25,10 @@
 
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+
+
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 
 namespace pat {
@@ -61,6 +65,10 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::MET>      userDataHelper_;
+
 
   };
 

@@ -8,6 +8,26 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     # General configurables
     photonSource = cms.InputTag("allLayer0Photons"),
 
+                                  
+    # user data to add
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userDoubles = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(""),
+      userFunctionLabels = cms.vstring("")
+    ),
+
     embedSuperCluster = cms.bool(False), ## whether to embed in AOD externally stored supercluster
 
     # Isolation configurables

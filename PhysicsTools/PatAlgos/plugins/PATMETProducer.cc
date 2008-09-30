@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.2.2.1 2008/04/04 20:46:14 slava77 Exp $
+// $Id: PATMETProducer.cc,v 1.5 2008/06/26 21:45:53 slava77 Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -15,7 +15,9 @@
 using namespace pat;
 
 
-PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig) {
+PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+{
   // initialize the configurables
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
   addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
@@ -34,6 +36,13 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig) {
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
+
+  // Check to see if the user wants to add user data
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
+  }
+
   
   // produces vector of mets
   produces<std::vector<MET> >();
@@ -65,6 +74,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // construct the MET from the ref -> save ref to original object
     unsigned int idx = itMET - mets->begin();
     edm::RefToBase<METType> metsRef = mets->refAt(idx);
+    edm::Ptr<METType> metsPtr = mets->ptrAt(idx);
     MET amet(metsRef);
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
@@ -87,6 +97,12 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (efficiencyLoader_.enabled()) {
         efficiencyLoader_.setEfficiencies( amet, metsRef );
     }
+
+
+    if ( useUserData_ ) {
+      userDataHelper_.add( amet, metsPtr, iEvent, iSetup );
+    }
+    
 
     // correct for muons if demanded... never more: it's now done by JetMETCorrections
     // add the MET to the vector of METs

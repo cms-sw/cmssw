@@ -4,6 +4,25 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     # General configurables
     muonSource = cms.InputTag("allLayer0Muons"),
 
+    # user data to add
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userDoubles = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(""),
+      userFunctionLabels = cms.vstring("")
+    ),
+                                
     embedTrack          = cms.bool(False), ## whether to embed in AOD externally stored tracker track
     embedCombinedMuon   = cms.bool(False), ## whether to embed in AOD externally stored combined muon track
     embedStandAloneMuon = cms.bool(False), ## whether to embed in AOD externally stored standalone muon track

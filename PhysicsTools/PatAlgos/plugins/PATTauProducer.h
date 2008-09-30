@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATTauProducer.h,v 1.11 2008/09/19 21:13:17 cbern Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
+  \version  $Id: PATTauProducer.h,v 1.11 2008/09/19 21:13:17 cbern Exp $
 */
 
 
@@ -28,6 +28,12 @@
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
+
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
+
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include <string>
 
@@ -77,6 +83,11 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::Tau>      userDataHelper_;
+
   };
 }
 

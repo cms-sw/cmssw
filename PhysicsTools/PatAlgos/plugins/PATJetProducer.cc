@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.21 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.22 2008/07/25 13:15:40 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -41,7 +41,9 @@
 using namespace pat;
 
 
-PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
+PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+{
   // initialize the configurables
   jetsSrc_                 = iConfig.getParameter<edm::InputTag>	      ( "jetSource" );
   embedCaloTowers_         = iConfig.getParameter<bool>                       ( "embedCaloTowers" );
@@ -103,6 +105,14 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   }
 
   if (!addBTagInfo_) { addDiscriminators_ = false; addTagInfoRefs_ = false; }
+
+  // Check to see if the user wants to add user data
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
+  }
+
+
   // produces vector of jets
   produces<std::vector<Jet> >();
 }
@@ -178,7 +188,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // construct the Jet from the ref -> save ref to original object
     unsigned int idx = itJet - jets->begin();
-    edm::RefToBase<JetType> jetRef = jets->refAt(idx); 
+    edm::RefToBase<JetType> jetRef = jets->refAt(idx);
+    edm::Ptr<JetType> jetPtr = jets->ptrAt(idx); 
     Jet ajet(jetRef);
 
     // ensure the internal storage of the jet constituents
@@ -282,6 +293,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addAssociatedTracks_) ajet.setAssociatedTracks( (*hTrackAss)[jetRef] );
 
     if (addJetCharge_)        ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
+
+
+    if ( useUserData_ ) {
+      userDataHelper_.add( ajet, jetPtr, iEvent, iSetup );
+    }
+    
 
     patJets->push_back(ajet);
   }

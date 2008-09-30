@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.8 2008/06/24 22:58:24 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.8 2008/06/24 22:58:24 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.9 2008/07/08 21:24:50 gpetrucc Exp $
 */
 
 
@@ -30,6 +30,10 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+
+
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 class JetFlavourIdentifier;
 
@@ -90,6 +94,10 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
 
   };
 

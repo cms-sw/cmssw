@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.11 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.12 2008/09/01 14:35:48 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -13,7 +13,8 @@
 using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 {
   // initialize the configurables
   photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
@@ -43,7 +44,14 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
-  
+ 
+  // Check to see if the user wants to add user data
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
+  }
+
+ 
   // produces vector of photons
   produces<std::vector<Photon> >();
 
@@ -101,6 +109,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
     edm::RefToBase<PhotonType> photonRef = photons->refAt(idx);
+    edm::Ptr<PhotonType> photonPtr = photons->ptrAt(idx);
     Photon aPhoton(photonRef);
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
 
@@ -147,6 +156,12 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
         aPhoton.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[photonRef]);
     }
+
+
+    if ( useUserData_ ) {
+      userDataHelper_.add( aPhoton, photonPtr, iEvent, iSetup );
+    }
+    
 
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);

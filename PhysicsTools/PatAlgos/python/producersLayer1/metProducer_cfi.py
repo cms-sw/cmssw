@@ -4,6 +4,26 @@ allLayer1METs = cms.EDProducer("PATMETProducer",
     # General configurables
     metSource  = cms.InputTag("allLayer0METs"),
 
+                               
+    # user data to add
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userDoubles = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(""),
+      userFunctionLabels = cms.vstring("")
+    ),
+
     # Resolution configurables
     addResolutions   = cms.bool(True),
     metResoFile      = cms.string('PhysicsTools/PatUtils/data/Resolutions_met.root'),

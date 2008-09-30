@@ -4,6 +4,26 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     # General configurables
     tauSource = cms.InputTag("allLayer0Taus"),
 
+                               
+    # user data to add
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userDoubles = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(""),
+      userFunctionLabels = cms.vstring("")
+    ),
+
     embedLeadTrack       = cms.bool(False), ## whether to embed in AOD externally stored leading track
     embedSignalTracks    = cms.bool(False), ## whether to embed in AOD externally stored signal tracks
     embedIsolationTracks = cms.bool(False), ## whether to embed in AOD externally stored isolation tracks

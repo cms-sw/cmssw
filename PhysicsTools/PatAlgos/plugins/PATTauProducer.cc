@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.14 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.15 2008/09/19 21:13:17 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -32,7 +32,9 @@
 using namespace pat;
 
 
-PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
+PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
+{
   // initialize the configurables
   tauSrc_               = iConfig.getParameter<edm::InputTag>( "tauSource" );
 
@@ -74,6 +76,11 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
+  }
+
   // produces vector of taus
   produces<std::vector<Tau> >();
 }
@@ -112,7 +119,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
-
+    edm::Ptr<TauType> tausPtr = anyTaus->ptrAt(idx);
+    
     Tau aTau(tausRef);
     if (embedLeadTrack_)       aTau.embedLeadTrack();
     if (embedSignalTracks_)    aTau.embedSignalTracks();
@@ -154,6 +162,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     if (efficiencyLoader_.enabled()) {
         efficiencyLoader_.setEfficiencies( aTau, tausRef );
+    }
+
+    
+    if ( useUserData_ ) {
+      userDataHelper_.add( aTau, tausPtr, iEvent, iSetup );
     }
 
     patTaus->push_back(aTau);
