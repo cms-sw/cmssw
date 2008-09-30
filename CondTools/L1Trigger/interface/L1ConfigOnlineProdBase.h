@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id$
+// $Id: L1ConfigOnlineProdBase.h,v 1.1 2008/09/19 19:22:58 wsun Exp $
 //
 
 // system include files
@@ -53,8 +53,9 @@ class L1ConfigOnlineProdBase : public edm::ESProducer {
 
       boost::shared_ptr< TData > produce(const TRcd& iRecord);
 
-      virtual void makeObject( const std::string& objectKey,
-			       boost::shared_ptr< TData >& output ) = 0 ;
+      virtual boost::shared_ptr< TData > newObject(
+	const std::string& objectKey ) = 0 ;
+
    private:
       // ----------member data ---------------------------
  protected:
@@ -105,7 +106,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
    std::string key ;
    if( m_forceGeneration || getObjectKey( iRecord, pData, key ) )
    {
-     makeObject( key, pData ) ;
+     pData = newObject( key ) ;
    }
    else
    {

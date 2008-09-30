@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.4 2008/07/23 16:38:08 wsun Exp $
+// $Id: OMDSReader.cc,v 1.5 2008/09/12 04:54:17 wsun Exp $
 //
 
 // system include files
@@ -98,24 +98,26 @@ OMDSReader::~OMDSReader()
       }
 
     // Only apply condition if RHS has one row.
-    if( !conditionLHS.empty() && conditionRHS.second.size() == 1 )
+    if( !conditionLHS.empty() && conditionRHS.numberRows() == 1 )
       {
 	if( !conditionRHSName.empty() )
 	  {
+	    // Assume all RHS types are strings.
 	    coral::AttributeList attList ;
 	    attList.extend( conditionRHSName, typeid( std::string ) ) ;
-	    attList[ conditionRHSName ].data< std::string >() =
-	      conditionRHS.second.front()[ conditionRHSName ].data< std::string >() ;
+	    std::string tmp ;
+	    conditionRHS.fillVariable( conditionRHSName, tmp ) ;
+	    attList[ conditionRHSName ].data< std::string >() = tmp ;
 
 	    query->setCondition( conditionLHS + " = :" + conditionRHSName,
 				 attList ) ;
-	    //				 conditionRHS.second.front() ) ;
 	  }
-	else if( conditionRHS.first.size() == 1 ) // check for only one column
+	else if( conditionRHS.columnNames().size() == 1 )
+	  // check for only one column
 	  {
 	    query->setCondition( conditionLHS + " = :" +
-				    conditionRHS.first.front(),
-				 conditionRHS.second.front() ) ;
+				   conditionRHS.columnNames().front(),
+				 conditionRHS.attributeLists().front() ) ;
 	  }
       }
 
@@ -129,7 +131,7 @@ OMDSReader::~OMDSReader()
 	atts.push_back( cursor.currentRow() ) ;
       } ;
 
-    return std::make_pair( columnNames, atts ) ;
+    return QueryResults( columnNames, atts ) ;
   }
 
   const OMDSReader::QueryResults
@@ -160,7 +162,7 @@ OMDSReader::~OMDSReader()
     std::vector< coral::AttributeList > atts ;
     atts.push_back( attList ) ;
 
-    return std::make_pair( names, atts ) ;
+    return QueryResults( names, atts ) ;
   }
 
 //
