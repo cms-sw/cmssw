@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
 # process.load("FastSimulation.Configuration.SimpleJet_cfi")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
-source = cms.Source(
+process.source = cms.Source(
     "PythiaSource",
     pythiaVerbosity = cms.untracked.bool(False),
     #  possibility to run single or double back-to-back particles with PYTHIA
