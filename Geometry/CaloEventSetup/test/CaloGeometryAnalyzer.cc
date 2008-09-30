@@ -124,7 +124,6 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 //   typedef std::vector< CaloSubdetectorGeometry::DetIdSet::value_type > DetVec ;
    const DetSet base ( geom->CaloSubdetectorGeometry::getCells( gp, dR ) ) ;
    const DetSet over ( geom->getCells( gp, dR ) ) ;
-   assert( over == base ) ;
 
    if( over == base )
    {
@@ -221,6 +220,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
       }
       std::cout<<"------------- done with mismatch printout ---------------"<<std::endl ;
    }
+   assert( over == base ) ;
 }
 
 EEDetId
