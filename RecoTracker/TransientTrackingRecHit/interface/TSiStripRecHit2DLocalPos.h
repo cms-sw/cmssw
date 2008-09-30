@@ -90,6 +90,9 @@ private:
 			    float weight, float annealing) : 
     TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
     {
+      if (rh->hasPositionAndError())
+	theHitData = SiStripRecHit2D(*rh);
+      else{
       const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
       if (gdu){
 	if (rh->cluster().isNonnull()){
@@ -102,6 +105,7 @@ private:
       }else{
 	edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
 	theHitData = SiStripRecHit2D(*rh);
+      }
       }
     }
 
