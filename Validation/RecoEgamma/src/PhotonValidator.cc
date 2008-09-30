@@ -72,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/09/26 17:16:46 $ 
- **  $Revision: 1.10 $
+ **  $Date: 2008/09/26 22:38:10 $ 
+ **  $Revision: 1.11 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -670,7 +670,11 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     h_DEtaTracksAtEcal_[1][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions:  #delta#eta at Ecal : Barrel Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax); 
     h_DEtaTracksAtEcal_[1][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions:  #delta#eta at Ecal : Endcap Ecal ",dEtaTracksBin,dEtaTracksMin,dEtaTracksMax); 
    
-    h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZ"," Photon Reco conversion vtx position",100, 0., 280.,200,0., 120.);
+
+    h_convVtxRvsZ_[0] =   dbe_->book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",100, 0., 280.,200,0., 80.);
+    h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",100, 0., 280.,200,0., 80.);
+    h_convVtxRvsZ_[2] =   dbe_->book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",100, 0., 280.,200,0., 80.);
+
     h_convVtxdX_ =   dbe_->book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -20.,20.);
     h_convVtxdY_ =   dbe_->book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -20.,20.);
     h_convVtxdZ_ =   dbe_->book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
@@ -1428,12 +1432,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 	if ( aConv->conversionVertex().isValid() ) {
-	  h_convVtxRvsZ_[type] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
+	  h_convVtxRvsZ_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
 	  h_convVtxdX_ ->Fill ( aConv->conversionVertex().position().x() - mcConvX_);
 	  h_convVtxdY_ ->Fill ( aConv->conversionVertex().position().y() - mcConvY_);
 	  h_convVtxdZ_ ->Fill ( aConv->conversionVertex().position().z() - mcConvZ_);
 	  h_convVtxdR_ ->Fill ( sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_);
 	  h2_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
+	  if ( fabs(matchingPho.superCluster()->position().eta() ) <= 1.)	h_convVtxRvsZ_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
+	  if ( fabs(matchingPho.superCluster()->position().eta() ) > 1.) h_convVtxRvsZ_[2] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
+
 	}
 
 
