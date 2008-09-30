@@ -20,12 +20,12 @@ namespace reco {
   namespace parser {    
     class TrinarySelectorSetter {
     public:
-      TrinarySelectorSetter( SelectorStack& selStack,
+      TrinarySelectorSetter(SelectorStack& selStack,
 			     ComparisonStack& cmpStack, 
-			     ExpressionStack& expStack ) : 
-	selStack_( selStack ), cmpStack_( cmpStack ), expStack_( expStack ) { }
+			     ExpressionStack& expStack) : 
+	selStack_(selStack), cmpStack_(cmpStack), expStack_(expStack) { }
       
-      void operator()( const char *, const char * ) const {
+      void operator()(const char *, const char *) const {
 	boost::shared_ptr<ExpressionBase> rhs = expStack_.back(); expStack_.pop_back();
 	boost::shared_ptr<ExpressionBase> mid = expStack_.back(); expStack_.pop_back();
 	boost::shared_ptr<ExpressionBase> lhs = expStack_.back(); expStack_.pop_back();
@@ -34,7 +34,7 @@ namespace reco {
 #ifdef BOOST_SPIRIT_DEBUG 
 	BOOST_SPIRIT_DEBUG_OUT << "pushing trinary selector" << std::endl;
 #endif
-	selStack_.push_back( SelectorPtr( new TrinarySelector( lhs, comp1, mid, comp2, rhs ) ) );
+	selStack_.push_back(SelectorPtr(new TrinarySelector(lhs, comp1, mid, comp2, rhs)));
       }
     private:
       SelectorStack& selStack_;

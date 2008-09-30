@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -28,6 +28,8 @@
 #include "PhysicsTools/Utilities/src/CombinerSetter.h"
 #include "PhysicsTools/Utilities/src/FunctionSetter.h"
 #include "PhysicsTools/Utilities/src/CutSetter.h"
+#include "PhysicsTools/Utilities/src/BinaryCutSetter.h"
+#include "PhysicsTools/Utilities/src/UnaryCutSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperatorSetter.h"
@@ -48,7 +50,6 @@ namespace reco {
       mutable ExpressionStack exprStack;
       mutable ComparisonStack cmpStack;
       mutable SelectorStack selStack;
-      mutable CombinerStack cmbStack;
       mutable FunctionStack funStack;
       mutable MethodStack         methStack;
       mutable MethodArgumentStack methArgStack;
@@ -98,7 +99,6 @@ namespace reco {
 	  ComparisonSetter<greater_equal<double> > greater_equal_s(self.cmpStack);
 	  ComparisonSetter<greater<double> > greater_s(self.cmpStack);
 	  ComparisonSetter<not_equal_to<double> > not_equal_to_s(self.cmpStack);
-	  CombinerSetter and_s(kAnd, self.cmbStack), or_s(kOr, self.cmbStack), not_s(kNot, self.cmbStack);
 	  FunctionSetter 
 	    abs_s(kAbs, self.funStack), acos_s(kAcos, self.funStack), asin_s(kAsin, self.funStack),
 	    atan_s(kAtan, self.funStack), atan2_s(kAtan, self.funStack), 
@@ -111,8 +111,11 @@ namespace reco {
 	    tanh_s(kTanh, self.funStack);
 	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
 	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
-     ExpressionSelectorSetter expr_sel_s(self.selStack, self.exprStack);
-	  CutSetter cut_s(* self.sel_, self.selStack, self.cmbStack);
+	  ExpressionSelectorSetter expr_sel_s(self.selStack, self.exprStack);
+	  BinaryCutSetter<logical_and<bool> > and_s(self.selStack);
+	  BinaryCutSetter<logical_or<bool> > or_s(self.selStack);
+	  UnaryCutSetter<logical_not<bool> > not_s(self.selStack);
+	  CutSetter cut_s(* self.sel_, self.selStack);
 	  ExpressionSetter expr_s(* self.expr_, self.exprStack);
 	  ExpressionBinaryOperatorSetter<plus<double> > plus_s(self.exprStack);
 	  ExpressionBinaryOperatorSetter<minus<double> > minus_s(self.exprStack);
@@ -122,29 +125,29 @@ namespace reco {
 	  ExpressionUnaryOperatorSetter<negate<double> > negate_s(self.exprStack);
 	  ExpressionFunctionSetter fun_s(self.exprStack, self.funStack);
 	  //	  Abort abort_s;
-     BOOST_SPIRIT_DEBUG_RULE(var);
-     BOOST_SPIRIT_DEBUG_RULE(method);
-     BOOST_SPIRIT_DEBUG_RULE(logical_expression);
-     BOOST_SPIRIT_DEBUG_RULE(logical_term);
-     BOOST_SPIRIT_DEBUG_RULE(logical_factor);
-     BOOST_SPIRIT_DEBUG_RULE(number);
-     BOOST_SPIRIT_DEBUG_RULE(metharg);
-     BOOST_SPIRIT_DEBUG_RULE(function1);
-     BOOST_SPIRIT_DEBUG_RULE(function2);
-     BOOST_SPIRIT_DEBUG_RULE(expression);
-     BOOST_SPIRIT_DEBUG_RULE(term);
-     BOOST_SPIRIT_DEBUG_RULE(power);
-     BOOST_SPIRIT_DEBUG_RULE(factor);
-     BOOST_SPIRIT_DEBUG_RULE(or_op);
-     BOOST_SPIRIT_DEBUG_RULE(and_op);
-     BOOST_SPIRIT_DEBUG_RULE(comparison_op);
-     BOOST_SPIRIT_DEBUG_RULE(binary_comp);
-     BOOST_SPIRIT_DEBUG_RULE(trinary_comp);
-     BOOST_SPIRIT_DEBUG_RULE(cut);
-     BOOST_SPIRIT_DEBUG_RULE(fun);
+	  BOOST_SPIRIT_DEBUG_RULE(var);
+	  BOOST_SPIRIT_DEBUG_RULE(method);
+	  BOOST_SPIRIT_DEBUG_RULE(logical_expression);
+	  BOOST_SPIRIT_DEBUG_RULE(logical_term);
+	  BOOST_SPIRIT_DEBUG_RULE(logical_factor);
+	  BOOST_SPIRIT_DEBUG_RULE(number);
+	  BOOST_SPIRIT_DEBUG_RULE(metharg);
+	  BOOST_SPIRIT_DEBUG_RULE(function1);
+	  BOOST_SPIRIT_DEBUG_RULE(function2);
+	  BOOST_SPIRIT_DEBUG_RULE(expression);
+	  BOOST_SPIRIT_DEBUG_RULE(term);
+	  BOOST_SPIRIT_DEBUG_RULE(power);
+	  BOOST_SPIRIT_DEBUG_RULE(factor);
+	  BOOST_SPIRIT_DEBUG_RULE(or_op);
+	  BOOST_SPIRIT_DEBUG_RULE(and_op);
+	  BOOST_SPIRIT_DEBUG_RULE(comparison_op);
+	  BOOST_SPIRIT_DEBUG_RULE(binary_comp);
+	  BOOST_SPIRIT_DEBUG_RULE(trinary_comp);
+	  BOOST_SPIRIT_DEBUG_RULE(cut);
+	  BOOST_SPIRIT_DEBUG_RULE(fun);
   
-     boost::spirit::assertion<SyntaxErrors> expectParenthesis(kMissingClosingParenthesis);
-     boost::spirit::assertion<SyntaxErrors> expect(kSyntaxError);
+	  boost::spirit::assertion<SyntaxErrors> expectParenthesis(kMissingClosingParenthesis);
+	  boost::spirit::assertion<SyntaxErrors> expect(kSyntaxError);
   
 	  number = 
 	    real_p [ number_s ];
@@ -178,7 +181,8 @@ namespace reco {
 	  factor = 
 	    number | 
 	    (function1 >> expect(ch_p('(')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-	    (function2 >> expect(ch_p('(')) >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+	    (function2 >> expect(ch_p('(')) >> expect(expression) >> 
+	     expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
 	    method | 
 	    //NOTE: no 'expectedParenthesis around ending ')' because at this point the partial phrase
 	    //       "(a"
@@ -187,9 +191,9 @@ namespace reco {
 	    //NOTE: if the parser were changed so a logical expression could be used as an expression,e.g.
 	    //  (a<b)+1 <2
 	    // then we could remove such an ambiguity.
-	    '(' >> expression >> ch_p(')') |   
-	    ('-' >> factor) [ negate_s ] |
-	    ('+' >> factor);
+	    ch_p('(') >> expression >> ch_p(')') |   
+	    (ch_p('-') >> factor) [ negate_s ] |
+	    (ch_p('+') >> factor);
 	  comparison_op = 
 	    (ch_p('<') >> ch_p('=') [ less_equal_s    ]) | 
 	    (ch_p('<')              [ less_s          ]) | 
@@ -199,24 +203,23 @@ namespace reco {
 	    (ch_p('>')              [ greater_s       ]) | 
 	    (ch_p('!') >> ch_p('=') [ not_equal_to_s  ]);
 	  binary_comp = 
-	    expression >> comparison_op >> expect(expression);
+	    (expression >> comparison_op >> expect(expression)) [ binary_s ];
 	  trinary_comp = 
-	    expression >> comparison_op >> expect(expression) >> comparison_op >> expect(expression);
-	  or_op = (ch_p('|') >> ch_p('|') [ or_s ]) |
-	    (ch_p('|') [ or_s ]);
-	  and_op = (ch_p('&') >> ch_p('&') [ and_s ]) |
-	    (ch_p('&') [ and_s ]); 
+	    (expression >> comparison_op >> expect(expression) >> comparison_op >> expect(expression)) [ trinary_s ];
+	  or_op = ch_p('|') >> ch_p('|') | ch_p('|');
+	  and_op = ch_p('&') >> ch_p('&') | ch_p('&'); 
 	  logical_expression = 
-            logical_term >> * (or_op >> expect(logical_term));
+            logical_term >> * (or_op >> expect(logical_term)) [ or_s ];
 	  logical_term = 
-            logical_factor >> * (and_op >> expect(logical_factor));
+            logical_factor >> * (and_op >> expect(logical_factor)) [ and_s ];
 	  logical_factor =
-	    (trinary_comp [ trinary_s ] | 
-	     binary_comp [ binary_s ] |
-	     (ch_p('!') [ not_s ] >> expect(logical_factor)) |  expression [expr_sel_s] ) [ cut_s ] |
-	     '(' >> logical_expression >> expectParenthesis(ch_p(')'))
-	    ;
-	  cut = logical_expression;
+	    trinary_comp | 
+	    binary_comp |
+	    ch_p('(') >> logical_expression >> expectParenthesis(ch_p(')')) |
+	    (ch_p('!') >> expect(logical_factor)) [ not_s ] |
+	    expression [ expr_sel_s ];
+;
+	  cut = logical_expression [ cut_s ];
 	  fun = expression [ expr_s ];
 	  start_parsers(cut, fun);
 	}

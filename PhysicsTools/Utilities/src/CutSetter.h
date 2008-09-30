@@ -7,23 +7,26 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
  */
 #include "PhysicsTools/Utilities/src/SelectorPtr.h"
 #include "PhysicsTools/Utilities/src/SelectorStack.h"
-#include "PhysicsTools/Utilities/src/CombinerStack.h"
 
 namespace reco {
   namespace parser {    
     struct CutSetter {
-      CutSetter( SelectorPtr & cut, SelectorStack & selStack, CombinerStack & cmbStack ) :
-	cut_( cut ), selStack_( selStack ), cmbStack_( cmbStack ) { }
+      CutSetter(SelectorPtr & cut, SelectorStack & selStack) :
+	cut_(cut), selStack_(selStack) { }
       
-      void operator()( const char*, const char* ) const;
+      void operator()(const char*, const char*) const {
+	assert(0 == cut_.get());
+	assert(!selStack_.empty());
+	cut_ = selStack_.back();
+	selStack_.pop_back();
+      }
       SelectorPtr & cut_;
       SelectorStack & selStack_;
-      CombinerStack & cmbStack_;
     };
   }
  }

@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "PhysicsTools/Utilities/src/SelectorStack.h"
@@ -21,9 +21,9 @@ namespace reco {
   namespace parser {    
     class BinarySelectorSetter {
     public:
-      BinarySelectorSetter( SelectorStack& selStack,
-			    ComparisonStack& cmpStack, ExpressionStack& expStack ) : 
-	selStack_( selStack ), cmpStack_( cmpStack ), expStack_( expStack ) { }
+      BinarySelectorSetter(SelectorStack& selStack,
+			    ComparisonStack& cmpStack, ExpressionStack& expStack) : 
+	selStack_(selStack), cmpStack_(cmpStack), expStack_(expStack) { }
       
       void operator()(const char * begin, const char *) const {
 	if(expStack_.empty())
@@ -38,7 +38,7 @@ namespace reco {
 #ifdef BOOST_SPIRIT_DEBUG 
 	BOOST_SPIRIT_DEBUG_OUT << "pushing binary selector" << std::endl;
 #endif
-	selStack_.push_back( SelectorPtr( new BinarySelector( lhs, comp, rhs ) ) );
+	selStack_.push_back(SelectorPtr(new BinarySelector(lhs, comp, rhs)));
       }
     private:
       SelectorStack & selStack_;

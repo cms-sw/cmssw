@@ -17,10 +17,10 @@ namespace reco {
   namespace parser {
     template<typename Op>
     struct ExpressionBinaryOperator : public ExpressionBase {
-      virtual double value( const ROOT::Reflex::Object& o ) const { 
-	return op_( (*lhs_).value( o ), (*rhs_).value( o ) );
+      virtual double value(const ROOT::Reflex::Object& o) const { 
+	return op_((*lhs_).value(o), (*rhs_).value(o));
       }
-      ExpressionBinaryOperator( ExpressionStack & expStack ) { 
+      ExpressionBinaryOperator(ExpressionStack & expStack) { 
 	rhs_ = expStack.back(); expStack.pop_back();
 	lhs_ = expStack.back(); expStack.pop_back();
       }
