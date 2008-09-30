@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.17 2008/08/17 18:14:38 loizides Exp $
+# $Id: setup_sm.sh,v 1.18 2008/09/30 03:52:50 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -61,6 +61,8 @@ start () {
             modifykparams
             stopunwantedservices >/dev/null 2>&1
 
+            ~smpro/sm_scripts_cvs/operations/monitoringSar.sh >> /var/log/monitoringSar.log &
+
             if test -x "/sbin/multipath"; then
                 echo "Refresh multipath devices"
                 /sbin/multipath
@@ -108,6 +110,7 @@ start () {
     su - smpro -c "~smpro/scripts/t0inject.sh stop" >/dev/null 2>&1
     rm -f /tmp/.20*-${hname}-*.log.lock
     su - smpro -c "~smpro/scripts/t0inject.sh start"
+
     return 0;
 }
 
