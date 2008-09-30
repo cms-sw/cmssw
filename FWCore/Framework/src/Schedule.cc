@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -192,14 +193,15 @@ namespace edm {
 	  itLabel != itLabelEnd;
 	  ++itLabel) {
 	if (allowUnscheduled) {
-	  unscheduledLabels.insert(*itLabel);
 	  //Need to hold onto the parameters long enough to make the call to getWorker
 	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
 	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
 			      processName_, getReleaseVersion(), getPassID());
 	  Worker* newWorker(wreg.getWorker(params));
-	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker)) {
+	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+              dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) {
+            unscheduledLabels.insert(*itLabel);
 	    unscheduled_->addWorker(newWorker);
 	    //add to list so it gets reset each new event
             addToAllWorkers(newWorker);
