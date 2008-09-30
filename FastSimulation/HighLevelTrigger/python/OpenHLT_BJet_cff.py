@@ -3,7 +3,7 @@ import copy
 import FWCore.ParameterSet.Config as cms
 
 # import the whole HLT menu
-from FastSimulation.Configuration.HLT_cff import *
+from HLTrigger.Configuration.HLT_2E30_cff import *
   
 ### lifetime-based b-tag OpenHLT (ideal) ######################################
 # L1 filter is skipped
@@ -127,3 +127,4 @@ OpenHLTBSoftmuonL3recoSequence = cms.Sequence(
     openHltBSoftmuonL3TagInfos +
     openHltBSoftmuonL3BJetTags +
     openHltBPerfMeasL3BJetTags )
+
