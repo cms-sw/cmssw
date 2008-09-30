@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.4 2008/07/23 16:38:08 wsun Exp $
+// $Id: OMDSReader.h,v 1.5 2008/09/30 20:33:39 wsun Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondTools/L1Trigger/interface/DataManager.h"
 #include "RelationalAccess/IQuery.h"
@@ -142,6 +143,11 @@ namespace l1t
       const std::string& columnName,
       T& outputVariable ) const
     {
+      if( numberRows() > 1 )
+	{
+	  edm::LogWarning( "L1-O2O" )
+	    << "QueryResults has multiple rows; only first row requested." ;
+	}
       fillVariableFromRow( columnName, 0, outputVariable ) ;
     }
 
@@ -152,7 +158,13 @@ namespace l1t
       T& outputVariable ) const
     {
       // Check index in bounds
-      if( rowNumber < 0 || rowNumber >= numberRows() ) return ;
+      if( rowNumber < 0 || rowNumber >= numberRows() )
+	{
+	  edm::LogWarning( "L1-O2O" ) << "Requested row number " << rowNumber
+				      << " out of bounds.  Max "
+				      << numberRows() ;
+	  return ;
+	}
       const coral::AttributeList& row = m_attributeLists[ rowNumber ] ;
       outputVariable = row[ columnName ].template data< T >() ;
     }
@@ -160,6 +172,11 @@ namespace l1t
   template< class T > void
     OMDSReader::QueryResults::fillVariable( T& outputVariable ) const
     {
+      if( numberRows() > 1 )
+	{
+	  edm::LogWarning( "L1-O2O" )
+	    << "QueryResults has multiple rows; only first row requested." ;
+	}
       fillVariableFromRow( 0, outputVariable ) ;
     }
 
@@ -168,8 +185,20 @@ namespace l1t
 						   T& outputVariable ) const
     {
       // Check index in bounds and only one column
-      if( rowNumber < 0 || rowNumber >= numberRows() ||
-	  m_columnNames.size() != 1 ) return ;
+      if( rowNumber < 0 || rowNumber >= numberRows() )
+	{
+	  edm::LogWarning( "L1-O2O" ) << "Requested row number " << rowNumber
+				      << " out of bounds.  Max "
+				      << numberRows() ;
+	  return ;
+	}
+
+      if( m_columnNames.size() != 1 )
+	{
+	  edm::LogWarning( "L1-O2O" )
+	    << "QueryResults has multiple columns; using first one: "
+	    << m_columnNames.front() ;
+	}
       const coral::AttributeList& row = m_attributeLists[ rowNumber ] ;
       outputVariable = row[ m_columnNames.front() ].template data< T >() ;
     }
