@@ -18,4 +18,5 @@ mergedStandAloneMuonSeeds = cms.EDProducer("MuonSeedMerger",
                                                                            )
                                            )
 
-standAloneMuonSeeds = cms.Sequence(ancientMuonSeed*MuonSeed*mergedStandAloneMuonSeeds)
+#standAloneMuonSeeds = cms.Sequence(ancientMuonSeed*MuonSeed*mergedStandAloneMuonSeeds)
+standAloneMuonSeeds = cms.Sequence(ancientMuonSeed)
