@@ -1,0 +1,5 @@
+<use name=DataFormats/TauReco>
+<use name=root>
+<library file="*.cc" name=RecoTauTagTauTagToolsPlugins></library>
+
+
