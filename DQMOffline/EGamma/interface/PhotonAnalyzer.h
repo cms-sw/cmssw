@@ -23,7 +23,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/19 15:13:50 $ 
+ **  $Date: 2008/09/29 12:41:34 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -61,6 +61,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   float  phiNormalization( float& a);
   void doProfileX(TH2 * th2, MonitorElement* me);
   void doProfileX(MonitorElement * th2m, MonitorElement* me);
+  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
   void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
 
       
@@ -141,6 +142,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> p_ecalSum_;
   std::vector<MonitorElement*> p_hcalSum_;
 
+  std::vector<MonitorElement*> p_efficiencyVsEta_;
+  std::vector<MonitorElement*> p_efficiencyVsEt_;
 
   std::vector<MonitorElement*> h_phoE_part_;
   std::vector<std::vector<MonitorElement*> > h_phoE_isol_;
