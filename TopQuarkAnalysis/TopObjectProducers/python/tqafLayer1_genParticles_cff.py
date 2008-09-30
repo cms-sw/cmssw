@@ -7,7 +7,7 @@ def tqafLayer1GenParticles(process):
     process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi" )
 
     ## prune genParticles to what is needed for top analyses
-    process.tqafGenParticles = cms.EDProducer(
+    process.prunedGenParticles = cms.EDProducer(
         "GenParticlePruner",
         src = cms.InputTag("genParticles"),
         select = cms.vstring(
@@ -15,16 +15,16 @@ def tqafLayer1GenParticles(process):
         ##"keep++ pdgId = {t} && status = 2 || status == 3",
         ##"keep++ pdgId = {tbar} && status = 2 || status == 3",
         ## keep all stable particles within detector acceptance
-        "keep status = 1 && pt > 1.5 && abs(eta) < 5"
+        "keep status = 1 && pt > 0.5 && abs(eta) < 5"
         )
     )
-    process.gen = cms.Path(process.tqafGenParticles)
+    process.gen = cms.Path(process.prunedGenParticles)
     
     ## replace genParticles by pruned genParticles
     tqafLayer1EventContent_genParticles = cms.PSet(
         outputCommands = cms.untracked.vstring(
         'drop *_genParticles_*_*',
-        'keep *_tqafGenParticles_*_*'
+        'keep *_prunedGenParticles_*_*'
         )
     )
     process.tqafEventContent.outputCommands.extend(tqafLayer1EventContent_genParticles.outputCommands)

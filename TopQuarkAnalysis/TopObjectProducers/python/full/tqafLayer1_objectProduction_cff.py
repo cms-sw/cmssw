@@ -8,7 +8,7 @@ from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import allLayer1
 ## input source
 allLayer1Electrons.electronSource = cms.InputTag("allLayer0Electrons")
 ## embed AOD objects?
-allLayer1Electrons.embedTrack = cms.bool(True)          ## replaced from False --> True
+allLayer1Electrons.embedTrack = cms.bool(False)         ## replaced from False --> True
 allLayer1Electrons.embedGsfTrack = cms.bool(True)       ## replaced from False --> True
 allLayer1Electrons.embedSuperCluster = cms.bool(True)   ## replaced from False --> True
 ## mc matching
@@ -128,7 +128,7 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import allLayer1Jets
 ## input source
 allLayer1Jets.jetSource = cms.InputTag("allLayer0Jets")
 ## embed AOD objects?
-allLayer1Jets.embedCaloTowers = cms.bool(True)          ## replaced from False --> True  
+allLayer1Jets.embedCaloTowers = cms.bool(False)         ## replaced from False --> True  
 ## jec factors
 addJetCorrFactors = cms.bool(True)
 jetCorrFactorsSource = cms.InputTag("layer0JetCorrFactors")
