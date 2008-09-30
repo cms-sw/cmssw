@@ -1,2 +1,1 @@
 /castor/cern.ch/cms/store/TAC/PIXEL/P5/GainCalibration_39_63033.root
-/castor/cern.ch/user/c/chiochia/promptrecoCosmics.root

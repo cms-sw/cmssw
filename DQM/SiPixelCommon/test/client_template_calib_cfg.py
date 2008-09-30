@@ -87,15 +87,13 @@ process.GlobalTag.globaltag = "CRUZET4_V5P::All"
 from CondCore.DBCommon.CondDBCommon_cfi import *
 process.siPixelCalibGlobalTag =  cms.ESSource("PoolDBESSource",
                                               CondDBCommon,
-                                              connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X"),
+                                              connect = cms.string("frontier://FrontierProd/CMS_COND_21X_PIXEL"),
                                               
                                               toGet = cms.VPSet(
                                                 cms.PSet(record = cms.string('SiPixelCalibConfigurationRcd'),
                                                 tag = cms.string('GLOBALCALIB_default'))
-                                                ),
-                                              BlobStreamerName = cms.untracked.string("TBufferBlobStreamingService")
+                                                )
                                               )
-process.siPixelCalibGlobalTag.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
 process.es_prefer_dbcalib = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
