@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.26 2008/06/11 13:47:24 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.27 2008/06/26 16:19:54 uberthon Exp $
 //
 //
 
@@ -406,7 +406,7 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
       if (tsos1.isValid()) {
 
 	std::pair<bool,double> est;
- 	if (dynamic_cast<const BoundCylinder *>(&(geomdet->surface()))) est=meas1stBLayer.estimate(tsos1,hitPos);
+ 	if (id.subdetId()%2==1) est=meas1stBLayer.estimate(tsos1,hitPos);
  	else est=meas1stFLayer.estimate(tsos1,hitPos); 
 	if (!est.first)    continue;
 
@@ -419,6 +419,7 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
 
 	// now second Hit
 	it++;
+        DetId id2=(*it).geographicalId();
 	const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
 	TrajectoryStateOnSurface tsos2;
 
@@ -458,7 +459,7 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
 	  LocalPoint lp2=(*it).localPosition();
 	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
 	  std::pair<bool,double> est2;
- 	  if (dynamic_cast<const BoundCylinder *>(&(geomdet2->surface()))) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
+ 	  if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
  	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2); 
 	  //	  if (est2.first) result.push_back((*seeds.product())[i]);
 	  if (est2.first) result.push_back((*seeds)[i]);
