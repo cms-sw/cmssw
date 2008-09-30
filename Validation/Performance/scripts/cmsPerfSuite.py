@@ -288,7 +288,7 @@ def runcmd(command):
     cmdout   = process.read()
     exitstat = process.close()
     if _verbose:
-        logh.write(cmdout + "\n")
+        logh.write(cmdout)# + "\n") No need of extra \n!
         logh.flush()
     return exitstat
 
@@ -531,7 +531,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         path=os.path.abspath(".")
         logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s\n" % (getDate(),host,path,user))
         showtags=os.popen4("showtags -r")[1].read()
-        logh.write(showtags + "\n")
+        logh.write(showtags) # + "\n") No need for extra \n!
 
         #For the log:
         if _verbose:
@@ -562,12 +562,13 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         for cpu in cpus:
             Commands[cpu] = []
 
+        logh.write("Full path of all the scripts used in this run of the Performance Suite:\n")
         for script in AllScripts:
             which="which " + script
 
             #Logging the actual version of cmsDriver.py, cmsRelvalreport.py, cmsSimPyRelVal.pl
             whichstdout=os.popen4(which)[1].read()
-            logh.write(whichstdout + "\n")
+            logh.write(whichstdout) # + "\n") No need of the extra \n!
             if script in Scripts:
                 for cpu in cpus:
                     command="taskset -c %s %s" % (cpu,script)
@@ -683,7 +684,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         AbsTarFile = os.path.join(perfsuitedir,TarFile)
         tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
         printFlush(tarcmd)
-        printFlush(os.popen4(tarcmd)[1].read())
+        printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
 
         #Archive it on CASTOR
         castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(castordir,TarFile))

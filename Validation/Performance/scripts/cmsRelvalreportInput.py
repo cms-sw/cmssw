@@ -478,15 +478,20 @@ def writeCommands(simcandles,
     fstROOTfile = True
     fstROOTfileStr = ""
 
-    if qcd :
+    if qcd : #I think qcd is a flag for PILEUP... not QCD... should maybe rename
+        #Hack to replace the last two steps from being RAW2DIGI_PILEUP,RECO_PILEUP to become RAW2DIGI-RECO_PILEUP (should do this in the AfterPileUpSteps!) 
         steps.pop()
         steps.pop()
-        steps.append(AllSteps[-2] + "-" + AllSteps[-1] + "_PILE-UP")
+        steps.append(AllSteps[-2] + "-" + AllSteps[-1] + "_PILE-UP") #<--Fix this with PILEUP, or use the right list in AfterPileUpSteps
         stopIndex = len(steps)
         userSteps = steps
     else:
+        #Handling the case of the first user step not being the first step (GEN,SIM):
         if not (steps[0] == AllSteps[0]):
+            #Write the necessary line to run without profiling all the steps before the wanted ones in one shot:
             (stepIndex, rootFileStr) = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
+            
+            #Now take care of setting the indeces and input root file name right for the profiling part...
             if fstROOTfile:
                 fstROOTfileStr = rootFileStr
                 fstROOTfile = False
@@ -503,11 +508,15 @@ def writeCommands(simcandles,
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
             stopIndex = start + numOfSteps
+        #Handling the case in which the first user step is the same as the first step (GEN,SIM) 
         else:
+            #Handling the case of the last step being a composite one:
             if "-" in steps[-1]:
+                #Set the stop index at the last step of the composite step (WHY???) 
                 stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
             else:
                 stopIndex = AllSteps.index(steps[-1]) + 1
+                
         steps = AllSteps
             
     unprofiledSteps = []
@@ -520,6 +529,7 @@ def writeCommands(simcandles,
     if qcd:
         previousOutputFile = "%s_DIGI_PILEUP.root" % CandFname[acandle]
     for x in range(start,stopIndex,1):
+        #print "Here's x: %s\n"%x
 
         if stepIndex >= stopIndex:
             break
@@ -530,13 +540,16 @@ def writeCommands(simcandles,
         # We need this in case we are running one-shot profiling or for DIGI-PILEUP
         stepToWrite = step
         qcdStep = ""
-        if qcd:
+        if qcd: #This if is used to put in qcdStep the proper cmsDriver.py step name (getting rid of the trailing PILEUP)
+            #It seems though not to treat properly the RAW2DIGI-RECO_PILE-UP (for some reason James used PILE-UP instead of PILEUP there: bug+complicated bug fix with the if?)
 
             pureg = re.compile("(.*)_PILEUP")
             found = pureg.search(step)
+            #print "STEP %s\n"%(step)
             if found:
                 match = found.groups()[0]
                 qcdStep = pureg.sub(match,step)
+                #print "QCDSTEP %s\n"%(qcdStep)
             else:
                 if "RAW2DIGI" in step:
                     qcdStep = "RAW2DIGI,RECO"   
@@ -547,8 +560,10 @@ def writeCommands(simcandles,
         oneShotProf = False
         hypsteps = []
 
-        if step in userSteps or reduce(lambda x,y : x or y,map(lambda x: step == x.split("-")[0],userSteps)):
+        #Looking for step in userSteps, or for composite steps that step matches the first of a composite step in userSteps
+        if step in userSteps or reduce(lambda x,y : x or y,map(lambda x: step == x.split("-")[0],userSteps)): 
 
+            #Checking now if the current step matches the first of a composite step in userSteps
             hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
             if not len(hypMatch) == 0 :
                 hypsteps    = expandHyphens(hypMatch[0])
@@ -570,7 +585,7 @@ def writeCommands(simcandles,
 
             for prof in Profile:
                 if 'EdmSize' in prof:
-                    EdmFile = "%s_%s.root" % (FileName[acandle],stepToWrite)
+                    EdmFile = "%s_%s.root" % (FileName[acandle],outfile) #stepToWrite) #Bug in the filename for EdmSize for PileUp corrected.
                     
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
                         # insert command to generate required state ( need to run one more step
@@ -628,6 +643,8 @@ def writeCommands(simcandles,
                 if _noprof:
                     simcandles.write("%s @@@ None @@@ None\n" % Command)
                 else:
+                    if qcd:
+                        stepToWrite = qcdStep+"_PILEUP"
                     simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
                                                                    Profiler[prof],
                                                                    FileName[acandle],
@@ -654,7 +671,7 @@ def writeCommands(simcandles,
                 writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents,stepIndex)
                 unprofiledSteps = []
                 
-                
+        #Dangerous index handling when looping over index x!        
         if oneShotProf:
             stepIndex += len(hypsteps)            
         else:
@@ -693,6 +710,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         # If the first profiling we run is EdmSize we need to create the root file first
         #
 
+        #Here all regular (non pileup candles) are processed with all the default steps:
         fstoutfile = writeCommands(simcandles,
                                    Profile,
                                    acandle,
@@ -700,6 +718,8 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
                                    NumberOfEvents,
                                    cmsDriverOptions,
                                    bypasshlt)
+        
+        #Here starts the special treatment in case of pileup (should change variable names from qcd-related to pileup as it logically is):
         if qcdStr == acandle:
             digiPUrootIN = fstoutfile
             
@@ -707,8 +727,6 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
     # Add the extra "step" DIGI with PILE UP only for QCD_80_120:
     # After digi pileup steps:
     # Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
-
-
 
     if qcdStr in Candle and MIN_REQ_TS_EVENTS <= NumberOfEvents:
         thecandle = getFstOccur(qcdStr, Candle)
@@ -732,8 +750,11 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
             # Very messy solution for now:
             # Setting the stepIndex variable to 2, i.e. RECO step
             
-        FileIn = {}
-        FileIn['RECO'] = '--filein file:'
+        #The following 2 lines seem remnants of James' translation from Perl to Python...    
+        #FileIn = {}
+        #FileIn['RECO'] = '--filein file:'
+
+        #We should consider a special function to handle the pileup case instead of making the writeCommands function quite hard to read...
         writeCommands(simcandles,
                       Profile,
                       acandle,
@@ -742,7 +763,8 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
                       cmsDriverOptions,
                       bypasshlt,
                       0, # start at step index 2, RECO Step
-                      True)
+                      True) #this is the flag that says do PILEUP!
+        
     elif NumberOfEvents < MIN_REQ_TS_EVENTS:
         print " WARNING: QCD PileUp steps will not be run because the number of events is less than %s" % MIN_REQ_TS_EVENTS
         
