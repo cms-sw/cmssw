@@ -24,16 +24,29 @@ void L1GctHfLutSetup::setThresholds(const hfLutType type, const std::vector<unsi
   }
 }
 
+std::vector<unsigned> L1GctHfLutSetup::getThresholds(const hfLutType type) const
+{
+  std::vector<unsigned> result;
+  std::map<hfLutType, std::vector<uint16_t> >::const_iterator thrList = m_thresholds.find(type);
+  if (thrList != m_thresholds.end()) {
+    for (std::vector<uint16_t>::const_iterator thr = thrList->second.begin();
+	 thr != thrList->second.end(); thr++) {
+      result.push_back(static_cast<unsigned>(*thr));
+    }
+  }
+  return result;
+}
+
 uint16_t L1GctHfLutSetup::outputValue(const hfLutType type, const uint16_t inputValue) const
 {
   // Calculate Lut contents by comparison against a set of thresholds.
   // Check that the Lut type requested has actually been setup - otherwise
   // we return the max possible output value
   uint16_t result = kHfOutputMaxValue;
-  std::map<hfLutType, std::vector<uint16_t> >::const_iterator thr = m_thresholds.find(type);
-  if (thr != m_thresholds.end()) {
+  std::map<hfLutType, std::vector<uint16_t> >::const_iterator thrList = m_thresholds.find(type);
+  if (thrList != m_thresholds.end()) {
     for (unsigned i=0; i<kHfOutputMaxValue; ++i) {
-      if (inputValue < (thr->second).at(i)) {
+      if (inputValue < (thrList->second).at(i)) {
 	result = i;
 	break;
       }
