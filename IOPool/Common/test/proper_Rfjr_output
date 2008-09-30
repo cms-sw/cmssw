@@ -5,16 +5,17 @@
 <LFN></LFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<Runs>
-</Runs>
 <Branches>
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>0</EventsRead>
-<LumiSections>
-</LumiSections>
+<Runs>
+<Run ID="100">
+</Run>
+
+</Runs>
 </InputFile>
 
 <InputFile>
@@ -22,16 +23,17 @@
 <LFN></LFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<Runs>
-</Runs>
 <Branches>
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>0</EventsRead>
-<LumiSections>
-</LumiSections>
+<Runs>
+<Run ID="200">
+</Run>
+
+</Runs>
 </InputFile>
 
 <File>
@@ -39,8 +41,6 @@
 <LFN></LFN>
 <Catalog></Catalog>
 <ModuleLabel>output</ModuleLabel>
-<Runs>
-</Runs>
 <Branches>
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
@@ -52,8 +52,14 @@
 
 <BranchHash>f3ae954022ffadcccfe7e8cbf1446f0d</BranchHash>
 
-<LumiSections>
-</LumiSections>
+<Runs>
+<Run ID="100">
+</Run>
+
+<Run ID="200">
+</Run>
+
+</Runs>
 
 <Inputs>
 <Input>

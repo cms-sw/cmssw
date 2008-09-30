@@ -822,6 +822,8 @@ namespace edm {
     fillRunAuxiliary();
     assert(runAux_.run() == fileIndexIter_->run_);
     overrideRunNumber(runAux_.id_);
+    Service<JobReport> reportSvc;
+    reportSvc->reportInputRunNumber(runAux_.run());
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if (eventTree_.next()) {

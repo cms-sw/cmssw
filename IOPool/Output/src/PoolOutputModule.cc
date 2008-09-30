@@ -146,6 +146,8 @@ namespace edm {
   void PoolOutputModule::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
+      Service<JobReport> reportSvc;
+      reportSvc->reportRunNumber(r.run());
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
