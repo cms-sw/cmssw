@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.3 2008/09/04 18:47:38 neadam Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.4 2008/09/12 04:35:29 kalanand Exp $
 //
 //
 
@@ -446,7 +446,6 @@ TagProbeEDMNtuple::fillTriggerInfo()
    *nhlt_ = 0;
    if( trgEvent.isValid() )
    {
-      vector< RecoChargedCandidateRef > theCandRefs;
       size_type index = trgEvent->filterIndex(hltTag_.label());
       if( index < trgEvent->sizeFilters() ) {
 	// find how many objects there are
@@ -467,8 +466,8 @@ void TagProbeEDMNtuple::fillMCInfo()
    {      
       Handle<GenParticleCollection> genparticles;
       if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
-	 LogWarning("Z") << "Could not extract gen particles with input tag " 
-			 << genParticlesTag_;
+	 cerr << "Could not extract gen particles with input tag " 
+	      << genParticlesTag_ << endl;
       }
 
       if( genparticles.isValid() )
@@ -736,10 +735,8 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    // Did this tag cause an HLT trigger?
 	    bool hltTrigger = false;
 
-
 	    if( trgEvent.isValid() )
 	    {
-	       vector< RecoChargedCandidateRef > theCandRefs;
 	       size_type index = trgEvent->filterIndex(hltTag_.label());
 	       if( index < trgEvent->sizeFilters() )
 	       {
@@ -1111,9 +1108,9 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    double Detphi = -99999.9;
 	    double Deteta = -99999.9;
 
-
 	    GenParticleRef mcRef( genparticles, (size_t)i );
-	    if( tagmatch.isValid() )
+	    if( mcRef.isNull() ) continue;
+	    if( tagmatch.isValid() && tags.isValid() )
 	    {
 	       // Loop over the tag muons
 	       CandidateView::const_iterator f = tags->begin();
@@ -1121,7 +1118,9 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       {
 		  unsigned int index = f - tags->begin();
 		  CandidateBaseRef tagRef = tags->refAt(index);
+		  if( tagRef.isNull() ) continue;
 		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {
@@ -1174,15 +1173,17 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		  }
 	       }
 	    }
-	    if( apmatch.isValid() )
+	    if( apmatch.isValid() && aprobes.isValid() )
 	    {
 	       // Loop over the tag muons
 	       CandidateView::const_iterator f = aprobes->begin();
 	       for( ; f != aprobes->end(); ++f )
 	       {
 		  unsigned int index = f - aprobes->begin();
-		  CandidateBaseRef tagRef = aprobes->refAt(index);
-		  GenParticleRef mcMatchRef = (*apmatch)[tagRef];
+		  CandidateBaseRef tagRef = tags->refAt(index);
+		  if( tagRef.isNull() ) continue;
+		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {
@@ -1238,15 +1239,17 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		  }
 	       }
 	    }
-	    if( ppmatch.isValid() )
+	    if( ppmatch.isValid() && pprobes.isValid() )
 	    {
 	       // Loop over the tag muons
 	       CandidateView::const_iterator f = pprobes->begin();
 	       for( ; f != pprobes->end(); ++f )
 	       {
 		  unsigned int index = f - pprobes->begin();
-		  CandidateBaseRef tagRef = pprobes->refAt(index);
-		  GenParticleRef mcMatchRef = (*ppmatch)[tagRef];
+		  CandidateBaseRef tagRef = tags->refAt(index);
+		  if( tagRef.isNull() ) continue;
+		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {
