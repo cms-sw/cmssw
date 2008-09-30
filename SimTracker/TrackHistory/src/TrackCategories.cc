@@ -24,31 +24,6 @@ const char * TrackCategories::Names[] =
     "Unknown"
 };
 
-/*TrackCategories::TrackCategories()
-{
-  names.reserve(TrackCategories::Unknown+1);
-
-  names.push_back("Fake");
-names.push_back("Bad");
-names.push_back("SignalEvent");
-names.push_back("Bottom");
-names.push_back("Charm");
-names.push_back("Light");
-names.push_back("BWeakDecay");
-names.push_back("CWeakDecay");
-names.push_back("TauDecay");
-names.push_back("KsDecay");
-names.push_back("LambdaDecay");
-names.push_back("LongLivedDecay");
-names.push_back("Conversion");
-names.push_back("Interaction");
-names.push_back("PrimaryVertex");
-names.push_back("SecondaryVertex");
-names.push_back("TertiaryVertex");
-names.push_back("BadInnerHits");
-names.push_back("Unknown");
-
-}*/
 
 std::ostream & operator<< (std::ostream & os, TrackCategories::Flags const & flags)
 {
