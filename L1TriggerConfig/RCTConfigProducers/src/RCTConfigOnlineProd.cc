@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id$
+// $Id: RCTConfigOnlineProd.cc,v 1.1 2008/09/19 19:52:20 wsun Exp $
 //
 //
 
@@ -39,8 +39,13 @@ class RCTConfigOnlineProd : public L1ConfigOnlineProdBase< L1RCTParametersRcd,
       RCTConfigOnlineProd(const edm::ParameterSet&);
       ~RCTConfigOnlineProd();
 
-  virtual void makeObject( const std::string& objectKey,
-			   boost::shared_ptr< L1RCTParameters >& output ) ;
+  virtual boost::shared_ptr< L1RCTParameters > newObject(
+    const std::string& objectKey ) ;
+
+  void fillScaleFactors(
+    const l1t::OMDSReader::QueryResults& results,
+    std::vector< double >& output ) ;
+
    private:
       // ----------member data ---------------------------
 };
@@ -74,9 +79,8 @@ RCTConfigOnlineProd::~RCTConfigOnlineProd()
 
 }
 
-void
-RCTConfigOnlineProd::makeObject( const std::string& objectKey,
-				 boost::shared_ptr< L1RCTParameters >& output )
+boost::shared_ptr< L1RCTParameters >
+RCTConfigOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
 
@@ -113,40 +117,45 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
      queryStrings.push_back( "NOISEVETOHEPLUS" ) ;
      queryStrings.push_back( "NOISEVETOHEMINUS" ) ;
 
-     l1t::OMDSReader::QueryResults results2 =
+     l1t::OMDSReader::QueryResults paremResults =
        m_omdsReader.basicQuery( queryStrings,
                                 rctSchema,
                                 "PAREM_CONF",
                                 "PAREM_CONF.PAREM_KEY",
                                 paremKeyResults ) ;
 
-     if( results2.second.size() != 1 ) // check query successful
+     if( paremResults.queryFailed() ||
+	 paremResults.numberRows() != 1 ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1RCTParameters key." ;
-	 return ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
        }
 
-     const coral::AttributeList& row2 = results2.second.front() ;
+     double eGammaLSB, jetMETLSB, eMinForFGCut, eMaxForFGCut, hOeCut ;
+     double eMinForHoECut, eMaxForHoECut, hMinForHoECut ;
+     double eActivityCut, hActivityCut ;
+     double jscQuietThreshBarrel, jscQuietThreshEndcap, eicIsolationThreshold ;
+     bool noiseVetoHB, noiseVetoHEplus, noiseVetoHEminus ;
 
-     double eGammaLSB = row2[ "EGAMMA_LSB" ].data< double >() ;
-     double jetMETLSB = row2[ "JETMET_LSB" ].data< double >() ;
-     double eMinForFGCut = row2[ "E_MIN_FOR_FG_CUT" ].data< double >() ;
-     double eMaxForFGCut = row2[ "E_MAX_FOR_FG_CUT" ].data< double >() ;
-     double hOeCut = row2[ "H_OVER_E_CUT" ].data< double >() ;
-     double eMinForHoECut = row2[ "E_MIN_FOR_H_OVER_E_CUT" ].data< double >();
-     double eMaxForHoECut = row2[ "E_MAX_FOR_H_OVER_E_CUT" ].data< double >();
-     double hMinForHoECut = row2[ "H_MIN_FOR_H_OVER_E_CUT" ].data< double >();
-     double eActivityCut = row2[ "E_ACTIVITY_CUT" ].data< double >() ;
-     double hActivityCut = row2[ "H_ACTIVITY_CUT" ].data< double >() ;
-     double jscQuietThreshBarrel =
-       row2[ "JSC_QUIET_THRESHOLD_BARREL" ].data< double >() ;
-     double jscQuietThreshEndcap =
-       row2[ "JSC_QUIET_THRESHOLD_ENDCAP" ].data< double >() ;
-     unsigned int eicIsolationThreshold =
-       ( unsigned int ) row2[ "EIC_ISOLATION_THRESHOLD" ].data< double >() ;
-     bool noiseVetoHB = row2[ "NOISEVETOHB" ].data< bool >() ;
-     bool noiseVetoHEplus = row2[ "NOISEVETOHEPLUS" ].data< bool >() ;
-     bool noiseVetoHEminus = row2[ "NOISEVETOHEMINUS" ].data< bool >() ;
+     paremResults.fillVariable( "EGAMMA_LSB", eGammaLSB ) ;
+     paremResults.fillVariable( "JETMET_LSB", jetMETLSB ) ;
+     paremResults.fillVariable( "E_MIN_FOR_FG_CUT", eMinForFGCut ) ;
+     paremResults.fillVariable( "E_MAX_FOR_FG_CUT", eMaxForFGCut ) ;
+     paremResults.fillVariable( "H_OVER_E_CUT", hOeCut ) ;
+     paremResults.fillVariable( "E_MIN_FOR_H_OVER_E_CUT", eMinForHoECut ) ;
+     paremResults.fillVariable( "E_MAX_FOR_H_OVER_E_CUT", eMaxForHoECut ) ;
+     paremResults.fillVariable( "H_MIN_FOR_H_OVER_E_CUT", hMinForHoECut ) ;
+     paremResults.fillVariable( "E_ACTIVITY_CUT", eActivityCut ) ;
+     paremResults.fillVariable( "H_ACTIVITY_CUT", hActivityCut ) ;
+     paremResults.fillVariable( "JSC_QUIET_THRESHOLD_BARREL",
+				jscQuietThreshBarrel ) ;
+     paremResults.fillVariable( "JSC_QUIET_THRESHOLD_ENDCAP",
+				jscQuietThreshEndcap ) ;
+     paremResults.fillVariable( "EIC_ISOLATION_THRESHOLD",
+				eicIsolationThreshold ) ;
+     paremResults.fillVariable( "NOISEVETOHB", noiseVetoHB ) ;
+     paremResults.fillVariable( "NOISEVETOHEPLUS", noiseVetoHEplus ) ;
+     paremResults.fillVariable( "NOISEVETOHEMINUS", noiseVetoHEminus ) ;
 
 //      std::cout << "eGammaLSB = " << eGammaLSB << std::endl ;
 //      std::cout << "jetMETLSB = " << jetMETLSB << std::endl ;
@@ -174,7 +183,7 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
      // 'rct_cmssw_def'));
 
      std::vector< std::string > scaleFactorQueryStrings ;
-     scaleFactorQueryStrings.push_back( "SCALEFACTOR") ;
+     scaleFactorQueryStrings.push_back( "SCALEFACTOR" ) ;
      scaleFactorQueryStrings.push_back( "FK_RCT_ETA" ) ;
 
      l1t::OMDSReader::QueryResults egammaEcalResults =
@@ -189,42 +198,15 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
                                   "PAREM_CONF.PAREM_KEY",
                                   paremKeyResults ) ) ;
 
-     // Store scale factors in temporary array to get ordering right.
-     // Reserve space for 100 bins.
-
-     static const int reserve = 100 ;
-     double sfTmp[ reserve ] ;
-     for( int i = 0 ; i < reserve ; ++i )
+     if( egammaEcalResults.queryFailed() ) // check query successful
        {
-         sfTmp[ i ] = 0. ;
+	 edm::LogError( "L1-O2O" ) << "Problem with EgammaEcal key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
        }
 
-     int maxBin = 0 ;
-     std::vector< coral::AttributeList >::const_iterator itr =
-       egammaEcalResults.second.begin() ;
-     std::vector< coral::AttributeList >::const_iterator end =
-       egammaEcalResults.second.end() ;
-     for( ; itr != end ; ++itr )
-       {
-         const coral::AttributeList& row = *itr ;
-         double sf = row[ "SCALEFACTOR" ].data< double >() ;
-         int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
-
-         sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
-
-         if( ieta > maxBin )
-           {
-             maxBin = ieta ;
-           }
-       }
-
-//      std::cout << "egammaEcal maxBin = " << maxBin << std::endl ;
+//      std::cout << "egammaEcal " ;
      std::vector< double > egammaEcalScaleFactors ;
-     for( int i = 0 ; i < maxBin ; ++i )
-       {
-         egammaEcalScaleFactors.push_back( sfTmp[ i ] ) ;
-//       std::cout << i+1 << " " << sfTmp[ i ] << std::endl ;
-       }
+     fillScaleFactors( egammaEcalResults, egammaEcalScaleFactors ) ;
 
      // ~~~~~~~~~ EGamma HCAL scale factors ~~~~~~~~~
 
@@ -246,36 +228,15 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
                                   "PAREM_CONF.PAREM_KEY",
                                   paremKeyResults ) ) ;
 
-     // Store scale factors in temporary array to get ordering right.
-     for( int i = 0 ; i < reserve ; ++i )
+     if( egammaHcalResults.queryFailed() ) // check query successful
        {
-         sfTmp[ i ] = 0. ;
+	 edm::LogError( "L1-O2O" ) << "Problem with EgammaHcal key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
        }
 
-     maxBin = 0 ;
-     itr = egammaHcalResults.second.begin() ;
-     end = egammaHcalResults.second.end() ;
-     for( ; itr != end ; ++itr )
-       {
-         const coral::AttributeList& row = *itr ;
-         double sf = row[ "SCALEFACTOR" ].data< double >() ;
-         int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
-
-         sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
-
-         if( ieta > maxBin )
-           {
-             maxBin = ieta ;
-           }
-       }
-
-//      std::cout << "egammaHcal maxBin = " << maxBin << std::endl ;
+//      std::cout << "egammaHcal " ;
      std::vector< double > egammaHcalScaleFactors ;
-     for( int i = 0 ; i < maxBin ; ++i )
-       {
-         egammaHcalScaleFactors.push_back( sfTmp[ i ] ) ;
-//       std::cout << i+1 << " " << sfTmp[ i ] << std::endl ;
-       }
+     fillScaleFactors( egammaHcalResults, egammaHcalScaleFactors ) ;
 
      // ~~~~~~~~~ JetMET ECAL scale factors ~~~~~~~~~
 
@@ -297,36 +258,15 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
                                   "PAREM_CONF.PAREM_KEY",
                                   paremKeyResults ) ) ;
 
-     // Store scale factors in temporary array to get ordering right.
-     for( int i = 0 ; i < reserve ; ++i )
+     if( jetmetEcalResults.queryFailed() ) // check query successful
        {
-         sfTmp[ i ] = 0. ;
+	 edm::LogError( "L1-O2O" ) << "Problem with JetmetEcal key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
        }
 
-     maxBin = 0 ;
-     itr = jetmetEcalResults.second.begin() ;
-     end = jetmetEcalResults.second.end() ;
-     for( ; itr != end ; ++itr )
-       {
-         const coral::AttributeList& row = *itr ;
-         double sf = row[ "SCALEFACTOR" ].data< double >() ;
-         int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
-
-         sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
-
-         if( ieta > maxBin )
-           {
-             maxBin = ieta ;
-           }
-       }
-
-//      std::cout << "jetmetEcal maxBin = " << maxBin << std::endl ;
+//      std::cout << "jetmetEcal " ;
      std::vector< double > jetmetEcalScaleFactors ;
-     for( int i = 0 ; i < maxBin ; ++i )
-       {
-         jetmetEcalScaleFactors.push_back( sfTmp[ i ] ) ;
-//       std::cout << i+1 << " " << sfTmp[ i ] << std::endl ;
-       }
+     fillScaleFactors( jetmetEcalResults, jetmetEcalScaleFactors ) ;
 
      // ~~~~~~~~~ JetMET HCAL scale factors ~~~~~~~~~
 
@@ -348,40 +288,19 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
                                   "PAREM_CONF.PAREM_KEY",
                                   paremKeyResults ) ) ;
 
-     // Store scale factors in temporary array to get ordering right.
-     for( int i = 0 ; i < reserve ; ++i )
+     if( jetmetHcalResults.queryFailed() ) // check query successful
        {
-         sfTmp[ i ] = 0. ;
+	 edm::LogError( "L1-O2O" ) << "Problem with JetmetHcal key." ;
+	 return boost::shared_ptr< L1RCTParameters >() ;
        }
 
-     maxBin = 0 ;
-     itr = jetmetHcalResults.second.begin() ;
-     end = jetmetHcalResults.second.end() ;
-     for( ; itr != end ; ++itr )
-       {
-         const coral::AttributeList& row = *itr ;
-         double sf = row[ "SCALEFACTOR" ].data< double >() ;
-         int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
-
-         sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
-
-         if( ieta > maxBin )
-           {
-             maxBin = ieta ;
-           }
-       }
-
-//      std::cout << "jetmetHcal maxBin = " << maxBin << std::endl ;
+//      std::cout << "jetmetHcal " ;
      std::vector< double > jetmetHcalScaleFactors ;
-     for( int i = 0 ; i < maxBin ; ++i )
-       {
-         jetmetHcalScaleFactors.push_back( sfTmp[ i ] ) ;
-//       std::cout << i+1 << " " << sfTmp[ i ] << std::endl ;
-       }
+     fillScaleFactors( jetmetHcalResults, jetmetHcalScaleFactors ) ;
 
      //~~~~~~~~~ Instantiate new L1RCTParameters object. ~~~~~~~~~
 
-     output = boost::shared_ptr< L1RCTParameters >(
+     return boost::shared_ptr< L1RCTParameters >(
         new L1RCTParameters( eGammaLSB,
                              jetMETLSB,
                              eMinForFGCut,
@@ -392,7 +311,7 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
                              hMinForHoECut,
                              eActivityCut,
                              hActivityCut,
-                             eicIsolationThreshold,
+                             (unsigned int) eicIsolationThreshold,
                              (int) jscQuietThreshBarrel,
                              (int) jscQuietThreshEndcap,
                              noiseVetoHB,
@@ -407,6 +326,46 @@ RCTConfigOnlineProd::makeObject( const std::string& objectKey,
 //
 // member functions
 //
+
+void
+RCTConfigOnlineProd::fillScaleFactors(
+  const l1t::OMDSReader::QueryResults& results,
+  std::vector< double >& output )
+{
+  // Store scale factors in temporary array to get ordering right.
+  // Reserve space for 100 bins.
+
+  static const int reserve = 100 ;
+  double sfTmp[ reserve ] ;
+  for( int i = 0 ; i < reserve ; ++i )
+    {
+      sfTmp[ i ] = 0. ;
+    }
+
+  short maxBin = 0 ;
+  for( int i = 0 ; i < results.numberRows() ; ++i )
+    {
+      double sf ;
+      results.fillVariableFromRow( "SCALEFACTOR", i, sf ) ;
+
+      short ieta ;
+      results.fillVariableFromRow( "FK_RCT_ETA", i, ieta ) ;
+
+      sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
+
+      if( ieta > maxBin )
+	{
+	  maxBin = ieta ;
+	}
+    }
+
+//   std::cout << "maxBin = " << maxBin << std::endl ;
+  for( short i = 0 ; i < maxBin ; ++i )
+    {
+      output.push_back( sfTmp[ i ] ) ;
+//       std::cout << i+1 << " " << sfTmp[ i ] << std::endl ;
+    }
+}
 
 // ------------ method called to produce the data  ------------
 

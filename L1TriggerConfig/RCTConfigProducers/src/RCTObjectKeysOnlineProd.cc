@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id$
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.1 2008/09/19 19:52:20 wsun Exp $
 //
 //
 
@@ -83,14 +83,15 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 			     m_omdsReader.singleAttribute( rctKey  ) );
 
 
-  if( paremKeyResults.second.size() != 1 ) // check query successful
+  if( paremKeyResults.queryFailed() ||
+      paremKeyResults.numberRows() != 1 ) // check query successful
     {
       edm::LogError( "L1-O2O" ) << "Problem with RCT key." ;
       return ;
     }
 
-  std::string paremKey =
-    paremKeyResults.second.front()[ "RCT_PARAMETER" ].data< std::string >() ;
+  std::string paremKey ;
+  paremKeyResults.fillVariable( paremKey ) ;
 
   pL1TriggerKey->add( "L1RCTParametersRcd",
 		      "L1RCTParameters",
