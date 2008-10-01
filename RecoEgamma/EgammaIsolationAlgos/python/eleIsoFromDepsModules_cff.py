@@ -43,11 +43,11 @@ eleIsoFromDepsEcalFromHits = cms.EDFilter("CandIsolatorFromDeposits",
         weight = cms.string('1'),
         deltaR = cms.double(0.4),
         vetos = cms.vstring('EcalBarrel:0.045', 
-                            'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalBarrel:Threshold(0.080)', 
+                            'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
+                            'EcalBarrel:ThresholdFromTransverse(0.08)',
+                            'EcalEndcaps:ThresholdFromTransverse(0.3)',
                             'EcalEndcaps:0.070', 
-                            'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)', 
-                            'EcalEndcaps:Threshold(0.30)'),
+                            'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'), 
         skipDefaultVeto = cms.bool(True)
     ))
 )
