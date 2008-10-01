@@ -42,7 +42,7 @@
 int main( int argc, char** argv ){
   cond::CommonOptions myopt("cmscond_duplicate_iov");
   myopt.addConnect();
-  myopt.addAuthentication(false);
+  myopt.addAuthentication(true);
   myopt.addDictionary();
   myopt.addBlobStreamer();
   myopt.addFileConfig();
@@ -62,7 +62,9 @@ int main( int argc, char** argv ){
   cond::Time_t from = std::numeric_limits<cond::Time_t>::max();
   cond::Time_t since = std::numeric_limits<cond::Time_t>::max();
 
-  std::string authPath(".");
+  std::string authPath("");
+  std::string user("");
+  std::string pass("");
   std::string configuration_filename;
   bool debug=false;
   std::string blobStreamerName("COND/Services/TBufferBlobStreamingService");
@@ -98,14 +100,14 @@ int main( int argc, char** argv ){
       return 1;
     }else
       destTag = vm["tag"].as<std::string>();
-
+    
     if(!vm.count("fromTime")){
       std::cerr <<"[Error] no fromTime[f] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else
       from = vm["fromTime"].as<cond::Time_t>();
- 
+    
     if(!vm.count("sinceTime")){
       std::cerr <<"[Error] no sinceTime[f] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -113,9 +115,15 @@ int main( int argc, char** argv ){
     }else
       since = vm["sinceTime"].as<cond::Time_t>();
     
-   if(vm.count("logDB"))
+    if(vm.count("logDB"))
       logConnect = vm["logDB"].as<std::string>();
-
+    
+    if(vm.count("user")){
+      user=vm["user"].as<std::string>();
+    }
+    if(vm.count("pass")){
+      pass=vm["pass"].as<std::string>();
+    }
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
     }
@@ -161,12 +169,21 @@ int main( int argc, char** argv ){
     session.configuration().setMessageLevel(cond::Debug);
   }
 
-  session.configuration().setAuthenticationMethod(cond::XML);
+  if( !authPath.empty() ){
+    session.configuration().setAuthenticationMethod( cond::XML );
+    session.configuration().setAuthenticationPath(authPath);
+  }else{
+    session.configuration().setAuthenticationMethod( cond::Env );
+    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+    ::putenv(const_cast<char*>(userenv.c_str()));
+    ::putenv(const_cast<char*>(passenv.c_str()));
+  }
   session.configuration().setBlobStreamer(blobStreamerName);
-
-  std::string pathval("CORAL_AUTH_PATH=");
-  pathval+=authPath;
-  ::putenv(const_cast<char*>(pathval.c_str()));
+  
+  //std::string pathval("CORAL_AUTH_PATH=");
+  //pathval+=authPath;
+  //::putenv(const_cast<char*>(pathval.c_str()));
 
   cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("destdb",destConnect,-1);

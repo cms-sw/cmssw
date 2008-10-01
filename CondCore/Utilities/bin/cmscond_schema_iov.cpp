@@ -70,20 +70,19 @@ int main( int argc, char** argv ){
   cond::DBSession* session=new cond::DBSession;
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
   }else{
     session->configuration().setAuthenticationMethod( cond::Env );
+    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+    ::putenv(const_cast<char*>(userenv.c_str()));
+    ::putenv(const_cast<char*>(passenv.c_str()));
   }
   if(debug){
     session->configuration().setMessageLevel( cond::Debug );
   }else{
     session->configuration().setMessageLevel( cond::Error );
   }
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
-  ::putenv(const_cast<char*>(authenv.c_str()));
   cond::Connection con(connect,500);
   session->open();
   con.connect(session);
