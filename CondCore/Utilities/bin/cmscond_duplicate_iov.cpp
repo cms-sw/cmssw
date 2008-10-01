@@ -162,7 +162,10 @@ int main( int argc, char** argv ){
   }
 
   cond::DBSession session;
-
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
   if(!debug){
     session.configuration().setMessageLevel(cond::Error);
   }else{
@@ -174,17 +177,9 @@ int main( int argc, char** argv ){
     session.configuration().setAuthenticationPath(authPath);
   }else{
     session.configuration().setAuthenticationMethod( cond::Env );
-    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-    ::putenv(const_cast<char*>(userenv.c_str()));
-    ::putenv(const_cast<char*>(passenv.c_str()));
   }
   session.configuration().setBlobStreamer(blobStreamerName);
-  
-  //std::string pathval("CORAL_AUTH_PATH=");
-  //pathval+=authPath;
-  //::putenv(const_cast<char*>(pathval.c_str()));
-
+ 
   cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("destdb",destConnect,-1);
   if (!logConnect.empty()) 
