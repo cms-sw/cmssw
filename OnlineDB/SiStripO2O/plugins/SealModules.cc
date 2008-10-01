@@ -33,7 +33,7 @@ typedef popcon::PopConAnalyzer<popcon::SiStripPopConConfigDbObjHandler<SiStripBa
 DEFINE_ANOTHER_FWK_MODULE(SiStripPopConBadStrip);
 
 
-
-
-
-
+#include "OnlineDB/SiStripO2O/plugins/SiStripPopConHandlerUnitTest.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+typedef popcon::PopConAnalyzer<popcon::SiStripPopConHandlerUnitTest<SiStripNoises> > SiStripPopConNoiseUnitTest;
+DEFINE_ANOTHER_FWK_MODULE(SiStripPopConNoiseUnitTest);
