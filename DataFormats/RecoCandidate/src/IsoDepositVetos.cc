@@ -77,7 +77,7 @@ bool RectangularEtaPhiVeto::veto(double eta, double phi, float value) const  {
 	double dPhi = phi - vetoDir_.phi();
 	double dEta = eta - vetoDir_.eta();
 	while( dPhi < 0.0 ) 	dPhi += 2*M_PI;
-	while( dPhi >= 2*M_PI ) dPhi -= 2*M_PI;
+	while( dPhi >= M_PI ) dPhi -= 2*M_PI;
     return (etaMin_ < dEta) && (dEta < etaMax_) && 
            (phiMin_ < dPhi) && (dPhi < phiMax_); 
 }
