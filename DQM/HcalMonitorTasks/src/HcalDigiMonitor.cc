@@ -682,6 +682,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  etaBins_, etaMin_, etaMax_, 
 					  phiBins_, phiMin_, phiMax_); 
 
+    /*
     RAW_PEDESTAL_MEAN[0] = m_dbe->book2D("RawPedestalMeanDepth1","Raw Pedestal Mean Value Map (Time Slices 0-1) Depth 1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     RAW_PEDESTAL_MEAN[0]->setAxisTitle("i#eta",1);
     RAW_PEDESTAL_MEAN[0]->setAxisTitle("i#phi",2);
@@ -738,7 +739,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     SUB_PEDESTAL_RMS[3]  = m_dbe->book2D("SubPedestalRMSDepth4", "Sub Pedestal RMS Map (Time Slices 0-1) Depth 4", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     SUB_PEDESTAL_RMS[3]->setAxisTitle("i#eta",1);
     SUB_PEDESTAL_RMS[3]->setAxisTitle("i#phi",2);
-
+    */
     std::stringstream histname; 
     std::stringstream histtitle; 
 
@@ -788,29 +789,47 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(title,"HB Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	hbHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
 
-	sprintf(name,"HB_raw_pedestal_mean_depth%i",d+1);
+	m_dbe->setCurrentFolder(baseFolder_+"/HB/PedestalPlots"); 
+	sprintf(name,"HB_etaphi_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HB raw pedestal mean depth %i (time slices 0-1)",d+1);
 	hbHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hbHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HB_raw_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HB_etaphi_raw_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HB raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	hbHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hbHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HB_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HB_etaphi_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HB subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	hbHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hbHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HB_sub_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HB_etaphi_sub_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HB subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	hbHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hbHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hbHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
+	sprintf(name,"HB_raw_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HB raw pedestal means depth %i (time slices 0-1)",d+1);
+	hbHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
+	hbHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
+	sprintf(name,"HB_sub_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HB sub pedestal means depth %i (time slices 0-1)",d+1);
+	hbHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	hbHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
 
+	sprintf(name,"HB_raw_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HB raw pedestal RMS: depth %i (time slices 0-1)",d+1);
+	hbHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
+	hbHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
+	
+	sprintf(name,"HB_sub_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HB sub pedestal RMS: depth %i (time slices 0-1)",d+1);
+	hbHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	hbHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       }
 
    //HE 
@@ -848,27 +867,47 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(title,"HE Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	heHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
 
-	sprintf(name,"HE_raw_pedestal_mean_depth%i",d+1);
+	m_dbe->setCurrentFolder(baseFolder_+"/HE/PedestalPlots"); 
+	sprintf(name,"HE_etaphi_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HE raw pedestal mean depth %i (time slices 0-1)",d+1);
 	heHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	heHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HE_raw_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HE_etaphi_raw_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HE raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	heHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	heHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HE_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HE_etaphi_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HE subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	heHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	heHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HE_sub_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HE_etaphi_sub_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HE subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	heHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	heHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	heHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
+
+	sprintf(name,"HE_raw_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HE raw pedestal means depth %i (time slices 0-1)",d+1);
+	heHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
+	heHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
+	sprintf(name,"HE_sub_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HE sub pedestal means depth %i (time slices 0-1)",d+1);
+	heHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	heHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
+
+	sprintf(name,"HE_raw_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HE raw pedestal RMS: depth %i (time slices 0-1)",d+1);
+	heHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
+	heHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
+	
+	sprintf(name,"HE_sub_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HE sub pedestal RMS: depth %i (time slices 0-1)",d+1);
+	heHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	heHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       }
 
     //HO 
@@ -902,29 +941,47 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(name,"HO_problem_ADCSumIsZero_depth%i",d+1);
 	sprintf(title,"HO Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	hoHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-
-	sprintf(name,"HO_raw_pedestal_mean_depth%i",d+1);
+	m_dbe->setCurrentFolder(baseFolder_+"/HO/PedestalPlots"); 
+	sprintf(name,"HO_etaphi_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HO raw pedestal mean depth %i (time slices 0-1)",d+1);
 	hoHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hoHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HO_raw_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HO_etaphi_raw_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HO raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	hoHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hoHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HO_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HO_etaphi_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HO subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	hoHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hoHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HO_sub_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HO_etaphi_sub_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HO subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	hoHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hoHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hoHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
+	
+	sprintf(name,"HO_raw_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HO raw pedestal means depth %i (time slices 0-1)",d+1);
+	hoHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
+	hoHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
+	sprintf(name,"HO_sub_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HO sub pedestal means depth %i (time slices 0-1)",d+1);
+	hoHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	hoHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
 
+	sprintf(name,"HO_raw_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HO raw pedestal RMS: depth %i (time slices 0-1)",d+1);
+	hoHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
+	hoHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
+		
+	sprintf(name,"HO_sub_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HO sub pedestal RMS: depth %i (time slices 0-1)",d+1);
+	hoHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	hoHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       }
 
    //HF 
@@ -960,28 +1017,47 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	sprintf(name,"HF_problem_ADCSumIsZero_depth%i",d+1);
 	sprintf(title,"HF Problem Cell Depth %i -- ADC Sum is zero",d+1);
 	hfHists.problemCell_ADCSumIsZero.push_back(m_dbe->book2D(name,title,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-
-	sprintf(name,"HF_raw_pedestal_mean_depth%i",d+1);
+	m_dbe->setCurrentFolder(baseFolder_+"/HF/PedestalPlots"); 
+	sprintf(name,"HF_etaphi_raw_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HF raw pedestal mean depth %i (time slices 0-1)",d+1);
 	hfHists.RAW_PEDESTAL_MEAN[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hfHists.RAW_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HF_raw_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HF_etaphi_raw_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HF raw pedestal RMS depth %i (time slices 0-1)",d+1);
 	hfHists.RAW_PEDESTAL_RMS[d]   = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hfHists.RAW_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
 
-	sprintf(name,"HF_sub_pedestal_mean_depth%i",d+1);
+	sprintf(name,"HF_etaphi_sub_pedestal_mean_depth%i",d+1);
 	sprintf(title,"HF subtracted pedestal mean depth %i (time slices 0-1)",d+1);
 	hfHists.SUB_PEDESTAL_MEAN[d] = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#eta",1);
 	hfHists.SUB_PEDESTAL_MEAN[d]->setAxisTitle("i#phi",2);
-	sprintf(name,"HF_sub_pedestal_RMS_depth%i",d+1);
+	sprintf(name,"HF_etaphi_sub_pedestal_rms_depth%i",d+1);
 	sprintf(title,"HF subtracted pedestal RMS depth %i (time slices 0-1)",d+1);
 	hfHists.SUB_PEDESTAL_RMS[d]  = m_dbe->book2D(name, title, etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 	hfHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#eta",1);
 	hfHists.SUB_PEDESTAL_RMS[d]->setAxisTitle("i#phi",2);
+	
+	sprintf(name,"HF_raw_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HF raw pedestal means depth %i (time slices 0-1)",d+1);
+	hfHists.RAW_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,100,0,10);
+	hfHists.RAW_PEDESTAL_MEAN_1D[d]->setAxisTitle("Pedestal Mean (ADC counts)",1);
+	sprintf(name,"HF_sub_pedestal_mean_depth%i",d+1);
+	sprintf(title,"HF sub pedestal means depth %i (time slices 0-1)",d+1);
+	hfHists.SUB_PEDESTAL_MEAN_1D[d]=m_dbe->book1D(name,title,200,-3,3);
+	hfHists.SUB_PEDESTAL_MEAN_1D[d]->setAxisTitle("Subtracted Pedestal Mean (ADC counts)",1);
+
+	sprintf(name,"HF_raw_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HF raw pedestal RMS: depth %i (time slices 0-1)",d+1);
+	hfHists.RAW_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
+	hfHists.RAW_PEDESTAL_RMS_1D[d]->setAxisTitle("Pedestal RMS (ADC counts)",1);
+		
+	sprintf(name,"HF_sub_pedestal_rms_depth%i",d+1);
+	sprintf(title,"HF sub pedestal RMS: depth %i (time slices 0-1)",d+1);
+	hfHists.SUB_PEDESTAL_RMS_1D[d]=m_dbe->book1D(name,title,100,0,5);
+	hfHists.SUB_PEDESTAL_RMS_1D[d]->setAxisTitle("Subtracted Pedestal RMS (ADC counts)",1);
       } // for (int d=0;d<4;++d)
 
 
@@ -1288,53 +1364,61 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		  // raw pedestals
 		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; // HF
 		  double myval2 = rawpedsum[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]; // HE
-		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
+		  //RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
 		  double RMS = 1.0*rawpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
 		  RMS=pow(fabs(RMS),0.5); // HF
 		  hfHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  hfHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
+		  hfHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		  hfHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		  
 
 		  double RMS2 = 1.0*rawpedsum2[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]-myval2*myval2;
 		  RMS2=pow(fabs(RMS2),0.5); // HE
-		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
+		  //RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
 		  heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval2);
 		  heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS2);
-
+		  heHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval2);
+		  heHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS2);
 		  
 		  // subtracted pedestals
 		  myval= subpedsum[eta][phi][depth]/pedcounts[eta][phi][depth]; // HF
 		  myval2 = subpedsum[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]; // HE
-		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
+		  //SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
 		  RMS = 1.0*subpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
 		  
 		  RMS=pow(fabs(RMS),0.5); // HF
 		  hfHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  hfHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
-
+		  hfHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		  hfHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		  
 		  RMS2 = 1.0*subpedsum2[eta][phi][mydepth]/pedcounts[eta][phi][mydepth]-myval2*myval2;
 	
 		  RMS2=pow(fabs(RMS2),0.5); // HE
 		  heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval2);
 		  heHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS2);
-
-		  SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
+		  heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(myval2);
+		  heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(RMS2);
+		  
+		  //SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
 		}
 
 	      else
 		{
 		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][depth];
-		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
+		  //RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		  double RMS = 1.0*rawpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
 		  
 		  RMS=pow(fabs(RMS),0.5); // use fabs just in case we run into rounding issues near 0
-		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
+		  //RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		  
 		  double sub_myval= subpedsum[eta][phi][depth]/pedcounts[eta][phi][depth];
-		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
+		  //SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		  double sub_RMS = 1.0*subpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-sub_myval*sub_myval;
 		  
 		  sub_RMS=pow(fabs(RMS),0.5);
-		  SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		  //SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
 
 		  // HB
 		  if (fabs(eta-41)<17 && mydepth<2)
@@ -1343,6 +1427,10 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      hbHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      hbHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      hbHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		      hbHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		      hbHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		      hbHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
+		      hbHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  // HE -- layer 29 already taken care of above
 		  if (fabs(eta-41)>16 && fabs(eta-41)<27 && mydepth<2)
@@ -1351,6 +1439,10 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      heHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		      heHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		      heHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		      heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
+		      heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  if (fabs(eta-41)>26 && fabs(eta-41)<29 && mydepth<3)
 		    {
@@ -1358,7 +1450,12 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      heHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      heHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		      heHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		      heHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		      heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
+		      heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
+		  
 		  // H0
 		  if (fabs(eta-41)<16 && mydepth==3)
 		    {
@@ -1366,6 +1463,10 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      hoHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      hoHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      hoHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		      hoHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		      hoHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		      hoHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
+		      hoHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  //HF -- layer 29 already taken care of above
 		  if (fabs(eta-41)>29 && fabs(eta-41)<42 && mydepth<2)
@@ -1374,6 +1475,10 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      hfHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
 		      hfHists.SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,sub_myval);
 		      hfHists.SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
+		      hfHists.RAW_PEDESTAL_MEAN_1D[mydepth]->Fill(myval);
+		      hfHists.RAW_PEDESTAL_RMS_1D[mydepth]->Fill(RMS);
+		      hfHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
+		      hfHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		} // else
 	      

@@ -11,8 +11,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/09/05 21:10:49 $
-  * $Revision: 1.30 $
+  * $Date: 2008/09/15 23:12:24 $
+  * $Revision: 1.31 $
   * \author W. Fisher - FNAL
   */
 
@@ -72,6 +72,13 @@ struct DigiHists
   MonitorElement* RAW_PEDESTAL_RMS[4];
   MonitorElement* SUB_PEDESTAL_MEAN[4];
   MonitorElement* SUB_PEDESTAL_RMS[4];
+  // 1D versions of pedestal plots
+  MonitorElement* RAW_PEDESTAL_MEAN_1D[4];
+  MonitorElement* RAW_PEDESTAL_RMS_1D[4];
+  MonitorElement* SUB_PEDESTAL_MEAN_1D[4];
+  MonitorElement* SUB_PEDESTAL_RMS_1D[4];
+
+  
 
   
   std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
@@ -166,11 +173,13 @@ private:
   float subpedsum[83][72][4]; 
   float subpedsum2[83][72][4]; 
 
+  /*
   MonitorElement* RAW_PEDESTAL_MEAN[4];
   MonitorElement* RAW_PEDESTAL_RMS[4];
   MonitorElement* SUB_PEDESTAL_MEAN[4]; 
   MonitorElement* SUB_PEDESTAL_RMS[4]; 
- 
+  */
+
   DigiHists hbHists, heHists, hfHists, hoHists, hcalHists;
 
 };
