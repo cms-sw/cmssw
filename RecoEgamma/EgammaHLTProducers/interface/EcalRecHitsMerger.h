@@ -29,6 +29,7 @@ private:
 	edm::InputTag TausSourceEB_ ;
 	edm::InputTag JetsSourceEB_ ;
 	edm::InputTag RestSourceEB_ ;
+	edm::InputTag Pi0SourceEB_ ;
 	std::string OutputLabelEB_;
 
         edm::InputTag EgammaSourceEE_;
@@ -36,6 +37,7 @@ private:
 	edm::InputTag TausSourceEE_ ;
         edm::InputTag JetsSourceEE_ ;
 	edm::InputTag RestSourceEE_ ;
+	edm::InputTag Pi0SourceEE_ ;
         std::string OutputLabelEE_;
 	
 	std::string InputRecHitEB_;
