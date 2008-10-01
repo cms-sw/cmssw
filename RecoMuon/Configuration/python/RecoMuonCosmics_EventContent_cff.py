@@ -76,9 +76,11 @@ RecoMuonAOD = cms.PSet(
     'keep recoTracks_lhcStandAloneMuonsBarrelOnly_*_*', 
     'keep recoTrackExtras_lhcStandAloneMuonsBarrelOnly_*_*',
     'keep TrackingRecHitsOwned_lhcStandAloneMuonsBarrelOnly_*_*', 
+    'keep recoMuons_lhcSTAMuonsBarrelOnly_*_*',
     'keep recoTracks_lhcStandAloneMuonsEndCapsOnly_*_*', 
     'keep recoTrackExtras_lhcStandAloneMuonsEndCapsOnly_*_*', 
-    'keep TrackingRecHitsOwned_lhcStandAloneMuonsEndCapsOnly_*_*', 
+    'keep TrackingRecHitsOwned_lhcStandAloneMuonsEndCapsOnly_*_*',
+    'keep recoMuons_lhcSTAMuonsEndCapsOnly_*_*',
 
     # Tracker Collections
     'keep recoTracks_ctfWithMaterialTracksP5_*_*', 
