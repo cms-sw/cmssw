@@ -7,7 +7,7 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
-
+#include <cstdlib>
 //#include <boost/program_options.hpp>
 #include <iostream>
 int main( int argc, char** argv ){
@@ -66,17 +66,16 @@ int main( int argc, char** argv ){
   if(vm.count("debug")){
     debug=true;
   }
-  
   cond::DBSession* session=new cond::DBSession;
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(passenv.c_str()));
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setAuthenticationPath(authPath);
   }else{
     session->configuration().setAuthenticationMethod( cond::Env );
-    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-    ::putenv(const_cast<char*>(userenv.c_str()));
-    ::putenv(const_cast<char*>(passenv.c_str()));
   }
   if(debug){
     session->configuration().setMessageLevel( cond::Debug );
