@@ -18,7 +18,7 @@ using namespace std ;
 
 
 //____________________________________________________________________________________________________
-SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei) : bei_(bei) {
+SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei, bool offlineXMLfile) : bei_(bei), offlineXMLfile_(offlineXMLfile) {
   
   theActionFlag = NoAction;
   actionExecutor_ = 0;
@@ -26,8 +26,8 @@ SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei) : bei_(bei) {
   tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
   tkMapCreated = false;
-  if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_);
+  if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
 }
 
 //____________________________________________________________________________________________________

@@ -68,7 +68,7 @@ using namespace edm;
 /*! \brief Constructor of the SiPixelInformationExtractor class.
  *  
  */
-SiPixelInformationExtractor::SiPixelInformationExtractor(std::string summaryXMLfileName) : summaryXMLfileName_(summaryXMLfileName) {
+SiPixelInformationExtractor::SiPixelInformationExtractor(bool offlineXMLfile) : offlineXMLfile_(offlineXMLfile) {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
   
@@ -163,8 +163,9 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   vector<string> hlist;
   string tkmap_name;
   SiPixelConfigParser config_parser;
-//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  string localPath = summaryXMLfileName_;
+  string localPath;
+  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
+  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   config_parser.getDocument(edm::FileInPath(localPath).fullPath());
 //  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
 //  if (hlist.size() == 0) return;

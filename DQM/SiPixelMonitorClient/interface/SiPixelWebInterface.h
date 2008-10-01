@@ -30,7 +30,8 @@ public:
 			 dumpModIds               = 12,
 			 Occupancy    	          = 13};
 			 
-  SiPixelWebInterface(DQMStore* bei);
+  SiPixelWebInterface(DQMStore* bei,
+                      bool      offlineXMLfile);
   ~SiPixelWebInterface();
 
   void handleEDARequest(xgi::Input* in,
@@ -63,6 +64,7 @@ private:
   bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
   DQMStore* bei_;
+  bool offlineXMLfile_;
 
 protected:
 

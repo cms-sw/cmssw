@@ -18,7 +18,7 @@ using namespace std;
 //
 // -- Constructor
 // 
-SiPixelActionExecutor::SiPixelActionExecutor(std::string summaryXMLfileName) : summaryXMLfileName_(summaryXMLfileName) {
+SiPixelActionExecutor::SiPixelActionExecutor(bool offlineXMLfile) : offlineXMLfile_(offlineXMLfile) {
   edm::LogInfo("SiPixelActionExecutor") << 
     " Creating SiPixelActionExecutor " << "\n" ;
   configParser_ = 0;
@@ -43,8 +43,9 @@ SiPixelActionExecutor::~SiPixelActionExecutor() {
 // -- Read Configuration File
 //
 void SiPixelActionExecutor::readConfiguration() {
-//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  string localPath = summaryXMLfileName_;
+  string localPath;
+  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
+  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -63,8 +64,9 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 					      int& source_type_,
 					      int& calib_type_) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
-//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  string localPath = summaryXMLfileName_;
+  string localPath;
+  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
+  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -108,8 +110,9 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 //=============================================================================================================
 bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
-//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  string localPath = summaryXMLfileName_;
+  string localPath;
+  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
+  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -134,7 +137,7 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
 					string theTKType) 
 {
  
-  SiPixelTrackerMapCreator tkmap_creator(mEName,theTKType);
+  SiPixelTrackerMapCreator tkmap_creator(mEName,theTKType,offlineXMLfile_);
   tkmap_creator.create(bei);
   
 //   cout << ACYellow << ACBold 
