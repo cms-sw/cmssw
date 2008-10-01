@@ -21,7 +21,7 @@ namespace cond{
   }
   TokenInterpreter::~TokenInterpreter(){
   }
-  bool isValid() const {
+  bool TokenInterpreter::isValid() const {
     return validToken(m_tokenstr);
   }
   std::string TokenInterpreter::containerName()const{
