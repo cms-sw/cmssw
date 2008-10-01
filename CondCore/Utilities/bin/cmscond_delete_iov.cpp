@@ -26,6 +26,7 @@ int main( int argc, char** argv ){
   cond::CommonOptions myopt("cmscond_delete_iov");
   myopt.addConnect();
   myopt.addAuthentication(true);
+  myopt.addDictionary();
   myopt.visibles().add_options()
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
@@ -85,6 +86,12 @@ int main( int argc, char** argv ){
   
   std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
   
+  if (!dictlibrary.empty())
+    try {
+      seal::SharedLibrary::load( dictlibrary );
+    }catch ( seal::SharedLibraryError *error) {
+      throw std::runtime_error( error->explainSelf().c_str() );
+    }
   cond::DBSession* session=new cond::DBSession;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
