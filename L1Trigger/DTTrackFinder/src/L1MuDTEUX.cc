@@ -150,9 +150,11 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   low  = (low  >> sh_phi) + offset;
   high = (high >> sh_phi) + offset;
 
-  phi_target -= offset;
-  if ( phi_target >= (1 << (nbit_phi-1)) -1 ) return;
-  if ( phi_target < -(1 << (nbit_phi-1)) +1 ) return;
+  int phi_offset = phi_target - offset;
+  if ( ( lut_idx == EX34 ) || ( lut_idx == EX21 ) )
+    phi_offset = phi_start + offset;
+  if ( phi_offset >= (1 << (nbit_phi-1)) -1 ) return;
+  if ( phi_offset < -(1 << (nbit_phi-1)) +1 ) return;
 
   // is phi-difference within the extrapolation window?
   if (( diff >= low && diff <= high ) || L1MuDTTFConfig::getopenLUTs() ) {
