@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/03/18 12:43:01 $
-//   $Revision: 1.11 $
+//   $Date: 2008/06/16 09:00:37 $
+//   $Revision: 1.12 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -129,8 +129,6 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
         // out-of-time TS filter (compare TS at +-1 bx)
         // 
         bool skipTS = false;
-
-        if ( (ts->phi() < -2032) && !L1MuDTTFConfig::getopenLUTs() ) skipTS = true; 
 
         if ( L1MuDTTFConfig::getTSOutOfTimeFilter() ) {
  
