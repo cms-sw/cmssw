@@ -61,12 +61,15 @@ public:
 	 */
 	double getCalibratedEnergy(const double& ecalE, const double& hcalE,
 			const double& eta, const double& phi) const;
+	
+	void getCalibratedEnergyEmbedAInHcal(double& ecalE,
+			double& hcalE, const double& eta, const double& phi) const;
 
 	/* TESTING purposes only! */
-	const void calibrate(Calibratable& c);
+	void calibrate(Calibratable& c);
 
 	/* TESTING purposes only! */
-	const void getCalibrationResultWrapper(const Calibratable& c,
+	void getCalibrationResultWrapper(const Calibratable& c,
 			CalibrationResultWrapper& crw);
 
 	/* TESTING purposes only! */

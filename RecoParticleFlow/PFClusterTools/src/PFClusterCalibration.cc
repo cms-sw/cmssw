@@ -10,7 +10,8 @@ using namespace pftools;
 PFClusterCalibration::PFClusterCalibration() :
 	barrelEndcapEtaDiv_(1.0), ecalOnlyDiv_(0.3), hcalOnlyDiv_(0.5),
 			doCorrection_(1), globalP0_(0.0), globalP1_(1.0), lowEP0_(0.0),
-			lowEP1_(1.0), allowNegativeEnergy_(0), correction_("correction",
+			lowEP1_(1.0), allowNegativeEnergy_(0), correctionLowLimit_(0.),
+			correction_("correction",
 					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])") {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	correction_.FixParameter(0, globalP0_);
@@ -166,7 +167,7 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 	//apply correction?
 	//check for negative energies
 	if (!doCorrection_) {
-		if(!allowNegativeEnergy_ && answer < 0)
+		if (!allowNegativeEnergy_ && answer < 0)
 			return 0;
 		else
 			return answer;
@@ -177,15 +178,37 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 
 }
 
-const void PFClusterCalibration::calibrate(Calibratable& c) {
-	CalibrationResultWrapper crw;
-	getCalibrationResultWrapper(c, crw);
-	c.calibrations_.push_back(crw);
+void PFClusterCalibration::getCalibratedEnergyEmbedAInHcal(double& ecalE,
+		double& hcalE, const double& eta, const double& phi) const {
+
+	double ecalEOld(ecalE);
+	double hcalEOld(hcalE);
+
+	ecalE = getCalibratedEcalEnergy(ecalEOld, hcalEOld, eta, phi);
+	hcalE = getCalibratedHcalEnergy(ecalEOld, hcalEOld, eta, phi);
+
+	double preCorrection(ecalE + hcalE);
+
+	if (doCorrection_) {
+		double corrE = correction_.Eval(preCorrection);
+		//a term  = difference
+		double a = corrE - preCorrection;
+		hcalE += a;
+	}
+	if(hcalE < 0 && !allowNegativeEnergy_)
+		hcalE = 0;
+}
+
+
+void PFClusterCalibration::calibrate(Calibratable& c) {
+CalibrationResultWrapper crw;
+getCalibrationResultWrapper(c, crw);
+c.calibrations_.push_back(crw);
 
 }
 
-const void PFClusterCalibration::getCalibrationResultWrapper(
-		const Calibratable& c, CalibrationResultWrapper& crw) {
+void PFClusterCalibration::getCalibrationResultWrapper(const Calibratable& c,
+		CalibrationResultWrapper& crw) {
 
 	crw.ecalEnergy_ = getCalibratedEcalEnergy(c.cluster_energyEcal_,
 			c.cluster_energyHcal_, fabs(c.cluster_meanEcal_.eta_),
@@ -213,10 +236,11 @@ void PFClusterCalibration::calibrateTree(TTree* input) {
 	Calibratable* calib_ptr = new Calibratable();
 	calibBr->SetAddress(&calib_ptr);
 
-//	TBranch* newBranch = input->Branch("NewCalibratable",
-//			"pftools::Calibratable", &calib_ptr, 32000, 2);
+	//	TBranch* newBranch = input->Branch("NewCalibratable",
+	//			"pftools::Calibratable", &calib_ptr, 32000, 2);
 
-	std::cout << "Looping over tree's "<< input->GetEntries()<< " entries...\n";
+	std::cout << "Looping over tree's "<< input->GetEntries()
+			<< " entries...\n";
 	for (unsigned entries(0); entries < 20000; entries++) {
 		if (entries % 10000== 0)
 			std::cout << "\tProcessing entry "<< entries << "\n";
