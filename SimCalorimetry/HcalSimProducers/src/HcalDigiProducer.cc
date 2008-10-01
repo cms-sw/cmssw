@@ -46,7 +46,6 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theZDCDigitizer(0),
   doZDC(true)
 {
-  
   produces<HBHEDigiCollection>();
   produces<HODigiCollection>();
   produces<HFDigiCollection>();
@@ -78,8 +77,8 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
-    edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
-    theHPDNoiseGenerator = new HPDNoiseGenerator(hpdNoisePset, theParameterMap); 
+    //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
+    theHPDNoiseGenerator = new HPDNoiseGenerator(ps, theParameterMap); 
     theHBHEDigitizer->setNoiseSignalGenerator(theHPDNoiseGenerator);
   }
 
