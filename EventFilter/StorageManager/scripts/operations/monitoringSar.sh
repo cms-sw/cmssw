@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id:$
+# $Id: monitoringSar.sh,v 1.1 2008/09/30 03:59:24 loizides Exp $
 
 ##Let's define things first
 SAR_CMD="/usr/bin/sar"
@@ -17,8 +17,8 @@ ServiceName="${ScriptFileName}"
 DIRECTORY=`echo "$0"|sed "s/${ScriptFileName}//"`
 
 ##Output options
-OUTPUTLOGDIR="/var/log/"
-OUTPUTFILE=${OUTPUTLOGDIR}${ScriptFileName}.log
+OUTPUTLOGDIR="/var/log"
+OUTPUTFILE=${OUTPUTLOGDIR}/`basename ${ScriptFileName} .sh`.log
 
 echo "${DATE} Running ${ScriptFileName}" > ${OUTPUTFILE}
 
@@ -104,7 +104,7 @@ main ()
    while [ 1 ]
    do
       DATE=`date +"%F_%H%M"`
-      SAR_OUT="${OUTPUTLOGDIR}${ServiceName}-${HOSTNAME}-${DATE}.sar"
+      SAR_OUT="${OUTPUTLOGDIR}/${ServiceName}-${HOSTNAME}-${DATE}.sar"
       echo "$PID INFO: Writing to ${SAR_OUT}"
       `${SAR_CMD} -A -o ${SAR_OUT} $SAR_INT $SAR_CNT`
       sleep 1
