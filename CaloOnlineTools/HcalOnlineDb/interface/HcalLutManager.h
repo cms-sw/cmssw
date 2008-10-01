@@ -84,6 +84,7 @@ class HcalLutManager{
 
   // hcal::ConfigurationDatabase::LinearizerLUT
   // hcal::ConfigurationDatabase::CompressionLUT
+  std::vector<unsigned int> getLutFromXml_old( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
   std::vector<unsigned int> getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
 
   std::map<int, shared_ptr<LutXml> > get_brickSet_from_oracle( string tag, const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );

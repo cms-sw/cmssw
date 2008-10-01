@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.5 2008/05/18 12:29:56 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.6 2008/08/31 20:40:21 kukartse Exp $
 //
 
 // system include files
@@ -302,6 +302,13 @@ XMLDOMBlock::~XMLDOMBlock()
 const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
+  const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
+  return _result;
+}
+
+const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMElement * _document )
+{
+  if (!_document) return 0;
   const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
   return _result;
 }

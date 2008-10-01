@@ -985,6 +985,57 @@ int HcalLutManager::local_connect( string lut_xml_file, string lmap_hbef_file, s
 
 std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
 {
+  cout << "getLutFromXml (new version) is not implemented. Use getLutFromXml_old() for now" << endl;
+
+  std::vector<unsigned int> result;
+
+  /* FIXME: implement with emap and output LUT sipport
+  if ( !emap ){
+    cout << "HcalLutManager: cannot find LUT without EMAP, exiting..." << endl;
+    exit(-1);
+  }
+  if ( !db ){
+    cout << "HcalLutManager: cannot find LUT, no source (local XML file), exiting..." << endl;
+    exit(-1);
+  }
+
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+
+  HcalDetId _id( _rawid );
+    
+  unsigned int _crate, _slot, _fiber, _channel;
+  string _fpga;
+  int topbottom, luttype;
+
+  // FIXME: check validity of _rawid
+  if ( _map . find(_rawid) != _map.end() ){
+    _crate   = _map[_rawid] . crate;
+    _slot    = _map[_rawid] . htr;
+    _fiber   = _map[_rawid] . htr_fi;
+    _channel = _map[_rawid] . fi_ch;
+    _fpga    = _map[_rawid] . fpga;
+    
+    if ( _fpga . find("top") != string::npos ) topbottom = 1;
+    else if ( _fpga . find("bot") != string::npos ) topbottom = 0;
+    else{
+      cout << "HcalLutManager: irregular LMAP fpga value... do not know what to do - exiting" << endl;
+      exit(-1);
+    }
+    if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
+    else luttype = 2;
+    
+    result = db -> getOnlineLUT( tag, _crate, _slot, topbottom, _fiber, _channel, luttype );
+  }
+  
+  */
+
+  return result;
+}
+
+
+// obsolete, use getLutFromXml() instead
+std::vector<unsigned int> HcalLutManager::getLutFromXml_old( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
+{
   if ( !lmap ){
     cout << "HcalLutManager: cannot find LUT without LMAP, exiting..." << endl;
     exit(-1);
@@ -1027,6 +1078,8 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _r
   
   return result;
 }
+
+
 
 int HcalLutManager::get_xml_files_from_db( std::string tag, const std::string db_accessor, bool split_by_crate )
 {
@@ -1196,9 +1249,30 @@ void HcalLutManager::test_emap( void ){
 
 
 int HcalLutManager::test_direct_xml_parsing( string _filename ){
+  /*
   XMLDOMBlock _xml(_filename);
   //DOMElement * data_set_elem = (DOMElement *)(document -> getElementsByTagName( XMLProcessor::_toXMLCh( "DATA_SET" ) ) -> item(0));  
   DOMNodeList * brick_list = _xml . getDocument() ->  getElementsByTagName( XMLProcessor::_toXMLCh( "CFGBrick" ));  
-  cout << "amount of LUT bricks: " << brick_list->getLength() << endl;
+
+  double n_bricks = brick_list->getLength();
+  cout << "amount of LUT bricks: " << n_bricks << endl;
+
+  for (int iter=0; iter!=n_bricks; iter++){
+    DOMElement * _brick = (DOMElement *)(brick_list->item(iter));
+    
+    DOMElement * _param = 0;
+    // loop over brick parameters
+    int par_iter = 0;
+    while(1){
+      _param = (DOMElement *)(_brick->getElementsByTagName(XMLProcessor::_toXMLCh("Parameter")));
+      string _name = _param->getAttribute( XMLProcessor::_toXMLCh( "name" ) );
+      if (_name.find("IETA")==string::npos) break;
+
+      string _tag = "Parameter";
+      cout << "### Parameter IETA = " << _xml.getTagValue( _tag, 0, _brick);
+      par_iter++;
+    }
+  }
+  */
   return 0;
 }

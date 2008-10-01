@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.5 2008/05/18 12:29:56 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.6 2008/08/31 20:40:21 kukartse Exp $
 //
 
 
@@ -52,6 +52,7 @@ class XMLDOMBlock
   virtual ~XMLDOMBlock();
   
   const char * getTagValue( const string & tagName, int _item = 0, DOMDocument * _document = NULL );
+  const char * getTagValue( const string & tagName, int _item, DOMElement * _document );
   const char * getTagAttribute( const string & tagName, const string & attrName, int _item = 0 );
 
   int setTagValue( const string & tagName, const string & tagValue, int _item = 0, DOMDocument * _document = NULL );
