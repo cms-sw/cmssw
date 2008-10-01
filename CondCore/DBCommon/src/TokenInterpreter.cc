@@ -5,7 +5,7 @@ namespace cond{
   
   bool validToken(const std::string& tokenString) {
     // well a bit simplistic...
-    return tokenString.find('[')==0
+    return tokenString.find('[')==0;
   }
 
 
