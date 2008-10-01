@@ -192,11 +192,14 @@ bool HCAL_HLX::ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSect
     dateDir_ = TimeStampYYYYMM( startTime_ ) + "/";
     runDirss << std::setw(9) << std::setfill('0') << previousRun_ << "/";
     runDir_ = runDirss.str();
-    MakeDir( lsDir_ + dateDir_ + runDir_ , 0775);
 
+    MakeDir( lsDir_ + dateDir_ + runDir_ , 0775);
     RFWriter_->SetDir( lsDir_ + dateDir_ + runDir_ );
+
     RFMerger_->SetInputDir(  lsDir_ + dateDir_ + runDir_ );
+    MakeDir( mergeDir_ + dateDir_ , 0775);
     RFMerger_->SetOutputDir( mergeDir_ + dateDir_ );
+
     LumiHTML_->SetInputDir(  lsDir_ + dateDir_ + runDir_ );
     RFTransfer_->SetInputDir( mergeDir_ + dateDir_ );
   }

@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.6 2008/09/23 08:18:48 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.7 2008/09/23 14:58:37 ahunt Exp $
 //
 //
 
@@ -83,9 +83,7 @@ LumiFileWriter::~LumiFileWriter()
  
   delete HLXTCP_;
   delete LumiSchema_;
-
   delete lumiSection_;
-
 }
 
 void LumiFileWriter::analyze(const edm::Event& iEvent, 
@@ -112,17 +110,14 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
 // ------------ method called once each job just before starting event loop  ------------
 void 
 LumiFileWriter::beginJob(const edm::EventSetup&)
-{
-}
+{}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 LumiFileWriter::endJob() {
 
-  if(bTest_){
-    HLXTCP_->Disconnect();
-    LumiSchema_->EndRun();
-  }
+  HLXTCP_->Disconnect();
+  LumiSchema_->EndRun();
 }
 
 //define this as a plug-in

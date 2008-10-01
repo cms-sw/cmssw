@@ -420,8 +420,8 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     MaxEtSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxEtBX );
   }
 
-  fileStr << "<img src=\"EtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
-  fileStr << "<img src=\"MaxEtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\">" << std::endl;
+  fileStr << "<img src=\"EtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" width=\"45%\">" << std::endl;
+  fileStr << "<img src=\"MaxEtSummary.png\" usemap=\"#HLXSummary\" border=\"0\" width=\"45%\">" << std::endl;
 
   std::string picName = outputDir_ + GetRunDir() + GetLSDir() + "EtSummary." + plotExt_;
   EtSummary_->GetZaxis()->SetRangeUser( MinAvgEt - 0.0000001, MaxAvgEt + 0.0000001 );
@@ -501,8 +501,8 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     OccSummary_->Draw("colz");
     c1_->SaveAs(picName.c_str());
 
-    fileStr << "<img src=\"OccSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
-    fileStr << "<img src=\"MaxLHCSummary.png\" usemap=\"#HLXSummary\" border=\"0\" widith=\"45%\"></br>" << std::endl;
+    fileStr << "<img src=\"OccSummary.png\" usemap=\"#HLXSummary\" border=\"0\" width=\"45%\"></br>" << std::endl;
+    fileStr << "<img src=\"MaxLHCSummary.png\" usemap=\"#HLXSummary\" border=\"0\" width=\"45%\"></br>" << std::endl;
   }
 
   fileStr << "<hr>" << std::endl;  
@@ -524,8 +524,6 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "</verbatim>" << std::endl;  
   fileStr << "</H3>" << std::endl;
 
-
-  
   // Create HTML map.  Get it to scale.....
   unsigned int HFPlusLeftEdge   = 532;
   unsigned int HFPlusRightEdge  = 625;
