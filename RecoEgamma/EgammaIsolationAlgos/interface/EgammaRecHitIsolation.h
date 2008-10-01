@@ -17,7 +17,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 
 
 class EgammaRecHitIsolation {
@@ -28,6 +29,7 @@ class EgammaRecHitIsolation {
 			 double intRadius,
 			 double etaSlice,
 			 double etLow,
+			 double eLow,
 			 edm::ESHandle<CaloGeometry> ,
 			 CaloRecHitMetaCollectionV* ,
 			 DetId::Detector detector);
@@ -45,14 +47,12 @@ class EgammaRecHitIsolation {
   double intRadius_ ;
   double etaSlice_;
   double etLow_ ;
-
+  double eLow_ ;
   
   edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
   CaloRecHitMetaCollectionV* caloHits_ ;
 
-  CaloDualConeSelector* doubleConeSel_[2]; // barrel+endcap
-  
-
+  const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
 
 };
 
