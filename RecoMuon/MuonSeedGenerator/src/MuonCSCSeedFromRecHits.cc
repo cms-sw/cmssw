@@ -43,6 +43,10 @@ void MuonCSCSeedFromRecHits::fillConstants(int chamberType1, int chamberType2, d
 
 TrajectorySeed MuonCSCSeedFromRecHits::seed() const
 {
+  if(theRhits.size() == 1) 
+  {
+     return createSeed(100., 100., theRhits[0]);
+  }
   //analyze();
   TrajectorySeed result;
   //@@ doesn't handle overlap between ME11 and ME12 correctly
@@ -71,7 +75,7 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   }
 
   //std::cout << "Station hits " << station1Hits.size() << " " 
-  //                             << station2Hits.size() << " "
+  //                            << station2Hits.size() << " "
   //                             << station3Hits.size() << std::endl;
 
   // see whether station 2 or station 3 is better
