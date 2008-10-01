@@ -17,6 +17,5 @@ btagSoftElectrons = cms.EDProducer("SoftElectronProducer",
 
 btagSoftElectrons.TrackAssociatorParameters.useEcal = True
 btagSoftElectrons.TrackAssociatorParameters.useHcal = False
-btagSoftElectrons.TrackAssociatorParameters.useHO = False
+btagSoftElectrons.TrackAssociatorParameters.useHO   = False
 btagSoftElectrons.TrackAssociatorParameters.useMuon = False
-

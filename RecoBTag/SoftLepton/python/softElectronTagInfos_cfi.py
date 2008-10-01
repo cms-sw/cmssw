@@ -13,5 +13,3 @@ softElectronTagInfos = cms.EDFilter("SoftLepton",
     leptonChi2Cut = cms.double(9999.0) ## no cut on lepton's track's chi2/ndof
 
 )
-
-

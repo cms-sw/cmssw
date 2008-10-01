@@ -11,7 +11,4 @@ softMuonTagInfos = cms.EDFilter("SoftLepton",
     leptonDeltaRCut = cms.double(0.4), ## lepton distance from jet axis
 
     leptonChi2Cut = cms.double(9999.0) ## no cut on lepton's track's chi2/ndof
-
 )
-
-
