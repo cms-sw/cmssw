@@ -41,6 +41,7 @@ public:
 				double RCone,
 				double RConeInner,
                                 double etaSlice,
+				double eMin,
 				double etMin);
   double calculateHcalRecHitIso(const reco::Photon* photon,
 				const edm::Event& iEvent,
@@ -48,6 +49,7 @@ public:
 				double RCone,
 				double RConeInner,
                                 double etaSlice,
+				double eMin,
 				double etMin);
 
   double calculateR9(const reco::Photon* photon,

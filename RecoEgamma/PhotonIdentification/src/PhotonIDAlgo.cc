@@ -177,6 +177,7 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 					    double RCone,
 					    double RConeInner,
                                             double etaSlice,
+					    double eMin,
 					    double etMin){
 
 
@@ -203,6 +204,7 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 			       RConeInner,
                                etaSlice,
 			       etMin,
+			       eMin,
 			       geoHandle,
 			       &(*RecHits),
 			       DetId::Ecal);
@@ -262,6 +264,7 @@ double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
 					    double RCone,
 					    double RConeInner,
                                             double etaSlice,
+					    double eMin,
 					    double etMin){
 
 
@@ -282,6 +285,7 @@ double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
   EgammaRecHitIsolation phoIso(RCone,
 			       RConeInner,
 			       etMin,
+			       eMin,
                                etaSlice,
 			       geoHandle,
 			       &(*RecHits),

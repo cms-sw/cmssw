@@ -15,11 +15,14 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   photonEcalRecHitConeInnerRadius_ = conf.getParameter<double>("EcalRecHitInnerRadius");
   photonEcalRecHitConeOuterRadius_ = conf.getParameter<double>("EcalRecHitOuterRadius");
   photonEcalRecHitEtaSlice_ = conf.getParameter<double>("EcalRecHitEtaSlice");
-  photonEcalRecHitThresh_ = conf.getParameter<double>("EcalRecThresh");
+  photonEcalRecHitThreshE_ = conf.getParameter<double>("EcalRecThreshE");
+  photonEcalRecHitThreshEt_ = conf.getParameter<double>("EcalRecThreshEt");
+
   photonHcalRecHitConeInnerRadius_ = conf.getParameter<double>("HcalRecHitInnerRadius");
   photonHcalRecHitConeOuterRadius_ = conf.getParameter<double>("HcalRecHitOuterRadius");
   photonHcalRecHitEtaSlice_ = conf.getParameter<double>("HcalRecHitEtaSlice");
-  photonHcalRecHitThresh_ = conf.getParameter<double>("HcalRecHitThresh");
+  photonHcalRecHitThreshE_ = conf.getParameter<double>("HcalRecHitThreshE");
+  photonHcalRecHitThreshEt_ = conf.getParameter<double>("HcalRecHitThreshEt");
 
   //Decision cuts
   dophotonEcalRecHitIsolationCut_ = conf.getParameter<bool>("DoEcalRecHitIsolationCut");
@@ -148,7 +151,8 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 						photonEcalRecHitConeOuterRadius_,
 						photonEcalRecHitConeInnerRadius_,
                                                 photonEcalRecHitEtaSlice_,
-						photonEcalRecHitThresh_);
+						photonEcalRecHitThreshE_,
+						photonEcalRecHitThreshEt_);
   //double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->p4().Eta()));
   //double tempiso = EcalRecHitIso - rawSCEt;
   //EcalRecHitIso= tempiso;
@@ -160,7 +164,8 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 						photonHcalRecHitConeOuterRadius_,
 						photonHcalRecHitConeInnerRadius_,
                                                 photonHcalRecHitEtaSlice_,    
-						photonHcalRecHitThresh_);
+						photonHcalRecHitThreshE_,
+						photonHcalRecHitThreshEt_);
 
 //   std::cout << "Output from hcal isolation: ";
 //   std::cout << " Sum pT: " << HcalRecHitIso << std::endl;

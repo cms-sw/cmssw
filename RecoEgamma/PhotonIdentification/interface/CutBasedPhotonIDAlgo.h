@@ -101,11 +101,13 @@ public:
   double photonEcalRecHitConeInnerRadius_;
   double photonEcalRecHitConeOuterRadius_;
   double photonEcalRecHitEtaSlice_;
-  double photonEcalRecHitThresh_;
+  double photonEcalRecHitThreshE_;
+  double photonEcalRecHitThreshEt_;
   double photonHcalRecHitConeInnerRadius_;
   double photonHcalRecHitConeOuterRadius_;
   double photonHcalRecHitEtaSlice_;
-  double photonHcalRecHitThresh_;
+  double photonHcalRecHitThreshE_;
+  double photonHcalRecHitThreshEt_;
   double trackConeOuterRadius_;
   double trackConeInnerRadius_;
   double isolationtrackThreshold_;
