@@ -103,6 +103,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
   double chi2_ECAL_Track 
     = iConfig.getParameter<double>("pf_chi2_ECAL_Track");  
+  double chi2_ECAL_GSF 
+    = iConfig.getParameter<double>("pf_chi2_ECAL_GSF");  
   double chi2_HCAL_Track 
     = iConfig.getParameter<double>("pf_chi2_HCAL_Track");  
   double chi2_ECAL_HCAL 
@@ -131,6 +133,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      path_HCAL_phi.fullPath().c_str(),
 			      DPtovPtCut,
 			      chi2_ECAL_Track,
+			      chi2_ECAL_GSF,
 			      chi2_HCAL_Track,
 			      chi2_ECAL_HCAL,
 			      chi2_ECAL_PS,
