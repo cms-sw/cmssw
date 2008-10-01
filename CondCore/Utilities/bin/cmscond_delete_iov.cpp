@@ -1,3 +1,5 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
@@ -19,6 +21,8 @@
 
 
 int main( int argc, char** argv ){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::CommonOptions myopt("cmscond_delete_iov");
   myopt.addConnect();
   myopt.addAuthentication(true);
@@ -71,28 +75,15 @@ int main( int argc, char** argv ){
   }
   if(vm.count("withPayload")){
     withPayload=true;
-    if(!vm.count("dictionary")){
-      std::cerr <<"[Error] no dictionary[D] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
+    if(vm.count("dictionary")){
       dictionary=vm["dictionary"].as<std::string>();
     }
   }
   if(vm.count("debug")){
     debug=true;
   }
-
-
-  if (!dictionary.empty()) {
-    std::string dictlibrary=seal::SharedLibrary::libname( dictionary );
-    try {
-      seal::SharedLibrary::load( dictlibrary );
-    }catch ( seal::SharedLibraryError *error) {
-      throw std::runtime_error( error->explainSelf().c_str() );
-    }
-  }
-
+  
+  std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
   
   cond::DBSession* session=new cond::DBSession;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
