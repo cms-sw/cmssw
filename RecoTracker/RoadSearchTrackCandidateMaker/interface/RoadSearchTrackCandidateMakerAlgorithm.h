@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/04/11 15:11:45 $
-// $Revision: 1.19 $
+// $Date: 2008/07/21 08:41:51 $
+// $Revision: 1.20 $
 //
 
 #include <string>
@@ -131,6 +131,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
   const MagneticField* magField;
   
   PropagatorWithMaterial* thePropagator;
+  PropagatorWithMaterial* theAloPropagator;
   PropagatorWithMaterial* theRevPropagator;
   AnalyticalPropagator*   theAnalyticalPropagator;
   TrajectoryStateUpdator* theUpdator;
