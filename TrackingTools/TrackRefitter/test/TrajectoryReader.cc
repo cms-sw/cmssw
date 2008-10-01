@@ -82,7 +82,7 @@ void TrajectoryReader::printTrajectoryRecHits(const Trajectory &trajectory,
       const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
       double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      LogDebug(metname) <<  i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
+      LogTrace(metname) <<  i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
 			<<endl;
     }
 }
@@ -92,16 +92,15 @@ void TrajectoryReader::printTrackRecHits(const reco::Track &track,
 
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
 
-  LogDebug(metname) << "Valid RecHits: "<<track.found() << " invalid RecHits: " << track.lost();
+  LogTrace(metname) << "Valid RecHits: "<<track.found() << " invalid RecHits: " << track.lost();
   
   int i = 0;
   for(trackingRecHit_iterator recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
     if((*recHit)->isValid()){
       const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
-      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      LogDebug(metname) << i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
-			<<endl;
+      double z = geomDet->surface().position().z();
+      LogTrace(metname) << i++ <<" GeomDet position r: "<< r <<" z: "<<z;
     }
 }
 
@@ -119,8 +118,10 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   
   // Get the Trajectory collection from the event
   Handle<Trajectories> trajectories;
-  event.getByLabel(theInputLabel.label(),trajectories);
+  event.getByLabel(theInputLabel,trajectories);
   
+  LogTrace(metname) << "looking at: " << theInputLabel;
+
   for(Trajectories::const_iterator trajectory = trajectories->begin(); 
       trajectory != trajectories->end(); ++trajectory)
     printTrajectoryRecHits(*trajectory,trackingGeometry);
@@ -136,7 +137,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   
   
   Handle<TrajTrackAssociationCollection> assoMap;
-  event.getByLabel(theInputLabel.label(),assoMap);
+  event.getByLabel(theInputLabel,assoMap);
 
   for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
       it != assoMap->end(); ++it){
@@ -157,7 +158,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   int track_size = tracks->size();
 
   if(traj_size != track_size){
-    LogDebug(metname)
+    LogTrace(metname)
       <<"Mismatch between the # of Tracks ("<<track_size<<") and the # of Trajectories! ("
       <<traj_size<<")";
   }
@@ -177,7 +178,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
       hDPtOut->Fill(track.outermostMeasurementState().globalMomentum().perp() -
  		    trajectory->lastMeasurement().updatedState().globalMomentum().perp());
 
-      LogDebug(metname)<< "Difference: " <<track.recHitsSize()- trajectory->recHits().size();
+      LogTrace(metname)<< "Difference: " <<track.recHitsSize()- trajectory->recHits().size();
       
     }     
   }
