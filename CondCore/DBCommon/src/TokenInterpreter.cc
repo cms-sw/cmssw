@@ -10,7 +10,7 @@ namespace cond{
 
 
   TokenInterpreter::TokenInterpreter(const std::string& tokenString): m_tokenstr(tokenString){
-    if (!validToken() ) return;
+    if (!isValid ) return;
     pool::Token* mytoken=new pool::Token;
     m_containerName=mytoken->fromString(tokenString).contID();
     const pool::Guid& classID=mytoken->fromString(tokenString).classID();
