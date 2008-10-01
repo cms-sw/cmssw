@@ -134,7 +134,7 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup &
         ecalRecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*endcapEcalRecHitsH));
     }
 
-    EgammaRecHitIsolation candIso(extRadius,innRadius,etaStrip,minEtRecHit,pG,&(*ecalRecHits),DetId::Ecal);
+    EgammaRecHitIsolation candIso(extRadius,innRadius,etaStrip,minEtRecHit,minEtRecHit,pG,&(*ecalRecHits),DetId::Ecal);
     if ( candTk.et() < minCandEt_ || candIso.getEtSum(&candTk) > isolEtCut ) {
         deposit.addDeposit( Direction(candTk.eta(), candTk.phi()+0.15), 10000 );
         deposit.addDeposit( Direction(candTk.eta(), candTk.phi()+0.25), 100000 );
