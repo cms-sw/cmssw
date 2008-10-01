@@ -101,7 +101,7 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
 	  // Instantiate the genertic b tag plotter
 	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(
 							   moduleLabel.label(), etaPtBin,
-							   moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"), mcPlots_, update);
+							   moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"), mcPlots_, update, finalize);
 	  binJetTagPlotters.back().push_back ( jetTagPlotter ) ;
 	  
 	  // Add to the corresponding differential plotters
@@ -141,7 +141,7 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
 	  
 	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(
 								      dataFormatType, moduleLabel.label(), etaPtBin, 
-								      moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"), update, mcPlots_);
+								      moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"), update, mcPlots_, finalize);
 	  binTagInfoPlotters.back().push_back ( jetTagPlotter ) ;
           binTagInfoPlottersToModuleConfig[jetTagPlotter] = iModule;
 	}
@@ -366,6 +366,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
 }
 
 void BTagPerformanceAnalyzerOnData::endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es){
+
   if (finalize == false) return;
   setTDRStyle();
   for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
@@ -391,6 +392,7 @@ void BTagPerformanceAnalyzerOnData::endLuminosityBlock(const edm::LuminosityBloc
     int plotterSize =  binTagInfoPlotters[iJetLabel].size();
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
   binTagInfoPlotters[iJetLabel][iPlotter]->finalize();
+
       //      binTagInfoPlotters[iJetLabel][iPlotter]->write(allHisto);
       if (producePs)  (*binTagInfoPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
       if (produceEps) (*binTagInfoPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
