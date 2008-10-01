@@ -5,11 +5,6 @@ DEFINE_SEAL_MODULE();
 
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 
-#include "OnlineDB/SiStripO2O/plugins/SiStripPopConNoiseHandler.h"
-typedef popcon::PopConAnalyzer<popcon::SiStripPopConNoiseHandler> SiStripPopConNoiseTest;
-DEFINE_ANOTHER_FWK_MODULE(SiStripPopConNoiseTest);
-
-
 #include "OnlineDB/SiStripO2O/plugins/SiStripPopConConfigDbObjHandler.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
