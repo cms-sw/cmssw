@@ -1,14 +1,16 @@
 #ifndef RecoBTag_SoftLepton_ElectronTagger_h
 #define RecoBTag_SoftLepton_ElectronTagger_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/src/ElectronTaggerMLP.h"
 
 /** \class ElectronTagger
  *
- *  $Id: ElectronTagger.h,v 1.3 2008/04/22 12:55:51 saout Exp $
- *  $Date: 2008/04/22 12:55:51 $
- *  $Revision: 1.3 $
+ *  $Id: ElectronTagger.h,v 1.4 2008/04/24 22:15:48 saout Exp $
+ *  $Date: 2008/04/24 22:15:48 $
+ *  $Revision: 1.4 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -17,11 +19,13 @@
 class ElectronTagger : public JetTagComputer {
 public:
 
-  /// default ctor
-  ElectronTagger(void) : theNet() { uses("seTagInfos"); }
-
   /// explicit ctor 
-  explicit ElectronTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { uses("seTagInfos"); }
+  explicit ElectronTagger(const edm::ParameterSet & configuration) : 
+    theNet(),
+    m_selection( btag::LeptonSelector::option( configuration.getParameter<std::string>("ipSign") ) )
+  { 
+    uses("seTagInfos"); 
+  }
   
   /// dtor
   virtual ~ElectronTagger() { }
@@ -32,6 +36,8 @@ public:
 private:
 
   mutable ElectronTaggerMLP theNet;
+
+  btag::LeptonSelector::sign m_selection;
 
 };
 
