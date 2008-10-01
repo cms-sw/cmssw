@@ -11,19 +11,14 @@ namespace reco { namespace isodeposit {
             SwitchingEcalVeto(AbsVeto *veto, bool isBarrel) :
                 veto_(veto), barrel_(isBarrel) {}
             virtual bool veto(double eta, double phi, float value) const {
-                return on_ ? veto_->veto(eta,phi,value) : false;
+                return (fabs(eta) < 1.479) == (barrel_) ? veto_->veto(eta,phi,value) : false;
             }
             virtual void centerOn(double eta, double phi) {
-                if ( (fabs(eta) < 1.479) == (barrel_) ) {
-                    on_ = true;
-                    veto_->centerOn(eta,phi);
-                } else {
-                    on_ = false;
-                }
-            }
+	      veto_->centerOn(eta,phi);
+	    }
         private:
             std::auto_ptr<AbsVeto> veto_;
-            bool barrel_, on_;   
+            bool barrel_;   
     };
 } }
 
@@ -35,6 +30,7 @@ IsoDepositVetoFactory::make(const char *string) {
     static boost::regex 
         ecalSwitch("^Ecal(Barrel|Endcaps):(.*)"),
         threshold("Threshold\\((\\d+\\.\\d+)\\)"),
+        thresholdtransverse("ThresholdFromTransverse\\((\\d+\\.\\d+)\\)"),
         cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
         angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
         angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
@@ -46,6 +42,8 @@ IsoDepositVetoFactory::make(const char *string) {
         return new SwitchingEcalVeto(make(match[2].first), (match[1] == "Barrel") );
     } else if (regex_match(string, match, threshold)) {
         return new ThresholdVeto(atof(match[1].first));
+    } else if (regex_match(string, match, thresholdtransverse)) {
+        return new ThresholdVetoFromTransverse(atof(((std::string)match[1]).c_str()));
     } else if (regex_match(string, match, cone)) {
         return new ConeVeto(Direction(), atof(match[1].first));
     } else if (regex_match(string, match, number)) {
