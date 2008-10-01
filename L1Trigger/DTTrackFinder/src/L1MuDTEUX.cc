@@ -134,6 +134,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   int phi_target = m_target->phi() >> sh_phi;
   int phi_start  = m_start->phi()  >> sh_phi;
   int phib_start = (m_start->phib() >> sh_phib) << sh_phib;
+  if ( phib_start < 0 ) phib_start += (1 << sh_phib) -1;
 
   // compute difference in phi
   int diff = phi_target - phi_start;
@@ -142,8 +143,12 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   // and add offset (30 degrees ) for extrapolation to adjacent sector 
   int offset = -2144 >> sh_phi;
   offset  *= sec_mod(sector_ta - sector_st);
-  int low  = (theExtLUTs->getLow(lut_idx,phib_start ) >> sh_phi) + offset;
-  int high = (theExtLUTs->getHigh(lut_idx,phib_start ) >> sh_phi) + offset;
+  int low  = theExtLUTs->getLow(lut_idx,phib_start );
+  int high = theExtLUTs->getHigh(lut_idx,phib_start );
+  if ( low  < 0 ) low  += (1 << sh_phi) - 1;
+  if ( high < 0 ) high += (1 << sh_phi) - 1;
+  low  = (low  >> sh_phi) + offset;
+  high = (high >> sh_phi) + offset;
 
   // is phi-difference within the extrapolation window?
   if (( diff >= low && diff <= high ) || L1MuDTTFConfig::getopenLUTs() ) {
