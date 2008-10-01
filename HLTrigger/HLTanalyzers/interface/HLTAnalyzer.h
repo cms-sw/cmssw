@@ -71,6 +71,18 @@ private:
   edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_,MuLinkTag_;
   edm::InputTag HLTTau_;
 
+  // btag OpenHLT input collections
+  edm::InputTag m_rawBJets;
+  edm::InputTag m_correctedBJets;
+  edm::InputTag m_lifetimeBJetsL25;
+  edm::InputTag m_lifetimeBJetsL3;
+  edm::InputTag m_lifetimeBJetsL25Relaxed;
+  edm::InputTag m_lifetimeBJetsL3Relaxed;
+  edm::InputTag m_softmuonBJetsL25;
+  edm::InputTag m_softmuonBJetsL3;
+  edm::InputTag m_performanceBJetsL25;
+  edm::InputTag m_performanceBJetsL3;
+
   int errCnt;
   const int errMax(){return 100;}
 

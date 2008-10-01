@@ -75,6 +75,18 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
   HLTTau_           = conf.getParameter<edm::InputTag> ("HLTTau");
 
+  // btag OpenHLT input collections
+  m_rawBJets                = conf.getParameter<edm::InputTag>("CommonBJetsL2");
+  m_correctedBJets          = conf.getParameter<edm::InputTag>("CorrectedBJetsL2");
+  m_lifetimeBJetsL25        = conf.getParameter<edm::InputTag>("LifetimeBJetsL25");
+  m_lifetimeBJetsL3         = conf.getParameter<edm::InputTag>("LifetimeBJetsL3");
+  m_lifetimeBJetsL25Relaxed = conf.getParameter<edm::InputTag>("LifetimeBJetsL25Relaxed");
+  m_lifetimeBJetsL3Relaxed  = conf.getParameter<edm::InputTag>("LifetimeBJetsL3Relaxed");
+  m_softmuonBJetsL25        = conf.getParameter<edm::InputTag>("SoftmuonBJetsL25");
+  m_softmuonBJetsL3         = conf.getParameter<edm::InputTag>("SoftmuonBJetsL3");
+  m_performanceBJetsL25     = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
+  m_performanceBJetsL3      = conf.getParameter<edm::InputTag>("PerformanceBJetsL3");
+
   m_file = 0;   // set to null
   errCnt = 0;
 
@@ -145,6 +157,18 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<MuonTrackLinksCollection>             mulinks;
   edm::Handle<reco::HLTTauCollection>               taus;
 
+  // btag OpenHLT input collections
+  edm::Handle<edm::View<reco::Jet> >                hRawBJets;
+  edm::Handle<edm::View<reco::Jet> >                hCorrectedBJets;
+  edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25;
+  edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3;
+  edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25Relaxed;
+  edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3Relaxed;
+  edm::Handle<reco::JetTagCollection>               hSoftmuonBJetsL25;
+  edm::Handle<reco::JetTagCollection>               hSoftmuonBJetsL3;
+  edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25;
+  edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3;
+
   // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
 
@@ -176,6 +200,16 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
   getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
   getCollection( iEvent, missing, mulinks,         MuLinkTag_,         kMulinks );
+  getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
+  getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
+  getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
+  getCollection( iEvent, missing, hLifetimeBJetsL3,         m_lifetimeBJetsL3,          kBTagLifetimeBJetsL3 );
+  getCollection( iEvent, missing, hLifetimeBJetsL25Relaxed, m_lifetimeBJetsL25Relaxed,  kBTagLifetimeBJetsL25Relaxed );
+  getCollection( iEvent, missing, hLifetimeBJetsL3Relaxed,  m_lifetimeBJetsL3Relaxed,   kBTagLifetimeBJetsL3Relaxed );
+  getCollection( iEvent, missing, hSoftmuonBJetsL25,        m_softmuonBJetsL25,         kBTagSoftmuonBJetsL25 );
+  getCollection( iEvent, missing, hSoftmuonBJetsL3,         m_softmuonBJetsL3,          kBTagSoftmuonBJetsL3 );
+  getCollection( iEvent, missing, hPerformanceBJetsL25,     m_performanceBJetsL25,      kBTagPerformanceBJetsL25 );
+  getCollection( iEvent, missing, hPerformanceBJetsL3,      m_performanceBJetsL3,       kBTagPerformanceBJetsL3 );
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -190,13 +224,62 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   }
 
   // run the analysis, passing required event fragments
-  jet_analysis_.analyze(recjets.product(), genjets.product(), recmet.product(), genmet.product(), ht.product(), taus.product(), caloTowers.product(), HltTree);
-  muon_analysis_.analyze(muon.product(), mucands2.product(), isoMap2.product(), mucands3.product(), isoMap3.product(), mulinks.product(), HltTree);
-  elm_analysis_.analyze(iEvent, iSetup, electrons.product(), photons.product(), HltTree);
-  mct_analysis_.analyze(mctruth.product(), genEventScale.product(), HltTree);
-  hlt_analysis_.analyze(hltresults.product(), l1extemi.product(), l1extemn.product(), l1extmu.product(), l1extjetc.product(), l1extjetf.product(), l1exttaujet.product(), l1extmet.product(), 
-                        l1GtRR.product(), l1GtOMRec.product(), l1GctCounts.product(), HltTree);
-  bjet_analysis_.analyze(iEvent, iSetup, HltTree);
+  jet_analysis_.analyze(
+    recjets.product(),
+    genjets.product(),
+    recmet.product(),
+    genmet.product(),
+    ht.product(),
+    taus.product(),
+    caloTowers.product(),
+    HltTree);
+  
+  muon_analysis_.analyze(
+    muon.product(),
+    mucands2.product(),
+    isoMap2.product(),
+    mucands3.product(),
+    isoMap3.product(),
+    mulinks.product(),
+    HltTree);
+  
+  elm_analysis_.analyze(iEvent, iSetup, 
+    electrons.product(),
+    photons.product(),
+    HltTree);
+  
+  mct_analysis_.analyze(
+    mctruth.product(),
+    genEventScale.product(),
+    HltTree);
+  
+  hlt_analysis_.analyze(
+    hltresults.product(),
+    l1extemi.product(),
+    l1extemn.product(),
+    l1extmu.product(),
+    l1extjetc.product(),
+    l1extjetf.product(),
+    l1exttaujet.product(),
+    l1extmet.product(),
+    l1GtRR.product(),
+    l1GtOMRec.product(),
+    l1GctCounts.product(),
+    HltTree);
+  
+  bjet_analysis_.analyze(
+    hRawBJets.product(), 
+    hCorrectedBJets.product(),
+    hLifetimeBJetsL25.product(),
+    hLifetimeBJetsL3.product(),
+    hLifetimeBJetsL25Relaxed.product(),
+    hLifetimeBJetsL3Relaxed.product(),
+    hSoftmuonBJetsL25.product(),
+    hSoftmuonBJetsL3.product(),
+    hPerformanceBJetsL25.product(),
+    hPerformanceBJetsL3.product(),
+    HltTree);
+
   evt_header_.analyze(iEvent, HltTree);
 
   // std::cout << " Ending Event Analysis" << std::endl;
@@ -223,4 +306,3 @@ void HLTAnalyzer::endJob() {
   }
 
 }
-
