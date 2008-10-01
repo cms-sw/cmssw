@@ -71,6 +71,9 @@ class PatPhotonSimpleAnalyzer : public edm::EDAnalyzer {
 	float eta;
 	float phi;
         float hadronicOverEm;
+	float ecalIso;
+        float hcalIso;
+        float trackIso;
       } ;
       struct_recPhoton recPhoton;
 

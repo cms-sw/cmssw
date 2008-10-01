@@ -88,10 +88,10 @@ PatPhotonSimpleAnalyzer::beginJob(edm::EventSetup const&)
 
   // Book Histograms
   // PhotonID Histograms
-  h_isoEcalRecHit_ = new TH1F("photonEcalIso",          "Ecal Rec Hit Isolation", 300, 0, 300);
-  h_isoHcalRecHit_ = new TH1F("photonHcalIso",          "Hcal Rec Hit Isolation", 300, 0, 300);
-  h_trk_pt_solid_  = new TH1F("photonTrackSolidIso",    "Sum of track pT in a cone of #DeltaR" , 300, 0, 300);
-  h_trk_pt_hollow_ = new TH1F("photonTrackHollowIso",   "Sum of track pT in a hollow cone" ,     300, 0, 300);
+  h_isoEcalRecHit_ = new TH1F("photonEcalIso",          "Ecal Rec Hit Isolation", 100, 0, 100);
+  h_isoHcalRecHit_ = new TH1F("photonHcalIso",          "Hcal Rec Hit Isolation", 100, 0, 100);
+  h_trk_pt_solid_  = new TH1F("photonTrackSolidIso",    "Sum of track pT in a cone of #DeltaR" , 100, 0, 100);
+  h_trk_pt_hollow_ = new TH1F("photonTrackHollowIso",   "Sum of track pT in a hollow cone" ,     100, 0, 100);
   h_ntrk_solid_    = new TH1F("photonTrackCountSolid",  "Number of tracks in a cone of #DeltaR", 100, 0, 100);
   h_ntrk_hollow_   = new TH1F("photonTrackCountHollow", "Number of tracks in a hollow cone",     100, 0, 100);
   h_ebgap_         = new TH1F("photonInEBgap",          "Ecal Barrel gap flag",  2, -0.5, 1.5);
@@ -101,14 +101,14 @@ PatPhotonSimpleAnalyzer::beginJob(edm::EventSetup const&)
 
   // Photon Histograms
   h_photonEt_      = new TH1F("photonEt",     "Photon E_{T}",  200,  0, 200);
-  h_photonEta_     = new TH1F("photonEta",    "Photon #eta",   800, -4,   4);
-  h_photonPhi_     = new TH1F("photonPhi",    "Photon #phi",   628, -1.*TMath::Pi(), TMath::Pi());
+  h_photonEta_     = new TH1F("photonEta",    "Photon #eta",   200, -4,   4);
+  h_photonPhi_     = new TH1F("photonPhi",    "Photon #phi",   200, -1.*TMath::Pi(), TMath::Pi());
   h_hadoverem_     = new TH1F("photonHoverE", "Hadronic over EM", 200, 0, 1);
 
   // Photon's SuperCluster Histograms
   h_photonScEt_       = new TH1F("photonScEt",  "Photon SuperCluster E_{T}", 200,  0, 200);
-  h_photonScEta_      = new TH1F("photonScEta", "Photon #eta",               800, -4,   4);
-  h_photonScPhi_      = new TH1F("photonScPhi", "Photon #phi",628, -1.*TMath::Pi(), TMath::Pi());
+  h_photonScEta_      = new TH1F("photonScEta", "Photon #eta",               200, -4,   4);
+  h_photonScPhi_      = new TH1F("photonScPhi", "Photon #phi", 200, -1.*TMath::Pi(), TMath::Pi());
   h_photonScEtaWidth_ = new TH1F("photonScEtaWidth","#eta-width",            100,  0,  .1);
 
   // Composite or Other Histograms
@@ -119,7 +119,7 @@ PatPhotonSimpleAnalyzer::beginJob(edm::EventSetup const&)
   // Create a TTree of photons if set to 'True' in config file
   if ( createPhotonTTree_ ) {
     tree_PhotonAll_     = new TTree("TreePhotonAll", "Reconstructed Photon");
-    tree_PhotonAll_->Branch("recPhoton", &recPhoton.isolationEcalRecHit, "isolationEcalRecHit/F:isolationHcalRecHit:isolationSolidTrkCone:isolationHollowTrkCone:nTrkSolidCone:nTrkHollowCone:isEBGap:isEEGap:isEBEEGap:r9:et:eta:phi:hadronicOverEm");
+    tree_PhotonAll_->Branch("recPhoton", &recPhoton.isolationEcalRecHit, "isolationEcalRecHit/F:isolationHcalRecHit:isolationSolidTrkCone:isolationHollowTrkCone:nTrkSolidCone:nTrkHollowCone:isEBGap:isEEGap:isEBEEGap:r9:et:eta:phi:hadronicOverEm:ecalIso:hcalIso:trackIso");
   }
 }
 
@@ -207,6 +207,9 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
         recPhoton.eta                    = currentPhoton.eta();
         recPhoton.phi                    = currentPhoton.phi();
         recPhoton.hadronicOverEm         = currentPhoton.hadronicOverEm();
+        recPhoton.ecalIso                = currentPhoton.ecalIso();
+        recPhoton.hcalIso                = currentPhoton.hcalIso();
+        recPhoton.trackIso               = currentPhoton.trackIso();
 
         // Fill the tree (this records all the recPhoton.* since
         // tree_PhotonAll_ was set to point at that.
