@@ -26,7 +26,7 @@ source = cms.Source("PythiaSource",
             'MDME(200,1) = 0    !W decay into bbar t', 
             'MDME(206,1) = 1    !W decay into e+ nu_e', 
             'MDME(207,1) = 1    !W decay into mu+ nu_mu', 
-            'MDME(208,1) = 0    !W decay into tau+ nu_tau'),
+            'MDME(208,1) = 1    !W decay into tau+ nu_tau'),
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
