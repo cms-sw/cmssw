@@ -25,6 +25,15 @@ namespace reco {
                 float threshold_;
         };
 
+        class ThresholdVetoFromTransverse : public AbsVeto { 
+            public:
+                ThresholdVetoFromTransverse(double threshold) : threshold_(threshold) {}
+                virtual bool veto(double eta, double phi, float value) const ;
+  			    virtual void centerOn(double eta, double phi) ;
+            private:
+                float threshold_;
+        };
+
         class ConeThresholdVeto : public AbsVeto { 
             public:
                 ConeThresholdVeto(Direction dir, double dr, double threshold) : vetoDir_(dir), dR2_(dr*dr), threshold_(threshold) {}

@@ -22,6 +22,13 @@ void ThresholdVeto::centerOn(double eta, double phi) { }
 
 ///////////////////////////////////////////////////////////////////////////
 
+bool ThresholdVetoFromTransverse::veto(double eta, double phi, float value) const {
+  return ( value/sin(2*atan(exp(-eta)))  <= threshold_);  // convert Et to E
+}
+void ThresholdVetoFromTransverse::centerOn(double eta, double phi) { }
+
+///////////////////////////////////////////////////////////////////////////
+
 bool ConeThresholdVeto::veto(double eta, double phi, float value) const {
   return (value <= threshold_) || ( vetoDir_.deltaR2(Direction(eta,phi)) < dR2_ );
 }
@@ -76,8 +83,8 @@ bool RectangularEtaPhiVeto::veto(double eta, double phi, float value) const  {
 	//so should be able to set phi or eta to something extreme (-100,100) e.g.
 	double dPhi = phi - vetoDir_.phi();
 	double dEta = eta - vetoDir_.eta();
-	while( dPhi < 0.0 ) 	dPhi += 2*M_PI;
-	while( dPhi >= M_PI ) dPhi -= 2*M_PI;
+	while( dPhi < -M_PI ) 	dPhi += 2*M_PI;
+	while( dPhi >= M_PI )   dPhi -= 2*M_PI;
     return (etaMin_ < dEta) && (dEta < etaMax_) && 
            (phiMin_ < dPhi) && (dPhi < phiMax_); 
 }
