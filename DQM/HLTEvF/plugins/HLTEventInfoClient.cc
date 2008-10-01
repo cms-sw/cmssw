@@ -78,36 +78,60 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
+  int nSubsystems = 20;
+
+ //initialize reportSummary to 1
+  if (reportSummary_) reportSummary_->Fill(1);
+
   dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents");
 
-  int nSubsystems = 20;
   
   char histo[100];
   
-  for (int i = 0; i < nSubsystems; i++) {    
+  for (int n = 0; n < nSubsystems; n++) {    
 
-// ugly hack for cruzet2
-  if(i==0)  sprintf(histo,"hlt_dqm_EGamma");
-  if(i==1)  sprintf(histo,"hlt_dqm_Muon");
-  if(i==2)  sprintf(histo,"hlt_dqm_JetMet");
-  if(i==3)  sprintf(histo,"hlt_dqm_BJets");
-  if(i==4)  sprintf(histo,"hlt_dqm_Tau");
-  if(i==5)  sprintf(histo,"hlt_dqm_Test1");
-  if(i==6)  sprintf(histo,"hlt_dqm_Test2");
-  if(i==7)  sprintf(histo,"hlt_dqm_Test3");
-  if(i==8)  sprintf(histo,"hlt_dqm_Test4");
-  if(i==9)  sprintf(histo,"hlt_dqm_Test5");
-  if(i==10) sprintf(histo,"hlt_dqm_Test6");
-  if(i==11) sprintf(histo,"hlt_dqm_Test7");
-  if(i==12) sprintf(histo,"hlt_dqm_Test8");
-  if(i==13) sprintf(histo,"hlt_dqm_Test9");
-  if(i==14) sprintf(histo,"hlt_dqm_Test10");
-  if(i==15) sprintf(histo,"hlt_dqm_Test11");
-  if(i==16) sprintf(histo,"hlt_dqm_Test12");
-  if(i==17) sprintf(histo,"hlt_dqm_Test13");
-  if(i==18) sprintf(histo,"hlt_dqm_Test14");
-  if(i==19) sprintf(histo,"hlt_dqm_Test15");
+  switch(n){
+  case 0 :   sprintf(histo,"hlt_dqm_EGamma");	break;
+  case 1 :   sprintf(histo,"hlt_dqm_Muon");	break;
+  case 2 :   sprintf(histo,"hlt_dqm_JetMet");	break;
+  case 3 :   sprintf(histo,"hlt_dqm_BJets");	break;
+  case 4 :   sprintf(histo,"hlt_dqm_Tau");	break;
+  case 5 :   sprintf(histo,"hlt_dqm_Test1");	break;
+  case 6 :   sprintf(histo,"hlt_dqm_Test2");	break;
+  case 7 :   sprintf(histo,"hlt_dqm_Test3");	break;
+  case 8 :   sprintf(histo,"hlt_dqm_Test4");	break;
+  case 9 :   sprintf(histo,"hlt_dqm_Test5");	break;
+  case 10 :  sprintf(histo,"hlt_dqm_Test6");	break;
+  case 11 :  sprintf(histo,"hlt_dqm_Test7");	break;
+  case 12 :  sprintf(histo,"hlt_dqm_Test8");	break;
+  case 13 :  sprintf(histo,"hlt_dqm_Test9");	break;
+  case 14 :  sprintf(histo,"hlt_dqm_Test10");	break;
+  case 15 :  sprintf(histo,"hlt_dqm_Test11");	break;
+  case 16 :  sprintf(histo,"hlt_dqm_Test12");	break;
+  case 17 :  sprintf(histo,"hlt_dqm_Test13");	break;
+  case 18 :  sprintf(histo,"hlt_dqm_Test14");	break;
+  case 19 :  sprintf(histo,"hlt_dqm_Test15");	break;
+  }
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   
@@ -116,8 +140,14 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
 //       dbe_->removeElement(reportSummaryContent_[i]->getName());
 //   }
   
-   reportSummaryContent_[i] = dbe_->bookFloat(histo);
+   reportSummaryContent_[n] = dbe_->bookFloat(histo);
   }
+
+  //initialize reportSummaryContents to 1
+  for (int k = 0; k < nSubsystems; k++) {
+    summaryContent[k] = 1;
+    reportSummaryContent_[k]->Fill(1.);
+  }  
 
 
   dbe_->setCurrentFolder("HLT/EventInfo");
@@ -126,9 +156,16 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 0., 5., 4, 0., 4);
-			    reportSummaryMap_->setAxisTitle("XXXX", 1);
-			      reportSummaryMap_->setAxisTitle("YYYY", 2);
+
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 5, 1, 6);
+  reportSummaryMap_->setAxisTitle("", 1);
+  reportSummaryMap_->setAxisTitle("", 2);
+  reportSummaryMap_->setBinLabel(1,"EGAMMA",2);
+  reportSummaryMap_->setBinLabel(2,"MUON",2);
+  reportSummaryMap_->setBinLabel(3,"JETMET",2);
+  reportSummaryMap_->setBinLabel(4,"BJETS",2);
+  reportSummaryMap_->setBinLabel(5,"TAU",2);
+  reportSummaryMap_->setBinLabel(1," ",1);
 
 }
 
@@ -144,6 +181,27 @@ void HLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c){
 
+  int nSubsystems = 20;
+  for (int k = 0; k < nSubsystems; k++) {
+    summaryContent[k] = 1;
+    reportSummaryContent_[k]->Fill(1.);
+  }
+  summarySum = 0;
+
+  for (int m = 0; m < nSubsystems; m++) {    
+    summarySum += summaryContent[m];
+  }
+
+
+  reportSummary = summarySum / nSubsystems;;
+  if (reportSummary_) reportSummary_->Fill(reportSummary);
+
+
+  reportSummaryMap_->setBinContent(1,1,summaryContent[0]);//Egamma
+  reportSummaryMap_->setBinContent(1,2,summaryContent[1]);//Muon
+  reportSummaryMap_->setBinContent(1,3,summaryContent[2]);//JetMet
+  reportSummaryMap_->setBinContent(1,4,summaryContent[3]);//BJets
+  reportSummaryMap_->setBinContent(1,5,summaryContent[4]);//Taus
 
 }
 
@@ -155,39 +213,7 @@ void HLTEventInfoClient::analyze(const Event& e, const EventSetup& context){
    if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
 
    if(verbose_) cout << "HLTEventInfoClient::analyze" << endl;
-/*
-// check GCT
-  MonitorElement *NonIsoEmDeadEtaChannels = dbe_->get("HLT/HLTGCT/NonIsoEmOccEta");
-  if(!NonIsoEmDeadEtaChannels) gctFloat = 0.;
-  
-  int nXChannels = NonIsoEmDeadEtaChannels->getNbinsX();
-  int nYChannels = NonIsoEmDeadEtaChannels->getNbinsY();
-  if(nYChannels) nChannels = nXChannels*nYChannels;
-  
-  if (NonIsoEmDeadEtaChannels){
-    const QReport *NonIsoEmDeadEtaQReport = NonIsoEmDeadEtaChannels->getQReport("DeadChannels");
-    if (NonIsoEmDeadEtaQReport) {
-      int nBadChannels = NonIsoEmDeadEtaQReport->getBadChannels().size();
-      reportSummary = nBadChannels/nChannels;
-    } 
-  }   
-*/
-  reportSummary = 1.;
-  if (reportSummary_) reportSummary_->Fill(reportSummary);
 
-
-  int nSubsystems = 20;
-  for (int i = 0; i < nSubsystems; i++) {    
-
-     reportSummaryContent_[i]->Fill(1.);
-  }
-
-  for (int i = 0; i < 5; i++) {    
-    for (int j = 0; j < 4; j++) {    
-
-     reportSummaryMap_->setBinContent( i, j, 1. );
-    }
-  }
 
 }
 

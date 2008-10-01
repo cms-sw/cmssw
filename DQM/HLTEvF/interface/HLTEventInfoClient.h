@@ -72,6 +72,8 @@ private:
   int prescaleEvt_;    ///prescale on number of events
   int nChannels;
   Float_t reportSummary;
+  Float_t summarySum;
+  Float_t summaryContent[20];
   // -------- member data --------
 
   MonitorElement * reportSummary_;
