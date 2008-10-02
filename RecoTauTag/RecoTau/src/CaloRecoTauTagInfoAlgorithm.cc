@@ -4,10 +4,7 @@
 CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
   // parameters of the considered rec. Tracks (catched through a JetTracksAssociation object) :
   tkminPt_                            = parameters.getParameter<double>("tkminPt");
-  tkminPixelHitsn_                    = parameters.getParameter<int>("tkminPixelHitsn");
-  tkminTrackerHitsn_                  = parameters.getParameter<int>("tkminTrackerHitsn");
   tkmaxipt_                           = parameters.getParameter<double>("tkmaxipt");
-  tkmaxChi2_                          = parameters.getParameter<double>("tkmaxChi2");
   // 
   UsePVconstraint_                    = parameters.getParameter<bool>("UsePVconstraint");
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
@@ -28,8 +25,8 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   resultExtended.setcalojetRef(theCaloJet);
 
   TrackRefVector theFilteredTracks;
-  if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,tkPVmaxDZ_,thePV, thePV.z());
-  else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,thePV);
+  if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkmaxipt_,tkPVmaxDZ_,thePV, thePV.z());
+  else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkmaxipt_,thePV);
   resultExtended.setTracks(theFilteredTracks);
   
   resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
