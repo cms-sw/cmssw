@@ -7,9 +7,9 @@
 # in the release /src directory:
 # eval `scramv1 runtime -csh`
 # project CMSSW
-# The script will create a SimulationCandles.txt ASCII
+# The script will create a SimulationCandles_$CMSSW_VERSION.txt ASCII
 # file, input to cmsRelvalreport.py, to launch the
-# standard simulation performance suite.
+# Performance Suite.
 
 # Input arguments are three:
 # 1-Number of events to put in the cfg files
@@ -386,14 +386,14 @@ def pythonFragment(step):
     # Convenient dictionary to map the correct Simulation Python fragment:
 
     CustomiseFragment = {
-         'GEN,SIM': 'Configuration/PyReleaseValidation/SimulationG4.py',
-         'DIGI': 'Configuration/PyReleaseValidation/Simulation.py'}
+         'GEN,SIM': 'Validation/Performance/TimeMemoryG4Info.py',
+         'DIGI': 'Validation/Performance/TimeMemoryInfo.py'}
 
     if CustomiseFragment.has_key(step):
         return CustomiseFragment[step]
     else:
 
-        # Temporary hack to have potentially added steps use the default Simulation.py fragment
+        # Temporary hack to have potentially added steps use the default TimeMemoryInfo.py fragment
         # This should change once each group customises its customise python fragments.
 
         return CustomiseFragment['DIGI']
@@ -684,7 +684,7 @@ def prepareQcdCommand(rootinput,thecandle,NumberOfEvents,cmsDriverOptions):
     OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
 
     return (
-        "%s %s -n %s --step=DIGI %s %s --pileup=LowLumiPileUp --customise=Configuration/PyReleaseValidation/MixingModule.py %s" %
+        "%s %s -n %s --step=DIGI %s %s --pileup=LowLumiPileUp --customise=Validation/Performance/MixingModule.py %s" %
         (cmsDriver,
          KeywordToCfi[thecandle],
          NumberOfEvents,

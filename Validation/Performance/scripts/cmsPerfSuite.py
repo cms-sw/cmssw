@@ -680,7 +680,8 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=cmssw_version)
 
         #Create a tarball of the work directory
-        TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
+        #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
+        TarFile = "%s_%s_%s_%s.tar" % (cmssw_version, str(stepOptions), host, user)
         AbsTarFile = os.path.join(perfsuitedir,TarFile)
         tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
         printFlush(tarcmd)
@@ -688,10 +689,22 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
 
         #Archive it on CASTOR
         castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(castordir,TarFile))
-
         printFlush(castorcmd)
-        printFlush(os.popen4(castorcmd)[1].read())
-
+        castorcmdstderr=os.popen3(castorcmd)[2].read()
+        #Checking the stderr of the rfcp command to copy the tarball.gz on CASTOR:
+        if castorcmdstderr:
+            #If it failed print the stderr message to the log and tell the user the tarball.gz is kept in the working directory
+            printFlush(castorcmdstderr)
+            printFlush("Since the CASTOR archiving for the tarball failed the file %s is kept in directory %s"%(TarFile, perfsuitedir))
+        else:
+            #If it was successful then remove the tarball.gz from the working directory:
+            TarGzipFile=TarFile+".gz"
+            printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarGzipFile))
+            AbsTarGzipFile=AbsTarFile+".gz"
+            rmtarballcmd="rm -Rf %s"%(AbsTarGzipFile)
+            printFlush(rmtarballcmd)
+            printFlush(os.popen4(rmtarballcmd)[1].read())
+            
         #End of script actions!
 
         #Print a time stamp at the end:
