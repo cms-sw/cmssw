@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  \author J. Alcaraz
+ *  \author J. Alcaraz, J-R Vlimant
  *
  */
 
@@ -20,6 +20,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 //
 // constructors and destructor
@@ -32,7 +34,6 @@ using namespace trigger;
 HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) :
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
-   linksTag_   (iConfig.getParameter<InputTag > ("LinksTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
    min_N_     (iConfig.getParameter<int> ("MinN")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
@@ -95,11 +96,9 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    beamSpot = *recoBeamSpotHandle;
 
 
-   Handle<MuonTrackLinksCollection> mulinks; 
    vector<RecoChargedCandidateRef> vl2cands;
 
    //needed to compare to L2
-   iEvent.getByLabel (linksTag_,mulinks);
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
 
    // look at all mucands,  check cuts and add to filter object
@@ -111,7 +110,7 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
       LogDebug("HLTMuonL3PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
 
       // find the L2 Track corresponding to the L3 Track
-      if(!triggeredByLevel2(tk,mulinks,vl2cands)) continue;
+      if(!triggeredByLevel2(tk,vl2cands)) continue;
       // eta cut
 
 
@@ -165,22 +164,13 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    return accept;
 }
 bool
-HLTMuonL3PreFilter::triggeredByLevel2(TrackRef& tk,Handle<MuonTrackLinksCollection> &mulinks,vector<RecoChargedCandidateRef>& vcands)
+HLTMuonL3PreFilter::triggeredByLevel2(TrackRef& tk,vector<RecoChargedCandidateRef>& vcands)
 {
   bool ok=false;
-  TrackRef staTrack;
-  MuonTrackLinksCollection::const_iterator l3muon;
-  for ( l3muon=mulinks->begin(); l3muon != mulinks->end();++l3muon){
-    if ( l3muon->globalTrack() == tk ) {
-      staTrack= l3muon->standAloneTrack();
-      LogDebug("HLTMuonL3PreFilter") << "Found StaTrack corresponding to L3";
-      break;
-    }
-  }  
+  edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+  TrackRef staTrack = l3seedRef->l2Track();
   for (unsigned int i=0; i<vcands.size(); i++) {
-    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vcands[i]);
-    TrackRef tk = candref->get<TrackRef>();
-    if ( tk == staTrack ) {
+    if ( vcands[i]->get<TrackRef>() == staTrack ) {
       ok=true;
       LogDebug("HLTMuonL3PreFilter") << "The L2 track triggered";
       break;

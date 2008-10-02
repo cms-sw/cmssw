@@ -12,17 +12,16 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#
+
 class HLTMuonDimuonL3Filter : public HLTFilter {
 
    public:
       explicit HLTMuonDimuonL3Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL3Filter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      bool triggeredByLevel2(reco::TrackRef& track,edm::Handle<reco::MuonTrackLinksCollection> &mulinks,std::vector<reco::RecoChargedCandidateRef>& vcands);
+      bool triggeredByLevel2(reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
 
    private:
       edm::InputTag beamspotTag_ ;

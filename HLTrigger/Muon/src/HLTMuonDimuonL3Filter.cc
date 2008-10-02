@@ -17,10 +17,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "HLTrigger/Muon/interface/HLTMuonDimuonL3Filter.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 using namespace edm;
 using namespace std;
@@ -32,7 +33,6 @@ using namespace trigger;
 //
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_     (iConfig.getParameter< edm::InputTag > ("CandTag")),
-   linksTag_   (iConfig.getParameter<InputTag > ("LinksTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
     fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
@@ -106,7 +106,6 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
 
-   Handle<MuonTrackLinksCollection> mulinks; 
    vector<RecoChargedCandidateRef> vl2cands;
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
@@ -114,7 +113,6 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    beamSpot = *recoBeamSpotHandle;
   
    // needed to compare to L3
-   iEvent.getByLabel (linksTag_,mulinks);
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
 
    // look at all mucands,  check cuts and add to filter object
@@ -130,7 +128,7 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogDebug("HLTMuonDimuonL3Filter") << " 1st muon in loop: q*pt= "
             << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
 
-      if(!triggeredByLevel2(tk1,mulinks,vl2cands)) continue;
+      if(!triggeredByLevel2(tk1,vl2cands)) continue;
  
       if (fabs(tk1->eta())>max_Eta_) continue;
 
@@ -161,7 +159,7 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             // eta cut
             LogDebug("HLTMuonDimuonL3Filter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
             if (fabs(tk2->eta())>max_Eta_) continue;
-            if(!triggeredByLevel2(tk2,mulinks,vl2cands)) continue;
+            if(!triggeredByLevel2(tk2,vl2cands)) continue;
 
             // cut on number of hits
             if (tk2->numberOfValidHits()<min_Nhits_) continue;
@@ -275,27 +273,17 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 bool
-HLTMuonDimuonL3Filter::triggeredByLevel2(TrackRef& tk,Handle<MuonTrackLinksCollection> &mulinks,vector<RecoChargedCandidateRef>& vcands)
+HLTMuonDimuonL3Filter::triggeredByLevel2(TrackRef& tk,vector<RecoChargedCandidateRef>& vcands)
 {
   bool ok=false;
-  TrackRef staTrack;
-  MuonTrackLinksCollection::const_iterator l3muon;
-  for ( l3muon=mulinks->begin(); l3muon != mulinks->end();++l3muon){
-    if ( l3muon->globalTrack() == tk ) {
-      staTrack= l3muon->standAloneTrack();
-      LogDebug("HLTMuonL3PreFilter") << "Found StaTrack corresponding to L3";
-      break;
-    }
-  }  
+  edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+  TrackRef staTrack = l3seedRef->l2Track();
   for (unsigned int i=0; i<vcands.size(); i++) {
-    RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vcands[i]);
-    TrackRef tk = candref->get<TrackRef>();
-    if ( tk == staTrack ) {
+    if ( vcands[i]->get<TrackRef>() == staTrack ) {
       ok=true;
-      LogDebug("HLTMuonL3PreFilter") << "The L3 track triggered";
+      LogDebug("HLTMuonL3PreFilter") << "The L2 track triggered";
       break;
     }
   }
   return ok;
 }
-
