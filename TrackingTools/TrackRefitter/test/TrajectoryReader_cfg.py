@@ -16,12 +16,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'IDEAL_V6::All'
 
 
-process.load("Configuration.StandardSequences.Reconstruction_cff")
+#process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_4/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V6_v1/0004/10A6F0EE-286C-DD11-AAE9-001617C3B70E.root')
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_9/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/2A00EECC-A185-DD11-93A9-000423D9517C.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -30,13 +30,13 @@ process.maxEvents = cms.untracked.PSet(
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        TrackTransformer = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        ),
-        noLineBreaks = cms.untracked.bool(True),
-        TracksToTrajectories = cms.untracked.PSet(
-            limit = cms.untracked.int32(10000000)
-        ),
+    #    TrackTransformer = cms.untracked.PSet(
+    #        limit = cms.untracked.int32(10000000)
+    #    ),
+    noLineBreaks = cms.untracked.bool(True),
+    #   TracksToTrajectories = cms.untracked.PSet(
+    #       limit = cms.untracked.int32(10000000)
+    #   ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -45,31 +45,33 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         threshold = cms.untracked.string('DEBUG')
     ),
-    categories = cms.untracked.vstring('TrackTransformer', 
-        'TracksToTrajectories', 
-        'TrajectoryReader'),
+    categories = cms.untracked.vstring(
+    'TrackTransformer', 
+    'TracksToTrajectories', 
+    'TrajectoryReader'),
     destinations = cms.untracked.vstring('cout')
 )
 
-process.GLBTrajectoriesReader = cms.EDFilter("TrajectoryReader",
-    rootFileName = cms.untracked.string('GLBTajectoriesReader.root'),
-    InputLabel = cms.InputTag("globalMuons")
-)
+# process.GLBTrajectoriesReader = cms.EDProducer("TrajectoryReader",
+#     rootFileName = cms.untracked.string('GLBTajectoriesReader.root'),
+#                                              InputLabel = cms.InputTag("globalMuons","Refitted")
+# )
 
-process.STATrajectoriesReader = cms.EDFilter("TrajectoryReader",
-    rootFileName = cms.untracked.string('STATajectoriesReader.root'),
-    InputLabel = cms.InputTag("standAloneMuons")
-)
+# process.STATrajectoriesReader = cms.EDProducer("TrajectoryReader",
+#     rootFileName = cms.untracked.string('STATajectoriesReader.root'),
+#                                              InputLabel = cms.InputTag("standAloneMuons","Refitted")
+# )
 
-process.CTFTrajectoriesReader = cms.EDFilter("TrajectoryReader",
-    rootFileName = cms.untracked.string('CTFTajectoriesReader.root'),
-    InputLabel = cms.InputTag("generalTracks")
-)
+process.CTFTrajectoriesReader = cms.EDProducer("TrajectoryReader",
+                                             rootFileName = cms.untracked.string('CTFTajectoriesReader.root'),
+                                             InputLabel = cms.InputTag("generalTracks","Refitted")
+                                             )
 
-process.glbMuons = cms.Sequence(process.globalMuons*process.GLBTrajectoriesReader)
-process.staMuons = cms.Sequence(process.standAloneMuons*process.STATrajectoriesReader)
-process.ctf = cms.Sequence(process.ctfWithMaterialTracks*process.CTFTrajectoriesReader)
+#process.glbMuons = cms.Sequence(process.globalMuons*process.GLBTrajectoriesReader)
+#process.staMuons = cms.Sequence(process.standAloneMuons*process.STATrajectoriesReader)
+process.tk = cms.Sequence(process.generalTracks*process.CTFTrajectoriesReader)
 
-process.testSTA = cms.Path(process.glbMuons)
-
+#process.testSTA = cms.Path(process.staMuons+process.tk+process.glbMuons)
+#process.testSTA = cms.Path(process.staMuons+process.tk)
+process.testSTA = cms.Path(process.tk)
 

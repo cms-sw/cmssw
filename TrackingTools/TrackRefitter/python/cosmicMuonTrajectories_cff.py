@@ -13,19 +13,19 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitOutsideIn"
 # the propagator must be the same as the one used by the Fitter
 #
-cosmicMuons = cms.EDFilter("TracksToTrajectories",
-    Tracks = cms.InputTag("cosmicMuons"),
-    TrackTransformer = cms.PSet(
-        DoPredictionsOnly = cms.bool(True),
-        Fitter = cms.string('KFFitterForRefitInsideOut'),
-        TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-        Smoother = cms.string('KFSmootherForRefitInsideOut'),
-        MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-        RefitDirection = cms.string('insideOut'),
-        RefitRPCHits = cms.bool(True),
-        Propagator = cms.string('SmartPropagatorAnyRK')
-    )
-)
+cosmicMuons = cms.EDProducer("TracksToTrajectories",
+                             Tracks = cms.InputTag("cosmicMuons"),
+                                    TrackTransformer = cms.PSet(DoPredictionsOnly = cms.bool(False),
+                                                                Fitter = cms.string('KFFitterForRefitInsideOut'),
+                                                                #        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
+                                                                TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+                                                                Smoother = cms.string('KFSmootherForRefitInsideOut'),
+                                                                MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+                                                                RefitDirection = cms.string('insideOut'),
+                                                                RefitRPCHits = cms.bool(True),
+                                                                Propagator = cms.string('SmartPropagatorAnyRK')
+                                                           )
+                             )
 
 
 
