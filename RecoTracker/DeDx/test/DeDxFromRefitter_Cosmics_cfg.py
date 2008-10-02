@@ -166,13 +166,15 @@ process.filterOnTracks = cms.EDFilter("TrackCountFilter",
                                      minNumber = cms.uint32(1) 
 )
 
-import RecoTracker.TrackProducer.RefitterWithMaterial_cff
-process.CTFRefit = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
-process.CTFRefit.src = 'ctfWithMaterialTracksP5'
+#import RecoTracker.TrackProducer.RefitterWithMaterial_cff
+#process.CTFRefit = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
+#process.CTFRefit.src = 'ctfWithMaterialTracksP5'
 
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
-process.TrackRefitter.src = 'ctfWithMaterialTracksP5'
-process.TrackRefitter.TrajectoryInEvent = True
+#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+#process.TrackRefitter.src = 'ctfWithMaterialTracksP5'
+#process.TrackRefitter.TrajectoryInEvent = True
+
+
 #process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
 
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
@@ -191,7 +193,8 @@ process.globalMuons = cms.EDFilter("TracksToTrajectories",
 
 #process.load("Analysis.DiscriminationPower.dedxDiscriminationPower_cff")
 
-process.load("RecoTracker.DeDx.dedxEstimators_cff")
+#process.load("RecoTracker.DeDx.dedxEstimators_cff")
+process.load("RecoTracker.DeDx.dedxEstimatorsFromRefitter_Cosmics_cff")
 
 # OUT
 process.TFileService = cms.Service("TFileService", fileName = cms.string('histo.root') )
@@ -208,6 +211,7 @@ process.OUT = cms.OutputModule("PoolOutputModule",
 
 #process.p = cms.Path(process.filterOnTracks * process.TrackRefitter + process.dedxDiscrimPower)
 
-process.p = cms.Path(process.filterOnTracks * process.TrackRefitter * process.doAlldEdXEstimators)
+#process.p = cms.Path(process.filterOnTracks * process.TrackRefitter * process.doAlldEdXEstimators)
+process.p = cms.Path(process.filterOnTracks * process.doAlldEdXEstimators)
 process.outpath  = cms.EndPath(process.OUT)
 process.schedule = cms.Schedule(process.p, process.outpath)

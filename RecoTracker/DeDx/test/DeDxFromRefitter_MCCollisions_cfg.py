@@ -19,19 +19,19 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
+process.load("RecoTracker.DeDx.dedxEstimatorsFromRefitter_cff")
 
-process.load("RecoTracker.DeDx.dedxEstimators_cff")
-process.dedxTruncated40.tracks=cms.InputTag("TrackRefitter")
-process.dedxTruncated40.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
-process.dedxHarmonic2.tracks=cms.InputTag("TrackRefitter")
-process.dedxHarmonic2.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
+#process.load("RecoTracker.DeDx.dedxEstimators_cff")
+#process.dedxTruncated40.tracks=cms.InputTag("TrackRefitter")
+#process.dedxTruncated40.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
+#process.dedxHarmonic2.tracks=cms.InputTag("TrackRefitter")
+#process.dedxHarmonic2.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
 
-process.dedxMedian.tracks=cms.InputTag("TrackRefitter")
-process.dedxMedian.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
+#process.dedxMedian.tracks=cms.InputTag("TrackRefitter")
+#process.dedxMedian.trajectoryTrackAssociation = cms.InputTag("TrackRefitter")
 
-#process.load("RecoTracker.DeDx.dedxDiscriminators_cff")
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
-process.TrackRefitter.TrajectoryInEvent = True
+#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+#process.TrackRefitter.TrajectoryInEvent = True
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -74,7 +74,8 @@ process.RE_RECO = cms.OutputModule("PoolOutputModule",
 )
 
 #process.p1 = cms.Path(process.reconstruction * (process.doAlldEdXEstimators + process.doAlldEdXDiscriminators) )
-process.p1 = cms.Path(process.TrackRefitter * process.doAlldEdXEstimators )
+#process.p1 = cms.Path(process.TrackRefitter * process.doAlldEdXEstimators )
+process.p1 = cms.Path( process.doAlldEdXEstimators )
 process.outpath = cms.EndPath(process.RE_RECO)
 process.GlobalTag.globaltag = "IDEAL_V5::All"
 
