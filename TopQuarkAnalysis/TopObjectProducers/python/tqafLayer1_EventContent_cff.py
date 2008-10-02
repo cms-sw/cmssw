@@ -44,11 +44,11 @@ def tqafLayer1EventContent(process):
     )
     process.gen = cms.Path(process.prunedGenParticles)
     
-    patLayer1EventContent_prunedGenParticles = cms.PSet(
+    process.patLayer1EventContent_prunedGenParticles = cms.PSet(
         outputCommands = cms.untracked.vstring('drop *_genParticles_*_*',
                                                'keep *_prunedGenParticles_*_*'
                                                )
     )
-    process.tqafEventContent.outputCommands.extend(patLayer1EventContent_prunedGenParticles.outputCommands)
+    process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent_prunedGenParticles.outputCommands)
         
     return()
