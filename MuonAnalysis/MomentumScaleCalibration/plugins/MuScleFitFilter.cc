@@ -88,7 +88,7 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
 
   // Get the RecTrack and the RecMuon collection from the event
   // ----------------------------------------------------------
-  std::auto_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
+  reco::MuonCollection muons;
 
   if (debug) cout << "Looking for muons of the right kind" << endl;
 
@@ -106,7 +106,7 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
     // --------------
     reco::MuonCollection::const_iterator glbMuon;
     for (glbMuon=glbMuons->begin(); glbMuon!=glbMuons->end(); ++glbMuon) {   
-      muons->push_back(*glbMuon);
+      muons.push_back(*glbMuon);
       if (debug) {    
 	cout << "  Reconstructed muon: pT = " << glbMuon->p4().Pt()
 	     << "  Eta = " << glbMuon->p4().Eta() << endl;
@@ -130,7 +130,7 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
       math::XYZTLorentzVector p4(saMuon->px(), saMuon->py(), saMuon->pz(), energy);
       muon.setP4(p4);
       muon.setCharge(saMuon->charge());
-      muons->push_back(muon);
+      muons.push_back(muon);
     }
   } else if (theMuonType==3) { // Tracker tracks
 
@@ -150,7 +150,7 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
       math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
       muon.setP4(p4);
       muon.setCharge(track->charge());      
-      muons->push_back(muon);
+      muons.push_back(muon);
     }
   } else {
     cout << "Wrong muon type! Aborting." << endl;
@@ -163,7 +163,7 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
   reco::MuonCollection::const_iterator muon2;
   
   bool resfound = false;
-  for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {  
+  for (muon1=muons.begin(); muon1!=muons.end(); ++muon1) {  
 
     if (debug) {
       cout << "  Reconstructed muon: pT = " << muon1->p4().Pt()
@@ -172,8 +172,8 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
 
     // Recombine all the possible Z from reconstructed muons
     // -----------------------------------------------------
-    if (muons->size()>1) { 
-      for (muon2 = muon1+1; muon2!=muons->end(); ++muon2) {  
+    if (muons.size()>1) { 
+      for (muon2 = muon1+1; muon2!=muons.end(); ++muon2) {  
 	if ( ((*muon1).charge()*(*muon2).charge())<0 ) { // This also gets rid of muon1==muon2
 	  //	  reco::Particle::LorentzVector Z (muonCorr1 + muonCorr2);
 	  reco::Particle::LorentzVector Z (muon1->p4()+muon2->p4());
