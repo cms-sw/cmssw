@@ -80,14 +80,21 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
-   // Ref to Candidate object to be recorded in filter object
-   RecoChargedCandidateRef ref;
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    if(saveTag_)filterproduct->addCollectionTag(candTag_);
-
    iEvent.getByLabel (candTag_,mucands);
+   // sort them by L2Track
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
+   uint maxI = mucands->size();
+   for (uint i=0;i!=maxI;i++){
+     TrackRef tk = (*mucands)[i].track();
+     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+     TrackRef staTrack = l3seedRef->l2Track();
+     L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+   }
+
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
    BeamSpot beamSpot;
@@ -96,52 +103,57 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    beamSpot = *recoBeamSpotHandle;
 
 
-   vector<RecoChargedCandidateRef> vl2cands;
-
    //needed to compare to L2
+   vector<RecoChargedCandidateRef> vl2cands;
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
 
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
-   RecoChargedCandidateCollection::const_iterator cand;
-   for (cand=mucands->begin(); cand!=mucands->end(); cand++) {
-      TrackRef tk = cand->get<TrackRef>();
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it = L2toL3s.begin();
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   for (; L2toL3s_it!=L2toL3s_end; ++L2toL3s_it){
 
-      LogDebug("HLTMuonL3PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
+     if (!triggeredByLevel2(L2toL3s_it->first,vl2cands)) continue;
+     
+     //loop over the L3Tk reconstructed for this L2.
+     uint iTk=0;
+     uint maxItk=L2toL3s_it->second.size();
+     for (; iTk!=maxItk; iTk++){
+       
+       RecoChargedCandidateRef & cand=L2toL3s_it->second[iTk];
+       TrackRef tk = cand->track();
 
-      // find the L2 Track corresponding to the L3 Track
-      if(!triggeredByLevel2(tk,vl2cands)) continue;
-      // eta cut
-
-
-      if (fabs(tk->eta())>max_Eta_) continue;
-
-      // cut on number of hits
-      if (tk->numberOfValidHits()<min_Nhits_) continue;
-
-      //dr cut
-      //if (fabs(tk->d0())>max_Dr_) continue;
-      if (fabs(tk->dxy(beamSpot.position()))>max_Dr_) continue;
-
-      //dz cut
-      if (fabs(tk->dz())>max_Dz_) continue;
-
-      // Pt threshold cut
-      double pt = tk->pt();
-      double err0 = tk->error(0);
-      double abspar0 = fabs(tk->parameter(0));
-      double ptLx = pt;
-      // convert 50% efficiency threshold to 90% efficiency threshold
-      if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
-      LogTrace("HLTMuonL3PreFilter") << " ...Muon in loop, pt= "
-            << pt << ", ptLx= " << ptLx;
+       LogDebug("HLTMuonL3PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
+       
+       // eta cut
+       if (fabs(tk->eta())>max_Eta_) continue;
+       
+       // cut on number of hits
+       if (tk->numberOfValidHits()<min_Nhits_) continue;
+       
+       //dr cut
+       //if (fabs(tk->d0())>max_Dr_) continue;
+       if (fabs(tk->dxy(beamSpot.position()))>max_Dr_) continue;
+       
+       //dz cut
+       if (fabs(tk->dz())>max_Dz_) continue;
+       
+       // Pt threshold cut
+       double pt = tk->pt();
+       double err0 = tk->error(0);
+       double abspar0 = fabs(tk->parameter(0));
+       double ptLx = pt;
+       // convert 50% efficiency threshold to 90% efficiency threshold
+       if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
+       LogTrace("HLTMuonL3PreFilter") << " ...Muon in loop, pt= "
+				      << pt << ", ptLx= " << ptLx;
       if (ptLx<min_Pt_) continue;
-
+      
+      filterproduct->addObject(TriggerMuon,cand);
       n++;
-      ref= RecoChargedCandidateRef(Ref<RecoChargedCandidateCollection>
-                     (mucands,distance(mucands->begin(),cand)));
-      filterproduct->addObject(TriggerMuon,ref);
-   }
+      break; // and go on with the next L2 association
+     }
+   }////loop over L2s from L3 grouping
 
    vector<RecoChargedCandidateRef> vref;
    filterproduct->getObjects(TriggerMuon,vref);
@@ -164,11 +176,9 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    return accept;
 }
 bool
-HLTMuonL3PreFilter::triggeredByLevel2(TrackRef& tk,vector<RecoChargedCandidateRef>& vcands)
+HLTMuonL3PreFilter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands)
 {
   bool ok=false;
-  edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
-  TrackRef staTrack = l3seedRef->l2Track();
   for (unsigned int i=0; i<vcands.size(); i++) {
     if ( vcands[i]->get<TrackRef>() == staTrack ) {
       ok=true;

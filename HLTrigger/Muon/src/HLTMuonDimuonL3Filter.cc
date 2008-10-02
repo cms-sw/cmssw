@@ -95,24 +95,29 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<TriggerFilterObjectWithRefs>
      filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
 
-   // Ref to Candidate object to be recorded in filter object
-   RecoChargedCandidateRef ref1;
-   RecoChargedCandidateRef ref2;
-
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    if(saveTag_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
+   // sort them by L2Track
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
+   uint maxI = mucands->size();
+   for (uint i=0;i!=maxI;i++){
+     TrackRef tk = (*mucands)[i].track();
+     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+     TrackRef staTrack = l3seedRef->l2Track();
+     L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+   }
+
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
-
-   vector<RecoChargedCandidateRef> vl2cands;
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
    iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
   
-   // needed to compare to L3
+   // needed to compare to L2
+   vector<RecoChargedCandidateRef> vl2cands;
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
 
    // look at all mucands,  check cuts and add to filter object
@@ -120,146 +125,168 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double e1,e2;
    Particle::LorentzVector p,p1,p2;
 
-   RecoChargedCandidateCollection::const_iterator cand1;
-   RecoChargedCandidateCollection::const_iterator cand2;
-   for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
-      TrackRef tk1 = cand1->get<TrackRef>();
-      // eta cut
-      LogDebug("HLTMuonDimuonL3Filter") << " 1st muon in loop: q*pt= "
-            << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it1 = L2toL3s.begin();
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   bool atLeastOnePair=false;
+   for (; L2toL3s_it1!=L2toL3s_end; ++L2toL3s_it1){
 
-      if(!triggeredByLevel2(tk1,vl2cands)) continue;
- 
-      if (fabs(tk1->eta())>max_Eta_) continue;
+     if (!triggeredByLevel2(L2toL3s_it1->first,vl2cands)) continue;
+     
+     //loop over the L3Tk reconstructed for this L2.
+     uint iTk1=0;
+     uint maxItk1=L2toL3s_it1->second.size();
+     for (; iTk1!=maxItk1; iTk1++){
 
-      // cut on number of hits
-      if (tk1->numberOfValidHits()<min_Nhits_) continue;
+       RecoChargedCandidateRef & cand1=L2toL3s_it1->second[iTk1];
+       TrackRef tk1 = cand1->get<TrackRef>();
+       // eta cut
+       LogDebug("HLTMuonDimuonL3Filter") << " 1st muon in loop: q*pt= "
+					 << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
 
-      //dr cut
-      //      if (fabs(tk1->d0())>max_Dr_) continue;
-      if (fabs(tk1->dxy(beamSpot.position()))>max_Dr_) continue;
-
-      //dz cut
-      if (fabs(tk1->dz())>max_Dz_) continue;
-
-      // Pt threshold cut
-      double pt1 = tk1->pt();
-      double err1 = tk1->error(0);
-      double abspar1 = fabs(tk1->parameter(0));
-      double ptLx1 = pt1;
-      // convert 50% efficiency threshold to 90% efficiency threshold
-      if (abspar1>0) ptLx1 += nsigma_Pt_*err1/abspar1*pt1;
-      LogDebug("HLTMuonDimuonL3Filter") << " ... 1st muon in loop, pt1= "
-            << pt1 << ", ptLx1= " << ptLx1;
-
-      cand2 = cand1; cand2++;
-      for (; cand2!=mucands->end(); cand2++) {
-            TrackRef tk2 = cand2->get<TrackRef>();
-
-            // eta cut
-            LogDebug("HLTMuonDimuonL3Filter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
-            if (fabs(tk2->eta())>max_Eta_) continue;
-            if(!triggeredByLevel2(tk2,vl2cands)) continue;
-
-            // cut on number of hits
-            if (tk2->numberOfValidHits()<min_Nhits_) continue;
-
-            //dr cut
-	    // if (fabs(tk2->d0())>max_Dr_) continue;
-	    if (fabs(tk2->dxy(beamSpot.position()))>max_Dr_) continue;
-
-            //dz cut
-            if (fabs(tk2->dz())>max_Dz_) continue;
-
-            // Pt threshold cut
-            double pt2 = tk2->pt();
-            double err2 = tk2->error(0);
-            double abspar2 = fabs(tk2->parameter(0));
-            double ptLx2 = pt2;
-            // convert 50% efficiency threshold to 90% efficiency threshold
-            if (abspar2>0) ptLx2 += nsigma_Pt_*err2/abspar2*pt2;
-            LogDebug("HLTMuonDimuonL3Filter") << " ... 2nd muon in loop, pt2= "
-                  << pt2 << ", ptLx2= " << ptLx2;
-
-            if (ptLx1>ptLx2) {
-                  if (ptLx1<min_PtMax_) continue;
-                  if (ptLx2<min_PtMin_) continue;
-            } else {
-                  if (ptLx2<min_PtMax_) continue;
-                  if (ptLx1<min_PtMin_) continue;
-            }
-
-            if (chargeOpt_<0) {
-                  if (tk1->charge()*tk2->charge()>0) continue;
-            } else if (chargeOpt_>0) {
-                  if (tk1->charge()*tk2->charge()<0) continue;
-            }
-
-            // Acoplanarity
-            double acop = fabs(tk1->phi()-tk2->phi());
-            if (acop>M_PI) acop = 2*M_PI - acop;
-            acop = M_PI - acop;
-            LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 acop= " << acop;
-            if (acop<min_Acop_) continue;
-            if (acop>max_Acop_) continue;
-
-            // Pt balance
-            double ptbalance = fabs(tk1->pt()-tk2->pt());
-            if (ptbalance<min_PtBalance_) continue;
-            if (ptbalance>max_PtBalance_) continue;
-
-            // Combined dimuon system
-            e1 = sqrt(tk1->momentum().Mag2()+MuMass2);
-            e2 = sqrt(tk2->momentum().Mag2()+MuMass2);
-            p1 = Particle::LorentzVector(tk1->px(),tk1->py(),tk1->pz(),e1);
-            p2 = Particle::LorentzVector(tk2->px(),tk2->py(),tk2->pz(),e2);
-            p = p1+p2;
-
-            double pt12 = p.pt();
-            LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 pt12= " << pt12;
-            if (pt12<min_PtPair_) continue;
-
-            double invmass = abs(p.mass());
-         // if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
-            LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 invmass= " << invmass;
-            if (invmass<min_InvMass_) continue;
-            if (invmass>max_InvMass_) continue;
-
-            // Add this pair
-            n++;
-            LogDebug("HLTMuonDimuonL3Filter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();
-            LogDebug("HLTMuonDimuonL3Filter") << " Track2 passing filter: pt= " << tk2->pt() << ", eta: " << tk2->eta();
-            LogDebug("HLTMuonDimuonL3Filter") << " Invmass= " << invmass;
-
-            bool i1done = false;
-            bool i2done = false;
-            vector<RecoChargedCandidateRef> vref;
-	    filterproduct->getObjects(TriggerMuon,vref);
-            for (unsigned int i=0; i<vref.size(); i++) {
-	      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
-	      TrackRef tktmp = candref->get<TrackRef>();
-	      if (tktmp==tk1) {
-                        i1done = true;
-	      } else if (tktmp==tk2) {
-		i2done = true;
+       if (fabs(tk1->eta())>max_Eta_) continue;
+       
+       // cut on number of hits
+       if (tk1->numberOfValidHits()<min_Nhits_) continue;
+       
+       //dr cut
+       //      if (fabs(tk1->d0())>max_Dr_) continue;
+       if (fabs(tk1->dxy(beamSpot.position()))>max_Dr_) continue;
+       
+       //dz cut
+       if (fabs(tk1->dz())>max_Dz_) continue;
+       
+       // Pt threshold cut
+       double pt1 = tk1->pt();
+       double err1 = tk1->error(0);
+       double abspar1 = fabs(tk1->parameter(0));
+       double ptLx1 = pt1;
+       // convert 50% efficiency threshold to 90% efficiency threshold
+       if (abspar1>0) ptLx1 += nsigma_Pt_*err1/abspar1*pt1;
+       LogDebug("HLTMuonDimuonL3Filter") << " ... 1st muon in loop, pt1= "
+					 << pt1 << ", ptLx1= " << ptLx1;
+       std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it2 = L2toL3s_it1;
+       L2toL3s_it2++;
+       for (; L2toL3s_it2!=L2toL3s_end; ++L2toL3s_it2){
+	 if (!triggeredByLevel2(L2toL3s_it2->first,vl2cands)) continue;
+	 
+	    //loop over the L3Tk reconstructed for this L2.
+	    uint iTk2=0;
+	    uint maxItk2=L2toL3s_it2->second.size();
+	    for (; iTk2!=maxItk2; iTk2++){
+	      RecoChargedCandidateRef & cand2=L2toL3s_it1->second[iTk1];
+	      TrackRef tk2 = cand2->get<TrackRef>();
+	      
+	      // eta cut
+	      LogDebug("HLTMuonDimuonL3Filter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
+	      if (fabs(tk2->eta())>max_Eta_) continue;
+	      if(!triggeredByLevel2(tk2,vl2cands)) continue;
+	      
+	      // cut on number of hits
+	      if (tk2->numberOfValidHits()<min_Nhits_) continue;
+	      
+	      //dr cut
+	      // if (fabs(tk2->d0())>max_Dr_) continue;
+	      if (fabs(tk2->dxy(beamSpot.position()))>max_Dr_) continue;
+	      
+	      //dz cut
+	      if (fabs(tk2->dz())>max_Dz_) continue;
+	      
+	      // Pt threshold cut
+	      double pt2 = tk2->pt();
+	      double err2 = tk2->error(0);
+	      double abspar2 = fabs(tk2->parameter(0));
+	      double ptLx2 = pt2;
+	      // convert 50% efficiency threshold to 90% efficiency threshold
+	      if (abspar2>0) ptLx2 += nsigma_Pt_*err2/abspar2*pt2;
+	      LogDebug("HLTMuonDimuonL3Filter") << " ... 2nd muon in loop, pt2= "
+						<< pt2 << ", ptLx2= " << ptLx2;
+	      
+	      if (ptLx1>ptLx2) {
+		if (ptLx1<min_PtMax_) continue;
+		if (ptLx2<min_PtMin_) continue;
+	      } else {
+		if (ptLx2<min_PtMax_) continue;
+		if (ptLx1<min_PtMin_) continue;
 	      }
-	      if (i1done && i2done) break;
-            }
+	      
+	      if (chargeOpt_<0) {
+		if (tk1->charge()*tk2->charge()>0) continue;
+	      } else if (chargeOpt_>0) {
+		if (tk1->charge()*tk2->charge()<0) continue;
+	      }
+	      
+	      // Acoplanarity
+	      double acop = fabs(tk1->phi()-tk2->phi());
+	      if (acop>M_PI) acop = 2*M_PI - acop;
+	      acop = M_PI - acop;
+	      LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 acop= " << acop;
+	      if (acop<min_Acop_) continue;
+	      if (acop>max_Acop_) continue;
+
+	      // Pt balance
+	      double ptbalance = fabs(tk1->pt()-tk2->pt());
+	      if (ptbalance<min_PtBalance_) continue;
+	      if (ptbalance>max_PtBalance_) continue;
+
+	      // Combined dimuon system
+	      e1 = sqrt(tk1->momentum().Mag2()+MuMass2);
+	      e2 = sqrt(tk2->momentum().Mag2()+MuMass2);
+	      p1 = Particle::LorentzVector(tk1->px(),tk1->py(),tk1->pz(),e1);
+	      p2 = Particle::LorentzVector(tk2->px(),tk2->py(),tk2->pz(),e2);
+	      p = p1+p2;
+	      
+	      double pt12 = p.pt();
+	      LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 pt12= " << pt12;
+	      if (pt12<min_PtPair_) continue;
+	      
+	      double invmass = abs(p.mass());
+	      // if (invmass>0) invmass = sqrt(invmass); else invmass = 0;
+	      LogDebug("HLTMuonDimuonL3Filter") << " ... 1-2 invmass= " << invmass;
+	      if (invmass<min_InvMass_) continue;
+	      if (invmass>max_InvMass_) continue;
+
+	      // Add this pair
+	      n++;
+	      LogDebug("HLTMuonDimuonL3Filter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();
+	      LogDebug("HLTMuonDimuonL3Filter") << " Track2 passing filter: pt= " << tk2->pt() << ", eta: " << tk2->eta();
+	      LogDebug("HLTMuonDimuonL3Filter") << " Invmass= " << invmass;
+
+	      bool i1done = false;
+	      bool i2done = false;
+	      vector<RecoChargedCandidateRef> vref;
+	      filterproduct->getObjects(TriggerMuon,vref);
+	      for (unsigned int i=0; i<vref.size(); i++) {
+		RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
+		TrackRef tktmp = candref->get<TrackRef>();
+		if (tktmp==tk1) {
+		  i1done = true;
+		} else if (tktmp==tk2) {
+		  i2done = true;
+		}
+		if (i1done && i2done) break;
+	      }
 	    
-            if (!i1done) { 
-	      ref1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), cand1)));
-	      filterproduct->addObject(TriggerMuon,ref1);
-            }
-            if (!i2done) { 
-	      ref2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),cand2 )));
-	    filterproduct->addObject(TriggerMuon,ref2);
-            }
-
-            if (fast_Accept_) break;
-      }
-
-   }
-
+	      if (!i1done) { 
+		filterproduct->addObject(TriggerMuon,cand1);
+	      }
+	      if (!i2done) { 
+		filterproduct->addObject(TriggerMuon,cand2);
+	      }
+	      
+	      //break anyway since a L3 track pair has been found matching the criteria
+	      atLeastOnePair=true;
+	      break;
+	    }
+	    //break the loop if fast accept.
+	    if (atLeastOnePair && fast_Accept_) break;
+       }//loop on the second L2
+       //break the loop if fast accept.
+       if (atLeastOnePair && fast_Accept_) break;
+     }//loop on tracks for first L2
+     //break the loop if fast accept.
+     if (atLeastOnePair && fast_Accept_) break;
+   }//loop on the first L2
+   
    // filter decision
    const bool accept (n >= 1);
 
@@ -273,11 +300,9 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 bool
-HLTMuonDimuonL3Filter::triggeredByLevel2(TrackRef& tk,vector<RecoChargedCandidateRef>& vcands)
+HLTMuonDimuonL3Filter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands)
 {
   bool ok=false;
-  edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
-  TrackRef staTrack = l3seedRef->l2Track();
   for (unsigned int i=0; i<vcands.size(); i++) {
     if ( vcands[i]->get<TrackRef>() == staTrack ) {
       ok=true;

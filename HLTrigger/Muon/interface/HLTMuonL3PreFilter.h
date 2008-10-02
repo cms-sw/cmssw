@@ -23,7 +23,7 @@ class HLTMuonL3PreFilter : public HLTFilter {
       explicit HLTMuonL3PreFilter(const edm::ParameterSet&);
       ~HLTMuonL3PreFilter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      bool triggeredByLevel2(reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
+      bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
    private:
 
       edm::InputTag beamspotTag_ ;
