@@ -64,7 +64,7 @@ RunSummaryRead::run()
 
 
 
-RunSummary::Summary 
+RunSummary::RunSummary 
 RunSummaryRead::readData(const std::string & table, const std::string &column, const int r_number)
 {
   m_tableToRead = table; // to be  cms_runinfo.runsession_parameter
@@ -94,32 +94,9 @@ select MAX(lsnumber)   FROM cms_runinfo.hlt_supervisor_lumisections where cms_ru
 select  string_value from cms_runinfo.runsession_parameter   where cms_runinfo.runsession_parameter.runnumber=51770 AND cms_runinfo.runsession_parameter.name LIKE 'CMS.LVL0%' RPC, ECAL,....
   */  
   
-  RunSummary::Summary  sum;
-  RunSummary::Summary temp_sum;
+  RunSummary::RunSummary  sum;
+  RunSummary::RunSummary temp_sum;
   RunSummary Sum; 
- /*
- struct Summary{
-    Summary(){}
-    ~Summary(){}
-    int m_run;
-    // let's think if needed!
-    // long long  m_id_start;
-    //long long  m_id_stop;
-    //std::string m_number;
-    std::string m_name;
-    long long m_start_time_ll;
-    std::string m_start_time_str;
-    long long m_stop_time_ll;
-    std::string m_stop_time_str;
-    int  m_lumisections;
-    std::vector<std::string> m_subdt_joining;
-    std::vector<int> m_subdt_in;
-    std::string m_hltkey;
-    long long m_nevents;
-    float rate;
-    //  enum subdet { PIXEL, TRACKER, ECAL, HCAL, DT, CSC,RPC };  
-  }; 
-  */
 
 
 
@@ -366,13 +343,13 @@ coral::IQuery* queryVIPIXEL = schema.tableHandle( m_tableToRead).newQuery();
   
   if ( cursorVIPIXEL.next()!=0  ) {
     const coral::AttributeList& row = cursorVIPIXEL.currentRow();
-        temp_sum.m_subdt_joining.push_back("PIXEL:" + row[m_columnToRead].data<std::string>());
+    //      temp_sum.m_subdt_joining.push_back("PIXEL:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.PIXEL) ;
       }
-  else{
-    temp_sum.m_subdt_joining.push_back("PIXEL:null");
+   else{
+    //   temp_sum.m_subdt_joining.push_back("PIXEL:null");
     
-  }
+   }
    delete queryVIPIXEL;
 
 coral::IQuery* queryVITRACKER = schema.tableHandle( m_tableToRead).newQuery();  
@@ -385,11 +362,11 @@ coral::IQuery* queryVITRACKER = schema.tableHandle( m_tableToRead).newQuery();
   if ( cursorVITRACKER.next()!=0  ) {
     const coral::AttributeList& row = cursorVITRACKER.currentRow();
     
-    temp_sum.m_subdt_joining.push_back("TRACKER:" + row[m_columnToRead].data<std::string>());
+    //  temp_sum.m_subdt_joining.push_back("TRACKER:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.TRACKER) ;
   }
   else{
-    temp_sum.m_subdt_joining.push_back("TRACKER:null");
+    // temp_sum.m_subdt_joining.push_back("TRACKER:null");
     
   }
    delete queryVITRACKER;
@@ -404,11 +381,11 @@ coral::IQuery* queryVIECAL = schema.tableHandle( m_tableToRead).newQuery();
   if ( cursorVIECAL.next()!=0  ) {
     const coral::AttributeList& row = cursorVIECAL.currentRow();
     
-    temp_sum.m_subdt_joining.push_back("ECAL:" + row[m_columnToRead].data<std::string>());
+    // temp_sum.m_subdt_joining.push_back("ECAL:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.ECAL) ;
   }
   else{
-    temp_sum.m_subdt_joining.push_back("ECAL:null");
+    // temp_sum.m_subdt_joining.push_back("ECAL:null");
     
   }
    delete queryVIECAL;
@@ -423,11 +400,11 @@ coral::IQuery* queryVIHCAL = schema.tableHandle( m_tableToRead).newQuery();
   if ( cursorVIHCAL.next()!=0  ) {
     const coral::AttributeList& row = cursorVIHCAL.currentRow();
     
-    temp_sum.m_subdt_joining.push_back("HCAL:" + row[m_columnToRead].data<std::string>());
+    //temp_sum.m_subdt_joining.push_back("HCAL:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.HCAL) ;
   }
   else{
-    temp_sum.m_subdt_joining.push_back("HCAL:null");
+    // temp_sum.m_subdt_joining.push_back("HCAL:null");
     
   }
    delete queryVIHCAL;
@@ -443,11 +420,11 @@ coral::IQuery* queryVIDT = schema.tableHandle( m_tableToRead).newQuery();
   if ( cursorVIDT.next()!=0  ) {
     const coral::AttributeList& row = cursorVIDT.currentRow();
     
-    temp_sum.m_subdt_joining.push_back("DT:" + row[m_columnToRead].data<std::string>());
+    //  temp_sum.m_subdt_joining.push_back("DT:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.DT) ;
   }
   else{
-    temp_sum.m_subdt_joining.push_back("DT:null");
+    //   temp_sum.m_subdt_joining.push_back("DT:null");
     
   }
    delete queryVIDT;
@@ -462,11 +439,11 @@ coral::IQuery* queryVICSC = schema.tableHandle( m_tableToRead).newQuery();
   if ( cursorVICSC.next()!=0  ) {
     const coral::AttributeList& row = cursorVICSC.currentRow();
     
-    temp_sum.m_subdt_joining.push_back("CSC:" + row[m_columnToRead].data<std::string>());
+    //  temp_sum.m_subdt_joining.push_back("CSC:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.CSC) ;
   }
   else{
-    temp_sum.m_subdt_joining.push_back("CSC:null");
+    //   temp_sum.m_subdt_joining.push_back("CSC:null");
     
   }
    delete queryVICSC;
@@ -481,19 +458,19 @@ coral::IQuery* queryVIRPC = schema.tableHandle( m_tableToRead).newQuery();
   if ( cursorVIRPC.next()!=0  ) {
     const coral::AttributeList& row = cursorVIRPC.currentRow();
     
-    temp_sum.m_subdt_joining.push_back("RPC:" + row[m_columnToRead].data<std::string>());
+    //  temp_sum.m_subdt_joining.push_back("RPC:" + row[m_columnToRead].data<std::string>());
     if (row[m_columnToRead].data<std::string>()=="In") temp_sum.m_subdt_in.push_back(Sum.RPC) ;
   }
   else{
-    temp_sum.m_subdt_joining.push_back("RPC:null");
+    //   temp_sum.m_subdt_joining.push_back("RPC:null");
     
   }
    delete queryVIRPC;
 
  
-   for (size_t pos=0; pos<  temp_sum.m_subdt_joining.size(); ++pos){ 
-     std::cout <<" value for subdetector joined extracted " <<temp_sum.m_subdt_joining[pos] << std::endl;
-     }
+   //  for (size_t pos=0; pos<  temp_sum.m_subdt_joining.size(); ++pos){ 
+   //   std::cout <<" value for subdetector joined extracted " <<temp_sum.m_subdt_joining[pos] << std::endl;
+   //   }
 
    // new query to catch hlt key
    coral::IQuery* queryVII = schema.tableHandle( m_tableToRead).newQuery();
@@ -572,7 +549,7 @@ coral::IQuery* queryVIRPC = schema.tableHandle( m_tableToRead).newQuery();
   
   if ( cursorIX.next()!=0  ) {
     const coral::AttributeList& row = cursorIX.currentRow();
-
+     
     temp_sum.m_rate=(float)row[m_columnToRead].data<double>();
      
    
