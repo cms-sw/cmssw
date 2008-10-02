@@ -24,8 +24,8 @@ TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet){
 
   theTrackTransformer = new TrackTransformer(parameterSet.getParameter<ParameterSet>("TrackTransformer"));
   
-  produces<vector<Trajectory> >();
-  produces<TrajTrackAssociationCollection>();
+  produces<vector<Trajectory> >("Refitted");
+  produces<TrajTrackAssociationCollection>("Refitted");
 }
 
 /// Destructor
@@ -45,7 +45,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   
   // Get the reference
   RefProd<vector<Trajectory> > trajectoryCollectionRefProd 
-    = event.getRefBeforePut<vector<Trajectory> >();
+    = event.getRefBeforePut<vector<Trajectory> >("Refitted");
   
   // Association map between Trajectory and Track
   auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection);
@@ -75,6 +75,6 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
       LogError(metname) << "Error in the Track refitting. This must not happen!";
   }
   LogDebug(metname)<<"Load the Trajectory Collection";
-  event.put(trajectoryCollection);
-  event.put(trajTrackMap);
+  event.put(trajectoryCollection,"Refitted");
+  event.put(trajTrackMap,"Refitted");
 }
