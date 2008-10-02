@@ -25,7 +25,7 @@ from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 #DON#pfConversions.OtherOutInCollection      =           cms.VInputTag(cms.InputTag("softConversionOITracks"))
 #DON#pfConversions.OtherInOutCollection      =           cms.VInputTag(cms.InputTag("softConversionIOTracks"))
 
-#UNCOMMENT THE LINES THAT START WITH #HON# IN ORDER TO ADD CONVERSION FROM PF CLUSTERS
+#UNCOMMENT THE LINES THAT START WITH #HON# IN ORDER TO ADD CONVERSION FROM GENERAL TRACKS
 #HON#from RecoEgamma.EgammaPhotonProducers.trackerOnlyConversionSequence_cff import *
 
 #HON#pfConversions.OtherConversionCollection =cms.VInputTag(cms.InputTag("trackerOnlyConversions"))
