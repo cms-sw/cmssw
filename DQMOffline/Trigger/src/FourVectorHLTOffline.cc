@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.9 2008/08/15 20:17:34 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.11 2008/08/27 16:33:15 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -13,6 +13,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -70,6 +71,8 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
 
+  if (!plotAll_)
+ {
   // this is the list of paths to look at.
   std::vector<edm::ParameterSet> paths = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("paths");
@@ -77,17 +80,11 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
 	pathconf = paths.begin() ; pathconf != paths.end(); 
       pathconf++) {
     std::string pathname = pathconf->getParameter<std::string>("pathname");  
-    edm::InputTag filtername = pathconf->getParameter<edm::InputTag>("filtername");
+    std::string filtername = pathconf->getParameter<std::string>("filtername");
     int objectType = pathconf->getParameter<unsigned int>("type");
     float ptMin = pathconf->getUntrackedParameter<double>("ptMin");
     float ptMax = pathconf->getUntrackedParameter<double>("ptMax");
     hltPaths_.push_back(PathInfo(pathname, filtername, objectType, ptMin, ptMax));
-  }
-  if ( hltPaths_.size() && plotAll_) {
-    // these two ought to be mutually exclusive....
-    LogInfo("FourVectorHLTOffline") << "Using both plotAll and a list. "
-      "list will be ignored." ;
-    hltPaths_.clear();
   }
 
   if (hltPaths_.size() > 0)
@@ -95,6 +92,8 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
       // book a histogram of scalers
      scalersSelect = dbe_->book1D("selectedScalers","Selected Scalers", hltPaths_.size(), 0.0, (double)hltPaths_.size());
     }
+
+ }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = 
@@ -153,30 +152,49 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	v!= hltPaths_.end(); ++v ) 
 { 
   // fill scaler histograms
-           
+      edm::InputTag filterTag = v->getTag();
+      if (plotAll_)
+	{
+	// loop through indices and see if the filter is on the list of filters used by this path
+      
+    if (v->getLabel() == "dummy"){
+        const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+	//loop over labels
+        for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
+	 {
+	   //cout << v->getPath() << "\t" << *labelIter << endl;
+           // last match wins...
+	   edm::InputTag testTag(*labelIter,"","HLT");
+	   //           cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
+           int testindex = triggerObj->filterIndex(testTag);
+           if ( !(testindex >= triggerObj->sizeFilters()) ) {
+	     //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
+            filterTag = testTag; v->setLabel(*labelIter);}
+	 }
+         }
+	}
 
-
-      const int index = triggerObj->filterIndex(v->getTag());
+      const int index = triggerObj->filterIndex(filterTag);
       if ( index >= triggerObj->sizeFilters() ) {
 	//        cout << "WTF no index "<< index << " of that name "
-	//	     << v->getTag().label() << "\t" << v->getTag().instance() << "\t" << v->getTag().process() << endl;
+	//	     << filterTag << endl;
 	continue; // not in this event
       }
       LogDebug("FourVectorHLTOffline") << "filling ... " ;
       const trigger::Keys & k = triggerObj->filterKeys(index);
       const trigger::Vids & idtype = triggerObj->filterIds(index);
       // assume for now the first object type is the same as all objects in the collection
-      // cout << idtype.size() << "\t" << k.size() << endl;
+      //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
       int triggertype = 0;     
       if (idtype.size() > 0) triggertype = *idtype.begin();
-      //      cout << "path " << v->getPath() << "trigger type "<<triggertype << endl;
+      //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
       if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	v->getEtOnHisto()->Fill(toc[*ki].pt());
 	v->getEtaOnHisto()->Fill(toc[*ki].eta());
 	v->getPhiOnHisto()->Fill(toc[*ki].phi());
 	v->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	//  cout << "pdgId "<<toc[*ki].id() << endl;
+	//	  cout << "pdgId "<<toc[*ki].id() << endl;
       // for muon triggers, loop over and fill offline 4-vectors
       if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu)
 	{
@@ -480,11 +498,58 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
   
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
+    }  
+}
 
-    if ( ! plotAll_ ) {
-      for(PathInfoCollection::iterator v = hltPaths_.begin();
+// - method called once each job just after ending the event loop  ------------
+void 
+FourVectorHLTOffline::endJob() 
+{
+   LogInfo("FourVectorHLTOffline") << "analyzed " << nev_ << " events";
+   return;
+}
+
+
+// BeginRun
+void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& c)
+{
+  LogDebug("FourVectorHLTOffline") << "beginRun, run " << run.id();
+// HLT config does not change within runs!
+  std::string process_ = "HLT";
+  if (!hltConfig_.init("HLT")) {
+  LogDebug("FourVectorHLTOffline") << "HLTConfigProvider failed to initialize.";
+    // check if trigger name in (new) config
+    //	cout << "Available TriggerNames are: " << endl;
+	//	hltConfig_.dump("Triggers");
+      }
+
+
+
+  if (1)
+ {
+  DQMStore *dbe = 0;
+  dbe = Service<DQMStore>().operator->();
+  
+  if (dbe) {
+    dbe->setCurrentFolder(dirname_);
+  }
+
+    const unsigned int n(hltConfig_.size());
+    for (unsigned int i=0; i!=n; ++i) {
+      // cout << hltConfig_.triggerName(i) << endl;
+    
+    std::string pathname = hltConfig_.triggerName(i);  
+    std::string filtername("dummy");
+    int objectType = 0;
+    float ptMin = 0.0;
+    float ptMax = 100.0;
+    if (pathname.find("HLT_") != std::string::npos && plotAll_)
+    hltPaths_.push_back(PathInfo(pathname, filtername, objectType, ptMin, ptMax));
+    }
+    // now set up all of the histos for each path
+    for(PathInfoCollection::iterator v = hltPaths_.begin();
 	  v!= hltPaths_.end(); ++v ) {
-	MonitorElement *NOn, *etOn, *etaOn, *phiOn, *etavsphiOn=0;
+    	MonitorElement *NOn, *etOn, *etaOn, *phiOn, *etavsphiOn=0;
 	MonitorElement *etOff, *etaOff, *phiOff, *etavsphiOff=0;
 	MonitorElement *etL1, *etaL1, *phiL1, *etavsphiL1=0;
 	std::string labelname("dummy");
@@ -570,24 +635,14 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 				nBins_,-3.14, 3.14);
 
 	v->setHistos( NOn, etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1);
-      }
+
+
     }
-  }
-}
-
-// - method called once each job just after ending the event loop  ------------
-void 
-FourVectorHLTOffline::endJob() 
-{
-   LogInfo("FourVectorHLTOffline") << "analyzed " << nev_ << " events";
-   return;
-}
+ }
+ return;
 
 
-// BeginRun
-void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  LogDebug("FourVectorHLTOffline") << "beginRun, run " << run.id();
+
 }
 
 /// EndRun
