@@ -1,24 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
-
-    #Sources                                   
-    PVProducer = cms.string('offlinePrimaryVertices'), ## ***
-    PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"), 
-
-    JetPtMin = cms.double(0.0),
-    LeadChargedHadrCand_minPt = cms.double(5.0),
     LeadTrack_minPt = cms.double(5.0),
-
-    ChargedHadrCandLeadChargedHadrCand_tksmaxDZ = cms.double(0.2),
-
-    GammaCand_minPt = cms.double(1.5), ##Increased from 1.0 to recover efficiency lost by Gamma Conversions    
+    PVProducer = cms.string('offlinePrimaryVertices'), ## ***    
 
     ECALSignalConeSizeFormula = cms.string('0.15'), ## **       
-    TrackerSignalConeMetric = cms.string('DR'), ## * 
 
     TrackerIsolConeMetric = cms.string('DR'), ## * 
 
+    TrackerSignalConeMetric = cms.string('DR'), ## * 
 
     ECALSignalConeSize_min = cms.double(0.0),
     MatchingConeMetric = cms.string('DR'), ## * 
@@ -30,7 +20,11 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
 
     TrackerIsolConeSize_min = cms.double(0.0),
     MatchingConeSize_min = cms.double(0.0),
-    
+    GammaCand_minPt = cms.double(1.5), ##Increased from 1.0 to recover efficiency lost by Gamma Conversions    
+
+    #string PVProducer                            = "pixelVertices"      # ***  
+    ElectronPreIDProducer = cms.InputTag("elecpreid"),
+    ChargedHadrCandLeadChargedHadrCand_tksmaxDZ = cms.double(0.2),
     TrackerIsolConeSize_max = cms.double(0.6),
     TrackerSignalConeSize_max = cms.double(0.6),
     HCALIsolConeMetric = cms.string('DR'), ## *  
@@ -41,7 +35,7 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
 
     AreaMetric_recoElements_maxabsEta = cms.double(2.5),
     HCALIsolConeSize_max = cms.double(0.6),
-   
+    Track_IsolAnnulus_minNhits = cms.uint32(3),
     HCALSignalConeMetric = cms.string('DR'), ## *  
 
     # * possible metrics : "DR", "angle", "area";
@@ -52,12 +46,14 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
     # *** a PV is needed for computing a leading (charged hadron PFCand) rec. tk signed transverse impact parameter. 
     # For electron rejection variable
     ElecPreIDLeadTkMatch_maxDR = cms.double(0.01),
-   
+    PFTauTagInfoProducer = cms.InputTag("pfRecoTauTagInfoProducer"),
     ECALIsolConeMetric = cms.string('DR'), ## *  
 
     ECALIsolConeSizeFormula = cms.string('0.50'), ## **         
 
     UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint = cms.bool(True),
+    JetPtMin = cms.double(0.0),
+    LeadChargedHadrCand_minPt = cms.double(5.0),
     ECALSignalConeMetric = cms.string('DR'), ## * 
 
     EcalStripSumE_deltaPhiOverQ_maxValue = cms.double(0.5),
@@ -72,6 +68,7 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
     HCALSignalConeSizeFormula = cms.string('0.10'), ## **       
 
     TrackLeadTrack_maxDZ = cms.double(0.2),
+    ChargedHadrCand_IsolAnnulus_minNhits = cms.uint32(8),
     ChargedHadrCand_minPt = cms.double(1.0),
     UseTrackLeadTrackDZconstraint = cms.bool(True),
     smearedPVsigmaY = cms.double(0.0015),
