@@ -21,6 +21,7 @@
 <use name=Geometry/CaloEventSetup>
 <use name=SimDataFormats/HepMCProduct>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=HLTrigger/HLTcore>
 <use name=mimetic>
 <use name=xdaq>
 <use name=root>
@@ -51,6 +52,7 @@
   <use name=Geometry/CaloEventSetup>
   <use name=SimDataFormats/HepMCProduct>
   <use name=RecoEcal/EgammaCoreTools>
+  <use name=HLTrigger/HLTcore>
   <use name=mimetic>
   <use name=xdaq>
   <use name=root>
