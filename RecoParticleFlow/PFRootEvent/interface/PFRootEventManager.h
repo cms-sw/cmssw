@@ -34,6 +34,8 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -406,6 +408,9 @@ class PFRootEventManager {
   ///Conversions branch
   TBranch*   conversionBranch_; 
 
+  ///V0 branch
+  TBranch*   v0Branch_;
+
 
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
@@ -476,6 +481,9 @@ class PFRootEventManager {
 
   /// conversions
   reco::PFConversionCollection conversion_;
+  
+  /// V0
+  reco::PFV0Collection v0_;
 
   /// true particles
   reco::PFSimParticleCollection trueParticles_;
@@ -642,6 +650,9 @@ class PFRootEventManager {
 
   /// Use of conversions in PFAlgo 
   bool   useConversions_;  
+
+  /// Use of V0 in PFAlgo
+  bool   useV0_;
 
   // MC Truth tools              ---------------------------------------
 

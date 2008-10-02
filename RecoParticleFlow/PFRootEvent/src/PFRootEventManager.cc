@@ -919,6 +919,21 @@ void PFRootEventManager::connect( const char* infilename ) {
   } 
   }
 
+  //V0
+
+  useV0_=false;
+  options_->GetOpt("particle_flow", "useV0", useV0_);
+  if( useV0_ ) {
+    
+    string V0branchname;
+    options_->GetOpt("root","V0_branch",V0branchname); 
+    v0Branch_= tree_->GetBranch(V0branchname.c_str());
+    if(!v0Branch_) { 
+      cerr<<"PFRootEventManager::ReadOptions : V0_branch not found : " 
+	  <<V0branchname<< endl; 
+    } 
+  }
+
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -1031,6 +1046,7 @@ void PFRootEventManager::setAddresses() {
   if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
   if( nuclearBranch_ ) nuclearBranch_->SetAddress(&nuclear_); 
   if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
+  if( v0Branch_ ) v0Branch_->SetAddress(&v0_);
 
   if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
   if( MCTruthBranch_ ) { 
@@ -1100,6 +1116,7 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of muons          : "<<muons_.size()<<endl;
     cout<<"number of nuclear ints   : "<<nuclear_.size()<<endl;
     cout<<"number of conversions    : "<<conversion_.size()<<endl;
+    cout<<"number of v0             : "<<v0_.size()<<endl;
     cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
     cout<<"number of true particles : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
@@ -1257,7 +1274,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(conversionBranch_) {
     conversionBranch_->GetEntry(entry);
   }
-
+  if(v0Branch_) {
+    v0Branch_->GetEntry(entry);
+  }
 
   if(genParticlesforJetsBranch_) {
     genParticlesforJetsBranch_->GetEntry(entry);
@@ -1821,7 +1840,8 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
 							   edm::ProductID(8) );
 
- 
+  edm::OrphanHandle< reco::PFV0Collection > v0( &v0_, 
+						edm::ProductID(9) );
 
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
@@ -1835,7 +1855,7 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( psMask, *clustersPS_ );
   
   pfBlockAlgo_.setInput( trackh, gsftrackh, 
-			 muonh,nuclh,convh,
+			 muonh,nuclh,convh,v0,
 			 ecalh, hcalh, psh,
 			 trackMask,gsftrackMask,
 			 ecalMask, hcalMask, psMask );

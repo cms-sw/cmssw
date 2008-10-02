@@ -12,7 +12,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
@@ -51,6 +52,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagPFConversions_ 
     = iConfig.getParameter<InputTag>("PFConversions");
 
+  inputTagPFV0_ 
+    = iConfig.getParameter<InputTag>("PFV0");
 
   inputTagPFClustersECAL_ 
     = iConfig.getParameter<InputTag>("PFClustersECAL");
@@ -72,6 +75,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   useNuclear_ = iConfig.getParameter<bool>("useNuclear");
 
   useConversions_ = iConfig.getParameter<bool>("useConversions");
+
+  useV0_ = iConfig.getParameter<bool>("useV0");
 
   produces<reco::PFBlockCollection>();
   
@@ -233,7 +238,15 @@ void PFBlockProducer::produce(Event& iEvent,
   }
   
 
-
+  // get V0s
+  Handle< reco::PFV0Collection > pfV0;
+  if( useV0_ ) {
+    found = iEvent.getByLabel(inputTagPFV0_, pfV0);
+    
+    if(!found )
+      LogError("PFBlockProducer")<<" cannot get PFV0 : "
+				 <<inputTagPFV0_<<endl;
+  }
 
 
   
@@ -272,6 +285,7 @@ void PFBlockProducer::produce(Event& iEvent,
 			 recMuons, 
                          pfNuclears,
                          pfConversions,
+			 pfV0,
 			 clustersECAL,
 			 clustersHCAL,
 			 clustersPS );

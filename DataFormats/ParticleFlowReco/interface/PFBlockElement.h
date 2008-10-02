@@ -8,6 +8,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
 
 #include <iostream>
 
@@ -44,7 +46,8 @@ namespace reco {
       T_FROM_NUCL,
       T_TO_NUCL,
       T_FROM_GAMMACONV,
-      MUON
+      MUON,
+      T_FROM_V0
     };
 
     /// standard constructor
@@ -96,12 +99,18 @@ namespace reco {
     virtual NuclearInteractionRef nuclearRef() const { return NuclearInteractionRef(); }
     virtual ConversionRef    convRef() const { return ConversionRef();}
     virtual MuonRef muonRef() const { return MuonRef(); }
+    virtual VertexCompositeCandidateRef V0Ref()  const { return VertexCompositeCandidateRef(); }
     virtual void setNuclearRef(const NuclearInteractionRef& niref, TrackType trType) { 
       std::cout << "Error in PFBlockElement::setNuclearRef : this base class method is not implemented" << std::endl;}
     virtual void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
       std::cout << "Error in PFBlockElement::setConversionRef : this base class method is not implemented" << std::endl;}
     virtual void setMuonRef(const MuonRef& muref) { 
       std::cout << "Error in PFBlockElement::setMuonRef : this base class method is not implemented" << std::endl;}
+    virtual void setV0Ref(const VertexCompositeCandidateRef& v0ref,TrackType trType) { 
+      
+      std::cout << "Error in PFBlockElement::setV0Ref : this base class method is not implemented" << std::endl;
+    }
+
 
     virtual bool isSecondary() const { return false; }
 
@@ -121,6 +130,7 @@ namespace reco {
     
     /// index in block vector 
     unsigned   index_;
+
 
   };
 }

@@ -54,6 +54,7 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagPFClustersHCAL_;
   edm::InputTag   inputTagPFClustersPS_;
   edm::InputTag   inputTagPFConversions_;
+  edm::InputTag   inputTagPFV0_;
 
   /// verbose ?
   bool   verbose_;
@@ -65,6 +66,8 @@ class PFBlockProducer : public edm::EDProducer {
   /// switch on/off Conversions
   bool  useConversions_;  
   
+  /// switch on/off V0
+  bool useV0_;
 
   /// Particle flow block algorithm 
   PFBlockAlgo            pfBlockAlgo_;

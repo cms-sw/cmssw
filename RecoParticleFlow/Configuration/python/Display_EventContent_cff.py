@@ -28,6 +28,8 @@ DisplayEventContent = cms.PSet(
         'keep recoPFConversions_*_*_*',
         'keep recoMuons_*_*_*',
         'keep recoNuclearInteractions_*_*_*',       
+	'keep *_generalV0Candidates_*_*',
+        'keep recoPFV0s_*_*_*',                      
         'keep *_pfNuclear_*_*'                              
                                            
                                            )

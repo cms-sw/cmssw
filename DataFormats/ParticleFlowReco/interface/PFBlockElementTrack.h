@@ -85,6 +85,13 @@ namespace reco {
       convRef_ = convRef; setTrackType(trType,true); 
     } 
 
+    /// \return ref to original V0
+    VertexCompositeCandidateRef V0Ref() const {return v0Ref_;} 
+
+    /// \set the ref to  V0
+    void setV0Ref(const VertexCompositeCandidateRef& V0Ref, TrackType trType) { 
+      v0Ref_ = V0Ref; setTrackType(trType,true); 
+    } 
 
 
     
@@ -108,7 +115,10 @@ namespace reco {
     reco::MuonRef muonRef_;
 
     /// reference to reco conversion
-    ConversionRef convRef_;        
+    ConversionRef convRef_;      
+
+    /// reference to V0
+    VertexCompositeCandidateRef v0Ref_;
   };
 }
 

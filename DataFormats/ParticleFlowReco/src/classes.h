@@ -35,7 +35,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
 namespace { 
   namespace {
@@ -94,6 +94,15 @@ namespace {
     edm::RefProd<reco::PFConversionCollection> dummy30;
     edm::Wrapper<edm::RefVector<reco::PFConversionCollection> > dummy31; 
     std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > > dummy32;
+
+    /* V0 stuffs  */
+    reco::PFV0                                dummy33;
+    std::vector<reco::PFV0>                   dummy34;
+    edm::Wrapper<std::vector<reco::PFV0> >    dummy35;
+    edm::Ref<std::vector<reco::PFV0> >        dummy36;
+    edm::RefProd<std::vector<reco::PFV0> >    dummy37;
+    edm::RefVector<std::vector<reco::PFV0> >  dummy38;
+    edm::Ref<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate> > dummy39;
 
 
   }

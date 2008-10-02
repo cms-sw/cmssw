@@ -5,6 +5,7 @@ from RecoParticleFlow.PFTracking.gsfSeedClean_cfi import *
 from TrackingTools.GsfTracking.CkfElectronCandidates_cff import *
 from TrackingTools.GsfTracking.GsfElectrons_cff import *
 from RecoParticleFlow.PFTracking.pfNuclear_cfi import *
+from RecoParticleFlow.PFTracking.pfV0_cfi import *
 from RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff import *
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 gsfElCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
@@ -13,6 +14,7 @@ gsfPFtracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 particleFlowTrack = cms.Sequence(elecPreId*gsfSeedclean*gsfElCandidates*gsfPFtracks*pfTrackElec)
 particleFlowTrackWithNuclear = cms.Sequence(elecPreId*gsfSeedclean*gsfElCandidates*gsfPFtracks*pfTrackElec*pfNuclear)
+particleFlowTrackWithV0 = cms.Sequence(elecPreId*gsfSeedclean*gsfElCandidates*gsfPFtracks*pfTrackElec*pfV0)
 gsfElCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectronsinJets'
 gsfElCandidates.SeedProducer = 'gsfSeedclean'
 gsfElCandidates.SeedLabel = ''

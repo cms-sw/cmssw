@@ -109,8 +109,13 @@
   <class name="edm::RefVector<std::vector<reco::PFConversion>,reco::PFConversion,edm::refhelper::FindUsingAdvance<std::vector<reco::PFConversion>,reco::PFConversion> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > >"/>
 
-
-
+ <class name="reco::PFV0" />
+  <class name="std::vector<reco::PFV0>" />
+  <class name="edm::Wrapper<std::vector<reco::PFV0> >" />
+  <class name="edm::Ref<std::vector<reco::PFV0>, reco::PFV0, edm::refhelper::FindUsingAdvance<std::vector<reco::PFV0>, reco::PFV0> >" />
+  <class name="edm::RefProd<std::vector<reco::PFV0> >" />
+  <class name="edm::RefVector<std::vector<reco::PFV0>, reco::PFV0, edm::refhelper::FindUsingAdvance<std::vector<reco::PFV0>, reco::PFV0> >" />
+<class name="edm::Ref<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate> >" />
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">

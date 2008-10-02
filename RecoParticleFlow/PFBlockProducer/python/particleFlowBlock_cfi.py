@@ -15,7 +15,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     pf_chi2_ECAL_HCAL = cms.double(10.0),
     pf_chi2_PSH_PSV = cms.double(5.0),
     pf_chi2_ECAL_PS = cms.double(100.0),
-
+    pf_chi2_ECAL_GSF = cms.double(900.0),
     pf_multilink = cms.bool(True),
 
     # verbosity 
@@ -41,6 +41,10 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # input conversions
     PFConversions = cms.InputTag("pfConversions"),
     useConversions = cms.bool(False),
+
+    # input V0
+    PFV0 = cms.InputTag("pfV0"),
+    useV0 = cms.bool(False),
 
     # Track Quality Cut: Tracks are kept if DPt/Pt < Cut
     pf_DPtoverPt_Cut = cms.double(999.9),
