@@ -26,7 +26,6 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
    private:
       edm::InputTag beamspotTag_ ;
       edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag linksTag_;  // input tag identifying product contains muons
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair

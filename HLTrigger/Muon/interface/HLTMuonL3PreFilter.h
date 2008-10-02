@@ -28,7 +28,6 @@ class HLTMuonL3PreFilter : public HLTFilter {
 
       edm::InputTag beamspotTag_ ;
       edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag linksTag_;  // input tag identifying product contains muons
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       int    min_N_;            // minimum number of muons to fire the trigger
       double max_Eta_;          // Eta cut
