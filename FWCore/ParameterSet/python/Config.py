@@ -471,13 +471,12 @@ class Process(object):
         iterCount = 0
         while resolvedDependencies:
             iterCount += 1
-            if iterCount > 1000:
-                raise RuntimeError("circular sequence dependency discovered \n"+
-                                   ",".join([label for label,junk in dependencies.iteritems()]))
             resolvedDependencies = (0 != len(dependencies))
             oldDeps = dict(dependencies)
             for label,(seq,deps) in oldDeps.iteritems():
-                if len(deps)==0:
+                # don't try too hard
+                if len(deps)==0 or iterCount > 100:
+                    iterCount = 0
                     resolvedDependencies=True
                     returnValue[label]=seq
                     #remove this as a dependency for all other sequences
@@ -583,15 +582,15 @@ class Process(object):
         p.addVString(True, "@trigger_paths", triggerPaths)
         processPSet.addPSet(False, "@trigger_paths", p)
         # add all these paths
-        pathValidator = PathValidator()
-        endpathValidator = EndPathValidator()
+        #pathValidator = PathValidator()
+        #endpathValidator = EndPathValidator()
         for triggername in triggerPaths:
             #self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
-            self.paths_()[triggername].visit(pathValidator)
+            #self.paths_()[triggername].visit(pathValidator)
             self.paths_()[triggername].insertInto(processPSet, triggername, self.__dict__)
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
-            self.endpaths_()[endpathname].visit(endpathValidator)
+            #self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         # all the placeholders should be resolved now, so...
         #if self.schedule_() != None:
