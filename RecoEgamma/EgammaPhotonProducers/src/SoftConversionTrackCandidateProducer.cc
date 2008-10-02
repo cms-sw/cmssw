@@ -34,6 +34,25 @@
 // Class header file
 #include "RecoEgamma/EgammaPhotonProducers/interface/SoftConversionTrackCandidateProducer.h"
 
+bool IsGoodSeed(const TrajectorySeedCollection& seeds, const TrajectorySeed& seed){
+
+  // This function is not satisfactory. I don't know how to check equality of TrajectorySeed
+  // So I compare all possible quantities in them.
+  // This function can be dropped when I find to check equality of TrajectorySeed.
+
+  bool found = false;
+  for(TrajectorySeedCollection::const_iterator it = seeds.begin(); it != seeds.end(); it++){
+    if(it->nHits() != seed.nHits()) continue;
+    if(it->startingState().detId() != seed.startingState().detId()) continue;
+    if(it->startingState().surfaceSide() != seed.startingState().surfaceSide()) continue;
+    if((it->startingState().parameters().position() - seed.startingState().parameters().position()).mag() > 1.0e-6) continue;
+    if((it->startingState().parameters().momentum() - seed.startingState().parameters().momentum()).mag() > 1.0e-6) continue;
+    found = true;
+    break;
+  }
+
+  return found;
+}
 
 SoftConversionTrackCandidateProducer::SoftConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   conf_(config), 
@@ -180,39 +199,38 @@ void SoftConversionTrackCandidateProducer::buildCollections(const edm::Handle<ed
 							    std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
 							    std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO) {
 
+  // temporary collection
+  TrackCandidateCollection tempTCC;
+  TrajectorySeedCollection totalOISeeds; // total number of out-in trajectory seeds through entire cluster collection loop
+  TrajectorySeedCollection totalIOSeeds; // total number of in-out trajectory seeds through entire cluster collection loop
+
   int nClusters = (int) clusterHandle->size();
 
-  //  std::cout << " SoftConversionTrackCandidateProduce cluster size " << nClusters << std::endl;
+  // first loop to fill totalOISeeds and totalIOSeeds
+
   for(int iCluster=0; iCluster<nClusters; iCluster++){
     reco::CaloClusterPtr clusterRefOutIn = clusterHandle->ptrAt(iCluster);
     math::XYZPoint position = clusterRefOutIn->position();
     GlobalPoint gp(position.x(),position.y(),position.z());
-
-    if ( clusterRefOutIn->energy()/cosh(clusterRefOutIn->eta() ) < 1.5 ) continue;
-
     theOutInSeedFinder_->setCandidate(clusterRefOutIn->energy(),gp);
     theOutInSeedFinder_->makeSeeds(clusterRefOutIn);
 
-    //    std::cout << " SoftConversionTrackCandidateProducer::buildCollections OI seed size " << theOutInSeedFinder_->seeds().size() << std::endl;
 
-    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(), outInTrackCandidates);
+    TrajectorySeedCollection oISeeds = theOutInSeedFinder_->seeds();
+    for(TrajectorySeedCollection::const_iterator it = oISeeds.begin(); it != oISeeds.end(); it++){
+      totalOISeeds.push_back(*it);
+    }
 
-    //    std::cout << " SoftConversionTrackCandidateProducer::buildCollections OI track size " << theOutInTracks.size() << std::endl;
-
-    int nOITrj = (int) theOutInTracks.size();
-    for(int itrj=0; itrj < nOITrj; itrj++) vecRecOI.push_back( clusterRefOutIn );
+    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(oISeeds, tempTCC);
+    tempTCC.clear();
 
     for(int jCluster=iCluster; jCluster<nClusters; jCluster++){
       reco::CaloClusterPtr clusterRefInOut = clusterHandle->ptrAt(jCluster);
 
-      if ( clusterRefInOut->energy()/cosh(clusterRefInOut->eta() ) < 1.5 ) continue;
-
-
       math::XYZPoint position2 = clusterRefInOut->position();
       GlobalPoint gp2(position2.x(),position2.y(),position2.z());
       double dEta = std::abs(position.Eta() - position2.Eta());
-      if(dEta > 0.05) continue;
-      //if(dEta > 0.2) continue;
+      if(dEta > 0.1) continue;
 
       double dPhi = std::abs(ROOT::Math::VectorUtil::DeltaPhi(position, position2));
       if(dPhi > 0.5) continue;
@@ -221,17 +239,92 @@ void SoftConversionTrackCandidateProducer::buildCollections(const edm::Handle<ed
       theInOutSeedFinder_->setTracks(theOutInTracks);   
       theInOutSeedFinder_->makeSeeds(clusterHandle);
 
-      //      std::cout << " SoftConversionTrackCandidateProducer::buildCollections IO seed size " << theInOutSeedFinder_->seeds().size() << std::endl;
-    
-      std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(), inOutTrackCandidates); 
+      TrajectorySeedCollection iOSeeds = theInOutSeedFinder_->seeds();
 
-      //      std::cout << " SoftConversionTrackCandidateProducer::buildCollections IO track size " << theInOutTracks.size() << std::endl;
+      for(TrajectorySeedCollection::const_iterator it = iOSeeds.begin(); it != iOSeeds.end(); it++){
+	totalIOSeeds.push_back(*it);
+      }
+    
+    }// for jCluster
+  }// for iCluster
+
+
+  // Now we have total OI/IO seeds. Let's clean them up and save them with only giving good trajectories
+  TrajectorySeedCollection oIFilteredSeeds;
+  TrajectorySeedCollection iOFilteredSeeds;
+
+  tempTCC.clear();
+  std::vector<Trajectory> tempTrj = theOutInTrackFinder_->tracks(totalOISeeds,tempTCC);
+  for(std::vector<Trajectory>::iterator it = tempTrj.begin(); it!= tempTrj.end(); it++){
+    oIFilteredSeeds.push_back(it->seed());
+  }
+
+  tempTrj.clear();
+  tempTCC.clear();
+  tempTrj = theInOutTrackFinder_->tracks(totalIOSeeds,tempTCC);
+  for(std::vector<Trajectory>::iterator it = tempTrj.begin(); it!= tempTrj.end(); it++){
+    iOFilteredSeeds.push_back(it->seed());
+  }
+
+  tempTCC.clear();
+  tempTrj.clear();
+  totalOISeeds.clear();
+  totalIOSeeds.clear();
+
+
+  // Now start normal procedure and consider seeds that belong to filtered ones.
+
+  for(int iCluster=0; iCluster<nClusters; iCluster++){
+    reco::CaloClusterPtr clusterRefOutIn = clusterHandle->ptrAt(iCluster);
+    math::XYZPoint position = clusterRefOutIn->position();
+    GlobalPoint gp(position.x(),position.y(),position.z());
+    theOutInSeedFinder_->setCandidate(clusterRefOutIn->energy(),gp);
+    theOutInSeedFinder_->makeSeeds(clusterRefOutIn);
+
+    TrajectorySeedCollection oISeeds_all = theOutInSeedFinder_->seeds();
+    TrajectorySeedCollection oISeeds;
+    for(TrajectorySeedCollection::iterator it = oISeeds_all.begin(); it != oISeeds_all.end(); it++){
+      if(IsGoodSeed(oIFilteredSeeds,*it)) oISeeds.push_back(*it);
+    }
+
+    if(oISeeds.size() == 0) continue;
+
+    std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(oISeeds, outInTrackCandidates);
+
+    int nOITrj = (int) theOutInTracks.size();
+    for(int itrj=0; itrj < nOITrj; itrj++) vecRecOI.push_back( clusterRefOutIn );
+
+    for(int jCluster=iCluster; jCluster<nClusters; jCluster++){
+      reco::CaloClusterPtr clusterRefInOut = clusterHandle->ptrAt(jCluster);
+
+      math::XYZPoint position2 = clusterRefInOut->position();
+      GlobalPoint gp2(position2.x(),position2.y(),position2.z());
+      double dEta = std::abs(position.Eta() - position2.Eta());
+      if(dEta > 0.1) continue;
+
+      double dPhi = std::abs(ROOT::Math::VectorUtil::DeltaPhi(position, position2));
+      if(dPhi > 0.5) continue;
+
+      theInOutSeedFinder_->setCandidate(clusterRefInOut->energy(),gp2);
+      theInOutSeedFinder_->setTracks(theOutInTracks);   
+      theInOutSeedFinder_->makeSeeds(clusterHandle);
+    
+      TrajectorySeedCollection iOSeeds_all = theInOutSeedFinder_->seeds();
+      TrajectorySeedCollection iOSeeds;
+      for(TrajectorySeedCollection::iterator it = iOSeeds_all.begin(); it != iOSeeds_all.end(); it++){
+	if(IsGoodSeed(iOFilteredSeeds,*it)) iOSeeds.push_back(*it);
+      }
+
+      if(iOSeeds.size() == 0) continue;
+
+      std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(iOSeeds, inOutTrackCandidates); 
 
       int nIOTrj = (int) theInOutTracks.size();
       for(int itrj=0; itrj < nIOTrj; itrj++) vecRecIO.push_back( clusterRefInOut );
 
     }// for jCluster
   }// for iCluster
+
 
 }
 
