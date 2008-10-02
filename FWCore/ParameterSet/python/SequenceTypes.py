@@ -95,6 +95,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def dumpPython(self, options):
         return 'cms.'+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
+    def dumpSequencePython(self):
+        # only dump the label, if possible
+        if self.label_() != None:
+            return _Labelable.dumpSequencePython(self)
+        else:
+            # dump it verbose
+            return self._seq.dumpSequencePython()
     def __repr__(self):
         return "cms."+type(self).__name__+'('+str(self._seq)+')\n'
     def copy(self):
