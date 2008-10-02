@@ -35,7 +35,7 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   resultExtended.setPFGammaCands(TauTagTools::filteredPFGammaCands(thePFCands,GammaCand_EcalclusminE_));
   
   TrackRefVector theFilteredTracks;
-  if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkminPixelHitsn_,tkminTrackerHitsn_,tkmaxipt_,tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_,thePV, thePV.z());
+  if (UsePVconstraint_) theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkmaxipt_,ChargedHadrCand_tkPVmaxDZ_,thePV, thePV.z());
   else theFilteredTracks=TauTagTools::filteredTracks(theTracks,tkminPt_,tkmaxipt_,thePV);
   resultExtended.setTracks(theFilteredTracks);
 
