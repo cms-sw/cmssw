@@ -3,6 +3,7 @@
 PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
   // parameters of the considered charged hadr. PFCandidates, based on their rec. tk properties :
   ChargedHadronsAssociationCone_      = parameters.getParameter<double>("ChargedHadrCand_AssociationCone");
+
   ChargedHadrCand_tkminPt_            = parameters.getParameter<double>("ChargedHadrCand_tkminPt");
   ChargedHadrCand_tkmaxipt_           = parameters.getParameter<double>("ChargedHadrCand_tkmaxipt");
     // parameters of the considered neutral hadr. PFCandidates, based on their rec. HCAL clus. properties : 

@@ -5,6 +5,7 @@ CaloRecoTauTagInfoProducer::CaloRecoTauTagInfoProducer(const ParameterSet& iConf
   PVProducer_                    = iConfig.getParameter<string>("PVProducer");
   CaloRecoTauTagInfoAlgo_=new CaloRecoTauTagInfoAlgorithm(iConfig);
   produces<CaloTauTagInfoCollection>();      
+
 }
 CaloRecoTauTagInfoProducer::~CaloRecoTauTagInfoProducer(){
   delete CaloRecoTauTagInfoAlgo_;

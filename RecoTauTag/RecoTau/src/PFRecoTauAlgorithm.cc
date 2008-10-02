@@ -3,6 +3,7 @@
 PFRecoTauAlgorithm::PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
 PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
   LeadChargedHadrCand_minPt_          = iConfig.getParameter<double>("LeadChargedHadrCand_minPt"); 
+
   ChargedHadrCand_minPt_              = iConfig.getParameter<double>("ChargedHadrCand_minPt");
   UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ = iConfig.getParameter<bool>("UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint");
   ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_ = iConfig.getParameter<double>("ChargedHadrCandLeadChargedHadrCand_tksmaxDZ");

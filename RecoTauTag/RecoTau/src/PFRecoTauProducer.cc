@@ -1,7 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauProducer.h"
 
 PFRecoTauProducer::PFRecoTauProducer(const ParameterSet& iConfig){
-  PFTauTagInfoProducer_   = iConfig.getParameter<InputTag>("PFTauTagInfoProducer");
+   PFTauTagInfoProducer_   = iConfig.getParameter<InputTag>("PFTauTagInfoProducer");
   ElectronPreIDProducer_  = iConfig.getParameter<InputTag>("ElectronPreIDProducer");
   PVProducer_             = iConfig.getParameter<string>("PVProducer");
   smearedPVsigmaX_        = iConfig.getParameter<double>("smearedPVsigmaX");
