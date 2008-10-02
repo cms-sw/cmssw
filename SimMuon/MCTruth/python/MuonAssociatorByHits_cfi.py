@@ -1,20 +1,73 @@
 import FWCore.ParameterSet.Config as cms
 
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
-    RPCdigisimlinkTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
-    EfficiencyCut_track = cms.double(0.5),
-    UseSplitting = cms.bool(True),
-    DTdigiTag = cms.InputTag("simMuonDTDigis"),
-    associatorByWire = cms.bool(False),
-    EfficiencyCut_muon = cms.double(0.5),
-    ThreeHitTracksAreSpecial = cms.bool(True),
-    #    InputTag tracksTag = standAloneMuons:UpdatedAtVtx
-    #    InputTag tracksTag = globalMuons
-    # ... TrackingParticle collection 
+    # for Muon Track association
+    #
+    #     input collections
+    #
+    # ... reco::Track collection
+    tracksTag = cms.InputTag("standAloneMuons"),
+    # tracksTag = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
+    # tracksTag = cms.InputTag("globalMuons"),
+    # tracksTag = cms.InputTag("generalTracks"),
+    #
+    # ... TrackingParticle collection
     tpTag = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    dumpDT = cms.bool(False),
+    #
+    dumpInputCollections = cms.bool(False),
+    #
+    #....... general input parameters
+    #
+    AbsoluteNumberOfHits_track = cms.bool(False),
+    MinHitCut_track = cms.uint32(1),
+    AbsoluteNumberOfHits_muon = cms.bool(False),
+    MinHitCut_muon = cms.uint32(1),
+    #
+    PurityCut_track = cms.double(0.5),
+    PurityCut_muon = cms.double(0.5),
+    #
+    SimToReco_useTracker = cms.bool(False),
+    EfficiencyCut_track = cms.double(0.5),
+    #
+    SimToReco_useMuon = cms.bool(True),
+    EfficiencyCut_muon = cms.double(0.5),
+    #
+    #........(for inner tracker stub of Global Muons)...
+    UsePixels = cms.bool(True),
+    UseGrouped = cms.bool(True),
+    UseSplitting = cms.bool(True),
+    ThreeHitTracksAreSpecial = cms.bool(True),
+    #
     # for DT Hit associator
     crossingframe = cms.bool(True),
+    simtracksTag = cms.InputTag("g4SimHits"),
+    simtracksXFTag = cms.InputTag("mix","g4SimHits"),
+    #
+    DTsimhitsTag = cms.InputTag("g4SimHits","MuonDTHits"),
+    DTsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonDTHits"),
+    DTdigiTag = cms.InputTag("simMuonDTDigis"),
+    DTdigisimlinkTag = cms.InputTag("simMuonDTDigis"),
+    DTrechitTag = cms.InputTag("dt1DRecHits"),
+    #
+    dumpDT = cms.bool(False),
+    links_exist = cms.bool(True),
+    associatorByWire = cms.bool(False),
+    #
+    # for CSC Hit associator
+    CSCsimHitsXFTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"),
+    CSClinksTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
+    CSCwireLinksTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
+    #
+    # for RPC Hit associator
+    RPCsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonRPCHits"),
+    RPCdigisimlinkTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
+    #
+    # for Tracker Hit associator
+    #
+    associatePixel = cms.bool(True),
+    associateStrip = cms.bool(True),
+    associateRecoTracks = cms.bool(True),
+    #                                
     ROUList = cms.vstring('TrackerHitsTIBLowTof', 
         'TrackerHitsTIBHighTof', 
         'TrackerHitsTIDLowTof', 
@@ -26,43 +79,7 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
         'TrackerHitsPixelBarrelLowTof', 
         'TrackerHitsPixelBarrelHighTof', 
         'TrackerHitsPixelEndcapLowTof', 
-        'TrackerHitsPixelEndcapHighTof'),
-    UseGrouped = cms.bool(True),
-    #....... general input parameters
-    #
-    AbsoluteNumberOfHits_track = cms.bool(False),
-    dumpInputCollections = cms.bool(False),
-    DTdigisimlinkTag = cms.InputTag("simMuonDTDigis"),
-    PurityCut_track = cms.double(0.5),
-    MinHitCut_muon = cms.uint32(1),
-    CSCwireLinksTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
-    # for CSC Hit associator
-    CSCsimHitsXFTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"),
-    DTsimhitsTag = cms.InputTag("g4SimHits","MuonDTHits"),
-    MinHitCut_track = cms.uint32(1),
-    simtracksTag = cms.InputTag("g4SimHits"),
-    CSClinksTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
-    # for Tracker Hit associator
-    #
-    associatePixel = cms.bool(True),
-    SimToReco_useTracker = cms.bool(False),
-    simtracksXFTag = cms.InputTag("mix","g4SimHits"),
-    associateStrip = cms.bool(True),
-    DTrechitTag = cms.InputTag("dt1DRecHits"),
-    # for RPC Hit associator
-    RPCsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonRPCHits"),
-    SimToReco_useMuon = cms.bool(True),
-    associateRecoTracks = cms.bool(True),
-    # for Muon Track association
-    #   input collections
-    # ... reco::Track collection 
-    tracksTag = cms.InputTag("standAloneMuons"),
-    #........(for inner tracker stub of Global Muons)...
-    UsePixels = cms.bool(True),
-    AbsoluteNumberOfHits_muon = cms.bool(False),
-    links_exist = cms.bool(True),
-    DTsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonDTHits"),
-    PurityCut_muon = cms.double(0.5)
+        'TrackerHitsPixelEndcapHighTof')
 )
 
 
