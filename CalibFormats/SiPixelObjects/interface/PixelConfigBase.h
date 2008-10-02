@@ -55,6 +55,18 @@ namespace pos{
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
     virtual void writeXML(                                                              std::ofstream *out) const {;}
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, 
+				int version, 
+				std::string path, 
+				std::ofstream *out,
+				std::ofstream *out1,
+				std::ofstream *out2) const {;}
+    virtual void writeXML( std::ofstream *out,
+			   std::ofstream *out1,
+			   std::ofstream *out2 ) const {;}
+    virtual void writeXMLTrailer( std::ofstream *out,
+				  std::ofstream *ou1, 
+				  std::ofstream *out2) const {;}
     
   private:
 
