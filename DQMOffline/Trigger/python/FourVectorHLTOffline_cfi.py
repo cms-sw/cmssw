@@ -1,50 +1,50 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.5 2008/08/18 22:01:02 berryhil Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.6 2008/08/27 16:33:15 berryhil Exp $
 hltResults = cms.EDFilter("FourVectorHLTOffline",
-    plotAll = cms.untracked.bool(False),
+    plotAll = cms.untracked.bool(True),
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
     paths = cms.VPSet(
 # single jet triggers
              cms.PSet(
               pathname = cms.string("HLTJet30"),
-              filtername = cms.InputTag("hlt1jet30","","HLT"),
+              filtername = cms.string("hlt1jet30"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLTJet50"),
-              filtername = cms.InputTag("hlt1jet50","","HLT"),
+              filtername = cms.string("hlt1jet50"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLTJet80"),
-              filtername = cms.InputTag("hlt1jet80","","HLT"),
+              filtername = cms.string("hlt1jet80"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLTJet110"),
-              filtername = cms.InputTag("hlt1jet110","","HLT"),
+              filtername = cms.string("hlt1jet110"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLTJet180"),
-              filtername = cms.InputTag("hlt1jet180regional","","HLT"),
+              filtername = cms.string("hlt1jet180regional"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLTJet250"),
-              filtername = cms.InputTag("hlt1jet250","","HLT"),
+              filtername = cms.string("hlt1jet250"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(200.0)
@@ -52,35 +52,35 @@ hltResults = cms.EDFilter("FourVectorHLTOffline",
 #single electron triggers
              cms.PSet(
               pathname = cms.string("HLT_IsoEle15_L1I"),
-              filtername = cms.InputTag("hltL1IsoSingleElectronTrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1IsoSingleElectronTrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_IsoEle18_L1R"),
-              filtername = cms.InputTag("hltL1NonIsoSingleElectronTrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1NonIsoSingleElectronTrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_IsoEle18_L1R"),
-              filtername = cms.InputTag("hltL1NonIsoSingleElectronTrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1NonIsoSingleElectronTrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_EM80"),
-              filtername = cms.InputTag("hltL1NonIsoSingleEMHighEtTrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1NonIsoSingleEMHighEtTrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_EM200"),
-              filtername = cms.InputTag("hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter","","HLT"),
+              filtername = cms.string("hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
@@ -88,21 +88,21 @@ hltResults = cms.EDFilter("FourVectorHLTOffline",
 #photon triggers
              cms.PSet(
               pathname = cms.string("HLT_IsoPhoton30_L1I"),
-              filtername = cms.InputTag("hltL1IsoSinglePhotonTrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1IsoSinglePhotonTrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_IsoPhoton10_L1R"),
-              filtername = cms.InputTag("hltL1NonIsoSinglePhotonEt10TrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1NonIsoSinglePhotonEt10TrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_IsoPhoton40_L1R"),
-              filtername = cms.InputTag("hltL1NonIsoSinglePhotonTrackIsolFilter","","HLT"),
+              filtername = cms.string("hltL1NonIsoSinglePhotonTrackIsolFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
@@ -110,28 +110,28 @@ hltResults = cms.EDFilter("FourVectorHLTOffline",
 #muon triggers
              cms.PSet(
               pathname = cms.string("HLT_L1Mu"),
-              filtername = cms.InputTag("hltMuLevel1PathL1Filtered","","HLT"),
+              filtername = cms.string("hltMuLevel1PathL1Filtered"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_L1MuOpen"),
-              filtername = cms.InputTag("hltMuLevel1PathL1OpenFiltered","","HLT"),
+              filtername = cms.string("hltMuLevel1PathL1OpenFiltered"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_NoTrackerIsoMu15"),
-              filtername = cms.InputTag("hltSingleMuNoIsoL3TkPreFilter","","HLT"),
+              filtername = cms.string("hltSingleMuNoIsoL3TkPreFilter"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
              ),
              cms.PSet(
               pathname = cms.string("HLT_Mu15"),
-              filtername = cms.InputTag("hltSingleMuNoIsoL3PreFiltered15","","HLT"),
+              filtername = cms.string("hltSingleMuNoIsoL3PreFiltered15"),
               type = cms.uint32(0),
               ptMin = cms.untracked.double(0.0),
               ptMax = cms.untracked.double(100.0)
