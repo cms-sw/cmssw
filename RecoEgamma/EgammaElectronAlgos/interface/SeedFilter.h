@@ -45,6 +45,8 @@ class SeedFilter {
   
   edm::ESHandle<MagneticField> theMagField;
   FTSFromVertexToPointFactory myFTS; 
+  
+  int hitsfactoryMode_;
 };
 
 #endif // SeedFilter_H

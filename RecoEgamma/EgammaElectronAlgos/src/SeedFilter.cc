@@ -58,7 +58,13 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf) {
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
   edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
- 
+
+  // HIT FACTORY MODE (JRV)
+  // -1 = look for existing hit collections for both pixels and strips
+  // 0 = look for pixel hit collections and build strip hits on demand (regional unpacking)
+  // 1 = build both pixel and strip hits on demand (regional unpacking)
+  hitsfactoryMode_ = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker",-1);
+  
   // get orderd hits generator from factory
   OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet);
  
@@ -128,7 +134,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						    //                                                    deltaPhi_,-1);
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)), 
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
-						    ,-1);
+						    ,hitsfactoryMode_);
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionMinus, e, setup);
   
   for (unsigned int i = 0; i<seedColl->size(); ++i)
@@ -149,7 +155,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						   //                                                   deltaPhi_,-1);
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)), 
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
-						    ,-1);
+						    ,hitsfactoryMode_);
   
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionPlus, e, setup);
   
