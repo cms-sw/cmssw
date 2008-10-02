@@ -2,17 +2,6 @@
 
 namespace TauTagTools{
 
-   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2) 
-   { 
-      DeltaR<math::XYZVector> myMetricDR_;
-      return myMetricDR_(vec1, vec2); 
-   }
-   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2)  
-   {  
-      Angle<math::XYZVector> myMetricAngle_;
-      return myMetricAngle_(vec1, vec2); 
-   }
-
   TrackRefVector filteredTracksByNumTrkHits(TrackRefVector theInitialTracks, int tkminTrackerHitsn){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
@@ -22,21 +11,27 @@ namespace TauTagTools{
     return filteredTracks;
   }
 
-  TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,double tkmaxipt,Vertex pv){
+  TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, Vertex pv){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
       if ((**iTk).pt()>=tkminPt &&
-	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt)
-	 filteredTracks.push_back(*iTk);
+	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
+	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
+	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
+	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn)
+	filteredTracks.push_back(*iTk);
     }
     return filteredTracks;
   }
-  TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,double tkmaxipt,double tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
+  TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
       if(pv.isFake()) tktorefpointmaxDZ=30.;
       if ((**iTk).pt()>=tkminPt &&
+	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
 	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
+	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
+	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn &&
 	  fabs((**iTk).dz()-refpoint_Z)<=tktorefpointmaxDZ)
 	filteredTracks.push_back(*iTk);
     }
@@ -58,7 +53,7 @@ namespace TauTagTools{
     return filteredPFChargedHadrCands;
   }
 
-  PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,double ChargedHadrCand_tkmaxipt,Vertex pv){
+  PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, Vertex pv){
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
@@ -68,13 +63,16 @@ namespace TauTagTools{
 
 	if (!PFChargedHadrCand_rectk)continue;
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
-	    fabs((*PFChargedHadrCand_rectk).dxy(pv.position()))<=ChargedHadrCand_tkmaxipt)
+	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
+	    fabs((*PFChargedHadrCand_rectk).dxy(pv.position()))<=ChargedHadrCand_tkmaxipt &&
+	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
+	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn) 
 	  filteredPFChargedHadrCands.push_back(*iPFCand);
       }
     }
     return filteredPFChargedHadrCands;
   }
-  PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
+  PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
     if(pv.isFake()) ChargedHadrCand_tktorefpointmaxDZ = 30.;
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
@@ -83,7 +81,10 @@ namespace TauTagTools{
 	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
 	if (!PFChargedHadrCand_rectk)continue;
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
+	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
 	    fabs((*PFChargedHadrCand_rectk).dxy(pv.position()))<=ChargedHadrCand_tkmaxipt &&
+	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
+	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn &&
 	    fabs((*PFChargedHadrCand_rectk).dz()-refpoint_Z)<=ChargedHadrCand_tktorefpointmaxDZ)
 	  filteredPFChargedHadrCands.push_back(*iPFCand);
       }
