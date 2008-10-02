@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.9 2008/02/27 12:54:58 uberthon Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.10 2008/04/09 15:22:23 charlot Exp $
 //
 //
 
@@ -50,16 +50,26 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
  {
 
   typedef std::vector<TrajectoryMeasurement>::const_iterator aMeas;
+  std::vector<const DetLayer*> allayers;
   std::vector<const DetLayer*> nl = ilayer->nextLayers( aFTS, alongMomentum);
+  for (std::vector<const DetLayer*>::const_iterator il = nl.begin(); il != nl.end(); il++) {
+    allayers.push_back(*il);
+    std::vector<const DetLayer*> n2l = (*il)->nextLayers( aFTS, alongMomentum);
+    for (std::vector<const DetLayer*>::const_iterator i2l = n2l.begin(); i2l != n2l.end(); i2l++) {
+      allayers.push_back(*i2l);
+    }
+  }
+
   const TrajectoryStateOnSurface tsos(aFTS,ilayer->surface());
+  
   if (tsos.isValid()) 
     {    
-      for (std::vector<const DetLayer*>::const_iterator il = nl.begin(); il != nl.end(); il++) 
+      for (std::vector<const DetLayer*>::const_iterator il = allayers.begin(); il != allayers.end(); il++) 
 	{
 	  if ( (*il)->subDetector()==GeomDetEnumerators::PixelBarrel || (*il)->subDetector()==GeomDetEnumerators::PixelEndcap ) {
 	    
 	    std::vector<TrajectoryMeasurement> pixelMeasurements;
-	    if ((*il)->location() == GeomDetEnumerators::barrel) {
+	    if ((*il)->subDetector()==GeomDetEnumerators::PixelBarrel) {
 	      pixelMeasurements = theLayerMeasurements->measurements( **il, tsos , *aProp, *aBarrelMeas); 
 	    } else {
 	      pixelMeasurements = theLayerMeasurements->measurements( **il, tsos, *aProp, *aForwardMeas);
