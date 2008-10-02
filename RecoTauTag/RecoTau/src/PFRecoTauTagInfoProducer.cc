@@ -4,9 +4,6 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const ParameterSet& iConfig){
   PFCandidateProducer_                = iConfig.getParameter<string>("PFCandidateProducer");
   PFJetTracksAssociatorProducer_      = iConfig.getParameter<string>("PFJetTracksAssociatorProducer");
   PVProducer_                         = iConfig.getParameter<string>("PVProducer");
-  smearedPVsigmaX_                    = iConfig.getParameter<double>("smearedPVsigmaX");
-  smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
-  smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
   PFRecoTauTagInfoAlgo_=new PFRecoTauTagInfoAlgorithm(iConfig);
   produces<PFTauTagInfoCollection>();      
 }

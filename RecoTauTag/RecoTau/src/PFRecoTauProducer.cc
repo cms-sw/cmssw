@@ -44,7 +44,6 @@ void PFRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   int iinfo=0;
   for(PFTauTagInfoCollection::const_iterator i_info=thePFTauTagInfoCollection->begin();i_info!=thePFTauTagInfoCollection->end();i_info++) { 
     if((*i_info).pfjetRef()->pt()>JetMinPt_){
-      //        PFTau myPFTau=PFRecoTauAlgo_->buildPFTau(Ref<PFTauTagInfoCollection>(thePFTauTagInfoCollection,iinfo),thePV,theElecTkCollection);
   
         PFTau myPFTau=PFRecoTauAlgo_->buildPFTau(Ref<PFTauTagInfoCollection>(thePFTauTagInfoCollection,iinfo),thePV);
        resultPFTau->push_back(myPFTau);
