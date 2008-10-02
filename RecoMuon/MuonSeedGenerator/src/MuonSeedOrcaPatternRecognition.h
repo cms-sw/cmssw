@@ -16,10 +16,21 @@ private:
   // aalocates a zeroed array of a given size
   bool * zero(unsigned listSize);
 
+  void endcapPatterns(
+    const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
+    const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
+    const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,
+    const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
+    bool * MB1, bool * MB2, bool * MB3,
+    std::vector<MuonRecHitContainer> & result);
+
   void complete(MuonRecHitContainer& seedSegments,
                 const MuonRecHitContainer &recHits, bool* used=0) const;
 
-
+  // see if it's OK to add
+  bool check(const MuonRecHitContainer & segments);
+  std::vector<double> theCrackEtas;
+  double theCrackWindow;
 };
 
 #endif
