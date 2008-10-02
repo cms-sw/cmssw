@@ -10,6 +10,7 @@ RootFile.h // used by ROOT input sources
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
@@ -68,7 +69,8 @@ namespace edm {
 	     std::vector<EventID> const& whichEventsToProcess,
              bool noEventSort,
              bool dropMetaData,
-	     GroupSelectorRules const& groupSelectorRules);
+	     GroupSelectorRules const& groupSelectorRules,
+             bool dropMergeable);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -93,6 +95,8 @@ namespace edm {
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact);
+    bool setEntryAtLumi(LuminosityBlockID const& lumi);
+    bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
       fileIndexIter_ = fileIndexBegin_;

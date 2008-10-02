@@ -16,7 +16,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
-        'file:testRunMerge3.root'
+        'file:testRunMerge3.root',
+        'file:testRunMerge4.root',
+        'file:testRunMerge5.root'
     ),
     inputCommands = cms.untracked.vstring(
         'keep *', 
@@ -148,15 +150,17 @@ process.test = cms.EDFilter("TestMergeResults",
         1001,     2004,   1003    # * end run 1 lumi 1
     ),
 
-    expectedRespondToOpenInputFile = cms.untracked.int32(3),
-    expectedRespondToCloseInputFile = cms.untracked.int32(3),
+    expectedRespondToOpenInputFile = cms.untracked.int32(5),
+    expectedRespondToCloseInputFile = cms.untracked.int32(5),
     expectedRespondToOpenOutputFiles = cms.untracked.int32(1),
     expectedRespondToCloseOutputFiles = cms.untracked.int32(1),
 
     expectedInputFileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
-        'file:testRunMerge3.root'
+        'file:testRunMerge3.root',
+        'file:testRunMerge4.root',
+        'file:testRunMerge5.root'
     ),
 
     verbose = cms.untracked.bool(False)

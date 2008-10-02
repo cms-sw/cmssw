@@ -82,6 +82,7 @@ namespace edm {
       ++it;
     }
     if (lumi == 0) lumi = it->lumi_;
+    if (it == itEnd) return it;
     if (exact && (it->run_ != run || it->lumi_ != lumi || it->event_ != event)) it = entries_.end();
     return it;
   }
@@ -101,6 +102,7 @@ namespace edm {
     while (it != itEnd && it->getEntryType() != FileIndex::kLumi) {
       ++it;
     }
+    if (it == itEnd) return it;
     if (exact && (it->run_ != run || it->lumi_ != lumi)) it = entries_.end();
     return it;
   }
@@ -120,6 +122,7 @@ namespace edm {
     while (it != itEnd && it->getEntryType() != FileIndex::kRun) {
       ++it;
     }
+    if (it == itEnd) return it;
     if (exact && (it->run_ != run)) it = entries_.end();
     return it;
   }

@@ -164,7 +164,7 @@ namespace edm {
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
 	  forcedRunOffset_, eventsToProcess_, noEventSort_,
-	  dropMetaData_, groupSelectorRules_));
+	  dropMetaData_, groupSelectorRules_, !primarySequence_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
@@ -292,7 +292,7 @@ namespace edm {
 	if (*it && (*it)->containsEvent(id.run(), lumi, id.event(), exact)) {
           // We found it. Close the currently open file, and open the correct one.
 	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(true);
+	  initFile(false);
 	  // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
 	  assert (found);
@@ -305,7 +305,7 @@ namespace edm {
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
 	if (!*it) {
 	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(true);
+	  initFile(false);
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
 	  if (found) {
 	    std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
@@ -320,6 +320,81 @@ namespace edm {
     std::auto_ptr<EventPrincipal> eptr = readCurrentEvent();
     skip(1);
     return eptr;
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal>
+  RootInputFileSequence::readIt(LuminosityBlockID const& id) {
+
+    // Attempt to find lumi in currently open input file.
+    bool found = rootFile_->setEntryAtLumi(id);
+    if (found) {
+      return readLuminosityBlock_();
+    }
+
+    if (fileIndexes_.size() > 1) {
+      // Look for lumi in files previously opened without reopening unnecessary files.
+      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if (*it && (*it)->containsLumi(id.run(), id.luminosityBlock(), true)) {
+          // We found it. Close the currently open file, and open the correct one.
+          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(false);
+	  // Now get the lumi from the correct file.
+          found = rootFile_->setEntryAtLumi(id);
+	  assert (found);
+          return readLuminosityBlock_();
+	}
+      }
+      // Look for lumi in files not yet opened.
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if (!*it) {
+          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(false);
+          found = rootFile_->setEntryAtLumi(id);
+	  if (found) {
+            return readLuminosityBlock_();
+	  }
+	}
+      }
+    }
+    return boost::shared_ptr<LuminosityBlockPrincipal>();
+  }
+
+  boost::shared_ptr<RunPrincipal>
+  RootInputFileSequence::readIt(RunID const& id) {
+
+    // Attempt to find run in currently open input file.
+    bool found = rootFile_->setEntryAtRun(id);
+    if (found) {
+      return readRun_();
+    }
+    if (fileIndexes_.size() > 1) {
+      // Look for run in files previously opened without reopening unnecessary files.
+      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if (*it && (*it)->containsRun(id.run(), true)) {
+          // We found it. Close the currently open file, and open the correct one.
+          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(false);
+	  // Now get the event from the correct file.
+          found = rootFile_->setEntryAtRun(id);
+	  assert (found);
+          return readRun_();
+	}
+      }
+      // Look for run in files not yet opened.
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if (!*it) {
+          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(false);
+          found = rootFile_->setEntryAtRun(id);
+	  if (found) {
+            return readRun_();
+	  }
+	}
+      }
+    }
+    return boost::shared_ptr<RunPrincipal>();
   }
 
   InputSource::ItemType

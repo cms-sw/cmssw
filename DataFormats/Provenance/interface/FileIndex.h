@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.7 2008/08/29 19:01:39 wdd Exp $
+$Id: FileIndex.h,v 1.8 2008/09/29 23:01:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -76,6 +76,16 @@ namespace edm {
       bool
       containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
 	return findEventPosition(run, lumi, event, exact) != entries_.end();
+      }
+
+      bool
+      containsLumi(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const {
+        return findLumiPosition(run, lumi, exact) != entries_.end();
+      }
+
+      bool
+      containsRun(RunNumber_t run, bool exact) const {
+        return findRunPosition(run, exact) != entries_.end();
       }
 
       const_iterator begin() const {return entries_.begin();}

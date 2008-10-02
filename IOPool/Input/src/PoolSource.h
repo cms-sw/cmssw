@@ -17,8 +17,10 @@ PoolSource: This is an InputSource
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 
 #include "boost/scoped_ptr.hpp"
+#include "boost/array.hpp"
 
 namespace edm {
 
@@ -51,7 +53,8 @@ namespace edm {
 
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
-    std::vector<BranchID> branchIDsToReplace_;
+    boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

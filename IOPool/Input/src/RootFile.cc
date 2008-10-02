@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 //used for friendlyName translation
 #include "FWCore/Utilities/interface/FriendlyName.h"
 
@@ -32,6 +33,8 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
 
+#include "TROOT.h"
+#include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
@@ -58,7 +61,8 @@ namespace edm {
 		     std::vector<EventID> const& whichEventsToProcess,
                      bool noEventSort,
 		     bool dropMetaData,
-		     GroupSelectorRules const& groupSelectorRules) :
+		     GroupSelectorRules const& groupSelectorRules,
+                     bool dropMergeable) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -249,6 +253,28 @@ namespace edm {
         prodList.erase(icopy);
       } else {
         ++it;
+      }
+    }
+
+    // Drop on input mergeable run and lumi products, this needs to be invoked for
+    // secondary file input
+    if (dropMergeable) {
+      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
+          it != itEnd;) {
+        BranchDescription const& prod = it->second;
+        if (prod.branchType() != InEvent) {
+          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
+          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+          if (dummy->isMergeable()) {
+            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            ProductRegistry::ProductList::iterator icopy = it;
+            ++it;
+            prodList.erase(icopy);
+          } else {
+            ++it;
+          }
+        }
+        else ++it;
       }
     }
 
@@ -907,13 +933,27 @@ namespace edm {
     return thisLumi;
   }
 
-
-  
   bool
   RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
     fileIndexIter_ = fileIndex_.findEventPosition(run, lumi, event, exact);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
+    return true;
+  }
+
+  bool
+  RootFile::setEntryAtLumi(LuminosityBlockID const& lumi) {
+    fileIndexIter_ = fileIndex_.findLumiPosition(lumi.run(), lumi.luminosityBlock(), true);
+    if (fileIndexIter_ == fileIndexEnd_) return false;
+    lumiTree_.setEntryNumber(fileIndexIter_->entry_);
+    return true;
+  }
+
+  bool
+  RootFile::setEntryAtRun(RunID const& run) {
+    fileIndexIter_ = fileIndex_.findRunPosition(run.run(), true);
+    if (fileIndexIter_ == fileIndexEnd_) return false;
+    runTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;
   }
 
