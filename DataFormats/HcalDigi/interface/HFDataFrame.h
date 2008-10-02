@@ -23,9 +23,13 @@ public:
   const HcalElectronicsId& elecId() const { return electronicsId_; }
   
   /// total number of samples in the digi
-  int size() const { return size_; }
+  int size() const { return size_&0xF; }
   /// number of samples before the sample from the triggered beam crossing (according to the hardware)
-  int presamples() const { return hcalPresamples_; }
+  int presamples() const { return hcalPresamples_&0xF; }
+   /// was ZS MarkAndPass?
+  bool zsMarkAndPass() const { return (hcalPresamples_&0x10); }
+  /// was ZS unsuppressed?
+  bool zsUnsuppressed() const { return (hcalPresamples_&0x20); }
   
   /// access a sample
   const HcalQIESample& operator[](int i) const { return data_[i]; }
@@ -37,6 +41,7 @@ public:
   
   void setSize(int size);
   void setPresamples(int ps);
+  void setZSInfo(bool unsuppressed, bool markAndPass);
   void setSample(int i, const HcalQIESample& sam) { data_[i]=sam; }
   void setReadoutIds(const HcalElectronicsId& eid);
   

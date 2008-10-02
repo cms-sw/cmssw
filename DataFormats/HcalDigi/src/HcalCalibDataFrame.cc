@@ -20,7 +20,7 @@ void HcalCalibDataFrame::setSize(int size) {
   else size_=size;
 }
 void HcalCalibDataFrame::setPresamples(int ps) {
-  hcalPresamples_=ps;
+  hcalPresamples_|=ps&0xF;
 }
 void HcalCalibDataFrame::setReadoutIds(const HcalElectronicsId& eid) {
   electronicsId_=eid;
@@ -38,8 +38,16 @@ bool HcalCalibDataFrame::validate(int firstSample, int nSamples) const {
   return ok;
 }
 
+void HcalCalibDataFrame::setZSInfo(bool unsuppressed, bool markAndPass) {
+  if (markAndPass) hcalPresamples_|=0x10;
+  if (unsuppressed) hcalPresamples_|=0x20;
+}
+
 std::ostream& operator<<(std::ostream& s, const HcalCalibDataFrame& digi) {
-  s << digi.id() << " " << digi.size() << " samples  " << digi.presamples() << " presamples " << std::endl;
+  s << digi.id() << " " << digi.size() << " samples  " << digi.presamples() << " presamples ";
+  if (digi.zsUnsuppressed()) s << " zsUS ";
+  if (digi.zsMarkAndPass()) s << " zsM&P ";
+  s << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;
   return s;
