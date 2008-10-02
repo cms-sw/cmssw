@@ -171,9 +171,9 @@ if ( $opt_flag == "true" ) then
 	
 	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "GainCalibration") then
 	    set tagnumber = $calibtype$runnumber	    
-	else
+	else if ($calib_flag == "true") then
 	    set tagnumber = "PixelAlive_default"
-	    echo "No calibrations detected for file ${filename}, using default tag"
+
 	endif
 
 
