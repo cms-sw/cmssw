@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.2 2008/07/30 13:38:24 srappocc Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.3 2008/09/12 04:35:29 kalanand Exp $
 //
 
 // system include files
@@ -91,7 +91,10 @@ class TagProbeEDMNtuple : public edm::EDProducer
 
       // Tag probe map tags
       std::vector<edm::InputTag> tagProbeMapTags_;
-
+      
+      // Jet Collection Tags
+      std::string jetTags_;
+      
       // Candidate collection tags
       edm::InputTag genParticlesTag_;
       std::vector<edm::InputTag> tagCandTags_;

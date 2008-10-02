@@ -79,7 +79,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    XMin_            = iConfig.getUntrackedParameter< vector<double> >("XMin",dEmptyDoubleVec);
    XMax_            = iConfig.getUntrackedParameter< vector<double> >("XMax",dEmptyDoubleVec);
    logY_            = iConfig.getUntrackedParameter< vector<unsigned int> >("logY",dEmptyUIntVec);
-   
+   Verboes_         = iConfig.getUntrackedParameter< bool >("Verboes",false);
+
    // Efficiency input variables
    tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
 
@@ -124,7 +125,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 	  var1Name_ == "et" || var1Name_ == "eta" || var1Name_ == "phi" || 
 	  var1Name_ == "ptDet" || var1Name_ == "pDet"   || var1Name_ == "pxDet" ||
 	  var1Name_ == "pyDet" || var1Name_ == "pzDet"  || var1Name_ == "eDet"  ||
-	  var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet") )
+	  var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet" ||
+	  var1Name_ == "jetDeltaR" || var1Name_ == "totJets" ) )
    {
       LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
       var1Name_ = "pt";
@@ -135,7 +137,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 	  var2Name_ == "et" || var2Name_ == "eta" || var2Name_ == "phi" ||
 	  var2Name_ == "ptDet" || var2Name_ == "pDet"   || var2Name_ == "pxDet" ||
 	  var2Name_ == "pyDet" || var2Name_ == "pzDet"  || var2Name_ == "eDet"  ||
-	  var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet") )
+	  var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet" ||
+	  var2Name_ == "jetDeltaR" || var2Name_ == "totJets" ) )
    {
       LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
       var2Name_ = "eta";
@@ -316,6 +319,10 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
 
 }
 
+
+
+
+
 TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
 {
    // Clean up
@@ -325,22 +332,29 @@ TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
 //       fitTree_ = 0;
 //    }
 
-   if( var1Pass_  ) delete var1Pass_;
-   if( var1All_   ) delete var1All_;
-   if( var2Pass_ ) delete var2Pass_;
-   if( var2All_  ) delete var2All_;
-
-   if(outRootFile_) {
-     outRootFile_->Close();
-     delete outRootFile_;
-   }
-
-   if(Histograms_)
-   {
+  if( var1Pass_  ) delete var1Pass_;
+  if( var1All_   ) delete var1All_;
+  if( var2Pass_ ) delete var2Pass_;
+  if( var2All_  ) delete var2All_;
+  
+  if(outRootFile_) {
+    outRootFile_->Close();
+    delete outRootFile_;
+  }
+  
+  if(Histograms_)
+    {
       delete [] Histograms_; 
       Histograms_ = 0;
-   }
+    }
 }
+
+
+
+
+
+
+
 
 // ------------ method called to for each event  ------------
 void
@@ -355,32 +369,32 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       // Get the TP variables to fill the fitter tree ...
       Handle< vector<int> > tp_type;
       if ( !iEvent.getByLabel("TPEdm","TPtype",tp_type) ) {
-         cout << "No TPtype in Tree!" << endl; 
+	if(Verboes_) cout << "No TPtype in Tree!" << endl; 
       }
 
       Handle< vector<int> > tp_true;
       if ( !iEvent.getByLabel("TPEdm","TPtrue",tp_true) ) {
-         cout << "No TPtrue in Tree!" << endl; 
+         if(Verboes_) cout << "No TPtrue in Tree!" << endl; 
       }
       
       Handle< vector<int> > tp_ppass;
       if ( !iEvent.getByLabel("TPEdm","TPppass",tp_ppass) ) {
-         cout << "No TPppass in Tree!" << endl; 
+         if(Verboes_) cout << "No TPppass in Tree!" << endl; 
       }
       
       Handle< vector<float> > tp_mass;
       if ( !iEvent.getByLabel("TPEdm","TPmass",tp_mass) ) {
-         cout << "No TPmass in Tree!" << endl; 
+         if(Verboes_) cout << "No TPmass in Tree!" << endl; 
       }
 
       Handle< vector<float> > tp_probe_var1;
       if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var1Name_).c_str(),tp_probe_var1) ) {
-         cout << "No TPProbe"+var1Name_+" in Tree!" << endl; 
+         if(Verboes_) cout << "No TPProbe"+var1Name_+" in Tree!" << endl; 
       }
       
       Handle< vector<float> > tp_probe_var2;
       if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var2Name_).c_str(),tp_probe_var2) ) {
-         cout << "No TPProbe"+var2Name_+" in Tree!" << endl; 
+         if(Verboes_) cout << "No TPProbe"+var2Name_+" in Tree!" << endl; 
       }
       
       outRootFile_->cd();
@@ -409,32 +423,32 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       // Get the Cnd variable for the MC truth ...
       Handle< vector<int> > cnd_type;
       if ( !iEvent.getByLabel("TPEdm","Cndtype",cnd_type) ) {
-         cout << "No Cndtype in Tree!" << endl; 
+         if(Verboes_) cout << "No Cndtype in Tree!" << endl; 
       }
 
       Handle< vector<int> > cnd_tag;
       if ( !iEvent.getByLabel("TPEdm","Cndtag",cnd_tag) ) {
-         cout << "No Cndtag in Tree!" << endl; 
+         if(Verboes_) cout << "No Cndtag in Tree!" << endl; 
       }
 
       Handle< vector<int> > cnd_aprobe;
       if ( !iEvent.getByLabel("TPEdm","Cndaprobe",cnd_aprobe) ) {
-         cout << "No Cndaprobe in Tree!" << endl; 
+         if(Verboes_) cout << "No Cndaprobe in Tree!" << endl; 
       }
 
       Handle< vector<int> > cnd_pprobe;
       if ( !iEvent.getByLabel("TPEdm","Cndpprobe",cnd_pprobe) ) {
-         cout << "No Cndpprobe in Tree!" << endl; 
+         if(Verboes_) cout << "No Cndpprobe in Tree!" << endl; 
       }
 
       Handle< vector<int> > cnd_moid;
       if ( !iEvent.getByLabel("TPEdm","Cndmoid",cnd_moid) ) {
-         cout << "No Cndmoid in Tree!" << endl; 
+         if(Verboes_) cout << "No Cndmoid in Tree!" << endl; 
       }
 
       Handle< vector<int> > cnd_gmid;
       if ( !iEvent.getByLabel("TPEdm","Cndgmid",cnd_gmid) ) {
-         cout << "No Cndgmid in Tree!" << endl; 
+         if(Verboes_) cout << "No Cndgmid in Tree!" << endl; 
       }
 
 
@@ -450,12 +464,12 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       Handle< vector<float> > cnd_var1;
       if ( !iEvent.getByLabel("TPEdm",truthVar1.c_str(),cnd_var1) ) {
-         cout << "No Cnd"+var1Name_+" in Tree!" << endl; 
+         if(Verboes_) cout << "No Cnd"+var1Name_+" in Tree!" << endl; 
       }
 
       Handle< vector<float> > cnd_var2;
       if ( !iEvent.getByLabel("TPEdm",truthVar2.c_str(),cnd_var2) ) {
-         cout << "No Cnd"+var2Name_+" in Tree!" << endl; 
+         if(Verboes_) cout << "No Cnd"+var2Name_+" in Tree!" << endl; 
       }
 
       if( cnd_type.isValid() )
@@ -525,7 +539,7 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	 {
 	    Handle< vector<int> > h;
 	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
-	        cout << "No "+quantities_[i]+" in Tree!" << endl; 
+	        if(Verboes_) cout << "No "+quantities_[i]+" in Tree!" << endl; 
             }
 	    if( h.isValid() ) for( int n=0; n<(int)h->size(); ++n ) Histograms_[i].Fill((*h)[n]);
 	 }
@@ -534,13 +548,19 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	 {
 	    Handle< vector<float> > h;
 	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
-	        cout << "No "+quantities_[i]+" in Tree!" << endl; 
+	        if(Verboes_) cout << "No "+quantities_[i]+" in Tree!" << endl; 
             }
 	    if( h.isValid() ) for( int n=0; n<(int)h->size(); ++n ) Histograms_[i].Fill((*h)[n]);
 	 }
       }
    }
 }
+
+
+
+
+
+
 
 // ********* Save the user requested histograms ******** //
 int TagProbeEDMAnalysis::SaveHistogram(TH1F& Histo, std::string outFileName, Int_t LogY = 0)
@@ -559,6 +579,11 @@ int TagProbeEDMAnalysis::SaveHistogram(TH1F& Histo, std::string outFileName, Int
    return 0;
 }
 // ***************************************************** //
+
+
+
+
+
 
 // ****************** Zll Eff Side band subtraction *************
 void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< double > bins,
@@ -612,14 +637,14 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
 
       // Passing Probes
       condition.str(std::string());
-      condition  << "((ProbePass == 1) && ( " << bvar << " > " <<  lowEdge << " ) && ( " 
-		 << bvar << " < " << highEdge << " ) && ( " << bvar2 << " > " << bvar2Lo
-		 << " ) && ( " << bvar2 << " < " << bvar2Hi <<"))*Weight";
-      std::cout << "Pass condition ( " << bvar << " ): " << condition.str() << std::endl;
+      condition  << "(ProbePass==1 && " << bvar << ">" <<  lowEdge << " && " 
+		 << bvar << "<" << highEdge << " && " << bvar2 << ">" << bvar2Lo
+		 << " && " << bvar2 << "<" << bvar2Hi <<")*Weight";
+      std::cout << "Pass condition[" << bvar<< "]: " << condition.str() << std::endl;
       histoName.str(std::string());
       histoName << "sbs_pass_" << bvar << "_" << bin;
       histoTitle.str(std::string());
-      histoTitle << "Passing Probes - " << lowEdge << " < " << bvar << " < " << highEdge;
+      histoTitle << "Passing Probes - " << lowEdge << "<" << bvar << "<" << highEdge;
       PassProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), XBinsSBS, XMinSBS, XMaxSBS); 
       PassProbes->Sumw2();
       PassProbes->SetDirectory(outRootFile_);
@@ -627,14 +652,14 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
 
       // Failing Probes
       condition.str(std::string());
-      condition  << "((ProbePass == 0) && ( " << bvar << " > " <<  lowEdge << " ) && ( " 
-		 << bvar << " < " << highEdge << " ) && ( " << bvar2 << " > " << bvar2Lo
-		 << " ) && ( " << bvar2 << " < " << bvar2Hi <<"))*Weight";
-      std::cout << "Fail condition ( " << bvar << " ): " << condition.str() << std::endl;
+      condition  << "(ProbePass==0 && " << bvar << ">" <<  lowEdge << " && " 
+		 << bvar << "<" << highEdge << " && " << bvar2 << ">" << bvar2Lo
+		 << " && " << bvar2 << "<" << bvar2Hi <<")*Weight";
+      std::cout << "Fail condition[" << bvar << "]: " << condition.str() << std::endl;
       histoName.str(std::string());
       histoName << "sbs_fail_" <<  bvar << "_" << bin;
       histoTitle.str(std::string());
-      histoTitle << "Failing Probes - " << lowEdge << " < " << bvar << " < " << highEdge;
+      histoTitle << "Failing Probes - " << lowEdge << "<" << bvar << "<" << highEdge;
       FailProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), XBinsSBS, XMinSBS, XMaxSBS); 
       FailProbes->Sumw2();
       FailProbes->SetDirectory(outRootFile_);
@@ -644,7 +669,7 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
       histoName.str(std::string());
       histoName << "sbs_pass_subtracted_" << bvar << "_" << bin;
       histoTitle.str(std::string());
-      histoTitle << "Passing Probes SBS - "  << lowEdge << " < " << bvar << " < " << highEdge;
+      histoTitle << "Passing Probes SBS - "  << lowEdge << "<" << bvar << "<" << highEdge;
       SBSPassProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), XBinsSBS, XMinSBS, XMaxSBS); 
       SBSPassProbes->Sumw2();
 
@@ -652,7 +677,7 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
       histoName.str(std::string());
       histoName << "sbs_fail_subtracted_" << bvar << "_" << bin; 
       histoTitle.str(std::string());
-      histoTitle << "Failing Probes SBS - "  << lowEdge << " < " << bvar << " < " << highEdge;
+      histoTitle << "Failing Probes SBS - "  << lowEdge << "<" << bvar << "<" << highEdge;
       SBSFailProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), XBinsSBS, XMinSBS, XMaxSBS); 
       SBSFailProbes->Sumw2();
 
@@ -661,19 +686,16 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
       SideBandSubtraction(*FailProbes, *SBSFailProbes, SBSPeak_, SBSStanDev_);
 
       // Count the number of passing and failing probes in the region
-      cout << "About to count the number of events" << endl;
       double npassR = SBSPassProbes->Integral("width");
       double nfailR = SBSFailProbes->Integral("width");
 
       if((npassR + nfailR) != 0){
 	Double_t eff = npassR/(npassR + nfailR);
 	Double_t effErr = sqrt(npassR * nfailR / (npassR + nfailR))/(npassR + nfailR);
-
-	cout << "Num pass " << npassR << endl;
-	cout << "Num fail " << nfailR << endl;
-	cout << "Eff " << eff << endl;
-	cout << "Eff error " << effErr << endl;
-
+	
+	cout << "Num pass " << npassR << ",  Num fail " << 
+	  nfailR << "Eff " << eff << " +/- " << effErr << endl;
+	
 	// Fill the efficiency hist
 	effhist.SetBinContent(bin+1,eff);
 	effhist.SetBinError(bin+1,effErr);
@@ -702,6 +724,10 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
    return;
 
 }
+
+
+
+
 
 // ****************** Zll Eff Side band subtraction *************
 void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< double > bins1,
@@ -751,18 +777,18 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 
 	 // Passing Probes
 	 condition.str(std::string());
-	 condition  << "((ProbePass == 1) && ( " << bvar1 << " > " <<  lowEdge1 << " ) && ( " 
-		    << bvar1 << " < " << highEdge1 << " ) && ( " << bvar2 << " > " 
-		    << lowEdge2 << " ) && ( " << bvar2 << " < " << highEdge2 
-		    << "))*Weight";
+	 condition  << "(ProbePass==1 && " << bvar1 << ">" <<  lowEdge1 << " && " 
+		    << bvar1 << "<" << highEdge1 << " && " << bvar2 << ">" 
+		    << lowEdge2 << " && " << bvar2 << "<" << highEdge2 
+		    << ")*Weight";
 
-	 std::cout << "Pass condition ( " << bvar1 << ":" << bvar2 << " ): " 
+	 std::cout << "Pass condition[" << bvar1 << ":" << bvar2 << "]: " 
 		   << condition.str() << std::endl;
 	 histoName.str(std::string());
 	 histoName << "sbs_pass_" << bvar1 << "_" << bin1 << "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
-	 histoTitle << "Passing Probes - " << lowEdge1 << " < " << bvar1 << " < " << highEdge1
-		    << " & " << lowEdge2 << " < " << bvar2 << " < " << highEdge2;
+	 histoTitle << "Passing Probes - " << lowEdge1 << "<" << bvar1 << "<" << highEdge1
+		    << " & " << lowEdge2 << "<" << bvar2 << "<" << highEdge2;
 	 PassProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), 
 			       XBinsSBS, XMinSBS, XMaxSBS); 
 	 PassProbes->Sumw2();
@@ -771,17 +797,17 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 
 	 // Failing Probes
 	 condition.str(std::string());
-	 condition  << "((ProbePass == 0) && ( " << bvar1 << " > " <<  lowEdge1 << " ) && ( " 
-		    << bvar1 << " < " << highEdge1 << " ) && ( " << bvar2 << " > " 
-		    << lowEdge2 << " ) && ( " << bvar2 << " < " << highEdge2 
-		    << "))*Weight";
-	 std::cout << "Fail condition ( " << bvar1 << ":" << bvar2 << " ): " 
+	 condition  << "(ProbePass==0 && " << bvar1 << ">" <<  lowEdge1 << " && " 
+		    << bvar1 << "<" << highEdge1 << " && " << bvar2 << ">" 
+		    << lowEdge2 << " && " << bvar2 << "<" << highEdge2 
+		    << ")*Weight";
+	 std::cout << "Fail condition[" << bvar1 << ":" << bvar2 << "]: " 
 		   << condition.str() << std::endl;
 	 histoName.str(std::string());
 	 histoName << "sbs_fail_" << bvar1 << "_" << bin1 << "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
-	 histoTitle << "Failing Probes - " << lowEdge1 << " < " << bvar1 << " < " << highEdge1
-		    << " & " << lowEdge2 << " < " << bvar2 << " < " << highEdge2;
+	 histoTitle << "Failing Probes - " << lowEdge1 << "<" << bvar1 << "<" << highEdge1
+		    << " & " << lowEdge2 << "<" << bvar2 << "<" << highEdge2;
 	 FailProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), 
 			       XBinsSBS, XMinSBS, XMaxSBS); 
 	 FailProbes->Sumw2();
@@ -792,8 +818,8 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 	 histoName.str(std::string());
 	 histoName << "sbs_pass_subtracted_" << bvar1 << "_" << bin1 << "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
-	 histoTitle << "Passing Probes SBS - " << lowEdge1 << " < " << bvar1 << " < " << highEdge1
-		    << " & " << lowEdge2 << " < " << bvar2 << " < " << highEdge2;
+	 histoTitle << "Passing Probes SBS - " << lowEdge1 << "<" << bvar1 << "<" << highEdge1
+		    << " & " << lowEdge2 << "<" << bvar2 << "<" << highEdge2;
 	 SBSPassProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), 
 				  XBinsSBS, XMinSBS, XMaxSBS); 
 	 SBSPassProbes->Sumw2();
@@ -802,8 +828,8 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 	 histoName.str(std::string());
 	 histoName << "sbs_fail_subtracted_" << bvar1 << "_" << bin1 << "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
-	 histoTitle << "Failing Probes SBS - " << lowEdge1 << " < " << bvar1 << " < " << highEdge1
-		    << " & " << lowEdge2 << " < " << bvar2 << " < " << highEdge2;
+	 histoTitle << "Failing Probes SBS - " << lowEdge1 << "<" << bvar1 << "<" << highEdge1
+		    << " & " << lowEdge2 << "<" << bvar2 << "<" << highEdge2;
 	 SBSFailProbes = new TH1F(histoName.str().c_str(), histoTitle.str().c_str(), 
 				  XBinsSBS, XMinSBS, XMaxSBS); 
 	 SBSFailProbes->Sumw2();
@@ -813,7 +839,6 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 	 SideBandSubtraction(*FailProbes, *SBSFailProbes, SBSPeak_, SBSStanDev_);
 
 	 // Count the number of passing and failing probes in the region
-	 cout << "About to count the number of events" << endl;
 	 double npassR = SBSPassProbes->Integral("width");
 	 double nfailR = SBSFailProbes->Integral("width");
 
@@ -821,11 +846,9 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 	    Double_t eff = npassR/(npassR + nfailR);
 	    Double_t effErr = sqrt(npassR * nfailR / (npassR + nfailR))/(npassR + nfailR);
 
-	    cout << "Num pass " << npassR << endl;
-	    cout << "Num fail " << nfailR << endl;
-	    cout << "Eff " << eff << endl;
-	    cout << "Eff error " << effErr << endl;
-
+	    cout << "Num pass " << npassR << ",  Num fail " << 
+	      nfailR << "Eff " << eff << " +/- " << effErr << endl;
+	    
 	    // Fill the efficiency hist
 	    effhist.SetBinContent(bin1+1,bin2+1,eff);
 	    effhist.SetBinError(bin1+1,bin2+1,effErr);
@@ -854,6 +877,10 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
    return;
 
 }
+
+
+
+
 
 // ********* Do sideband subtraction on the requested histogram ********* //
 void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
@@ -894,13 +921,23 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
 }
 // ********************************************************************** //
 
+
+
+
+
+
+
+
+
+
+
 // ********** Z -> l+l- Fitter ********** //
 void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< double > bins,
 					string &bvar2, double bvar2Lo, double bvar2Hi )
 {
-  outRootFile_->cd();
-  TChain *nFitTree = new TChain();
-  nFitTree->Add((fileName+"/fitter_tree").c_str());
+//   outRootFile_->cd();
+//   TChain *nFitTree = new TChain();
+//   nFitTree->Add((fileName+"/fitter_tree").c_str());
 
   //return;
   cout << "Here in Zll fitter" << endl;
@@ -942,8 +979,12 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
       // Add the TTree as our data set ... with the weight in case 
       // we are using chained MC
+
+      outRootFile_->cd();
+
       RooDataSet* data = new RooDataSet("fitData","fitData", fitTree_,
 					RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
+
       // Above command doesn't work in root 5.18 (lovely) so we have this
       // silly workaround with TChain for now
       // RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
@@ -1275,10 +1316,19 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
   outRootFile_->cd();
   effhist.Write();
-  if(nFitTree) delete nFitTree;
+  // if(nFitTree) delete nFitTree;
   return;
 }
 // ************************************** //
+
+
+
+
+
+
+
+
+
 
 // ********** Z -> l+l- Fitter ********** //
 void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vector< double > bins1,
@@ -1329,6 +1379,8 @@ for( int bin1=0; bin1<bnbins1; ++bin1 )
       ProbePass.defineType("fail",0);  
 
       cout << "Made fit variables" << endl;
+
+      outRootFile_->cd();
 
       // Add the TTree as our data set ... with the weight in case 
       // we are using chained MC
@@ -1676,6 +1728,13 @@ for( int bin1=0; bin1<bnbins1; ++bin1 )
 // ************************************** //
 
 
+
+
+
+
+
+
+
 // ********** Get the true efficiency from this TTree ********** //
 void TagProbeEDMAnalysis::ZllEffMCTruth()
 {
@@ -1707,6 +1766,13 @@ void TagProbeEDMAnalysis::ZllEffMCTruth()
 }
 // ******************************************************** //
 
+
+
+
+
+
+
+
 // ********** Get the true 2D efficiency from this TTree ********** //
 void TagProbeEDMAnalysis::ZllEffMCTruth2D()
 {
@@ -1730,6 +1796,14 @@ void TagProbeEDMAnalysis::ZllEffMCTruth2D()
    return;
 }
 // ******************************************************** //
+
+
+
+
+
+
+
+
 
 // ********** Get the efficiency from this TTree ********** //
 void TagProbeEDMAnalysis::CalculateEfficiencies()
@@ -1784,12 +1858,27 @@ void TagProbeEDMAnalysis::CalculateEfficiencies()
 // ******************************************************** //
 
 
+
+
+
+
+
+
+
+
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
 TagProbeEDMAnalysis::beginJob(const edm::EventSetup&)
 {
 
 }
+
+
+
+
+
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

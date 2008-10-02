@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-demo = cms.EDFilter("TagProbeEDMAnalysis",
+demo = cms.EDAnalyzer("TagProbeEDMAnalysis",
     # Efficiency/Fitting variables
     CalculateEffSideBand = cms.untracked.bool(True),
     NameVar2 = cms.untracked.string('eta'),

@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.4 2008/09/12 04:35:29 kalanand Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.5 2008/09/30 18:37:31 neadam Exp $
 //
 //
 
@@ -52,7 +52,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 //
 // constants, enums and typedefs
 //
@@ -105,6 +106,15 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    trackTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "trackTags",dTrackTags);
    // ********************************* //
+
+
+
+   // ********** Calo Jets ********** //
+   jetTags_ = iConfig.getUntrackedParameter<string>("jets","iterativeCone5CaloJets");
+
+   // ********************************* //
+
+
 
    // ********** Tag-Probes ********** //
    vector< edm::InputTag > defaultTagProbeMapTags;
@@ -318,7 +328,10 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    produces<std::vector<float> >( "TPProbeeDet"   ).setBranchAlias( "TPProbeeDet"   ); /* Probe detector energy. */              
    produces<std::vector<float> >( "TPProbeetDet"  ).setBranchAlias( "TPProbeetDet"  ); /* Probe detector transverse energy. */
    produces<std::vector<float> >( "TPProbeetaDet" ).setBranchAlias( "TPProbeetaDet" ); /* Probe detector pseudorapidity. */      
-   produces<std::vector<float> >( "TPProbephiDet" ).setBranchAlias( "TPProbephiDet" ); /* Probe detector phi. */     
+   produces<std::vector<float> >( "TPProbephiDet" ).setBranchAlias( "TPProbephiDet" ); /* Probe detector phi. */    
+ 
+   produces<std::vector<float> >( "TPProbejetDeltaR" ).setBranchAlias( "TPProbejetDeltaR" ); /* Probe jet delta_R */
+   produces<std::vector<float> >( "TPProbetotJets" ).setBranchAlias( "TPProbetotJets" );    /* Number of total jets */   
 
    produces< int >( "nCnd" ).setBranchAlias( "nCnd" );                        /* Number of true daughter cands. */
    produces< std::vector<int> >( "Cndtype" ).setBranchAlias( "Cndtype" );     /* Type of eff measurement. */
@@ -360,6 +373,8 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    produces<std::vector<float> >( "CndetDet" ).setBranchAlias( "CndetDet" );  /* Candidate det transverse energy.*/
    produces<std::vector<float> >( "CndetaDet" ).setBranchAlias( "CndetaDet" ); /* Candidate det pesudorapidity. */
    produces<std::vector<float> >( "CndphiDet" ).setBranchAlias( "CndphiDet" ); /* Candidate det phi. */  
+   produces<std::vector<float> >( "CndjetDeltaR" ).setBranchAlias( "CndjetDeltaR" ); /* Probe jet delta_R */
+   produces<std::vector<float> >( "CndtotJets" ).setBranchAlias( "CndtotJets" );    /* Number of total jets */   
 }
 
 
@@ -661,6 +676,8 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    auto_ptr< vector<float> > tp_probe_qDet_( new vector<float> );   
    auto_ptr< vector<float> > tp_probe_etaDet_( new vector<float> ); 
    auto_ptr< vector<float> > tp_probe_phiDet_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_jetDeltaR_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_totJets_( new vector<float> );
 
 
 
@@ -884,6 +901,27 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    tp_probe_etaDet_->push_back(  deta );
 	    tp_probe_phiDet_->push_back(  dphi );
 
+	    // Now look for deltaR between tag & nearest CaloJet
+	    Handle<reco::CaloJetCollection> jetsColl;
+	    if ( !m_event->getByLabel(jetTags_, jetsColl) ) {
+	      LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;}
+	    if ( !jetsColl->size() == 0){
+	      double totaljets = 0.;
+	      double dRjet_probe_min = 99.;
+	      int iCounter = 0;
+	      for (CaloJetCollection::const_iterator jet = jetsColl->begin(); 
+		   jet != jetsColl->end(); ++jet) {
+		++iCounter;
+		if (jet->et() < 0.5 ) continue ;
+		double dRjet_probe = deltaR(deta, dphi, jet->eta(), jet->phi());
+		if(iCounter == 1) dRjet_probe_min = dRjet_probe;
+		if (dRjet_probe < dRjet_probe_min) {
+		  dRjet_probe_min = dRjet_probe;
+		}
+		++totaljets;
+	      }
+	      tp_probe_jetDeltaR_->push_back(  dRjet_probe_min );
+	      tp_probe_totJets_->push_back(  totaljets);}
 
 	    ++nrtp;
 	 }
@@ -950,7 +988,8 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    m_event->put( tp_probe_etDet_, "TPProbeetDet" );    
    m_event->put( tp_probe_etaDet_, "TPProbeetaDet" ); 
    m_event->put( tp_probe_phiDet_, "TPProbephiDet" ); 
-
+   m_event->put( tp_probe_jetDeltaR_, "TPProbejetDeltaR" ); 
+   m_event->put( tp_probe_totJets_, "TPProbetotJets" );
 }
 // ******************************************************************* //
 
