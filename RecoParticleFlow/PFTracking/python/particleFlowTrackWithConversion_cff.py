@@ -11,18 +11,26 @@ gsfElCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidat
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
 gsfPFtracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
-from RecoEgamma.EgammaPhotonProducers.softConversionSequence_cff import *
+
 from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 
 #TRAJECTORIES IN THE EVENT
-softConversionIOTracks.TrajectoryInEvent = cms.bool(True)
-softConversionOITracks.TrajectoryInEvent = cms.bool(True)
 
-#UNCOMMENT THE LINES THAT START WITH #UN# IN ORDER TO ADD CONVERSION FROM PF CLUSTERS
 
-#UN#pfConversions.OtherConversionCollection =cms.VInputTag(cms.InputTag("softConversions:softConversionCollection"))
-#UN#pfConversions.OtherOutInCollection      =           cms.VInputTag(cms.InputTag("softConversionOITracks"))
-#UN#pfConversions.OtherInOutCollection      =           cms.VInputTag(cms.InputTag("softConversionIOTracks"))
+#UNCOMMENT THE LINES THAT START WITH #DON# IN ORDER TO ADD CONVERSION FROM PF CLUSTERS
+#DON#from RecoEgamma.EgammaPhotonProducers.softConversionSequence_cff import *
+#DON#softConversionIOTracks.TrajectoryInEvent = cms.bool(True)
+#DON#softConversionOITracks.TrajectoryInEvent = cms.bool(True)
+#DON#pfConversions.OtherConversionCollection =cms.VInputTag(cms.InputTag("softConversions:softConversionCollection"))
+#DON#pfConversions.OtherOutInCollection      =           cms.VInputTag(cms.InputTag("softConversionOITracks"))
+#DON#pfConversions.OtherInOutCollection      =           cms.VInputTag(cms.InputTag("softConversionIOTracks"))
+
+#UNCOMMENT THE LINES THAT START WITH #HON# IN ORDER TO ADD CONVERSION FROM PF CLUSTERS
+#HON#from RecoEgamma.EgammaPhotonProducers.trackerOnlyConversionSequence_cff import *
+
+#HON#pfConversions.OtherConversionCollection =cms.VInputTag(cms.InputTag("trackerOnlyConversions"))
+#HON#pfConversions.OtherOutInCollection      =           cms.VInputTag(cms.InputTag("generalTracks"))
+#HON#pfConversions.OtherInOutCollection      =           cms.VInputTag(cms.InputTag("generalTracks"))
 
 particleFlowTrackWithConversion =cms.Sequence(
     elecPreId*
@@ -30,12 +38,13 @@ particleFlowTrackWithConversion =cms.Sequence(
     gsfElCandidates*
     gsfPFtracks*
     pfTrackElec*
-#UN#    softConversionSequence*
+    #HON#trackerOnlyConversionSequence*
+    #DON#    softConversionSequence*
     pfConversions
     )
 
 
-gsfElCandidates.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchGsfElectrons'
+gsfElCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectronsinJets'
 gsfElCandidates.SeedProducer = 'gsfSeedclean'
 gsfElCandidates.SeedLabel = ''
 gsfPFtracks.Fitter = 'GsfElectronFittingSmoother'
@@ -43,5 +52,28 @@ gsfPFtracks.Propagator = 'fwdElectronPropagator'
 gsfPFtracks.src = 'gsfElCandidates'
 gsfPFtracks.TTRHBuilder = 'WithTrackAngle'
 gsfPFtracks.TrajectoryInEvent = True
+# Electron propagators and estimators
+# Looser chi2 estimator for electron trajectory building
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+electronEstimatorChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
 
+# TrajectoryBuilder
+import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+TrajectoryBuilderForElectronsinJets = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
 
+TrajectoryBuilderForElectronsinJets.ComponentName = 'TrajectoryBuilderForElectronsinJets'
+TrajectoryBuilderForElectronsinJets.trajectoryFilterName = 'TrajectoryFilterForPixelMatchGsfElectrons'
+TrajectoryBuilderForElectronsinJets.maxCand = 3
+TrajectoryBuilderForElectronsinJets.intermediateCleaning = False
+TrajectoryBuilderForElectronsinJets.propagatorAlong = 'fwdGsfElectronPropagator'
+TrajectoryBuilderForElectronsinJets.propagatorOpposite = 'bwdGsfElectronPropagator'
+TrajectoryBuilderForElectronsinJets.estimator = 'electronEstimatorChi2'
+TrajectoryBuilderForElectronsinJets.MeasurementTrackerName = ''
+TrajectoryBuilderForElectronsinJets.lostHitPenalty = 100.
+TrajectoryBuilderForElectronsinJets.alwaysUseInvalidHits = True
+TrajectoryBuilderForElectronsinJets.TTRHBuilder = 'WithTrackAngle'
+TrajectoryBuilderForElectronsinJets.updator = 'KFUpdator'
+electronEstimatorChi2.ComponentName = 'electronEstimatorChi2'
+
+electronEstimatorChi2.MaxChi2 = 2000.
+electronEstimatorChi2.nSigma = 3.
