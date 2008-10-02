@@ -36,7 +36,6 @@ using namespace l1extra;
 HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig) :
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
-   linksTag_   (iConfig.getParameter<InputTag > ("SeedTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
    min_N_     (iConfig.getParameter<int> ("MinN")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
@@ -92,11 +91,9 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    iEvent.getByLabel (candTag_,mucands);
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
-
-   Handle<L2MuonTrajectorySeedCollection> museeds; 
    vector<L1MuonParticleRef> vl1cands;
-   iEvent.getByLabel (linksTag_,museeds);
    previousLevelCands->getObjects(TriggerL1Mu,vl1cands);
+
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
    iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
@@ -110,8 +107,9 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
 
       LogDebug("HLTMuonL2PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
 
+
       // find the L1 Particle corresponding to the L2 Track
-      if (!triggeredByLevel1(tk,museeds,vl1cands)) continue;
+      if (!triggeredByLevel1(tk,vl1cands)) continue;
       // eta cut
 
       if (fabs(tk->eta())>max_Eta_) continue;
@@ -165,27 +163,17 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
 }
 
 bool
-HLTMuonL2PreFilter::triggeredByLevel1(TrackRef& tk,Handle<L2MuonTrajectorySeedCollection> &museeds,vector<L1MuonParticleRef>& vcands)
+HLTMuonL2PreFilter::triggeredByLevel1(TrackRef& tk,vector<L1MuonParticleRef>& vcands)
 {
   bool ok=false;
-  L1MuonParticleRef l1ref;
-  RefToBase<TrajectorySeed> seed=tk->seedRef();   
-  uint iMuSeed=0;
-  uint iMuSeed_max=museeds->size();
-  for( ; iMuSeed!=iMuSeed_max; ++iMuSeed){
-    Ref<L2MuonTrajectorySeedCollection> l2seed(museeds,iMuSeed);
-    if (l2seed.id()==seed.id() && l2seed.key()==seed.key()){
-      l1ref = l2seed->l1Particle();
-      break;
-    }
-  }
+  edm::Ref<L2MuonTrajectorySeedCollection> l2seedRef = tk->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+  l1extra::L1MuonParticleRef l1FromSeed = l2seedRef->l1Particle();
   for (unsigned int i=0; i<vcands.size(); i++) {
-    L1MuonParticleRef candref =  L1MuonParticleRef(vcands[i]);
-    if ( l1ref == candref ) {
+    if (l1FromSeed == vcands[i]){
       ok=true;
       LogTrace("HLTMuonL2PreFilter") << "The L1 stub triggered";
       break;
     }
-  } 
+  }
   return ok;
 }

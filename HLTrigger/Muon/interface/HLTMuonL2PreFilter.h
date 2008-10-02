@@ -24,11 +24,10 @@ class HLTMuonL2PreFilter : public HLTFilter {
       explicit HLTMuonL2PreFilter(const edm::ParameterSet&);
       ~HLTMuonL2PreFilter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      bool triggeredByLevel1(reco::TrackRef& track,edm::Handle<L2MuonTrajectorySeedCollection> &museeds,std::vector<l1extra::L1MuonParticleRef>& vcands);
+      bool triggeredByLevel1(reco::TrackRef& track,std::vector<l1extra::L1MuonParticleRef>& vcands);
    private:
       edm::InputTag beamspotTag_ ;
       edm::InputTag candTag_;  // input tag identifying product contains muons
-      edm::InputTag linksTag_;  // input tag identifying product contains muons
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       int    min_N_;            // minimum number of muons to fire the trigger
       double max_Eta_;          // Eta cut
