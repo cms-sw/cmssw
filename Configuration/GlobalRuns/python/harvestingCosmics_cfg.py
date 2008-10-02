@@ -39,5 +39,5 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOfflineCosmics_SecondStep*process.dqmSaver)
+process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOfflineCosmics_SecondStep_woHcal*process.dqmSaver)
 
