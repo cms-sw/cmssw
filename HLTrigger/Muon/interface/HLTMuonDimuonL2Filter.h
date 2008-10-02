@@ -19,7 +19,7 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       explicit HLTMuonDimuonL2Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL2Filter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      bool triggeredByLevel1(reco::TrackRef& track,edm::Handle<L2MuonTrajectorySeedCollection> &museeds,std::vector<l1extra::L1MuonParticleRef>& vcands);
+      bool triggeredByLevel1(reco::TrackRef& track,std::vector<l1extra::L1MuonParticleRef>& vcands);
 
    private:
       edm::InputTag beamspotTag_ ;
