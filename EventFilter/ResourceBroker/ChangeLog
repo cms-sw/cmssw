@@ -1,3 +1,14 @@
+2008-10-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-10-03
+	* fix 'nbClient crash upon halting' problem:
+	* add a binary semaphore to FUResourceBroker, plus lock()/unlock()
+	methods
+	* protect actionPeformed() and any occurence of 'delete
+	resourceTable_' with these locks
+	* also, set all values filled in actionPerformed() and
+	monitoring() to 0 if resourceTable_ is NULL
+
 2008-08-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-10-02

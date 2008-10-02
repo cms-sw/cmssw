@@ -19,6 +19,7 @@
 
 #include "toolbox/mem/Reference.h"
 #include "toolbox/fsm/exception/Exception.h"
+#include "toolbox/BSem.h"
 
 #include "interface/shared/frl_header.h"
 #include "interface/shared/fed_header.h"
@@ -99,6 +100,9 @@ namespace evf {
     void   exportParameters();
     void   reset();
     double deltaT(const struct timeval *start,const struct timeval *end);
+    
+    void   lock()   { lock_.take(); }
+    void   unlock() { lock_.give(); }
     
     
   private:    
@@ -212,6 +216,8 @@ namespace evf {
     uint64_t                 sumOfSquaresLast_;
     UInt_t                   sumOfSizesLast_;
     
+    // lock
+    toolbox::BSem            lock_;
   };
 
 } // namespace evf
