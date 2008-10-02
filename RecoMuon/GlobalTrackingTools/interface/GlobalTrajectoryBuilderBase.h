@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/14 16:27:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/30 03:30:19 $
+ *  $Revision: 1.7 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -36,8 +36,10 @@ class Trajectory;
 class TrackTransformer;
 class TrajectoryFitter;
 class MuonTrackingRegionBuilder;
+class TransientTrackingRecHitBuilder;
 
 namespace edm {class ParameterSet; class Event;}
+namespace reco {class TransientTrack;}
 
 //              ---------------------
 //              -- Class Interface --
@@ -135,6 +137,9 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     ///
     const MuonServiceProxy* service() const { return theService; }
 
+  TransientTrackingRecHit::ConstRecHitContainer
+    getTransientRecHits(const reco::TransientTrack& track) const;
+
     /// Ordering along increasing radius (for DT rechits)
     struct RadiusComparatorInOut{
       bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a,
@@ -183,6 +188,9 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     MuonTrackingRegionBuilder* theRegionBuilder;
     const MuonServiceProxy* theService;
     edm::ESHandle<TrajectoryFitter> theKFFitter;
+
+    unsigned long long theCacheId_TRH;
+    bool theRPCInTheFit;
   
     int   theMuonHitsOption;
     float theProbCut;
@@ -195,5 +203,11 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
  
     const edm::Event* theEvent;
 
+    std::string theTrackerRecHitBuilderName;
+    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+    
+    std::string theMuonRecHitBuilderName;
+    edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+    
 };
 #endif

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/16 20:39:10 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/09/30 03:30:19 $
+ *  $Revision: 1.22 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -67,7 +67,10 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
@@ -105,7 +108,12 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   regionBuilderPSet.addParameter<bool>("RegionalSeedFlag",false);
 
   theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
-  
+
+  theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
+  theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");  
+
+  theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
+
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   thePtCut = par.getParameter<double>("PtCut");
   theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
@@ -115,6 +123,8 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
   theKFFitterName = par.getParameter<string>("KFFitter");
   theTkTrajsAvailableFlag = true; 
+
+  theCacheId_TRH = 0;
 
 }
 
@@ -142,6 +152,15 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
   theRegionBuilder->setEvent(event);
+
+  unsigned long long newCacheId_TRH = theService->eventSetup().get<TransientRecHitRecord>().cacheIdentifier();
+  if ( newCacheId_TRH != theCacheId_TRH ) {
+    LogDebug(theCategory) << "TransientRecHitRecord changed!";
+    theCacheId_TRH = newCacheId_TRH;
+    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+
+  }
 
 }
 
@@ -186,9 +205,11 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       const GlobalVector& mom = (*it)->trackerTrajectory()->lastMeasurement().updatedState().globalMomentum();
       if ( mom.mag() < 2.5 || mom.perp() < thePtCut ) continue;
 
-	  ConstRecHitContainer trackerRecHits = (*it)->trackerTrajectory()->recHits();
+      reco::TransientTrack track(*(*it)->trackerTrack(),&*(theService->magneticField()),theService->trackingGeometry());
+      TransientTrackingRecHit::ConstRecHitContainer trackerRecHits = getTransientRecHits(track);
+
       // check for single TEC RecHits in trajectories in the overalp region
-      if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 ) trackerRecHits = selectTrackerHits((*it)->trackerTrajectory()->recHits());
+      if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 ) trackerRecHits = selectTrackerHits(trackerRecHits);
 		  
       RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
       if ( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
@@ -382,9 +403,8 @@ void GlobalTrajectoryBuilderBase::checkMuonHits(const reco::Track& muon,
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
   
-  MuonTransientTrackingRecHitBuilder muonRecHitBuilder(theService->trackingGeometry());
-
-  ConstRecHitContainer muonRecHits = muonRecHitBuilder.build(muon.recHitsBegin(),muon.recHitsEnd());
+  reco::TransientTrack track(muon,&*(theService->magneticField()),theService->trackingGeometry());
+  TransientTrackingRecHit::ConstRecHitContainer muonRecHits = getTransientRecHits(track);
 
 //  all.assign(muonRecHits.begin(),muonRecHits.end()); //FIXME: should use this
 
@@ -926,4 +946,23 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
 
   return hits;
 
+}
+
+TransientTrackingRecHit::ConstRecHitContainer
+GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::TransientTrack& track) const {
+  TransientTrackingRecHit::ConstRecHitContainer result;
+  
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
+    if((*hit)->isValid())
+      if ( (*hit)->geographicalId().det() == DetId::Tracker )
+	result.push_back(theTrackerRecHitBuilder->build(&**hit));
+      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
+	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
+	  LogDebug(theCategory) << "RPC Rec Hit discarged"; 
+	  continue;
+	}
+	result.push_back(theMuonRecHitBuilder->build(&**hit));
+      }
+
+  return result;
 }

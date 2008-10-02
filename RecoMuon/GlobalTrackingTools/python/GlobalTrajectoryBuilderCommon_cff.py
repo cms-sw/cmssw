@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import *
+from RecoMuon.TransientTrackingRecHit.MuonTransientTrackingRecHitBuilder_cfi import *
+from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 GlobalTrajectoryBuilderCommon = cms.PSet(
     MuonTrackingRegionCommon,
     Chi2ProbabilityCut = cms.double(30.0),
@@ -13,6 +15,9 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     Chi2CutRPC = cms.double(1.0),
     CSCRecSegmentLabel = cms.InputTag("cscSegments"),
     Chi2CutDT = cms.double(10.0),
+    TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+    MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+    RefitRPCHits = cms.bool(True),
     TrackTransformer = cms.PSet(
         Fitter = cms.string('KFFitterForRefitInsideOut'),
         TrackerRecHitBuilder = cms.string('WithTrackAngle'),

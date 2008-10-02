@@ -22,6 +22,7 @@
 <use name="RecoTracker/TkMSParametrization">
 <use name="RecoTracker/TkNavigation">
 <use name="RecoTracker/TkTrackingRegions">
+<use name="RecoTracker/TransientTrackingRecHit">
 <use name="TrackingTools/DetLayers">
 <use name="TrackingTools/GeomPropagators">
 <use name="TrackingTools/PatternTools">
@@ -30,6 +31,7 @@
 <use name="TrackingTools/TrackRefitter">
 <use name="TrackingTools/TrajectoryState">
 <use name="TrackingTools/TransientTrack">
+<use name="TrackingTools/TransientTrackingRecHit">
 <use name="Utilities/General">
 <use name="Utilities/Timing">
 <export>
