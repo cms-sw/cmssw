@@ -1,5 +1,5 @@
-#ifndef HLTEGAMMA_H
-#define HLTEGAMMA_H
+#ifndef HLTrigger_HLTanalyzers_HLTEgamma_h
+#define HLTrigger_HLTanalyzers_HLTEgamma_h
 
 #include "TH1.h"
 #include "TH2.h"
@@ -66,45 +66,85 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup,
-	       const reco::GsfElectronCollection * electrons,
-	       const reco::PhotonCollection * photons,
-	       TTree* tree);
-
-  void MakeL1IsolatedPhotons(edm::Event const& e, edm::EventSetup const& iSetup);
-  void MakeL1NonIsolatedPhotons(edm::Event const& e, edm::EventSetup const& iSetup);
-  void MakeL1IsolatedElectrons(edm::Event const& e, edm::EventSetup const& iSetup);
-  void MakeL1NonIsolatedElectrons(edm::Event const& e, edm::EventSetup const& iSetup);
-  void MakeL1IsolatedElectronsLargeWindows(edm::Event const& e, edm::EventSetup const& iSetup);
-  void MakeL1NonIsolatedElectronsLargeWindows(edm::Event const& e, edm::EventSetup const& iSetup);
+  void analyze(
+      const reco::GsfElectronCollection         * electrons,
+      const reco::PhotonCollection              * photons,
+      const reco::ElectronCollection            * electronIsoHandle,
+      const reco::ElectronCollection            * electronIsoHandleLW,
+      const reco::ElectronCollection            * electronNonIsoHandle,
+      const reco::ElectronCollection            * electronNonIsoHandleLW,
+      const reco::ElectronIsolationMap          * NonIsoTrackEleIsolMap,
+      const reco::ElectronIsolationMap          * NonIsoTrackEleIsolMapLW,
+      const reco::ElectronIsolationMap          * TrackEleIsolMap,
+      const reco::ElectronIsolationMap          * TrackEleIsolMapLW,
+      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
+      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMapLW,
+      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
+      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMapLW,
+      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
+      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * EcalIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * EcalNonIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * HcalEleNonIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * HcalIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * HcalNonIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * TrackIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * TrackNonIsolMap,
+      TTree* tree);
 
 private:
+
+  void MakeL1IsolatedPhotons(
+      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * EcalIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * HcalIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * TrackIsolMap);
+
+  void MakeL1NonIsolatedPhotons(
+      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * EcalNonIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * HcalNonIsolMap,
+      const reco::RecoEcalCandidateIsolationMap * TrackNonIsolMap);
+
+  void MakeL1IsolatedElectrons(
+      const reco::ElectronCollection            * electronIsoHandle,
+      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
+      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
+      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+
+  void MakeL1NonIsolatedElectrons(
+      const reco::ElectronCollection            * electronNonIsoHandle,
+      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
+      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
+      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+
+  void MakeL1IsolatedElectronsLargeWindows(
+      const reco::ElectronCollection            * electronIsoHandle,
+      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
+      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
+      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+
+  void MakeL1NonIsolatedElectronsLargeWindows(
+      const reco::ElectronCollection            * electronNonIsoHandle,
+      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
+      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
+      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
+      const reco::ElectronIsolationMap          * TrackEleIsolMap);
 
   // Tree variables
   float *elpt, *elphi, *eleta, *elet, *ele; 
   float *photonpt, *photonphi, *photoneta, *photonet, *photone; 
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso;
-  float *heleet,*heleeta,*helephi,*heleE,*helep,*helehiso,*heletiso;
-  float *heleetLW,*heleetaLW,*helephiLW,*heleELW,*helepLW,*helehisoLW,*heletisoLW;
-  int *hphotl1iso,*helel1iso,*helePixelSeeds,*helel1isoLW,*helePixelSeedsLW;
+  float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso;
+  float *heleetLW, *heleetaLW, *helephiLW, *heleELW, *helepLW, *helehisoLW, *heletisoLW;
+  int *hphotl1iso, *helel1iso, *helePixelSeeds, *helel1isoLW, *helePixelSeedsLW;
   int *heleNewSC, *heleNewSCLW;
-  int nele,nphoton,nhltgam,nhltele,nhlteleLW;
+  int nele, nphoton, nhltgam, nhltele, nhlteleLW;
 
-  edm::InputTag CandIso_,CandNonIso_,EcalNonIso_,EcalIso_,HcalIsoPho_,HcalNonIsoPho_,IsoPhoTrackIsol_,NonIsoPhoTrackIsol_;
-  edm::InputTag IsoEleHcalTag_,NonIsoEleHcalTag_,IsoElectronTag_,NonIsoElectronTag_,IsoEleTrackIsolTag_,NonIsoEleTrackIsolTag_;
-  edm::InputTag L1IsoPixelSeedsTag_;
-  edm::InputTag L1NonIsoPixelSeedsTag_;
-  edm::InputTag L1IsoPixelSeedsLargeWindowsTag_;
-  edm::InputTag L1NonIsoPixelSeedsLargeWindowsTag_;
-
-  //std::string L1NonIsoPixelSeedsTag_;
-
-  edm::InputTag IsoElectronLargeWindowsTag_,NonIsoElectronLargeWindowsTag_,IsoEleTrackIsolLargeWindowsTag_,NonIsoEleTrackIsolLargeWindowsTag_;
-  //  std::string L1IsoPixelSeedsLargeWindowsTag_,L1NonIsoPixelSeedsLargeWindowsTag_;
-
-
-  //get hold of the pixel seed - supercluster association map
-  
   class myHLTPhoton {
   public:
     float Et;
@@ -113,7 +153,7 @@ private:
     float ecalIsol;
     float hcalIsol;
     float trackIsol;
-    bool L1Isolated;
+    bool  L1Isolated;
 
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
@@ -128,18 +168,15 @@ private:
     float p;
     float hcalIsol;
     float trackIsol;
-    bool L1Isolated;
-    int pixelSeeds;
-    float et() const {return Et;}
-    bool newSC;
+    bool  L1Isolated;
+    int   pixelSeeds;
+    bool  newSC;
+
+    float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
-  std::vector<myHLTElectron>  theHLTElectrons;
+  std::vector<myHLTElectron> theHLTElectrons;
   std::vector<myHLTElectron> theHLTElectronsLargeWindows;
-// input variables
-  bool _Monte,_Debug;
-  int evtCounter;
-  const float etaBarrel() {return 1.4;}
 
 };
 
-#endif
+#endif // HLTrigger_HLTanalyzers_HLTEgamma_h
