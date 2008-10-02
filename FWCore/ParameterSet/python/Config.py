@@ -468,7 +468,12 @@ class Process(object):
         resolvedDependencies=True
         #keep looping until we can no longer get rid of all dependencies
         # if that happens it means we have circular dependencies
+        iterCount = 0
         while resolvedDependencies:
+            iterCount += 1
+            if iterCount > 1000:
+                raise RuntimeError("circular sequence dependency discovered \n"+
+                                   ",".join([label for label,junk in dependencies.iteritems()]))
             resolvedDependencies = (0 != len(dependencies))
             oldDeps = dict(dependencies)
             for label,(seq,deps) in oldDeps.iteritems():
