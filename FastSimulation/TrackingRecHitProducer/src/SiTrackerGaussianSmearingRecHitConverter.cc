@@ -76,6 +76,16 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   edm::ParameterSet const& conf) 
   : pset_(conf)
 {
+  thePixelDataFile = 0;
+  thePixelBarrelResolutionFile = 0;
+  thePixelForwardResolutionFile = 0;
+  thePixelBarrelParametrization = 0;
+  thePixelEndcapParametrization = 0;
+  theSiStripErrorParametrization = 0; 
+
+  random = 0;
+
+
 #ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
 #endif
@@ -468,15 +478,15 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
   theBarrelMultiplicityBetaCumulativeProbabilities.clear();
   theForwardMultiplicityAlphaCumulativeProbabilities.clear();
   theForwardMultiplicityBetaCumulativeProbabilities.clear();
-  //
-  delete thePixelDataFile;
-  delete thePixelBarrelResolutionFile;
-  delete thePixelForwardResolutionFile;
-  delete thePixelBarrelParametrization;
-  delete thePixelEndcapParametrization;
-  delete theSiStripErrorParametrization;
+  
+  if(thePixelDataFile) delete thePixelDataFile;
+  if(thePixelBarrelResolutionFile) delete thePixelBarrelResolutionFile;
+  if(thePixelForwardResolutionFile) delete thePixelForwardResolutionFile;
+  if(thePixelBarrelParametrization) delete thePixelBarrelParametrization;
+  if(thePixelEndcapParametrization) delete thePixelEndcapParametrization;
+  if(theSiStripErrorParametrization) delete theSiStripErrorParametrization;
 
-  delete random;
+  if(random) delete random;
 
 }  
 
