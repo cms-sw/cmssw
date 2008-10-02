@@ -18,11 +18,14 @@ process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('CaloSim', 
         'EcalGeom', 
         'EcalSim', 
+        'G4cerr',
+        'G4cout',
         'HCalGeom', 
         'HcalSim', 
         'HcalTBSim', 
         'SimHCalData', 
         'VertexGenerator'),
+#    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
@@ -31,19 +34,22 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        VertexGenerator = cms.untracked.PSet(
+        CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         EcalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         EcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        G4cerr = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        G4cout = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
@@ -53,6 +59,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         SimHCalData = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        VertexGenerator = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     )
@@ -113,6 +122,7 @@ process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
+process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.CaloSD = cms.PSet(
