@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
-    tkminTrackerHitsn = cms.int32(8),
-    tkminPixelHitsn = cms.int32(2),
     ECALBasicClusterpropagTrack_matchingDRConeSize = cms.double(0.015),
     #string PVProducer                         = "pixelVertices"
     PVProducer = cms.string('offlinePrimaryVertices'),
@@ -10,7 +8,6 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     tkminPt = cms.double(1.0),
     ESRecHitsSource = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     UsePVconstraint = cms.bool(False),
-    tkmaxChi2 = cms.double(100.0),
     # parameters of the considered EcalRecHits
     EBRecHitsSource = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     BarrelBasicClustersSource = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
