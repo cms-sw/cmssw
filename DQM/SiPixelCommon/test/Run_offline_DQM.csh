@@ -173,7 +173,8 @@ if ( $opt_flag == "true" ) then
 	    set tagnumber = $calibtype$runnumber	    
 	else if ($calib_flag == "true") then
 	    set tagnumber = "PixelAlive_default"
-
+	else
+	    set tagnumber = ""
 	endif
 
 
