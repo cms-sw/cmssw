@@ -15,7 +15,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.cc,v 1.4 2008/05/15 19:16:58 eluiggi Exp $
+// $Id: L25TauAnalyzer.cc,v 1.6 2008/10/03 19:00:40 bachtis Exp $
 //
 //
 
@@ -45,6 +45,7 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   jetMCEta=0.;
   leadSignalTrackPt=0.;
   trkDrRMS=0.;
+  trkDrRMSA=0.;
   leadTrkJetDeltaR=0.;
   numPixTrkInJet=0;
   numQPixTrkInJet=0;
@@ -60,6 +61,7 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   l25tree->Branch("jetMCEta", &jetMCEta, "jetMCEta/F");
   l25tree->Branch("leadTrackPt", &leadSignalTrackPt, "leadTrackPt/F");
   l25tree->Branch("trackDeltaRRMS", &trkDrRMS, "trackDeltaRRMS/F");
+  l25tree->Branch("trackDeltaRRMSAll", &trkDrRMSA, "trackDeltaRRMSAll/F");
   l25tree->Branch("matchingCone", &leadTrkJetDeltaR, "matchingCone/F");
   l25tree->Branch("nTracks", &numPixTrkInJet, "nTracks/I");
   l25tree->Branch("nQTracks", &numQPixTrkInJet, "nQTracks/I");
@@ -114,7 +116,9 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		 jetMCEta=m.mcEta;
 		 numPixTrkInJet = i->allTracks().size();
 		 numQPixTrkInJet = i->selectedTracks().size();
-		 trkDrRMS =trackDrRMS(*i); 
+		 trkDrRMS =trackDrRMS(*i,i->selectedTracks());
+		 trkDrRMSA =trackDrRMS(*i,i->allTracks());
+ 
 
 		 //Search Leading Track
 		 const TrackRef leadTk = i->leadingSignalTrack();
@@ -144,9 +148,8 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 float 
-L25TauAnalyzer::trackDrRMS(const reco::IsolatedTauTagInfo& info)
+L25TauAnalyzer::trackDrRMS(const reco::IsolatedTauTagInfo& info,const TrackRefVector& tracks)
 {
-  const TrackRefVector  tracks = info.selectedTracks();
   float rms = 0.;
   float sumet = 0.;
   

@@ -13,7 +13,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.h,v 1.3 2008/05/15 19:16:59 eluiggi Exp $
+// $Id: L25TauAnalyzer.h,v 1.5 2008/10/03 19:00:39 bachtis Exp $
 //
 //
 
@@ -71,7 +71,7 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       MatchElementL25 match(const reco::Jet&,const LVColl&);
-      float trackDrRMS(const reco::IsolatedTauTagInfo&);
+      float trackDrRMS(const reco::IsolatedTauTagInfo&,const reco::TrackRefVector&);
 
       edm::InputTag jetTagSrc_;
       edm::InputTag jetMCTagSrc_;
@@ -94,6 +94,7 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
       float jetMCEt;
       float jetMCEta;
       float trkDrRMS;
+      float trkDrRMSA;
       float leadSignalTrackPt;
       float leadTrkJetDeltaR; 
       bool hasLeadTrk;
