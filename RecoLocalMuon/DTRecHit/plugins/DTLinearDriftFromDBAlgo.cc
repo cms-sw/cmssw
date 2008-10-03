@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/20 14:23:41 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -125,10 +125,11 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
   // Read the vDrift and reso for this wire
   float vDrift = 0;
   float hitResolution = 0;//FIXME: should use this!
-  mTimeMap->slMtime(wireId.superlayerId(),
-		    vDrift,
-		    hitResolution,
-		    DTTimeUnits::ns);
+  // vdrift is cm/ns , resolution is cm
+  mTimeMap->get(wireId.superlayerId(),
+	        vDrift,
+	        hitResolution,
+	        DTVelocityUnits::cm_per_ns);
 
 
   // Compute the drift distance
