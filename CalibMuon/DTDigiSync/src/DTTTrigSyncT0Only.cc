@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
@@ -69,10 +70,10 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
 double DTTTrigSyncT0Only::offset(const DTWireId& wireId) {
   float t0 = 0;
   float t0rms = 0;
-  tZeroMap->cellT0(wireId,
-                   t0,
-                   t0rms,
-                   DTTimeUnits::ns);
+  tZeroMap->get(wireId,
+                t0,
+                t0rms,
+                DTTimeUnits::ns);
 
   return t0;
 }
