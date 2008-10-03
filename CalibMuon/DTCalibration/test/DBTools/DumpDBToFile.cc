@@ -49,39 +49,7 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
 DumpDBToFile::~DumpDBToFile(){}
 
 
-void DumpDBToFile::beginJob(const EventSetup& setup) {
-  //// Read the right DB accordingly to the parameter dbToDump
-  //  if(dbToDump == "VDriftDB") {
-  //  ESHandle<DTMtime> mTime;
-  //  setup.get<DTMtimeRcd>().get(mTime);
-  //  mTimeMap = &*mTime;
-  //  cout << "[DumpDBToFile] MTime version: " << mTime->version() << endl;
-  //} else if(dbToDump == "TTrigDB") {
-  //  ESHandle<DTTtrig> tTrig;
-  //  setup.get<DTTtrigRcd>().get(tTrig);
-  //  tTrigMap = &*tTrig;
-  //  cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
-  //} else if(dbToDump == "TZeroDB") {
-  //  ESHandle<DTT0> t0;
-  //  setup.get<DTT0Rcd>().get(t0);
-  //  tZeroMap = &*t0;
-  //  cout << "[DumpDBToFile] T0 version: " << t0->version() << endl;
-  //} else if(dbToDump == "NoiseDB") {
-  //  ESHandle<DTStatusFlag> status;
-  //  setup.get<DTStatusFlagRcd>().get(status);
-  //  statusMap = &*status;
-  //} else if(dbToDump == "DeadDB") {
-  //  ESHandle<DTDeadFlag> dead;
-  //  setup.get<DTDeadFlagRcd>().get(dead);
-  //  deadMap = &*dead;
-  //} else if (dbToDump == "ChannelsDB") {
-  //  ESHandle<DTReadOutMapping> channels;
-  //  setup.get<DTReadOutMappingRcd>().get(channels);
-  //  channelsMap = &*channels;
-  // }
-}
-
-void DumpDBToFile::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
+void DumpDBToFile::beginRun(const edm::Run&, const EventSetup& setup) {
   // Read the right DB accordingly to the parameter dbToDump
   if(dbToDump == "VDriftDB") {
     ESHandle<DTMtime> mTime;
@@ -111,52 +79,59 @@ void DumpDBToFile::beginRun( const edm::Run& run, const edm::EventSetup& setup )
     setup.get<DTReadOutMappingRcd>().get(channels);
     channelsMap = &*channels;
   }
-
 }
+
 
 void DumpDBToFile::endJob() {
   
   if (dbToDump != "ChannelsDB") {
-    static const double convToNs = 25./32.;
     if(dbToDump == "VDriftDB") {
       for(DTMtime::const_iterator mtime = mTimeMap->begin();
 	  mtime != mTimeMap->end(); mtime++) {
+ 	DTWireId wireId((*mtime).first.wheelId,
+			(*mtime).first.stationId,
+			(*mtime).first.sectorId,
+			(*mtime).first.slId, 0, 0);
+        float vdrift;
+        float reso;
+        DetId detId( wireId.rawId() );
+	// vdrift is cm/ns , resolution is cm
+       mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
 	cout << "Wh: " << (*mtime).first.wheelId
 	     << " St: " << (*mtime).first.stationId
 	     << " Sc: " << (*mtime).first.sectorId
 	     << " Sl: " << (*mtime).first.slId
-	     << " VDrift (cm/ns): " << (*mtime).second.mTime * convToNs
-	     << " Hit reso (cm): " << (*mtime).second.mTrms * convToNs<< endl;
-
-	DTWireId wireId((*mtime).first.wheelId,
-			(*mtime).first.stationId,
-			(*mtime).first.sectorId,
-			(*mtime).first.slId, 0, 0);
+	     << " VDrift (cm/ns): " << vdrift
+	     << " Hit reso (cm): " << reso << endl;
 	vector<float> consts;
 	consts.push_back(-1);
 	consts.push_back(-1);
-	consts.push_back((*mtime).second.mTime * convToNs);
-	consts.push_back((*mtime).second.mTrms * convToNs);
+	consts.push_back(vdrift);
+	consts.push_back(reso);
 
 	theCalibFile->addCell(wireId, consts);
       }
     } else if(dbToDump == "TTrigDB") {
        for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
-	  ttrig != tTrigMap->end(); ttrig++) {
+	   ttrig != tTrigMap->end(); ttrig++) {
+	 DTWireId wireId((*ttrig).first.wheelId,
+			 (*ttrig).first.stationId,
+			(*ttrig).first.sectorId,
+			(*ttrig).first.slId, 0, 0);
+        float tmea;
+        float trms;
+        DetId detId(wireId.rawId());
+	// ttrig and rms are ns
+        tTrigMap->get(detId, tmea, trms, DTTimeUnits::ns);
 	cout << "Wh: " << (*ttrig).first.wheelId
 	     << " St: " << (*ttrig).first.stationId
 	     << " Sc: " << (*ttrig).first.sectorId
 	     << " Sl: " << (*ttrig).first.slId
-	     << " TTrig mean (ns): " << (*ttrig).second.tTrig * convToNs
-	     << " TTrig sigma (ns): " << (*ttrig).second.tTrms * convToNs<< endl;
-
-	DTWireId wireId((*ttrig).first.wheelId,
-			(*ttrig).first.stationId,
-			(*ttrig).first.sectorId,
-			(*ttrig).first.slId, 0, 0);
+	     << " TTrig mean (ns): " << tmea
+	     << " TTrig sigma (ns): " << trms << endl;
 	vector<float> consts;
-	consts.push_back((*ttrig).second.tTrig * convToNs);
-	consts.push_back((*ttrig).second.tTrms * convToNs);
+	consts.push_back(tmea);
+	consts.push_back(trms);
 	consts.push_back(-1);
 	consts.push_back(-1);
 
@@ -171,16 +146,20 @@ void DumpDBToFile::endJob() {
 			(*tzero).first.slId,
 			(*tzero).first.layerId,
 			(*tzero).first.cellId);
+        float t0mean;
+        float t0rms;
+        // t0s and rms are TDC counts
+        tZeroMap->get(wireId, t0mean, t0rms, DTTimeUnits::counts);
 	cout << wireId
-	     << " TZero mean (TDC counts): " << (*tzero).second.t0mean
-	     << " TZero RMS (TDC counts): " << (*tzero).second.t0rms << endl;
+	     << " TZero mean (TDC counts): " << t0mean
+	     << " TZero RMS (TDC counts): " << t0rms << endl;
 	vector<float> consts;
 	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
 	consts.push_back(-1);
-	consts.push_back((*tzero).second.t0mean);      
-	consts.push_back((*tzero).second.t0rms);
+	consts.push_back(t0mean);      
+	consts.push_back(t0rms);
 
 	theCalibFile->addCell(wireId, consts);
       }

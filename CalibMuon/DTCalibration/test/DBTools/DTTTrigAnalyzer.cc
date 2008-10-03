@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/15 14:44:39 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/22 19:00:30 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -34,7 +34,7 @@ DTTTrigAnalyzer::~DTTTrigAnalyzer(){
   theFile->Close();
 }
 
-void DTTTrigAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
+void DTTTrigAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
   ESHandle<DTTtrig> tTrig;
   eventSetup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap = &*tTrig;
@@ -42,7 +42,7 @@ void DTTTrigAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
 }
 
 void DTTTrigAnalyzer::endJob() {
-   static const double convToNs = 25./32.;
+//   static const double convToNs = 25./32.;
    // Loop over DB entries
   for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
 	  ttrig != tTrigMap->end(); ttrig++) {
@@ -50,11 +50,14 @@ void DTTTrigAnalyzer::endJob() {
 		    (*ttrig).first.stationId,
 		    (*ttrig).first.sectorId,
 		    (*ttrig).first.slId, 0, 0);
-    float tmean = (*ttrig).second.tTrig * convToNs;
-    float sigma = (*ttrig).second.tTrms * convToNs;
-    float ttrig = tmean + kfactor * sigma; 
+    float tmean;
+    float sigma;
+    DetId detId( wireId.rawId() );
+    // ttrig and rms are ns
+    tTrigMap->get(detId, tmean, sigma, DTTimeUnits::ns);
+    float ttcor = tmean + kfactor * sigma; 
     cout << "Wire: " <<  wireId <<endl
-	 << " Ttrig (ns): " << ttrig<<endl
+	 << " Ttrig (ns): " << ttcor<<endl
 	 << " tmean (ns): " << tmean<<endl
 	 << " sigma (ns): " << sigma<<endl;
 
@@ -88,7 +91,8 @@ void DTTTrigAnalyzer::endJob() {
 
     //Fill the histos and set the bin label
     int binNumber = wireId.sector() + 12 * (wireId.station() - 1);
-    hTTrigHisto->SetBinContent(binNumber,ttrig);  
+//    hTTrigHisto->SetBinContent(binNumber,ttrig);  
+    hTTrigHisto->SetBinContent(binNumber,ttcor);  
     hTMeanHisto->SetBinContent(binNumber,tmean);  
     hSigmaHisto->SetBinContent(binNumber,sigma);  
     string labelName;
@@ -124,7 +128,8 @@ void DTTTrigAnalyzer::endJob() {
       theSigmaDistribMap[Wh_St_SL] = hSigmaDistrib;
     }
     //Fill the distributions
-    hTTrigDistrib->Fill(ttrig);
+//    hTTrigDistrib->Fill(ttrig);
+    hTTrigDistrib->Fill(ttcor);
     hTMeanDistrib->Fill(tmean);
     hSigmaDistrib->Fill(sigma);
   }

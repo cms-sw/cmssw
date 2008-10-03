@@ -32,15 +32,6 @@ DTVDriftAnalyzer::~DTVDriftAnalyzer(){
   theFile->Close();
 }
 
-/*void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
-  ESHandle<DTMtime> mTime;
-  eventSetup.get<DTMtimeRcd>().get(mTime);
-  mTimeMap = &*mTime;
-  cout << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
- 
-}*/
-void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {}
-
 void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   ESHandle<DTMtime> mTime;
   eventSetup.get<DTMtimeRcd>().get(mTime);
@@ -50,7 +41,6 @@ void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& even
 }
 
 void DTVDriftAnalyzer::endJob() {
-   static const double convToNs = 25./32.;
    // Loop over DB entries
    for(DTMtime::const_iterator mtime = mTimeMap->begin();
        mtime != mTimeMap->end(); mtime++) {
@@ -58,11 +48,14 @@ void DTVDriftAnalyzer::endJob() {
 		     (*mtime).first.stationId,
 		     (*mtime).first.sectorId,
 		     (*mtime).first.slId, 0, 0);
-    double vdrift = (*mtime).second.mTime * convToNs;
-    float reso = (*mtime).second.mTrms * convToNs;
+    float vdrift;
+    float reso;
+    DetId detId( wireId.rawId() );
+    // vdrift is cm/ns , resolution is cm
+    mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
     cout << "Wire: " <<  wireId <<endl
-	 << " vdrift (ns): " << vdrift<<endl
-	 << " reso (ns): " << reso<<endl;
+	 << " vdrift (cm/ns): " << vdrift<<endl
+	 << " reso (cm): " << reso<<endl;
 
     //Define an histo for each wheel and each superlayer type
     TH1D *hVDriftHisto = theVDriftHistoMap[make_pair(wireId.wheel(),wireId.superlayer())];
