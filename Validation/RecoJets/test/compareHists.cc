@@ -60,7 +60,7 @@ TObject* getObject (TDirectory* fDir, const std::vector <std::string>& fObjectNa
   return result;
 }
 
-double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::string& fPrefix = "") {
+double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::string& fPrefix = "", const std::string& events="", double scalebyevents=0) {
   double pv = fHist->KolmogorovTest (fRefHist, "OU");
   // set style
   TPad pad ("pad", "pad", 0, 0, 1, 0.9, 0);
@@ -79,8 +79,13 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
 
   pad.cd();
 
-  fHist->Sumw2 ();
-  fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+  if ( events == 'y') {
+    fHist->Scale (scalebyevents);
+  }
+  else {
+    fHist->Sumw2 ();
+    fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+  }
 
   fHist->SetMarkerStyle (21);
   fHist->SetMarkerSize (0.7);
@@ -106,7 +111,7 @@ int main (int argn, char* argv []) {
   int result = 0; // OK
 
   if (argn < 5) {
-    std::cout << "Usage: " << argv[0] << " <file_name> <reference file_name> <module_name> <description" << std::endl;
+    std::cout << "Usage: " << argv[0] << " <file_name> <reference file_name> <module_name> <description> <use number of events for normalization? (y or n)>, default is n " << std::endl;
     return 1;
   }
 
@@ -114,15 +119,23 @@ int main (int argn, char* argv []) {
   std::string refFileName (argv[2]);
   std::string moduleName (argv[3]);
   std::string globalTitle = argv[4];
+  std::string normalization = "n";
+  if (argn == 6) {
+    normalization = (argv[5]);
+  }
+  std::cout << normalization << std::endl;
   std::cout << "Processing file " << inputFileName << std::endl;
+
   TFile* inputFile = TFile::Open (inputFileName.c_str());
   if (!inputFile) {
     std::cerr << "Cannot open file " << inputFileName << std::endl;
     return 1;
   }
+
   TDirectory* dirIn = 0;
-  std::string workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
+  std::string workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName ; // new format
   inputFile->GetObject (workDir.c_str(), dirIn);
+
   if (!dirIn) {
     std::cout << "Fall back to old format for file " << inputFileName << std::endl;
     workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
@@ -132,14 +145,17 @@ int main (int argn, char* argv []) {
       return 1;
     }
   }
+
   TFile* refFile = TFile::Open (refFileName.c_str());
   if (!refFile) {
     std::cerr << "Cannot open file " << refFileName << std::endl;
     return 1;
   }
+
   TDirectory* dirRef = 0;
   workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
+
   if (!dirRef) {
     std::cout << "Fall back to old format for file " << refFileName << std::endl;
     workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
@@ -154,6 +170,25 @@ int main (int argn, char* argv []) {
   // output
   gStyle->SetOptStat (kFALSE);
   TCanvas canvas ("Jets","Jets",800,600);
+
+  double scaleforevents = 0;
+
+  for (unsigned ihist = 0; ihist < histKeys.size (); ++ihist) {
+    TH1* histforcheck = 0;
+    dirIn->GetObject (histKeys[ihist].c_str(), histforcheck);
+    std::string nameforcheck = histforcheck->GetTitle ();
+    if ( nameforcheck == "numberofevents") {
+      TH1* refhistforcheck = 0;
+      dirRef->GetObject (histKeys[ihist].c_str(), refhistforcheck);
+      std::cout << "hist=numberofevnets" << std::endl;
+      histforcheck->Sumw2 ();
+      refhistforcheck->Sumw2 ();
+      double scaleforcheck=histforcheck->GetSumOfWeights ();
+      double refscaleforcheck=refhistforcheck->GetSumOfWeights ();
+      scaleforevents = refscaleforcheck/scaleforcheck;
+    }
+  }
+
   for (unsigned ihist = 0; ihist < histKeys.size (); ++ihist) {
     TH1* hist = 0;
     dirIn->GetObject (histKeys[ihist].c_str(), hist);
@@ -162,7 +197,7 @@ int main (int argn, char* argv []) {
       dirRef->GetObject (histKeys[ihist].c_str(), refhist);
       if (refhist) {
 	std::string title = globalTitle;
-	double pv = makeGifHists (hist, refhist, &canvas, title);
+	double pv = makeGifHists (hist, refhist, &canvas, title, normalization, scaleforevents);
 	std::cout << "pv for hist " << histKeys[ihist] << " is " << pv << std::endl; 
       }
       else {
