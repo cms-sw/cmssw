@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.h,v 1.1 2007/03/22 16:12:25 futyand Exp $
+// $Id: ElectronPixelSeedAnalyzer.h,v 1.1 2007/07/05 10:34:45 charlot Exp $
 //
 //
   
@@ -54,6 +54,11 @@ class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
   float mcEnergy[10], mcEta[10], mcPhi[10], mcPt[10], mcQ[10];
   float superclusterEnergy[10], superclusterEta[10], superclusterPhi[10], superclusterEt[10];
   float seedMomentum[10], seedEta[10], seedPhi[10], seedPt[10], seedQ[10];
+  int seedSubdet1[10], seedSubdet2[10];
+  int seedLayer1[10], seedLayer2[10];
+  int seedSide1[10], seedSide2[10];
+  float seedDphi1[10], seedDrz1[10], seedDphi2[10], seedDrz2[10];
+  float seedPhi1[10], seedRz1[10], seedPhi2[10], seedRz2[10];
   TH1F *histeMC_;
   TH1F *histp_;
   TH1F *histeclu_;
@@ -71,8 +76,7 @@ class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
   TH1I *histnbseeds_;
   TH1I *histnbclus_;
 
-  std::string seedProducer_;
-  std::string seedLabel_;
+  edm::InputTag inputCollection_;
 
  };
   

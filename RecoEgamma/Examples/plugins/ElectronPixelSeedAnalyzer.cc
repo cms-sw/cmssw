@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.2 2007/11/15 10:46:44 elmer Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.3 2008/02/25 13:43:16 nancy Exp $
 //
 //
 
@@ -42,12 +42,30 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoEgamma/Examples/plugins/ElectronPixelSeedAnalyzer.h"
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h" 
+#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h" 
+#include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h" 
+#include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h" 
+
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/SimpleVector.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <iostream>
 #include "TFile.h"
@@ -62,8 +80,7 @@ ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& co
 {
   histfile_ = new TFile("electronpixelseeds.root","RECREATE");
   
-  seedProducer_=conf.getParameter<string>("SeedProducer");
-  seedLabel_=conf.getParameter<string>("SeedLabel");
+  inputCollection_=conf.getParameter<edm::InputTag>("inputCollection");
 }  
   
 ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
@@ -77,7 +94,7 @@ ElectronPixelSeedAnalyzer::~ElectronPixelSeedAnalyzer()
 }
 
 void ElectronPixelSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
-  iSetup.get<TrackerDigiGeometryRecord> ().get (pDD); 
+  iSetup.get<TrackerDigiGeometryRecord> ().get(pDD); 
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
   tree_ = new TTree("ElectronPixelSeeds","ElectronPixelSeed validation ntuple");
   tree_->Branch("mcEnergy",mcEnergy,"mcEnergy[10]/F");
@@ -94,6 +111,20 @@ void ElectronPixelSeedAnalyzer::beginJob(edm::EventSetup const&iSetup){
   tree_->Branch("seedPhi",seedPhi,"seedPhi[10]/F");
   tree_->Branch("seedPt",seedPt,"seedPt[10]/F");
   tree_->Branch("seedQ",seedQ,"seedQ[10]/F");
+  tree_->Branch("seedSubdet1",seedSubdet1,"seedSubdet1[10]/I");
+  tree_->Branch("seedLayer1",seedLayer1,"seedLayer1[10]/I");
+  tree_->Branch("seedSide1",seedSide1,"seedSide1[10]/I");
+  tree_->Branch("seedPhi1",seedPhi1,"seedPhi1[10]/F");
+  tree_->Branch("seedDphi1",seedDphi1,"seedDphi1[10]/F");
+  tree_->Branch("seedDrz1",seedDrz1,"seedDrz1[10]/F");
+  tree_->Branch("seedRz1",seedRz1,"seedRz1[10]/F");
+  tree_->Branch("seedSubdet2",seedSubdet2,"seedSubdet2[10]/I");
+  tree_->Branch("seedLayer2",seedLayer2,"seedLayer2[10]/I");
+  tree_->Branch("seedSide2",seedSide2,"seedSide2[10]/I");
+  tree_->Branch("seedPhi2",seedPhi2,"seedPhi2[10]/F");
+  tree_->Branch("seedDphi2",seedDphi2,"seedDphi2[10]/F");
+  tree_->Branch("seedRz2",seedRz2,"seedRz2[10]/F");
+  tree_->Branch("seedDrz2",seedDrz2,"seedDrz2[10]/F");
   histeMC_ = new TH1F("eMC","MC particle energy",100,0.,100.);
   histp_ = new TH1F("p","seed p",100,0.,100.);
   histeclu_ = new TH1F("clus energy","supercluster energy",100,0.,100.);
@@ -120,27 +151,59 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   typedef recHitContainer::const_iterator const_iterator;
   typedef std::pair<const_iterator,const_iterator> range;
+  
+  
+  // get beam spot
+  edm::Handle<reco::BeamSpot> theBeamSpot;
+  e.getByType(theBeamSpot);
 
   // get seeds
   
   edm::Handle<ElectronPixelSeedCollection> elSeeds;
-  e.getByLabel(seedProducer_,seedLabel_,elSeeds); 
+  e.getByLabel(inputCollection_,elSeeds); 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
   int is=0;
+   
+  FTSFromVertexToPointFactory   myFTS;  
+  //theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker();
+ // startLayers.setup(theGeometricSearchTracker);
+  //if (theLayerMeasurements ) delete theLayerMeasurements;
+  //theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
+  //const MagneticField *magField = theMagField->product();
+  //theTrackerGeometry = trackerGeometry;
+  //delete prop2ndLayer;
+  float mass=.000511; // electron propagation
+  PropagatorWithMaterial* prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,&(*theMagField));
+  PropagatorWithMaterial* prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,&(*theMagField));
 
+  float dphi1=0., dphi2=0., drz1=0., drz2=0.;
+  float phi1=0., phi2=0., rz1=0., rz2=0.;
+  
   for( ElectronPixelSeedCollection::const_iterator MyS= (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
     
     LogDebug("") <<"\nSeed nr "<<is<<": ";
     range r=(*MyS).recHits();
      LogDebug("")<<" Number of RecHits= "<<(*MyS).nHits();
-    const GeomDet *det=0;
-    for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) {
-      det = pDD->idToDet(((*rhits)).geographicalId());
-       LogDebug("") <<" SiPixelHit   local x,y,z "<<(*rhits).localPosition()<<" det "<<(*rhits).geographicalId().det()<<" subdet "<<(*rhits).geographicalId().subdetId();
-       LogDebug("") <<" SiPixelHit   global  "<<det->toGlobal((*rhits).localPosition());
-    }   
-    
+    const GeomDet *det1=0;const GeomDet *det2=0;
+
+    TrajectorySeed::const_iterator it=r.first;
+    DetId id1 = (*it).geographicalId();
+    det1 = pDD->idToDet(id1);
+    LogDebug("") <<" First hit local x,y,z "<<(*it).localPosition()<<" det "<<id1.det()<<" subdet "<<id1.subdetId();
+    LogDebug("") <<" First hit global  "<<det1->toGlobal((*it).localPosition());
+    //std::cout <<" First hit local x,y,z "<<(*it).localPosition()<<" det "<<id1.det()<<" subdet "<<id1.subdetId()<< std::endl;
+    //std::cout <<" First hit global  "<<det1->toGlobal((*it).localPosition())<< std::endl;
+    it++;
+    DetId id2 = (*it).geographicalId();
+    det2 = pDD->idToDet(id2);
+    LogDebug("") <<" Second hit local x,y,z "<<(*it).localPosition()<<" det "<<id2.det()<<" subdet "<<id2.subdetId();
+    LogDebug("") <<" Second hit global  "<<det2->toGlobal((*it).localPosition());
+    //std::cout <<" Second hit local x,y,z "<<(*it).localPosition()<<" det "<<id2.det()<<" subdet "<<id2.subdetId()<< std::endl;
+    //std::cout <<" Second hit global  "<<det2->toGlobal((*it).localPosition()) << std::endl;
+
     // state on last det
+    const GeomDet *det=0;  
+    for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());    
     TrajectoryStateOnSurface t= transformer_.transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
 
     // debug
@@ -155,6 +218,128 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
      LogDebug("")<<" ElectronPixelSeed supercluster eta: "<<theClus->position().eta();
      LogDebug("")<<" ElectronPixelSeed seed charge: "<<(*MyS).getCharge();
      LogDebug("")<<" ElectronPixelSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
+
+    // retreive SC and compute distances between hit position and prediction the same
+    // way as in the PixelHitMatcher
+	
+    // inputs are charge, cluster position, vertex position, cluster energy and B field
+    int charge = int((*MyS).getCharge());
+    GlobalPoint xmeas(theClus->position().x(),theClus->position().y(),theClus->position().z());	
+    GlobalPoint vprim(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
+    float energy = theClus->energy();
+
+    FreeTrajectoryState fts = myFTS(&(*theMagField),xmeas, vprim, 
+				 energy, charge);
+    //std::cout << "[PixelHitMatcher::compatibleSeeds] fts position, momentum " <<
+    // fts.parameters().position() << " " << fts.parameters().momentum() << std::endl; 
+
+    PerpendicularBoundPlaneBuilder bpb;
+    TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
+  
+//    mapTsos_.clear();
+//    mapTsos2_.clear();
+//    mapTsos_.reserve(seeds->size());
+//    mapTsos2_.reserve(seeds->size());
+ 
+      //      TrajectorySeed::range r=(*seeds.product())[i].recHits();
+     // TrajectorySeed::range r=(*seeds)[i].recHits();
+ 
+      // first Hit
+      it=r.first;
+      DetId id=(*it).geographicalId();
+      const GeomDet *geomdet=pDD->idToDet((*it).geographicalId());
+      LocalPoint lp=(*it).localPosition();
+      GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
+
+       TrajectoryStateOnSurface tsos1;
+//CC@@ supress the optimisation map
+//        bool found = false;
+//        std::vector<std::pair<const GeomDet *, TrajectoryStateOnSurface> >::iterator itTsos;
+//        for (itTsos=mapTsos_.begin();itTsos!=mapTsos_.end();++itTsos) {
+//        if ((*itTsos).first==geomdet) {
+//          found=true;
+//          break;
+//        }
+//        }
+//        if (!found) {
+       tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
+//       mapTsos_.push_back(std::pair<const GeomDet *, TrajectoryStateOnSurface>(geomdet,tsos1));
+//        } else {
+//        tsos1=(*itTsos).second;
+//        }
+
+      if (tsos1.isValid()) {
+	
+	std::pair<bool,double> est;
+
+	//UB add test on phidiff
+	float SCl_phi = xmeas.phi();
+	float localDphi = SCl_phi-hitPos.phi();
+	if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	if(fabs(localDphi)>2.5)continue;
+        
+	phi1 = hitPos.phi();
+	dphi1 = hitPos.phi() - tsos1.globalPosition().phi();
+	rz1 = hitPos.perp(); 
+	drz1 = hitPos.perp() - tsos1.globalPosition().perp();
+	if (id.subdetId()%2==0) {
+	  drz1 = hitPos.z() - tsos1.globalPosition().z();
+	  rz1 = hitPos.z();
+	}
+	// now second Hit
+	it++;
+        DetId id2=(*it).geographicalId();
+	const GeomDet *geomdet2=pDD->idToDet((*it).geographicalId());
+	TrajectoryStateOnSurface tsos2;
+
+	// compute the z vertex from the cluster point and the found pixel hit
+	double pxHit1z = hitPos.z();
+	double pxHit1x = hitPos.x();
+	double pxHit1y = hitPos.y();      
+	double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+	r1diff=sqrt(r1diff);
+	double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+	r2diff=sqrt(r2diff);
+	double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+
+	GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
+    	FreeTrajectoryState fts2 = myFTS(&(*theMagField),hitPos,vertexPred,energy, charge);
+
+//        found = false;
+//        std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2;
+//        for (itTsos2=mapTsos2_.begin();itTsos2!=mapTsos2_.end();++itTsos2) {
+//          if (((*itTsos2).first).first==geomdet2 &&
+//              (((*itTsos2).first).second).x()==hitPos.x() &&
+//              (((*itTsos2).first).second).y()== hitPos.y() &&
+//              (((*itTsos2).first).second).z()==hitPos.z()  ) {
+//            found=true;
+//            break;
+//          }
+//        }
+//        if (!found) {
+         tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
+         std::pair<const GeomDet *,GlobalPoint> pair(geomdet2,hitPos);
+//          mapTsos2_.push_back(std::pair<std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> (pair,tsos2));
+//        } else {
+//          tsos2=(*itTsos2).second;
+//        }
+
+	if (tsos2.isValid()) {
+	  LocalPoint lp2=(*it).localPosition();
+	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
+	  phi2 = hitPos2.phi();
+	  dphi2 = hitPos2.phi() - tsos2.globalPosition().phi();
+	  rz2 = hitPos2.perp();
+	  drz2 = hitPos2.perp() - tsos2.globalPosition().perp();
+    	  if (id.subdetId()%2==0) {
+	    rz2 = hitPos.z();
+	    drz2 = hitPos.z() - tsos2.globalPosition().z();
+	  }
+	  //if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2,id2);
+	}
+	
+      } 
 
     // fill the tree and histos
     
@@ -175,6 +360,104 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
       seedPhi[is] = t.globalMomentum().phi();
       seedPt[is] = t.globalMomentum().perp();
       seedQ[is] = (*MyS).getCharge();
+      seedSubdet1[is] = id1.subdetId();
+      switch (seedSubdet1[is]) {
+        case 1:
+	  {
+	  PXBDetId pxbid1( id1.rawId() );
+	  seedLayer1[is] = pxbid1.layer();
+	  seedSide1[is] = 0;
+	  break;
+	  }
+        case 2:
+	{
+	  PXFDetId pxfid1( id1.rawId() );
+	  seedLayer1[is] = pxfid1.disk();
+	  seedSide1[is] = pxfid1.side();
+	  break;
+	  }
+        case 3:
+	  {
+	  TIBDetId tibid1( id1.rawId() );
+	  seedLayer1[is] = tibid1.layer();
+	  seedSide1[is] = 0;
+	  break;
+	  }
+        case 4:
+	  {
+	  TIDDetId tidid1( id1.rawId() );
+	  seedLayer1[is] = tidid1.wheel();
+	  seedSide1[is] = tidid1.side();
+	  break;
+	  }
+        case 5:
+	  {
+	  TOBDetId tobid1( id1.rawId() );
+	  seedLayer1[is] = tobid1.layer();
+	  seedSide1[is] = 0;
+	  break;
+	  }
+        case 6:
+	  {
+	  TECDetId tecid1( id1.rawId() );
+	  seedLayer1[is] = tecid1.wheel();
+	  seedSide1[is] = tecid1.side();	  
+	  break;
+	  }
+      }
+      seedPhi1[is] = phi1;
+      seedRz1[is] = rz1;
+      seedDphi1[is] = dphi1;
+      seedDrz1[is] = drz1;
+      seedSubdet2[is] = id2.subdetId();
+      switch (seedSubdet2[is]) {
+        case 1:
+	  {
+	  PXBDetId pxbid2( id2.rawId() );
+	  seedLayer2[is] = pxbid2.layer();
+	  seedSide2[is] = 0;
+	  break;
+	  }
+        case 2:
+	  {
+	  PXFDetId pxfid2( id2.rawId() );
+	  seedLayer2[is] = pxfid2.disk();
+	  seedSide2[is] = pxfid2.side();
+	  break;
+	  }
+        case 3:
+	  {
+	  TIBDetId tibid2( id2.rawId() );
+	  seedLayer2[is] = tibid2.layer();
+	  seedSide2[is] = 0;
+	  break;
+	  }
+        case 4:
+	  {
+	  TIDDetId tidid2( id2.rawId() );
+	  seedLayer2[is] = tidid2.wheel();
+	  seedSide2[is] = tidid2.side();
+	  break;
+	  }
+        case 5:
+	  {
+	  TOBDetId tobid2( id2.rawId() );
+	  seedLayer2[is] = tobid2.layer();
+	  seedSide2[is] = 0;
+	  break;
+	  }
+        case 6:
+	  {
+	  TECDetId tecid2( id2.rawId() );
+	  seedLayer2[is] = tecid2.wheel();
+	  seedSide2[is] = tecid2.side();	  
+	  break;
+	  }
+      }
+      seedDphi2[is] = dphi2;
+      seedDrz2[is] = drz2;
+      seedPhi2[is] = phi2;
+      seedRz2[is] = rz2;
     }
     
     is++;
@@ -187,7 +470,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
 
   edm::Handle<SuperClusterCollection> clusters;
   //CC to be changed according to supercluster input
-  e.getByLabel("correctedHybridSuperClusterProducer", "correctedHybridSuperClusterCollection", clusters); 
+  e.getByLabel("correctedHybridSuperClusters", clusters); 
   histnbclus_->Fill(clusters.product()->size());
   if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
   
@@ -199,6 +482,8 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
   e.getByLabel("source", "", HepMCEvt);
   
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
+  HepMC::GenParticle* genPc=0;
+  HepMC::FourVector pAssSim;
   int ip=0;
   for (HepMC::GenEvent::particle_const_iterator partIter = MCEvt->particles_begin();
    partIter != MCEvt->particles_end(); ++partIter) { 
@@ -213,19 +498,72 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
       //      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
        int id = (*partIter)->pdg_id();  // electrons and positrons are 11 and -11
      LogDebug("")  << "MC particle id " << id << ", creationVertex " << (*creation) << " cm, initialMomentum " << momentum.mag() << " GeV/c" << std::endl;
+
       if (id == 11 || id == -11) {
-	histptMC_->Fill(momentum.perp());
-	histetaMC_->Fill(momentum.pseudoRapidity());
-	histeMC_->Fill(momentum.rho());
+
+      // single primary electrons or electrons from Zs or Ws
+      HepMC::GenParticle* mother = 0;
+      if ( (*partIter)->production_vertex() )  {
+       if ( (*partIter)->production_vertex()->particles_begin(HepMC::parents) != 
+           (*partIter)->production_vertex()->particles_end(HepMC::parents))  
+            mother = *((*partIter)->production_vertex()->particles_begin(HepMC::parents));
+      } 
+      if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23))
+	                  || ((mother != 0) && (mother->pdg_id() == 32))
+	                  || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {  
+      genPc=(*partIter);
+      pAssSim = genPc->momentum();
+
+      if (pAssSim.perp()> 100. || fabs(pAssSim.eta())> 2.5) continue;
+			       
+      // looking for the best matching gsf electron
+      bool okSeedFound = false;
+      double seedOkRatio = 999999.;
+
+      // find best matched seed
+      reco::ElectronPixelSeed bestElectronSeed;
+      for( ElectronPixelSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {	
+	
+    range r=gsfIter->recHits();
+    const GeomDet *det=0;      
+    for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());    
+    TrajectoryStateOnSurface t= transformer_.transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+
+	float eta = t.globalMomentum().eta();
+	float phi = t.globalMomentum().phi();
+	float p = t.globalMomentum().mag();
+	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow((phi-pAssSim.phi()),2));
+	if ( deltaR < 0.05 ){
+	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
+	//(gsfIter->charge() > 0.) ){
+	  double tmpSeedRatio = p/pAssSim.t();
+	  if ( fabs(tmpSeedRatio-1) < fabs(seedOkRatio-1) ) {
+	    seedOkRatio = tmpSeedRatio;
+	    bestElectronSeed=*gsfIter;
+	    okSeedFound = true;
+	  } 
+	//} 
+	} 
+      } // loop over rec ele to look for the best one	
+
+      // analysis when the mc track is found
+     if (okSeedFound){
+
+	histptMC_->Fill(pAssSim.perp());
+	histetaMC_->Fill(pAssSim.eta());
+	histeMC_->Fill(pAssSim.rho());
 	if (ip<10) {
-	  mcEnergy[ip] = momentum.rho();
-	  mcEta[ip] = momentum.pseudoRapidity();
-	  mcPhi[ip] = momentum.phi();
-	  mcPt[ip] = momentum.perp();
+	  mcEnergy[ip] = pAssSim.rho();
+	  mcEta[ip] = pAssSim.eta();
+	  mcPhi[ip] = pAssSim.phi();
+	  mcPt[ip] = pAssSim.perp();
 	  mcQ[ip] = ((id == 11) ? -1.: +1.);
 	}
       }
+      }
 
+    }
+    
     }
     
     ip++;
