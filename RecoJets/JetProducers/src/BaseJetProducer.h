@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.6 2008/09/10 12:09:28 oehler Exp $
+ * $Id: BaseJetProducer.h,v 1.7 2008/09/20 17:49:54 oehler Exp $
  *
  ************************************************************/
 
@@ -21,6 +21,34 @@ namespace cms
 {
   class BaseJetProducer : public edm::EDProducer
   {
+  private:
+    struct JetType {
+      enum Type {
+	BasicJet,
+	GenJet,
+	CaloJet,
+	PFJet,
+	LastJetType  // no real type, technical
+      };
+      static const char *names[];
+      static Type byName(const std::string &name);
+    };
+    
+    
+    JetType::Type jetTypeE;
+    inline bool makeCaloJet (const JetType::Type &fTag) {
+      return fTag == JetType::CaloJet;
+    }
+    inline bool makePFJet (const JetType::Type &fTag) {
+      return fTag == JetType::PFJet;
+    }
+    inline bool makeGenJet (const JetType::Type &fTag) {
+      return fTag == JetType::GenJet;
+    }
+    inline bool makeBasicJet (const JetType::Type &fTag) {
+      return fTag == JetType::BasicJet;
+    }
+
   public:
 
     BaseJetProducer(const edm::ParameterSet& ps);
@@ -30,7 +58,8 @@ namespace cms
     /**Produces the EDM products*/
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     /** jet type */
-    std::string jetType () const {return mJetType;}
+    inline std::string jetType () const {return mJetType;}
+    
 
     // abstract method to be set up in actual implementations
     /** run algorithm itself */
