@@ -6,21 +6,16 @@
 
 L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
  l2TauInfoAssoc_(iConfig.getParameter<edm::InputTag>("L2InfoAssociationInput")),
+ l1Taus_(iConfig.getParameter<edm::InputTag>("L1TauCollection")),
+ l1Jets_(iConfig.getParameter<edm::InputTag>("L1JetCollection")),
  rootFile_(iConfig.getParameter<std::string>("outputFileName")),
  IsSignal_(iConfig.getParameter<bool>("IsSignal")),
- mcColl_(iConfig.getParameter<edm::InputTag>("MatchedCollection")),
- genJets_(iConfig.getParameter<edm::InputTag>("GenJetCollection")), 
- l1taus_(iConfig.getParameter<edm::InputTag>("L1TauTrigger"))
-
+ mcColl_(iConfig.getParameter<edm::InputTag>("MatchedCollection"))
 {
   //File Setup
   l2file = new TFile(rootFile_.c_str(),"recreate");
-
   //Tree Setup
   l2tree = new TTree("l2tree","Level 2 Tau Tree");
-
-  // int cl_Nclusters,triggerBit,matchBit;
-  //   double  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,eta,phi,et; 
 
 
   //Initialize the vars
@@ -33,24 +28,25 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
   MCet=0.;
   cl_Nclusters=0;
   seedTowerEt = 0.;
-  matchBit=0;
-  matchL1Bit=0;
   JetEt=0.;
+  JetEta=0.;
+  L1et=0.;
+  L1eta=0.;
 
   //Setup Branches
-  l2tree->Branch("ecalIsol_Et",&ecalIsol_Et,"ecalIsol_Et/F");
-  l2tree->Branch("towerIsol_Et",&towerIsol_Et,"towerIsol_Et/F");
-  l2tree->Branch("cl_etaRMS",&cl_etaRMS,"cl_etaRMS/F");
-  l2tree->Branch("cl_phiRMS",&cl_phiRMS,"cl_phiRMS/F");
-  l2tree->Branch("cl_drRMS",&cl_drRMS,"cl_drRMS/F");
-  l2tree->Branch("MCeta",&MCeta,"MCeta/F");
-  l2tree->Branch("MCet",&MCet,"MCet/F");
-  l2tree->Branch("cl_Nclusters",&cl_Nclusters,"cl_Nclusters/I");
-  l2tree->Branch("MCMatched",&matchBit,"matchBit/I");
-  l2tree->Branch("L1Matched",&matchL1Bit,"matchL1Bit/I");
-  l2tree->Branch("seedTower_Et",&seedTowerEt,"seedTower_Et/F");
-  l2tree->Branch("Jet_Et",&JetEt,"Jet_Et/F");
- 
+  l2tree->Branch("ecalIsolEt",&ecalIsol_Et,"ecalIsolEt/F");
+  l2tree->Branch("towerIsolEt",&towerIsol_Et,"towerIsolEt/F");
+  l2tree->Branch("clEtaRMS",&cl_etaRMS,"clEtaRMS/F");
+  l2tree->Branch("clPhiRMS",&cl_phiRMS,"clPhiRMS/F");
+  l2tree->Branch("clDrRMS",&cl_drRMS,"clDrRMS/F");
+  l2tree->Branch("mcEta",&MCeta,"mcEta/F");
+  l2tree->Branch("mcEt",&MCet,"mcEt/F");
+  l2tree->Branch("clNclusters",&cl_Nclusters,"clNclusters/I");
+  l2tree->Branch("seedTowerEt",&seedTowerEt,"seedTowerEt/F");
+  l2tree->Branch("jetEt",&JetEt,"jetEt/F");
+  l2tree->Branch("jetEta",&JetEta,"jetEta/F");
+  l2tree->Branch("L1Et",&L1et,"L1Et/F");
+  l2tree->Branch("L1Eta",&L1eta,"L1Eta/F");
  
 }
 
@@ -69,102 +65,82 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association)
    Handle<LVColl> McInfo; //Handle To The Truth!!!!
-   Handle<GenJetCollection> genJets; //Handle To Gen Jets for QCD
+   Handle<l1extra::L1JetParticleCollection> L1Taus; //Handle To The L1 Taus
+   Handle<l1extra::L1JetParticleCollection> L1Jets; //Handle To The L1 jets
 
-   try {
-        iEvent.getByLabel(genJets_,genJets);
-       }
-       catch(...)
-       {
-	 std::cout <<"No Generated Jet Collection was Found in this Event"<< std::endl;
-       }
-
-   try {
-        iEvent.getByLabel(mcColl_,McInfo);
-       }
-       catch(...)
-       {
-	 std::cout <<"No MCInfoCollection was Found in this Event"<< std::endl;
-       }
-
-
-
-   try {
-     
-    
-        iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);//get the handle
-
-       }
-       catch(...)
-       {
-	 std::cout << "No L2TauInfoAssociation  found in the Event" << std::endl;
-       }
-
-
-
-       //If the Collection exists do work
-    if(&(*l2TauInfoAssoc))
-     for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
-     {
-       //Retrieve The L2TauIsolationInfo Class from the AssociationMap
-       const L2TauIsolationInfo l2info = p->val;
+        if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the handle
+	  {
+	    if(l2TauInfoAssoc->size()>0)
+	      for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
+		{
+		  const L2TauIsolationInfo l2info = p->val;
+      		  const CaloJet& jet =*(p->key);
        
-        //Retrieve the Jet From the AssociationMap
-       const Jet& jet =*(p->key);
+		  MatchElementL2 mcMatch;
+		  mcMatch.matched=false;
+		  mcMatch.mcEt=0;
+		  mcMatch.mcEta=0;
+		  mcMatch.deltar=0;
 
- 
-      
-       //match your  jet
-       
-       MatchElement mcMatch;
-       
-       if(IsSignal_)
-	 mcMatch=match(jet,*McInfo);
-       else
-	 mcMatch=matchQCD(jet,*genJets);
+		  if(IsSignal_) //Get Collection and match it
+		    {
+	              if(iEvent.getByLabel(mcColl_,McInfo))
+			  mcMatch=match(jet,*McInfo);
+		    }
 
+		  if((mcMatch.matched&&IsSignal_)||(!IsSignal_))
+		    {
+		      //Fill variables
+		      ecalIsol_Et=l2info.ECALIsolConeCut;
+		      towerIsol_Et=l2info.TowerIsolConeCut;
+		      cl_Nclusters=l2info.ECALClusterNClusters;
+		      cl_etaRMS=l2info.ECALClusterEtaRMS;
+		      cl_phiRMS=l2info.ECALClusterPhiRMS;
+		      cl_drRMS=l2info.ECALClusterDRRMS;
+		      seedTowerEt = l2info.SeedTowerEt;
+		      MCeta =mcMatch.mcEta;
+		      MCet=mcMatch.mcEt;
+		      JetEt = jet.et();
+		      JetEta = jet.eta();
 
-       //match your jet to L1
-       edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
-       
-       matchL1Bit=0;
-       if(iEvent.getByLabel(l1taus_,l1TriggeredTaus))
-	 {
-    	   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
-	   l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
+		      //Match with L1 and fill
+		      L1et=0;
+		      L1eta=0;
+		      if(iEvent.getByLabel(l1Taus_,L1Taus))
+			{
+			    MatchElementL2 l1Match;
+			    l1Match.matched=false;
+			    l1Match.mcEt=0;
+			    l1Match.mcEta=0;
+			    l1Match.deltar=0;
+			    l1Match=match(jet,*L1Taus);
+			    if(l1Match.matched)
+			      {
+				L1et=l1Match.mcEt;
+				L1eta=l1Match.mcEta;
+			      }
+			    //If not matched look at the jet collection
+			    else
+			      {
+				if(iEvent.getByLabel(l1Jets_,L1Jets))
+				  {
+				    l1Match=match(jet,*L1Taus);
+				    if(l1Match.matched)
+				      {
+					L1et=l1Match.mcEt;
+					L1eta=l1Match.mcEta;
+				      }
 
+				  }
+			      }
 
-	   if(matchL1(jet,tauCandRefVec))
-	     matchL1Bit=1;
-	   else
-	     matchL1Bit=0;
-	 }
-
-
-       //Fill variables
-
-       matchBit=mcMatch.matched;
-       ecalIsol_Et=l2info.ECALIsolConeCut;
-       towerIsol_Et=l2info.TowerIsolConeCut;
-       cl_Nclusters=l2info.ECALClusterNClusters;
-       cl_etaRMS=l2info.ECALClusterEtaRMS;
-       cl_phiRMS=l2info.ECALClusterPhiRMS;
-       cl_drRMS=l2info.ECALClusterDRRMS;
-       seedTowerEt = l2info.SeedTowerEt;
-       MCeta =mcMatch.mcEta;
-       MCet=mcMatch.mcEt;
-       JetEt = jet.et();
-
-
-       //Fill Tree
-       l2tree->Fill();
+			}
+		      //Fill Tree
+		      l2tree->Fill();
+		    }
 	   
-     } 
-	       
-     
-
-
-
+		}
+	  } 
 }
 
 
@@ -182,7 +158,7 @@ L2TauAnalyzer::endJob() {
 
 }
 
-MatchElement 
+MatchElementL2 
 L2TauAnalyzer::match(const reco::Jet& jet,const LVColl& McInfo)
 {
 
@@ -194,9 +170,9 @@ L2TauAnalyzer::match(const reco::Jet& jet,const LVColl& McInfo)
  double mceta=0;
  double mcet=0;
  
- double matchingDR;
+ double matchingDR=0.3;
 
-   matchingDR=0.15;
+
 
 
  if(McInfo.size()>0)
@@ -216,7 +192,7 @@ L2TauAnalyzer::match(const reco::Jet& jet,const LVColl& McInfo)
    }
 
   //Create Struct and send it out!
-  MatchElement match;
+  MatchElementL2 match;
   match.matched=matched;
   match.deltar=delta_min;
   match.mcEta = mceta;
@@ -226,51 +202,26 @@ L2TauAnalyzer::match(const reco::Jet& jet,const LVColl& McInfo)
  return match;
 }
 
-
-
-
-
-bool 
-L2TauAnalyzer::matchL1(const reco::Jet& jet,std::vector<l1extra::L1JetParticleRef>& tauCandRefVec)
+MatchElementL2 
+L2TauAnalyzer::match(const reco::Jet& jet,const l1extra::L1JetParticleCollection& McInfo)
 {
 
-  bool match = false;
-
-
-	   for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
-	     {  
-	      
-        	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),tauCandRefVec[iL1Tau]->p4().Vect());
-		  printf("L1 Match Dr = %f \n",delta);
-		  if(delta<0.5)
-		    match=true;
-	     }
-
-	   return match;
-}
-
-
-
-MatchElement 
-L2TauAnalyzer::matchQCD(const reco::Jet& jet,const reco::GenJetCollection& genjets )
-{
-
-  //Loop On the Collection and see if your jet is matched to one there
+  //Loop On the Collection and see if your tau jet is matched to one there
  //Also find the nearest Matched MC Particle to your Jet (to be complete)
  
  bool matched=false;
  double delta_min=100.;
- double mceta=0.;
- double mcet=0.;
+ double mceta=0;
+ double mcet=0;
  
- double matchingDR;
- 
-  matchingDR=0.3;
+ double matchingDR=0.5;
 
- if(genjets.size()>0)
-  for(reco::GenJetCollection::const_iterator it = genjets.begin();it!=genjets.end();++it)
+
+
+
+ if(McInfo.size()>0)
+  for(l1extra::L1JetParticleCollection::const_iterator it = McInfo.begin();it!=McInfo.end();++it)
    {
-          
      	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),it->p4().Vect());
 	  if(delta<matchingDR)
 	    {
@@ -278,21 +229,23 @@ L2TauAnalyzer::matchQCD(const reco::Jet& jet,const reco::GenJetCollection& genje
 	      if(delta<delta_min)
 		{
 		  delta_min=delta;
-		  mcet=it->et();
 		  mceta=it->eta();
+		  mcet=it->et();
 		}
 	    }
    }
 
   //Create Struct and send it out!
-  MatchElement match;
+  MatchElementL2 match;
   match.matched=matched;
-  match.mcEta=mceta;
-  match.mcEt=mcet;
+  match.deltar=delta_min;
+  match.mcEta = mceta;
+  match.mcEt = mcet;
 
 
  return match;
 }
+
 
 
 

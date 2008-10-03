@@ -13,35 +13,27 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <string>
 #include <TTree.h>
 #include <TFile.h>
 
-
- typedef math::XYZTLorentzVectorD   LV;
- typedef std::vector<LV>            LVColl;
+typedef math::XYZTLorentzVectorD   LV;
+typedef std::vector<LV>            LVColl;
 
 //Matching struct
-struct MatchElement {
+
+
+struct MatchElementL2 {
   bool matched;
   double deltar;
   double mcEta;
   double mcEt;
 };
-
-
-//
-// class decleration
-//
 
 
 class L2TauAnalyzer : public edm::EDAnalyzer {
@@ -55,28 +47,22 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
       //Parameters to read
       edm::InputTag  l2TauInfoAssoc_; //Path to analyze
-      std::string rootFile_;//Output File Name
+      edm::InputTag  l1Taus_; //Path to analyze
+      edm::InputTag  l1Jets_; //Path to analyze
+      std::string rootFile_;          //Output File Name
+      bool IsSignal_;                 //Flag to tell the analyzer if it is signal OR QCD
+      edm::InputTag mcColl_;          // input products from HLTMcInfo
 
-      // std::string mcColl_;//Matched Collection
-      bool IsSignal_;//Flag to tell the analyzer if it is signal OR QCD
-      edm::InputTag     mcColl_; // input products from HLTMcInfo
-      edm::InputTag     genJets_; //Handle to generated Jets 
-      edm::InputTag     l1taus_; //Handle to L1 Taus
+      double matchDR_;
 
-
-      //Stuff to be stored (arrays)
-
-      int cl_Nclusters,matchBit,matchL1Bit;
-      float  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,MCeta,MCet,seedTowerEt,JetEt; 
-
+      int cl_Nclusters;
+      float  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,MCeta,MCet,seedTowerEt,JetEt,JetEta,L1et,L1eta; 
       TFile *l2file;//File to store the histos...
       TTree *l2tree;
 
+      MatchElementL2 match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
+      MatchElementL2 match(const reco::Jet&,const l1extra::L1JetParticleCollection&);//See if this Jet Is Matched
 
-      MatchElement match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
-
-      MatchElement matchQCD(const reco::Jet&,const reco::GenJetCollection&);//See if this Jet Is Matched
-      bool matchL1(const reco::Jet&,std::vector<l1extra::L1JetParticleRef>&);//See if this Jet Is Matched to L1
 };
 
 
