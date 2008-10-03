@@ -18,15 +18,15 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_2_1_7/src/RecoEgamma/Examples/test/gsf-Pt35IdealV9v1-ElectronHistos.root
-setenv OLDFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsf-Pt35Ideal-ElectronHistos.root
+setenv NEWFILE ~/scratch0/CMSSW_2_1_9/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal219ZEE_startupv7.root 
+setenv OLDFILE ~/scratch0/CMSSW_2_1_8/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal218ZEE_startupv7.root
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 217IDEAL
-setenv OLDRELEASE 212IDEAL
+setenv NEWRELEASE 219STARTUPV7
+setenv OLDRELEASE 218STARTUPV7
 
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE RelValSingleElectronPt35
+setenv SAMPLE ZEE
 
 #TYPE must be one of GsfElectron, GsfElectronFake, Photon or ConvertedPhoton
 setenv TYPE GsfElectron
@@ -38,7 +38,6 @@ setenv TYPE GsfElectron
 
 setenv CURRENTDIR $PWD
 setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
-#setenv OUTPATH /afs/cern.ch/user/c/charlot/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/validation
 cd $OUTPATH
 if (! -d $NEWRELEASE) then
   mkdir $NEWRELEASE
