@@ -18,6 +18,30 @@
 
 // class TFile;
 
+/****
+class RBX {
+  RBX();
+
+ private:
+  int nTowers;
+  int ieta;
+  int iphi;
+  float energy;
+  float time;
+};
+
+class RBXCollection {
+
+  RBXCollection();
+  void addRBX(RBX r)  {rbx_.push_back(r)};
+
+ private:
+  std::vector<RBX> rbx_;
+
+};
+*****/
+
+
 class myJetAna : public edm::EDAnalyzer {
 
 public:
@@ -35,16 +59,70 @@ private:
 
   // --- Passed selection cuts
   TH1F *h_pt;
+  TH1F *h_ptTower;
+  TH1F *h_ptRBX;
+  TH1F *h_ptHPD;
   TH1F *h_et;
   TH1F *h_eta;
   TH1F *h_phi;
   // ---
   
-  TH1F *hf_sumTowerAllEx; 
-  TH1F *hf_sumTowerAllEy;
+  // --- RecHits
+  TH1F *HBEne;
+  TH1F *HBTime;
+  TH1F *HEEne;
+  TH1F *HETime;
+  TH1F *HFEne;
+  TH1F *HFTime;
+  TH1F *HOEne;
+  TH1F *HOTime;
+  TH1F *EBEne;
+  TH1F *EBTime;
+  TH1F *EEEne;
+  TH1F *EETime;
+
+  TH1F *RBX_et;
+  TH1F *RBX_hadEnergy;
+  TH1F *RBX_hcalTime;
+  TH1F *RBX_nTowers;
+  TH1F *RBX_N;
+
+  TH1F *HPD_et;
+  TH1F *HPD_hadEnergy;
+  TH1F *HPD_hcalTime;
+  TH1F *HPD_nTowers;
+  TH1F *HPD_N;
+
+  // --- from reco calomet
   TH1F *SumEt;
   TH1F *MET;
+  TH1F *MET_Tower;
+  TH1F *MET_RBX;
+  TH1F *MET_HPD;
+  TH1F *METSig;
+  TH1F *MEx;
+  TH1F *MEy;
+  TH1F *METPhi;
+  // ---
+
+  // --- from reco vertexs
+  TH1F *h_Vx;
+  TH1F *h_Vy;
+  TH1F *h_Vz;
+  TH1F *h_VNTrks;
+  // ---
+
+  // --- from reco tracks
+  TH1F *h_Trk_pt;
+  TH1F *h_Trk_NTrk;
+  // ---
+ 
+  TH1F *hf_sumTowerAllEx; 
+  TH1F *hf_sumTowerAllEy;
   TH1F *hf_TowerJetEt;
+
+  TH1F *ETime; 
+  TH1F *HTime; 
 
   TH1F *nTowers1; 
   TH1F *nTowers2; 

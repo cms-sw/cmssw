@@ -8,6 +8,33 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+// #include "DataFormats/PhotonReco/interface/PhotonFwd.h"
+// #include "DataFormats/PhotonReco/interface/Photon.h"
+
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 // #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
@@ -21,6 +48,7 @@
 #include <TFile.h>
 #include <TCanvas.h>
 #include <cmath>
+
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -28,6 +56,28 @@ using namespace std;
 #define DEBUG 1
 #define MAXJETS 100
 
+typedef struct RBX_struct {
+  double et;
+  double hadEnergy;
+  double emEnergy;
+  float  hcalTime;
+  float  ecalTime;
+  int    nTowers;
+} RBX ;
+
+typedef struct HPD_struct {
+  double et;
+  double hadEnergy;
+  double emEnergy;
+  double time;
+  float  hcalTime;
+  float  ecalTime;
+  int    nTowers;
+} HPD ;
+
+
+RBX RBXColl[36];
+HPD HPDColl[144];
 
 // ************************
 // ************************
@@ -51,8 +101,11 @@ void myJetAna::beginJob( const EventSetup & ) {
 
 
   // --- passed selection cuts 
-  h_pt     = fs->make<TH1F>( "pt",  "Jet p_{T}", 50, 0, 1000 );
-  h_et     = fs->make<TH1F>( "et",  "Jet E_{T}", 50, 0, 1000 );
+  h_pt     = fs->make<TH1F>( "pt",  "Jet p_{T}", 100, 0, 1000 );
+  h_ptRBX  = fs->make<TH1F>( "ptRBX",  "RBX: Jet p_{T}", 100, 0, 1000 );
+  h_ptHPD  = fs->make<TH1F>( "ptHPD",  "HPD: Jet p_{T}", 100, 0, 1000 );
+  h_ptTower  = fs->make<TH1F>( "ptTower",  "Jet p_{T}", 100, 0, 1000 );
+  h_et     = fs->make<TH1F>( "et",  "Jet E_{T}", 100, 0, 1000 );
   h_eta    = fs->make<TH1F>( "eta", "Jet #eta", 100, -4, 4 );
   h_phi    = fs->make<TH1F>( "phi", "Jet #phi", 50, -M_PI, M_PI );
   // ---
@@ -75,25 +128,68 @@ void myJetAna::beginJob( const EventSetup & ) {
   hadFracEta3 = fs->make<TH1F>("hadFracEta31","Hadronic Fraction Eta3 Jet 1",100,0,1);
 
   SumEt  = fs->make<TH1F>("SumEt","SumEt",100,0,1000);
-  MET    = fs->make<TH1F>("MET",  "MET",100,0,200);
+  MET    = fs->make<TH1F>("MET",  "MET",100,0,1000);
+  MET_RBX    = fs->make<TH1F>("MET_RBX",  "MET",100,0,1000);
+  MET_HPD    = fs->make<TH1F>("MET_HPD",  "MET",100,0,1000);
+  MET_Tower  = fs->make<TH1F>("MET_Tower",  "MET",100,0,1000);
+  METSig = fs->make<TH1F>("METSig",  "METSig",100,0,200);
+  MEx    = fs->make<TH1F>("MEx",  "MEx",100,-100,100);
+  MEy    = fs->make<TH1F>("MEy",  "MEy",100,-100,100);
+  METPhi = fs->make<TH1F>("METPhi",  "METPhi",100,0,4);
+
+  h_Vx     = fs->make<TH1F>("Vx",  "Vx",100,-0.5,0.5);
+  h_Vy     = fs->make<TH1F>("Vy",  "Vy",100,-0.5,0.5);
+  h_Vz     = fs->make<TH1F>("Vz",  "Vz",100,-20,20);
+  h_VNTrks = fs->make<TH1F>("VNTrks",  "VNTrks",10,1,100);
+
+  h_Trk_pt   = fs->make<TH1F>("Trk_pt",  "Trk_pt",100,1,100);
+  h_Trk_NTrk = fs->make<TH1F>("Trk_NTrkt",  "Trk_NTrk",100,1,100);
 
   hf_sumTowerAllEx = fs->make<TH1F>("sumTowerAllEx","Tower Ex",100,-1000,1000);
   hf_sumTowerAllEy = fs->make<TH1F>("sumTowerAllEy","Tower Ey",100,-1000,1000);
 
   hf_TowerJetEt   = fs->make<TH1F>("TowerJetEt","Tower/Jet Et 1",50,0,1);
 
-  nTowers1  = fs->make<TH1F>("nTowers1","Number of Towers pt 0.5",100,0,500);
-  nTowers2  = fs->make<TH1F>("nTowers2","Number of Towers pt 1.0",100,0,500);
-  nTowers3  = fs->make<TH1F>("nTowers3","Number of Towers pt 1.5",100,0,500);
-  nTowers4  = fs->make<TH1F>("nTowers4","Number of Towers pt 2.0",100,0,500);
+  ETime = fs->make<TH1F>("ETime","Ecal Time",200,-200,200);
+  HTime = fs->make<TH1F>("HTime","Hcal Time",200,-200,200);
 
-  nTowersLeadJetPt1  = fs->make<TH1F>("nTowersLeadJetPt1","Number of Towers in Lead Jet pt 0.5",100,0,200);
-  nTowersLeadJetPt2  = fs->make<TH1F>("nTowersLeadJetPt2","Number of Towers in Lead Jet pt 1.0",100,0,200);
-  nTowersLeadJetPt3  = fs->make<TH1F>("nTowersLeadJetPt3","Number of Towers in Lead Jet pt 1.5",100,0,200);
-  nTowersLeadJetPt4  = fs->make<TH1F>("nTowersLeadJetPt4","Number of Towers in Lead Jet pt 2.0",100,0,200);
+  RBX_et        = fs->make<TH1F>("RBX_et","ET in RBX",1000,-20,100);
+  RBX_hadEnergy = fs->make<TH1F>("RBX_hadEnergy","Hcal Energy in RBX",1000,-20,100);
+  RBX_hcalTime  = fs->make<TH1F>("RBX_hcalTime","Hcal Time in RBX",200,-200,200);
+  RBX_nTowers   = fs->make<TH1F>("RBX_nTowers","Number of Towers in RBX",75,0,75);
+  RBX_N         = fs->make<TH1F>("RBX_N","Number of RBX",10,0,10);
+
+  HPD_et        = fs->make<TH1F>("HPD_et","ET in HPD",1000,-20,100);
+  HPD_hadEnergy = fs->make<TH1F>("HPD_hadEnergy","Hcal Energy in HPD",1000,-20,100);
+  HPD_hcalTime  = fs->make<TH1F>("HPD_hcalTime","Hcal Time in HPD",200,-200,200);
+  HPD_nTowers   = fs->make<TH1F>("HPD_nTowers","Number of Towers in HPD",20,0,20);
+  HPD_N         = fs->make<TH1F>("HPD_N","Number of HPD",10,0,10);
+  
+  nTowers1  = fs->make<TH1F>("nTowers1","Number of Towers pt 0.5",100,0,200);
+  nTowers2  = fs->make<TH1F>("nTowers2","Number of Towers pt 1.0",100,0,200);
+  nTowers3  = fs->make<TH1F>("nTowers3","Number of Towers pt 1.5",100,0,200);
+  nTowers4  = fs->make<TH1F>("nTowers4","Number of Towers pt 2.0",100,0,200);
+
+  nTowersLeadJetPt1  = fs->make<TH1F>("nTowersLeadJetPt1","Number of Towers in Lead Jet pt 0.5",100,0,100);
+  nTowersLeadJetPt2  = fs->make<TH1F>("nTowersLeadJetPt2","Number of Towers in Lead Jet pt 1.0",100,0,100);
+  nTowersLeadJetPt3  = fs->make<TH1F>("nTowersLeadJetPt3","Number of Towers in Lead Jet pt 1.5",100,0,100);
+  nTowersLeadJetPt4  = fs->make<TH1F>("nTowersLeadJetPt4","Number of Towers in Lead Jet pt 2.0",100,0,100);
 
   h_nCalJets  =  fs->make<TH1F>( "nCalJets",  "Number of CalJets", 20, 0, 20 );
 
+
+  HBEne     = fs->make<TH1F>( "HBEne",  "HBEne", 1000, -20, 100 );
+  HBTime    = fs->make<TH1F>( "HBTime", "HBTime", 200, -200, 200 );
+  HEEne     = fs->make<TH1F>( "HEEne",  "HEEne", 1000, -20, 100 );
+  HETime    = fs->make<TH1F>( "HETime", "HETime", 200, -200, 200 );
+  HOEne     = fs->make<TH1F>( "HOEne",  "HOEne", 1000, -20, 100 );
+  HOTime    = fs->make<TH1F>( "HOTime", "HOTime", 200, -200, 200 );
+  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 1000, -20, 100 );
+  HFTime    = fs->make<TH1F>( "HFTime", "HFTime", 200, -200, 200 );
+  EBEne     = fs->make<TH1F>( "EBEne",  "EBEne", 1000, -20, 100 );
+  EBTime    = fs->make<TH1F>( "EBTime", "EBTime", 200, -200, 200 );
+  EEEne     = fs->make<TH1F>( "EEEne",  "EEEne", 1000, -20, 100 );
+  EETime    = fs->make<TH1F>( "EETime", "EETime", 200, -200, 200 );
 
   h_ptCal     = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 50, 0, 1000 );
   h_etaCal    = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
@@ -145,13 +241,126 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   float minJetPt = 30.;
   float minJetPt10 = 10.;
   int jetInd, allJetInd;
-
   LeadMass = -1;
 
   math::XYZTLorentzVector p4tmp[2], p4cortmp[2];
 
   // --------------------------------------------------------------
   // --------------------------------------------------------------
+
+  
+  // *********************
+  // *** Classify Event
+  // *********************
+  int evtType = 0;
+
+  Handle<CaloTowerCollection> caloTowers;
+  evt.getByLabel( "towerMaker", caloTowers );
+
+  for (int i=0;i<36;i++) {
+    RBXColl[i].et        = 0;
+    RBXColl[i].hadEnergy = 0;
+    RBXColl[i].emEnergy  = 0;
+    RBXColl[i].hcalTime  = 0;
+    RBXColl[i].ecalTime  = 0;
+    RBXColl[i].nTowers   = 0;
+  }  
+  for (int i=0;i<144;i++) {
+    HPDColl[i].et        = 0;
+    HPDColl[i].hadEnergy = 0;
+    HPDColl[i].emEnergy  = 0;
+    HPDColl[i].hcalTime  = 0;
+    HPDColl[i].ecalTime  = 0;
+    HPDColl[i].nTowers   = 0;
+  }  
+
+  for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
+       tower != caloTowers->end(); tower++) {
+
+    if ((tower->hadEnergy() + tower->emEnergy()) > 2.0) {
+
+      int iRBX = tower->iphi();
+      iRBX = iRBX-2;
+      if (iRBX == 0)  iRBX = 17;
+      if (iRBX == -1) iRBX = 18;
+      iRBX = (iRBX-1)/4;
+
+      if (tower->ieta() < 0) iRBX += 18;
+      if (iRBX < 36) {
+	RBXColl[iRBX].et        += tower->et(); 
+	RBXColl[iRBX].hadEnergy += tower->hadEnergy(); 
+	RBXColl[iRBX].emEnergy  += tower->emEnergy(); 
+	RBXColl[iRBX].hcalTime  += tower->hcalTime(); 
+	RBXColl[iRBX].ecalTime  += tower->ecalTime(); 
+	RBXColl[iRBX].nTowers++;
+      }
+      /***
+      std::cout << "iRBX = " << iRBX << " " 	
+		<< "ieta/iphi = " <<  tower->ieta() << " / "  << tower->iphi() 
+		<< " et = " << tower->et()
+		<< std::endl;
+      ***/
+      int iHPD = tower->iphi();
+      if (tower->ieta() < 0) iHPD = iHPD + 72;
+      if (iHPD < 144) {
+	HPDColl[iHPD].et        += tower->et(); 
+	HPDColl[iHPD].hadEnergy += tower->hadEnergy(); 
+	HPDColl[iHPD].emEnergy  += tower->emEnergy(); 
+	HPDColl[iHPD].hcalTime  += tower->hcalTime(); 
+	HPDColl[iHPD].ecalTime  += tower->ecalTime(); 
+	HPDColl[iHPD].nTowers++;
+      }
+      /***
+      std::cout << "iHPD = " << iHPD << " " 	
+		<< "ieta/iphi = " <<  tower->ieta() << " / "  << tower->iphi() 
+		<< " et = " << tower->et()
+		<< std::endl;
+      ***/
+
+    }
+
+  }
+
+
+  // Loop over the RBX Collection
+  int nRBX = 0;
+  int nTowers = 0;
+  for (int i=0;i<36;i++) {
+    RBX_et->Fill(RBXColl[i].et);
+    RBX_hadEnergy->Fill(RBXColl[i].hadEnergy);
+    RBX_hcalTime->Fill(RBXColl[i].hcalTime / RBXColl[i].nTowers);
+    RBX_nTowers->Fill(RBXColl[i].nTowers);
+    if (RBXColl[i].hadEnergy > 3.0) {
+      nRBX++;
+      nTowers = RBXColl[i].nTowers;
+    }
+  }
+  RBX_N->Fill(nRBX);
+  if ( (nRBX == 1) && (nTowers > 24) ) {
+    evtType = 1;
+  }
+
+  // Loop over the HPD Collection
+  int nHPD = 0;
+  for (int i=0;i<144;i++) {
+    HPD_et->Fill(HPDColl[i].et);
+    HPD_hadEnergy->Fill(HPDColl[i].hadEnergy);
+    HPD_hcalTime->Fill(HPDColl[i].hcalTime / HPDColl[i].nTowers);
+    HPD_nTowers->Fill(HPDColl[i].nTowers);
+    if (HPDColl[i].hadEnergy > 3.0) {
+      nHPD++;
+      nTowers = HPDColl[i].nTowers;
+    }
+  }
+  HPD_N->Fill(nHPD);
+  if ( (nHPD == 1) && (nTowers > 6) ) {
+    evtType = 2;
+    cout << " nHPD = "   << nHPD 
+	 << " Towers = " << nTowers
+	 << " Type = "   << evtType 
+	 << endl; 
+  }
+  
 
 
   // **************************************************************
@@ -340,10 +549,120 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
 
   // *********************
+  // *** recHits
+  // *********************
+
+  edm::Handle<HcalSourcePositionData> spd;
+
+  try {
+    std::vector<edm::Handle<HBHERecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        //      std::cout << *j << std::endl;
+        if (j->id().subdet() == HcalBarrel) {
+	  HBEne->Fill(j->energy()); 
+	  HBTime->Fill(j->time()); 
+        }
+        if (j->id().subdet() == HcalEndcap) {
+	  HEEne->Fill(j->energy()); 
+	  HETime->Fill(j->time()); 
+        }
+
+        /***
+        std::cout << j->id()     << " "
+                  << j->id().subdet() << " "
+                  << j->id().ieta()   << " "
+                  << j->id().iphi()   << " "
+                  << j->id().depth()  << " "
+                  << j->energy() << " "
+                  << j->time()   << std::endl;
+        ****/
+      }
+    }
+  } catch (...) {
+    cout << "No HB/HE RecHits." << endl;
+  }
+
+
+  try {
+    std::vector<edm::Handle<HFRecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+	//	std::cout << *j << std::endl;
+        if (j->id().subdet() == HcalForward) {
+	  HFEne->Fill(j->energy()); 
+	  HFTime->Fill(j->time()); 
+        }
+      }
+    }
+  } catch (...) {
+    cout << "No HF RecHits." << endl;
+  }
+
+
+  try {
+    std::vector<edm::Handle<HORecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<HORecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+        if (j->id().subdet() == HcalOuter) {
+	  HOEne->Fill(j->energy()); 
+	  HOTime->Fill(j->time()); 
+        }
+        //      std::cout << *j << std::endl;
+      }
+    }
+  } catch (...) {
+    cout << "No HO RecHits." << endl;
+  }
+
+  try {
+    std::vector<edm::Handle<EBRecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<EBRecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+	//	if (j->id() == EcalBarrel) {
+	  EBEne->Fill(j->energy()); 
+	  EBTime->Fill(j->time()); 
+	  //	}
+	//	std::cout << *j << std::endl;
+	//	std::cout << j->id() << std::endl;
+      }
+    }
+  } catch (...) {
+    cout << "No EB RecHits." << endl;
+  }
+
+  try {
+    std::vector<edm::Handle<EERecHitCollection> > colls;
+    evt.getManyByType(colls);
+    std::vector<edm::Handle<EERecHitCollection> >::iterator i;
+    for (i=colls.begin(); i!=colls.end(); i++) {
+      for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
+	//	if (j->id().subdet() == EcalEndcap) {
+	  EEEne->Fill(j->energy()); 
+	  EETime->Fill(j->time()); 
+	  //	}
+	//	std::cout << *j << std::endl;
+      }
+    }
+  } catch (...) {
+    cout << "No EE RecHits." << endl;
+  }
+
+
+
+  // *********************
   // *** CaloTowers
   // *********************
-  Handle<CaloTowerCollection> caloTowers;
-  evt.getByLabel( "towerMaker", caloTowers );
+  //  Handle<CaloTowerCollection> caloTowers;
+  //  evt.getByLabel( "towerMaker", caloTowers );
 
   nTow1 = nTow2 = nTow3 = nTow4 = 0;
 
@@ -352,12 +671,14 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   double sum_ey = 0.0;
   //  double sum_ez = 0.0;
 
+
+  //  std::cout<<">>>> Run " << evt.id().run() << " Event " << evt.id().event() << std::endl;
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
        tower != caloTowers->end(); tower++) {
 
     Double_t  et = tower->et();
-
+    
     if (et > 0.5) nTow1++;
     if (et > 1.0) nTow2++;
     if (et > 1.5) nTow3++;
@@ -374,8 +695,10 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
       h_HadEnergy->Fill (tower->ieta(), tower->iphi(), tower->hadEnergy());
     }
 
-
     if (et>0.5) {
+
+      ETime->Fill(tower->ecalTime());
+      HTime->Fill(tower->hcalTime());
 
       // ********
       double phix   = tower->phi();
@@ -401,8 +724,8 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
   }
 
-  SumEt->Fill(sum_et);
-  MET->Fill(sqrt( sum_ex*sum_ex + sum_ey*sum_ey));
+  //  SumEt->Fill(sum_et);
+  //  MET->Fill(sqrt( sum_ex*sum_ex + sum_ey*sum_ey));
 
   hf_sumTowerAllEx->Fill(sumTowerAllEx);
   hf_sumTowerAllEy->Fill(sumTowerAllEy);
@@ -511,6 +834,132 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   h_TotalUnclusteredE->Fill(TotalUnclusteredE);
   h_TotalUnclusteredEt->Fill(SumEtNotJets);
 
+  // ********************************
+  // *** CaloMET
+  // ********************************
+
+  edm::Handle<reco::CaloMETCollection> calometcoll;
+  evt.getByLabel("met", calometcoll);
+  if (calometcoll.isValid()) {
+    const CaloMETCollection *calometcol = calometcoll.product();
+    const CaloMET *calomet;
+    calomet = &(calometcol->front());
+
+    double caloSumET  = calomet->sumEt();
+    double caloMET    = calomet->pt();
+    double caloMETSig = calomet->mEtSig();
+    double caloMEx    = calomet->px();
+    double caloMEy    = calomet->py();
+    double caloMETPhi = calomet->phi();
+
+    SumEt->Fill(caloSumET);
+    MET->Fill(caloMET);
+    if (evtType == 0) MET_Tower->Fill(caloMET);
+    if (evtType == 1) MET_RBX->Fill(caloMET);
+    if (evtType == 2) MET_HPD->Fill(caloMET);
+    METSig->Fill(caloMETSig);
+    MEx->Fill(caloMEx);
+    MEy->Fill(caloMEy);
+    METPhi->Fill(caloMETPhi);
+
+    /***
+    double caloEz     = calomet->e_longitudinal();
+
+    double caloMaxEtInEMTowers    = calomet->maxEtInEmTowers();
+    double caloMaxEtInHadTowers   = calomet->maxEtInHadTowers();
+    double caloEtFractionHadronic = calomet->etFractionHadronic();
+    double caloEmEtFraction       = calomet->emEtFraction();
+
+    double caloHadEtInHB = calomet->hadEtInHB();
+    double caloHadEtInHO = calomet->hadEtInHO();
+    double caloHadEtInHE = calomet->hadEtInHE();
+    double caloHadEtInHF = calomet->hadEtInHF();
+    double caloEmEtInEB  = calomet->emEtInEB();
+    double caloEmEtInEE  = calomet->emEtInEE();
+    double caloEmEtInHF  = calomet->emEtInHF();
+    ****/
+  }
+
+  // ********************************
+  // *** Vertex
+  // ********************************
+  /****
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  evt.getByLabel("offlinePrimaryVertices", vertexCollection);
+  const reco::VertexCollection vC = *(vertexCollection.product());
+
+  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
+  for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
+
+    h_Vx->Fill(vertex->x());
+    h_Vy->Fill(vertex->y());
+    h_Vz->Fill(vertex->z());
+    h_VNTrks->Fill(vertex->tracksSize());
+
+  }
+  ****/
+
+  // ********************************
+  // *** Tracks
+  // ********************************
+  /***
+  edm::Handle<reco::TrackCollection> trackCollection;
+  //  evt.getByLabel("ctfWithMaterialTracks", trackCollection);
+  evt.getByLabel("generalTracks", trackCollection);
+
+  const reco::TrackCollection tC = *(trackCollection.product());
+  std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
+  h_Trk_NTrk->Fill(tC.size());
+  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+
+    h_Trk_pt->Fill(track->pt());
+
+  }
+  ****/
+
+    /****
+    std::cout << "Track number "<< i << std::endl ;
+    std::cout << "\tmomentum: " << track->momentum()<< std::endl;
+    std::cout << "\tPT: " << track->pt()<< std::endl;
+    std::cout << "\tvertex: " << track->vertex()<< std::endl;
+    std::cout << "\timpact parameter: " << track->d0()<< std::endl;
+    std::cout << "\tcharge: " << track->charge()<< std::endl;
+    std::cout << "\tnormalizedChi2: " << track->normalizedChi2()<< std::endl;
+
+    cout<<"\tFrom EXTRA : "<<endl;
+    cout<<"\t\touter PT "<< track->outerPt()<<endl;
+    std::cout << "\t direction: " << track->seedDirection() << std::endl;
+    ****/
+
+  // ********************************
+  // *** Photons
+  // ********************************
+  /***
+  edm::Handle<reco::PhotonCollection> photonCollection;
+  evt.getByLabel("photons", photonCollection);
+  const reco::PhotonCollection pC = *(photonCollection.product());
+
+  std::cout << "Reconstructed "<< pC.size() << " photons" << std::endl ;
+  for (reco::PhotonCollection::const_iterator photon=pC.begin(); photon!=pC.end(); photon++){
+  }
+  ***/
+
+  // ********************************
+  // *** Muons
+  // ********************************
+  /***
+  edm::Handle<reco::MuonCollection> muonCollection;
+  evt.getByLabel("muons", muonCollection);
+
+  const reco::MuonCollection mC = *(muonCollection.product());
+
+  std::cout << "Reconstructed "<< mC.size() << " muons" << std::endl ;
+  for (reco::MuonCollection::const_iterator muon=mC.begin(); muon!=mC.end(); muon++){
+  }
+  ***/
+
+
+
 
   // ********************************
   // *** Events passing seletion cuts
@@ -520,18 +969,31 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   // --- Vertex
   // --- Eta 
 
+  int iJet; 
+  iJet = 0;
   for( CaloJetCollection::const_iterator ijet = caloJets->begin(); ijet != caloJets->end(); ++ ijet ) {
     
-    if ( (fabs(ijet->eta()) < 1.3) && 
-	 (fabs(ijet->pt())  > 20.) &&
-	 (ijet->emEnergyFraction() > 0.01) &&
-	 (ijet->emEnergyFraction() > 0.99) ) {
+    //    if ( (fabs(ijet->eta()) < 1.3) && 
+    //	 (fabs(ijet->pt())  > 20.) ) {
+
+	 //	 (ijet->emEnergyFraction() > 0.01) &&
+	 //	 (ijet->emEnergyFraction() > 0.99) ) {
+
+    iJet++; 
+    if (iJet == 1) {
+      cout << " Event Type = "   << evtType 
+	   << " pt = " << ijet->pt()
+	   << endl; 
+    }
       h_pt->Fill(ijet->pt());
+      if (evtType == 0) h_ptTower->Fill(ijet->pt());
+      if (evtType == 1) h_ptRBX->Fill(ijet->pt());
+      if (evtType == 2) h_ptHPD->Fill(ijet->pt());
       h_et->Fill(ijet->et());
       h_eta->Fill(ijet->eta());
       h_phi->Fill(ijet->phi());
       
-    }    
+      //    }    
   }
 
 

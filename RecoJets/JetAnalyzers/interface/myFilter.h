@@ -17,11 +17,19 @@ public:
   virtual void endJob();
 
 private:
+
   int _nEvent;
 
   int _acceptedEvt;
+
   int _passPt;
   int _passEMF;
+  int _passNJets;
+  int _passNTowers;
+  int _passMET;
+  int _passMETSig;
+  int _passHighPtTower;
+  int _passNRBX;
 
   std::string CaloJetAlgorithm;
 
