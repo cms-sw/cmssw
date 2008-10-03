@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/25 09:37:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/08/19 13:33:00 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -129,7 +129,9 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
 
       // Set the window of interest if the run is triggered by cosmics
       if ( parameters.getUntrackedParameter<bool>("readDB", true) ) {
-	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS);
+	tTrigMap->get( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS,
+		       DTTimeUnits::counts );
+
 	upperLimit = tTrig-500;
       }
       else { 
@@ -271,8 +273,9 @@ void DTNoiseCalibration::endJob(){
       lHisto++) {
     if(cosmicRun){
       if ( parameters.getUntrackedParameter<bool>("readDB", true) ) 
-	tTrigMap->slTtrig( ((*lHisto).first).superlayerId(), tTrig, tTrigRMS); 
-      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
+      tTrigMap->get( ((*lHisto).first).superlayerId(), tTrig, tTrigRMS,
+		     DTTimeUnits::counts );
+     else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
       double TriggerWidth_ns = ((tTrig-500)*25)/32;
       TriggerWidth_s = TriggerWidth_ns/1e9;
     }

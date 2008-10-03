@@ -9,8 +9,7 @@
 
 #include "CalibMuon/DTCalibration/plugins/DTVDriftWriter.h"
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
-//#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
-#include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
+#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
@@ -121,10 +120,11 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
       }
       calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
+      // vdrift is cm/ns , resolution is cm
       theMTime->set(slId,
 		    vDriftAndReso[0],
 		    vDriftAndReso[1],
-		    DTTimeUnits::ns);
+		    DTVelocityUnits::cm_per_ns);
       if(debug) {
 	cout << " SL: " << slId
 	     << " vDrift = " << vDriftAndReso[0]
