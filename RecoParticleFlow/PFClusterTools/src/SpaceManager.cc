@@ -9,7 +9,7 @@
 using namespace pftools;
 
 SpaceManager::SpaceManager(std::string name) :
-	barrelLimit_(1.0), transitionLimit_(1.0), endcapLimit_(5.0), name_(name) {
+	name_(name), barrelLimit_(1.0),  transitionLimit_(1.0), endcapLimit_(5.0)  {
 	regionsToSVs_[BARREL_POS] = barrelPosRegion_;
 	regionsToSVs_[ENDCAP_POS] = endcapPosRegion_;
 }
@@ -242,7 +242,7 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1, b
 	for (std::vector<SpaceVoxelPtr>::iterator i = region.begin(); i
 			!= region.end(); ++i) {
 		SpaceVoxelPtr s = *i;
-		double midE = (s->maxEnergy() + s->minEnergy()) / 2.0;
+		//double midE = (s->maxEnergy() + s->minEnergy()) / 2.0;
 		if (s->maxEnergy() > maxE)
 			maxE = s->maxEnergy();
 		if (s->minEnergy() < minE)

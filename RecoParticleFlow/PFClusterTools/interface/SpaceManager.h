@@ -30,6 +30,7 @@ public:
 		return name_;
 	}
 
+	
 	/*
 	 * Initialises the internal map of calibrators and space voxels according to the
 	 * type of calibrator supplied and the specified eta, phi and energy segmentation.

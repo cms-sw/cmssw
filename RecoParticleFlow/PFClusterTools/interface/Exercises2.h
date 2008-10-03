@@ -19,19 +19,9 @@
 namespace pftools {
 class Exercises2 {
 public:
-	
-	
-
-//	Exercises2(double lowE = 0, double highE = 100, unsigned divE = 1,
-//			double lowEta = -5, double highEta = 5, double divEta = 1,
-//			double lowPhi = -3.2, double highPhi = 3.2, unsigned divPhi = 1,
-//			bool withOffset = false);
-	
+		
 	Exercises2(IO* options);
 	
-//	Exercises2(CalibrationTarget t, bool withOffset = false, unsigned threshold = 50, double p0 = 0.0, 
-//double p1 = 1.0, double p2 = 0.0);
-
 	virtual ~Exercises2();
 
 	void calibrateCalibratables(const std::string& sourcefile,

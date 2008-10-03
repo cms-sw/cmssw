@@ -9,8 +9,8 @@ using namespace pftools;
 
 PFClusterCalibration::PFClusterCalibration() :
 	barrelEndcapEtaDiv_(1.0), ecalOnlyDiv_(0.3), hcalOnlyDiv_(0.5),
-			doCorrection_(1), globalP0_(0.0), globalP1_(1.0), lowEP0_(0.0),
-			lowEP1_(1.0), allowNegativeEnergy_(0), correctionLowLimit_(0.),
+			doCorrection_(1), allowNegativeEnergy_(0), correctionLowLimit_(0.), globalP0_(0.0), globalP1_(1.0), lowEP0_(0.0),
+			lowEP1_(1.0),
 			correction_("correction",
 					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])") {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;

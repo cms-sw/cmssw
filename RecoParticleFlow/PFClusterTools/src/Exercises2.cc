@@ -30,8 +30,8 @@ Exercises2::~Exercises2() {
 }
 
 Exercises2::Exercises2(IO* options) :
-	withOffset_(false), target_(CLUSTER), options_(options), threshold_(30),
-			debug_(0) {
+	withOffset_(false), target_(CLUSTER), threshold_(30),
+		 options_(options), debug_(0) {
 
 	options_->GetOpt("exercises", "withOffset", withOffset_);
 	options_->GetOpt("exercises", "threshold", threshold_);
