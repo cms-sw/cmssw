@@ -26,10 +26,12 @@ class ElectronTkIsolation {
   
   //constructors
   ElectronTkIsolation ( double extRadius,
-		double intRadius,
-		double ptLow,
-		double lip,
-		const reco::TrackCollection* ) ;
+			double intRadius,
+			double ptLow,
+			double lip,
+			double drb,
+			const reco::TrackCollection*,
+			reco::TrackBase::Point beamPoint) ;
   //destructor 
   ~ElectronTkIsolation() ;
  
@@ -44,8 +46,10 @@ class ElectronTkIsolation {
   double intRadius_ ;
   double ptLow_ ;
   double lip_ ;
+  double drb_;
 
   const reco::TrackCollection *trackCollection_ ;
+  reco::TrackBase::Point beamPoint_;
 
   std::pair<int,double>getIso(const reco::GsfElectron*) const ;
 };
