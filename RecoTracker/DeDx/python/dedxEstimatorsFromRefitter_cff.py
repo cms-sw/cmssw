@@ -16,3 +16,6 @@ dedxMedian.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
 doAlldEdXEstimators = cms.Sequence(RefitterForDeDx * (dedxTruncated40 + dedxMedian + dedxHarmonic2))
 
 
+
+
+
