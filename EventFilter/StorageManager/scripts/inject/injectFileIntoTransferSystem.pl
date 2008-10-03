@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.33 2008/09/18 01:20:06 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.34 2008/10/01 03:56:27 loizides Exp $
 
 use strict;
 use DBI;
@@ -26,6 +26,8 @@ sub usage
   $0 --help  : show this message
 
   --------------------------------------------------------------------------------------------
+  For more help, https://twiki.cern.ch/twiki/bin/view/CMS/ManuallyInjectIntoTransferSystem
+  --------------------------------------------------------------------------------------------
 
   This script will inform the Tier-0 transfer system to transfer a given file from a host
   in Cessy to Castor (DBS). In order to allow for safe copying it will insert relevant
@@ -35,7 +37,7 @@ sub usage
 
   Required parameters for injecting files to be transferred:
   $0 --filename file --path path 
-     --type type [--destination default] [--filesize size] [--hostname host]
+     --type type --config file [--destination default] [--filesize size] [--hostname host]
  
   Filename and path to file on the given host point to the file to be transferred.
 
@@ -48,8 +50,11 @@ sub usage
     - Lumi files require runnumber, lumisection, appname, and appversion. 
     - DQM files  require runnumber, lumisection, appname, and appversion.
 
-  Destination determines where the file goes on Tier0. It wil be set to default if not set by 
-  user. 
+  Config file has to specify a user and password for the cms_rcms online database. At best
+  see the example in ~tier0/.tier0trans.conf.
+
+  Destination determines where the file goes on Tier0. It will be set to default if not set by 
+  user (and typically there should be no need to change it).
 
   Filesize [in Bytes] is required. Since in most case submitting host is where the file resides 
   the filesize will be determined automatically.
@@ -65,7 +70,7 @@ sub usage
   Other parameters (leave out if you do not know what they mean):
   --debug           : Print out extra messages
   --test            : Run in test modus to check logic. No DB inserts or T0 notification.
-  --config          : Config file used (for user and password, see example in ~tier0/.tier0trans.conf)
+  --renotify        : Use this option if your files are stuck in FILES_INJECTED
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
   --appversion      : Application version (e.g. CMSSW_2_0_8)
@@ -143,7 +148,7 @@ sub checkOption($) {
 my ($help, $debug, $hostname, $filename, $pathname, $index, $indexsize, $filesize, $test);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
-my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check, $config);
+my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check, $config, $renotify);
 
 $help        = 0;
 $debug       = 0;
@@ -180,6 +185,7 @@ GetOptions(
            "h|help"                   => \$help,
            "debug"                    => \$debug,
            "test"                     => \$test,
+           "renotify"                 => \$renotify,
            "check"                    => \$check,
            "config=s"                 => \$config,
            "hostname=s"               => \$hostname,
@@ -473,6 +479,20 @@ $debug && print "Notify command: \n $TIERZERO \n";
 #
 sleep(1);
 #
+
+# do we just renotify
+if (defined $renotify) {
+    my $T0out=`$TIERZERO 2>&1`;
+    if($T0out =~ /Connection established/ ) {
+        print "File sucessfully re-submitted for transfer.\n";
+        exit 0;
+    } else {
+        print "Did not connect properly to transfer system logger. Error follows below\n\n";
+        print $T0out;
+        print "\n";
+        exit 1;
+    }
+}
 
 # setup DB connection
 my $dbi    = "DBI:Oracle:cms_rcms";
