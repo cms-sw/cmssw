@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2008/04/22 16:49:18 $
- * $Revision: 1.17 $
+ * $Date: 2008/05/06 14:02:08 $
+ * $Revision: 1.18 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -143,7 +143,8 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
       for(; sl_it != sl_end; ++sl_it) {
 	const DTSuperLayerId & slID = (*sl_it)->id();
 	    
-	tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
+        // ttrig and rms are counts
+	tTrigMap->get(slID, tTrig, tTrigRMS, DTTimeUnits::counts);
 	if (tTrig==0) tTrig=1;
 	const double ns_s = 1e9*(32/25);
 	normalization = ns_s/float(tTrig*nevents);
