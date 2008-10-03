@@ -584,7 +584,6 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
 
   try { 
-    std::cout << " Setting conversions " << std::endl;
     pfAlgo_.setPFConversionParameters(usePFConversions);
   }
   catch( std::exception& err ) {
@@ -906,17 +905,16 @@ void PFRootEventManager::connect( const char* infilename ) {
   }
   //conversion
 
-  useConversions_=false;
-   options_->GetOpt("particle_flow", "useConversion", useConversions_);
+   useConversions_=false;
+   options_->GetOpt("particle_flow", "usePFConversions", useConversions_);
    if( useConversions_ ) {
-
-  string conversionbranchname;
-  options_->GetOpt("root","conversion_branch",conversionbranchname); 
-  conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
-  if(!conversionBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : conversion_branch not found : " 
-        <<conversionbranchname<< endl; 
-  } 
+     string conversionbranchname;
+     options_->GetOpt("root","conversion_branch",conversionbranchname); 
+     conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
+     if(!conversionBranch_) { 
+       cerr<<"PFRootEventManager::ReadOptions : conversion_branch not found : " 
+	   <<conversionbranchname<< endl; 
+     } 
   }
 
   //V0
