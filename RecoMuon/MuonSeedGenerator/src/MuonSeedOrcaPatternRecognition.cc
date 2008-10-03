@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/09/12 23:07:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/02 01:10:34 $
+ *  $Revision: 1.3 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -281,6 +281,14 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   bool * MB1, bool * MB2, bool * MB3,
   std::vector<MuonRecHitContainer> & result)
 {
+  std::vector<MuonRecHitContainer> patterns;
+  MuonRecHitContainer crackSegments;
+  rememberCrackSegments(me11, crackSegments);
+  rememberCrackSegments(me12, crackSegments);
+  rememberCrackSegments(me2,  crackSegments);
+  rememberCrackSegments(me3,  crackSegments);
+  rememberCrackSegments(me4,  crackSegments);
+
 
   MuonRecHitContainer list24 = me4;
   MuonRecHitContainer list23 = me3;
@@ -364,7 +372,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     complete(seedSegments, mb3, MB3);
     complete(seedSegments, mb2, MB2);
     complete(seedSegments, mb1, MB1);
-    if(check(seedSegments)) result.push_back(seedSegments);
+    if(check(seedSegments)) patterns.push_back(seedSegments);
   }
 
 
@@ -381,7 +389,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
       complete(seedSegments, mb3, MB3);
       complete(seedSegments, mb2, MB2);
       complete(seedSegments, mb1, MB1);
-      if(check(seedSegments)) result.push_back(seedSegments);
+      if(check(seedSegments)) patterns.push_back(seedSegments);
     }
   }
 
@@ -396,7 +404,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
         complete(seedSegments, mb1, MB1);
-        if(check(seedSegments)) result.push_back(seedSegments);
+        if(check(seedSegments)) patterns.push_back(seedSegments);
       }
     }
   }
@@ -410,7 +418,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
         complete(seedSegments, mb1, MB1);
-        if(check(seedSegments)) result.push_back(seedSegments);
+        if(check(seedSegments)) patterns.push_back(seedSegments);
       }
     }
   }
@@ -419,6 +427,25 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   if ( ME4 ) delete [] ME4;
   if ( ME3 ) delete [] ME3;
   if ( ME2 ) delete [] ME2;
+
+  if(!patterns.empty())
+  {
+    result.insert(result.end(), patterns.begin(), patterns.end());
+  }
+  else
+  {
+    if(!crackSegments.empty())
+    {
+       // make some single-segment seeds
+       for(MuonRecHitContainer::const_iterator crackSegmentItr = crackSegments.begin();
+           crackSegmentItr != crackSegments.end(); ++crackSegmentItr)
+       {
+          MuonRecHitContainer singleSegmentPattern;
+          singleSegmentPattern.push_back(*crackSegmentItr);
+          result.push_back(singleSegmentPattern);
+       }
+    }
+  }
 }
 
 
@@ -588,21 +615,27 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
 bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
 {
-  if(segments.empty()) return false;
-  if(segments.size() > 1) return true;
-  // there's just one segment
-  if(segments[0]->hit()->dimension() < 4) return false;
-  //FIXME
-  return false;
-  // ony accept single-segments in cracks
-  double absEta = fabs(segments[0]->globalPosition().eta());
-  for(std::vector<double>::const_iterator crackItr = theCrackEtas.begin();
-      crackItr != theCrackEtas.end(); ++crackItr)
-  {
-    if(fabs(absEta-*crackItr) < theCrackWindow) {
-       return true;
-    }
-  }
-  return false;
+  return (segments.size() > 1);
 }
 
+
+void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitContainer & segments,
+                                                           MuonRecHitContainer & crackSegments) const
+{
+  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin(); 
+      segmentItr != segments.end(); ++segmentItr)
+  {
+    if((**segmentItr).hit()->dimension() == 4) 
+    {
+      double absEta = fabs((**segmentItr).globalPosition().eta());
+
+      for(std::vector<double>::const_iterator crackItr = theCrackEtas.begin();
+          crackItr != theCrackEtas.end(); ++crackItr)
+      {
+        if(fabs(absEta-*crackItr) < theCrackWindow) {
+           crackSegments.push_back(*segmentItr);
+        }
+      }
+    }
+  }
+}
