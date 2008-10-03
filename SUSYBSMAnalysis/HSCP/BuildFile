@@ -27,6 +27,7 @@
 <use name=TrackingTools/TransientTrack>
 <use name=root>
 <use name=AnalysisDataFormats/SUSYBSMObjects>
+<use name=TrackingTools/TrackAssociator>
 
 <flags EDM_PLUGIN=1>
 <export>
