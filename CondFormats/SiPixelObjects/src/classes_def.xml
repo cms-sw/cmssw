@@ -5,6 +5,14 @@
   <class name="std::vector<SiPixelCPEParmErrors::DbEntry>"/> 
   <class name="std::vector<SiPixelCPEParmErrors::DbEntryBinSize>"/>
 
+  <class name="SiPixelTemplateDBObject" class_version="0"/>
+  <class name="SiPixelTemplateDBObject::SiPixelTemplateDBEntry"/>
+  <class name="SiPixelTemplateDBObject::SiPixelTemplateDBHeader"/>
+  <class name="SiPixelTemplateDBObject::SiPixelTemplateDBStore"/>
+  <class name="std::vector<SiPixelTemplateDBObject::SiPixelTemplateDBEntry>"/>
+  <class name="std::vector<SiPixelTemplateDBObject::SiPixelTemplateDBHeader>"/>
+  <class name="std::vector<SiPixelTemplateDBObject::SiPixelTemplateDBStore>"/>
+  
   <class name="SiPixelGainCalibration" class_version="0"/>
   <class name="SiPixelGainCalibration::DetRegistry"/>
   <class name="std::vector<SiPixelGainCalibration::DetRegistry>"/>
