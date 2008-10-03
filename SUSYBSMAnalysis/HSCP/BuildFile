@@ -28,6 +28,7 @@
 <use name=root>
 <use name=AnalysisDataFormats/SUSYBSMObjects>
 <use name=TrackingTools/TrackAssociator>
+<use name=Geometry/EcalMapping>
 
 <flags EDM_PLUGIN=1>
 <export>
