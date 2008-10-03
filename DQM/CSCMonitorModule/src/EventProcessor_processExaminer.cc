@@ -1,0 +1,383 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  EventProcessor.cc
+ *
+ *    Description:  Process Examiner output
+ *
+ *        Version:  1.0
+ *        Created:  10/03/2008 10:47:11 AM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Valdas Rapsevicius (VR), Valdas.Rapsevicius@cern.ch
+ *        Company:  CERN, CH
+ *
+ * =====================================================================================
+ */
+
+#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+
+namespace cscdqm {
+
+  template <class METype, class HPType>
+  void EventProcessor<METype, HPType>::processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied) {
+    
+    binChecker.setMask(binCheckMask);
+    
+    if (binChecker.check(data, dataSize) < 0 ){
+      //   No ddu trailer found - force checker to summarize errors by adding artificial trailer
+      const uint16_t dduTrailer[4] = { 0x8000, 0x8000, 0xFFFF, 0x8000 };
+      const uint16_t *tmp = dduTrailer;
+      binChecker.check(tmp, uint32_t(4));
+    }
+
+    uint32_t binErrorStatus = binChecker.errors();
+    uint32_t binWarningStatus = binChecker.warnings();
+
+    METype* mo;
+    if (getEMUHisto(EMU_DDU_FORMAT_ERROR, mo)) {
+
+      std::vector<int> DDUs = binChecker.listOfDDUs();
+      for (std::vector<int>::iterator ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {
+        if (*ddu_itr != 0xFFF) {
+          long errs = binChecker.errorsForDDU(*ddu_itr);
+          int dduID = (*ddu_itr)&0xFF;
+          if (errs != 0) {
+            for(int i=0; i<binChecker.nERRORS; i++) { 
+              if ((errs>>i) & 0x1 ) {
+                mo->Fill(dduID, i + 1);
+              }
+            }
+          }
+        }
+      }
+
+      /* Temporary tweak for cases when there were no DDU errors  */
+      if (binChecker.errors() == 0) {
+        int dduID = binChecker.dduSourceID() & 0xFF;
+        mo->Fill(dduID, 0);
+      }
+
+    }
+  	
+    if ((binErrorStatus & dduBinCheckMask) > 0) {
+      eventDenied = true;
+    }
+
+    if ( (binErrorStatus != 0) || (binWarningStatus != 0) ) {
+      nBadEvents++;
+    }
+
+    std::map<int,long> payloads = binChecker.payloadDetailed();
+    for(std::map<int,long>::const_iterator chamber=payloads.begin(); chamber!=payloads.end(); chamber++) {
+
+      int chamberID = chamber->first;
+      int crateID = (chamberID >> 4) & 0xFF;
+      int dmbSlot = chamberID & 0xF;
+      std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbSlot));
+
+      if (crateID ==255) { continue; }
+
+      // Update counters
+      nDMBEvents[cscTag]++;
+      CSCCounters& trigCnts = cscCntrs[cscTag];
+      trigCnts["DMB"] = nDMBEvents[cscTag];
+
+      long DMBEvents = nDMBEvents[cscTag];
+
+      if (getEMUHisto(EMU_DMB_REPORTING, mo)) {
+        mo->Fill(crateID, dmbSlot);
+      }
+
+      unsigned int cscType   = 0;
+      unsigned int cscPosition = 0;
+      histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
+      if (cscType && cscPosition && getEMUHisto(EMU_CSC_REPORTING, mo)) {
+        mo->Fill(cscPosition, cscType);
+      }
+
+      // Get FEBs Data Available Info
+      long payload = chamber->second;
+      int cfeb_dav = (payload >> 7) & 0x1F;
+      int cfeb_active = payload & 0x1F;
+      int alct_dav = (payload >> 5) & 0x1;
+      int tmb_dav = (payload >> 6) & 0x1; 
+      int cfeb_dav_num = 0;
+      
+      if (alct_dav == 0) {
+	if (cscType && cscPosition && getEMUHisto(EMU_CSC_WO_ALCT, mo)) {
+          mo->Fill(cscPosition, cscType);
+	}
+	if (getEMUHisto(EMU_DMB_WO_ALCT, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+      }
+     
+      if (tmb_dav == 0) {
+	if (cscType && cscPosition && getEMUHisto(EMU_CSC_WO_CLCT, mo)) {
+          mo->Fill(cscPosition, cscType);
+	}
+	if (getEMUHisto(EMU_DMB_WO_CLCT, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+      }
+
+      if (cfeb_dav == 0) {
+	if (cscType && cscPosition && getEMUHisto(EMU_CSC_WO_CFEB, mo)) {
+          mo->Fill(cscPosition, cscType);
+	}
+	if (getEMUHisto(EMU_DMB_WO_CFEB, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+      }
+      
+      METype* mof, mo1, mo2;
+      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_RATE, mo)
+	  && getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, mof)) {
+	if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, mo1)
+	    && getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV, mo2)) {
+          for (int i=1; i<=5; i++) {
+	    double actual_dav_num = mo->GetBinContent(i);
+	    double unpacked_dav_num = mo2->GetBinContent(i);
+	    if (actual_dav_num){
+	      mo1->SetBinContent(i,1, 100.*(1-unpacked_dav_num/actual_dav_num));
+	    }				   
+	    mo1->SetEntries((int)DMBEvents);
+	  }
+	}	
+	for (int i=0; i<5;i++) {
+	  int cfeb_present = (cfeb_dav>>i) & 0x1;
+	  cfeb_dav_num += cfeb_present;
+	  if (cfeb_present) {
+	    mo->Fill(i);
+	  }
+	  float cfeb_entries = mo->GetBinContent(i+1);
+	  mof->SetBinContent(i+1, ((float)cfeb_entries/(float)(DMBEvents)*100.0));
+	}
+	mof->SetEntries((int)DMBEvents);
+
+      }
+      
+      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_RATE, mo)
+	  && getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_MULTIPLICITY_FREQUENCY, mof)) {
+	for (unsigned short i = 1; i < 7; i++) {
+	  float cfeb_entries =  mo->GetBinContent(i);
+	  mof->SetBinContent(i, ((float)cfeb_entries / (float)(DMBEvents) * 100.0));
+	}
+	mof->SetEntries((int)DMBEvents);
+
+	if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_MULTIPLICITY_UNPACKING_INEFFICIENCY, mo1)
+	    && getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_MULTIPLICITY, mo2)) {	   
+	  for (unsigned short i = 1; i < 7; i++) {
+	    float actual_dav_num = mo->GetBinContent(i);
+	    float unpacked_dav_num = mo2->GetBinContent(i);
+	    if (actual_dav_num){
+	      mo1->SetBinContent(i, 1, 100. * (1-unpacked_dav_num/actual_dav_num));
+	    }				   
+	    mo1->SetEntries((int)DMBEvents);
+	  }
+	}	
+	mo->Fill(cfeb_dav_num);
+      }
+
+      if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_ACTIVE_VS_DAV, mo)) mo->Fill(cfeb_dav, cfeb_active);
+
+      // Fill Histogram for FEB DAV Efficiency
+      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_DAV_RATE, mo)) {
+	if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_DAV_FREQUENCY, mo1)) {
+	  for (int i = 1; i < 4; i++) {
+	    float dav_num = mo->GetBinContent(i);
+	    mo1->SetBinContent(i, ((float)dav_num / (float)(DMBEvents) * 100.0));
+	  }
+	  mo1->SetEntries((int)DMBEvents);
+
+	  if (getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_DAV_UNPACKING_INEFFICIENCY, mof)
+     	      && getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_DAV_RATE, mo2)) {	   
+	    for (int i = 1; i < 4; i++) {
+	      float actual_dav_num = mo->GetBinContent(i);
+	      float unpacked_dav_num = mo2->GetBinContent(i);
+	      if (actual_dav_num){
+		mof->SetBinContent(i,1, 100. * (1 - unpacked_dav_num / actual_dav_num));
+	      }				   
+	      mof->SetEntries((int)DMBEvents);
+	      mof->getObject()->SetMaximum(100.0);
+	    }
+	  }	  
+	}
+
+	if (alct_dav > 0) {
+	  mo->Fill(0.0);
+	}
+	if (tmb_dav > 0) {
+	  mo->Fill(1.0);
+	}
+	if (cfeb_dav > 0) {
+	  mo->Fill(2.0);
+	}
+      }
+      
+
+      float feb_combination_dav = -1.0;
+      // Fill Histogram for Different Combinations of FEB DAV Efficiency
+      if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_RATE, mo)) {
+	if(alct_dav == 0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 0.0; // Nothing
+	if(alct_dav >  0 && tmb_dav == 0 && cfeb_dav == 0) feb_combination_dav = 1.0; // ALCT Only
+	if(alct_dav == 0 && tmb_dav >  0 && cfeb_dav == 0) feb_combination_dav = 2.0; // TMB Only
+	if(alct_dav == 0 && tmb_dav == 0 && cfeb_dav >  0) feb_combination_dav = 3.0; // CFEB Only
+	if(alct_dav == 0 && tmb_dav >  0 && cfeb_dav >  0) feb_combination_dav = 4.0; // TMB+CFEB
+	if(alct_dav >  0 && tmb_dav >  0 && cfeb_dav == 0) feb_combination_dav = 5.0; // ALCT+TMB
+	if(alct_dav >  0 && tmb_dav == 0 && cfeb_dav >  0) feb_combination_dav = 6.0; // ALCT+CFEB
+	if(alct_dav >  0 && tmb_dav >  0 && cfeb_dav >  0) feb_combination_dav = 7.0; // ALCT+TMB+CFEB
+	// mo->Fill(feb_combination_dav);
+
+	if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_FEB_COMBINATIONS_DAV_FREQUENCY, mo1)) {
+	  for (int i = 1; i < 9; i++) {
+	    float feb_combination_dav_number = mo->GetBinContent(i);
+	    mo1->SetBinContent(i, ((float)feb_combination_dav_number / (float)(DMBEvents) * 100.0));
+	  }
+	  mo1->SetEntries(DMBEvents);
+	  
+	  if (getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_COMBINATIONS_DAV_UNPACKING_INEFFICIENCY, mof)
+     	      && getCSCHisto(crateID, dmbSlot, CSC_DMB_FEB_COMBINATIONS_DAV_RATE, mo2)) {	   
+	    for (int i = 1; i < 9; i++) {
+	      float actual_dav_num = mo->GetBinContent(i);
+	      float unpacked_dav_num = mo2->GetBinContent(i);
+	      if (actual_dav_num){
+		mof->SetBinContent(i, 1, 100. * (1 - unpacked_dav_num / actual_dav_num));
+	      }				   
+	      mof->SetEntries((int)DMBEvents);
+	      mof->getObject()->SetMaximum(100.0);
+	    }
+	  }
+	  
+	}
+	mo->Fill(feb_combination_dav);
+      }
+      
+    }
+
+  // === Check and fill CSC Data Flow Problems
+  std::map<int,long> statuses = binChecker.statusDetailed();
+  for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++)
+    {
+      int chamberID = chamber->first;
+
+      int crateID = (chamber->first >> 4) & 0xFF;
+      int dmbSlot = chamber->first & 0xF;
+      std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbSlot));
+
+      if (crateID == 255) { continue; }
+
+      int cscType   = 0;
+      int cscPosition = 0;
+      histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
+
+      if (getCSCHisto(crateID, dmbSlot, CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo)) {
+	for(int bit = 0; bit < binChecker.nSTATUSES; bit++)
+	  if( chamber->second & (1 << bit) ) {
+	    mo->Fill(0., bit);
+	  }
+	mo->SetEntries(nDMBEvents[cscTag]);
+      }
+
+      
+      int anyInputFull = chamber->second & 0x3F;
+      if(anyInputFull){
+	if(cscType && cscPosition && getEMUHisto(EMU_CSC_DMB_INPUT_FIFO_FULL, mo)){
+	  mo->Fill(cscPosition, cscType);
+	}
+	if (getEMUHisto(EMU_DMB_INPUT_FIFO_FULL, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+      }
+
+
+      int anyInputTO = (chamber->second >> 7) & 0x3FFF;
+      if(anyInputTO){
+	if(cscType && cscPosition && getEMUHisto(EMU_CSC_DMB_INPUT_TIMEOUT, mo)){
+	  mo->Fill(cscPosition, cscType);
+	}
+	if (getEMUHisto(EMU_DMB_INPUT_TIMEOUT, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+      }
+      
+      if (chamber->second & (1 << 22)) {
+	if (getEMUHisto(EMU_DMB_FORMAT_WARNINGS, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+  
+	if (cscType && cscPosition && getEMUHisto(EMU_CSC_FORMAT_WARNINGS, mo)) {
+	  mo->Fill(cscPosition, cscType);
+	}
+	
+      }
+    }
+
+  // Check and fill CSC Format Errors 
+  std::map<int,long> checkerErrors = binChecker.errorsDetailed();
+  for(std::map<int,long>::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
+
+      int chamberID = chamber->first;
+      int crateID = (chamberID >> 4) & 0xFF;
+      int dmbSlot = chamberID & 0xF;
+
+      std::string cscTag(Form("CSC_%03d_%02d", crateID , dmbSlot));
+
+      if ((crateID ==255) || 
+	  (chamber->second & 0x80)) { continue; } // = Skip chamber detection if DMB header is missing (Error code 6)
+
+      if (crateID>60 || dmbSlot>10) {
+	//LOG4CPLUS_WARN(logger_, eTag << "Invalid CSC: " << cscTag << ". Skipping");
+	continue;
+      }
+ 
+      if ((chamber->second & binCheckMask) != 0) {
+	// nDMBEvents[cscTag]++;	
+	CSCCounters& trigCnts = cscCntrs[cscTag];
+	trigCnts["BAD"]++; 
+      }
+
+      bool isCSCError = false;
+
+      if (getCSCHisto(crateID, dmbSlot, CSC_BINCHECK_ERRORSTAT_TABLE, mo)) {
+	for(int bit = 5; bit < 24; bit++) {
+	  if( chamber->second & (1 << bit) ) {
+	    isCSCError = true;
+	    mo->Fill(0., bit - 5);
+	  }
+          mo->SetEntries(nDMBEvents[cscTag]);
+        }
+      }
+
+      if (isCSCError) {
+
+	//LOG4CPLUS_WARN(logger_,eTag << "Format Errors "<< cscTag << ": 0x" << std::hex << chamber->second);
+
+	if (getEMUHisto(EMU_DMB_FORMAT_ERRORS, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+
+	if (!eventDenied  && getEMUHisto(EMU_DMB_UNPACKED_WITH_ERRORS, mo)) {
+	  mo->Fill(crateID, dmbSlot);
+	}
+
+	int cscType   = 0;
+	int cscPosition = 0;
+	histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
+	if ( cscType && cscPosition && getEMUHisto(EMU_CSC_FORMAT_ERRORS, mo)) {
+	  mo->Fill(cscPosition, cscType);
+	}
+
+	if (!eventDenied  && cscType && cscPosition && getEMUHisto(EMU_CSC_UNPACKED_WITH_ERRORS, mo)) {
+	  mo->Fill(cscPosition, cscType);
+	}
+      }
+
+    }
+
+  }
+
+
+}
