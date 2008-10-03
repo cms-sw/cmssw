@@ -8,7 +8,10 @@
 #include "RecoParticleFlow/PFTracking/interface/PFNuclearProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFConversionsProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFV0Producer.h"
-
+#include "RecoParticleFlow/PFTracking/interface/ConvBremSeedProducer.h"
+//TO BE REMOVED WHEN INCLUDED IN TRACKINGTOOLS/TRAJECTORYCLEANING
+#include "RecoParticleFlow/PFTracking/interface/TrajectoryCleanerForShortTracks.h"
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerFactory.h"
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(GoodSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFElecTkProducer);
@@ -18,3 +21,6 @@ DEFINE_ANOTHER_FWK_MODULE(GsfSeedCleaner);
 DEFINE_ANOTHER_FWK_MODULE(PFNuclearProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFConversionsProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFV0Producer);
+DEFINE_ANOTHER_FWK_MODULE(ConvBremSeedProducer);
+//TO BE REMOVED WHEN INCLUDED IN TRACKINGTOOLS/TRAJECTORYCLEANING
+DEFINE_EDM_PLUGIN(TrajectoryCleanerFactory, TrajectoryCleanerForShortTracks, "TrajectoryCleanerForShortTracks");
