@@ -31,7 +31,7 @@ public:
 
   /// Operations
   //Read the DTGeometry and the t0 DB
-  void beginJob(const edm::EventSetup& setup);
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
   //Do the real work
   void endJob();

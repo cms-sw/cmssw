@@ -49,7 +49,7 @@ DTtTrigDBValidation::DTtTrigDBValidation(const ParameterSet& pset) {
 DTtTrigDBValidation::~DTtTrigDBValidation(){}
 
 
-void DTtTrigDBValidation::beginJob(const EventSetup& setup) {
+void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
 
   metname = "tTrigdbValidation";
@@ -77,8 +77,9 @@ void DTtTrigDBValidation::beginJob(const EventSetup& setup) {
 		        (*it).first.stationId,
 		        (*it).first.sectorId,
 		        (*it).first.slId);
-    float tTrigmean = (*it).second.tTrig;
-    float tTrigrms = (*it).second.tTrms;
+    float tTrigmean;
+    float tTrigrms;
+    DTTtrigRefMap->get(slId, tTrigmean, tTrigrms, DTTimeUnits::counts);
     LogTrace(metname)<< "Ref Superlayer: " <<  slId <<endl
 		     << " Ttrig mean (TDC counts): " << tTrigmean
 		     << " Ttrig rms (TDC counts): " << tTrigrms;
@@ -95,8 +96,9 @@ void DTtTrigDBValidation::beginJob(const EventSetup& setup) {
 		        (*it).first.stationId,
 		        (*it).first.sectorId,
 		        (*it).first.slId);
-    float tTrigmean = (*it).second.tTrig;
-    float tTrigrms = (*it).second.tTrms;
+    float tTrigmean;
+    float tTrigrms;
+    DTTtrigMap->get(slId, tTrigmean, tTrigrms, DTTimeUnits::counts);
     LogTrace(metname)<< "SuperLayer: " <<  slId <<endl
 		     << " Ttrig mean (TDC counts): " << tTrigmean
 		     << " Ttrig rms (TDC counts): " << tTrigrms;

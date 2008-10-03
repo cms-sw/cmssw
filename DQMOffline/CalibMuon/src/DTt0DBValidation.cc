@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/23 08:26:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/24 17:23:49 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -59,8 +59,7 @@ DTt0DBValidation::DTt0DBValidation(const ParameterSet& pset) {
 DTt0DBValidation::~DTt0DBValidation(){}
 
 
-void DTt0DBValidation::beginJob(const EventSetup& setup) {
-
+void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
   metname = "t0dbValidation";
   LogTrace(metname)<<"[DTt0DBValidation] Parameters initialization";
@@ -83,14 +82,16 @@ void DTt0DBValidation::beginJob(const EventSetup& setup) {
   // Loop over Ref DB entries
   for(DTT0::const_iterator tzero = tZeroRefMap->begin();
       tzero != tZeroRefMap->end(); tzero++) {
+    // t0s and rms are TDC counts
     DTWireId wireId((*tzero).first.wheelId,
 		    (*tzero).first.stationId,
 		    (*tzero).first.sectorId,
 		    (*tzero).first.slId,
 		    (*tzero).first.layerId,
 		    (*tzero).first.cellId);
-    float t0mean = (*tzero).second.t0mean;
-    float t0rms = (*tzero).second.t0rms;
+    float t0mean;
+    float t0rms;
+    tZeroRefMap->get( wireId, t0mean, t0rms, DTTimeUnits::counts );
     LogTrace(metname)<< "Ref Wire: " <<  wireId <<endl
 		     << " T0 mean (TDC counts): " << t0mean
 		     << " T0_rms (TDC counts): " << t0rms;
@@ -102,14 +103,16 @@ void DTt0DBValidation::beginJob(const EventSetup& setup) {
   // Loop over Ref DB entries
   for(DTT0::const_iterator tzero = tZeroMap->begin();
       tzero != tZeroMap->end(); tzero++) {
+    // t0s and rms are TDC counts
     DTWireId wireId((*tzero).first.wheelId,
 		    (*tzero).first.stationId,
 		    (*tzero).first.sectorId,
 		    (*tzero).first.slId,
 		    (*tzero).first.layerId,
 		    (*tzero).first.cellId);
-    float t0mean = (*tzero).second.t0mean;
-    float t0rms = (*tzero).second.t0rms;
+    float t0mean;
+    float t0rms;
+    tZeroMap->get( wireId, t0mean, t0rms, DTTimeUnits::counts );
     LogTrace(metname)<< "Wire: " <<  wireId <<endl
 		     << " T0 mean (TDC counts): " << t0mean
 		     << " T0_rms (TDC counts): " << t0rms;
