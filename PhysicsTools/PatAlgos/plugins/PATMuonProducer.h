@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.11 2008/07/30 01:11:35 gpetrucc Exp $
+// $Id: PATMuonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.11 2008/07/30 01:11:35 gpetrucc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
 */
 
 
@@ -51,14 +51,30 @@ namespace pat {
       ~PATMuonProducer();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      typedef edm::RefToBase<MuonType> MuonBaseRef;
 
     private:
 
+
+      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
+
+      typedef std::vector<edm::Handle<edm::Association<TriggerPrimitiveCollection> > > TrigAssociations;
+
+
+      void fillMuon( Muon& patMuon, 
+		     const MuonBaseRef& muonRef,
+		     const reco::CandidateBaseRef& baseRef,
+		     const GenAssociations& genMatches,
+		     const TrigAssociations&  trigMatches) const;
+
       // configurables
       edm::InputTag muonSrc_;
+      edm::InputTag pfMuonSrc_;
+      bool          useParticleFlow_;
       bool          embedTrack_;
       bool          embedStandAloneMuon_;
       bool          embedCombinedMuon_;
+      bool          embedPFCandidate_;
       bool          addGenMatch_;
       bool          embedGenMatch_;
       std::vector<edm::InputTag> genMatchSrc_;

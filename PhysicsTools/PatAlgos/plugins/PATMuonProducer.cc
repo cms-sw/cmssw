@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.13 2008/07/30 01:11:35 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.14 2008/09/30 21:33:06 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -10,6 +10,10 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -24,6 +28,7 @@
 
 
 using namespace pat;
+using namespace std;
 
 
 PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
@@ -31,11 +36,18 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 
 {
+
+  
   // general configurables
   muonSrc_             = iConfig.getParameter<edm::InputTag>( "muonSource" );
+  pfMuonSrc_           = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
+  useParticleFlow_        = iConfig.getParameter<bool>( "useParticleFlow" );
+
   embedTrack_          = iConfig.getParameter<bool>         ( "embedTrack" );
   embedStandAloneMuon_ = iConfig.getParameter<bool>         ( "embedStandAloneMuon" );
   embedCombinedMuon_   = iConfig.getParameter<bool>         ( "embedCombinedMuon" );
+  embedPFCandidate_   = iConfig.getParameter<bool>( "embedPFCandidate" );
+  
   
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
@@ -104,11 +116,10 @@ PATMuonProducer::~PATMuonProducer() {
 
 
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+  
 
-  // Get the collection of muons from the event
-  edm::Handle<edm::View<MuonType> > muons;
-  iEvent.getByLabel(muonSrc_, muons);
-
+  
+  
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
@@ -119,81 +130,96 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   }
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
+  GenAssociations  genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
+    for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
+      iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
+    }
   }
 
-  // loop over muons
+  // prepare the trigger matching
+  TrigAssociations  trigMatches(trigMatchSrc_.size());
+  if ( addTrigMatch_ ) {
+    for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+      iEvent.getByLabel(trigMatchSrc_[i], trigMatches[i]);
+    }
+  }
+  
+
   std::vector<Muon> * patMuons = new std::vector<Muon>();
-  for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
-    // construct the Muon from the ref -> save ref to original object
-    unsigned int idx = itMuon - muons->begin();
-    edm::RefToBase<MuonType> muonsRef = muons->refAt(idx);
-    edm::Ptr<MuonType> muonsPtr = muons->ptrAt(idx);
-    
-    Muon aMuon(muonsRef);
-    if (embedTrack_) aMuon.embedTrack();
-    if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
-    if (embedCombinedMuon_) aMuon.embedCombinedMuon();
 
-    // store the match to the generated final state muons
-    if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genMuon = (*genMatches[i])[muonsRef];
-          aMuon.addGenParticleRef(genMuon);
+  // loop over muons
+  // Get the collection of muons from the event
+  
+
+  if( useParticleFlow_ ) {
+    edm::Handle< reco::IsolatedPFCandidateCollection >  pfMuons;
+    iEvent.getByLabel(pfMuonSrc_, pfMuons);
+    unsigned index=0;
+    for( reco::IsolatedPFCandidateConstIterator i = pfMuons->begin(); 
+	 i != pfMuons->end(); ++i, ++index) {
+      
+      const reco::IsolatedPFCandidate& pfmu = *i;
+      std::cout<<pfmu<<std::endl;
+
+      const reco::MuonRef& muonRef = pfmu.muonRef();
+      assert( muonRef.isNonnull() );
+
+
+      MuonBaseRef muonBaseRef(muonRef);
+      Muon aMuon(muonBaseRef);
+
+      reco::IsolatedPFCandidateRef pfRef( pfMuons, index );
+      reco::CandidateBaseRef pfBaseRef( pfRef ); 
+      
+      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, trigMatches);
+      
+      aMuon.setPFCandidateRef( pfRef );
+      if( embedPFCandidate_ ) aMuon.embedPFCandidate();
+      
+      patMuons->push_back(aMuon);
+      
+    } 
+  }
+  else {
+    edm::Handle<edm::View<MuonType> > muons;
+    iEvent.getByLabel(muonSrc_, muons);
+    for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
+      
+      
+      // construct the Muon from the ref -> save ref to original object
+      unsigned int idx = itMuon - muons->begin();
+      MuonBaseRef muonRef = muons->refAt(idx);
+      reco::CandidateBaseRef muonBaseRef( muonRef ); 
+      
+      Muon aMuon(muonRef);
+      
+      fillMuon( aMuon, muonRef, muonBaseRef, genMatches, trigMatches );
+      
+      // Isolation
+      if (isolator_.enabled()) {
+	isolator_.fill(*muons, idx, isolatorTmpStorage_);
+	typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
+	// better to loop backwards, so the vector is resized less times
+	for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
+	  aMuon.setIsolation(it->first, it->second);
+	}
       }
-      if (embedGenMatch_) aMuon.embedGenParticle();
-    }
-    // matches to trigger primitives
-    if ( addTrigMatch_ ) {
-      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
-        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
-        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
-        TriggerPrimitiveRef trigPrim = (*trigMatch)[muonsRef];
-        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
-          aMuon.addTriggerMatch(*trigPrim);
-        }
+      
+      for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+	aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
+			    (*deposits[j])[muonRef]);
       }
-    }
-    // add resolution info
-    if (addResolutions_) {
-      (*theResoCalc_)(aMuon);
-    }
 
-    if (efficiencyLoader_.enabled()) {
-        efficiencyLoader_.setEfficiencies( aMuon, muonsRef );
-    }
+      // add sel to selected
+      edm::Ptr<MuonType> muonsPtr = muons->ptrAt(idx);
+      if ( useUserData_ ) {
+	userDataHelper_.add( aMuon, muonsPtr, iEvent, iSetup );
+      }
 
-    // add muon ID info
-    if (addMuonID_) {
-//      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->combinedMuon()->chi2(), (Int_t) itMuon->combinedMuon()->ndof()));
-// no combinedMuon in fastsim
-      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->track()->chi2(), (Int_t) itMuon->track()->ndof()));
-    }
-
-     // Isolation
-    if (isolator_.enabled()) {
-        isolator_.fill(*muons, idx, isolatorTmpStorage_);
-        typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
-        // better to loop backwards, so the vector is resized less times
-        for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
-            aMuon.setIsolation(it->first, it->second);
-        }
-    }
-
-    for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-        aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[muonsRef]);
-    }
-
-    if ( useUserData_ ) {
-      userDataHelper_.add( aMuon, muonsPtr, iEvent, iSetup );
+      patMuons->push_back(aMuon);
     }
     
-    // add sel to selected
-    patMuons->push_back(aMuon);
   }
 
   // sort muons in pt
@@ -206,6 +232,54 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (isolator_.enabled()) isolator_.endEvent();
 }
 
+void PATMuonProducer::fillMuon( Muon& aMuon, 
+				const MuonBaseRef& muonRef,
+				const reco::CandidateBaseRef& baseRef,
+				const GenAssociations& genMatches,
+				const TrigAssociations& trigMatches ) const {
+  
+
+  if (embedTrack_) aMuon.embedTrack();
+  if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
+  if (embedCombinedMuon_) aMuon.embedCombinedMuon();
+  
+  // store the match to the generated final state muons
+  if (addGenMatch_) {
+    for(size_t i = 0, n = genMatches.size(); i < n; ++i) {      
+      reco::GenParticleRef genMuon = (*genMatches[i])[baseRef];
+      aMuon.addGenParticleRef(genMuon);
+    }
+    if (embedGenMatch_) aMuon.embedGenParticle();
+  }
+
+  // matches to trigger primitives
+  if ( addTrigMatch_ ) {
+    for ( size_t i = 0; i < trigMatches.size(); ++i ) {
+      TriggerPrimitiveRef trigPrim = (*trigMatches[i])[baseRef];
+      if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+	aMuon.addTriggerMatch(*trigPrim);
+      }
+    }
+  }
+
+  // add resolution info
+  if (addResolutions_) {
+    (*theResoCalc_)(aMuon);
+  }
+  
+  if (efficiencyLoader_.enabled()) {
+    efficiencyLoader_.setEfficiencies( aMuon, muonRef );
+  }
+  
+  // add muon ID info
+  if (addMuonID_) {
+    //      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->combinedMuon()->chi2(), (Int_t) itMuon->combinedMuon()->ndof()));
+    // no combinedMuon in fastsim
+    aMuon.setLeptonID((float) TMath::Prob((Float_t) muonRef->track()->chi2(), (Int_t) muonRef->track()->ndof()));
+  }
+  
+
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

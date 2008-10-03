@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Muons = cms.EDProducer("PATMuonProducer",
+
     # General configurables
     muonSource = cms.InputTag("allLayer0Muons"),
+    pfMuonSource = cms.InputTag("pfMuons"),
+    useParticleFlow =  cms.bool( False ),
 
     # user data to add
     userData = cms.PSet(
@@ -26,6 +29,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     embedTrack          = cms.bool(False), ## whether to embed in AOD externally stored tracker track
     embedCombinedMuon   = cms.bool(False), ## whether to embed in AOD externally stored combined muon track
     embedStandAloneMuon = cms.bool(False), ## whether to embed in AOD externally stored standalone muon track
+    embedPFCandidate = cms.bool(False),
 
     # isolation configurables
     isolation = cms.PSet(

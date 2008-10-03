@@ -1,9 +1,10 @@
 //
-// $Id: Muon.cc,v 1.10 2008/06/23 22:22:18 gpetrucc Exp $
+// $Id: Muon.cc,v 1.11 2008/08/31 20:24:54 hegner Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
 using namespace pat;
 
@@ -13,7 +14,8 @@ Muon::Muon() :
     Lepton<MuonType>(),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
-    embeddedCombinedMuon_(false)
+    embeddedCombinedMuon_(false),
+    embeddedPFCandidate_(false)
 {
 }
 
@@ -23,7 +25,8 @@ Muon::Muon(const MuonType & aMuon) :
     Lepton<MuonType>(aMuon),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
-    embeddedCombinedMuon_(false)
+    embeddedCombinedMuon_(false),
+    embeddedPFCandidate_(false)
 {
 }
 
@@ -33,7 +36,8 @@ Muon::Muon(const edm::RefToBase<MuonType> & aMuonRef) :
     Lepton<MuonType>(aMuonRef),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
-    embeddedCombinedMuon_(false)
+    embeddedCombinedMuon_(false),
+    embeddedPFCandidate_(false)
 {
 }
 
@@ -43,7 +47,8 @@ Muon::Muon(const edm::Ptr<MuonType> & aMuonRef) :
     Lepton<MuonType>(aMuonRef),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
-    embeddedCombinedMuon_(false)
+    embeddedCombinedMuon_(false),
+    embeddedPFCandidate_(false)
 {
 }
 
@@ -79,6 +84,14 @@ reco::TrackRef Muon::combinedMuon() const {
     return reco::TrackRef(&combinedMuon_, 0);
   } else {
     return MuonType::globalTrack();
+  }
+}
+
+reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
+  if (embeddedPFCandidate_) {
+    return reco::IsolatedPFCandidateRef(&pfCandidate_, 0);
+  } else {
+    return pfCandidateRef_;
   }
 }
 
@@ -130,6 +143,13 @@ void Muon::embedCombinedMuon() {
   }
 }
 
+void Muon::embedPFCandidate() {
+  pfCandidate_.clear();
+  if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
+    pfCandidate_.push_back( *pfCandidateRef_ );
+    embeddedPFCandidate_ = true;
+  }
+}
 
 /// method to set the lepton ID discriminator
 void Muon::setLeptonID(float id) {
