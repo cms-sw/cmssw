@@ -29,6 +29,9 @@ private:
 
   // see if it's OK to add
   bool check(const MuonRecHitContainer & segments);
+  void rememberCrackSegments(const MuonRecHitContainer & segments,
+                             MuonRecHitContainer & crackSegments) const;
+
   std::vector<double> theCrackEtas;
   double theCrackWindow;
 };

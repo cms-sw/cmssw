@@ -15,7 +15,10 @@ ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
                                  CSCRecSegmentLabel = cms.InputTag("cscSegments"),
                                  DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
                                  EnableDTMeasurement = cms.bool(True),
-                                 EnableCSCMeasurement = cms.bool(True)
+                                 EnableCSCMeasurement = cms.bool(True),
+                                 # places where it's OK to have single-segment seeds
+                                 crackEtas = cms.vdouble(0.2, 1.6, 1.7),
+                                 crackWindow = cms.double(0.04)
                                  )
 
 
