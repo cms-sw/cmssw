@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/07/02 14:14:14 $
- * $Revision: 1.45 $
+ * $Date: 2008/07/24 12:56:07 $
+ * $Revision: 1.46 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -226,8 +226,9 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     cout<<"              histoName "<<histoName<<endl;
   }
 
+  // ttrig and rms are TDC counts
   if ( readTTrigDB ) 
-    tTrigMap->slTtrig( dtSL, tTrig, tTrigRMS); 
+    tTrigMap->get(dtSL, tTrig, tTrigRMS, DTTimeUnits::counts); 
   else tTrig = defaultTTrig;
   
 
@@ -510,8 +511,10 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	const  DTLayerId dtLId = (*dtLayerId_It).first;
 	
 	// Read the ttrig DB or set a rough value from config
+        // ttrig and rms are TDC counts
 	if (readTTrigDB)
-	  tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
+	  tTrigMap->get( ((*dtLayerId_It).first).superlayerId(),
+                         tTrig, tTrigRMS, DTTimeUnits::counts); 
 	else tTrig = defaultTTrig;
 	
 	int inTimeHitsLowerBoundCorr = int(round(tTrig)) - inTimeHitsLowerBound;
@@ -522,7 +525,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	
 	if (subtractT0) {
 	  const DTWireId dtWireId(((*dtLayerId_It).first), (*digiIt).wire());
-	  t0Map->cellT0(dtWireId, t0, t0RMS) ;
+          // t0s and rms are TDC counts
+	  t0Map->get(dtWireId, t0, t0RMS, DTTimeUnits::counts) ;
 	  tdcTime += int(round(t0));
 	}
 
