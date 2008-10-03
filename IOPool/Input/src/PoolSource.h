@@ -13,6 +13,7 @@ PoolSource: This is an InputSource
 
 #include "Inputfwd.h"
 
+#include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -51,6 +52,7 @@ namespace edm {
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
 
+    RootServiceChecker rootServiceChecker_;
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
     boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;

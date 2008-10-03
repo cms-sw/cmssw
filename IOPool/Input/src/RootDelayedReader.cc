@@ -2,7 +2,7 @@
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
-#include "IOPool/Common/interface/RefStreamer.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "TROOT.h"
 #include "TClass.h"
@@ -19,7 +19,7 @@ namespace edm {
 
   std::auto_ptr<EDProduct>
   RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
-    SetRefStreamer(ep);
+    setRefCoreStreamer(ep);
     iterator iter = branchIter(k);
     if (!found(iter)) {
       assert(nextReader_);

@@ -2,8 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/JobReport.h" 
 #include "IOPool/Output/src/RootOutputFile.h" 
-#include "IOPool/Common/interface/ClassFiller.h"
-#include "IOPool/Common/interface/RefStreamer.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -24,6 +22,7 @@
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
+    rootServiceChecker_(),
     selectedOutputItemList_(), 
     fileName_(pset.getUntrackedParameter<std::string>("fileName")),
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
@@ -38,10 +37,6 @@ namespace edm {
     outputFileCount_(0),
     inputFileCount_(0),
     rootOutputFile_() {
-    ClassFiller();
-    // We need to set a custom streamer for edm::RefCore so that it will not be split.
-    // even though a custom streamer is not otherwise necessary.
-    SetRefStreamer();
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.

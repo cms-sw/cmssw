@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "TTreeCache.h"
 
@@ -48,6 +49,7 @@ namespace edm {
 
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
+    rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
     branchIDsToReplace_() {

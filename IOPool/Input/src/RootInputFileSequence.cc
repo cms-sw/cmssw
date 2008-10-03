@@ -15,7 +15,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "IOPool/Common/interface/ClassFiller.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TFile.h"
@@ -148,7 +147,6 @@ namespace edm {
   void RootInputFileSequence::initFile(bool skipBadFiles) {
     // close the currently open file, any, and delete the RootFile object.
     closeFile_();
-    ClassFiller();
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
