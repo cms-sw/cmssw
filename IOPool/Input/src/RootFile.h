@@ -214,7 +214,6 @@ namespace edm {
           EntryDescriptionID* ppb = pb.get();
           br->SetAddress(&ppb);
           br->GetEntry(rootTree.entryNumber());
-          br->SetAddress(0);
 	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
 	  EventEntryInfo entry(it->second.branchID(),
 		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
