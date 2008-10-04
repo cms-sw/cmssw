@@ -61,7 +61,7 @@ class L2TauECALClustering
  public:
   //Constructor 
   L2TauECALClustering();
-  L2TauECALClustering(double,double,double,double);
+  L2TauECALClustering(double);
     
   //Destructor
   ~L2TauECALClustering();
@@ -73,16 +73,12 @@ class L2TauECALClustering
  private:
   //VARIABLES
   double m_clusterRadius;     //Cluster Radius
-  double m_innerCone;         //Inner Cone
-  double m_outerCone;         //Outer Cone
-  double m_threshold;         //Cluster Threshold
 
 
   L2TauECALClusterCollection m_clusters;//Cluster Container
 
   //METHODS
   void clusterize(const math::PtEtaPhiELorentzVectorCollection&); //Do Clustering
-  int nClustersInAnnulus(const CaloJet&) const; //Number of Clusters
   std::vector<double> clusterSeperation(const CaloJet&) const; //Calculation of Cluster Moments
 
 };

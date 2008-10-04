@@ -10,6 +10,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
 #include "TauRegionalPixelSeedGenerator.h" 	 
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationSelector.h"
+#include "RecoTauTag/HLTProducers/interface/L2TauRelaxingIsolationSelector.h"
+
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationProducer.h"
 
 
@@ -26,3 +28,4 @@ DEFINE_ANOTHER_FWK_MODULE(CaloTowerCreatorForTauHLT);
 DEFINE_ANOTHER_FWK_MODULE(HLTTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(L2TauIsolationProducer);
 DEFINE_ANOTHER_FWK_MODULE(L2TauIsolationSelector);
+DEFINE_ANOTHER_FWK_MODULE(L2TauRelaxingIsolationSelector);

@@ -6,6 +6,8 @@
 
 //Class Implementation: L2TauECALCluster
 
+using namespace reco;
+
 L2TauECALCluster::L2TauECALCluster()
 {
   p4_ = math::PtEtaPhiELorentzVector();
@@ -47,17 +49,11 @@ L2TauECALCluster::addCrystal(const math::PtEtaPhiELorentzVector& crystal)
 L2TauECALClustering::L2TauECALClustering()
 {
   m_clusterRadius=0.08;
-  m_threshold = 0.1;
-  m_innerCone = 0.2;
-  m_outerCone = 0.5;
 }
 
-L2TauECALClustering::L2TauECALClustering(double radius,double icone,double ocone,double threshold)
+L2TauECALClustering::L2TauECALClustering(double radius)
 {
   m_clusterRadius=radius;
-  m_innerCone = icone;
-  m_outerCone = ocone;
-  m_threshold = threshold;
 }
 
 L2TauECALClustering::~L2TauECALClustering()
@@ -71,9 +67,8 @@ L2TauECALClustering::run(const math::PtEtaPhiELorentzVectorCollection& hits,cons
 
 
   //Fill info Class
-   
   std::vector<double> rms  = clusterSeperation(jet);
-  l2info.ECALClusterNClusters=nClustersInAnnulus(jet);
+  l2info.ECALClusterNClusters=m_clusters.size();
   l2info.ECALClusterEtaRMS=rms[0];
   l2info.ECALClusterPhiRMS=rms[1];
   l2info.ECALClusterDRRMS=rms[2];
@@ -122,20 +117,6 @@ L2TauECALClustering::clusterize(const math::PtEtaPhiELorentzVectorCollection& my
 
 }
 
-int 
-L2TauECALClustering::nClustersInAnnulus(const CaloJet& jet) const
-{
-  int clustersInAnnulus = 0;
-
-  for(size_t i = 0; i<m_clusters.size();++i)
-    {
-      double dr = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),m_clusters[i].p4());
-      if(dr<m_outerCone && dr>m_innerCone && m_clusters[i].p4().Pt()>m_threshold)
-	 clustersInAnnulus++;
-    }
-
-      return clustersInAnnulus;
-}
 
 std::vector<double> 
 L2TauECALClustering::clusterSeperation(const CaloJet& jet) const

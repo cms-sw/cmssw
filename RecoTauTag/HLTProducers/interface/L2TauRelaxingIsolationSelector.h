@@ -18,29 +18,30 @@ e-mail: bachtis@hep.wisc.edu
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class L2TauIsolationSelector : public edm::EDProducer {
+class L2TauRelaxingIsolationSelector : public edm::EDProducer {
    public:
-      explicit L2TauIsolationSelector(const edm::ParameterSet&);
-      ~L2TauIsolationSelector();
+      explicit L2TauRelaxingIsolationSelector(const edm::ParameterSet&);
+      ~L2TauRelaxingIsolationSelector();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-
-
-
-
-	edm::InputTag associationInput_;  
       
-      //Create vars for Cuts
-      double ECALIsolEt_;
-      double TowerIsolEt_;
-      double Cluster_etaRMS_;
-      double Cluster_phiRMS_;
-      double Cluster_drRMS_;
-      int    Cluster_nClusters_;
-      double JetEt_;
-      double SeedTowerEt_;
+
+      //Association class Input
+      edm::InputTag associationInput_;  
+      
+      //Sliding Cuts
+      std::vector<double> ecalIsolEt_;
+      std::vector<double> towerIsolEt_;
+      std::vector<double> nClusters_;
+      std::vector<double> phiRMS_;
+      std::vector<double> etaRMS_;
+      std::vector<double> drRMS_;
+    
+      //Cuts of the Style This > Something
+      double et_;
+      double seedTowerEt_;
     
 };
