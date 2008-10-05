@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -341,12 +341,6 @@ class ConfigBuilder(object):
 
 # for alca, skims, etc
     def addExtraStream(self,name,stream):
-# sanity checks
-	if ( not hasattr(stream,'name') or not hasattr(stream,'dataTier') or 
-	     not hasattr(stream,'content') or not hasattr(stream,'selectEvents') or
-	     not hasattr(stream,'paths')):
-	    print 'Configuration error in addExtraStream. Missing one or more needed attributes'
-	    sys.exit(-1)
 # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
@@ -564,7 +558,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.89 $"),
+              (version=cms.untracked.string("$Revision: 1.90 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

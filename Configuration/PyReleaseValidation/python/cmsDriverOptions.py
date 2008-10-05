@@ -25,7 +25,7 @@ parser.add_option_group(expertSettings)
 
 parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
-                        "GEN,SIM,DIGI,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA or ALL.",
+                        "GEN,SIM,DIGI,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION or ALL.",
                    default="ALL",
                    dest="step")
 
@@ -279,7 +279,7 @@ if options.secondfilein!='':
 
 # replace step aliases by right list
 if options.step=='ALL':
-        options.step='GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO,POSTRECO,DQM'
+        options.step='GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO,POSTRECO,VALIDATION,DQM'
 elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
