@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -480,10 +480,10 @@ class ConfigBuilder(object):
         pass
 
 
-    def prepare_VALIDATION(self, sequence = None):
+    def prepare_VALIDATION(self, sequence = 'validation'):
         self.loadAndRemember(self.VALIDATIONDefaultCFF)
         self.process.validation_step = cms.Path( self.process.validation )
-        self.process.schedule.append(self.process.validation_step)
+        self.process.schedule.append(getattr(self.process,sequence))
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
@@ -558,7 +558,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.90 $"),
+              (version=cms.untracked.string("$Revision: 1.91 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
