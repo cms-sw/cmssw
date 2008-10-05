@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.16.2.4 2008/07/28 21:03:27 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.17 2008/07/28 22:59:29 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -58,6 +58,9 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
     MonitorElement* LayerClusterWidthTrend;
     MonitorElement* LayerLocalOccupancy;
     MonitorElement* LayerLocalOccupancyTrend;
+    MonitorElement* LayerNumberOfClusterProfile;
+    MonitorElement* LayerClusterWidthProfile;
+
   };
 
   struct ClusterProperties { // Cluster Properties
@@ -70,7 +73,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
  private:
 
   void createMEs(const edm::EventSetup& es);
-  void createLayerMEs(uint32_t id);
+  void createLayerMEs(std::string label, int ndets);
   void createModuleMEs(ModMEs& mod_single, uint32_t detid);
 
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
@@ -94,6 +97,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
   std::map<uint32_t, ModMEs> ModuleMEMap;
   std::map<std::string, LayerMEs> LayerMEMap;
+  std::map<std::string, std::vector< uint32_t > > LayerDetMap;
 
   // flags
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
@@ -117,6 +121,8 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool layerswitchcluswidthon;
   bool layerswitchlocaloccupancy;
   bool layerswitchnrclusterizedstrip;
+  bool layerswitchnumclusterprofon;
+  bool layerswitchclusterwidthprofon;
 
   bool moduleswitchncluson;
   bool moduleswitchcluschargeon;

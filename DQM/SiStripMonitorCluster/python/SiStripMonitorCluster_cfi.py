@@ -86,6 +86,22 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         moduleswitchon = cms.bool(True)
     ),
 
+    TProfNumberOfCluster = cms.PSet(
+        Nbinx            = cms.int32(100),
+        xmin             = cms.double(-0.5),
+        xmax             = cms.double(499.5),
+        layerswitchon    = cms.bool(True),        
+        moduleswitchon   = cms.bool(False)        
+    ),
+      
+    TProfClusterWidth    = cms.PSet(
+        Nbinx            = cms.int32(100),
+        xmin             = cms.double(-0.5),
+        xmax             = cms.double(499.5),
+        layerswitchon    = cms.bool(True),        
+        moduleswitchon   = cms.bool(False)        
+    ),
+                                     
     ClusterConditions = cms.PSet(
         minWidth   = cms.double(0.0),
         On         = cms.bool(True),
@@ -93,6 +109,7 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         minStoN    = cms.double(0.0),
         maxWidth   = cms.double(10000.0)
     ),
+                                     
     #select detectors
     detectorson = cms.PSet(
         tidon = cms.bool(True),
