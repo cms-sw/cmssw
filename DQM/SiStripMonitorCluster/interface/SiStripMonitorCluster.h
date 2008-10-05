@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.17 2008/07/28 22:59:29 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.18 2008/10/05 11:11:25 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -140,5 +140,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   
   bool createTrendMEs;
 
+  bool Mod_On_;
 };
 #endif

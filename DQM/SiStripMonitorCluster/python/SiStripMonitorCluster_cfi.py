@@ -118,6 +118,8 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         tobon = cms.bool(True)
     ),
 
+    Mod_On = cms.bool(True),
+
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)
 )

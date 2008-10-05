@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.42 2008/07/28 22:59:29 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.43 2008/10/05 11:11:25 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -95,7 +95,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   tecon = ParametersDetsOn.getParameter<bool>("tecon");
 
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
-
+  Mod_On_ = conf_.getParameter<bool>("Mod_On");
 } 
 
 
@@ -158,14 +158,15 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
         continue;
       }
 
-      ModMEs mod_single;
-
-      // set appropriate folder using SiStripFolderOrganizer
-      folder_organizer.setDetectorFolder(detid); // pass the detid to this method
-      if (reset_each_run) ResetModuleMEs(detid);
-      createModuleMEs(mod_single, detid);
-      // append to ModuleMEMap
-      ModuleMEMap.insert( std::make_pair(detid, mod_single));
+      if (Mod_On_) {
+	ModMEs mod_single;
+	// set appropriate folder using SiStripFolderOrganizer
+	folder_organizer.setDetectorFolder(detid); // pass the detid to this method
+	if (reset_each_run) ResetModuleMEs(detid);
+	createModuleMEs(mod_single, detid);
+	// append to ModuleMEMap
+	ModuleMEMap.insert( std::make_pair(detid, mod_single));
+      }
 
       // Created Layer Level MEs if they are not created already
       std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid);
@@ -256,13 +257,15 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       uint32_t detid = (*iterDets);
       
       // DetId and corresponding set of MEs
-      std::map<uint32_t, ModMEs >::iterator imodME = ModuleMEMap.find(detid);
       ModMEs mod_single;
-      if (imodME != ModuleMEMap.end()) {
-         mod_single = imodME->second;
-         found_module_me = true;
-      } 
-    
+      if (Mod_On_) {
+	std::map<uint32_t, ModMEs >::iterator imodME = ModuleMEMap.find(detid);
+	if (imodME != ModuleMEMap.end()) {
+	  mod_single = imodME->second;
+	  found_module_me = true;
+	} 
+      } else found_module_me = false;
+
       edmNew::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
     
       if(isearch==cluster_detsetvektor->end()){
