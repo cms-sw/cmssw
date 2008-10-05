@@ -58,7 +58,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 5500 )
+    input = cms.untracked.int32( 20000 )
 )
 process.Timing = cms.Service("Timing")
 
