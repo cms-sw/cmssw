@@ -26,7 +26,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsLumisAndEvents"),
-    fileNames = cms.untracked.vstring('file:sistrip_reco1.root', 'file:sistrip_reco1.root')
+    fileNames = cms.untracked.vstring('file:sistrip_reco1.root', 'file:sistrip_reco2.root')
 )
 
 process.maxEvents.input = -1
