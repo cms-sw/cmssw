@@ -73,8 +73,8 @@ namespace cscdqm {
       return;
     }
   
-    uint32_t detRawID = histoProvider->getCSCDetRawId(-1, -1, crateID, dmbID, -1);
-    if (!detRawID) {
+    uint32_t detRawId = histoProvider->getCSCDetRawId(-1, -1, crateID, dmbID, -1);
+    if (!detRawId) {
       return;
     }
     
@@ -370,120 +370,113 @@ namespace cscdqm {
   
         //LOG4CPLUS_DEBUG(logger_, "ALCT Trailer Word Count = " << dec << (int)alctTrailer->wordCount());
   
-        /*
-        if (alctsDatas.size()==2) {
-    if (getCSCHisto(crateID, dmbID, CSC_ALCT1_VS_ALCT0_KEYWG, mo)) mo->Fill(alctsDatas[0].getKeyWG(),alctsDatas[1].getKeyWG());
+        if (alctsDatas.size() == 2) {
+          if (getCSCHisto(crateID, dmbID, CSC_ALCT1_VS_ALCT0_KEYWG, mo)) 
+            mo->Fill(alctsDatas[0].getKeyWG(),alctsDatas[1].getKeyWG());
         }
   
-        for (uint32_t lct=0; lct<alctsDatas.size(); lct++) {
-    // TODO: Add support for more than 2 ALCTs
-    if (lct>=2) continue;	
+        for (uint32_t lct = 0; lct < alctsDatas.size(); lct++) {
+          // TODO: Add support for more than 2 ALCTs
+          if (lct >= 2) continue;	
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_KEYWG, mo, lct)) 
+            mo->Fill(alctsDatas[lct].getKeyWG());
+          if(lct == 0) alct_keywg  = alctsDatas[lct].getKeyWG();
+          int alct_dtime = (int)(alctsDatas[lct].getBX() - (alctHeader->BXNCount() & 0x1F));
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_DTIME, mo, lct)) {
+            if(alct_dtime < -16) {
+              mo->Fill(alct_dtime + 32);
+            } else {
+              if(alct_dtime > 16)  mo->Fill(alct_dtime - 32);
+              else mo->Fill(alct_dtime);
+            }
+            mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+          }
   
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_DTIME_VS_KEYWG, mo, lct)) {
+            if(alct_dtime < -16) {
+              mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
+            } else {
+              if(alct_dtime > 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+              else mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
+            }
+          }
   
-    if (isMEvalid(cscME, Form("ALCT%d_KeyWG", lct), mo)) mo->Fill(alctsDatas[lct].getKeyWG());
-    if(lct == 0) alct_keywg  = alctsDatas[lct].getKeyWG();
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_DTIME_PROFILE, mo, lct)) {
+            if(alct_dtime < -16) {
+              mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
+            } else {
+              if(alct_dtime > 16) mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
+              else mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
+            }
+          }
+    
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_BXN, mo, lct)) mo->Fill(alctsDatas[lct].getBX());
+    
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_QUALITY, alctsDatas, mo, lct)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
   
-    int alct_dtime = (int)(alctsDatas[lct].getBX()-(alctHeader->BXNCount()&0x1F));
-    if (isMEvalid(cscME, Form("ALCT%d_dTime", lct), mo)) {
-      if(alct_dtime < -16) {
-        mo->Fill(alct_dtime + 32);
-      }
-      else {
-        if(alct_dtime > 16)  mo->Fill(alct_dtime - 32);
-        else mo->Fill(alct_dtime);
-      }
-      mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_QUALITY_PROFILE, alctsDatas, mo, lct)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
   
-    if (isMEvalid(cscME, Form("ALCT%d_dTime_vs_KeyWG", lct), mo)) {
-      if(alct_dtime < -16) {
-        mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
-      }
-      else {
-        if(alct_dtime > 16)     mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
-        else                    mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
-      }
-    }
-  
-    if (isMEvalid(cscME, Form("ALCT%d_dTime_Profile", lct), mo)) {
-      if(alct_dtime < -16) {
-        mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime + 32);
-      }
-      else {
-        if(alct_dtime > 16)    mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime - 32);
-        else                   mo->Fill(alctsDatas[lct].getKeyWG(), alct_dtime);
-      }
-    }
-  
-  
-    if (isMEvalid(cscME, Form("ALCT%d_BXN", lct), mo)) mo->Fill(alctsDatas[lct].getBX());
-  
-    if (isMEvalid(cscME, Form("ALCT%d_Quality", lct), mo)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality() );
-  
-    if (isMEvalid(cscME, Form("ALCT%d_Quality_Profile", lct), mo)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality() );
-  
-    if (isMEvalid(cscME, Form("ALCT%d_Pattern", lct), mo)) {
-      int pattern = (alctsDatas[lct].getAccelerator()<<1) + alctsDatas[lct].getCollisionB();
-      int keywg = alctsDatas[lct].getKeyWG();
-      mo->Fill(keywg, pattern );
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_PATTERN, mo, lct)) {
+            int pattern = (alctsDatas[lct].getAccelerator() << 1) + alctsDatas[lct].getCollisionB();
+            int keywg = alctsDatas[lct].getKeyWG();
+            mo->Fill(keywg, pattern );
+          }
         }
+
         int NumberOfLayersWithHitsInALCT = 0;
         int NumberOfWireGroupsWithHitsInALCT = 0;
+
         if (alctData) {
-    for (int nLayer=1; nLayer<=6; nLayer++) {
-      int wg_previous   = -1;
-      int tbin_previous = -1;
-      bool CheckLayerALCT = true;
-      vector<CSCWireDigi> wireDigis = alctData->wireDigis(nLayer);
-      for (vector<CSCWireDigi>:: iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end(); ++wireDigisItr) {
-        int wg = wireDigisItr->getWireGroup();
-        // int tbin = wireDigisItr->getBeamCrossingTag();
-        vector<int> tbins = wireDigisItr->getTimeBinsOn();
-        int tbin = wireDigisItr->getTimeBin();
-        if(CheckLayerALCT) {
-          NumberOfLayersWithHitsInALCT = NumberOfLayersWithHitsInALCT + 1;
-          CheckLayerALCT = false;
-        }
-        for (uint32_t n=0; n < tbins.size(); n++) {
-          tbin = tbins[n];
-          if(wg != wg_previous || (tbin != tbin_previous + 1 && tbin != tbin_previous - 1) ) {
-    	if (isMEvalid(cscME, Form("ALCTTime_Ly%d", nLayer), mo)) mo->Fill(wg, tbin);
-    	if (isMEvalid(cscME, Form("ALCTTime_Ly%d_Profile", nLayer), mo)) mo->Fill(wg, tbin);
-    	if (isMEvalid(cscME, Form("ALCT_Ly%d_Rate", nLayer), mo)) { 
-    	  mo->Fill(wg);
-    	  int number_wg = (int)(mo->GetBinContent(wg+1));
-    	  Double_t Number_of_entries_ALCT = mo->getObject()->GetEntries();
-    	  if (isMEvalid(cscME, Form("ALCT_Ly%d_Efficiency", nLayer), mo)) {
-    	    mo->SetBinContent(wg+1,((float)number_wg));
-    	    if((Double_t)(DMBEvents) > 0.0) {
-    	      mo->getObject()->SetNormFactor(100.0*Number_of_entries_ALCT/(Double_t)(DMBEvents));
-    	    } else {
-    	      mo->getObject()->SetNormFactor(100.0);
-    	    }
-    	    mo->SetEntries((int)DMBEvents);
-    	  }
-    	}
-          }
-          if(wg != wg_previous) {
-    	NumberOfWireGroupsWithHitsInALCT = NumberOfWireGroupsWithHitsInALCT + 1;
-          }
+          for (int nLayer=1; nLayer<=6; nLayer++) {
+            int wg_previous   = -1;
+            int tbin_previous = -1;
+            bool CheckLayerALCT = true;
+            std::vector<CSCWireDigi> wireDigis = alctData->wireDigis(nLayer);
+            for (std::vector<CSCWireDigi>:: iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end(); ++wireDigisItr) {
+              int wg = wireDigisItr->getWireGroup();
+              // int tbin = wireDigisItr->getBeamCrossingTag();
+              std::vector<int> tbins = wireDigisItr->getTimeBinsOn();
+              int tbin = wireDigisItr->getTimeBin();
+              if(CheckLayerALCT) {
+                NumberOfLayersWithHitsInALCT = NumberOfLayersWithHitsInALCT + 1;
+                CheckLayerALCT = false;
+              }
+              for (uint32_t n=0; n < tbins.size(); n++) {
+                tbin = tbins[n];
+                if(wg != wg_previous || (tbin != tbin_previous + 1 && tbin != tbin_previous - 1) ) {
+                  if (getCSCHisto(crateID, dmbID, CSC_ALCTTIME_LYXX, mo, nLayer)) mo->Fill(wg, tbin);
+                  if (getCSCHisto(crateID, dmbID, CSC_ALCTTIME_LYXX_PROFILE, mo, nLayer)) mo->Fill(wg, tbin);
+                  if (getCSCHisto(crateID, dmbID, CSC_ALCT_LYXX_RATE, mo, nLayer)) { 
+                    mo->Fill(wg);
+                    int number_wg = (int)(mo->GetBinContent(wg+1));
+                    Double_t Number_of_entries_ALCT = mo->getObject()->GetEntries();
+                    if (getCSCHisto(crateID, dmbID, CSC_ALCT_LYXX_EFFICIENCY, mo, nLayer)) {
+                      mo->SetBinContent(wg+1,((float)number_wg));
+                      if((Double_t)(DMBEvents) > 0.0) {
+                        mo->getObject()->SetNormFactor(100.0*Number_of_entries_ALCT/(Double_t)(DMBEvents));
+                      } else {
+                        mo->getObject()->SetNormFactor(100.0);
+                      }
+                      mo->SetEntries((int)DMBEvents);
+                    }
+                  }
+                }
+                if(wg != wg_previous) {
+                  NumberOfWireGroupsWithHitsInALCT = NumberOfWireGroupsWithHitsInALCT + 1;
+                }
   
-          wg_previous   = wg;
-          tbin_previous = tbin;
-        }
-      }
-    }
+                wg_previous   = wg;
+                tbin_previous = tbin;
+              }
+            }
+          }
         } else {
-    LOG4CPLUS_ERROR(logger_,eTag << cscTag <<
-    		" Can not unpack Anode Data");
-    
+          // LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack Anode Data");
         }
         if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_OF_LAYERS_WITH_HITS, mo)) mo->Fill(NumberOfLayersWithHitsInALCT);    
         if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_OF_WIREGROUPS_WITH_HITS, mo)) mo->Fill(NumberOfWireGroupsWithHitsInALCT);
       } else {
-        LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    	      " Can not unpack ALCT Header or/and Trailer");
+        //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack ALCT Header or/and Trailer");
       }
     } else {
       //  ALCT not found
@@ -491,68 +484,68 @@ namespace cscdqm {
       if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_RATE, mo)) { 
         mo->Fill(0);
         int nALCT = (int)mo->GetBinContent(1);
-        if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_EFFICIENCY, mo)) mo->SetBinContent(1, (float)(nALCT)/(float)(DMBEvents)*100.0);
+        if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_EFFICIENCY, mo)) 
+          mo->SetBinContent(1, (float)(nALCT) / (float)(DMBEvents) * 100.0);
       }
   
       if ((alct_dav  > 0) && (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_UNPACKED_VS_DAV, mo))) {
         mo->Fill(0.0, 1.0);
       }
-   }
+    }
   
     //ALCT and CLCT coinsidence
     if(data.nclct() && data.nalct()) {
+    
       CSCALCTHeader* alctHeader = data.alctHeader();
       
       if (alctHeader) {
-        vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
-        vector<CSCALCTDigi> alctsDatas;
+        std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
+        std::vector<CSCALCTDigi> alctsDatas;
   
-        for (uint32_t lct=0; lct<alctsDatasTmp.size(); lct++) {
-    if (alctsDatasTmp[lct].isValid())
-      alctsDatas.push_back(alctsDatasTmp[lct]);
+        for (uint32_t lct = 0; lct < alctsDatasTmp.size(); lct++) {
+          if (alctsDatasTmp[lct].isValid())
+            alctsDatas.push_back(alctsDatasTmp[lct]);
         }
   
         CSCTMBData* tmbData = data.tmbData();
         if (tmbData) {
-    CSCTMBHeader* tmbHeader = tmbData->tmbHeader();
-    if (tmbHeader) {
-      //    if (getCSCHisto(crateID, dmbID, CSC_TMB_BXN_VS_ALCT_BXN, mo)) mo->Fill((int)((alctHeader->BXNCount())),(int)(tmbHeader->BXNCount()));
-      if (getCSCHisto(crateID, dmbID, CSC_TMB_BXN_VS_ALCT_BXN, mo)) mo->Fill( ((int)(alctHeader->BXNCount()))%256, ((int)(tmbHeader->BXNCount()))%256 );
+          CSCTMBHeader* tmbHeader = tmbData->tmbHeader();
+          if (tmbHeader) {
+            // if (getCSCHisto(crateID, dmbID, CSC_TMB_BXN_VS_ALCT_BXN, mo)) mo->Fill((int)((alctHeader->BXNCount())),(int)(tmbHeader->BXNCount()));
+            if (getCSCHisto(crateID, dmbID, CSC_TMB_BXN_VS_ALCT_BXN, mo))
+              mo->Fill( ((int)(alctHeader->BXNCount())) % 256, ((int)(tmbHeader->BXNCount())) % 256 );
   
-      if (getCSCHisto(crateID, dmbID, CSC_TMB_ALCT_BXN_DIFF, mo)) {
-        int clct_alct_bxn_diff = (int)(alctHeader->BXNCount() - tmbHeader->BXNCount());
-        if(clct_alct_bxn_diff < -2048) mo->Fill(clct_alct_bxn_diff + 4096);
-        else {
-          if(clct_alct_bxn_diff > 2048) mo->Fill(clct_alct_bxn_diff - 4096);
-          else mo->Fill(clct_alct_bxn_diff);
-        }
-        mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-      }
+            if (getCSCHisto(crateID, dmbID, CSC_TMB_ALCT_BXN_DIFF, mo)) {
+              int clct_alct_bxn_diff = (int)(alctHeader->BXNCount() - tmbHeader->BXNCount());
+              if(clct_alct_bxn_diff < -2048) mo->Fill(clct_alct_bxn_diff + 4096);
+              else {
+                if(clct_alct_bxn_diff > 2048) mo->Fill(clct_alct_bxn_diff - 4096);
+                else mo->Fill(clct_alct_bxn_diff);
+              }
+              mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+            }
   
-      if (getCSCHisto(crateID, dmbID, CSC_TMB_L1A_VS_ALCT_L1A, mo)) mo->Fill((int)(alctHeader->L1Acc()%256),(int)(tmbHeader->L1ANumber()%256));
+            if (getCSCHisto(crateID, dmbID, CSC_TMB_L1A_VS_ALCT_L1A, mo)) 
+              mo->Fill((int)(alctHeader->L1Acc()%256),(int)(tmbHeader->L1ANumber()%256));
   
-      if (getCSCHisto(crateID, dmbID, CSC_TMB_ALCT_L1A_DIFF, mo)) {
-        int clct_alct_l1a_diff = (int)(tmbHeader->L1ANumber() - alctHeader->L1Acc());
-        if(clct_alct_l1a_diff < -2048) mo->Fill(clct_alct_l1a_diff + 4096);
-        else {
-          if(clct_alct_l1a_diff > 2048)  mo->Fill(clct_alct_l1a_diff - 4096);
-          else mo->Fill(clct_alct_l1a_diff);
-        }
-        mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-      }
-    } else {
-      LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    	      " Can not unpack TMB Header");
-    }
+            if (getCSCHisto(crateID, dmbID, CSC_TMB_ALCT_L1A_DIFF, mo)) {
+              int clct_alct_l1a_diff = (int)(tmbHeader->L1ANumber() - alctHeader->L1Acc());
+              if(clct_alct_l1a_diff < -2048) mo->Fill(clct_alct_l1a_diff + 4096);
+              else {
+                if(clct_alct_l1a_diff > 2048)  mo->Fill(clct_alct_l1a_diff - 4096);
+                else mo->Fill(clct_alct_l1a_diff);
+              }
+              mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+            }
+          } else {
+            //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Header");
+          }
     
         } else {
-    //LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    	      " Can not unpack TMB Data");
+          //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Data");
         }
       } else {
-        LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    	      " Can not unpack ALCT Header");
+        //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack ALCT Header");
       }
     }
   
@@ -570,279 +563,268 @@ namespace cscdqm {
   
         if (tmbHeader && tmbTrailer) {
   
-    CSCCLCTData* clctData = data.clctData();
+          CSCCLCTData* clctData = data.clctData();
   
-    vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(detRawId());
-    vector<CSCCLCTDigi> clctsDatas;
+          std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(detRawId);
+          std::vector<CSCCLCTDigi> clctsDatas;
   
-    for (uint32_t lct=0; lct<clctsDatasTmp.size(); lct++) {
-      if (clctsDatasTmp[lct].isValid())
-        clctsDatas.push_back(clctsDatasTmp[lct]);
-    }
+          for (uint32_t lct = 0; lct < clctsDatasTmp.size(); lct++) {
+            if (clctsDatasTmp[lct].isValid()) clctsDatas.push_back(clctsDatasTmp[lct]);
+          }
   
-    FEBunpacked = FEBunpacked +1;
-    tmb_unpacked = 1;
+          FEBunpacked = FEBunpacked +1;
+          tmb_unpacked = 1;
   
-    if (getCSCHisto(crateID, dmbID, CSC_ALCT_MATCH_TIME, mo)) mo->Fill(tmbHeader->ALCTMatchTime());
+          if (getCSCHisto(crateID, dmbID, CSC_ALCT_MATCH_TIME, mo)) mo->Fill(tmbHeader->ALCTMatchTime());
   
-    if (getCSCHisto(crateID, dmbID, CSC_LCT_MATCH_STATUS, mo)) {
-      if (tmbHeader->CLCTOnly()) mo->Fill(0.0,0.0);
-      if (tmbHeader->ALCTOnly()) mo->Fill(0.0,1.0);
-      if (tmbHeader->TMBMatch()) mo->Fill(0.0,2.0);
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_LCT_MATCH_STATUS, mo)) {
+            if (tmbHeader->CLCTOnly()) mo->Fill(0.0,0.0);
+            if (tmbHeader->ALCTOnly()) mo->Fill(0.0,1.0);
+            if (tmbHeader->TMBMatch()) mo->Fill(0.0,2.0);
+          }
+    
+          if (getCSCHisto(crateID, dmbID, CSC_LCT0_MATCH_BXN_DIFFERENCE, mo)) mo->Fill(tmbHeader->Bxn0Diff());
+          if (getCSCHisto(crateID, dmbID, CSC_LCT1_MATCH_BXN_DIFFERENCE, mo)) mo->Fill(tmbHeader->Bxn1Diff());
   
+          if ((tmb_dav  > 0) && (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_UNPACKED_VS_DAV, mo))) {
+            mo->Fill(1.0, 0.0);
+          }
   
-    if (getCSCHisto(crateID, dmbID, CSC_LCT0_MATCH_BXN_DIFFERENCE, mo)) mo->Fill(tmbHeader->Bxn0Diff());
-    if (getCSCHisto(crateID, dmbID, CSC_LCT1_MATCH_BXN_DIFFERENCE, mo)) mo->Fill(tmbHeader->Bxn1Diff());
+          // Set number of CLCT-events to forth bin
+          if (getCSCHisto(crateID, dmbID, CSC_CSC_RATE, mo)) {
+            mo->Fill(3);
+            uint32_t CLCTEvent = (uint32_t)mo->GetBinContent(4);
+            trigCnts["CLCT"] = CLCTEvent;
+            if (getCSCHisto(crateID, dmbID, CSC_CSC_EFFICIENCY, mo)) {
+              if(nEvents > 0) {
+                mo->SetBinContent(2,((float)CLCTEvent/(float)(DMBEvents)*100.0));
+                mo->getObject()->SetEntries(DMBEvents);
+              }
+            }
+          }
   
-    if ((tmb_dav  > 0) && (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_UNPACKED_VS_DAV, mo))) {
-      mo->Fill(1.0, 0.0);
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber());
   
-    //          Set number of CLCT-events to forth bin
-    if (getCSCHisto(crateID, dmbID, CSC_CSC_RATE, mo)) {
-      mo->Fill(3);
-      uint32_t CLCTEvent = (uint32_t)mo->GetBinContent(4);
-      trigCnts["CLCT"] = CLCTEvent;
-      if (getCSCHisto(crateID, dmbID, CSC_CSC_EFFICIENCY, mo)) {
-        if(nEvents > 0) {
-          mo->SetBinContent(2,((float)CLCTEvent/(float)(DMBEvents)*100.0));
-          mo->getObject()->SetEntries(DMBEvents);
-        }
-      }
-    }
+          // Use 6-bit L1A
+          if (getCSCHisto(crateID, dmbID, CSC_CLCT_DMB_L1A_DIFF, mo)) {
+            int clct_dmb_l1a_diff = (int)((tmbHeader->L1ANumber() % 64)-dmbHeader->l1a() % 64);
+            if (clct_dmb_l1a_diff != 0) L1A_out_of_sync = true;
+            if(clct_dmb_l1a_diff < -32) mo->Fill(clct_dmb_l1a_diff + 64);
+            else {
+              if(clct_dmb_l1a_diff > 32)  mo->Fill(clct_dmb_l1a_diff - 64);
+              else mo->Fill(clct_dmb_l1a_diff);
+            }
+            mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+          }
   
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber());
+          // if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber(),dmbHeader->l1a());
+          if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber()%256,dmbHeader->l1a());
   
-    // === Use 6-bit L1A
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_DMB_L1A_DIFF, mo)) {
-      int clct_dmb_l1a_diff = (int)((tmbHeader->L1ANumber()%64)-dmbHeader->l1a()%64);
-      if (clct_dmb_l1a_diff != 0) L1A_out_of_sync = true;
-      if(clct_dmb_l1a_diff < -32) mo->Fill(clct_dmb_l1a_diff + 64);
-      else {
-        if(clct_dmb_l1a_diff > 32)  mo->Fill(clct_dmb_l1a_diff - 64);
-        else mo->Fill(clct_dmb_l1a_diff);
-      }
-      mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_CLCT_DMB_BXN_DIFF, mo)) {
+            int clct_dmb_bxn_diff = (int)(tmbHeader->BXNCount()%64-dmbHeader->bxn12()%64);
+            if(clct_dmb_bxn_diff < -32) mo->Fill(clct_dmb_bxn_diff + 64);
+            else {
+              if(clct_dmb_bxn_diff > 32)  mo->Fill(clct_dmb_bxn_diff - 64);
+              else mo->Fill(clct_dmb_bxn_diff);
+            }
+            mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+          }
   
-    //    if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber(),dmbHeader->l1a());
-    if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_VS_CLCT_L1A, mo)) mo->Fill(tmbHeader->L1ANumber()%256,dmbHeader->l1a());
+          if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN, mo)) mo->Fill((int)(tmbHeader->BXNCount()));
   
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_DMB_BXN_DIFF, mo)) {
-      int clct_dmb_bxn_diff = (int)(tmbHeader->BXNCount()%64-dmbHeader->bxn12()%64);
-      if(clct_dmb_bxn_diff < -32) mo->Fill(clct_dmb_bxn_diff + 64);
-      else {
-        if(clct_dmb_bxn_diff > 32)  mo->Fill(clct_dmb_bxn_diff - 64);
-        else mo->Fill(clct_dmb_bxn_diff);
-      }
-      mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-    }
+          // if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN_VS_DMB_BXN, mo)) mo->Fill(tmbHeader->BXNCount(),dmbHeader->bxn());
+          if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN_VS_DMB_BXN, mo)) mo->Fill(tmbHeader->BXNCount()%256,dmbHeader->bxn12()%256);
   
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN, mo)) mo->Fill((int)(tmbHeader->BXNCount()));
-  
-    //    if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN_VS_DMB_BXN, mo)) mo->Fill(tmbHeader->BXNCount(),dmbHeader->bxn());
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_BXN_VS_DMB_BXN, mo)) mo->Fill(tmbHeader->BXNCount()%256,dmbHeader->bxn12()%256);
-  
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_RATE, mo)) {
-      mo->Fill(clctsDatas.size());
-      int nCLCT = (int)mo->GetBinContent((int)(clctsDatas.size()+1));
-      if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER, mo)) mo->SetBinContent((int)(clctsDatas.size()+1), (float)(nCLCT)/(float)(DMBEvents)*100.0);
-    }
-  
-  
-    if (clctsDatas.size()==1) {
-      if (getCSCHisto(crateID, dmbID, CSC_CLCT0_CLSSIFICATION, mo)) {
-        if (clctsDatas[0].getStripType())         mo->Fill(0.0);
-        else                                      mo->Fill(1.0);
-      }
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_RATE, mo)) {
+            mo->Fill(clctsDatas.size());
+            int nCLCT = (int)mo->GetBinContent((int)(clctsDatas.size()+1));
+            if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER, mo)) mo->SetBinContent((int)(clctsDatas.size() + 1), (float)(nCLCT) / (float)(DMBEvents) * 100.0);
+          }
+    
+          if (clctsDatas.size() == 1) {
+            if (getCSCHisto(crateID, dmbID, CSC_CLCT0_CLSSIFICATION, mo)) {
+              if (clctsDatas[0].getStripType()) mo->Fill(0.0);
+              else mo->Fill(1.0);
+            }
+          }
       
-    if (clctsDatas.size()==2) {
-      if (getCSCHisto(crateID, dmbID, CSC_CLCT1_VS_CLCT0_KEY_STRIP, mo)) mo->Fill(clctsDatas[0].getKeyStrip(),clctsDatas[1].getKeyStrip());
-      if (getCSCHisto(crateID, dmbID, CSC_CLCT0_CLCT1_CLSSIFICATION, mo)) {
-        if ( clctsDatas[0].getStripType() &&  clctsDatas[1].getStripType())       mo->Fill(0.0);
-        if ( clctsDatas[0].getStripType() && !clctsDatas[1].getStripType())       mo->Fill(1.0);
-        if (!clctsDatas[0].getStripType() &&  clctsDatas[1].getStripType())       mo->Fill(2.0);
-        if (!clctsDatas[0].getStripType() &&  !clctsDatas[1].getStripType())      mo->Fill(3.0);
-      }
-    }
+          if (clctsDatas.size() == 2) {
+            if (getCSCHisto(crateID, dmbID, CSC_CLCT1_VS_CLCT0_KEY_STRIP, mo)) 
+              mo->Fill(clctsDatas[0].getKeyStrip(),clctsDatas[1].getKeyStrip());
+            if (getCSCHisto(crateID, dmbID, CSC_CLCT0_CLCT1_CLSSIFICATION, mo)) {
+              if ( clctsDatas[0].getStripType() &&  clctsDatas[1].getStripType())       mo->Fill(0.0);
+              if ( clctsDatas[0].getStripType() && !clctsDatas[1].getStripType())       mo->Fill(1.0);
+              if (!clctsDatas[0].getStripType() &&  clctsDatas[1].getStripType())       mo->Fill(2.0);
+              if (!clctsDatas[0].getStripType() &&  !clctsDatas[1].getStripType())      mo->Fill(3.0);
+            }
+          }
   
-    if (getCSCHisto(crateID, dmbID, CSC_TMB_WORD_COUNT, mo)) mo->Fill((int)(tmbTrailer->wordCount()));
-    LOG4CPLUS_DEBUG(logger_, "TMB Trailer Word Count = "
-    		<< dec << (int)tmbTrailer->wordCount());
+          if (getCSCHisto(crateID, dmbID, CSC_TMB_WORD_COUNT, mo)) mo->Fill((int)(tmbTrailer->wordCount()));
+          //LOG4CPLUS_DEBUG(logger_, "TMB Trailer Word Count = " << dec << (int)tmbTrailer->wordCount());
+    
+          for (uint32_t lct = 0; lct < clctsDatas.size(); lct++) {
   
+          if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_BXN, mo, lct)) mo->Fill(clctsDatas[lct].getBX());
   
-    for (uint32_t lct=0; lct<clctsDatas.size(); lct++) {
+          int clct_dtime = (int)(clctsDatas[lct].getBX() - (tmbHeader->BXNCount()&0x3));
+          if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_DTIME, mo, lct)) {
+              if(clct_dtime < -2) mo->Fill(clct_dtime + 4);
+            else {
+              if(clct_dtime > 2)  mo->Fill(clct_dtime - 4);
+              else mo->Fill(clct_dtime);
+            }
+            mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+          }
   
-      if (isMEvalid(cscME,  Form("CLCT%d_BXN", lct), mo)) mo ->Fill(clctsDatas[lct].getBX());
+          // LOG4CPLUS_DEBUG(logger_, "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3));
+          // LOG4CPLUS_DEBUG(logger_, "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3));
   
-      int clct_dtime = (int)(clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3));
-      if (isMEvalid(cscME,  Form("CLCT%d_dTime", lct), mo)) {
+          // LOG4CPLUS_DEBUG(logger_, "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType() << " Strip:" << clctsDatas[lct].getKeyStrip());
+          
+          if (clctsDatas[lct].getStripType()) { // HalfStrip Type
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_KEYHALFSTRIP, mo, lct)) 
+              mo->Fill(clctsDatas[lct].getKeyStrip());
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_DTIME_VS_HALF_STRIP, mo, lct)) {
+              if(clct_dtime < -2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 4);
+              else {
+                if(clct_dtime > 2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 4);
+                else mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+              }
+            }
+    
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_HALF_STRIP_PATTERN, mo, lct)) {
+              int pattern_clct = clctsDatas[lct].getPattern();
+              // int pattern_clct = (int)((clctsDatas[lct].getPattern()>>1)&0x3);
+              // pattern_clct = Number of patterns in CLCT
+              // Last (left) bit is bend. Positive bend = 1, negative bend = 0
+              double tbin = -1;
+              switch (pattern_clct) {
+                case 0:  tbin=0.; break;
+                case 1:  tbin=1.; break;
+                case 2:  tbin=2.; break;
+                case 3:  tbin=10.; break;
+                case 4:  tbin=3.; break;
+                case 5:  tbin=9.; break;
+                case 6:  tbin=4.; break;
+                case 7:  tbin=8.; break;
+                case 8:  tbin=5.; break;
+                case 9:  tbin=7.; break;
+                case 10: tbin=6.; break;
+              }
+              if (tbin >= 0) mo->Fill(clctsDatas[lct].getKeyStrip(), tbin);
+            }
   
-        if(clct_dtime < -2) mo->Fill(clct_dtime + 4);
-        else {
-          if(clct_dtime > 2)  mo->Fill(clct_dtime - 4);
-          else mo->Fill(clct_dtime);
-        }
-        mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-      }
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_HALF_STRIP_QUALITY, mo, lct)) 
+              mo->Fill((int)(clctsDatas[lct].getKeyStrip()),(int)(clctsDatas[lct].getQuality()));
   
-      // LOG4CPLUS_DEBUG(logger_, "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3));
-      // LOG4CPLUS_DEBUG(logger_, "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3));
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_HALF_STRIP_QUALITY_PROFILE, mo, lct))
+              mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
   
-      LOG4CPLUS_DEBUG(logger_, "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType()
-    		  << " Strip:" << clctsDatas[lct].getKeyStrip());
-      if (clctsDatas[lct].getStripType()) { // HalfStrip Type
-        if (isMEvalid(cscME,  Form("CLCT%d_KeyHalfStrip", lct), mo)) mo->Fill(clctsDatas[lct].getKeyStrip());
+          } else { // DiStrip Type
   
-        if (isMEvalid(cscME,  Form("CLCT%d_dTime_vs_Half_Strip", lct), mo)) {
-          if(clct_dtime < -2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 4);
-          else {
-    	if(clct_dtime > 2)    mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 4);
-    	else                  mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_KEYDISTRIP, mo, lct)) mo->Fill(clctsDatas[lct].getKeyStrip());
+    
+            if(lct == 0) clct_kewdistrip = clctsDatas[lct].getKeyStrip();
+  
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_DTIME_VS_DISTRIP, mo, lct)) {
+              if(clct_dtime < -2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 4);
+              else {
+                if(clct_dtime > 2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 4);
+                else mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
+              }
+            }
+    
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_DISTRIP_PATTERN, mo, lct)) {
+              int pattern_clct = (int)((clctsDatas[lct].getPattern() >> 1) & 0x3);
+              // pattern_clct = Number of patterns in CLCT
+              // Last (left) bit is bend. Positive bend = 1, negative bend = 0
+              if(pattern_clct == 1) mo->Fill(clctsDatas[lct].getKeyStrip(), 7.0);
+              if(pattern_clct == 3) mo->Fill(clctsDatas[lct].getKeyStrip(), 6.0);
+              if(pattern_clct == 5) mo->Fill(clctsDatas[lct].getKeyStrip(), 5.0);
+              if(pattern_clct == 7) mo->Fill(clctsDatas[lct].getKeyStrip(), 4.0);
+              if(pattern_clct == 6) mo->Fill(clctsDatas[lct].getKeyStrip(), 3.0);
+              if(pattern_clct == 4) mo->Fill(clctsDatas[lct].getKeyStrip(), 2.0);
+              if(pattern_clct == 2) mo->Fill(clctsDatas[lct].getKeyStrip(), 1.0);
+              if(pattern_clct == 0) mo->Fill(clctsDatas[lct].getKeyStrip(), 0.0);
+            }
+  
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_DISTRIP_QUALITY, mo, lct)) 
+              mo->Fill((int)(clctsDatas[lct].getKeyStrip()),(int)(clctsDatas[lct].getQuality()));
+  
+            if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_DISTRIP_QUALITY_PROFILE, mo, lct))
+              mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
           }
         }
-    
-        if (isMEvalid(cscME,  Form("CLCT%d_Half_Strip_Pattern", lct), mo)) {
-          int pattern_clct = clctsDatas[lct].getPattern();
-          // int pattern_clct = (int)((clctsDatas[lct].getPattern()>>1)&0x3);
-          //                              pattern_clct = Number of patterns in CLCT
-          //                              Last (left) bit is bend. Positive bend = 1, negative bend = 0
-          double tbin = -1;
-          switch (pattern_clct) {
-          case 0:  tbin=0.; break;
-          case 1:  tbin=1.; break;
-          case 2:  tbin=2.; break;
-          case 3:  tbin=10.; break;
-          case 4:  tbin=3.; break;
-          case 5:  tbin=9.; break;
-          case 6:  tbin=4.; break;
-          case 7:  tbin=8.; break;
-          case 8:  tbin=5.; break;
-          case 9:  tbin=7.; break;
-          case 10: tbin=6.; break;
-          }
-          if (tbin >= 0) mo->Fill(clctsDatas[lct].getKeyStrip(), tbin);
+      
+        int N_CFEBs = 5;
   
-        }
+        int NumberOfLayersWithHitsInCLCT = 0;
+        int NumberOfHalfStripsWithHitsInCLCT = 0;
+
+        if (clctData && clctData->check()) {
+          for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {   
+            for (int nLayer = 1; nLayer <= 6; nLayer++) {
+              int hstrip_previous    = -1;
+              int tbin_clct_previous = -1;
+              bool CheckLayerCLCT = true;
+              std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
+              for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin(); compOutDataItr != compOutData.end(); ++compOutDataItr) {
+                // =VB= Fix to get right hafstrip
+                int hstrip = 2 * (compOutDataItr->getStrip() - 1) + compOutDataItr->getComparator();
+                std::vector<int> tbins_clct = compOutDataItr->getTimeBinsOn();
+                int tbin_clct = (int)compOutDataItr->getTimeBin();
+                if(CheckLayerCLCT) {
+                  NumberOfLayersWithHitsInCLCT = NumberOfLayersWithHitsInCLCT + 1;
+                  CheckLayerCLCT = false;
+                }
   
-        if (isMEvalid(cscME,  Form("CLCT%d_Half_Strip_Quality", lct), mo)) 
-          mo->Fill((int)(clctsDatas[lct].getKeyStrip()),(int)(clctsDatas[lct].getQuality()));
+                for (uint32_t n=0; n < tbins_clct.size(); n++) {
+                  tbin_clct = tbins_clct[n];
+                  if(hstrip != hstrip_previous || (tbin_clct != tbin_clct_previous + 1 && tbin_clct != tbin_clct_previous - 1) ) {
+                    if (getCSCHisto(crateID, dmbID, CSC_CLCTTIME_LYXX, mo, nLayer)) mo->Fill(hstrip, tbin_clct);
+                    if (getCSCHisto(crateID, dmbID, CSC_CLCTTIME_LYXX_PROFILE, mo, nLayer)) mo->Fill(hstrip, tbin_clct);
+                    if (getCSCHisto(crateID, dmbID, CSC_CLCT_LYXX_RATE, mo, nLayer)) { 
+                      mo->Fill(hstrip);
   
-        if (isMEvalid(cscME,  Form("CLCT%d_Half_Strip_Quality_Profile", lct), mo))
-          mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
-  
-      } else { // DiStrip Type
-  
-        if (isMEvalid(cscME,  Form("CLCT%d_KeyDiStrip", lct), mo)) mo->Fill(clctsDatas[lct].getKeyStrip());
-    
-        if(lct == 0) clct_kewdistrip = clctsDatas[lct].getKeyStrip();
-  
-        if (isMEvalid(cscME,  Form("CLCT%d_dTime_vs_DiStrip", lct), mo)) {
-          if(clct_dtime < -2) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 4);
-          else {
-    	if(clct_dtime > 2)    mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 4);
-    	else                  mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-          }
-        }
-    
-        if (isMEvalid(cscME,  Form("CLCT%d_DiStrip_Pattern", lct), mo)) {
-          int pattern_clct = (int)((clctsDatas[lct].getPattern()>>1)&0x3);
-          //                              pattern_clct = Number of patterns in CLCT
-          //                              Last (left) bit is bend. Positive bend = 1, negative bend = 0
-          if(pattern_clct == 1) mo->Fill(clctsDatas[lct].getKeyStrip(), 7.0);
-          if(pattern_clct == 3) mo->Fill(clctsDatas[lct].getKeyStrip(), 6.0);
-          if(pattern_clct == 5) mo->Fill(clctsDatas[lct].getKeyStrip(), 5.0);
-          if(pattern_clct == 7) mo->Fill(clctsDatas[lct].getKeyStrip(), 4.0);
-          if(pattern_clct == 6) mo->Fill(clctsDatas[lct].getKeyStrip(), 3.0);
-          if(pattern_clct == 4) mo->Fill(clctsDatas[lct].getKeyStrip(), 2.0);
-          if(pattern_clct == 2) mo->Fill(clctsDatas[lct].getKeyStrip(), 1.0);
-          if(pattern_clct == 0) mo->Fill(clctsDatas[lct].getKeyStrip(), 0.0);
-        }
-  
-        if (isMEvalid(cscME,  Form("CLCT%d_DiStrip_Quality", lct), mo)) 
-          mo->Fill((int)(clctsDatas[lct].getKeyStrip()),(int)(clctsDatas[lct].getQuality()));
-  
-        if (isMEvalid(cscME,  Form("CLCT%d_DiStrip_Quality_Profile", lct), mo))
-          mo->Fill((int)(clctsDatas[lct].getKeyStrip()), (int)(clctsDatas[lct].getQuality()));
-      }
+                      double number_hstrip = mo->GetBinContent(hstrip+1);
+                      double Number_of_entries_CLCT = mo->getObject()->GetEntries();
        
-    }
+                      if (getCSCHisto(crateID, dmbID, CSC_CLCT_LYXX_EFFICIENCY, mo, nLayer)) {
+                        mo->SetBinContent(hstrip + 1, number_hstrip);
+                        if(DMBEvents > 0) {
+                          double norm = (100.0 * Number_of_entries_CLCT) / ((double)(DMBEvents));
+                          // if (norm < 1.0) norm=1;
+                          mo->getObject()->SetNormFactor(norm);
+                        } else {
+                          mo->getObject()->SetNormFactor(100.0);
+                        }
+                        mo->getObject()->SetEntries(DMBEvents);
+                      }
+                    }
+                  }
       
-    int N_CFEBs=5;
-  
-    int NumberOfLayersWithHitsInCLCT = 0;
-    int NumberOfHalfStripsWithHitsInCLCT = 0;
-    if (clctData && clctData->check()) {
-      for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {   
-        for (int nLayer=1; nLayer<=6; nLayer++) {
-          int hstrip_previous    = -1;
-          int tbin_clct_previous = -1;
-          bool CheckLayerCLCT = true;
-          vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
-          for (vector<CSCComparatorDigi>:: iterator compOutDataItr = compOutData.begin(); compOutDataItr != compOutData.end(); ++compOutDataItr) {
-    	// =VB= Fix to get right hafstrip
-    	int hstrip = 2*(compOutDataItr->getStrip()-1)+compOutDataItr->getComparator();
-    	vector<int> tbins_clct = compOutDataItr->getTimeBinsOn();
-    	int tbin_clct = (int)compOutDataItr->getTimeBin();
-    	if(CheckLayerCLCT) {
-    	  NumberOfLayersWithHitsInCLCT = NumberOfLayersWithHitsInCLCT + 1;
-    	  CheckLayerCLCT = false;
-    	}
-  
-    	for (uint32_t n=0; n < tbins_clct.size(); n++) {
-    	  tbin_clct = tbins_clct[n];
-    	  if(hstrip != hstrip_previous || (tbin_clct != tbin_clct_previous + 1 && tbin_clct != tbin_clct_previous - 1) ) {
-    	    if (isMEvalid(cscME,  Form("CLCTTime_Ly%d", nLayer), mo)) mo->Fill(hstrip, tbin_clct);
-  
-    	    if (isMEvalid(cscME,  Form("CLCTTime_Ly%d_Profile", nLayer), mo)) mo->Fill(hstrip, tbin_clct);
-  
-    	    if (isMEvalid(cscME,  Form("CLCT_Ly%d_Rate", nLayer), mo)) { 
-    	      mo->Fill(hstrip);
-  
-    	      double number_hstrip = mo->GetBinContent(hstrip+1);
-    	      double Number_of_entries_CLCT = mo->getObject()->GetEntries();
-       
-    	      if (isMEvalid(cscME,  Form("CLCT_Ly%d_Efficiency", nLayer), mo)) {
-    		mo->SetBinContent(hstrip+1,number_hstrip);
-    		if(DMBEvents > 0) {
-    		  double norm = (100.0*Number_of_entries_CLCT)/((double)(DMBEvents));
-    		  // if (norm < 1.0) norm=1;
-    		  mo->getObject()->SetNormFactor(norm);
-    		} else {
-    		  mo->getObject()->SetNormFactor(100.0);
-    		}
-    
-    		mo->getObject()->SetEntries(DMBEvents);
-    	      }
-    	    }
-    	  }
-      
-    	  if(hstrip != hstrip_previous) {
-    	    NumberOfHalfStripsWithHitsInCLCT = NumberOfHalfStripsWithHitsInCLCT + 1;
-    	  }
-    	  hstrip_previous    = hstrip;
-    	  tbin_clct_previous = tbin_clct;
-    	}
+                  if(hstrip != hstrip_previous) {
+                    NumberOfHalfStripsWithHitsInCLCT = NumberOfHalfStripsWithHitsInCLCT + 1;
+                  }
+                  hstrip_previous    = hstrip;
+                  tbin_clct_previous = tbin_clct;
+                }
+              }
+            }
           }
-        }
-      }
-    } else {
-      LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    		" Can not unpack CLCT Data");
-    }
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, mo)) 
-      mo->Fill(NumberOfLayersWithHitsInCLCT);
-    if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_OF_HALFSTRIPS_WITH_HITS, mo)) 
-      mo->Fill(NumberOfHalfStripsWithHitsInCLCT);
         } else {
-        LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    		" Can not unpack TMB Header or/and Trailer");
+          // LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack CLCT Data");
+        }
+
+        if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, mo)) 
+          mo->Fill(NumberOfLayersWithHitsInCLCT);
+        if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_OF_HALFSTRIPS_WITH_HITS, mo)) 
+          mo->Fill(NumberOfHalfStripsWithHitsInCLCT);
+        } else {
+          //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Header or/and Trailer");
         }
       } else {
-        LOG4CPLUS_ERROR(logger_,eTag << cscTag << 
-    	      " Can not unpack TMB Data");
+        //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Data");
       }
   
     } else {
@@ -851,16 +833,16 @@ namespace cscdqm {
       if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_RATE, mo)) {
         mo->Fill(0);
         int nCLCT = (int)mo->GetBinContent(1);
-        if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER, mo)) mo->SetBinContent(1, (float)(nCLCT)/(float)(DMBEvents)*100.0);
+        if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER, mo)) mo->SetBinContent(1, (float)(nCLCT) / (float)(DMBEvents) * 100.0);
       }    
       if ((tmb_dav  > 0) && (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_UNPACKED_VS_DAV, mo))) {
         mo->Fill(1.0, 1.0);
       }
     }
-  
-    //    CFEB found
+
+    // CFEB found
     int NumberOfUnpackedCFEBs = 0;
-    int N_CFEBs=5, N_Samples=16, N_Layers = 6, N_Strips = 16;
+    const int N_CFEBs = 5, N_Samples = 16, N_Layers = 6, N_Strips = 16;
     int ADC = 0, OutOffRange, Threshold = 30;
     // bool DebugCFEB = false;
     CSCCFEBData * cfebData[5];
@@ -881,9 +863,8 @@ namespace cscdqm {
   
     bool CheckThresholdStripInTheLayer[6][80];
     for(int i=0; i<6; i++) {
-      for(int j=0; j <80; j++) CheckThresholdStripInTheLayer[i][j] = true;
+      for(int j = 0; j < 80; j++) CheckThresholdStripInTheLayer[i][j] = true;
     }
-    
     
     bool CheckOutOffRangeStripInTheLayer[6][80];  
     for(int i=0; i<6; i++) {
@@ -891,9 +872,9 @@ namespace cscdqm {
     }
   
     //--------------B
-    float cscdata[N_CFEBs*16][N_Samples][N_Layers];
+    float cscdata[N_CFEBs * 16][N_Samples][N_Layers];
   //  int TrigTimeData[N_CFEBs*16][N_Samples][N_Layers];
-    int SCABlockData[N_CFEBs*16][N_Samples][N_Layers];
+    int SCABlockData[N_CFEBs * 16][N_Samples][N_Layers];
     memset(cscdata, 0, sizeof(cscdata));
   //  memset(TrigTimeData, 0, sizeof(TrigTimeData));
     memset(SCABlockData, 0, sizeof(SCABlockData));
@@ -901,354 +882,346 @@ namespace cscdqm {
     
     char hbuf[255];
     memset(hbuf, 0, sizeof(hbuf));
-    
   
     for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {
       cfebData[nCFEB] = data.cfebData(nCFEB);
       if (cfebData[nCFEB] !=0) {
-    if (!cfebData[nCFEB]->check()) continue;
+        if (!cfebData[nCFEB]->check()) continue;
         //                        CFEB Found
         FEBunpacked = FEBunpacked +1; // Increment number of unpacked FED
         NumberOfUnpackedCFEBs = NumberOfUnpackedCFEBs + 1; // Increment number of unpaked CFEB
         cfeb_unpacked = 1;
         if(CheckCFEB == true){
-    if (getCSCHisto(crateID, dmbID, CSC_CSC_RATE, mo)) {
-      mo->Fill(4);
-      uint32_t CFEBEvent = (uint32_t)mo->GetBinContent(5);
-      trigCnts["CFEB"] = CFEBEvent;
-      if (getCSCHisto(crateID, dmbID, CSC_CSC_EFFICIENCY, mo)) {
-        if(nEvents > 0) {
-          mo->SetBinContent(3, ((float)CFEBEvent/(float)(DMBEvents)*100.0));
-          mo->getObject()->SetEntries((int)DMBEvents);
-        }
-      }
-    }
+          if (getCSCHisto(crateID, dmbID, CSC_CSC_RATE, mo)) {
+            mo->Fill(4);
+            uint32_t CFEBEvent = (uint32_t)mo->GetBinContent(5);
+            trigCnts["CFEB"] = CFEBEvent;
+            if (getCSCHisto(crateID, dmbID, CSC_CSC_EFFICIENCY, mo)) {
+              if(nEvents > 0) {
+                mo->SetBinContent(3, ((float)CFEBEvent/(float)(DMBEvents)*100.0));
+                mo->getObject()->SetEntries((int)DMBEvents);
+              }
+            }
+          }
   
-    if ((cfeb_dav2  > 0) && (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_UNPACKED_VS_DAV, mo))) {
-      mo->Fill(2.0, 0.0);
-    }
-    CheckCFEB = false;
+          if ((cfeb_dav2  > 0) && (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_UNPACKED_VS_DAV, mo))) {
+            mo->Fill(2.0, 0.0);
+          }
+          CheckCFEB = false;
         }
         //-------------B
         NmbTimeSamples= (cfebData[nCFEB])->nTimeSamples();
         //-------------E
-        LOG4CPLUS_DEBUG(logger_, "nEvents = " << nEvents);
-        LOG4CPLUS_DEBUG(logger_, "Chamber ID = "<< cscTag << " Crate ID = "<< crateID
-    	      << " DMB ID = " << dmbID
-    	      << "nCFEB =" << nCFEB);
+        //LOG4CPLUS_DEBUG(logger_, "nEvents = " << nEvents);
+        //LOG4CPLUS_DEBUG(logger_, "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB);
   
         // =VB= Optimizations for faster histogram object access 
-        EmuMonitoringObject* mo_CFEB_SCA_Block_Occupancy = 0;
-        isMEvalid(cscME, Form("CFEB%d_SCA_Block_Occupancy", nCFEB), mo_CFEB_SCA_Block_Occupancy);
-        EmuMonitoringObject*  mo_CFEB_Free_SCA_Cells = 0;      
-        isMEvalid(cscME, Form("CFEB%d_Free_SCA_Cells", nCFEB), mo_CFEB_Free_SCA_Cells);
-        EmuMonitoringObject* mo_CFEB_SCA_Blocks_Locked_by_LCTs;
-        isMEvalid(cscME, Form("CFEB%d_SCA_Blocks_Locked_by_LCTs", nCFEB), mo_CFEB_SCA_Blocks_Locked_by_LCTs);
-        EmuMonitoringObject* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1;
-        isMEvalid(cscME, Form("CFEB%d_SCA_Blocks_Locked_by_LCTxL1", nCFEB), mo_CFEB_SCA_Blocks_Locked_by_LCTxL1);
-        EmuMonitoringObject* mo_CFEB_DMB_L1A_diff = 0;
-        isMEvalid(cscME, Form("CFEB%d_DMB_L1A_diff", nCFEB), mo_CFEB_DMB_L1A_diff);
+        METype* mo_CFEB_SCA_Block_Occupancy = 0;
+        getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, mo_CFEB_SCA_Block_Occupancy, nCFEB);
+        METype*  mo_CFEB_Free_SCA_Cells = 0;      
+        getCSCHisto(crateID, dmbID, CSC_CFEBXX_FREE_SCA_CELLS, mo_CFEB_Free_SCA_Cells, nCFEB);
+        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTs;
+        getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, mo_CFEB_SCA_Blocks_Locked_by_LCTs, nCFEB);
+        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1;
+        getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, mo_CFEB_SCA_Blocks_Locked_by_LCTxL1, nCFEB);
+        METype* mo_CFEB_DMB_L1A_diff = 0;
+        getCSCHisto(crateID, dmbID, CSC_CFEBXX_DMB_L1A_DIFF, mo_CFEB_DMB_L1A_diff, nCFEB);
         
         // LOG4CPLUS_DEBUG(logger_, " nSample = " << nSample);
   
         for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
-    //  =VB= Optimizations for faster histogram object access
-    EmuMonitoringObject * mo_CFEB_Out_Off_Range_Strips = 0;
-    isMEvalid(cscME, Form("CFEB_Out_Off_Range_Strips_Ly%d", nLayer), mo_CFEB_Out_Off_Range_Strips);
-    EmuMonitoringObject * mo_CFEB_Active_Samples_vs_Strip = 0;
-    isMEvalid(cscME, Form("CFEB_Active_Samples_vs_Strip_Ly%d", nLayer), mo_CFEB_Active_Samples_vs_Strip);
-    EmuMonitoringObject * mo_CFEB_Active_Samples_vs_Strip_Profile = 0;
-    isMEvalid(cscME, Form("CFEB_Active_Samples_vs_Strip_Ly%d_Profile", nLayer), mo_CFEB_Active_Samples_vs_Strip_Profile);
-    EmuMonitoringObject * mo_CFEB_ActiveStrips = 0;
-    isMEvalid(cscME, Form("CFEB_ActiveStrips_Ly%d", nLayer), mo_CFEB_ActiveStrips);
-    EmuMonitoringObject * mo_CFEB_SCA_Cell_Peak = 0;
-    isMEvalid(cscME, Form("CFEB_SCA_Cell_Peak_Ly_%d", nLayer), mo_CFEB_SCA_Cell_Peak);
+          //  =VB= Optimizations for faster histogram object access
+          METype * mo_CFEB_Out_Off_Range_Strips = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, mo_CFEB_Out_Off_Range_Strips, nLayer);
+          METype * mo_CFEB_Active_Samples_vs_Strip = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, mo_CFEB_Active_Samples_vs_Strip, nLayer);
+          METype * mo_CFEB_Active_Samples_vs_Strip_Profile = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, mo_CFEB_Active_Samples_vs_Strip_Profile, nLayer);
+          METype * mo_CFEB_ActiveStrips = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVESTRIPS_LYXX, mo_CFEB_ActiveStrips, nLayer);
+          METype * mo_CFEB_SCA_Cell_Peak = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_SCA_CELL_PEAK_LY_XX, mo_CFEB_SCA_Cell_Peak, nLayer);
   
-    EmuMonitoringObject * mo_CFEB_Pedestal_withEMV_Sample = 0;
-    isMEvalid(cscME, Form("CFEB_Pedestal_withEMV_Sample_01_Ly%d", nLayer), mo_CFEB_Pedestal_withEMV_Sample);
-    EmuMonitoringObject * mo_CFEB_Pedestal_withRMS_Sample = 0;
-    isMEvalid(cscME, Form("CFEB_Pedestal_withRMS_Sample_01_Ly%d", nLayer), mo_CFEB_Pedestal_withRMS_Sample);
-    EmuMonitoringObject * mo_CFEB_PedestalRMS_Sample = 0;
-    isMEvalid(cscME, Form("CFEB_PedestalRMS_Sample_01_Ly%d", nLayer), mo_CFEB_PedestalRMS_Sample);
+          METype * mo_CFEB_Pedestal_withEMV_Sample = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL_WITHEMV_SAMPLE_01_LYXX, mo_CFEB_Pedestal_withEMV_Sample, nLayer);
+          METype * mo_CFEB_Pedestal_withRMS_Sample = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL_WITHRMS_SAMPLE_01_LYXX, mo_CFEB_Pedestal_withRMS_Sample, nLayer);
+          METype * mo_CFEB_PedestalRMS_Sample = 0;
+          getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, mo_CFEB_PedestalRMS_Sample, nLayer);
   
-    for(int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
-      timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
-      if (timeSlice[nCFEB][nSample] == 0) {
-        LOG4CPLUS_WARN(logger_, "CFEB" << nCFEB << " nSample: " << nSample << " - B-Word");
-        continue;
-      }
+          for(int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
+            timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
+            if (timeSlice[nCFEB][nSample] == 0) {
+              //LOG4CPLUS_WARN(logger_, "CFEB" << nCFEB << " nSample: " << nSample << " - B-Word");
+              continue;
+            }
   
-      if (mo_CFEB_DMB_L1A_diff && !fCloseL1As ) {
-      // if (mo_CFEB_DMB_L1A_diff) {
-            int cfeb_dmb_l1a_diff = (int)((timeSlice[nCFEB][nSample]->get_L1A_number())-dmbHeader->l1a()%64);
-    	if (cfeb_dmb_l1a_diff != 0) { 
+            if (mo_CFEB_DMB_L1A_diff && !fCloseL1As ) {
+              // if (mo_CFEB_DMB_L1A_diff) 
+              int cfeb_dmb_l1a_diff = (int)((timeSlice[nCFEB][nSample]->get_L1A_number())-dmbHeader->l1a()%64);
+              if (cfeb_dmb_l1a_diff != 0) { 
     		L1A_out_of_sync = true;
     		//LOG4CPLUS_WARN(logger_,eTag << cscTag << " CFEB" << nCFEB << " nSample: " << nSample << " L1As out of sync");
-    	}
-            if(cfeb_dmb_l1a_diff < -32) mo->Fill(cfeb_dmb_l1a_diff + 64);
-            else {
-              if(cfeb_dmb_l1a_diff > 32) mo->Fill(cfeb_dmb_l1a_diff - 64);
-              else mo_CFEB_DMB_L1A_diff->Fill(cfeb_dmb_l1a_diff);
+              }
+              if(cfeb_dmb_l1a_diff < -32) mo->Fill(cfeb_dmb_l1a_diff + 64);
+              else {
+                if(cfeb_dmb_l1a_diff > 32) mo->Fill(cfeb_dmb_l1a_diff - 64);
+                else mo_CFEB_DMB_L1A_diff->Fill(cfeb_dmb_l1a_diff);
+              }
+              mo_CFEB_DMB_L1A_diff->SetAxisRange(0.1, 1.1*(1.0+mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->getObject()->GetMaximumBin())), "Y");
             }
-            mo_CFEB_DMB_L1A_diff->SetAxisRange(0.1, 1.1*(1.0+mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->getObject()->GetMaximumBin())), "Y");
-          }
     
-      //        LOG4CPLUS_DEBUG(logger_, " nSample = " << nSample);
-      // for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
-      scaControllerWord[nCFEB][nSample][nLayer-1] = (timeSlice[nCFEB][nSample])->scaControllerWord(nLayer);
+            // LOG4CPLUS_DEBUG(logger_, " nSample = " << nSample);
+            // for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) 
+            scaControllerWord[nCFEB][nSample][nLayer-1] = (timeSlice[nCFEB][nSample])->scaControllerWord(nLayer);
   
-      TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).trig_time;
+            TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).trig_time;
+            //--------------B
+            FreeCells = (timeSlice[nCFEB][nSample])->get_n_free_sca_blocks();
+            LCT_Pipe_Empty = (timeSlice[nCFEB][nSample])->get_lctpipe_empty();
+            LCT_Pipe_Full = (timeSlice[nCFEB][nSample])->get_lctpipe_full();
+            LCT_Pipe_Count = (timeSlice[nCFEB][nSample])->get_lctpipe_count();
+            L1_Pipe_Empty = (timeSlice[nCFEB][nSample])->get_l1pipe_empty();
+            L1_Pipe_Full = (timeSlice[nCFEB][nSample])->get_l1pipe_full();
+            // L1_Pipe_Count = (timeSlice[nCFEB][nSample])->get_L1A_number();
+            Buffer_Count = (timeSlice[nCFEB][nSample])->get_buffer_count();
+      
+            SCA_BLK  = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).sca_blk;
+            // LOG4CPLUS_DEBUG(logger_, "SCA BLOCK: Chamber="<<chamberID<<" CFEB="<<nCFEB+1
+            //  <<" TRIGTIME="<<TrigTime<<" TimeSlice="<<nSample+1<<" Layer="<<nLayer<<" SCA_BLK="<<SCA_BLK);
+      
+            for(int nStrip = 0; nStrip < N_Strips; ++nStrip) {
+              SCABlockData[nCFEB*16+nStrip][nSample][nLayer-1] = SCA_BLK;
+              // if(res<=1) TrigTimeData[nCFEB*16+nStrip][nSample][nLayer-1] = TrigTime;
+            }
+            // LOG4CPLUS_DEBUG(logger_,"*********"<<" TRIGTIME="<<TrigTime<<" BIT COUNT="<<bit_count);
+  
+            // SCA Block Occupancy Histograms
+            // if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, mo, nCFEB)) mo->Fill(SCA_BLK);
+            if (mo_CFEB_SCA_Block_Occupancy) mo_CFEB_SCA_Block_Occupancy->Fill(SCA_BLK);
+  
+            // Free SCA Cells
+            // if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_FREE_SCA_CELLS, mo, nCFEB)) 
+            if (mo_CFEB_Free_SCA_Cells) {
+              if (scaControllerWord[nCFEB][nSample][nLayer-1].sca_full == 1) mo_CFEB_Free_SCA_Cells->Fill(-1);
+              mo_CFEB_Free_SCA_Cells->Fill(FreeCells);
+            }
+  
+            // Number of SCA Blocks Locked by LCTs
+            // if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, mo, nCFEB)) 
+            if (mo_CFEB_SCA_Blocks_Locked_by_LCTs) {
+              if (LCT_Pipe_Empty == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(-0.5);
+              if (LCT_Pipe_Full == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(16.5);
+              mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(LCT_Pipe_Count);
+            }
+  
+            // Number of SCA Blocks Locked by LCTxL1
+            // if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, mo, nCFEB)) 
+            if (mo_CFEB_SCA_Blocks_Locked_by_LCTxL1) {
+              if (L1_Pipe_Empty == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(-0.5);
+              if (L1_Pipe_Full == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(31.5);
+              mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(Buffer_Count);
+            }
+  
+            //--------------E
+            // LOG4CPLUS_DEBUG(logger_, "nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime);
+            if(nSample == 0 && nLayer == 1) {
+              TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer - 1]).trig_time;
+              int k = 1;
+              while (((TrigTime >> (k-1)) & 0x1) != 1 && k <= 8) {
+                k = k + 1;
+              }
+              L1APhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer - 1]).l1a_phase) & 0x1);
+              UnpackedTrigTime = ((k << 1) & 0xE) + L1APhase;
+  
+              if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_L1A_SYNC_TIME, mo, nCFEB)) 
+                mo->Fill((int)UnpackedTrigTime);
+              LCTPhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer-1]).lct_phase)&0x1);
+  
+              if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, mo, nCFEB)) 
+                mo->Fill(LCTPhase, L1APhase);
+  
+              //LOG4CPLUS_DEBUG(logger_, "L1APhase " << L1APhase << " UnpackedTrigTime " << UnpackedTrigTime);
+  
+              if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_L1A_SYNC_TIME_VS_DMB, mo, nCFEB))  
+                mo->Fill((int)(dmbHeader->dmbCfebSync()), (int)UnpackedTrigTime);
+  
+              if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_L1A_SYNC_TIME_DMB_DIFF, mo, nCFEB)) {
+                int cfeb_dmb_L1A_sync_time = (int)(dmbHeader->dmbCfebSync()) - (int)UnpackedTrigTime;
+                if(cfeb_dmb_L1A_sync_time < -8) mo->Fill(cfeb_dmb_L1A_sync_time+16);
+                else {
+                  if(cfeb_dmb_L1A_sync_time > 8) mo->Fill(cfeb_dmb_L1A_sync_time-16);
+                  else mo->Fill(cfeb_dmb_L1A_sync_time);
+                }
+                mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
+              }
+  
+            }
+  
+  
+            for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
+              timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
+              ADC = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcCounts) & 0xFFF);
+              // LOG4CPLUS_DEBUG(logger_, " nStrip="<< dec << nStrip << " ADC=" << hex << ADC);
+              OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcOverflow) & 0x1);
+  
+              if(nSample == 0) { // nSample == 0
+                CellPeak[nCFEB][nLayer-1][nStrip-1] = std::make_pair(nSample,ADC);
+                Pedestal[nCFEB][nLayer-1][nStrip-1] = ADC;
+                //LOG4CPLUS_DEBUG(logger_, " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer-1][nStrip-1]);
+              }
+    
+              if(OutOffRange == 1 && CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
+                // if (getCSCHisto(crateID, dmbID, CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, mo, nLayer)) 
+                if ( mo_CFEB_Out_Off_Range_Strips)
+                  mo_CFEB_Out_Off_Range_Strips->Fill((int)(nCFEB * 16 + nStrip));
+                CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] = false;
+              }
+              if(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1] > Threshold && OutOffRange != 1) {	      
+                // if (getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, mo, nLayer))
+                if (mo_CFEB_Active_Samples_vs_Strip)
+                  mo_CFEB_Active_Samples_vs_Strip->Fill((int)(nCFEB * 16 + nStrip), nSample);
+  
+                // if (getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, mo, nLayer))
+                if (mo_CFEB_Active_Samples_vs_Strip_Profile)
+                  mo_CFEB_Active_Samples_vs_Strip_Profile->Fill((int)(nCFEB * 16 + nStrip), nSample);
+  
+                if(CheckThresholdStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
+                // if (getCSCHisto(crateID, dmbID, CSC_CFEB_ACTIVESTRIPS_LYXX, mo, nLayer))
+                  if (mo_CFEB_ActiveStrips)
+                    mo_CFEB_ActiveStrips->Fill((int)(nCFEB * 16 + nStrip));
+                  CheckThresholdStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] = false;
+                }
+                //--------------B
+                if(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1] > Threshold) {
+                  //LOG4CPLUS_DEBUG(logger_, "Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample << " ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer-1][nStrip-1]);
+                  cscdata[nCFEB * 16 + nStrip - 1][nSample][nLayer - 1] = ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1];
+                }	
+                //--------------E
+                if(ADC > CellPeak[nCFEB][nLayer - 1][nStrip - 1].second) { 
+                  CellPeak[nCFEB][nLayer - 1][nStrip - 1].first = nSample;
+                  CellPeak[nCFEB][nLayer - 1][nStrip - 1].second = ADC;
+                }
+              }
+              // continue;
+              //--------------B
+              if(nSample == 1) {
+                int channel_threshold = 40;
+                if (abs(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1]) < channel_threshold) {
+                  // if (getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL__WITHEMV__SAMPLE_01_LYXX, mo, nLayer))
+                  if (mo_CFEB_Pedestal_withEMV_Sample)
+                    mo_CFEB_Pedestal_withEMV_Sample->Fill((int)(nCFEB * 16 + nStrip), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
+  
+                  //if (getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, mo, nLayer)) 
+                  if (mo_CFEB_Pedestal_withRMS_Sample) {  
+                    mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB * 16 + nStrip), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
+                    PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->getObject()->GetBinError(nCFEB * 16 + nStrip);
+  
+                    // if (getCSCHisto(crateID, dmbID, CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, mo, nLayer)) 
+                    if (mo_CFEB_PedestalRMS_Sample) {
+                      mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB * 16 + nStrip,PedestalError[nCFEB][nLayer - 1][nStrip - 1]);
+                      mo_CFEB_PedestalRMS_Sample->getObject()->SetBinError(nCFEB * 16 + nStrip, 0.00000000001);
+                    }
+                  }
+                }
+              }
+              //--------------E
+            }
+          }
+
+          for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
+            if (mo_CFEB_SCA_Cell_Peak && CellPeak[nCFEB][nLayer - 1][nStrip - 1].first) 
+              mo_CFEB_SCA_Cell_Peak->Fill((int)(nCFEB * 16 + nStrip), CellPeak[nCFEB][nLayer - 1][nStrip - 1].first);
+          }
+
+        }
+      }
+
       //--------------B
-      FreeCells = (timeSlice[nCFEB][nSample])->get_n_free_sca_blocks();
-      LCT_Pipe_Empty = (timeSlice[nCFEB][nSample])->get_lctpipe_empty();
-      LCT_Pipe_Full = (timeSlice[nCFEB][nSample])->get_lctpipe_full();
-      LCT_Pipe_Count = (timeSlice[nCFEB][nSample])->get_lctpipe_count();
-      L1_Pipe_Empty = (timeSlice[nCFEB][nSample])->get_l1pipe_empty();
-      L1_Pipe_Full = (timeSlice[nCFEB][nSample])->get_l1pipe_full();
-      //          L1_Pipe_Count = (timeSlice[nCFEB][nSample])->get_L1A_number();
-      Buffer_Count = (timeSlice[nCFEB][nSample])->get_buffer_count();
-      
-  
-      SCA_BLK  = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).sca_blk;
-      // LOG4CPLUS_DEBUG(logger_, "SCA BLOCK: Chamber="<<chamberID<<" CFEB="<<nCFEB+1
-      //  <<" TRIGTIME="<<TrigTime<<" TimeSlice="<<nSample+1<<" Layer="<<nLayer<<" SCA_BLK="<<SCA_BLK);
-      
-      for(int nStrip = 0; nStrip < N_Strips; ++nStrip) {
-        SCABlockData[nCFEB*16+nStrip][nSample][nLayer-1] = SCA_BLK;
-        // if(res<=1) TrigTimeData[nCFEB*16+nStrip][nSample][nLayer-1] = TrigTime;
-      }
-      // LOG4CPLUS_DEBUG(logger_,"*********"<<" TRIGTIME="<<TrigTime<<" BIT COUNT="<<bit_count);
-  
-      // SCA Block Occupancy Histograms
-      // if (isMEvalid(cscME, Form("CFEB%d_SCA_Block_Occupancy", nCFEB), mo)) mo->Fill(SCA_BLK);
-      if (mo_CFEB_SCA_Block_Occupancy) mo_CFEB_SCA_Block_Occupancy->Fill(SCA_BLK);
-  
-      //                                    Free SCA Cells
-      // if (isMEvalid(cscME, Form("CFEB%d_Free_SCA_Cells", nCFEB), mo)) {
-      if (mo_CFEB_Free_SCA_Cells) {
-        if (scaControllerWord[nCFEB][nSample][nLayer-1].sca_full == 1) mo_CFEB_Free_SCA_Cells->Fill(-1);
-        mo_CFEB_Free_SCA_Cells->Fill(FreeCells);
-      }
-  
-      //                                    Number of SCA Blocks Locked by LCTs
-      //  if (isMEvalid(cscME, Form("CFEB%d_SCA_Blocks_Locked_by_LCTs", nCFEB), mo)) {
-      if (mo_CFEB_SCA_Blocks_Locked_by_LCTs) {
-        if (LCT_Pipe_Empty == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(-0.5);
-        if (LCT_Pipe_Full == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(16.5);
-        mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(LCT_Pipe_Count);
-      }
-  
-      //                                    Number of SCA Blocks Locked by LCTxL1
-      // if (isMEvalid(cscME, Form("CFEB%d_SCA_Blocks_Locked_by_LCTxL1", nCFEB), mo)) {
-      if (mo_CFEB_SCA_Blocks_Locked_by_LCTxL1) {
-        if (L1_Pipe_Empty == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(-0.5);
-        if (L1_Pipe_Full == 1) mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(31.5);
-        mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(Buffer_Count);
-      }
-  
-      //--------------E
-      // LOG4CPLUS_DEBUG(logger_, "nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime);
-      if(nSample == 0 && nLayer == 1) {
-        TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).trig_time;
-        int k=1;
-        while (((TrigTime >> (k-1)) & 0x1) != 1 && k<=8) {
-          k = k +1;
-        }
-        L1APhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer-1]).l1a_phase)&0x1);
-        UnpackedTrigTime = ((k<<1)&0xE)+L1APhase;
-  
-        if (isMEvalid(cscME, Form("CFEB%d_L1A_Sync_Time", nCFEB), mo)) 
-          mo->Fill((int)UnpackedTrigTime);
-        LCTPhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer-1]).lct_phase)&0x1);
-  
-        if (isMEvalid(cscME, Form("CFEB%d_LCT_PHASE_vs_L1A_PHASE", nCFEB), mo)) 
-          mo->Fill(LCTPhase, L1APhase);
-  
-        LOG4CPLUS_DEBUG(logger_, "L1APhase " << L1APhase << " UnpackedTrigTime " << UnpackedTrigTime);
-  
-        if (isMEvalid(cscME, Form("CFEB%d_L1A_Sync_Time_vs_DMB", nCFEB), mo))  
-          mo->Fill((int)(dmbHeader->dmbCfebSync()), (int)UnpackedTrigTime);
-  
-        if (isMEvalid(cscME, Form("CFEB%d_L1A_Sync_Time_DMB_diff", nCFEB), mo)) {
-          int cfeb_dmb_L1A_sync_time = (int)(dmbHeader->dmbCfebSync()) - (int)UnpackedTrigTime;
-          if(cfeb_dmb_L1A_sync_time < -8) mo->Fill(cfeb_dmb_L1A_sync_time+16);
-          else {
-    	if(cfeb_dmb_L1A_sync_time > 8)    mo->Fill(cfeb_dmb_L1A_sync_time-16);
-    	else                              mo->Fill(cfeb_dmb_L1A_sync_time);
-          }
-          mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
-        }
-  
-      }
-  
-  
-      for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
-        timeSample[nCFEB][nSample][nLayer-1][nStrip-1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
-        ADC = (int) ((timeSample[nCFEB][nSample][nLayer-1][nStrip-1]->adcCounts)&0xFFF);
-        LOG4CPLUS_DEBUG(logger_, " nStrip="<< dec << nStrip << " ADC=" << hex << ADC);
-        OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer-1][nStrip-1]->adcOverflow)&0x1);
-  
-        if(nSample == 0) { // nSample == 0
-          CellPeak[nCFEB][nLayer-1][nStrip-1] = std::make_pair(nSample,ADC);
-          Pedestal[nCFEB][nLayer-1][nStrip-1] = ADC;
-          LOG4CPLUS_DEBUG(logger_, " nStrip="<< dec << nStrip
-    		      << " Pedestal=" << hex << Pedestal[nCFEB][nLayer-1][nStrip-1]);
-        }
-  
-  
-        if(OutOffRange == 1 && CheckOutOffRangeStripInTheLayer[nLayer-1][nCFEB*16+nStrip-1] == true) {
-          // if (isMEvalid(cscME, Form("CFEB_Out_Off_Range_Strips_Ly%d", nLayer), mo)) 
-          if ( mo_CFEB_Out_Off_Range_Strips)
-    	mo_CFEB_Out_Off_Range_Strips->Fill((int)(nCFEB*16+nStrip));
-          CheckOutOffRangeStripInTheLayer[nLayer-1][nCFEB*16+nStrip-1] = false;
-        }
-        if(ADC - Pedestal[nCFEB][nLayer-1][nStrip-1] > Threshold && OutOffRange != 1) {	      
-          // if (isMEvalid(cscME, Form("CFEB_Active_Samples_vs_Strip_Ly%d", nLayer), mo))
-          if (mo_CFEB_Active_Samples_vs_Strip)
-    	mo_CFEB_Active_Samples_vs_Strip->Fill((int)(nCFEB*16+nStrip), nSample);
-  
-          // if (isMEvalid(cscME, Form("CFEB_Active_Samples_vs_Strip_Ly%d_Profile", nLayer), mo))
-          if (mo_CFEB_Active_Samples_vs_Strip_Profile)
-    	mo_CFEB_Active_Samples_vs_Strip_Profile->Fill((int)(nCFEB*16+nStrip), nSample);
-  
-          if(CheckThresholdStripInTheLayer[nLayer-1][nCFEB*16+nStrip-1] == true) {
-    	// if (isMEvalid(cscME, Form("CFEB_ActiveStrips_Ly%d", nLayer), mo))
-    	if (mo_CFEB_ActiveStrips)
-    	  mo_CFEB_ActiveStrips->Fill((int)(nCFEB*16+nStrip));
-    	CheckThresholdStripInTheLayer[nLayer-1][nCFEB*16+nStrip-1] = false;
-          }
-          //--------------B
-          if(ADC - Pedestal[nCFEB][nLayer-1][nStrip-1] > Threshold) {
-    	LOG4CPLUS_DEBUG(logger_, "Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample
-    			<< " ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer-1][nStrip-1]);
-    	cscdata[nCFEB*16+nStrip-1][nSample][nLayer-1] = ADC - Pedestal[nCFEB][nLayer-1][nStrip-1];
-          }	
-          //--------------E
-          if(ADC >  CellPeak[nCFEB][nLayer-1][nStrip-1].second) { 
-    	CellPeak[nCFEB][nLayer-1][nStrip-1].first = nSample;
-    	CellPeak[nCFEB][nLayer-1][nStrip-1].second = ADC;
+      float Cathodes[N_CFEBs * N_Strips * N_Samples * N_Layers];
+      for(int i = 0; i < N_Layers; ++i) {
+        for(int j = 0; j < N_CFEBs * N_Strips; ++j) {
+          for(int k = 0; k < N_Samples; ++k) {
+            Cathodes[i * N_CFEBs * N_Strips * N_Samples + N_CFEBs * N_Strips * k + j] = cscdata[j][k][i];
           }
         }
-        // continue;
-        //--------------B
-        if(nSample == 1) {
-          int channel_threshold = 40;
-          if (abs(ADC - Pedestal[nCFEB][nLayer-1][nStrip-1]) < channel_threshold){
-    	// if (isMEvalid(cscME, Form("CFEB_Pedestal(withEMV)_Sample_01_Ly%d", nLayer), mo))
-    	if (mo_CFEB_Pedestal_withEMV_Sample)
-    	  mo_CFEB_Pedestal_withEMV_Sample->Fill((int)(nCFEB*16+nStrip), Pedestal[nCFEB][nLayer-1][nStrip-1]);
-  
-    	//if (isMEvalid(cscME, Form("CFEB_Pedestal(withRMS)_Sample_01_Ly%d", nLayer), mo)) {
-    	if (mo_CFEB_Pedestal_withRMS_Sample) {  
-    	  mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB*16+nStrip), Pedestal[nCFEB][nLayer-1][nStrip-1]);
-    	  PedestalError[nCFEB][nLayer-1][nStrip-1] = mo_CFEB_Pedestal_withRMS_Sample->getObject()->GetBinError(nCFEB*16+nStrip);
-  
-    	  // if (isMEvalid(cscME, Form("CFEB_PedestalRMS_Sample_01_Ly%d", nLayer), mo)) {
-    	  if (mo_CFEB_PedestalRMS_Sample) {
-    	    mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB*16+nStrip,PedestalError[nCFEB][nLayer-1][nStrip-1]);
-    	    mo_CFEB_PedestalRMS_Sample->getObject()->SetBinError(nCFEB*16+nStrip,0.00000000001);
-    	  }
-    	}
-          }
-        }
-        //--------------E
       }
-    }
-    for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
-      if (mo_CFEB_SCA_Cell_Peak && CellPeak[nCFEB][nLayer-1][nStrip-1].first) mo_CFEB_SCA_Cell_Peak->Fill((int)(nCFEB*16+nStrip), CellPeak[nCFEB][nLayer-1][nStrip-1].first);
-    }
-        }
-      }
-    }
-    
-    //--------------B
-    float Cathodes[N_CFEBs*N_Strips*N_Samples*N_Layers];
-    for(int i=0; i<N_Layers; ++i) {
-      for(int j=0; j<N_CFEBs*N_Strips; ++j) {
-        for(int k=0; k<N_Samples; ++k) {
-    Cathodes[i*N_CFEBs*N_Strips*N_Samples + N_CFEBs*N_Strips*k + j] = cscdata[j][k][i];
-        }
-      }
-    }
-    vector<CSCStripCluster> Clus;
-    Clus.clear();
-    CSCStripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
-  
-    for(int nLayer=1; nLayer<=N_Layers; ++nLayer) {
-      
-  //     CSCStripClusterFinder *ClusterFinder = new CSCStripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
-      
-      ClusterFinder.DoAction(nLayer-1, Cathodes);
-      Clus = ClusterFinder.getClusters();
-
-      LOG4CPLUS_DEBUG(logger_, "***  CATHODE PART  DEBUG: Layer="<<nLayer
-    	    <<"  Number of Clusters="<<Clus.size()<<"      ***");
-      //          Number of Clusters Histograms
-      if (isMEvalid(cscME, Form("CFEB_Number_of_Clusters_Ly_%d", nLayer), mo)) {
-        if(Clus.size() >= 0)  mo->Fill(Clus.size());
-      }
-  
-      for(uint32_t u=0;u<Clus.size();u++){
-        Clus_Sum_Charge = 0.0;
-        for(uint32_t k=0;k<Clus[u].ClusterPulseMapHeight.size();k++) {
-    LOG4CPLUS_DEBUG(logger_, "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1);
-  
-    for(int n=Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++){
-      Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
-    }
-        }
-  
-        //                        Clusters Charge Histograms
-        if (isMEvalid(cscME, Form("CFEB_Clusters_Charge_Ly_%d", nLayer), mo)) 
-    mo->Fill(Clus_Sum_Charge);
-  
-        //                        Width of Clusters Histograms
-        if (isMEvalid(cscME, Form("CFEB_Width_of_Clusters_Ly_%d", nLayer), mo)) 
-    mo->Fill(Clus[u].IRTBNDStrip - Clus[u].LFTBNDStrip+1);
-  
-        //                        Cluster Duration Histograms
-        if (isMEvalid(cscME, Form("CFEB_Cluster_Duration_Ly_%d", nLayer), mo)) 
-    mo->Fill(Clus[u].IRTBNDTime - Clus[u].LFTBNDTime+1);
-  
-      }
-  
+      std::vector<CSCStripCluster> Clus;
       Clus.clear();
+      CSCStripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
+  
+      for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
+      
+        // CSCStripClusterFinder *ClusterFinder = new CSCStripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
+      
+        ClusterFinder.DoAction(nLayer - 1, Cathodes);
+        Clus = ClusterFinder.getClusters();
+
+        // LOG4CPLUS_DEBUG(logger_, "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***");
+        // Number of Clusters Histograms
+        if (getCSCHisto(crateID, dmbID, CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, mo, nLayer)) {
+          if(Clus.size() >= 0)  mo->Fill(Clus.size());
+        }
+  
+        for(uint32_t u = 0; u < Clus.size(); u++){
+          Clus_Sum_Charge = 0.0;
+          for(uint32_t k = 0;k < Clus[u].ClusterPulseMapHeight.size(); k++) {
+            //LOG4CPLUS_DEBUG(logger_, "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1);
+            for(int n=Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++) {
+              Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
+            }
+          }
+  
+          // Clusters Charge Histograms
+          if (getCSCHisto(crateID, dmbID, CSC_CFEB_CLUSTERS_CHARGE_LY_XX, mo, nLayer)) 
+            mo->Fill(Clus_Sum_Charge);
+  
+          // Width of Clusters Histograms
+          if (getCSCHisto(crateID, dmbID, CSC_CFEB_WIDTH_OF_CLUSTERS_LY_XX, mo, nLayer)) 
+            mo->Fill(Clus[u].IRTBNDStrip - Clus[u].LFTBNDStrip + 1);
+  
+          // Cluster Duration Histograms
+          if (getCSCHisto(crateID, dmbID, CSC_CFEB_CLUSTER_DURATION_LY_XX, mo, nLayer)) 
+            mo->Fill(Clus[u].IRTBNDTime - Clus[u].LFTBNDTime + 1);
+        }
+  
+        Clus.clear();
     
-     // delete ClusterFinder;
-    }
+        // delete ClusterFinder;
+      }
     
-    //--------------E
+      //--------------E
   
-    //      Fill Hisogram for Different Combinations of FEBs Unpacked vs DAV
-    if (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_COMBINATIONS_UNPACKED_VS_DAV, mo)) {
-      float feb_combination_unpacked = -1.0;
-      if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 0.0;
-      if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 1.0;
-      if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 2.0;
-      if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 3.0;
-      if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 4.0;
-      if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 5.0;
-      if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 6.0;
-      if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 7.0;
-      mo->Fill(feb_combination_dav, feb_combination_unpacked);
-    }
+      // Fill Hisogram for Different Combinations of FEBs Unpacked vs DAV
+      if (getCSCHisto(crateID, dmbID, CSC_DMB_FEB_COMBINATIONS_UNPACKED_VS_DAV, mo)) {
+        float feb_combination_unpacked = -1.0;
+        if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 0.0;
+        if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked == 0) feb_combination_unpacked = 1.0;
+        if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 2.0;
+        if(alct_unpacked == 0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 3.0;
+        if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked == 0) feb_combination_unpacked = 4.0;
+        if(alct_unpacked >  0 && tmb_unpacked == 0 && cfeb_unpacked >  0) feb_combination_unpacked = 5.0;
+        if(alct_unpacked == 0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 6.0;
+        if(alct_unpacked >  0 && tmb_unpacked >  0 && cfeb_unpacked >  0) feb_combination_unpacked = 7.0;
+        mo->Fill(feb_combination_dav, feb_combination_unpacked);
+      }
   
-    if((clct_kewdistrip > -1 && alct_keywg > -1) && (getCSCHisto(crateID, dmbID, CSC_CLCT0_KEYDISTRIP_VS_ALCT0_KEYWIREGROUP, mo))) {
-      mo->Fill(alct_keywg, clct_kewdistrip);
-    }
+      if((clct_kewdistrip > -1 && alct_keywg > -1) && (getCSCHisto(crateID, dmbID, CSC_CLCT0_KEYDISTRIP_VS_ALCT0_KEYWIREGROUP, mo))) {
+        mo->Fill(alct_keywg, clct_kewdistrip);
+      }
   
-    if (L1A_out_of_sync && cscType && cscPosition && getEMUHisto(EMU_CSC_L1A_OUT_OF_SYNC, mo)){
-      mo->Fill(cscPosition, cscType);
-    }
+      if (L1A_out_of_sync && cscType && cscPosition && getEMUHisto(EMU_CSC_L1A_OUT_OF_SYNC, mo)){
+        mo->Fill(cscPosition, cscType);
+      }
   
-    if (L1A_out_of_sync && getEMUHisto(EMU_DMB_L1A_OUT_OF_SYNC, mo)){
-      mo->Fill(crateID, dmbID);
+      if (L1A_out_of_sync && getEMUHisto(EMU_DMB_L1A_OUT_OF_SYNC, mo)){
+        mo->Fill(crateID, dmbID);
+      }
+
     }
 
-    */
-      }
-      }
-  
+    delete cscdata;
+
   }
   
 }

@@ -66,9 +66,9 @@ namespace cscdqm {
   }
 
   template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me) {
+  const bool EventProcessor<METype, HPType>::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId) {
     if (!histoNotBlocked(histo)) return false;
-    return histoProvider->getCSCHisto(crateID, dmbSlot, histo, me);
+    return histoProvider->getCSCHisto(crateID, dmbSlot, histo, me, adId);
   }
 
   template <class METype, class HPType>

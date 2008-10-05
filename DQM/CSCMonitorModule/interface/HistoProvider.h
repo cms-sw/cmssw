@@ -40,7 +40,7 @@ class HistoProvider {
 
     const bool getEMUHisto(const cscdqm::HistoType type, MonitorElement* me) { return false; }
     const bool getDDUHisto(const int dduID, const cscdqm::HistoType histo, MonitorElement* me) { return false; }
-    const bool getCSCHisto(const int crateID, const int dmbSlot, const cscdqm::HistoType histo, MonitorElement* me) { return false; }
+    const bool getCSCHisto(const int crateID, const int dmbSlot, const cscdqm::HistoType histo, MonitorElement* me, const int adId = 0) { return false; }
 
     void getCSCFromMap(const unsigned int crateID, const unsigned int dmbSlot, unsigned int& cscType, unsigned int& cscPosition) { }
     const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const { return 0;  }

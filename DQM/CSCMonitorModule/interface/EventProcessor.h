@@ -38,6 +38,9 @@
 #include "DQM/CSCMonitorModule/interface/HistoType.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+#include "DQM/CSCMonitorModule/interface/CSCStripClusterFinder.h"
 
 namespace cscdqm {
 
@@ -76,7 +79,7 @@ namespace cscdqm {
 
       const bool getEMUHisto(const HistoType histo, METype* me);
       const bool getDDUHisto(const int dduID, const HistoType histo, METype* me);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me);
+      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId = 0);
 
       std::set<HistoType> blocked;
       HPType* histoProvider;
