@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.14 2008/09/29 09:42:01 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.15 2008/09/30 21:31:26 srappocc Exp $
  *
  */
 
@@ -143,20 +143,47 @@ namespace pat {
       /// Note that generator level particles can only be all embedded or all not embedded.
       void embedGenParticle() ;
 
-      /// Returns user-defined data
-      /// 
-      virtual pat::UserData const * userDataObject(std::string key) const;
+      /// Returns user-defined data. Returns NULL if the data is not present, or not of type T.
+      template<typename T> const T * userData(const std::string &key) const {
+          const pat::UserData * data = userDataObject_(key);
+          return (data != 0 ? data->template get<T>() : 0);
+          
+      }
+      /// Check if user data with a specific type is present
+      bool hasUserData(const std::string &key) const {
+          return (userDataObject_(key) != 0);
+      }
+      /// Get human-readable type of user data object, for debugging
+      const std::string & userDataObjectType(const std::string &key) const { 
+          static const std::string EMPTY("");
+          const pat::UserData * data = userDataObject_(key);
+          return (data != 0 ? data->typeName() : EMPTY);
+      }; 
+      /// Get list of user data object names
+      const std::vector<std::string> userDataNames() const  { return userDataLabels_; }
+
+      /// Get the data as a void *, for CINT usage.
+      /// COMPLETELY UNSUPPORTED, USE ONLY FOR DEBUGGING
+      const void * userDataBare(const std::string &key) const {
+          const pat::UserData * data = userDataObject_(key);
+          return (data != 0 ? data->bareData() : 0);
+      }
+    
       /// Set user-defined data
-      void addUserData( const std::string label,
-			const pat::UserData & data );
+      template<typename T>
+      void addUserData( const std::string & label, const T & data ) {
+          userDataLabels_.push_back(label);
+          userDataObjects_.push_back(new pat::UserHolder<T>(data));
+      }
       
-      /// Set user-defined doubles and ints
-      virtual double userDouble( std::string key ) const;
-      void addUserData( const std::string label,
-			const double data );
-      virtual int userInt( std::string key ) const;
-      void addUserData( const std::string label,
-			const int data );
+      /// Get user-defined double
+      double userDouble( const std::string & key ) const;
+      /// Set user-defined double
+      void addUserDouble( const  std::string & label, double data );
+      /// Get user-defined int
+      int userInt( const std::string & key ) const;
+      /// Set user-defined double
+      void addUserInt( const std::string & label,  int data );
  
     protected:
       // reference back to the original object
@@ -193,14 +220,17 @@ namespace pat {
       std::vector<reco::GenParticle>    genParticleEmbedded_; 
 
       /// User data object
-      std::vector<std::string>                      userDataLabels_;
-      edm::OwnVector<pat::UserData>                 userDataObjects_;
+      std::vector<std::string>      userDataLabels_;
+      pat::UserDataCollection       userDataObjects_;
       // User double values
-      std::vector<std::string>                      userDoubleLabels_;
-      std::vector<double>                           userDoubles_;
+      std::vector<std::string>      userDoubleLabels_;
+      std::vector<double>           userDoubles_;
       // User int values
-      std::vector<std::string>                      userIntLabels_;
-      std::vector<int>                              userInts_;
+      std::vector<std::string>      userIntLabels_;
+      std::vector<int>              userInts_;
+
+    private:
+      const pat::UserData *  userDataObject_(const std::string &key) const ;
   };
 
 
@@ -410,7 +440,7 @@ namespace pat {
 
 
   template <class ObjectType>
-  pat::UserData const * PATObject<ObjectType>::userDataObject( std::string key ) const
+  const pat::UserData * PATObject<ObjectType>::userDataObject_( const std::string & key ) const
   {
     std::vector<std::string>::const_iterator it = std::find(userDataLabels_.begin(), userDataLabels_.end(), key);
     if (it != userDataLabels_.end()) {
@@ -420,17 +450,7 @@ namespace pat {
   }
 
   template <class ObjectType>
-  void PATObject<ObjectType>::addUserData( const std::string label,
-					   const pat::UserData & data )
-  {
-    userDataLabels_.push_back(label);
-    userDataObjects_.push_back(data.clone() );
-  }
-
-
-
-  template <class ObjectType>
-  double PATObject<ObjectType>::userDouble( std::string key ) const
+  double PATObject<ObjectType>::userDouble( const std::string &key ) const
   {
     std::vector<std::string>::const_iterator it = std::find(userDoubleLabels_.begin(), userDoubleLabels_.end(), key);
     if (it != userDoubleLabels_.end()) {
@@ -440,8 +460,8 @@ namespace pat {
   }
 
   template <class ObjectType>
-  void PATObject<ObjectType>::addUserData( const std::string label,
-					   const double data )
+  void PATObject<ObjectType>::addUserDouble( const std::string & label,
+					     double data )
   {
     userDoubleLabels_.push_back(label);
     userDoubles_.push_back( data );
@@ -449,7 +469,7 @@ namespace pat {
 
 
   template <class ObjectType>
-  int PATObject<ObjectType>::userInt( std::string key ) const
+  int PATObject<ObjectType>::userInt( const std::string & key ) const
   {
     std::vector<std::string>::const_iterator it = std::find(userIntLabels_.begin(), userIntLabels_.end(), key);
     if (it != userIntLabels_.end()) {
@@ -459,8 +479,8 @@ namespace pat {
   }
 
   template <class ObjectType>
-  void PATObject<ObjectType>::addUserData( const std::string label,
-					   const int data )
+  void PATObject<ObjectType>::addUserInt( const std::string &label,
+					   int data )
   {
     userIntLabels_.push_back(label);
     userInts_.push_back( data );

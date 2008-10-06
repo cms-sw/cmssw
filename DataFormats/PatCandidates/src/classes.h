@@ -249,26 +249,20 @@ namespace {
 
     edm::Wrapper<edm::ValueMap<pat::VertexAssociation> > wVMVA;
 
-    edm::Ptr<pat::UserData>                  ptr_userdata;
+    // NO LINE HERE FOR pat::UserData because it's abstract!!!
+    // This is the only thing you need to put it into PATObjects
+    pat::UserDataCollection   userdata_vector;
 
-    pat::UserData                              userdata;
-    std::vector<pat::UserData>                 userData_vec;
-    pat::UserDataRef          userData_ref;
-    edm::RefProd<pat::UserDataCollection>      userData_refPRod;
-    pat::UserDataRefVector    userData_refVector;
-    edm::Wrapper<std::vector<pat::UserData> >  userData_wvec;
-    edm::Wrapper<pat::UserData>                userData_wrapper;
+    // This is to put the UserData outside in ValueMap
+    edm::Ptr<pat::UserData>                                 userdata_ptr;
+    edm::Wrapper<pat::UserDataCollection>                   userdata_wrapped_vector;
+    edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > >  userdata_wrapped_valuemap;
 
-
-    edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > > wvmpuserdata;
-    edm::Wrapper<edm::ValueMap<edm::Ptr<double> > > wvmpuserdouble;
-    edm::Wrapper<edm::ValueMap<edm::Ptr<int> > > wvmpuserint;
-
-    edm::RefToBase<pat::UserData>                                     rb_userdata;
-    edm::reftobase::IndirectHolder<pat::UserData>                     rbh_userdata;
-    edm::reftobase::Holder<pat::UserData, pat::UserDataRef >   rbhr_userdata;
-    edm::reftobase::RefHolder<pat::UserDataRef >               rbhrh_userdata;
-    
+    pat::UserHolder<math::XYZVector>         holderXYZV;
+    pat::UserHolder<math::XYZPoint>          holderXYZP;
+    pat::UserHolder<math::XYZTLorentzVector> holderXYZTLV;
+    pat::UserHolder<math::PtEtaPhiMLorentzVector> holderPtEtaPhiMLV;
+   
     edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> > wLUT;
 
     }
