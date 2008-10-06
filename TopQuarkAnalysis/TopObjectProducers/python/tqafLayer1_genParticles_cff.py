@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-##from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-
 def tqafLayer1GenParticles(process):
     
     process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi" )

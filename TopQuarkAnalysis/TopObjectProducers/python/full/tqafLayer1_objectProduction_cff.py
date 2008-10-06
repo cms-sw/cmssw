@@ -8,12 +8,12 @@ from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import allLayer1
 ## input source
 allLayer1Electrons.electronSource = cms.InputTag("allLayer0Electrons")
 ## embed AOD objects?
-allLayer1Electrons.embedTrack = cms.bool(False)         ## replaced from False --> True
-allLayer1Electrons.embedGsfTrack = cms.bool(True)       ## replaced from False --> True
-allLayer1Electrons.embedSuperCluster = cms.bool(True)   ## replaced from False --> True
+allLayer1Electrons.embedTrack = cms.bool(False)
+allLayer1Electrons.embedGsfTrack = cms.bool(True)       
+allLayer1Electrons.embedSuperCluster = cms.bool(True)   
 ## mc matching
 allLayer1Electrons.addGenMatch = cms.bool(True)
-allLayer1Electrons.embedGenMatchd = cms.bool(True)      ## replaced from False --> True
+allLayer1Electrons.embedGenMatch = cms.bool(True)      
 allLayer1Electrons.genParticleMatch = cms.InputTag("electronMatch")
 ## resolution
 allLayer1Electrons.addResolutions = cms.bool(True)
@@ -35,14 +35,16 @@ allLayer1Electrons.isolation.hcal = cms.PSet(
     src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers"),
     deltaR = cms.double(0.4)
     )
-##store deposits
+## store deposits
 allLayer1Electrons.isoDeposits = cms.PSet(
     tracker= cms.InputTag("layer0ElectronIsolations", "eleIsoDepositTk"),
     ecal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromClusts"),
    #ecal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"), ## recommendation from POG
     hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers")
     )
-
+## add userFunctions
+allLayer1Electrons.userData.userFunctions      = cms.vstring('pt() / (pt() + trackIso() + caloIso())')
+allLayer1Electrons.userData.userFunctionLabels = cms.vstring('relIso')
 
 #---------------------------------------
 # Muon
@@ -52,12 +54,12 @@ from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import allLayer1Muon
 ## input source
 allLayer1Muons.muonSource = cms.InputTag("allLayer0Muons")
 ## embed AOD objects?
-allLayer1Muons.embedTrack = cms.bool(True)              ## replaced from False --> True
-allLayer1Muons.embedCombinedMuon = cms.bool(True)       ## replaced from False --> True
-allLayer1Muons.embedStandAloneMuon = cms.bool(True)     ## replaced from False --> True
+allLayer1Muons.embedTrack = cms.bool(True)              
+allLayer1Muons.embedCombinedMuon = cms.bool(True)       
+allLayer1Muons.embedStandAloneMuon = cms.bool(True)     
 ## mc matching
 allLayer1Muons.addGenMatch = cms.bool(True)
-allLayer1Muons.embedGenMatch = cms.bool(True)           ## replaced from False --> True
+allLayer1Muons.embedGenMatch = cms.bool(True)           
 allLayer1Muons.genParticleMatch = cms.InputTag("muonMatch")
 ## resolution
 allLayer1Muons.addResolutions = cms.bool(True)
@@ -88,7 +90,7 @@ allLayer1Muons.isolation.user = cms.VPSet(
     src = cms.InputTag("layer0MuonIsolations","muIsoDepositJets"),
     deltaR = cms.double(0.3)
     ) )
-##store deposits
+## store deposits
 allLayer1Muons.isoDeposits = cms.PSet(
     tracker = cms.InputTag("layer0MuonIsolations", "muIsoDepositTk"),
     ecal = cms.InputTag("layer0MuonIsolations", "muIsoDepositCalByAssociatorTowersecal"),
@@ -97,7 +99,9 @@ allLayer1Muons.isoDeposits = cms.PSet(
     cms.InputTag("layer0MuonIsolations", "muIsoDepositCalByAssociatorTowersho"),
     cms.InputTag("layer0MuonIsolations", "muIsoDepositJets") )
     )
-
+## add userFunctions
+allLayer1Muons.userData.userFunctions      = cms.vstring('pt() / (pt() + trackIso() + caloIso())')
+allLayer1Muons.userData.userFunctionLabels = cms.vstring('relIso')
 
 #---------------------------------------
 # Tau
@@ -107,12 +111,12 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import allLayer1Taus
 ## input source
 allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
 ## embed AOD objects?
-allLayer1Taus.embedLeadTrack = cms.bool(True)           ## replaced from False --> True         
-allLayer1Taus.embedSignalTracks = cms.bool(True)        ## replaced from False --> True         
-allLayer1Taus.embedIsolationTracks = cms.bool(True)     ## replaced from False --> True         
+allLayer1Taus.embedLeadTrack = cms.bool(True)           
+allLayer1Taus.embedSignalTracks = cms.bool(True)        
+allLayer1Taus.embedIsolationTracks = cms.bool(True)     
 ## mc matching
 allLayer1Taus.addGenMatch = cms.bool(True)
-allLayer1Taus.embedGenMatch = cms.bool(True)            ## replaced from False --> True         
+allLayer1Taus.embedGenMatch = cms.bool(True)            
 allLayer1Taus.genParticleMatch = cms.InputTag("tauMatch")
 ## resolution
 allLayer1Taus.addResolutions = cms.bool(True)
@@ -128,7 +132,7 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import allLayer1Jets
 ## input source
 allLayer1Jets.jetSource = cms.InputTag("allLayer0Jets")
 ## embed AOD objects?
-allLayer1Jets.embedCaloTowers = cms.bool(False)         ## replaced from False --> True  
+allLayer1Jets.embedCaloTowers = cms.bool(False)         
 ## jec factors
 addJetCorrFactors = cms.bool(True)
 jetCorrFactorsSource = cms.InputTag("layer0JetCorrFactors")

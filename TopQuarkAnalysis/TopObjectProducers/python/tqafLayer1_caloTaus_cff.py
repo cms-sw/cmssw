@@ -16,12 +16,16 @@ tqafLayer0Cleaners_withCaloTau = cms.Sequence(
 import PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi
 
 ## clone module(s)
-caloTauMatch = PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi.tauMatch.clone()
-caloTauMatch.src = 'allLayer0CaloTaus'
+caloTauMatch           = PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi.tauMatch.clone()
+caloTauMatch.src       = 'allLayer0CaloTaus'
+
+caloTauGenJetMatch     = PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi.tauGenJetMatch.clone()
+caloTauGenJetMatch.src = 'allLayer0CaloTaus'
 
 ## standard sequence for mcTruthMatching
 tqafLayer0MCTruth_withCaloTau = cms.Sequence(
-    caloTauMatch
+    caloTauMatch *
+    caloTauGenJetMatch
 )
 
 #---------------------------------------
@@ -49,7 +53,29 @@ selectedLayer1CaloTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.s
 minLayer1CaloTaus      = PhysicsTools.PatAlgos.selectionLayer1.tauMinFilter_cfi.minLayer1Taus.clone()
 maxLayer1CaloTaus      = PhysicsTools.PatAlgos.selectionLayer1.tauMaxFilter_cfi.maxLayer1Taus.clone()
 
+#---------------------------------------
+# do the proper replacements
+#---------------------------------------
+allLayer1CaloTaus.tauSource        =  'allLayer0CaloTaus'
+## embed AOD objects?
+allLayer1CaloTaus.embedLeadTrack       = cms.bool(True)           
+allLayer1CaloTaus.embedSignalTracks    = cms.bool(True)        
+allLayer1CaloTaus.embedIsolationTracks = cms.bool(True)
+## mc matching
+allLayer1CaloTaus.addGenMatch          = cms.bool(True)
+allLayer1CaloTaus.embedGenMatch        = cms.bool(True)       
+allLayer1CaloTaus.trigPrimMatch    = ['tauTrigMatchHLT1CaloTau']
+allLayer1CaloTaus.genParticleMatch =  'caloTauMatch'
+allLayer1CaloTaus.genJetMatch      =  'caloTauGenJetMatch'
+## object selection
+selectedLayer1CaloTaus.src         =  'allLayer1CaloTaus'
+minLayer1CaloTaus.src              =  'selectedLayer1CaloTaus'
+maxLayer1CaloTaus.src              =  'selectedLayer1CaloTaus'
+
+##
 ## standard sequences for caloTau
+##
+
 ## production and selection
 countLayer1CaloTaus = cms.Sequence(
     minLayer1CaloTaus +
