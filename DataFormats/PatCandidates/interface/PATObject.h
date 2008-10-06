@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.15 2008/09/30 21:31:26 srappocc Exp $
+ *  \version  $Id: PATObject.h,v 1.16 2008/10/06 11:06:09 gpetrucc Exp $
  *
  */
 
@@ -170,10 +170,18 @@ namespace pat {
       }
     
       /// Set user-defined data
+      /// Needs dictionaries for T and for pat::UserHolder<T>
       template<typename T>
       void addUserData( const std::string & label, const T & data ) {
           userDataLabels_.push_back(label);
           userDataObjects_.push_back(new pat::UserHolder<T>(data));
+      }
+
+      /// Set user-defined data. To be used only to fill from ValueMap<Ptr<UserData>>
+      /// Do not use unless you know what you are doing.
+      void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data ) {
+          userDataLabels_.push_back(label);
+          userDataObjects_.push_back(data->clone());
       }
       
       /// Get user-defined double
