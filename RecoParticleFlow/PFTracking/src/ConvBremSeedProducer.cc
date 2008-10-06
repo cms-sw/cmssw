@@ -17,6 +17,8 @@
 
 ///COLLECTION
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -52,7 +54,7 @@ ConvBremSeedProducer::ConvBremSeedProducer(const ParameterSet& iConfig):
   layerMap_(56, static_cast<const DetLayer*>(0)),
   negLayerOffset_(27)
 {
-  produces<TrajectorySeedCollection>();
+  produces<ConvBremSeedCollection>();
 }
 
 
@@ -99,7 +101,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   ///OUTPUT COLLECTION
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  std::auto_ptr<ConvBremSeedCollection> output(new ConvBremSeedCollection);
 
 
   ///INITIALIZE
@@ -112,9 +114,9 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   ///LOOP OVER GSF TRACK COLLECTION
-  GsfPFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
-  GsfPFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
-  for(;pft!=pftend;++pft){
+
+  for(uint ipft=0;ipft<PfRTkColl.size();ipft++){
+    GsfPFRecTrackRef pft(thePfRecTrackCollection,ipft);
     LogDebug("ConvBremSeedProducerProducer")<<"NEW GsfPFRecTRACK ";
     float eta_br=0;
     unclean.clear();
@@ -369,7 +371,8 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     for (uint iu=0; iu<unclean.size();iu++){
 
       if (inPhot[iu])
-	output->push_back(unclean[iu].first);
+	output->push_back(ConvBremSeed(unclean[iu].first,pft));
+
     }
 
   } //END GSF TRACK COLLECTION LOOP 

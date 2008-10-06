@@ -116,6 +116,24 @@
   <class name="edm::RefProd<std::vector<reco::PFV0> >" />
   <class name="edm::RefVector<std::vector<reco::PFV0>, reco::PFV0, edm::refhelper::FindUsingAdvance<std::vector<reco::PFV0>, reco::PFV0> >" />
 <class name="edm::Ref<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate> >" />
+
+
+
+  <class name="reco::ConvBremSeed"/>
+  <class name="std::vector<reco::ConvBremSeed>"/>
+  <class name="edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> >"/>
+  <class name="edm::RefProd<std::vector<reco::ConvBremSeed> >"/>
+  <class name="edm::Wrapper<std::vector<reco::ConvBremSeed> >"/>
+  <class name="edm::RefVector<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
+  <class name="edm::RefToBase<reco::ConvBremSeed>"/>
+  <class name="edm::reftobase::BaseHolder<reco::ConvBremSeed>" />
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
+  <class name="edm::reftobase::Holder<reco::ConvBremSeed,edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
+
+
+
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">

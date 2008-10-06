@@ -36,7 +36,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
-
+#include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
 namespace { 
   namespace {
 
@@ -103,6 +104,16 @@ namespace {
     edm::RefProd<std::vector<reco::PFV0> >    dummy37;
     edm::RefVector<std::vector<reco::PFV0> >  dummy38;
     edm::Ref<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate> > dummy39;
+
+    /* ConvBremSeed stuff */
+    reco::ConvBremSeedCollection dummy40;
+    edm::Wrapper<reco::ConvBremSeedCollection> dummy41;
+    edm::Ref<reco::ConvBremSeedCollection> dummy42;
+    edm::RefProd<reco::ConvBremSeedCollection> dummy43;
+    edm::Wrapper<edm::RefVector<reco::ConvBremSeedCollection> > dummy44;
+    edm::RefToBase<reco::ConvBremSeed> dummy45;  
+    edm::reftobase::Holder< reco::ConvBremSeed, edm::Ref<reco::ConvBremSeedCollection> > dummy46;
+    edm::reftobase::RefHolder< edm::Ref<reco::ConvBremSeedCollection> > dummy47;
 
 
   }
