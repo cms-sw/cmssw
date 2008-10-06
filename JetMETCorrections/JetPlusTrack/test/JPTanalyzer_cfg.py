@@ -45,6 +45,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
+# /castor/cern.ch/user/p/pjanot/CMSSW219/
+# reco_QCDptxxx_yyy_Full.root, xxx = 20, 30, 50, 80, 120, 160, 250, 350 and 500, and yyy = 30, 50, 80, 120,
+# 160, 250, 350, 500 and 700,
 # cmssw210
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/FC999068-DB60-DD11-9694-001A92971B16.root')
 # cmssw218
