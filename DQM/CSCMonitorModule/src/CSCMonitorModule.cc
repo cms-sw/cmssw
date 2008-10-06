@@ -17,7 +17,6 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
-#include "CSCUtilities.cc"
 
 /**
  * @brief  MonitorModule Constructor
@@ -27,7 +26,7 @@
 CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   parameters = ps;
-  getCSCTypeToBinMap(tmap);
+  CSCUtility::getCSCTypeToBinMap(tmap);
 
   edm::FileInPath fp;
 
@@ -75,6 +74,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
  * @return
  */
 CSCMonitorModule::~CSCMonitorModule(){
+
 
 }
 
@@ -207,7 +207,7 @@ void CSCMonitorModule::getCSCFromMap(int crate, int slot, int& csctype, int& csc
   int istation = cid.station();
   int iendcap  = cid.endcap();
   
-  std::string tlabel = getCSCTypeLabel(iendcap, istation, iring);
+  std::string tlabel = CSCUtility::getCSCTypeLabel(iendcap, istation, iring);
   std::map<std::string,int>::const_iterator it = tmap.find(tlabel);
   if (it != tmap.end()) {
     csctype = it->second;

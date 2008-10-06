@@ -15,12 +15,15 @@
  *  =====================================================================================
  */
 
-#include <DQM/CSCMonitorModule/interface/CSCMonitorModule.h>
+#include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
-#include "CSCUtilities.cc"
 
 #define DEF_HISTO_COLOR 48
+#define findHistoValue(a,b,c) CSCUtility::findHistoValue(a,b,c)
+#define getHistoValue(a,b,c,d) CSCUtility::getHistoValue(a,b,c,d)
+#define ParseAxisLabels(a,b) CSCUtility::ParseAxisLabels(a,b)
+#define tokenize(a,b,c) CSCUtility::tokenize(a,b,c)
 
 using namespace XERCES_CPP_NAMESPACE;
 
@@ -83,12 +86,12 @@ const bool CSCMonitorModule::MEDDU(const unsigned int dduId, const std::string n
 
   std::string buffer;
 
-  bool result = isMEValid(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer) + "/" + name, me);
+  bool result = isMEValid(rootDir + DDU_FOLDER + CSCUtility::getDDUTag(dduId, buffer) + "/" + name, me);
   if (!result && hitBookDDU) {
     LOGINFO("DDU ME booking on demand") << "DDU id = " << dduId << " is being booked on demand (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";
-    dbe->setCurrentFolder(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer));
+    dbe->setCurrentFolder(rootDir + DDU_FOLDER + CSCUtility::getDDUTag(dduId, buffer));
     book("DDU");
-    result = isMEValid(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer) + "/" + name, me);
+    result = isMEValid(rootDir + DDU_FOLDER + CSCUtility::getDDUTag(dduId, buffer) + "/" + name, me);
   }
 
   return result;

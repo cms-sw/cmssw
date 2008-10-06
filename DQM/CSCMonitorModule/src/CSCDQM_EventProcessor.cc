@@ -16,12 +16,12 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
 
-  template <class METype, class HPType>
-  EventProcessor<METype, HPType>::EventProcessor(HPType*& p_histoProvider) {
+
+  EventProcessor::EventProcessor(HPType* p_histoProvider) {
 
     histoProvider = p_histoProvider;
 
@@ -40,42 +40,42 @@ namespace cscdqm {
 
   }
 
-  template <class METype, class HPType>
-  EventProcessor<METype, HPType>::~EventProcessor() {
+
+  EventProcessor::~EventProcessor() {
   }
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::blockHisto(const HistoType histo) {
+
+  void EventProcessor::blockHisto(const HistoType histo) {
     blocked.insert(histo);
   }
 
-  template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::histoNotBlocked(const HistoType histo) const {
+
+  const bool EventProcessor::histoNotBlocked(const HistoType histo) const {
     std::set<HistoType>::iterator found = blocked.find(histo);
     return (found != blocked.end());
   }
 
-  template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getEMUHisto(const HistoType histo, METype* me, const bool ref) {
+
+  const bool EventProcessor::getEMUHisto(const HistoType histo, METype* me, const bool ref) {
     if (!ref && !histoNotBlocked(histo)) return false;
     EMUHistoType histoT;
     histoT.histoId = histo;
     histoT.reference = ref;
-    return histoProvider->getHisto(histoT, me);
+    return histoProvider->getEMUHisto(histoT, me);
   }
 
-  template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref) {
+
+  const bool EventProcessor::getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref) {
     if (!ref && !histoNotBlocked(histo)) return false;
     DDUHistoType histoT;
     histoT.histoId = histo;
     histoT.dduId = dduID;
     histoT.reference = ref;
-    return histoProvider->getHisto(histoT, me);
+    return histoProvider->getDDUHisto(histoT, me);
   }
 
-  template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId, const bool ref) {
+
+  const bool EventProcessor::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId, const bool ref) {
     if (!ref && !histoNotBlocked(histo)) return false;
     CSCHistoType histoT;
     histoT.histoId = histo;
@@ -83,11 +83,11 @@ namespace cscdqm {
     histoT.dmbId = dmbSlot;
     histoT.addId = adId;
     histoT.reference = ref;
-    return histoProvider->getHisto(histoT, me);
+    return histoProvider->getCSCHisto(histoT, me);
   }
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::setBinCheckerCRC(const BinCheckerCRCType crc, const bool value) {
+
+  void EventProcessor::setBinCheckerCRC(const BinCheckerCRCType crc, const bool value) {
     switch (crc) {
       case ALCT:
         binChecker.crcALCT(value);
@@ -98,8 +98,8 @@ namespace cscdqm {
     };
   }
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::setBinCheckerOutput(const bool value) {
+
+  void EventProcessor::setBinCheckerOutput(const bool value) {
     if (value) {
       binChecker.output1().show();
       binChecker.output2().show();

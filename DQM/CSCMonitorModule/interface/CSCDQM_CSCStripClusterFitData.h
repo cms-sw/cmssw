@@ -1,5 +1,6 @@
-#ifndef CSCStripClusterFitData_h
-#define CSCStripClusterFitData_h
+#ifndef CSCDQM_CSCStripClusterFitData_h
+#define CSCDQM_CSCStripClusterFitData_h
+
 #include <TObject.h>
 
 namespace cscdqm {

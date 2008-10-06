@@ -16,12 +16,11 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::updateFractionHistos() {
+  void EventProcessor::updateFractionHistos() {
 
     calcEMUFractionHisto(EMU_DMB_FORMAT_ERRORS_FRACT, EMU_DMB_REPORTING, EMU_DMB_FORMAT_ERRORS);
     calcEMUFractionHisto(EMU_CSC_FORMAT_ERRORS_FRACT, EMU_CSC_REPORTING, EMU_CSC_FORMAT_ERRORS);
@@ -43,7 +42,7 @@ namespace cscdqm {
     calcEMUFractionHisto(EMU_DMB_L1A_OUT_OF_SYNC_FRACT, EMU_DMB_REPORTING, EMU_DMB_L1A_OUT_OF_SYNC);
 
     unsigned int iter = 0, crateId, dmbId;
-    METype* mo = NULL, mof = NULL;
+    METype *mo = 0, *mof = 0;
     while (histoProvider->nextCSC(iter, crateId, dmbId)) {
 
       std::string cscTag(Form("CSC_%03d_%02d", crateId, dmbId));
@@ -79,10 +78,10 @@ namespace cscdqm {
  * @param subset Histogram of the subset
  * @return 
  */
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset) {
 
-    METype *mo = NULL, *mo1 = NULL, *mo2 = NULL;
+  void EventProcessor::calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset) {
+
+    METype *mo = 0, *mo1 = 0, *mo2 = 0;
 
     if (getEMUHisto(result, mo) && getEMUHisto(set, mo2) && getEMUHisto(subset, mo1)) {
       mo->getObject()->Reset();

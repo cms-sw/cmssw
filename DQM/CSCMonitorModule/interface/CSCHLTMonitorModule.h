@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 #include <bitset>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -50,6 +51,12 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQM/CSCMonitorModule/interface/CSCUtility.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+
 /**
  * Macro Section
  */
@@ -59,13 +66,13 @@
 #define LOGINFO(cat)       edm::LogInfo (cat)
 #define LOGDEBUG(cat)      LogDebug (cat)
 
-#define FED_FOLDER         "FEDIntegrity"
+#define FED_FOLDER "FEDIntegrity"
 
 /**
  * Type Definition Section
  */
 
-typedef std::bitset<32>                        Bitset32;
+typedef std::bitset<32> Bitset32;
 typedef std::map<const std::string, MonitorElement*> MeMap;
 
 /**

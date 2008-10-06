@@ -16,12 +16,11 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::processDDU(const CSCDDUEventData& dduData) {
+  void EventProcessor::processDDU(const CSCDDUEventData& dduData) {
     
     CSCDDUHeader dduHeader  = dduData.header();
     CSCDDUTrailer dduTrailer = dduData.trailer();
@@ -33,7 +32,7 @@ namespace cscdqm {
     // Only 8bits are significant; format of DDU id is Dxx
     int dduID = dduHeader.source_id()&0xFF;
 
-    METype* mo;
+    METype* mo = 0;
 
     if (getEMUHisto(EMU_ALL_DDUS_IN_READOUT, mo)) {
       mo->Fill(dduID);

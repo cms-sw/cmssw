@@ -16,9 +16,7 @@
  * =====================================================================================
  */
 
-#include <math.h>
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
-#include "CSCUtilities.cc"
 
 /**
  * @brief  MonitorDDU function that grabs DDUEventData and processes it.

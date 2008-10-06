@@ -18,8 +18,6 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
-#include "CSCUtilities.cc"
-#include <time.h>
 
 void CSCMonitorModule::updateFracHistos() {
 

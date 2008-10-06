@@ -1,4 +1,5 @@
-#include "DQM/CSCMonitorModule/interface/CSCStripCluster.h"
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripCluster.h"
 
 namespace cscdqm {
 

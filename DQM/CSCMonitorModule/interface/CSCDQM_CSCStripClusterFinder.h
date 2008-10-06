@@ -1,9 +1,8 @@
-#ifndef CSCStripClusterFinder_h
-#define CSCStripClusterFinder_h
+#ifndef CSCDQM_CSCStripClusterFinder_h
+#define CSCDQM_CSCStripClusterFinder_h
 
-#include "DQM/CSCMonitorModule/interface/CSCStripClusterFitData.h"
-#include "DQM/CSCMonitorModule/interface/CSCStripCluster.h"
-#include "DQM/CSCMonitorModule/interface/ClusterLocalMax.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripCluster.h"
+
 #include <vector>
 #include <iostream>
 #include <string>

@@ -16,12 +16,12 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::processCSC(const CSCEventData& data, const int dduID) {
+
+  void EventProcessor::processCSC(const CSCEventData& data, const int dduID) {
 
     if (&data == 0) {
       //LOG4CPLUS_ERROR(logger_,eTag << "Zero pointer. DMB data are not available for unpacking"); //KK is->are
@@ -50,9 +50,9 @@ namespace cscdqm {
     }
   
     // Unpacking of Chamber Identification number
-    int crateID = 0xFF;
-    int dmbID = 0xF;
-    int chamberID = 0xFFF;
+    unsigned int crateID = 0xFF;
+    unsigned int dmbID = 0xF;
+    unsigned int chamberID = 0xFFF;
     
     crateID = dmbHeader->crateID();
     dmbID = dmbHeader->dmbID();
@@ -78,8 +78,8 @@ namespace cscdqm {
       return;
     }
     
-    int cscType = 0;
-    int cscPosition = 0;
+    unsigned int cscType = 0;
+    unsigned int cscPosition = 0;
     histoProvider->getCSCFromMap(crateID, dmbID, cscType, cscPosition );
   
     // if (cscName != "") cscTag+=" ["+cscName+"]";
@@ -412,9 +412,9 @@ namespace cscdqm {
     
           if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_BXN, mo, lct)) mo->Fill(alctsDatas[lct].getBX());
     
-          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_QUALITY, alctsDatas, mo, lct)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_QUALITY, mo, lct)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
   
-          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_QUALITY_PROFILE, alctsDatas, mo, lct)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
+          if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_QUALITY_PROFILE, mo, lct)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality());
   
           if (getCSCHisto(crateID, dmbID, CSC_ALCTXX_PATTERN, mo, lct)) {
             int pattern = (alctsDatas[lct].getAccelerator() << 1) + alctsDatas[lct].getCollisionB();
@@ -920,9 +920,9 @@ namespace cscdqm {
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, mo_CFEB_SCA_Block_Occupancy, nCFEB);
         METype*  mo_CFEB_Free_SCA_Cells = 0;      
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_FREE_SCA_CELLS, mo_CFEB_Free_SCA_Cells, nCFEB);
-        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTs;
+        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTs = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, mo_CFEB_SCA_Blocks_Locked_by_LCTs, nCFEB);
-        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1;
+        METype* mo_CFEB_SCA_Blocks_Locked_by_LCTxL1 = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, mo_CFEB_SCA_Blocks_Locked_by_LCTxL1, nCFEB);
         METype* mo_CFEB_DMB_L1A_diff = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_DMB_L1A_DIFF, mo_CFEB_DMB_L1A_diff, nCFEB);
@@ -1219,8 +1219,6 @@ namespace cscdqm {
       }
 
     }
-
-    delete cscdata;
 
   }
   

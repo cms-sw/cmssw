@@ -1,4 +1,5 @@
-#include "DQM/CSCMonitorModule/interface/ClusterLocalMax.h"
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_ClusterLocalMax.h"
 
 namespace cscdqm {
 

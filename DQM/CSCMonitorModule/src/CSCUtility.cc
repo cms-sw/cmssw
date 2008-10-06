@@ -4,7 +4,7 @@
  *       Filename:  CSCUtilities.cc
  *
  *    Description:  Various utilities that are being used throughout the code.
- *    Most of them are static functions...
+ *    Most of them are functions...
  *
  *        Version:  1.0
  *        Created:  04/21/2008 11:32:19 AM
@@ -17,36 +17,7 @@
  * =====================================================================================
  */
 
-#include <DQM/CSCMonitorModule/interface/CSCMonitorModule.h>
-#include <vector>
-
-/**
- * Supress "unused function" warnings in compiler output
- */
-
-static std::string getHistoValue(Histo& h, const std::string name, std::string& value, const std::string def_value) __attribute__ ((unused));
-static int getHistoValue(Histo& h, const std::string name, int& value, const int def_value) __attribute__ ((unused));
-static double getHistoValue(Histo& h, const std::string name, double& value, const int def_value) __attribute__ ((unused));
-static int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) __attribute__ ((unused));
-static int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) __attribute__ ((unused));
-static void getCSCTypeToBinMap(std::map<std::string, int>& tmap) __attribute__ ((unused));
-static std::string getCSCTypeLabel(int endcap, int station, int ring ) __attribute__ ((unused));
-static const std::string getDDUTag(const unsigned int& dduNumber, std::string& buffer) __attribute__ ((unused));
-static void splitString(std::string str, const std::string delim, std::vector<std::string>& results) __attribute__ ((unused));
-static void trimString(std::string& str) __attribute__ ((unused));
-
-/**
- * @brief  Converting from string to whatever number (failsafe!) 
- * @param  t result number
- * @param  s source string
- * @param  f base
- * @return true if success, else - false
- */
-template <class T>
-bool stringToNumber(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
-  std::istringstream iss(s);
-  return !(iss >> f >> t).fail();
-}
+#include "DQM/CSCMonitorModule/interface/CSCUtility.h"
 
 /**
  * @brief  Format and return DDU Tag (to be folder name)
@@ -54,8 +25,7 @@ bool stringToNumber(T& t, const std::string& s, std::ios_base& (*f)(std::ios_bas
  * @param  buffer   Buffer to be filled with data
  * @return 
  */
-static const std::string getDDUTag(const unsigned int& dduNumber, std::string& buffer) {
-
+std::string CSCUtility::getDDUTag(const unsigned int& dduNumber, std::string& buffer) {
   std::stringstream oss;
   oss << std::setfill('0');
   oss << "DDU_" << std::setw(2) << dduNumber;
@@ -70,7 +40,7 @@ static const std::string getDDUTag(const unsigned int& dduNumber, std::string& b
  * @param  value handler for parameter value
  * @return true if parameter found and filled, false - otherwise
  */
-static bool findHistoValue(Histo& h, const std::string name, std::string& value) {
+bool CSCUtility::findHistoValue(Histo& h, const std::string name, std::string& value) {
   HistoIter i = h.find(name);
   if(i == h.end()) {
     return false;
@@ -87,7 +57,7 @@ static bool findHistoValue(Histo& h, const std::string name, std::string& value)
  * @param  value handler for parameter value
  * @return true if parameter found and filled, false - otherwise
  */
-static bool findHistoValue(Histo& h, const std::string name, int& value) {
+bool CSCUtility::findHistoValue(Histo& h, const std::string name, int& value) {
   HistoIter i = h.find(name);
   if(i == h.end()) {
     return false;
@@ -106,7 +76,7 @@ static bool findHistoValue(Histo& h, const std::string name, int& value) {
  * @param  value handler for parameter value
  * @return true if parameter found and filled, false - otherwise
  */
-static bool findHistoValue(Histo& h, const std::string name, double& value) {
+bool CSCUtility::findHistoValue(Histo& h, const std::string name, double& value) {
   HistoIter i = h.find(name);
   if(i == h.end()) {
     return false;
@@ -126,7 +96,7 @@ static bool findHistoValue(Histo& h, const std::string name, double& value) {
  * @param  default value if parameter not found 
  * @return pointer to value
  */
-static std::string getHistoValue(Histo& h, const std::string name, std::string& value, const std::string def_value = "") {
+std::string CSCUtility::getHistoValue(Histo& h, const std::string name, std::string& value, const std::string def_value) {
   if(!findHistoValue(h, name, value)) {
     value = def_value;
   }
@@ -141,7 +111,7 @@ static std::string getHistoValue(Histo& h, const std::string name, std::string& 
  * @param  default value if parameter not found 
  * @return pointer to value
  */
-static int getHistoValue(Histo& h, const std::string name, int& value, const int def_value = 0) {
+int CSCUtility::getHistoValue(Histo& h, const std::string name, int& value, const int def_value) {
   if(!findHistoValue(h, name, value)) {
     value = def_value;
   }
@@ -156,7 +126,7 @@ static int getHistoValue(Histo& h, const std::string name, int& value, const int
  * @param  default value if parameter not found 
  * @return pointer to value
  */
-static double getHistoValue(Histo& h, const std::string name, double& value, const int def_value = 0) {
+double CSCUtility::getHistoValue(Histo& h, const std::string name, double& value, const int def_value) {
   if(!findHistoValue(h, name, value)) {
     value = def_value;
   }
@@ -164,31 +134,12 @@ static double getHistoValue(Histo& h, const std::string name, double& value, con
 }
 
 /**
- * @brief  Break string into tokens
- * @param  str source string to break
- * @param  tokens pointer to result vector
- * @param  delimiters delimiter string, default " "
- * @return 
- */
-static int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ") {
-  std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-  std::string::size_type pos = str.find_first_of(delimiters, lastPos);
-  while (std::string::npos != pos || std::string::npos != lastPos) {
-    tokens.push_back(str.substr(lastPos, pos - lastPos));
-    lastPos = str.find_first_not_of(delimiters, pos);
-    pos = str.find_first_of(delimiters, lastPos);
-  }
-  return tokens.size();
-}
-
-
-/**
  * @brief  Parse Axis label string and return values in vector
  * @param  s source string to parse
  * @param  labels pointer to result vector
  * @return number of labels found
  */
-static int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) {
+int CSCUtility::ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) {
   std::string tmp = s;
   std::string::size_type pos = tmp.find("|");
   char* stopstring = NULL;
@@ -214,7 +165,7 @@ static int ParseAxisLabels(const std::string& s, std::map<int, std::string>& lab
  * @param  tmap pointer to result vector
  * @return 
  */
-static void getCSCTypeToBinMap(std::map<std::string, int>& tmap) {
+void CSCUtility::getCSCTypeToBinMap(std::map<std::string, int>& tmap) {
   tmap["ME-4/2"] = 0;
   tmap["ME-4/1"] = 1;
   tmap["ME-3/2"] = 2;
@@ -243,7 +194,7 @@ static void getCSCTypeToBinMap(std::map<std::string, int>& tmap) {
  * @param  ring Ring number
  * @return chamber label
  */
-static std::string getCSCTypeLabel(int endcap, int station, int ring ) {
+std::string CSCUtility::getCSCTypeLabel(int endcap, int station, int ring ) {
   std::string label = "Unknown";
   std::ostringstream st;
   if ((endcap > 0) && (station > 0) && (ring > 0)) {
@@ -260,6 +211,25 @@ static std::string getCSCTypeLabel(int endcap, int station, int ring ) {
   return label;
 }
 
+
+/**
+ * @brief  Break string into tokens
+ * @param  str source string to break
+ * @param  tokens pointer to result vector
+ * @param  delimiters delimiter string, default " "
+ * @return 
+ */
+int CSCUtility::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
+  std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+  std::string::size_type pos = str.find_first_of(delimiters, lastPos);
+  while (std::string::npos != pos || std::string::npos != lastPos) {
+    tokens.push_back(str.substr(lastPos, pos - lastPos));
+    lastPos = str.find_first_not_of(delimiters, pos);
+    pos = str.find_first_of(delimiters, lastPos);
+  }
+  return tokens.size();
+}
+
 /**
  * @brief  Split string according to delimiter
  * @param  str String to split
@@ -267,7 +237,7 @@ static std::string getCSCTypeLabel(int endcap, int station, int ring ) {
  * @param  results Vector to write results to
  * @return 
  */
-static void splitString(std::string str, const std::string delim, std::vector<std::string>& results) {
+void CSCUtility::splitString(std::string str, const std::string delim, std::vector<std::string>& results) {
   unsigned int cutAt;
   while ((cutAt = str.find_first_of(delim)) != str.npos) {
     if(cutAt > 0) {
@@ -286,7 +256,7 @@ static void splitString(std::string str, const std::string delim, std::vector<st
  * @param  str string to trim
  * @return 
  */
-static void trimString(std::string& str) {
+void CSCUtility::trimString(std::string& str) {
   std::string::size_type pos = str.find_last_not_of(' ');
   if(pos != std::string::npos) {
     str.erase(pos + 1);
@@ -296,3 +266,4 @@ static void trimString(std::string& str) {
   } else 
     str.erase(str.begin(), str.end());
 }
+

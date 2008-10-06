@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef HistoType_H
-#define HistoType_H 
+#ifndef CSCDQM_HistoType_H
+#define CSCDQM_HistoType_H 
 
 namespace cscdqm {
 
@@ -238,6 +238,25 @@ namespace cscdqm {
     CSC_TMB_WORD_COUNT,
     CSC_UNPACKED
 
+  };
+
+  typedef struct EMUHistoType {
+    HistoType histoId; 
+    bool reference;
+  };
+
+  typedef struct DDUHistoType {
+    unsigned int dduId;
+    HistoType histoId; 
+    bool reference;
+  };
+
+  typedef struct CSCHistoType {
+    unsigned int crateId;
+    unsigned int dmbId;
+    unsigned int addId;
+    HistoType histoId; 
+    bool reference;
   };
 
 }

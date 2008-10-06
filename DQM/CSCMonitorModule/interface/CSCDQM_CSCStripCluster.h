@@ -1,11 +1,12 @@
-#ifndef CSCStripCluster_h
-#define CSCStripCluster_h
+#ifndef CSCDQM_CSCStripCluster_h
+#define CSCDQM_CSCStripCluster_h
 
-#include "CSCStripClusterFitData.h"
-#include "ClusterLocalMax.h"
 #include <TObject.h>
 #include <vector>
 #include <algorithm>
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFitData.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_ClusterLocalMax.h"
 
 namespace cscdqm {
 

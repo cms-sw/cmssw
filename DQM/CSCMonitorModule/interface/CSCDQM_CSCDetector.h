@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef CSCDetector_H
-#define CSCDetector_H
+#ifndef CSCDQM_CSCDetector_H
+#define CSCDQM_CSCDetector_H
 
 #include <math.h>
 #include <float.h>
@@ -26,6 +26,8 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+
+#include "DQM/CSCMonitorModule/interface/CSCUtility.h"
 
 #define N_SIDES    2
 #define N_STATIONS 4

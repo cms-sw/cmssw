@@ -1,8 +1,5 @@
-#include "DQM/CSCMonitorModule/interface/CSCStripClusterFinder.h"
-//#include <vector>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFinder.h"
 
 namespace cscdqm {
 

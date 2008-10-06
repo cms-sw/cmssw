@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <math.h>
 #include <bitset>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -53,7 +54,8 @@
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DQM/CSCMonitorModule/interface/CSCSummary.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCSummary.h"
+#include "DQM/CSCMonitorModule/interface/CSCUtility.h"
 
 /**
  * Macro Section
@@ -69,19 +71,6 @@
 #define EVENTINFO_FOLDER   "EventInfo/"
 #define SUMCONTENTS_FOLDER "EventInfo/reportSummaryContents/"
 
-/**
- * Type Definition Section
- */
-
-typedef std::map<std::string, std::string>     Histo;
-typedef Histo::iterator                        HistoIter;
-typedef std::map<std::string, Histo>           HistoDef;
-typedef HistoDef::iterator                     HistoDefIter;
-typedef std::map<std::string, HistoDef>        HistoDefMap;
-typedef HistoDefMap::iterator                  HistoDefMapIter;
-
-typedef std::bitset<36>                        BitsetDDU;
-typedef std::bitset<32>                        Bitset32;
 
 /**
  * Class Definition

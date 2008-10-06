@@ -1,6 +1,5 @@
-#include "DQM/CSCMonitorModule/interface/CSCStripClusterFitData.h"
-//#include "CSCStripCluster.h"
-//#include "ClusterLocalMax.h"
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFitData.h"
 
 namespace cscdqm {
 

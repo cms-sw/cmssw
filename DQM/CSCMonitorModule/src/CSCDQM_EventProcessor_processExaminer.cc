@@ -16,12 +16,11 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied) {
+  void EventProcessor::processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied) {
     
     binChecker.setMask(binCheckMask);
     
@@ -35,7 +34,7 @@ namespace cscdqm {
     uint32_t binErrorStatus = binChecker.errors();
     uint32_t binWarningStatus = binChecker.warnings();
 
-    METype* mo;
+    METype* mo = 0;
     if (getEMUHisto(EMU_DDU_FORMAT_ERROR, mo)) {
 
       std::vector<int> DDUs = binChecker.listOfDDUs();
@@ -132,7 +131,7 @@ namespace cscdqm {
 	}
       }
       
-      METype* mof, mo1, mo2;
+      METype *mof = 0, *mo1 = 0, *mo2 = 0;
       if (getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_RATE, mo)
 	  && getCSCHisto(crateID, dmbSlot, CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, mof)) {
 	if (getCSCHisto(crateID, dmbSlot, CSC_DMB_CFEB_DAV_UNPACKING_INEFFICIENCY, mo1)
@@ -263,14 +262,14 @@ namespace cscdqm {
     {
       int chamberID = chamber->first;
 
-      int crateID = (chamber->first >> 4) & 0xFF;
-      int dmbSlot = chamber->first & 0xF;
+      unsigned int crateID = (chamberID >> 4) & 0xFF;
+      unsigned int dmbSlot = chamberID & 0xF;
       std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbSlot));
 
       if (crateID == 255) { continue; }
 
-      int cscType   = 0;
-      int cscPosition = 0;
+      unsigned int cscType   = 0;
+      unsigned int cscPosition = 0;
       histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition);
 
       if (getCSCHisto(crateID, dmbSlot, CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, mo)) {
@@ -319,9 +318,9 @@ namespace cscdqm {
   std::map<int,long> checkerErrors = binChecker.errorsDetailed();
   for(std::map<int,long>::const_iterator chamber = checkerErrors.begin(); chamber != checkerErrors.end(); chamber++) {
 
-      int chamberID = chamber->first;
-      int crateID = (chamberID >> 4) & 0xFF;
-      int dmbSlot = chamberID & 0xF;
+      unsigned int chamberID = chamber->first;
+      unsigned int crateID = (chamberID >> 4) & 0xFF;
+      unsigned int dmbSlot = chamberID & 0xF;
 
       std::string cscTag(Form("CSC_%03d_%02d", crateID , dmbSlot));
 
@@ -363,8 +362,8 @@ namespace cscdqm {
 	  mo->Fill(crateID, dmbSlot);
 	}
 
-	int cscType   = 0;
-	int cscPosition = 0;
+	unsigned int cscType   = 0;
+	unsigned int cscPosition = 0;
 	histoProvider->getCSCFromMap(crateID, dmbSlot, cscType, cscPosition );
 	if ( cscType && cscPosition && getEMUHisto(EMU_CSC_FORMAT_ERRORS, mo)) {
 	  mo->Fill(cscPosition, cscType);

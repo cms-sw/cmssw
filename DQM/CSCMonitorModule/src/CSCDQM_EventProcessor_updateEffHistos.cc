@@ -16,14 +16,13 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
   
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::updateEfficiencyHistos(EffParametersType& effParams) {
+  void EventProcessor::updateEfficiencyHistos(EffParametersType& effParams) {
 
-    METype* me = NULL, me1 = NULL, me2 = NULL;
+    METype *me = 0, *me1 = 0, *me2 = 0;
 
     if (getEMUHisto(EMU_CSC_REPORTING, me)) {
 

@@ -17,7 +17,6 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCHLTMonitorModule.h"
-#include "CSCUtilities.cc"
 
 /**
  * @brief  MonitorModule Constructor

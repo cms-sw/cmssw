@@ -1,5 +1,6 @@
-#ifndef ClusterLocalMax_h
-#define ClusterLocalMax_h
+#ifndef CSCDQM_ClusterLocalMax_h
+#define CSCDQM_ClusterLocalMax_h
+
 #include <TObject.h>
 
 namespace cscdqm {

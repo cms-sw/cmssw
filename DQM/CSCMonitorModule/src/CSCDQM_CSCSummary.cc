@@ -16,9 +16,7 @@
  * =====================================================================================
  */
 
-#include <iostream>
-#include "DQM/CSCMonitorModule/interface/CSCSummary.h"
-#include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCSummary.h"
 
 /**
  * @brief  Constructor

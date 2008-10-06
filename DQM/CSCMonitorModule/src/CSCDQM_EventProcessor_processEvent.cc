@@ -16,18 +16,18 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/EventProcessor.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
 namespace cscdqm {
 
 #ifndef DQMGLOBAL
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
+
+  void EventProcessor::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
 
     nEvents++;
 
-    METype* me;
+    METype* me = 0;
     if (getEMUHisto(EMU_READOUT_ERROR, me)) {
       if(errorStat != 0) {
         me->Fill(nodeNumber, 1);
@@ -52,7 +52,7 @@ namespace cscdqm {
 
     if (!eventDenied) {
       nGoodEvents++;
-      CSCDDUEventData dduData(tmp, &binChecker);
+      CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
       processDDU(dduData);
     }
 
@@ -62,8 +62,8 @@ namespace cscdqm {
 
 #ifndef DQMLOCAL
 
-  template <class METype, class HPType>
-  void EventProcessor<METype, HPType>::processEvent(const edm::Event& e) {
+
+  void EventProcessor::processEvent(const edm::Event& e) {
 
     nEvents++;
 
@@ -89,7 +89,7 @@ namespace cscdqm {
 
         if (!eventDenied) {
           nGoodEvents++;
-          CSCDCCEventData dccData(data);
+          CSCDCCEventData dccData((short unsigned int*) data);
           const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
           for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
             processDDU(dduData[ddu]);

@@ -17,8 +17,8 @@
  * =====================================================================================
  */
 
-#ifndef EventProcessor_H
-#define EventProcessor_H
+#ifndef CSCDQM_EventProcessor_H
+#define CSCDQM_EventProcessor_H
 
 #include <set>
 #include <string>
@@ -32,40 +32,27 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "DQM/CSCMonitorModule/interface/CSCHistoProvider.h"
 
 #endif
 
-#include "DQM/CSCMonitorModule/interface/HistoType.h"
-#include "DQM/CSCMonitorModule/interface/CSCSummary.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCSummary.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFinder.h"
+
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "DQM/CSCMonitorModule/interface/CSCStripClusterFinder.h"
 
 namespace cscdqm {
 
-  typedef enum BinCheckerCRCType { ALCT, CFEB, TMB };
-  typedef std::map<std::string, uint32_t> CSCCounters;
+#ifndef DQMLOCAL
 
-  typedef struct EMUHistoType {
-    HistoType histoId; 
-    bool reference;
-  };
+  typedef CSCHistoProvider HPType;
+  typedef CSCMonitorObject METype;
 
-  typedef struct DDUHistoType {
-    unsigned int dduId;
-    HistoType histoId; 
-    bool reference;
-  };
-
-  typedef struct CSCHistoType {
-    unsigned int crateId;
-    unsigned int dmbId;
-    unsigned int addId;
-    HistoType histoId; 
-    bool reference;
-  };
+#endif
 
   typedef struct EffParametersType {
     double cold_threshold;
@@ -78,7 +65,9 @@ namespace cscdqm {
     double nodata_sigfail;
   };
 
-  template <class METype, class HPType>
+  typedef enum BinCheckerCRCType { ALCT, CFEB, TMB };
+  typedef std::map<std::string, uint32_t> CSCCounters;
+
   class EventProcessor {
 
 // ===================================================================================================
@@ -87,7 +76,7 @@ namespace cscdqm {
 
     public:
       
-      EventProcessor(HPType*& p_histoProvider);
+      EventProcessor(HPType* p_histoProvider);
       ~EventProcessor();
 
       void blockHisto(const HistoType histo);

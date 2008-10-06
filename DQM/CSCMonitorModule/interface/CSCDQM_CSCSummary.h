@@ -16,14 +16,15 @@
  * =====================================================================================
  */
 
-#ifndef CSCSummary_H
-#define CSCSummary_H
+#ifndef CSCDQM_CSCSummary_H
+#define CSCDQM_CSCSummary_H
 
 #include <TH2.h>
 #include <math.h>
 #include <vector>
 #include <bitset>
-#include "DQM/CSCMonitorModule/interface/CSCDetector.h"
+#include <iostream>
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCDetector.h"
 
 #define HWSTATUSBITSETSIZE    12
 #define HWSTATUSERRORBITS     0xffe

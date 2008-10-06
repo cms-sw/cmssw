@@ -16,8 +16,7 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/CSCDetector.h"
-#include "CSCUtilities.cc"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCDetector.h"
 
 /**
  * @brief  Constructor
@@ -538,14 +537,14 @@ const std::string CSCDetector::AddressName(const CSCAddress& adr) const {
 const bool CSCDetector::AddressFromString(const std::string str_address, CSCAddress& adr) const {
   
   std::vector<std::string> tokens;
-  splitString(str_address, ",", tokens);
+  CSCUtility::splitString(str_address, ",", tokens);
 
   if (tokens.size() != ADDR_SIZE) return false;
 
   for (unsigned int r = 0; r < ADDR_SIZE; r++) {
 
     std::string token = tokens.at(r);
-    trimString(token);
+    CSCUtility::trimString(token);
     bool mask = false;
     unsigned int num  = 0;
 
