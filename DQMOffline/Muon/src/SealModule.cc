@@ -4,6 +4,7 @@
 #include "DQMOffline/Muon/src/MuonAnalyzer.h"
 #include "DQMOffline/Muon/interface/RPCEfficiency.h"
 #include "DQMOffline/Muon/interface/RPCEfficiencySecond.h"
+#include "DQMOffline/Muon/interface/DTSegmentsTask.h"
 
 // the clients
 #include "DQMOffline/Muon/src/MuonTrackResidualsTest.h"
@@ -15,4 +16,5 @@ DEFINE_ANOTHER_FWK_MODULE(MuonTrackResidualsTest);
 DEFINE_ANOTHER_FWK_MODULE(MuonRecoTest);
 DEFINE_ANOTHER_FWK_MODULE(RPCEfficiency);
 DEFINE_ANOTHER_FWK_MODULE(RPCEfficiencySecond);
+DEFINE_ANOTHER_FWK_MODULE(DTSegmentsTask);
 
