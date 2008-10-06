@@ -25,12 +25,11 @@ public:
   //Which cuts to do?
   bool dophotonBCIsolationCut_;
   bool dophotonEcalRecHitIsolationCut_;
-  bool dophotonHcalRecHitIsolationCut_;
+  bool dophotonHcalTowerIsolationCut_;
   bool dophotonHCTrkIsolationCut_;
   bool dophotonSCTrkIsolationCut_;
   bool dophotonHCNTrkCut_;
   bool dophotonSCNTrkCut_;
-  bool dorequireNotElectron_;
   bool dorequireFiducial_;
   bool dophotonHadOverEMCut_;
   bool dophotonsigmaeeCut_;
@@ -38,7 +37,7 @@ public:
 
   //Actual cut values
   double looseEMEcalRecHitIsolationCutEB_;
-  double looseEMHcalRecHitIsolationCutEB_;
+  double looseEMHcalTowerIsolationCutEB_;
   double looseEMHollowConeTrkIsolationCutEB_;
   double looseEMSolidConeTrkIsolationCutEB_;
   int looseEMSolidConeNTrkCutEB_;
@@ -48,7 +47,7 @@ public:
   double looseEMR9CutEB_;
 
   double loosephotonEcalRecHitIsolationCutEB_;
-  double loosephotonHcalRecHitIsolationCutEB_;
+  double loosephotonHcalTowerIsolationCutEB_;
   double loosephotonHollowConeTrkIsolationCutEB_;
   double loosephotonSolidConeTrkIsolationCutEB_;
   int loosephotonSolidConeNTrkCutEB_;
@@ -58,7 +57,7 @@ public:
   double loosephotonR9CutEB_;
 
   double tightphotonEcalRecHitIsolationCutEB_;
-  double tightphotonHcalRecHitIsolationCutEB_;
+  double tightphotonHcalTowerIsolationCutEB_;
   double tightphotonHollowConeTrkIsolationCutEB_;
   double tightphotonSolidConeTrkIsolationCutEB_;
   int tightphotonSolidConeNTrkCutEB_;
@@ -68,7 +67,7 @@ public:
   double tightphotonR9CutEB_;
 
   double looseEMEcalRecHitIsolationCutEE_;
-  double looseEMHcalRecHitIsolationCutEE_;
+  double looseEMHcalTowerIsolationCutEE_;
   double looseEMHollowConeTrkIsolationCutEE_;
   double looseEMSolidConeTrkIsolationCutEE_;
   int looseEMSolidConeNTrkCutEE_;
@@ -78,7 +77,7 @@ public:
   double looseEMR9CutEE_;
 
   double loosephotonEcalRecHitIsolationCutEE_;
-  double loosephotonHcalRecHitIsolationCutEE_;
+  double loosephotonHcalTowerIsolationCutEE_;
   double loosephotonHollowConeTrkIsolationCutEE_;
   double loosephotonSolidConeTrkIsolationCutEE_;
   int loosephotonSolidConeNTrkCutEE_;
@@ -88,7 +87,7 @@ public:
   double loosephotonR9CutEE_;
 
   double tightphotonEcalRecHitIsolationCutEE_;
-  double tightphotonHcalRecHitIsolationCutEE_;
+  double tightphotonHcalTowerIsolationCutEE_;
   double tightphotonHollowConeTrkIsolationCutEE_;
   double tightphotonSolidConeTrkIsolationCutEE_;
   int tightphotonSolidConeNTrkCutEE_;
@@ -103,11 +102,9 @@ public:
   double photonEcalRecHitEtaSlice_;
   double photonEcalRecHitThreshE_;
   double photonEcalRecHitThreshEt_;
-  double photonHcalRecHitConeInnerRadius_;
-  double photonHcalRecHitConeOuterRadius_;
-  double photonHcalRecHitEtaSlice_;
-  double photonHcalRecHitThreshE_;
-  double photonHcalRecHitThreshEt_;
+  double photonHcalTowerConeInnerRadius_;
+  double photonHcalTowerConeOuterRadius_;
+  double photonHcalTowerThreshE_;
   double trackConeOuterRadius_;
   double trackConeInnerRadius_;
   double isolationtrackThreshold_;
