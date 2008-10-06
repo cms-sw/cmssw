@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.71 2008/07/01 15:48:06 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.72 2008/07/03 09:29:21 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -53,7 +53,6 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   // Set DB connection parameters
   dbParams_.reset();
   dbParams_.pset( pset );
-  //edm::LogVerbatim(mlConfigDb_) << dbParams_; 
 
   // Open connection
   openDbConnection();
@@ -126,9 +125,10 @@ void SiStripConfigDb::openDbConnection() {
   std::stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Database connection parameters: "
-     << std::endl << dbParams_;
+     << std::endl;
+  print(ss); 
   edm::LogVerbatim(mlConfigDb_) << ss.str();
-
+  
   // Clear local caches
   clearLocalCache();
 
@@ -1066,4 +1066,30 @@ void SiStripConfigDb::partitions( std::list<std::string>& partitions ) const {
   
 }
 
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::print( std::stringstream& ss ) const {
+
+  ss << dbParams_;
   
+  // Retrieve physics runs
+  Runs in;
+  RunsByPartition out;
+  runs( in );
+  runs( in, out, sistrip::PHYSICS );
+  
+  // Print run numbers
+  std::vector<std::string> pp = dbParams_.partitionNames();
+  std::vector<std::string>::const_iterator ip = pp.begin();
+  std::vector<std::string>::const_iterator jp = pp.end();
+  for ( ; ip != jp; ++ip ) {
+    Runs rr = out[*ip];
+    if ( rr.empty() ) { ss << "  No physics runs found for partition \"" << *ip << "\"!"; }
+    else {
+      uint16_t nr = rr.size() < 10 ? rr.size() : 10;
+      ss << " List of last (" << nr << ") physics runs for partition \"" << *ip << "\": ";
+      for ( uint16_t ir = 0; ir < nr; ++ir ) { ss << rr[ir].number_ << " "; }
+    }
+  }
+  
+}
