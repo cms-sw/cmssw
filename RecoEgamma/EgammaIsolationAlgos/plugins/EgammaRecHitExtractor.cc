@@ -45,6 +45,9 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
     tryBoth_(par.getParameter<bool>("tryBoth")),
     sameTag_(false)
 { 
+
+  std::cout <<barrelEcalHitsTag_<<" "<<endcapEcalHitsTag_<<std::endl;
+
     if ((intRadius_ != 0.0) && (fakeNegativeDeposit_)) {
         throw cms::Exception("Configuration Error") << "EgammaRecHitExtractor: " << 
             "If you use 'subtractSuperClusterEnergy', you *must* set 'intRadius' to ZERO; it does not make sense, otherwise.";

@@ -9,8 +9,10 @@ DEFINE_SEAL_MODULE();
 #include "EgammaHcalExtractor.h"
 #include "EgammaTowerExtractor.h"
 #include "EgammaRecHitExtractor.h"
+//#include "EgammaRecHitExtractorFast.h"
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaTrackExtractor,  "EgammaTrackExtractor");
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaEcalExtractor,   "EgammaEcalExtractor");
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaHcalExtractor,   "EgammaHcalExtractor");
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaTowerExtractor,  "EgammaTowerExtractor");
 DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaRecHitExtractor, "EgammaRecHitExtractor");
+//DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaRecHitExtractorFast, "EgammaRecHitExtractorFast");
