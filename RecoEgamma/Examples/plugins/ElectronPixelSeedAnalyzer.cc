@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.3 2008/02/25 13:43:16 nancy Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.4 2008/10/03 15:09:12 charlot Exp $
 //
 //
 
@@ -78,7 +78,8 @@ using namespace reco;
  
 ElectronPixelSeedAnalyzer::ElectronPixelSeedAnalyzer(const edm::ParameterSet& conf)
 {
-  histfile_ = new TFile("electronpixelseeds.root","RECREATE");
+  histfile_ = new
+  TFile("electronpixelseeds.root","RECREATE");
   
   inputCollection_=conf.getParameter<edm::InputTag>("inputCollection");
 }  
@@ -165,13 +166,6 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
   int is=0;
    
   FTSFromVertexToPointFactory   myFTS;  
-  //theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker();
- // startLayers.setup(theGeometricSearchTracker);
-  //if (theLayerMeasurements ) delete theLayerMeasurements;
-  //theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
-  //const MagneticField *magField = theMagField->product();
-  //theTrackerGeometry = trackerGeometry;
-  //delete prop2ndLayer;
   float mass=.000511; // electron propagation
   PropagatorWithMaterial* prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,&(*theMagField));
   PropagatorWithMaterial* prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,&(*theMagField));
@@ -208,16 +202,16 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
 
     // debug
     
-     LogDebug("")<<" ElectronPixelSeed outermost state position: "<<t.globalPosition();
-     LogDebug("")<<" ElectronPixelSeed outermost state momentum: "<<t.globalMomentum();
-     edm::Ref<SuperClusterCollection> theClus=(*MyS).superCluster();
-     LogDebug("")<<" ElectronPixelSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
-     LogDebug("")<<" ElectronPixelSeed outermost state Pt: "<<t.globalMomentum().perp();
-     LogDebug("")<<" ElectronPixelSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
-     LogDebug("")<<" ElectronPixelSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
-     LogDebug("")<<" ElectronPixelSeed supercluster eta: "<<theClus->position().eta();
-     LogDebug("")<<" ElectronPixelSeed seed charge: "<<(*MyS).getCharge();
-     LogDebug("")<<" ElectronPixelSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
+    LogDebug("")<<" ElectronPixelSeed outermost state position: "<<t.globalPosition();
+    LogDebug("")<<" ElectronPixelSeed outermost state momentum: "<<t.globalMomentum();
+    edm::Ref<SuperClusterCollection> theClus=(*MyS).superCluster();
+    LogDebug("")<<" ElectronPixelSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
+    LogDebug("")<<" ElectronPixelSeed outermost state Pt: "<<t.globalMomentum().perp();
+    LogDebug("")<<" ElectronPixelSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
+    LogDebug("")<<" ElectronPixelSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
+    LogDebug("")<<" ElectronPixelSeed supercluster eta: "<<theClus->position().eta();
+    LogDebug("")<<" ElectronPixelSeed seed charge: "<<(*MyS).getCharge();
+    LogDebug("")<<" ElectronPixelSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
 
     // retreive SC and compute distances between hit position and prediction the same
     // way as in the PixelHitMatcher
@@ -236,110 +230,74 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
     PerpendicularBoundPlaneBuilder bpb;
     TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
   
-//    mapTsos_.clear();
-//    mapTsos2_.clear();
-//    mapTsos_.reserve(seeds->size());
-//    mapTsos2_.reserve(seeds->size());
- 
-      //      TrajectorySeed::range r=(*seeds.product())[i].recHits();
-     // TrajectorySeed::range r=(*seeds)[i].recHits();
- 
-      // first Hit
-      it=r.first;
-      DetId id=(*it).geographicalId();
-      const GeomDet *geomdet=pDD->idToDet((*it).geographicalId());
-      LocalPoint lp=(*it).localPosition();
-      GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
+    //      TrajectorySeed::range r=(*seeds.product())[i].recHits();
+   // TrajectorySeed::range r=(*seeds)[i].recHits();
 
-       TrajectoryStateOnSurface tsos1;
-//CC@@ supress the optimisation map
-//        bool found = false;
-//        std::vector<std::pair<const GeomDet *, TrajectoryStateOnSurface> >::iterator itTsos;
-//        for (itTsos=mapTsos_.begin();itTsos!=mapTsos_.end();++itTsos) {
-//        if ((*itTsos).first==geomdet) {
-//          found=true;
-//          break;
-//        }
-//        }
-//        if (!found) {
-       tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
-//       mapTsos_.push_back(std::pair<const GeomDet *, TrajectoryStateOnSurface>(geomdet,tsos1));
-//        } else {
-//        tsos1=(*itTsos).second;
-//        }
+    // first Hit
+    it=r.first;
+    DetId id=(*it).geographicalId();
+    const GeomDet *geomdet=pDD->idToDet((*it).geographicalId());
+    LocalPoint lp=(*it).localPosition();
+    GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
 
-      if (tsos1.isValid()) {
-	
-	std::pair<bool,double> est;
+    TrajectoryStateOnSurface tsos1;
+    tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
 
-	//UB add test on phidiff
-	float SCl_phi = xmeas.phi();
-	float localDphi = SCl_phi-hitPos.phi();
-	if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
-	if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
-	if(fabs(localDphi)>2.5)continue;
-        
-	phi1 = hitPos.phi();
-	dphi1 = hitPos.phi() - tsos1.globalPosition().phi();
-	rz1 = hitPos.perp(); 
-	drz1 = hitPos.perp() - tsos1.globalPosition().perp();
-	if (id.subdetId()%2==0) {
-	  drz1 = hitPos.z() - tsos1.globalPosition().z();
-	  rz1 = hitPos.z();
+    if (tsos1.isValid()) {
+
+      std::pair<bool,double> est;
+
+      //UB add test on phidiff
+      float SCl_phi = xmeas.phi();
+      float localDphi = SCl_phi-hitPos.phi();
+      if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+      if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+      if(fabs(localDphi)>2.5)continue;
+
+      phi1 = hitPos.phi();
+      dphi1 = hitPos.phi() - tsos1.globalPosition().phi();
+      rz1 = hitPos.perp(); 
+      drz1 = hitPos.perp() - tsos1.globalPosition().perp();
+      if (id.subdetId()%2==1) {
+	drz1 = hitPos.z() - tsos1.globalPosition().z();
+	rz1 = hitPos.z();
+      }
+      
+      // now second Hit
+      it++;
+      DetId id2=(*it).geographicalId();
+      const GeomDet *geomdet2=pDD->idToDet((*it).geographicalId());
+      TrajectoryStateOnSurface tsos2;
+
+      // compute the z vertex from the cluster point and the found pixel hit
+      double pxHit1z = hitPos.z();
+      double pxHit1x = hitPos.x();
+      double pxHit1y = hitPos.y();      
+      double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+      r1diff=sqrt(r1diff);
+      double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+      r2diff=sqrt(r2diff);
+      double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+
+      GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
+
+      FreeTrajectoryState fts2 = myFTS(&(*theMagField),hitPos,vertexPred,energy, charge);
+      tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
+
+      if (tsos2.isValid()) {
+	LocalPoint lp2=(*it).localPosition();
+	GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
+	phi2 = hitPos2.phi();
+	dphi2 = hitPos2.phi() - tsos2.globalPosition().phi();
+	rz2 = hitPos2.perp();
+	drz2 = hitPos2.perp() - tsos2.globalPosition().perp();
+    	if (id2.subdetId()%2==1) {
+	  rz2 = hitPos2.z();
+	  drz2 = hitPos2.z() - tsos2.globalPosition().z();
 	}
-	// now second Hit
-	it++;
-        DetId id2=(*it).geographicalId();
-	const GeomDet *geomdet2=pDD->idToDet((*it).geographicalId());
-	TrajectoryStateOnSurface tsos2;
+      }
 
-	// compute the z vertex from the cluster point and the found pixel hit
-	double pxHit1z = hitPos.z();
-	double pxHit1x = hitPos.x();
-	double pxHit1y = hitPos.y();      
-	double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
-	r1diff=sqrt(r1diff);
-	double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
-	r2diff=sqrt(r2diff);
-	double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
-
-	GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
-    	FreeTrajectoryState fts2 = myFTS(&(*theMagField),hitPos,vertexPred,energy, charge);
-
-//        found = false;
-//        std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2;
-//        for (itTsos2=mapTsos2_.begin();itTsos2!=mapTsos2_.end();++itTsos2) {
-//          if (((*itTsos2).first).first==geomdet2 &&
-//              (((*itTsos2).first).second).x()==hitPos.x() &&
-//              (((*itTsos2).first).second).y()== hitPos.y() &&
-//              (((*itTsos2).first).second).z()==hitPos.z()  ) {
-//            found=true;
-//            break;
-//          }
-//        }
-//        if (!found) {
-         tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
-         std::pair<const GeomDet *,GlobalPoint> pair(geomdet2,hitPos);
-//          mapTsos2_.push_back(std::pair<std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> (pair,tsos2));
-//        } else {
-//          tsos2=(*itTsos2).second;
-//        }
-
-	if (tsos2.isValid()) {
-	  LocalPoint lp2=(*it).localPosition();
-	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
-	  phi2 = hitPos2.phi();
-	  dphi2 = hitPos2.phi() - tsos2.globalPosition().phi();
-	  rz2 = hitPos2.perp();
-	  drz2 = hitPos2.perp() - tsos2.globalPosition().perp();
-    	  if (id.subdetId()%2==0) {
-	    rz2 = hitPos.z();
-	    drz2 = hitPos.z() - tsos2.globalPosition().z();
-	  }
-	  //if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(tsos2,hitPos2,id2);
-	}
-	
-      } 
+    } 
 
     // fill the tree and histos
     

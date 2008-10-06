@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.h,v 1.1 2007/07/05 10:34:45 charlot Exp $
+// $Id: ElectronPixelSeedAnalyzer.h,v 1.2 2008/10/03 15:09:12 charlot Exp $
 //
 //
   
@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
  
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
@@ -77,6 +78,8 @@ class ElectronPixelSeedAnalyzer : public edm::EDAnalyzer
   TH1I *histnbclus_;
 
   edm::InputTag inputCollection_;
+  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
+  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
 
  };
   
