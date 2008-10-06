@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.22 2008/07/08 20:56:48 gpetrucc Exp $
+// $Id: Jet.h,v 1.23 2008/07/21 11:10:51 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.22 2008/07/08 20:56:48 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.23 2008/07/21 11:10:51 gpetrucc Exp $
 */
 
 
@@ -240,6 +240,17 @@ namespace pat {
       /// get all constituents
       std::vector <const reco::PFCandidate*> getPFConstituents () const;
 
+      /// Get a pointer to a Candididate constituent of the jet 
+      /// Needs to be re-implemented because of CaloTower embedding
+      virtual const reco::Candidate * daughter(size_t i) const {
+          return (embeddedCaloTowers_ ?  &caloTowers_[i] : reco::Jet::daughter(i));
+      }
+      /// Get the number of constituents 
+      /// Needs to be re-implemented because of CaloTower embedding
+      virtual size_t numberOfDaughters() const {
+          return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
+      }
+ 
     protected:
 
       // information originally in external branches
