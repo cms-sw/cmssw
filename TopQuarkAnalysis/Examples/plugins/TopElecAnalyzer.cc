@@ -87,6 +87,17 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     for(unsigned idx=0; idx<leptonIDs.size(); ++idx){
       std::cout << ::std::setw( 12 ) << ::std::left << leptonIDs[idx].first << leptonIDs[idx].second << std::endl;
     }
+
+    // --------------------------------------------------
+    // get userFunction 
+    // --------------------------------------------------
+    std::cout << std::endl;
+    if(elec->userDataObject("relIso")){
+      std::cout << ::std::setw( 12 ) << ::std::left << elec->userDataObject("relIso") << std::endl;
+    }
+    else{
+      std::cout << ::std::setw( 12 ) << ::std::left << "userData ValueMap is empty..." << std::endl;
+    }
     
     // --------------------------------------------------
     // get embedded objects
@@ -105,10 +116,10 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       superClus=false;
       std::cout << "superCluster : is not valid" << std::endl;
     }
-    //if(!elec->genLepton()){
-    //  genMatch=false;
-    //  std::cout << "genMatchRef  : is not valid" << std::endl;
-    //}
+    if(!elec->genLepton()){
+      genMatch=false;
+      std::cout << "genMatchRef  : is not valid" << std::endl;
+    }
 
     if(gsfTrack && track    ){
       dptElec_->Fill( (elec->track()->pt() - elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
@@ -117,9 +128,9 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       denElec_->Fill( (elec->superCluster()->energy()- elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
     }
     //needs fix in PAT
-    //if(elec->genLepton()){
-    //  genElec_->Fill( (elec->gsfTrack()->pt() - elec->genLepton()->pt())/elec->genLepton()->pt() );
-    //}
+    if(elec->genLepton()){
+      genElec_->Fill( (elec->gsfTrack()->pt() - elec->genLepton()->pt())/elec->genLepton()->pt() );
+    }
   }
 }
 
