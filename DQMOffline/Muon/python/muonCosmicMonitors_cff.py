@@ -5,7 +5,7 @@ from DQM.TrackingMonitor.MonitorTrackSTACosmicMuons_cff import *
 from DQM.TrackingMonitor.MonitorTrackSTACosmicMuonsHLT_cff import *
 from DQM.TrackingMonitor.MonitorTrackGLBCosmicMuons_cfi import *
 from DQM.TrackingMonitor.MonitorTrackTKCosmicMuons_cfi import *
-from DQM.DTMonitorModule.dtSegmTask_cfi import *
+from DQMOffline.Muon.dtSegmTask_cfi import *
 from DQMOffline.Muon.rpcSource_cfi import *
 #dedicated analyzers for offline dqm
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
