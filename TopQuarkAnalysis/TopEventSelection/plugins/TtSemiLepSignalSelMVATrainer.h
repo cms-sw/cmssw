@@ -16,8 +16,6 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-#include "TTree.h"
-
 #ifndef TtSemiLepSignalSelMVARcd_defined  // to avoid conflicts with the TtSemiSignalSelMVAComputer
 #define TtSemiLepSignalSelMVARcd_defined
 MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepSignalSelMVA);  // defines TtSemiLepSignalSelMVARcd
