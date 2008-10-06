@@ -59,6 +59,9 @@ class PerfReportErr(Error):
     def __init__(self, message):
         self.message = message 
 
+#############
+# Option parser
+# 
 def getParameters():
     parser = opt.OptionParser()
     #
@@ -90,6 +93,9 @@ def getParameters():
         print "Error: one of the paths does not exist"
         sys.exit()
 
+###########
+# Get max value in data set
+#
 def get_max(data,index=1):
     max_time=-1
     for el in data:
@@ -98,6 +104,9 @@ def get_max(data,index=1):
             max_time=sec
     return max_time
 
+###########
+# Get min value in data set
+#
 def get_min(data,index=1):
     min_time=1e20
     for el in data:
@@ -106,6 +115,9 @@ def get_min(data,index=1):
             min_time=sec
     return min_time  
 
+###########
+# Setup PyRoot as a batch run
+#
 def setBatch():
     __argv=sys.argv # trick for a strange behaviour of the TApp..
     sys.argv=sys.argv[:1]
@@ -116,6 +128,9 @@ def setBatch():
     #Set ROOT in batch mode to avoid canvases popping up!
     ROOT.gROOT.SetBatch(1)
 
+##########
+# Create the root file to save the graphs in
+#
 def createROOT(outdir,filename):
 
     # Save in file
@@ -128,6 +143,9 @@ def createROOT(outdir,filename):
         myfile=ROOT.TFile(rootfilename,'RECREATE')        
     return myfile
 
+##########
+# Parse timing data from log file
+#
 def getTimingLogData(logfile_name):
     data=[]
     
@@ -150,6 +168,9 @@ def getTimingLogData(logfile_name):
 
     return data
 
+###########
+# Parse memory check data from log file
+#
 def getSimpleMemLogData(logfile_name,startevt):
     data=[]
     values_set=('vsize','delta_vsize','rss','delta_rss')
@@ -205,6 +226,10 @@ def getSimpleMemLogData(logfile_name,startevt):
 
     return steps
 
+###############
+#
+# Create a new timing graph and histogram 
+#
 def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num,prevrev=""):
     
     colors = [2,4]
@@ -252,6 +277,9 @@ def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num,p
 
     return (graph,histo,mean)
 
+###########
+# Get limits to plot the graph
+#
 def getLimits(data,secsperbin):
     min_val=get_min(data,1)
     max_val=get_max(data,1)
@@ -269,6 +297,9 @@ def getLimits(data,secsperbin):
 
     return (min_val,max_val,interval,npoints,last_event)
 
+##############
+# Setup graph information for one graph (no need to it on both if they are superimposed)
+#
 def setupSuperimpose(graph1,graph2,last_event,max_val,reporttype=0, title = ""):
     name   = ""
     xtitle = ""
@@ -295,7 +326,9 @@ def setupSuperimpose(graph1,graph2,last_event,max_val,reporttype=0, title = ""):
     # I'm doing it anyway, can't hurt.
     graph2.GetXaxis().SetLimits(0,last_event)
 
-
+#############
+# Plot the mean line on a graph
+#
 def getMeanLines(avg,last_event,graph_num):
     colors = [2,4]
     avg_line=ROOT.TLine(1,avg,last_event,avg)
@@ -304,6 +337,9 @@ def getMeanLines(avg,last_event,graph_num):
 
     return avg_line
 
+############
+# Get the difference in timing data (for comparison of two releases)
+#
 def getTimingDiff(data1,data2,npoints,last_event,orig_max_val):
     data3 = []
     for x in range(len(data2)):
@@ -370,6 +406,9 @@ def getTimingDiff(data1,data2,npoints,last_event,orig_max_val):
 
     return (graph,leg)
 
+##########
+# Draw superimposed graphs on a separate canvas
+#
 def drawGraphs(graph1,graph2,avg1,avg2,leg):
     graph_canvas = ROOT.TCanvas("graph_canvas")
     graph_canvas.cd()
@@ -380,6 +419,9 @@ def drawGraphs(graph1,graph2,avg1,avg2,leg):
     leg.Draw()
     return graph_canvas
 
+##########
+# Draw superimposed histograms on a separate canvas
+#
 def drawHistos(histo_stack,hstleg):
     histo_canvas = ROOT.TCanvas("histo_canvas")
     histo_canvas.cd()
@@ -387,6 +429,9 @@ def drawHistos(histo_stack,hstleg):
     hstleg.Draw()
     return histo_canvas
 
+##########
+# Draw data differences (comparison between two data sets or releases) on a separate canvas
+# 
 def drawChanges(graph,chgleg):
     graph_canvas = ROOT.TCanvas("change_canvas")
     graph_canvas.cd()
@@ -394,6 +439,9 @@ def drawChanges(graph,chgleg):
     chgleg.Draw()
     return graph_canvas    
 
+###########
+# Get limits for two graphs that will be superimposed upon one another
+# 
 def getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2,min_val1=-1,min_val2=-1):
     biggestLastEvt = last_event1
     biggestMaxval  = max_val1
@@ -437,6 +485,9 @@ def getNpoints(data):
 
     return (data,len(data))
 
+###########
+# Create simple memory check graphs 
+#
 def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
     colors = [2,4]    
     values = ["vsize", "rss"]
@@ -502,6 +553,9 @@ def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
 
     return (graphs[0] , last_event, peaks[0], minims[0], graphs[1], last_event, peaks[1], minims[1])
 
+#############
+# Produce the difference of two memory data sets  
+#
 def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     data3 = []
     memtype = "vsize"
@@ -578,6 +632,9 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
 
     return (graph,leg)
 
+############
+# Draw two memory graphs superimposed on one another
+#
 def drawMemGraphs(graph1,graph2,min_val,max_val,last_event,leg,memtype,stepname):
     graph_canvas=ROOT.TCanvas("%s_%s_canvas" % (memtype,stepname))
     graph_canvas.cd()
@@ -590,6 +647,9 @@ def drawMemGraphs(graph1,graph2,min_val,max_val,last_event,leg,memtype,stepname)
     graph_canvas.Flush()
     return graph_canvas
 
+###########
+# Draw the comparison graphs of two memory graphs
+#
 def drawMemChangeGraphs(graph,leg,memtype,stepname):
     graph_canvas=ROOT.TCanvas("%s_%s_change_canvas" % (memtype,stepname))
     graph_canvas.cd()

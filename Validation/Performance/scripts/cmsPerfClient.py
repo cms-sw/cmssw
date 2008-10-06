@@ -3,11 +3,22 @@ import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, 
 import optparse as opt
 
 PROG_NAME = os.path.basename(sys.argv[0])
+# list of valid options for the configuration file
 validPerfSuitKeys= ["castordir", "perfsuitedir" ,"TimeSizeEvents", "IgProfEvents", "ValgrindEvents", "cmsScimark", "cmsScimarkLarge",
                     "cmsdriverOptions", "stepOptions", "quicktest", "profilers", "cpus", "cores", "prevrel", "isAllCandles", "candles",
                     "bypasshlt", "runonspare", "logfile"]
-
+#################
+#
+# Option parser
+# returns : Command set to run on each (or all) machines, port to connect to server, 
+#           List of machines to connect to, File to pickle results to,
+#           Dictionary to index which command set to use for which machine
 def optionparse():
+
+    #########################
+    # Config file type validator
+    # Checks type of configuration options in the config file 
+    #
     def _isValidPerfCmdsDef(alist):
         out = True
         for item in alist:
@@ -98,6 +109,9 @@ def optionparse():
 
     (options, args) = parser.parse_args()
 
+    ######################
+    # Check output file location
+    #
     outfile = options.outfile
     if not outfile == "": 
         outfile = os.path.abspath(options.outfile)
@@ -112,12 +126,11 @@ def optionparse():
         parser.error("ERROR: outfile %s already exists" % outfile)
         sys.exit()
 
-    #if not options.cmscmdfile == "":
-    #    parser.error("ERROR: You can not specify a command file and command string")
-    #    sys.exit()
 
+    ###############
+    # Check configuration files for errors
+    #
     cmsperf_cmds = []
-
     cmscmdfiles = options.cmscmdfile
     if len(cmscmdfiles) <= 0:
         parser.error("A valid python file defining a list of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
@@ -148,7 +161,10 @@ def optionparse():
             else:
                 parser.error("ERROR: %s is not a file" % cmdfile)
                 sys.exit()
-            
+
+    ########
+    # Setup port number
+    #
     port = 0        
     if options.port == -1:
         port = 8000
@@ -156,7 +172,10 @@ def optionparse():
         port = options.port
 
     machines = options.machines
-    
+
+    #################
+    # Check machine hostnames
+    #
     if len(machines) <= 0:
         parser.error("you must specify at least one machine to benchmark")        
     else:
@@ -169,6 +188,9 @@ def optionparse():
             parser.error("ERROR: Can not resolve machine address %s (must be ip{4,6} or hostname)" % machine)
             sys.exit()
 
+    ##############
+    # Define which configuration file to use for which machine
+    # If only one configuration file is used then it used for all machines
     cmdindex = {} # define an index that defines the commands to be run for each machine to be perfsuite'd
     if len(cmsperf_cmds) == 1:
         for machine in machines:
@@ -187,6 +209,11 @@ def optionparse():
 
     return (cmsperf_cmds, port, machines, outfile, cmdindex)
 
+#################
+# Request benchmark
+# Connects to server and returns data
+# returns: profiling data from server
+#
 def request_benchmark(perfcmds,shost,sport):
     try:
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
@@ -201,6 +228,10 @@ def request_benchmark(perfcmds,shost,sport):
         print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
         print detail
 
+#################
+# Worker
+# This is a subclass of thread that submits commands to the server and stores the result in a thread-safe queue
+# 
 class Worker(threading.Thread):
 
     def __init__(self, host, port, perfcmds, queue):
@@ -219,6 +250,10 @@ class Worker(threading.Thread):
             print detail
             sys.stdout.flush()
 
+##########################
+# runclient
+# Creates a thread for each machine to profile and waits for all machines to return data (you might consider adding a timeout in the while loop)
+# If the client is killed for some reason or there is an exception, dump the data to a file before throwing the exception
 def runclient(perfcmds, hosts, port, outfile, cmdindex):
     queue = Queue.Queue()
     # start all threads
@@ -246,16 +281,12 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
     print "All job results received"
     presentBenchmarkData(queue,outfile)    
 
-def _main():
-    (cmsperf_cmds, port, hosts, outfile, cmdindex) = optionparse()
-    runclient(cmsperf_cmds, hosts, port, outfile, cmdindex)
-
-
 ########################################
 #
-# Format of the returned data from remote host should be of the form
+# Format of the returned data from remote host should be of the form (this could be cleaned up a little bit)
 # 
 # list of command outputs [ dictionary of cpus {   }  ]
+#
 # For example:
 # returned data     = [ cmd_output1, cmd_output2 ... ]
 # cmd_output1       = { cpuid1 : cpu_output1, cpuid2 : cpu_output2 ... }     # cpuid is "None" if there was only one cpu used
@@ -267,7 +298,7 @@ def _main():
 
 ###########
 #
-# We now massage the data so that each command output from each server has the command keywords tuple'd with it
+# We now massage the data
 #
 def presentBenchmarkData(q,outfile):
     print "Pickling data to file..."
@@ -278,7 +309,11 @@ def presentBenchmarkData(q,outfile):
         out.append((host,data))
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
-    oh.close()
+    oh.close() 
+
+def _main():
+    (cmsperf_cmds, port, hosts, outfile, cmdindex) = optionparse()
+    runclient(cmsperf_cmds, hosts, port, outfile, cmdindex)
 
 if __name__ == "__main__":
     _main()

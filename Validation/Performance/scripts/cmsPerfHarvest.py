@@ -6,32 +6,34 @@ import sys, os, glob, re
 
 _PROG_NAME = os.path.basename(sys.argv[0])
 
+###################
+# Parse options 
+#
 def optionParse():
-    parser = opt.OptionParser(usage="""./%s [perf dir] [outfile] [options]""" % _PROG_NAME)
+    parser = opt.OptionParser(usage="""./%s [perf dir] [options]""" % _PROG_NAME)
 
     (options, args) = parser.parse_args()
 
-    if not len(args) == 2:
-        parser.error("You have not supplied an outfile or perfsuite directory, both are required")
+    if not len(args) == 1:
+        parser.error("You have not supplied a perfsuite directory.")
         sys.exit()
 
-
     args[0] = os.path.abspath(args[0])
-    args[1] = os.path.abspath(args[1])    
 
+    ###########
+    # Check existance of the directory supplied
+    #
     if not os.path.isdir(args[0]):
         parser.error("You have not provided a valid perfsuite output directory")
         sys.exit()
 
-    if os.path.exists(args[1]):
-        parser.error("The output file you specified already exists")
-        sys.exit()        
-
     perfdir = args[0]
-    outfile = args[1]
 
-    return (perfdir, outfile)
+    return (perfdir)
 
+#################
+# Harvest information from a timesize directory, currently only retrieves TimingReport information
+#
 def visit_timesize_steps(candle,profsetdir):
     out = {}
     # Just do timing report for now
@@ -59,6 +61,9 @@ def visit_timesize_steps(candle,profsetdir):
                 print "Error: Could not determine step from %s" % base
     return out
 
+###############
+# Retrieve data from a perf suite output (sub) directory, only examines TimeSize at the moment
+#
 def visit(visitdir):
     out = {}
     for candle in Candles:
@@ -88,7 +93,9 @@ def visit(visitdir):
                             out[candle] = candledict
     return out
         
-
+###############
+# Harvest all data from a perfsuite directory (if cpu subdirectories exist, it will examine them)
+#
 def harvest(perfdir):
     cpureg = re.compile("cpu_([0-9][0-9]*)")
     out = {}
@@ -116,5 +123,5 @@ def harvest(perfdir):
     return out  
 
 if __name__ == "__main__":
-    (perfdir, outfile) = optionParse()
+    (perfdir) = optionParse()
     print harvest(perfdir)

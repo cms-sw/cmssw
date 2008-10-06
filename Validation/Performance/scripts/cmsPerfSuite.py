@@ -160,6 +160,9 @@ Legal entries for individual candles (--candle option):
     prevrel          = options.previousrel
     outputdir        = options.outputdir
 
+    #################
+    # Check logfile option
+    #
     if not logfile == None:
         logfile = os.path.abspath(logfile)
         logdir = os.path.dirname(logfile)
@@ -168,17 +171,28 @@ Legal entries for individual candles (--candle option):
             sys.exit()
         logfile = os.path.abspath(logfile)
 
+    #############
+    # Check step Options
+    #
     if "GEN,SIM" in stepOptions:
         print "WARNING: Please use GEN-SIM with a hypen not a \",\"!"
+        
+    if not stepOptions == "":
+        #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
+        stepOptions='"--usersteps=%s"' % (stepOptions)        
 
+    ###############
+    # Check profile option
+    #
     isnumreg = re.compile("^-?[0-9]*$")
     found    = isnumreg.search(profilers)
     if not found :
         parser.error("profile codes option contains non-numbers")
         sys.exit()
 
-    numetcomreg = re.compile("^[0-9,]*")
-
+    ###############
+    # Check output directory option
+    #
     if outputdir == "":
         outputdir = os.getcwd()
     else:
@@ -187,7 +201,11 @@ Legal entries for individual candles (--candle option):
     if not os.path.isdir(outputdir):
         parser.error("%s is not a valid output directory" % outputdir)
         sys.exit()
-
+        
+    ################
+    # Check cpu option
+    # 
+    numetcomreg = re.compile("^[0-9,]*")
     if not numetcomreg.search(cpu):
         parser.error("cpu option needs to be a comma separted list of ints or a single int")
         sys.exit()
@@ -199,12 +217,18 @@ Legal entries for individual candles (--candle option):
     else:
         cpu = [ int(cpustr)  ]
 
+    ################
+    # Check previous release directory
+    #
     if not prevrel == "":
         prevrel = os.path.abspath(prevrel)
         if not os.path.exists(prevrel):
             print "ERROR: Previous release dir %s could not be found" % prevrel
             sys.exit()
 
+    #############
+    # Setup quicktest option
+    #
     if quicktest:
         TimeSizeEvents = 1
         IgProfEvents = 1
@@ -212,6 +236,9 @@ Legal entries for individual candles (--candle option):
         cmsScimark = 1
         cmsScimarkLarge = 1
 
+    #############
+    # Setup unit test option
+    #
     if _unittest:
         _verbose = False
         if candleoption == "":
@@ -224,15 +251,17 @@ Legal entries for individual candles (--candle option):
         IgProfEvents    = 0
         TimeSizeEvents  = 1
 
+    #############
+    # Setup cmsdriver option
+    #
     if not cmsdriverOptions == "":
         cmsdriverOptions = "--cmsdriver=" + cmsdriverOptions        
         #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
         cmsdriverOptions= '"%s"' % (cmsdriverOptions)
         
-    if not stepOptions == "":
-        #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
-        stepOptions='"--usersteps=%s"' % (stepOptions)
-    
+    #############
+    # Setup candle option
+    #
     isAllCandles = candleoption == ""
     candles = {}
     if isAllCandles:
@@ -263,6 +292,9 @@ Legal entries for individual candles (--candle option):
 def usage():
     return __doc__
 
+############
+# Run a list of commands using system
+# ! We should rewrite this not to use system (most cases it is unnecessary)
 def runCmdSet(cmd):
     exitstat = None
     if len(cmd) <= 1:
@@ -278,11 +310,17 @@ def runCmdSet(cmd):
         printFlush(getDate())
     return exitstat
 
+#############
+# Print and flush a string (for output to a log file)
+#
 def printFlush(command):
     if _verbose:
         logh.write(command + "\n")
         logh.flush()
 
+#############
+# Run a command and return the exit status
+#
 def runcmd(command):
     process  = os.popen(command)
     cmdout   = process.read()
@@ -298,6 +336,9 @@ def getDate():
 def printDate():
     logh.write(getDate() + "\n")
 
+#############
+# If the minbias root file does not exist for qcd profiling then run a cmsDriver command to create it
+#
 def getPrereqRoot(rootdir,rootfile):
     logh.write("WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file\n"   % (rootdir + "/" +rootfile))
 
@@ -310,7 +351,9 @@ def getPrereqRoot(rootdir,rootfile):
     if not os.path.exists(rootdir + "/" + rootfile):
         logh.write("ERROR: We can not run QCD profiling please create root file %s to run QCD profiling.\n" % (rootdir + "/" + rootfile))
 
-
+#############
+# Check if QCD will run and if so check the root file is there. If it is not create it.
+#
 def checkQcdConditions(candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
         logh.write("WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored\n" % MIN_REQ_TS_EVENTS)
@@ -326,19 +369,27 @@ def checkQcdConditions(candles,TimeSizeEvents,rootdir,rootfile):
         logh.write("%s Root file for QCD exists. Good!!!\n" % (rootdir + "/" + rootfile))
     return candles
 
+#############
+# Make directory for a particular candle and profiler.
+# ! This is really unnecessary code and should be replaced with a os.mkdir() call
 def mkCandleDir(pfdir,candle,profiler):
     adir = os.path.join(pfdir,"%s_%s" % (candle,profiler))
     runcmd( "mkdir -p %s" % adir )
     if _verbose:
         printDate()
-    #runCmdSet(cmd)
     return adir
 
+#############
+# Copy root file from another candle's directory
+# ! Again this is messy. 
 def cprootfile(dir,candle):
     cmds = ("cd %s" % dir,
             "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
     runCmdSet(cmds)
 
+#############
+# Display errors in the G4 logfile
+#
 def displayErrors(file):
     global ERRORS
     try:
@@ -353,13 +404,18 @@ def displayErrors(file):
         logh.write("WARNING: %s\n" % detail)
         ERRORS += 1
     
-
+##############
+# Filter lines in the valgrind report that match GEN,SIM
+#
 def valFilterReport(dir,cmsver):
     cmds = ("cd %s" % dir,
             "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp" % (cmssw_version),
             "mv tmp SimulationCandles_%s.txt"                         % (cmssw_version))
     runCmdSet(cmds)
 
+##################
+# Run cmsScimark benchmarks a number of times
+#
 def benchmarks(cpu,pfdir,name,bencher,large=False):
     cmd = Commands[cpu][3]
     redirect = ""
@@ -374,6 +430,9 @@ def benchmarks(cpu,pfdir,name,bencher,large=False):
         runcmd(command)
         logh.flush()
 
+##################
+# This function is a wrapper around cmsRelvalreport
+# 
 def runCmsReport(cpu,dir,cmsver,candle):
     cmd  = Commands[cpu][1]
     cmds = ("cd %s"                 % (dir),
@@ -386,6 +445,9 @@ def runCmsReport(cpu,dir,cmsver,candle):
         logh.write("ERROR: CMS Report returned a non-zero exit status \n")
         sys.exit()
 
+##################
+# Test cmsDriver.py (parses the simcandles file, removing duplicate lines, and runs the cmsDriver part)
+#
 def testCmsDriver(cpu,dir,cmsver,candle):
     cmsdrvreg = re.compile("^cmsDriver.py")
     cmd  = Commands[cpu][0]
@@ -416,7 +478,9 @@ def testCmsDriver(cpu,dir,cmsver,candle):
                         sys.exit()
             previousCmdOnline = cmdonline
     
-
+##############
+# Wrapper for cmsRelvalreportInput 
+# 
 def runCmsInput(cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):
 
     bypass = ""
@@ -435,6 +499,9 @@ def runCmsInput(cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):
     if _unittest and (not exitstat == None):
         logh.write("ERROR: CMS Report Input returned a non-zero exit status \n" )
 
+##############
+# Prepares the profiling directory and runs all the selected profiles (if this is not a unit test)
+#
 def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name,profilers,bypasshlt):
     valgrind = Name == "Valgrind"
 
@@ -486,6 +553,9 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
                         logh.write("Found log %s\n" % log)
                         displayErrors(log)
 
+############
+# Runs benchmarking, cpu spinlocks on spare cores and profiles selected candles
+#
 def runPerfSuite(castordir        = _CASTOR_DIR,
                  perfsuitedir     = os.getcwd(),
                  TimeSizeEvents   = 100        ,
