@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.7 $
+ * $Date: 2008/10/06 13:16:44 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  */
@@ -78,17 +78,18 @@ void L1TFED::beginJob(const EventSetup& c)
     fedentries = dbe->book1D("FEDEntries", "Fed ID occupancy", l1feds_.size(), 0.,l1feds_.size() );	  
     fedfatal = dbe->book1D("FEDFatal", "Fed ID non present ", l1feds_.size(), 0., l1feds_.size());	  
     fednonfatal = dbe->book1D("FEDNonFatal", "Fed corrupted data ", l1feds_.size(), 0.,l1feds_.size() );
+    hfedprof = dbe->bookProfile("fedprofile","FED Size by ID", l1feds_.size(), 0., l1feds_.size(),0,0.,5000.);
     for(int i=0;i<l1feds_.size();i++){
        ostringstream sfed;
        sfed << l1feds_[i];
        fedentries->setBinLabel(i+1,"FED "+ sfed.str());
        fedfatal->setBinLabel(i+1,"FED "+ sfed.str());
        fednonfatal->setBinLabel(i+1,"FED "+ sfed.str());
+//       hfedprof->getTProfile()->GetXaxis()->SetBinLabel(i+1,"FED "+ sfed.str());
 
     }
     	  
     hfedsize = dbe->book1D("fedsize","FED Size Distribution",100,0.,10000.);
-    hfedprof = dbe->bookProfile("fedprof","FED Size by ID", 2048,0.,2048,0,0.,5000.);
 
    }
 }
