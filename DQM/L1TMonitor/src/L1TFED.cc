@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -10,6 +10,8 @@
 #include "DQM/L1TMonitor/interface/L1TFED.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 using namespace std;
 using namespace edm;
@@ -39,10 +41,12 @@ L1TFED::L1TFED(const ParameterSet& ps)
   if(disable){
     outputFile_="";
   }
+  
+  l1feds_ = ps.getParameter<std::vector<int> >("L1FEDS");
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/L1TFED");
+    dbe->setCurrentFolder("L1T/FEDIntegrity");
   }
 
 
@@ -62,30 +66,38 @@ void L1TFED::beginJob(const EventSetup& c)
   dbe = Service<DQMStore>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1T/L1TFED");
-    dbe->rmdir("L1T/L1TFED");
+    dbe->setCurrentFolder("L1T/FEDIntegrity");
+    dbe->rmdir("L1T/FEDIntegrity");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1T/L1TFED");
+    dbe->setCurrentFolder("L1T/FEDIntegrity");
     
-    fedtest = dbe->book1D("FED test", 
-       "FED test", 128, -0.5, 127.5 ) ;	  
+    fedentries = dbe->book1D("FEDEntries", "Fed ID occupancy", l1feds_.size(), 0.,l1feds_.size() );	  
+    fedfatal = dbe->book1D("FEDFatal", "Fed ID non present ", l1feds_.size(), 0., l1feds_.size());	  
+    fednonfatal = dbe->book1D("FEDNonFatal", "Fed corrupted data ", l1feds_.size(), 0.,l1feds_.size() );
+    for(int i=0;i<l1feds_.size();i++){
+       ostringstream sfed;
+       sfed << l1feds_[i];
+       fedentries->setBinLabel(i+1,"FED "+ sfed.str());
+       fedfatal->setBinLabel(i+1,"FED "+ sfed.str());
+       fednonfatal->setBinLabel(i+1,"FED "+ sfed.str());
+
+    }
+    	  
     hfedsize = dbe->book1D("fedsize","FED Size Distribution",100,0.,10000.);
-    hfedprof = dbe->bookProfile("fedprof","FED Size by ID", 2048,0.,2048.,
-				      0,0.,5000.);
-    hindfed = new MonitorElement*[FEDNumbering::lastFEDId()];
-    for(int i = 0; i<FEDNumbering::lastFEDId(); i++)
-	  hindfed[i] = 0;
-  }  
+    hfedprof = dbe->bookProfile("fedprof","FED Size by ID", 2048,0.,2048,0,0.,5000.);
+
+   }
 }
 
 
 void L1TFED::endJob(void)
 {
-  if(verbose_) cout << "L1TFED: end job...." << endl;
+ 
+  if(verbose_) std::cout << "L1T FED Integrity: end job...." << std::endl;
   LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
@@ -96,35 +108,60 @@ void L1TFED::endJob(void)
 void L1TFED::analyze(const Event& e, const EventSetup& c)
 {
   nev_++; 
-  if(verbose_) cout << "L1TFED: analyze...." << endl;
+  if(verbose_) cout << "L1T FED Integrity: analyze...." << endl;
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
-  for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
-    const FEDRawData& data = rawdata->FEDData(i);
-    if(size_t size=data.size()) {
-       hfedsize->Fill(float(size));
-       hfedprof->Fill(float(i),float(size));
-       if(i<1024)
-	 {
-	  if(hindfed[i]==0)
-	  {
-	   DQMStore *dbe = 
-	   edm::Service<DQMStore>().operator->();
-	   dbe->setCurrentFolder("L1T/L1TFED/Details");
-	   std::ostringstream os1;
-	   std::ostringstream os2;
-	   os1 << "fed" << i;
-	   os2 << "FED #" << i << " Size Distribution";
-	   hindfed[i] = dbe->book1D(os1.str(),os2.str(),100,0.,3.*size);
-	   hindfed[i]->setResetMe(true);
-	  }
-	  hindfed[i]->Fill(float(size));
-	 }
-	}
-       }
-	  
-}
+  bool t = e.getByType(rawdata);
+  
+  if ( ! t ) {
+     LogDebug("Product") << "can't find FEDRawDataCollection ";
+  }
+  
+  else {
 
+     if(verbose_) cout << "fedlist size = " << l1feds_.size() << endl;
+
+     for (int i = 0; i<l1feds_.size(); i++){
+        int fedId = l1feds_[i];
+        if(verbose_) cout << "fedId = " << fedId << endl;
+       
+        const FEDRawData & data = rawdata->FEDData(fedId);
+        
+	if(size_t size=data.size()){
+               
+            fedentries->Fill(i);
+            hfedsize->Fill(float(size));
+            hfedprof->Fill(float(i),float(size));
+            if(verbose_) cout << "header check = " << FEDHeader(data.data()).check() << endl;
+            if(verbose_) cout << "trailer check = " << FEDTrailer(data.data()).check() << endl;
+
+            if(!FEDHeader(data.data()).check()) fedfatal->Fill(i);
+
+//            if(!FEDHeader(data.data()).check() || !FEDTrailer(data.data()).check()) fedfatal->Fill(i);
+// fedtrailer check seems to be always 0.
+
+//          for fedId dedicated integrity checks.
+/*          switch(fedId){
+	 
+	       case 813:
+	       std::cout << "do something for GT 813 data corruption..." << std::endl; continue;
+	       fednonfatal->Fill(fedId);
+	    
+	       case 814:
+	       std::cout << "do something for GT 814 data corruption..." << std::endl; continue;
+	       fednonfatal->Fill(fedId);
+	    }
+*/	 
+        } else {
+        
+         if(verbose_) cout << "empty fed " << i << endl;
+	 fedfatal->Fill(i);
+        
+	}
+   }
+  
+ }
+
+}
 
 
