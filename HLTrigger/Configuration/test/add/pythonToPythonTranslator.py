@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.4
 import FWCore.ParameterSet.Config as cms
 
 
@@ -8,7 +9,7 @@ sys.path.append(os.environ["PWD"])
 filename = sys.argv[1].rstrip('.py')
 
 theConfig = __import__(filename)
-
+theConfig = theConfig.process
 result = {}
 
 result["procname"] = ''
@@ -36,7 +37,9 @@ def dumpObject(obj,key):
         del obj['@classname']
         returnString = "{'@classname': %s, '@label': %s, %s" %(classname, label, str(obj).lstrip('{'))
         return returnString
-        
+    elif key in ('psets',):
+        returnString = "('PSet', 'untracked', %s)"%str(obj)
+        return returnString
     else:
         return obj
 
@@ -68,11 +71,12 @@ def prepareParameter(parameter):
     else:      
         return ( type(parameter).__name__, trackedness(parameter), fixup(parameter.value()) )
 
+hasSeenSource = False 
 #loop through the file 
 for name,item in theConfig.__dict__.iteritems():
   config = {}
 
-  if isinstance(item,(cms.EDFilter,cms.EDProducer,cms.EDAnalyzer)):
+  if isinstance(item,(cms.EDFilter,cms.EDProducer,cms.EDAnalyzer,cms.OutputModule)):
     config['@classname'] = ('string','tracked',item.type_())
     config["@label"] = ('string','tracked',name)
 
@@ -80,12 +84,17 @@ for name,item in theConfig.__dict__.iteritems():
       config[parameterName] = prepareParameter(parameter)
     result['modules'][name] = config
 
+    if isinstance(item,cms.OutputModule):
+       result['output_modules'].append(name)
+
   elif isinstance(item,cms.Source):
-      config['@classname'] = ('string','tracked',item.type_())
-      for parameterName,parameter in item.parameters_().iteritems():
-          config[parameterName] = prepareParameter(parameter)
-      result['main_input'][name] = config
-                    
+      if not hasSeenSource:
+         config['@classname'] = ('string','tracked',item.type_())
+         for parameterName,parameter in item.parameters_().iteritems():
+             config[parameterName] = prepareParameter(parameter)
+         result['main_input'][name] = config
+         hasSeenSource = True
+      else: pass   
 
   elif isinstance(item,cms.ESProducer):
     config['@classname'] = ('string','tracked',item.type_())
@@ -110,7 +119,11 @@ for name,item in theConfig.__dict__.iteritems():
     for parameterName,parameter in item.parameters_().iteritems():
         config[parameterName] = prepareParameter(parameter)
     result['es_prefers'][name] = config
-                  
+
+  elif isinstance(item, cms.PSet):
+    for parameterName,parameter in item.parameters_().iteritems():
+      config[parameterName] = prepareParameter(parameter)
+    result['psets'][name] = config
 
 # now dump it to the screen
 # as wanted by the HLT parser
@@ -123,7 +136,14 @@ print "'procname': '%s'" %result['procname']
 
 for key in hltAcceptedOrder:
     if key in ('output_modules', 'schedule'):
-        print ", '%s': '%s'" %(key, result['procname'])
+        print ", '%s': %s" %(key, result[key])
+    elif key in ('main_input',):
+        print ", '%s':  {" %key
+        comma = ''
+        for name,object in result[key].iteritems():
+            print comma+str(dumpObject(object,key))[1:-1]
+            comma = ', '
+        print '} # end of %s' %key
     else:
         print ", '%s':  {" %key
         comma = ''
