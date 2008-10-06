@@ -15,10 +15,10 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(1),
+    lastValue = cms.uint64(1),
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(1),
+    interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

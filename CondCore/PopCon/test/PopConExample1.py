@@ -15,9 +15,9 @@ process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/af
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    lastRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(1),
+    lastValue = cms.uint64(1),
+    interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

@@ -8,10 +8,10 @@ process.CondDBCommon.DBParameters.messageLevel = 0
 
 
 process.source = cms.Source("EmptyIOVSource",
-    firstRun = cms.untracked.uint32(PIXELRUNNUMBER),
-    lastRun = cms.untracked.uint32(PIXELRUNNUMBER),
+    firstValue = cms.uint64(PIXELRUNNUMBER),
+    lastValue = cms.uint64(PIXELRUNNUMBER),
     timetype = cms.string('runnumber'),
-    interval = cms.uint32(1)
+    interval = cms.uint64(1)
 )
 
 process.maxEvents = cms.untracked.PSet(

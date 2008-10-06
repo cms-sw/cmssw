@@ -7,9 +7,9 @@ process = cms.Process("CAFHarvestingJob")
 #-------------------------------------------------
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(xRUN_NUMBERx),
+    firstValue = cms.uint64(xRUN_NUMBERx),
     lastRun  = cms.untracked.uint32(xRUN_NUMBERx),
-    interval = cms.uint32(1)
+    interval = cms.uint64(1)
 )
 
 process.maxEvents = cms.untracked.PSet(

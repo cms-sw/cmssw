@@ -6,10 +6,10 @@ process = cms.Process("CAFHarvestingJob")
 ## Empty Event Source
 #-------------------------------------------------
 process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(58733),
+    lastValue = cms.uint64(58733),
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(58733),
-    interval = cms.uint32(1)
+    firstValue = cms.uint64(58733),
+    interval = cms.uint64(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
