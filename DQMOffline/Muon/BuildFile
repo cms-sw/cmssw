@@ -10,4 +10,6 @@
 <use name=DataFormats/CSCRecHit>
 <use name=DataFormats/DTRecHit>
 <use name=DataFormats/RPCDigi>
+<use name=CondFormats/DTObjects>
+<use name=CondFormats/DataRecord>
 <flags EDM_PLUGIN=1>
