@@ -29,7 +29,9 @@ class PhotonTkIsolation {
 		     double intRadius,
 		     double etLow,
 		     double lip,
-		     const reco::TrackCollection* ) ;
+		     double drb,
+		     const reco::TrackCollection*,
+		     reco::TrackBase::Point beamPoint) ;
  
    //destructor 
   ~PhotonTkIsolation() ;
@@ -44,9 +46,11 @@ class PhotonTkIsolation {
   double intRadius_ ;
   double etLow_ ;
   double lip_ ;
+  double drb_;
 
   const reco::TrackCollection *trackCollection_ ;
-  
+  reco::TrackBase::Point beamPoint_;
+
   std::pair<int,double>getIso(const reco::Candidate*) const ;
 
 };
