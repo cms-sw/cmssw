@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtVertex.cc,v 1.2 2007/10/05 23:23:11 fedor Exp $
+// $Id: JetTracksAssociatorAtVertex.cc,v 1.3 2008/05/29 17:58:55 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,8 +29,6 @@ JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet
 						 << "'. See possible values in 'reco::TrackBase::qualityByName'";
   }
   mTrackQuality = int (trackQuality);
-  produces<reco::JetTracksAssociation::Container> ();
-}
   produces<reco::JetTracksAssociation::Container> ();
 }
 
