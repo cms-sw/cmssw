@@ -209,6 +209,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  std::vector<int> FEDListUsedBarrel; 
  std::vector<int> FEDListUsedEndcap; 
 
+ bool RegionalMatch_;
  
 
  double ptMinEMObj_ ; 

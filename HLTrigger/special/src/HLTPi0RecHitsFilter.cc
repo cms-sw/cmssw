@@ -140,7 +140,10 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   storeIsoClusRecHit_ = iConfig.getParameter<bool> ("storeIsoClusRecHit");
   ptMinForIsolation_ = iConfig.getParameter<double> ("ptMinForIsolation");
   
-  
+
+  ////  RegionalMatch should = true for old regional ecal unpacker( release <= 21X)
+  ///   RegionalMatch = false for EcalRawToRecHit unpacker 
+  RegionalMatch_ = iConfig.getUntrackedParameter<bool>("RegionalMatch",true);
   
 
   ptMinEMObj_ = iConfig.getParameter<double>("ptMinEMObj");
@@ -169,7 +172,7 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     
     
   }
-    
+  
   
 
   TheMapping = new EcalElectronicsMapping();
@@ -270,153 +273,160 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   FEDListUsed.clear();
   vector<int>::iterator it; 
-  for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGIso->begin();
-       emItr != l1EGIso->end() ;++emItr ){
+  if( RegionalMatch_){
+
+    for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGIso->begin();
+	 emItr != l1EGIso->end() ;++emItr ){
     
-    float pt = emItr -> pt();
+      float pt = emItr -> pt();
 
 
-    if (debug_ >= 1) std::cout << " here is a L1 Iso EG Seed  with (eta,phi) = " <<
-		       emItr->eta()<< " " << emItr->phi() << " and pt " << pt << std::endl;
+      if (debug_ >= 1) std::cout << " here is a L1 Iso EG Seed  with (eta,phi) = " <<
+			 emItr->eta()<< " " << emItr->phi() << " and pt " << pt << std::endl;
     
 
-    if( pt< ptMinEMObj_ ) continue; 
+      if( pt< ptMinEMObj_ ) continue; 
 
-    int etaIndex = emItr->gctEmCand()->etaIndex() ;
-    int phiIndex = emItr->gctEmCand()->phiIndex() ;
-    double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-    double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-    double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-    double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+      int etaIndex = emItr->gctEmCand()->etaIndex() ;
+      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
     
-    std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
-    for (int n=0; n < (int)feds.size(); n++) {
-      int fed = feds[n];
-      it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-      if( it == FEDListUsed.end()){
-	FEDListUsed.push_back(fed);
+      std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
+      for (int n=0; n < (int)feds.size(); n++) {
+	int fed = feds[n];
+	it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+	if( it == FEDListUsed.end()){
+	  FEDListUsed.push_back(fed);
+	}
       }
     }
-  }
   
-  for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGNonIso->begin();
-       emItr != l1EGNonIso->end() ;++emItr ){
+    for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGNonIso->begin();
+	 emItr != l1EGNonIso->end() ;++emItr ){
     
-    float pt = emItr -> pt();
+      float pt = emItr -> pt();
     
     
-    if (debug_ >= 1) std::cout << " here is a L1 NonIso EG Seed  with (eta,phi) = " <<
-		       emItr->eta()<< " " << emItr->phi() << " and pt " << pt << std::endl;
+      if (debug_ >= 1) std::cout << " here is a L1 NonIso EG Seed  with (eta,phi) = " <<
+			 emItr->eta()<< " " << emItr->phi() << " and pt " << pt << std::endl;
     
-    if( pt< ptMinEMObj_ ) continue; 
+      if( pt< ptMinEMObj_ ) continue; 
     
 
-    int etaIndex = emItr->gctEmCand()->etaIndex() ;
-    int phiIndex = emItr->gctEmCand()->phiIndex() ;
-    double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-    double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-    double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-    double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+      int etaIndex = emItr->gctEmCand()->etaIndex() ;
+      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
     
-    std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
-    for (int n=0; n < (int)feds.size(); n++) {
-      int fed = feds[n];
-      it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-      if( it == FEDListUsed.end()){
-	FEDListUsed.push_back(fed);
+      std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
+      for (int n=0; n < (int)feds.size(); n++) {
+	int fed = feds[n];
+	it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+	if( it == FEDListUsed.end()){
+	  FEDListUsed.push_back(fed);
+	}
       }
     }
-  }
   
 
-  if( Jets_ ){
+    if( Jets_ ){
     
-    double epsilon = 0.01;
+      double epsilon = 0.01;
     
-    if (JETSdoCentral_) {
+      if (JETSdoCentral_) {
       
-      edm::Handle<L1JetParticleCollection> jetColl;
-      iEvent.getByLabel(CentralSource_,jetColl);
+	edm::Handle<L1JetParticleCollection> jetColl;
+	iEvent.getByLabel(CentralSource_,jetColl);
       
-      for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
+	for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
 	
-	double pt    =   jetItr-> pt();
-	double eta   =   jetItr-> eta();
-	double phi   =   jetItr-> phi();
+	  double pt    =   jetItr-> pt();
+	  double eta   =   jetItr-> eta();
+	  double phi   =   jetItr-> phi();
 	
-	if (debug_ >= 1) std::cout << " here is a L1 CentralJet Seed  with (eta,phi) = " <<
-			   eta << " " << phi << " and pt " << pt << std::endl;
-	if (pt < Ptmin_jets_ ) continue;
+	  if (debug_ >= 1) std::cout << " here is a L1 CentralJet Seed  with (eta,phi) = " <<
+			     eta << " " << phi << " and pt " << pt << std::endl;
+	  if (pt < Ptmin_jets_ ) continue;
 	
-	std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
-	for (int n=0; n < (int)feds.size(); n++) {
-	  int fed = feds[n];
-	  it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	  if( it == FEDListUsed.end()){
-	    FEDListUsed.push_back(fed);
+	  std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
+	  for (int n=0; n < (int)feds.size(); n++) {
+	    int fed = feds[n];
+	    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+	    if( it == FEDListUsed.end()){
+	      FEDListUsed.push_back(fed);
+	    }
 	  }
+	}
+      
+      }
+
+      if (JETSdoForward_) {
+
+	edm::Handle<L1JetParticleCollection> jetColl;
+	iEvent.getByLabel(ForwardSource_,jetColl);
+
+	for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
+
+	  double pt    =  jetItr -> pt();
+	  double eta   =  jetItr -> eta();
+	  double phi   =  jetItr -> phi();
+	  
+	  if (debug_ >= 1) std::cout << " here is a L1 ForwardJet Seed  with (eta,phi) = " <<
+			     eta << " " << phi << " and pt " << pt << std::endl;
+	  if (pt < Ptmin_jets_ ) continue;
+	  
+	  std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
+	  
+	  for (int n=0; n < (int)feds.size(); n++) {
+	    int fed = feds[n];
+	    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+	    if( it == FEDListUsed.end()){
+	      FEDListUsed.push_back(fed);
+	    }
+	  }
+
 	}
       }
-      
-    }
 
-    if (JETSdoForward_) {
+      if (JETSdoTau_) {
 
-      edm::Handle<L1JetParticleCollection> jetColl;
-      iEvent.getByLabel(ForwardSource_,jetColl);
+	edm::Handle<L1JetParticleCollection> jetColl;
+	iEvent.getByLabel(TauSource_,jetColl);
 
-      for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
+	for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
 
-	double pt    =  jetItr -> pt();
-	double eta   =  jetItr -> eta();
-	double phi   =  jetItr -> phi();
-	  
-	if (debug_ >= 1) std::cout << " here is a L1 ForwardJet Seed  with (eta,phi) = " <<
-			   eta << " " << phi << " and pt " << pt << std::endl;
-	if (pt < Ptmin_jets_ ) continue;
-	  
-	std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
-	  
-	for (int n=0; n < (int)feds.size(); n++) {
-	  int fed = feds[n];
-	  it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	  if( it == FEDListUsed.end()){
-	    FEDListUsed.push_back(fed);
+	  double pt    =  jetItr -> pt();
+	  double eta   =  jetItr -> eta();
+	  double phi   =  jetItr -> phi();
+
+	  if (debug_ >= 1) std::cout << " here is a L1 TauJet Seed  with (eta,phi) = " <<
+			     eta << " " << phi << " and pt " << pt << std::endl;
+	  if (pt < Ptmin_jets_ ) continue;
+
+	  std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
+	  for (int n=0; n < (int)feds.size(); n++) {
+	    int fed = feds[n];
+	    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+	    if( it == FEDListUsed.end()){
+	      FEDListUsed.push_back(fed);
+	    }
 	  }
-	}
-
-      }
-    }
-
-    if (JETSdoTau_) {
-
-      edm::Handle<L1JetParticleCollection> jetColl;
-      iEvent.getByLabel(TauSource_,jetColl);
-
-      for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
-
-	double pt    =  jetItr -> pt();
-	double eta   =  jetItr -> eta();
-	double phi   =  jetItr -> phi();
-
-	if (debug_ >= 1) std::cout << " here is a L1 TauJet Seed  with (eta,phi) = " <<
-		      eta << " " << phi << " and pt " << pt << std::endl;
-	if (pt < Ptmin_jets_ ) continue;
-
-	std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
-	for (int n=0; n < (int)feds.size(); n++) {
-	  int fed = feds[n];
-	  it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	  if( it == FEDListUsed.end()){
-	    FEDListUsed.push_back(fed);
-	  }
-	}
 		
+	}
       }
-    }
     
 
-  }
+    }
+
+  } //// end of getting FED List if asked to do regional match ( for 21x ecalRawtoDigi. etc)
+  
+  
+  
 
   //// end of getting FED List
   ///separate into barrel and endcap to speed up when checking
@@ -466,10 +476,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( energy < seleXtalMinEnergy_) continue; 
 
     EBDetId det = itb->id();
-    int fed = TheMapping->DCCid(det);
 
-    it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
-    if(it == FEDListUsedBarrel.end()) continue; 
+
+    if (RegionalMatch_){
+      int fed = TheMapping->DCCid(det);
+      it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
+      if(it == FEDListUsedBarrel.end()) continue; 
+    }
+    
     
     detIdEBRecHits.push_back(det);
     EBRecHits.push_back(*itb);
@@ -540,9 +554,11 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(HitAlreadyUsed)continue;
       
       ///once again. check FED of this det.
-      int fed = TheMapping->DCCid(EBdet);
-      it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
-      if(it == FEDListUsedBarrel.end()) continue; 
+      if (RegionalMatch_){
+	int fed = TheMapping->DCCid(EBdet);
+	it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
+	if(it == FEDListUsedBarrel.end()) continue; 
+      }
       
 
       std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),EBdet);
@@ -762,12 +778,13 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( energy < seleXtalMinEnergy_) continue; 
     
     EEDetId det = ite->id();
-    EcalElectronicsId elid = TheMapping->getElectronicsId(det);
-    int fed = elid.dccId();
-    it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
-    if(it == FEDListUsedEndcap.end()) continue; 
+    if (RegionalMatch_){
+      EcalElectronicsId elid = TheMapping->getElectronicsId(det);
+      int fed = elid.dccId();
+      it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
+      if(it == FEDListUsedEndcap.end()) continue; 
+    }
     
-
     detIdEERecHits.push_back(det);
     EERecHits.push_back(*ite);
     
@@ -838,11 +855,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(HitAlreadyUsed)continue;
       
       ///once again. check FED of this det.
-      EcalElectronicsId elid = TheMapping->getElectronicsId(EEdet);
-      int fed = elid.dccId();
-      it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
-      if(it == FEDListUsedEndcap.end()) continue; 
-      
+      if (RegionalMatch_){
+	EcalElectronicsId elid = TheMapping->getElectronicsId(EEdet);
+	int fed = elid.dccId();
+	it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
+	if(it == FEDListUsedEndcap.end()) continue; 
+      }
       
       std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),EEdet);
       if(itdet == detIdEERecHits.end()) continue; 
