@@ -4,8 +4,8 @@
 /** \class DirectMuonTrajectoryBuilder
  *  Class which takes a trajectory seed and fit its hits, returning a Trajectory container
  *
- *  $Date: 2008/02/04 14:58:52 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/10/06 13:09:52 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -20,7 +20,7 @@ class TrajectorySeed;
 
 namespace edm {class ParameterSet;}
 
-class DirectMuonTrajectoryBuilder: MuonTrajectoryBuilder {
+class DirectMuonTrajectoryBuilder: public MuonTrajectoryBuilder {
 
  public:
   
