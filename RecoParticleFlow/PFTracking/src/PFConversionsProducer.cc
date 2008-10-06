@@ -316,7 +316,7 @@ void PFConversionsProducer:: fillPFConversions ( reco::ConversionRef& cpRef,
 	  if ( &(*iTk) != &(*tracks[i]) ) continue; 
 	  if (debug_) std::cout << " Found the correspnding trajectory " << std::endl;	  
 	  
-	  reco::PFRecTrack pftrack( double(tracks[i]->charge()), reco::PFRecTrack::KF, i, tracks[i] );
+	  reco::PFRecTrack pftrack( double(tracks[i]->charge()), reco::PFRecTrack::KF_ELCAND, i, tracks[i] );
 	  
 	  //	Trajectory FakeTraj;
 	  bool valid = pfTransformer_->addPoints( pftrack, *tracks[i], traj);
