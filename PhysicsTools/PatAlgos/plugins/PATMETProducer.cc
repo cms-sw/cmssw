@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.5 2008/06/26 21:45:53 slava77 Exp $
+// $Id: PATMETProducer.cc,v 1.6 2008/09/30 21:33:05 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -100,7 +100,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 
     if ( useUserData_ ) {
-      userDataHelper_.add( amet, metsPtr, iEvent, iSetup );
+      userDataHelper_.add( amet, iEvent, iSetup );
     }
     
 

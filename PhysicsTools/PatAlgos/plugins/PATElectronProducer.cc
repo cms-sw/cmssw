@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.14 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.15 2008/09/30 21:33:05 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -243,7 +243,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     
 
     if ( useUserData_ ) {
-      userDataHelper_.add( anElectron, electronPtr, iEvent, iSetup );
+      userDataHelper_.add( anElectron, iEvent, iSetup );
     }
     
     // add sel to selected

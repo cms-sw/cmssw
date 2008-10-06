@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.12 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.13 2008/09/30 21:33:06 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -159,7 +159,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
 
     if ( useUserData_ ) {
-      userDataHelper_.add( aPhoton, photonPtr, iEvent, iSetup );
+      userDataHelper_.add( aPhoton, iEvent, iSetup );
     }
     
 

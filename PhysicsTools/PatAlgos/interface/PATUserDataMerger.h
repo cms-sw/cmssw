@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,$
+// $Id: PATUserDataMerger.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -18,9 +18,8 @@
 		cases. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,$
+  \version  $Id: PATUserDataMerger.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
 */
-
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -29,15 +28,39 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
 #include <iostream>
 
 
 namespace pat {
+  namespace helper {
+    struct AddUserInt {
+        typedef int                       value_type;
+        typedef edm::ValueMap<value_type> product_type;
+        template<typename ObjectType>
+        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserInt(key, val); }
+    };
+    struct AddUserDouble {
+        typedef int                       value_type;
+        typedef edm::ValueMap<value_type> product_type;
+        template<typename ObjectType>
+        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserDouble(key, val); }
+    };
+    struct AddUserPtr {
+        typedef edm::Ptr<UserData>        value_type;
+        typedef edm::ValueMap<value_type> product_type;
+        template<typename ObjectType>
+        void addData(ObjectType &obj, const std::string & key, const value_type &val) { 
+              throw cms::Exception("NOT IMPLEMENTED") << 
+                    "Sorry, there is still some technical detail to be worked out here.\n" << 
+                    "(at" << __FILE__ << ", line " << __LINE__ << ") \n";
+        }
+    };
+  }
 
-
-  template<class ObjectType, class ValueType>
+  template<typename ObjectType, typename Operation>
   class PATUserDataMerger {
     
   public:
@@ -47,20 +70,22 @@ namespace pat {
     ~PATUserDataMerger() {}
     
     // Method to call from PATUserDataHelper to add information to the PATObject in question. 
-    void add(PATObject<ObjectType> & patObject,
-	     edm::Ptr<ObjectType> const & recoObject,
+    void add(ObjectType & patObject,
 	     edm::Event const & iEvent, edm::EventSetup const & iSetup);
 
   private:
 
     // configurables
-    std::vector<edm::InputTag>        userDataSrc_;   // ValueMap containing the user data
+    std::vector<edm::InputTag>  userDataSrc_;   // ValueMap containing the user data
+    Operation                   loader_;
 
   };
 
+}
+
 // Constructor: Initilize user data src
-template<class ObjectType, class ValueType>
-PATUserDataMerger<ObjectType, ValueType>::PATUserDataMerger(const edm::ParameterSet & iConfig) :
+template<typename ObjectType, typename Operation>
+pat::PATUserDataMerger<ObjectType, Operation>::PATUserDataMerger(const edm::ParameterSet & iConfig) :
   userDataSrc_(iConfig.getParameter<std::vector<edm::InputTag> >("src") )
 {
 }
@@ -69,8 +94,7 @@ PATUserDataMerger<ObjectType, ValueType>::PATUserDataMerger(const edm::Parameter
 /* ==================================================================================
      PATUserDataMerger::add 
             This expects four inputs:
-	        patObject:         PATObject<ObjectType> to add to
-		recoObject:        The base for the value map
+	        patObject:         ObjectType to add to
 
 		from Event:
 		userDataSrc:       The data to add, which is a ValueMap keyed by recoObject
@@ -83,9 +107,9 @@ PATUserDataMerger<ObjectType, ValueType>::PATUserDataMerger(const edm::Parameter
    ==================================================================================
 */
 
-template<class ObjectType, class ValueType>
-void PATUserDataMerger<ObjectType, ValueType>::add(PATObject<ObjectType> & patObject,
-						   edm::Ptr<ObjectType> const & recoObject,
+template<class ObjectType, typename Operation>
+void 
+pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
 						   edm::Event const & iEvent, 
 						   const edm::EventSetup & iSetup ) 
 {
@@ -97,21 +121,20 @@ void PATUserDataMerger<ObjectType, ValueType>::add(PATObject<ObjectType> & patOb
   for ( ; input_it != input_end; ++input_it ) {
 
     // Declare the object handles:
-    // ValueMap containing Ptr's to the UserData that
+    // ValueMap containing the values, or edm::Ptr's to the UserData that
     //   is associated to those PAT Objects
-    edm::Handle<edm::ValueMap<edm::Ptr<ValueType> > > userData;
+    edm::Handle<typename Operation::product_type> userData;
 
     // Get the objects by label
     iEvent.getByLabel( *input_it, userData );
 
+    edm::Ptr<reco::Candidate> recoObject = patObject.originalObjectRef();
     if ( userData->contains( recoObject.id() ) ) {
-      patObject.addUserData( input_it->label(), *( (*userData)[recoObject] ) );
+      loader_.addData( patObject, input_it->label(), (*userData)[recoObject]);
     }
 
   }
   
 }
 
-
-}
 #endif

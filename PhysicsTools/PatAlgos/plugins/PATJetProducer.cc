@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.22 2008/07/25 13:15:40 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.23 2008/09/30 21:33:05 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -296,7 +296,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 
     if ( useUserData_ ) {
-      userDataHelper_.add( ajet, jetPtr, iEvent, iSetup );
+      userDataHelper_.add( ajet, iEvent, iSetup );
     }
     
 

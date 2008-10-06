@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.14 2008/09/30 21:33:06 srappocc Exp $
+// $Id: PATMuonProducer.cc,v 1.15 2008/10/03 14:26:31 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -214,7 +214,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       // add sel to selected
       edm::Ptr<MuonType> muonsPtr = muons->ptrAt(idx);
       if ( useUserData_ ) {
-	userDataHelper_.add( aMuon, muonsPtr, iEvent, iSetup );
+	userDataHelper_.add( aMuon, iEvent, iSetup );
       }
 
       patMuons->push_back(aMuon);

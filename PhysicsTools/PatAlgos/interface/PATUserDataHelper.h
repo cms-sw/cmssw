@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,$
+// $Id: PATUserDataHelper.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -22,7 +22,7 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,$
+  \version  $Id: PATUserDataHelper.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
 */
 
 
@@ -36,6 +36,7 @@
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
 #include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
 
@@ -61,17 +62,16 @@ namespace pat {
     // Adds information from user data to patObject,
     // using recoObject as the key
     void add(ObjectType & patObject,
-	     edm::Ptr<typename ObjectType::base_type> const & recoObject,
 	     edm::Event const & iEvent, edm::EventSetup const & iSetup);
 
   private:
 
     // Custom user data
-    pat::PATUserDataMerger<typename ObjectType::base_type, pat::UserData>      userDataMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr>      userDataMerger_;
     // User doubles
-    pat::PATUserDataMerger<typename ObjectType::base_type, double>             userDoubleMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserDouble>   userDoubleMerger_;
     // User ints
-    pat::PATUserDataMerger<typename ObjectType::base_type, int>                userIntMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserInt>      userIntMerger_;
     
     // Inline functions that operate on ObjectType
     std::vector<std::string>                                          functionNames_;
@@ -90,6 +90,7 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
   functionLabels_   (iConfig.getParameter<std::vector<std::string> >("userFunctionLabels"))
 {
 
+#if 0
   // Make sure the sizes match
   if ( functionNames_.size() != functionLabels_.size() ) {
     throw cms::Exception("Size mismatch") << "userFunctions and userFunctionLabels do not have the same size, they must be the same\n";
@@ -102,6 +103,7 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
   for ( ; funcIt != funcEnd; ++funcIt) {
     functions_.push_back(  StringObjectFunction<ObjectType>( *funcIt ) );
   }
+#endif
 }
 
 
@@ -118,15 +120,14 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
 
 template<class ObjectType>
 void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
-					edm::Ptr<typename ObjectType::base_type> const & recoObjectPtr,
 					edm::Event const & iEvent, 
 					const edm::EventSetup & iSetup ) 
 {
 
   // Add "complex" user data to the PAT object
-  userDataMerger_.add( patObject, recoObjectPtr, iEvent, iSetup );
-  userDoubleMerger_.add( patObject, recoObjectPtr, iEvent, iSetup );
-  userIntMerger_.add( patObject, recoObjectPtr, iEvent, iSetup );
+  userDataMerger_.add(   patObject, iEvent, iSetup );
+  userDoubleMerger_.add( patObject, iEvent, iSetup );
+  userIntMerger_.add(    patObject, iEvent, iSetup );
 
   // Add "inline" user-selected functions to the PAT object
   typename std::vector<function_type>::const_iterator funcBegin = functions_.begin(),
@@ -135,7 +136,7 @@ void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
   if ( functionLabels_.size() == functions_.size() ) {
     for ( ; funcIt != funcEnd; ++funcIt) {
       double d = (*funcIt)( patObject );
-      patObject.addUserData( functionLabels_[funcIt - funcBegin], d );
+      patObject.addUserDouble( functionLabels_[funcIt - funcBegin], d );
     }
   }
 

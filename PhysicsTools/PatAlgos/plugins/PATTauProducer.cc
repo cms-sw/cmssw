@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.15 2008/09/19 21:13:17 cbern Exp $
+// $Id: PATTauProducer.cc,v 1.16 2008/09/30 21:33:06 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -166,7 +166,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     
     if ( useUserData_ ) {
-      userDataHelper_.add( aTau, tausPtr, iEvent, iSetup );
+      userDataHelper_.add( aTau, iEvent, iSetup );
     }
 
     patTaus->push_back(aTau);
