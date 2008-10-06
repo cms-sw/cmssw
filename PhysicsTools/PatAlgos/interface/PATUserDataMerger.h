@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATUserDataMerger.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -18,7 +18,7 @@
 		cases. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
+  \version  $Id: PATUserDataMerger.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -53,9 +53,7 @@ namespace pat {
         typedef edm::ValueMap<value_type> product_type;
         template<typename ObjectType>
         void addData(ObjectType &obj, const std::string & key, const value_type &val) { 
-              throw cms::Exception("NOT IMPLEMENTED") << 
-                    "Sorry, there is still some technical detail to be worked out here.\n" << 
-                    "(at" << __FILE__ << ", line " << __LINE__ << ") \n";
+              obj.addUserDataFromPtr(key, val);
         }
     };
   }

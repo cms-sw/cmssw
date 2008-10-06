@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATUserDataHelper.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -22,7 +22,7 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,v 1.1 2008/09/30 21:33:05 srappocc Exp $
+  \version  $Id: PATUserDataHelper.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
 */
 
 
@@ -90,7 +90,6 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
   functionLabels_   (iConfig.getParameter<std::vector<std::string> >("userFunctionLabels"))
 {
 
-#if 0
   // Make sure the sizes match
   if ( functionNames_.size() != functionLabels_.size() ) {
     throw cms::Exception("Size mismatch") << "userFunctions and userFunctionLabels do not have the same size, they must be the same\n";
@@ -103,7 +102,6 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
   for ( ; funcIt != funcEnd; ++funcIt) {
     functions_.push_back(  StringObjectFunction<ObjectType>( *funcIt ) );
   }
-#endif
 }
 
 
