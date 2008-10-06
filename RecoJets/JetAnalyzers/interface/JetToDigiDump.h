@@ -25,6 +25,8 @@ private:
   // Parameters passed via the config file
   std::string DumpLevel;   //How deep into calorimeter reco to dump
   std::string CaloJetAlg;  //Jet Algorithm to dump
+  int DebugLevel;          //0 = no debug prints
+  bool ShowECal;           //if true, ECAL hits are ignored 
     
   //Internal parameters
   int Dump;
