@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id$
+// $Id: DataCertificationJetMET.cc,v 1.1 2008/10/05 22:55:40 chlebana Exp $
 //
 //
 
@@ -47,7 +47,6 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
       ~DataCertificationJetMET();
-
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -111,7 +110,6 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
   iSetup.get<SetupRecord>().get(pSetup);
 #endif
 
-
 }
 
 
@@ -130,15 +128,22 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   //  dbe = edm::Service<DQMStore>().operator->();
   //  dbe->open("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root");
 
+  // print histograms:
+  //  dbe->showDirStructure();
 
-//   // print histograms:
-//   //  dbe->showDirStructure();
-//   std::vector<MonitorElement*> mes = dbe->getAllContents("");
-//   std::cout << "found " << mes.size() << " monitoring elements!" << std::endl;
+  std::vector<MonitorElement*> mes = dbe->getAllContents("");
+  std::cout << "found " << mes.size() << " monitoring elements!" << std::endl;
+
 //   TH1F *bla = fs_->make<TH1F>("bla","bla",256,0,256);
 //   int totF;
-//   for(std::vector<MonitorElement*>::const_iterator ime = mes.begin(); ime!=mes.end(); ++ime){
-//     std::string name = (*ime)->getName();
+
+  for(std::vector<MonitorElement*>::const_iterator ime = mes.begin(); ime!=mes.end(); ++ime) {
+    std::string name = (*ime)->getName();
+    std::cout << "Name = " << name << std::endl;
+  }
+
+
+
 //     if(name.find(tagname)>=name.size())
 //       continue;
 //     totF++;

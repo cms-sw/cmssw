@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("DQMServices.Core.DQM_cfg")
+process.DQM.collectorHost = ''
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1)
 )
@@ -15,9 +17,9 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.demo = cms.EDAnalyzer('DataCertificationJetMET',
-#                               fileName = cms.untracked.string("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root")
+                               fileName = cms.untracked.string("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root")
 #                               fileName = cms.untracked.string("jetMETMonitoring.root")
-                               fileName = cms.untracked.string("DQM_SCurve_Run60924.root")
+#                               fileName = cms.untracked.string("DQM_SCurve_Run60924.root")
 )
 
 process.p = cms.Path(process.demo)
