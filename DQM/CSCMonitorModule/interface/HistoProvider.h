@@ -24,26 +24,24 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-typedef cscdqm::EventProcessor<MonitorElement> EventProcessorType;
+class HistoProvider;
+
+typedef cscdqm::EventProcessor<MonitorElement, HistoProvider> EventProcessorType;
 
 class HistoProvider {
 
   public:
     
-    HistoProvider() {
-      processor = new EventProcessorType(this);
-    };
+    HistoProvider();
+    ~HistoProvider();
 
-    ~HistoProvider() {
-      delete processor;
-    };
+    template <typename HistoIdT>
+    const bool getHisto(const HistoIdT& histo, MonitorElement* me);
+    const bool getEffParamHisto(const std::string& paramName, MonitorElement* me);
 
-    const bool getEMUHisto(const cscdqm::HistoType type, MonitorElement* me) { return false; }
-    const bool getDDUHisto(const int dduID, const cscdqm::HistoType histo, MonitorElement* me) { return false; }
-    const bool getCSCHisto(const int crateID, const int dmbSlot, const cscdqm::HistoType histo, MonitorElement* me, const int adId = 0) { return false; }
-
-    void getCSCFromMap(const unsigned int crateID, const unsigned int dmbSlot, unsigned int& cscType, unsigned int& cscPosition) { }
-    const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const { return 0;  }
+    void getCSCFromMap(const unsigned int crateId, const unsigned int dmbId, unsigned int& cscType, unsigned int& cscPosition);
+    const uint32_t getCSCDetRawId(const int endcap, const int station, const int vmecrate, const int dmb, const int tmb) const;
+    const bool nextCSC(unsigned int& iter, unsigned int& crateId, unsigned int& dmbId) const;
 
   private:
 

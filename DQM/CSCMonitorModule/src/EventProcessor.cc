@@ -22,6 +22,7 @@ namespace cscdqm {
 
   template <class METype, class HPType>
   EventProcessor<METype, HPType>::EventProcessor(HPType*& p_histoProvider) {
+
     histoProvider = p_histoProvider;
 
     nEvents = 0;
@@ -36,6 +37,7 @@ namespace cscdqm {
     dduCheckMask = 0xFFFFFFFF;
     binCheckMask = 0xFFFFFFFF;
     dduBinCheckMask = 0x02080016;
+
   }
 
   template <class METype, class HPType>
@@ -54,21 +56,34 @@ namespace cscdqm {
   }
 
   template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getEMUHisto(const HistoType histo, METype* me) {
-    if (!histoNotBlocked(histo)) return false;
-    return histoProvider->getEMUHisto(histo, me);
+  const bool EventProcessor<METype, HPType>::getEMUHisto(const HistoType histo, METype* me, const bool ref) {
+    if (!ref && !histoNotBlocked(histo)) return false;
+    EMUHistoType histoT;
+    histoT.histoId = histo;
+    histoT.reference = ref;
+    return histoProvider->getHisto(histoT, me);
   }
 
   template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getDDUHisto(const int dduID, const HistoType histo, METype* me) {
-    if (!histoNotBlocked(histo)) return false;
-    return histoProvider->getDDUHisto(dduID, histo, me);
+  const bool EventProcessor<METype, HPType>::getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref) {
+    if (!ref && !histoNotBlocked(histo)) return false;
+    DDUHistoType histoT;
+    histoT.histoId = histo;
+    histoT.dduId = dduID;
+    histoT.reference = ref;
+    return histoProvider->getHisto(histoT, me);
   }
 
   template <class METype, class HPType>
-  const bool EventProcessor<METype, HPType>::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId) {
-    if (!histoNotBlocked(histo)) return false;
-    return histoProvider->getCSCHisto(crateID, dmbSlot, histo, me, adId);
+  const bool EventProcessor<METype, HPType>::getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId, const bool ref) {
+    if (!ref && !histoNotBlocked(histo)) return false;
+    CSCHistoType histoT;
+    histoT.histoId = histo;
+    histoT.crateId = crateID;
+    histoT.dmbId = dmbSlot;
+    histoT.addId = adId;
+    histoT.reference = ref;
+    return histoProvider->getHisto(histoT, me);
   }
 
   template <class METype, class HPType>

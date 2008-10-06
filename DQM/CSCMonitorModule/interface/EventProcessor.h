@@ -36,6 +36,7 @@
 #endif
 
 #include "DQM/CSCMonitorModule/interface/HistoType.h"
+#include "DQM/CSCMonitorModule/interface/CSCSummary.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
@@ -46,6 +47,36 @@ namespace cscdqm {
 
   typedef enum BinCheckerCRCType { ALCT, CFEB, TMB };
   typedef std::map<std::string, uint32_t> CSCCounters;
+
+  typedef struct EMUHistoType {
+    HistoType histoId; 
+    bool reference;
+  };
+
+  typedef struct DDUHistoType {
+    unsigned int dduId;
+    HistoType histoId; 
+    bool reference;
+  };
+
+  typedef struct CSCHistoType {
+    unsigned int crateId;
+    unsigned int dmbId;
+    unsigned int addId;
+    HistoType histoId; 
+    bool reference;
+  };
+
+  typedef struct EffParametersType {
+    double cold_threshold;
+    double cold_sigfail;
+    double hot_threshold;
+    double hot_sigfail;
+    double err_threshold;
+    double err_sigfail;
+    double nodata_threshold;
+    double nodata_sigfail;
+  };
 
   template <class METype, class HPType>
   class EventProcessor {
@@ -69,20 +100,26 @@ namespace cscdqm {
       void setBinCheckerCRC(const BinCheckerCRCType crc, const bool value);
       void setBinCheckerOutput(const bool value);
 
+      void updateFractionHistos();
+      void updateEfficiencyHistos(EffParametersType& effParams);
+
     private:
       
       void processExaminer(const uint16_t *data, const uint32_t dataSize, bool& eventDenied); 
       void processDDU(const CSCDDUEventData& data);
       void processCSC(const CSCEventData& data, const int dduID);
 
+      void calcEMUFractionHisto(const HistoType result, const HistoType set, const HistoType subset);
+
       const bool histoNotBlocked(const HistoType histo) const;
 
-      const bool getEMUHisto(const HistoType histo, METype* me);
-      const bool getDDUHisto(const int dduID, const HistoType histo, METype* me);
-      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId = 0);
+      const bool getEMUHisto(const HistoType histo, METype* me, const bool ref = false);
+      const bool getDDUHisto(const int dduID, const HistoType histo, METype* me, const bool ref = false);
+      const bool getCSCHisto(const int crateID, const int dmbSlot, const HistoType histo, METype* me, const int adId = 0, const bool ref = false);
 
       std::set<HistoType> blocked;
       HPType* histoProvider;
+      CSCSummary summary;
 
       uint32_t nEvents; 
       uint32_t nBadEvents; 
