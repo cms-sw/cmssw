@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2008/02/13 13:53:54 $
- *   $Revision: 1.29 $
+ *   $Date: 2008/10/06 13:42:28 $
+ *   $Revision: 1.30 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -67,7 +67,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
     theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
 					 new MuonTrackLoader(trackLoaderParameters,theService));
-  else if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
+  else if(typeOfBuilder == "DirectMuonTrajectoryBuilder")
     theTrackFinder = new MuonTrackFinder(new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
 					 new MuonTrackLoader(trackLoaderParameters,theService));
   else{
