@@ -276,7 +276,7 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="minMean">10.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
@@ -361,7 +361,7 @@
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="minMean">10.0</PARAM>
         <PARAM name="maxMean">49152.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
