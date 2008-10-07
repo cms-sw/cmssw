@@ -6,6 +6,7 @@
 #include <boost/cstdint.hpp>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 class TkLayerMap{
 
@@ -19,20 +20,20 @@ class TkLayerMap{
   };
   
   enum  TkLayerEnum { INVALID=0,
-		      TIB_L1,
+		      TIB_L1, //0
 		      TIB_L2,
 		      TIB_L3,
 		      TIB_L4,         
-		      TID_D1,
+		      TID_D1, //5
 		      TID_D2,
 		      TID_D3,
-		      TOB_L1,
+		      TOB_L1, //8
 		      TOB_L2,
-		      TOB_L3,
+		      TOB_L3, //10
 		      TOB_L4,
 		      TOB_L5,
 		      TOB_L6,
-		      TEC_W1,
+		      TEC_W1, //14
 		      TEC_W2,
 		      TEC_W3,
 		      TEC_W4,
@@ -47,7 +48,7 @@ class TkLayerMap{
   TkLayerMap(int in);
   ~TkLayerMap(){};
   
-  const XYbin& getXY(uint32_t& detid);
+  const XYbin getXY(uint32_t& detid, int layerEnumNb=0);
 
   int& get_nchX(){return nchX;}
   int& get_nchY(){return nchY;}
@@ -56,25 +57,56 @@ class TkLayerMap{
   double& get_lowY(){return lowY;}
   double& get_highY(){return highY;}
 
+  static const int16_t layerSearch(uint32_t detid);
+
  private:
 
-  void createTIB12(std::vector<uint32_t>& TkDetIdList, int layer);
-  void createTIB34(std::vector<uint32_t>& TkDetIdList, int layer);
-  void createTOB12(std::vector<uint32_t>& TkDetIdList, int layer);
-  void createTOB36(std::vector<uint32_t>& TkDetIdList, int layer);
-  void createTID13 (std::vector<uint32_t>& TkDetIdList,  int layer){createTest(TkDetIdList); }
-  //void createTEC(std::vector<uint32_t>& TkDetIdList);
+  XYbin getXY_TIB(uint32_t& detid, int layerEnumNb=0);
+  XYbin getXY_TOB(uint32_t& detid, int layerEnumNb=0);
+  XYbin getXY_TID(uint32_t& detid, int layerEnumNb=0);
+  XYbin getXY_TEC(uint32_t& detid, int layerEnumNb=0);
+
+  void initialize(int layer);
+
+  void createTIB(std::vector<uint32_t>& TkDetIdList, int layer);
+  void createTOB(std::vector<uint32_t>& TkDetIdList, int layer);
+  void createTID(std::vector<uint32_t>& TkDetIdList,  int layer);
+  void createTEC(std::vector<uint32_t>& TkDetIdList,  int layer){createTest(TkDetIdList);}
+
   void createTest(std::vector<uint32_t>& TkDetIdList);
 
  private:
   std::map<uint32_t,XYbin> DetToBin;
   std::vector<uint32_t> binToDet;
 
+  XYbin xybin;
+
+  int layerEnumNb; //In the enumerator sequence
   int nchX;
   int nchY;
   double lowX,highX;
   double lowY, highY;
+
+  std::vector<uint32_t> SingleExtString;
+  uint32_t Nstring_ext, Nrod, Offset;
+
 };
+
+
+const int16_t TkLayerMap::layerSearch(uint32_t detid){
+  switch((detid>>25)&0x7){
+  case SiStripDetId::TIB:
+    return ((detid>>14)&0x7);
+  case SiStripDetId::TID:
+    return 4+((detid>>11)&0x3);
+  case SiStripDetId::TOB:
+    return 7+((detid>>14)&0x7);
+  case SiStripDetId::TEC:
+    return 13+((detid>>14)&0xF);
+  }
+  return 0;
+}
+
 
 class TkDetMap{
 
@@ -93,7 +125,6 @@ class TkDetMap{
  private:
 
   void doMe();
-  int16_t layerSearch(uint32_t detid);
 
  private:
   typedef std::map<int,TkLayerMap*> detmapType;
