@@ -49,17 +49,43 @@ VariableComputer::VariableComputer(CachingVariable::CachingVariableFactoryArg ar
 void VariableComputer::declare(std::string var){
   std::string aName = name_+separator_+var;
   ComputedVariable * newVar = new ComputedVariable(method_,aName,arg_.iConfig,this);
+  if (iCompute_.find(var) != iCompute_.end()){
+    edm::LogError("VariableComputer")<<"redeclaring: "<<var<<" skipping.";
+    delete newVar;
+    return;
+  }
   iCompute_[var] = newVar;
   arg_.m.insert(std::make_pair(aName,newVar));
 }
 void VariableComputer::assign(std::string var, double & value) const{
-    iCompute_.find(var)->second->setCache(value);
+  std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.find(var);
+  if (it == iCompute_.end()){
+    std::stringstream ss;
+    ss<<"cannot assign: "<<var<<". List of variable declared:\n";
+    for ( std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.begin(); it!=iCompute_.end();++it)
+      ss<<it->first<<std::endl;
+    edm::LogError("VariableComputer")<<ss.str();
   }
+  else
+    it->second->setCache(value);
+}
+
 void VariableComputer::doesNotCompute() const{
   for ( std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.begin(); it!=iCompute_.end();++it)
     it->second->setNotCompute();
 }
-void VariableComputer::doesNotCompute(std::string var) const{iCompute_.find(var)->second->setNotCompute();}
+void VariableComputer::doesNotCompute(std::string var) const{
+  std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.find(var);
+  if (it == iCompute_.end()){
+    std::stringstream ss;
+    ss<<"cannot act on: "<<var<<". List of variable declared:\n";
+    for ( std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.begin(); it!=iCompute_.end();++it)
+      ss<<it->first<<std::endl;
+    edm::LogError("VariableComputer")<<ss.str();
+  }
+  else
+    it->second->setNotCompute();
+}
 
 
 ComputedVariable::ComputedVariable(CachingVariableFactoryArg arg ) : 
