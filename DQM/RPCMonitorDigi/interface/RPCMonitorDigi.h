@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2008/09/28 16:54:20 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/09/28 17:00:58 $
+ *  $Revision: 1.20 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -61,26 +61,26 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         //MonitorElement * GlobalZPhiHitCoordinates;
         
 	MonitorElement * NumberOfDigis_for_Barrel;
-	MonitorElement * NumberOfDigis_for_EndcapForward;
-	MonitorElement * NumberOfDigis_for_EndcapBackward;
+	MonitorElement * NumberOfDigis_for_EndcapPositive;
+	MonitorElement * NumberOfDigis_for_EndcapNegative;
 
 	MonitorElement * NumberOfClusters_for_Barrel;
-	MonitorElement * NumberOfClusters_for_EndcapForward;
-	MonitorElement * NumberOfClusters_for_EndcapBackward;
+	MonitorElement * NumberOfClusters_for_EndcapPositive;
+	MonitorElement * NumberOfClusters_for_EndcapNegative;
 
 	MonitorElement * ClusterSize_for_Barrel;
-        MonitorElement * ClusterSize_for_EndcapForward;
-        MonitorElement * ClusterSize_for_EndcapBackward;
+        MonitorElement * ClusterSize_for_EndcapPositive;
+        MonitorElement * ClusterSize_for_EndcapNegative;
 	
 	MonitorElement * ClusterSize_for_BarrelandEndcaps;
 
 	MonitorElement * BarrelOccupancy;
-	MonitorElement * EndcapForwardOccupancy;
-	MonitorElement * EndcapBackwardOccupancy;
+	MonitorElement * EndcapPositiveOccupancy;
+	MonitorElement * EndcapNegativeOccupancy;
 
 	MonitorElement * 	SameBxDigisMeBarrel_;
-	MonitorElement * 	SameBxDigisMeEndcapForward_;
-	MonitorElement * 	SameBxDigisMeEndcapBackward_ ;
+	MonitorElement * 	SameBxDigisMeEndcapPositive_;
+	MonitorElement * 	SameBxDigisMeEndcapNegative_ ;
 
 	std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
         std::map<std::pair<int,int>, std::map<std::string, MonitorElement*> >  meWheelDisk;

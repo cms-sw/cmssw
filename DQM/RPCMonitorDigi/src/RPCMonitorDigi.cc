@@ -43,7 +43,7 @@ RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
 RPCMonitorDigi::~RPCMonitorDigi(){}
 
 void RPCMonitorDigi::beginJob(EventSetup const&){
-  LogInfo (nameInLog) <<"Beginning DQMMonitorDigi lllllllllllll " ;
+  LogInfo (nameInLog) <<"[RPCMonitorDigi]: Begin job" ;
   
   /// get hold of back-end interface
   dbe = Service<DQMStore>().operator->();
@@ -52,26 +52,26 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
 
   ClusterSize_for_Barrel = dbe->book1D("ClusterSize_for_Barrel", "ClusterSize for Barrel", 20, 0.5, 20.5);
-  ClusterSize_for_EndcapForward = dbe->book1D("ClusterSize_for_EndcapForward", "ClusterSize for ForwardEndcap",  20, 0.5, 20.5);
-  ClusterSize_for_EndcapBackward = dbe->book1D("ClusterSize_for_EndcapBackward", "ClusterSize for BackwardEndcap", 20, 0.5, 20.5);
+  ClusterSize_for_EndcapPositive = dbe->book1D("ClusterSize_for_EndcapPositive", "ClusterSize for PositiveEndcap",  20, 0.5, 20.5);
+  ClusterSize_for_EndcapNegative = dbe->book1D("ClusterSize_for_EndcapNegative", "ClusterSize for NegativeEndcap", 20, 0.5, 20.5);
 
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
 
   NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "NumberOfDigis for Barrel", 200, 0.5, 200.5);
-  NumberOfDigis_for_EndcapForward = dbe -> book1D("NumberOfDigi_for_EndcapForward", "NumberOfDigis for EndcapForward", 200, 0.5, 200.5);
-  NumberOfDigis_for_EndcapBackward = dbe -> book1D("NumberOfDigi_for_EndcapBackward", "NumberOfDigis for EndcapBackward", 200, 0.5, 200.5);
+  NumberOfDigis_for_EndcapPositive = dbe -> book1D("NumberOfDigi_for_EndcapPositive", "NumberOfDigis for Endcap Positive", 200, 0.5, 200.5);
+  NumberOfDigis_for_EndcapNegative = dbe -> book1D("NumberOfDigi_for_EndcapNegative", "NumberOfDigis for Endcap Negative", 200, 0.5, 200.5);
 
   NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
-  NumberOfClusters_for_EndcapForward = dbe -> book1D("NumberOfClusters_for_EndcapForward", "NumberOfDigis for EndcapForward", 20, 0.5, 20.5);
-  NumberOfClusters_for_EndcapBackward = dbe -> book1D("NumberOfClusters_for_EndcapBackward", "NumberOfDigis for EndcapBackward", 20, 0.5, 20.5);
+  NumberOfClusters_for_EndcapPositive = dbe -> book1D("NumberOfClusters_for_EndcapPositive", "NumberOfClusters for Endcap Positive", 20, 0.5, 20.5);
+  NumberOfClusters_for_EndcapNegative = dbe -> book1D("NumberOfClusters_for_EndcapNegative", "NumberOfClusters for Endcap Negative", 20, 0.5, 20.5);
 
   SameBxDigisMeBarrel_ = dbe->book1D("SameBXDigis_Barrel", "Digis with same bx", 20, 0.5, 20.5);  
- //  SameBxDigisMeEndcapForward_ = dbe->book1D("SameBXDigis_EndcapForward", "Digis with same bx", 20, 0.5, 20.5);  
-//   SameBxDigisMeEndcapBackward_ = dbe->book1D("SameBXDigis_EndcapBackward", "Digis with same bx", 20, 0.5, 20.5);  
+ //  SameBxDigisMeEndcapPositive_ = dbe->book1D("SameBXDigis_EndcapPositive", "Digis with same bx", 20, 0.5, 20.5);  
+ //   SameBxDigisMeEndcapNegative_ = dbe->book1D("SameBXDigis_EndcapNegative", "Digis with same bx", 20, 0.5, 20.5);  
 
-  BarrelOccupancy = dbe -> book2D("BarrelOccupancy", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
-  EndcapForwardOccupancy = dbe -> book2D("EndcapForwardOccupancy", "EndcapForward Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, -2, 2);
-  EndcapBackwardOccupancy = dbe -> book2D("EndcapBackwardOccupancy", "EndcapBackward Occupancy Disk vs Sector", 6, 0.5, 6.5, 4, -2, 2);
+  BarrelOccupancy = dbe -> book2D("Occupancy_for_Barrel", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
+  EndcapPositiveOccupancy = dbe -> book2D("Occupancy_for_EndcapPositive", "Endcap Positive Occupancy Disk vs Sector", 6, 0.5, 6.5, 8, -4, 4);
+  EndcapNegativeOccupancy = dbe -> book2D("Occupancy_for_EndcapNegative", "Endcap Negative Occupancy Disk vs Sector", 6, 0.5, 6.5, 8, -4, 4);
  
   stringstream binLabel;
   for (int i = 1; i<13; i++){
@@ -82,17 +82,18 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
       binLabel.str("");
       binLabel<<"Wheel"<<i-3;
       BarrelOccupancy -> setBinLabel(i, binLabel.str(), 2);
-    }
-    
+    }    
     if(i<7) {
       binLabel.str("");
-      if (i<4) binLabel<<"Disk"<<i-4; else  binLabel<<"Disk"<<i-3;
-      EndcapForwardOccupancy -> setBinLabel(i, binLabel.str(), 1);
-      EndcapBackwardOccupancy -> setBinLabel(i, binLabel.str(), 1);
+      binLabel<<"Sec"<<i;
+      EndcapPositiveOccupancy -> setBinLabel(i, binLabel.str(), 1);
+      EndcapNegativeOccupancy -> setBinLabel(i, binLabel.str(), 1);
+    }
+      if(i<9){
       binLabel.str("");
-      binLabel<<"Sect"<<i;
-      EndcapForwardOccupancy -> setBinLabel(i, binLabel.str(), 2);
-      EndcapBackwardOccupancy -> setBinLabel(i, binLabel.str(), 1);
+      if (i<5) binLabel<<"Disk"<<(i-1)-4; else  binLabel<<"Disk"<<i-4;
+      EndcapPositiveOccupancy -> setBinLabel(i, binLabel.str(), 2);
+      EndcapNegativeOccupancy -> setBinLabel(i, binLabel.str(), 2);
     }
   }
 }
@@ -123,26 +124,26 @@ void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
   
   //Reset All Global histos !!!!!!!!!!!!!!!!!!!!!!
   ClusterSize_for_Barrel->Reset();
-  ClusterSize_for_EndcapForward ->Reset();
-  ClusterSize_for_EndcapBackward->Reset();
+  ClusterSize_for_EndcapPositive ->Reset();
+  ClusterSize_for_EndcapNegative->Reset();
   ClusterSize_for_BarrelandEndcaps->Reset(); 
   
   NumberOfDigis_for_Barrel ->Reset();
-  NumberOfDigis_for_EndcapForward ->Reset();
-  NumberOfDigis_for_EndcapBackward->Reset();
+  NumberOfDigis_for_EndcapPositive ->Reset();
+  NumberOfDigis_for_EndcapNegative->Reset();
 
   NumberOfClusters_for_Barrel ->Reset();
-  NumberOfClusters_for_EndcapForward->Reset(); 
-  NumberOfClusters_for_EndcapBackward ->Reset();
+  NumberOfClusters_for_EndcapPositive->Reset(); 
+  NumberOfClusters_for_EndcapNegative ->Reset();
 
 
   SameBxDigisMeBarrel_->Reset();
- //  SameBxDigisMeEndcapForward_->Reset();
-//   SameBxDigisMeEndcapBackward_ ->Reset();
+ //  SameBxDigisMeEndcapPositive_->Reset();
+//   SameBxDigisMeEndcapNegative_ ->Reset();
   
   BarrelOccupancy ->Reset();
-  EndcapForwardOccupancy ->Reset();
-  EndcapBackwardOccupancy->Reset();
+  EndcapPositiveOccupancy ->Reset();
+  EndcapNegativeOccupancy->Reset();
 }
 
 void RPCMonitorDigi::endJob(void)
@@ -234,8 +235,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     vector<int> strips;
     vector<int> bxs;
     strips.clear(); 
-    bxs.clear();
- 
+    bxs.clear(); 
 
     //get the RecHits associated to the roll
     typedef pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
@@ -286,9 +286,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       if(detId.region()==0)
 	BarrelOccupancy -> Fill(detId.sector(), ring);
       else if(detId.region()==1)
-   	EndcapForwardOccupancy -> Fill(detId.sector(), ring);
+   	EndcapPositiveOccupancy -> Fill(detId.sector(), ring);
       else if(detId.region()==-1)
-   	EndcapBackwardOccupancy -> Fill(detId.sector(), ring);
+   	EndcapNegativeOccupancy -> Fill(detId.sector(), ring);
 
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
@@ -391,11 +391,11 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	if(detId.region() ==  0) {
 	  ClusterSize_for_Barrel -> Fill(mult);
 	} else if (detId.region() ==  -1) {
-	  if(mult<=10) ClusterSize_for_EndcapBackward -> Fill(mult);
-	  else ClusterSize_for_EndcapBackward -> Fill(11);	   
+	  if(mult<=10) ClusterSize_for_EndcapNegative -> Fill(mult);
+	  else ClusterSize_for_EndcapNegative -> Fill(11);	   
 	} else if (detId.region() ==  1) {
-	  if(mult<=10) ClusterSize_for_EndcapForward -> Fill(mult);
-	  else ClusterSize_for_EndcapForward -> Fill(11);
+	  if(mult<=10) ClusterSize_for_EndcapPositive -> Fill(mult);
+	  else ClusterSize_for_EndcapPositive -> Fill(11);
 	} 
 
 	//Cluster Size by Wheels and sector
@@ -469,9 +469,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       if(detId.region()==0)
 	NumberOfClusters_for_Barrel -> Fill(numbOfClusters);
       else if (detId.region()==1)
-	NumberOfClusters_for_EndcapForward -> Fill(numbOfClusters);
+	NumberOfClusters_for_EndcapPositive -> Fill(numbOfClusters);
       else if(detId.region()==-1)
-	NumberOfClusters_for_EndcapBackward -> Fill(numbOfClusters);
+	NumberOfClusters_for_EndcapNegative -> Fill(numbOfClusters);
       os.str("");
       os<<"NumberOfClusters_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(numbOfClusters);
@@ -480,8 +480,8 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
  
   //fill global histo at the end of the event
       NumberOfDigis_for_Barrel ->Fill(totalNumberDigi[2][1]);
-      NumberOfDigis_for_EndcapForward ->Fill(totalNumberDigi[3][1]);
-      NumberOfDigis_for_EndcapBackward ->Fill(totalNumberDigi[1][1]);
+      NumberOfDigis_for_EndcapPositive ->Fill(totalNumberDigi[3][1]);
+      NumberOfDigis_for_EndcapNegative ->Fill(totalNumberDigi[1][1]);
 
   //adding new histo C.Carrillo & A. Cimmino
   for (map<int, int>::const_iterator myItr= bxMap.begin(); 
