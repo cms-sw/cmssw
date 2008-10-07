@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.70 2008/07/02 09:03:30 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.71 2008/10/06 15:43:10 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -236,6 +236,12 @@ class SiStripConfigDb {
   
   /** Retrieves all partitions names from database. */
   void partitions( std::list<std::string>& ) const;
+  
+  /** Returns details of next physics run (>= run_number). */
+  Run nextPhysicsRun( const std::string& partition_name, uint32_t run_number ) const;
+  
+  /** Returns details of next commissioning run (>= run_number). */
+  Run nextCommissioningRun( const std::string& partition_name, uint32_t run_number ) const;
   
   /** Print method for class. */
   void print( std::stringstream& ss ) const;
