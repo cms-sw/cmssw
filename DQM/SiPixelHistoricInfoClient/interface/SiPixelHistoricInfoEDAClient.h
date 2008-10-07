@@ -1,26 +1,25 @@
-#include <memory>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
+// #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
 
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventId;
-  class Timestamp;
-}
+// namespace edm {
+//   class ParameterSet;
+//   class Event;
+//   class EventId;
+//   class Timestamp;
+// } 
 
 class SiPixelHistoricInfoEDAClient : public edm::EDAnalyzer {
 public:
@@ -34,14 +33,10 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  void retrievePointersToModuleMEs(const edm::EventSetup&);
-  void fillSummaryObjects(const edm::Run&) const;
-
-  void writetoDB(edm::EventID, edm::Timestamp) const;
-  void writetoDB(const edm::Run&) const; 
+  void retrievePointersToModuleMEs();
+  void fillSummaryObjects() const;
+  void writetoDB() const; 
   void savetoFile(std::string) const; 
-  // float calculatePercentOver(MonitorElement*) const; 
-  // void printMEs() const; 
 
 private: 
   bool printDebug_;
