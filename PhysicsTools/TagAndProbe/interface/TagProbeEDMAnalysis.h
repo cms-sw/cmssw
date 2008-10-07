@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.3 2008/10/02 23:23:27 kalanand Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.4 2008/10/07 18:11:21 kalanand Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -90,7 +90,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       std::vector<double> lumi_;
       std::vector<double> xsection_;
       std::vector<double> weight_;
-      bool Verboes_;
+      bool Verbose_;
 
       // Fitting/Efficiency calculation inputs
       int tagProbeType_;        // If more than one tag-probe type is stored select
