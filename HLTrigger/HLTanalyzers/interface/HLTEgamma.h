@@ -65,6 +65,8 @@ public:
 
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
+  void clear(void);
+
   /** Analyze the Data */
   void analyze(
       const edm::Handle<reco::GsfElectronCollection>         & electrons,

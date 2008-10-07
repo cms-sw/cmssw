@@ -14,25 +14,28 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
 #include "HLTMessages.h"
 
+static const size_t kMaxEl     = 10000;
+static const size_t kMaxPhot   = 10000;
+static const size_t kMaxhPhot  =   500;
+static const size_t kMaxhEle   =   500;
+static const size_t kMaxhEleLW =   500;
+
 HLTEgamma::HLTEgamma() {
 }
 
-/*  Setup the analysis to put the branch-variables into the tree. */
-void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
-
-  const int kMaxEl = 10000;
+/*  Setup the analysis to put the branch-variables size_to the tree. */
+void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) 
+{
   elpt              = new float[kMaxEl];
   elphi             = new float[kMaxEl];
   eleta             = new float[kMaxEl];
   elet              = new float[kMaxEl];
   ele               = new float[kMaxEl];
-  const int kMaxPhot = 10000;
   photonpt          = new float[kMaxPhot];
   photonphi         = new float[kMaxPhot];
   photoneta         = new float[kMaxPhot];
   photonet          = new float[kMaxPhot];
   photone           = new float[kMaxPhot];
-  const int kMaxhPhot = 500;
   hphotet           = new float[kMaxhPhot];
   hphoteta          = new float[kMaxhPhot];
   hphotphi          = new float[kMaxhPhot];
@@ -40,7 +43,6 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   hphothiso         = new float[kMaxhPhot];
   hphottiso         = new float[kMaxhPhot];
   hphotl1iso        = new int[kMaxhPhot];
-  const int kMaxhEle = 500;
   heleet            = new float[kMaxhEle];
   heleeta           = new float[kMaxhEle];
   helephi           = new float[kMaxhEle];
@@ -51,7 +53,6 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   helel1iso         = new int[kMaxhEle];
   helePixelSeeds    = new int[kMaxhEle];
   heleNewSC         = new int[kMaxhEle];
-  const int kMaxhEleLW = 500;
   heleetLW          = new float[kMaxhEleLW];
   heleetaLW         = new float[kMaxhEleLW];
   helephiLW         = new float[kMaxhEleLW];
@@ -62,6 +63,11 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   helel1isoLW       = new int[kMaxhEleLW];
   helePixelSeedsLW  = new int[kMaxhEleLW];
   heleNewSCLW       = new int[kMaxhEleLW];
+  nele      = 0;
+  nphoton   = 0;
+  nhltgam   = 0;
+  nhltele   = 0;
+  nhlteleLW = 0;
 
   // Egamma-specific branches of the tree
   HltTree->Branch("NrecoElec",          & nele,             "NrecoElec/I");
@@ -108,6 +114,52 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohEleNewSCLW",       heleNewSCLW,        "ohEleNewSCLW[NohEleLW]/I");
 }
 
+void HLTEgamma::clear(void) 
+{
+  std::memset(elpt,             '\0', kMaxEl     * sizeof(float));
+  std::memset(elphi,            '\0', kMaxEl     * sizeof(float));
+  std::memset(eleta,            '\0', kMaxEl     * sizeof(float));
+  std::memset(elet,             '\0', kMaxEl     * sizeof(float));
+  std::memset(ele,              '\0', kMaxEl     * sizeof(float));
+  std::memset(photonpt,         '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonphi,        '\0', kMaxPhot   * sizeof(float));
+  std::memset(photoneta,        '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonet,         '\0', kMaxPhot   * sizeof(float));
+  std::memset(photone,          '\0', kMaxPhot   * sizeof(float));
+  std::memset(hphotet,          '\0', kMaxhPhot  * sizeof(float));
+  std::memset(hphoteta,         '\0', kMaxhPhot  * sizeof(float));
+  std::memset(hphotphi,         '\0', kMaxhPhot  * sizeof(float));
+  std::memset(hphoteiso,        '\0', kMaxhPhot  * sizeof(float));
+  std::memset(hphothiso,        '\0', kMaxhPhot  * sizeof(float));
+  std::memset(hphottiso,        '\0', kMaxhPhot  * sizeof(float));
+  std::memset(hphotl1iso,       '\0', kMaxhPhot  * sizeof(int));
+  std::memset(heleet,           '\0', kMaxhEle   * sizeof(float));
+  std::memset(heleeta,          '\0', kMaxhEle   * sizeof(float));
+  std::memset(helephi,          '\0', kMaxhEle   * sizeof(float));
+  std::memset(heleE,            '\0', kMaxhEle   * sizeof(float));
+  std::memset(helep,            '\0', kMaxhEle   * sizeof(float));
+  std::memset(helehiso,         '\0', kMaxhEle   * sizeof(float));
+  std::memset(heletiso,         '\0', kMaxhEle   * sizeof(float));
+  std::memset(helel1iso,        '\0', kMaxhEle   * sizeof(int));
+  std::memset(helePixelSeeds,   '\0', kMaxhEle   * sizeof(int));
+  std::memset(heleNewSC,        '\0', kMaxhEle   * sizeof(int));
+  std::memset(heleetLW,         '\0', kMaxhEleLW * sizeof(float));
+  std::memset(heleetaLW,        '\0', kMaxhEleLW * sizeof(float));
+  std::memset(helephiLW,        '\0', kMaxhEleLW * sizeof(float));
+  std::memset(heleELW,          '\0', kMaxhEleLW * sizeof(float));
+  std::memset(helepLW,          '\0', kMaxhEleLW * sizeof(float));
+  std::memset(helehisoLW,       '\0', kMaxhEleLW * sizeof(float));
+  std::memset(heletisoLW,       '\0', kMaxhEleLW * sizeof(float));
+  std::memset(helel1isoLW,      '\0', kMaxhEleLW * sizeof(int));
+  std::memset(helePixelSeedsLW, '\0', kMaxhEleLW * sizeof(int));
+  std::memset(heleNewSCLW,      '\0', kMaxhEleLW * sizeof(int));
+  nele      = 0;
+  nphoton   = 0;
+  nhltgam   = 0;
+  nhltele   = 0;
+  nhlteleLW = 0;
+}
+    
 /* **Analyze the event** */
 void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         & electrons,
                         const edm::Handle<reco::PhotonCollection>              & photons,
@@ -133,7 +185,10 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
-                        TTree* HltTree) {
+                        TTree* HltTree)
+{
+  // reset the tree variables
+  clear();
 
   if (electrons.isValid()) {
     GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
