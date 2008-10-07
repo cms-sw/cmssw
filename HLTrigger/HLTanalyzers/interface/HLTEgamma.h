@@ -1,14 +1,13 @@
 #ifndef HLTrigger_HLTanalyzers_HLTEgamma_h
 #define HLTrigger_HLTanalyzers_HLTEgamma_h
 
-#include "TH1.h"
-#include "TH2.h"
-#include "TFile.h"
-#include "TNamed.h"
+
 #include <vector>
+#include <algorithm>
+#include <memory>
 #include <map>
-#include "TROOT.h"
-#include "TChain.h"
+
+#include "TTree.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -45,23 +44,15 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 
-#include "TTree.h"
-#include "TFile.h"
-#include <vector>
-#include <algorithm>
-#include <memory>
-
-typedef std::vector<std::string> MyStrings;
-
 /** \class HLTEgamma
-  *  
+  *
   * $Date: November 2006
-  * $Revision: 
+  * $Revision:
   * \author P. Bargassa - Rice U.
   */
 class HLTEgamma {
 public:
-  HLTEgamma(); 
+  HLTEgamma();
 
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
@@ -138,8 +129,8 @@ private:
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
 
   // Tree variables
-  float *elpt, *elphi, *eleta, *elet, *ele; 
-  float *photonpt, *photonphi, *photoneta, *photonet, *photone; 
+  float *elpt, *elphi, *eleta, *elet, *ele;
+  float *photonpt, *photonphi, *photoneta, *photonet, *photone;
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso;
   float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso;
   float *heleetLW, *heleetaLW, *helephiLW, *heleELW, *helepLW, *helehisoLW, *heletisoLW;

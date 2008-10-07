@@ -24,7 +24,7 @@ HLTEgamma::HLTEgamma() {
 }
 
 /*  Setup the analysis to put the branch-variables size_to the tree. */
-void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) 
+void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 {
   elpt              = new float[kMaxEl];
   elphi             = new float[kMaxEl];
@@ -114,7 +114,7 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohEleNewSCLW",       heleNewSCLW,        "ohEleNewSCLW[NohEleLW]/I");
 }
 
-void HLTEgamma::clear(void) 
+void HLTEgamma::clear(void)
 {
   std::memset(elpt,             '\0', kMaxEl     * sizeof(float));
   std::memset(elphi,            '\0', kMaxEl     * sizeof(float));
@@ -153,13 +153,18 @@ void HLTEgamma::clear(void)
   std::memset(helel1isoLW,      '\0', kMaxhEleLW * sizeof(int));
   std::memset(helePixelSeedsLW, '\0', kMaxhEleLW * sizeof(int));
   std::memset(heleNewSCLW,      '\0', kMaxhEleLW * sizeof(int));
+
   nele      = 0;
   nphoton   = 0;
   nhltgam   = 0;
   nhltele   = 0;
   nhlteleLW = 0;
+
+  theHLTPhotons.clear();
+  theHLTElectrons.clear();
+  theHLTElectronsLargeWindows.clear();
 }
-    
+
 /* **Analyze the event** */
 void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         & electrons,
                         const edm::Handle<reco::PhotonCollection>              & photons,
@@ -228,14 +233,14 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 
   theHLTPhotons.clear();
   MakeL1IsolatedPhotons(
-      recoIsolecalcands, 
-      EcalIsolMap, 
-      HcalIsolMap, 
+      recoIsolecalcands,
+      EcalIsolMap,
+      HcalIsolMap,
       TrackIsolMap);
   MakeL1NonIsolatedPhotons(
-      recoNonIsolecalcands, 
-      EcalNonIsolMap, 
-      HcalNonIsolMap, 
+      recoNonIsolecalcands,
+      EcalNonIsolMap,
+      HcalNonIsolMap,
       TrackNonIsolMap);
   std::sort(theHLTPhotons.begin(), theHLTPhotons.end(), EtGreater());
   nhltgam = theHLTPhotons.size();
@@ -251,16 +256,16 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 
   theHLTElectrons.clear();
   MakeL1IsolatedElectrons(
-      electronIsoHandle, 
-      recoIsolecalcands, 
-      HcalEleIsolMap, 
-      L1IsoPixelSeedsMap, 
+      electronIsoHandle,
+      recoIsolecalcands,
+      HcalEleIsolMap,
+      L1IsoPixelSeedsMap,
       TrackEleIsolMap);
   MakeL1NonIsolatedElectrons(
-      electronNonIsoHandle, 
-      recoNonIsolecalcands, 
-      HcalEleNonIsolMap, 
-      L1NonIsoPixelSeedsMap, 
+      electronNonIsoHandle,
+      recoNonIsolecalcands,
+      HcalEleNonIsolMap,
+      L1NonIsoPixelSeedsMap,
       NonIsoTrackEleIsolMap);
   std::sort(theHLTElectrons.begin(), theHLTElectrons.end(), EtGreater());
   nhltele = theHLTElectrons.size();
@@ -279,16 +284,16 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 
   theHLTElectronsLargeWindows.clear();
   MakeL1IsolatedElectronsLargeWindows(
-      electronIsoHandleLW, 
-      recoIsolecalcands, 
-      HcalEleIsolMap, 
-      L1IsoPixelSeedsMapLW, 
+      electronIsoHandleLW,
+      recoIsolecalcands,
+      HcalEleIsolMap,
+      L1IsoPixelSeedsMapLW,
       TrackEleIsolMapLW);
   MakeL1NonIsolatedElectronsLargeWindows(
-      electronNonIsoHandleLW, 
-      recoNonIsolecalcands, 
-      HcalEleNonIsolMap, 
-      L1NonIsoPixelSeedsMapLW, 
+      electronNonIsoHandleLW,
+      recoNonIsolecalcands,
+      HcalEleNonIsolMap,
+      L1NonIsoPixelSeedsMapLW,
       NonIsoTrackEleIsolMapLW);
   std::sort(theHLTElectronsLargeWindows.begin(), theHLTElectronsLargeWindows.end(), EtGreater());
   nhlteleLW = theHLTElectronsLargeWindows.size();
@@ -358,14 +363,14 @@ void HLTEgamma::MakeL1IsolatedPhotons(
 void HLTEgamma::MakeL1NonIsolatedPhotons(
     const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
-    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap, 
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap)
 {
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi;
 
   if (recoNonIsolecalcands.isValid()) {
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoNonIsolecalcands->begin();
-         recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) { 
+         recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) {
       // loop over SuperCluster and fill the HLTPhotons
       myHLTPhoton pho;
       pho.ecalIsol   = -999;
@@ -517,11 +522,11 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       //reco::SuperClusterRef recrSC = recoecalcand->superCluster();
 
       myHLTElectron ele;
-      ele.hcalIsol   = -999; 
+      ele.hcalIsol   = -999;
       ele.trackIsol  = -999;
-      ele.L1Isolated = false; 
+      ele.L1Isolated = false;
       ele.p          = -999;
-      ele.pixelSeeds = -999; 
+      ele.pixelSeeds = -999;
       ele.newSC      = true;
       ele.Et         = recoecalcand->et();
       ele.eta        = recoecalcand->eta();
@@ -614,11 +619,11 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
       //reco::SuperClusterRef recrSC = recoecalcand->superCluster();
 
       myHLTElectron ele;
-      ele.hcalIsol   = -999; 
+      ele.hcalIsol   = -999;
       ele.trackIsol  = -999;
-      ele.L1Isolated = true; 
+      ele.L1Isolated = true;
       ele.p          = -999;
-      ele.pixelSeeds = -999; 
+      ele.pixelSeeds = -999;
       ele.newSC      = true;
       ele.Et         = recoecalcand->et();
       ele.eta        = recoecalcand->eta();
@@ -713,9 +718,9 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
       //reco::SuperClusterRef recrSC = recoecalcand->superCluster();
 
       myHLTElectron ele;
-      ele.hcalIsol   = -999; 
+      ele.hcalIsol   = -999;
       ele.trackIsol  = -999;
-      ele.L1Isolated = false; 
+      ele.L1Isolated = false;
       ele.p          = -999;
       ele.pixelSeeds = -999;
       ele.newSC      = true;
@@ -747,7 +752,7 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
       if (electronNonIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
-        for (reco::ElectronCollection::const_iterator iElectron = electronNonIsoHandle->begin(); 
+        for (reco::ElectronCollection::const_iterator iElectron = electronNonIsoHandle->begin();
              iElectron != electronNonIsoHandle->end(); iElectron++) {
           // 1) find the SC from the electron
           electronref = reco::ElectronRef(electronNonIsoHandle, iElectron - electronNonIsoHandle->begin());
