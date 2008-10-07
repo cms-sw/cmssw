@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Electron.h,v 1.13 2008/06/13 09:55:35 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
+  \version  $Id: Electron.h,v 1.13 2008/06/13 09:55:35 gpetrucc Exp $
 */
 
 
@@ -21,11 +21,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
-
-//#define PAT_patElectron_Default_eID    1 // allow a 'leptonID()' method with no argument, for a (configurable) default eID
-//#define PAT_patElectron_Hardcoded_eIDs 1 // provide hard-coded methods as shortcuts for some standard eIDs
-#define   PAT_patElectron_eID_Throw      1 // electron ID method will throw exception if the eID is missing 
-                                           // (if you comment this line out, requests for missing IDs will just return -1.0)
 
 
 namespace pat {
@@ -75,32 +70,6 @@ namespace pat {
       /// Store multiple electron ID values, discarding existing ones
       /// The first one in the list becomes the 'default' electron id 
       void setLeptonIDs(const std::vector<IdPair> & ids) { leptonIDs_ = ids; }
-#ifdef PAT_patElectron_Default_eID
-      /// Returns the electron ID associated to the pat::Electron as 'default' ID
-      /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
-      /// Note: an exception is thrown if no ID has been written in this pat::Electron
-      float leptonID() const ;
-      /// Return the name of the default electron ID name stored in this pat::Electron
-      /// If no ID was stored, it returns the string "NULL" 
-      const std::string & leptonIDname() const ;
-      /// Store a single electron ID value, discarding existing ones
-      /// This becomes the 'default' electron ID
-      void setLeptonID(float id, const std::string & name = "") { leptonIDs_.clear(); leptonIDs_.push_back(IdPair(name,id)); }
-#endif
-#ifdef PAT_patElectron_Hardcoded_eIDs
-      /// Checks if the electron has passed the 'robust' ID
-      /// Note: an exception is thrown if no 'robust' ID is stored in the pat::Electron
-      bool isRobustElectron() { return leptonID("robust") > 0.5; }   
-      /// Checks if the electron has passed the 'loose' ID
-      /// Note: an exception is thrown if no 'loose' ID is stored in the pat::Electron
-      bool isLooseElectron() { return leptonID("loose") > 0.5; }   
-      /// Checks if the electron has passed the 'tight' ID
-      /// Note: an exception is thrown if no 'tight' ID is stored in the pat::Electron
-      bool isTightElectron() { return leptonID("tight") > 0.5; }   
-      /// Returns the value of the 'likelihood' electron ID
-      /// Note: an exception is thrown if no 'likelihood' ID is stored in the pat::Electron
-      float electronLikelihood() { return leptonID("likelihood"); }   
-#endif
 
     protected:
 
