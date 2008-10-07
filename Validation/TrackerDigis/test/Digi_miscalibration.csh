@@ -113,9 +113,9 @@ endif
 
 root -b -p -q  SiPixelDigiCompare.C
 gzip *.eps
-source copyWWWPixel.csh Ideal_vs_Startup$usefakenoise$usefakegain$usefakela
+source copyWWWPixel.csh dummy Ideal_vs_Startup$usefakenoise$usefakegain$usefakela
 root -b -p -q  SiStripDigiCompare.C
 gzip *.eps
-source copyWWWStrip.csh Ideal_vs_Startup$usefakenoise$usefakegain$usefakela
+source copyWWWStrip.csh dummy Ideal_vs_Startup$usefakenoise$usefakegain$usefakela
 
 

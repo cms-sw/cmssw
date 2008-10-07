@@ -4,11 +4,11 @@ setenv RELEASE $CMSSW_VERSION
 if ( ! -d /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/ ) mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/
 if ( ! -d /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi ) mkdir /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi
 
-if ($1 =="") then
+if ($2 =="") then
 setenv WWWDIRObj /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi
 
 else
-setenv WWWDIRObj /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi/$1
+setenv WWWDIRObj /afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/Digi/$2
 if (! -d $WWWDIRObj) mkdir $WWWDIRObj
 endif
 
