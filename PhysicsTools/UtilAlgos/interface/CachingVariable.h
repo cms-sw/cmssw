@@ -43,6 +43,7 @@ class CachingVariable {
   typedef std::pair<bool, valueType> evalType;
   typedef std::map<std::string, const CachingVariable*> vMap;
   struct CachingVariableFactoryArg {
+    CachingVariableFactoryArg( const CachingVariableFactoryArg & copy) : n(copy.n),m(copy.m),iConfig(copy.iConfig){}
     CachingVariableFactoryArg(std::string & N,CachingVariable::vMap & M,edm::ParameterSet & P) : n(N),m(M),iConfig(P){}
     std::string & n;
     CachingVariable::vMap & m;
@@ -69,7 +70,8 @@ class CachingVariable {
   void setHolder(std::string hn) const { holderName_=hn;}
 
   void print() const {
-    edm::LogVerbatim("CachingVariable")<<description().text();
+    edm::LogVerbatim("CachingVariable")<<name()
+				       <<"\n"<<description().text();
   }
  protected:
 
