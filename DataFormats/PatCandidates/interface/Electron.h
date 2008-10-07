@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.14 2008/10/07 18:04:58 gpetrucc Exp $
+// $Id: Electron.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.14 2008/10/07 18:04:58 gpetrucc Exp $
+  \version  $Id: Electron.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
 */
 
 
@@ -25,6 +25,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
+//#include <iostream>
 
 namespace pat {
 
@@ -71,15 +72,39 @@ namespace pat {
       /// Returns a specific electron ID associated to the pat::Electron given its name
       /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
       /// Note: an exception is thrown if the specified ID is not available
-      float leptonID(const std::string & name) const;
+      float electronID(const std::string & name) const;
+      /// deprecated !!!
+      float leptonID(const std::string & name) const {
+        // avoid messagelogger in dataformats
+        std::cout << "The pat::Electron::leptonID() method is deprecated. Please use the electronID() one instead" << std::endl;
+        return electronID(name);
+      }
       /// Returns true if a specific ID is available in this pat::Electron
-      bool isLeptonIDAvailable(const std::string & name) const;
+      bool isElectronIDAvailable(const std::string & name) const;
+      /// deprecated !!!
+      bool isLeptonIDAvailable(const std::string & name) const {
+        // avoid messagelogger in dataformats
+        std::cout << "The pat::Electron::isLeptonIDAvailable() method is deprecated. Please use the isElectronIDAvailable() one instead" << std::endl;
+        return isElectronIDAvailable(name);
+      }
       /// Returns all the electron IDs in the form of <name,value> pairs
       /// The 'default' ID is the first in the list
-      const std::vector<IdPair> &  leptonIDs() const { return leptonIDs_; }
+      const std::vector<IdPair> &  electronIDs() const { return electronIDs_; }
+      /// deprecated !!!
+      const std::vector<IdPair> &  leptonIDs() const {
+        // avoid messagelogger in dataformats
+        std::cout << "The pat::Electron::leptonIDs() method is deprecated. Please use the electronIDs() one instead" << std::endl;
+        return electronIDs();
+      }
       /// Store multiple electron ID values, discarding existing ones
       /// The first one in the list becomes the 'default' electron id 
-      void setLeptonIDs(const std::vector<IdPair> & ids) { leptonIDs_ = ids; }
+      void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
+      /// deprecated !!!
+      void setLeptonIDs(const std::vector<IdPair> & ids) {
+        // avoid messagelogger in dataformats
+        std::cout << "The pat::Electron::setLeptonIDs() method is deprecated. Please use the setElectronIDs() one instead" << std::endl;
+        setElectronIDs(ids);
+      }
 
     protected:
 
@@ -91,7 +116,7 @@ namespace pat {
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
       // ---- electron ID's holder ----
-      std::vector<IdPair> leptonIDs_;
+      std::vector<IdPair> electronIDs_;
 
   };
 

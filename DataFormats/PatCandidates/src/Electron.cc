@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.9 2008/06/23 22:22:18 gpetrucc Exp $
+// $Id: Electron.cc,v 1.10 2008/10/07 18:04:58 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -111,22 +111,22 @@ void Electron::embedTrack() {
 }
 
 // method to retrieve a lepton ID (or throw)
-float Electron::leptonID(const std::string & name) const {
-    for (std::vector<IdPair>::const_iterator it = leptonIDs_.begin(), ed = leptonIDs_.end(); it != ed; ++it) {
+float Electron::electronID(const std::string & name) const {
+    for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         if (it->first == name) return it->second;
     }
     cms::Exception ex("Key not found");
     ex << "pat::Electron: the ID " << name << " can't be found in this pat::Electron.\n";
     ex << "The available IDs are: ";
-    for (std::vector<IdPair>::const_iterator it = leptonIDs_.begin(), ed = leptonIDs_.end(); it != ed; ++it) {
+    for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         ex << "'" << it->first << "' ";
     }
     ex << ".\n";
     throw ex;
 }
 // check if an ID is there
-bool Electron::isLeptonIDAvailable(const std::string & name) const {
-    for (std::vector<IdPair>::const_iterator it = leptonIDs_.begin(), ed = leptonIDs_.end(); it != ed; ++it) {
+bool Electron::isElectronIDAvailable(const std::string & name) const {
+    for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         if (it->first == name) return true;
     }
     return false;
