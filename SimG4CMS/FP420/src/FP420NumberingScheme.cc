@@ -13,7 +13,7 @@
 //UserVerbosity FP420NumberingScheme::cout("FP420NumberingScheme","silent","FP420NumberingScheme");
 
 FP420NumberingScheme::FP420NumberingScheme() {
-  //  std::cout << " Creating FP420NumberingScheme" << std::endl;
+//  sn0=3, pn0=6, rn0=7;   
 }
 
 FP420NumberingScheme::~FP420NumberingScheme() {
@@ -112,11 +112,11 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
       //  std::cout << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" << copyno[ich] << "name="  << name[ich] << std::endl;
       //
     }
-    // use for FP420 number 1 
-    // 0 is as defauld for every below:
+    // det = 1 for +FP420 , = 2 for -FP420  / (det-1) = 0,1
+    // 0 is as default for every below:
     // Z index 
-    // station number 1 - 5
-    // plane number  1 - 10
+    // station number 1 - 5   (in reality just 2 ones)
+    // superplane(superlayer) number  1 - 10 (in reality just 5 ones)
 
    // intindex = myPacker.packEcalIndex (det, zside, station, plane);
    // intindex = myPacker.packCastorIndex (det, zside, station, plane);
@@ -151,8 +151,8 @@ unsigned FP420NumberingScheme::packFP420Index(int det, int zside, int station,in
   //  
 
   //  std::cout << "FP420 packing: det " << det  << " zside  " << zside << " station " << station  << " plane " <<  plane << " idx " << idx <<  std::endl;
-  int newdet, newzside, newstation,newplane;
-  unpackFP420Index(idx, newdet, newzside, newstation,newplane);
+  //  int newdet, newzside, newstation,newplane;
+  //  unpackFP420Index(idx, newdet, newzside, newstation,newplane);
 
   //
                                                                                 
@@ -176,4 +176,5 @@ void FP420NumberingScheme::unpackFP420Index(const unsigned int& idx, int& det,
 
   //
 }
-                                                                                
+
+
