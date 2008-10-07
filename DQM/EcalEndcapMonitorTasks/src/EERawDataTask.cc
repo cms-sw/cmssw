@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/08/07 10:06:16 $
- * $Revision: 1.5 $
+ * $Date: 2008/09/06 10:04:18 $
+ * $Revision: 1.6 $
  * \author E. Di Marco
  *
 */
@@ -189,6 +189,8 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  int evt_runNumber = e.id().run();
+
   int GT_L1A=0, GT_OrbitNumber=0, GT_BunchCrossing=0, GT_TriggerType=0;
 
   edm::Handle<FEDRawDataCollection> allFedRawData;
@@ -354,10 +356,13 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 	int ism = Numbers::iSM( dcch, EcalEndcap );
 	float xism = ism+0.5;
 
+	int ECALDCC_runNumber = dcch.getRunNumber();
 	int ECALDCC_L1A = dcch.getLV1();
 	int ECALDCC_OrbitNumber = dcch.getOrbit();
 	int ECALDCC_BunchCrossing = dcch.getBX();
 	int ECALDCC_TriggerType = dcch.getBasicTriggerType();
+
+	if ( evt_runNumber != ECALDCC_runNumber ) meEERunNumberErrors_->Fill( xism ); 
 
         if ( gtFedDataSize > 0 ) {
 	  
