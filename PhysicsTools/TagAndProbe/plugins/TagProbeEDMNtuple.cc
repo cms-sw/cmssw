@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.5 2008/09/30 18:37:31 neadam Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.6 2008/10/02 23:23:27 kalanand Exp $
 //
 //
 
@@ -81,6 +81,7 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    checkExactOverlap_ = iConfig.getUntrackedParameter<bool> (
       "checkExactOverlap", true );
 
+   isMC_ = iConfig.getUntrackedParameter<bool>("isMC",true);
 
    // Get the id's of any MC particles to store.
    vector<int> defaultPIDs;
@@ -487,7 +488,6 @@ void TagProbeEDMNtuple::fillMCInfo()
 
       if( genparticles.isValid() )
       {
-   
 	 // Loop over particles and extract any that the user has asked to
 	 // be stored
 	 for( int j=0; j<(int)mcParticles_.size(); ++j )
@@ -519,7 +519,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 	    {
 	       int pdg = (*genparticles)[i].pdgId();
 	       
-		  if( abs(pdg) == mcParticles_[j] )
+	       if( abs(pdg) == mcParticles_[j] )
 		  {
 		     Particle::LorentzVector p4 = (*genparticles)[i].p4();
 
