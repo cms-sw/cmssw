@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/24 12:23:36 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/09/19 14:27:47 $
+ *  $Revision: 1.28 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,9 +48,6 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
-  if(ps.getUntrackedParameter<bool>("calibModule", false))
-    dbe->open(ps.getUntrackedParameter<string>("inputFile", "residuals.root"));
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
