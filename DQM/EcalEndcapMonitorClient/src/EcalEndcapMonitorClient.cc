@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/08/11 07:24:15 $
- * $Revision: 1.197 $
+ * $Date: 2008/08/29 16:07:17 $
+ * $Revision: 1.198 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -107,13 +107,13 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
   if ( verbose_ ) {
     if ( dbName_.size() != 0 ) {
       cout << " Using Ecal Cond DB: " << endl;
-      cout << " dbName = '" << dbName_ << "'" << endl;
-      cout << " dbUserName = '" << dbUserName_ << "'" << endl;
+      cout << "   dbName = '" << dbName_ << "'" << endl;
+      cout << "   dbUserName = '" << dbUserName_ << "'" << endl;
       if ( dbHostName_.size() != 0 ) {
-        cout << " dbHostName = '" << dbHostName_ << "'" << endl;
-        cout << " dbHostPort = '" << dbHostPort_ << "'" << endl;
+        cout << "   dbHostName = '" << dbHostName_ << "'" << endl;
+        cout << "   dbHostPort = '" << dbHostPort_ << "'" << endl;
       }
-      cout << " dbTagName = '" << dbTagName_ << "'" << endl;
+      cout << "   dbTagName = '" << dbTagName_ << "'" << endl;
     } else {
       cout << " Ecal Cond DB is OFF" << endl;
     }
