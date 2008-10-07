@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.15 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATElectronProducer.cc,v 1.16 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -69,22 +69,9 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
           // read the different electron ID names
           edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("electronIDSources");
           std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-#ifdef PAT_patElectron_Default_eID  /// ==== If we allow a default ID =====================================================
-          // get default algo and check is really among the algos
-          std::string            defname = idps.getParameter<std::string>("defaultID");
-          if (std::find(names.begin(), names.end(), defname) == names.end()) throw cms::Exception("Configuration") << 
-                "PATElectronProducer: the name of the 'default' id must correspond to one InputTag parameter\n";
-          // first put the default
-          elecIDSrcs_.push_back(NameTag(defname, idps.getParameter<edm::InputTag>(defname)));
-          // then all the others
-          for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-              if (*it  != defname) elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
-          }
-#else /// ==========  That is, no default ID==============================================================================
           for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
               elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
           }
-#endif /// ================================================================================================================
       }
       // but in any case at least once
       if (elecIDSrcs_.empty()) throw cms::Exception("Configuration") <<
@@ -92,9 +79,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
             "\tInputTag electronIDSource = <someTag>\n" << "or\n" <<
             "\tPSet electronIDSources = { \n" <<
             "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
-#ifdef PAT_patElectron_Default_eID  /// ==== If we allow a default ID =====================================================
-            "\t\tstring   defaultID  = <someName>  // one of the names above\n" <<
-#endif /// ================================================================================================================
             "\t}\n";
   }
   
