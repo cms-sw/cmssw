@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 09:40:28 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/10/07 09:56:58 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -162,8 +162,10 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	  badSegments+=chi2_histo_root->GetBinContent(bin);
 	}
       
-	double badSegmentsPercentual= badSegments/double(chi2_histo_root->GetEntries());
-	chi2Histos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),badSegmentsPercentual);
+	if(chi2_histo_root->GetEntries()!=0){
+	  double badSegmentsPercentual= badSegments/double(chi2_histo_root->GetEntries());
+	  chi2Histos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),badSegmentsPercentual);
+	}
       }      
     } // end of switch for detailed analysis
     
