@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/08/06 10:28:40 $
- * $Revision: 1.240 $
+ * $Date: 2008/08/11 07:24:13 $
+ * $Revision: 1.241 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -218,6 +218,8 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps) {
   }
 
   percentVariation_ = 0.4;
+
+  amplitudeThreshold_ = 100.;
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
@@ -2452,7 +2454,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) )
+          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2474,7 +2476,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) )
+          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2496,7 +2498,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) )
+          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
 
@@ -2518,7 +2520,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) )
+          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
 
@@ -2540,7 +2542,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) )
+          if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) || mean05 < amplitudeThreshold_ )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2562,7 +2564,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean17 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) )
+          if ( fabs(mean17 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) || mean17 < amplitudeThreshold_ )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2584,7 +2586,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) )
+          if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) || mean07 < amplitudeThreshold_ )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
@@ -2606,7 +2608,7 @@ void EBLaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean19 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) )
+          if ( fabs(mean19 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) || mean19 < amplitudeThreshold_ )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 

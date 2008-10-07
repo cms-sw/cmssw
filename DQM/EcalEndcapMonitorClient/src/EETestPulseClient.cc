@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.93 $
+ * $Date: 2008/08/11 07:24:15 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -110,6 +110,7 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps) {
 
   percentVariation_ = 0.2;
   RMSThreshold_ = 300.0;
+  amplitudeThreshold_ = 10.;
 
   amplitudeThresholdPnG01_ = 200./16.;
   amplitudeThresholdPnG16_ = 200.;
@@ -841,7 +842,7 @@ void EETestPulseClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmpl01) > fabs(percentVariation_ * meanAmpl01) )
+          if ( fabs(mean01 - meanAmpl01) > fabs(percentVariation_ * meanAmpl01) || mean01 < amplitudeThreshold_ )
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
@@ -867,7 +868,7 @@ void EETestPulseClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean02 - meanAmpl02) > fabs(percentVariation_ * meanAmpl02) )
+          if ( fabs(mean02 - meanAmpl02) > fabs(percentVariation_ * meanAmpl02) || mean02 < amplitudeThreshold_ )
             val = 0.;
           if ( rms02 > RMSThreshold_ )
             val = 0.;
@@ -893,7 +894,7 @@ void EETestPulseClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmpl03) > fabs(percentVariation_ * meanAmpl03) )
+          if ( fabs(mean03 - meanAmpl03) > fabs(percentVariation_ * meanAmpl03) || mean03 < amplitudeThreshold_ )
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;

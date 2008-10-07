@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.26 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -226,6 +226,7 @@ TProfile* i16_[18];
 // Quality check on crystals
 
 float percentVariation_;
+float amplitudeThreshold_;
 
 // Quality check on PNs
 

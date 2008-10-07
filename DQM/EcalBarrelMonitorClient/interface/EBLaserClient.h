@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.81 $
+ * $Date: 2008/06/25 15:08:17 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
 */
@@ -226,6 +226,7 @@ TProfile* i16_[36];
 // Quality check on crystals
 
 float percentVariation_;
+float amplitudeThreshold_;
 
 // Quality check on PNs
 

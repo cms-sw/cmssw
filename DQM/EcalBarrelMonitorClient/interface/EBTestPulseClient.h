@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.76 $
+ * $Date: 2008/06/25 15:08:17 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,6 +127,7 @@ TProfile* i04_[36];
 
 float percentVariation_;
 float RMSThreshold_;
+float amplitudeThreshold_; 
 
 // Quality check on PNs
 
