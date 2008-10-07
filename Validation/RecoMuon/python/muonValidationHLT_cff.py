@@ -9,7 +9,7 @@ import Validation.RecoMuon.MultiTrackValidator_cfi
 l2MuonTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 l2MuonTrackV.label_tp_effic = 'muonTP'
-l2MuonTrackV.label = 'hltL2Muons:UpdatedAtVtx'
+l2MuonTrackV.label = ('hltL2Muons:UpdatedAtVtx',)
 l2MuonTrackV.associatormap = 'tpToL2TrackAssociation'
 l2MuonTrackV.associators = 'TrackAssociatorByDeltaR'
 l2MuonTrackV.beamSpot = 'hltOfflineBeamSpot'
@@ -21,7 +21,7 @@ l3MuonTrackV = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.c
 
 l3MuonTrackV.label_tp_effic = 'muonTP'
 l3MuonTrackV.associatormap = 'tpToL3TrackAssociation'
-l3MuonTrackV.label = 'hltL3Muons'
+l3MuonTrackV.label = ('hltL3Muons',)
 l3MuonTrackV.associators = 'TrackAssociatorByDeltaR'
 l3MuonTrackV.beamSpot = 'hltOfflineBeamSpot'
 l3MuonTrackV.nintHit = 35
