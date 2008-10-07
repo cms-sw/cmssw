@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#    "keep *_goodMuons_*_*",
-
 import FWCore.ParameterSet.Config as cms
 
 dimuonsEventContent = cms.PSet(
@@ -11,14 +7,15 @@ dimuonsEventContent = cms.PSet(
         'keep recoTracks_standAloneMuons_*_*', 
         'keep recoMuons_muons_*_*', 
         'keep *_selectedLayer1Muons_*_*', 
-        'keep *_goodTracks_*_*', 
-        'keep *_highPtTracks_*_*', 
+        'keep *_selectedLayer1TrackCands_*_*',
+#        'keep *_goodTracks_*_*', 
+#        'keep *_highPtTracks_*_*', 
         'keep *_goodStandAloneMuonTracks_*_*', 
-        'keep *_tkIsoDepositCalByAssociatorTowers_*_*', 
-        'keep *_EcalIsolationForTracks_*_*', 
-        'keep *_HcalIsolationForTracks_*_*', 
+#        'keep *_tkIsoDepositCalByAssociatorTowers_*_*', 
+#        'keep *_EcalIsolationForTracks_*_*', 
+#        'keep *_HcalIsolationForTracks_*_*', 
         'keep *_goodMuonIsolations_*_*', 
-        'keep *_goodTrackIsolations_*_*', 
+#        'keep *_goodTrackIsolations_*_*', 
         'keep *_muonIsolations_*_*', 
         'keep *_dimuons_*_*', 
         'keep *_dimuonsOneTrack_*_*', 

@@ -2,4 +2,4 @@ import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 dimuonsHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-dimuonsHLTFilter.HLTPaths = ["HLT_Mu15"]
+dimuonsHLTFilter.HLTPaths = ["HLT_Mu15", "HLT_DoubleMu3"]
