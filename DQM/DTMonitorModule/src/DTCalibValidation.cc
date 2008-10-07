@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/14 14:38:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/02 13:45:56 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -83,6 +83,31 @@ void DTCalibValidation::beginJob(const edm::EventSetup& context){
 
 }
 
+void DTCalibValidation::beginRun(const Run& run, const EventSetup& setup) {
+  
+  // get the geometry
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
+  // Loop over all the chambers 	 
+  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
+  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
+  for (; ch_it != ch_end; ++ch_it) { 	 
+    DTChamberId chId = (*ch_it)->id();
+    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
+    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
+    // Loop over the SLs 	 
+    for(; sl_it != sl_end; ++sl_it) { 
+      DTSuperLayerId slId = (*sl_it)->id();
+      // Loop over the 3 steps
+      for (int step=1; step<=3; step++){
+	// histo booking
+	bookHistos(slId, step);
+      }
+    }
+  }
+
+}
+
 
 void DTCalibValidation::endJob(){
  if(debug)
@@ -110,11 +135,6 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
   nevent++;
   cout << "[DTCalibValidation] Analyze #Run: " << event.id().run()
 	 << " #Event: " << nevent << endl;
-
-
-   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
 
 
   // RecHit mappoing at Step 1 -------------------------------
@@ -467,7 +487,6 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 
 	// Fill the histos
 	if(sl == 1 || sl == 3)
-	  //fillHistos(wireId.superlayerId(), segPosAtZWire.x(), residualOnDistance, residualOnPosition, step);
 	  fillHistos(wireId.superlayerId(), SegmDistance, residualOnDistance, (wirePosInChamber.x() - segPosAtZWire.x()), residualOnPosition, step);
 	else
 	  fillHistos(wireId.superlayerId(), SegmDistance, residualOnDistance, (wirePosInChamber.y() - segPosAtZWire.y()), residualOnPosition, step);
@@ -534,9 +553,6 @@ void DTCalibValidation::fillHistos(DTSuperLayerId slId,
 				     float residualOnPosition,
 				     int step) {
   // FIXME: optimization of the number of searches
-  if(histosPerSL.find(make_pair(slId,step)) == histosPerSL.end()){
-      bookHistos(slId, step);
-  }
   vector<MonitorElement *> histos =  histosPerSL[make_pair(slId,step)];                          
   histos[0]->Fill(residualOnDistance);
   histos[1]->Fill(distance, residualOnDistance);

@@ -5,8 +5,8 @@
  *  Analysis on DT residuals to validate the kFactor
  *
  *
- *  $Date: 2008/05/14 14:38:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/02 13:48:15 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -20,6 +20,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include <FWCore/Framework/interface/ESHandle.h>
 
 #include <string>
 #include <map>
@@ -47,6 +48,9 @@ class DTCalibValidation: public edm::EDAnalyzer{
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
+  /// BeginRun
+  void beginRun(const edm::Run&, const edm::EventSetup&);
+
   /// Endjob
   void endJob();
 
@@ -69,6 +73,8 @@ class DTCalibValidation: public edm::EDAnalyzer{
   int wrongSegment;
   int rightSegment;
   int nevent;
+  // the geometry
+  edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 1D rechits in the event
   std::string recHits1DLabel;
