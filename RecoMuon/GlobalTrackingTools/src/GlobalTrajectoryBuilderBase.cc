@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/30 03:30:19 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/10/02 20:26:04 $
+ *  $Revision: 1.23 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -205,8 +205,13 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       const GlobalVector& mom = (*it)->trackerTrajectory()->lastMeasurement().updatedState().globalMomentum();
       if ( mom.mag() < 2.5 || mom.perp() < thePtCut ) continue;
 
-      reco::TransientTrack track(*(*it)->trackerTrack(),&*(theService->magneticField()),theService->trackingGeometry());
-      TransientTrackingRecHit::ConstRecHitContainer trackerRecHits = getTransientRecHits(track);
+      TransientTrackingRecHit::ConstRecHitContainer trackerRecHits;
+      if((*it)->trackerTrack().isNonnull()){
+	reco::TransientTrack track(*(*it)->trackerTrack(),&*(theService->magneticField()),theService->trackingGeometry());    LogDebug(theCategory);  
+	trackerRecHits = getTransientRecHits(track);      LogDebug(theCategory);  
+      } else {
+	trackerRecHits = (*it)->trackerTrajectory()->recHits();
+      }
 
       // check for single TEC RecHits in trajectories in the overalp region
       if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 ) trackerRecHits = selectTrackerHits(trackerRecHits);
