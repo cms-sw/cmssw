@@ -3,7 +3,7 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/09/17 14:52:17 $
+ *  $Date: 2008/09/18 11:12:27 $
  *  $Revision: 1.6 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
@@ -1428,9 +1428,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
             hSAPTRec->Fill(SArecPt);
             hSAPhivsEta->Fill(SAeta,SAphi);
             hSAChi2->Fill((*staTrack).chi2());
-            hSANhits->Fill((*staTrack).recHitsSize());
-            if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); hSANhits_Barrel->Fill((*staTrack).recHitsSize()); ib++;}
-            else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); hSANhits_Endcap->Fill((*staTrack).recHitsSize()); ie++;}
+            hSANhits->Fill((*staTrack).numberOfValidHits());
+            if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); hSANhits_Barrel->Fill((*staTrack).numberOfValidHits()); ib++;}
+            else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); hSANhits_Endcap->Fill((*staTrack).numberOfValidHits()); ie++;}
 
 // save the muon pair
             if(i==1)  p1=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z());
@@ -1464,7 +1464,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
                 hSAinvPTvsEta->Fill(SAeta,ptInvRes);
                 hSAinvPTvsPhi->Fill(SAphi,ptInvRes);
-                hSAinvPTvsNhits->Fill((*staTrack).recHitsSize(),ptInvRes);
+                hSAinvPTvsNhits->Fill((*staTrack).numberOfValidHits(),ptInvRes);
             }
 
             hSAPTvsEta->Fill(SAeta,SArecPt);
@@ -1517,9 +1517,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
             hGBPTRec->Fill(GBrecPt);
             hGBPhivsEta->Fill(GBeta,GBphi);
             hGBChi2->Fill((*glbTrack).chi2());
-            hGBNhits->Fill((*glbTrack).recHitsSize());
-            if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); hGBNhits_Barrel->Fill((*glbTrack).recHitsSize()); ib++;}
-            else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); hGBNhits_Endcap->Fill((*glbTrack).recHitsSize()); ie++;}
+            hGBNhits->Fill((*glbTrack).numberOfValidHits());
+            if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); hGBNhits_Barrel->Fill((*glbTrack).numberOfValidHits()); ib++;}
+            else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); hGBNhits_Endcap->Fill((*glbTrack).numberOfValidHits()); ie++;}
   
 // save the muon pair
             if(i==1)  p1=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
@@ -1553,7 +1553,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
                 hGBinvPTvsEta->Fill(GBeta,ptInvRes);
                 hGBinvPTvsPhi->Fill(GBphi,ptInvRes);
-                hGBinvPTvsNhits->Fill((*glbTrack).recHitsSize(),ptInvRes);
+                hGBinvPTvsNhits->Fill((*glbTrack).numberOfValidHits(),ptInvRes);
             } 
 
 
@@ -1632,7 +1632,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
             reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
     
 
-            if(staTrack->recHitsSize()>(min1DTrackRecHitSize-1)) {
+            if(staTrack->numberOfValidHits()>(min1DTrackRecHitSize-1)) {
 
                 RecHitVector  my4DTrack = this->doMatching(*staTrack, all4DSegmentsDT, all4DSegmentsCSC, &indexCollectionDT, &indexCollectionCSC, theTrackingGeometry);
   
@@ -1960,7 +1960,7 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm:
     RecHitVector my4DTrack;
   
     //Loop over the hits of the track
-    for(unsigned int counter = 0; counter != staTrack.recHitsSize()-1; counter++) {
+    for(unsigned int counter = 0; counter != staTrack.numberOfValidHits()-1; counter++) {
     
         TrackingRecHitRef myRef = staTrack.recHit(counter);
         const TrackingRecHit *rechit = myRef.get();
