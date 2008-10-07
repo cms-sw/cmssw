@@ -59,25 +59,25 @@ void HLTBJet::clear()
 {
   NohBJetL2          = 0;
   NohBJetL2Corrected = 0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2Energy[i]          = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2Et[i]              = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2Et[i]              = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2Pt[i]              = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2Eta[i]             = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2Phi[i]             = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2CorrectedEnergy[i] = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2CorrectedEt[i]     = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2CorrectedPt[i]     = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2CorrectedEta[i]    = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetL2CorrectedPhi[i]    = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetIPL25Tag[i]          = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetIPL3Tag[i]           = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetIPLooseL25Tag[i]     = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetIPLooseL3Tag[i]      = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetMuL25Tag[i]          = 0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetMuL3Tag[i]           = 0.0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetPerfL25Tag[i]        = 0;
-  for (size_t i = 0; i < kMaxBJets; ++i) ohBJetPerfL3Tag[i]         = 0;
+  std::memset(ohBJetL2Energy,            '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2Et,                '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2Et,                '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2Pt,                '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2Eta,               '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2Phi,               '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2CorrectedEnergy,   '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2CorrectedEt,       '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2CorrectedPt,       '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2CorrectedEta,      '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetL2CorrectedPhi,      '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetIPL25Tag,            '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetIPL3Tag,             '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetIPLooseL25Tag,       '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetIPLooseL3Tag,        '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetMuL25Tag,            '\0', kMaxBJets * sizeof(int));
+  std::memset(ohBJetMuL3Tag,             '\0', kMaxBJets * sizeof(float));
+  std::memset(ohBJetPerfL25Tag,          '\0', kMaxBJets * sizeof(int));
+  std::memset(ohBJetPerfL3Tag,           '\0', kMaxBJets * sizeof(int));
 }
 
 HLTBJet::~HLTBJet() 
