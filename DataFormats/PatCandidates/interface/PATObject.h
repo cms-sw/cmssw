@@ -1,17 +1,23 @@
+//
+// $Id$
+//
+
 #ifndef DataFormats_PatCandidates_PATObject_h
 #define DataFormats_PatCandidates_PATObject_h
 
-/** \class    pat::PATObject PATObject.h "DataFormats/PatCandidates/interface/PATObject.h"
- *
- *  \brief    Templated PAT object container
- *
- *  PATObject is the templated base PAT object that wraps around reco objects.
- *
- *  \author   Steven Lowette
- *
- *  \version  $Id: PATObject.h,v 1.17 2008/10/06 14:01:09 gpetrucc Exp $
- *
- */
+/**
+  \class    pat::PATObject PATObject.h "DataFormats/PatCandidates/interface/PATObject.h"
+  \brief    Templated PAT object container
+
+   PATObject is the templated base PAT object that wraps around reco objects.
+
+   Please post comments and questions to the Physics Tools hypernews:
+   https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
+
+  \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
+  \version  $Id: PATObject.h,v 1.18 2008/10/07 17:46:15 gpetrucc Exp $
+*/
+
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -27,7 +33,9 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+
 namespace pat {
+
 
   template <class ObjectType>
   class PATObject : public ObjectType {
@@ -507,6 +515,7 @@ namespace pat {
     userIntLabels_.push_back(label);
     userInts_.push_back( data );
   }
+
 
 }
 
