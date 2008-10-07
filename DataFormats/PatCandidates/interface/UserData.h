@@ -48,10 +48,18 @@ namespace pat {
     /// COMPLETELY UNSUPPORTED, USE ONLY FOR DEBUGGING
     //  Really needed for CINT? I would really like to avoid this
     const void * bareData() const { return data_(); }
-    
+
+    /// Make a UserData pointer from some value, wrapping it appropriately.
+    /// It will check for dictionaries, unless 'transientOnly' is true
+    template<typename T>
+    static std::auto_ptr<UserData> make(const T &value, bool transientOnly=false) ;
+
   protected:
     /// Get out the data (can't template non virtual functions)
     virtual const void * data_  () const = 0;
+
+  private:
+    static void checkDictionaries(const std::type_info &type) ;
     
   };
 
@@ -70,16 +78,28 @@ namespace pat {
         virtual const void *           data_()  const { return &obj_; }
     private: 
         T obj_;
-        static const std::string & typeName_() {
-            static int status = 0;
-            static const char * demangled = abi::__cxa_demangle(typeid(T).name(),  0, 0, &status);
-            static const std::string name(status == 0 ? demangled : "[UNKNOWN]");
-            return name;
-        }
+        static const std::string & typeName_() ;
   };
 
   typedef edm::OwnVector<pat::UserData>   UserDataCollection;
 }
 
+
+template<typename T>
+std::auto_ptr<pat::UserData> pat::UserData::make(const T &value, bool transientOnly) {
+    if (!transientOnly) {
+        checkDictionaries(typeid(T));
+        checkDictionaries(typeid(pat::UserHolder<T>));
+    }
+    return std::auto_ptr<UserData>(new pat::UserHolder<T>(value));  
+}
+
+template<typename T> 
+const std::string & pat::UserHolder<T>::typeName_() {
+    static int status = 0;
+    static const char * demangled = abi::__cxa_demangle(typeid(T).name(),  0, 0, &status);
+    static const std::string name(status == 0 ? demangled : "[UNKNOWN]");
+    return name;
+}
 
 #endif

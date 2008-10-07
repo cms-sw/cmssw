@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.16 2008/10/06 11:06:09 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.17 2008/10/06 14:01:09 gpetrucc Exp $
  *
  */
 
@@ -160,7 +160,7 @@ namespace pat {
           return (data != 0 ? data->typeName() : EMPTY);
       }; 
       /// Get list of user data object names
-      const std::vector<std::string> userDataNames() const  { return userDataLabels_; }
+      const std::vector<std::string> & userDataNames() const  { return userDataLabels_; }
 
       /// Get the data as a void *, for CINT usage.
       /// COMPLETELY UNSUPPORTED, USE ONLY FOR DEBUGGING
@@ -170,11 +170,13 @@ namespace pat {
       }
     
       /// Set user-defined data
-      /// Needs dictionaries for T and for pat::UserHolder<T>
+      /// Needs dictionaries for T and for pat::UserHolder<T>, 
+      /// and it will throw exception if they're missing,
+      /// unless transientOnly is set to true 
       template<typename T>
-      void addUserData( const std::string & label, const T & data ) {
+      void addUserData( const std::string & label, const T & data, bool transientOnly=false ) {
           userDataLabels_.push_back(label);
-          userDataObjects_.push_back(new pat::UserHolder<T>(data));
+          userDataObjects_.push_back(pat::UserData::make<T>(data, transientOnly));
       }
 
       /// Set user-defined data. To be used only to fill from ValueMap<Ptr<UserData>>
@@ -184,14 +186,26 @@ namespace pat {
           userDataObjects_.push_back(data->clone());
       }
       
-      /// Get user-defined double
-      double userDouble( const std::string & key ) const;
-      /// Set user-defined double
-      void addUserDouble( const  std::string & label, double data );
+      /// Get user-defined float
+      float userFloat( const std::string & key ) const;
+      /// Set user-defined float
+      void addUserFloat( const  std::string & label, float data );
+      /// Get list of user-defined float names
+      const std::vector<std::string> & userFloatNames() const  { return userFloatLabels_; }
+      /// Return true if there is a user-defined float with a given name
+      bool hasUserFloat( const std::string & key ) const {
+        return std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key) != userFloatLabels_.end();
+      }
       /// Get user-defined int
-      int userInt( const std::string & key ) const;
-      /// Set user-defined double
-      void addUserInt( const std::string & label,  int data );
+      int32_t userInt( const std::string & key ) const;
+      /// Set user-defined int
+      void addUserInt( const std::string & label,  int32_t data );
+      /// Get list of user-defined int names
+      const std::vector<std::string> & userIntNames() const  { return userIntLabels_; }
+      /// Return true if there is a user-defined int with a given name
+      bool hasUserInt( const std::string & key ) const {
+        return std::find(userIntLabels_.begin(), userIntLabels_.end(), key) != userIntLabels_.end();
+      }
  
     protected:
       // reference back to the original object
@@ -230,12 +244,12 @@ namespace pat {
       /// User data object
       std::vector<std::string>      userDataLabels_;
       pat::UserDataCollection       userDataObjects_;
-      // User double values
-      std::vector<std::string>      userDoubleLabels_;
-      std::vector<double>           userDoubles_;
+      // User float values
+      std::vector<std::string>      userFloatLabels_;
+      std::vector<float>            userFloats_;
       // User int values
       std::vector<std::string>      userIntLabels_;
-      std::vector<int>              userInts_;
+      std::vector<int32_t>          userInts_;
 
     private:
       const pat::UserData *  userDataObject_(const std::string &key) const ;
@@ -458,21 +472,21 @@ namespace pat {
   }
 
   template <class ObjectType>
-  double PATObject<ObjectType>::userDouble( const std::string &key ) const
+  float PATObject<ObjectType>::userFloat( const std::string &key ) const
   {
-    std::vector<std::string>::const_iterator it = std::find(userDoubleLabels_.begin(), userDoubleLabels_.end(), key);
-    if (it != userDoubleLabels_.end()) {
-        return userDoubles_[it - userDoubleLabels_.begin()];
+    std::vector<std::string>::const_iterator it = std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key);
+    if (it != userFloatLabels_.end()) {
+        return userFloats_[it - userFloatLabels_.begin()];
     }
     return 0.0;
   }
 
   template <class ObjectType>
-  void PATObject<ObjectType>::addUserDouble( const std::string & label,
-					     double data )
+  void PATObject<ObjectType>::addUserFloat( const std::string & label,
+					    float data )
   {
-    userDoubleLabels_.push_back(label);
-    userDoubles_.push_back( data );
+    userFloatLabels_.push_back(label);
+    userFloats_.push_back( data );
   }
 
 
