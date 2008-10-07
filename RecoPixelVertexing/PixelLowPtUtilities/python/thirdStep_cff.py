@@ -71,10 +71,13 @@ thirdMeasurementTracker.stripClusterProducer = 'thirdClusters'
 thirdCkfTrajectoryBuilder.ComponentName = 'thirdCkfTrajectoryBuilder'
 thirdCkfTrajectoryBuilder.MeasurementTrackerName = 'thirdMeasurementTracker'
 thirdCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
+
 tertTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds'
 tertTrackCandidates.SeedProducer = 'tertSeeds'
 tertTrackCandidates.TrajectoryBuilder = 'thirdCkfTrajectoryBuilder'
 tertTrackCandidates.RedundantSeedCleaner = 'none'
+tertTrackCandidates.doSeedingRegionRebuilding = False
+
 globalTertTracks.src = 'tertTrackCandidates'
 globalTertTracks.clusterRemovalInfo = 'thirdClusters'
 globalTertTracks.TrajectoryInEvent = True

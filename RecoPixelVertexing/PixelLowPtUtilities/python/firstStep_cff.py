@@ -21,6 +21,7 @@ primTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCand
 primTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
 primTrackCandidates.SeedProducer         = 'primSeeds'
 primTrackCandidates.RedundantSeedCleaner = 'none'
+primTrackCandidates.doSeedingRegionRebuilding = False
 
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 globalPrimTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()

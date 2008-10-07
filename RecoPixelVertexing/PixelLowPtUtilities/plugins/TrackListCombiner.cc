@@ -84,6 +84,10 @@ void TrackListCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
       
       // A copy of the track
       reco::Track aRecoTrack(*aTrackRef);
+
+      // Set algorithm
+      aRecoTrack.setAlgorithm(algo);
+
       recoTracks->push_back(aRecoTrack);      
 
       // A copy of the hits
