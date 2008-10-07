@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.27.2.2 2008/08/07 00:45:13 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.33 2008/08/07 02:06:23 dmytro Exp $
 //
 //
 
@@ -926,7 +926,7 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 	  if (phiHits>5) {
 	    t0+=dtseg->phiSegment()->t0()*phiHits;
 	    hits+=phiHits;
-//	    std::cout << " Phi t0: " << s->phiSegment()->t0() << " hits: " << phiHits << std::endl;
+	    LogTrace("TrackAssociator") << " Phi t0: " << dtseg->phiSegment()->t0() << " hits: " << phiHits;
 	  }
 	  // the z segments seem to contain little useful information...
 //	  if (zHits>3) {
@@ -1072,7 +1072,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
        case OutsideIn:
 	   {
 	      cachedTrajectory_.setPropagationStep( -fabs(currentStepSize) );
-	      TrackDetMatchInfo result = associate(iEvent, iSetup, parameters, &innerState, &referenceState);
+	      TrackDetMatchInfo result = associate(iEvent, iSetup, parameters, &outerState, &innerState);
 	      cachedTrajectory_.setPropagationStep( currentStepSize );
 	      return result;
 	      break;
