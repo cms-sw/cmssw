@@ -34,7 +34,7 @@ namespace egammaisolation {
   class EgammaTowerExtractor  : public reco::isodeposit::IsoDepositExtractor {
 
       public:
-         enum HcalDepth{AllDepths=0,Depth1=1,Depth2=2};
+         enum HcalDepth{AllDepths=-1,Undefined=0,Depth1=1,Depth2=2};
 
 
       public:
