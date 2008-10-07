@@ -24,7 +24,6 @@ public :
    Double_t        PhiRaw1;
    Double_t        EtGen1;
    Double_t        EtRaw1;
-   Double_t        EtMCJ1;
    Double_t        EtZSP1;
    Double_t        EtJPT1;
    Double_t        DRMAXgjet1;
@@ -34,7 +33,6 @@ public :
    Double_t        PhiRaw2;
    Double_t        EtGen2;
    Double_t        EtRaw2;
-   Double_t        EtMCJ2;
    Double_t        EtZSP2;
    Double_t        EtJPT2;
    Double_t        DRMAXgjet2;
@@ -46,7 +44,6 @@ public :
    TBranch        *b_PhiRaw1;   //!
    TBranch        *b_EtGen1;   //!
    TBranch        *b_EtRaw1;   //!
-   TBranch        *b_EtMCJ1;   //!
    TBranch        *b_EtZSP1;   //!
    TBranch        *b_EtJPT1;   //!
    TBranch        *b_DRMAXgjet1;   //!
@@ -56,7 +53,6 @@ public :
    TBranch        *b_PhiRaw2;   //!
    TBranch        *b_EtGen2;   //!
    TBranch        *b_EtRaw2;   //!
-   TBranch        *b_EtMCJ2;   //!
    TBranch        *b_EtZSP2;   //!
    TBranch        *b_EtJPT2;   //!
    TBranch        *b_DRMAXgjet2;   //!
@@ -79,14 +75,27 @@ JPTRootAnalysis::JPTRootAnalysis(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("analysis20k.root");
-      if (!f) {
-         f = new TFile("analysis20k.root");
-      }
-      tree = (TTree*)gDirectory->Get("t1");
 
+  if (tree == 0) {
+    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("analysis.root");
+    //     TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("analysisIterTrk_2.root");
+    if (!f) {
+      f = new TFile("analysis.root");
+      //	f = new TFile("analysisIterTrk_2.root");
+      }
+    tree = (TTree*)gDirectory->Get("t1");
    }
+
+/*
+  if (tree == 0) {
+    TChain * chain = new TChain("t1","");
+    // eff
+    //    chain->Add("/afs/cern.ch/user/a/anikiten/scratch0/CMSSW_1_6_9/src/JetMETCorrections/JetPlusTrack/test/RESULT/analysisCTF_eff_*.root");
+    //    chain->Add("/afs/cern.ch/user/a/anikiten/scratch0/CMSSW_1_6_9/src/JetMETCorrections/JetPlusTrack/test/RESULT/analysisIterTrkOutLeakMuonsZSP152noNu_*.root");
+    chain->Add("/afs/cern.ch/user/a/anikiten/scratch0/CMSSW_1_6_9/src/JetMETCorrections/JetPlusTrack/test/RESULT/analysisIterTrk_*_resp.root");
+    tree = chain;
+  }
+*/
    Init(tree);
 }
 
@@ -139,7 +148,6 @@ void JPTRootAnalysis::Init(TTree *tree)
    fChain->SetBranchAddress("PhiRaw1", &PhiRaw1, &b_PhiRaw1);
    fChain->SetBranchAddress("EtGen1", &EtGen1, &b_EtGen1);
    fChain->SetBranchAddress("EtRaw1", &EtRaw1, &b_EtRaw1);
-   fChain->SetBranchAddress("EtMCJ1", &EtMCJ1, &b_EtMCJ1);
    fChain->SetBranchAddress("EtZSP1", &EtZSP1, &b_EtZSP1);
    fChain->SetBranchAddress("EtJPT1", &EtJPT1, &b_EtJPT1);
    fChain->SetBranchAddress("DRMAXgjet1", &DRMAXgjet1, &b_DRMAXgjet1);
@@ -149,7 +157,6 @@ void JPTRootAnalysis::Init(TTree *tree)
    fChain->SetBranchAddress("PhiRaw2", &PhiRaw2, &b_PhiRaw2);
    fChain->SetBranchAddress("EtGen2", &EtGen2, &b_EtGen2);
    fChain->SetBranchAddress("EtRaw2", &EtRaw2, &b_EtRaw2);
-   fChain->SetBranchAddress("EtMCJ2", &EtMCJ2, &b_EtMCJ2);
    fChain->SetBranchAddress("EtZSP2", &EtZSP2, &b_EtZSP2);
    fChain->SetBranchAddress("EtJPT2", &EtJPT2, &b_EtJPT2);
    fChain->SetBranchAddress("DRMAXgjet2", &DRMAXgjet2, &b_DRMAXgjet2);

@@ -209,50 +209,50 @@ void JPTRootAnalysis::Loop()
    const Int_t nbx = nbins+1;
    const Float_t xbins[nbx]={20.,30.,40.,50.,60.,70.,80.,90.,100.,120.,150.};
    TH1F* hResRaw = new TH1F("hResRaw", "ResRaw", nbins, xbins);
-   TH1F* hResMCJ = new TH1F("hResMCJ", "ResMCJ", nbins, xbins);
+   TH1F* hResJPTInCone = new TH1F("hResJPTInCone", "ResJPTInCone", nbins, xbins);
    TH1F* hResZSP = new TH1F("hResZSP", "ResZSP", nbins, xbins);
    TH1F* hResJPT = new TH1F("hResJPT", "ResJPT", nbins, xbins);
    // scale plot
    TH1F* hScaleRaw = new TH1F("hScaleRaw", "ScaleRaw", nbins, xbins);
-   TH1F* hScaleMCJ = new TH1F("hScaleMCJ", "ScaleMCJ", nbins, xbins);
+   TH1F* hScaleJPTInCone = new TH1F("hScaleJPTInCone", "ScaleJPTInCone", nbins, xbins);
    TH1F* hScaleZSP = new TH1F("hScaleZSP", "ScaleZSP", nbins, xbins);
    TH1F* hScaleJPT = new TH1F("hScaleJPT", "ScaleJPT", nbins, xbins);
 
    // histogramms
 
    TH1F* hEtRaw[nh];
-   TH1F* hEtMCJ[nh]; 
+   TH1F* hEtJPTInCone[nh]; 
    TH1F* hEtZSP[nh];
    TH1F* hEtJPT[nh];
 
-   const char* namesEtRaw[nh] = {"hEtRaw1","hEtRaw2"};
-   const char* titleEtRaw[nh] = {"EtRaw1","EtRaw2"};
+   const char* namesEtRaw[nh] = {"hEtRaw1","hEtRaw2","hEtRaw3","hEtRaw4","hEtRaw5","hEtRaw6","hEtRaw7","hEtRaw8","hEtRaw9","hEtRaw10"};
+   const char* titleEtRaw[nh] = {"EtRaw1","EtRaw2","EtRaw2","EtRaw4","EtRaw5","EtRaw6","EtRaw7","EtRaw8","EtRaw9","EtRaw10"};
 
-   const char* namesEtMCJ[nh] = {"hEtMCJ1","hEtMCJ2"};
-   const char* titleEtMCJ[nh] = {"EtMCJ1","EtMCJ2"};
+   const char* namesEtJPTInCone[nh] = {"hEtJPTInCone1","hEtJPTInCone2","hEtJPTInCone3","hEtJPTInCone4","hEtJPTInCone5","hEtJPTInCone6","hEtJPTInCone7","hEtJPTInCone8","hEtJPTInCone9","hEtJPTInCone10"};
+   const char* titleEtJPTInCone[nh] = {"EtJPTInCone1","EtJPTInCone2","EtJPTInCone3","EtJPTInCone4","EtJPTInCone5","EtJPTInCone6","EtJPTInCone7","EtJPTInCone8","EtJPTInCone9","EtJPTInCone10"};
 
-   const char* namesEtZSP[nh] = {"hEtZSP1","hEtZSP2"};
-   const char* titleEtZSP[nh] = {"EtZSP1"},"EtZSP2";
+   const char* namesEtZSP[nh] = {"hEtZSP1","hEtZSP2","hEtZSP3","hEtZSP4","hEtZSP5","hEtZSP6","hEtZSP7","hEtZSP8","hEtZSP9","hEtZSP10"};
+   const char* titleEtZSP[nh] = {"EtZSP1","EtZSP2","EtZSP3","EtZSP4","EtZSP5","EtZSP6","EtZSP7","EtZSP8","EtZSP9","EtZSP10"};
 
-   const char* namesEtJPT[nh] = {"hEtJPT1","hEtJPT2"};
-   const char* titleEtJPT[nh] = {"EtJPT1","EtJPT2"};
+   const char* namesEtJPT[nh] = {"hEtJPT1","hEtJPT2","hEtJPT3","hEtJPT4","hEtJPT5","hEtJPT6","hEtJPT7","hEtJPT8","hEtJPT9","hEtJPT10"};
+   const char* titleEtJPT[nh] = {"EtJPT1","EtJPT2","EtJPT3","EtJPT4","EtJPT5","EtJPT6","EtJPT7","EtJPT8","EtJPT9","EtJPT10"};
 
    for(Int_t ih=0; ih < nh; ih++) { 
      hEtRaw[ih]  = new TH1F(namesEtRaw[ih], titleEtRaw[ih], 60, 0., 3.);
-     hEtMCJ[ih]  = new TH1F(namesEtMCJ[ih], titleEtMCJ[ih], 60, 0., 3.);
+     hEtJPTInCone[ih]  = new TH1F(namesEtJPTInCone[ih], titleEtJPTInCone[ih], 60, 0., 3.);
      hEtZSP[ih]  = new TH1F(namesEtZSP[ih], titleEtZSP[ih], 60, 0., 3.);
      hEtJPT[ih]  = new TH1F(namesEtJPT[ih], titleEtJPT[ih], 60, 0., 3.);
    }
 
    TH1F * hEtGen  = new TH1F( "hEtGen", "EtGen", 20, 0., 200.);
-   TH1F * hEtaGen = new TH1F( "hEtaGen", "EtaGen", 16, 0., 1.6);
+   TH1F * hEtaGen = new TH1F( "hEtaGen", "EtaGen", 16, 0., 2.1);
    TH1F * hDR     = new TH1F( "hDR", "DR", 100, 0., 10.);
 
    // separate jets by DR
    Float_t DR;
    Float_t DRcut = 2.0;
-   Float_t etaMin = 0.;
-   Float_t etaMax = 1.4;
+   Float_t etaMin = 0.0;
+   Float_t etaMax = 1.0;
 
    Long64_t nentries = fChain->GetEntriesFast();
 
@@ -271,7 +271,6 @@ void JPTRootAnalysis::Loop()
 
 	    if(EtGen2 < 20.) {
 	      hEtRaw[ih]->Fill(EtRaw1/EtGen1);
-	      hEtMCJ[ih]->Fill(EtMCJ1/EtGen1);
 	      hEtZSP[ih]->Fill(EtZSP1/EtGen1);
 	      hEtJPT[ih]->Fill(EtJPT1/EtGen1);
 	    } 
@@ -281,7 +280,6 @@ void JPTRootAnalysis::Loop()
 	      if(DR > DRcut) {
 		hDR->Fill(DR);
 		hEtRaw[ih]->Fill(EtRaw1/EtGen1);
-		hEtMCJ[ih]->Fill(EtMCJ1/EtGen1);
 		hEtZSP[ih]->Fill(EtZSP1/EtGen1);
 		hEtJPT[ih]->Fill(EtJPT1/EtGen1);
 		hEtGen->Fill(EtGen1);
@@ -299,7 +297,6 @@ void JPTRootAnalysis::Loop()
 	    if(DR > DRcut) {
 	      hDR->Fill(DR);
 	      hEtRaw[ih]->Fill(EtRaw2/EtGen2);
-	      hEtMCJ[ih]->Fill(EtMCJ2/EtGen2);
 	      hEtZSP[ih]->Fill(EtZSP2/EtGen2);
 	      hEtJPT[ih]->Fill(EtJPT2/EtGen2);
 	      hEtGen->Fill(EtGen2);
@@ -323,9 +320,9 @@ void JPTRootAnalysis::Loop()
    hEtRaw[0]->Draw("hist");
    //
    // MC
-   hEtMCJ[0]->SetLineStyle(2);
-   hEtMCJ[0]->SetLineWidth(1);
-   hEtMCJ[0]->Draw("same");
+   hEtJPTInCone[0]->SetLineStyle(2);
+   hEtJPTInCone[0]->SetLineWidth(1);
+   hEtJPTInCone[0]->Draw("same");
    // ZSP
    hEtZSP[0]->SetLineStyle(3);
    hEtZSP[0]->SetLineWidth(4);
@@ -340,7 +337,7 @@ void JPTRootAnalysis::Loop()
    TLegend *leg = new TLegend(0.45,0.4,0.85,0.8,NULL,"brNDC");
    leg->SetFillColor(10);
    leg->AddEntry(hEtRaw[0],"Raw jets; #mu = 0.60, #sigma = 0.16","L");
-   leg->AddEntry(hEtMCJ[0],"MC corr; #mu = 1.05, #sigma = 0.17","L");
+   leg->AddEntry(hEtJPTInCone[0],"MC corr; #mu = 1.05, #sigma = 0.17","L");
    leg->AddEntry(hEtZSP[0],"ZSP corr; #mu = 0.73, #sigma = 0.15","L");
    leg->AddEntry(hEtJPT[0],"JPT corr; #mu = 0.89, #sigma = 0.11","L");
    leg->Draw();  
@@ -350,8 +347,9 @@ void JPTRootAnalysis::Loop()
    //fit JPT
    TCanvas* c1 = new TCanvas("X","Y",1);
    c1->Divide(2,2);
-   for(Int_t ih = 0; ih < nh; ++ih) {
-   //   for(Int_t ih = 1; ih < 2; ++ih) {
+   char name[50];
+   for(Int_t ih = 1; ih < nh; ++ih) {
+   //   for(Int_t ih = 7; ih < 8; ++ih) {
 
      // gen energy bin center
      TAxis* xaxisRes = hResJPT->GetXaxis();
@@ -403,28 +401,30 @@ void JPTRootAnalysis::Loop()
      hScaleZSP->Fill(EbinCenter,mean);
      hScaleZSP->SetBinError(ih+1,meanErr);    
 
+     /*
      c1->cd(3);
-     // MCJ
+     // JPTInCone
      // get bin with max content
-     binMax = hEtMCJ[ih]->GetMaximumBin();
-     xaxis = hEtMCJ[ih]->GetXaxis();
+     binMax = hEtJPTInCone[ih]->GetMaximumBin();
+     xaxis = hEtJPTInCone[ih]->GetXaxis();
      binCenter = xaxis->GetBinCenter(binMax);
-     rms = hEtMCJ[ih]->GetRMS();
+     rms = hEtJPTInCone[ih]->GetRMS();
      rFitMin = binCenter - 2.0 * rms; 
      rFitMax = binCenter + 2.0 * rms;
-     hEtMCJ[ih]->Fit("gaus","","",rFitMin,rFitMax);
-     fit = hEtMCJ[ih]->GetFunction("gaus"); 
+     hEtJPTInCone[ih]->Fit("gaus","","",rFitMin,rFitMax);
+     fit = hEtJPTInCone[ih]->GetFunction("gaus"); 
      mean  = fit->GetParameter(1);
      meanErr  = fit->GetParError(1);
      sigma = fit->GetParameter(2);
      sigmaErr = fit->GetParError(2);
      resolution = sigma/mean;
      resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
-     hResMCJ->Fill(EbinCenter,resolution);
-     hResMCJ->SetBinError(ih+1, resolutionErr);   
-     hScaleMCJ->Fill(EbinCenter,mean);
-     hScaleMCJ->SetBinError(ih+1,meanErr);    
- 
+     hResJPTInCone->Fill(EbinCenter,resolution);
+     hResJPTInCone->SetBinError(ih+1, resolutionErr);   
+     hScaleJPTInCone->Fill(EbinCenter,mean);
+     hScaleJPTInCone->SetBinError(ih+1,meanErr);    
+     */
+
      c1->cd(4);
      // RAW
      // get bin with max content
@@ -445,16 +445,18 @@ void JPTRootAnalysis::Loop()
      hResRaw->Fill(EbinCenter,resolution);
      hResRaw->SetBinError(ih+1, resolutionErr);    
      hScaleRaw->Fill(EbinCenter,mean);
-     hScaleRaw->SetBinError(ih+1,meanErr);    
+     hScaleRaw->SetBinError(ih+1,meanErr);
+     sprintf(name,"hCalo1_%d.gif",ih);
+     c1->SaveAs(name);
    }
-
+   /*
    TCanvas* c3 = new TCanvas("X","Y",1);
 
    hResJPT->GetXaxis()->SetTitle("E_{T} Gen, GeV");
    hResJPT->GetYaxis()->SetTitle("Energy resolution, % ");
 
    hResJPT->SetMaximum(0.45);
-   hResJPT->SetMinimum(0.10);
+   hResJPT->SetMinimum(0.08);
    hResJPT->SetMarkerStyle(21);
    hResJPT->SetMarkerSize(1.2);
    hResJPT->Draw("histPE1");
@@ -479,21 +481,38 @@ void JPTRootAnalysis::Loop()
 
    c3->SaveAs("resRawZSPJPT.gif");
    c3->SaveAs("resRawZSPJPT.eps");
+   */
 
-   TCanvas* c4 = new TCanvas("X","Y",1);
+   // save histo on disk
+
+   //   TFile efile("CTF.root","recreate");
+
+   TFile efile("test.root","recreate");
+   hResRaw->Write();
+   hResJPTInCone->Write();
+   hResJPT->Write();
+   hScaleRaw->Write();
+   hScaleJPTInCone->Write();
+   hScaleJPT->Write();
+   efile.Close();
+
+   TCanvas* c40 = new TCanvas("X","Y",1);
 
    hResJPT->GetXaxis()->SetTitle("E_{T} Gen, GeV");
    hResJPT->GetYaxis()->SetTitle("Energy resolution, % ");
 
    hResJPT->SetMaximum(0.45);
-   hResJPT->SetMinimum(0.10);
+   hResJPT->SetMinimum(0.08);
    hResJPT->SetMarkerStyle(21);
    hResJPT->SetMarkerSize(1.2);
    hResJPT->Draw("histPE1");
 
-   hResMCJ->SetMarkerSize(1.0);
-   hResMCJ->SetMarkerStyle(24);
-   hResMCJ->Draw("samePE1");
+   //   hResJPTInCone->SetMarkerSize(1.0);
+   //   hResJPTInCone->SetMarkerStyle(24);
+   //   hResJPTInCone->Draw("samePE1");
+   hResZSP->SetMarkerSize(1.0);
+   hResZSP->SetMarkerStyle(24);
+   hResZSP->Draw("samePE1");
 
    hResRaw->SetMarkerSize(1.5);
    hResRaw->SetMarkerStyle(22);
@@ -503,15 +522,16 @@ void JPTRootAnalysis::Loop()
    t->SetTextSize(0.042);
    TLegend *leg = new TLegend(0.45,0.5,0.85,0.8,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hResJPT,"with ZSP+JPT corr","P");
-   leg->AddEntry(hResMCJ,"with MC corr","P");
    leg->AddEntry(hResRaw,"Raw calo jets","P");
+   leg->AddEntry(hResZSP,"JPT corr","P");
+   leg->AddEntry(hResJPT,"ZSP+JPT corr","P");
    leg->Draw();  
-   t->DrawLatex(40,0.42,"CMSSW160, Z+jets. |#eta ^{jet}|< 1.4");
+   t->DrawLatex(25,0.42,"CMSSW219");
+   t->DrawLatex(25,0.40,"RelVal QCD 80-120 GeV, |#eta ^{jet}|< 1.0");
 
-   c4->SaveAs("resRawMCJJPT.gif");
-   c4->SaveAs("resRawMCJJPT.eps");
+   c40->SaveAs("resJPT219.gif");
 
+   /*
    TCanvas* c1 = new TCanvas("X","Y",1);
 
    hScaleJPT->GetXaxis()->SetTitle("E_{T} Gen, GeV");
@@ -531,6 +551,13 @@ void JPTRootAnalysis::Loop()
    hScaleRaw->SetMarkerStyle(22);
    hScaleRaw->Draw("samePE1");
 
+   // PF jets
+   //   TFile* file = new TFile("Jetsresolution_curve_short.root");
+   //   gResp_iterativeCone5PFJets->SetMarkerSize(1.5);
+   //   gResp_iterativeCone5PFJets->SetMarkerStyle(22);
+   //   gResp_iterativeCone5PFJets->Draw("P");
+   //
+
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
    TLegend *leg = new TLegend(0.5,0.15,0.9,0.35,NULL,"brNDC");
@@ -543,8 +570,9 @@ void JPTRootAnalysis::Loop()
 
    c1->SaveAs("ScaleRawZSPJPT.gif");
    c1->SaveAs("ScaleRawZSPJPT.eps");
+   */
 
-   TCanvas* c2 = new TCanvas("X","Y",1);
+   TCanvas* c20 = new TCanvas("X","Y",1);
 
    hScaleJPT->GetXaxis()->SetTitle("E_{T} Gen, GeV");
    hScaleJPT->GetYaxis()->SetTitle("E_{T}^{reco}/E_{T}^{gen}");
@@ -555,9 +583,13 @@ void JPTRootAnalysis::Loop()
    hScaleJPT->SetMarkerSize(1.2);
    hScaleJPT->Draw("histPE1");
 
-   hScaleMCJ->SetMarkerSize(1.0);
-   hScaleMCJ->SetMarkerStyle(24);
-   hScaleMCJ->Draw("samePE1");
+   //   hScaleJPTInCone->SetMarkerSize(1.0);
+   //   hScaleJPTInCone->SetMarkerStyle(24);
+   //   hScaleJPTInCone->Draw("samePE1");
+
+   hScaleZSP->SetMarkerSize(1.0);
+   hScaleZSP->SetMarkerStyle(24);
+   hScaleZSP->Draw("samePE1");
 
    hScaleRaw->SetMarkerSize(1.5);
    hScaleRaw->SetMarkerStyle(22);
@@ -567,18 +599,18 @@ void JPTRootAnalysis::Loop()
    t->SetTextSize(0.042);
    TLegend *leg = new TLegend(0.5,0.15,0.9,0.35,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hScaleJPT,"with ZSP+JPT corr","P");
-   leg->AddEntry(hScaleMCJ,"with MC corr","P");
    leg->AddEntry(hScaleRaw,"Raw calo jets","P");
+   leg->AddEntry(hScaleZSP,"ZSP corr","P");
+   leg->AddEntry(hScaleJPT,"ZSP+JPT corr","P");
    leg->Draw();  
-   t->DrawLatex(40,1.12,"CMSSW160, Z+jets. |#eta ^{jet}|< 1.4");
+   t->DrawLatex(25,1.12,"CMSSW219");
+   t->DrawLatex(25,1.06,"RelVal QCD 80-120 GeV, |#eta ^{jet}|< 1.0");
 
-   c2->SaveAs("ScaleRawMCJJPT.gif");
-   c2->SaveAs("ScaleRawMCJJPT.eps");
+   c20->SaveAs("ScaleJPT219.gif");
 
    /*
    TCanvas* c10 = new TCanvas("X","Y",1);
-   c10->Divide(1,3);
+   c10->Divide(1,2);
    // EtGen
    c10->cd(1);
    hEtGen->GetXaxis()->SetTitle("E_{T} gen, GeV");
@@ -588,11 +620,13 @@ void JPTRootAnalysis::Loop()
    c10->cd(2);
    hEtaGen->GetXaxis()->SetTitle("| #eta | gen");
    hEtaGen->GetYaxis()->SetTitle("Nev");
+   hEtaGen->SetMinimum(0.);
    hEtaGen->Draw("hist");
 
-   c10->cd(3);
-   hDR->GetXaxis()->SetTitle("#Delta R");
-   hDR->GetYaxis()->SetTitle("Nev");
-   hDR->Draw("hist");
+   //   c10->cd(3);
+   //   hDR->GetXaxis()->SetTitle("#Delta R");
+   //   hDR->GetYaxis()->SetTitle("Nev");
+   //   hDR->Draw("hist");
+   c10->SaveAs("JetEtEta.gif");
    */
 }
