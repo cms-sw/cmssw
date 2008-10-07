@@ -422,8 +422,16 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    if( trInCaloInVertex.size() > 0 ){ 
      for( reco::TrackRefVector::iterator itV = trInCaloInVertex.begin(); itV != trInCaloInVertex.end(); itV++)
        {
+	 
+// Temporary solution>>>>>> Remove tracks with pt>50 GeV
+         if( (**itV).pt() >= 50. ) continue;
+// >>>>>>>>>>>>>>
+
 	 echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.14*0.14);
+
 	 NewResponse = NewResponse + echar;
+	 
+         if(debug) cout<<" New response in Calo in Vertex sum "<<NewResponse<<" "<<echar<<endl;
 
 	 /*
 	 double x = 0.;
@@ -445,10 +453,19 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 			 int k = i*nptbin1+j;
 			 netracks_incone[k]++;
 			 emean_incone[k] = emean_incone[k] + echar;
+			 
+                         if( debug ) cout<<" Before subtraction "<<NewResponse<<" echar "<<echar<<" "<<
+                         response[k]*echar<<endl;
+			 
+			 
 			 NewResponse =  NewResponse - response[k]*echar;
 			 if(debug) cout <<"        k eta/pT index = " << k
 					<<" netracks_incone[k] = " << netracks_incone[k]
-					<<" emean_incone[k] = " << emean_incone[k] << endl;
+					<<" emean_incone[k] = " << emean_incone[k]
+                                        <<" i,j "<<i<<" "<<j<<" "<<response[k] 
+                                        <<" echar "<<echar<<" "<<response[k]*echar
+                                        <<" New Response "<< NewResponse 
+					<< endl;
 		       }
 		   }
 	       }
