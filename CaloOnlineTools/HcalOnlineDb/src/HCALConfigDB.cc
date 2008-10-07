@@ -303,6 +303,6 @@ string HCALConfigDB::clobToString(oracle::occi::Clob clob){
                 char *cbuffer = new char[size];
                 memset (cbuffer, 0, size);
                 instream->readBuffer (cbuffer, size);
-                string str(cbuffer);
+                string str(cbuffer,size);
 		return str;
 }

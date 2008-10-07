@@ -1134,16 +1134,20 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
       oracle::occi::Clob clob = rs->getClob (1);
       int crate = rs->getInt(2);
       if ( crate != -1 ){ // not a brick with checksums
-	cout << "Getting LUTs for crate #" << crate << "out of the database...";
+	cout << "Getting LUTs for crate #" << crate << " out of the database...";
 	brick_set = db -> clobToString(clob);
+	/*
+	// FIXME: DEBUG lut xml files from simple strings
+	stringstream file_name;
+	ofstream out_file;
+	file_name << tag << "_" << crate << "_debug" << ".xml";
+	out_file . open( file_name.str().c_str() );
+	out_file << brick_set;
+	out_file . close();
+	*/
 	const char * bs = brick_set . c_str();
 	MemBufInputSource * lut_clob = new MemBufInputSource( (const XMLByte *)bs, strlen( bs ), "lut_clob", false );
-	//XMLDOMBlock * _xml = new XMLDOMBlock( *lut_clob );
-	//new LutXml();
 	shared_ptr<LutXml> lut_xml = shared_ptr<LutXml>( new LutXml( *lut_clob ) );
-	stringstream file_name;
-	file_name << tag << "_" << crate << ".xml";
-	//lut_xml -> write(file_name.str().c_str());
 	lut_map[crate] = lut_xml;
         cout << " done" << endl;
       }

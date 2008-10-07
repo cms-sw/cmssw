@@ -14,7 +14,8 @@ process.GlobalTag.globaltag = 'CRUZET4_V1::All'
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
 process.checkTPGsModule = cms.EDAnalyzer("HcalLutGenerator",
-                                         tag = cms.string('CRUZET_part4_physics_v3')
+                                         #tag = cms.string('CRUZET_part4_physics_v3')
+                                         tag = cms.string('CRUZETPhysicsV4')
                                          )
 
 
