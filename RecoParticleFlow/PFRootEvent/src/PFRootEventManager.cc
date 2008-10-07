@@ -1681,7 +1681,7 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
         double peta = -10;
         double phi = -10;
         double pe = -10;
-
+	
         const reco::PFSimParticle& ptc 
           = closestParticle( tpLayer, 
                              cluster.eta, cluster.phi, 
@@ -1696,7 +1696,7 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
         
       }
       catch( std::exception& err ) {
-        cerr<<err.what()<<endl;
+        // cerr<<err.what()<<endl;
       } 
     }
 
