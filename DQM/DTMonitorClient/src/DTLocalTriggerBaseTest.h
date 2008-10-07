@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2008/05/22 10:49:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/30 13:48:46 $
+ *  $Revision: 1.2 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -54,8 +54,14 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
+  /// Perform client diagnostic in online
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
+
+  /// Perform client diagnostic in offline
   void endJob();
+
+  /// Perform client analysis
+  virtual void runClientDiagnostic() = 0;
 
   /// Book the new MEs (for each sector)
   void bookSectorHistos( int wheel, int sector, std::string folder, std::string hTag );
@@ -101,6 +107,7 @@ protected:
   DQMStore* dbe;
   std::string sourceFolder;
   edm::ParameterSet parameters;
+  bool runOnline;
   std::string trigSource;
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/18 12:37:12 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/09/25 08:21:37 $
+ *  $Revision: 1.25 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -102,18 +102,7 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& c){
 
 }
 
-void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
-
-  // counts number of lumiSegs 
-  nLumiSegs++;
-
-  // prescale factor
-  if ( nLumiSegs%prescaleFactor != 0 ) return;
-
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: "<<nLumiSegs<<" updates";
-  
+void DTLocalTriggerTest::runClientDiagnostic() {
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -125,14 +114,14 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
-	    int sector_id = (wh+3)+(sect-1)*5;
+	    // int sector_id = (wh+3)+(sect-1)*5;
 	    // uint32_t indexCh = chId.rawId();
 	    
 
 	    // Perform DCC/DDU common plot analysis (Phi ones)
 	    TH2F * BXvsQual      = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
 	    TH1F * BestQual      = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
-	    TH2F * Flag1stvsQual = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId)));
+	    TH2F * Flag1stvsQual = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId))); 
 	    if (BXvsQual && Flag1stvsQual && BestQual) {
 
 	      int corrSummary   = 1;
@@ -282,27 +271,3 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 
 }
 
-// void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
-  
-//   stringstream wheel; wheel << chambId.wheel();
-//   stringstream station; station << chambId.station();	
-//   stringstream sector; sector << chambId.sector();
-
-//   string fullType  = fullName(htype);
-//   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
-
-//   dbe->setCurrentFolder("DT/Tests/" + testName + "/Wheel" + wheel.str() +
-// 			"/Sector" + sector.str() +
-// 			"/Station" + station.str());
-  
-//   uint32_t indexChId = chambId.rawId();
-//   if (htype.find("TrigPositionPhi") == 0){
-//     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),100,-500.,500.);
-//     return;
-//   }
-//   if (htype.find("TrigDirectionPhi") == 0){
-//     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),200,-40.,40.);
-//     return;
-//   }
-
-// }

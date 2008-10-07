@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/05/30 13:48:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/09/25 08:21:37 $
+ *  $Revision: 1.12 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -29,18 +29,13 @@ public:
 
 protected:
 
-/*   /// Book the new MEs (for each chamber) */
-/*   void bookChambHistos(DTChamberId chambId, std::string htype ); */
-
   /// Begin Job
   void beginJob(const edm::EventSetup& c);
 
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  /// Run client analysis
+  void runClientDiagnostic();
 
  private:
-
-  //  std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
 
 };
 

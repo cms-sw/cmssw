@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/05/22 10:49:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/30 13:48:46 $
+ *  $Revision: 1.2 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -42,7 +42,7 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void runClientDiagnostic();
 
 
 

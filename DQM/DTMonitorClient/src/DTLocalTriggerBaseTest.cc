@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 15:15:17 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/07/02 16:14:16 $
+ *  $Revision: 1.6 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -67,10 +67,38 @@ void DTLocalTriggerBaseTest::analyze(const edm::Event& e, const edm::EventSetup&
 }
 
 
-void DTLocalTriggerBaseTest::endJob(){
+void DTLocalTriggerBaseTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {
+  
+  if (!runOnline) return;
 
+  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs and prescale
+  nLumiSegs++;
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: "<<nLumiSegs<<" updates";  
+  runClientDiagnostic();
+
+}
+
+
+void DTLocalTriggerBaseTest::endJob(){
+  
   edm::LogVerbatim ("localTrigger") << "[" << testName << "Test] endjob called!";
-  dbe->rmdir("DT/Tests/"+testName);
+
+  if (!runOnline) {
+    edm::LogVerbatim ("localTrigger") << "[" << testName << "Test] Client called in offline mode, performing client operations";
+
+    if (dbe->dirExists("DT/03-LocalTrigger")) {
+      //dbe->showDirStructure();
+      runClientDiagnostic();
+    }
+    else {
+      edm::LogVerbatim ("localTrigger") << "[" << testName << "Test] trigger ME dir does not exist! Skipping";  
+    }
+
+  }
 
 }
 
@@ -82,6 +110,7 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
   edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: Constructor";
 
   sourceFolder = ps.getUntrackedParameter<string>("folderRoot", ""); 
+  runOnline = ps.getUntrackedParameter<bool>("runOnline",true);
   hwSources = ps.getUntrackedParameter<vector<string> >("hwSources");
 
   if (ps.getUntrackedParameter<bool>("localrun",true)) {
@@ -92,6 +121,7 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
   }
 
   parameters = ps;
+  nevents = 0;
   dbe = edm::Service<DQMStore>().operator->();
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);

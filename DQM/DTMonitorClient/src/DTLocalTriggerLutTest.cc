@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 15:14:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/25 10:21:48 $
+ *  $Revision: 1.5 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -105,18 +105,7 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
 }
 
 
-void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
-
-  // counts number of lumiSegs 
-  nLumiSegs++;
-
-  // prescale factor
-  if ( nLumiSegs%prescaleFactor != 0 ) return;
-
-  edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: "<<nLumiSegs<<" updates";
-  
+void DTLocalTriggerLutTest::runClientDiagnostic() {
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
