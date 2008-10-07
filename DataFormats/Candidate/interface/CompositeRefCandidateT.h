@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.8 2007/12/10 12:16:40 llista Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.9 2008/02/12 11:34:54 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -128,12 +128,12 @@ namespace reco {
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) const { 
-    return ( i >= 0 && i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+    return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0;
   }
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::mother( size_type i ) const { 
-    return ( i >= 0 && i < numberOfMothers() ) ? & * mom[ i ] : 0;
+    return ( i < numberOfMothers() ) ? & * mom[ i ] : 0;
   }
   
   template<typename D>
