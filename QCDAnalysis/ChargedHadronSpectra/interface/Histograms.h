@@ -5,6 +5,7 @@
 
 namespace edm { class ParameterSet ; }
 class TFile;
+class TTree;
 class TH1F;
 class TH2F;
 class TH3F;
@@ -14,8 +15,10 @@ typedef struct
   int ids;
   float etas;
   float pts;
-  bool acc;
-  bool prim;
+//  bool acc;
+//  bool prim;
+  int acc;
+  int prim;
   int nrec;
   int ntrkr;
 } SimTrack_t;
@@ -30,7 +33,8 @@ typedef struct
   float logpr;
   float logde;
   int nhitr; 
-  bool prim;
+//  bool prim;
+  int prim;
   int nsim;
   int ids;
   int parids;
@@ -47,6 +51,13 @@ typedef struct
   float rhor;
 } RecVzero_t;
 
+typedef struct
+{
+  int proc;
+  int strk;
+  int ntrkr;
+} EventInfo_t;
+
 class Histograms
 {
  public:
@@ -54,14 +65,23 @@ class Histograms
   ~Histograms();
 
   void declareHistograms();
-  void fillEventInfo(int proc, int ntrkr);
+  void fillEventInfo(int proc,int strk, int ntrkr);
   void fillSimHistograms  (const SimTrack_t & s);
   void fillRecHistograms  (const RecTrack_t & r);
   void fillVzeroHistograms(const RecVzero_t & r, int part);
   void writeHistograms();
 
  private: 
-   TFile * resultFile;
+   std::vector<TTree *> trackTrees;
+   SimTrack_t simTrackValues;
+   RecTrack_t recTrackValues;
+   RecVzero_t recVzeroValues;
+   EventInfo_t eventInfoValues;
+
+   TFile * histoFile;
+   TFile * ntupleFile;
+   bool fillHistograms;
+   bool fillNtuples;
 
    std::vector<double> etaBins, metaBins, ptBins, ratBins,
                        zBins, lpBins, ldeBins, nhitBins,
@@ -72,6 +92,7 @@ class Histograms
 
    // SimTrack
    std::vector<TH1F *> heve;
+   std::vector<TH2F *> hder;
 
    // SimTrack
    std::vector<TH3F *> hsim;
@@ -87,6 +108,9 @@ class Histograms
    // RecTrack, resolution, bias
    std::vector<TH3F *> hvpt;
    std::vector<TH3F *> hrpt;
+   std::vector<TH2F *> hsp0;
+   std::vector<TH2F *> hsp1;
+   std::vector<TH2F *> hsp2;
 
    // RecTrack -- FakeRate
    std::vector<TH3F *> hfak;
@@ -99,6 +123,12 @@ class Histograms
    std::vector<TH3F *> helo;
    std::vector<TH3F *> hnhi;
    std::vector<TH2F *> held;
+
+/*
+   std::vector<TH3F *> selo;
+   std::vector<TH3F *> snhi;
+   std::vector<TH2F *> seld;
+*/
  
    // RecVzero -- InvariantMass
    std::vector<TH3F *> hima;

@@ -14,6 +14,10 @@
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 
+#include "TROOT.h"
+#include "TFile.h"
+#include "TH2F.h"
+
 /*****************************************************************************/
 EnergyLossProducer::EnergyLossProducer(const edm::ParameterSet& ps)
 {
@@ -21,7 +25,11 @@ EnergyLossProducer::EnergyLossProducer(const edm::ParameterSet& ps)
   pixelToStripMultiplier = ps.getParameter<double>("pixelToStripMultiplier");
   pixelToStripExponent   = ps.getParameter<double>("pixelToStripExponent");
 
-  produces<reco::TrackDeDxEstimateCollection>();
+  produces<reco::TrackDeDxEstimateCollection>("energyLossPixHits");
+  produces<reco::TrackDeDxEstimateCollection>("energyLossStrHits");
+  produces<reco::TrackDeDxEstimateCollection>("energyLossAllHits");
+
+  resultFile = new TFile("energyLoss.root","recreate");
 }
 
 /*****************************************************************************/
@@ -36,6 +44,26 @@ void EnergyLossProducer::beginJob(const edm::EventSetup& es)
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   theTracker = tracker.product();
+  
+  std::vector<double> ldeBins;
+  static float ldeMin   = log(1);
+  static float ldeMax   = log(100);
+  static float ldeWidth = (ldeMax - ldeMin)/250;
+  for(double lde = ldeMin; lde < ldeMax + ldeWidth/2; lde += ldeWidth)
+    ldeBins.push_back(lde);
+
+  hnor = new TH2F("hnor","hnor", ldeBins.size()-1, &ldeBins[0],
+                                 ldeBins.size()-1, &ldeBins[0]);
+}
+
+/*****************************************************************************/
+void EnergyLossProducer::endJob()
+{
+  resultFile->cd();
+
+  hnor->Write();
+
+  resultFile->Close();
 }
 
 /*****************************************************************************/
@@ -44,8 +72,12 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<reco::TrackCollection> trackHandle;
   ev.getByLabel(trackProducer,       trackHandle);
 
-  auto_ptr<reco::TrackDeDxEstimateCollection>
-    output(new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
+  auto_ptr<reco::TrackDeDxEstimateCollection> outputPix
+      (new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
+  auto_ptr<reco::TrackDeDxEstimateCollection> outputStr
+      (new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
+  auto_ptr<reco::TrackDeDxEstimateCollection> outputAll
+      (new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
 
   LogTrace("MinBiasTracking")
     << "[EnergyLossProducer]";
@@ -66,20 +98,27 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
                                          traje!= trajeCollection.end();
                                          traje++, j++)
   {
-    vector<pair<int,double> >    arithmeticMean, truncatedMean;
-    theEloss.estimate(&(*traje), arithmeticMean, truncatedMean);
+    // Estimate (nhits,dE/dx)
+    vector<pair<int,double> >    arithmeticMean, weightedMean;
+    theEloss.estimate(&(*traje), arithmeticMean, weightedMean);
 
-    // use all hits, give truncated mean
-    output->setValue(j, truncatedMean[2].second);
+    // Set values
+    outputPix->setValue(j, Measurement1D(weightedMean[0].second,
+                                         weightedMean[0].first));
+    outputStr->setValue(j, Measurement1D(weightedMean[1].second,
+                                         weightedMean[1].first));
+    outputAll->setValue(j, Measurement1D(weightedMean[2].second,
+                                         weightedMean[2].first));
 
-// !!!!
-/*
-    cerr << " dedx " << truncatedMean[0].second
-              << " " << truncatedMean[1].second
-              << " " << truncatedMean[2].second << endl;
-*/
+    // Prepare conversion matrix
+    if(weightedMean[0].first >= 3 &&
+       weightedMean[1].first >= 3)
+      hnor->Fill(log(weightedMean[0].second),
+                 log(weightedMean[1].second));
   }
 
   // Put back result to event
-  ev.put(output);
+  ev.put(outputPix, "energyLossPixHits");
+  ev.put(outputStr, "energyLossStrHits");
+  ev.put(outputAll, "energyLossAllHits");
 }

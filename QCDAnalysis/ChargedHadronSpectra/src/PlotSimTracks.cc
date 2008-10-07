@@ -59,7 +59,7 @@ PlotSimTracks::~PlotSimTracks()
 void PlotSimTracks::printSimTracks(const edm::Event& ev)
 {
   edm::Handle<TrackingParticleCollection> simTrackHandle;
-  ev.getByLabel("trackingtruthprod",      simTrackHandle);
+  ev.getByLabel("mergedtruth",            simTrackHandle);
   const TrackingParticleCollection* simTracks = simTrackHandle.product();
 
   PlotUtils plotUtils;

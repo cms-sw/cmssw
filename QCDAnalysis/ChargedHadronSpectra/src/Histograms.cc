@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TROOT.h"
+#include "TTree.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -82,10 +83,16 @@ const pair<int,int> resonance[nResonances] =
 /*****************************************************************************/
 Histograms::Histograms(const edm::ParameterSet& pset)
 {
-  string resultFileLabel = pset.getParameter<string>("resultFile");
+  fillHistograms         = pset.getParameter<bool>("fillHistograms");
+  fillNtuples            = pset.getParameter<bool>("fillNtuples");
 
-  resultFile = new TFile(resultFileLabel.c_str(),"recreate");
-  resultFile->cd();
+  string histoFileLabel = pset.getParameter<string>("histoFile");
+  histoFile = new TFile(histoFileLabel.c_str(),"recreate");
+
+  string ntupleFileLabel = pset.getParameter<string>("ntupleFile");
+  ntupleFile = new TFile(ntupleFileLabel.c_str(),"recreate");
+
+//  resultFile->cd();
 }
 
 /*****************************************************************************/
@@ -145,6 +152,29 @@ int Histograms::getCharge(int charge)
 /*****************************************************************************/
 void Histograms::declareHistograms()
 {
+  if(fillNtuples)
+  {
+    TString leafStr;
+
+    trackTrees.push_back(new TTree("simTrackTree","simTrackTree"));
+    leafStr = "ids/I:etas/F:pts/F:acc/I:prim/I:nrec/I:ntrkr/I";
+    trackTrees[0]->Branch("simTrackValues", &simTrackValues, leafStr.Data());
+
+    trackTrees.push_back(new TTree("recTrackTree","recTrackTree"));
+    leafStr = "charge/I:etar/F:ptr/F:phir/F:zr/F:logpr/F:logde/F:nhitr/I:prim/I:nsim/I:ids/I:parids/I:etas/F:pts/F:ntrkr/I";
+    trackTrees[1]->Branch("recTrackValues", &recTrackValues, leafStr.Data());
+
+    trackTrees.push_back(new TTree("recVzeroTree","recVzeroTree"));
+    leafStr = "etar/F:ptr/F:ima/F:rhor/F";
+    trackTrees[2]->Branch("recVzeroValues", &recVzeroValues, leafStr.Data());
+
+    trackTrees.push_back(new TTree("eventInfoTree","eventInfoTree"));
+    leafStr = "proc/I:strk/I:ntrkr/I";
+    trackTrees[3]->Branch("eventInfoValues", &eventInfoValues, leafStr.Data());
+  }
+
+  if(fillHistograms)
+  {
   /////////////////////////////
   // Pt
   const double small = 1e-3;
@@ -177,17 +207,6 @@ void Histograms::declareHistograms()
   for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth/10)
     metaBins.push_back(eta);
 
-  /////////////////////////////
-  // Phi (0, 2*PI)
-/*
-  static float phiMin   = -M_PI;
-  static float phiMax   =  M_PI;
-  static float phiWidth =  (2*M_PI)/100;
-
-  for(double phi = phiMin; phi < phiMax + phiWidth/2; phi += phiWidth)
-    phiBins.push_back(phi);
-*/
-
   static float zMin   = -20.;
   static float zMax   =  20.;
   static float zWidth =  0.1;
@@ -197,9 +216,9 @@ void Histograms::declareHistograms()
 
   /////////////////////////////
   // Number of recontructed tracks
-  static float ntrkMin   =  -0.5;
+  static float ntrkMin   =  0.5;
   static float ntrkMax   = 200.;
-  static float ntrkWidth =  10.;
+  static float ntrkWidth =   5.;
   
   for(double ntrk = ntrkMin; ntrk < ntrkMax + ntrkWidth; ntrk += ntrkWidth)
     ntrkBins.push_back(ntrk);
@@ -211,6 +230,19 @@ void Histograms::declareHistograms()
   // EventInfo
   sprintf(histName,"heve");
   heve.push_back(new TH1F(histName,histName, 200, -0.5,199.5));
+
+  sprintf(histName,"hsdx");
+  heve.push_back(new TH1F(histName,histName, 200, -0.5,199.5));
+
+  sprintf(histName,"hddx");
+  heve.push_back(new TH1F(histName,histName, 200, -0.5,199.5));
+
+  sprintf(histName,"hndx");
+  heve.push_back(new TH1F(histName,histName, 200, -0.5,199.5));
+
+  sprintf(histName,"hder");
+  hder.push_back(new TH2F(histName,histName, 200, -0.5,199.5,
+                                             200, -0.5,199.5));
 
   ///////////////////
   // SimTrack
@@ -255,13 +287,6 @@ void Histograms::declareHistograms()
                              ptBins.size()-1,   &ptBins[0],
                            ntrkBins.size()-1, &ntrkBins[0]));
 
-/*
-    sprintf(histName,"hdac_%s",chargeName[charge]);
-    hdac.push_back(new TH3F(histName,histName, 
-                           metaBins.size()-1, &metaBins[0],
-                             ptBins.size()-1,   &ptBins[0],
-                              zBins.size()-1,    &zBins[0]));
-*/
     sprintf(histName,"hdac_%s",chargeName[charge]);
     hdac.push_back(new TH2F(histName,histName, 
                            metaBins.size()-1, &metaBins[0],
@@ -293,6 +318,21 @@ void Histograms::declareHistograms()
                             etaBins.size()-1, &etaBins[0],
                              ptBins.size()-1,  &ptBins[0],
                             ratBins.size()-1, &ratBins[0]));
+
+    sprintf(histName,"hsp0_%s",partName[part]);
+    hsp0.push_back(new TH2F(histName,histName,
+                            etaBins.size()-1, &etaBins[0],
+                             ptBins.size()-1,  &ptBins[0]));
+
+    sprintf(histName,"hsp1_%s",partName[part]);
+    hsp1.push_back(new TH2F(histName,histName,
+                            etaBins.size()-1, &etaBins[0],
+                             ptBins.size()-1,  &ptBins[0]));
+
+    sprintf(histName,"hsp2_%s",partName[part]);
+    hsp2.push_back(new TH2F(histName,histName,
+                            etaBins.size()-1, &etaBins[0],
+                             ptBins.size()-1,  &ptBins[0]));
   }
 
   ///////////////////
@@ -331,6 +371,7 @@ void Histograms::declareHistograms()
 
   for(int charge = 0; charge < nCharges; charge++)
   {
+    // All hits
     // dE/dx
     sprintf(histName,"helo_%s", chargeName[charge]);
     helo.push_back(new TH3F(histName,histName,
@@ -351,6 +392,32 @@ void Histograms::declareHistograms()
                             lpBins.size()-1,  &lpBins[0],
                            ldeBins.size()-1, &ldeBins[0])); 
   }
+
+/*
+  for(int charge = 0; charge < nCharges; charge++)
+  {
+    // Strip hits
+    // dE/dx
+    sprintf(histName,"selo_%s", chargeName[charge]);
+    selo.push_back(new TH3F(histName,histName,
+                           etaBins.size()-1, &etaBins[0],
+                            ptBins.size()-1,  &ptBins[0],
+                           ldeBins.size()-1, &ldeBins[0]));
+
+    // Number of hits used
+    sprintf(histName,"snhi_%s", chargeName[charge]);
+    snhi.push_back(new TH3F(histName,histName,
+                           etaBins.size()-1,  &etaBins[0],
+                            ptBins.size()-1,   &ptBins[0],
+                          nhitBins.size()-1, &nhitBins[0]));
+    
+    // Demo plot
+    sprintf(histName,"seld_%s", chargeName[charge]);
+    seld.push_back(new TH2F(histName,histName,
+                            lpBins.size()-1,  &lpBins[0],
+                           ldeBins.size()-1, &ldeBins[0]));
+  }
+*/
 
   ///////////////////
   // Invariant mass
@@ -418,35 +485,75 @@ void Histograms::declareHistograms()
                                imBins.size()-1,  &imBins[0]));
     }
   }
+  }
 }
 
 /****************************************************************************/
-void Histograms::fillEventInfo(int proc, int ntrk)
+void Histograms::fillEventInfo(int proc, int strk, int ntrk)
 {
+  if(fillNtuples)
+  {
+    EventInfo_t e;
+    e.proc  = proc;
+    e.strk  = strk;
+    e.ntrkr = ntrk;
+
+    eventInfoValues = e;
+
+    trackTrees[3]->Fill();
+  }
+  
+  if(fillHistograms)
+  {
   heve[0]->Fill(ntrk);
+
+  if(proc == 92 || proc == 93)
+    heve[1]->Fill(ntrk); // hsdx
+
+  if(proc == 94)
+    heve[2]->Fill(ntrk); // hddx
+
+  if(!(proc == 92 || proc == 93 || proc == 94))
+    heve[3]->Fill(ntrk); // hndx
+
+  // For multiplicity, detector response matrix
+  hder[0]->Fill(strk,ntrk);
+  }
 }
 
 /****************************************************************************/
 void Histograms::fillSimHistograms(const SimTrack_t & s)
 {
-  int part = getParticle(s.ids);   
-
-  if(pip <= part && part <= ala && s.prim)
-  {
-                   hsim[part]->Fill(s.etas, s.pts, s.ntrkr);
-    if(s.acc)      hacc[part]->Fill(s.etas, s.pts, s.ntrkr);
-    if(s.nrec > 0) href[part]->Fill(s.etas, s.pts, s.ntrkr);
-    if(s.nrec > 1) hmul[part]->Fill(s.etas, s.pts, s.ntrkr);
-
-    if(partCharge[part] == pos || partCharge[part] == neg)
+  if(fillNtuples)
+  { 
+    if(s.prim)
     {
-      if(partCharge[part] == pos) part = hap;
-      if(partCharge[part] == neg) part = ham;
+      simTrackValues = s;
+      trackTrees[0]->Fill();
+    }
+  }
 
+  if(fillHistograms)
+  {
+    int part = getParticle(s.ids);   
+
+    if(pip <= part && part <= ala && s.prim)
+    {
                      hsim[part]->Fill(s.etas, s.pts, s.ntrkr);
       if(s.acc)      hacc[part]->Fill(s.etas, s.pts, s.ntrkr);
       if(s.nrec > 0) href[part]->Fill(s.etas, s.pts, s.ntrkr);
       if(s.nrec > 1) hmul[part]->Fill(s.etas, s.pts, s.ntrkr);
+  
+      if(partCharge[part] == pos || partCharge[part] == neg)
+      {
+        if(partCharge[part] == pos) part = hap;
+        if(partCharge[part] == neg) part = ham;
+  
+                       hsim[part]->Fill(s.etas, s.pts, s.ntrkr);
+        if(s.acc)      hacc[part]->Fill(s.etas, s.pts, s.ntrkr);
+        if(s.nrec > 0) href[part]->Fill(s.etas, s.pts, s.ntrkr);
+        if(s.nrec > 1) hmul[part]->Fill(s.etas, s.pts, s.ntrkr);
+      }
     }
   }
 }
@@ -454,14 +561,25 @@ void Histograms::fillSimHistograms(const SimTrack_t & s)
 /****************************************************************************/
 void Histograms::fillRecHistograms(const RecTrack_t & r)
 {
+  if(fillNtuples)
+  {
+    if(r.prim)
+    {
+      recTrackValues = r;
+      trackTrees[1]->Fill();
+    }
+  }
+
+  if(fillHistograms)
+  {
   int charge = getCharge(r.charge);
+  double p = exp(r.logpr);
 
   if(r.prim)
   {
     hall[charge]->Fill(r.etar, r.ptr, r.ntrkr);
 
-// !!!!
-//    hdac[charge]->Fill(r.etar, r.ptr, r.zr);
+    if(r.ptr > 0.3) // !!!
     hdac[charge]->Fill(r.etar, r.zr);
 
     if(r.nsim == 0)
@@ -476,6 +594,10 @@ void Histograms::fillRecHistograms(const RecTrack_t & r)
       {
         hvpt[part]->Fill(r.etas, r.pts, r.ptr      ); // value
         hrpt[part]->Fill(r.etas, r.pts, r.ptr/r.pts); // ratio 
+
+        hsp0[part]->Fill(r.etas, r.pts);      // sum p^0
+        hsp1[part]->Fill(r.etas, r.pts, p);   // sum p^1
+        hsp2[part]->Fill(r.etas, r.pts, p*p); // sum p^2
       }
 
       for(int k = 0; k < nFeedDowns; k++)
@@ -496,6 +618,10 @@ void Histograms::fillRecHistograms(const RecTrack_t & r)
         hvpt[part]->Fill(r.etas, r.pts, r.ptr      ); // value
         hrpt[part]->Fill(r.etas, r.pts, r.ptr/r.pts); // ratio
 
+        hsp0[part]->Fill(r.etas, r.pts);      // sum p^0
+        hsp1[part]->Fill(r.etas, r.pts, p);   // sum p^1
+        hsp2[part]->Fill(r.etas, r.pts, p*p); // sum p^2
+
         for(int k = 0; k < nFeedDowns; k++)
         if(part == feedDown[k].second) // daughter same
         {
@@ -508,21 +634,32 @@ void Histograms::fillRecHistograms(const RecTrack_t & r)
       }
     }
 
-//    helo[charge]->Fill(r.logpr, r.ptr, r.logde);
-//    hnhi[charge]->Fill(r.logpr, r.ptr, r.nhitr);
+    // All hits
     helo[charge]->Fill(r.etar, r.ptr, r.logde);
     hnhi[charge]->Fill(r.etar, r.ptr, r.nhitr);
-
     held[charge]->Fill(r.logpr, r.logde);
+
+    // Strip hits
+/*
+    selo[charge]->Fill(r.etar, r.ptr, r.logde_strip);
+    snhi[charge]->Fill(r.etar, r.ptr, r.nhitr_strip);
+    seld[charge]->Fill(r.logpr, r.logde_strip);
+*/
+  }
   }
 }
 
 /****************************************************************************/
 void Histograms::fillVzeroHistograms(const RecVzero_t & v, int part)
 {
-  hima[part]->Fill(v.etar, v.ptr, v.ima);
+  if(fillNtuples)
+  {
+    recVzeroValues = v;
+    trackTrees[2]->Fill();
+  }
 
-//hrho[part]->Fill(v.rhor, v.ptr, v.ima);
+  if(fillHistograms)
+    hima[part]->Fill(v.etar, v.ptr, v.ima);
 }
 
 /****************************************************************************/
@@ -531,10 +668,13 @@ void Histograms::writeHistograms()
   typedef vector<TH3F *>::const_iterator H3I;
   typedef vector<TH2F *>::const_iterator H2I;
   typedef vector<TH1F *>::const_iterator H1I;
+  typedef vector<TTree *>::const_iterator TI;
 
-  resultFile->cd();
-
+  if(fillHistograms)
+  {
+  histoFile->cd();
   for(H1I h = heve.begin(); h!= heve.end(); h++) (*h)->Write();
+  for(H2I h = hder.begin(); h!= hder.end(); h++) (*h)->Write();
 
   for(H3I h = hsim.begin(); h!= hsim.end(); h++) (*h)->Write();
   for(H3I h = hacc.begin(); h!= hacc.end(); h++) (*h)->Write();
@@ -547,6 +687,10 @@ void Histograms::writeHistograms()
   for(H3I h = hvpt.begin(); h!= hvpt.end(); h++) (*h)->Write();
   for(H3I h = hrpt.begin(); h!= hrpt.end(); h++) (*h)->Write();
 
+  for(H2I h = hsp0.begin(); h!= hsp0.end(); h++) (*h)->Write();
+  for(H2I h = hsp1.begin(); h!= hsp1.end(); h++) (*h)->Write();
+  for(H2I h = hsp2.begin(); h!= hsp2.end(); h++) (*h)->Write();
+
   for(H3I h = hfak.begin(); h!= hfak.end(); h++) (*h)->Write();
 
   for(H2I h = hpro.begin(); h!= hpro.end(); h++) (*h)->Write();
@@ -558,7 +702,14 @@ void Histograms::writeHistograms()
 
   for(H3I h = hima.begin(); h!= hima.end(); h++) (*h)->Write();
   for(H3I h = hrho.begin(); h!= hrho.end(); h++) (*h)->Write();
+  histoFile->Close();
+  }
 
-  resultFile->Close();
+  if(fillNtuples)
+  {
+  ntupleFile->cd();
+  for(TI t = trackTrees.begin(); t!= trackTrees.end(); t++) (*t)->Write();
+  ntupleFile->Close();
+  }
 }
 

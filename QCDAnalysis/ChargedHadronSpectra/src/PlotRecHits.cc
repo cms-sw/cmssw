@@ -60,11 +60,11 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
   lpos = LocalPoint(recHit->localPosition().x(),
                     recHit->localPosition().y(),
                     recHit->localPosition().z());
+
   p = theTracker->idToDet(id)->toGlobal(lpos);
   file << ", Point[{"<<p.x()<<","<<p.y()<<","<<p.z()<<"*z}]" << endl;
 
   // Cluster details
-/*
   SiPixelRecHit::ClusterRef const& cluster = recHit->cluster();
   vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
 
@@ -79,8 +79,7 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
   file << "\"]";
 
   file << ", {"<< p.x()<<","<<p.y()<<","<<p.z()<<"*z}"
-       << ", {0,-1}]" << endl;
-*/
+       << ", {0,1}]" << endl;
 }
 
 /*****************************************************************************/
@@ -216,11 +215,13 @@ void PlotRecHits::printRecHits(const edm::Event& ev)
 {
   file << "AbsolutePointSize[5]";
   file << ", If[pr, {RGBColor[0.4,0.4,1.0]";
-  printPixelRecHits(ev);
+// FIXME
+//  printPixelRecHits(ev);
   file << "}]";
 
   file << ", If[sr, {RGBColor[0.6,0.6,1.0]";
-  printStripRecHits(ev);
+// FIXME
+//  printStripRecHits(ev);
   file << "}]";
 }
 

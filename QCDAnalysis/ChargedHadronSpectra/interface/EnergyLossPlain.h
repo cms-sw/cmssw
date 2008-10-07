@@ -22,23 +22,23 @@ class EnergyLossPlain
                  std::vector<std::pair<int,double> >&  truncatedMean);
 
   private:
-    double average (std::vector<double>& values);
-    double truncate(std::vector<double>& values);
-    double optimal (std::vector<double>& values);
+    double average    (std::vector<std::pair<double,double> >& values);
+    double truncate   (std::vector<std::pair<double,double> >& values);
+    double optimal    (std::vector<std::pair<double,double> >& values);
+    double logTruncate(std::vector<std::pair<double,double> >& values);
 
-    double logTruncate(std::vector<double>& values);
     double expected(double Delta1, double Delta2);
 
     void process(LocalVector ldir,const SiPixelRecHit* recHit,
-                 std::vector<double>& values);
+                 std::vector<std::pair<double,double> >& values);
     void process(LocalVector ldir,const SiStripRecHit2D* recHit,
-                 std::vector<double>& values);
+                 std::vector<std::pair<double,double> >& values);
 
     const TrackerGeometry* theTracker;
     double pixelToStripMultiplier, pixelToStripExponent;
 
     static bool isFirst;
-    static float optimalWeight[31][31];
+    static float optimalWeight[61][61];
 };
 
 #endif

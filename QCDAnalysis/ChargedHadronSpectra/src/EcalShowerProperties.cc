@@ -23,7 +23,8 @@
 
 using namespace std;
 
-const double R_M = 2.;
+const double R_M = 2.2;
+//const double R_M = 4.;
 
 /*****************************************************************************/
 EcalShowerProperties::EcalShowerProperties
@@ -146,38 +147,27 @@ double EcalShowerProperties::getDistance
 
   const CaloCellGeometry::CornersVec & c(cell->getCorners());
 
-//cerr << " p1 " << p1.x() << " " << p1.y() << endl;
-//cerr << " p2 " << p2.x() << " " << p2.y() << endl;
-
   // Project to entry surface, 'c' corners
   for(int i = 0; i < 4; i++)
   {
     p = tsosEnds[0].surface().toLocal(GlobalPoint(c[i].x(),c[i].y(),c[i].z()));
     LocalPoint c(p.x(), p.y(), 0);
 
-//cerr << " c  " << c.x() << " " << c.y() << endl;
-
     // Calculate distance of 'c' from endpoints 'p1' and 'p2'
     double d1 = (p1 - c).mag2(); // distance from end
     double d2 = (p2 - c).mag2(); // distance from end
     double dm = min(d1,d2);
 
-//    cerr << "  d1=" << d1 << " d2=" << d2 << endl;
-
     // distance from segment
     double lambda = (c - p1) * (p2 - p1) / (p2 - p1).mag2();
-//    cerr << "  lambda = " << lambda << endl;
     if(lambda > 0 && lambda < 1)
     {
       double dp = (c - p1 - lambda * (p2 - p1)).mag2();
       dm = min (dm,dp);
-//    cerr << "  dp=" << dp << " dm=" << dm << endl;
     }
 
     dmin = min(dm, dmin);
   }
-
-//cerr << "  dmin = " << sqrt(dmin) << endl;
 
   return(sqrt(dmin));
 }
@@ -216,21 +206,11 @@ pair<double,double> EcalShowerProperties::processEcalRecHits
 
       if(fabs(detId.ieta() - ieta) < weta + 4 &&
          fabs(detId.iphi() - iphi) < wphi + 4)
-      { 
-        double d = getDistance(tsosEnds, cell);
-
-/*
-        cerr << " recHit(" << detId.ieta()
-                    << "," << detId.iphi()
-                    << ") d=" << d << " e=" << recHit->energy() << endl;
-*/
-
-      if(d < R_M)
+      if(getDistance(tsosEnds, cell) < R_M)
       {
         energy += recHit->energy();
         time   += recHit->energy() * recHit->time();
         ntime++;
-      }
       }
     }
   }

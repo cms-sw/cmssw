@@ -9,6 +9,9 @@ using namespace std;
 namespace edm { class Event; class EventSetup; }
 class TrackerGeometry;
 
+class TFile;
+class TH2F;
+
 class EnergyLossProducer : public edm::EDProducer
 {
 public:
@@ -18,10 +21,14 @@ public:
 
 private:
   void beginJob(const edm::EventSetup& es);
+  void endJob();
 
   string trackProducer;
   double pixelToStripMultiplier, pixelToStripExponent;
   const TrackerGeometry * theTracker;
+
+  TFile * resultFile;
+  TH2F * hnor;
 };
 #endif
 
