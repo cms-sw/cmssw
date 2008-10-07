@@ -19,6 +19,7 @@ using namespace reco;
 
 class TauElementsOperators{
  public:
+  TauElementsOperators();
   TauElementsOperators(BaseTau&);
   ~TauElementsOperators(){}   
   // compute size of signal cone possibly depending on E(energy) and/or ET(transverse energy) of the tau-jet candidate
