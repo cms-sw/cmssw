@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.16 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.17 2008/10/07 18:06:59 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -222,7 +222,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         for (size_t i = 0; i < elecIDSrcs_.size(); ++i) {
             ids[i].second = (*idhandles[i])[elecsRef];    
         }
-        anElectron.setLeptonIDs(ids);
+        anElectron.setElectronIDs(ids);
     }
     
 
