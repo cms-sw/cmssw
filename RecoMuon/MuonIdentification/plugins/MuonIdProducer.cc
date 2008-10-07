@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.25 2008/08/07 02:27:43 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.26 2008/08/07 02:36:44 dmytro Exp $
 //
 //
 
@@ -481,10 +481,6 @@ void MuonIdProducer::fillTime(edm::Event& iEvent, const edm::EventSetup& iSetup,
       for( std::vector<reco::MuonSegmentMatch>::const_iterator segment=chamber->segmentMatches.begin(); 
 	   segment!=chamber->segmentMatches.end(); ++segment ) {
 
-	 // check if segment is matched	       
-	 if (fabs(segment->x - chamber->x) > maxAbsDx_) continue;
-	 if (fabs(segment->y - chamber->y) > maxAbsDy_) continue;
-	    
 	 // if we have no t0 measurement in this segment - leave
 	 if (fabs(segment->t0)<1e-6) {
 	    LogTrace("MuonIdentification") << "have no t0 measurement in this segment, leave";
@@ -616,8 +612,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hoS9  = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       aMuon.setCalEnergy( muonEnergy );
    }
-   if ( ! fillMatching_ || 
-	! ( aMuon.isTrackerMuon() || aMuon.isGlobalMuon() ) ) return;
+   if ( ! fillMatching_ ) return;
    
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
@@ -664,6 +659,17 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     // test segment
 	     bool matchedX = false;
 	     bool matchedY = false;
+	     LogTrace("MuonIdentification") << " matching local x, segment x: " << matchedSegment.x << 
+	       ", chamber x: " << matchedChamber.x << ", max: " << maxAbsDx_;
+	     LogTrace("MuonIdentification") << " matching local y, segment y: " << matchedSegment.y <<
+	       ", chamber y: " << matchedChamber.y << ", max: " << maxAbsDy_;
+	     if (matchedSegment.xErr>0 && matchedChamber.xErr>0 )
+	       LogTrace("MuonIdentification") << " xpull: " << 
+	       fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2));
+	     if (matchedSegment.yErr>0 && matchedChamber.yErr>0 )
+	       LogTrace("MuonIdentification") << " ypull: " << 
+	       fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2));
+	     
 	     if (fabs(matchedSegment.x - matchedChamber.x) < maxAbsDx_) matchedX = true;
 	     if (fabs(matchedSegment.y - matchedChamber.y) < maxAbsDy_) matchedY = true;
 	     if (matchedSegment.xErr>0 && matchedChamber.xErr>0 && 
