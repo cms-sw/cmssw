@@ -42,39 +42,12 @@ public:
   void            begin  ( );
   void            analyze( const edm::Event & iEvent );
   void            finish ( );
-  MonitorElement* bookIt ( TString name, TString title, 
-			   int Nbins, float Min, float Max );
+  MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
 
 private:
 
-  // Input from cfg file
-  std::string  theGenLabel;
-  std::string  theRecoLabel;
-  std::string  theNtupleFileName;
-  std::string  theNtuplePath;
-  edm::InputTag              theL1CollectionLabel;
-  std::vector<edm::InputTag> theHLTCollectionLabels;
+  // Struct and methods for matching
 
-  double theL1ReferenceThreshold;
-  double theHLTReferenceThreshold;
-  double theLuminosity;
-  double thePtMin;
-  double thePtMax;
-  double theMinPtCut;
-  double theMaxEtaCut;
-  double theL1DrCut;
-  double theL2DrCut;
-  double theL3DrCut;
-
-  std::vector<double> theNSigmas;
-  unsigned int theNumberOfObjects;
-  unsigned int theNbins;
-  int  thisEventWeight;
-  int  theMotherParticleId;
-  bool m_useMuonFromGenerator;
-  bool m_useMuonFromReco;
-
-  // Struct for matching
   struct MatchStruct {
     const reco::GenParticle*       genCand;
     const reco::Track*             recCand;
@@ -88,28 +61,55 @@ private:
   int findRecMatch( double eta, double phi, double maxdeltaR,
 		    std::vector<MatchStruct> matches );
   
+  // Input from cfg file
+
+  std::string              theHltProcessName;
+  std::string              theL1CollectionLabel;
+  std::vector<std::string> theHltCollectionLabels;
+  double                   theL1ReferenceThreshold;
+  double                   theHltReferenceThreshold;
+  unsigned int             theNumberOfObjects;
+
+  bool         m_useMuonFromGenerator;
+  bool         m_useMuonFromReco;
+  std::string  theGenLabel;
+  std::string  theRecoLabel;
+
+  std::vector<double> theMaxPtParameters;
+  std::vector<double> thePtParameters;
+  std::vector<double> theEtaParameters;
+  std::vector<double> thePhiParameters;
+
+  double       theMinPtCut;
+  double       theMaxEtaCut;
+  double       theL1DrCut;
+  double       theL2DrCut;
+  double       theL3DrCut;
+  int          theMotherParticleId;
+  std::vector<double> theNSigmas;
+
+  std::string  theNtupleFileName;
+  std::string  theNtuplePath;
+
   // Monitor Elements (Histograms and ints)
+
   DQMStore* dbe_;
 
-  std::vector <MonitorElement*> hPtPassGen ;
-  std::vector <MonitorElement*> hEtaPassGen;
-  std::vector <MonitorElement*> hPhiPassGen;
-  std::vector <MonitorElement*> hPtPassRec ;
-  std::vector <MonitorElement*> hEtaPassRec;
-  std::vector <MonitorElement*> hPhiPassRec;
+  std::vector <MonitorElement*> hPassMaxPtGen;
+  std::vector <MonitorElement*> hPassPtGen;
+  std::vector <MonitorElement*> hPassEtaGen;
+  std::vector <MonitorElement*> hPassPhiGen;
+  std::vector <MonitorElement*> hPassMaxPtRec;
+  std::vector <MonitorElement*> hPassPtRec;
+  std::vector <MonitorElement*> hPassEtaRec;
+  std::vector <MonitorElement*> hPassPhiRec;
 
   MonitorElement *NumberOfEvents;
   MonitorElement *NumberOfL1Events;
-  MonitorElement *NumberOfL1Orphans;
-  MonitorElement *NumberOfHltOrphans;
   MonitorElement *MinPtCut;
   MonitorElement *MaxEtaCut;
   int theNumberOfEvents;
   int theNumberOfL1Events;
-  int theNumberOfL1Orphans;
-  int theNumberOfHltOrphans;
-  std::string theRootFileName;
-
 
   // Facilities for writing a match ntuple
   bool    m_makeNtuple;
