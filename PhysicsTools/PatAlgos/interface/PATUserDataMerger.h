@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATUserDataMerger.h,v 1.3 2008/10/06 14:21:14 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -18,7 +18,7 @@
 		cases. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
+  \version  $Id: PATUserDataMerger.h,v 1.3 2008/10/06 14:21:14 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -42,11 +42,11 @@ namespace pat {
         template<typename ObjectType>
         void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserInt(key, val); }
     };
-    struct AddUserDouble {
-        typedef int                       value_type;
+    struct AddUserFloat {
+        typedef float                     value_type;
         typedef edm::ValueMap<value_type> product_type;
         template<typename ObjectType>
-        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserDouble(key, val); }
+        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserFloat(key, val); }
     };
     struct AddUserPtr {
         typedef edm::Ptr<UserData>        value_type;

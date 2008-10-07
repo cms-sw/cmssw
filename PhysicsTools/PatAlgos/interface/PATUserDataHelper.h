@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATUserDataHelper.h,v 1.3 2008/10/06 14:21:14 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -22,7 +22,7 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,v 1.2 2008/10/06 13:29:16 gpetrucc Exp $
+  \version  $Id: PATUserDataHelper.h,v 1.3 2008/10/06 14:21:14 gpetrucc Exp $
 */
 
 
@@ -69,7 +69,7 @@ namespace pat {
     // Custom user data
     pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr>      userDataMerger_;
     // User doubles
-    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserDouble>   userDoubleMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserFloat>    userFloatMerger_;
     // User ints
     pat::PATUserDataMerger<ObjectType, pat::helper::AddUserInt>      userIntMerger_;
     
@@ -84,7 +84,7 @@ namespace pat {
 template<class ObjectType>
 PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConfig) :
   userDataMerger_   (iConfig.getParameter<edm::ParameterSet>("userClasses")),
-  userDoubleMerger_ (iConfig.getParameter<edm::ParameterSet>("userDoubles")),
+  userFloatMerger_  (iConfig.getParameter<edm::ParameterSet>("userFloats")),
   userIntMerger_    (iConfig.getParameter<edm::ParameterSet>("userInts")),
   functionNames_    (iConfig.getParameter<std::vector<std::string> >("userFunctions")),
   functionLabels_   (iConfig.getParameter<std::vector<std::string> >("userFunctionLabels"))
@@ -124,7 +124,7 @@ void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
 
   // Add "complex" user data to the PAT object
   userDataMerger_.add(   patObject, iEvent, iSetup );
-  userDoubleMerger_.add( patObject, iEvent, iSetup );
+  userFloatMerger_.add(  patObject, iEvent, iSetup );
   userIntMerger_.add(    patObject, iEvent, iSetup );
 
   // Add "inline" user-selected functions to the PAT object
@@ -134,7 +134,7 @@ void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
   if ( functionLabels_.size() == functions_.size() ) {
     for ( ; funcIt != funcEnd; ++funcIt) {
       double d = (*funcIt)( patObject );
-      patObject.addUserDouble( functionLabels_[funcIt - funcBegin], d );
+      patObject.addUserFloat( functionLabels_[funcIt - funcBegin], d );
     }
   }
 
