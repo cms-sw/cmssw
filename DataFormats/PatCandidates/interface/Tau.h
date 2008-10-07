@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.15 2008/06/13 09:54:31 gpetrucc Exp $
+// $Id: Tau.h,v 1.16 2008/09/19 21:13:16 cbern Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -9,14 +9,15 @@
   \class    pat::Tau Tau.h "DataFormats/PatCandidates/interface/Tau.h"
   \brief    Analysis-level tau class
 
-   Tau implements the analysis-level tau class within the 'pat' namespace.
-
+   pat::Tau implements the analysis-level tau class within the 'pat' namespace.
    It inherits from reco::BaseTau, copies all the information from the source
    reco::CaloTau or reco::PFTau, and adds some PAT-specific variable.
 
+   Please post comments and questions to the Physics Tools hypernews:
+   https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
-  \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani
-  \version  $Id: Tau.h,v 1.15 2008/06/13 09:54:31 gpetrucc Exp $
+  \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
+  \version  $Id: Tau.h,v 1.16 2008/09/19 21:13:16 cbern Exp $
 */
 
 
@@ -39,39 +40,45 @@ namespace pat {
 
     public:
 
+      /// default constructor
       Tau();
+      /// constructor from a reco tau
       Tau(const TauType & aTau);
+      /// constructor from a RefToBase to a reco tau (to be superseded by Ptr counterpart)
       Tau(const edm::RefToBase<TauType> & aTauRef);
+      /// constructor from a Ptr to a reco tau
       Tau(const edm::Ptr<TauType> & aTauRef);
+      /// destructor
       virtual ~Tau();
 
+      /// required reimplementation of the Candidate's clone method
       virtual Tau * clone() const { return new Tau(*this); }
 
+      // ---- methods for content embedding ----
       /// override the TauType::isolationTracks method, to access the internal storage of the track
       reco::TrackRefVector isolationTracks() const;
       /// override the TauType::track method, to access the internal storage of the track
       reco::TrackRef leadTrack() const;
       /// override the TauType::track method, to access the internal storage of the track
       reco::TrackRefVector signalTracks() const;
-
       /// method to store the isolation tracks internally
       void embedIsolationTracks();
-      /// method to store the isolation tracks internally
+      /// method to store the leading track internally
       void embedLeadTrack();
-      /// method to store the isolation tracks internally
+      /// method to store the signal tracks internally
       void embedSignalTracks();
 
+      // ---- matched GenJet methods ----
+      /// return matched GenJet, built from the visible particles of a generated tau
+      const reco::GenJet * genJet() const;
+      /// set the matched GenJet
+      void setGenJet(const reco::GenJetRef & ref);
 
-      void setGenJet(const reco::GenJetRef& ref);
-
-      /// return matched GenJet, built from the visible particles of a 
-      /// generated tau
-      const reco::GenJet*  genJet() const;
-
-      // ---- CaloTau accessors (getters only) --
+      // ---- CaloTau accessors (getters only) ----
       /// Returns true if this pat::Tau was made from a reco::CaloTau
       bool isCaloTau() const { return !caloSpecific_.empty(); }
-      // accessors to datamembers
+      /// return CaloTau info or throw exception 'not CaloTau'
+      const pat::tau::TauCaloSpecific & caloSpecific() const ;
       /// Method copied from reco::CaloTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
       reco::CaloTauTagInfoRef caloTauTagInfoRef() const { return caloSpecific().CaloTauTagInfoRef_; }
@@ -100,11 +107,11 @@ namespace pat {
       /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
       float maximumHCALhitEt() const { return caloSpecific().maximumHCALhitEt_; }
 
-
-      // ---- PFTau accessors (getters only) --
+      // ---- PFTau accessors (getters only) ----
       /// Returns true if this pat::Tau was made from a reco::PFTau
       bool isPFTau() const { return !pfSpecific_.empty(); }
-      //  accessors to datamembers
+      /// return PFTau info or throw exception 'not PFTau'
+      const pat::tau::TauPFSpecific & pfSpecific() const ;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFTauTagInfoRef & pfTauTagInfoRef() const { return pfSpecific().PFTauTagInfoRef_; }
@@ -184,32 +191,24 @@ namespace pat {
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool  muonDecision() const { return pfSpecific().muonDecision_; }
 
- 
-    private:
-      // ---- Embedding of BaseTau components ----
+    protected:
+
+      // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;
       bool embeddedLeadTrack_;
       std::vector<reco::Track> leadTrack_;
       bool embeddedSignalTracks_;
       std::vector<reco::Track> signalTracks_;
-
+      // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;
-
       // ---- CaloTau specific variables  ----
-      /// hold the CaloTau info, or empty vector if CaloTau
+      /// holder for CaloTau info, or empty vector if PFTau
       std::vector<pat::tau::TauCaloSpecific> caloSpecific_;
-      /// return CaloTau info or throw exception 'not CaloTau'
-      const pat::tau::TauCaloSpecific & caloSpecific() const ;
-
-
       // ---- PFTau specific variables  ----
-      /// hold the PFTau info, or empty vector if CaloTau
+      /// holder for PFTau info, or empty vector if CaloTau
       std::vector<pat::tau::TauPFSpecific> pfSpecific_;
-      /// return PFTau info or throw exception 'not PFTau'
-      const pat::tau::TauPFSpecific & pfSpecific() const ;
-
-      // ---- PAT specific variables  ----
+      // ---- PAT specific variables (to be superseded by POG recommendation) ----
       float emEnergyFraction_;
       float eOverP_;
       float leadeOverP_;

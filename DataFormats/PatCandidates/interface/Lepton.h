@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Lepton.h,v 1.13 2008/07/08 20:56:48 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -10,10 +10,14 @@
   \brief    Analysis-level lepton class
 
    Lepton implements the analysis-level charged lepton class within the 'pat'
-   namespace.
+   namespace. It currently provides the link to the generated lepton and
+   the isolation information.
 
-  \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
+   Please post comments and questions to the Physics Tools hypernews:
+   https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
+
+  \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
+  \version  $Id: Lepton.h,v 1.13 2008/07/08 20:56:48 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
