@@ -19,12 +19,16 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
 
   typedef std::vector<Trajectory*> 	TrajectoryPointerContainer;
 
-  TrajectoryCleanerBySharedHits(){};
+  TrajectoryCleanerBySharedHits(const edm::ParameterSet & iConfig) :
+    theFraction(iConfig.getParameter<double>("fractionShared")){}
+
   virtual ~TrajectoryCleanerBySharedHits(){};
 
   using TrajectoryCleaner::clean;
   virtual void clean( TrajectoryPointerContainer&) const;
 
+ private:
+  double theFraction;
 };
 
 #endif

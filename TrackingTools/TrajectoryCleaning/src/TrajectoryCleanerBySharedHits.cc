@@ -60,7 +60,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
 	  //          int nhit2 = (*imapp).first->data().size();
           int nhit1 = (*itt)->foundHits();
           int nhit2 = (*imapp).first->foundHits();
-	  if((*imapp).second >= min(nhit1, nhit2)/2){
+	  if((*imapp).second >= (min(nhit1, nhit2) * theFraction)){
 	    Trajectory* badtraj;
 	    if (nhit1 != nhit2)
 	      // select the shortest trajectory

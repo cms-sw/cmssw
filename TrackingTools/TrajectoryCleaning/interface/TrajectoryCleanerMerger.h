@@ -6,7 +6,7 @@
 class TrajectoryCleanerMerger : public TrajectoryCleaner {
 
  public:
-  TrajectoryCleanerMerger(){};
+  TrajectoryCleanerMerger(const edm::ParameterSet & iConfig){};
   virtual ~TrajectoryCleanerMerger(){};
 
   using TrajectoryCleaner::clean;
