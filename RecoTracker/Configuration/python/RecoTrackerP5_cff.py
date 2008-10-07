@@ -15,8 +15,10 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cf
 from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi import *
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import *
 combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
-combinedP5SeedsForCTF.PairCollection = 'combinatorialcosmicseedfinderP5'
-combinedP5SeedsForCTF.TripletCollection = 'simpleCosmicBONSeeds'
+combinedP5SeedsForCTF.seedCollections = cms.VInputTag(
+    cms.InputTag('combinatorialcosmicseedfinderP5'),
+    cms.InputTag('simpleCosmicBONSeeds'),
+)
 
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
 ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'

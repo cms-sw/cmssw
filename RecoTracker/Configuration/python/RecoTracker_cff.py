@@ -20,8 +20,10 @@ newCombinedSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCom
 
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
-newCombinedSeeds.PairCollection = 'newSeedFromPairs'
-newCombinedSeeds.TripletCollection = 'newSeedFromTriplets'
+newCombinedSeeds.seedCollections = cms.VInputTag(
+    cms.InputTag('newSeedFromTriplets'),
+    cms.InputTag('newSeedFromPairs'),
+)
 
 # building
 from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidates_cff import *
