@@ -2,24 +2,28 @@ import FWCore.ParameterSet.Config as cms
 
 muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
 
+    HltProcessName = cms.string("HLT"),
+    
     UseMuonFromGenerator = cms.bool(True),
     UseMuonFromReco      = cms.bool(True),
     GenLabel  = cms.untracked.string('genParticles'),
     RecoLabel = cms.untracked.string('globalMuons'),
 
-    NtuplePath     = cms.untracked.string('hltSingleMuIso'),
-    NtupleFileName = cms.untracked.string(''),
-    RootFileName   = cms.untracked.string(''),
+    NtuplePath         = cms.untracked.string('hltSingleMuIso'),
+    NtupleFileName     = cms.untracked.string(''),
+    RootFileName       = cms.untracked.string(''),
 
-    Nbins     = cms.untracked.uint32(40),
-    PtMin     = cms.untracked.double(0.0),
-    PtMax     = cms.untracked.double(40.0),
-    MinPtCut  = cms.untracked.double(10.0),
-    MaxEtaCut = cms.untracked.double(2.1),
-    L1DrCut   = cms.untracked.double(0.4),
-    L2DrCut   = cms.untracked.double(0.25),
-    L3DrCut   = cms.untracked.double(0.015),
-    MotherParticleId = cms.untracked.uint32(0),
+    MaxPtParameters    = cms.vdouble(40,0.,40.),
+    PtParameters       = cms.vdouble(50,0.,1000.),
+    EtaParameters      = cms.vdouble(50,-2.1,2.1),
+    PhiParameters      = cms.vdouble(50,-3.15,3.15),
+
+    MinPtCut           = cms.untracked.double(10.0),
+    MaxEtaCut          = cms.untracked.double(2.1),
+    L1DrCut            = cms.untracked.double(0.4),
+    L2DrCut            = cms.untracked.double(0.25),
+    L3DrCut            = cms.untracked.double(0.015),
+    MotherParticleId   = cms.untracked.uint32(0),
     TriggerResultLabel = cms.InputTag("TriggerResults","","HLT"),
 
     DQMStore = cms.untracked.bool(True),
@@ -32,103 +36,103 @@ muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
     TriggerCollection = cms.VPSet(
         cms.PSet(
             L1ReferenceThreshold = cms.double(7.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltSingleMuIsoL2PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuIsoL2IsoFiltered","","HLT"),
-                cms.InputTag("hltSingleMuIsoL3PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuIsoL3IsoFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltSingleMuIsoL1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(7.0),
+            HltCollectionLabels = cms.vstring(
+                "hltSingleMuIsoL2PreFiltered",
+                "hltSingleMuIsoL2IsoFiltered",
+                "hltSingleMuIsoL3PreFiltered",
+                "hltSingleMuIsoL3IsoFiltered"),
+            L1CollectionLabel = cms.string("hltSingleMuIsoL1Filtered"),
+            HltReferenceThreshold = cms.double(7.0),
             NumberOfObjects = cms.uint32(1)
     ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(7.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltSingleMuNoIsoL2PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuNoIsoL3PreFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltSingleMuNoIsoL1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(7.0),
+            HltCollectionLabels = cms.vstring(
+                "hltSingleMuNoIsoL2PreFiltered",
+                "hltSingleMuNoIsoL3PreFiltered"),
+            L1CollectionLabel = cms.string("hltSingleMuNoIsoL1Filtered"),
+            HltReferenceThreshold = cms.double(7.0),
             NumberOfObjects = cms.uint32(1)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltDiMuonNoIsoL2PreFiltered","","HLT"),
-                cms.InputTag("hltDiMuonNoIsoL3PreFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltDiMuonNoIsoL1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(7.0),
+            HltCollectionLabels = cms.vstring(
+                "hltDiMuonNoIsoL2PreFiltered",
+                "hltDiMuonNoIsoL3PreFiltered"),
+            L1CollectionLabel = cms.string("hltDiMuonNoIsoL1Filtered"),
+            HltReferenceThreshold = cms.double(7.0),
             NumberOfObjects = cms.uint32(2)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltDiMuonIsoL2PreFiltered","","HLT"),
-                cms.InputTag("hltDiMuonIsoL2IsoFiltered","","HLT"),
-                cms.InputTag("hltDiMuonIsoL3PreFiltered","","HLT"),
-                cms.InputTag("hltDiMuonIsoL3IsoFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltDiMuonIsoL1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(3.0),
+            HltCollectionLabels = cms.vstring(
+                "hltDiMuonIsoL2PreFiltered",
+                "hltDiMuonIsoL2IsoFiltered",
+                "hltDiMuonIsoL3PreFiltered",
+                "hltDiMuonIsoL3IsoFiltered"),
+            L1CollectionLabel = cms.string("hltDiMuonIsoL1Filtered"),
+            HltReferenceThreshold = cms.double(3.0),
             NumberOfObjects = cms.uint32(2)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltJpsiMML2Filtered","","HLT"),
-                cms.InputTag("hltJpsiMML3Filtered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltJpsiMML1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(3.0),
+            HltCollectionLabels = cms.vstring(
+                "hltJpsiMML2Filtered",
+                "hltJpsiMML3Filtered"),
+            L1CollectionLabel = cms.string("hltJpsiMML1Filtered"),
+            HltReferenceThreshold = cms.double(3.0),
             NumberOfObjects = cms.uint32(2)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltZMML2Filtered","","HLT"),
-                cms.InputTag("hltZMML3Filtered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltZMML1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(3.0),
+            HltCollectionLabels = cms.vstring(
+                "hltZMML2Filtered",
+                "hltZMML3Filtered"),
+            L1CollectionLabel = cms.string("hltZMML1Filtered"),
+            HltReferenceThreshold = cms.double(3.0),
             NumberOfObjects = cms.uint32(2)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltSingleMuPrescale3L2PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuPrescale3L3PreFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltSingleMuPrescale3L1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(3.0),
+            HltCollectionLabels = cms.vstring(
+                "hltSingleMuPrescale3L2PreFiltered",
+                "hltSingleMuPrescale3L3PreFiltered"),
+            L1CollectionLabel = cms.string("hltSingleMuPrescale3L1Filtered"),
+            HltReferenceThreshold = cms.double(3.0),
             NumberOfObjects = cms.uint32(1)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltSingleMuPrescale5L2PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuPrescale5L3PreFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltSingleMuPrescale5L1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(3.0),
+            HltCollectionLabels = cms.vstring(
+                "hltSingleMuPrescale5L2PreFiltered",
+                "hltSingleMuPrescale5L3PreFiltered"),
+            L1CollectionLabel = cms.string("hltSingleMuPrescale5L1Filtered"),
+            HltReferenceThreshold = cms.double(3.0),
             NumberOfObjects = cms.uint32(1)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(7.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltSingleMuPrescale77L2PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuPrescale77L3PreFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltSingleMuPrescale77L1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(5.0),
+            HltCollectionLabels = cms.vstring(
+                "hltSingleMuPrescale77L2PreFiltered",
+                "hltSingleMuPrescale77L3PreFiltered"),
+            L1CollectionLabel = cms.string("hltSingleMuPrescale77L1Filtered"),
+            HltReferenceThreshold = cms.double(5.0),
             NumberOfObjects = cms.uint32(1)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(7.0),
-            HLTCollectionLabels = cms.VInputTag(
-                cms.InputTag("hltSingleMuPrescale710L2PreFiltered","","HLT"),
-                cms.InputTag("hltSingleMuPrescale710L3PreFiltered","","HLT")),
-            L1CollectionLabel = cms.InputTag("hltSingleMuPrescale1710L1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(7.0),
+            HltCollectionLabels = cms.vstring(
+                "hltSingleMuPrescale710L2PreFiltered",
+                "hltSingleMuPrescale710L3PreFiltered"),
+            L1CollectionLabel = cms.string("hltSingleMuPrescale1710L1Filtered"),
+            HltReferenceThreshold = cms.double(7.0),
             NumberOfObjects = cms.uint32(1)
         ), 
         cms.PSet(
             L1ReferenceThreshold = cms.double(3.0),
-            HLTCollectionLabels = cms.VInputTag(),
-            L1CollectionLabel = cms.InputTag("hltMuLevel1PathL1Filtered","","HLT"),
-            HLTReferenceThreshold = cms.double(3.0),
+            HltCollectionLabels = cms.vstring(),
+            L1CollectionLabel = cms.string("hltMuLevel1PathL1Filtered"),
+            HltReferenceThreshold = cms.double(3.0),
             NumberOfObjects = cms.uint32(1)
         )
     ),
