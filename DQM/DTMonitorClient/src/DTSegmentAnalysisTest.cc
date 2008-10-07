@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/07 20:12:03 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/10/07 09:40:28 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -163,7 +163,6 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	}
       
 	double badSegmentsPercentual= badSegments/double(chi2_histo_root->GetEntries());
-	cout<<"badSegmentsPercentual: "<< badSegmentsPercentual<<endl;
 	chi2Histos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),badSegmentsPercentual);
       }      
     } // end of switch for detailed analysis
@@ -252,7 +251,7 @@ void DTSegmentAnalysisTest::bookHistos() {
 	for(int sect=1; sect<=14; sect++){
 	  stringstream sector; sector << sect;
 	  string chi2HistoName =  "chi2BadSegmPercentual_W" + wheel.str() + "_Sec" + sector.str();
-	  dbe->setCurrentFolder("DT/02-Segments/Tests/Wheel" + wheel.str() +
+	  dbe->setCurrentFolder("DT/Tests/Segments/Wheel" + wheel.str() +
 				"/Sector" + sector.str());
 	  chi2Histos[make_pair(wh,sect)] = dbe->book1D(chi2HistoName.c_str(),chi2HistoName.c_str(),4,1,5);
 	  chi2Histos[make_pair(wh,sect)]->setBinLabel(1,"MB1");
