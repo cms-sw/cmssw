@@ -74,7 +74,7 @@ namespace cscdqm {
       int chamberID = chamber->first;
       int crateID = (chamberID >> 4) & 0xFF;
       int dmbSlot = chamberID & 0xF;
-      std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbSlot));
+      std::string cscTag(Form(TAG_CSC, crateID, dmbSlot));
 
       if (crateID ==255) { continue; }
 
@@ -264,7 +264,7 @@ namespace cscdqm {
 
       unsigned int crateID = (chamberID >> 4) & 0xFF;
       unsigned int dmbSlot = chamberID & 0xF;
-      std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbSlot));
+      std::string cscTag(Form(TAG_CSC, crateID, dmbSlot));
 
       if (crateID == 255) { continue; }
 
@@ -322,7 +322,7 @@ namespace cscdqm {
       unsigned int crateID = (chamberID >> 4) & 0xFF;
       unsigned int dmbSlot = chamberID & 0xF;
 
-      std::string cscTag(Form("CSC_%03d_%02d", crateID , dmbSlot));
+      std::string cscTag(Form(TAG_CSC, crateID , dmbSlot));
 
       if ((crateID ==255) || 
 	  (chamber->second & 0x80)) { continue; } // = Skip chamber detection if DMB header is missing (Error code 6)

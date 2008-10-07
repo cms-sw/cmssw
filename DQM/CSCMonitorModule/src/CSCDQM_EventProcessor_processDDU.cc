@@ -38,7 +38,7 @@ namespace cscdqm {
       mo->Fill(dduID);
     }
 
-    std::string dduTag = Form("DDU_%d", dduID);
+    std::string dduTag = Form(TAG_DDU, dduID);
 
     if (getDDUHisto(dduID, DDU_BUFFER_SIZE, mo)) mo->Fill(dduData.size());
 

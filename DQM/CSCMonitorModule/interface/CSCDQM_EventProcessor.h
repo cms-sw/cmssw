@@ -45,6 +45,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 
+#define TAG_EMU "EMU"
+#define TAG_DDU "DDU_%d"
+#define TAG_CSC "CSC_%03d_%02d"
+
 namespace cscdqm {
 
 #ifndef DQMLOCAL

@@ -61,6 +61,7 @@ namespace cscdqm {
     EMUHistoType histoT;
     histoT.histoId = histo;
     histoT.reference = ref;
+    histoT.tag = TAG_EMU;
     return histoProvider->getEMUHisto(histoT, me);
   }
 
@@ -71,6 +72,7 @@ namespace cscdqm {
     histoT.histoId = histo;
     histoT.dduId = dduID;
     histoT.reference = ref;
+    histoT.tag = Form(TAG_DDU, dduID);
     return histoProvider->getDDUHisto(histoT, me);
   }
 
@@ -83,6 +85,7 @@ namespace cscdqm {
     histoT.dmbId = dmbSlot;
     histoT.addId = adId;
     histoT.reference = ref;
+    histoT.tag = Form(TAG_CSC, crateID, dmbSlot);
     return histoProvider->getCSCHisto(histoT, me);
   }
 

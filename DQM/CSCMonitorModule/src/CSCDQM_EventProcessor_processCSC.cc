@@ -58,9 +58,7 @@ namespace cscdqm {
     dmbID = dmbHeader->dmbID();
     chamberID = (((crateID) << 4) + dmbID) & 0xFFF;
   
-    std::string nodeTag = "EMU";
-    std::string dduTag(Form("DDU_%d", dduID));
-    std::string cscTag(Form("CSC_%03d_%02d", crateID, dmbID));
+    std::string cscTag(Form(TAG_CSC, crateID, dmbID));
   
     unsigned long errors = binChecker.errorsForChamber(chamberID);
     if ((errors & binCheckMask) > 0 ) {

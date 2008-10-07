@@ -19,6 +19,9 @@
 #ifndef CSCDQM_HistoType_H
 #define CSCDQM_HistoType_H 
 
+#include <string>
+#include <TString.h>
+
 namespace cscdqm {
 
   typedef enum HistoType {
@@ -241,12 +244,14 @@ namespace cscdqm {
   };
 
   typedef struct EMUHistoType {
+    std::string tag;
     HistoType histoId; 
     bool reference;
   };
 
   typedef struct DDUHistoType {
     unsigned int dduId;
+    std::string tag;
     HistoType histoId; 
     bool reference;
   };
@@ -255,6 +260,7 @@ namespace cscdqm {
     unsigned int crateId;
     unsigned int dmbId;
     unsigned int addId;
+    std::string tag;
     HistoType histoId; 
     bool reference;
   };
