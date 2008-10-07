@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.9.2.1 2008/08/07 01:00:33 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.12 2008/08/07 02:27:43 dmytro Exp $
 //
 //
 
@@ -113,6 +113,7 @@ class MuonIdProducer : public edm::EDProducer {
    bool fillEnergy_;
    bool fillMatching_;
    bool fillIsolation_;
+   double trackPtThresholdToFillCandidateP4WithGlobalFit_;
    
    bool debugWithTruthMatching_;
 
