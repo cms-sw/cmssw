@@ -16,8 +16,10 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.3 2008/09/12 04:35:29 kalanand Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.4 2008/10/02 23:23:27 kalanand Exp $
 //
+// Kalanand Mishra: October 7, 2008 
+// Added vertex information of the tag & probe candidates in edm::TTree
 
 // system include files
 #include <memory>

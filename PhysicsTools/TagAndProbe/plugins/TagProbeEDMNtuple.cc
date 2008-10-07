@@ -13,9 +13,11 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.6 2008/10/02 23:23:27 kalanand Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.7 2008/10/07 17:22:52 neadam Exp $
 //
 //
+// Kalanand Mishra: October 7, 2008 
+// Added vertex information of the tag & probe candidates in edm::TTree
 
 
 // system include files
@@ -298,8 +300,11 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    produces<std::vector<float> >( "TPTaget"  ).setBranchAlias( "TPTaget"  ); /* Tag transverse energy. */
    produces<std::vector<float> >( "TPTagq"   ).setBranchAlias( "TPTagq"   ); /* Tag charge. */
    produces<std::vector<float> >( "TPTageta" ).setBranchAlias( "TPTageta" ); /* Tag pseudorapidity. */
-   produces<std::vector<float> >( "TPTagphi" ).setBranchAlias( "TPTagphi" ); /* Tag phi. */                 
-
+   produces<std::vector<float> >( "TPTagphi" ).setBranchAlias( "TPTagphi" ); /* Tag phi. */  
+   produces<std::vector<float> >( "TPTagvx" ).setBranchAlias( "TPTagvx" ); /* Tag vx. */  
+   produces<std::vector<float> >( "TPTagvy" ).setBranchAlias( "TPTagvy" ); /* Tag vy. */  
+   produces<std::vector<float> >( "TPTagvz" ).setBranchAlias( "TPTagvz" ); /* Tag vz. */  
+               
    produces<std::vector<float> >( "TPTagpDet"   ).setBranchAlias( "TPTagpDet"   ); /* Tag detector momentum. */
    produces<std::vector<float> >( "TPTagpxDet"  ).setBranchAlias( "TPTagpxDet"  ); /* Tag detector x-momentum. */
    produces<std::vector<float> >( "TPTagpyDet"  ).setBranchAlias( "TPTagpyDet"  ); /* Tag detector y-momentum. */
@@ -319,7 +324,10 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    produces<std::vector<float> >( "TPProbeet"  ).setBranchAlias( "TPProbeet"  ); /* Probe transverse energy. */   
    produces<std::vector<float> >( "TPProbeq"   ).setBranchAlias( "TPProbeq"   ); /* Probe charge. */              
    produces<std::vector<float> >( "TPProbeeta" ).setBranchAlias( "TPProbeeta" ); /* Probe pseudorapidity. */      
-   produces<std::vector<float> >( "TPProbephi" ).setBranchAlias( "TPProbephi" ); /* Probe phi. */     
+   produces<std::vector<float> >( "TPProbephi" ).setBranchAlias( "TPProbephi" ); /* Probe phi. */  
+   produces<std::vector<float> >( "TPProbevx" ).setBranchAlias( "TPProbevx" ); /* Probe vx. */  
+   produces<std::vector<float> >( "TPProbevy" ).setBranchAlias( "TPProbevy" ); /* Probe vy. */  
+   produces<std::vector<float> >( "TPProbevz" ).setBranchAlias( "TPProbevz" ); /* Probe vz. */  
 
    produces<std::vector<float> >( "TPProbepDet"   ).setBranchAlias( "TPProbepDet"   ); /* Probe detector momentum. */            
    produces<std::vector<float> >( "TPProbepxDet"  ).setBranchAlias( "TPProbepxDet"  ); /* Probe detector x-momentum. */          
@@ -644,6 +652,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    auto_ptr< vector<float> > tp_tag_q_( new vector<float> );   
    auto_ptr< vector<float> > tp_tag_eta_( new vector<float> ); 
    auto_ptr< vector<float> > tp_tag_phi_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_vx_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_vy_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_vz_( new vector<float> ); 
 
    auto_ptr< vector<float> > tp_tag_pDet_( new vector<float> );   
    auto_ptr< vector<float> > tp_tag_pxDet_( new vector<float> );  
@@ -665,6 +676,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    auto_ptr< vector<float> > tp_probe_q_( new vector<float> );   
    auto_ptr< vector<float> > tp_probe_eta_( new vector<float> ); 
    auto_ptr< vector<float> > tp_probe_phi_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_vx_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_vy_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_vz_( new vector<float> ); 
 
    auto_ptr< vector<float> > tp_probe_pDet_( new vector<float> );   
    auto_ptr< vector<float> > tp_probe_pxDet_( new vector<float> );  
@@ -806,6 +820,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    double dq   = tag->charge();
 	    double deta = tag->eta();
 	    double dphi = tag->phi();
+	    double vx = tag->vx();
+	    double vy = tag->vy();
+	    double vz = tag->vz();
 
 	    tp_tag_p_->push_back(    dp );
 	    tp_tag_px_->push_back(   dpx );
@@ -817,6 +834,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    tp_tag_q_->push_back(    dq );
 	    tp_tag_eta_->push_back(  deta );
 	    tp_tag_phi_->push_back(  dphi );
+	    tp_tag_vx_->push_back(  vx );
+	    tp_tag_vy_->push_back(  vy );
+	    tp_tag_vz_->push_back(  vz );
 
 
 	    // Kalanand: June 30, 2008
@@ -860,6 +880,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    dq   = (vprobes[0].first)->charge();
 	    deta = (vprobes[0].first)->eta();
 	    dphi = (vprobes[0].first)->phi();
+	    vx   = (vprobes[0].first)->vx();
+	    vy   = (vprobes[0].first)->vy();
+	    vz   = (vprobes[0].first)->vz();
 
 	    tp_probe_p_->push_back(    dp );
 	    tp_probe_px_->push_back(   dpx );
@@ -871,6 +894,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    tp_probe_q_->push_back(    dq );
 	    tp_probe_eta_->push_back(  deta );
 	    tp_probe_phi_->push_back(  dphi );
+	    tp_probe_vx_->push_back(  vx );
+	    tp_probe_vy_->push_back(  vy );
+	    tp_probe_vz_->push_back(  vz );
 
 	    // Kalanand: June 30, 2008
 	    // Added functionality for using 
@@ -955,7 +981,9 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    m_event->put( tp_tag_q_, "TPTagq" );   
    m_event->put( tp_tag_eta_, "TPTageta" ); 
    m_event->put( tp_tag_phi_, "TPTagphi" ); 
-
+   m_event->put( tp_tag_vx_, "TPTagvx" ); 
+   m_event->put( tp_tag_vy_, "TPTagvy" ); 
+   m_event->put( tp_tag_vz_, "TPTagvz" ); 
 
    m_event->put( tp_tag_pDet_, "TPTagpDet" );   
    m_event->put( tp_tag_pxDet_, "TPTagpxDet" );  

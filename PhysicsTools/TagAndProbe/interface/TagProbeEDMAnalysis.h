@@ -4,8 +4,18 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.2 2008/07/30 13:38:24 srappocc Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.3 2008/10/02 23:23:27 kalanand Exp $
 //
+//
+// Kalanand Mishra: July 1, 2008 
+// Added a configurable option "useRecoVarsForTruthMatchedCands" 
+// (default == 'false') to use reconstructed or detector values 
+// (instead of MC generated values) for var1 and var2 when doing MC truth efficiencies.
+//
+// Kalanand Mishra: October 7, 2008 
+// Removed duplication of code in the fitting machinery. 
+// Also, fixed the problem with RooDataSet declaration.
+
 
 // system include files
 #include <memory>
@@ -34,6 +44,8 @@
 #include <TH2F.h>
 #include <TTree.h>
 
+
+
 class TagProbeEDMAnalysis : public edm::EDAnalyzer
 {
    public:
@@ -56,6 +68,9 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 		      std::string &bvar2, double bvar2Lo, double bvar2Hi );
       void ZllEffSBS2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
 			std::string &bvar2, std::vector<double> bins2 );
+      void doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
+		  std::string &bvar2, std::vector<double> bins2, int bin2, 
+		  double &eff, double &err );
 
       void ZllEffMCTruth();
       void ZllEffMCTruth2D();
@@ -152,8 +167,9 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       TH2F *var1var2All_;
 
       TH1F* Histograms_;
+
       int* NumEvents_;
-  
+
       unsigned int numQuantities_;
       bool doAnalyze_;
 
