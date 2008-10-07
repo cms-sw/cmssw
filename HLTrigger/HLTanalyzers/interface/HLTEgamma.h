@@ -67,73 +67,73 @@ public:
 
   /** Analyze the Data */
   void analyze(
-      const reco::GsfElectronCollection         * electrons,
-      const reco::PhotonCollection              * photons,
-      const reco::ElectronCollection            * electronIsoHandle,
-      const reco::ElectronCollection            * electronIsoHandleLW,
-      const reco::ElectronCollection            * electronNonIsoHandle,
-      const reco::ElectronCollection            * electronNonIsoHandleLW,
-      const reco::ElectronIsolationMap          * NonIsoTrackEleIsolMap,
-      const reco::ElectronIsolationMap          * NonIsoTrackEleIsolMapLW,
-      const reco::ElectronIsolationMap          * TrackEleIsolMap,
-      const reco::ElectronIsolationMap          * TrackEleIsolMapLW,
-      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
-      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMapLW,
-      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
-      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMapLW,
-      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * EcalIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * EcalNonIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * HcalEleNonIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * HcalIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * HcalNonIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * TrackIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * TrackNonIsolMap,
+      const edm::Handle<reco::GsfElectronCollection>         & electrons,
+      const edm::Handle<reco::PhotonCollection>              & photons,
+      const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+      const edm::Handle<reco::ElectronCollection>            & electronIsoHandleLW,
+      const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+      const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandleLW,
+      const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMapLW,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMapLW,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMapLW,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMapLW,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleNonIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
       TTree* tree);
 
 private:
 
   void MakeL1IsolatedPhotons(
-      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * EcalIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * HcalIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * TrackIsolMap);
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap);
 
   void MakeL1NonIsolatedPhotons(
-      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * EcalNonIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * HcalNonIsolMap,
-      const reco::RecoEcalCandidateIsolationMap * TrackNonIsolMap);
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap);
 
   void MakeL1IsolatedElectrons(
-      const reco::ElectronCollection            * electronIsoHandle,
-      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
-      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+      const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
 
   void MakeL1NonIsolatedElectrons(
-      const reco::ElectronCollection            * electronNonIsoHandle,
-      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
-      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+      const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
 
   void MakeL1IsolatedElectronsLargeWindows(
-      const reco::ElectronCollection            * electronIsoHandle,
-      const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-      const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
-      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+      const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
 
   void MakeL1NonIsolatedElectronsLargeWindows(
-      const reco::ElectronCollection            * electronNonIsoHandle,
-      const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-      const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-      const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
-      const reco::ElectronIsolationMap          * TrackEleIsolMap);
+      const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+      const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap);
 
   // Tree variables
   float *elpt, *elphi, *eleta, *elet, *ele; 

@@ -31,8 +31,8 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const CandidateView* mctruth,
-	       const double* pthat,
+  void analyze(const edm::Handle<CandidateView> & mctruth,
+	       const edm::Handle<double>        & pthat,
 	       TTree* tree);
 
 private:

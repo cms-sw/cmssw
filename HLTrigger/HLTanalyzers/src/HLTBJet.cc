@@ -113,38 +113,38 @@ void HLTBJet::setup(const edm::ParameterSet & config, TTree * tree)
 }
 
 void HLTBJet::analyze(
-        const edm::View<reco::Jet> *   rawBJets,
-        const edm::View<reco::Jet> *   correctedBJets,
-        const reco::JetTagCollection * lifetimeBJetsL25,
-        const reco::JetTagCollection * lifetimeBJetsL3,
-        const reco::JetTagCollection * lifetimeBJetsL25Relaxed,
-        const reco::JetTagCollection * lifetimeBJetsL3Relaxed,
-        const reco::JetTagCollection * softmuonBJetsL25,
-        const reco::JetTagCollection * softmuonBJetsL3,
-        const reco::JetTagCollection * performanceBJetsL25,
-        const reco::JetTagCollection * performanceBJetsL3,
+        const edm::Handle<edm::View<reco::Jet> >  & rawBJets,
+        const edm::Handle<edm::View<reco::Jet> >  & correctedBJets,
+        const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25,
+        const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
+        const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25Relaxed,
+        const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3Relaxed,
+        const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
+        const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
+        const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
+        const edm::Handle<reco::JetTagCollection> & performanceBJetsL3,
         TTree * tree) 
 {
   // reset the tree variables
   clear();
   
   // if the required collections are available, fill the corresponding tree branches
-  if (rawBJets)
+  if (rawBJets.isValid())
     analyseJets(* rawBJets);
 
-  if (correctedBJets)
+  if (correctedBJets.isValid())
     analyseCorrectedJets(* correctedBJets);
  
-  if (rawBJets and lifetimeBJetsL25 and lifetimeBJetsL3)
+  if (rawBJets.isValid() and lifetimeBJetsL25.isValid() and lifetimeBJetsL3.isValid())
     analyseLifetime(* rawBJets, * lifetimeBJetsL25, * lifetimeBJetsL3);
 
-  if (rawBJets and lifetimeBJetsL25Relaxed and lifetimeBJetsL3Relaxed)
+  if (rawBJets.isValid() and lifetimeBJetsL25Relaxed.isValid() and lifetimeBJetsL3Relaxed.isValid())
     analyseLifetimeLoose(* rawBJets, * lifetimeBJetsL25Relaxed, * lifetimeBJetsL3Relaxed);
 
-  if (rawBJets and softmuonBJetsL25 and softmuonBJetsL3)
+  if (rawBJets.isValid() and softmuonBJetsL25.isValid() and softmuonBJetsL3.isValid())
     analyseSoftmuon(* rawBJets, * softmuonBJetsL25, * softmuonBJetsL3);
   
-  if (rawBJets and performanceBJetsL25 and performanceBJetsL3)
+  if (rawBJets.isValid() and performanceBJetsL25.isValid() and performanceBJetsL3.isValid())
     analysePerformance(* rawBJets, * performanceBJetsL25, * performanceBJetsL3);
 }
 

@@ -109,33 +109,33 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTEgamma::analyze(const reco::GsfElectronCollection         * electrons,
-                        const reco::PhotonCollection              * photons,
-                        const reco::ElectronCollection            * electronIsoHandle,
-                        const reco::ElectronCollection            * electronIsoHandleLW,
-                        const reco::ElectronCollection            * electronNonIsoHandle,
-                        const reco::ElectronCollection            * electronNonIsoHandleLW,
-                        const reco::ElectronIsolationMap          * NonIsoTrackEleIsolMap,
-                        const reco::ElectronIsolationMap          * NonIsoTrackEleIsolMapLW,
-                        const reco::ElectronIsolationMap          * TrackEleIsolMap,
-                        const reco::ElectronIsolationMap          * TrackEleIsolMapLW,
-                        const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
-                        const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMapLW,
-                        const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
-                        const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMapLW,
-                        const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-                        const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-                        const reco::RecoEcalCandidateIsolationMap * EcalIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * EcalNonIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * HcalEleNonIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * HcalIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * HcalNonIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * TrackIsolMap,
-                        const reco::RecoEcalCandidateIsolationMap * TrackNonIsolMap,
+void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         & electrons,
+                        const edm::Handle<reco::PhotonCollection>              & photons,
+                        const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+                        const edm::Handle<reco::ElectronCollection>            & electronIsoHandleLW,
+                        const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+                        const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandleLW,
+                        const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMap,
+                        const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMapLW,
+                        const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
+                        const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMapLW,
+                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMapLW,
+                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+                        const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMapLW,
+                        const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+                        const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleNonIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
+                        const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
                         TTree* HltTree) {
 
-  if (electrons) {
+  if (electrons.isValid()) {
     GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
     nele = myelectrons.size();
     std::sort(myelectrons.begin(), myelectrons.end(), EtGreater());
@@ -152,7 +152,7 @@ void HLTEgamma::analyze(const reco::GsfElectronCollection         * electrons,
     nele = 0;
   }
 
-  if (photons) {
+  if (photons.isValid()) {
     PhotonCollection myphotons(* photons);
     nphoton = myphotons.size();
     std::sort(myphotons.begin(), myphotons.end(), EtGreater());
@@ -252,15 +252,15 @@ void HLTEgamma::analyze(const reco::GsfElectronCollection         * electrons,
 }
 
 void HLTEgamma::MakeL1IsolatedPhotons(
-    const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-    const reco::RecoEcalCandidateIsolationMap * EcalIsolMap,
-    const reco::RecoEcalCandidateIsolationMap * HcalIsolMap,
-    const reco::RecoEcalCandidateIsolationMap * TrackIsolMap)
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalIsolMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap)
 {
   // Iterator to the isolation-map
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi;
 
-  if (recoIsolecalcands) {
+  if (recoIsolecalcands.isValid()) {
     // loop over SuperCluster and fill the HLTPhotons
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoIsolecalcands->begin();
          recoecalcand!= recoIsolecalcands->end(); recoecalcand++) {
@@ -279,17 +279,17 @@ void HLTEgamma::MakeL1IsolatedPhotons(
 
       // First/Second member of the Map: Ref-to-Candidate(mapi)/Isolation(->val)
       // fill the ecal Isolation
-      if (EcalIsolMap) {
+      if (EcalIsolMap.isValid()) {
         mapi = (*EcalIsolMap).find(ref);
         if (mapi !=(*EcalIsolMap).end()) { pho.ecalIsol = mapi->val;}
       }
       // fill the hcal Isolation
-      if (HcalIsolMap) {
+      if (HcalIsolMap.isValid()) {
         mapi = (*HcalIsolMap).find(ref);
         if (mapi !=(*HcalIsolMap).end()) { pho.hcalIsol = mapi->val;}
       }
       // fill the track Isolation
-      if (TrackIsolMap) {
+      if (TrackIsolMap.isValid()) {
         mapi = (*TrackIsolMap).find(ref);
         if (mapi !=(*TrackIsolMap).end()) { pho.trackIsol = mapi->val;}
       }
@@ -301,14 +301,14 @@ void HLTEgamma::MakeL1IsolatedPhotons(
 }
 
 void HLTEgamma::MakeL1NonIsolatedPhotons(
-    const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-    const reco::RecoEcalCandidateIsolationMap * EcalNonIsolMap,
-    const reco::RecoEcalCandidateIsolationMap * HcalNonIsolMap, 
-    const reco::RecoEcalCandidateIsolationMap * TrackNonIsolMap)
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalNonIsolMap, 
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap)
 {
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi;
 
-  if (recoNonIsolecalcands) {
+  if (recoNonIsolecalcands.isValid()) {
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoNonIsolecalcands->begin();
          recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) { 
       // loop over SuperCluster and fill the HLTPhotons
@@ -324,17 +324,17 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
       reco::RecoEcalCandidateRef ref = reco::RecoEcalCandidateRef(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand));
 
       // fill the ecal Isolation
-      if (EcalNonIsolMap) {
+      if (EcalNonIsolMap.isValid()) {
         mapi = (*EcalNonIsolMap).find(ref);
         if (mapi !=(*EcalNonIsolMap).end()) { pho.ecalIsol = mapi->val;}
       }
       // fill the hcal Isolation
-      if (HcalNonIsolMap) {
+      if (HcalNonIsolMap.isValid()) {
         mapi = (*HcalNonIsolMap).find(ref);
         if (mapi !=(*HcalNonIsolMap).end()) { pho.hcalIsol = mapi->val;}
       }
       // fill the track Isolation
-      if (TrackNonIsolMap) {
+      if (TrackNonIsolMap.isValid()) {
         mapi = (*TrackNonIsolMap).find(ref);
         if (mapi !=(*TrackNonIsolMap).end()) { pho.trackIsol = mapi->val;}
       }
@@ -346,15 +346,15 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
 }
 
 void HLTEgamma::MakeL1IsolatedElectrons(
-    const reco::ElectronCollection            * electronIsoHandle,
-    const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-    const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-    const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
-    const reco::ElectronIsolationMap          * TrackEleIsolMap)
+    const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+    const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap)
 {
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
-  if (recoIsolecalcands) {
+  if (recoIsolecalcands.isValid()) {
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoIsolecalcands->begin();
          recoecalcand!= recoIsolecalcands->end(); recoecalcand++) {
       // get the ref to the SC:
@@ -375,7 +375,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
       ele.E          = recrSC->energy();
 
       // fill the hcal Isolation
-      if (HcalEleIsolMap) {
+      if (HcalEleIsolMap.isValid()) {
         //reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( reco::RecoEcalCandidateRef(recoIsolecalcands, distance(recoIsolecalcands->begin(), recoecalcand)) );
         reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( ref );
         if (mapi !=(*HcalEleIsolMap).end()) { ele.hcalIsol = mapi->val; }
@@ -383,7 +383,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
       // look if the SC has associated pixelSeeds
       int nmatch = 0;
 
-      if (L1IsoPixelSeedsMap) {
+      if (L1IsoPixelSeedsMap.isValid()) {
         for (reco::ElectronPixelSeedCollection::const_iterator it = L1IsoPixelSeedsMap->begin();
              it != L1IsoPixelSeedsMap->end(); it++) {
           const reco::SuperClusterRef & scRef = it->superCluster();
@@ -394,7 +394,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
       ele.pixelSeeds = nmatch;
 
       // look if the SC was promoted to an electron:
-      if (electronIsoHandle) {
+      if (electronIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
         for (reco::ElectronCollection::const_iterator iElectron = electronIsoHandle->begin();
@@ -407,7 +407,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
               FirstElectron = false;
               ele.p = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find(electronref);
                 if (mapTr != (*TrackEleIsolMap).end()) { ele.trackIsol = mapTr->val; }
               }
@@ -427,7 +427,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
               ele2.newSC = false;
               ele2.p = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele2.trackIsol = mapTr->val;}
               }
@@ -445,15 +445,15 @@ void HLTEgamma::MakeL1IsolatedElectrons(
 
 
 void HLTEgamma::MakeL1NonIsolatedElectrons(
-    const reco::ElectronCollection            * electronNonIsoHandle,
-    const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-    const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-    const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
-    const reco::ElectronIsolationMap          * TrackEleIsolMap)
+    const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+    const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap)
 {
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
-  if (recoNonIsolecalcands) {
+  if (recoNonIsolecalcands.isValid()) {
     for(reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoNonIsolecalcands->begin();
                                         recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) {
       //get the ref to the SC:
@@ -474,7 +474,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       ele.E          = recrSC->energy();
 
       // fill the hcal Isolation
-      if (HcalEleIsolMap) {
+      if (HcalEleIsolMap.isValid()) {
         // reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( reco::RecoEcalCandidateRef(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand)) );
         reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( ref );
         if (mapi !=(*HcalEleIsolMap).end()) {ele.hcalIsol = mapi->val;}
@@ -482,7 +482,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       // look if the SC has associated pixelSeeds
       int nmatch = 0;
 
-      if (L1NonIsoPixelSeedsMap) {
+      if (L1NonIsoPixelSeedsMap.isValid()) {
         for (reco::ElectronPixelSeedCollection::const_iterator it = L1NonIsoPixelSeedsMap->begin();
              it != L1NonIsoPixelSeedsMap->end(); it++) {
           const reco::SuperClusterRef & scRef = it->superCluster();
@@ -493,7 +493,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       ele.pixelSeeds = nmatch;
 
       // look if the SC was promoted to an electron:
-      if (electronNonIsoHandle) {
+      if (electronNonIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
         for(reco::ElectronCollection::const_iterator iElectron = electronNonIsoHandle->begin(); iElectron !=
@@ -506,7 +506,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
               FirstElectron = false;
               ele.p = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele.trackIsol = mapTr->val;}
               }
@@ -525,7 +525,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
               ele2.newSC      = false;
               ele2.p          = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele2.trackIsol = mapTr->val;}
               }
@@ -542,15 +542,15 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
 }
 
 void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
-    const reco::ElectronCollection            * electronIsoHandle,
-    const reco::RecoEcalCandidateCollection   * recoIsolecalcands,
-    const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-    const reco::ElectronPixelSeedCollection   * L1IsoPixelSeedsMap,
-    const reco::ElectronIsolationMap          * TrackEleIsolMap)
+    const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+    const edm::Handle<reco::ElectronPixelSeedCollection>   & L1IsoPixelSeedsMap,
+    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap)
 {
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
-  if (recoIsolecalcands) {
+  if (recoIsolecalcands.isValid()) {
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoIsolecalcands->begin();
          recoecalcand!= recoIsolecalcands->end(); recoecalcand++) {
       // get the ref to the SC:
@@ -571,7 +571,7 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
       ele.E          = recrSC->energy();
 
       // fill the hcal Isolation
-      if (HcalEleIsolMap) {
+      if (HcalEleIsolMap.isValid()) {
         //reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( reco::RecoEcalCandidateRef(recoIsolecalcands, distance(recoIsolecalcands->begin(), recoecalcand)) );
         reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( ref );
         if (mapi !=(*HcalEleIsolMap).end()) {ele.hcalIsol = mapi->val;}
@@ -579,7 +579,7 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
       // look if the SC has associated pixelSeeds
       int nmatch = 0;
 
-      if (L1IsoPixelSeedsMap) {
+      if (L1IsoPixelSeedsMap.isValid()) {
         for(reco::ElectronPixelSeedCollection::const_iterator it = L1IsoPixelSeedsMap->begin();
             it != L1IsoPixelSeedsMap->end(); it++) {
           const reco::SuperClusterRef & scRef = it->superCluster();
@@ -590,7 +590,7 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
       ele.pixelSeeds = nmatch;
 
       // look if the SC was promoted to an electron:
-      if (electronIsoHandle) {
+      if (electronIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
         for(reco::ElectronCollection::const_iterator iElectron = electronIsoHandle->begin(); iElectron !=
@@ -603,7 +603,7 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
               FirstElectron = false;
               ele.p = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele.trackIsol = mapTr->val;}
               }
@@ -623,7 +623,7 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
               ele2.newSC      = false;
               ele2.p          = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele2.trackIsol = mapTr->val;}
               }
@@ -641,15 +641,15 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
 
 
 void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
-    const reco::ElectronCollection            * electronNonIsoHandle,
-    const reco::RecoEcalCandidateCollection   * recoNonIsolecalcands,
-    const reco::RecoEcalCandidateIsolationMap * HcalEleIsolMap,
-    const reco::ElectronPixelSeedCollection   * L1NonIsoPixelSeedsMap,
-    const reco::ElectronIsolationMap          * TrackEleIsolMap)
+    const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
+    const edm::Handle<reco::ElectronPixelSeedCollection>   & L1NonIsoPixelSeedsMap,
+    const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap)
 {
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
-  if (recoNonIsolecalcands) {
+  if (recoNonIsolecalcands.isValid()) {
     for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoNonIsolecalcands->begin();
          recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) {
       //get the ref to the SC:
@@ -670,7 +670,7 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
       ele.E          = recrSC->energy();
 
       // fill the hcal Isolation
-      if (HcalEleIsolMap) {
+      if (HcalEleIsolMap.isValid()) {
         //reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( reco::RecoEcalCandidateRef(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand)) );
         reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*HcalEleIsolMap).find( ref );
         if (mapi !=(*HcalEleIsolMap).end()) {ele.hcalIsol = mapi->val;}
@@ -678,7 +678,7 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
       // look if the SC has associated pixelSeeds
       int nmatch = 0;
 
-      if (L1NonIsoPixelSeedsMap) {
+      if (L1NonIsoPixelSeedsMap.isValid()) {
         for (reco::ElectronPixelSeedCollection::const_iterator it = L1NonIsoPixelSeedsMap->begin();
              it != L1NonIsoPixelSeedsMap->end(); it++) {
           const reco::SuperClusterRef & scRef = it->superCluster();
@@ -689,7 +689,7 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
       ele.pixelSeeds = nmatch;
 
       // look if the SC was promoted to an electron:
-      if (electronNonIsoHandle) {
+      if (electronNonIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
         for (reco::ElectronCollection::const_iterator iElectron = electronNonIsoHandle->begin(); 
@@ -702,7 +702,7 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
               FirstElectron = false;
               ele.p = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele.trackIsol = mapTr->val;}
               }
@@ -721,7 +721,7 @@ void HLTEgamma::MakeL1NonIsolatedElectronsLargeWindows(
               ele2.newSC      = false;
               ele2.p          = electronref->track()->momentum().R();
               // fill the track Isolation
-              if (TrackEleIsolMap) {
+              if (TrackEleIsolMap.isValid()) {
                 reco::ElectronIsolationMap::const_iterator mapTr = (*TrackEleIsolMap).find( electronref);
                 if (mapTr !=(*TrackEleIsolMap).end()) { ele2.trackIsol = mapTr->val;}
               }

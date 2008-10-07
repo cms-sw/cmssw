@@ -18,16 +18,16 @@ public:
   
   void setup(const edm::ParameterSet & config, TTree * tree);
   void clear(void);
-  void analyze(const edm::View<reco::Jet> *   rawBJets,
-               const edm::View<reco::Jet> *   correctedBJets, 
-               const reco::JetTagCollection * lifetimeBJetsL25,
-               const reco::JetTagCollection * lifetimeBJetsL3,
-               const reco::JetTagCollection * lifetimeBJetsL25Relaxed,
-               const reco::JetTagCollection * lifetimeBJetsL3Relaxed,
-               const reco::JetTagCollection * softmuonBJetsL25,
-               const reco::JetTagCollection * softmuonBJetsL3,
-               const reco::JetTagCollection * performanceBJetsL25,
-               const reco::JetTagCollection * performanceBJetsL3,
+  void analyze(const edm::Handle<edm::View<reco::Jet> >  & rawBJets,
+               const edm::Handle<edm::View<reco::Jet> >  & correctedBJets, 
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25Relaxed,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3Relaxed,
+               const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
+               const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
+               const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
+               const edm::Handle<reco::JetTagCollection> & performanceBJetsL3,
                TTree * tree);
 
 private:
