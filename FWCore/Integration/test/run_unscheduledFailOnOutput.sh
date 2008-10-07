@@ -17,11 +17,11 @@ pushd ${LOCAL_TMP_DIR}
 
   cmsRun -p ${CFG_DIR}/${test}FailPath_cfg.py || die "cmsRun ${test}FailPath_cfg.py" $?
   #NOTE: Following fails because of an assert, plus we don't know what behavior we actually want in this case
-  #cmsRun ${CFG_DIR}/${test}read_no_events.py || die "cmsRun ${test}read_no_events.py" $?
+  cmsRun ${CFG_DIR}/${test}read_no_events.py || die "cmsRun ${test}read_no_events.py" $?
 
   cmsRun -p ${CFG_DIR}/${test}SkipEvent_cfg.py || die "cmsRun ${test}SkipEvent_cfg.py" $?
   #NOTE: Following fails because of an assert, plus we don't know what behavior we actually want in this case
-  #cmsRun ${CFG_DIR}/${test}read_no_events.py || die "cmsRun ${test}read_no_events.py" $?
+  cmsRun ${CFG_DIR}/${test}read_no_events.py || die "cmsRun ${test}read_no_events.py" $?
 
 popd
 
