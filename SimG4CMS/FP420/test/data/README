@@ -1,6 +1,7 @@
 1) execute command:
 
-cmsRun runFP420.cfg  
+cmsRun runFP420_cfg.py
+(cmsRun runFP420.cfg  )
 
 the simfp420event.root and
 TheAnalysis.root will be produced 
@@ -11,6 +12,7 @@ gv z1.ps
 
 
 2) execute command:
-cmsRun runHecMB.cfg
+cmsRun runHecMB_cfg.py
+(cmsRun runHecMB.cfg)
 
 the HecMBEvent.root will be produced
