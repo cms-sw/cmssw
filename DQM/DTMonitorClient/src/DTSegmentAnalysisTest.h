@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/28 09:14:35 $
+ *  $Revision: 1.3 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -72,8 +72,6 @@ private:
 
   int nevents;
   unsigned int nLumiSegs;
-  int run;
-  int badChpercentual;
   // switch on for detailed analysis
   bool detailedAnalysis;
 
@@ -82,8 +80,9 @@ private:
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  // wheel summary histograms  
-  std::map< int, MonitorElement* > wheelHistos;
+  // the histograms  
+  std::map< std::pair<int,int>, MonitorElement* > chi2Histos;
+  std::map< std::pair<int,int>, MonitorElement* > segmRecHitHistos;
   std::map< int, MonitorElement* > summaryHistos;
 
 };

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 14:14:38 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/07/24 12:55:20 $
+ *  $Revision: 1.15 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -184,17 +184,9 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
      if((*segment4D).hasZed()) 
        nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
       
-      if (segment4DLocalDirection.z()) {
-	fillHistos(*chamberId,
-		   nHits,
-		   segment4DLocalPos.x(), 
-		   segment4DLocalPos.y(),
-		   atan(segment4DLocalDirection.x()/segment4DLocalDirection.z())* 180./Geom::pi(),
-		   atan(segment4DLocalDirection.y()/segment4DLocalDirection.z())* 180./Geom::pi(),
-		   (*segment4D).chi2()/(*segment4D).degreesOfFreedom());
-      } else 
-	edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTask] Warning: segment local direction is: "
-				     << segment4DLocalDirection;
+     fillHistos(*chamberId,
+		nHits,
+		(*segment4D).chi2()/(*segment4D).degreesOfFreedom());
     }
   }
 
@@ -253,21 +245,6 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 				  "# of hits per segment",
 				  16, 0.5, 16.5));
   if(detailedAnalysis){
-    histos.push_back(theDbe->book1D("h4DSegmXInCham"+chamberHistoName,
-				    "4D Segment X position (cm) in Chamer RF",
-				    200, -200, 200));
-    histos.push_back(theDbe->book1D("h4DSegmYInCham"+chamberHistoName,
-				    "4D Segment Y position (cm) in Chamer RF",
-				    200, -200, 200));
-    histos.push_back(theDbe->book2D("h4DSegmXvsYInCham"+chamberHistoName,
-				    "4D Segment position (cm) in Chamer RF",
-				    200, -200, 200, 200, -200, 200));
-    histos.push_back(theDbe->book1D("h4DSegmPhiDirection"+chamberHistoName,
-				    "4D Segment Phi Direction (deg)",
-				    180, -180, 180));
-    histos.push_back(theDbe->book1D("h4DSegmThetaDirection"+chamberHistoName,
-				    "4D Segment  Theta Direction (deg)",
-				    180, -180, 180));
     histos.push_back(theDbe->book1D("h4DChi2"+chamberHistoName,
 				    "4D Segment reduced Chi2",
 				    30, 0, 30));
@@ -279,10 +256,6 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 // Fill a set of histograms for a give chamber 
 void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
 				   int nHits,
-				   float posX,
-				   float posY,
-				   float phi,
-				   float theta,
 				   float chi2) {
   
   if(chamberId.sector()!=13 && chamberId.sector()!=14)
@@ -295,12 +268,7 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
   vector<MonitorElement *> histos =  histosPerCh[chamberId];                          
   histos[0]->Fill(nHits);
   if(detailedAnalysis){
-    histos[1]->Fill(posX);
-    histos[2]->Fill(posY);
-    histos[3]->Fill(posX, posY);
-    histos[4]->Fill(phi);
-    histos[5]->Fill(theta);
-    histos[6]->Fill(chi2);
+    histos[1]->Fill(chi2);
   }
 
 }

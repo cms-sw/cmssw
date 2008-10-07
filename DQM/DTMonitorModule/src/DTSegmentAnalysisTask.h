@@ -12,8 +12,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/05/27 15:24:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/30 08:37:10 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -75,10 +75,6 @@ private:
   // Fill a set of histograms for a given chamber 
   void fillHistos(DTChamberId chamberId,
 		  int nHits,
-		  float posX,
-		  float posY,
-		  float phi,
-		  float theta,
 		  float chi2);
   
   //  the histos

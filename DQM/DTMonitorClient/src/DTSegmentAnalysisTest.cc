@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/24 12:24:17 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/09/07 20:12:03 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -49,8 +49,6 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
 
   // get the cfi parameters
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
-  badChpercentual = parameters.getUntrackedParameter<int>("badChpercentual", 10);
-
 }
 
 
@@ -78,14 +76,11 @@ void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: Begin of LS transition";
 
-  // Get the run number
-  run = lumiSeg.run();
-
 }
 
 
 void DTSegmentAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-
+ 
   nevents++;
   edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
 
@@ -93,75 +88,64 @@ void DTSegmentAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& 
 
 
 void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  
+ 
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
-
-
-  // for detailed anlysis
-  for(map<int, MonitorElement*> ::const_iterator histo = wheelHistos.begin();
-      histo != wheelHistos.end();
-	histo++) {
-    (*histo).second->Reset();
-  }
-  map <pair<int,int>, int> cmsHistos;
-  cmsHistos.clear();
-  map <pair<int,int>, bool> filled;
-  for(int i=-2; i<3; i++){
-    for(int j=1; j<15; j++){
-      filled[make_pair(i,j)]=false;
-    }
-  }
-  // end of detailed analysis
-
+ 
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: "<<nLumiSegs<<" updates";
 
   summaryHistos[3]->Reset();
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
-  
+ 
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chID = (*ch_it)->id();
     
     MonitorElement * segm_histo = dbe->get(getMEName(chID, "h4DSegmNHits"));
     MonitorElement * summary_histo = dbe->get(getMEName(chID, "numberOfSegments"));
-
+   
     if (segm_histo && summary_histo){
-	edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
-
-	TH1F * segmHit_histo_root = segm_histo->getTH1F();
-	TH2F * segm_histo_root = summary_histo->getTH2F();
-	TH2F * summary_histo_root = summaryHistos[3]->getTH2F();
-
-	int sector = chID.sector();
-	if(sector == 13) sector=4;
-	if(sector == 14) sector=10;
-
-
-	if((chID.station()!=4 && segmHit_histo_root->GetMaximumBin() != 12)||
-	   (chID.station()==4 &&  segmHit_histo_root->GetMaximumBin() != 8)){
-	  summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),1);
-	  if(summary_histo_root->GetBinContent(sector, chID.wheel()+3)<1)
-	    summaryHistos[3]->setBinContent(sector, chID.wheel()+3,1);
-	}
+      edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
+      
+      TH1F * segmHit_histo_root = segm_histo->getTH1F();
+      TH2F * segm_histo_root = summary_histo->getTH2F();
+      TH2F * summary_histo_root = summaryHistos[3]->getTH2F();
+      
+      int sector = chID.sector();
+      if(sector == 13) sector=4;
+      if(sector == 14) sector=10;
+      
+      
+      if((chID.station()!=4 && segmHit_histo_root->GetMaximumBin() != 12)||
+	 (chID.station()==4 &&  segmHit_histo_root->GetMaximumBin() != 8)){
+	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),1);
+	if(summary_histo_root->GetBinContent(sector, chID.wheel()+3)<1)
+	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,1);  
+      }
+      else
+	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),0);
+    
+      if(detailedAnalysis){
+	if(chID.station()!=4)
+	  segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(12-segmHit_histo_root->GetMaximumBin()));
 	else
-	  summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),0);
-
-	TH2F * summary2_histo_root = summaryHistos[3]->getTH2F();
-
-	if(segm_histo_root->GetBinContent(sector,chID.station())==0){
-	  summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),2);
-	  if(summary2_histo_root->GetBinContent(sector, chID.wheel()+3)<2)
-	    summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
-	}
-
+	   segmRecHitHistos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),abs(8-segmHit_histo_root->GetMaximumBin()));
       }
 
+      TH2F * summary2_histo_root = summaryHistos[3]->getTH2F();
+      
+      if(segm_histo_root->GetBinContent(sector,chID.station())==0){
+	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),2);
+	if(summary2_histo_root->GetBinContent(sector, chID.wheel()+3)<2)
+	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
+      }
+      
+    }
 
     if(detailedAnalysis){ // switch on detailed analysis
-
+   
       //test on chi2 segment quality
       MonitorElement * chi2_histo = dbe->get(getMEName(chID, "h4DChi2"));
       if (chi2_histo) {
@@ -177,42 +161,51 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	for(int bin=thresholdBin; bin<=nbins; bin++){
 	  badSegments+=chi2_histo_root->GetBinContent(bin);
 	}
-	
-	int badSegmPercentual = parameters.getUntrackedParameter<int>("badSegmPercentual", 30);
-	if(double(badSegments)/chi2_histo_root->GetEntries()>double(badSegmPercentual)/100){
-	  wheelHistos[chID.wheel()]->Fill(chID.sector()-1,chID.station()-1);
-	  cmsHistos[make_pair(chID.wheel(),chID.sector())]++;
-	  if((chID.sector()<13 &&
-	      double(cmsHistos[make_pair(chID.wheel(),chID.sector())])/4>double(badChpercentual)/100 &&
-	      filled[make_pair(chID.wheel(),chID.sector())]==false) ||
-	     (chID.sector()>=13 && 
-	      filled[make_pair(chID.wheel(),chID.sector())]==false)){
-	    filled[make_pair(chID.wheel(),chID.sector())]=true;
-	    wheelHistos[3]->Fill(chID.sector()-1,chID.wheel());
-	  }
-	}
-	
-      }
-
-      //summary of the number of hits per segment
-      MonitorElement * nhit_histo = dbe->get(getMEName(chID, "h4DSegmNHits"));
-      if (nhit_histo) {
-	edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the histo with the number of hit per segment!!";  
-	TH1F * nhit_histo_root = nhit_histo->getTH1F();
-	for(int bin=0; bin<=nhit_histo_root->GetXaxis()->GetNbins(); bin++){
-	  wheelHistos[chID.wheel()+6]->Fill(chID.sector()-1,bin-1,nhit_histo_root->GetBinContent(bin));
-	}
-      }
-	
+      
+	double badSegmentsPercentual= badSegments/double(chi2_histo_root->GetEntries());
+	cout<<"badSegmentsPercentual: "<< badSegmentsPercentual<<endl;
+	chi2Histos[make_pair(chID.wheel(),chID.sector())]->Fill(chID.station(),badSegmentsPercentual);
+      }      
     } // end of switch for detailed analysis
     
-    
-    
   } //loop over all the chambers
+  
 
+  if(detailedAnalysis){
+    
+    string chi2CriterionName = parameters.getUntrackedParameter<string>("chi2TestName","chi2InRange");
+    for(map<pair<int, int>, MonitorElement*> ::const_iterator histo = chi2Histos.begin();
+	histo != chi2Histos.end();
+	histo++) {
+
+      const QReport * theChi2QReport = (*histo).second->getQReport(chi2CriterionName);
+      if(theChi2QReport) {
+	vector<dqm::me_util::Channel> badChannels = theChi2QReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	     channel != badChannels.end(); channel++) {
+	  edm::LogError ("dtSegmentsTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	}
+      }
+    }
+    
+    string segmRecHitCriterionName = parameters.getUntrackedParameter<string>("segmRecHitTestName","segmRecHitInRange");
+    for(map<pair<int, int>, MonitorElement*> ::const_iterator histo = segmRecHitHistos.begin();
+	histo != segmRecHitHistos.end();
+	histo++) {
+
+      const QReport * theSegmRecHitQReport = (*histo).second->getQReport(segmRecHitCriterionName);
+      if(theSegmRecHitQReport) {
+	vector<dqm::me_util::Channel> badChannels = theSegmRecHitQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	     channel != badChannels.end(); channel++) {
+	  edm::LogError ("dtSegmentsTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations on recHit number: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	}
+      }
+    }
+
+  } // end of detailedAnalysis
 
 }
-
 
 
 string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTag) {
@@ -243,96 +236,46 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
 
 
 void DTSegmentAnalysisTest::bookHistos() {
-  
-  dbe->setCurrentFolder("DT/02-Segments");
 
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;
       string histoName =  "segmentSummary_W" + wheel.str();
+      dbe->setCurrentFolder("DT/02-Segments");
       summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
       summaryHistos[wh]->setAxisTitle("Sector",1);
       summaryHistos[wh]->setBinLabel(1,"MB1",2);
       summaryHistos[wh]->setBinLabel(2,"MB2",2);
       summaryHistos[wh]->setBinLabel(3,"MB3",2);
-      summaryHistos[wh]->setBinLabel(4,"MB4",2);  
+      summaryHistos[wh]->setBinLabel(4,"MB4",2);
+
+      if(detailedAnalysis){
+	for(int sect=1; sect<=14; sect++){
+	  stringstream sector; sector << sect;
+	  string chi2HistoName =  "chi2BadSegmPercentual_W" + wheel.str() + "_Sec" + sector.str();
+	  dbe->setCurrentFolder("DT/02-Segments/Tests/Wheel" + wheel.str() +
+				"/Sector" + sector.str());
+	  chi2Histos[make_pair(wh,sect)] = dbe->book1D(chi2HistoName.c_str(),chi2HistoName.c_str(),4,1,5);
+	  chi2Histos[make_pair(wh,sect)]->setBinLabel(1,"MB1");
+	  chi2Histos[make_pair(wh,sect)]->setBinLabel(2,"MB2");
+	  chi2Histos[make_pair(wh,sect)]->setBinLabel(3,"MB3");
+	  chi2Histos[make_pair(wh,sect)]->setBinLabel(4,"MB4");
+	  
+	  string segmHistoName =  "residualsOnSegmRecHitNumber_W" + wheel.str() + "_Sec" + sector.str();
+	  segmRecHitHistos[make_pair(wh,sect)] = dbe->book1D(segmHistoName.c_str(),segmHistoName.c_str(),4,1,5);
+	  segmRecHitHistos[make_pair(wh,sect)]->setBinLabel(1,"MB1");
+	  segmRecHitHistos[make_pair(wh,sect)]->setBinLabel(2,"MB2");
+	  segmRecHitHistos[make_pair(wh,sect)]->setBinLabel(3,"MB3");
+	  segmRecHitHistos[make_pair(wh,sect)]->setBinLabel(4,"MB4");
+	  
+	}
+      }
   }
   
-
   string histoName =  "segmentSummary";
-    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
-    summaryHistos[3]->setAxisTitle("Sector",1);
-    summaryHistos[3]->setAxisTitle("Wheel",2);
- 
-
-
-  if(detailedAnalysis){ // switch on detailed analysis
-
-    for(int wh=-2; wh<=2; wh++){
-      stringstream wheel; wheel << wh;
-      string histoName =  "chi2Summary_testFailed_W" + wheel.str();
-      wheelHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,4,0,4);
-      wheelHistos[wh]->setBinLabel(1,"Sector1",1);
-      wheelHistos[wh]->setBinLabel(2,"Sector2",1);
-      wheelHistos[wh]->setBinLabel(3,"Sector3",1);
-      wheelHistos[wh]->setBinLabel(4,"Sector4",1);
-      wheelHistos[wh]->setBinLabel(5,"Sector5",1);
-      wheelHistos[wh]->setBinLabel(6,"Sector6",1);
-      wheelHistos[wh]->setBinLabel(7,"Sector7",1);
-      wheelHistos[wh]->setBinLabel(8,"Sector8",1);
-      wheelHistos[wh]->setBinLabel(9,"Sector9",1);
-      wheelHistos[wh]->setBinLabel(10,"Sector10",1);
-      wheelHistos[wh]->setBinLabel(11,"Sector11",1);
-      wheelHistos[wh]->setBinLabel(12,"Sector12",1);
-      wheelHistos[wh]->setBinLabel(13,"Sector13",1);
-      wheelHistos[wh]->setBinLabel(14,"Sector14",1);
-      wheelHistos[wh]->setBinLabel(1,"MB1",2);
-      wheelHistos[wh]->setBinLabel(2,"MB2",2);
-      wheelHistos[wh]->setBinLabel(3,"MB3",2);
-      wheelHistos[wh]->setBinLabel(4,"MB4",2);  
-      
-      histoName =  "NumberOfHitsPerSegm_W" + wheel.str();
-      wheelHistos[wh+6] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,20,0,20);
-      wheelHistos[wh+6]->setBinLabel(1,"Sector1",1);
-      wheelHistos[wh+6]->setBinLabel(2,"Sector2",1);
-      wheelHistos[wh+6]->setBinLabel(3,"Sector3",1);
-      wheelHistos[wh+6]->setBinLabel(4,"Sector4",1);
-      wheelHistos[wh+6]->setBinLabel(5,"Sector5",1);
-      wheelHistos[wh+6]->setBinLabel(6,"Sector6",1);
-      wheelHistos[wh+6]->setBinLabel(7,"Sector7",1);
-      wheelHistos[wh+6]->setBinLabel(8,"Sector8",1);
-      wheelHistos[wh+6]->setBinLabel(9,"Sector9",1);
-      wheelHistos[wh+6]->setBinLabel(10,"Sector10",1);
-      wheelHistos[wh+6]->setBinLabel(11,"Sector11",1);
-      wheelHistos[wh+6]->setBinLabel(12,"Sector12",1);
-      wheelHistos[wh+6]->setBinLabel(13,"Sector13",1);
-      wheelHistos[wh+6]->setBinLabel(14,"Sector14",1);
-    }
-    
-    string histoName =  "chi2Summary_testFailedByAtLeastBadCH";
-    wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
-    wheelHistos[3]->setBinLabel(1,"Sector1",1);
-    wheelHistos[3]->setBinLabel(1,"Sector1",1);
-    wheelHistos[3]->setBinLabel(2,"Sector2",1);
-    wheelHistos[3]->setBinLabel(3,"Sector3",1);
-    wheelHistos[3]->setBinLabel(4,"Sector4",1);
-    wheelHistos[3]->setBinLabel(5,"Sector5",1);
-    wheelHistos[3]->setBinLabel(6,"Sector6",1);
-    wheelHistos[3]->setBinLabel(7,"Sector7",1);
-    wheelHistos[3]->setBinLabel(8,"Sector8",1);
-    wheelHistos[3]->setBinLabel(9,"Sector9",1);
-    wheelHistos[3]->setBinLabel(10,"Sector10",1);
-    wheelHistos[3]->setBinLabel(11,"Sector11",1);
-    wheelHistos[3]->setBinLabel(12,"Sector12",1);
-    wheelHistos[3]->setBinLabel(13,"Sector13",1);
-    wheelHistos[3]->setBinLabel(14,"Sector14",1);
-    wheelHistos[3]->setBinLabel(1,"Wheel-2",2);
-    wheelHistos[3]->setBinLabel(2,"Wheel-1",2);
-    wheelHistos[3]->setBinLabel(3,"Wheel0",2);
-    wheelHistos[3]->setBinLabel(4,"Wheel+1",2);
-    wheelHistos[3]->setBinLabel(5,"Wheel+2",2);
-
-  } // // end of switch for detailed analysis
-
+  dbe->setCurrentFolder("DT/02-Segments");
+  summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
+  summaryHistos[3]->setAxisTitle("Sector",1);
+  summaryHistos[3]->setAxisTitle("Wheel",2); 
 
 }
   
