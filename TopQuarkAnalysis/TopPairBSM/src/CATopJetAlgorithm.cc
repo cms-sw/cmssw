@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.2 2008/09/19 08:09:52 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.4 2008/09/22 22:18:08 yumiceva Exp $
 
 #include "TopQuarkAnalysis/TopPairBSM/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,38 +18,41 @@ using namespace JetReco;
 using namespace edm;
 
 
-
-ostream & operator<<(ostream & out, CaloJet & j)
-{
-  char buff[800];
-  sprintf(buff, "CaloJet pt = %6.2f, eta = %6.2f, phi = %6.2f", 
-	  j.pt(), j.eta(), j.phi() );
-  out << buff;
-  return out;
-}
-
-ostream & operator<<(ostream & out, fastjet::PseudoJet j)
-{
-  char buff[800];
-  sprintf(buff, "PseudoJet index = %3d, pt = %6.2f, eta = %6.2f, phi = %6.2f", 
-	  j.user_index(), j.perp(), j.eta(), j.phi() );
-  out << buff;
-  return out;
-}
-
-class GreaterByEtPseudoJet : 
-  public std::binary_function<fastjet::PseudoJet const &, fastjet::PseudoJet const &, bool> {
-
-public:
-  bool operator()( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
-    return j1.perp() > j2.perp();
-  }
-};
-
 //  Run the algorithm
 //  ------------------
-void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )  
+void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles, 
+			     vector<CATopPseudoJet> & hardjetsOutput,
+			     edm::EventSetup const & c )  
 {
+
+  bool verbose = false;
+
+  if ( verbose ) cout << "Welcome to CATopSubJetAlgorithm::run" << endl;
+
+  // Sum Et of the event
+  double sumEt = 0.;
+
+
+  //make a list of input objects ordered by ET and calculate sum et
+
+
+  // list of fastjet pseudojet constituents
+  for (unsigned i = 0; i < cell_particles.size(); ++i) {
+    sumEt += cell_particles[i].perp();
+  }
+
+  // Determine which bin we are in for et clustering
+  int iPt = -1;
+  for ( unsigned int i = 0; i < ptBins_.size(); ++i ) {
+    if ( sumEt / 2.0 > ptBins_[i] ) iPt = i;
+  }
+
+  if ( verbose ) cout << "Using sumEt = " << sumEt << ", bin = " << iPt << endl;
+
+  // If the sum et is too low, exit
+  if ( iPt < 0 ) {    
+    return;
+  }
 
   // Get the calo geometry
   edm::ESHandle<CaloGeometry> geometry;
@@ -57,76 +60,11 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
   const CaloSubdetectorGeometry* towerGeometry = 
     geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);  
 
-  
-
-
-  // get a list of output subjets
-  std::auto_ptr<CaloJetCollection>  subjetCollection( new CaloJetCollection() );
-  // get a list of output jets
-  std::auto_ptr<BasicJetCollection>  jetCollection( new BasicJetCollection() );
-    
-
-  bool verbose = false;
-
-  if ( verbose ) cout << "Welcome to CATopSubJetAlgorithm::run" << endl;
-
-  // get calo towers from event record
-
-  Handle<CaloTowerCollection> fInputHandle;
-  e.getByLabel( mSrc_, fInputHandle );
-
-  CaloTowerCollection const & fInput = *fInputHandle;
-
-
-  //make a list of input objects ordered by ET and calculate sum et
-
-  // Sum Et of the event
-  double sumEt = 0.;
-
-
-  // list of fastjet pseudojet constituents
-  vector<fastjet::PseudoJet> cell_particles;
-  CaloTowerCollection::const_iterator input = fInput.begin();
-  if ( verbose ) cout << "Adding cell particles, n = " << fInput.size()  << endl;
-  for (unsigned i = 0; i < fInput.size(); ++i) {
-    sumEt += fInput[i].et();
-    const CaloTower & c = fInput[i];
-    cell_particles.push_back (fastjet::PseudoJet (c.px(),c.py(),c.pz(),c.energy()));
-    cell_particles.back().set_user_index(i);
-    if ( verbose ) cout << "Adding cell particle " << cell_particles.back() << endl;
-  }
-
-
-  if ( verbose ) cout << "Sorting by pt" << endl;
-  // Sort by et
-  GreaterByEtPseudoJet compEt;
-  sort( cell_particles.begin(), cell_particles.end(), compEt );
-
-
   // empty 4-vector
   fastjet::PseudoJet blankJetA(0,0,0,0);
   blankJetA.set_user_index(-1);
   const fastjet::PseudoJet blankJet = blankJetA;
 
-  // Determine which bin we are in for et clustering
-  int iPt = -1;
-  for ( unsigned int i = 0; i < ptBins_.size(); ++i ) {
-    if ( sumEt / 2.0 > ptBins_[i] ) iPt = i;
-  }
-  if ( verbose ) cout << "Using sumEt = " << sumEt << ", bin = " << iPt << endl;
-
-
-  // If the sum et is too low, exit
-  if ( iPt < 0 ) {
-
-
-    if ( verbose ) cout << "Pt is too small, exiting" << endl;
-
-    e.put( subjetCollection, "caTopSubJets"); 
-    e.put( jetCollection);
-    
-    return;
-  }
 
   int nCellMin = nCellBins_[iPt];
 
@@ -161,6 +99,7 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
     }
   }
   // Sort the transient central jets in Et
+  GreaterByEtPseudoJet compEt;
   sort( centralJets.begin(), centralJets.end(), compEt );
 
 
@@ -196,7 +135,7 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
     if ( verbose ) cout << "Doing decomposition 1" << endl;
     fastjet::PseudoJet ja, jb;
     vector<fastjet::PseudoJet> leftovers1;
-    bool hardBreak1 = decomposeJet(localJet,clusterSeq,fInput,towerGeometry,ptHard,nCellMin,ja,jb,leftovers1);
+    bool hardBreak1 = decomposeJet(localJet,clusterSeq,cell_particles,towerGeometry,ptHard,nCellMin,ja,jb,leftovers1);
     leftoversAll.insert(leftoversAll.end(),leftovers1.begin(),leftovers1.end());
 	
     // stage 2:  secondary decomposition.  look for when the hard subjets found above further decluster into two hard sub-subjets
@@ -206,13 +145,13 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
     fastjet::PseudoJet jaa, jab;
     vector<fastjet::PseudoJet> leftovers2a;
     bool hardBreak2a = false;
-    if (hardBreak1)  hardBreak2a = decomposeJet(ja,clusterSeq,fInput,towerGeometry,ptHard,nCellMin,jaa,jab,leftovers2a);
+    if (hardBreak1)  hardBreak2a = decomposeJet(ja,clusterSeq,cell_particles,towerGeometry,ptHard,nCellMin,jaa,jab,leftovers2a);
     leftoversAll.insert(leftoversAll.end(),leftovers2a.begin(),leftovers2a.end());
     // jb -> jba+jbb ?
     fastjet::PseudoJet jba, jbb;
     vector<fastjet::PseudoJet> leftovers2b;
     bool hardBreak2b = false;
-    if (hardBreak1)  hardBreak2b = decomposeJet(jb,clusterSeq,fInput,towerGeometry,ptHard,nCellMin,jba,jbb,leftovers2b);
+    if (hardBreak1)  hardBreak2b = decomposeJet(jb,clusterSeq,cell_particles,towerGeometry,ptHard,nCellMin,jba,jbb,leftovers2b);
     leftoversAll.insert(leftoversAll.end(),leftovers2b.begin(),leftovers2b.end());
 
     // NOTE:  it might be good to consider some checks for whether these subjets can be further decomposed.  e.g., the above procedure leaves
@@ -251,80 +190,40 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
     sort(hardSubjets.begin(), hardSubjets.end(), compEt );
 
     // create the subjets
+    vector<CATopPseudoSubJet>  subjetsOutput;
     std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = hardSubjets.begin(),
       itSubJet = itSubJetBegin, itSubJetEnd = hardSubjets.end();
     for (; itSubJet != itSubJetEnd; ++itSubJet ){
       int index = itSubJet - itSubJetBegin;
       if ( verbose ) cout << "Adding subjet " << *itSubJet << endl;
       //       if ( verbose ) cout << "Adding input collection element " << (*itSubJet).user_index() << endl;
-      //       if ( (*itSubJet).user_index() >= 0 && (*itSubJet).user_index() < fInput.size() )
-      
-      math::XYZTLorentzVector p4Subjet(itSubJet->px(), itSubJet->py(), itSubJet->pz(), itSubJet->e() );
-      reco::Particle::Point point(0,0,0);
-
-      // Find the subjet constituents
-      vector<CandidatePtr> subjetConstituents;
+      //       if ( (*itSubJet).user_index() >= 0 && (*itSubJet).user_index() < cell_particles.size() )
 
       // Get the transient subjet constituents from fastjet
       vector<fastjet::PseudoJet> subjetFastjetConstituents = clusterSeq.constituents( *itSubJet );
 
+      // Get the indices of the constituents
+      vector<int> constituents;
+
+      // Loop over the constituents and get the indices
       vector<fastjet::PseudoJet>::const_iterator fastSubIt = subjetFastjetConstituents.begin(),
 	transConstBegin = subjetFastjetConstituents.begin(),
 	transConstEnd = subjetFastjetConstituents.end();
       for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
-
-	if ( fastSubIt->user_index() >= 0 && fastSubIt->user_index() < fInput.size() ) 
-	  subjetConstituents.push_back(CandidatePtr(fInputHandle, fastSubIt->user_index()));
+	if ( fastSubIt->user_index() >= 0 && fastSubIt->user_index() < cell_particles.size() ) {
+	  constituents.push_back( fastSubIt->user_index() );
+	}
       }
 
-      indices[jetIndex].push_back( subjetCollection->size() );      
-      subjetCollection->push_back( CaloJet(p4Subjet, point, CaloJet::Specific(), subjetConstituents) );
-
+      // Make a CATopPseudoSubJet object to hold this subjet and the indices of its constituents
+      subjetsOutput.push_back( CATopPseudoSubJet( *itSubJet, constituents ) );
     }
-
+    
+    
+    // Make a CATopPseudoJet object to hold this hard jet, and the subjets that make it up
+    hardjetsOutput.push_back( CATopPseudoJet( *jetIt, subjetsOutput ) );
+    
   }
-
-  if ( verbose ) cout << "List of subjets" << endl;
-  CaloJetCollection::const_iterator subjetPrintIt = subjetCollection->begin(),
-    subjetPrintEnd = subjetCollection->end() ;
-  for ( ; subjetPrintIt != subjetPrintEnd; ++subjetPrintIt ) {
-    char buff[800];
-    sprintf(buff, "CaloJet pt = %6.2f, eta = %6.2f, phi = %6.2f", 
-	    subjetPrintIt->pt(), subjetPrintIt->eta(), subjetPrintIt->phi() );
-    if ( verbose ) cout << buff << endl;
-  }
-
-  // put subjets into event record
-  if ( verbose ) cout << "About to put subjets, size = " << subjetCollection->size() << endl;
-  OrphanHandle<CaloJetCollection> subjetHandleAfterPut = e.put( subjetCollection, "caTopSubJets" );
-
-  
-  // Now create the hard jets
-  if ( verbose ) cout << "About to make hard jets for writing" << endl;
-  vector<math::XYZTLorentzVector>::const_iterator ip4 = p4_hardJets.begin(),
-    ip4Begin = p4_hardJets.begin(),
-    ip4End = p4_hardJets.end();
-
-  for ( ; ip4 != ip4End; ++ip4 ) {
-    int p4_index = ip4 - ip4Begin;
-    vector<int> & ind = indices[p4_index];
-    vector<CandidatePtr> i_hardJetConstituents;
-    // Add the subjets to the hard jet
-    for( vector<int>::const_iterator isub = ind.begin();
-	 isub != ind.end(); ++isub ) {
-      CandidatePtr candPtr( subjetHandleAfterPut, *isub, false );
-      i_hardJetConstituents.push_back( candPtr );
-    }   
-    reco::Particle::Point point(0,0,0);
-    jetCollection->push_back( BasicJet( *ip4, point, i_hardJetConstituents) );
-  }
-  
-
-  // put hard jets into event record
-  if ( verbose ) cout << "About to put hard jets, size = " << jetCollection->size() << endl;
-  e.put( jetCollection);
-  
-  if ( verbose ) cout << "Done" << endl;
 }
 
 
@@ -337,14 +236,14 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
 // From Sal: Ignoring genjet case
 //
 bool CATopJetAlgorithm::adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 
-				      const CaloTowerCollection & fInput,
+				      const vector<fastjet::PseudoJet> & cell_particles,
 				      const CaloSubdetectorGeometry  * fTowerGeometry,
 				      const fastjet::ClusterSequence & theClusterSequence,
 				      int nCellMin ) const {
 
   // Get each tower (depending on user input, can be either max pt tower, or centroid).
-  CaloTowerDetId tower1 = getCaloTower( jet1, fInput, fTowerGeometry, theClusterSequence );
-  CaloTowerDetId tower2 = getCaloTower( jet2, fInput, fTowerGeometry, theClusterSequence );
+  CaloTowerDetId tower1 = getCaloTower( jet1, cell_particles, fTowerGeometry, theClusterSequence );
+  CaloTowerDetId tower2 = getCaloTower( jet2, cell_particles, fTowerGeometry, theClusterSequence );
 
   // Get the number of calo towers away that the two towers are.
   // Can be non-integral fraction if "centroid" case is chosen.
@@ -357,7 +256,7 @@ bool CATopJetAlgorithm::adjacentCells(const fastjet::PseudoJet & jet1, const fas
 //-------------------------------------------------------------------------
 // Find the highest pt tower inside the jet
 fastjet::PseudoJet CATopJetAlgorithm::getMaxTower( const fastjet::PseudoJet & jet,
-						   const CaloTowerCollection & fInput,
+						   const vector<fastjet::PseudoJet> & cell_particles,
 						   const fastjet::ClusterSequence & theClusterSequence
 						   ) const
 {
@@ -365,7 +264,7 @@ fastjet::PseudoJet CATopJetAlgorithm::getMaxTower( const fastjet::PseudoJet & je
   if ( jet.user_index() > 0 ) return jet;
   // Check for the bug in fastjet where it sets the user_index to 0 instead of -1
   // in the clustering, since it might actually BE zero. 
-  else if (  jet.user_index() == 0 && jet.perp() > 0 && jet.perp() == fInput[0].pt() ) {
+  else if (  jet.user_index() == 0 && jet.perp() > 0 && jet.perp() == cell_particles[0].perp() ) {
     return jet;
   }
   // Otherwise, search through the constituents and find the highest pt tower, return it.
@@ -381,7 +280,7 @@ fastjet::PseudoJet CATopJetAlgorithm::getMaxTower( const fastjet::PseudoJet & je
 //-------------------------------------------------------------------------
 // Find the calo tower associated with the jet
 CaloTowerDetId CATopJetAlgorithm::getCaloTower( const fastjet::PseudoJet & jet,
-						const CaloTowerCollection & fInput,
+						const vector<fastjet::PseudoJet> & cell_particles,
 						const CaloSubdetectorGeometry  * fTowerGeometry,
 						const fastjet::ClusterSequence & theClusterSequence ) const
 {
@@ -391,16 +290,16 @@ CaloTowerDetId CATopJetAlgorithm::getCaloTower( const fastjet::PseudoJet & jet,
   // This is where it really IS index 0.
   // There's a bug in fastjet. They set the user_index to 0 instead of -1 for the previous output. 
   // Need to check if it's "really" index 0 in input, or it's a reconstructed jet.
-  if ( jet.user_index() == 0 && jet.perp() > 0 && jet.perp() == fInput[0].pt() ) isTower = true;
+  if ( jet.user_index() == 0 && jet.perp() > 0 && jet.perp() == cell_particles[0].perp() ) isTower = true;
 
-  if ( isTower ) {
-    return fInput[jet.user_index()].id();
-  }
+//   if ( isTower ) {
+//     return cell_particles[jet.user_index()].id();
+//   }
 
-  // If the user requested to get the max tower, return the max tower
-  if ( useMaxTower_ ) {
-    return fInput[getMaxTower( jet, fInput, theClusterSequence ).user_index()].id();
-  }
+//   // If the user requested to get the max tower, return the max tower
+//   if ( useMaxTower_ ) {
+//     return cell_particles[getMaxTower( jet, cell_particles, theClusterSequence ).user_index()].id();
+//   }
 
 
   // Otherwise, we find the closest calorimetery tower to the jet centroid
@@ -439,7 +338,7 @@ int CATopJetAlgorithm::getDistance ( CaloTowerDetId const & t1, CaloTowerDetId c
 //
 bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet, 
 				     const fastjet::ClusterSequence & theClusterSequence, 
-				     const CaloTowerCollection & fInput,
+				     const vector<fastjet::PseudoJet> & cell_particles,
 				     const CaloSubdetectorGeometry  * fTowerGeometry,
 				     double ptHard, int nCellMin,
 				     fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
@@ -454,7 +353,7 @@ bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet,
     if (!goodBreak)                                 break;         // this is one cell, can't decluster anymore
 
     if ( useAdjacency_ &&
-	 adjacentCells(ja,jb,fInput,
+	 adjacentCells(ja,jb,cell_particles,
 		       fTowerGeometry,
 		       theClusterSequence,
 		       nCellMin) )                  break;         // the clusters are "adjacent" in the calorimeter => shouldn't have decomposed

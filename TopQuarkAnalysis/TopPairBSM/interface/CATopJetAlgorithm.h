@@ -34,6 +34,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/CATopPseudoJet.h"
+
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include <fastjet/JetDefinition.hh>
@@ -74,7 +76,11 @@ class CATopJetAlgorithm{
       { }
 
     /// Find the ProtoJets from the collection of input Candidates.
-    void run( edm::Event & e, const edm::EventSetup & c);
+    void run( const std::vector<fastjet::PseudoJet> & cell_particles, 
+	      std::vector<CATopPseudoJet> & hardjetsOutput,
+	      edm::EventSetup const & c
+	      );
+
 
  private:
 
@@ -93,43 +99,76 @@ class CATopJetAlgorithm{
   std::vector<int>    nCellBins_;     //<! number of cells apart for two subjets to be considered "independent"
   std::string         jetType_;       //<! CaloJets or GenJets
 
-  // Decide if the two jets are in adjacent cells
+  // Decide if the two jets are in adjacent cells    
+
   bool adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 
-		     const CaloTowerCollection & fInput,
+		     const std::vector<fastjet::PseudoJet> & cell_particles,
 		     const CaloSubdetectorGeometry  * fTowerGeometry,
 		     const fastjet::ClusterSequence & theClusterSequence,
-		     int nCellMin) const;
+		     int nCellMin ) const;
+
   
   // Get maximum pt tower
   fastjet::PseudoJet getMaxTower( const fastjet::PseudoJet & jet,
-				  const CaloTowerCollection & fInput,
+				  const std::vector<fastjet::PseudoJet> & cell_particles,
 				  const fastjet::ClusterSequence & theClusterSequence
 				  ) const;
 
 
   // Find the calo tower associated with the jet
-   CaloTowerDetId getCaloTower( const fastjet::PseudoJet & jet,
-				const CaloTowerCollection & fInput,
-				const CaloSubdetectorGeometry  * fTowerGeometry,
-				const fastjet::ClusterSequence & theClusterSequence ) const;
+  CaloTowerDetId getCaloTower( const fastjet::PseudoJet & jet,
+			       const std::vector<fastjet::PseudoJet> & cell_particles,
+			       const CaloSubdetectorGeometry  * fTowerGeometry,
+			       const fastjet::ClusterSequence & theClusterSequence ) const;
+
 
   // Get number of calo towers away that the two calo towers are
   int getDistance ( CaloTowerDetId const & t1, CaloTowerDetId const & t2, 
 		    const CaloSubdetectorGeometry  * fTowerGeometry ) const;
     
   // Attempt to break up one "hard" jet into two "soft" jets
-  bool decomposeJet(const fastjet::PseudoJet & theJet, const fastjet::ClusterSequence & theClusterSequence, 
-		    const CaloTowerCollection & fInput, 
+
+  bool decomposeJet(const fastjet::PseudoJet & theJet, 
+		    const fastjet::ClusterSequence & theClusterSequence, 
+		    const std::vector<fastjet::PseudoJet> & cell_particles,
 		    const CaloSubdetectorGeometry  * fTowerGeometry,
-		    double ptHard,  int nCellMin, 
+		    double ptHard, int nCellMin,
 		    fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 		    std::vector<fastjet::PseudoJet> & leftovers) const;
 
-
-  fastjet::PseudoJet findMaxTower( const fastjet::PseudoJet & jet,
-				   const CaloTowerCollection & fInput,
-				   const fastjet::ClusterSequence & theClusterSequence
-				   ) const;
 };
+
+// Some utilities
+
+
+
+
+std::ostream & operator<<(std::ostream & out, reco::CaloJet & j)
+{
+  char buff[800];
+  sprintf(buff, "CaloJet pt = %6.2f, eta = %6.2f, phi = %6.2f", 
+	  j.pt(), j.eta(), j.phi() );
+  out << buff;
+  return out;
+}
+
+std::ostream & operator<<(std::ostream & out, fastjet::PseudoJet j)
+{
+  char buff[800];
+  sprintf(buff, "PseudoJet index = %3d, pt = %6.2f, eta = %6.2f, phi = %6.2f", 
+	  j.user_index(), j.perp(), j.eta(), j.phi() );
+  out << buff;
+  return out;
+}
+
+class GreaterByEtPseudoJet : 
+  public std::binary_function<fastjet::PseudoJet const &, fastjet::PseudoJet const &, bool> {
+
+public:
+  bool operator()( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
+    return j1.perp() > j2.perp();
+  }
+};
+
 
 #endif

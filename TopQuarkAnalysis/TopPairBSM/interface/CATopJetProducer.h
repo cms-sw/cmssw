@@ -52,6 +52,7 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
+    edm::InputTag            src_;
     CATopJetAlgorithm        alg_;
   };
 }
