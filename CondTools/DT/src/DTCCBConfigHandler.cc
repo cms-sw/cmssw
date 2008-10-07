@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/03 16:25:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/02 09:56:40 $
+ *  $Revision: 1.8.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -122,6 +122,7 @@ void DTCCBConfigHandler::getNewObjects() {
   unsigned lastRun = last;
   std::cout << "check for new runs since " << lastRun << std::endl;
 
+/*
   // Find latest runs
   std::map<int,int> g2lMap;
   std::map<int,int> runMap;
@@ -167,6 +168,31 @@ void DTCCBConfigHandler::getNewObjects() {
     if ( cfgMap.find( cfgId ) == cfgMap.end() )
     cfgMap.insert( std::pair<int,int>( cfgId, g2lId ) );
   }
+*/
+
+  // Find latest runs
+  std::map<int,int> runMap;
+  std::map<int,int> cfgMap;
+  coral::ITable& runHistoryTable =
+    isession->nominalSchema().tableHandle( "RUNHISTORY" );
+  std::auto_ptr<coral::IQuery>
+    runHistoryQuery( runHistoryTable.newQuery() );
+  runHistoryQuery->addToOutputList( "RUN" );
+  runHistoryQuery->addToOutputList( "CCBCSET" );
+  coral::ICursor& runHistoryCursor = runHistoryQuery->execute();
+  while( runHistoryCursor.next() ) {
+    const coral::AttributeList& row = runHistoryCursor.currentRow();
+    int runId = row[    "RUN"].data<int>();
+    int cfgId = static_cast<int>( row["CCBCSET"].data<long long>() );
+    if ( static_cast<unsigned>( runId ) <= lastRun ) continue;
+    std::cout << "schedule config key copy for run "
+              << runId << std::endl;
+    if ( runMap.find( runId ) == runMap.end() )
+         runMap.insert( std::pair<int,int>( runId, cfgId ) );
+    if ( cfgMap.find( cfgId ) == cfgMap.end() )
+         cfgMap.insert( std::pair<int,int>( cfgId, runId ) );
+  }
+  if ( !runMap.size() ) std::cout << "no new run found" << std::endl;
 
   // get ccb identifiers map
   std::cout << "retrieve CCB map" << std::endl;
@@ -262,6 +288,7 @@ void DTCCBConfigHandler::getNewObjects() {
     brkPtr->push_back( brk );
   }
 
+/*
   // loop over new runs
   std::map<int,int>::const_iterator runIter = runMap.begin();
   std::map<int,int>::const_iterator runIend = runMap.end();
@@ -278,6 +305,63 @@ void DTCCBConfigHandler::getNewObjects() {
     int cfg = l2gEntry.second;
     std::cout << "retrieve configuration bricks for run " << run
               << " ---> g2l_id " << g2l
+              << " ---> config " << cfg << std::endl;
+    DTCCBConfig* fullConf = new DTCCBConfig( dataTag );
+    // set run and full configuration in payload
+    fullConf->setStamp(   run );
+    fullConf->setFullKey( cfg );
+    // retrieve ccb config map
+    std::map<int,std::map<int,int>*>::const_iterator keyIter =
+                                                     keyMap.find( cfg );
+    std::map<int,std::map<int,int>*>::const_iterator keyIend =
+                                                     keyMap.end();
+    std::map<int,int>* mapPtr = 0;
+    if ( keyIter != keyIend ) mapPtr = keyIter->second;
+    if ( mapPtr == 0 ) continue;
+    // loop over ccb
+    std::map<int,int>::const_iterator ccbIter = mapPtr->begin();
+    std::map<int,int>::const_iterator ccbIend = mapPtr->end();
+    while ( ccbIter != ccbIend ) {
+      const std::pair<int,int>& ccbEntry = *ccbIter++;
+      // get ccb config key
+      int ccb = ccbEntry.first;
+      int key = ccbEntry.second;
+      // retrieve chamber id
+      std::map<int,DTCCBId>::const_iterator ccbIter = ccbMap.find( ccb );
+      std::map<int,DTCCBId>::const_iterator ccbIend = ccbMap.end();
+      if ( ccbIter == ccbIend ) continue;
+      const DTCCBId& chaId = ccbIter->second;
+      // retrieve brick id list
+      std::map<int,std::vector<int>*>::const_iterator brkIter =
+                                                      brkMap.find( key );
+      std::map<int,std::vector<int>*>::const_iterator brkIend =
+                                                      brkMap.end();
+      if ( brkIter == brkIend ) continue;
+      std::vector<int>* brkPtr = brkIter->second;
+      if ( brkPtr == 0 ) continue;
+      // brick id lists in payload
+      fullConf->setConfigKey( chaId.wheelId,
+                              chaId.stationId,
+                              chaId.sectorId,
+                              *brkPtr );
+    }
+    cond::Time_t snc = runEntry.first;
+    m_to_transfer.push_back( std::make_pair( fullConf, snc ) );
+    std::cout << "writing payload : " << sizeof( *fullConf ) 
+              << " ( " << ( fullConf->end() - fullConf->begin() )
+              << " ) " << std::endl;
+  }
+*/
+
+  // loop over new runs
+  std::map<int,int>::const_iterator runIter = runMap.begin();
+  std::map<int,int>::const_iterator runIend = runMap.end();
+  while ( runIter != runIend ) {
+    const std::pair<int,int>& runEntry = *runIter++;
+    // get full configuration
+    int run = runEntry.first;
+    int cfg = runEntry.second;
+    std::cout << "retrieve configuration bricks for run " << run
               << " ---> config " << cfg << std::endl;
     DTCCBConfig* fullConf = new DTCCBConfig( dataTag );
     // set run and full configuration in payload
