@@ -60,51 +60,51 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     char* type;
     m_dbe->setCurrentFolder(baseFolder_);
     
-    type = "00 DataFormat Problem Map";
-    DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
-					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
-					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
-    DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
-    DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
-    type = "00 DataFormat Problem Zoo";
-    DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
-    labelthezoo(DATAFORMAT_PROBLEM_ZOO);
-
-    m_dbe->setCurrentFolder(baseFolder_ + "/01 SubDets");
-    type = "HB DataIntegrity Problem Map";
-    HB_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
-					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
-					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
-    HB_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
-    HB_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
-    type = "HE DataIntegrity Problem Map";
-    HE_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
-					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
-					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
-    HE_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
-    HE_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
-    type = "HO DataIntegrity Problem Map";
-    HO_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
-					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
-					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
-    HO_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
-    HO_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
-    type = "HF DataIntegrity Problem Map";
-    HF_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
-					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
-					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
-    HF_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
-    HF_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
-
-    type = "HBHE DataIntegrity Problem Zoo";
-    HBHE_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
-    labelthezoo(HBHE_DATAFORMAT_PROBLEM_ZOO);
-    type = "HF DataIntegrity Problem Zoo";
-    HF_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
-    labelthezoo(HF_DATAFORMAT_PROBLEM_ZOO);
-    type = "HO DataIntegrity Problem Zoo";
-    HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
-    labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
+    ///\\\///type = "00 DataFormat Problem Map";
+    ///\\\///DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+    ///\\\///					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+    ///\\\///					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    ///\\\///DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    ///\\\///DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    ///\\\///type = "00 DataFormat Problem Zoo";
+    ///\\\///DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    ///\\\///labelthezoo(DATAFORMAT_PROBLEM_ZOO);
+    ///\\\///
+    ///\\\///m_dbe->setCurrentFolder(baseFolder_ + "/01 SubDets");
+    ///\\\///type = "HB DataIntegrity Problem Map";
+    ///\\\///HB_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+    ///\\\///					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+    ///\\\///					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    ///\\\///HB_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    ///\\\///HB_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    ///\\\///type = "HE DataIntegrity Problem Map";
+    ///\\\///HE_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+    ///\\\///					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+    ///\\\///					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    ///\\\///HE_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    ///\\\///HE_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    ///\\\///type = "HO DataIntegrity Problem Map";
+    ///\\\///HO_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+    ///\\\///					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+    ///\\\///					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    ///\\\///HO_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    ///\\\///HO_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    ///\\\///type = "HF DataIntegrity Problem Map";
+    ///\\\///HF_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+    ///\\\///					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+    ///\\\///					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    ///\\\///HF_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    ///\\\///HF_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    ///\\\///
+    ///\\\///type = "HBHE DataIntegrity Problem Zoo";
+    ///\\\///HBHE_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    ///\\\///labelthezoo(HBHE_DATAFORMAT_PROBLEM_ZOO);
+    ///\\\///type = "HF DataIntegrity Problem Zoo";
+    ///\\\///HF_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    ///\\\///labelthezoo(HF_DATAFORMAT_PROBLEM_ZOO);
+    ///\\\///type = "HO DataIntegrity Problem Zoo";
+    ///\\\///HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    ///\\\///labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
     
     //m_dbe->setCurrentFolder(baseFolder_ + "/FEDIntegrity");
     m_dbe->setCurrentFolder("Hcal/FEDIntegrity"); // don't make FEDIntegrity part of the DataFormatMonitor folder
@@ -256,7 +256,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "Event Fragment Size for each FED";
     meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
     type = "All Evt Frag Sizes";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,12000,0,12000);
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,2000,0,12000);
 
     type = "Num Event Frags by FED";
     meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5);
@@ -711,14 +711,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     ;}
   if (TTS_state & 0x4) /*BSY*/ {
     meDCC_DataIntegrityCheck_->Fill(bin,18);
-    DATAFORMAT_PROBLEM_ZOO-> Fill(10);}
+    ///\\\///DATAFORMAT_PROBLEM_ZOO-> Fill(10);
+  }
   if (TTS_state & 0x2) /*SYN*/ {
     meDCC_DataIntegrityCheck_->Fill(bin,17);
     meDCC_DataIntegrityCheck_->Fill(bin, 6);           // DCC lost data
     ;}
   if (TTS_state & 0x1) /*OFW*/ {
     meDCC_DataIntegrityCheck_->Fill(bin,19);
-    DATAFORMAT_PROBLEM_ZOO-> Fill(9);
+    ///\\\///DATAFORMAT_PROBLEM_ZOO-> Fill(9);
     mapDCCproblem(dccid);}
 
   ////////// Histogram problems with DCC Event Format compliance;////////////
@@ -1115,22 +1116,22 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
 }
 
 void HcalDataFormatMonitor::labelthezoo(MonitorElement* zoo) {
-  zoo-> setBinLabel(1,"EE - HTR lost",1);    //HTR sent Empty Event
-  zoo-> setBinLabel(2,"LRB lost",1);	    //LRB truncated data
-  zoo-> setBinLabel(3,"FEE",1);		    //CapID or DV not set correctly
-  zoo-> setBinLabel(4,"HAM",1);		    //Corr. & Uncorr. Hamm.
-  zoo-> setBinLabel(5,"HTR CRC",1);	    //DCC found HTR CRC err
-  zoo-> setBinLabel(6,"CMS EvFmt",1);	    //Common Data Format failed check
-  zoo-> setBinLabel(7,"DCC EvFmt",1);	    //DCC Event format failed check
-  zoo-> setBinLabel(8,"HTR EvFmt",1);	    //HTR Event Format failed check
-  zoo-> setBinLabel(9,"DCC OFW",1);	    //DCC Overflow Warning
-  zoo-> setBinLabel(10,"DCC BSY",1);	    //DCC Busy 
-  zoo-> setBinLabel(11,"HTR OFW",1);	    //HTR Overflow Warning
-  zoo-> setBinLabel(12,"HTR BSY",1);	    //HTR Busy 
-  zoo-> setBinLabel(13,"RL1A",1);	    //HTR Rejected L1A
-  zoo-> setBinLabel(14,"BE",1);		    //HTR Bunchcount Error
-  zoo-> setBinLabel(15,"OD",1);		    //Optical Data error  
-  zoo-> setBinLabel(16,"CK",1);		    //Clock Error from HTR              
+///\\\///  zoo-> setBinLabel(1,"EE - HTR lost",1);    //HTR sent Empty Event
+///\\\///  zoo-> setBinLabel(2,"LRB lost",1);	    //LRB truncated data
+///\\\///  zoo-> setBinLabel(3,"FEE",1);		    //CapID or DV not set correctly
+///\\\///  zoo-> setBinLabel(4,"HAM",1);		    //Corr. & Uncorr. Hamm.
+///\\\///  zoo-> setBinLabel(5,"HTR CRC",1);	    //DCC found HTR CRC err
+///\\\///  zoo-> setBinLabel(6,"CMS EvFmt",1);	    //Common Data Format failed check
+///\\\///  zoo-> setBinLabel(7,"DCC EvFmt",1);	    //DCC Event format failed check
+///\\\///  zoo-> setBinLabel(8,"HTR EvFmt",1);	    //HTR Event Format failed check
+///\\\///  zoo-> setBinLabel(9,"DCC OFW",1);	    //DCC Overflow Warning
+///\\\///  zoo-> setBinLabel(10,"DCC BSY",1);	    //DCC Busy 
+///\\\///  zoo-> setBinLabel(11,"HTR OFW",1);	    //HTR Overflow Warning
+///\\\///  zoo-> setBinLabel(12,"HTR BSY",1);	    //HTR Busy 
+///\\\///  zoo-> setBinLabel(13,"RL1A",1);	    //HTR Rejected L1A
+///\\\///  zoo-> setBinLabel(14,"BE",1);		    //HTR Bunchcount Error
+///\\\///  zoo-> setBinLabel(15,"OD",1);		    //Optical Data error  
+///\\\///  zoo-> setBinLabel(16,"CK",1);		    //Clock Error from HTR              
 }
 
 // Public function so HcalMonitorModule can slip in a 
@@ -1143,13 +1144,13 @@ void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId
 }
 
 void HcalDataFormatMonitor::fillzoos(int bin, int dccid) {
-  DATAFORMAT_PROBLEM_ZOO->Fill(bin);
-  if (HBHE_LO_DCC<=dccid && dccid<=HBHE_HI_DCC)
-    HBHE_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
-  if (HF_LO_DCC<=dccid && dccid<=HF_HI_DCC)
-    HF_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
-  if (HO_LO_DCC<=dccid && dccid<=HO_HI_DCC)
-    HO_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
+///\\\///  DATAFORMAT_PROBLEM_ZOO->Fill(bin);
+///\\\///  if (HBHE_LO_DCC<=dccid && dccid<=HBHE_HI_DCC)
+///\\\///    HBHE_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
+///\\\///  if (HF_LO_DCC<=dccid && dccid<=HF_HI_DCC)
+///\\\///    HF_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
+///\\\///  if (HO_LO_DCC<=dccid && dccid<=HO_HI_DCC)
+///\\\///    HO_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
 }
 
 void HcalDataFormatMonitor::mapHTRproblem (int dcc, int spigot) {
@@ -1201,31 +1202,31 @@ void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
 //Scale down the phatmap by the number of events.
 //Replace all bin contents in the DATAFORMAT_PROBLEM_MAP
 void HcalDataFormatMonitor::UpdateMap(void ) {
-  std::vector < std::vector<uint64_t> >::iterator the_eta;
-  std::vector<uint64_t>::iterator the_phi;
-  float val;
-  int eta_ctr, phi_ctr;
-
-  for (eta_ctr=IETAMIN; eta_ctr <= IETAMAX; eta_ctr++) {
-    for (phi_ctr=IPHIMIN; phi_ctr <= IPHIMAX; phi_ctr++) {
-      val = (float) ( phatmap[eta_ctr - IETAMIN][phi_ctr] / ievt_ );
-      DATAFORMAT_PROBLEM_MAP->setBinContent(eta_ctr-IETAMIN+1, phi_ctr+1, val);
-
-      val = (float) ( HBmap[eta_ctr - IETAMIN][phi_ctr]);
-      if (val != 0.0)
-	HB_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);
-
-      val = (float) ( HEmap[eta_ctr - IETAMIN][phi_ctr]);
-      if (val != 0.0) {
-        HE_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);}
-
-      val = (float) ( HFmap[eta_ctr - IETAMIN][phi_ctr]);
-      if (val != 0.0)
-	HF_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);
-
-      val = (float) ( HOmap[eta_ctr - IETAMIN][phi_ctr]);
-      if (val != 0.0)
-	HO_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);
-    }
-  }
+///\\\///  std::vector < std::vector<uint64_t> >::iterator the_eta;
+///\\\///  std::vector<uint64_t>::iterator the_phi;
+///\\\///  float val;
+///\\\///  int eta_ctr, phi_ctr;
+///\\\///
+///\\\///  for (eta_ctr=IETAMIN; eta_ctr <= IETAMAX; eta_ctr++) {
+///\\\///    for (phi_ctr=IPHIMIN; phi_ctr <= IPHIMAX; phi_ctr++) {
+///\\\///      val = (float) ( phatmap[eta_ctr - IETAMIN][phi_ctr] / ievt_ );
+///\\\///      DATAFORMAT_PROBLEM_MAP->setBinContent(eta_ctr-IETAMIN+1, phi_ctr+1, val);
+///\\\///
+///\\\///      val = (float) ( HBmap[eta_ctr - IETAMIN][phi_ctr]);
+///\\\///      if (val != 0.0)
+///\\\///	HB_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);
+///\\\///
+///\\\///      val = (float) ( HEmap[eta_ctr - IETAMIN][phi_ctr]);
+///\\\///      if (val != 0.0) {
+///\\\///        HE_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);}
+///\\\///
+///\\\///      val = (float) ( HFmap[eta_ctr - IETAMIN][phi_ctr]);
+///\\\///      if (val != 0.0)
+///\\\///	HF_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);
+///\\\///
+///\\\///      val = (float) ( HOmap[eta_ctr - IETAMIN][phi_ctr]);
+///\\\///      if (val != 0.0)
+///\\\///	HO_DATAFORMAT_PROBLEM_MAP->Fill(eta_ctr-IETAMIN+1, phi_ctr+1, val);
+///\\\///    }
+///\\\///  }
 }

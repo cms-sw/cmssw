@@ -11,6 +11,8 @@
 #define  HF_HI_DCC   724
 #define  HO_LO_DCC   725
 #define  HO_HI_DCC   731
+#define  HTRCHANMAX   24
+
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
@@ -21,8 +23,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/09/12 15:58:56 $
- * $Revision: 1.32 $
+ * $Date: 2008/09/14 21:47:50 $
+ * $Revision: 1.33 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -103,6 +105,12 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meFEDerrorMap_;
 
   MonitorElement* meFEDRawDataSizes_;
+  MonitorElement* me_HBHE_ZS_SlidingSum;
+  MonitorElement* me_HF_ZS_SlidingSum;
+  MonitorElement* me_HO_ZS_SlidingSum;
+  MonitorElement* me_HBHE_ZS_SlidingSum_US;
+  MonitorElement* me_HF_ZS_SlidingSum_US;
+  MonitorElement* me_HO_ZS_SlidingSum_US;
 
   MonitorElement* fedEntries_;
   MonitorElement* fedFatal_;
@@ -115,6 +123,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   MonitorElement* meDCC_DataIntegrityCheck_;
   MonitorElement* meHalfHTR_DataIntegrityCheck_;
+  MonitorElement* meChannSumm_DataIntegrityCheck_;
+  std::vector<MonitorElement*> meChann_DataIntegrityCheck_;
 
   MonitorElement* meInvHTRData_;
   MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
@@ -160,6 +170,41 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
   MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
 
+  MonitorElement* meCh_DataIntegrity_;        //DataIntegrity for channels, OR'd by spigot
+  MonitorElement* meCh_DataIntegrityFED00_;   //DataIntegrity for channels in FED 00
+  MonitorElement* meCh_DataIntegrityFED01_;   //DataIntegrity for channels in FED 01
+  MonitorElement* meCh_DataIntegrityFED02_;   //DataIntegrity for channels in FED 02
+  MonitorElement* meCh_DataIntegrityFED03_;   //DataIntegrity for channels in FED 03
+  MonitorElement* meCh_DataIntegrityFED04_;   //DataIntegrity for channels in FED 04
+  MonitorElement* meCh_DataIntegrityFED05_;   //DataIntegrity for channels in FED 05
+  MonitorElement* meCh_DataIntegrityFED06_;   //DataIntegrity for channels in FED 06
+  MonitorElement* meCh_DataIntegrityFED07_;   //DataIntegrity for channels in FED 07
+  MonitorElement* meCh_DataIntegrityFED08_;   //DataIntegrity for channels in FED 08
+  MonitorElement* meCh_DataIntegrityFED09_;   //DataIntegrity for channels in FED 09
+  MonitorElement* meCh_DataIntegrityFED10_;   //DataIntegrity for channels in FED 10
+  MonitorElement* meCh_DataIntegrityFED11_;   //DataIntegrity for channels in FED 11
+  MonitorElement* meCh_DataIntegrityFED12_;   //DataIntegrity for channels in FED 12
+  MonitorElement* meCh_DataIntegrityFED13_;   //DataIntegrity for channels in FED 13
+  MonitorElement* meCh_DataIntegrityFED14_;   //DataIntegrity for channels in FED 14
+  MonitorElement* meCh_DataIntegrityFED15_;   //DataIntegrity for channels in FED 15
+  MonitorElement* meCh_DataIntegrityFED16_;   //DataIntegrity for channels in FED 16
+  MonitorElement* meCh_DataIntegrityFED17_;   //DataIntegrity for channels in FED 17
+  MonitorElement* meCh_DataIntegrityFED18_;   //DataIntegrity for channels in FED 18
+  MonitorElement* meCh_DataIntegrityFED19_;   //DataIntegrity for channels in FED 19
+  MonitorElement* meCh_DataIntegrityFED20_;   //DataIntegrity for channels in FED 20
+  MonitorElement* meCh_DataIntegrityFED21_;   //DataIntegrity for channels in FED 21
+  MonitorElement* meCh_DataIntegrityFED22_;   //DataIntegrity for channels in FED 22
+  MonitorElement* meCh_DataIntegrityFED23_;   //DataIntegrity for channels in FED 23
+  MonitorElement* meCh_DataIntegrityFED24_;   //DataIntegrity for channels in FED 24
+  MonitorElement* meCh_DataIntegrityFED25_;   //DataIntegrity for channels in FED 25
+  MonitorElement* meCh_DataIntegrityFED26_;   //DataIntegrity for channels in FED 26
+  MonitorElement* meCh_DataIntegrityFED27_;   //DataIntegrity for channels in FED 27
+  MonitorElement* meCh_DataIntegrityFED28_;   //DataIntegrity for channels in FED 28
+  MonitorElement* meCh_DataIntegrityFED29_;   //DataIntegrity for channels in FED 29
+  MonitorElement* meCh_DataIntegrityFED30_;   //DataIntegrity for channels in FED 30
+  MonitorElement* meCh_DataIntegrityFED31_;   //DataIntegrity for channels in FED 31
+  MonitorElement* Ch_DataInteg_FED[32];       // handy array of pointers to pointers...
+
   MonitorElement* meFib1OrbMsgBCN_;  //BCN of Fiber 1 Orb Msg
   MonitorElement* meFib2OrbMsgBCN_;  //BCN of Fiber 2 Orb Msg
   MonitorElement* meFib3OrbMsgBCN_;  //BCN of Fiber 3 Orb Msg
@@ -172,6 +217,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* DCC_ErrWd_HBHE;
   MonitorElement* DCC_ErrWd_HF;
   MonitorElement* DCC_ErrWd_HO;
+
+  int currFiberChan;
+  void LabelChannInteg(MonitorElement* me_ptr);
+  bool isUnsuppressed (HcalHTRData& payload); //Return the US bit: ExtHdr7[bit 15]
 
   //Member variables for reference values to be used in consistency checks.
   std::map<int, short> CDFversionNumber_list;
