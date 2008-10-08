@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResolutionCalc.cc,v 1.3 2008/03/03 13:45:04 lowette Exp $
+// $Id: ObjectResolutionCalc.cc,v 1.4 2008/03/03 16:45:29 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -77,7 +77,7 @@ int ObjectResolutionCalc::etaBin(float eta) {
   return bin;
 }
 
-
+#if OBSOLETE
 void ObjectResolutionCalc::operator()(Electron & obj) {
   if (useNN_) {
     double v[2];
@@ -210,3 +210,4 @@ void ObjectResolutionCalc::operator()(Tau & obj) {
     obj.setResolutionEta(   this->obsRes(7,bin,obj.et()) );
   }
 }
+#endif
