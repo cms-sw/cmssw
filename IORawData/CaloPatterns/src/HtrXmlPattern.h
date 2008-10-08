@@ -31,6 +31,7 @@ private:
   HtrXmlPatternTool *m_tool;
   HtrXmlPatternToolParameters *m_toolparameters;
   int  m_sets_to_show;
+  int  m_hand_pattern_number;
   bool m_fill_by_hand;
   bool m_filled;
   bool m_write_root_file;

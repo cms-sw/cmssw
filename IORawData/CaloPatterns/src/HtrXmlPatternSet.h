@@ -26,7 +26,7 @@ public:
   void Fill(HtrXmlPatternToolParameters *params,HBHEDigiCollection::const_iterator data);
   void Fill(HtrXmlPatternToolParameters *params,HFDigiCollection::const_iterator data);
   void Fill(HtrXmlPatternToolParameters *params,HODigiCollection::const_iterator data);
-  void Fill_by_hand(const HcalElectronicsMap*);
+  void Fill_by_hand(const HcalElectronicsMap*,int);
 private:
   double fCReal[SAMPLES];
   double fCQuantized[SAMPLES];

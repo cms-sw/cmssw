@@ -11,7 +11,7 @@ ChannelPattern::ChannelPattern() {
   m_sample_pos=0;
 }
 
-void ChannelPattern::Fill_by_hand(const HcalElectronicsMap *emap) {
+void ChannelPattern::Fill_by_hand(const HcalElectronicsMap *emap,int pattern_number) {
 
   for (int iSample=0;iSample<SAMPLES;iSample++) {
     fCCoded    [iSample]=0;
@@ -26,22 +26,22 @@ void ChannelPattern::Fill_by_hand(const HcalElectronicsMap *emap) {
   }
 
   int iCrate;
-  iCrate=4  ;dcc9[iCrate]=   700 ;dcc19[iCrate]=701 ;
-  iCrate=0  ;dcc9[iCrate]=   702 ;dcc19[iCrate]=703 ;
-  iCrate=1  ;dcc9[iCrate]=   704 ;dcc19[iCrate]=705 ;
-  iCrate=5  ;dcc9[iCrate]=   706 ;dcc19[iCrate]=707 ;
-  iCrate=11 ;dcc9[iCrate]=    708;dcc19[iCrate]= 709;
-  iCrate=15 ;dcc9[iCrate]=    710;dcc19[iCrate]= 711;
-  iCrate=17 ;dcc9[iCrate]=    712;dcc19[iCrate]= 713;
-  iCrate=14 ;dcc9[iCrate]=    714;dcc19[iCrate]= 715;
-  iCrate=10 ;dcc9[iCrate]=    716;dcc19[iCrate]= 717;
-  iCrate=2  ;dcc9[iCrate]=   718 ;dcc19[iCrate]=719 ;
-  iCrate=9  ;dcc9[iCrate]=   720 ;dcc19[iCrate]=721 ;
-  iCrate=12 ;dcc9[iCrate]=    722;dcc19[iCrate]= 723;
-  iCrate=3  ;dcc9[iCrate]=   724 ;dcc19[iCrate]=725 ;
-  iCrate=7  ;dcc9[iCrate]=   726 ;dcc19[iCrate]=727 ;
-  iCrate=6  ;dcc9[iCrate]=   728 ;dcc19[iCrate]=729 ;
-  iCrate=13 ;dcc9[iCrate]=    730;dcc19[iCrate]= 731;
+  iCrate=4 ; dcc9[iCrate]=700; dcc19[iCrate]=701;
+  iCrate=0 ; dcc9[iCrate]=702; dcc19[iCrate]=703;
+  iCrate=1 ; dcc9[iCrate]=704; dcc19[iCrate]=705;
+  iCrate=5 ; dcc9[iCrate]=706; dcc19[iCrate]=707;
+  iCrate=11; dcc9[iCrate]=708; dcc19[iCrate]=709;
+  iCrate=15; dcc9[iCrate]=710; dcc19[iCrate]=711;
+  iCrate=17; dcc9[iCrate]=712; dcc19[iCrate]=713;
+  iCrate=14; dcc9[iCrate]=714; dcc19[iCrate]=715;
+  iCrate=10; dcc9[iCrate]=716; dcc19[iCrate]=717;
+  iCrate=2 ; dcc9[iCrate]=718; dcc19[iCrate]=719;
+  iCrate=9 ; dcc9[iCrate]=720; dcc19[iCrate]=721;
+  iCrate=12; dcc9[iCrate]=722; dcc19[iCrate]=723;
+  iCrate=3 ; dcc9[iCrate]=724; dcc19[iCrate]=725;
+  iCrate=7 ; dcc9[iCrate]=726; dcc19[iCrate]=727;
+  iCrate=6 ; dcc9[iCrate]=728; dcc19[iCrate]=729;
+  iCrate=13; dcc9[iCrate]=730; dcc19[iCrate]=731;
 
   int *dcc=0;
   int spigot=-100;
@@ -80,32 +80,44 @@ void ChannelPattern::Fill_by_hand(const HcalElectronicsMap *emap) {
     int depth=hdid.depth();
     int subdet=hdid.subdet();
 
-    if (depth>1) return;
-    if (subdet==4 && etaabs<30) return;
-
-    if ((etaabs+2)%4!=0) return;
-    int i=(etaabs+2)/4;
-    if (i<1 || i>7) return;
-
-    if ((phi+3)%4!=0) return;
-    int j=(phi+3)/4;
-    if (j<1 || j>18) return;
-
-    //add one to BX?
-    if (side<0) fCCoded[phi+10]=i;
-    if (side>0) fCCoded[phi+10]=i+16;
-
+    ///////////////////////////////
+    if (pattern_number==1) {
+      if (m_crate==2 || m_crate==9 || m_crate==12) return;
+      //fill only one channel per half-crate
+      if (m_slot!=2 && m_slot!=13) return;
+      if (m_tb!=0) return;
+      if (m_chan!=5) return;
+  
+      //put some data here
+      fCCoded[31]=17;
+    }
+    ///////////////////////////////
+    if (pattern_number==2) {
+      if (depth>1) return;
+      if (subdet==4 && etaabs<30) return;
+      
+      if ((etaabs+2)%4!=0) return;
+      int i=(etaabs+2)/4;
+      if (i<1 || i>7) return;
+      
+      if ((phi+3)%4!=0) return;
+      int j=(phi+3)/4;
+      if (j<1 || j>18) return;
+      
+      //add one to BX?
+      if (side<0) fCCoded[phi+10]=i;
+      if (side>0) fCCoded[phi+10]=i+16;
+    }
+    ///////////////////////////////
+    if (pattern_number==3) {
+      if (depth>1 || etaabs!=18 || side!=1 || phi!=32) return;
+      std::cout << "hello" << std::endl;
+      //add one to BX?
+      if (side>0) fCCoded[15]=20;
+    }
+    
   }
   catch (...) {return;}
-
-  //if (m_crate==2 || m_crate==9 || m_crate==12) return;
-  ////fill only one channel per half-crate
-  //if (m_slot!=2 && m_slot!=13) return;
-  //if (m_tb!=0) return;
-  //if (m_chan!=5) return;
-  //
-  ////put some data here
-  //fCCoded[31]=17;
 }
 
 void ChannelPattern::Fill(HtrXmlPatternToolParameters* params,HBHEDigiCollection::const_iterator data) {

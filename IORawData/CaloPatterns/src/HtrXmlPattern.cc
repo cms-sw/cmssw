@@ -14,9 +14,10 @@
 HtrXmlPattern::HtrXmlPattern(const edm::ParameterSet& iConfig)
 {
   m_filled=0;
-  m_fill_by_hand    = iConfig.getUntrackedParameter<bool>("fill_by_hand");
-  m_sets_to_show    = iConfig.getUntrackedParameter<int> ("sets_to_show");
-  m_write_root_file = iConfig.getUntrackedParameter<bool>("write_root_file");
+  m_fill_by_hand        = iConfig.getUntrackedParameter<bool>("fill_by_hand");
+  m_hand_pattern_number = iConfig.getUntrackedParameter<int> ("hand_pattern_number");
+  m_sets_to_show        = iConfig.getUntrackedParameter<int> ("sets_to_show");
+  m_write_root_file     = iConfig.getUntrackedParameter<bool>("write_root_file");
 
   m_toolparameters = new HtrXmlPatternToolParameters;
   m_toolparameters->m_show_errors            = iConfig.getUntrackedParameter<bool>       ("show_errors");
@@ -159,7 +160,7 @@ void HtrXmlPattern::do_hand_fill(const HcalElectronicsMap *emap)
 	for (int iChannel=1;iChannel<25;iChannel++) {
 	  ChannelPattern *cp=hhd->getPattern(iChannel);
 	  if (!cp) continue;
-	  cp->Fill_by_hand(emap);
+	  cp->Fill_by_hand(emap,m_hand_pattern_number);
 	}
       }      
     }
