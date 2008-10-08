@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #-----------------------------------------------------------
 #AlCaReco Filtering for HO calibration using cosmicMuon/StandAlonMuon
 #----------------------------------------------------------- 
-hoCalibProducer = cms.EDProducer("AlCaHOCalibProducer",
+hoCalibCosmicsProducer = cms.EDProducer("AlCaHOCalibProducer",
     hbheInput = cms.InputTag("hbhereco"),
     lastTS = cms.untracked.int32(8),
     hotime = cms.untracked.bool(False),

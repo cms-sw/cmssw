@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------------
 from Calibration.HcalAlCaRecoProducers.alcahomuoncosmics_cfi import *
 from Calibration.HcalAlCaRecoProducers.isoMuonHLT_cfi import *
-seqALCARECOHcalCalHO = cms.Sequence(isoMuonHLT*hoCalibProducer)
-#seqALCARECOHcalCalHO = cms.Sequence(hoCalibProducer)
+seqALCARECOHcalCalHOCosmics = cms.Sequence(isoMuonHLT*hoCalibCosmicsProducer)
+#seqALCARECOHcalCalHOCosmics = cms.Sequence(hoCalibProducer)
 
 
