@@ -8,7 +8,11 @@ import FWCore.ParameterSet.Config as cms
 # Full Event content 
 RecoParticleFlowFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*', 
-        'keep recoPFClusters_*_*_*', 
+        'keep recoPFClusters_*_*_*',
+        'keep recoGsfTrackExtras_gsfPFtracks_*_*',
+        'keep recoTrackExtras_gsfPFtracks_*_*',
+        'keep TrackingRecHitsOwned_gsfPFtracks_*_*', 
+        'keep recoGsfTracks_gsfPFtracks_*_*', 
         'keep recoPFBlocks_*_*_*', 
         'keep recoPFCandidates_*_*_*')
 )
@@ -16,12 +20,17 @@ RecoParticleFlowFEVT = cms.PSet(
 RecoParticleFlowRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*', 
         'keep recoPFClusters_*_*_*', 
-        'keep recoPFBlocks_*_*_*', 
+        'keep recoPFBlocks_*_*_*',
+        'keep recoGsfTrackExtras_gsfPFtracks_*_*',
+        'keep recoTrackExtras_gsfPFtracks_*_*',                                           
+        'keep TrackingRecHitsOwned_gsfPFtracks_*_*', 
+        'keep recoGsfTracks_gsfPFtracks_*_*',              
         'keep recoPFCandidates_*_*_*')
 )
 # AOD content
 RecoParticleFlowAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*', 
+    outputCommands = cms.untracked.vstring('drop CaloTowersSorted_towerMakerPF_*_*',
+        'keep recoGsfTracks_gsfPFtracks_*_*',                            
         'keep recoPFCandidates_*_*_*')
 )
 
