@@ -15,10 +15,9 @@ import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
 thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
-thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
-thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
-
-
+thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 7.0
+thPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.7
 
 #TRAJECTORY MEASUREMENT
 thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
@@ -54,7 +53,6 @@ thTrackCandidates.useHitsSplitting = True
 
 #TRACKS
 thWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-from RecoTracker.IterativeTracking.ThVxFilter_cff import *
 thWithMaterialTracks.src = 'thTrackCandidates'
 thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
 
@@ -75,32 +73,19 @@ thClusters = cms.EDFilter("TrackClusterRemover",
 thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     ComponentName = cms.string('ThLayerPairs'),
     layerList = cms.vstring('BPix1+BPix2', 
-        'BPix1+BPix3', 
-        'BPix2+BPix3', 
-        'BPix1+FPix1_pos', 
-        'BPix1+FPix1_neg', 
-        'BPix1+FPix2_pos', 
-        'BPix1+FPix2_neg', 
-        'BPix2+FPix1_pos', 
-        'BPix2+FPix1_neg', 
-        'BPix2+FPix2_pos', 
-        'BPix2+FPix2_neg', 
-        'FPix1_pos+FPix2_pos', 
-        'FPix1_neg+FPix2_neg', 
-        'FPix2_pos+TEC1_pos', 
-        'FPix2_pos+TEC2_pos', 
-        'TEC1_pos+TEC2_pos', 
-        'TEC2_pos+TEC3_pos', 
-        'FPix2_neg+TEC1_neg', 
-        'FPix2_neg+TEC2_neg', 
-        'TEC1_neg+TEC2_neg', 
-        'TEC2_neg+TEC3_neg'),
+        'BPix2+BPix3',
+        'BPix1+FPix1_pos',
+        'BPix1+FPix1_neg',
+        'FPix1_pos+FPix2_pos',
+        'FPix1_neg+FPix2_neg',
+        'FPix2_pos+TEC2_pos',
+        'FPix2_neg+TEC2_neg'),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
         useRingSlector = cms.untracked.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
-        maxRing = cms.int32(1)
+        maxRing = cms.int32(2)
     ),
     BPix = cms.PSet(
         useErrorsFromParam = cms.untracked.bool(True),
@@ -118,17 +103,39 @@ thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     )
 )
 
+#from RecoTracker.IterativeTracking.ThVxFilter_cff import *
+import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+thStepVtx.src = 'thWithMaterialTracks'
+thStepVtx.copyTrajectories = True
+thStepVtx.chi2n_par = 0.9
+thStepVtx.res_par = ( 0.003, 0.001 )
+thStepVtx.d0_par1 = ( 0.9, 3.0 )
+thStepVtx.dz_par1 = ( 0.9, 3.0 )
+thStepVtx.d0_par2 = ( 1.0, 3.0 )
+thStepVtx.dz_par2 = ( 1.0, 3.0 )
+
+thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
+thStepTrk.src = 'thWithMaterialTracks'
+thStepTrk.copyTrajectories = True
+thStepTrk.chi2n_par = 0.5
+thStepTrk.res_par = ( 0.003, 0.001 )
+thStepTrk.minNumberLayers = 5
+thStepTrk.d0_par1 = ( 1.0, 4.0 )
+thStepTrk.dz_par1 = ( 1.0, 4.0 )
+thStepTrk.d0_par2 = ( 1.0, 4.0 )
+thStepTrk.dz_par2 = ( 1.0, 4.0 )
+import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+
+thStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+thStep.TrackProducer1 = 'thStepVtx'
+thStep.TrackProducer2 = 'thStepTrk'
 
 thirdStep = cms.Sequence(thClusters*
                          thPixelRecHits*thStripRecHits*
                          thPLSeeds*
                          thTrackCandidates*
                          thWithMaterialTracks*
+                         thStepVtx*
+                         thStepTrk*
                          thStep)
-
-
-
-
-
-
-
