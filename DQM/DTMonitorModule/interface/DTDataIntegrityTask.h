@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/05/31 15:26:10 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/06/10 14:57:51 $
+ *  $Revision: 1.21 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -42,23 +42,43 @@ public:
   explicit DTDataIntegrityTask( const edm::ParameterSet& ps,edm::ActivityRegistry& reg);
   
   virtual ~DTDataIntegrityTask();
-   
-  void bookHistos(std::string folder, DTROChainCoding code);
+
+
+
+
+
   void TimeHistos(std::string histoType);
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
+  // log number of times the payload of each fed is unpacked 
+  void fedEntry(int dduID);
+  // log number of times the payload of each fed is skipped (no ROS inside)
+  void fedFatal(int dduID);
+  // log number of times the payload of each fed is partially skipped (some ROS skipped)
+  void fedNonFatal(int dduID);
+
   bool eventHasErrors() const;
+  void postBeginJob();
   void postEndJob();
-  
+  void preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime);
+
 private:
+
+  void bookHistos();
+  void bookHistos(std::string folder, DTROChainCoding code);
+  void bookHistosROS25(DTROChainCoding code);
+
+
+
+  std::string topFolder() const;
 
   std::multimap<std::string, std::string> names;
   std::multimap<std::string, std::string>::iterator it;
 
 
-  bool debug;
+
   edm::ParameterSet parameters;
 
   //If you want info VS time histos
@@ -80,6 +100,12 @@ private:
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
   std::map<std::string, std::map<int, MonitorElement*> > robHistos;
+
+  // standard ME for monitoring of FED integrity
+  MonitorElement* hFEDEntry;
+  MonitorElement* hFEDFatal;
+  MonitorElement* hFEDNonFatal;
+
 
   int neventsDDU;
   int neventsROS25;
@@ -103,6 +129,9 @@ private:
   // event error flag: true when errors are detected
   // can be used for the selection of the debug stream
   bool eventErrorFlag;
+
+  // flag to toggle the creation of only the summaries (for HLT running)
+  bool hltMode;
 
 };
 
