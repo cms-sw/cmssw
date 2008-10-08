@@ -5,33 +5,28 @@ import FWCore.ParameterSet.Config as cms
 #---------------------------------------
 from PhysicsTools.PatAlgos.cleaningLayer0.electronCleaner_cfi import allLayer0Electrons
 
-## input source
-allLayer0Electrons.electronSource = cms.InputTag("pixelMatchGsfElectrons")
-## remove duplicates ?
-allLayer0Electrons.removeDuplicates = cms.bool(True)
-## select special ID
-allLayer0Electrons.selection = cms.PSet( type = cms.string('none') )
-## configure isolation for tracker
-allLayer0Electrons.isolation.tracker = cms.PSet(
-    src    = cms.InputTag("patAODElectronIsolations", "eleIsoDepositTk"),
-    deltaR = cms.double(0.3),                                        ## POG suggestion
-    cut    = cms.double(5.0)                                         ## isolation cut (as educated guess)
+allLayer0Electrons.electronSource   = "pixelMatchGsfElectrons"        ## input source
+allLayer0Electrons.removeDuplicates = True                            ## remove duplicates?
+allLayer0Electrons.selection        = cms.PSet(                       ## select special ID
+    type = cms.string('none')
     )
-## configure isolation for ecal
-allLayer0Electrons.isolation.ecal = cms.PSet(
+allLayer0Electrons.isolation.tracker= cms.PSet(                       ## configure isolation for tracker
+    src    = cms.InputTag("patAODElectronIsolations", "eleIsoDepositTk"),
+    deltaR = cms.double(0.3),                                         ## POG suggestion
+    cut    = cms.double(5.0)                                          ## isolation cut (as educated guess)
+    )
+allLayer0Electrons.isolation.ecal   = cms.PSet(                       ## configure isolation for ecal
     src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositEcalFromClusts"),
    #src       = cms.InputTag("patAODElectronIsolations","eleIsoDepositEcalFromHits"), ## recommendation from POG
-    deltaR    = cms.double(0.4),                                     ## POG suggestion
-    cut       = cms.double(5.0)                                      ## isolation cut (as educated guess)
+    deltaR    = cms.double(0.4),                                      ## POG suggestion
+    cut       = cms.double(5.0)                                       ## isolation cut (as educated guess)
     )
-## configure isolation for hcal
-allLayer0Electrons.isolation.hcal = cms.PSet(
+allLayer0Electrons.isolation.hcal   = cms.PSet(                       ## configure isolation for hcal
     src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositHcalFromTowers"),
-    deltaR    = cms.double(0.4),                                     ## POG suggestion
-    cut       = cms.double(5.0)                                      ## isolation cut (as educated guess)
+    deltaR    = cms.double(0.4),                                      ## POG suggestion
+    cut       = cms.double(5.0)                                       ## isolation cut (as educated guess)
     )
-## keep non isolated electrons in the event record
-allLayer0Electrons.bitsToIgnore = cms.vstring('Isolation/All')       ## keep non isolated electrons (but flag them)
+allLayer0Electrons.bitsToIgnore     = ['Isolation/All']               ## keep non isolated electrons (but flag them)
 
 
 #---------------------------------------
@@ -39,41 +34,38 @@ allLayer0Electrons.bitsToIgnore = cms.vstring('Isolation/All')       ## keep non
 #---------------------------------------
 from PhysicsTools.PatAlgos.cleaningLayer0.muonCleaner_cfi import allLayer0Muons
 
-## source input
-allLayer0Muons.muonSource = cms.InputTag("muons")
-## select special ID
-allLayer0Muons.selection = cms.PSet( type = cms.string('none') )
-## configure isolation for tracker
-allLayer0Muons.isolation.tracker = cms.PSet(
-    src     = cms.InputTag("patAODMuonIsolations","muIsoDepositTk"), ##
-    deltaR  = cms.double(0.3),                                       ## POG suggestion
-    cut     = cms.double(2.0)                                        ## isolation cut (as educated guess)
+allLayer0Muons.muonSource           = "muons"                         ## source input
+allLayer0Muons.selection            = cms.PSet(                       ## select special ID
+    type = cms.string('none')
     )
-## configure isolation for ecal
-allLayer0Muons.isolation.ecal = cms.PSet(
+allLayer0Muons.isolation.tracker    = cms.PSet(                       ## configure isolation for tracker
+    src     = cms.InputTag("patAODMuonIsolations","muIsoDepositTk"),  ##
+    deltaR  = cms.double(0.3),                                        ## POG suggestion
+    cut     = cms.double(2.0)                                         ## isolation cut (as educated guess)
+    )
+allLayer0Muons.isolation.ecal       = cms.PSet(                       ## configure isolation for ecal
     src     = cms.InputTag("patAODMuonIsolations","muIsoDepositCalByAssociatorTowersecal"),
-    deltaR  = cms.double(0.3),                                       ## POG suggestion
-    cut     = cms.double(2.0)                                        ## isolation cut (as educated guess)
+    deltaR  = cms.double(0.3),                                        ## POG suggestion
+    cut     = cms.double(2.0)                                         ## isolation cut (as educated guess)
     )
-## configure isolation for hcal
-allLayer0Muons.isolation.hcal = cms.PSet(
+allLayer0Muons.isolation.hcal       = cms.PSet(                       ## configure isolation for hcal
     src = cms.InputTag("patAODMuonIsolations","muIsoDepositCalByAssociatorTowershcal"),
-    deltaR  = cms.double(0.3),                                       ## POG suggestion
-    cut     = cms.double(2.0)                                        ## isolation cut (as educated guess)
+    deltaR  = cms.double(0.3),                                        ## POG suggestion
+    cut     = cms.double(2.0)                                         ## isolation cut (as educated guess)
     )
-allLayer0Muons.isolation.user = cms.VPSet(
-    cms.PSet(
-    src = cms.InputTag("patAODMuonIsolations","muIsoDepositCalByAssociatorTowersho"),
-    deltaR = cms.double(0.3),
-    cut = cms.double(2.0)
-    ),
-    cms.PSet(
-    src = cms.InputTag("patAODMuonIsolations","muIsoDepositJets"),
-    deltaR = cms.double(0.5),
-    cut = cms.double(2.0)
-    ) )
-## keep non isolated muons in the event record
-allLayer0Muons.bitsToIgnore = cms.vstring('Isolation/All')           ## keep non isolated muons (but flag them)
+allLayer0Muons.isolation.user       = cms.VPSet(
+      cms.PSet(
+      src = cms.InputTag("patAODMuonIsolations","muIsoDepositCalByAssociatorTowersho"),
+      deltaR = cms.double(0.3),
+      cut = cms.double(2.0)
+      ),
+      cms.PSet(
+      src = cms.InputTag("patAODMuonIsolations","muIsoDepositJets"),
+      deltaR = cms.double(0.5),
+      cut = cms.double(2.0)
+      )
+    )
+allLayer0Muons.bitsToIgnore         = ['Isolation/All']               ## keep non isolated muons (but flag them)
 
 
 #---------------------------------------
@@ -95,18 +87,17 @@ allLayer0CaloTaus.tauDiscriminatorSource = 'caloRecoTauDiscriminationByIsolation
 #---------------------------------------
 from PhysicsTools.PatAlgos.cleaningLayer0.caloJetCleaner_cfi import allLayer0Jets
 
-## input source
-allLayer0Jets.jetSource = cms.InputTag("iterativeCone5CaloJets")
-## select special ID
-allLayer0Jets.selection = cms.PSet( type = cms.string('none') )
-## remove overlap with isolated electrons
-allLayer0Jets.removeOverlaps = cms.PSet(
+allLayer0Jets.jetSource             = "iterativeCone5CaloJets"        ## input source
+allLayer0Jets.selection             = cms.PSet(                       ## select special ID
+    type = cms.string('none')
+    )
+allLayer0Jets.removeOverlaps        = cms.PSet(                       ## remove overlap with isolated electrons
     electrons = cms.PSet(
-    collection= cms.InputTag("allLayer0Electrons"), ##
-    deltaR    = cms.double(0.3),                    ##
-    cut       = cms.string('pt > 10'),              ## as in LeptonJetIsolationAngle
-    flags     = cms.vstring('Isolation/Tracker'),   ## request the item to be marked as isolated in the tracker
-                                                    ## by the PATElectronCleaner
+    collection= cms.InputTag("allLayer0Electrons"),                   ##
+    deltaR    = cms.double(0.3),                                      ##
+    cut       = cms.string('pt > 10'),                                ## as in LeptonJetIsolationAngle
+    flags     = cms.vstring('Isolation/Tracker'),                     ## request the item to be marked as isolated in the tracker
+                                                                      ## by the PATElectronCleaner
     ) )
 
 
@@ -115,5 +106,4 @@ allLayer0Jets.removeOverlaps = cms.PSet(
 #---------------------------------------
 from PhysicsTools.PatAlgos.cleaningLayer0.caloMetCleaner_cfi import allLayer0METs
 
-## input source
-allLayer0METs.metSource = 'corMetType1Icone5Muons'
+allLayer0METs.metSource             = 'corMetType1Icone5Muons'        ## input source

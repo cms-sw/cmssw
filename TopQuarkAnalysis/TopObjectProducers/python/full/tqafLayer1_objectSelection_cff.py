@@ -32,7 +32,7 @@ selectedLayer1Taus.cut = cms.string('pt > 10. & abs(eta) < 3.0')
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedLayer1Jets
 
 selectedLayer1Jets.src = cms.InputTag("allLayer1Jets")
-selectedLayer1Jets.cut = cms.string('et > 0. & abs(eta) < 3.0 & nConstituents > 0')
+selectedLayer1Jets.cut = cms.string('et > 15. & abs(eta) < 3.0 & nConstituents > 0')
 
 
 #---------------------------------------
