@@ -213,7 +213,7 @@ namespace edm {
           std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
           EntryDescriptionID* ppb = pb.get();
           br->SetAddress(&ppb);
-          br->GetEntry(rootTree.entryNumber());
+          input::getEntry(br, rootTree.entryNumber());
 	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
 	  EventEntryInfo entry(it->second.branchID(),
 		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
@@ -228,7 +228,7 @@ namespace edm {
           std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
           BranchEntryDescription* ppb = pb.get();
           br->SetAddress(&ppb);
-          br->GetEntry(rootTree.entryNumber());
+          input::getEntry(br, rootTree.entryNumber());
           std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	  // Throws parents away for now.

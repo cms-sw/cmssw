@@ -309,7 +309,7 @@ namespace edm {
 	    
 	    if(dataInfo.empty()) {
 	      //FUTURE: empty should just mean all data
-	      throw cms::Exception("Configuration")
+	      throw edm::Exception(errors::Configuration)
 		<< "The record named "
 		<< *itRecordName << " specifies no data items";
 	    }
@@ -1226,7 +1226,7 @@ namespace edm {
     StatusCode returnCode = runCommon(onlineStateTransitions, numberOfEventsToProcess);
 
     if (machine_.get() != 0) {
-      throw cms::Exception("LogicError")
+      throw edm::Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
 	<< "Please report this error to the Framework group\n";
     }
@@ -1374,7 +1374,7 @@ namespace edm {
         }
         // This should be impossible
         else {
-          throw cms::Exception("LogicError")
+          throw edm::Exception(errors::LogicError)
 	    << "Unknown next item type passed to EventProcessor\n"
 	    << "Please report this error to the Framework group\n";
         }

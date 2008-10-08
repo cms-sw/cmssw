@@ -20,27 +20,27 @@ namespace edm {
       ProcessHistory const& ph1 = primary.processHistory();
       ProcessHistory const& ph2 = secondary.processHistory();
       if (ph1 != ph2 && !isAncestor(ph2, ph1)) {
-        throw cms::Exception("Inconsistent Data", "PoolSource::checkConsistency") <<
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           "The secondary file is not an ancestor of the primary file\n";
       }
     }
     void checkConsistency(EventPrincipal const& primary, EventPrincipal const& secondary) {
       if (!isSameEvent(primary, secondary)) {
-        throw cms::Exception("Inconsistent Data", "PoolSource::checkConsistency") <<
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
     }
     void checkConsistency(LuminosityBlockPrincipal const& primary, LuminosityBlockPrincipal const& secondary) {
       if (primary.id() != secondary.id()) {
-        throw cms::Exception("Inconsistent Data", "PoolSource::checkConsistency") <<
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent LuminosityBlockAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
     }
     void checkConsistency(RunPrincipal const& primary, RunPrincipal const& secondary) {
       if (primary.id() != secondary.id()) {
-        throw cms::Exception("Inconsistent Data", "PoolSource::checkConsistency") <<
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
@@ -110,7 +110,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
       } else {
-        throw edm::Exception(errors::NotFound, "PoolSource::readRun_")
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
           << " Run " << primaryPrincipal->run()
           << " is not found in the secondary input files\n";
       }
@@ -128,7 +128,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
       } else {
-        throw edm::Exception(errors::NotFound, "PoolSource::readLuminosityBlock_")
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
           << " Run " << primaryPrincipal->run()
           << " LuminosityBlock " << primaryPrincipal->luminosityBlock()
           << " is not found in the secondary input files\n";
@@ -147,7 +147,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
       } else {
-        throw edm::Exception(errors::NotFound, "PoolSource::readEvent_") <<
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
       return primaryPrincipal;
@@ -164,7 +164,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
       } else {
-        throw edm::Exception(errors::NotFound, "PoolSource::readIt") <<
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readIt") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
       return primaryPrincipal;

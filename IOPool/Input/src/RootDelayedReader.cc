@@ -35,7 +35,7 @@ namespace edm {
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);
-    br->GetEntry(entryNumber_);
+    input::getEntry(br, entryNumber_);
     return p;
   }
 }

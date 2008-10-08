@@ -57,7 +57,7 @@ namespace edm {
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
-      throw cms::Exception("Configuration")
+      throw edm::Exception(errors::Configuration)
         << "Illegal configuration options passed to PoolSource\n"
         << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
         << "or \"eventsToProcess\".\n";
@@ -78,7 +78,7 @@ namespace edm {
       if (rootFile_) {
         forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
         if (forcedRunOffset_ < 0) {
-          throw cms::Exception("Configuration")
+          throw edm::Exception(errors::Configuration)
             << "The value of the 'setRunNumber' parameter must not be\n"
             << "less than the first run number in the first input file.\n"
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
@@ -89,7 +89,7 @@ namespace edm {
     } else {
       Service<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
-        throw cms::Exception("Configuration")
+        throw edm::Exception(errors::Configuration)
           << "A secondary input source requires the RandomNumberGeneratorService\n"
           << "which is not present in the configuration file.  You must add the service\n"
           << "in the configuration file or remove the modules that require it.";
@@ -151,8 +151,12 @@ namespace edm {
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
-    } catch (cms::Exception) {
-      if (!skipBadFiles) throw;
+    }
+    catch (cms::Exception e) {
+      if (!skipBadFiles) {
+	throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
+	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+      }
     }
     if (filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
@@ -166,7 +170,7 @@ namespace edm {
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
-	throw edm::Exception(edm::errors::FatalRootError) <<
+	throw edm::Exception(edm::errors::FileOpenError) <<
 	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
@@ -204,7 +208,7 @@ namespace edm {
 							    fileIter_->fileName(),
 							    matchMode_);
       if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput","RootInputFileSequence::nextFile()") << mergeInfo;
+        throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
     }
     return true;
@@ -228,7 +232,7 @@ namespace edm {
 							    fileIter_->fileName(),
 							    matchMode_);
       if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
+        throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
     }
     if (rootFile_) rootFile_->setToLastEntry();
@@ -547,7 +551,7 @@ namespace edm {
       }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       if (eventsRemainingInFile_ == 0) {
-	throw edm::Exception(edm::errors::FatalRootError) <<
+	throw edm::Exception(edm::errors::NotFound) <<
 	   "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));

@@ -1,6 +1,7 @@
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include<fstream>
@@ -30,7 +31,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
 
   FDEBUG(10) << "Opening Index file" << std::endl;
   if (!ist_->is_open()) {
-       throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
+       throw edm::Exception(errors::FileOpenError, "StreamerInputIndexFile::StreamerInputIndexFile")
           << "Error Opening Input File: "<< name<< "\n";
   } 
   readStartMessage();
@@ -57,7 +58,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& n
      ist_ = new std::ifstream(names.at(i).c_str(), std::ios_base::binary | std::ios_base::in);
      if (!ist_->is_open())
      {
-       throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
+       throw edm::Exception(errors::FileOpenError, "StreamerInputIndexFile::StreamerInputIndexFile")
           << "Error Opening Input File: "<< names.at(i) << "\n";
      }
 
@@ -81,7 +82,7 @@ void StreamerInputIndexFile::readStartMessage() {
   ist_->read((char*)&headerBuf_[sizeof(StartIndexRecordHeader)], sizeof(HeaderView));
   if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView))
   {
-        throw cms::Exception("readStartMessage","StreamerInputFile")
+        throw edm::Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
               << "Empty file encountered\n";
   }
 
@@ -89,7 +90,7 @@ void StreamerInputIndexFile::readStartMessage() {
   uint32 code = head.code();
   if (code != Header::INIT) // ** Not an init message should return ****** /
   {
-    throw cms::Exception("readStartMessage","StreamerInputFile")
+    throw edm::Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
               << "Expecting an init Message at start of file\n";
     return;
   }
@@ -126,7 +127,7 @@ int StreamerInputIndexFile::readEventMessage()  {
 
   //ist_->clear();
   if (eventBuf_.size() < bufPtr + sizeof(HeaderView)) {
-    throw cms::Exception("readEventMessage","StreamerInputFile")
+    throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
       << "eventBuf array is about to overflow, just before first read.\n";
   }
   ist_->read((char*)&eventBuf_[bufPtr], sizeof(HeaderView));
