@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.27 2008/09/16 14:08:44 loizides Exp $
+# $Id: InjectWorker.pl,v 1.28 2008/09/18 00:36:26 loizides Exp $
 
 use strict;
 use DBI;
@@ -9,14 +9,15 @@ use Cwd;
 use Cwd 'abs_path';
 
 ############################################################################################################
-my $debug=0;
+my $debug=0;     # must switch by hand
+my $justnoti=0;  # toggled by SM_JUSTNOTI  
 ############################################################################################################
 my $endflag=0; 
 
 # printout syntax and die
 sub printsyntax()
 {
-    die "Syntax: ./InjectWorker.pl inputpath/file outputpath logpath sm_instance(not required if file input)";
+    die "Syntax: ./InjectWorker.pl inputpath/file outputpath logpath configfile instance(not needed for file)";
 }
 
 # date routine for log file finding / writing
@@ -175,33 +176,37 @@ sub inject($$)
     if ($doNotify==0) {
 	my $stime = gettimestamp($starttime);
 
-	$sth->bind_param(1,$filename);
-	$sth->bind_param(2,$pathname);
-	$sth->bind_param(3,$hostname);
-	$sth->bind_param(4,$setuplabel);
-	$sth->bind_param(5,$stream);
-	$sth->bind_param(6,$type);
-	$sth->bind_param(7,$producer);
-	$sth->bind_param(8,$appname);
-	$sth->bind_param(9,$appversion);
-	$sth->bind_param(10,$runnumber);
-	$sth->bind_param(11,$lumisection);
-	$sth->bind_param(12,$count);
-	$sth->bind_param(13,$instance);
-	$sth->bind_param(14,$stime);
+        if (defined $sth) {
+	    $sth->bind_param(1,$filename);
+	    $sth->bind_param(2,$pathname);
+	    $sth->bind_param(3,$hostname);
+	    $sth->bind_param(4,$setuplabel);
+	    $sth->bind_param(5,$stream);
+	    $sth->bind_param(6,$type);
+	    $sth->bind_param(7,$producer);
+	    $sth->bind_param(8,$appname);
+	    $sth->bind_param(9,$appversion);
+	    $sth->bind_param(10,$runnumber);
+	    $sth->bind_param(11,$lumisection);
+	    $sth->bind_param(12,$count);
+	    $sth->bind_param(13,$instance);
+	    $sth->bind_param(14,$stime);
+        }
     } else {
         my $stime = gettimestamp($stoptime);
 
-	$sth->bind_param(1,$filename);
-	$sth->bind_param(2,$pathname);
-	$sth->bind_param(3,$destination);
-	$sth->bind_param(4,$nevents);
-	$sth->bind_param(5,$filesize);
-	$sth->bind_param(6,$checksum);
-	$sth->bind_param(7,$stime);
-	$sth->bind_param(8,$indfile);
-	$sth->bind_param(9,$indfilesize);
-	$sth->bind_param(10,$commentstr);
+        if (defined $sth) {
+    	    $sth->bind_param(1,$filename);
+	    $sth->bind_param(2,$pathname);
+	    $sth->bind_param(3,$destination);
+	    $sth->bind_param(4,$nevents);
+	    $sth->bind_param(5,$filesize);
+	    $sth->bind_param(6,$checksum);
+	    $sth->bind_param(7,$stime);
+	    $sth->bind_param(8,$indfile);
+	    $sth->bind_param(9,$indfilesize);
+	    $sth->bind_param(10,$commentstr);
+        }
     }
 
     my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
@@ -210,10 +215,9 @@ sub inject($$)
     }
 
     my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber " . 
-        "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
-        "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
-        "--DESTINATION $destination --SETUPLABEL $setuplabel --STREAM $stream --STATUS $status " .
-        "--TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum " . 
+        "--LUMISECTION $lumisection --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename " .
+        "--PATHNAME $pathname --HOSTNAME $hostname --DESTINATION $destination --SETUPLABEL $setuplabel " .
+        "--STREAM $stream --TYPE $type --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum " . 
         "--HLTKEY $hltkey";
 
     if ($indfile ne '') {
@@ -225,6 +229,13 @@ sub inject($$)
             print "DB not defined, just returning 0\n";
             if ($doNotify) {
                 print "$TIERZERO\n";
+                if ($justnoti) {
+                    system($TIERZERO);
+                }
+            }
+        } else {
+            if ($justnoti) {
+                system($TIERZERO);
             }
         }
         return 0;
@@ -310,7 +321,6 @@ if(-e $config) {
     mydie("Error: Can not read config file \"$config\" does not exist","");
     usageShort();
 }
-
 
 my $errfile;
 my $outfile;
@@ -430,23 +440,23 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
             sleep(10);
         }
     }
-
+    
     my $timestr = gettimestr();
     print "$timestr: Setup main DB connection\n";
 
     $SQLn = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
-	"FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
-	"RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
-	"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?," .
-	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+        "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
+        "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?," .
+        "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
     $newHandle = $dbh->prepare($SQLn) or mydie("Error: Prepare failed for $SQLn: $dbh->errstr \n",$lockfile);
-
+    
     $SQLi = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-	"FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE,COMMENT_STR) " .
-	"VALUES (?,?,?,?,?,?," . 
-	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
+        "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE,COMMENT_STR) " .
+        "VALUES (?,?,?,?,?,?," . 
+        "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
     $injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
-
+        
     # this is for HLT key queries
     if ($debug) {print "Setting up DB connection for $dbihlt and $reader\n";}
     $retry = 0;
@@ -461,14 +471,20 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
 
     $timestr = gettimestr();
     print "$timestr: Setup DB connection for HLT key retrieval\n";
- 
+    
     $SQLh = "SELECT STRING_VALUE FROM CMS_RUNINFO.RUNSESSION_PARAMETER " . 
         "WHERE RUNNUMBER=? and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
     $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
 
 } else { 
-    print "Don't access DB flag set \n".
-          "Following commands would have been processed: \n";
+    if ($debug) {
+        print "Don't access DB flag set \n".
+            "Following commands would have been processed: \n";
+    }
+    
+    if (defined $ENV{'SM_JUSTNOTI'}) { 
+        $justnoti=1; # just do the notification
+    }
 }
 
 #loop over input files: sleep and try to reread file once end is reached
@@ -524,31 +540,33 @@ while(!$endflag) {
 
         # query hlt db if hlt was not already obtained
         $ENV{'SM_HLTKEY'} = "UNKNOWN";
-        my $runnumq = $ENV{'SM_RUNNUMBER'};
-        my $hltkey = $hltkeys{$runnumq};
-        if (defined $hltkey) {
-            $ENV{'SM_HLTKEY'}=$hltkey;
-        } else {
-            my $errflag = 0;
-            if ($debug) {print "Quering DB for runnumber $runnumq\n";}
-            $hltHandle->execute($runnumq) or $errflag=1;
-            if ($errflag>0) {
-                print "Error in DB for HLT KEY when executing, DB returned $hltHandle->errstr\n";
+        if (defined $dbhlt) {
+            my $runnumq = $ENV{'SM_RUNNUMBER'};
+            my $hltkey = $hltkeys{$runnumq};
+            if (defined $hltkey) {
+                $ENV{'SM_HLTKEY'}=$hltkey;
             } else {
-                my @row = $hltHandle->fetchrow_array or $errflag=1;
+                my $errflag = 0;
+                if ($debug) {print "Quering DB for runnumber $runnumq\n";}
+                $hltHandle->execute($runnumq) or $errflag=1;
                 if ($errflag>0) {
-                    print "Error in DB for HLT KEY when fetching, DB returned $hltHandle->errstr\n";
+                    print "Error in DB for HLT KEY when executing, DB returned $hltHandle->errstr\n";
                 } else {
-                    if (defined $row[0]) {
-                        $hltkey = $row[0];
-                        $ENV{'SM_HLTKEY'}=$hltkey;
-                        $hltkeys{$runnumq} = $hltkey;
-                        if ($debug) {print "Obtained $hltkey for run $runnumq\n";}
+                    my @row = $hltHandle->fetchrow_array or $errflag=1;
+                    if ($errflag>0) {
+                        print "Error in DB for HLT KEY when fetching, DB returned $hltHandle->errstr\n";
+                    } else {
+                        if (defined $row[0]) {
+                            $hltkey = $row[0];
+                            $ENV{'SM_HLTKEY'}=$hltkey;
+                            $hltkeys{$runnumq} = $hltkey;
+                            if ($debug) {print "Obtained $hltkey for run $runnumq\n";}
+                        }
                     }
                 }
             }
-        }
-	
+	}
+
         # inject and possibly notify
         my $ret=inject($useHandle,$type);
 	    
@@ -580,8 +598,8 @@ while(!$endflag) {
     # from the old file!
     if ($waiting<0 && $thedate ne getdatestr()) {
         sleep(5);
-        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $sminstance\n";}
-	system("$mycall $inpath $outpath $errpath $sminstance &"); 
+        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $config $sminstance\n";}
+	system("$mycall $inpath $outpath $errpath $config $sminstance &"); 
         $waiting=0; #start the waiting counter
     } elsif ($waiting>=0) {
         $waiting++;
@@ -627,7 +645,7 @@ while(!$endflag) {
 
     # check live counter
     $livecounter++;
-    if ($livecounter>360) {
+    if ($livecounter>60) {
         my $timestr = gettimestr();
         print "$timestr: Still alive in main loop\n";
         $livecounter = 0;
