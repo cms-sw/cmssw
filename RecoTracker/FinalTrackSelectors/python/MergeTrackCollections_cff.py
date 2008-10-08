@@ -2,39 +2,31 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 # Track filtering and quality.
-#   input:    firstStepTracksWithQuality,secStep,thStep
+#   input:    firstStepTracksWithQuality,secStep,thStep,pixellessStep
 #   output:   generalTracks
 #   sequence: trackCollectionMerging
 
 #
-mergeFirstTwoSteps = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-mergeFirstTwoSteps.TrackProducer1 = 'firstStepTracksWithQuality'
-mergeFirstTwoSteps.TrackProducer2 = 'secStep'
-mergeFirstTwoSteps.promoteTrackQuality = True
+merge2nd3rdTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+merge2nd3rdTracks.TrackProducer1 = 'secStep'
+merge2nd3rdTracks.TrackProducer2 = 'thStep'
+merge2nd3rdTracks.promoteTrackQuality = True
 
-#
-#merge2nd3rdTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-#merge2nd3rdTracks.TrackProducer1 = 'mergeFirstTwoSteps'
-#merge2nd3rdTracks.TrackProducer2 = 'thStep'
-#merge2nd3rdTracks.promoteTrackQuality = True
-
-
-#
-#generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-#generalTracks.TrackProducer1 = 'merge2nd3rdTracks'
-#generalTracks.TrackProducer2 = 'fourthWithMaterialTracks'
-#generalTracks.promoteTrackQuality = True
-
-
+iterTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+iterTracks.TrackProducer1 = 'merge2nd3rdTracks'
+iterTracks.TrackProducer2 = 'pixellessStep'
+iterTracks.promoteTrackQuality = True
 
 generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-generalTracks.TrackProducer1 = 'mergeFirstTwoSteps'
-generalTracks.TrackProducer2 = 'thStep'
+generalTracks.TrackProducer1 = 'firstStepTracksWithQuality'
+generalTracks.TrackProducer2 = 'iterTracks'
 generalTracks.promoteTrackQuality = True
 
+#generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+#generalTracks.TrackProducer1 = 'firstStepTracksWithQuality'
+#generalTracks.TrackProducer2 = 'merge2nd3rdTracks'
+#generalTracks.promoteTrackQuality = True
 
-
-
-trackCollectionMerging = cms.Sequence(mergeFirstTwoSteps*
-#                                      merge2nd3rdTracks*
+trackCollectionMerging = cms.Sequence(merge2nd3rdTracks*
+                                      iterTracks*
                                       generalTracks)
