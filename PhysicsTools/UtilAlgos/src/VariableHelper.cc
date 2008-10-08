@@ -4,6 +4,7 @@
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
+#include <iomanip>
 
 VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
   std::vector<std::string> psetNames;
@@ -30,6 +31,20 @@ void VariableHelper::print() const{
   for (;it!=it_end;++it)  it->second->print();
 }
 
+std::string VariableHelper::printValues(const edm::Event & event) const{
+  std::stringstream ss;
+  iterator it = variables_.begin();
+  iterator it_end = variables_.end();
+  ss<<std::setw(10)<<event.id().run()<<" : "
+    <<std::setw(10)<<event.id().event();    
+  for (;it!=it_end;++it) {
+    if (it->second->compute(event))
+      ss<<" : "<<it->first<<"="<<(*it->second)(event);
+    else
+      ss<<" : "<<it->first<<" N/A";
+  }
+  return ss.str();
+}
 const CachingVariable* VariableHelper::variable(std::string name) const{ 
   iterator v=variables_.find(name);
   if (v!=variables_.end())

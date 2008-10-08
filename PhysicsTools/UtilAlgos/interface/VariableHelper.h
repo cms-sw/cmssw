@@ -23,6 +23,7 @@ class VariableHelper {
 
   void setHolder(std::string hn);
   void print() const;
+  std::string printValues(const edm::Event & event) const;
  private:
   std::map<std::string,const CachingVariable*> variables_;
 };
@@ -35,9 +36,15 @@ class VariableHelperService {
   VariableHelper * SetVariableHelperUniqueInstance_;
   std::map<std::string, VariableHelper* > multipleInstance_;
 
+  bool printValuesForEachEvent_;
+  std::string printValuesForEachEventCategory_;
  public:
   VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){
     r.watchPreModule(this, &VariableHelperService::preModule );
+    r.watchPostProcessEvent(this, &VariableHelperService::postProcess );
+    printValuesForEachEvent_ = iConfig.exists("printValuesForEachEventCategory");
+    if (printValuesForEachEvent_) 
+      printValuesForEachEventCategory_ = iConfig.getParameter<std::string>("printValuesForEachEventCategory");
   }
   ~VariableHelperService(){
     for (std::map<std::string, VariableHelper* > :: iterator it=multipleInstance_.begin(); it!=multipleInstance_.end(); ++it){
@@ -73,6 +80,18 @@ class VariableHelperService {
     else { 
       //do not say anything but set it to zero to get a safe crash in get() if ever called
       SetVariableHelperUniqueInstance_ =0;}
+  }
+
+  void postProcess(const edm::Event & event, const edm::EventSetup & setup){
+    if (!printValuesForEachEvent_) return;
+    std::map<std::string, VariableHelper* >::iterator f= multipleInstance_.begin();
+    for (; f!=multipleInstance_.end();++f){
+      //      std::cout<<" category is: "<<printValuesForEachEventCategory_+"|"+f->first<<std::endl;
+      //      std::cout<<f->first<<"\n"	       <<f->second->printValues(event);
+
+      edm::LogInfo(printValuesForEachEventCategory_+"|"+f->first)<<f->first<<"\n"
+								 <<f->second->printValues(event);
+    }
   }
 
   VariableHelper & set(std::string user){
