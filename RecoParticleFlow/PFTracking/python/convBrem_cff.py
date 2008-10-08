@@ -28,7 +28,7 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTkCand = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 convTkCand.SeedProducer = 'convBremSeeds'
 convTkCand.TrajectoryBuilder = 'convTrajectoryBuilder'
-convTkCand.TrajectoryCleaner = 'TrajectoryCleanerForShortTracks'
+
 
 ##TRACKS
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
@@ -42,8 +42,6 @@ convTrajectoryBuilder.ComponentName = 'convTrajectoryBuilder'
 convTrajectoryBuilder.trajectoryFilterName = 'convTrajectoryFilter'
 convTrajectoryBuilder.MeasurementTrackerName = 'convMeasurementTracker'
 
-##TRAJECTORY CLEANER
-from RecoParticleFlow.PFTracking.TrajectoryCleanerForShortTracks_cfi import *
 
 ##TRAJECTORY FILTER
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
