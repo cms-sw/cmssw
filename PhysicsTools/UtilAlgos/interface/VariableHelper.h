@@ -22,7 +22,7 @@ class VariableHelper {
   iterator end() { return variables_.end();}
 
   void setHolder(std::string hn);
-  void print();
+  void print() const;
  private:
   std::map<std::string,const CachingVariable*> variables_;
 };
