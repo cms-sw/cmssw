@@ -55,7 +55,9 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
-      DetId RecHitDetID=(**i_Tower).constituent(j);
+      DetId RecHitDetID=(**i_Tower).constituent(j);      
+
+
       DetId::Detector DetNum=RecHitDetID.det();     
       if(DetNum==DetId::Ecal){
 	if((EcalSubdetector)RecHitDetID.subdetId()==EcalBarrel){
@@ -88,6 +90,25 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   }
   return thePositionAndEnergyEcalRecHits;
 }
+
+vector<DetId> CaloRecoTauTagInfoAlgorithm::getVectorDetId(const CaloJetRef& theCaloJet){
+  vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
+  vector<DetId> myDetIds;
+  myDetIds.clear();
+
+  for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
+    size_t numRecHits = (**i_Tower).constituentsSize();
+    for(size_t j=0;j<numRecHits;j++) {
+      DetId RecHitDetID=(**i_Tower).constituent(j);      
+
+      myDetIds.push_back(RecHitDetID);
+    }
+  }
+  return myDetIds;
+}
+
+
+
 
 vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize){
   vector<math::XYZPoint> thepropagTracksECALSurfContactPoints;
