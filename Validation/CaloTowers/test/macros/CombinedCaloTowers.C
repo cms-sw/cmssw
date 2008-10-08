@@ -34,6 +34,15 @@ void CombinedCaloTowers(TString ref_vers="210",
   ProcessSubDetCT(HB_ref_file, HB_val_file, CalTowStream, HB_nHist1, HB_nHistTot, ref_vers, val_vers);
   ProcessSubDetCT(HE_ref_file, HE_val_file, CalTowStream, HE_nHist1, HE_nHistTot, ref_vers, val_vers);
   ProcessSubDetCT(HF_ref_file, HF_val_file, CalTowStream, HF_nHist1, HF_nHistTot, ref_vers, val_vers);
+
+  //Close ROOT files
+  HB_ref_file.Close();
+  HE_ref_file.Close();
+  HF_ref_file.Close();
+
+  HB_val_file.Close();
+  HE_val_file.Close();
+  HF_val_file.Close();
   
   return;  
 }
@@ -82,11 +91,10 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
     val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
-
     //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
     if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
 
-    ref_hist1[nh1]->GetXaxis()->SetRangeUser(0.,xAxisRange);
+    if (xAxisRange > 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(0.,xAxisRange);
     ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
     
     //Different histo colors and styles
@@ -136,7 +144,7 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       char tempbuff[30];
       
       pval = ref_hist1[nh1]->Chi2Test(val_hist1[nh1]);
-      
+
       sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
       mystream<<tempbuff;
       
@@ -150,13 +158,9 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       ptchi2->Draw();
     }
 
-
     myc->SaveAs(OutLabel);
     
     nh1++;
   }
-  //Close ROOT files
-  ref_file.Close();
-  val_file.Close();
+  return;
 }
-
