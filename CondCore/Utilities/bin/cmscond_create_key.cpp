@@ -11,13 +11,15 @@ int main( int argc, char** argv ){
   boost::program_options::options_description visible("Usage: cmscond_create_key_file [options] \n");
   visible.add_options()
     ("fileName,f",boost::program_options::value<std::string>(),"encrypted filename (required)")
-    ("password,p",boost::program_options::value<std::string>(),"encoding password (required)")
+    ("key,k",boost::program_options::value<std::string>(),"encoding key (required)")
+    ("password,p",boost::program_options::value<std::string>(),"password (required)")
     ("outputFile,o",boost::program_options::value<std::string>(),"output key file (required)")
     ("debug","switch on debug mode")
     ("help,h", "help message")
     ;
   desc.add(visible);
   std::string fileName("");
+  std::string key("");
   std::string password("");
   std::string outputFile("");
   bool debug=false;
@@ -34,6 +36,12 @@ int main( int argc, char** argv ){
       std::cerr<<" please do "<<argv[0]<<" --help \n";
     } else {
       fileName=vm["fileName"].as<std::string>();
+    }
+    if( !vm.count("key") ){
+      std::cerr <<"[Error] no key[k] option given \n";
+      std::cerr<<" please do "<<argv[0]<<" --help \n";
+    } else {
+      key=vm["key"].as<std::string>();
     }
     if( !vm.count("password") ){
       std::cerr <<"[Error] no password[p] option given \n";
@@ -57,7 +65,7 @@ int main( int argc, char** argv ){
   }
 
   try{
-    cond::DecodingKey::createFile(password,fileName,outputFile);
+    cond::DecodingKey::createFile(password,key,fileName,outputFile);
   } catch (const cond::Exception& ex){
     std::cout<<"error "<<ex.what()<<std::endl;
     return 1;
