@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.20 2008/07/08 20:56:48 gpetrucc Exp $
+// $Id: Jet.cc,v 1.21 2008/07/21 12:37:22 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -194,15 +194,6 @@ Jet Jet::bCorrJet() const {
   jet.setP4(jetCorrF_.scaleB() * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
   jet.setNoCorrFactor(1. / jetCorrF_.scaleB());
-  // set the resolutions assuming this jet to be a b-jet
-  jet.setResolutionA(bResA_);
-  jet.setResolutionB(bResB_);
-  jet.setResolutionC(bResC_);
-  jet.setResolutionD(bResD_);
-  jet.setResolutionEt(bResEt_);
-  jet.setResolutionEta(bResEta_);
-  jet.setResolutionPhi(bResPhi_);
-  jet.setResolutionTheta(bResTheta_);
   jet.setCovMatrix(bCovM_);
   return jet;
 }
@@ -340,20 +331,6 @@ void Jet::setJetCorrFactors(const JetCorrFactors & jetCorrF) {
 void Jet::setNoCorrFactor(float noCorrF) {
   noCorrF_ = noCorrF;
 }
-
-
-/// method to set the resolutions under the assumption this is a b-jet
-void Jet::setBResolutions(float bResEt, float bResEta, float bResPhi, float bResA, float bResB, float bResC, float bResD, float bResTheta) {
-  bResEt_ = bResEt;
-  bResEta_ = bResEta;
-  bResPhi_ = bResPhi;
-  bResA_ = bResA;
-  bResB_ = bResB;
-  bResC_ = bResC;
-  bResD_ = bResD;
-  bResTheta_ = bResTheta;
-}
-
 
 /// method to add a algolabel-discriminator pair
 void Jet::addBDiscriminatorPair(const std::pair<std::string, float> & thePair) {

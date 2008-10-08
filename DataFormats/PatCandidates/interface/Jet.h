@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.24 2008/10/06 14:05:52 gpetrucc Exp $
+// $Id: Jet.h,v 1.25 2008/10/08 11:44:31 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.24 2008/10/06 14:05:52 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.25 2008/10/08 11:44:31 fronga Exp $
 */
 
 
@@ -147,8 +147,6 @@ namespace pat {
       void setJetCorrFactors(const JetCorrFactors & jetCorrF);
       /// method to set correction factor to go back to an uncorrected jet
       void setNoCorrFactor(float noCorrF);
-      /// method to set the resolutions under the assumption this is a b-jet
-      void setBResolutions(float bResEt_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
 
@@ -271,8 +269,6 @@ namespace pat {
       // energy scale correction factors
       JetCorrFactors jetCorrF_;
       float noCorrF_;
-      // additional resolutions for the b-jet hypothesis
-      float bResEt_, bResEta_, bResPhi_, bResA_, bResB_, bResC_, bResD_, bResTheta_;
       std::vector<float> bCovM_;
       // b-tag related members
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;

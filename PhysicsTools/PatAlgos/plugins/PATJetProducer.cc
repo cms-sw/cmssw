@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.23 2008/09/30 21:33:05 srappocc Exp $
+// $Id: PATJetProducer.cc,v 1.24 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -75,10 +75,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   jetCharge_               = iConfig.getParameter<edm::InputTag>	      ( "jetChargeSource" );
 
   // construct resolution calculator
-  if (addResolutions_) {
-    theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
-    theBResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliBJetResoFile_).fullPath(), useNNReso_);
-  }
+//   if (addResolutions_) {
+//     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
+//     theBResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliBJetResoFile_).fullPath(), useNNReso_);
+//   }
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -119,10 +119,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
 
 
 PATJetProducer::~PATJetProducer() {
-  if (addResolutions_) {
-    delete theResoCalc_;
-    delete theBResoCalc_;
-  }
+//   if (addResolutions_) {
+//     delete theResoCalc_;
+//     delete theBResoCalc_;
+//   }
 }
 
 
@@ -246,12 +246,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
 
     // add resolution info if demanded
-    if (addResolutions_) {
-      (*theResoCalc_)(ajet);
-      Jet abjet(ajet.bCorrJet());
-      (*theBResoCalc_)(abjet);
-      ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
-    }
+//     if (addResolutions_) {
+//       (*theResoCalc_)(ajet);
+//       Jet abjet(ajet.bCorrJet());
+//       (*theBResoCalc_)(abjet);
+//       ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
+//     }
 
     // add b-tag info if available & required
     if (addBTagInfo_) {

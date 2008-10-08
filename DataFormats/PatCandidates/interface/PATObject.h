@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATObject.h,v 1.19 2008/10/07 18:21:35 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.18 2008/10/07 17:46:15 gpetrucc Exp $
+  \version  $Id: PATObject.h,v 1.19 2008/10/07 18:21:35 lowette Exp $
 */
 
 
@@ -60,43 +60,14 @@ namespace pat {
       const reco::Candidate * originalObject() const;
       /// reference to original object. Returns a null reference if not available
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
-      /// standard deviation on A (see CMS Note 2006/023)
-      float resolutionA() const;
-      /// standard deviation on B (see CMS Note 2006/023)
-      float resolutionB() const;
-      /// standard deviation on C (see CMS Note 2006/023)
-      float resolutionC() const;
-      /// standard deviation on D (see CMS Note 2006/023)
-      float resolutionD() const;
-      /// standard deviation on transverse energy
-      float resolutionEt() const;
-      /// standard deviation on pseudorapidity
-      float resolutionEta() const;
-      /// standard deviation on azimuthal angle
-      float resolutionPhi() const;
-      /// standard deviation on polar angle
-      float resolutionTheta() const;
+
       /// covariance matrix elements
       const std::vector<float> & covMatrix() const;
       /// trigger matches
       const std::vector<TriggerPrimitive> & triggerMatches() const;
       const std::vector<TriggerPrimitive> triggerMatchesByFilter(const std::string & aFilt) const;
-      /// set standard deviation on A (see CMS Note 2006/023)
-      void setResolutionA(float a);
-      /// set standard deviation on B (see CMS Note 2006/023)
-      void setResolutionB(float b);
-      /// set standard deviation on C (see CMS Note 2006/023)
-      void setResolutionC(float c);
-      /// set standard deviation on D (see CMS Note 2006/023)
-      void setResolutionD(float d);
-      /// set standard deviation on transverse energy
-      void setResolutionEt(float et);
-      /// set standard deviation on pseudorapidity
-      void setResolutionEta(float eta);
-      /// set standard deviation on azimuthal angle
-      void setResolutionPhi(float phi);
-      /// set standard deviation on polar angle
-      void setResolutionTheta(float theta);
+
+
       /// set covariance matrix elements
       void setCovMatrix(const std::vector<float> & c);
       /// add a trigger match
@@ -218,22 +189,7 @@ namespace pat {
     protected:
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
-      /// standard deviation on transverse energy
-      float resEt_;
-      /// standard deviation on pseudorapidity
-      float resEta_;
-      /// standard deviation on azimuthal angle
-      float resPhi_;
-      /// standard deviation on A (see CMS Note 2006/023)
-      float resA_;
-      /// standard deviation on B (see CMS Note 2006/023)
-      float resB_;
-      /// standard deviation on C (see CMS Note 2006/023)
-      float resC_;
-      /// standard deviation on D (see CMS Note 2006/023)
-      float resD_;
-      /// standard deviation on polar angle
-      float resTheta_;
+
       // covariance matrix elements
       std::vector<float> covM_;
       /// vector of trigger matches
@@ -264,27 +220,24 @@ namespace pat {
   };
 
 
-  template <class ObjectType> PATObject<ObjectType>::PATObject() :
-    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0), resTheta_(0) {
+  template <class ObjectType> PATObject<ObjectType>::PATObject() {
   }
 
   template <class ObjectType> PATObject<ObjectType>::PATObject(const ObjectType & obj) :
     ObjectType(obj),
-    refToOrig_(),
-    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+    refToOrig_() {
   }
 
   template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::RefToBase<ObjectType> & ref) :
     ObjectType(*ref),
-    refToOrig_(ref.id(), ref.get(), ref.key()), // correct way to convert RefToBase=>Ptr, if ref is guaranteed to be available
-                                                // which happens to be true, otherwise the line before this throws ex. already
-    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
-  }
+    refToOrig_(ref.id(), ref.get(), ref.key()) // correct way to convert RefToBase=>Ptr, if ref is guaranteed to be available
+                                               // which happens to be true, otherwise the line before this throws ex. already
+      {
+      }
 
   template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::Ptr<ObjectType> & ref) :
     ObjectType(*ref),
-    refToOrig_(ref),
-    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+    refToOrig_(ref) {
   }
 
 
@@ -304,30 +257,6 @@ namespace pat {
   const edm::Ptr<reco::Candidate> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
 
   template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionEt() const { return resEt_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionEta() const { return resEta_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionPhi() const { return resPhi_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionA() const { return resA_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionB() const { return resB_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionC() const { return resC_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionD() const { return resD_; }
-
-  template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionTheta() const { return resTheta_; }
-
-  template <class ObjectType> 
   const std::vector<float> & PATObject<ObjectType>::covMatrix() const { return covM_; }
   
   template <class ObjectType>
@@ -341,30 +270,6 @@ namespace pat {
     }
     return selectedMatches;
   }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionEt(float et) { resEt_ = et; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionEta(float eta) { resEta_ = eta; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionPhi(float phi) { resPhi_ = phi; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionA(float a) { resA_ = a; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionB(float b) { resB_ = b; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionC(float c) { resC_ = c; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionD(float d) { resD_ = d; }
-
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionTheta(float theta) { resTheta_ = theta; }
 
   template <class ObjectType> 
   void PATObject<ObjectType>::setCovMatrix(const std::vector<float> & c) {
