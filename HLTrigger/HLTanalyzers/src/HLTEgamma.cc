@@ -297,7 +297,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       NonIsoTrackEleIsolMapLW);
   std::sort(theHLTElectronsLargeWindows.begin(), theHLTElectronsLargeWindows.end(), EtGreater());
   nhlteleLW = theHLTElectronsLargeWindows.size();
-  for (int u = 0; u < nhltele; u++) {
+  for (int u = 0; u < nhlteleLW; u++) {
     heleetLW[u]         = theHLTElectronsLargeWindows[u].Et;
     heleetaLW[u]        = theHLTElectronsLargeWindows[u].eta;
     helephiLW[u]        = theHLTElectronsLargeWindows[u].phi;
