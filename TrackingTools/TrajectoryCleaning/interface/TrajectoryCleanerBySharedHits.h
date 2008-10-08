@@ -19,6 +19,8 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
 
   typedef std::vector<Trajectory*> 	TrajectoryPointerContainer;
 
+  TrajectoryCleanerBySharedHits() :
+    theFraction(0.5){}
   TrajectoryCleanerBySharedHits(const edm::ParameterSet & iConfig) :
     theFraction(iConfig.getParameter<double>("fractionShared")){}
 
