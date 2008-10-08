@@ -17,9 +17,8 @@ hoCalibProducer = cms.EDProducer("AlCaHOCalibProducer",
     RootFileName = cms.untracked.string('test.root'),
     m_scale = cms.untracked.double(4.0),
     debug = cms.untracked.bool(False),
-    #        untracked InputTag muons =cosmicMuons     # standAloneMuons
-    #muons = cms.untracked.InputTag("cosmicMuons"),
-    muons = cms.untracked.InputTag("standAloneMuons"),
+    muons = cms.untracked.InputTag("cosmicMuons"),
+    #muons = cms.untracked.InputTag("standAloneMuons"),
     firstTS = cms.untracked.int32(5),
     PedestalFile = cms.untracked.string('peds_mtcc2_4333.log')
 )
