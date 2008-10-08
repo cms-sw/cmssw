@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.15 2008/08/27 22:41:10 biery Exp $
+// $Id: ServiceManager.cc,v 1.16 2008/09/04 17:46:21 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -39,13 +39,8 @@ ServiceManager::~ServiceManager()
 }
 
 
-void ServiceManager::stop()
+void ServiceManager::start()
 {
-  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end();
-      it != itEnd; ++it) {
-      (*it)->stop();
-  }
-
   psetHLTOutputLabels_.clear();
   for (unsigned int idx = 0; idx < outModPSets_.size(); idx++) {
     psetHLTOutputLabels_.push_back(std::string());  // empty string
@@ -60,6 +55,15 @@ void ServiceManager::stop()
   timeouttime_ = 0;
   lasttimechecked_ = 0;
   errorStreamCreated_ = false;
+}
+
+
+void ServiceManager::stop()
+{
+  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end();
+      it != itEnd; ++it) {
+      (*it)->stop();
+  }
 }
 
 

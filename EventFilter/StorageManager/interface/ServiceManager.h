@@ -1,7 +1,7 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.10 2008/08/27 22:34:41 biery Exp $
+// $Id: ServiceManager.h,v 1.11 2008/09/04 17:46:21 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
@@ -32,6 +32,7 @@ namespace edm
     explicit ServiceManager(const std::string& config);
     ~ServiceManager(); 
     
+    void start(); 
     void stop(); 
     
     void manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, 

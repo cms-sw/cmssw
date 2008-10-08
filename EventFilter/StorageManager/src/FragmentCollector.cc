@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.40 2008/08/13 22:48:12 biery Exp $
+// $Id: FragmentCollector.cc,v 1.41 2008/09/04 17:49:07 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -98,6 +98,7 @@ namespace stor
   void FragmentCollector::start()
   {
     me_.reset(new boost::thread(boost::bind(FragmentCollector::run,this)));
+    writer_->start();
   }
 
   void FragmentCollector::join()

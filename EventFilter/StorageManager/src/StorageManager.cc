@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.83 2008/09/20 12:51:18 biery Exp $
+// $Id: StorageManager.cc,v 1.84 2008/09/23 19:09:51 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -152,6 +152,11 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("fileSize",      &fileSize_);
   ispace->fireItemAvailable("namesOfStream",      &namesOfStream_);
   ispace->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
+
+  ispace->fireItemAvailable("rcmsStateListener", &rcmsStateListener_);
+  ispace->fireItemAvailable("foundRcmsStateListener", &foundRcmsStateListener_);
+
+  ispace->addItemRetrieveListener("closedFiles", this);
 
   // Bind specific messages to functions
   i2o::bind(this,
@@ -4389,6 +4394,8 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     // the rethrows below need to be XDAQ exception types (JBK)
     try {
 
+      fsm_.findRcmsStateListener();
+
       jc_.reset(new stor::JobController(my_config, &deleteSMBuffer));
       
       int disks(nLogicalDisk_);
@@ -4563,15 +4570,23 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
 
 void StorageManager::stopAction()
 {
+  jc_->stop();
+  jc_->join();
+
+  // 08-Oct-2008, KAB
+  // The file statistics need to be determined after we close
+  // the files, n'est pas?  And since the file closing is
+  // done underneath jc.stop(), the following code needs
+  // to come after jc_->stop(), I believe.
   std::list<std::string>& files = jc_->get_filelist();
   std::list<std::string>& currfiles= jc_->get_currfiles();
   closedFiles_ = files.size() - currfiles.size();
   openFiles_ = currfiles.size();
-  
+
   unsigned int totInFile = 0;
   for(list<string>::const_iterator it = files.begin();
       it != files.end(); it++)
-    {
+  {
       string name;
       unsigned int nev;
       unsigned long long size;
@@ -4581,28 +4596,24 @@ void StorageManager::stopAction()
       totInFile += nev;
       fileSize_.push_back((unsigned int) (size / 1048576));
       FDEBUG(5) << name << " " << nev << " " << size << std::endl;
-    }
+  }
   receivedEventsFromOutMod_.clear();
   namesOfOutMod_.clear();
   idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
   for( ; oi != oe; ++oi) {
-    receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
-    namesOfOutMod_.push_back(oi->second);
+      receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
+      namesOfOutMod_.push_back(oi->second);
   }
   storedEvents_ = 0;
   storedEventsInStream_.clear();
   // following is thread safe as size of all_storedEvents is fixed (number of streams)
   std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
   for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
-    it != itEnd; ++it) {
+      it != itEnd; ++it) {
       storedEvents_ = storedEvents_ + (*it);
       storedEventsInStream_.push_back(*it);
   }
   
-  jc_->stop();
-
-  jc_->join();
-
   // should clear the event server(s) last event/queue
   boost::shared_ptr<EventServer> eventServer;
   boost::shared_ptr<DQMEventServer> dqmeventServer;
