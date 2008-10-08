@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
+// $Id: Tau.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
+  \version  $Id: Tau.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
 */
 
 
@@ -217,12 +217,6 @@ namespace pat {
       // ---- PFTau specific variables  ----
       /// holder for PFTau info, or empty vector if CaloTau
       std::vector<pat::tau::TauPFSpecific> pfSpecific_;
-      // ---- PAT specific variables (to be superseded by POG recommendation) ----
-      float emEnergyFraction_;
-      float eOverP_;
-      float leadeOverP_;
-      float HhotOverP_;
-      float HtotOverP_;
 
   };
 
