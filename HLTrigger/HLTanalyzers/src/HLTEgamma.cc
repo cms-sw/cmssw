@@ -514,8 +514,8 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
   // if there are electrons, then the isolation maps and the SC should be in the event; if not it is an error
 
   if (recoNonIsolecalcands.isValid()) {
-    for(reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoNonIsolecalcands->begin();
-                                        recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) {
+    for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand = recoNonIsolecalcands->begin();
+         recoecalcand!= recoNonIsolecalcands->end(); recoecalcand++) {
       //get the ref to the SC:
       reco::RecoEcalCandidateRef ref = reco::RecoEcalCandidateRef(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(), recoecalcand));
       reco::SuperClusterRef recrSC = ref->superCluster();
@@ -556,8 +556,8 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       if (electronNonIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
-        for(reco::ElectronCollection::const_iterator iElectron = electronNonIsoHandle->begin(); iElectron !=
-              electronNonIsoHandle->end();iElectron++) {
+        for (reco::ElectronCollection::const_iterator iElectron = electronNonIsoHandle->begin(); 
+             iElectron != electronNonIsoHandle->end();iElectron++) {
           // 1) find the SC from the electron
           electronref = reco::ElectronRef(electronNonIsoHandle, iElectron - electronNonIsoHandle->begin());
           const reco::SuperClusterRef theClus = electronref->superCluster(); //SC from the electron;
@@ -640,8 +640,8 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
       int nmatch = 0;
 
       if (L1IsoPixelSeedsMap.isValid()) {
-        for(reco::ElectronPixelSeedCollection::const_iterator it = L1IsoPixelSeedsMap->begin();
-            it != L1IsoPixelSeedsMap->end(); it++) {
+        for (reco::ElectronPixelSeedCollection::const_iterator it = L1IsoPixelSeedsMap->begin();
+             it != L1IsoPixelSeedsMap->end(); it++) {
           const reco::SuperClusterRef & scRef = it->superCluster();
           if (&(*recrSC) == &(*scRef)) { nmatch++;}
         }
@@ -653,8 +653,8 @@ void HLTEgamma::MakeL1IsolatedElectronsLargeWindows(
       if (electronIsoHandle.isValid()) {
         bool FirstElectron = true;
         reco::ElectronRef electronref;
-        for(reco::ElectronCollection::const_iterator iElectron = electronIsoHandle->begin(); iElectron !=
-              electronIsoHandle->end();iElectron++) {
+        for (reco::ElectronCollection::const_iterator iElectron = electronIsoHandle->begin();
+             iElectron != electronIsoHandle->end();iElectron++) {
           // 1) find the SC from the electron
           electronref = reco::ElectronRef(electronIsoHandle, iElectron - electronIsoHandle->begin());
           const reco::SuperClusterRef theClus = electronref->superCluster(); //SC from the electron;
