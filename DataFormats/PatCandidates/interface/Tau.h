@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.16 2008/09/19 21:13:16 cbern Exp $
+// $Id: Tau.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.16 2008/09/19 21:13:16 cbern Exp $
+  \version  $Id: Tau.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
 */
 
 
@@ -29,7 +29,16 @@
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class Tau;
+  typedef std::vector<Tau>              TauCollection; 
+  typedef edm::Ref<TauCollection>       TauRef; 
+  typedef edm::RefVector<TauCollection> TauRefVector; 
+}
 
+
+// Class definition
 namespace pat {
 
 

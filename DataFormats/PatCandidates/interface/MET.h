@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.14 2008/09/26 15:13:11 chrjones Exp $
+// $Id: MET.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
-  \version  $Id: MET.h,v 1.14 2008/09/26 15:13:11 chrjones Exp $
+  \version  $Id: MET.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
 */
 
 
@@ -25,6 +25,15 @@
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
 
+// Define typedefs for convenience
+namespace pat {
+  class MET;
+  typedef std::vector<MET>              METCollection; 
+  typedef edm::Ref<METCollection>       METRef; 
+  typedef edm::RefVector<METCollection> METRefVector; 
+}
+
+// Class definition
 namespace pat {
 
 

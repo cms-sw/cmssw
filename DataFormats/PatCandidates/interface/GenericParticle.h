@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.3 2008/07/08 20:56:48 gpetrucc Exp $
+// $Id: GenericParticle.h,v 1.4 2008/07/22 12:44:19 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.3 2008/07/08 20:56:48 gpetrucc Exp $
+  \version  $Id: GenericParticle.h,v 1.4 2008/07/22 12:44:19 gpetrucc Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -26,7 +26,16 @@
 #include "DataFormats/PatCandidates/interface/Vertexing.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class GenericParticle;
+  typedef std::vector<GenericParticle>              GenericParticleCollection; 
+  typedef edm::Ref<GenericParticleCollection>       GenericParticleRef; 
+  typedef edm::RefVector<GenericParticleCollection> GenericParticleRefVector; 
+}
 
+
+// Class definition
 namespace pat {
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.23 2008/07/21 11:10:51 gpetrucc Exp $
+// $Id: Jet.h,v 1.24 2008/10/06 14:05:52 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.23 2008/07/21 11:10:51 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.24 2008/10/06 14:05:52 gpetrucc Exp $
 */
 
 
@@ -41,6 +41,15 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class Jet;
+  typedef std::vector<Jet>              JetCollection; 
+  typedef edm::Ref<JetCollection>       JetRef; 
+  typedef edm::RefVector<JetCollection> JetRefVector; 
+}
+
+// Class definition
 namespace pat {
 
   typedef reco::Jet JetType;

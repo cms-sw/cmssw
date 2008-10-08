@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
+// $Id: Electron.h,v 1.16 2008/10/07 18:49:59 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
+  \version  $Id: Electron.h,v 1.16 2008/10/07 18:49:59 lowette Exp $
 */
 
 
@@ -25,14 +25,21 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
-//#include <iostream>
 
+// Define typedefs for convenience
 namespace pat {
+  class Electron;
+  typedef std::vector<Electron>              ElectronCollection; 
+  typedef edm::Ref<ElectronCollection>       ElectronRef; 
+  typedef edm::RefVector<ElectronCollection> ElectronRefVector; 
+}
 
+
+// Class definition
+namespace pat {
 
   typedef reco::GsfElectron ElectronType;
   typedef reco::GsfElectronCollection ElectronTypeCollection;
-
 
   class Electron : public Lepton<ElectronType> {
 

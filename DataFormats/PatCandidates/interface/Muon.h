@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.16 2008/10/03 14:26:30 cbern Exp $
+// $Id: Muon.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.16 2008/10/03 14:26:30 cbern Exp $
+  \version  $Id: Muon.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
 */
 
 
@@ -30,7 +30,16 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class Muon;
+  typedef std::vector<Muon>              MuonCollection; 
+  typedef edm::Ref<MuonCollection>       MuonRef; 
+  typedef edm::RefVector<MuonCollection> MuonRefVector; 
+}
 
+
+// Class definition
 namespace pat {
 
 

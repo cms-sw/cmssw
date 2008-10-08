@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.14 2008/07/08 20:56:48 gpetrucc Exp $
+// $Id: Photon.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.14 2008/07/08 20:56:48 gpetrucc Exp $
+  \version  $Id: Photon.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -26,7 +26,16 @@
 #include "DataFormats/PatCandidates/interface/Isolation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class Photon;
+  typedef std::vector<Photon>              PhotonCollection; 
+  typedef edm::Ref<PhotonCollection>       PhotonRef; 
+  typedef edm::RefVector<PhotonCollection> PhotonRefVector; 
+}
 
+
+// Class definition
 namespace pat {
 
 
