@@ -14,8 +14,9 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 
-// #include "TDirectory.h"
-// #include "TH1F.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+
 #include <iostream>
 
 using namespace std;
@@ -79,8 +80,9 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
     m_makeNtuple = true;
   if ( m_makeNtuple ) {
     theFile      = new TFile  (theNtupleFileName.c_str(),"RECREATE");
-    TString vars = "genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:";
-    vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5";
+    TString vars = "genMom:genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:";
+    vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5:";
+    vars        += "sumIso20:sumIso24:sumIso30";
     theNtuple    = new TNtuple("nt","data",vars);
   }
 
@@ -310,21 +312,31 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   // Fill ntuple & histograms
     
   if ( m_makeNtuple ) {
+    Handle<reco::IsoDepositMap> depMap;
+    iEvent.getByLabel("hltL2MuonIsolations",depMap);
     for ( size_t i = 0; i < genMatches.size(); i++ ) {
-      for ( int k = 0; k < 18; k++ ) theNtupleParameters[k] = -1;
-      theNtupleParameters[0] =  genMatches[i].genCand->pt();
-      theNtupleParameters[1] =  genMatches[i].genCand->eta();
-      theNtupleParameters[2] =  genMatches[i].genCand->phi();
+      for ( int k = 0; k < 50; k++ ) theNtupleParameters[k] = -1;
+      theNtupleParameters[0] =  (findMother(genMatches[i].genCand))->pdgId();
+      theNtupleParameters[1] =  genMatches[i].genCand->pt();
+      theNtupleParameters[2] =  genMatches[i].genCand->eta();
+      theNtupleParameters[3] =  genMatches[i].genCand->phi();
       if ( genMatches[i].l1Cand ) {
-	theNtupleParameters[3] = genMatches[i].l1Cand->pt();
-	theNtupleParameters[4] = genMatches[i].l1Cand->eta();
-	theNtupleParameters[5] = genMatches[i].l1Cand->phi();
+	theNtupleParameters[4] = genMatches[i].l1Cand->pt();
+	theNtupleParameters[5] = genMatches[i].l1Cand->eta();
+	theNtupleParameters[6] = genMatches[i].l1Cand->phi();
       }
       for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
 	if ( genMatches[i].hltCands[j] ) {
-	  theNtupleParameters[(j*3+6)] = genMatches[i].hltCands[j]->pt();
-	  theNtupleParameters[(j*3+7)] = genMatches[i].hltCands[j]->eta();
-	  theNtupleParameters[(j*3+8)] = genMatches[i].hltCands[j]->phi();
+	  theNtupleParameters[(j*3+7)] = genMatches[i].hltCands[j]->pt();
+	  theNtupleParameters[(j*3+8)] = genMatches[i].hltCands[j]->eta();
+	  theNtupleParameters[(j*3+9)] = genMatches[i].hltCands[j]->phi();
+	  if ( j == 0 ) {
+	    TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
+	    const IsoDeposit &dep = (*depMap)[tk];
+	    theNtupleParameters[19] = dep.depositWithin(0.20);
+	    theNtupleParameters[20] = dep.depositWithin(0.24);
+	    theNtupleParameters[21] = dep.depositWithin(0.30);
+	  }
 	}
       }
       theNtuple->Fill(theNtupleParameters);

@@ -113,7 +113,7 @@ private:
 
   // Facilities for writing a match ntuple
   bool    m_makeNtuple;
-  float   theNtupleParameters[18];
+  float   theNtupleParameters[50]; 
   TNtuple *theNtuple;
   TFile   *theFile;
 
