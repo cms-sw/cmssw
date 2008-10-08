@@ -154,7 +154,7 @@ ChargeDividerFP420::divide(
     fluctuateEloss(pid, momentum, eLoss, length, NumberOfSegmentation, eLossVector);   
   }
   
-  for ( int i = 0; i != NumberOfSegmentation; i++) {
+  for ( int i = 0; i != NumberOfSegmentation; ++i) {
     if( fluctuateCharge ) {
       energy=eLossVector[i]*decSignal/eLoss;
       EnergySegmentFP420 edu(energy,hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);//take energy value from vector eLossVector  
@@ -171,7 +171,7 @@ ChargeDividerFP420::divide(
   if(verbosity>0) {
     std::cout << "CDividerFP420::ChargeDividerFP420:divide:  !!!  RESULT !!!" << std::endl;
     std::cout <<  " _ionization_points size = " << _ionization_points.size() << std::endl;
-    for(unsigned int i = 0; i < _ionization_points.size(); i++ ) {
+    for(unsigned int i = 0; i < _ionization_points.size(); ++i ) {
       std::cout <<  " eLossVector[i] i = " << i << eLossVector[i] << std::endl;
     }
   }
@@ -214,7 +214,7 @@ void ChargeDividerFP420::fluctuateEloss(int pid, float particleMomentum,
     std::cout << "segmentLength=  " << segmentLength << "segmentEloss=  " << segmentEloss << std::endl;
   }
   
-  for (int i=0;i<NumberOfSegs;i++) {
+  for (int i=0;i<NumberOfSegs;++i) {
     // The G4 routine needs momentum in MeV, mass in Mev, delta-cut in MeV,
     // track segment length in mm(!!!), segment eloss in MeV 
     // Returns fluctuated eloss in MeV
@@ -234,10 +234,10 @@ void ChargeDividerFP420::fluctuateEloss(int pid, float particleMomentum,
   if(sum>0.) {  // If fluctuations give eloss>0.
     // Rescale to the same total eloss
     float ratio = eloss/sum;
-    for (int ii=0;ii<NumberOfSegs;ii++) elossVector[ii]= ratio*elossVector[ii];
+    for (int ii=0;ii<NumberOfSegs;++ii) elossVector[ii]= ratio*elossVector[ii];
   } else {  // If fluctuations gives 0 eloss
     float averageEloss = eloss/NumberOfSegs;
-    for (int ii=0;ii<NumberOfSegs;ii++) elossVector[ii]= averageEloss; 
+    for (int ii=0;ii<NumberOfSegs;++ii) elossVector[ii]= averageEloss; 
   }
   return;
 }
