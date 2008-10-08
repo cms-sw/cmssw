@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.7 2008/08/06 10:02:37 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.8 2008/08/31 15:10:52 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -63,7 +63,10 @@ ThePEGInterface::~ThePEGInterface()
 
 string ThePEGInterface::dataFile(const string &fileName) const
 {
-	return dataLocation_ + "/" + fileName;
+	if (fileName[0] == '/')
+		return fileName;
+	else
+		return dataLocation_ + "/" + fileName;
 }
 
 string ThePEGInterface::dataFile(const edm::ParameterSet &pset,
