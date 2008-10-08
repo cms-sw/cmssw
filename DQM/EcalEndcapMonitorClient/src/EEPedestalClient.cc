@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.82 $
+ * $Date: 2008/08/11 07:24:15 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -128,6 +128,10 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
   RMSThreshold_[0] = 1.0;
   RMSThreshold_[1] = 1.5;
   RMSThreshold_[2] = 2.5;
+
+  RMSThresholdInner_[0] = 2.0;
+  RMSThresholdInner_[1] = 2.5;
+  RMSThresholdInner_[2] = 3.5;
 
   expectedMeanPn_[0] = 750.0;
   expectedMeanPn_[1] = 750.0;
@@ -772,6 +776,8 @@ void EEPedestalClient::analyze(void) {
 
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
+	bool innerCrystals = fabs(jx-50) >= 5 && fabs(jx-50) <= 10 && fabs(jy-50) >= 5 && fabs(jy-50) <= 10; 
+
         if ( Numbers::validEE(ism, jx, jy) ) {
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, 2.);
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ix, iy, 2.);
@@ -797,7 +803,8 @@ void EEPedestalClient::analyze(void) {
           val = 1.;
           if ( fabs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
             val = 0.;
-          if ( rms01 > RMSThreshold_[0] )
+          if ( (!innerCrystals && rms01 > RMSThreshold_[0]) ||
+	       (innerCrystals && rms01 > RMSThresholdInner_[0]) )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
@@ -813,7 +820,8 @@ void EEPedestalClient::analyze(void) {
           val = 1.;
           if ( fabs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
             val = 0.;
-          if ( rms02 > RMSThreshold_[1] )
+          if ( (!innerCrystals && rms02 > RMSThreshold_[1]) ||
+	       (innerCrystals && rms02 > RMSThresholdInner_[1]) )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ix, iy, val);
 
@@ -829,8 +837,10 @@ void EEPedestalClient::analyze(void) {
           val = 1.;
           if ( fabs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
             val = 0.;
-          if ( rms03 > RMSThreshold_[2] )
+          if ( (!innerCrystals && rms03 > RMSThreshold_[2]) ||
+	       (innerCrystals && rms03 > RMSThresholdInner_[2]) )
             val = 0.;
+
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, val);
 
           if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);

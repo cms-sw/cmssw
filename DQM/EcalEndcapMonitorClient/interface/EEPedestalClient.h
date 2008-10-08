@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.24 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -138,6 +138,7 @@ TProfile* i02_[18];
 float expectedMean_[3];
 float discrepancyMean_[3];
 float RMSThreshold_[3];
+float RMSThresholdInner_[3];
 
 // Quality check on PNs
  
