@@ -4,6 +4,7 @@
 // Description: InduceChargeFP420 for FP420
 // Modifications:  
 ///////////////////////////////////////////////////////////////////////////////
+//#include "SimRomanPot/SimFP420/interface/SimRPUtil.h"
 #include "SimRomanPot/SimFP420/interface/InduceChargeFP420.h"
 #include <gsl/gsl_sf_erf.h>
 #include<iostream>
@@ -80,10 +81,8 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
     
     if(verbosity>0) {
       if(xytype==2){
-	std::cout << " =========================================================================== " << std::endl;
-	std::cout << "**** InduceChargeFP420: xytype= " << xytype << std::endl;
-	std::cout << "  chargePositionW= " << chargePositionW << std::endl;
-	std::cout << "  chargePosition= " << chargePosition << std::endl;
+	std::cout << "===================================**** InduceChargeFP420: xytype= " << xytype << std::endl;
+	std::cout << "  chargePositionW= " << chargePositionW << "  chargePosition= " << chargePosition << std::endl;
 	std::cout << "Position3D= " << Position3D << std::endl;
       }
     }
@@ -195,13 +194,24 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       }
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    
     //calculate signal on x strips with including capacitive coupling
     int nSignalCoupling = signalCoupling.size();
     
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /*
+    int lll,copyinlll;
+    lll = unpackLayerIndex(rn0,zside);
+    if(lll==1) {copyinlll=  lll/2;}
+    else if(lll==2) {copyinlll=  (lll-1)/2;}
+    else{std::cout << " InduceChargeFP420:WARNING plane number in superlayer= " << lll << std::endl;}
+*/    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     if(verbosity>1) {
-      std::cout << " nSignalCoupling= " << nSignalCoupling << std::endl;
+      std::cout << "InduceChargeFP420:   *************************************************************** " << std::endl;
+      std::cout << " numStripsW= " << numStripsW << " numStrips= " << numStrips << std::endl;
+      std::cout << " nSignalCoupling= " << nSignalCoupling << " xytype= " << xytype << std::endl;
+      std::cout << " stripLeftW= " << stripLeftW << " stripRightW= " << stripRightW << std::endl;
+      std::cout << " stripLeft= " << stripLeft << " stripRight= " << stripRight << std::endl;
     }
     // Get the 2D charge integrals by folding x and y strips
     for (int iy=stripLeftW; iy<=stripRightW; iy++){ // loop over Wide y index
@@ -213,9 +223,13 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
 	      //  int chan = PixelDigi::pixelToChannel( ix, iy);  // Get index 
 	      int chan = iy*numStrips + (ix+k) ;  // Get index 
 	      
+	      //    if(k==0 ){
+	      // 	std::cout << "InduceChargeFP420:                                              chan= " << chan << std::endl;
+	      // 	std::cout << "ix= " << ix << "iy= " << iy << std::endl;
+	      //  }
 	      if(verbosity>0) {
 		if(k==0 && xytype==2){
-		  std::cout << "InduceChargeFP420: chan= " << chan << std::endl;
+		  std::cout << "InduceChargeFP420:                                              chan= " << chan << std::endl;
 		  std::cout << "ix= " << ix << "iy= " << iy << "k= " << k << "ChargeFraction= " << ChargeFraction << std::endl;
 		  std::cout << "hit_signal[chan]= " << hit_signal[chan] << "geVperElectron= " << geVperElectron << std::endl;
 		  std::cout << "signalCoupling[abs(k)]= " << signalCoupling[abs(k)] << "x[ix]= " << x[ix] << "y[iy]= " << y[iy] << "(*sp).amplitude()= " << (*sp).amplitude() << std::endl;
@@ -226,14 +240,14 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
 	    } // endif ChargeFraction
 	  } // endif ix+k
 	  else{
-	    // std::cout << " *InduceChargeFP420:== ix+k =" << ix+k << std::endl;
+	    //std::cout << "WARNING:                         ix+k =" << ix+k << std::endl;
 	  }// endif ix+k
 	} // endfor k
       } //endfor ix
     } //endfor iy
     
     if(verbosity>0) {
-      std::cout << "============================= " << std::endl;
+      std::cout << "================================================================================= " << std::endl;
     }
     
     
