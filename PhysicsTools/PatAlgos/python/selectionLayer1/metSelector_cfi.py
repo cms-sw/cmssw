@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # These are only dummy cuts
 selectedLayer1METs = cms.EDFilter("PATMETSelector",
     src = cms.InputTag("allLayer1METs"),
-    cut = cms.string('et > 0.')
+    cut = cms.string('et >= 0.')
 )
 
 
