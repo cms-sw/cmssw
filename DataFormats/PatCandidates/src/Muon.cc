@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.11 2008/08/31 20:24:54 hegner Exp $
+// $Id: Muon.cc,v 1.12 2008/10/03 14:26:31 cbern Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -15,7 +15,8 @@ Muon::Muon() :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false)
+    embeddedPFCandidate_(false),
+    pfCandidateRef_()
 {
 }
 
@@ -26,7 +27,8 @@ Muon::Muon(const MuonType & aMuon) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false)
+    embeddedPFCandidate_(false),
+    pfCandidateRef_()
 {
 }
 
@@ -37,7 +39,8 @@ Muon::Muon(const edm::RefToBase<MuonType> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false)
+    embeddedPFCandidate_(false),
+    pfCandidateRef_()
 {
 }
 
@@ -48,7 +51,8 @@ Muon::Muon(const edm::Ptr<MuonType> & aMuonRef) :
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
-    embeddedPFCandidate_(false)
+    embeddedPFCandidate_(false),
+    pfCandidateRef_()
 {
 }
 

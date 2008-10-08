@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.21 2008/07/21 12:37:22 gpetrucc Exp $
+// $Id: Jet.cc,v 1.22 2008/10/08 15:11:33 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -14,7 +14,10 @@ Jet::Jet() :
   PATObject<JetType>(JetType()),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCharge_(0.0) {
+  jetCorrF_(),
+  noCorrF_(1.),
+  jetCharge_(0.)
+{
 }
 
 
@@ -23,8 +26,11 @@ Jet::Jet(const JetType & aJet) :
   PATObject<JetType>(aJet),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCharge_(0.0) {
-    tryImportSpecific(aJet);
+  jetCorrF_(),
+  noCorrF_(1.),
+  jetCharge_(0.0)
+{
+  tryImportSpecific(aJet);
 }
 
 /// constructor from ref to JetType
@@ -32,8 +38,11 @@ Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCharge_(0.0) {
-    tryImportSpecific(*aJetRef);
+  jetCorrF_(),
+  noCorrF_(1.),
+  jetCharge_(0.0)
+{
+  tryImportSpecific(*aJetRef);
 }
 
 /// constructor from ref to JetType
@@ -41,8 +50,11 @@ Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
-  jetCharge_(0.0) {
-    tryImportSpecific(*aJetRef);
+  jetCorrF_(),
+  noCorrF_(1.),
+  jetCharge_(0.0)
+{
+  tryImportSpecific(*aJetRef);
 }
 
 /// constructor helper that tries to import the specific info from the source jet
