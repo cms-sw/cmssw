@@ -124,7 +124,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
     //      chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
     // local and global reference frames are rotated in 90 degree, so global X and local Y are collinear
     //     chargePosition  = int(fabs(middle.x()/pitch + 0.5*numStrips + 1.));// charge in strip coord 
-    chargePosition = 0.5*(numStrips-1) + middlex/pitch ;// charge in strip coord 0 - numStrips-1
+    chargePosition = 0.5*(numStrips) + middlex/pitch ;// charge in strip coord 0 - numStrips-1
     
     
   }
@@ -135,7 +135,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
     //      chargePosition  = fabs(int(middle.x()/pitch+0.5*(numStrips+1)) + 1.);
     // local and global reference frames are rotated in 90 degree, so global X and local Y are collinear
     //     chargePosition  = int(fabs(middle.y()/pitch + 0.5*numStrips + 1.));
-    chargePosition = 0.5*(numStrips-1) + middley/pitch ;// charge in strip coord 0 - numStrips-1
+    chargePosition = 0.5*(numStrips) + middley/pitch ;// charge in strip coord 0 - numStrips-1
     
     //  std::cout << " chargePosition    SiHitDi... = " << chargePosition                       << std::endl;
   }
@@ -148,7 +148,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
     //     break;
   }
   //   if(chargePosition > numStrips || chargePosition<1) {
-  if(chargePosition > numStrips-1 || chargePosition < 1-1) {
+  if(chargePosition > numStrips || chargePosition < 0) {
     std::cout << "****   HitDigitizerFP420:  !!!  ERROR: check correspondence of XY detector dimensions in XML and here !!! chargePosition = " << chargePosition << std::endl;
     //     break;
   }
@@ -180,8 +180,11 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
   //  if(driftDir.z() ==0.) {
   //    std::cout << " pxlx: drift in z is zero " << std::endl; 
   //  }  else  
+  //
+
   return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,xytype), numStrips, pitch, numStripsW, pitchW, xytype, verbosity);
   
+  //
 }
 
 
