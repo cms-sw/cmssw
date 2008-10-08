@@ -16,7 +16,7 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         src = cms.VInputTag('')
       ),
       # add doubles here
-      userDoubles = cms.PSet(
+      userFloats = cms.PSet(
         src = cms.VInputTag('')
       ),
       # add ints here

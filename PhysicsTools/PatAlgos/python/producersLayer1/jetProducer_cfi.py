@@ -12,7 +12,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
         src = cms.VInputTag('')
       ),
       # add doubles here
-      userDoubles = cms.PSet(
+      userFloats = cms.PSet(
         src = cms.VInputTag('')
       ),
       # add ints here

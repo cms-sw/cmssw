@@ -18,7 +18,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         src = cms.VInputTag('')
       ),
       # add doubles here
-      userDoubles = cms.PSet(
+      userFloats = cms.PSet(
         src = cms.VInputTag('')
       ),
       # add ints here

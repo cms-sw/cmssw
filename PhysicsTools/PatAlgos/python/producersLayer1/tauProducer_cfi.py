@@ -12,7 +12,7 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
         src = cms.VInputTag('')
       ),
       # add doubles here
-      userDoubles = cms.PSet(
+      userFloats = cms.PSet(
         src = cms.VInputTag('')
       ),
       # add ints here
