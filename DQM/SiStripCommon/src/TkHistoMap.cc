@@ -37,7 +37,7 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName){
 
 }
 
-void TkHistoMap::fill(uint32_t& detid,float& value){
+void TkHistoMap::fill(uint32_t& detid,float value){
   int16_t layer=tkdetmap_->FindLayer(detid);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
   LogTrace("TkHistoMap") << "[TkHistoMap::fill] Fill detid " << detid << " Layer " << layer << " value " << value << " ix,iy "  << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y << " " << tkHistoMap[layer]->getTProfile2D()->GetName();
@@ -51,7 +51,7 @@ void TkHistoMap::fill(uint32_t& detid,float& value){
 #endif
 }
 
-void TkHistoMap::setBinContent(uint32_t& detid,float& value){
+void TkHistoMap::setBinContent(uint32_t& detid,float value){
   int16_t layer=tkdetmap_->FindLayer(detid);
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
   TProfile2D* h=tkHistoMap[layer]->getTProfile2D();

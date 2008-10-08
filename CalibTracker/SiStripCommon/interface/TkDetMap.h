@@ -70,13 +70,10 @@ class TkLayerMap{
 
   void createTIB(std::vector<uint32_t>& TkDetIdList, int layer);
   void createTOB(std::vector<uint32_t>& TkDetIdList, int layer);
-  void createTID(std::vector<uint32_t>& TkDetIdList,  int layer);
-  void createTEC(std::vector<uint32_t>& TkDetIdList,  int layer){createTest(TkDetIdList);}
-
-  void createTest(std::vector<uint32_t>& TkDetIdList);
+  void createTID(std::vector<uint32_t>& TkDetIdList, int layer);
+  void createTEC(std::vector<uint32_t>& TkDetIdList, int layer);
 
  private:
-  std::map<uint32_t,XYbin> DetToBin;
   std::vector<uint32_t> binToDet;
 
   XYbin xybin;
@@ -87,7 +84,7 @@ class TkLayerMap{
   double lowX,highX;
   double lowY, highY;
 
-  std::vector<uint32_t> SingleExtString;
+  std::vector<uint32_t> SingleExtString,ModulesInRingFront,ModulesInRingBack,BinForRing;
   uint32_t Nstring_ext, Nrod, Offset;
 
 };

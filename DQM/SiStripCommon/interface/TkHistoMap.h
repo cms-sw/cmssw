@@ -15,8 +15,8 @@ class TkHistoMap{
   TkHistoMap(std::string path, std::string MapName);
   ~TkHistoMap();
   
-  void fill(uint32_t& detid,float& value);
-  void setBinContent(uint32_t& detid,float& value);
+  void fill(uint32_t& detid,float value);
+  void setBinContent(uint32_t& detid,float value);
 
  private:
 
