@@ -23,8 +23,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/09/14 21:47:50 $
- * $Revision: 1.33 $
+ * $Date: 2008/10/07 12:11:51 $
+ * $Revision: 1.34 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -125,6 +125,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meHalfHTR_DataIntegrityCheck_;
   MonitorElement* meChannSumm_DataIntegrityCheck_;
   std::vector<MonitorElement*> meChann_DataIntegrityCheck_;
+  
+  //Histogram labelling functions
+  void label_ySpigots(MonitorElement* me_ptr,int ybins);
+  void label_xChanns (MonitorElement* me_ptr,int xbins);
 
   MonitorElement* meInvHTRData_;
   MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN

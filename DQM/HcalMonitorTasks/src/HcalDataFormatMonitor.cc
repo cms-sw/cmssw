@@ -106,7 +106,6 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     ///\\\///HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
     ///\\\///labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
     
-    //m_dbe->setCurrentFolder(baseFolder_ + "/FEDIntegrity");
     m_dbe->setCurrentFolder("Hcal/FEDIntegrity"); // don't make FEDIntegrity part of the DataFormatMonitor folder
     type="FEDEntries";
     fedEntries_ = m_dbe->book1D(type,type,32,699.5,731.5);
@@ -114,7 +113,6 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     fedFatal_ = m_dbe->book1D(type,type,32,699.5,731.5);
 
     m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
-
     type="DCC DataIntegrity Check";
     meDCC_DataIntegrityCheck_ = m_dbe->book2D(type,type,
 					  55,0,55,
@@ -175,6 +173,66 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCC_DataIntegrityCheck_->setBinLabel( 2,"   Size",2); //FmtErrs    
     meDCC_DataIntegrityCheck_->setBinLabel( 1,"       ",2);
 
+    type="Half-HTR DataIntegrity Check";
+    meHalfHTR_DataIntegrityCheck_= m_dbe->book2D(type,type,
+					  100,0,100,
+					  70,0,70);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel( 2,"700",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel( 5,"701",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel( 8,"702",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(11,"703",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(14,"704",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(17,"705",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(20,"706",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(23,"707",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(26,"708",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(29,"709",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(32,"710",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(35,"711",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(38,"712",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(41,"713",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(44,"714",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(47,"715",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(50,"716",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(53,"717",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(56,"718",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(59,"719",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(62,"720",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(65,"721",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(68,"722",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(71,"723",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(74,"724",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(77,"725",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(80,"726",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(83,"727",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(86,"728",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(89,"729",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(92,"730",1);
+    meHalfHTR_DataIntegrityCheck_->setBinLabel(95,"731",1);
+    label_ySpigots(meHalfHTR_DataIntegrityCheck_, 4); // 3 bins + 1 margin each spgt
+
+    type = "Channel Integrity Summarized by Spigot";
+    meChannSumm_DataIntegrityCheck_= m_dbe->book2D(type,type,
+					  76,0,76,
+					  60,0,60);
+    label_xChanns (meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per ch.
+    label_ySpigots(meChannSumm_DataIntegrityCheck_, 4); // 3 bins + 1 margin per spgt
+ 
+    m_dbe->setCurrentFolder(baseFolder_ + "/Channel Data Integrity");
+    char label[10];
+    int fedcount;
+    for (fedcount=700; fedcount<732; fedcount++){
+      MonitorElement* newone = new MonitorElement;
+      meChann_DataIntegrityCheck_.push_back(newone);
+      sprintf(label, "FED %03d Channel Integrity", fedcount);
+      newone =  m_dbe->book2D(label,label,
+			      76,0,76,
+			      46,0,46);
+      label_xChanns (newone, 3); // 2 bins + 1 margin per ch.
+      label_ySpigots(newone, 3); // 2 bins + 1 margin per spgt
+      ;}
+      
+    m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
     type = "BCN from DCCs";
     medccBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
     medccBCN_->setAxisTitle("BCN",1);
@@ -256,7 +314,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "Event Fragment Size for each FED";
     meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
     type = "All Evt Frag Sizes";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,2000,0,12000);
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 2000,0,12000);
 
     type = "Num Event Frags by FED";
     meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5);
@@ -1113,6 +1171,24 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
   mePlot -> setBinLabel(16,"Bit15 Err",axisType);
 
   return;
+}
+
+//No size checking; better have enough y-axis bins!
+void HcalDataFormatMonitor::label_ySpigots(MonitorElement* me_ptr, int ybins) {
+  char label[10];
+  for (int spig=0; spig<HcalDCCHeader::SPIGOT_COUNT; spig++) {
+    sprintf(label, "Spgt %02d", spig);
+    me_ptr->setBinLabel((2+(spig*ybins)), label, 2); //margin of 1 at low value
+  }
+}
+
+//No size checking; better have enough x-axis bins!
+void HcalDataFormatMonitor::label_xChanns(MonitorElement* me_ptr, int xbins) {
+  char label[10];
+  for (int ch=1; ch<=HcalHTRData::CHANNELS_PER_SPIGOT; ch++) {
+    sprintf(label, "Ch %02d", ch);
+    me_ptr->setBinLabel((1+(ch*xbins)), label, 1); //margin of 3 at low value
+  }
 }
 
 void HcalDataFormatMonitor::labelthezoo(MonitorElement* zoo) {
