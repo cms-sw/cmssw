@@ -82,7 +82,7 @@ class  PFRecoTauAlgorithm  {
   double EcalStripSumE_deltaEta_;
   double EcalStripSumE_deltaPhiOverQ_minValue_;
   double EcalStripSumE_deltaPhiOverQ_maxValue_;
-  
+  TFormula myMatchingConeSizeTFormula,myTrackerSignalConeSizeTFormula,myTrackerIsolConeSizeTFormula,myECALSignalConeSizeTFormula,myECALIsolConeSizeTFormula,myHCALSignalConeSizeTFormula,myHCALIsolConeSizeTFormula;
 
 };
 #endif 
