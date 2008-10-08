@@ -13,10 +13,13 @@
 	Exercises2 ex(io);
 	std::cout << "Constructed exercises and options, calibrating...\n";
 	
-	ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to30GeV_threshApp_200k.root","Exercises.root");
+	//ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to30GeV_threshApp_200k.root","Exercises30.root");
+	ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to300GeV_threshApp_200k.root","Exercises300.root");
 	
 	//ex.calibrateCalibratables("../../../UserCode/JamieBallin/test/DipionDelV2_famosProtons_0to50GeV_threshApp_50k.root","ExercisesProtons.root");
-	TFile f("Exercises.root","update");
+	TFile f("Exercises300.root","update");
 	gROOT->ProcessLine(".L src/makePlots.cc");
 	gROOT->ProcessLine("makePlots(f)");
+	f.Write();
+	f.Close();
 }

@@ -8,18 +8,30 @@
 using namespace pftools;
 
 PFClusterCalibration::PFClusterCalibration() :
-	barrelEndcapEtaDiv_(1.0), ecalOnlyDiv_(0.3), hcalOnlyDiv_(0.5),
-			doCorrection_(1), allowNegativeEnergy_(0), correctionLowLimit_(0.), globalP0_(0.0), globalP1_(1.0), lowEP0_(0.0),
+			barrelEndcapEtaDiv_(1.0),
+			ecalOnlyDiv_(0.3),
+			hcalOnlyDiv_(0.5),
+			doCorrection_(1),
+			allowNegativeEnergy_(0),
+			doEtaCorrection_(1),
+			maxEToCorrect_(-1.0),
+			correctionLowLimit_(0.),
+			globalP0_(0.0),
+			globalP1_(1.0),
+			lowEP0_(0.0),
 			lowEP1_(1.0),
 			correction_("correction",
-					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])") {
+					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])"),
+			etaCorrection_(
+					"etaCorrection",
+					"(1-[0]*x-[1]*x*x)*(x<[2])+([3]+[4]*x)*(x>[2]&&x<[5])+(1-[6]*x-[7]*x*x)*(x>[5])") {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	correction_.FixParameter(0, globalP0_);
 	correction_.FixParameter(1, globalP1_);
 	correction_.FixParameter(2, lowEP0_);
 	correction_.FixParameter(3, lowEP1_);
 	correction_.FixParameter(4, correctionLowLimit_);
-
+	
 	/* These are the types of calibration I know about:
 	 * ecalOnly_elementName
 	 * etc. Sorry, it's not very nice, but well, neither is ROOT... */
@@ -59,9 +71,29 @@ PFClusterCalibration::PFClusterCalibration() :
 
 	}
 	std::cout
-			<< "WARNING! Evolution functions have not yet been initialised - ensure this is done.\n";
+			<< "WARNING! PFClusterCalibration evolution functions have not yet been initialised - ensure this is done.\n";
 	std::cout << "PFClusterCalibration construction complete."<< std::endl;
 
+}
+
+void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params) {
+	if (params.size() != 8) {
+		std::cout << __PRETTY_FUNCTION__ << ": params is of the wrong length."
+				<< std::endl;
+		return;
+	}
+	std::cout << "Fixing eta correction:\n\t";
+	unsigned count(0);
+	for (std::vector<double>::const_iterator dit = params.begin(); dit
+			!= params.end(); ++dit) {
+		std::cout << *dit << "\t";
+		etaCorrection_.FixParameter(count, *dit);
+		++count;
+	}
+	std::cout << std::endl;
+	/*for(double eta(0); eta < 2.5; eta += 0.05) {
+		std::cout << "Eta = " << eta << ",\tcorr = " << etaCorrection_.Eval(eta) << "\n"; 
+	}*/
 }
 
 void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
@@ -103,7 +135,7 @@ void PFClusterCalibration::setCorrections(const double& lowEP0,
 double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 		const double& hcalE, const double& eta, const double& phi) const {
 	const TF1* theFunction(0);
-	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
+	if (ecalE> ecalOnlyDiv_ && hcalE> hcalOnlyDiv_) {
 		//ecalHcal class
 		if (fabs(eta) < barrelEndcapEtaDiv_) {
 			//barrel
@@ -112,7 +144,7 @@ double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 			//endcap
 			theFunction = &(namesAndFunctions_.find("ecalHcalEcalEndcap")->second);
 		}
-	} else if (ecalE > ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
+	} else if (ecalE> ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
 		//ecalOnly class
 		if (fabs(eta) < barrelEndcapEtaDiv_)
 			theFunction = &(namesAndFunctions_.find("ecalOnlyEcalBarrel")->second);
@@ -131,7 +163,7 @@ double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 double PFClusterCalibration::getCalibratedHcalEnergy(const double& ecalE,
 		const double& hcalE, const double& eta, const double& phi) const {
 	const TF1* theFunction(0);
-	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
+	if (ecalE> ecalOnlyDiv_ && hcalE> hcalOnlyDiv_) {
 		//ecalHcal class
 		if (fabs(eta) < barrelEndcapEtaDiv_) {
 			//barrel
@@ -163,6 +195,8 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 
 	answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
 			+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
+	if(doEtaCorrection_)
+		answer = answer/etaCorrection_.Eval(eta);
 
 	//apply correction?
 	//check for negative energies
@@ -174,7 +208,9 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 	}
 	if (!allowNegativeEnergy_ && correction_.Eval(answer) < 0)
 		return 0;
-	return correction_.Eval(answer);
+	if(maxEToCorrect_ > 0 && answer < maxEToCorrect_)
+		return correction_.Eval(answer);
+	return answer;
 
 }
 
@@ -195,15 +231,14 @@ void PFClusterCalibration::getCalibratedEnergyEmbedAInHcal(double& ecalE,
 		double a = corrE - preCorrection;
 		hcalE += a;
 	}
-	if(hcalE < 0 && !allowNegativeEnergy_)
+	if (hcalE < 0 && !allowNegativeEnergy_)
 		hcalE = 0;
 }
 
-
 void PFClusterCalibration::calibrate(Calibratable& c) {
-CalibrationResultWrapper crw;
-getCalibrationResultWrapper(c, crw);
-c.calibrations_.push_back(crw);
+	CalibrationResultWrapper crw;
+	getCalibrationResultWrapper(c, crw);
+	c.calibrations_.push_back(crw);
 
 }
 
@@ -258,6 +293,7 @@ std::ostream& pftools::operator<<(std::ostream& s, const PFClusterCalibration& c
 	s << ", \nallowNegativeEnergy:\t" << cc.allowNegativeEnergy_;
 	s << ", \ncorrectionLowLimit:\t" << cc.correctionLowLimit_ << ",parameters:\t" << cc.globalP0_ << ", ";
 	s << cc.globalP1_ << ", " << cc.lowEP0_ << ", " << cc.lowEP1_;
+	s << "\ndoEtaCorrection:\t" << cc.doEtaCorrection_;
 	return s;
 }
 

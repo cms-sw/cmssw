@@ -57,6 +57,10 @@ Exercises2::Exercises2(IO* options) :
 	options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEta);
 	clusterCalibration_.setBarrelBoundary(barrelEta);
 	
+	double maxEToCorrect(100.0);
+	options_->GetOpt("correction", "maxEToCorrect", maxEToCorrect);
+	clusterCalibration_.setMaxEToCorrect(maxEToCorrect);
+	
 	std::vector<std::string>* names = clusterCalibration_.getKnownSectorNames();
 	for(std::vector<std::string>::iterator i = names->begin(); i != names->end(); ++i) {
 		std::string sector = *i;
@@ -64,6 +68,14 @@ Exercises2::Exercises2(IO* options) :
 		options_->GetOpt("evolution", sector.c_str(), params);
 		clusterCalibration_.setEvolutionParameters(sector, params);
 	}
+	
+	int doEtaCorrection(1);
+	options_->GetOpt("evolution", "doEtaCorrection", doEtaCorrection);
+	clusterCalibration_.setDoEtaCorrection(doEtaCorrection);
+	
+	std::vector<double> etaParams;
+	options_->GetOpt("evolution", "etaCorrection", etaParams);
+	clusterCalibration_.setEtaCorrectionParameters(etaParams);
 	
 	std::cout << clusterCalibration_ << "\n";
 	

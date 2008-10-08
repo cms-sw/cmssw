@@ -90,6 +90,10 @@ public:
 	void setDoCorrection(const int& doCorrection) {
 		doCorrection_ = doCorrection;
 	}
+	
+	void setDoEtaCorrection(const int doEtaCorrection) {
+		doEtaCorrection_ = doEtaCorrection;
+	}
 
 	/* Threshold for ecalOnly and hcalOnly evaluation. */
 	void setEcalHcalEnergyCuts(const double& ecalCut, const double& hcalCut) {
@@ -101,10 +105,16 @@ public:
 	void setBarrelBoundary(const double& eta) {
 		barrelEndcapEtaDiv_ = eta;
 	}
+	
+	void setMaxEToCorrect(double maxE) {
+		maxEToCorrect_ = maxE;
+	}
 
 	/* Sets the function parameters - very important! */
 	void setEvolutionParameters(const std::string& sector,
 			std::vector<double> params);
+	
+	void setEtaCorrectionParameters(std::vector<double> params);
 
 	/* Elements in this vector refer to the different calibration functions
 	 * available. For each one of these, you should call setEvolutionParameters()
@@ -128,6 +138,8 @@ private:
 
 	int doCorrection_;
 	int allowNegativeEnergy_;
+	int doEtaCorrection_;
+	double maxEToCorrect_;
 
 	double correctionLowLimit_;
 	double globalP0_;
@@ -137,6 +149,8 @@ private:
 
 	//Function used to correct final total energies
 	TF1 correction_;
+	//Function to correct eta dependence (post-calibration).
+	TF1 etaCorrection_;
 
 	std::map<std::string, TF1> namesAndFunctions_;
 	std::vector<std::string> names_;

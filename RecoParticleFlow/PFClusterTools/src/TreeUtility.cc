@@ -45,6 +45,9 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	std::cout << "WARNING: Using fabs() for eta value assignments!\n";
+	
+	std::cout << "Cutting on > 1 PFCandidate.\n";
+	
 	//neither of these two are supported yet
 	if (target == UNDEFINED || target == PFELEMENT)
 		return 0;
@@ -62,6 +65,9 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 			if (c.sim_energyEvent_== 0)
 				veto = true;
 		}
+		
+		if(c.cands_num_ > 1)
+			veto = true;
 
 		if (target == CLUSTER) {
 			if (c.cluster_ecal_.size() == 0 && c.cluster_hcal_.size() ==0)

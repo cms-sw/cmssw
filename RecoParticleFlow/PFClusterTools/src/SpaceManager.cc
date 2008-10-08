@@ -70,6 +70,10 @@ void SpaceManager::createCalibrators(const Calibrator& toClone) {
 	barrelPosRegion_.push_back(sv10);
 	SpaceVoxelPtr sv11(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 60.0, 100.0));
 	barrelPosRegion_.push_back(sv11);
+	SpaceVoxelPtr sv12(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 100.0, 200.0));
+	barrelPosRegion_.push_back(sv12);
+	SpaceVoxelPtr sv13(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 200.0, 400.0));
+	barrelPosRegion_.push_back(sv13);
 
 	SpaceVoxelPtr sve(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 0, 0.5));
 	endcapPosRegion_.push_back(sve);
@@ -103,6 +107,10 @@ void SpaceManager::createCalibrators(const Calibrator& toClone) {
 	endcapPosRegion_.push_back(sve10);
 	SpaceVoxelPtr sve11(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 60.0, 100.0));
 	endcapPosRegion_.push_back(sve11);
+	SpaceVoxelPtr sve12(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 100.0, 200.0));
+	endcapPosRegion_.push_back(sve12);
+	SpaceVoxelPtr sve13(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 200.0, 400.0));
+	endcapPosRegion_.push_back(sve13);
 
 	for (std::vector<SpaceVoxelPtr>::iterator it = barrelPosRegion_.begin(); it
 			!= barrelPosRegion_.end(); ++it) {
@@ -236,7 +244,7 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1, b
 	double minE(1000);
 	double maxE(0);
 
-	TH2F hDist(name.c_str(), name.c_str(), 50, 0, 50, 50, 0.0, 2.5);
+	TH2F hDist(name.c_str(), name.c_str(), 100, 0, 300, 50, 0.0, 2.5);
 //	TH3F hSurf(nameSurf.c_str(), nameSurf.c_str(), 30, 0, 50, 10, 0.0, 3.0, 30,
 //			0.0, 2.5);
 	for (std::vector<SpaceVoxelPtr>::iterator i = region.begin(); i
