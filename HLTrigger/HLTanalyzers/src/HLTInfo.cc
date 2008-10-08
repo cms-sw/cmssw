@@ -135,6 +135,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
                       const edm::Handle<L1GlobalTriggerReadoutRecord>        & L1GTRR,
                       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & L1GTOMRec,
                       const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
+		      const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
+		      const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
                       TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -394,39 +396,33 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
   //
   // LSB for feature bits = 0.125 GeV.
   // The default LSB for the ring sums is 0.5 GeV.
-  
-  if (L1GctCounts.isValid()) {
+
+  if (l1GctHFBitCounts.isValid()) {
     /*
     for (int i=6;i<=11;i++) {
-      std::cout<<i<<" "<<L1GctCounts->count(i)<<std::endl;
+      std::cout<<i<<" "<<L1GctCounts.count(i)<<std::endl;
     }
-    std::cout<<"A "<<L1GctCounts->hfTowerCountPositiveEta()<<std::endl;
-    std::cout<<"B "<<L1GctCounts->hfTowerCountNegativeEta()<<std::endl;
-    std::cout<<"C "<<L1GctCounts->hfRing0EtSumPositiveEta()<<std::endl;
-    std::cout<<"D "<<L1GctCounts->hfRing0EtSumNegativeEta()<<std::endl;
-    std::cout<<"E "<<L1GctCounts->hfRing1EtSumPositiveEta()<<std::endl;
-    std::cout<<"F "<<L1GctCounts->hfRing1EtSumNegativeEta()<<std::endl;
+    std::cout<<"A "<<L1GctCounts.hfTowerCountPositiveEta()<<std::endl;
+    std::cout<<"B "<<L1GctCounts.hfTowerCountNegativeEta()<<std::endl;
+    std::cout<<"C "<<L1GctCounts.hfRing0EtSumPositiveEta()<<std::endl;
+    std::cout<<"D "<<L1GctCounts.hfRing0EtSumNegativeEta()<<std::endl;
+    std::cout<<"E "<<L1GctCounts.hfRing1EtSumPositiveEta()<<std::endl;
+    std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
     */
-
-    /* disable filling of variables untill jetcount object code is stabilized in CMSSW_3_X
-    for (L1GctJetCountsCollection::const_iterator jbx=L1GctCounts->begin(); jbx!=L1GctCounts->end(); jbx++) {
-      l1hfTowerCountPositiveEta = (int)(* jbx).hfTowerCountPositiveEta();
-      l1hfTowerCountNegativeEta = (int)(* jbx).hfTowerCountNegativeEta();
-      l1hfRing0EtSumPositiveEta = (int)(* jbx).hfRing0EtSumPositiveEta();
-      l1hfRing0EtSumNegativeEta = (int)(* jbx).hfRing0EtSumNegativeEta();
-      l1hfRing1EtSumPositiveEta = (int)(* jbx).hfRing1EtSumPositiveEta();
-      l1hfRing1EtSumNegativeEta = (int)(* jbx).hfRing1EtSumNegativeEta();
-    }
-    */
-    l1hfTowerCountPositiveEta = -999;
-    l1hfTowerCountNegativeEta = -999;
-    l1hfRing0EtSumPositiveEta = -999;
-    l1hfRing0EtSumNegativeEta = -999;
-    l1hfRing1EtSumPositiveEta = -999;
-    l1hfRing1EtSumNegativeEta = -999;
-
+    
+    l1hfTowerCountPositiveEta = (int)l1GctHFBitCounts->bitCount(0);
+    l1hfTowerCountNegativeEta = (int)l1GctHFBitCounts->bitCount(1);
   } else {
-    if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 GctHFBitCounts" << std::endl;
+  }
+
+  if (l1GctHFRingEtSums.isValid()) {
+    l1hfRing0EtSumPositiveEta = (int)l1GctHFRingEtSums->etSum(0);
+    l1hfRing0EtSumNegativeEta = (int)l1GctHFRingEtSums->etSum(1);
+    l1hfRing1EtSumPositiveEta = (int)l1GctHFRingEtSums->etSum(2);
+    l1hfRing1EtSumNegativeEta = (int)l1GctHFRingEtSums->etSum(3);
+  } else {
+    if (_Debug) std::cout << "%HLTInfo -- No L1 GctHFRingEtSums" << std::endl;
   }
 
 }

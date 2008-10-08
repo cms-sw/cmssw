@@ -76,6 +76,8 @@ public:
 	       const edm::Handle<L1GlobalTriggerReadoutRecord>        & l1GTRR,
 	       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & l1GTOMRec,
 	       const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
+	       const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
+               const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
 	       TTree* tree);
 
 private:
