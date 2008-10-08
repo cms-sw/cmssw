@@ -4,6 +4,14 @@
 
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class Hemisphere;
+  typedef std::vector<Hemisphere>              HemisphereCollection; 
+  typedef edm::Ref<HemisphereCollection>       HemisphereRef; 
+  typedef edm::RefVector<HemisphereCollection> HemisphereRefVector; 
+}
+
 namespace pat {
   
   class Hemisphere : public reco::CompositeRefBaseCandidate {
@@ -14,7 +22,6 @@ namespace pat {
     virtual ~Hemisphere () {}
   };
 
-  typedef std::vector<Hemisphere> HemisphereCollection;
 }
 
 #endif

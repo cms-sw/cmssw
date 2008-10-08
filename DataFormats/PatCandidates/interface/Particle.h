@@ -1,5 +1,5 @@
 //
-// $Id: Particle.h,v 1.3.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: Particle.h,v 1.4 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Particle_h
@@ -13,12 +13,19 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Particle.h,v 1.3.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+  \version  $Id: Particle.h,v 1.4 2008/06/03 22:28:07 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
+// Define typedefs for convenience
+namespace pat {
+  class Particle;
+  typedef std::vector<Particle>              ParticleCollection; 
+  typedef edm::Ref<ParticleCollection>       ParticleRef; 
+  typedef edm::RefVector<ParticleCollection> ParticleRefVector; 
+}
 
 namespace pat {
 

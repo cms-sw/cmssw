@@ -1,5 +1,5 @@
 //
-// $Id: PFParticle.h,v 1.4 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: PFParticle.h,v 1.1 2008/07/24 12:43:52 cbern Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PFParticle_h
@@ -14,12 +14,20 @@
    isolated leptons or photons, or inside jets, end up as pat::PFParticles.
 
   \author   Colin Bernet
-  \version  $Id: PFParticle.h,v 1.4 2008/06/03 22:28:07 gpetrucc Exp $
+  \version  $Id: PFParticle.h,v 1.1 2008/07/24 12:43:52 cbern Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
+
+// Define typedefs for convenience
+namespace pat {
+  class PFParticle;
+  typedef std::vector<PFParticle>              PFParticleCollection; 
+  typedef edm::Ref<PFParticleCollection>       PFParticleRef; 
+  typedef edm::RefVector<PFParticleCollection> PFParticleRefVector; 
+}
 
 namespace pat {
 
