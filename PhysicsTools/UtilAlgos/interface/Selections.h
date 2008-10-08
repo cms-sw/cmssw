@@ -69,12 +69,16 @@ class Selection {
     makeCumulativePlots_(iConfig.getParameter<bool>("makeCumulativePlots")),
     makeAllButOnePlots_(iConfig.getParameter<bool>("makeAllButOnePlots")),
     nSeen_(0),
-    makeSummaryTable_(iConfig.getParameter<bool>("makeSummaryTable"))
+    makeSummaryTable_(iConfig.getParameter<bool>("makeSummaryTable")),
+    makeDetailledPrintout_(iConfig.exists("detailledPrintoutCategory"))
   {
     if (iConfig.exists("nMonitor"))
       nMonitor_=iConfig.getParameter<uint>("nMonitor");
     else
       nMonitor_=0;
+
+    if (makeDetailledPrintout_)
+      detailledPrintoutCategory_ = iConfig.getParameter<std::string>("detailledPrintoutCategory");
   }
 
   const std::string & name() {return name_;}
@@ -99,9 +103,34 @@ class Selection {
       global=global && decision;
       if (global) count.nCumulative_++;
     }
+
+    if (makeDetailledPrintout_){
+      std::stringstream summary;
+      summary<<std::setw(20)<<name().substr(0,19)<<" : "
+	     <<std::setw(10)<<iEvent.id().run()<<" : "
+	     <<std::setw(10)<<iEvent.id().event();
+      for (iterator filter=begin(); filter!=end();++filter){
+	const std::string & fName=(*filter)->name();
+	summary<<" : "<<std::setw(10)<<(ret[fName]?"pass":"reject");
+      }
+      edm::LogVerbatim(detailledPrintoutCategory_)<<summary.str();
+    }
+    
     return ret;
   }
 
+  void printDetailledPrintoutHeader(){
+    if (makeDetailledPrintout_){
+      std::stringstream summary;
+      summary<<std::setw(20)<<" selection name "<<" : "
+	     <<std::setw(10)<<" run "<<" : "
+	     <<std::setw(10)<<" event ";
+      for (iterator filter=begin(); filter!=end();++filter){
+	summary<<" : "<<std::setw(10)<<(*filter)->name().substr(0,9);
+      }
+      edm::LogVerbatim(detailledPrintoutCategory_)<<summary.str();
+    }
+  }
   //print to LogVerbatim("Selections|<name()>")
   void print(bool description=true){
     if (!makeSummaryTable_) return;
@@ -176,6 +205,8 @@ class Selection {
   };
   std::map<std::string, Count> counts_;
   bool makeSummaryTable_;
+  bool makeDetailledPrintout_;
+  std::string detailledPrintoutCategory_;
 };
 
 class Selections {
@@ -264,7 +295,9 @@ class Selections {
 	  }
 	}
     }
-
+    
+    for (iterator sIt = begin(); sIt!=end();++sIt)
+      sIt->printDetailledPrintoutHeader();
 
   }
 
