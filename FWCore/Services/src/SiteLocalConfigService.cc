@@ -84,7 +84,7 @@ const std::string
 edm::service::SiteLocalConfigService::dataCatalog (void) const
 {
     if (! m_connected) {
-	//throw cms::Exception ("Incomplete configuration") 
+	//throw cms::Exception("Incomplete configuration") 
 	//    << "Valid site-local-config not found at " << m_url ;
         // Return PoolFileCatalog.xml for now
         return "file:PoolFileCatalog.xml";
@@ -92,7 +92,7 @@ edm::service::SiteLocalConfigService::dataCatalog (void) const
 
     if (m_dataCatalog == "")
     {
-	throw cms::Exception ("Incomplete configuration")
+	throw cms::Exception("Incomplete configuration")
 	    << "Did not find catalog in event-data section in " << m_url ;
     }
 
@@ -103,12 +103,12 @@ const std::string
 edm::service::SiteLocalConfigService::frontierConnect (const std::string& servlet) const
 {
     if (! m_connected)
-	throw cms::Exception ("Incomplete configuration") 
+	throw cms::Exception("Incomplete configuration") 
 	    << "Valid site-local-config not found at " << m_url ;
     
     if (m_frontierConnect == "")
     {
-	throw cms::Exception ("Incomplete configuration")
+	throw cms::Exception("Incomplete configuration")
 	    << "Did not find frontier-connect in calib-data section in " << m_url ;
     }
 
