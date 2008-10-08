@@ -97,7 +97,7 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     hbHists.mean_time_ = m_dbe->book1D( "HB Laser Time Mean Values", "HB Laser Time Mean Values", 100, -0.5, 9.5 );
 
     hbHists.allEnergy_ = m_dbe->book1D( "HB Average Pulse Energy", "HB Average Pulse Energy", 1000, 0, 10000 );
-    hbHists.rms_energy_ = m_dbe->book1D( "HB Laser Energy RMS Values", "HB Laser Energy RMS Values", 25, 0, 100 );
+    hbHists.rms_energy_ = m_dbe->book1D( "HB Laser Energy RMS Values", "HB Laser Energy RMS Values", 50, 0, 200 );
     hbHists.mean_energy_ = m_dbe->book1D( "HB Laser Energy Mean Values", "HB Laser Energy Mean Values", 100, 0, 5000 );
 
     m_dbe->setCurrentFolder( baseFolder_+ "/HE" );
@@ -111,7 +111,7 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     heHists.mean_time_ = m_dbe->book1D( "HE Laser Time Mean Values", "HE Laser Time Mean Values", 100, -0.5, 9.5 );
 
     heHists.allEnergy_ = m_dbe->book1D( "HE Average Pulse Energy", "HE Average Pulse Energy", 1000, 0, 10000 );
-    heHists.rms_energy_ = m_dbe->book1D( "HE Laser Energy RMS Values", "HE Laser Energy RMS Values", 25, 0, 100 );
+    heHists.rms_energy_ = m_dbe->book1D( "HE Laser Energy RMS Values", "HE Laser Energy RMS Values", 50, 0, 200 );
     heHists.mean_energy_ = m_dbe->book1D( "HE Laser Energy Mean Values", "HE Laser Energy Mean Values", 100, 0, 5000 );
 
     m_dbe->setCurrentFolder( baseFolder_+ "/HO" );
@@ -125,7 +125,7 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     hoHists.mean_time_ = m_dbe->book1D( "HO Laser Time Mean Values", "HO Laser Time Mean Values", 100, -0.5, 9.5 );
 
     hoHists.allEnergy_ = m_dbe->book1D( "HO Average Pulse Energy", "HO Average Pulse Energy", 1000, 0, 10000 );
-    hoHists.rms_energy_ = m_dbe->book1D( "HO Laser Energy RMS Values", "HO Laser Energy RMS Values", 25, 0, 100 );
+    hoHists.rms_energy_ = m_dbe->book1D( "HO Laser Energy RMS Values", "HO Laser Energy RMS Values", 50, 0, 200 );
     hoHists.mean_energy_ = m_dbe->book1D( "HO Laser Energy Mean Values", "HO Laser Energy Mean Values", 100, 0, 5000 );
 
     m_dbe->setCurrentFolder( baseFolder_ + "/HF" );
@@ -139,7 +139,7 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     hfHists.mean_time_ = m_dbe->book1D( "HF Laser Time Mean Values", "HF Laser Time Mean Values", 100, -0.5, 9.5 );
 
     hfHists.allEnergy_ = m_dbe->book1D( "HF Average Pulse Energy", "HF Average Pulse Energy", 1000, 0, 10000 );
-    hfHists.rms_energy_ = m_dbe->book1D( "HF Laser Energy RMS Values", "HF Laser Energy RMS Values", 25, 0, 100 );
+    hfHists.rms_energy_ = m_dbe->book1D( "HF Laser Energy RMS Values", "HF Laser Energy RMS Values", 50, 0, 200 );
     hfHists.mean_energy_ = m_dbe->book1D( "HF Laser Energy Mean Values", "HF Laser Energy Mean Values", 100, 0, 5000 );
 
     m_dbe->setCurrentFolder( baseFolder_ + "/QADCTDC" );
@@ -170,28 +170,29 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
     if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - DQMStore not instantiated!\n" );
     return; 
   }
+
   float pedSubTS[10];
 
   // TDC
   try {
-    for( int i = 0; i < 32; i++ ) {
-      QADC_[i]->Fill( laserDigi.qadc(i) );
+    for( int ch = 0; ch < 32; ch++ ) {
+      QADC_[ch]->Fill( laserDigi.qadc(ch) );
     }
     
     TDCHists.numChannels_->Fill( laserDigi.tdcHits() );
     double tClockOpto = -1, tTrig = -1, tRawOpto = -1;
     
-    for( uint i = 0; i < laserDigi.tdcHits(); ++i ) {
-      if( laserDigi.hitChannel(i) == 1 && tClockOpto < 0 ) {
-	tClockOpto = laserDigi.hitNS(i);
+    for( uint hit = 0; hit < laserDigi.tdcHits(); hit++ ) {
+      if( laserDigi.hitChannel(hit) == 1 && tClockOpto < 0 ) {
+	tClockOpto = laserDigi.hitNS(hit);
 	TDCHists.clockOptosync_->Fill( tClockOpto );
       }
-      if( laserDigi.hitChannel(i) == 2 && tTrig < 0 ) {
-	tTrig = laserDigi.hitNS(i);
+      if( laserDigi.hitChannel(hit) == 2 && tTrig < 0 ) {
+	tTrig = laserDigi.hitNS(hit);
 	TDCHists.trigger_->Fill( tTrig );
       }
-      if( laserDigi.hitChannel(i) == 3 && tRawOpto < 0 ) {
-	tRawOpto = laserDigi.hitNS(i);
+      if( laserDigi.hitChannel(hit) == 3 && tRawOpto < 0 ) {
+	tRawOpto = laserDigi.hitNS(hit);
 	TDCHists.rawOptosync_->Fill( tRawOpto );
       }
     }
@@ -203,53 +204,53 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
   
   // HBHE
   try {
-    for( HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); j++ ) {
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+    for( HBHEDigiCollection::const_iterator iter = hbhe.begin(); iter != hbhe.end(); iter++ ) {
+      const HBHEDataFrame digi = (const HBHEDataFrame)(*iter);
       
       calibs_= cond.getHcalCalibrations( digi.id() );
-      float en = 0, ts = 0, bs = 0, maxa = 0;
-      int maxi = 0;
+      float en = 0, numerator = 0, denominator = 0, maxADC = 0;
+      int maxTS = 0;
 
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-	if( digi.sample(i).adc() > maxa ) { maxa = digi.sample(i).adc(); maxi = i; }
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+	if( digi.sample(ts).adc() > maxADC ) { maxADC = digi.sample(ts).adc(); maxTS = ts; }
       }
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-        int adc = digi.sample(i).adc();
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+        int adc = digi.sample(ts).adc();
         float fc = adc2fc_[adc] + 0.5;
-	en += fc - calibs_.pedestal( digi.sample(i).capid() );
-	if( i >= (maxi - 1) && i <= (maxi + 1) ) {
-	  ts += i * ( fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	  bs += fc - calibs_.pedestal( digi.sample(i).capid() );
+	en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
+	  numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
 	}
       }
 
       if( en > adcThresh_ ) {
 	if( digi.id().subdet() == HcalBarrel ) {
 	  hbHists.allEnergy_->Fill(en);
-	  if( bs != 0 ) hbHists.allTime_->Fill( ts / bs );
+	  if( denominator != 0 ) hbHists.allTime_->Fill( numerator / denominator );
 	  else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HB hit time had a zero denominator!\n" );
 
-	  for( int i = 0; i < digi.size(); i++ ) {
-	    int adc = digi.sample(i).adc();
+	  for( int ts = 0; ts < digi.size(); ts++ ) {
+	    int adc = digi.sample(ts).adc();
 	    float fc = adc2fc_[adc] + 0.5;
-	    hbHists.allShape_->Fill( i, fc );
-	    hbHists.allShapePedSub_->Fill( i, fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	    pedSubTS[i] = fc - calibs_.pedestal( digi.sample(i).capid() );
+	    hbHists.allShape_->Fill( ts, fc );
+	    hbHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	    pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
 	  }
 
 	  if( doPerChannel_ ) perChanHists( HcalBarrel, digi.id(), pedSubTS, hbHists.perChanShape_, hbHists.perChanTime_, hbHists.perChanEnergy_, baseFolder_ );
 	}
 	else if( digi.id().subdet() == HcalEndcap ) {
 	  heHists.allEnergy_->Fill(en);
-	  if( bs != 0 ) heHists.allTime_->Fill( ts / bs );
+	  if( denominator != 0 ) heHists.allTime_->Fill( numerator / denominator );
 	  else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HE hit time had a zero denominator!\n" );
 
-	  for( int i = 0; i < digi.size(); i++ ) {
-	    int adc = digi.sample(i).adc();
+	  for( int ts = 0; ts < digi.size(); ts++ ) {
+	    int adc = digi.sample(ts).adc();
 	    float fc = adc2fc_[adc] + 0.5;
-	    heHists.allShape_->Fill( i, fc );
-	    heHists.allShapePedSub_->Fill( i, fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	    pedSubTS[i] = fc - calibs_.pedestal( digi.sample(i).capid() );
+	    heHists.allShape_->Fill( ts, fc );
+	    heHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	    pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
 	  }
 
 	  if( doPerChannel_ ) perChanHists( HcalEndcap, digi.id(), pedSubTS, heHists.perChanShape_, heHists.perChanTime_, heHists.perChanEnergy_, baseFolder_ );
@@ -262,37 +263,37 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 
   // HO
   try {
-    for( HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); j++ ) {
-      const HODataFrame digi = (const HODataFrame)(*j);
+    for( HODigiCollection::const_iterator iter = ho.begin(); iter != ho.end(); iter++ ) {
+      const HODataFrame digi = (const HODataFrame)(*iter);
 
       calibs_ = cond.getHcalCalibrations( digi.id() );
-      float en = 0, ts = 0, bs = 0, maxa = 0;
-      int maxi = 0;
+      float en = 0, numerator = 0, denominator = 0, maxADC = 0;
+      int maxTS = 0;
 
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-	if( digi.sample(i).adc() > maxa ) { maxa = digi.sample(i).adc(); maxi = i; }
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+	if( digi.sample(ts).adc() > maxADC ) { maxADC = digi.sample(ts).adc(); maxTS = ts; }
       }
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-        int adc = digi.sample(i).adc();
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+        int adc = digi.sample(ts).adc();
         float fc = adc2fc_[adc] + 0.5;
-	en += fc - calibs_.pedestal( digi.sample(i).capid() );
-	if( i >= (maxi - 1) && i <= (maxi + 1) ) {
-	  ts += i * ( fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	  bs += fc - calibs_.pedestal( digi.sample(i).capid() );
+	en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
+	  numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
 	}
       }
 
       if( en > adcThresh_ ) {
 	hoHists.allEnergy_->Fill(en);
-	if( bs != 0 ) hoHists.allTime_->Fill( ts / bs );
+	if( denominator != 0 ) hoHists.allTime_->Fill( numerator / denominator );
 	else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HO hit time had a zero denominator!\n" );
 
-	for( int i = 0; i < digi.size(); i++ ) {
-	  int adc = digi.sample(i).adc();
+	for( int ts = 0; ts < digi.size(); ts++ ) {
+	  int adc = digi.sample(ts).adc();
 	  float fc = adc2fc_[adc] + 0.5;
-	  hoHists.allShape_->Fill( i, fc );
-	  hoHists.allShapePedSub_->Fill( i, fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	  pedSubTS[i] = fc - calibs_.pedestal( digi.sample(i).capid() );
+	  hoHists.allShape_->Fill( ts, fc );
+	  hoHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
 	}
       }
 
@@ -304,37 +305,37 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 
   // HF
   try {
-    for( HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); j++ ) {
-      const HFDataFrame digi = (const HFDataFrame)(*j);
+    for( HFDigiCollection::const_iterator iter = hf.begin(); iter != hf.end(); iter++ ) {
+      const HFDataFrame digi = (const HFDataFrame)(*iter);
 
       calibs_ = cond.getHcalCalibrations( digi.id() );
-      float en = 0, ts = 0, bs = 0, maxa = 0;
-      int maxi = 0;
+      float en = 0, numerator = 0, denominator = 0, maxADC = 0;
+      int maxTS = 0;
 
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-	if( digi.sample( i).adc() > maxa ) { maxa = digi.sample(i).adc(); maxi = i; }
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+	if( digi.sample(ts).adc() > maxADC ) { maxADC = digi.sample(ts).adc(); maxTS = ts; }
       }
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-        int adc = digi.sample(i).adc();
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+        int adc = digi.sample(ts).adc();
         float fc = adc2fc_[adc] + 0.5;
-	en += fc - calibs_.pedestal( digi.sample(i).capid() );
-	if( i >= (maxi - 1) && i <= (maxi + 1) ) {
-	  ts += i * ( fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	  bs += fc - calibs_.pedestal( digi.sample(i).capid() );
+	en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
+	  numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
 	}
       }
 
       if( en > adcThresh_) {
 	hfHists.allEnergy_->Fill(en);
-	if( bs != 0 ) hfHists.allTime_->Fill( ts / bs );
+	if( denominator != 0 ) hfHists.allTime_->Fill( numerator / denominator );
 	else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HF hit time had a zero denominator!\n" );
 
-	for( int i = 0; i < digi.size(); i++ ) {
-	  int adc = digi.sample(i).adc();
+	for( int ts = 0; ts < digi.size(); ts++ ) {
+	  int adc = digi.sample(ts).adc();
 	  float fc = adc2fc_[adc] + 0.5;
-	  hfHists.allShape_->Fill( i, fc );
-	  hfHists.allShapePedSub_->Fill( i, fc - calibs_.pedestal( digi.sample(i).capid() ) );
-	  pedSubTS[i] = fc - calibs_.pedestal( digi.sample(i).capid() );
+	  hfHists.allShape_->Fill( ts, fc );
+	  hfHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
 	}
       }
 
@@ -353,17 +354,16 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
     printf( "HcalLaserMonitor::perChanHists - Null MonitorElement!\n" );
     return;
   }
-  string type;
 
-  if( id == HcalBarrel )       type = "HB";
-  else if( id == HcalEndcap )  type = "HE"; 
-  else if( id == HcalOuter )   type = "HO";
+  string type;
+  if     ( id == HcalBarrel  ) type = "HB";
+  else if( id == HcalEndcap  ) type = "HE"; 
+  else if( id == HcalOuter   ) type = "HO";
   else if( id == HcalForward ) type = "HF";
   else {
     printf( "HcalLaserMonitor::perChanHists - ID not understood!\n" );
     return;
   }
-
 
   m_dbe->setCurrentFolder( baseFolder + "/" + type + "/Expert" );
  
@@ -375,23 +375,23 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
       return;
     }
     else {
-      float en = 0, ts = 0, bs = 0, maxa = 0;
-      int maxi = 0;
+      float en = 0, numerator = 0, denominator = 0, maxADC = 0;
+      int maxTS = 0;
 
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-	if( pedSubTS[i] > maxa ) { maxa = pedSubTS[i]; maxi = i; }
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+	if( pedSubTS[ts] > maxADC ) { maxADC = pedSubTS[ts]; maxTS = ts; }
       }
-      for( int i = sigS0_; i <= sigS1_; i++ ) {
-	en += pedSubTS[i];
-	if( i >= (maxi - 1) && i <= (maxi + 1) ) {
-	  ts += i * pedSubTS[i];
-	  bs += pedSubTS[i];
+      for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+	en += pedSubTS[ts];
+	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
+	  numerator += ts * pedSubTS[ts];
+	  denominator += pedSubTS[ts];
 	}
-	_me->Fill( i, pedSubTS[i] );
+	_me->Fill( ts, pedSubTS[ts] );
       }
 
       _me = tTime[detid];
-      if( bs != 0 ) _me->Fill( ts / bs );
+      if( denominator != 0 ) _me->Fill( numerator / denominator );
       else if( fVerbosity ) printf( "HcalLaserMonitor::perChanHists - Calculation of hit time had a zero denominator!\n" );
 
       _me = tEnergy[detid];
@@ -400,28 +400,28 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
   }
   else {
     char name[1024];
-    float en = 0, ts = 0, bs = 0, maxa = 0;
-    int maxi = 0;
+    float en = 0, numerator = 0, denominator = 0, maxADC = 0;
+    int maxTS = 0;
 
     sprintf( name, "%s Laser Shape ieta=%+03d iphi=%02d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth() );
     MonitorElement* insertShape = m_dbe->book1D( name, name, 10, -0.5, 9.5 );
 
-    for( int i = sigS0_; i <= sigS1_; i++ ) {
-      if( pedSubTS[i] > maxa ) { maxa = pedSubTS[i]; maxi = i; }
-      insertShape->Fill( i, pedSubTS[i] );
+    for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+      if( pedSubTS[ts] > maxADC ) { maxADC = pedSubTS[ts]; maxTS = ts; }
+      insertShape->Fill( ts, pedSubTS[ts] );
     }
-    for( int i = sigS0_; i <= sigS1_; i++ ) {
-      en += pedSubTS[i];
-      if( i >= (maxi - 1) && i <= (maxi + 1) ) {
-	ts += i * pedSubTS[i];
-	bs += pedSubTS[i];
+    for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
+      en += pedSubTS[ts];
+      if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
+	numerator += ts * pedSubTS[ts];
+	denominator += pedSubTS[ts];
       }
     }
     tShape[detid] = insertShape;
     
     sprintf( name, "%s Laser Time ieta=%+03d iphi=%02d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth() );
     MonitorElement* insertTime = m_dbe->book1D( name, name, 100, 0, 10 );
-    if( bs != 0 ) insertTime->Fill( ts / bs );
+    if( denominator != 0 ) insertTime->Fill( numerator / denominator );
     else if( fVerbosity ) printf( "HcalLaserMonitor::perChanHists - Calculation of hit time had a zero denominator!\n" );
     tTime[detid] = insertTime;
 
