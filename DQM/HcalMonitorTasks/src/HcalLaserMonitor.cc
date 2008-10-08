@@ -88,7 +88,7 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
 
     m_dbe->setCurrentFolder( baseFolder_ + "/HB" );
     hbHists.allShapePedSub_ = m_dbe->book1D( "HB Ped Subtracted Pulse Shape", "HB Ped Subtracted Pulse Shape", 10, -0.5, 9.5 );
-    hbHists.allShape_ = m_dbe->book1D( "HB Average Pulse Shape", "HB Average Pulse Shape", 10, -0.5, 9.5 );
+    //hbHists.allShape_ = m_dbe->book1D( "HB Average Pulse Shape", "HB Average Pulse Shape", 10, -0.5, 9.5 );
     hbHists.rms_shape_ = m_dbe->book1D( "HB Laser Shape RMS Values", "HB Laser Shape RMS Values", 25, 0, 3 );
     hbHists.mean_shape_ = m_dbe->book1D( "HB Laser Shape Mean Values", "HB Laser Shape Mean Values", 100, -0.5, 9.5 );
 
@@ -97,12 +97,12 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     hbHists.mean_time_ = m_dbe->book1D( "HB Laser Time Mean Values", "HB Laser Time Mean Values", 100, -0.5, 9.5 );
 
     hbHists.allEnergy_ = m_dbe->book1D( "HB Average Pulse Energy", "HB Average Pulse Energy", 1000, 0, 10000 );
-    hbHists.rms_energy_ = m_dbe->book1D( "HB Laser Energy RMS Values", "HB Laser Energy RMS Values", 50, 0, 200 );
-    hbHists.mean_energy_ = m_dbe->book1D( "HB Laser Energy Mean Values", "HB Laser Energy Mean Values", 100, 0, 5000 );
+    hbHists.rms_energy_ = m_dbe->book1D( "HB Laser Energy RMS Values", "HB Laser Energy RMS Values", 100, 0, 400 );
+    hbHists.mean_energy_ = m_dbe->book1D( "HB Laser Energy Mean Values", "HB Laser Energy Mean Values", 300, 0, 10000 );
 
     m_dbe->setCurrentFolder( baseFolder_+ "/HE" );
     heHists.allShapePedSub_ = m_dbe->book1D( "HE Ped Subtracted Pulse Shape", "HE Ped Subtracted Pulse Shape", 10, -0.5, 9.5 );
-    heHists.allShape_ = m_dbe->book1D( "HE Average Pulse Shape", "HE Average Pulse Shape", 10, -0.5, 9.5 );
+    //heHists.allShape_ = m_dbe->book1D( "HE Average Pulse Shape", "HE Average Pulse Shape", 10, -0.5, 9.5 );
     heHists.rms_shape_ = m_dbe->book1D( "HE Laser Shape RMS Values", "HE Laser Shape RMS Values", 25, 0, 3 );
     heHists.mean_shape_ = m_dbe->book1D( "HE Laser Shape Mean Values", "HE Laser Shape Mean Values", 100, -0.5, 9.5 );
 
@@ -111,12 +111,12 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     heHists.mean_time_ = m_dbe->book1D( "HE Laser Time Mean Values", "HE Laser Time Mean Values", 100, -0.5, 9.5 );
 
     heHists.allEnergy_ = m_dbe->book1D( "HE Average Pulse Energy", "HE Average Pulse Energy", 1000, 0, 10000 );
-    heHists.rms_energy_ = m_dbe->book1D( "HE Laser Energy RMS Values", "HE Laser Energy RMS Values", 50, 0, 200 );
-    heHists.mean_energy_ = m_dbe->book1D( "HE Laser Energy Mean Values", "HE Laser Energy Mean Values", 100, 0, 5000 );
+    heHists.rms_energy_ = m_dbe->book1D( "HE Laser Energy RMS Values", "HE Laser Energy RMS Values", 100, 0, 400 );
+    heHists.mean_energy_ = m_dbe->book1D( "HE Laser Energy Mean Values", "HE Laser Energy Mean Values", 300, 0, 10000 );
 
     m_dbe->setCurrentFolder( baseFolder_+ "/HO" );
     hoHists.allShapePedSub_ = m_dbe->book1D( "HO Ped Subtracted Pulse Shape", "HO Ped Subtracted Pulse Shape", 10, -0.5, 9.5 );
-    hoHists.allShape_ = m_dbe->book1D( "HO Average Pulse Shape", "HO Average Pulse Shape", 10, -0.5, 9.5 );
+    //hoHists.allShape_ = m_dbe->book1D( "HO Average Pulse Shape", "HO Average Pulse Shape", 10, -0.5, 9.5 );
     hoHists.rms_shape_ = m_dbe->book1D( "HO Laser Shape RMS Values", "HO Laser Shape RMS Values", 25, 0, 3 );
     hoHists.mean_shape_ = m_dbe->book1D( "HO Laser Shape Mean Values", "HO Laser Shape Mean Values", 100, -0.5, 9.5 );
 
@@ -125,12 +125,12 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     hoHists.mean_time_ = m_dbe->book1D( "HO Laser Time Mean Values", "HO Laser Time Mean Values", 100, -0.5, 9.5 );
 
     hoHists.allEnergy_ = m_dbe->book1D( "HO Average Pulse Energy", "HO Average Pulse Energy", 1000, 0, 10000 );
-    hoHists.rms_energy_ = m_dbe->book1D( "HO Laser Energy RMS Values", "HO Laser Energy RMS Values", 50, 0, 200 );
-    hoHists.mean_energy_ = m_dbe->book1D( "HO Laser Energy Mean Values", "HO Laser Energy Mean Values", 100, 0, 5000 );
+    hoHists.rms_energy_ = m_dbe->book1D( "HO Laser Energy RMS Values", "HO Laser Energy RMS Values", 100, 0, 400 );
+    hoHists.mean_energy_ = m_dbe->book1D( "HO Laser Energy Mean Values", "HO Laser Energy Mean Values", 300, 0, 10000 );
 
     m_dbe->setCurrentFolder( baseFolder_ + "/HF" );
     hfHists.allShapePedSub_ = m_dbe->book1D( "HF Ped Subtracted Pulse Shape", "HF Ped Subtracted Pulse Shape", 10, -0.5, 9.5 );
-    hfHists.allShape_ = m_dbe->book1D( "HF Average Pulse Shape", "HF Average Pulse Shape", 10, -0.5, 9.5 );
+    //hfHists.allShape_ = m_dbe->book1D( "HF Average Pulse Shape", "HF Average Pulse Shape", 10, -0.5, 9.5 );
     hfHists.rms_shape_ = m_dbe->book1D( "HF Laser Shape RMS Values", "HF Laser Shape RMS Values", 25, 0, 3 );
     hfHists.mean_shape_ = m_dbe->book1D( "HF Laser Shape Mean Values", "HF Laser Shape Mean Values", 100, -0.5, 9.5 );
 
@@ -139,8 +139,8 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
     hfHists.mean_time_ = m_dbe->book1D( "HF Laser Time Mean Values", "HF Laser Time Mean Values", 100, -0.5, 9.5 );
 
     hfHists.allEnergy_ = m_dbe->book1D( "HF Average Pulse Energy", "HF Average Pulse Energy", 1000, 0, 10000 );
-    hfHists.rms_energy_ = m_dbe->book1D( "HF Laser Energy RMS Values", "HF Laser Energy RMS Values", 50, 0, 200 );
-    hfHists.mean_energy_ = m_dbe->book1D( "HF Laser Energy Mean Values", "HF Laser Energy Mean Values", 100, 0, 5000 );
+    hfHists.rms_energy_ = m_dbe->book1D( "HF Laser Energy RMS Values", "HF Laser Energy RMS Values", 100, 0, 400 );
+    hfHists.mean_energy_ = m_dbe->book1D( "HF Laser Energy Mean Values", "HF Laser Energy Mean Values", 300, 0, 10000 );
 
     m_dbe->setCurrentFolder( baseFolder_ + "/QADCTDC" );
     TDCHists.numChannels_ = m_dbe->book1D( "TDC Number of Channels", "TDC Number of Channels", 4, -0.5, 3.5 );
@@ -208,19 +208,30 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
       const HBHEDataFrame digi = (const HBHEDataFrame)(*iter);
       
       calibs_= cond.getHcalCalibrations( digi.id() );
+      const HcalQIECoder *qieCoder = cond.getHcalCoder( digi.id() );
+      const HcalQIEShape *qieShape = cond.getHcalShape();
+      HcalCoderDb coder( *qieCoder, *qieShape );
+      
       float en = 0, numerator = 0, denominator = 0, maxADC = 0;
       int maxTS = 0;
-
+      
       for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
 	if( digi.sample(ts).adc() > maxADC ) { maxADC = digi.sample(ts).adc(); maxTS = ts; }
       }
+
+      CaloSamples linDigi;
+      coder.adc2fC( digi, linDigi );
+
       for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
-        int adc = digi.sample(ts).adc();
-        float fc = adc2fc_[adc] + 0.5;
-	en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+        //int adc = digi.sample(ts).adc();
+        //float fc = adc2fc_[adc] + 0.5;
+	//en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	en += linDigi[ts];
 	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
-	  numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	  denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  //numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  //denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  numerator += ts * linDigi[ts];
+	  denominator += linDigi[ts];
 	}
       }
 
@@ -231,11 +242,13 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 	  else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HB hit time had a zero denominator!\n" );
 
 	  for( int ts = 0; ts < digi.size(); ts++ ) {
-	    int adc = digi.sample(ts).adc();
-	    float fc = adc2fc_[adc] + 0.5;
-	    hbHists.allShape_->Fill( ts, fc );
-	    hbHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	    pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	    //int adc = digi.sample(ts).adc();
+	    //float fc = adc2fc_[adc] + 0.5;
+	    //hbHists.allShape_->Fill( ts, fc );
+	    //hbHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	    //pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	    hbHists.allShapePedSub_->Fill( ts, linDigi[ts] );
+	    pedSubTS[ts] = linDigi[ts];
 	  }
 
 	  if( doPerChannel_ ) perChanHists( HcalBarrel, digi.id(), pedSubTS, hbHists.perChanShape_, hbHists.perChanTime_, hbHists.perChanEnergy_, baseFolder_ );
@@ -246,11 +259,13 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 	  else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HE hit time had a zero denominator!\n" );
 
 	  for( int ts = 0; ts < digi.size(); ts++ ) {
-	    int adc = digi.sample(ts).adc();
-	    float fc = adc2fc_[adc] + 0.5;
-	    heHists.allShape_->Fill( ts, fc );
-	    heHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	    pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	    //int adc = digi.sample(ts).adc();
+	    //float fc = adc2fc_[adc] + 0.5;
+	    //heHists.allShape_->Fill( ts, fc );
+	    //heHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	    //pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	    heHists.allShapePedSub_->Fill( ts, linDigi[ts] );
+	    pedSubTS[ts] = linDigi[ts];
 	  }
 
 	  if( doPerChannel_ ) perChanHists( HcalEndcap, digi.id(), pedSubTS, heHists.perChanShape_, heHists.perChanTime_, heHists.perChanEnergy_, baseFolder_ );
@@ -267,19 +282,30 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
       const HODataFrame digi = (const HODataFrame)(*iter);
 
       calibs_ = cond.getHcalCalibrations( digi.id() );
+      const HcalQIECoder *qieCoder = cond.getHcalCoder( digi.id() );
+      const HcalQIEShape *qieShape = cond.getHcalShape();
+      HcalCoderDb coder( *qieCoder, *qieShape );
+      
       float en = 0, numerator = 0, denominator = 0, maxADC = 0;
       int maxTS = 0;
 
       for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
 	if( digi.sample(ts).adc() > maxADC ) { maxADC = digi.sample(ts).adc(); maxTS = ts; }
       }
+
+      CaloSamples linDigi;
+      coder.adc2fC( digi, linDigi );
+
       for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
-        int adc = digi.sample(ts).adc();
-        float fc = adc2fc_[adc] + 0.5;
-	en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+        //int adc = digi.sample(ts).adc();
+        //float fc = adc2fc_[adc] + 0.5;
+	//en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	en += linDigi[ts];
 	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
-	  numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	  denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  //numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  //denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  numerator += ts * linDigi[ts];
+	  denominator += linDigi[ts];
 	}
       }
 
@@ -289,11 +315,13 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 	else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HO hit time had a zero denominator!\n" );
 
 	for( int ts = 0; ts < digi.size(); ts++ ) {
-	  int adc = digi.sample(ts).adc();
-	  float fc = adc2fc_[adc] + 0.5;
-	  hoHists.allShape_->Fill( ts, fc );
-	  hoHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	  pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  //int adc = digi.sample(ts).adc();
+	  //float fc = adc2fc_[adc] + 0.5;
+	  //hoHists.allShape_->Fill( ts, fc );
+	  //hoHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  //pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	    hoHists.allShapePedSub_->Fill( ts, linDigi[ts] );
+	    pedSubTS[ts] = linDigi[ts];
 	}
       }
 
@@ -309,19 +337,30 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
       const HFDataFrame digi = (const HFDataFrame)(*iter);
 
       calibs_ = cond.getHcalCalibrations( digi.id() );
+      const HcalQIECoder *qieCoder = cond.getHcalCoder( digi.id() );
+      const HcalQIEShape *qieShape = cond.getHcalShape();
+      HcalCoderDb coder( *qieCoder, *qieShape );
+
       float en = 0, numerator = 0, denominator = 0, maxADC = 0;
       int maxTS = 0;
 
       for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
 	if( digi.sample(ts).adc() > maxADC ) { maxADC = digi.sample(ts).adc(); maxTS = ts; }
       }
+
+      CaloSamples linDigi;
+      coder.adc2fC( digi, linDigi );
+
       for( int ts = sigS0_; ts <= sigS1_; ts++ ) {
-        int adc = digi.sample(ts).adc();
-        float fc = adc2fc_[adc] + 0.5;
-	en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+        //int adc = digi.sample(ts).adc();
+        //float fc = adc2fc_[adc] + 0.5;
+	//en += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	en += linDigi[ts];
 	if( ts >= (maxTS-1) && ts <= (maxTS+1) ) {
-	  numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	  denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  //numerator += ts * ( fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  //denominator += fc - calibs_.pedestal( digi.sample(ts).capid() );
+	  numerator += ts * linDigi[ts];
+	  denominator += linDigi[ts];
 	}
       }
 
@@ -331,12 +370,13 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 	else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HF hit time had a zero denominator!\n" );
 
 	for( int ts = 0; ts < digi.size(); ts++ ) {
-	  int adc = digi.sample(ts).adc();
-	  float fc = adc2fc_[adc] + 0.5;
-	  hfHists.allShape_->Fill( ts, fc );
-	  hfHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
-	  pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
-	}
+	  //int adc = digi.sample(ts).adc();
+	  //float fc = adc2fc_[adc] + 0.5;
+	  //hfHists.allShape_->Fill( ts, fc );
+	  //hfHists.allShapePedSub_->Fill( ts, fc - calibs_.pedestal( digi.sample(ts).capid() ) );
+	  //pedSubTS[ts] = fc - calibs_.pedestal( digi.sample(ts).capid() );
+	    hfHists.allShapePedSub_->Fill( ts, linDigi[ts] );
+	    pedSubTS[ts] = linDigi[ts];	}
       }
 
       if( doPerChannel_ ) perChanHists( HcalForward, digi.id(), pedSubTS, hfHists.perChanShape_, hfHists.perChanTime_, hfHists.perChanEnergy_, baseFolder_ );

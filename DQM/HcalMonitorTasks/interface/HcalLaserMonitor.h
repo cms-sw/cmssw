@@ -9,8 +9,8 @@
 
 /** \class HcalLaserMonitor
  *  
- * $Date: 2008/08/13 15:47:19 $
- * $Revision: 1.14 $
+ * $Date: 2008/08/13 17:08:26 $
+ * $Revision: 1.1 $
  * \author L. Lebolo - FIU
  */
 static const float adc2fc_[128] = { -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -79,7 +79,7 @@ class HcalLaserMonitor: public HcalBaseMonitor {
     map<HcalDetId,MonitorElement*> perChanEnergy_;
 
     MonitorElement* allShapePedSub_;
-    MonitorElement* allShape_;
+    //MonitorElement* allShape_;
     MonitorElement* allTime_;
     MonitorElement* allEnergy_;
 
