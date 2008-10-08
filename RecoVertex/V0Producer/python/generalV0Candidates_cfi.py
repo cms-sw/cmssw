@@ -27,11 +27,13 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     collinearityCut = cms.double(0.02),
     #  Setting this one to zero; significance cut is sufficient
     rVtxCut = cms.double(0.0),
-    vtxSignificanceCut = cms.double(22.0),
+#    vtxSignificanceCut = cms.double(22.0),
+    vtxSignificanceCut = cms.double(15.0),
     kShortMassCut = cms.double(0.07),
     lambdaMassCut = cms.double(0.05),
-    impactParameterCut = cms.double(0.05),
-    mPiPiCut = cms.double(0.7),
+    impactParameterSigCut = cms.double(2.0),
+    mPiPiCut = cms.double(0.6),
+    tkDCACut = cms.double(1.),
 
     # These parameters decide whether or not to reconstruct
     #  specific V0 particles

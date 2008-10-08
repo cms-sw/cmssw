@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.29 2008/07/02 22:53:54 kaulmer Exp $
+// $Id: V0Fitter.cc,v 1.30 2008/09/22 22:51:25 drell Exp $
 //
 //
 
@@ -69,8 +69,9 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   collinCut = theParameters.getParameter<double>(string("collinearityCut"));
   kShortMassCut = theParameters.getParameter<double>(string("kShortMassCut"));
   lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
-  impactParameterCut = theParameters.getParameter<double>(string("impactParameterCut"));
+  impactParameterSigCut = theParameters.getParameter<double>(string("impactParameterSigCut"));
   mPiPiCut = theParameters.getParameter<double>(string("mPiPiCut"));
+  tkDCACut = theParameters.getParameter<double>(string("tkDCACut"));
 
   // FOR DEBUG:
   //initFileOutput();
@@ -143,7 +144,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
       TrajectoryStateClosestToBeamLine tscb( tmpTk.stateAtBeamLine() );
       if( tscb.isValid() ) {
-	if( tscb.transverseImpactParameter().value() > impactParameterCut ) {
+	if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
 	  theTrackRefs.push_back( tmpRef );
 	  theTransTracks.push_back( tmpTk );
 	}
@@ -201,7 +202,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // Assume pion masses and do a wide mass cut.  First, we need the
       //  track momenta.
             
-      double posESq = positiveTrackRef->momentum().Mag2() + piMassSquared;
+      /*double posESq = positiveTrackRef->momentum().Mag2() + piMassSquared;
       double negESq = negativeTrackRef->momentum().Mag2() + piMassSquared;
       double posE = sqrt(posESq);
       double negE = sqrt(negESq);
@@ -210,7 +211,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double totalPSq = 
 	(positiveTrackRef->momentum() + negativeTrackRef->momentum()).Mag2();
       double mass = sqrt( totalESq - totalPSq);
-      if( mass > mPiPiCut ) continue;
+      if( mass > mPiPiCut ) continue;*/
       
       //^^^Next, need to make sure the above works with signal/background studies
 
@@ -236,7 +237,25 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TrajectoryStateClosestToPoint negTSCP =
 	negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
 
-      if (dca < 0.) continue;
+      if (dca < 0. || dca > tkDCACut) continue;
+
+      //double posESq = positiveTrackRef->momentum().Mag2() + piMassSquared;
+      //double negESq = negativeTrackRef->momentum().Mag2() + piMassSquared;
+      double posESq = posTSCP.momentum().mag2() + piMassSquared;
+      double negESq = negTSCP.momentum().mag2() + piMassSquared;
+      double posE = sqrt(posESq);
+      double negE = sqrt(negESq);
+      double totalE = posE + negE;
+      double totalESq = totalE*totalE;
+      //double totalPSq = 
+      //(positiveTrackRef->momentum() + negativeTrackRef->momentum()).Mag2();
+      double totalPSq =
+	( posTSCP.momentum() + negTSCP.momentum() ).mag2();
+      double mass = sqrt( totalESq - totalPSq);
+
+      //mPiPiMassOut << mass << std::endl;
+
+      if( mass > mPiPiCut ) continue;
 
       // Create the vertex fitter object
       KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
