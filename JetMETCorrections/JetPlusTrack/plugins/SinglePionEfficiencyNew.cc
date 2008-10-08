@@ -365,7 +365,6 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
      
      HepLorentzVector pion((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
      genpions.push_back(pion);
-     /*
      cout <<" status : " << (*p)->status() 
 	  <<" pid = " << (*p)->pdg_id() 
 	  <<" eta = " << (*p)->momentum().eta()
@@ -374,7 +373,6 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  <<" pt =  " << (*p)->momentum().perp() 
 	  <<" charge = " << (pdt->particle((*p)->pdg_id()))->charge()
 	  <<" charge3 = " << (pdt->particle((*p)->pdg_id()))->ID().threeCharge() << endl;
-     */
    }
    //   edm::Handle<EBRecHitCollection> barrelRecHitsHandle;
    //   edm::Handle<EERecHitCollection> endcapRecHitsHandle;
