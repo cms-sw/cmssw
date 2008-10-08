@@ -45,7 +45,6 @@ int main( int argc, char** argv ){
   myopt.addAuthentication(true);
   myopt.addDictionary();
   myopt.addBlobStreamer();
-  myopt.addFileConfig();
   myopt.addLogDB();
   myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
@@ -84,12 +83,12 @@ int main( int argc, char** argv ){
 	configuration_file.close();
       }
     }
-    if(!vm.count("connection")){
+    if(!vm.count("connect")){
       std::cerr <<"[Error] no connection[c] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else{
-      destConnect=vm["connection"].as<std::string>();
+      destConnect=vm["connect"].as<std::string>();
     }
     if(vm.count("dictionary")){
       dictionary=vm["dictionary"].as<std::string>();
