@@ -52,19 +52,21 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   EcalStripSumE_deltaPhiOverQ_minValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_minValue");
   EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
 
-  TauElementsOperator myTmp;
+
 
   //TFormula computation
-  TFormula myMatchingConeSizeTFormula=myTmp.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+  PFTau tmp;
+  PFTauElementsOperators myTmp(tmp);
+   myMatchingConeSizeTFormula=myTmp.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
   //Charged particels cones
-  TFormula myTrackerSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-  TFormula myTrackerIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+  myTrackerSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+  myTrackerIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
   //Gamma candidates cones
-  TFormula myECALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-  TFormula myECALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+  myECALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+  myECALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
   //Neutral hadrons cones
-  TFormula myHCALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
-  TFormula myHCALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
+  myHCALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
+  myHCALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
  
 
 }

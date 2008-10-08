@@ -66,6 +66,11 @@ class  CaloRecoTauAlgorithm  {
   double ECALIsolConeSize_max_;
   double AreaMetric_recoElements_maxabsEta_;
   const double chargedpi_mass_; //PDG Particle Physics Booklet, 2004
+
+  TFormula myTrackerSignalConeSizeTFormula,myTrackerIsolConeSizeTFormula, myECALSignalConeSizeTFormula, myECALIsolConeSizeTFormula,myMatchingConeSizeTFormula; 
+  
+
+
 };
 #endif 
 

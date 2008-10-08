@@ -31,6 +31,17 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
   ECALIsolConeSize_max_               = iConfig.getParameter<double>("ECALIsolConeSize_max");
   
   AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
+
+  //Computing the TFormula
+  CaloTau tmp;
+  CaloTauElementsOperators myTmp(tmp);
+  myTrackerSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+  myTrackerIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+  myECALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+  myECALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+  myMatchingConeSizeTFormula=myTmp.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+
+ 
 }
 void CaloRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x){TransientTrackBuilder_=x;}
 void CaloRecoTauAlgorithm::setMagneticField(const MagneticField* x){MagneticField_=x;} 
@@ -45,7 +56,6 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
   TrackRefVector myTks=(*myCaloTauTagInfoRef).Tracks();
   
   CaloTauElementsOperators myCaloTauElementsOperators(myCaloTau);
-  TFormula myMatchingConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
   double myMatchingConeSize=myCaloTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
   TrackRef myleadTk=myCaloTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
   double myCaloTau_refInnerPosition_x=0.;
@@ -112,13 +122,10 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
       myTks=myTksbis;
     }
 
-    TFormula myTrackerSignalConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+
     double myTrackerSignalConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
-    TFormula myTrackerIsolConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
-    double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
-    TFormula myECALSignalConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+        double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
     double myECALSignalConeSize=myCaloTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
-    TFormula myECALIsolConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
     double myECALIsolConeSize=myCaloTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
 
     TrackRefVector mySignalTks;
