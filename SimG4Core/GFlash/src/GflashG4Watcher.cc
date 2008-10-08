@@ -11,7 +11,6 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
 #include "SimG4Core/GFlash/interface/GflashG4Watcher.h"
-#include "SimG4Core/GFlash/interface/GflashObjects.h"
 
 #include <TVector2.h>
 
@@ -27,19 +26,14 @@ GflashG4Watcher::GflashG4Watcher(const edm::ParameterSet& p) {
 
   TH1::AddDirectory(kTRUE);
 
-  gflashObject_ = new GflashObject;
-  watcherTree_ = new TTree("watcherTree","Watcher Tree Variable");
-  watcherTree_->Branch("gflashObject","GflashObject",&gflashObject_,6400,99);
-  watcherTree_->SetAutoSave();
 
-  longitudinal_ = new TH1F("longitudinal","Logitudinal profile;X_{0};Energy",100,0.0,50.0);
-  lateral_r_ = new TH1F("lateral_r","Lateral profile;r_{M};Number of hits",300,0.0,3.0);
-  showerStartingPosition_ = new TH1F("showerStartingPosition","Shower starting position;r(cm);Number of hits",100,120.0,170.0);
-  nHits_ = new TH1F("nHits","Number of hits;N_{hit};Events",30,4000.0,7000.0);
-  hitEnergy_ = new TH1F("hitEnergy","Energy of hits;Energy (MeV);Number of hits",100,0.0,10.0);
-  rzHits_ = new TH2F("rzHits","r vs. z of hits;z (X_{0});r_{M}",100,0.0,50.0,300,0.0,3.0);
-  incEnergy_ = new TH1F("incEnergy","Incoming energy;energy (GeV);Events",100,0.0,100.0);
-  outEnergy_ = new TH1F("outEnergy","Outgoing energy;energy (GeV);Events",100,0.0,100.0);
+  em_incE       = new TH1F("em_incE","Incoming energy at Ecal;E (GeV);Number of Events",500,0.0,500.0);
+  em_ssp_rho    = new TH1F("em_ssp_rho","Shower starting position;#rho (cm);Number of Events",100,100.0,200.0);
+  em_ssp_z      = new TH1F("em_ssp_z","Shower starting position;z (cm);Number of Events",800,-400.0,400.0);
+  em_long       = new TH1F("em_long","Longitudinal Profile;Radiation Length;Number of Spots",100,0.0,50.0);
+  em_lateral    = new TH2F("em_lateral","Lateral Profile vs. Shower Depth;Radiation Length;Moliere Radius",100,0.0,50.0,100,0.0,3.0);
+  em_long_sd    = new TH1F("em_long_sd","Longitudinal Profile in Sensitive Detector;Radiation Length;Number of Spots",100,0.0,50.0);
+  em_lateral_sd = new TH2F("em_lateral_sd","Lateral Profile vs. Shower Depth in Sensitive Detector;Radiation Length;Moliere Radius",100,0.0,50.0,100,0.0,3.0);
 
 }
 
@@ -56,7 +50,6 @@ void GflashG4Watcher::update(const BeginOfEvent* g4Event){
   inc_energy = 0;
   inc_direction *= 0;
   inc_position *= 0;
-  gflashObject_->Init();
 }
 
 void GflashG4Watcher::update(const EndOfEvent* g4Event){
@@ -68,40 +61,12 @@ void GflashG4Watcher::update(const EndOfEvent* g4Event){
   double primM = evt->GetPrimaryVertex(0)->GetPrimary(0)->GetMass();
   double primE = std::sqrt(primP*primP + primM+primM);
 
-  incEnergy_->Fill(inc_energy/GeV);
+  em_incE->Fill(inc_energy/GeV);
 
   if(inc_energy < 0.95*primE) return;
 
-
-  // Now fill GflashObject
-
-  gflashObject_->energy = inc_energy;
-  gflashObject_->direction.SetXYZ(inc_direction.x(),inc_direction.y(),inc_direction.z());
-  gflashObject_->position.SetXYZ(inc_position.x(),inc_position.y(),inc_position.z());
-  showerStartingPosition_->Fill(inc_position.rho()/cm);
-
-
-  double outEnergy = 0.0;
-
-  for(std::vector<GflashHit>::iterator it = gflashObject_->hits.begin();
-      it != gflashObject_->hits.end(); it++){
-    TVector3 diff = it->position - gflashObject_->position;
-    double angle = diff.Angle(gflashObject_->direction);
-    double diff_z = std::abs(diff.Mag()*std::cos(angle));
-    double diff_r = std::abs(diff.Mag()*std::sin(angle));
-
-    lateral_r_->Fill(diff_r/rMoliere,it->energy);
-    rzHits_->Fill(diff_z/radLength,diff_r/rMoliere,it->energy);
-    hitEnergy_->Fill(it->energy);
-    longitudinal_->Fill(diff_z/radLength,it->energy);
-
-    outEnergy += it->energy;
-  }
-
-  nHits_->Fill(gflashObject_->hits.size());
-  outEnergy_->Fill(outEnergy/GeV);
-
-  //  watcherTree_->Fill();
+  em_ssp_rho->Fill(inc_position.rho()/cm);
+  em_ssp_z->Fill(inc_position.z()/cm);
 
 }
 
@@ -112,12 +77,25 @@ void GflashG4Watcher::update(const G4Step* aStep){
   if(inc_flag){
     if(aStep->GetTotalEnergyDeposit() > 1.0e-6){
       G4ThreeVector hitPosition = aStep->GetPreStepPoint()->GetPosition();
-      GflashHit gHit;
-      gHit.energy = aStep->GetTotalEnergyDeposit();
-      gHit.position.SetXYZ(hitPosition.x(),hitPosition.y(),hitPosition.z());
-      gflashObject_->hits.push_back(gHit);
-    }
-  }
+      double hitEnergy = aStep->GetTotalEnergyDeposit();
+
+      G4ThreeVector diff = hitPosition - inc_position;
+      double angle = diff.angle(inc_direction);
+      double diff_z = std::abs(diff.mag() * std::cos(angle));
+      double diff_r = std::abs(diff.mag() * std::sin(angle));
+
+      em_long->Fill(diff_z/radLength,hitEnergy/GeV);
+      em_lateral->Fill(diff_z/radLength,diff_r/rMoliere,hitEnergy/GeV);
+
+      G4VSensitiveDetector* aSensitive = aStep->GetPreStepPoint()->GetSensitiveDetector();
+      if(aSensitive){
+	em_long_sd->Fill(diff_z/radLength,hitEnergy/GeV);
+	em_lateral_sd->Fill(diff_z/radLength,diff_r/rMoliere,hitEnergy/GeV);
+      } // if(aSensitive)
+
+    } // if(aStep->GetTotalEnergyDeposit() > 1.0e-6)
+
+  } // if(inc_flag)
   else {
     G4bool trigger = aStep->GetPreStepPoint()->GetKineticEnergy() > 1.0*GeV;
     trigger = trigger && (aStep->GetTrack()->GetDefinition() == G4Electron::ElectronDefinition() || 
@@ -136,7 +114,7 @@ void GflashG4Watcher::update(const G4Step* aStep){
       inc_position = aStep->GetPreStepPoint()->GetPosition();
       inc_flag = true;
     }
-  }
+  } // else
 
 }
 

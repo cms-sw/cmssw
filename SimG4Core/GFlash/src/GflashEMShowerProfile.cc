@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.10 2008/09/29 17:25:27 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.11 2008/09/29 22:24:33 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -115,8 +115,9 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
 
    if(theHisto->getStoreFlag()) {
-    theHisto->incE_atEcal->Fill(incomingEnergy);
-    theHisto->rho_ssp->Fill(showerStartingPosition.rho());
+    theHisto->em_incE->Fill(incomingEnergy);
+    theHisto->em_ssp_rho->Fill(showerStartingPosition.rho());
+    theHisto->em_ssp_z->Fill(showerStartingPosition.z());
   }
 
   //  parameters for lateral distribution and fluctuation
@@ -141,7 +142,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   // preparation of longitudinal integration
   G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
 									fastTrack.GetPrimaryTrackLocalDirection()) / cm;
-
+  G4int    nSpots_sd = 0; // count total number of spots in SD
   G4double zInX0 = 0.0; // shower depth in X0 unit
   G4double deltaZInX0 = 0.0; // segment of depth in X0 unit
   G4double deltaZ = 0.0; // segment of depth in cm
@@ -243,12 +244,9 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
 
     // Deposition of spots according to lateral distr.
-    G4double emSpotEnergy = deltaEnergy / nSpotsInStep;
-
-    if(theHisto->getStoreFlag()) {
-      theHisto->dEdz->Fill(zInX0-0.5,deltaEnergy);
-      theHisto->dEdz_p->Fill(zInX0-0.5,deltaEnergy);
-    }
+    // Apply absolute energy scale
+    // Convert into MeV unit
+    G4double emSpotEnergy = deltaEnergy / nSpotsInStep * e25Scale * GeV;
 
     for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
       spotCounter++;
@@ -282,7 +280,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 	rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() +
 	rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
-      emSpotEnergy *= e25Scale*GeV;
+      // Convert into mm unit
       SpotPosition *= cm;
 
       //---------------------------------------------------
@@ -305,6 +303,13 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
       theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
       theGflashStep->SetTotalEnergyDeposit(emSpotEnergy);
     
+      G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
+
+      if(theHisto->getStoreFlag()) {
+	theHisto->em_long->Fill(zInX0_spot,emSpotEnergy/GeV);
+	theHisto->em_lateral->Fill(zInX0_spot,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
+      }
+
       // Send G4Step information to Hit/Digi if the volume is sensitive
       // Copied from G4SteppingManager.cc
     
@@ -320,22 +325,21 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
       if( aSensitive == 0 ) continue;
       aSensitive->Hit(theGflashStep);
 
+      nSpots_sd++;
 
       // for histogramming      
-      G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
-
       if(theHisto->getStoreFlag()) {
-	theHisto->rxry->Fill(rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter],rShower*std::sin(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
-	theHisto->dx->Fill(rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
-	theHisto->xdz->Fill(zInX0-0.5,rShower*std::cos(azimuthalAngle)/Gflash::rMoliere[jCalorimeter]);
-	theHisto->dndz_spot->Fill(zInX0_spot);
-	theHisto->rzSpots->Fill(SpotPosition.z()/cm,SpotPosition.r()/cm);
-	theHisto->rArm->Fill(rShower/Gflash::rMoliere[jCalorimeter]);
+	theHisto->em_long_sd->Fill(zInX0_spot,emSpotEnergy/GeV);
+	theHisto->em_lateral_sd->Fill(zInX0_spot,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
       }
       
     } // end of for spot iteration
 
   } // end of while for longitudinal integration
+
+  if(theHisto->getStoreFlag()) {
+    theHisto->em_nSpots_sd->Fill(nSpots_sd);
+  }
 
   delete theGflashNavigator;
 

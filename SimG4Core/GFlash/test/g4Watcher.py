@@ -43,20 +43,19 @@ process.source = cms.Source("FlatRandomEGunSource",
 
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/GFlash'
-process.g4SimHits.Physics.GFlash = cms.PSet(
-    GflashHadronPhysics = cms.string('QGSP_BERT'),
-    GflashEMShowerModel = cms.bool(True),
-    GflashHadronShowerModel = cms.bool(True),
-    GflashHistogram = cms.bool(True),
-    GflashHistogramName = cms.string('gflash_em.root'),
-    bField = cms.double(4.0),
-    tuning_pList = cms.vdouble()
+
+process.g4SimHits.Watchers = cms.VPSet(
+    cms.PSet(
+      GflashG4Watcher = cms.PSet(
+        histFileName = cms.string('gflash_g4Watcher.root')
+      ),
+    type = cms.string('GflashG4Watcher')
+    )
 )
 
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('sim_gflash_em.root')
+    fileName = cms.untracked.string('sim_g4_em.root')
 )
 
 process.p1 = cms.Path(process.g4SimHits)

@@ -17,7 +17,7 @@
 class BeginOfEvent;
 class EndOfEvent;
 class G4Step;
-class GflashObject;
+
 
 class GflashG4Watcher : public SimWatcher,
   public Observer<const BeginOfEvent*>,
@@ -44,15 +44,13 @@ class GflashG4Watcher : public SimWatcher,
   std::string histFileName_;
   TFile*    histFile_;
 
-  GflashObject* gflashObject_;
-  TTree*    watcherTree_;
-  TH1F*     longitudinal_;
-  TH1F*     lateral_r_;
-  TH1F*     showerStartingPosition_;
-  TH1F*     nHits_;
-  TH1F*     hitEnergy_;
-  TH2F*     rzHits_;
-  TH1F*     incEnergy_;
-  TH1F*     outEnergy_;
+  TH1F*     em_incE;
+  TH1F*     em_ssp_rho;
+  TH1F*     em_ssp_z;
+  TH1F*     em_long;
+  TH2F*     em_lateral;
+  TH1F*     em_long_sd;
+  TH2F*     em_lateral_sd;
+
 };
 
