@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/08/25 17:04:04 $ by $Author: futyand $
+# last update: $Date: 2008/09/15 14:04:34 $ by $Author: futyand $
 
 # AlCaReco sequence definitions:
 
@@ -35,6 +35,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_cff import *
 # HCAL calibration from HO (muons) 
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 # Muon Alignment with cosmics
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
@@ -68,6 +69,7 @@ pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron)
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
+pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
@@ -188,11 +190,20 @@ ALCARECOStreamHcalCalGammaJet = cms.FilteredStream(
 	)
 
 ALCARECOStreamHcalCalHO = cms.FilteredStream(
-	responsible = 'Grigory Safronov',
+	responsible = 'Gobinda Majumder',
 	name = 'ALCARECOHcalCalHO',
 	paths  = (pathALCARECOHcalCalHO),
 	content = OutALCARECOHcalCalHO.outputCommands,
 	selectEvents = OutALCARECOHcalCalHO.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamHcalCalHOCosmics = cms.FilteredStream(
+	responsible = 'Gobinda Majumder',
+	name = 'ALCARECOHcalCalHOCosmics',
+	paths  = (pathALCARECOHcalCalHOCosmics),
+	content = OutALCARECOHcalCalHOCosmics.outputCommands,
+	selectEvents = OutALCARECOHcalCalHOCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
