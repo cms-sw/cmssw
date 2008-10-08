@@ -58,6 +58,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "SUSYBSMAnalysis/HSCP/interface/MuonSegmentMatcher.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -132,6 +133,8 @@ class BetaFromTOF : public edm::EDProducer {
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   
   MuonServiceProxy* theService;
+  
+  MuonSegmentMatcher *theMatcher;
 };
 
 //
@@ -157,6 +160,11 @@ BetaFromTOF::BetaFromTOF(const edm::ParameterSet& iConfig)
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   // the services
   theService = new MuonServiceProxy(serviceParameters);
+  
+  ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+
+  theMatcher = new MuonSegmentMatcher(serviceParameters, matchParameters, theService);
+
   produces<susybsm::MuonTOFCollection>();
 }
 
@@ -193,12 +201,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ESHandle<DTGeometry> theDTGeometry;
   iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
 
-  Handle<reco::TrackCollection> staMuonsH;
-  iEvent.getByLabel("cosmicMuonsBarrelOnly",staMuonsH);
-  const reco::TrackCollection & staMuons = * staMuonsH.product();
-  if (debug) 
-    cout << " STA Muon collection size: " << staMuons.size() << endl;
-
   Handle<reco::MuonCollection> allMuons;
   iEvent.getByLabel(MuonTags_,allMuons);
   const reco::MuonCollection & muons = * allMuons.product();
@@ -217,7 +219,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   size_t muId=0;
   for(reco::MuonCollection::const_iterator mi = muons.begin(); mi != muons.end() ; mi++,muId++) {
-    TrackRef staMuon = mi->standAloneMuon();
 
     //the associated muon track
     TrackRef muonTrack;
@@ -228,69 +229,48 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     double stationHits[4]={0,0,0,0};
     double invbeta=0;
-    DriftTubeTOF tof;
+    int totalWeight=0;
+    int nStations=0;
     
+    DriftTubeTOF tof;
     tof.nHits=0;
     tof.nStations=0;
-    
+    tof.invBeta=0;
+    tof.invBetaErr=0;
+
     math::XYZPoint  pos=muonTrack->innerPosition();
     math::XYZVector mom=muonTrack->innerMomentum();
-
     GlobalPoint  posp(pos.x(), pos.y(), pos.z());
     GlobalVector momv(mom.x(), mom.y(), mom.z());
-
     FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
-    for (reco::TrackCollection::const_iterator candTrack = staMuons.begin(); candTrack != staMuons.end(); ++candTrack) {
+    if (debug) 
+      cout << " STA Track:   RecHits: " << (*muonTrack).recHitsSize() 
+           << " momentum: " << (*muonTrack).p() << endl;
 
-      // find the standalone muon matching the global muon
-      if ((staMuon->momentum().unit()-candTrack->momentum().unit()).Mag2()>0.01) continue;
+    // get the DT segments that were used to construct the muon
+    vector<const DTRecSegment4D*> range = theMatcher->matchDT(*(mi->standAloneMuon()),iEvent);
 
-      int totalWeight=0;
-      int nStations=0;
+    // create a collection on TimeMeasurements for the track        
+    for (vector<const DTRecSegment4D*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
 
-      if (debug) 
-        cout << " STA Track:   RecHits: " << (*candTrack).recHitsSize() 
-             << " momentum: " << (*candTrack).p() << endl;
-
-      // first, create a collection on TimeMeasurements for the track
-      for (trackingRecHit_iterator hi=(*candTrack).recHitsBegin(); hi!=(*candTrack).recHitsEnd(); hi++) {
-
-        // Check that we're in DT
-        if ( ((*hi)->geographicalId().subdetId() != MuonSubdetId::DT ) 
-          || ((*hi)->geographicalId().det() != 2)) continue;
-  
         // Create the ChamberId
-        DetId id = (*hi)->geographicalId();
+        DetId id = (*rechit)->geographicalId();
         DTChamberId chamberId(id.rawId());
         DTLayerId layerId(id.rawId());
         DTSuperLayerId slayerId(id.rawId());
         int station = chamberId.station();
-        
-        // since the rec hits in the trajectory no longer are DTSegments and don't remember their t0, we need to 
-        // get the hits directly from the chamber and match them...
 
-        // Look for reconstructed 4D Segments
-        DTRecSegment4DCollection::range range = dtRecHits->get(chamberId);
-
-	// Check for showers in a cone around the 4D hit                 
-        for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit)
-          if ((rechit->localPosition()-(*hi)->localPosition()).mag()<20.) stationHits[station-1]++;
-
-        for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit) {
-
-          // match with the current recHit
-//          if ((rechit->globalPosition()-(*hi)->globalPosition()).mag()>0.01)
-  //           { cout << "skip because dist > 0.01  " << (rechit->globalPosition()-(*hi)->globalPosition()).mag() << endl;  continue;}
+        if ( (!(*rechit)->hasPhi()) || (!(*rechit)->hasZed()) ) continue;
+	// TODO Check for showers in a cone around the 4D hit                 
 
           // loop over (theta, phi) segments
           for (int phi=0; phi<2; phi++) {
 
             const DTRecSegment2D* segm;
-  	    if (phi) segm = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment()); 
-  	      else segm = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
-  	    if(segm == 0){  continue; }   
-//         cout << "spec " << segm->specificRecHits().size() << endl;
+  	    if (phi) segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->phiSegment()); 
+  	      else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
+  	    if(segm == 0){cout << "skip this" << endl;  continue; }   
   	    if (!segm->specificRecHits().size()) continue;
 
             const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
@@ -298,13 +278,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // store all the hits from the segment
     	    for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
-
-            if (((*hi)->localPosition() - hiti->localPosition()).mag()>0.01)
-             { 
-                   //cout << "skip because dist > 0.01  " <<  ((*hi)->localPosition() - hiti->localPosition()).mag() << endl; 
-              continue;
-               }
-
 
   	      const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
               TimeMeasurement thisHit;
@@ -315,13 +288,11 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
               thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
               thisHit.station = station;
-              //cout << "push" << endl;      
               tof.timeMeasurements.push_back(thisHit);
             }
 
           } // phi = (0,1) 	        
-        } // rechit
-      } // hi
+      } // rechit
 
       // Make a copy of the time measurement collection - we'll be cutting away hits, but we want to store all
       vector<TimeMeasurement> tms = tof.timeMeasurements;
@@ -415,7 +386,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             
             if (tsos.first.isValid()) dist = tsos.second+posp.mag();
             
-            if ((debug) || (fabs(dist)>1000.)) {
+            if ((debug) || (fabs(dist)>1500.)) {
               cout << " Dist: " << dist << "   segm: " << segmLocalPos << "   hit: " << hitLocalPos;
               if (tsos.first.isValid()) cout << " traj: " << dtcham->toLocal(tsos.first.globalPosition()) << " path: " << tsos.second+posp.mag();
               cout << " Start: " << posp;
@@ -463,7 +434,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
         }
     
-        invbetaerr=sqrt(invbetaerr)/totalWeight;
+        invbetaerr=sqrt(invbetaerr/totalWeight);
  
         // cut away the outliers
         if (chimax>thePruneCut) {
@@ -477,13 +448,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         tof.invBeta=invbeta;
         tof.invBetaErr=invbetaerr;      
 
-//      if ((invbetaerr>0.07) || (stationHits[0]>1)) {
-//        cout << " *** Beta: " << invbeta << " +/- " << invbetaerr << "   All Hits: " << dstnc.size() << endl;
-//        for (int a=0;a<4;a++) cout << "     St: " << a+1 << "   4d hits: " << stationHits[a] << endl;
-//        for (unsigned int i=0;i<dstnc.size();i++)
-//          cout << "    x: " << dstnc.at(i) << "   y: " << dsegm.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
-//      }
-        
       } while (modified);
 
       // unconstrained fit to the full set of points
@@ -501,7 +465,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         diff=dsegm.at(i)-vertexTime;
         vertexTimeErr+=diff*diff*hitWeight.at(i);
       }
-      vertexTimeErr=sqrt(vertexTimeErr)/totalWeight;
+      vertexTimeErr=sqrt(vertexTimeErr/totalWeight);
       
       rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
 //      textplot(x,y,left);
@@ -519,10 +483,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         cout << "   Free time: " << freeTime << " +/- " << freeTimeErr << endl;   
         cout << " Vertex time: " << vertexTime << " +/- " << freeTimeErr << endl;   
       }  
-
-      // End the loop over STA muons - since we already found the matching one
-      break;
-    }  //candTrack
 
     outputCollection->setValue(muId,tof); 
 
