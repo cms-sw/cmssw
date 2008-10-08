@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/07/24 12:56:07 $
- * $Revision: 1.46 $
+ * $Date: 2008/10/03 09:45:02 $
+ * $Revision: 1.47 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -37,7 +37,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <stdio.h>
 #include <sstream>
 #include <math.h>
 
@@ -183,16 +182,16 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
 	(*ht).second->Reset();
       }
     }
-  }
-  // loop over wheel summaries
-  for(map<string, map<int, MonitorElement*> > ::const_iterator histos = wheelHistos.begin();
-      histos != wheelHistos.end(); ++histos) {
-    for(map<int, MonitorElement*>::const_iterator histo = (*histos).second.begin();
-	histo != (*histos).second.end(); ++histo) {
-      (*histo).second->Reset();
+
+    // loop over wheel summaries
+    for(map<string, map<int, MonitorElement*> > ::const_iterator histos = wheelHistos.begin();
+	histos != wheelHistos.end(); ++histos) {
+      for(map<int, MonitorElement*>::const_iterator histo = (*histos).second.begin();
+	  histo != (*histos).second.end(); ++histo) {
+	(*histo).second->Reset();
+      }
     }
   }
-
   
 }
 
