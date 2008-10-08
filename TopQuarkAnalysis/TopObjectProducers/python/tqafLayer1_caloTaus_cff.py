@@ -49,28 +49,25 @@ import PhysicsTools.PatAlgos.selectionLayer1.tauMaxFilter_cfi
 
 ## clone module(s)
 allLayer1CaloTaus      = PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi.allLayer1Taus.clone()
-selectedLayer1CaloTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.selectedLayer1Taus.clone()
 minLayer1CaloTaus      = PhysicsTools.PatAlgos.selectionLayer1.tauMinFilter_cfi.minLayer1Taus.clone()
 maxLayer1CaloTaus      = PhysicsTools.PatAlgos.selectionLayer1.tauMaxFilter_cfi.maxLayer1Taus.clone()
+selectedLayer1CaloTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.selectedLayer1Taus.clone()
 
 #---------------------------------------
 # do the proper replacements
 #---------------------------------------
-allLayer1CaloTaus.tauSource        =  'allLayer0CaloTaus'
-## embed AOD objects?
-allLayer1CaloTaus.embedLeadTrack       = cms.bool(True)           
-allLayer1CaloTaus.embedSignalTracks    = cms.bool(True)        
-allLayer1CaloTaus.embedIsolationTracks = cms.bool(True)
-## mc matching
-allLayer1CaloTaus.addGenMatch          = cms.bool(True)
-allLayer1CaloTaus.embedGenMatch        = cms.bool(True)       
-allLayer1CaloTaus.trigPrimMatch    = ['tauTrigMatchHLT1CaloTau']
-allLayer1CaloTaus.genParticleMatch =  'caloTauMatch'
-allLayer1CaloTaus.genJetMatch      =  'caloTauGenJetMatch'
-## object selection
-selectedLayer1CaloTaus.src         =  'allLayer1CaloTaus'
-minLayer1CaloTaus.src              =  'selectedLayer1CaloTaus'
-maxLayer1CaloTaus.src              =  'selectedLayer1CaloTaus'
+allLayer1CaloTaus.tauSource            = 'allLayer0CaloTaus'
+allLayer1CaloTaus.embedLeadTrack       = True                              ## embed AOD objects?
+allLayer1CaloTaus.embedSignalTracks    = True
+allLayer1CaloTaus.embedIsolationTracks = True
+allLayer1CaloTaus.addGenMatch          = True                              ## mc matching
+allLayer1CaloTaus.embedGenMatch        = True
+allLayer1CaloTaus.trigPrimMatch        = ['tauTrigMatchHLT1CaloTau']
+allLayer1CaloTaus.genParticleMatch     =  'caloTauMatch'
+allLayer1CaloTaus.genJetMatch          =  'caloTauGenJetMatch'
+selectedLayer1CaloTaus.src             =  'allLayer1CaloTaus'              ## object selection
+minLayer1CaloTaus.src                  =  'selectedLayer1CaloTaus'
+maxLayer1CaloTaus.src                  =  'selectedLayer1CaloTaus'
 
 ##
 ## standard sequences for caloTau
