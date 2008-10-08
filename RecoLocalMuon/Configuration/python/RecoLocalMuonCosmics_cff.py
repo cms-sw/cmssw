@@ -13,10 +13,15 @@ from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_CosmicData_cfi import 
 #from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_LinearDrift_CosmicData_cfi import *
 from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_LinearDriftFromDB_CosmicData_cfi import *
 # 4D Segments
+<<<<<<< RecoLocalMuonCosmics_cff.py
+#from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDrift_CosmicData_cfi import *
+from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_CosmicData_cfi import *
+=======
 #from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDrift_CosmicData_cfi import *
 from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_CosmicData_cfi import *
 
 # No drift algo
+>>>>>>> 1.6
 import RecoLocalMuon.DTRecHit.dt1DRecHits_NoDrift_CosmicData_cfi
 dt1DRecHitsNoDrift = RecoLocalMuon.DTRecHit.dt1DRecHits_NoDrift_CosmicData_cfi.dt1DRecHits.clone()
 import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_NoDrift_CosmicData_cfi
@@ -48,10 +53,8 @@ muonlocalrecoNoDrift = cms.Sequence(dtlocalrecoNoDrift+csclocalreco+rpcRecHits)
 muonLocalRecoGR = cms.Sequence(muonlocalreco+muonlocalrecoNoDrift)
 #DTLinearDriftAlgo_CosmicData.recAlgoConfig.hitResolution = 0.05
 DTLinearDriftFromDBAlgo_CosmicData.recAlgoConfig.tTrigModeConfig.kFactor = -1.00
-dt1DRecHits.dtDigiLabel = 'muonDTDigis'
+#dt1DRecHits.dtDigiLabel = 'muonDTDigis'
 DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData.Reco2DAlgoConfig.segmCleanerMode = 2
 DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData.Reco2DAlgoConfig.MaxAllowedHits = 30
 DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB_CosmicData.Reco4DAlgoConfig.segmCleanerMode = 2
-dt1DRecHitsNoDrift.dtDigiLabel = 'muonDTDigis'
-
-
+#dt1DRecHitsNoDrift.dtDigiLabel = 'muonDTDigis'
