@@ -8,103 +8,103 @@ hltMonMu = cms.EDAnalyzer("HLTMon",
     DaqMonitorBEInterface = cms.untracked.bool(True),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltZMML2Filtered","","HLT"),
+        HLTCollectionLabels = cms.InputTag("hltZMML2Filtered","","FU"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(93)
     ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltEMuL1MuonFilter","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltEMuL1MuonFilter","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuNoIsoL1Filtered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuNoIsoL1Filtered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltSingleMuNoIsoLevel1Seed")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3IsoFiltered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3IsoFiltered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuNoIsoL1Filtered10","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuNoIsoL1Filtered10","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltSingleMuNoIsoLevel1Seed10")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered13","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered13","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3IsoFiltered13","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3IsoFiltered13","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered15","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered15","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3IsoFiltered15","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3IsoFiltered15","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered9","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL2IsoFiltered9","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3OIstateIsoFiltered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuIsoL3OIstateIsoFiltered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(93)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltMuLevel1PathL1OpenFiltered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltMuLevel1PathL1OpenFiltered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltMuLevel1PathLevel1OpenSeed")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltMuLevel1PathL1Filtered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltMuLevel1PathL1Filtered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltMuLevel1PathLevel1Seed")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuPrescale5L1Filtered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuPrescale5L1Filtered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltSingleMuPrescale5Level1Seed")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuPrescale710L1Filtered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuPrescale710L1Filtered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltSingleMuPrescale710Level1Seed")),
             theHLTOutputTypes = cms.uint32(81)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltSingleMuPrescale77L1Filtered","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltSingleMuPrescale77L1Filtered","","FU"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltSingleMuPrescale77Level1Seed")),
             theHLTOutputTypes = cms.uint32(81)
         )),

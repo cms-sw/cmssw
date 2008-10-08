@@ -1,4 +1,4 @@
-# $Id: FourVectorHLT_cfi.py,v 1.3 2008/08/06 15:14:32 bjbloom Exp $
+# $Id: FourVectorHLT_cfi.py,v 1.4 2008/08/22 12:54:49 wittich Exp $
 import FWCore.ParameterSet.Config as cms
 
 hltResults = cms.EDAnalyzer("FourVectorHLT",
@@ -7,7 +7,7 @@ hltResults = cms.EDAnalyzer("FourVectorHLT",
     ptMin = cms.untracked.double(0.0),
     filters = cms.VPSet(),
     # data best guess
-    triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
+    triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","FU")
     # MC
     #triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 )
