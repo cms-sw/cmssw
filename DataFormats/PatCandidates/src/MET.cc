@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.10 2008/09/26 15:13:11 chrjones Exp $
+// $Id: MET.cc,v 1.11 2008/10/07 18:22:18 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -52,11 +52,11 @@ void MET::setGenMET(const reco::GenMET & gm) {
 //! return uncorrrection related stuff
 unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
-double MET::corEx(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEx; }
-double MET::corEy(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEy; }
-double MET::corSumEt(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corSumEt; }
-double MET::uncorrectedPt(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].pt; }
-double MET::uncorrectedPhi(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].phi; }
+float MET::corEx(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEx; }
+float MET::corEy(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEy; }
+float MET::corSumEt(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].corSumEt; }
+float MET::uncorrectedPt(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].pt; }
+float MET::uncorrectedPhi(UncorrectionType ix) const { checkUncor_(); return uncorInfo_[ix].phi; }
 
 
 //! check and set transients
@@ -106,8 +106,8 @@ void MET::checkUncor_() const {
 }
 
 void MET::setPtPhi_(UncorInfo& uci) const {
-  double lpx = px() - uci.corEx;
-  double lpy = py() - uci.corEy;
+  float lpx = px() - uci.corEx;
+  float lpy = py() - uci.corEy;
   uci.pt = sqrt(lpx*lpx + lpy*lpy);
   uci.phi = atan2(lpy, lpx);  
 }

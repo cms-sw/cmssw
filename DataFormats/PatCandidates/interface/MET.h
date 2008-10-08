@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
+// $Id: MET.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
-  \version  $Id: MET.h,v 1.15 2008/10/07 18:15:13 lowette Exp $
+  \version  $Id: MET.h,v 1.16 2008/10/08 11:44:31 fronga Exp $
 */
 
 
@@ -78,11 +78,11 @@ namespace pat {
 	uncorrMUON,    //! uncorrect for MUON only
 	uncorrMAXN
       };
-      double corEx(UncorrectionType ix = uncorrALL) const;
-      double corEy(UncorrectionType ix = uncorrALL) const;
-      double corSumEt(UncorrectionType ix = uncorrALL) const;
-      double uncorrectedPt(UncorrectionType ix = uncorrALL) const;
-      double uncorrectedPhi(UncorrectionType ix = uncorrALL) const;
+      float corEx(UncorrectionType ix = uncorrALL) const;
+      float corEy(UncorrectionType ix = uncorrALL) const;
+      float corSumEt(UncorrectionType ix = uncorrALL) const;
+      float uncorrectedPt(UncorrectionType ix = uncorrALL) const;
+      float uncorrectedPhi(UncorrectionType ix = uncorrALL) const;
 
       // ---- methods to know what the pat::MET was constructed from ----
       /// True if this pat::MET was made from a reco::CaloMET
@@ -143,16 +143,16 @@ namespace pat {
       // ---- members for MET corrections ----
       struct UncorInfo {
 	UncorInfo(): corEx(0), corEy(0), corSumEt(0), pt(0), phi(0) {}
-	double corEx;
-	double corEy;
-	double corSumEt;
-	double pt;
-	double phi;
+	float corEx;
+	float corEy;
+	float corSumEt;
+	float pt;
+	float phi;
       };
       // uncorrection transients
       mutable std::vector<UncorInfo> uncorInfo_;
       mutable unsigned int nCorrections_;
-      mutable double oldPt_;
+      mutable float oldPt_;
       
     protected:
 
