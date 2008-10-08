@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/24 12:55:20 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/10/07 09:38:03 $
+ *  $Revision: 1.16 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -39,7 +39,7 @@ using namespace std;
 
 DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
 
-  edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTask] Constructor called!";
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
   // switch for detailed analysis
   detailedAnalysis = pset.getUntrackedParameter<bool>("detailedAnalysis","false");
@@ -56,7 +56,7 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
 
 
 DTSegmentAnalysisTask::~DTSegmentAnalysisTask(){
-    edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTask] Destructor called!";
+    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Destructor called!";
 }
 
 
@@ -78,19 +78,19 @@ void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){
 
 void DTSegmentAnalysisTask::endJob(){
  
-  edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTask] endjob called!";
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") <<"[DTSegmentAnalysisTask] endjob called!";
 
-  theDbe->rmdir("DT/02-Segments");
+  //theDbe->save("testMonitoring.root");
 }
   
 
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
-  edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
 			       << " #Event: " << event.id().event();
   if(!(event.id().event()%1000))
-    edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
+    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
 				 << " #Event: " << event.id().event();
   
   ESHandle<DTStatusFlag> statusMap;
@@ -113,7 +113,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
 
-    edm::LogVerbatim ("segment") << "   Chamber: " << *chamberId << " has " << distance(range.first, range.second)
+    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "   Chamber: " << *chamberId << " has " << distance(range.first, range.second)
 				 << " 4D segments";
 
     // Loop over the rechits of this ChamerId
@@ -142,7 +142,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	   bool isNohv = false;
 	   statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
 	   if(isNoisy) {
-	     edm::LogVerbatim ("segment") << "Wire: " << wireId << " is noisy, skipping!";
+	     edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "Wire: " << wireId << " is noisy, skipping!";
 	     segmNoisy = true;
 	   }      
 	 }
@@ -163,7 +163,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	   bool isNohv = false;
 	   statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
 	   if(isNoisy) {
-	     edm::LogVerbatim ("segment") << "Wire: " << wireId << " is noisy, skipping!";
+	     edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "Wire: " << wireId << " is noisy, skipping!";
 	     segmNoisy = true;
 	   }     
 	 }
@@ -171,7 +171,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 
      } // end of switch on noisy channels
      if (segmNoisy) {
-       edm::LogVerbatim ("segment")<<"skipping the segment: it contains noisy cells";
+       edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask")<<"skipping the segment: it contains noisy cells";
        continue;
      }
      //END FOR NOISY CHANNELS////////////////////////////////
@@ -197,7 +197,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 // Book a set of histograms for a give chamber
 void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
-  edm::LogVerbatim ("segment") << "   Booking histos for chamber: " << chamberId;
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "   Booking histos for chamber: " << chamberId;
 
 
   // Compose the chamber name
@@ -237,8 +237,8 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
 
   theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str());
+                           "/Sector" + sector.str() +
+			   "/Station" + station.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
   histos.push_back(theDbe->book1D("h4DSegmNHits"+chamberHistoName,

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 09:56:58 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/10/07 10:14:49 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,7 +42,7 @@ using namespace std;
 
 DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
 
-  edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTest]: Constructor";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: Constructor";
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
@@ -54,13 +54,13 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
 
 DTSegmentAnalysisTest::~DTSegmentAnalysisTest(){
 
-  edm::LogVerbatim ("segment") << "DTSegmentAnalysisTest: analyzed " << nevents << " events";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzed " << nevents << " events";
 }
 
 
 void DTSegmentAnalysisTest::beginJob(const edm::EventSetup& context){
 
-  edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: BeginJob"; 
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginJob"; 
 
   nevents = 0;
   // Get the geometry
@@ -74,7 +74,7 @@ void DTSegmentAnalysisTest::beginJob(const edm::EventSetup& context){
 
 void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: Begin of LS transition";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: Begin of LS transition";
 
 }
 
@@ -82,19 +82,19 @@ void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 void DTSegmentAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
  
   nevents++;
-  edm::LogVerbatim ("segment") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "[DTSegmentAnalysisTest]: "<<nevents<<" events";
 
 }
 
 
 void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
  
-  edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: End of LS transition, performing the DQM client operation";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
  
-  edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: "<<nLumiSegs<<" updates";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: "<<nLumiSegs<<" updates";
 
   summaryHistos[3]->Reset();
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
@@ -107,7 +107,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
     MonitorElement * summary_histo = dbe->get(getMEName(chID, "numberOfSegments"));
    
     if (segm_histo && summary_histo){
-      edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
+      edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
       
       TH1F * segmHit_histo_root = segm_histo->getTH1F();
       TH2F * segm_histo_root = summary_histo->getTH2F();
@@ -149,7 +149,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
       //test on chi2 segment quality
       MonitorElement * chi2_histo = dbe->get(getMEName(chID, "h4DChi2"));
       if (chi2_histo) {
-	edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the histo of the segment chi2!!";
+	edm::LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: I've got the histo of the segment chi2!!";
 	TH1F * chi2_histo_root = chi2_histo->getTH1F();
 	double threshold = parameters.getUntrackedParameter<double>("chi2Threshold", 5);
 	double maximum = chi2_histo_root->GetXaxis()->GetXmax();
@@ -184,7 +184,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	vector<dqm::me_util::Channel> badChannels = theChi2QReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  edm::LogError ("dtSegmentsTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	  edm::LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
 	}
       }
     }
@@ -199,7 +199,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	vector<dqm::me_util::Channel> badChannels = theSegmRecHitQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  edm::LogError ("dtSegmentsTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations on recHit number: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	  edm::LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first<< " Sector: "<<(*histo).first.second<< " Bad stations on recHit number: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
 	}
       }
     }
@@ -218,8 +218,8 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
     folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+    "/Sector" + sector.str() +
+    "/Station" + station.str() + "/";
 
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
@@ -253,7 +253,7 @@ void DTSegmentAnalysisTest::bookHistos() {
 	for(int sect=1; sect<=14; sect++){
 	  stringstream sector; sector << sect;
 	  string chi2HistoName =  "chi2BadSegmPercentual_W" + wheel.str() + "_Sec" + sector.str();
-	  dbe->setCurrentFolder("DT/Tests/Segments/Wheel" + wheel.str() +
+	  dbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
 				"/Sector" + sector.str());
 	  chi2Histos[make_pair(wh,sect)] = dbe->book1D(chi2HistoName.c_str(),chi2HistoName.c_str(),4,1,5);
 	  chi2Histos[make_pair(wh,sect)]->setBinLabel(1,"MB1");

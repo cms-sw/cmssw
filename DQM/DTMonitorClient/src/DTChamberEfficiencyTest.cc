@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 14:02:08 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/09/29 10:27:11 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ using namespace std;
 
 DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
-  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: Constructor";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: Constructor";
 
   parameters = ps;
 
@@ -49,14 +49,14 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
 DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
-  edm::LogVerbatim ("chamberEfficiency") << "DTChamberEfficiencyTest: analyzed " << nevents << " events";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "DTChamberEfficiencyTest: analyzed " << nevents << " events";
 
 }
 
 
 void DTChamberEfficiencyTest::beginJob(const edm::EventSetup& context){
 
-  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: BeginJob"; 
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: BeginJob"; 
 
   nevents = 0;
 
@@ -68,7 +68,7 @@ void DTChamberEfficiencyTest::beginJob(const edm::EventSetup& context){
 
 void DTChamberEfficiencyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: Begin of LS transition";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
@@ -94,7 +94,7 @@ void DTChamberEfficiencyTest::beginRun(const edm::Run& run, const edm::EventSetu
 void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
-  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" events";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: "<<nevents<<" events";
 
 }
 
@@ -106,9 +106,9 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
   //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
   //     nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;  
-  //edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
+  //edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
   
-  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: End of LS transition, performing the DQM client operation";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -116,13 +116,13 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
-  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: "<<nLumiSegs<<" updates";
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: "<<nLumiSegs<<" updates";
   
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: ChamberEfficiency tests results"; 
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: ChamberEfficiency tests results"; 
   
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
@@ -186,10 +186,10 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       vector<dqm::me_util::Channel> badChannels = theXEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	edm::LogError ("chamberEfficiency") << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	edm::LogError ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
       // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-      // edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hXEff).first<<"  "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus();
+      // edm::LogWarning ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "-------- Chamber : "<<(*hXEff).first<<"  "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus();
     }
   }
 
@@ -204,10 +204,10 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       vector<dqm::me_util::Channel> badChannels = theYEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	edm::LogError ("chamberEfficiency") << "Chamber : " << (*hYEff).first <<" Bad YChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	edm::LogError ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "Chamber : " << (*hYEff).first <<" Bad YChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
       // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-      // edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
+      // edm::LogWarning ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
     }
   }
 
@@ -217,8 +217,7 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 
 void DTChamberEfficiencyTest::endJob(){
 
-  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest] endjob called!";
-  dbe->rmdir("DT/Tests/DTChamberEfficiency");
+  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest] endjob called!";
 
 }
 
@@ -233,9 +232,9 @@ string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & c
  
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    folderRoot + "DT/DTChamberEfficiencyTask/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+    folderRoot + "DT/01-DTChamberEfficiency/Task/Wheel" +  wheel.str() +
+    "/Sector" + sector.str() +
+    "/Station" + station.str() + "/";
 
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
@@ -258,9 +257,9 @@ void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
   string yEfficiencyHistoName =  "yEfficiency_" + HistoName; 
   string xVSyEffHistoName =  "xVSyEff_" + HistoName; 
 
-  dbe->setCurrentFolder("DT/Tests/DTChamberEfficiency/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str());
+  dbe->setCurrentFolder("DT/01-DTChamberEfficiency/Wheel" + wheel.str() +
+			"/Sector" + sector.str() +
+                        "/Station" + station.str());
 
   xEfficiencyHistos[HistoName] = dbe->book1D(xEfficiencyHistoName.c_str(),xEfficiencyHistoName.c_str(),25,-250.,250.);
   yEfficiencyHistos[HistoName] = dbe->book1D(yEfficiencyHistoName.c_str(),yEfficiencyHistoName.c_str(),25,-250.,250.);

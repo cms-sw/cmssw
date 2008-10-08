@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/29 10:29:47 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/09/29 13:06:30 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,6 +19,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -35,8 +36,8 @@ using namespace std;
 DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  if(debug)
-    cout << "[DTChamberEfficiencyTask] Constructor called!" << endl;
+
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
@@ -49,8 +50,8 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
 
 
 DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
-  if(debug)
-    cout << "[DTChamberEfficiencyTask] Destructor called!" << endl;
+  
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Destructor called!";
 }  
 
 
@@ -76,8 +77,7 @@ void DTChamberEfficiencyTask::beginJob(const edm::EventSetup& context){
 
 void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  if(debug)
-    cout<<"[DTChamberEfficiencyTask]: Begin of LS transition"<<endl;
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask")<<"[DTChamberEfficiencyTask]: Begin of LS transition";
   
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0 && onlineMonitor) {
     for(map<DTChamberId, vector<MonitorElement*> > ::const_iterator histo = histosPerCh.begin();
@@ -111,18 +111,16 @@ void DTChamberEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetu
 
 
 void DTChamberEfficiencyTask::endJob(){
- if(debug)
-    cout<<"[DTChamberEfficiencyTask] endjob called!"<<endl;
- 
- theDbe->rmdir("DT/DTChamberEfficiencyTask");
+
+    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask")<<"[DTChamberEfficiencyTask] endjob called!";
 }
   
 
 
 // Book a set of histograms for a given Layer
 void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
-  if(debug)
-    cout << "   Booking histos for CH : " << chId << endl;
+  
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "   Booking histos for CH : " << chId;
   
   // Compose the chamber name
   stringstream wheel; wheel << chId.wheel();	
@@ -134,10 +132,10 @@ void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
     "_St" + station.str() +
     "_Sec" + sector.str();
   
-  theDbe->setCurrentFolder("DT/DTChamberEfficiencyTask/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str());
-
+  theDbe->setCurrentFolder("DT/01-DTChamberEfficiency/Task/Wheel" + wheel.str() +
+			   "/Sector" + sector.str() +
+                           "/Station" + station.str());
+		
   // Create the monitor elements
   vector<MonitorElement *> histos;
 
@@ -171,9 +169,8 @@ void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
 
 void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
-  if(debug)
-    cout << "[DTChamberEfficiencyTask] Analyze #Run: " << event.id().run()
-	 << " #Event: " << event.id().event() << endl;
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Analyze #Run: " << event.id().run()
+	 << " #Event: " << event.id().event();
   
   // Get the 4D rechit collection from the event
   event.getByLabel(theRecHits4DLabel, segs);
