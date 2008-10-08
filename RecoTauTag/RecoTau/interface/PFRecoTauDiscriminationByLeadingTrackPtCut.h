@@ -20,7 +20,7 @@
 
 using namespace std; 
 using namespace edm;
-using namespace edm::eventsetup; 
+//using namespace edm::eventsetup;
 using namespace reco;
 
 class PFRecoTauDiscriminationByLeadingTrackPtCut : public EDProducer {

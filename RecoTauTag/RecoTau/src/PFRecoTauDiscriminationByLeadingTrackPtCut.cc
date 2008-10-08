@@ -1,7 +1,7 @@
-#include "DataFormats/TauReco/interface/PFRecoTauDiscriminationByLeadingTrackPtCut.h"
-void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup& iEventSetup){
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackPtCut.h"
+void PFRecoTauDiscriminationByLeadingTrackPtCut::produce(Event& iEvent,const EventSetup& iEventSetup){
   Handle<PFTauCollection> thePFTauCollection;
- iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
+  iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
  
  double theleadTrackPtCutDiscriminator = 0.;
  auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByLeadingTrackPtCut(new PFTauDiscriminator);
@@ -15,7 +15,7 @@ void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup&
    if (!thePFTau.leadTrack()) 
      {
        theleadTrackPtCutDiscriminator=0.;
-     }else if(thePFTau.leadTrack().pt() > minPtLeadTrack_) theleadTrackPtCutDiscriminator=1.;
+     }else if(thePFTau.leadTrack()->pt() > minPtLeadTrack_) theleadTrackPtCutDiscriminator=1.;
 
    thePFTauDiscriminatorByLeadingTrackPtCut->setValue(iPFTau,theleadTrackPtCutDiscriminator);
  }
