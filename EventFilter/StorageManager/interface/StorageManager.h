@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.41 2008/09/16 07:52:02 biery Exp $
+   $Id: StorageManager.h,v 1.42 2008/10/08 19:49:51 biery Exp $
 */
 
 #include <string>
@@ -44,7 +44,6 @@
 #include "xdata/Double.h"
 #include "xdata/Boolean.h"
 #include "xdata/Vector.h"
-#include "xdaq2rc/ClassnameAndInstance.h"
 
 #include "xgi/Input.h"
 #include "xgi/Output.h"
@@ -239,11 +238,6 @@ namespace stor {
     xdata::Double            storedVolume_;
     xdata::UnsignedInteger32 memoryUsed_;
     xdata::String            progressMarker_;
-
-    // infospace parameters for RcmsStateNotifier (we don't currently explictly
-    // use the RcmsStateNotifier, but it is used by the evf::StateMachine.
-    xdata::Bag<xdaq2rc::ClassnameAndInstance> rcmsStateListener_;
-    xdata::Boolean foundRcmsStateListener_;
 
     // @@EM workloop / action signature for monitoring
     toolbox::task::WorkLoop         *wlMonitoring_;      

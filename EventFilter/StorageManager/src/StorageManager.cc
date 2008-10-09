@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.84 2008/09/23 19:09:51 biery Exp $
+// $Id: StorageManager.cc,v 1.85 2008/10/08 19:49:51 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -153,8 +153,8 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("namesOfStream",      &namesOfStream_);
   ispace->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
 
-  ispace->fireItemAvailable("rcmsStateListener", &rcmsStateListener_);
-  ispace->fireItemAvailable("foundRcmsStateListener", &foundRcmsStateListener_);
+  ispace->fireItemAvailable("rcmsStateListener", fsm_.rcmsStateListener());
+  ispace->fireItemAvailable("foundRcmsStateListener", fsm_.foundRcmsStateListener());
 
   ispace->addItemRetrieveListener("closedFiles", this);
 
@@ -4393,8 +4393,6 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     // the rethrows below need to be XDAQ exception types (JBK)
     try {
-
-      fsm_.findRcmsStateListener();
 
       jc_.reset(new stor::JobController(my_config, &deleteSMBuffer));
       
