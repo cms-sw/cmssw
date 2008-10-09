@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.91 $"
+__version__ = "$Revision: 1.92 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -190,6 +190,7 @@ class ConfigBuilder(object):
 
         # look which steps are requested and invoke the corresponding method
         for step in self._options.step.split(","):
+	    print step	
             stepParts = step.split(":")   # for format STEP:alternativeSequence
             stepName = stepParts[0]
             if stepName not in stepList:
@@ -280,6 +281,7 @@ class ConfigBuilder(object):
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
+	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
 
 	self.ALCADefaultSeq=None
 	self.SIMDefaultSeq=None
@@ -293,9 +295,9 @@ class ConfigBuilder(object):
 	self.POSTRECODefaultSeq=None
 	self.DQMDefaultSeq='DQMOffline'
 	self.FASTSIMDefaultSeq='all'
-	self.VALIDATIONDefaultSeq='all'
+	self.VALIDATIONDefaultSeq='validation'
 	self.PATLayer0DefaultSeq='all'
-	
+	self.ENDJOBDefaultSeq='endOfProcess'
 
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
@@ -483,7 +485,7 @@ class ConfigBuilder(object):
     def prepare_VALIDATION(self, sequence = 'validation'):
         self.loadAndRemember(self.VALIDATIONDefaultCFF)
         self.process.validation_step = cms.Path( self.process.validation )
-        self.process.schedule.append(getattr(self.process,sequence))
+        self.process.schedule.append(self.process.validation_step)
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
@@ -494,6 +496,16 @@ class ConfigBuilder(object):
             self.loadAndRemember(sequence.split(',')[0])
         self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.dqmoffline_step)
+
+    def prepare_ENDJOB(self, sequence = 'endOfProcess'):
+        # this one needs replacement
+
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.ENDJOBDefaultCFF)
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.endjob_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+        self.process.schedule.append(self.process.endjob_step)
 
     def prepare_FASTSIM(self, sequence = "all"):
         """Enrich the schedule with fastsim"""
@@ -558,7 +570,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.91 $"),
+              (version=cms.untracked.string("$Revision: 1.92 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

@@ -284,6 +284,9 @@ elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
+#always, add on the end of job sequence...
+options.step=options.step+',ENDJOB'
+print options.step
 
 # the process name is just the last step in the list of steps
 options.name = trimmedStep.split(',')[-1]
