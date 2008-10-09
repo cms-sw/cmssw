@@ -111,7 +111,7 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       // CSA08: set upper limit on pT of hard interaction to avoid 
       // double-counting when merging datasets
       //
-      bool csa08( true );
+      bool csa08( false );
       if ( csa08 == true )
 	{
 	  cout << "//----------------------------------------------------------" << endl;
