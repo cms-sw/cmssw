@@ -164,6 +164,8 @@ class ConfigurableHisto {
       }
     }
     
+    TProfile * pcast(0);
+    TH2 * h2cast(0);
     switch(type_){
     case h1:
       if (!h_) throw;
@@ -174,18 +176,18 @@ class ConfigurableHisto {
       }
       break;
     case prof:
-      TProfile * p=dynamic_cast<TProfile*>(h_);
-      if (!p) throw;
-      if (x_->compute(iEvent) && y_->compute(iEvent)) p->Fill((*x_)(iEvent),(*y_)(iEvent),weight);
+      pcast=dynamic_cast<TProfile*>(h_);
+      if (!pcast) throw;
+      if (x_->compute(iEvent) && y_->compute(iEvent)) pcast->Fill((*x_)(iEvent),(*y_)(iEvent),weight);
       else{
 	edm::LogInfo("ConfigurableHisto")<<"could not fill: "<<name_
 					 <<" with config:\n"<<conf_.dump();
       }
       break;
     case h2:
-      TH2 * h2=dynamic_cast<TH2*>(h_);
-      if (!h2) throw;
-      if (x_->compute(iEvent) && y_->compute(iEvent)) h2->Fill((*x_)(iEvent),(*y_)(iEvent),weight);
+      h2cast=dynamic_cast<TH2*>(h_);
+      if (!h2cast) throw;
+      if (x_->compute(iEvent) && y_->compute(iEvent)) h2cast->Fill((*x_)(iEvent),(*y_)(iEvent),weight);
       else{
 	edm::LogInfo("ConfigurableHisto")<<"could not fill: "<<name_
                                          <<" with config:\n"<<conf_.dump();
