@@ -17,7 +17,6 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalListOfFEDSProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalRecHitsMerger.h"
-#include "RecoEgamma/EgammaHLTProducers/interface/EcalRecHitsMergerLowPT.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -34,4 +33,3 @@ DEFINE_ANOTHER_FWK_MODULE(EgammaHLTIslandClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTMulti5x5ClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(EcalListOfFEDSProducer);
 DEFINE_ANOTHER_FWK_MODULE(EcalRecHitsMerger);
-DEFINE_ANOTHER_FWK_MODULE(EcalRecHitsMergerLowPT);
