@@ -13,7 +13,7 @@
 //
 // Original Author:  Tanja Rommerskirchen
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.cc,v 1.5 2008/08/13 16:00:53 trommers Exp $
+// $Id: PATHemisphereProducer.cc,v 1.6 2008/09/29 09:53:00 gpetrucc Exp $
 //
 //
 
@@ -141,7 +141,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      vPy.push_back((*pJets)[i].py());
      vPz.push_back((*pJets)[i].pz());
      vE.push_back((*pJets)[i].energy());
-     componentRefs_.push_back(pJets->refAt(i));
+     componentPtrs_.push_back(pJets->ptrAt(i));
    }
 
    for(int i = 0; i < (int) (*pMuons).size() ; i++){
@@ -150,7 +150,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      vPy.push_back((*pMuons)[i].py());
      vPz.push_back((*pMuons)[i].pz());
      vE.push_back((*pMuons)[i].energy());
-     componentRefs_.push_back(pMuons->refAt(i));
+     componentPtrs_.push_back(pMuons->ptrAt(i));
    }
   
    for(int i = 0; i < (int) (*pElectrons).size() ; i++){
@@ -159,7 +159,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      vPy.push_back((*pElectrons)[i].py());
      vPz.push_back((*pElectrons)[i].pz());
      vE.push_back((*pElectrons)[i].energy());
-     componentRefs_.push_back(pElectrons->refAt(i));
+     componentPtrs_.push_back(pElectrons->ptrAt(i));
    } 
 
    for(int i = 0; i < (int) (*pPhotons).size() ; i++){
@@ -168,7 +168,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      vPy.push_back((*pPhotons)[i].py());
      vPz.push_back((*pPhotons)[i].pz());
      vE.push_back((*pPhotons)[i].energy());
-     componentRefs_.push_back(pPhotons->refAt(i));
+     componentPtrs_.push_back(pPhotons->ptrAt(i));
    } 
 
    //aren't taus included in jets?
@@ -178,7 +178,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      vPy.push_back((*pTaus)[i].py());
      vPz.push_back((*pTaus)[i].pz());
      vE.push_back((*pTaus)[i].energy());
-     componentRefs_.push_back(pTaus->refAt(i));
+     componentPtrs_.push_back(pTaus->ptrAt(i));
    }  
 
    // create product
@@ -203,10 +203,10 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   for ( unsigned int i=0; i<vgroups.size(); ++i ) {
     if ( vgroups[i]==1 ) {
-      (*hemispheres)[0].addDaughter(componentRefs_[i]);
+      (*hemispheres)[0].addDaughter(componentPtrs_[i]);
     }
     else {
-      (*hemispheres)[1].addDaughter(componentRefs_[i]);
+      (*hemispheres)[1].addDaughter(componentPtrs_[i]);
     }
   }
 
@@ -229,7 +229,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     vPz.clear();
     vE.clear();
     vgroups.clear();
-    componentRefs_.clear();
+    componentPtrs_.clear();
 }
 
 

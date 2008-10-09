@@ -2,7 +2,7 @@
 #define DataFormats_PatCandidates_Hemisphere_h
 // #include "DataFormats/PatCandidates/interface/PATObject.h"
 
-#include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
+#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -14,11 +14,11 @@ namespace pat {
 
 namespace pat {
   
-  class Hemisphere : public reco::CompositeRefBaseCandidate {
+  class Hemisphere : public reco::CompositePtrCandidate {
   public:
     Hemisphere () {}
     Hemisphere (const Particle::LorentzVector& p4) :
-    CompositeRefBaseCandidate(0,p4) {}
+    CompositePtrCandidate(0,p4) {}
     virtual ~Hemisphere () {}
   };
 

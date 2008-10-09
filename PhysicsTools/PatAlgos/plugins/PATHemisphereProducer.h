@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.h,v 1.4 2008/04/24 07:42:00 adamwo Exp $
+// $Id: PATHemisphereProducer.h,v 1.5 2008/08/13 16:00:53 trommers Exp $
 //
 //
 
@@ -77,7 +77,7 @@ class PATHemisphereProducer : public edm::EDProducer {
       std::vector<float> vPx, vPy, vPz, vE; 
       std::vector<float> vA1, vA2;
       std::vector<int> vgroups;
-  std::vector<reco::CandidateBaseRef> componentRefs_;
+  std::vector<reco::CandidatePtr> componentPtrs_;
 
   
   typedef std::vector<float> HemiAxis;
