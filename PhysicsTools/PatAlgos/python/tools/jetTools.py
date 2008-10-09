@@ -40,7 +40,10 @@ def runBTagging(process,jetCollection,label) :
          labels["tagInfos"] = list of names of TagInfo modules
          labels["jetTags "] = list of names of JetTag modules
        these labels are meant to be used for PAT BTagging tools
+       NOTE: 'label' MUST NOT BE EMPTY
      """
+    if (label == ''):
+        raise ValueError, "Label for re-running BTagging can't be empty, it will crash CRAB." 
     process.load("RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi")
     process.load("RecoBTag.Configuration.RecoBTag_cff")
     from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import ic5JetTracksAssociatorAtVertex
@@ -94,11 +97,10 @@ def runBTagging(process,jetCollection,label) :
                                                 'softMuonNoIPBJetTags') ]
     }
     
-    setattr( process, 'btaggingAODtaginfos' + label, mkseq(process, *(labels['tagInfos']) ) )
-    setattr( process, 'btaggingAODjettags' + label,  mkseq(process, *(labels['jetTags'])  ) )
-    seq = mkseq(process, jtaLabel, 'btaggingAODtaginfos' + label, 'btaggingAODjettags' + label) 
-    setattr( process, 'btaggingAOD' + label, seq )
-     
+    setattr( process, 'btaggingTagInfos' + label, mkseq(process, *(labels['tagInfos']) ) )
+    setattr( process, 'btaggingJetTags' + label,  mkseq(process, *(labels['jetTags'])  ) )
+    seq = mkseq(process, jtaLabel, 'btaggingTagInfos' + label, 'btaggingJetTags' + label) 
+    setattr( process, 'btagging' + label, seq )
     return (seq, labels)
 
 def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",doJTA=True,doBTagging=True,jetCorrLabel=None,doType1MET=True):
@@ -144,7 +146,7 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
     else:
         raise ValueError, ("Cleaner '%s' not known" % (runCleaner,))
     if doBTagging :
-          (btagSeq, btagLabels) = runBTagging(process, jetCollection, '')
+          (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
           process.patLayer0.replace(process.patBeforeLevel0Reco, btagSeq + process.patBeforeLevel0Reco)
           process.patAODJetTracksAssociator.src       = jetCollection
           process.patAODJetTracksAssociator.tracks    = btagLabels['jta']
