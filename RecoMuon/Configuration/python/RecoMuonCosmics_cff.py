@@ -108,52 +108,52 @@ muonrecoforcosmicsBarrelOnly = cms.Sequence(muontrackingforcosmicsBarrelOnly*all
 
 ########
 
-# Barrel only, 1 leg mode
+# 1 leg mode
 
 # Stand alone muon track producer
-cosmicMuons1LegBarrelOnly = cosmicMuons.clone()
-cosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.EnableCSCMeasurement = False
-cosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.MuonNavigationParameters.Endcap = False
-cosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.BuildTraversingMuon = True
-cosmicMuons1LegBarrelOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedBarrelOnly'
+cosmicMuons1Leg = cosmicMuons.clone()
+#cosmicMuons1Leg.TrajectoryBuilderParameters.EnableCSCMeasurement = False
+#cosmicMuons1Leg.TrajectoryBuilderParameters.MuonNavigationParameters.Endcap = False
+cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
+cosmicMuons1Leg.MuonSeedCollectionLabel = 'CosmicMuonSeedBarrelOnly'
 
 # Global muon track producer
-globalCosmicMuons1LegBarrelOnly = globalCosmicMuons.clone()
-globalCosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
-globalCosmicMuons1LegBarrelOnly.MuonCollectionLabel = 'cosmicMuons1LegBarrelOnly'
+globalCosmicMuons1Leg = globalCosmicMuons.clone()
+globalCosmicMuons1Leg.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
+globalCosmicMuons1Leg.MuonCollectionLabel = 'cosmicMuons1Leg'
 
 # Muon Id producer
-STAMuons1LegBarrelOnly = muons.clone()
-STAMuons1LegBarrelOnly.inputCollectionLabels = ['cosmicMuons1LegBarrelOnly']
-STAMuons1LegBarrelOnly.inputCollectionTypes = ['outer tracks']
-STAMuons1LegBarrelOnly.fillIsolation = False
+STAMuons1Leg = muons.clone()
+STAMuons1Leg.inputCollectionLabels = ['cosmicMuons1Leg']
+STAMuons1Leg.inputCollectionTypes = ['outer tracks']
+STAMuons1Leg.fillIsolation = False
 
-GLBMuons1LegBarrelOnly = muons.clone()
-GLBMuons1LegBarrelOnly.inputCollectionLabels = ['globalCosmicMuons1LegBarrelOnly']
-GLBMuons1LegBarrelOnly.inputCollectionTypes = ['links']
-GLBMuons1LegBarrelOnly.fillIsolation = False
+GLBMuons1Leg = muons.clone()
+GLBMuons1Leg.inputCollectionLabels = ['globalCosmicMuons1Leg']
+GLBMuons1Leg.inputCollectionTypes = ['links']
+GLBMuons1Leg.fillIsolation = False
 
-muons1LegBarrelOnly = muons.clone()
-muons1LegBarrelOnly.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuons1LegBarrelOnly', 'cosmicMuons1LegBarrelOnly']
-muons1LegBarrelOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
-muons1LegBarrelOnly.fillIsolation = False
+muons1Leg = muons.clone()
+muons1Leg.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuons1Leg', 'cosmicMuons1Leg']
+muons1Leg.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muons1Leg.fillIsolation = False
 
 # Sequences
 
 # Stand Alone Tracking
-STAmuontrackingforcosmics1LegBarrelOnly = cms.Sequence(CosmicMuonSeedBarrelOnly*cosmicMuons1LegBarrelOnly)
+STAmuontrackingforcosmics1Leg = cms.Sequence(CosmicMuonSeedBarrelOnly*cosmicMuons1Leg)
 
 # Stand Alone Tracking plus global tracking
-muontrackingforcosmics1LegBarrelOnly = cms.Sequence(STAmuontrackingforcosmics1LegBarrelOnly*globalCosmicMuons1LegBarrelOnly)
+muontrackingforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1Leg*globalCosmicMuons1Leg)
 
 # all muons id
-allmuons1LegBarrelOnly = cms.Sequence(muons1LegBarrelOnly*STAMuons1LegBarrelOnly*GLBMuons1LegBarrelOnly)
+allmuons1Leg = cms.Sequence(muons1Leg*STAMuons1Leg*GLBMuons1Leg)
 
 # Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmics1LegBarrelOnly = cms.Sequence(STAmuontrackingforcosmics1LegBarrelOnly*STAMuons1LegBarrelOnly)
+STAmuonrecoforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1Leg*STAMuons1Leg)
 
 # Final sequence
-muonrecoforcosmics1LegBarrelOnly = cms.Sequence(muontrackingforcosmics1LegBarrelOnly*allmuons1LegBarrelOnly)
+muonrecoforcosmics1Leg = cms.Sequence(muontrackingforcosmics1Leg*allmuons1Leg)
 
 ########
 
@@ -211,7 +211,7 @@ allmuonsNoDriftBarrelOnly = cms.Sequence(muonsNoDriftBarrelOnly*STAMuonsNoDriftB
 muonrecoforcosmicsNoDriftBarrelOnly = cms.Sequence(muontrackingforcosmicsNoDriftBarrelOnly*allmuonsNoDriftBarrelOnly)
 
 ### Final sequence for barrel only ###
-muonRecoBarrelGR = cms.Sequence(muonrecoforcosmicsBarrelOnly+muonrecoforcosmics1LegBarrelOnly+muonrecoforcosmicsNoDriftBarrelOnly)
+muonRecoBarrelGR = cms.Sequence(muonrecoforcosmicsBarrelOnly+muonrecoforcosmics1Leg+muonrecoforcosmicsNoDriftBarrelOnly)
 
 ##############################################
 

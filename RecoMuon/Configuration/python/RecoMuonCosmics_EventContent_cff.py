@@ -32,15 +32,15 @@ RecoMuonAOD = cms.PSet(
     
 
     # cosimic reco "1 Leg type" in barrel only
-    'keep recoTracks_cosmicMuons1LegBarrelOnly_*_*', 
-    'keep recoTrackExtras_cosmicMuons1LegBarrelOnly_*_*', 
-    'keep TrackingRecHitsOwned_cosmicMuons1LegBarrelOnly_*_*', 
-    'keep recoTracks_globalCosmicMuons1LegBarrelOnly_*_*', 
-    'keep recoTrackExtras_globalCosmicMuons1LegBarrelOnly_*_*', 
-    'keep TrackingRecHitsOwned_globalCosmicMuons1LegBarrelOnly_*_*', 
-    'keep recoMuons_muons1LegBarrelOnly_*_*', 
-    'keep recoMuons_STAMuons1LegBarrelOnly_*_*', 
-    'keep recoMuons_GLBMuons1LegBarrelOnly_*_*', 
+    'keep recoTracks_cosmicMuons1Leg_*_*', 
+    'keep recoTrackExtras_cosmicMuons1Leg_*_*', 
+    'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*', 
+    'keep recoTracks_globalCosmicMuons1Leg_*_*', 
+    'keep recoTrackExtras_globalCosmicMuons1Leg_*_*', 
+    'keep TrackingRecHitsOwned_globalCosmicMuons1Leg_*_*', 
+    'keep recoMuons_muons1Leg_*_*', 
+    'keep recoMuons_STAMuons1Leg_*_*', 
+    'keep recoMuons_GLBMuons1Leg_*_*', 
 
     
     # cosimic reco in barrel only, based on DT no drift algo
