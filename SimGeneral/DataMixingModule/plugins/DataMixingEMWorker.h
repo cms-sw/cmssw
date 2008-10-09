@@ -53,13 +53,19 @@ namespace edm
     private:
       // data specifiers
 
-      edm::InputTag EBProducer_; // primary? name given to collection of EB calib rechits
-      edm::InputTag EEProducer_; // primary? name given to collection of EE calib rechits
-      edm::InputTag ESProducer_; // primary? name given to collection of ES calib rechits
+      edm::InputTag EBProducerSig_; // primary? name given to collection of EB calib rechits
+      edm::InputTag EEProducerSig_; // primary? name given to collection of EE calib rechits
+      edm::InputTag ESProducerSig_; // primary? name given to collection of ES calib rechits
+      edm::InputTag EBProducerPile_; // primary? name given to collection of EB calib rechits
+      edm::InputTag EEProducerPile_; // primary? name given to collection of EE calib rechits
+      edm::InputTag ESProducerPile_; // primary? name given to collection of ES calib rechits
 
-      edm::InputTag EBrechitCollection_; // secondary name given to collection of EB calib rechits
-      edm::InputTag EErechitCollection_; // secondary name given to collection of EE calib rechits
-      edm::InputTag ESrechitCollection_; // secondary name given to collection of ES calib rechits
+      edm::InputTag EBrechitCollectionSig_; // secondary name given to collection of EB calib rechits
+      edm::InputTag EErechitCollectionSig_; // secondary name given to collection of EE calib rechits
+      edm::InputTag ESrechitCollectionSig_; // secondary name given to collection of ES calib rechits
+      edm::InputTag EBrechitCollectionPile_; // secondary name given to collection of EB calib rechits
+      edm::InputTag EErechitCollectionPile_; // secondary name given to collection of EE calib rechits
+      edm::InputTag ESrechitCollectionPile_; // secondary name given to collection of ES calib rechits
       std::string EBRecHitCollectionDM_; // secondary name to be given to EB collection of hits
       std::string EERecHitCollectionDM_; // secondary name to be given to EE collection of hits
       std::string ESRecHitCollectionDM_; // secondary name to be given to ES collection of hits

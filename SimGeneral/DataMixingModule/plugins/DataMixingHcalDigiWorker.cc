@@ -55,10 +55,14 @@ namespace edm
 
     // Hcal 
 
-    HBHEdigiCollection_  = ps.getParameter<edm::InputTag>("HBHEProducer");
-    HOdigiCollection_    = ps.getParameter<edm::InputTag>("HOProducer");
-    HFdigiCollection_    = ps.getParameter<edm::InputTag>("HFProducer");
-    ZDCdigiCollection_   = ps.getParameter<edm::InputTag>("ZDCdigiCollection");
+    HBHEdigiCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEProducerSig");
+    HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOProducerSig");
+    HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFProducerSig");
+    ZDCdigiCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionSig");
+    HBHEdigiCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEProducerPile");
+    HOdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HOProducerPile");
+    HFdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HFProducerPile");
+    ZDCdigiCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionPile");
 
     HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
     HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
@@ -94,7 +98,7 @@ namespace edm
 
    const HBHEDigiCollection*  HBHEDigis = 0;
 
-   if( e.getByLabel( HBHEdigiCollection_.label(), pHBHEDigis) ) {
+   if( e.getByLabel( HBHEdigiCollectionSig_.label(), pHBHEDigis) ) {
      HBHEDigis = pHBHEDigis.product(); // get a ptr to the product
      LogDebug("DataMixingHcalDigiWorker") << "total # HBHE digis: " << HBHEDigis->size();
    } 
@@ -140,7 +144,7 @@ namespace edm
 
    const HODigiCollection*  HODigis = 0;
 
-   if( e.getByLabel( HOdigiCollection_.label(), pHODigis) ){
+   if( e.getByLabel( HOdigiCollectionSig_.label(), pHODigis) ){
      HODigis = pHODigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HO digis: " << HODigis->size();
@@ -180,7 +184,7 @@ namespace edm
 
    const HFDigiCollection*  HFDigis = 0;
 
-   if( e.getByLabel( HFdigiCollection_.label(), pHFDigis) ) {
+   if( e.getByLabel( HFdigiCollectionSig_.label(), pHFDigis) ) {
      HFDigis = pHFDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HF digis: " << HFDigis->size();
@@ -220,7 +224,7 @@ namespace edm
 
    const ZDCDigiCollection*  ZDCDigis = 0;
 
-   if( e.getByLabel( ZDCdigiCollection_.label(), pZDCDigis) ) {
+   if( e.getByLabel( ZDCdigiCollectionSig_.label(), pZDCDigis) ) {
      ZDCDigis = pZDCDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
@@ -273,7 +277,7 @@ namespace edm
    Handle< HBHEDigiCollection > pHBHEDigis;
    const HBHEDigiCollection*  HBHEDigis = 0;
 
-   if( e->getByLabel( HBHEdigiCollection_.label(), pHBHEDigis) ) {
+   if( e->getByLabel( HBHEdigiCollectionPile_.label(), pHBHEDigis) ) {
      HBHEDigis = pHBHEDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HEHB digis: " << HBHEDigis->size();
@@ -310,7 +314,7 @@ namespace edm
    Handle< HODigiCollection > pHODigis;
    const HODigiCollection*  HODigis = 0;
 
-   if( e->getByLabel( HOdigiCollection_.label(), pHODigis) ) {
+   if( e->getByLabel( HOdigiCollectionPile_.label(), pHODigis) ) {
      HODigis = pHODigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HO digis: " << HODigis->size();
@@ -348,7 +352,7 @@ namespace edm
    Handle< HFDigiCollection > pHFDigis;
    const HFDigiCollection*  HFDigis = 0;
 
-   if( e->getByLabel( HFdigiCollection_.label(), pHFDigis) ) {
+   if( e->getByLabel( HFdigiCollectionPile_.label(), pHFDigis) ) {
      HFDigis = pHFDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HF digis: " << HFDigis->size();
@@ -386,7 +390,7 @@ namespace edm
    Handle< ZDCDigiCollection > pZDCDigis;
    const ZDCDigiCollection*  ZDCDigis = 0;
 
-   if( e->getByLabel( ZDCdigiCollection_.label(), pZDCDigis) ) {
+   if( e->getByLabel( ZDCdigiCollectionPile_.label(), pZDCDigis) ) {
      ZDCDigis = pZDCDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();

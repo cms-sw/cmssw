@@ -48,9 +48,12 @@ namespace edm
     MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")=="Digis");
 
     if(MergeEMDigis_) {
-      EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
-      EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
-      ESdigiCollection_ = ps.getParameter<edm::InputTag>("ESdigiCollection");
+      EBdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EBdigiCollectionSig");
+      EEdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EEdigiCollectionSig");
+      ESdigiCollectionSig_ = ps.getParameter<edm::InputTag>("ESdigiCollectionSig");
+      EBdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EBdigiCollectionPile");
+      EEdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EEdigiCollectionPile");
+      ESdigiCollectionPile_ = ps.getParameter<edm::InputTag>("ESdigiCollectionPile");
       EBDigiCollectionDM_        = ps.getParameter<std::string>("EBDigiCollectionDM");
       EEDigiCollectionDM_        = ps.getParameter<std::string>("EEDigiCollectionDM");
       ESDigiCollectionDM_        = ps.getParameter<std::string>("ESDigiCollectionDM");
@@ -63,9 +66,12 @@ namespace edm
       EMDigiWorker_ = new DataMixingEMDigiWorker(ps);
     }
     else { // merge RecHits
-      EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
-      EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
-      ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
+      EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
+      EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
+      ESrechitCollectionSig_ = ps.getParameter<edm::InputTag>("ESrechitCollectionSig");
+      EBrechitCollectionPile_ = ps.getParameter<edm::InputTag>("EBrechitCollectionPile");
+      EErechitCollectionPile_ = ps.getParameter<edm::InputTag>("EErechitCollectionPile");
+      ESrechitCollectionPile_ = ps.getParameter<edm::InputTag>("ESrechitCollectionPile");
       EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
       EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
       ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
@@ -82,10 +88,14 @@ namespace edm
     MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")=="Digis");
 
     if(MergeHcalDigis_){
-      HBHEdigiCollection_  = ps.getParameter<edm::InputTag>("HBHEdigiCollection");
-      HOdigiCollection_    = ps.getParameter<edm::InputTag>("HOdigiCollection");
-      HFdigiCollection_    = ps.getParameter<edm::InputTag>("HFdigiCollection");
-      ZDCdigiCollection_   = ps.getParameter<edm::InputTag>("ZDCdigiCollection");
+      HBHEdigiCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionSig");
+      HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOdigiCollectionSig");
+      HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFdigiCollectionSig");
+      ZDCdigiCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionSig");
+      HBHEdigiCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionPile");
+      HOdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HOdigiCollectionPile");
+      HFdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HFdigiCollectionPile");
+      ZDCdigiCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionPile");
 
       HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
       HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
@@ -102,10 +112,14 @@ namespace edm
     }
     else{
 
-      HBHErechitCollection_  = ps.getParameter<edm::InputTag>("HBHErechitCollection");
-      HOrechitCollection_    = ps.getParameter<edm::InputTag>("HOrechitCollection");
-      HFrechitCollection_    = ps.getParameter<edm::InputTag>("HFrechitCollection");
-      ZDCrechitCollection_   = ps.getParameter<edm::InputTag>("ZDCrechitCollection");
+      HBHErechitCollectionSig_  = ps.getParameter<edm::InputTag>("HBHErechitCollectionSig");
+      HOrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HOrechitCollectionSig");
+      HFrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HFrechitCollectionSig");
+      ZDCrechitCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionSig");
+      HBHErechitCollectionPile_  = ps.getParameter<edm::InputTag>("HBHErechitCollectionPile");
+      HOrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HOrechitCollectionPile");
+      HFrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HFrechitCollectionPile");
+      ZDCrechitCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionPile");
 
       HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
       HORecHitCollectionDM_   = ps.getParameter<std::string>("HORecHitCollectionDM");
@@ -122,10 +136,15 @@ namespace edm
 
     // Muons
 
-    DTdigi_collection_   = ps.getParameter<edm::InputTag>("DTdigiCollection");
-    RPCdigi_collection_  = ps.getParameter<edm::InputTag>("RPCdigiCollection");
-    CSCstripdigi_collection_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollection");
-    CSCwiredigi_collection_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollection");
+    DTdigi_collectionSig_   = ps.getParameter<edm::InputTag>("DTdigiCollectionSig");
+    RPCdigi_collectionSig_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionSig");
+    CSCstripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionSig");
+    CSCwiredigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionSig");
+    DTdigi_collectionPile_   = ps.getParameter<edm::InputTag>("DTdigiCollectionPile");
+    RPCdigi_collectionPile_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionPile");
+    CSCstripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionPile");
+    CSCwiredigi_collectionPile_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionPile");
+
     DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
     RPCDigiCollectionDM_ = ps.getParameter<std::string>("RPCDigiCollectionDM");
     CSCStripDigiCollectionDM_ = ps.getParameter<std::string>("CSCStripDigiCollectionDM");
@@ -140,9 +159,11 @@ namespace edm
 
     // Si-Strips
 
-    Sistripdigi_collection_   = ps.getParameter<edm::InputTag>("SistripdigiCollection");
+    Sistripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionSig");
+    Sistripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionPile");
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
+
 
     produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
     
@@ -150,7 +171,8 @@ namespace edm
 
     // Pixels
 
-    pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigiCollection");
+    pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
+    pixeldigi_collectionPile_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionPile");
 
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
 
@@ -216,120 +238,7 @@ namespace edm
     delete SiPixelWorker_;
   }  
 
-    void DataMixingModule::produce(edm::Event& e, const edm::EventSetup& ES) { 
 
-    // Create EDProduct
-    createnewEDProduct();
-
-    // Add signals 
-    addSignals(e, ES);
-
-    // Read the PileUp 
-    //    std::vector<EventPrincipalVector> pileup[maxNbSources_];
-    //    bool doit[maxNbSources_];
-    for (unsigned int is=0;is< maxNbSources_;++is) {
-      doit_[is]=false;
-      pileup_[is].clear();
-    }
-
-    if ( input_)  {  
-      if (playback_) {
-	getEventStartInfo(e,0);
-	input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_);
-      } else {
-	input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_); 
-        setEventStartInfo(0);
-      }
-      if (input_->doPileup()) {  
-	LogDebug("DataMixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
-	doit_[0]=true;
-      } 
-    }
-    if (cosmics_) {
-      if (playback_) {
-	getEventStartInfo(e,1);
-	cosmics_->readPileUp(pileup_[1],eventIDs_, fileSeqNrs_, nrEvents_); 
-      } else {
-	cosmics_->readPileUp(pileup_[1],eventIDs_, fileSeqNrs_, nrEvents_); 
-	setEventStartInfo(1);
-      }
-      if (cosmics_->doPileup()) {  
-	LogDebug("DataMixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
-	doit_[1]=true;
-      } 
-    }
-
-    if (beamHalo_p_) {
-      if (playback_) {
-	getEventStartInfo(e,2);
-	beamHalo_p_->readPileUp(pileup_[2],eventIDs_, fileSeqNrs_, nrEvents_);
-      } else {
-	beamHalo_p_->readPileUp(pileup_[2],eventIDs_, fileSeqNrs_, nrEvents_);
-	setEventStartInfo(2);
-      }
-      if (beamHalo_p_->doPileup()) {  
-	LogDebug("DataMixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
-	doit_[2]=true;
-      } 
-    }
-
-    if (beamHalo_m_) {
-      if (playback_) {
-	getEventStartInfo(e,3);
-	beamHalo_m_->readPileUp(pileup_[3],eventIDs_, fileSeqNrs_, nrEvents_);
-      } else {
-	beamHalo_m_->readPileUp(pileup_[3],eventIDs_, fileSeqNrs_, nrEvents_);
-	setEventStartInfo(3);
-      }
-      if (beamHalo_m_->doPileup()) {  
-	LogDebug("DataMixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
-	doit_[3]=true;
-      }
-    }
-
-    if (fwdDet_) {
-      if (playback_) {
-	getEventStartInfo(e,4);
-	fwdDet_->readPileUp(pileup_[4],eventIDs_, fileSeqNrs_, nrEvents_);
-      } else {
-	fwdDet_->readPileUp(pileup_[4],eventIDs_, fileSeqNrs_, nrEvents_);
-	setEventStartInfo(4);
-      }
-
-      if (fwdDet_->doPileup()) {  
-	LogDebug("DataMixingModule") <<"\n\n==============================>Adding fwd detector source  to signal event "<<e.id();
-	doit_[4]=true;
-      }  
-    }
-
-    doPileUp(e, ES);
-
-    // Put output into event (here only playback info)
-    put(e);
-  }
-
-
-  void DataMixingModule::addSignals(const edm::Event &e) { 
-    // fill in maps of hits
-
-    LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
-
-    // Ecal
-    EMWorker_->addEMSignals(e);
-
-    // Hcal
-    HcalWorker_->addHcalSignals(e);
-    
-    // Muon
-    MuonWorker_->addMuonSignals(e);
-
-    // SiStrips
-    SiStripWorker_->addSiStripSignals(e);
-
-    // SiPixels
-    SiPixelWorker_->addSiPixelSignals(e);
-    
-  } // end of addSignals
 
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
     // fill in maps of hits
@@ -357,30 +266,6 @@ namespace edm
 
   
 
-  void DataMixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr, unsigned int worker) {  
-
-
-    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
-
-    // fill in maps of hits; same code as addSignals, except now applied to the pileup events
-
-    // Ecal
-
-    EMWorker_->addEMPileups(bcr, e, eventNr); 
-
-    // Hcal
-    HcalWorker_->addHcalPileups(bcr, e, eventNr);
-
-    // Muon
-    MuonWorker_->addMuonPileups(bcr, e, eventNr);
-
-    // SiStrips
-    SiStripWorker_->addSiStripPileups(bcr, e, eventNr);
-
-    // SiPixels
-    SiPixelWorker_->addSiPixelPileups(bcr, e, eventNr);
-
-  }
 
   void DataMixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr, unsigned int worker, const edm::EventSetup& ES) {  
 
@@ -407,71 +292,6 @@ namespace edm
     SiPixelWorker_->addSiPixelPileups(bcr, e, eventNr);
 
   }
- 
-
-
-  void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
-  {// 
-
-    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-      setBcrOffset();
-      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-	setSourceOffset(isource);
-	if (doit_[isource]) {
-	  merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],1, ES);
-	}
-      }
-    }
-  }
-
-  void DataMixingModule::doPileUp(edm::Event &e)
-  {// 
-
-    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-      setBcrOffset();
-      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-	setSourceOffset(isource);
-	if (doit_[isource]) {
-	  merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],1);
-	}
-      }
-    }
-  }
-
-  void DataMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& ES) {
-    //
-    // main loop: loop over events and merge 
-    //
-
-    // should use eventId_ here from BMixing...
-
-    eventId_=0;
-    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
-    vertexoffset=0;
-    for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end();
-	 ++it) {
-      Event e(**it, md_);
-      LogDebug("MixingModule") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e, ++eventId_ ,worker, ES);
-    }// end main loop
-  }
-
-  void DataMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker) {
-    //
-    // main loop: loop over events and merge 
-    //
-    eventId_=0;
-    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
-    vertexoffset=0;
-    for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end();
-	 ++it) {
-      Event e(**it, md_);
-      LogDebug("MixingModule") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e, ++eventId_ ,worker);
-    }// end main loop
-  }
-
-
 
 
   void DataMixingModule::put(edm::Event &e,const edm::EventSetup& ES) {
@@ -497,26 +317,6 @@ namespace edm
 
   }
 
-  void DataMixingModule::put(edm::Event &e) {
-
-    // individual workers...
-
-    // Ecal
-    EMWorker_->putEM(e);
-
-    // Hcal
-    HcalWorker_->putHcal(e);
-
-    // Muon
-    MuonWorker_->putMuon(e);
-
-    // SiStrips
-    SiStripWorker_->putSiStrip(e);
-
-    // SiPixels
-    SiPixelWorker_->putSiPixel(e);
-
-  }
 
   void DataMixingModule::setBcrOffset() {
   }

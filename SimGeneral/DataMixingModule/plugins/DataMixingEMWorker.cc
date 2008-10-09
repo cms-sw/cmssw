@@ -45,12 +45,18 @@ namespace edm
 
     // declare the products to produce, retrieve
 
-    EBProducer_ = ps.getParameter<edm::InputTag>("EBProducer");
-    EEProducer_ = ps.getParameter<edm::InputTag>("EEProducer");
-    ESProducer_ = ps.getParameter<edm::InputTag>("ESProducer");
-    EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
-    EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
-    ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
+    EBProducerSig_ = ps.getParameter<edm::InputTag>("EBProducerSig");
+    EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
+    ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
+    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBProducerPile");
+    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEProducerPile");
+    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESProducerPile");
+    EBrechitCollectionSig_ = ps.getParameter<edm::InputTag>("EBrechitCollectionSig");
+    EErechitCollectionSig_ = ps.getParameter<edm::InputTag>("EErechitCollectionSig");
+    ESrechitCollectionSig_ = ps.getParameter<edm::InputTag>("ESrechitCollectionSig");
+    EBrechitCollectionPile_ = ps.getParameter<edm::InputTag>("EBrechitCollectionPile");
+    EErechitCollectionPile_ = ps.getParameter<edm::InputTag>("EErechitCollectionPile");
+    ESrechitCollectionPile_ = ps.getParameter<edm::InputTag>("ESrechitCollectionPile");
     EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
     EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
     ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
@@ -84,7 +90,7 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   if(e.getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits) ){
+   if(e.getByLabel(EBProducerSig_.label(),EBrechitCollectionSig_.label(), pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
    }
@@ -112,7 +118,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if(e.getByLabel(EEProducer_.label(),EErechitCollection_.label(), pEERecHits) ){
+   if(e.getByLabel(EEProducerSig_.label(),EErechitCollectionSig_.label(), pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
    } 
@@ -140,7 +146,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if(e.getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits) ){
+   if(e.getByLabel( ESProducerSig_.label(),ESrechitCollectionSig_.label(), pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
@@ -179,7 +185,7 @@ namespace edm
    const EBRecHitCollection*  EBRecHits = 0;
 
   
-   if( e->getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits) ){
+   if( e->getByLabel(EBProducerPile_.label(),EBrechitCollectionPile_.label(), pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
@@ -208,7 +214,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if( e->getByLabel( EEProducer_.label(),EErechitCollection_.label(), pEERecHits) ){
+   if( e->getByLabel( EEProducerPile_.label(),EErechitCollectionPile_.label(), pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
@@ -237,7 +243,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if( e->getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits) ){
+   if( e->getByLabel( ESProducerPile_.label(),ESrechitCollectionPile_.label(), pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();

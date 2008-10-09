@@ -47,10 +47,14 @@ namespace edm
 
     // Hcal 
 
-    HBHErechitCollection_  = ps.getParameter<edm::InputTag>("HBHEProducer");
-    HOrechitCollection_    = ps.getParameter<edm::InputTag>("HOProducer");
-    HFrechitCollection_    = ps.getParameter<edm::InputTag>("HFProducer");
-    ZDCrechitCollection_   = ps.getParameter<edm::InputTag>("ZDCrechitCollection");
+    HBHErechitCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEProducerSig");
+    HOrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HOProducerSig");
+    HFrechitCollectionSig_    = ps.getParameter<edm::InputTag>("HFProducerSig");
+    ZDCrechitCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionSig");
+    HBHErechitCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEProducerPile");
+    HOrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HOProducerPile");
+    HFrechitCollectionPile_    = ps.getParameter<edm::InputTag>("HFProducerPile");
+    ZDCrechitCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCrechitCollectionPile");
 
     HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
     HORecHitCollectionDM_   = ps.getParameter<std::string>("HORecHitCollectionDM");
@@ -77,7 +81,7 @@ namespace edm
 
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   if( e.getByLabel( HBHErechitCollection_.label(), pHBHERecHits) ) {
+   if( e.getByLabel( HBHErechitCollectionSig_.label(), pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
    } 
@@ -106,7 +110,7 @@ namespace edm
 
    const HORecHitCollection*  HORecHits = 0;
 
-   if( e.getByLabel( HOrechitCollection_.label(), pHORecHits) ){
+   if( e.getByLabel( HOrechitCollectionSig_.label(), pHORecHits) ){
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
@@ -137,7 +141,7 @@ namespace edm
 
    const HFRecHitCollection*  HFRecHits = 0;
 
-   if( e.getByLabel( HFrechitCollection_.label(), pHFRecHits) ) {
+   if( e.getByLabel( HFrechitCollectionSig_.label(), pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
@@ -168,7 +172,7 @@ namespace edm
 
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   if( e.getByLabel( ZDCrechitCollection_.label(), pZDCRecHits) ) {
+   if( e.getByLabel( ZDCrechitCollectionSig_.label(), pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
@@ -206,7 +210,7 @@ namespace edm
    Handle< HBHERecHitCollection > pHBHERecHits;
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   if( e->getByLabel( HBHErechitCollection_.label(), pHBHERecHits) ) {
+   if( e->getByLabel( HBHErechitCollectionPile_.label(), pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HEHB rechits: " << HBHERecHits->size();
@@ -234,7 +238,7 @@ namespace edm
    Handle< HORecHitCollection > pHORecHits;
    const HORecHitCollection*  HORecHits = 0;
 
-   if( e->getByLabel( HOrechitCollection_.label(), pHORecHits) ) {
+   if( e->getByLabel( HOrechitCollectionPile_.label(), pHORecHits) ) {
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
@@ -263,7 +267,7 @@ namespace edm
    Handle< HFRecHitCollection > pHFRecHits;
    const HFRecHitCollection*  HFRecHits = 0;
 
-   if( e->getByLabel( HFrechitCollection_.label(), pHFRecHits) ) {
+   if( e->getByLabel( HFrechitCollectionPile_.label(), pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
@@ -292,7 +296,7 @@ namespace edm
    Handle< ZDCRecHitCollection > pZDCRecHits;
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   if( e->getByLabel( ZDCrechitCollection_.label(), pZDCRecHits) ) {
+   if( e->getByLabel( ZDCrechitCollectionPile_.label(), pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();

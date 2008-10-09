@@ -45,7 +45,8 @@ namespace edm
 
     // declare the products to produce
 
-    pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigiCollection");
+    pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
+    pixeldigi_collectionPile_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionPile");
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
 
     // clear local storage for this event                                                                     
@@ -69,7 +70,7 @@ namespace edm
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    if( e.getByLabel(pixeldigi_collection_,input) ) {
+    if( e.getByLabel(pixeldigi_collectionSig_,input) ) {
 
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
@@ -106,7 +107,7 @@ namespace edm
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    if( e->getByLabel(pixeldigi_collection_,input) ) {
+    if( e->getByLabel(pixeldigi_collectionPile_,input) ) {
 
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();

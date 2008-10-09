@@ -57,13 +57,19 @@ namespace edm
     private:
       // data specifiers
 
-      edm::InputTag EBProducer_; // primary? name given to collection of EB calib digis
-      edm::InputTag EEProducer_; // primary? name given to collection of EE calib digis
-      edm::InputTag ESProducer_; // primary? name given to collection of ES calib digis
+      edm::InputTag EBProducerSig_; // primary? name given to collection of EB calib digis
+      edm::InputTag EEProducerSig_; // primary? name given to collection of EE calib digis
+      edm::InputTag ESProducerSig_; // primary? name given to collection of ES calib digis
+      edm::InputTag EBProducerPile_; // primary? name given to collection of EB calib digis
+      edm::InputTag EEProducerPile_; // primary? name given to collection of EE calib digis
+      edm::InputTag ESProducerPile_; // primary? name given to collection of ES calib digis
 
-      edm::InputTag EBdigiCollection_; // secondary name given to collection of EB calib digis
-      edm::InputTag EEdigiCollection_; // secondary name given to collection of EE calib digis
-      edm::InputTag ESdigiCollection_; // secondary name given to collection of ES calib digis
+      edm::InputTag EBdigiCollectionSig_; // secondary name given to collection of EB calib digis
+      edm::InputTag EEdigiCollectionSig_; // secondary name given to collection of EE calib digis
+      edm::InputTag ESdigiCollectionSig_; // secondary name given to collection of ES calib digis
+      edm::InputTag EBdigiCollectionPile_; // secondary name given to collection of EB calib digis
+      edm::InputTag EEdigiCollectionPile_; // secondary name given to collection of EE calib digis
+      edm::InputTag ESdigiCollectionPile_; // secondary name given to collection of ES calib digis
       std::string EBDigiCollectionDM_; // secondary name to be given to EB collection of hits
       std::string EEDigiCollectionDM_; // secondary name to be given to EE collection of hits
       std::string ESDigiCollectionDM_; // secondary name to be given to ES collection of hits

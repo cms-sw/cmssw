@@ -45,12 +45,19 @@ namespace edm
 
     // declare the products to produce, retrieve
 
-    EBProducer_ = ps.getParameter<edm::InputTag>("EBProducer");
-    EEProducer_ = ps.getParameter<edm::InputTag>("EEProducer");
-    ESProducer_ = ps.getParameter<edm::InputTag>("ESProducer");
-    EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
-    EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
-    ESdigiCollection_ = ps.getParameter<edm::InputTag>("ESdigiCollection");
+    EBProducerSig_ = ps.getParameter<edm::InputTag>("EBProducerSig");
+    EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
+    ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
+    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBProducerPile");
+    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEProducerPile");
+    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESProducerPile");
+    EBdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EBdigiCollectionSig");
+    EEdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EEdigiCollectionSig");
+    ESdigiCollectionSig_ = ps.getParameter<edm::InputTag>("ESdigiCollectionSig");
+    EBdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EBdigiCollectionPile");
+    EEdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EEdigiCollectionPile");
+    ESdigiCollectionPile_ = ps.getParameter<edm::InputTag>("ESdigiCollectionPile");
+
     EBDigiCollectionDM_        = ps.getParameter<std::string>("EBDigiCollectionDM");
     EEDigiCollectionDM_        = ps.getParameter<std::string>("EEDigiCollectionDM");
     ESDigiCollectionDM_        = ps.getParameter<std::string>("ESDigiCollectionDM");
@@ -84,7 +91,7 @@ namespace edm
 
    const EBDigiCollection*  EBDigis = 0;
 
-   if(e.getByLabel(EBProducer_.label(),EBdigiCollection_.label(), pEBDigis) ){
+   if(e.getByLabel(EBProducerSig_.label(),EBdigiCollectionSig_.label(), pEBDigis) ){
      EBDigis = pEBDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
    }
@@ -112,7 +119,7 @@ namespace edm
    const EEDigiCollection*  EEDigis = 0;
 
    
-   if(e.getByLabel(EEProducer_.label(),EEdigiCollection_.label(), pEEDigis) ){
+   if(e.getByLabel(EEProducerSig_.label(),EEdigiCollectionSig_.label(), pEEDigis) ){
      EEDigis = pEEDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EE digis: " << EEDigis->size();
    } 
@@ -140,7 +147,7 @@ namespace edm
    const ESDigiCollection*  ESDigis = 0;
 
    
-   if(e.getByLabel( ESProducer_.label(),ESdigiCollection_.label(), pESDigis) ){
+   if(e.getByLabel( ESProducerSig_.label(),ESdigiCollectionSig_.label(), pESDigis) ){
      ESDigis = pESDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMDigiWorker") << "total # ES digis: " << ESDigis->size();
@@ -179,7 +186,7 @@ namespace edm
    const EBDigiCollection*  EBDigis = 0;
 
   
-   if( e->getByLabel(EBProducer_.label(),EBdigiCollection_.label(), pEBDigis) ){
+   if( e->getByLabel(EBProducerPile_.label(),EBdigiCollectionPile_.label(), pEBDigis) ){
      EBDigis = pEBDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
@@ -208,7 +215,7 @@ namespace edm
    const EEDigiCollection*  EEDigis = 0;
 
    
-   if( e->getByLabel( EEProducer_.label(),EEdigiCollection_.label(), pEEDigis) ){
+   if( e->getByLabel( EEProducerPile_.label(),EEdigiCollectionPile_.label(), pEEDigis) ){
      EEDigis = pEEDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMDigiWorker") << "total # EE digis: " << EEDigis->size();
@@ -237,7 +244,7 @@ namespace edm
    const ESDigiCollection*  ESDigis = 0;
 
    
-   if( e->getByLabel( ESProducer_.label(),ESdigiCollection_.label(), pESDigis) ){
+   if( e->getByLabel( ESProducerPile_.label(),ESdigiCollectionPile_.label(), pESDigis) ){
      ESDigis = pESDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMDigiWorker") << "total # ES digis: " << ESDigis->size();

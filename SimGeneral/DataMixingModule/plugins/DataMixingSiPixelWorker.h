@@ -52,7 +52,8 @@ namespace edm
     private:
       // data specifiers
 
-      edm::InputTag pixeldigi_collection_ ; // secondary name given to collection of SiPixel digis
+      edm::InputTag pixeldigi_collectionSig_ ; // secondary name given to collection of SiPixel digis
+      edm::InputTag pixeldigi_collectionPile_ ; // secondary name given to collection of SiPixel digis
       std::string PixelDigiCollectionDM_  ; // secondary name to be given to new SiPixel digis
 
       // 

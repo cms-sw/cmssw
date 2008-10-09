@@ -56,10 +56,14 @@ namespace edm
       // data specifiers
 
       // Hcal
-      edm::InputTag HBHEdigiCollection_; // secondary name given to collection of digis
-      edm::InputTag HOdigiCollection_  ; // secondary name given to collection of digis
-      edm::InputTag HFdigiCollection_  ; // secondary name given to collection of digis
-      edm::InputTag ZDCdigiCollection_ ; // secondary name given to collection of digis
+      edm::InputTag HBHEdigiCollectionSig_; // secondary name given to collection of digis
+      edm::InputTag HOdigiCollectionSig_  ; // secondary name given to collection of digis
+      edm::InputTag HFdigiCollectionSig_  ; // secondary name given to collection of digis
+      edm::InputTag ZDCdigiCollectionSig_ ; // secondary name given to collection of digis
+      edm::InputTag HBHEdigiCollectionPile_; // secondary name given to collection of digis
+      edm::InputTag HOdigiCollectionPile_  ; // secondary name given to collection of digis
+      edm::InputTag HFdigiCollectionPile_  ; // secondary name given to collection of digis
+      edm::InputTag ZDCdigiCollectionPile_ ; // secondary name given to collection of digis
       std::string HBHEDigiCollectionDM_; // secondary name to be given to collection of digis
       std::string HODigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string HFDigiCollectionDM_  ; // secondary name to be given to collection of digis
