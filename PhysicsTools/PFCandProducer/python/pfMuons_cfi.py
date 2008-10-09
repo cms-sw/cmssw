@@ -6,7 +6,7 @@ pfMuons = cms.EDProducer("PFIsolation",
     PFCandidates = cms.InputTag("pfAllMuons"),
     PFCandidatesForIsolation = cms.InputTag("particleFlow"),
     isolation_Cone_DeltaR = cms.double(0.2),
-    max_ptFraction_InCone = cms.double(1.0)
+    max_ptFraction_InCone = cms.double(0.5)
 )
 
 

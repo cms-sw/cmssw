@@ -29,8 +29,10 @@
 \date   february 2008
 */
 
+#include <iostream>
 
 
+using namespace std;
 
 class PFTopProjector : public edm::EDProducer {
  public:
@@ -120,7 +122,7 @@ void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& han
       edm::Ptr<T>   ptr( handle, i);
       reco::CandidatePtr basePtr( ptr );
  
-
+      
       reco::CandidatePtrVector ancestors;
       ptrToAncestor( basePtr,
 		     ancestors,

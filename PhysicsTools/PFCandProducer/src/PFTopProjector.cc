@@ -202,8 +202,11 @@ void PFTopProjector::produce(Event& iEvent,
   
   if( pfJets.isValid() ) {
     vector<bool> maskedJets( pfJets->size(), false);
+
+    
     processCollection( pfTaus, pfJets, maskedJets, 
 		       "PFTau masking PFJets");
+
 
     const PFJetCollection& inJets = *pfJets;
     
