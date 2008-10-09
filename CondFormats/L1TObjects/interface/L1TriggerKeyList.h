@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Feb 29 20:44:53 CET 2008
-// $Id$
+// $Id: L1TriggerKeyList.h,v 1.1 2008/03/03 07:29:55 wsun Exp $
 //
 
 // system include files
@@ -57,12 +57,14 @@ class L1TriggerKeyList
 
       // Store payload token for L1TriggerKey, return true if successful
       bool addKey( const std::string& tscKey,
-		   const std::string& payloadToken ) ;
+		   const std::string& payloadToken,
+		   bool overwriteKey = false ) ;
 
       // Store payload token for configuration data, return true if successful
       bool addKey( const std::string& recordType, // "record@type"
 		   const std::string& key,
-		   const std::string& payloadToken ) ;
+		   const std::string& payloadToken,
+		   bool overwriteKey = false ) ;
 
    private:
       //L1TriggerKeyList(const L1TriggerKeyList&); // stop default
