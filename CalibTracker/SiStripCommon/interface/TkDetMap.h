@@ -78,7 +78,7 @@ class TkLayerMap{
 
   XYbin xybin;
 
-  int layerEnumNb; //In the enumerator sequence
+  int layerEnumNb_; //In the enumerator sequence
   int nchX;
   int nchY;
   double lowX,highX;
@@ -124,12 +124,11 @@ class TkDetMap{
   void doMe();
 
  private:
-  typedef std::map<int,TkLayerMap*> detmapType;
+  typedef std::vector<TkLayerMap*> detmapType;
   detmapType TkMap;
   uint32_t cached_detid;
   int16_t cached_layer;
   TkLayerMap::XYbin cached_XYbin;
-  detmapType::const_iterator cached_iterator;
 };
 
 

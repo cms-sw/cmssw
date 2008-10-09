@@ -10,26 +10,26 @@
 
 #include "iostream"
 
-TkLayerMap::TkLayerMap(int in):layerEnumNb(in){
+TkLayerMap::TkLayerMap(int in):layerEnumNb_(in){
 
   LogTrace("TkLayerMap") <<" TkLayerMap::constructor for layer " << in;
 
-  initialize(layerEnumNb);
+  initialize(layerEnumNb_);
 
   SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
 
   std::vector<uint32_t> TkDetIdList=fr->getAllDetIds();
   
-  if(layerEnumNb==0)
-    edm::LogError("TkLayerMap") <<" TkLayerMap::requested creation of a wrong layer Nb "<< layerEnumNb; 
-  else if(layerEnumNb<5)
-    createTIB(TkDetIdList,layerEnumNb);
-  else if(layerEnumNb<8)
-    createTID(TkDetIdList,layerEnumNb); 
-  else if(layerEnumNb<14)
-    createTOB(TkDetIdList,layerEnumNb); 
+  if(layerEnumNb_==0)
+    edm::LogError("TkLayerMap") <<" TkLayerMap::requested creation of a wrong layer Nb "<< layerEnumNb_; 
+  else if(layerEnumNb_<5)
+    createTIB(TkDetIdList,layerEnumNb_);
+  else if(layerEnumNb_<8)
+    createTID(TkDetIdList,layerEnumNb_); 
+  else if(layerEnumNb_<14)
+    createTOB(TkDetIdList,layerEnumNb_); 
   else
-    createTEC(TkDetIdList,layerEnumNb); 
+    createTEC(TkDetIdList,layerEnumNb_); 
 }
 
 void TkLayerMap::initialize(int layer){
@@ -93,7 +93,7 @@ void TkLayerMap::initialize(int layer){
     highY=nchY;
 
     break;
-  case 5:
+  case 5:  //TID
   case 6:
   case 7:
     
@@ -112,7 +112,7 @@ void TkLayerMap::initialize(int layer){
     lowX=-6.;
     highX=6.;
     nchY=2*(Nrod+1);
-    lowY=-1.*(Nrod-1.);
+    lowY=-1.*(Nrod+1.);
     highY=(Nrod+1.);
 
     break;
@@ -123,7 +123,7 @@ void TkLayerMap::initialize(int layer){
     lowX=-6.;
     highX=6.;
     nchY=2.*(Nrod+1.);
-    lowY=-1.*(Nrod-1.);
+    lowY=-1.*(Nrod+1.);
     highY=(Nrod+1.);
     
     break;
@@ -288,6 +288,11 @@ const TkLayerMap::XYbin TkLayerMap::getXY(uint32_t& detid, int layerEnumNb){
   if(!layerEnumNb)
     layerEnumNb=layerSearch(detid);
 
+  if(layerEnumNb!=layerEnumNb_)
+    throw cms::Exception("CorruptedData")
+      << "[TkLayerMap::getXY] Fill of DetId " << detid << " layerEnumNb " << layerEnumNb << " are requested to wrong TkLayerMap " << layerEnumNb_ << " \nPlease check the TkDetMap code"; 
+ 
+
   if(layerEnumNb<5)  
     return getXY_TIB(detid,layerEnumNb);
   else if(layerEnumNb<8)  
@@ -383,6 +388,7 @@ TkDetMap::TkDetMap()
 void TkDetMap::doMe(){
   LogTrace("TkDetMap") <<"TkDetMap::constructor ";
 
+  TkMap.resize(23);
   //Create TkLayerMap for each layer declared in the TkLayerEnum
   for(int layer=1;layer<23;++layer){
     TkMap[layer]=new TkLayerMap(layer);
@@ -394,7 +400,7 @@ TkDetMap::~TkDetMap(){
   detmapType::iterator iterE=TkMap.end();
  
   for(;iter!=iterE;++iter)
-    delete iter->second;  
+    delete (*iter);  
 }
 
 const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid){
@@ -421,9 +427,8 @@ int16_t TkDetMap::FindLayer(uint32_t& detid){
   LogTrace("TkDetMap") <<"[FindLayer] detid "<< detid << " layer " << layer;
   if(layer!=cached_layer){
     cached_layer=layer;  
-    cached_iterator=TkMap.find(cached_layer);
   }
-  cached_XYbin=cached_iterator->second->getXY(detid,layer);
+  cached_XYbin=TkMap[cached_layer]->getXY(detid,layer);
   LogTrace("TkDetMap") <<"[FindLayer] detid "<< detid << " cached_XYbin " << cached_XYbin.ix << " "<< cached_XYbin.iy;
 
   return cached_layer;
@@ -434,14 +439,12 @@ int16_t TkDetMap::FindLayer(uint32_t& detid){
 void TkDetMap::getComponents(int& layer,
 			     int& nchX,double& lowX,double& highX,
 			     int& nchY,double& lowY,double& highY){
-  
-   detmapType::const_iterator iter=TkMap.find(layer);
-   nchX=iter->second->get_nchX();
-   lowX=iter->second->get_lowX();
-   highX=iter->second->get_highX();
-   nchY=iter->second->get_nchY();
-   lowY=iter->second->get_lowY();
-   highY=iter->second->get_highY();
+  nchX=TkMap[layer]->get_nchX();
+  lowX=TkMap[layer]->get_lowX();
+  highX=TkMap[layer]->get_highX();
+  nchY=TkMap[layer]->get_nchY();
+  lowY=TkMap[layer]->get_lowY();
+  highY=TkMap[layer]->get_highY();
 }
 
 std::string TkDetMap::getLayerName(int& in){
