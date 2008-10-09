@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.35 2008/10/03 16:42:36 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.36 2008/10/09 00:55:29 loizides Exp $
 
 use strict;
 use DBI;
@@ -179,7 +179,7 @@ $destination = 'default';
 $index       = '';
 $indexsize   = -1;
 $comment     = '';
-$config      = "/nfshome0/tier0/.tier0trans.conf";
+$config      = '';
 
 GetOptions(
            "h|help"                   => \$help,
@@ -236,13 +236,16 @@ $checksum    = checkOption($checksum);
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
-my $reader = "CMS_STOMGR_W";
-my $phrase = "qwerty";
+my $reader = "XXX";
+my $phrase = "xxx";
 
-if(-e $config) {
+if($config eq '') {
+    print "Error: You have to specify a config file (--config option), exiting!\n";
+    usageShort();
+} elsif (-e $config) {
     eval `cat $config`;
 } else {
-    print "Error: Can not read $config file, exiting!\n";
+    print "Error: Can not read config file: $config, exiting!\n";
     usageShort();
 }
 
@@ -250,6 +253,13 @@ unless($filename) {
     print "Error: No filename supplied, exiting!\n";
     usageShort();
 }
+
+# redirect signals
+$SIG{ABRT} = \&IGNORE;
+$SIG{INT}  = \&IGNORE;
+$SIG{KILL} = \&IGNORE;
+$SIG{QUIT} = \&IGNORE;
+$SIG{TERM} = \&IGNORE;
 
 # when $check is enabled, just want to query for a file and then exit
 if($check) {
@@ -595,4 +605,12 @@ $dbh->disconnect;
 if ($test==1) {
     print "\n\nNo obvious logic errors detected\n";
 }
+
+# reset signal
+$SIG{ABRT} = 'DEFAULT';
+$SIG{INT}  = 'DEFAULT';
+$SIG{KILL} = 'DEFAULT';
+$SIG{QUIT} = 'DEFAULT';
+$SIG{TERM} = 'DEFAULT';
+
 exit 0;
