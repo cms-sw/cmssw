@@ -294,6 +294,21 @@ namespace edm
   }
 
 
+  void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
+  {//                                                                                       
+                                       
+    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+      setBcrOffset();
+      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
+        setSourceOffset(isource);
+        if (doit_[isource]) {
+          merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],1, ES);
+        }
+      }
+    }
+  }
+
+
   void DataMixingModule::put(edm::Event &e,const edm::EventSetup& ES) {
 
     // individual workers...

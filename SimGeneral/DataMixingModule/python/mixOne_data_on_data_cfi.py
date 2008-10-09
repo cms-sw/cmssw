@@ -28,7 +28,7 @@ mix = cms.EDFilter("DataMixingModule",
     SistripLabelPile = cms.InputTag("ZeroSuppressed"),
     SistripdigiCollectionPile = cms.InputTag("SiStripDigis"),
                    #
-    pmixOne_sim_cfi.pixeldigiCollectionPile = cms.InputTag("SiPixelDigis"),
+    pixeldigiCollectionPile = cms.InputTag("SiPixelDigis"),
                    #
     EBProducerSig = cms.InputTag("ecalRecHit"),
     EBrechitCollectionSig = cms.InputTag("EcalRecHitsEB"),                   
