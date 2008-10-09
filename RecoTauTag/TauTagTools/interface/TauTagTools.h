@@ -19,6 +19,9 @@
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
+#include "TFormula.h"
+
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -35,6 +38,11 @@ namespace TauTagTools{
   PFCandidateRefVector filteredPFNeutrHadrCands(PFCandidateRefVector theInitialPFCands,double NeutrHadrCand_HcalclusminEt);
   PFCandidateRefVector filteredPFGammaCands(PFCandidateRefVector theInitialPFCands,double GammaCand_EcalclusminEt);
   math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField*,TrackRef); 
+
+  TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
+  void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr); 
+
+
 
   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
@@ -54,7 +62,6 @@ namespace TauTagTools{
      math::XYZVector axis;  //axis about which candidates are sorted
      const PFCandidateRefVector& myVector;
   };
-
   class filterChargedAndNeutralsByPt
   {
      public:
