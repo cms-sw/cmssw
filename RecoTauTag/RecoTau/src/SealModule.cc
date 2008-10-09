@@ -16,7 +16,7 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauProducer);
-#DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeDeterminator);
+//DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeDeterminator);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackFinding);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackPtCut);
