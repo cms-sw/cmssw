@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # for photons (cuts are NOT tuned)
 # (using old values from TQAF, january 2008)
 #
-photonMatch = cms.EDFilter("PATMCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+photonMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src = cms.InputTag("allLayer0Photons"), # RECO objects to match
     matched = cms.InputTag("genParticles"),       # mc-truth particle collection
     mcPdgId     = cms.vint32(22), # one or more PDG ID (11 = electron); absolute values (see below)

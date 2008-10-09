@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # for taus (cuts are NOT tuned)
 # (using old values from TQAF, january 2008)
 #
-tauMatch = cms.EDFilter("PATMCMatcher",
+tauMatch = cms.EDFilter("MCMatcher",
     src = cms.InputTag("allLayer0Taus"),    # RECO objects to match
     matched = cms.InputTag("genParticles"), # mc-truth particle collection
     mcPdgId     = cms.vint32(15), # one or more PDG ID (15 = tau); absolute values (see below)
@@ -18,7 +18,7 @@ tauMatch = cms.EDFilter("PATMCMatcher",
     resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-tauGenJetMatch = cms.EDFilter("PATGenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+tauGenJetMatch = cms.EDFilter("GenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src      = cms.InputTag("allLayer0Taus"),         ## RECO jets (any View<Jet> is ok)
     matched  = cms.InputTag("tauGenJets"), ## GEN jets  (must be GenJetCollection)
     mcPdgId  = cms.vint32(),       # n/a

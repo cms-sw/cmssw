@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # for jets (cuts are NOT tuned!!)
 # Using old TQAF cuts of january 2008
 #
-jetPartonMatch = cms.EDFilter("PATMCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+jetPartonMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src = cms.InputTag("allLayer0Jets"),    # RECO objects to match
     matched = cms.InputTag("genParticles"), # mc-truth particle collection
     mcPdgId  = cms.vint32(1, 2, 3, 4, 5, 21), # one or more PDG ID (quarks except top; gluons)
@@ -17,7 +17,7 @@ jetPartonMatch = cms.EDFilter("PATMCMatcher", # cut on deltaR, deltaPt/Pt; pick 
     resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
 )
 
-jetGenJetMatch = cms.EDFilter("PATGenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+jetGenJetMatch = cms.EDFilter("GenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src      = cms.InputTag("allLayer0Jets"),         ## RECO jets (any View<Jet> is ok)
     matched  = cms.InputTag("iterativeCone5GenJets"), ## GEN jets  (must be GenJetCollection)
     mcPdgId  = cms.vint32(),       # n/a
