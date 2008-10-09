@@ -23,7 +23,8 @@ namespace cond {
     }
 
     inline cond::Time_t pack(cond::UnpackedTime iValue) {
-      return (iValue.first<< 32) + iValue.second;
+      Time_t t = iValue.first;
+      return (t<< 32) + iValue.second;
     }
 
 
@@ -41,7 +42,8 @@ namespace cond {
     
     inline Time_t from_boost(boost::posix_time::ptime bt) {
       boost::posix_time::time_duration td = bt - time0;
-      return (td.total_seconds() << 32) + td.fractional_seconds();
+      Time_t t = td.total_seconds();
+      return (t << 32) + td.fractional_seconds();
 
     } 
 
@@ -57,7 +59,8 @@ namespace cond {
     
     
     inline Time_t from_timeval( ::timeval stv) {
-      return (stv.tv_sec << 32) + 1000*stv.tv_usec;
+      Time_t t = stv.tv_sec;
+      return (t << 32) + 1000*stv.tv_usec;
     }
     
     inline Time_t now() {
