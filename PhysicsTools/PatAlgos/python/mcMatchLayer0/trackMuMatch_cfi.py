@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # for muons (cuts are NOT tuned)
 # (using old values from TQAF, january 2008)
 #
-trackMuMatch = cms.EDFilter("PATMCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+trackMuMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src     = cms.InputTag("allLayer0TrackCands"), # RECO objects to match  
     matched = cms.InputTag("genParticles"),   # mc-truth particle collection
     mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
