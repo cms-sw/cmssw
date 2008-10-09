@@ -346,7 +346,7 @@ TkLayerMap::XYbin TkLayerMap::getXY_TID(uint32_t& detid, int layerEnumNb){
   xybin.ix=D.isZMinusSide()?-3*D.ring()+10:3*D.ring()+7;
   if(D.isStereo())
     xybin.ix+=(D.isZMinusSide()?-1:1);
-  xybin.iy=(D.isBackRing()?2:1) * D.moduleNumber()+1;
+  xybin.iy=2. * D.moduleNumber() - (D.isBackRing()?0.:1.);
 
   xybin.x=lowX+xybin.ix-0.5;
   xybin.y=lowY+xybin.iy-0.5;
