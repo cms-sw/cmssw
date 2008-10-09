@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.34 2008/10/01 03:56:27 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.35 2008/10/03 16:42:36 loizides Exp $
 
 use strict;
 use DBI;
@@ -274,24 +274,24 @@ if($check) {
         "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME " .
         "left outer join CMS_STOMGR.FILES_DELETED ".
         "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_DELETED.FILENAME " .
-        "where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
+        "where CMS_STOMGR.FILES_CREATED.FILENAME=?";
 
     #
-    sleep(2);
+    sleep(3);
     #
 
     # setup DB connection
     my $dbi    = "DBI:Oracle:cms_rcms";
     $debug && print "Setting up DB connection for $dbi and $reader\n";
     my $dbh = DBI->connect($dbi,$reader,$phrase) or die("Error: Connection to Oracle DB failed");
-    $debug && print "DB connection set up succesfully \n";
+    $debug && print "DB connection set up successfully \n";
 
     $debug && print "Preparing check query: $SQLcheck \n";
     my $checkHan = $dbh->prepare($SQLcheck) or die("Error: DB query prepare failed - $dbh->errstr \n");
     
     my $dbErr;
     $debug && print "Querying tables for file status \n";
-    my $rowsCcheck = $checkHan->execute() or $dbErr=$checkHan->errstr;
+    my $rowsCcheck = $checkHan->execute($filename) or $dbErr=$checkHan->errstr;
     if(defined($dbErr)) {
 	print "Error: Query failed.\n";
 	print "Error string from DB is $dbErr\n";
