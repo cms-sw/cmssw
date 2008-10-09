@@ -166,6 +166,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_);
   ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
 
+  ispace->fireItemAvailable("rcmsStateListener",     fsm_.rcmsStateListener());
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   
   
