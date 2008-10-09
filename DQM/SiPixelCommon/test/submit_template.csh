@@ -10,3 +10,4 @@ cd $startdir
 cmsRun Run_offline_DQM_NUM_cfg.py
 rfcp *.root ${mydir}/JOB_NUM/
 cp *.log ${mydir}/JOB_NUM/
+cp *.txt ${mydir}/JOB_NUM/
