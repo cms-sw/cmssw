@@ -61,6 +61,7 @@ process.allLayer1Jets.addAssociatedTracks = False
 process.allLayer1Jets.addJetCharge = False
 process.allLayer1Jets.addTrigMatch = False
 process.allLayer1Jets.addGenPartonMatch = False
+process.allLayer1Jets.addGenJetMatch = False
 process.allLayer1Jets.getJetMCFlavour = False
 process.allLayer1Photons.embedSuperCluster = False
 process.allLayer1Photons.isolation = cms.PSet()
