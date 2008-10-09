@@ -77,6 +77,11 @@ TrackMon_bhmuon.TrackProducer                      = 'ctfWithMaterialTracksBeamH
 TrackMon_bhmuon.AlgoName                           = 'BHMuonTk'
 TrackMon_bhmuon.FolderName                         = 'SiStrip/Tracks'
 
+# DQM Services
+dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
+     subSystemFolder = cms.untracked.string('SiStrip')
+)
+
 
 # Sequences 
 SiStripDQMTier0_cosmicTk = cms.Sequence(SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk)
@@ -85,6 +90,6 @@ SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals
 
 SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs)
+SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*dqmInfoSiStrip)
 
 

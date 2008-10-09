@@ -22,7 +22,12 @@ TrackMon.TrackProducer = 'generalTracks'
 TrackMon.AlgoName = 'CKFTk'
 TrackMon.FolderName = 'SiStrip/Tracks'
 
+# DQM Services
+dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
+    subSystemFolder = cms.untracked.string('SiStrip')
+)
+
 # Sequence
-SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon)
+SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon*dqmInfoSiStrip)
 
 
