@@ -4,6 +4,8 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauProducer.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDecayModeDeterminator.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByIsolation.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackFinding.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackPtCut.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstElectron.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoProducer.h"
@@ -16,6 +18,8 @@ DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDecayModeDeterminator);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackFinding);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByLeadingTrackPtCut);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron);
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauTagInfoProducer);
