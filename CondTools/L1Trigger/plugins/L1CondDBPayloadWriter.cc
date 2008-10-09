@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.4 2008/09/12 19:29:28 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.5 2008/09/19 19:26:14 wsun Exp $
 //
 //
 
@@ -50,7 +50,8 @@ L1CondDBPayloadWriter::L1CondDBPayloadWriter(const edm::ParameterSet& iConfig)
 	       iConfig.getParameter< std::string >( "offlineAuthentication" )),
      m_tag( iConfig.getParameter< std::string >( "L1TriggerKeyListTag" ) ),
      m_writeL1TriggerKey( iConfig.getParameter< bool >( "writeL1TriggerKey" )),
-     m_writeConfigData( iConfig.getParameter< bool >( "writeConfigData" ) )
+     m_writeConfigData( iConfig.getParameter< bool >( "writeConfigData" ) ),
+     m_overwriteKeys( iConfig.getParameter< bool >( "overwriteKeys" ) )
 {
    //now do what ever initialization is needed
 
@@ -94,7 +95,11 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
      {
        // Get L1TriggerKey
        iSetup.get< L1TriggerKeyRcd >().get( key ) ;
-       triggerKeyOK = oldKeyList->token( key->tscKey() ) == "" ;
+
+       if( !m_overwriteKeys )
+	 {
+	   triggerKeyOK = oldKeyList->token( key->getTSCKey() ) == "" ;
+	 }
      }
    catch( l1t::DataAlreadyPresentException& ex )
      {
@@ -115,7 +120,9 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
       if( m_writeL1TriggerKey )
 	{
 	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
-	  if( !( keyList->addKey( key->tscKey(), token ) ) )
+	  if( !( keyList->addKey( key->getTSCKey(),
+				  token,
+				  m_overwriteKeys ) ) )
 	    {
 	      throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
 				     + key->tscKey()
@@ -134,7 +141,8 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 	  for( ; it != end ; ++it )
 	    {
 	      // Check key is new before writing
-	      if( oldKeyList->token( it->first, it->second ) == "" )
+	      if( oldKeyList->token( it->first, it->second ) == "" ||
+		  m_overwriteKeys )
 		{
 		  // Write data to ORCON with no IOV
 		  token = m_writer.writePayload( iSetup, it->first ) ;
@@ -147,8 +155,10 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 			  keyList = new L1TriggerKeyList( *oldKeyList ) ;
 			}
 
-		      if( !( keyList->addKey( it->first, it->second,
-					      token ) ) )
+		      if( !( keyList->addKey( it->first,
+					      it->second,
+					      token,
+					      m_overwriteKeys ) ) )
 			{
 			  // This should never happen because of the check
 			  // above, but just in case....
