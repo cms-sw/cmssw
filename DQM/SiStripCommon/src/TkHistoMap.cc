@@ -4,7 +4,8 @@
 
 TkHistoMap::TkHistoMap(std::string path, std::string MapName): 
   dqmStore_(edm::Service<DQMStore>().operator->()),
-  tkdetmap_(edm::Service<TkDetMap>().operator->())
+  tkdetmap_(edm::Service<TkDetMap>().operator->()),
+  HistoNumber(23)
 {
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor "; 
   createTkHistoMap(path,MapName);
@@ -22,7 +23,6 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName){
   double lowX,highX;
   double lowY, highY;
 
-  int HistoNumber=23;
   tkHistoMap.resize(HistoNumber);  
   for(int layer=1;layer<HistoNumber;++layer){
     fullName=name+tkdetmap_->getLayerName(layer);

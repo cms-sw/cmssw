@@ -22,6 +22,9 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
+#include "TPostScript.h"
+#include "TCanvas.h"
+
 #include <math.h>
 #include <vector>
 #include <sstream>
@@ -66,6 +69,25 @@ testTkHistoMap::~testTkHistoMap()
 
 void testTkHistoMap::endJob(void)
 {
+  TCanvas C("c","c");
+  C.Divide(2,2);
+  C.Update(); 
+  TPostScript ps("test.ps",121);
+  ps.NewPage();
+  for(size_t ilayer=1;ilayer<23;++ilayer){
+    C.cd(1);
+    tkhisto->getMap   (ilayer)->getTProfile2D()->Draw("BOXTEXT");
+    C.cd(2);
+    tkhistoZ->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    C.cd(3);
+    tkhistoPhi->getMap(ilayer)->getTProfile2D()->Draw("BOXCOL");
+    C.cd(4);
+    tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    C.Update();
+    ps.NewPage();
+  }
+  ps.Close();   
+
   edm::Service<DQMStore>().operator->()->save("test.root");  
 }
 
@@ -84,22 +106,19 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
   SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
   std::vector<uint32_t> TkDetIdList,fullTkDetIdList=fr->getAllDetIds();
   float value;
-
-  //TkDetIdList=fullTkDetIdList;
-
-  SiStripSubStructure siStripSubStructure;
-  //extract  vector of module in the layer
-  siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-  /*  
-  for(size_t i=0;i<TkDetIdList.size();++i){
-    value = TkDetIdList[i]%1000000;
-    //    tkhisto->fill(TkDetIdList[i],value);
-    tkhisto->setBinContent(TkDetIdList[i],value);
-  }%
-  */
-
   LocalPoint localPos(0.,0.,0.);
   GlobalPoint globalPos;
+
+  TkDetIdList=fullTkDetIdList;
+
+  //extract  vector of module in the layer
+  /*
+    SiStripSubStructure siStripSubStructure;
+    siStripSubStructure.getTIBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
+    siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
+    siStripSubStructure.getTIDDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
+    //siStripSubStructure.getTECDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
+  */
   
   for(size_t i=0;i<TkDetIdList.size();++i){
 

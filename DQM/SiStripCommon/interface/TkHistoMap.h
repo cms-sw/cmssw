@@ -11,10 +11,15 @@
 
 class TkHistoMap{
 
+  typedef std::vector<MonitorElement*> tkHistoMapType;
+
  public:
   TkHistoMap(std::string path, std::string MapName);
   ~TkHistoMap();
-  
+
+  MonitorElement* getMap(short layerNumber){return tkHistoMap[layerNumber];};
+  tkHistoMapType& getAllMaps(){return tkHistoMap;};
+
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
 
@@ -24,8 +29,8 @@ class TkHistoMap{
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;
-  typedef std::vector<MonitorElement*> tkHistoMapType;
   tkHistoMapType tkHistoMap;
+  int HistoNumber;
 };
 
 #endif
