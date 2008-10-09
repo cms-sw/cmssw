@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.28 2008/09/18 00:36:26 loizides Exp $
+# $Id: InjectWorker.pl,v 1.29 2008/10/08 01:28:59 loizides Exp $
 
 use strict;
 use DBI;
@@ -116,6 +116,31 @@ sub TERMINATE
     }
 }
 
+# reset environment variables for next input
+sub initenv
+{
+    $ENV{'SM_FILENAME'}    = "unspecified";
+    $ENV{'SM_FILECOUNTER'} = "unspecified";
+    $ENV{'SM_NEVENTS'}     = "unspecified";
+    $ENV{'SM_FILESIZE'}    = "unspecified";
+    $ENV{'SM_STARTTIME'}   = "unspecified";
+    $ENV{'SM_STOPTIME'}    = "unspecified";
+    $ENV{'SM_STATUS'}      = "unspecified";
+    $ENV{'SM_RUNNUMBER'}   = "unspecified";
+    $ENV{'SM_LUMISECTION'} = "unspecified";
+    $ENV{'SM_PATHNAME'}    = "unspecified";
+    $ENV{'SM_HOSTNAME'}    = "unspecified";
+    $ENV{'SM_SETUPLABEL'}  = "unspecified";
+    $ENV{'SM_STREAM'}      = "unspecified";
+    $ENV{'SM_INSTANCE'}    = "unspecified";
+    $ENV{'SM_SAFETY'}      = "unspecified";
+    $ENV{'SM_APPVERSION'}  = "unspecified";
+    $ENV{'SM_APPNAME'}     = "unspecified";
+    $ENV{'SM_TYPE'}        = "unspecified";
+    $ENV{'SM_CHECKSUM'}    = "unspecified";
+    $ENV{'SM_HLTKEY'}      = "unspecified";
+}
+
 # injection subroutine 
 # if called from insertFile, 2nd arg is 0: insert into DB, no notify
 # if called from closeFile msg, 2nd arg is 1: updates DB, notifies file to be transferred
@@ -148,6 +173,18 @@ sub inject($$)
     my $destination = 'Global';
     my $commentstr  = 'HLTKEY=' . $hltkey;
 
+    if ( ($filename   eq "unspecified") || ($count     eq "unspecified") || ($nevents     eq "unspecified") ||
+         ($filesize   eq "unspecified") || ($starttime eq "unspecified") || ($stoptime    eq "unspecified") ||
+         ($status     eq "unspecified") || ($runnumber eq "unspecified") || ($lumisection eq "unspecified") ||
+         ($pathname   eq "unspecified") || ($hostname  eq "unspecified") || ($setuplabel  eq "unspecified") ||
+         ($stream     eq "unspecified") || ($instance  eq "unspecified") || ($safety      eq "unspecified") ||
+         ($appversion eq "unspecified") || ($appname   eq "unspecified") || ($type        eq "unspecified") ||
+         ($checksum   eq "unspecified") ) {
+
+        print "Error in obtained parameters\n";
+        return -1;
+    }
+    
     # index file name and size
     my $indfile     = $filename;
     $indfile =~ s/\.dat$/\.ind/;
@@ -499,7 +536,7 @@ if (1) {
 while(!$endflag) {
 
     while($line=<INDATA>) {
-
+        
         if ($endflag) {last;}
 
         if ($debug) {print $line;}
@@ -518,6 +555,8 @@ while(!$endflag) {
 	    if ($debug) {print "Unknown line: $line\n";}
             next;
         }
+
+        initenv;
 
         my @exports = split(' ', $line);
         my $lexports = scalar(@exports);
