@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.25 2008/10/08 11:44:31 fronga Exp $
+// $Id: Jet.h,v 1.26 2008/10/08 15:11:33 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.25 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: Jet.h,v 1.26 2008/10/08 15:11:33 srappocc Exp $
 */
 
 
@@ -269,7 +269,6 @@ namespace pat {
       // energy scale correction factors
       JetCorrFactors jetCorrF_;
       float noCorrF_;
-      std::vector<float> bCovM_;
       // b-tag related members
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
       // track association

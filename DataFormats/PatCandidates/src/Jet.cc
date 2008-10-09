@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.22 2008/10/08 15:11:33 srappocc Exp $
+// $Id: Jet.cc,v 1.23 2008/10/08 18:28:44 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -206,7 +206,6 @@ Jet Jet::bCorrJet() const {
   jet.setP4(jetCorrF_.scaleB() * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
   jet.setNoCorrFactor(1. / jetCorrF_.scaleB());
-  jet.setCovMatrix(bCovM_);
   return jet;
 }
 
@@ -316,6 +315,10 @@ void Jet::setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers) {
   for(unsigned int i = 0; i < caloTowers.size(); ++i) {
     caloTowers_.push_back(*caloTowers.at(i));
   }
+  // possibly, if we really want to squeeze out bytes, we could clear the
+  // daughters when the calotowers are embedded. The methods of the
+  // CompositePtrCandidate that access this daughters would be srewed up though.
+  // this->clearDaughters();
   embeddedCaloTowers_ = true;
 }
 

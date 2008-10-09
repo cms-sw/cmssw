@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.19 2008/10/07 18:21:35 lowette Exp $
+// $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.19 2008/10/07 18:21:35 lowette Exp $
+  \version  $Id: PATObject.h,v 1.20 2008/10/08 15:11:33 srappocc Exp $
 */
 
 
@@ -61,15 +61,9 @@ namespace pat {
       /// reference to original object. Returns a null reference if not available
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
 
-      /// covariance matrix elements
-      const std::vector<float> & covMatrix() const;
       /// trigger matches
       const std::vector<TriggerPrimitive> & triggerMatches() const;
       const std::vector<TriggerPrimitive> triggerMatchesByFilter(const std::string & aFilt) const;
-
-
-      /// set covariance matrix elements
-      void setCovMatrix(const std::vector<float> & c);
       /// add a trigger match
       void addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim);
 
@@ -190,8 +184,6 @@ namespace pat {
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
 
-      // covariance matrix elements
-      std::vector<float> covM_;
       /// vector of trigger matches
       std::vector<pat::TriggerPrimitive> triggerMatches_;
 
@@ -256,9 +248,6 @@ namespace pat {
   template <class ObjectType> 
   const edm::Ptr<reco::Candidate> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
 
-  template <class ObjectType> 
-  const std::vector<float> & PATObject<ObjectType>::covMatrix() const { return covM_; }
-  
   template <class ObjectType>
   const std::vector<TriggerPrimitive> & PATObject<ObjectType>::triggerMatches() const { return triggerMatches_; }
   
@@ -271,13 +260,6 @@ namespace pat {
     return selectedMatches;
   }
 
-  template <class ObjectType> 
-  void PATObject<ObjectType>::setCovMatrix(const std::vector<float> & c) {
-    //    covM_.clear();
-    //    for (size_t i = 0; i < c.size(); i++) covM_.push_back(c[i]); 
-    covM_ = c;
-  }
-  
   template <class ObjectType>
   void PATObject<ObjectType>::addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim) {
     triggerMatches_.push_back(aTrigPrim);
