@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/06/20 15:14:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/03 10:39:22 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -18,6 +18,17 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
+
+#include <vector>
+
+using namespace std;
+
+// #include "Functions.h"
+// class biasFunctionBase<vector<double> >;
+// class scaleFunctionBase<double*>;
+template <class T> class biasFunctionBase;
+template <class T> class scaleFunctionBase;
+class smearFunctionBase;
 
 class SimTrack; 
 class TString;
@@ -76,12 +87,14 @@ public:
   static double computeWeight (double mass);
 
   static double deltaPhi(double phi1, double phi2) {
-  double deltaPhi = phi1 - phi2;
-  while(deltaPhi >= TMath::Pi()) deltaPhi -= 2*TMath::Pi();
-  while(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
-  return fabs(deltaPhi);
+    double deltaPhi = phi1 - phi2;
+    while(deltaPhi >= TMath::Pi()) deltaPhi -= 2*TMath::Pi();
+    while(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
+    return fabs(deltaPhi);
   }
-
+  static double deltaR(const double & eta1, const double & eta2, const double & phi1, const double & phi2) {
+    return sqrt( pow( eta1-eta2, 2 ) + pow( deltaPhi(phi1, phi2), 2 ) );
+  }
 
   static int debug;       // debug option set by MuScleFit
   static bool ResFound;   // bool flag true if best resonance found (cuts on pt and eta)
@@ -95,9 +108,13 @@ public:
   static unsigned int loopCounter; // parameter set by MuScleFit
 
   static int SmearType;
+  static smearFunctionBase * smearFunction;
   static int BiasType;
+  // No error, we take functions from the same group for scale and bias.
+  static scaleFunctionBase<vector<double> > * biasFunction;
   static int ResolFitType;
   static int ScaleFitType;
+  static scaleFunctionBase<double*> * scaleFunction;
   static int BgrFitType;
 
   static std::vector<double> parSmear;

@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/07/08 10:46:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/08 15:05:00 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -39,6 +39,11 @@
 #include <iostream>
 #include <fstream>
 #include <memory> // to use the std::auto_ptr
+
+// Includes the definitions of all the bias functions
+// These functions are selected in the constructor according
+// to the input parameters.
+#include "Functions.h"
 
 using namespace std;
 using namespace edm;
@@ -93,9 +98,13 @@ TF1 * GLBE = new TF1 ("GLBE",
   0, 1000);
 
 int MuScleFitUtils::SmearType = 0;
+smearFunctionBase * MuScleFitUtils::smearFunction = 0;
 int MuScleFitUtils::BiasType  = 0;
+// No error, we use take functions from the same group for bias and scale.
+scaleFunctionBase<vector<double> > * MuScleFitUtils::biasFunction = 0;
 int MuScleFitUtils::ResolFitType = 0;
 int MuScleFitUtils::ScaleFitType = 0;
+scaleFunctionBase<double*> * MuScleFitUtils::scaleFunction = 0;
 int MuScleFitUtils::BgrFitType   = 0;
 vector<double> MuScleFitUtils::parBias;
 vector<double> MuScleFitUtils::parSmear;
@@ -422,7 +431,7 @@ void MuScleFitUtils::returnEstimator() {
 // -------------------------------------------------------------------------
 lorentzVector
 MuScleFitUtils::applySmearing (const lorentzVector& muon) {
-  
+
   double pt = muon.Pt();
   double eta = muon.Eta();
   double phi = muon.Phi();
@@ -433,6 +442,9 @@ MuScleFitUtils::applySmearing (const lorentzVector& muon) {
     y[i] = x[i][goodmuon%10000];
   }
 
+  // Use the smear function selected in the constructor
+  smearFunction->smear( pt, eta, phi, y );
+
   if (debug>9) {
     cout << "Smearing Pt,eta,phi = " << pt << " " <<  eta << " " 
 	 << phi << "; x = ";
@@ -442,45 +454,6 @@ MuScleFitUtils::applySmearing (const lorentzVector& muon) {
     cout << endl;
   }
 
-  double cotgth = 0.;
-  if (SmearType==1) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt);
-    phi = phi*(1.0+y[1]*parSmear[1]);
-    double tmp = 2*atan(exp(-eta));
-    cotgth = cos(tmp)/sin(tmp)*(1.0+y[2]*parSmear[2]);
-  } else if (SmearType==2) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta));
-    phi = phi*(1.0+y[2]*parSmear[2]);
-    double tmp = 2*atan(exp(-eta));
-    cotgth = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]);
-  } else if (SmearType==3) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta));
-    phi = phi*(1.0+y[2]*parSmear[2]);
-    double tmp = 2*atan(exp(-eta));
-    cotgth = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
-  } else if (SmearType==4) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
-    phi = phi*(1.0+y[2]*parSmear[2]);
-    double tmp = 2*atan(exp(-eta));
-    cotgth = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
-  } else if (SmearType==5) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
-    phi = phi*(1.0+y[2]*parSmear[2]+y[6]*parSmear[6]*pt);
-    double tmp = 2*atan(exp(-eta));
-    cotgth = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
-  } 
-  double theta;
-  if (cotgth!=0) { 
-    theta = atan(1/cotgth);
-  } else {
-    theta = TMath::Pi()/2;
-  }
-  if (theta<0) theta += TMath::Pi();
-  eta = -log(tan(theta/2));
-  if (debug>9) {
-    cout << "Smeared Pt,eta,phi = " << pt << " " <<  eta << " " 
-	 << phi << endl;
-  }
   double ptEtaPhiE[4] = {pt, eta, phi, E};
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
@@ -496,84 +469,16 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
   double phi = muon.Phi();
   double E = muon.E();
 
-  if (BiasType==1) { 
-    // Linear in pt
-    // ------------
-    pt = (parBias[0] + parBias[1]*pt)*pt;
-  } else if (BiasType==2) { 
-    // Linear in |eta|
-    // ---------------
-    pt = (parBias[0] + parBias[1]*fabs(eta))*pt; 
-  } else if (BiasType==3) { 
-    // Sinusoidal in phi
-      // -----------------
-    pt = (parBias[0] + parBias[1]*sin(phi))*pt; 
-  } else if (BiasType==4) { 
-    // Linear in pt and |eta|
-    // ----------------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  parBias[2]*fabs(eta))*pt;
-  } else if (BiasType==5) { 
-    // Linear in pt and sinusoidal in phi
-    // ----------------------------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  parBias[2]*sin(phi))*pt;
-  } else if (BiasType==6) { 
-    // Linear in |eta| and sinusoidal in phi
-    // -------------------------------------
-    pt = (parBias[0] + parBias[1]*fabs(eta) + 
-	  parBias[2]*sin(phi))*pt;
-  } else if (BiasType==7) { 
-    // Linear in pt and |eta| and sinusoidal in phi
-      // --------------------------------------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  parBias[2]*fabs(eta) + 
-	  parBias[3]*sin(phi))*pt;
-  } else if (BiasType==8) { 
-    // Linear in pt and parabolic in |eta|
-      // -----------------------------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  parBias[2]*fabs(eta) +
-	  parBias[3]*eta*eta)*pt;
-  } else if (BiasType==9) { 
-    // Exponential in pt
-      // -----------------
-    pt = (parBias[0] + exp(parBias[1]*pt))*pt;
-  } else if (BiasType==10) { 
-    // Parabolic in pt
-      // ---------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  parBias[2]*pt*pt)*pt;
-  } else if (BiasType==11) { 
-    // Linear in pt, sinusoidal in phi with muon sign
-      // ----------------------------------------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  (double)chg*parBias[2]*sin(phi+parBias[3]))*pt;
-  } else if (BiasType==12) { 
-    // Linear in pt, parabolic in eta, sinusoidal in phi with muon sign
-      // ----------------------------------------------------------------
-    pt = (parBias[0] + parBias[1]*pt + 
-	  parBias[2]*fabs(eta) +
-	  parBias[3]*eta*eta + 
-	  (double)chg*parBias[4]*sin(phi+parBias[5]))*pt;
-  } else if (BiasType==13) { 
-    // Linear in pt, parabolic in eta, sinusoidal in phi with muon sign
-      // ----------------------------------------------------------------
-    if (chg>0) {
-      pt = (parBias[0] + parBias[1]*pt + 
-	    parBias[2]*fabs(eta) +
-	    parBias[3]*eta*eta + 
-	    parBias[4]*sin(phi+parBias[5]))*pt;
-    } else {
-      pt = (parBias[0] + parBias[1]*pt + 
-	    parBias[2]*fabs(eta) +
-	    parBias[3]*eta*eta + 
-	    parBias[6]*sin(phi+parBias[7]))*pt;
-    }
-  } else {
-    cout << "[MuScleFitUtils-ApplyBias]: Wrong fit type or number of parameters: aborting!";
-    abort();
-  }
+  // Use functors (although not with the () operator)
+  // Note that we always pass pt, eta and phi, but internally only the needed
+  // values are used.
+  // This was already checked at startup
+  // if( BiasType < 0 || BiasType > 13 ) {
+  //   cout << "[MuScleFitUtils-ApplyBias]: Wrong fit type or number of parameters: aborting!";
+  //   abort();
+  // }
+  biasFunction->scale(pt, eta, phi, chg, MuScleFitUtils::parBias);
+
   ptEtaPhiE[0] = pt;
   ptEtaPhiE[1] = eta;
   ptEtaPhiE[2] = phi;
@@ -585,7 +490,7 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
 // Version of applyScale accepting a vector<double> of parameters
 // --------------------------------------------------------------
 lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
-								vector<double> parval, int chg) {
+                                          vector<double> parval, int chg) {
   // double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   std::auto_ptr<double> p(new double[(int)(parval.size())]);
@@ -600,14 +505,14 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 // This just calls the true applyScale function, removing the memory leak of p
 // ---------------------------------------------------------------------------
 lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
- 								std::auto_ptr<double> parval,int chg) {
+                                          std::auto_ptr<double> parval,int chg) {
   return applyScale (muon, parval.get(), chg);
 }
 
 // This is called by the likelihood to "taste" different values for additional corrections
 // ---------------------------------------------------------------------------------------
 lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
-								 double* parval, int chg) {
+                                          double* parval, int chg) {
 
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
   int shift = parResol.size();
@@ -616,75 +521,12 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
   double phi = ptEtaPhiE[2];
   double E = ptEtaPhiE[3];
 
-  // Apply additional correction
-  // ---------------------------
-  if (ScaleFitType==1) { 
-    // Linear in pt
-    // ------------
-    pt = (parval[shift] + parval[shift+1]*pt) * pt;
-  } else if (ScaleFitType==2) { 
-    // Linear in |eta|
-    // ---------------
-    pt = (parval[shift] + parval[shift+1]*fabs(eta)) * pt;
-  } else if (ScaleFitType==3) { 
-    // Sinusoidal in phi
-    // -----------------
-    pt = (parval[shift] + parval[shift+1]*sin(phi)) * pt;
-  } else if (ScaleFitType==4) { 
-    // Linear in pt and |eta|
-    // ----------------------
-    pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*fabs(eta)) * pt;
-  } else if (ScaleFitType==5) { 
-    // Linear in pt and sinusoidal in phi
-    // ----------------------------------
-    pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*sin(phi)) * pt;
-  } else if (ScaleFitType==6) { 
-    // Linear in |eta| and sinusoidal in phi
-    // -------------------------------------
-    pt = (parval[shift] + parval[shift+1]*fabs(eta) + parval[shift+2]*sin(phi)) * pt;
-  } else if (ScaleFitType==7) { 
-    // Linear in pt and |eta| and sinusoidal in phi
-    // --------------------------------------------
-    pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*fabs(eta) + 
-		    parval[shift+3]*sin(phi)) * pt;
-  } else if (ScaleFitType==8) { 
-    // Linear in pt and parabolic in |eta|
-    // -----------------------------------
-    pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*fabs(eta) +
-		    parval[shift+3]*eta*eta) * pt;
-  } else if (ScaleFitType==9) { 
-    // Exponential in pt
-    // -----------------
-    pt = (parval[shift] + exp(parval[shift+1]*pt)) * pt;
-  } else if (ScaleFitType==10) { 
-    // Parabolic in pt
-    // ---------------
-    pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*pt*pt) * pt;
-  } else if (ScaleFitType==11) { 
-    // Linear in pt, sinusoidal in phi with muon sign
-    // ----------------------------------------------
-    pt = (parval[shift] + parval[shift+1]*pt + 
-		    chg*parval[shift+2]*sin(phi+parval[shift+3])) * pt;
-  } else if (ScaleFitType==12) { 
-    // Linear in pt, parabolic in eta, sinusoidal in phi with muon sign
-    // ----------------------------------------------------------------
-    pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*fabs(eta) +
-		    parval[shift+3]*eta*eta + 
-		    chg*parval[shift+4]*sin(phi+parval[shift+5])) * pt;
-  } else if (ScaleFitType==13) { 
-    // Linear in pt, parabolic in eta, sinusoidal in phi with different parameters for mu+ mu-
-    // ---------------------------------------------------------------------------------------
-    if (chg>0) {
-      pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*fabs(eta) +
-		      parval[shift+3]*eta*eta + 
-		      parval[shift+4]*sin(phi+parval[shift+5])) * pt;
-    } else {
-      pt = (parval[shift] + parval[shift+1]*pt + parval[shift+2]*fabs(eta) +
-		      parval[shift+3]*eta*eta + 
-		      parval[shift+6]*sin(phi+parval[shift+7])) * pt;
-    }
-  } else {
-    cout << "[MuScleFitUtils]: Wrong fit type or number of parameters: aborting!";
+  // the address of parval[shift] is passed as pointer to double. Internally it is used as a normal array, thus:
+  // array[0] = parval[shift], array[1] = parval[shift+1], ...
+  scaleFunction->scale(pt, eta, phi, chg, &(parval[shift]));
+
+  if (ScaleFitType < 0 || ScaleFitType > 13) {
+    cout << "[MuScleFitUtils]: Wrong fit type: " << ScaleFitType << " aborting!";
     abort();
   }
 
@@ -727,14 +569,24 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
 					     vector<double> parval) {
   // double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
-  std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // --------- //
+  // ATTENTION //
+  // --------- //
+  // auto_ptr calls delete, not delete[] and thus it must
+  // not be used with arrays. There are alternatives see
+  // e.g.: http://www.gotw.ca/gotw/042.htm. The best
+  // alternative seems to be to switch to vector though.
+  // std::auto_ptr<double> p(new double[(int)(parval.size())]);
   
+  double * p = new double[(int)(parval.size())];
   vector<double>::const_iterator it = parval.begin();
   int id = 0;
   for ( ; it!=parval.end(); ++it, ++id) {
     (&*p)[id] = *it;
   }
-  return massResolution (mu1, mu2, p);
+  double massRes = massResolution (mu1, mu2, p);
+  delete[] p;
+  return massRes;
 }
 
 // This just calls the true massResolution function, removing the memory leak of p
@@ -2434,5 +2286,3 @@ double MuScleFitUtils::massProb (double mass, int ires, double massResol) {
 		    << " " << P << endl;
   return P;
 }
-
-

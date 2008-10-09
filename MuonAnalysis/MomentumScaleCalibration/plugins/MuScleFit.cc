@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/07/09 14:23:14 $
-//  $Revision: 1.5 $
+//  $Date: 2008/07/14 15:36:49 $
+//  $Revision: 1.6 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -113,6 +113,8 @@
 #include "TMinuit.h"
 #include <vector>
 
+#include "Functions.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco; // For AODSIM MC objects
@@ -128,7 +130,7 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   // Service parameters
   // ------------------
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);  
+  theService = new MuonServiceProxy(serviceParameters);
   theMuonLabel    = pset.getParameter<InputTag>("MuonLabel");
   theMuonType     = pset.getParameter<int>("muonType");
   theRootFileName = pset.getUntrackedParameter<string>("RootFileName", "GLBMuonHistos.root");
@@ -136,23 +138,23 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   if (theMuonType<1 || theMuonType>3) {
     cout << "[MuScleFit]: Unknown muon type! Aborting." << endl;
     abort();
-  }  
+  }
 
   loopCounter = 0;
 
   // Boundaries for h-function computation (to be improved!)
   // -------------------------------------------------------
-  minResMass_hwindow[0] = 76.;   
-  maxResMass_hwindow[0] = 106.;  
-  minResMass_hwindow[1] = 10.15; 
+  minResMass_hwindow[0] = 76.;
+  maxResMass_hwindow[0] = 106.;
+  minResMass_hwindow[1] = 10.15;
   maxResMass_hwindow[1] = 10.55;
-  minResMass_hwindow[2] = 9.8; 
+  minResMass_hwindow[2] = 9.8;
   maxResMass_hwindow[2] = 10.2;
-  minResMass_hwindow[3] = 9.25; 
+  minResMass_hwindow[3] = 9.25;
   maxResMass_hwindow[3] = 9.65;
-  minResMass_hwindow[4] = 3.58; 
+  minResMass_hwindow[4] = 3.58;
   maxResMass_hwindow[4] = 3.78;
-  minResMass_hwindow[5] = 3.0; 
+  minResMass_hwindow[5] = 3.0;
   maxResMass_hwindow[5] = 3.2;
 
   // Max number of loops (if > 2 then try to minimize likelihood more than once)
@@ -161,13 +163,20 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
 
   // Bias and smear types
   // --------------------
-  MuScleFitUtils::BiasType  = pset.getParameter<int>("BiasType");
-  MuScleFitUtils::SmearType = pset.getParameter<int>("SmearType");
+  int biasType = pset.getParameter<int>("BiasType");
+  MuScleFitUtils::BiasType = biasType;
+  // No error, the scale functions are used also for the bias
+  MuScleFitUtils::biasFunction = biasFunctionArray[biasType];
+  int smearType = pset.getParameter<int>("SmearType");
+  MuScleFitUtils::SmearType = smearType;
+  MuScleFitUtils::smearFunction = smearFunctionArray[smearType];
 
   // Fit types
   // ---------
   MuScleFitUtils::ResolFitType = pset.getParameter<int>("ResolFitType");
-  MuScleFitUtils::ScaleFitType = pset.getParameter<int>("ScaleFitType");
+  int scaleType = pset.getParameter<int>("ScaleFitType");
+  MuScleFitUtils::ScaleFitType = scaleType;
+  MuScleFitUtils::scaleFunction = scaleFunctionArray[scaleType];
   MuScleFitUtils::BgrFitType   = pset.getParameter<int>("BgrFitType");
 
   // Initial parameters values
@@ -191,108 +200,9 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   // --------------------------------
   MuScleFitUtils::speedup = pset.getParameter<bool>("speedup");
 
-  // Bias parameters: dimension check
-  // --------------------------------
-  if ((MuScleFitUtils::BiasType==1  && MuScleFitUtils::parBias.size()!=2) || // linear in pt
-      (MuScleFitUtils::BiasType==2  && MuScleFitUtils::parBias.size()!=2) || // linear in |eta|
-      (MuScleFitUtils::BiasType==3  && MuScleFitUtils::parBias.size()!=2) || // sinusoidal in phi
-      (MuScleFitUtils::BiasType==4  && MuScleFitUtils::parBias.size()!=3) || // linear in pt and |eta|
-      (MuScleFitUtils::BiasType==5  && MuScleFitUtils::parBias.size()!=3) || // linear in pt and sinusoidal in phi
-      (MuScleFitUtils::BiasType==6  && MuScleFitUtils::parBias.size()!=3) || // linear in |eta| and sinusoidal in phi
-      (MuScleFitUtils::BiasType==7  && MuScleFitUtils::parBias.size()!=4) || // linear in pt and |eta| and 
-                                                                                         // sinusoidal in phi
-      (MuScleFitUtils::BiasType==8  && MuScleFitUtils::parBias.size()!=4) || // linear in pt and parabolic in |eta|
-      (MuScleFitUtils::BiasType==9  && MuScleFitUtils::parBias.size()!=2) || // exponential in pt
-      (MuScleFitUtils::BiasType==10 && MuScleFitUtils::parBias.size()!=3) || // parabolic in pt
-      (MuScleFitUtils::BiasType==11 && MuScleFitUtils::parBias.size()!=4) || // linear in pt and sin in phi with chg
-      (MuScleFitUtils::BiasType==12 && MuScleFitUtils::parBias.size()!=6) || // linear in pt and para in eta 
-                                                                                         // plus sin in phi with chg
-      (MuScleFitUtils::BiasType==13 && MuScleFitUtils::parBias.size()!=8) || // linear in pt and para in eta 
-                                                                                         // plus sin in phi with chg
-      MuScleFitUtils::BiasType<0 || MuScleFitUtils::BiasType>13) {
-    cout << "[MuScleFit-Constructor]: Wrong bias type or number of parameters: aborting!" << endl;
-    abort();
-  }
-  // Smear parameters: dimension check
-  // ---------------------------------
-  if ((MuScleFitUtils::SmearType==1  && MuScleFitUtils::parSmear.size()!=3) || 
-      (MuScleFitUtils::SmearType==2  && MuScleFitUtils::parSmear.size()!=4) ||
-      (MuScleFitUtils::SmearType==3  && MuScleFitUtils::parSmear.size()!=5) ||
-      (MuScleFitUtils::SmearType==4  && MuScleFitUtils::parSmear.size()!=6) ||
-      (MuScleFitUtils::SmearType==5  && MuScleFitUtils::parSmear.size()!=7) ||
-      MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>5) {
-    cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << endl;
-    abort();
-  }
-
-  // Resol fit parameters: dimension check
-  // -------------------------------------
-  if ((MuScleFitUtils::ResolFitType==1 && MuScleFitUtils::parResol.size()!=3) ||
-      (MuScleFitUtils::ResolFitType==2 && MuScleFitUtils::parResol.size()!=4) ||
-      (MuScleFitUtils::ResolFitType==3 && MuScleFitUtils::parResol.size()!=5) ||
-      (MuScleFitUtils::ResolFitType==4 && MuScleFitUtils::parResol.size()!=6) ||
-      (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>5) {
-    cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
-    abort();
-  }
-  // Scale fit parameters: dimension check
-  // -------------------------------------
-  if ((MuScleFitUtils::ScaleFitType==1  && MuScleFitUtils::parScale.size()!=2) || // linear in pt
-      (MuScleFitUtils::ScaleFitType==2  && MuScleFitUtils::parScale.size()!=2) || // linear in |eta|
-      (MuScleFitUtils::ScaleFitType==3  && MuScleFitUtils::parScale.size()!=2) || // sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==4  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and |eta|
-      (MuScleFitUtils::ScaleFitType==5  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==6  && MuScleFitUtils::parScale.size()!=3) || // linear in |eta| and 
-                                                                                              // sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==7  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and |eta| and 
-                                                                                              // sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==8  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and parabolic in |eta|
-      (MuScleFitUtils::ScaleFitType==9  && MuScleFitUtils::parScale.size()!=2) || // exponential in pt
-      (MuScleFitUtils::ScaleFitType==10 && MuScleFitUtils::parScale.size()!=3) || // parabolic in pt
-      (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
-      (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta 
-                                                                                              // plus sin in phi with chg
-      (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta 
-                                                                                              // plus sin in phi with chg
-      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>13) {
-    cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
-    abort();
-  }
-  // Bgr fit parameters: dimension check
-  // -----------------------------------
-  if ((MuScleFitUtils::BgrFitType==1 && MuScleFitUtils::parBgr.size()!=1) ||
-      (MuScleFitUtils::BgrFitType==2 && MuScleFitUtils::parBgr.size()!=2) ||
-      (MuScleFitUtils::BgrFitType==3 && MuScleFitUtils::parBgr.size()!=3) ||
-      MuScleFitUtils::BgrFitType<1 || MuScleFitUtils::BgrFitType>3) {
-    cout << "[MuScleFit-Constructor]: Wrong Bgr fit type or number of parameters: aborting!" << endl;
-    abort();
-  }
-
-  // Protect against bad size of parameters
-  // --------------------------------------
-  if (MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolFix.size() || 
-      MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Resol: aborting!" << endl;
-    abort();
-  }
-  if (MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleFix.size() || 
-      MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Scale: aborting!" << endl;
-    abort();
-  }
-  if (MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrFix.size() || 
-      MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrOrder.size()) {
-    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << endl;
-    abort();
-  }
-  
-  // Protect against an incorrect number of resonances
-  // -------------------------------------------------
-  if (MuScleFitUtils::resfind.size()!=6) {
-    cout << "[MuScleFit-Constructor]: resfind must have 6 elements (1 Z, 3 Y, 2 Psi): aborting!" << endl;
-    abort();
-  }
+  // Check for paramters consistency
+  // it will abort in case of errors.
+  checkParameters();
 
   // Generate array of gaussian-distributed numbers for smearing
   // -----------------------------------------------------------
@@ -438,8 +348,8 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
 
   // Create the root file
   // --------------------
-  theFiles[iLoop]->cd();
-  fillHistoMap();
+  // theFiles[iLoop]->cd();
+  fillHistoMap(theFiles[iLoop]);
 
   loopCounter = iLoop;
   MuScleFitUtils::loopCounter = loopCounter;
@@ -710,7 +620,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
     }
    if(checkDeltaR(simMu.second,recMu2)){
-       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.first.Pt(),+1);
+       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
        mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
        mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
@@ -782,36 +692,37 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
 // Histogram filling
 // -----------------
-void MuScleFit::fillHistoMap() {
+void MuScleFit::fillHistoMap(TFile* outputFile) {
   //Reconstructed muon kinematics
   //-----------------------------
+  outputFile->cd();
   mapHisto["hRecBestMu"]      = new HParticle ("hRecBestMu");
   mapHisto["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc"); 
-  mapHisto["hDeltaRecBestMu"]      = new HDelta ("hDeltaRecBestMu");
+  mapHisto["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
-  mapHisto["hRecBestRes"]      = new HParticle   ("hRecBestRes");
-  mapHisto["hRecBestRes_Acc"]  = new HParticle   ("hRecBestRes_Acc"); 
-  mapHisto["hRecBestResVSMu"]  = new HMassVSPart ("hRecBestResVSMu");
+  mapHisto["hRecBestRes"]     = new HParticle   ("hRecBestRes");
+  mapHisto["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc"); 
+  mapHisto["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu");
   
   // Likelihood values VS muon variables
   // -------------------------------------
-  mapHisto["hLikeVSMu"]      =  new HLikelihoodVSPart ("hLikeVSMu");
-  mapHisto["hLikeVSMuMinus"] =  new HLikelihoodVSPart ("hLikeVSMuMinus");
-  mapHisto["hLikeVSMuPlus"]  =  new HLikelihoodVSPart ("hLikeVSMuPlus");
+  mapHisto["hLikeVSMu"]       =  new HLikelihoodVSPart ("hLikeVSMu");
+  mapHisto["hLikeVSMuMinus"]  =  new HLikelihoodVSPart ("hLikeVSMuMinus");
+  mapHisto["hLikeVSMuPlus"]   =  new HLikelihoodVSPart ("hLikeVSMuPlus");
 
   //Resolution VS muon kinematic
   //----------------------------
-  mapHisto["hResolMassVSMu"] =  new HResolutionVSPart ("hResolMassVSMu");
-  mapHisto["hResolPtGenVSMu"] =  new HResolutionVSPart ("hResolPtGenVSMu");
-  mapHisto["hResolPtSimVSMu"] =  new HResolutionVSPart ("hResolPtSimVSMu");
-  mapHisto["hResolEtaGenVSMu"] =  new HResolutionVSPart ("hResolEtaGenVSMu");
-  mapHisto["hResolEtaSimVSMu"] =  new HResolutionVSPart ("hResolEtaSimVSMu");
-  mapHisto["hResolThetaGenVSMu"] =  new HResolutionVSPart ("hResolThetaGenVSMu");
-  mapHisto["hResolThetaSimVSMu"] =  new HResolutionVSPart ("hResolThetaSimVSMu");
-  mapHisto["hResolCotgThetaGenVSMu"] =  new HResolutionVSPart ("hResolCotgThetaGenVSMu");
-  mapHisto["hResolCotgThetaSimVSMu"] =  new HResolutionVSPart ("hResolCotgThetaSimVSMu");
-  mapHisto["hResolPhiGenVSMu"] =  new HResolutionVSPart ("hResolPhiGenVSMu");
-  mapHisto["hResolPhiSimVSMu"] =  new HResolutionVSPart ("hResolPhiSimVSMu");
+  mapHisto["hResolMassVSMu"]         =  new HResolutionVSPart (outputFile, "hResolMassVSMu");
+  mapHisto["hResolPtGenVSMu"]        =  new HResolutionVSPart (outputFile, "hResolPtGenVSMu");
+  mapHisto["hResolPtSimVSMu"]        =  new HResolutionVSPart (outputFile, "hResolPtSimVSMu");
+  mapHisto["hResolEtaGenVSMu"]       =  new HResolutionVSPart (outputFile, "hResolEtaGenVSMu");
+  mapHisto["hResolEtaSimVSMu"]       =  new HResolutionVSPart (outputFile, "hResolEtaSimVSMu");
+  mapHisto["hResolThetaGenVSMu"]     =  new HResolutionVSPart (outputFile, "hResolThetaGenVSMu");
+  mapHisto["hResolThetaSimVSMu"]     =  new HResolutionVSPart (outputFile, "hResolThetaSimVSMu");
+  mapHisto["hResolCotgThetaGenVSMu"] =  new HResolutionVSPart (outputFile, "hResolCotgThetaGenVSMu");
+  mapHisto["hResolCotgThetaSimVSMu"] =  new HResolutionVSPart (outputFile, "hResolCotgThetaSimVSMu");
+  mapHisto["hResolPhiGenVSMu"]       =  new HResolutionVSPart (outputFile, "hResolPhiGenVSMu");
+  mapHisto["hResolPhiSimVSMu"]       =  new HResolutionVSPart (outputFile, "hResolPhiSimVSMu");
 
   // Mass probability histograms
   // ---------------------------
@@ -845,3 +756,105 @@ void MuScleFit::writeHistoMap() {
     (*histo).second->Write();
   }
 }
+
+// Simple method to check parameters consistency. It aborts the job if the parameters
+// are not consistent.
+void MuScleFit::checkParameters() {
+
+  // Bias parameters: dimension check
+  // --------------------------------
+  if ((MuScleFitUtils::BiasType==1  && MuScleFitUtils::parBias.size()!=2) || // linear in pt
+      (MuScleFitUtils::BiasType==2  && MuScleFitUtils::parBias.size()!=2) || // linear in |eta|
+      (MuScleFitUtils::BiasType==3  && MuScleFitUtils::parBias.size()!=2) || // sinusoidal in phi
+      (MuScleFitUtils::BiasType==4  && MuScleFitUtils::parBias.size()!=3) || // linear in pt and |eta|
+      (MuScleFitUtils::BiasType==5  && MuScleFitUtils::parBias.size()!=3) || // linear in pt and sinusoidal in phi
+      (MuScleFitUtils::BiasType==6  && MuScleFitUtils::parBias.size()!=3) || // linear in |eta| and sinusoidal in phi
+      (MuScleFitUtils::BiasType==7  && MuScleFitUtils::parBias.size()!=4) || // linear in pt and |eta| and sinusoidal in phi
+      (MuScleFitUtils::BiasType==8  && MuScleFitUtils::parBias.size()!=4) || // linear in pt and parabolic in |eta|
+      (MuScleFitUtils::BiasType==9  && MuScleFitUtils::parBias.size()!=2) || // exponential in pt
+      (MuScleFitUtils::BiasType==10 && MuScleFitUtils::parBias.size()!=3) || // parabolic in pt
+      (MuScleFitUtils::BiasType==11 && MuScleFitUtils::parBias.size()!=4) || // linear in pt and sin in phi with chg
+      (MuScleFitUtils::BiasType==12 && MuScleFitUtils::parBias.size()!=6) || // linear in pt and para in plus sin in phi with chg
+      (MuScleFitUtils::BiasType==13 && MuScleFitUtils::parBias.size()!=8) || // linear in pt and para in plus sin in phi with chg
+      MuScleFitUtils::BiasType<0 || MuScleFitUtils::BiasType>13) {
+    cout << "[MuScleFit-Constructor]: Wrong bias type or number of parameters: aborting!" << endl;
+    abort();
+  }
+  // Smear parameters: dimension check
+  // ---------------------------------
+  if ((MuScleFitUtils::SmearType==1  && MuScleFitUtils::parSmear.size()!=3) || 
+      (MuScleFitUtils::SmearType==2  && MuScleFitUtils::parSmear.size()!=4) ||
+      (MuScleFitUtils::SmearType==3  && MuScleFitUtils::parSmear.size()!=5) ||
+      (MuScleFitUtils::SmearType==4  && MuScleFitUtils::parSmear.size()!=6) ||
+      (MuScleFitUtils::SmearType==5  && MuScleFitUtils::parSmear.size()!=7) ||
+      MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>5) {
+    cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << endl;
+    abort();
+  }
+
+  // Resol fit parameters: dimension check
+  // -------------------------------------
+  if ((MuScleFitUtils::ResolFitType==1 && MuScleFitUtils::parResol.size()!=3) ||
+      (MuScleFitUtils::ResolFitType==2 && MuScleFitUtils::parResol.size()!=4) ||
+      (MuScleFitUtils::ResolFitType==3 && MuScleFitUtils::parResol.size()!=5) ||
+      (MuScleFitUtils::ResolFitType==4 && MuScleFitUtils::parResol.size()!=6) ||
+      (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
+      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>5) {
+    cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
+    abort();
+  }
+  // Scale fit parameters: dimension check
+  // -------------------------------------
+  if ((MuScleFitUtils::ScaleFitType==1  && MuScleFitUtils::parScale.size()!=2) || // linear in pt
+      (MuScleFitUtils::ScaleFitType==2  && MuScleFitUtils::parScale.size()!=2) || // linear in |eta|
+      (MuScleFitUtils::ScaleFitType==3  && MuScleFitUtils::parScale.size()!=2) || // sinusoidal in phi
+      (MuScleFitUtils::ScaleFitType==4  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and |eta|
+      (MuScleFitUtils::ScaleFitType==5  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and sinusoidal in phi
+      (MuScleFitUtils::ScaleFitType==6  && MuScleFitUtils::parScale.size()!=3) || // linear in |eta| and sinusoidal in phi
+      (MuScleFitUtils::ScaleFitType==7  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and |eta| and sinusoidal in phi
+      (MuScleFitUtils::ScaleFitType==8  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and parabolic in |eta|
+      (MuScleFitUtils::ScaleFitType==9  && MuScleFitUtils::parScale.size()!=2) || // exponential in pt
+      (MuScleFitUtils::ScaleFitType==10 && MuScleFitUtils::parScale.size()!=3) || // parabolic in pt
+      (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
+      (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta plus sin in phi with chg
+      (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
+      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>13) {
+    cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
+    abort();
+  }
+  // Bgr fit parameters: dimension check
+  // -----------------------------------
+  if ((MuScleFitUtils::BgrFitType==1 && MuScleFitUtils::parBgr.size()!=1) ||
+      (MuScleFitUtils::BgrFitType==2 && MuScleFitUtils::parBgr.size()!=2) ||
+      (MuScleFitUtils::BgrFitType==3 && MuScleFitUtils::parBgr.size()!=3) ||
+      MuScleFitUtils::BgrFitType<1 || MuScleFitUtils::BgrFitType>3) {
+    cout << "[MuScleFit-Constructor]: Wrong Bgr fit type or number of parameters: aborting!" << endl;
+    abort();
+  }
+
+  // Protect against bad size of parameters
+  // --------------------------------------
+  if (MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolFix.size() || 
+      MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolOrder.size()) {
+    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Resol: aborting!" << endl;
+    abort();
+  }
+  if (MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleFix.size() || 
+      MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleOrder.size()) {
+    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Scale: aborting!" << endl;
+    abort();
+  }
+  if (MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrFix.size() || 
+      MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrOrder.size()) {
+    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << endl;
+    abort();
+  }
+  
+  // Protect against an incorrect number of resonances
+  // -------------------------------------------------
+  if (MuScleFitUtils::resfind.size()!=6) {
+    cout << "[MuScleFit-Constructor]: resfind must have 6 elements (1 Z, 3 Y, 2 Psi): aborting!" << endl;
+    abort();
+  }
+}
+

@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/07/08 07:53:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/08 10:46:54 $
+ *  $Revision: 1.3 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -85,12 +85,17 @@ class MuScleFit: public edm::EDLooper {
 
  private:
 
-  //Check if two lorentzVector are near in deltaR
+  /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
+
+  /** Simple method to check parameters consistency. It aborts the job if the parameters
+   * are not consistent.
+   */
+  void checkParameters();
 
   // Fill, clean and write to file the Map of Histograms
   // ---------------------------------------------------
-  void fillHistoMap();
+  void fillHistoMap(TFile* outputFile);
   void clearHistoMap();
   void writeHistoMap();
 
