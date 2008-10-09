@@ -76,13 +76,13 @@ void testTkHistoMap::endJob(void)
   ps.NewPage();
   for(size_t ilayer=1;ilayer<23;++ilayer){
     C.cd(1);
-    tkhisto->getMap   (ilayer)->getTProfile2D()->Draw("BOXTEXT");
+    tkhisto->getMap   (ilayer)->getTProfile2D()->Draw("TEXT");
     C.cd(2);
-    tkhistoZ->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    tkhistoZ->getMap  (ilayer)->getTProfile2D()->Draw("TEXT");
     C.cd(3);
-    tkhistoPhi->getMap(ilayer)->getTProfile2D()->Draw("BOXCOL");
+    tkhistoPhi->getMap(ilayer)->getTProfile2D()->Draw("TEXT");
     C.cd(4);
-    tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("TEXT");
     C.Update();
     ps.NewPage();
   }
@@ -119,13 +119,13 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     siStripSubStructure.getTIDDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
     //siStripSubStructure.getTECDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
   */
-  
+
   for(size_t i=0;i<TkDetIdList.size();++i){
 
     const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(TkDetIdList[i])));
     globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
     
-    std::cout << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp()<<std::endl;;
+    edm::LogInfo("testTkHistoMap") << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp()<<std::endl;;
     value = TkDetIdList[i]%1000000;
 
 
