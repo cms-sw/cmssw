@@ -495,10 +495,10 @@ void FUResourceBroker::startMonitoringWorkLoop() throw (evf::Exception)
 bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
 {
   if (0==resourceTable_) {
-    deltaT_.value_           =  0;
+    deltaT_.value_           =0.0;
     deltaN_.value_           =  0;
     deltaSumOfSquares_.value_=0.0;
-    deltaSumOfSizes_.value_  =0.0;
+    deltaSumOfSizes_.value_  =  0;
     throughput_              =0.0;
     rate_                    =0.0;
     average_                 =0.0;
@@ -685,6 +685,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("timeOutSec",              &timeOutSec_);
   gui_->addStandardParam("processKillerEnabled",    &processKillerEnabled_);
   gui_->addStandardParam("useEvmBoard",             &useEvmBoard_);
+  gui_->addStandardParam("rcmsStateListener",        fsm_.rcmsStateListener());
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
   gui_->addStandardParam("reasonForFailed",         &reasonForFailed_);
   

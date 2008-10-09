@@ -1,3 +1,9 @@
+2008-10-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-10-04
+	* requires EventFilter/Utilities V00-14-16
+	* add StateMachine::rcmsStateListener() to infospace
+
 2008-10-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-10-03
