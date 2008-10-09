@@ -13,6 +13,9 @@ DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateEventSelector, "CandidateEventS
 DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventSelector, "CandidateSEventSelector,");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventVetoSelector, "CandidateSEventVetoSelector");
 
+#include "PhysicsTools/RecoUtils/plugins/HLTEventSelector.h"
+DEFINE_EDM_PLUGIN(EventSelectorFactory, HLTEventSelector, "HLTEventSelector");
+
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 namespace configurableAnalysis{
