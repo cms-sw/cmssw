@@ -45,8 +45,6 @@ void RPCEfficiency::beginJob(){
 }
 
 RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
-  if(debug) std::cout<<"Begin Constructor"<<std::endl;
-  
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
@@ -68,6 +66,9 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiency.root"); 
 
   //Interface
+
+  if(debug) std::cout<<"Begin Constructor"<<std::endl;
+  
   dbe = edm::Service<DQMStore>().operator->();
   
   std::string folder = "Muons/MuonSegEff/";
