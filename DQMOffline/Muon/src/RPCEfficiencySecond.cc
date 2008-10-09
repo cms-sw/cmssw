@@ -565,10 +565,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
 	  }
 	  
-	  
-	  
-
-
 	  if(histoRPC && histoDT && BXDistribution && histoRealRPC){
 	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
 	    

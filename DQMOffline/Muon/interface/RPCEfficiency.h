@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/09/03 15:22:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/09/26 07:09:30 $
+ *  $Revision: 1.9 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -119,6 +119,52 @@ class RPCEfficiency : public edm::EDAnalyzer {
 
       MonitorElement * statistics;
 
+      //Distance Strip
+      MonitorElement * DistBorderClu1La1;
+      MonitorElement * DistBorderClu1La2;
+      MonitorElement * DistBorderClu1La3;
+      MonitorElement * DistBorderClu1La4;
+      MonitorElement * DistBorderClu1La5;
+      MonitorElement * DistBorderClu1La6;
+
+      MonitorElement * DistBorderClu2La1;
+      MonitorElement * DistBorderClu2La2;
+      MonitorElement * DistBorderClu2La3;
+      MonitorElement * DistBorderClu2La4;
+      MonitorElement * DistBorderClu2La5;
+      MonitorElement * DistBorderClu2La6;
+
+      MonitorElement * DistBorderClu3La1;
+      MonitorElement * DistBorderClu3La2;
+      MonitorElement * DistBorderClu3La3;
+      MonitorElement * DistBorderClu3La4;
+      MonitorElement * DistBorderClu3La5;
+      MonitorElement * DistBorderClu3La6;
+      
+      //Ang Dependence
+      MonitorElement * AngClu1La1;
+      MonitorElement * AngClu1La2;
+      MonitorElement * AngClu1La3;
+      MonitorElement * AngClu1La4;
+      MonitorElement * AngClu1La5;
+      MonitorElement * AngClu1La6;
+
+      MonitorElement * AngClu2La1;
+      MonitorElement * AngClu2La2;
+      MonitorElement * AngClu2La3;
+      MonitorElement * AngClu2La4;
+      MonitorElement * AngClu2La5;
+      MonitorElement * AngClu2La6;
+
+      MonitorElement * AngClu3La1;
+      MonitorElement * AngClu3La2;
+      MonitorElement * AngClu3La3;
+      MonitorElement * AngClu3La4;
+      MonitorElement * AngClu3La5;
+      MonitorElement * AngClu3La6;
+      
+      //Residuals
+
       MonitorElement * hGlobalResClu1La1;
       MonitorElement * hGlobalResClu1La2;
       MonitorElement * hGlobalResClu1La3;
@@ -170,6 +216,8 @@ class RPCEfficiency : public edm::EDAnalyzer {
       bool incldtMB4;
       bool inclcsc;
       bool debug;
+      bool paper;
+      bool inves;
       double rangestrips;
       double rangestripsRB4;
       double MinCosAng;

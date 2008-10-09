@@ -51,6 +51,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
+  inves=iConfig.getUntrackedParameter<bool>("inves");
  
   rangestrips = iConfig.getUntrackedParameter<double>("rangestrips",1.);
   rangestripsRB4=iConfig.getUntrackedParameter<double>("rangestripsRB4",4.);
@@ -615,7 +616,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    if(debug) std::cout<<"DT  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
 		    
 		    //-----RESIDUALS----------
-		    if(rollasociated->id().sector()==10 || rollasociated->id().sector()==4){
+		    if(inves){
 		      float cosal = dx/sqrt(dx*dx+dz*dz);
 		      if(debug) std::cout<<"Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
 		      if(debug) std::cout<<"DT  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Alpha="<<cosal<<std::endl;
@@ -876,13 +877,15 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  if(debug) std::cout<<"MB4 \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
 		   
 			  //-----RESIDUALS----------
-			  float cosal = dx/sqrt(dx*dx+dz*dz);
-			  if(debug) std::cout<<"Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
-			  if(debug) std::cout<<"MB4  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
-			  assert(rollId.station()==4);
-			  if(cluSize==1*dupli){ hGlobalResClu1La6->Fill(minres); if(minres<0.005*stripw) AngClu1La6->Fill(acos(cosal)); if(fabs(minres)<stripw*0.5) DistBorderClu1La6->Fill(minres/stripw+0.5);}
-			  else if(cluSize==2*dupli){ hGlobalResClu2La6->Fill(minres); if(minres<0.005*stripw) AngClu2La6->Fill(acos(cosal));}
-			  else if(cluSize==3*dupli){ hGlobalResClu3La6->Fill(minres); if(minres<0.005*stripw) AngClu3La6->Fill(acos(cosal));}
+			  if(inves){
+			    float cosal = dx/sqrt(dx*dx+dz*dz);
+			    if(debug) std::cout<<"Angle="<<acos(cosal)*180/3.1415926<<" degree"<<std::endl;
+			    if(debug) std::cout<<"MB4  \t \t \t \t \t Filling the Residuals Histogram for globals with "<<minres<<"And the angular incidence with Cos Theta="<<-1*dz<<std::endl;
+			    assert(rollId.station()==4);
+			    if(cluSize==1*dupli){ hGlobalResClu1La6->Fill(minres); if(minres<0.005*stripw) AngClu1La6->Fill(acos(cosal)); if(fabs(minres)<stripw*0.5) DistBorderClu1La6->Fill(minres/stripw+0.5);}
+			    else if(cluSize==2*dupli){ hGlobalResClu2La6->Fill(minres); if(minres<0.005*stripw) AngClu2La6->Fill(acos(cosal));}
+			    else if(cluSize==3*dupli){ hGlobalResClu3La6->Fill(minres); if(minres<0.005*stripw) AngClu3La6->Fill(acos(cosal));}
+			  }
 			  //--------------------------------
 			  
 			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
@@ -1205,12 +1208,14 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			if(debug) std::cout<<"CSC  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
 			if(debug) std::cout<<"CSC  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
 			//----RESIDUALS----
-			if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
-			if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
-			if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
-			if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
+			if(inves){
+			  if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
+			  if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
+			  if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
+			  if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
+			  if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
+			  if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
+			}
 			//------------------------
 			sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
 			if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
