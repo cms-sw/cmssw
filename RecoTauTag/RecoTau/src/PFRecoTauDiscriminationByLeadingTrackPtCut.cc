@@ -4,7 +4,7 @@ void PFRecoTauDiscriminationByLeadingTrackPtCut::produce(Event& iEvent,const Eve
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
  
  double theleadTrackPtCutDiscriminator = 0.;
- auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByLeadingTrackPtCut(new PFTauDiscriminator);
+ auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByLeadingTrackPtCut(new PFTauDiscriminator(PFTauRefProd(thePFTauCollection)));
 
  //loop over the PFTau candidates
  for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
