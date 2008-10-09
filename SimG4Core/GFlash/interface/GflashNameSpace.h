@@ -29,10 +29,10 @@ namespace Gflash {
     
   //constants needed for GflashHadronShowerProfile
 
-  const G4double rMoliere[kNumberCalorimeter]  = { 2.19, 2.19, 2.19, 2.19, 2.19}; // in cm
-  const G4double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49, 1.49}; // in cm
-  const G4double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42, 16.5}; // in cm
-  const G4double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36, 68.36}; // mass of molicule
+  const G4double rMoliere[kNumberCalorimeter]  = { 2.19, 2.19, 2.19, 2.19, 1.72}; // in cm
+  const G4double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49, 1.76}; // in cm
+  const G4double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42, 16.77}; // in cm
+  const G4double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36, 55.845}; // mass of molicule
   const G4double criticalEnergy                = 8.6155 / GeV;
 
   //cut value for quasi-elastic like interactions on the secondary energy, 
