@@ -12,26 +12,27 @@ namespace Gflash {
     kHB,                // HCAL Barrel - HB
     kENCA,              // ECAL Endcap - ENCA
     kHE,                // HCAL Endcap - HE
+    kHF,                // HCAL Forward - HF
     kNumberCalorimeter
   };
   
   CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
 
-  //                                            EB     HB     EE     HE
-  const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95}; // in cm
-  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10};
-  const G4double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6 };
-  const G4double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9 };
+  //                                            EB     HB     EE     HE      HF
+  const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95, 1110.0}; // in cm
+  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10, 1275.0};
+  const G4double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6,    12.5};
+  const G4double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9,   140.0};
 
-  const G4double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570};
-  const G4double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000};
+  const G4double EtaMin[kNumberCalorimeter] = {0.000, 0.000, 1.570,  1.570, 3.000};
+  const G4double EtaMax[kNumberCalorimeter] = {1.300, 1.300, 3.000,  3.000, 5.000};
     
   //constants needed for GflashHadronShowerProfile
 
-  const G4double rMoliere[kNumberCalorimeter]  = { 2.19, 2.19, 2.19, 2.19}; // in cm
-  const G4double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49}; // in cm
-  const G4double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42}; // in cm
-  const G4double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36}; // mass of molicule
+  const G4double rMoliere[kNumberCalorimeter]  = { 2.19, 2.19, 2.19, 2.19, 2.19}; // in cm
+  const G4double radLength[kNumberCalorimeter] = { 0.89, 1.49, 0.89, 1.49, 1.49}; // in cm
+  const G4double intLength[kNumberCalorimeter] = { 22.4,16.42, 22.4, 16.42, 16.5}; // in cm
+  const G4double Z[kNumberCalorimeter]         = { 68.36, 68.36, 68.36, 68.36, 68.36}; // mass of molicule
   const G4double criticalEnergy                = 8.6155 / GeV;
 
   //cut value for quasi-elastic like interactions on the secondary energy, 

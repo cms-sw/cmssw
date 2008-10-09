@@ -9,24 +9,25 @@ namespace Gflash {
 
     //central
     if (fabs(eta) < EtaMax[kESPM] || fabs(eta) < EtaMax[kHB]) {
-      if(position.getRho() > Rmin[kESPM] &&
-	 position.getRho() < Rmax[kESPM] ) {
+      G4double rho = position.getRho();
+      if(rho > Rmin[kESPM] && rho < Rmax[kESPM] ) {
 	index = kESPM;
       }
-      if(position.getRho() > Rmin[kHB] &&
-	 position.getRho() < Rmax[kHB]) {
+      if(rho > Rmin[kHB] && rho < Rmax[kHB]) {
 	index = kHB;
       }
     }
     //forward
     else if (fabs(eta) > EtaMin[kENCA] || fabs(eta) > EtaMin[kHE]) {
-      if( fabs(position.getZ()) > Zmin[kENCA] &&
-	  fabs(position.getZ()) < Zmax[kENCA] ) {
+      G4double z = fabs(position.getZ());
+      if( z > Zmin[kENCA] && z < Zmax[kENCA] ) {
 	index = kENCA;
       }
-      if( fabs(position.getZ()) > Zmin[kHE] &&
-	  fabs(position.getZ()) < Zmax[kHE] ) {
+      if( z > Zmin[kHE] && z < Zmax[kHE] ) {
 	index = kHE;
+      }
+      if( z > Zmin[kHF] && z < Zmax[kHF] ) {
+	index = kHF;
       }
     }
     return index;

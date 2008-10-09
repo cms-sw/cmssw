@@ -58,7 +58,10 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
   // The parameterization starts inside crystals
   std::size_t pos1 = lv->GetName().find("EBRY");
   std::size_t pos2 = lv->GetName().find("EFRY");
-  if(pos1 == std::string::npos && pos2 == std::string::npos) return false;
+  std::size_t pos3 = lv->GetName().find("HVQ");
+  std::size_t pos4 = lv->GetName().find("HF");
+  if(pos1 == std::string::npos && pos2 == std::string::npos &&
+     pos3 == std::string::npos && pos4 == std::string::npos) return false;
 
   return true;
 
