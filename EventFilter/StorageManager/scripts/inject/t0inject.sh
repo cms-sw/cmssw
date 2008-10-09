@@ -1,17 +1,17 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.10 2008/09/15 21:46:06 loizides Exp $
+#$Id: t0inject.sh,v 1.11 2008/09/18 00:36:28 loizides Exp $
 
 . /etc/init.d/functions
 
 export SMT0_BASE_DIR=/nfshome0/smpro/sm_scripts_cvs/inject
 if [ ! -d $SMT0_BASE_DIR ]; then
-    echo "SMT0_BASE_DIR does not exist or is no directory"
+    echo "SMT0_BASE_DIR ($SMT0_BASE_DIR) does not exist or is no directory"
     exit
 fi
 
 SMT0_IW=$SMT0_BASE_DIR/InjectWorker.pl
 if [ ! -x $SMT0_IW ]; then
-    echo "SMT0_IW does not exist or is not executable"
+    echo "SMT0_IW ($SMT0_IW)does not exist or is not executable"
     exit
 fi
 
@@ -20,7 +20,7 @@ if test -n "$SM_STORE"; then
     SMT0_MONDIR=$SM_STORE/global/log
 fi
 if [ ! -d $SMT0_MONDIR ]; then
-    echo "SMT0_MONDIR does not exist or is no directory"
+    echo "SMT0_MONDIR ($SMT0_MONDIR) does not exist or is no directory"
     exit
 fi
 
