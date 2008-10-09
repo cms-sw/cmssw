@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 
-process.load("DQM.Integration.test.dt_dqm_visualization_common_cff")
+process.load("DQM.DTMonitorModule.test.dt_dqm_visualization_common_cff")
 
 
 
@@ -22,8 +22,5 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.dtDQMPath = cms.Path(process.calibrationEventsFilter * process.reco)
 
 
-# f = file('aNewconfigurationFile.cfg', 'w')
-# f.write(process.dumpConfig())
-# f.close()
 
 

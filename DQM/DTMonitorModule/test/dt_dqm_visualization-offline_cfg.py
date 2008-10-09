@@ -5,7 +5,9 @@ process = cms.Process("VisDT")
 # the source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/BeamHalo/RECO/StuffAlmostToP5_v1/000/061/642/10A0FE34-A67D-DD11-AD05-000423D94E1C.root'
+    '/store/data/CRUZET3/Cosmics/RAW/v1/000/050/781/986D05EF-D44C-DD11-8F6C-000423D985E4.root',
+    '/store/data/CRUZET3/Cosmics/RAW/v1/000/050/781/B284117B-CA4C-DD11-B34D-000423D9939C.root',
+    '/store/data/CRUZET3/Cosmics/RAW/v1/000/050/781/C0D9C572-CA4C-DD11-AAE5-000423D98804.root'
     ))
 
 
@@ -17,7 +19,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 
-process.load("DQM.Integration.test.dt_dqm_visualization_common_offline_cff")
+process.load("DQM.DTMonitorModule.dt_dqm_visualization_common_offline_cff")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
 
@@ -27,7 +30,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
                                     )
 
-process.dtDQMPath = cms.Path(process.calibrationEventsFilter * process.reco)
+process.dtVisPath = cms.Path(process.calibrationEventsFilter * process.reco)
 
 
 # f = file('aNewconfigurationFile.cfg', 'w')
