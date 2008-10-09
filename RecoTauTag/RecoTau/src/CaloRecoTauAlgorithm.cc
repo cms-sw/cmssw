@@ -33,13 +33,11 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
   AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
 
   //Computing the TFormula
-  CaloTau tmp;
-  CaloTauElementsOperators myTmp(tmp);
-  myTrackerSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-  myTrackerIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
-  myECALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-  myECALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
-  myMatchingConeSizeTFormula=myTmp.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+  myTrackerSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+  myTrackerIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+  myECALSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+  myECALIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+  myMatchingConeSizeTFormula=TauTagTools::computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
 
  
 }

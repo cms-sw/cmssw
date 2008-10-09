@@ -55,18 +55,17 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
 
 
   //TFormula computation
-  PFTau tmp;
-  PFTauElementsOperators myTmp(tmp);
-   myMatchingConeSizeTFormula=myTmp.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+
+   myMatchingConeSizeTFormula=TauTagTools::computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
   //Charged particels cones
-  myTrackerSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-  myTrackerIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+  myTrackerSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+  myTrackerIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
   //Gamma candidates cones
-  myECALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-  myECALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+  myECALSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+  myECALIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
   //Neutral hadrons cones
-  myHCALSignalConeSizeTFormula=myTmp.computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
-  myHCALIsolConeSizeTFormula=myTmp.computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
+  myHCALSignalConeSizeTFormula=TauTagTools::computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
+  myHCALIsolConeSizeTFormula=TauTagTools::computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
  
 
 }
