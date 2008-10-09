@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/08/22 10:23:13 $
-//   $Revision: 1.4 $
+//   $Date: 2008/07/06 05:17:00 $
+//   $Revision: 1.5 $
 //
 //   Modifications:
 //
@@ -80,9 +80,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   edm::ESHandle<CSCL1TPParameters> conf;
   setup.get<CSCL1TPParametersRcd>().get(conf);
   if (conf.product() == 0) {
-    throw cms::Exception("CSCTriggerPrimitivesProducer")
+    edm::LogError("CSCTriggerPrimitivesProducer")
       << "+++ Failed to find a CSCL1TPParametersRcd in EventSetup! +++\n"
-      << "+++ Cannot continue without these parameters +++\n";
+      << "+++ Cannot continue emulation without these parameters +++\n";
+    return;
   }
   lctBuilder_->setConfigParameters(conf.product());
 

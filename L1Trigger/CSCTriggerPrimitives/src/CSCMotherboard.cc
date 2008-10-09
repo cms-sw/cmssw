@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2008/08/25 16:28:42 $
-//   $Revision: 1.16 $
+//   $Date: 2008/09/10 10:45:20 $
+//   $Revision: 1.17 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -176,16 +176,12 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
 		    clct->bestCLCT, clct->secondCLCT);
     }
     if (infoV > 0) {
-      if (firstLCT.isValid()) {
-	LogDebug("CSCMotherboard") << firstLCT;
-      }
-      if (secondLCT.isValid()) {
-	LogDebug("CSCMotherboard") << secondLCT;
-      }
+      if (firstLCT.isValid())  LogDebug("CSCMotherboard") << firstLCT;
+      if (secondLCT.isValid()) LogDebug("CSCMotherboard") << secondLCT;
     }
   }
   else {
-    edm::LogWarning("CSCMotherboard")
+    if (infoV > 0) edm::LogWarning("CSCMotherboard")
       << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
   }
 
@@ -307,7 +303,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	// to get quality analogous to ALCT one.
 	int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
 	if (sumQual < 1 || sumQual > 6) {
-	  edm::LogWarning("CSCMotherboard")
+	  if (infoV > 0) edm::LogWarning("CSCMotherboard")
 	    << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
 	}
 	if (isDistrip) { // distrip pattern
@@ -344,7 +340,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
       // the ALCT quality.
       int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
       if (sumQual < 1 || sumQual > 6) {
-	edm::LogWarning("CSCMotherboard")
+	if (infoV > 0) edm::LogWarning("CSCMotherboard")
 	  << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
       }
 
@@ -387,10 +383,11 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	    else if (pattern == 6 || pattern == 7) quality = 13;
 	    else if (pattern == 8 || pattern == 9) quality = 14;
 	    else if (pattern == 10)                quality = 15;
-	    else 
-	      edm::LogWarning("CSCMotherboard")
+	    else {
+	      if (infoV > 0) edm::LogWarning("CSCMotherboard")
 		<< "+++ findQuality: Unexpected CLCT pattern id = "
 		<< pattern << "+++\n";
+	    }
 	  }
 	}
       }
@@ -430,7 +427,7 @@ int CSCMotherboard::findSTA(const bool a1, const bool a2,
   else if (a1 || a2 || c1 || c2 )    // if only 1 LCT
       STA = 1;
   else {
-    edm::LogWarning("CSCMotherboard")
+    if (infoV > 0) edm::LogWarning("CSCMotherboard")
       << "+++ findSTA: STA not assigned: \n"
       << " a1 " << a1 << " a2 " << a2 << " c1 " << c1 << " c2 " << c2
       << " +++ \n";
