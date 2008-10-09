@@ -6,10 +6,10 @@ process = cms.Process("DumpDTRaw")
 # the source
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/BeamHalo/RECO/StuffAlmostToP5_v1/000/061/642/10A0FE34-A67D-DD11-AD05-000423D94E1C.root'
+    'file:/data/c/cerminar/data/GlobalRun/run61642_BeamSplash/Run61642_EventNumberSkim_RAW.root'
     ),
-                            skipEvents = cms.untracked.int32(0)
-                            )
+                            skipEvents = cms.untracked.uint32(0) )
+
 
 # process.source = cms.Source("NewEventStreamFileReader",
 #                             fileNames = cms.untracked.vstring(
