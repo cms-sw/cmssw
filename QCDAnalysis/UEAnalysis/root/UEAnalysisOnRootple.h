@@ -121,6 +121,8 @@ public :
   TH1D* h_acceptedTriggers;
   TH1D* h_eventScale;
   double pThatMax;
+
+  std::string HLTBitNames[11]; 
   //
 
 };

@@ -94,60 +94,94 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       // no binning of datasets
       pThatMax = 14000.;
 
+      // Summer08 HLT filter names
+      HLTBitNames[0]  = "HLT_MinBiasPixel";
+      HLTBitNames[1]  = "HLT_MinBiasHcal";
+      HLTBitNames[2]  = "HLT_MinBiasEcal";
+      HLTBitNames[3]  = "HLT_MinBias";
+      HLTBitNames[4]  = "HLT_ZeroBias";
+      HLTBitNames[5]  = "HLT_Jet30";
+      HLTBitNames[6]  = "HLT_Jet50";
+      HLTBitNames[7]  = "HLT_Jet80";
+      HLTBitNames[8]  = "HLT_Jet110";
+      HLTBitNames[9]  = "HLT_Jet180";
+      HLTBitNames[10] = "HLT_Jet250";
+
       //----------------------------------------------------------
       // CSA08: set upper limit on pT of hard interaction to avoid 
       // double-counting when merging datasets
       //
-      //       if ( fileName.size() < 45 )   // too few characters
-      // 	{
-      // 	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
-      // 	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
-      // 	  pThatMax = 14000.;
-      // 	}
-      //       else if ( fileName.compare( 38, 7, "MinBias"  )==0 ) 
-      // 	{
-      // 	  cout << "choose pthat for minbias range" << endl;
-      // 	  pThatMax = 30.;
-      // 	}
-      //       else if ( fileName.compare( 38, 7, "JetET20"  )==0 ) 
-      // 	{
-      // 	  cout << "choose pthat for jetET20 range" << endl;
-      // 	  pThatMax = 45.;
-      // 	}
-      //       else if ( fileName.compare( 38, 7, "JetET30"  )==0 ) 
-      // 	{
-      // 	  cout << "choose pthat for jetET30 range" << endl;
-      // 	  pThatMax = 75.;
-      // 	}
-      //       else if ( fileName.compare( 38, 7, "JetET50"  )==0 ) 
-      // 	{
-      // 	  cout << "choose pthat for jetET50 range" << endl;
-      // 	  pThatMax = 120.;
-      // 	}
-      //       else if ( fileName.compare( 38, 7, "JetET80"  )==0 ) 
-      // 	{
-      // 	  cout << "choose pthat for jetET80 range" << endl;
-      // 	  pThatMax = 160.;
-      // 	}
-      //       else if ( fileName.compare( 38, 8, "JetET110" )==0 ) 
-      // 	{
-      // 	  cout << "choose pthat for jetET110 range" << endl;
-      // 	  // uncomment if JetET150 is available:
-      // 	  // pThatMax = 220.;
-      // 	}
-      //       else if ( fileName.compare( 38, 8, "JetET150" )==0 ) 
-      // 	{
-      // 	  // highest pThat bin: no restriction
-      // 	  cout << "choose pthat for jetET150 range" << endl;
-      // 	  pThatMax = 14000.;
-      // 	}
-      //       else 
-      // 	{
-      // 	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
-      // 	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
-      // 	  pThatMax = 14000.;
-      // 	}
-      //----------------------------------------------------------
+      bool csa08( true );
+      if ( csa08 == true )
+	{
+	  cout << "//----------------------------------------------------------" << endl;
+	  cout << "// CSA08: set upper limit on pT of hard interaction to avoid" << endl;
+	  cout << "// double-counting when merging datasets                    " << endl;
+	  cout << "//                                                          " << endl;
+	  
+	  HLTBitNames[0]  = "HLTMinBiasPixel";
+	  HLTBitNames[1]  = "HLTMinBiasHcal";
+	  HLTBitNames[2]  = "HLTMinBiasEcal";
+	  HLTBitNames[3]  = "HLTMinBias";
+	  HLTBitNames[4]  = "HLTZeroBias";
+	  HLTBitNames[5]  = "HLT1jet30";
+	  HLTBitNames[6]  = "HLT1jet50";
+	  HLTBitNames[7]  = "HLT1jet80";
+	  HLTBitNames[8]  = "HLT1jet110";
+	  HLTBitNames[9]  = "HLT1jet180";
+	  HLTBitNames[10] = "HLT1jet250";
+
+	  // dcap://dcache-ses-cms.desy.de:22125/pnfs/desy.de/cms/tier2/store/user/bechtel/CSA08/S43/JetET110/MBUEAnalysisRootFile_1.root
+	  if ( fileName.size() < 45 )   // too few characters
+	    {
+	      cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	      cout << "!!! WARNING !!! Will accept all pthat values" << endl;
+	      pThatMax = 14000.;
+	    }
+	  else if ( fileName.compare( 88, 7, "MinBias"  )==0 ) 
+	    {
+	      cout << "choose pthat for minbias range" << endl;
+	      pThatMax = 30.;
+	    }
+	  else if ( fileName.compare( 88, 7, "JetET20"  )==0 ) 
+	    {
+	      cout << "choose pthat for jetET20 range" << endl;
+	      pThatMax = 45.;
+	    }
+	  else if ( fileName.compare( 88, 7, "JetET30"  )==0 ) 
+	    {
+	      cout << "choose pthat for jetET30 range" << endl;
+	      pThatMax = 75.;
+	    }
+	  else if ( fileName.compare( 88, 7, "JetET50"  )==0 ) 
+	    {
+	      cout << "choose pthat for jetET50 range" << endl;
+	      pThatMax = 120.;
+	    }
+	  else if ( fileName.compare( 88, 7, "JetET80"  )==0 ) 
+	    {
+	      cout << "choose pthat for jetET80 range" << endl;
+	      pThatMax = 160.;
+	    }
+	  else if ( fileName.compare( 88, 8, "JetET110" )==0 ) 
+	    {
+	      cout << "choose pthat for jetET110 range" << endl;
+	      // uncomment if JetET150 is available:
+	      // pThatMax = 220.;
+	    }
+	  else if ( fileName.compare( 88, 8, "JetET150" )==0 ) 
+	    {
+	      // highest pThat bin: no restriction
+	      cout << "choose pthat for jetET150 range" << endl;
+	      pThatMax = 14000.;
+	    }
+	  else 
+	    {
+	      cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	      cout << "!!! WARNING !!! Will accept all pthat values" << endl;
+	      pThatMax = 14000.;
+	    }
+	}
 
       f = TFile::Open(RootTupleName);
 
@@ -159,7 +193,13 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC;1       UEAnalysisRootpleOnlyMC (AnalysisRootpleProducerOnlyMC) folder
       //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC500;1    UEAnalysisRootpleOnlyMC500 (AnalysisRootpleProducerOnlyMC) folder
 
-      if ( TMath::Abs(ptThreshold - 0.9) < 0.001 ) 
+      if ( TMath::Abs(ptThreshold - 1.5) < 0.001 ) 
+	{ 
+	  cout << "pT threshold set to 1500 MeV/c" << endl;
+	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC1500");
+	  else                    f->cd("UEAnalysisRootple1500");
+	}
+      else if ( TMath::Abs(ptThreshold - 0.9) < 0.001 ) 
 	{ 
 	  cout << "pT threshold set to 900 MeV/c" << endl;
 	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC");
@@ -173,7 +213,7 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
 	}
       else
 	{
-	  cout << "please choose 500 or 900 as pT threshold" << endl;
+	  cout << "please choose 500, 900 or 1500 MeV/c as pT threshold" << endl;
 	  break;
 	}
 
@@ -231,22 +271,20 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 	  {
 	    std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
 	    //cout << "Trigger: " << filterName << endl;
-	    
-	    if      ( filterName=="HLT_MinBiasPixel" ) h_acceptedTriggers->Fill( 0 );
-	    else if ( filterName=="HLT_MinBiasHcal"  ) h_acceptedTriggers->Fill( 1 );
-	    else if ( filterName=="HLT_MinBiasEcal"  ) h_acceptedTriggers->Fill( 2 );
-	    else if ( filterName=="HLT_MinBias"      ) h_acceptedTriggers->Fill( 3 );
-	    else if ( filterName=="HLT_ZeroBias"     ) h_acceptedTriggers->Fill( 4 );
-	    else if ( filterName=="HLT_Jet30"       ) h_acceptedTriggers->Fill( 5 );
-	    else if ( filterName=="HLT_Jet50"       ) h_acceptedTriggers->Fill( 6 );
-	    else if ( filterName=="HLT_Jet80"       ) h_acceptedTriggers->Fill( 7 );
-	    else if ( filterName=="HLT_Jet110"      ) h_acceptedTriggers->Fill( 8 );
-	    else if ( filterName=="HLT_Jet180"      ) h_acceptedTriggers->Fill( 9 );
-	    else if ( filterName=="HLT_Jet250"      ) h_acceptedTriggers->Fill( 10 );
-	    else                                      h_acceptedTriggers->Fill( 11 );
+
+	    bool triggerAccept( false );
+	    for ( int ibit(0); ibit<10; ++ibit )
+	      {
+		if ( filterName == HLTBitNames[ibit] )
+		  { 
+		    h_acceptedTriggers->Fill( ibit ); 
+		    triggerAccept = true;
+		  }
+	      }
+	    if ( !triggerAccept ) h_acceptedTriggers->Fill( 11 );
 	    
 	    // fill histos for each HLT bit separately
-	    if ( filterName=="HLT_MinBiasPixel" )
+	    if ( filterName==HLTBitNames[0] )
 	      {
 		if (type=="Jet") jetsHLTMinBiasPixel->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								       TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -262,7 +300,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		    antiKtJetsHLTMinBiasPixel->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasPixel" );
 		  }
 	      }
-	    else if ( filterName=="HLT_MinBiasHcal"  )
+	    else if ( filterName==HLTBitNames[1] )
 	      {
 		if(type=="Jet") jetsHLTMinBiasHcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								     TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -275,7 +313,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTMinBiasHcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasHcal" );
 	      }
-	    else if ( filterName=="HLT_MinBiasEcal"  )
+	    else if ( filterName==HLTBitNames[2] )
 	      {
 		if(type=="Jet") jetsHLTMinBiasEcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								     TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -288,7 +326,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTMinBiasEcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasEcal" );
 	      }
-	    else if ( filterName=="HLT_MinBias"      )
+	    else if ( filterName==HLTBitNames[3] )
 	      {
 		if(type=="Jet") jetsHLTMinBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -301,7 +339,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTMinBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBias" );
 	      }
-	    else if ( filterName=="HLT_ZeroBias"     )
+	    else if ( filterName==HLTBitNames[4] )
 	      {
 		if(type=="Jet") jetsHLTZeroBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								  TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -314,7 +352,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTZeroBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTZeroBias" );
 	      }
-	    else if ( filterName=="HLT_Jet30"       )
+	    else if ( filterName==HLTBitNames[5] )
 	      {
 		if(type=="Jet") jetsHLT1jet30->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -327,7 +365,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet30->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet30" );
 	      }
-	    else if ( filterName=="HLT_Jet50"       )
+	    else if ( filterName==HLTBitNames[6] )
 	      {
 		if(type=="Jet") jetsHLT1jet50->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -340,7 +378,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet50->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet50" );
 	      }
-	    else if ( filterName=="HLT_Jet80"       )
+	    else if ( filterName==HLTBitNames[7] )
 	      {
 		if(type=="Jet") jetsHLT1jet80->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -353,7 +391,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet80->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet80" );
 	      }
-	    else if ( filterName=="HLT_Jet110"      )
+	    else if ( filterName==HLTBitNames[8] )
 	      {
 		if(type=="Jet") jetsHLT1jet110->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -366,7 +404,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet110->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet110" );
 	      }
-	    else if ( filterName=="HLT_Jet180"      )
+	    else if ( filterName==HLTBitNames[9] )
 	      {
 		if(type=="Jet") jetsHLT1jet180->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -379,7 +417,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet180->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet180" );
 	      }
-	    else if ( filterName=="HLT_Jet250"      )
+	    else if ( filterName==HLTBitNames[10] )
 	      {
 		if(type=="Jet") jetsHLT1jet250->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
