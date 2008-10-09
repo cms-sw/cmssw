@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/25 10:54:54 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/09/25 13:00:37 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -20,32 +20,29 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
-// #include <stdio.h>
 #include <string>
 
 using namespace edm;
 using namespace std;
 
 
-DTSummaryClients::DTSummaryClients(const edm::ParameterSet& ps) : nevents(0) {
+DTSummaryClients::DTSummaryClients(const ParameterSet& ps) : nevents(0) {
 
-  edm::LogVerbatim ("DTSummaryClient") << "[DTSummaryClients]: Constructor";
+  LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients]: Constructor";
   
   
-  dbe = edm::Service<DQMStore>().operator->();
+  dbe = Service<DQMStore>().operator->();
 
 }
 
 DTSummaryClients::~DTSummaryClients(){
-
-  edm::LogVerbatim ("DTSummaryClient") << "DTSummaryClients: analyzed " << nevents << " events";
-
+  LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") << "DTSummaryClients: analyzed " << nevents << " events";
+  
 }
 
 void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
 
-  edm::LogVerbatim ("DTSummaryClient") <<"[DTSummaryClients]: BeginRun"; 
+  LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: BeginRun"; 
 
   // book the summary histos
   dbe->setCurrentFolder("DT/EventInfo"); 
@@ -76,33 +73,34 @@ void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
 
 void DTSummaryClients::endJob(void){
   
-  edm::LogVerbatim ("DTSummaryClient") <<"[DTSummaryClients]: endJob"; 
+  LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: endJob"; 
 
 }
 
 
 void DTSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
   
-  edm::LogVerbatim ("DTSummaryClient") <<"[DTSummaryClients]: endRun"; 
+  LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: endRun"; 
 
 }
 
 
-void DTSummaryClients::analyze(const edm::Event& event, const edm::EventSetup& context){
+void DTSummaryClients::analyze(const Event& event, const EventSetup& context){
 
    nevents++;
-   if(nevents%1000 == 0)
-     edm::LogVerbatim("DTSummaryClient") << "[DTSummaryClients] Analyze #Run: " << event.id().run()
+   if(nevents%1000 == 0) {
+     LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients] Analyze #Run: " << event.id().run()
 					 << " #Event: " << event.id().event()
-					 << "LS: " << event.luminosityBlock()	
+					 << " LS: " << event.luminosityBlock()	
 					 << endl;
+   }
 }
 
 
 void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
-  LogVerbatim ("DTSummaryClient")
-    <<"[DTSummaryClients]: End of LS transition, performing the DQM client operation";
+  LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients")
+    << "[DTSummaryClients]: End of LS transition, performing the DQM client operation" << endl;
 
   // reset the monitor elements
   summaryReportMap->Reset();
@@ -137,7 +135,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   }
   
   } else {
-    LogError("DTSummaryClient")
+    LogError("DTDQM|DTMonitorClient|DTSummaryClients")
       << "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" <<endl;
   }
 
@@ -157,14 +155,15 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       for(int sector=1; sector<=12; sector++){ // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations
 	  double chamberStatus = wheelOccupancySummary->getBinContent(sector, station);
-
+	  LogTrace("DTDQM|DTMonitorClient|DTSummaryClients")
+	    << "Wheel: " << wheel << " Stat: " << station << " Sect: " << sector << " status: " << chamberStatus << endl;
 	  if(chamberStatus != 4) {
 	    summaryReportMap->Fill(sector, wheel, 0.25);
 	  } else {
 	    nFailingChambers++;
 	  }
-// 	  cout << " sector (" << sector << ") status on the map is: "
-// 	       << summaryReportMap->getBinContent(sector, wheel+3) << endl;
+	  LogTrace("DTDQM|DTMonitorClient|DTSummaryClients") << " sector (" << sector << ") status on the map is: "
+							     << summaryReportMap->getBinContent(sector, wheel+3) << endl;
 	}
 
       }
@@ -172,13 +171,25 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       totalStatus += (48.-nFailingChambers)/48.;
     } else {
       occupancyFound = false;
-      LogError("DTSummaryClient") << " Wheel Occupancy Summary not found with name: " << str.str() << endl;
+      LogError("DTDQM|DTMonitorClient|DTSummaryClients")<< " Wheel Occupancy Summary not found with name: " << str.str() << endl;
     }
   }
 
 
   if(occupancyFound && !noDTData)
     summaryReport->Fill(totalStatus/5.);
+
+//   cout << "-----------------------------------------------------------------------------" << endl;
+//   cout << " In the endLuminosityBlock: " << endl;
+//   for(int wheel = -2; wheel != 3; ++wheel) {
+//     for(int sector = 1; sector != 13; sector++) {
+//       cout << " wheel: " << wheel << " sector: " << sector << " status on the map is: "
+// 	   << summaryReportMap->getBinContent(sector, wheel+3) << endl;
+//     }
+//   }
+//   cout << "-----------------------------------------------------------------------------" << endl;
+
+
 }
 
 
