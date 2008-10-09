@@ -1,5 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByLeadingTrackFinding.h"
-void PFRecoTauDiscriminationByLeadingTrackPtCut::produce(Event& iEvent,const EventSetup& iEventSetup){
+void PFRecoTauDiscriminationByLeadingTrackFinding::produce(Event& iEvent,const EventSetup& iEventSetup){
   Handle<PFTauCollection> thePFTauCollection;
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
   
@@ -17,7 +17,7 @@ void PFRecoTauDiscriminationByLeadingTrackPtCut::produce(Event& iEvent,const Eve
      {
        theleadTrackFindingDiscriminator=0.;
      }else{  
-       theleadTrackPtCutDiscriminator=1.;
+       theleadTrackFindingDiscriminator=1.;
      }
 
    thePFTauDiscriminatorByLeadingTrackFinding->setValue(iPFTau,theleadTrackFindingDiscriminator);
