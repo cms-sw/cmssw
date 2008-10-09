@@ -161,7 +161,8 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
     HighResolutionOccupancy = cms.untracked.bool(False),
-    NoiseRateCutValue = cms.untracked.double(-1.), #negative value means test is not run; default cut value is 0.001
+    NoiseRateCutValue = cms.untracked.double(0.001), #negative value means test is not run; default cut value is 0.001
+    NEventsForNoiseCalculation = cms.untracked.int32(100),
     UseOfflineXMLFile = cms.untracked.bool(True)
 )
 

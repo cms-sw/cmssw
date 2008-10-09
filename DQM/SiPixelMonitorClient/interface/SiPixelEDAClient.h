@@ -69,6 +69,7 @@ private:
   std::string summaryXMLfile_;
   bool hiRes_;
   double noiseRate_;
+  int noiseRateDenominator_;
   bool offlineXMLfile_;
 
   std::ostringstream html_out_;

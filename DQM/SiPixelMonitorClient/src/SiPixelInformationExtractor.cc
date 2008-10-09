@@ -1774,21 +1774,14 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
 
-void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, float noiseRate_, edm::EventSetup const& eSetup)
+void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, float noiseRate_, int noiseRateDenominator_, edm::EventSetup const& eSetup)
 {
 //cout<<"Entering SiPixelInformationExtractor::findNoisyPixels with noiseRate set to "<<noiseRate_<<endl;
 
   
   if(init){
     endOfModules_=false;
-    nevents_=-1;
-    bei->cd();
-    bei->setCurrentFolder("Pixel/EventInfo");
-    MonitorElement * me = bei->get("Pixel/EventInfo/iEvent");
-    if(me) nevents_ = me->getIntValue(); 
-    if(nevents_==0) nevents_=-1;
-    //cout<<"nevents_: "<<nevents_<<endl;
-    //nevents_=1000;
+    nevents_=noiseRateDenominator_;
     bei->cd();  
     myfile_.open ("NoisyPixelList.txt");
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
@@ -1859,7 +1852,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     if((*ic).find("AdditionalPixelErrors")!=string::npos) continue;
     bei->cd(*ic);
     init=false;
-    findNoisyPixels(bei,init,noiseRate_,eSetup);
+    findNoisyPixels(bei,init,noiseRate_,noiseRateDenominator_,eSetup);
     bei->goUp();
   }
 

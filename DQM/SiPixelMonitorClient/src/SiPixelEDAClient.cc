@@ -70,7 +70,8 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   offlineXMLfile_        = ps.getUntrackedParameter<bool>("UseOfflineXMLFile",false);
   hiRes_                 = ps.getUntrackedParameter<bool>("HighResolutionOccupancy",false);
   noiseRate_             = ps.getUntrackedParameter<double>("NoiseRateCutValue",0.001);
-
+  noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000);
+  
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_);
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
@@ -188,7 +189,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
-    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, eSetup);
+    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
   }   
          
   // -- Create TrackerMap  according to the frequency
@@ -236,7 +237,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
-    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, eSetup);
+    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
   }
   
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
