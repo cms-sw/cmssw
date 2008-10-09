@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process.museg = cms.EDFilter("RPCEfficiency",
-
+rpcEfficiency = cms.EDFilter("RPCEfficiency",
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),
     inclcsc = cms.untracked.bool(True),
@@ -22,7 +21,7 @@ process.museg = cms.EDFilter("RPCEfficiency",
     dt4DSegments = cms.untracked.string('dt4DSegments'),
 
     EffSaveRootFile = cms.untracked.bool(False),
-    EffRootFileName = cms.untracked.string('-output-'),
+    EffRootFileName = cms.untracked.string('output.root'),
     EffSaveRootFileEventsInterval = cms.untracked.int32(100)
 )
 
