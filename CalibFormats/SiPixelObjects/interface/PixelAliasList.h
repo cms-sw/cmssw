@@ -266,6 +266,11 @@ namespace pos{
     std::string name(unsigned int i) { return pixelConfigAliases_[i].name();}  
     unsigned int key(unsigned int i) { return pixelConfigAliases_[i].key();}
 
+    unsigned int nVersionAliases() { return pixelVersionAliases_.size(); }
+    std::string path(unsigned int i) { return pixelVersionAliases_[i].path();}  
+    unsigned int version(unsigned int i) { return pixelVersionAliases_[i].version();}
+    std::string alias(unsigned int i) { return pixelVersionAliases_[i].alias();}  
+
   private:
 
     std::vector<PixelConfigAlias> pixelConfigAliases_;
