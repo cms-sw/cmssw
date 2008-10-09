@@ -1,4 +1,4 @@
-#include "../CombinedCaloTowers.C"
+#include "CombinedCaloTowers.C"
 
 void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers);
 
