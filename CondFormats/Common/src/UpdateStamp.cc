@@ -8,7 +8,7 @@ namespace cond {
     m_revision(-1), m_timestamp(0), m_comment("not stamped"){}
     
     
-  virtual UpdateStamp::~UpdateStamp(){}
+  UpdateStamp::~UpdateStamp(){}
     
     // stamp and return current revision number;
   int UpdateStamp::stamp(std::string const & icomment) {

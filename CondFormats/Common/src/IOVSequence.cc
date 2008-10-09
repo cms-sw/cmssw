@@ -10,7 +10,7 @@ namespace cond {
   
   IOVSequence::IOVSequence(int type, cond::Time_t since, 
 			   std::string const& imetadata) :
-    timetype(type), firstsince(since),
+    m_timetype(type), m_firstsince(since),
     m_metadata(imetadata){}
     
   IOVSequence::~IOVSequence(){}
@@ -19,7 +19,7 @@ namespace cond {
   size_t IOVSequence::add(cond::Time_t time, 
 			  std::string const & payloadToken,
 			  std::string const & metadataToken) {
-    iovs.push_back(Item(time,  payloadToken, metadataToken));
+    iovs().push_back(Item(time,  payloadToken, metadataToken));
     return iovs().size()-1;
   }
   
@@ -41,15 +41,5 @@ namespace cond {
 			    );
   }
   
-
-}
-
-
-
-
-
-
-
-
 
 }

@@ -19,7 +19,7 @@ namespace cond {
     const Time_t kLowMask(0xFFFFFFFF);
  
     inline cond::UnpackedTime unpack(cond::Time_t iValue) {
-      return UnpackedTime(iValue >> 32, kLowMask & iValue);
+      return cond::UnpackedTime(iValue >> 32, kLowMask & iValue);
     }
 
     inline cond::Time_t pack(cond::UnpackedTime iValue) {
@@ -30,7 +30,7 @@ namespace cond {
     // for real time 
 
     const boost::posix_time::ptime time0 =
-      return boost::posix_time::from_time_t(0);
+      boost::posix_time::from_time_t(0);
     
     inline boost::posix_time::ptime to_boost(Time_t iValue) {
       return time0 +  

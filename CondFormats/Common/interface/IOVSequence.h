@@ -21,7 +21,7 @@ namespace cond {
     typedef Container::const_iterator const_iterator;
 
     IOVSequence();
-    IOVSequence(int type, cond::Time_t since);
+    IOVSequence(int type, cond::Time_t since,std::string const& imetadata);
 
     ~IOVSequence();
 
@@ -29,8 +29,7 @@ namespace cond {
     // append a new item, return new size
     size_t add(cond::Time_t time, 
 	       std::string const & payloadToken,
-	       std::string const & metadataToken,
-	       std::string const& imetadata);
+	       std::string const & metadataToken);
 
     iterator find(cond::Time_t time);
 

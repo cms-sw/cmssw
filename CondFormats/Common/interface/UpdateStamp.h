@@ -20,13 +20,13 @@ namespace cond {
     virtual ~UpdateStamp();
     
     // stamp and return current revision number;
-    int stamp( std::string const icomment);
+    int stamp( std::string const & icomment);
     
     int revision() const { return  m_revision;}
     
-    cond::Time_t timestamp const { return m_timestamp;}
+    cond::Time_t timestamp() const { return m_timestamp;}
     
-    std::string const & comment const  { return m_comment;}
+    std::string const & comment() const  { return m_comment;}
   
 
   private:
