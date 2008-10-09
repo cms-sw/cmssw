@@ -22,6 +22,11 @@
 // Kalanand Mishra: October 7, 2008 
 // Removed duplication of code in the fitting machinery. 
 // Also, fixed the problem with RooDataSet declaration.
+//
+// Jason Haupt: October 9th, 2008 
+// Added demoninator histograms
+// UPdated binning on the SBS method
+//
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -606,6 +611,9 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar,
    string hname = "sbs_eff_" + bvar;
    string htitle = "SBS Efficiency vs " + bvar;
 
+   string hdname = "sbs_den_" + bvar; 
+   string hdtitle = "SBS Denominator vs " + bvar; 
+
    stringstream condition;
    stringstream histoName;
    stringstream histoTitle;;
@@ -613,6 +621,7 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar,
    int bnbins = bins.size()-1;
    cout << "There are " << bnbins << " bins " << endl;
    TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
+   TH1F denhist(hdname.c_str(),hdtitle.c_str(),bnbins,&bins[0]);
    for( int bin=0; bin<bnbins; ++bin ) cout << "Bin low edge " << 
 					 effhist.GetBinLowEdge(bin+1) << endl;
 
@@ -729,6 +738,11 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar,
 	// Fill the efficiency hist
 	effhist.SetBinContent(bin+1,eff);
 	effhist.SetBinError(bin+1,effErr);
+
+	//Fill the denominator hist
+	denhist.SetBinContent(bin+1,npassR+nfailR);
+	denhist.SetBinError(bin+1,pow(npassR+nfailR,0.5));
+
       }else {
 	cout << " no probes " << endl;
       }
@@ -744,7 +758,7 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar,
    
    outRootFile_->cd();
    effhist.Write();
-
+   denhist.Write();
 
    if(PassProbes)    delete PassProbes;
    if(FailProbes)    delete FailProbes;
@@ -951,10 +965,9 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
   const Double_t xmin = Total.GetXaxis()->GetXmin();
 
   const Int_t PeakBin = (Int_t)((Peak - xmin)/BinWidth + 1); // Peak
-  Int_t SDBin = (Int_t)(SD/BinWidth); // Standard deviation
-  if (SDBin == 0) SDBin = 1; // Protection
-  const Int_t I = 3*SDBin; // Interval
-  const Int_t D = 10*SDBin;  // Distance from peak
+  const Double_t SDBin = (SD/BinWidth); // Standard deviation
+  const Int_t I = (Int_t)((3.0*SDBin < 1.0)  ?  3.0*SDBin  : 1 ); // Interval
+  const Int_t D = (Int_t)((10.0*SDBin < 1.0) ?  10.0*SDBin : 1 );  // Distance from peak
 
   const Double_t IntegralRight = Total.Integral(PeakBin + D, PeakBin + D + I);
   const Double_t IntegralLeft = Total.Integral(PeakBin - D - I, PeakBin - D);
