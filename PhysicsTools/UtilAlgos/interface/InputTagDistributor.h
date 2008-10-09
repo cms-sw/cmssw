@@ -62,7 +62,7 @@ class InputTagDistributorService{
       //do not say anything but set it to zero to get a safe crash in get() if ever called
       SetInputTagDistributorUniqueInstance_=0;}
   }
-  InputTagDistributor & set(std::string & user){
+  /*  InputTagDistributor & set(std::string & user){
     std::map<std::string, InputTagDistributor*>::iterator f=multipleInstance_.find(user);
     if (f == multipleInstance_.end()){
       std::cerr<<user<<" InputTagDistributor  user not defined. but it does not matter."<<std::endl;
@@ -72,7 +72,7 @@ class InputTagDistributorService{
       SetInputTagDistributorUniqueInstance_ = f->second;
       return (*SetInputTagDistributorUniqueInstance_);
     }
-  }
+    }*/
   InputTagDistributor & get(){
     if (!SetInputTagDistributorUniqueInstance_){
       std::cerr<<" SetInputTagDistributorUniqueInstance_ is not valid."<<std::endl;

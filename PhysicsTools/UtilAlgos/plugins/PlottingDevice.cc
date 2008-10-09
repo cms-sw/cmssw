@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu May 15 14:37:59 CEST 2008
-// $Id: PlottingDevice.cc,v 1.3 2008/08/29 22:24:35 vlimant Exp $
+// $Id: PlottingDevice.cc,v 1.4 2008/08/30 19:52:51 vlimant Exp $
 //
 //
 
@@ -94,9 +94,6 @@ PlottingDevice::~PlottingDevice(){}
 void
 PlottingDevice::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Service<InputTagDistributorService>()->set(vHelperInstance_);
-  edm::Service<VariableHelperService>()->set(vHelperInstance_);
-
   plotter_->setDir(plotDirectoryName_);
 
   plotter_->fill(plotDirectoryName_, iEvent);
