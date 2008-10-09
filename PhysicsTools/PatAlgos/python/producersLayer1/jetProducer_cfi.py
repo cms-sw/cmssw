@@ -25,7 +25,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     ),
     
     # Embedding of AOD items
-    embedCaloTowers = cms.bool(True), ## switch on/off embedding of supercluster (externally stored in AOD)
+    embedCaloTowers = cms.bool(False), ## switch on/off embedding of supercluster (externally stored in AOD)
 
     # Jet Energy Corrections to appy and store
     addJetCorrFactors    = cms.bool(True),
@@ -44,7 +44,9 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     discriminatorModule = cms.InputTag("layer0BTags"), ## meta-module which provides the list of discriminators. DO NOT specify an instance label
     discriminatorNames  = cms.vstring('*'), ## name of the JetTags to keep ( '*' = all )
     # clone tag infos in the pat::Jet
-    addTagInfoRefs = cms.bool(True),
+    # watch out: these take lots of space!
+    # usually the discriminators from the default algos suffice
+    addTagInfoRefs = cms.bool(False),
     tagInfoModule  = cms.InputTag("layer0TagInfos"),
     tagInfoNames   = cms.vstring('secondaryVertexTagInfos','softElectronTagInfos','softMuonTagInfos','impactParameterTagInfos'),
 
