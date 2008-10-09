@@ -8,6 +8,7 @@
 
 class Filter {
  public:
+  Filter() : inverted_(false), selector_(0){}
   Filter(const edm::ParameterSet& iConfig);
   Filter(std::string name, edm::ParameterSet& iConfig) : 
     name_(name),inverted_(false), selector_(0)
@@ -24,7 +25,8 @@ class Filter {
 	description_=selector_->description();
     }
   }
- 
+  virtual ~Filter(){}
+
   const std::string & name() {return name_;}
   const std::string & dump() { return dump_;}
   const std::vector<std::string> description() { return description_;}
@@ -34,7 +36,7 @@ class Filter {
     text+=dump()+"\n";
     return text;}
 
-  bool accept(edm::Event& iEvent) {
+  virtual  bool accept(edm::Event& iEvent)const {
     bool decision=false;
     if (selector_)
       decision=selector_->select(iEvent);
@@ -52,6 +54,55 @@ class Filter {
   EventSelector * selector_;
   std::string dump_;
 };
+
+
+class FilterOR : public Filter{ 
+ public:
+  ~FilterOR(){}
+  FilterOR(const std::string & filterORlist,
+	   const std::map<std::string, Filter*> & filters){
+    std::string filterORlistCopy=filterORlist;
+    name_ = filterORlist;
+    std::stringstream ss;
+    ss<<"Filter doing an OR of: ";
+    //split the OR-separated string into vector of strings
+    uint size=0;
+    bool OK=true;
+    while( OK ){
+      size_t orPos = filterORlistCopy.find("_OR_");
+      if (orPos == std::string::npos && filterORlistCopy.size()!=0){
+	size=filterORlistCopy.size();
+	OK=false;
+      }
+      else
+	size=orPos;
+      
+      std::string filter = filterORlistCopy.substr(0,size);
+      //remove the filter name and the OR (4 characters) from the string
+      if (OK)
+	filterORlistCopy = filterORlistCopy.substr(0+size+4);
+      
+      std::map<std::string, Filter*>::const_iterator it=filters.find(filter);
+      if (it==filters.end()){
+	edm::LogError("FilterOR")<<"cannot do an OR of: "<<filter
+				 <<" OR expression is: "<<filterORlist;
+	break;
+      }
+      filters_.push_back(std::make_pair(it->first, it->second));
+      ss<<it->first<<" ";
+    }
+    description_.push_back(ss.str());
+  }
+  bool accept(edm::Event& iEvent)const {
+    for (uint i=0 ; i!=filters_.size();++i)
+      if (filters_[i].second->accept(iEvent))
+	return true;
+    return false;
+  }
+ private:
+  std::vector <std::pair<std::string , const Filter * > > filters_;
+};
+
 
 //forward declaration for friendship
 class Selections;
@@ -134,6 +185,12 @@ class Selection {
   //print to LogVerbatim("Selections|<name()>")
   void print(bool description=true){
     if (!makeSummaryTable_) return;
+
+    uint maxFnameSize = 20;
+    for (iterator filter=begin(); filter!=end();++filter){
+      if ((*filter)->name().size() > maxFnameSize) maxFnameSize = (*filter)->name().size()+1;
+    }
+
     //    const std::string category ="Selections|"+name();
     const std::string category ="Selections";
     std::stringstream summary;
@@ -147,23 +204,23 @@ class Selection {
       }
     }
     summary<<" filter stand-alone pass: "<<std::endl;
-    summary<<std::right<<std::setw(20)<<"total read"<<": "
+    summary<<std::right<<std::setw(maxFnameSize)<<"total read"<<": "
 	   <<std::right<<std::setw(10)<<nSeen_<<std::endl;
     for (iterator filter=begin(); filter!=end();++filter){
       const std::string & fName=(*filter)->name();
       const Count & count=counts_[fName];
-      summary<<std::right<<std::setw(20)<<fName<<": "
+      summary<<std::right<<std::setw(maxFnameSize)<<fName<<": "
 	     <<std::right<<std::setw(10)<<count.nPass_<<" passed events. "
 	     <<std::right<<std::setw(10)<<std::setprecision (5)<<(count.nPass_/(float)count.nSeen_)*100.<<" [%]"<<std::endl;
     }
     summary<<" filter cumulative pass:"<<std::endl;
-    summary<<std::right<<std::setw(20)<<"total read"<<": "
+    summary<<std::right<<std::setw(maxFnameSize)<<"total read"<<": "
 	   <<std::right<<std::setw(10)<<nSeen_<<std::endl;
     uint lastCount=nSeen_;
     for (iterator filter=begin(); filter!=end();++filter){
       const std::string & fName=(*filter)->name();
       const Count & count=counts_[fName];
-      summary<<std::right<<std::setw(20)<<fName<<": "
+      summary<<std::right<<std::setw(maxFnameSize)<<fName<<": "
 	     <<std::right<<std::setw(10)<<count.nCumulative_<<" passed events. "
 	     <<std::right<<std::setw(10)<<std::setprecision (5)<<(count.nCumulative_/(float)count.nSeen_)*100.<<" [%]";
       if (lastCount!=0)
@@ -223,7 +280,7 @@ class Selections {
     uint nF=filtersPSet_.getParameterSetNames(filterNames);
     for (uint iF=0;iF!=nF;iF++){
       edm::ParameterSet pset = filtersPSet_.getParameter<edm::ParameterSet>(filterNames[iF]);
-      filters_.insert(std::make_pair(filterNames[iF],Filter(filterNames[iF],pset)));
+      filters_.insert(std::make_pair(filterNames[iF],new Filter(filterNames[iF],pset)));
     }
 
     //parse all configured selections
@@ -250,25 +307,30 @@ class Selections {
 	  {
 	    if (filters_.find(*fOrS)==filters_.end())
 	      {
-		//not a know filter names uncountered
-		// look for a selection name
-		std::map<std::string, std::vector<std::string> >::iterator s=selectionFilters.find(*fOrS);
-		if (s==selectionFilters.end()){
-		  //error. 
-		  edm::LogError("SelectionHelper")<<"unresolved filter/selection name: "<<*fOrS;
-		}
+		//not a know filter names uncountered : either Selection of _OR_.
+		if (fOrS->find("_OR_") != std::string::npos){
+		  filters_.insert(std::make_pair((*fOrS),new FilterOR((*fOrS),filters_)));
+		}//_OR_ filter
 		else{
-		  //remove the occurence
-		  std::vector<std::string>::iterator newLoc=sIt->second.erase(fOrS);
-		  //insert the list of filters corresponding to this selection in there
-		  sIt->second.insert(newLoc,s->second.begin(),s->second.end());
-		  //decrement selection iterator to come back to it
-		  sIt--;
-		  break;
+		  // look for a selection name
+		  std::map<std::string, std::vector<std::string> >::iterator s=selectionFilters.find(*fOrS);
+		  if (s==selectionFilters.end()){
+		    //error. 
+		    edm::LogError("SelectionHelper")<<"unresolved filter/selection name: "<<*fOrS;
+		  }//not a Selection name.
+		  else{
+		    //remove the occurence
+		    std::vector<std::string>::iterator newLoc=sIt->second.erase(fOrS);
+		    //insert the list of filters corresponding to this selection in there
+		    sIt->second.insert(newLoc,s->second.begin(),s->second.end());
+		    //decrement selection iterator to come back to it
+		    sIt--;
+		    break;
+		  }//a Selection name
 		}
-	      }
+	      }//the name is not a simple filter name : either Selection of _OR_.
 	      
-	  }//loop over the string in "filterOrder"
+	  }//loop over the strings in "filterOrder"
       }//loop over all defined Selection
 
     //finally, configure the Selections
@@ -284,14 +346,14 @@ class Selections {
       std::vector<std::string> & listOfFilters=selectionFilters[sName];
       for (std::vector<std::string>::iterator fIt=listOfFilters.begin();fIt!=listOfFilters.end();++fIt)
 	{
-	  std::map<std::string, Filter>::iterator filterInstance=filters_.find(*fIt);
+	  std::map<std::string, Filter*>::iterator filterInstance=filters_.find(*fIt);
 	  if (filterInstance==filters_.end()){
 	    //error
 	    edm::LogError("Selections")<<"cannot resolve: "<<*fIt;
 	  }
 	  else{
 	    //actually increment the filter
-	    selection.filters_.push_back(&filterInstance->second);
+	    selection.filters_.push_back(filterInstance->second);
 	  }
 	}
     }
@@ -309,7 +371,7 @@ class Selections {
     
  private:
   edm::ParameterSet filtersPSet_;
-  std::map<std::string, Filter> filters_;
+  std::map<std::string, Filter*> filters_;
 
   edm::ParameterSet selectionPSet_;
   //  std::map<std::string, Selection> selections_;
