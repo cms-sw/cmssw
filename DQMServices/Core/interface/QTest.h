@@ -284,7 +284,6 @@ protected:
 
 //==================== ContentsXRange =========================//
 //== Check that histogram contents are between [Xmin, Xmax] ==//
-
 class ContentsXRange : public SimpleTest
 {
 public:
@@ -317,52 +316,14 @@ protected:
   bool rangeInitialized_;
 };
 
-//==================== ContentsXRange =========================//
-//== Check that histogram contents are between [Xmin, Xmax] ==//
-
-class ContentsXRangeAS : public SimpleTest
-{
-public:
-  ContentsXRangeAS(const std::string &name) : SimpleTest(name)
-  {
-      rangeInitialized_ = false;
-      setAlgoName(getAlgoName());
-  }
-
-  /// set allowed range in X-axis (default values: histogram's X-range)
-  virtual void setAllowedXRange(float xmin, float xmax)
-  { xmin_ = xmin; xmax_ = xmax; rangeInitialized_ = true; }
-
-  float runTest(const MonitorElement *me) ;
-
-  static std::string getAlgoName(void)
-  { return "ContentsXRangeAS"; }
-
-protected:
-  void setMessage(void) {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-            << "): Entry fraction within X range = " << prob_;
-    message_ = message.str();
-    }
-
-  /// allowed range in X-axis
-  float xmin_;float xmax_;
-  /// init-flag for xmin_, xmax_
-  bool rangeInitialized_;
-};
-
-
 //==================== ContentsYRange =========================//
 //== Check that histogram contents are between [Ymin, Ymax] ==//
-/// (class also used by DeadChannel algorithm)
 class ContentsYRange : public SimpleTest
 {
 public:
   ContentsYRange(const std::string &name) : SimpleTest(name,true)
   {
    rangeInitialized_ = false;
-   deadChanAlgo_ = false;
    setAlgoName(getAlgoName());
   }
 
@@ -389,14 +350,47 @@ protected:
 
   /// allowed range in Y-axis
   float ymin_; float ymax_;
-  /// to be used to run derived-class algorithm
-  bool deadChanAlgo_;
   /// init-flag for ymin_, ymax_
   bool rangeInitialized_;
   //do a Normal test or AS ?
   unsigned int useEmptyBins_;
 
 };
+
+//============================== DeadChannel =================================//
+/// test that histogram contents are above Ymin
+class DeadChannel : public SimpleTest
+{
+ public:
+  DeadChannel(const std::string &name) : SimpleTest(name,true)
+  {
+   rangeInitialized_ = false;
+   setAlgoName(getAlgoName());
+  }
+
+  float runTest(const MonitorElement *me);
+
+  static std::string getAlgoName(void)
+  { return "DeadChannel"; }
+
+  /// set Ymin (inclusive) threshold for "dead" channel (default: 0)
+  void setThreshold(float ymin)
+  { ymin_ = ymin;  rangeInitialized_ = true; } /// ymin - threshold
+
+
+protected:
+  void setMessage(void) {
+      std::ostringstream message;
+      message << " Test " << qtname_ << " (" << algoName_
+	      << "): Alive channel fraction = " << prob_;
+      message_ = message.str();
+    }
+  TH1*h1;
+  TH2*h2;
+  float ymin_;
+  bool rangeInitialized_;
+};
+
 
 //==================== NoisyChannel =========================//
 /// Check if any channels are noisy compared to neighboring ones.
@@ -461,33 +455,7 @@ protected:
 };
 
 
-//============================== DeadChannel =================================//
-/// the ContentsYRange algorithm w/o a check for Ymax and excluding Ymin
-class DeadChannel : public ContentsYRange
-{
-public:
-  DeadChannel(const std::string &name) : ContentsYRange(name)
-    {
-      setAllowedYRange(0, 0); /// ymax value is ignored
-      deadChanAlgo_ = true;
-      setAlgoName(getAlgoName());
-    }
 
-  /// set Ymin (inclusive) threshold for "dead" channel (default: 0)
-  void setThreshold(float ymin)
-  { setAllowedYRange(ymin, 0); } /// ymax value is ignored
-
-  static std::string getAlgoName(void)
- { return "DeadChannel"; }
-
-protected:
-  void setMessage(void) {
-      std::ostringstream message;
-      message << " Test " << qtname_ << " (" << algoName_
-	      << "): Alive channel fraction = " << prob_;
-      message_ = message.str();
-    }
-};
 
 //==================== ContentsWithinExpected  =========================//
 // Check that every TH2 channel has mean, RMS within allowed range.
