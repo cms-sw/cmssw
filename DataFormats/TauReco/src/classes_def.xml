@@ -125,6 +125,9 @@
   <class name="std::pair<reco::PFTauRef, int>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, int> >" />
 
+  <class name="std::pair<reco::PFTauRef, float>"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, float> >" />
+
   <class name="reco::PFTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
@@ -138,8 +141,6 @@
   <class name="reco::PFTauDiscriminatorRefVector"/>
   <class name="edm::Wrapper<reco::PFTauDiscriminator>"/>
   
-  <class name="std::pair<reco::PFTauRef, float>"/>
-  <class name="std::vector<std::pair<reco::PFTauRef, float> >" />
 
 
 
