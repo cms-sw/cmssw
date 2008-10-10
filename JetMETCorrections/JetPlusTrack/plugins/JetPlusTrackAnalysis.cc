@@ -153,7 +153,7 @@ void JetPlusTrackAnalysis::analyze(
 //
   float pt[2],eta[2],phi[2];
   int parton[2];
-  int tagparton;
+//  int tagparton;
   cout<<" Try to take HepMCProduct "<<endl;
   edm::Handle< edm::HepMCProduct >  EvtHandles ;
   iEvent.getByType( EvtHandles ) ;
@@ -451,8 +451,8 @@ void JetPlusTrackAnalysis::analyze(
    cout<<" Calo energy "<<JetRecoEtCaloTower[jjj]<<" RecHit energy "<<JetRecoEtRecHit[jjj]<<" Empty cone ECAL "<<empty_jet_energy_ecal<<
    " Empty cone HCAL "<<empty_jet_energy_hcal <<" association with gen jet "<<JetRecoGenRecType[jjj]
    <<" Association with parton  "<<JetRecoGenPartonType[jjj]<<endl;        
-   int i1 = JetRecoGenPartonType[jjj];
-   int i2 = JetRecoGenPartonType[jjj];
+   int i1 = (int)JetRecoGenPartonType[jjj];
+   int i2 = (int)JetRecoGenPartonType[jjj];
     cout<<" Parton energy "<<pt[i1]<<" type "<<parton[i2]<<endl; 
    }
   } 
