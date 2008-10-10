@@ -77,7 +77,10 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
     ECALIsolConeSize_min = cms.double(0.0),
     MatchingConeSize_max = cms.double(0.6),
     NeutrHadrCand_minPt = cms.double(1.0),
-    HCALIsolConeSize_min = cms.double(0.0)
+    HCALIsolConeSize_min = cms.double(0.0),
+    DataType = cms.string("RECO")
+
+
 )
 
 
