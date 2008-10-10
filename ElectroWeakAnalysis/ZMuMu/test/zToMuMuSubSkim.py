@@ -10,7 +10,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source(
@@ -94,6 +94,7 @@ process.out = cms.OutputModule(
       "keep recoTracks_standAloneMuons_*_*",
       "keep recoMuons_muons_*_*",
       "keep *_selectedLayer1Muons_*_*",
+      "keep *_selectedLayer1TrackCands_*_*",
       "keep *_goodTracks_*_*",
       "keep *_tkIsoDepositCalByAssociatorTowers_*_*",
       "keep *_EcalIsolationForTracks_*_*",
