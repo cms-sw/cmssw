@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/08/06 11:52:58 $
- * $Revision: 1.89 $
+ * $Date: 2008/08/11 07:24:14 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -166,6 +166,8 @@ EELedClient::EELedClient(const ParameterSet& ps) {
   }
 
   percentVariation_ = 0.4;
+  
+  amplitudeThreshold_ = 10.;
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
@@ -1585,7 +1587,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) )
+          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1609,7 +1611,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) )
+          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ )
            val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1633,7 +1635,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) )
+          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -1657,7 +1659,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) )
+          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
