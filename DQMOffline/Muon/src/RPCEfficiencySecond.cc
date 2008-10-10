@@ -287,7 +287,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   }
   if(debug) std::cout<<"Cloning statistcs"<<std::endl;
   for(int i=1;i<=33;i++){
-    std::cout<<"i="<<i<<std::endl;
     if(debug) std::cout<<statistics->getBinContent(i)<<std::endl;
     statistics2->setBinContent(i,statistics->getBinContent(i));
   }
@@ -354,7 +353,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   if(debug) std::cout<<"Clonning for Barrel"<<std::endl;
   
   for(int i=1;i<=101;i++){
-    std::cout<<"Global Residual"<<hGlobalResClu1La1->getBinContent(i)<<std::endl;
+    if(debug) std::cout<<"Global Residual"<<hGlobalResClu1La1->getBinContent(i)<<std::endl;
     hGlobal2ResClu1La1->setBinContent(i,hGlobalResClu1La1->getBinContent(i));
     hGlobal2ResClu1La2->setBinContent(i,hGlobalResClu1La2->getBinContent(i));
     hGlobal2ResClu1La3->setBinContent(i,hGlobalResClu1La3->getBinContent(i));
@@ -851,7 +850,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 	  std::string detUnitLabel, meIdRPC,meIdCSC, bxDistroId, meIdRealRPC  ;
 	  std::string      meIdPRO, meIdRPC2, meIdCSC2, bxDistroId2,meIdRealRPC2;
-
+	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
 	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
 		
@@ -1444,20 +1443,20 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   NoPredictionD1->setAxisTitle("%",2);
   NoPredictionD2->setAxisTitle("%",2);
   NoPredictionD3->setAxisTitle("%",2);
-
+  
   NoPredictionDm3far->setAxisTitle("%",2);
   NoPredictionDm2far->setAxisTitle("%",2);
   NoPredictionDm1far->setAxisTitle("%",2);
   NoPredictionD1far->setAxisTitle("%",2);
   NoPredictionD2far->setAxisTitle("%",2);
   NoPredictionD3far->setAxisTitle("%",2);
-
-  if(debug)
-    std::cout<<"Saving RootFile"<<std::endl;
-  //dbe->rmdir("RPC");
+  
+  if(debug) std::cout<<"Saving RootFile"<<std::endl;
   if(SaveFile)dbe->save(NameFile);
-
+  dbe->showDirStructure();
+  std::cout<<"RPCEfficiency Done"<<std::endl;
 }
 
-void RPCEfficiencySecond::endJob(){}
+void RPCEfficiencySecond::endJob(){
+}
 
