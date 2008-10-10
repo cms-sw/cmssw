@@ -8,22 +8,35 @@ from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi impor
 from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
-from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import *
 
-#PFRecoTau, Higher efficiency
-pfRecoTauProducerHighEfficiency = copy.deepcopy(pfRecoTauProducer)
-pfRecoTauDiscriminationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
-pfRecoTauProducerHighEfficiency.TrackerSignalConeSizeFormula = '5.0/ET'
-pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_min = 0.07
-pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_max = 0.15
-pfRecoTauProducerHighEfficiency.GammaCand_minPt = 1.5
-pfRecoTauDiscriminationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
-pfRecoTauDiscriminationHighEfficiencyAgainstElectron = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-pfRecoTauDiscriminationHighEfficiencyAgainstElectron.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
-pfRecoTauDiscriminationHighEfficiencyAgainstMuon = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
-pfRecoTauDiscriminationHighEfficiencyAgainstMuon.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+from RecoTauTag.RecoTau.PFRecoTauHighEfficiency_cff import *
 
-PFTau = cms.Sequence(ic5PFJetTracksAssociatorAtVertex*pfRecoTauTagInfoProducer*pfRecoTauProducer*pfRecoTauProducerHighEfficiency*pfRecoTauDiscriminationByIsolation*pfRecoTauDiscriminationHighEfficiency*pfRecoTauDiscriminationAgainstElectron*pfRecoTauDiscriminationAgainstMuon*pfRecoTauDiscriminationHighEfficiencyAgainstElectron*pfRecoTauDiscriminationHighEfficiencyAgainstMuon)
 
+PFTau = cms.Sequence(
+    ic5PFJetTracksAssociatorAtVertex*
+    pfRecoTauTagInfoProducer*
+    pfRecoTauProducer*
+    pfRecoTauProducerHighEfficiency*
+    pfRecoTauDiscriminationByIsolation*
+    pfRecoTauDiscriminationHighEfficiency*
+    pfRecoTauDiscriminationByLeadingTrackFinding*
+    pfRecoTauDiscriminationByLeadingTrackPtCut*
+    pfRecoTauDiscriminationAgainstElectron*
+    pfRecoTauDiscriminationAgainstMuon
+    )
+
+
+PFTauHighEfficiency = cms.Sequence(
+    ic5PFJetTracksAssociatorAtVertex*
+    pfRecoTauTagInfoProducer*
+    pfRecoTauProducerHighEfficiency*
+    pfRecoTauDiscriminationHighEfficiency*
+    pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency*
+    pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency*
+    pfRecoTauDiscriminationAgainstElectronHighEfficiency*
+    pfRecoTauDiscriminationAgainstMuonHighEfficiency
+    )
