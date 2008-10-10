@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.7 2008/10/07 17:22:52 neadam Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.8 2008/10/07 18:11:21 kalanand Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
@@ -1071,7 +1071,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
    Handle<GenParticleCollection> genparticles;
    if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
       LogWarning("Z") << "Could not extract gen particles with input tag " 
-			<< genParticlesTag_;
+		      << genParticlesTag_;
    }
 
    int ncnd = 0;
@@ -1115,14 +1115,14 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    LogWarning("Z") << "Could not extract pass probe match map "
 			    << "with input tag " << passProbeTruthMatchMapTags_[itype];
 	 }
-   
+
 	 for( unsigned int i=0; i<genparticles->size(); i++ )
 	 {
 	    int pdg_id = (*genparticles)[i].pdgId();
 
 	    // If this is not a muon keep going!
 	    if( abs( pdg_id ) != candPDGId_ ) continue;
-
+	    
 	    int moid  = -1;
 	    int gmoid = -1;
 	    const Candidate *mcand = (*genparticles)[i].mother();
@@ -1247,9 +1247,9 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       for( ; f != aprobes->end(); ++f )
 	       {
 		  unsigned int index = f - aprobes->begin();
-		  CandidateBaseRef tagRef = tags->refAt(index);
-		  if( tagRef.isNull() ) continue;
-		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  CandidateBaseRef probeRef = aprobes->refAt(index);
+		  if( probeRef.isNull() ) continue;
+		  GenParticleRef mcMatchRef = (*apmatch)[probeRef];
 		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
@@ -1257,7 +1257,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		     fapb = 1;
 		     if( ftag == 0 )
 		     {
-			const Candidate *cnd = tagRef.get();
+			const Candidate *cnd = probeRef.get();
 			rp   = cnd->p();
 			rpx  = cnd->px();
 			rpy  = cnd->py();
@@ -1287,7 +1287,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Deteta = reta;
      	      
 			  reco::SuperClusterRef SC 
-			    = tagRef->get<SuperClusterRef>();
+			    = probeRef->get<SuperClusterRef>();
 
 			  if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
@@ -1313,9 +1313,9 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       for( ; f != pprobes->end(); ++f )
 	       {
 		  unsigned int index = f - pprobes->begin();
-		  CandidateBaseRef tagRef = tags->refAt(index);
-		  if( tagRef.isNull() ) continue;
-		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  CandidateBaseRef probeRef = pprobes->refAt(index);
+		  if( probeRef.isNull() ) continue;
+		  GenParticleRef mcMatchRef = (*ppmatch)[probeRef];
 		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
@@ -1323,7 +1323,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		     fppb = 1;
 		     if( ftag == 0 && fapb == 0 )
 		     {
-			const Candidate *cnd = tagRef.get();
+			const Candidate *cnd = probeRef.get();
 			rp   = cnd->p();
 			rpx  = cnd->px();
 			rpy  = cnd->py();
@@ -1354,7 +1354,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Deteta = reta;
      	      	      
 			  reco::SuperClusterRef SC 
-			    = tagRef->get<SuperClusterRef>();
+			    = probeRef->get<SuperClusterRef>();
 
 			  if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
