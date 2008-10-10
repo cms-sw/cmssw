@@ -76,7 +76,7 @@ class TkLayerMap{
   void createTEC(std::vector<uint32_t>& TkDetIdList, int layer);
 
  private:
-  std::vector<uint32_t> binToDet;
+  uint32_t* binToDet;
   XYbin xybin;
 
   int layerEnumNb_; //In the enumerator sequence

@@ -34,7 +34,7 @@ TkLayerMap::TkLayerMap(int in):layerEnumNb_(in){
 
 uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
   
-  int val=ix+nchX*iy;
+  int val=(ix-1)+nchX*(iy-1);
   if(val>-1 && val < nchX*nchY)
     return binToDet[val];
   return 0;
@@ -218,7 +218,7 @@ void TkLayerMap::initialize(int layer){
   for (size_t i=0;i<SingleExtString.size();i++)
     LogTrace("TkLayerMap") << "[initialize SingleExtString["<<i<<"] " << SingleExtString[i];
 
-  binToDet.resize(nchX*nchY);
+  binToDet=(uint32_t*) malloc(nchX*nchY*sizeof(uint32_t));
 }
  
 void TkLayerMap::createTIB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
