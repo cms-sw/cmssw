@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/06/09 11:07:52 $
- * $Revision: 1.30 $
+ * $Date: 2008/09/21 14:37:51 $
+ * $Revision: 1.33 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.33  2008/09/21 14:37:51  jad
+ * updated HF Sums & Counts and added individual Jet Candidates and differences
+ *
  * Revision 1.30  2008/06/09 11:07:52  tapper
  * Removed electron sub-folders with histograms per eta and phi bin.
  *
@@ -159,7 +162,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
 
   if (verbose_)
-    std::cout << "L1TGCT: constructor...." << std::endl;
+    edm::LogInfo("L1TGCT") << "L1TGCT: constructor...." << std::endl;
 
 
   dbe = NULL;
@@ -170,7 +173,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
 
   outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
-    std::cout << "L1T Monitoring histograms will be saved to "
+    edm::LogInfo("L1TGCT") << "L1T Monitoring histograms will be saved to "
 	      << outputFile_ << std::endl;
   }
 
@@ -348,7 +351,7 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 void L1TGCT::endJob(void)
 {
   if (verbose_)
-    std::cout << "L1TGCT: end job...." << std::endl;
+    edm::LogInfo("L1TGCT") << "L1TGCT: end job...." << std::endl;
   edm::LogInfo("EndJob") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe) {
@@ -362,7 +365,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 {
   nev_++;
   if (verbose_) {
-    std::cout << "L1TGCT: analyze...." << std::endl;
+    edm::LogInfo("L1TGCT") << "L1TGCT: analyze...." << std::endl;
   }
   
   // update to those generated in GctRawToDigi
@@ -371,7 +374,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctJetCandCollection > l1CenJets;
   edm::Handle < L1GctJetCandCollection > l1ForJets;
   edm::Handle < L1GctJetCandCollection > l1TauJets;
-  edm::Handle < L1GctJetCountsCollection > l1JetCounts;
   edm::Handle < L1GctHFRingEtSumsCollection > l1HFSums; 
   edm::Handle < L1GctHFBitCountsCollection > l1HFCounts;
   edm::Handle < L1GctEtMissCollection >  l1EtMiss;
@@ -387,7 +389,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctCenJetsSource_, l1CenJets);
   e.getByLabel(gctForJetsSource_, l1ForJets);
   e.getByLabel(gctTauJetsSource_, l1TauJets);
-  e.getByLabel(gctEnergySumsSource_, l1JetCounts);
   e.getByLabel(gctEnergySumsSource_, l1HFSums);
   e.getByLabel(gctEnergySumsSource_, l1HFCounts);  
   e.getByLabel(gctEnergySumsSource_, l1EtMiss);
@@ -409,12 +410,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (!l1TauJets.isValid())  {
     edm::LogInfo("DataNotFound") << " Could not find l1TauJets"
       ", label was " << gctTauJetsSource_ ;
-    doJet = false;
-  }
-
-  if (!l1JetCounts.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1JetCounts"
-      ", label was " << gctEnergySumsSource_ ;
     doJet = false;
   }
 
@@ -466,7 +461,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   if ( (! doEm) && (! doJet) ) {
     if (  verbose_ )
-      std::cout << "L1TGCT: Bailing, didn't find squat."<<std::endl;
+      edm::LogInfo("DataNotFound") << "L1TGCT: Bailing, didn't find squat."<<std::endl;
     return;
   }
     
@@ -475,7 +470,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if ( doJet ) {
     // Central jets
     if ( verbose_ ) {
-      std::cout << "L1TGCT: number of central jets = " 
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of central jets = " 
 		<< l1CenJets->size() << std::endl;
     }
     for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
@@ -487,7 +482,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctCenJetsOccPhi_->Fill(cj->regionId().iphi());
       l1GctCenJetsRank_->Fill(cj->rank());
       if ( verbose_ ) {
-	std::cout << "L1TGCT: Central jet " 
+	edm::LogInfo("L1TGCT") << "L1TGCT: Central jet " 
 		  << cj->regionId().iphi() << ", " << cj->regionId().ieta()
 		  << ", " << cj->rank() << std::endl;
       }
@@ -495,20 +490,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
 	if ( l1CenJets->size()==4){
       	// Rank for each candidate
-      	l1GctCenJetsRankCand0_->Fill((*l1CenJets)[0].rank());
-      	l1GctCenJetsRankCand1_->Fill((*l1CenJets)[1].rank());
-      	l1GctCenJetsRankCand2_->Fill((*l1CenJets)[2].rank());
-      	l1GctCenJetsRankCand3_->Fill((*l1CenJets)[3].rank());
+      	l1GctCenJetsRankCand0_->Fill((*l1CenJets).at(0).rank());
+      	l1GctCenJetsRankCand1_->Fill((*l1CenJets).at(1).rank());
+      	l1GctCenJetsRankCand2_->Fill((*l1CenJets).at(2).rank());
+      	l1GctCenJetsRankCand3_->Fill((*l1CenJets).at(3).rank());
 
       	// Differences between candidate ranks
-      	l1GctCenJetsRankDiff01_->Fill((*l1CenJets)[0].rank()-(*l1CenJets)[1].rank());
-      	l1GctCenJetsRankDiff12_->Fill((*l1CenJets)[1].rank()-(*l1CenJets)[2].rank());
-      	l1GctCenJetsRankDiff23_->Fill((*l1CenJets)[2].rank()-(*l1CenJets)[3].rank());
+      	l1GctCenJetsRankDiff01_->Fill((*l1CenJets).at(0).rank()-(*l1CenJets).at(1).rank());
+      	l1GctCenJetsRankDiff12_->Fill((*l1CenJets).at(1).rank()-(*l1CenJets).at(2).rank());
+      	l1GctCenJetsRankDiff23_->Fill((*l1CenJets).at(2).rank()-(*l1CenJets).at(3).rank());
     	}
 
     // Forward jets
     if ( verbose_ ) {
-      std::cout << "L1TGCT: number of forward jets = " 
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of forward jets = " 
 		<< l1ForJets->size() << std::endl;
     }
     for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
@@ -520,7 +515,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctForJetsOccPhi_->Fill(fj->regionId().iphi());
       l1GctForJetsRank_->Fill(fj->rank());
       if ( verbose_ ) {
-	std::cout << "L1TGCT: Forward jet " 
+	edm::LogInfo("L1TGCT") << "L1TGCT: Forward jet " 
 		  << fj->regionId().iphi() << ", " << fj->regionId().ieta()
 		  << ", " << fj->rank() << std::endl;
       }
@@ -528,20 +523,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
 	if ( l1ForJets->size()==4){
       	// Rank for each candidate
-      	l1GctForJetsRankCand0_->Fill((*l1ForJets)[0].rank());
-      	l1GctForJetsRankCand1_->Fill((*l1ForJets)[1].rank());
-      	l1GctForJetsRankCand2_->Fill((*l1ForJets)[2].rank());
-      	l1GctForJetsRankCand3_->Fill((*l1ForJets)[3].rank());
+      	l1GctForJetsRankCand0_->Fill((*l1ForJets).at(0).rank());
+      	l1GctForJetsRankCand1_->Fill((*l1ForJets).at(1).rank());
+      	l1GctForJetsRankCand2_->Fill((*l1ForJets).at(2).rank());
+      	l1GctForJetsRankCand3_->Fill((*l1ForJets).at(3).rank());
 
       	// Differences between candidate ranks
-      	l1GctForJetsRankDiff01_->Fill((*l1ForJets)[0].rank()-(*l1ForJets)[1].rank());
-      	l1GctForJetsRankDiff12_->Fill((*l1ForJets)[1].rank()-(*l1ForJets)[2].rank());
-      	l1GctForJetsRankDiff23_->Fill((*l1ForJets)[2].rank()-(*l1ForJets)[3].rank());
+      	l1GctForJetsRankDiff01_->Fill((*l1ForJets).at(0).rank()-(*l1ForJets).at(1).rank());
+      	l1GctForJetsRankDiff12_->Fill((*l1ForJets).at(1).rank()-(*l1ForJets).at(2).rank());
+      	l1GctForJetsRankDiff23_->Fill((*l1ForJets).at(2).rank()-(*l1ForJets).at(3).rank());
     	}
 
     // Tau jets
     if ( verbose_ ) {
-      std::cout << "L1TGCT: number of tau jets = " 
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of tau jets = " 
 		<< l1TauJets->size() << std::endl;
     }
     for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
@@ -553,39 +548,39 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctTauJetsOccPhi_->Fill(tj->regionId().iphi());
       l1GctTauJetsRank_->Fill(tj->rank());
       if ( verbose_ ) {
-	std::cout << "L1TGCT: Tau jet " 
-		  << tj->regionId().iphi() << ", " << tj->regionId().ieta()
-		  << ", " << tj->rank() << std::endl;
+	edm::LogInfo("L1TGCT") << "L1TGCT: Tau jet " 
+			       << tj->regionId().iphi() << ", " << tj->regionId().ieta()
+			       << ", " << tj->rank() << std::endl;
       }
     }
-
-	if ( l1TauJets->size()==4){
-      	// Rank for each candidate
-      	l1GctTauJetsRankCand0_->Fill((*l1TauJets)[0].rank());
-      	l1GctTauJetsRankCand1_->Fill((*l1TauJets)[1].rank());
-      	l1GctTauJetsRankCand2_->Fill((*l1TauJets)[2].rank());
-      	l1GctTauJetsRankCand3_->Fill((*l1TauJets)[3].rank());
-
-      	// Differences between candidate ranks
-      	l1GctTauJetsRankDiff01_->Fill((*l1TauJets)[0].rank()-(*l1TauJets)[1].rank());
-      	l1GctTauJetsRankDiff12_->Fill((*l1TauJets)[1].rank()-(*l1TauJets)[2].rank());
-      	l1GctTauJetsRankDiff23_->Fill((*l1TauJets)[2].rank()-(*l1TauJets)[3].rank());
-    	}
-
+    
+    if ( l1TauJets->size()==4){
+      // Rank for each candidate
+      l1GctTauJetsRankCand0_->Fill((*l1TauJets).at(0).rank());
+      l1GctTauJetsRankCand1_->Fill((*l1TauJets).at(1).rank());
+      l1GctTauJetsRankCand2_->Fill((*l1TauJets).at(2).rank());
+      l1GctTauJetsRankCand3_->Fill((*l1TauJets).at(3).rank());
+      
+      // Differences between candidate ranks
+      l1GctTauJetsRankDiff01_->Fill((*l1TauJets).at(0).rank()-(*l1TauJets).at(1).rank());
+      l1GctTauJetsRankDiff12_->Fill((*l1TauJets).at(1).rank()-(*l1TauJets).at(2).rank());
+      l1GctTauJetsRankDiff23_->Fill((*l1TauJets).at(2).rank()-(*l1TauJets).at(3).rank());
+    }
+    
     // Energy sums
-    l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
-    l1GctEtMissPhi_->Fill(l1EtMiss->at(0).phi());
-
+    if ( l1EtMiss->size() ) {
+      l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
+      l1GctEtMissPhi_->Fill(l1EtMiss->at(0).phi());
+    }
     // these don't have phi values
-    l1GctEtHad_->Fill(l1EtHad->at(0).et());
-    l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
-	
-    //Fill HF Ring Histograms
-    if ( verbose_ ) {
-      std::cout << "L1TGCT: number of jet counts cands: " 
-		<< l1JetCounts->size() << std::endl;
+    if ( l1EtHad->size() ) {
+      l1GctEtHad_->Fill(l1EtHad->at(0).et());
+    }
+    if ( l1EtTotal->size() ) {
+      l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
     }
 
+    //Fill HF Ring Histograms
     for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
       l1GctHFRing0ETSumPosEta_->Fill(hfs->etSum(0));
       l1GctHFRing0ETSumNegEta_->Fill(hfs->etSum(1));
@@ -616,7 +611,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if ( doEm ) {
     // Isolated EM
     if ( verbose_ ) {
-      std::cout << "L1TGCT: number of iso em cands: " 
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of iso em cands: " 
 		<< l1IsoEm->size() << std::endl;
     }
     for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
@@ -627,7 +622,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctIsoEmOccPhi_->Fill(ie->regionId().iphi());
       l1GctIsoEmRank_->Fill(ie->rank());
       if ( verbose_ ) {
-	std::cout << "L1TGCT: iso em " 
+	edm::LogInfo("L1TGCT") << "L1TGCT: iso em " 
 		  << ie->regionId().iphi() << ", " 
 		  << ie->regionId().ieta() << ", " << ie->rank()
 		  << std::endl;
@@ -637,20 +632,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
     if ( l1IsoEm->size()==4){
       // Rank for each candidate
-      l1GctIsoEmRankCand0_->Fill((*l1IsoEm)[0].rank());
-      l1GctIsoEmRankCand1_->Fill((*l1IsoEm)[1].rank());
-      l1GctIsoEmRankCand2_->Fill((*l1IsoEm)[2].rank());
-      l1GctIsoEmRankCand3_->Fill((*l1IsoEm)[3].rank());
+      l1GctIsoEmRankCand0_->Fill((*l1IsoEm).at(0).rank());
+      l1GctIsoEmRankCand1_->Fill((*l1IsoEm).at(1).rank());
+      l1GctIsoEmRankCand2_->Fill((*l1IsoEm).at(2).rank());
+      l1GctIsoEmRankCand3_->Fill((*l1IsoEm).at(3).rank());
 
       // Differences between candidate ranks
-      l1GctIsoEmRankDiff01_->Fill((*l1IsoEm)[0].rank()-(*l1IsoEm)[1].rank());
-      l1GctIsoEmRankDiff12_->Fill((*l1IsoEm)[1].rank()-(*l1IsoEm)[2].rank());
-      l1GctIsoEmRankDiff23_->Fill((*l1IsoEm)[2].rank()-(*l1IsoEm)[3].rank());
+      l1GctIsoEmRankDiff01_->Fill((*l1IsoEm).at(0).rank()-(*l1IsoEm).at(1).rank());
+      l1GctIsoEmRankDiff12_->Fill((*l1IsoEm).at(1).rank()-(*l1IsoEm).at(2).rank());
+      l1GctIsoEmRankDiff23_->Fill((*l1IsoEm).at(2).rank()-(*l1IsoEm).at(3).rank());
     }
 
     // Non-isolated EM
     if ( verbose_ ) {
-      std::cout << "L1TGCT: number of non-iso em cands: " 
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of non-iso em cands: " 
 		<< l1NonIsoEm->size() << std::endl;
     }
     for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
@@ -662,7 +657,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctNonIsoEmRank_->Fill(ne->rank());
 
       if ( verbose_ ) {
-	std::cout << "L1TGCT: non-iso em " 
+	edm::LogInfo("L1TGCT") << "L1TGCT: non-iso em " 
 		  << ne->regionId().iphi() << ", " 
 		  << ne->regionId().ieta() << ", " << ne->rank()
 		  << std::endl;
@@ -671,15 +666,15 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
     if ( l1NonIsoEm->size()==4){
       // Rank for each candidate
-      l1GctNonIsoEmRankCand0_->Fill((*l1NonIsoEm)[0].rank());
-      l1GctNonIsoEmRankCand1_->Fill((*l1NonIsoEm)[1].rank());
-      l1GctNonIsoEmRankCand2_->Fill((*l1NonIsoEm)[2].rank());
-      l1GctNonIsoEmRankCand3_->Fill((*l1NonIsoEm)[3].rank());
+      l1GctNonIsoEmRankCand0_->Fill((*l1NonIsoEm).at(0).rank());
+      l1GctNonIsoEmRankCand1_->Fill((*l1NonIsoEm).at(1).rank());
+      l1GctNonIsoEmRankCand2_->Fill((*l1NonIsoEm).at(2).rank());
+      l1GctNonIsoEmRankCand3_->Fill((*l1NonIsoEm).at(3).rank());
       
       // Differences between candidate ranks
-      l1GctNonIsoEmRankDiff01_->Fill((*l1NonIsoEm)[0].rank()-(*l1NonIsoEm)[1].rank());
-      l1GctNonIsoEmRankDiff12_->Fill((*l1NonIsoEm)[1].rank()-(*l1NonIsoEm)[2].rank());
-      l1GctNonIsoEmRankDiff23_->Fill((*l1NonIsoEm)[2].rank()-(*l1NonIsoEm)[3].rank());
+      l1GctNonIsoEmRankDiff01_->Fill((*l1NonIsoEm).at(0).rank()-(*l1NonIsoEm).at(1).rank());
+      l1GctNonIsoEmRankDiff12_->Fill((*l1NonIsoEm).at(1).rank()-(*l1NonIsoEm).at(2).rank());
+      l1GctNonIsoEmRankDiff23_->Fill((*l1NonIsoEm).at(2).rank()-(*l1NonIsoEm).at(3).rank());
     }
   }
 }
