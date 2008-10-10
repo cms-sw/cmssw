@@ -5,7 +5,7 @@ void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup&
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
   
   // fill the AssociationVector object
-  auto_ptr<PFTauDiscriminatorByIsolation> thePFTauDiscriminatorByIsolation(new PFTauDiscriminatorByIsolation(PFTauRefProd(thePFTauCollection)));
+  auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByIsolation(new PFTauDiscriminator(PFTauRefProd(thePFTauCollection)));
   
   for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
     PFTauRef thePFTauRef(thePFTauCollection,iPFTau);

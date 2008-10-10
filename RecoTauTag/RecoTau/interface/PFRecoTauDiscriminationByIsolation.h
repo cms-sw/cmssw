@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 
@@ -36,7 +36,7 @@ class PFRecoTauDiscriminationByIsolation : public EDProducer {
     TrackerIsolAnnulus_Tracksmaxn_      = iConfig.getParameter<int>("TrackerIsolAnnulus_Tracksmaxn");   
     //     *END*    
     
-    produces<PFTauDiscriminatorByIsolation>();
+    produces<PFTauDiscriminator>();
   }
   ~PFRecoTauDiscriminationByIsolation(){
     //delete ;
