@@ -8,6 +8,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
@@ -80,6 +81,13 @@ namespace {
     reco::CaloTauDiscriminatorByIsolationRefProd                calotdi_rp;     
     reco::CaloTauDiscriminatorByIsolationRefVector              calotdi_rv;     
     edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>         calotdi_w;     
+
+    reco::CaloTauDiscriminatorBase                   calodi_b;         
+    reco::CaloTauDiscriminator                       calodi_o;     
+    reco::CaloTauDiscriminatorRef                    calodi_r;     
+    reco::CaloTauDiscriminatorRefProd                calodi_rp;     
+    reco::CaloTauDiscriminatorRefVector              calodi_rv;     
+    edm::Wrapper<reco::CaloTauDiscriminator>         calodi_w;     
     
     reco::CaloTauDiscriminatorAgainstElectronBase               calotde_b;         
     reco::CaloTauDiscriminatorAgainstElectron                   calotde_o;     

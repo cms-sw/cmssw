@@ -76,6 +76,19 @@
   <class name="reco::CaloTauDiscriminatorByIsolationRefProd"/>
   <class name="reco::CaloTauDiscriminatorByIsolationRefVector"/>
   <class name="edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>"/>
+
+  <class name="reco::CaloTauDiscriminatorBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::CaloTauDiscriminator">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::CaloTauDiscriminatorRef"/>
+  <class name="reco::CaloTauDiscriminatorRefProd"/>
+  <class name="reco::CaloTauDiscriminatorRefVector"/>
+  <class name="edm::Wrapper<reco::CaloTauDiscriminator>"/>
   
   <class name="reco::CaloTauDiscriminatorAgainstElectronBase">
     <field name="transientVector_" transient="true"/>

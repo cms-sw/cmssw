@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationVector<CaloTauRefProd,std::vector<float> > CaloTauDiscriminatorByIsolationBase;
+  typedef edm::AssociationVector<CaloTauRefProd,std::vector<int> > CaloTauDiscriminatorByIsolationBase;
   
   class CaloTauDiscriminatorByIsolation : public CaloTauDiscriminatorByIsolationBase {
   public:
