@@ -28,7 +28,9 @@
 #include <deque>
 #include <vector>
 
+class CSCSegAlgoShowering;
 class CSCSegAlgoST : public CSCSegmentAlgorithm {
+
 
 public:
 
@@ -40,9 +42,8 @@ public:
 
   /// Constructor
   explicit CSCSegAlgoST(const edm::ParameterSet& ps);
-
   /// Destructor
-  virtual ~CSCSegAlgoST() {};
+  virtual ~CSCSegAlgoST();
 
   /**
    * Build track segments in this chamber (this is where the actual
@@ -159,6 +160,7 @@ private:
   bool    Pruning;
   bool    BrutePruning;
   bool    onlyBestSegment;
+  bool    useShowering;
 
   double  hitDropLimit4Hits;
   double  hitDropLimit5Hits;
@@ -171,7 +173,7 @@ private:
 
   double  curvePenaltyThreshold;
   double  curvePenalty;
-
+  CSCSegAlgoShowering* showering_;
 };
 
 #endif

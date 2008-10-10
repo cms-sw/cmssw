@@ -7,6 +7,7 @@
  */
  
 #include "CSCSegAlgoST.h"
+#include "CSCSegAlgoShowering.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -58,8 +59,17 @@ CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   curvePenaltyThreshold        = ps.getUntrackedParameter<double>("curvePenaltyThreshold");
   curvePenalty                 = ps.getUntrackedParameter<double>("curvePenalty");
 
+  useShowering = ps.getUntrackedParameter<bool>("useShowering");
+  showering_   = new CSCSegAlgoShowering( ps );
   // std::cout<<"Constructor called..."<<std::endl;
 
+}
+
+/* Destructor
+ *
+ */
+CSCSegAlgoST::~CSCSegAlgoST() {
+  delete showering_;
 }
 
 
@@ -459,7 +469,6 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
   std::vector<int> hits_onLayerNumber(6);
 
-  // Stoyans cutoff limit at 20 hits
   unsigned int UpperLimit = maxRecHitsInCluster;
   if (int(rechits.size()) < minHitsPerSegment) return segmentInChamber;
  
@@ -569,6 +578,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     }
   }
 
+
   if (tothits > (int)UpperLimit) {
     if (n_layers_occupied_tot > 4) {
       tothits = tothits - hits_onLayerNumber[maxlayer];
@@ -588,13 +598,29 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   }
 
   if (tothits > (int)UpperLimit){ 
-	LogDebug("CSC") <<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Showering muon - returns nothing if chi2 == -1 (see comment in SegAlgoShowering)
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  if (useShowering) {
+    CSCSegment segShower = showering_->showerSeg(theChamber, rechits);
+
+    // Make sure have at least 3 hits...
+    if ( segShower.nRecHits() < 3 ) return segmentInChamber;
+    if ( segShower.chi2() == -1 ) return segmentInChamber;
+
+    segmentInChamber.push_back(segShower);
+    return segmentInChamber;  
+
+  } else{
+        LogDebug("CSC") <<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
 	  " ... Segment finding in the cluster/chamber canceled! \n";
 	//     std::cout<<"Number of rechits in the cluster/chamber > "<< UpperLimit<<
 	//     " ... Segment finding in the cluster/chamber canceled! "<<std::endl;
-    return segmentInChamber;  
+        return segmentInChamber;  
+        }
   }
-   
+
   // Find out which station, ring and chamber we are in 
   // Used to choose station/ring dependant y-weight cuts
 
@@ -1364,7 +1390,6 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_seg
 
       //mark a pseg bad:
       if(SumCommonHits>1) { // needs to be a card; should be investigated first
-	//chosen_weight[iCand] *= -1.;//what if 0?
 	chosen_weight[iCand] = -1.;
 	nr_remaining_candidates -= 1;
       }

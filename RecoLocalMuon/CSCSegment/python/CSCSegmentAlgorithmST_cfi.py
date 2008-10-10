@@ -5,6 +5,18 @@ import FWCore.ParameterSet.Config as cms
 # from the other algorithms which use a cylinder around the proto
 # segment and look for rechits within that cylinder
 ST_ME1234 = cms.PSet(
+
+    #Parameters for showering segments
+    useShowering = cms.untracked.bool(False),
+    maxRatioResidualPrune = cms.double(3),
+    dRPhiFineMax = cms.double(8.0),
+    dPhiFineMax = cms.double(0.025),
+    tanThetaMax = cms.double(1.2),
+    tanPhiMax = cms.double(0.5),
+    maxDPhi = cms.double(999.),
+    maxDTheta = cms.double(999.),
+
+
     curvePenaltyThreshold = cms.untracked.double(0.85),
     minHitsPerSegment = cms.untracked.int32(3),
     yweightPenaltyThreshold = cms.untracked.double(1.0),
@@ -23,6 +35,18 @@ ST_ME1234 = cms.PSet(
     dYclusBoxMax = cms.untracked.double(8.0)
 )
 ST_ME1A = cms.PSet(
+
+    #Parameters for showering segments
+    useShowering = cms.untracked.bool(False),
+    maxRatioResidualPrune = cms.double(3),
+    dRPhiFineMax = cms.double(8.0),
+    dPhiFineMax = cms.double(0.025),
+    tanThetaMax = cms.double(1.2),
+    tanPhiMax = cms.double(0.5),
+    maxDPhi = cms.double(999.),
+    maxDTheta = cms.double(999.),
+
+
     curvePenaltyThreshold = cms.untracked.double(0.85),
     minHitsPerSegment = cms.untracked.int32(3),
     yweightPenaltyThreshold = cms.untracked.double(1.0),
