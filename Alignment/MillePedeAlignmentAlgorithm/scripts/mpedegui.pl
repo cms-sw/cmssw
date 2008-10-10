@@ -18,6 +18,13 @@ use warnings;
 use Tk 804;
 require Tk::ROText;
 
+# Needed in order to read mps.db
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
+use Mpslib;
+
 #
 # Global variables
 #
@@ -496,22 +503,29 @@ $ZWIDGETS{'quit_button'} = $MW->Button(
 # MainLoop
 #
 ###############
-$pathmillescript_variable="";
-$pathcfg_variable="";
-$pathdata_variable="";
-$pathpedescript_variable="";
-$pathcastor_variable="";
-$jobname_variable="";
-$njobs_variable="1"; #The default is 1
-$setuppedejob_variable="1"; #The default is "yes"
-$appendmillejob_variable="2"; #The default is "no". 
-$batchclass_variable="8nm";
+
+# Read mps.db
+read_db();
+# 
+$pathmillescript_variable =$batchScript;
+$pathcfg_variable         =$cfgTemplate;
+$pathdata_variable        =$infiList;
+$pathpedescript_variable  =$mergeScript;
+$pathcastor_variable      =$mssDir;
+$jobname_variable         =$addFiles;
+$njobs_variable           =$nJobs;
+$batchclass_variable      =$class;
+
+$setuppedejob_variable    ="1"; #The default is "yes".
+$appendmillejob_variable  ="2"; #The default is "no".
+$firemerge_variable       ="";  #The default is to merge nothing
+$njobsfir_variable        ="1"; #This is the default anyway
+
 $mpssetup_output="";
 $status_output="";
-$firemerge_variable=""; #The default is to merge nothing
-$njobsfir_variable="1"; #This is the default anyway
 $mpsfire_output="";
 $fetch_output="";
+
 MainLoop;
 
 #######################
