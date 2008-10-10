@@ -92,7 +92,7 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
     dbe_->setVerbose(0);
   }
 
-  theNumberOfEvents     = 0;
+  theEventNumber     = 0;
   theNumberOfL1Events   = 0;
 
 }
@@ -101,7 +101,7 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
 
 void HLTMuonGenericRate::finish()
 {
-  NumberOfEvents    ->Fill(theNumberOfEvents    );
+  NumberOfEvents    ->Fill(theEventNumber    );
   NumberOfL1Events  ->Fill(theNumberOfL1Events  );
   MinPtCut          ->Fill(theMinPtCut          );
   MaxEtaCut         ->Fill(theMaxEtaCut         );
@@ -119,9 +119,9 @@ void HLTMuonGenericRate::finish()
 void HLTMuonGenericRate::analyze( const Event & iEvent )
 {
 
-  theNumberOfEvents++;
+  theEventNumber++;
   LogTrace( "HLTMuonVal" ) << "In analyze for L1 trigger " << 
-    theL1CollectionLabel << " Event:" << theNumberOfEvents;  
+    theL1CollectionLabel << " Event:" << theEventNumber;  
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -316,26 +316,27 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     iEvent.getByLabel("hltL2MuonIsolations",depMap);
     for ( size_t i = 0; i < genMatches.size(); i++ ) {
       for ( int k = 0; k < 50; k++ ) theNtupleParameters[k] = -1;
-      theNtupleParameters[0] =  (findMother(genMatches[i].genCand))->pdgId();
-      theNtupleParameters[1] =  genMatches[i].genCand->pt();
-      theNtupleParameters[2] =  genMatches[i].genCand->eta();
-      theNtupleParameters[3] =  genMatches[i].genCand->phi();
+      theNtupleParameters[0] = theEventNumber;
+      theNtupleParameters[1] = (findMother(genMatches[i].genCand))->pdgId();
+      theNtupleParameters[2] = genMatches[i].genCand->pt();
+      theNtupleParameters[3] = genMatches[i].genCand->eta();
+      theNtupleParameters[4] = genMatches[i].genCand->phi();
       if ( genMatches[i].l1Cand ) {
-	theNtupleParameters[4] = genMatches[i].l1Cand->pt();
-	theNtupleParameters[5] = genMatches[i].l1Cand->eta();
-	theNtupleParameters[6] = genMatches[i].l1Cand->phi();
+	theNtupleParameters[5] = genMatches[i].l1Cand->pt();
+	theNtupleParameters[6] = genMatches[i].l1Cand->eta();
+	theNtupleParameters[7] = genMatches[i].l1Cand->phi();
       }
       for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
 	if ( genMatches[i].hltCands[j] ) {
-	  theNtupleParameters[(j*3+7)] = genMatches[i].hltCands[j]->pt();
-	  theNtupleParameters[(j*3+8)] = genMatches[i].hltCands[j]->eta();
-	  theNtupleParameters[(j*3+9)] = genMatches[i].hltCands[j]->phi();
+	  theNtupleParameters[(j*3+ 8)] = genMatches[i].hltCands[j]->pt();
+	  theNtupleParameters[(j*3+ 9)] = genMatches[i].hltCands[j]->eta();
+	  theNtupleParameters[(j*3+10)] = genMatches[i].hltCands[j]->phi();
 	  if ( j == 0 ) {
 	    TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
 	    const IsoDeposit &dep = (*depMap)[tk];
-	    theNtupleParameters[19] = dep.depositWithin(0.20);
-	    theNtupleParameters[20] = dep.depositWithin(0.24);
-	    theNtupleParameters[21] = dep.depositWithin(0.30);
+	    theNtupleParameters[20] = dep.depositWithin(0.20);
+	    theNtupleParameters[21] = dep.depositWithin(0.24);
+	    theNtupleParameters[22] = dep.depositWithin(0.30);
 	  }
 	}
       }
