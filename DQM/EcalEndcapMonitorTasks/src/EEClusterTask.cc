@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/08/05 14:06:07 $
- * $Revision: 1.51 $
+ * $Date: 2008/08/05 15:37:25 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -684,8 +684,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    //    LogWarning("EEClusterTask") << SuperClusterCollection_ << " not available";
-    cout << SuperClusterCollection_ << " not available" << endl; 
+    LogWarning("EEClusterTask") << SuperClusterCollection_ << " not available";
 
   }
 
