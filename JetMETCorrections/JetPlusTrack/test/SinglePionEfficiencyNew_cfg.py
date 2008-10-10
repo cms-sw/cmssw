@@ -11,6 +11,18 @@ process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+# switch OFF ECAL SR
+from SimCalorimetry.EcalSimProducers.ecaldigi_cfi import *
+from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
+simEcalDigis.srpBarrelLowInterestChannelZS = cms.double(-1.e9)
+simEcalDigis.srpEndcapLowInterestChannelZS = cms.double(-1.e9)
+
+from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
+from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
+ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+#
+
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
@@ -33,7 +45,7 @@ process.RefitTracks.src = cms.InputTag("generalTracks")
 #
 # test QCD file from 210 RelVal is on /castor/cern.ch/user/a/anikiten/jpt210qcdfile/
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(2)
 )
 
 process.source = cms.Source("PoolSource",
@@ -86,6 +98,12 @@ process.myanalysis = cms.EDFilter("SinglePionEfficiencyNew",
       useHcal = cms.bool(False))
 )
 
-process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
 
-# process.p1 = cms.Path(process.RefitTracks*process.mix*process.dump)
+# process.dump = cms.EDFilter("EventContentAnalyzer")
+
+# ECAL SR OFF
+process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.myanalysis)
+
+# standard
+# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
+
