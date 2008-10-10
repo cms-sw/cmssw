@@ -56,7 +56,6 @@ process.source = cms.Source("PoolSource",
 # 160, 250, 350, 500 and 700,
 # cmssw210
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/FC999068-DB60-DD11-9694-001A92971B16.root')
->>>>>>> 1.5
 # cmssw218
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/0C66A939-8F82-DD11-8442-0019DB29C614.root')
      fileNames = cms.untracked.vstring(
