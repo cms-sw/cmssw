@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 18:46:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/19 13:36:58 $
+ *  $Revision: 1.8 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -237,8 +237,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		detectorProduct->insertDigi(detId.layerId(),digi);
 	      }
 	      else {
-		edm::LogWarning ("dtUnpacker") <<"Unable to map the RO channel. DDU"<<dduID
-					       <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel;
+		LogWarning ("DTRawToDigi|DTROS25Unpacker") <<"Unable to map the RO channel. DDU"<<dduID
+					  <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel;
 		if (debug) cout<<"[DTROS25Unpacker] ***ERROR***  Missing wire: DDU"<<dduID
 			       <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel<<endl;
 	      }
@@ -272,8 +272,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	    int numofscword = scPrivateHeaderWord.NumberOf16bitWords();
 	    int leftword = numofscword;
 
-	    if(debug)  cout<<"[DTROS25Unpacker]: SCPrivateHeader (number of data + subheader = " <<
-			 scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
+	    if(debug) cout<<"[DTROS25Unpacker]: SCPrivateHeader (number of data + subheader = "
+			  << scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
 
 	    // if no SC data -> no loop ;
 	    // otherwise subtract 1 word (subheader) and countdown for bx assignment
@@ -288,12 +288,12 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		leftword--;
 
 		DTLocalTriggerSectorCollectorSubHeaderWord scPrivateSubHeaderWord(word);
-		if(debug)  {
-		  cout<<"[DTROS25Unpacker]: SC trigger delay = " <<
-		    scPrivateSubHeaderWord.TriggerDelay() << endl;
-		  cout<<"[DTROS25Unpacker]: SC bunch counter = " <<
-		    scPrivateSubHeaderWord.LocalBunchCounter() << endl;
-		}
+
+		if(debug) cout <<"[DTROS25Unpacker]: SC trigger delay = "
+				<< scPrivateSubHeaderWord.TriggerDelay() << endl
+				<<"[DTROS25Unpacker]: SC bunch counter = "
+				<< scPrivateSubHeaderWord.LocalBunchCounter() << endl;
+		
 
 
 		// actual loop on SC time slots
@@ -360,11 +360,13 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			triggerProduct->insertDigi(chamberId,localtrigger);
-			if (debug) { 
-			  cout<<"FRC: just put in triggerProduct: "
-			      <<chamberId.wheel()<<" "<<chamberId.station()<<" "<<chamberId.sector()
-			      <<endl;;
-			localtrigger.print(); }
+			if(debug) { 
+			  cout <<"FRC: just put in triggerProduct: "
+			       <<chamberId.wheel()<<" "<<chamberId.station()
+			       <<" "<<chamberId.sector()
+			       <<endl;;
+			  localtrigger.print();
+			}
 		      }
 		      
 		      stationGroup++;
@@ -418,6 +420,17 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     wordCounter++; word = index[swap(wordCounter)];
 
   } // loop on ROS!
+
+  // Check that we found the payload for each of the 12 ROS
+  if (performDataIntegrityMonitor) {
+    if(controlDataFromAllROS.size() == 12) {
+      dataMonitor->fedEntry(dduID);
+    } else if(controlDataFromAllROS.size() == 0) {
+      dataMonitor->fedFatal(dduID);
+    } else {
+      dataMonitor->fedNonFatal(dduID);
+    }
+  }
 
 }
 
