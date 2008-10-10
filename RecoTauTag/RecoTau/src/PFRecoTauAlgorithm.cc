@@ -52,7 +52,7 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   EcalStripSumE_deltaPhiOverQ_minValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_minValue");
   EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
 
-
+  DataType_ = iConfig.getParameter<string>("DataType");
 
   //TFormula computation
 
@@ -217,6 +217,11 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks; 
 
+
+
+
+
+
   if(myleadPFCand.isNonnull()){
     if (myleadPFCand->mva_e_pi()==1) {
       myElecPreid = true;
@@ -225,9 +230,64 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myElecTrk = myleadPFCand->trackRef();//Electron candidate
     
     if(myElecTrk.isNonnull()) {
-            
-      // Against double counting of clusters
-      std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
+     
+
+
+
+
+//FROM AOD
+      if(DataType_ == "AOD"){
+	// Corrected Cluster energies
+	for(int i=0;i<(int)myPFCands.size();i++){
+	  myHCALenergy += myPFCands[i]->hcalEnergy();
+	  myECALenergy += myPFCands[i]->ecalEnergy();
+	  
+	  math::XYZPointF candPos(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+	  double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
+	  double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
+	  double deltaEta = abs(myElecTrkEcalPos.eta()-myPFCands[i]->eta());
+	  double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
+	  
+	if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
+	    deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_  && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
+	  myStripClusterE += myPFCands[i]->ecalEnergy();
+	}
+	if (deltaR<0.184) {
+	  myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
+	}
+	if (myPFCands[i]->hcalEnergy()>myMaximumHCALPFClusterE) {
+	  myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
+	}
+	if ((myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
+	  myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())));
+	}
+	}
+
+	if ((myHCALenergy+myECALenergy)>0.)
+	  myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
+	myPFTau.setemFraction((float)myEmfrac);
+	
+	myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
+	myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
+	myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
+	
+	myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
+	myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
+	
+	myPFTau.setelectronPreIDDecision(myElecPreid);
+	if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
+	
+      // These need to be filled!
+      //myPFTau.setbremsRecoveryEOverPLead(my...);
+      //myPFTau.setelectronPreIDOutput(my...);
+      }
+
+
+//From RECO
+ if(DataType_ == "RECO"){
+   
+   // Against double counting of clusters
+   std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
       std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
       for(int i=0;i<(int)myPFCands.size();i++){
 	const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
@@ -289,7 +349,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       // These need to be filled!
       //myPFTau.setbremsRecoveryEOverPLead(my...);
       //myPFTau.setelectronPreIDOutput(my...);
-            
+ }       
     }  
   }
   /* End elecron rejection */
