@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.15 2008/10/03 14:26:31 cbern Exp $
+// $Id: PATMuonProducer.cc,v 1.16 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -69,9 +69,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
   
-  // muon ID configurables
-  addMuonID_     = iConfig.getParameter<bool>         ( "addMuonID" );
-
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
@@ -269,13 +266,6 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
   
   if (efficiencyLoader_.enabled()) {
     efficiencyLoader_.setEfficiencies( aMuon, muonRef );
-  }
-  
-  // add muon ID info
-  if (addMuonID_) {
-    //      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->combinedMuon()->chi2(), (Int_t) itMuon->combinedMuon()->ndof()));
-    // no combinedMuon in fastsim
-    aMuon.setLeptonID((float) TMath::Prob((Float_t) muonRef->track()->chi2(), (Int_t) muonRef->track()->ndof()));
   }
   
 

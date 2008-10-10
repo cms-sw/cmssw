@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.8 2008/04/11 12:25:42 zeidler Exp $
+// $Id: PATMuonCleaner.h,v 1.9 2008/05/14 12:10:48 fronga Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.8 2008/04/11 12:25:42 zeidler Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.9 2008/05/14 12:10:48 fronga Exp $
 */
 
 
@@ -99,16 +99,16 @@ namespace reco {
           {
             std::string flag = cfg.getParameter<std::string>("flag");
             if      ( flag == "TMLastStationLoose" ) {
-              config_.flag = muonid::TMLastStationLoose;
+              config_.flag = reco::Muon::TMLastStationLoose;
             }
             else if ( flag == "TMLastStationTight" ) {
-              config_.flag = muonid::TMLastStationTight;
+              config_.flag = reco::Muon::TMLastStationTight;
             }
             else if ( flag == "TM2DCompatibilityLoose" ) {
-              config_.flag = muonid::TM2DCompatibilityLoose;
+              config_.flag = reco::Muon::TM2DCompatibilityLoose;
             }
             else if ( flag == "TM2DCompatibilityTight" ) {
-              config_.flag = muonid::TM2DCompatibilityTight;
+              config_.flag = reco::Muon::TM2DCompatibilityTight;
             }
             else {
               throw edm::Exception(edm::errors::UnimplementedFeature) 

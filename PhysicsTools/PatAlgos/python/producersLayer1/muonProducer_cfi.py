@@ -65,9 +65,6 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
                   ),
     ),
 
-    # Muon ID configurables
-    addMuonID = cms.bool(False), ## DEPRECATED OLD TQAF muon ID. 
-
     # Resolution configurables
     addResolutions = cms.bool(True),
     muonResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_muon.root'),

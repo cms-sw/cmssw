@@ -49,7 +49,6 @@ process.allLayer1Muons.embedCombinedMuon = False
 process.allLayer1Muons.embedStandAloneMuon = False
 process.allLayer1Muons.isolation = cms.PSet()
 process.allLayer1Muons.isoDeposits = cms.PSet()
-process.allLayer1Muons.addMuonID = False
 process.allLayer1Muons.addResolutions = False
 process.allLayer1Muons.addTrigMatch = False
 process.allLayer1Muons.addGenMatch = False

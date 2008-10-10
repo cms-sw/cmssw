@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
+// $Id: PATMuonProducer.h,v 1.13 2008/10/03 14:26:31 cbern Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.13 2008/10/03 14:26:31 cbern Exp $
 */
 
 
@@ -83,7 +83,6 @@ namespace pat {
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   muonResoFile_;
-      bool          addMuonID_;
       bool          addLRValues_;
       // tools
       ObjectResolutionCalc * theResoCalc_;
