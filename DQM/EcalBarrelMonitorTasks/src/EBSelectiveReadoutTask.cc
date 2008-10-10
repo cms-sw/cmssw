@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/09/26 15:07:00 $
- * $Revision: 1.15 $
+ * $Date: 2008/09/26 16:12:09 $
+ * $Revision: 1.16 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -359,7 +359,7 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
   EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
 
   if(srf == srFlagColl.end()){
-    LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
+    // LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
     return;
   }
 

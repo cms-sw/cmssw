@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/09/26 15:07:01 $
- * $Revision: 1.13 $
+ * $Date: 2008/09/26 16:12:09 $
+ * $Revision: 1.14 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -537,7 +537,7 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
   EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
 
   if(srf == srFlagColl.end()){
-    LogWarning("EESelectiveReadoutTask") << "SR flag not found";
+    // LogWarning("EESelectiveReadoutTask") << "SR flag not found";
     return;
   }
 
