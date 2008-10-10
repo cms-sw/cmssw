@@ -32,6 +32,14 @@ TkLayerMap::TkLayerMap(int in):layerEnumNb_(in){
     createTEC(TkDetIdList,layerEnumNb_); 
 }
 
+uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
+  
+  int val=ix+nchX*iy;
+  if(val>-1 && val < nchX*nchY)
+    return binToDet[val];
+  return 0;
+}
+
 void TkLayerMap::initialize(int layer){
 
   switch (layer){
@@ -175,7 +183,7 @@ void TkLayerMap::initialize(int layer){
     nchX=34;
     lowX=-17.;
     highX=17.;
-    nchY=40;
+    nchY=80;
     lowY=0.;
     highY=1.*nchY;
 
@@ -253,7 +261,7 @@ void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,layerEnumNb-4,0,0,0);
+  siStripSubStructure.getTIDDetectors(TkDetIdList,LayerDetIdList,0,layerEnumNb-4,0,0);
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer " << layerEnumNb-4  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
@@ -270,14 +278,15 @@ void TkLayerMap::createTEC(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   SiStripSubStructure siStripSubStructure;
   
   //extract  vector of module in the layer
-  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,layerEnumNb-13,0,0,0);
+  siStripSubStructure.getTECDetectors(TkDetIdList,LayerDetIdList,0,layerEnumNb-13,0,0);
   
   LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer " << layerEnumNb-13  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
   for(size_t j=0;j<LayerDetIdList.size();++j){
     xybin=getXY_TEC(LayerDetIdList[j],layerEnumNb);
-    //binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
+    binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
     LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] " << LayerDetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    
   }
 }
 
@@ -361,10 +370,16 @@ TkLayerMap::XYbin TkLayerMap::getXY_TEC(uint32_t& detid, int layerEnumNb){
   xybin.ix=D.isZMinusSide()?18-BinForRing[D.ring()]:BinForRing[D.ring()]+17;
   if(D.isStereo())
     xybin.ix+=(D.isZMinusSide()?-1:1);
- 
-  xybin.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()])+D.moduleNumber();
-  if(D.isBackPetal())
-    xybin.iy+=ModulesInRingFront[D.ring()];
+
+  if(D.isZMinusSide()){
+    xybin.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()]) + ModulesInRingFront[D.ring()] - D.moduleNumber() +1;
+    if(D.isBackPetal())
+      xybin.iy+=ModulesInRingBack[D.ring()];
+  }else{ 
+    xybin.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()])+D.moduleNumber();
+    if(D.isBackPetal())
+      xybin.iy+=ModulesInRingFront[D.ring()];
+  }
 
   xybin.x=lowX+xybin.ix-0.5;
   xybin.y=lowY+xybin.iy-0.5;

@@ -20,7 +20,7 @@ class TkLayerMap{
   };
   
   enum  TkLayerEnum { INVALID=0,
-		      TIB_L1, //0
+		      TIB_L1, //1
 		      TIB_L2,
 		      TIB_L3,
 		      TIB_L4,         
@@ -59,6 +59,8 @@ class TkLayerMap{
 
   static const int16_t layerSearch(uint32_t detid);
 
+  uint32_t getDetFromBin(int ix, int iy);
+
  private:
 
   XYbin getXY_TIB(uint32_t& detid, int layerEnumNb=0);
@@ -75,7 +77,6 @@ class TkLayerMap{
 
  private:
   std::vector<uint32_t> binToDet;
-
   XYbin xybin;
 
   int layerEnumNb_; //In the enumerator sequence
@@ -119,6 +120,9 @@ class TkDetMap{
   void getComponents(int& layer,
 		     int& nchX,double& lowX,double& highX,
 		     int& nchY,double& lowY,double& highY);
+ 
+  uint32_t getDetFromBin(int layer, int ix, int iy){ return TkMap[layer]->getDetFromBin(ix,iy); }
+
  private:
 
   void doMe();
