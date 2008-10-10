@@ -10,7 +10,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source(
@@ -24,8 +24,6 @@ zSelection = cms.PSet(
     cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2 & abs(daughter(1).eta)<2 & mass > 20"),
     isoCut = cms.double(100.0),
     isolationType = cms.string("track"),
-    muonIsolations1 = cms.InputTag("muonIsolations"),  
-    muonIsolations2 = cms.InputTag("muonIsolations")  
 )
 
 process.goodZToMuMu = cms.EDFilter(
