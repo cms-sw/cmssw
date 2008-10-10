@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: JetAna.cc,v 1.2 2008/07/31 19:32:32 weng Exp $
+// $Id: PFJetBenchmarkAnalyzer.cc,v 1.1 2008/09/24 12:52:40 weng Exp $
 // Extensions by Joanna Weng
 //
 
@@ -140,11 +140,11 @@ PFJetBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
  // get gen jet collection
   Handle<GenJetCollection> genjets;
-  iEvent.getByLabel(sGenJetAlgo.label(), genjets);
+  iEvent.getByLabel(sGenJetAlgo, genjets);
 
   // get rec PFJet collection
   Handle<PFJetCollection> pfjets;
-  iEvent.getByLabel(sJetAlgo.label(), pfjets);   
+  iEvent.getByLabel(sJetAlgo, pfjets);   
   PFJetBenchmark_.process(*pfjets, *genjets);
 }
 

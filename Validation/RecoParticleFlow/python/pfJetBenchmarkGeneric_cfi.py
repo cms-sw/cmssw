@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-jets = 'iterativeCone5CaloJets'
+jets = 'iterativeCone5PFJets'
 
-caloJetBenchmark = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
+pfJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('JetBenchmark.root'),
     InputTruthLabel = cms.string('iterativeCone5GenJets'),
     maxEta = cms.double(3.0),
@@ -10,5 +10,5 @@ caloJetBenchmark = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     deltaRMax = cms.double(0.2),
     PlotAgainstRecoQuantities = cms.bool(False),
     BenchmarkLabel = cms.string( jets ),
-    InputRecoLabel = cms.string( jets )
+    InputRecoLabel = cms.InputTag( jets )
 )
