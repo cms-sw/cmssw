@@ -30,12 +30,18 @@ result['schedule'] = ''
 
 def dumpObject(obj,key):
 
-    if key in ('es_modules','es_sources','es_prefers','modules'):
+    if key in ('es_modules','es_sources','es_prefers'):
         classname = obj['@classname']
         label = obj['@label']
         del obj['@label']
         del obj['@classname']
         returnString = "{'@classname': %s, '@label': %s, %s" %(classname, label, str(obj).lstrip('{'))
+        return returnString
+    elif key in ('modules','services'):
+        classname = obj['@classname']
+        del obj['@label']
+        del obj['@classname']
+        returnString = "{'@classname': %s, %s" %(classname, str(obj).lstrip('{'))
         return returnString
     elif key in ('psets',):
         returnString = "('PSet', 'untracked', %s)"%str(obj)
@@ -50,19 +56,24 @@ def trackedness(item):
   else:
     return 'untracked'
 
+#the problem are non empty VPsets
 def fixup(item):
   if type(item) == bool:
     if item: return 'true'
     else: return 'false'  
-
   elif type(item) == list:
       return [str(i) for i in item]
   elif type(item) == str:
       return '"%s"' %item
   else:
-      return item
-
+      return str(item)
+  
 def prepareParameter(parameter):
+    if isinstance(parameter, cms.VPSet):
+        configValue = []
+        for item in parameter:
+            configValue.append((prepareParameter(item)[2]))
+        return (type(parameter).__name__, trackedness(parameter), configValue )
     if isinstance(parameter, cms.PSet):
         configValue = {}
         for name, item in parameter.parameters_().iteritems():
@@ -70,6 +81,7 @@ def prepareParameter(parameter):
         return (type(parameter).__name__, trackedness(parameter), configValue )
     else:      
         return ( type(parameter).__name__, trackedness(parameter), fixup(parameter.value()) )
+
 
 hasSeenSource = False 
 #loop through the file 
@@ -125,6 +137,24 @@ for name,item in theConfig.__dict__.iteritems():
       config[parameterName] = prepareParameter(parameter)
     result['psets'][name] = config
 
+  elif isinstance(item,cms.Sequence):
+    result['sequences'][name] = "'"+item.dumpConfig("")[1:-2]+"'"
+
+  elif isinstance(item,cms.EndPath):
+      result['endpaths'][name] = "'"+item.dumpConfig("")[1:-2]+"'"
+
+  elif isinstance(item,cms.Path):
+      result['paths'][name] = "'"+item.dumpConfig("")[1:-2]+"'"
+
+  elif isinstance(item,cms.Service):
+      config['@classname'] = ('string','tracked',item.type_())
+      config["@label"] = ('string','tracked',name)
+
+      for parameterName,parameter in item.parameters_().iteritems():
+          config[parameterName] = prepareParameter(parameter)
+      result['services'][name] = config
+                            
+
 # now dump it to the screen
 # as wanted by the HLT parser
 
@@ -154,3 +184,4 @@ for key in hltAcceptedOrder:
 
 
 print '}'  
+
