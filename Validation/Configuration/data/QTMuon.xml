@@ -1,0 +1,129 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="KolmogorovQTest0.3">
+        <TYPE>Comp2RefKolmogorov</TYPE>	
+	<PARAM name="testparam">0</PARAM>
+	<PARAM name="error">0.3</PARAM>
+	<PARAM name="warning">0.3</PARAM>
+</QTEST>
+
+<QTEST name="Chi2QTest0.01">
+        <TYPE>Comp2RefChi2</TYPE>	
+	<PARAM name="testparam">0</PARAM>
+	<PARAM name="error">0.01</PARAM>
+	<PARAM name="warning">0.01</PARAM>
+</QTEST>
+
+<!-- Test for Muon DT Hits
+-->
+<LINK name="MuonDTHitsV/DTHitsValidationTask/DT*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Layer*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Loss*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Momentum*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Number*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/S*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Tof*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Wheel*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/Wire*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/chamber*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/path*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/radius_of_*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/costheta_of_hit">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/global_eta_of_hit">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTHitsV/DTHitsValidationTask/global_phi_of_hit">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+
+<!-- Test for Muon CSC Digis
+-->
+
+<LINK name="MuonCSCDigisV/CSCDigiTask/CSC*">
+	<TestName activate="true">Chi2QTest0.01</TestName>
+</LINK>
+
+<!-- Test for Muon DT Digis
+-->
+
+<LINK name="MuonDTDigisV/DTDigiValidationTask/Digi*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTDigisV/DTDigiValidationTask/Number_Digi_per_layer">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTDigisV/DTDigiValidationTask/SimHit*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="MuonDTDigisV/DTDigiValidationTask/Wire*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+
+<!-- Test for Muon RPC Digis
+-->
+
+<LINK name="RPCDigisV/RPCDigis/Bunch*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="RPCDigisV/RPCDigis/Digi*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="RPCDigisV/RPCDigis/Strip*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+<LINK name="RPCDigisV/RPCDigis/W*">
+	<TestName activate="true">KolmogorovQTest0.3</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>
+
+
