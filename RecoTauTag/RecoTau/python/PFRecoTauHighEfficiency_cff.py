@@ -1,5 +1,4 @@
-
-import FWCore.ParameterSet.Config as cmsimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 #copying the PFTau producer and select the shrinkingCone
 pfRecoTauProducerHighEfficiency = copy.deepcopy(pfRecoTauProducer)
