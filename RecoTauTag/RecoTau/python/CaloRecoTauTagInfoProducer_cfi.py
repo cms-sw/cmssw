@@ -6,6 +6,8 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     PVProducer = cms.string('offlinePrimaryVertices'),
     # parameters of the considered rec. Tracks (were catched through a JetTracksAssociation object) :
     tkminPt = cms.double(1.0),
+    tkminPixelHitsn	= cms.int32(2),
+    tkminTrackerHitsn = cms.int32(8),	
     ESRecHitsSource = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     UsePVconstraint = cms.bool(False),
     # parameters of the considered EcalRecHits
