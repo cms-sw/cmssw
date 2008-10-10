@@ -29,8 +29,8 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, s
   // set the data path and prefix
   newBasePath = NewBasePath;
   newPrefix = NewPrefix;
-  refBasePath = (RefBasePath != "") ? RefBasePath : NewBasePath;
-  refPrefix = (RefPrefix != "") ? RefPrefix : NewPrefix;
+  refBasePath = RefBasePath;
+  refPrefix = RefPrefix;
 
   // set default thresholds
   ksThreshold = 0;
@@ -123,17 +123,19 @@ void PlotCompareUtility::makeHTML(HistoData *HD) {
 HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName, int Type) {
 
   // location of this HistoData within the PCU
-  static int bin = 0; bin++;
+  static int bin = 0;   bin++;
 
   // location of histograms in files
-  string newPath = newBasePath + "/" + newPrefix + NewName;
-  string refPath = refBasePath + "/" + refPrefix + RefName;
-
-  // store the HistoData information
+  string newPath = newBasePath + "/" + newPrefix + "/" + NewName;
+  string refPath = refBasePath + "/" + refPrefix + "/" + RefName;
+  cout << "NewPath     = " <<newPath  << endl;
+  cout << "RefPath     = " <<refPath  << endl;
+ // store the HistoData information
   HistoData hd(NewName,Type,bin,newPath,newFile,refPath,refFile);
-  histos.push_back(hd);
+  histos.push_back(hd); 
   //histos.insert(histos.begin(),hd);
   return &(*histos.rbegin());
+  
 
 }
 
@@ -157,10 +159,12 @@ HistoData *PlotCompareUtility::addProjectionYData(HistoData *Parent, std::string
 
 
 bool PlotCompareUtility::isValid() const {
-
+ 
+  string newPath = newBasePath + "/" + newPrefix;
+  string refPath = refBasePath + "/" + refPrefix;
   // check the files and that the paths are valid
-  bool refValid = (refFile != NULL) && (refFile->Get(refBasePath.c_str()) != NULL);
-  bool newValid = (newFile != NULL) && (newFile->Get(newBasePath.c_str()) != NULL);
+  bool refValid = (refFile != NULL) && (refFile->Get(refPath.c_str()) != NULL);
+  bool newValid = (newFile != NULL) && (newFile->Get(newPath.c_str()) != NULL);
 
   return refValid && newValid;
 
@@ -242,7 +246,7 @@ void PlotCompareUtility::makeSummary(string Name) {
 
 void PlotCompareUtility::makeDefaultPlots() {
 
-  // make a default plot for when there is nothing to display
+  // make a default plot for when there i nothing to display
   TCanvas noDataCanvas("noDataCanvas","noDataCanvas",plotsWidth,plotsHeight);
   noDataCanvas.SetFrameFillColor(10);
   noDataCanvas.Draw();

@@ -9,23 +9,31 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  std::string branch("DQMData/PFTask/Benchmarks/ParticleFlow/");
+  std::string branchRef("DQMData/PFTask/Benchmarks");
+  std::string branchNew("DQMData/PFTask/Benchmarks"); 
+
+  std::string branchRefPrefix("ParticleFlow/Gen");
+  std::string branchNewPrefix("ParticleFlow/Gen"); 
+
   // make sure command line arguments were supplied
-  if (argc != 3)
-      { 
-      if (argc != 4)
-      	{
-      	cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root} \n"; return 1; 
-	}
-      else
-	{
-	branch.append(argv[3]);
-	}
-      }
-      else branch="DQMData/PFTask/Benchmarks/ParticleFlow/Reco";
-  
-  // initialize plot comparison tool
-  PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branch.c_str());
+  cout <<argc <<endl;
+
+ if (argc == 5) {
+    // initialize plot comparison tool with 2 arguments
+    branchRefPrefix= argv[3];
+    branchNewPrefix= argv[4];
+  }
+ if (argc == 3);
+ if ((argc != 3) && (argc != 5))
+     // initialize plot comparison tool with 4 arguments
+    {
+      cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root} [RefSubDirectory(default=ParticleFlow/Gen)] [NewSubDirectory(default=ParticleFlow/Gen)]\n"; return 1; 
+    }
+    
+     
+    
+PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew.c_str(), branchNewPrefix,branchRef.c_str(),branchRefPrefix );
+
 
   // set thresholds for tests (set to zero or negative to ignore results)
   //pc->setKSThreshold(1e-6);
@@ -34,7 +42,7 @@ int main(int argc, char *argv[]) {
   pc->setChi2Threshold(0);
 
   // add histogram information for comparison here --reverse order
-
+  //PFJetBenchmark
   pc->addHistoData("ERneutvsPt", Plot2D)->setDoAllow2DRebinningY(true);
   pc->addHistoData("ERNEEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
   pc->addHistoData("ERNHEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
@@ -63,6 +71,7 @@ int main(int argc, char *argv[]) {
   pc->addHistoData("jetsEta", Plot1D);
   pc->addHistoData("Njets", Plot1D);
  
+  // PFBenchmark Analyzer
   pc->addHistoData("DeltaRvsEta",Plot2D)->setDoAllow2DRebinningY(true);
   pc->addHistoData("DeltaPhivsEta",Plot2D);
   pc->addHistoData("DeltaEtavsEta",Plot2D);
@@ -92,10 +101,12 @@ int main(int argc, char *argv[]) {
   // loop over HistoData, compare and produce plots
   vector<HistoData>::iterator hd;
   for (hd = histos->begin(); hd != histos->end(); hd++) {
+    //    cout << " ## #"<< hd->getName() << endl;
     pc->compare(&(*hd));
     pc->makePlots(&(*hd));
     pc->makeHTML(&(*hd));
-  }
+    }
+
 
   // produce summary plots
   pc->makeDefaultPlots();
