@@ -22,6 +22,10 @@ public:
   
   ~SiTrackerGSMatchedRecHit2D() {}
   
+ typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster > ClusterRef;
+ typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
+
+
   SiTrackerGSMatchedRecHit2D( const LocalPoint&, const LocalError&,
 		       const DetId&,
 		       const int simhitId,

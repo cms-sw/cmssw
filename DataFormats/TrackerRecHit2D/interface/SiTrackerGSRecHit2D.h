@@ -5,8 +5,8 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h" 
 
- typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster > ClusterRef;
- typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
+// typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster > ClusterRef;
+// typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
 
 class SiTrackerGSRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   
@@ -24,6 +24,10 @@ public:
   
   ~SiTrackerGSRecHit2D() {}
   
+ typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster > ClusterRef;
+ typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
+
+
   SiTrackerGSRecHit2D( const LocalPoint&, const LocalError&,
 		       const DetId&,
 		       const int simhitId,
