@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
@@ -28,7 +28,7 @@ class CaloRecoTauDiscriminationByLeadingTrackFinding : public EDProducer {
   explicit CaloRecoTauDiscriminationByLeadingTrackFinding(const ParameterSet& iConfig){   
     CaloTauProducer_        = iConfig.getParameter<InputTag>("CaloTauProducer");
     //    matchingCone__ = iConfig.getParameter<double>("LeadingTrackMatchingCone");
-    produces<CaloTauDiscriminatorByIsolation>();
+    produces<CaloTauDiscriminator>();
   }
   ~CaloRecoTauDiscriminationByLeadingTrackFinding(){} 
   virtual void produce(Event&, const EventSetup&);

@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
@@ -28,7 +28,7 @@ class CaloRecoTauDiscriminationByLeadingTrackPtCut : public EDProducer {
   explicit CaloRecoTauDiscriminationByLeadingTrackPtCut(const ParameterSet& iConfig){   
     CaloTauProducer_        = iConfig.getParameter<InputTag>("CaloTauProducer");
     minPtLeadTrack_ = iConfig.getParameter<double>("MinPtLeadingTrack");
-    produces<CaloTauDiscriminatorByIsolation>();
+    produces<CaloTauDiscriminator>();
   }
   ~CaloRecoTauDiscriminationByLeadingTrackPtCut(){} 
   virtual void produce(Event&, const EventSetup&);

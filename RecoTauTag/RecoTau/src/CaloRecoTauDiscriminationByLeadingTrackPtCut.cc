@@ -4,7 +4,7 @@ void CaloRecoTauDiscriminationByLeadingTrackPtCut::produce(Event& iEvent,const E
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
  
  double theleadTrackPtCutDiscriminator = 0.;
- auto_ptr<CaloTauDiscriminatorByIsolation> theCaloTauDiscriminatorByLeadingTrackPtCut(new CaloTauDiscriminatorByIsolation(CaloTauRefProd(theCaloTauCollection)));
+ auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorByLeadingTrackPtCut(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
 
  //loop over the CaloTau candidates
  for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {

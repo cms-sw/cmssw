@@ -4,7 +4,7 @@ void CaloRecoTauDiscriminationByLeadingTrackFinding::produce(Event& iEvent,const
   Handle<CaloTauCollection> theCaloTauCollection;
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
  
- auto_ptr<CaloTauDiscriminatorByIsolation> theCaloTauDiscriminatorByLeadingTrackFinding(new CaloTauDiscriminatorByIsolation(CaloTauRefProd(theCaloTauCollection)));
+ auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorByLeadingTrackFinding(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
  double theleadTrackFindingDiscriminator = 0.;
 
  //loop over the CaloTau candidates
