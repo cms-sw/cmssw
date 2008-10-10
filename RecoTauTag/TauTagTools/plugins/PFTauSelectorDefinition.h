@@ -2,7 +2,7 @@
 #define PhysicsTools_PFCandProducer_PFTauSelectorDefinition
 
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 #include <iostream>
 
@@ -31,7 +31,7 @@ struct PFTauSelectorDefinition {
     // associated discriminator
     // does not have to be a discrimination by isolation, 
     // despite the name. 
-    edm::Handle<reco::PFTauDiscriminatorByIsolation> 
+    edm::Handle<reco::PFTauDiscriminator> 
       hdiscri;
     
     bool found = e.getByLabel(discriminatorTag_,
