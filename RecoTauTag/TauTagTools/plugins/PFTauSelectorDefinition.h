@@ -14,7 +14,7 @@ struct PFTauSelectorDefinition {
   typedef container::const_iterator const_iterator;
 
   PFTauSelectorDefinition ( const edm::ParameterSet & cfg ) :
-  discriminatorTag_( cfg.getParameter<edm::InputTag>( "discriminator" ) ) { }
+  discriminatorTag_( cfg.getParameter<edm::InputTag>( "discriminator" ) ), discriminatorCut_(cfg.getParameter<double>("selectionCut")) { }
 
   const_iterator begin() const { return selected_.begin(); }
 
@@ -49,7 +49,7 @@ struct PFTauSelectorDefinition {
          pftau != hc->end(); ++pftau, ++key) {
 
       reco::PFTauRef pfTauRef(hc, key);
-      if( (*hdiscri)[pfTauRef] )
+      if( (*hdiscri)[pfTauRef] > discriminatorCut_ )
 	selected_.push_back( new reco::PFTau(*pftau) );
     }
   }
@@ -59,6 +59,7 @@ struct PFTauSelectorDefinition {
 private:
   container selected_;
   edm::InputTag  discriminatorTag_;
+  float discriminatorCut_;
 };
 
 #endif
