@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorClient.dtChamberEfficiencyTest_cfi import *
 from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
+segmentTest.detailedAnalysis = True
 
 dtqTester = cms.EDFilter("QualityTester",
                          #reportThreshold = cms.untracked.string('red'),
