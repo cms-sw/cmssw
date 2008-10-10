@@ -23,27 +23,41 @@ done
 shift $(($OPTIND - 1))
 
 tsckey=$1
+tagbase=$2
+shift 2
 
-if [ ! -f gen/${tsckey}_key.py ]
+# Remaining arguments are records to include
+
+if [ ! -f $CMSSW_BASE/o2o/gen/${tsckey}_key.py ]
 then
-    echo "Creating gen/${tsckey}_key.py"
-    cat writeKeyStub.txt >& gen/${tsckey}_key.py
+    echo "Creating $CMSSW_BASE/o2o/gen/${tsckey}_key.py"
+    cat $CMSSW_BASE/src/CondTools/L1Trigger/scripts/writeKeyStub.txt >& $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    perl -pi~ -e "s/CRUZET/${tagbase}/g" $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    rm $CMSSW_BASE/o2o/gen/${tsckey}_key.py~
 
-    echo "process.L1TriggerKeyOnline.tscKey = cms.string('${tsckey}')" >> gen/${tsckey}_key.py
+    echo "process.L1TriggerKeyOnline.tscKey = cms.string('${tsckey}')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+
+    echo "process.L1TriggerKeyOnline.onlineAuthentication = cms.string('${CMSSW_BASE}/o2o')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    echo "process.L1TriggerKeyOnline.recordsToInclude = cms.vstring(" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    for RECORD in $@
+      do
+      echo "    '${RECORD}'," >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+    done
+    echo ")" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
 
     if [ ${sflag} -ne 0 ]
         then
         echo "Writing to sqlite_file:l1config.db instead of ORCON."
-	echo "process.orcon.connect = cms.string('sqlite_file:l1config.db')" >> gen/${tsckey}_key.py
-	echo "process.orcon.DBParameters.authenticationPath = cms.untracked.string('.')" >> gen/${tsckey}_key.py
-	echo "process.L1CondDBPayloadWriter.offlineDB = cms.string('sqlite_file:l1config.db')" >> gen/${tsckey}_key.py
-	echo "process.L1CondDBPayloadWriter.offlineAuthentication = cms.string('.')" >> gen/${tsckey}_key.py
+	echo "process.orcon.connect = cms.string('sqlite_file:l1config.db')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+	echo "process.orcon.DBParameters.authenticationPath = cms.untracked.string('.')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+	echo "process.L1CondDBPayloadWriter.offlineDB = cms.string('sqlite_file:l1config.db')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
+	echo "process.L1CondDBPayloadWriter.offlineAuthentication = cms.string('.')" >> $CMSSW_BASE/o2o/gen/${tsckey}_key.py
     fi
 fi
 
 if [ ${nflag} -eq 0 ]
     then
-    cmsRun gen/${tsckey}_key.py
+    cmsRun $CMSSW_BASE/o2o/gen/${tsckey}_key.py
 fi
 
 exit

@@ -24,7 +24,6 @@ process.orcon.DBParameters.authenticationPath = cms.untracked.string('/nfshome0/
 
 # Generate dummy configuration data
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
-process.l1CSCTFConfig.ptLUT_path = './PtLUT.dat'
 
 # writer modules
 process.load("CondTools.L1Trigger.L1CondDBPayloadWriter_cfi")

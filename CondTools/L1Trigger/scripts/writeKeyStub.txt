@@ -8,7 +8,6 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 process.load("CondTools.L1Trigger.L1TriggerKeyOnline_cfi")
 process.L1TriggerKeyOnline.onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
-process.L1TriggerKeyOnline.recordsToInclude = cms.vstring( 'L1RCTParametersRcd' )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.orcon = cms.ESSource("PoolDBESSource",

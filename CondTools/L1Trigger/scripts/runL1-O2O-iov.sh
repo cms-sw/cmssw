@@ -22,31 +22,34 @@ while getopts 'snh' OPTION
 done
 shift $(($OPTIND - 1))
 
-tsckey=$1
-runnum=$2
+runnum=$1
+tsckey=$2
+tagbase=$3
 
-if [ ! -f gen/${tsckey}_${runnum}_iov.py ]
+if [ ! -f $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py ]
 then
-    echo "Creating gen/${tsckey}_${runnum}_iov.py"
-    cat writeIOVStub.txt >& gen/${tsckey}_${runnum}_iov.py
+    echo "Creating $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py"
+    cat $CMSSW_BASE/src/CondTools/L1Trigger/scripts/writeIOVStub.txt >& $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    perl -pi~ -e "s/CRUZET/${tagbase}/g" $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    rm $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py~
 
-    echo "process.L1TriggerKeyDummy.tscKey = cms.string('${tsckey}')" >> gen/${tsckey}_${runnum}_iov.py
-    echo "process.EmptyIOVSource.firstRun = cms.untracked.uint32(${runnum})" >> gen/${tsckey}_${runnum}_iov.py
-    echo "process.EmptyIOVSource.lastRun = cms.untracked.uint32(${runnum})" >> gen/${tsckey}_${runnum}_iov.py
+    echo "process.L1TriggerKeyDummy.tscKey = cms.string('${tsckey}')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    echo "process.EmptyIOVSource.firstRun = cms.untracked.uint32(${runnum})" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+    echo "process.EmptyIOVSource.lastRun = cms.untracked.uint32(${runnum})" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
 
     if [ ${sflag} -ne 0 ]
         then
         echo "Writing to sqlite_file:l1config.db instead of ORCON."
-	echo "process.orcon.connect = cms.string('sqlite_file:l1config.db')" >> gen/${tsckey}_${runnum}_iov.py
-	echo "process.orcon.DBParameters.authenticationPath = cms.untracked.string('.')" >> gen/${tsckey}_${runnum}_iov.py
-	echo "process.L1CondDBIOVWriter.offlineDB = cms.string('sqlite_file:l1config.db')" >> gen/${tsckey}_${runnum}_iov.py
-	echo "process.L1CondDBIOVWriter.offlineAuthentication = cms.string('.')" >> gen/${tsckey}_${runnum}_iov.py
+	echo "process.orcon.connect = cms.string('sqlite_file:l1config.db')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+	echo "process.orcon.DBParameters.authenticationPath = cms.untracked.string('.')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+	echo "process.L1CondDBIOVWriter.offlineDB = cms.string('sqlite_file:l1config.db')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
+	echo "process.L1CondDBIOVWriter.offlineAuthentication = cms.string('.')" >> $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
     fi
 fi
 
 if [ ${nflag} -eq 0 ]
     then
-    cmsRun gen/${tsckey}_${runnum}_iov.py
+    cmsRun $CMSSW_BASE/o2o/gen/${tsckey}_${runnum}_iov.py
 fi
 
 exit
