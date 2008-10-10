@@ -48,7 +48,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-<<<<<<< JPTanalyzer_cfg.py
 # PF
 #   fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/p/pjanot/CMSSW219/reco_QCDpt80_120_Full.root')
 =======
