@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
+// $Id: Muon.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.17 2008/10/07 18:15:13 lowette Exp $
+  \version  $Id: Muon.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
 */
 
 
@@ -25,10 +25,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -97,14 +96,10 @@ namespace pat {
       void embedPFCandidate();
 
       // ---- methods for muon ID ----
-      /// return whether it is a good muon
-      bool isGoodMuon(const MuonType & muon, reco::Muon::SelectionType type = reco::Muon::TMLastStationLoose);
+      // this has no counterpart inside the reco::Muon class, so we implement
+      // here what you would otherwise need the MuonSelectors helper class for
       /// return the muon segment compatibility
       float segmentCompatibility() const;
-      /// return the lepton ID discriminator
-      float leptonID() const;
-      /// method to set the lepton ID discriminator
-      void setLeptonID(float id);
 
     protected:
 
@@ -124,8 +119,6 @@ namespace pat {
       /// reference to the IsolatedPFCandidate this has been built from
       /// null if this has been built from a standard muon
       reco::IsolatedPFCandidateRef pfCandidateRef_;
-      // ---- muon ID's holder ----
-      float leptonID_;
 
   };
 

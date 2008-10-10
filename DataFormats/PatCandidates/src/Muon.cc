@@ -1,10 +1,11 @@
 //
-// $Id: Muon.cc,v 1.12 2008/10/03 14:26:31 cbern Exp $
+// $Id: Muon.cc,v 1.13 2008/10/08 18:28:44 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 
 using namespace pat;
 
@@ -91,6 +92,8 @@ reco::TrackRef Muon::combinedMuon() const {
   }
 }
 
+
+/// reference to the source IsolatedPFCandidates
 reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
   if (embeddedPFCandidate_) {
     return reco::IsolatedPFCandidateRef(&pfCandidate_, 0);
@@ -100,21 +103,9 @@ reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
 }
 
 
-/// return the lepton ID discriminator
-float Muon::leptonID() const {
-  return leptonID_;
-}
-
-
-/// return the muon segment compatibility -> meant for
+/// return the muon segment compatibility
 float Muon::segmentCompatibility() const {
   return muon::segmentCompatibility(*this);
-}
-
-
-/// return whether it is a good muon
-bool Muon::isGoodMuon(const MuonType & muon, reco::Muon::SelectionType type) {
-  return muon::isGoodMuon(*this, type);
 }
 
 
@@ -147,6 +138,8 @@ void Muon::embedCombinedMuon() {
   }
 }
 
+
+/// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
 void Muon::embedPFCandidate() {
   pfCandidate_.clear();
   if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
@@ -155,7 +148,3 @@ void Muon::embedPFCandidate() {
   }
 }
 
-/// method to set the lepton ID discriminator
-void Muon::setLeptonID(float id) {
-  leptonID_ = id;
-}
