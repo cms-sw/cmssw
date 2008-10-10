@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //
-// $Id: $
+// $Id: EgammaHLTElectronTrackIsolationProducers.h,v 1.1 2006/10/26 20:51:11 monicava Exp $
 //
 //
 
@@ -51,6 +51,7 @@ class EgammaHLTElectronTrackIsolationProducers : public edm::EDProducer {
   double egTrkIsoZSpan_;   
   double egTrkIsoRSpan_;  
   double egTrkIsoVetoConeSize_;
+  bool egCheckForOtherEleInCone_;
 
   EgammaHLTTrackIsolation* test_;
 
