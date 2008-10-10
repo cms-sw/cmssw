@@ -18,7 +18,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 # Generate dummy L1TriggerKey and L1TriggerKeyList
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
-process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
+process.L1TriggerKeyDummy.subsystemKeys = cms.VPSet()
 process.L1TriggerKeyDummy.tscKey = cms.string('')
 
 # Use dummy producer to initialize DB on the first time ONLY.

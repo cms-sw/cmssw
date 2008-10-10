@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.5 2008/09/19 19:26:14 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.6 2008/10/09 19:49:10 wsun Exp $
 //
 //
 
@@ -125,7 +125,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 				  m_overwriteKeys ) ) )
 	    {
 	      throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
-				     + key->tscKey()
+				     + key->getTSCKey()
 				     + " already in L1TriggerKeyList" ) ;
 	    }
 	}
