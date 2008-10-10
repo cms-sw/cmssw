@@ -1,4 +1,4 @@
-use name=DQMServices/Components>
+<use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/WebComponents>
 <use name=Geometry/Records>
