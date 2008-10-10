@@ -1,8 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.gamIsolationSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff import *
+from EgammaAnalysis.EgammaIsolationProducers.electronEcalRecHitIsolationLcone_cfi import *
+from EgammaAnalysis.EgammaIsolationProducers.electronEcalRecHitIsolationScone_cfi import *
+from EgammaAnalysis.EgammaIsolationProducers.electronHcalTowerIsolationLcone_cfi import *
+from EgammaAnalysis.EgammaIsolationProducers.electronHcalTowerIsolationScone_cfi import *
+from EgammaAnalysis.EgammaIsolationProducers.electronTrackIsolationLcone_cfi import *
+from EgammaAnalysis.EgammaIsolationProducers.electronTrackIsolationScone_cfi import *
 
 #Standard reco sequence with both electrons and photons
-egammaIsolationSequence = cms.Sequence(eleIsolationSequence*gamIsolationSequence)
+egammaIsolationSequence = cms.Sequence(electronEcalRecHitIsolationLcone + electronEcalRecHitIsolationScone + electronHcalTowerIsolationLcone + electronHcalTowerIsolationScone + electronTrackIsolationLcone + electronTrackIsolationScone)
+
 

@@ -68,7 +68,7 @@ eleIsoFromDepsHcalFromTowers = cms.EDFilter("CandIsolatorFromDeposits",
         src = cms.InputTag("eleIsoDepositHcalFromTowers"),
         deltaR = cms.double(0.4),
         weight = cms.string('1'),
-        vetos = cms.vstring('0.00'),
+        vetos = cms.vstring('0.0'),
         skipDefaultVeto = cms.bool(True),
         mode = cms.string('sum')
     ))
