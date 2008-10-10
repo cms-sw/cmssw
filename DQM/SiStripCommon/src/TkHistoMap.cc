@@ -2,16 +2,16 @@
 
 //#define debug_TkHistoMap
 
-TkHistoMap::TkHistoMap(std::string path, std::string MapName): 
+TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline): 
   dqmStore_(edm::Service<DQMStore>().operator->()),
   tkdetmap_(edm::Service<TkDetMap>().operator->()),
   HistoNumber(23)
 {
   LogTrace("TkHistoMap") <<"TkHistoMap::constructor "; 
-  createTkHistoMap(path,MapName);
+  createTkHistoMap(path,MapName, baseline);
 }
 
-void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName){
+void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline){
 
   std::string folder=path+std::string("/")+MapName;
   dqmStore_->setCurrentFolder(folder);
@@ -30,7 +30,15 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName){
     TProfile2D* h=new TProfile2D(fullName.c_str(),fullName.c_str(),
 				 nchX,lowX,highX,
 				 nchY,lowY,highY);
-    
+
+    //initialize bin content for the not assigned bins
+    if(baseline!=0){
+      for(size_t ix=0;ix<nchX;++ix)
+	for(size_t iy=0;iy<nchY;++iy)
+	  if(!tkdetmap_->getDetFromBin(layer,ix,iy))
+	    h->Fill(1.*(lowX+ix+.5),1.*(lowY+iy+.5),baseline);	  
+    }
+
     tkHistoMap[layer]=dqmStore_->bookProfile2D(fullName,h);
     LogTrace("TkHistoMap")  << "[TkHistoMap::createTkHistoMap] histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap[layer];
   }

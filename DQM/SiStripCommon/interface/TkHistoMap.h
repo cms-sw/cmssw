@@ -14,7 +14,7 @@ class TkHistoMap{
   typedef std::vector<MonitorElement*> tkHistoMapType;
 
  public:
-  TkHistoMap(std::string path, std::string MapName);
+  TkHistoMap(std::string path, std::string MapName, float baseline=0);
   ~TkHistoMap();
 
   MonitorElement* getMap(short layerNumber){return tkHistoMap[layerNumber];};
@@ -25,7 +25,7 @@ class TkHistoMap{
 
  private:
 
-  void createTkHistoMap(std::string& path, std::string& MapName);
+  void createTkHistoMap(std::string& path, std::string& MapName, float& baseline);
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;

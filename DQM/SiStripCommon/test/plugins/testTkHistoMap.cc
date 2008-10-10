@@ -52,10 +52,10 @@ private:
 //
 testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig )
 {
-  tkhisto   =new TkHistoMap("pippo","pluto");
+  tkhisto   =new TkHistoMap("pippo","pluto",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
   tkhistoZ  =new TkHistoMap("Z","Z");
   tkhistoPhi=new TkHistoMap("Phi","Phi");
-  tkhistoR  =new TkHistoMap("R","R");
+  tkhistoR  =new TkHistoMap("R","R",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
 }
 
 
