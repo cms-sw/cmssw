@@ -150,9 +150,8 @@
   <!-- ==========================================================================================================================
               NON PAT Dataformats: Ptr for AOD Types
                                    Should be elsewhere.
-                                   Also, not yet needed by PAT.
+                                   Needed by PAT for Electrons and Photons after reshuffling.
        ========================================================================================================================== -->
-  <!--
   <class name="edm::Ptr<reco::Muon>" />
   <class name="edm::PtrVector<reco::Muon>" />
 
@@ -170,7 +169,6 @@
 
   <class name="edm::Ptr<reco::MET>" />
   <class name="edm::PtrVector<reco::MET>" />
-  -->
 
   <!-- ==========================================================================================================================
               PAT Dataformats: PatObjects

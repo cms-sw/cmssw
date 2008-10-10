@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -173,9 +174,8 @@ namespace {
   /*   ==========================================================================================================================
               NON PAT Dataformats: Ptr for AOD Types
                                    Should be elsewhere.
-                                   Also, not yet needed by PAT.
+                                   Needed by PAT after reshuffling, at least for Electrons and Photons
        ==========================================================================================================================   */
-  /*  
   edm::Ptr<reco::Muon>	        ptr_mu;
   edm::PtrVector<reco::Muon>	ptrv_mu;
 
@@ -183,7 +183,7 @@ namespace {
   edm::PtrVector<reco::GsfElectron>  ptrv_e;
 
   edm::Ptr<reco::BaseTau>	 ptr_t;
-  edm::PtrVector<reco::BaseTau>	 ptrv_t;;
+  edm::PtrVector<reco::BaseTau>	 ptrv_t;
 
   edm::Ptr<reco::Photon>	 ptr_ph;
   edm::PtrVector<reco::Photon>	 ptrv_ph;
@@ -193,7 +193,6 @@ namespace {
 
   edm::Ptr<reco::MET>	     ptr_m;
   edm::PtrVector<reco::MET>  ptrv_m;
-    */
 
   /*   ==========================================================================================================================
               PAT Dataformats: PatObjects
