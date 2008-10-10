@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/06 11:09:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/09/04 08:07:26 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -18,9 +18,12 @@
 #include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 
 using namespace std;
+using namespace edm;
 
 DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : dduPSet(ps) { 
   
@@ -64,22 +67,26 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 
   // DDU header
   FEDHeader dduHeader(index8);
-  if (debug) {  
-    cout<<"[DTDDUUnpacker]: FED Header candidate. Is header? "<< dduHeader.check();
-    if (dduHeader.check())
-      cout <<". BXID: "<<dduHeader.bxID()
-	   <<" L1ID: "<<dduHeader.lvl1ID()<<endl;
-    else cout<<" WARNING!, this is not a DDU Header"<<endl;
+  if (dduHeader.check()) {
+    if(debug) cout << "[DTDDUUnpacker] FED Header. BXID: "<<dduHeader.bxID()
+		   << " L1ID: "<<dduHeader.lvl1ID() <<endl;
+  } else {
+    LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Header, FED ID: "
+					    << dduID << endl;
+    if(performDataIntegrityMonitor) dataMonitor->fedFatal(dduID);
   }
 
   // DDU trailer
   // [BITS] stop before FED trailer := 8 bytes
   FEDTrailer dduTrailer(index8 + datasize - 1*wordSize_64); 
-  if (debug)  {
-    cout<<"[DTDDUUnpacker]: FED Trailer candidate. Is trailer? "<<dduTrailer.check();
-    if (dduTrailer.check()) 
-      cout<<". Lenght of the DT event: "<<dduTrailer.lenght()<<endl;
-    else cout<<" WARNING!, this is not a DDU Trailer"<<endl;
+
+  if (dduTrailer.check()) {
+    if(debug) cout << "[DTDDUUnpacker] FED Trailer. Lenght of the DT event: "
+		   << dduTrailer.lenght() << endl;
+  } else {
+    LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Trailer, FED ID: "
+					    << dduID << endl;
+    if(performDataIntegrityMonitor) dataMonitor->fedFatal(dduID);
   }
 
   // Control DDU data
