@@ -1,5 +1,5 @@
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 #include "PhysicsTools/PatUtils/interface/MuonSelector.h"
 
@@ -75,14 +75,14 @@ MuonSelector::muIdSelection_( const unsigned int&    index,
                               const edm::View<Muon>& muons ) const
 {
   // MuonID algorithm
-  if ( !muonid::isGoodMuon(muons[index], config_.flag))
+  if ( muons[index].isGood(config_.flag))
     {
       return BAD;
     }
 
   // Direct cuts on compatibility
-  if (  muonid::getCaloCompatibility(muons[index])    <= config_.minCaloCompatibility
-     || muonid::getSegmentCompatibility(muons[index]) <= config_.minSegmentCompatibility )
+  if (  muons[index].caloCompatibility()    <= config_.minCaloCompatibility
+     || muon::segmentCompatibility(muons[index]) <= config_.minSegmentCompatibility )
     {
       return BAD;
     }
