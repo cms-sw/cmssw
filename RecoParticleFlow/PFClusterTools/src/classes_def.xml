@@ -11,6 +11,7 @@
   <class name="pftools::SpaceVoxel"/>
   <class name="pftools::SingleParticleWrapper"/>
   <class name="pftools::Exercises2"/>
+  <class name="pftools::Exercises3"/>
   <class name="pftools::CalibrationResultWrapper"/>
   <class name="pftools::Calibratable" />
   <class name="pftools::Calibration" />

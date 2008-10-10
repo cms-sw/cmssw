@@ -93,6 +93,10 @@ public:
 	void clear();
 	
 	void makeInverseAddressBook();
+	
+	void setBarrelLimit(double limit) {
+		barrelLimit_ = limit;
+	}
 
 private:
 	

@@ -1,5 +1,5 @@
-#ifndef EXERCISES2_H_
-#define EXERCISES2_H_
+#ifndef EXERCISES3_H_
+#define EXERCISES3_H_
 
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
@@ -17,12 +17,12 @@
 #include <fstream>
 
 namespace pftools {
-class Exercises2 {
+class Exercises3 {
 public:
 		
-	Exercises2(IO* options);
+	Exercises3(IO* options);
 	
-	virtual ~Exercises2();
+	virtual ~Exercises3();
 
 	void calibrateCalibratables(const std::string& sourcefile,
 			const std::string& exercisefile);
@@ -36,7 +36,6 @@ public:
 	
 	void evaluateSpaceManager(SpaceManagerPtr s, std::vector<DetectorElementPtr> detEls);
 
-	void determineCorrection(TFile& f, TTree& tree, TF1*& f1, TF1*& f2);
 	
 	void setTarget(CalibrationTarget t) {
 		target_ = t;
@@ -47,8 +46,8 @@ public:
 
 private:
 	
-	Exercises2(const Exercises2&);
-	void operator=(const Exercises2&);
+	Exercises3(const Exercises3&);
+	void operator=(const Exercises3&);
 //	double lowE_, highE_, lowEta_, highEta_, lowPhi_, highPhi_;
 //	unsigned divE_, divEta_, divPhi_;
 	bool withOffset_;
@@ -63,4 +62,4 @@ private:
 };
 }
 
-#endif /*EXERCISES2_H_*/
+#endif /*EXERCISES3_H_*/

@@ -24,13 +24,7 @@ namespace pftools {
  * to evaluate the correct hadronic response. This class will calibrate clusters belonging to a PFCandidate.
  * (Users should access these clusters from the blocks in the PFCandidate).
  * 
- * For a given particle to calibrate, this object selects from one of three classes:
- * 	i) ECAL only where E_hcal < hcalCut
- * 	ii) HCAL only where E_ecal < ecalCut
- * 	iii) ECAL and HCAL where both are greater than the cuts
- * 	iv) do nothing when all tests fail
- * 
- * In each case, a linear calibration is evaluated, for barrel and endcap (call setBarrelBoundary(double eta)
+ * A linear calibration is evaluated, for barrel and endcap (call setBarrelBoundary(double eta)
  * to set this limit).
  * 
  * Sensible default values are set for all members, but in order to get usable results, you must supply the
@@ -97,6 +91,7 @@ public:
 
 	/* Threshold for ecalOnly and hcalOnly evaluation. */
 	void setEcalHcalEnergyCuts(const double& ecalCut, const double& hcalCut) {
+		std::cout << __PRETTY_FUNCTION__ << "WARNING! These will be ignored.\n";
 		ecalOnlyDiv_ = ecalCut;
 		hcalOnlyDiv_ = hcalCut;
 	}

@@ -11,45 +11,32 @@ exercises		debug					5
 correction		doCorrection			1
 correction		doEtaCorrection			1
 //Bulk correction parameters
-correction		globalP0 				-4.796
-correction		globalP1 				1.0729
+correction		globalP0 				-2.314808
+correction		globalP1 				1.05
 correction		globalP2 				0.0
 //Low energy correction parameters
 correction		correctionLowLimit		1.0
-correction		lowEP0					-3.086179e-01
-correction		lowEP1					8.972271e-01
+correction		lowEP0					5.906466e-01
+correction		lowEP1					4.608835e-01
 correction		allowNegativeEnergy		0
 correction		maxEToCorrect			-1.0
-
-//How to split between ecalOnly, hcalOnly and ecalHcal
-exercises		ecalECut				0.3
-exercises		hcalECut				0.5
 
 //Auto fit evolution function to data
 evolution		autoFit					0
 evolution		basePlots				0
-evolution		basePlotsUseTruth		1
+evolution		basePlotsUseTruth		0
 
-evolution		ecalECut				0.3
-evolution		hcalECut				0.5
-evolution		barrelEndcapEtaDiv		1.0
+evolution		ecalECut				0.0
+evolution		hcalECut				0.0
+evolution		barrelEndcapEtaDiv		1.4
 
 //Use hand fitted parameters specified below
-//P1 adjusts the height of the peak
-evolution		ecalOnlyEcalBarrel		-13.5	0.00	1.96	0.74	1.40	1.75	1.00	1.0 	30
-evolution 		ecalOnlyEcalEndcap		-12.0	0.00	2.42	0.71	1.24	1.64	0.71	1.8		100
-evolution		hcalOnlyHcalBarrel		-13.0	0.00	3.20	0.68	1.18	1.41	0.50	2.0		120
-evolution 		hcalOnlyHcalEndcap		-15.5	0.00	3.50	0.65	1.15	1.08	0.50	2.0		100
-evolution		ecalHcalEcalBarrel		-35.8	0.00	4.80	0.13	1.20	1.39	0.30	2.0		15
-evolution 		ecalHcalEcalEndcap		-49.0	0.00	6.84	0.10	1.19	1.47	0.20	2.0		15
-evolution 		ecalHcalHcalBarrel		-17.0	0.00	3.73	0.66	1.15	1.39	0.53	2.0		100
-evolution		ecalHcalHcalEndcap		-25.0	0.00	4.34	0.60	1.10	1.47	0.34 	4.0		100
-evolution		etaCorrection			 0.0127 0.0479  1.40    -0.50   1.00    1.50   -0.0132  0.009507  
-//(Currently ignored)
-evolution		evolutionFunctionMinE 	0.5
-//Energy beyond which calibration is to be considered constant
-//(also now ignored, replaced with last parameter of fit functions)
-evolution		evolutionFunctionMaxE	30
+evolution		ecalHcalEcalBarrel		0.0		0.0		1.15	0.90    -0.035	1.1
+evolution 		ecalHcalEcalEndcap		0.280	5.0		1.10	0.40	-0.020	1.1
+evolution 		ecalHcalHcalBarrel		0.260	5.0		1.15	0.30	-0.020	1.1
+evolution		ecalHcalHcalEndcap		0.260	5.0		1.10	0.30	-0.02	1.1
+evolution		etaCorrection			0.0127 0.0479  1.40    -0.50   1.00    1.50   -0.0132  0.009507  
+
 
 //What kind of interpolation is used for evaluating particle energy
 // 0 = none, 1 = simple bilinear, 2 = fitted function to truth, 3 fitted function to reco, 4 = magic!

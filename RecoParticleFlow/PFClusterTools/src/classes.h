@@ -14,6 +14,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.h"
 //#include "RecoParticleFlow/PFClusterTools/interface/Exercises.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Exercises2.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Exercises3.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"

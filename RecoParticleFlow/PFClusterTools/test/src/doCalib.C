@@ -10,7 +10,7 @@
 	std::cout << "Constructing Exercises..." << std::endl;
 
 	IO* io = new IO("pfClusterTools.opt");
-	Exercises2 ex(io);
+	Exercises3 ex(io);
 	std::cout << "Constructed exercises and options, calibrating...\n";
 	
 	//ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to30GeV_threshApp_200k.root","Exercises30.root");

@@ -31,18 +31,18 @@ PFClusterCalibration::PFClusterCalibration() :
 	correction_.FixParameter(2, lowEP0_);
 	correction_.FixParameter(3, lowEP1_);
 	correction_.FixParameter(4, correctionLowLimit_);
-	
+
 	/* These are the types of calibration I know about:
 	 * ecalOnly_elementName
 	 * etc. Sorry, it's not very nice, but well, neither is ROOT... */
-	std::string eoeb("ecalOnlyEcalBarrel");
-	names_.push_back(eoeb);
-	std::string eoee("ecalOnlyEcalEndcap");
-	names_.push_back(eoee);
-	std::string hohb("hcalOnlyHcalBarrel");
-	names_.push_back(hohb);
-	std::string hohe("hcalOnlyHcalEndcap");
-	names_.push_back(hohe);
+	/*std::string eoeb("ecalOnlyEcalBarrel");
+	 names_.push_back(eoeb);
+	 std::string eoee("ecalOnlyEcalEndcap");
+	 names_.push_back(eoee);
+	 std::string hohb("hcalOnlyHcalBarrel");
+	 names_.push_back(hohb);
+	 std::string hohe("hcalOnlyHcalEndcap");
+	 names_.push_back(hohe); */
 
 	std::string eheb("ecalHcalEcalBarrel");
 	names_.push_back(eheb);
@@ -53,8 +53,12 @@ PFClusterCalibration::PFClusterCalibration() :
 	std::string ehhe("ecalHcalHcalEndcap");
 	names_.push_back(ehhe);
 
+	/* char
+	 * funcString("([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+	 */
+
 	char
-			* funcString("([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+			* funcString("([0]*[5]*x)*([5]*x<[1])+([2]+[3]*exp([4]*[5]*x))*([5]*x>[1])");
 
 	//Create functions for each sector
 	for (std::vector<std::string>::const_iterator cit = names_.begin(); cit
@@ -62,9 +66,13 @@ PFClusterCalibration::PFClusterCalibration() :
 		std::string name = *cit;
 		TF1 func(name.c_str(), funcString);
 		//some sensible defaults
+		func.FixParameter(0, 1);
+		func.FixParameter(1, 0);
+		func.FixParameter(2, 1);
+		func.FixParameter(3, 0);
+		func.FixParameter(4, 0);
 		func.FixParameter(5, 1);
-		func.FixParameter(6, 1);
-		func.FixParameter(7, 0);
+
 		func.SetMinimum(0);
 		//Store in map
 		namesAndFunctions_[name] = func;
@@ -92,8 +100,8 @@ void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params
 	}
 	std::cout << std::endl;
 	/*for(double eta(0); eta < 2.5; eta += 0.05) {
-		std::cout << "Eta = " << eta << ",\tcorr = " << etaCorrection_.Eval(eta) << "\n"; 
-	}*/
+	 std::cout << "Eta = " << eta << ",\tcorr = " << etaCorrection_.Eval(eta) << "\n"; 
+	 }*/
 }
 
 void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
@@ -135,25 +143,15 @@ void PFClusterCalibration::setCorrections(const double& lowEP0,
 double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 		const double& hcalE, const double& eta, const double& phi) const {
 	const TF1* theFunction(0);
-	if (ecalE> ecalOnlyDiv_ && hcalE> hcalOnlyDiv_) {
-		//ecalHcal class
-		if (fabs(eta) < barrelEndcapEtaDiv_) {
-			//barrel
-			theFunction = &(namesAndFunctions_.find("ecalHcalEcalBarrel")->second);
-		} else {
-			//endcap
-			theFunction = &(namesAndFunctions_.find("ecalHcalEcalEndcap")->second);
-		}
-	} else if (ecalE> ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
-		//ecalOnly class
-		if (fabs(eta) < barrelEndcapEtaDiv_)
-			theFunction = &(namesAndFunctions_.find("ecalOnlyEcalBarrel")->second);
-		else
-			theFunction = &(namesAndFunctions_.find("ecalOnlyEcalEndcap")->second);
+
+	if (fabs(eta) < barrelEndcapEtaDiv_) {
+		//barrel
+		theFunction = &(namesAndFunctions_.find("ecalHcalEcalBarrel")->second);
 	} else {
-		//either hcal only or too litte energy, in any case,
-		return ecalE;
+		//endcap
+		theFunction = &(namesAndFunctions_.find("ecalHcalEcalEndcap")->second);
 	}
+
 	assert(theFunction != 0);
 	double totalE(ecalE + hcalE);
 	double bCoeff = theFunction->Eval(totalE);
@@ -163,25 +161,15 @@ double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
 double PFClusterCalibration::getCalibratedHcalEnergy(const double& ecalE,
 		const double& hcalE, const double& eta, const double& phi) const {
 	const TF1* theFunction(0);
-	if (ecalE> ecalOnlyDiv_ && hcalE> hcalOnlyDiv_) {
-		//ecalHcal class
-		if (fabs(eta) < barrelEndcapEtaDiv_) {
-			//barrel
-			theFunction = &(namesAndFunctions_.find("ecalHcalHcalBarrel")->second);
-		} else {
-			//endcap
-			theFunction = &(namesAndFunctions_.find("ecalHcalHcalEndcap")->second);
-		}
-	} else if (ecalE < ecalOnlyDiv_ && hcalE> hcalOnlyDiv_) {
-		//hcalOnly class
-		if (fabs(eta) < barrelEndcapEtaDiv_)
-		theFunction = &(namesAndFunctions_.find("hcalOnlyHcalBarrel")->second);
-		else
-		theFunction = &(namesAndFunctions_.find("hcalOnlyHcalEndcap")->second);
+
+	if (fabs(eta) < barrelEndcapEtaDiv_) {
+		//barrel
+		theFunction = &(namesAndFunctions_.find("ecalHcalHcalBarrel")->second);
 	} else {
-		//either ecal only or too litte energy, in any case,
-		return hcalE;
+		//endcap
+		theFunction = &(namesAndFunctions_.find("ecalHcalHcalEndcap")->second);
 	}
+
 	double totalE(ecalE + hcalE);
 	assert(theFunction != 0);
 	double cCoeff = theFunction->Eval(totalE);
@@ -195,21 +183,20 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 
 	answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
 			+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
-	if(doEtaCorrection_)
+	if (doEtaCorrection_)
 		answer = answer/etaCorrection_.Eval(eta);
 
-	//apply correction?
-	//check for negative energies
-	if (!doCorrection_) {
-		if (!allowNegativeEnergy_ && answer < 0)
-			return 0;
-		else
-			return answer;
-	}
-	if (!allowNegativeEnergy_ && correction_.Eval(answer) < 0)
-		return 0;
-	if(maxEToCorrect_ > 0 && answer < maxEToCorrect_)
+	if (maxEToCorrect_ > 0 && answer < maxEToCorrect_)
 		return correction_.Eval(answer);
+	if (doCorrection_) {
+		if (maxEToCorrect_ > 0 && answer < maxEToCorrect_)
+			answer = correction_.Eval(answer);
+		else if (maxEToCorrect_ < 0) {
+			answer = correction_.Eval(answer);
+		}
+	}
+	if (!allowNegativeEnergy_ && answer < 0)
+		return 0;
 	return answer;
 
 }

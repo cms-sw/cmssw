@@ -9,7 +9,7 @@
 using namespace pftools;
 
 SpaceManager::SpaceManager(std::string name) :
-	name_(name), barrelLimit_(1.0),  transitionLimit_(1.0), endcapLimit_(5.0)  {
+	name_(name), barrelLimit_(1.4), transitionLimit_(1.4), endcapLimit_(5.0) {
 	regionsToSVs_[BARREL_POS] = barrelPosRegion_;
 	regionsToSVs_[ENDCAP_POS] = endcapPosRegion_;
 }
@@ -19,8 +19,8 @@ SpaceManager::~SpaceManager() {
 }
 
 void SpaceManager::clear() {
-	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator
-			it = myAddressBook.begin(); it!= myAddressBook.end(); ++it) {
+	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it =
+			myAddressBook.begin(); it!= myAddressBook.end(); ++it) {
 		SpaceVoxelPtr s = (*it).first;
 		CalibratorPtr c = (*it).second;
 	}
@@ -40,77 +40,107 @@ void SpaceManager::createCalibrators(const Calibrator& toClone) {
 	std::cout << __PRETTY_FUNCTION__
 			<< ": creating default calibration schema.\n";
 
-	SpaceVoxelPtr sv(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 0, 2.0));
+	SpaceVoxelPtr sv(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 0, 3.0));
 	barrelPosRegion_.push_back(sv);
-	SpaceVoxelPtr sv1(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 1, 1.5));
+	SpaceVoxelPtr sv1(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 3, 9.0));
 	barrelPosRegion_.push_back(sv1);
-	SpaceVoxelPtr sv2(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 1.5, 2.0));
+	SpaceVoxelPtr sv2(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 9.0, 16.0));
 	barrelPosRegion_.push_back(sv2);
-	SpaceVoxelPtr sv3(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 2.0, 2.5));
+	SpaceVoxelPtr sv3(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 16.0, 25.0));
 	barrelPosRegion_.push_back(sv3);
-	SpaceVoxelPtr sv4(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 2.5, 4.0));
+	SpaceVoxelPtr sv4(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 25.0, 100.0));
 	barrelPosRegion_.push_back(sv4);
-	SpaceVoxelPtr sv41(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 4.0, 5.0));
-	barrelPosRegion_.push_back(sv41);
-	SpaceVoxelPtr sv5(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 5.0, 6.5));
+	SpaceVoxelPtr sv5(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 100.0, 200.0));
 	barrelPosRegion_.push_back(sv5);
-	SpaceVoxelPtr sv51(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 6.5, 8.0));
-	barrelPosRegion_.push_back(sv51);
-	SpaceVoxelPtr sv6(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 8.0, 10.0));
+	SpaceVoxelPtr sv6(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 200.0, 400.0));
 	barrelPosRegion_.push_back(sv6);
-	SpaceVoxelPtr sv61(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 10.0, 12.0));
-	barrelPosRegion_.push_back(sv61);
-	SpaceVoxelPtr sv7(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 12.0, 16.0));
-	barrelPosRegion_.push_back(sv7);
-	SpaceVoxelPtr sv8(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 16.0, 25.0));
-	barrelPosRegion_.push_back(sv8);
-	SpaceVoxelPtr sv9(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 25.0, 40.0));
-	barrelPosRegion_.push_back(sv9);
-	SpaceVoxelPtr sv10(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 40.0, 60.0));
-	barrelPosRegion_.push_back(sv10);
-	SpaceVoxelPtr sv11(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 60.0, 100.0));
-	barrelPosRegion_.push_back(sv11);
-	SpaceVoxelPtr sv12(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 100.0, 200.0));
-	barrelPosRegion_.push_back(sv12);
-	SpaceVoxelPtr sv13(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 200.0, 400.0));
-	barrelPosRegion_.push_back(sv13);
 
-	SpaceVoxelPtr sve(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 0, 0.5));
+	//	SpaceVoxelPtr sv(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 0, 2.0));
+	//	barrelPosRegion_.push_back(sv);
+	//	SpaceVoxelPtr sv1(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 1, 1.5));
+	//	barrelPosRegion_.push_back(sv1);
+	//	SpaceVoxelPtr sv2(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 1.5, 2.0));
+	//	barrelPosRegion_.push_back(sv2);
+	//	SpaceVoxelPtr sv3(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 2.0, 2.5));
+	//	barrelPosRegion_.push_back(sv3);
+	//	SpaceVoxelPtr sv4(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 2.5, 4.0));
+	//	barrelPosRegion_.push_back(sv4);
+	//	SpaceVoxelPtr sv41(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 4.0, 5.0));
+	//	barrelPosRegion_.push_back(sv41);
+	//	SpaceVoxelPtr sv5(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 5.0, 6.5));
+	//	barrelPosRegion_.push_back(sv5);
+	//	SpaceVoxelPtr sv51(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 6.5, 8.0));
+	//	barrelPosRegion_.push_back(sv51);
+	//	SpaceVoxelPtr sv6(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 8.0, 10.0));
+	//	barrelPosRegion_.push_back(sv6);
+	//	SpaceVoxelPtr sv61(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 10.0, 12.0));
+	//	barrelPosRegion_.push_back(sv61);
+	//	SpaceVoxelPtr sv7(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 12.0, 16.0));
+	//	barrelPosRegion_.push_back(sv7);
+	//	SpaceVoxelPtr sv8(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 16.0, 25.0));
+	//	barrelPosRegion_.push_back(sv8);
+	//	SpaceVoxelPtr sv9(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 25.0, 40.0));
+	//	barrelPosRegion_.push_back(sv9);
+	//	SpaceVoxelPtr sv10(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 40.0, 60.0));
+	//	barrelPosRegion_.push_back(sv10);
+	//	SpaceVoxelPtr sv11(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 60.0, 100.0));
+	//	barrelPosRegion_.push_back(sv11);
+	//	SpaceVoxelPtr sv12(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 100.0, 200.0));
+	//	barrelPosRegion_.push_back(sv12);
+	//	SpaceVoxelPtr sv13(new SpaceVoxel(-1.0*barrelLimit_, barrelLimit_, -3.2, 3.2, 200.0, 400.0));
+	//	barrelPosRegion_.push_back(sv13);
+
+	SpaceVoxelPtr sve(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 0, 3.0));
 	endcapPosRegion_.push_back(sve);
-	SpaceVoxelPtr sve0(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 0.5, 1.0));
+	SpaceVoxelPtr sve0(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 3.0, 9.0));
 	endcapPosRegion_.push_back(sve0);
-	SpaceVoxelPtr sve1(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 1, 1.5));
+	SpaceVoxelPtr sve1(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 9.0, 16.0));
 	endcapPosRegion_.push_back(sve1);
-	SpaceVoxelPtr sve2(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 1.5, 2.0));
+	SpaceVoxelPtr sve2(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 16.0, 25.0));
 	endcapPosRegion_.push_back(sve2);
-	SpaceVoxelPtr sve3(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 2.0, 2.5));
+	SpaceVoxelPtr sve3(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 25.0, 100.0));
 	endcapPosRegion_.push_back(sve3);
-	SpaceVoxelPtr sve4(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 2.5, 4.0));
+	SpaceVoxelPtr sve4(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 100.0, 200.0));
 	endcapPosRegion_.push_back(sve4);
-	SpaceVoxelPtr sve5(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 4.0, 5.0));
+	SpaceVoxelPtr sve5(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 200.0, 400.0));
 	endcapPosRegion_.push_back(sve5);
-	SpaceVoxelPtr sve51(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 5.0, 6.5));
-	endcapPosRegion_.push_back(sve51);
-	SpaceVoxelPtr sve6(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 6.5, 8.0));
-	endcapPosRegion_.push_back(sve6);
-	SpaceVoxelPtr sve61(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 8.0, 10.0));
-	endcapPosRegion_.push_back(sve61);
-	SpaceVoxelPtr sve62(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 10.0, 12.0));
-	endcapPosRegion_.push_back(sve62);
-	SpaceVoxelPtr sve7(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 12.0, 16.0));
-	endcapPosRegion_.push_back(sve7);
-	SpaceVoxelPtr sve8(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 16.0, 25.0));
-	endcapPosRegion_.push_back(sve8);
-	SpaceVoxelPtr sve9(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 25.0, 40.0));
-	endcapPosRegion_.push_back(sve9);
-	SpaceVoxelPtr sve10(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 40.0, 60.0));
-	endcapPosRegion_.push_back(sve10);
-	SpaceVoxelPtr sve11(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 60.0, 100.0));
-	endcapPosRegion_.push_back(sve11);
-	SpaceVoxelPtr sve12(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 100.0, 200.0));
-	endcapPosRegion_.push_back(sve12);
-	SpaceVoxelPtr sve13(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 200.0, 400.0));
-	endcapPosRegion_.push_back(sve13);
+
+	//	SpaceVoxelPtr sve(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 0, 0.5));
+	//	endcapPosRegion_.push_back(sve);
+	//	SpaceVoxelPtr sve0(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 0.5, 1.0));
+	//	endcapPosRegion_.push_back(sve0);
+	//	SpaceVoxelPtr sve1(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 1, 1.5));
+	//	endcapPosRegion_.push_back(sve1);
+	//	SpaceVoxelPtr sve2(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 1.5, 2.0));
+	//	endcapPosRegion_.push_back(sve2);
+	//	SpaceVoxelPtr sve3(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 2.0, 2.5));
+	//	endcapPosRegion_.push_back(sve3);
+	//	SpaceVoxelPtr sve4(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 2.5, 4.0));
+	//	endcapPosRegion_.push_back(sve4);
+	//	SpaceVoxelPtr sve5(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 4.0, 5.0));
+	//	endcapPosRegion_.push_back(sve5);
+	//	SpaceVoxelPtr sve51(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 5.0, 6.5));
+	//	endcapPosRegion_.push_back(sve51);
+	//	SpaceVoxelPtr sve6(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 6.5, 8.0));
+	//	endcapPosRegion_.push_back(sve6);
+	//	SpaceVoxelPtr sve61(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 8.0, 10.0));
+	//	endcapPosRegion_.push_back(sve61);
+	//	SpaceVoxelPtr sve62(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 10.0, 12.0));
+	//	endcapPosRegion_.push_back(sve62);
+	//	SpaceVoxelPtr sve7(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 12.0, 16.0));
+	//	endcapPosRegion_.push_back(sve7);
+	//	SpaceVoxelPtr sve8(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 16.0, 25.0));
+	//	endcapPosRegion_.push_back(sve8);
+	//	SpaceVoxelPtr sve9(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 25.0, 40.0));
+	//	endcapPosRegion_.push_back(sve9);
+	//	SpaceVoxelPtr sve10(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 40.0, 60.0));
+	//	endcapPosRegion_.push_back(sve10);
+	//	SpaceVoxelPtr sve11(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 60.0, 100.0));
+	//	endcapPosRegion_.push_back(sve11);
+	//	SpaceVoxelPtr sve12(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 100.0, 200.0));
+	//	endcapPosRegion_.push_back(sve12);
+	//	SpaceVoxelPtr sve13(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 200.0, 400.0));
+	//	endcapPosRegion_.push_back(sve13);
 
 	for (std::vector<SpaceVoxelPtr>::iterator it = barrelPosRegion_.begin(); it
 			!= barrelPosRegion_.end(); ++it) {
@@ -137,8 +167,8 @@ void SpaceManager::createCalibrators(const Calibrator& toClone) {
 void SpaceManager::createCalibrators(const Calibrator& toClone,
 		const unsigned nEta, const double etaMin, const double etaMax,
 		const unsigned nPhi, const double phiMin, const double phiMax,
-		const unsigned nEnergy, const double energyMin, const double energyMax) throw(
-		PFToolsException&) {
+		const unsigned nEnergy, const double energyMin, const double energyMax)
+		throw(PFToolsException&) {
 	clear();
 
 	if (nEta == 0|| nPhi ==0|| nEnergy == 0) {
@@ -198,8 +228,8 @@ CalibratorPtr SpaceManager::createCalibrator(const Calibrator& toClone,
 CalibratorPtr SpaceManager::findCalibrator(const double eta, const double phi,
 		const double energy) const {
 	CalibratorPtr answer;
-	for (std::vector<SpaceVoxelPtr>::const_iterator
-			cit = myKnownSpaceVoxels.begin(); cit != myKnownSpaceVoxels.end(); ++cit) {
+	for (std::vector<SpaceVoxelPtr>::const_iterator cit =
+			myKnownSpaceVoxels.begin(); cit != myKnownSpaceVoxels.end(); ++cit) {
 		SpaceVoxelPtr s = *cit;
 		if (s->contains(eta, phi, energy)) {
 			assert(count(myKnownSpaceVoxels.begin(), myKnownSpaceVoxels.end(), s) != 0);
@@ -218,12 +248,12 @@ void SpaceManager::assignCalibration(CalibratorPtr c,
 	makeInverseAddressBook();
 }
 
-std::map<DetectorElementPtr, double> SpaceManager::getCalibration(
-		CalibratorPtr c) {
+std::map<DetectorElementPtr, double> SpaceManager::getCalibration(CalibratorPtr c) {
 	return calibrationCoeffs_[c];
 }
 
-TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1, bool useTruth) {
+TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1,
+		bool useTruth) {
 
 	std::vector<SpaceVoxelPtr> region;
 	if (r == BARREL_POS)
@@ -240,13 +270,12 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1, b
 	name.append("_");
 	name.append(DetElNames[det->getType()]);
 
-
 	double minE(1000);
 	double maxE(0);
 
 	TH2F hDist(name.c_str(), name.c_str(), 100, 0, 300, 50, 0.0, 2.5);
-//	TH3F hSurf(nameSurf.c_str(), nameSurf.c_str(), 30, 0, 50, 10, 0.0, 3.0, 30,
-//			0.0, 2.5);
+	//	TH3F hSurf(nameSurf.c_str(), nameSurf.c_str(), 30, 0, 50, 10, 0.0, 3.0, 30,
+	//			0.0, 2.5);
 	for (std::vector<SpaceVoxelPtr>::iterator i = region.begin(); i
 			!= region.end(); ++i) {
 		SpaceVoxelPtr s = *i;
@@ -259,9 +288,9 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1, b
 		double coeff = calibrationCoeffs_[c][det];
 		if (coeff != 0.0) {
 			std::vector<ParticleDepositPtr> particles = c->getParticles();
-			for (std::vector<ParticleDepositPtr>::iterator
-					it = particles.begin(); it != particles.end(); ++it) {
-				if(useTruth)
+			for (std::vector<ParticleDepositPtr>::iterator it =
+					particles.begin(); it != particles.end(); ++it) {
+				if (useTruth)
 					hDist.Fill((*it)->getTruthEnergy(), coeff);
 				else
 					hDist.Fill((*it)->getRecEnergy(), coeff);
@@ -362,8 +391,8 @@ std::ostream& SpaceManager::printCalibrations(std::ostream& stream) {
 
 void SpaceManager::makeInverseAddressBook() {
 	inverseAddressBook_.clear();
-	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator
-			it = myAddressBook.begin(); it != myAddressBook.end(); ++it) {
+	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it =
+			myAddressBook.begin(); it != myAddressBook.end(); ++it) {
 		SpaceVoxelPtr s = (*it).first;
 		CalibratorPtr c = (*it).second;
 		inverseAddressBook_[c] = s;

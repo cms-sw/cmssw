@@ -38,7 +38,9 @@ void makePlots(TFile& file) {
 			kViolet);
 
 	file.cd("/plots/ratios");
-	tv__tree->Draw("calibrations_.ratio_:sim_energyEvent_>>calibratedCorr_fullRatio","calibrations_.provenance_ < 0", "col");
+	tv__tree->Draw(
+			"calibrations_.ratio_:sim_energyEvent_>>calibratedCorr_fullRatio",
+			"calibrations_.provenance_ < 0", "col");
 	doFullRatioPlots(file, "calibratedCorr", "Corrected", kViolet);
 	tv__tree->Draw(
 			"calibrations_.ratio_:sim_energyEvent_>>calibrated_fullRatio",
@@ -75,8 +77,8 @@ void doFullRatioPlots(TFile& f, std::string leadingName, std::string title,
 	std::string leadingName_profile(leadingName_1);
 	leadingName_profile.append("_pfx");
 	source->ProfileX();
-	TProfile
-			* profile = (TProfile*) gDirectory->Get(leadingName_profile.c_str());
+	TProfile * profile =
+			(TProfile*) gDirectory->Get(leadingName_profile.c_str());
 	profile->SetTitle(title.c_str());
 	profile->SetMarkerStyle(22);
 	profile->SetMarkerColor(color);
@@ -86,7 +88,7 @@ void doFullRatioPlots(TFile& f, std::string leadingName, std::string title,
 	source->SetYTitle("E_{reco}/E_{true}");
 	profile->Write();
 	source->Write();
-	
+
 }
 
 void doLinearityPlots(TFile& f, std::string leadingName, std::string title,
@@ -103,8 +105,8 @@ void doLinearityPlots(TFile& f, std::string leadingName, std::string title,
 	TH2D* source = (TH2D*) gDirectory->Get(leadingName.c_str());
 	source->FitSlicesY();
 	source->ProfileX();
-	TProfile
-			* profile = (TProfile*) gDirectory->Get(leadingName_profile.c_str());
+	TProfile * profile =
+			(TProfile*) gDirectory->Get(leadingName_profile.c_str());
 	title.append(" sample mean");
 	profile->SetTitle(title.c_str());
 	profile->SetMarkerStyle(22);
@@ -137,8 +139,8 @@ void doBiasPlots(TFile& f, std::string leadingName, std::string title,
 	TH2D* bias = (TH2D*) gDirectory->Get(leadingName.c_str());
 	bias->FitSlicesY();
 	bias->ProfileX();
-	TProfile
-			* profile = (TProfile*) gDirectory->Get(leadingName_profile.c_str());
+	TProfile * profile =
+			(TProfile*) gDirectory->Get(leadingName_profile.c_str());
 	title.append(" sample bias");
 	profile->SetTitle(title.c_str());
 	profile->SetXTitle("E_{true} (GeV)");
@@ -214,5 +216,19 @@ void doTargetFunctions(TFile& f, std::string leadingName, std::string title,
 	targ->SetMarkerStyle(22);
 	targ->SetMarkerColor(color);
 	targ->Write();
+
+}
+
+void doResolution(TFile& f, std::string leadingName, std::string title,
+		Color_t color = kBlack) {
+	std::string leadingName_1(leadingName);
+	std::string leadingName_2(leadingName);
+	std::string leadingName_targ(leadingName);
+	leadingName_1.append("_1");
+	leadingName_2.append("_2");
+	leadingName_targ.append("_res");
+	
+	f.cd("/plots/resolutions");
+	
 
 }

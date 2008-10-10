@@ -87,50 +87,7 @@ Exercises2::Exercises2(IO* options) :
 		std::cout << __PRETTY_FUNCTION__ << ": finished.\n";
 
 }
-/**
- Exercises2::Exercises2(CalibrationTarget t, bool withOffset,
- unsigned threshold, double p0, double p1, double p2) :
- withOffset_(withOffset), threshold_(threshold), target_(t), p0_(p0),
- p1_(p1), p2_(p2) {
 
- }
- */
-//void Exercises2::gaussianFits(TFile& exercisefile,
-//		std::vector<Calibratable>& calibs) {
-//	std::cout << __PRETTY_FUNCTION__ << "\n";
-//	exercisefile.cd("/");
-//	exercisefile.mkdir("gaussianFits");
-//	exercisefile.cd("/gaussianFits");
-//	unsigned events(calibs.size());
-//	// How many bins? (Rather ad-hoc!)
-//	// take a safety margin of a factor of 4 over statistical fluctuations (sqrt(N))
-//	// bin width = 4 sqrt(N)
-//	// N bins = N/(4 sqrt(N)) = sqrt(N) / 4
-//	//unsigned nbins = static_cast<unsigned>(ceil(sqrt(events) / 4.0));
-//	unsigned nbins = static_cast<unsigned>((highE_ / 2.0- lowE_));
-//	std::cout << "nbins in x, y = "<< nbins << ", z = "<< nbins * 4<< "\n";
-//	TH3F energyPlane("energyPlane", "Energy plane;ECAL;HCAL;True", nbins,
-//			lowE_, highE_/2.0, nbins, lowE_, highE_/2.0, nbins * 4, lowE_,
-//			highE_);
-//
-//	for (std::vector<Calibratable>::iterator it = calibs.begin(); it
-//			!= calibs.end(); ++it) {
-//		Calibratable c = *it;
-//		energyPlane.Fill(c.cluster_meanEcal_.energy_,
-//				c.cluster_meanHcal_.energy_, c.sim_energyEvent_);
-//
-//	}
-//	std::cout << "Fitting slices...\n";
-//	energyPlane.FitSlicesZ();
-//	TH2D* energyPlane_1 = (TH2D*) gDirectory->FindObject("energyPlane_1");
-//	TF2* f2 = new TF2("f2","[0]+[1]*x+[2]*y",2,20,2,20);
-//	std::cout << "Fitting plane...\n";
-//	energyPlane_1->Fit("f2");
-//	std::cout << "p0, p1, p2 = a, b, c respectively.\n";
-//	energyPlane.Write();
-//	energyPlane_1->Write();
-//	std::cout << "Done gaussian fits.\n";
-//}
 
 void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 		const std::string& exercisefile) {
@@ -193,12 +150,17 @@ void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 	hcalCal->addDetectorElement(hcal);
 	ecalCal->addDetectorElement(ecal);
 
+	double barrelEta;
+	options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEta);
 	boost::shared_ptr<SpaceManager> sm(new SpaceManager("ecalAndHcal"));
+	sm->setBarrelLimit(barrelEta);
 	sm->createCalibrators(*linCal);
 	boost::shared_ptr<SpaceManager> esm(new SpaceManager("ecalOnly"));
 	esm->createCalibrators(*ecalCal);
+	esm->setBarrelLimit(barrelEta);
 	boost::shared_ptr<SpaceManager> hsm(new SpaceManager("hcalOnly"));
 	hsm->createCalibrators(*hcalCal);
+	hsm->setBarrelLimit(barrelEta);
 
 	if (debug_ > 1)
 		std::cout << "Initialised SpaceManager and calibrators.\n";
@@ -212,10 +174,10 @@ void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 	int count(0);
 	int dropped(0);
 
-	double eCut(0.5);
+	double eCut(0.3);
 	double hCut(0.5);
-	options_->GetOpt("exercises", "ecalECut", eCut);
-	options_->GetOpt("exercises", "hcalECut", hCut);
+	options_->GetOpt("evolution", "ecalECut", eCut);
+	options_->GetOpt("evolution", "hcalECut", hCut);
 	if (debug_ > 0)
 		std::cout << "Using a ECAL MIP cut of "<< eCut << " GeV\n";
 	if (debug_ > 1)
@@ -634,10 +596,9 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 			crwPre.particleEnergy_ = pd->getRecEnergy();
 			crwPre.truthEnergy_ = pd->getTruthEnergy();
 			crwPre.provenance_ = UNCALIBRATED;
-			crwPre.target_ = target_;
-			
-			crwPre.compute();
 			crwPre.targetFuncContrib_ = pd->getTargetFunctionContrib();
+			crwPre.target_ = target_;
+			crwPre.compute();
 			calibrated->calibrations_.push_back(crwPre);
 
 			//evaluate calibration
