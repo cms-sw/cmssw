@@ -17,8 +17,8 @@ class TkHistoMap{
   TkHistoMap(std::string path, std::string MapName, float baseline=0);
   ~TkHistoMap();
 
-  MonitorElement* getMap(short layerNumber){return tkHistoMap[layerNumber];};
-  tkHistoMapType& getAllMaps(){return tkHistoMap;};
+  MonitorElement* getMap(short layerNumber){return tkHistoMap_[layerNumber];};
+  tkHistoMapType& getAllMaps(){return tkHistoMap_;};
 
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
@@ -29,7 +29,7 @@ class TkHistoMap{
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;
-  tkHistoMapType tkHistoMap;
+  tkHistoMapType tkHistoMap_;
   int HistoNumber;
 };
 
