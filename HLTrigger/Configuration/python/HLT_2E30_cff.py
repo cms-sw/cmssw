@@ -1,10 +1,10 @@
-# /dev/CMSSW_2_1_9/HLT/V9 (CMSSW_2_1_X_2008-10-09-0000)
+# /dev/CMSSW_2_1_9/HLT/V10 (CMSSW_2_1_X_2008-10-09-0000)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_2_1_9/HLT/V9')
+  tableName = cms.string('/dev/CMSSW_2_1_9/HLT/V10')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1228,7 +1228,7 @@ hltL1sSumET120 = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreSumET120 = cms.EDFilter( "HLTPrescaler" )
-hlt1SumET120 = cms.EDFilter( "HLTGlobalSumMET",
+hlt1SumET120 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     inputTag = cms.InputTag( "hltMet" ),
     saveTag = cms.untracked.bool( True ),
     observable = cms.string( "sumEt" ),
@@ -1335,7 +1335,7 @@ hltL1sMET35HT350 = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreMET35HT350 = cms.EDFilter( "HLTPrescaler" )
-hlt1HT350 = cms.EDFilter( "HLTGlobalSumHT",
+hlt1HT350 = cms.EDFilter( "HLTGlobalSumsMET",
     inputTag = cms.InputTag( "hltHtMet" ),
     saveTag = cms.untracked.bool( True ),
     observable = cms.string( "sumEt" ),
@@ -6855,7 +6855,7 @@ hltBLifetime4jetL2filter30 = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 4 )
 )
 hltPreBTagIPHT470 = cms.EDFilter( "HLTPrescaler" )
-hltBLifetimeHTL2filter = cms.EDFilter( "HLTGlobalSumHT",
+hltBLifetimeHTL2filter = cms.EDFilter( "HLTGlobalSumsMET",
     inputTag = cms.InputTag( "hltHtMet" ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 470.0 ),
@@ -6863,7 +6863,7 @@ hltBLifetimeHTL2filter = cms.EDFilter( "HLTGlobalSumHT",
     MinN = cms.int32( 1 )
 )
 hltPreBTagIPHT320Relaxed = cms.EDFilter( "HLTPrescaler" )
-hltBLifetimeHTL2filter320 = cms.EDFilter( "HLTGlobalSumHT",
+hltBLifetimeHTL2filter320 = cms.EDFilter( "HLTGlobalSumsMET",
     inputTag = cms.InputTag( "hltHtMet" ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 320.0 ),
@@ -6990,7 +6990,7 @@ hltL1sBSoftMuonHT = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreBTagMuHT370 = cms.EDFilter( "HLTPrescaler" )
-hltBSoftmuonHTL2filter = cms.EDFilter( "HLTGlobalSumHT",
+hltBSoftmuonHTL2filter = cms.EDFilter( "HLTGlobalSumsMET",
     inputTag = cms.InputTag( "hltHtMet" ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 370.0 ),
@@ -7006,7 +7006,7 @@ hltL1sBSoftmuonHTLowEnergy = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreBTagMuHT250Relaxed = cms.EDFilter( "HLTPrescaler" )
-hltBSoftmuonHTL2filter250 = cms.EDFilter( "HLTGlobalSumHT",
+hltBSoftmuonHTL2filter250 = cms.EDFilter( "HLTGlobalSumsMET",
     inputTag = cms.InputTag( "hltHtMet" ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 250.0 ),
