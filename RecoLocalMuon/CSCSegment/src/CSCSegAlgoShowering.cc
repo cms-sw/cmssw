@@ -2,7 +2,8 @@
  * \file CSCSegAlgoShowering.cc
  *
  *  \author: D. Fortin - UC Riverside
- *
+ *  \modified: J. Babb - UC Riverside
+ *          
  * See header file for description.
  */
 
@@ -25,12 +26,15 @@
  *
  */
 CSCSegAlgoShowering::CSCSegAlgoShowering(const edm::ParameterSet& ps) {
-  debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
+//  debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
   dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
   dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
   tanThetaMax            = ps.getParameter<double>("tanThetaMax");
   tanPhiMax              = ps.getParameter<double>("tanPhiMax");	
   maxRatioResidual       = ps.getParameter<double>("maxRatioResidualPrune");
+//  maxDR                  = ps.getParameter<double>("maxDR");
+  maxDTheta              = ps.getParameter<double>("maxDTheta");
+  maxDPhi                = ps.getParameter<double>("maxDPhi");
 }
 
 
@@ -51,7 +55,8 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
   // Initialize parameters
   std::vector<float> x, y, gz;
   std::vector<int> n;
- 
+  
+  
   for (int i = 0; i < 6; ++i) {
     x.push_back(0.);
     y.push_back(0.);
@@ -75,7 +80,6 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
   }
 
 
-  std::vector<LocalPoint> lpCOM;
   // Determine center of mass for each layer and average center of mass for chamber
   float avgChamberX = 0.;
   float avgChamberY = 0.;
@@ -96,74 +100,39 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
     avgChamberX = avgChamberX / n_lay;
     avgChamberY = avgChamberY / n_lay;
   }
- 
 
-  // Find the 2 averages which are furthest away from average
-  unsigned worse_lay_1 = 10;
-  unsigned worse_lay_2 = 10;
-  float worse_deltaR_1 = 0.;
-  float worse_deltaR_2 = 0.;
+  // Create a FakeSegment origin that points back to the IP
+  // Keep all this in global coordinates until last minute to avoid screwing up +/- signs !
 
-  for (unsigned i = 0; i < 6; ++i) {
-    if (n[i] < 1 ) continue;
- 
-    float deltaR = (avgChamberX-x[i])*(avgChamberX-x[i]) + (avgChamberY-y[i])*(avgChamberY-y[i]);
+  LocalPoint   lpCOM(avgChamberX, avgChamberY, 0.);
+  GlobalPoint  gpCOM = theChamber->toGlobal(lpCOM);
+  GlobalVector gvCOM(gpCOM.x(), gpCOM.y(), gpCOM.z());
 
-    if (deltaR > worse_deltaR_1 ) {
-      worse_lay_1 = i;
-      worse_deltaR_1 = deltaR;
-    }
-    else if (deltaR > worse_deltaR_2 ) {
-      worse_lay_2 = i;
-      worse_deltaR_2 = deltaR;
-    }
+  float Gdxdz = gpCOM.x()/gpCOM.z();
+  float Gdydz = gpCOM.y()/gpCOM.z();
 
-  }
+  // Figure out the intersection of this vector with each layer of the chamber
+  // by projecting the vector
+  std::vector<LocalPoint> layerPoints;
 
+  for (unsigned i = 1; i < 7; i++) {
+    // Get the layer z coordinates in global frame
+    const CSCLayer* layer = theChamber->layer(i);
+    LocalPoint temp(0., 0., 0.);
+    GlobalPoint gp = layer->toGlobal(temp);
+    float layer_Z = gp.z();
 
-  // Recompute Global average without those 2 worse averages
-  float avgChamberX2 = 0.;
-  float avgChamberY2 = 0.;
-  unsigned n_lay2 = 0;
+    // Then compute interesection of vector with that plane
+    float layer_X = Gdxdz * layer_Z;
+    float layer_Y = Gdydz * layer_Z;
+    GlobalPoint Gintersect(layer_X, layer_Y, layer_Z);
+    LocalPoint  Lintersect = theChamber->toLocal(Gintersect);
 
-  for (unsigned i = 0; i < 6; ++i) {
-    if (n[i] < 1 ) continue;
- 
-    if ( n_lay > 3 && i == worse_lay_1 ) continue;
-    if ( n_lay > 4 && i == worse_lay_2 ) continue;
-
-    avgChamberX2 += x[i];
-    avgChamberY2 += y[i];
-    n_lay2++;
-  }
-
-  if ( n_lay2 > 0 ) {
-    avgChamberX = avgChamberX2 / n_lay2;
-    avgChamberY = avgChamberY2 / n_lay2;
-  }
-
-
-
-  // Store average value for each layer into a local point
-  LocalPoint defaultLP(avgChamberX,avgChamberY,0.);
-
-  for (unsigned i = 0; i < 6; ++i) {
-    if (n[i] > 0) {
-
-      if ( n_lay > 3 && i == worse_lay_1 ) {
-        lpCOM.push_back(defaultLP);
-      }
-      else if ( n_lay > 4 && i == worse_lay_2 ) {;
-        lpCOM.push_back(defaultLP);
-      }
-      else {
-        LocalPoint lpt(x[i],y[i],0.);
-        lpCOM.push_back(lpt);
-      }  
-    }
-    else {
-      lpCOM.push_back(defaultLP);
-    }
+    float layerX = Lintersect.x();
+    float layerY = Lintersect.y();
+    float layerZ = Lintersect.z();
+    LocalPoint layerPoint(layerX, layerY, layerZ);
+    layerPoints.push_back(layerPoint);
   }
 
 
@@ -184,8 +153,8 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
     GlobalPoint gp         = layer->toGlobal(hit.localPosition());
     LocalPoint  lp         = theChamber->toLocal(gp);
 
-    float d_x = lp.x() - lpCOM[layId-1].x();
-    float d_y = lp.y() - lpCOM[layId-1].y();
+    float d_x = lp.x() - layerPoints[layId-1].x();
+    float d_y = lp.y() - layerPoints[layId-1].y();
 
     LocalPoint diff(d_x, d_y, 0.);
     
@@ -227,7 +196,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
   updateParameters();
 
   // Clean up protosegment if there is one very bad hit on segment
-  if (protoSegment.size() > 3) pruneFromResidual();
+  if (protoSegment.size() > 4) pruneFromResidual();
 
   // Look for better hits near segment  
   for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {
@@ -237,7 +206,6 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
 
     if ( isHitNearSegment( h ) ) compareProtoSegment(h, layer);
   }
-
 
   // Prune worse hit if necessary
   if ( protoSegment.size() > 5 ) pruneFromResidual();
@@ -257,12 +225,30 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
   double directionSign = globalZpos * globalZdir;
   LocalVector protoDirection = (directionSign * localDir).unit();
 
+  // Check to make sure the fitting didn't fuck things up
+  GlobalVector protoGlobalDir = theChamber->toGlobal( protoDirection );  
+  double protoTheta = protoGlobalDir.theta();
+  double protoPhi = protoGlobalDir.phi();
+  double simTheta = gvCOM.theta();
+  double simPhi = gvCOM.phi();
+  
+  float dTheta = fabs(protoTheta - simTheta);
+  float dPhi   = fabs(protoPhi - simPhi);
+  //  float dR = sqrt(dEta*dEta + dPhi*dPhi);
+  
   // Error matrix
   AlgebraicSymMatrix protoErrors = calculateError();     
-        
-  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
-
+ 
+  
+  //Flag the segment with chi12 of -1 of the segment isn't pointing toward origin      
+  if (dTheta > maxDTheta || dPhi > maxDPhi) {
+  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, -1); 
   return temp;
+  }
+  else {
+  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2);
+  return temp;
+  }
 
 } 
 
@@ -535,8 +521,6 @@ AlgebraicSymMatrix CSCSegAlgoShowering::calculateError() const {
   return a;    
 } 
 
-
-
 // Try to clean up segments by quickly looking at residuals
 void CSCSegAlgoShowering::pruneFromResidual(){
 
@@ -605,6 +589,7 @@ void CSCSegAlgoShowering::pruneFromResidual(){
   updateParameters();
 
 }
+
 
 
 

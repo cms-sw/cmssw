@@ -4,8 +4,9 @@
 /**
  * class CSCSegAlgoShowering
  *
- *  \author: D. Fortin - UC Riverside
- *
+ *  \author: D. Fortin - UC Riverside 
+ *  \modified by J. Babb - UC Riverside
+ *                                      
  * Handle case where too many hits are reconstructed in the chamber, even after preclustering
  * for normal segment reconstruction to properly handle these.
  * In this case, determine the average local (x,y) for each layer and find the hit closest to that localpoint
@@ -66,6 +67,9 @@ class CSCSegAlgoShowering {
   float  tanThetaMax;
   float  chi2Max;
   float  maxRatioResidual;
+//  float  maxDR;
+  float  maxDTheta;
+  float  maxDPhi;
 
 };
 #endif
