@@ -13,7 +13,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
@@ -28,6 +27,12 @@
 #include <math.h>
 #include <vector>
 #include <sstream>
+
+//******** Single include for the TkMap *************
+#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
+//***************************************************
+
+
 using std::cout; using std::endl; using std::string;
 
 
@@ -52,7 +57,7 @@ private:
 //
 testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig )
 {
-  tkhisto   =new TkHistoMap("pippo","pluto",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  tkhisto   =new TkHistoMap("micky/pippo","pluto",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
   tkhistoZ  =new TkHistoMap("Z","Z");
   tkhistoPhi=new TkHistoMap("Phi","Phi");
   tkhistoR  =new TkHistoMap("R","R",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
@@ -128,12 +133,20 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     edm::LogInfo("testTkHistoMap") << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp()<<std::endl;;
     value = TkDetIdList[i]%1000000;
 
-
-    //    tkhisto->fill(TkDetIdList[i],value);
+    
     tkhisto->fill(TkDetIdList[i],value);
     tkhistoZ->fill(TkDetIdList[i],globalPos.z());
     tkhistoPhi->fill(TkDetIdList[i],globalPos.phi());
     tkhistoR->fill(TkDetIdList[i],globalPos.perp());
+    
+
+    // For usage that reset histo content use setBinContent instead than fill
+    /* 
+    tkhisto->setBinContent(TkDetIdList[i],value);
+    tkhistoZ->setBinContent(TkDetIdList[i],globalPos.z());
+    tkhistoPhi->setBinContent(TkDetIdList[i],globalPos.phi());
+    tkhistoR->setBinContent(TkDetIdList[i],globalPos.perp());
+    */
   }
 }
 
