@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
+// $Id: Muon.h,v 1.19 2008/10/10 13:55:55 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: Muon.h,v 1.19 2008/10/10 13:55:55 lowette Exp $
 */
 
 
@@ -94,12 +94,6 @@ namespace pat {
       } 
       /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
-
-      // ---- methods for muon ID ----
-      // this has no counterpart inside the reco::Muon class, so we implement
-      // here what you would otherwise need the MuonSelectors helper class for
-      /// return the muon segment compatibility
-      float segmentCompatibility() const;
 
     protected:
 

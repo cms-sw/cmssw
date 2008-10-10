@@ -1,10 +1,8 @@
 //
-// $Id: Muon.cc,v 1.13 2008/10/08 18:28:44 lowette Exp $
+// $Id: Muon.cc,v 1.14 2008/10/10 13:55:55 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 
 using namespace pat;
@@ -100,12 +98,6 @@ reco::IsolatedPFCandidateRef Muon::pfCandidateRef() const {
   } else {
     return pfCandidateRef_;
   }
-}
-
-
-/// return the muon segment compatibility
-float Muon::segmentCompatibility() const {
-  return muon::segmentCompatibility(*this);
 }
 
 
