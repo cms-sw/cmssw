@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 09:38:03 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/10/08 09:09:01 $
+ *  $Revision: 1.17 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -80,7 +80,6 @@ void DTSegmentAnalysisTask::endJob(){
  
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") <<"[DTSegmentAnalysisTask] endjob called!";
 
-  //theDbe->save("testMonitoring.root");
 }
   
 
@@ -237,8 +236,8 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
 
   theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
-                           "/Sector" + sector.str() +
-			   "/Station" + station.str());
+                           "/Station" + sector.str() +
+			   "/Sector" + station.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
   histos.push_back(theDbe->book1D("h4DSegmNHits"+chamberHistoName,

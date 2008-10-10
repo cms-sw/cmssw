@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 10:14:49 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/10/08 09:10:51 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -218,8 +218,8 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
     folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
-    "/Sector" + sector.str() +
-    "/Station" + station.str() + "/";
+    "/Station" + sector.str() +
+    "/Sector" + station.str() + "/";
 
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
@@ -253,8 +253,7 @@ void DTSegmentAnalysisTest::bookHistos() {
 	for(int sect=1; sect<=14; sect++){
 	  stringstream sector; sector << sect;
 	  string chi2HistoName =  "chi2BadSegmPercentual_W" + wheel.str() + "_Sec" + sector.str();
-	  dbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
-				"/Sector" + sector.str());
+	  dbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() + "/Tests");
 	  chi2Histos[make_pair(wh,sect)] = dbe->book1D(chi2HistoName.c_str(),chi2HistoName.c_str(),4,1,5);
 	  chi2Histos[make_pair(wh,sect)]->setBinLabel(1,"MB1");
 	  chi2Histos[make_pair(wh,sect)]->setBinLabel(2,"MB2");
