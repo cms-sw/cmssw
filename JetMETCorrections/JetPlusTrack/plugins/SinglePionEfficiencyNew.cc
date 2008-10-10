@@ -247,7 +247,7 @@ SinglePionEfficiencyNew::SinglePionEfficiencyNew(const edm::ParameterSet& iConfi
   calotowersSrc = iConfig.getParameter<std::string>("calotowers");
   towermakerSrc = iConfig.getParameter<std::string>("towermaker");
 
-  ecalHitsProducerSrc         = iConfig.getParameter< std::string >("ecalRecHitsProducer");
+  ecalHitsProducerSrc        = iConfig.getParameter< std::string >("ecalRecHitsProducer");
   ECALbarrelHitCollectionSrc = iConfig.getParameter<string>("ECALbarrelHitCollection");
   ECALendcapHitCollectionSrc = iConfig.getParameter<string>("ECALendcapHitCollection");
 
@@ -381,6 +381,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    iEvent.getByLabel(ecalHitsProducerSrc,ECALbarrelHitCollectionSrc,barrelRecHitsHandle);
    iEvent.getByLabel(ecalHitsProducerSrc,ECALendcapHitCollectionSrc,endcapRecHitsHandle);
+   // iEvent.getByLabel( edm::InputTag(ecalHitsProducerSrc,ECALendcapHitCollectionSrc,"RECO3"), endcapRecHitsHandle);
+
    EBRecHitCollection::const_iterator itb;
    for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
      GlobalPoint pos = geo->getPosition(itb->detid());
