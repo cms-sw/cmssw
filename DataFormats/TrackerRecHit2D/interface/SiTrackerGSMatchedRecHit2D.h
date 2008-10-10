@@ -1,21 +1,19 @@
 #ifndef SiTrackerGSMatchedRecHit2D_H
 #define SiTrackerGSMatchedRecHit2D_H
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/GSSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h" 
+class SiTrackerGSRecHit2D;
 
-//class SiTrackerGSRecHit2D;
-
-class SiTrackerGSMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
+class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   
 public:
   
-  SiTrackerGSMatchedRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),
+  SiTrackerGSMatchedRecHit2D(): GSSiTrackerRecHit2DLocalPos(),
 			 simhitId_(),
 			 simtrackId_(),
 			 eeId_(),
-                         cluster_(),
+                         cluster_(),  
                          pixelMultiplicityAlpha_(), 
                          pixelMultiplicityBeta_(),
                          isMatched_(), 
@@ -24,14 +22,11 @@ public:
   
   ~SiTrackerGSMatchedRecHit2D() {}
   
-  typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster> ClusterRef;
-  typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
-
   SiTrackerGSMatchedRecHit2D( const LocalPoint&, const LocalError&,
 		       const DetId&,
 		       const int simhitId,
 		       const int simtrackId,
-                       const uint32_t eeId,
+		       const uint32_t eeId,
                        ClusterRef const&  cluster,
 		       const int pixelMultiplicityX,
 		       const int pixelMultiplicityY,
@@ -44,7 +39,7 @@ public:
 		       const DetId&,
 		       const int simhitId,
 		       const int simtrackId,
-                       const uint32_t eeId,
+		       const uint32_t eeId,
                        ClusterRef const&  cluster,
 		       const int pixelMultiplicityX,
 		       const int pixelMultiplicityY
@@ -60,10 +55,11 @@ public:
   const bool& isMatched()  const { return isMatched_;}
   const SiTrackerGSRecHit2D *monoHit() const { return &componentMono_;}
   const SiTrackerGSRecHit2D *stereoHit() const { return &componentStereo_;}
-  
-  ClusterRef const& cluster() const { return cluster_;}
+
+ ClusterRef const& cluster() const { return cluster_;}
   void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
  
+
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
  
 private:
@@ -74,6 +70,7 @@ private:
   int const pixelMultiplicityAlpha_;
   int const pixelMultiplicityBeta_;
   bool isMatched_;
+
   SiTrackerGSRecHit2D componentMono_;
   SiTrackerGSRecHit2D componentStereo_;
 };
