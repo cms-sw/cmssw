@@ -120,6 +120,9 @@ namespace {
     std::pair<reco::PFTauRef, float>                              pftdiscr_p;
     std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;    
 
+    std::pair<reco::CaloTauRef, float>                              calodiscr_p;
+    std::vector<std::pair<reco::CaloTauRef, float> >                calodiscr_v;    
+
 
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;

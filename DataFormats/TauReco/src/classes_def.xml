@@ -106,6 +106,9 @@
   <class name="std::pair<reco::CaloTauRef, int>"/>
   <class name="std::vector<std::pair<reco::CaloTauRef, int> >" />
 
+  <class name="std::pair<reco::CaloTauRef, float>"/>
+  <class name="std::vector<std::pair<reco::CaloTauRef, float> >" />
+
   <class name="reco::PFTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
