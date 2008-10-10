@@ -10,19 +10,20 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    "file:/data1/cmsdata/dimuons/S156/Zmumu_zMuMuSkimOut_1.root"
+    "file:/scratch1/cms/data/summer08/skim/dimuons_skim_zmumu.root"
     )
 )
 
 zSelection = cms.PSet(
     cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2 & abs(daughter(1).eta)<2 & mass > 20"),
     isoCut = cms.double(100.0),
+    isolationType = cms.string("track"),
     muonIsolations1 = cms.InputTag("muonIsolations"),  
     muonIsolations2 = cms.InputTag("muonIsolations")  
 )
@@ -82,7 +83,7 @@ process.eventInfo = cms.OutputModule (
 
 process.out = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string('file:/data1/cmsdata/dimuons/s156-subSkim/Zmm.root'),
+    fileName = cms.untracked.string('file:./Zmm.root'),
     outputCommands = cms.untracked.vstring(
       "drop *",
       "keep *_genParticles_*_*",
