@@ -77,6 +77,8 @@ class  PFRecoTauAlgorithm  {
   uint32_t ChargedHadrCand_IsolAnnulus_minNhits_;
   uint32_t Track_IsolAnnulus_minNhits_;
 
+string DataType_;	
+
   double ElecPreIDLeadTkMatch_maxDR_;
   double EcalStripSumE_minClusEnergy_;
   double EcalStripSumE_deltaEta_;
