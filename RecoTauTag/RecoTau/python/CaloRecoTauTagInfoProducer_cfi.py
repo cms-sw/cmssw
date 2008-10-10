@@ -8,6 +8,7 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     tkminPt = cms.double(1.0),
     tkminPixelHitsn	= cms.int32(2),
     tkminTrackerHitsn = cms.int32(8),	
+    tkmaxChi2 = cms.double(100.0),	
     ESRecHitsSource = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     UsePVconstraint = cms.bool(False),
     # parameters of the considered EcalRecHits
