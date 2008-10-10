@@ -61,6 +61,13 @@ private:
   int findRecMatch( double eta, double phi, double maxdeltaR,
 		    std::vector<MatchStruct> matches );
   
+  // Data members
+
+  bool    m_makeNtuple;
+  float   theNtupleParameters[50]; 
+  TNtuple *theNtuple;
+  TFile   *theFile;
+
   // Input from cfg file
 
   std::string              theHltProcessName;
@@ -108,14 +115,8 @@ private:
   MonitorElement *NumberOfL1Events;
   MonitorElement *MinPtCut;
   MonitorElement *MaxEtaCut;
-  int theNumberOfEvents;
+  int theEventNumber;
   int theNumberOfL1Events;
-
-  // Facilities for writing a match ntuple
-  bool    m_makeNtuple;
-  float   theNtupleParameters[50]; 
-  TNtuple *theNtuple;
-  TFile   *theFile;
 
 };
 #endif
