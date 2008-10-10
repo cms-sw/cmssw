@@ -1,8 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+import copy
+
+from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import *
 
 #copying the PFTau producer and select the shrinkingCone
 pfRecoTauProducerHighEfficiency = copy.deepcopy(pfRecoTauProducer)
-pfRecoTauDiscriminationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSizeFormula = '5.0/ET'
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_min = 0.07
 pfRecoTauProducerHighEfficiency.TrackerSignalConeSize_max = 0.15
@@ -17,7 +25,7 @@ pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency = copy.deepcopy(pfRecoT
 pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
 
 #copying the Discriminator by Isolation
-pfRecoTauDiscriminationHighEfficiencyAgainstElectron = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+pfRecoTauDiscriminationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 pfRecoTauDiscriminationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
 
 #copying discriminator against electrons and muons
