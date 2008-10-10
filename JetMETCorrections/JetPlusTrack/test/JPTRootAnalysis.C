@@ -523,7 +523,7 @@ void JPTRootAnalysis::Loop()
    TLegend *leg = new TLegend(0.45,0.5,0.85,0.8,NULL,"brNDC");
    leg->SetFillColor(10);
    leg->AddEntry(hResRaw,"Raw calo jets","P");
-   leg->AddEntry(hResZSP,"JPT corr","P");
+   leg->AddEntry(hResZSP,"ZSP corr","P");
    leg->AddEntry(hResJPT,"ZSP+JPT corr","P");
    leg->Draw();  
    t->DrawLatex(25,0.42,"CMSSW219");
