@@ -15,8 +15,10 @@ def customise(process):
 
     process.load("Validation/Configuration/trackerSimValid_cff")
     process.load("Validation/Configuration/muonSimValid_cff")
-    process.local_validation = cms.Path((process.globalhitsanalyze+process.globaldigisanalyze+process.trackerSimValid+process.muonSimValid)*process.MEtoEDMConverter)
+    process.local_validation = cms.Path(process.globalhitsanalyze+process.globaldigisanalyze+process.trackerSimValid+process.muonSimValid)
     process.schedule.append(process.local_validation)
+
+    process.schedule.append(process.endjob_step)
 
     process.schedule.append(process.out_step)
 

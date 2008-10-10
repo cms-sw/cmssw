@@ -63,9 +63,10 @@ def customise(process):
     process.schedule.append(process.local_digireco)
 
     process.load("Validation/Configuration/hcalSimValid_cff")
-    process.local_validation = cms.Path(process.hcalSimValid*process.MEtoEDMConverter)
+    process.local_validation = cms.Path(process.hcalSimValid)
     process.schedule.append(process.local_validation)
 
+    process.schedule.append(process.endjob_step)
     process.schedule.append(process.out_step)
  
 # drop the plain root file outputs of all analyzers
