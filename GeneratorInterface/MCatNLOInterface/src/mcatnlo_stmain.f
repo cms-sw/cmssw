@@ -179,6 +179,8 @@ CCCC  common block and variabes added for CMSSW interface
      % mmit1,mmit2
       integer mmivcode,mmil1code,mmil2code,mmaemrun,mmiproc
 
+      integer mmidecseed, mmifk88seed
+
 cccc common block for the input parameters
       common/params/mmecm,mmxren,mmxfh,mmxrenmc,mmxfhmc,mmxmh0,mmgah,
      % mmxmt,mmgammax,mmxmhl,mmxmhu,mmxmass1,mmxmass2,mmxmass3,mmxmass4,
@@ -189,7 +191,9 @@ cccc common block for the input parameters
      % mmvcd,mmvcs,mmvcb,mmvtd,mmvts,mmvtb,mmxlamherw,
      % mmmaxevt,mmidpdfset,mmiwgtnorm,
      % mmiseed,mmibornex,mmit1,mmit2,mmivcode,mmil1code,mmil2code,
-     % mmaemrun,mmiproc,mmgname,mmscheme,
+     % mmaemrun,mmiproc,
+     % mmidecseed, mmifk88seed,
+     % mmgname,mmscheme,
      % mmpart1,mmpart2
 
       integer mmdecide
@@ -210,7 +214,9 @@ c ichkmom=0 ==> enables checks on kinematics
 c ichkpid=0 ==> enables checks on parton identities
       ichkpid=1
 c initialization of internal randon number generation
-      ifk88seed=1
+C     changed by F. STOECKLI, 10.10.2008
+C      ifk88seed=1
+      ifk88seed=mmifk88seed
 c if linked to PDFLIB, these quantities stay negative
       ifk88ih=-100
       ifk88ndns=-100

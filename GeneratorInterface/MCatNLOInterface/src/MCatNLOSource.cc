@@ -158,6 +158,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     s = s * 29943829 - 1;
     x[i] = s * (1./(65536.*65536.));
   }
+  // get main seed
   long double c;
   c = (long double)2111111111.0 * x[3] +
     1492.0 * (x[3] = x[2]) +
@@ -169,6 +170,27 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   x[4] = x[4] * (1./(65536.*65536.));
   params.mmiseed = int(x[0]*99999);
   header_str << "   RNDEVSEED = "<<params.mmiseed<<"\n";
+
+  // get helper seeds for decay etc ...
+  c = (long double)2111111111.0 * x[3] +
+    1492.0 * (x[3] = x[2]) +
+    1776.0 * (x[2] = x[1]) +
+    5115.0 * (x[1] = x[0]) +
+    x[4];
+  x[4] = floorl(c);
+  x[0] = c - x[4];
+  x[4] = x[4] * (1./(65536.*65536.));
+  params.mmidecseed=int(x[0]*99999);
+  c = (long double)2111111111.0 * x[3] +
+    1492.0 * (x[3] = x[2]) +
+    1776.0 * (x[2] = x[1]) +
+    5115.0 * (x[1] = x[0]) +
+    x[4];
+  x[4] = floorl(c);
+  x[0] = c - x[4];
+  x[4] = x[4] * (1./(65536.*65536.));
+  params.mmifk88seed=int(x[0]*99999);
+
 
   // only LHAPDF available
   params.mmgname[0]='L';

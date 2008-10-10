@@ -280,6 +280,7 @@ extern struct {
   double mmvtd,mmvts,mmvtb,mmxlamherw;
   int mmmaxevt,mmidpdfset,mmiwgtnorm,mmiseed,mmibornex,mmit1,mmit2;
   int mmivcode,mmil1code,mmil2code,mmaemrun,mmiproc;
+  int mmidecseed, mmifk88seed;
   char mmgname[20],mmscheme[2],mmpart1[4],mmpart2[4];
 } params_;
 #define params params_

@@ -199,6 +199,9 @@ CCCC  common block and variabes added for CMSSW interface
       integer mmmaxevt,mmidpdfset,mmiwgtnorm,mmiseed,mmibornex,
      % mmit1,mmit2
       integer mmivcode,mmil1code,mmil2code,mmaemrun,mmiproc
+CCC ------- ADDED BY F. STOECKLI, 10.10.2008 ------------------
+C     parameters to remove internal rng seeds
+      integer mmidecseed, mmifk88seed
 
 cccc common block for the input parameters
       common/params/mmecm,mmxren,mmxfh,mmxrenmc,mmxfhmc,mmxmh0,mmgah,
@@ -210,7 +213,9 @@ cccc common block for the input parameters
      % mmvcd,mmvcs,mmvcb,mmvtd,mmvts,mmvtb,mmxlamherw,
      % mmmaxevt,mmidpdfset,mmiwgtnorm,
      % mmiseed,mmibornex,mmit1,mmit2,mmivcode,mmil1code,mmil2code,
-     % mmaemrun,mmiproc,mmgname,mmscheme,
+     % mmaemrun,mmiproc,
+     % mmidecseed, mmifk88seed, 
+     % mmgname,mmscheme,
      % mmpart1,mmpart2
 
       integer mmdecide
@@ -237,9 +242,13 @@ c iverbose=1 ==> writes more on standard output
 c ichkmom=0 ==> enables checks on kinematics
       ichkmom=1
 c initialization of internal randon number generation
-      ifk88seed=1
+C changed by F. STOECKLI, 10.10.2008
+C      ifk88seed=1 
+      ifk88seed=mmifk88seed
 c initialization of randon number generation for decay product identities
-      idecseed=1
+C changed by F. STOECKLI, 10.10.2008
+C      idecseed=1
+      idecseed=mmidecseed
 c if linked to PDFLIB, these quantities stay negative
       ifk88ih=-100
       ifk88ndns=-100
