@@ -13,12 +13,11 @@
 //
 // Original Author:  Adam Aurisano
 //         Created:  Thur Jan 18 2007
-// $Id: TPGntupler.cc,v 1.4 2007/04/24 11:57:35 aurisano Exp $
+// $Id: TPGntupler.cc,v 1.5 2007/04/24 12:44:27 aurisano Exp $
 //
 //
 
 #include "TPGntupler.h"
-#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "TMath.h"
 #include <fstream>
 
