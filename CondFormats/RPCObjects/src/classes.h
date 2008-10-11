@@ -6,10 +6,11 @@
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
-#include "CondFormats/RPCObjects/interface/RPCdbData.h"
-#include "CondFormats/RPCObjects/interface/RPCGasT.h"
-
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
+
+#include "CondFormats/RPCObjects/interface/RPCObGas.h"
+#include "CondFormats/RPCObjects/interface/RPCObCond.h"
+
 
 namespace{
   std::vector<ChamberStripSpec> theStrips;
