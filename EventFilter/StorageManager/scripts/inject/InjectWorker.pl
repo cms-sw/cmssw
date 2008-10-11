@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.29 2008/10/08 01:28:59 loizides Exp $
+# $Id: InjectWorker.pl,v 1.30 2008/10/09 02:23:05 loizides Exp $
 
 use strict;
 use DBI;
@@ -196,7 +196,7 @@ sub inject($$)
     }
 
     # fix a left over bug from CMSSW_2_0_4
-    $appversion=$1 if $appversion =~ /\"(.*)'/;
+    $appversion=$1 if $appversion =~ /\"(.*)'/; #'for emacs syntax highlighting
     $appversion=$1 if $appversion =~ /\"(.*)\"/;
 
     # redirect setuplabel/streams to different destinations
@@ -352,7 +352,7 @@ if (!-e $config) {
 
 my $reader = "xxx";
 my $phrase = "xxx";
-if(-e $config) {
+if (-r $config) {
     eval `cat $config`;
 } else {
     mydie("Error: Can not read config file \"$config\" does not exist","");
@@ -391,15 +391,15 @@ open(STDOUT, ">>$errfile") or
 open(STDERR, ">>&STDOUT");
 if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
 
-# if input file does not exist - we'll wait for it
+# if input file does not exist - we will wait for it
 while (!(-e "$infile") && !$endflag) {
     if ($debug) {print "Input file \"$infile\" does not already exist, sleeping\n";} 
-    sleep(10);
+    sleep(30);
     # if day changes we can immediately spawn a new process for a new file for the new day 
     # (since old file never showed up dont wait)
     if (!(-e "$infile") && ($thedate ne getdatestr())) {
-        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $sminstance\n";}
-	system("$mycall $inpath $outpath $errpath $sminstance &"); 
+        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $config $sminstance\n";}
+	system("$mycall $inpath $outpath $errpath $config $sminstance &"); 
     	$endflag=1;
     }
 }
@@ -693,8 +693,16 @@ while(!$endflag) {
 
 # disconnect from DB
 if (defined $dbh) { 
+    my $timestr = gettimestr();
+    print "$timestr: Disconnect from main DB connection\n";
     $dbh->disconnect or 
         warn "Warning: Disconnection from Oracle failed: $DBI::errstr\n";
+}
+if (defined $dbhlt) { 
+    my $timestr = gettimestr();
+    print "$timestr: Disconnect from DB connection for HLT key retrieval\n";
+    $dbhlt->disconnect or 
+        warn "Warning: Disconnection from Oracle for HLT failed: $DBI::errstr\n";
 }
 
 # close files
