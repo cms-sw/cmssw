@@ -65,7 +65,7 @@ HLTPhi2METFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  VRmet vrefMET; 
+  VRcalomet vrefMET; 
   metcal->getObjects(TriggerMET,vrefMET);
   CaloMETRef metRef=vrefMET.at(0);
   CaloJetRef ref1,ref2;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/19 07:18:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/19 11:33:10 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -17,8 +17,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
@@ -169,10 +169,10 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
   jetRefs_.clear();
   compositeIds_.clear();
   compositeRefs_.clear();
-  metIds_.clear();
-  metRefs_.clear();
-  htIds_.clear();
-  htRefs_.clear();
+  basemetIds_.clear();
+  basemetRefs_.clear();
+  calometIds_.clear();
+  calometRefs_.clear();
   pixtrackIds_.clear();
   pixtrackRefs_.clear();
   l1emIds_.clear();
@@ -250,24 +250,24 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
 	}
       }
 
-      triggerEventWithRefsHandle_->getObjects(filterIndex,metIds_,metRefs_);
-      const unsigned int nMETs(metIds_.size());
-      if (nMETs>0) {
-	cout << "   METs: " << nMETs << "  - the objects: # id pt" << endl;
-	for (unsigned int i=0; i!=nMETs; ++i) {
-	  cout << "   " << i << " " << metIds_[i]
-	       << " " << metRefs_[i]->pt()
+      triggerEventWithRefsHandle_->getObjects(filterIndex,basemetIds_,basemetRefs_);
+      const unsigned int nBaseMETs(basemetIds_.size());
+      if (nBaseMETs>0) {
+	cout << "   BaseMETs: " << nBaseMETs << "  - the objects: # id pt" << endl;
+	for (unsigned int i=0; i!=nBaseMETs; ++i) {
+	  cout << "   " << i << " " << basemetIds_[i]
+	       << " " << basemetRefs_[i]->pt()
 	       << endl;
 	}
       }
 
-      triggerEventWithRefsHandle_->getObjects(filterIndex,htIds_,htRefs_);
-      const unsigned int nHTs(htIds_.size());
-      if (nHTs>0) {
-	cout << "   HTs: " << nHTs << "  - the objects: # id pt" << endl;
-	for (unsigned int i=0; i!=nHTs; ++i) {
-	  cout << "   " << i << " " << htIds_[i]
-	       << " " << htRefs_[i]->pt()
+      triggerEventWithRefsHandle_->getObjects(filterIndex,calometIds_,calometRefs_);
+      const unsigned int nCaloMETs(calometIds_.size());
+      if (nCaloMETs>0) {
+	cout << "   CaloMETs: " << nCaloMETs << "  - the objects: # id pt" << endl;
+	for (unsigned int i=0; i!=nCaloMETs; ++i) {
+	  cout << "   " << i << " " << calometIds_[i]
+	       << " " << calometRefs_[i]->pt()
 	       << endl;
 	}
       }

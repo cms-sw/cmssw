@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/09 13:04:11 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/09/29 09:30:21 $
+ *  $Revision: 1.28 $
  *
  *  \author Martin Grunewald
  *
@@ -26,10 +26,10 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
@@ -185,8 +185,8 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjects<       RecoChargedCandidateCollection>(iEvent);
    fillTriggerObjects<                    CaloJetCollection>(iEvent);
    fillTriggerObjects<         CompositeCandidateCollection>(iEvent);
-   fillTriggerObjects<                    CaloMETCollection>(iEvent);
    fillTriggerObjects<                        METCollection>(iEvent);
+   fillTriggerObjects<                    CaloMETCollection>(iEvent);
    fillTriggerObjects<IsolatedPixelTrackCandidateCollection>(iEvent);
    ///
    fillTriggerObjects<               L1EmParticleCollection>(iEvent);
@@ -221,8 +221,8 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
-       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->basemetIds()  ,fobs_[ifob]->basemetRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->calometIds()  ,fobs_[ifob]->calometRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
        fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
@@ -247,6 +247,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
   using namespace std;
   using namespace edm;
   using namespace reco;
+  using namespace l1extra;
   using namespace trigger;
 
   vector<Handle<C> > collections;
@@ -276,8 +277,15 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 	const size_type n(collections[ic]->size());
 	for (size_type i=0; i!=n; ++i) {
 	  toc_.push_back(TriggerObject( (*collections[ic])[i] ));
-	  if ( (typeid(C)==typeid(CaloMETCollection)) ||
-	       (typeid(C)==typeid(    METCollection)) ) {
+	  if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
+	    // add scalar L1EtMissParticle quntities
+	    const L1EtMissParticle* l1met(dynamic_cast<const L1EtMissParticle*>( &(*collections[ic])[i]) );
+	    // store each scalar L1EtMissParticle observable in the pt_
+	    // component of a new TriggerObject
+	    toc_.push_back(TriggerObject(TriggerL1ETT,l1met->etTotal(),0.0,0.0,0.0));
+	    toc_.push_back(TriggerObject(TriggerL1HTT,l1met->etHad()  ,0.0,0.0,0.0));
+	  } else if ( (typeid(C)==typeid(    METCollection)) ||
+		      (typeid(C)==typeid(CaloMETCollection)) ) {
 	    // add scalar [Calo]MET quantities
 	    const MET* met(dynamic_cast<const MET*>( &(*collections[ic])[i]) );
 	    // store each scalar [Calo]MET observable in the pt_
@@ -305,6 +313,7 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
   using namespace std;
   using namespace edm;
   using namespace reco;
+  using namespace l1extra;
   using namespace trigger;
 
   assert(ids.size()==refs.size());
@@ -327,9 +336,17 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
 	   << endl;
     }
     assert(offset_.find(pid)!=offset_.end()); // else unknown pid
-    // handle scalar [Calo]MET quantities
-    if ( (typeid(C)==typeid(CaloMETCollection)) ||
-	 (typeid(C)==typeid(    METCollection)) ) {
+    // handle scalar L1EtMissParticle and [Calo]MET quantities
+    if (typeid(C)==typeid(L1EtMissParticleCollection) ) {
+      if (ids[i]==TriggerL1ETT) {
+	keys_.push_back(offset_[pid]+3*refs[i].key()+1);
+      } else if (ids[i]==TriggerL1HTT) {
+	keys_.push_back(offset_[pid]+3*refs[i].key()+2);
+      } else {
+	keys_.push_back(offset_[pid]+3*refs[i].key()+0);
+      }
+    } else if ( (typeid(C)==typeid(    METCollection)) ||
+		(typeid(C)==typeid(CaloMETCollection)) ) {
       if (ids[i]==TriggerHT) {
 	keys_.push_back(offset_[pid]+4*refs[i].key()+1);
       } else if (ids[i]==TriggerMETSig) {

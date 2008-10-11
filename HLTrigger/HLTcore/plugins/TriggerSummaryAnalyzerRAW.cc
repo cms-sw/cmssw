@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/18 15:12:38 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/19 11:33:10 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -71,13 +71,13 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
 				      handle->compositeSlice(iFO).first);
        if (nComposites>0) cout << " Composites: " << nComposites;
 
-       const unsigned int nMETs(handle->metSlice(iFO).second-
-				handle->metSlice(iFO).first);
-       if (nMETs>0) cout << " METs: " << nMETs;
+       const unsigned int nBaseMETs(handle->basemetSlice(iFO).second-
+				    handle->basemetSlice(iFO).first);
+       if (nBaseMETs>0) cout << " BaseMETs: " << nBaseMETs;
 
-       const unsigned int nHTs(handle->htSlice(iFO).second-
-			       handle->htSlice(iFO).first);
-       if (nHTs>0) cout << " HTs: " << nHTs;
+       const unsigned int nCaloMETs(handle->calometSlice(iFO).second-
+				    handle->calometSlice(iFO).first);
+       if (nCaloMETs>0) cout << " CaloMETs: " << nCaloMETs;
 
        const unsigned int nPixTracks(handle->pixtrackSlice(iFO).second-
 				     handle->pixtrackSlice(iFO).first);
@@ -107,8 +107,8 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      cout << "  Muons:      " << handle->muonSize()      << endl;
      cout << "  Jets:       " << handle->jetSize()       << endl;
      cout << "  Composites: " << handle->compositeSize() << endl;
-     cout << "  METs:       " << handle->metSize()       << endl;
-     cout << "  HTs:        " << handle->htSize()        << endl;
+     cout << "  BaseMETs:   " << handle->basemetSize()   << endl;
+     cout << "  CaloMETs:   " << handle->calometSize()   << endl;
      cout << "  Pixtracks:  " << handle->pixtrackSize()  << endl;
      cout << "  L1EM:       " << handle->l1emSize()      << endl;
      cout << "  L1Muon:     " << handle->l1muonSize()    << endl;

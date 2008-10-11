@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2008/09/18 11:55:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/09/18 15:13:23 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -29,8 +29,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -51,8 +51,8 @@ namespace trigger
   typedef std::vector<reco::RecoChargedCandidateRef>        VRmuon;
   typedef std::vector<reco::CaloJetRef>                     VRjet;
   typedef std::vector<reco::CompositeCandidateRef>          VRcomposite;
-  typedef std::vector<reco::CaloMETRef>                     VRmet;
-  typedef std::vector<reco::METRef>                         VRht;
+  typedef std::vector<reco::METRef>                         VRbasemet;
+  typedef std::vector<reco::CaloMETRef>                     VRcalomet;
   typedef std::vector<reco::IsolatedPixelTrackCandidateRef> VRpixtrack;
 
   typedef std::vector<l1extra::L1EmParticleRef>             VRl1em;
@@ -75,10 +75,10 @@ namespace trigger
     VRjet       jetRefs_;
     Vids        compositeIds_;
     VRcomposite compositeRefs_;
-    Vids        metIds_;
-    VRmet       metRefs_;
-    Vids        htIds_;
-    VRht        htRefs_;
+    Vids        basemetIds_;
+    VRbasemet   basemetRefs_;
+    Vids        calometIds_;
+    VRcalomet   calometRefs_;
     Vids        pixtrackIds_;
     VRpixtrack  pixtrackRefs_;
 
@@ -99,8 +99,8 @@ namespace trigger
       electronIds_(), electronRefs_(),
       muonIds_(), muonRefs_(),
       compositeIds_(), compositeRefs_(),
-      metIds_(), metRefs_(),
-      htIds_(), htRefs_(),
+      basemetIds_(), basemetRefs_(),
+      calometIds_(), calometRefs_(),
       pixtrackIds_(), pixtrackRefs_(),
 
       l1emIds_(), l1emRefs_(),
@@ -130,13 +130,13 @@ namespace trigger
       compositeIds_.push_back(id);
       compositeRefs_.push_back(ref);
     }
-    void addObject(int id, const reco::CaloMETRef& ref) {
-      metIds_.push_back(id);
-      metRefs_.push_back(ref);
-    }
     void addObject(int id, const reco::METRef& ref) {
-      htIds_.push_back(id);
-      htRefs_.push_back(ref);
+      basemetIds_.push_back(id);
+      basemetRefs_.push_back(ref);
+    }
+    void addObject(int id, const reco::CaloMETRef& ref) {
+      calometIds_.push_back(id);
+      calometRefs_.push_back(ref);
     }
     void addObject(int id, const reco::IsolatedPixelTrackCandidateRef& ref) {
       pixtrackIds_.push_back(id);
@@ -192,17 +192,17 @@ namespace trigger
       compositeRefs_.insert(compositeRefs_.end(),refs.begin(),refs.end());
       return compositeIds_.size();
     }
-    size_type addObjects (const Vids& ids, const VRmet& refs) {
+    size_type addObjects (const Vids& ids, const VRbasemet& refs) {
       assert(ids.size()==refs.size());
-      metIds_.insert(metIds_.end(),ids.begin(),ids.end());
-      metRefs_.insert(metRefs_.end(),refs.begin(),refs.end());
-      return metIds_.size();
+      basemetIds_.insert(basemetIds_.end(),ids.begin(),ids.end());
+      basemetRefs_.insert(basemetRefs_.end(),refs.begin(),refs.end());
+      return basemetIds_.size();
     }
-    size_type addObjects (const Vids& ids, const VRht& refs) {
+    size_type addObjects (const Vids& ids, const VRcalomet& refs) {
       assert(ids.size()==refs.size());
-      htIds_.insert(htIds_.end(),ids.begin(),ids.end());
-      htRefs_.insert(htRefs_.end(),refs.begin(),refs.end());
-      return htIds_.size();
+      calometIds_.insert(calometIds_.end(),ids.begin(),ids.end());
+      calometRefs_.insert(calometRefs_.end(),refs.begin(),refs.end());
+      return calometIds_.size();
     }
     size_type addObjects (const Vids& ids, const VRpixtrack& refs) {
       assert(ids.size()==refs.size());
@@ -398,66 +398,66 @@ namespace trigger
       return;
     }
 
-    void getObjects(Vids& ids, VRmet& refs) const {
-      getObjects(ids,refs,0,metIds_.size());
+    void getObjects(Vids& ids, VRbasemet& refs) const {
+      getObjects(ids,refs,0,basemetIds_.size());
     }
-    void getObjects(Vids& ids, VRmet& refs, size_type begin, size_type end) const {
+    void getObjects(Vids& ids, VRbasemet& refs, size_type begin, size_type end) const {
       assert (begin<=end);
-      assert (end<=metIds_.size());
+      assert (end<=basemetIds_.size());
       const size_type n(end-begin);
       ids.resize(n);
       refs.resize(n);
       size_type j(0);
       for (size_type i=begin; i!=end; ++i) {
-	ids[j]=metIds_[i];
-	refs[j]=metRefs_[i];
+	ids[j]=basemetIds_[i];
+	refs[j]=basemetRefs_[i];
 	++j;
       }
     }
-    void getObjects(int id, VRmet& refs) const {
-      getObjects(id,refs,0,metIds_.size());
+    void getObjects(int id, VRbasemet& refs) const {
+      getObjects(id,refs,0,basemetIds_.size());
     }
-    void getObjects(int id, VRmet& refs, size_type begin, size_type end) const {
+    void getObjects(int id, VRbasemet& refs, size_type begin, size_type end) const {
       assert (begin<=end);
-      assert (end<=metIds_.size());
+      assert (end<=basemetIds_.size());
       size_type n(0);
-      for (size_type i=begin; i!=end; ++i) {if (id==metIds_[i]) {++n;}}
+      for (size_type i=begin; i!=end; ++i) {if (id==basemetIds_[i]) {++n;}}
       refs.resize(n);
       size_type j(0);
       for (size_type i=begin; i!=end; ++i) {
-	if (id==metIds_[i]) {refs[j]=metRefs_[i]; ++j;}
+	if (id==basemetIds_[i]) {refs[j]=basemetRefs_[i]; ++j;}
       }
       return;
     }
 
-    void getObjects(Vids& ids, VRht& refs) const {
-      getObjects(ids,refs,0,htIds_.size());
+    void getObjects(Vids& ids, VRcalomet& refs) const {
+      getObjects(ids,refs,0,calometIds_.size());
     }
-    void getObjects(Vids& ids, VRht& refs, size_type begin, size_type end) const {
+    void getObjects(Vids& ids, VRcalomet& refs, size_type begin, size_type end) const {
       assert (begin<=end);
-      assert (end<=htIds_.size());
+      assert (end<=calometIds_.size());
       const size_type n(end-begin);
       ids.resize(n);
       refs.resize(n);
       size_type j(0);
       for (size_type i=begin; i!=end; ++i) {
-	ids[j]=htIds_[i];
-	refs[j]=htRefs_[i];
+	ids[j]=calometIds_[i];
+	refs[j]=calometRefs_[i];
 	++j;
       }
     }
-    void getObjects(int id, VRht& refs) const {
-      getObjects(id,refs,0,htIds_.size());
+    void getObjects(int id, VRcalomet& refs) const {
+      getObjects(id,refs,0,calometIds_.size());
     } 
-    void getObjects(int id, VRht& refs, size_type begin, size_type end) const {
+    void getObjects(int id, VRcalomet& refs, size_type begin, size_type end) const {
       assert (begin<=end);
-      assert (end<=htIds_.size());
+      assert (end<=calometIds_.size());
       size_type n(0);
-      for (size_type i=begin; i!=end; ++i) {if (id==htIds_[i]) {++n;}}
+      for (size_type i=begin; i!=end; ++i) {if (id==calometIds_[i]) {++n;}}
       refs.resize(n);
       size_type j(0);
       for (size_type i=begin; i!=end; ++i) {
-	if (id==htIds_[i]) {refs[j]=htRefs_[i]; ++j;}
+	if (id==calometIds_[i]) {refs[j]=calometRefs_[i]; ++j;}
       }
       return;
     }
@@ -622,7 +622,6 @@ namespace trigger
       return;
     }
 
-
     /// low-level getters for data members
     size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
@@ -644,13 +643,13 @@ namespace trigger
     const Vids&        compositeIds()  const {return compositeIds_;}
     const VRcomposite& compositeRefs() const {return compositeRefs_;}
 
-    size_type          metSize()       const {return metIds_.size();}
-    const Vids&        metIds()        const {return metIds_;}
-    const VRmet&       metRefs()       const {return metRefs_;}
+    size_type          basemetSize()   const {return basemetIds_.size();}
+    const Vids&        basemetIds()    const {return basemetIds_;}
+    const VRbasemet&   basemetRefs()   const {return basemetRefs_;}
 
-    size_type          htSize()        const {return htIds_.size();}
-    const Vids&        htIds()         const {return htIds_;}
-    const VRht&        htRefs()        const {return htRefs_;}
+    size_type          calometSize()   const {return calometIds_.size();}
+    const Vids&        calometIds()    const {return calometIds_;}
+    const VRcalomet&   calometRefs()   const {return calometRefs_;}
 
     size_type          pixtrackSize()  const {return pixtrackIds_.size();}
     const Vids&        pixtrackIds()   const {return pixtrackIds_;}

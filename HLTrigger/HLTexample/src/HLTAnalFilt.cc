@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:24:48 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/01/09 23:07:09 $
+ *  $Revision: 1.26 $
  *
  *  \author Martin Grunewald
  *
@@ -67,8 +67,8 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   << ref->muonIds().size() << " "
                   << ref->jetIds().size() << " " 
                   << ref->compositeIds().size() << " " 
-                  << ref->metIds().size() << " " 
-                  << ref->htIds().size();
+                  << ref->basemetIds().size() << " " 
+                  << ref->calometIds().size();
      const unsigned int n(ref->electronIds().size());
      for (unsigned int i=0; i!=n; i++) {
        // some Xchecks

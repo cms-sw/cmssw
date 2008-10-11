@@ -71,7 +71,7 @@ HLTNVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double etmiss=0.;
     int countjets =0;
    
-    VRmet vrefMET; 
+    VRcalomet vrefMET; 
     metcal->getObjects(TriggerMET,vrefMET);
     CaloMETRef metRef=vrefMET.at(0);
     etmiss=vrefMET.at(0)->et();

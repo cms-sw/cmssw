@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2008/09/18 11:55:41 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/09/18 15:13:23 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -43,8 +43,8 @@ namespace trigger
       size_type muons_;
       size_type jets_;
       size_type composites_;
-      size_type mets_;
-      size_type hts_;
+      size_type basemets_;
+      size_type calomets_;
       size_type pixtracks_;
       size_type l1em_;
       size_type l1muon_;
@@ -54,13 +54,13 @@ namespace trigger
       /// constructor
       TriggerFilterObject() :
 	filterTag_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0) {
+	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), basemets_(0), calomets_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0) {
       filterTag_=edm::InputTag().encode();
       }
       TriggerFilterObject(const edm::InputTag& filterTag,
-        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss) :
+        size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nB, size_type nC, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss) :
 	filterTag_(filterTag.encode()),
-	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss) { }
+	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), basemets_(nB), calomets_(nC), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss) { }
     };
 
   /// data members
@@ -91,8 +91,8 @@ namespace trigger
 			    addObjects(tfowr.muonIds(),tfowr.muonRefs()),
 			    addObjects(tfowr.jetIds(),tfowr.jetRefs()),
 			    addObjects(tfowr.compositeIds(),tfowr.compositeRefs()),
-			    addObjects(tfowr.metIds(),tfowr.metRefs()),
-			    addObjects(tfowr.htIds(),tfowr.htRefs()),
+			    addObjects(tfowr.basemetIds(),tfowr.basemetRefs()),
+			    addObjects(tfowr.calometIds(),tfowr.calometRefs()),
 			    addObjects(tfowr.pixtrackIds(),tfowr.pixtrackRefs()),
 			    addObjects(tfowr.l1emIds(),tfowr.l1emRefs()),
 			    addObjects(tfowr.l1muonIds(),tfowr.l1muonRefs()),
@@ -155,15 +155,15 @@ namespace trigger
       return std::pair<size_type,size_type>(begin,end);
     }
 
-    std::pair<size_type,size_type> metSlice(size_type filter) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).mets_);
-      const size_type end(filterObjects_.at(filter).mets_);
+    std::pair<size_type,size_type> basemetSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).basemets_);
+      const size_type end(filterObjects_.at(filter).basemets_);
       return std::pair<size_type,size_type>(begin,end);
     }
 
-    std::pair<size_type,size_type> htSlice(size_type filter) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
-      const size_type end(filterObjects_.at(filter).hts_);
+    std::pair<size_type,size_type> calometSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).calomets_);
+      const size_type end(filterObjects_.at(filter).calomets_);
       return std::pair<size_type,size_type>(begin,end);
     }
 
@@ -255,26 +255,26 @@ namespace trigger
       TriggerRefsCollections::getObjects(id,composites,begin,end);
     }
 
-    void getObjects(size_type filter, Vids& ids, VRmet& mets) const {
-      const size_type begin(metSlice(filter).first);
-      const size_type   end(metSlice(filter).second);
-      TriggerRefsCollections::getObjects(ids,mets,begin,end);
+    void getObjects(size_type filter, Vids& ids, VRbasemet& basemets) const {
+      const size_type begin(basemetSlice(filter).first);
+      const size_type   end(basemetSlice(filter).second);
+      TriggerRefsCollections::getObjects(ids,basemets,begin,end);
     }
-    void getObjects(size_type filter, int id, VRmet& mets) const {
-      const size_type begin(metSlice(filter).first);
-      const size_type   end(metSlice(filter).second);
-      TriggerRefsCollections::getObjects(id,mets,begin,end);
+    void getObjects(size_type filter, int id, VRbasemet& basemets) const {
+      const size_type begin(basemetSlice(filter).first);
+      const size_type   end(basemetSlice(filter).second);
+      TriggerRefsCollections::getObjects(id,basemets,begin,end);
     }
 
-    void getObjects(size_type filter, Vids& ids, VRht& hts) const {
-      const size_type begin(htSlice(filter).first);
-      const size_type   end(htSlice(filter).second);
-      TriggerRefsCollections::getObjects(ids,hts,begin,end);
+    void getObjects(size_type filter, Vids& ids, VRcalomet& calomets) const {
+      const size_type begin(calometSlice(filter).first);
+      const size_type   end(calometSlice(filter).second);
+      TriggerRefsCollections::getObjects(ids,calomets,begin,end);
     }
-    void getObjects(size_type filter, int id, VRht& hts) const {
-      const size_type begin(htSlice(filter).first);
-      const size_type   end(htSlice(filter).second);
-      TriggerRefsCollections::getObjects(id,hts,begin,end);
+    void getObjects(size_type filter, int id, VRcalomet& calomets) const {
+      const size_type begin(calometSlice(filter).first);
+      const size_type   end(calometSlice(filter).second);
+      TriggerRefsCollections::getObjects(id,calomets,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRpixtrack& pixtracks) const {
