@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/07/31 14:48:25 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/08/28 10:36:52 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -13,7 +13,7 @@
 
 #include<iostream>
 
-popcon::RpcGasTData::RpcGasTData(const edm::ParameterSet& pset) :
+popcon::RpcObGasData::RpcObGasData(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","RpcData")),
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
@@ -21,11 +21,11 @@ popcon::RpcGasTData::RpcGasTData(const edm::ParameterSet& pset) :
   m_since(pset.getUntrackedParameter<unsigned long long>("since",5)){
 }
 
-popcon::RpcGasTData::~RpcGasTData()
+popcon::RpcObGasData::~RpcObGasData()
 {
 }
 
-void popcon::RpcGasTData::getNewObjects() {
+void popcon::RpcObGasData::getNewObjects() {
 
   std::cout << "------- " << m_name << " - > getNewObjects\n" 
 	    << "got offlineInfo"<< tagInfo().name 
@@ -38,6 +38,7 @@ void popcon::RpcGasTData::getNewObjects() {
 	    << logDBEntry().destinationDB << std::endl; 
   
   snc = tagInfo().lastInterval.first;
+
 
   //--------------------------IOV
   std::string str;
@@ -57,35 +58,41 @@ void popcon::RpcGasTData::getNewObjects() {
   
   RPCFw caen ( host, user, passw );
 
-  std::vector<RPCGasT::GasItem> Gascheck;
-  std::vector<RPCGasT::TempItem> Tcheck;
+  std::vector<RPCObGas::Item> Gascheck;
 
 
   Gascheck = caen.createGAS(snc);
-  Tcheck = caen.createT(snc);  
 
-  Gasdata = new RPCGasT();
-  RPCGasT::GasItem Ifill;
-  std::vector<RPCGasT::GasItem>::iterator Iit;
+
+  Gasdata = new RPCObGas();
+  RPCObGas::Item Ifill;
+  std::vector<RPCObGas::Item>::iterator Iit;
   for(Iit = Gascheck.begin(); Iit != Gascheck.end(); Iit++)
     {
       Ifill = *(Iit);
-      Gasdata->Gas_rpc.push_back(Ifill);
+      Gasdata->ObGas_rpc.push_back(Ifill);
     }
-  std::cout << " >> Final object size: " << Gasdata->Gas_rpc.size() << std::endl;
+  std::cout << " >> Final object size: " << Gasdata->ObGas_rpc.size() << std::endl;
 
 
-  Tdata = new RPCGasT();
-  RPCGasT::TempItem Tfill;
-  std::vector<RPCGasT::TempItem>::iterator Tit;
-  for(Tit = Tcheck.begin(); Tit != Tcheck.end(); Tit++)
-    {
-      Tfill = *(Tit);
-      Tdata->Temp_rpc.push_back(Tfill);
-    }
-  std::cout << " >> Final object size: " << Tdata->Temp_rpc.size() << std::endl;
 
 
-  m_to_transfer.push_back(std::make_pair((RPCGasT*)Gasdata,niov));
-  m_to_transfer.push_back(std::make_pair((RPCGasT*)Tdata,niov+1));
+
+/*
+  Gasdata = new RPCObGas();
+  RPCObGas::Item Ifill;
+
+  for (int i = 0; i < 5; i++) {
+  Ifill.dpid = niov*10+i;
+  Ifill.flowin = niov*10+2*i;
+  Ifill.flowout = niov*10+3*i;
+  Ifill.day = niov*10+4*i;
+  Ifill.time = niov*10+5*i;
+
+  Gasdata->ObGas_rpc.push_back(Ifill);
+  }
+  std::cout << " >> Final object size: " << Gasdata->ObGas_rpc.size() << std::endl;
+*/
+
+  m_to_transfer.push_back(std::make_pair((RPCObGas*)Gasdata,niov));
 }

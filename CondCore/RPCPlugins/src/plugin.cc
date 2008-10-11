@@ -12,19 +12,23 @@
 #include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCdbData.h"
-#include "CondFormats/DataRecord/interface/RPCdbDataRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCGasT.h"
-#include "CondFormats/DataRecord/interface/RPCGasTRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
+
+#include "CondFormats/DataRecord/interface/RPCObGasRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObGas.h"
+#include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObCond.h"
+
+
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
 REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
-REGISTER_PLUGIN(RPCdbDataRcd,RPCdbData);
-REGISTER_PLUGIN(RPCGasTRcd,RPCGasT);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
 REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
+REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
+REGISTER_PLUGIN(RPCObCondRcd,RPCObCond);
+

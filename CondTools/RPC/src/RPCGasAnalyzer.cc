@@ -4,8 +4,8 @@
 
 
 
-typedef popcon::PopConAnalyzer<popcon::RpcGasTData> RPCPopConGasTAnalyzer;
+typedef popcon::PopConAnalyzer<popcon::RpcObGasData> RPCPopConObGasAnalyzer;
 //define this as a plug-in
-DEFINE_FWK_MODULE(RPCPopConGasTAnalyzer);
+DEFINE_FWK_MODULE(RPCPopConObGasAnalyzer);
 
 

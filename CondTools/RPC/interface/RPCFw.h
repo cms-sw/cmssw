@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2008/08/26 17:10:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/28 10:23:53 $
+ *  $Revision: 1.3 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -14,7 +14,7 @@
 
 #include "CondTools/RPC/interface/RPCDBCom.h"
 #include "CoralBase/TimeStamp.h"
-#include "CondTools/RPC/interface/RPCSourceHandler.h"
+#include "CondTools/RPC/interface/RPCCondSH.h"
 #include "CondTools/RPC/interface/RPCGasSH.h"
 
 
@@ -37,11 +37,11 @@ public:
 
 
   coral::TimeStamp thr;
-  std::vector<RPCdbData::Item> createIMON(int from);
-  std::vector<RPCdbData::Item> createVMON(int from); 
-  std::vector<RPCdbData::Item> createSTATUS(int from); 
-  std::vector<RPCGasT::GasItem> createGAS(int from);
-  std::vector<RPCGasT::TempItem> createT(int from);
+  std::vector<RPCObCond::Item> createIMON(int from);
+  std::vector<RPCObCond::Item> createVMON(int from); 
+  std::vector<RPCObCond::Item> createSTATUS(int from); 
+  std::vector<RPCObGas::Item> createGAS(int from);
+  std::vector<RPCObCond::Item> createT(int from);
   
 private:
   std::string m_connectionString;
