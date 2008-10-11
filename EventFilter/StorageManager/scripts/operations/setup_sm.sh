@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.20 2008/10/09 12:57:02 jserrano Exp $
+# $Id: setup_sm.sh,v 1.21 2008/10/11 03:59:03 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -36,6 +36,10 @@ stopunwantedservices () {
     /etc/init.d/gpm      stop >/dev/null 2>&1
 }
 
+startwantedservices () {
+    ~smpro/sm_scripts_cvs/operations/monitoringSar.sh >> /var/log/monitoringSar.log &
+}
+
 start () {
     case $hname in
         cmsdisk0)
@@ -56,11 +60,7 @@ start () {
             done
             ;;
         srv-c2c07-* | srv-C2C07-*)
-
-            modifykparams
             stopunwantedservices
-
-            ~smpro/sm_scripts_cvs/operations/monitoringSar.sh >> /var/log/monitoringSar.log &
 
             if test -x "/sbin/multipath"; then
                 echo "Refresh multipath devices"
@@ -79,6 +79,10 @@ start () {
                 echo "Flushing unused multipath devices"
                 /sbin/multipath -F
             fi
+
+            startwantedservices
+            modifykparams
+            #echo 1 > /proc/sys/fs/xfs/error_level
             ;;
         *)
             echo "Unknown host: $hname"
