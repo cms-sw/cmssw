@@ -6,6 +6,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 ### standard includes
 process.load('Configuration/StandardSequences/GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
+process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
@@ -56,12 +57,6 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring(
-	'drop *', 
-        'keep HLTPerformanceInfo_*_*_*'),
-    fileName = cms.untracked.string('output.SAMPLE.root')
-)
 
 process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis*
                                   process.trackerlocalreco*
@@ -85,7 +80,34 @@ else:
                                            process.cutsTPEffic*process.cutsTPFake*
                                            process.multiTrackValidator)
 
-process.p = cms.Path(process.SEQUENCE)
 
+### customized versoin of the OutputModule
+### it save the mininal information which is necessary to perform tracking validation (tracks, tracking particles, 
+### digiSimLink,etc..)
+
+process.customEventContent = cms.PSet(
+     outputCommands = cms.untracked.vstring('drop *')
+ )
+
+process.customEventContent.outputCommands.extend(process.RecoTrackerRECO.outputCommands)
+process.customEventContent.outputCommands.extend(process.BeamSpotRECO.outputCommands)
+process.customEventContent.outputCommands.extend(process.SimGeneralFEVTDEBUG.outputCommands)
+process.customEventContent.outputCommands.extend(process.RecoLocalTrackerRECO.outputCommands)
+process.customEventContent.outputCommands.append('keep *_simSiStripDigis_*_*')
+process.customEventContent.outputCommands.append('keep *_simSiPixelDigis_*_*')
+process.customEventContent.outputCommands.append('drop SiStripDigiedmDetSetVector_simSiStripDigis_*_*')
+process.customEventContent.outputCommands.append('drop PixelDigiedmDetSetVector_simSiPixelDigis_*_*')
+
+
+
+process.OUTPUT = cms.OutputModule("PoolOutputModule",
+                                  process.customEventContent,
+                                  fileName = cms.untracked.string('output.SAMPLE.root')
+                                  )
+
+
+### final path and endPath
+process.p = cms.Path(process.SEQUENCE)
+#process.outpath = cms.EndPath(process.OUTPUT)
 
 
