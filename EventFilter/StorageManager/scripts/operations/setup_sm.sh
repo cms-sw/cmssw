@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.19 2008/09/30 04:04:14 loizides Exp $
+# $Id: setup_sm.sh,v 1.20 2008/10/09 12:57:02 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -22,19 +22,18 @@ nname="node"`echo $hname | cut -d- -f3`
 # functions
 
 modifykparams () {
-    echo     5 > /proc/sys/vm/dirty_background_ratio
-    echo    15 > /proc/sys/vm/dirty_ratio
-    echo   128 > /proc/sys/vm/lower_zone_protection
+#    echo     5 > /proc/sys/vm/dirty_background_ratio
+#    echo    15 > /proc/sys/vm/dirty_ratio
+    echo   384 > /proc/sys/vm/lower_zone_protection
     echo 16384 > /proc/sys/vm/min_free_kbytes
 }
 
 stopunwantedservices () {
-    /etc/init.d/cups stop
-    /etc/init.d/squid stop
-    /etc/init.d/xfs stop
-    /etc/init.d/sendmail stop
-    /etc/init.d/gpm stop
-#    /etc/init.d/slp stop
+    /etc/init.d/cups     stop >/dev/null 2>&1
+    /etc/init.d/squid    stop >/dev/null 2>&1
+    /etc/init.d/xfs      stop >/dev/null 2>&1
+    /etc/init.d/sendmail stop >/dev/null 2>&1
+    /etc/init.d/gpm      stop >/dev/null 2>&1
 }
 
 start () {
@@ -59,7 +58,7 @@ start () {
         srv-c2c07-* | srv-C2C07-*)
 
             modifykparams
-            stopunwantedservices >/dev/null 2>&1
+            stopunwantedservices
 
             ~smpro/sm_scripts_cvs/operations/monitoringSar.sh >> /var/log/monitoringSar.log &
 
