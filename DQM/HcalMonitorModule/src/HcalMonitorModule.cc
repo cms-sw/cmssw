@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/09/12 16:12:48 $
- * $Revision: 1.76 $
+ * $Date: 2008/09/05 22:07:25 $
+ * $Revision: 1.74 $
  * \author W Fisher
  *
 */
@@ -285,6 +285,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     } // fi (!detid_.null()) 
   } 
   if (dfMon_) {
+    cout << "About to smuggle from beginJob()" << endl;
     dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
   }
   //get conditions
@@ -767,7 +768,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	if (!dccHeader->getSpigotPresent(spigot)) continue;
 	
 	// Load the given decoder with the pointer and length from this spigot.
-	dccHeader->getSpigotData(spigot,htr, fed.size()); 
+	dccHeader->getSpigotData(spigot,htr,fed.size()); 
 	
 	// check min length, correct wordcount, empty event, or total length if histo event.
 	if (!htr.check()) continue;

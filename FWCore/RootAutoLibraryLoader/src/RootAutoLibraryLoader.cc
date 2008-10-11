@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.12 2007/11/07 05:30:09 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.13 2008/04/08 15:59:39 chrjones Exp $
 //
 
 // system include files
@@ -22,7 +22,6 @@
 // user include files
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/RootAutoLibraryLoader/src/stdNamespaceAdder.h"
-#include "FWCore/RootAutoLibraryLoader/interface/CacheStreamers.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
@@ -339,8 +338,6 @@ RootAutoLibraryLoader::RootAutoLibraryLoader() :
    gPrevious = G__p_class_autoloading;
    G__set_class_autoloading_callback(&ALL_AutoLoadCallback);
    registerTypes();
-
-   edm::setCacheStreamers();
 }
 
 

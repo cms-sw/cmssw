@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/22 08:00:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/05 15:48:34 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -31,13 +31,24 @@ HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
   max_        (iConfig.template getParameter<double>("Max")),
-  min_N_      (iConfig.template getParameter<int>("MinN"))
+  min_N_      (iConfig.template getParameter<int>("MinN")),
+  tid_()
 {
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag_.encode() << " " << observable_
 		<< " Range [" << min_ << " " << max_ << "]"
                 << " MinN =" << min_N_
      ;
+
+   if (observable_=="sumEt") {
+     tid_=trigger::TriggerHT;
+   } else if (observable_=="mEtSig") {
+     tid_=trigger::TriggerMETSig;
+   } else if (observable_=="e_longitudinal") {
+     tid_=trigger::TriggerELongit;
+   } else {
+     tid_=Tid;
+   }
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -101,12 +112,12 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (iter=ibegin; iter!=iend; iter++) {
 
      // get hold of value of observable to cut on
-     if (observable_=="sumEt") {
+     if (tid_==TriggerHT) {
        value=iter->sumEt();
-     } else if (observable_=="e_longitudinal") {
-       value=iter->e_longitudinal();
-     } else if (observable_=="mEtSig") {
+     } else if (tid_==TriggerMETSig) {
        value=iter->mEtSig();
+     } else if (tid_==TriggerELongit) {
+       value=iter->e_longitudinal();
      } else {
        value=0.0;
      }
@@ -117,7 +128,7 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ( (max_<0.0) || (value<=max_) ) ) {
        n++;
        ref=TRef(objects,distance(ibegin,iter));
-       filterobject->addObject(Tid,ref);
+       filterobject->addObject(tid_,ref);
      }
 
    }

@@ -282,6 +282,10 @@ int main(int argc, char* argv[])
     edm::Service<edm::RootHandlers> rootHandler;
     rootHandler->disableErrorHandler();
   }
+  catch (edm::Exception& e) {
+    rc = e.returnCode();
+    edm::printCmsException(e, kProgramName, &(jobRep->get()), rc);
+  }
   catch (cms::Exception& e) {
     rc = 8001;
     edm::printCmsException(e, kProgramName, &(jobRep->get()), rc);

@@ -6,6 +6,7 @@
 #include "Rtypes.h"
 #include "Reflex/Type.h"
 class TBranch;
+class TTree;
 
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
@@ -28,6 +29,8 @@ namespace edm {
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     typedef Long64_t EntryNumber;
+    Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
+    Int_t getEntry(TTree * tree, EntryNumber entryNumber);
   }
 }
 #endif

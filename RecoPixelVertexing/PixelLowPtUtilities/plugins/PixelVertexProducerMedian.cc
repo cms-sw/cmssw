@@ -80,7 +80,7 @@ void PixelVertexProducerMedian::produce
 
   std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
 
-  if(tracks.size() > 0)
+  if(tracks.size() > 10)
   {
   // Sort along vertex z position
   std::sort(tracks.begin(), tracks.end(), ComparePairs());
@@ -95,54 +95,43 @@ void PixelVertexProducerMedian::produce
   LogTrace("MinBiasTracking")
    << "  [vertex position] median    = " << med << " cm";
 
-  if(tracks.size() > 10)
-  {
-    // Binning around med, halfWidth
-    int nBin = 100;
-    float halfWidth = 0.1; // cm
+  // Binning around med, halfWidth
+  int nBin = 100;
+  float halfWidth = 0.1; // cm
+
+  // Most probable
+  TH1F histo("histo","histo", nBin, -halfWidth,halfWidth);
+
+  for(std::vector<const reco::Track *>::const_iterator
+      track = tracks.begin(); track!= tracks.end(); track++)
+    if(fabs((*track)->vz() - med) < halfWidth)
+      histo.Fill((*track)->vz() - med);
+
+  LogTrace("MinBiasTracking")
+            << "  [vertex position] most prob = "
+            << med + histo.GetBinCenter(histo.GetMaximumBin())
+            << " cm";
+
+  // Fit above max/2
+  histo.Sumw2();
+
+  TF1 f1("f1","[0]*exp(-0.5 * ((x-[1])/[2])^2) + [3]");
+  f1.SetParameters(10.,0.,0.01, 1.);
+
+  histo.Fit("f1","QN");
+
+  LogTrace("MinBiasTracking")
+            << "  [vertex position] fitted    = "
+            << med + f1.GetParameter(1) << " +- " << f1.GetParError(1)
+            << " cm";
+
+  // Store
+  reco::Vertex::Error err;
+  err(2,2) = f1.GetParError(1) * f1.GetParError(1); 
+  reco::Vertex ver(reco::Vertex::Point(0,0,med + f1.GetParameter(1)),
+                                       err, 0, 1, 1);
   
-    // Most probable
-    TH1F histo("histo","histo", nBin, -halfWidth,halfWidth);
-  
-    for(std::vector<const reco::Track *>::const_iterator
-        track = tracks.begin(); track!= tracks.end(); track++)
-      if(fabs((*track)->vz() - med) < halfWidth)
-        histo.Fill((*track)->vz() - med);
-  
-    LogTrace("MinBiasTracking")
-              << "  [vertex position] most prob = "
-              << med + histo.GetBinCenter(histo.GetMaximumBin())
-              << " cm";
-  
-    // Fit above max/2
-    histo.Sumw2();
-  
-    TF1 f1("f1","[0]*exp(-0.5 * ((x-[1])/[2])^2) + [3]");
-    f1.SetParameters(10.,0.,0.01, 1.);
-  
-    histo.Fit("f1","QN");
-  
-    LogTrace("MinBiasTracking")
-              << "  [vertex position] fitted    = "
-              << med + f1.GetParameter(1) << " +- " << f1.GetParError(1)
-              << " cm";
-    
-    // Store
-    reco::Vertex::Error err;
-    err(2,2) = f1.GetParError(1) * f1.GetParError(1); 
-    reco::Vertex ver(reco::Vertex::Point(0,0,med + f1.GetParameter(1)),
-                                         err, 0, 1, 1);
-    vertices->push_back(ver);
-  }
-  else
-  {
-    // Store
-    reco::Vertex::Error err;
-    err(2,2) = 0.1 * 0.1;
-    reco::Vertex ver(reco::Vertex::Point(0,0,med),
-                                         err, 0, 1, 1);
-    vertices->push_back(ver);
-  }
+  vertices->push_back(ver);
   }
   ev.put(vertices);
 }

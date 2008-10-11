@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.2 2007/06/28 23:28:58 wmtan Exp $
+$Id: TypeID.cc,v 1.3 2007/09/29 03:42:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -20,7 +20,7 @@ namespace edm {
   std::string typeToClassName(const std::type_info& iType) {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
-      throw edm::Exception(errors::ProductNotFound,"NoMatch")
+      throw edm::Exception(errors::DictionaryNotFound,"NoMatch")
       << "TypeID::className: No dictionary for class " << iType.name() << '\n';
     }
     return t.Name(ROOT::Reflex::SCOPED);

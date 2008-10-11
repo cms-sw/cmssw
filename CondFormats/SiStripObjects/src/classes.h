@@ -9,7 +9,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
-#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 
 namespace {
 
@@ -47,12 +46,6 @@ namespace {
   std::vector<SiStripThreshold::Container>::const_iterator tmp23;
   std::vector< SiStripThreshold::DetRegistry >::iterator tmp24;
   std::vector< SiStripThreshold::DetRegistry >::const_iterator tmp25;
-
-
-  std::vector<std::string>::iterator tmp30;
-  std::vector<std::string>::const_iterator tmp31;
-  std::vector< SiStripSummary::DetRegistry >::iterator tmp32;
-  std::vector< SiStripSummary::DetRegistry >::const_iterator tmp33;
 
 }  
   

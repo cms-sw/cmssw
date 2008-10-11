@@ -18,38 +18,33 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/Utilities/interface/CommonOptions.h"
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
 int main( int argc, char** argv ){
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-
-
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_list_iov [options] \n");
-  visible.add_options()
-    ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
-    ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
+  cond::CommonOptions myopt("cmscond_list_iov");
+  myopt.addConnect();
+  myopt.addAuthentication(true);
+  myopt.visibles().add_options()
     ("all,a","list all tags(default mode)")
     ("tag,t",boost::program_options::value<std::string>(),"list info of the specified tag")
-    ("debug,d","switch on debug mode")
-    ("help,h", "help message")
     ;
-  desc.add(visible);
+  myopt.description().add( myopt.visibles() );
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).run(), vm);
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
     std::cerr << er.what()<<std::endl;
     return 1;
   }
   if (vm.count("help")) {
-    std::cout << visible <<std::endl;;
+    std::cout << myopt.visibles() <<std::endl;;
     return 0;
   }
+
   std::string connect;
   std::string authPath("");
   std::string user("");
@@ -81,7 +76,6 @@ int main( int argc, char** argv ){
     debug=true;
   }
 
-
   std::vector<edm::ParameterSet> psets;
 
   edm::ParameterSet pSet;
@@ -93,10 +87,15 @@ int main( int argc, char** argv ){
 
 
   cond::DBSession* session=new cond::DBSession;
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
   }else{
-    session->configuration().setAuthenticationMethod( cond::Env );
+    session->configuration().setAuthenticationMethod( cond::Env );    
   }
   if(debug){
     session->configuration().setMessageLevel( cond::Debug );
@@ -107,12 +106,6 @@ int main( int argc, char** argv ){
   //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
   //session->configuration().connectionConfiguration()->enableConnectionSharing();
   //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
-  ::putenv(const_cast<char*>(authenv.c_str()));
   
   if( connect.find("sqlite_fip:") != std::string::npos ){
     cond::FipProtocolParser p;

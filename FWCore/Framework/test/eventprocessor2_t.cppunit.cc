@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.12 2008/04/04 16:11:03 wdd Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.14 2008/07/03 18:34:57 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -37,7 +37,7 @@ void work()
       "process.source = cms.Source('EmptySource')\n"
       "process.m1 = cms.EDProducer('IntProducer',\n"
       "   ivalue = cms.int32(10))\n"
-      "process.m2 = cms.EDProducer('DoubleProducer',\n"
+      "process.m2 = cms.EDProducer('ToyDoubleProducer',\n"
       "   dvalue = cms.double(3.3))\n"
       "process.out = cms.OutputModule('AsciiOutputModule')\n"
       "process.p1 = cms.Path(process.m1*process.m2)\n"

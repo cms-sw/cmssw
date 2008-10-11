@@ -181,7 +181,7 @@ void test_ep::setUp()
     const edm::ConstBranchDescription branchFromRegistry(it->second);
 
     boost::shared_ptr<edm::EventEntryDescription> entryDescriptionPtr(new edm::EventEntryDescription);
-    entryDescriptionPtr->moduleDescriptionID_ = branchFromRegistry.moduleDescriptionID();
+    entryDescriptionPtr->moduleDescriptionID() = branchFromRegistry.moduleDescriptionID();
     std::auto_ptr<edm::EventEntryInfo> branchEntryInfoPtr(
       new edm::EventEntryInfo(branchFromRegistry.branchID(),
                                edm::productstatus::present(),

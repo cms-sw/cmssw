@@ -153,7 +153,7 @@ namespace edm {
      {
        if(*end != 0)
        {
-         throw cms::Exception("Configuration") <<  "Cannot create a value of type " << type()
+         throw edm::Exception(errors::Configuration) <<  "Cannot create a value of type " << type()
             <<  " for parameter " << name() << " from input " << s
             << "\nIncluded from " << traceback();
        }

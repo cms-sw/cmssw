@@ -5,8 +5,8 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2008/05/14 18:12:03 $
- * $Revision: 1.8 $
+ * $Date: 2007/09/07 14:31:43 $
+ * $Revision: 1.7 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
@@ -29,7 +29,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "RecoMuon/CosmicMuonProducer/interface/GlobalCosmicMuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
@@ -61,7 +60,6 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
-  produces<TrajTrackAssociationCollection>();
 
   produces<reco::MuonTrackLinksCollection>();
 

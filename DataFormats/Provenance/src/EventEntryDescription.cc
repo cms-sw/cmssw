@@ -11,14 +11,14 @@ namespace edm {
   EventEntryDescription::EventEntryDescription() :
     parents_(),
     moduleDescriptionID_(),
-    moduleDescriptionPtr_()
+    transients_()
   { }
 
   void
   EventEntryDescription::init() const {
-    if (moduleDescriptionPtr_.get() == 0) {
-      moduleDescriptionPtr_.reset(new ModuleDescription);
-      bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
+    if (!moduleDescriptionPtr()) {
+      moduleDescriptionPtr().reset(new ModuleDescription);
+      bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr());
 
       assert(found);
     }

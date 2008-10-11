@@ -106,7 +106,7 @@ void BTagPerformanceAnalyzerMC::bookHistos(const edm::ParameterSet& pSet)
 	  // Instantiate the genertic b tag plotter
 	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(
 							   moduleLabel.label(), etaPtBin,
-							   moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"),mcPlots_,update);
+							   moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"),mcPlots_,update,finalize);
 	  binJetTagPlotters.back().push_back ( jetTagPlotter ) ;
 	  
 	  // Add to the corresponding differential plotters
@@ -146,7 +146,7 @@ void BTagPerformanceAnalyzerMC::bookHistos(const edm::ParameterSet& pSet)
 	  
 	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(
 								      dataFormatType, moduleLabel.label(), etaPtBin, 
-								      moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"), update, mcPlots_);
+								      moduleConfig[iModule].getParameter<edm::ParameterSet>("parameters"), update, mcPlots_,finalize);
 	  binTagInfoPlotters.back().push_back ( jetTagPlotter ) ;
           binTagInfoPlottersToModuleConfig[jetTagPlotter] = iModule;
 	}

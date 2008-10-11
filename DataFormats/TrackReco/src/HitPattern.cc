@@ -660,7 +660,7 @@ int HitPattern::numberOfValidStripLayersWithMonoAndStereo () const
 {
      static const int nHits = (PatternSize * 32) / HitSize;
      bool hasMono[SubstrMask + 1][LayerMask + 1];
-     printf("sizeof(hasMono) = %d\n", sizeof(hasMono));
+     //     printf("sizeof(hasMono) = %d\n", sizeof(hasMono));
      memset(hasMono, 0, sizeof(hasMono));
      bool hasStereo[SubstrMask + 1][LayerMask + 1];
      memset(hasStereo, 0, sizeof(hasStereo));

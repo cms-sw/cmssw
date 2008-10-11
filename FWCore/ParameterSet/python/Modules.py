@@ -1,7 +1,7 @@
 from Mixins import _ConfigureComponent, saveOrigin
 from Mixins import _Unlabelable, _Labelable
 from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
-from SequenceTypes import _Sequenceable
+from SequenceTypes import _SequenceLeaf
 from Types import vstring
 
 from ExceptionHandling import *
@@ -111,7 +111,7 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
            result += ')\n'
        return result
 
-class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
+class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf):
     """base class for classes which denote framework event based 'modules'"""
     __isStrict__ = False  
     def __init__(self,type_,*arg,**kargs):

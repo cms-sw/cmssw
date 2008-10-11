@@ -52,8 +52,22 @@ public:
   L1GctHfLutSetup();
   ~L1GctHfLutSetup();
 
+  // Set method for the thresholds
   void setThresholds(const hfLutType type, const std::vector<unsigned> thr);
 
+  // Accessor methods
+  std::vector<unsigned> getThresholds(const hfLutType type) const;
+
+  std::vector<unsigned> getCountThresholdsPosEtaRing1() const { return getThresholds(bitCountPosEtaRing1); }
+  std::vector<unsigned> getCountThresholdsPosEtaRing2() const { return getThresholds(bitCountPosEtaRing2); }
+  std::vector<unsigned> getCountThresholdsNegEtaRing1() const { return getThresholds(bitCountNegEtaRing1); }
+  std::vector<unsigned> getCountThresholdsNegEtaRing2() const { return getThresholds(bitCountNegEtaRing2); }
+  std::vector<unsigned> getEtSumThresholdsPosEtaRing1() const { return getThresholds(etSumPosEtaRing1); }
+  std::vector<unsigned> getEtSumThresholdsPosEtaRing2() const { return getThresholds(etSumPosEtaRing2); }
+  std::vector<unsigned> getEtSumThresholdsNegEtaRing1() const { return getThresholds(etSumNegEtaRing1); }
+  std::vector<unsigned> getEtSumThresholdsNegEtaRing2() const { return getThresholds(etSumNegEtaRing2); }
+
+  // This is the LUT result
   uint16_t outputValue(const hfLutType type, const uint16_t inputValue) const;
 
 private:

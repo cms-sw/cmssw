@@ -48,7 +48,7 @@ process.dqmHarvesing = cms.EDFilter("SiStripOfflineDQM",
     CreateSummary       = cms.untracked.bool(True),
     InputFileName       = cms.untracked.string('xMERGED_INPUT_FILEx'),
     OutputFileName      = cms.untracked.string('xMERGED_OUTPUT_FILEx'),
-    GlobalStatusFilling = cms.untracked.bool(True)
+    GlobalStatusFilling      = cms.untracked.int32(1)
 )
 
 #-------------------------------------------------

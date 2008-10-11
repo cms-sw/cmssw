@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.9.2.1 2008/04/04 20:26:33 slava77 Exp $
+// $Id: MET.h,v 1.13 2008/06/26 00:04:37 slava77 Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -13,7 +13,7 @@
    within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: MET.h,v 1.9.2.1 2008/04/04 20:26:33 slava77 Exp $
+  \version  $Id: MET.h,v 1.13 2008/06/26 00:04:37 slava77 Exp $
 */
 
 
@@ -98,7 +98,7 @@ namespace pat {
       //! present ordering: 
       //! 1: jet escale Type1 correction
       //! 2: muon Type1 (?) correction
-      uint nCorrections() const;
+      unsigned int nCorrections() const;
       enum UncorectionType {
 	uncorrALL = 0, //! uncorrect to bare bones
 	uncorrJES,     //! uncorrect for JES only
@@ -127,7 +127,7 @@ namespace pat {
 
       //! uncorrection transients
       mutable std::vector<UncorInfo> uncorInfo_;
-      mutable uint nCorrections_;
+      mutable unsigned int nCorrections_;
       mutable double oldPt_;
 
       void checkUncor_() const;

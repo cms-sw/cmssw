@@ -1,5 +1,4 @@
 <use name=DataFormats/SiStripDetId>
-<use name=CalibTracker/SiStripCommon>
 <use name=DQMServices/Core>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>

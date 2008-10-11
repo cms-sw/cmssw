@@ -4,7 +4,9 @@ sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
-    SummaryXMLFileName = cms.untracked.string('DQM/SiPixelMonitorClient/test/sipixel_offline_config.xml')
+    HighResolutionOccupancy = cms.untracked.bool(False),
+    NoiseRateCutValue = cms.untracked.double(-1.),
+    UseOfflineXMLFile = cms.untracked.bool(True)
 )
 
 PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)

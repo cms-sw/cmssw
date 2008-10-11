@@ -10,6 +10,7 @@
 <use name=boost>
 <use name=rootcintex>
 <use name=rootcore>
+<use name=roothistmatrix>
 <use name=sigcpp>
 <use name=xerces-c>
 <export>

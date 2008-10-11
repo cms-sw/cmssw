@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/08/03 15:14:37 $
- * $Revision: 1.38 $
+ * $Date: 2008/09/19 12:34:21 $
+ * $Revision: 1.39 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -90,7 +90,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-  globalStatusFilling_   = ps.getUntrackedParameter<bool>("GlobalStatusFilling", true);
+  globalStatusFilling_   = ps.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   rawDataTag_            = ps.getUntrackedParameter<edm::InputTag>("RawDataTag"); 
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
@@ -164,10 +164,13 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 //
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
-  if (nEvents_ == 1 && globalStatusFilling_) {
+  if (nEvents_ == 1 && globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
-    if (trackerFEDsFound_) actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
-    else                   actionExecutor_->fillDummyGlobalStatus();
+    if (!trackerFEDsFound_) actionExecutor_->fillDummyGlobalStatus();
+    else {
+      if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
+      if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
+    }
   }
 
   unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
@@ -217,8 +220,9 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  if (globalStatusFilling_ && trackerFEDsFound_) {
-    actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
+  if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
+    if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
+    if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
   }
 }
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/12 18:50:44 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/08/26 19:17:30 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -43,10 +43,6 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("JetMET/CaloMETAnalyzer");
-
-  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-  nHLTPathsJetMB_=HLTPathsJetMBByName_.size();
-  HLTPathsJetMBByIndex_.resize(nHLTPathsJetMB_);
 
   jetME = dbe->book1D("caloMETReco", "caloMETReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloMET",1);
@@ -90,85 +86,143 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 }
 
 void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			      const edm::TriggerResults& triggerResults,
 			      const reco::CaloMET& calomet, const reco::CaloMET& calometNoHF) {
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Analyze CaloMET";
 
   jetME->Fill(1);
 
-  // ==========================================================  
-  // Trigger information 
+  // ==========================================================
+  // Temporarily added by KH to get metNoHF on-the-fly
   //
-  if(&triggerResults) {   
-    /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
-    /*
-    int ntrigs = triggerResults.size();
-    std::cout << triggerResults << std::endl;
-    std::cout << "ntrigs=" << ntrigs << std::endl;
-    */
+  // get collection of towers
+  edm::Handle<CaloTowerCollection> calotowers;
+  iEvent.getByLabel("towerMaker", calotowers);   
+  const CaloTowerCollection* inputCol = calotowers.product();
+  CaloTowerCollection::const_iterator calotower;
 
-    edm::TriggerNames triggerNames; // TriggerNames class
-    triggerNames.init(triggerResults);
+  double sumet=0.;
+  double metx=0.;
+  double mety=0.;
 
-    unsigned int n(nHLTPathsJetMB_);
-    for (unsigned int i=0; i!=n; i++) {
-      HLTPathsJetMBByIndex_[i]=triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
-    }
-    
-    // for empty input vectors (n==0), default to all HLT trigger paths!
-    if (n==0) {
-      n=triggerResults.size();
-      HLTPathsJetMBByName_.resize(n);
-      HLTPathsJetMBByIndex_.resize(n);
-      for (unsigned int i=0; i!=n; i++) {
-        HLTPathsJetMBByName_[i]=triggerNames.triggerName(i);
-        HLTPathsJetMBByIndex_[i]=i;
+  double sumetNoHF=0.;
+  double metxNoHF=0.;
+  double metyNoHF=0.;
+
+  double sum_emetEB=0.;
+  double sum_hadetHB=0.;
+  double sum_emetEE=0.;
+  double sum_hadetHE=0.;
+  double sum_emetHF=0.;
+  double sum_hadetHF=0.;
+  double sum_hadetHO=0.;
+
+  double metx_emetEB=0.;
+  double metx_hadetHB=0.;
+  double metx_emetEE=0.;
+  double metx_hadetHE=0.;
+  double metx_emetHF=0.;
+  double metx_hadetHF=0.;
+  double metx_hadetHO=0.;
+
+  double mety_emetEB=0.;
+  double mety_hadetHB=0.;
+  double mety_emetEE=0.;
+  double mety_hadetHE=0.;
+  double mety_emetHF=0.;
+  double mety_hadetHF=0.;
+  double mety_hadetHO=0.;
+
+  double etthreshold=0.5;
+
+  for( calotower = inputCol->begin(); calotower != inputCol->end(); ++calotower )
+    {
+      double phi   = calotower->phi();
+      //double eta   = calotower->eta();
+      //double e     = calotower->energy();
+      double et    = calotower->et();
+      //
+      // Recompute sumet and met
+      if (et>etthreshold){
+      sumet += et ;
+      metx  += et*cos(phi) ;
+      mety  += et*sin(phi) ;       
+      // }
+      //
+      /*
+      printf(" towers: phi=%7.3f eta=%7.3f et=%7.3f emet=%7.3f hadet=%7.3f totet=%7.3f outeret=%7.3f\n",
+	     phi,eta,et,calotower->emEt(),calotower->hadEt(),
+	     calotower->emEt()+calotower->hadEt(),calotower->outerEt());
+      */
+      //
+      // sub-detectors
+      bool hadIsDone = false;
+      bool emIsDone = false;       
+      int cell = calotower->constituentsSize();
+      //printf("cell=%3d\n",cell);
+      //
+      while ( --cell >= 0 && (!hadIsDone || !emIsDone)){
+	DetId id = calotower->constituent( cell );       
+	//
+	//--- HCAL
+	if (!hadIsDone && id.det() == DetId::Hcal){
+	  if (hadIsDone) printf("***WARNING*** hcal twice\n");
+	  //printf("hcal\n");
+	  HcalSubdetector subdet = HcalDetId(id).subdet();
+	  //--- Which HCAL?
+	  if( subdet == HcalBarrel || subdet == HcalOuter ){
+	    //printf("hcal barrel or outer\n");	     
+	    sum_hadetHB  += calotower->hadEt();
+	    sum_hadetHO  += calotower->outerEt();
+	    metx_hadetHB -= calotower->hadEt()*cos(phi);
+	    metx_hadetHO -= calotower->outerEt()*cos(phi);
+	    mety_hadetHB -= calotower->hadEt()*sin(phi);
+	    mety_hadetHO -= calotower->outerEt()*sin(phi);
+	  }
+	  else if( subdet == HcalEndcap ){
+	    //printf("hcal endcap\n");	     
+	    sum_hadetHE  += calotower->hadEt();
+	    metx_hadetHE -= calotower->hadEt()*cos(phi);
+	    mety_hadetHE -= calotower->hadEt()*sin(phi);
+	  }
+	  else if( subdet == HcalForward ){
+	    //printf("hcal forward\n");	     
+	    sum_hadetHF  += calotower->hadEt();
+	    sum_emetHF   += calotower->emEt();
+	    metx_hadetHF -= calotower->hadEt()*cos(phi);
+	    metx_emetHF  -= calotower->emEt()*cos(phi);
+	    mety_hadetHF -= calotower->hadEt()*sin(phi);
+	    mety_emetHF  -= calotower->emEt()*sin(phi);
+	  }	     
+	  hadIsDone = true;
+	}
+	//
+	//--- ECAL
+	if (!emIsDone && id.det() == DetId::Ecal){
+	  if (emIsDone) printf("***WARNING*** em twice\n");
+	  //printf("ecal\n");
+	  EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
+	  //--- Which ECAL?
+	  if( subdet == EcalBarrel ){
+	    //printf("ecal barrel\n");	     
+	    sum_emetEB  += calotower->emEt();
+	    metx_emetEB -= calotower->emEt()*cos(phi);
+	    mety_emetEB -= calotower->emEt()*sin(phi);
+	  }
+	  else if( subdet == EcalEndcap ){
+	    //printf("ecal endcap\n");	     
+	    sum_emetEE  += calotower->emEt();
+	    metx_emetEE -= calotower->emEt()*cos(phi);
+	    mety_emetEE -= calotower->emEt()*sin(phi);
+	  }
+	  emIsDone = true;
+	}	 
       }
-    }  
-
-    /*
-    const string invalid("@@invalid@@");
-    if (n>0) {
-      std::cout << "  HLT trigger paths requested: index, name and valididty:" << std::endl;
-      for (unsigned int i=0; i!=n; i++) {
-        bool validity ( (HLTPathsJetMBByIndex_[i]<triggerResults.size()) && (HLTPathsJetMBByName_[i]!=invalid) );
-	std::cout << " " << HLTPathsJetMBByIndex_[i]
-		  << " " << HLTPathsJetMBByName_[i]
-		  << " " << validity << std::endl;
-      }
+      //
+      } // et-threshold
     }
-    */
+  //--- Temporary addition ends
 
-    // count number of requested Jet or MB HLT paths which have fired
-    unsigned int fired(0);
-    for (unsigned int i=0; i!=n; i++) {
-      if (HLTPathsJetMBByIndex_[i]<triggerResults.size()) {
-        if (triggerResults.accept(HLTPathsJetMBByIndex_[i])) {
-          fired++;
-        }
-      }
-    }
-
-    if (fired==0) return;
-
-    // ...Loop over trigger paths and check bits for jet triggers
-    /*
-    for (int itrig = 0; itrig != ntrigs; ++itrig){
-      string trigName=triggerNames.triggerName(itrig);
-      bool accept = triggerResults.accept(itrig);
-      std::cout << trigName << " " << accept << std::endl;
-    }
-    */
-
-  } else {
-
-    edm::LogInfo("CaloMetAnalyzer") << "TriggerResults::HLT not found, "
-      "automatically select events"; 
-    //return;
-    
-  }
-   
   // ==========================================================
   // Reconstructed MET Information
   double caloSumET  = calomet.sumEt();
@@ -213,6 +267,21 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        << endl;
   ***/
   //
+
+  //--- temporary fix of the threshold problem in metNoHF
+  sumetNoHF = sum_hadetHB +sum_hadetHE  +sum_emetEB  +sum_emetEE;
+  metxNoHF  = metx_emetEB +metx_hadetHB +metx_emetEE +metx_hadetHE;
+  metyNoHF  = mety_emetEB +mety_hadetHB +mety_emetEE +mety_hadetHE;
+  math::XYZTLorentzVector METNoHFfix(metxNoHF, metyNoHF, 0, pow(metxNoHF*metxNoHF+metyNoHF*metyNoHF,0.5));
+  caloSumETNoHF  = sumetNoHF;
+  if (sumet>0.)
+  caloMETSigNoHF = METNoHFfix.pt()/sqrt(sumet);
+  caloMETNoHF    = METNoHFfix.pt();
+  caloMExNoHF    = METNoHFfix.px();
+  caloMEyNoHF    = METNoHFfix.py();
+  caloMETPhiNoHF = METNoHFfix.phi();
+  //caloEzNoHF not fixed
+  //--- temporary fix ends
 
   hCaloMEx->Fill(caloMEx);
   hCaloMEy->Fill(caloMEy);

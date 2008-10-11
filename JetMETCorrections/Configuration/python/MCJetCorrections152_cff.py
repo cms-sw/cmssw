@@ -26,31 +26,31 @@ MCJetCorrectorktjet4 = cms.ESSource("MCJetCorrectionService",
     label = cms.string('MCJetCorrectorktjet4')
 )
 
-MCJetCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
+MCJetCorJetIcone5 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("iterativeCone5CaloJets"),
     correctors = cms.vstring('MCJetCorrectorIcone5'),
     alias = cms.untracked.string('MCJetCorJetIcone5')
 )
 
-MCJetCorJetktjet4 = cms.EDProducer("CaloJetCorrectionProducer",
+MCJetCorJetktjet4 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("kt4CaloJets"),
     correctors = cms.vstring('MCJetCorrectorktjet4'),
     alias = cms.untracked.string('MCJetCorJetktjet4')
 )
 
-MCJetCorJetktjet6 = cms.EDProducer("CaloJetCorrectionProducer",
+MCJetCorJetktjet6 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("kt6CaloJets"),
     correctors = cms.vstring('MCJetCorrectorktjet6'),
     alias = cms.untracked.string('MCJetCorJetktjet6')
 )
 
-MCJetCorJetScone5 = cms.EDProducer("CaloJetCorrectionProducer",
+MCJetCorJetScone5 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("sisCone5CaloJets"),
     correctors = cms.vstring('MCJetCorrectorScone5'),
     alias = cms.untracked.string('MCJetCorJetScone5')
 )
 
-MCJetCorJetScone7 = cms.EDProducer("CaloJetCorrectionProducer",
+MCJetCorJetScone7 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("sisCone7CaloJets"),
     correctors = cms.vstring('MCJetCorrectorScone7'),
     alias = cms.untracked.string('MCJetCorJetScone7')

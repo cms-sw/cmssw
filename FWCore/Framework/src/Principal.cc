@@ -112,11 +112,24 @@ namespace edm {
       return SharedConstGroupPtr();
     }
     SharedConstGroupPtr const& g = it->second;
-    if (resolveProv && g->provenanceAvailable()) {
+    if (resolveProv && (g->provenanceAvailable() || g->onDemand())) {
+      if(g->onDemand()) {
+         //must execute the unscheduled to get the provenance
+         this->resolveProduct(*g, true);
+         //check if this failed (say because of a caught exception)
+         if( 0 == g->product()) {
+            //behavior is the same as if the group wasn't there
+            return SharedConstGroupPtr();
+         }
+      }
       this->resolveProvenance(*g);
     }
     if (resolveProd && !g->productUnavailable()) {
       this->resolveProduct(*g, fillOnDemand);
+      if(g->onDemand() && 0 == g->product()) {
+         //behavior is the same as if the group wasn't there
+         return SharedConstGroupPtr();
+      }
     }
     return g;
   }

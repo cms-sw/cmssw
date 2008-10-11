@@ -36,15 +36,18 @@ class SiStripActionExecutor {
 		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store);
 
  void bookGlobalStatus(DQMStore* dqm_store);     
- void fillGlobalStatus(const edm::ESHandle<SiStripDetCabling>& detcabling, DQMStore* dqm_store);
+ void fillGlobalStatusFromModule(DQMStore* dqm_store);
+ void fillGlobalStatusFromLayer(DQMStore* dqm_store);
+ 
  void resetGlobalStatus();
  void fillDummyGlobalStatus();
 
  private:
 
- void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
+ void fillSubDetStatusFromModule(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
 		       int& error_me_subdet, unsigned int xbin);
- void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, unsigned int xbin);
+ void fillSubDetStatusFromLayer(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
+		       int& error_me_subdet, unsigned int xbin);
  bool goToDir(DQMStore * dqm_store, std::string name);
 
 

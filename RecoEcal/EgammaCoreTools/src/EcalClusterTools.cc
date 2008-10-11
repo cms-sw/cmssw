@@ -54,18 +54,7 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
 }
 
 
-// Returns the energy in a rectangle of crystals
-// specified in eta by ixMin and ixMax
-//       and in phi by iyMin and iyMax
-//
-// Reference picture (X=seed crystal)
-//    iy ___________
-//     2 |_|_|_|_|_|
-//     1 |_|_|_|_|_|
-//     0 |_|_|X|_|_|
-//    -1 |_|_|_|_|_|
-//    -2 |_|_|_|_|_|
-//      -2 -1 0 1 2 ix
+
 float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
         // fast version
@@ -199,7 +188,7 @@ float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalR
 }
 
 
-// 
+
 float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
@@ -211,25 +200,9 @@ float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRe
 float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
-        return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, -1 );
+        return matrixEnergy( cluster, recHits, topology, id, -2, -2, -2, -1 );
 }
 
-// Energy in 2x5 strip containing the max crystal.
-// Adapted from code by Sam Harper
-float EcalClusterTools::e2x5Max( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
-{
-  DetId id =      getMaximum( cluster.getHitsByDetId(), recHits ).first;
-  
-  // 1x5 strip left of seed
-  float left   = matrixEnergy( cluster, recHits, topology, id, -1, -1, -2, 2 );
-  // 1x5 strip right of seed
-  float right  = matrixEnergy( cluster, recHits, topology, id,  1,  1, -2, 2 );
-  // 1x5 strip containing seed
-  float centre = matrixEnergy( cluster, recHits, topology, id,  0,  0, -2, 2 );
-
-  // Return the maximum of (left+center) or (right+center) strip
-  return left > right ? left+centre : right+centre;
-}
 
 
 float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
@@ -531,78 +504,6 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 }
 
 
-//this is only defined for the barrel, it falls back on the covariances method for endcap
-//instead of using absolute eta/phi it counts crystals normalised so that it gives identical results to normal covariances except near the cracks where of course its better 
-std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry, float w0)
-{
-  //first check if its in the endcap and if so fall back on normal covariances
-  std::vector<DetId> v_id = cluster.getHitsByDetId();
-  if(v_id[0].subdetId()== EcalEndcap) return covariances(cluster,recHits,topology,geometry,w0);
-
-        float e_5x5 = e5x5( cluster, recHits, topology );
-        float covEtaEta, covEtaPhi, covPhiPhi;
-
-        if (e_5x5 > 0.) {
-                //double w0_ = parameterMap_.find("W0")->second;
-               
-                math::XYZVector meanPosition = meanClusterPosition( cluster, recHits, topology, geometry );
-	
-
-
-                // now we can calculate the covariances
-                double numeratorEtaEta = 0;
-                double numeratorEtaPhi = 0;
-                double numeratorPhiPhi = 0;
-                double denominator     = 0;
-
-		const double barrelCrysSize = 0.01745; //approximate size of crystal in eta,phi in barrel
-
-                DetId id = getMaximum( v_id, recHits ).first;
-	
-		GlobalPoint seedPos = geometry->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
-		double dEtaSeedMean = meanPosition.eta() - seedPos.eta();
-		double dPhiSeedMean = meanPosition.phi() - seedPos.phi();
-                CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
-                for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
-		  for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
-                                cursor.home();
-                                cursor.offsetBy( eastNr, northNr);
-                                float energy = recHitEnergy( *cursor, recHits );
-
-                                if ( energy <= 0 ) continue;
-			
-				double dPhi = northNr*barrelCrysSize -dPhiSeedMean;
-                                if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
-                                if (dPhi < - Geom::pi()) { dPhi = Geom::twoPi() + dPhi; }
-				//calonavigator has east (-ve eta) as postive x hence the minus sign
-                                double dEta = -1*eastNr*barrelCrysSize - dEtaSeedMean;
-
-                                double w = 0.;
-                                w = std::max(0.0, w0 + log( energy / e_5x5 ));
-
-                                denominator += w;
-                                numeratorEtaEta += w * dEta * dEta;
-                                numeratorEtaPhi += w * dEta * dPhi;
-                                numeratorPhiPhi += w * dPhi * dPhi;
-                        }
-                }
-
-                covEtaEta = numeratorEtaEta / denominator;
-                covEtaPhi = numeratorEtaPhi / denominator;
-                covPhiPhi = numeratorPhiPhi / denominator;
-        } else {
-                // Warn the user if there was no energy in the cells and return zeroes.
-                //       std::cout << "\ClusterShapeAlgo::Calculate_Covariances:  no energy in supplied cells.\n";
-                covEtaEta = 0;
-                covEtaPhi = 0;
-                covPhiPhi = 0;
-        }
-        std::vector<float> v;
-        v.push_back( covEtaEta );
-        v.push_back( covEtaPhi );
-        v.push_back( covPhiPhi );
-        return v;
-}
 
 double EcalClusterTools::zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0, bool logW, float w0 )
 {

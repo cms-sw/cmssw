@@ -48,8 +48,6 @@ class ElectronClassification
   void classify(const reco::GsfElectron &);
 
   bool isInCrack(float eta) const;
-  bool isInEtaGaps(float eta) const;
-  bool isInPhiGaps(float phi) const;
 
   int electronClass_;
 

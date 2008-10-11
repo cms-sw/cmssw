@@ -27,7 +27,8 @@ and how it came into existence.
 */
 
 namespace edm {
-  struct EntryDescription {
+  class EntryDescription {
+  public:
     EntryDescription();
 
     ~EntryDescription() {}
@@ -35,28 +36,23 @@ namespace edm {
     // Only the 'salient attributes' are encoded into the ID.
     EntryDescriptionID id() const;
 
-    // The Product IDs of the parents
+    void write(std::ostream& os) const;
+
+    std::vector<ProductID> const& parents() const {return parents_;}
+    std::vector<ProductID> & parents() {return parents_;}
+
+    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
+    ModuleDescriptionID & moduleDescriptionID() {return moduleDescriptionID_;}
+
+
+  private:
+    // The Branch IDs of the parents
     std::vector<ProductID> parents_;
 
     // the last of these is not in the roadmap, but is on the board
 
     ModuleDescriptionID moduleDescriptionID_;
 
-    // transient.  Filled in from the hash when needed.
-    mutable boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_; //! transient
-
-    void init() const;
-
-    void write(std::ostream& os) const;
-
-    std::string const& moduleName() const {init(); return moduleDescriptionPtr_->moduleName_;}
-    PassID const& passID() const {init(); return moduleDescriptionPtr_->passID();}
-    ParameterSetID const& psetID() const {init(); return moduleDescriptionPtr_->parameterSetID();}
-    ReleaseVersion const& releaseVersion() const {init(); return moduleDescriptionPtr_->releaseVersion();}
-    std::vector<ProductID> const& parents() const {return parents_;}
-
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
-    ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}
   };
   
   inline

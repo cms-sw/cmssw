@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.26 2008/07/21 16:44:38 charaf Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.30 2008/09/27 16:54:32 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -69,6 +69,8 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   tecon = ParametersDetsOn.getParameter<bool>("tecon");
 
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
+  Mod_On_ = conf_.getParameter<bool>("Mod_On");
+
 }
 //------------------------------------------------------------------------------------------
 SiStripMonitorDigi::~SiStripMonitorDigi() { }
@@ -151,10 +153,12 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       ModMEs local_modmes;
       local_modmes.nStrip = tkmechstruct->nApvPairs(detid) * 2 * 128;
 
-      // set appropriate folder using SiStripFolderOrganizer
-      folder_organizer.setDetectorFolder(detid); // pass the detid to this method
-      if (reset_each_run) ResetModuleMEs(detid);
-      createModuleMEs(local_modmes, detid);
+      if (Mod_On_) {
+	// set appropriate folder using SiStripFolderOrganizer
+	folder_organizer.setDetectorFolder(detid); // pass the detid to this method
+	if (reset_each_run) ResetModuleMEs(detid);
+	createModuleMEs(local_modmes, detid);
+      }
       // append to DigiMEs
       DigiMEs.insert( std::make_pair(detid, local_modmes));
 
@@ -167,10 +171,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
         std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB")      substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
         else if (det_layer_pair.first == "TOB") substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
-        else if (det_layer_pair.first == "TID" && lnumber > 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,lnumber,0,0);
-        else if (det_layer_pair.first == "TID" && lnumber < 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,lnumber,0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber > 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,lnumber,0,0,0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber < 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,lnumber,0,0,0,0);
+        else if (det_layer_pair.first == "TID" && lnumber > 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
+        else if (det_layer_pair.first == "TID" && lnumber < 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
+        else if (det_layer_pair.first == "TEC" && lnumber > 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
+        else if (det_layer_pair.first == "TEC" && lnumber < 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
 
 	int subdetid;
 	int subsubdetid;
@@ -250,7 +254,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(isearch==digi_detsetvektor->end()){
 	  
 	  // no digis for this detector module, so fill histogram with 0
-	  if(moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
+	  if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
 	    (local_modmes.NumberOfDigis)->Fill(0.0); 
 	  
 	  if (layerswitchnumdigisprofon) 
@@ -266,7 +270,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	edm::DetSet<SiStripDigi> digi_detset = (*digi_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
 
 	// nr. of digis per detector
-	if(moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL)) 
+	if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL)) 
 	  (local_modmes.NumberOfDigis)->Fill(static_cast<float>(digi_detset.size()));
         
         ndigi_layer += digi_detset.size();
@@ -291,14 +295,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  int this_adc = digiIter->adc();
 	  if (this_adc > 0.0) det_occupancy++;
 
-	  //          if (layer_label.find("TOB") != std::string::npos) {
-	    //            std::cout << layer_label<< " "  << detid << " " << digiIter->strip() << " " << digiIter->adc() <<
-	  //	      " " << det_occupancy << "  "<< local_modmes.nStrip << std::endl;
-	  //          }
 	  if(this_adc>largest_adc) largest_adc  = this_adc; 
 	  if(this_adc<smallest_adc) smallest_adc  = this_adc; 
 	  
-	  if(moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL ) )
+	  if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
 	    (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
 	  	  
 	  //Fill #ADCs for this digi at layer level
@@ -315,9 +315,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
         // Occupancy
         if (local_modmes.nStrip > 0 && det_occupancy > 0 ) {
           det_occupancy = det_occupancy/local_modmes.nStrip;
-	  if (moduleswitchstripoccupancyon) {
+	  if (Mod_On_ && moduleswitchstripoccupancyon && (local_modmes.StripOccupancy != NULL))
             (local_modmes.StripOccupancy)->Fill(det_occupancy);
-          }
           if (layerswitchstripoccupancyon) {
 	    fillME(local_layermes.LayerStripOccupancy, det_occupancy);
             if (createTrendMEs) fillTrend(local_layermes.LayerStripOccupancyTrend, det_occupancy);
@@ -328,11 +327,11 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
         if  (smallest_adc < smallest_adc_layer) smallest_adc_layer = smallest_adc;
 
 	// nr. of adcs for hottest strip
-	if(moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL)) 
+	if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL)) 
 	  (local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc));
 	
 	// nr. of adcs for coolest strip	
-	if(moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != NULL)) 
+	if(Mod_On_ && moduleswitchadccooleston && (local_modmes.ADCsCoolestStrip != NULL)) 
 	  (local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc));
 	
       }//end of loop over DetIds
@@ -370,19 +369,19 @@ void SiStripMonitorDigi::endJob(void){
 
       monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"      ++++++detid  "<<idet->first<<std::endl<<std::endl;
 
-      if(moduleswitchnumdigison) {     
+      if(Mod_On_ && moduleswitchnumdigison) {     
 	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ NumberOfDigis "<<(idet->second).NumberOfDigis->getEntries()<<" "<<(idet->second).NumberOfDigis->getMean()<<" "<<(idet->second).NumberOfDigis->getRMS()<<std::endl;
       }
 
-      if(moduleswitchadchotteston) {     
+      if(Mod_On_ && moduleswitchadchotteston) {     
 	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsHottestStrip "<<(idet->second).ADCsHottestStrip->getEntries()<<" "<<(idet->second).ADCsHottestStrip->getMean()<<" "<<(idet->second).ADCsHottestStrip->getRMS()<<std::endl;
       }
 
-      if(moduleswitchadccooleston) {     
+      if(Mod_On_ && moduleswitchadccooleston) {     
 	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ ADCsCoolestStrip "<<(idet->second).ADCsCoolestStrip->getEntries()<<" "<<(idet->second).ADCsCoolestStrip->getMean()<<" "<<(idet->second).ADCsCoolestStrip->getRMS()<<std::endl;
       }
 
-      if(moduleswitchdigiadcson) {     
+      if(Mod_On_ && moduleswitchdigiadcson) {     
 	monitor_summary<<"SiStripTkDQM|SiStripMonitorDigi"<<"              +++ DigiADCs         "<<(idet->second).DigiADCs->getEntries()<<" "<<(idet->second).DigiADCs->getMean()<<" "<<(idet->second).DigiADCs->getRMS()<<std::endl;
       }
     
@@ -402,11 +401,11 @@ void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(idet);
   ModMEs mod_me = pos->second;
 
-  if(moduleswitchnumdigison) mod_me.NumberOfDigis->Reset();
-  if(moduleswitchadchotteston) mod_me.ADCsHottestStrip->Reset();
-  if(moduleswitchadccooleston) mod_me.ADCsCoolestStrip->Reset();
-  if(moduleswitchdigiadcson) mod_me.DigiADCs->Reset();
-  if(moduleswitchstripoccupancyon) mod_me.StripOccupancy->Reset();
+  if(Mod_On_ && moduleswitchnumdigison) mod_me.NumberOfDigis->Reset();
+  if(Mod_On_ && moduleswitchadchotteston) mod_me.ADCsHottestStrip->Reset();
+  if(Mod_On_ && moduleswitchadccooleston) mod_me.ADCsCoolestStrip->Reset();
+  if(Mod_On_ && moduleswitchdigiadcson) mod_me.DigiADCs->Reset();
+  if(Mod_On_ && moduleswitchstripoccupancyon) mod_me.StripOccupancy->Reset();
 
 }
 //------------------------------------------------------------------------------------------
@@ -527,7 +526,7 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
   //nr. of digis per module
   if(moduleswitchnumdigison) {
     hid = hidmanager.createHistoId("NumberOfDigis","det",detid);
-    mod_single.NumberOfDigis = bookME1D("TH1NumberOfDigis", hid.c_str());
+    mod_single.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, 0.5, 20.5);
     dqmStore_->tag(mod_single.NumberOfDigis, detid);
     mod_single.NumberOfDigis->setAxisTitle("number of digis in one detector module");
     mod_single.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
@@ -610,13 +609,14 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
     }
     // # of Digis 
     if(layerswitchnumdigisprofon) {
-      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile("NumberOfDigiProfile","NumberOfDigiProfile",
-                           ndets, 0.5, ndets+0.5,50, -5.0, 95.0);      
+      std::string hid = hidmanager.createHistoLayer("NumberOfDigiProfile","layer",label,"");
+      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5,21, -0.5, 20.5);      
     }
 
     // # of Digis 
     if(layerswitchdigiadcprofon) {
-      layerMEs.LayerDigiADCProfile = dqmStore_->bookProfile("DigiADCProfile","DigiADCProfile", ndets, 0.5, ndets+0.5, 50, 0.0, 255.0);      
+      std::string hid = hidmanager.createHistoLayer("DigiADCProfile","layer",label,"");      
+      layerMEs.LayerDigiADCProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5, 64, -0.5, 255.5);      
     }
 
     LayerMEsMap[label]=layerMEs;
@@ -664,10 +664,6 @@ void SiStripMonitorDigi::getLayerLabel(uint32_t detid, std::string& label, int& 
   }
   label = label_str.str();
 }
-
-    
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripMonitorDigi);

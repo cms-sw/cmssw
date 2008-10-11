@@ -493,8 +493,8 @@ reconstructionWithFamos = cms.Sequence(
     caloJetMetGen+
     caloJetMet+
     PFJetMet+
-    paramMuons+
-    muIsolation_ParamGlobalMuons+
+#    paramMuons+
+#    muIsolation_ParamGlobalMuons+
     ic5JetTracksAssociatorAtVertex+
     famosBTaggingSequence+
     famosTauTaggingSequence+

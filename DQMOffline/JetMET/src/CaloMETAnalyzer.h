@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2008/09/12 18:49:46 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/30 02:14:43 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -24,12 +24,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-//
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
 
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
@@ -45,7 +40,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
-               const edm::TriggerResults&,
 	       const reco::CaloMET& caloMET, const reco::CaloMET& caloMETNoHF);
 
   int evtCounter;
@@ -57,15 +51,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   // Switch for verbosity
   std::string metname;
   // CaloMET Label
-  //edm::InputTag theCaloMETCollectionLabel;
-  //edm::InputTag theCaloMETNoHFCollectionLabel;
-
-  /// number of Jet or MB HLT trigger paths 
-  unsigned int nHLTPathsJetMB_;
-  // list of Jet or MB HLT triggers
-  std::vector<std::string > HLTPathsJetMBByName_;
-  // list of Jet or MB HLT trigger index
-  std::vector<unsigned int> HLTPathsJetMBByIndex_;
+  edm::InputTag theCaloMETCollectionLabel;
+  edm::InputTag theCaloMETNoHFCollectionLabel;
 
   //histo binning parameters
   int    etaBin;

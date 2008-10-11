@@ -15,7 +15,7 @@
 namespace stor {
 
   typedef std::vector<toolbox::mem::Reference*> FrameRefCollection;
-  typedef boost::shared_ptr< std::vector<unsigned char> > RegData;
+  typedef std::vector<unsigned char> RegData;
 
 struct SMFUSenderRegCollection // used to stored collection of INIT messages
 {
@@ -140,7 +140,6 @@ struct SMFUSenderEntry  // used to store each FU sender
 
   bool getDataStatus();  
   char* getregistryData(const std::string outModName); // const char* here needs modifying InitMsgView ctor
-  void shrinkRegistryData(const std::string outModName);
   bool matchFirst(const char* hltURL, const char* hltClassName, 
                              const unsigned int hltLocalId,
                              const unsigned int hltInstance, 

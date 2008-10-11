@@ -84,7 +84,7 @@ namespace cond {
     if(!validTime(tillTime))
       throw cond::Exception("cond::IOVEditorImpl::insert time not in global range");
   
-    if(tillTime<=firstSince() ||
+    if(tillTime<firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::insert IOV not in range");
  
@@ -105,7 +105,7 @@ namespace cond {
     if(!validTime(values.back().first))
       throw cond::Exception("cond::IOVEditorImpl::bulkInsert last time not in global range");
 
-   if(tillTime<=firstSince() ||
+   if(tillTime<firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
     
@@ -123,7 +123,7 @@ namespace cond {
   }
   
   unsigned int 
-  cond::IOVEditorImpl::append( cond::Time_t sinceTime ,
+  IOVEditorImpl::append( cond::Time_t sinceTime ,
 			       const std::string& payloadToken
 			       ){
     if( m_token.empty() ) {
@@ -161,6 +161,203 @@ namespace cond {
 
 
   }
+
+ unsigned int 
+ IOVEditorImpl::freeInsert( cond::Time_t sinceTime ,
+			       const std::string& payloadToken
+			       ){
+    if( m_token.empty() ) {
+      throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to non-existing IOV index");
+    }
+    
+    if(!m_isActive) {
+      this->init();
+    }
+    
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot insert  to empty IOV index");
+    
+
+   if(!validTime(sinceTime))
+      throw cond::Exception("cond::IOVEditorImpl::freeInsert time not in global range");
+
+
+ 
+   if (sinceTime<firstSince()) {
+     m_iov->iov.insert(m_iov->iov.begin(),IOV::Item(firstSince()-1,payloadToken));
+     m_iov->firstsince=sinceTime;
+     m_iov.markUpdate();
+    return 0;
+   }
+
+   // insert after found one.
+   cond::Time_t tillTime;
+   IOV::iterator p = m_iov->find(sinceTime);
+   if (p==m_iov->iov.end()) {
+     // closed range???
+     tillTime=timeTypeSpecs[timetype()].endValue;
+     (*(p-1)).first=sinceTime-1;
+
+   }
+   else {
+
+     {
+       // check for existing since
+       if (p==m_iov->iov.begin() ) {
+	 if (firstSince()==sinceTime)
+	   throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
+       } else
+	 if ((*(p-1)).first==sinceTime-1)
+	   throw cond::Exception("cond::IOVEditorImpl::freeInsert sinceTime already existing");
+     }
+
+     tillTime=(*p).first;
+     (*p).first=sinceTime-1;
+     p++;
+   }
+
+   p = m_iov->iov.insert(p,IOV::Item(tillTime,payloadToken));
+   m_iov.markUpdate();
+   return p - m_iov->iov.begin();
+
+    
+  }
+
+
+  unsigned int 
+  IOVEditorImpl::replaceInterval(cond::Time_t sinceTime,
+				 cond::Time_t tillTime,
+				 const std::string& payloadToken,
+				 bool deletePayload) {
+
+    static const std::string invalidToken(":");
+
+    if( m_token.empty() ) {
+     throw cond::Exception("cond::IOVEditorImpl::replaceInterval cannot edit an non-existing IOV index");
+    }
+    
+    if(!m_isActive) {
+      this->init();
+    }
+    
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::replaceInterval cannot replace in an empty IOV index");
+    
+
+   if(!validTime(sinceTime)||!validTime(tillTime)||tillTime<sinceTime)
+     throw cond::Exception("cond::IOVEditorImpl::replaceInterval times not in IOVs range");
+
+  
+   IOV::iterator b = m_iov->find(sinceTime);
+   IOV::iterator e = m_iov->find(tillTime);
+ 
+   
+   if (b==m_iov->iov.end()) {
+     // pad....
+     if (m_iov->iov.back().first<sinceTime-1) 
+       m_iov->iov.push_back(IOV::Item(sinceTime-1,invalidToken));
+     m_iov->iov.push_back(IOV::Item(tillTime,payloadToken));
+     m_iov.markUpdate();
+     return m_iov->iov.size()-1;
+   }
+
+   if (sinceTime<firstSince()) {
+     // pad
+     if (tillTime<firstSince()-1)
+       b=m_iov->iov.insert(b,IOV::Item(firstSince()-1,invalidToken));
+     else  { 
+       // cleanup
+       if (e!=m_iov->iov.end() && (*e).first==tillTime) e++;
+       if(deletePayload) {
+	 for ( IOV::iterator p=b; p!=e; p++) {
+	   cond::GenericRef ref(*m_pooldb,(*p).second);
+	   ref.markDelete();
+	   ref.reset();
+	 }
+       }
+       m_iov->iov.erase(b,e);
+     }
+     b=m_iov->iov.begin();
+     m_iov->iov.insert(b,IOV::Item(tillTime,payloadToken));
+     m_iov->firstsince=sinceTime;
+     m_iov.markUpdate();
+     return 0;
+   }
+
+   cond::Time_t newSince = (b==m_iov->iov.begin()) ? firstSince() : (*(b-1)).first+1;
+
+   if (sinceTime>newSince) {
+     if ( (*b).first>tillTime) {
+       // split
+       b=m_iov->iov.insert(b,IOV::Item(sinceTime-1,(*b).second));
+       b=m_iov->iov.insert(b+1,IOV::Item(tillTime,payloadToken));
+       m_iov.markUpdate();
+       return b-m_iov->iov.begin();
+     }
+     (*b).first>sinceTime-1;
+     b++;
+   }
+
+   // cleanup
+   if (e!=m_iov->iov.end() && (*e).first==tillTime) e++;
+   if(deletePayload) {
+     for ( IOV::iterator p=b; p!=e; p++) {
+       cond::GenericRef ref(*m_pooldb,(*p).second);
+       ref.markDelete();
+       ref.reset();
+     }
+   }
+   m_iov->iov.erase(b,e);
+   
+   b = m_iov->find(sinceTime);
+   e = m_iov->find(tillTime);
+   if (e-b>1) 
+     throw cond::Exception("cond::IOVEditorImpl::replaceInterval vincenzo logic has a fault!!!!");
+
+   b = m_iov->iov.insert(b,IOV::Item(tillTime,payloadToken));
+   m_iov.markUpdate();
+   return b-m_iov->iov.begin();
+
+  }
+
+
+  // delete entry at a given time
+  unsigned int 
+  IOVEditorImpl::deleteEntry(cond::Time_t time,
+			       bool withPayload) {
+   if( m_token.empty() ) {
+      throw cond::Exception("cond::IOVEditorImpl::deleteEntry cannot delete from non-existing IOV index");
+    }
+    
+    if(!m_isActive) {
+      this->init();
+    }
+    
+    if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntry cannot delete from empty IOV index");
+    
+
+   if(!validTime(time)||time<firstSince())
+     throw cond::Exception("cond::IOVEditorImpl::deleteEntry time not in IOVs range");
+
+   IOV::iterator p = m_iov->find(time);
+   if (p==m_iov->iov.end())
+     throw cond::Exception("cond::IOVEditorImpl::deleteEntry time not in IOVs range");
+
+   int n = p-m_iov->iov.begin();
+   if(withPayload) {
+     cond::GenericRef ref(*m_pooldb,(*p).second);
+     ref.markDelete();
+   }
+   
+   m_iov.markUpdate();
+   if (p==m_iov->iov.begin() )
+     m_iov->firstsince=(*p).first+1;
+   else 
+     (*(p-1)).first=(*p).first;
+   m_iov->iov.erase(p);
+
+   return n;
+
+  }
+
 
   void 
   IOVEditorImpl::deleteEntries(bool withPayload){

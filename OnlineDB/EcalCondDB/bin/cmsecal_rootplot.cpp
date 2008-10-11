@@ -8,10 +8,8 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TGraph.h"
-#include "TLine.h"
-#include "TPad.h"
+
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include <cfloat>
@@ -52,7 +50,6 @@ public:
     m_data[1] = 0;
     m_data[2] = 0;
     m_data[3] = 0;
-    m_data[4] = 0;
 
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(111111);
@@ -60,7 +57,7 @@ public:
     gStyle->SetPalette(1,0);
 
     int pCol[2] = { 2, 3 };
-    if((m_type == "Map" || m_type == "EBEEMap") && (TString(m_title).Contains("status")) ) {
+    if((m_type == "Map" || m_type == "EBMap") && (TString(m_title).Contains("status")) ) {
       gStyle->SetPalette(2,pCol);
     }
 
@@ -82,18 +79,14 @@ public:
       m_nfields = 2;
       m_tree->Branch("x", &m_data[0], "x/F"); // channel number
       m_tree->Branch("y", &m_data[1], "y/F"); // variable var
-    } else if (m_type == "EBEEMap") {
-      m_nfields = 5;
-      m_tree->Branch("ism_z", &m_data[0], "ism_z/F"); // SM number (EB), z (EE)
-      m_tree->Branch("chnum_x", &m_data[1], "chnum_x/F"); // channel number (EB) , x (EE)
-      m_tree->Branch("var", &m_data[2], "var/F"); // variable var
-      m_tree->Branch("null_y", &m_data[3], "z/F"); // null value (EB), y (EE)
-      m_tree->Branch("isEB", &m_data[4], "isEB/F"); // 1 (EB), 0 (EE)
-
+    } else if (m_type == "EBMap") {
+      m_nfields = 3;
+      m_tree->Branch("ism", &m_data[0], "ism/F"); // SM number
+      m_tree->Branch("x", &m_data[1], "x/F"); // channel number
+      m_tree->Branch("y", &m_data[2], "y/F"); // variable var
     } 
 
   };
-
 
   void setTitle(string title) { m_title = title; }
   void setXTitle(string xtitle) { m_xtitle = xtitle; }
@@ -106,11 +99,6 @@ public:
     if (!m_isInit) {
       this->init();
       m_isInit = 1;
-    }
-
-    if (str[0] == '#') {
-      // skip header
-      return;
     }
 
     if (m_debug) { cout << "[data] " << flush; }
@@ -136,7 +124,7 @@ public:
 	datum = atof((*tok_iter).c_str());
       }
 
-      if(m_type != "EBEEMap") {
+      if(m_type != "EBMap") {
 	if (datum < m_mins[cnt]) { m_mins[cnt] = datum; }
 	if (datum > m_maxs[cnt]) { m_maxs[cnt] = datum; }
       }
@@ -187,16 +175,16 @@ public:
       this->drawTGraph();
     } else if (m_type == "Map") {
       this->drawMap();
-    } else if (m_type == "EBEEMap") {
-      this->drawEBEEMap();
+    } else if (m_type == "EBMap") {
+      this->drawEBMap();
     }
-
+    
     m_isInit = 0;
   };
 
   void drawTH1F()
   {
-    TCanvas c1("c1","rootplot",200,10,450,300);
+    TCanvas c1("c1","rootplot",200,10,600,400);
     c1.SetGrid();
 
     if((TString(m_title).Contains("status"))) {
@@ -310,8 +298,8 @@ public:
       plot->SetMaximum(m_hmax);
     }
 
-    plot->GetXaxis()->SetTitle("#phi");
-    plot->GetYaxis()->SetTitle("#eta");
+    plot->GetXaxis()->SetTitle("#eta");
+    plot->GetYaxis()->SetTitle("#phi");
     plot->GetZaxis()->SetTitle(m_ytitle.c_str());
     plot->GetXaxis()->SetNdivisions(17);
     plot->GetYaxis()->SetNdivisions(4);
@@ -335,125 +323,70 @@ public:
 
   };
 
-  void drawEBEEMap()
+  void drawEBMap()
   {
+    gStyle->SetOptStat(0);
 
-    const Int_t csize = 900;
-        
-    TCanvas c1("c1","rootplot",csize,csize);
-    TPad p1("EBPad","EBPad",0.,0.5,1.,1.);
-    p1.Draw();
-    TPad p2("EEPlusPad","EEPlusPad",0.,0.,0.48,0.5);
-    p2.Draw();
-    TPad p3("EEPlusPad","EEPlusPad",0.50,0.,0.98,0.5);
-    p3.Draw();
+    const Int_t csize = 400;
+    TCanvas c1("c1","rootplot",Int_t(360./170.*csize),csize);
+    TH2F* plot = new TH2F("rootplot",m_title.c_str(), 360, 0., 360., 170, -85., 85.);
+    plot->GetXaxis()->SetTitle(m_xtitle.c_str());
+    plot->GetYaxis()->SetTitle(m_ytitle.c_str());
 
-  
-    //EB
-    TH2F* EBPlot = new TH2F("rootplotEB",m_title.c_str(), 360, 0., 360., 170, -85., 85.);
-    EBPlot->GetXaxis()->SetTitle("i#phi");
-    EBPlot->GetYaxis()->SetTitle("i#eta");
-    EBPlot->GetZaxis()->SetTitle(m_ytitle.c_str());
-    EBPlot->GetXaxis()->SetNdivisions(18, kFALSE);
-    EBPlot->GetYaxis()->SetNdivisions(2);
+    Float_t x, y, ism;
+    m_tree->SetBranchAddress("ism", &ism);
+    m_tree->SetBranchAddress("x", &x);
+    m_tree->SetBranchAddress("y", &y);
 
-    //EE+
-    TH2F* EEPlot_plus = new TH2F("rootplotEE+",m_title.c_str(), 100, 0., 100., 100, 0., 100.);
-    EEPlot_plus->GetXaxis()->SetTitle("ix");
-    EEPlot_plus->GetYaxis()->SetTitleOffset(1.3);
-    EEPlot_plus->GetYaxis()->SetTitle("iy");
-    EEPlot_plus->GetZaxis()->SetTitle(m_ytitle.c_str());
-    EEPlot_plus->GetXaxis()->SetNdivisions(10, kTRUE);
-    EEPlot_plus->GetYaxis()->SetNdivisions(10);
-
-    //EE-
-    TH2F* EEPlot_minus = new TH2F("rootplotEE-",m_title.c_str(), 100, 0., 100., 100, 0., 100.);
-    EEPlot_minus->GetXaxis()->SetTitle("ix");
-    EEPlot_minus->GetYaxis()->SetTitle("iy");
-    EEPlot_minus->GetYaxis()->SetTitleOffset(1.3);
-    EEPlot_minus->GetZaxis()->SetTitle(m_ytitle.c_str());
-    EEPlot_minus->GetXaxis()->SetNdivisions(10, kTRUE);
-    EEPlot_minus->GetYaxis()->SetNdivisions(10);
-    
-    Float_t chnum_x, var, ism_z, isEB, null_y;
-    m_tree->SetBranchAddress("ism_z", &ism_z);
-    m_tree->SetBranchAddress("chnum_x", &chnum_x);
-    m_tree->SetBranchAddress("var", &var);
-    m_tree->SetBranchAddress("isEB", &isEB);
-    m_tree->SetBranchAddress("null_y", &null_y);
-
-    // now fill the maps...
+    // now fill the map...
     Int_t n = (Int_t)m_tree->GetEntries();
     for(Int_t i=0; i<n; i++) {
       m_tree->GetEntry(i);
 
-      if (isEB) {
-	Float_t iex = -1;
-	Float_t ipx = -1;
-	for ( unsigned int i=1; i<=36; i++ ) {
-		
-		if(i == ism_z) {
+      Float_t iex = -1;
+      Float_t ipx = -1;
+      for ( unsigned int i=1; i<=36; i++ ) {
 	
-		Float_t ie = Float_t(Int_t(chnum_x-1)/20)+1;       
-		Float_t ip = Float_t(Int_t(chnum_x-1)%20)+1;       
-	
-		if ( ism_z <= 18 ) {
-		iex = ie - 1;
-		ipx = (20-ip)+20*(ism_z-1);
-		} else {
-		iex = -1*ie;
-		ipx = ip+20*(ism_z-19)-1;
-		}
-	
-		EBPlot->Fill(ipx,iex,var);  
-	
-		}
-	
+	if(i == ism) {
+
+	  Float_t ie = Float_t(Int_t(x-1)/20)+1;       
+	  Float_t ip = Float_t(Int_t(x-1)%20)+1;       
+
+	  if ( ism <= 18 ) {
+	    iex = ie-1;
+	    ipx = 20*(ism-1)+(20-ip);
+	  } else {
+	    iex = -1*ie;
+	    ipx = ip + (ism-19)*20-1;
+	  }
+
+	  plot->Fill(ipx,iex,y);  
+
 	}
-      }//end loop on EB
-      
-      //assuming: if not EB, it's EE (TODO: check strings)...
-      else {
-	      //EE+
-	      if (ism_z==1) EEPlot_plus->Fill(chnum_x-0.5,null_y-0.5,var);
-	      //EE-
-	      if (ism_z==-1) EEPlot_minus->Fill(chnum_x-0.5,null_y-0.5,var);
-      }//end loop on EE
-      
-    }//end loop on entries
+
+      }
+
+    }
 
     // draw the map
-    //setting
-    gStyle->SetOptStat("e");
-    gStyle->SetPaintTextFormat("+g");
-    
-    
-    EBPlot->SetTitle(m_title.c_str());
-    EEPlot_plus->SetTitle(m_title.c_str());
-    EEPlot_minus->SetTitle(m_title.c_str());
-
+    plot->SetTitle(m_title.c_str());
     if((TString(m_title).Contains("status"))) {
-      EBPlot->SetMinimum(-0.001);
-      EBPlot->SetMaximum(1.001);
-      EEPlot_plus->SetMinimum(-0.001);
-      EEPlot_plus->SetMaximum(1.001);
-      EEPlot_minus->SetMinimum(-0.001);
-      EEPlot_minus->SetMaximum(1.001);
-      
+      plot->SetMinimum(-0.001);
+      plot->SetMaximum(1.001);
     }
     else if(!(m_hmin==0 && m_hmax==0)) {
-      EBPlot->SetMinimum(m_hmin);
-      EBPlot->SetMaximum(m_hmax);
-      EEPlot_plus->SetMinimum(m_hmin);
-      EEPlot_plus->SetMaximum(m_hmax);
-      EEPlot_minus->SetMinimum(m_hmin);
-      EEPlot_minus->SetMaximum(m_hmax);
+      plot->SetMinimum(m_hmin);
+      plot->SetMaximum(m_hmax);
     }
-    
-    p1.cd();
-    gPad->SetGridx();
-    gPad->SetGridy();
-    EBPlot->Draw("colz");
+
+    plot->GetXaxis()->SetTitle("#phi");
+    plot->GetYaxis()->SetTitle("#eta");
+    plot->GetZaxis()->SetTitle(m_ytitle.c_str());
+    plot->GetXaxis()->SetNdivisions(18, kFALSE);
+    plot->GetYaxis()->SetNdivisions(2);
+    c1.SetGridx();
+    c1.SetGridy();
+    plot->Draw("colz");
 
     // and draw the grid upon the map...
     TH2C* labelGrid = new TH2C("labelGrid", "label grid for SM", 18, 0., 360., 2, -85., 85.);
@@ -467,93 +400,7 @@ public:
     labelGrid->Draw("text,same");
 
     c1.Print(m_outputFile.c_str(), m_outputFormat.c_str());
-    EBPlot->Write();
-    
-    //END OF EBPLOT
-    
-    int ixSectorsEE[202] = {61, 61, 60, 60, 59, 59, 58, 58, 57, 57, 55, 55, 45, 45, 43, 43, 42, 42, 41, 41, 40, 40, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 45, 45, 55, 55, 57, 57, 58, 58, 59, 59, 60, 60, 61, 61, 0,100,100, 97, 97, 95, 95, 92, 92, 87, 87, 85, 85, 80, 80, 75, 75, 65, 65, 60, 60, 40, 40, 35, 35, 25, 25, 20, 20, 15, 15, 13, 13,  8,  8,  5,  5,  3,  3,  0,  0,  3,  3,  5,  5,  8,  8, 13, 13, 15, 15, 20, 20, 25, 25, 35, 35, 40, 40, 60, 60, 65, 65, 75, 75, 80, 80, 85, 85, 87, 87, 92, 92, 95, 95, 97, 97,100,100,  0, 61, 65, 65, 70, 70, 80, 80, 90, 90, 92,  0, 61, 65, 65, 90, 90, 97,  0, 57, 60, 60, 65, 65, 70, 70, 75, 75, 80, 80,  0, 50, 50,  0, 43, 40, 40, 35, 35, 30, 30, 25, 25, 20, 20,  0, 39, 35, 35, 10, 10,  3,  0, 39, 35, 35, 30, 30, 20, 20, 10, 10,  8,  0, 45, 45, 40, 40, 35, 35,  0, 55, 55, 60, 60, 65, 65};
-    
-    int iySectorsEE[202] = {50, 55, 55, 57, 57, 58, 58, 59, 59, 60, 60, 61, 61, 60, 60, 59, 59, 58, 58, 57, 57, 55, 55, 45, 45, 43, 43, 42, 42, 41, 41, 40, 40, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 45, 45, 50,  0, 50, 60, 60, 65, 65, 75, 75, 80, 80, 85, 85, 87, 87, 92, 92, 95, 95, 97, 97,100,100, 97, 97, 95, 95, 92, 92, 87, 87, 85, 85, 80, 80, 75, 75, 65, 65, 60, 60, 40, 40, 35, 35, 25, 25, 20, 20, 15, 15, 13, 13,  8,  8,  5,  5,  3,  3,  0,  0,  3,  3,  5,  5,  8,  8, 13, 13, 15, 15, 20, 20, 25, 25, 35, 35, 40, 40, 50,  0, 45, 45, 40, 40, 35, 35, 30, 30, 25, 25,  0, 50, 50, 55, 55, 60, 60,  0, 60, 60, 65, 65, 70, 70, 75, 75, 85, 85, 87,  0, 61,100,  0, 60, 60, 65, 65, 70, 70, 75, 75, 85, 85, 87,  0, 50, 50, 55, 55, 60, 60,  0, 45, 45, 40, 40, 35, 35, 30, 30, 25, 25,  0, 39, 30, 30, 15, 15,  5,  0, 39, 30, 30, 15, 15,  5};
-
-    //grid
-	TH2C labelGrid1("labelGrid1","label grid for EE -", 10, 0., 100., 10, 0., 100.);
-	for ( int i=1; i<=10; i++) {
-		for ( int j=1; j<=10; j++) {
-			labelGrid1.SetBinContent(i, j, -10);
-		}
-	}
-
-	labelGrid1.SetBinContent(2, 5, -3);
-	labelGrid1.SetBinContent(2, 7, -2);
-	labelGrid1.SetBinContent(4, 9, -1);
-	labelGrid1.SetBinContent(7, 9, -9);
-	labelGrid1.SetBinContent(9, 7, -8);
-	labelGrid1.SetBinContent(9, 5, -7);
-	labelGrid1.SetBinContent(8, 3, -6);
-	labelGrid1.SetBinContent(6, 2, -5);
-	labelGrid1.SetBinContent(3, 3, -4);
-	labelGrid1.SetMarkerSize(2);
-	labelGrid1.SetMinimum(-9.01);
-	labelGrid1.SetMaximum(-0.01);
-
-	TH2C labelGrid2("labelGrid2","label grid for EE +", 10, 0., 100., 10, 0., 100.);
-
-	for ( int i=1; i<=10; i++) {
-		for ( int j=1; j<=10; j++) {
-			labelGrid2.SetBinContent(i, j, -10);
-		}
-	}
-
-	labelGrid2.SetBinContent(2, 5, +3);
-	labelGrid2.SetBinContent(2, 7, +2);
-	labelGrid2.SetBinContent(4, 9, +1);
-	labelGrid2.SetBinContent(7, 9, +9);
-	labelGrid2.SetBinContent(9, 7, +8);
-	labelGrid2.SetBinContent(9, 5, +7);
-	labelGrid2.SetBinContent(8, 3, +6);
-	labelGrid2.SetBinContent(5, 2, +5);
-	labelGrid2.SetBinContent(3, 3, +4);
-
-	labelGrid2.SetMarkerSize(2);
-	labelGrid2.SetMinimum(+0.01);
-	labelGrid2.SetMaximum(+9.01);
-
-	
-    //EE+
-    p2.cd();
-    gPad->SetGridx();
-    gPad->SetGridy();
-    EEPlot_plus->Draw("colz");
-    labelGrid2.Draw("text,same");
-    
-    //drawing sector grid	
-
-    TLine l;
-    l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1) {
-	    if ( (ixSectorsEE[i]!=0 || iySectorsEE[i]!=0) && (ixSectorsEE[i+1]!=0 || iySectorsEE[i+1]!=0) ) {
-		    l.DrawLine(ixSectorsEE[i], iySectorsEE[i], ixSectorsEE[i+1], iySectorsEE[i+1]);
-	    }
-    }
-
-    
-    //EE-
-    p3.cd();
-    gPad->SetGridx();
-    gPad->SetGridy();
-    EEPlot_minus->Draw("colz");
-    labelGrid1.Draw("text,same");
-
-    //drawing sector grid
-    for ( int i=0; i<201; i=i+1) {
-	    if ( (ixSectorsEE[i]!=0 || iySectorsEE[i]!=0) && (ixSectorsEE[i+1]!=0 || iySectorsEE[i+1]!=0) ) {
-		    l.DrawLine(ixSectorsEE[i], iySectorsEE[i], ixSectorsEE[i+1], iySectorsEE[i+1]);
-	    }
-    }
-    
-    
-    //drawing everything & printing 
-    c1.Print(m_outputFile.c_str(), m_outputFormat.c_str());
+    plot->Write();
 
   };
 
@@ -586,7 +433,7 @@ private:
   int m_nbins[2];
   float m_mins[2];
   float m_maxs[2];
-  Float_t m_data[5];
+  Float_t m_data[4];
 
   TDatime m_T0;
 };
@@ -594,7 +441,7 @@ private:
 void arg_error(string msg)
 {
   cerr << "ERROR:  " << msg << endl;
-  cerr << "Use 'ECALrootPlotter -h' for help" << endl;
+  cerr << "Use 'rootplot -h' for help" << endl;
   exit(1);
 }
 
@@ -602,11 +449,10 @@ int main (int argc, char* argv[])
 {
   // Parse command line
   program_options::options_description desc("options");
-  program_options::options_description visible("Usage:  ECALrootPlotter [options] [Plot Type] [Output Format] [Output File] \noptions");
+  program_options::options_description visible("Usage:  rootplot [options] [Plot Type] [Output Format] [Output File]\noptions");
   visible.add_options()
     ("time,t", "X axis takes time values")
-    ("file,f", program_options::value<string>(), "input file name")
-    ("title,T", program_options::value<string>(), "Set plot title")
+    ("title,T", program_options::value<string>(), "Plot title")
     ("xtitle,X", program_options::value<string>(), "X axis title")
     ("ytitle,Y", program_options::value<string>(), "Y axis title")
     ("debug","Print debug information")
@@ -642,7 +488,6 @@ int main (int argc, char* argv[])
   }
 
   string type, outputFile, outputFormat;
-  string file = "";
   string title = "";
   string xtitle = "";
   string ytitle = "";
@@ -653,14 +498,14 @@ int main (int argc, char* argv[])
 
   if (vm.count("type")) { 
     type = vm["type"].as<string>(); 
-    if (type != "TH1F" && type != "TH2F" && type != "TGraph" && type != "Map" && type != "EBEEMap" ) {
+    if (type != "TH1F" && type != "TH2F" && type != "TGraph" && type != "Map" && type != "EBMap" ) {
       cerr << "ERROR:  Plot type " << type << " is not valid." << endl;
       arg_error("Valid types are:\n"
 		"  'TH1F'   (1 col data)\n"
 		"  'TH2F'   (2 col data)\n"
 		"  'TGraph' (2 col data)\n"
 		"  'Map'    (2 col data)\n"
-		"  'EBEEMap'  (5 col data)\n"
+		"  'EBMap'  (3 col data)\n"
 		); 
     }
   } else {  
@@ -670,7 +515,7 @@ int main (int argc, char* argv[])
 	      "  'TH2F'   (2 col data)\n"
 	      "  'TGraph' (2 col data)\n"
               "  'Map'    (2 col data)\n"
-              "  'EBEEMap'  (5 col data)"
+              "  'EBMap'  (3 col data)"
 	      ); 
   }
   if (vm.count("format")) { outputFormat = vm["format"].as<string>(); }
@@ -679,7 +524,6 @@ int main (int argc, char* argv[])
   else { arg_error("output is required"); }
   if (vm.count("hmin")) {histo_min = vm["hmin"].as<float>(); }
   if (vm.count("hmax")) {histo_max = vm["hmax"].as<float>(); }
-  if (vm.count("file")) {file = vm["file"].as<string>(); }
 
   if (vm.count("time")) { axisCode = RootPlot::TIME_AXIS; }
   if (vm.count("title")) {
@@ -693,17 +537,6 @@ int main (int argc, char* argv[])
   }
   if (vm.count("debug")) { debug = 1; }
   
-  string path = "";
-  if ((int)file.find("/") >= 0) {
-    path = file.substr(0, file.rfind("/"));
-  }
-  outputFile = path + "/" + outputFile;
-
-  // substitute _ with spaces
-  int t;
-  while ((t = title.find('_'))!=string::npos) title[t] = ' ';
-  while ((t = xtitle.find('_'))!=string::npos) xtitle[t] = ' ';
-  while ((t = ytitle.find('_'))!=string::npos) ytitle[t] = ' ';
 
   if (debug) {
     cout << "Debug info:    " << endl;
@@ -716,7 +549,6 @@ int main (int argc, char* argv[])
     cout << "  ytitle:      " << ytitle << endl;
     cout << "  map min:     " << histo_min << endl;
     cout << "  map max:     " << histo_max << endl;
-    cout << "  input:       " << file << endl;
   }
 
   // Read data from stdin
@@ -730,23 +562,14 @@ int main (int argc, char* argv[])
 
     string line;
     
-    ifstream *finput = (ifstream *)&cin;
-    if (file.length() > 0) {
-      finput = new ifstream(file.c_str());
-    }
-    while (getline(*finput, line) && finput->good() && !finput->eof()) {
+    while (getline(cin, line) && cin.good() && !cin.eof()) {
       rootplot.parseAndFill(line);
     }
 
-    if ( finput->bad() || !finput->eof() ) {
+    if ( cin.bad() || !cin.eof() ) {
       cerr << "Input error." << endl;
     }
 
-    finput->close();
-
-    if (file.length() > 0) {
-      delete finput;
-    }
     rootplot.draw();
 
   } catch (std::exception &e) {

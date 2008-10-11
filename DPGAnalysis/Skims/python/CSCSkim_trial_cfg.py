@@ -2,24 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("USER")
 
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSCSkim_trial_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET4 CSCSkim skim')
-)
-
-#
-#
-# This is for testing purposes.
-#
-#
 process.source = cms.Source("PoolSource",
        fileNames = cms.untracked.vstring (
-      '/store/data/BeamCommissioning08/BeamHalo/RECO/v1/000/062/232/04FF0C7D-7280-DD11-8FCD-000423D98F98.root'
-       )
+       '/store/data/CRUZET3/EndcapsMuon/RAW/v4/000/051/285/0211AB52-4255-DD11-98AB-001617DC1F70.root',
+       '/store/data/CRUZET3/EndcapsMuon/RAW/v4/000/051/285/749F97C6-FA54-DD11-8277-001617C3B710.root',
+       '/store/data/CRUZET3/EndcapsMuon/RAW/v4/000/051/285/D25CA102-FE54-DD11-82FB-000423D6CA72.root'
+      )
 )
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(1000)
 )
 
 
@@ -29,31 +21,30 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRUZET4_V2::All' 
+process.GlobalTag.globaltag = 'CRZT210_V1::All' 
 process.prefer("GlobalTag")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
-process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
-process.es_prefer_MagneticField = cms.ESPrefer("VolumeBasedMagneticFieldESProducer")
+process.load("Configuration/StandardSequences/Reconstruction_cff")
+
+
 
 #------------------------------------------
 # parameters for the CSCSkim module
 #------------------------------------------
 process.load("DPGAnalysis/Skims/CSCSkim_cfi")
 
+
 #### the path
 
-process.mySkim = cms.Path(process.cscSkim)
+process.mySkim = cms.Path(process.muonCSCDigis*process.csc2DRecHits*process.cscSegments*process.cscSkim)
 
 
 #### output 
-process.outputSkim = cms.OutputModule(
-    "PoolOutputModule",
-    fileName = cms.untracked.string("/tmp/arizzi/selectedEvents.root"),
-    dataset = cms.untracked.PSet(
-      dataTier = cms.untracked.string('RECO'),
-      filterName = cms.untracked.string('CSCSkim_trial')
-    ),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('mySkim'))
+process.outputSkim = cms.OutputModule("PoolOutputModule",
+   fileName = cms.untracked.string("/tmp/schmittm/messyEvents.root"),
+   SelectEvents = cms.untracked.PSet(
+       SelectEvents = cms.vstring('mySkim')
+       )
 )
 
 process.outpath = cms.EndPath(process.outputSkim)

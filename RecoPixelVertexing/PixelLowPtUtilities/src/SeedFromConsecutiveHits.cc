@@ -65,7 +65,7 @@ SeedFromConsecutiveHits::SeedFromConsecutiveHits(
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit];
 
-  GlobalPoint hitpos =
+GlobalPoint hitpos =
     tracker->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
 
     TrajectoryStateOnSurface state = (iHit==0) ? 

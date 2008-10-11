@@ -10,6 +10,7 @@ RootFile.h // used by ROOT input sources
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
@@ -68,7 +69,8 @@ namespace edm {
 	     std::vector<EventID> const& whichEventsToProcess,
              bool noEventSort,
              bool dropMetaData,
-	     GroupSelectorRules const& groupSelectorRules);
+	     GroupSelectorRules const& groupSelectorRules,
+             bool dropMergeable);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -93,6 +95,8 @@ namespace edm {
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact);
+    bool setEntryAtLumi(LuminosityBlockID const& lumi);
+    bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
       fileIndexIter_ = fileIndexBegin_;
@@ -209,8 +213,7 @@ namespace edm {
           std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
           EntryDescriptionID* ppb = pb.get();
           br->SetAddress(&ppb);
-          br->GetEntry(rootTree.entryNumber());
-          br->SetAddress(0);
+          input::getEntry(br, rootTree.entryNumber());
 	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
 	  EventEntryInfo entry(it->second.branchID(),
 		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
@@ -225,11 +228,11 @@ namespace edm {
           std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
           BranchEntryDescription* ppb = pb.get();
           br->SetAddress(&ppb);
-          br->GetEntry(rootTree.entryNumber());
+          input::getEntry(br, rootTree.entryNumber());
           std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	  // Throws parents away for now.
-	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
+	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID(), it->second.oldProductID());
 	  mapper->insert(entry);
        }
       }

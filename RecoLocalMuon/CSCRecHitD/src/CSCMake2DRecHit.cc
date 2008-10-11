@@ -1,4 +1,5 @@
 // This is CSCMake2DRecHit
+//---- Taken from RecHitB. Possible changes
  
 #include <RecoLocalMuon/CSCRecHitD/src/CSCMake2DRecHit.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCXonStrip_MatchGatti.h>
@@ -22,24 +23,33 @@
 #include <string>
 
 
+/* Constructor
+ *
+ */
 CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
     
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  stripWireDeltaTime         = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
+  stripWireDeltaTime         = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
 
   xMatchGatti_             = new CSCXonStrip_MatchGatti( ps );
 
 }   
 
 
+/* Destructor
+ *
+ */
 CSCMake2DRecHit::~CSCMake2DRecHit() {
   delete xMatchGatti_;
 }
 
 
+/* hitFromStripAndWire
+ *
+ */
 CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLayer* layer,
-                                                 const CSCWireHit& wHit, const CSCStripHit& sHit)
-{
+                                                 const CSCWireHit& wHit, const CSCStripHit& sHit){
+  
   
   // Cache layer info for ease of access
   layer_        = layer;
@@ -169,7 +179,10 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   return rechit;
 }
 
-
+/* isHitInFiducial
+ *
+ * Only useful for ME11 chambers.
+ */
 bool CSCMake2DRecHit::isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D& rh ) {
 
   bool isInFiducial = true;
@@ -187,7 +200,6 @@ bool CSCMake2DRecHit::isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D&
   return isInFiducial;
 }
  
-
 void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
   xMatchGatti_->setConditions( reco );
 } 

@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.15 2008/06/20 20:55:48 fischler Exp $
+// $Id: Memory.cc,v 1.16 2008/07/13 04:32:54 elmer Exp $
 //
 // Change Log
 //
@@ -180,7 +180,7 @@ namespace edm {
       
       if((fd_=open(ost.str().c_str(),O_RDONLY))<0)
 	{
-	  throw cms::Exception("Configuration")
+	  throw edm::Exception(errors::Configuration)
 	    << "Memory checker server: Failed to open " << ost.str() << std::endl;
 	}
 #endif

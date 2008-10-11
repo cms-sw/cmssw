@@ -30,7 +30,7 @@ namespace edmtest
 
     if(!(*p))
       {
-	throw cms::Exception("Configuration","TestConsumer")
+	throw edm::Exception(errors::Configuration,"TestConsumer")
 	  << "cannot open file " << name;
       }
 

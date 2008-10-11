@@ -1453,6 +1453,7 @@ sub toolSymbolCache ()
   if (!exists $cache->{SETUP}{$tool}){return;}
   my $dir=shift;
   my $jobs=shift || 1;
+  print STDERR ".";
   if(exists $cache->{SETUP}{$tool}{LIB})
   {
     my $dirs=&searchBaseToolPaths($cache,$tool,"LIBDIR");
@@ -1464,12 +1465,7 @@ sub toolSymbolCache ()
         if(!-f $lib){$lib="${d}/lib${l}.a";}
         if(-f $lib)
         {
-	  if ($jobs > 1)
-	  {
-	    my $pid=&forkProcess($jobs);
-	    if($pid==0){&symbolCache($lib,$tool,$dir);exit 0;}
-	  }
-	  else{&symbolCache($lib,$tool,$dir);}
+	  &symbolCacheFork($lib,$tool,$dir,$jobs);
 	  last;
         }
       }
@@ -1485,6 +1481,7 @@ sub scramToolSymbolCache ()
   my $dir=shift;
   my $jobs=shift || 1;
   my $libmap=shift;
+  my $count=-1;
   foreach my $p (keys %$libmap)
   {
     my $l=$libmap->{$p};
@@ -1494,12 +1491,9 @@ sub scramToolSymbolCache ()
       if(!-f $lib){$lib="${d}/lib${l}.a";}
       if(-f $lib)
       {
-	if ($jobs > 1)
-	{
-	  my $pid=&forkProcess($jobs);
-	  if($pid==0){&symbolCache($lib,$p,$dir);exit 0;}
-	}
-	else{&symbolCache($lib,$p,$dir);}
+	$count++;
+	if (($count%40)==0){print STDERR ".";}
+	&symbolCacheFork($lib,$p,$dir,$jobs);
 	last;
       }
     }
@@ -1523,45 +1517,70 @@ sub searchBaseToolPaths ()
   return $paths;
 }
 
+sub symbolCacheFork ()
+{
+  my $lib=shift;
+  my $t1=(stat($lib))[9];
+  my $tool=shift;
+  my $dir=shift;
+  my $lname=basename($lib);
+  my $pk=$tool;$pk=~s/\///g;
+  my $cfile="${dir}/${lname}.${pk}";
+  if ((stat($cfile)) && ((stat(_))[9] == $t1)){return 0;}
+  my $jobs=shift;
+  if ($jobs > 1)
+  {
+    my $pid=&forkProcess($jobs);
+    if($pid==0){&symbolCache($lib,$cfile,$t1,$tool,$lname);exit 0;}
+  }
+  else{&symbolCache($lib,$cfile,$t1,$tool,$lname);}
+  $ENV{SYMBOL_CACHE_UPDATED}="yes";
+  return 1;
+}
+
 sub symbolCache ()
 {
   my $lib=shift;
+  my $cfile=shift;
+  my $time=shift;
   my $tool=shift;
-  my $cache=shift;
-  if (-f $lib)
+  my $lname=shift;
+  my $shared="";
+  if($lib=~/\.so$/){$shared="-D";}
+  my $c={};
+  foreach my $line (`nm $shared $lib`)
   {
-    my $cfile="${cache}/${lname}.${pk}";
-    my $lname=basename($lib);
-    my $pk=$tool;$pk=~s/\///g;
-    my $shared="";
-    if($lib=~/\.so$/){$shared="-D";}
-    my $c={};
-    foreach my $line (`nm $shared $lib`)
-    {
-      chomp $line;
-      if($line=~/\s+(T|V|W|B|D)\s+(.+)$/){$c->{$2}{$tool}=$lname;}
-    }
-    &writeHashCache($c,"${cache}/${lname}.${pk}");
+    chomp $line;
+    if($line=~/\s+(T|V|W|B|D)\s+(.+)$/){$c->{$2}{$tool}=$lname;}
   }
+  &writeHashCache($c,$cfile);
+  utime($time,$time,$cfile);
 }
 
 sub mergeSymbols ()
 {
   my $dir=shift;
+  my $file=shift;
+  my $cache={};
   if(-d $dir)
   {
+    print STDERR "Merging symbols ....";
+    if (!exists $ENV{SYMBOL_CACHE_UPDATED}){print STDERR "\n";return &readHashCache("${dir}/${file}");}
+    my $count=0;
     my $r;
-    my $cache;
     opendir($r,$dir) || die "Can not open directory for reading: $dir\n";
     foreach my $f (readdir($r))
     {
       if ($f=~/^\./){next;}
+      $count++;
+      if(($count%40)==0){print STDERR ".";}
       my $c=&readHashCache("${dir}/${f}");
       foreach my $s (keys %$c){foreach my $t (keys %{$c->{$s}}){$cache->{$s}{$t}=$c->{$s}{$t};}}
     }
-    &writeHashCache($cache,"${dir}/.symbols");
-    return $cache;
+    &writeHashCache($cache,"${dir}/${file}");
   }
+  print STDERR "\n";
+  return $cache;
 }
 
 sub cppFilt ()

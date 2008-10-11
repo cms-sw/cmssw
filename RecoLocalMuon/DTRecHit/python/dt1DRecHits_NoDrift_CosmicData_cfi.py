@@ -9,7 +9,8 @@ dt1DRecHits = cms.EDProducer("DTRecHitProducer",
     DTNoDriftAlgo_CosmicData,
     debug = cms.untracked.bool(False),
     # The label to retrieve digis from the event
-    dtDigiLabel = cms.InputTag("dtunpacker")
+    #dtDigiLabel = cms.InputTag("dtunpacker")
+    dtDigiLabel = cms.InputTag("muonDTDigis")
 )
 
 

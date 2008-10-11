@@ -4,14 +4,6 @@
 //#include <iostream>
 const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 
-EBDetId
-EBDetId::unhashIndex( int hi )  
-{
-   const int pseudo_eta = hi/MAX_IPHI - MAX_IETA;
-   return ( validHashIndex( hi ) ?
-	    EBDetId(pseudo_eta<0 ? pseudo_eta :  pseudo_eta+1, hi%MAX_IPHI+1) :
-	    EBDetId() ) ;
-}
   
 EBDetId::EBDetId(int index1, int index2, int mode) 
   : DetId(Ecal,EcalBarrel)

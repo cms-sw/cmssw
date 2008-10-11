@@ -1,21 +1,20 @@
-<use name="DataFormats/GeometrySurface">
-<use name="FWCore/Framework">
-<use name="FWCore/MessageLogger">
-<use name="FWCore/ParameterSet">
-<use name="RecoMuon/DetLayers">
-<use name="RecoTracker/TkDetLayers">
-<use name="TrackingTools/DetLayers">
-<use name="TrackingTools/TrajectoryState">
-<use name="Utilities/General">
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=DataFormats/Common>
+<use name=Utilities/General>
+<use name=TrackingTools/DetLayers>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=Geometry/CommonDetUnit>
+<use name=TrackingTools/TrajectoryState>
+<use name=RecoMuon/DetLayers>
+<use name=rootrflx>
+<use name=root>
+<use name=boost>
+<use name=clhep>
+
+
 <export>
-  <use name="DataFormats/GeometrySurface">
-  <use name="FWCore/Framework">
-  <use name="FWCore/MessageLogger">
-  <use name="FWCore/ParameterSet">
-  <use name="RecoMuon/DetLayers">
-  <use name="RecoTracker/TkDetLayers">
-  <use name="TrackingTools/DetLayers">
-  <use name="TrackingTools/TrajectoryState">
-  <use name="Utilities/General">
-  <lib name="RecoMuonNavigation">
+   <lib name=RecoMuonNavigation>
 </export>
+
+

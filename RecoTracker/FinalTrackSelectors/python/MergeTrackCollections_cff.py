@@ -13,21 +13,28 @@ mergeFirstTwoSteps.TrackProducer2 = 'secStep'
 mergeFirstTwoSteps.promoteTrackQuality = True
 
 #
-merge2nd3rdTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-merge2nd3rdTracks.TrackProducer1 = 'mergeFirstTwoSteps'
-merge2nd3rdTracks.TrackProducer2 = 'thStep'
-merge2nd3rdTracks.promoteTrackQuality = True
+#merge2nd3rdTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+#merge2nd3rdTracks.TrackProducer1 = 'mergeFirstTwoSteps'
+#merge2nd3rdTracks.TrackProducer2 = 'thStep'
+#merge2nd3rdTracks.promoteTrackQuality = True
 
 
 #
+#generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
+#generalTracks.TrackProducer1 = 'merge2nd3rdTracks'
+#generalTracks.TrackProducer2 = 'fourthWithMaterialTracks'
+#generalTracks.promoteTrackQuality = True
+
+
+
 generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-generalTracks.TrackProducer1 = 'merge2nd3rdTracks'
-generalTracks.TrackProducer2 = 'fourthWithMaterialTracks'
+generalTracks.TrackProducer1 = 'mergeFirstTwoSteps'
+generalTracks.TrackProducer2 = 'thStep'
 generalTracks.promoteTrackQuality = True
 
 
 
 
 trackCollectionMerging = cms.Sequence(mergeFirstTwoSteps*
-                                      merge2nd3rdTracks*
+#                                      merge2nd3rdTracks*
                                       generalTracks)

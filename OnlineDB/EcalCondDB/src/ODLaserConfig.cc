@@ -60,8 +60,7 @@ void ODLaserConfig::clear(){
    m_aqmode="";
    m_mq_file="";
    m_laser_tag="";
-   m_matacq_vernier_min=0;
-   m_matacq_vernier_max=0;
+
 }
 
 ODLaserConfig::~ODLaserConfig()
@@ -80,7 +79,6 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     
     if(ci->first==  "LASER_CONFIGURATION_ID") setConfigTag(ci->second);
     if(ci->first==  "DEBUG") setDebug(atoi(ci->second.c_str()) );
-    if(ci->first==  "LASER_DEBUG") setDebug(atoi(ci->second.c_str()) );
     if(ci->first==  "DUMMY") setDummy(atoi(ci->second.c_str() ));
     if(ci->first==  "MATACQ_BASE_ADDRESS") setMatacqBaseAddress(atoi(ci->second.c_str() ));
     if(ci->first==  "MATACQ_NONE") setMatacqNone(atoi(ci->second.c_str() ));
@@ -112,8 +110,6 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "LASER_CONTROL_ON") setLaserControlOn(atoi(ci->second.c_str()) );
     if(ci->first==  "LASER_CONTROL_HOST") setLaserControlHost(ci->second );
     if(ci->first==  "LASER_CONTROL_PORT") setLaserControlPort(atoi(ci->second.c_str()) );
-    if(ci->first==  "MATACQ_VERNIER_MAX") setMatacqVernierMax(atoi(ci->second.c_str()) );
-    if(ci->first==  "MATACQ_VERNIER_MIN") setMatacqVernierMin(atoi(ci->second.c_str()) );
 
   }
   
@@ -183,13 +179,11 @@ void ODLaserConfig::prepareWrite()
 			", LASER_CONTROL_ON " 
 			", LASER_CONTROL_HOST " 
 			", LASER_CONTROL_PORT "
-			", LASER_TAG2 "
-			", MATACQ_VERNIER_MIN "
-			", MATACQ_VERNIER_MAX ) "
+			", LASER_TAG2 ) "
 			"VALUES (  :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, "
 			":11, :12, :13, :14, :15, :16, :17, :18, :19, :20,  "
 			":21, :22, :23, :24, :25, :26, :27, :28, :29, :30,  "
-			":31, :32, :33, :34, :35, :36, :37 )");
+			":31, :32, :33, :34, :35 )");
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
@@ -244,9 +238,6 @@ void ODLaserConfig::writeDB()
     m_writeStmt->setString(33, this->getLaserControlHost() );
     m_writeStmt->setInt(   34, this->getLaserControlPort());
     m_writeStmt->setString(   35, this->getLaserTag());
-
-    m_writeStmt->setInt(   36, this->getMatacqVernierMin());
-    m_writeStmt->setInt(   37, this->getMatacqVernierMax());
 
     m_writeStmt->executeUpdate();
 

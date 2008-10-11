@@ -200,21 +200,34 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
 
   typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
 
+  bool switchOffPixelsIfEmpty = (!pset_.existsAs<bool>("switchOffPixelsIfEmpty")) ||
+                                (pset_.getParameter<bool>("switchOffPixelsIfEmpty") == false);
   // Pixel Clusters
   std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
-  if( !pixelClusterProducer.compare("") ) { //clusters have not been produced
+  if( pixelClusterProducer.empty() ) { //clusters have not been produced
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
-      (**i).setEmpty();
+      if (switchOffPixelsIfEmpty) {
+        (**i).setActive(false);
+      }else{
+	(**i).setEmpty();
+      }
     }
   }else{  
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     event.getByLabel(pixelClusterProducer, pixelClusters);
     const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
-    
+   
+    if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
+        for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+             i!=thePixelDets.end(); i++) {
+              (**i).setActive(false);
+        }
+    } else { 
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
 
+      (**i).setActive(true);
       // foreach det get cluster range
       unsigned int id = (**i).geomDet().geographicalId().rawId();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
@@ -224,6 +237,7 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
       }else{
 	(**i).setEmpty();
       }
+    }
     }
   }
   

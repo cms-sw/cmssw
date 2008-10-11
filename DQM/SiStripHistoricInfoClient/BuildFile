@@ -1,0 +1,38 @@
+<use name=boost>
+<use name=root> 
+<use name=CondFormats/SiStripObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBOutputService>
+<use name=DataFormats/SiStripCluster>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+<use name=CalibTracker/SiStripConnectivity>
+<use name=DQM/SiStripCommon>
+<use name=DQMServices/Core>
+<use name=DQMServices/XdaqCollector>
+<use name=DQMServices/WebComponents>
+<use name=oracle>
+<use name=xdaq>
+<use name=xerces-c>
+
+<flags EDM_PLUGIN=1>
+
+<export>
+  <lib name=DQMSiStripHistoricInfoClient>
+  <use name=root>
+  <use name=boost>
+  <use name=CondFormats/SiStripObjects>
+  <use name=CondFormats/DataRecord>
+  <use name=CondCore/DBOutputService>
+  <use name=DataFormats/SiStripCluster>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=CalibTracker/Records>
+  <use name=CalibTracker/SiStripConnectivity>
+  <use name=DQM/SiStripCommon>
+  <use name=DQMServices/Core>
+  <use name=DQMServices/Components>
+  <use name=DQMServices/WebComponents>
+  <use name=oracle>
+  <use name=xdaq>
+  <use name=xerces-c>
+</export>

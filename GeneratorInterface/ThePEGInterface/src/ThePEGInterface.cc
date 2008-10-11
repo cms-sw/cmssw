@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.7 2008/08/06 10:02:37 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.2 2008/06/27 16:34:01 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -40,18 +40,14 @@ ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
 	dataLocation_(resolveEnvVars(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
 	run_(pset.getParameter<string>("run")),
-	dumpConfig_(pset.getUntrackedParameter<string>("dumpConfig", "")),
-	skipEvents_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0))
+	skipEvents_(pset.getUntrackedParameter<int>("skipEvents", 0))
 {
 	// Write events in hepmc ascii format for debugging purposes
-	string dumpEvents = pset.getUntrackedParameter<string>("dumpEvents", "");
-	if (!dumpEvents.empty()) {
-		iobc_.reset(new HepMC::IO_ExtendedAscii(dumpEvents.c_str(), ios::out));
-		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << dumpEvents << ")";
+	string eventLog = pset.getUntrackedParameter<string>("printEvents", "");
+	if (!eventLog.empty()) {
+		iobc_.reset(new HepMC::IO_ExtendedAscii(eventLog.c_str(), ios::out));
+		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << eventLog << ")";
 	}
-	// Clear dumpConfig target
-	if (!dumpConfig_.empty())
-		ofstream cfgDump(dumpConfig_.c_str(), ios_base::trunc);
 }
 
 ThePEGInterface::~ThePEGInterface()
@@ -103,13 +99,6 @@ string ThePEGInterface::resolveEnvVars(const string &s)
 void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string &paramSet) const
 {
 	stringstream logstream;
-	ofstream cfgDump;
-	if (!dumpConfig_.empty())
-		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
-
-	edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << paramSet << ")";
-	if (!dumpConfig_.empty() && (paramSet != "parameterSets"))
-		cfgDump << endl << "####### " << paramSet << " #######" << endl;
 
 	// Read CMSSW config file parameter set
 	vector<string> params = pset.getParameter<vector<string> >(paramSet);
@@ -119,25 +108,21 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 	    psIter != params.end(); ++psIter) {
 
 		// Include other parameter sets specified by +psName
-		if (psIter->find_first_of('+') == 0)
+		if (psIter->find_first_of('+') == 0) {
+			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << psIter->substr(1) << ")";
 			readParameterSet(pset, psIter->substr(1));
+		}
 		// Topmost parameter set is called "parameterSets"
-		else if (paramSet == "parameterSets")
+		else if (paramSet == "parameterSets") {
+			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << *psIter << ")";
 			readParameterSet(pset, *psIter);
+		}
 		// Transfer parameters to the repository
 		else {
 			string line = resolveEnvVars(*psIter);
 			string out = ThePEG::Repository::exec(line, logstream);
-			if (!dumpConfig_.empty())
-				cfgDump << line << endl;
 			if (out != "")
-			{
 				edm::LogInfo("ThePEGInterface") << line << " => " << out;
-				cerr << "Error in ThePEG configuration!" << endl
-					<< "\tParameter set: " << paramSet << endl
-					<< "\tLine: " << line << endl
-					<< out << endl;
-			}
 		}
 	}
 }
@@ -186,13 +171,6 @@ void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
 
 	// Read CMSSW config file parameter sets starting from "parameterSets"
 	readParameterSet(pset, "parameterSets");
-	if (!dumpConfig_.empty())
-	{
-		ofstream cfgDump;
-		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
-		cfgDump << "saverun " << run_ << " " << generator_ << endl;
-		cfgDump.close();
-	}
 
 	// Print the directories where ThePEG looks for libs
 	vector<string> libdirlist = ThePEG::DynamicLoader::allPaths();
@@ -219,7 +197,7 @@ void ThePEGInterface::initGenerator()
 			<< "EventGenerator could not be initialized!" << endl;
 
 	// Skip events
-	for (unsigned int i = 0; i < skipEvents_; i++) {
+	for (int i = 0; i < skipEvents_; i++) {
 		eg_->shoot();
 		edm::LogInfo("ThePEGInterface") << "Event discarded";
 	}

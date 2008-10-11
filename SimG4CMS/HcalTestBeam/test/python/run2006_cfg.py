@@ -79,8 +79,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.common_beam_direction_parameters = cms.PSet(
     MinEta = cms.untracked.double(0.5655),
     MaxEta = cms.untracked.double(0.5655),
-    MinPhi = cms.untracked.double(0.1309),
-    MaxPhi = cms.untracked.double(0.1309),
+    MinPhi = cms.untracked.double(-0.1309),
+    MaxPhi = cms.untracked.double(-0.1309),
     BeamPosition = cms.untracked.double(-800.0)
 )
 

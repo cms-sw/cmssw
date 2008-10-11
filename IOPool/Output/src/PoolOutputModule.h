@@ -13,6 +13,7 @@
 #include <string>
 #include "boost/scoped_ptr.hpp"
 
+#include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 
@@ -96,6 +97,7 @@ namespace edm {
 
     void fillSelectedItemList(BranchType branchtype, TTree *theTree);
 
+    RootServiceChecker rootServiceChecker_;
     OutputItemListArray selectedOutputItemList_;
     std::string const fileName_;
     std::string const logicalFileName_;

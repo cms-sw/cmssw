@@ -21,7 +21,20 @@ RecoTrackerFEVT = cms.PSet(
         'keep TrackingRecHitsOwned_cosmictrackfinderP5_*_*',
         'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*',
         'keep recoTrackExtras_ctfWithMaterialTracksBeamHaloMuon_*_*',
-        'keep TrackingRecHitsOwned_ctfWithMaterialTracksBeamHaloMuon_*_*')
+        'keep TrackingRecHitsOwned_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep *_dedxTruncated40_*_*',
+        'keep *_dedxMedian_*_*',
+        'keep *_dedxHarmonic2_*_*',
+        'keep *_dedxTruncated40CTF_*_*',
+        'keep *_dedxMedianCTF_*_*',
+        'keep *_dedxHarmonic2CTF_*_*',
+        'keep *_dedxTruncated40RS_*_*',
+        'keep *_dedxMedianRS_*_*',
+        'keep *_dedxHarmonic2RS_*_*',
+        'keep *_dedxTruncated40CosmicTF_*_*',
+        'keep *_dedxMedianCosmicTF_*_*',
+        'keep *_dedxHarmonic2CosmicTF_*_*',
+    )
 )
 #RECO content
 RecoTrackerRECO = cms.PSet(
@@ -36,13 +49,39 @@ RecoTrackerRECO = cms.PSet(
         'keep TrackingRecHitsOwned_cosmictrackfinderP5_*_*',
         'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*',
         'keep recoTrackExtras_ctfWithMaterialTracksBeamHaloMuon_*_*',
-        'keep TrackingRecHitsOwned_ctfWithMaterialTracksBeamHaloMuon_*_*')
+        'keep TrackingRecHitsOwned_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep *_dedxTruncated40_*_*',
+        'keep *_dedxMedian_*_*',
+        'keep *_dedxHarmonic2_*_*',
+        'keep *_dedxTruncated40CTF_*_*',
+        'keep *_dedxMedianCTF_*_*',
+        'keep *_dedxHarmonic2CTF_*_*',
+        'keep *_dedxTruncated40RS_*_*',
+        'keep *_dedxMedianRS_*_*',
+        'keep *_dedxHarmonic2RS_*_*',
+        'keep *_dedxTruncated40CosmicTF_*_*',
+        'keep *_dedxMedianCosmicTF_*_*',
+        'keep *_dedxHarmonic2CosmicTF_*_*',
+    )
 )
 #AOD content
 RecoTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_ctfWithMaterialTracksP5_*_*', 
         'keep recoTracks_rsWithMaterialTracksP5_*_*', 
         'keep recoTracks_cosmictrackfinderP5_*_*',
-        'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*')
+        'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep *_dedxTruncated40_*_*',
+        'keep *_dedxMedian_*_*',
+        'keep *_dedxHarmonic2_*_*',
+        'keep *_dedxTruncated40CTF_*_*',
+        'keep *_dedxMedianCTF_*_*',
+        'keep *_dedxHarmonic2CTF_*_*',
+        'keep *_dedxTruncated40RS_*_*',
+        'keep *_dedxMedianRS_*_*',
+        'keep *_dedxHarmonic2RS_*_*',
+        'keep *_dedxTruncated40CosmicTF_*_*',
+        'keep *_dedxMedianCosmicTF_*_*',
+        'keep *_dedxHarmonic2CosmicTF_*_*',
+    )
 )
 

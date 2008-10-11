@@ -43,12 +43,12 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const MuonCollection * muon,
-	       const RecoChargedCandidateCollection * mucands2,
-	       const edm::ValueMap<bool> * isoMap2,
-	       const RecoChargedCandidateCollection * mucands3,
-	       const edm::ValueMap<bool> * isoMap3,
-	       const MuonTrackLinksCollection * mulinks,
+  void analyze(const edm::Handle<MuonCollection>                 & muon,
+	       const edm::Handle<RecoChargedCandidateCollection> & mucands2,
+	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
+	       const edm::Handle<RecoChargedCandidateCollection> & mucands3,
+	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+	       const edm::Handle<MuonTrackLinksCollection>       & mulinks,
 	       TTree* tree);
 
 
