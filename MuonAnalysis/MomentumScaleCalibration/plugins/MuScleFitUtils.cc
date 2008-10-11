@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/07/08 15:05:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/09 15:39:38 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -463,11 +463,11 @@ MuScleFitUtils::applySmearing (const lorentzVector& muon) {
 lorentzVector
 MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
 
-  double ptEtaPhiE[4];
-  double pt = muon.Pt();
-  double eta = muon.Eta();
-  double phi = muon.Phi();
-  double E = muon.E();
+  double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
+  //   double pt = muon.Pt();
+  //   double eta = muon.Eta();
+  //   double phi = muon.Phi();
+  //   double E = muon.E();
 
   // Use functors (although not with the () operator)
   // Note that we always pass pt, eta and phi, but internally only the needed
@@ -477,12 +477,14 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
   //   cout << "[MuScleFitUtils-ApplyBias]: Wrong fit type or number of parameters: aborting!";
   //   abort();
   // }
-  biasFunction->scale(pt, eta, phi, chg, MuScleFitUtils::parBias);
+  // The functors used are takend from the same group used for the scaling
+  // thus the scale method.
+  biasFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, MuScleFitUtils::parBias);
 
-  ptEtaPhiE[0] = pt;
-  ptEtaPhiE[1] = eta;
-  ptEtaPhiE[2] = phi;
-  ptEtaPhiE[3] = E;
+  //   ptEtaPhiE[0] = pt;
+  //   ptEtaPhiE[1] = eta;
+  //   ptEtaPhiE[2] = phi;
+  //   ptEtaPhiE[3] = E;
 
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
@@ -491,15 +493,18 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
 // --------------------------------------------------------------
 lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
                                           vector<double> parval, int chg) {
-  // double * p = new double[(int)(parval.size())];
+  double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
-  std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // Removed auto_ptr, check massResolution for an explanation.
   int id = 0;
   for (vector<double>::const_iterator it=parval.begin(); it!=parval.end(); ++it, ++id) {
-    (&*p)[id] = *it; 
+    //(&*p)[id] = *it; 
     // Also ok would be (p.get())[id] = *it;
+    p[id] = *it; 
   }
   return applyScale (muon, p, chg);
+  delete[] p;
 }
 
 // This just calls the true applyScale function, removing the memory leak of p
@@ -516,24 +521,24 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
   int shift = parResol.size();
-  double pt = ptEtaPhiE[0];
-  double eta = ptEtaPhiE[1];
-  double phi = ptEtaPhiE[2];
-  double E = ptEtaPhiE[3];
+  //   double pt = ptEtaPhiE[0];
+  //   double eta = ptEtaPhiE[1];
+  //   double phi = ptEtaPhiE[2];
+  //   double E = ptEtaPhiE[3];
 
   // the address of parval[shift] is passed as pointer to double. Internally it is used as a normal array, thus:
   // array[0] = parval[shift], array[1] = parval[shift+1], ...
-  scaleFunction->scale(pt, eta, phi, chg, &(parval[shift]));
+  scaleFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, &(parval[shift]));
 
   if (ScaleFitType < 0 || ScaleFitType > 13) {
     cout << "[MuScleFitUtils]: Wrong fit type: " << ScaleFitType << " aborting!";
     abort();
   }
 
-  ptEtaPhiE[0]=pt;
-  ptEtaPhiE[1]=eta;
-  ptEtaPhiE[2]=phi;
-  ptEtaPhiE[3]=E;
+  //   ptEtaPhiE[0]=pt;
+  //   ptEtaPhiE[1]=eta;
+  //   ptEtaPhiE[2]=phi;
+  //   ptEtaPhiE[3]=E;
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
 
@@ -548,11 +553,12 @@ lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz (double* ptEtaPhiE) {
   double pz = ptEtaPhiE[0]*cos(tmp)/sin(tmp);
   double E  = sqrt(px*px+py*py+pz*pz+muMass*muMass);
 
-  lorentzVector corrMu(px,py,pz,E);
+  // lorentzVector corrMu(px,py,pz,E);
   // To fix memory leaks, this is to be substituted with
   // std::auto_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
 
-  return corrMu;
+  return lorentzVector(px,py,pz,E);
+
 }
 
 // Dimuon mass
@@ -582,7 +588,8 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   vector<double>::const_iterator it = parval.begin();
   int id = 0;
   for ( ; it!=parval.end(); ++it, ++id) {
-    (&*p)[id] = *it;
+    // (&*p)[id] = *it;
+    p[id] = *it;
   }
   double massRes = massResolution (mu1, mu2, p);
   delete[] p;
@@ -696,7 +703,7 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
     sigma_phi2    = parval[2]+parval[6]*pt2;
     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-  } 
+  }
  
 
   // double sigma_theta1 = parval[3];
@@ -764,17 +771,20 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
 // -----------------------------------------------------------------------------------------
 double MuScleFitUtils::massProb (double mass, double massResol, vector<double> parval) {
 
-  // double * p = new double[(int)(parval.size())];
+  double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
-  std::auto_ptr<double> p(new double[(int)(parval.size())]);
+  // Removed auto_ptr, check massResolution for an explanation.
+  // std::auto_ptr<double> p(new double[(int)(parval.size())]);
 
   vector<double>::const_iterator it = parval.begin();
   int id = 0;
   for ( ; it!=parval.end(); ++it, ++id) {
-    (&*p)[id] = *it;
+    // (&*p)[id] = *it;
+    p[id] = *it;
   }
   // p must be passed by value as below:
   return massProb (mass, massResol, p);
+  delete[] p;
 }
 
 // This just calls the true massProb function, removing the memory leak of p

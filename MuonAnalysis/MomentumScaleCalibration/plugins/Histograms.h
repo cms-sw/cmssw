@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/07/09 14:23:14 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/09 15:38:29 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -905,8 +905,8 @@ public:
     hReso                    = new TH1F     (name+"_Reso", "resolution", 4000, -1, 1);
     hResoVSPairPt            = new TH2F     (name+"_ResoVSPairPt", "resolution VS pt of the pair", 200, 0, 200, 4000, -1, 1);
     hResoVSPairPt_prof       = new TProfile (name+"_ResoVSPairPt_prof", "resolution VS pt of the pair", 100, 0, 200, -1, 1);
-    hResoVSPairDeltaEta      = new TH2F     (name+"_ResoVSPairDeltaEta", "resolution VS DeltaEta of the pair", 30, -0.1, 3, 4000, -1, 1);
-    hResoVSPairDeltaEta_prof = new TProfile (name+"_ResoVSPairDeltaEta_prof", "resolution VS DeltaEta of the pair", 100, -0.1, 3, -1, 1);
+    hResoVSPairDeltaEta      = new TH2F     (name+"_ResoVSPairDeltaEta", "resolution VS DeltaEta of the pair", 30, -0.1, 6, 4000, -1, 1);
+    hResoVSPairDeltaEta_prof = new TProfile (name+"_ResoVSPairDeltaEta_prof", "resolution VS DeltaEta of the pair", 100, -0.1, 6, -1, 1);
     hResoVSPairDeltaPhi      = new TH2F     (name+"_ResoVSPairDeltaPhi", "resolution VS DeltaPhi of the pair", 14, -0.1, 3.2, 4000, -1, 1);
     hResoVSPairDeltaPhi_prof = new TProfile (name+"_ResoVSPairDeltaPhi_prof", "resolution VS DeltaPhi of the pair", 100, -0.1, 3.2, -1, 1);
 
