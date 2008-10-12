@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.68 2008/08/11 16:06:17 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.69 2008/10/03 05:08:25 mangano Exp $
  *
  */
 
@@ -80,8 +80,8 @@ namespace reco {
     /// track algorithm
     enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, 
 			  iter1=5, iter2=6, iter3=7, iter4=8, iter5=9, iter6=10, iter7=11, iter8=12, iter9=13,iter10=14,
-			  conversion=15, nuclInter=16,
-			  algoSize=17 };
+			  conversion=15, nuclInter=16,standAloneMuon=17,globalMuon=18,cosmicStandAloneMuon=19,cosmicGlobalMuon=20,
+			  algoSize=21 };
     static const std::string algoNames[];
 
     /// track quality
@@ -292,6 +292,10 @@ namespace reco {
       case iter10: return "iter10";
       case conversion: return "conversion";
       case nuclInter: return "nuclInter";
+      case standAloneMuon: return "standAloneMuon";
+      case globalMuon: return "globalMuon";
+      case cosmicStandAloneMuon: return "cosmicStandAloneMuon";
+      case cosmicGlobalMuon: return "cosmicGlobalMuon";
       }
     return "undefAlgorithm";
   }

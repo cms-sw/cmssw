@@ -7,7 +7,8 @@ using namespace reco;
 // To be kept in synch with the enumerator definitions in TrackBase.h file
 std::string const TrackBase::algoNames[] = { "undefAlgorithm", "ctf", "rs", "cosmics", "beamhalo",
 					     "iter1", "iter2","iter3","iter4","iter5","iter6","iter7","iter8","iter9","iter10",
-					     "conversion","nuclInter"};
+					     "conversion","nuclInter",
+					     "standAloneMuon","globalMuon","cosmicStandAloneMuon","cosmicGlobalMuon"};
 std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative"};
 
 TrackBase::TrackBase() :
