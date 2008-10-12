@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.6 2008/09/17 23:51:52 loizides Exp $
+# $Id: smCleanupFiles.pl,v 1.7 2008/09/18 01:31:04 loizides Exp $
 
 use strict;
 use DBI;
@@ -63,7 +63,6 @@ $execute    = 1;
 $maxfiles   = 1;
 $force      = 0;
 $config     = "/nfshome0/smpro/configuration/db.conf";
-#$config     = "$ENV{HOME}/db.conf";
 
 $hostname   = `hostname -s`;
 chomp($hostname);
@@ -90,9 +89,9 @@ if ($nothing) { $execute = 0; $debug = 1; }
 my $reader = "xxx";
 my $phrase = "xxx";
 if(-e $config) {
-    eval `cat $config`;
+    eval `su smpro -c "cat $config"`;
 } else {
-    print "Error: Can not read $config file, exiting!\n";
+    print "Error: Can not read config file $config, exiting!\n";
     usage();
 }
 
