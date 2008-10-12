@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.42 2008/10/08 19:49:51 biery Exp $
+   $Id: StorageManager.h,v 1.43 2008/10/09 16:14:36 biery Exp $
 */
 
 #include <string>
@@ -29,6 +29,7 @@
 
 #include "EventFilter/StorageManager/interface/JobController.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
+#include "EventFilter/StorageManager/interface/ForeverAverageCounter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -202,9 +203,12 @@ namespace stor {
     xdata::Vector<xdata::UnsignedInteger32> storedEventsInStream_;
     xdata::Vector<xdata::UnsignedInteger32> receivedEventsFromOutMod_;
     typedef std::map<std::string,uint32> countMap;
+    typedef std::map<std::string, boost::shared_ptr<ForeverAverageCounter> > valueMap;
     typedef std::map<uint32,std::string> idMap;
     typedef std::map<uint32,std::string>::iterator idMap_iter;
     countMap receivedEventsMap_;
+    valueMap avEventSizeMap_;
+    valueMap avCompressRatioMap_;
     idMap modId2ModOutMap_;
     countMap storedEventsMap_;
     xdata::Vector<xdata::UnsignedInteger32> fileSize_;
@@ -217,11 +221,18 @@ namespace stor {
 
     // *** measurements for last set of samples
     xdata::UnsignedInteger32 samples_; // number of samples/frames per measurement
+    xdata::UnsignedInteger32 period4samples_; // time period per measurement
     xdata::Double instantBandwidth_; // bandwidth in MB/s
     xdata::Double instantRate_;      // number of frames/s
     xdata::Double instantLatency_;   // micro-seconds/frame
     xdata::Double maxBandwidth_;     // maximum bandwidth in MB/s
     xdata::Double minBandwidth_;     // minimum bandwidth in MB/s
+    // *** measurements for last time period
+    xdata::Double instantBandwidth2_;// bandwidth in MB/s
+    xdata::Double instantRate2_;     // number of frames/s
+    xdata::Double instantLatency2_;  // micro-seconds/frame
+    xdata::Double maxBandwidth2_;    // maximum bandwidth in MB/s
+    xdata::Double minBandwidth2_;    // minimum bandwidth in MB/s
 
     // *** measurements for all samples
     xdata::Double duration_;         // time for run in seconds
@@ -229,6 +240,13 @@ namespace stor {
     xdata::Double meanBandwidth_;    // bandwidth in MB/s
     xdata::Double meanRate_;         // number of frames/s
     xdata::Double meanLatency_;      // micro-seconds/frame
+    xdata::Double receivedVolume_;   // total received data in MB
+
+    xdata::Double duration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 totalSamples2_; //number of samples/frames per measurement
+    xdata::Double meanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double meanRate2_;         // number of frames/s
+    xdata::Double meanLatency2_;      // micro-seconds/frame
 
     // *** additional flashlist contents (rest was already there)
     xdata::String            class_;

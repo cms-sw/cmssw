@@ -4,15 +4,18 @@
      Header file for performance statistics for
      Storage Manager and SMProxyServer.
 
-     $Id$
+     $Id: SMPerformanceMeter.h,v 1.4 2008/02/02 02:31:08 hcheung Exp $
 */
 
 #include <string>
 
-#include "toolbox/Chrono.h"
 #include "toolbox/string.h"
 
+#include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
+#include "EventFilter/StorageManager/interface/ForeverCounter.h"
+#include "EventFilter/StorageManager/interface/RollingSampleCounter.h"
+#include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
 
 namespace stor {
 
@@ -22,21 +25,17 @@ namespace stor {
     public:
     void reset();
     void fullReset();
-    // variables for the mean over the whole run
     unsigned long samples_;
-    double totalMB4mean_;
-    double meanThroughput_;
-    double meanRate_;
-    double  meanLatency_;
-    unsigned long sampleCounter_;
-    double  allTime_;
+    unsigned long period4samples_;
+    boost::shared_ptr<ForeverCounter> longTermCounter_;
+    boost::shared_ptr<RollingSampleCounter> shortTermCounter_;
+    boost::shared_ptr<RollingIntervalCounter> shortPeriodCounter_;
+    // for sample based statistics
     double maxBandwidth_;
     double minBandwidth_;
-    // variables for each set of "samples_"
-    double totalMB_;
-    double throughput_;
-    double rate_;
-    double  latency_;
+    // for time period based statistics
+    double maxBandwidth2_;
+    double minBandwidth2_;
   };
 
   class SMPerformanceMeter 
@@ -47,29 +46,19 @@ namespace stor {
 
     virtual ~SMPerformanceMeter(){}
 
-    void init(unsigned long samples);
+    void init(unsigned long samples, unsigned long time_period);
     bool addSample(unsigned long size);
     void setSamples(unsigned long num_samples);
+    void setPeriod4Samples(unsigned long time_period);
   
     SMPerfStats getStats();
     unsigned long samples();
-    double bandwidth();
-    double rate();
-    double latency();
-    double meanbandwidth();
-    double maxbandwidth();
-    double minbandwidth();
-    double meanrate();
-    double meanlatency();
-    unsigned long totalsamples();
     double totalvolumemb();
-    double duration();
 
     protected:
 
-    SMPerfStats stats_;
     unsigned long loopCounter_;
-    toolbox::Chrono chrono_;	
+    SMPerfStats stats_;
 
     boost::mutex data_lock_;
   }; //end class

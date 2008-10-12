@@ -1,3 +1,15 @@
+2008-10-12  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-18
+	* Changed SMPerformanceMeter to use Kurt's counter classes and also
+	  introduce a rate over a time period as well as a rate over a
+	  given number of samples. Both are now given and the samples and
+	  time period can be set in the SM XML xdaq config file (see sm_onenode.xml)
+	  Also getting  and reporting statistics for received event sizes 
+	  using a new counter class, still need to get the compression ratio
+	  and fragment queue size when statistics gathering is moved to 
+	  the FragmentCollector
+
 2008-10-09  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-17
