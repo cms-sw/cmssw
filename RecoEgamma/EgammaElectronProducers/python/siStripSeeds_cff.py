@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# gsfElectrons
+# module to make SiStrip seeds
 from RecoEgamma.EgammaElectronProducers.siStripSeeds_cfi import *
 
