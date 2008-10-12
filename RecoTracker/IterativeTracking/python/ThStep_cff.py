@@ -53,6 +53,7 @@ thTrackCandidates.useHitsSplitting = True
 
 #TRACKS
 thWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+thWithMaterialTracks.AlgorithmName = cms.string('iter3')
 thWithMaterialTracks.src = 'thTrackCandidates'
 thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
 
@@ -103,7 +104,6 @@ thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     )
 )
 
-#from RecoTracker.IterativeTracking.ThVxFilter_cff import *
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
 thStepVtx.src = 'thWithMaterialTracks'

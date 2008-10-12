@@ -65,12 +65,12 @@ secTrackCandidates.useHitsSplitting = True
 # fitting
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 secWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+secWithMaterialTracks.AlgorithmName = cms.string('iter2')
 secWithMaterialTracks.src = 'secTrackCandidates'
 secWithMaterialTracks.clusterRemovalInfo = 'secClusters'
 
 
 # track selection
-#from RecoTracker.IterativeTracking.SecVxFilter_cff import *
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 
 secStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
