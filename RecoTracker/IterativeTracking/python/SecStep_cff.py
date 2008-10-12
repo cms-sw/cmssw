@@ -1,13 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
+firstfilter = cms.EDFilter("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
+)
+
+
 # new hit collection
 secClusters = cms.EDFilter("TrackClusterRemover",
+    oldClusterRemovalInfo = cms.InputTag("newClusters"),
     trajectories = cms.InputTag("firstfilter"),
-    pixelClusters = cms.InputTag("siPixelClusters"),
+    pixelClusters = cms.InputTag("newClusters"),
+    stripClusters = cms.InputTag("newClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
-    ),
-    stripClusters = cms.InputTag("siStripClusters")
+    )
 )
 
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
@@ -99,4 +106,4 @@ secStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackLis
 secStep.TrackProducer1 = 'secStepVtx'
 secStep.TrackProducer2 = 'secStepTrk'
 
-secondStep = cms.Sequence(secClusters*secPixelRecHits*secStripRecHits*secTriplets*secTrackCandidates*secWithMaterialTracks*secStepVtx*secStepTrk*secStep)
+secondStep = cms.Sequence(firstfilter*secClusters*secPixelRecHits*secStripRecHits*secTriplets*secTrackCandidates*secWithMaterialTracks*secStepVtx*secStepTrk*secStep)
