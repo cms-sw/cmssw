@@ -23,8 +23,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/10/07 12:11:51 $
- * $Revision: 1.34 $
+ * $Date: 2008/10/08 12:31:41 $
+ * $Revision: 1.35 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -124,10 +124,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meDCC_DataIntegrityCheck_;
   MonitorElement* meHalfHTR_DataIntegrityCheck_;
   MonitorElement* meChannSumm_DataIntegrityCheck_;
-  std::vector<MonitorElement*> meChann_DataIntegrityCheck_;
-  
+
   //Histogram labelling functions
   void label_ySpigots(MonitorElement* me_ptr,int ybins);
+  void label_xFEDs   (MonitorElement* me_ptr,int xbins);
   void label_xChanns (MonitorElement* me_ptr,int xbins);
 
   MonitorElement* meInvHTRData_;
@@ -174,7 +174,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
   MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
 
-  MonitorElement* meCh_DataIntegrity_;        //DataIntegrity for channels, OR'd by spigot
   MonitorElement* meCh_DataIntegrityFED00_;   //DataIntegrity for channels in FED 00
   MonitorElement* meCh_DataIntegrityFED01_;   //DataIntegrity for channels in FED 01
   MonitorElement* meCh_DataIntegrityFED02_;   //DataIntegrity for channels in FED 02
@@ -207,7 +206,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meCh_DataIntegrityFED29_;   //DataIntegrity for channels in FED 29
   MonitorElement* meCh_DataIntegrityFED30_;   //DataIntegrity for channels in FED 30
   MonitorElement* meCh_DataIntegrityFED31_;   //DataIntegrity for channels in FED 31
-  MonitorElement* Ch_DataInteg_FED[32];       // handy array of pointers to pointers...
+  // handy array of pointers to pointers...
+  MonitorElement* meChann_DataIntegrityCheck_[32];
 
   MonitorElement* meFib1OrbMsgBCN_;  //BCN of Fiber 1 Orb Msg
   MonitorElement* meFib2OrbMsgBCN_;  //BCN of Fiber 2 Orb Msg
