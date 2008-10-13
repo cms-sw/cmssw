@@ -115,13 +115,13 @@ process.myanalysis = cms.EDFilter("SinglePionEfficiencyNew",
 
 
 process.dump = cms.EDFilter("EventContentAnalyzer")
-# process.p1 = cms.Path(process.mix*process.dump)
 
+# process.p1 = cms.Path(process.mix*process.dump)
 # process.p1 = cms.Path(process.mix*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.hfreco*process.horeco*process.dump)
 
 # ECAL SR OFF
-# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.myanalysis)
+process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.dump*process.myanalysis)
 
 # standard
-process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
+# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.dump*process.myanalysis)
 
