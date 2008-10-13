@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.6 2008/10/09 19:49:10 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.7 2008/10/10 11:11:41 wsun Exp $
 //
 //
 
@@ -98,7 +98,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
        if( !m_overwriteKeys )
 	 {
-	   triggerKeyOK = oldKeyList->token( key->getTSCKey() ) == "" ;
+	   triggerKeyOK = oldKeyList->token( key->tscKey() ) == "" ;
 	 }
      }
    catch( l1t::DataAlreadyPresentException& ex )
@@ -120,12 +120,12 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
       if( m_writeL1TriggerKey )
 	{
 	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
-	  if( !( keyList->addKey( key->getTSCKey(),
+	  if( !( keyList->addKey( key->tscKey(),
 				  token,
 				  m_overwriteKeys ) ) )
 	    {
 	      throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
-				     + key->getTSCKey()
+				     + key->tscKey()
 				     + " already in L1TriggerKeyList" ) ;
 	    }
 	}
