@@ -26,7 +26,13 @@ ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis"
 # HCAL ZSP
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
 from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
-# simHcalDigis.digiLabel = cms.InputTag("hcalDigis")
+simHcalDigis.hbhe = cms.PSet(
+        firstSample = cms.int32(4),
+        mode = cms.int32(2),
+        samplesToAdd = cms.int32(2),
+        twoSided = cms.bool(False),
+        level = cms.int32(-2000)
+    )
 
 from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi import *
 hbhereco.digiLabel = cms.InputTag("simHcalDigis")
@@ -120,8 +126,8 @@ process.dump = cms.EDFilter("EventContentAnalyzer")
 # process.p1 = cms.Path(process.mix*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.hfreco*process.horeco*process.dump)
 
 # ECAL SR OFF
-process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.dump*process.myanalysis)
+process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.myanalysis)
 
 # standard
-# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.dump*process.myanalysis)
+# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
 
