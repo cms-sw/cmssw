@@ -13,16 +13,16 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.3 2008/10/07 13:50:33 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.4 2008/10/09 05:41:19 hatake Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-// #include <stdio.h>
+#include <stdio.h>
 #include <math.h>
-
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -60,6 +60,7 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
 
    edm::ParameterSet conf_;
    DQMStore * dbe;
+   DQMStore * rdbe;
    edm::Service<TFileService> fs_;
 
 };
@@ -306,30 +307,40 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
 void 
 DataCertificationJetMET::beginJob(const edm::EventSetup&)
 {
-
   //
   // Open input files
   //----------------------------------------------------------------
 
-  std::string filename = conf_.getUntrackedParameter<std::string>("fileName");
-  std::cout << "FileName = " << filename << std::endl;
+  std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
+  std::string reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
+  std::cout << "Reference FileName = " << reffilename << std::endl;
+  std::cout << "FileName           = " << filename    << std::endl;
 
-  //  DQMStore * dbe;
-
+  // -- Current Run
   dbe = edm::Service<DQMStore>().operator->();
   dbe->open(filename);
 
-  //dbe = edm::Service<DQMStore>().operator->();
-  //dbe->open("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root");
+  // -- Reference set of histograms
+  rdbe = edm::Service<DQMStore>().operator->();
+  rdbe->open(reffilename);
 
-  //print histograms:
-  //dbe->showDirStructure();
+  // dbe = edm::Service<DQMStore>().operator->();
+  // dbe->open("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root");
+
+  // print histograms:
+  //  dbe->showDirStructure();
 
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
   std::cout << "found " << mes.size() << " monitoring elements!" << std::endl;
 
-  //TH1F *bla = fs_->make<TH1F>("bla","bla",256,0,256);
-  //int totF;
+  //  rdbe->setCurrentFolder("Run 63463/JetMET/Run summary/SISConeJets");
+  //  std::vector<MonitorElement*> rmes = rdbe->getAllContents("");
+  //  std::vector<MonitorElement*> rmes = rdbe->getMatchingContents("Pt");
+  //  std::vector<MonitorElement*> rmes = rdbe->getMatchingContents("Run 63463/JetMET/Run summary/SISConeJets");
+  //  std::cout << "found " << rmes.size() << " Reference monitoring elements!" << std::endl;
+
+  // TH1F *bla = fs_->make<TH1F>("bla","bla",256,0,256);
+  // int totF;
 
   //
   // Data certification starts
@@ -355,12 +366,60 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   TH2F *hCaloMExNoHF_LS;
   TH2F *hCaloMEyNoHF_LS;
 
+  // ****************************
+  // ****************************
+
+  //  rdbe->setCurrentFolder("Run 63463/JetMET/Run summary/SISConeJets");
+  //  std::string refHistoName = "Run 63463/JetMET/Run summary/PFJetAnalyzer/Pt";
+  std::string refHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/Pt";
+  std::string newHistoName = "Run 63463/JetMET/Run summary/SISConeJets/Pt";
+
+  MonitorElement * meRefHisto = rdbe->get(refHistoName);
+  MonitorElement * meNewHisto = dbe->get(newHistoName);
+
+  if ((meRefHisto) && (meNewHisto)) {
+    TH1F *refHisto = meRefHisto->getTH1F();
+    TH1F *newHisto = meNewHisto->getTH1F();
+    if ((refHisto) && (newHisto)) {
+      std::cout << ">>> Found it..." << std::endl;
+      //    Double_t ks = newHisto->KolmogorovTest(refHisto);
+      Double_t ks = newHisto->Chi2Test(refHisto);
+      std::cout << ">>> Chi2 Test = " << ks << std::endl;    
+    }
+  }
+
+  /***
+  float mean =0;
+  float rms = 0;
+  if (meRefHisto) {
+    if (TH1F *rootHisto = meRefHisto->getTH1F()) {
+      TF1 *f1 = new TF1("f1","gaus",1,3);
+      rootHisto->Fit("f1");
+      mean = f1->GetParameter(1);
+      rms  = f1->GetParameter(2);
+    }
+  }
+  ***/
+
+  // Loop over Monitoring Elements and fill working histograms
+  /****
+  for(std::vector<MonitorElement*>::const_iterator ime = rmes.begin(); ime!=rmes.end(); ++ime) {
+    std::string name = (*ime)->getName();
+    std::cout << "Reference Name = " << name << std::endl;
+
+    //    if (name == "METTask_CaloMEx")     hMExy[0] = (*ime)->getTH1F();
+
+  }
+  ****/
+
+  // ****************************
 
   // Loop over Monitoring Elements and fill working histograms
   for(std::vector<MonitorElement*>::const_iterator ime = mes.begin(); ime!=mes.end(); ++ime) {
     std::string name = (*ime)->getName();
 
     //    std::cout << "Name = " << name << std::endl;
+
     //    if (name == "METTask_CaloMEx") {
     //      std::cout << "Found Name = " << name << " Bins = " << (*ime)->getNbinsX() << std::endl;
     //    }
@@ -583,6 +642,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 //   }
 //   std::cout << "tot " << totF << std::endl;
 
+
+  // -- 
+  
 
 }
 
