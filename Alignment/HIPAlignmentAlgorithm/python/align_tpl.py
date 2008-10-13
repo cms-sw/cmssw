@@ -25,7 +25,8 @@ process.TrackHitFilter.src = 'AlignmentTrackSelector'
 process.TrackHitFilter.hitSelection = "SiStripOnly"
 #process.TrackHitFilter.hitSelection = "TOBandTIBOnly"        
 #process.TrackHitFilter.hitSelection = "All"        
-#process.TrackHitFilter.rejectBadStoNHits = False
+## process.TrackHitFilter.rejectBadStoNHits = False
+## process.TrackHitFilter.theStoNthreshold = 14
 process.TrackHitFilter.minHitsForRefit = 5
 
 
@@ -41,48 +42,48 @@ process.AlignmentProducer.algoConfig.outpath = ''
 process.AlignmentProducer.algoConfig.uvarFile = '<PATH>/IOUserVariables.root'
 process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(cms.PSet(
 															function = cms.string('linear'),
-															apeRPar = cms.vdouble(5e-2, 5e-3, 100.0),
-															apeSPar = cms.vdouble(5e-3, 5e-4, 100.0),
+															apeRPar = cms.vdouble(0.002, 0.002, 100.0),
+															apeSPar = cms.vdouble(0.02, 0.02, 100.0),
 															Selector = cms.PSet(
 																				alignParams = cms.vstring('TrackerTPBModule,000000')
 																				)
 															), 
 												   cms.PSet(
 															function = cms.string('linear'),
-															apeRPar = cms.vdouble(5e-2, 5e-3, 100.0),
-															apeSPar = cms.vdouble(5e-3, 5e-4, 100.0),
+															apeRPar = cms.vdouble(0.002, 0.002, 100.0),
+															apeSPar = cms.vdouble(0.02, 0.02, 100.0),
 															Selector = cms.PSet(
 																				alignParams = cms.vstring('TrackerTPEModule,000000')
 																				)
 															), 
 												   cms.PSet(
 															function = cms.string('linear'),
-															apeRPar = cms.vdouble(5e-2, 5e-3, 100.0),
-															apeSPar = cms.vdouble(5e-3, 5e-4, 100.0),
+															apeRPar = cms.vdouble(0.002, 0.002, 100.0),
+															apeSPar = cms.vdouble(0.02, 0.02, 100.0),
 															Selector = cms.PSet(
 																				alignParams = cms.vstring('TIBDets,000000')
 																				)
 															), 
 												   cms.PSet(
 															function = cms.string('linear'),
-															apeRPar = cms.vdouble(5e-2, 5e-3, 100.0),
-															apeSPar = cms.vdouble(5e-3, 5e-4, 100.0),
+															apeRPar = cms.vdouble(0.002, 0.002, 100.0),
+															apeSPar = cms.vdouble(0.02, 0.02, 100.0),
 															Selector = cms.PSet(
 																				alignParams = cms.vstring('TIDDets,000000')
 																				)
 															), 
 												   cms.PSet(
 															function = cms.string('linear'),
-															apeRPar = cms.vdouble(5e-2, 5e-3, 100.0),
-															apeSPar = cms.vdouble(5e-3, 5e-4, 100.0),
+															apeRPar = cms.vdouble(0.002, 0.002, 100.0),
+															apeSPar = cms.vdouble(0.02, 0.02, 100.0),
 															Selector = cms.PSet(
 																				alignParams = cms.vstring('TOBDets,000000')
 																				)
 															), 
 												   cms.PSet(
 															function = cms.string('linear'),
-															apeRPar = cms.vdouble(5e-2, 5e-3, 100.0),
-															apeSPar = cms.vdouble(5e-3, 5e-4, 100.0),
+															apeRPar = cms.vdouble(0.002, 0.002, 100.0),
+															apeSPar = cms.vdouble(0.02, 0.02, 100.0),
 															Selector = cms.PSet(
 																				alignParams = cms.vstring('TECDets,000000')
 																				)

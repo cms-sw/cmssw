@@ -15,7 +15,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Alignment.HIPAlignmentAlgorithm.FrontierConditions_GlobalTag_cff")
 # setting global tag
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRZT210_V1::All"
+process.GlobalTag.globaltag = "CRUZET4_V6H::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 MessageLogger = cms.Service("MessageLogger",
@@ -47,7 +47,8 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
 												record = cms.string('TrackerAlignmentErrorRcd'),
 												tag = cms.string('AlignmentErrors')
 												)),
-					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/AllSurveyButTIBTIDGlobal_FPixBPix_wErrs.db')
+#					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/AllSurveyButTIBTIDGlobal_FPixBPix_wErrs.db')
+					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/CRUZET4_DBobjects/alignments_C4fixPXESurveyV3.db')
 )
 
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
