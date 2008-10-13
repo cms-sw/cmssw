@@ -12,6 +12,8 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 // Sourcecard routing
@@ -21,7 +23,7 @@
 class GctBlockPacker
 {
  public:
-
+  
   GctBlockPacker();
   ~GctBlockPacker();
 
@@ -35,9 +37,12 @@ class GctBlockPacker
 
   /// Writes GCT output jet cands and counts into an unsigned char array, starting at the position pointed to by d.
   /*! \param d must be pointing at the position where the Jet Output block header should be written! */
-  void writeGctOutJetBlock(unsigned char * d, const L1GctJetCandCollection* cenJets,
-                           const L1GctJetCandCollection* forJets, const L1GctJetCandCollection* tauJets, 
-                           const L1GctJetCountsCollection* jetCounts);
+  void writeGctOutJetBlock(unsigned char * d, 
+			   const L1GctJetCandCollection* cenJets,
+                           const L1GctJetCandCollection* forJets, 
+			   const L1GctJetCandCollection* tauJets, 
+                           const L1GctHFRingEtSumsCollection* hfRingSums,
+                           const L1GctHFBitCountsCollection* hfBitCounts);
   
   /// Writes GCT output EM and energy sums block into an unsigned char array, starting at the position pointed to by d.
   /*! \param d must be pointing at the position where the EM Output block header should be written! */
