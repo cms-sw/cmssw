@@ -2,6 +2,7 @@
 #define TopElecAnalyzer_h
 
 #include "TH1.h"
+#include "TH2.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -34,6 +35,22 @@ class TopElecAnalyzer : public edm::EDAnalyzer {
   TH1F *denElec_;
   TH1F *genElec_;
   TH1F *trgElec_;
+
+  TH2D *CountInSize_T;
+  TH2D *DepoInSize_T;
+  TH2D *Count_Threshold_T;
+  TH2D *Depo_Threshold_T;
+
+  TH2D *CountInSize_E;
+  TH2D *DepoInSize_E;
+  TH2D *Count_Threshold_E;
+  TH2D *Depo_Threshold_E;
+
+  TH2D *CountInSize_H;
+  TH2D *DepoInSize_H;
+  TH2D *Count_Threshold_H;
+  TH2D *Depo_Threshold_H;
+
 };  
 
 #endif  
