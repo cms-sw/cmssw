@@ -1,15 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
 CkfBaseTrajectoryFilter_block = cms.PSet(
-    chargeSignificance = cms.double(-1.0),
-    minPt = cms.double(0.9),
-    minHitsMinPt = cms.int32(3),
     ComponentType = cms.string('CkfBaseTrajectoryFilter'),
-    maxLostHits = cms.int32(1),
-    maxNumberOfHits = cms.int32(-1),
-    maxConsecLostHits = cms.int32(1),
+
+#--- Cuts applied to completed trajectory
+# At least this many hits (counting matched hits as 1)
+    minimumNumberOfHits = cms.int32(5),
+# What is this ?
+    chargeSignificance = cms.double(-1.0),
+
+#--- Cuts applied after each new hit added to trajectory
+# Apply Pt cut to trajectories with at least this many hits,
+# accepting tracks slightly below Pt cut if statistical error permits.
+    minPt = cms.double(0.9),
     nSigmaMinPt = cms.double(5.0),
-    minimumNumberOfHits = cms.int32(5)
+    minHitsMinPt = cms.int32(3),
+# Cuts on number of hits on tracks.
+    maxLostHits = cms.int32(1),
+    maxConsecLostHits = cms.int32(1),
+    maxNumberOfHits = cms.int32(-1)
 )
 ChargeSignificanceTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('ChargeSignificanceTrajectoryFilter'),
