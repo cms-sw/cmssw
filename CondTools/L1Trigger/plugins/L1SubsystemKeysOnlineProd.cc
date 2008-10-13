@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Aug 21 20:00:59 CEST 2008
-// $Id: L1SubsystemKeysOnlineProd.cc,v 1.1 2008/09/19 19:22:59 wsun Exp $
+// $Id: L1SubsystemKeysOnlineProd.cc,v 1.2 2008/09/30 20:32:36 wsun Exp $
 //
 //
 
@@ -52,7 +52,8 @@ L1SubsystemKeysOnlineProd::L1SubsystemKeysOnlineProd(const edm::ParameterSet& iC
    : m_tscKey( iConfig.getParameter< std::string >( "tscKey" ) ),
      m_omdsReader(
 	iConfig.getParameter< std::string >( "onlineDB" ),
-	iConfig.getParameter< std::string >( "onlineAuthentication" ) )
+	iConfig.getParameter< std::string >( "onlineAuthentication" ) ),
+     m_forceGeneration( iConfig.getParameter< bool >( "forceGeneration" ) )
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -89,7 +90,8 @@ L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
    keyListRcd.get( keyList ) ;
 
    // If L1TriggerKeyList does not contain TSC key, token is empty
-   if( keyList->token( m_tscKey ) == std::string() )
+   if( keyList->token( m_tscKey ) == std::string() ||
+       m_forceGeneration )
      {
        // Instantiate new L1TriggerKey
        pL1TriggerKey = boost::shared_ptr< L1TriggerKey >(
