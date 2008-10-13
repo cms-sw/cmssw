@@ -6,7 +6,8 @@
 
 # setup environment: have call script from Package/Subpackage dir
 cd ../..
-cmsenv
+# cmsenv
+eval `scramv1 runtime -csh`
 cd Alignment/HIPAlignmentAlgorithm
 
 set odir = `cd $2; pwd` # get full output path

@@ -15,7 +15,8 @@ echo Running in $curdir...
 
 # set up the CMS environment (choose your release and working area):
 cd $workdir
-cmsenv
+eval `scramv1 runtime -csh`
+setenv STAGE_SVCCLASS cmscaf
 rehash
 
 cd $curdir

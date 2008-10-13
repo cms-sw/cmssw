@@ -15,7 +15,8 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Alignment.HIPAlignmentAlgorithm.FrontierConditions_GlobalTag_cff")
 # setting global tag
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V6H::All"
+# process.GlobalTag.globaltag = "CRUZET4_V6H::All"
+process.GlobalTag.globaltag = "CRUZET4_V5::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 MessageLogger = cms.Service("MessageLogger",
