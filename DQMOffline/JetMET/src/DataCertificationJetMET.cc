@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.4 2008/10/09 05:41:19 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.5 2008/10/13 15:50:20 chlebana Exp $
 //
 //
 
@@ -38,6 +38,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#define NJetAlgo 4
+#define DEBUG    0
 
 // #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
 
@@ -366,27 +369,145 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   TH2F *hCaloMExNoHF_LS;
   TH2F *hCaloMEyNoHF_LS;
 
+
   // ****************************
   // ****************************
+  Double_t chi2_Pt, chi2_Eta, chi2_Phi, chi2_Constituents, chi2_HOverE;
+  Int_t Jet_SISCone_DC, Jet_IterativeCone_DC, Jet_PFlow_DC, Jet_JPT_DC;
+  Int_t RunNumber = 63463;
+  Int_t Jet_DC[NJetAlgo];
+  std::string Jet_Tag[NJetAlgo];
+
+  Jet_Tag[0] = "JetMET_Jet_IterativeCone";
+  Jet_Tag[1] = "JetMET_Jet_SISCone";
+  Jet_Tag[2] = "JetMET_Jet_PFlow";
+  Jet_Tag[3] = "JetMET_Jet_JPT";
+  
+  Jet_SISCone_DC = Jet_IterativeCone_DC = Jet_PFlow_DC = Jet_JPT_DC = 0;
+  chi2_Pt = chi2_Eta = chi2_Phi = chi2_Constituents = chi2_HOverE = 0;
 
   //  rdbe->setCurrentFolder("Run 63463/JetMET/Run summary/SISConeJets");
   //  std::string refHistoName = "Run 63463/JetMET/Run summary/PFJetAnalyzer/Pt";
-  std::string refHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/Pt";
-  std::string newHistoName = "Run 63463/JetMET/Run summary/SISConeJets/Pt";
 
-  MonitorElement * meRefHisto = rdbe->get(refHistoName);
-  MonitorElement * meNewHisto = dbe->get(newHistoName);
+  std::string refHistoName;
+  std::string newHistoName;
 
-  if ((meRefHisto) && (meNewHisto)) {
-    TH1F *refHisto = meRefHisto->getTH1F();
-    TH1F *newHisto = meNewHisto->getTH1F();
-    if ((refHisto) && (newHisto)) {
-      std::cout << ">>> Found it..." << std::endl;
-      //    Double_t ks = newHisto->KolmogorovTest(refHisto);
-      Double_t ks = newHisto->Chi2Test(refHisto);
-      std::cout << ">>> Chi2 Test = " << ks << std::endl;    
+  // --- Loop over jet algorithms
+  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+
+    // TODO: get run from data file    
+    if (iAlgo == 0) {
+      refHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/";
+      //      newHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/";
+      newHistoName = "Run 63463/JetMET/Run summary/SISConeJets/";
     }
+    if (iAlgo == 1) {
+      refHistoName = "Run 63463/JetMET/Run summary/SISConeJets/";
+      newHistoName = "Run 63463/JetMET/Run summary/SISConeJets/";
+    }
+    if (iAlgo == 2) {
+      refHistoName = "Run 63463/JetMET/Run summary/PFJets/";
+      newHistoName = "Run 63463/JetMET/Run summary/PFJets/";
+    }
+    if (iAlgo == 3) {
+      refHistoName = "Run 63463/JetMET/Run summary/JPT/";
+      newHistoName = "Run 63463/JetMET/Run summary/JPT/";
+    }
+
+    MonitorElement * meRef = rdbe->get(refHistoName+"Pt");
+    MonitorElement * meNew = dbe->get(newHistoName+"Pt");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	if (DEBUG) std::cout << ">>> Pt: Found it..." << std::endl;
+	// TODO: KS test gives error 
+	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
+	chi2_Pt = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Pt << std::endl;    
+      }
+    }
+
+    meRef = rdbe->get(refHistoName+"Eta");
+    meNew = dbe->get(newHistoName+"Eta");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	if (DEBUG) std::cout << ">>> Eta: Found it..." << std::endl;
+	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
+	chi2_Eta = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Eta << std::endl;    
+      }
+    }
+
+    meRef = rdbe->get(refHistoName+"Phi");
+    meNew = dbe->get(newHistoName+"Phi");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	if (DEBUG) std::cout << ">>> Phi: Found it..." << std::endl;
+	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
+	chi2_Phi = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Phi << std::endl;    
+      }
+    }
+     
+    meRef = rdbe->get(refHistoName+"Constituents");
+    meNew = dbe->get(newHistoName+"Constituents");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	if (DEBUG) std::cout << ">>> Constituents: Found it..." << std::endl;
+	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
+	chi2_Constituents = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Constituents << std::endl;    
+      }
+    }
+     
+    meRef = rdbe->get(refHistoName+"HOverE");
+    meNew = dbe->get(newHistoName+"HOverE");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	if (DEBUG) std::cout << ">>> HOverE: Found it..." << std::endl;
+	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
+	chi2_Constituents = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Constituents << std::endl;    
+      }
+    }
+
+    if ( (chi2_Pt     > 0.95) && (chi2_Eta          > 0.95) && 
+	 (chi2_Phi    > 0.95) && (chi2_Constituents > 0.95) ) {
+      Jet_DC[iAlgo] = 1;
+    } else {
+      Jet_DC[iAlgo] = 0;
+    }
+
   }
+  // --- End of loop over jet algorithms
+
+
+  
+  // JET Data Certification Results
+  std::cout << std::endl;
+  printf("%6s %15s %30s %10s\n","Run","Lumi Section","Tag Name", "Result");
+  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_IterativeCone", Jet_DC[0]);
+  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_SISCone",       Jet_DC[1]);
+  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_PFlow",         Jet_DC[2]);
+  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_JPT",           Jet_DC[3]);
+
+  /***
+  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+    printf("%6d %15d %30s %10d\n",RunNumber,0,Jet_Tag[iAlgo], Jet_DC[iAlgo]);
+  }
+  ***/
+  std::cout << std::endl;
+
+
 
   /***
   float mean =0;

@@ -19,8 +19,6 @@ process.TFileService = cms.Service("TFileService",
 process.demo = cms.EDAnalyzer('DataCertificationJetMET',
                                fileName    = cms.untracked.string("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root"),
                                refFileName = cms.untracked.string("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root")
-#                               fileName = cms.untracked.string("jetMETMonitoring.root")
-#                               fileName = cms.untracked.string("DQM_SCurve_Run60924.root")
 )
 
 process.p = cms.Path(process.demo)
