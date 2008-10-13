@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id: L1TriggerKeyOnlineProd.cc,v 1.8 2008/09/12 04:50:59 wsun Exp $
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.9 2008/09/19 19:31:13 wsun Exp $
 //
 //
 
@@ -76,25 +76,23 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 {
    using namespace edm::es;
 
+   // Start with "SubsystemKeysOnly"
+   edm::ESHandle< L1TriggerKey > subsystemKeys ;
+   try
+     {
+       iRecord.get( "SubsystemKeysOnly", subsystemKeys ) ;
+     }
+   catch( l1t::DataAlreadyPresentException& ex )
+     {
+       throw ex ;
+     }
+
+   boost::shared_ptr<L1TriggerKey> pL1TriggerKey ;
+   pL1TriggerKey = boost::shared_ptr< L1TriggerKey >(
+     new L1TriggerKey( *subsystemKeys ) ) ;
+
   // Collate object keys
   std::vector< std::string >::const_iterator itr = m_subsystemLabels.begin() ;
-
-  edm::ESHandle< L1TriggerKey > objectKeys0 ;
-  try
-    {
-      iRecord.get( *itr, objectKeys0 ) ;
-    }
-  catch( l1t::DataAlreadyPresentException& ex )
-    {
-      throw ex ;
-    }
-
-  boost::shared_ptr<L1TriggerKey> pL1TriggerKey ;
-  pL1TriggerKey = boost::shared_ptr< L1TriggerKey >(
-    new L1TriggerKey( *objectKeys0 ) ) ;
-
-  ++itr ;
-
   std::vector< std::string >::const_iterator end = m_subsystemLabels.end() ;
   for( ; itr != end ; ++itr )
     {
