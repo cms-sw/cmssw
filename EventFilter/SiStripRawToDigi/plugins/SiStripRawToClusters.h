@@ -37,8 +37,7 @@ class SiStripRawToClusters : public edm::EDProducer {
 
   void updateCabling( const edm::EventSetup& setup );
   
-  std::string productLabel_;
-  std::string productInstance_;
+  edm::InputTag productLabel_;
 
   const SiStripRegionCabling* cabling_;
   
