@@ -5,8 +5,8 @@
 //   Description: PHI Track Segment 
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -55,13 +55,13 @@ L1MuDTTrackSegPhi::L1MuDTTrackSegPhi(int wheel_id, int sector_id, int station_id
   m_phi(phi), m_phib(phib), m_quality(quality), m_bx(bx), m_etaFlag(etaFlag) {
 
   if ( phi  < -2048 || phi  > 2047 ) { 
-    cerr << "TrackSegPhi : phi out of range: " << phi << endl;
+    //    cerr << "TrackSegPhi : phi out of range: " << phi << endl;
   }
   if ( phib <  -512 || phib >  511 ) {
-    cerr << "TrackSegPhi : phib out of range: " << phib << endl;
+    //    cerr << "TrackSegPhi : phib out of range: " << phib << endl;
   }
   if ( quality > 7 ) {
-    cerr << "TrackSegPhi : quality out of range: " << quality << endl;
+    //    cerr << "TrackSegPhi : quality out of range: " << quality << endl;
   }
 
 }
@@ -75,13 +75,13 @@ L1MuDTTrackSegPhi::L1MuDTTrackSegPhi(const L1MuDTTrackSegLoc& id,
   m_quality(quality), m_tag(tag), m_bx(bx), m_etaFlag(etaFlag) {
 
   if ( phi  < -2048 || phi  > 2047 ) {
-    cerr << "TrackSegPhi : phi out of range: " << phi << endl;
+    //    cerr << "TrackSegPhi : phi out of range: " << phi << endl;
   }
   if ( phib <  -512 || phib >  511 ) {
-    cerr << "TrackSegPhi : phib out of range: " << phib << endl;
+    //    cerr << "TrackSegPhi : phib out of range: " << phib << endl;
   }
   if ( quality > 7 ) {
-    cerr << "TrackSegPhi : quality out of range: " << quality << endl;
+    //    cerr << "TrackSegPhi : quality out of range: " << quality << endl;
   }
 
 }

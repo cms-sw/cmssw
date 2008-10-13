@@ -5,8 +5,8 @@
 //   Description: Extrapolation Unit
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/30 09:05:32 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -169,8 +169,8 @@ void L1MuDTExtrapolationUnit::reset() {
 //
 void L1MuDTExtrapolationUnit::reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr) {
 
-  assert( startAdr >= 0 && startAdr <= 3 );
-  assert( relAdr >= 0 && relAdr <= 12 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( relAdr >= 0 && relAdr <= 12 );
 
   SEUId seuid = make_pair(ext, startAdr);
   SEUmap::const_iterator iter = m_SEUs.find(seuid);
@@ -188,8 +188,8 @@ unsigned short int L1MuDTExtrapolationUnit::getAddress(Extrapolation ext, unsign
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
-  assert( id == 0 || id == 1 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( id == 0 || id == 1 );
   
   unsigned short int address = 15;
   
@@ -211,8 +211,8 @@ unsigned short int L1MuDTExtrapolationUnit::getQuality(Extrapolation ext, unsign
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
-  assert( id == 0 || id == 1 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( id == 0 || id == 1 );
   
   unsigned short int quality = 0;
 
@@ -233,7 +233,7 @@ const bitset<12>& L1MuDTExtrapolationUnit::getEXTable(Extrapolation ext, unsigne
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
   
   SEUId seuid = make_pair(ext, startAdr);
   return m_SEUs[seuid]->exTable();
@@ -249,7 +249,7 @@ const bitset<12>& L1MuDTExtrapolationUnit::getQSTable(Extrapolation ext, unsigne
   // startAdr = 0, 1  : own wheel
   // startAdr = 2, 3  : next wheel neighbour
 
-  assert( startAdr >= 0 && startAdr <= 3 );
+  //  assert( startAdr >= 0 && startAdr <= 3 );
   
   SEUId seuid = make_pair(ext, startAdr);
   return m_SEUs[seuid]->qsTable();
@@ -335,7 +335,7 @@ pair<int,int> L1MuDTExtrapolationUnit::which_ext(Extrapolation ext) {
   int source = 0;
   int target = 0;
 
-  assert( ext >= 0 && ext < MAX_EXT );
+  //  assert( ext >= 0 && ext < MAX_EXT );
 
   switch ( ext ) {
     case EX12 : { source = 1; target = 2; break; }
