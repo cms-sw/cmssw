@@ -8,7 +8,8 @@
 import FWCore.ParameterSet.Config as cms
 
 patLayer1EventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep edmTriggerResults_TriggerResults_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep edmTriggerResults_TriggerResults_*_*', 
         'keep *_genParticles_*_*', 
         'keep recoTracks_generalTracks_*_*', 
         'keep *_offlinePrimaryVerticesFromCTFTracks_*_*', 
@@ -17,7 +18,9 @@ patLayer1EventContent = cms.PSet(
         'keep *_selectedLayer1Muons_*_*', 
         'keep *_selectedLayer1Taus_*_*', 
         'keep *_selectedLayer1Jets_*_*', 
-        'keep *_selectedLayer1METs_*_*', 
-        'keep *_selectedLayer1Hemispheres_*_*')
-)
+        'keep *_selectedLayer1METs_*_*',
+        'keep patPFParticles_*_*_*',
+        'keep *_selectedLayer1Hemispheres_*_*'
+        )
+    )
 
