@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    PatShapeAna
@@ -13,7 +14,7 @@
 //
 // Original Author:  Tanja Rommerskirchen
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.cc,v 1.6 2008/09/29 09:53:00 gpetrucc Exp $
+// $Id: PATHemisphereProducer.cc,v 1.7 2008/10/09 14:01:45 adamwo Exp $
 //
 //
 
@@ -73,21 +74,9 @@ PATHemisphereProducer::PATHemisphereProducer(const edm::ParameterSet& iConfig) :
 
   _seedMethod    ( iConfig.getParameter<int>("seedMethod") ),
   _combinationMethod ( iConfig.getParameter<int>("combinationMethod") )
-  //  _EJselectionCfg(iConfig.getParameter<edm::ParameterSet>("ElectronJetCrossCleaning")),    
-  // _ElectronJetCC(reco::modules::make<ElectronJetCrossCleaner>(_EJselectionCfg))
+
 {
-  //produces<std::vector<std::double
-  ///produces cross-cleaned collections of above objects
-  //Alternative: produce cross-cleaning decision & MET correction per object
-//    produces<HemiAxis>("hemi1"); //hemisphere 1 axis
-//    produces<HemiAxis>("hemi2"); //hemisphere 1 axis
- 
-//   produces<std::vector<pat::Jet> >();
-//   produces<std::vector<pat::MET> >();
-//   produces<std::vector<pat::Muon> >();
-//   produces<std::vector<pat::Electron> >();
-//   produces<std::vector<pat::Photon> >();
-//   produces<std::vector<pat::Tau> >();
+
 
   produces< std::vector<pat::Hemisphere> >();
 }
@@ -137,47 +126,32 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    //fill e,p vector with information from all objects (hopefully cleaned before)
    for(int i = 0; i < (int) (*pJets).size() ; i++){
      if((*pJets)[i].pt() <  _minJetEt || fabs((*pJets)[i].eta()) >  _maxJetEta) continue;
-     vPx.push_back((*pJets)[i].px());
-     vPy.push_back((*pJets)[i].py());
-     vPz.push_back((*pJets)[i].pz());
-     vE.push_back((*pJets)[i].energy());
+   
      componentPtrs_.push_back(pJets->ptrAt(i));
    }
 
    for(int i = 0; i < (int) (*pMuons).size() ; i++){
      if((*pMuons)[i].pt() <  _minMuonEt || fabs((*pMuons)[i].eta()) >  _maxMuonEta) continue; 
-     vPx.push_back((*pMuons)[i].px());
-     vPy.push_back((*pMuons)[i].py());
-     vPz.push_back((*pMuons)[i].pz());
-     vE.push_back((*pMuons)[i].energy());
+ 
      componentPtrs_.push_back(pMuons->ptrAt(i));
    }
   
    for(int i = 0; i < (int) (*pElectrons).size() ; i++){
      if((*pElectrons)[i].pt() <  _minElectronEt || fabs((*pElectrons)[i].eta()) >  _maxElectronEta) continue;  
-     vPx.push_back((*pElectrons)[i].px());
-     vPy.push_back((*pElectrons)[i].py());
-     vPz.push_back((*pElectrons)[i].pz());
-     vE.push_back((*pElectrons)[i].energy());
+    
      componentPtrs_.push_back(pElectrons->ptrAt(i));
    } 
 
    for(int i = 0; i < (int) (*pPhotons).size() ; i++){
      if((*pPhotons)[i].pt() <  _minPhotonEt || fabs((*pPhotons)[i].eta()) >  _maxPhotonEta) continue;   
-     vPx.push_back((*pPhotons)[i].px());
-     vPy.push_back((*pPhotons)[i].py());
-     vPz.push_back((*pPhotons)[i].pz());
-     vE.push_back((*pPhotons)[i].energy());
+    
      componentPtrs_.push_back(pPhotons->ptrAt(i));
    } 
 
    //aren't taus included in jets?
    for(int i = 0; i < (int) (*pTaus).size() ; i++){
      if((*pTaus)[i].pt() <  _minTauEt || fabs((*pTaus)[i].eta()) >  _maxTauEta) continue;   
-     vPx.push_back((*pTaus)[i].px());
-     vPy.push_back((*pTaus)[i].py());
-     vPz.push_back((*pTaus)[i].pz());
-     vE.push_back((*pTaus)[i].energy());
+    
      componentPtrs_.push_back(pTaus->ptrAt(i));
    }  
 
@@ -186,7 +160,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    hemispheres->reserve(2);
 
   //calls HemiAlgorithm for seed method 3 (transv. inv. Mass) and association method 3 (Lund algo)
-  HemisphereAlgo myHemi(vPx,vPy,vPz,vE,_seedMethod,_combinationMethod);
+  HemisphereAlgo myHemi(componentPtrs_,_seedMethod,_combinationMethod);
 
   //get Hemisphere Axis 
   vA1 = myHemi.getAxis1();
@@ -210,20 +184,11 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
-//   std::auto_ptr<HemiAxis > hemiAxis1(new HemiAxis(vA1));
-//   std::auto_ptr<HemiAxis > hemiAxis2(new HemiAxis(vA2));
 
- 
-
-  //  hemi1->push_back(vA1);
-  // hemi2->push_back(vA2);
-
-//    iEvent.put(hemiAxis1,"hemi1");
-//    iEvent.put(hemiAxis2,"hemi2");
   iEvent.put(hemispheres);
 
   //clean up
-//     delete myHemi;
+
     vPx.clear();
     vPy.clear();
     vPz.clear();

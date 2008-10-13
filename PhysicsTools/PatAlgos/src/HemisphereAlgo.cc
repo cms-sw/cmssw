@@ -2,28 +2,22 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 using namespace std;
 using std::vector;
 
-HemisphereAlgo::HemisphereAlgo(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
-                               vector<float> E_vector, int seed_method, int hemisphere_association_method )
-  : Object_Px(Px_vector),
-    Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), seed_meth(seed_method), 
-    hemi_meth(hemisphere_association_method), status(0) {
-  for(int i = 0; i < (int) Object_Px.size(); i++){
+HemisphereAlgo::HemisphereAlgo(const std::vector<reco::CandidatePtr>& componentPtr_,const int seed_method, const int hemisphere_association_method )
+  : Object(componentPtr_), Object_Group() , Axis1(), Axis2(), seed_meth(seed_method), hemi_meth(hemisphere_association_method), status(0) {
+
+  for(int i = 0; i < (int) Object.size(); i++){
     Object_Noseed.push_back(0);
   }
+
 }   
 
-HemisphereAlgo::HemisphereAlgo(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
-                               vector<float> E_vector) 
-  : Object_Px(Px_vector),
-    Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), seed_meth(0), 
-    hemi_meth(0), status(0) {
-  for(int i = 0; i < (int) Object_Px.size(); i++){
-    Object_Noseed.push_back(0);
-  }
-}   
+
    
 vector<float> HemisphereAlgo::getAxis1(){
   if (status != 1){this->reconstruct();}   
@@ -41,56 +35,34 @@ vector<int> HemisphereAlgo::getGrouping(){
 
 int HemisphereAlgo::reconstruct(){
 
-   
-  int vsize = (int) Object_Px.size();
-  if((int) Object_Py.size() != vsize || (int) Object_Pz.size() != vsize){
-    edm::LogWarning("HemisphereAlgo") << "Input vectors have different size! Fix it!";
-    return 0;
-  }
+     int vsize = (int) Object.size();
+
   LogDebug("HemisphereAlgo") << " HemisphereAlgo method ";
   
-  if (!Object_P.empty()){
-    Object_P.clear();
-    Object_Pt.clear();
-    Object_Eta.clear();
-    Object_Phi.clear();
-    Object_Group.clear();
-    Axis1.clear();
-    Axis2.clear();
-  }
+  Object_Group.clear();
+  Axis1.clear();
+  Axis2.clear();
+
   for(int j = 0; j < vsize; j++){
-    Object_P.push_back(0);
-    Object_Pt.push_back(0);
-    Object_Eta.push_back(0);
-    Object_Phi.push_back(0);
     Object_Group.push_back(0);
   }
+
   for(int j = 0; j < 5; j++){
     Axis1.push_back(0);
     Axis2.push_back(0);
   }
   
-  float theta;
+ 
   for (int i = 0; i <vsize; i++){
-    Object_P[i] = sqrt(Object_Px[i]*Object_Px[i]+Object_Py[i]*Object_Py[i]+Object_Pz[i]*Object_Pz[i]);
-    if (Object_P[i] > Object_E[i]+0.001) {  
-      edm::LogWarning("HemisphereAlgo") << "Object " << i << " has E = " << Object_E[i]
-                                        << " less than P = " << Object_P[i];
-      return 0;
+   
+    if ( (*(Object)[i]).p() > (*Object[i]).energy() + 0.001) { 
+ 
+      edm::LogWarning("HemisphereAlgo") << "Object " << i << " has E = " << (*Object[i]).energy()
+                                        << " less than P = " << (*Object[i]).p() ;
+    
     } 
-    Object_Pt[i] = sqrt(Object_Px[i]*Object_Px[i]+Object_Py[i]*Object_Py[i]);
-    // protection for div by 0
-    if (fabs(Object_Pz[i]) > 0.001) {
-      theta = atan(sqrt(Object_Px[i]*Object_Px[i]+Object_Py[i]*Object_Py[i])/Object_Pz[i]);
-    }
-    else {
-      theta = 1.570796327;
-    }
-    if (theta < 0.) {theta = theta + 3.141592654;}
-    Object_Eta[i] = -log(tan(0.5*theta));
-    Object_Phi[i] = atan2(Object_Py[i], Object_Px[i]);
-    LogDebug("HemisphereAlgo") << " Object " << i << " Eta = " << Object_Eta[i] << " Phi = " << Object_Phi[i];
-  }
+  } 
+
    
    
   LogDebug("HemisphereAlgo") << " Seeding method = " << seed_meth;
@@ -105,37 +77,39 @@ int HemisphereAlgo::reconstruct(){
     // take highest momentum object as first axis   
     for (int i=0;i<vsize;i++){    
       Object_Group[i] = 0;
-      if (Object_Noseed[i] == 0 && P_Max < Object_P[i]){
-        P_Max = Object_P[i];
+      if (Object_Noseed[i] == 0 && P_Max < (*Object[i]).p()){
+        P_Max = (*Object[i]).p();
         I_Max = i; 
       }           
     }
     
-    Axis1[0] = Object_Px[I_Max] /  Object_P[I_Max];
-    Axis1[1] = Object_Py[I_Max] /  Object_P[I_Max];
-    Axis1[2] = Object_Pz[I_Max] /  Object_P[I_Max];
-    Axis1[3] = Object_P[I_Max];
-    Axis1[4] = Object_E[I_Max];
+    Axis1[0] = (*Object[I_Max]).px() /  (*Object[I_Max]).p();
+    Axis1[1] = (*Object[I_Max]).py() /  (*Object[I_Max]).p();
+    Axis1[2] = (*Object[I_Max]).pz() /  (*Object[I_Max]).p();
+    Axis1[3] = (*Object[I_Max]).p();
+    Axis1[4] = (*Object[I_Max]).energy();
     
     // take as second axis
-    for (int i=0;i<vsize;i++){           
-      float DeltaR = sqrt((Object_Eta[i] - Object_Eta[I_Max])*(Object_Eta[i] - Object_Eta[I_Max]) 
-                          + (DeltaPhi(Object_Phi[i], Object_Phi[I_Max]))*(DeltaPhi(Object_Phi[i], Object_Phi[I_Max]))  );      
-      if (Object_Noseed[i] == 0 && DeltaR > 0.5) {     
-        float DeltaRP = DeltaR * Object_P[i];       
+    for (int i=0;i<vsize;i++){     
+      
+      float DeltaR = deltaR((*Object[i]).eta(),(*Object[i]).phi(),(*Object[I_Max]).eta(),(*Object[I_Max]).phi()) ;   
+      
+      if (Object_Noseed[i] == 0 && DeltaR > 0.5) { 
+    
+        float DeltaRP = DeltaR * (*Object[i]).p();       
         if (DeltaRP > DeltaRP_Max){
           DeltaRP_Max = DeltaRP;
           J_Max = i;
 	}	
-      }      
+      }
     } 
     
     if (J_Max >=0){
-      Axis2[0] = Object_Px[J_Max] /  Object_P[J_Max];
-      Axis2[1] = Object_Py[J_Max] /  Object_P[J_Max];
-      Axis2[2] = Object_Pz[J_Max] /  Object_P[J_Max];
-      Axis2[3] = Object_P[J_Max];
-      Axis2[4] = Object_E[J_Max];
+      Axis2[0] = (*Object[J_Max]).px() /  (*Object[J_Max]).p();
+      Axis2[1] =(*Object[J_Max]).py() /  (*Object[J_Max]).p();
+      Axis2[2] = (*Object[J_Max]).pz() /  (*Object[J_Max]).p();
+      Axis2[3] = (*Object[J_Max]).p();
+      Axis2[4] = (*Object[J_Max]).energy();
      
     } else {   
       return 0;
@@ -155,19 +129,20 @@ int HemisphereAlgo::reconstruct(){
       if (Object_Noseed[i] == 0){ 
         for (int j=i+1;j<vsize;j++){  
           if (Object_Noseed[j] == 0){ 
+
             // either the invariant mass
             if (seed_meth == 2){
-              InvariantMass =  (Object_E[i] + Object_E[j])* (Object_E[i] + Object_E[j])
-                - (Object_Px[i] + Object_Px[j])* (Object_Px[i] + Object_Px[j]) 
-                - (Object_Py[i] + Object_Py[j])* (Object_Py[i] + Object_Py[j])
-                - (Object_Pz[i] + Object_Pz[j])* (Object_Pz[i] + Object_Pz[j]) ;  
+              InvariantMass =  ((*Object[i]).energy() +  (*Object[j]).energy())* ((*Object[i]).energy() + (*Object[j]).energy())
+                - ((*Object[i]).px() + (*Object[j]).px())* ((*Object[i]).px() + (*Object[j]).px()) 
+                - ((*Object[i]).py() + (*Object[j]).py())* ((*Object[i]).py() + (*Object[j]).py())
+                - ((*Object[i]).pz() + (*Object[j]).pz())* ((*Object[i]).pz() + (*Object[j]).pz()) ;  
             } 
             // or the transverse mass
             else if (seed_meth == 3){
-              float pti = sqrt(Object_Px[i]*Object_Px[i] + Object_Py[i]*Object_Py[i]);
-              float ptj = sqrt(Object_Px[j]*Object_Px[j] + Object_Py[j]*Object_Py[j]);
-              InvariantMass =  2. * (pti*ptj - Object_Px[i]*Object_Px[j]
-                                     - Object_Py[i]*Object_Py[j] );
+              float pti = sqrt((*Object[i]).px()*(*Object[i]).px() + (*Object[i]).py()*(*Object[i]).py());
+              float ptj = sqrt((*Object[j]).px()*(*Object[j]).px() + (*Object[j]).py()*(*Object[j]).py());
+              InvariantMass =  2. * (pti*ptj - (*Object[i]).px()*(*Object[j]).px()
+                                     - (*Object[i]).py()*(*Object[j]).py() );
             }
             if ( Mass_Max < InvariantMass){
               Mass_Max = InvariantMass;
@@ -181,19 +156,19 @@ int HemisphereAlgo::reconstruct(){
     
     if (J_Max>0) {
 
-      Axis1[0] = Object_Px[I_Max] /  Object_P[I_Max];
-      Axis1[1] = Object_Py[I_Max] /  Object_P[I_Max];
-      Axis1[2] = Object_Pz[I_Max] /  Object_P[I_Max];
+      Axis1[0] = (*Object[I_Max]).px() /  (*Object[I_Max]).p();
+      Axis1[1] = (*Object[I_Max]).py() /  (*Object[I_Max]).p();
+      Axis1[2] = (*Object[I_Max]).pz() /  (*Object[I_Max]).p();
     
-      Axis1[3] = Object_P[I_Max];
-      Axis1[4] = Object_E[I_Max]; 
+      Axis1[3] = (*Object[I_Max]).p();
+      Axis1[4] = (*Object[I_Max]).energy(); 
   
-      Axis2[0] = Object_Px[J_Max] /  Object_P[J_Max];
-      Axis2[1] = Object_Py[J_Max] /  Object_P[J_Max];
-      Axis2[2] = Object_Pz[J_Max] /  Object_P[J_Max];
+      Axis2[0] = (*Object[J_Max]).px() /  (*Object[J_Max]).p();
+      Axis2[1] =(*Object[J_Max]).py() /  (*Object[J_Max]).p();
+      Axis2[2] = (*Object[J_Max]).pz() /  (*Object[J_Max]).p();
     
-      Axis2[3] = Object_P[J_Max];
-      Axis2[4] = Object_E[J_Max]; 
+      Axis2[3] = (*Object[J_Max]).p();
+      Axis2[4] = (*Object[J_Max]).energy(); 
 
     } else {
       return 0;
@@ -234,33 +209,30 @@ int HemisphereAlgo::reconstruct(){
    
     
     if (hemi_meth == 1) {
-    
-      
-   
-    
+       
       for (int i=0;i<vsize;i++){  
-        float  P_Long1 = Object_Px[i]*Axis1[0] + Object_Py[i]*Axis1[1] + Object_Pz[i]*Axis1[2];
-        float  P_Long2 = Object_Px[i]*Axis2[0]+ Object_Py[i]*Axis2[1] + Object_Pz[i]*Axis2[2];
+        float  P_Long1 = (*Object[i]).px()*Axis1[0] + (*Object[i]).py()*Axis1[1] + (*Object[i]).pz()*Axis1[2];
+        float  P_Long2 = (*Object[i]).px()*Axis2[0]+ (*Object[i]).py()*Axis2[1] + (*Object[i]).pz()*Axis2[2];
         if (P_Long1 >= P_Long2){
           if (Object_Group[i] != 1){ 
 	    I_Move = true;
 	  }      
           Object_Group[i] = 1;
-	  Sum1_Px += Object_Px[i];
-	  Sum1_Py += Object_Py[i];
-	  Sum1_Pz += Object_Pz[i];
-	  Sum1_P += Object_P[i];
-	  Sum1_E += Object_E[i]; 
+	  Sum1_Px += (*Object[i]).px();
+	  Sum1_Py += (*Object[i]).py();
+	  Sum1_Pz += (*Object[i]).pz();
+	  Sum1_P += (*Object[i]).p();
+	  Sum1_E += (*Object[i]).energy(); 
         } else {
           if (Object_Group[i] != 2){ 
 	    I_Move = true;
 	  }
           Object_Group[i] = 2;
-	  Sum2_Px += Object_Px[i];
-	  Sum2_Py += Object_Py[i];
-	  Sum2_Pz += Object_Pz[i];
-	  Sum2_P += Object_P[i];
-	  Sum2_E += Object_E[i]; 
+	  Sum2_Px += (*Object[i]).px();
+	  Sum2_Py += (*Object[i]).py();
+	  Sum2_Pz += (*Object[i]).pz();
+	  Sum2_P += (*Object[i]).p();
+	  Sum2_E += (*Object[i]).energy(); 
         }
       }
     
@@ -269,18 +241,18 @@ int HemisphereAlgo::reconstruct(){
       for (int i=0;i<vsize;i++){  
         if (i == I_Max) {
 	  Object_Group[i] = 1;
-	  Sum1_Px += Object_Px[i];
-	  Sum1_Py += Object_Py[i];
-	  Sum1_Pz += Object_Pz[i];
-	  Sum1_P += Object_P[i];
-	  Sum1_E += Object_E[i]; 
+	  Sum1_Px += (*Object[i]).px();
+	  Sum1_Py += (*Object[i]).py();
+	  Sum1_Pz += (*Object[i]).pz();
+	  Sum1_P += (*Object[i]).p();
+	  Sum1_E += (*Object[i]).energy(); 
 	} else if (i == J_Max) {
 	  Object_Group[i] = 2;
-	  Sum2_Px += Object_Px[i];
-	  Sum2_Py += Object_Py[i];
-	  Sum2_Pz += Object_Pz[i];
-	  Sum2_P += Object_P[i];
-	  Sum2_E += Object_E[i]; 
+	  Sum2_Px += (*Object[i]).px();
+	  Sum2_Py += (*Object[i]).py();
+	  Sum2_Pz += (*Object[i]).pz();
+	  Sum2_P += (*Object[i]).p();
+	  Sum2_E += (*Object[i]).energy(); 
         } else {
 	
 	
@@ -298,55 +270,55 @@ int HemisphereAlgo::reconstruct(){
        
             if (Object_Group[i] == 1){
 	  
-              NewAxis1_Px = NewAxis1_Px - Object_Px[i];
-              NewAxis1_Py = NewAxis1_Py - Object_Py[i];
-              NewAxis1_Pz = NewAxis1_Pz - Object_Pz[i];
-              NewAxis1_E = NewAxis1_E - Object_E[i]; 
+              NewAxis1_Px = NewAxis1_Px - (*Object[i]).px();
+              NewAxis1_Py = NewAxis1_Py - (*Object[i]).py();
+              NewAxis1_Pz = NewAxis1_Pz - (*Object[i]).pz();
+              NewAxis1_E = NewAxis1_E - (*Object[i]).energy(); 
 	 
             } else if (Object_Group[i] == 2) {
 	 
-              NewAxis2_Px = NewAxis2_Px - Object_Px[i];
-              NewAxis2_Py = NewAxis2_Py - Object_Py[i];
-              NewAxis2_Pz = NewAxis2_Pz - Object_Pz[i];
-              NewAxis2_E = NewAxis2_E - Object_E[i];
+              NewAxis2_Px = NewAxis2_Px - (*Object[i]).px();
+              NewAxis2_Py = NewAxis2_Py - (*Object[i]).py();
+              NewAxis2_Pz = NewAxis2_Pz - (*Object[i]).pz();
+              NewAxis2_E = NewAxis2_E - (*Object[i]).energy();
             }
                
 	  
-            float mass1 =  NewAxis1_E - ((Object_Px[i]*NewAxis1_Px + Object_Py[i]*NewAxis1_Py +
-                                          Object_Pz[i]*NewAxis1_Pz)/Object_P[i]);
+            float mass1 =  NewAxis1_E - (((*Object[i]).px()*NewAxis1_Px + (*Object[i]).py()*NewAxis1_Py +
+                                          (*Object[i]).pz()*NewAxis1_Pz)/(*Object[i]).p());
 	 
-            float mass2 =  NewAxis2_E - ((Object_Px[i]*NewAxis2_Px + Object_Py[i]*NewAxis2_Py +
-                                          Object_Pz[i]*NewAxis2_Pz)/Object_P[i]);
+            float mass2 =  NewAxis2_E - (((*Object[i]).px()*NewAxis2_Px + (*Object[i]).py()*NewAxis2_Py +
+                                          (*Object[i]).pz()*NewAxis2_Pz)/(*Object[i]).p());
 	 
             if (hemi_meth == 3) {
 	 
-              mass1 *= NewAxis1_E/((NewAxis1_E+Object_E[i])*(NewAxis1_E+Object_E[i]));
+              mass1 *= NewAxis1_E/((NewAxis1_E+(*Object[i]).energy())*(NewAxis1_E+(*Object[i]).energy()));
 	 
-              mass2 *= NewAxis2_E/((NewAxis2_E+Object_E[i])*(NewAxis1_E+Object_E[i]));
+              mass2 *= NewAxis2_E/((NewAxis2_E+(*Object[i]).energy())*(NewAxis2_E+(*Object[i]).energy()));
 	
             }
 	 
-            if(mass1<mass2) {
+            if(mass1 < mass2) {
               if (Object_Group[i] != 1){ 
                 I_Move = true;
               }
               Object_Group[i] = 1;
        
-              Sum1_Px += Object_Px[i];
-              Sum1_Py += Object_Py[i];
-              Sum1_Pz += Object_Pz[i];
-              Sum1_P += Object_P[i];
-              Sum1_E += Object_E[i]; 
+              Sum1_Px += (*Object[i]).px();
+              Sum1_Py += (*Object[i]).py();
+              Sum1_Pz += (*Object[i]).pz();
+              Sum1_P += (*Object[i]).p();
+              Sum1_E += (*Object[i]).energy(); 
             } else {
               if (Object_Group[i] != 2){ 
                 I_Move = true;
               }
               Object_Group[i] = 2;
-              Sum2_Px += Object_Px[i];
-              Sum2_Py += Object_Py[i];
-              Sum2_Pz += Object_Pz[i];
-              Sum2_P += Object_P[i];
-              Sum2_E += Object_E[i]; 
+              Sum2_Px += (*Object[i]).px();
+              Sum2_Py += (*Object[i]).py();
+              Sum2_Pz += (*Object[i]).pz();
+              Sum2_P += (*Object[i]).p();
+              Sum2_E += (*Object[i]).energy(); 
 	 
             }
       
@@ -354,18 +326,18 @@ int HemisphereAlgo::reconstruct(){
           } else {
 	
             if (Object_Group[i] == 1){
-              Sum1_Px += Object_Px[i];
-              Sum1_Py += Object_Py[i];
-              Sum1_Pz += Object_Pz[i];
-              Sum1_P += Object_P[i];
-              Sum1_E += Object_E[i]; 
+              Sum1_Px += (*Object[i]).px();
+              Sum1_Py += (*Object[i]).py();
+              Sum1_Pz += (*Object[i]).pz();
+              Sum1_P += (*Object[i]).p();
+              Sum1_E += (*Object[i]).energy(); 
             }
             if (Object_Group[i] == 2){
-              Sum2_Px += Object_Px[i];
-              Sum2_Py += Object_Py[i];
-              Sum2_Pz += Object_Pz[i];
-              Sum2_P += Object_P[i];
-              Sum2_E += Object_E[i]; 
+              Sum2_Px += (*Object[i]).px();
+              Sum2_Py += (*Object[i]).py();
+              Sum2_Pz += (*Object[i]).pz();
+              Sum2_P += (*Object[i]).p();
+              Sum2_E += (*Object[i]).energy(); 
             }
          
 	
@@ -418,14 +390,4 @@ int HemisphereAlgo::reconstruct(){
 }
 
 
-
-
-float HemisphereAlgo::DeltaPhi(float v1, float v2)
-{
-  float diff = fabs(v2 - v1);
-  float corr = 2*acos(-1.) - diff;
-  if (diff < acos(-1.)){ return diff;} else { return corr;} 
-}
-
-
-
+ 

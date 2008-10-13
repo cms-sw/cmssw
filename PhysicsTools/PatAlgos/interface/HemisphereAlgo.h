@@ -11,9 +11,11 @@
 *  Authors: Luc Pape & Filip Moortgat      Date: July 2005
 *                                          Updated: July 2006
 *                                          Updated: 15 Sept 2006
+
+Transported to PAT by Wolfgang Adam and Tanja Rommerskirchen
 *
 */
-
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
 #include <iostream>
@@ -45,11 +47,7 @@ public:
 // then recomputed using the newly defined methods.
 //
 
-HemisphereAlgo(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector,
-            std::vector<float> E_vector, int seed_method, int hemisphere_association_method);
-
-HemisphereAlgo(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector,
-            std::vector<float> E_vector);
+  HemisphereAlgo(const std::vector<reco::CandidatePtr>& componentRefs_, const int seed_method = 0, const int hemisphere_association_method = 0);
 
 // Destructor
 ~HemisphereAlgo(){};
@@ -82,15 +80,8 @@ private:
 
 
 int reconstruct(); // the hemisphere separation algorithm
+ std::vector<reco::CandidatePtr> Object;
 
-std::vector<float> Object_Px;
-std::vector<float> Object_Py;
-std::vector<float> Object_Pz;
-std::vector<float> Object_P;
-std::vector<float> Object_Pt;
-std::vector<float> Object_E;
-std::vector<float> Object_Phi;
-std::vector<float> Object_Eta;
 std::vector<int> Object_Group;
 std::vector<int> Object_Noseed;
 
@@ -103,7 +94,7 @@ int hemi_meth;
 int status;
 
 
-float DeltaPhi(float, float);
+
 
 };
 
