@@ -23,6 +23,21 @@ ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"
 ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 #
 
+# HCAL ZSP
+from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
+from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
+# simHcalDigis.digiLabel = cms.InputTag("hcalDigis")
+
+from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi import *
+hbhereco.digiLabel = cms.InputTag("simHcalDigis")
+
+from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi import *
+hfreco.digiLabel = cms.InputTag("simHcalDigis")
+
+from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi import *
+horeco.digiLabel = cms.InputTag("simHcalDigis")
+#
+
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
@@ -99,11 +114,14 @@ process.myanalysis = cms.EDFilter("SinglePionEfficiencyNew",
 )
 
 
-# process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDFilter("EventContentAnalyzer")
+# process.p1 = cms.Path(process.mix*process.dump)
+
+# process.p1 = cms.Path(process.mix*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.hfreco*process.horeco*process.dump)
 
 # ECAL SR OFF
-process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.myanalysis)
+# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.myanalysis)
 
 # standard
-# process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
+process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.myanalysis)
 
