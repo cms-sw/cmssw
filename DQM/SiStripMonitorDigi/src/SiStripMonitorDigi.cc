@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.30 2008/09/27 16:54:32 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.31 2008/09/28 09:33:14 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -526,7 +526,7 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
   //nr. of digis per module
   if(moduleswitchnumdigison) {
     hid = hidmanager.createHistoId("NumberOfDigis","det",detid);
-    mod_single.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, 0.5, 20.5);
+    mod_single.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, -0.5, 20.5);
     dqmStore_->tag(mod_single.NumberOfDigis, detid);
     mod_single.NumberOfDigis->setAxisTitle("number of digis in one detector module");
     mod_single.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
