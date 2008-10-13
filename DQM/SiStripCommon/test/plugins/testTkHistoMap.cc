@@ -83,11 +83,11 @@ void testTkHistoMap::endJob(void)
     C.cd(1);
     tkhisto->getMap   (ilayer)->getTProfile2D()->Draw("TEXT");
     C.cd(2);
-    tkhistoZ->getMap  (ilayer)->getTProfile2D()->Draw("TEXT");
+    tkhistoZ->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.cd(3);
-    tkhistoPhi->getMap(ilayer)->getTProfile2D()->Draw("TEXT");
+    tkhistoPhi->getMap(ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.cd(4);
-    tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("TEXT");
+    tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.Update();
     ps.NewPage();
   }
