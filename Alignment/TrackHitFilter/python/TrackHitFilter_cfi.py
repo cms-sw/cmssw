@@ -25,7 +25,11 @@ TrackHitFilter = cms.EDFilter("TrackHitFilter",
     src = cms.InputTag("ctfWithMaterialTracks"),
     minHitsForRefit = cms.uint32(2),
     hitSelection = cms.string('all'),
-    rejectBadMods = cms.bool(False)
+    rejectBadMods = cms.bool(False),
+	rejectBadStoNHits = cms.bool(False),
+    theStoNthreshold = cms.double(20.0),
+    CommonModeNoiseSubtractionMode = cms.string('Median') # "TT6"
+
 )
 
 

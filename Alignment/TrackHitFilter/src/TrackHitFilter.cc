@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.8 2008/06/16 07:14:59 flucke Exp $
+// $Id: TrackHitFilter.cc,v 1.7 2008/02/05 14:30:54 covarell Exp $
 //
 //
 
@@ -29,6 +29,11 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
+
 using namespace edm;
 using namespace reco;
 
@@ -40,7 +45,11 @@ TrackHitFilter::TrackHitFilter(const edm::ParameterSet& iConfig):
   theHitSel( iConfig.getParameter<std::string>( "hitSelection" ) ),
   theMinHits( iConfig.getParameter<unsigned int>( "minHitsForRefit" ) ),
   rejectBadMods( iConfig.getParameter<bool>( "rejectBadMods" ) ),
-  theBadMods( iConfig.getParameter<std::vector<unsigned int> >( "theBadModules" ) )
+  theBadMods( iConfig.getParameter<std::vector<unsigned int> >( "theBadModules" ) ),
+  rejectBadStoNHits( iConfig.getParameter<bool>( "rejectBadStoNHits" ) ),
+  theCMNSubtractionMode(iConfig.getUntrackedParameter<std::string>( "CMNSubtractionMode" ,"Median") ) ,
+  theStoNthreshold( iConfig.getParameter<double>( "theStoNthreshold" ) )
+  
 {
 
    //register your products, and/or set an "alias" label
@@ -76,8 +85,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    TrackerAlignableId* TkMap = new TrackerAlignableId();
    
-   LogDebug("HitFilter") << trackAllHits->size() << 
-     " track(s) found in the event with label " << theSrc;
+   LogDebug("HitFilter")<< trackAllHits->size() << " track(s) found in the event with label " << theSrc<<std::endl;
 
    unsigned int nTr = 0;
    std::vector<unsigned int> accHits;
@@ -90,21 +98,22 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      unsigned int allhits = 0;
      unsigned int acchits = 0;
-     for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); ++iHit) {
+     for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
        
-       ++allhits;
-       TrackingRecHit * hit = (*iHit)->clone();
+       allhits++;
+       TrackingRecHit* hit = (*iHit)->clone();
+       //std::cout<<"See if it crashes. Geographical Id of the hit: "<<hit->geographicalId()<<std::endl;
        std::pair<int,int> typeAndLay = TkMap->typeAndLayerFromDetId( hit->geographicalId() );
        int type = typeAndLay.first;   
        int layer = typeAndLay.second;
        
-       if (hit->isValid() && this->keepThisHit( hit->geographicalId(), type, layer )) ++acchits;
+       if (keepThisHit( hit->geographicalId(), type, layer, hit, iSetup )) acchits++; 
        
      }
      
      if (!nTr) {
        LogDebug("HitFilter") << "TrackHitFilter **** In first track " << acchits << " RecHits retained out of " << allhits;
-      ++nTr;
+       nTr++;
      }
      allHits.push_back(allhits);
      accHits.push_back(acchits);
@@ -127,14 +136,14 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 					   trk->innerStateCovariance(), trk->innerDetId() , seedDir ) ;	
 
        unsigned int i = 0; 
-       for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); ++iHit) {
+       for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
 
-	 TrackingRecHit * hit = (*iHit)->clone();
+	 TrackingRecHit* hit = (*iHit)->clone();
 	 std::pair<int,int> typeAndLay = TkMap->typeAndLayerFromDetId( hit->geographicalId() );
 	 int type = typeAndLay.first;   
 	 int layer = typeAndLay.second;
 	 
-	 if (keepThisHit( hit->geographicalId(), type, layer )) {
+	 if (keepThisHit( hit->geographicalId(), type, layer, hit, iSetup )) {
    
 	   myTrk->setHitPattern( * hit, i ++ );
 	   trhSelectedHits->push_back( hit );
@@ -147,13 +156,13 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        txSelectedHits->push_back( *tx );
      }
        
-     ++nTr;
+     nTr++;
    }
     
    iEvent.put( trackSelectedHits );     
    iEvent.put( txSelectedHits );
    iEvent.put( trhSelectedHits );
-
+   //   std::cout<<"Finished this call to <TrackHitFilter::produce>"<<std::endl;
 }
 
 
@@ -166,7 +175,7 @@ void
 TrackHitFilter::endJob() {
 }
 
-bool TrackHitFilter::keepThisHit(DetId id, int type, int layer) 
+bool TrackHitFilter::keepThisHit(DetId id, int type, int layer, const TrackingRecHit* therechit, const edm::EventSetup& iSetup) 
 {
   bool keepthishit = true;
   
@@ -186,8 +195,8 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer)
   else if ( theHitSel == "TOBOnly" ) {
      if (abs(type)!=5) keepthishit = false;
   }
-  else if ( theHitSel == "TOBandTIBOnly" ){
-	  if (!(abs(type)==5 || abs(type)==3)) keepthishit = false;
+  else if ( theHitSel == "TOBandTIBOnly" ) {
+     if ( !(abs(type)==3 || abs(type)==5) )  keepthishit = false;
   }
   else if ( theHitSel == "TOBandTIBl4Only" ) {
     if (!(abs(type)==5 || (abs(type)==3 && layer>=4))) keepthishit = false;
@@ -207,7 +216,44 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer)
       }
     }
   }
+       
+  // Reject hits with bad S/N
+  if (rejectBadStoNHits && (abs(type)>2) ) { //apply it only to Strip hits
+    const uint32_t& recHitDetId = id.rawId();
+    const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
+    const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
+    const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
 
+    if (matchedhit) {  
+      bool keepmonohit=true;
+      bool keepstereohit=true;
+
+      const SiStripRecHit2D* monohit=matchedhit->monoHit();    
+      const SiStripCluster* monocluster = &*(monohit->cluster());
+      SiStripClusterInfo monoclusterInfo = SiStripClusterInfo( recHitDetId, *monocluster, iSetup, theCMNSubtractionMode);     
+      if (monoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepmonohit = false;	
+
+      const SiStripRecHit2D* stereohit=matchedhit->stereoHit();   
+      const SiStripCluster* stereocluster = &*(stereohit->cluster());
+      SiStripClusterInfo stereoclusterInfo = SiStripClusterInfo( recHitDetId, *stereocluster, iSetup, theCMNSubtractionMode);     
+      if (stereoclusterInfo.getSignalOverNoise() < theStoNthreshold ) keepstereohit = false;	
+      
+      if (!keepmonohit || !keepstereohit) keepthishit = false;    
+    }
+    else if (hit) {
+      const SiStripCluster* cluster = &*(hit->cluster());
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *cluster, iSetup, theCMNSubtractionMode);     
+      if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
+    }
+    else if (unmatchedhit) {
+      const SiStripRecHit2D &orighit = unmatchedhit->originalHit(); 
+      const SiStripCluster* origcluster = &*(orighit.cluster());
+      SiStripClusterInfo clusterInfo = SiStripClusterInfo( recHitDetId, *origcluster, iSetup, theCMNSubtractionMode);     
+      if (clusterInfo.getSignalOverNoise() < theStoNthreshold ) keepthishit = false;    
+    }
+  } // end reject bad S/N
+
+  
   return keepthishit;
 }
 
