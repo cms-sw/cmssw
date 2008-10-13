@@ -211,6 +211,9 @@ void PFClusterCalibration::getCalibratedEnergyEmbedAInHcal(double& ecalE,
 	hcalE = getCalibratedHcalEnergy(ecalEOld, hcalEOld, eta, phi);
 
 	double preCorrection(ecalE + hcalE);
+	if(doEtaCorrection_) {
+		preCorrection = preCorrection/etaCorrection_.Eval(eta);
+	}
 
 	if (doCorrection_) {
 		double corrE = correction_.Eval(preCorrection);
@@ -220,6 +223,7 @@ void PFClusterCalibration::getCalibratedEnergyEmbedAInHcal(double& ecalE,
 	}
 	if (hcalE < 0 && !allowNegativeEnergy_)
 		hcalE = 0;
+	
 }
 
 void PFClusterCalibration::calibrate(Calibratable& c) {
