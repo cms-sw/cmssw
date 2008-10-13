@@ -63,7 +63,11 @@ echo "duplicate errors"
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 98  -l sqlite_file:log.db
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 11  -l sqlite_file:log.db
 
-
+echo "rename"
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag > Example_tag.dump
+sed -i 's/Example_tag/Example_tag_renamed/' Example_tag.dump
+cmscond_load_iov -c sqlite_file:pop_test.db Example_tag.dump
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag_renamed
 
 
 #note: tag-name, log-name and db-name must be the same as in the cfg file  
