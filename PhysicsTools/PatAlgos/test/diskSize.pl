@@ -42,6 +42,9 @@ my %arrays = ();
 
 foreach (split(/\n/, $IN)) {
   chomp; #print STDERR "    [$_]\n";
+  if (m/\*Branch\s+:((\w+)_(\w+)_(\w*)_(\w+))\./) {
+        $item = undef;
+  }
   if (m/\*Br\s+\d+\s+:((\w+)_(\w+)_(\w*)_(\w+))\.obj\s/) {
         $survey{$1} = { 'type'=>$2, 'label'=>$3, 'instance'=>$4, 'process'=>$5, 'tot'=>0, 'num'=> 0, 'items'=>{},  };
         $obj = undef; $item = $1;
