@@ -1,4 +1,4 @@
-// $Id: ToDqm.h,v 1.1 2008-01-18 16:21:56 oh Exp $
+// $Id: ToDqm.h,v 1.1 2008/07/01 13:22:26 ameyer Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
@@ -30,7 +30,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <queue>
-//#include "toolbox/BSem.h"
+#include "toolbox/BSem.h"
 #include <pthread.h>
 
 /*#ifndef Qsize_max
@@ -57,15 +57,18 @@ namespace xmas2dqm
 					
 			void free_memory();
 			
+			std::string runNumber_;
 			
 			std::queue<xdata::Table::Reference> QTable_;
 			
 			std::queue<xdata::Table *> MemoryTable_;
 			
-			//toolbox::BSem BSem_;		
+			
+			//semaphore to protect access to runNumber_
+			toolbox::BSem BSem_;		
 			
 			//allows syncronized access to the queue of LAS data
-			pthread_mutex_t mymutex_;
+			pthread_mutex_t LASmutex_;
 	
                         //represents if the queue is (q.size reached max size)	
 			pthread_cond_t more_;
