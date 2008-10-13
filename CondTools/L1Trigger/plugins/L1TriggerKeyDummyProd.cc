@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 01:08:46 CET 2008
-// $Id: L1TriggerKeyDummyProd.cc,v 1.1 2008/03/03 21:52:18 wsun Exp $
+// $Id: L1TriggerKeyDummyProd.cc,v 1.2 2008/09/19 19:26:37 wsun Exp $
 //
 //
 
@@ -42,10 +42,10 @@ L1TriggerKeyDummyProd::L1TriggerKeyDummyProd(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-  bool subsystemKeysOnly =
-    iConfig.getParameter< bool >( "subsystemKeysOnly" ) ;
 
-  std::string label = subsystemKeysOnly ? "SubsystemKeysOnly" : "" ;
+  // Label should be empty, "SubsystemKeysOnly" or any subsystem label expected
+  // by L1TriggerKeyOnlineProd.
+  std::string label = iConfig.getParameter< std::string >( "label" ) ;
   setWhatProduced(this, label);
 
    //now do what ever other initialization is needed
@@ -67,7 +67,7 @@ L1TriggerKeyDummyProd::L1TriggerKeyDummyProd(const edm::ParameterSet& iConfig)
    m_key.setSubsystemKey( L1TriggerKey::kTSP0,
 			  iConfig.getParameter< std::string >( "tsp0Key" ) ) ;
 
-   if( !subsystemKeysOnly )
+   if( label != "SubsystemKeysOnly" )
      {
        typedef std::vector< edm::ParameterSet > ObjectKeys;
        ObjectKeys keys = iConfig.getParameter< ObjectKeys >( "objectKeys" ) ;

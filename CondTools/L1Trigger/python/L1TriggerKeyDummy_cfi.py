@@ -12,7 +12,7 @@ L1TriggerKeyDummy = cms.ESProducer("L1TriggerKeyDummyProd",
     gctKey = cms.string('dummy'),
     gtKey = cms.string('dummy'),
     tsp0Key = cms.string('dummy'),
-    subsystemKeysOnly = cms.bool(False)
+    label = cms.string('')
 )
 
 L1TriggerKeyDummy.objectKeys.extend(L1SubsystemParams.recordInfo)
