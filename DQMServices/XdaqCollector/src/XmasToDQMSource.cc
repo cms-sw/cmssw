@@ -110,7 +110,7 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 
 	std::cout << "inside DQMSource::Analyze...ready to lock the data mutex" << std::endl;
 	//protect access to the queue
-	pthread_mutex_lock(&xmas2dqm::wse::ToDqm::instance()->mymutex_);
+	pthread_mutex_lock(&xmas2dqm::wse::ToDqm::instance()->LASmutex_);
     	
 	
 	std::cout << "inside DQMSource::Analyze...check (...and possible wait) if data queue is empty" << std::endl;
@@ -118,7 +118,7 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 	//check if the queue is empty and wait (a signal that informs that an element has been pushed)
 	while(xmas2dqm::wse::ToDqm::instance()->/*QTable_*/MemoryTable_.size() <= 0)
 	{
-        	pthread_cond_wait(&xmas2dqm::wse::ToDqm::instance()->more_, &xmas2dqm::wse::ToDqm::instance()->mymutex_);
+        	pthread_cond_wait(&xmas2dqm::wse::ToDqm::instance()->more_, &xmas2dqm::wse::ToDqm::instance()->LASmutex_);
 	}
 	
 	
@@ -153,12 +153,27 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 			std:: cout << ref_table->columnData_["context"]->elementAt(r)->toString() << std::endl;
 			std:: cout << ref_table->columnData_["slotNumber"]->elementAt(r)->toString() << std::endl;*/
 			
-			if(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString() == "[]")
+			if(ref_table->columnData_["wcHistogram"]->elementAt(r)->toString() == "[]")
 			{
 				/* remove prints for benchmarking*/
 				/*std::cout << ref_table->columnData_["context"]->elementAt(r)->toString() << " has empty bxHistogram" << std::endl;*/
 				continue;
 			}
+			
+			
+			if(ref_table->columnData_["runNumber"])
+			{
+				/* remove prints for benchmarking*/
+				
+				
+				xmas2dqm::wse::ToDqm::instance()->BSem_.take();
+				xmas2dqm::wse::ToDqm::instance()->runNumber_ = ref_table->columnData_["runNumber"]->elementAt(r)->toString();
+				xmas2dqm::wse::ToDqm::instance()->BSem_.give();
+				std::cout << "runNumber ... = " << ref_table->columnData_["runNumber"]->elementAt(r)->toString() << std::endl;
+				
+				
+				//continue;
+			}	
 			
 			//boost::tokenizer<> Context_tokens(ref_table->columnData_["Context"]->elementAt(r)->toString());
 			
@@ -181,42 +196,43 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 			if( HostSlotMap.find(host_slot) == HostSlotMap.end())
 			{
 				/* remove prints for benchmarking*/
-				/*std::cout << "booking new histogram..." << host_slot << std::endl;*/
+				std::cout << "booking new histogram..." << host_slot << std::endl;
 			
 				HostSlotMap[host_slot] = new /*struct*/ Data();
 				
 			
 				HostSlotMap[host_slot]->lastTimestamp = ref_table->columnData_["timestamp"]->elementAt(r)->toString();
 				
+				//remove this part, now bxHistogram not in frlHisto flashlist
 				// create and cd into new folder for bxHistograms
-  				dbe_->setCurrentFolder(monitorName_ + "bxHisto");
-				HostSlotMap[host_slot]->bxHistogram1D = dbe_->book1D("bx_"+ host_slot, "FRL bxHisto", BXBIN, 1, BXBIN);
-				
-	  			HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("LHC orbit Bunch"/*"x-axis title"*/, 1);
-  				HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
-			
-				/* remove prints for benchmarking*/
-				/*std::cout << "booked histogram = " << host_slot << std::endl;*/
-				boost::tokenizer<> bxHistogram_values(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString());
-   	    			
-				int ibx=0; //bx counter - bin counter
-				
-				for(boost::tokenizer<>::iterator itok=bxHistogram_values.begin(); itok!=bxHistogram_values.end();++itok)
-	    			{
-					ibx++;
-					//remove for benchmarking
-       					/*std::cout << *itok << std::endl;*/
-					string s = *itok;
-					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
-					
-					std::istringstream istrfloat(s);
-   					float bin_value;
-   					istrfloat >> bin_value;
-					
-					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
-					if(ibx >= BXBIN)
-						break;
-   				}
+  				// dbe_->setCurrentFolder(monitorName_ + "bxHisto");
+// 				HostSlotMap[host_slot]->bxHistogram1D = dbe_->book1D("bx_"+ host_slot, "FRL bxHisto", BXBIN, 1, BXBIN);
+// 				
+// 	  			HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("LHC orbit Bunch"/*"x-axis title"*/, 1);
+//   				HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
+// 			
+// 				/* remove prints for benchmarking*/
+// 				/*std::cout << "booked histogram = " << host_slot << std::endl;*/
+// 				boost::tokenizer<> bxHistogram_values(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString());
+//    	    			
+// 				int ibx=0; //bx counter - bin counter
+// 				
+// 				for(boost::tokenizer<>::iterator itok=bxHistogram_values.begin(); itok!=bxHistogram_values.end();++itok)
+// 	    			{
+// 					ibx++;
+// 					//remove for benchmarking
+//        					/*std::cout << *itok << std::endl;*/
+// 					string s = *itok;
+// 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
+// 					
+// 					std::istringstream istrfloat(s);
+//    					float bin_value;
+//    					istrfloat >> bin_value;
+// 					
+// 					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
+// 					if(ibx >= BXBIN)
+// 						break;
+//    				}
 				
 				
 				// create and cd into new folder for wcHistograms
@@ -227,7 +243,7 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 				HostSlotMap[host_slot]->wcHistogram1D = dbe_->book1D("wc_"+ host_slot, "FRL wcHisto", WCBIN, 
 				MIN_EVENT_FRAGMENT_SIZE, MIN_EVENT_FRAGMENT_SIZE + WCBIN*16*atoi(ref_table->columnData_["wcHistogramResolution"]->elementAt(r)->toString().c_str()));
 				
-	  			HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Event framgent size (Bytes)"/*"x-axis title"*/, 1);
+	  			HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Event fragment size (Bytes)"/*"x-axis title"*/, 1);
   				HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
 			
 				/* remove prints for benchmarking*/
@@ -275,26 +291,28 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 				
 				/* remove prints for benchmarking*/
 				/*std::cout << "histogram..." << host_slot << " already booked..." << std::endl;*/
+				
+				//remove this part, now bxHistogram not in frlHisto flashlist
 				//insert bxHistogram values
-				boost::tokenizer<> bxHistogram_values(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString());
+// 				boost::tokenizer<> bxHistogram_values(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString());
    	    			
-				int ibx=0; //bx counter
-				for(boost::tokenizer<>::iterator itok=bxHistogram_values.begin(); itok!=bxHistogram_values.end();++itok)
-	    			{
-					ibx++;
-       					/*remove for benchmarking */
-					//std::cout << *itok << std::endl;
-					string s = *itok;
-					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
-					
-					std::istringstream istrfloat(s);
-   					float bin_value;
-   					istrfloat >> bin_value;
-					
-					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
-					if(ibx >= BXBIN)
-						break;
-   				}
+				// int ibx=0; //bx counter
+// 				for(boost::tokenizer<>::iterator itok=bxHistogram_values.begin(); itok!=bxHistogram_values.end();++itok)
+// 	    			{
+// 					ibx++;
+//        					/*remove for benchmarking */
+// 					//std::cout << *itok << std::endl;
+// 					string s = *itok;
+// 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
+// 					
+// 					std::istringstream istrfloat(s);
+//    					float bin_value;
+//    					istrfloat >> bin_value;
+// 					
+// 					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
+// 					if(ibx >= BXBIN)
+// 						break;
+//    				}
 				
 				
 				//insert wcHistogram values
@@ -352,7 +370,7 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 	//std::cout << "after signaligng less...." << std::endl;
 	
 	//allow access to the queue
-    	pthread_mutex_unlock(&xmas2dqm::wse::ToDqm::instance()->mymutex_);
+    	pthread_mutex_unlock(&xmas2dqm::wse::ToDqm::instance()->LASmutex_);
 	
 	std::cout << "after unlocking the mutex...." << std::endl;
 	//xmas2dqm::wse::ToDqm::instance()->BSem_.give();

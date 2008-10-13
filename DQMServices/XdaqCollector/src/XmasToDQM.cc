@@ -1,4 +1,4 @@
-// $Id: Application.cc,v 1.2 2008-01-18 16:21:56 oh Exp $
+// $Id: XmasToDQM.cc,v 1.2 2008/07/02 10:00:35 vpatras Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
@@ -193,7 +193,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 	
 	//BSem_.take();
 	//acquire the mutex - protect access to the queue
-	pthread_mutex_lock(&xmas2dqm::wse::ToDqm::instance()->mymutex_);
+	pthread_mutex_lock(&xmas2dqm::wse::ToDqm::instance()->LASmutex_);
    
    	LOG4CPLUS_INFO (getApplicationLogger(), "inside WorkLoop...check (...and possible wait) if data queue is full");
 	
@@ -201,7 +201,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 	// until there is 'space' in the queue    
     	while (xmas2dqm::wse::ToDqm::instance()->MemoryTable_.size() >= atoi(LASQueueSize_.toString().c_str())/*Qsize_max*/)
 	{
-        	pthread_cond_wait(&xmas2dqm::wse::ToDqm::instance()->less_, &xmas2dqm::wse::ToDqm::instance()->mymutex_);
+        	pthread_cond_wait(&xmas2dqm::wse::ToDqm::instance()->less_, &xmas2dqm::wse::ToDqm::instance()->LASmutex_);
 	}
 	
 	LOG4CPLUS_DEBUG (getApplicationLogger(), "data queue has available store...proceeding...");
@@ -241,7 +241,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 	LOG4CPLUS_DEBUG (getApplicationLogger(), "inside WorkLoop...release mutex, allow access to the data queue");
 
 	//allow access to the queue
-    	pthread_mutex_unlock(&xmas2dqm::wse::ToDqm::instance()->mymutex_);	
+    	pthread_mutex_unlock(&xmas2dqm::wse::ToDqm::instance()->LASmutex_);	
 	
 	return false;
 }
