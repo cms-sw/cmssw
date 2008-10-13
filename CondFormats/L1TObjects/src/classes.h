@@ -19,7 +19,6 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
