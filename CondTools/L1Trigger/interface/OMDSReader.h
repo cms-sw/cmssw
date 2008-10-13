@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.5 2008/09/30 20:33:39 wsun Exp $
+// $Id: OMDSReader.h,v 1.4 2008/07/23 16:38:08 wsun Exp $
 //
 
 // system include files
@@ -24,7 +24,6 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondTools/L1Trigger/interface/DataManager.h"
 #include "RelationalAccess/IQuery.h"
@@ -63,21 +62,22 @@ namespace l1t
 	  bool queryFailed() const { return m_attributeLists.size() == 0 ; }
 	  int numberRows() const { return m_attributeLists.size() ; }
 
+	  // Return value is false if variable is null.
 	  template< class T >
-	    void fillVariable( const std::string& columnName,
+	    bool fillVariable( const std::string& columnName,
 			       T& outputVariable ) const ;
 
 	  template< class T >
-	    void fillVariableFromRow( const std::string& columnName,
+	    bool fillVariableFromRow( const std::string& columnName,
 				      int rowNumber,
 				      T& outputVariable ) const ;
 
 	  // If there is only one column, no need to give column name
 	  template< class T >
-	    void fillVariable( T& outputVariable ) const ;
+	    bool fillVariable( T& outputVariable ) const ;
 
 	  template< class T >
-	    void fillVariableFromRow( int rowNumber,
+	    bool fillVariableFromRow( int rowNumber,
 				      T& outputVariable ) const ;
 
 	private:
@@ -123,7 +123,8 @@ namespace l1t
 	                 // if empty, conditionRHS must have only one column
 	) const ;
 
-      const QueryResults singleAttribute( const std::string& data ) const ;
+      template< class T >
+	const QueryResults singleAttribute( const T& data ) const ;
 
       // ---------- static member functions --------------------
 
@@ -138,69 +139,62 @@ namespace l1t
       cond::CoralTransaction* m_coralTransaction ;
 };
 
-  template< class T > void
+  template< class T > const OMDSReader::QueryResults
+  OMDSReader::singleAttribute( const T& data ) const
+  {
+    std::vector< std::string > names ;
+    names.push_back( "dummy" ) ;
+
+    coral::AttributeList attList ;
+    attList.extend( "dummy", typeid( std::string ) ) ;
+    attList[ "dummy" ].data< T >() = data ;
+
+    std::vector< coral::AttributeList > atts ;
+    atts.push_back( attList ) ;
+
+    return QueryResults( names, atts ) ;
+  }
+
+  template< class T > bool
     OMDSReader::QueryResults::fillVariable(
       const std::string& columnName,
       T& outputVariable ) const
     {
-      if( numberRows() > 1 )
-	{
-	  edm::LogWarning( "L1-O2O" )
-	    << "QueryResults has multiple rows; only first row requested." ;
-	}
-      fillVariableFromRow( columnName, 0, outputVariable ) ;
+      return fillVariableFromRow( columnName, 0, outputVariable ) ;
     }
 
-  template< class T > void
+  template< class T > bool
     OMDSReader::QueryResults::fillVariableFromRow(
       const std::string& columnName,
       int rowNumber,
       T& outputVariable ) const
     {
       // Check index in bounds
-      if( rowNumber < 0 || rowNumber >= numberRows() )
-	{
-	  edm::LogWarning( "L1-O2O" ) << "Requested row number " << rowNumber
-				      << " out of bounds.  Max "
-				      << numberRows() ;
-	  return ;
-	}
+      if( rowNumber < 0 || rowNumber >= numberRows() ) return false ;
       const coral::AttributeList& row = m_attributeLists[ rowNumber ] ;
+      if( row[ columnName ].isNull() ) return false ;
       outputVariable = row[ columnName ].template data< T >() ;
+      return true ;
     }
 
-  template< class T > void
+  template< class T > bool
     OMDSReader::QueryResults::fillVariable( T& outputVariable ) const
     {
-      if( numberRows() > 1 )
-	{
-	  edm::LogWarning( "L1-O2O" )
-	    << "QueryResults has multiple rows; only first row requested." ;
-	}
-      fillVariableFromRow( 0, outputVariable ) ;
+      return fillVariableFromRow( 0, outputVariable ) ;
     }
 
-  template< class T > void
+  template< class T > bool
     OMDSReader::QueryResults::fillVariableFromRow( int rowNumber,
 						   T& outputVariable ) const
     {
       // Check index in bounds and only one column
-      if( rowNumber < 0 || rowNumber >= numberRows() )
-	{
-	  edm::LogWarning( "L1-O2O" ) << "Requested row number " << rowNumber
-				      << " out of bounds.  Max "
-				      << numberRows() ;
-	  return ;
-	}
-
-      if( m_columnNames.size() != 1 )
-	{
-	  edm::LogWarning( "L1-O2O" )
-	    << "QueryResults has multiple columns; using first one: "
-	    << m_columnNames.front() ;
-	}
+      if( rowNumber < 0 || rowNumber >= numberRows() ||
+	  m_columnNames.size() != 1 ) return false ;
       const coral::AttributeList& row = m_attributeLists[ rowNumber ] ;
+      if( row[ m_columnNames.front() ].isNull() ) return false ;
       outputVariable = row[ m_columnNames.front() ].template data< T >() ;
+      return true ;
     }
+
 }
 #endif

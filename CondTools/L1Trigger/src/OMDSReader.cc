@@ -149,22 +149,6 @@ OMDSReader::~OMDSReader()
 			conditionLHS, conditionRHS, conditionRHSName ) ;
   }
 
-  const OMDSReader::QueryResults
-  OMDSReader::singleAttribute( const std::string& data ) const
-  {
-    std::vector< std::string > names ;
-    names.push_back( "dummy" ) ;
-
-    coral::AttributeList attList ;
-    attList.extend( "dummy", typeid( std::string ) ) ;
-    attList[ "dummy" ].data< std::string >() = data ;
-
-    std::vector< coral::AttributeList > atts ;
-    atts.push_back( attList ) ;
-
-    return QueryResults( names, atts ) ;
-  }
-
 //
 // static member functions
 //
