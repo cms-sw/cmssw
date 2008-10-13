@@ -11,14 +11,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    lastRun = cms.untracked.uint32(1),
-    interval = cms.uint32(1)
+    firstRun = cms.uint64(1),
+    lastRun = cms.uint64(1),
+    interval = cms.uint64(1)
 )
 
 # Generate dummy L1TriggerKey and L1TriggerKeyList
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
-process.L1TriggerKeyDummy.subsystemKeys = cms.VPSet()
+process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
 process.L1TriggerKeyDummy.tscKey = cms.string('')
 
 # Use dummy producer to initialize DB on the first time ONLY.
