@@ -54,7 +54,7 @@ MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
-    float pT, float cotTheta) const
+    float pT, float cotTheta, float tip) const
 {
 //   static TimingReport::Item * theTimer =
 //      initTiming("MultScattering from vertex",5);
@@ -65,13 +65,13 @@ float MultipleScatteringParametrisation::operator()(
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
-  float pT, float cotTheta, const PixelRecoPointRZ & pointI) const
+  float pT, float cotTheta, const PixelRecoPointRZ & pointI, float tip) const
 {
 //   static TimingReport::Item * theTimer =
 //       initTiming("MultScattering 1p constraint",5);
 //   TimeMe tm( *theTimer, false);
 
-  PixelRecoLineRZ lineIO(pointI,cotTheta);
+  PixelRecoLineRZ lineIO(pointI, cotTheta, tip);
   PixelRecoPointRZ pointO = theLayer.crossing(lineIO).first;
 
   const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
@@ -85,14 +85,15 @@ float MultipleScatteringParametrisation::operator()(
     float pT,
     const PixelRecoPointRZ & pointI,
     const PixelRecoPointRZ & pointO,
-    Consecutive consecutive) const
+    Consecutive consecutive,
+    float tip) const
 {   
 //   static TimingReport::Item * theTimer =
 //       initTiming("MultScattering 2p constraint",5);
 //   TimeMe tm( *theTimer, false);
 
 
-  PixelRecoLineRZ lineIO(pointI, pointO);
+  PixelRecoLineRZ lineIO(pointI, pointO, tip);
   PixelRecoPointRZ pointM = theLayer.crossing(lineIO).first;
   float cotTheta = lineIO.cotLine();
 

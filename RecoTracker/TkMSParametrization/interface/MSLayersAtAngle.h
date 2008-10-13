@@ -20,10 +20,12 @@ public:
   const MSLayer * findLayer(const MSLayer & layer) const;
 
   float sumX0D(const PixelRecoPointRZ & pointI,
-               const PixelRecoPointRZ & pointO) const;
+               const PixelRecoPointRZ & pointO,
+               float tip = 0.) const;
   float sumX0D(const PixelRecoPointRZ & pointI,
                const PixelRecoPointRZ & pointM,
-               const PixelRecoPointRZ & pointO) const;
+               const PixelRecoPointRZ & pointO,
+               float tip = 0.) const;
 
   int size() const { return theLayers.size(); }
   void print() const;
