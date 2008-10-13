@@ -13,11 +13,11 @@ process.maxEvents = cms.untracked.PSet(
 process.AlignmentProducer.algoConfig.collectorActive = True
 process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
-process.AlignmentProducer.algoConfig.minimumNumberOfHits = 15
+process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
 process.AlignmentProducer.algoConfig.maxRelParameterError = '1e99'
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 
-"""
+
 # this part only needed for survey constraint
 process.survey = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
@@ -36,4 +36,4 @@ process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TOBRod'
 #process.AlignmentProducer.algoConfig.surveyResiduals = ['Det']
 process.AlignmentProducer.useSurvey = True
 # end of survey constraint part
-"""
+
