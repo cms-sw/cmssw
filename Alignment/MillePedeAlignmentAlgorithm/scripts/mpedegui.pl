@@ -47,6 +47,10 @@ my (
                   ['py files',    '.py'],
                 ];
 
+# Working directory
+    my $workdir;
+
+# Variables for mps_setup
     my $pathmillescript_variable;
     my $pathcfg_variable;
     my $pathdata_variable;
@@ -57,12 +61,26 @@ my (
     my $njobs_variable;
     my $appendmillejob_variable;
     my $batchclass_variable;
-    my $mpssetup_output;
-    my $status_output;
+# Variables for mps_fire
     my $firemerge_variable;
     my $njobsfir_variable;
+# Variables for mps_kill
+
+# Variables for mps_retry
+    my $retryID_variable;
+    my $retrymerge_variable;
+    my $retryforce_variable;
+# Variables for mps_save
+
+# Standard outputs
+    my $mpssetup_output;
     my $mpsfire_output;
-    my $fetch_output;
+    my $mpskill_output;
+    my $mpsretry_output;
+    my $mpsfetch_output;
+    my $mpsstat_output;
+    my $mpssave_output;
+
     my $row_offset;
     
 ######################
@@ -93,13 +111,35 @@ $ZWIDGETS{'title_label'} = $MW->Label(
    -sticky     => 'ew',
   );
 
+# Widget workdir_label isa Label
+$ZWIDGETS{'workdir_label'} = $MW->Label(
+   -text => 'Working Directory:',
+  )->grid(
+   -row        => 1,
+   -column     => 0,
+   -sticky     => 'ew',
+  );
+
+# Widget workDir isa ROText
+$ZWIDGETS{'ROText2'} = $MW->ROText(
+   -height       => 1,
+   -background => 'white',
+  )
+   ->grid(
+   -row        => 1,
+   -column     => 1,
+   -columnspan => 3,
+  );
+
+
 ### THIS IS THE MPS_SETUP SECTION ###
+$row_offset=2;
 
 # Widget pathmillescript_label isa Label
 $ZWIDGETS{'pathmillescript_label'} = $MW->Label(
    -text => 'Path to milleScript:',
   )->grid(
-   -row    => 1,
+   -row    => $row_offset,
    -column => 0,
    -sticky => 'ew',
   );
@@ -111,7 +151,7 @@ $ZWIDGETS{'pathmillescript_entry'} = $MW->Entry(
         -background => 'white',
 	)
    ->grid(
-   -row    => 2,
+   -row    => $row_offset+1,
    -column => 0,
    -sticky => 'ew',
   );
@@ -120,7 +160,7 @@ $ZWIDGETS{'pathmillescript_entry'} = $MW->Entry(
 $ZWIDGETS{'pathcfg_label'} = $MW->Label(
    -text => 'Path to cfg/py file:',
   )->grid(
-   -row    => 3,
+   -row    => $row_offset+2,
    -column => 0,
    -sticky => 'ew',
   );
@@ -131,7 +171,7 @@ $ZWIDGETS{'pathcfg_entry'} = $MW->Entry(
         -background => 'white',
 	)
 	->grid(
-   -row    => 4,
+   -row    => $row_offset+3,
    -column => 0,
    -sticky => 'ew',
   );
@@ -140,7 +180,7 @@ $ZWIDGETS{'pathcfg_entry'} = $MW->Entry(
 $ZWIDGETS{'pathdata_label'} = $MW->Label(
    -text => 'Path to data:',
   )->grid(
-   -row    => 5,
+   -row    => $row_offset+4,
    -column => 0,
    -sticky => 'ew',
   );
@@ -150,7 +190,7 @@ $ZWIDGETS{'pathdata_entry'} = $MW->Entry(
 	-textvariable => \$pathdata_variable,
         -background => 'white',
 	)->grid(
-   -row    => 6,
+   -row    => $row_offset+5,
    -column => 0,
    -sticky => 'ew',
   );
@@ -160,7 +200,7 @@ $ZWIDGETS{'pathdata_entry'} = $MW->Entry(
 $ZWIDGETS{'pathpedescript_label'} = $MW->Label(
    -text => 'Path to pedeScript:',
   )->grid(
-   -row    => 7,
+   -row    => $row_offset+6,
    -column => 0,
    -sticky => 'ew',
   );
@@ -170,7 +210,7 @@ $ZWIDGETS{'pathpedescript_entry'} = $MW->Entry(
 	-textvariable => \$pathpedescript_variable,
         -background => 'white',
 	)->grid(
-   -row    => 8,
+   -row    => $row_offset+7,
    -column => 0,
    -sticky => 'ew',
   );
@@ -180,7 +220,7 @@ $ZWIDGETS{'pathpedescript_entry'} = $MW->Entry(
 $ZWIDGETS{'pathcastor_label'} = $MW->Label(
    -text => 'Path to castor directory:',
   )->grid(
-   -row    => 9,
+   -row    => $row_offset+8,
    -column => 0,
    -sticky => 'ew',
   );
@@ -190,7 +230,7 @@ $ZWIDGETS{'pathcastor_entry'} = $MW->Entry(
 	-textvariable => \$pathcastor_variable,
         -background => 'white',
 	)->grid(
-   -row    => 10,
+   -row    => $row_offset+9,
    -column => 0,
    -sticky => 'ew',
   );
@@ -202,7 +242,7 @@ $ZWIDGETS{'pathmillescript_button'} = $MW->Button(
    -text    => 'Browse',
    -command => sub{$pathmillescript_variable = &open_file},
   )->grid(
-   -row    => 2,
+   -row    => $row_offset+1,
    -column => 1,
    -sticky => 'w',
   );
@@ -212,7 +252,7 @@ $ZWIDGETS{'pathcfg_button'} = $MW->Button(
    -text => 'Browse',
    -command => sub{$pathcfg_variable = &open_file},
   )->grid(
-   -row    => 4,
+   -row    => $row_offset+3,
    -column => 1,
    -sticky => 'w',
   );
@@ -222,7 +262,7 @@ $ZWIDGETS{'pathdata_button'} = $MW->Button(
    -text => 'Browse',
    -command => sub{$pathdata_variable = &open_file},
   )->grid(
-   -row    => 6,
+   -row    => $row_offset+5,
    -column => 1,
    -sticky => 'w',
   );
@@ -232,7 +272,7 @@ $ZWIDGETS{'pathpedescript_button'} = $MW->Button(
    -text => 'Browse',
    -command => sub{$pathpedescript_variable = &open_file},   
   )->grid(
-   -row    => 8,
+   -row    => $row_offset+7,
    -column => 1,
    -sticky => 'w',
   );
@@ -241,7 +281,7 @@ $ZWIDGETS{'pathpedescript_button'} = $MW->Button(
 $ZWIDGETS{'njobs_label'} = $MW->Label(
    -text => 'Number of jobs:',
   )->grid(
-   -row        => 1,
+   -row        => $row_offset,
    -column     => 2,
    -sticky     => 'ew',
   );
@@ -251,7 +291,7 @@ $ZWIDGETS{'njobs_menu'} = $MW->Optionmenu(
         -options => [[1 =>1], [10 =>10], [100=>100], [1000=>1000]],
         -variable => \$njobs_variable,
 	)->grid(
-   -row        => 2,
+   -row        => $row_offset+1,
    -column     => 2,
    -sticky     => 'ew',
   );
@@ -262,7 +302,7 @@ $ZWIDGETS{'njobs_entry'} = $MW->Entry(
         -background => 'white',
 	)->grid(
 
-   -row        => 3,
+   -row        => $row_offset+2,
    -column     => 2,
    -sticky => 'ew',
   );
@@ -271,7 +311,7 @@ $ZWIDGETS{'njobs_entry'} = $MW->Entry(
 $ZWIDGETS{'batchclass_label'} = $MW->Label(
    -text => 'Batch system queue/class:',
   )->grid(
-   -row        => 4,
+   -row        => $row_offset+3,
    -column     => 2,
    -sticky     => 'ew',
   );
@@ -281,7 +321,7 @@ $ZWIDGETS{'batchclass_menu'} = $MW->Optionmenu(
         -options => [["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf"=>"cmscaf"], ["cmscaf:cmscafspec"=>"cmscaf:cmscafspec"] ],
         -variable => \$batchclass_variable,
 	)->grid(
-   -row        => 5,
+   -row        => $row_offset+4,
    -column     => 2,
    -sticky     => 'ew',
   );
@@ -292,7 +332,7 @@ $ZWIDGETS{'batchclass_entry'} = $MW->Entry(
         -background => 'white',
 	)->grid(
 
-   -row        => 6,
+   -row        => $row_offset+5,
    -column     => 2,
    -sticky => 'ew',
   );
@@ -302,7 +342,7 @@ $ZWIDGETS{'batchclass_entry'} = $MW->Entry(
 $ZWIDGETS{'jobname_label'} = $MW->Label(
    -text => 'Jobname for batch system:',
   )->grid(
-   -row    => 7,
+   -row    => $row_offset+6,
    -column => 2,
    -sticky => 'ew',
   );
@@ -313,7 +353,7 @@ $ZWIDGETS{'jobaname_entry'} = $MW->Entry(
 	-textvariable => \$jobname_variable,
         -background => 'white',
 	)->grid(
-   -row    => 8,
+   -row    => $row_offset+7,
    -column => 2,
    -sticky => 'ew',
   );
@@ -322,7 +362,7 @@ $ZWIDGETS{'jobaname_entry'} = $MW->Entry(
 $ZWIDGETS{'setuppedejob_label'} = $MW->Label(
    -text => 'Setup a Pede job?',
   )->grid(
-   -row        => 1,
+   -row        => $row_offset,
    -column     => 3,
    -sticky     => 'ew',
   );
@@ -332,7 +372,7 @@ $ZWIDGETS{'setuppedejob_menu'} = $MW->Optionmenu(
         -options => [[yes=>1], [no=>2]],
         -variable => \$setuppedejob_variable,
 	)->grid(
-   -row        => 2,
+   -row        => $row_offset+1,
    -column     => 3,
    -sticky     => 'ew',
   );
@@ -341,7 +381,7 @@ $ZWIDGETS{'setuppedejob_menu'} = $MW->Optionmenu(
 $ZWIDGETS{'appendmillejob_label'} = $MW->Label(
    -text => 'Set up additional Mille jobs?',
   )->grid(
-   -row        => 3,
+   -row        => $row_offset+2,
    -column     => 3,
    -sticky     => 'ew',
   );
@@ -351,7 +391,7 @@ $ZWIDGETS{'appendmillejob_menu'} = $MW->Optionmenu(
         -options => [[no=>2], [yes=>1]],
         -variable => \$appendmillejob_variable,
 	)->grid(
-   -row        => 4,
+   -row        => $row_offset+3,
    -column     => 3,
    -sticky     => 'ew',
   );
@@ -363,15 +403,15 @@ $ZWIDGETS{'setup_button'} = $MW->Button(
    -command => \&setup_cmd,
    -background => 'cyan',
   )->grid(
-   -row        => 14,
-   -column     => 0,
-   -columnspan => 4,
+   -row        => $row_offset+9,
+   -column     => 2,
+   -columnspan => 2,
    -sticky     => 'ew',
   );
 
 
 ### THIS IS THE MPS_FIRE SECTION ###
-$row_offset=15;
+$row_offset=12;
 
 # Widget njobsfir_label isa Label
 $ZWIDGETS{'njobsfir_label'} = $MW->Label(
@@ -380,7 +420,7 @@ $ZWIDGETS{'njobsfir_label'} = $MW->Label(
    -row        => $row_offset,
    -column     => 0,
    -sticky     => 'ew',
-  ); 
+  );
   
 # Widget jobaname_entry isa Entry
 $ZWIDGETS{'njobsfir_entry'} = $MW->Entry(
@@ -403,7 +443,7 @@ $ZWIDGETS{'firemerge_label'} = $MW->Label(
    -sticky     => 'ew',
   );
 
- # Widget firemerge_menu isa Optionmenu
+# Widget firemerge_menu isa Optionmenu
 $ZWIDGETS{'firemerge_menu'} = $MW->Optionmenu(
         -options => [["no"=>""], ["yes"=>"-m"], ["force merge job"=>"-mf"]],
         -variable => \$firemerge_variable,
@@ -425,8 +465,85 @@ $ZWIDGETS{'runmpsfire_button'} = $MW->Button(
    -sticky     => 'ew',
   );
 
+### THIS IS THE MPS_KILL SECTION ###
+$row_offset=14;
+
+### THIS IS THE MPS_RETRY SECTION ###
+$row_offset=16;
+
+# Widget retryID_label isa Label
+$ZWIDGETS{'retryID_label'} = $MW->Label(
+   -text => 'jobSpec to retry:',
+  )->grid(
+   -row        => $row_offset,
+   -column     => 0,
+   -sticky     => 'ew',
+  );
+
+# Widget retryID_entry isa Entry
+$ZWIDGETS{'retryID_entry'} = $MW->Entry(
+	-textvariable => \$retryID_variable,
+        -background => 'white',
+	)->grid(
+   -row        => $row_offset+1,
+   -column     => 0,
+   -sticky => 'ew',
+  );
+
+
+# Widget retrymerge_label isa Label
+$ZWIDGETS{'retrymerge_label'} = $MW->Label(
+   -text => 'Retry merge job: ',
+  )->grid(
+   -row        => $row_offset,
+   -column     => 1,
+   -sticky     => 'ew',
+  );
+
+# Widget retrymerge_menu isa Optionmenu
+$ZWIDGETS{'retrymerge_menu'} = $MW->Optionmenu(
+        -options => [["no"=>""], ["yes"=>"-m"]],
+        -variable => \$retrymerge_variable,
+	)->grid(
+   -row        => $row_offset+1,
+   -column     => 1,
+   -sticky     => 'ew',
+  );
+
+# Widget retryforce_label isa Label
+$ZWIDGETS{'retryforce_label'} = $MW->Label(
+   -text => 'Force retry on OK jobs: ',
+  )->grid(
+   -row        => $row_offset,
+   -column     => 2,
+   -sticky     => 'ew',
+  );
+
+# Widget retryforce_menu isa Optionmenu
+$ZWIDGETS{'retryforce_menu'} = $MW->Optionmenu(
+        -options => [["no"=>""], ["yes"=>"-f"]],
+        -variable => \$retryforce_variable,
+	)->grid(
+   -row        => $row_offset+1,
+   -column     => 2,
+   -sticky     => 'ew',
+  );
+
+# Widget runmpsretry_button isa Button
+$ZWIDGETS{'runmpsretry_button'} = $MW->Button(
+   -text => 'Run mps_retry',
+   -command => \&mpsretry_cmd,
+   -background => 'cyan',
+  )->grid(
+   -row        => $row_offset+1,
+   -column     => 3,
+   -columnspan => 1,
+   -sticky     => 'ew',
+  );
+
+
 ### THIS IS THE MPS_FETCH/MPS_STAT SECTION ###
-$row_offset=17;
+$row_offset=18;
 
  # Widget runmpsfetch_button isa Button
 $ZWIDGETS{'runmpsfetch_button'} = $MW->Button(
@@ -452,8 +569,11 @@ $ZWIDGETS{'status_button'} = $MW->Button(
    -sticky     => 'ew',
   );
 
-### THIS IS THE OUTPUT SECTION ###
+### THIS IS THE MPS_SAVE SECTION ###
 $row_offset=19;
+
+### THIS IS THE OUTPUT SECTION ###
+$row_offset=20;
 
 # Widget output_label isa Label
 $ZWIDGETS{'output_label'} = $MW->Label(
@@ -483,7 +603,7 @@ $ZWIDGETS{'ROText1'} = $MW->Scrolled('ROText',
 
 
 ### QUIT SECTION ###
-$row_offset=21;
+$row_offset=22;
 
 # Widget quit_button isa Button
 $ZWIDGETS{'quit_button'} = $MW->Button(
@@ -504,28 +624,8 @@ $ZWIDGETS{'quit_button'} = $MW->Button(
 #
 ###############
 
-# Read mps.db
-read_db();
-# 
-$pathmillescript_variable =$batchScript;
-$pathcfg_variable         =$cfgTemplate;
-$pathdata_variable        =$infiList;
-$pathpedescript_variable  =$mergeScript;
-$pathcastor_variable      =$mssDir;
-$jobname_variable         =$addFiles;
-$njobs_variable           =$nJobs;
-$batchclass_variable      =$class;
 
-$setuppedejob_variable    ="1"; #The default is "yes".
-$appendmillejob_variable  ="2"; #The default is "no".
-$firemerge_variable       ="";  #The default is to merge nothing
-$njobsfir_variable        ="1"; #This is the default anyway
-
-$mpssetup_output="";
-$status_output="";
-$mpsfire_output="";
-$fetch_output="";
-
+reset_var(); # Reset all variables
 MainLoop;
 
 #######################
@@ -546,6 +646,42 @@ sub open_file {
   return $open;
 }
 
+sub reset_var {
+
+  $workdir = `pwd`;
+  $ZWIDGETS{'ROText2'}->delete("1.0", 'end');
+  $ZWIDGETS{'ROText2'}->insert('end',$workdir);
+
+# Read mps.db
+  read_db();
+#
+  $pathmillescript_variable =$batchScript;
+  $pathcfg_variable         =$cfgTemplate;
+  $pathdata_variable        =$infiList;
+  $pathpedescript_variable  =$mergeScript;
+  $pathcastor_variable      =$mssDir;
+  $jobname_variable         =$addFiles;
+  $njobs_variable           =$nJobs;
+  $batchclass_variable      =$class;
+#
+  $setuppedejob_variable    ="1"; #The default is "yes".
+  $appendmillejob_variable  ="2"; #The default is "no".
+  $firemerge_variable       ="";  #The default is to merge nothing
+  $njobsfir_variable        ="1"; #This is the default anyway
+#
+  $retryID_variable=0;
+  $retrymerge_variable="";
+  $retryforce_variable="";
+#
+  $mpssetup_output="";
+  $mpsfire_output="";
+  $mpskill_output="";
+  $mpsretry_output="";
+  $mpsfetch_output="";
+  $mpsstat_output="";
+  $mpssave_output="";
+}
+
 sub setup_cmd {
   my $setup_cmd = "";
   my $setup_opt = "";
@@ -556,18 +692,18 @@ sub setup_cmd {
 
   if ($setuppedejob_variable != 1) {
 # Do not setup Pede job
-    $setup_cmd = sprintf "mps_setup.pl %s %s %s %s %d %s %s",
-      $setup_opt,$pathmillescript_variable,$pathcfg_variable,$pathdata_variable,
-	$njobs_variable,$batchclass_variable,$jobname_variable;
-	$mpssetup_output=`$setup_cmd 2>&1`;
+    $setup_cmd = sprintf "mps_setup.pl %s %s %s %s %d %s %s",$setup_opt,
+      $pathmillescript_variable,$pathcfg_variable,$pathdata_variable,
+      $njobs_variable,$batchclass_variable,$jobname_variable;
+    $mpssetup_output=`$setup_cmd 2>&1`;
   } else {
 # Setup Mille and Pede
     $setup_opt .= " -m";
-    $setup_cmd = sprintf "mps_setup.pl %s %s %s %s %d %s %s %s %s",
-      $setup_opt,$pathmillescript_variable,$pathcfg_variable,$pathdata_variable,
-	$njobs_variable,$batchclass_variable,$jobname_variable,
-	  $pathpedescript_variable,$pathcastor_variable;
-	  $mpssetup_output=`$setup_cmd 2>&1`;
+    $setup_cmd = sprintf "mps_setup.pl %s %s %s %s %d %s %s %s %s",$setup_opt,
+      $pathmillescript_variable,$pathcfg_variable,$pathdata_variable,
+      $njobs_variable,$batchclass_variable,$jobname_variable,
+      $pathpedescript_variable,$pathcastor_variable;
+    $mpssetup_output=`$setup_cmd 2>&1`;
   }
 
 ## This 2 lines put the output in the main terminal (not in the gui window) and should probably be removed after gui-development is over
@@ -580,25 +716,35 @@ sub setup_cmd {
 
 
 sub mpsstat_cmd {
-
   my $status_cmd = "";
   
-    $status_cmd = sprintf "mps_stat.pl";
-	$status_output=`$status_cmd 2>&1`;
+  $status_cmd = sprintf "mps_stat.pl";
+  $mpsstat_output=`$status_cmd 2>&1`;
 
-  $ZWIDGETS{'ROText1'}->insert('end',"$status_output \n");
+  $ZWIDGETS{'ROText1'}->insert('end',"$mpsstat_output \n");
   $ZWIDGETS{'ROText1'}->see('end');
 }
 
 
 sub mpsfire_cmd {
-
   my $fire_cmd = "";
   
-    $fire_cmd = sprintf "mps_fire.pl %s %s", $firemerge_variable, $njobsfir_variable;
-	$mpsfire_output=`$fire_cmd 2>&1`;
+  $fire_cmd = sprintf "mps_fire.pl %s %s",$firemerge_variable,
+    $njobsfir_variable;
+  $mpsfire_output=`$fire_cmd 2>&1`;
 
   $ZWIDGETS{'ROText1'}->insert('end',"$mpsfire_output \n");
+  $ZWIDGETS{'ROText1'}->see('end');
+}
+
+sub mpsretry_cmd {
+  my $mpsretry_cmd = "";
+  
+  $mpsretry_cmd = sprintf "mps_retry.pl %s %s %s",$retrymerge_variable,
+    $retryforce_variable,$retryID_variable;
+  $mpsretry_output=`$mpsretry_cmd 2>&1`;
+
+  $ZWIDGETS{'ROText1'}->insert('end',"$mpsretry_output \n");
   $ZWIDGETS{'ROText1'}->see('end');
 }
 
@@ -607,9 +753,9 @@ sub mpsfetch_cmd {
   my $fetch_cmd = "";
   
     $fetch_cmd = sprintf "mps_fetch.pl";
-	$fetch_output=`$fetch_cmd 2>&1`;
+	$mpsfetch_output=`$fetch_cmd 2>&1`;
 
-  $ZWIDGETS{'ROText1'}->insert('end',"$fetch_output \n");
+  $ZWIDGETS{'ROText1'}->insert('end',"$mpsfetch_output \n");
   $ZWIDGETS{'ROText1'}->see('end');
 }
 
