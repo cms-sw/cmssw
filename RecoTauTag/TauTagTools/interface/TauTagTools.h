@@ -53,14 +53,14 @@ namespace TauTagTools{
      sortRefsByOpeningDistance(const math::XYZVector& theAxis, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&), const PFCandidateRefVector& myInputVector):myMetricFunction(ptrToMetricFunction),axis(theAxis),myVector(myInputVector){};
      bool operator()(uint32_t indexA, uint32_t indexB)
      {
-        const PFCandidate& candA = myVector.at(indexA);
-        const PFCandidate& candB = myVector.at(indexB);
-        return (myMetricFunction(axis, candA.momentum()) < myMetricFunction(axis, candB.momentum()));
+        const PFCandidateRef candA = myVector.at(indexA);
+        const PFCandidateRef candB = myVector.at(indexB);
+        return (myMetricFunction(axis, candA->momentum()) < myMetricFunction(axis, candB->momentum()));
      }
      private:
      double (*myMetricFunction)(const math::XYZVector&, const math::XYZVector&);
      math::XYZVector axis;  //axis about which candidates are sorted
-     const PFCandidateRefVector& myVector;
+     const PFCandidateRefVector myVector;
   };
   class filterChargedAndNeutralsByPt
   {
@@ -68,10 +68,10 @@ namespace TauTagTools{
      filterChargedAndNeutralsByPt(double minNeutralPt, double minChargedPt, const PFCandidateRefVector& myInputVector):minNeutralPt_(minNeutralPt),minChargedPt_(minChargedPt),myVector(myInputVector){};
      bool operator()(uint32_t candIndex)
      {
-        const PFCandidate& cand = myVector.at(candIndex);
+        const PFCandidateRef cand = myVector.at(candIndex);
         bool output          = true;
-        unsigned char charge = abs(cand.charge());
-        double thePt         = cand.pt();
+        unsigned char charge = abs(cand->charge());
+        double thePt         = cand->pt();
         if (charge && thePt < minChargedPt_)
            output = false;
         else if (!charge && thePt < minNeutralPt_)
