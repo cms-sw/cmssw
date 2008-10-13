@@ -87,28 +87,33 @@ muonTrigMatchHLT1MuonNonIso.src = cms.InputTag( muons )
 
 
 jetTrackAssociation =  cms.Sequence(
-    jtAssoc *
+    jtAssoc +
     patAODJetTracksAssociator 
 )
 
 patHighLevelReco = cms.Sequence(
-    patJetFlavourId *
+    patJetFlavourId +
     patAODJetTracksCharge 
 )
 
+patMCTruth_withoutElectronPhoton = cms.Sequence(
+    patMCTruth_withoutLeptonPhoton +
+    muonMatch
+    )
+
 patLayer1 = cms.Sequence(
-    layer1Jets *
-    allLayer1PFParticles * 
-    layer1METs *
-    layer1Taus 
+    layer1Jets +
+    allLayer1PFParticles + 
+    layer1METs +
+    layer1Taus +
+    layer1Muons
 )
+
 
 patFromPF2PAT = cms.Sequence ( 
     patTrigMatchHLT1MuonNonIso +
     jetTrackAssociation +
     patHighLevelReco +
-    patMCTruth_withoutLeptonPhoton +
-    muonMatch +
-    layer1Muons
-    + patLayer1
+    patMCTruth_withoutElectronPhoton +
+    patLayer1
 )
