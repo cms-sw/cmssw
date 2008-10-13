@@ -101,6 +101,9 @@ namespace pos{
     static pos::pathVersionAliasMmap getVersionData(){  
       return getAlias().getVersionData();
     }
+    static pos::pathVersionAliasMmap getVersionData(std::string koc){  
+      return getAlias().getVersionData(koc);
+    }
     
     static std::vector<pathAliasPair> getConfigAliases(std::string path) {
      return getAlias().getConfigAliases(path) ;

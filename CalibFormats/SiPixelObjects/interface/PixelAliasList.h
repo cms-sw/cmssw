@@ -251,6 +251,19 @@ namespace pos{
       return versionMmap ;
     }
     
+    pathVersionAliasMmap getVersionData(std::string koc)
+    {
+      pathVersionAliasMmap result ;
+      for(pathVersionAliasMmap::iterator it = versionMmap.begin() ;it != versionMmap.end() ; it ++)
+	{
+	  if((*it).first.find(koc) != std::string::npos)
+	    {
+	      result[(*it).first] = (*it).second ;
+	    }
+	}
+      return result ;
+    }
+
     std::vector<pathAliasPair> getConfigAliases(std::string path) {
      std::vector<pathAliasPair> configAliasVector ;
      for(pathAliasMmap::iterator it=aliasMmap.begin(); it!=aliasMmap.end(); it++){
