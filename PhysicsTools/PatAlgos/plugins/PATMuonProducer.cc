@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.16 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.17 2008/10/10 14:02:33 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -157,7 +157,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	 i != pfMuons->end(); ++i, ++index) {
       
       const reco::IsolatedPFCandidate& pfmu = *i;
-      std::cout<<pfmu<<std::endl;
+      // std::cout<<pfmu<<std::endl;
 
       const reco::MuonRef& muonRef = pfmu.muonRef();
       assert( muonRef.isNonnull() );
