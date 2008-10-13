@@ -196,12 +196,18 @@ class Process(object):
         #clone the item
         if self.__isStrict:
             newValue =value.copy()
+            try:
+              newValue._filename = value._filename
+            except:
+              pass  
             value.setIsFrozen()
         else:
             newValue =value
         if not self._okToPlace(name, value, self.__dict__):
-            print "WARNING: trying to override definition of process."+name
-            return
+            msg = "Trying to override definition of process."+name
+            msg += "\n new object defined in: "+value._filename
+            msg += "\n existing object defined in: "+getattr(self,name)._filename
+            raise ValueError(msg)
         # remove the old object of the name (if there is one) 
         if hasattr(self,name) and not (getattr(self,name)==newValue):
             self.__delattr__(name)
