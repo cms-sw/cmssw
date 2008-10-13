@@ -56,19 +56,19 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlign
 
 process.AlignmentProducer.applyDbAlignment = True
 # Set parameters to align
-#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,100001','TIBDSDets,110001','TOBSSDets,100001','TOBDSDets,110001']
-process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
-"""
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,101001','TIBDSDets,111001','TOBSSDets,101001','TOBDSDets,111001']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
+
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
-                                                    alignParams = cms.vstring('PXECDets,110001',
-                                                                 'TIBSSDets,100001',
-																 'TIBDSDets,110001',
-                                                                 'TOBSSDets,100001',
-                                                                 'TOBDSDets,110001',
-                                                                 'TECDets,100001,endCapSS',
-                                                                 'TECDets,110001,endCapDS',
-                                                                 'TIDDets,100001,endCapSS',
-                                                                 'TIDDets,110001,endCapDS'
+                                                    alignParams = cms.vstring(
+                                                                 'TIBSSDets,101001',
+																 'TIBDSDets,111001',
+                                                                 'TOBSSDets,101001',
+                                                                 'TOBDSDets,111001',
+                                                                 'TECDets,101001,endCapSS',
+                                                                 'TECDets,111001,endCapDS',
+                                                                 'TIDDets,101001,endCapSS',
+                                                                 'TIDDets,111001,endCapDS'
                                                                  ),
                                                     endCapSS= cms.PSet( # valid for TID and TEC
                                                                        etaRanges=cms.vdouble(),
@@ -87,5 +87,5 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
                                                                        yRanges=cms.vdouble()
                                                                        )
 						     )
-"""
+
 
