@@ -13,7 +13,7 @@ ALCARECOTkAlMuonIsolatedHLT.andOr = True ## choose logical OR between Triggerbit
 #for L = 10e30:  HLT_Mu3 , HLT_Mu5
 #for L = 10e31:  unknown
 #for L = 10e32:  HLT_IsoMu11 , HLT_Mu15_L1Mu7
-ALCARECOTkAlMuonIsolatedHLT.HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15_L1Mu7']
+ALCARECOTkAlMuonIsolatedHLT.HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15']
 ALCARECOTkAlMuonIsolated.filter = True ##do not store empty events
 
 ALCARECOTkAlMuonIsolated.applyBasicCuts = True
