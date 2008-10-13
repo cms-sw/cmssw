@@ -9,6 +9,7 @@ void makePlots(TFile& file) {
 	plots->mkdir("targetFunction");
 	plots->mkdir("bias");
 	plots->mkdir("ratios");
+	plots->mkdir("resolutions");
 
 	file.cd("/plots/linearity");
 
@@ -219,16 +220,40 @@ void doTargetFunctions(TFile& f, std::string leadingName, std::string title,
 
 }
 
-void doResolution(TFile& f, std::string leadingName, std::string title,
-		Color_t color = kBlack) {
-	std::string leadingName_1(leadingName);
-	std::string leadingName_2(leadingName);
-	std::string leadingName_targ(leadingName);
-	leadingName_1.append("_1");
-	leadingName_2.append("_2");
-	leadingName_targ.append("_res");
+void doResolution(TTree* t, std::string queryBins, std::string cut, 
+		std::string name, Color_t color = kBlack) {
+
+	std::string	qryName("calibrations_.particleEnergy_:sqrt(calibrations_.truthEnergy_)>>");
+	qryName.append(name);
+	qryName.append(queryBins);
 	
-	f.cd("/plots/resolutions");
+	std::string name1(name);
+	std::string name2(name);
+	name1.append("_1");
+	name2.append("_2");
+	std::string leadingName_res(name);
+	leadingName_res.append("_res");
+
+	//f.cd("/plots/resolutions");
+	//do tree business here
+	t->Draw(qryName.c_str(), cut.c_str(),"box");
+	TH2* temp = (TH2*) gDirectory->FindObject(name.c_str());
+	temp->FitSlicesY();
+	TH1* reso = ((TH1*) gDirectory->FindObject(name2.c_str()))->Clone();
+	TH1* mean = ((TH1*) gDirectory->FindObject(name1.c_str()))->Clone();
+	reso->Divide(mean);
+	reso->SetTitle(name.c_str());
+	reso->SetName(leadingName_res.c_str());
+	reso->Write();
+	leadingName_res.append("_graph");
+	TGraph*  gr = new TGraph(reso);
+	gr->SetName(leadingName_res.c_str());
 	
+	gr->SetMarkerColor(color);
+	TF1* f = new TF1(name.c_str(), "[0]/x + [1]/(x*x)");
+	gr->Fit(f);
+	gr->Draw("A*");
+	gr->Write();
+	f->Write();
 
 }
