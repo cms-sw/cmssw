@@ -966,8 +966,8 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
 
   const Int_t PeakBin = (Int_t)((Peak - xmin)/BinWidth + 1); // Peak
   const Double_t SDBin = (SD/BinWidth); // Standard deviation
-  const Int_t I = (Int_t)((3.0*SDBin < 1.0)  ?  3.0*SDBin  : 1 ); // Interval
-  const Int_t D = (Int_t)((10.0*SDBin < 1.0) ?  10.0*SDBin : 1 );  // Distance from peak
+  const Int_t I = (Int_t)((3.0*SDBin > 1.0)  ?  3.0*SDBin  : 1 ); // Interval
+  const Int_t D = (Int_t)((10.0*SDBin > 1.0) ?  10.0*SDBin : 1 );  // Distance from peak
 
   const Double_t IntegralRight = Total.Integral(PeakBin + D, PeakBin + D + I);
   const Double_t IntegralLeft = Total.Integral(PeakBin - D - I, PeakBin - D);
