@@ -37,12 +37,16 @@ RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
   SaveFile  = iConfig.getUntrackedParameter<bool>("SaveFile", false); 
   NameFile  = iConfig.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root"); 
   debug = iConfig.getUntrackedParameter<bool>("debug",false); 
+  barrel = iConfig.getUntrackedParameter<bool>("barrel"); 
+  endcap = iConfig.getUntrackedParameter<bool>("endcap"); 
 }
 
 RPCEfficiencySecond::~RPCEfficiencySecond(){}
 
 
 void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
+  
+  std::cout<<"Begining RPC EFFICIENCY SECOND"<<std::endl;
 
   dbe = edm::Service<DQMStore>().operator->();
 
@@ -50,6 +54,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   dbe->setCurrentFolder("Muons/RPCEfficiency/ResidualsBarrel/");
  
   //Barrel
+  
   hGlobal2ResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",101,-10.,10.);
   hGlobal2ResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",101,-10.,10.);
   hGlobal2ResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",101,-10.,10.);
@@ -262,7 +267,6 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   AverageEffDm3far=dbe->book1D("AverageEfficiencyDisk_m3far","Average Efficiency Far Side Disk -3 ",109,0.5,109.5);
   NoPredictionDm3=dbe->book1D("NoPredictionDisk_m3near","No Predictions Near Side Disk -3 ",109,0.5,109.5);
   NoPredictionDm3far=dbe->book1D("NoPredictionDisk_m3far","No Predictions Efficiency Far Side Disk -3 ",109,0.5,109.5);
-
 }
 
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
@@ -282,8 +286,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   if(debug) std::cout<<"Getting statistcs="<<label<<std::endl;
   statistics = dbe->get(label);
   if(!statistics){
-    if(debug) std::cout<<"Statistics Doesn't exist"<<std::endl;
-    exit(1);
+    std::cout<<"Statistics Doesn't exist Not access to a monitor element"<<std::endl;
+    edm::LogWarning("Missing rpcSource") << " Statistics Doesn't exist.";
+    return;
   }
   if(debug) std::cout<<"Cloning statistcs"<<std::endl;
   for(int i=1;i<=33;i++){
@@ -293,37 +298,37 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   
   statistics2->setBinLabel(1,"Events ",1);
   statistics2->setBinLabel(2,"Events with DT seg",1);
-  statistics2->setBinLabel(3,"Events with 1 DT segment",1);
-  statistics2->setBinLabel(4,"Events with 2 DT seg",1);
-  statistics2->setBinLabel(5,"Events with 3 DT seg",1);
-  statistics2->setBinLabel(6,"Events with 4 DT seg",1);
-  statistics2->setBinLabel(7,"Events with 5 DT seg",1);
-  statistics2->setBinLabel(8,"Events with 6 DT seg",1);
-  statistics2->setBinLabel(9,"Events with 7 DT seg",1);
-  statistics2->setBinLabel(10,"Events with 8 DT seg",1);
-  statistics2->setBinLabel(11,"Events with 9 DT seg",1);
-  statistics2->setBinLabel(12,"Events with 10 DT seg",1);
-  statistics2->setBinLabel(13,"Events with 11 DT seg",1);
-  statistics2->setBinLabel(14,"Events with 12 DT seg",1);
-  statistics2->setBinLabel(15,"Events with 13 DT seg",1);
-  statistics2->setBinLabel(16,"Events with 14 DT seg",1);
-  statistics2->setBinLabel(17,"Events with 15 DT seg",1);
+  statistics2->setBinLabel(3,"1 DT seg",1);
+  statistics2->setBinLabel(4,"2 DT seg",1);
+  statistics2->setBinLabel(5,"3 DT seg",1);
+  statistics2->setBinLabel(6,"4 DT seg",1);
+  statistics2->setBinLabel(7,"5 DT seg",1);
+  statistics2->setBinLabel(8,"6 DT seg",1);
+  statistics2->setBinLabel(9,"7 DT seg",1);
+  statistics2->setBinLabel(10,"8 DT seg",1);
+  statistics2->setBinLabel(11,"9 DT seg",1);
+  statistics2->setBinLabel(12,"10 DT seg",1);
+  statistics2->setBinLabel(13,"11 DT seg",1);
+  statistics2->setBinLabel(14,"12 DT seg",1);
+  statistics2->setBinLabel(15,"13 DT seg",1);
+  statistics2->setBinLabel(16,"14 DT seg",1);
+  statistics2->setBinLabel(17,"15 DT seg",1);
   statistics2->setBinLabel(18,"Events with CSC seg",1);
-  statistics2->setBinLabel(16+3,"Events with 1 CSC seg",1);
-  statistics2->setBinLabel(16+4,"Events with 2 CSC seg",1);
-  statistics2->setBinLabel(16+5,"Events with 3 CSC seg",1);
-  statistics2->setBinLabel(16+6,"Events with 4 CSC seg",1);
-  statistics2->setBinLabel(16+7,"Events with 5 CSC seg",1);
-  statistics2->setBinLabel(16+8,"Events with 6 CSC seg",1);
-  statistics2->setBinLabel(16+9,"Events with 7 CSC seg",1);
-  statistics2->setBinLabel(16+10,"Events with 8 CSC seg",1);
-  statistics2->setBinLabel(16+11,"Events with 9 CSC seg",1);
-  statistics2->setBinLabel(16+12,"Events with 10 CSC seg",1);
-  statistics2->setBinLabel(16+13,"Events with 11 CSC seg",1);
-  statistics2->setBinLabel(16+14,"Events with 12 CSC seg",1);
-  statistics2->setBinLabel(16+15,"Events with 13 CSC seg",1);
-  statistics2->setBinLabel(16+16,"Events with 14 CSC seg",1);
-  statistics2->setBinLabel(16+17,"Events with 15 CSC seg",1);
+  statistics2->setBinLabel(16+3,"1 CSC seg",1);
+  statistics2->setBinLabel(16+4,"2 CSC seg",1);
+  statistics2->setBinLabel(16+5,"3 CSC seg",1);
+  statistics2->setBinLabel(16+6,"4 CSC seg",1);
+  statistics2->setBinLabel(16+7,"5 CSC seg",1);
+  statistics2->setBinLabel(16+8,"6 CSC seg",1);
+  statistics2->setBinLabel(16+9,"7 CSC seg",1);
+  statistics2->setBinLabel(16+10,"8 CSC seg",1);
+  statistics2->setBinLabel(16+11,"9 CSC seg",1);
+  statistics2->setBinLabel(16+12,"10 CSC seg",1);
+  statistics2->setBinLabel(16+13,"11 CSC seg",1);
+  statistics2->setBinLabel(16+14,"12 CSC seg",1);
+  statistics2->setBinLabel(16+15,"13 CSC seg",1);
+  statistics2->setBinLabel(16+16,"14 CSC seg",1);
+  statistics2->setBinLabel(16+17,"15 CSC seg",1);
   
   //Cloning Residuals.
 
@@ -403,7 +408,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
   if(debug) std::cout<<"Goinf for!"<<std::endl;
   for(int i=1;i<=101;i++){
-    
     hGlobal2ResClu1R3C->setBinContent(i,hGlobalResClu1R3C->getBinContent(i));
     hGlobal2ResClu1R3B->setBinContent(i,hGlobalResClu1R3B->getBinContent(i));
     hGlobal2ResClu1R3A->setBinContent(i,hGlobalResClu1R3A->getBinContent(i));
@@ -1205,182 +1209,259 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
   //Ranges for Both
   //Barrel
-  
-  EffGlobWm2->setAxisRange(-4.,100.,2);
-  EffGlobWm1->setAxisRange(-4.,100.,2);
-  EffGlobW0->setAxisRange(-4.,100.,2);
-  EffGlobW1->setAxisRange(-4.,100.,2);
-  EffGlobW2->setAxisRange(-4.,100.,2);
-  
-  EffGlobWm2far->setAxisRange(-4.,100.,2);
-  EffGlobWm1far->setAxisRange(-4.,100.,2);
-  EffGlobW0far->setAxisRange(-4.,100.,2);
-  EffGlobW1far->setAxisRange(-4.,100.,2);
-  EffGlobW2far->setAxisRange(-4.,100.,2);
 
-  AverageEffWm2->setAxisRange(-4.,100.,2);
-  AverageEffWm1->setAxisRange(-4.,100.,2);
-  AverageEffW0->setAxisRange(-4.,100.,2);
-  AverageEffW1->setAxisRange(-4.,100.,2);
-  AverageEffW2->setAxisRange(-4.,100.,2);
+  if(barrel){
+    EffGlobWm2->setAxisRange(-4.,100.,2);
+    EffGlobWm1->setAxisRange(-4.,100.,2);
+    EffGlobW0->setAxisRange(-4.,100.,2);
+    EffGlobW1->setAxisRange(-4.,100.,2);
+    EffGlobW2->setAxisRange(-4.,100.,2);
   
-  AverageEffWm2far->setAxisRange(-4.,100.,2);
-  AverageEffWm1far->setAxisRange(-4.,100.,2);
-  AverageEffW0far->setAxisRange(-4.,100.,2);
-  AverageEffW1far->setAxisRange(-4.,100.,2);
-  AverageEffW2far->setAxisRange(-4.,100.,2);
+    EffGlobWm2far->setAxisRange(-4.,100.,2);
+    EffGlobWm1far->setAxisRange(-4.,100.,2);
+    EffGlobW0far->setAxisRange(-4.,100.,2);
+    EffGlobW1far->setAxisRange(-4.,100.,2);
+    EffGlobW2far->setAxisRange(-4.,100.,2);
 
-  MaskedGlobWm2->setAxisRange(-4.,100.,2);
-  MaskedGlobWm1->setAxisRange(-4.,100.,2);
-  MaskedGlobW0->setAxisRange(-4.,100.,2);
-  MaskedGlobW1->setAxisRange(-4.,100.,2);
-  MaskedGlobW2->setAxisRange(-4.,100.,2);
+    AverageEffWm2->setAxisRange(-4.,100.,2);
+    AverageEffWm1->setAxisRange(-4.,100.,2);
+    AverageEffW0->setAxisRange(-4.,100.,2);
+    AverageEffW1->setAxisRange(-4.,100.,2);
+    AverageEffW2->setAxisRange(-4.,100.,2);
   
-  MaskedGlobWm2far->setAxisRange(-4.,100.,2);
-  MaskedGlobWm1far->setAxisRange(-4.,100.,2);
-  MaskedGlobW0far->setAxisRange(-4.,100.,2);
-  MaskedGlobW1far->setAxisRange(-4.,100.,2);
-  MaskedGlobW2far->setAxisRange(-4.,100.,2);
+    AverageEffWm2far->setAxisRange(-4.,100.,2);
+    AverageEffWm1far->setAxisRange(-4.,100.,2);
+    AverageEffW0far->setAxisRange(-4.,100.,2);
+    AverageEffW1far->setAxisRange(-4.,100.,2);
+    AverageEffW2far->setAxisRange(-4.,100.,2);
 
-  NoPredictionWm2->setAxisRange(-4.,100.,2);
-  NoPredictionWm1->setAxisRange(-4.,100.,2);
-  NoPredictionW0->setAxisRange(-4.,100.,2);
-  NoPredictionW1->setAxisRange(-4.,100.,2);
-  NoPredictionW2->setAxisRange(-4.,100.,2);
+    MaskedGlobWm2->setAxisRange(-4.,100.,2);
+    MaskedGlobWm1->setAxisRange(-4.,100.,2);
+    MaskedGlobW0->setAxisRange(-4.,100.,2);
+    MaskedGlobW1->setAxisRange(-4.,100.,2);
+    MaskedGlobW2->setAxisRange(-4.,100.,2);
   
-  NoPredictionWm2far->setAxisRange(-4.,100.,2);
-  NoPredictionWm1far->setAxisRange(-4.,100.,2);
-  NoPredictionW0far->setAxisRange(-4.,100.,2);
-  NoPredictionW1far->setAxisRange(-4.,100.,2);
-  NoPredictionW2far->setAxisRange(-4.,100.,2);
+    MaskedGlobWm2far->setAxisRange(-4.,100.,2);
+    MaskedGlobWm1far->setAxisRange(-4.,100.,2);
+    MaskedGlobW0far->setAxisRange(-4.,100.,2);
+    MaskedGlobW1far->setAxisRange(-4.,100.,2);
+    MaskedGlobW2far->setAxisRange(-4.,100.,2);
+
+    NoPredictionWm2->setAxisRange(-4.,100.,2);
+    NoPredictionWm1->setAxisRange(-4.,100.,2);
+    NoPredictionW0->setAxisRange(-4.,100.,2);
+    NoPredictionW1->setAxisRange(-4.,100.,2);
+    NoPredictionW2->setAxisRange(-4.,100.,2);
   
+    NoPredictionWm2far->setAxisRange(-4.,100.,2);
+    NoPredictionWm1far->setAxisRange(-4.,100.,2);
+    NoPredictionW0far->setAxisRange(-4.,100.,2);
+    NoPredictionW1far->setAxisRange(-4.,100.,2);
+    NoPredictionW2far->setAxisRange(-4.,100.,2);
+  }  
   //EndCap
-   
-  EffGlobDm3->setAxisRange(-4.,100.,2);
-  EffGlobDm2->setAxisRange(-4.,100.,2);
-  EffGlobDm1->setAxisRange(-4.,100.,2);
-  EffGlobD1->setAxisRange(-4.,100.,2);
-  EffGlobD2->setAxisRange(-4.,100.,2);
-  EffGlobD3->setAxisRange(-4.,100.,2);
 
-  EffGlobDm3far->setAxisRange(-4.,100.,2);
-  EffGlobDm2far->setAxisRange(-4.,100.,2);
-  EffGlobDm1far->setAxisRange(-4.,100.,2);
-  EffGlobD1far->setAxisRange(-4.,100.,2);
-  EffGlobD2far->setAxisRange(-4.,100.,2);
-  EffGlobD3far->setAxisRange(-4.,100.,2);
+  if(endcap){
+    EffGlobDm3->setAxisRange(-4.,100.,2);
+    EffGlobDm2->setAxisRange(-4.,100.,2);
+    EffGlobDm1->setAxisRange(-4.,100.,2);
+    EffGlobD1->setAxisRange(-4.,100.,2);
+    EffGlobD2->setAxisRange(-4.,100.,2);
+    EffGlobD3->setAxisRange(-4.,100.,2);
 
-  BXGlobDm3->setAxisRange(-4.,100.,2);
-  BXGlobDm2->setAxisRange(-4.,100.,2);
-  BXGlobDm1->setAxisRange(-4.,100.,2);
-  BXGlobD1->setAxisRange(-4.,100.,2);
-  BXGlobD2->setAxisRange(-4.,100.,2);
-  BXGlobD3->setAxisRange(-4.,100.,2);
+    EffGlobDm3far->setAxisRange(-4.,100.,2);
+    EffGlobDm2far->setAxisRange(-4.,100.,2);
+    EffGlobDm1far->setAxisRange(-4.,100.,2);
+    EffGlobD1far->setAxisRange(-4.,100.,2);
+    EffGlobD2far->setAxisRange(-4.,100.,2);
+    EffGlobD3far->setAxisRange(-4.,100.,2);
+
+    BXGlobDm3->setAxisRange(-4.,100.,2);
+    BXGlobDm2->setAxisRange(-4.,100.,2);
+    BXGlobDm1->setAxisRange(-4.,100.,2);
+    BXGlobD1->setAxisRange(-4.,100.,2);
+    BXGlobD2->setAxisRange(-4.,100.,2);
+    BXGlobD3->setAxisRange(-4.,100.,2);
   
-  BXGlobDm3far->setAxisRange(-4.,100.,2);
-  BXGlobDm2far->setAxisRange(-4.,100.,2);
-  BXGlobDm1far->setAxisRange(-4.,100.,2);
-  BXGlobD1far->setAxisRange(-4.,100.,2);
-  BXGlobD2far->setAxisRange(-4.,100.,2);
-  BXGlobD3far->setAxisRange(-4.,100.,2);
+    BXGlobDm3far->setAxisRange(-4.,100.,2);
+    BXGlobDm2far->setAxisRange(-4.,100.,2);
+    BXGlobDm1far->setAxisRange(-4.,100.,2);
+    BXGlobD1far->setAxisRange(-4.,100.,2);
+    BXGlobD2far->setAxisRange(-4.,100.,2);
+    BXGlobD3far->setAxisRange(-4.,100.,2);
 
-  MaskedGlobDm3->setAxisRange(-4.,100.,2);
-  MaskedGlobDm2->setAxisRange(-4.,100.,2);
-  MaskedGlobDm1->setAxisRange(-4.,100.,2);
-  MaskedGlobD1->setAxisRange(-4.,100.,2);
-  MaskedGlobD2->setAxisRange(-4.,100.,2);
-  MaskedGlobD3->setAxisRange(-4.,100.,2);
+    MaskedGlobDm3->setAxisRange(-4.,100.,2);
+    MaskedGlobDm2->setAxisRange(-4.,100.,2);
+    MaskedGlobDm1->setAxisRange(-4.,100.,2);
+    MaskedGlobD1->setAxisRange(-4.,100.,2);
+    MaskedGlobD2->setAxisRange(-4.,100.,2);
+    MaskedGlobD3->setAxisRange(-4.,100.,2);
   
-  MaskedGlobDm3far->setAxisRange(-4.,100.,2);
-  MaskedGlobDm2far->setAxisRange(-4.,100.,2);
-  MaskedGlobDm1far->setAxisRange(-4.,100.,2);
-  MaskedGlobD1far->setAxisRange(-4.,100.,2);
-  MaskedGlobD2far->setAxisRange(-4.,100.,2);
-  MaskedGlobD3far->setAxisRange(-4.,100.,2);
+    MaskedGlobDm3far->setAxisRange(-4.,100.,2);
+    MaskedGlobDm2far->setAxisRange(-4.,100.,2);
+    MaskedGlobDm1far->setAxisRange(-4.,100.,2);
+    MaskedGlobD1far->setAxisRange(-4.,100.,2);
+    MaskedGlobD2far->setAxisRange(-4.,100.,2);
+    MaskedGlobD3far->setAxisRange(-4.,100.,2);
 
-  AverageEffDm3->setAxisRange(-4.,100.,2);
-  AverageEffDm2->setAxisRange(-4.,100.,2);
-  AverageEffDm1->setAxisRange(-4.,100.,2);
-  AverageEffD1->setAxisRange(-4.,100.,2);
-  AverageEffD2->setAxisRange(-4.,100.,2);
-  AverageEffD3->setAxisRange(-4.,100.,2);
+    AverageEffDm3->setAxisRange(-4.,100.,2);
+    AverageEffDm2->setAxisRange(-4.,100.,2);
+    AverageEffDm1->setAxisRange(-4.,100.,2);
+    AverageEffD1->setAxisRange(-4.,100.,2);
+    AverageEffD2->setAxisRange(-4.,100.,2);
+    AverageEffD3->setAxisRange(-4.,100.,2);
 
-  AverageEffDm3far->setAxisRange(-4.,100.,2);
-  AverageEffDm2far->setAxisRange(-4.,100.,2);
-  AverageEffDm1far->setAxisRange(-4.,100.,2);
-  AverageEffD1far->setAxisRange(-4.,100.,2);
-  AverageEffD2far->setAxisRange(-4.,100.,2);
-  AverageEffD3far->setAxisRange(-4.,100.,2);
+    AverageEffDm3far->setAxisRange(-4.,100.,2);
+    AverageEffDm2far->setAxisRange(-4.,100.,2);
+    AverageEffDm1far->setAxisRange(-4.,100.,2);
+    AverageEffD1far->setAxisRange(-4.,100.,2);
+    AverageEffD2far->setAxisRange(-4.,100.,2);
+    AverageEffD3far->setAxisRange(-4.,100.,2);
 
-  NoPredictionDm3->setAxisRange(-4.,100.,2);
-  NoPredictionDm2->setAxisRange(-4.,100.,2);
-  NoPredictionDm1->setAxisRange(-4.,100.,2);
-  NoPredictionD1->setAxisRange(-4.,100.,2);
-  NoPredictionD2->setAxisRange(-4.,100.,2);
-  NoPredictionD3->setAxisRange(-4.,100.,2);
+    NoPredictionDm3->setAxisRange(-4.,100.,2);
+    NoPredictionDm2->setAxisRange(-4.,100.,2);
+    NoPredictionDm1->setAxisRange(-4.,100.,2);
+    NoPredictionD1->setAxisRange(-4.,100.,2);
+    NoPredictionD2->setAxisRange(-4.,100.,2);
+    NoPredictionD3->setAxisRange(-4.,100.,2);
 
-  NoPredictionDm3far->setAxisRange(-4.,100.,2);
-  NoPredictionDm2far->setAxisRange(-4.,100.,2);
-  NoPredictionDm1far->setAxisRange(-4.,100.,2);
-  NoPredictionD1far->setAxisRange(-4.,100.,2);
-  NoPredictionD2far->setAxisRange(-4.,100.,2);
-  NoPredictionD3far->setAxisRange(-4.,100.,2);
-
+    NoPredictionDm3far->setAxisRange(-4.,100.,2);
+    NoPredictionDm2far->setAxisRange(-4.,100.,2);
+    NoPredictionDm1far->setAxisRange(-4.,100.,2);
+    NoPredictionD1far->setAxisRange(-4.,100.,2);
+    NoPredictionD2far->setAxisRange(-4.,100.,2);
+    NoPredictionD3far->setAxisRange(-4.,100.,2);
+  }
 
   //Title for Both
 
   //Barrel
-
-  EffGlobWm2->setAxisTitle("%",2);
-  EffGlobWm1->setAxisTitle("%",2);
-  EffGlobW0->setAxisTitle("%",2);
-  EffGlobW1->setAxisTitle("%",2);
-  EffGlobW2->setAxisTitle("%",2);
+  if(barrel){
+    EffGlobWm2->setAxisTitle("%",2);
+    EffGlobWm1->setAxisTitle("%",2);
+    EffGlobW0->setAxisTitle("%",2);
+    EffGlobW1->setAxisTitle("%",2);
+    EffGlobW2->setAxisTitle("%",2);
   
-  EffGlobWm2far->setAxisTitle("%",2);
-  EffGlobWm1far->setAxisTitle("%",2);
-  EffGlobW0far->setAxisTitle("%",2);
-  EffGlobW1far->setAxisTitle("%",2);
-  EffGlobW2far->setAxisTitle("%",2);
+    EffGlobWm2far->setAxisTitle("%",2);
+    EffGlobWm1far->setAxisTitle("%",2);
+    EffGlobW0far->setAxisTitle("%",2);
+    EffGlobW1far->setAxisTitle("%",2);
+    EffGlobW2far->setAxisTitle("%",2);
 
-  AverageEffWm2->setAxisTitle("%",2);
-  AverageEffWm1->setAxisTitle("%",2);
-  AverageEffW0->setAxisTitle("%",2);
-  AverageEffW1->setAxisTitle("%",2);
-  AverageEffW2->setAxisTitle("%",2);
+    AverageEffWm2->setAxisTitle("%",2);
+    AverageEffWm1->setAxisTitle("%",2);
+    AverageEffW0->setAxisTitle("%",2);
+    AverageEffW1->setAxisTitle("%",2);
+    AverageEffW2->setAxisTitle("%",2);
   
-  AverageEffWm2far->setAxisTitle("%",2);
-  AverageEffWm1far->setAxisTitle("%",2);
-  AverageEffW0far->setAxisTitle("%",2);
-  AverageEffW1far->setAxisTitle("%",2);
-  AverageEffW2far->setAxisTitle("%",2);
+    AverageEffWm2far->setAxisTitle("%",2);
+    AverageEffWm1far->setAxisTitle("%",2);
+    AverageEffW0far->setAxisTitle("%",2);
+    AverageEffW1far->setAxisTitle("%",2);
+    AverageEffW2far->setAxisTitle("%",2);
 
-  MaskedGlobWm2->setAxisTitle("%",2);
-  MaskedGlobWm1->setAxisTitle("%",2);
-  MaskedGlobW0->setAxisTitle("%",2);
-  MaskedGlobW1->setAxisTitle("%",2);
-  MaskedGlobW2->setAxisTitle("%",2);
+    MaskedGlobWm2->setAxisTitle("%",2);
+    MaskedGlobWm1->setAxisTitle("%",2);
+    MaskedGlobW0->setAxisTitle("%",2);
+    MaskedGlobW1->setAxisTitle("%",2);
+    MaskedGlobW2->setAxisTitle("%",2);
   
-  MaskedGlobWm2far->setAxisTitle("%",2);
-  MaskedGlobWm1far->setAxisTitle("%",2);
-  MaskedGlobW0far->setAxisTitle("%",2);
-  MaskedGlobW1far->setAxisTitle("%",2);
-  MaskedGlobW2far->setAxisTitle("%",2);
+    MaskedGlobWm2far->setAxisTitle("%",2);
+    MaskedGlobWm1far->setAxisTitle("%",2);
+    MaskedGlobW0far->setAxisTitle("%",2);
+    MaskedGlobW1far->setAxisTitle("%",2);
+    MaskedGlobW2far->setAxisTitle("%",2);
 
-  NoPredictionWm2->setAxisTitle("%",2);
-  NoPredictionWm1->setAxisTitle("%",2);
-  NoPredictionW0->setAxisTitle("%",2);
-  NoPredictionW1->setAxisTitle("%",2);
-  NoPredictionW2->setAxisTitle("%",2);
+    NoPredictionWm2->setAxisTitle("%",2);
+    NoPredictionWm1->setAxisTitle("%",2);
+    NoPredictionW0->setAxisTitle("%",2);
+    NoPredictionW1->setAxisTitle("%",2);
+    NoPredictionW2->setAxisTitle("%",2);
   
-  NoPredictionWm2far->setAxisTitle("%",2);
-  NoPredictionWm1far->setAxisTitle("%",2);
-  NoPredictionW0far->setAxisTitle("%",2);
-  NoPredictionW1far->setAxisTitle("%",2);
-  NoPredictionW2far->setAxisTitle("%",2);
-
+    NoPredictionWm2far->setAxisTitle("%",2);
+    NoPredictionWm1far->setAxisTitle("%",2);
+    NoPredictionW0far->setAxisTitle("%",2);
+    NoPredictionW1far->setAxisTitle("%",2);
+    NoPredictionW2far->setAxisTitle("%",2);
+  }
   //EndCap
 
+<<<<<<< RPCEfficiencySecond.cc
+  if(endcap){
+    EffGlobDm3->setAxisTitle("%",2);
+    EffGlobDm2->setAxisTitle("%",2);
+    EffGlobDm1->setAxisTitle("%",2);
+    EffGlobD1->setAxisTitle("%",2);
+    EffGlobD2->setAxisTitle("%",2);
+    EffGlobD3->setAxisTitle("%",2);
+
+    EffGlobDm3far->setAxisTitle("%",2);
+    EffGlobDm2far->setAxisTitle("%",2);
+    EffGlobDm1far->setAxisTitle("%",2);
+    EffGlobD1far->setAxisTitle("%",2);
+    EffGlobD2far->setAxisTitle("%",2);
+    EffGlobD3far->setAxisTitle("%",2);
+
+    BXGlobDm3->setAxisTitle("%",2);
+    BXGlobDm2->setAxisTitle("%",2);
+    BXGlobDm1->setAxisTitle("%",2);
+    BXGlobD1->setAxisTitle("%",2);
+    BXGlobD2->setAxisTitle("%",2);
+    BXGlobD3->setAxisTitle("%",2);
+  
+    BXGlobDm3far->setAxisTitle("%",2);
+    BXGlobDm2far->setAxisTitle("%",2);
+    BXGlobDm1far->setAxisTitle("%",2);
+    BXGlobD1far->setAxisTitle("%",2);
+    BXGlobD2far->setAxisTitle("%",2);
+    BXGlobD3far->setAxisTitle("%",2);
+
+    MaskedGlobDm3->setAxisTitle("%",2);
+    MaskedGlobDm2->setAxisTitle("%",2);
+    MaskedGlobDm1->setAxisTitle("%",2);
+    MaskedGlobD1->setAxisTitle("%",2);
+    MaskedGlobD2->setAxisTitle("%",2);
+    MaskedGlobD3->setAxisTitle("%",2);
+  
+    MaskedGlobDm3far->setAxisTitle("%",2);
+    MaskedGlobDm2far->setAxisTitle("%",2);
+    MaskedGlobDm1far->setAxisTitle("%",2);
+    MaskedGlobD1far->setAxisTitle("%",2);
+    MaskedGlobD2far->setAxisTitle("%",2);
+    MaskedGlobD3far->setAxisTitle("%",2);
+
+    AverageEffDm3->setAxisTitle("%",2);
+    AverageEffDm2->setAxisTitle("%",2);
+    AverageEffDm1->setAxisTitle("%",2);
+    AverageEffD1->setAxisTitle("%",2);
+    AverageEffD2->setAxisTitle("%",2);
+    AverageEffD3->setAxisTitle("%",2);
+
+    AverageEffDm3far->setAxisTitle("%",2);
+    AverageEffDm2far->setAxisTitle("%",2);
+    AverageEffDm1far->setAxisTitle("%",2);
+    AverageEffD1far->setAxisTitle("%",2);
+    AverageEffD2far->setAxisTitle("%",2);
+    AverageEffD3far->setAxisTitle("%",2);
+
+    NoPredictionDm3->setAxisTitle("%",2);
+    NoPredictionDm2->setAxisTitle("%",2);
+    NoPredictionDm1->setAxisTitle("%",2);
+    NoPredictionD1->setAxisTitle("%",2);
+    NoPredictionD2->setAxisTitle("%",2);
+    NoPredictionD3->setAxisTitle("%",2);
+  
+    NoPredictionDm3far->setAxisTitle("%",2);
+    NoPredictionDm2far->setAxisTitle("%",2);
+    NoPredictionDm1far->setAxisTitle("%",2);
+    NoPredictionD1far->setAxisTitle("%",2);
+    NoPredictionD2far->setAxisTitle("%",2);
+    NoPredictionD3far->setAxisTitle("%",2);
+  }
+  
+  if(debug) std::cout<<"Saving RootFile"<<std::endl;
+=======
   EffGlobDm3->setAxisTitle("%",2);
   EffGlobDm2->setAxisTitle("%",2);
   EffGlobDm1->setAxisTitle("%",2);
@@ -1452,10 +1533,17 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   NoPredictionD3far->setAxisTitle("%",2);
   
   if(debug) std::cout<<"Saving RootFile"<<std::endl;
+>>>>>>> 1.15
   if(SaveFile)dbe->save(NameFile);
+<<<<<<< RPCEfficiencySecond.cc
+  //dbe->showDirStructure();
+  std::cout<<"RPCEFFICIENCY SECOND DONE"<<std::endl;
+}
+=======
   dbe->showDirStructure();
   std::cout<<"RPCEfficiency Done"<<std::endl;
 }
+>>>>>>> 1.15
 
 void RPCEfficiencySecond::endJob(){
 }

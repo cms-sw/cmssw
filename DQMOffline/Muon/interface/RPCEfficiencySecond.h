@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/08/26 14:45:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/26 07:09:08 $
+ *  $Revision: 1.7 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -335,6 +335,8 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
   
   bool debug;
+  bool endcap;
+  bool barrel;
   bool SaveFile;
   std::string NameFile;
   
