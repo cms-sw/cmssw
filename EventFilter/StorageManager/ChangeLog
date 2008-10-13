@@ -1,3 +1,10 @@
+2008-10-13  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-19
+	* Install performance statistics for stored data rates like for
+	  received data rates. Changed the stored volume infospace variable
+	  to actually give the stored volume and not the received data volume.
+
 2008-10-12  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-14-18

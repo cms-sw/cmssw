@@ -2,7 +2,7 @@
      For performance statistics for
      Storage Manager and SMProxyServer.
 
-     $Id: SMPerformanceMeter.cc,v 1.4 2008/02/02 02:31:09 hcheung Exp $
+     $Id: SMPerformanceMeter.cc,v 1.6 2008/10/12 15:18:15 hcheung Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
@@ -39,6 +39,31 @@ void stor::SMPerfStats::fullReset()
   minBandwidth_    = 999999.;
   maxBandwidth2_    = 0.;
   minBandwidth2_    = 999999.;
+}
+
+stor::SMOnlyStats::SMOnlyStats():
+  instantBandwidth_(0.0),
+  instantRate_(0.0),
+  instantLatency_(0.0),
+  totalSamples_(0.0),
+  duration_(0.0),
+  meanBandwidth_(0.0),
+  meanRate_(0.0),
+  meanLatency_(0.0),
+  maxBandwidth_(0.0),
+  minBandwidth_(999999.0),
+  instantBandwidth2_(0.0),
+  instantRate2_(0.0),
+  instantLatency2_(0.0),
+  totalSamples2_(0.0),
+  duration2_(0.0),
+  meanBandwidth2_(0.0),
+  meanRate2_(0.0),
+  meanLatency2_(0.0),
+  maxBandwidth2_(0.0),
+  minBandwidth2_(999999.0),
+  receivedVolume_(0.0)
+{
 }
 
 stor::SMPerformanceMeter::SMPerformanceMeter():

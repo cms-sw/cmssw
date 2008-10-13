@@ -26,6 +26,7 @@
 #include "EventFilter/StorageManager/interface/ServiceManager.h"
 #include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
+#include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -131,6 +132,7 @@ namespace stor
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
     std::vector<uint32>& get_storedEvents() { return writer_->get_storedEvents(); }
     std::vector<std::string>& get_storedNames() { return writer_->get_storedNames(); }
+    boost::shared_ptr<stor::SMOnlyStats> get_stats() { return writer_->get_stats(); }
   private:
     uint32 runNumber_;
     uint32 disks_;

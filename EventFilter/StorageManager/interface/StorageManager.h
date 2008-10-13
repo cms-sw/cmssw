@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.43 2008/10/09 16:14:36 biery Exp $
+   $Id: StorageManager.h,v 1.44 2008/10/12 15:18:14 hcheung Exp $
 */
 
 #include <string>
@@ -215,7 +215,7 @@ namespace stor {
     xdata::Vector<xdata::String> namesOfStream_;
     xdata::Vector<xdata::String> namesOfOutMod_;
 
-    // *** for performance measurements
+    // *** for received data performance measurements
     void addMeasurement(unsigned long size);
     stor::SMPerformanceMeter *pmeter_;
 
@@ -247,6 +247,36 @@ namespace stor {
     xdata::Double meanBandwidth2_;    // bandwidth in MB/s
     xdata::Double meanRate2_;         // number of frames/s
     xdata::Double meanLatency2_;      // micro-seconds/frame
+
+    // *** for stored data performance measurements
+    // *** measurements for last set of samples
+    xdata::UnsignedInteger32 store_samples_; // number of samples/frames per measurement
+    xdata::UnsignedInteger32 store_period4samples_; // time period per measurement
+    xdata::Double store_instantBandwidth_; // bandwidth in MB/s
+    xdata::Double store_instantRate_;      // number of frames/s
+    xdata::Double store_instantLatency_;   // micro-seconds/frame
+    xdata::Double store_maxBandwidth_;     // maximum bandwidth in MB/s
+    xdata::Double store_minBandwidth_;     // minimum bandwidth in MB/s
+    // *** measurements for last time period
+    xdata::Double store_instantBandwidth2_;// bandwidth in MB/s
+    xdata::Double store_instantRate2_;     // number of frames/s
+    xdata::Double store_instantLatency2_;  // micro-seconds/frame
+    xdata::Double store_maxBandwidth2_;    // maximum bandwidth in MB/s
+    xdata::Double store_minBandwidth2_;    // minimum bandwidth in MB/s
+
+    // *** measurements for all samples
+    xdata::Double store_duration_;         // time for run in seconds
+    xdata::UnsignedInteger32 store_totalSamples_; //number of samples/frames per measurement
+    xdata::Double store_meanBandwidth_;    // bandwidth in MB/s
+    xdata::Double store_meanRate_;         // number of frames/s
+    xdata::Double store_meanLatency_;      // micro-seconds/frame
+    xdata::Double store_receivedVolume_;   // total received data in MB
+
+    xdata::Double store_duration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 store_totalSamples2_; //number of samples/frames per measurement
+    xdata::Double store_meanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double store_meanRate2_;         // number of frames/s
+    xdata::Double store_meanLatency2_;      // micro-seconds/frame
 
     // *** additional flashlist contents (rest was already there)
     xdata::String            class_;

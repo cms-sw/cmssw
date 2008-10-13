@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.86 2008/10/09 16:14:36 biery Exp $
+// $Id: StorageManager.cc,v 1.87 2008/10/12 15:18:15 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1667,6 +1667,120 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << receivedVolume_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+
+  *out << "</table>" << endl;
+
+// statistics for stored data
+
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Stored Data Statistics (updated every 10s) "                    << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+
+        *out << "<tr>" << endl;
+        *out << "<th >" << endl;
+        *out << "Parameter" << endl;
+        *out << "</th>" << endl;
+        *out << "<th>" << endl;
+        *out << "Value" << endl;
+        *out << "</th>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "(Non-unique) Events Stored" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_totalSamples_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// performance statistics
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Statistics for last " << store_samples_ << " events" << " (and last " << store_period4samples_ << " sec)" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_instantBandwidth_ << " (" << store_instantBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Frames/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_instantRate_ << " (" << store_instantRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/frame)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_instantLatency_ << " (" << store_instantLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Maximum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_maxBandwidth_ << " (" << store_maxBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Minimum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_minBandwidth_ << " (" << store_minBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// mean performance statistics for whole run
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Mean Performance for " << store_totalSamples_ << " (" << store_totalSamples2_ << ")" << " events, duration "
+         << store_duration_ << " (" << store_duration2_ << ")" << " seconds" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_meanBandwidth_ << " (" << store_meanBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Frames/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_meanRate_ << " (" << store_meanRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/frame)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_meanLatency_ << " (" << store_meanLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Total Volume Received (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_receivedVolume_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 
@@ -4249,7 +4363,8 @@ void StorageManager::actionPerformed(xdata::Event& e)
     else if (item == "receivedVolume")
       receivedVolume_   = pmeter_->totalvolumemb();
     else if (item == "storedVolume")
-      storedVolume_   = pmeter_->totalvolumemb();
+      //storedVolume_   = pmeter_->totalvolumemb();
+      storedVolume_   = store_receivedVolume_;
     else if (item == "closedFiles") {
         std::list<std::string>& files = jc_->get_filelist();
         std::list<std::string>& currfiles= jc_->get_currfiles();
@@ -4876,6 +4991,32 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
               namesOfStream_.push_back(*it);
         }
       }
+      boost::shared_ptr<stor::SMOnlyStats> stored_stats = jc_->get_stats();
+      store_samples_ = stored_stats->samples_;
+      store_period4samples_ = stored_stats->period4samples_;
+      store_instantBandwidth_ = stored_stats->instantBandwidth_;
+      store_instantRate_ = stored_stats->instantRate_;
+      store_instantLatency_ = stored_stats->instantLatency_;
+      store_totalSamples_ = (unsigned long)stored_stats->totalSamples_;
+      store_duration_ = stored_stats->duration_;
+      store_meanBandwidth_ = stored_stats->meanBandwidth_;
+      store_meanRate_ = stored_stats->meanRate_;
+      store_meanLatency_ = stored_stats->meanLatency_;
+      store_maxBandwidth_ = stored_stats->maxBandwidth_;
+      store_minBandwidth_ = stored_stats->minBandwidth_;
+      store_instantBandwidth2_ = stored_stats->instantBandwidth2_;
+      store_instantRate2_ = stored_stats->instantRate2_;
+      store_instantLatency2_ = stored_stats->instantLatency2_;
+      store_totalSamples2_ = (unsigned long)stored_stats->totalSamples2_;
+      store_duration2_ = stored_stats->duration2_;
+      store_meanBandwidth2_ = stored_stats->meanBandwidth2_;
+      store_meanRate2_ = stored_stats->meanRate2_;
+      store_meanLatency2_ = stored_stats->meanLatency2_;
+      store_maxBandwidth2_ = stored_stats->maxBandwidth2_;
+      store_minBandwidth2_ = stored_stats->minBandwidth2_;
+      store_receivedVolume_ = stored_stats->receivedVolume_;
+      storedVolume_   = store_receivedVolume_;
+
       // end temporary solution
       
       std::list<std::string>& files = jc_->get_filelist();

@@ -4,7 +4,7 @@
      Header file for performance statistics for
      Storage Manager and SMProxyServer.
 
-     $Id: SMPerformanceMeter.h,v 1.4 2008/02/02 02:31:08 hcheung Exp $
+     $Id: SMPerformanceMeter.h,v 1.5 2008/10/12 15:18:14 hcheung Exp $
 */
 
 #include <string>
@@ -38,6 +38,39 @@ namespace stor {
     double minBandwidth2_;
   };
 
+  struct SMOnlyStats
+  {
+    SMOnlyStats();
+    public:
+    unsigned long samples_;
+    unsigned long period4samples_;
+    // for sample based statistics
+    double instantBandwidth_;
+    double instantRate_;
+    double instantLatency_;
+    double totalSamples_;
+    double duration_;
+    double meanBandwidth_;
+    double meanRate_;
+    double meanLatency_;
+    double maxBandwidth_;
+    double minBandwidth_;
+
+    // for time period based statistics
+    double instantBandwidth2_;
+    double instantRate2_;
+    double instantLatency2_;
+    double totalSamples2_;
+    double duration2_;
+    double meanBandwidth2_;
+    double meanRate2_;
+    double meanLatency2_;
+    double maxBandwidth2_;
+    double minBandwidth2_;
+
+    double receivedVolume_;
+  };
+
   class SMPerformanceMeter 
   {
     public:
@@ -50,6 +83,8 @@ namespace stor {
     bool addSample(unsigned long size);
     void setSamples(unsigned long num_samples);
     void setPeriod4Samples(unsigned long time_period);
+    unsigned long getSetSamples() { return stats_.samples_; }
+    unsigned long getPeriod4Samples() { return stats_.period4samples_; }
   
     SMPerfStats getStats();
     unsigned long samples();
