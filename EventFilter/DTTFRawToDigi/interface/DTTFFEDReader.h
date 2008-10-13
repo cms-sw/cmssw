@@ -5,8 +5,8 @@
  *   L1 DT Track Finder Raw-to-Digi
  *
  *
- *   $Date: 2008/02/25 15:53:10 $
- *   $Revision: 1.4 $
+ *   $Date: 2008/08/05 11:12:07 $
+ *   $Revision: 1.5 $
  *
  *   J. Troconiz  UAM Madrid
  *   E. Delmeire  UAM Madrid
@@ -48,6 +48,8 @@ class DTTFFEDReader : public edm::EDProducer {
  private:
   
   edm::InputTag DTTFInputTag;
+
+  bool verbose_;
 
   // Operations
 

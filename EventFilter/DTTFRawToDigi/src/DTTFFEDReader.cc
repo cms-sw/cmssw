@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2008/03/17 08:53:11 $
-//   $Revision: 1.11 $
+//   $Date: 2008/08/05 11:12:08 $
+//   $Revision: 1.12 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -17,6 +17,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -33,6 +34,8 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
   produces<L1MuDTTrackContainer>("DATA");
 
   DTTFInputTag = pset.getParameter<edm::InputTag>("DTTF_FED_Source");
+
+  verbose_ =  pset.getUntrackedParameter<bool>("verbose",false);
 
 }
 
@@ -124,7 +127,8 @@ void DTTFFEDReader::process(edm::Event& e) {
   DTTFId  = ((*dataWord2)&0x000FFF00)>>8;  // positions 9 ->20
 
   if( (BOEevTy != 0x50) || ( DTTFId != 0x030C) ){
-    cout << "Not a DTTF header " << hex << *dataWord1 << endl;
+    if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+      << "Not a DTTF header " << hex << *dataWord1;
     delete dataWord1;
     delete dataWord2;
     return;
@@ -160,7 +164,8 @@ void DTTFFEDReader::process(edm::Event& e) {
     lines++;
 
     if(lines > 3026){
-      cout << "Warning : number of DTTF lines > 3026 " << endl; // 3026 = 1(header) + 3024(max # PHTF-ETTF 64 bits words) + 1(trailer)
+      if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+        << "Warning : number of DTTF lines > 3026 "; // 3026 = 1(header) + 3024(max # PHTF-ETTF 64 bits words) + 1(trailer)
       delete dataWord1;
       delete dataWord2;
       return;
@@ -176,15 +181,16 @@ void DTTFFEDReader::process(edm::Event& e) {
 
   calcCRC(*dataWord1, (*dataWord2)&0xFFFF, newCRC);
   if( newCRC != CRC){
-    cout << "Calculated CRC " ;
-    cout << hex << newCRC << " differs from CRC in trailer " << hex << CRC << endl;
+    if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+      << "Calculated CRC " << hex << newCRC << " differs from CRC in trailer " << hex << CRC;
     delete dataWord1;
     delete dataWord2;
     return;
   }
 
   if( lines != evtLgth){
-    cout << "Number of words read != event length " << dec << lines << " " << evtLgth << endl;
+    if ( verbose_ ) edm::LogWarning("dttf_unpacker")
+      << "Number of words read != event length " << dec << lines << " " << evtLgth;
     delete dataWord1;
     delete dataWord2;
     return;
