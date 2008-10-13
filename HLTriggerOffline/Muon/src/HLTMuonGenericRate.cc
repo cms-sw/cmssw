@@ -79,8 +79,9 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
        theNtupleFileName != "" ) 
     m_makeNtuple = true;
   if ( m_makeNtuple ) {
-    theFile      = new TFile  (theNtupleFileName.c_str(),"RECREATE");
-    TString vars = "genMom:genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:";
+    theFile      = new TFile(theNtupleFileName.c_str(),"RECREATE");
+    TString vars = "eventNum:genMom:genPt:genEta:genPhi:pt1:eta1:phi1:";
+    vars        += "pt2:eta2:phi2:";
     vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5:";
     vars        += "sumIso20:sumIso24:sumIso30";
     theNtuple    = new TNtuple("nt","data",vars);
