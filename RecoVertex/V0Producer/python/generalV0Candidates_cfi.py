@@ -5,11 +5,11 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     trackRecoAlgorithm = cms.untracked.string('generalTracks'),
 
     # set to true, uses tracks refit by the KVF for V0Candidate kinematics
-    useSmoothing = cms.bool(True),
+    useSmoothing = cms.bool(False),
 
     # set to true, stores tracks refit by KVF in reco::Vertex object
     #  that is contained in the produced reco::V0Candidate 
-    storeSmoothedTracksInRecoVertex = cms.bool(True),
+    storeSmoothedTracksInRecoVertex = cms.bool(False),
 
     doPostFitCuts = cms.bool(True),
     doTrackQualityCuts = cms.bool(True),
