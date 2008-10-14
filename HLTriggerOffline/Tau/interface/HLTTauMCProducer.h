@@ -16,10 +16,13 @@ in Offline Trigger DQM etc
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HepMC/GenEvent.h"
 #include <vector>
 #include <string>
+#include "TLorentzVector.h"
 
 typedef math::XYZTLorentzVectorD LorentzVector;
 typedef std::vector<LorentzVector> LorentzVectorCollection;
@@ -34,7 +37,7 @@ public:
   
  private:
 
-  std::vector<HepMC::GenParticle*> getGenStableDecayProducts(const HepMC::GenParticle* particle);
+  std::vector<reco::GenParticle*> getGenStableDecayProducts(const reco::GenParticle * particle);
 
   enum tauDecayModes {kElectron, kMuon, 
 		      kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,
