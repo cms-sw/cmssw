@@ -25,8 +25,8 @@ pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency = copy.deepcopy(pfRecoT
 pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
 
 #copying the Discriminator by Isolation
-pfRecoTauDiscriminationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
-pfRecoTauDiscriminationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+pfRecoTauDiscriminationByIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+pfRecoTauDiscriminationByIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
 
 #copying discriminator against electrons and muons
 pfRecoTauDiscriminationAgainstElectronHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
