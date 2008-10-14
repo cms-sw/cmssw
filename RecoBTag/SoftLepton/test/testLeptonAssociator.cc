@@ -63,8 +63,17 @@ std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
 }
 
 std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
-  out << " {"     << std::setw(2) << ref->track()->found() << "+" << std::setw(2) << ref->standAloneMuon()->found() << "} "
-      << " ["     << std::setw(4) << ref.key() << "]"
+  out << " {";
+  if (ref->track().isAvailable())
+    out << std::setw(2) << ref->track()->found();
+  else
+    out << "--";
+  out << "+";
+  if (ref->standAloneMuon().isAvailable())
+    out << std::setw(2) << ref->standAloneMuon()->found();
+  else
+    out << "--";
+  out << "}  ["     << std::setw(4) << ref.key() << "]"
       << "            "
       << " pT: "  << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->pt()
       << " eta: " << std::setw(6) << std::setprecision(3) << ref->combinedMuon()->eta()
