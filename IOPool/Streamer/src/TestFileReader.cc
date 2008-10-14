@@ -67,6 +67,17 @@ namespace edmtestp
 	  << "the header record in flie " << filename_
 	  << "is not consistent with the one for the program \n";
       }
+
+    // 13-Oct-2008, KAB - Added the following code to put the 
+    // INIT message on the input queue.
+    EventBuffer::ProducerBuffer b(*to_);
+    int len = init->size();
+    char* buf_ = new char[len];
+    memcpy(buf_, init->startAddress(), len);
+    new (b.buffer()) stor::FragEntry(buf_, buf_, len, 1, 1,
+                                     init->code(), init->run(),
+                                     0, init->outputModuleId());
+    b.commit(sizeof(stor::FragEntry));
   }
 
   TestFileReader::~TestFileReader()
@@ -95,18 +106,28 @@ namespace edmtestp
    while( stream_reader_->next() ) { 
        EventBuffer::ProducerBuffer b(*to_);
        const EventMsgView* eview =  stream_reader_->currentRecord();
-       stor::FragEntry* msg =
+
+       // 13-Oct-2008, KAB - we need to make a copy of the event message
+       // for two reasons:  1) the processing of the events is often done
+       // asynchronously in the code that uses this reader, so we can't
+       // keep re-using the same buffer from the stream_reader, and
+       // 2) the code that uses this reader often uses deleters to
+       // free up the memory used by the FragEntry, so we want the
+       // first argument to the FragEntry to be something that can 
+       // be deleted successfully.
+       int len = eview->size();
+       char* buf_ = new char[len];
+       memcpy(buf_, eview->startAddress(), len);
+
+       //stor::FragEntry* msg =
        //   new (b.buffer()) stor::FragEntry(eview->startAddress(),
        //                                    eview->startAddress(),
        // the first arg should be startAddress() right?
           //new (b.buffer()) stor::FragEntry((void*)eview->eventData(),
-          new (b.buffer()) stor::FragEntry((void*)eview->startAddress(),
-                                           (void*)eview->eventData(),
-                                           eview->size(),1,1,
-                                           eview->code(),0,1,0);
-        assert(msg);
-        b.commit(sizeof(stor::FragEntry));
-
+       new (b.buffer()) stor::FragEntry(buf_, buf_, len, 1, 1,
+                                        eview->code(), eview->run(),
+                                        eview->event(), eview->outModId());
+       b.commit(sizeof(stor::FragEntry));
    }
 
    /***
