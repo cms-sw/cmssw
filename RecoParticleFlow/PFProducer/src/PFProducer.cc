@@ -2,6 +2,7 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 
 
 #include <sstream>
@@ -16,9 +17,66 @@ using namespace edm;
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
- 
 
+  bool newCalib = 
+    iConfig.getParameter<bool>("pf_newCalib");
+
+  // Create a PFClusterCalbration auto_ptr
+  shared_ptr<pftools::PFClusterCalibration> 
+    clusterCalibration( new pftools::PFClusterCalibration() );
+
+  // Initialise function parameters properly.
+  double lowEP0 
+    = iConfig.getParameter<double>("pfcluster_lowEP0");
+  double lowEP1 
+    = iConfig.getParameter<double>("pfcluster_lowEP1");
+  double globalP0 
+    = iConfig.getParameter<double>("pfcluster_globalP0");
+  double globalP1 
+    = iConfig.getParameter<double>("pfcluster_globalP1");
+  // 
+  clusterCalibration->setCorrections(lowEP0, lowEP1, globalP0, globalP1);
+ 
+  unsigned int allowNegative    
+	= iConfig.getParameter<unsigned int>("pfcluster_allowNegative");
+  clusterCalibration->setAllowNegativeEnergy(allowNegative);
+	
+  unsigned int doCorrection
+    = iConfig.getParameter<unsigned int>("pfcluster_doCorrection");
+  clusterCalibration->setDoCorrection(doCorrection);
+ 
+  double barrelEta
+    = iConfig.getParameter<double>("pfcluster_barrelEndcapEtaDiv");
+  clusterCalibration->setBarrelBoundary(barrelEta);
+	
+  double ecalEcut = 
+    iConfig.getParameter<double>("pfcluster_ecalECut");
+  double hcalEcut = 
+    iConfig.getParameter<double>("pfcluster_hcalECut");
+
+  clusterCalibration->setEcalHcalEnergyCuts(ecalEcut,hcalEcut);
+ 
+  std::vector<std::string>* names = clusterCalibration->getKnownSectorNames();
+  for(std::vector<std::string>::iterator i = names->begin(); i != names->end(); ++i) {
+    std::string sector = *i;
+    std::vector<double> params
+    = iConfig.getParameter<std::vector<double> >(sector);
+    clusterCalibration->setEvolutionParameters(sector, params);
+  }
+
+  //Finally set eta correction
+  unsigned int doEtaCorrection = iConfig.getParameter<unsigned int>("pfcluster_doEtaCorrection");   
+  clusterCalibration->setDoEtaCorrection(doEtaCorrection);
+
+  std::vector<double> etaCorrectionParams = 
+    iConfig.getParameter<std::vector<double> >("pfcluster_etaCorrection");
+  clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
   // use configuration file to setup input/output collection names
+  std::cout << "Finished initialisaing PFClusterCalibration: it looks like...\n";
+  std::cout  << *clusterCalibration << std::endl;
+
+  //Done with PFClusterCalibration //
+
   inputTagBlocks_ 
     = iConfig.getParameter<InputTag>("blocks");
 
@@ -115,10 +173,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   pfAlgo_->setParameters( nSigmaECAL, 
 			  nSigmaHCAL,
 			  calibration,
+			  clusterCalibration,
+			  newCalib,
 			  clusterRecovery,
 			  PSCut, 
 			  mvaCut, 
 			  path_mvaWeightFile.fullPath().c_str() );
+
   //PFElectrons: call the method setpfeleparameters
   pfAlgo_->setPFEleParameters(chi2EcalGSF,
 			      chi2EcalBrem,

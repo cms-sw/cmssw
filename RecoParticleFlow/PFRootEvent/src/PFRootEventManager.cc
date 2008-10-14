@@ -25,6 +25,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
 
@@ -465,7 +466,7 @@ void PFRootEventManager::readOptions(const char* file,
   // read PFCluster calibration parameters
   
 
-  double e_slope = 1;
+  double e_slope = 1.0;
   options_->GetOpt("particle_flow","calib_ECAL_slope", e_slope);
   double e_offset = 0;
   options_->GetOpt("particle_flow","calib_ECAL_offset", e_offset);
@@ -484,6 +485,9 @@ void PFRootEventManager::readOptions(const char* file,
   double h_damping = 2.49;
   options_->GetOpt("particle_flow","calib_HCAL_damping", h_damping);
   
+
+  shared_ptr<pftools::PFClusterCalibration> 
+    clusterCalibration( new pftools::PFClusterCalibration() );
 
   shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
@@ -512,6 +516,53 @@ void PFRootEventManager::readOptions(const char* file,
                    mvaWeightFile);  
   mvaWeightFile = expand( mvaWeightFile );
   
+  bool newCalib = false;
+  options_->GetOpt("particle_flow", "newCalib", newCalib);  
+  std::cout << "New calib = " << newCalib << std::endl;
+  // pfAlgo_.setNewCalibration(newCalib);
+
+  // Set the parameters for the brand-new calibration
+  double g0, g1, e0, e1;
+  options_->GetOpt("correction", "globalP0", g0);
+  options_->GetOpt("correction", "globalP1", g1);
+  options_->GetOpt("correction", "lowEP0", e0);
+  options_->GetOpt("correction", "lowEP1", e1);
+  clusterCalibration->setCorrections(e0, e1, g0, g1);
+  
+  int allowNegative(0);
+  options_->GetOpt("correction", "allowNegativeEnergy", allowNegative);
+  clusterCalibration->setAllowNegativeEnergy(allowNegative);
+  
+  int doCorrection(1);
+  options_->GetOpt("correction", "doCorrection", doCorrection);
+  clusterCalibration->setDoCorrection(doCorrection);
+
+  int doEtaCorrection(1);
+  options_->GetOpt("correction", "doEtaCorrection", doEtaCorrection);
+  clusterCalibration->setDoEtaCorrection(doEtaCorrection);
+  
+  double barrelEta;
+  options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEta);
+  clusterCalibration->setBarrelBoundary(barrelEta);
+  
+  double ecalEcut;
+  options_->GetOpt("evolution", "ecalECut", ecalEcut);
+  double hcalEcut;
+  options_->GetOpt("evolution", "hcalECut", hcalEcut);
+  clusterCalibration->setEcalHcalEnergyCuts(ecalEcut,hcalEcut);
+
+  std::vector<std::string>* names = clusterCalibration->getKnownSectorNames();
+  for(std::vector<std::string>::iterator i = names->begin(); i != names->end(); ++i) {
+    std::string sector = *i;
+    std::vector<double> params;
+    options_->GetOpt("evolution", sector.c_str(), params);
+    clusterCalibration->setEvolutionParameters(sector, params);
+  }
+
+  std::vector<double> etaCorrectionParams; 
+  options_->GetOpt("evolution","etaCorrection", etaCorrectionParams);
+  clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
+
 
   // new for PS PFAlgo validation (MDN)
   double PSCut = 999999;
@@ -522,6 +573,7 @@ void PFRootEventManager::readOptions(const char* file,
     //                            PSCut, mvaCut, mvaWeightFile.c_str() );
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
                            calibration,
+			   clusterCalibration, newCalib,
                            clusterRecoveryAlgo,
                            PSCut, mvaCut, mvaWeightFile.c_str() );
   }
@@ -1064,6 +1116,8 @@ void PFRootEventManager::setAddresses() {
 
 PFRootEventManager::~PFRootEventManager() {
 
+  std::cout << "Je rentre dans le destructeur" << std::endl;
+
   if(outFile_) {
     outFile_->Close();
   }
@@ -1072,6 +1126,8 @@ PFRootEventManager::~PFRootEventManager() {
 
 
   delete options_;
+
+  std::cout << "Je sors dans le destructeur" << std::endl;
 }
 
 
@@ -1100,7 +1156,6 @@ bool PFRootEventManager::processEntry(int entry) {
   if( outEvent_ ) outEvent_->setNumber(entry);
 
   if(verbosity_ == VERBOSE  || 
-     entry < 10 ||
      entry < 100 && entry%10 == 0 || 
      entry < 1000 && entry%100 == 0 || 
      entry%1000 == 0 ) 
