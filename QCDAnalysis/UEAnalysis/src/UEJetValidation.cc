@@ -11,7 +11,7 @@ UEJetValidation::UEJetValidation( const ParameterSet& pset )
 {
   ChgGenJetsInputTag = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
   TrackJetsInputTag  = pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string(""));
-  CaloJetsInputTag   = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
+  CaloJetsInputTag   = pset.getUntrackedParameter<InputTag>("CaloJetCollectionName",std::string(""));
 
   // trigger results
   triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
@@ -19,8 +19,10 @@ UEJetValidation::UEJetValidation( const ParameterSet& pset )
   //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
-  _PTTHRESHOLD = pset.getParameter<double>("pTThreshold");
-  _ETALIMIT    = pset.getParameter<double>("etaLimit");
+  _PTTHRESHOLD  = pset.getParameter<double>("pTThreshold");
+  _ETALIMIT     = pset.getParameter<double>("etaLimit");
+  _dRByPi       = pset.getParameter<double>("dRByPiLimitForMatching");
+  _pTratioRange = pset.getParameter<double>("pTratioRangeForMatching");
 
   selectedHLTBits = pset.getParameter<vstring>("selectedHLTBits");
 }
@@ -29,6 +31,14 @@ void UEJetValidation::beginJob( const EventSetup& )
 {
   h_dR_tracksjet_calojet                        = new TH1D*[ selectedHLTBits.size() ];
   h_dR_tracksjet_chggenjet                      = new TH1D*[ selectedHLTBits.size() ];
+  h_pTratio_tracksjet_chggenjet                 = new TH1D*[ selectedHLTBits.size() ];
+  h_eta_chggenjet                               = new TH1D*[ selectedHLTBits.size() ];
+  h_phi_chggenjet                               = new TH1D*[ selectedHLTBits.size() ];
+  h_pT_chggenjet                                = new TH1D*[ selectedHLTBits.size() ];
+  h_eta_chggenjetMatched                        = new TH1D*[ selectedHLTBits.size() ];
+  h_phi_chggenjetMatched                        = new TH1D*[ selectedHLTBits.size() ];
+  h_pT_chggenjetMatched                         = new TH1D*[ selectedHLTBits.size() ];
+
   h2d_pTratio_tracksjet_calojet                 = new TH2D*[ selectedHLTBits.size() ];
   h2d_pTRatio_tracksjet_calojet_hadronic        = new TH2D*[ selectedHLTBits.size() ];
   h2d_pTRatio_tracksjet_calojet_electromagnetic = new TH2D*[ selectedHLTBits.size() ];
@@ -47,13 +57,48 @@ void UEJetValidation::beginJob( const EventSetup& )
       h_dR_tracksjet_calojet[iHLTbit] = 
 	dir.make<TH1D>( "h_dR_tracksjet_calojet", 
 			"h_dR_tracksjet_calojet;#DeltaR(tracks jet, calo jet) (rad / #pi);", 
-			100,0.,3.);
+			100,0.,1.);
   
       h_dR_tracksjet_chggenjet[iHLTbit] = 
 	dir.make<TH1D>("h_dR_tracksjet_chggenjet",
 		       "h_dR_tracksjet_chggenjet;#DeltaR(tracks jet, chg. gen jet) (rad / #pi);",
-		       100,0.,3.);
+		       100,0.,1.);
   
+      h_pTratio_tracksjet_chggenjet[iHLTbit] =
+	dir.make<TH1D>("h_pTratio_tracksjet_chggenjet",
+		       "h_pTratio_tracksjet_chggenjet;p_{T}(tracks jet)/p_{T}(calo jet);",
+		       100, 0., 4.);
+
+      h_eta_chggenjet[iHLTbit] = 
+	dir.make<TH1D>("h_eta_chggenjet",
+		       "h_eta_chggenjet;All jets: #eta(chg. gen jet);",
+		       100, -2.5, 2.5 );
+
+      h_phi_chggenjet[iHLTbit] = 
+	dir.make<TH1D>("h_phi_chggenjet",
+		       "h_phi_chggenjet;All jets: #phi(chg. gen jet) (rad / #pi);",
+		       100, -1., 1. );
+
+      h_pT_chggenjet[iHLTbit] = 
+	dir.make<TH1D>("h_pT_chggenjet",
+		       "h_pT_chggenjet;All jets: p_{T}(chg. gen jet) (GeV/c);",
+		       150, 0., 300. );
+
+      h_eta_chggenjetMatched[iHLTbit] = 
+	dir.make<TH1D>("h_eta_chggenjetMatched",
+		       "h_eta_chggenjetMatched;Matched jets: #eta(chg. gen jet);",
+		       100, -2.5, 2.5 );
+
+      h_phi_chggenjetMatched[iHLTbit] = 
+	dir.make<TH1D>("h_phi_chggenjetMatched",
+		       "h_phi_chggenjetMatched;Matched jets: #phi(chg. gen jet) (rad / #pi);",
+		       100, -1., 1. );
+
+      h_pT_chggenjetMatched[iHLTbit] = 
+	dir.make<TH1D>("h_pT_chggenjetMatched",
+		       "h_pT_chggenjetMatched;Matched jets: p_{T}(chg. gen jet) (GeV/c);",
+		       150, 0., 300. );
+
       h2d_pTratio_tracksjet_calojet[iHLTbit] = 
 	dir.make<TH2D>("h2d_pTratio_tracksjet_calojet",
 		       "h2d_pTratio_tracksjet_calojet;p_{T}(tracks jet) (GeV/c);p_{T}(tracks jet)/p_{T}(calo jet)",
@@ -248,13 +293,30 @@ void UEJetValidation::fillHistogramsChgGen( int       iHLTbit,
 					    BasicJet &theLeadingTrackJet,
 					    GenJet   &theLeadingChgGenJet )
 {
-  h_dR_tracksjet_chggenjet[iHLTbit]->Fill( deltaR( theLeadingTrackJet, theLeadingChgGenJet )/TMath::Pi() );
-  h2d_pTratio_tracksjet_chggenjet[iHLTbit]->Fill( theLeadingTrackJet.pt(),
-						  theLeadingTrackJet.pt()/theLeadingChgGenJet.pt());
+  double dRByPi( deltaR( theLeadingTrackJet, theLeadingChgGenJet )/TMath::Pi() );
+  double pTratio( theLeadingTrackJet.pt()/theLeadingChgGenJet.pt() );
+
+  h_dR_tracksjet_chggenjet[iHLTbit]->Fill( dRByPi );
+  h_pTratio_tracksjet_chggenjet[iHLTbit]->Fill( pTratio );
+  h2d_pTratio_tracksjet_chggenjet[iHLTbit]->Fill( theLeadingTrackJet.pt(), pTratio );
   h2d_nConstituents_tracksjet_chggenjet[iHLTbit]->Fill( theLeadingTrackJet.pt(),
-							theLeadingTrackJet.nConstituents()/theLeadingChgGenJet.nConstituents() );
+							double(theLeadingTrackJet.nConstituents())/double(theLeadingChgGenJet.nConstituents()) );
   h2d_maxDistance_tracksjet_chggenjet[iHLTbit]->Fill( theLeadingTrackJet.pt(),
 						      theLeadingTrackJet.maxDistance()/theLeadingChgGenJet.maxDistance() );
+
+  ///
+  /// test reconstruction performance
+  ///
+  h_eta_chggenjet[iHLTbit]->Fill( theLeadingChgGenJet.eta() );
+  h_phi_chggenjet[iHLTbit]->Fill( theLeadingChgGenJet.phi()/TMath::Pi() );
+  h_pT_chggenjet[iHLTbit] ->Fill( theLeadingChgGenJet.pt() );
+ 
+  if ( dRByPi <= _dRByPi && TMath::Abs(1.-pTratio) <= _pTratioRange )
+    {
+      h_eta_chggenjetMatched[iHLTbit]->Fill( theLeadingChgGenJet.eta() );
+      h_phi_chggenjetMatched[iHLTbit]->Fill( theLeadingChgGenJet.phi()/TMath::Pi() );
+      h_pT_chggenjetMatched[iHLTbit]->Fill( theLeadingChgGenJet.pt() );
+    }
 }
 
 ///___________________________________________________________________________________
@@ -267,7 +329,7 @@ void UEJetValidation::fillHistogramsCalo( int       iHLTbit,
   h2d_pTratio_tracksjet_calojet[iHLTbit]->Fill( theLeadingTrackJet.pt(),
 						theLeadingTrackJet.pt()/theLeadingCaloJet.pt());
   h2d_nConstituents_tracksjet_calojet[iHLTbit]->Fill( theLeadingTrackJet.pt(),
-						      theLeadingTrackJet.nConstituents()/theLeadingCaloJet.nConstituents() );
+						      double(theLeadingTrackJet.nConstituents())/double(theLeadingCaloJet.nConstituents()) );
   h2d_maxDistance_tracksjet_calojet[iHLTbit]->Fill( theLeadingTrackJet.pt(),
 						    theLeadingTrackJet.maxDistance()/theLeadingCaloJet.maxDistance() );
 

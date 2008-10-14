@@ -89,20 +89,27 @@ private:
 
   TH1D** h_dR_tracksjet_calojet;
   TH1D** h_dR_tracksjet_chggenjet;
+  TH1D** h_pTratio_tracksjet_chggenjet;
+  TH1D** h_eta_chggenjet;
+  TH1D** h_phi_chggenjet;
+  TH1D** h_pT_chggenjet;
+  TH1D** h_eta_chggenjetMatched;
+  TH1D** h_phi_chggenjetMatched;
+  TH1D** h_pT_chggenjetMatched;
 
   TH2D** h2d_pTratio_tracksjet_calojet;
   TH2D** h2d_pTRatio_tracksjet_calojet_hadronic;
   TH2D** h2d_pTRatio_tracksjet_calojet_electromagnetic;
   TH2D** h2d_pTratio_tracksjet_chggenjet;
-
   TH2D** h2d_nConstituents_tracksjet_calojet;
   TH2D** h2d_nConstituents_tracksjet_chggenjet;
-
   TH2D** h2d_maxDistance_tracksjet_calojet;
   TH2D** h2d_maxDistance_tracksjet_chggenjet;
 
   double _PTTHRESHOLD;
   double _ETALIMIT;
+  double _dRByPi;
+  double _pTratioRange;
 
   class PtSorter {
   public:

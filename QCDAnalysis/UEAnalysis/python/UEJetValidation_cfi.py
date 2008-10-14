@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 UEJetValidationParameters = cms.PSet(
-    RecoCaloJetCollectionName = cms.untracked.InputTag("iterativeCone5CaloJets"),
-    triggerEvent = cms.InputTag("hltTriggerSummaryAOD"),
+    CaloJetCollectionName = cms.untracked.InputTag("sisCone5CaloJets"),
+    triggerEvent   = cms.InputTag("hltTriggerSummaryAOD"),
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
-    etaLimit = cms.double(2.),
+    etaLimit                = cms.double( 2.  ),
+    dRByPiLimitForMatching  = cms.double( 0.1 ),
+    pTratioRangeForMatching = cms.double( 0.1 ),
     selectedHLTBits = cms.vstring( 'HLT_MinBiasPixel',
                                    'HLT_MinBiasHcal',
                                    'HLT_MinBiasEcal',
@@ -20,26 +22,47 @@ UEJetValidationParameters = cms.PSet(
 
 UEJetValidation900 = cms.EDProducer("UEJetValidation",
                                     UEJetValidationParameters,
-                                    ChgGenJetCollectionName = cms.untracked.InputTag("IC5ChgGenJet"),
-                                    TracksJetCollectionName = cms.untracked.InputTag("IC5TracksJet"),
+                                    ChgGenJetCollectionName = cms.untracked.InputTag("ueSisCone5ChgGenJet"),
+                                    TracksJetCollectionName = cms.untracked.InputTag("ueSisCone5TracksJet"),
                                     pTThreshold = cms.double(0.9)
-)
+                                    )
+UECorrectedJetValidation900 = cms.EDProducer("UEJetValidation",
+                                             UEJetValidationParameters,
+                                             ChgGenJetCollectionName = cms.untracked.InputTag("ueSisCone5ChgGenJet"),
+                                             TracksJetCollectionName = cms.untracked.InputTag("ueSisCone5TracksJet"),
+                                             pTThreshold = cms.double(0.9)
+                                             )
+UECorrectedJetValidation900.CaloJetCollectionName = 'L2L3CorJetScone5'
 
 UEJetValidation500 = cms.EDProducer("UEJetValidation",
                                     UEJetValidationParameters,
-                                    ChgGenJetCollectionName = cms.untracked.InputTag("IC5ChgGenJet500"),
-                                    TracksJetCollectionName = cms.untracked.InputTag("IC5TracksJet500"),
+                                    ChgGenJetCollectionName = cms.untracked.InputTag("ueSisCone5ChgGenJet500"),
+                                    TracksJetCollectionName = cms.untracked.InputTag("ueSisCone5TracksJet500"),
                                     pTThreshold = cms.double(0.5)
                                     )
+UECorrectedJetValidation500 = cms.EDProducer("UEJetValidation",
+                                             UEJetValidationParameters,
+                                             ChgGenJetCollectionName = cms.untracked.InputTag("ueSisCone5ChgGenJet500"),
+                                             TracksJetCollectionName = cms.untracked.InputTag("ueSisCone5TracksJet500"),
+                                             pTThreshold = cms.double(0.5)
+                                             )
+UECorrectedJetValidation500.CaloJetCollectionName = 'L2L3CorJetScone5'
 
 UEJetValidation1500 = cms.EDProducer("UEJetValidation",
                                      UEJetValidationParameters,
-                                     ChgGenJetCollectionName = cms.untracked.InputTag("IC5ChgGenJet1500"),
-                                     TracksJetCollectionName = cms.untracked.InputTag("IC5TracksJet1500"),
+                                     ChgGenJetCollectionName = cms.untracked.InputTag("ueSisCone5ChgGenJet1500"),
+                                     TracksJetCollectionName = cms.untracked.InputTag("ueSisCone5TracksJet1500"),
                                      pTThreshold = cms.double(1.5)
                                      )
+UECorrectedJetValidation1500 = cms.EDProducer("UEJetValidation",
+                                              UEJetValidationParameters,
+                                              ChgGenJetCollectionName = cms.untracked.InputTag("ueSisCone5ChgGenJet1500"),
+                                              TracksJetCollectionName = cms.untracked.InputTag("ueSisCone5TracksJet1500"),
+                                              pTThreshold = cms.double(1.5)
+                                              )
+UECorrectedJetValidation1500.CaloJetCollectionName = 'L2L3CorJetScone5'
 
-UEJetValidation = cms.Sequence(UEJetValidation900*UEJetValidation500*UEJetValidation1500)
+UEJetValidation = cms.Sequence(UEJetValidation900*UECorrectedJetValidation900*UEJetValidation500*UECorrectedJetValidation500*UEJetValidation1500*UECorrectedJetValidation1500)
 
 
 
