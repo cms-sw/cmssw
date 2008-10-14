@@ -228,9 +228,10 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
       printAssociations("Local",  tp, byhits_standalone,  bychi2_standalone);
       printAssociations("Global", tp, byhits_globaltrack, bychi2_globaltrack);
     }
-
   }
 
+  std::cout << std::endl;
+  
   // look for tracking particles associated to the (tracker part of the) reconstructed global muons
   reco::RecoToSimCollection byhits_globalfake = m_associatorByHits->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
   reco::RecoToSimCollection bychi2_globalfake = m_associatorByChi2->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
@@ -240,6 +241,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
     printAssociations("TrackingParticle", lepton->track(), byhits_globalfake, bychi2_globalfake);
   }
 
+  std::cout << std::endl;
+  
   // look for tracking particles associated to the reconstructed standAlone muons
   reco::RecoToSimCollection byhits_standalonefake = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
   reco::RecoToSimCollection bychi2_standalonefake = m_associatorByChi2->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
