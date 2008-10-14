@@ -40,6 +40,20 @@ uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
   return 0;
 }
 
+const int16_t TkLayerMap::layerSearch(uint32_t detid){
+  switch((detid>>25)&0x7){
+  case SiStripDetId::TIB:
+    return ((detid>>14)&0x7);
+  case SiStripDetId::TID:
+    return 4+((detid>>11)&0x3);
+  case SiStripDetId::TOB:
+    return 7+((detid>>14)&0x7);
+  case SiStripDetId::TEC:
+    return 13+((detid>>14)&0xF);
+  }
+  return 0;
+}
+
 void TkLayerMap::initialize(int layer){
 
   switch (layer){
