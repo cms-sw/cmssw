@@ -54,7 +54,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     meEnergyEcal_HB    = dbe_->book1D(histo, histo, 440, -200, 2000); 
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HB" ) ;
-    meNumFiredTowers_HB = dbe_->book1D(histo, histo, 440, 0, 2000); 
+    meNumFiredTowers_HB = dbe_->book1D(histo, histo, 400, 0, 2000); 
     
     sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HB" ) ;
     meEnergyEcalTower_HB = dbe_->book1D(histo, histo, 440, -200, 2000); 
@@ -96,7 +96,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     meEnergyEcal_HE    = dbe_->book1D(histo, histo, 440, -200, 2000); 
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HE" ) ;
-    meNumFiredTowers_HE = dbe_->book1D(histo, histo, 440, 0, 2000); 
+    meNumFiredTowers_HE = dbe_->book1D(histo, histo, 400, 0, 2000); 
     
     sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HE" ) ;
     meEnergyEcalTower_HE = dbe_->book1D(histo, histo, 440, -200, 2000); 
@@ -139,7 +139,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     meEnergyEcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000); 
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HF" ) ;
-    meNumFiredTowers_HF = dbe_->book1D(histo, histo, 440, 0, 2000); 
+    meNumFiredTowers_HF = dbe_->book1D(histo, histo, 400, 0, 2000); 
     
     sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HF" ) ;
     meEnergyEcalTower_HF = dbe_->book1D(histo, histo, 440, -200, 2000); 
@@ -158,7 +158,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     mapEnergyEcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
     
     sprintf  (histo, "CaloTowersTask_MET_HF" ) ;
-    MET_HF = dbe_->book1D(histo, histo, 500, 0. , 1000. ) ;
+    MET_HF = dbe_->book1D(histo, histo, 500, 0. , 500. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HF" ) ;
     SET_HF = dbe_->book1D(histo, histo, 500, 0. , 5000. ) ;
