@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.7 2008/10/14 02:27:43 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.8 2008/10/14 16:19:54 chlebana Exp $
 //
 //
 
@@ -310,7 +310,8 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
 void 
 DataCertificationJetMET::beginJob(const edm::EventSetup&)
 {
-  //
+
+  //----------------------------------------------------------------
   // Open input files
   //----------------------------------------------------------------
 
@@ -323,53 +324,28 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   dbe = edm::Service<DQMStore>().operator->();
   dbe->open(filename);
 
+  dbe->setCurrentFolder("/");
   std::string currDir = dbe->pwd();
   std::cout << "--- Current Directory " << currDir << std::endl;
 
-  /***
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  string image_name;
-  selectImage(image_name,dbe->getStatus(currDir));
-
-  str_val << "<li><a href=\"#\" id=\"" 
-	  << currDir << "\">" << dname << "</a> <img src=\"" 
-	  << image_name << "\"></img>" << endl;
-  ***/
-
   std::vector<std::string> subDirVec = dbe->getSubdirs();
 
-  //  vector<string> meVec = dqm_store->getMEs(); 
-  //  vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
+  std::string RunDir;
+  RunDir = "Run 63463";
 
+  // TODO: Make sure this is correct....
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    std::string dirName = *ic;
-    std::cout << "--- " << dirName << std::endl;
-
-    //    dqm_store->cd(*ic);
-    //    printAlarmList(dqm_store, str_val);
-    //    dqm_store->goUp();
+    RunDir = *ic;
+    std::cout << "--- >>" << RunDir << "<<" << std::endl;
   }
 
-
-  // -- Reference set of histograms
+  // --- Reference set of histograms
   rdbe = edm::Service<DQMStore>().operator->();
   rdbe->open(reffilename);
 
-  // dbe = edm::Service<DQMStore>().operator->();
-  // dbe->open("/uscms/home/chlebana/DQM_V0001_R000063463__BeamHalo__BeamCommissioning08-PromptReco-v1__RECO.root");
-
-  // print histograms:
-  //  dbe->showDirStructure();
-
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
   std::cout << "found " << mes.size() << " monitoring elements!" << std::endl;
-
-  //  rdbe->setCurrentFolder("Run 63463/JetMET/Run summary/SISConeJets");
-  //  std::vector<MonitorElement*> rmes = rdbe->getAllContents("");
-  //  std::vector<MonitorElement*> rmes = rdbe->getMatchingContents("Pt");
-  //  std::vector<MonitorElement*> rmes = rdbe->getMatchingContents("Run 63463/JetMET/Run summary/SISConeJets");
-  //  std::cout << "found " << rmes.size() << " Reference monitoring elements!" << std::endl;
 
   // TH1F *bla = fs_->make<TH1F>("bla","bla",256,0,256);
   // int totF;
@@ -403,7 +379,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // ****************************
 
   // --- Save result to root file
-  dbe->setCurrentFolder("Run 63463/JetMET/Data Certification/");    
+  dbe->setCurrentFolder(RunDir+"/JetMET/Data Certification/");    
   MonitorElement* mJetDCL1 = dbe->book1D("JetDCLayer1", "Jet DC L1", NJetAlgo, 0, NJetAlgo);
   MonitorElement* mJetDCL2 = dbe->book1D("JetDCLayer2", "Jet DC L2", NJetAlgo, 0, NJetAlgo);
   MonitorElement* mJetDCL3 = dbe->book1D("JetDCLayer3", "Jet DC L3", 100, 0, 100);
@@ -428,8 +404,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   //  Jet_SISCone_DC = Jet_IterativeCone_DC = Jet_PFlow_DC = Jet_JPT_DC = 0;
   chi2_Pt = chi2_Eta = chi2_Phi = chi2_Constituents = chi2_HFrac = 0;
 
-  //  rdbe->setCurrentFolder("Run 63463/JetMET/Run summary/SISConeJets");
-  //  std::string refHistoName = "Run 63463/JetMET/Run summary/PFJetAnalyzer/Pt";
+  //  rdbe->setCurrentFolder(RunDir+"/JetMET/Run summary/SISConeJets");
+  //  std::string refHistoName = RunDir+"/JetMET/Run summary/PFJetAnalyzer/Pt";
+
 
   std::string refHistoName;
   std::string newHistoName;
@@ -438,21 +415,21 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
 
     if (iAlgo == 0) {
-      refHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/";
-      //      newHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/";
-      newHistoName = "Run 63463/JetMET/Run summary/SISConeJets/";
+      refHistoName = RunDir+"/JetMET/Run summary/IterativeConeJets/";
+      //      newHistoName = RunDir+"/JetMET/Run summary/IterativeConeJets/";
+      newHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
     }
     if (iAlgo == 1) {
-      refHistoName = "Run 63463/JetMET/Run summary/SISConeJets/";
-      newHistoName = "Run 63463/JetMET/Run summary/SISConeJets/";
+      refHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
+      newHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
     }
     if (iAlgo == 2) {
-      refHistoName = "Run 63463/JetMET/Run summary/PFJets/";
-      newHistoName = "Run 63463/JetMET/Run summary/PFJets/";
+      refHistoName = RunDir+"/JetMET/Run summary/PFJets/";
+      newHistoName = RunDir+"/JetMET/Run summary/PFJets/";
     }
     if (iAlgo == 3) {
-      refHistoName = "Run 63463/JetMET/Run summary/JPT/";
-      newHistoName = "Run 63463/JetMET/Run summary/JPT/";
+      refHistoName = RunDir+"/JetMET/Run summary/JPT/";
+      newHistoName = RunDir+"/JetMET/Run summary/JPT/";
     }
 
     MonitorElement * meRef = rdbe->get(refHistoName+"Pt");
@@ -523,8 +500,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
     if ( (chi2_Pt     > 0.95) && (chi2_Eta          > 0.95) && 
 	 (chi2_Phi    > 0.95) && (chi2_Constituents > 0.95) && 
-	 (chi2_HFrac  > 0.95) )  {
+	 (chi2_HFrac  > 0.95) )  {      
       Jet_DC[iAlgo] = 1;
+
+      // --- Fill DC results histogram
       mJetDCL2->Fill(iAlgo);
     } else {
       Jet_DC[iAlgo] = 0;
@@ -533,56 +512,31 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   }
   // --- End of loop over jet algorithms
 
-
   
   // JET Data Certification Results
-  std::cout << std::endl;
-  printf("%6s %15s %30s %10s\n","Run","Lumi Section","Tag Name", "Result");
-  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_IterativeCone", Jet_DC[0]);
-  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_SISCone",       Jet_DC[1]);
-  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_PFlow",         Jet_DC[2]);
-  printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_JPT",           Jet_DC[3]);
+  if (DEBUG) {
+    std::cout << std::endl;
+    printf("%6s %15s %30s %10s\n","Run","Lumi Section","Tag Name", "Result");
+    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_IterativeCone", Jet_DC[0]);
+    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_SISCone",       Jet_DC[1]);
+    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_PFlow",         Jet_DC[2]);
+    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_JPT",           Jet_DC[3]);
 
-  /***
-  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-    printf("%6d %15d %30s %10d\n",RunNumber,0,Jet_Tag[iAlgo], Jet_DC[iAlgo]);
+    /***
+	for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+	printf("%6d %15d %30s %10d\n",RunNumber,0,Jet_Tag[iAlgo], Jet_DC[iAlgo]);
+	}
+    ***/
+    std::cout << std::endl;    
   }
-  ***/
-  std::cout << std::endl;
 
-
-  /***
-  float mean =0;
-  float rms = 0;
-  if (meRefHisto) {
-    if (TH1F *rootHisto = meRefHisto->getTH1F()) {
-      TF1 *f1 = new TF1("f1","gaus",1,3);
-      rootHisto->Fit("f1");
-      mean = f1->GetParameter(1);
-      rms  = f1->GetParameter(2);
-    }
-  }
-  ***/
-
-  // Loop over Monitoring Elements and fill working histograms
-  /****
-  for(std::vector<MonitorElement*>::const_iterator ime = rmes.begin(); ime!=rmes.end(); ++ime) {
-    std::string name = (*ime)->getName();
-    std::cout << "Reference Name = " << name << std::endl;
-
-    //    if (name == "METTask_CaloMEx")     hMExy[0] = (*ime)->getTH1F();
-
-  }
-  ****/
 
   // ****************************
-
   // Loop over Monitoring Elements and fill working histograms
   for(std::vector<MonitorElement*>::const_iterator ime = mes.begin(); ime!=mes.end(); ++ime) {
     std::string name = (*ime)->getName();
 
     //    std::cout << "Name = " << name << std::endl;
-
     //    if (name == "METTask_CaloMEx") {
     //      std::cout << "Found Name = " << name << " Bins = " << (*ime)->getNbinsX() << std::endl;
     //    }
@@ -676,10 +630,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   }
 
 
-
-  //
+  //----------------------------------------------------------------
   //--- Print out data certification summary
   //----------------------------------------------------------------
+
   std::cout << std::endl;
   printf("| Variable                       |   Reduced chi^2              | Mean               | Width      |\n");
   //
@@ -750,6 +704,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
                                            5.,10.);
     }
   }
+
 
   //
   // Data certification format

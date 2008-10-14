@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/14 02:15:56 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/14 16:19:54 $
+ *  $Revision: 1.12 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -112,6 +112,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // **** Get the TriggerResults container
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
+
+  if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
 
   Int_t JetLoPass = 0;
   Int_t JetHiPass = 0;
@@ -242,7 +244,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 				  *calomet, *calometNoHF);
     }
   }
-
 
 }
 
