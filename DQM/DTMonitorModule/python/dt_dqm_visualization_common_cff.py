@@ -63,6 +63,7 @@ VisConfigurationService.EnabledTwigs = cms.untracked.vstring('/Objects/CMS Event
                                                              )
 VisConfigurationService.ContentProxies = cms.untracked.vstring('Framework/EventSetup',
                                                                'Reco/MuonDT')
+VisConfigurationService.VisPhiDelta = cms.untracked.double(0.25)
 
 # process.VisConfigurationService.ContentProxies = ('Framework/EventSetup',
 #                                                   'Reco/MuonDT',
