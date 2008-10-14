@@ -18,13 +18,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.testAnalyzer = cms.EDFilter("testLeptonAssociator",
-    muons                = cms.InputTag("muons")
+    leptonFlavour        = cms.uint32(13),
+    minPt                = cms.double(1.2),
+    muons                = cms.InputTag("muons"),
     globalMuonTracks     = cms.InputTag("globalMuons"),
     standAloneMuonTracks = cms.InputTag("standAloneMuons"),
     tracks               = cms.InputTag("ctfWithMaterialTracks"),
-    trackingTruth        = cms.InputTag("trackingParticles"),
-    minPt                = cms.double(1.2),
-    leptonFlavour        = cms.uint32(13),
+    trackingTruth        = cms.InputTag("trackingParticles")
 )
 
 process.path = cms.Path(process.testAnalyzer)
