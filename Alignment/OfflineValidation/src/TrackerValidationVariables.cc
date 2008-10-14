@@ -68,7 +68,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
   LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
   for(std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
       it!=itEnd;++it){
-    std::vector<TrajectoryMeasurement> tmColl = it->measurements();
+    const std::vector<TrajectoryMeasurement> &tmColl = it->measurements();
     for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(), itTrajEnd = tmColl.end(); 
 	itTraj != itTrajEnd; ++itTraj) {
 
