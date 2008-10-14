@@ -19,6 +19,8 @@
  * - Luminosity Section (4 bytes)
  * - Update Number (4 bytes)
  * - Compression Flag (4 bytes)   | size of data before compression
+ * - Filter Unit Process ID (4 bytes)
+ * - Filter Unit Unique ID [GUID] (4 bytes)
  * - Reserved Word (4 bytes)
  * - Release Tag Length (4 bytes)
  * - Release Tag (varies)
@@ -53,6 +55,8 @@ class DQMEventMsgBuilder
   uint8* startAddress() const { return buf_; }
   uint32 headerSize() const { return eventAddr_-buf_; }
   void setCompressionFlag(uint32);
+  void setFUProcessId(uint32);
+  void setFUGuid(uint32);
   void setReserved(uint32);
   uint8* eventAddress() const  { return eventAddr_; }
   void setEventLength(uint32 len);

@@ -28,7 +28,7 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
     }
 
   // verify that the message has a protocol that we support
-  if (this->protocolVersion() != 1)
+  if (this->protocolVersion() != 2)
     {
       throw cms::Exception("MessageDecoding", "DQMEventMsgView")
         << "Unsupport protocol version (" << this->protocolVersion() << ").\n";
@@ -231,6 +231,24 @@ uint32 DQMEventMsgView::compressionFlag() const
 {
   DQMEventHeader* h = (DQMEventHeader*)buf_;
   return convert32(h->compressionFlag_);
+}
+
+/**
+ * Returns the process ID of the filter unit that created this update.
+ */
+uint32 DQMEventMsgView::fuProcessId() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->fuProcessId_);
+}
+
+/**
+ * Returns the GUID of the filter unit that created this update.
+ */
+uint32 DQMEventMsgView::fuGuid() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return convert32(h->fuGuid_);
 }
 
 /**

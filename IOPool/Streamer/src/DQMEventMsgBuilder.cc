@@ -25,7 +25,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   DQMEventHeader* evtHdr;
   uint8* bufPtr;
   uint32 len;
-  uint32 protocolVersion = 1;
+  uint32 protocolVersion = 2;
 
   // fill in event header information
   bufPtr = buf_ + sizeof(DQMEventHeader);
@@ -122,6 +122,12 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   // initialize the compression flag to zero
   setCompressionFlag(0);
 
+  // initialize the filter unit process ID to zero
+  setFUProcessId(0);
+
+  // initialize the filter unit GUID to zero
+  setFUGuid(0);
+
   // initialize the reserved word to zero
   setReserved(0);
 }
@@ -152,6 +158,24 @@ void DQMEventMsgBuilder::setCompressionFlag(uint32 value)
 {
   DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
   convert(value, evtHdr->compressionFlag_);
+}
+
+/**
+ * Sets the value of the filter unit process ID in the header.
+ */
+void DQMEventMsgBuilder::setFUProcessId(uint32 value)
+{
+  DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
+  convert(value, evtHdr->fuProcessId_);
+}
+
+/**
+ * Sets the value of the filter unit GUID in the header.
+ */
+void DQMEventMsgBuilder::setFUGuid(uint32 value)
+{
+  DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
+  convert(value, evtHdr->fuGuid_);
 }
 
 /**

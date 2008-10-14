@@ -19,6 +19,8 @@
  * - Luminosity Section (4 bytes)
  * - Update Number (4 bytes)
  * - Compression Flag (4 bytes)   | size of data before compression
+ * - Filter Unit Process ID (4 bytes)
+ * - Filter Unit Unique ID [GUID] (4 bytes)
  * - Reserved Word (4 bytes)
  * - Release Tag Length (4 bytes)
  * - Release Tag (varies)
@@ -60,6 +62,8 @@ struct DQMEventHeader
   char_uint32 lumiSection_;
   char_uint32 updateNumber_;
   char_uint32 compressionFlag_;
+  char_uint32 fuProcessId_;
+  char_uint32 fuGuid_;
   char_uint32 reserved_;
 };
 
@@ -82,6 +86,8 @@ class DQMEventMsgView
   uint32 lumiSection() const;
   uint32 updateNumber() const;
   uint32 compressionFlag() const;
+  uint32 fuProcessId() const;
+  uint32 fuGuid() const;
   uint32 reserved() const;
 
   edm::Timestamp timeStamp() const;
