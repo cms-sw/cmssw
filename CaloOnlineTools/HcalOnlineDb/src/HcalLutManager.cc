@@ -612,9 +612,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       else if ( row->subdet.find("HF")!=string::npos ) _subdet = HcalForward;
       else _subdet = HcalOther;
       HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
-      cout << "### DEBUG: rawid = " << _detid.rawId() << ", " << _subdet << endl;    
-      
-      cout << "### DEBUG: subdetector = " << row->subdet << endl;    
+      //cout << "### DEBUG: rawid = " << _detid.rawId() << ", " << _subdet << endl;    
+      //cout << "### DEBUG: subdetector = " << row->subdet << endl;    
       std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
       for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	unsigned int _temp = (unsigned int)(*_i);
@@ -820,6 +819,45 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
   return 0;
 }
 
+
+/*
+int HcalLutManager::createLinLutXmlFiles( string _tag, string _lin_file, bool split_by_crate )
+{
+  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
+  if ( _lin_file.size() != 0 ){
+    addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
+*/
+
+// use this for creating a full set of LUTs
+int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( string _tag, const HcalTPGCoder & _coder, string _lin_file, bool split_by_crate )
+{
+  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
+  if ( _lin_file.size() != 0 ){
+    addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
+  }
+  addLutMap( xml, getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate ) );
+  addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
+
+  writeLutXmlFiles( xml, _tag, split_by_crate );
+
+  string checksums_file = _tag + "_checksums.xml";
+  lut_checksums_xml -> write( checksums_file . c_str() );
+
+  return 0;
+}
+
+
+// use this to create HBEF only from coders (physics LUTs)
 int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _lin_file, bool split_by_crate )
 {
   //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;

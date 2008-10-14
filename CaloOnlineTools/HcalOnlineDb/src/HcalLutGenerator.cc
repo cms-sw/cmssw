@@ -17,6 +17,7 @@ HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig)
 {
   cout << " --> HcalLutGenerator::HcalLutGenerator()" << endl;
   _tag = iConfig.getParameter<string>("tag");
+  _lin_file = iConfig.getParameter<string>("HO_master_file");
 }
 
 HcalLutGenerator::~HcalLutGenerator()
@@ -37,8 +38,10 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   HcalLutManager manager;
   bool split_by_crate = true;
-  //string _tag = "CRUZET_part4_physics";
-  manager . createAllLutXmlFilesFromCoder( *inputCoder, _tag, split_by_crate );
+  //manager . createAllLutXmlFilesFromCoder( *inputCoder, _tag, split_by_crate );
+  cout << " tag name: " << _tag << endl;
+  cout << " HO master file: " << _lin_file << endl;
+  manager . createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, _lin_file, split_by_crate );
 
 
   // FIXME: compr LUTs off EventSetup - implement here

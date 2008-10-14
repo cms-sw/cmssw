@@ -15,6 +15,7 @@ public:
 
 private:
   std::string _tag;
+  std::string _lin_file;
 };
 
 
