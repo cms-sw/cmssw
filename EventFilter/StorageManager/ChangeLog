@@ -1,3 +1,17 @@
+2008-10-14  Kurt Biery <biery@fnal.gov>
+
+	* tag V04-00-00
+	* Initial changes to support unique filter unit IDs.  Fixed a couple
+	  of minor bugs in the FragmentCollector uncovered by running the
+	  RunCollector_t unit test.  Updated the RunCollector_t unit test to
+	  get it working again.  These changes depend on the following related tags:
+	  EventFilter/Utilities      V00-15-00
+	  EventFilter/ShmBuffer      V00-07-00
+	  EventFilter/ShmReader      V01-03-00
+	  EventFilter/ResourceBroker V00-11-00
+	  IOPool/Streamer            V05-04-00
+	  EventFilter/Modules        V00-06-00
+
 2008-10-13  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-14-19
