@@ -22,5 +22,6 @@ btagging = cms.Sequence(
     softMuonTagInfos * 
     softMuonBJetTags + 
     softMuonNoIPBJetTags +
-    softMuonByPtBJetTags
+    softMuonByPtBJetTags +
+    softMuonByIP3dBJetTags
 )
