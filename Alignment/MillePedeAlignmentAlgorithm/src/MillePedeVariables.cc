@@ -4,17 +4,17 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.3 $
- *  $Date: 2007/03/16 17:03:01 $
+ *  $Revision: 1.4 $
+ *  $Date: 2007/08/17 17:20:05 $
  *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
 //__________________________________________________________________________________________________
-MillePedeVariables::MillePedeVariables(unsigned int nParams)
+MillePedeVariables::MillePedeVariables(unsigned int nParams, unsigned int label)
   :  myIsValid(nParams), myDiffBefore(nParams), myGlobalCor(nParams), myPreSigma(nParams),
-     myParameter(nParams), mySigma(nParams), myHitsX(0), myHitsY(0), myLabel(0)
+     myParameter(nParams), mySigma(nParams), myHitsX(0), myHitsY(0), myLabel(label)
 {
   for (unsigned int i = 0; i < nParams; ++i) {
     this->setAllDefault(i);

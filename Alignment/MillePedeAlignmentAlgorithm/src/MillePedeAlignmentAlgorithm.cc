@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.39 $
- *  $Date: 2008/08/12 18:23:15 $
+ *  $Revision: 1.40 $
+ *  $Date: 2008/09/02 17:17:19 $
  *  (last update by $Author: flucke $)
  */
 
@@ -537,7 +537,8 @@ void MillePedeAlignmentAlgorithm::buildUserVariables(const std::vector<Alignable
       throw cms::Exception("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::buildUserVariables"
                                         << "No parameters for alignable";
     }
-    params->setUserVariables(new MillePedeVariables(params->size()));
+    MillePedeVariables *userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(*iAli));
+    params->setUserVariables(userVars);
   }
 }
 
@@ -760,6 +761,8 @@ int MillePedeAlignmentAlgorithm
   this->makeGlobDerivMatrix(globalDerivativesx, globalDerivativesy, aGlobalDerivativesM);
  
   // calculates correlation between Hit measurements
+  // FIXME: Should take correlation (and resulting transformation) from original hit, 
+  //        not 2x2 matrix from ReferenceTrajectory: That can come from error propagation etc.!
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
   if (theMonitor) theMonitor->fillCorrelations2D(corr, aRecHit);
   bool diag = false;
