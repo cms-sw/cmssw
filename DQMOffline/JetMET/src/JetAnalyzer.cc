@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/10 04:01:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/10 16:12:42 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -24,7 +24,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   parameters   = pSet;
   _leadJetFlag = 0;
   _NJets       = 0;
-
+  _JetLoPass   = 0;
+  _JetHiPass   = 0;
 }
 
 JetAnalyzer::~JetAnalyzer() { }
@@ -110,13 +111,62 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   mEnergyFractionEm       = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1);
   mN90                    = dbe->book1D("N90", "N90", 50, 0, 50);
 
+  mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta Lo", etaBin, etaMin, etaMax);
+  mPhi_Lo                 = dbe->book1D("Phi_Lo", "Phi Lo", phiBin, phiMin, phiMax);
+  mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt Lo", ptBin, ptMin, ptMax);
+
+  mEta_Hi                 = dbe->book1D("Eta_Hi", "Eta Hi", etaBin, etaMin, etaMax);
+  mPhi_Hi                 = dbe->book1D("Phi_Hi", "Phi Hi", phiBin, phiMin, phiMax);
+  mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt Hi", 200, 0, 200);
+
+
 }
 
-void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::CaloJet& jet) {
+//void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+//			  const edm::TriggerResults& triggerResults,
+//			  const reco::CaloJet& jet) {
+
+void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+			  const reco::CaloJet& jet) {
+
+  //  Int_t JetLoPass = 0;
+  //  Int_t JetHiPass = 0;
 
   LogTrace(metname)<<"[JetAnalyzer] Analyze Calo Jet";
 
   jetME->Fill(1);
+
+  // --- See which trigger the event passed
+  /****
+  if(&triggerResults) {
+    edm::TriggerNames triggerNames;    // TriggerNames class
+    triggerNames.init(triggerResults);
+    unsigned int n = triggerResults.size();
+    for (unsigned int i=0; i!=n; i++) {
+
+      //      std::cout << ">>> Trigger Name = " << triggerNames.triggerName(i) 
+      //		<< " Accept = " << triggerResults.accept(i)
+      //		<< std::endl;
+
+      if ( triggerNames.triggerName(i) == "HLT_L1Jet15" ) {      
+	JetLoPass =  triggerResults.accept(i);
+      }
+      if ( triggerNames.triggerName(i) == "HLT_Jet80" ) {      
+	JetHiPass =  triggerResults.accept(i);
+      }
+    }    
+   
+  } else {
+    edm::LogInfo("JetAnalyzer") << "TriggerResults::HLT not found, "
+      "automatically select events";
+    //return;
+  }
+
+  std::cout << ">>> Trigger  Lo = " <<  JetLoPass
+	    << " Hi = " << JetHiPass
+	    << std::endl;
+  ***/
+
 
   // Leading jet
   // Histograms are filled once per event
@@ -126,13 +176,26 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (mEFirst)   mEFirst->Fill (jet.energy());
     if (mPtFirst)  mPtFirst->Fill (jet.pt());
     if (mNJets)    mNJets->Fill (_NJets);
+
+    if (_JetLoPass == 1) {
+      if (mEta_Lo) mEta_Lo->Fill (jet.eta());
+      if (mPhi_Lo) mPhi_Lo->Fill (jet.phi());
+      if (mPt_Lo)  mPt_Lo->Fill (jet.pt());
+    }
+    
+    if (_JetHiPass == 1) {
+      if (mEta_Hi) mEta_Hi->Fill (jet.eta());
+      if (mPhi_Hi) mPhi_Hi->Fill (jet.phi());
+      if (mPt_Hi)  mPt_Hi->Fill (jet.pt());
+    }
   }
 
-  if (mEta) mEta->Fill (jet.eta());
-  if (mPhi) mPhi->Fill (jet.phi());
-  if (mE) mE->Fill (jet.energy());
-  if (mP) mP->Fill (jet.p());
-  if (mPt) mPt->Fill (jet.pt());
+
+  if (mEta)  mEta->Fill (jet.eta());
+  if (mPhi)  mPhi->Fill (jet.phi());
+  if (mE)    mE->Fill (jet.energy());
+  if (mP)    mP->Fill (jet.p());
+  if (mPt)   mPt->Fill (jet.pt());
   if (mPt_1) mPt_1->Fill (jet.pt());
   if (mPt_2) mPt_2->Fill (jet.pt());
   if (mPt_3) mPt_3->Fill (jet.pt());
@@ -167,5 +230,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (mPhi_Forward)  mPhi_Forward->Fill (jet.phi());
     if (mE_Forward)    mE_Forward->Fill (jet.energy());
   }
+
 
 }

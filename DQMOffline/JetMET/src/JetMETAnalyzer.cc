@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/19 15:11:14 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/09/20 05:18:04 $
+ *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -105,10 +105,45 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   LogTrace(metname)<<"[JetMETAnalyzer] Analysis of event # ";
-  
+
   // **** Get the TriggerResults container
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(theTriggerResultsLabel,triggerResults);
+  iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
+
+  Int_t JetLoPass = 0;
+  Int_t JetHiPass = 0;
+
+  if (triggerResults.isValid()) {
+    //    std::cout << "trigger valid " << std::endl;
+    edm::TriggerNames triggerNames;    // TriggerNames class
+    triggerNames.init(*triggerResults);
+    unsigned int n = triggerResults->size();
+    for (unsigned int i=0; i!=n; i++) {
+
+      //      std::cout << ">>> Trigger Name = " << triggerNames.triggerName(i)
+      //                << " Accept = " << triggerResults.accept(i)
+      //                << std::endl;
+      
+      if ( triggerNames.triggerName(i) == "HLT_L1Jet15" ) {
+	JetLoPass =  triggerResults->accept(i);
+      }
+      if ( triggerNames.triggerName(i) == "HLT_Jet80" ) {
+	JetHiPass =  triggerResults->accept(i);
+      }
+    }
+
+  } else {
+    //      std::cout << "trigger not valid " << std::endl;
+    edm::LogInfo("JetAnalyzer") << "TriggerResults::HLT not found, "
+      "automatically select events";
+    //return;
+  }
+
+  /***  
+  std::cout << ">>> Trigger  Lo = " <<  JetLoPass
+	    << " Hi = " <<    JetHiPass
+	    << std::endl;
+  ***/
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
@@ -128,7 +163,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // **** Get the SISCone Jet container
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);
 
+
   if(caloJets.isValid()){
+    theSCJetAnalyzer->setJetHiPass(JetHiPass);
+    theSCJetAnalyzer->setJetLoPass(JetLoPass);
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the SC Jet analyzer";
@@ -138,6 +176,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	} else {
 	  theSCJetAnalyzer->setLeadJetFlag(0);
 	}
+	//	theSCJetAnalyzer->analyze(iEvent, iSetup, *triggerResults, *cal);
 	theSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
@@ -147,6 +186,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(theICJetCollectionLabel, caloJets);
 
   if(caloJets.isValid()){
+    theICJetAnalyzer->setJetHiPass(JetHiPass);
+    theICJetAnalyzer->setJetLoPass(JetLoPass);
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the IC Jet analyzer";
@@ -156,6 +197,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	} else {
 	  theICJetAnalyzer->setLeadJetFlag(0);
 	}
+	//	theICJetAnalyzer->analyze(iEvent, iSetup, *triggerResults, *cal);	
 	theICJetAnalyzer->analyze(iEvent, iSetup, *cal);	
       }
     }

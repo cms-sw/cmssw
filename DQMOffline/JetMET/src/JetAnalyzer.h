@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/09/10 04:01:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/10 16:12:42 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -24,6 +24,13 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+//
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
 
 #include <string>
 using namespace std;
@@ -43,7 +50,10 @@ class JetAnalyzer : public JetAnalyzerBase {
   void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::CaloJet& caloJet);
+    //  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&,
+    //	       const reco::CaloJet& caloJet);
+  void analyze(const edm::Event&, const edm::EventSetup&, 
+	       const reco::CaloJet& caloJet);
 
   void setSource(std::string source) {
     _source = source;
@@ -63,6 +73,14 @@ class JetAnalyzer : public JetAnalyzerBase {
     return  _NJets;
   }
 
+  void setJetLoPass(int pass) {
+    _JetLoPass = pass;
+  }
+
+  void setJetHiPass(int pass) {
+    _JetHiPass = pass;
+  }
+
 
  private:
   // ----------member data ---------------------------
@@ -74,6 +92,8 @@ class JetAnalyzer : public JetAnalyzerBase {
   // Calo Jet Label
   edm::InputTag theCaloJetCollectionLabel;
 
+  int _JetLoPass;
+  int _JetHiPass;
   int _leadJetFlag;
   int _NJets;
 
@@ -154,6 +174,17 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mEnergyFractionHadronic;
   MonitorElement* mEnergyFractionEm;
   MonitorElement* mN90;
+
+
+  // Events passing the jet triggers
+  MonitorElement* mEta_Lo;
+  MonitorElement* mPhi_Lo;
+  MonitorElement* mPt_Lo;
+
+  MonitorElement* mEta_Hi;
+  MonitorElement* mPhi_Hi;
+  MonitorElement* mPt_Hi;
+
 
 
 };
