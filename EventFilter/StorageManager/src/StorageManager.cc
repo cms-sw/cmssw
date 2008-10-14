@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.87 2008/10/12 15:18:15 hcheung Exp $
+// $Id: StorageManager.cc,v 1.88 2008/10/13 13:05:36 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -31,7 +31,6 @@
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
-#include "IOPool/Streamer/interface/TestFileReader.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include "xcept/tools.h"
@@ -347,7 +346,9 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   FDEBUG(10) << "StorageManager: Received registry message from HLT " << msg->hltURL
              << " application " << msg->hltClassName << " id " << msg->hltLocalId
              << " instance " << msg->hltInstance << " tid " << msg->hltTid
-             << " fuID " << msg->fuID << " outModID " << msg->outModID << std::endl;
+             << " rbBufferID " << msg->rbBufferID << " outModID " << msg->outModID
+             << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
+             << msg->fuGUID << std::dec << std::endl;
   FDEBUG(10) << "StorageManager: registry size " << msg->dataSize << "\n";
 
   // *** check the Storage Manager is in the Ready or Enabled state first!
@@ -391,7 +392,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
   int status = smrbsenders_.registerDataSender(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid,
-                 msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId, msg->fuID);
+                 msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId, msg->rbBufferID);
   // see if this completes the registry data for this data sender
   // if so then: if first copy it, if subsequent test it (mark which is first?)
   // should test on -1 as problems
@@ -399,13 +400,13 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   {
     char* regPtr = smrbsenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
                                                 msg->hltLocalId, msg->hltInstance,
-                                                msg->hltTid, dmoduleLabel, msg->fuID);
+                                                msg->hltTid, dmoduleLabel, msg->rbBufferID);
 
     if (regPtr != NULL) {
 
       unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
                                                         msg->hltLocalId, msg->hltInstance,
-                                                        msg->hltTid, dmoduleLabel, msg->fuID);
+                                                        msg->hltTid, dmoduleLabel, msg->rbBufferID);
 
       // attempt to add the INIT message to our collection
       // of INIT messages.  (This assumes that we have a full INIT message
@@ -439,7 +440,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
           // this is checked ok by default
           smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                        msg->hltLocalId, msg->hltInstance,
-                                       msg->hltTid, dmoduleLabel, msg->fuID);
+                                       msg->hltTid, dmoduleLabel, msg->rbBufferID);
 
           // add this output module to the monitoring
           bool alreadyStoredOutMod = false;
@@ -510,7 +511,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
           FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
           smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                        msg->hltLocalId, msg->hltInstance,
-                                       msg->hltTid, dmoduleLabel, msg->fuID);
+                                       msg->hltTid, dmoduleLabel, msg->rbBufferID);
         }
       }
       catch(cms::Exception& excpt)
@@ -534,7 +535,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
       smrbsenders_.shrinkRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
                                       msg->hltLocalId, msg->hltInstance,
-                                      msg->hltTid, dmoduleLabel, msg->fuID);
+                                      msg->hltTid, dmoduleLabel, msg->rbBufferID);
     }
     else {
       char tidString[32];
@@ -549,7 +550,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
     }  // end if regPtr != NULL
 
     string hltClassName(msg->hltClassName);
-    sendDiscardMessage(msg->fuID, 
+    sendDiscardMessage(msg->rbBufferID, 
                        msg->hltInstance, 
                        I2O_FU_DATA_DISCARD,
                        hltClassName);
@@ -573,7 +574,9 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   FDEBUG(10)   << "StorageManager: Received data message from HLT at " << msg->hltURL 
 	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
 	       << " instance " << msg->hltInstance << " tid " << msg->hltTid
-	       << " fuID " << msg->fuID << " outModID " << msg->outModID << std::endl;
+	       << " rbBufferID " << msg->rbBufferID << " outModID " << msg->outModID
+               << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
+               << msg->fuGUID << std::dec << std::endl;
   FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
 	       << " total frames = " << msg->numFrames << std::endl;
   FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
@@ -762,7 +765,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   if (  msg->frameCount == msg->numFrames-1 )
     {
       string hltClassName(msg->hltClassName);
-      sendDiscardMessage(msg->fuID, 
+      sendDiscardMessage(msg->rbBufferID, 
 			 msg->hltInstance, 
 			 I2O_FU_DATA_DISCARD,
 			 hltClassName);
@@ -784,7 +787,10 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
   FDEBUG(10)   << "StorageManager: Received error data message from HLT at " << msg->hltURL 
 	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
-	       << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
+	       << " instance " << msg->hltInstance << " tid " << msg->hltTid
+               << " rbBufferID " << msg->rbBufferID << " outModID " << msg->outModID
+               << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
+               << msg->fuGUID << std::dec << std::endl;
   FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
 	       << " total frames = " << msg->numFrames << std::endl;
   FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
@@ -964,7 +970,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
   if (  msg->frameCount == msg->numFrames-1 )
     {
       string hltClassName(msg->hltClassName);
-      sendDiscardMessage(msg->fuID, 
+      sendDiscardMessage(msg->rbBufferID, 
 			 msg->hltInstance, 
 			 I2O_FU_DATA_DISCARD,
 			 hltClassName);
@@ -1049,7 +1055,10 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
     (I2O_SM_DQM_MESSAGE_FRAME*)stdMsg;
   FDEBUG(10) << "StorageManager: Received DQM message from HLT at " << msg->hltURL 
              << " application " << msg->hltClassName << " id " << msg->hltLocalId
-             << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
+             << " instance " << msg->hltInstance << " tid " << msg->hltTid
+             << " rbBufferID " << msg->rbBufferID << " folderID " << msg->folderID
+             << " fuProcID " << msg->fuProcID  << " fuGUID 0x" << std::hex
+            << msg->fuGUID << std::dec << std::endl;
   FDEBUG(10) << "                 for run " << msg->runID << " eventATUpdate = " << msg->eventAtUpdateID
              << " total frames = " << msg->numFrames << std::endl;
   FDEBUG(10) << "StorageManager: Frame " << msg->frameCount << " of " 
@@ -1156,7 +1165,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
   if (  msg->frameCount == msg->numFrames-1 )
     {
       string hltClassName(msg->hltClassName);
-      sendDiscardMessage(msg->fuID, 
+      sendDiscardMessage(msg->rbBufferID, 
 			 msg->hltInstance, 
 			 I2O_FU_DQM_DISCARD,
 			 hltClassName);
@@ -2039,7 +2048,7 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "FU Sender id (shared memory id!)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << (*pos)->fuID_ << endl;
+          *out << (*pos)->rbBufferID_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -4889,14 +4898,14 @@ xoap::MessageReference StorageManager::fsmCallback(xoap::MessageReference msg)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void StorageManager::sendDiscardMessage(unsigned int    fuID, 
+void StorageManager::sendDiscardMessage(unsigned int    rbBufferID, 
 					unsigned int    hltInstance,
 					unsigned int    msgType,
 					string          hltClassName)
 {
   /*
   std::cout << "sendDiscardMessage ... " 
-	    << fuID           << "  "
+	    << rbBufferID     << "  "
 	    << hltInstance    << "  "
 	    << msgType        << "  "
 	    << hltClassName   << std::endl;
@@ -4917,9 +4926,9 @@ void StorageManager::sendDiscardMessage(unsigned int    fuID,
 						    getApplicationContext(),
 						    pool_);
 	  if ( msgType == I2O_FU_DATA_DISCARD )
-	    proxy -> sendDataDiscard(fuID);	
+	    proxy -> sendDataDiscard(rbBufferID);	
 	  else if ( msgType == I2O_FU_DQM_DISCARD )
-	    proxy -> sendDQMDiscard(fuID);
+	    proxy -> sendDQMDiscard(rbBufferID);
 	  else assert("Unknown discard message type" == 0);
 	  delete proxy;
 	}
