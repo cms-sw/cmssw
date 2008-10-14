@@ -61,8 +61,8 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
   theTsosVec.insert( theTsosVec.end(), fwdTsosVec.begin(), fwdTsosVec.end() );
   theTsosVec.insert( theTsosVec.end(), ++bwdTsosVec.begin(), bwdTsosVec.end() );
 
-  ConstRecHitContainer fwdRecHits = fwdTraj->recHits();
-  ConstRecHitContainer bwdRecHits = bwdTraj->recHits();
+  const ConstRecHitContainer &fwdRecHits = fwdTraj->recHits();
+  const ConstRecHitContainer &bwdRecHits = bwdTraj->recHits();
   theRecHits.insert( theRecHits.end(), fwdRecHits.begin(), fwdRecHits.end() );
   theRecHits.insert( theRecHits.end(), ++bwdRecHits.begin(), bwdRecHits.end() );
 
@@ -101,6 +101,7 @@ DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos
 				   const PropagationDirection propDir,
 				   const MagneticField *magField) const
 {
+
   return new ReferenceTrajectory(referenceTsos, recHits, false,
 				 magField, materialEffects, propDir, mass);
 }
