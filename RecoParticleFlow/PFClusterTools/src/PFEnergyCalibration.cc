@@ -291,12 +291,14 @@ PFEnergyCalibration::CorrEta(double eta){
   static std::vector<double> sa; // screwness amplitude
   static std::vector<double> ss; // screwness sigma
 
-  a.push_back(6.13349e-01) ;a.push_back(5.08146e-01)  ;a.push_back(4.44480e-01) ;a.push_back(3.3487e-01)   ;a.push_back(7.65627e-01) ;
-  m.push_back(-1.79514e-02);m.push_back(4.44747e-01)  ;m.push_back(7.92824e-01) ;m.push_back(1.14090e+00)  ;m.push_back(1.47464e+00) ;
-  s.push_back(7.92382e-03) ;s.push_back(3.06028e-03)  ;s.push_back(3.36139e-03) ;s.push_back(3.94521e-03)  ;s.push_back(8.63950e-04) ;
-  sa.push_back(1.27228e+01);sa.push_back(3.81517e-02) ;sa.push_back(1.63507e-01);sa.push_back(-6.56480e-02);sa.push_back(1.87160e-01);
-  ss.push_back(5.48753e-02);ss.push_back(-1.00223e-02);ss.push_back(2.22866e-03);ss.push_back(4.26288e-04) ;ss.push_back(2.67937e-03);
-
+  if(a.size()==0)
+    {
+      a.push_back(6.13349e-01) ;a.push_back(5.08146e-01)  ;a.push_back(4.44480e-01) ;a.push_back(3.3487e-01)   ;a.push_back(7.65627e-01) ;
+      m.push_back(-1.79514e-02);m.push_back(4.44747e-01)  ;m.push_back(7.92824e-01) ;m.push_back(1.14090e+00)  ;m.push_back(1.47464e+00) ;
+      s.push_back(7.92382e-03) ;s.push_back(3.06028e-03)  ;s.push_back(3.36139e-03) ;s.push_back(3.94521e-03)  ;s.push_back(8.63950e-04) ;
+      sa.push_back(1.27228e+01);sa.push_back(3.81517e-02) ;sa.push_back(1.63507e-01);sa.push_back(-6.56480e-02);sa.push_back(1.87160e-01);
+      ss.push_back(5.48753e-02);ss.push_back(-1.00223e-02);ss.push_back(2.22866e-03);ss.push_back(4.26288e-04) ;ss.push_back(2.67937e-03);
+    }
  double result = 1;
 
  for(unsigned i=0;i<=4;i++) result+=a[i]*TMath::Gaus(eta,m[i],s[i])*(1+sa[i]*TMath::Sign(1.,eta-m[i])*TMath::Exp(-TMath::Abs(eta-m[i])/ss[i]));
