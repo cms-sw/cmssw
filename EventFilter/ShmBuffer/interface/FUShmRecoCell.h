@@ -24,6 +24,8 @@ namespace evf {
     unsigned int   runNumber()   const { return runNumber_; }
     unsigned int   evtNumber()   const { return evtNumber_; }
     unsigned int   outModId()    const { return outModId_; }
+    unsigned int   fuProcessId() const { return fuProcessId_; }
+    unsigned int   fuGuid()      const { return fuGuid_; }
     unsigned int   type()        const { return type_; }
     
     unsigned int   payloadSize() const { return payloadSize_; }
@@ -31,6 +33,8 @@ namespace evf {
     unsigned int   eventSize()   const { return eventSize_; }
     
     void           writeInitMsg(unsigned int   outModId,
+				unsigned int   fuProcessId,
+				unsigned int   fuGuid,
 				unsigned char *data,
 				unsigned int   dataSize);
     
@@ -38,12 +42,15 @@ namespace evf {
 				  unsigned int   runNumber,
 				  unsigned int   evtNumber,
 				  unsigned int   outModId,
+				  unsigned int   fuProcessId,
+				  unsigned int   fuGuid,
 				  unsigned char *data,
 				  unsigned int   dataSize);
     
     void           writeErrorEvent(unsigned int   rawCellIndex,
 				   unsigned int   runNumber,
 				   unsigned int   evtNumber,
+				   unsigned int   fuProcessId,
 				   unsigned char *data,
 				   unsigned int   dataSize);
     
@@ -65,6 +72,8 @@ namespace evf {
     unsigned int runNumber_;
     unsigned int evtNumber_;
     unsigned int outModId_;
+    unsigned int fuProcessId_;
+    unsigned int fuGuid_;
     unsigned int type_;
     unsigned int payloadSize_;
     unsigned int payloadOffset_;
