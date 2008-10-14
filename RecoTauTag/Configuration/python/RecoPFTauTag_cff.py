@@ -20,7 +20,6 @@ PFTau = cms.Sequence(
     ic5PFJetTracksAssociatorAtVertex*
     pfRecoTauTagInfoProducer*
     pfRecoTauProducer*
-    pfRecoTauProducerHighEfficiency*
     pfRecoTauDiscriminationByIsolation*
     pfRecoTauDiscriminationHighEfficiency*
     pfRecoTauDiscriminationByLeadingTrackFinding*
@@ -34,7 +33,7 @@ PFTauHighEfficiency = cms.Sequence(
     ic5PFJetTracksAssociatorAtVertex*
     pfRecoTauTagInfoProducer*
     pfRecoTauProducerHighEfficiency*
-    pfRecoTauDiscriminationHighEfficiency*
+    pfRecoTauDiscriminationByIsolationHighEfficiency*
     pfRecoTauDiscriminationByLeadingTrackFindingHighEfficiency*
     pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency*
     pfRecoTauDiscriminationAgainstElectronHighEfficiency*
