@@ -5,15 +5,15 @@ class HRes4DHit;
 
 void plotHitPull();
 void draw(bool, bool, bool, bool, bool, bool ThreeInOne);
-void plot1DPulls(HPull1DHit * h1, HPull1DHit * h2, HPull1DHit * h3, bool ThreeInOne);
-void plot1DPullsVsPos(HPull1DHit * h1, HPull1DHit * h2, HPull1DHit * h3, bool ThreeInOne);
+void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeInOne);
+void plot1DPullsVsPos(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeInOne);
 bool setPreferences(bool& doPulls, bool& doPullsVsPos, bool& doPullsCloseWire, bool&, bool&, bool& ThreeIn1) ;
 
 // This is the main function
 void plotHit1DPull(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");

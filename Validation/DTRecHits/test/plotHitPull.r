@@ -16,13 +16,13 @@ void plotHitPull();
 void plotWWWHitPull(int dimSwitch = 1, TString nameDir = "");
 void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
 void plot1DPulliduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
-void plot2DPulliduals(HPulls2DHit * h1);
+void plot2DPulliduals(HRes2DHit * h1);
 
 void plot4DPulliduals(HRes4DHit * h1);
 void plot4DPullVsEta(HRes4DHit * h1);
 void plot4DPullVsPhi(HRes4DHit * h1);
 
-void plot2DAngles(HPulls2DHit * h1, bool ThreeIn1);
+void plot2DAngles(HRes2DHit * h1, bool ThreeIn1);
 void plot4DAngles(HRes4DHit * h1, bool ThreeIn1);
 
 // Read user input
@@ -36,7 +36,7 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, b
 void plotHitPull(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");
@@ -524,7 +524,7 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
 }
 
 
-void plot1DPulliduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
+void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
   int i = 2;
 
   if(ThreeIn1)
@@ -538,6 +538,7 @@ void plot1DPulliduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool Three
   int form = 2;
   if (ThreeIn1) c1 = newCanvas(N1.Remove(5,2)+"_hPull",3,1,1200,500);
   else newCanvas(N1+"_hPull",form);
+  cout << "h1->hPull " << h1->hPull << endl;
   drawGFit(h1->hPull, -0.2,0.2,-0.1,0.1);
 
   if (ThreeIn1) c1->cd(i++);
@@ -550,7 +551,7 @@ void plot1DPulliduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool Three
 
 }
 
-void plot2DPulliduals(HRes2DHit * h1) {
+void plot2DResiduals(HRes2DHit * h1) {
   int i = 2;
 
   TString N1 = "c_2D_" + h1->name;
