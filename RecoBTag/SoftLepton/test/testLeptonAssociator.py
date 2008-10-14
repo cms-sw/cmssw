@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TestEfficiency")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.TrackAssociatorByHitsESProducer.MinHitFraction = 0.3
