@@ -14,7 +14,7 @@
    define communication protocoll between FUResourceBroker ('FU') and
    StorageManager ('SM').
    
-   $Id: i2oEvfMsgs.h,v 1.2 2008/01/26 17:52:22 schiefer Exp $
+   $Id: i2oEvfMsgs.h,v 1.3 2008/05/23 09:08:22 schiefer Exp $
 */
 
 // I2O function codes: *_SM_* / *_FU_* according to who *receives* the message
@@ -81,8 +81,10 @@ I2O_SM_MULTIPART_MESSAGE_FRAME, *PI2O_SM_MULTIPART_MESSAGE_FRAME;
  */
 typedef struct _I2O_SM_PREAMBLE_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME
 {
-  U32 fuID;
+  U32 rbBufferID;
   U32 outModID;
+  U32 fuProcID;
+  U32 fuGUID;
   char* dataPtr() const
   {
     return (char*)this+sizeof(_I2O_SM_PREAMBLE_MESSAGE_FRAME);
@@ -96,10 +98,12 @@ I2O_SM_PREAMBLE_MESSAGE_FRAME, *PI2O_SM_PREAMBLE_MESSAGE_FRAME;
  */
 typedef struct _I2O_SM_DATA_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME
 {
-  U32   fuID;
+  U32   rbBufferID;
   U32   runID;
   U32   eventID;
   U32   outModID;
+  U32   fuProcID;
+  U32   fuGUID;
   char* dataPtr() const {
     return (char*)this+sizeof(_I2O_SM_DATA_MESSAGE_FRAME);
   }
@@ -113,7 +117,7 @@ I2O_SM_DATA_MESSAGE_FRAME, *PI2O_SM_DATA_MESSAGE_FRAME;
 typedef struct _I2O_FU_DATA_DISCARD_MESSAGE_FRAME
 {
   I2O_PRIVATE_MESSAGE_FRAME PvtMessageFrame;
-  U32                       fuID;
+  U32                       rbBufferID;
 }
 I2O_FU_DATA_DISCARD_MESSAGE_FRAME, *PI2O_FU_DATA_DISCARD_MESSAGE_FRAME;
 
@@ -123,10 +127,12 @@ I2O_FU_DATA_DISCARD_MESSAGE_FRAME, *PI2O_FU_DATA_DISCARD_MESSAGE_FRAME;
  */
 typedef struct _I2O_SM_DQM_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME
 {
-  U32   fuID;
+  U32   rbBufferID;
   U32   runID;
   U32   eventAtUpdateID;
   U32   folderID;
+  U32   fuProcID;
+  U32   fuGUID;
   char* dataPtr() const
   {
     return (char*)this+sizeof(_I2O_SM_DQM_MESSAGE_FRAME);
@@ -141,7 +147,7 @@ I2O_SM_DQM_MESSAGE_FRAME, *PI2O_SM_DQM_MESSAGE_FRAME;
 typedef struct _I2O_FU_DQM_DISCARD_MESSAGE_FRAME
 {
   I2O_PRIVATE_MESSAGE_FRAME PvtMessageFrame;
-  U32                       fuID;
+  U32                       rbBufferID;
 }
 I2O_FU_DQM_DISCARD_MESSAGE_FRAME, *PI2O_FU_DQM_DISCARD_MESSAGE_FRAME;
 
