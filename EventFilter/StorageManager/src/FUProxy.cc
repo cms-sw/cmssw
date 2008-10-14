@@ -1,5 +1,5 @@
 // Created by Markus Klute on 2007 Mar 22.
-// $Id: FUProxy.cc,v 1.3 2007/06/19 12:20:04 hcheung Exp $
+// $Id: FUProxy.cc,v 1.4 2007/06/28 20:37:42 hcheung Exp $
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <EventFilter/StorageManager/interface/FUProxy.h>
@@ -41,21 +41,21 @@ FUProxy::~FUProxy()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int FUProxy::sendDQMDiscard(int fuId)
+int FUProxy::sendDQMDiscard(int rbBufferId)
 {
-  return sendDiscard(fuId, I2O_FU_DQM_DISCARD);
+  return sendDiscard(rbBufferId, I2O_FU_DQM_DISCARD);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int FUProxy::sendDataDiscard(int fuId)
+int FUProxy::sendDataDiscard(int rbBufferId)
 {
-  return sendDiscard(fuId, I2O_FU_DATA_DISCARD);
+  return sendDiscard(rbBufferId, I2O_FU_DATA_DISCARD);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int FUProxy::sendDiscard(int fuId, int msgId)
+int FUProxy::sendDiscard(int rbBufferId, int msgId)
   throw (evf::Exception)
 {
   try {
@@ -85,7 +85,7 @@ int FUProxy::sendDiscard(int fuId, int msgId)
     pvtMsg->OrganizationID  = XDAQ_ORGANIZATION_ID;
 
     // set fu data discard message frame
-    msg->fuID               = fuId;
+    msg->rbBufferID         = rbBufferId;
 
      // set buffer size
     bufRef->setDataSize(msgSize);

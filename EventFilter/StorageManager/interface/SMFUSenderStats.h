@@ -1,7 +1,7 @@
 #ifndef _smfusenderstats_h_
 #define _smfusenderstats_h_
 
-// $Id: SMFUSenderStats.h,v 1.3 2008/07/31 20:30:28 biery Exp $ 
+// $Id: SMFUSenderStats.h,v 1.4 2008/09/03 00:03:58 hcheung Exp $ 
 
 #include <vector>
 
@@ -17,7 +17,7 @@ struct SMFUSenderStats // for data sender statistics (from SMFUSenderEntry)
                   unsigned int  hltLocalId,
                   unsigned int  hltInstance,
                   unsigned int  hltTid,
-                  uint32        fuID,
+                  uint32        rbBufferID,
                   SMFUSenderRegCollection RegistryCollection,
                   SMFUSenderDatCollection DatCollection,
                   unsigned int  connectStatus,
@@ -38,7 +38,7 @@ struct SMFUSenderStats // for data sender statistics (from SMFUSenderEntry)
   unsigned int  hltLocalId_;
   unsigned int  hltInstance_;
   unsigned int  hltTid_;
-  uint32        fuID_;
+  uint32        rbBufferID_;
   SMFUSenderRegCollection registryCollection_;
   SMFUSenderDatCollection datCollection_;
   unsigned int  connectStatus_;   // FU+HLT connection status

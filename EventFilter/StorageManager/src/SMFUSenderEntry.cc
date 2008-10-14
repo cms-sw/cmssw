@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.12 2008/09/23 19:07:44 biery Exp $
+ $Id: SMFUSenderEntry.cc,v 1.13 2008/09/23 20:04:27 biery Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -21,12 +21,12 @@ SMFUSenderEntry::SMFUSenderEntry(const char* hltURL,
                  const unsigned int numFramesToAllocate,
                  const std::string outModName,
                  const uint32 outModId,
-                 const uint32 fuID,
+                 const uint32 rbBufferID,
                  toolbox::mem::Reference *ref):
   hltLocalId_(hltLocalId), 
   hltInstance_(hltInstance), 
   hltTid_(hltTid),
-  fuID_(fuID)
+  rbBufferID_(rbBufferID)
 {
   copy(hltURL, hltURL+MAX_I2O_SM_URLCHARS, hltURL_);
   copy(hltClassName, hltClassName+MAX_I2O_SM_URLCHARS, hltClassName_);
@@ -317,12 +317,12 @@ bool SMFUSenderEntry::match(const char* hltURL, const char* hltClassName,
                              const unsigned int hltLocalId,
                              const unsigned int hltInstance, 
                              const unsigned int hltTid,
-                             const uint32 fuID,
+                             const uint32 rbBufferID,
                              const std::string outModName) //const
 {
    if(hltLocalId_ == hltLocalId && hltInstance_ == hltInstance &&
       hltTid_ == hltTid && sameURL(hltURL) && sameClassName(hltClassName) &&
-      fuID_ == fuID && sameOutMod(outModName))
+      rbBufferID_ == rbBufferID && sameOutMod(outModName))
    {
       return true;
    } else {
