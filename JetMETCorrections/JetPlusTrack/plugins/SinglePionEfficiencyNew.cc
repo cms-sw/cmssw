@@ -1,6 +1,7 @@
 //
 //
 //
+//
 // system include files
 //
 // You should use the TrackerHitAssociator (in SimTracker/TrackerHitAssociation)
@@ -325,7 +326,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    //
    edm::ESHandle<TrackerGeometry> theG;
    iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-   const TrackerGeometry& theTracker(*theG);
+   //   const TrackerGeometry& theTracker(*theG);
 
    edm::ESHandle<CaloGeometry> pG;
    //   iSetup.get<IdealGeometryRecord>().get(pG);
@@ -387,9 +388,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
      GlobalPoint pos = geo->getPosition(itb->detid());
      double eta = pos.eta();
-     double the = pos.theta();
+     //     double the = pos.theta();
      double phi = pos.phi();
-     double et  = itb->energy() * sin(the);
+     //     double et  = itb->energy() * sin(the);
      double DR1 = deltaR(genpions[0].eta(),genpions[0].phi(),eta,phi);
      double DR2 = deltaR(genpions[1].eta(),genpions[1].phi(),eta,phi);
      /*
@@ -411,8 +412,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
      GlobalPoint pos = geo->getPosition(itb->detid());
      double eta = pos.eta();
      double phi = pos.phi();
-     double the = pos.theta();
-     double et  = itb->energy() * sin(the);
+     //     double the = pos.theta();
+     //     double et  = itb->energy() * sin(the);
      double DR1 = deltaR(genpions[0].eta(),genpions[0].phi(),eta,phi);
      double DR2 = deltaR(genpions[1].eta(),genpions[1].phi(),eta,phi);
      if(DR1 < 0.5) {
@@ -433,12 +434,16 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(hbheInputSrc,hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
+
+   cout <<" ===> ZSP HBHERecHitCollection size = " << Hithbhe.size() << endl;
+   //   cout <<" ===> NO ZSP HBHERecHitCollection size = " << HithbheR.size() << endl;
+
    for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++) {
      GlobalPoint pos = geo->getPosition( hbheItr->detid()); 
      double eta = pos.eta();
      double phi = pos.phi();
-     double the = pos.theta();
-     double et  = hbheItr->energy() * sin(the);
+     //     double the = pos.theta();
+     //     double et  = hbheItr->energy() * sin(the);
      double DR1 = deltaR(genpions[0].eta(),genpions[0].phi(),eta,phi);
      double DR2 = deltaR(genpions[1].eta(),genpions[1].phi(),eta,phi);
      if(DR1 < 0.5) {
@@ -679,8 +684,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	*/
       }
 
-      size_t Nhits = track->recHitsSize();
-      size_t NpxlHits = track->hitPattern().numberOfValidPixelHits();
+      //      size_t Nhits = track->recHitsSize();
+      //      size_t NpxlHits = track->hitPattern().numberOfValidPixelHits();
       SimTrackIds.clear();
       /*
       cout <<"    " << endl;
@@ -739,7 +744,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
 	    }
 	    int trkid = closest.trackId();
-	    if(trkid <= theSimTracks.size()) {
+	    if(trkid <= (int) theSimTracks.size()) {
 	      if(theSimTracks[trkid-1].noGenpart() == 0) {
 		SimTrackIds.push_back(trkid);
 		//		cout <<"          closest simtrack id = " << closest.trackId() 
@@ -838,8 +843,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
     for(TrackCollection::const_iterator pxltrack = pxltracks->begin();
 	pxltrack != pxltracks->end(); ++pxltrack) {
       SimTrackIds.clear();
-      size_t Nhits = pxltrack->recHitsSize();
-      size_t NpxlHits = pxltrack->hitPattern().numberOfValidPixelHits();
+      //      size_t Nhits = pxltrack->recHitsSize();
+      //      size_t NpxlHits = pxltrack->hitPattern().numberOfValidPixelHits();
       /*
       cout <<"  " << endl;
       cout <<" pixel track " << t
@@ -889,7 +894,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
 	    }
 	    int trkid = closest.trackId();
-	    if(trkid <= theSimTracks.size()) {
+	    if(trkid <= (int) theSimTracks.size()) {
 	      if(theSimTracks[trkid-1].noGenpart() == 0) {
 		SimTrackIds.push_back(trkid);
 		//		cout <<"          closest simtrack id = " << closest.trackId() 
@@ -1118,7 +1123,7 @@ double SinglePionEfficiencyNew::eHCALmatrix(const HcalTopology* topology, const 
   std::vector<DetId> vNeighboursDetId = topology->east(det);
   energy = energy + eHCALneighbours(vNeighboursDetId, dets, topology, hits);
   if(ieta == 2) {
-    for (int ii = 0; ii < vNeighboursDetId.size(); ii++) {
+    for (int ii = 0; ii < (int) vNeighboursDetId.size(); ii++) {
       std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
       energy = energy + eHCALneighbours(vNeighboursDetIdc, dets, topology, hits);
     }
@@ -1128,7 +1133,7 @@ double SinglePionEfficiencyNew::eHCALmatrix(const HcalTopology* topology, const 
   vNeighboursDetId = topology->west(det);
   energy = energy + eHCALneighbours(vNeighboursDetId, dets, topology, hits);
   if(ieta == 2) {
-    for (int ii = 0; ii < vNeighboursDetId.size(); ii++) {
+    for (int ii = 0; ii < (int) vNeighboursDetId.size(); ii++) {
       std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
       energy = energy + eHCALneighbours(vNeighboursDetIdc, dets, topology, hits);
     }
@@ -1146,7 +1151,7 @@ double SinglePionEfficiencyNew::eHCALmatrix(const HcalTopology* topology, const 
     vNeighboursDetId = topology->east(NorthDetId[0]);
     energy = energy + eHCALneighbours(vNeighboursDetId, dets, topology, hits);
     if(ieta == 2) {
-      for (int ii = 0; ii < vNeighboursDetId.size(); ii++) {
+      for (int ii = 0; ii < (int) vNeighboursDetId.size(); ii++) {
 	std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
 	energy = energy + eHCALneighbours(vNeighboursDetIdc, dets, topology, hits);
       }
@@ -1156,7 +1161,7 @@ double SinglePionEfficiencyNew::eHCALmatrix(const HcalTopology* topology, const 
     vNeighboursDetId = topology->west(NorthDetId[0]);
     energy = energy + eHCALneighbours(vNeighboursDetId, dets, topology, hits);
     if(ieta == 2) {
-      for (int ii = 0; ii < vNeighboursDetId.size(); ii++) {
+      for (int ii = 0; ii < (int) vNeighboursDetId.size(); ii++) {
 	std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
 	energy = energy + eHCALneighbours(vNeighboursDetIdc, dets, topology, hits);
       }
@@ -1175,7 +1180,7 @@ double SinglePionEfficiencyNew::eHCALmatrix(const HcalTopology* topology, const 
     vNeighboursDetId = topology->east(SouthDetId[0]);
     energy = energy + eHCALneighbours(vNeighboursDetId, dets, topology, hits);
     if(ieta == 2) {
-      for (int ii = 0; ii < vNeighboursDetId.size(); ii++) {
+      for (int ii = 0; ii < (int) vNeighboursDetId.size(); ii++) {
 	std::vector<DetId> vNeighboursDetIdc = topology->east(vNeighboursDetId[ii]);
 	energy = energy + eHCALneighbours(vNeighboursDetIdc, dets, topology, hits);
       }
@@ -1185,7 +1190,7 @@ double SinglePionEfficiencyNew::eHCALmatrix(const HcalTopology* topology, const 
     vNeighboursDetId = topology->west(SouthDetId[0]);
     energy = energy + eHCALneighbours(vNeighboursDetId, dets, topology, hits);
     if(ieta == 2) {
-      for (int ii = 0; ii < vNeighboursDetId.size(); ii++) {
+      for (int ii = 0; ii < (int) vNeighboursDetId.size(); ii++) {
 	std::vector<DetId> vNeighboursDetIdc = topology->west(vNeighboursDetId[ii]);
 	energy = energy + eHCALneighbours(vNeighboursDetIdc, dets, topology, hits);
       }
@@ -1224,7 +1229,7 @@ double SinglePionEfficiencyNew::eHCALneighbours(std::vector<DetId>& vNeighboursD
 						const HcalTopology* topology, const HBHERecHitCollection& hits)
 {
   double eHCALneighbour = 0.;
-  for(int i = 0; i < vNeighboursDetId.size(); i++) {
+  for(int i = 0; i < (int) vNeighboursDetId.size(); i++) {
     int n = std::count(dets.begin(),dets.end(),vNeighboursDetId[i]);
     if(n != 0) continue; 
     dets.push_back(vNeighboursDetId[i]);

@@ -8,7 +8,6 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/TrajectoryState>
 <use name=JetMETCorrections/Algorithms>
-<use name=SimDataFormats/HepMCProduct>
 <use name=JetMETCorrections/Objects>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
