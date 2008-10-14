@@ -214,6 +214,8 @@ void dumpDQMEventHeader(const DQMEventMsgView* dview)
        << "lumi = " << dview->lumiSection() << "\n"
        << "update = " << dview->updateNumber() << "\n"
        << "compressionFlag = " << dview->compressionFlag() << "\n"
+       << "fuProcessId = " << dview->fuProcessId() << "\n"
+       << "fuGuid = 0x" << std::hex << dview->fuGuid() << std::dec << "\n"
        << "reserved = " << dview->reserved() << "\n"
        << "release = " << dview->releaseTag() << "\n"
        << "topFolder = " << dview->topFolderName() << "\n"
@@ -236,5 +238,21 @@ void dumpDQMEventView(const DQMEventMsgView* dview)
   }
 
   std::cout << ">>>>> DQMEvent Message Dump (end) >>>>>" << std::endl;
+  std::cout.flush();
+}
+
+void dumpFRDEventView(const FRDEventMsgView* fview)
+{
+  std::cout << "\n>>>>> FRDEvent Message Dump (begin) >>>>>" << std::endl;
+  std::cout.flush();
+
+  std::cout << "size = " << fview->size() << "\n"
+            << "version = " << fview->version() << "\n"
+            << "run = " << fview->run() << "\n"
+            << "lumi = " << fview->lumi() << "\n"
+            << "event = " << fview->event() << "\n";
+  std::cout.flush();
+
+  std::cout << ">>>>> FRDEvent Message Dump (end) >>>>>" << std::endl;
   std::cout.flush();
 }
