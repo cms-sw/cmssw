@@ -14,3 +14,4 @@ from RecoBTag.SoftLepton.softMuonNoIPES_cfi import *
 from RecoBTag.SoftLepton.softMuonNoIPBJetTags_cfi import *
 from RecoBTag.SoftLepton.softLeptonByPtES_cfi import *
 from RecoBTag.SoftLepton.softMuonByPtBJetTags_cfi import *
+from RecoBTag.SoftLepton.softMuonByIP3dBJetTags_cfi import *
