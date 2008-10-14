@@ -37,6 +37,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
   energyCut    = m_CaloSD.getParameter<double>("EminTrack")*GeV;
   tmaxHit      = m_CaloSD.getParameter<double>("TmaxHit")*ns;
+  eminHit      = m_CaloSD.getParameter<double>("EminHit")*MeV;
   suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
   kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
@@ -660,7 +661,7 @@ std::pair<bool,bool> CaloSD::saveHit(CaloG4Hit* aHit) {
 #endif
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
-  if (time <= tmaxHit) {
+  if ( time <= tmaxHit && ((aHit->getEM())+(aHit->getHadr())) > eminHit ) {  
     save = true;
     slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, 
 		       aHit->getHadr()/GeV, time, tkID, aHit->getDepth());

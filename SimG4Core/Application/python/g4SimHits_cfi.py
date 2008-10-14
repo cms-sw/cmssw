@@ -144,7 +144,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
         CorrectTOFBeam = cms.untracked.bool(False),
         UseMap = cms.untracked.bool(True),
         EminTrack = cms.double(1.0),
-        TmaxHit = cms.double(1000.0)
+        TmaxHit = cms.double(1000.0),
+        EminHit = cms.double(0.)
     ),
     ECalSD = cms.PSet(
         TestBeam = cms.untracked.bool(False),

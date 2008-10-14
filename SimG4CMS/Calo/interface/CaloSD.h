@@ -107,7 +107,7 @@ protected:
   G4StepPoint*           preStepPoint; 
   float                  edepositEM, edepositHAD;
 
-  double                 energyCut, tmaxHit;
+  double                 energyCut, tmaxHit, eminHit;
   int                    checkHits;
   bool                   useMap;
 
