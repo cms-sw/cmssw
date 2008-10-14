@@ -1055,12 +1055,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 		  float df=fabs(cscphi-rpcphi); 
 		  float dr=fabs(CenterPointRollGlobal.perp()-CenterPointCSCGlobal.perp());
-<<<<<<< RPCEfficiency.cc
 		  float diffz=CenterPointRollGlobal.z()-CenterPointCSCGlobal.z();
-=======
-		  if(debug) std::cout<<"CSC \t \t \t z of RPC="<<CenterPointRollGlobal.z()<<"z of CSC"<<CenterPointCSCGlobal.z()<<std::endl;
-		  float diffz=CenterPointRollGlobal.z()-CenterPointCSCGlobal.z();
->>>>>>> 1.18
 		  float dfg=df*180./3.14159265;
 
 		  if(debug) std::cout<<"CSC \t \t \t z of RPC="<<CenterPointRollGlobal.z()<<"z of CSC"<<CenterPointCSCGlobal.z()<<" dfg="<<dfg<<std::endl;

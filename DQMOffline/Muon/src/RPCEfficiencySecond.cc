@@ -491,7 +491,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	
 	if(meCollection.find(nameRoll)==meCollection.end()){
 	  std::cout<<"Empty collection map"<<std::endl;
-	  exit(1);
 	}
 
 	if(debug){
@@ -1387,7 +1386,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   }
   //EndCap
 
-<<<<<<< RPCEfficiencySecond.cc
   if(endcap){
     EffGlobDm3->setAxisTitle("%",2);
     EffGlobDm2->setAxisTitle("%",2);
@@ -1461,7 +1459,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   }
   
   if(debug) std::cout<<"Saving RootFile"<<std::endl;
-=======
+
   EffGlobDm3->setAxisTitle("%",2);
   EffGlobDm2->setAxisTitle("%",2);
   EffGlobDm1->setAxisTitle("%",2);
@@ -1533,17 +1531,10 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   NoPredictionD3far->setAxisTitle("%",2);
   
   if(debug) std::cout<<"Saving RootFile"<<std::endl;
->>>>>>> 1.15
   if(SaveFile)dbe->save(NameFile);
-<<<<<<< RPCEfficiencySecond.cc
   //dbe->showDirStructure();
   std::cout<<"RPCEFFICIENCY SECOND DONE"<<std::endl;
 }
-=======
-  dbe->showDirStructure();
-  std::cout<<"RPCEfficiency Done"<<std::endl;
-}
->>>>>>> 1.15
 
 void RPCEfficiencySecond::endJob(){
 }
