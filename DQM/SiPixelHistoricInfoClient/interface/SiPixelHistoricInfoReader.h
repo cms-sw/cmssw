@@ -12,29 +12,37 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
-#include "TObjArray.h"
 #include "TH2F.h"
+#include "TObjArray.h"
 
 
 namespace cms {
   class SiPixelHistoricInfoReader : public edm::EDAnalyzer {
+    typedef std::vector<std::string> vstring; 
+  
   public:
     explicit SiPixelHistoricInfoReader(const edm::ParameterSet&);
             ~SiPixelHistoricInfoReader();
 
     virtual void beginJob(const edm::EventSetup&);
     virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-    void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-    virtual void endJob();
+    virtual void endJob(); 
+    
+    std::string getMEregionString(uint32_t) const; 
+    void fillDebugHistogram(TString, float, float); 
     
   private:
-    unsigned int presentRun_;
+    edm::ParameterSet parameterSet_;
     bool printDebug_;
-    std::string outputDir_;
+    bool firstBeginRun_; 
+    std::string outputFile_;
+    std::vector<std::string> variables_; 
+    bool variable_[10]; 
     std::vector<uint32_t> allDetIds;
     TObjArray* AllDetHistograms;
-    TString hisID; 
+    TString hisID, title; 
     TFile *outputFile;
   };
 }
