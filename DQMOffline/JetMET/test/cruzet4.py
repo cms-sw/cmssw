@@ -26,7 +26,8 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # the task
-process.load("DQMOffline.JetMET.myJetMETAnalyzer_cfi")
+process.load("DQMOffline.JetMET.jetMETAnalyzer_cfi")
+process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
