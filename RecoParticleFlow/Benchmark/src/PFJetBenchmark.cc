@@ -114,7 +114,7 @@ void PFJetBenchmark::setup(
   DBOOK1D(RNHE,#DeltaE/E (neutral had),80,-2,2);
   DBOOK1D(RNEE,#DeltaE/E (neutral em),80,-2,2);
   DBOOK1D(Rneut,#DeltaE/E (neutral),80,-2,2);
-  DBOOK2D(RPtvsPt,#DeltaP_{T}/P_{T} vs P_{T},40, 0, 500, 80,-2,2);       //used to be 50 bin for each in x-direction
+  DBOOK2D(RPtvsPt,#DeltaP_{T}/P_{T} vs P_{T},250, 0, 500, 100,-2,2);       //used to be 50 bin for each in x-direction
   DBOOK2D(RCHEvsPt,#DeltaE/E (charged had) vs P_{T},40, 0, 500, 80,-2,2);
   DBOOK2D(RNHEvsPt,#DeltaE/E (neutral had) vs P_{T},40, 0, 500, 80,-2,2);
   DBOOK2D(RNEEvsPt,#DeltaE/E (neutral em) vs P_{T},40, 0, 500, 80,-2,2);
