@@ -102,6 +102,7 @@ PFEnergyCalibration::energyEm(double uncalibratedEnergyECAL,
 double
 PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,std::vector<double> &EclustersPS1,std::vector<double> &EclustersPS2){
   double eEcal = clusterEcal.energy();
+  clusterEcal.calculatePositionREP();
   double eta = clusterEcal.positionREP().eta();
   double phi = clusterEcal.positionREP().phi();
 
