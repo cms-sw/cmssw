@@ -7,10 +7,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-     '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/555/02E4041E-1571-DD11-98CE-001D09F241B9.root'
+ 'file:0C26943A-6D99-DD11-AE50-001617C3B76E.root'   
+#     '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/682/201D431A-0699-DD11-AFE1-000423D98BE8.root'
+#     '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/555/02E4041E-1571-DD11-98CE-001D09F241B9.root'
     )
 )
 
@@ -45,7 +47,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.24 $'),
+    version = cms.untracked.string('$Revision: 1.23 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
@@ -55,7 +57,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V6P::All"
+process.GlobalTag.globaltag = "CRAFT_V1P::All"
 process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 0 tesla
@@ -79,13 +81,10 @@ process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
-
-#fix for 2.1.9 thanks to giovanni p.
-process.combinatorialbeamhaloseedfinder.doClusterCheck = cms.bool(True)
-process.combinatorialbeamhaloseedfinder.MaxNumberOfCosmicClusters = cms.uint32(1000)
  
 
+process.DQMOfflineCosmics_new = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.triggerOfflineDQMSource*process.siPixelOfflineDQM_source)
 #Paths
-process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter)
+process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics_new * process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.FEVT)
