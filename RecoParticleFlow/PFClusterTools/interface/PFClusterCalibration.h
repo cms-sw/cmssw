@@ -5,12 +5,13 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
 
-#include <TF1.h>
 #include <vector>
 #include <string>
 #include <map>
-#include <TTree.h>
 #include <ostream>
+
+class TF1;
+class TTree;
 
 namespace pftools {
 
@@ -37,8 +38,7 @@ public:
 	/* Constructor with sensible defaults */
 	PFClusterCalibration();
 
-	virtual ~PFClusterCalibration() {
-	}
+	virtual ~PFClusterCalibration();
 
 	/* Returns the calibrated ecalEnergy */
 	double getCalibratedEcalEnergy(const double& ecalE, const double& hcalE,
@@ -143,9 +143,9 @@ private:
 	double lowEP1_;
 
 	//Function used to correct final total energies
-	TF1 correction_;
+	TF1* correction_;
 	//Function to correct eta dependence (post-calibration).
-	TF1 etaCorrection_;
+	TF1* etaCorrection_;
 
 	std::map<std::string, TF1> namesAndFunctions_;
 	std::vector<std::string> names_;

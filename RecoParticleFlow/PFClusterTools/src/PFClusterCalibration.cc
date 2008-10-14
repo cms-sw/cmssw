@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cassert>
 #include <TBranch.h>
+#include <TF1.h>
+#include <TTree.h>
 
 using namespace pftools;
 
@@ -19,18 +21,19 @@ PFClusterCalibration::PFClusterCalibration() :
 			globalP0_(0.0),
 			globalP1_(1.0),
 			lowEP0_(0.0),
-			lowEP1_(1.0),
-			correction_("correction",
-					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])"),
-			etaCorrection_(
-					"etaCorrection",
-					"(1-[0]*x-[1]*x*x)*(x<[2])+([3]+[4]*x)*(x>[2]&&x<[5])+(1-[6]*x-[7]*x*x)*(x>[5])") {
+			lowEP1_(1.0)
+{
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	correction_.FixParameter(0, globalP0_);
-	correction_.FixParameter(1, globalP1_);
-	correction_.FixParameter(2, lowEP0_);
-	correction_.FixParameter(3, lowEP1_);
-	correction_.FixParameter(4, correctionLowLimit_);
+	correction_ = new TF1("correction",
+			      "((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])");
+	etaCorrection_ = new TF1( "etaCorrection",
+				  "(1-[0]*x-[1]*x*x)*(x<[2])+([3]+[4]*x)*(x>[2]&&x<[5])+(1-[6]*x-[7]*x*x)*(x>[5])");
+
+	correction_->FixParameter(0, globalP0_);
+	correction_->FixParameter(1, globalP1_);
+	correction_->FixParameter(2, lowEP0_);
+	correction_->FixParameter(3, lowEP1_);
+	correction_->FixParameter(4, correctionLowLimit_);
 
 	/* These are the types of calibration I know about:
 	 * ecalOnly_elementName
@@ -84,6 +87,12 @@ PFClusterCalibration::PFClusterCalibration() :
 
 }
 
+PFClusterCalibration::~PFClusterCalibration() 
+{
+  delete correction_;
+  delete etaCorrection_;
+}
+
 void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params) {
 	if (params.size() != 8) {
 		std::cout << __PRETTY_FUNCTION__ << ": params is of the wrong length."
@@ -95,12 +104,12 @@ void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params
 	for (std::vector<double>::const_iterator dit = params.begin(); dit
 			!= params.end(); ++dit) {
 		std::cout << *dit << "\t";
-		etaCorrection_.FixParameter(count, *dit);
+		etaCorrection_->FixParameter(count, *dit);
 		++count;
 	}
 	std::cout << std::endl;
 	/*for(double eta(0); eta < 2.5; eta += 0.05) {
-	 std::cout << "Eta = " << eta << ",\tcorr = " << etaCorrection_.Eval(eta) << "\n"; 
+	 std::cout << "Eta = " << eta << ",\tcorr = " << etaCorrection_->Eval(eta) << "\n"; 
 	 }*/
 }
 
@@ -130,11 +139,11 @@ void PFClusterCalibration::setCorrections(const double& lowEP0,
 	//Intersection of two straight lines => matching at...
 	correctionLowLimit_ = (lowEP0_ - globalP0_)/(globalP1_ - lowEP1_);
 
-	correction_.FixParameter(0, globalP0_);
-	correction_.FixParameter(1, globalP1_);
-	correction_.FixParameter(2, lowEP0_);
-	correction_.FixParameter(3, lowEP1_);
-	correction_.FixParameter(4, correctionLowLimit_);
+	correction_->FixParameter(0, globalP0_);
+	correction_->FixParameter(1, globalP1_);
+	correction_->FixParameter(2, lowEP0_);
+	correction_->FixParameter(3, lowEP1_);
+	correction_->FixParameter(4, correctionLowLimit_);
 
 	std::cout << __PRETTY_FUNCTION__ << ": setting correctionLowLimit_ = "
 			<< correctionLowLimit_ << "\n";
@@ -184,15 +193,15 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 	answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
 			+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
 	if (doEtaCorrection_)
-		answer = answer/etaCorrection_.Eval(eta);
+		answer = answer/etaCorrection_->Eval(eta);
 
 	if (maxEToCorrect_ > 0 && answer < maxEToCorrect_)
-		return correction_.Eval(answer);
+		return correction_->Eval(answer);
 	if (doCorrection_) {
 		if (maxEToCorrect_ > 0 && answer < maxEToCorrect_)
-			answer = correction_.Eval(answer);
+			answer = correction_->Eval(answer);
 		else if (maxEToCorrect_ < 0) {
-			answer = correction_.Eval(answer);
+			answer = correction_->Eval(answer);
 		}
 	}
 	if (!allowNegativeEnergy_ && answer < 0)
@@ -212,11 +221,11 @@ void PFClusterCalibration::getCalibratedEnergyEmbedAInHcal(double& ecalE,
 
 	double preCorrection(ecalE + hcalE);
 	if(doEtaCorrection_) {
-		preCorrection = preCorrection/etaCorrection_.Eval(eta);
+		preCorrection = preCorrection/etaCorrection_->Eval(eta);
 	}
 
 	if (doCorrection_) {
-		double corrE = correction_.Eval(preCorrection);
+		double corrE = correction_->Eval(preCorrection);
 		//a term  = difference
 		double a = corrE - preCorrection;
 		hcalE += a;
