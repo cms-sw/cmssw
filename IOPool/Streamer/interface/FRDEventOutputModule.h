@@ -55,7 +55,7 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
   event.getByLabel(label_, instance_, fedBuffers);
 
   // determine the expected size of the FRDEvent
-  int expectedSize = (2 + 1024) * sizeof(uint32);
+  int expectedSize = (4 + 1024) * sizeof(uint32);
   for (int idx = 0; idx < 1024; ++idx) {
     FEDRawData singleFED = fedBuffers->FEDData(idx);
     expectedSize += singleFED.size();
@@ -67,7 +67,9 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e) {
   // build the FRDEvent into a temporary buffer
   unsigned char *workBuffer = new unsigned char[expectedSize + 256];
   uint32 *bufPtr = (uint32*) workBuffer;
+  *bufPtr++ = (uint32) 2;  // version number
   *bufPtr++ = (uint32) event.id().run();
+  *bufPtr++ = (uint32) event.luminosityBlock();
   *bufPtr++ = (uint32) event.id().event();
   for (int idx = 0; idx < 1024; ++idx) {
     FEDRawData singleFED = fedBuffers->FEDData(idx);

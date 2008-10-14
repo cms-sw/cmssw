@@ -11,9 +11,12 @@
  * events as well.
  *
  * 08-Aug-2008 - KAB  - Initial Implementation
+ * 06-Oct-2008 - KAB  - Added version number and lumi block number (version #2)
  *
- * Format:
+ * Version 2 Format:
+ *   uint32 - format version number
  *   uint32 - run number
+ *   uint32 - lumi number
  *   uint32 - event number
  *   1024 * uint32 - size values for all 1024 FED buffers
  *   variable size - FED data
@@ -22,7 +25,15 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
-struct FRDEventHeader
+struct FRDEventHeader_V2
+{
+  uint32 version_;
+  uint32 run_;
+  uint32 lumi_;
+  uint32 event_;
+};
+
+struct FRDEventHeader_V1
 {
   uint32 run_;
   uint32 event_;
@@ -37,7 +48,9 @@ class FRDEventMsgView
   uint8* startAddress() const { return buf_; }
   uint32 size() const { return event_len_; }
 
+  uint32 version() const;
   uint32 run() const;
+  uint32 lumi() const;
   uint32 event() const;
 
  private:
