@@ -136,12 +136,12 @@ namespace cscdqm {
   // Write summary information
   //
 
-    if (getEMUHisto(EMU_PHYSICS_ME, me1)){
+    if (getEMUHisto(EMU_PHYSICS_ME1, me)){
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
       summary.Write(tmp, 1);
     }
   
-    if (getEMUHisto(EMU_PHYSICS_ME1, me)){
+    if (getEMUHisto(EMU_PHYSICS_ME2, me)){
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1());
       summary.Write(tmp, 2);
     }

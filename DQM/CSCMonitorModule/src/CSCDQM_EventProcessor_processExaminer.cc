@@ -35,7 +35,7 @@ namespace cscdqm {
     uint32_t binWarningStatus = binChecker.warnings();
 
     METype* mo = 0;
-    if (getEMUHisto(EMU_DDU_FORMAT_ERROR, mo)) {
+    if (getEMUHisto(EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
 
       std::vector<int> DDUs = binChecker.listOfDDUs();
       for (std::vector<int>::iterator ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {

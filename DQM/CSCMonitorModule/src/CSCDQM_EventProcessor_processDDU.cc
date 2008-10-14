@@ -54,7 +54,7 @@ namespace cscdqm {
         mo->Fill(dduID, log10((double)trl_word_count));
       }
     }
-    if (getEMUHisto(EMU_ALL_DDU_AVERAGE_EVENT_SIZE, mo)) {
+    if (getEMUHisto(EMU_ALL_DDUS_AVERAGE_EVENT_SIZE, mo)) {
       mo->Fill(dduID, trl_word_count);
     }
 

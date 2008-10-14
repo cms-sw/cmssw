@@ -36,6 +36,7 @@
 
 #endif
 
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_CSCSummary.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFinder.h"
@@ -44,6 +45,12 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+
+#define LOG_ERROR Logger(ERROR)
+#define LOG_WARN  Logger(WARNING)
+#define LOG_INFO  Logger(INFO)
+#define LOG_DEBUG Logger(DEBUG)
+
 
 #define TAG_EMU "EMU"
 #define TAG_DDU "DDU_%d"
@@ -69,7 +76,12 @@ namespace cscdqm {
     double nodata_sigfail;
   };
 
-  typedef enum BinCheckerCRCType { ALCT, CFEB, TMB };
+  typedef enum BinCheckerCRCType { 
+    ALCT, 
+    CFEB, 
+    TMB 
+  };
+
   typedef std::map<std::string, uint32_t> CSCCounters;
 
   class EventProcessor {

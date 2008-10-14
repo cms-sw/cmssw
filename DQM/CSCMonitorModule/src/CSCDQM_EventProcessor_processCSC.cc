@@ -24,7 +24,7 @@ namespace cscdqm {
   void EventProcessor::processCSC(const CSCEventData& data, const int dduID) {
 
     if (&data == 0) {
-      //LOG4CPLUS_ERROR(logger_,eTag << "Zero pointer. DMB data are not available for unpacking"); //KK is->are
+      LOG_ERROR << "Zero pointer. DMB data are not available for unpacking"; //KK is->are
       return;
     }
 
@@ -45,7 +45,7 @@ namespace cscdqm {
     const CSCDMBHeader* dmbHeader = data.dmbHeader();
     const CSCDMBTrailer* dmbTrailer = data.dmbTrailer();
     if (!dmbHeader && !dmbTrailer) {
-      //LOG4CPLUS_ERROR(logger_,eTag << "Can not unpack DMB Header or/and Trailer");
+      LOG_ERROR << "Can not unpack DMB Header or/and Trailer";
       return;
     }
   
@@ -62,12 +62,12 @@ namespace cscdqm {
   
     unsigned long errors = binChecker.errorsForChamber(chamberID);
     if ((errors & binCheckMask) > 0 ) {
-      //LOG4CPLUS_WARN(logger_,eTag << "Format Errors " << cscTag << ": 0x" << hex << errors << " Skipped CSC Unpacking");
+      LOG_WARN << "Format Errors " << cscTag << ": 0x" << hex << errors << " Skipped CSC Unpacking";
       return;
     }
   
     if (crateID == 0 || dmbID == 0 || crateID > 60 || dmbID > 10) {
-      //LOG4CPLUS_ERROR(logger_, eTag << "Invalid CSC: " << cscTag << ". Skipping");
+      LOG_ERROR << "Invalid CSC: " << cscTag << ". Skipping";
       return;
     }
   
@@ -85,8 +85,6 @@ namespace cscdqm {
     double DMBEvents  = 0.0;
     DMBEvents = nDMBEvents[cscTag];  
   
-    //LOG4CPLUS_DEBUG(logger_, "Unpacking " << cscTag << " (Event: " << nDMBEvents[cscTag]<< ")");
-  
     CSCCounters& trigCnts = cscCntrs[cscTag];
     trigCnts["DMB"] = nDMBEvents[cscTag];
   
@@ -97,7 +95,7 @@ namespace cscdqm {
     //    Efficiency of the chamber
     float DMBEff = float(DMBEvents) / float(nEvents);
     if(DMBEff > 1.0) {
-      // LOG4CPLUS_ERROR(logger_,  cscTag  << " has efficiency " << DMBEff << " which is greater than 1");
+      LOG_ERROR <<   cscTag  << " has efficiency " << DMBEff << " which is greater than 1";
     }
     
     // Unpacking L1A number from DMB header
@@ -108,7 +106,7 @@ namespace cscdqm {
     int dmb_ddu_l1a_diff  = (int)(dmbHeaderL1A-(int)(L1ANumber%64));
     if (dmb_ddu_l1a_diff != 0) L1A_out_of_sync = true;
 
-    //LOG4CPLUS_DEBUG(logger_, "DMB(ID=" << chamberID  << ") L1A = " << dmbHeaderL1A << " : DMB L1A - DDU L1A = " << dmb_ddu_l1a_diff);
+    LOG_DEBUG << dmbHeaderL1A << " : DMB L1A - DDU L1A = " << dmb_ddu_l1a_diff;
   
     if (getCSCHisto(crateID, dmbID, CSC_DMB_L1A_DISTRIB, mo)) mo->Fill(dmbHeaderL1A);
   
@@ -137,7 +135,7 @@ namespace cscdqm {
   
     //  dmb_ddu_bxn_diff = (int)(dmbHeaderBXN-(int)(BXN&0x7F)); // For older DMB
     dmb_ddu_bxn_diff = dmbHeaderBXN%64-BXN%64;
-    //LOG4CPLUS_DEBUG(logger_, "DMB(ID=" << chamberID  << ") BXN = " << dmbHeaderBXN << " : DMB BXN - DDU BXN = " << dmb_ddu_bxn_diff);
+    LOG_DEBUG << dmbHeaderBXN << " : DMB BXN - DDU BXN = " << dmb_ddu_bxn_diff;
     if (getCSCHisto(crateID, dmbID, CSC_DMB_BXN_DISTRIB, mo)) mo->Fill((int)(dmbHeader->bxn12()));
   
     if (getCSCHisto(crateID, dmbID, CSC_DMB_DDU_BXN_DIFF, mo)) {
@@ -366,7 +364,7 @@ namespace cscdqm {
   
         if (getCSCHisto(crateID, dmbID, CSC_ALCT_WORD_COUNT, mo)) mo->Fill((int)(alctTrailer->wordCount()));
   
-        //LOG4CPLUS_DEBUG(logger_, "ALCT Trailer Word Count = " << dec << (int)alctTrailer->wordCount());
+        LOG_DEBUG <<  "ALCT Trailer Word Count = " << dec << (int)alctTrailer->wordCount();
   
         if (alctsDatas.size() == 2) {
           if (getCSCHisto(crateID, dmbID, CSC_ALCT1_VS_ALCT0_KEYWG, mo)) 
@@ -469,12 +467,12 @@ namespace cscdqm {
             }
           }
         } else {
-          // LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack Anode Data");
+          LOG_ERROR << cscTag << " Can not unpack Anode Data";
         }
         if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_OF_LAYERS_WITH_HITS, mo)) mo->Fill(NumberOfLayersWithHitsInALCT);    
         if (getCSCHisto(crateID, dmbID, CSC_ALCT_NUMBER_OF_WIREGROUPS_WITH_HITS, mo)) mo->Fill(NumberOfWireGroupsWithHitsInALCT);
       } else {
-        //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack ALCT Header or/and Trailer");
+        LOG_ERROR << cscTag << " Can not unpack ALCT Header or/and Trailer";
       }
     } else {
       //  ALCT not found
@@ -536,22 +534,21 @@ namespace cscdqm {
               mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
             }
           } else {
-            //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Header");
+            LOG_ERROR << cscTag << " Can not unpack TMB Header";
           }
     
         } else {
-          //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Data");
+          LOG_ERROR << cscTag << " Can not unpack TMB Data";
         }
       } else {
-        //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack ALCT Header");
+        LOG_ERROR << cscTag << " Can not unpack ALCT Header";
       }
     }
   
     //CLCT Found
     if (data.nclct()) {
   
-      //     LOG4CPLUS_WARN(logger_,
-      //      "TMB CRC calc: 0x" << hex << data.tmbData().TMBCRCcalc() << " trailer: 0x" << hex << data.tmbData().tmbTrailer().crc22());
+      //LOG_WARN << "TMB CRC calc: 0x" << hex << data.tmbData().TMBCRCcalc() << " trailer: 0x" << hex << data.tmbData().tmbTrailer().crc22();
   
       CSCTMBData* tmbData = data.tmbData();
       if (tmbData) {
@@ -658,7 +655,7 @@ namespace cscdqm {
           }
   
           if (getCSCHisto(crateID, dmbID, CSC_TMB_WORD_COUNT, mo)) mo->Fill((int)(tmbTrailer->wordCount()));
-          //LOG4CPLUS_DEBUG(logger_, "TMB Trailer Word Count = " << dec << (int)tmbTrailer->wordCount());
+          LOG_DEBUG <<  "TMB Trailer Word Count = " << dec << (int)tmbTrailer->wordCount();
     
           for (uint32_t lct = 0; lct < clctsDatas.size(); lct++) {
   
@@ -674,10 +671,9 @@ namespace cscdqm {
             mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->getObject()->GetMaximumBin())), "Y");
           }
   
-          // LOG4CPLUS_DEBUG(logger_, "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3));
-          // LOG4CPLUS_DEBUG(logger_, "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3));
-  
-          // LOG4CPLUS_DEBUG(logger_, "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType() << " Strip:" << clctsDatas[lct].getKeyStrip());
+          LOG_DEBUG << "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3);
+          LOG_DEBUG <<  "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3);
+          LOG_DEBUG <<  "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType() << " Strip:" << clctsDatas[lct].getKeyStrip();
           
           if (clctsDatas[lct].getStripType()) { // HalfStrip Type
             if (getCSCHisto(crateID, dmbID, CSC_CLCTXX_KEYHALFSTRIP, mo, lct)) 
@@ -811,7 +807,7 @@ namespace cscdqm {
             }
           }
         } else {
-          // LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack CLCT Data");
+          LOG_ERROR << cscTag << " Can not unpack CLCT Data";
         }
 
         if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_OF_LAYERS_WITH_HITS, mo)) 
@@ -819,10 +815,10 @@ namespace cscdqm {
         if (getCSCHisto(crateID, dmbID, CSC_CLCT_NUMBER_OF_HALFSTRIPS_WITH_HITS, mo)) 
           mo->Fill(NumberOfHalfStripsWithHitsInCLCT);
         } else {
-          //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Header or/and Trailer");
+          LOG_ERROR << cscTag << " Can not unpack TMB Header or/and Trailer";
         }
       } else {
-        //LOG4CPLUS_ERROR(logger_,eTag << cscTag << " Can not unpack TMB Data");
+        LOG_ERROR << cscTag << " Can not unpack TMB Data";
       }
   
     } else {
@@ -910,8 +906,8 @@ namespace cscdqm {
         //-------------B
         NmbTimeSamples= (cfebData[nCFEB])->nTimeSamples();
         //-------------E
-        //LOG4CPLUS_DEBUG(logger_, "nEvents = " << nEvents);
-        //LOG4CPLUS_DEBUG(logger_, "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB);
+        LOG_DEBUG <<  "nEvents = " << nEvents;
+        LOG_DEBUG <<  "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB;
   
         // =VB= Optimizations for faster histogram object access 
         METype* mo_CFEB_SCA_Block_Occupancy = 0;
@@ -925,7 +921,7 @@ namespace cscdqm {
         METype* mo_CFEB_DMB_L1A_diff = 0;
         getCSCHisto(crateID, dmbID, CSC_CFEBXX_DMB_L1A_DIFF, mo_CFEB_DMB_L1A_diff, nCFEB);
         
-        // LOG4CPLUS_DEBUG(logger_, " nSample = " << nSample);
+        //LOG_DEBUG << " nSample = " << nSample;
   
         for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
           //  =VB= Optimizations for faster histogram object access
@@ -950,7 +946,7 @@ namespace cscdqm {
           for(int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
             timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
             if (timeSlice[nCFEB][nSample] == 0) {
-              //LOG4CPLUS_WARN(logger_, "CFEB" << nCFEB << " nSample: " << nSample << " - B-Word");
+              LOG_WARN <<  "CFEB" << nCFEB << " nSample: " << nSample << " - B-Word";
               continue;
             }
   
@@ -959,7 +955,6 @@ namespace cscdqm {
               int cfeb_dmb_l1a_diff = (int)((timeSlice[nCFEB][nSample]->get_L1A_number())-dmbHeader->l1a()%64);
               if (cfeb_dmb_l1a_diff != 0) { 
     		L1A_out_of_sync = true;
-    		//LOG4CPLUS_WARN(logger_,eTag << cscTag << " CFEB" << nCFEB << " nSample: " << nSample << " L1As out of sync");
               }
               if(cfeb_dmb_l1a_diff < -32) mo->Fill(cfeb_dmb_l1a_diff + 64);
               else {
@@ -969,7 +964,7 @@ namespace cscdqm {
               mo_CFEB_DMB_L1A_diff->SetAxisRange(0.1, 1.1*(1.0+mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->getObject()->GetMaximumBin())), "Y");
             }
     
-            // LOG4CPLUS_DEBUG(logger_, " nSample = " << nSample);
+            LOG_DEBUG <<  " nSample = " << nSample;
             // for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) 
             scaControllerWord[nCFEB][nSample][nLayer-1] = (timeSlice[nCFEB][nSample])->scaControllerWord(nLayer);
   
@@ -985,14 +980,14 @@ namespace cscdqm {
             Buffer_Count = (timeSlice[nCFEB][nSample])->get_buffer_count();
       
             SCA_BLK  = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).sca_blk;
-            // LOG4CPLUS_DEBUG(logger_, "SCA BLOCK: Chamber="<<chamberID<<" CFEB="<<nCFEB+1
-            //  <<" TRIGTIME="<<TrigTime<<" TimeSlice="<<nSample+1<<" Layer="<<nLayer<<" SCA_BLK="<<SCA_BLK);
+            LOG_DEBUG <<  "SCA BLOCK: Chamber=" << chamberID << " CFEB=" << nCFEB + 1
+              <<" TRIGTIME="<<TrigTime<<" TimeSlice="<<nSample+1<<" Layer="<<nLayer<<" SCA_BLK="<<SCA_BLK;
       
             for(int nStrip = 0; nStrip < N_Strips; ++nStrip) {
               SCABlockData[nCFEB*16+nStrip][nSample][nLayer-1] = SCA_BLK;
               // if(res<=1) TrigTimeData[nCFEB*16+nStrip][nSample][nLayer-1] = TrigTime;
             }
-            // LOG4CPLUS_DEBUG(logger_,"*********"<<" TRIGTIME="<<TrigTime<<" BIT COUNT="<<bit_count);
+            //LOG_DEBUG << "*********"<<" TRIGTIME="<<TrigTime<<" BIT COUNT="<<bit_count;
   
             // SCA Block Occupancy Histograms
             // if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, mo, nCFEB)) mo->Fill(SCA_BLK);
@@ -1022,7 +1017,7 @@ namespace cscdqm {
             }
   
             //--------------E
-            // LOG4CPLUS_DEBUG(logger_, "nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime);
+            LOG_DEBUG <<  "nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime;
             if(nSample == 0 && nLayer == 1) {
               TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer - 1]).trig_time;
               int k = 1;
@@ -1039,7 +1034,7 @@ namespace cscdqm {
               if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, mo, nCFEB)) 
                 mo->Fill(LCTPhase, L1APhase);
   
-              //LOG4CPLUS_DEBUG(logger_, "L1APhase " << L1APhase << " UnpackedTrigTime " << UnpackedTrigTime);
+              LOG_DEBUG <<  "L1APhase " << L1APhase << " UnpackedTrigTime " << UnpackedTrigTime;
   
               if (getCSCHisto(crateID, dmbID, CSC_CFEBXX_L1A_SYNC_TIME_VS_DMB, mo, nCFEB))  
                 mo->Fill((int)(dmbHeader->dmbCfebSync()), (int)UnpackedTrigTime);
@@ -1060,13 +1055,13 @@ namespace cscdqm {
             for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
               timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
               ADC = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcCounts) & 0xFFF);
-              // LOG4CPLUS_DEBUG(logger_, " nStrip="<< dec << nStrip << " ADC=" << hex << ADC);
+              LOG_DEBUG <<  " nStrip="<< dec << nStrip << " ADC=" << hex << ADC;
               OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcOverflow) & 0x1);
   
               if(nSample == 0) { // nSample == 0
                 CellPeak[nCFEB][nLayer-1][nStrip-1] = std::make_pair(nSample,ADC);
                 Pedestal[nCFEB][nLayer-1][nStrip-1] = ADC;
-                //LOG4CPLUS_DEBUG(logger_, " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer-1][nStrip-1]);
+                LOG_DEBUG <<  " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer-1][nStrip-1];
               }
     
               if(OutOffRange == 1 && CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
@@ -1092,7 +1087,7 @@ namespace cscdqm {
                 }
                 //--------------B
                 if(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1] > Threshold) {
-                  //LOG4CPLUS_DEBUG(logger_, "Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample << " ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer-1][nStrip-1]);
+                  LOG_DEBUG <<  "Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample << " ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer-1][nStrip-1];
                   cscdata[nCFEB * 16 + nStrip - 1][nSample][nLayer - 1] = ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1];
                 }	
                 //--------------E
@@ -1155,7 +1150,7 @@ namespace cscdqm {
         ClusterFinder.DoAction(nLayer - 1, Cathodes);
         Clus = ClusterFinder.getClusters();
 
-        // LOG4CPLUS_DEBUG(logger_, "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***");
+        LOG_DEBUG <<  "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***";
         // Number of Clusters Histograms
         if (getCSCHisto(crateID, dmbID, CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, mo, nLayer)) {
           if(Clus.size() >= 0)  mo->Fill(Clus.size());
@@ -1164,7 +1159,7 @@ namespace cscdqm {
         for(uint32_t u = 0; u < Clus.size(); u++){
           Clus_Sum_Charge = 0.0;
           for(uint32_t k = 0;k < Clus[u].ClusterPulseMapHeight.size(); k++) {
-            //LOG4CPLUS_DEBUG(logger_, "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1);
+            LOG_DEBUG <<  "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1;
             for(int n=Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++) {
               Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
             }
