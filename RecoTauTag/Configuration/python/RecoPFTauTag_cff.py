@@ -21,7 +21,6 @@ PFTau = cms.Sequence(
     pfRecoTauTagInfoProducer*
     pfRecoTauProducer*
     pfRecoTauDiscriminationByIsolation*
-    pfRecoTauDiscriminationHighEfficiency*
     pfRecoTauDiscriminationByLeadingTrackFinding*
     pfRecoTauDiscriminationByLeadingTrackPtCut*
     pfRecoTauDiscriminationAgainstElectron*
