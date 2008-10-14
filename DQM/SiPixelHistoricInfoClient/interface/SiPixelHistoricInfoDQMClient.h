@@ -8,6 +8,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
@@ -21,24 +22,30 @@ public:
 
 private:
   virtual void beginJob(const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
 
   void retrieveMEs();
+  uint32_t getBLadID(std::string) const; 
+  uint32_t getLayerDiskID(std::string) const; 
   void fillPerformanceSummary() const;
-
-  void writeDB(std::string) const; 
-  void saveFile(std::string) const; 
+  void writeDB() const; 
+  void saveFile(std::string filename) const { dbe_->save(filename); }; 
 
 private: 
+  bool useSummary_; 
   bool printDebug_;
   bool writeHisto_;
+  std::vector<std::string> inputFiles_;
   std::string outputDir_; 
 
   edm::ParameterSet parameterSet_;
   DQMStore* dbe_;
 
   int nEventsInRun; 
+  SiPixelHistogramId hManager;
   std::map< uint32_t, std::vector<MonitorElement*> > ClientPointersToModuleMEs;
   SiPixelPerformanceSummary* performanceSummary;
 };
