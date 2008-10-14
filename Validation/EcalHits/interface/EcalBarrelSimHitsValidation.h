@@ -94,6 +94,12 @@ private:
 
  MonitorElement* meEBhitEnergy_;
 
+ MonitorElement* meEBhitEnergy2_;
+
+ MonitorElement* meEBcrystalEnergy_;
+
+ MonitorElement* meEBcrystalEnergy2_;
+
  MonitorElement* meEBe1_; 
  MonitorElement* meEBe4_; 
  MonitorElement* meEBe9_; 

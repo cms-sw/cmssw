@@ -74,6 +74,10 @@ void HcalSimHitStudy::beginJob(const edm::EventSetup& ) {
       meHETimHit_ = dbe_->book1D("Hit34","Time in HE",           100,0.,400.);
       meHOTimHit_ = dbe_->book1D("Hit35","Time in HO",           100,0.,400.);
       meHFTimHit_ = dbe_->book1D("Hit36","Time in HF",           100,0.,400.);
+      meHBEneHit2_ = dbe_->book1D("Hit37","Energy in HB 2",         100,0.,0.0001);
+      meHEEneHit2_ = dbe_->book1D("Hit38","Energy in HE 2",         100,0.,0.0001);
+      meHOEneHit2_ = dbe_->book1D("Hit39","Energy in HO 2",         100,0.,0.0001);
+      meHFEneHit2_ = dbe_->book1D("Hit40","Energy in HF 2",         100,0.,0.0001);
     }
   }
 }
@@ -145,24 +149,28 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHBEtaHit_->Fill(double(eta));
 	  meHBPhiHit_->Fill(double(phi));
 	  meHBEneHit_->Fill(energy);
+	  meHBEneHit2_->Fill(energy);
 	  meHBTimHit_->Fill(time);
 	} else if (subdet == static_cast<int>(HcalEndcap)) {
 	  meHEDepHit_->Fill(double(depth));
 	  meHEEtaHit_->Fill(double(eta));
 	  meHEPhiHit_->Fill(double(phi));
 	  meHEEneHit_->Fill(energy);
+	  meHEEneHit2_->Fill(energy);
 	  meHETimHit_->Fill(time);
 	} else if (subdet == static_cast<int>(HcalOuter)) {
 	  meHODepHit_->Fill(double(depth));
 	  meHOEtaHit_->Fill(double(eta));
 	  meHOPhiHit_->Fill(double(phi));
 	  meHOEneHit_->Fill(energy);
+	  meHOEneHit2_->Fill(energy);
 	  meHOTimHit_->Fill(time);
 	} else if (subdet == static_cast<int>(HcalForward)) {
 	  meHFDepHit_->Fill(double(depth));
 	  meHFEtaHit_->Fill(double(eta));
 	  meHFPhiHit_->Fill(double(phi));
 	  meHFEneHit_->Fill(energy);
+	  meHFEneHit2_->Fill(energy);
 	  meHFTimHit_->Fill(time);
 	}
       }

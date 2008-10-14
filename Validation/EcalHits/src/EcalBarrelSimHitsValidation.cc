@@ -45,6 +45,9 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   meEBOccupancy_   = 0;
   meEBLongitudinalShower_ = 0;
   meEBhitEnergy_   = 0;
+  meEBhitEnergy2_   = 0;
+  meEBcrystalEnergy_   = 0;
+  meEBcrystalEnergy2_   = 0;
 
   meEBe1_  = 0;  
   meEBe4_  = 0;  
@@ -72,7 +75,7 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
     menEBHits_ = dbe_->book1D(histo, histo, 50, 0., 5000.) ;
  
     sprintf (histo, "EB crystals multiplicity" ) ;
-    menEBCrystals_ = dbe_->book1D(histo, histo, 50, 0., 300.) ; 
+    menEBCrystals_ = dbe_->book1D(histo, histo, 200, 0., 2000.) ; 
 
     sprintf (histo, "EB occupancy" ) ;
     meEBOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -82,6 +85,15 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
 
     sprintf (histo, "EB hits energy spectrum" );
     meEBhitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+
+    sprintf (histo, "EB hits energy spectrum 2" );
+    meEBhitEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
+
+    sprintf (histo, "EB crystal energy spectrum" );
+    meEBcrystalEnergy_ = dbe_->book1D(histo, histo, 5000, 0., 50.);
+
+    sprintf (histo, "EB crystal energy spectrum 2" );
+    meEBcrystalEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
 
     sprintf (histo, "EB E1" ) ;
     meEBe1_ = dbe_->book1D(histo, histo, 400, 0., 400.);
@@ -168,6 +180,9 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   
   for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin();
        isim != theEBCaloHits.end(); ++isim){
+
+    if ( (*isim).time() > 500. ) { continue; }
+
     CaloHitMap[(*isim).id()].push_back((*isim));
     
     EBDetId ebid (isim->id()) ;
@@ -187,10 +202,17 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     EBEnergy_ += isim->energy();
     nEBHits++;
     meEBhitEnergy_->Fill(isim->energy());
+    meEBhitEnergy2_->Fill(isim->energy());
     
   }
 
   if (menEBCrystals_) menEBCrystals_->Fill(ebmap.size());
+  if (meEBcrystalEnergy_) {
+    for (std::map<uint32_t,float,std::less<uint32_t> >::iterator it = ebmap.begin(); it != ebmap.end(); ++it ) meEBcrystalEnergy_->Fill((*it).second);
+  }
+  if (meEBcrystalEnergy2_) {
+    for (std::map<uint32_t,float,std::less<uint32_t> >::iterator it = ebmap.begin(); it != ebmap.end(); ++it ) meEBcrystalEnergy2_->Fill((*it).second);
+  }
   
   if (menEBHits_) menEBHits_->Fill(nEBHits);
   

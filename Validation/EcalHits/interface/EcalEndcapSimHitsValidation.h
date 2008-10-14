@@ -95,8 +95,11 @@ private:
 
  MonitorElement* meEELongitudinalShower_;
 
- MonitorElement* meEEzpHitEnergy_;
- MonitorElement* meEEzmHitEnergy_;
+ MonitorElement* meEEHitEnergy_;
+ MonitorElement* meEEHitEnergy2_;
+
+ MonitorElement* meEEcrystalEnergy_;
+ MonitorElement* meEEcrystalEnergy2_;
 
  MonitorElement* meEEe1_; 
  MonitorElement* meEEe4_; 
