@@ -11,43 +11,12 @@ process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-# switch OFF ECAL SR
-from SimCalorimetry.EcalSimProducers.ecaldigi_cfi import *
-from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
-simEcalDigis.srpBarrelLowInterestChannelZS = cms.double(-1.e9)
-simEcalDigis.srpEndcapLowInterestChannelZS = cms.double(-1.e9)
-
-from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
-ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
-#
-
-# HCAL ZSP
-from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
-from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
-simHcalDigis.hbhe = cms.PSet(
-        firstSample = cms.int32(4),
-        mode = cms.int32(2),
-        samplesToAdd = cms.int32(2),
-        twoSided = cms.bool(False),
-        level = cms.int32(-2000)
-    )
-
-from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi import *
-hbhereco.digiLabel = cms.InputTag("simHcalDigis")
-
-from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi import *
-hfreco.digiLabel = cms.InputTag("simHcalDigis")
-
-from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi import *
-horeco.digiLabel = cms.InputTag("simHcalDigis")
-#
-
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
-
+#
+process.load("SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi")
+#
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
@@ -63,6 +32,46 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # track refitting to have local hit position which is not stored on disk (from Giuseppe Cerati)
 process.RefitTracks = copy.deepcopy(TrackRefitter)
 process.RefitTracks.src = cms.InputTag("generalTracks")
+
+# switch OFF ECAL SR
+from SimCalorimetry.EcalSimProducers.ecaldigi_cfi import *
+from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
+simEcalDigis.srpBarrelLowInterestChannelZS = cms.double(-1.e9)
+simEcalDigis.srpEndcapLowInterestChannelZS = cms.double(-1.e9)
+
+from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
+from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
+ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+#
+
+# HCAL ZSP
+from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
+from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi import *
+simHcalDigis.HBlevel = cms.int32(-8000)
+simHcalDigis.HElevel = cms.int32(-8000)
+simHcalDigis.HOlevel = cms.int32(-8000)
+simHcalDigis.HFlevel = cms.int32(-9000)
+
+#from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
+#simHcalDigis.hbhe = cms.PSet(
+#        firstSample = cms.int32(4),
+#        mode = cms.int32(2),
+#        samplesToAdd = cms.int32(2),
+#        twoSided = cms.bool(False),
+#        level = cms.int32(-2000)
+#    )
+
+from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi import *
+hbhereco.digiLabel = cms.InputTag("simHcalDigis")
+
+from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi import *
+hfreco.digiLabel = cms.InputTag("simHcalDigis")
+
+from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi import *
+horeco.digiLabel = cms.InputTag("simHcalDigis")
+#
+
 #
 # test QCD file from 210 RelVal is on /castor/cern.ch/user/a/anikiten/jpt210qcdfile/
 process.maxEvents = cms.untracked.PSet(
