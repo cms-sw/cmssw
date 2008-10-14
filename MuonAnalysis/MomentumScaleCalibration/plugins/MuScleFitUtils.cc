@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/10/09 15:39:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/11 09:05:19 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -503,16 +503,17 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
     // Also ok would be (p.get())[id] = *it;
     p[id] = *it; 
   }
-  return applyScale (muon, p, chg);
+  lorentzVector tempScaleVec( applyScale (muon, p, chg) );
   delete[] p;
+  return tempScaleVec;
 }
 
-// This just calls the true applyScale function, removing the memory leak of p
-// ---------------------------------------------------------------------------
-lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
-                                          std::auto_ptr<double> parval,int chg) {
-  return applyScale (muon, parval.get(), chg);
-}
+// // This just calls the true applyScale function, removing the memory leak of p
+// // ---------------------------------------------------------------------------
+// lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
+//                                           std::auto_ptr<double> parval,int chg) {
+//   return applyScale (muon, parval.get(), chg);
+// }
 
 // This is called by the likelihood to "taste" different values for additional corrections
 // ---------------------------------------------------------------------------------------
@@ -596,13 +597,13 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   return massRes;
 }
 
-// This just calls the true massResolution function, removing the memory leak of p
-// -------------------------------------------------------------------------------
-double MuScleFitUtils::massResolution (const lorentzVector& mu1,
-					     const lorentzVector& mu2,
-					     std::auto_ptr<double> parval) {
-  return massResolution (mu1, mu2, parval.get());
-}
+// // This just calls the true massResolution function, removing the memory leak of p
+// // -------------------------------------------------------------------------------
+// double MuScleFitUtils::massResolution (const lorentzVector& mu1,
+//                                        const lorentzVector& mu2,
+//                                        std::auto_ptr<double> parval) {
+//   return massResolution (mu1, mu2, parval.get());
+// }
 
 // Mass resolution - version with parval
 // -------------------------------------
@@ -783,15 +784,16 @@ double MuScleFitUtils::massProb (double mass, double massResol, vector<double> p
     p[id] = *it;
   }
   // p must be passed by value as below:
-  return massProb (mass, massResol, p);
+  double massProbability = massProb (mass, massResol, p);
   delete[] p;
+  return massProbability;
 }
 
-// This just calls the true massProb function, removing the memory leak of p
-// -------------------------------------------------------------------------
-double MuScleFitUtils::massProb (double mass, double massResol, std::auto_ptr<double> parval) {
-  return massProb (mass, massResol, parval.get());
-}
+// // This just calls the true massProb function, removing the memory leak of p
+// // -------------------------------------------------------------------------
+// double MuScleFitUtils::massProb (double mass, double massResol, std::auto_ptr<double> parval) {
+//   return massProb (mass, massResol, parval.get());
+// }
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
