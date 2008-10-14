@@ -5,10 +5,11 @@
  *  Abstract algorithmic class to compute Rec Hit
  *  form a RPC digi
  *
- *  $Date: 2006/04/18 16:28:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/12 00:48:39 $
+ *  $Revision: 1.2 $
  *  \author M. Maggi -- INFN Bari
  */
+
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
@@ -16,6 +17,8 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+
+#include "RecoLocalMuon/RPCRecHit/src/RPCMaskReClusterizer.h"
 
 class RPCCluster;
 class RPCRoll;
@@ -43,7 +46,8 @@ class RPCRecHitBaseAlgo {
   /// Build all hits in the range associated to the rpcId, at the 1st step.
   virtual edm::OwnVector<RPCRecHit> reconstruct(const RPCRoll& roll,
 						const RPCDetId& rpcId,
-						const RPCDigiCollection::Range& digiRange);
+						const RPCDigiCollection::Range& digiRange,
+                                                const RollMask& mask);
 
   /// standard local recHit computation
   virtual bool compute(const RPCRoll& roll,
