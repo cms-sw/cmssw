@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2008/02/19 18:03:34 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/09/30 15:30:41 $
+ *  $Revision: 1.25 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -233,6 +233,10 @@ MuonDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
   // if we want to use the concept of InvalidRecHits,
   // we can reuse LayerMeasurements from TrackingTools/MeasurementDet
   std::vector<DetGroup> groups(layer->groupedCompatibleDets(startingState, prop, est));
+
+  // this should be fixed either in RecoMuon/MeasurementDet/MuonDetLayerMeasurements or
+  // RecoMuon/DetLayers/MuRingForwardDoubleLayer
+  // and removed the reverse operation in StandAloneMuonFilter::findBestMeasurements
 
   for (std::vector<DetGroup>::const_iterator grp=groups.begin(); grp!=groups.end(); ++grp) {
     
