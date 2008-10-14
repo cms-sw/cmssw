@@ -576,7 +576,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    //    for out of vertex, in cone muons suntract 2 GeV  
        for( reco::TrackRefVector::iterator itV = muInCaloOutOfVertex.begin(); itV != muInCaloOutOfVertex.end(); itV++)
 	 {
-	   double echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
+	   //double echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
 	   NewResponse = NewResponse - 2.0;
 	 }
    float mScale = NewResponse/fJet.energy();
