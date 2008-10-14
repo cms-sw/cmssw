@@ -14,6 +14,10 @@ def tqafLayer1GenParticles(process):
         ##"keep++ pdgId = {tbar} && status = 2 || status == 3",
         ## keep all stable particles within detector acceptance
         "keep status = 1 && pt > 0.5 && abs(eta) < 5"
+        "keep status = 2 && pdgId = {W+}"
+        "keep status = 2 && pdgId = {W-}"
+        "keep status = 2 && pdgId = {Z0}"
+        "keep status = 3"
         )
     )
     process.gen = cms.Path(process.prunedGenParticles)

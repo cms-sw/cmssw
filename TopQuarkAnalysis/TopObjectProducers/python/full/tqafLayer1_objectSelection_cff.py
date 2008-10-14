@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedLayer1Electrons
 
 selectedLayer1Electrons.src = cms.InputTag("allLayer1Electrons")
-selectedLayer1Electrons.cut = cms.string('pt > 10. & abs(eta) < 3.0')
+selectedLayer1Electrons.cut = cms.string('pt > 0.')
 
 #---------------------------------------
 # Muon
@@ -14,7 +14,7 @@ selectedLayer1Electrons.cut = cms.string('pt > 10. & abs(eta) < 3.0')
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import selectedLayer1Muons
 
 selectedLayer1Muons.src = cms.InputTag("allLayer1Muons")
-selectedLayer1Muons.cut = cms.string('pt > 10. & abs(eta) < 3.0')
+selectedLayer1Muons.cut = cms.string('pt > 0.')
 
 
 #---------------------------------------
@@ -23,7 +23,7 @@ selectedLayer1Muons.cut = cms.string('pt > 10. & abs(eta) < 3.0')
 from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import selectedLayer1Taus
 
 selectedLayer1Taus.src = cms.InputTag("allLayer1Taus")
-selectedLayer1Taus.cut = cms.string('pt > 10. & abs(eta) < 3.0')
+selectedLayer1Taus.cut = cms.string('pt > 10.')
 
 
 #---------------------------------------
@@ -32,7 +32,7 @@ selectedLayer1Taus.cut = cms.string('pt > 10. & abs(eta) < 3.0')
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedLayer1Jets
 
 selectedLayer1Jets.src = cms.InputTag("allLayer1Jets")
-selectedLayer1Jets.cut = cms.string('et > 15. & abs(eta) < 3.0 & nConstituents > 0')
+selectedLayer1Jets.cut = cms.string('et > 15. & nConstituents > 0')
 
 
 #---------------------------------------
