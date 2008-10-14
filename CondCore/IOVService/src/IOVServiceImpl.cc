@@ -172,7 +172,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 
   cond::TypedRef<cond::IOV> newiovref;
 
-  cond::Time_t lastIOV = m_endOftime;
+  cond::Time_t lastIOV = cond::timeTypeSpecs[iov->timetype].endValue;
 
 
   if (destToken.empty()) {

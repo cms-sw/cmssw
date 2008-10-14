@@ -44,8 +44,6 @@ namespace cond{
   private:
     cond::PoolTransaction* m_pooldb;
     std::map< std::string,cond::TypedRef<cond::IOV> > m_iovcache;
-    cond::Time_t m_beginOftime;
-    cond::Time_t m_endOftime;
   };
 
 }//ns cond
