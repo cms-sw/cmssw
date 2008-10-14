@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/20 05:18:04 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/10/14 02:15:56 $
+ *  $Revision: 1.11 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -25,6 +25,7 @@
 using namespace std;
 using namespace edm;
 
+#define DEBUG 1
 
 JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
@@ -59,7 +60,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theSCJetAnalyzer->setSource("SISConeJets");
     theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theICJetAnalyzer->setSource("IterativeConeJets");
-
   }
 
   // --- do the analysis on the PFJets
@@ -72,6 +72,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
 }
 
+// ***********************************************************
 JetMETAnalyzer::~JetMETAnalyzer() {   
   if(theJetAnalyzerFlag) {
     //    delete theJetAnalyzer;
@@ -83,6 +84,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
 }
 
 
+// ***********************************************************
 void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   metname = "JetMETAnalyzer";
@@ -102,6 +104,7 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 }
 
 
+// ***********************************************************
 void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   LogTrace(metname)<<"[JetMETAnalyzer] Analysis of event # ";
@@ -114,7 +117,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Int_t JetHiPass = 0;
 
   if (triggerResults.isValid()) {
-    //    std::cout << "trigger valid " << std::endl;
+    if (DEBUG) std::cout << "trigger valid " << std::endl;
     edm::TriggerNames triggerNames;    // TriggerNames class
     triggerNames.init(*triggerResults);
     unsigned int n = triggerResults->size();
@@ -133,17 +136,17 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
 
   } else {
-    //      std::cout << "trigger not valid " << std::endl;
+    if (DEBUG) std::cout << "trigger not valid " << std::endl;
     edm::LogInfo("JetAnalyzer") << "TriggerResults::HLT not found, "
       "automatically select events";
     //return;
   }
 
-  /***  
-  std::cout << ">>> Trigger  Lo = " <<  JetLoPass
-	    << " Hi = " <<    JetHiPass
-	    << std::endl;
-  ***/
+  if (DEBUG) {
+    std::cout << ">>> Trigger  Lo = " <<  JetLoPass
+	      << " Hi = " <<    JetHiPass
+	      << std::endl;
+  }
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
@@ -203,6 +206,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
   
+
   // **** Get the PFlow Jet container
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByLabel(thePFJetCollectionLabel, pfJets);
@@ -243,10 +247,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 
+// ***********************************************************
 void JetMETAnalyzer::endJob(void) {
   LogTrace(metname)<<"[JetMETAnalyzer] Saving the histos";
   bool outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
+
   if(outputMEsInRootFile){
     dbe->showDirStructure();
     dbe->save(outputFileName);

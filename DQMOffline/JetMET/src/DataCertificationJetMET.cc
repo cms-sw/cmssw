@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.6 2008/10/13 18:42:29 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.7 2008/10/14 02:27:43 chlebana Exp $
 //
 //
 
@@ -323,6 +323,35 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   dbe = edm::Service<DQMStore>().operator->();
   dbe->open(filename);
 
+  std::string currDir = dbe->pwd();
+  std::cout << "--- Current Directory " << currDir << std::endl;
+
+  /***
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  string image_name;
+  selectImage(image_name,dbe->getStatus(currDir));
+
+  str_val << "<li><a href=\"#\" id=\"" 
+	  << currDir << "\">" << dname << "</a> <img src=\"" 
+	  << image_name << "\"></img>" << endl;
+  ***/
+
+  std::vector<std::string> subDirVec = dbe->getSubdirs();
+
+  //  vector<string> meVec = dqm_store->getMEs(); 
+  //  vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
+
+  for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    std::string dirName = *ic;
+    std::cout << "--- " << dirName << std::endl;
+
+    //    dqm_store->cd(*ic);
+    //    printAlarmList(dqm_store, str_val);
+    //    dqm_store->goUp();
+  }
+
+
   // -- Reference set of histograms
   rdbe = edm::Service<DQMStore>().operator->();
   rdbe->open(reffilename);
@@ -372,8 +401,19 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   // ****************************
   // ****************************
+
+  // --- Save result to root file
+  dbe->setCurrentFolder("Run 63463/JetMET/Data Certification/");    
+  MonitorElement* mJetDCL1 = dbe->book1D("JetDCLayer1", "Jet DC L1", NJetAlgo, 0, NJetAlgo);
+  MonitorElement* mJetDCL2 = dbe->book1D("JetDCLayer2", "Jet DC L2", NJetAlgo, 0, NJetAlgo);
+  MonitorElement* mJetDCL3 = dbe->book1D("JetDCLayer3", "Jet DC L3", 100, 0, 100);
+
+  MonitorElement* mMETDCL1 = dbe->book2D("METDCLayer1", "MET DC L1", 3,0,3,500,0.,500.);
+  MonitorElement* mMETDCL2 = dbe->book2D("METDCLayer2", "MET DC L2", 3,0,3,500,0.,500.);
+  MonitorElement* mMETDCL3 = dbe->book2D("METDCLayer3", "MET DC L3", 3,0,3,500,0.,500.);
+
+
   Double_t chi2_Pt, chi2_Eta, chi2_Phi, chi2_Constituents, chi2_HFrac;
-  //  Int_t Jet_SISCone_DC, Jet_IterativeCone_DC, Jet_PFlow_DC, Jet_JPT_DC;
 
   // TODO: get run from data file    
   Int_t RunNumber = 63463;
@@ -485,6 +525,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 	 (chi2_Phi    > 0.95) && (chi2_Constituents > 0.95) && 
 	 (chi2_HFrac  > 0.95) )  {
       Jet_DC[iAlgo] = 1;
+      mJetDCL2->Fill(iAlgo);
     } else {
       Jet_DC[iAlgo] = 0;
     }
@@ -508,7 +549,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   }
   ***/
   std::cout << std::endl;
-
 
 
   /***
@@ -720,6 +760,15 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     JetMET_MET_All[LS] = JetMET_MEx_All[LS] * JetMET_MEy_All[LS];
     JetMET_MET_NoHF[LS]= JetMET_MEx_NoHF[LS]* JetMET_MEy_NoHF[LS];
     JetMET_MET[LS]     = JetMET_MET_All[LS] * JetMET_MET_NoHF[LS];
+
+    // -- Fill the DC Result Histograms    
+    mMETDCL2->Fill(0,LS,JetMET_MET_All[LS]);
+    mMETDCL2->Fill(1,LS,JetMET_MET_NoHF[LS]);
+    mMETDCL2->Fill(2,LS,JetMET_MET[LS]);
+
+    //    std::cout  << ">>> " << LS << " " << JetMET_MET_All[LS] << " " 
+    //	       << JetMET_MET_NoHF[LS] << " " << JetMET_MET[LS] << std::endl;
+
     if (CaloMEx_LS[LS]->GetSum()>0.) {
       if (LS==0){
 	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET",     JetMET_MET[LS]);
@@ -774,6 +823,20 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 DataCertificationJetMET::endJob() {
+
+  //  LogTrace(metname)<<"[DataCertificationJetMET] Saving the histos";
+  //  bool outputFile            = conf_.getParameter<bool>("OutputFile");
+  //  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
+
+  bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
+  std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
+
+  std::cout << ">>> endJob " << outputFile << std:: endl;
+
+  if(outputFile){
+    //    dbe->showDirStructure();
+    dbe->save(outputFileName);
+  }
 }
 
 //define this as a plug-in
