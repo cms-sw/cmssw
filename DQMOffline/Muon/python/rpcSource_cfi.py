@@ -6,11 +6,7 @@ rpcEfficiency = cms.EDFilter("RPCEfficiency",
     inclcsc = cms.untracked.bool(True),
 
     debug = cms.untracked.bool(False),
-<<<<<<< rpcSource_cfi.py
     inves = cms.untracked.bool(True),
-=======
-    inves = cms.untracked.bool(False),
->>>>>>> 1.4
 
     DuplicationCorrection = cms.untracked.int32(1),
 
@@ -24,13 +20,8 @@ rpcEfficiency = cms.EDFilter("RPCEfficiency",
     cscSegments = cms.untracked.string('cscSegments'),
     dt4DSegments = cms.untracked.string('dt4DSegments'),
 
-<<<<<<< rpcSource_cfi.py
-    EffSaveRootFile = cms.untracked.bool(True),
-    EffRootFileName = cms.untracked.string('/tmp/carrillo/RPCEfficiencyFIRST.root'),
-=======
     EffSaveRootFile = cms.untracked.bool(False),
-    EffRootFileName = cms.untracked.string('output.root'),
->>>>>>> 1.4
+    EffRootFileName = cms.untracked.string('/tmp/carrillo/RPCEfficiencyFIRST.root'),
     EffSaveRootFileEventsInterval = cms.untracked.int32(100)
 )
 
