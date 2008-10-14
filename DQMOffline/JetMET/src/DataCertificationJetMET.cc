@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.5 2008/10/13 15:50:20 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.6 2008/10/13 18:42:29 chlebana Exp $
 //
 //
 
@@ -372,8 +372,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   // ****************************
   // ****************************
-  Double_t chi2_Pt, chi2_Eta, chi2_Phi, chi2_Constituents, chi2_HOverE;
-  Int_t Jet_SISCone_DC, Jet_IterativeCone_DC, Jet_PFlow_DC, Jet_JPT_DC;
+  Double_t chi2_Pt, chi2_Eta, chi2_Phi, chi2_Constituents, chi2_HFrac;
+  //  Int_t Jet_SISCone_DC, Jet_IterativeCone_DC, Jet_PFlow_DC, Jet_JPT_DC;
+
+  // TODO: get run from data file    
   Int_t RunNumber = 63463;
   Int_t Jet_DC[NJetAlgo];
   std::string Jet_Tag[NJetAlgo];
@@ -383,8 +385,8 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   Jet_Tag[2] = "JetMET_Jet_PFlow";
   Jet_Tag[3] = "JetMET_Jet_JPT";
   
-  Jet_SISCone_DC = Jet_IterativeCone_DC = Jet_PFlow_DC = Jet_JPT_DC = 0;
-  chi2_Pt = chi2_Eta = chi2_Phi = chi2_Constituents = chi2_HOverE = 0;
+  //  Jet_SISCone_DC = Jet_IterativeCone_DC = Jet_PFlow_DC = Jet_JPT_DC = 0;
+  chi2_Pt = chi2_Eta = chi2_Phi = chi2_Constituents = chi2_HFrac = 0;
 
   //  rdbe->setCurrentFolder("Run 63463/JetMET/Run summary/SISConeJets");
   //  std::string refHistoName = "Run 63463/JetMET/Run summary/PFJetAnalyzer/Pt";
@@ -395,7 +397,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // --- Loop over jet algorithms
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
 
-    // TODO: get run from data file    
     if (iAlgo == 0) {
       refHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/";
       //      newHistoName = "Run 63463/JetMET/Run summary/IterativeConeJets/";
@@ -467,21 +468,22 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }
     }
      
-    meRef = rdbe->get(refHistoName+"HOverE");
-    meNew = dbe->get(newHistoName+"HOverE");
+    meRef = rdbe->get(refHistoName+"EnergyFractionHadronic");
+    meNew = dbe->get(newHistoName+"EnergyFractionHadronic");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	if (DEBUG) std::cout << ">>> HOverE: Found it..." << std::endl;
 	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
-	chi2_Constituents = newHisto->Chi2Test(refHisto);
+	chi2_HFrac = newHisto->Chi2Test(refHisto);
 	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Constituents << std::endl;    
       }
     }
 
     if ( (chi2_Pt     > 0.95) && (chi2_Eta          > 0.95) && 
-	 (chi2_Phi    > 0.95) && (chi2_Constituents > 0.95) ) {
+	 (chi2_Phi    > 0.95) && (chi2_Constituents > 0.95) && 
+	 (chi2_HFrac  > 0.95) )  {
       Jet_DC[iAlgo] = 1;
     } else {
       Jet_DC[iAlgo] = 0;
