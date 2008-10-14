@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.22 2008/07/08 18:32:20 biery Exp $
+// $Id: SMProxyServer.cc,v 1.23 2008/08/04 17:18:41 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -158,7 +158,10 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
 
   // for performance measurements
-  samples_          = 20; // measurements every 20 samples
+  ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
+  ispace->fireItemAvailable("receivedPeriod4Stats",&period4samples_);
+  samples_          = 100; // measurements every 100 samples
+  period4samples_   = 5; // measurements every 5 seconds
   instantBandwidth_ = 0.;
   instantRate_      = 0.;
   instantLatency_   = 0.;
@@ -169,6 +172,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   meanLatency_      = 0.;
   maxBandwidth_     = 0.;
   minBandwidth_     = 999999.;
+  receivedVolume_   = 0.;
+  outreceivedVolume_ = 0.;
   outinstantBandwidth_ = 0.;
   outinstantRate_      = 0.;
   outinstantLatency_   = 0.;
@@ -179,9 +184,29 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   outmeanLatency_      = 0.;
   outmaxBandwidth_     = 0.;
   outminBandwidth_     = 999999.;
+  instantBandwidth2_ = 0.;
+  instantRate2_      = 0.;
+  instantLatency2_   = 0.;
+  totalSamples2_     = 0;
+  duration2_         = 0.;
+  meanBandwidth2_    = 0.;
+  meanRate2_         = 0.;
+  meanLatency2_      = 0.;
+  maxBandwidth2_     = 0.;
+  minBandwidth2_     = 999999.;
+  outinstantBandwidth2_ = 0.;
+  outinstantRate2_      = 0.;
+  outinstantLatency2_   = 0.;
+  outtotalSamples2_     = 0;
+  outduration2_         = 0.;
+  outmeanBandwidth2_    = 0.;
+  outmeanRate2_         = 0.;
+  outmeanLatency2_      = 0.;
+  outmaxBandwidth2_     = 0.;
+  outminBandwidth2_     = 999999.;
 
   outpmeter_ = new stor::SMPerformanceMeter();
-  outpmeter_->init(samples_);
+  outpmeter_->init(samples_, period4samples_);
 
   //string        xmlClass = getApplicationDescriptor()->getClassName();
   //unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -224,22 +249,43 @@ void SMProxyServer::addMeasurement(unsigned long size)
 
 void SMProxyServer::addOutMeasurement(unsigned long size)
 {
-  // for bandwidth performance measurements
+// for bandwidth performance measurements, first sample based
   if ( outpmeter_->addSample(size) )
   {
     // Copy measurements for our record
     stor::SMPerfStats stats = outpmeter_->getStats();
-    outinstantBandwidth_ = stats.throughput_;
-    outinstantRate_      = stats.rate_;
-    outinstantLatency_   = stats.latency_;
-    outtotalSamples_     = stats.sampleCounter_;
-    outduration_         = stats.allTime_;
-    outmeanBandwidth_    = stats.meanThroughput_;
-    outmeanRate_         = stats.meanRate_;
-    outmeanLatency_      = stats.meanLatency_;
-    outmaxBandwidth_     = stats.maxBandwidth_;
-    outminBandwidth_     = stats.minBandwidth_;
+    outinstantBandwidth_= stats.shortTermCounter_->getValueRate();
+    outinstantRate_     = stats.shortTermCounter_->getSampleRate();
+    outinstantLatency_  = 1000000.0 / outinstantRate_;
+    double now = ForeverCounter::getCurrentTime();
+    outtotalSamples_    = stats.longTermCounter_->getSampleCount();
+    outduration_        = stats.longTermCounter_->getDuration(now);
+    outmeanBandwidth_   = stats.longTermCounter_->getValueRate(now);
+    outmeanRate_        = stats.longTermCounter_->getSampleRate(now);
+    outmeanLatency_     = 1000000.0 / outmeanRate_;
+    outmaxBandwidth_    = stats.maxBandwidth_;
+    outminBandwidth_    = stats.minBandwidth_;
   }
+
+  // for time period bandwidth performance measurements
+  if ( outpmeter_->getStats().shortPeriodCounter_->hasValidResult() )
+  {
+    // Copy measurements for our record
+    stor::SMPerfStats stats = outpmeter_->getStats();
+    outinstantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
+    outinstantRate2_     = stats.shortPeriodCounter_->getSampleRate();
+    outinstantLatency2_  = 1000000.0 / outinstantRate2_;
+    double now = ForeverCounter::getCurrentTime();
+    outtotalSamples2_    = stats.longTermCounter_->getSampleCount();
+    outduration2_        = stats.longTermCounter_->getDuration(now);
+    outmeanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
+    outmeanRate2_        = stats.longTermCounter_->getSampleRate(now);
+    outmeanLatency2_     = 1000000.0 / outmeanRate2_;
+    outmaxBandwidth2_    = stats.maxBandwidth2_;
+    outminBandwidth2_    = stats.minBandwidth2_;
+  }
+  outreceivedVolume_ = outpmeter_->totalvolumemb();
+
 }
 
 //////////// *** Default web page //////////////////////////////////////////////////////////
@@ -327,16 +373,34 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
       receivedEvents_ = dpm_->receivedevents();
       receivedDQMEvents_ = dpm_->receivedDQMevents();
       stor::SMPerfStats stats = dpm_->getStats();
-      instantBandwidth_ = stats.throughput_;
-      instantRate_      = stats.rate_;
-      instantLatency_   = stats.latency_;
-      totalSamples_     = stats.sampleCounter_;
-      duration_         = stats.allTime_;
-      meanBandwidth_    = stats.meanThroughput_;
-      meanRate_         = stats.meanRate_;
-      meanLatency_      = stats.meanLatency_;
-      maxBandwidth_     = stats.maxBandwidth_;
-      minBandwidth_     = stats.minBandwidth_;
+
+      instantBandwidth_= stats.shortTermCounter_->getValueRate();
+      instantRate_     = stats.shortTermCounter_->getSampleRate();
+      instantLatency_  = 1000000.0 / instantRate_;
+      double now = ForeverCounter::getCurrentTime();
+      totalSamples_    = stats.longTermCounter_->getSampleCount();
+      duration_        = stats.longTermCounter_->getDuration(now);
+      meanBandwidth_   = stats.longTermCounter_->getValueRate(now);
+      meanRate_        = stats.longTermCounter_->getSampleRate(now);
+      meanLatency_     = 1000000.0 / meanRate_;
+      maxBandwidth_    = stats.maxBandwidth_;
+      minBandwidth_    = stats.minBandwidth_;
+      // for time period bandwidth performance measurements
+      if ( stats.shortPeriodCounter_->hasValidResult() )
+      {
+        instantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
+        instantRate2_     = stats.shortPeriodCounter_->getSampleRate();
+        instantLatency2_  = 1000000.0 / instantRate2_;
+        double now = ForeverCounter::getCurrentTime();
+        totalSamples2_    = stats.longTermCounter_->getSampleCount();
+        duration2_        = stats.longTermCounter_->getDuration(now);
+        meanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
+        meanRate2_        = stats.longTermCounter_->getSampleRate(now);
+        meanLatency2_     = 1000000.0 / meanRate2_;
+        maxBandwidth2_    = stats.maxBandwidth2_;
+        minBandwidth2_    = stats.minBandwidth2_;
+      }
+      receivedVolume_ = dpm_->totalvolumemb();
     }
 
         *out << "<tr>" << endl;
@@ -390,7 +454,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 // performance statistics
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Input Performance for last " << samples_ << " HTTP posts"<< endl;
+    *out << "      " << "Input Performance for last " << samples_ << " HTTP posts" << " (and last " << period4samples_ << " sec)" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << endl;
@@ -398,7 +462,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << instantBandwidth_ << endl;
+          *out << instantBandwidth_ << " (" << instantBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -406,7 +470,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << instantRate_ << endl;
+          *out << instantRate_ << " (" << instantRate2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -414,7 +478,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << instantLatency_ << endl;
+          *out << instantLatency_ << " (" << instantLatency2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -422,7 +486,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Maximum Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << maxBandwidth_ << endl;
+          *out << maxBandwidth_ << " (" << maxBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -430,14 +494,14 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Minimum Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << minBandwidth_ << endl;
+          *out << minBandwidth_ << " (" << minBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 // mean performance statistics for whole run
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << totalSamples_ << " posts, duration "
-         << duration_ << " seconds" << endl;
+    *out << "      " << "Mean Performance for " << totalSamples_ << " (" << totalSamples2_ << ")" << " posts, duration "
+         << duration_ << " (" << duration2_ << ")" << " seconds" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << endl;
@@ -445,7 +509,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << meanBandwidth_ << endl;
+          *out << meanBandwidth_ << " (" << meanBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -453,7 +517,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << meanRate_ << endl;
+          *out << meanRate_ << " (" << meanRate2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -461,13 +525,21 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << meanLatency_ << endl;
+          *out << meanLatency_ << " (" << meanLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Data Volume (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << receivedVolume_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 // performance statistics
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Output Performance for last " << samples_ << " HTTP posts"<< endl;
+    *out << "      " << "Output Performance for last " << samples_ << " HTTP posts"<< " (and last " << period4samples_ << " sec)" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << endl;
@@ -475,7 +547,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outinstantBandwidth_ << endl;
+          *out << outinstantBandwidth_ << " (" << outinstantBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -483,7 +555,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outinstantRate_ << endl;
+          *out << outinstantRate_ << " (" << outinstantRate2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -491,7 +563,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outinstantLatency_ << endl;
+          *out << outinstantLatency_ << " (" << outinstantLatency2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -499,7 +571,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Maximum Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outmaxBandwidth_ << endl;
+          *out << outmaxBandwidth_ << " (" << outmaxBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -507,13 +579,13 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Minimum Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outminBandwidth_ << endl;
+          *out << outminBandwidth_ << " (" << outminBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 // mean performance statistics for whole run
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << outtotalSamples_ << " posts, duration "
+    *out << "      " << "Mean Performance for " << outtotalSamples_ << " (" << outtotalSamples2_ << ")" << " posts, duration "
          << outduration_ << " seconds" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
@@ -522,7 +594,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outmeanBandwidth_ << endl;
+          *out << outmeanBandwidth_ << " (" << outmeanBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -530,7 +602,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outmeanRate_ << endl;
+          *out << outmeanRate_ << " (" << outmeanRate2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -538,9 +610,18 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << outmeanLatency_ << endl;
+          *out << outmeanLatency_ << " (" << outmeanLatency2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Data Volume (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outreceivedVolume_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+
 
   *out << "</table>" << endl;
 
@@ -2934,6 +3015,8 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       maxESDataRate_ = 0.0;
     if (DQMmaxESEventRate_ < 0.0)
       DQMmaxESEventRate_ = 0.0;
+
+    outpmeter_->init(samples_, period4samples_);
     
     // TODO fixme: determine these two parameters properly
     xdata::Integer cutoff(20);
@@ -2981,6 +3064,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       dpm_->setUseCompressionDQM(useCompressionDQM_);
       dpm_->setCompressionLevelDQM(compressionLevelDQM_);
       dpm_->setSamples(samples_);
+      dpm_->setPeriod4Samples(period4samples_);
 
       // If we are in pull mode, we need to know which Storage Managers to
       // poll for events and DQM events

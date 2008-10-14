@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.12 2008/06/25 18:06:48 biery Exp $
+   $Id: SMProxyServer.h,v 1.13 2008/08/04 17:18:41 biery Exp $
 */
 
 #include <string>
@@ -189,6 +189,8 @@ namespace stor {
     xdata::Double outinstantLatency_;   // micro-seconds/frame
     xdata::Double outmaxBandwidth_;     // maximum bandwidth in MB/s
     xdata::Double outminBandwidth_;     // minimum bandwidth in MB/s
+    xdata::Double receivedVolume_;      // volume of data received
+    xdata::Double outreceivedVolume_;   // volume of data sent
 
     // *** measurements for all samples
     xdata::Double duration_;         // time for run in seconds
@@ -201,6 +203,31 @@ namespace stor {
     xdata::Double outmeanBandwidth_;    // bandwidth in MB/s
     xdata::Double outmeanRate_;         // number of frames/s
     xdata::Double outmeanLatency_;      // micro-seconds/frame
+
+    // *** measurements for time period based statistics
+    xdata::UnsignedInteger32 period4samples_; // time period for measurements
+    xdata::Double instantBandwidth2_; // bandwidth in MB/s
+    xdata::Double instantRate2_;      // number of frames/s
+    xdata::Double instantLatency2_;   // micro-seconds/frame
+    xdata::Double maxBandwidth2_;     // maximum bandwidth in MB/s
+    xdata::Double minBandwidth2_;     // minimum bandwidth in MB/s
+    xdata::Double outinstantBandwidth2_; // bandwidth in MB/s
+    xdata::Double outinstantRate2_;      // number of frames/s
+    xdata::Double outinstantLatency2_;   // micro-seconds/frame
+    xdata::Double outmaxBandwidth2_;     // maximum bandwidth in MB/s
+    xdata::Double outminBandwidth2_;     // minimum bandwidth in MB/s
+
+    // *** measurements for all samples
+    xdata::Double duration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 totalSamples2_; //number of samples/frames per measurement
+    xdata::Double meanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double meanRate2_;         // number of frames/s
+    xdata::Double meanLatency2_;      // micro-seconds/frame
+    xdata::Double outduration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 outtotalSamples2_; //number of samples/frames per measurement
+    xdata::Double outmeanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double outmeanRate2_;         // number of frames/s
+    xdata::Double outmeanLatency2_;      // micro-seconds/frame
 
     // *** additional flashlist contents (rest was already there)
     xdata::String            class_;

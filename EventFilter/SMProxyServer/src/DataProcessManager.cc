@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.13 2008/06/12 16:08:22 biery Exp $
+// $Id: DataProcessManager.cc,v 1.14 2008/06/13 15:45:09 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -38,7 +38,8 @@ namespace stor
     dqmServiceManager_(new stor::DQMServiceManager()),
     receivedEvents_(0),
     receivedDQMEvents_(0),
-    samples_(100)
+    samples_(100),
+    period4samples_(5)
   {
     // for performance measurements
     pmeter_ = new stor::SMPerformanceMeter();
@@ -85,7 +86,7 @@ namespace stor
     //consumerTopFolderName_ = "C1";
     receivedEvents_ = 0;
     receivedDQMEvents_ = 0;
-    pmeter_->init(samples_);
+    pmeter_->init(samples_, period4samples_);
     stats_.fullReset();
 
     // initialize the counters that we use for statistics
@@ -94,6 +95,19 @@ namespace stor
     ltDQMFetchTimeCounter_.reset(new ForeverCounter());
     stDQMFetchTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
   }
+
+  void DataProcessManager::setSamples(unsigned long num_samples)
+  { 
+    samples_ = num_samples;
+    pmeter_->setSamples(num_samples); 
+  }
+
+  void DataProcessManager::setPeriod4Samples(unsigned long period4samples)
+  { 
+    period4samples_ = period4samples;
+    pmeter_->setPeriod4Samples(period4samples);
+  }
+
 
   void DataProcessManager::setMaxEventRequestRate(double rate)
   {

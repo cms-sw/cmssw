@@ -1,3 +1,9 @@
+2008-10-14  Harry Cheung <cheung@fnal.gov>
+
+	* tag V01-08-06
+	* Fixed to use new SMPerformanceMeter and include time period based
+	  statistics as well as sampled based
+
 2008-08-13  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-05
