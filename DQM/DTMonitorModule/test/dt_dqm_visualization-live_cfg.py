@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 
-process.load("DQM.DTMonitorModule.test.dt_dqm_visualization_common_cff")
+process.load("DQM.DTMonitorModule.dt_dqm_visualization_common_cff")
 
 
 
