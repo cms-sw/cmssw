@@ -141,6 +141,8 @@ namespace evf {
     
     void   sendInitMessage(UInt_t  fuResourceId,
 			   UInt_t  outModId,
+			   UInt_t  fuProcessId,
+			   UInt_t  fuGuid,
 			   UChar_t*data,
 			   UInt_t  dataSize);
 
@@ -148,12 +150,16 @@ namespace evf {
 			 UInt_t  runNumber,
 			 UInt_t  evtNumber,
 			 UInt_t  outModId,
+			 UInt_t  fuProcessId,
+			 UInt_t  fuGuid,
 			 UChar_t*data,
 			 UInt_t  dataSize);
 
     void   sendErrorEvent(UInt_t  fuResourceId,
 			  UInt_t  runNumber,
 			  UInt_t  evtNumber,
+			  UInt_t  fuProcessId,
+			  UInt_t  fuGuid,
 			  UChar_t*data,
 			  UInt_t  dataSize);
     
@@ -161,6 +167,8 @@ namespace evf {
 			UInt_t  runNumber,
 			UInt_t  evtAtUpdate,
 			UInt_t  folderId,
+			UInt_t  fuProcessId,
+			UInt_t  fuGuid,
 			UChar_t*data,
 			UInt_t  dataSize);
     

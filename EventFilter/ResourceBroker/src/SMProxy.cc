@@ -70,6 +70,8 @@ SMProxy::~SMProxy()
 //______________________________________________________________________________
 UInt_t SMProxy::sendInitMessage(UInt_t  fuResourceId,
 				UInt_t  outModId,
+				UInt_t  fuProcessId,
+				UInt_t  fuGuid,
 				UChar_t*data,
 				UInt_t  dataSize)
   throw (evf::Exception)
@@ -85,8 +87,10 @@ UInt_t SMProxy::sendInitMessage(UInt_t  fuResourceId,
   MemRef_t* next=bufRef;
   do {
     msg=(I2O_SM_PREAMBLE_MESSAGE_FRAME*)next->getDataLocation();
-    msg->fuID    =fuResourceId;
+    msg->rbBufferID=fuResourceId;
     msg->outModID=outModId;
+    msg->fuProcID=fuProcessId;
+    msg->fuGUID=fuGuid;
   }
   while ((next=next->getNextReference()));
 
@@ -107,6 +111,8 @@ UInt_t SMProxy::sendDataEvent(UInt_t   fuResourceId,
 			      UInt_t   runNumber,
 			      UInt_t   evtNumber,
 			      UInt_t   outModId,
+			      UInt_t   fuProcessId,
+			      UInt_t   fuGuid,
 			      UChar_t *data,
 			      UInt_t   dataSize)
   throw (evf::Exception)
@@ -122,10 +128,12 @@ UInt_t SMProxy::sendDataEvent(UInt_t   fuResourceId,
   MemRef_t* next=bufRef;
   do {
     msg=(I2O_SM_DATA_MESSAGE_FRAME*)next->getDataLocation();
-    msg->fuID    =fuResourceId;
+    msg->rbBufferID=fuResourceId;
     msg->runID   =runNumber;
     msg->eventID =evtNumber;
     msg->outModID=outModId;
+    msg->fuProcID=fuProcessId;
+    msg->fuGUID=fuGuid;
   }
   while ((next=next->getNextReference()));
   
@@ -146,6 +154,8 @@ UInt_t SMProxy::sendDataEvent(UInt_t   fuResourceId,
 UInt_t SMProxy::sendErrorEvent(UInt_t   fuResourceId,
 			       UInt_t   runNumber,
 			       UInt_t   evtNumber,
+			       UInt_t   fuProcessId,
+			       UInt_t   fuGuid,
 			       UChar_t *data,
 			       UInt_t   dataSize)
   throw (evf::Exception)
@@ -161,10 +171,12 @@ UInt_t SMProxy::sendErrorEvent(UInt_t   fuResourceId,
   MemRef_t* next=bufRef;
   do {
     msg=(I2O_SM_DATA_MESSAGE_FRAME*)next->getDataLocation();
-    msg->fuID    =fuResourceId;
+    msg->rbBufferID=fuResourceId;
     msg->runID   =runNumber;
     msg->eventID =evtNumber;
     msg->outModID=0xffffffff;
+    msg->fuProcID=fuProcessId;
+    msg->fuGUID=fuGuid;
   }
   while ((next=next->getNextReference()));
   
@@ -186,6 +198,8 @@ UInt_t SMProxy::sendDqmEvent(UInt_t  fuDqmId,
 			     UInt_t  runNumber,
 			     UInt_t  evtAtUpdate,
 			     UInt_t  folderId,
+			     UInt_t  fuProcessId,
+			     UInt_t  fuGuid,
 			     UChar_t*data,
 			     UInt_t  dataSize)
   throw (evf::Exception)
@@ -201,10 +215,12 @@ UInt_t SMProxy::sendDqmEvent(UInt_t  fuDqmId,
   MemRef_t* next=bufRef;
   do {
     msg=(I2O_SM_DQM_MESSAGE_FRAME*)next->getDataLocation();
-    msg->fuID           =fuDqmId;
+    msg->rbBufferID     =fuDqmId;
     msg->runID          =runNumber;
     msg->eventAtUpdateID=evtAtUpdate;
     msg->folderID       =folderId;
+    msg->fuProcID       =fuProcessId;
+    msg->fuGUID         =fuGuid;
   }
   while ((next=next->getNextReference()));
   

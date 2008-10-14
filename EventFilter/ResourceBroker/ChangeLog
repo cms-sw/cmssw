@@ -1,3 +1,12 @@
+2008-10-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-00
+	* add Kurt's changes
+	* incorporate fuProcessId and fuGuid in message exchange with SM
+	* fuID renamed to rbBufferID
+	* requires EventFilter/Utilities V00-15-00
+	* requires EventFilter/ShmBuffer V00-07-00
+
 2008-10-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-10-04
