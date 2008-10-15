@@ -107,10 +107,10 @@ private :
   TMatrixD _BT;     // Transposed Jacobi Matrix of measured parameters
   TMatrixD _V;      // Covariance matrix
   TMatrixD _Vinv;   // Inverse covariance matrix
-  TMatrixD _VB;     // VB = ( B*V^(-1)*BT )^(-1)
-  TMatrixD _VBinv;  // VB = ( B*V^(-1)*BT )
-  TMatrixD _VA;     // VA = ( AT*VB*A )
-  TMatrixD _VAinv;  // VA = ( AT*VB*A )^(-1)
+  TMatrixD _VB;     // VB    = ( B*V*BT )^(-1)
+  TMatrixD _VBinv;  // VBinv = ( B*V*BT )
+  TMatrixD _VA;     // VA    = ( AT*VB*A )
+  TMatrixD _VAinv;  // VAinv = ( AT*VB*A )^(-1)
   TMatrixD _c;      // Vector c = A*delta(a*) + B*delta(y*) - f*
 
   TMatrixD _C11;     // Matrix C11
