@@ -76,6 +76,7 @@ private:
   BasicJetCollection theTrackJets;
   CaloJetCollection theCaloJets;
 
+  Handle< double              > genEventScaleHandle;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
   Handle< BasicJetCollection  > TrackJetsHandle ;
   Handle< CaloJetCollection   > CaloJetsHandle ;
@@ -106,6 +107,8 @@ private:
   TH2D** h2d_maxDistance_tracksjet_calojet;
   TH2D** h2d_maxDistance_tracksjet_chggenjet;
 
+  double _eventScaleMin;
+  double _eventScaleMax;
   double _PTTHRESHOLD;
   double _ETALIMIT;
   double _dRByPi;

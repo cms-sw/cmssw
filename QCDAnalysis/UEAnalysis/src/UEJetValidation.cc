@@ -19,10 +19,12 @@ UEJetValidation::UEJetValidation( const ParameterSet& pset )
   //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
-  _PTTHRESHOLD  = pset.getParameter<double>("pTThreshold");
-  _ETALIMIT     = pset.getParameter<double>("etaLimit");
-  _dRByPi       = pset.getParameter<double>("dRByPiLimitForMatching");
-  _pTratioRange = pset.getParameter<double>("pTratioRangeForMatching");
+  _eventScaleMin = pset.getParameter<double>("eventScaleMin");
+  _eventScaleMax = pset.getParameter<double>("eventScaleMax");
+  _PTTHRESHOLD   = pset.getParameter<double>("pTThreshold");
+  _ETALIMIT      = pset.getParameter<double>("etaLimit");
+  _dRByPi        = pset.getParameter<double>("dRByPiLimitForMatching");
+  _pTratioRange  = pset.getParameter<double>("pTratioRangeForMatching");
 
   selectedHLTBits = pset.getParameter<vstring>("selectedHLTBits");
 }
@@ -144,6 +146,15 @@ void UEJetValidation::beginJob( const EventSetup& )
   
 void UEJetValidation::analyze( const Event& e, const EventSetup& es)
 {
+  ///
+  /// ask for event scale (e.g. pThat) and return if it is outside the requested range
+  ///
+  double genEventScale( -1. );
+  if ( e.getByLabel( "genEventScale", genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
+  if ( genEventScale <  _eventScaleMin ) return;
+  if ( genEventScale >= _eventScaleMax ) return;
+
+
   ///
   /// look for leading tracks jet, 
   /// return if none found in visible range
