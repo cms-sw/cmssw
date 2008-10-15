@@ -439,7 +439,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
        for (int ieta=-29; ieta <= 29; ieta++) {
 	 HcalDetId cell(HcalEndcap,ieta,iphi,depth);
 	 if (theTopo.valid(cell)) {  
-	   if (abs(ieta) < 21) divide = 1.*nominal_gain;
+	   if (abs(ieta) < 18) divide = 1.*nominal_gain;
 	   else if (abs(ieta) < 27) divide = 2.*nominal_gain;
 	   else divide = 5.*nominal_gain;
 	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
