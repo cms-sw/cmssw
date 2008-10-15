@@ -15,7 +15,7 @@ Description: Produces reco::PFTauDecayModes corresponding to MonteCarlo objects
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thu Sep 1 06:19:05 PST 2008
-// $Id$
+// $Id: TruthTauDecayModeProducer.cc,v 1.1 2008/10/15 00:05:04 friis Exp $
 //
 //
 
@@ -67,7 +67,6 @@ class TruthTauDecayModeProducer : public edm::EDProducer {
 
 TruthTauDecayModeProducer::TruthTauDecayModeProducer(const edm::ParameterSet& iConfig)
 {
-   std::cout << "Fuck yall motherfucks" << std::endl;
    edm::LogInfo("TruthTauDecayModeProducer") << "Initializing ctor of TruthTauDecayModeProducer";
    iAmSignal_           = iConfig.getParameter<bool>("iAmSignal");
    inputTag_            = iConfig.getParameter<edm::InputTag>("inputTag");
@@ -79,7 +78,6 @@ TruthTauDecayModeProducer::TruthTauDecayModeProducer(const edm::ParameterSet& iC
    edm::LogInfo("TruthTauDecayModeProducer") << "Registering products";
    produces<std::vector<reco::PFTauDecayMode> >();
    edm::LogInfo("TruthTauDecayModeProducer") << "TruthTauDecayModeProducer initialized";
-   std::cout << "Fuck yall motherfucks fo shiz" << std::endl;
 }
 
 
