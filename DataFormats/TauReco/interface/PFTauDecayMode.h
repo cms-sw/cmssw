@@ -38,6 +38,11 @@ namespace reco {
          tauDecay1ChargedPion2PiZero,  // a1  (1.2 GeV) mediated
          tauDecay1ChargedPion3PiZero,  // contaminated or unmerged photo
          tauDecay1ChargedPion4PiZero,  // contaminated or unmerged photo
+         tauDecay2ChargedPion0PiZero,  // extra track or un-recod track
+         tauDecay2ChargedPion1PiZero,  // extra track or un-recod track
+         tauDecay2ChargedPion2PiZero,  // extra track or un-recod track
+         tauDecay2ChargedPion3PiZero,  // extra track or un-recod track
+         tauDecay2ChargedPion4PiZero,  // extra track or un-recod track
          tauDecay3ChargedPion0PiZero,  // a1  (1.2 GeV) mediated
          tauDecay3ChargedPion1PiZero,  // a1  (1.2 GeV) mediated
          tauDecay3ChargedPion2PiZero,  // a1  (1.2 GeV) mediated

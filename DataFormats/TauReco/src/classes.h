@@ -74,6 +74,7 @@ namespace {
     edm::RefVector<std::vector<reco::PFTauDecayMode> >                          pftdm_rv;
     edm::reftobase::Holder<reco::CompositeCandidate,reco::PFTauDecayModeRef>    pftdm_rb;
     edm::Association<std::vector<reco::PFTauDecayMode> >                        pftdm_assoc_v;
+    edm::Association<std::vector<reco::PFTau> >                                 pftau_assoc_v; // used for matching
 
     reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;         
     reco::CaloTauDiscriminatorByIsolation                       calotdi_o;     
@@ -120,9 +121,16 @@ namespace {
     std::pair<reco::PFTauRef, float>                              pftdiscr_p;
     std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;    
 
+    reco::PFTauDecayModeAssociation                         pftdecaymodeass_o;     
+    reco::PFTauDecayModeAssociationRef                      pftdecaymodeass_r;     
+    reco::PFTauDecayModeAssociationRefProd                  pftdecaymodeass_rp;     
+    reco::PFTauDecayModeAssociationRefVector                pftdecaymodeass_rv;     
+    edm::Wrapper<reco::PFTauDecayModeAssociation>           pftdecaymodeass_w;     
+
+    std::pair<reco::PFTauRef, reco::PFTauDecayMode>                              pftdecaymodeass_p;
+    std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >                pftdecaymodeass_v;    
     std::pair<reco::CaloTauRef, float>                              calodiscr_p;
     std::vector<std::pair<reco::CaloTauRef, float> >                calodiscr_v;    
-
 
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;

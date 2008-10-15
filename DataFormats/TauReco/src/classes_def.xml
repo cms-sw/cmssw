@@ -63,6 +63,7 @@
   <class name="edm::RefVector<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode> >"/>
   <class name="edm::reftobase::Holder<reco::CompositeCandidate, edm::Ref<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode> > >" />
   <class name="edm::Association<std::vector<reco::PFTauDecayMode> >"/>
+  <class name="edm::Association<std::vector<reco::PFTau> >"/>
   
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
@@ -132,6 +133,7 @@
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
+
   <class name="reco::PFTauDiscriminator">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
@@ -142,6 +144,17 @@
   <class name="edm::Wrapper<reco::PFTauDiscriminator>"/>
   
 
+  <class name="reco::PFTauDecayModeAssociation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFTauDecayModeAssociationRef"/>
+  <class name="reco::PFTauDecayModeAssociationRefProd"/>
+  <class name="reco::PFTauDecayModeAssociationRefVector"/>
+  <class name="edm::Wrapper<reco::PFTauDecayModeAssociation>"/>
+  
+  <class name="std::pair<reco::PFTauRef, reco::PFTauDecayMode>"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >" />
 
 
 //Needed only for HLT-Open
