@@ -32,7 +32,7 @@ class CSCL1TPParametersConditions: public edm::ESProducer, public edm::EventSetu
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCL1TPParameters *cnl1tp ;
+  CSCL1TPParameters *CSCl1TPParameters ;
 
 };
 
