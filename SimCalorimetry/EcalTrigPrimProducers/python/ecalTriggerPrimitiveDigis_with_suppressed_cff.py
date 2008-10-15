@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Trigger Primitive Producer
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_with_suppressed_cfi import *
 
-# esmodule creating  EcalTPParametersRcd + corresponding empty essource
+# esmodule creating  conditions 
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
     DatabaseFile = cms.untracked.string('TPG.txt.gz')
 )
