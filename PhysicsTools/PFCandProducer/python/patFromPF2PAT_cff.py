@@ -54,8 +54,9 @@ allLayer1Jets.jetSource = myJets
 # replaces for MET ---------------------------------------------------
 
 # allLayer1METs.src does not crash !!
-allLayer1METs.metSource = cms.InputTag("pfMET")
-
+myMET = "pfMET"
+allLayer1METs.metSource = cms.InputTag( myMET )
+metTrigMatchHLT1MET65.src = cms.InputTag( myMET )
 
 # replaces for Taus --------------------------------------------------
 
@@ -64,7 +65,7 @@ taus = "pfTaus"
 allLayer1Taus.tauSource = cms.InputTag( taus )
 tauMatch.src = cms.InputTag( taus )
 tauGenJetMatch.src = cms.InputTag( taus )
-
+tauTrigMatchHLT1Tau.src = cms.InputTag( taus )
 
 # replaces for Muons -------------------------------------------------
 
@@ -78,12 +79,14 @@ allLayer1Muons.addGenMatch = True
 allLayer1Muons.embedPFCandidate = True
 
 muonTrigMatchHLT1MuonNonIso.src = cms.InputTag( muons )
+muonTrigMatchHLT1MET65.src =  cms.InputTag( muons )
 
 # simplifying the PAT sequences --------------------------------------
 
 # if we forget , no warning..
 #load("PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff")
 #from PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff import *
+
 
 
 jetTrackAssociation =  cms.Sequence(
@@ -110,8 +113,23 @@ patLayer1 = cms.Sequence(
 )
 
 
-patFromPF2PAT = cms.Sequence ( 
+patTrigMatch = cms.Sequence(
+    #    patTrigMatchCandHLT1ElectronStartup +
+    #    patTrigMatchHLT1PhotonRelaxed +
+    #    patTrigMatchHLT1ElectronRelaxed +
+    patHLT1ElectronRelaxed +
+    patHLT1Tau + 
+    jetTrigMatchHLT1ElectronRelaxed +
     patTrigMatchHLT1MuonNonIso +
+    patTrigMatchHLT2jet +
+    patTrigMatchHLT1MET65 +
+    tauTrigMatchHLT1Tau
+)
+
+patFromPF2PAT = cms.Sequence (
+#    allLayer0Electrons +
+#    allLayer0Photons + 
+    patTrigMatch +
     jetTrackAssociation +
     patHighLevelReco +
     patMCTruth_withoutElectronPhoton +
