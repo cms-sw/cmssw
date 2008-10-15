@@ -65,7 +65,10 @@ SiStripClusterInfo::SiStripClusterInfo(const uint32_t  cluster_detId,
 }
 
 
-SiStripClusterInfo::~SiStripClusterInfo(){}
+SiStripClusterInfo::~SiStripClusterInfo(){
+  delete SiStripPedestalsSubtractor_;
+  delete SiStripCommonModeNoiseSubtractor_;
+}
 
 
 float SiStripClusterInfo::getCharge() const {
