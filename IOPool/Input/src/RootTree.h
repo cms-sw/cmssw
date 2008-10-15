@@ -12,6 +12,7 @@ RootTree.h // used by ROOT input sources
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
 
 #include "Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
