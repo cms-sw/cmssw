@@ -295,6 +295,11 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
           temp = getSummaryME(bei, tag);
           sum_mes.push_back(temp);
 	}
+	if(prefix=="SUMDIG" && (*iv)=="adc"){
+	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
+	  temp = bei->book1D(tag.c_str(), tag.c_str(),256, 0., 256.);
+	  sum_mes.push_back(temp);
+	}
       }
     }
     if (sum_mes.size() == 0) {
@@ -319,6 +324,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(sname.find("ALLMODS_adcCOMB_")!=string::npos) tname = "adc_";
+	  //if(sname.find("ALLMODS")!=string::npos) cout<<"sname and tname= "<<sname<<","<<tname<<endl;
 	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
@@ -358,11 +365,23 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 		  if(me->getBinContent(cols,rows)<0.) NegFitPixels++;
 		}
 		(*isum)->Fill(ndet, float(NegFitPixels));
+	      }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos){
+                for(int ii = 1; ii!=257; ii++){
+		  float before = (*isum)->getBinContent(ii);
+		  float additional = me->getBinContent(ii);
+		  float now = before + additional;
+		  (*isum)->setBinContent(ii,now);
+		}
 	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
-	      if(prefix=="SUMOFF") (*isum)->setAxisTitle("Ladders",1);
-              else (*isum)->setAxisTitle("Modules",1);
+	      if(prefix=="SUMOFF"){
+	        (*isum)->setAxisTitle("Ladders",1);
+	      }else if(sname.find("ALLMODS_adcCOMB_")!=string::npos){
+	        (*isum)->setAxisTitle("Digi charge [ADC]",1);
+              }else{
+	        (*isum)->setAxisTitle("Modules",1);
+	      }
 	      string title = " ";
 	      if (sname.find("_RMS_")!=string::npos){
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
@@ -374,7 +393,9 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 		title = "Number of pixels with neg. fit result " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("FREQ_")!=string::npos){
 		title = "NEvents with digis per module"; 
-              }else{
+              }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos){
+	        title = "NDigis";
+	      }else{
 	        if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Ladder"; 
                 else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
 	      }
@@ -404,6 +425,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
       cout << "SiPixelActionExecutor::createSummary: Failed to read Grand Barrel Summary configuration parameters!! ";
       return;
     }
+    
     fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names);
   }
   //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
@@ -511,6 +533,11 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
           temp = getSummaryME(bei, tag);
           sum_mes.push_back(temp);
 	}
+	if(prefix=="SUMDIG" && (*iv)=="adc"){
+	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
+	  temp = bei->book1D(tag.c_str(), tag.c_str(),256, 0., 256.);
+	  sum_mes.push_back(temp);
+	}
       }
     }
     if (sum_mes.size() == 0) {
@@ -534,6 +561,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(sname.find("ALLMODS_adcCOMB_")!=string::npos) tname = "adc_";
 	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
@@ -570,11 +598,23 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 		  if(me->getBinContent(cols,rows)<0.) NegFitPixels++;
 		}
 		(*isum)->Fill(ndet, float(NegFitPixels));
+	      }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos){
+                for(int ii = 1; ii!=257; ii++){
+		  float before = (*isum)->getBinContent(ii);
+		  float additional = me->getBinContent(ii);
+		  float now = before + additional;
+		  (*isum)->setBinContent(ii,now);
+		}
 	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
-              if(prefix=="SUMOFF") (*isum)->setAxisTitle("Blades",1);
-              else (*isum)->setAxisTitle("Modules",1);
+	      if(prefix=="SUMOFF"){
+	        (*isum)->setAxisTitle("Blades",1);
+	      }else if(sname.find("ALLMODS_adcCOMB_")!=string::npos){
+	        (*isum)->setAxisTitle("Digi charge [ADC]",1);
+              }else{
+	        (*isum)->setAxisTitle("Modules",1);
+	      }
 	      string title = " ";
 	      if (sname.find("_RMS_")!=string::npos){
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
@@ -586,6 +626,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 		title = "Number of pixels with neg. fit result " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("FREQ_")!=string::npos){
 		title = "NEvents with digis per module"; 
+              }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos){
+	        title = "NDigis";
 	      }else{
                 if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Blade"; 
                 else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
@@ -780,79 +822,83 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
   
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
+//cout<<"A: iterating over "<<(*im)<<" now:"<<endl;
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
-        if(source_type_==5||source_type_==6){
-          if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
-	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
-	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
-	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
-	    prefix="SUMRAW";
-	  else if((*iv)=="ndigis"||(*iv)=="adc" ||
-	     (*iv)=="ndigisFREQ")
-	    prefix="SUMDIG";
-	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
-	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
-	     (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
-	    prefix="SUMCLU";
-	  else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
-	          (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
-            prefix="SUMRES";
-	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
-	    prefix="SUMHIT";
-	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
-	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
-	     (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
-	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
-	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
-	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
-	     (*iv)=="GainNPoints1d_mean" || (*iv)=="GainNPoints1d_RMS" ||
-	     (*iv)=="GainHighPoint1d_mean" || (*iv)=="GainHighPoint1d_RMS" ||
-	     (*iv)=="GainLowPoint1d_mean" || (*iv)=="GainLowPoint1d_RMS" ||
-	     (*iv)=="GainEndPoint1d_mean" || (*iv)=="GainEndPoint1d_RMS" ||
-	     (*iv)=="GainFitResult2d_mean" || (*iv)=="GainFitResult2d_RMS" ||
-	     (*iv)=="GainDynamicRange2d_mean" || (*iv)=="GainDynamicRange2d_RMS" ||
-	     (*iv)=="GainSaturate2d_mean" || (*iv)=="GainSaturate2d_RMS" ||
-	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
-	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix" ||
-	     (*iv)=="SiPixelErrorsCalibDigis_NCalibErrors" )
-	    prefix="SUMCAL";
-        }
 	string var = "_" + (*iv) + "_";
+//cout<<"\t B: iterating over "<<(*iv)<<" now, var is set to: "<<var<<endl;
 	if ((*im).find(var) != string::npos) {
 	   string full_path = (*it) + "/" +(*im);
 	   MonitorElement * me = bei->get(full_path.c_str());
-	   
 	   if (!me) continue; 
+           if(source_type_==5||source_type_==6){
+             if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	        (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	        (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	        (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	       prefix="SUMRAW";
+	     else if((*iv)=="ndigis"||(*iv)=="adc" ||
+	             (*iv)=="ndigisFREQ" || (*iv)=="adcCOMB")
+	       prefix="SUMDIG";
+	     else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
+	             (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
+	             (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
+	       prefix="SUMCLU";
+	     else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
+	             (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
+               prefix="SUMRES";
+	     else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	       prefix="SUMHIT";
+	     else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
+	             (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
+	             (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	             (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
+	             (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
+	             (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
+	             (*iv)=="GainNPoints1d_mean" || (*iv)=="GainNPoints1d_RMS" ||
+	             (*iv)=="GainHighPoint1d_mean" || (*iv)=="GainHighPoint1d_RMS" ||
+	             (*iv)=="GainLowPoint1d_mean" || (*iv)=="GainLowPoint1d_RMS" ||
+	             (*iv)=="GainEndPoint1d_mean" || (*iv)=="GainEndPoint1d_RMS" ||
+	             (*iv)=="GainFitResult2d_mean" || (*iv)=="GainFitResult2d_RMS" ||
+	             (*iv)=="GainDynamicRange2d_mean" || (*iv)=="GainDynamicRange2d_RMS" ||
+	             (*iv)=="GainSaturate2d_mean" || (*iv)=="GainSaturate2d_RMS" ||
+	             (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	             (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
+	             (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix" ||
+	             (*iv)=="SiPixelErrorsCalibDigis_NCalibErrors" )
+	       prefix="SUMCAL";
+           }
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
-	   //if (dir_name=="Barrel") wanted_size = wanted_size * 2.;
            if (actual_size !=  wanted_size) {
 	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-             if(prefix=="SUMOFF" && dir_name=="Barrel") nbin=192;
+	     if((*iv)=="adcCOMB") me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+             else if(prefix=="SUMOFF" && dir_name=="Barrel") nbin=192;
+	     else if((*iv)=="adcCOMB") nbin=256;
              else if(dir_name=="Barrel") nbin=768;
 	     else if(prefix=="SUMOFF" && dir_name.find("Shell")!=string::npos) nbin=48;
 	     else if(dir_name.find("Shell")!=string::npos) nbin=192;
 	     else nbin=nbin*nDirs;
+	     //cout<<"me_name to be created= "<<me_name<<endl;
 	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     //if (dir_name.find("Barrel")!=string::npos){
-	     //  bei->goUp(); 
-	     //  getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     //  bei->cd("Barrel");
-	     //}
            }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 		igm != gsum_mes.end(); igm++) {
+//cout<<"\t \t C: iterating over "<<(*igm)->getName()<<" now:"<<endl;
              if ((*igm)->getName().find(var) != string::npos) {
 	       if(prefix=="SUMOFF") (*igm)->setAxisTitle("Ladders",1);
+	       else if((*igm)->getName().find("COMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [ADC]",1);
                else (*igm)->setAxisTitle("Modules",1);
 	       string title="";
                if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Ladder"; 
+               else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
+	       else if((*igm)->getName().find("COMB_") != string::npos) title = "NDigis";
                else title = "mean " + (*iv) + " per Module"; 
                (*igm)->setAxisTitle(title,2);
-	       if((*igm)->getName().find("Ladder") != string::npos){
+	       if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
+	         nbin_subdir=256;
+	       }else if((*igm)->getName().find("Ladder") != string::npos){
 		 nbin_i=0; nbin_subdir=4;
 	       }else if((*igm)->getName().find("Layer") != string::npos){
 		 nbin_i=(cnt-1)*4; nbin_subdir=4;
@@ -880,8 +926,15 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-		  if((*igm)->getName().find("ndigisFREQ")==string::npos){  
-		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  if((*igm)->getName().find("ndigisFREQ")==string::npos){ 
+		    if((*igm)->getName().find("adcCOMB")!=string::npos && me->getName().find("adcCOMB")!=string::npos){
+		      float former = (*igm)->getBinContent(k);
+		      float latest = me->getBinContent(k);
+		      float now = former + latest;
+		      (*igm)->setBinContent(k, now);
+		    }else{
+		      (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		    }
 		  }else if(me->getName().find("ndigisFREQ")!=string::npos){
 		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
 		  }
@@ -938,56 +991,55 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
-        if(source_type_==5||source_type_==6){
-          if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
-	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
-	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
-	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
-	    prefix="SUMRAW";
-	  else if((*iv)=="ndigis"||(*iv)=="adc" ||
-	     (*iv)=="ndigisFREQ")
-	    prefix="SUMDIG";
-	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
-	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
-	     (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
-	    prefix="SUMCLU";
-	  else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
-	          (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
-            prefix="SUMRES";
-	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
-	    prefix="SUMHIT";
-	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
-	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
-	     (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
-	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
-	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
-	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
-	     (*iv)=="GainNPoints1d_mean" || (*iv)=="GainNPoints1d_RMS" ||
-	     (*iv)=="GainHighPoint1d_mean" || (*iv)=="GainHighPoint1d_RMS" ||
-	     (*iv)=="GainLowPoint1d_mean" || (*iv)=="GainLowPoint1d_RMS" ||
-	     (*iv)=="GainEndPoint1d_mean" || (*iv)=="GainEndPoint1d_RMS" ||
-	     (*iv)=="GainFitResult2d_mean" || (*iv)=="GainFitResult2d_RMS" ||
-	     (*iv)=="GainDynamicRange2d_mean" || (*iv)=="GainDynamicRange2d_RMS" ||
-	     (*iv)=="GainSaturate2d_mean" || (*iv)=="GainSaturate2d_RMS" ||
-	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
-	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix"
-		  || (*iv) == "SiPixelErrorsCalibDigis_NCalibErrors")
-	    prefix="SUMCAL"; 
-        }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	   string full_path = (*it) + "/" +(*im);
-
 	   MonitorElement * me = bei->get(full_path.c_str());
-	   
 	   if (!me) continue; 
+           if(source_type_==5||source_type_==6){
+             if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	        (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	        (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	        (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	       prefix="SUMRAW";
+	     else if((*iv)=="ndigis"||(*iv)=="adc" ||
+	             (*iv)=="ndigisFREQ"||(*iv)=="adcCOMB")
+	       prefix="SUMDIG";
+	     else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
+	             (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
+	             (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
+	       prefix="SUMCLU";
+	     else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
+	             (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
+               prefix="SUMRES";
+	     else if((*iv)=="ClustX"||(*iv)=="ClustY")
+	       prefix="SUMHIT";
+	     else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
+	             (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
+	             (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	             (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
+	             (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
+	             (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
+	             (*iv)=="GainNPoints1d_mean" || (*iv)=="GainNPoints1d_RMS" ||
+	             (*iv)=="GainHighPoint1d_mean" || (*iv)=="GainHighPoint1d_RMS" ||
+	             (*iv)=="GainLowPoint1d_mean" || (*iv)=="GainLowPoint1d_RMS" ||
+	             (*iv)=="GainEndPoint1d_mean" || (*iv)=="GainEndPoint1d_RMS" ||
+	             (*iv)=="GainFitResult2d_mean" || (*iv)=="GainFitResult2d_RMS" ||
+	             (*iv)=="GainDynamicRange2d_mean" || (*iv)=="GainDynamicRange2d_RMS" ||
+	             (*iv)=="GainSaturate2d_mean" || (*iv)=="GainSaturate2d_RMS" ||
+	             (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	             (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
+	             (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix"|| 
+		     (*iv) == "SiPixelErrorsCalibDigis_NCalibErrors")
+	       prefix="SUMCAL"; 
+           }
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
            if (actual_size !=  wanted_size) {
 	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-             if(prefix=="SUMOFF" && dir_name=="Endcap") nbin=96;
+             if((*iv)=="adcCOMB") me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+             else if(prefix=="SUMOFF" && dir_name=="Endcap") nbin=96;
              else if(dir_name=="Endcap") nbin=672;
 	     else if(prefix=="SUMOFF" && dir_name.find("HalfCylinder")!=string::npos) nbin=24;
 	     else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
@@ -1002,14 +1054,18 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 		igm != gsum_mes.end(); igm++) { 
              if ((*igm)->getName().find(var) != string::npos) {
                if(prefix=="SUMOFF") (*igm)->setAxisTitle("Blades",1);
+	       else if((*igm)->getName().find("COMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [ADC]",1);
                else (*igm)->setAxisTitle("Modules",1);
                string title="";
                if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
                else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
+	       else if((*igm)->getName().find("COMB_")!=string::npos) title = "NDigis";
                else title = "mean " + (*iv) + " per Module"; 
 	       (*igm)->setAxisTitle(title,2);
 	       nbin_i=0; 
-	       if((*igm)->getName().find("Panel_1") != string::npos){
+               if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
+	         nbin_subdir=256;
+	       }else if((*igm)->getName().find("Panel_1") != string::npos){
 		 nbin_subdir=4;
 	       }else if((*igm)->getName().find("Panel_2") != string::npos){
 		 nbin_subdir=3;
@@ -1040,8 +1096,16 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-		  if(((*igm)->getName().find("ndigisFREQ")==string::npos && me->getName().find("ndigisFREQ")==string::npos) ||
-		     ((*igm)->getName().find("ndigisFREQ")!=string::npos && me->getName().find("ndigisFREQ")!=string::npos)){  
+	          if((*igm)->getName().find("ndigisFREQ")==string::npos){  
+		    if((*igm)->getName().find("adcCOMB")!=string::npos && me->getName().find("adcCOMB")!=string::npos){
+		      float former = (*igm)->getBinContent(k);
+		      float latest = me->getBinContent(k);
+		      float now = former + latest;
+		      (*igm)->setBinContent(k, now);
+		    }else{
+		      (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		    }
+		  }else if(me->getName().find("ndigisFREQ")!=string::npos){
 		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
 		  }
 	       }
@@ -1066,6 +1130,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
       
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
+       //cout<<"in grand summary me: "<<me_name<<","<<(*it)<<endl;
     if ((*it).find(me_name) == 0) {
       string fullpathname = bei->pwd() + "/" + me_name;
 
@@ -1075,6 +1140,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
       //cout<<"Found ME "<<fullpathname<<endl;
 	me->Reset();
 	mes.push_back(me);
+	//cout<<"reset and add the following me: "<<me->getName()<<endl;
 	return;
       }
     }
@@ -1116,6 +1182,8 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
   }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
   }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),12,1.,13.);
   }
+  //if(me_name.find("ALLMODS_adc_")!=string::npos) me = bei->book1D(me_name.c_str(), me_name.c_str(),256, 0., 256.);
+  
   //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
   return me;
 }

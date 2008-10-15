@@ -49,40 +49,40 @@ process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
 process.SiPixelDigiSource.isPIB = False
 process.SiPixelDigiSource.slowDown = False
-process.SiPixelDigiSource.modOn = False
-process.SiPixelDigiSource.twoDimOn = False
-process.SiPixelDigiSource.hiRes = False
-process.SiPixelDigiSource.ladOn = True
-process.SiPixelDigiSource.layOn = True
-process.SiPixelDigiSource.phiOn = True
-process.SiPixelDigiSource.bladeOn = True
-process.SiPixelDigiSource.diskOn = True
-process.SiPixelDigiSource.ringOn = True
+process.SiPixelDigiSource.modOn = True
+process.SiPixelDigiSource.twoDimOn = True
+process.SiPixelDigiSource.hiRes = True
+process.SiPixelDigiSource.ladOn = False
+process.SiPixelDigiSource.layOn = False
+process.SiPixelDigiSource.phiOn = False
+process.SiPixelDigiSource.bladeOn = False
+process.SiPixelDigiSource.diskOn = False
+process.SiPixelDigiSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorCluster.SiPixelMonitorCluster_cfi")
 process.SiPixelClusterSource.saveFile = False
 process.SiPixelClusterSource.isPIB = False
-process.SiPixelClusterSource.modOn = False
-process.SiPixelClusterSource.twoDimOn = False
+process.SiPixelClusterSource.modOn = True
+process.SiPixelClusterSource.twoDimOn = True
 process.SiPixelClusterSource.reducedSet = False
-process.SiPixelClusterSource.ladOn = True
-process.SiPixelClusterSource.layOn = True
-process.SiPixelClusterSource.phiOn = True
-process.SiPixelClusterSource.bladeOn = True
-process.SiPixelClusterSource.diskOn = True
-process.SiPixelClusterSource.ringOn = True
+process.SiPixelClusterSource.ladOn = False
+process.SiPixelClusterSource.layOn = False
+process.SiPixelClusterSource.phiOn = False
+process.SiPixelClusterSource.bladeOn = False
+process.SiPixelClusterSource.diskOn = False
+process.SiPixelClusterSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorRecHit.SiPixelMonitorRecHit_cfi")
 process.SiPixelRecHitSource.saveFile = False
 process.SiPixelRecHitSource.isPIB = False
-process.SiPixelRecHitSource.modOn = False
-process.SiPixelRecHitSource.twoDimOn = False
-process.SiPixelRecHitSource.ladOn = True
-process.SiPixelRecHitSource.layOn = True
-process.SiPixelRecHitSource.phiOn = True
-process.SiPixelRecHitSource.bladeOn = True
-process.SiPixelRecHitSource.ringOn = True
-process.SiPixelRecHitSource.diskOn = True
+process.SiPixelRecHitSource.modOn = True
+process.SiPixelRecHitSource.twoDimOn = True
+process.SiPixelRecHitSource.ladOn = False
+process.SiPixelRecHitSource.layOn = False
+process.SiPixelRecHitSource.phiOn = False
+process.SiPixelRecHitSource.bladeOn = False
+process.SiPixelRecHitSource.ringOn = False
+process.SiPixelRecHitSource.diskOn = False
 
 # process.load("DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi")
 # process.SiPixelTrackResidualSource.TrackCandidateProducer = 'ckfTrackCandidatesP5'
@@ -98,7 +98,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V5P::All"
+process.GlobalTag.globaltag = "CRAFT_V1P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
@@ -114,32 +114,32 @@ process.source = cms.Source("PoolSource",
     #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/742/DEAB1B33-4C6A-DD11-B83D-000423D99BF2.root'
     #'rfio:/castor/cern.ch/cms/store/cmscaf/alca/alignment/CRUZET4-TkAlCosmics/57553/ALCARECOTkAlCosmics0T_1.root', 
     #rfio:/castor/cern.ch/cms/store/cmscaf/alca/alignment/CRUZET4-TkAlCosmics/57553/ALCARECOTkAlCosmics0T_2.root'
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/0083B2EF-3F7A-DD11-9165-001617C3B77C.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/06B08C98-3E7A-DD11-9F5F-000423D94700.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/082621C9-387A-DD11-9ECB-001617C3B77C.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/304B5906-3F7A-DD11-8E21-000423D98804.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/3E8C90DE-3A7A-DD11-ADB1-000423D6CAF2.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/44E16FAB-3D7A-DD11-8075-000423D94700.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/4654708F-397A-DD11-9D4A-001617C3B5F4.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/4EB8F3B8-397A-DD11-9DD5-000423D9880C.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/5C4429DE-3A7A-DD11-B9B1-001617C3B6C6.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/5E761ABB-387A-DD11-AE3B-000423D6BA18.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/6C2235E0-397A-DD11-BBEE-001617C3B79A.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/7E4EF558-3B7A-DD11-A223-001617C3B6CC.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/86C71864-3B7A-DD11-911B-001617C3B654.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/86DABEE2-3A7A-DD11-B2EB-000423D6CA6E.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/8CAC62C9-377A-DD11-B775-0019DB29C620.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/96498981-397A-DD11-BE92-000423D9870C.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/A0486627-3A7A-DD11-81DD-000423D6BA18.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/A2DDA7A2-3B7A-DD11-A99F-001617C3B6CE.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/C2CA7A8F-377A-DD11-B072-001617E30F56.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/D0573EA4-3C7A-DD11-8B46-0019DB29C5FC.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/F2C36B6E-397A-DD11-8EDD-000423D9880C.root',
-        '/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/F6D2D110-3C7A-DD11-8579-001617C3B6DE.root'				      )
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/0083B2EF-3F7A-DD11-9165-001617C3B77C.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/06B08C98-3E7A-DD11-9F5F-000423D94700.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/082621C9-387A-DD11-9ECB-001617C3B77C.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/304B5906-3F7A-DD11-8E21-000423D98804.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/3E8C90DE-3A7A-DD11-ADB1-000423D6CAF2.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/44E16FAB-3D7A-DD11-8075-000423D94700.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/4654708F-397A-DD11-9D4A-001617C3B5F4.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/4EB8F3B8-397A-DD11-9DD5-000423D9880C.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/5C4429DE-3A7A-DD11-B9B1-001617C3B6C6.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/5E761ABB-387A-DD11-AE3B-000423D6BA18.root',
+        #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/6C2235E0-397A-DD11-BBEE-001617C3B79A.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/833/386470E1-3D95-DD11-96A0-001617E30E2C.root'
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/0C26943A-6D99-DD11-AE50-001617C3B76E.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/120325B6-6999-DD11-BA84-000423D99160.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/186132D3-6C99-DD11-8EA9-000423D98C20.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/1A67D61F-6A99-DD11-8182-001617DBD288.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/1EF5898A-6E99-DD11-AE5B-001617E30D12.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/22C058FC-6899-DD11-A731-001617C3B5F4.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/22D9207E-6A99-DD11-8FF5-000423D99658.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/261D55FE-6899-DD11-99F6-000423D9989E.root',
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/3C29146C-6A99-DD11-BE42-000423D999CA.root'
+	)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(5000)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -160,10 +160,10 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
-    HighResolutionOccupancy = cms.untracked.bool(False),
-    NoiseRateCutValue = cms.untracked.double(0.001), #negative value means test is not run; default cut value is 0.001
+    HighResolutionOccupancy = cms.untracked.bool(True),
+    NoiseRateCutValue = cms.untracked.double(-1.), #negative value means test is not run; default cut value is 0.001
     NEventsForNoiseCalculation = cms.untracked.int32(100),
-    UseOfflineXMLFile = cms.untracked.bool(True)
+    UseOfflineXMLFile = cms.untracked.bool(False)
 )
 
 process.qTester = cms.EDFilter("QualityTester",
@@ -185,7 +185,7 @@ process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.qTester*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient*process.dqmSaver)
+process.p = cms.Path(process.Reco*process.dqmEnv*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 #process.p = cms.Path(process.DQMmodules*process.DIGImonitor*process.sipixelEDAClient)
 process.DQM.collectorHost = ''
