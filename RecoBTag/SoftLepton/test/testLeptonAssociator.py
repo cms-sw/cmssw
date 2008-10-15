@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 process.testAnalyzer = cms.EDFilter("testLeptonAssociator",
@@ -22,7 +22,7 @@ process.testAnalyzer = cms.EDFilter("testLeptonAssociator",
     minPt                = cms.double(1.2),
     muons                = cms.InputTag("muons"),
     globalMuonTracks     = cms.InputTag("globalMuons"),
-    standAloneMuonTracks = cms.InputTag("standAloneMuons:UpdatedAtVtx"),
+    standAloneMuonTracks = cms.InputTag("standAloneMuons"),
     tracks               = cms.InputTag("generalTracks"),
     trackingTruth        = cms.InputTag("mergedtruth:MergedTrackTruth")
 )
