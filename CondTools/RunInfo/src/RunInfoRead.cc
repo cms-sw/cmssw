@@ -348,7 +348,7 @@ coral::AttributeList conditionData6;
 queryVI->setCondition( conditionVI , conditionData6 );
 } else {
  
-  std::string conditionVI = " NOT " + m_tableToRead_cur + "." + m_columnToRead_cur + " IS NULL  AND "+ m_columnToRead_date + "ORDER BY " + m_columnToRead_date +  " DESC";
+  std::string conditionVI = " NOT " + m_tableToRead_cur + "." + m_columnToRead_cur + " IS NULL ORDER BY " + m_columnToRead_date +  " DESC";
    queryVI->setCondition( conditionVI , conditionData6 );
  }
 
