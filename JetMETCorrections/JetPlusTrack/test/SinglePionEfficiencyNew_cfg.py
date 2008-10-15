@@ -14,9 +14,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
-#
-process.load("SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi")
-#
+
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
@@ -43,6 +41,10 @@ from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
 ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+#
+
+#
+process.load("SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi")
 #
 
 # HCAL ZSP
@@ -134,7 +136,7 @@ process.dump = cms.EDFilter("EventContentAnalyzer")
 # process.p1 = cms.Path(process.mix*process.dump)
 # process.p1 = cms.Path(process.mix*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.hfreco*process.horeco*process.dump)
 
-# ECAL SR OFF
+# ECAL SR, HCAL ZS  OFF
 process.p1 = cms.Path(process.mix*process.RefitTracks*process.siPixelRecHits*process.pixelTracks*process.simEcalUnsuppressedDigis*process.simEcalDigis*process.ecalWeightUncalibRecHit*process.ecalRecHit*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.myanalysis)
 
 # standard
