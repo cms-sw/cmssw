@@ -1,5 +1,13 @@
 #ifndef FOURVECTORHLTCLIENT_H
 #define FOURVECTORHLTCLIENT_H
+/*
+
+   source for module FourVectorHLTClient
+   author:  Vladimir Rekovic, U Minn. 
+   version: 01
+   date:  28 Oct 2008
+*/
+//$Id: $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -64,8 +72,14 @@ private:
   edm::ParameterSet parameters_;
 
   DQMStore* dbe_;  
-  string monitorDir_;
-  std::vector<std::string> fourVectorMEName;
+  TString sourceDir_;
+  TString clientDir_;
+
+  vector<TString> hltMEName; // names of all MEs (histos)
+  vector<TString> hltPathName; // names of hlt paths from MEs (histos)
+  //TObjArray* hltPathNameColl; // duplicate of the above, more robust
+  vector<MonitorElement*> hltMEs;
+
   int counterLS_;      ///counter
   int counterEvt_;     ///counter
   int prescaleLS_;     ///units of lumi sections
@@ -79,6 +93,8 @@ private:
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryContent_[20];
   MonitorElement * reportSummaryMap_;
+  MonitorElement * testHLTEff_;
+  MonitorElement * klmgrvTest_;
 
 
 };
