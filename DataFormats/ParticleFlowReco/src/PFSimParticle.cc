@@ -15,12 +15,18 @@ PFSimParticle::PFSimParticle() :
 
 PFSimParticle::PFSimParticle(double charge, int pdgCode,
                              unsigned id, int motherId,
-                             const vector<int>& daughterIds) : 
+                             const vector<int>& daughterIds,
+			     unsigned rectrackId, 
+			     std::vector<unsigned> recHitContrib, 
+			     std::vector<double> recHitContribFrac ):
   PFTrack(charge),
   pdgCode_(pdgCode), 
   id_(id), 
   motherId_(motherId), 
-  daughterIds_(daughterIds)   
+  daughterIds_(daughterIds),
+  rectrackId_(rectrackId), 
+  recHitContrib_(recHitContrib), 
+  recHitContribFrac_(recHitContribFrac)
 {}
 
 
@@ -29,7 +35,10 @@ PFSimParticle::PFSimParticle(const PFSimParticle& other) :
   pdgCode_(other.pdgCode_), 
   id_(other.id_), 
   motherId_(other.motherId_), 
-  daughterIds_(other.daughterIds_)
+  daughterIds_(other.daughterIds_),
+  rectrackId_(other.rectrackId_),
+  recHitContrib_(other.recHitContrib_),
+  recHitContribFrac_(other.recHitContribFrac_)
 {}
 
 ostream& reco::operator<<(ostream& out, 
