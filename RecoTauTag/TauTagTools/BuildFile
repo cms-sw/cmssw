@@ -1,12 +1,14 @@
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
+<use name=DataFormats/Candidate>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=PhysicsTools/IsolationUtils>
 <use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/MVAComputer>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TransientTrack>
 <use name=RecoVertex/VertexPrimitives>
@@ -14,6 +16,7 @@
 <export>
   <use name=DataFormats/BTauReco>
   <use name=DataFormats/TauReco>
+  <use name=DataFormats/Candidate>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
@@ -21,6 +24,7 @@
   <use name=RecoVertex/VertexPrimitives>
   <use name=PhysicsTools/IsolationUtils>
   <use name=PhysicsTools/Utilities>
+  <use name=PhysicsTools/MVAComputer>
   <lib name=RecoTauTagTauTagTools>
 </export>
 
