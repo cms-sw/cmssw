@@ -16,6 +16,7 @@
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixDBConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCPedestalsDBConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCL1TPParametersConditions.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeGainsConditions);
@@ -33,4 +34,4 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCPedestalsDBConditions);
-
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCL1TPParametersConditions);
