@@ -5,7 +5,7 @@ patLayer0EventContent = cms.PSet(
         'keep *_genParticles_*_*', 
         'keep recoJetTags_*_*_*', 
         'keep recoTracks_generalTracks_*_*', 
-        'keep *_offlinePrimaryVerticesFromCTFTracks_*_*', 
+        'keep *_offlinePrimaryVertices_*_*', 
         'keep *_caloTowers_*_*',                  # to allow embedding
         'keep CaloTowersSorted_towerMaker_*_*',   # to allow embedding
         'keep floatedmValueMap_*_*_*', 

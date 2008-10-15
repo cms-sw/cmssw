@@ -12,7 +12,7 @@ patLayer1EventContent = cms.PSet(
         'keep edmTriggerResults_TriggerResults_*_*', 
         'keep *_genParticles_*_*', 
         'keep recoTracks_generalTracks_*_*', 
-        'keep *_offlinePrimaryVerticesFromCTFTracks_*_*', 
+        'keep *_offlinePrimaryVertices_*_*', 
         'keep *_selectedLayer1Photons_*_*', 
         'keep *_selectedLayer1Electrons_*_*', 
         'keep *_selectedLayer1Muons_*_*', 
