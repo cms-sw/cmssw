@@ -1,5 +1,6 @@
 #include "CondFormats/RunInfo/interface/RunNumber.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/L1TriggerScaler.h"
 
 namespace {

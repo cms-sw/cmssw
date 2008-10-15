@@ -3,7 +3,7 @@
 // -*- C++ -*-
 //
 // Package:     DataRecord
-// Class  :     RunSummaryRcd
+// Class  :     RunSummaryRcd RunInfoRcd
 // 
 /**\class RunSummaryRcd RunSummaryRcd.h CondFormats/DataRecord/interface/RunSummaryRcd.h
 
@@ -22,5 +22,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 class RunSummaryRcd : public edm::eventsetup::EventSetupRecordImplementation<RunSummaryRcd> {};
+
+class RunInfoRcd : public edm::eventsetup::EventSetupRecordImplementation<RunInfoRcd> {};
 
 #endif
