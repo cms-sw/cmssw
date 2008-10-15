@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.skimming = cms.EDFilter("EcalSkim",
     #cosmic cluster energy threshold in GeV
     energyCutEB = cms.untracked.double(2.0),
-    energyCutEE = cms.untracked.double(1e99),
+    energyCutEE = cms.untracked.double(2.0),
     endcapClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters"),
     barrelClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters")
 )
@@ -26,8 +26,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/ecalSkim_fromRECO_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/ecalSkim_fromRECO_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET4 ecalSkim_fromRECO skim')
 )
 
