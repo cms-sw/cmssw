@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/10/09 15:38:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/09 14:23:14 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -66,6 +66,11 @@ public:
   virtual void Fill (const reco::Particle::LorentzVector & p4, const double & genValue, const double recValue, const int charge) {};
   virtual void Fill (const HepLorentzVector & p, const double & likeValue) {};
   virtual void Fill (const int & number) {};
+  virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
+                     const reco::Particle::LorentzVector & genP1,
+                     const reco::Particle::LorentzVector & recoP2, const int charge2,
+                     const reco::Particle::LorentzVector & genP2,
+                     const double & recoMass, const double & genMass ) {};
   virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
                      // const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2, const int charge2,
@@ -884,6 +889,71 @@ class HLikelihoodVSPart : public Histograms{
 };
 
 /**
+ * This histogram class can be used to evaluate the resolution of a variable.</br>
+ * It has a TProfile, a TH2F and a TH1F. The TProfile is used to compute the rms of
+ * the distribution which is filled in the TH1F (the resolution histogram) in the
+ * Write method.</br>
+ * If a TDirectory is passed to the constructor, the different histograms are
+ * placed in subdirectories.
+ */
+class HResolution : public TH1F {
+public:
+  HResolution( const TString & name, const TString & title,
+               const int totBins, const double & xMin, const double & xMax,
+               const double & yMin, const double & yMax, TDirectory * dir = 0) :
+    dir_(dir),
+    dir2D_(0),
+    diffDir_(0)
+  {
+    if( dir_ != 0 ) {
+      dir2D_ = (TDirectory*) dir_->Get("2D");
+      if(dir2D_ == 0) dir2D_ = dir_->mkdir("2D");
+      diffDir_ = (TDirectory*) dir_->Get("deltaXoverX");
+      if(diffDir_ == 0) diffDir_ = dir->mkdir("deltaXoverX");
+    }
+    diffHisto_ = new TProfile(name+"_prof", title+" profile", totBins, xMin, xMax, yMin, yMax);
+    histo2D_ = new TH2F(name+"2D", title, totBins, xMin, xMax, 4000, yMin, yMax);
+    resoHisto_ = new TH1F(name, title, totBins, xMin, xMax);
+  }
+  virtual Int_t Fill( Double_t x, Double_t y ) {
+    diffHisto_->Fill(x, y);
+    histo2D_->Fill(x, y);
+    return 0;
+  }
+  virtual Int_t	Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0) {
+    // Loop on all the bins and take the rms.
+    // The TProfile bin error is by default the standard error on the mean, that is
+    // rms/sqrt(N). If it is created with the "S" option (as we did NOT do), it would
+    // already be the rms. Thus we take the error and multiply it by the sqrt of the
+    // bin entries to get the rms.
+    // bin 0 is the underflow, bin totBins+1 is the overflow.
+    unsigned int totBins = diffHisto_->GetNbinsX();
+    cout << "totBins = " << totBins << endl;
+    for( unsigned int iBin=1; iBin<totBins; ++iBin ) {
+      cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << endl;
+      resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
+    }
+    if( dir_ != 0 ) dir_->cd();
+    resoHisto_->Write();
+    if( diffDir_ != 0 ) diffDir_->cd();
+    diffHisto_->Write();
+    if( dir2D_ != 0 ) dir2D_->cd();
+    histo2D_->Write();
+
+    return 0;
+  }
+
+protected:
+  TDirectory * dir_;
+  TDirectory * dir2D_;
+  TDirectory * diffDir_;
+  TProfile * diffHisto_;
+  TH2F * histo2D_;
+  TH1F * resoHisto_;
+};
+
+
+/**
  * A set of histograms for resolution.</br>
  * The fill method requires the two selected muons, their charges and the reconstructed and generated masses.
  * It evaluates the resolution on the mass vs:</br>
@@ -896,61 +966,38 @@ class HMassResolutionVSPart : public Histograms{
 public:
   HMassResolutionVSPart(TFile * outputFile, const TString & name) : Histograms( outputFile, name ) {
     // Kinematical variables
-    TString nameSuffix[] = {"Plus", "Minus"};
+    nameSuffix_[0] = "Plus";
+    nameSuffix_[1] = "Minus";
     TString titleSuffix[] = {" for mu+", " for mu-"};
 
-    // This is done inside Histograms constructor
-    // histoDir_->cd();
-
-    hReso                    = new TH1F     (name+"_Reso", "resolution", 4000, -1, 1);
-    hResoVSPairPt            = new TH2F     (name+"_ResoVSPairPt", "resolution VS pt of the pair", 200, 0, 200, 4000, -1, 1);
-    hResoVSPairPt_prof       = new TProfile (name+"_ResoVSPairPt_prof", "resolution VS pt of the pair", 100, 0, 200, -1, 1);
-    hResoVSPairDeltaEta      = new TH2F     (name+"_ResoVSPairDeltaEta", "resolution VS DeltaEta of the pair", 30, -0.1, 6, 4000, -1, 1);
-    hResoVSPairDeltaEta_prof = new TProfile (name+"_ResoVSPairDeltaEta_prof", "resolution VS DeltaEta of the pair", 100, -0.1, 6, -1, 1);
-    hResoVSPairDeltaPhi      = new TH2F     (name+"_ResoVSPairDeltaPhi", "resolution VS DeltaPhi of the pair", 14, -0.1, 3.2, 4000, -1, 1);
-    hResoVSPairDeltaPhi_prof = new TProfile (name+"_ResoVSPairDeltaPhi_prof", "resolution VS DeltaPhi of the pair", 100, -0.1, 3.2, -1, 1);
+    mapHisto_[name]                  = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
+    mapHisto_[name+"VSPairPt"]       = new HResolution (name+"VSPairPt", "resolution VS pt of the pair", 100, 0, 200, -1, 1, histoDir_);
+    mapHisto_[name+"VSPairDeltaEta"] = new HResolution (name+"VSPairDeltaEta", "resolution VS DeltaEta of the pair", 100, -0.1, 6.2, -1, 1, histoDir_);
+    mapHisto_[name+"VSPairDeltaPhi"] = new HResolution (name+"VSPairDeltaPhi", "resolution VS DeltaPhi of the pair", 100, -0.1, 3.2, -1, 1, histoDir_);
 
     for( int i=0; i<2; ++i ) {
-      hResoVSPt[i]       = new TH2F     (name+"_ResoVSPt"+nameSuffix[i], "resolution VS pt"+titleSuffix[i], 200, 0, 200, 4000, -1, 1);
-      hResoVSPt_prof[i]  = new TProfile (name+"_ResoVSPt"+nameSuffix[i]+"_prof", "resolution VS pt"+titleSuffix[i], 100, 0, 200, -1, 1);
-      hResoVSEta[i]      = new TH2F     (name+"_ResoVSEta"+nameSuffix[i], "resolution VS eta"+titleSuffix[i], 30, -3, 3, 4000, -1, 1);
-      hResoVSEta_prof[i] = new TProfile (name+"_ResoVSEta"+nameSuffix[i]+"_prof", "resolution VS eta"+titleSuffix[i], 100, -3, 3, -1, 1);
-      hResoVSTheta[i]    = new TH2F     (name+"_ResoVSTheta"+nameSuffix[i], "resolution VS theta"+titleSuffix[i], 30, 0, TMath::Pi(), 4000, -1, 1);
-      hResoVSPhi[i]      = new TH2F     (name+"_ResoVSPhi"+nameSuffix[i], "resolution VS phi"+titleSuffix[i], 14, -3.2, 3.2, 4000, -1, 1);
-      hResoVSPhi_prof[i] = new TProfile (name+"_ResoVSPhi"+nameSuffix[i]+"_prof", "resolution VS phi"+titleSuffix[i], 100, -3.2, 3.2, -1, 1);
-      //     hAbsReso[i]        = new TH1F     (name+"_AbsReso", "resolution", 100, 0, 1);
-      //     hAbsResoVSPt    = new TH2F (name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);
-      //     hAbsResoVSEta    = new TH2F (name+"_AbsResoVSEta", "Abs resolution VS eta", 30, -3, 3, 100, 0, 1);
-      //     hAbsResoVSPhi    = new TH2F (name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1);
+      mapHisto_[name+"VSPt"+nameSuffix_[i]]  = new HResolution (name+"VSPt"+nameSuffix_[i], "resolution VS pt"+titleSuffix[i], 100, 0, 200, -1, 1, histoDir_);
+      mapHisto_[name+"VSEta"+nameSuffix_[i]] = new HResolution (name+"VSEta"+nameSuffix_[i], "resolution VS eta"+titleSuffix[i], 100, -3, 3, -1, 1, histoDir_);
+      mapHisto_[name+"VSPhi"+nameSuffix_[i]] = new HResolution (name+"VSPhi"+nameSuffix_[i], "resolution VS phi"+titleSuffix[i], 100, -3.2, 3.2, -1, 1, histoDir_);
     }
-  }
 
-  HMassResolutionVSPart(const TString & name, TFile* file){
-    string nameSuffix[] = {"Plus", "Minus"};
-    name_ = name;
-    hReso                    = (TH1F *)     file->Get(name+"_Reso");
-    hResoVSPairPt            = (TH2F *)     file->Get(name+"_ResoVSPairPt");
-    hResoVSPairPt_prof       = (TProfile *) file->Get(name+"_ResoVSPairPt_prof");
-    hResoVSPairDeltaEta      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaEta");
-    hResoVSPairDeltaEta_prof = (TProfile *) file->Get(name+"_ResoVSPairDeltaEta_prof");
-    hResoVSPairDeltaPhi      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaPhi");
-    hResoVSPairDeltaPhi_prof = (TProfile *) file->Get(name+"_ResoVSPairDeltaPhi_prof");
-    for( int i=0; i<2; ++i ) {
-      hResoVSPt[i]           = (TH2F *)     file->Get(name+"_ResoVSPt"+nameSuffix[i]);
-      hResoVSPt_prof[i]      = (TProfile *) file->Get(name+"_ResoVSPt"+nameSuffix[i]+"_prof");
-      hResoVSEta[i]          = (TH2F *)     file->Get(name+"_ResoVSEta"+nameSuffix[i]);
-      hResoVSEta_prof[i]     = (TProfile *) file->Get(name+"_ResoVSEta"+nameSuffix[i]+"_prof");
-      hResoVSTheta[i]        = (TH2F *)     file->Get(name+"_ResoVSTheta"+nameSuffix[i]);
-      hResoVSPhi[i]          = (TH2F *)     file->Get(name+"_ResoVSPhi"+nameSuffix[i]);
-      hResoVSPhi_prof[i]     = (TProfile *) file->Get(name+"_ResoVSPhi"+nameSuffix[i]+"_prof");
-    //     hAbsReso      = (TH1F *) file->Get(name+"_AbsReso");
-    //     hAbsResoVSPt  = (TH2F *) file->Get(name+"_AbsResoVSPt");
-    //     hAbsResoVSEta  = (TH2F *) file->Get(name+"_AbsResoVSEta");
-    //     hAbsResoVSPhi  = (TH2F *) file->Get(name+"_AbsResoVSPhi");
-    }
+    // single particles histograms
+    muMinus.reset( new HDelta("muMinus") );
+    muPlus.reset( new HDelta("muPlus") );
   }
 
   ~HMassResolutionVSPart(){
+  }
+
+  virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
+                     const reco::Particle::LorentzVector & genP1,
+                     const reco::Particle::LorentzVector & recoP2, const int charge2,
+                     const reco::Particle::LorentzVector & genP2,
+                     const double & recoMass, const double & genMass ) {
+    muMinus->Fill(recoP1, genP1);
+    muPlus->Fill(recoP2, genP2);
+
+    Fill( recoP1, charge1, recoP2, charge2, recoMass, genMass );
   }
 
   virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
@@ -981,125 +1028,69 @@ public:
       id[0] = 1;
       id[1] = 0;
     }
-//     double recoPt2  = recoP2.Pt();
-//     double recoEta2 = recoP2.Eta();
-//     double recoPhi2 = recoP2.Phi();
 
     double pairDeltaEta = fabs(recoEta[0] - recoEta[1]);
     double pairDeltaPhi = MuScleFitUtils::deltaPhi(recoPhi[0], recoPhi[1]);
 
-    hReso->Fill(massRes);
-    hResoVSPairPt->Fill(pairPt, massRes);
-    hResoVSPairPt_prof->Fill(pairPt, massRes);
-    hResoVSPairDeltaEta->Fill(pairDeltaEta, massRes);
-    hResoVSPairDeltaEta_prof->Fill(pairDeltaEta, massRes);
-    hResoVSPairDeltaPhi->Fill(pairDeltaPhi, massRes);
-    hResoVSPairDeltaPhi_prof->Fill(pairDeltaPhi, massRes);
+    mapHisto_[name_]->Fill(massRes);
+    mapHisto_[name_+"VSPairPt"]->Fill(pairPt, massRes);
+    mapHisto_[name_+"VSPairDeltaEta"]->Fill(pairDeltaEta, massRes);
+    mapHisto_[name_+"VSPairDeltaPhi"]->Fill(pairDeltaPhi, massRes);
 
     // Resolution vs single muon quantities
     // ------------------------------------
     int index = 0;
     for( int i=0; i<2; ++i ) {
       index = id[i];
-      hResoVSPt[index]->Fill(recoPt[i], massRes);
-      hResoVSPt_prof[index]->Fill(recoPt[i], massRes);
-      hResoVSEta[index]->Fill(recoEta[i], massRes);
-      hResoVSEta_prof[index]->Fill(recoEta[i], massRes);
-      // hResoVSTheta[index]->Fill(recoTheta[i], massRes);
-      hResoVSPhi[index]->Fill(recoPhi[i], massRes);
-      hResoVSPhi_prof[index]->Fill(recoPhi[i], massRes);
+      mapHisto_[name_+"VSPt"+nameSuffix_[i]]->Fill(recoPt[i], massRes);
+      mapHisto_[name_+"VSEta"+nameSuffix_[i]]->Fill(recoEta[i], massRes);
+      mapHisto_[name_+"VSPhi"+nameSuffix_[i]]->Fill(recoPhi[i], massRes);
     }
   } 
 
   virtual void Write() {
-    histoDir_->cd();
+    // histoDir_->cd();
 
-    hReso->Write();
-    hResoVSPairPt->Write();
-    hResoVSPairPt_prof->Write();
-    hResoVSPairDeltaEta->Write();
-    hResoVSPairDeltaEta_prof->Write();
-    hResoVSPairDeltaPhi->Write();
-    hResoVSPairDeltaPhi_prof->Write();
-    for( int i=0; i<2; ++i ) {
-      hResoVSPt[i]->Write();
-      hResoVSPt_prof[i]->Write();
-      hResoVSEta[i]->Write();
-      hResoVSEta_prof[i]->Write();
-      hResoVSTheta[i]->Write();
-      hResoVSPhi[i]->Write();
-      hResoVSPhi_prof[i]->Write();
-//     hAbsReso->Write();
-//     hAbsResoVSPt->Write();
-//     hAbsResoVSEta->Write();
-//     hAbsResoVSPhi->Write();
-    }
-    /*
-    vector<TGraphErrors*> graphs ((MuScleFitUtils::fitReso(hResoVSPt)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-      (*graph)->Write();
+    for (map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
+         histo!=mapHisto_.end(); histo++) {
+      (*histo).second->Write();
     }
 
-    vector<TGraphErrors*> graphsEta ((MuScleFitUtils::fitReso(hResoVSEta)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsEta.begin(); graph != graphsEta.end(); graph++){
-      (*graph)->Write();
-    }
+    // Create the new dir and cd into it
+    (histoDir_->mkdir("singleMuonsVSgen"))->cd();
 
-    vector<TGraphErrors*> graphsPhiPlus ((MuScleFitUtils::fitReso(hResoVSPhiMinus)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsPhiPlus.begin(); graph != graphsPhiPlus.end(); graph++){
-      (*graph)->Write();
-    }
-
-    vector<TGraphErrors*> graphsPhiMinus ((MuScleFitUtils::fitReso(hResoVSPhiPlus)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsPhiMinus.begin(); graph != graphsPhiMinus.end(); graph++){
-      (*graph)->Write();
-      }*/
+    muMinus->Write();
+    muPlus->Write();
   }
   
   virtual void Clear() {
-    hReso->Clear();
-    hResoVSPairPt->Clear();
-    hResoVSPairPt_prof->Clear();
-    hResoVSPairDeltaEta->Clear();
-    hResoVSPairDeltaEta_prof->Clear();
-    hResoVSPairDeltaPhi->Clear();
-    hResoVSPairDeltaPhi_prof->Clear();    
-    for( int i=0; i<2; ++i ) {
-      hResoVSPt[i]->Write();
-      hResoVSPt_prof[i]->Clear();
-      hResoVSEta[i]->Clear();
-      hResoVSEta_prof[i]->Clear();
-      hResoVSTheta[i]->Clear();
-      hResoVSPhi[i]->Clear();
-      hResoVSPhi_prof[i]->Clear();
-//     hAbsReso->Clear();
-//     hAbsResoVSPt->Clear();
-//     hAbsResoVSEta->Clear();
-//     hAbsResoVSPhi->Clear();
+    for (map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
+         histo!=mapHisto_.end(); histo++) {
+      (*histo).second->Clear();
     }
+    muMinus->Clear();
+    muPlus->Clear();
   }
-  
- public:
-  TH1F* hReso;
-  TH2F* hResoVSPairPt;
-  TProfile* hResoVSPairPt_prof;
-  TH2F* hResoVSPairDeltaEta;
-  TProfile* hResoVSPairDeltaEta_prof;
-  TH2F* hResoVSPairDeltaPhi;
-  TProfile* hResoVSPairDeltaPhi_prof;
 
-  TH2F * hResoVSPt[2];
-  TProfile * hResoVSPt_prof[2];
-  TH2F * hResoVSEta[2];
-  TProfile * hResoVSEta_prof[2];
-  TH2F * hResoVSTheta[2];
-  TH2F * hResoVSPhi[2];
-  TProfile * hResoVSPhi_prof[2];
-  // TH1F * hAbsReso[2];
-  // TH2F * hAbsResoVSPt[2];
-  // TH2F * hAbsResoVSEta[2];
-  // TH2F * hAbsResoVSPhi[2];
+//   HMassResolutionVSPart(const TString & name, TFile* file){
+//     string nameSuffix[] = {"Plus", "Minus"};
+//     name_ = name;
+//     hReso                    = (TH1F *)     file->Get(name+"_Reso");
+//     hResoVSPairPt            = (TH2F *)     file->Get(name+"_ResoVSPairPt");
+//     hResoVSPairDeltaEta      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaEta");
+//     hResoVSPairDeltaPhi      = (TH2F *)     file->Get(name+"_ResoVSPairDeltaPhi");
+//     for( int i=0; i<2; ++i ) {
+//       hResoVSPt[i]           = (TH2F *)     file->Get(name+"_ResoVSPt"+nameSuffix[i]);
+//       hResoVSEta[i]          = (TH2F *)     file->Get(name+"_ResoVSEta"+nameSuffix[i]);
+//       hResoVSPhi[i]          = (TH2F *)     file->Get(name+"_ResoVSPhi"+nameSuffix[i]);
+//     }
+//   }
 
+ protected:
+  map<TString, TH1*> mapHisto_;
+  TString nameSuffix_[2];
+  auto_ptr<HDelta> muMinus;
+  auto_ptr<HDelta> muPlus;
 };
 
 #endif
