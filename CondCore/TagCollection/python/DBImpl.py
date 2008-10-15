@@ -38,6 +38,24 @@ class DBImpl(object):
             editor.insertRow( inputData )
         except Exception, e:
             raise Exception, str(e)
+    def bulkInsert( self, tableName, tabrowDefDict, bulkinput):
+        """Bulk insert bulkinput=[{}]
+        """
+        try:
+            dataEditor=self.__schema.tableHandle(tableName).dataEditor()
+            insertdata=coral.AttributeList()
+            for (columnname,columntype) in tabrowDefDict.items():
+                insertdata.extend(columnname,columntype)
+                
+            bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
+            for valuedict in bulkinput:
+                for (columnname,columnvalue) in valuedict.items():
+                    insertdata[columnname].setData(columnvalue)
+                    bulkOperation.processNextIteration()
+            bulkOperation.flush()
+            del bulkOperation
+        except Exception, e:
+            raise Exception, str(e)
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """Delete row(s)
         """
@@ -47,6 +65,7 @@ class DBImpl(object):
             editor.deleteRows( condition, conditionbindDict )
         except Exception, e:
             raise Exception, str(e)
+        
     def dropTable( self, tableName ):
         """Drop specified table.
         """

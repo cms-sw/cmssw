@@ -7,6 +7,8 @@ def treeTableName(treename):
 	return 'TAGTREE_TABLE_'+str.upper(treename)
 def treeIDTableName(treename):
 	return 'TAGTREE_'+str.upper(treename)+'_IDS'
+def commentTableName():
+	return 'ENTRYCOMMENT_TABLE'
 
 import coral
 def tagInTrees(dbsession,tagname,pfn=''):
