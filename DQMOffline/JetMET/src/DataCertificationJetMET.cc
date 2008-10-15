@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.9 2008/10/14 20:35:49 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.10 2008/10/15 03:41:06 chlebana Exp $
 //
 //
 
@@ -40,6 +40,8 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #define NJetAlgo 4
+#define NL3Flags 3
+
 #define DEBUG    1
 
 // #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -310,10 +312,17 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
 void 
 DataCertificationJetMET::beginJob(const edm::EventSetup&)
 {
+  
+  int verbose  = 0;
+  int testType = 1;
 
   //----------------------------------------------------------------
   // Open input files
   //----------------------------------------------------------------
+
+
+  verbose   = conf_.getUntrackedParameter<int>("Verbose");
+  testType  = conf_.getUntrackedParameter<int>("TestType");
 
   std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
   std::string reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
@@ -380,28 +389,68 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // ****************************
   // ****************************
 
-  // --- Save result to root file
+  // --- Save Data Certification results to the root file
+  //     We save both flags and values
   dbe->setCurrentFolder(RunDir+"/JetMET/Data Certification/");    
-  MonitorElement* mJetDCL1 = dbe->book1D("JetDCLayer1", "Jet DC L1", NJetAlgo, 0, NJetAlgo);
-  MonitorElement* mJetDCL2 = dbe->book1D("JetDCLayer2", "Jet DC L2", NJetAlgo, 0, NJetAlgo);
-  MonitorElement* mJetDCL3 = dbe->book1D("JetDCLayer3", "Jet DC L3", 100, 0, 100);
+  MonitorElement* mJetDCFL1 = dbe->book1D("JetDCFLayer1", "Jet DC F L1", 1, 0, 1);
+  MonitorElement* mJetDCFL2 = dbe->book1D("JetDCFLayer2", "Jet DC F L2", NJetAlgo, 0, NJetAlgo);
+  MonitorElement* mJetDCFL3 = dbe->book1D("JetDCFLayer3", "Jet DC F L3", NJetAlgo*NL3Flags, 0, NJetAlgo*NL3Flags);
 
-  MonitorElement* mMETDCL1 = dbe->book2D("METDCLayer1", "MET DC L1", 3,0,3,500,0.,500.);
-  MonitorElement* mMETDCL2 = dbe->book2D("METDCLayer2", "MET DC L2", 3,0,3,500,0.,500.);
-  MonitorElement* mMETDCL3 = dbe->book2D("METDCLayer3", "MET DC L3", 3,0,3,500,0.,500.);
+  MonitorElement* mJetDCVL1 = dbe->book1D("JetDCVLayer1", "Jet DC V L1", NJetAlgo, 0, NJetAlgo);
+  MonitorElement* mJetDCVL2 = dbe->book1D("JetDCVLayer2", "Jet DC V L2", NJetAlgo, 0, NJetAlgo);
+  MonitorElement* mJetDCVL3 = dbe->book1D("JetDCVLayer3", "Jet DC V L3", NJetAlgo*NL3Flags, 0, NJetAlgo*NL3Flags);
+
+  MonitorElement* mMETDCFL1 = dbe->book2D("METDCFLayer1", "MET DC F L1", 3,0,3,500,0.,500.);
+  MonitorElement* mMETDCFL2 = dbe->book2D("METDCFLayer2", "MET DC F L2", 3,0,3,500,0.,500.);
+  MonitorElement* mMETDCFL3 = dbe->book2D("METDCFLayer3", "MET DC F L3", 3,0,3,500,0.,500.);
+
+  MonitorElement* mMETDCVL1 = dbe->book2D("METDCVLayer1", "MET DC V L1", 3,0,3,500,0.,500.);
+  MonitorElement* mMETDCVL2 = dbe->book2D("METDCVLayer2", "MET DC V L2", 3,0,3,500,0.,500.);
+  MonitorElement* mMETDCVL3 = dbe->book2D("METDCVLayer3", "MET DC V L3", 3,0,3,500,0.,500.);
 
 
   Double_t test_Pt, test_Eta, test_Phi, test_Constituents, test_HFrac;
   test_Pt = test_Eta = test_Phi = test_Constituents = test_HFrac = 0;
+  
+  Double_t test_Pt_Barrel,  test_Phi_Barrel;
+  Double_t test_Pt_EndCap,  test_Phi_EndCap;
+  Double_t test_Pt_Forward, test_Phi_Forward;
+  test_Pt_Barrel  = test_Phi_Barrel  = 0;
+  test_Pt_EndCap  = test_Phi_EndCap  = 0;
+  test_Pt_Forward = test_Phi_Forward = 0;
 
-  // TODO: get run from data file    
-  Int_t Jet_DC[NJetAlgo];
-  std::string Jet_Tag[NJetAlgo];
+  Int_t Jet_DCF_L1[NJetAlgo];
+  Int_t Jet_DCF_L2[NJetAlgo];
+  Int_t Jet_DCF_L3[NJetAlgo][NL3Flags];
 
-  Jet_Tag[0] = "JetMET_Jet_IterativeCone";
-  Jet_Tag[1] = "JetMET_Jet_SISCone";
-  Jet_Tag[2] = "JetMET_Jet_PFlow";
-  Jet_Tag[3] = "JetMET_Jet_JPT";
+  //  Int_t Jet_DCV_L1[NJetAlgo];
+  //  Int_t Jet_DCV_L2[NJetAlgo];
+  //  Int_t Jet_DCV_L3[NJetAlgo][NL3Flags];
+
+  //  Int_t Jet_DC[NJetAlgo];
+  std::string Jet_Tag_L1[2];
+  Jet_Tag_L1[0]    = "JetMET_Jet";
+  Jet_Tag_L1[1]    = "JetMET_MET";
+
+  std::string Jet_Tag_L2[NJetAlgo];
+  Jet_Tag_L2[0] = "JetMET_Jet_IterativeCone";
+  Jet_Tag_L2[1] = "JetMET_Jet_SISCone";
+  Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
+  Jet_Tag_L2[3] = "JetMET_Jet_JPT";
+
+  std::string Jet_Tag_L3[NJetAlgo][NL3Flags];
+  Jet_Tag_L3[0][0] = "JetMET_Jet_IterativeCone_Barrel";
+  Jet_Tag_L3[0][1] = "JetMET_Jet_IterativeCone_EndCap";
+  Jet_Tag_L3[0][2] = "JetMET_Jet_IterativeCone_Forward";
+  Jet_Tag_L3[1][0] = "JetMET_Jet_SISCone_Barrel";
+  Jet_Tag_L3[1][1] = "JetMET_Jet_SISCone_EndCap";
+  Jet_Tag_L3[1][2] = "JetMET_Jet_PFlow_Forward";
+  Jet_Tag_L3[2][0] = "JetMET_Jet_PFlow_Barrel";
+  Jet_Tag_L3[2][1] = "JetMET_Jet_PFlow_EndCap";
+  Jet_Tag_L3[2][2] = "JetMET_Jet_PFlow_Forward";
+  Jet_Tag_L3[3][0] = "JetMET_Jet_JPT_Barrel";
+  Jet_Tag_L3[3][1] = "JetMET_Jet_JPT_EndCap";
+  Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
   
   //  rdbe->setCurrentFolder(RunDir+"/JetMET/Run summary/SISConeJets");
   //  std::string refHistoName = RunDir+"/JetMET/Run summary/PFJetAnalyzer/Pt";
@@ -409,7 +458,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   std::string refHistoName;
   std::string newHistoName;
 
-  // --- Loop over jet algorithms
+  // --- Loop over jet algorithms for Layer 2
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
 
     if (iAlgo == 0) {
@@ -430,17 +479,26 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       newHistoName = RunDir+"/JetMET/Run summary/JPT/";
     }
 
+
+
+    // ----------------
+    // --- Layer 2
     MonitorElement * meRef = rdbe->get(refHistoName+"Pt");
     MonitorElement * meNew = dbe->get(newHistoName+"Pt");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	if (DEBUG) std::cout << ">>> Pt: Found it..." << std::endl;
-	test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
-	if (DEBUG) std::cout << ">>> K Test = " << test_Pt << std::endl;    
-	test_Pt = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Pt << std::endl;    
+	switch (testType) {
+	case 1 :
+	  test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
+	  break;
+	case 2 :
+	  test_Pt = newHisto->Chi2Test(refHisto);
+	  break;
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Pt << std::endl;    
       }
     }
 
@@ -450,11 +508,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	if (DEBUG) std::cout << ">>> Eta: Found it..." << std::endl;
-	test_Eta = newHisto->KolmogorovTest(refHisto,"UO");
-	if (DEBUG) std::cout << ">>> K Test = " << test_Eta << std::endl;    
-	test_Eta = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Eta << std::endl;    
+	switch (testType) {
+	case 1 :
+	  test_Eta = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2:
+	  test_Eta = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Eta << std::endl;    
       }
     }
 
@@ -464,11 +525,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	if (DEBUG) std::cout << ">>> Phi: Found it..." << std::endl;
-	test_Phi = newHisto->KolmogorovTest(refHisto,"UO");
-	if (DEBUG) std::cout << ">>> K Test = " << test_Phi << std::endl;    
-	test_Phi = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Phi << std::endl;    
+	switch (testType) {
+	case 1 :
+	  test_Phi = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2:
+	  test_Phi = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Phi << std::endl;    
       }
     }
      
@@ -478,11 +542,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	if (DEBUG) std::cout << ">>> Constituents: Found it..." << std::endl;
-	test_Constituents = newHisto->KolmogorovTest(refHisto,"UO");
-	if (DEBUG) std::cout << ">>> K Test = " << test_Constituents << std::endl;    
-	test_Constituents = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Constituents << std::endl;    
+	switch (testType) {
+	case 1 :	  
+	  test_Constituents = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2 :
+	  test_Constituents = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Constituents << std::endl;    
       }
     }
      
@@ -492,11 +559,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	if (DEBUG) std::cout << ">>> HOverE: Found it..." << std::endl;
-	test_HFrac = newHisto->KolmogorovTest(refHisto,"UO");
-	if (DEBUG) std::cout << ">>> K Test = " << test_HFrac << std::endl;    
-	test_HFrac = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_HFrac << std::endl;    
+	switch (testType) {
+	case 1 :
+	  test_HFrac = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2:
+	  test_HFrac = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_HFrac << std::endl;    	
       }
     }
 
@@ -504,24 +574,171 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 	 (test_Phi    > 0.95) && (test_Constituents > 0.95) && 
 	 (test_HFrac  > 0.95) )  {      
 
-      Jet_DC[iAlgo] = 1;
+      Jet_DCF_L2[iAlgo] = 1;
       // --- Fill DC results histogram
-      mJetDCL2->Fill(iAlgo);
+      mJetDCFL2->Fill(iAlgo);
     } else {
-      Jet_DC[iAlgo] = 0;
+      Jet_DCF_L2[iAlgo] = 0;
+    }
+
+    // ----------------
+    // --- Layer 3
+    // --- Barrel
+    meRef = rdbe->get(refHistoName+"Pt_Barrel");
+    meNew = dbe->get(newHistoName+"Pt_Barrel");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	switch (testType) {
+	case 1 :
+	  test_Pt_Barrel = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2 :
+	  test_Pt_Barrel = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Pt_Barrel << std::endl;    	
+      }
+    }
+
+    meRef = rdbe->get(refHistoName+"Phi_Barrel");
+    meNew = dbe->get(newHistoName+"Phi_Barrel");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	switch (testType) {
+	case 1 :
+	  test_Phi_Barrel = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2 :
+	  test_Phi_Barrel = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Phi_Barrel << std::endl;    	
+      }
+    }
+
+    // --- EndCap
+    meRef = rdbe->get(refHistoName+"Pt_EndCap");
+    meNew = dbe->get(newHistoName+"Pt_EndCap");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	switch (testType) {
+	case 1 :
+	  test_Pt_EndCap = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2 :
+	  test_Pt_EndCap = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Pt_EndCap << std::endl;    	
+      }
+    }
+
+    meRef = rdbe->get(refHistoName+"Phi_EndCap");
+    meNew = dbe->get(newHistoName+"Phi_EndCap");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	switch (testType) {
+	case 1 :
+	  test_Phi_EndCap = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2 :
+	  test_Phi_EndCap = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Phi_EndCap << std::endl;    	
+
+      }
+    }
+
+    // --- Forward
+    meRef = rdbe->get(refHistoName+"Pt_Forward");
+    meNew = dbe->get(newHistoName+"Pt_Forward");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	switch (testType) {
+	case 1 :
+	  test_Pt_Forward = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2:
+	  test_Pt_Forward = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Pt_Forward << std::endl;    	
+      }
+    }
+
+    meRef = rdbe->get(refHistoName+"Phi_Forward");
+    meNew = dbe->get(newHistoName+"Phi_Forward");
+    if ((meRef) && (meNew)) {
+      TH1F *refHisto = meRef->getTH1F();
+      TH1F *newHisto = meNew->getTH1F();
+      if ((refHisto) && (newHisto)) {
+	switch (testType) {
+	case 1 :
+	  test_Phi_Forward = newHisto->KolmogorovTest(refHisto,"UO");
+	case 2 :
+	  test_Phi_Forward = newHisto->Chi2Test(refHisto);
+	}
+	if (verbose > 0) std::cout << ">>> Test (" << testType 
+				   << ") Result = " << test_Phi_Forward << std::endl;    	
+
+      }
+    }
+
+
+    if ( (test_Pt_Barrel > 0.95) && (test_Phi_Barrel > 0.95) ) {
+      Jet_DCF_L3[iAlgo][0] = 1;
+      // --- Fill DC results histogram
+      mJetDCFL3->Fill(iAlgo+0*NL3Flags);
+    } else {
+      Jet_DCF_L3[iAlgo][0] = 0;
+    }
+    if ( (test_Pt_EndCap > 0.95) && (test_Phi_EndCap > 0.95) ) {
+      Jet_DCF_L3[iAlgo][1] = 1;
+      // --- Fill DC results histogram
+      mJetDCFL3->Fill(iAlgo+1*NL3Flags);
+    } else {
+      Jet_DCF_L3[iAlgo][1] = 0;
+    }
+    if ( (test_Pt_Forward > 0.95) && (test_Phi_Forward > 0.95) ) {
+      Jet_DCF_L3[iAlgo][2] = 1;
+      // --- Fill DC results histogram
+      mJetDCFL3->Fill(iAlgo+2*NL3Flags);
+    } else {
+      Jet_DCF_L3[iAlgo][2] = 0;
     }
 
   }
+
   // --- End of loop over jet algorithms
-  
+  int allOK = 1;
+  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {   
+    if (Jet_DCF_L1[iAlgo] == 0) allOK = 0;
+  }
+  if (allOK == 1) mJetDCFL1->Fill(1);
+
+
   // JET Data Certification Results
   if (DEBUG) {
     std::cout << std::endl;
+    printf("%6s %15d %35s %10d\n",RunNum.c_str(),0,"JetMET", allOK);
     for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-      printf("%6s %15d %30s %10d\n",RunNum.c_str(),0,Jet_Tag[iAlgo].c_str(), Jet_DC[iAlgo]);
+      printf("%6s %15d %35s %10d\n",RunNum.c_str(),0,Jet_Tag_L2[iAlgo].c_str(), Jet_DCF_L2[iAlgo]);
+    }
+    for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+      for (int iL3Flag=0; iL3Flag<NL3Flags; iL3Flag++) {    
+	printf("%6s %15d %35s %10d\n",RunNum.c_str(),0,Jet_Tag_L3[iAlgo][iL3Flag].c_str(), Jet_DCF_L3[iAlgo][iL3Flag]);
+      }
     }
     std::cout << std::endl;    
   }
+
+
 
 
   // ****************************
@@ -710,9 +927,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     JetMET_MET[LS]     = JetMET_MET_All[LS] * JetMET_MET_NoHF[LS];
 
     // -- Fill the DC Result Histograms    
-    mMETDCL2->Fill(0,LS,JetMET_MET_All[LS]);
-    mMETDCL2->Fill(1,LS,JetMET_MET_NoHF[LS]);
-    mMETDCL2->Fill(2,LS,JetMET_MET[LS]);
+    mMETDCFL2->Fill(0,LS,JetMET_MET_All[LS]);
+    mMETDCFL2->Fill(1,LS,JetMET_MET_NoHF[LS]);
+    mMETDCFL2->Fill(2,LS,JetMET_MET[LS]);
 
     //    std::cout  << ">>> " << LS << " " << JetMET_MET_All[LS] << " " 
     //	       << JetMET_MET_NoHF[LS] << " " << JetMET_MET[LS] << std::endl;
