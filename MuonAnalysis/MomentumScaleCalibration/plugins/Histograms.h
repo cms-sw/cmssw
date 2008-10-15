@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/07/09 14:23:14 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/15 13:50:41 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -929,7 +929,7 @@ public:
     // bin 0 is the underflow, bin totBins+1 is the overflow.
     unsigned int totBins = diffHisto_->GetNbinsX();
     cout << "totBins = " << totBins << endl;
-    for( unsigned int iBin=1; iBin<totBins; ++iBin ) {
+    for( unsigned int iBin=1; iBin<=totBins; ++iBin ) {
       cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << endl;
       resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
     }
