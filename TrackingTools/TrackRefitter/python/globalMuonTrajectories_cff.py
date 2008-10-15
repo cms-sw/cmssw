@@ -4,28 +4,28 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # IMPORTANT !!! ##
 # If you want to revert the fit direction, then
 # Case 1 #
-# string RefitDirection = "insideOut"
+# string RefitDirection = "alongMomentum"
 # KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitInsideOut"
 # KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitInsideOut"
 # Case 2 #
-# string RefitDirection = "outsideIn"
+# string RefitDirection = "oppositeToMomentum"
 # KFTrajectoryFitterESProducer   ---> Fitter = "KFFitterForRefitOutsideIn"
 # KFTrajectorySmootherESProducer ---> Smoother = "KFSmootherForRefitOutsideIn"
 # the propagator must be the same as the one used by the Fitter
 #
 globalMuons = cms.EDProducer("TracksToTrajectories",
-                                Tracks = cms.InputTag("globalMuons"),
-                                TrackTransformer = cms.PSet(DoPredictionsOnly = cms.bool(False),
-                                                            Fitter = cms.string('KFFitterForRefitInsideOut'),
-                                                                #        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
-                                                            TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-                                                            Smoother = cms.string('KFSmootherForRefitInsideOut'),
-                                                            MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-                                                                RefitDirection = cms.string('insideOut'),
-                                                                RefitRPCHits = cms.bool(True),
+                             Tracks = cms.InputTag("globalMuons"),
+                             TrackTransformer = cms.PSet(DoPredictionsOnly = cms.bool(False),
+                                                         Fitter = cms.string('KFFitterForRefitInsideOut'),
+                                                         #        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
+                                                         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+                                                         Smoother = cms.string('KFSmootherForRefitInsideOut'),
+                                                         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+                                                         RefitDirection = cms.string('alongMomentum'),
+                                                         RefitRPCHits = cms.bool(True),
                                                                 Propagator = cms.string('SmartPropagatorAnyRK')
-                                                                )
-                                    )
+                                                         )
+                             )
 
 
 

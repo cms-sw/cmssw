@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2008/04/29 13:41:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/07/21 17:13:55 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -20,8 +20,9 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 namespace edm {class ParameterSet; class EventSetup;}
 namespace reco {class TransientTrack;}
 
@@ -89,7 +90,7 @@ public:
   bool theRPCInTheFit;
 
   bool theDoPredictionsOnly;
-  RefitDirection theRefitDirection;
+  PropagationDirection theRefitDirection;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;

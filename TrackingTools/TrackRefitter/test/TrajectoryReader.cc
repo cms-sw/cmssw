@@ -174,9 +174,9 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
       reco::TransientTrack track(trackRef,&*magField,trackingGeometry);
 
       hDPtIn->Fill(track.innermostMeasurementState().globalMomentum().perp() -
- 		   trajectory->firstMeasurement().updatedState().globalMomentum().perp());
+ 		   trajectory->lastMeasurement().updatedState().globalMomentum().perp());
       hDPtOut->Fill(track.outermostMeasurementState().globalMomentum().perp() -
- 		    trajectory->lastMeasurement().updatedState().globalMomentum().perp());
+ 		    trajectory->firstMeasurement().updatedState().globalMomentum().perp());
 
       LogTrace(metname)<< "Difference: " <<track.recHitsSize()- trajectory->recHits().size();
       

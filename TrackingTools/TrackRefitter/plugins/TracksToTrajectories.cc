@@ -72,9 +72,9 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
 			   reco::TrackRef(tracks,trackIndex++));
     }
     else
-      LogError(metname) << "Error in the Track refitting. This must not happen!";
+      LogWarning(metname) << "Error in the Track refitting. This must not happen!";
   }
-  LogDebug(metname)<<"Load the Trajectory Collection";
+  LogTrace(metname)<<"Load the Trajectory Collection";
   event.put(trajectoryCollection,"Refitted");
   event.put(trajTrackMap,"Refitted");
 }

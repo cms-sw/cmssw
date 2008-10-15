@@ -31,8 +31,8 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
   // Refit direction
   string refitDirectionName = parameterSet.getParameter<string>("RefitDirection");
   
-  if (refitDirectionName == "insideOut" ) theRefitDirection = insideOut;
-    else if (refitDirectionName == "outsideIn" ) theRefitDirection = outsideIn;
+  if (refitDirectionName == "alongMomentum" ) theRefitDirection = alongMomentum;
+  else if (refitDirectionName == "oppositeToMomentum" ) theRefitDirection = oppositeToMomentum;
     else 
       throw cms::Exception("TrackTransformer constructor") 
 	<<"Wrong refit direction chosen in TrackTransformer ParameterSet"
@@ -65,7 +65,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
   unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
 
   if ( newCacheId_TC != theCacheId_TC ){
-    LogDebug(metname) << "Tracking Component changed!";
+    LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
     
     setup.get<TrackingComponentsRecord>().get(theFitterName,theFitter);
@@ -77,7 +77,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
   // Global Tracking Geometry
   unsigned long long newCacheId_GTG = setup.get<GlobalTrackingGeometryRecord>().cacheIdentifier();
   if ( newCacheId_GTG != theCacheId_GTG ) {
-    LogDebug(metname) << "GlobalTrackingGeometry changed!";
+    LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
     setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   }
@@ -85,7 +85,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
   // Magfield Field
   unsigned long long newCacheId_MG = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
   if ( newCacheId_MG != theCacheId_MG ) {
-    LogDebug(metname) << "Magnetic Field changed!";
+    LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
     setup.get<IdealMagneticFieldRecord>().get(theMGField);
   }
@@ -93,7 +93,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
   if ( newCacheId_TRH != theCacheId_TRH ) {
-    LogDebug(metname) << "TransientRecHitRecord changed!";
+    LogTrace(metname) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
   }
@@ -116,7 +116,7 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 	result.push_back(theTrackerRecHitBuilder->build(&**hit));
       else if ( (*hit)->geographicalId().det() == DetId::Muon ){
 	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
-	  LogDebug("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
+	  LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
 	  continue;
 	}
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
@@ -130,21 +130,17 @@ TrackTransformer::RefitDirection
 TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
  
  if (!recHits.empty()){
-    //-- this crashes if the tracker hits have uninitialized position
-    //double rFirst = recHits.front()->globalPosition().mag();
-    //double rLast  = recHits.back()->globalPosition().mag();
-    //-- this below should be less accurate but safer
     double rFirst = trackingGeometry()->idToDet(recHits.front()->geographicalId())->position().mag();
     double rLast  = trackingGeometry()->idToDet(recHits.back()->geographicalId() )->position().mag();
     if(rFirst < rLast) return insideOut;
     else if(rFirst > rLast) return outsideIn;
     else{
-      LogError("Reco|TrackingTools|TrackTransformer") << "Impossible determine the rechits order" <<endl;
+      LogError("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
       return undetermined;
     }
   }
   else{
-    LogError("Reco|TrackingTools|TrackTransformer") << "Impossible determine the rechits order" <<endl;
+    LogError("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
     return undetermined;
     }
 }
@@ -173,7 +169,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
 
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
 
-  if ( theDoPredictionsOnly ) {
+  if (theDoPredictionsOnly) {
 
     // Fill the starting state
     TrajectoryStateOnSurface firstTSOS;
@@ -193,12 +189,10 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
         reverse(recHitsForReFit.begin(),recHitsForReFit.end());
     }
 
-    PTrajectoryStateOnDet garbage1;
-    edm::OwnVector<TrackingRecHit> garbage2;
     PropagationDirection propDir =
       (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
-    TrajectorySeed seed(garbage1,garbage2,propDir);
+    TrajectorySeed seed(PTrajectoryStateOnDet(),TrajectorySeed::recHitContainer(),propDir);
 
     Trajectory aTraj(seed, propDir);
 
@@ -210,50 +204,52 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
       if (predTSOS.isValid()) aTraj.push(TrajectoryMeasurement(predTSOS, *ihit));
     }
     return vector<Trajectory>(1, aTraj);
-
+    
   }
+  
+  // 8 Cases are foreseen:
+  // (1) RH IO P IO FD AM  ---> Start from IN
+  // (2) RH IO P IO FD OM  ---> Reverse RH and start from OUT
+  // (3) RH IO P OI FD AM  ---> Reverse RH and start from IN
+  // (4) RH IO P OI FD OM  ---> Start from OUT
+  // (5) RH OI P IO FD AM  ---> Reverse RH and start from IN
+  // (6) RH OI P IO FD OM  ---> Start from OUT
+  // (7) RH OI P OI FD AM  ---> Start from IN
+  // (8) RH OI P OI FD OM  ---> Reverse RH and start from OUT
+  //
+  // *** Rules: ***
+  // -A- If RH-FD agree (IO-AM,OI-OM) do not reverse the RH
+  // -B- If FD along momentum start from innermost state, otherwise use outermost
+  
+  // Determine the RH order
+  RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit); // FIXME change nome of the *type*  --> RecHit order!
+  
+  // Apply rule -A-
+  if(recHitsOrder==insideOut && theRefitDirection==oppositeToMomentum ||
+     recHitsOrder==outsideIn && theRefitDirection==alongMomentum) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
+  // - -
 
-  // Check the order of the rechits
-  RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit);
-
-  // Reverse the order in the case of inconsistency between the fit direction and the rechit order
-  if(theRefitDirection != recHitsOrder) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-
-  // Fill the starting state
-  TrajectoryStateOnSurface firstTSOS;
-  unsigned int innerId;
-  if(theRefitDirection == insideOut){
-    innerId =   newTrack.innerDetId();
-    firstTSOS = track.innermostMeasurementState();
-  }
-  else{
+  // Apply rule -B-
+  TrajectoryStateOnSurface firstTSOS = track.innermostMeasurementState();
+  unsigned int innerId = newTrack.innerDetId();
+  if(theRefitDirection == oppositeToMomentum){
     innerId   = newTrack.outerDetId();
     firstTSOS = track.outermostMeasurementState();
   }
+  // -B-
 
   if(!firstTSOS.isValid()){
-    LogWarning(metname)<<"Error wrong initial state!"<<endl;
+    LogTrace(metname)<<"Error wrong initial state!"<<endl;
     return vector<Trajectory>();
   }
 
-  // This is the only way to get a TrajectorySeed with settable propagation direction
-  PTrajectoryStateOnDet garbage1;
-  edm::OwnVector<TrackingRecHit> garbage2;
-  PropagationDirection propDir = 
-    (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
-
-  //  if(propDir == alongMomentum && theRefitDirection == insideOut)  OK;
-  if(propDir == alongMomentum && theRefitDirection == outsideIn)  propDir=oppositeToMomentum;
-  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
-  // if(propDir == oppositeToMomentum && theRefitDirection == outsideIn) OK;
-  
-  TrajectorySeed seed(garbage1,garbage2,propDir);
+  TrajectorySeed seed(PTrajectoryStateOnDet(),TrajectorySeed::recHitContainer(),theRefitDirection);
 
   if(recHitsForReFit.front()->geographicalId() != DetId(innerId)){
-    LogDebug(metname)<<"Propagation occured"<<endl;
+    LogTrace(metname)<<"Propagation occured"<<endl;
     firstTSOS = propagator()->propagate(firstTSOS, recHitsForReFit.front()->det()->surface());
     if(!firstTSOS.isValid()){
-      LogDebug(metname)<<"Propagation error!"<<endl;
+      LogTrace(metname)<<"Propagation error!"<<endl;
       return vector<Trajectory>();
     }
   }
@@ -261,7 +257,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
   if(trajectories.empty()){
-    LogDebug(metname)<<"No Track refitted!"<<endl;
+    LogTrace(metname)<<"No Track refitted!"<<endl;
     return vector<Trajectory>();
   }
   
@@ -273,7 +269,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
 //  trajectoriesSM.push_back(trajectoryBW);
   
   if(trajectoriesSM.empty()){
-    LogDebug(metname)<<"No Track smoothed!"<<endl;
+    LogTrace(metname)<<"No Track smoothed!"<<endl;
     return vector<Trajectory>();
   }
   
