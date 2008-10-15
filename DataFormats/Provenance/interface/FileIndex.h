@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.8 2008/09/29 23:01:39 wmtan Exp $
+$Id: FileIndex.h,v 1.9 2008/10/02 18:47:09 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -97,6 +97,8 @@ namespace edm {
       bool empty() const {return entries_.empty();}
 
       bool allEventsInEntryOrder() const;
+
+      bool eventsUniqueAndOrdered() const;
 
       enum SortState { kNotSorted, kSorted_Run_Lumi_Event, kSorted_Run_Lumi_EventEntry};
 

@@ -83,8 +83,8 @@ namespace edm {
 
   void
   PoolSource::endJob() {
-    if (secondaryFileSequence_) secondaryFileSequence_->closeFile_();
-    closeFile_();
+    if (secondaryFileSequence_) secondaryFileSequence_->endJob();
+    primaryFileSequence_->endJob();
   }
 
   boost::shared_ptr<FileBlock>

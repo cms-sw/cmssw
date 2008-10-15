@@ -47,6 +47,8 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
+  class DuplicateChecker;
+
   class RootFile : private boost::noncopyable {
   public:
     typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
@@ -70,7 +72,8 @@ namespace edm {
              bool noEventSort,
              bool dropMetaData,
 	     GroupSelectorRules const& groupSelectorRules,
-             bool dropMergeable);
+             bool dropMergeable,
+             boost::shared_ptr<edm::DuplicateChecker> duplicateChecker);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -135,6 +138,7 @@ namespace edm {
     void readEventHistoryTree();
 
     bool selected(BranchDescription const& desc) const;
+    void initializeDuplicateChecker();
 
     template <typename T>
     boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
@@ -180,6 +184,7 @@ namespace edm {
     History history_;    
     boost::shared_ptr<BranchChildren> branchChildren_;
     mutable bool nextIDfixup_;
+    boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
   }; // class RootFile
 
   template <typename T>

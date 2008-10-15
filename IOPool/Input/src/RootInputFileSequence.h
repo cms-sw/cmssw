@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.18 2008/08/26 21:22:54 wdd Exp $
+$Id: RootInputFileSequence.h,v 1.19 2008/10/02 18:47:11 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,6 +37,8 @@ namespace edm {
   class FileCatalogItem;
   class InputFileCatalog;
   class FileIndex;
+  class DuplicateChecker;
+
   class RootInputFileSequence : private boost::noncopyable {
   public:
     explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, bool primarySequence);
@@ -108,6 +110,7 @@ namespace edm {
     bool dropMetaData_;
     bool primarySequence_;
     bool randomAccess_;
+    boost::shared_ptr<edm::DuplicateChecker> duplicateChecker_;
   }; // class RootInputFileSequence
 }
 #endif

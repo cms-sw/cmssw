@@ -4,6 +4,7 @@
 #include "PoolSource.h"
 #include "RootFile.h"
 #include "RootTree.h"
+#include "DuplicateChecker.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -53,7 +54,8 @@ namespace edm {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
-    randomAccess_(false) {
+    randomAccess_(false),
+    duplicateChecker_() {
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
@@ -62,6 +64,8 @@ namespace edm {
         << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
         << "or \"eventsToProcess\".\n";
     }
+
+    if (primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
 
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
@@ -141,6 +145,7 @@ namespace edm {
       rootFile_->close(primary());
       logFileAction("  Closed file ", rootFile_->file());
       rootFile_.reset();
+      if (duplicateChecker_.get() != 0) duplicateChecker_->inputFileClosed();
     }
   }
 
@@ -166,7 +171,7 @@ namespace edm {
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
 	  forcedRunOffset_, eventsToProcess_, noEventSort_,
-	  dropMetaData_, groupSelectorRules_, !primarySequence_));
+	  dropMetaData_, groupSelectorRules_, !primarySequence_, duplicateChecker_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
@@ -436,6 +441,7 @@ namespace edm {
     randomAccess_ = false;
     firstFile_ = true;
     fileIter_ = fileIterBegin_;
+    if (duplicateChecker_.get() != 0) duplicateChecker_->rewind();
   }
 
   // Rewind to the beginning of the current file

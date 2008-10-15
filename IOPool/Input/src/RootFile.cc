@@ -2,7 +2,7 @@
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
-
+#include "DuplicateChecker.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -62,7 +62,8 @@ namespace edm {
                      bool noEventSort,
 		     bool dropMetaData,
 		     GroupSelectorRules const& groupSelectorRules,
-                     bool dropMergeable) :
+                     bool dropMergeable,
+                     boost::shared_ptr<edm::DuplicateChecker> duplicateChecker) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -102,7 +103,8 @@ namespace edm {
       newBranchToOldBranch_(),
       eventHistoryTree_(0),
       branchChildren_(new BranchChildren),
-      nextIDfixup_(false) {
+      nextIDfixup_(false),
+      duplicateChecker_(duplicateChecker) {
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -161,6 +163,7 @@ namespace edm {
 
     validateFile();
 
+    initializeDuplicateChecker();
     if (noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
@@ -530,13 +533,32 @@ namespace edm {
       // Event was found.
       // For the next time around move to the next specified event
       ++eventListIter_;
+
+      if (duplicateChecker_.get() != 0 &&
+          duplicateChecker_->isDuplicateAndCheckActive(EventID(fileIndexIter_->run_, fileIndexIter_->event_),
+                                                       fileIndexIter_->lumi_,
+                                                       file_)) {
+        ++fileIndexIter_;
+        return getNextEntryTypeWanted();
+      }
+
       if (eventsToSkip_ != 0) {
 	// We have specified a count of events to skip.  So decrement the count and skip this event.
         --eventsToSkip_;
 	return getNextEntryTypeWanted();
       }
+
       return FileIndex::kEvent;
     }
+
+    if (duplicateChecker_.get() != 0 &&
+        duplicateChecker_->isDuplicateAndCheckActive(EventID(fileIndexIter_->run_, fileIndexIter_->event_),
+                                                     fileIndexIter_->lumi_,
+                                                     file_)) {
+      ++fileIndexIter_;
+      return getNextEntryTypeWanted();
+    }
+
     if (eventsToSkip_ != 0) {
       // We have specified a count of events to skip, keep skipping events in this lumi block
       // until we reach the end of the lumi block or the full count of the number of events to skip.
@@ -544,6 +566,17 @@ namespace edm {
 	getEntryTypeSkippingDups() == FileIndex::kEvent) {
         ++fileIndexIter_;
         --eventsToSkip_;
+
+        while (
+          eventsToSkip_ != 0 &&
+          fileIndexIter_ != fileIndexEnd_ &&
+          fileIndexIter_->getEntryType() == FileIndex::kEvent &&
+          duplicateChecker_.get() != 0 &&
+          duplicateChecker_->isDuplicateAndCheckActive(EventID(fileIndexIter_->run_, fileIndexIter_->event_),
+                                                       fileIndexIter_->lumi_,
+                                                       file_)) {
+          ++fileIndexIter_;
+        }
       }
       return getNextEntryTypeWanted();
     }
@@ -1002,4 +1035,16 @@ namespace edm {
     return groupSelector_.selected(desc);
   }
 
+
+  void
+  RootFile::initializeDuplicateChecker() {
+    if (duplicateChecker_.get() != 0) {
+      if (eventTree_.next()) {
+        fillEventAuxiliary();
+        duplicateChecker_->init(eventAux_.isRealData(),
+                                fileIndex_);
+      }
+      eventTree_.setEntryNumber(-1);
+    }
+  }
 }

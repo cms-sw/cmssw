@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
         'file:testRunMergeRecombined.root',
         'file:testRunMergeRecombined.root'
     )
-    , duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+    , duplicateCheckMode = cms.untracked.string('checkEachFile')
     , skipEvents = cms.untracked.uint32(3)
 )
 
@@ -76,25 +76,49 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 11, 0, 0,
 1, 0, 0,
 1, 1, 0,
+1, 1, 1,
+1, 1, 2,
+1, 1, 3,
+1, 1, 4,
+1, 1, 5,
+1, 1, 6,
+1, 1, 7,
+1, 1, 8,
+1, 1, 9,
+1, 1, 10,
+1, 1, 11,
+1, 1, 12,
+1, 1, 13,
+1, 1, 14,
+1, 1, 15,
+1, 1, 16,
+1, 1, 17,
+1, 1, 18,
+1, 1, 19,
+1, 1, 20,
+1, 1, 21,
+1, 1, 22,
+1, 1, 23,
+1, 1, 24,
+1, 1, 25,
 1, 1, 0,
 1, 0, 0,
 2, 0, 0,
 2, 1, 0,
+2, 1, 1,
+2, 1, 2,
+2, 1, 3,
+2, 1, 4,
+2, 1, 5,
 2, 1, 0,
-2, 0, 0,
-11, 0, 0,
-11, 1, 0,
-11, 1, 0,
-11, 2, 0,
-11, 2, 0,
-11, 0, 0,
+2, 0, 0
 )
 )
 
 process.path1 = cms.Path(process.test)
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:testRunMergeRecombinedCopied.root')
+    fileName = cms.untracked.string('file:testRunMergeRecombinedCopied1.root')
 )
 
 process.endpath1 = cms.EndPath(process.out)

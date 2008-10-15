@@ -4,6 +4,7 @@ process = cms.Process("MERGE")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.threshold = 'ERROR'
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
