@@ -341,14 +341,14 @@ void testMuonAssociator::analyze(const edm::Event& event, const edm::EventSetup&
   reco::RecoToSimCollection bypos_global;
   try {
     byhits_global = m_associatorByHits->associateRecoToSim (globalMuonTrackHandle, trackingParticleHandle, &event );
-  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::SimToRecoCollection:\n" << e.what() << std::endl; }
+  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::RecoToSimCollection:\n" << e.what() << std::endl; }
   try {
     bychi2_global = m_associatorByChi2->associateRecoToSim (globalMuonTrackHandle, trackingParticleHandle, &event );
-  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::SimToRecoCollection:\n" << e.what() << std::endl; }
+  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::RecoToSimCollection:\n" << e.what() << std::endl; }
   /*
   try {
     bypos_global  = m_associatorByPos ->associateRecoToSim (globalMuonTrackHandle, trackingParticleHandle, &event );
-  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::SimToRecoCollection:\n" << e.what() << std::endl; }
+  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::RecoToSimCollection:\n" << e.what() << std::endl; }
   */
   for (edm::View<reco::Track>::size_type i = 0; i < globalMuonTrackCollection.size(); ++i) {
     edm::RefToBase<reco::Track> track(globalMuonTrackHandle, i);
@@ -362,14 +362,14 @@ void testMuonAssociator::analyze(const edm::Event& event, const edm::EventSetup&
   reco::RecoToSimCollection bypos_standalone;
   try {
     byhits_standalone = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &event );
-  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::SimToRecoCollection:\n" << e.what() << std::endl; }
+  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::RecoToSimCollection:\n" << e.what() << std::endl; }
   try {
     bychi2_standalone = m_associatorByChi2->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &event );
-  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::SimToRecoCollection:\n" << e.what() << std::endl; }
+  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::RecoToSimCollection:\n" << e.what() << std::endl; }
   /*
   try {
     bypos_standalone  = m_associatorByPos ->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &event );
-  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::SimToRecoCollection:\n" << e.what() << std::endl; }
+  } catch (const std::exception & e) { std::cerr << std::endl << "Error building reco::RecoToSimCollection:\n" << e.what() << std::endl; }
   */
   for (edm::View<reco::Track>::size_type i = 0; i < standAloneMuonCollection.size(); ++i) {
     edm::RefToBase<reco::Track> track(standAloneMuonHandle, i);
