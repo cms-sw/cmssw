@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.8 2008/10/14 16:19:54 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.9 2008/10/14 20:35:49 chlebana Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #define NJetAlgo 4
-#define DEBUG    0
+#define DEBUG    1
 
 // #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
 
@@ -331,14 +331,16 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   std::vector<std::string> subDirVec = dbe->getSubdirs();
 
   std::string RunDir;
-  RunDir = "Run 63463";
+  std::string RunNum;
 
   // TODO: Make sure this is correct....
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     RunDir = *ic;
-    std::cout << "--- >>" << RunDir << "<<" << std::endl;
+    RunNum = *ic;
   }
+  RunNum.erase(0,4);
+  std::cout << "--- >>" << RunNum << "<<" << std::endl;
 
   // --- Reference set of histograms
   rdbe = edm::Service<DQMStore>().operator->();
@@ -389,10 +391,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   MonitorElement* mMETDCL3 = dbe->book2D("METDCLayer3", "MET DC L3", 3,0,3,500,0.,500.);
 
 
-  Double_t chi2_Pt, chi2_Eta, chi2_Phi, chi2_Constituents, chi2_HFrac;
+  Double_t test_Pt, test_Eta, test_Phi, test_Constituents, test_HFrac;
+  test_Pt = test_Eta = test_Phi = test_Constituents = test_HFrac = 0;
 
   // TODO: get run from data file    
-  Int_t RunNumber = 63463;
   Int_t Jet_DC[NJetAlgo];
   std::string Jet_Tag[NJetAlgo];
 
@@ -401,12 +403,8 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   Jet_Tag[2] = "JetMET_Jet_PFlow";
   Jet_Tag[3] = "JetMET_Jet_JPT";
   
-  //  Jet_SISCone_DC = Jet_IterativeCone_DC = Jet_PFlow_DC = Jet_JPT_DC = 0;
-  chi2_Pt = chi2_Eta = chi2_Phi = chi2_Constituents = chi2_HFrac = 0;
-
   //  rdbe->setCurrentFolder(RunDir+"/JetMET/Run summary/SISConeJets");
   //  std::string refHistoName = RunDir+"/JetMET/Run summary/PFJetAnalyzer/Pt";
-
 
   std::string refHistoName;
   std::string newHistoName;
@@ -439,10 +437,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	if (DEBUG) std::cout << ">>> Pt: Found it..." << std::endl;
-	// TODO: KS test gives error 
-	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
-	chi2_Pt = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Pt << std::endl;    
+	test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
+	if (DEBUG) std::cout << ">>> K Test = " << test_Pt << std::endl;    
+	test_Pt = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Pt << std::endl;    
       }
     }
 
@@ -453,9 +451,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	if (DEBUG) std::cout << ">>> Eta: Found it..." << std::endl;
-	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
-	chi2_Eta = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Eta << std::endl;    
+	test_Eta = newHisto->KolmogorovTest(refHisto,"UO");
+	if (DEBUG) std::cout << ">>> K Test = " << test_Eta << std::endl;    
+	test_Eta = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Eta << std::endl;    
       }
     }
 
@@ -466,9 +465,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	if (DEBUG) std::cout << ">>> Phi: Found it..." << std::endl;
-	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
-	chi2_Phi = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Phi << std::endl;    
+	test_Phi = newHisto->KolmogorovTest(refHisto,"UO");
+	if (DEBUG) std::cout << ">>> K Test = " << test_Phi << std::endl;    
+	test_Phi = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Phi << std::endl;    
       }
     }
      
@@ -479,9 +479,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	if (DEBUG) std::cout << ">>> Constituents: Found it..." << std::endl;
-	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
-	chi2_Constituents = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Constituents << std::endl;    
+	test_Constituents = newHisto->KolmogorovTest(refHisto,"UO");
+	if (DEBUG) std::cout << ">>> K Test = " << test_Constituents << std::endl;    
+	test_Constituents = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_Constituents << std::endl;    
       }
     }
      
@@ -492,17 +493,18 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	if (DEBUG) std::cout << ">>> HOverE: Found it..." << std::endl;
-	//    Double_t ks = newHisto->KolmogorovTest(refHisto);
-	chi2_HFrac = newHisto->Chi2Test(refHisto);
-	if (DEBUG) std::cout << ">>> Chi2 Test = " << chi2_Constituents << std::endl;    
+	test_HFrac = newHisto->KolmogorovTest(refHisto,"UO");
+	if (DEBUG) std::cout << ">>> K Test = " << test_HFrac << std::endl;    
+	test_HFrac = newHisto->Chi2Test(refHisto);
+	if (DEBUG) std::cout << ">>> Chi2 Test = " << test_HFrac << std::endl;    
       }
     }
 
-    if ( (chi2_Pt     > 0.95) && (chi2_Eta          > 0.95) && 
-	 (chi2_Phi    > 0.95) && (chi2_Constituents > 0.95) && 
-	 (chi2_HFrac  > 0.95) )  {      
-      Jet_DC[iAlgo] = 1;
+    if ( (test_Pt     > 0.95) && (test_Eta          > 0.95) && 
+	 (test_Phi    > 0.95) && (test_Constituents > 0.95) && 
+	 (test_HFrac  > 0.95) )  {      
 
+      Jet_DC[iAlgo] = 1;
       // --- Fill DC results histogram
       mJetDCL2->Fill(iAlgo);
     } else {
@@ -511,22 +513,13 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   }
   // --- End of loop over jet algorithms
-
   
   // JET Data Certification Results
   if (DEBUG) {
     std::cout << std::endl;
-    printf("%6s %15s %30s %10s\n","Run","Lumi Section","Tag Name", "Result");
-    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_IterativeCone", Jet_DC[0]);
-    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_SISCone",       Jet_DC[1]);
-    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_PFlow",         Jet_DC[2]);
-    printf("%6d %15d %30s %10d\n",RunNumber,0,"JetMET_Jet_JPT",           Jet_DC[3]);
-
-    /***
-	for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-	printf("%6d %15d %30s %10d\n",RunNumber,0,Jet_Tag[iAlgo], Jet_DC[iAlgo]);
-	}
-    ***/
+    for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
+      printf("%6s %15d %30s %10d\n",RunNum.c_str(),0,Jet_Tag[iAlgo].c_str(), Jet_DC[iAlgo]);
+    }
     std::cout << std::endl;    
   }
 
@@ -599,9 +592,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   for (int LS=0; LS<500; LS++){
 
-    std::cout << std::endl;
-    std::cout << "LS = " << LS << std::endl; 
-    std::cout << std::endl;
+    //    std::cout << std::endl;
+    //    std::cout << "LS = " << LS << std::endl; 
+    //    std::cout << std::endl;
 
     // Projection returns a 
     sprintf(ctitle,"CaloMEx_%04d",LS);     CaloMEx_LS[LS]=hCaloMEx_LS->ProjectionX(ctitle,LS+1,LS+1);
