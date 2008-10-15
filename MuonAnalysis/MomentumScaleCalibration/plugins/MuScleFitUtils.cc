@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/10/11 09:05:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/14 16:09:16 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -464,27 +464,13 @@ lorentzVector
 MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
 
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
-  //   double pt = muon.Pt();
-  //   double eta = muon.Eta();
-  //   double phi = muon.Phi();
-  //   double E = muon.E();
 
   // Use functors (although not with the () operator)
   // Note that we always pass pt, eta and phi, but internally only the needed
   // values are used.
-  // This was already checked at startup
-  // if( BiasType < 0 || BiasType > 13 ) {
-  //   cout << "[MuScleFitUtils-ApplyBias]: Wrong fit type or number of parameters: aborting!";
-  //   abort();
-  // }
   // The functors used are takend from the same group used for the scaling
-  // thus the scale method.
+  // thus the name of the method used is "scale".
   biasFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, MuScleFitUtils::parBias);
-
-  //   ptEtaPhiE[0] = pt;
-  //   ptEtaPhiE[1] = eta;
-  //   ptEtaPhiE[2] = phi;
-  //   ptEtaPhiE[3] = E;
 
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
@@ -508,13 +494,6 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
   return tempScaleVec;
 }
 
-// // This just calls the true applyScale function, removing the memory leak of p
-// // ---------------------------------------------------------------------------
-// lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
-//                                           std::auto_ptr<double> parval,int chg) {
-//   return applyScale (muon, parval.get(), chg);
-// }
-
 // This is called by the likelihood to "taste" different values for additional corrections
 // ---------------------------------------------------------------------------------------
 lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon, 
@@ -522,10 +501,6 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
 
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
   int shift = parResol.size();
-  //   double pt = ptEtaPhiE[0];
-  //   double eta = ptEtaPhiE[1];
-  //   double phi = ptEtaPhiE[2];
-  //   double E = ptEtaPhiE[3];
 
   // the address of parval[shift] is passed as pointer to double. Internally it is used as a normal array, thus:
   // array[0] = parval[shift], array[1] = parval[shift+1], ...
@@ -535,11 +510,6 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
     cout << "[MuScleFitUtils]: Wrong fit type: " << ScaleFitType << " aborting!";
     abort();
   }
-
-  //   ptEtaPhiE[0]=pt;
-  //   ptEtaPhiE[1]=eta;
-  //   ptEtaPhiE[2]=phi;
-  //   ptEtaPhiE[3]=E;
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
 
@@ -572,8 +542,8 @@ double MuScleFitUtils::invDimuonMass (lorentzVector& mu1,
 // Mass resolution - version accepting a vector<double> parval
 // -----------------------------------------------------------
 double MuScleFitUtils::massResolution (const lorentzVector& mu1,
-					     const lorentzVector& mu2,
-					     vector<double> parval) {
+                                       const lorentzVector& mu2,
+                                       vector<double> parval) {
   // double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // --------- //
@@ -597,19 +567,9 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   return massRes;
 }
 
-// // This just calls the true massResolution function, removing the memory leak of p
-// // -------------------------------------------------------------------------------
-// double MuScleFitUtils::massResolution (const lorentzVector& mu1,
-//                                        const lorentzVector& mu2,
-//                                        std::auto_ptr<double> parval) {
-//   return massResolution (mu1, mu2, parval.get());
-// }
-
-// Mass resolution - version with parval
-// -------------------------------------
 double MuScleFitUtils::massResolution (const lorentzVector& mu1,
-					     const lorentzVector& mu2,
-					     double* parval) {
+                                       const lorentzVector& mu2,
+                                       double* parval) {
 
   // We use the following formula:
   // 
@@ -788,12 +748,6 @@ double MuScleFitUtils::massProb (double mass, double massResol, vector<double> p
   delete[] p;
   return massProbability;
 }
-
-// // This just calls the true massProb function, removing the memory leak of p
-// // -------------------------------------------------------------------------
-// double MuScleFitUtils::massProb (double mass, double massResol, std::auto_ptr<double> parval) {
-//   return massProb (mass, massResol, parval.get());
-// }
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
@@ -1099,11 +1053,16 @@ void MuScleFitUtils::minimizeLikelihood () {
   // -----------
   TMinuit rmin (parnumber);
   rmin.SetFCN (likelihood);     // Unbinned likelihood
+  // Standard initialization of minuit parameters:
+  // sets input to be $stdin, output to be $stdout
+  // and saving to a file.
   rmin.mninit (5, 6, 7);
   int ierror = 0;
   int istat;
   double arglis[4];
   arglis[0] = FitStrategy;      // Strategy 1 or 2
+  // 1 standard
+  // 2 try to improve minimum (slower)
   rmin.mnexcm ("SET STR", arglis, 1, ierror); 
 
   // Set fit parameters
@@ -1273,8 +1232,7 @@ void MuScleFitUtils::minimizeLikelihood () {
 // -------------------
 extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval, int flag) {
 
-  if (MuScleFitUtils::debug>19) 
-    cout << "[MuScleFitUtils-likelihood]: In likelihood function" << endl;
+  if (MuScleFitUtils::debug>19) cout << "[MuScleFitUtils-likelihood]: In likelihood function" << endl;
 
    lorentzVector recMu1;
    lorentzVector recMu2;
