@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfRecoTauDiscriminationByLeadingTrackFinding = cms.EDFilter("PFRecoTauDiscriminationByLeadingTrackFinding",
+pfRecoTauDiscriminationByLeadingTrackFinding = cms.EDProducer("PFRecoTauDiscriminationByLeadingTrackFinding",
     PFTauProducer = cms.InputTag('pfRecoTauProducer'),
 )
 

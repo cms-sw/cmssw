@@ -13,6 +13,7 @@
 
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
+#include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"

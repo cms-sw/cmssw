@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfTauDecayMode = cms.EDProducer("PFRecoTauDecayModeDeterminator",
+pfTauDecayModeInsideOut = cms.EDProducer("PFRecoTauDecayModeDeterminator",
     maxPiZeroMass = cms.double(0.2),
     refitTracks = cms.bool(False),
     minPtFractionForThirdGamma = cms.double(-1.0),
@@ -14,7 +14,7 @@ pfTauDecayMode = cms.EDProducer("PFRecoTauDecayModeDeterminator",
     maxNbrOfIterations = cms.int32(10)
 )
 
-pfTauDecayModeHE = cms.EDProducer("PFRecoTauDecayModeDeterminator",
+pfTauDecayModeHighEfficiency = cms.EDProducer("PFRecoTauDecayModeDeterminator",
     maxPiZeroMass = cms.double(0.2),
     refitTracks = cms.bool(False),
     minPtFractionForThirdGamma = cms.double(-1.0),

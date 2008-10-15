@@ -12,7 +12,7 @@ PFRecoTauDecayModeDeterminator::PFRecoTauDecayModeDeterminator(const ParameterSe
   minPtFractionForGammas_       = iConfig.getParameter<double>("minPtFractionForThirdGamma");
   //setup vertex fitter
   vertexFitter_ = new PFCandCommonVertexFitter<KalmanVertexFitter>(iConfig);
-  produces<PFTauDecayModeCollection>();      
+  produces<PFTauDecayModeAssociation>();      
 }
 
 PFRecoTauDecayModeDeterminator::~PFRecoTauDecayModeDeterminator()
@@ -75,7 +75,6 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroes(compCandList& input, compCand
 }
 
 void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSetup){
-  auto_ptr<PFTauDecayModeCollection> result(new PFTauDecayModeCollection);
 
   ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   ESHandle<MagneticField> myMF;
@@ -88,6 +87,8 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
 
   Handle<PFTauCollection> thePFTauCollection;
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
+
+  auto_ptr<PFTauDecayModeAssociation> result(new PFTauDecayModeAssociation(PFTauRefProd(thePFTauCollection)));
 
   size_t numberOfPFTaus = thePFTauCollection->size();
   for(size_t iPFTau = 0; iPFTau < numberOfPFTaus; ++iPFTau)
@@ -169,7 +170,7 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
 
      PFTauDecayMode myDecayModeTau(chargedCandsToAdd, mergedPiZerosToAdd, filteredStuff);
      myDecayModeTau.setPFTauRef(pfTauRef);
-     result->push_back(myDecayModeTau);
+     result->setValue(iPFTau, myDecayModeTau);
   }
   iEvent.put(result);
 }

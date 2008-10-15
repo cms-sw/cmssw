@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfRecoTauDiscriminationByIsolation = cms.EDFilter("PFRecoTauDiscriminationByIsolation",
+pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIsolation",
     ApplyDiscriminationByECALIsolation = cms.bool(True),
     PFTauProducer = cms.string('pfRecoTauProducer'),
     ManipulateTracks_insteadofChargedHadrCands = cms.bool(False),

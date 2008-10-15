@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfRecoTauDiscriminationAgainstElectron = cms.EDFilter("PFRecoTauDiscriminationAgainstElectron",
+pfRecoTauDiscriminationAgainstElectron = cms.EDProducer("PFRecoTauDiscriminationAgainstElectron",
 
     PFTauProducer = cms.string('pfRecoTauProducer'),
 
