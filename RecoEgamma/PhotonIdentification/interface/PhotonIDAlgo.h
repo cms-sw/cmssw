@@ -69,6 +69,22 @@ public:
 		     const edm::Event& iEvent,
 		     const edm::EventSetup& iSetup);
 
+  double calculateE1x5(const reco::Photon* photon,
+		       const edm::Event& iEvent,
+		       const edm::EventSetup& iSetup);
+
+  double calculateE2x5(const reco::Photon* photon,
+		       const edm::Event& iEvent,
+		       const edm::EventSetup& iSetup);
+
+  double calculateE5x5(const reco::Photon* photon,
+		       const edm::Event& iEvent,
+		       const edm::EventSetup& iSetup);
+
+  double calculateSigmaIetaIeta(const reco::Photon* photon,
+				const edm::Event& iEvent,
+				const edm::EventSetup& iSetup);
+  
   ///////////////////Deprecated  
 /*   bool isAlsoElectron(const reco::Photon* photon, */
 /* 		      const edm::Event& e); */

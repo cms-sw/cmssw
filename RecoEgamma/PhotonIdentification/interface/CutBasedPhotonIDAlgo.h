@@ -8,6 +8,55 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+struct CutBasedPhotonQuantities
+{
+  //Did this pass the cuts in the configuration?
+  bool isLooseEM_;
+  bool isLoosePhoton_;
+  bool isTightPhoton_;
+  
+  //These are analysis quantities calculated in the PhotonIDAlgo class
+  //EcalRecHit isolation
+  float isolationEcalRecHitA_;
+  //HcalRecHit isolation
+  float isolationHcalTowerA_;
+  //Sum of track pT in a cone of dR
+  float isolationSolidTrkConeA_;
+  //Sum of track pT in a hollow cone of outer radius, inner radius
+  float isolationHollowTrkConeA_;
+  //Number of tracks in a cone of dR
+  int nTrkSolidConeA_;
+  //Number of tracks in a hollow cone of outer radius, inner radius
+  int nTrkHollowConeA_;
+
+  //EcalRecHit isolation
+  float isolationEcalRecHitB_;
+  //HcalRecHit isolation
+  float isolationHcalTowerB_;
+  //Sum of track pT in a cone of dR
+  float isolationSolidTrkConeB_;
+  //Sum of track pT in a hollow cone of outer radius, inner radius
+  float isolationHollowTrkConeB_;
+  //Number of tracks in a cone of dR
+  int nTrkSolidConeB_;
+  //Number of tracks in a hollow cone of outer radius, inner radius
+  int nTrkHollowConeB_;
+  //Highest energy 2x5 array
+  float e2x5_;
+  //Highest energy 1x5 array
+  float e1x5_;
+  //log weighted width in ieta
+  float sigmaIetaIeta_;
+  float r9_;
+  //Fiducial flags
+  bool isEBPho_;//Photon is in EB
+  bool isEEPho_;//Photon is in EE
+  bool isEBGap_;//Photon is in supermodule/supercrystal gap in EB
+  bool isEEGap_;//Photon is in crystal gap in EE
+  bool isEBEEGap_;//Photon is in border between EB and EE.
+
+};
+
 class CutBasedPhotonIDAlgo : PhotonIDAlgo {
 
 public:
@@ -17,9 +66,9 @@ public:
   virtual ~CutBasedPhotonIDAlgo(){};
 
   void setup(const edm::ParameterSet& conf);
-  reco::PhotonID calculate(const reco::Photon*, const edm::Event&, const edm::EventSetup& es);
-  void decideEB(reco::PhotonID &phID, const reco::Photon* pho);
-  void decideEE(reco::PhotonID &phID, const reco::Photon* pho);
+  void calculate(const reco::Photon*, const edm::Event&, const edm::EventSetup& es, CutBasedPhotonQuantities &phoid);
+  void decideEB(CutBasedPhotonQuantities &phID, const reco::Photon* pho);
+  void decideEE(CutBasedPhotonQuantities &phID, const reco::Photon* pho);
  private:
   
   //Which cuts to do?
@@ -97,17 +146,29 @@ public:
   double tightphotonR9CutEE_;
 
   //Isolation parameters
-  double photonEcalRecHitConeInnerRadius_;
-  double photonEcalRecHitConeOuterRadius_;
-  double photonEcalRecHitEtaSlice_;
-  double photonEcalRecHitThreshE_;
-  double photonEcalRecHitThreshEt_;
-  double photonHcalTowerConeInnerRadius_;
-  double photonHcalTowerConeOuterRadius_;
-  double photonHcalTowerThreshE_;
-  double trackConeOuterRadius_;
-  double trackConeInnerRadius_;
-  double isolationtrackThreshold_;
+  double photonEcalRecHitConeInnerRadiusA_;
+  double photonEcalRecHitConeOuterRadiusA_;
+  double photonEcalRecHitEtaSliceA_;
+  double photonEcalRecHitThreshEA_;
+  double photonEcalRecHitThreshEtA_;
+  double photonHcalTowerConeInnerRadiusA_;
+  double photonHcalTowerConeOuterRadiusA_;
+  double photonHcalTowerThreshEA_;
+  double trackConeOuterRadiusA_;
+  double trackConeInnerRadiusA_;
+  double isolationtrackThresholdA_;
+
+  double photonEcalRecHitConeInnerRadiusB_;
+  double photonEcalRecHitConeOuterRadiusB_;
+  double photonEcalRecHitEtaSliceB_;
+  double photonEcalRecHitThreshEB_;
+  double photonEcalRecHitThreshEtB_;
+  double photonHcalTowerConeInnerRadiusB_;
+  double photonHcalTowerConeOuterRadiusB_;
+  double photonHcalTowerThreshEB_;
+  double trackConeOuterRadiusB_;
+  double trackConeInnerRadiusB_;
+  double isolationtrackThresholdB_;
  
 };
 
