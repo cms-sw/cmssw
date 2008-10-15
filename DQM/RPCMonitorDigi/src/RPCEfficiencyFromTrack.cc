@@ -208,7 +208,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
  
       RPCstate.clear();
  
-      if(track.numberOfValidHits()>24.){
+
+      if(track.numberOfValidHits()>25){
 	for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
 	  if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	    RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
@@ -234,10 +235,8 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      
 		if(tsosAtRPC.isValid()
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
-		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
-		  //&& tsosAtRPC.localError().positionError().xx()<1.
-		  //&& tsosAtRPC.localError().positionError().yy()<1.){
+		   && fabs(tsosAtRPC.localPosition().x()) < (rsize-2.5) 
+		   && fabs(tsosAtRPC.localPosition().y()) < (stripl*0.5-2.5)){
 		  RPCstate[rollId]=tsosAtRPC;
 		}	      
 	      }
@@ -260,8 +259,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
 		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
-		  //&& tsosAtRPC.localError().positionError().xx()<1.
-		  //&& tsosAtRPC.localError().positionError().yy()<1.){
 		  RPCstate[rollId]=tsosAtRPC;
 		}	      
 	      }
