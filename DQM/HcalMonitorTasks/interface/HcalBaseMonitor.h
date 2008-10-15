@@ -28,8 +28,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/06/04 01:18:40 $
-  * $Revision: 1.11 $
+  * $Date: 2008/07/01 00:06:08 $
+  * $Revision: 1.12 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -48,13 +48,23 @@ public:
   bool getDiagnostics() const { return makeDiagnostics;}
 
   bool vetoCell(HcalDetId id);
+  bool validDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth); // determine whether ID is valid (disable at some point)
+
 
 protected:
   
   int fVerbosity;
   bool showTiming; // controls whether to show timing diagnostic info
-  edm::CPUTimer cpu_timer; // 
+  int checkNevents_; // controls when histograms should be updated
 
+  double etaMax_, etaMin_;
+  double phiMax_, phiMin_;
+  int etaBins_, phiBins_;
+  double minErrorFlag_;
+  bool checkHB_, checkHE_, checkHO_, checkHF_;
+
+  edm::CPUTimer cpu_timer; // 
+    
   bool makeDiagnostics; // controls whether to make diagnostic plots
 
   DQMStore* m_dbe;
