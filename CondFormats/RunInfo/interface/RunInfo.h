@@ -35,7 +35,7 @@ public:
   static RunInfo* Fake_RunInfo();
     
   void printAllValues() const;
-  std::vector<std::string> getFedIn() const;
+
   
 };
 
