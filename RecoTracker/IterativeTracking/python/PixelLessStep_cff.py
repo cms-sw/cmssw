@@ -59,7 +59,7 @@ fourthCkfTrajectoryBuilder.trajectoryFilterName = 'fourthCkfTrajectoryFilter'
 #TRACK CANDIDATES
 fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-fourthTrackCandidates.SeedProducer = 'fourthPLSeeds'
+fourthTrackCandidates.src = cms.InputTag('fourthPLSeeds')
 fourthTrackCandidates.TrajectoryBuilder = 'fourthCkfTrajectoryBuilder'
 
 

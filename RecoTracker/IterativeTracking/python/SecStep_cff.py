@@ -63,7 +63,7 @@ secCkfTrajectoryBuilder.ComponentName = 'secCkfTrajectoryBuilder'
 secCkfTrajectoryBuilder.MeasurementTrackerName = 'secMeasurementTracker'
 secCkfTrajectoryBuilder.trajectoryFilterName = 'secCkfTrajectoryFilter'
 
-secTrackCandidates.SeedProducer = 'secTriplets'
+secTrackCandidates.src = cms.InputTag('secTriplets')
 secTrackCandidates.TrajectoryBuilder = 'secCkfTrajectoryBuilder'
 secTrackCandidates.doSeedingRegionRebuilding = True
 secTrackCandidates.useHitsSplitting = True

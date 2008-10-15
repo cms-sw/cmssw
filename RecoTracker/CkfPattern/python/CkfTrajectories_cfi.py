@@ -7,13 +7,12 @@ ckfTrajectories = cms.EDFilter("CkfTrajectoryMaker",
     # set it as "none" to avoid redundant seed cleaner
     RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     TrajectoryCleaner = cms.string('TrajectoryCleanerBySharedHits'),
-    SeedLabel = cms.string(''),
     #string RedundantSeedCleaner  = "none"
     useHitsSplitting = cms.bool(False),
     doSeedingRegionRebuilding = cms.bool(False),
     trackCandidateAlso = cms.bool(False),
     #bool   seedCleaning         = false
-    SeedProducer = cms.string('globalMixedSeeds'),
+    src = cms.InputTag('globalMixedSeeds'),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
     # nested parameter set for TransientInitialStateEstimator

@@ -60,6 +60,8 @@ namespace cms
     const NavigationSchool*       theNavigationSchool;
     
     RedundantSeedCleaner*  theSeedCleaner;
+    
+    edm::InputTag theSeedLabel;
 
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}

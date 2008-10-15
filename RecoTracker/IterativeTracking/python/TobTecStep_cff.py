@@ -82,7 +82,7 @@ fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 4
 #TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-fifthTrackCandidates.SeedProducer = 'fifthSeeds'
+fifthTrackCandidates.src = cms.InputTag('fifthSeeds')
 fifthTrackCandidates.TrajectoryBuilder = 'fifthCkfTrajectoryBuilder'
 fifthTrackCandidates.doSeedingRegionRebuilding = True
 fifthTrackCandidates.useHitsSplitting = True

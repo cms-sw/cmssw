@@ -45,7 +45,7 @@ thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
 #TRACK CANDIDATES
 thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-thTrackCandidates.SeedProducer = 'thPLSeeds'
+thTrackCandidates.src = cms.InputTag('thPLSeeds')
 thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
 thTrackCandidates.doSeedingRegionRebuilding = True
 thTrackCandidates.useHitsSplitting = True

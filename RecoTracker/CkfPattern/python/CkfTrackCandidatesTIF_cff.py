@@ -19,5 +19,5 @@ ckfTrackCandidatesTIF = copy.deepcopy(ckfTrackCandidates)
 ckfTrackCandidatesTIF.NavigationSchool = 'CosmicNavigationSchool'
 ckfTrackCandidatesTIF.TrajectoryBuilder = 'GroupedCkfTrajectoryBuilderTIF'
 #replace ckfTrackCandidatesTIF.TrajectoryBuilder        = "CkfTrajectoryBuilderTIF"
-ckfTrackCandidatesTIF.SeedProducer = 'combinatorialcosmicseedfinderTIF'
+ckfTrackCandidatesTIF.src = cms.InputTag('combinatorialcosmicseedfinderTIF')
 

@@ -58,6 +58,17 @@ namespace cms{
     theSeedCleaner(0)
   {  
     //produces<TrackCandidateCollection>();  
+    if (!conf.exists("src")){
+      edm::LogError("CkfTrackCandidateMakerBase")<<"Configuration migration required: please use \n"
+						 <<"InputTag src =...\n"
+						 <<"instead of \n"
+						 <<"string SeedProducer=...\n"
+						 <<"string SeedLabel=...\n"
+						 <<" configuration backward compatible, but migration is required!";
+      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
+    }
+    else
+      theSeedLabel= conf.getParameter<edm::InputTag>("src");
   }
 
   
@@ -137,11 +148,8 @@ namespace cms{
     
     // Step B: Retrieve seeds
     
-    std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
-    std::string seedLabel = conf_.getParameter<std::string>("SeedLabel");
-
     edm::Handle<View<TrajectorySeed> > collseed;
-    e.getByLabel(seedProducer, seedLabel, collseed);
+    e.getByLabel(theSeedLabel, collseed);
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    

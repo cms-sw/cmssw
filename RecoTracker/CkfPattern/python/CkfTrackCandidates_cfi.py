@@ -14,6 +14,8 @@ ckfTrackCandidates = cms.EDFilter("CkfTrackCandidateMaker",
 # region and then further in.
     doSeedingRegionRebuilding = cms.bool(True),
     SeedProducer = cms.string('globalMixedSeeds'),
+# the parameter is masked here for backward compatibility in cloning the module
+#    src = cms.InpuTag('globalMixedSeeds'),                                  
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
     TransientInitialStateEstimatorParameters = cms.PSet(

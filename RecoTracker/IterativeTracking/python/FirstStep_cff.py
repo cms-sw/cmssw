@@ -28,7 +28,7 @@ from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
 newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-newTrackCandidateMaker.SeedProducer = 'newSeedFromTriplets'
+newTrackCandidateMaker.src = cms.InputTag('newSeedFromTriplets')
 newTrackCandidateMaker.TrajectoryBuilder = 'newTrajectoryBuilder'
 preFilterZeroStepTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 preFilterZeroStepTracks.src = 'newTrackCandidateMaker'
@@ -86,7 +86,7 @@ stepOneCkfTrajectoryBuilder.MeasurementTrackerName = 'newMeasurementTracker'
 stepOneCkfTrajectoryBuilder.trajectoryFilterName = 'newTrajectoryFilter'
 
 stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-stepOneTrackCandidateMaker.SeedProducer = 'newSeedFromPairs'
+stepOneTrackCandidateMaker.src = cms.InputTag('newSeedFromPairs')
 stepOneTrackCandidateMaker.TrajectoryBuilder = 'stepOneCkfTrajectoryBuilder'
 
 
