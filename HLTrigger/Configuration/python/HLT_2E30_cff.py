@@ -1,10 +1,10 @@
-# /dev/CMSSW_2_1_10/HLT/V5 (CMSSW_2_1_10)
+# /dev/CMSSW_2_1_10/HLT/V8 (CMSSW_2_1_10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V5')
+  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V8')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -5062,7 +5062,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
           RescaleErrorFactor = cms.double( 100.0 )
         )
       ),
-      DoBackwardFilter = cms.bool( True )
+      DoBackwardFilter = cms.bool( True ),
+      DoSeedRefit = cms.bool( False )
     ),
     ServiceParameters = cms.PSet( 
       UseMuonNavigation = cms.untracked.bool( True ),
