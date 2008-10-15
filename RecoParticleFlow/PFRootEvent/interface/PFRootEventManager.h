@@ -86,6 +86,9 @@ class EventColin;
 class PFEnergyCalibration;
 class PFEnergyResolution;
 
+typedef std::pair<double, unsigned> simMatch;
+typedef std::list< std::pair<double, unsigned> >::iterator ITM;
+
 /// \brief ROOT interface to particle flow package
 /*!
   This base class allows to perform clustering and particle flow from 
@@ -244,6 +247,10 @@ class PFRootEventManager {
   void reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates,
                              std::vector<ProtoJet>& output);
 
+  void mcTruthMatching( std::ostream& out,
+			const reco::PFCandidateCollection& candidates,
+			std::vector< std::list <simMatch> >& candSimMatchTrack,
+			std::vector< std::list <simMatch> >&  candSimMatchEcal) const;
 
   /// performs the tau benchmark 
   ///TODO move this function and the associated datamembers out of here
@@ -595,6 +602,9 @@ class PFRootEventManager {
 
   /// print MC truth  yes/no
   bool                     printGenParticles_;
+
+  // print MC truth matching with PFCandidate yes/no
+  bool                     printMCTruthMatching_;
 
   /// verbosity
   int                      verbosity_;

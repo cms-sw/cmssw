@@ -18,7 +18,7 @@ DisplayManager dm(&em, opt.c_str() );
 // display entry number 2
 int i=0;
 dm.display(i++);
-//dm.lookForGenParticle(1);
+dm.lookForGenParticle(1);
 
 //if you want a dialogFrame:
 DialogFrame *win = new DialogFrame(&em,&dm,gClient->GetRoot(), 200,220);

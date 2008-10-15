@@ -767,6 +767,9 @@ void PFRootEventManager::readOptions(const char* file,
   printGenParticles_ = true;
   options_->GetOpt("print", "genParticles", printGenParticles_ );
   
+  printMCTruthMatching_ = true;
+  options_->GetOpt("print", "mctruthmatching", printMCTruthMatching_ );  
+
   verbosity_ = VERBOSE;
   options_->GetOpt("print", "verbosity", verbosity_ );
   cout<<"verbosity : "<<verbosity_<<endl;
@@ -2556,6 +2559,19 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
   if(!out) return;
 
+  //If McTruthMatching print a detailed list 
+  //of matching between simparticles and PFCandidates
+  //MCTruth Matching vectors.
+  std::vector< std::list <simMatch> > candSimMatchTrack;
+  std::vector< std::list <simMatch> >  candSimMatchEcal;  
+  if( printMCTruthMatching_){
+    mcTruthMatching( std::cout,
+		     *pfCandidates_,
+		     candSimMatchTrack,
+		     candSimMatchEcal);
+  }
+
+
   if( printRecHits_ ) {
     out<<"ECAL RecHits =============================================="<<endl;
     for(unsigned i=0; i<rechitsECAL_.size(); i++) {
@@ -2616,6 +2632,41 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
       out<<i<<" " <<(*pfCandidates_)[i]<<endl;
     }    
     out<<endl;
+
+    //print a detailed list of PFSimParticles matching
+    //the PFCandiates
+    if(printMCTruthMatching_)
+      cout<<"MCTruthMatching Results"<<endl;
+      for(unsigned icand=0; icand<pfCandidates_->size(); 
+	  icand++) {
+	out <<icand<<" " <<(*pfCandidates_)[icand]<<endl;
+	out << "is matching:" << endl;
+
+	//tracking
+	ITM it_t    = candSimMatchTrack[icand].begin();
+	ITM itend_t = candSimMatchTrack[icand].end();
+	for(;it_t!=itend_t;++it_t){
+	  unsigned simid = it_t->second;
+	  out << "\tSimParticle " << trueParticles_[simid]
+	      <<endl;
+	  out << "\t\tthrough Track matching pTrectrack=" 
+	      << it_t->first << " GeV" << endl;
+	}//loop simparticles
+
+	ITM it_e    = candSimMatchEcal[icand].begin();
+	ITM itend_e = candSimMatchEcal[icand].end();
+	for(;it_e!=itend_e;++it_e){
+	  unsigned simid = it_e->second;
+	  out << "\tSimParticle " << trueParticles_[simid]
+	      << endl; 
+	  out << "\t\tsimparticle contributing to a total of " 
+	      << it_e->first
+	      << " GeV of its ECAL cluster"
+	      << endl;  
+	}//loop simparticles
+	cout<<"________________"<<endl;
+      }//loop candidates 
+
   }
   if(printPFJets_) {
     out<<"Jets  ====================================================="<<endl;
@@ -2642,8 +2693,73 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     for(unsigned i=0; i<trueParticles_.size(); i++) {
       if( trackInsideGCut( trueParticles_[i]) ) 
         out<<"\t"<<trueParticles_[i]<<endl;
-    }    
+    }   
  
+    //modif-beg
+    //print a detailed list of PFSimParticles matching
+    //the PFCandiates
+    if(printMCTruthMatching_) {
+      cout<<"MCTruthMatching Results"<<endl;
+      for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+	cout << "==== Particle Simulated " << i << endl;
+	const reco::PFSimParticle& ptc = trueParticles_[i];
+	out <<i<<" "<<trueParticles_[i]<<endl;
+	
+	if(!ptc.daughterIds().empty()){
+	  cout << "Look at the desintegration products" << endl;
+	  cout << endl;
+	  continue;
+	}
+	
+	//TRACKING
+	if(ptc.rectrackId() != 99999){
+	  cout << "matching pfCandidate (trough tracking): " << endl;
+	  for( unsigned icand=0; icand<pfCandidates_->size()
+		 ; icand++ ) 
+	    {
+	      ITM it    = candSimMatchTrack[icand].begin();
+	      ITM itend = candSimMatchTrack[icand].end();
+	      for(;it!=itend;++it)
+		if( i == it->second ){
+		  out<<icand<<" "<<(*pfCandidates_)[icand]<<endl;
+		  cout << endl;
+		}
+	    }//loop candidate
+	}//trackmatch
+	
+	//CALORIMETRY
+	vector<unsigned> rechitSimIDs  
+	  = ptc.recHitContrib();
+	vector<double>   rechitSimFrac 
+	  = ptc.recHitContribFrac();
+	//cout << "Number of rechits contrib =" << rechitSimIDs.size() << endl;
+	if( !rechitSimIDs.size() ) continue; //no rechit
+	
+	cout << "matching pfCandidate (through ECAL): " << endl;
+	
+	//look at total ECAL desposition:
+	double totalEcalE = 0.0;
+	for(unsigned irh=0; irh<rechitsECAL_.size();++irh)
+	  for ( unsigned isimrh=0;  isimrh < rechitSimIDs.size(); 
+		isimrh++ )
+	    if(rechitSimIDs[isimrh] == rechitsECAL_[irh].detId())
+	      totalEcalE += (rechitsECAL_[irh].energy()*rechitSimFrac[isimrh]/100.0);
+	cout << "For info, this particle deposits E=" << totalEcalE 
+	     << "(GeV) in the ECAL" << endl;
+	
+	for( unsigned icand=0; icand<pfCandidates_->size()
+	       ; icand++ ) 
+	  {
+	    ITM it    = candSimMatchEcal[icand].begin();
+	    ITM itend = candSimMatchEcal[icand].end();
+	    for(;it!=itend;++it)
+	      if( i == it->second )
+		out<<icand<<" "<<it->first<<"GeV "<<(*pfCandidates_)[icand]<<endl;	  
+	  }//loop candidate
+	cout << endl;      
+      }//loop particles  
+    }//mctruthmatching
+
   }
 
   
@@ -3183,3 +3299,238 @@ std::string PFRootEventManager::getGenParticleName(int partId, std::string &late
   return name;  
 
 }
+
+//_____________________________________________________________________________
+void PFRootEventManager::mcTruthMatching( std::ostream& out,
+					  const reco::PFCandidateCollection& candidates,
+					  std::vector< std::list <simMatch> >& candSimMatchTrack,
+					  std::vector< std::list <simMatch> >& candSimMatchEcal) const
+{
+  
+  if(!out) return;
+  out << endl;
+  out << "Running Monte Carlo Truth Matching Tool" << endl;
+  out << endl;
+
+  //resize matching vectors
+  candSimMatchTrack.resize(candidates.size());
+  candSimMatchEcal.resize(candidates.size());
+
+  for(unsigned i=0; i<candidates.size(); i++) {
+    const reco::PFCandidate& pfCand = candidates[i];
+    
+    //Matching with ECAL clusters
+    if (verbosity_ == VERBOSE ) {
+      out <<i<<" " <<(*pfCandidates_)[i]<<endl;
+      out << "is matching:" << endl;
+    }
+    
+    PFCandidate::ElementsInBlocks eleInBlocks 
+      = pfCand.elementsInBlocks();
+
+    for(unsigned iel=0; iel<eleInBlocks.size(); ++iel) {
+      PFBlockRef blockRef   = eleInBlocks[iel].first;
+      unsigned indexInBlock = eleInBlocks[iel].second;
+      
+      //Retrieving elements of the block
+      const reco::PFBlock& blockh 
+	= *blockRef;
+      const edm::OwnVector< reco::PFBlockElement >& 
+	elements_h = blockh.elements();
+      
+      reco::PFBlockElement::Type type 
+	= elements_h[ indexInBlock ].type();   
+//       cout <<"(" << blockRef.key() << "|" <<indexInBlock <<"|" 
+// 	   << elements_h[ indexInBlock ].type() << ")," << endl;
+      
+      //TRACK=================================
+      if(type == reco::PFBlockElement::TRACK){
+	const reco::PFRecTrackRef trackref 
+	  = elements_h[ indexInBlock ].trackRefPF();
+	assert( !trackref.isNull() );	  
+	const reco::PFRecTrack& track = *trackref; 
+	const reco::TrackRef trkREF = track.trackRef();
+	unsigned rtrkID = track.trackId();
+
+	//looking for the matching charged simulated particle:
+	for ( unsigned isim=0;  isim < trueParticles_.size(); isim++) {
+	  const reco::PFSimParticle& ptc = trueParticles_[isim];
+	  unsigned trackIDM = ptc.rectrackId();
+	  if(trackIDM != 99999 
+	     && trackIDM == rtrkID){
+
+	    if (verbosity_ == VERBOSE ) 
+	      out << "\tSimParticle " << isim 
+		  << " through Track matching pTrectrack=" 
+		  << trkREF->pt() << " GeV" << endl;	 
+	    
+	    //store info
+	    std::pair<double, unsigned> simtrackmatch
+	      = make_pair(trkREF->pt(),trackIDM);
+	    candSimMatchTrack[i].push_back(simtrackmatch);
+	  }//match
+	}//loop simparticles 
+	
+      }//TRACK
+
+      //ECAL=================================
+      if(type == reco::PFBlockElement::ECAL)
+	{
+	  const reco::PFClusterRef clusterref 
+	    = elements_h[ indexInBlock ].clusterRef();
+	  assert( !clusterref.isNull() );	  
+	  const reco::PFCluster& cluster = *clusterref; 
+	  
+	  const std::vector< reco::PFRecHitFraction >& 
+	    fracs = cluster.recHitFractions();  
+
+// 	  cout << "This is an ecal cluster of energy " 
+// 	       << cluster.energy() << endl;
+	  vector<unsigned> simpID;
+	  vector<double>   simpEC(trueParticles_.size(),0.0);	  
+	  vector<unsigned> simpCN(trueParticles_.size(),0);	 
+	  for(unsigned int rhit = 0; rhit < fracs.size(); ++rhit){
+	    
+	    const reco::PFRecHitRef& rh = fracs[rhit].recHitRef();
+	    if(rh.isNull()) continue;
+	    const reco::PFRecHit& rechit_cluster = *rh;
+//  	    cout << rhit << " ID=" << rechit_cluster.detId() 
+//  		 << " E=" << rechit_cluster.energy() 
+//  		 << " fraction=" << fracs[rhit].fraction() << " ";
+	    
+	    //loop on sim particules
+// 	    cout << "coming from sim particles: ";
+	    for ( unsigned isim=0;  isim < trueParticles_.size(); isim++) {
+	      const reco::PFSimParticle& ptc = trueParticles_[isim];
+	      
+	      vector<unsigned> rechitSimIDs  
+		= ptc.recHitContrib();
+	      vector<double>   rechitSimFrac 
+		= ptc.recHitContribFrac();
+	      //cout << "Number of rechits contrib =" << rechitSimIDs.size() << endl;
+	      if( !rechitSimIDs.size() ) continue; //no rechit
+								       
+	      for ( unsigned isimrh=0;  isimrh < rechitSimIDs.size(); isimrh++) {
+		if( rechitSimIDs[isimrh] == rechit_cluster.detId() ){
+		  
+		  bool takenalready = false;
+		  for(unsigned iss = 0; iss < simpID.size(); ++iss)
+		    if(simpID[iss] == isim) takenalready = true;
+		  if(!takenalready) simpID.push_back(isim);
+		  
+		  simpEC[isim] += 
+		    ((rechit_cluster.energy()*rechitSimFrac[isimrh])/100.0)
+		    *fracs[rhit].fraction();
+		  
+		  simpCN[isim]++; //counting rechits
+
+//   		  cout << isim << " with contribution of =" 
+//   		       << rechitSimFrac[isimrh] << "%, "; 
+		}//match rechit
+	      }//loop sim rechit
+	    }//loop sim particules
+//  	    cout << endl;
+	  }//loop cand rechit 
+
+	  for(unsigned is=0; is < simpID.size(); ++is)
+	    {
+	      double frac_of_cluster 
+		= (simpEC[simpID[is]]/cluster.energy())*100.0;
+	      
+	      //store info
+	      std::pair<double, unsigned> simecalmatch
+		= make_pair(simpEC[simpID[is]],simpID[is]);
+	      candSimMatchEcal[i].push_back(simecalmatch);
+	      
+	      if (verbosity_ == VERBOSE ) {
+		out << "\tSimParticle " << simpID[is] 
+		    << " through ECAL matching Epfcluster=" 
+		    << cluster.energy() 
+		    << " GeV with N=" << simpCN[simpID[is]]
+		    << " rechits in common "
+		    << endl; 
+		out << "\t\tsimparticle contributing to a total of " 
+		    << simpEC[simpID[is]]
+		    << " GeV of this cluster (" 
+		    <<  frac_of_cluster << "%) " 
+		    << endl;
+	      }
+	    }//loop particle matched
+	}//ECAL clusters
+
+    }//loop elements
+
+    if (verbosity_ == VERBOSE )
+      cout << "===============================================================" 
+	   << endl;
+
+  }//loop pfCandidates_
+
+  if (verbosity_ == VERBOSE ){
+
+    cout << "=================================================================="
+	 << endl;
+    cout << "SimParticles" << endl;
+    
+    //loop simulated particles  
+    for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+      cout << "==== Particle Simulated " << i << endl;
+      const reco::PFSimParticle& ptc = trueParticles_[i];
+      out <<i<<" "<<trueParticles_[i]<<endl;
+
+      if(!ptc.daughterIds().empty()){
+	cout << "Look at the desintegration products" << endl;
+	cout << endl;
+	continue;
+      }
+      
+      //TRACKING
+      if(ptc.rectrackId() != 99999){
+	cout << "matching pfCandidate (trough tracking): " << endl;
+	for( unsigned icand=0; icand<candidates.size(); icand++ ) 
+	  {
+	    ITM it    = candSimMatchTrack[icand].begin();
+	    ITM itend = candSimMatchTrack[icand].end();
+	    for(;it!=itend;++it)
+	      if( i == it->second ){
+		out<<icand<<" "<<(*pfCandidates_)[icand]<<endl;
+		cout << endl;
+	      }
+	  }//loop candidate
+      }//trackmatch
+      
+      
+      //CALORIMETRY
+      vector<unsigned> rechitSimIDs  
+	= ptc.recHitContrib();
+      vector<double>   rechitSimFrac 
+	= ptc.recHitContribFrac();
+      //cout << "Number of rechits contrib =" << rechitSimIDs.size() << endl;
+      if( !rechitSimIDs.size() ) continue; //no rechit
+      
+      cout << "matching pfCandidate (through ECAL): " << endl;
+      
+      //look at total ECAL desposition:
+      double totalEcalE = 0.0;
+      for(unsigned irh=0; irh<rechitsECAL_.size();++irh)
+	for ( unsigned isimrh=0;  isimrh < rechitSimIDs.size(); 
+	      isimrh++ )
+	  if(rechitSimIDs[isimrh] == rechitsECAL_[irh].detId())
+	    totalEcalE += (rechitsECAL_[irh].energy()*rechitSimFrac[isimrh]/100.0);
+      cout << "For info, this particle deposits E=" << totalEcalE 
+	   << "(GeV) in the ECAL" << endl;
+      
+      for( unsigned icand=0; icand<candidates.size(); icand++ ) 
+	{
+	  ITM it    = candSimMatchEcal[icand].begin();
+	  ITM itend = candSimMatchEcal[icand].end();
+	  for(;it!=itend;++it)
+	    if( i == it->second )
+	      out<<icand<<" "<<it->first<<"GeV "<<(*pfCandidates_)[icand]<<endl;	  
+	}//loop candidate
+      cout << endl;
+    }//loop particles  
+  }//verbose
+
+}//mctruthmatching
+//_____________________________________________________________________________
