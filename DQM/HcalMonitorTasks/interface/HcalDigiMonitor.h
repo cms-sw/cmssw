@@ -11,8 +11,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/09/15 23:12:24 $
-  * $Revision: 1.31 $
+  * $Date: 2008/10/01 16:33:10 $
+  * $Revision: 1.32 $
   * \author W. Fisher - FNAL
   */
 
@@ -167,11 +167,11 @@ private:
   MonitorElement* BQDIGI_FRAC;
   
   //Quick pedestal code
-  int pedcounts[83][72][4];
-  float rawpedsum[83][72][4];
-  float rawpedsum2[83][72][4];
-  float subpedsum[83][72][4]; 
-  float subpedsum2[83][72][4]; 
+  int pedcounts[87][72][4];
+  float rawpedsum[87][72][4];
+  float rawpedsum2[87][72][4];
+  float subpedsum[87][72][4]; 
+  float subpedsum2[87][72][4]; 
 
   /*
   MonitorElement* RAW_PEDESTAL_MEAN[4];

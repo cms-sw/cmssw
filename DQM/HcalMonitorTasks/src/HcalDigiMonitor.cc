@@ -159,8 +159,26 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
   if ( ps.getUntrackedParameter<bool>("DigisPerChannel", false) ) doPerChannel_ = true;  
 
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 42.5);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -42.5);
+  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 44.5);
+  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -44.5);
+  
+  if (etaMax_ > 44.5)
+    {
+      cout <<"<HcalDigiMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
+      cout <<"                  Value being set back to 44.5."<<endl;
+      cout <<"                  Additional code changes are necessary to allow value of "<<etaMax_<<endl;
+      etaMax_ = 44.5;
+    }
+
+  if (etaMin_ < -44.5)
+    {
+      cout <<"<HcalDigiMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
+      cout <<"                  Value being set back to -44.5."<<endl;
+      cout <<"                  Additional code changes are necessary to allow value of "<<etaMin_<<endl;
+      etaMin_ = -44.5;
+    }
+
+
   etaBins_ = (int)(etaMax_ - etaMin_);
   if (fVerbosity)
     cout << "Digi eta min/max set to " << etaMin_ << "/" <<etaMax_ << endl;
@@ -181,17 +199,20 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   ievt_=0;
 
 
-  for (int eta=0;eta<83;++eta){
-    for (int phi=0;phi<72;++phi){
-      for (int depth=0;depth<4;++depth){
-	pedcounts[eta][phi][depth]=0;
-	rawpedsum[eta][phi][depth]=0;
-	rawpedsum2[eta][phi][depth]=0;
-	subpedsum[eta][phi][depth]=0;
-	subpedsum2[eta][phi][depth]=0;
-      }
-    }
-  }
+  for (int eta=0;eta<(etaBins_-2);++eta)
+    {
+      for (int phi=0;phi<72;++phi)
+	{
+	  for (int depth=0;depth<4;++depth)
+	    {
+	      pedcounts[eta][phi][depth]=0;
+	      rawpedsum[eta][phi][depth]=0;
+	      rawpedsum2[eta][phi][depth]=0;
+	      subpedsum[eta][phi][depth]=0;
+	      subpedsum2[eta][phi][depth]=0;
+	    } // loop over depth
+	} // loop over phi
+    } // loop over eta
   
   for (int ii=0;ii<10;++ii)
     {
@@ -1342,13 +1363,13 @@ void HcalDigiMonitor::fillPedestalHistos(void)
   
   int mydepth=0;
 
-  for (int eta=0;eta<83;++eta)
+  for (int eta=0;eta<(etaBins_-2);++eta)
     {
       for (int phi=0;phi<72;++phi)
 	{
 	  for (int depth=0;depth<4;++depth)
 	    {
-	      if (fabs(eta-41)>28 && depth>1) // shift HF cells back to their appropriate depths
+	      if (fabs(eta-int(etaBins_-2)/2)>28 && depth>1) // shift HF cells back to their appropriate depths
 		mydepth=depth-2;
 	      else mydepth=depth;
 
@@ -1358,7 +1379,7 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 	      // Also, first bins around eta,phi are empty.
 	      // Thus, eta,phi must be shifted by +2 (+1 for bin count, +1 to ignore empty row)
 	      
-	      if (fabs(eta-41)==29 && depth>=2)
+	      if (fabs(eta-int(etaBins_-2)/2)==29 && depth>=2)
 		// This value of eta is shared by HB, HE -- add their values together.  Maybe average them at some point instead?
 		{
 		  // raw pedestals
@@ -1421,7 +1442,7 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		  //SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,sub_RMS);
 
 		  // HB
-		  if (fabs(eta-41)<17 && mydepth<2)
+		  if (fabs(eta-int(etaBins_-2)/2)<17 && mydepth<2)
 		    {
 		      hbHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      hbHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
@@ -1433,7 +1454,7 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      hbHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  // HE -- layer 29 already taken care of above
-		  if (fabs(eta-41)>16 && fabs(eta-41)<27 && mydepth<2)
+		  if (fabs(eta-int(etaBins_-2)/2)>16 && fabs(eta-int(etaBins_-2)/2)<27 && mydepth<2)
 		    {
 		      heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
@@ -1444,7 +1465,7 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      heHists.SUB_PEDESTAL_MEAN_1D[mydepth]->Fill(sub_myval);
 		      heHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
-		  if (fabs(eta-41)>26 && fabs(eta-41)<29 && mydepth<3)
+		  if (fabs(eta-int(etaBins_-2)/2)>26 && fabs(eta-int(etaBins_-2)/2)<29 && mydepth<3)
 		    {
 		      heHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      heHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
@@ -1457,7 +1478,7 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		    }
 		  
 		  // H0
-		  if (fabs(eta-41)<16 && mydepth==3)
+		  if (fabs(eta-int(etaBins_-2)/2)<16 && mydepth==3)
 		    {
 		      hoHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      hoHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
@@ -1469,7 +1490,7 @@ void HcalDigiMonitor::fillPedestalHistos(void)
 		      hoHists.SUB_PEDESTAL_RMS_1D[mydepth]->Fill(sub_RMS);
 		    }
 		  //HF -- layer 29 already taken care of above
-		  if (fabs(eta-41)>29 && fabs(eta-41)<42 && mydepth<2)
+		  if (fabs(eta-int(etaBins_-2)/2)>29 && fabs(eta-int(etaBins_-2)/2)<42 && mydepth<2)
 		    {
 		      hfHists.RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
 		      hfHists.RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
@@ -1813,18 +1834,18 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 	      // add pedestal plots
 	      if (k<2) // only plot for first 2 time slices
 		{	      
-		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		  pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
 		  myval=digi.sample(k).adc();
-		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
 		
 
 		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		  else
 		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
 		}
 	    }
 
@@ -1951,16 +1972,16 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 	      if (digi.sample(k).adc() > maxadc) maxadc = digi.sample(k).adc();
 	      if (k<2) // only plot for first 2 time slices
 		{	      
-		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		  pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
 		  myval=digi.sample(k).adc();
-		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
 		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		  else
 		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
 		}
 	    }
 
@@ -2134,16 +2155,16 @@ void HcalDigiMonitor::HODigiCheck(const HODigiCollection& ho, DigiHists& hoHists
 
 	      if (k<2) // only plot for first 2 time slices
 		{	      
-		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		  pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]++;
 		  myval=digi.sample(k).adc();
-		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
 		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		  else
 		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth-1]+=myval*myval;
 		}
 	    }
 
@@ -2304,16 +2325,16 @@ void HcalDigiMonitor::HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists
 	     if (k<2) // only plot for first 2 time slices
 	       {	      
 		 // Depth values increased by 2 to avoid overlap with HE at |eta|=29
-		 pedcounts[iEta+41][iPhi-1][iDepth+1]++;
+		 pedcounts[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]++;
 		 myval=digi.sample(k).adc();
-		 rawpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
-		 rawpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
+		 rawpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval;
+		 rawpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval*myval;
 		 if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
 		   myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
 		 else
 		   myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
-		 subpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
-		 subpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
+		 subpedsum[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval;
+		 subpedsum2[iEta+(int)((etaBins_-2)/2)][iPhi-1][iDepth+1]+=myval*myval;
 	       }
 	   }
    
