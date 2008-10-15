@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("eleIso")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.EventContent.EventContent_cff")
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('REPLACE ME')
+    fileNames = cms.untracked.vstring('FILENAME')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -18,9 +19,10 @@ process.out.outputCommands.append('keep *_photons_*_*')
 process.out.outputCommands.append('keep *_*_*_eleIso')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(4000)
 )
 
 process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
-process.p1 = cms.Path(process.egammaIsolationSequence)
+process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequencePAT_cff")
+process.p1 = cms.Path(process.egammaIsolationSequence + process.egammaIsolationSequencePAT)
 process.outpath = cms.EndPath(process.out)
