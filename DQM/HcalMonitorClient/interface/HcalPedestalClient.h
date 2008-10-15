@@ -58,49 +58,32 @@ class HcalPedestalClient : public HcalBaseClient {
 
 private:
   
-  void generateBadChanList(string dir);
+  //void generateBadChanList(string dir);
   vector<int> badChan_;
   vector<double> badMean_;
   vector<double> badRMS_;
   
-  edm::ESHandle<HcalDbService> conditions_;
-  const HcalElectronicsMap* readoutMap_;
-  
-  bool doPerChanTests_;
-  bool plotPedRAW_;
+  vector <std::string> subdets_;
 
-  int nCrates_;
-  TH1F* htrMean_[1000];
-  TH1F* htrRMS_[1000];
+  bool doFCpeds_; // pedestal units in fC (if false, assume ADC)
+  // specify time slices over which to calculate pedestals -- are these needed in client?
+  bool startingTimeSlice_;
+  bool endingTimeSlice_;
 
-  TH1F* all_peds_[4];
-  TH1F* ped_rms_[4];
-  TH1F* ped_mean_[4];
+  // Specify maximum allowed difference between ADC pedestal and nominal value
+  double nominalPedMeanInADC_;
+  double nominalPedWidthInADC_;
+  double maxPedMeanDiffADC_;
+  double maxPedWidthDiffADC_; // specify maximum width of pedestal (in ADC)
 
-  TH1F* sub_rms_[4];
-  TH1F* sub_mean_[4];
+  TH2F* MeanMapByDepth[6];
+  TH2F* RMSMapByDepth[6];
 
-  TH1F* capid_mean_[4];
-  TH1F* capid_rms_[4];
-  TH1F* qie_mean_[4];
-  TH1F* qie_rms_[4];
+ // Problem Pedestal Plots
+  TH2F* ProblemPedestals;
+  TH2F* ProblemPedestalsByDepth[6];
 
-  TH2F* pedMapMeanD_[4];
-  TH2F* pedMapRMSD_[4];
 
-  TH2F* pedMapMean_E[4];
-  TH2F* pedMapRMS_E[4];
-
-  TH2F* err_map_geo_[4];
-  TH2F* err_map_elec_[4];
-  TH2F* geoRef_;
-
-  // Quality criteria for data integrity
-  float pedrms_thresh_;
-  float pedmean_thresh_;
-  float caprms_thresh_;
-  float capmean_thresh_;
-  
 };
 
 #endif
