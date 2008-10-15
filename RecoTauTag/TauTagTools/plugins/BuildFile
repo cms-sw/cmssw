@@ -1,5 +1,18 @@
-<use name=DataFormats/TauReco>
-<use name=root>
-<library file="*.cc" name=RecoTauTagTauTagToolsPlugins></library>
-
+<library file="*.cc" name=RecoTauTagTauTagToolsPlugins>
+  <use name=DataFormats/Candidate>
+  <use name=TrackingTools/TransientTrack>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=PhysicsTools/IsolationUtils>
+  <use name=PhysicsTools/Utilities>
+  <use name=PhysicsTools/MVAComputer>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/MessageLogger>
+  <use name=DataFormats/TauReco>
+  <use name=DataFormats/WrappedStdDictionaries>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=PhysicsTools/CandAlgos>
+  <use name=PhysicsTools/HepMCCandAlgos>
+  <use name=RecoTauTag/TauTagTools>
+</library>
 
