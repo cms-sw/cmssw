@@ -59,6 +59,11 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {
   meChann_DataIntegrityCheck_[30]=meCh_DataIntegrityFED30_;
   meChann_DataIntegrityCheck_[31]=meCh_DataIntegrityFED31_;
 
+  cout << (int)sizeof(UScount) << endl;
+  for (int f=0; f<32; f++) {
+    for (int s=0; s<15; s++) {
+      UScount[f][s]=0;}}
+
 } // HcalDataFormatMonitor::HcalDataFormatMonitor()
 
 HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
@@ -389,6 +394,15 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFEDerrorMap_->setAxisTitle("# of Errors",2);
 
     m_dbe->setCurrentFolder(baseFolder_ + "/HTR Plots");
+
+    type = "Fraction UnSuppressed Events";
+    meUSFractSpigs_ = m_dbe->book1D(type,type,481,0,481);
+    for(int f=0; f<32; f++) {
+      sprintf(label, "FED 7%02d", f);
+      meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
+      for(int s=1; s<HcalDCCHeader::SPIGOT_COUNT; s++) {
+	sprintf(label, "sp%02d", s);
+	meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
     type = "BCN Difference Between Ref HTR and DCC";
     meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
@@ -955,6 +969,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     bool chsummAOK=true;
     bool channAOK=true;
 
+    // From this Spigot's DCC header, first.
     WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) spigot);
     if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected 
       meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+1,
@@ -1007,6 +1022,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     if (htr.isHistogramEvent()) continue;
 
+    //We trust the data now.  Finish with the check against DCCHeader
     if (htr.getOrbitNumber() != (unsigned int) dccOrN)
       meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+0,
 					  halfhtrDIM_y+0);
@@ -1017,8 +1033,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       meHalfHTR_DataIntegrityCheck_->Fill(halfhtrDIM_x+0,
 					  halfhtrDIM_y+2);
 
-
-
+    bool htrUnSuppressed=(HTRraw[6]>>15 & 0x0001);
+    if (htrUnSuppressed) {
+      UScount[dccid-700][spigot]++;
+      int here=1+(HcalDCCHeader::SPIGOT_COUNT*(dccid-700))+spigot;
+      meUSFractSpigs_->setBinContent(here,
+				     ((double)UScount[dccid-700][spigot])/(double)ievt_);}
 
     // Consider removing this check and the histogram it fills; 
     // unless, say, unpacker is a customer (then retitle histo.)
@@ -1045,6 +1065,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     int lastfibchan =0, samplecounter=0;
     int channum=0; // Valid: [1,24]
     channDIM_x=0;  
+    // Loop over DAQ words for this spigot
     for (qie_work=qie_begin; qie_work!=qie_end; ) {
       if (qie_work->raw()==0xFFFF) {
 	qie_work++; // filler word

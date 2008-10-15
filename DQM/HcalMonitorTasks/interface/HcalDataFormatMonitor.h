@@ -23,8 +23,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/10/08 12:31:41 $
- * $Revision: 1.35 $
+ * $Date: 2008/10/13 19:40:32 $
+ * $Revision: 1.36 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -105,6 +105,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meFEDerrorMap_;
 
   MonitorElement* meFEDRawDataSizes_;
+  MonitorElement* meUSFractSpigs_;
+  MonitorElement* meUSEvtSizes2D_;// implement me!
+  MonitorElement* meUSEvtSizes1D_;// implement me!
+  
   MonitorElement* me_HBHE_ZS_SlidingSum;
   MonitorElement* me_HF_ZS_SlidingSum;
   MonitorElement* me_HO_ZS_SlidingSum;
@@ -225,6 +229,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int currFiberChan;
   void LabelChannInteg(MonitorElement* me_ptr);
   bool isUnsuppressed (HcalHTRData& payload); //Return the US bit: ExtHdr7[bit 15]
+  uint64_t UScount[32][15];
 
   //Member variables for reference values to be used in consistency checks.
   std::map<int, short> CDFversionNumber_list;
