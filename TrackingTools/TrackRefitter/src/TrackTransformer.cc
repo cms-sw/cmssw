@@ -168,45 +168,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
-
-  if (theDoPredictionsOnly) {
-
-    // Fill the starting state
-    TrajectoryStateOnSurface firstTSOS;
-    unsigned int innerId;
-    if(theRefitDirection == insideOut){
-      innerId =   newTrack.innerDetId();
-      firstTSOS = track.innermostMeasurementState();
-    }
-    else{
-      innerId   = newTrack.outerDetId();
-      firstTSOS = track.outermostMeasurementState();
-    }
-
-    if ( !firstTSOS.isValid() ) return vector<Trajectory>();
-
-    if(recHitsForReFit.front()->geographicalId() != DetId(innerId)) {
-        reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-    }
-
-    PropagationDirection propDir =
-      (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
-
-    TrajectorySeed seed(PTrajectoryStateOnDet(),TrajectorySeed::recHitContainer(),propDir);
-
-    Trajectory aTraj(seed, propDir);
-
-    TrajectoryStateOnSurface predTSOS = firstTSOS;
-
-    for ( TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = recHitsForReFit.begin(); 
-          ihit != recHitsForReFit.end(); ++ihit ) {
-      predTSOS = propagator()->propagate(firstTSOS, (*ihit)->det()->surface());
-      if (predTSOS.isValid()) aTraj.push(TrajectoryMeasurement(predTSOS, *ihit));
-    }
-    return vector<Trajectory>(1, aTraj);
-    
-  }
-  
+ 
   // 8 Cases are foreseen:
   // (1) RH IO P IO FD AM  ---> Start from IN
   // (2) RH IO P IO FD OM  ---> Reverse RH and start from OUT
@@ -254,6 +216,18 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
     }
   }
 
+  if(theDoPredictionsOnly){
+    Trajectory aTraj(seed,theRefitDirection);
+    TrajectoryStateOnSurface predTSOS = firstTSOS;
+    for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = recHitsForReFit.begin(); 
+	ihit != recHitsForReFit.end(); ++ihit ) {
+      predTSOS = propagator()->propagate(predTSOS, (*ihit)->det()->surface());
+      if (predTSOS.isValid()) aTraj.push(TrajectoryMeasurement(predTSOS, *ihit));
+    }
+    return vector<Trajectory>(1, aTraj);
+  }
+
+
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
   if(trajectories.empty()){
@@ -265,9 +239,6 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
     
   vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
 
-//  vector<Trajectory> trajectoriesSM;
-//  trajectoriesSM.push_back(trajectoryBW);
-  
   if(trajectoriesSM.empty()){
     LogTrace(metname)<<"No Track smoothed!"<<endl;
     return vector<Trajectory>();
