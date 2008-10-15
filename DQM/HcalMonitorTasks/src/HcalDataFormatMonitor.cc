@@ -144,7 +144,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     ///\\\///HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
     ///\\\///labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
     
-    m_dbe->setCurrentFolder("Hcal/FEDIntegrity"); // don't make FEDIntegrity part of the DataFormatMonitor folder
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/HcalFEDChecking");
+    
+    //m_dbe->setCurrentFolder("Hcal/FEDIntegrity"); // don't make FEDIntegrity part of the DataFormatMonitor folder
+
     type="FEDEntries";
     fedEntries_ = m_dbe->book1D(type,type,32,699.5,731.5);
     type="FEDFatal";
