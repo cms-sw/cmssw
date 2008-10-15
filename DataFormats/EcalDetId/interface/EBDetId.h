@@ -12,7 +12,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.21 2008/03/03 15:20:05 ferriff Exp $
+ *  $Id: EBDetId.h,v 1.22 2008/06/25 22:11:14 heltsley Exp $
  */
 
 
@@ -109,9 +109,8 @@ class EBDetId : public DetId {
   static const int MAX_C = kCrystalsPerSM;
   static const int MIN_HASH =  0; // always 0 ...
   static const int MAX_HASH =  2*MAX_IPHI*MAX_IETA-1;
-  static const int SIZE_HASH = 2*MAX_IPHI*MAX_IETA;
 
-  enum { kSizeForDenseIndexing = SIZE_HASH } ;
+  enum { kSizeForDenseIndexing = MAX_HASH + 1 } ;
   
 
   // function modes for (int, int) constructor
