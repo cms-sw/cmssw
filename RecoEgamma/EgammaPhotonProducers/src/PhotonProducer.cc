@@ -277,7 +277,7 @@ void PhotonProducer::fillPhotonCollection(
     
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
-    math::XYZVector momentum = direction.unit() * scRef->energy();
+    math::XYZVector momentum = direction.unit() * photonEnergy ;
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
 
