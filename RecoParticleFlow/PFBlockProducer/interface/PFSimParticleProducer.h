@@ -46,11 +46,20 @@ class PFSimParticleProducer : public edm::EDProducer {
 
   virtual void beginJob(const edm::EventSetup & c);
 
+  typedef edm::Handle<reco::PFRecTrackCollection> TrackHandle;
+  void getSimIDs( const TrackHandle& trackh,
+		  std::vector<unsigned>& recTrackSimID );
+
  private:
     
 
   /// module label for retrieving input simtrack and simvertex
   edm::InputTag  inputTagSim_;  
+
+  //MC Truth Matching 
+  edm::InputTag    inputTagRecTracks_;
+  edm::InputTag    inputTagEcalRecHitsEB_;
+  edm::InputTag    inputTagEcalRecHitsEE_;
 
   // parameters for retrieving true particles information --
 

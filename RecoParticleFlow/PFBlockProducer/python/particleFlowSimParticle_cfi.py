@@ -26,7 +26,11 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     Propagator = cms.string('PropagatorWithMaterial'),
     # input collections ----------------------------------------
     # module label to find input sim tracks and sim vertices
-    sim = cms.InputTag("g4SimHits")
-)
-
-
+    sim = cms.InputTag("g4SimHits"),
+    #Monte Carlo Truth Matching Options:
+    #retrieving RecTracks
+    RecTracks = cms.InputTag("elecpreid"),                                 
+    #retrieving EcalRechits
+    ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
+    ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE')
+ )
