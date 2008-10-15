@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/09/15 16:08:46 $
- * $Revision: 1.77 $
+ * $Date: 2008/09/24 14:33:46 $
+ * $Revision: 1.78 $
  * \author W Fisher
  *
 */
@@ -23,7 +23,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   meEvtMask_=0; meFEDS_=0;
   meLatency_=0; meQuality_=0;
   fedsListed_ = false;
-  digiMon_ = NULL;   dfMon_ = NULL; 
+  digiMon_ = NULL;   dfMon_ = NULL;
+  diTask_ = NULL;
   rhMon_ = NULL;     pedMon_ = NULL; 
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
@@ -49,8 +50,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   
   dbe_ = Service<DQMStore>().operator->();
   
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
+
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
 
@@ -60,7 +62,14 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     dfMon_ = new HcalDataFormatMonitor();
     dfMon_->setup(ps, dbe_);
   }
-  
+
+  if (ps.getUntrackedParameter<bool>("DataIntegrityTask",false))
+    {
+      if (debug_) cout <<"<calMonitorModule: DataIntegrity monitor flag is on...."<<endl;
+      diTask_ = new HcalDataIntegrityTask();
+      diTask_->setup(ps, dbe_);
+    }
+
   if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: Digi monitor flag is on...." << endl;
     digiMon_ = new HcalDigiMonitor();
@@ -173,11 +182,11 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-  if(true /* debug_ */) printf("HcalMonitorModule: Destructor.....\n");
-  
+  cout <<"HcalMonitorModule: Destructor...\n"<<endl;
 // if (dbe_){    
 //   if(digiMon_!=NULL)   {  digiMon_->clearME();}
 //   if(dfMon_!=NULL)     {  dfMon_->clearME();}
+//   if(diTask_!=NULL)    {  diTask_->clearME();}
 //   if(pedMon_!=NULL)    {  pedMon_->clearME();}
 //   if(ledMon_!=NULL)    {  ledMon_->clearME();}
 //   if(laserMon_!=NULL)  {  laserMon_->clearME();}
@@ -192,6 +201,7 @@ HcalMonitorModule::~HcalMonitorModule(){
 //
 //  if(digiMon_!=NULL) { delete digiMon_;  digiMon_=NULL; }
 //  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
+//  if(diTask_!=NULL) { delete diTask_;   diTask_=NULL; }
 //  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
 //  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
 //  if(laserMon_!=NULL) { delete laserMon_;   laserMon_=NULL; }
@@ -202,7 +212,6 @@ HcalMonitorModule::~HcalMonitorModule(){
 //  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
 //  delete evtSel_; evtSel_ = NULL;
 //
-
 }
 
 //--------------------------------------------------------
@@ -295,12 +304,13 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   if (dfMon_) {
     dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
   }
+
   //get conditions
   c.get<HcalDbRecord>().get(conditions_);
-
+  
+  pedMon_->fillDBValues(*conditions_);
   return;
-}
-
+} // HcalMonitorModule::beginJob(...)
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
@@ -346,6 +356,7 @@ void HcalMonitorModule::endJob(void) {
   if(rhMon_!=NULL) rhMon_->done();
   if(digiMon_!=NULL) digiMon_->done();
   if(dfMon_!=NULL) dfMon_->done();
+  if(diTask_!=NULL) diTask_->done();
   if(pedMon_!=NULL) pedMon_->done();
   if(ledMon_!=NULL) ledMon_->done();
   if(laserMon_!=NULL) laserMon_->done();
@@ -368,6 +379,7 @@ void HcalMonitorModule::reset(){
   if(rhMon_!=NULL)   rhMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();
   if(dfMon_!=NULL)   dfMon_->reset();
+  if(diTask_!=NULL)  diTask_->reset();
   if(pedMon_!=NULL)  pedMon_->reset();
   if(ledMon_!=NULL)  ledMon_->reset();
   if(laserMon_!=NULL)  laserMon_->reset();
@@ -546,6 +558,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if (dfMon_ !=NULL) cout <<"TIMER:: DATAFORMAT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+
+  if ((diTask_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_)
+    diTask_->processEvent(*rawraw,*report,*readoutMap_);
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (diTask_ !=NULL) cout <<"TIMER:: DATA INTEGRITY TASK ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
     {
@@ -655,7 +677,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (showTiming_)
     {
       cpu_timer.stop();
-      if (deadMon_!=NULL) cout <<"TIMER:: CALOTOWER MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      if (ctMon_ !=NULL) cout <<"TIMER:: CALOTOWER MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -740,11 +762,12 @@ bool HcalMonitorModule::prescale()
   } //if (timePS)
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
-  if (debug_) printf("HcalMonitorModule::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
-		     ievent_,evtPS,
-		     ilumisec_,lsPS,
-		     psTime_.updateTime - psTime_.vetoTime,timePS);
-  
+  if (debug_) 
+    {
+      cout<<"HcalMonitorModule::prescale  evt: "<<ievent_<<"/"<<evtPS<<", ";
+      cout <<"ls: "<<ilumisec_<<"/"<<lsPS<<",";
+      cout <<"time: "<<psTime_.updateTime - psTime_.vetoTime<<"/"<<timePS<<endl;
+    }  
   // if any criteria wants to keep the event, do so
   if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
   return true;

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/09/05 21:09:00 $
- * $Revision: 1.33 $
+ * $Date: 2008/09/24 14:33:46 $
+ * $Revision: 1.34 $
  * \author W. Fisher
  *
 */
@@ -39,6 +39,7 @@
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDataIntegrityTask.h"
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalBeamMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalExpertMonitor.h"
@@ -128,7 +129,7 @@ public:
   std::string monitorName_;
 
   /// Verbosity switch used for debugging or informational output
-  bool debug_;
+  int debug_;  // make debug an int in order to allow different levels of messaging
 
   // control whether or not to display time used by each module
   bool showTiming_; 
@@ -185,6 +186,7 @@ public:
   HcalMonitorSelector*    evtSel_;
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;
+  HcalDataIntegrityTask*  diTask_;
   HcalRecHitMonitor*      rhMon_;
   HcalBeamMonitor*        beamMon_;
   HcalExpertMonitor*      expertMon_;
