@@ -55,7 +55,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/29 12:48:24 $ 
+ **  $Date: 2008/09/30 19:50:30 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -723,9 +723,12 @@ void PhotonAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
   providedParameters.insert(std::make_pair("W0",ParameterW0_));
   PositionCalc posCalculator_ = PositionCalc(providedParameters);
   //
-  std::map<DetId, EcalRecHit>* recHitsEB_map= new std::map<DetId, EcalRecHit>();
-  //
+
+  std::map<DetId, EcalRecHit>  recHitsEB_map;
+
+ //
   std::vector<EcalRecHit> seeds;
+
   seeds.clear();
   //
   vector<EBDetId> usedXtals;
@@ -749,7 +752,7 @@ void PhotonAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
     double energy = itb->energy();
     if (energy > seleXtalMinEnergy_) {
       std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
-      recHitsEB_map->insert(map_entry);
+      recHitsEB_map.insert(map_entry);
     }
     if (energy > clusSeedThr_) seeds.push_back(*itb);
   } // Eb rechits
@@ -787,10 +790,10 @@ void PhotonAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 	}
       }
       if(HitAlreadyUsed)continue;
-      if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
+      if (recHitsEB_map.find(*det) != recHitsEB_map.end()){
 	//      cout<<" Used det "<< EBdet<<endl;
 	std::map<DetId, EcalRecHit>::iterator aHit;
-	aHit = recHitsEB_map->find(*det);
+	aHit = recHitsEB_map.find(*det);
 	usedXtals.push_back(*det);
 	RecHitsInWindow.push_back(aHit->second);
 	clus_used.push_back(*det);
@@ -941,13 +944,6 @@ void PhotonAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 
 
 
-  delete recHitsEB_map;
-
-
-
-
-    
-
 
 } 
 
@@ -960,6 +956,7 @@ void PhotonAnalyzer::endJob()
   types.push_back("All");
   types.push_back("Isolated");
   types.push_back("Nonisolated");
+
 
   for (int cut=0; cut !=numberOfSteps_; ++cut) {
 
