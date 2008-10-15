@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/09/17 09:22:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/09/22 21:01:04 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -116,9 +116,15 @@ MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
  const MEtoEdmObjectVector &newMEtoEDMObject =
    newMEtoEDM.getMEtoEdmObject();
  for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
-   if ( MEtoEdmObject[i].name.find("processedEvents") != std::string::npos ) {
+   if ( MEtoEdmObject[i].name.find("EventInfo/processedEvents") != std::string::npos ) {
      MEtoEdmObject[i].object += (newMEtoEDMObject[i].object);
    }
+   if ( MEtoEdmObject[i].name.find("EventInfo/iEvent") != std::string::npos ||
+        MEtoEdmObject[i].name.find("EventInfo/iLumiSection") != std::string::npos) {
+        if (MEtoEdmObject[i].object < newMEtoEDMObject[i].object) 
+                           MEtoEdmObject[i].object = (newMEtoEDMObject[i].object);
+   }
+   
  }
  return true;
 }
