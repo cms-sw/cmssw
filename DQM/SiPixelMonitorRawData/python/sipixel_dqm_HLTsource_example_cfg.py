@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SiPixelMonitorRawDataProcess")
+process = cms.Process("SiPixelMonitorHLTProcess")
 
 process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
@@ -16,10 +16,10 @@ process.siPixelDigis.Timing = False
 process.siPixelDigis.IncludeErrors = True
 #  process.siPixelDigis.CheckPixelOrder = True
 
-process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
-process.SiPixelRawDataErrorSource.saveFile = True
+process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi")
+process.SiPixelHLTSource.saveFile = True
 #process.SiPixelHLTSource.isPIB = False
-process.SiPixelRawDataErrorSource.slowDown = False
+process.SiPixelHLTSource.slowDown = False
 #process.SiPixelHLTSource.reducedSet = False
 
 process.load("DQMServices.Core.DQM_cfg")
@@ -56,4 +56,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('debugmessages.txt')
 )
 
-process.p1 = cms.Path(process.siPixelDigis*process.SiPixelRawDataErrorSource)
+process.p1 = cms.Path(process.siPixelDigis*process.SiPixelHLTSource)
+
+
