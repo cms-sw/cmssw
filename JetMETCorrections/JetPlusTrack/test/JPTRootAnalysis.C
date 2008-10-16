@@ -502,7 +502,7 @@ void JPTRootAnalysis::Loop()
    hResJPT->GetYaxis()->SetTitle("Energy resolution, % ");
 
    hResJPT->SetMaximum(0.45);
-   hResJPT->SetMinimum(0.08);
+   hResJPT->SetMinimum(0.05);
    hResJPT->SetMarkerStyle(21);
    hResJPT->SetMarkerSize(1.2);
    hResJPT->Draw("histPE1");
