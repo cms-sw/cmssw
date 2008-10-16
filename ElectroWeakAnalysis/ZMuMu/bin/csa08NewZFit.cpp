@@ -51,7 +51,6 @@ int main(int ac, char *av[]) {
   try {
     typedef funct::FunctExpression Expr;
     typedef funct::Product<funct::Parameter, funct::RootHistoPdf>::type ZPeak;
-    typedef funct::Power<funct::Parameter, funct::Numerical<2> >::type IsoefficiencytermSQ;
     typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr> ChiSquared;
 
     double fMin, fMax;
