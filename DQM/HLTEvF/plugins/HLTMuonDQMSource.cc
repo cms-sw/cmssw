@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.6 2008/03/05 09:54:00 muriel Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.8 2008/08/24 01:51:44 lorenzo Exp $
 //
 //
 
@@ -30,7 +30,6 @@ Implementation:
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
@@ -42,6 +41,9 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 #include "TMath.h" 
 
@@ -64,21 +66,17 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
   l2seedscollectionTag_ = parameters_.getUntrackedParameter<InputTag>("l2MuonSeedTag",edm::InputTag("hltL2MuonSeeds"));
   l2collectionTag_ = parameters_.getUntrackedParameter<InputTag>("l2MuonTag",edm::InputTag("hltL2MuonCandidates"));
   l3collectionTag_ = parameters_.getUntrackedParameter<InputTag>("l3MuonTag",edm::InputTag("hltL3MuonCandidates"));
-  l3linksTag_ = parameters_.getUntrackedParameter<InputTag>("l3MuonLinksTag",edm::InputTag("hltL3Muons"));
   l2isolationTag_ = parameters_.getUntrackedParameter<InputTag>("l2IsolationTag",edm::InputTag("hltL2MuonIsolations"));
   l3isolationTag_ = parameters_.getUntrackedParameter<InputTag>("l3IsolationTag",edm::InputTag("hltL3MuonIsolations"));
 
    dbe_ = 0 ;
-   if (parameters_.getUntrackedParameter < bool > ("DQMStore", false)) {
-     dbe_ = Service < DQMStore > ().operator->();
-     dbe_->setVerbose(0);
-   }
-
+   dbe_ = Service < DQMStore > ().operator->();
+   dbe_->setVerbose(0);
  
    outputFile_ =
        parameters_.getUntrackedParameter < std::string > ("outputFile", "");
    if (outputFile_.size() != 0) {
-     std::cout << "Muon HLT Monitoring histograms will be saved to " 
+     LogWarning("HLTMuonDQMSource") << "Muon HLT Monitoring histograms will be saved to " 
 	       << outputFile_ << std::endl;
    }
    else {
@@ -118,9 +116,9 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context){
  
  
    if (dbe_) {
-     dbe_->setCurrentFolder("monitorName_");
+     //dbe_->setCurrentFolder("monitorName_");
      if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-     if (verbose_)cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
+     LogInfo("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
      
      
      /// book some histograms here
@@ -295,13 +293,13 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if ( !dbe_) return;
   counterEvt_++;
   if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
-  if (verbose_)cout << " processing conterEvt_: " << counterEvt_ <<endl;
+  LogDebug("HLTMuonDQMSource") << " processing conterEvt_: " << counterEvt_ <<endl;
 
   Handle<RecoChargedCandidateCollection> l2mucands, l3mucands;
   iEvent.getByLabel (l2collectionTag_,l2mucands);
+  iEvent.getByLabel (l3collectionTag_,l3mucands);
+
   RecoChargedCandidateCollection::const_iterator cand,cand2;
-  Handle<MuonTrackLinksCollection> mulinks; 
-  iEvent.getByLabel (l3linksTag_,mulinks);
   Handle<L2MuonTrajectorySeedCollection> l2seeds; 
   iEvent.getByLabel (l2seedscollectionTag_,l2seeds);
 
@@ -314,7 +312,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       float pt=state.parameters().momentum().perp();
       float eta=state.parameters().momentum().phi();
       float phi=state.parameters().momentum().eta();
-      hcharge[3]->Fill(state.parameters().charge()); 
+      hcharge[3]->Fill(state.parameters().charge());
       hpt[3]->Fill(pt);
       hnhit[3]->Fill(l2seed->nHits());
       hphi[3]->Fill(phi);
@@ -323,7 +321,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       hptphi[3]->Fill(pt,phi);
       hpteta[3]->Fill(pt,eta);
       L1MuonParticleRef l1ref=l2seed->l1Particle();
-      hcharge[0]->Fill(l1ref->charge()); 
+      hcharge[0]->Fill(l1ref->charge());
       hpt[0]->Fill(l1ref->pt());
       hphi[0]->Fill(l1ref->phi());
       heta[0]->Fill(l1ref->eta());
@@ -334,8 +332,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       if ( !l2mucands.failedToGet()) {
 	for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
 	  TrackRef tk = cand->get<TrackRef>();
-	  RefToBase<TrajectorySeed> seed=tk->seedRef(); 
-	  if ( (l2seed->startingState()).detId() == (seed->startingState()).detId() ){
+	  RefToBase<TrajectorySeed> seed=tk->seedRef();
+	  if ( (l2seed->startingState()).detId() == (seed->startingState()).detId() ) {
 	    if(tk->pt()*l1ref->pt() != 0 )hptres[0]->Fill(1/tk->pt() - 1/l1ref->pt());
 	    hetares[0]->Fill(tk->eta()-l1ref->eta());
 	    hetareseta[0]->Fill(tk->eta(),tk->eta()-l1ref->eta());
@@ -344,11 +342,12 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	    if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
 	    else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
 	    hphiresphi[0]->Fill(tk->phi(),dphi);
-	    if (!mulinks.failedToGet()){
-	      MuonTrackLinksCollection::const_iterator l3muon;
-	      for ( l3muon=mulinks->begin(); l3muon != mulinks->end();++l3muon){
-		if ( l3muon->standAloneTrack() == tk ) {
-		  TrackRef l3tk= l3muon->globalTrack();
+	    //find the L3 build from this L2
+	    
+ 	    if (!l3mucands.failedToGet()) {
+	      for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
+	        TrackRef l3tk= cand->get<TrackRef>();
+	        if (l3tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track() == tk){
 		  if(l1ref->pt()*l3tk->pt() != 0 )hptres[2]->Fill(1/l1ref->pt() - 1/l3tk->pt());
 		  hetares[2]->Fill(l1ref->eta()-l3tk->eta());
 		  hetareseta[2]->Fill(l1ref->eta(),l1ref->eta()-l3tk->eta());
@@ -357,9 +356,9 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 		  if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
 		  else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
 		  hphiresphi[2]->Fill(l3tk->phi(),dphi);
-		  break;
-		}
-	      }
+		  //break; //plot only once per L2?
+	        }//if
+	      }//for
 	    }
 	    break;
 	  }
@@ -376,14 +375,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if (!recoBeamSpotHandle.failedToGet())  beamSpot = *recoBeamSpotHandle;
 
   if (!l2mucands.failedToGet()) {
-     if (verbose_)cout << " filling L2 stuff " << endl;
+    LogDebug("HLTMuonDQMSource") << " filling L2 stuff " << endl;
     Handle<reco::IsoDepositMap> l2depMap;
     iEvent.getByLabel (l2isolationTag_,l2depMap);
     hNMu[1]->Fill(l2mucands->size());
     for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
       TrackRef tk = cand->get<TrackRef>();
       if (!l2depMap.failedToGet()) {
-	  if (verbose_)cout << " filling L2 Iso stuff " << endl;
+	  LogDebug("HLTMuonDQMSource") << " filling L2 Iso stuff " << endl;
 	  if ( l2depMap->contains(tk.id()) ){
 	    reco::IsoDepositMap::value_type calDeposit= (*l2depMap)[tk];
 	    double dephlt = calDeposit.depositWithin(coneSize_);
@@ -424,9 +423,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       } else LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
     }
   }
-  iEvent.getByLabel (l3collectionTag_,l3mucands);
   if (!l3mucands.failedToGet()) {
-    if (verbose_)cout << " filling L3 stuff " << endl;
+    LogDebug("HLTMuonDQMSource") << " filling L3 stuff " << endl;
     hNMu[2]->Fill(l3mucands->size());
     Handle<reco::IsoDepositMap> l3depMap;
     iEvent.getByLabel (l3isolationTag_,l3depMap);
@@ -469,24 +467,15 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  hdimumass[2]->Fill(mass);
 	}
       }
-      if (!mulinks.failedToGet()) {
-	TrackRef l2tk;
-	MuonTrackLinksCollection::const_iterator l3muon;
-	for ( l3muon=mulinks->begin(); l3muon != mulinks->end();++l3muon){
-	  if ( l3muon->globalTrack() == tk ) {
-	    l2tk= l3muon->standAloneTrack();
-	    if(tk->pt()*l2tk->pt() != 0 )hptres[1]->Fill(1/tk->pt() - 1/l2tk->pt());
-	    hetares[1]->Fill(tk->eta()-l2tk->eta());
-	    hetareseta[1]->Fill(tk->eta(),tk->eta()-l2tk->eta());
-	    hphires[1]->Fill(tk->phi()-l2tk->phi());
-	    double dphi=tk->phi()-l2tk->phi();
-	    if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
-	    else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
-	    hphiresphi[1]->Fill(tk->phi(),dphi);
-	    break;
-	  }
-	}
-      }
+      TrackRef l2tk = tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track();
+      if(tk->pt()*l2tk->pt() != 0 )hptres[1]->Fill(1/tk->pt() - 1/l2tk->pt());
+      hetares[1]->Fill(tk->eta()-l2tk->eta());
+      hetareseta[1]->Fill(tk->eta(),tk->eta()-l2tk->eta());
+      hphires[1]->Fill(tk->phi()-l2tk->phi());
+      double dphi=tk->phi()-l2tk->phi();
+      if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
+      else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
+      hphiresphi[1]->Fill(tk->phi(),dphi);
     }
   }  
 }
