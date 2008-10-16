@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <ctime>
 
@@ -46,6 +47,7 @@ namespace edm {
   }
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
+      actReg_(desc.actReg_),
       maxEvents_(desc.maxEvents_),
       remainingEvents_(maxEvents_),
       maxLumis_(desc.maxLumis_),
@@ -144,10 +146,12 @@ namespace edm {
       } else if (newState == IsFile || oldState == IsInvalid) {
         state_ = IsFile;
       } else if (newState == IsRun || oldState == IsFile) {
+	RunSourceSentry(*this);
         setRunPrincipal(readRun_());
         state_ = IsRun;
       } else if (newState == IsLumi || oldState == IsRun) {
         assert (processingMode() != Runs);
+	LumiSourceSentry(*this);
         setLuminosityBlockPrincipal(readLuminosityBlock_());
         state_ = IsLumi;
       } else {
@@ -394,5 +398,30 @@ namespace edm {
   InputSource::luminosityBlock() const {
     assert(luminosityBlockPrincipal());
     return luminosityBlockPrincipal()->luminosityBlock();
+  }
+
+
+  InputSource::SourceSentry::SourceSentry(Sig& pre, Sig& post) : post_(post) {
+    pre();
+  }
+
+  InputSource::SourceSentry::~SourceSentry() {
+    post_();
+  }
+
+  InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source) :
+     sentry_(source.actReg()->preSourceSignal_, source.actReg()->postSourceSignal_) {
+  }
+
+  InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source) :
+     sentry_(source.actReg()->preSourceLumiSignal_, source.actReg()->postSourceLumiSignal_) {
+  }
+
+  InputSource::RunSourceSentry::RunSourceSentry(InputSource const& source) :
+     sentry_(source.actReg()->preSourceRunSignal_, source.actReg()->postSourceRunSignal_) {
+  }
+
+  InputSource::FileSourceSentry::FileSourceSentry(InputSource const& source) :
+     sentry_(source.actReg()->preSourceFileSignal_, source.actReg()->postSourceFileSignal_) {
   }
 }

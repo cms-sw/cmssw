@@ -64,6 +64,7 @@ namespace edm {
 		 std::string const& proc_name,
 		 ProductRegistry& preg,
 		 ActionTable& actions,
+		 boost::shared_ptr<ActivityRegistry> areg,
 		 Schedule::TrigResPtr trptr) {
 
       WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
@@ -73,31 +74,15 @@ namespace edm {
       md.moduleLabel_ = "TriggerResults";
       md.processConfiguration_ = ProcessConfiguration(proc_name, proc_pset.id(), getReleaseVersion(), getPassID());
 
+      areg->preModuleConstructionSignal_(md);
       std::auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
+      areg->postModuleConstructionSignal_(md);
 
       Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
+      ptr->setActivityRegistry(areg);
       return ptr;
     }
 
-  }
-
-  // -----------------------------
-
-  Schedule::CallPrePost::CallPrePost(ActivityRegistry* a,
-				     EventPrincipal* ep,
-				     EventSetup const* es) :
-    a_(a),ep_(ep),es_(es) {
-    // Avoid possible order-of-evaluation trouble
-    // by not having two function calls as actual arguments.
-    EventID id = ep_->id();
-    a_->preProcessEventSignal_(id, ep_->time()); 
-  }
-
-  Schedule::CallPrePost::~CallPrePost() {
-    if (ep_) {
-      Event ev(*ep_, ModuleDescription());
-      a_->postProcessEventSignal_(ev, *es_);
-    }
   }
 
   // -----------------------------
@@ -111,13 +96,13 @@ namespace edm {
 		     WorkerRegistry& wreg,
 		     ProductRegistry& preg,
 		     ActionTable& actions,
-		     ActivityRegistryPtr areg):
+		     boost::shared_ptr<ActivityRegistry> areg):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
     act_table_(&actions),
     processName_(tns.getProcessName()),
-    act_reg_(areg),
+    actReg_(areg),
     state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
     end_path_name_list_(tns.getEndPaths()),
@@ -153,7 +138,7 @@ namespace edm {
       // the results inserter stands alone
       results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(), 
 				       processName_,
-				       preg, actions, results_);
+				       preg, actions, actReg_, results_);
       addToAllWorkers(results_inserter_.get());
     }
 
@@ -381,7 +366,7 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if(!tmpworkers.empty()) {
-      Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,act_reg_,false);
+      Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,actReg_,false);
       trig_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
@@ -398,7 +383,7 @@ namespace edm {
     }
 
     if (!tmpworkers.empty()) {
-      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_,true);
+      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,actReg_,true);
       end_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));

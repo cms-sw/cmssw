@@ -13,7 +13,7 @@ namespace edm {
 	     TrigResPtr trptr,
 	     ParameterSet const&,
 	     ActionTable& actions,
-	     ActivityRegistryPtr areg,
+	     boost::shared_ptr<ActivityRegistry> areg,
 	     bool isEndPath):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
@@ -24,7 +24,7 @@ namespace edm {
     bitpos_(bitpos),
     name_(path_name),
     trptr_(trptr),
-    act_reg_(areg),
+    actReg_(areg),
     act_table_(&actions),
     workers_(workers),
     isEndPath_(isEndPath)

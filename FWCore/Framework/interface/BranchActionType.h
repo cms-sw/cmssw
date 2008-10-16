@@ -5,15 +5,13 @@
   
 BranchActionType: BranchAction
 
-$Id: BranchActionType.h,v 1.1 2006/12/01 03:29:52 wmtan Exp $
+$Id: BranchActionType.h,v 1.2 2007/06/05 04:02:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
   enum BranchActionType {
-    BranchActionEvent = 0,
-    BranchActionBegin = 1,
-    BranchActionEnd = 2,
-    EndBranchActionType = 3
+    BranchActionBegin = 0,
+    BranchActionEnd = 1
   };
 }
 #endif

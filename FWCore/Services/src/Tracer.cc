@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.12 2007/01/09 17:33:06 chrjones Exp $
+// $Id: Tracer.cc,v 1.13 2007/03/04 05:55:26 wmtan Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 using namespace edm::service;
 //
@@ -33,24 +35,18 @@ using namespace edm::service;
 //
 // constructors and destructor
 //
-Tracer::Tracer(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-indention_(iPS.getUntrackedParameter<std::string>("indention","++")),
-depth_(0)
+Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
+  indention_(iPS.getUntrackedParameter<std::string>("indention","++")),
+  depth_(0)
 {
-   iRegistry.watchPostBeginJob(this,&Tracer::postBeginJob);
-   iRegistry.watchPostEndJob(this,&Tracer::postEndJob);
+   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
+   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
 
-   iRegistry.watchPreProcessEvent(this,&Tracer::preEventProcessing);
-   iRegistry.watchPostProcessEvent(this,&Tracer::postEventProcessing);
-
-   iRegistry.watchPreModule(this,&Tracer::preModule);
-   iRegistry.watchPostModule(this,&Tracer::postModule);
+   iRegistry.watchPreModule(this, &Tracer::preModuleEvent);
+   iRegistry.watchPostModule(this, &Tracer::postModuleEvent);
    
-   iRegistry.watchPreSource(this,&Tracer::preSource);
-   iRegistry.watchPostSource(this,&Tracer::postSource);
-   
-   iRegistry.watchPreProcessPath(this, &Tracer::prePath);
-   iRegistry.watchPostProcessPath(this, &Tracer::postPath);
+   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
+   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
 
    iRegistry.watchPreModuleConstruction(this, &Tracer::preModuleConstruction);
    iRegistry.watchPostModuleConstruction(this, &Tracer::postModuleConstruction);
@@ -60,9 +56,64 @@ depth_(0)
 
    iRegistry.watchPreModuleEndJob(this, &Tracer::preModuleEndJob);
    iRegistry.watchPostModuleEndJob(this, &Tracer::postModuleEndJob);
+
+   iRegistry.watchPreModuleBeginRun(this, &Tracer::preModuleBeginRun);
+   iRegistry.watchPostModuleBeginRun(this, &Tracer::postModuleBeginRun);
+
+   iRegistry.watchPreModuleEndRun(this, &Tracer::preModuleEndRun);
+   iRegistry.watchPostModuleEndRun(this, &Tracer::postModuleEndRun);
+
+   iRegistry.watchPreModuleBeginLumi(this, &Tracer::preModuleBeginLumi);
+   iRegistry.watchPostModuleBeginLumi(this, &Tracer::postModuleBeginLumi);
+
+   iRegistry.watchPreModuleEndLumi(this, &Tracer::preModuleEndLumi);
+   iRegistry.watchPostModuleEndLumi(this, &Tracer::postModuleEndLumi);
+
+   iRegistry.watchPreProcessPath(this, &Tracer::prePathEvent);
+   iRegistry.watchPostProcessPath(this, &Tracer::postPathEvent);
+
+   iRegistry.watchPrePathBeginRun(this, &Tracer::prePathBeginRun);
+   iRegistry.watchPostPathBeginRun(this, &Tracer::postPathBeginRun);
+
+   iRegistry.watchPrePathEndRun(this, &Tracer::prePathEndRun);
+   iRegistry.watchPostPathEndRun(this, &Tracer::postPathEndRun);
+
+   iRegistry.watchPrePathBeginLumi(this, &Tracer::prePathBeginLumi);
+   iRegistry.watchPostPathBeginLumi(this, &Tracer::postPathBeginLumi);
+
+   iRegistry.watchPrePathEndLumi(this, &Tracer::prePathEndLumi);
+   iRegistry.watchPostPathEndLumi(this, &Tracer::postPathEndLumi);
+
+   iRegistry.watchPreProcessEvent(this, &Tracer::preEvent);
+   iRegistry.watchPostProcessEvent(this, &Tracer::postEvent);
+
+   iRegistry.watchPreBeginRun(this, &Tracer::preBeginRun);
+   iRegistry.watchPostBeginRun(this, &Tracer::postBeginRun);
+
+   iRegistry.watchPreEndRun(this, &Tracer::preEndRun);
+   iRegistry.watchPostEndRun(this, &Tracer::postEndRun);
+
+   iRegistry.watchPreBeginLumi(this, &Tracer::preBeginLumi);
+   iRegistry.watchPostBeginLumi(this, &Tracer::postBeginLumi);
+
+   iRegistry.watchPreEndLumi(this, &Tracer::preEndLumi);
+   iRegistry.watchPostEndLumi(this, &Tracer::postEndLumi);
+
+   iRegistry.watchPreSource(this, &Tracer::preSourceEvent);
+   iRegistry.watchPostSource(this, &Tracer::postSourceEvent);
+
+   iRegistry.watchPreSourceFile(this, &Tracer::preSourceFile);
+   iRegistry.watchPostSourceFile(this, &Tracer::postSourceFile);
+
+   iRegistry.watchPreSourceRun(this, &Tracer::preSourceRun);
+   iRegistry.watchPostSourceRun(this, &Tracer::postSourceRun);
+
+   iRegistry.watchPreSourceLumi(this, &Tracer::preSourceLumi);
+   iRegistry.watchPostSourceLumi(this, &Tracer::postSourceLumi);
+
 }
 
-// Tracer::Tracer(const Tracer& rhs)
+// Tracer::Tracer(Tracer const& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -74,7 +125,7 @@ depth_(0)
 //
 // assignment operators
 //
-// const Tracer& Tracer::operator=(const Tracer& rhs)
+// Tracer const& Tracer::operator=(Tracer const& rhs)
 // {
 //   //An exception safe implementation is
 //   Tracer temp(rhs);
@@ -87,112 +138,291 @@ depth_(0)
 // member functions
 //
 void 
-Tracer::postBeginJob()
-{
+Tracer::postBeginJob() {
    std::cout <<indention_<<" Job started"<<std::endl;
 }
 void 
-Tracer::postEndJob()
-{
+Tracer::postEndJob() {
    std::cout <<indention_<<" Job ended"<<std::endl;
 }
 
 void
-Tracer::preSource()
-{
-  std::cout <<indention_<<indention_<<"source"<<std::endl;
+Tracer::preSourceEvent() {
+  std::cout <<indention_<<indention_<<"source event"<<std::endl;
 }
 void
-Tracer::postSource()
-{
-  std::cout <<indention_<<indention_<<"finished: source"<<std::endl;
+Tracer::postSourceEvent () {
+  std::cout <<indention_<<indention_<<"finished: source event"<<std::endl;
+}
+
+void
+Tracer::preSourceLumi() {
+  std::cout <<indention_<<indention_<<"source lumi"<<std::endl;
+}
+void
+Tracer::postSourceLumi () {
+  std::cout <<indention_<<indention_<<"finished: source lumi"<<std::endl;
+}
+
+void
+Tracer::preSourceRun() {
+  std::cout <<indention_<<indention_<<"source run"<<std::endl;
+}
+void
+Tracer::postSourceRun () {
+  std::cout <<indention_<<indention_<<"finished: source run"<<std::endl;
+}
+
+void
+Tracer::preSourceFile() {
+  std::cout <<indention_<<indention_<<"source file"<<std::endl;
+}
+void
+Tracer::postSourceFile () {
+  std::cout <<indention_<<indention_<<"finished: source file"<<std::endl;
 }
 
 void 
-Tracer::preEventProcessing(const edm::EventID& iID, const edm::Timestamp& iTime)
-{
+Tracer::preEvent(EventID const& iID, Timestamp const& iTime) {
    depth_=0;
    std::cout <<indention_<<indention_<<" processing event:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void 
-Tracer::postEventProcessing(const Event&, const EventSetup&)
-{
+Tracer::postEvent(Event const&, EventSetup const&) {
    std::cout <<indention_<<indention_<<" finished event:"<<std::endl;
 }
 
 void 
-Tracer::prePath(const std::string& iName)
-{
-  std::cout <<indention_<<indention_<<indention_<<" processing path:"<<iName<<std::endl;
+Tracer::prePathEvent(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for event:"<<iName<<std::endl;
+}
+void 
+Tracer::postPathEvent(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for event:"<<std::endl;
 }
 
 void 
-Tracer::postPath(const std::string& iName, const edm::HLTPathStatus&)
-{
-  std::cout <<indention_<<indention_<<indention_<<" finished path:"<<std::endl;
-}
-
-void 
-Tracer::preModule(const ModuleDescription& iDescription)
-{
+Tracer::preModuleEvent(ModuleDescription const& iDescription) {
    ++depth_;
    std::cout <<indention_<<indention_<<indention_;
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for event:" <<iDescription.moduleLabel_<<std::endl;
 }
-
 void 
-Tracer::postModule(const ModuleDescription& iDescription)
-{
+Tracer::postModuleEvent(ModuleDescription const& iDescription) {
    --depth_;
    std::cout <<indention_<<indention_<<indention_<<indention_;
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
    
-   std::cout<<" finished:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for event:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::preModuleConstruction(const ModuleDescription& iDescription)
-{
+Tracer::preBeginRun(RunID const& iID, Timestamp const& iTime) {
+   depth_=0;
+   std::cout <<indention_<<indention_<<" processing begin run:"<< iID<<" time:"<<iTime.value()<< std::endl;
+}
+void 
+Tracer::postBeginRun(Run const&, EventSetup const&) {
+   std::cout <<indention_<<indention_<<" finished begin run:"<<std::endl;
+}
+
+void 
+Tracer::prePathBeginRun(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for begin run:"<<iName<<std::endl;
+}
+void 
+Tracer::postPathBeginRun(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for begin run:"<<std::endl;
+}
+
+void 
+Tracer::preModuleBeginRun(ModuleDescription const& iDescription) {
+   ++depth_;
+   std::cout <<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   std::cout<<" module for begin run:" <<iDescription.moduleLabel_<<std::endl;
+}
+void 
+Tracer::postModuleBeginRun(ModuleDescription const& iDescription) {
+   --depth_;
+   std::cout <<indention_<<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   
+   std::cout<<" finished for begin run:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preEndRun(RunID const& iID, Timestamp const& iTime) {
+   depth_=0;
+   std::cout <<indention_<<indention_<<" processing end run:"<< iID<<" time:"<<iTime.value()<< std::endl;
+}
+void 
+Tracer::postEndRun(Run const&, EventSetup const&) {
+   std::cout <<indention_<<indention_<<" finished end run:"<<std::endl;
+}
+
+void 
+Tracer::prePathEndRun(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for end run:"<<iName<<std::endl;
+}
+void 
+Tracer::postPathEndRun(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for end run:"<<std::endl;
+}
+
+void 
+Tracer::preModuleEndRun(ModuleDescription const& iDescription) {
+   ++depth_;
+   std::cout <<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   std::cout<<" module for end run:" <<iDescription.moduleLabel_<<std::endl;
+}
+void 
+Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
+   --depth_;
+   std::cout <<indention_<<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   
+   std::cout<<" finished for end run:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preBeginLumi(LuminosityBlockID const& iID, Timestamp const& iTime) {
+   depth_=0;
+   std::cout <<indention_<<indention_<<" processing begin lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
+}
+void 
+Tracer::postBeginLumi(LuminosityBlock const&, EventSetup const&) {
+   std::cout <<indention_<<indention_<<" finished begin lumi:"<<std::endl;
+}
+
+void 
+Tracer::prePathBeginLumi(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for begin lumi:"<<iName<<std::endl;
+}
+void 
+Tracer::postPathBeginLumi(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for begin lumi:"<<std::endl;
+}
+
+void 
+Tracer::preModuleBeginLumi(ModuleDescription const& iDescription) {
+   ++depth_;
+   std::cout <<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   std::cout<<" module for begin lumi:" <<iDescription.moduleLabel_<<std::endl;
+}
+void 
+Tracer::postModuleBeginLumi(ModuleDescription const& iDescription) {
+   --depth_;
+   std::cout <<indention_<<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   
+   std::cout<<" finished for begin lumi:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preEndLumi(LuminosityBlockID const& iID, Timestamp const& iTime) {
+   depth_=0;
+   std::cout <<indention_<<indention_<<" processing end lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
+}
+void 
+Tracer::postEndLumi(LuminosityBlock const&, EventSetup const&) {
+   std::cout <<indention_<<indention_<<" finished end lumi:"<<std::endl;
+}
+
+void 
+Tracer::prePathEndLumi(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for end lumi:"<<iName<<std::endl;
+}
+
+void 
+Tracer::postPathEndLumi(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for end lumi:"<<std::endl;
+}
+
+void 
+Tracer::preModuleEndLumi(ModuleDescription const& iDescription) {
+   ++depth_;
+   std::cout <<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   std::cout<<" module for end lumi:" <<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::postModuleEndLumi(ModuleDescription const& iDescription) {
+   --depth_;
+   std::cout <<indention_<<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   
+   std::cout<<" finished for end lumi:"<<iDescription.moduleLabel_<<std::endl;
+}
+
+void 
+Tracer::preSourceConstruction(ModuleDescription const& iDescription) {
+  std::cout <<indention_;
+  std::cout<<" constructing source:" <<iDescription.moduleName_<<std::endl;
+}
+
+void 
+Tracer::postSourceConstruction(ModuleDescription const& iDescription) {
+  std::cout <<indention_;
+  std::cout<<" construction finished:"<<iDescription.moduleName_<<std::endl;
+}
+
+void 
+Tracer::preModuleConstruction(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" constructing module:" <<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::postModuleConstruction(const ModuleDescription& iDescription)
-{
+Tracer::postModuleConstruction(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" construction finished:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::preModuleBeginJob(const ModuleDescription& iDescription)
-{
+Tracer::preModuleBeginJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" beginJob module:" <<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::postModuleBeginJob(const ModuleDescription& iDescription)
-{
+Tracer::postModuleBeginJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" beginJob finished:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::preModuleEndJob(const ModuleDescription& iDescription)
-{
+Tracer::preModuleEndJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" endJob module:" <<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::postModuleEndJob(const ModuleDescription& iDescription)
-{
+Tracer::postModuleEndJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" endJob finished:"<<iDescription.moduleLabel_<<std::endl;
 }
@@ -204,3 +434,4 @@ Tracer::postModuleEndJob(const ModuleDescription& iDescription)
 //
 // static member functions
 //
+

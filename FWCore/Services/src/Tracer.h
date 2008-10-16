@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.8 2007/01/09 17:33:06 chrjones Exp $
+// $Id: Tracer.h,v 1.9 2007/06/14 21:03:39 wmtan Exp $
 //
 
 // system include files
@@ -38,26 +38,75 @@ public:
          void postBeginJob();
          void postEndJob();
          
-         void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-         void postEventProcessing(const Event&, const EventSetup&);
-         
-         void preModuleConstruction(const ModuleDescription&);
-         void postModuleConstruction(const ModuleDescription&);
+         void preBeginRun(RunID const& id, Timestamp const& ts);
+         void postBeginRun(Run const& run, EventSetup const& es);
 
-         void preModuleBeginJob(const ModuleDescription&);
-         void postModuleBeginJob(const ModuleDescription&);
+         void preBeginLumi(LuminosityBlockID const& id, Timestamp const& ts);
+         void postBeginLumi(LuminosityBlock const& run, EventSetup const& es);
 
-         void preModule(const ModuleDescription&);
-         void postModule(const ModuleDescription&);
+         void preEvent(EventID const& id, Timestamp const& ts);
+         void postEvent(Event const& ev, EventSetup const& es);
          
-         void preModuleEndJob(const ModuleDescription&);
-         void postModuleEndJob(const ModuleDescription&);
+         void preEndLumi(LuminosityBlockID const& id, Timestamp const& ts);
+         void postEndLumi(LuminosityBlock const& run, EventSetup const& es);
 
-         void preSource();
-         void postSource();
+         void preEndRun(RunID const& id, Timestamp const& ts);
+         void postEndRun(Run const& run, EventSetup const& es);
+
+         void preSourceConstruction(ModuleDescription const& md);
+         void postSourceConstruction(ModuleDescription const& md);
+
+         void preModuleConstruction(ModuleDescription const& md);
+         void postModuleConstruction(ModuleDescription const& md);
+
+         void preModuleBeginJob(ModuleDescription const& md);
+         void postModuleBeginJob(ModuleDescription const& md);
+
+         void preModuleBeginRun(ModuleDescription const& md);
+         void postModuleBeginRun(ModuleDescription const& md);
+
+         void preModuleBeginLumi(ModuleDescription const& md);
+         void postModuleBeginLumi(ModuleDescription const& md);
+
+         void preModuleEvent(ModuleDescription const& md);
+         void postModuleEvent(ModuleDescription const& md);
          
-         void prePath(const std::string&);
-         void postPath(const std::string&, const edm::HLTPathStatus&);
+         void preModuleEndLumi(ModuleDescription const& md);
+         void postModuleEndLumi(ModuleDescription const& md);
+
+         void preModuleEndRun(ModuleDescription const& md);
+         void postModuleEndRun(ModuleDescription const& md);
+
+         void preModuleEndJob(ModuleDescription const& md);
+         void postModuleEndJob(ModuleDescription const& md);
+
+         void preSourceEvent();
+         void postSourceEvent();
+
+         void preSourceLumi();
+         void postSourceLumi();
+
+         void preSourceRun();
+         void postSourceRun();
+
+         void preSourceFile();
+         void postSourceFile();
+         
+         void prePathBeginRun(std::string const& s);
+         void postPathBeginRun(std::string const& s, HLTPathStatus const& hlt);
+
+         void prePathBeginLumi(std::string const& s);
+         void postPathBeginLumi(std::string const& s, HLTPathStatus const& hlt);
+
+         void prePathEvent(std::string const& s);
+         void postPathEvent(std::string const& s, HLTPathStatus const& hlt);
+
+         void prePathEndLumi(std::string const& s);
+         void postPathEndLumi(std::string const& s, HLTPathStatus const& hlt);
+
+         void prePathEndRun(std::string const& s);
+         void postPathEndRun(std::string const& s, HLTPathStatus const& hlt);
+
 private:
          std::string indention_;
          unsigned int depth_;
@@ -65,7 +114,5 @@ private:
       };
    }
 }
-
-
-
+   
 #endif

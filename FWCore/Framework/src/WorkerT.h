@@ -5,7 +5,7 @@
   
 WorkerT: Code common to all workers.
 
-$Id: WorkerT.h,v 1.1 2008/01/13 01:12:35 wmtan Exp $
+$Id: WorkerT.h,v 1.2 2008/01/15 06:52:00 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,14 +44,17 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDoWork(EventPrincipal& ep, EventSetup const& c,
-                            BranchActionType,
+    virtual bool implDoBegin(EventPrincipal& ep, EventSetup const& c,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoWork(RunPrincipal& rp, EventSetup const& c,
-                            BranchActionType bat,
+    virtual bool implDoEnd(EventPrincipal& ep, EventSetup const& c,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                            BranchActionType bat,
+    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+                            CurrentProcessingContext const* cpc);
+    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+                            CurrentProcessingContext const* cpc);
+    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+                            CurrentProcessingContext const* cpc);
+    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                             CurrentProcessingContext const* cpc);
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
@@ -82,30 +85,44 @@ namespace edm {
 
   template <typename T>
   bool 
-  WorkerT<T>::implDoWork(EventPrincipal& ep, EventSetup const& c,
-			   BranchActionType bat,
+  WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c,
 			   CurrentProcessingContext const* cpc) {
     return module_->doEvent(ep, c, cpc);
   }
 
   template <typename T>
-  bool
-  WorkerT<T>::implDoWork(RunPrincipal& rp, EventSetup const& c,
-			   BranchActionType bat,
-			   CurrentProcessingContext const* cpc) {
-    return (bat == BranchActionBegin ?
-	module_->doBeginRun(rp, c, cpc) :
-	module_->doEndRun(rp, c, cpc));
+  bool 
+  WorkerT<T>::implDoEnd(EventPrincipal& , EventSetup const& ,
+			   CurrentProcessingContext const*) {
+    return false;
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			   BranchActionType bat,
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c,
 			   CurrentProcessingContext const* cpc) {
-    return (bat == BranchActionBegin ?
-	module_->doBeginLuminosityBlock(lbp, c, cpc) :
-	module_->doEndLuminosityBlock(lbp, c, cpc));
+    return module_->doBeginRun(rp, c, cpc);
+  }
+
+  template <typename T>
+  bool
+  WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c,
+			   CurrentProcessingContext const* cpc) {
+    return module_->doEndRun(rp, c, cpc);
+  }
+
+  template <typename T>
+  bool
+  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			   CurrentProcessingContext const* cpc) {
+    return module_->doBeginLuminosityBlock(lbp, c, cpc);
+  }
+
+  template <typename T>
+  bool
+  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			   CurrentProcessingContext const* cpc) {
+    return module_->doEndLuminosityBlock(lbp, c, cpc);
   }
 
   template <typename T>

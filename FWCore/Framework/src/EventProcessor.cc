@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
@@ -63,18 +64,6 @@ namespace edm {
     private:
       EventProcessor* ep_;
       bool success_;
-    };
-
-    class PrePostSourceSignal {
-    public:
-      PrePostSourceSignal(EventProcessor* ep): ep_(ep) { 
-        ep_->preSourceSignal();
-      }
-      ~PrePostSourceSignal() {
-        ep_->postSourceSignal();        
-      }    
-    private:
-      EventProcessor* ep_;
     };
   }
 
@@ -222,7 +211,7 @@ namespace edm {
   makeInput(ParameterSet const& params,
 	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
-            ActivityRegistry& areg)
+            boost::shared_ptr<ActivityRegistry> areg)
   {
     // find single source
     bool sourceSpecified = false;
@@ -244,10 +233,10 @@ namespace edm {
 				params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, common.maxEventsInput_, common.maxLumisInput_);
-      areg.preSourceConstructionSignal_(md);
+      InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
+      areg->preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
-      areg.postSourceConstructionSignal_(md);
+      areg->postSourceConstructionSignal_(md);
       
       return input;
     } 
@@ -450,7 +439,6 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false)
   {
@@ -488,7 +476,6 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false)
   {
@@ -526,7 +513,6 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false)
   {
@@ -561,7 +547,6 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false)
   {
@@ -644,7 +629,7 @@ namespace edm {
     looper_ = fillLooper(*esp_, *parameterSet, common);
     if (looper_) looper_->setActionTable(&act_table_);
     
-    input_= makeInput(*parameterSet, common, preg_, *actReg_);
+    input_= makeInput(*parameterSet, common, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
@@ -693,32 +678,6 @@ namespace edm {
     actReg_.reset();
   }
 
-  namespace {
-    class CallPrePost {
-    public:
-      CallPrePost(ActivityRegistry& a): a_(&a) { 
-        a_->preSourceSignal_(); }
-      ~CallPrePost() { 
-        a_->postSourceSignal_();
-      }
-    
-    private:
-      ActivityRegistry* a_;
-    }; 
-  }
-
-  void
-  EventProcessor::preSourceSignal() {
-    actReg_->preSourceSignal_();
-    sourceActive_ = true;
-  }
-
-  void
-  EventProcessor::postSourceSignal() {
-    if (sourceActive_) actReg_->postSourceSignal_();
-    sourceActive_ = false;    
-  }
-
   void
   EventProcessor::rewind()
   {
@@ -732,7 +691,6 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
       
       {
-        // CallPrePost holder(*actReg_);
 	input_->repeat();
         input_->rewind();
       }
@@ -746,7 +704,6 @@ namespace edm {
   EventProcessor::doOneEvent(EventID const& id) {
     std::auto_ptr<EventPrincipal> pep;
     {
-      CallPrePost holder(*actReg_);
       pep = input_->readEvent(id);
     }
     procOneEvent(pep.get());
@@ -758,7 +715,7 @@ namespace edm {
     if(0 != pep) {
       IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->runOneEvent(*pep, es, BranchActionEvent);
+      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
     }
   }
 
@@ -802,7 +759,6 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
       
       {
-        // CallPrePost holder(*actReg_);
         input_->skipEvents(numberToSkip);
       }
       changeState(mCountComplete);
@@ -1309,7 +1265,6 @@ namespace edm {
 
       while (true) {
 
-        PrePostSourceSignal sentry(this);
         itemType = input_->nextItemType();
 
         FDEBUG(1) << "itemType = " << itemType << "\n";
@@ -1350,7 +1305,6 @@ namespace edm {
         }
 
         if (itemType == InputSource::IsStop) {
-          postSourceSignal();
           machine_->process_event(statemachine::Stop());
         }
         else if (itemType == InputSource::IsFile) {
@@ -1493,7 +1447,6 @@ namespace edm {
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
-    postSourceSignal();
   }
 
   void EventProcessor::closeInputFile() {
@@ -1603,7 +1556,7 @@ namespace edm {
                     0,
                     runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(runPrincipal, es, BranchActionBegin);
+    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
     FDEBUG(1) << "\tbeginRun " << run << "\n";
   }
 
@@ -1614,7 +1567,7 @@ namespace edm {
                     LuminosityBlockID::maxLuminosityBlockNumber(),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(runPrincipal, es, BranchActionEnd);
+    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal, es);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
 
@@ -1624,7 +1577,7 @@ namespace edm {
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(lumiPrincipal, es, BranchActionBegin);
+    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal, es);
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
@@ -1637,20 +1590,18 @@ namespace edm {
                     lumiPrincipal.luminosityBlock(),
                     lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(lumiPrincipal, es, BranchActionEnd);
+    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal, es);
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
   int EventProcessor::readAndCacheRun() {
     principalCache_.insert(input_->readRun());
-    postSourceSignal();
     FDEBUG(1) << "\treadAndCacheRun " << "\n";
     return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheLumi() {
     principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
-    postSourceSignal();
     FDEBUG(1) << "\treadAndCacheLumi " << "\n";
     return principalCache_.lumiPrincipal().luminosityBlock();
   }
@@ -1677,14 +1628,13 @@ namespace edm {
 
   void EventProcessor::readEvent() {
     sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
-    postSourceSignal();
     FDEBUG(1) << "\treadEvent\n";
   }
 
   void EventProcessor::processEvent() {
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->luminosityBlock(), sm_evp_->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
+    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_, es);
  
     if (looper_) {
       EDLooper::Status status = looper_->doDuringLoop(*sm_evp_, esp_->eventSetup());

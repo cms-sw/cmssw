@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.12 2007/02/14 20:45:12 wdd Exp $
+// $Id: ActivityRegistry.cc,v 1.13 2007/11/07 05:06:41 wmtan Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@
 //{
 //}
    
-// ActivityRegistry::ActivityRegistry(const ActivityRegistry& rhs)
+// ActivityRegistry::ActivityRegistry(ActivityRegistry const& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,7 +45,7 @@
 //
 // assignment operators
 //
-// const ActivityRegistry& ActivityRegistry::operator=(const ActivityRegistry& rhs)
+// ActivityRegistry const& ActivityRegistry::operator=(ActivityRegistry const& rhs)
 // {
 //   //An exception safe implementation is
 //   ActivityRegistry temp(rhs);
@@ -66,16 +66,58 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    jobFailureSignal_.connect(iOther.jobFailureSignal_);
 
    preSourceSignal_.connect(iOther.preSourceSignal_);
+   preSourceLumiSignal_.connect(iOther.preSourceLumiSignal_);
+   preSourceRunSignal_.connect(iOther.preSourceRunSignal_);
+   preSourceFileSignal_.connect(iOther.preSourceFileSignal_);
    postSourceSignal_.connect(iOther.postSourceSignal_);
+   postSourceLumiSignal_.connect(iOther.postSourceLumiSignal_);
+   postSourceRunSignal_.connect(iOther.postSourceRunSignal_);
+   postSourceFileSignal_.connect(iOther.postSourceFileSignal_);
    
    preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
    postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
 
+   preBeginRunSignal_.connect(iOther.preBeginRunSignal_);
+   postBeginRunSignal_.connect(iOther.postBeginRunSignal_);
+
+   preEndRunSignal_.connect(iOther.preEndRunSignal_);
+   postEndRunSignal_.connect(iOther.postEndRunSignal_);
+
+   preBeginLumiSignal_.connect(iOther.preBeginLumiSignal_);
+   postBeginLumiSignal_.connect(iOther.postBeginLumiSignal_);
+
+   preEndLumiSignal_.connect(iOther.preEndLumiSignal_);
+   postEndLumiSignal_.connect(iOther.postEndLumiSignal_);
+
    preProcessPathSignal_.connect(iOther.preProcessPathSignal_);
    postProcessPathSignal_.connect(iOther.postProcessPathSignal_);
 
+   prePathBeginRunSignal_.connect(iOther.prePathBeginRunSignal_);
+   postPathBeginRunSignal_.connect(iOther.postPathBeginRunSignal_);
+
+   prePathEndRunSignal_.connect(iOther.prePathEndRunSignal_);
+   postPathEndRunSignal_.connect(iOther.postPathEndRunSignal_);
+
+   prePathBeginLumiSignal_.connect(iOther.prePathBeginLumiSignal_);
+   postPathBeginLumiSignal_.connect(iOther.postPathBeginLumiSignal_);
+
+   prePathEndLumiSignal_.connect(iOther.prePathEndLumiSignal_);
+   postPathEndLumiSignal_.connect(iOther.postPathEndLumiSignal_);
+
    preModuleSignal_.connect(iOther.preModuleSignal_);
    postModuleSignal_.connect(iOther.postModuleSignal_);
+
+   preModuleBeginRunSignal_.connect(iOther.preModuleBeginRunSignal_);
+   postModuleBeginRunSignal_.connect(iOther.postModuleBeginRunSignal_);
+
+   preModuleEndRunSignal_.connect(iOther.preModuleEndRunSignal_);
+   postModuleEndRunSignal_.connect(iOther.postModuleEndRunSignal_);
+
+   preModuleBeginLumiSignal_.connect(iOther.preModuleBeginLumiSignal_);
+   postModuleBeginLumiSignal_.connect(iOther.postModuleBeginLumiSignal_);
+
+   preModuleEndLumiSignal_.connect(iOther.preModuleEndLumiSignal_);
+   postModuleEndLumiSignal_.connect(iOther.postModuleEndLumiSignal_);
 
    preModuleConstructionSignal_.connect(iOther.preModuleConstructionSignal_);
    postModuleConstructionSignal_.connect(iOther.postModuleConstructionSignal_);
@@ -141,16 +183,58 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFromReverse(jobFailureSignal_,iOther.jobFailureSignal_);
   
   copySlotsToFrom(preSourceSignal_,iOther.preSourceSignal_);
+  copySlotsToFrom(preSourceLumiSignal_,iOther.preSourceLumiSignal_);
+  copySlotsToFrom(preSourceRunSignal_,iOther.preSourceRunSignal_);
+  copySlotsToFrom(preSourceFileSignal_,iOther.preSourceFileSignal_);
   copySlotsToFromReverse(postSourceSignal_,iOther.postSourceSignal_);
+  copySlotsToFromReverse(postSourceLumiSignal_,iOther.postSourceLumiSignal_);
+  copySlotsToFromReverse(postSourceRunSignal_,iOther.postSourceRunSignal_);
+  copySlotsToFromReverse(postSourceFileSignal_,iOther.postSourceFileSignal_);
   
   copySlotsToFrom(preProcessEventSignal_,iOther.preProcessEventSignal_);
   copySlotsToFromReverse(postProcessEventSignal_,iOther.postProcessEventSignal_);
   
+  copySlotsToFrom(preBeginRunSignal_,iOther.preBeginRunSignal_);
+  copySlotsToFromReverse(postBeginRunSignal_,iOther.postBeginRunSignal_);
+
+  copySlotsToFrom(preEndRunSignal_,iOther.preEndRunSignal_);
+  copySlotsToFromReverse(postEndRunSignal_,iOther.postEndRunSignal_);
+
+  copySlotsToFrom(preBeginLumiSignal_,iOther.preBeginLumiSignal_);
+  copySlotsToFromReverse(postBeginLumiSignal_,iOther.postBeginLumiSignal_);
+
+  copySlotsToFrom(preEndLumiSignal_,iOther.preEndLumiSignal_);
+  copySlotsToFromReverse(postEndLumiSignal_,iOther.postEndLumiSignal_);
+
   copySlotsToFrom(preProcessPathSignal_,iOther.preProcessPathSignal_);
   copySlotsToFromReverse(postProcessPathSignal_,iOther.postProcessPathSignal_);
 
+  copySlotsToFrom(prePathBeginRunSignal_,iOther.prePathBeginRunSignal_);
+  copySlotsToFromReverse(postPathBeginRunSignal_,iOther.postPathBeginRunSignal_);
+
+  copySlotsToFrom(prePathEndRunSignal_,iOther.prePathEndRunSignal_);
+  copySlotsToFromReverse(postPathEndRunSignal_,iOther.postPathEndRunSignal_);
+
+  copySlotsToFrom(prePathBeginLumiSignal_,iOther.prePathBeginLumiSignal_);
+  copySlotsToFromReverse(postPathBeginLumiSignal_,iOther.postPathBeginLumiSignal_);
+
+  copySlotsToFrom(prePathEndLumiSignal_,iOther.prePathEndLumiSignal_);
+  copySlotsToFromReverse(postPathEndLumiSignal_,iOther.postPathEndLumiSignal_);
+
   copySlotsToFrom(preModuleSignal_,iOther.preModuleSignal_);
   copySlotsToFromReverse(postModuleSignal_,iOther.postModuleSignal_);
+  
+  copySlotsToFrom(preModuleBeginRunSignal_,iOther.preModuleBeginRunSignal_);
+  copySlotsToFromReverse(postModuleBeginRunSignal_,iOther.postModuleBeginRunSignal_);
+  
+  copySlotsToFrom(preModuleEndRunSignal_,iOther.preModuleEndRunSignal_);
+  copySlotsToFromReverse(postModuleEndRunSignal_,iOther.postModuleEndRunSignal_);
+  
+  copySlotsToFrom(preModuleBeginLumiSignal_,iOther.preModuleBeginLumiSignal_);
+  copySlotsToFromReverse(postModuleBeginLumiSignal_,iOther.postModuleBeginLumiSignal_);
+  
+  copySlotsToFrom(preModuleEndLumiSignal_,iOther.preModuleEndLumiSignal_);
+  copySlotsToFromReverse(postModuleEndLumiSignal_,iOther.postModuleEndLumiSignal_);
   
   copySlotsToFrom(preModuleConstructionSignal_,iOther.preModuleConstructionSignal_);
   copySlotsToFromReverse(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);

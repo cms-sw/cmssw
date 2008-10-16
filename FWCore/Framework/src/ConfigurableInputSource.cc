@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.38 2008/07/03 04:32:54 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.39 2008/07/31 23:17:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -89,6 +89,7 @@ namespace edm {
   void
   ConfigurableInputSource::reallyReadEvent(LuminosityBlockNumber_t lumi) {
     if (processingMode() != RunsLumisAndEvents) return;
+    EventSourceSentry sentry(*this);
     EventAuxiliary eventAux(eventID_,
       processGUID(), Timestamp(presentTime_), lumi, isRealData_, eType_);
     std::auto_ptr<EventPrincipal> result(

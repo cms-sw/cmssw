@@ -1,56 +1,42 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.27 2008/01/11 20:30:09 wmtan Exp $
+$Id: Worker.cc,v 1.28 2008/10/08 22:34:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
 
 namespace edm {
   namespace {
-    class CallPrePostBeginJob {
+    class ModuleBeginJobSignalSentry {
 public:
-      CallPrePostBeginJob(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md) {
-        (*(s_->preModuleBeginJobSignal))(*md_);
+      ModuleBeginJobSignalSentry(ActivityRegistry* a, ModuleDescription& md):a_(a), md_(&md) {
+        if(a_) a_->preModuleBeginJobSignal_(*md_);
       }
-      ~CallPrePostBeginJob() {
-        (*(s_->postModuleBeginJobSignal))(*md_);
+      ~ModuleBeginJobSignalSentry() {
+        if(a_) a_->postModuleBeginJobSignal_(*md_);
       }
 private:
-      Worker::Sigs* s_;
+      ActivityRegistry* a_;
       ModuleDescription* md_;
     };
 
-    class CallPrePostEndJob {
+    class ModuleEndJobSignalSentry {
 public:
-      CallPrePostEndJob(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md) {
-        (*(s_->preModuleEndJobSignal))(*md_);
+      ModuleEndJobSignalSentry(ActivityRegistry* a, ModuleDescription& md):a_(a), md_(&md) {
+        if(a_) a_->preModuleEndJobSignal_(*md_);
       }
-      ~CallPrePostEndJob() {
-        (*(s_->postModuleEndJobSignal))(*md_);
+      ~ModuleEndJobSignalSentry() {
+        if(a_) a_->postModuleEndJobSignal_(*md_);
       }
 private:
-      Worker::Sigs* s_;
+      ActivityRegistry* a_;
       ModuleDescription* md_;
     };
     
   }
 
-  static ActivityRegistry::PreModule defaultPreModuleSignal;
-  static ActivityRegistry::PostModule defaultPostModuleSignal;
-  static ActivityRegistry::PreModuleBeginJob defaultPreModuleBeginJobSignal;
-  static ActivityRegistry::PostModuleBeginJob defaultPostModuleBeginJobSignal;
-  static ActivityRegistry::PreModuleEndJob defaultPreModuleEndJobSignal;
-  static ActivityRegistry::PostModuleEndJob defaultPostModuleEndJobSignal;
-  
-  Worker::Sigs::Sigs() : preModuleSignal( &defaultPreModuleSignal ),
-    postModuleSignal( &defaultPostModuleSignal ),
-    preModuleBeginJobSignal(&defaultPreModuleBeginJobSignal),
-    postModuleBeginJobSignal(&defaultPostModuleBeginJobSignal),
-    preModuleEndJobSignal(&defaultPreModuleEndJobSignal),
-    postModuleEndJobSignal(&defaultPostModuleEndJobSignal){}
-  
   Worker::Worker(ModuleDescription const& iMD, 
-		 WorkerParams const& iWP):
+		 WorkerParams const& iWP) :
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
     timesVisited_(),
@@ -61,31 +47,21 @@ private:
     md_(iMD),
     actions_(iWP.actions_),
     cached_exception_(),
-    sigs_()
+    actReg_()
   {
   }
 
   Worker::~Worker() {
   }
 
-  void Worker::connect(ActivityRegistry::PreModule& pre,
-		       ActivityRegistry::PostModule& post,
-                       ActivityRegistry::PreModuleBeginJob& preBJ,
-                       ActivityRegistry::PostModuleBeginJob& postBJ,
-                       ActivityRegistry::PreModuleEndJob& preEJ,
-                       ActivityRegistry::PostModuleEndJob& postEJ) {
-    sigs_.preModuleSignal= &pre;
-    sigs_.postModuleSignal= &post;
-    sigs_.preModuleBeginJobSignal = &preBJ;
-    sigs_.postModuleBeginJobSignal = &postBJ;
-    sigs_.preModuleEndJobSignal = &preEJ;
-    sigs_.postModuleEndJobSignal = &postEJ;
+  void Worker::setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg) {
+    actReg_ = areg;
   }
 
   void Worker::beginJob(EventSetup const& es) {
     
     try {
-        CallPrePostBeginJob cpp(sigs_,md_);
+        ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
 	implBeginJob(es);
     }
     catch(cms::Exception& e) {
@@ -137,7 +113,7 @@ private:
   
   void Worker::endJob() {
     try {
-        CallPrePostEndJob cpp(sigs_,md_);
+        ModuleEndJobSignalSentry cpp(actReg_.get(), md_);
 	implEndJob();
     }
     catch(cms::Exception& e) {

@@ -81,6 +81,7 @@
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
 
@@ -110,7 +111,6 @@ namespace edm {
     typedef std::vector<Path> NonTrigPaths;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
-    typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
     typedef std::vector<Worker*> AllWorkers;
     typedef std::vector<OutputWorker*> AllOutputWorkers;
 
@@ -123,14 +123,13 @@ namespace edm {
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
-	     ActivityRegistryPtr areg);
+	     boost::shared_ptr<ActivityRegistry> areg);
 
     enum State { Ready=0, Running, Latched };
 
     template <typename T>
-    void runOneEvent(T& principal, 
-		     EventSetup const& eventSetup,
-		     BranchActionType const& branchActionType);
+    void processOneOccurrence(typename T::MyPrincipal& principal, 
+		     EventSetup const& eventSetup);
 
     void beginJob(EventSetup const&);
     void endJob();
@@ -216,22 +215,6 @@ namespace edm {
     ///  Clear all the counters in the trigger report.
     void clearCounters();
 
-    class CallPrePost {
-    public:
-      CallPrePost(ActivityRegistry* a, EventPrincipal* ep, EventSetup const* es);
-      CallPrePost(ActivityRegistry* a, LuminosityBlockPrincipal* ep, EventSetup const* es) :
-        a_(0), ep_(0), es_(0) {}
-      CallPrePost(ActivityRegistry* a, RunPrincipal* ep, EventSetup const* es) :
-        a_(0), ep_(0), es_(0) {}
-      ~CallPrePost(); 
-
-    private:
-      // We own none of these resources.
-      ActivityRegistry*  a_;
-      EventPrincipal*    ep_;
-      EventSetup const*  es_;
-    };
-
   private:
     AllWorkers::const_iterator workersBegin() const 
     { return all_workers_.begin(); }
@@ -248,10 +231,10 @@ namespace edm {
     void resetAll();
 
     template <typename T>
-    bool runTriggerPaths(T&, EventSetup const&, BranchActionType const&);
+    bool runTriggerPaths(typename T::MyPrincipal &, EventSetup const&);
 
     template <typename T>
-    void runEndPaths(T&, EventSetup const&, BranchActionType const&);
+    void runEndPaths(typename T::MyPrincipal &, EventSetup const&);
 
     void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
@@ -272,7 +255,7 @@ namespace edm {
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
     std::string         processName_;
-    ActivityRegistryPtr act_reg_;
+    boost::shared_ptr<ActivityRegistry> actReg_;
 
     State state_;
     vstring trig_name_list_;
@@ -298,24 +281,43 @@ namespace edm {
     volatile bool       endpathsAreActive_;
   };
 
+  namespace {
+    template <typename T>
+    class ScheduleSignalSentry {
+    public:
+      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep, EventSetup const* es) :
+           a_(a),ep_(ep),es_(es) {
+        if (a_) T::preScheduleSignal(a_, ep_);
+      }
+      ~ScheduleSignalSentry() {
+        if (a_) if (ep_) T::postScheduleSignal(a_, ep_, es_);
+      }
+
+    private:
+      // We own none of these resources.
+      ActivityRegistry* a_;
+      typename T::MyPrincipal*  ep_;
+      EventSetup const* es_;
+    };
+  }
+
   // -----------------------------
-  // run_one_event is a functor that has bound a specific
+  // ProcessOneOccurrence is a functor that has bound a specific
   // Principal and Event Setup, and can be called with a Path, to
-  // execute Path::runOneEvent for that event
+  // execute Path::processOneOccurrence for that event
     
   template <typename T>
-  class run_one_event {
+  class ProcessOneOccurrence {
   public:
     typedef void result_type;
-    run_one_event(T& principal, EventSetup const& setup, BranchActionType const& branchActionType) :
-      ep(principal), es(setup), bat(branchActionType) {};
+    ProcessOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& setup) :
+      ep(principal), es(setup) {};
 
-      void operator()(Path& p) {p.runOneEvent(ep, es, bat);}
+      void operator()(Path& p) {p.processOneOccurrence<T>(ep, es);}
 
   private:      
-    T&   ep;
+    typename T::MyPrincipal&   ep;
     EventSetup const& es;
-    BranchActionType const& bat;
   };
 
   class UnscheduledCallProducer : public UnscheduledHandler {
@@ -335,7 +337,7 @@ namespace edm {
 	  // Unscheduled reconstruction has no accepted definition
 	  // (yet) of the "current path". We indicate this by passing
 	  // a null pointer as the CurrentProcessingContext.
-	  itFound->second->doWork(event, eventSetup, BranchActionEvent, 0);
+	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, 0);
 	  return true;
       }
       return false;
@@ -352,36 +354,32 @@ namespace edm {
   
   template <typename T>
   void
-  Schedule::runOneEvent(T& ep, EventSetup const& es, BranchActionType const& bat) {
+  Schedule::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es) {
     this->resetAll();
     state_ = Running;
 
-    bool const isEvent = (bat == BranchActionEvent);
-
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
+    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
-    if (isEvent) {
+    if (T::isEvent_) {
       ++total_events_;
       setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep), es);
     }
     try {
-      //If the CallPrePost object is used, it must live for the entire time the event is
+      //If the ScheduleSignalSentry object is used, it must live for the entire time the event is
       // being processed
-      std::auto_ptr<CallPrePost> sentry;
+      std::auto_ptr<ScheduleSignalSentry<T> > sentry;
       try {
-        if (isEvent) {
- 	  sentry = std::auto_ptr<CallPrePost>(new CallPrePost(act_reg_.get(), &ep, &es));
-        }
-        if (runTriggerPaths(ep, es, bat)) {
-	  if (isEvent) ++total_passed_;
+ 	sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep, &es));
+        if (runTriggerPaths<T>(ep, es)) {
+	  if (T::isEvent_) ++total_passed_;
         }
         state_ = Latched;
 	
-        if (results_inserter_.get()) results_inserter_->doWork(ep, es, bat, 0);
+        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
       }
       catch(cms::Exception& e) {
-        actions::ActionCodes action = (isEvent ? act_table_->find(e.rootCause()) : actions::Rethrow);
+        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
         assert (action != actions::IgnoreCompletely);
         assert (action != actions::FailPath);
         assert (action != actions::FailModule);
@@ -394,10 +392,10 @@ namespace edm {
         }
       }
 
-      if (endpathsAreActive_) runEndPaths(ep, es, bat);
+      if (endpathsAreActive_) runEndPaths<T>(ep, es);
     }
     catch(cms::Exception& ex) {
-      actions::ActionCodes action = (isEvent ? act_table_->find(ex.rootCause()) : actions::Rethrow);
+      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.rootCause()) : actions::Rethrow);
       assert (action != actions::SkipEvent);
       assert (action != actions::FailPath);
       assert (action != actions::FailModule);
@@ -430,26 +428,26 @@ namespace edm {
 
   template <typename T>
   bool
-  Schedule::runTriggerPaths(T& ep, EventSetup const& es, BranchActionType const& bat) {
-    for_all(trig_paths_, run_one_event<T>(ep, es, bat));
+  Schedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
+    for_all(trig_paths_, ProcessOneOccurrence<T>(ep, es));
     return results_->accept();
   }
 
   template <typename T>
   void
-  Schedule::runEndPaths(T& ep, EventSetup const& es, BranchActionType const& bat) {
+  Schedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_all(end_paths_, run_one_event<T>(ep, es, bat));
+    for_all(end_paths_, ProcessOneOccurrence<T>(ep, es));
 
-    // We could get rid of the functor run_one_event if we used
+    // We could get rid of the functor ProcessOneOccurrence if we used
     // boost::lambda, but the use of lambda with member functions
     // which take multiple arguments, by both non-const and const
     // reference, seems much more obscure...
     //
     // using namespace boost::lambda;
     // for_all(end_paths_,
-    //          bind(&Path::runOneEvent, 
+    //          bind(&Path::processOneOccurrence, 
     //               boost::lambda::_1, // qualification to avoid ambiguity
     //               var(ep),           //  pass by reference (not copy)
     //               constant_ref(es))); // pass by const-reference (not copy)

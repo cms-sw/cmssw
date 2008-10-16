@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.33 2008/01/15 06:52:00 wmtan Exp $
+$Id: Worker.h,v 1.34 2008/10/08 22:34:14 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -29,6 +29,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -47,8 +48,7 @@ namespace edm {
     virtual ~Worker();
 
     template <typename T>
-    bool doWork(T&, EventSetup const& c,
-		BranchActionType const& bat,
+    bool doWork(typename T::MyPrincipal&, EventSetup const& c,
 		CurrentProcessingContext const* cpc);
     void beginJob(EventSetup const&) ;
     void endJob();
@@ -61,14 +61,9 @@ namespace edm {
     
     ModuleDescription const& description() const {return md_;}
     ModuleDescription const* descPtr() const {return &md_; }
-    ///The signals passed in are required to live longer than the last call to 'doWork'
+    ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
-    void connect(ActivityRegistry::PreModule&,
-                 ActivityRegistry::PostModule&,
-                 ActivityRegistry::PreModuleBeginJob&,
-                 ActivityRegistry::PostModuleBeginJob&,
-                 ActivityRegistry::PreModuleEndJob&,
-                 ActivityRegistry::PostModuleEndJob&);
+    void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
@@ -85,42 +80,21 @@ namespace edm {
     int timesExcept() const { return timesExcept_; }
     State state() const { return state_; }
    
-    struct Sigs {
-      Sigs();
-      ActivityRegistry::PreModule* preModuleSignal;
-      ActivityRegistry::PostModule* postModuleSignal;
-      ActivityRegistry::PreModuleBeginJob* preModuleBeginJobSignal;
-      ActivityRegistry::PostModuleBeginJob* postModuleBeginJobSignal;
-      ActivityRegistry::PreModuleEndJob* preModuleEndJobSignal;
-      ActivityRegistry::PostModuleEndJob* postModuleEndJobSignal;
-    };
-
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
-    class CallPrePost {
-    public:
-      CallPrePost(EventPrincipal const& , Worker::Sigs& s, ModuleDescription& md) : s_(&s), md_(&md) {
-	(*(s_->preModuleSignal))(*md_);
-      }
-      CallPrePost(LuminosityBlockPrincipal const& , Worker::Sigs&, ModuleDescription& md) : s_(0), md_(&md) {}
-      CallPrePost(RunPrincipal const& , Worker::Sigs&, ModuleDescription& md):s_(0),md_(&md) {}
-      ~CallPrePost() {
-	if (s_ != 0) (*(s_->postModuleSignal))(*md_);
-      }
-    private:
-      Worker::Sigs* s_;
-      ModuleDescription* md_;
-    };
   protected:
     virtual std::string workerType() const = 0;
-    virtual bool implDoWork(EventPrincipal&, EventSetup const& c, 
-			    BranchActionType bat,
+    virtual bool implDoBegin(EventPrincipal&, EventSetup const& c, 
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoWork(RunPrincipal& rp, EventSetup const& c,
-			    BranchActionType bat,
+    virtual bool implDoEnd(EventPrincipal&, EventSetup const& c, 
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			    BranchActionType bat,
+    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			    CurrentProcessingContext const* cpc) = 0;
+    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob(EventSetup const&) = 0;
     virtual void implEndJob() = 0;
@@ -144,10 +118,24 @@ namespace edm {
     ActionTable const* actions_; // memory assumed to be managed elsewhere
     boost::shared_ptr<edm::Exception> cached_exception_; // if state is 'exception'
 
-    Sigs sigs_;
+    boost::shared_ptr<ActivityRegistry> actReg_;
   };
 
   namespace {
+    template <typename T>
+    class ModuleSignalSentry {
+    public:
+      ModuleSignalSentry(ActivityRegistry *a, ModuleDescription& md) : a_(a), md_(&md) {
+	if(a_) T::preModuleSignal(a_, md_);
+      }
+      ~ModuleSignalSentry() {
+	if(a_) T::postModuleSignal(a_, md_);
+      }
+    private:
+      ActivityRegistry* a_;
+      ModuleDescription* md_;
+    };
+
     template <typename T>
     cms::Exception& exceptionContext(ModuleDescription const& iMD,
 				     T const& ip,
@@ -159,16 +147,13 @@ namespace edm {
   }
 
    template <typename T>
-   bool Worker::doWork(T& ep, EventSetup const& es,
-		      BranchActionType const& bat,
+   bool Worker::doWork(typename T::MyPrincipal& ep, EventSetup const& es,
 		      CurrentProcessingContext const* cpc) {
 
-    bool const isEvent = (bat == BranchActionEvent);
-
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
+    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
-    if (isEvent) {
+    if (T::isEvent_) {
       ++timesVisited_;
     }
     bool rc = false;
@@ -193,19 +178,23 @@ namespace edm {
       }
     }
 
-    if (isEvent) ++timesRun_;
+    if (T::isEvent_) ++timesRun_;
 
     try {
 
-	CallPrePost cpp(ep, sigs_, md_);
-	rc = implDoWork(ep, es, bat, cpc);
+	ModuleSignalSentry<T> cpp(actReg_.get(), md_);
+	if (T::begin_) {
+	  rc = implDoBegin(ep, es, cpc);
+	} else {
+	  rc = implDoEnd(ep, es, cpc);
+        }
 
 	if (rc) {
 	  state_ = Pass;
-	  if (isEvent) ++timesPassed_;
+	  if (T::isEvent_) ++timesPassed_;
 	} else {
 	  state_ = Fail;
-	  if (isEvent) ++timesFailed_;
+	  if (T::isEvent_) ++timesFailed_;
 	}
     }
 
@@ -217,7 +206,7 @@ namespace edm {
 
 	// Get the action corresponding to this exception.  However, if processing
 	// something other than an event (e.g. run, lumi) always rethrow.
-	actions::ActionCodes action = (isEvent ? actions_->find(e.rootCause()) : actions::Rethrow);
+	actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
 
 	// If we are processing an endpath, treat SkipEvent or FailPath
 	// as FailModule, so any subsequent OutputModules are still run.
@@ -257,7 +246,7 @@ namespace edm {
 	      // it as something else and embedded with this exception
 	      // as an argument to the constructor.
 
-	      if (isEvent) ++timesExcept_;
+	      if (T::isEvent_) ++timesExcept_;
 	      state_ = Exception;
 	      e << "cms::Exception going through module ";
               exceptionContext(md_, ep, e);
@@ -273,7 +262,7 @@ namespace edm {
       }
     
     catch(std::bad_alloc& bda) {
-	if (isEvent) ++timesExcept_;
+	if (T::isEvent_) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::BadAlloc));
 	*cached_exception_
@@ -283,7 +272,7 @@ namespace edm {
 	throw *cached_exception_;
     }
     catch(std::exception& e) {
-	if (isEvent) ++timesExcept_;
+	if (T::isEvent_) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::StdException));
 	*cached_exception_
@@ -293,7 +282,7 @@ namespace edm {
 	throw *cached_exception_;
     }
     catch(std::string& s) {
-	if (isEvent) ++timesExcept_;
+	if (T::isEvent_) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
 	*cached_exception_
@@ -303,7 +292,7 @@ namespace edm {
 	throw *cached_exception_;
     }
     catch(char const* c) {
-	if (isEvent) ++timesExcept_;
+	if (T::isEvent_) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
 	*cached_exception_
@@ -313,7 +302,7 @@ namespace edm {
 	throw *cached_exception_;
     }
     catch(...) {
-	if (isEvent) ++timesExcept_;
+	if (T::isEvent_) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
 	*cached_exception_

@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.45 2008/06/19 19:12:50 wdd Exp $
+$Id: InputSource.h,v 1.46 2008/07/31 23:17:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,6 +47,7 @@ $Id: InputSource.h,v 1.45 2008/06/19 19:12:50 wdd Exp $
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
+#include "sigc++/signal.h"
 
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -57,6 +58,7 @@ $Id: InputSource.h,v 1.45 2008/06/19 19:12:50 wdd Exp $
 
 namespace edm {
   class ParameterSet;
+  class ActivityRegistry;
 
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
   public:
@@ -190,8 +192,48 @@ namespace edm {
     /// RunsLumisAndEvents (default), RunsAndLumis, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}
 
+    /// Accessor for Activity Registry
+    boost::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
+
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
+
+    class SourceSentry : private boost::noncopyable {
+    public:
+      typedef sigc::signal<void> Sig;
+      SourceSentry(Sig& pre, Sig& post);
+      ~SourceSentry();
+    private:
+      Sig& post_;
+    };
+
+    class EventSourceSentry {
+    public:
+      explicit EventSourceSentry(InputSource const& source);
+    private:
+      SourceSentry sentry_;
+    };
+
+    class LumiSourceSentry {
+    public:
+      explicit LumiSourceSentry(InputSource const& source);
+    private:
+      SourceSentry sentry_;
+    };
+
+    class RunSourceSentry {
+    public:
+      explicit RunSourceSentry(InputSource const& source);
+    private:
+      SourceSentry sentry_;
+    };
+
+    class FileSourceSentry {
+    public:
+      explicit FileSourceSentry(InputSource const& source);
+    private:
+      SourceSentry sentry_;
+    };
 
   protected:
     /// To set the current time, as seen by the input source
@@ -236,6 +278,7 @@ namespace edm {
 
   private:
 
+    boost::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int remainingEvents_;
     int maxLumis_;

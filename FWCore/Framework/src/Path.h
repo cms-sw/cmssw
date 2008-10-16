@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.15 2007/09/14 23:12:28 wmtan Exp $
+  $Id: Path.h,v 1.16 2007/11/12 23:57:57 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -16,6 +16,7 @@
 */
 
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "DataFormats/Common/interface/HLTenums.h"
@@ -33,23 +34,22 @@ namespace edm {
 
   class Path {
   public:
-    typedef edm::hlt::HLTState State;
+    typedef hlt::HLTState State;
 
     typedef std::vector<WorkerInPath> WorkersInPath;
     typedef WorkersInPath::size_type        size_type;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
-    typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
 
     Path(int bitpos, std::string const& path_name,
 	 WorkersInPath const& workers,
 	 TrigResPtr trptr,
 	 ParameterSet const& proc_pset,
 	 ActionTable& actions,
-	 ActivityRegistryPtr reg,
+	 boost::shared_ptr<ActivityRegistry> reg,
 	 bool isEndPath);
 
     template <typename T>
-    void runOneEvent(T&, EventSetup const&, BranchActionType const&);
+    void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&);
 
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return name_; }
@@ -90,7 +90,7 @@ namespace edm {
     int bitpos_;
     std::string name_;
     TrigResPtr trptr_;
-    ActivityRegistryPtr act_reg_;
+    boost::shared_ptr<ActivityRegistry> actReg_;
     ActionTable* act_table_;
 
     WorkersInPath workers_;
@@ -106,49 +106,44 @@ namespace edm {
   };
 
   namespace {
-    struct PathSignalSentry {
-      PathSignalSentry(std::string const& name,
-                         int const& nwrwue,
-                         edm::hlt::HLTState const& state,
-                         edm::Path::ActivityRegistryPtr areg ):
-      name_(name),
-      nwrwue_(nwrwue),
-      state_(state),
-      areg_(areg) {
-        areg_->preProcessPathSignal_(name_);
+    template <typename T>
+    class PathSignalSentry {
+    public:
+      PathSignalSentry(ActivityRegistry *a,
+                       std::string const& name,
+                       int const& nwrwue,
+                       hlt::HLTState const& state) :
+      a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
+	if (a_) T::prePathSignal(a_, name_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        areg_->postProcessPathSignal_(name_, status);
+	if(a_) T::postPathSignal(a_, name_, status);
       }
+    private:
+      ActivityRegistry* a_;
       std::string const& name_;
       int const& nwrwue_;
-      edm::hlt::HLTState const& state_;
-      edm::Path::ActivityRegistryPtr areg_;
+      hlt::HLTState const& state_;
     };
   }
 
   template <typename T>
-  void Path::runOneEvent(T& ep,
-	     EventSetup const& es,
-	     BranchActionType const& bat) {
-    bool const isEvent = (bat == BranchActionEvent);
+  void Path::processOneOccurrence(typename T::MyPrincipal& ep,
+	     EventSetup const& es) {
 
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
     int nwrwue = -1;
-    std::auto_ptr<PathSignalSentry> signaler(isEvent? new PathSignalSentry(name_,
-                                                                           nwrwue,
-                                                                           state_,
-                                                                           act_reg_) : 0 );
+    std::auto_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
                                                                            
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
+    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
-    if (isEvent) {
+    if (T::isEvent_) {
       ++timesRun_;
     }
-    state_ = edm::hlt::Ready;
+    state_ = hlt::Ready;
 
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
@@ -164,19 +159,19 @@ namespace edm {
       assert (static_cast<int>(idx) == nwrwue);
       try {
         cpc.activate(idx, i->getWorker()->descPtr());
-        should_continue = i->runWorker(ep, es, bat, &cpc);
+        should_continue = i->runWorker<T>(ep, es, &cpc);
       }
       catch(cms::Exception& e) {
         // handleWorkerFailure may throw a new exception.
-        should_continue = handleWorkerFailure(e, nwrwue, isEvent);
+        should_continue = handleWorkerFailure(e, nwrwue, T::isEvent_);
       }
       catch(...) {
-        recordUnknownException(nwrwue, isEvent);
+        recordUnknownException(nwrwue, T::isEvent_);
         throw;
       }
     }
-    updateCounters(should_continue, isEvent);
-    recordStatus(nwrwue, isEvent);
+    updateCounters(should_continue, T::isEvent_);
+    recordStatus(nwrwue, T::isEvent_);
   }
 
 }

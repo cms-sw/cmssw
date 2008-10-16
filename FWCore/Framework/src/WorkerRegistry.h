@@ -6,7 +6,7 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.8 2006/07/06 19:11:43 wmtan Exp $
+   \version $Id: WorkerRegistry.h,v 1.9 2007/03/04 06:10:25 wmtan Exp $
    \date 18 May 2005
 */
 
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
 
 #include <map>
 #include <string>
@@ -37,11 +38,10 @@ namespace edm {
      \date 18 May 200
   */
 
-  class WorkerRegistry {
+  class WorkerRegistry : private boost::noncopyable {
 
   public:
 
-    WorkerRegistry();
     explicit WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg);
     ~WorkerRegistry();
         
@@ -53,10 +53,6 @@ namespace edm {
     void clear();
     
   private:
-    // Disable Assignment and copy construction
-    WorkerRegistry(WorkerRegistry const&);         // not implemented
-    void operator=(WorkerRegistry const&) const;   // not implemented
-  
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
     std::string mangleWorkerParameters(ParameterSet const& parameterSet,
@@ -69,7 +65,7 @@ namespace edm {
 
     /// internal map of registered workers (owned). 
     WorkerMap m_workerMap;
-    boost::shared_ptr<ActivityRegistry> act_reg_;
+    boost::shared_ptr<ActivityRegistry> actReg_;
      
   }; // WorkerRegistry
 
