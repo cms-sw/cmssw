@@ -130,9 +130,9 @@ L1TdeGCT::beginJob(const edm::EventSetup&) {
       lbl.clear();
       lbl+=cLabel[j];lbl+="DEword"; 
       deword[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-      lbl.clear();
-      lbl+=cLabel[j];lbl+="Masked"; 
-      masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
+      //lbl.clear();
+      //lbl+=cLabel[j];lbl+="Masked"; 
+      //masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
     }
 
   }
@@ -165,7 +165,7 @@ L1TdeGCT::beginJob(const edm::EventSetup&) {
     dword  [i]->setAxisTitle("trigger data word bit");
     eword  [i]->setAxisTitle("trigger data word bit");
     deword [i]->setAxisTitle("trigger data word bit");
-    masked [i]->setAxisTitle("trigger data word bit");
+    //masked [i]->setAxisTitle("trigger data word bit");
   }
 
   for(int i=0; i<nGctColl_; i++) {
@@ -365,7 +365,7 @@ void
       if(dbits  [ibit]) dword[sid]->Fill(ibit,wei);
       if(ebits  [ibit]) eword[sid]->Fill(ibit,wei);
       if(debits [ibit])deword[sid]->Fill(ibit,wei);
-      if(dembits[ibit])masked[sid]->Fill(ibit,wei);
+      //if(dembits[ibit])masked[sid]->Fill(ibit,wei);
     }
     wei=1;
     

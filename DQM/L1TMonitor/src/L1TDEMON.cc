@@ -176,9 +176,9 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
       lbl.clear();
       lbl+=SystLabel[j];lbl+="deword"; 
       deword[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
-      lbl.clear();
-      lbl+=SystLabel[j];lbl+="masked"; 
-      masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
+      //lbl.clear();
+      //lbl+=SystLabel[j];lbl+="masked"; 
+      //masked[j] = dbe->book1D(lbl.data(),lbl.data(),nbit,0,nbit);
     }
   }
 
@@ -247,7 +247,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     dword  [i]->setAxisTitle("trigger data word bit");
     eword  [i]->setAxisTitle("trigger data word bit");
     deword [i]->setAxisTitle("trigger data word bit");
-    masked [i]->setAxisTitle("trigger data word bit");
+    //masked [i]->setAxisTitle("trigger data word bit");
   }
   for(int i=0; i<DEnsys; i++) {
     for(int j=0; j<DEnsys; j++) {
@@ -446,8 +446,9 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if(cid!=RCTrgn) continue;
     }
     if(sid==GCT) { 
-      //if(cid!=GCTem ) continue;
-      if(cid!=GCTjet) continue;
+      //GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
+      //skip jets for now
+      if(cid!=GCTisolaem && cid!=GCTnoisoem ) continue;
     }      
     if(sid==DTP) {
       //tbd cols:th,ph; plots per wheel
@@ -461,7 +462,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     if(sid==DTF || sid==RPC || sid==CTF || sid==RPC) { 
       //select mu regional cands only for dtf,ctf,rpc
-      if(cid!=MUrtf) continue;
+      //if(cid!=MUrtf) continue;
       //masking: gres dttf only -- I.Mikulec: lowest 16 bits only
       //if(sid==DTF) mask = 0xffff;
     }
@@ -517,7 +518,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if(dbits  [ibit]) dword[sid]->Fill(ibit,wei);
       if(ebits  [ibit]) eword[sid]->Fill(ibit,wei);
       if(debits [ibit])deword[sid]->Fill(ibit,wei);
-      if(dembits[ibit])masked[sid]->Fill(ibit,wei);
+      //if(dembits[ibit])masked[sid]->Fill(ibit,wei);
     }
 
     //exclude e-only cands (only data)
@@ -581,7 +582,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if(ddecbitv[i])  dword [GLT]->Fill(i,1);
       if(edecbitv[i])  eword [GLT]->Fill(i,1);
       if(dedecbitv[i]) deword[GLT]->Fill(i,1);
-      if(debitmaskv[i])masked[GLT]->Fill(i,1);
+      //if(debitmaskv[i])masked[GLT]->Fill(i,1);
     }
     
     std::vector<bool> detchbitv(w64,false);
