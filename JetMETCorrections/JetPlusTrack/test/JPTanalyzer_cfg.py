@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
-from RecoJets.JetProducers.iterativeCone5GenJetsNoNuBSM_cff import *
 
 process = cms.Process("RECO3")
 
@@ -28,19 +27,18 @@ process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
 
-process.load("RecoJets.JetProducers.iterativeCone5GenJetsNoNuBSM_cff")
+# build gen jet without neutrinos
+process.load("RecoJets.Configuration.GenJetParticles_cff")
+process.genParticlesForJets.ignoreParticleIDs = cms.vuint32(
+   1000022, 2000012, 2000014,
+   2000016, 1000039, 5000039,
+   4000012, 9900012, 9900014,
+   9900016, 39, 12, 14, 16
+)
+process.genParticlesForJets.excludeFromResonancePids = cms.vuint32(12, 14, 16)
 
-# process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff")
-
-#maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-#readFiles = cms.untracked.vstring()
-#secFiles = cms.untracked.vstring() 
-#source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-#readFiles.extend( ( 
-#       '/store/relval/CMSSW_2_1_8/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0002/0C66A939-8F82-DD11-8442-0019DB29C614.root') );
-#
-#secFiles.extend( (
-#               ) )
+from RecoJets.JetProducers.iterativeCone5GenJets_cff import iterativeCone5GenJets
+process.iterativeCone5GenJetsNoNuBSM  =  iterativeCone5GenJets.clone()
 
 # test QCD file from 210 RelVal is on /castor/cern.ch/user/a/anikiten/jpt210qcdfile/
 process.maxEvents = cms.untracked.PSet(
@@ -48,8 +46,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-# PF
-#   fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/p/pjanot/CMSSW219/reco_QCDpt80_120_Full.root')
 # /castor/cern.ch/user/p/pjanot/CMSSW219/
 # reco_QCDptxxx_yyy_Full.root, xxx = 20, 30, 50, 80, 120, 160, 250, 350 and 500, and yyy = 30, 50, 80, 120,
 # 160, 250, 350, 500 and 700,
@@ -57,6 +53,7 @@ process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/FC999068-DB60-DD11-9694-001A92971B16.root')
 # cmssw218
 #    fileNames = cms.untracked.vstring('file:/tmp/anikiten/0C66A939-8F82-DD11-8442-0019DB29C614.root')
+#     fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_8/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0002/0C66A939-8F82-DD11-8442-0019DB29C614.root')
      fileNames = cms.untracked.vstring(
        '/store/relval/CMSSW_2_1_9/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/000AD2A4-6E86-DD11-AA99-000423D9863C.root',
        '/store/relval/CMSSW_2_1_9/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/02D641CC-6D86-DD11-B1AA-001617C3B64C.root',
@@ -140,18 +137,28 @@ process.myanalysis = cms.EDFilter("JPTAnalyzer",
     HistOutFile = cms.untracked.string('analysis.root'),
     calojets = cms.string('iterativeCone5CaloJets'),
     zspjets = cms.string('ZSPJetCorJetIcone5'),
-    genjets = cms.string('iterativeCone5GenJets'),
+    genjets  = cms.string('iterativeCone5GenJetsNoNuBSM'),
     JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorIcone5')
 #    genjets  = cms.string('iterativeCone5GenJetsNoNuBSM')
 #    genjets = cms.string('iterativeCone5GenJets')
 )
 
-iterativeCone5JetTracksAssociatorAtVertex.jets = 'ZSPJetCorJetIcone5'
-iterativeCone5JetTracksAssociatorAtCaloFace.jets = 'ZSPJetCorJetIcone5'
-iterativeCone5JetExtender.jets = 'ZSPJetCorJetIcone5'
+from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import*
 
-# process.p1 = cms.Path(process.iterativeCone5GenJetsNoNuBSM*process.ZSPJetCorrections*recoJetAssociations*process.myanalysis)
+ZSPiterativeCone5JetTracksAssociatorAtVertex = iterativeCone5JetTracksAssociatorAtVertex.clone() 
+ZSPiterativeCone5JetTracksAssociatorAtVertex.jets = cms.InputTag("ZSPJetCorJetIcone5")
 
-process.p1 = cms.Path(process.ZSPJetCorrections*recoJetAssociations*process.myanalysis)
+ZSPiterativeCone5JetTracksAssociatorAtCaloFace = iterativeCone5JetTracksAssociatorAtCaloFace.clone()
+ZSPiterativeCone5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("ZSPJetCorJetIcone5")
 
-# process.p1 = cms.Path(process.dump)
+ZSPiterativeCone5JetExtender = iterativeCone5JetExtender.clone() 
+ZSPiterativeCone5JetExtender.jets = cms.InputTag("ZSPJetCorJetIcone5")
+ZSPiterativeCone5JetExtender.jet2TracksAtCALO = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace")
+ZSPiterativeCone5JetExtender.jet2TracksAtVX = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
+
+ZSPrecoJetAssociations = cms.Sequence(ZSPiterativeCone5JetTracksAssociatorAtVertex*ZSPiterativeCone5JetTracksAssociatorAtCaloFace*ZSPiterativeCone5JetExtender)
+
+process.p1 = cms.Path(process.genParticlesForJets*process.iterativeCone5GenJetsNoNuBSM*process.ZSPJetCorrections*process.ZSPrecoJetAssociations*process.myanalysis)
+
+# process.p1 = cms.Path(process.genParticlesForJets*process.iterativeCone5GenJetsNoNuBSM*process.ZSPJetCorrections*process.ZSPrecoJetAssociations*process.dump)
+
