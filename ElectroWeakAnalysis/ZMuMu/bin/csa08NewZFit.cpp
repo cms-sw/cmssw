@@ -46,6 +46,9 @@ void fix(TH1* histo) {
   }
 }
 
+struct sig_tag;
+struct bkg_tag;
+
 int main(int ac, char *av[]) {
   gROOT->SetStyle("Plain");
   try {
@@ -188,7 +191,7 @@ int main(int ac, char *av[]) {
 	Expr zMuTkBkg = yieldBkgZMuTk * funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2);
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
 	Expr zMuTk = rebinMuTkConst * (zMuTkEffTerm * yieldZMuMu * zPdfMuTk + zMuTkBkg);
-	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
+	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2);
 	Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
 	Expr zMuMuNoIso = rebinMuMuNoIsoConst * (zMuMuNoIsoEffTerm * yieldZMuMu * zPdfMuMuNonIso + zMuMuNoIsoBkg);
 	Expr zMuSa = rebinMuSaConst * (zMuSaEffTerm * yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa) 
@@ -265,16 +268,28 @@ int main(int ac, char *av[]) {
 			 "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			 "Events");	
 	
-	string ZMuTkPlot = "ZMuTkFit_" + plot_string;
-	TF1 funZMuTk = root::tf1<Expr>("ZMuTkFunction", zMuTk, fMin, fMax, 
-				       effTk, effSa, effIso, yieldZMuMu, 
-				       yieldBkgZMuTk, lambda, a0, a1, a2);
+	string ZMuTkPlot = "ZMuTkFit_X_" + plot_string;
+	root::plot<Expr>(ZMuTkPlot.c_str(), *histoZMuTk, zMuTk, fMin, fMax,
+			 effTk, effSa, effIso, yieldZMuMu,
+			 yieldBkgZMuTk, lambda, a0, a1, a2,
+			 kRed, 2, kDashed, 100,
+                         "Z -> #mu + (unmatched) track mass", "#mu #mu invariant mass (GeV/c^{2})",
+                         "Events");
+	ZMuTkPlot = "ZMuTkFit_" + plot_string;
+	TF1 funZMuTk = root::tf1_t<sig_tag, Expr>("ZMuTkFunction", zMuTk, fMin, fMax, 
+						  effTk, effSa, effIso, yieldZMuMu, 
+						  yieldBkgZMuTk, lambda, a0, a1, a2);
+	for(int i = 0; i < 100; ++i) {
+	  double x = fMin + i * (fMax - fMin)/100;
+	  double y = funZMuTk.Eval(x);
+	  cout << "f(" << x << ") = " << y << endl; 
+	}
 	funZMuTk.SetLineColor(kRed);
 	funZMuTk.SetLineWidth(2);
 	funZMuTk.SetLineStyle(kDashed);
 	funZMuTk.SetNpx(10000);
-	TF1 funZMuTkBkg = root::tf1<Expr>("ZMuTkBack", zMuTkBkgScaled, fMin, fMax, 
-					  yieldBkgZMuTk, lambda, a0, a1, a2);
+	TF1 funZMuTkBkg = root::tf1_t<bkg_tag, Expr>("ZMuTkBack", zMuTkBkgScaled, fMin, fMax, 
+						     yieldBkgZMuTk, lambda, a0, a1, a2);
 	funZMuTkBkg.SetLineColor(kGreen);
 	funZMuTkBkg.SetLineWidth(2);
 	funZMuTkBkg.SetLineStyle(kDashed);
@@ -284,8 +299,8 @@ int main(int ac, char *av[]) {
 	histoZMuTk->SetYTitle("Events");
 	TCanvas *canvas = new TCanvas("canvas");
 	histoZMuTk->Draw("e");
-	funZMuTk.Draw("same");
 	funZMuTkBkg.Draw("same");
+	funZMuTk.Draw("same");
 	canvas->SaveAs(ZMuTkPlot.c_str());
 	canvas->SetLogy();
 	string logZMuTkPlot = "log_" + ZMuTkPlot;
