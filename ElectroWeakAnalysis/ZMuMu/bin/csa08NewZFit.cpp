@@ -183,15 +183,14 @@ int main(int ac, char *av[]) {
 	funct::Numerical<2> _2;
 	funct::Numerical<1> _1;
 
-	IsoefficiencytermSQ efficiencyIsoSquare = (efficiencyIso ^ _2);
 	Expr zMuMuEfficiencyTerm = ((efficiencyTk ^ _2) * 
-	  (efficiencySa ^ _2)) * efficiencyIsoSquare; 
+	  (efficiencySa ^ _2)) * (efficiencyIso ^ _2); 
 	Expr zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ _2) * 
-	  (efficiencySa ^ _2)) * (_1 - efficiencyIsoSquare);
+	  (efficiencySa ^ _2)) * (_1 - (efficiencyIso ^ _2));
 	Expr zMuTkEfficiencyTerm = _2 * 
-	  ((efficiencyTk ^ _2) * (efficiencySa * (_1 - efficiencySa))) * efficiencyIsoSquare;
+	  ((efficiencyTk ^ _2) * (efficiencySa * (_1 - efficiencySa))) * (efficiencyIso ^ _2);
 	Expr zMuSaEfficiencyTerm = _2 * 
-	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (_1 - efficiencyTk)))* efficiencyIsoSquare;
+	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (_1 - efficiencyTk)))* (efficiencyIso ^ _2);
 
 	Expr zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
 
