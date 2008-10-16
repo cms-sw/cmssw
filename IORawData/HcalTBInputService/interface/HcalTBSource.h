@@ -20,13 +20,14 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2007/05/02 20:56:05 $
-   $Revision: 1.5 $
+   $Date: 2008/06/06 11:39:09 $
+   $Revision: 1.6 $
    \author J. Mans - Minnesota
 */
 class HcalTBSource : public edm::ExternalInputSource {
 public:
 explicit HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
+virtual ~HcalTBSource();
 protected:
     virtual void setRunAndEventInfo();
     virtual bool produce(edm::Event & e);

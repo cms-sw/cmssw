@@ -44,6 +44,14 @@ void HcalTBSource::unpackSetup(const std::vector<std::string>& params) {
   }
 }
 
+HcalTBSource::~HcalTBSource() {
+  if (m_file!=0) {
+    m_file->Close();
+    m_file=0;
+    m_tree=0;
+  }
+}
+
 void HcalTBSource::openFile(const std::string& filename) {
   if (m_file!=0) {
     m_file->Close();
