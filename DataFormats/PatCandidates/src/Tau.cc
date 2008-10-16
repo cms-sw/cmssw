@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.9 2008/06/23 22:22:18 gpetrucc Exp $
+// $Id: Tau.cc,v 1.10 2008/09/19 21:13:17 cbern Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -136,7 +136,6 @@ void Tau::embedSignalTracks(){
 }
 
 
-
 /// method to set the matched generated jet
 void Tau::setGenJet(const reco::GenJetRef& gj) {
   genJet_.clear();
@@ -146,6 +145,29 @@ void Tau::setGenJet(const reco::GenJetRef& gj) {
 /// return the matched generated jet
 const reco::GenJet * Tau::genJet() const {
   return (genJet_.size() > 0 ? &genJet_.front() : 0);
+}
+
+
+// method to retrieve a tau ID (or throw)
+float Tau::tauID(const std::string & name) const {
+  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+    if (it->first == name) return it->second;
+  }
+  cms::Exception ex("Key not found");
+  ex << "pat::Tau: the ID " << name << " can't be found in this pat::Tau.\n";
+  ex << "The available IDs are: ";
+  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+    ex << "'" << it->first << "' ";
+  }
+  ex << ".\n";
+  throw ex;
+}
+// check if an ID is there
+bool Tau::isTauIDAvailable(const std::string & name) const {
+  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+    if (it->first == name) return true;
+  }
+  return false;
 }
 
 

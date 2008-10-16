@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
+// $Id: Tau.h,v 1.19 2008/10/08 18:27:09 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.18 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: Tau.h,v 1.19 2008/10/08 18:27:09 lowette Exp $
 */
 
 
@@ -41,13 +41,13 @@ namespace pat {
 // Class definition
 namespace pat {
 
-
   typedef reco::BaseTau TauType;
-
 
   class Tau : public Lepton<TauType> {
 
     public:
+
+      typedef std::pair<std::string,float> IdPair;
 
       /// default constructor
       Tau();
@@ -200,6 +200,20 @@ namespace pat {
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool  muonDecision() const { return pfSpecific().muonDecision_; }
 
+      // ---- methods for tau ID ----
+      /// Returns a specific tau ID associated to the pat::Tau given its name
+      /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
+      /// Note: an exception is thrown if the specified ID is not available
+      float tauID(const std::string & name) const;
+      /// Returns true if a specific ID is available in this pat::Tau
+      bool isTauIDAvailable(const std::string & name) const;
+      /// Returns all the tau IDs in the form of <name,value> pairs
+      /// The 'default' ID is the first in the list
+      const std::vector<IdPair> &  tauIDs() const { return tauIDs_; }
+      /// Store multiple tau ID values, discarding existing ones
+      /// The first one in the list becomes the 'default' tau id 
+      void setTauIDs(const std::vector<IdPair> & ids) { tauIDs_ = ids; }
+
     protected:
 
       // ---- for content embedding ----
@@ -211,6 +225,8 @@ namespace pat {
       std::vector<reco::Track> signalTracks_;
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;
+      // ---- tau ID's holder ----
+      std::vector<IdPair> tauIDs_;
       // ---- CaloTau specific variables  ----
       /// holder for CaloTau info, or empty vector if PFTau
       std::vector<pat::tau::TauCaloSpecific> caloSpecific_;
