@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 
@@ -29,7 +29,7 @@ class CaloRecoTauDiscriminationByIsolation : public EDProducer {
     ApplyDiscriminationByTrackerIsolation_ = iConfig.getParameter<bool>("ApplyDiscriminationByTrackerIsolation");
     TrackerIsolAnnulus_Tracksmaxn_         = iConfig.getParameter<int>("TrackerIsolAnnulus_Tracksmaxn");   
     
-    produces<CaloTauDiscriminatorByIsolation>();
+    produces<CaloTauDiscriminator>();
   }
   ~CaloRecoTauDiscriminationByIsolation(){} 
   virtual void produce(Event&, const EventSetup&);

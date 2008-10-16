@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -35,7 +35,7 @@ class CaloRecoTauDiscriminationAgainstElectron : public EDProducer {
     maxleadTrackHCAL3x3hottesthitDEta_          = iConfig.getParameter<double>("maxleadTrackHCAL3x3hottesthitDEta");
     ApplyCut_leadTrackavoidsECALcrack_          = iConfig.getParameter<bool>("ApplyCut_leadTrackavoidsECALcrack");
     
-    produces<CaloTauDiscriminatorAgainstElectron>();
+    produces<CaloTauDiscriminator>();
   }
   ~CaloRecoTauDiscriminationAgainstElectron(){} 
   virtual void produce(Event&, const EventSetup&);

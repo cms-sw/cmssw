@@ -5,7 +5,7 @@ void CaloRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetu
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
   // fill the AssociationVector object
-  auto_ptr<CaloTauDiscriminatorByIsolation> theCaloTauDiscriminatorByIsolation(new CaloTauDiscriminatorByIsolation(CaloTauRefProd(theCaloTauCollection)));
+  auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorByIsolation(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
 
   for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
     CaloTauRef theCaloTauRef(theCaloTauCollection,iCaloTau);
