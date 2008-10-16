@@ -32,7 +32,7 @@ using namespace reco;
 class PFRecoTauDiscriminationAgainstMuon : public EDProducer {
  public:
   explicit PFRecoTauDiscriminationAgainstMuon(const ParameterSet& iConfig){   
-    PFTauProducer_        = iConfig.getParameter<string>("PFTauProducer");
+    PFTauProducer_        = iConfig.getParameter<InputTag>("PFTauProducer");
     discriminatorOption_  = iConfig.getParameter<string>("discriminatorOption");  
     a  = iConfig.getParameter<double>("a");  
     b  = iConfig.getParameter<double>("b");  
@@ -43,7 +43,7 @@ class PFRecoTauDiscriminationAgainstMuon : public EDProducer {
   ~PFRecoTauDiscriminationAgainstMuon(){} 
   virtual void produce(Event&, const EventSetup&);
  private:  
-  string PFTauProducer_;
+  InputTag PFTauProducer_;
   string discriminatorOption_;
   double a;
   double b;

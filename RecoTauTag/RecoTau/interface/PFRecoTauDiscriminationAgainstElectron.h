@@ -27,7 +27,7 @@ using namespace reco;
 class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
  public:
   explicit PFRecoTauDiscriminationAgainstElectron(const ParameterSet& iConfig){   
-    PFTauProducer_        = iConfig.getParameter<string>("PFTauProducer");
+    PFTauProducer_        = iConfig.getParameter<InputTag>("PFTauProducer");
     emFraction_maxValue_  = iConfig.getParameter<double>("EmFraction_maxValue");  
     applyCut_emFraction_  = iConfig.getParameter<bool>("ApplyCut_EmFraction");
     hcalTotOverPLead_minValue_  = iConfig.getParameter<double>("HcalTotOverPLead_minValue");  
@@ -62,7 +62,7 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
   virtual void produce(Event&, const EventSetup&);
  private:
   bool isInEcalCrack(double) const; 
-  string PFTauProducer_;
+  InputTag PFTauProducer_;
   bool applyCut_emFraction_;
   double emFraction_maxValue_;   
   bool applyCut_hcalTotOverPLead_;

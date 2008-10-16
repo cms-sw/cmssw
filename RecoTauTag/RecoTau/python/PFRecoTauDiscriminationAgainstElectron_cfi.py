@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfRecoTauDiscriminationAgainstElectron = cms.EDProducer("PFRecoTauDiscriminationAgainstElectron",
 
-    PFTauProducer = cms.string('pfRecoTauProducer'),
+    PFTauProducer = cms.InputTag('pfRecoTauProducer'),
 
     ApplyCut_EmFraction = cms.bool(False),
     EmFraction_maxValue = cms.double(0.9),
