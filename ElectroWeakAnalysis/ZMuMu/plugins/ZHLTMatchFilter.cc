@@ -17,10 +17,10 @@ namespace modules {
       assert(z.numberOfDaughters()==2);
       bool singleTrigFlag0 = false;
       bool singleTrigFlag1 = false;
-      bool AndTriggerFlag = false;
-      bool OrTriggerFlag = false;
+      bool exactlyOneTriggerFlag = false;
+      bool bothTriggerFlag = false;
+      bool atLeastOneTriggerFlag=false;
       bool FirstTriggerFlag = false;
-     
       if((cond_ !="and" && cond_!="or") && cond_ !="first"){
 	cout << "Conditions are : and, or ,first !" <<endl;
 	return false;}
@@ -57,13 +57,14 @@ namespace modules {
       }
       
       if(!singleTrigFlag0 && !singleTrigFlag1)return false;
-      if(singleTrigFlag0 && singleTrigFlag1 )AndTriggerFlag = true;
-      if(((singleTrigFlag0 && !singleTrigFlag1) && secondismuon) || ((!singleTrigFlag0 && singleTrigFlag1) && secondismuon))OrTriggerFlag = true;
-      if(singleTrigFlag0 && !singleTrigFlag1 && !secondismuon)FirstTriggerFlag = true;
-      
-      if(cond_=="and") return AndTriggerFlag;
-      if(cond_=="or")return OrTriggerFlag;
-      if(cond_=="first")return FirstTriggerFlag; 
+      if(singleTrigFlag0 && singleTrigFlag1 ) bothTriggerFlag = true;
+      if(((singleTrigFlag0 && !singleTrigFlag1) && secondismuon) || ((!singleTrigFlag0 && singleTrigFlag1) && secondismuon)) exactlyOneTriggerFlag = true;
+      if(singleTrigFlag0 && !singleTrigFlag1 && !secondismuon) FirstTriggerFlag = true;
+      if((singleTrigFlag0 || singleTrigFlag1)&& secondismuon) atLeastOneTriggerFlag=true;
+      if(cond_=="exactlyOneMatched") return exactlyOneTriggerFlag;
+      if(cond_=="atLeastOneMatched") return atLeastOneTriggerFlag;
+      if(cond_=="bothMatched") return bothTriggerFlag;
+      if(cond_=="firstMatched") return FirstTriggerFlag; 
       
       return false;
       }
