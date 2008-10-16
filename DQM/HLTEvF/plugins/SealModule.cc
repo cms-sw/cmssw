@@ -1,8 +1,9 @@
-// $Id: SealModule.cc,v 1.13 2008/08/07 12:24:54 bjbloom Exp $
+// $Id: SealModule.cc,v 1.14 2008/10/08 12:12:52 wteo Exp $
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
 #include "DQM/HLTEvF/interface/HLTTauDQMSource.h"
+#include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
 #include "DQM/HLTEvF/interface/HLTMonElectron.h"
 #include "DQM/HLTEvF/interface/HLTMonElectronConsumer.h"
 #include "DQM/HLTEvF/interface/FourVectorHLT.h"
@@ -19,6 +20,7 @@ DEFINE_FWK_SERVICE(PathTimerService);
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PathTimerInserter);
 DEFINE_FWK_MODULE(HLTTauDQMSource);
+DEFINE_FWK_MODULE(HLTMuonDQMSource);
 DEFINE_FWK_MODULE(HLTMonElectron);
 DEFINE_FWK_MODULE(HLTMonElectronConsumer);
 DEFINE_FWK_MODULE(HLTEventInfoClient);
