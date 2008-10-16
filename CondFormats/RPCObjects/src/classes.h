@@ -10,7 +10,7 @@
 
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
-#include "CondFormats/RPCObjects/interface/RPCObIDMap.h"
+#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 
 
 namespace{

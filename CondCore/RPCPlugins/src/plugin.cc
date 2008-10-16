@@ -22,8 +22,9 @@
 #include "CondFormats/DataRecord/interface/RPCObCondRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
 
-#include "CondFormats/DataRecord/interface/RPCObIDMapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCObIDMap.h"
+#include "CondFormats/DataRecord/interface/RPCObPVSSmapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
+
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
@@ -32,4 +33,4 @@ REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
 REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
 REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
 REGISTER_PLUGIN(RPCObCondRcd,RPCObCond);
-REGISTER_PLUGIN(RPCObIDMapRcd,RPCObIDMap);
+REGISTER_PLUGIN(RPCObPVSSmapRcd,RPCObPVSSmap);

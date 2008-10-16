@@ -57,8 +57,9 @@
   <class name="RPCObCond::Item"/>
   <class name="std::vector<RPCObCond::Item>"/>
 
-  <class name="RPCObIDMap"/>
-  <class name="RPCObIDMap::Item"/>
-  <class name="std::vector<RPCObIDMap::Item>"/>
+  <class name="RPCObPVSSmap"/>
+  <class name="RPCObPVSSmap::Item"/>
+  <class name="std::vector<RPCObPVSSmap::Item>"/>
+
 
 </lcgdict>
