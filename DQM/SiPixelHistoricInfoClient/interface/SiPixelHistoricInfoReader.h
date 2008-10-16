@@ -1,6 +1,7 @@
 #ifndef SiPixelHistoricInfoReader_H
 #define SiPixelHistoricInfoReader_H
 
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -33,15 +34,17 @@ public:
   
 private:
   edm::ParameterSet parameterSet_;
-  bool printDebug_;
+  
   bool firstBeginRun_; 
-  std::vector<std::string> variables_; 
+  bool printDebug_;
+  bool normEvents_; 
   bool variable_[10]; 
-  std::vector<uint32_t> allDetIds;
+  std::vector<std::string> variables_; 
+  std::vector<uint32_t> allDetIds; 
+  std::string outputFile_; 
+  TFile* outputFile; 
+  TObjArray* AllDetHistograms; 
   TString hisID, title; 
-  TObjArray* AllDetHistograms;
-  std::string outputFile_;
-  TFile *outputFile;
 };
 
 #endif
