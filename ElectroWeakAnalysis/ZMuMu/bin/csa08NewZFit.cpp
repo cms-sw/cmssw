@@ -49,6 +49,7 @@ void fix(TH1* histo) {
 int main(int ac, char *av[]) {
   gROOT->SetStyle("Plain");
   try {
+    typedef funct::FunctExpression Expr;
     typedef funct::Product<funct::Parameter, funct::RootHistoPdf>::type ZPeak;
     typedef funct::Power<funct::Parameter, funct::Numerical<2> >::type IsoefficiencytermSQ;
     typedef funct::Product<funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
@@ -82,7 +83,7 @@ int main(int ac, char *av[]) {
     typedef funct::Product<funct::Parameter, funct::Exponential>::type ZMuSaBkg;
  
     typedef funct::Product<funct::Constant, funct::Sum<ZMuMuNoIsoSig, ZMuMuNoIsoBkg>::type>::type ZMuMuNoIso;//3
-    typedef funct::Product<funct::Constant, ZMuMuSig>::type ZMuMu;
+    typedef Expr ZMuMu;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuTkSig, ZMuTkBkg>::type>::type ZMuTk;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuSaSig, ZMuSaBkg>::type>::type ZMuSa;
     typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa, ZMuMuNoIso> ChiSquared;
