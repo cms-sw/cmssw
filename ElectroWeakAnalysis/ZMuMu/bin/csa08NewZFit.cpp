@@ -82,10 +82,10 @@ int main(int ac, char *av[]) {
                            funct::Product<funct::Parameter, funct::Gaussian>::type>::type ZMuSaSig;
     typedef funct::Product<funct::Parameter, funct::Exponential>::type ZMuSaBkg;
  
-    typedef funct::Product<funct::Constant, funct::Sum<ZMuMuNoIsoSig, ZMuMuNoIsoBkg>::type>::type ZMuMuNoIso;//3
+    typedef Expr ZMuMuNoIso;
     typedef Expr ZMuMu;
-    typedef funct::Product<funct::Constant, funct::Sum<ZMuTkSig, ZMuTkBkg>::type>::type ZMuTk;
-    typedef funct::Product<funct::Constant, funct::Sum<ZMuSaSig, ZMuSaBkg>::type>::type ZMuSa;
+    typedef Expr ZMuTk;
+    typedef Expr ZMuSa;
     typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa, ZMuMuNoIso> ChiSquared;
 
     double fMin, fMax;
