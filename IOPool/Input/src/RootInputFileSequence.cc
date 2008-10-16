@@ -155,6 +155,8 @@ namespace edm {
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
+      std::auto_ptr<InputSource::FileSourceSentry> 
+	sentry((primarySequence_ && primary()) ? new InputSource::FileSourceSentry(input_) : 0);
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     }
     catch (cms::Exception e) {
