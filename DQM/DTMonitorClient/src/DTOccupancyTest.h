@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/02 16:50:29 $
+ *  $Revision: 1.4 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -72,6 +72,8 @@ private:
   // Run the test on the occupancy histos
   int runOccupancyTest(TH2F *histo, const DTChamberId& chId);
 
+  std::string topFolder() const;
+
   int nevents;
 
   DQMStore* dbe;
@@ -89,8 +91,8 @@ private:
   bool writeRootFile;
   TFile *rootFile;
   TNtuple *ntuple;
+  bool tpMode;
 
-  bool debug; // FIXME: remove it
 };
 
 #endif

@@ -2,12 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/02 16:50:27 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DTOccupancyCluster.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TH2F.h"
 #include "TMath.h"
@@ -15,6 +16,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace edm;
 
 
 DTOccupancyCluster::DTOccupancyCluster(const DTOccupancyPoint& firstPoint,
@@ -23,7 +25,6 @@ DTOccupancyCluster::DTOccupancyCluster(const DTOccupancyPoint& firstPoint,
 									      theMaxRMS(-1.),
 									      theMeanSum(0.),
 									      theRMSSum(0.) {
-  debug = false; // FIXME: to be removed
   if(!qualityCriterion(firstPoint,secondPoint)) {
     theValidity = false;
   } else {
@@ -54,7 +55,6 @@ DTOccupancyCluster::DTOccupancyCluster(const DTOccupancyPoint& singlePoint) : ra
 									      theMeanSum(singlePoint.mean()),
 									      theRMSSum(singlePoint.rms()) {
   theValidity = true;
-  debug = false; // FIXME: to be removed
 
   // compute the cluster quantities
   thePoints.push_back(singlePoint);
@@ -76,10 +76,11 @@ bool DTOccupancyCluster::isValid() const {
 // Add a point to the cluster: returns false if the point does not satisfy the
 // quality requirement
 bool DTOccupancyCluster::addPoint(const DTOccupancyPoint& anotherPoint) {
-  if(debug) cout << "   Add a point to the cluster: mean: " << anotherPoint.mean()
-       << " rms: " << anotherPoint.rms() << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyCluster")
+    << "   Add a point to the cluster: mean: " << anotherPoint.mean()
+    << " rms: " << anotherPoint.rms() << endl;
   if(qualityCriterion(anotherPoint)) {
-    if(debug) cout << "   point is valid" << endl;
+    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyCluster") << "   point is valid" << endl;
     thePoints.push_back(anotherPoint);
     // Compute the new cluster size
     computeRadius();
@@ -247,14 +248,22 @@ bool clusterIsLessThan(const DTOccupancyCluster& clusterOne, const DTOccupancyCl
   if(clusterTwo.nPoints() == 1 && clusterOne.nPoints() != 1) {
     return true;
   }
- if(clusterTwo.nPoints() != 1 && clusterOne.nPoints() == 1) {
+  if(clusterTwo.nPoints() != 1 && clusterOne.nPoints() == 1) {
     return false;
   }
-  if(fabs(clusterOne.averageRMS() - sqrt(clusterOne.averageMean())) <
-     fabs(clusterTwo.averageRMS() - sqrt(clusterTwo.averageMean()))) {
+
+  if(clusterOne.nPoints() > clusterTwo.nPoints()) {
     return true;
+  } else if(clusterOne.nPoints() < clusterTwo.nPoints()) {
+    return false;
+  } else {
+    if(fabs(clusterOne.averageRMS() - sqrt(clusterOne.averageMean())) <
+       fabs(clusterTwo.averageRMS() - sqrt(clusterTwo.averageMean()))) {
+      return true;
+    }
   }
   return false;
+
 }
 
 

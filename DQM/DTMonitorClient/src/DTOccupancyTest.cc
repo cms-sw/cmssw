@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 16:50:29 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/07/25 14:19:39 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -30,7 +30,7 @@ using namespace std;
 
 
 DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
-  LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest]: Constructor";
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: Constructor";
 
   // Get the DQM service
   dbe = Service<DQMStore>().operator->();
@@ -42,8 +42,9 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
     rootFile = new TFile("DTOccupancyTest.root","RECREATE");
     ntuple = new TNtuple("OccupancyNtuple", "OccupancyNtuple", "ls:wh:st:se:lay1MeanCell:lay1RMS:lay2MeanCell:lay2RMS:lay3MeanCell:lay3RMS:lay4MeanCell:lay4RMS:lay5MeanCell:lay5RMS:lay6MeanCell:lay6RMS:lay7MeanCell:lay7RMS:lay8MeanCell:lay8RMS:lay9MeanCell:lay9RMS:lay10MeanCell:lay10RMS:lay11MeanCell:lay11RMS:lay12MeanCell:lay12RMS");
   }
-
-  debug = false; // FIXME: remove it
+  
+  // switch on the mode for running on test pulses (different top folder)
+  tpMode = ps.getUntrackedParameter<bool>("testPulseMode", false);
 
 }
 
@@ -51,7 +52,7 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
 
 
 DTOccupancyTest::~DTOccupancyTest(){
-  LogVerbatim ("DTOccupancyTest") << " destructor called" << endl;
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << " destructor called" << endl;
 
 
 }
@@ -60,7 +61,7 @@ DTOccupancyTest::~DTOccupancyTest(){
 
 
 void DTOccupancyTest::beginJob(const EventSetup& context){
-  LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest]: BeginJob";
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: BeginJob";
 
   // Event counter
   nevents = 0;
@@ -73,7 +74,11 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
     bookHistos(wh, string("Occupancies"), "OccupancySummary");
   }
 
-  dbe->setCurrentFolder("DT/01-Digi/");
+  dbe->setCurrentFolder(topFolder());
+  string title = "Occupancy Summary";
+  if(tpMode) {
+    title = "Test Pulse Occupancy Summary";
+  }
   summaryHisto = dbe->book2D("OccupancySummary","Occupancy Summary",12,1,13,5,-2,3);
   summaryHisto->setAxisTitle("sector",1);
   summaryHisto->setAxisTitle("wheel",2);
@@ -84,7 +89,7 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
 
 
 void DTOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  LogVerbatim ("DTOccupancyTest") <<"[DTOccupancyTest]: Begin of LS transition";
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") <<"[DTOccupancyTest]: Begin of LS transition";
 }
 
 
@@ -92,16 +97,15 @@ void DTOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 
 void DTOccupancyTest::analyze(const Event& e, const EventSetup& context) {
   nevents++;
-  LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest]: "<<nevents<<" events";
-
-
+//   if(nevents%1000)
+//     LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: "<<nevents<<" events";
 }
 
 
 
 
 void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  LogVerbatim ("DTOccupancyTest")
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest")
     <<"[DTOccupancyTest]: End of LS transition, performing the DQM client operation";
   lsCounter++;
 
@@ -145,7 +149,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	summaryHisto->setBinContent(sector, chId.wheel()+3, result);
       }
     } else {
-      LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest] ME: "
+      LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] ME: "
 				      << getMEName("OccupancyAllHits_perCh", chId) << " not found!" << endl;
     }
 
@@ -162,7 +166,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 
 void DTOccupancyTest::endJob(){
 
-  LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest] endjob called!";
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] endjob called!";
   if(writeRootFile) {
     rootFile->cd();
     ntuple->Write();
@@ -176,19 +180,23 @@ void DTOccupancyTest::endJob(){
 void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder("DT/01-Digi/");
+  dbe->setCurrentFolder(topFolder());
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
   
   
-  LogVerbatim ("DTOccupancyTest") <<"[DTOccupancyTest]: booking wheel histo:"<< endl
-				  <<"              folder "<< "DT/01-Digi/Wheel"
-    + wheel.str() + "/" + folder << endl
-				  <<"              histoTag "<<histoTag << endl
-				  <<"              histoName "<<histoName<<endl;
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") <<"[DTOccupancyTest]: booking wheel histo:"
+							<< histoName 
+							<< " (tag "
+							<< histoTag
+							<< ") in: "
+							<< topFolder() + "/Wheel"+ wheel.str() + "/" + folder << endl;
   
   string histoTitle = "Occupancy summary WHEEL: "+wheel.str();
+  if(tpMode) {
+    histoTitle = "TP Occupancy summary WHEEL: "+wheel.str();
+  }
   wheelHistos[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
   wheelHistos[wheelId]->setBinLabel(1,"MB1",2);
   wheelHistos[wheelId]->setBinLabel(2,"MB2",2);
@@ -206,7 +214,7 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
   stringstream sector; sector << chId.sector();
 
 
-  string folderRoot = "DT/01-Digi/Wheel" + wheel.str() +
+  string folderRoot = topFolder() + "/Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
@@ -246,7 +254,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
     return 4;
   }
 
-  if(debug) cout << "--- Occupancy test for chamber: " << chId << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "--- Occupancy test for chamber: " << chId << endl;
   // set the # of SLs
   int nSL = 3;
   if(chId.station() == 4) nSL = 2;
@@ -324,9 +332,9 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
       double averageSquaredCellOccup = layerSquaredSum/nWires;
       double rmsCellOccup = sqrt(averageSquaredCellOccup - averageCellOccup*averageCellOccup);
       averageCellOccupAndRMS[layID] = make_pair(averageCellOccup, rmsCellOccup);
-      if(debug) cout << "  " << layID
-				  << " average cell occ.: " << averageCellOccup
-				  << " RMS: " << rmsCellOccup << endl;
+      LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "  " << layID
+							<< " average cell occ.: " << averageCellOccup
+							<< " RMS: " << rmsCellOccup << endl;
       if(writeRootFile) {
 	index++;
 	values[index] = averageCellOccup;
@@ -356,22 +364,29 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
     double rms = (*layAndValues).second.second;
     double lOcc = layerOccupancyMap[lid]; // FIXME: useless
     double avCellOcc = (*layAndValues).second.first;
-    if(debug) cout << "   " << lid << " tot. occ: " << lOcc
-				<< " average cell occ: " << avCellOcc
-				<< " RMS: " << rms << endl;
-    DTOccupancyPoint point(avCellOcc, rms, lid);
-    builder.addPoint(point);
+    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "   " << lid << " tot. occ: " << lOcc
+						      << " average cell occ: " << avCellOcc
+						      << " RMS: " << rms << endl;
 
+    if(avCellOcc != 0) {
+      DTOccupancyPoint point(avCellOcc, rms, lid);
+      builder.addPoint(point);
+    } else {
+      if(monitoredLayers.find(lid) == monitoredLayers.end()) monitoredLayers.insert(lid);
+    }
   }
 
   builder.buildClusters();
   referenceCellOccup = builder.getBestCluster().averageMean();
   minCellRMS = builder.getBestCluster().averageRMS();
+
+//   set<DTLayerId> bestLayers getLayerIDs()
+
   double safeFactor = 3.;
 //   if(minCellRMS > referenceCellOccup) safeFactor = 5;
 
-  if(debug) cout << " Reference cell occup.: " << referenceCellOccup
-       << " RMS: " << minCellRMS << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " Reference cell occup.: " << referenceCellOccup
+						    << " RMS: " << minCellRMS << endl;
   
   // Set a warning for particularly high RMS: noise can "mask" dead channels
 //   bool rmsWarning = false;
@@ -399,14 +414,27 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
       int firstWire = muonGeom->layer(layID)->specificTopology().firstChannel();
       int binY = binYlow+(lay-1);
 
+      // compute the integral of the layer occupancy
       double layerInteg = histo->Integral(1,nBinsX,binY,binY);
-      if(debug) cout << "     layer: " << layID << " integral: " << layerInteg << endl;
 
+      LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     layer: " << layID << " integral: " << layerInteg << endl;
 
-      // if RMS is big check all layers
+      // Check if in the list of layers which are monitored
       bool alreadyMonitored = false;
-
       if(monitoredLayers.find(layID) != monitoredLayers.end()) alreadyMonitored = true;
+
+
+      if(layerInteg == 0) { // layer is dead (no need to go further
+	LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     fail layer: no entries" << endl;
+	// Add it to the list of of monitored layers
+	if(!alreadyMonitored) monitoredLayers.insert(layID);
+	nFailingLayers++;
+	failLayer = true;
+	histo->SetBinContent(nBinsX+1,binY,-1.);
+	// go to next layer
+	continue;
+      }
+
 
       
 //       double avCellOccInLayer = averageCellOccupAndRMS[layID].first;
@@ -422,7 +450,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 	  // Add it to the list of of monitored layers
 	  if(monitoredLayers.find(layID) == monitoredLayers.end()) monitoredLayers.insert(layID);
 
-	if(layerInteg != 0) { // check # of dead cells
+// 	if(layerInteg != 0) { // check # of dead cells
 	  int totalDeadCells = 0;
 	  int nDeadCellsInARow = 1;
 	  int nDeadCellsInARowMax = 0;
@@ -432,14 +460,14 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 	  int interDeadCells = 0;
 	  for(int cell = firstWire; cell != (nWires+firstWire); ++cell) { // loop over cells
 	    double cellOccup = histo->GetBinContent(cell,binY);
-	    if(debug) cout << "        cell occup: " << cellOccup;
+	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       cell occup: " << cellOccup;
 	    if(cellOccup == 0 || cellOccup < (referenceCellOccup-safeFactor*sqrt(referenceCellOccup))) {
 	      if(cellOccup == 0) nCellsZeroCount++;
 	      totalDeadCells++;
 	      if(previousIsDead) nDeadCellsInARow++;
 	      previousIsDead = true;
 	      interDeadCells = 0;
-	      if(debug) cout << " below referece" << endl;
+	      LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       below reference" << endl;
 	    } else {
 	      previousIsDead = false;
 	      interDeadCells++;
@@ -449,14 +477,13 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 		if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
 		nDeadCellsInARow = 1; 
 	      }
-	      if(debug) cout << endl;
 	    }
 	  }
 	  if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
-	  if(debug) cout << "       # wires: " << nWires
-	       << " # cells 0 count: " << nCellsZeroCount
-	       << " # dead cells in a row: " << nDeadCellsInARowMax
-	       << " total # of dead cells: " << totalDeadCells;
+	  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "       # wires: " << nWires
+							    << " # cells 0 count: " << nCellsZeroCount
+							    << " # dead cells in a row: " << nDeadCellsInARowMax
+							    << " total # of dead cells: " << totalDeadCells;
 	  
 
 	  // Count dead cells
@@ -472,7 +499,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 	      nDeadCellsInARowMax>= 10.) ||
 	     (TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 0.5 &&
 	      totalDeadCells > nWires/2.)) {
-	    if(debug) cout << " -> fail layer!" << endl;
+	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " -> fail layer!" << endl;
 	    nFailingLayers++;
 	    failLayer = true;
 	    histo->SetBinContent(nBinsX+1,binY,-1.);
@@ -480,23 +507,21 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 		     nCellsZeroCount > nWires/3. &&
 		     (double)nCellsZeroCount/(double)nWires >
 		     2.*TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))) {
-	      if(debug) cout << " -> would fail cells!" << endl;
-	      if(debug) cout << "  # of cells with 0 count: " << nCellsZeroCount
-		   << " # wires: " << nWires
-		   << "  erfc: " <<   TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) << endl;
+	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " -> would fail cells!" << endl;
+	    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "  # of cells with 0 count: " << nCellsZeroCount
+							      << " # wires: " << nWires
+							      << "  erfc: "
+							      <<   TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))
+							      << endl;
 // 	      failCells = true;
 // 	      histo->SetBinContent(nBinsX+1,binY,-1.);
-	  } else {
-	    if(debug) cout << endl;
 	  }
 
-	} else { // all layer is dead
-	  if(debug) cout << "     fail layer: no entries" << endl;
-	  failLayer = true;
-	}
-	// If monitored only because of RMS warning remove the layer from the list of monitored
-// 	if(rmsWarning && !failLayer && !failCells && !alreadyMonitored){
-// // 	  monitoredLayers.erase(layID);
+// 	} else { // all layer is dead
+// 	  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     fail layer: no entries" << endl;
+// 	  nFailingLayers++;
+// 	  failLayer = true;
+// 	  histo->SetBinContent(nBinsX+1,binY,-1.);
 // 	}
       }
     }
@@ -519,3 +544,8 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
   return 0;
 }
 
+
+string DTOccupancyTest::topFolder() const {
+  if(tpMode) return string("DT/99-TestPulses/");
+  return string("DT/01-Digi/");
+}

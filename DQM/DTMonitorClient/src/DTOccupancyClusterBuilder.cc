@@ -2,12 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/02 16:50:27 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DTOccupancyClusterBuilder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TCanvas.h"
 #include "TH2F.h"
@@ -16,12 +17,10 @@
 #include <iostream>
 
 using namespace std;
-
+using namespace edm;
 
 DTOccupancyClusterBuilder::  DTOccupancyClusterBuilder() : maxMean(-1.),
 							   maxRMS(-1.) {
-  debug = false; //FIXME: remove it
-
 }
 
 DTOccupancyClusterBuilder::~DTOccupancyClusterBuilder(){}
@@ -56,7 +55,8 @@ void DTOccupancyClusterBuilder::buildClusters() {
     if(clusterCandidate.maxMean() > maxMean) maxMean = clusterCandidate.maxMean();
     if(clusterCandidate.maxRMS() > maxRMS) maxRMS = clusterCandidate.maxRMS();
   }
-  if(debug) cout << " # of valid clusters: " << theClusters.size() << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
+    << " # of valid clusters: " << theClusters.size() << endl;
   sortClusters();
   
 }
@@ -115,13 +115,15 @@ void DTOccupancyClusterBuilder::computeDistancesToCluster(const DTOccupancyClust
 
 
 bool DTOccupancyClusterBuilder::buildNewCluster() {
-  if(debug) cout << "--------- New Cluster Candidate ----------------------" << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
+    << "--------- New Cluster Candidate ----------------------" << endl;
   pair<DTOccupancyPoint, DTOccupancyPoint> initialPair = getInitialPair();
-  if(debug) cout << "   Initial Pair: " << endl;
-  if(debug) cout << "           point1: mean " << initialPair.first.mean()
-       << " rms " << initialPair.first.rms() << endl;
-  if(debug) cout << "           point2: mean " << initialPair.second.mean()
-       << " rms " << initialPair.second.rms() << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
+    << "   Initial Pair: " << endl
+    << "           point1: mean " << initialPair.first.mean()
+    << " rms " << initialPair.first.rms() << endl
+    << "           point2: mean " << initialPair.second.mean()
+    << " rms " << initialPair.second.rms() << endl;
   DTOccupancyCluster clusterCandidate(initialPair.first, initialPair.second);
   if(clusterCandidate.isValid()) {
     //     cout <<   " cluster candidate is valid" << endl;
@@ -139,6 +141,9 @@ bool DTOccupancyClusterBuilder::buildNewCluster() {
   } else {
     return false;
   }
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
+    << "   # of layers: " << clusterCandidate.nPoints()
+    << " avrg. mean: " << clusterCandidate.averageMean() << " avrg. rms: " << clusterCandidate.averageRMS() << endl;
   theClusters.push_back(clusterCandidate);
   // store the range for building the histograms later
   if(clusterCandidate.maxMean() > maxMean) maxMean = clusterCandidate.maxMean();
@@ -150,16 +155,18 @@ bool DTOccupancyClusterBuilder::buildNewCluster() {
 
 
 void DTOccupancyClusterBuilder::sortClusters() {
-  if(debug) cout << " sorting" << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder") << " sorting" << endl;
   sort(theClusters.begin(), theClusters.end(), clusterIsLessThan);
   // we save the detid of the clusters which are not the best one
   for(vector<DTOccupancyCluster>::const_iterator cluster = ++(theClusters.begin());
       cluster != theClusters.end(); ++cluster) { // loop over clusters skipping the first
     set<DTLayerId> clusterLayers = (*cluster).getLayerIDs();
-    if(debug) cout << "     # layers in the cluster: " << clusterLayers.size() << endl;
+    LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
+      << "     # layers in the cluster: " << clusterLayers.size() << endl;
     theProblematicLayers.insert(clusterLayers.begin(), clusterLayers.end());
   }
-  if(debug) cout << " # of problematic layers: " << theProblematicLayers.size() << endl;
+  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest|DTOccupancyClusterBuilder")
+    << " # of problematic layers: " << theProblematicLayers.size() << endl;
 }
 
 
