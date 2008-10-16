@@ -75,6 +75,8 @@ namespace {
     edm::reftobase::Holder<reco::CompositeCandidate,reco::PFTauDecayModeRef>    pftdm_rb;
     edm::Association<std::vector<reco::PFTauDecayMode> >                        pftdm_assoc_v;
     edm::Association<std::vector<reco::PFTau> >                                 pftau_assoc_v; // used for matching
+    edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >         pftdm_assoc_v_wrapper;
+    edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >                  pftau_assoc_v_wrapper;
 
     reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;         
     reco::CaloTauDiscriminatorByIsolation                       calotdi_o;     

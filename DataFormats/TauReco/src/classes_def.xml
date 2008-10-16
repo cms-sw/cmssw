@@ -64,6 +64,8 @@
   <class name="edm::reftobase::Holder<reco::CompositeCandidate, edm::Ref<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauDecayMode>,reco::PFTauDecayMode> > >" />
   <class name="edm::Association<std::vector<reco::PFTauDecayMode> >"/>
   <class name="edm::Association<std::vector<reco::PFTau> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
   
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
