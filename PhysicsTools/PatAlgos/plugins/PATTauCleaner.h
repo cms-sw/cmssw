@@ -1,5 +1,5 @@
 //
-// $Id: PATTauCleaner.h,v 1.2 2008/03/11 10:50:21 llista Exp $
+// $Id: PATTauCleaner.h,v 1.3 2008/03/12 16:13:27 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauCleaner.h,v 1.2 2008/03/11 10:50:21 llista Exp $
+  \version  $Id: PATTauCleaner.h,v 1.3 2008/03/12 16:13:27 gpetrucc Exp $
 */
 
 
@@ -27,7 +27,8 @@
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+//#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 
@@ -64,9 +65,11 @@ namespace pat {
       pat::helper::OverlapHelper overlapHelper_;
   };
 
-  typedef PATTauCleaner<reco::PFTau,reco::PFTau,reco::PFTauDiscriminatorByIsolation>       PATPFTauCleaner;
+  //typedef PATTauCleaner<reco::PFTau,reco::PFTau,reco::PFTauDiscriminatorByIsolation>       PATPFTauCleaner;
+  typedef PATTauCleaner<reco::PFTau,reco::PFTau,reco::PFTauDiscriminator>       PATPFTauCleaner;
   typedef PATTauCleaner<reco::CaloTau,reco::CaloTau,reco::CaloTauDiscriminatorByIsolation> PATCaloTauCleaner;
-  typedef PATTauCleaner<reco::PFTau,reco::BaseTau,reco::PFTauDiscriminatorByIsolation>     PATPF2BaseTauCleaner;
+  //typedef PATTauCleaner<reco::PFTau,reco::BaseTau,reco::PFTauDiscriminatorByIsolation>     PATPF2BaseTauCleaner;
+  typedef PATTauCleaner<reco::PFTau,reco::BaseTau,reco::PFTauDiscriminator>     PATPF2BaseTauCleaner;
   typedef PATTauCleaner<reco::CaloTau,reco::BaseTau,reco::CaloTauDiscriminatorByIsolation> PATCalo2BaseTauCleaner;
 
 
