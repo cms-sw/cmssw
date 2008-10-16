@@ -222,7 +222,12 @@ DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   L1DataEmulDigi digi(sid,cid, x1,x2,0, errt);
   unsigned int dw = (aflag==4)?0 : itd->getDataWord();
   unsigned int ew = (aflag==3)?0 : itm->getDataWord();
-  dw &= 0xffffffff; ew &= 0xffffffff; //32-bit
+  unsigned int mask = 0xffffffff; //32-bit
+  //RPC: mask bits 25,26,27 (3 lowest bits of bx counter); 
+  // emulator doesn't set these bits (permanent masking)
+  if(sid==dedefs::RPC)
+  mask &= 0xf1ffffff;
+  dw &= mask; ew &= mask;
   digi.setData(dw,ew);
   int de = (aflag==4)?0:itd->pt_packed();//ptValue();
   int ee = (aflag==3)?0:itm->pt_packed();//ptValue();
@@ -250,7 +255,10 @@ DEutils<L1MuGMTCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   L1DataEmulDigi digi(dedefs::GMT,cid, x1,x2,0, errt);
   unsigned int dw = (aflag==4)?0 : itd->getDataWord();
   unsigned int ew = (aflag==3)?0 : itm->getDataWord();
-  dw &= 0x3ffffff; ew &= 0x3ffffff; //26-bit
+  unsigned int mask = 0x3ffffff; //26-bit
+  //mask bits 22 (isolation), 23 (mip) [not permanent!]
+  //mask &= (~(0x0c00000)); 
+  dw &= mask; ew &= mask;
   digi.setData(dw,ew);
   int de = (aflag==4)?0:itd->ptIndex();//ptValue();
   int ee = (aflag==3)?0:itm->ptIndex();//ptValue();
