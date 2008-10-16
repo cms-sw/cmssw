@@ -8,10 +8,11 @@ import FWCore.ParameterSet.Config as cms
 # 
 from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
+
 JetPlusTrackZSPCorrectorIcone5 = cms.ESSource("JetPlusTrackCorrectionService",
-    JetTrackCollectionAtCalo = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
+    JetTrackCollectionAtCalo = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace"),
     respalgo = cms.int32(5),
-    JetTrackCollectionAtVertex = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertex"),
+    JetTrackCollectionAtVertex = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex"),
     muonSrc = cms.InputTag("muons"),
     AddOutOfConeTracks = cms.bool(True),
     NonEfficiencyFile = cms.string('CMSSW_167_TrackNonEff'),
@@ -28,8 +29,21 @@ JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
 )
 
-JetPlusTrackCorrections = cms.Sequence(recoJetAssociations*JetPlusTrackZSPCorJetIcone5)
-iterativeCone5JetTracksAssociatorAtVertex.jets = 'ZSPJetCorJetIcone5'
-iterativeCone5JetTracksAssociatorAtCaloFace.jets = 'ZSPJetCorJetIcone5'
-iterativeCone5JetExtender.jets = 'ZSPJetCorJetIcone5'
+from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import*
+
+ZSPiterativeCone5JetTracksAssociatorAtVertex = iterativeCone5JetTracksAssociatorAtVertex.clone() 
+ZSPiterativeCone5JetTracksAssociatorAtVertex.jets = cms.InputTag("ZSPJetCorJetIcone5")
+
+ZSPiterativeCone5JetTracksAssociatorAtCaloFace = iterativeCone5JetTracksAssociatorAtCaloFace.clone()
+ZSPiterativeCone5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("ZSPJetCorJetIcone5")
+
+ZSPiterativeCone5JetExtender = iterativeCone5JetExtender.clone() 
+ZSPiterativeCone5JetExtender.jets = cms.InputTag("ZSPJetCorJetIcone5")
+ZSPiterativeCone5JetExtender.jet2TracksAtCALO = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace")
+ZSPiterativeCone5JetExtender.jet2TracksAtVX = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
+
+
+ZSPrecoJetAssociations = cms.Sequence(ZSPiterativeCone5JetTracksAssociatorAtVertex*ZSPiterativeCone5JetTracksAssociatorAtCaloFace*ZSPiterativeCone5JetExtender)
+
+JetPlusTrackCorrections = cms.Sequence(ZSPrecoJetAssociations*JetPlusTrackZSPCorJetIcone5)
 
