@@ -55,14 +55,12 @@ int main(int ac, char *av[]) {
     typedef funct::Product<funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
                                           funct::Power<funct::Parameter, funct::Numerical<2> >::type >::type, 
                            IsoefficiencytermSQ>::type  ZMuMuEfficiencyTerm;
-    typedef funct::Product<ZMuMuEfficiencyTerm, funct::Parameter>::type ZMuMuSig;
 
 
     typedef funct::Product<funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
                                           funct::Power<funct::Parameter, funct::Numerical<2> >::type >::type, 
                           funct::Difference<funct::Numerical<1>, IsoefficiencytermSQ >::type>::type  ZMuMuNoIsoEfficiencyTerm;
 
-    typedef funct::Product<ZMuMuNoIsoEfficiencyTerm, ZPeak>::type ZMuMuNoIsoSig;
     
     typedef funct::Product<funct::Product<funct::Numerical<2>, 
                                           funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
@@ -71,14 +69,8 @@ int main(int ac, char *av[]) {
                                                                        >::type 
                                                         >::type 
                            >::type,  IsoefficiencytermSQ>::type  ZMuTkEfficiencyTerm;
-    typedef funct::Product<ZMuTkEfficiencyTerm, ZPeak>::type ZMuTkSig;
-    typedef funct::Product<funct::Parameter, 
-                           funct::Product<funct::Exponential, funct::Polynomial<2> >::type>::type ZMuTkBkg;
-    typedef ZMuTkBkg ZMuMuNoIsoBkg;
+
     typedef ZMuTkEfficiencyTerm ZMuSaEfficiencyTerm;
-    typedef funct::Product<ZMuSaEfficiencyTerm, 
-                           funct::Product<funct::Parameter, funct::Gaussian>::type>::type ZMuSaSig;
-    typedef funct::Product<funct::Parameter, funct::Exponential>::type ZMuSaBkg;
  
     typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr> ChiSquared;
 
@@ -223,12 +215,12 @@ int main(int ac, char *av[]) {
 
 	Expr zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
 
-	ZMuTkBkg zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
+	Expr zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
 	Expr zMuTk = rebinMuTkConst*(zMuTkEfficiencyTerm * zPeakPdfMuTk + zMuTkBkg);
 
-	ZMuMuNoIsoBkg zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
-	Expr  zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
+	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
+	Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
 	Expr zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * zPeakPdfMuMuNonIso) +  zMuMuNoIsoBkg);
 
 	Expr zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa)) 
