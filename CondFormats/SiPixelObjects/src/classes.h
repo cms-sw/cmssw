@@ -61,4 +61,11 @@ namespace{
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelDisabledModules.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+namespace{
+  std::vector<SiPixelQuality::disabledModuleType>::iterator p9;
+  std::vector<SiPixelQuality::disabledModuleType>::const_iterator p10;
+}
+
+
+
