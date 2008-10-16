@@ -50,7 +50,7 @@ PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     EcalRecThreshEtA = cms.double(0.0),
     #Hcal towers
     HcalTowerInnerRadiusA = cms.double(0.1),
-    HcalTowerOuterRadiusa = cms.double(0.4),
+    HcalTowerOuterRadiusA = cms.double(0.4),
     HcalTowerThreshEA = cms.double(0.0),
     isolationtrackThresholdB = cms.double(0.0),
     TrackConeOuterRadiusB = cms.double(0.3),
