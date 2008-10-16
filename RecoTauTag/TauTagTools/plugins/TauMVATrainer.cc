@@ -13,7 +13,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 // Original Author:  Evan K.Friis, UC Davis  (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id$
+// $Id: TauMVATrainer.cc,v 1.1 2008/10/15 00:05:04 friis Exp $
 //
 //
 
@@ -33,7 +33,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 #include "TTree.h"
 #include "TFile.h"
 #include "RecoTauTag/TauTagTools/interface/TauDecayModeTruthMatcher.h"
-#include "RecoTauTag/TauTagTools/interface/Discriminants.h"
+#include "RecoTauTag/TauTagTools/interface/DiscriminantList.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 
 //
@@ -78,7 +78,7 @@ class TauMVATrainer : public edm::EDAnalyzer {
       map<string, TTree*>       myTrainerTrees_;
       PFTauDiscriminantManager  discriminantManager_;
       TFile*                    outputFile_;
-      vector<Discriminant*>     myDiscriminants_;
+      DiscriminantList          myDiscriminants_;
 };
 
 
@@ -99,35 +99,11 @@ TauMVATrainer::TauMVATrainer(const edm::ParameterSet& iConfig):
    // set as signal or background
    discriminantManager_.setSignalFlag(iAmSignal_);
 
-   edm::LogInfo("TauMVATrainer") << "Building discriminants...";
-
-   // USER - DEFINE DISCRIMINANTS USED HERE
-   //
-   myDiscriminants_.push_back(new DecayMode()             ); 
-   myDiscriminants_.push_back(new MainTrackPt()           ); 
-   myDiscriminants_.push_back(new MainTrackAngle()        ); 
-   myDiscriminants_.push_back(new TrackPt()               ); 
-   myDiscriminants_.push_back(new TrackAngle()            ); 
-   myDiscriminants_.push_back(new PiZeroPt()              ); 
-   myDiscriminants_.push_back(new PiZeroAngle()           ); 
-   myDiscriminants_.push_back(new Dalitz()                ); 
-   myDiscriminants_.push_back(new InvariantMassOfSignal() ); 
-   myDiscriminants_.push_back(new InvariantMass()         ); 
-   myDiscriminants_.push_back(new Pt()                    ); 
-   myDiscriminants_.push_back(new Eta()                   ); 
-   myDiscriminants_.push_back(new OutlierPt()             ); 
-   myDiscriminants_.push_back(new OutlierAngle()          ); 
-   myDiscriminants_.push_back(new ChargedOutlierPt()      ); 
-   myDiscriminants_.push_back(new ChargedOutlierAngle()   ); 
-   myDiscriminants_.push_back(new NeutralOutlierPt()      ); 
-   myDiscriminants_.push_back(new NeutralOutlierAngle()   ); 
-   myDiscriminants_.push_back(new OutlierNCharged()       ); 
-
    edm::LogInfo("TauMVATrainer") << "Adding discriminants to TauDiscriminantManager...";
    // add the discriminants to the discriminant manager
-   for(vector<Discriminant*>::const_iterator aDiscriminant  = myDiscriminants_.begin();
-                                             aDiscriminant != myDiscriminants_.end();
-                                           ++aDiscriminant)
+   for(DiscriminantList::const_iterator aDiscriminant  = myDiscriminants_.begin();
+                                       aDiscriminant != myDiscriminants_.end();
+                                     ++aDiscriminant)
    {
       discriminantManager_.addDiscriminant(*aDiscriminant);
    }
@@ -163,13 +139,6 @@ TauMVATrainer::TauMVATrainer(const edm::ParameterSet& iConfig):
 
 TauMVATrainer::~TauMVATrainer()
 {
-   // clean up discriminants
-   for(vector<Discriminant*>::const_iterator aDiscriminant  = myDiscriminants_.begin();
-                                             aDiscriminant != myDiscriminants_.end();
-                                           ++aDiscriminant)
-   {
-      delete *aDiscriminant;
-   }
 }
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id$
+// $Id: TauMVADiscriminator.cc,v 1.1 2008/10/15 00:05:04 friis Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "RecoTauTag/TauTagTools/interface/Discriminants.h"
+#include "RecoTauTag/TauTagTools/interface/DiscriminantList.h"
 #include "RecoTauTag/TauTagTools/interface/PFTauDiscriminantManager.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerRecord.h"
@@ -61,7 +61,7 @@ class TauMVADiscriminator : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       InputTag                  pfTauDecayModeSrc_;
-      vector<Discriminant*>     myDiscriminants_;
+      DiscriminantList          myDiscriminants_;
       PFTauDiscriminantManager  discriminantManager_;
 
       std::vector<PhysicsTools::Variable::Value>        mvaComputerInput_;
@@ -72,29 +72,9 @@ TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
 {
    produces<PFTauDiscriminator>();
 
-   myDiscriminants_.push_back(new DecayMode());
-   myDiscriminants_.push_back(new MainTrackPt());
-   myDiscriminants_.push_back(new MainTrackAngle());
-   myDiscriminants_.push_back(new TrackPt());
-   myDiscriminants_.push_back(new TrackAngle());
-   myDiscriminants_.push_back(new PiZeroPt());
-   myDiscriminants_.push_back(new PiZeroAngle());
-   myDiscriminants_.push_back(new Dalitz());
-   myDiscriminants_.push_back(new InvariantMassOfSignal());
-   myDiscriminants_.push_back(new InvariantMass());
-   myDiscriminants_.push_back(new Pt());
-   myDiscriminants_.push_back(new Eta());
-   myDiscriminants_.push_back(new OutlierPt());
-   myDiscriminants_.push_back(new OutlierAngle());
-   myDiscriminants_.push_back(new ChargedOutlierPt());
-   myDiscriminants_.push_back(new ChargedOutlierAngle());
-   myDiscriminants_.push_back(new NeutralOutlierPt());
-   myDiscriminants_.push_back(new NeutralOutlierAngle());
-   myDiscriminants_.push_back(new OutlierNCharged());
-
-   for(vector<Discriminant*>::const_iterator aDiscriminant  = myDiscriminants_.begin();
-                                             aDiscriminant != myDiscriminants_.end();
-                                           ++aDiscriminant)
+   for(DiscriminantList::const_iterator aDiscriminant  = myDiscriminants_.begin();
+                                        aDiscriminant != myDiscriminants_.end();
+                                      ++aDiscriminant)
    {
       discriminantManager_.addDiscriminant(*aDiscriminant);
    }
@@ -102,13 +82,6 @@ TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
 
 TauMVADiscriminator::~TauMVADiscriminator()
 {
-   //clean up
-   for(vector<Discriminant*>::iterator aDiscriminant  = myDiscriminants_.begin();
-                                       aDiscriminant != myDiscriminants_.end();
-                                     ++aDiscriminant)
-   {
-      delete *aDiscriminant;
-   }
 }
 
 // ------------ method called to produce the data  ------------

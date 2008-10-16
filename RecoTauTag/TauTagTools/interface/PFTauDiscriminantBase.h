@@ -15,6 +15,8 @@
 
 /*  Class: PFTauDiscriminants::Discriminant
  *
+ *  Author: Evan K. Friis, UC Davis friis@physics.ucdavis.edu
+ *
  *  Description:
  *      Abstract base class to hold PFTauDecayMode descriminant functions
  *      is called by a PFTauDiscriminantManager.
