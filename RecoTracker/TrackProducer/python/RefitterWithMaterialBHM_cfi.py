@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackRefitter = cms.EDFilter("TrackRefitter",
-    src = cms.InputTag("generalTracks"),
+    src = cms.InputTag("ctfWithMaterialTracksBeamHaloMuon"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
+    Fitter = cms.string('KFFittingSmootherBH'),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
-    Propagator = cms.string('RungeKuttaTrackerPropagator'),
-
+    Propagator = cms.string('BeamHaloPropagatorAlong'),
+ 
     ### fitting without constraints
     constraint = cms.string(''),
 

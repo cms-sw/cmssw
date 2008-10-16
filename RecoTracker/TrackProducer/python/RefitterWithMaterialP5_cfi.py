@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackRefitter = cms.EDFilter("TrackRefitter",
-    src = cms.InputTag("generalTracks"),
+    src = cms.InputTag("ctfWithMaterialTracksP5"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
+    Fitter = cms.string('FittingSmootherRKP5'),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
