@@ -34,5 +34,4 @@ for (size_t i =0; i<m_current.size(); i++){
 
   }
 
-std::vector<std::string> RunInfo::getFedIn() const{
-  }
+
