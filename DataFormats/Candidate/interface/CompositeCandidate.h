@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.27 2008/05/15 20:16:37 srappocc Exp $
+ * \version $Id: CompositeCandidate.h,v 1.26 2007/12/10 12:16:40 llista Exp $
  *
  */
 
@@ -38,12 +38,12 @@ namespace reco {
 			std::string name="" ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
     /// constructor from values
-    explicit CompositeCandidate( const Particle & p, const std::string& name="" ) :
+    explicit CompositeCandidate( const Particle & p, std::string name="" ) :
       Candidate( p ), name_(name) { }
     /// constructor from values
-    explicit CompositeCandidate( const Candidate & p, const std::string& name="" );
+    explicit CompositeCandidate( const Candidate & p, std::string name="" );
     /// constructor from values
-    explicit CompositeCandidate( const Candidate & p, const std::string& name, role_collection const & roles );
+    explicit CompositeCandidate( const Candidate & p, std::string name, role_collection const & roles );
     /// destructor
     virtual ~CompositeCandidate();
     /// get the name of the candidate
@@ -71,12 +71,12 @@ namespace reco {
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
     // Get candidate based on role
-    virtual Candidate *       daughter(const std::string& s );
-    virtual const Candidate * daughter(const std::string& s ) const;
+    virtual Candidate *       daughter( std::string s );
+    virtual const Candidate * daughter( std::string s ) const;
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( const Candidate &, const std::string& s="" );
+    void addDaughter( const Candidate &, std::string s="" );
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( std::auto_ptr<Candidate>, const std::string& s="" );
+    void addDaughter( std::auto_ptr<Candidate>, std::string s="" );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
     // clear roles

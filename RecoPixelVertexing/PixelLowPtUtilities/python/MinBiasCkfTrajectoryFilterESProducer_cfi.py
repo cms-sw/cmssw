@@ -17,6 +17,6 @@ minBiasTrajectoryFilterESProducer = cms.ESProducer("CompositeTrajectoryFilterESP
 )
 
 ckfBaseTrajectoryFilterForMinBias.ComponentName = 'ckfBaseTrajectoryFilterForMinBias'
-#ckfBaseTrajectoryFilterForMinBias.filterPset.minimumNumberOfHits = 3
-#ckfBaseTrajectoryFilterForMinBias.filterPset.minPt = 0.075
+ckfBaseTrajectoryFilterForMinBias.filterPset.minimumNumberOfHits = 3
+ckfBaseTrajectoryFilterForMinBias.filterPset.minPt = 0.075
 

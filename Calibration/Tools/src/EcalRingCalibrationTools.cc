@@ -257,7 +257,7 @@ void EcalRingCalibrationTools::initializeFromGeometry()
   
   
   for (int ring=0; ring<N_RING_ENDCAP/2; ring++){
-    // std::cout<<"***********************EE ring: "<<ring<<" eta "<<(etaBoundary[ring] + etaBoundary[ring+1])/2.<<std::endl;
+    //std::cout<<"EE ring: "<<ring<<" eta "<<(etaBoundary[ring] + etaBoundary[ring+1])/2.<<std::endl;
     for (int ix=0; ix<EEDetId::IX_MAX; ix++)
       for (int iy=0; iy<EEDetId::IY_MAX; iy++)
 	if (m_cellPosEta[ix][iy]>etaBoundary[ring] && m_cellPosEta[ix][iy]<etaBoundary[ring+1])

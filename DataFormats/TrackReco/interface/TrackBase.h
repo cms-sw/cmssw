@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.67 2008/06/14 17:38:26 burkett Exp $
+ * \version $Id: TrackBase.h,v 1.68 2008/08/11 16:06:17 mangano Exp $
  *
  */
 
@@ -78,7 +78,10 @@ namespace reco {
     /// index type
     typedef unsigned int index;
     /// track algorithm
-    enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7, algoSize=8 };
+    enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, 
+			  iter1=5, iter2=6, iter3=7, iter4=8, iter5=9, iter6=10, iter7=11, iter8=12, iter9=13,iter10=14,
+			  conversion=15, nuclInter=16,
+			  algoSize=17 };
     static const std::string algoNames[];
 
     /// track quality
@@ -280,6 +283,15 @@ namespace reco {
       case iter1: return "iter1";
       case iter2: return "iter2";
       case iter3: return "iter3";
+      case iter4: return "iter4";
+      case iter5: return "iter5";
+      case iter6: return "iter6";
+      case iter7: return "iter7";
+      case iter8: return "iter8";
+      case iter9: return "iter9";
+      case iter10: return "iter10";
+      case conversion: return "conversion";
+      case nuclInter: return "nuclInter";
       }
     return "undefAlgorithm";
   }

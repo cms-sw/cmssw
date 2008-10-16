@@ -32,6 +32,23 @@ namespace cond{
     virtual unsigned int append(  cond::Time_t sinceTime,
 				  const std::string& payloadToken
 				  );
+    
+    /// insert a payload with known since in any position
+    unsigned int 
+    freeInsert(cond::Time_t sinceTime ,
+               const std::string& payloadToken
+      	      );
+
+    // delete entry at a given time
+    virtual  unsigned int deleteEntry(cond::Time_t time,
+					bool withPayload=false );
+
+
+    virtual unsigned int replaceInterval(cond::Time_t sinceTime,
+					 cond::Time_t tillTime,
+					 const std::string& payloadToken,
+					 bool deletePayload=false);
+    
 
     virtual void deleteEntries( bool withPayload=false );
 

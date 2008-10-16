@@ -798,7 +798,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             LogTrace("HLTLevel1GTSeed")
                 << "L1ETM    " << "\t"
-                << "ET =   " << obj->et() << "\t"
+                << "ET =   " << obj->etMiss() << "\t"
                 << "phi =  " << obj->phi();
         }
 
@@ -808,7 +808,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             LogTrace("HLTLevel1GTSeed")
                 << "L1ETT    " << "\t"
-                << "ET =   " << obj->et();
+                << "ET =   " << obj->etTotal();
         }
 
         for (size_t i = 0; i != sizeSeedsL1HTT; i++) {
@@ -817,7 +817,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
             LogTrace("HLTLevel1GTSeed")
                 << "L1HTT    " << "\t"
-                << "ET =   " << obj->et();
+                << "ET =   " << obj->etHad();
         }
 
         LogTrace("HLTLevel1GTSeed") << " \n\n"

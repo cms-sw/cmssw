@@ -75,7 +75,9 @@ process.DQMStore = cms.Service(\"DQMStore\")
 process.source = cms.Source(\"PoolSource\",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
-    fileNames = cms.untracked.vstring()
+    fileNames = cms.untracked.vstring(
+
+)
 
 
 )
@@ -87,6 +89,9 @@ process.source = cms.Source(\"PoolSource\",
 process.fileSaver = cms.EDFilter(\"METFileSaver\",
     OutputFile = cms.untracked.string('METTester_data_${i}.root')
 ) 
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+
 process.p = cms.Path(process.fileSaver*process.calotoweroptmaker*process.analyzeRecHits*process.analyzecaloTowers*process.analyzeGenMET*process.analyzeGenMETFromGenJets*process.analyzeHTMET*process.analyzeCaloMET)
 process.schedule = cms.Schedule(process.p)
 

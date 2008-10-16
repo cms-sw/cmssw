@@ -12,7 +12,8 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
 					      const PixelClusterParameterEstimator* cpe) : 
     MeasurementDet (gdet),
     theCPE(cpe),
-    empty(true)
+    empty(true),
+    active_(true)
   {
     thePixelGDU = dynamic_cast<const PixelGeomDetUnit*>(gdet);
     if (thePixelGDU == 0) {
@@ -28,6 +29,13 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 {
   std::vector<TrajectoryMeasurement> result;
 
+  if (active_ == false) {
+    result.push_back( TrajectoryMeasurement( stateOnThisDet, 
+    		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
+		0.F));
+    return result;
+  }
+ 
   MeasurementDet::RecHitContainer allHits = recHits( stateOnThisDet);
   for (RecHitContainer::const_iterator ihit=allHits.begin();
        ihit != allHits.end(); ihit++) {
@@ -66,6 +74,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 {
   RecHitContainer result;
   if (empty == true ) return result;
+  if (active_ == false) return result; 
   for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
     SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci ); 
     result.push_back( buildRecHit( cluster, ts.localParameters() ) );

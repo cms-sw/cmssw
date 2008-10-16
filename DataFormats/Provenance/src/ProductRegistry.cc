@@ -31,6 +31,10 @@ namespace edm {
   ProductRegistry::ProductRegistry() :
       productList_(),
       nextID_(1),
+      transients_() {
+  }
+
+  ProductRegistry::Transients::Transients() :
       frozen_(false),
       constProductList_(),
       productLookup_(),
@@ -40,10 +44,8 @@ namespace edm {
   ProductRegistry::ProductRegistry(ProductList const& productList, unsigned int nextID) :
       productList_(productList),
       nextID_(nextID),
-      frozen_(true),
-      constProductList_(),
-      productLookup_(),
-      elementLookup_() {
+      transients_() {
+    frozen() = true;
   }
 
   void
@@ -104,14 +106,14 @@ namespace edm {
   void
   ProductRegistry::setFrozen() const {
     checkAllDictionaries();
-    if(frozen_) return;
-    frozen_ = true;
+    if(frozen()) return;
+    frozen() = true;
     initializeTransients();
   }
   
   void
   ProductRegistry::throwIfFrozen() const {
-    if (frozen_) {
+    if (frozen()) {
       throw cms::Exception("ProductRegistry", "throwIfFrozen")
             << "cannot modify the ProductRegistry because it is frozen\n";
     }
@@ -119,7 +121,7 @@ namespace edm {
   
   void
   ProductRegistry::throwIfNotFrozen() const {
-    if (!frozen_) {
+    if (!frozen()) {
       throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
             << "cannot read the ProductRegistry because it is not yet frozen\n";
     }
@@ -203,13 +205,13 @@ namespace edm {
   }
 
   void ProductRegistry::initializeTransients() const {
-    constProductList_.clear();
-    productLookup_.clear();
-    elementLookup_.clear();
+    constProductList().clear();
+    productLookup().clear();
+    elementLookup().clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
-      constProductList_.insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
+      constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
 
-      ProcessLookup& processLookup = productLookup_[i->first.friendlyClassName_];
+      ProcessLookup& processLookup = productLookup()[i->first.friendlyClassName_];
       std::vector<BranchID>& vint = processLookup[i->first.processName_];
       vint.push_back(i->second.branchID());
       //[could use productID instead]
@@ -254,7 +256,7 @@ namespace edm {
     TypeID typeID(type.TypeInfo());
     std::string friendlyClassName = typeID.friendlyClassName();
     
-    ProcessLookup& processLookup = elementLookup_[friendlyClassName];
+    ProcessLookup& processLookup = elementLookup()[friendlyClassName];
     std::vector<BranchID>& vint = processLookup[bk.processName_];
     vint.push_back(id);    
   }

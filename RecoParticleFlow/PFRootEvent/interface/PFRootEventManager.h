@@ -15,8 +15,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
@@ -26,14 +24,6 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -207,7 +197,6 @@ class PFRootEventManager {
   
   /// preprocess a rectrack vector from a given rectrack branch
   void PreprocessRecTracks( reco::PFRecTrackCollection& rectracks); 
-  void PreprocessRecTracks( reco::GsfPFRecTrackCollection& rectracks); 
   
   /// preprocess a rechit vector from a given rechit branch
   void PreprocessRecHits( reco::PFRecHitCollection& rechits, 
@@ -312,8 +301,6 @@ class PFRootEventManager {
   /// track mask set to true for rechits inside TCutG
   void fillTrackMask( std::vector<bool>& mask, 
                       const reco::PFRecTrackCollection& tracks ) const;
-  void fillTrackMask( std::vector<bool>& mask, 
-                      const reco::GsfPFRecTrackCollection& tracks ) const;
                        
   /// find the closest PFSimParticle to a point (eta,phi) in a given detector
   const reco::PFSimParticle& 
@@ -394,19 +381,6 @@ class PFRootEventManager {
   /// standard reconstructed tracks branch  
   TBranch*   stdTracksBranch_;          
   
-  /// GSF standard reconstructed tracks branch 
-  TBranch*   gsfrecTracksBranch_;
-
-  ///Muons branch
-  TBranch*   muonsBranch_; 
-  
-  ///Nuclear interaction branch
-  TBranch*   nuclearBranch_; 
-
-  ///Conversions branch
-  TBranch*   conversionBranch_; 
-
-
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
 
@@ -461,22 +435,10 @@ class PFRootEventManager {
 
   /// reconstructed tracks
   reco::PFRecTrackCollection    recTracks_;
-
-  /// reconstructed GSF tracks
-  reco::GsfPFRecTrackCollection  gsfrecTracks_; 
   
   /// standard reconstructed tracks
   reco::TrackCollection    stdTracks_;
   
-  /// muons
-    reco::MuonCollection  muons_;
-
-  /// nuclear interactions
-  reco::PFNuclearInteractionCollection nuclear_;
-
-  /// conversions
-  reco::PFConversionCollection conversion_;
-
   /// true particles
   reco::PFSimParticleCollection trueParticles_;
 
@@ -633,16 +595,6 @@ class PFRootEventManager {
   /// debug printouts for jet algo on/off
   bool   jetsDebug_;
       
-
-  /// Fastsim or fullsim
-  bool  fastsim_;
-
-  /// Use of nuclear interaction in PFAlgo
-  bool   useNuclear_;
-
-  /// Use of conversions in PFAlgo 
-  bool   useConversions_;  
-
   // MC Truth tools              ---------------------------------------
 
   /// particle data table.

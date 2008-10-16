@@ -13,6 +13,19 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
+  BranchDescription::Transients::Transients() :
+    moduleDescriptionID_(),
+    productIDtoAssign_(),
+    branchName_(),
+    wrappedName_(),
+    produced_(false),
+    present_(true),
+    transient_(false),
+    type_(),
+    splitLevel_(),
+    basketSize_() {
+   }
+
   BranchDescription::BranchDescription() :
     branchType_(InEvent),
     moduleLabel_(),
@@ -22,19 +35,10 @@ namespace edm {
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
-    moduleDescriptionID_(),
     psetIDs_(),
     processConfigurationIDs_(),
     branchAliases_(),
-    productIDtoAssign_(),
-    branchName_(),
-    wrappedName_(),
-    produced_(false),
-    present_(true),
-    transient_(false),
-    type_(),
-    splitLevel_(invalidSplitLevel),
-    basketSize_(invalidBasketSize)
+    transients_()
   {
     // do not call init here! It will result in an exception throw.
   }
@@ -56,20 +60,14 @@ namespace edm {
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
-    moduleDescriptionID_(modDesc.id()),
     psetIDs_(),
     processConfigurationIDs_(),
     branchAliases_(aliases),
-    productIDtoAssign_(),
-    branchName_(),
-    wrappedName_(),
-    produced_(true),
-    present_(true),
-    transient_(false),
-    type_(),
-    splitLevel_(invalidSplitLevel),
-    basketSize_(invalidBasketSize)
+    transients_()
   {
+    present() = true;
+    produced() = true;
+    moduleDescriptionID() = modDesc.id();
     psetIDs_.insert(modDesc.parameterSetID());
     processConfigurationIDs_.insert(modDesc.processConfigurationID());
     init();
@@ -96,25 +94,20 @@ namespace edm {
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
-    moduleDescriptionID_(mdID),
     psetIDs_(psIDs),
     processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
-    branchName_(),
-    wrappedName_(),
-    produced_(true),
-    present_(true),
-    transient_(false),
-    type_(),
-    splitLevel_(invalidSplitLevel),
-    basketSize_(invalidBasketSize)
+    transients_()
   {
+    present() = true;
+    produced() = true;
+    moduleDescriptionID() = mdID;
     init();
   }
 
   void
   BranchDescription::init() const {
-    if (!branchName_.empty()) {
+    if (!branchName().empty()) {
       return;	// already called
     }
     throwIfInvalid_();
@@ -142,44 +135,48 @@ namespace edm {
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    branchName_.reserve(friendlyClassName().size() +
+    branchName().reserve(friendlyClassName().size() +
 			moduleLabel().size() +
 			productInstanceName().size() +
 			processName().size() + 4);
-    branchName_ += friendlyClassName();
-    branchName_ += underscore;
-    branchName_ += moduleLabel();
-    branchName_ += underscore;
-    branchName_ += productInstanceName();
-    branchName_ += underscore;
-    branchName_ += processName();
-    branchName_ += period;
+    branchName() += friendlyClassName();
+    branchName() += underscore;
+    branchName() += moduleLabel();
+    branchName() += underscore;
+    branchName() += productInstanceName();
+    branchName() += underscore;
+    branchName() += processName();
+    branchName() += period;
 
     if (!branchID_.isValid()) {
-      branchID_.setID(branchName_);
+      branchID_.setID(branchName());
     }
 
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
-    transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+    transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
 
-    wrappedName_ = wrappedClassName(fullClassName());
-    type_ = ROOT::Reflex::Type::ByName(wrappedName_);
-    ROOT::Reflex::PropertyList wp = type_.Properties();
+    wrappedName() = wrappedClassName(fullClassName());
+    type() = ROOT::Reflex::Type::ByName(wrappedName());
+    ROOT::Reflex::PropertyList wp = type().Properties();
     if (wp.HasProperty("splitLevel")) {
-	splitLevel_ = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
-	if (splitLevel_ < 0) {
+	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+	if (splitLevel() < 0) {
           throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-	  splitLevel_ << " is specified for class " << wrappedName_ << ".'\n";
+	  splitLevel() << " is specified for class " << wrappedName() << ".'\n";
 	}
-	++splitLevel_; //Compensate for wrapper
+	++splitLevel(); //Compensate for wrapper
+    } else {
+	splitLevel() = invalidSplitLevel; 
     }
     if (wp.HasProperty("basketSize")) {
-	basketSize_ = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
-	if (basketSize_ <= 0) {
+	basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+	if (basketSize() <= 0) {
           throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
-	  basketSize_ << " is specified for class " << wrappedName_ << "'.\n";
+	  basketSize() << " is specified for class " << wrappedName() << "'.\n";
 	}
+    } else {
+	basketSize() = invalidBasketSize; 
     }
   }
 
@@ -200,9 +197,9 @@ namespace edm {
     psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
     processConfigurationIDs_.insert(other.processConfigurationIDs().begin(), other.processConfigurationIDs().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    present_ = present_ || other.present();
-    if (splitLevel_ == invalidSplitLevel) splitLevel_ = other.splitLevel();
-    if (basketSize_ == invalidBasketSize) basketSize_ = other.basketSize();
+    present() = present() || other.present();
+    if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
+    if (basketSize() == invalidBasketSize) basketSize() = other.basketSize();
   }
 
   void
@@ -243,7 +240,7 @@ namespace edm {
     if (friendlyClassName_.empty())
       throwExceptionWithText("Friendly class name is not allowed to be empty");
 
-    if (produced_ && !moduleDescriptionID_.isValid())
+    if (produced() && !moduleDescriptionID().isValid())
       throwExceptionWithText("Invalid ModuleDescriptionID detected");    
   }
 

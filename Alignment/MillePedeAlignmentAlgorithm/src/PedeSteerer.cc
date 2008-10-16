@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.25 $
- *  $Date: 2008/07/31 16:37:13 $
+ *  $Revision: 1.21 $
+ *  $Date: 2008/02/15 14:42:26 $
  *  (last update by $Author: flucke $)
  */
 
@@ -20,7 +20,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
@@ -52,7 +51,6 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
   myParameterStore(store), myLabels(labels), myConfig(config),
   myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
   myNoSteerFiles(noSteerFiles),
-  myIsSteerFileDebug(myConfig.getUntrackedParameter<bool>("steerFileDebug")),
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theCoordMaster(0)
 {
@@ -73,37 +71,12 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
   // Coordinate system selection and correction before everything
   theCoordDefiners = this->selectCoordinateAlis(alis);
   if (!theCoordDefiners.empty()) { // Create steering with constraints to define coordinate system:
-    // OK, some hacks:
-    // - we want a composite with global coordinates where tracker and muon are components
-    //   (to call RigidBodyAl.Param.->globalParameters() in correctToReferenceSystem(..))
-    // - so we create a AlignableComposite and add tracker and muon
-    // - but the addComponent(..) method is so cute that it calculates position from 
-    //   daughters' deepComponents()
-    // - so we want to move it back to (0,0,0), but ali->move(..) would move daughters as well
-    //   => cheat with a const_cast and move only the surface back
-    // - this hacked master object does not have a label for its parameters
-    //   => some warnings if debug output selected in pedeSteer files
-    // - we must not delete our new master (little mem. leak...) since that would delete
-    //   the daughters as well!
-    if (aliTracker) {
-      theCoordMaster = new AlignableComposite(aliTracker->id(), align::invalid);
-      theCoordMaster->addComponent(aliTracker);
-    } else if (aliMuon) {
-      theCoordMaster = new AlignableComposite(aliMuon->id(), align::invalid);
-    } else {
-      throw cms::Exception("BadConfig")
-	<< "[PedeSteerer]" << "Cannot define global coordinate system "
-	<< "with neither tracker nor muon!";
-    }
-    if (aliMuon) theCoordMaster->addComponent(aliMuon); // tracker is already added if existing
-
-    const Alignable::PositionType &tmpPos = theCoordMaster->globalPosition();
-    AlignableSurface & masterSurf = const_cast<AlignableSurface&>(theCoordMaster->surface());
-    masterSurf.move(align::GlobalVector(-tmpPos.x(),-tmpPos.y(),-tmpPos.z()));
-
-    if (this->isCorrectToRefSystem(theCoordDefiners)) { // defined by 's' (MC): 'correct' misalignment
-      this->correctToReferenceSystem(); // really before 'defineCoordinates'?
-    }
+    theCoordMaster = aliTracker; // Both tracker and muon have global coordinates, though...
+    if (!theCoordMaster) theCoordMaster = aliMuon; // ...which coordinates should not really matter anyway.
+    // FIXME: With both tracker and muon, only tracker will be shifted in correctToReferenceSystem!
+    // Could be fixed by introducing AlignableComposite with both, but must prevent double deletion.
+    // If this has 'global frame', correctToReferenceSystem can use globalParameters (as it does)
+    this->correctToReferenceSystem(); // really before 'defineCoordinates'?
   } 
 
 }
@@ -111,7 +84,6 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 //___________________________________________________________________________
 PedeSteerer::~PedeSteerer()
 {
-  // delete theCoordMaster; NO, see above
 }
 
 //_________________________________________________________________________
@@ -157,8 +129,7 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const std::vector<Alignable
       const char selector = selVar->fullSelection()[iParam];
       if (selector == 'C' || selector == 'F' || selector == 'H') {
 	++numNoHieraPar;
-      } else if (selector == 'c' || selector == 'f' || selector == '1' || selector == 'r'
-                 || selector == 's') {
+      } else if (selector == 'c' || selector == 'f' || selector == '1' || selector == 'r') {
 	++numHieraPar;
       } // else ... accept '0' as undetermined
     }
@@ -193,13 +164,12 @@ bool PedeSteerer::checkParameterChoices(const std::vector<Alignable*> &alis) con
     for (unsigned int iParam = 0; static_cast<int>(iParam) < paras->size(); ++iParam) {
       const char sel = selVar->fullSelection()[iParam];
       if (sel != 'f' && sel != 'F' && sel != 'c' && sel != 'C' &&
-	  sel != '0' && sel != '1' && sel != 'H' && sel != 'r' && sel != 's') {
+	  sel != '0' && sel != '1' && sel != 'H' && sel != 'r') {
 	throw cms::Exception("BadConfig")
 	  << "[PedeSteerer::unknownParameterChoices] " 
 	  << "Unexpected parameter selector '" << sel
 	  << "', use \n'f/F' (fix),\n'c/C' (fix at correct pos.),\n'1/H' (free),\n"
-	  << "'r/s' (free, but defining reference system, trying to correct misalignment if 's')"
-          << " or \n'0' (ignore).\n"
+	  << "'r' (free, but defining reference system) or \n'0' (ignore).\n"
 	  << "Capital letters mean that the Alignable is taken out of a possible hierarchy,\n"
 	  << "but must be used consistently for all its parameters.";
 	return false; // unreached
@@ -247,10 +217,6 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
   int result = 0;
   float fixAt = 0.;
   if (selector == 'c' || selector == 'C') {
-    if (ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody) {
-      throw cms::Exception("BadConfig") 
-	<< "PedeSteerer::fixParameter: correction (c/C) possible only for RigidBodyParameters";
-    }
     fixAt = -this->parameterSign() * RigidBodyAlignmentParameters(ali, true).parameters()[iParam];
     result = -1;
   } else if (selector == 'f' || selector == 'F') {
@@ -267,9 +233,9 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
     const unsigned int aliLabel = myLabels->alignableLabel(ali);
     file << myLabels->parameterLabel(aliLabel, iParam) << "  " 
          << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
-    if (myIsSteerFileDebug) { // debug
+    if (0) { // debug
       const GlobalPoint position(ali->globalPosition());
-      file << "  * id " << ali->id() << ", eta " << position.eta() << ", z " << position.z()
+      file << "* eta " << position.eta() << ", z " << position.z()
            << ", r " << position.perp() << ", phi " << position.phi();
     }
     file << "\n";
@@ -291,18 +257,18 @@ std::vector<Alignable*> PedeSteerer::selectCoordinateAlis(const std::vector<Alig
     unsigned int nonRefParam = 0;
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
       const char selector = selVar->fullSelection()[iParam];
-      if (selector == 'r' || selector == 's') {
+      if (selector == 'r') {
 	++refParam;
       } else if (selector != '0' && selector != 'f') { // allow also 'c'?
 	++nonRefParam;
       }
     }
-    // Check whether some 'r/s' selection string. If yes and selection makes sense, add to result:
+    // Check whether some 'r' selection string. If yes and selection makes sense, add to result:
     if (refParam) {
       if (nonRefParam) {
 	throw cms::Exception("BadConfig") 
 	  << "[PedeSteerer::selectCoordinateAlis] All active parameters of alignables defining "
-	  << "the coordinate system must be marked with 'r/s' (or fixed, 'f')!";
+	  << "the coordinate system must be marked with 'r' (or fixed, 'f')!";
       } else {
 	Alignable *mother = *iAli;
 	while ((mother = mother->mother())) {
@@ -331,42 +297,12 @@ void PedeSteerer::defineCoordinates(const std::vector<Alignable*> &alis, Alignab
     throw cms::Exception("BadConfig")
       << "[PedeSteerer::defineCoordinates] " << "No master alignable or it has parameters!";
   }
-  if (myIsSteerFileDebug) { // See constructor comments about hack:
-    edm::LogError("Alignment") << "@SUB=PedeSteerer::defineCoordinates"
-			       << "Ignore following LogicErrors from PedeLabeler.";
-  }
   AlignmentParameters *par = new RigidBodyAlignmentParameters(aliMaster, false);
   aliMaster->setAlignmentParameters(par); // hierarchyConstraint needs parameters
   this->hierarchyConstraint(aliMaster, alis, *filePtr);
   aliMaster->setAlignmentParameters(0); // erase dummy parameters
 
   delete filePtr; // automatically flushes, no problem if NULL ptr.   
-}
-
-//_________________________________________________________________________
-bool PedeSteerer::isCorrectToRefSystem(const std::vector<Alignable*> &coordDefiners) const
-{
-  bool doCorrect = false;
-  bool doNotCorrect = false;
-  for (std::vector<Alignable*>::const_iterator it = coordDefiners.begin(), iE=coordDefiners.end();
-       it != iE; ++it) {
-    SelectionUserVariables *selVar = 
-      ((*it)->alignmentParameters() ? 
-       dynamic_cast<SelectionUserVariables*>((*it)->alignmentParameters()->userVariables()) : 0);
-    if (!selVar) continue;  // is an error!?
-
-    for (unsigned int i = 0; i < selVar->fullSelection().size(); ++i) {
-      if (selVar->fullSelection()[i] == 'r') doNotCorrect = true;
-      else if (selVar->fullSelection()[i] == 's') doCorrect = true;
-    }
-  }
-
-  if (doCorrect && doNotCorrect) {
-    throw cms::Exception("BadConfig")
-      << "[PedeSteerer::doCorrectToRefSystem]: Parameter selection 's' and 'r' must not coexist!";
-  }
-
-  return doCorrect;
 }
 
 //_________________________________________________________________________
@@ -407,11 +343,11 @@ void PedeSteerer::correctToReferenceSystem()
     }
 
     const GlobalVector globalShift(meanPars[RbPars::dx],meanPars[RbPars::dy],meanPars[RbPars::dz]);
-    theCoordMaster->move(-globalShift); // sign to revert
     align::EulerAngles globalAngles(3);
     globalAngles[0] = meanPars[RbPars::dalpha];
     globalAngles[1] = meanPars[RbPars::dbeta];
     globalAngles[2] = meanPars[RbPars::dgamma];
+    theCoordMaster->move(-globalShift); // sign to revert
     theCoordMaster->rotateInGlobalFrame(align::toMatrix(-globalAngles)); // sign to revert
   }
   
@@ -460,6 +396,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
                                       const std::vector<Alignable*> &components,
 				      std::ofstream &file) const
 {
+  static AlignableObjectId objId; // static since costly constructor FIXME?
+
   typedef AlignmentParameterStore::ParameterId ParameterId;
   typedef std::vector<Alignable*>::size_type IndexType;
 
@@ -494,9 +432,11 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       const unsigned int paramLabel = myLabels->parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       aConstr << paramLabel << "    " << factors[iParam];
-      if (myIsSteerFileDebug) { // debug
-	AlignableObjectId objId; // costly constructor, but only debug here...
+      if (true) { // debug
+	const TrackerAlignableId aliId;
+
 	aConstr << "   ! for param " << compParNum << " of a " 
+// 		<< aliId.alignableTypeName(aliSubComp) 
 		<< objId.typeToName(aliSubComp->alignableObjectId())
 		<< " (label " << aliLabel << ")";
       }
@@ -504,12 +444,13 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     } // end loop on params
 
     if (!aConstr.str().empty()) {
-      if (myIsSteerFileDebug) { //debug
-	AlignableObjectId objId; // costly constructor, but only debug here...
+      if (true) { //debug
+	const TrackerAlignableId aliId;
 	file << "\n* Nr. " << iConstr << " of a '"
 	     << objId.typeToName(ali->alignableObjectId()) << "' (label "
 	     << myLabels->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
-	     << "), position " << ali->globalPosition()
+	     << "), layer " << aliId.typeAndLayerFromDetId(ali->id()).second
+	     << ", position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
       }
       file << "\nConstraint   0.\n" << aConstr.str(); // in future 'Wconstraint'?
@@ -598,12 +539,8 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
       }
       const unsigned int aliLabel = myLabels->alignableLabel(*iAli);
       (*filePtr) << myLabels->parameterLabel(aliLabel, iParam) << "   0.   " 
-                 << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam));
-      if (myIsSteerFileDebug) {
-	(*filePtr) << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId());
-      }
-      (*filePtr) << '\n';
-
+                 << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam)) 
+		 << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId()) << '\n';
       ++nPresiParam;
     } // end loop on parameters for alignables with chosen presigmas
   } // end loop on alignables

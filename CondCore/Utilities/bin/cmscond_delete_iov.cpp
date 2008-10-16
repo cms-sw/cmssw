@@ -1,7 +1,8 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -10,6 +11,7 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/Utilities/interface/CommonOptions.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 
@@ -19,31 +21,28 @@
 
 
 int main( int argc, char** argv ){
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_delete_iov [options] \n");
-  visible.add_options()
-    ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
-    ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  cond::CommonOptions myopt("cmscond_delete_iov");
+  myopt.addConnect();
+  myopt.addAuthentication(true);
+  myopt.addDictionary();
+  myopt.visibles().add_options()
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
     ("withPayload","delete payload data associated with the specified tag (default off)")
-    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if withPayload)")
-    ("debug,d","switch on debug mode")
-    ("help,h", "help message")
     ;
-  desc.add(visible);
+  myopt.description().add( myopt.visibles() );
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).run(), vm);
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
     std::cerr << er.what()<<std::endl;
     return 1;
   }
   if (vm.count("help")) {
-    std::cout << visible <<std::endl;;
+    std::cout << myopt.visibles() <<std::endl;;
     return 0;
   }
   std::string connect;
@@ -77,32 +76,30 @@ int main( int argc, char** argv ){
   }
   if(vm.count("withPayload")){
     withPayload=true;
-    if(!vm.count("dictionary")){
-      std::cerr <<"[Error] no dictionary[D] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
+    if(vm.count("dictionary")){
       dictionary=vm["dictionary"].as<std::string>();
     }
   }
   if(vm.count("debug")){
     debug=true;
   }
-
-
-  if (!dictionary.empty()) {
-    std::string dictlibrary=seal::SharedLibrary::libname( dictionary );
+  
+  std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
+  
+  if (!dictlibrary.empty())
     try {
       seal::SharedLibrary::load( dictlibrary );
     }catch ( seal::SharedLibraryError *error) {
       throw std::runtime_error( error->explainSelf().c_str() );
     }
-  }
-
-  
   cond::DBSession* session=new cond::DBSession;
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
   }else{
     session->configuration().setAuthenticationMethod( cond::Env );
   }
@@ -111,18 +108,6 @@ int main( int argc, char** argv ){
   }else{
     session->configuration().setMessageLevel( cond::Error );
   }
-  //rely on default
-  //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
-  //session->configuration().connectionConfiguration()->enableConnectionSharing();
-  //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections(); 
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
-  ::putenv(const_cast<char*>(authenv.c_str()));
-  //std::string catalog("pfncatalog_memory://POOL_RDBMS?");
-  //catalog.append(connect);
   cond::Connection con(connect,-1);
   session->open();
   con.connect(session);

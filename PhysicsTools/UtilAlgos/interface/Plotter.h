@@ -136,30 +136,6 @@ class VariablePlotter : public Plotter {
       { histogramIterator->second->fill(iEvent); }
   }
 
-  ~VariablePlotter(){
-    // CANNOT DO THAT because of TFileService holding the histograms
-    /*    //loop over all subdirectories and delete all ConfigurableHistograms
-	  Directories::iterator dir_It = directories_.begin();
-	  Directories::iterator dir_It_end = directories_.end();
-	  // loop directories
-	  for (;dir_It!=dir_It_end;++dir_It){
-	  Directory & currentDirectory=dir_It->second;
-	  SubDirectories & currentSetOfSubDirectories=currentDirectory.subDir;
-	  SubDirectories::iterator subDir_It = currentSetOfSubDirectories.begin();
-	  SubDirectories::iterator subDir_It_end = currentSetOfSubDirectories.end();
-	  //loop subdirectories
-	  for (;subDir_It!=subDir_It_end;++subDir_It){
-	  DirectoryHistos::iterator histogramIterator=subDir_It->second.histos.begin();
-	  DirectoryHistos::iterator histogramIterator_end=subDir_It->second.histos.end();
-	  //loop configurable histograms
-	  for(; histogramIterator!=histogramIterator_end;++histogramIterator){
-	  // by doing that you are removing the histogram from the TFileService too. and this will crash
-	  //	  delete histogramIterator->second;
-	  }
-	  }
-	  }
-    */
-  }
   void complete(){
     
     //loop over all subdirectories and call complete() on all ConfigurableHistograms
@@ -190,6 +166,7 @@ class VariablePlotter : public Plotter {
   class SubDirectory {
   public:
     SubDirectory() : dir(0){}
+    //    SubDirectory(TFileDirectory d) : dir(new TFileDirectory(d)){}
     std::string dirName;
     DirectoryHistos histos;
     TFileDirectory * dir;

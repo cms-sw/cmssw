@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.21 2008/07/03 04:07:10 wmtan Exp $
+$Id: RawInputSource.cc,v 1.22 2008/07/31 23:11:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -102,7 +102,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   RawInputSource::readIt(EventID const&) {
-      throw cms::Exception("LogicError","RawInputSource::readEvent_(EventID const& eventID)")
+      throw edm::Exception(errors::LogicError,"RawInputSource::readEvent_(EventID const& eventID)")
         << "Random access read cannot be used for RawInputSource.\n"
         << "Contact a Framework developer.\n";
   }
@@ -110,7 +110,7 @@ namespace edm {
   // Not yet implemented
   void
   RawInputSource::skip(int) {
-      throw cms::Exception("LogicError","RawInputSource::skip(int offset)")
+      throw edm::Exception(errors::LogicError,"RawInputSource::skip(int offset)")
         << "Random access skip cannot be used for RawInputSource\n"
         << "Contact a Framework developer.\n";
   }

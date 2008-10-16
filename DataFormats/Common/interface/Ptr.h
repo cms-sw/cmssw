@@ -32,6 +32,8 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 
+#include "FWCore/Utilities/interface/EDMException.h"
+
 // forward declarations
 namespace edm {
   template <typename T>
@@ -189,9 +191,18 @@ namespace edm {
     void getData_() const { 
       if(!hasCache() && 0 != productGetter()) {
         void const* ad = 0;
-        productGetter()->getIt(core_.id())->setPtr(typeid(T),
-                                                   key_,
-                                                   ad);
+         const EDProduct* prod = productGetter()->getIt(core_.id());
+         if(prod==0) {
+            throw edm::Exception(errors::ProductNotFound)
+            << "A request to resolve an edm::Ptr to a product containing items of type: "
+            << typeid(T).name()
+            << " with ProductID "<<core_.id()
+            << "\ncan not be satisfied because the product cannot be found."
+            << "\nProbably the branch containing the product is not stored in the input file.\n";
+         }
+         prod->setPtr(typeid(T),
+                      key_,
+                      ad);
         core_.setProductPtr(ad);
       }
     }

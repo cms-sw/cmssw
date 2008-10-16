@@ -1,9 +1,11 @@
 /*
 L2 Tau Trigger Isolation Producer
+
 Author: Michail Bachtis
 University of Wisconsin-Madison
 e-mail: bachtis@hep.wisc.edu
 */
+
 
 // system include files
 #include <memory>
@@ -88,8 +90,11 @@ class L2TauIsolationProducer : public edm::EDProducer {
       //ECALClustering
       bool ECALClustering_run_;
       double ECALClustering_clusterRadius_;
-      double ECALClustering_innerCone_;
-      double ECALClustering_outerCone_;
-      double ECALClustering_clusterThreshold_;
+
+      
+
+      
+
+
 };
 

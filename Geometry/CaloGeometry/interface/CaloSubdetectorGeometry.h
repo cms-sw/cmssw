@@ -15,15 +15,15 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2008/06/26 14:44:54 $
-$Revision: 1.17 $
+$Date: 2007/09/21 06:08:06 $
+$Revision: 1.13 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
 
    public:
 
-      typedef  std::vector< const CaloCellGeometry * > CellCont;
+      typedef  __gnu_cxx::hash_map< unsigned int, const CaloCellGeometry *> CellCont;
 
       typedef std::set<DetId>       DetIdSet;
 
@@ -33,18 +33,18 @@ class CaloSubdetectorGeometry {
 
       CaloSubdetectorGeometry() : 
 	 m_parMgr ( 0 ) ,
-	 m_cmgr   ( 0 ) ,
-	 m_sortedIds (false) {}
+	 m_cmgr   ( 0 )   {}
 
       /// The base class DOES assume that it owns the CaloCellGeometry objects
       virtual ~CaloSubdetectorGeometry();
 
+   public:
       /// the cells
       const CellCont& cellGeometries() const { return m_cellG ; }  
 
       /// Add a cell to the geometry
-      void addCell( const DetId&      id, 
-		    CaloCellGeometry* ccg ) ;
+      void addCell( const DetId& id, 
+		    const CaloCellGeometry* ccg ) ;
 
       /// is this detid present in the geometry?
       virtual bool present( const DetId& id ) const;
@@ -56,8 +56,8 @@ class CaloSubdetectorGeometry {
 	  \note The implementation in this class is relevant for SubdetectorGeometries which handle only
 	  a single subdetector at a time.  It does not look at the det and subdet arguments.
       */
-      virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector(0) , 
-							int             subdet = 0                   ) const ;
+      virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det, 
+							int subdet  ) const ;
 
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
@@ -69,6 +69,8 @@ class CaloSubdetectorGeometry {
       eta/phi and ieta/iphi and test on the boundaries.
       */
       virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
+
+      //FIXME: Hcal implements its own  getValidDetId....
 
       void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
 
@@ -83,6 +85,8 @@ class CaloSubdetectorGeometry {
    protected:
 
       ParVecVec m_parVecVec ;
+
+      mutable std::vector<DetId> m_validIds ;
 
       static double deltaR( const GlobalPoint& p1,
 			    const GlobalPoint& p2  ) 
@@ -100,9 +104,6 @@ class CaloSubdetectorGeometry {
 
       CellCont m_cellG ;    
 
-      mutable bool m_sortedIds ;
-
-      mutable std::vector<DetId> m_validIds ;
 };
 
 

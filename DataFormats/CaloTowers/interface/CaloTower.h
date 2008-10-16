@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/08/29 16:45:28 $
-$Revision: 1.11 $
+$Date: 2008/04/28 17:45:41 $
+$Revision: 1.8 $
 \author J. Mans - Minnesota
 */
 
@@ -59,63 +59,25 @@ public:
   size_t constituentsSize() const { return constituents_.size(); }
   DetId constituent( size_t i ) const { return constituents_[ i ]; }
 
-  // energy contributions from different detectors
-  // energy in HO ("outerEnergy")is not included in "hadEnergy"
   double emEnergy() const { return emE_ ; }
   double hadEnergy() const { return hadE_ ; }
   double outerEnergy() const { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
-
-  // transverse energies wrt to vtx (0,0,0)
   double emEt() const { return emE_ * sin( theta() ); }
   double hadEt() const { return hadE_ * sin( theta() ); }
   double outerEt() const { return (id_.ietaAbs()<16)? outerE_ * sin( theta() ) : 0.0; }
 
-
-  // preserve the inherited default accessors where applicable
-  // (user gets default p4 wrt to vtx (0,0,0) using p4(), etc.
-
-  using LeafCandidate::p4;
-  using LeafCandidate::p;
-  using LeafCandidate::et; 
-
-
-  // recalculated wrt user provided vertex Z position;
-
-  math::PtEtaPhiMLorentzVector p4(double vtxZ) const;
-  double p (double vtxZ) const { return p4(vtxZ).P(); }
-  double et(double vtxZ) const { return p4(vtxZ).Et(); }
-
-  double emEt(double vtxZ)  const { return  emE_ * sin(p4(vtxZ).theta()); }
-  double hadEt(double vtxZ) const { return  hadE_ * sin(p4(vtxZ).theta()); }
-  double outerEt(double vtxZ) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(vtxZ).theta()) : 0.0; }
-
-  // recalculated wrt vertex provided as 3D point
-
-  math::PtEtaPhiMLorentzVector p4(Point v) const;
-  double p (Point v) const { return p4(v).P(); }
-  double et(Point v) const { return p4(v).Et(); }
-
-  double emEt(Point v)  const { return  emE_ * sin(p4(v).theta()); }
-  double hadEt(Point v) const { return  hadE_ * sin(p4(v).theta()); }
-  double outerEt(Point v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
-
-  // the reference poins in ECAL and HCAL for direction determination
-  // algorithm and parameters for selecting these points are set in the CaloTowersCreator
   const GlobalPoint& emPosition()  const { return emPosition_ ; }
   const GlobalPoint& hadPosition() const { return hadPosition_ ; }
 
   int emLvl1() const { return emLvl1_; }
   int hadLv11() const { return hadLvl1_; }
 
-  // energy contained in depths>1 in the HE for 18<|iEta|<29
   double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : outerE_; }
   double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : hadE_ - outerE_; }
 
-  // time (ns) in ECAL/HCAL components of the tower based on weigted sum of the times in the contributing RecHits
   float ecalTime() const { return float(ecalTime_) * 0.01; }
   float hcalTime() const { return float(hcalTime_) * 0.01; }
 
-  // position information on the tower
   int ieta() const { return id_.ieta(); }
   int ietaAbs() const { return id_.ietaAbs(); }
   int iphi() const { return id_.iphi(); }
@@ -138,17 +100,6 @@ private:
 
   int emLvl1_,hadLvl1_;
   std::vector<DetId> constituents_;
-
-  // vertex correction of EM and HAD momentum components:
-  // internally used in the transformation of the CaloTower p4
-
-  // for 3D vertex
-  math::PtEtaPhiMLorentzVector hadP4(Point v) const;
-  math::PtEtaPhiMLorentzVector emP4(Point v) const;
-
-  // taking only z-component
-  math::PtEtaPhiMLorentzVector hadP4(double vtxZ) const;
-  math::PtEtaPhiMLorentzVector emP4(double vtxZ) const;
 };
 
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct);

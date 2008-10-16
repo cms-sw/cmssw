@@ -9,14 +9,11 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( 
-##        '/RelValTTbar/CMSSW_2_1_2_IDEAL_V6_10TeV_v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-##        '/RelValTTbar/CMSSW_2_1_2_STARTUP_V5_10TeV_v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-##        '/store/relval/CMSSW_2_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V5_HF_v1/0006/2A7E305D-5676-DD11-A1ED-0030487A322E.root'
-    '/store/relval/CMSSW_2_1_0/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/0EF324BD-9160-DD11-B591-000423D944F8.root'
-)
+        '/store/relval/CMSSW_2_1_9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/1A0FD639-1B86-DD11-A3C0-000423D99614.root'
+    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 500 )
+    input = cms.untracked.int32( -1 )
 )
 
 process.load("Configuration.StandardSequences.GeometryPilot2_cff")
@@ -25,7 +22,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # Conditions: fake or frontier
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'STARTUP_V5_HF::All'
+process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 # Choose a menu/prescale/mask from one of the choices

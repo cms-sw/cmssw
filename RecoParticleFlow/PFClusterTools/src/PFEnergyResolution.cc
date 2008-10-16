@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-#include <TMath.h>
+
 #include <math.h>
 /*
 PFEnergyResolution::PFEnergyResolution(const edm::ParameterSet& parameters)
@@ -17,22 +17,12 @@ PFEnergyResolution::~PFEnergyResolution()
 //--- nothing to be done yet  
 }
 
-
-double PFEnergyResolution::getEnergyResolutionEm(double CorrectedEnergy, double eta) const{
-
-  //The parameters S,N,C has been determined with the Full Sim on CMSSW_2_1_0_pre4. 
-  //The resolution must be a function of the corrected energy available in PFEnergyCalibration
-  //Jonathan Biteau July 2008
-
-  double C;
-  double S;
-  double N;
-  if(TMath::Abs(eta)<1.48){C=0.35/100; S=5.51/100; N=98/1000;}
-  else{C=0; S=12.8/100; N=440/1000;} 
-  double result = TMath::Sqrt(C*C*CorrectedEnergy*CorrectedEnergy + S*S*CorrectedEnergy + N*N);
-  return result; 
+/*
+double PFEnergyResolution::getEnergyResolutionEm(double energyECAL, double eta, double phi) const
+{
+//--- not implemented yet
 }
-
+*/
 
 double PFEnergyResolution::getEnergyResolutionHad(double energyHCAL, double eta, double phi) const
 {

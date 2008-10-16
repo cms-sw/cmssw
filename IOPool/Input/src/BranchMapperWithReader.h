@@ -41,7 +41,7 @@ namespace edm {
   void
   BranchMapperWithReader<T>::readProvenance_() const {
     branchPtr_->SetAddress(&pInfoVector_);
-    branchPtr_->GetEntry(entryNumber_);
+    input::getEntry(branchPtr_, entryNumber_);
     BranchMapperWithReader<T> * me = const_cast<BranchMapperWithReader<T> *>(this);
     for (typename std::vector<T>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {

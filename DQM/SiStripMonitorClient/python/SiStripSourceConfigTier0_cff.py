@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+# SiStripMonitorDigi ####
+from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
+SiStripMonitorDigi.Mod_On = False
+
 # SiStripMonitorTrack ####
 from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'generalTracks'
@@ -19,6 +23,6 @@ TrackMon.AlgoName = 'CKFTk'
 TrackMon.FolderName = 'SiStrip/Tracks'
 
 # Sequence
-SiStripDQMTier0 = cms.Sequence(SiStripMonitorTrack*MonitorTrackResiduals*TrackMon)
+SiStripDQMTier0 = cms.Sequence(SiStripMonitorDigi*SiStripMonitorTrack*MonitorTrackResiduals*TrackMon)
 
 

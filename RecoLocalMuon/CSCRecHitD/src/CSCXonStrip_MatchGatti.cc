@@ -207,92 +207,60 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if("ME1/a" == specs_->chamberTypeName() || "ME1/b" == specs_->chamberTypeName()){
     ME1_1 = true;
   } 
-
-  // due to cross talks and 3 time bin sum it is in principe possible that the center strip is not the maximum strip
-  // in some cases the consequences could be quite extreme
-  // take some measures against the extreme cases
-  bool peakMismatch = false;
-  std::vector <float> charges(3);
-  charges[0] = q_sumL;
-  charges[1] = q_sumC;
-  charges[2] = q_sumR;
-  int min_index = min_element(charges.begin(),charges.end()) - charges.begin();
-  int max_index = max_element(charges.begin(),charges.end()) - charges.begin();
-  if(1!=max_index && (1==min_index || charges[max_index]/q_sumC > 1.1)){// 10% below the maximum charge
-    peakMismatch = true;
-    switch (max_index){
-    case 0:
-      xWithinStrip = -1;
-      break;
-    case 2:
-      xWithinStrip = 1;
-      break;
-    default:
-      // should be an error message here
-      xWithinStrip = 0;// in case?
-      break;
-    }
-  }
-  else{
-    //
-    xWithinStrip = float(calculateXonStripPosition(stripWidth, ME1_1));
-  }
+  xWithinStrip = float(calculateXonStripPosition(stripWidth, ME1_1));
   xWithinChamber = xWithinChamber + (xWithinStrip * stripWidth);
-  if(peakMismatch){
-    sigma = stripWidth/sqrt(12);
+
+
+  //---- error estimation
+  int factorStripWidth = int( sqrt(stripWidth/0.38) );
+  int maxConsecutiveStrips = 8;
+  if(factorStripWidth){
+    maxConsecutiveStrips /=  factorStripWidth ;
   }
-  else{
-    
-    //---- error estimation
-    int factorStripWidth = int( sqrt(stripWidth/0.38) );
-    int maxConsecutiveStrips = 8;
-    if(factorStripWidth){
-      maxConsecutiveStrips /=  factorStripWidth ;
-    }
-    maxConsecutiveStrips++;
-    
-    std::map <std::string, int> chamberTypes;
-    chamberTypes["ME1/a"] = 1;
-    chamberTypes["ME1/b"] = 2;
-    chamberTypes["ME1/2"] = 3;
-    chamberTypes["ME1/3"] = 4;
-    chamberTypes["ME2/1"] = 5;
-    chamberTypes["ME2/2"] = 6;
-    chamberTypes["ME3/1"] = 7;
-    chamberTypes["ME3/2"] = 8;
-    chamberTypes["ME4/1"] = 9;
-    chamberTypes["ME4/2"] = 8;
-    
-    switch(chamberTypes[specs_->chamberTypeName()]){
+  maxConsecutiveStrips++;
+
+  std::map <std::string, int> chamberTypes;
+  chamberTypes["ME1/a"] = 1;
+  chamberTypes["ME1/b"] = 2;
+  chamberTypes["ME1/2"] = 3;
+  chamberTypes["ME1/3"] = 4;
+  chamberTypes["ME2/1"] = 5;
+  chamberTypes["ME2/2"] = 6;
+  chamberTypes["ME3/1"] = 7;
+  chamberTypes["ME3/2"] = 8;
+  chamberTypes["ME4/1"] = 9;
+  chamberTypes["ME4/2"] = 8;
+
+  switch(chamberTypes[specs_->chamberTypeName()]){
     case 1:
       noise_level  = noise_level_ME1a;
       xt_asymmetry = xt_asymmetry_ME1a;
       const_syst = const_syst_ME1a;
       break;
-      
+
     case 2:
       noise_level  = noise_level_ME1b;
       xt_asymmetry = xt_asymmetry_ME1b;
       const_syst = const_syst_ME1b;
-      
+
     case 3:
       noise_level  = noise_level_ME12;
       xt_asymmetry = xt_asymmetry_ME12;
       const_syst = const_syst_ME12;
       break;
-      
+
     case 4:
       noise_level  = noise_level_ME13;
       xt_asymmetry = xt_asymmetry_ME13;
       const_syst = const_syst_ME13;
       break;
-      
+
     case 5:
       noise_level  = noise_level_ME21;
       xt_asymmetry = xt_asymmetry_ME21;
       const_syst = const_syst_ME21;
       break;
-      
+
     case 6:
       noise_level  = noise_level_ME22;
       xt_asymmetry = xt_asymmetry_ME22;
@@ -322,16 +290,16 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       xt_asymmetry = xt_asymmetry_ME22;
       const_syst = const_syst_ME22;
 
-    }
-    if(false==stripHit.isNearDeadStrip() &&
-       stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
-       fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2 ){
-      sigma =  float(calculateXonStripError(stripWidth, ME1_1));
-    }
-    else{ //---- near dead strip or too close maxima or too wide strip cluster
-      sigma = stripWidth/sqrt(12);
-    }
   }
+  if(false==stripHit.isNearDeadStrip() &&
+     stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
+     fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2 ){
+    sigma =  float(calculateXonStripError(stripWidth, ME1_1));
+  }
+  else{ //---- near dead strip or too close maxima or too wide strip cluster
+    sigma = stripWidth/sqrt(12);
+  }
+
   quality_flag = 1;
 }
 
@@ -634,14 +602,9 @@ double CSCXonStrip_MatchGatti::calculateXonStripError(float stripWidth, bool ME1
   double xf = (q_sumR - q_sumL)/(q_sumC - min)/2;
   double xf_ErrorNoise = xfError_Noise(noise_level);
   double xf_ErrorXTasym = xfError_XTasym(xt_asymmetry);
-  // x_G = x_F + correction_functon(x_F)
-  // as these are correlated the error should be simply d(x_G) = |d(x_F)| + [correction_functon(x_F+|d(x_F)|) - correction_functon(x_F)]
-  double d_xf = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2));
-	double d_corr = estimated2GattiCorrection(xf+d_xf, stripWidth, ME1_1) - estimated2GattiCorrection(xf, stripWidth, ME1_1);
-  double x_shift = d_xf + d_corr;
-  //  double x_shift = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2)) * 
-  //(1 + (estimated2GattiCorrection(xf+0.001, stripWidth, ME1_1) -
-  //  estimated2GattiCorrection(xf, stripWidth, ME1_1))*1000.);
+  double x_shift = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2)) * 
+    (1 + (estimated2GattiCorrection(xf+0.001, stripWidth, ME1_1) -
+	  estimated2GattiCorrection(xf, stripWidth, ME1_1))*1000.);
   double x_error =   sqrt( pow( fabs(x_shift)*stripWidth, 2) + pow(const_syst, 2) );
   return  x_error; 
 }

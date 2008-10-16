@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 21:30:15 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/09/12 23:09:07 $
+ *  $Revision: 1.26 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -86,8 +86,7 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
       ++num_endcap;
     }
   }
-
-  if(num_endcap > 1)
+  if(num_endcap > 1 || (num_endcap==1 && num_bar==0))
   {
     LogDebug(metname)
       << "Endcap Seeds " << num_endcap << endl;

@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.15 2008/06/13 09:54:31 gpetrucc Exp $
+// $Id: Tau.h,v 1.14 2008/06/09 09:03:19 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -16,14 +16,13 @@
 
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani
-  \version  $Id: Tau.h,v 1.15 2008/06/13 09:54:31 gpetrucc Exp $
+  \version  $Id: Tau.h,v 1.14 2008/06/09 09:03:19 gpetrucc Exp $
 */
 
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
@@ -61,13 +60,6 @@ namespace pat {
       /// method to store the isolation tracks internally
       void embedSignalTracks();
 
-
-      void setGenJet(const reco::GenJetRef& ref);
-
-      /// return matched GenJet, built from the visible particles of a 
-      /// generated tau
-      const reco::GenJet*  genJet() const;
-
       // ---- CaloTau accessors (getters only) --
       /// Returns true if this pat::Tau was made from a reco::CaloTau
       bool isCaloTau() const { return !caloSpecific_.empty(); }
@@ -99,7 +91,6 @@ namespace pat {
       /// Method copied from reco::CaloTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
       float maximumHCALhitEt() const { return caloSpecific().maximumHCALhitEt_; }
-
 
       // ---- PFTau accessors (getters only) --
       /// Returns true if this pat::Tau was made from a reco::PFTau
@@ -184,7 +175,6 @@ namespace pat {
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool  muonDecision() const { return pfSpecific().muonDecision_; }
 
- 
     private:
       // ---- Embedding of BaseTau components ----
       bool embeddedIsolationTracks_;
@@ -193,8 +183,6 @@ namespace pat {
       std::vector<reco::Track> leadTrack_;
       bool embeddedSignalTracks_;
       std::vector<reco::Track> signalTracks_;
-
-      std::vector<reco::GenJet> genJet_;
 
       // ---- CaloTau specific variables  ----
       /// hold the CaloTau info, or empty vector if CaloTau

@@ -1,9 +1,4 @@
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "TFile.h"
-#include "TH1.h"
-#include "TCanvas.h"
-#include "TLegend.h"
 
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -18,7 +13,7 @@ void sk_fwlite()
 {
    
    
-  TFile  * file = new TFile("PatAnalyzerSkeletonSkim.root");
+  TFile  * file = new TFile("/uscms_data/d1/rappocc/PatAnalyzerSkeletonSkim.root");
 
   using namespace std;
 

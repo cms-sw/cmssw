@@ -4,19 +4,19 @@
   <PoolContainer name="L1GtTriggerMenuRcd" >
    <Class table="L1GTTRIGGERMENU" id_columns="ID" name="L1GtTriggerMenu" mapping_version="L1GtTriggerMenu_basic" >
      <Blob column="L1GTTRIGGERMENU_M__1_BLOB" name="m_algorithmMap" />
-     <Blob column="L1GTTRIGGERMENU_M__2_BLOB" name="m_corCaloTemplate" />
-     <Blob column="L1GTTRIGGERMENU_M__6_BLOB" name="m_corEnergySumTemplate" />
-     <Blob column="L1GTTRIGGERMENU_M_10_BLOB" name="m_corMuonTemplate" />
-     <Blob column="L1GTTRIGGERMENU_M_14_BLOB" name="m_technicalTriggerMap" />
+     <Blob column="L1GTTRIGGERMENU_M__3_BLOB" name="m_corCaloTemplate" />
+     <Blob column="L1GTTRIGGERMENU_M__7_BLOB" name="m_corEnergySumTemplate" />
+     <Blob column="L1GTTRIGGERMENU_M_11_BLOB" name="m_corMuonTemplate" />
+     <Blob column="L1GTTRIGGERMENU_M_15_BLOB" name="m_technicalTriggerMap" />
      <Primitive column="M_TRIGGERMENUNAME" name="m_triggerMenuName" />
-     <Blob column="L1GTTRIGGERMENU_M_15_BLOB" name="m_vecCaloTemplate" />
-     <Blob column="L1GTTRIGGERMENU_M_19_BLOB" name="m_vecCastorTemplate" />
-     <Blob column="L1GTTRIGGERMENU__22_BLOB" name="m_vecCorrelationTemplate" />
-     <Blob column="L1GTTRIGGERMENU__25_BLOB" name="m_vecEnergySumTemplate" />
-     <Blob column="L1GTTRIGGERMENU__29_BLOB" name="m_vecHfBitCountsTemplate" />
-     <Blob column="L1GTTRIGGERMENU_33_BLOB" name="m_vecHfRingEtSumsTemplate" />
-     <Blob column="L1GTTRIGGERMENU_37_BLOB" name="m_vecJetCountsTemplate" />
-     <Blob column="L1GTTRIGGERMEN_41_BLOB" name="m_vecMuonTemplate" />
+     <Blob column="L1GTTRIGGERMENU_M_17_BLOB" name="m_vecCaloTemplate" />
+     <Blob column="L1GTTRIGGERMENU__21_BLOB" name="m_vecCastorTemplate" />
+     <Blob column="L1GTTRIGGERMENU__24_BLOB" name="m_vecCorrelationTemplate" />
+     <Blob column="L1GTTRIGGERMENU__27_BLOB" name="m_vecEnergySumTemplate" />
+     <Blob column="L1GTTRIGGERMENU_31_BLOB" name="m_vecHfBitCountsTemplate" />
+     <Blob column="L1GTTRIGGERMENU_35_BLOB" name="m_vecHfRingEtSumsTemplate" />
+     <Blob column="L1GTTRIGGERMENU_39_BLOB" name="m_vecJetCountsTemplate" />
+     <Blob column="L1GTTRIGGERMEN_43_BLOB" name="m_vecMuonTemplate" />
    </Class >
   </PoolContainer >
  </PoolDatabase >

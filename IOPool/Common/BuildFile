@@ -1,16 +1,9 @@
-<use name=DataFormats/Common>
-<use name=FWCore/Catalog>
+<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=boost>
-<use name=rootcintex>
-<use name=rootcore>
-<use name=root>
 
 <export>
+  <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
-  <use name=boost>
-  <use name=rootcore>
-  <use name=roothistmatrix>
   <lib name=IOPoolCommon>
 </export>
 

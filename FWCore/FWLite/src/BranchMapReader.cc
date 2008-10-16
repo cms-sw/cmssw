@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.2 2008/06/12 22:21:30 dsr Exp $
+// $Id: BranchMapReader.cc,v 1.3 2008/09/23 20:40:04 dsr Exp $
 //
 
 // system include files
@@ -53,13 +53,18 @@ namespace fwlite {
     bool BranchMapReaderStrategyV1::updateFile(TFile* file)
     {
       if (BranchMapReader::Strategy::updateFile(file)) {
-        return updateMap();        
+        mapperFilled_ = false;
+        return true;        
       }
       return false;
     }
     
     bool BranchMapReaderStrategyV1::updateMap()
     {
+      if (mapperFilled_) {
+        return true;
+      }
+
       eventInfoMap_ = emptyMapper;
       branchDescriptionMap_.clear();
       
@@ -81,6 +86,7 @@ namespace fwlite {
             // std::cout << "v1 updatemap " << it->second.branchID() << std::endl;
 	        }
 	      }
+        mapperFilled_ = true;
       }
       return 0 != br;
     }
@@ -110,13 +116,12 @@ namespace fwlite {
       TBranch* entryInfoBranch_;
       edm::EventEntryInfoVector  eventEntryInfoVector_;
       edm::EventEntryInfoVector* pEventEntryInfoVector_;
-      bool mapperFilled_;
     };
 
     BranchMapReaderStrategyV8::BranchMapReaderStrategyV8(TFile* file, int fileVersion,
       BranchMapReader::eeiMap& eventInfoMap, BranchMapReader::bidToDesc& branchDescriptionMap)
     : Strategy(file, fileVersion, eventInfoMap, branchDescriptionMap),
-      eventEntryInfoVector_(), pEventEntryInfoVector_(&eventEntryInfoVector_), mapperFilled_(false)
+      eventEntryInfoVector_(), pEventEntryInfoVector_(&eventEntryInfoVector_)
     {
       updateFile(file);
     }
@@ -211,7 +216,7 @@ BranchMapReader::BranchMapReader(TFile* file)
 BranchMapReader::Strategy::Strategy(TFile* file, int fileVersion, eeiMap& eventInfoMap,
   BranchMapReader::bidToDesc& branchDescriptionMap)
   : currentFile_(file), fileVersion_(fileVersion), eventEntry_(-1), eventInfoMap_(eventInfoMap),
-    branchDescriptionMap_(branchDescriptionMap)
+    branchDescriptionMap_(branchDescriptionMap), mapperFilled_(false)
 {
   // do in derived obects
   // updateFile(file);

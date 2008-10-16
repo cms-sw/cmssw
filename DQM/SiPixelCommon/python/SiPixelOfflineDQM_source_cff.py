@@ -19,6 +19,7 @@ SiPixelRecHitSource.saveFile = False
 #Digi
 SiPixelDigiSource.modOn = False
 SiPixelDigiSource.twoDimOn = False
+SiPixelDigiSource.hiRes = False
 SiPixelDigiSource.ladOn = True
 SiPixelDigiSource.layOn = True
 SiPixelDigiSource.phiOn = True
@@ -28,6 +29,7 @@ SiPixelDigiSource.ringOn = True
 #Cluster
 SiPixelClusterSource.modOn = False
 SiPixelClusterSource.twoDimOn = False
+SiPixelClusterSource.reducedSet = False
 SiPixelClusterSource.ladOn = True
 SiPixelClusterSource.layOn = True
 SiPixelClusterSource.phiOn = True

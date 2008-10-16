@@ -65,6 +65,7 @@ void testStandalone::writeFile()
                             ")\n"
                             "process.source = cms.Source('EmptySource')\n"
                             "process.JobReportService = cms.Service('JobReportService')\n"
+                            "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
 			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
                             "process.m1 = cms.EDProducer('IntProducer',\n"
                             "    ivalue = cms.int32(11)\n"
@@ -88,6 +89,7 @@ void testStandalone::readFile()
                             "process.source = cms.Source('PoolSource',\n"
                             "    fileNames = cms.untracked.vstring('file:testStandalone.root')\n"
                             ")\n"
+                            "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
                             "process.JobReportService = cms.Service('JobReportService')\n"
 			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
                            );

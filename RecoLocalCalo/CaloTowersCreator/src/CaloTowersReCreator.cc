@@ -34,10 +34,9 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
         conf.getParameter<bool>("UseHO"),
         // (these have no effect on recreation: here for compatibility)
         conf.getParameter<int>("MomConstrMethod"),
-        conf.getParameter<double>("MomHBDepth"),
-        conf.getParameter<double>("MomHEDepth"),
-        conf.getParameter<double>("MomEBDepth"),
-        conf.getParameter<double>("MomEEDepth")
+        conf.getParameter<double>("MomEmDepth"),
+        conf.getParameter<double>("MomHadDepth"),
+        conf.getParameter<double>("MomTotDepth")
         ),
   caloLabel_(conf.getParameter<edm::InputTag>("caloLabel")),
   allowMissingInputs_(false)
@@ -82,7 +81,6 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<CaloTowerCollection> calt;
   e.getByLabel(caloLabel_,calt);
 
-/*
   if (!calt.isValid()) {
     // can't find it!
     if (!allowMissingInputs_) {
@@ -101,29 +99,5 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // Step D: Put into the event
   if (ctEScales.instanceLabel=="") e.put(prod);
   else e.put(prod,ctEScales.instanceLabel);
-*/
-
-  // modified to rescale the CaloTowers directly
-  // without going through metatowers
-  // required for the algorithms that make use of individual
-  // crystal information
-
-  if (!calt.isValid()) {
-    // can't find it!
-    if (!allowMissingInputs_) {
-      *calt;  // will throw the proper exception
-    }
-  } else {
-    // Step B: Create empty output
-    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
-
-    // step C: rescale (without going threough metataowers)
-    algo_.rescaleTowers(*calt, *prod);
-
-    // Step D: Put into the event
-    if (ctEScales.instanceLabel=="") e.put(prod);
-    else e.put(prod,ctEScales.instanceLabel);
-  }
-
 }
 

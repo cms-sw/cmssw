@@ -6,25 +6,21 @@
 #include <string>
 #include <map>
 
-namespace edm
-{
-  namespace actions
-  {
-    enum ActionCodes
-      {
+namespace edm {
+  namespace actions {
+    enum ActionCodes {
 	IgnoreCompletely=0,
 	Rethrow,
 	SkipEvent,
 	FailModule,
 	FailPath,
 	LastCode
-      };
+    };
 
     const char* actionName(ActionCodes code);
   }
 
-  class ActionTable
-  {
+  class ActionTable {
   public:
     typedef std::map<std::string, actions::ActionCodes> ActionMap;
 

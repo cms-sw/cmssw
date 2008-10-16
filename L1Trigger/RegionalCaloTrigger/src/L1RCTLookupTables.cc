@@ -154,7 +154,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
     throw cms::Exception("Invalid Data") 
       << "29 <= |iEta| <= 32, is " << iAbsEta;
   float et;
-  if (channelMask_->hfMask[crtNo][phiSide][iAbsEta])
+  if (channelMask_->hfMask[crtNo][phiSide][iAbsEta-29])
     {
       et = 0;
     }
@@ -162,7 +162,14 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
     {
       et = convertHcal(hfInput, iAbsEta, sign);
     }
-  return convertToInteger(et, rctParameters_->jetMETLSB(), 8);
+  unsigned int result = convertToInteger(et, rctParameters_->jetMETLSB(), 8);
+  /*  std::cout << "HF input: " << hfInput << "  |ieta|: " << iAbsEta
+	    << "  |ieta|-29: " << iAbsEta-29 << "  crtNo: " << crtNo
+	    << "  phiSide: " << phiSide
+	    << "  hfmask: " << channelMask_->hfMask[crtNo][phiSide][iAbsEta-29]
+	    << "  converted et: " 
+	    << et << "  output: " << result << std::endl; */
+  return result;
 }
 
 bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
@@ -272,7 +279,9 @@ unsigned int L1RCTLookupTables::eGammaETCode(float ecal, float hcal, int iAbsEta
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  float etLinear = rctParameters_->EGammaTPGSum(ecal,hcal,iAbsEta);
+  float etLinear = 
+    rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] * ecal +
+    rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] * hcal;
   return convertToInteger(etLinear, rctParameters_->eGammaLSB(), 7);
 }
 
@@ -281,6 +290,8 @@ unsigned int L1RCTLookupTables::jetMETETCode(float ecal, float hcal, int iAbsEta
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  float etLinear = rctParameters_->JetMETTPGSum(ecal,hcal,iAbsEta);
+  float etLinear = 
+    rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] * ecal +
+    rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] * hcal;
   return convertToInteger(etLinear, rctParameters_->jetMETLSB(), 9);
 }

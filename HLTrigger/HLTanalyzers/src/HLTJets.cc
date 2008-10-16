@@ -109,13 +109,13 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTJets::analyze(const CaloJetCollection * calojets,
-		      const GenJetCollection * genjets,
-		      const CaloMETCollection * recmets,
-		      const GenMETCollection * genmets,
-		      const METCollection * ht,
-		      const reco::HLTTauCollection * taujets,
-		      const CaloTowerCollection * caloTowers,
+void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
+		      const edm::Handle<GenJetCollection>       & genjets,
+		      const edm::Handle<CaloMETCollection>      & recmets,
+		      const edm::Handle<GenMETCollection>       & genmets,
+		      const edm::Handle<METCollection>          & ht,
+		      const edm::Handle<reco::HLTTauCollection> & taujets,
+		      const edm::Handle<CaloTowerCollection>    & caloTowers,
 		      TTree * HltTree) {
 
   if (_Debug) std::cout << " Beginning HLTJets " << std::endl;
@@ -126,7 +126,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
   mgenmet=0.; mgenphi=0.;
   htcalet=0.,htcalphi=0.,htcalsum=0.;
 
-  if (calojets) {
+  if (calojets.isValid()) {
     CaloJetCollection mycalojets;
     mycalojets=*calojets;
     std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
@@ -147,7 +147,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
   }
   else {njetcal = 0;}
 
-  if (caloTowers){
+  if (caloTowers.isValid()) {
     ntowcal = caloTowers->size();
     int jtow = 0;
     for ( CaloTowerCollection::const_iterator tower=caloTowers->begin(); tower!=caloTowers->end(); tower++) {
@@ -163,7 +163,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
   }
   else {ntowcal = 0;}
 
-  if (recmets) {
+  if (recmets.isValid()) {
     typedef CaloMETCollection::const_iterator cmiter;
     for ( cmiter i=recmets->begin(); i!=recmets->end(); i++) {
       mcalmet = i->pt();
@@ -172,7 +172,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
     }
   }
 
-  if (ht) {
+  if (ht.isValid()) {
     typedef METCollection::const_iterator iter;
     for ( iter i=ht->begin(); i!=ht->end(); i++) {
       htcalet = i->pt();
@@ -183,7 +183,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
 
   if (_Monte){
 
-    if (genjets) {
+    if (genjets.isValid()) {
       GenJetCollection mygenjets;
       mygenjets=*genjets;
       std::sort(mygenjets.begin(),mygenjets.end(),PtGreater());
@@ -204,7 +204,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
     }
     else {njetgen = 0;}
 
-    if (genmets) {
+    if (genmets.isValid()) {
       typedef GenMETCollection::const_iterator gmiter;
       for ( gmiter i=genmets->begin(); i!=genmets->end(); i++) {
 	mgenmet = i->pt();
@@ -218,7 +218,7 @@ void HLTJets::analyze(const CaloJetCollection * calojets,
   
   /////////////////////////////// Open-HLT Taus ///////////////////////////////
 
-    if (taujets){      
+    if (taujets.isValid()) {      
       nohtau = taujets->size();
       HLTTauCollection mytaujets;
       mytaujets=*taujets;

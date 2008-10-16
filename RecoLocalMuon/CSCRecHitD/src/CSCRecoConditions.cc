@@ -1,5 +1,4 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
-#include <CondFormats/CSCObjects/interface/CSCChannelTranslator.h>
 #include <iostream>
 
 CSCRecoConditions::CSCRecoConditions( const edm::ParameterSet & ps ) : theConditions( ps ) {
@@ -12,26 +11,14 @@ void CSCRecoConditions::initializeEvent( const edm::EventSetup& es ) {
   theConditions.initializeEvent( es );
 }
 
-
-float CSCRecoConditions::gain(const CSCDetId & id, int channel) const { 
-  CSCChannelTranslator translate;
-  CSCDetId idraw = translate.rawCSCDetId( id );
-  int iraw = translate.rawStripChannel( id, channel );
-  return theConditions.gain(idraw, iraw);
-}
-
-float CSCRecoConditions::pedestal(const CSCDetId & id, int channel) const { 
-  CSCChannelTranslator translate;
-  CSCDetId idraw = translate.rawCSCDetId( id );
-  int iraw = translate.rawStripChannel( id, channel );
-  return theConditions.pedestal(idraw, iraw);
-}
-
-float CSCRecoConditions::pedestalSigma(const CSCDetId & id, int channel) const { 
-  CSCChannelTranslator translate;
-  CSCDetId idraw = translate.rawCSCDetId( id );
-  int iraw = translate.rawStripChannel( id, channel );
-  return theConditions.pedestalSigma(idraw, iraw);
+// This expects ME11 detId for ME1b (channels 1-64) AND for ME1a (channels 65-80)
+float CSCRecoConditions::stripWeight( const CSCDetId& id, int channel ) const {
+   float w = averageGain() / gain(id, channel);
+  
+   // Weights are forced to lie within 0.5 and 1.5
+   if (w > 1.5) w = 1.5;
+   if (w < 0.5) w = 0.5;
+   return w;
 }
 
 void CSCRecoConditions::stripWeights( const CSCDetId& id, float* weights ) const {
@@ -238,37 +225,3 @@ void CSCRecoConditions::crossTalk( const CSCDetId& id, int centralStrip, std::ve
   }
 }
 
-/// Test for neighbouring bad strip
-/// I'm a bit confused about this - it returns true if strip is
-/// not at edge, and either of its neighbours is bad.
-
-bool CSCRecoConditions::nearBadStrip( const CSCDetId& id, int geomStrip ) const {
-  // Note ME1A strip runs 1-48 
-  CSCChannelTranslator translate;
-  CSCDetId idraw = translate.rawCSCDetId( id );
-  int geomChan = translate.channelFromStrip( id, geomStrip ); 
-  int rawChan = translate.rawStripChannel( id, geomChan ); 
-
-  const std::bitset<80>& badStrips = theConditions.badStripWord(idraw);
-
-  bool nearBad = false;
-  if( rawChan>1 && rawChan<80 ){ // 80 bits max, labelled 0-79. Test 1-78 for neighbours.
-    nearBad = (badStrips.test(rawChan) || badStrips.test(rawChan-2));
-  }
-  return nearBad;
-}
-
-/// Get bad wiregroup word
-const std::bitset<112>& CSCRecoConditions::badWireWord( const CSCDetId& id ) const {
-    return theConditions.badWireWord( id );
-}
-
-// This expects raw ME11 detId for ME1b (channels 1-64) & for ME1a (channels 65-80)
-float CSCRecoConditions::stripWeight( const CSCDetId& id, int channel ) const {
-   float w = averageGain() / theConditions.gain(id, channel);
-  
-   // Weights are forced to lie within 0.5 and 1.5
-   if (w > 1.5) w = 1.5;
-   if (w < 0.5) w = 0.5;
-   return w;
-}

@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.h,v 1.3 2008/08/22 02:00:13 wmtan Exp $
+// $Id: BranchMapReader.h,v 1.4 2008/09/23 20:40:04 dsr Exp $
 //
 
 // system include files
@@ -61,6 +61,7 @@ namespace fwlite {
       Long_t eventEntry_;
       eeiMap& eventInfoMap_;
       bidToDesc& branchDescriptionMap_;
+      bool mapperFilled_;
     };
 
       // ---------- const member functions ---------------------

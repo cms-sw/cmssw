@@ -191,8 +191,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
   reco::TrackCollection::const_iterator staTrack;
 
-  std::cout<<"cacca"<<std::endl;
-
   ESHandle<Propagator> prop;
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
   thePropagator = prop->clone();
@@ -208,7 +206,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
  
       RPCstate.clear();
  
-      if(track.numberOfValidHits()>24.){
+      if(track.numberOfValidHits()>20){
 	for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
 	  if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	    RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
@@ -220,8 +218,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 	      //Barrel
 	      if(MeasureBarrel==true && rollId.region()==0){		
-		const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> 
-		  (&((*itRoll)->topology()));
+		const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*itRoll)->topology()));
 		LocalPoint xmin = top_->localPosition(0.);
 		LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
 		float rsize = fabs( xmax.x()-xmin.x() )*0.5;
@@ -235,17 +232,16 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		if(tsosAtRPC.isValid()
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
-		  //&& tsosAtRPC.localError().positionError().xx()<1.
-		  //&& tsosAtRPC.localError().positionError().yy()<1.){
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5
+		   && tsosAtRPC.localError().positionError().xx()<1.
+		   && tsosAtRPC.localError().positionError().yy()<1.){
 		  RPCstate[rollId]=tsosAtRPC;
 		}	      
 	      }
 
 	      //EndCap
 	      if(MeasureEndCap==true && rollId.region()!=0){	      
-		const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> 
-		  (&((*itRoll)->topology()));
+		const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*itRoll)->topology()));
 		LocalPoint xmin = top_->localPosition(0.);
 		LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
 		float rsize = fabs( xmax.x()-xmin.x() )*0.5;
@@ -259,9 +255,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		if(tsosAtRPC.isValid()
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
-		  //&& tsosAtRPC.localError().positionError().xx()<1.
-		  //&& tsosAtRPC.localError().positionError().yy()<1.){
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5
+		   && tsosAtRPC.localError().positionError().xx()<1.
+		   && tsosAtRPC.localError().positionError().yy()<1.){
 		  RPCstate[rollId]=tsosAtRPC;
 		}	      
 	      }
@@ -269,7 +265,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  }
 	}
       }
-    
+
       //Efficiency      
       std::map<RPCDetId,TrajectoryStateOnSurface>::iterator irpc;
       for (irpc=RPCstate.begin(); irpc!=RPCstate.end();irpc++){
@@ -277,8 +273,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	const RPCRoll* rollasociated = rpcGeo->roll(rollId);
 	TrajectoryStateOnSurface tsosAtRoll = RPCstate[rollId];
 	
-	const float stripPredicted =rollasociated->strip
-	  (LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
+	const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
 	const float xextrap = tsosAtRoll.localPosition().x();
 	
 	totalcounter[0]++;

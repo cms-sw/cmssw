@@ -1,0 +1,17 @@
+<TESTSCONFIGURATION> 
+<QTEST name="ContentsWithinExpected:Digi">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">0.4</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">-1</PARAM>
+        <PARAM name="minEntries">20</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">0.30</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+<LINK name="*NumberOfDigiProfile__*">
+  <TestName activate="true">ContentsWithinExpected:Digi</TestName>
+</LINK>
+</TESTCONFIGURATION>

@@ -14,10 +14,8 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
-
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
@@ -31,7 +29,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/CommonOptions.h"
 #include <iterator>
 #include <limits>
 #include <iostream>
@@ -42,23 +40,19 @@
 
 
 int main( int argc, char** argv ){
-  
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_duplicate_iov [options] \n");
-  visible.add_options()
-    ("connection,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if no plugin available)")
+  cond::CommonOptions myopt("cmscond_duplicate_iov");
+  myopt.addConnect();
+  myopt.addAuthentication(true);
+  myopt.addDictionary();
+  myopt.addBlobStreamer();
+  myopt.addLogDB();
+  myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
     ("fromTime,f",boost::program_options::value<cond::Time_t>(),"a valid time of payload to append (required)")
     ("sinceTime,s",boost::program_options::value<cond::Time_t>(),"since time of new iov(required)")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
-    ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
-    ("blobStreamer,B",boost::program_options::value<std::string>(),"BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)")
-    ("logDB,l",boost::program_options::value<std::string>(),"logDB(optional")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
     ;
-  desc.add(visible);
+  myopt.description().add( myopt.visibles() );
+
   std::string destConnect;
   std::string dictionary;
   std::string destTag;
@@ -67,15 +61,17 @@ int main( int argc, char** argv ){
   cond::Time_t from = std::numeric_limits<cond::Time_t>::max();
   cond::Time_t since = std::numeric_limits<cond::Time_t>::max();
 
-  std::string authPath(".");
+  std::string authPath("");
+  std::string user("");
+  std::string pass("");
   std::string configuration_filename;
   bool debug=false;
   std::string blobStreamerName("COND/Services/TBufferBlobStreamingService");
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.visibles()).run(), vm);
     if (vm.count("help")) {
-      std::cout << visible <<std::endl;;
+      std::cout << myopt.visibles() <<std::endl;;
       return 0;
     }
     if( vm.count("configFile") ){
@@ -83,16 +79,16 @@ int main( int argc, char** argv ){
       if (! configuration_filename.empty()){
 	std::fstream configuration_file;
 	configuration_file.open(configuration_filename.c_str(), std::fstream::in);
-	boost::program_options::store(boost::program_options::parse_config_file(configuration_file,desc), vm);
+	boost::program_options::store(boost::program_options::parse_config_file(configuration_file,myopt.visibles()), vm);
 	configuration_file.close();
       }
     }
-    if(!vm.count("connection")){
+    if(!vm.count("connect")){
       std::cerr <<"[Error] no connection[c] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else{
-      destConnect=vm["connection"].as<std::string>();
+      destConnect=vm["connect"].as<std::string>();
     }
     if(vm.count("dictionary")){
       dictionary=vm["dictionary"].as<std::string>();
@@ -103,14 +99,14 @@ int main( int argc, char** argv ){
       return 1;
     }else
       destTag = vm["tag"].as<std::string>();
-
+    
     if(!vm.count("fromTime")){
       std::cerr <<"[Error] no fromTime[f] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else
       from = vm["fromTime"].as<cond::Time_t>();
- 
+    
     if(!vm.count("sinceTime")){
       std::cerr <<"[Error] no sinceTime[f] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -118,11 +114,15 @@ int main( int argc, char** argv ){
     }else
       since = vm["sinceTime"].as<cond::Time_t>();
     
-   if(vm.count("logDB"))
+    if(vm.count("logDB"))
       logConnect = vm["logDB"].as<std::string>();
-
-
-
+    
+    if(vm.count("user")){
+      user=vm["user"].as<std::string>();
+    }
+    if(vm.count("pass")){
+      pass=vm["pass"].as<std::string>();
+    }
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
     }
@@ -161,20 +161,24 @@ int main( int argc, char** argv ){
   }
 
   cond::DBSession session;
-
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
   if(!debug){
     session.configuration().setMessageLevel(cond::Error);
   }else{
     session.configuration().setMessageLevel(cond::Debug);
   }
 
-  session.configuration().setAuthenticationMethod(cond::XML);
+  if( !authPath.empty() ){
+    session.configuration().setAuthenticationMethod( cond::XML );
+    session.configuration().setAuthenticationPath(authPath);
+  }else{
+    session.configuration().setAuthenticationMethod( cond::Env );
+  }
   session.configuration().setBlobStreamer(blobStreamerName);
-
-  std::string pathval("CORAL_AUTH_PATH=");
-  pathval+=authPath;
-  ::putenv(const_cast<char*>(pathval.c_str()));
-
+ 
   cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("destdb",destConnect,-1);
   if (!logConnect.empty()) 

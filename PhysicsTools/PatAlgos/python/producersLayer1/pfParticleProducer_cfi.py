@@ -6,10 +6,9 @@ allLayer1PFParticles = cms.EDProducer("PATPFParticleProducer",
 
     # MC matching configurables
     addGenMatch = cms.bool(False),
-    genParticleMatch = cms.InputTag(""),   ## particles source to be used for the MC matching
-                                           ## must be an InputTag or VInputTag to a product of
-                                           ## type edm::Association<reco::GenParticleCollection>
-    embedGenMatch = cms.bool(False),       ## embed gen match inside the object instead of storing the ref
+    embedGenMatch = cms.bool(False),
+    # what is this ?
+    # genParticleMatch = cms.InputTag(""), ## particles source to be used for the matching
 
 )
 

@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/07/03 05:21:03 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/07/31 23:11:55 $
+ *  $Revision: 1.26 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -124,7 +124,7 @@ namespace edm {
       return IsEvent;
     }
     if(reader_ == 0) {
-      throw cms::Exception("LogicError")
+      throw edm::Exception(errors::LogicError)
         << "DaqSource is used without a reader. Check your configuration !";
     }
     EventID eventId;
@@ -150,7 +150,7 @@ namespace edm {
       return IsStop;
     }
     if (eventId.event() == 0) {
-      throw cms::Exception("LogicError")
+      throw edm::Exception(errors::LogicError)
         << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
         << "Event numbers must begin at 1, not 0.";
     }
@@ -265,21 +265,21 @@ namespace edm {
 
   void
   DaqSource::setLumi(LuminosityBlockNumber_t) {
-      throw cms::Exception("LogicError","DaqSource::setLumi(LuminosityBlockNumber_t lumiNumber)")
+      throw edm::Exception(errors::LogicError,"DaqSource::setLumi(LuminosityBlockNumber_t lumiNumber)")
         << "The luminosity block number cannot be set externally for DaqSource.\n"
         << "Contact a Framework developer.\n";
   }
 
   std::auto_ptr<EventPrincipal>
   DaqSource::readIt(EventID const&) {
-      throw cms::Exception("LogicError","DaqSource::readIt(EventID const& eventID)")
+      throw edm::Exception(errors::LogicError,"DaqSource::readIt(EventID const& eventID)")
         << "Random access read cannot be used for DaqSource.\n"
         << "Contact a Framework developer.\n";
   }
 
   void
   DaqSource::skip(int) {
-      throw cms::Exception("LogicError","DaqSource::skip(int offset)")
+      throw edm::Exception(errors::LogicError,"DaqSource::skip(int offset)")
         << "Random access skip cannot be used for DaqSource\n"
         << "Contact a Framework developer.\n";
   }

@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/12/10 19:32:47 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/10/08 03:25:32 $
+ *  $Revision: 1.23 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -106,6 +106,10 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     tsTransform.persistentState( tsos ,id.rawId());
   
   edm::OwnVector<TrackingRecHit> container;
+  for (unsigned l=0; l<theRhits.size(); l++) {
+      container.push_back( theRhits[l]->hit()->clone() );
+  }
+
   TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
 
   delete seedTSOS;
@@ -114,73 +118,5 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 }
 
 
-TrajectorySeed MuonSeedFromRecHits::createDefaultSeed(ConstMuonRecHitPointer last) const
-{
-
-  const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
-
-  MuonPatternRecoDumper debug;
-
-  // FIXME: put it into a parameter set!
-  double theMinMomentum = 3.0;
-
-  AlgebraicVector t(4);
-  AlgebraicSymMatrix mat(5,0) ;
-
-  LocalPoint segPos=last->localPosition();
-
- //get the direction totally from the position of the segment
-  GlobalVector globalDir = last->globalPosition() - GlobalPoint();
-  LocalVector segDir = last->det()->toLocal(globalDir);
-  double dxdz = segDir.x() / segDir.z();
-  double dydz = segDir.y() / segDir.z();
-  double pzSign = segDir.z()>0. ? 1.:-1.;
-
-
-  // make one with zero q/p
-  LocalTrajectoryParameters param(0., dxdz, dydz, segPos.x(), segPos.y(), pzSign, true);
-
-  // this perform H.T() * parErr * H, which is the projection of the
-  // the measurement error (rechit rf) to the state error (TSOS rf)
-  // Legenda:
-  // H => is the 4x5 projection matrix
-  // parError the 4x4 parameter error matrix of the RecHit
-
-  // LogTrace(metname) << "Projection matrix:\n" << last->projectionMatrix();
-  // LogTrace(metname) << "Error matrix:\n" << last->parametersError();
-
-  mat = last->parametersError().similarityT( last->projectionMatrix() );
-
-  // make the error og down to the min momentum
-  float p_err = sqr(1/theMinMomentum);
-  mat[0][0]= p_err;
-
-
-  LocalTrajectoryError error(mat);
-
-  // Create the TrajectoryStateOnSurface
-  TrajectoryStateOnSurface tsos(param, error, last->det()->surface(), theField);
-
-  LogTrace(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
-  LogTrace(metname) << debug.dumpTSOS(tsos);
-
-  // Take the DetLayer on which relies the rechit
-  DetId id = last->geographicalId();
-  // Segment layer
-  LogTrace(metname) << "The RecSegment relies on: "<<endl;
-  LogTrace(metname) << debug.dumpMuonId(id);
-  LogTrace(metname) << debug.dumpTSOS(tsos);
-
-  // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
-
-  PTrajectoryStateOnDet *seedTSOS =
-    tsTransform.persistentState( tsos ,id.rawId());
-
-  edm::OwnVector<TrackingRecHit> container;
-  TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-
-  return theSeed;
-}
 
 

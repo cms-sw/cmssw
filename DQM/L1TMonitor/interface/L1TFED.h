@@ -4,8 +4,8 @@
 /*
  * \file L1TFED.h
  *
- * $Date: 2007/08/29 08:10:08 $
- * $Revision: 1.1 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -65,14 +65,20 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  MonitorElement* fedtest;
+//  MonitorElement* fedtest;
   MonitorElement * hfedsize;
   MonitorElement * hfedprof;
-  MonitorElement ** hindfed;
+//  MonitorElement ** hindfed;
+  
+  MonitorElement* fedentries; 
+  MonitorElement* fedfatal;
+  MonitorElement* fednonfatal;  
+
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
+  std::vector<int> l1feds_;
   ofstream logFile_;
   edm::InputTag fedSource_;
 };

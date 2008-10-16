@@ -37,7 +37,6 @@ looper = cms.Looper("AlignmentProducer",
         HIPAlignmentAlgorithm
     ),
     ParameterBuilder = cms.PSet(
-	parameterTypes = cms.vstring('Selector,RigidBody'),
         Selector = cms.PSet(
             # selection of alignables and their parameters:
             # comma separated pairs of detector parts/levels as defined in AlinmentParameterSelector

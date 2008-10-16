@@ -53,10 +53,15 @@ my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$release);
 if ($releasetop ne ""){system($SCRAMGenUtils::SCRAM_CMD." build -r echo_CXX 2>&1 >/dev/null");}
 if($project eq ""){print STDERR "ERROR: Can not find SCRAM_PROJECTNAME in ${release}.SCRAM/Environment file.\n"; exit 1;}
 
-my $tmpdir="${release}/tmp/AutoBuildFile";
-if($pwd!~/^$release(\/.*|)$/){$tmpdir="${pwd}/AutoBuildFile";}
-
 my $scramarch=&SCRAMGenUtils::getScramArch();
+my $tmpdir="${release}/tmp/AutoBuildFile";
+my $symboldir="${release}/tmp/Symbols/${scramarch}";
+if($pwd!~/^$release(\/.*|)$/)
+{
+  $tmpdir="${pwd}/AutoBuildFile";
+  $symboldir="${tmpdir}/Symbols/${scramarch}";
+}
+
 my $data={};
 my $cache={};
 my $pcache={};
@@ -64,7 +69,6 @@ my $projcache={};
 my $locprojcache={};
 my $cachedir="${tmpdir}/${scramarch}";
 my $depsdir="${cachedir}/new_pack_deps";
-my $symboldir="${cachedir}/symbols";
 my $bferrordir="${cachedir}/bferrordir";
 my $cfile="${cachedir}/product.cache";
 my $pcfile="${cachedir}/project.cache";
@@ -72,7 +76,7 @@ my $xmlbf="BuildFile.xml";
 
 &SCRAMGenUtils::updateConfigFileData ($xconfig,$data);
 
-if(!-d "$symboldir"){system("mkdir -p $symboldir $depsdir");}
+system("mkdir -p $symboldir $depsdir");
 &initCache($dir);
 
 foreach my $p (@prod)
@@ -109,6 +113,7 @@ foreach my $p (@packs)
 if(scalar(@prod)==0){foreach my $f (keys %$cache){&processProd($f);}}
 else{foreach my $p (@prod){&processProd($p);}}
 if(!defined $merge){system("${sdir}/mergeProdBuildFiles.pl --release $release --dir ${tmpdir}/newBuildFile/src");}
+print STDERR "Path of newly generated BuildFile(s): ${tmpdir}/newBuildFile/src\n";
 exit 0;
 
 sub updateRevDeps ()
@@ -137,7 +142,7 @@ sub updateRevDeps ()
 sub initCache ()
 {
   my $dir=shift || "";
-  if((-f $cfile) && (-f $pcfile) && (-f "${symboldir}/.symbols"))
+  if((-f $cfile) && (-f $pcfile) && (-f "${symboldir}/SymbolsCache"))
   {
     $cache=&SCRAMGenUtils::readHashCache($cfile);
     $pcache=&SCRAMGenUtils::readHashCache($pcfile);
@@ -173,11 +178,12 @@ sub initCache ()
 	&SCRAMGenUtils::writeHashCache($pcache,$pcfile);
       }
     }
-    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::readHashCache("${symboldir}/.symbols");
+    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::readHashCache("${symboldir}/SymbolsCache");
     foreach my $p (keys %$cache){if((exists $cache->{$p}{done}) && ($cache->{$p}{done}==0)){delete $cache->{$p}{done};}}
   }
   else
   {
+    print STDERR "Initializing project caches and shared libs symbols information. It will take few mins.\n";
     my $tcache={};
     $cf=&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${scramarch}/ToolCache.db");
     if (-f $cf)
@@ -203,7 +209,8 @@ sub initCache ()
     
     &SCRAMGenUtils::scramToolSymbolCache($tcache,"self",$symboldir,$xjobs,$pcache->{packmap});
     &SCRAMGenUtils::waitForChild();
-    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::mergeSymbols($symboldir);
+    print STDERR "\n";
+    $data->{ALL_SYMBOLS}=&SCRAMGenUtils::mergeSymbols($symboldir,"SymbolsCache");
     
     foreach my $d (reverse sort keys %{$projcache->{BUILDTREE}}){&updateProd($d);}
     $projcache={};
@@ -434,7 +441,7 @@ sub processProd ()
     &SCRAMGenUtils::writeHashCache($cache,$cfile);
   }
   if(-f "$nexport"){system("rm -f $nexport");}
-  print "##########################################################################\n";
+  print STDERR "##########################################################################\n";
 }
 
 sub updateActualPackDeps ()

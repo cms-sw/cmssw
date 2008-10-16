@@ -6,7 +6,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=PhysicsTools/IsolationUtils>
-<use name=PhysicsTools/Utilities>
 <use name=TrackingTools/GeomPropagators>
 <use name=root>
 <export>
@@ -16,7 +15,6 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=PhysicsTools/IsolationUtils>
-  <use name=PhysicsTools/Utilities>
   <lib name=RecoTauTagTauTagTools>
 </export>
 

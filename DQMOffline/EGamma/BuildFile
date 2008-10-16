@@ -2,9 +2,12 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/EcalRecHit>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=DataFormats/Math>
 <use name=RecoEgamma/EgammaIsolationAlgos>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CaloGeometry>
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/WebComponents>
@@ -16,9 +19,12 @@
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/EcalRecHit>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=DataFormats/Math>
   <use name=RecoEgamma/EgammaIsolationAlgos>
+  <use name=Geometry/CaloTopology>
+  <use name=Geometry/CaloGeometry>
   <use name=DQMServices/Components>
   <use name=DQMServices/Core>
   <use name=DQMServices/WebComponents>

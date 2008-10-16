@@ -14,7 +14,8 @@
 // constructors and destructor
 //
 L1GctHfLutSetupConfigurer::L1GctHfLutSetupConfigurer(const edm::ParameterSet& iConfig) :
-  m_thresholds(iConfig.getParameter< std::vector<unsigned> >("HfLutThresholds"))
+  m_etSumThresholds(iConfig.getParameter< std::vector<unsigned> >("HfLutEtSumThresholds")),
+  m_countThresholds(iConfig.getParameter< std::vector<unsigned> >("HfLutBitCountThresholds"))
 {
 
   // ------------------------------------------------------------------------------------------
@@ -44,10 +45,14 @@ L1GctHfLutSetupConfigurer::produceHfLutSetup()
    boost::shared_ptr<L1GctHfLutSetup> pL1GctHfLutSetup=
      boost::shared_ptr<L1GctHfLutSetup> (new L1GctHfLutSetup());
 
-   unsigned nTypes = (unsigned) L1GctHfLutSetup::numberOfLutTypes;
-   for (unsigned t=0; t<nTypes; ++t) {
-     pL1GctHfLutSetup->setThresholds( (L1GctHfLutSetup::hfLutType) t, m_thresholds);
-   }
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::bitCountPosEtaRing1, m_countThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::bitCountPosEtaRing2, m_countThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::bitCountNegEtaRing1, m_countThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::bitCountNegEtaRing2, m_countThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::etSumPosEtaRing1, m_etSumThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::etSumPosEtaRing2, m_etSumThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::etSumNegEtaRing1, m_etSumThresholds);
+   pL1GctHfLutSetup->setThresholds( L1GctHfLutSetup::etSumNegEtaRing2, m_etSumThresholds);
 
    return pL1GctHfLutSetup;
 }

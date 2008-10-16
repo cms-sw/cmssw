@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.25 2008/06/20 20:55:46 fischler Exp $
+// $Id: JobReport.h,v 1.26 2008/07/22 14:00:11 evansde Exp $
 //
 
 #include <cstddef>
@@ -50,7 +50,7 @@ namespace edm {
       */
 
       struct LumiSectionReport {
-	unsigned int runNumber;
+	unsigned int  runNumber;
 	unsigned int lumiSectionId;
 	/// So far we are proceeding without extra information, but
 	/// this may be added in the future...
@@ -60,6 +60,13 @@ namespace edm {
 	///std::string lumiEndTime;
 	
       };
+  
+      struct RunReport {
+	RunNumber runNumber;
+	std::set<unsigned int> lumiSections;
+	
+      };
+
       /**\struct InputFile
   
       Description: Holds information about an InputFile.
@@ -70,7 +77,6 @@ namespace edm {
       */
   
       struct InputFile {
-        typedef std::set<RunNumber> RunNumberCollection;
         typedef std::vector<std::string>   StringVector;
   
         std::string     logicalFileName;
@@ -79,10 +85,9 @@ namespace edm {
         std::string     inputSourceClassName; // class which created the file
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
-        RunNumberCollection runsSeen;
         size_t          numEventsRead;
         StringVector    branchNames;
-	std::vector<LumiSectionReport> lumiSections;
+	std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
       };
 
@@ -98,7 +103,7 @@ namespace edm {
 
 
       struct OutputFile {
-        typedef InputFile::RunNumberCollection RunNumberCollection;
+
         typedef InputFile::StringVector        StringVector;
   
         std::string     logicalFileName;
@@ -109,11 +114,10 @@ namespace edm {
         std::string     guid;
         std::string     dataType; 
 	std::string     branchHash;
-        RunNumberCollection runsSeen;
         size_t          numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
-	std::vector<LumiSectionReport> lumiSections;
+	std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
       };
   
@@ -159,14 +163,23 @@ namespace edm {
 	 * Associate a Lumi Section to all open output files
 	 *
 	 */
-	void associateLumiSection(const LumiSectionReport&  rep);
+	void associateLumiSection(unsigned int runNumber, unsigned int lumiSection);
 
 
 	/*
 	 * Associate a Lumi Section to all open input files
 	 *
 	 */
-	void associateInputLumiSection(const LumiSectionReport& rep);
+	void associateInputLumiSection(unsigned int runNumber, unsigned int lumiSection);
+	/*
+	 * Associate a run to all open output files
+	 */
+	void associateRun(unsigned int runNumber);
+	/*
+	 * Associate a run to all open output files
+	 */
+	void associateInputRun(unsigned int runNumber);
+
 
         /*
          * Write an InputFile object to the Logger 
@@ -342,6 +355,14 @@ namespace edm {
       ///
       void reportInputLumiSection(unsigned int run, unsigned int lumiSectId);
 
+      ///
+      /// API to report the a run written to output
+      ///
+      void reportRunNumber(unsigned int run);
+      ///
+      /// API to report a run read from input
+      ///
+      void reportInputRunNumber(unsigned int run);
 
       ///
       /// Report an exception, providing details of the problem as
@@ -467,12 +488,6 @@ namespace edm {
     os << "\n<Catalog>" << f.catalog << "</Catalog>";
     os << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
     os << "\n<GUID>" << f.guid << "</GUID>";
-    os << "\n<Runs>";
-    std::set<JobReport::RunNumber>::const_iterator iRun;
-    for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
-      os << "\n  <Run>" << *iRun << "</Run>";
-    }
-    os << "\n</Runs>";
     os << "\n<Branches>";
     std::vector<std::string>::const_iterator iBranch;
     for (iBranch = f.branchNames.begin(); 

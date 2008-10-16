@@ -10,12 +10,12 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.18 2008/07/03 00:11:06 heltsley Exp $
+ *  $Id: EEDetId.h,v 1.15 2008/03/03 15:20:05 ferriff Exp $
  */
 
 
 class EEDetId : public DetId {
-   public: 
+   public:
       enum { Subdet=EcalEndcap};
       /** Constructor of a null id */
       EEDetId() {}
@@ -52,25 +52,13 @@ class EEDetId : public DetId {
 
       static EEDetId idOuterRing( int iPhi , int zEnd ) ;
 
-      /// get a compact index for arrays. warning this one has gaps in the indexing
-      int hashedIndex() const //this one for historical purposes where DB indexing is used
+      /// get a compact index for arrays
+      int hashedIndex() const 
       {
-	 return ( iy() - 
-		  nBegin[ ix() - 1 ] + 
+	 return ( iy() - nBegin[ ix() - 1 ] + 
 		  nIntegral[ ix() - 1 ]  + 
-		  ( positiveZ() ? ICR_FEE : 0 ) ) ;     
+		  ( positiveZ() ? ICR_FEE : 0 ) ) ;
       }
-
-      uint32_t denseIndex() const //this one has no gaps. NOT THE SAME AS HASHEDINDEX!!
-      {
-	 const uint32_t jx ( ix() ) ;
-	 const uint32_t jd ( 2*( iy() - 1 ) + ( jx - 1 )/50 ) ;
-	 return (  ( zside()<0 ? 0 : kEEhalf ) + kdi[jd] + jx - kxf[jd] ) ;
-      }
-
-      static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
-
-      static EEDetId detIdFromDenseIndex( uint32_t din ) ; // backwards from denseIndex
 
       static bool isNextToBoundary(     EEDetId id ) ;
 
@@ -97,15 +85,12 @@ class EEDetId : public DetId {
       static const int ICR_MAX=25;
 
       // to speed up hashedIndex()
-
       static const int ICR_FD   =3870;
       static const int ICR_FEE  =7740;
       static const int SIZE_HASH=2*ICR_FEE;
       static const int MIN_HASH =  0; // always 0 ...
       static const int MAX_HASH =  2*ICR_FEE-1;
-
-      enum { kEEhalf = 7324 ,
-	     kSizeForDenseIndexing = 2*kEEhalf } ;
+ 
 
       // function modes for (int, int) constructor
       static const int XYMODE        = 0;
@@ -126,16 +111,12 @@ class EEDetId : public DetId {
 
       static const int nBegin[IX_MAX];
       static const int nIntegral[IX_MAX];
-
-      static const unsigned short kxf[2*IY_MAX] ;
-      static const unsigned short kdi[2*IY_MAX] ;
   
       int ix( int iSC, int iCrys ) const;
       int iy( int iSC, int iCrys ) const;
       int ixQuadrantOne() const;
       int iyQuadrantOne() const;
 };
-
 
 std::ostream& operator<<(std::ostream& s,const EEDetId& id);
 

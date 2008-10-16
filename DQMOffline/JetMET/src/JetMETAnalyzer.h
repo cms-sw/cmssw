@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2008/08/26 19:17:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/30 16:11:38 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -57,7 +57,6 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::InputTag thePFJetCollectionLabel;
   edm::InputTag theCaloMETCollectionLabel;
   edm::InputTag theCaloMETNoHFCollectionLabel;
-  edm::InputTag theTriggerResultsLabel;
   
   bool theJetAnalyzerFlag;
   bool thePFJetAnalyzerFlag;

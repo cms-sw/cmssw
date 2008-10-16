@@ -5,7 +5,6 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace reco {
   /**\class PileUpPFCandidate
@@ -21,8 +20,7 @@ namespace reco {
     /// default constructor
     PileUpPFCandidate();
     
-    PileUpPFCandidate( const PFCandidatePtr& candidatePtr,
-		       const VertexRef& vertexRef);
+    PileUpPFCandidate( const PFCandidateRef& candidateRef);
 
     /// destructor
     virtual ~PileUpPFCandidate() {}
@@ -30,16 +28,14 @@ namespace reco {
     /// return a clone
     virtual PileUpPFCandidate * clone() const;
     
-    /// return reference to the associated vertex
-    const VertexRef&  vertexRef() const {return vertexRef_;}
-    
+/*     const PFCandidateRef& parent() const { return parent_;} */
 
     friend std::ostream& operator<<( std::ostream& out, 
 				     const PileUpPFCandidate& c );
   
   private:
     
-    VertexRef     vertexRef_;
+/*     PFCandidateRef parent_; */
   };
 
 

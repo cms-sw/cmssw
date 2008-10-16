@@ -1,9 +1,8 @@
-<use name="FWCore/Framework">
-<use name="Geometry/Records">
-<use name="boost">
 <export>
-  <use name="FWCore/Framework">
-  <use name="Geometry/Records">
-  <use name="boost">
-  <lib name="RecoMuonRecords">
+   <lib name=RecoMuonRecords>
 </export>
+
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<use name=boost>

@@ -25,23 +25,29 @@
 std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackEff(RPCDetId & detId, const edm::EventSetup & iSetup) {
   
   std::map<std::string, MonitorElement*> meMap;
-
+  std::string regionName;
+  std::string ringType;
+  if(detId.region()==0) {
+    regionName="Barrel";
+    ringType="Wheel";
+  }
+  else{
+    ringType="Disk";
+    if(detId.region() == -1) regionName="Endcap-";
+    if(detId.region() ==  1) regionName="Endcap+";
+  }
+  
   char  folder[120];
-  if(detId.region() ==  0)
-  sprintf(folder,"RPC/EfficiencyFromTrack/Barrel/Wheel_%d/station_%d/sector_%d",
+  sprintf(folder,"RPC/EfficiencyFromTrack/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
 	  detId.ring(),detId.station(),detId.sector());
-  else if(detId.region() == -1) 
-  sprintf(folder,"RPC/EfficiencyFromTrack/Endcap-/Disk_%d/station_%d/sector_%d",
-	  detId.station(),detId.ring(),detId.sector());
-  else if(detId.region() ==  1) 
-  sprintf(folder,"RPC/EfficiencyFromTrack/Endcap+/Disk_%d/station_%d/sector_%d",
-	  detId.station(),detId.ring(),detId.sector());
-  else  std::cout <<"Region "<<detId.region()<< "not found!!! --- ERROR"<<std::endl;
 
   dbe->setCurrentFolder(folder);
 
 
   int strips = 0; double lastvalue = 0.;
+
+
+
 
   edm::ESHandle<RPCGeometry> rpcgeo;
   iSetup.get<MuonGeometryRecord>().get(rpcgeo);

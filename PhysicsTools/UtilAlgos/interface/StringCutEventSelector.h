@@ -4,14 +4,14 @@
 #include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
 #include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 template<typename Object>
 class  StringCutEventSelector : public EventSelector {
  public:
   StringCutEventSelector(const edm::ParameterSet& pset) :
     EventSelector(pset),
-    src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
+    src_(InputTagDistributor::retrieve("src",pset)),
     f_(pset.getParameter<std::string>("cut")),
     //put this guy to 0 to do the check on "all" object in the collection
     nFirst_(pset.getParameter<uint>("nFirst"))
@@ -51,7 +51,7 @@ class  StringCutsEventSelector : public EventSelector {
  public:
   StringCutsEventSelector(const edm::ParameterSet& pset) :
     EventSelector(pset),
-    src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset))
+    src_(InputTagDistributor::retrieve("src",pset))
       {
 	std::vector<std::string> selection=pset.getParameter<std::vector<std::string > >("cut");
 	std::stringstream ss;
@@ -71,8 +71,7 @@ class  StringCutsEventSelector : public EventSelector {
 	      description_.push_back(ss.str());           ss.str("");
 	    }
       }
- ~StringCutsEventSelector(){uint i=0; for (;i!=f_.size();i++) if (f_[i]){ delete f_[i];f_[i]=0;}}
- 
+    
     bool select (const edm::Event& e) const{
       edm::Handle<edm::View<Object> > oH;
       e.getByLabel(src_, oH);

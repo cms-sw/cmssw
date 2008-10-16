@@ -2,16 +2,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/19 14:23:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/22 19:00:29 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
 //#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -68,13 +66,8 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
 
     for(vector<TH1F*>::const_iterator ith = hTMax.begin();
 	ith != hTMax.end(); ith++) {
+     
       TF1 *funct = fitTMax(*ith);
-      if(!funct){
-	edm::LogError("DTMeanTimerFitter") << "Error when fitting TMax..histogram name" << (*ith)->GetName();
-        // return empty or -1 filled vector?
-        vector<float> defvec(6,-1);
-        return defvec;
-      }			
       hDebugFile->cd();
       (*ith)->Write();
 
@@ -100,12 +93,6 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
       // << " sigma: " << sigma[i] 
       // << " weight: " << (count[i]/(sigma[i]*sigma[i])) << endl; 
     }
-    if((!wTMaxSum)||(!wSigmaSum)){
-      edm::LogError("DTMeanTimerFitter") << "Error zero sum of weights..returning default";
-      vector<float> defvec(6,-1);
-      return defvec;	
-    }
-
     tMaxMean /= wTMaxSum;
     sigmaT /= wSigmaSum;
 
@@ -114,8 +101,8 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
     Double_t reso = vDrift * sigmaT;
     vDriftAndReso.push_back(vDrift);
     vDriftAndReso.push_back(reso);
-    //if(theVerbosityLevel >= 1)
-    edm::LogVerbatim("DTMeanTimerFitter") << " final TMaxMean=" << tMaxMean << " sigma= "  << sigmaT 
+    if(theVerbosityLevel >= 1)
+      cout << " final TMaxMean=" << tMaxMean << " sigma= "  << sigmaT 
 	   << " v_d and reso: " << vDrift << " " << reso << endl;
 
     // Order t0 histogram by number of entries (choose histograms with higher nr. of entries)
@@ -141,14 +128,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
 
     for(vector<TH1F*>::const_iterator ith = hT0.begin();
 	ith != hT0.end(); ith++) {
-      try{
-        (*ith)->Fit("gaus");
-      } catch(...){
-        edm::LogError("DTMeanTimerFitter") << "Exception when fitting T0..histogram " << (*ith)->GetName();    
-        // return empty or -1 filled vector?
-        vector<float> defvec(6,-1);
-        return defvec;
-      }	
+      (*ith)->Fit("gaus");
       TF1 *f1 = (*ith)->GetFunction("gaus");
       // Get mean, sigma and number of entries of the  histograms
       meanT0.push_back(f1->GetParameter(1));
@@ -157,7 +137,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
     }
     //calculate Delta(t0)
     if(hT0.size() != 6) { // check if you have all the t0 hists
-      edm::LogVerbatim("DTMeanTimerFitter") << "t0 histograms = " << hT0.size();
+      cout << "t0 histograms = " << hT0.size() << endl;
       for(int i=1; i<=4;i++) {
 	vDriftAndReso.push_back(-1);
       }
@@ -197,22 +177,16 @@ TF1* DTMeanTimerFitter::fitTMax(TH1F* histo){
  // Find distribution peak and fit range
       Double_t peak = (((((histo->GetXaxis())->GetXmax())-((histo->GetXaxis())->GetXmin()))/histo->GetNbinsX())*
 		       (histo->GetMaximumBin()))+((histo->GetXaxis())->GetXmin());
-      //if(theVerbosityLevel >= 1)
-      LogDebug("DTMeanTimerFitter") <<"Peak "<<peak<<" : "<<"xmax "<<((histo->GetXaxis())->GetXmax())
+      if(theVerbosityLevel >= 1)
+	cout<<"Peak "<<peak<<" : "<<"xmax "<<((histo->GetXaxis())->GetXmax())
 	    <<"            xmin "<<((histo->GetXaxis())->GetXmin())
 	    <<"            nbin "<<histo->GetNbinsX()
-	    <<"            bin with max "<<(histo->GetMaximumBin());
+	    <<"            bin with max "<<(histo->GetMaximumBin())<<endl;
       Double_t range = 2.*histo->GetRMS(); 
 
       // Fit each Tmax histogram with a Gaussian in a restricted interval
       TF1 *rGaus = new TF1("rGaus","gaus",peak-range,peak+range);
-      try{	
-        histo->Fit("rGaus","R");
-      } catch(...){
-	edm::LogError("DTMeanTimerFitter") << "Exception when fitting TMax..histogram " << histo->GetName()
-	     << "   setting return function pointer to zero";   
-	return 0;
-      }	
+      histo->Fit("rGaus","R");
       TF1 *f1 = histo->GetFunction("rGaus");
       return f1;
  }

@@ -357,6 +357,7 @@ if (scalar(@$srcfiles)>0)
   }
 }
 foreach my $file (@files){&process_cxx_file ($file,$data);}
+if(!$detail){print STDERR "\n";}
 my $bindeps=&getBinaryDependency($prodname,$fullpath);
 my $tid=&SCRAMGenUtils::startTimer ();
 wait();
@@ -804,11 +805,11 @@ sub process_cxx_file ()
 	        }
 	        else{$data->{deps}{src}{$pack}=1;}
 	      }
-	      if($detail && ($info->{new}==1)){$info->{new}=2;print STDERR "#$ainc=>$pack\n";}
+	      if($detail && ($info->{new}==1)){$info->{new}=2; print STDERR "#$ainc=>$pack\n";}
 	    }
 	  }
 	}
-	elsif($detail && ($info->{new}==1)){$info->{new}=2;print STDERR "#$ainc:UNKNOWN (might be from system directories)\n";}
+	elsif($detail && ($info->{new}==1)){$info->{new}=2; print STDERR "#$ainc:UNKNOWN (might be from system directories)\n";}
       }
     }
   }

@@ -51,7 +51,7 @@ process.dqmHarvesing = cms.EDFilter("SiStripOfflineDQM",
     CreateSummary = cms.untracked.bool(True),
     InputFileName = cms.untracked.string('DQM_SiStrip_R000058733-standAlone.root'),
     OutputFileName = cms.untracked.string('DQM_SiStrip_R000058289_CAF.root'),
-    GlobalStatusFilling = cms.untracked.bool(True)
+    GlobalStatusFilling = cms.untracked.int32(1)
 )
 
 #-------------------------------------------------

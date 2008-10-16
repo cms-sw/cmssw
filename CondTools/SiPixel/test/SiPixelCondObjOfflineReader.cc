@@ -118,16 +118,10 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   fFile->Write();
   fFile->Close();    
 }
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
-{
-   //startup functionality implememnted in beginRun
-}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelCondObjOfflineReader::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
+SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
 {
 
   edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::beginJob] Opening ROOT file  " <<std::endl;

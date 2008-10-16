@@ -55,7 +55,9 @@ L1TriggerRECO = cms.PSet(
     'keep *_valGtDigis_*_*', 
     'keep *_l1GtRecord_*_*', 
     'keep *_l1GtObjectMap_*_*', 
-    'keep *_l1extraParticles_*_*')
+    'keep *_l1extraParticles_*_*',
+    'keep LumiDetails_lumiProducer_*_*',
+    'keep LumiSummary_lumiProducer_*_*')
 )
 
 # AOD content
@@ -64,7 +66,8 @@ L1TriggerAOD = cms.PSet(
     'keep *_gtDigis_*_*', 
     'keep *_l1GtRecord_*_*', 
     'keep *_l1GtObjectMap_*_*', 
-    'keep *_l1extraParticles_*_*')
+    'keep *_l1extraParticles_*_*',
+    'keep LumiSummary_lumiProducer_*_*')
 )
 
 L1TriggerFEVTDEBUG = cms.PSet(

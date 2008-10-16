@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.6.2.1 2008/04/04 20:26:33 slava77 Exp $
+// $Id: MET.cc,v 1.9 2008/06/26 00:04:42 slava77 Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -50,7 +50,7 @@ void MET::setGenMET(const reco::GenMET & gm) {
 }
 
 //! return uncorrrection related stuff
-uint MET::nCorrections() const { checkUncor_(); return nCorrections_; }
+unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
 double MET::corEx(UncorectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEx; }
 double MET::corEy(UncorectionType ix) const { checkUncor_(); return uncorInfo_[ix].corEy; }
@@ -74,7 +74,7 @@ void MET::checkUncor_() const {
   //! ALL
   ix = uncorrALL;
   uncorInfo_[ix] = UncorInfo();
-  for (uint iC=0; iC < nCorrections_; ++iC){
+  for (unsigned int iC=0; iC < nCorrections_; ++iC){
     uncorInfo_[ix].corEx +=    corrs[iC].mex;
     uncorInfo_[ix].corEy +=    corrs[iC].mey;
     uncorInfo_[ix].corSumEt += corrs[iC].sumet;
@@ -85,7 +85,7 @@ void MET::checkUncor_() const {
   ix = uncorrJES;
   uncorInfo_[ix] = UncorInfo();
   if (nCorrections_ >=1 ){
-    uint iC = 0;
+    unsigned int iC = 0;
     uncorInfo_[ix].corEx +=    corrs[iC].mex;
     uncorInfo_[ix].corEy +=    corrs[iC].mey;
     uncorInfo_[ix].corSumEt += corrs[iC].sumet;
@@ -96,7 +96,7 @@ void MET::checkUncor_() const {
   ix = uncorrMUON;
   uncorInfo_[ix] = UncorInfo();
   if (nCorrections_ >=2 ){
-    uint iC = 1;
+    unsigned int iC = 1;
     uncorInfo_[ix].corEx +=    corrs[iC].mex;
     uncorInfo_[ix].corEy +=    corrs[iC].mey;
     uncorInfo_[ix].corSumEt += corrs[iC].sumet;

@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/09/12 23:07:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/02 01:10:34 $
+ *  $Revision: 1.3 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -34,6 +34,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // C++
@@ -44,7 +45,9 @@ using namespace std;
 
 // Constructor
 MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::ParameterSet& pset)
-: MuonSeedVPatternRecognition(pset)
+: MuonSeedVPatternRecognition(pset),
+  theCrackEtas(pset.getParameter<std::vector<double> >("crackEtas")),
+  theCrackWindow(pset.getParameter<double>("crackWindow"))
 {
 }
 
@@ -92,288 +95,36 @@ void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::Event
   MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
 					    enableDTMeasurement,enableCSCMeasurement,false);
 
-  // ------------        EndCap disk z<0 + barrel
-
-  MuonRecHitContainer list24 = muonMeasurements.recHits(ME4Bwd,event);
-  MuonRecHitContainer list23 = muonMeasurements.recHits(ME3Bwd,event);
-  
-  MuonRecHitContainer list12 = muonMeasurements.recHits(ME2Bwd,event);
-  
-  MuonRecHitContainer list22 = muonMeasurements.recHits(ME12Bwd,event);
-  MuonRecHitContainer list21 = muonMeasurements.recHits(ME11Bwd,event);
-
-  MuonRecHitContainer list11 = list21; 
-  MuonRecHitContainer list5 = list22;
-  MuonRecHitContainer list13 = list23;  
-  MuonRecHitContainer list4 = list24; 
- 
-  if ( list21.size() == 0 )  { 
-    list11 = list22; list5 = list21;
-  }
-
-  if ( list24.size() < list23.size() && list24.size() > 0 )  { 
-    list13 = list24; list4 = list23;
-  }
-
-  if ( list23.size() == 0 )  { 
-    list13 = list24; list4 = list23;
-  }
-
-  MuonRecHitContainer list1 = list11;
-  MuonRecHitContainer list2 = list12;
-  MuonRecHitContainer list3 = list13;
-
-
-  if ( list12.size() == 0 )  { 
-    list3 = list12;
-    if ( list11.size() <= list13.size() && list11.size() > 0 ) {
-      list1 = list11; list2 = list13;}
-    else { list1 = list13; list2 = list11;}
-  }
-
-  if ( list13.size() == 0 )  { 
-    if ( list11.size() <= list12.size() && list11.size() > 0 ) {
-      list1 = list11; list2 = list12;}
-    else { list1 = list12; list2 = list11;}
-  }
-   
-  if ( list12.size() != 0 &&  list13.size() != 0 )  { 
-    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && list11.size()>0 ) {   // ME 1
-      if ( list12.size() > list13.size() ) {
-	list2 = list13; list3 = list12;}
-    }
-    else if ( list12.size() <= list13.size() ) {                                   //  start with ME 2
-      list1 = list12;
-      if ( list11.size() <= list13.size() && list11.size() > 0 ) {
-	list2 = list11; list3 = list13;}
-      else { list2 = list13; list3 = list11;}
-    } 
-    else {                                                                         //  start with ME 3
-      list1 = list13;
-      if ( list11.size() <= list12.size() && list11.size() > 0 ) {
-	list2 = list11; list3 = list12;}
-      else { list2 = list12; list3 = list11;}
-    }
-  }
-
+  MuonRecHitContainer list9 = muonMeasurements.recHits(MB4DL,event);
   MuonRecHitContainer list6 = muonMeasurements.recHits(MB3DL,event);
   MuonRecHitContainer list7 = muonMeasurements.recHits(MB2DL,event);
   MuonRecHitContainer list8 = muonMeasurements.recHits(MB1DL,event);
-  
+
   bool* MB1 = zero(list8.size());
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
-  bool* ME2 = zero(list2.size());
-  bool* ME3 = zero(list3.size());
-  bool* ME4 = zero(list4.size());
-  bool* ME5 = zero(list5.size());
 
-  // creates list of compatible track segments
+  endcapPatterns(muonMeasurements.recHits(ME11Bwd,event),
+                 muonMeasurements.recHits(ME12Bwd,event),
+                 muonMeasurements.recHits(ME2Bwd,event),
+                 muonMeasurements.recHits(ME3Bwd,event),
+                 muonMeasurements.recHits(ME4Bwd,event),
+                 list8, list7, list6,
+                 MB1, MB2, MB3, result);
 
-  for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
-    if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
-    MuonRecHitContainer seedSegments;
-    seedSegments.push_back(*iter);
-    complete(seedSegments, list2, ME2);
-    complete(seedSegments, list3, ME3);
-    complete(seedSegments, list4, ME4);
-    complete(seedSegments, list5, ME5);
-    complete(seedSegments, list6, MB3);
-    complete(seedSegments, list7, MB2);    
-    complete(seedSegments, list8, MB1);
-    if(seedSegments.size() > 1) result.push_back(seedSegments);
-  }
-
-
-  unsigned int counter;
-
-  for ( counter = 0; counter<list2.size(); counter++ ){
-
-    if ( !ME2[counter] ) {
-      MuonRecHitContainer seedSegments;
-      seedSegments.push_back(list2[counter]);
-      complete(seedSegments, list3, ME3);
-      complete(seedSegments, list4, ME4);
-      complete(seedSegments, list5, ME5);
-      complete(seedSegments, list6, MB3);
-      complete(seedSegments, list7, MB2);
-      complete(seedSegments, list8, MB1);
-      if(seedSegments.size() > 1) result.push_back(seedSegments);
-    }
-  }
-
-
-  if ( list3.size() < 20 ) {   // +v
-    for ( counter = 0; counter<list3.size(); counter++ ){
-      if ( !ME3[counter] ) { 
-        MuonRecHitContainer seedSegments;
-        seedSegments.push_back(list3[counter]);
-	complete(seedSegments, list4, ME4);
-	complete(seedSegments, list5, ME5);
-	complete(seedSegments, list6, MB3);
-	complete(seedSegments, list7, MB2);
-	complete(seedSegments, list8, MB1);
-        if(seedSegments.size() > 1) result.push_back(seedSegments);
-      }
-    }
-  }
-
-  if ( list4.size() < 20 ) {   // +v
-    for ( counter = 0; counter<list4.size(); counter++ ){
-      if ( !ME4[counter] ) {
-        MuonRecHitContainer seedSegments;
-        seedSegments.push_back(list4[counter]);
-	complete(seedSegments, list5, ME5);
-	complete(seedSegments, list6, MB3);
-	complete(seedSegments, list7, MB2);
-	complete(seedSegments, list8, MB1);
-        if(seedSegments.size() > 1) result.push_back(seedSegments);
-      }   
-    }          
-  } 
-
-  // ------------        EndCap disk z>0
-
-  list24 = muonMeasurements.recHits(ME4Fwd,event);
-  list23 = muonMeasurements.recHits(ME3Fwd,event);
-  
-  list12 = muonMeasurements.recHits(ME2Fwd,event);
-  
-  list22 = muonMeasurements.recHits(ME12Fwd,event);
-  list21 = muonMeasurements.recHits(ME11Fwd,event);
-  
- 
-  list11 = list21; 
-  list5 = list22;
-  list13 = list23;  
-  list4 = list24; 
-
-  if ( list21.size() == 0 )  { 
-    list11 = list22; list5 = list21;
-  }
-
-  if ( list24.size() < list23.size() && list24.size() > 0 )  { 
-    list13 = list24; list4 = list23;
-  }
-
-  if ( list23.size() == 0 )  { 
-    list13 = list24; list4 = list23;
-  }
-
-  list1 = list11;
-  list2 = list12;
-  list3 = list13;
-
-
-  if ( list12.size() == 0 )  { 
-    list3 = list12;
-    if ( list11.size() <= list13.size() && list11.size() > 0 ) {
-      list1 = list11; list2 = list13;}
-    else { list1 = list13; list2 = list11;}
-  }
-
-  if ( list13.size() == 0 )  { 
-    if ( list11.size() <= list12.size() && list11.size() > 0 ) {
-      list1 = list11; list2 = list12;}
-    else { list1 = list12; list2 = list11;}
-  }
-   
-  if ( list12.size() != 0 &&  list13.size() != 0 )  { 
-    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && list11.size()>0 ) {  // ME 1
-      if ( list12.size() > list13.size() ) {
-	list2 = list13; list3 = list12;}
-    }
-    else if ( list12.size() <= list13.size() ) {                                  //  start with ME 2
-      list1 = list12;
-      if ( list11.size() <= list13.size() && list11.size() > 0 ) {
-	list2 = list11; list3 = list13;}
-      else { list2 = list13; list3 = list11;}
-    } 
-    else {                                                                        //  start with ME 3
-      list1 = list13;
-      if ( list11.size() <= list12.size() && list11.size() > 0 ) {
-	list2 = list11; list3 = list12;}
-      else { list2 = list12; list3 = list11;}
-    }
-  }
-
-
-  if ( ME5 ) delete [] ME5;
-  if ( ME4 ) delete [] ME4;
-  if ( ME3 ) delete [] ME3;
-  if ( ME2 ) delete [] ME2;
-
-  ME2 = zero(list2.size());
-  ME3 = zero(list3.size());
-  ME4 = zero(list4.size());
-  ME5 = zero(list5.size());
-
-
-  for (MuonRecHitContainer::iterator iter=list1.begin(); iter!=list1.end(); iter++ ){
-    if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue;// 3p.tr-seg.aren't so good for starting
-    MuonRecHitContainer seedSegments;
-    seedSegments.push_back(*iter);
-    complete(seedSegments, list2, ME2);
-    complete(seedSegments, list3, ME3);
-    complete(seedSegments, list4, ME4);
-    complete(seedSegments, list5, ME5);
-    complete(seedSegments, list6, MB3);
-    complete(seedSegments, list7, MB2);
-    complete(seedSegments, list8, MB1);
-    if(seedSegments.size() > 1) result.push_back(seedSegments);
-  }
-
-
-  for ( counter = 0; counter<list2.size(); counter++ ){
-    if ( !ME2[counter] ) {
-      MuonRecHitContainer seedSegments;
-      seedSegments.push_back(list2[counter]);
-      complete(seedSegments, list3, ME3);
-      complete(seedSegments, list4, ME4);
-      complete(seedSegments, list5, ME5);
-      complete(seedSegments, list6, MB3);
-      complete(seedSegments, list7, MB2);
-      complete(seedSegments, list8, MB1);
-      if(seedSegments.size() > 1) result.push_back(seedSegments);
-    } 
-  }
-
-
-  if ( list3.size() < 20 ) {   // +v
-    for ( counter = 0; counter<list3.size(); counter++ ){
-      if ( !ME3[counter] ) { 
-        MuonRecHitContainer seedSegments;
-        seedSegments.push_back(list3[counter]);
-	complete(seedSegments, list4, ME4);
-	complete(seedSegments, list5, ME5);
-	complete(seedSegments, list6, MB3);
-	complete(seedSegments, list7, MB2);
-	complete(seedSegments, list8, MB1);
-        if(seedSegments.size() > 1) result.push_back(seedSegments);
-      }
-    }
-  }
-
-  if ( list4.size() < 20 ) {   // +v
-    for ( counter = 0; counter<list4.size(); counter++ ){
-      if ( !ME4[counter] ) {
-        MuonRecHitContainer seedSegments;
-        seedSegments.push_back(list4[counter]);
-	complete(seedSegments, list5, ME5);
-	complete(seedSegments, list6, MB3);
-	complete(seedSegments, list7, MB2);
-	complete(seedSegments, list8, MB1);
-        if(seedSegments.size() > 1) result.push_back(seedSegments);
-      }   
-    }          
-  } 
+  endcapPatterns(muonMeasurements.recHits(ME11Fwd,event),
+                 muonMeasurements.recHits(ME12Fwd,event),
+                 muonMeasurements.recHits(ME2Fwd,event),
+                 muonMeasurements.recHits(ME3Fwd,event),
+                 muonMeasurements.recHits(ME4Fwd,event),
+                 list8, list7, list6,
+                 MB1, MB2, MB3, result);
 
 
   // ----------    Barrel only
   
-  MuonRecHitContainer list9 = muonMeasurements.recHits(MB4DL,event);
-
+  unsigned int counter = 0;
   if ( list9.size() < 100 ) {   // +v
     for (MuonRecHitContainer::iterator iter=list9.begin(); iter!=list9.end(); iter++ ){
       MuonRecHitContainer seedSegments;
@@ -381,7 +132,7 @@ void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::Event
       complete(seedSegments, list6, MB3);
       complete(seedSegments, list7, MB2);
       complete(seedSegments, list8, MB1);
-      if(seedSegments.size() > 1) result.push_back(seedSegments);
+      if(check(seedSegments)) result.push_back(seedSegments);
     }
   }
 
@@ -394,7 +145,7 @@ void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::Event
 	complete(seedSegments, list7, MB2);
 	complete(seedSegments, list8, MB1);
 	complete(seedSegments, list9);
-        if(seedSegments.size() > 1) result.push_back(seedSegments);
+        if(check(seedSegments)) result.push_back(seedSegments);
       }
     }
   }
@@ -435,10 +186,6 @@ void MuonSeedOrcaPatternRecognition::produce(edm::Event& event, const edm::Event
     }
   }
 
-  if ( ME5 ) delete [] ME5;
-  if ( ME4 ) delete [] ME4;
-  if ( ME3 ) delete [] ME3;
-  if ( ME2 ) delete [] ME2;
   if ( MB3 ) delete [] MB3;
   if ( MB2 ) delete [] MB2;
   if ( MB1 ) delete [] MB1;
@@ -524,6 +271,183 @@ bool * MuonSeedOrcaPatternRecognition::zero(unsigned listSize)
   }
   return result;
 }
+
+
+void MuonSeedOrcaPatternRecognition::endcapPatterns(
+  const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
+  const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
+  const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,
+  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
+  bool * MB1, bool * MB2, bool * MB3,
+  std::vector<MuonRecHitContainer> & result)
+{
+  std::vector<MuonRecHitContainer> patterns;
+  MuonRecHitContainer crackSegments;
+  rememberCrackSegments(me11, crackSegments);
+  rememberCrackSegments(me12, crackSegments);
+  rememberCrackSegments(me2,  crackSegments);
+  rememberCrackSegments(me3,  crackSegments);
+  rememberCrackSegments(me4,  crackSegments);
+
+
+  MuonRecHitContainer list24 = me4;
+  MuonRecHitContainer list23 = me3;
+
+  MuonRecHitContainer list12 = me2;
+
+  MuonRecHitContainer list22 = me12;
+  MuonRecHitContainer list21 = me11;
+
+  MuonRecHitContainer list11 = list21;
+  MuonRecHitContainer list5 = list22;
+  MuonRecHitContainer list13 = list23;
+  MuonRecHitContainer list4 = list24;
+
+  if ( list21.size() == 0 )  {
+    list11 = list22; list5 = list21;
+  }
+
+  if ( list24.size() < list23.size() && list24.size() > 0 )  {
+    list13 = list24; list4 = list23;
+  }
+
+  if ( list23.size() == 0 )  {
+    list13 = list24; list4 = list23;
+  }
+
+  MuonRecHitContainer list1 = list11;
+  MuonRecHitContainer list2 = list12;
+  MuonRecHitContainer list3 = list13;
+
+
+  if ( list12.size() == 0 )  {
+    list3 = list12;
+    if ( list11.size() <= list13.size() && list11.size() > 0 ) {
+      list1 = list11; list2 = list13;}
+    else { list1 = list13; list2 = list11;}
+  }
+
+  if ( list13.size() == 0 )  {
+    if ( list11.size() <= list12.size() && list11.size() > 0 ) {
+      list1 = list11; list2 = list12;}
+    else { list1 = list12; list2 = list11;}
+  }
+
+  if ( list12.size() != 0 &&  list13.size() != 0 )  {
+    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && list11.size()>0 ) {   // ME 1
+      if ( list12.size() > list13.size() ) {
+        list2 = list13; list3 = list12;}
+    }
+    else if ( list12.size() <= list13.size() ) {                                   //  start with ME 2
+      list1 = list12;
+      if ( list11.size() <= list13.size() && list11.size() > 0 ) {
+        list2 = list11; list3 = list13;}
+      else { list2 = list13; list3 = list11;}
+    }
+    else {                                                                         //  start with ME 3
+      list1 = list13;
+      if ( list11.size() <= list12.size() && list11.size() > 0 ) {
+        list2 = list11; list3 = list12;}
+      else { list2 = list12; list3 = list11;}
+    }
+  }
+
+
+  bool* ME2 = zero(list2.size());
+  bool* ME3 = zero(list3.size());
+  bool* ME4 = zero(list4.size());
+  bool* ME5 = zero(list5.size());
+
+
+  // creates list of compatible track segments
+
+  for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
+    if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
+    MuonRecHitContainer seedSegments;
+    seedSegments.push_back(*iter);
+    complete(seedSegments, list2, ME2);
+    complete(seedSegments, list3, ME3);
+    complete(seedSegments, list4, ME4);
+    complete(seedSegments, list5, ME5);
+    complete(seedSegments, mb3, MB3);
+    complete(seedSegments, mb2, MB2);
+    complete(seedSegments, mb1, MB1);
+    if(check(seedSegments)) patterns.push_back(seedSegments);
+  }
+
+
+  unsigned int counter;
+
+  for ( counter = 0; counter<list2.size(); counter++ ){
+
+    if ( !ME2[counter] ) {
+      MuonRecHitContainer seedSegments;
+      seedSegments.push_back(list2[counter]);
+      complete(seedSegments, list3, ME3);
+      complete(seedSegments, list4, ME4);
+      complete(seedSegments, list5, ME5);
+      complete(seedSegments, mb3, MB3);
+      complete(seedSegments, mb2, MB2);
+      complete(seedSegments, mb1, MB1);
+      if(check(seedSegments)) patterns.push_back(seedSegments);
+    }
+  }
+
+
+  if ( list3.size() < 20 ) {   // +v
+    for ( counter = 0; counter<list3.size(); counter++ ){
+      if ( !ME3[counter] ) {
+        MuonRecHitContainer seedSegments;
+        seedSegments.push_back(list3[counter]);
+        complete(seedSegments, list4, ME4);
+        complete(seedSegments, list5, ME5);
+        complete(seedSegments, mb3, MB3);
+        complete(seedSegments, mb2, MB2);
+        complete(seedSegments, mb1, MB1);
+        if(check(seedSegments)) patterns.push_back(seedSegments);
+      }
+    }
+  }
+
+  if ( list4.size() < 20 ) {   // +v
+    for ( counter = 0; counter<list4.size(); counter++ ){
+      if ( !ME4[counter] ) {
+        MuonRecHitContainer seedSegments;
+        seedSegments.push_back(list4[counter]);
+        complete(seedSegments, list5, ME5);
+        complete(seedSegments, mb3, MB3);
+        complete(seedSegments, mb2, MB2);
+        complete(seedSegments, mb1, MB1);
+        if(check(seedSegments)) patterns.push_back(seedSegments);
+      }
+    }
+  }
+
+  if ( ME5 ) delete [] ME5;
+  if ( ME4 ) delete [] ME4;
+  if ( ME3 ) delete [] ME3;
+  if ( ME2 ) delete [] ME2;
+
+  if(!patterns.empty())
+  {
+    result.insert(result.end(), patterns.begin(), patterns.end());
+  }
+  else
+  {
+    if(!crackSegments.empty())
+    {
+       // make some single-segment seeds
+       for(MuonRecHitContainer::const_iterator crackSegmentItr = crackSegments.begin();
+           crackSegmentItr != crackSegments.end(); ++crackSegmentItr)
+       {
+          MuonRecHitContainer singleSegmentPattern;
+          singleSegmentPattern.push_back(*crackSegmentItr);
+          result.push_back(singleSegmentPattern);
+       }
+    }
+  }
+}
+
 
 
 void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
@@ -689,4 +613,29 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
 
 
+bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
+{
+  return (segments.size() > 1);
+}
 
+
+void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitContainer & segments,
+                                                           MuonRecHitContainer & crackSegments) const
+{
+  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin(); 
+      segmentItr != segments.end(); ++segmentItr)
+  {
+    if((**segmentItr).hit()->dimension() == 4) 
+    {
+      double absEta = fabs((**segmentItr).globalPosition().eta());
+
+      for(std::vector<double>::const_iterator crackItr = theCrackEtas.begin();
+          crackItr != theCrackEtas.end(); ++crackItr)
+      {
+        if(fabs(absEta-*crackItr) < theCrackWindow) {
+           crackSegments.push_back(*segmentItr);
+        }
+      }
+    }
+  }
+}

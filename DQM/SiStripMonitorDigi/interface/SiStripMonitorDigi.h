@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.8 2008/07/21 16:44:38 charaf Exp $
+// $Id: SiStripMonitorDigi.h,v 1.11 2008/09/16 08:22:14 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -113,7 +113,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool moduleswitchadccooleston;
   bool moduleswitchdigiadcson;
   bool moduleswitchstripoccupancyon;
-
+  bool Mod_On_;
 
   bool tibon;
   bool tidon;

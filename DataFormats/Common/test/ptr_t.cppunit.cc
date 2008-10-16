@@ -358,6 +358,16 @@ void testPtr::getTest() {
      CPPUNIT_ASSERT(1 == ref2->value_);
      CPPUNIT_ASSERT(1 == (*ref1).value_);
    }
+   
+   {
+      TestGetter tester;
+      tester.hold_ = 0;
+      ProductID const pid(1);
+
+      Ptr<IntValue> ref0(pid, 0,&tester);
+      CPPUNIT_ASSERT_THROW((*ref0),cms::Exception);
+      CPPUNIT_ASSERT_THROW((ref0.operator->()),cms::Exception);
+   }
    /*
    PtrProd<IntCollection> refProd0(handle);
    refProd0.refCore().setProductGetter(&tester);

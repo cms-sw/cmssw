@@ -16,12 +16,7 @@
  <class name="edm::EventAux"/>
  <class name="edm::LuminosityBlockAux"/>
  <class name="edm::RunAux"/>
- <class name="edm::ProductRegistry">
-   <field name="frozen_" transient="true"/>
-   <field name="constProductList_" transient="true"/>
-   <field name="productLookup_" transient="true"/>
-   <field name="elementLookup_" transient="true"/>
- </class>
+ <class name="edm::ProductRegistry"/>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>
@@ -33,50 +28,23 @@
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
  <class name="edm::ModuleDescription"/>
- <class name="edm::BranchEntryDescription">
-   <field name="moduleDescriptionPtr_" transient="true"/>
- </class>
+ <class name="edm::BranchEntryDescription"/>
  <class name="edm::BranchChildren"/>
- <class name="edm::EventEntryInfo">
-   <field name="moduleDescriptionID_" transient="true"/>
-   <field name="entryDescriptionPtr_" transient="true"/>
-   <field name="noEntryDescription_" transient="true"/>
- </class>
+ <class name="edm::EventEntryInfo"/>
  <class name="edm::RunLumiEntryInfo"/>
  <class name="std::vector<edm::EventEntryInfo>"/>
  <class name="std::vector<edm::RunLumiEntryInfo>"/>
- <class name="edm::EntryDescription">
-   <field name="moduleDescriptionPtr_" transient="true"/>
- </class>
- <class name="edm::EventEntryDescription">
-   <field name="moduleDescriptionPtr_" transient="true"/>
- </class>
- <class name="edm::BranchDescription">
-   <field name="branchName_" transient="true"/>
-   <field name="wrappedName_" transient="true"/>
-   <field name="produced_" transient="true"/>
-   <field name="present_" transient="true"/>
-   <field name="transient_" transient="true"/>
-   <field name="splitLevel_" transient="true"/>
-   <field name="basketSize_" transient="true"/>
-   <field name="moduleDescriptionID_" transient="true"/>
-   <field name="type_" transient="true"/>
-   <field name="productIDtoAssign_" transient="true"/>
- </class>
+ <class name="edm::EntryDescription"/>
+ <class name="edm::EventEntryDescription"/>
+ <class name="edm::BranchDescription"/>
  <class name="edm::ParameterSetBlob"/>
  <class name="edm::ProcessConfiguration"/>
  <class name="std::vector<edm::ProcessConfiguration>"/>
- <class name="edm::ProcessHistory">
-   <field name="id_" transient="true"/>
- </class>
+ <class name="edm::ProcessHistory"/>
  <class name="edm::FileFormatVersion"/>
  <class name="edm::FileIndex::Element"/>
  <class name="std::vector<edm::FileIndex::Element>"/>
- <class name="edm::FileIndex">
-   <field name="allEventsInEntryOrder_" transient="true"/>
-   <field name="resultCached_" transient="true"/>
-   <field name="sortState_" transient="true"/>
- </class>
+ <class name="edm::FileIndex"/>
  <class name="edm::EventProcessHistoryID"/>
  <class name="std::vector<edm::EventProcessHistoryID>"/>
  <class name="edm::Hash<0>"/>
@@ -95,4 +63,7 @@
  <class name="std::map<edm::Hash<3>,edm::ProcessConfiguration>"/>
  <class name="std::pair<edm::Hash<3>,edm::ProcessConfiguration>"/>
  <class name="edm::Hash<4>"/>
+ <class pattern="edm::Transient<*>">
+   <field name="value_" transient="true"/>
+ </class>
 </lcgdict>

@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/08/28 13:50:16 $
-//   $Revision: 1.28 $
+//   $Date: 2008/07/30 08:38:21 $
+//   $Revision: 1.27 $
 //
 //   Modifications: 
 //
@@ -427,8 +427,11 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
 
   if (!noDigis) {
     // First get wire times from the wire digis.
-    std::vector<int>
-      wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+    int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
+      for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIRES; i_wire++)
+	wire[i_layer][i_wire] = -999;
+
     readWireDigis(wire);
 
     // Then pass an array of wire times on to another run() doing the LCT
@@ -441,7 +444,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   return tmpV;
 }
 
-void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::run(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
   // This version of the run() function can either be called in a standalone
   // test, being passed the time array, or called by the run() function above.
   // It gets wire times from an input array and then loops over the keywires.
@@ -455,24 +458,10 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   // Only do the rest of the processing if chamber is not empty.
   if (!chamber_empty) {
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      unsigned int start_bx = 0;
-      // Allow for more than one pass over the hits in the time window.
-      while (start_bx < fifo_tbins) {
-	if (preTrigger(i_wire, start_bx)) {
-	  if (infoV > 2) showPatterns(i_wire);
-	  if (patternDetection(i_wire)) {
-	    trigger  = true;
-	    break;
-	  }
-	  else {
-	    // Assume that the earliest time when another pre-trigger can
-	    // occur in case pattern detection failed is bx_pretrigger+6:
-	    // this seems to match the data.
-	    start_bx = first_bx[i_wire] + drift_delay + 4;
-	  }
-	}
-	else {
-	  break;
+      if (preTrigger(i_wire)) {
+  	if (infoV > 2) showPatterns(i_wire);
+	if (patternDetection(i_wire)) {
+	  trigger = true;
 	}
       }
     }
@@ -528,7 +517,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
   return noDigis;
 }
 
-void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
   /* Gets wire times from the wire digis and fills wire[][] array */
 
   // Loop over all 6 layers.
@@ -538,7 +527,7 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
     for (std::vector<CSCWireDigi>::iterator pld = digiV[i_layer].begin();
 	 pld != digiV[i_layer].end(); pld++) {
       int i_wire  = pld->getWireGroup()-1;
-      std::vector<int> bx_times = pld->getTimeBinsOn();
+      int bx_time = pld->getTimeBin();
 
       // Check that the wires and times are appropriate.
       if (i_wire < 0 || i_wire >= numWireGroups) {
@@ -554,34 +543,28 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
       // L1Accept.  If times earlier than L1Accept were recorded, we
       // use them since they can modify the ALCTs found later, via
       // ghost-cancellation logic.
-      //int last_time = -999;
-      for (unsigned int i = 0; i < bx_times.size(); i++) {
-	// Comparisons with data show that time bin 0 needs to be skipped.
-	if (bx_times[i] > 0 && bx_times[i] < static_cast<int>(fifo_tbins)) {
-	  if (infoV > 2) LogTrace("CSCAnodeLCTProcessor")
-	    << "Digi on layer " << i_layer << " wire " << i_wire
-	    << " at time " << bx_times[i];
+      if (bx_time >= 0 && bx_time < static_cast<int>(fifo_tbins)) {
+	if (infoV > 2) LogTrace("CSCAnodeLCTProcessor")
+	  << "Digi on layer " << i_layer << " wire " << i_wire
+	  << " at time " << bx_time;
 
-	  // Finally save times of hit wires.  For the time being, if there
-	  // is more than one hit on the same wire, pick the one which
-	  // occurred earlier.
-	  //if (last_time < 0 || (bx_times[i]-last_time) >= 6) {
-	  wire[i_layer][i_wire].push_back(bx_times[i]);
-	  break;
-	    //last_time = bx_times[i];
-	  //}
+	// Finally save times of hit wires.  If there is more than one hit
+	// on the same wire, pick the one which occurred earlier.
+	if (wire[i_layer][i_wire] == -999 || wire[i_layer][i_wire] > bx_time) {
+	  wire[i_layer][i_wire] = bx_time;
 	}
-	else {
-	  if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-	    << "+++ Skipping wire digi: wire = " << i_wire
-	    << " layer = " << i_layer << ", bx = " << bx_times[i] << " +++";
-	}
+      }
+      else {
+	edm::LogWarning("CSCAnodeLCTProcessor")
+	  << "+++ Unexpected BX time of wire digi: wire = " << i_wire
+	  << " layer = " << i_layer << ", bx = " << bx_time
+	  << "; skipping it... +++\n";
       }
     }
   }
 }
 
-bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]){
+bool CSCAnodeLCTProcessor::pulseExtension(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]){
   /* A pulse array will be used as a bit representation of hit times.
      For example: if a keywire has a bx_time of 3, then 1 shifted
      left 3 will be bit pattern 0000000000001000.  Bits are then added to
@@ -604,40 +587,39 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
   for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++){
     digi_num = 0;
     for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      if (wire[i_layer][i_wire].size() > 0) {
-	std::vector<int> bx_times = wire[i_layer][i_wire];
-	for (unsigned int i = 0; i < bx_times.size(); i++) {
-	  // Check that min and max times are within the allowed range.
-	  if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
-	    edm::LogWarning("CSCAnodeLCTProcessor")
-	      << "+++ BX time of wire digi (wire = " << i_wire
-	      << " layer = " << i_layer << ") bx = " << bx_times[i]
-	      << " is not within the range (0-" << bits_in_pulse
-	      << "] allowed for pulse extension.  Skip this digi! +++\n";
-	    continue;
-	  }
+      if (wire[i_layer][i_wire] != -999) {
 
-	  // Found at least one in-time digi; set chamber_empty to false
-	  if (chamber_empty) chamber_empty = false;
+	// Check that min and max times are within the allowed range.
+	if (wire[i_layer][i_wire] < 0 ||
+	    wire[i_layer][i_wire] + hit_persist >= bits_in_pulse) {
+	  edm::LogWarning("CSCAnodeLCTProcessor")
+	    << "+++ BX time of wire digi (wire = " << i_wire
+	    << " layer = " << i_layer << ") bx = " << wire[i_layer][i_wire]
+	    << " is not within the range (0-" << bits_in_pulse
+	    << "] allowed for pulse extension.  Skip this digi! +++\n";
+	  continue;
+	}
 
-	  // make the pulse
-	  for (unsigned int bx = bx_times[i];
-	       bx < (bx_times[i] + hit_persist); bx++)
+	// Found at least one in-time digi; set chamber_empty to false
+	if (chamber_empty) chamber_empty = false;
+
+	// make the pulse
+	for (unsigned int bx = wire[i_layer][i_wire];
+	     bx < (wire[i_layer][i_wire] + hit_persist); bx++)
 	  pulse[i_layer][i_wire] = pulse[i_layer][i_wire] | (1 << bx);
 
-	  // Debug information.
-	  if (infoV > 1) {
-	    LogTrace("CSCAnodeLCTProcessor")
-	      << "Wire digi: layer " << i_layer
-	      << " digi #" << ++digi_num << " wire group " << i_wire
-	      << " time " << bx_times[i];
-	    if (infoV > 2) {
-	      std::ostringstream strstrm;
-	      for (int i = 1; i <= 32; i++) {
-		strstrm << ((pulse[i_layer][i_wire]>>(32-i)) & 1);
-	      }
-	      LogTrace("CSCAnodeLCTProcessor") << "  Pulse: " << strstrm.str();
+	// Debug information.
+	if (infoV > 1) {
+	  LogTrace("CSCAnodeLCTProcessor")
+	    << "Wire digi: layer " << i_layer
+	    << " digi #" << ++digi_num << " wire group " << i_wire
+	    << " time " << wire[i_layer][i_wire];
+	  if (infoV > 2) {
+	    std::ostringstream strstrm;
+	    for (int i = 1; i <= 32; i++) {
+	      strstrm << ((pulse[i_layer][i_wire]>>(32-i)) & 1);
 	    }
+	   LogTrace("CSCAnodeLCTProcessor") << "  Pulse: " << strstrm.str();
 	  }
 	}
       }
@@ -651,7 +633,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
   return chamber_empty;
 }
 
-bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
+bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
   /* Check that there are nplanes_hit_pretrig or more layers hit in collision
      or accelerator patterns for a particular key_wire.  If so, return
      true and the PatternDetection process will start. */
@@ -665,7 +647,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
 
   // Loop over bx times, accelerator and collision patterns to 
   // look for pretrigger.
-  for (unsigned int bx_time = start_bx; bx_time < fifo_tbins; bx_time++) {
+  for (unsigned int bx_time = 0; bx_time < fifo_tbins; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
 	hit_layer[i_layer] = false;
@@ -1286,7 +1268,7 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
 }
 
 // Dump of digis on wire groups.
-void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
+void CSCAnodeLCTProcessor::dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
   LogDebug("CSCAnodeLCTProcessor")
     << "ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
     << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)
@@ -1309,9 +1291,8 @@ void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::N
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     strstrm << "\n";
     for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-      if (wire[i_layer][i_wire].size() > 0) {
-	std::vector<int> bx_times = wire[i_layer][i_wire];
-	strstrm << std::hex << bx_times[0] << std::dec;
+      if (wire[i_layer][i_wire] >= 0) {
+	strstrm << std::hex << wire[i_layer][i_wire] << std::dec;
       }
       else {
 	strstrm << ".";

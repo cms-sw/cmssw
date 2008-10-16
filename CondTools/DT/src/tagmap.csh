@@ -3,9 +3,9 @@
 setenv CELL_MAP_VERSION $1
 setenv  ROB_MAP_VERSION $2
 
-setenv DB_SYS sqlite_file:testfile.db
-setenv POOL_AUTH_USER     user
-setenv POOL_AUTH_PASSWORD pass
+setenv DB_SYS oracle://cms_val_lb.cern.ch/CMS_VAL_DT_POOL_OWNER
+setenv POOL_AUTH_USER CMS_VAL_DT_POOL_WRITER
+setenv POOL_AUTH_PASSWORD val_dt_wri_1031
 
 setenv TMPFILE /tmp/iovtoken`date +%s`
 
