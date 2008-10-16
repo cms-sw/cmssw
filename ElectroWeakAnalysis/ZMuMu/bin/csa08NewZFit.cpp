@@ -52,9 +52,6 @@ int main(int ac, char *av[]) {
     typedef funct::FunctExpression Expr;
     typedef funct::Product<funct::Parameter, funct::RootHistoPdf>::type ZPeak;
     typedef funct::Power<funct::Parameter, funct::Numerical<2> >::type IsoefficiencytermSQ;
-    typedef funct::Product<funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                                          funct::Power<funct::Parameter, funct::Numerical<2> >::type >::type, 
-                           IsoefficiencytermSQ>::type  ZMuMuEfficiencyTerm;
 
 
     typedef funct::Product<funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
@@ -204,7 +201,7 @@ int main(int ac, char *av[]) {
 	funct::Numerical<1> _1;
 
 	IsoefficiencytermSQ efficiencyIsoSquare = (efficiencyIso ^ _2);
-	ZMuMuEfficiencyTerm zMuMuEfficiencyTerm = ((efficiencyTk ^ _2) * 
+	Expr zMuMuEfficiencyTerm = ((efficiencyTk ^ _2) * 
 	  (efficiencySa ^ _2)) * efficiencyIsoSquare; 
 	ZMuMuNoIsoEfficiencyTerm zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ _2) * 
 	  (efficiencySa ^ _2)) * (_1 - efficiencyIsoSquare);
