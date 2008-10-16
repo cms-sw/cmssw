@@ -1,10 +1,10 @@
-# /dev/CMSSW_2_1_10/HLT/V9 (CMSSW_2_1_10)
+# /dev/CMSSW_2_1_10/HLT/V10 (CMSSW_2_1_10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V9')
+  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V10')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -5063,7 +5063,14 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         )
       ),
       DoBackwardFilter = cms.bool( True ),
-      DoSeedRefit = cms.bool( False )
+      DoSeedRefit = cms.bool( False ),
+      SeedTransformerParameters = cms.PSet( 
+        Fitter = cms.string( "KFFitterSmootherSTA" ),
+        RescaleError = cms.double( 100.0 ),
+        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        Propagator = cms.string( "SteppingHelixPropagatorAny" ),
+        NMinRecHits = cms.uint32( 2 )
+      )
     ),
     ServiceParameters = cms.PSet( 
       UseMuonNavigation = cms.untracked.bool( True ),
@@ -5470,7 +5477,8 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
         MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
-        RefitRPCHits = cms.bool( True )
+        RefitRPCHits = cms.bool( True ),
+        DoPredictionsOnly = cms.bool( False )
       ),
       GlobalMuonTrackMatcher = cms.PSet( 
         Chi2Cut = cms.double( 50.0 ),
@@ -5527,7 +5535,10 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
       ),
       KFFitter = cms.string( "L3MuKFFitter" ),
       TransformerOutPropagator = cms.string( "SmartPropagatorAny" ),
-      MatcherOutPropagator = cms.string( "SmartPropagator" )
+      MatcherOutPropagator = cms.string( "SmartPropagator" ),
+      TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
+      MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+      RefitRPCHits = cms.bool( True )
     ),
     ServiceParameters = cms.PSet( 
       UseMuonNavigation = cms.untracked.bool( True ),
