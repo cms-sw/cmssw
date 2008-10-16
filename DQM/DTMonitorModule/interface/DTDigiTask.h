@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/07/02 14:14:13 $
- * $Revision: 1.20 $
+ * $Date: 2008/07/24 12:56:07 $
+ * $Revision: 1.21 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -76,7 +76,8 @@ protected:
 
 private:
   
-  bool debug;
+  std::string topFolder() const;
+
   int nevents;
 
   /// no needs to be precise. Value from PSets will always be used
@@ -134,7 +135,7 @@ private:
   int timeBoxGranularity;
   int tdcRescale;
   bool doNoiseOccupancies;
-
+  bool tpMode;
 };
 
 #endif

@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/03 09:45:02 $
- * $Revision: 1.47 $
+ * $Date: 2008/10/08 15:37:41 $
+ * $Revision: 1.48 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -48,8 +48,7 @@ using namespace std;
 // Contructor
 DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // switch for the verbosity
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug) cout<<"[DTDigiTask]: Constructor"<<endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: Constructor"<<endl;
 
   // The label to retrieve the digis 
   dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
@@ -75,11 +74,11 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
   tdcRescale = ps.getUntrackedParameter<int>("tdcRescale", 1);
-
-  doNoiseOccupancies = false;
+  doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
+  // switch on the mode for running on test pulses (different top folder)
+  tpMode = ps.getUntrackedParameter<bool>("testPulseMode", false);
 
   dbe = edm::Service<DQMStore>().operator->();
-  if(debug) dbe->setVerbose(1);
 
   syncNumTot = 0;
   syncNum = 0;
@@ -90,7 +89,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
 
 // destructor
 DTDigiTask::~DTDigiTask(){
-  if(debug) cout << "DTDigiTask: analyzed " << nevents << " events" << endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "DTDigiTask: analyzed " << nevents << " events" << endl;
 
 }
 
@@ -98,16 +97,15 @@ DTDigiTask::~DTDigiTask(){
 
 
 void DTDigiTask::endJob(){
-  if(debug) cout<<"[DTDigiTask] endjob called!"<<endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask] endjob called!"<<endl;
   
-  dbe->rmdir("DT/01-Digi");
 }
 
 
 
 
 void DTDigiTask::beginJob(const edm::EventSetup& context){
-  if(debug) cout<<"[DTDigiTask]: BeginJob"<<endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
 
   nevents = 0;
 
@@ -117,7 +115,7 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
 
 void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-  if(debug) cout<<"[DTDigiTask]: begin run"<<endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
 
   // tTrig 
   if (readTTrigDB) 
@@ -168,12 +166,12 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
 
 void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  if(debug) cout<<"[DTDigiTask]: Begin of LS transition"<<endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") <<"[DTDigiTask]: Begin of LS transition"<<endl;
   
   // Reset the MonitorElements every n (= ResetCycle) Lumi Blocks
   if(lumiSeg.id().luminosityBlock() % resetCycle == 0) {
-    if(debug)
-      cout<<"[DTDigiTask]: Reset at the LS transition : "<<lumiSeg.id().luminosityBlock()<<endl;
+    LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask")
+      <<"[DTDigiTask]: Reset at the LS transition : "<<lumiSeg.id().luminosityBlock()<<endl;
     // Loop over all ME
     for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
 	histo != digiHistos.end(); histo++) {
@@ -204,7 +202,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   stringstream station; station << dtSL.station();	
   stringstream sector; sector << dtSL.sector();	
   stringstream superLayer; superLayer << dtSL.superlayer();
-  dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str() +
+  dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -215,15 +213,13 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     + "_Sec" + sector.str() 
     + "_SL" + superLayer.str(); 
 
-
-  if (debug) {
-    cout<<"[DTDigiTask]: booking SL histo:"<<endl;
-    cout<<"              folder "<< "DT/01-Digi/Wheel" + wheel.str() +
-      "/Station" + station.str() +
-      "/Sector" + sector.str() + "/" + folder<<endl;
-    cout<<"              histoTag "<<histoTag<<endl;
-    cout<<"              histoName "<<histoName<<endl;
-  }
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+    << "[DTDigiTask]: booking SL histo:" << histoName
+    << " (tag: " << histoTag
+    << ") folder: " << topFolder() + "Wheel" + wheel.str() +
+    "/Station" + station.str() +
+    "/Sector" + sector.str() + "/" + folder << endl;
+    
 
   // ttrig and rms are TDC counts
   if ( readTTrigDB ) 
@@ -246,7 +242,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   }
 
   if ( folder == "CathodPhotoPeaks" ) {
-    dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str() +
+    dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() +
 			  "/Station" + station.str() +
 			  "/Sector" + sector.str() + "/" + folder);
     (digiHistos[histoTag])[dtSL.rawId()] = dbe->book1D(histoName,histoName,500,0,1000);
@@ -262,7 +258,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   stringstream wheel; wheel << dtCh.wheel();	
   stringstream station; station << dtCh.station();	
   stringstream sector; sector << dtCh.sector();
-  dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str() +
+  dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -272,14 +268,14 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
     + "_St" + station.str() 
     + "_Sec" + sector.str(); 
 
-  if (debug){
-    cout<<"[DTDigiTask]: booking chamber histo:"<<endl;
-    cout<<"              folder "<< "DT/01-Digi/Wheel" + wheel.str() +
-      "/Station" + station.str() +
-      "/Sector" + sector.str()<<endl;
-    cout<<"              histoTag "<<histoTag<<endl;
-    cout<<"              histoName "<<histoName<<endl;
-  }
+
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+    << "[DTDigiTask]: booking chamber histo:" 
+    << " (tag: " << histoTag
+    << ") folder: " << topFolder() + "Wheel" + wheel.str() +
+    "/Station" + station.str() +
+    "/Sector" + sector.str() << endl;
+    
   
   if (folder == "Occupancies")    {
     
@@ -355,17 +351,16 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str());
+  dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str());
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
-  
-  if(debug) {
-    cout<<"[DTDigiTask]: booking wheel histo:"<<endl;
-    cout<<"              folder "<< "DT/01-Digi/Wheel" + wheel.str() + "/" + folder<<endl;
-    cout<<"              histoTag "<<histoTag<<endl;
-    cout<<"              histoName "<<histoName<<endl;
-  }
+
+
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
+    << "[DTDigiTask]: booking wheel histo:" << histoName
+    << " (tag: " << histoTag
+    << ") folder: " << topFolder() + "Wheel" + wheel.str() + "/" + folder<<endl;
   
   string histoTitle = "# of digis per chamber WHEEL: "+wheel.str();
   (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
@@ -380,13 +375,13 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
 
 // does the real job
 void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
-  if(debug) cout << "[DTDigiTask] analyze" << endl;
+  LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask] analyze" << endl;
   
   nevents++;
 
-  if (debug && nevents%1000 == 0) {
-    cout << "[DTDigiTask] Analyze #Run: " << event.id().run()
-	 << " #Event: " << event.id().event() << endl;
+  if (nevents%1000 == 0) {
+    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask] Analyze #Run: " << event.id().run()
+						 << " #Event: " << event.id().event() << endl;
   }
   
   // Get the ingredients from the event
@@ -401,7 +396,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   // Status map (for noisy channels)
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
-    if(debug) cout << "    get the map of noisy channels" << endl;
+    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "    get the map of noisy channels" << endl;
     // Get the map of noisy channels
     c.get<DTStatusFlagRcd>().get(statusMap);
   }
@@ -415,11 +410,11 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   // Check if the digi container is empty
   if(dtdigis->begin() == dtdigis->end()) {
     doSync = false;
-    if(debug) cout << "Event " << nevents << " empty." << endl;
+    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "Event " << nevents << " empty." << endl;
   }
 
   if (doSync) { // dosync
-    if(debug) cout << "     doSync" << endl;
+    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "     doSync" << endl;
     DTChamberId chDone = ((*(dtdigis->begin())).first).chamberId();
     
     DTDigiCollection::DigiRangeIterator dtLayerId_It;
@@ -455,13 +450,13 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     hitMap.clear();
     
     if (eventSync) {
-      cout << "Event " << nevents << " probably sync noisy: time box not filled! " << endl;
+      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << "Event " << nevents << " probably sync noisy: time box not filled! " << endl;
       syncNumTot++;
       syncNum++;
     }
     if (nevents%1000 == 0) {
-      cout << (syncNumTot*100./nevents) << "% sync noise events since the beginning " << endl;
-      cout << (syncNum*0.1) << "% sync noise events in the last 1000 events " << endl;
+      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
+						      << (syncNum*0.1) << "% sync noise events in the last 1000 events " << endl;
       syncNum = 0;
     }
   }
@@ -644,7 +639,10 @@ string DTDigiTask::triggerSource() {
 }
 
 
-
+string DTDigiTask::topFolder() const {
+  if(tpMode) return string("DT/99-TestPulses/");
+  return string("DT/01-Digi/");
+}
 
 
 
