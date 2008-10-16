@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.11 2008/09/19 21:13:17 cbern Exp $
+// $Id: PATTauProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.11 2008/09/19 21:13:17 cbern Exp $
+  \version  $Id: PATTauProducer.h,v 1.12 2008/09/30 21:33:06 srappocc Exp $
 */
 
 
@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
@@ -31,15 +33,15 @@
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
-
-#include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 #include <string>
 
 
 namespace pat {
-
 
   class ObjectResolutionCalc;
 
@@ -67,12 +69,15 @@ namespace pat {
       bool          addGenJetMatch_;
       bool          embedGenJetMatch_;
       edm::InputTag genJetMatchSrc_;
-
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   tauResoFile_;
+      bool          addTauID_;
+      typedef std::pair<std::string, edm::InputTag> NameTag;
+      std::vector<NameTag> tauIDSrcs_;
+
       // tools
       ObjectResolutionCalc * theResoCalc_;
       GreaterByPt<Tau>       pTTauComparator_;
@@ -84,11 +89,13 @@ namespace pat {
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
 
-
       bool useUserData_;
       pat::PATUserDataHelper<pat::Tau>      userDataHelper_;
 
+      template <typename TauCollectionType, typename TauDiscrType> float getTauIdDiscriminator(const edm::Handle<TauCollectionType>&, size_t, const edm::Handle<TauDiscrType>&);
+
   };
+
 }
 
 #endif

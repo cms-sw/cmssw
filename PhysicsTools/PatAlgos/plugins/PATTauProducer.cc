@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.16 2008/09/30 21:33:06 srappocc Exp $
+// $Id: PATTauProducer.cc,v 1.17 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -8,20 +8,21 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+//#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 // #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 // #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 // #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
@@ -64,6 +65,34 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
   tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
+
+  // tau ID configurables
+  addTauID_       = iConfig.getParameter<bool>         ( "addTauID" );
+  if ( addTauID_ ) {
+    // it might be a single tau ID
+    if (iConfig.existsAs<edm::InputTag>("tauIDSource")) {
+      tauIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("tauIDSource")));
+    }
+    // or there might be many of them
+    if (iConfig.existsAs<edm::ParameterSet>("tauIDSources")) {
+      // please don't configure me twice
+      if (!tauIDSrcs_.empty()) throw cms::Exception("Configuration") << 
+	"PATTauProducer: you can't specify both 'tauIDSource' and 'tauIDSources'\n";
+      // read the different tau ID names
+      edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
+      std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+	tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      }
+    }
+    // but in any case at least once
+    if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<
+      "PATTauProducer: id addTauID is true, you must specify either:\n" <<
+      "\tInputTag tauIDSource = <someTag>\n" << "or\n" <<
+      "\tPSet tauIDSources = { \n" <<
+      "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
+      "\t}\n";
+  }
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -155,6 +184,45 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
     }
 
+    // prepare ID extraction 
+    if ( addTauID_ ) {
+      std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
+      for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
+	edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
+	iEvent.getByLabel(tauIDSrcs_[i].second, caloTauIdDiscr);
+
+	edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
+	iEvent.getByLabel(tauIDSrcs_[i].second, pfTauIdDiscr);
+	
+	if ( typeid(*tausRef) == typeid(reco::PFTau) ) {
+	  //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
+	  edm::Handle<reco::PFTauCollection> pfTauCollection; 
+	  iEvent.getByLabel(tauSrc_, pfTauCollection);
+
+	  edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
+	  iEvent.getByLabel(tauIDSrcs_[i].second, pfTauIdDiscr);
+
+	  ids[i].first = tauIDSrcs_[i].first;
+	  ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
+	} else if ( typeid(*tausRef) == typeid(reco::CaloTau) ) {
+	  //std::cout << "filling CaloTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
+	  edm::Handle<reco::CaloTauCollection> caloTauCollection; 
+	  iEvent.getByLabel(tauSrc_, caloTauCollection);
+
+	  edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
+	  iEvent.getByLabel(tauIDSrcs_[i].second, caloTauIdDiscr);
+
+	  ids[i].first = tauIDSrcs_[i].first;
+	  ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
+	} else {
+	  throw cms::Exception("Type Mismatch") <<
+	    "PATTauProducer: unsupported datatype '" << typeid(*tausRef).name() << "' for tauSource\n";
+	}
+      }
+
+      aTau.setTauIDs(ids);
+    }
+
     // add resolution info if demanded
     if (addResolutions_) {
       (*theResoCalc_)(aTau);
@@ -164,7 +232,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         efficiencyLoader_.setEfficiencies( aTau, tausRef );
     }
 
-    
     if ( useUserData_ ) {
       userDataHelper_.add( aTau, iEvent, iSetup );
     }
@@ -178,6 +245,13 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // put genEvt object in Event
   iEvent.put(patTaus);
 }
+
+template <typename TauCollectionType, typename TauDiscrType>
+float PATTauProducer::getTauIdDiscriminator(const edm::Handle<TauCollectionType>& tauCollection, size_t tauIdx, const edm::Handle<TauDiscrType>& tauIdDiscr)
+{
+  edm::Ref<TauCollectionType> tauRef(tauCollection, tauIdx);
+  return (*tauIdDiscr)[tauRef];
+}     
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
