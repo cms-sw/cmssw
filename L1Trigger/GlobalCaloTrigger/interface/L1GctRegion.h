@@ -34,6 +34,9 @@ class L1GctRegion : public L1CaloRegion
   // Replace et() method to use 12 bits for all eta
   unsigned et() const { return raw()&0x3ff; }
 
+  // Replace local eta with a non-physical value
+  unsigned rctEta() const { return ( empty() ? 12 : id().rctEta() ); }
+
 };
 
 #endif
