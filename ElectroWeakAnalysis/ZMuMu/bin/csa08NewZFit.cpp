@@ -74,19 +74,13 @@ int main(int ac, char *av[]) {
     typedef funct::Product<ZMuTkEfficiencyTerm, ZPeak>::type ZMuTkSig;
     typedef funct::Product<funct::Parameter, 
                            funct::Product<funct::Exponential, funct::Polynomial<2> >::type>::type ZMuTkBkg;
-    typedef funct::Product<funct::Constant,ZMuTkBkg>::type ZMuTkBkgScaled;
     typedef ZMuTkBkg ZMuMuNoIsoBkg;
-    typedef ZMuTkBkgScaled  ZMuMuNoIsoBkgScaled ;
     typedef ZMuTkEfficiencyTerm ZMuSaEfficiencyTerm;
     typedef funct::Product<ZMuSaEfficiencyTerm, 
                            funct::Product<funct::Parameter, funct::Gaussian>::type>::type ZMuSaSig;
     typedef funct::Product<funct::Parameter, funct::Exponential>::type ZMuSaBkg;
  
-    typedef Expr ZMuMuNoIso;
-    typedef Expr ZMuMu;
-    typedef Expr ZMuTk;
-    typedef Expr ZMuSa;
-    typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa, ZMuMuNoIso> ChiSquared;
+    typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr> ChiSquared;
 
     double fMin, fMax;
     string ext;
@@ -227,18 +221,18 @@ int main(int ac, char *av[]) {
 	ZMuSaEfficiencyTerm zMuSaEfficiencyTerm = _2 * 
 	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (_1 - efficiencyTk)))* efficiencyIsoSquare;
 
-	ZMuMu zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
+	Expr zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
 
 	ZMuTkBkg zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
-	ZMuTkBkgScaled zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
-	ZMuTk zMuTk = rebinMuTkConst*(zMuTkEfficiencyTerm * zPeakPdfMuTk + zMuTkBkg);
+	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
+	Expr zMuTk = rebinMuTkConst*(zMuTkEfficiencyTerm * zPeakPdfMuTk + zMuTkBkg);
 
 	ZMuMuNoIsoBkg zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
-	ZMuMuNoIsoBkgScaled  zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
-	ZMuMuNoIso zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * zPeakPdfMuMuNonIso) +  zMuMuNoIsoBkg);
+	Expr  zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
+	Expr zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * zPeakPdfMuMuNonIso) +  zMuMuNoIsoBkg);
 
-	ZMuSa zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa)) 
-				       + (yieldBkgZMuSa * funct::Exponential(beta)));
+	Expr zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa)) 
+				      + (yieldBkgZMuSa * funct::Exponential(beta)));
 
 	TH1D histoZCount("histoZCount", "", 1, fMin, fMax);
 	histoZCount.Fill(100, nZMuMu);
@@ -298,29 +292,29 @@ int main(int ac, char *av[]) {
 	  s += histoZMuSa->GetBinContent(i);
 	histoZMuSa->SetEntries(s);
 	string ZMuMuPlot = "ZMuMuFit_" + plot_string;
-	root::plot<ZMuMu>(ZMuMuPlot.c_str(), *histoZMuMu, zMuMu, fMin, fMax, 
+	root::plot<Expr>(ZMuMuPlot.c_str(), *histoZMuMu, zMuMu, fMin, fMax, 
 			  efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu, 
 			  kRed, 2, kDashed, 100, 
 			  "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");
 	
 	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
-	root::plot<ZMuMuNoIso>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
-			       efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu,
-			       kRed, 2, kDashed, 100, 
-			       "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
-			       "Events");	
+	root::plot<Expr>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
+			 efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu,
+			 kRed, 2, kDashed, 100, 
+			 "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
+			 "Events");	
 	
 	string ZMuTkPlot = "ZMuTkFit_" + plot_string;
-	TF1 funZMuTk = root::tf1<ZMuTk>("ZMuTkFunction", zMuTk, fMin, fMax, 
-					efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu, 
-					yieldBkgZMuTk, lambda, a0, a1, a2);
+	TF1 funZMuTk = root::tf1<Expr>("ZMuTkFunction", zMuTk, fMin, fMax, 
+				       efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu, 
+				       yieldBkgZMuTk, lambda, a0, a1, a2);
 	funZMuTk.SetLineColor(kRed);
 	funZMuTk.SetLineWidth(2);
 	funZMuTk.SetLineStyle(kDashed);
 	funZMuTk.SetNpx(10000);
-	TF1 funZMuTkBkg = root::tf1<ZMuTkBkgScaled>("ZMuTkBack", zMuTkBkgScaled, fMin, fMax, 
-						    yieldBkgZMuTk, lambda, a0, a1, a2);
+	TF1 funZMuTkBkg = root::tf1<Expr>("ZMuTkBack", zMuTkBkgScaled, fMin, fMax, 
+					  yieldBkgZMuTk, lambda, a0, a1, a2);
 	funZMuTkBkg.SetLineColor(kGreen);
 	funZMuTkBkg.SetLineWidth(2);
 	funZMuTkBkg.SetLineStyle(kDashed);
@@ -337,13 +331,13 @@ int main(int ac, char *av[]) {
 	string logZMuTkPlot = "log_" + ZMuTkPlot;
 	canvas->SaveAs(logZMuTkPlot.c_str());
 	string ZMuSaPlot = "ZMuSaFit_" + plot_string;
-	root::plot<ZMuSa>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
-			  efficiencySa, efficiencyTk, efficiencyIso,
-			  yieldZMuMu, meanZMuSa, sigmaZMuSa, yieldBkgZMuSa, 
-			  kRed, 2, kDashed, 10000, 
-			  "Z -> #mu + (unmatched) standalone mass", 
-			  "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
-			  "Events");
+	root::plot<Expr>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
+			 efficiencySa, efficiencyTk, efficiencyIso,
+			 yieldZMuMu, meanZMuSa, sigmaZMuSa, yieldBkgZMuSa, 
+			 kRed, 2, kDashed, 10000, 
+			 "Z -> #mu + (unmatched) standalone mass", 
+			 "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
+			 "Events");
       }
     }
   }
