@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.92 $"
+__version__ = "$Revision: 1.93 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -395,14 +395,22 @@ class ConfigBuilder(object):
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
         self.loadAndRemember(self.GENDefaultCFF)
-        
+
+        #check if we are dealing with fastsim -> no vtx smearing
+        if "FASTSIM" in self._options.step:
+	  self.process.pgen.remove(self.process.VertexSmearing)
+	  self.process.generation_step = cms.Path( self.process.pgen)
+	  self.process.generation_step._seq = self.process.pgen._seq
+
         # replace the VertexSmearing placeholder by a concrete beamspot definition
-        try: 
+	else:
+          try: 
             self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self.beamspot+'_cff')
-        except ImportError:
+          except ImportError:
             print "VertexSmearing type or beamspot",self.beamspot, "unknown."
             raise
-        self.process.generation_step = cms.Path( self.process.pgen )
+          self.process.generation_step = cms.Path( self.process.pgen )
+
         self.process.schedule.append(self.process.generation_step)
 
         # is there a production filter sequence given?
@@ -570,7 +578,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.92 $"),
+              (version=cms.untracked.string("$Revision: 1.93 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
