@@ -19,9 +19,6 @@ using namespace std;
 SiPixelHistoricInfoReader::SiPixelHistoricInfoReader(const edm::ParameterSet& pSet) {
   parameterSet_ = pSet;  
 
-  printDebug_ = parameterSet_.getUntrackedParameter<bool>("printDebug", false); 
-  outputFile_ = parameterSet_.getUntrackedParameter<string>("outputFile", "testPixelHistoryReader.root");
-
   variables_ = parameterSet_.getUntrackedParameter<vstring>("variables");
   for (int i=0; i<10; i++) variable_[i] = false; 
   for (vector<string>::const_iterator variable = variables_.begin(); variable!=variables_.end(); ++variable) {
@@ -36,6 +33,10 @@ SiPixelHistoricInfoReader::SiPixelHistoricInfoReader(const edm::ParameterSet& pS
     if (variable->compare("residualX")==0) variable_[8] = true; 
     if (variable->compare("residualY")==0) variable_[9] = true; 
   }
+  normEvents_ = parameterSet_.getUntrackedParameter<bool>("normEvents", false);  
+  printDebug_ = parameterSet_.getUntrackedParameter<bool>("printDebug", false); 
+  outputFile_ = parameterSet_.getUntrackedParameter<string>("outputFile", "testPixelHistoryReader.root");
+  
   firstBeginRun_ = true; 
 } 
 
@@ -50,13 +51,13 @@ void SiPixelHistoricInfoReader::beginJob(const edm::EventSetup& iSetup) {
 
 string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
   uint32_t localMEdetID = detID; 
-  TString regionStr(" "); 
-       if (localMEdetID>100000000) { regionStr += "det"; regionStr += localMEdetID; }
-  else if (localMEdetID<40)        { regionStr += "FED"; regionStr += localMEdetID; }
+  TString regionStr; 
+       if (localMEdetID>100000000) { regionStr = "det"; regionStr += localMEdetID; }
+  else if (localMEdetID<40)        { regionStr = "FED"; regionStr += localMEdetID; }
   else if (localMEdetID>99 && localMEdetID<120) { 
     localMEdetID -= 100; 
     if (localMEdetID<12) { 
-      regionStr += "Barrel/"; 
+      regionStr = "Barrel/"; 
     	   if (localMEdetID<3) { regionStr += "Shell_mI/";	              }
       else if (localMEdetID<6) { regionStr += "Shell_mO/"; localMEdetID -= 3; }
       else if (localMEdetID<9) { regionStr += "Shell_pI/"; localMEdetID -= 6; } 
@@ -64,7 +65,7 @@ string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
       regionStr += "Layer_"; regionStr += (localMEdetID+1); 
     }
     else { 
-      regionStr += "Endcap/"; localMEdetID -= 12; 
+      regionStr = "Endcap/"; localMEdetID -= 12; 
     	   if (localMEdetID<2) { regionStr += "HalfCylinder_mI/";		     }
       else if (localMEdetID<4) { regionStr += "HalfCylinder_mO/"; localMEdetID -= 2; }
       else if (localMEdetID<6) { regionStr += "HalfCylinder_pI/"; localMEdetID -= 4; } 
@@ -75,7 +76,7 @@ string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
   else {
     localMEdetID -= 1000; 
     if (localMEdetID<192) { 
-      regionStr += "Barrel/"; 
+      regionStr = "Barrel/"; 
     	   if (localMEdetID<48)  { regionStr += "Shell_mI/";			  }
       else if (localMEdetID<96)  { regionStr += "Shell_mO/"; localMEdetID -= 48;  }
       else if (localMEdetID<144) { regionStr += "Shell_pI/"; localMEdetID -= 96;  } 
@@ -86,7 +87,7 @@ string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
       regionStr += "Ladder_"; regionStr += (localMEdetID+1); 
     }
     else { 
-      regionStr += "Endcap/"; localMEdetID -= 192; 
+      regionStr = "Endcap/"; localMEdetID -= 192; 
     	   if (localMEdetID<24) { regionStr += "HalfCylinder_mI/";		       }
       else if (localMEdetID<48) { regionStr += "HalfCylinder_mO/"; localMEdetID -= 24; }
       else if (localMEdetID<72) { regionStr += "HalfCylinder_pI/"; localMEdetID -= 48; } 
@@ -112,163 +113,163 @@ void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSe
       
     AllDetHistograms = new TObjArray();
 
-    for (vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {  
+    for (vector<uint32_t>::const_iterator iDet = allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {  
       string detRegion = getMEregionString(*iDet); 
       
       if (variable_[0] && *iDet<40) { 
         for (int pBin=0; pBin<15; pBin++) {
-  	  hisID="errorType"; hisID+=(pBin+25); hisID+="_"; hisID+=*iDet; 	     
-          title="errorType"; title+=(pBin+25); title+=detRegion; 	        
+  	  hisID = "errorType"; hisID += (pBin+25); hisID += "_"; hisID += *iDet; 	     
+          title = "errorType"; title += (pBin+25); title += " "; title += detRegion; 	        
   	  AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1));
   	  ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
         } 
       }
       if (variable_[1] && *iDet>99) {
-        hisID="nDigis_"; hisID+=*iDet; 	        
-        title="nDigis"; title+=detRegion; 	        
+        hisID = "nDigis_"; hisID += *iDet; 	        
+        title = "nDigis "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[2] && *iDet>99) {
-        hisID="adc_"; hisID+=*iDet; 		        
-        title="adc"; title+=detRegion; 	        
+        hisID = "adc_"; hisID += *iDet; 		        
+        title = "adc "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[3] && *iDet>99) {
-        hisID="nClusters_"; hisID+=*iDet;         
-        title="nClusters"; title+=detRegion; 	        
+        hisID = "nClusters_"; hisID += *iDet;         
+        title = "nClusters "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[4] && *iDet>99) {
-        hisID="charge_"; hisID+=*iDet; 	        
-        title="charge"; title+=detRegion; 	        
+        hisID = "charge_"; hisID += *iDet; 	        
+        title = "charge "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[5] && *iDet>99) {
-        hisID="clusterSizeX_"; hisID+=*iDet; 	        
-        title="clusterSizeX"; title+=detRegion; 	        
+        hisID = "clusterSizeX_"; hisID += *iDet; 	        
+        title = "clusterSizeX "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[6] && *iDet>99) {
-        hisID="clusterSizeY_"; hisID+=*iDet; 	        
-        title="clusterSizeY"; title+=detRegion; 	        
+        hisID = "clusterSizeY_"; hisID += *iDet; 	        
+        title = "clusterSizeY "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[7] && *iDet>99) {
-        hisID="nRecHits_"; hisID+=*iDet;          
-        title="nRecHits"; title+=detRegion; 	        
+        hisID = "nRecHits_"; hisID += *iDet;          
+        title = "nRecHits "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[8] && *iDet>99) {
-        hisID="residualX_"; hisID+=*iDet; 	        
-        title="residualX"; title+=detRegion; 	        
+        hisID = "residualX_"; hisID += *iDet; 	        
+        title = "residualX "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       }
       if (variable_[9] && *iDet>99) {
-        hisID="residualY_"; hisID+=*iDet; 	        
-        title="residualY"; title+=detRegion; 	        
+        hisID = "residualY_"; hisID += *iDet; 	        
+        title = "residualY "; title += detRegion; 	        
         AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1)); 	        
         ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);  
       } 
     }
     if (printDebug_) {
-      hisID="allVars_allDets_cruDebugging";					
-      title="allVars_allDets_together for Crude Debugging";					
+      hisID = "allVars_allDets_cruDebugging";					
+      title = "allVars_allDets_together for Crude Debugging";					
       AllDetHistograms->Add(new TH1F(hisID, title, 1, 0, 1));			
       ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);	
     }
   }
-  if (printDebug_) cout << "performanceSummary.run = "<< pSummary->getRunNumber() <<" run.run = "<< run.run() << endl; 
-
   if (pSummary->getRunNumber()==run.run()) { // pSummary's run changes only when the table is newly retrieved 
+    cout << "SiPixelPerformanceSummary table retrieved for run "<< run.run() << endl; 
+
     TString sRun; sRun += pSummary->getRunNumber();     
-    float numberOfEvents = (float)pSummary->getNumberOfEvents();
+    float nEvents = pSummary->getNumberOfEvents(); 
+    float SF = 1.0; if (normEvents_) SF = 100000.0/nEvents; 
     
     if (printDebug_) pSummary->printAll(); 
-    for (vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {
+    for (vector<uint32_t>::const_iterator iDet = allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {
       vector<float> performances; 
       performances.clear();
       pSummary->getDetSummary(*iDet, performances); 
       
       if (variable_[0] && *iDet<40) {
         for (int pBin=0; pBin<15; pBin++) {
-      	  hisID="errorType"; hisID+=(pBin+25); hisID+="_"; hisID+=*iDet;      
-      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[2+pBin]);
-      	  int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	  float error = sqrt(performances[2+pBin]*(performances[2+pBin]+1)/numberOfEvents); 
-	  ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, error);
-          if (printDebug_) fillDebugHistogram(sRun, performances[2+pBin], error); 
+      	  hisID = "errorType"; hisID += (pBin+25); hisID += "_"; hisID += *iDet;      
+      	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[2+pBin]/nEvents);
+	  int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
+	  ((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, sqrt(performances[2+pBin])/nEvents);          
+	  if (printDebug_) fillDebugHistogram(sRun, performances[2+pBin]/nEvents, sqrt(performances[2+pBin])/nEvents); 
       	} 
       } 
       if (variable_[1] && *iDet>99) {
-      	hisID="nDigis_"; hisID+=*iDet; 	       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[80]);
+      	hisID = "nDigis_"; hisID += *iDet; 	       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[80]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[81]);
-        if (printDebug_) fillDebugHistogram(sRun, performances[80], performances[81]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[81]*SF);
+        if (printDebug_) fillDebugHistogram(sRun, performances[80]*SF, performances[81]*SF); 
       } 
       if (variable_[2] && *iDet>99) {      
-      	hisID="adc_"; hisID+=*iDet; 	       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[82]);
+      	hisID = "adc_"; hisID += *iDet; 	       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[82]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[83]);
-        if (printDebug_) fillDebugHistogram(sRun, performances[82], performances[83]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[83]*SF);
+        if (printDebug_) fillDebugHistogram(sRun, performances[82]*SF, performances[83]*SF); 
       } 
       if (variable_[3] && *iDet>99) {      	
-      	hisID="nClusters_"; hisID+=*iDet;        
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[86]);
+      	hisID = "nClusters_"; hisID += *iDet;        
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[86]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[87]);      
-        if (printDebug_) fillDebugHistogram(sRun, performances[86], performances[87]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[87]*SF);      
+        if (printDebug_) fillDebugHistogram(sRun, performances[86]*SF, performances[87]*SF); 
       } 
       if (variable_[4] && *iDet>99) {      
-      	hisID="charge_"; hisID+=*iDet; 	       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[88]);
+      	hisID = "charge_"; hisID += *iDet; 	       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[88]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[89]);      
-        if (printDebug_) fillDebugHistogram(sRun, performances[89], performances[89]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[89]*SF);      
+        if (printDebug_) fillDebugHistogram(sRun, performances[88]*SF, performances[89]*SF); 
       } 
       if (variable_[5] && *iDet>99) {      
-      	hisID="clusterSizeX_"; hisID+=*iDet; 	       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[90]);
+      	hisID = "clusterSizeX_"; hisID += *iDet; 	       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[90]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[91]);
-        if (printDebug_) fillDebugHistogram(sRun, performances[90], performances[91]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[91]*SF);
+        if (printDebug_) fillDebugHistogram(sRun, performances[90]*SF, performances[91]*SF); 
       } 
       if (variable_[6] && *iDet>99) {      
-      	hisID="clusterSizeY_"; hisID+=*iDet; 	       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[92]);
+      	hisID = "clusterSizeY_"; hisID += *iDet; 	       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[92]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[93]);      
-        if (printDebug_) fillDebugHistogram(sRun, performances[92], performances[93]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[93]*SF);      
+        if (printDebug_) fillDebugHistogram(sRun, performances[92]*SF, performances[93]*SF); 
       } 
       if (variable_[7] && *iDet>99) {      
-      	hisID="nRecHits_"; hisID+=*iDet;         
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[96]);
+      	hisID = "nRecHits_"; hisID += *iDet;         
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[96]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[97]);      
-        if (printDebug_) fillDebugHistogram(sRun, performances[96], performances[97]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[97]*SF);      
+        if (printDebug_) fillDebugHistogram(sRun, performances[96]*SF, performances[97]*SF); 
       } 
       if (variable_[8] && *iDet>99) {      
-      	hisID="residualX_"; hisID+=*iDet;       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[104]);
+      	hisID = "residualX_"; hisID += *iDet;       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[104]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[105]);      
-        if (printDebug_) fillDebugHistogram(sRun, performances[104], performances[105]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[105]*SF);      
+        if (printDebug_) fillDebugHistogram(sRun, performances[104]*SF, performances[105]*SF); 
       } 
       if (variable_[9] && *iDet>99) {      
-      	hisID="residualY_"; hisID+=*iDet;       
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[106]);
+      	hisID = "residualY_"; hisID += *iDet;       
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[106]*SF);
       	int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[107]);      
-        if (printDebug_) fillDebugHistogram(sRun, performances[106], performances[107]); 
+      	((TH1F*)AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[107]*SF);      
+        if (printDebug_) fillDebugHistogram(sRun, performances[106]*SF, performances[107]*SF); 
       } 
     }    
   }
@@ -276,7 +277,7 @@ void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSe
 
 
 void SiPixelHistoricInfoReader::fillDebugHistogram(TString sRun, float pMean, float pRMS) {
-  hisID="allVars_allDets_cruDebugging"; 					 
+  hisID = "allVars_allDets_cruDebugging"; 					 
   ((TH1F*)AllDetHistograms->FindObject(hisID))->Fill(sRun, pMean);  				 
   int iBin = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);				 
   float exErr = ((TH1F*)AllDetHistograms->FindObject(hisID))->GetBinError(iBin);					 
@@ -294,44 +295,44 @@ void SiPixelHistoricInfoReader::endJob() {
   for (vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {
     if (variable_[0] && *iDet<40) {
       for (int pBin=0; pBin<15; pBin++) {							       
-        hisID="errorType"; hisID+=(pBin+25); hisID+="_"; hisID+=*iDet;       
+        hisID = "errorType"; hisID += (pBin+25); hisID += "_"; hisID += *iDet;       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
       } 											       
     } 
     if (variable_[1] && *iDet>99) {
-      hisID="nDigis_"; hisID+=*iDet; 				       
+      hisID = "nDigis_"; hisID += *iDet; 				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     } 
     if (variable_[2] && *iDet>99) {
-      hisID="adc_"; hisID+=*iDet; 					       
+      hisID = "adc_"; hisID += *iDet; 					       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     } 
     if (variable_[3] && *iDet>99) {
-      hisID="nClusters_"; hisID+=*iDet;   			       
+      hisID = "nClusters_"; hisID += *iDet;   			       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     } 
     if (variable_[4] && *iDet>99) {
-      hisID="charge_"; hisID+=*iDet; 				       
+      hisID = "charge_"; hisID += *iDet; 				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     } 
     if (variable_[5] && *iDet>99) {
-      hisID="clusterSizeX_"; hisID+=*iDet; 				       
+      hisID = "clusterSizeX_"; hisID += *iDet; 				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     } 
     if (variable_[6] && *iDet>99) {
-      hisID="clusterSizeY_"; hisID+=*iDet; 				       
+      hisID = "clusterSizeY_"; hisID += *iDet; 				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     } 
     if (variable_[7] && *iDet>99) {
-      hisID="nRecHits_"; hisID+=*iDet; 				       
+      hisID = "nRecHits_"; hisID += *iDet; 				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			               											      
     } 
     if (variable_[8] && *iDet>99) {
-      hisID="residualX_"; hisID+=*iDet;  				       
+      hisID = "residualX_"; hisID += *iDet;  				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			               											      
     } 
     if (variable_[9] && *iDet>99) {
-      hisID="residualY_"; hisID+=*iDet;  				       
+      hisID = "residualY_"; hisID += *iDet;  				       
       ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");			       
     }
   }
