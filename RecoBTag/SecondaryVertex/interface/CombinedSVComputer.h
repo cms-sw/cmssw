@@ -19,13 +19,22 @@ class CombinedSVComputer {
 	             const reco::SecondaryVertexTagInfo &svInfo) const;
 
     private:
+	struct IterationRange;
+
+	double flipValue(double value, bool vertex) const;
+	IterationRange flipIterate(int size, bool vertex) const;
+
 	const reco::TrackIPTagInfo::TrackIPData &
 	threshTrack(const reco::TrackIPTagInfo &trackIPTagInfo,
-	            const reco::TrackIPTagInfo::SortCriteria sort) const;
+	            const reco::TrackIPTagInfo::SortCriteria sort,
+	            const reco::Jet &jet) const;
 
+	bool					trackFlip;
+	bool					vertexFlip;
 	double					charmCut;
 	reco::TrackIPTagInfo::SortCriteria	sortCriterium;
 	reco::TrackSelector			trackSelector;
+	reco::TrackSelector			trackNoDeltaRSelector;
 	reco::TrackSelector			trackPseudoSelector;
 	unsigned int				pseudoMultiplicityMin;
 	unsigned int				trackMultiplicityMin;

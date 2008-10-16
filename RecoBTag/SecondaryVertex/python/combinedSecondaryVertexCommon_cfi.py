@@ -6,6 +6,8 @@ from RecoBTag.SecondaryVertex.trackPseudoSelection_cfi import *
 combinedSecondaryVertexCommon = cms.PSet(
 	trackPseudoSelectionBlock,
 	trackSelectionBlock,
+	trackFlip = cms.bool(False),
+	vertexFlip = cms.bool(False),
 	useTrackWeights = cms.bool(True),
 	pseudoMultiplicityMin = cms.uint32(2),
 	correctVertexMass = cms.bool(True),
