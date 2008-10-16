@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/09/19 12:34:21 $
- * $Revision: 1.39 $
+ * $Date:$
+ * $Revision:$
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -100,7 +100,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   sistripWebInterface_ = new SiStripWebInterface(dqmStore_);
   actionExecutor_ = new SiStripActionExecutor();
 
-  trackerFEDsFound_ = true;
+  trackerFEDsFound_ = false;
 }
 //
 // -- Destructor
@@ -245,6 +245,8 @@ void SiStripAnalyser::endJob(){
 void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
   edm::Handle<FEDRawDataCollection> rawDataHandle;
   e.getByLabel(rawDataTag_, rawDataHandle);
+  if ( !rawDataHandle.isValid() ) return;
+  
   const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
   const FEDNumbering numbering;
   const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
@@ -257,7 +259,6 @@ void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
     }
   }
   if (nFed > 0) trackerFEDsFound_ = true;
-  else trackerFEDsFound_ = false;
 }
 //
 // -- Create default web page
