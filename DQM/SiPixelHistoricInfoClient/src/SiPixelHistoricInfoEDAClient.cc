@@ -4,19 +4,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoEDAClient.h"
 
 
