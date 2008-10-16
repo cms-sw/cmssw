@@ -50,7 +50,6 @@ int main(int ac, char *av[]) {
   gROOT->SetStyle("Plain");
   try {
     typedef funct::FunctExpression Expr;
-    typedef funct::Product<funct::Parameter, funct::RootHistoPdf>::type ZPeak;
     typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr> ChiSquared;
 
     double fMin, fMax;
@@ -176,9 +175,6 @@ int main(int ac, char *av[]) {
 	zPdfMuMuNonIso.rebin(rebinMuMuNoIso);
 	zPdfMuTk.rebin(rebinMuTk);
 
-	ZPeak zPeakPdfMuMuNonIso = yieldZMuMu * zPdfMuMuNonIso;
-	ZPeak zPeakPdfMuTk = yieldZMuMu * zPdfMuTk;
-
 	funct::Numerical<2> _2;
 	funct::Numerical<1> _1;
 
@@ -189,16 +185,14 @@ int main(int ac, char *av[]) {
 
 	Expr zMuMu = rebinMuMuConst * zMuMuEffTerm * yieldZMuMu;
 
-	Expr zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
+	Expr zMuTkBkg = yieldBkgZMuTk * funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2);
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
-	Expr zMuTk = rebinMuTkConst*(zMuTkEffTerm * zPeakPdfMuTk + zMuTkBkg);
-
+	Expr zMuTk = rebinMuTkConst * (zMuTkEffTerm * yieldZMuMu * zPdfMuTk + zMuTkBkg);
 	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
 	Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
-	Expr zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEffTerm * zPeakPdfMuMuNonIso) +  zMuMuNoIsoBkg);
-
-	Expr zMuSa = rebinMuSaConst *(zMuSaEffTerm * (yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa)) 
-				      + (yieldBkgZMuSa * funct::Exponential(beta)));
+	Expr zMuMuNoIso = rebinMuMuNoIsoConst * (zMuMuNoIsoEffTerm * yieldZMuMu * zPdfMuMuNonIso + zMuMuNoIsoBkg);
+	Expr zMuSa = rebinMuSaConst * (zMuSaEffTerm * yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa) 
+				       + (yieldBkgZMuSa * funct::Exponential(beta)));
 
 	TH1D histoZCount("histoZCount", "", 1, fMin, fMax);
 	histoZCount.Fill(100, nZMuMu);
