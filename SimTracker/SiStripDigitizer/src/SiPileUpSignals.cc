@@ -3,6 +3,8 @@
 
 void SiPileUpSignals::resetLink(){
   theMapLink.clear();
+  theCounterMapLink.clear();
+
 }
 
 void SiPileUpSignals::add(const std::vector<double>& locAmpl,
