@@ -6,6 +6,8 @@ from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByECALIsolation_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import *
 
@@ -27,6 +29,12 @@ pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency.PFTauProducer = 'pfReco
 #copying the Discriminator by Isolation
 pfRecoTauDiscriminationByIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
 pfRecoTauDiscriminationByIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+
+pfRecoTauDiscriminationByTrackIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByTrackIsolation)
+pfRecoTauDiscriminationByTrackIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
+
+pfRecoTauDiscriminationByECALIsolationHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationByECALIsolation)
+pfRecoTauDiscriminationByECALIsolationHighEfficiency.PFTauProducer = 'pfRecoTauProducerHighEfficiency'
 
 #copying discriminator against electrons and muons
 pfRecoTauDiscriminationAgainstElectronHighEfficiency = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
