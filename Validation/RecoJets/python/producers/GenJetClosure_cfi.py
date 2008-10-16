@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 genJetClosure = cms.EDFilter("GenJetClosure",
 ## input
   recs = cms.InputTag("iterativeCone5CaloJets"),
-  refs = cms.InputTag("iterativeCone5GenJetsPt10"),
+  refs = cms.InputTag("iterativeCone5GenJets"),
 
 ## histogram directory
   hist = cms.string('genJetClosure.hist'),

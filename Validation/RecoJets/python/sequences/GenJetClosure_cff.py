@@ -14,9 +14,9 @@ l3Calib = Validation.RecoJets.producers.GenJetClosure_cfi.genJetClosure.clone()
 
 ## do proper replacements
 noCalib.recs = 'iterativeCone5CaloJets'
-gfCalib.recs = 'uhhCaliIterativeCone5'
-l2Calib.recs = 'MCJetCorJetIcone5'
-l3Calib.recs = 'L3JetCorJetIcone5'
+gfCalib.recs = 'gfCorICone5'
+l2Calib.recs = 'L2L3CorJetIcone5'
+l3Calib.recs = 'L2L3CorJetIcone5'
 
 ## sequences
 makeNoCalibClosure  = cms.Sequence(noCalib)
