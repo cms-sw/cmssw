@@ -9,6 +9,10 @@
 #include <TDirectory.h>
 #include <TH1F.h>
 
+// CMSSW
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 // Binomial confidence interval - temporary location...
 #include "HLTriggerOffline/BJet/src/confidence.h"
 
@@ -19,20 +23,18 @@ struct RatePlots {
 
   void init(const std::string & name, const std::string & title, unsigned int levels)
   {
+    // access the shared ROOT file via TFileService
+    edm::Service<TFileService> fileservice;
+    
     // enable sum-of-squares for all plots
     bool sumw2 = TH1::GetDefaultSumw2();
     TH1::SetDefaultSumw2(true);
-    // disable directory association for all plots
-    bool setdir = TH1::AddDirectoryStatus();
-    TH1::AddDirectory(false);
 
     // a path with N filters can have N+1 rates: initial, after the 1st, ... after the Nth filter
-    m_rates = new TH1I((name + "_rates").c_str(), (title + " rates").c_str(), (levels+1), 0, (levels+1));
+    m_rates = fileservice->make<TH1I>((name + "_rates").c_str(), (title + " rates").c_str(), (levels+1), 0, (levels+1));
 
     // reset sum-of-squares status
     TH1::SetDefaultSumw2(sumw2);
-    // reset directory association status
-    TH1::AddDirectory(setdir);
   }
     
   // event passed given level 

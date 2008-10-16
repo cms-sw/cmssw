@@ -70,7 +70,7 @@ class HLTBtagLifetimeAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HLTBtagLifetimeAnalyzer(const edm::ParameterSet& config);
   virtual ~HLTBtagLifetimeAnalyzer();
-    
+
   virtual void beginJob(const edm::EventSetup & setup);
   virtual void analyze(const edm::Event & event, const edm::EventSetup & setup);
   virtual void endJob();
@@ -88,7 +88,7 @@ private:
     edm::InputTag   m_tracks;                   // track collection, associated to jets
     unsigned int    m_filterIndex;              // index of the filter relative to its own path
   };
-  
+
   // input collections
   std::string               m_triggerPath;      // HLT path
   edm::InputTag             m_triggerResults;   // HLT trigger results
@@ -180,7 +180,7 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
     level.m_title  = levels[i].exists("title")  ? levels[i].getParameter<std::string>("title")    : level.m_name;
     m_levels.push_back(level);
   }
-    
+
   const edm::ParameterSet & jetConfig = config.getParameter<edm::ParameterSet>("jetConfiguration");
   m_jetMaxEnergy = jetConfig.getParameter<double>("maxEnergy");
   m_jetMaxEta    = jetConfig.getParameter<double>("maxEta");
@@ -199,19 +199,19 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
     m_offlineCuts.push_back( offline.getParameter<double>(m_offlineLabels[i]) );
 }
 
-HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer() 
+HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer()
 {
 }
 
-void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup) 
+void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup)
 {
-  m_ratePlots.init( "Event", "Event", m_levels.size() );  
+  m_ratePlots.init( "Event", "Event", m_levels.size() );
   m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
-  
+
   m_jetPlots.resize( m_levels.size() );
   if (m_mcMatching)      m_mcPlots.resize( m_levels.size() );
   if (m_offlineMatching) m_offlinePlots.resize( m_levels.size() );
-  
+
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     m_jetPlots[i].init( m_levels[i].m_name, m_levels[i].m_title, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
     if (m_mcMatching)      m_mcPlots[i].init(      m_levels[i].m_name, m_levels[i].m_title, m_mcFlavours,  m_mcLabels,      jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
@@ -277,7 +277,7 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
   return true;
 }
 
-void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::EventSetup & setup) 
+void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::EventSetup & setup)
 {
   edm::Handle<edm::TriggerResults> h_triggerResults;
   event.getByLabel(m_triggerResults, h_triggerResults);
@@ -299,7 +299,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     return;
   }
 
-  // debug information regarding th path status
+  // debug information regarding the path status
   if (not wasrun)
     LogTrace("HLTBtagAnalyzer") << "  path " << m_triggerPath << " was not run";
   else if (accepted)
@@ -317,7 +317,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   if (m_mcMatching)
     event.getByLabel(m_mcPartons, h_mcPartons);
 
-  // match to Offline b-tagged jets - accessed on demand  
+  // match to Offline b-tagged jets - accessed on demand
   edm::Handle<reco::JetTagCollection> h_offlineBJets;
   if (m_offlineMatching)
     event.getByLabel(m_offlineBJets, h_offlineBJets);
@@ -330,15 +330,15 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     bool failed = (not accepted) and (latest == level.m_filterIndex);       // rejected by this filter
     bool notrun = (not accepted) and (latest  < level.m_filterIndex);       // did not reach this filter
     LogDebug("HLTBtagAnalyzer") << "  path " << std::setw(32) << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run");
-    
+
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
     edm::Handle<reco::JetTracksAssociation::Container>  h_tracks;
-    
+
     if (level.m_jets.label() != "none")
       event.getByLabel(level.m_jets, h_jets);
     if (level.m_tracks.label() != "none")
       event.getByLabel(level.m_tracks, h_tracks);
-    
+
     if (passed) {
       // event did pass this filter, analyze the content
       m_ratePlots.fill(l+1);    // 0 for no filters, 1 for 1st filter, ...
@@ -347,7 +347,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
         const edm::View<reco::Jet> & jets = * h_jets;
         for (unsigned int j = 0; j < jets.size(); ++j) {
           const reco::Jet & jet = jets[j];
-          
+
           // match to MC parton
           unsigned int flavour = 0;
           if (m_mcMatching) {
@@ -376,7 +376,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
           }
         }
       }
-    } else { 
+    } else {
       // event did not pass this filter, no need to check the following ones
       break;
     }
@@ -389,20 +389,20 @@ void HLTBtagLifetimeAnalyzer::endJob()
   edm::LogVerbatim("HLTBtagAnalyzer") << "HLT Trigger path: " << m_triggerPath;
   {
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
+    out << std::left << std::setw(32) << m_triggerPath << ": "
         << std::setw(32) << "total number of events: " << std::right << std::setw(12) << m_ratePlots.rate(0);
     edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
   }
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
+    out << std::left << std::setw(32) << m_triggerPath << ": "
         << std::setw(32) << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_ratePlots.rate(i+1);
     edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
   }
   if (m_doStepEfficiencies) for (unsigned int i = 0; i < m_levels.size(); ++i) {
     // compute and print step-by-step event efficiencies
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
+    out << std::left << std::setw(32) << m_triggerPath << ": "
         << std::setw(32) << ("step efficiency at " + m_levels[i].m_title);
     double eff = m_ratePlots.stepEfficiency(i+1);
     if (std::isnormal(eff)) {
@@ -417,7 +417,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
   if (m_doCumulativeEfficiencies) for (unsigned int i = 0; i < m_levels.size(); ++i) {
     // compute and print cumulative event efficiencies
     std::stringstream out;
-    out << std::left << std::setw(32) << m_triggerPath << ": " 
+    out << std::left << std::setw(32) << m_triggerPath << ": "
         << std::setw(32) << ("cumulative efficiency at " + m_levels[i].m_title);
     double eff = m_ratePlots.efficiency(i+1);
     if (std::isnormal(eff)) {
@@ -430,40 +430,33 @@ void HLTBtagLifetimeAnalyzer::endJob()
     edm::LogVerbatim("HLTBtagAnalyzer") << out.str();
   }
   edm::LogVerbatim("HLTBtagAnalyzer");
-  
-  TFile * file = new TFile(m_outputFile.c_str(), "RECREATE");
-  TDirectory * dir = file->mkdir( m_triggerPath.c_str(), (m_triggerPath + " HLT path").c_str() );
-  if (dir) {
-    m_ratePlots.save(*dir);
-    m_vertexPlots.save(*dir);
 
-    for (unsigned int i = 0; i < m_levels.size(); ++i) {
-      m_jetPlots[i].save(*dir);
-      if (m_mcMatching)      m_mcPlots[i].save(*dir);
-      if (m_offlineMatching) m_offlinePlots[i].save(*dir);
-    }
-    if ((m_doStepEfficiencies or m_doCumulativeEfficiencies) and m_levels.size() > 1) {
-      // make second-wrt-first level efficiency plots
-      m_jetPlots[1].efficiency( m_jetPlots[0] ).save(*dir);
-      if (m_mcMatching)      m_mcPlots[1].efficiency( m_mcPlots[0] ).save(*dir);
-      if (m_offlineMatching) m_offlinePlots[1].efficiency( m_offlinePlots[0] ).save(*dir);
-    }
-    if (m_doStepEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
-      // make step-by-step efficiency plots
-      m_jetPlots[i].efficiency( m_jetPlots[i-1] ).save(*dir);
-      if (m_mcMatching)      m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*dir);
-      if (m_offlineMatching) m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*dir);
-    }
-    if (m_doCumulativeEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
-      // make cumulative efficiency plots
-      m_jetPlots[i].efficiency( m_jetPlots[0] ).save(*dir);
-      if (m_mcMatching)      m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*dir);
-      if (m_offlineMatching) m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*dir);
-    }
+
+  // make eficiency plots
+  if ((m_doStepEfficiencies or m_doCumulativeEfficiencies) and m_levels.size() > 1) {
+    // make second-vs-first level efficiency plots
+    m_jetPlots[1].efficiency( m_jetPlots[0] );
+    if (m_mcMatching)
+      m_mcPlots[1].efficiency( m_mcPlots[0] );
+    if (m_offlineMatching)
+      m_offlinePlots[1].efficiency( m_offlinePlots[0] );
   }
-
-  file->Write();
-  file->Close();
+  if (m_doStepEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
+    // make step-by-step efficiency plots
+    m_jetPlots[i].efficiency( m_jetPlots[i-1] );
+    if (m_mcMatching)
+      m_mcPlots[i].efficiency( m_mcPlots[i-1] );
+    if (m_offlineMatching)
+      m_offlinePlots[i].efficiency( m_offlinePlots[i-1] );
+  }
+  if (m_doCumulativeEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
+    // make cumulative efficiency plots
+    m_jetPlots[i].efficiency( m_jetPlots[0] );
+    if (m_mcMatching)
+      m_mcPlots[i].efficiency( m_mcPlots[0] );
+    if (m_offlineMatching)
+      m_offlinePlots[i].efficiency( m_offlinePlots[0] );
+  }
 }
 
 
