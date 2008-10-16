@@ -8,18 +8,12 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
 // #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoWebInterface.h"
 
-
-// namespace edm {
-//   class ParameterSet;
-//   class Event;
-//   class EventId;
-//   class Timestamp;
-// } 
 
 class SiPixelHistoricInfoEDAClient : public edm::EDAnalyzer {
 public:
@@ -33,21 +27,24 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  void retrievePointersToModuleMEs();
-  void fillSummaryObjects() const;
-  void writetoDB() const; 
-  void savetoFile(std::string) const; 
+  void retrieveMEs();
+  void fillPerformanceSummary() const;
+  void writeDB() const; 
+  void saveFile(std::string filename) const { dbe_->save(filename); }
 
 private: 
   bool printDebug_;
   bool writeHisto_;
   std::string outputDir_; 
+
   edm::ParameterSet parameterSet_;
   DQMStore* dbe_;
 
   bool firstEventInRun; 
   int nEventsInRun; 
-  std::map< uint32_t, std::vector<MonitorElement*> > ClientPointersToModuleMEs;
+
+  SiPixelHistogramId histogramManager;
+  std::map< uint32_t, std::vector<MonitorElement*> > mapOfdetIDtoMEs;
   SiPixelPerformanceSummary* performanceSummary;
 
   // SiPixelHistoricInfoWebInterface* webInterface_;
