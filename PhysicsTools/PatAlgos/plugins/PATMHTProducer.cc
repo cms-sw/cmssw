@@ -1,8 +1,9 @@
 //
-// $Id: PATMHTProducer.cc,v 1.1.2.9 2008/10/15 18:54:30 xshi Exp $
+// $Id: PATMHTProducer.cc,v 1.2 2008/10/16 16:53:41 fblekman Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 
 pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet & iConfig){
 
@@ -49,8 +50,8 @@ void pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   for(edm::View<pat::Jet>::const_iterator jet_iter = jets.begin(); jet_iter!=jets.end(); ++jet_iter){
     double jet_et = jet_iter->et();
     double jet_phi = jet_iter->phi();
-    double sigma_et = jet_iter->resolutionEt();
-    double sigma_phi = jet_iter->resolutionPhi();
+    double sigma_et = 0.;// no longer valid: jet_iter->resolutionEt();
+    double sigma_phi =  0.;// no longer valid: jet_iter->resolutionPhi();
     objectname="jet";
     if(sigma_et<=0 || sigma_phi<=0)
       edm::LogWarning("PATMHTProducer") << 
@@ -79,8 +80,8 @@ void pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   for(edm::View<pat::Electron>::const_iterator electron_iter = electrons.begin(); electron_iter!=electrons.end(); ++electron_iter){
     double electron_et = electron_iter->et();
     double electron_phi = electron_iter->phi();
-    double sigma_et = electron_iter->resolutionEt();
-    double sigma_phi = electron_iter->resolutionPhi();
+    double sigma_et = 0.;// no longer valid:  electron_iter->resolutionEt();
+    double sigma_phi = 0.;// no longer valid:  electron_iter->resolutionPhi();
     objectname="electron";
     if(sigma_et<=0 || sigma_phi<=0)
       edm::LogWarning("PATMHTProducer") <<
@@ -111,8 +112,8 @@ void pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   for(edm::View<pat::Muon>::const_iterator muon_iter = muons.begin(); muon_iter!=muons.end(); ++muon_iter){
     double muon_pt = muon_iter->pt();
     double muon_phi = muon_iter->phi();
-    double sigma_et = muon_iter->resolutionEt();
-    double sigma_phi = muon_iter->resolutionPhi();
+    double sigma_et = 0.;// no longer valid:  muon_iter->resolutionEt();
+    double sigma_phi = 0.;// no longer valid:  muon_iter->resolutionPhi();
     objectname="muon";
     if(sigma_et<=0 || sigma_phi<=0)
       edm::LogWarning("PATMHTProducer") << 
@@ -145,8 +146,8 @@ void pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   for(edm::View<pat::Photon>::const_iterator photon_iter = photons.begin(); photon_iter!=photons.end(); ++photon_iter){
     double photon_et = photon_iter->et();
     double photon_phi = photon_iter->phi();
-    double sigma_et = photon_iter->resolutionEt();
-    double sigma_phi = photon_iter->resolutionPhi();
+    double sigma_et = 0.;// no longer valid:  photon_iter->resolutionEt();
+    double sigma_phi = 0.;// no longer valid:  photon_iter->resolutionPhi();
     objectname="photon";
     if(sigma_et<=0 || sigma_phi<=0)
       edm::LogWarning("PATMHTProducer") << " uncertainties for "  << objectname << " are (et, phi): " << sigma_et << "," << sigma_phi << " (et,phi): " << photon_et << "," << photon_phi;
@@ -165,8 +166,8 @@ void pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   for(edm::View<pat::Tau>::const_iterator tau_iter = taus.begin(); tau_iter!=taus.end(); ++tau_iter){
     double tau_pt = tau_iter->pt();
     double tau_phi = tau_iter->phi();
-    double sigma_et = tau_iter->resolutionEt();
-    double sigma_phi = tau_iter->resolutionPhi();
+    double sigma_et =  0.;// no longer valid: tau_iter->resolutionEt();
+    double sigma_phi =  0.;// no longer valid: tau_iter->resolutionPhi();
     objectname="tau";
     if(sigma_et<=0 || sigma_phi<=0)
       edm::LogWarning("PATMHTProducer") << " uncertainties for "  << objectname << " are (et, phi): " << sigma_et << "," << sigma_phi << " (pt,phi): " << tau_pt << "," << tau_phi;
