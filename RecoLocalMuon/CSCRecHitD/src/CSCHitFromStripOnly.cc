@@ -22,23 +22,23 @@
 CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0), calcped_(0) {
   
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-	bool useStaticPedestals    = ps.getParameter<bool>("CSCUseStaticPedestals");
-	int noOfTimeBinsForDynamicPed = ps.getParameter<int>("CSCNoOfTimeBinsForDynamicPeds");
+  bool useStaticPedestals    = ps.getParameter<bool>("CSCUseStaticPedestals");
+  int noOfTimeBinsForDynamicPed = ps.getParameter<int>("CSCNoOfTimeBinsForDynamicPedestal");
   //theClusterSize             = ps.getUntrackedParameter<int>("CSCStripClusterSize");
   theThresholdForAPeak       = ps.getUntrackedParameter<double>("CSCStripPeakThreshold");
   theThresholdForCluster     = ps.getUntrackedParameter<double>("CSCStripClusterChargeCut");
 
   if ( useStaticPedestals ) {
-	  calcped_ = new CSCStaticPedestal();
-	}
-	else {
-		if ( noOfTimeBinsForDynamicPed == 1 ) {
-			calcped_ = new CSCDynamicPedestal1();
-		}
-		else {
-			calcped_ = new CSCDynamicPedestal2(); // NORMAL DEFAULT!
-		}
-	}
+    calcped_ = new CSCStaticPedestal();
+  }
+  else {
+    if ( noOfTimeBinsForDynamicPed == 1 ) {
+      calcped_ = new CSCDynamicPedestal1();
+    }
+    else {
+      calcped_ = new CSCDynamicPedestal2(); // NORMAL DEFAULT!
+    }
+  }
 
 }
 
@@ -165,37 +165,35 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
   int tmax      = thePulseHeightMap[centerStrip-1].tmax();
   tmax_cluster  = tmax;
 
-	std::vector<float> adc(4);
-	std::vector<float> adcRaw(4);
+  std::vector<float> adc(4);
+  std::vector<float> adcRaw(4);
+
+  // Fill adc & adcRaw
 	
+  int istart = tmax-1;
+  int istop  = std::min( tmax+2, 7 ) ; // there are only time bins 0-7
+  adc[3] = 0.1; // in case it isn't filled
 	
-	// Fill adc & adcRaw
-	
-	int istart = tmax-1;
-	int istop  = std::max( tmax+2, 7 ) ; // there are only time bins 0-7
-	adc[3] = 0.1; // in case it isn't filled
-	
-	if ( tmax > 2 && tmax < 7 ) { // for time bins 3-6
-		int ibin = thisStrip-1;
+  if ( tmax > 2 && tmax < 7 ) { // for time bins 3-6
+    int ibin = thisStrip-1;
 		
-	  std::copy( thePulseHeightMap[ibin].ph().begin()+istart, 
-			         thePulseHeightMap[ibin].ph().begin()+istop, adc.begin() );
+    std::copy( thePulseHeightMap[ibin].ph().begin()+istart, 
+	 thePulseHeightMap[ibin].ph().begin()+istop, adc.begin() );
 			
-	  std::copy( thePulseHeightMap[ibin].phRaw().begin()+istart, 
-			         thePulseHeightMap[ibin].phRaw().begin()+istop, adcRaw.begin() );
-	} 
-	else {
-		adc[0] = 0.1;
+    std::copy( thePulseHeightMap[ibin].phRaw().begin()+istart, 
+	 thePulseHeightMap[ibin].phRaw().begin()+istop, adcRaw.begin() );
+  } 
+  else {
+    adc[0] = 0.1;
     adc[1] = 0.1;
     adc[2] = 0.1;
     adc[3] = 0.1;
-		adcRaw = adc;
+    adcRaw = adc;
     LogTrace("CSCRecHit")  << "[CSCHitFromStripOnly::makeStripData] Tmax out of range: contact CSC expert!" << "\n";
-	}
-
+  }
   
   if ( offset == 0 ) {
-		prelimData = CSCStripHitData(thisStrip, tmax_cluster, adc, adcRaw);
+    prelimData = CSCStripHitData(thisStrip, tmax_cluster, adc, adcRaw);
   } else {
     int sign = offset>0 ? 1 : -1;
     // If there's another maximum that would like to use part of this cluster, 
@@ -212,43 +210,43 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
       else {
 	
      	// Another maximum found - share       
-				std::vector<float> adc1(4);
-				std::vector<float> adcRaw1(4);
-				std::vector<float> adc2(4);
-				std::vector<float> adcRaw2(4);
-				adc1[3]    = 0.1; 
-				adc2[3]    = 0.1; 
+	std::vector<float> adc1(4);
+	std::vector<float> adcRaw1(4);
+	std::vector<float> adc2(4);
+	std::vector<float> adcRaw2(4);
+	adc1[3]    = 0.1; 
+        adc2[3]    = 0.1; 
 
-      // Fill adcN with content of time bins tmax-1 to tmax+2 (if it exists!)
-				if ( tmax > 2 && tmax < 7 ) { // for time bin tmax from 3-6
-					int ibin = testStrip-1;
-				  int jbin = centerStrip-1;
-				  std::copy(thePulseHeightMap[ibin].ph().begin()+istart, 
-				          	thePulseHeightMap[ibin].ph().begin()+istop, adc1.begin());
+        // Fill adcN with content of time bins tmax-1 to tmax+2 (if it exists!)
+        if ( tmax > 2 && tmax < 7 ) { // for time bin tmax from 3-6
+	  int ibin = testStrip-1;
+	  int jbin = centerStrip-1;
+	  std::copy(thePulseHeightMap[ibin].ph().begin()+istart, 
+	       thePulseHeightMap[ibin].ph().begin()+istop, adc1.begin());
 				
-				  std::copy(thePulseHeightMap[ibin].phRaw().begin()+istart, 
-										thePulseHeightMap[ibin].phRaw().begin()+istop, adcRaw1.begin());
+	  std::copy(thePulseHeightMap[ibin].phRaw().begin()+istart, 
+	       thePulseHeightMap[ibin].phRaw().begin()+istop, adcRaw1.begin());
 										
-					std::copy(thePulseHeightMap[jbin].ph().begin()+istart, 
-								    thePulseHeightMap[jbin].ph().begin()+istop, adc2.begin());  
+	  std::copy(thePulseHeightMap[jbin].ph().begin()+istart, 
+	       thePulseHeightMap[jbin].ph().begin()+istop, adc2.begin());  
 						
-					std::copy(thePulseHeightMap[jbin].phRaw().begin()+istart, 
-										thePulseHeightMap[jbin].phRaw().begin()+istop, adcRaw2.begin());
-				} 
-				else {
-					adc1.assign(4, 0.1);
-					adcRaw1 = adc1;
-					adc2.assign(4, 0.1);
-					adcRaw2 = adc2;
-				}
+	  std::copy(thePulseHeightMap[jbin].phRaw().begin()+istart, 
+	       thePulseHeightMap[jbin].phRaw().begin()+istop, adcRaw2.begin());
+	} 
+	else {
+	  adc1.assign(4, 0.1);
+	  adcRaw1 = adc1;
+	  adc2.assign(4, 0.1);
+	  adcRaw2 = adc2;
+	}
 				
         // Scale shared strip B ('adc') by ratio of peak of ADC counts from central strip A ('adc2')
         // to sum of A and neighbouring maxima C ('adc1')
 
-				for (size_t k = 0; k < 4; ++k){
-	        if(adc1[k]>0    && adc2[k]>0)    adc[k]    = adc[k] * adc2[k] / ( adc1[k]+adc2[k] );
-	        if(adcRaw1[k]>0 && adcRaw2[k]>0) adcRaw[k] = adcRaw[k] * adcRaw2[k] / ( adcRaw1[k]+adcRaw2[k] );     
-	      }
+	for (size_t k = 0; k < 4; ++k){
+	  if(adc1[k]>0    && adc2[k]>0)    adc[k]    = adc[k] * adc2[k] / ( adc1[k]+adc2[k] );
+	  if(adcRaw1[k]>0 && adcRaw2[k]>0) adcRaw[k] = adcRaw[k] * adcRaw2[k] / ( adcRaw1[k]+adcRaw2[k] );     
+	}
         prelimData = CSCStripHitData(thisStrip, tmax_cluster, adc, adcRaw);
       }
     }
@@ -269,14 +267,14 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
   thePulseHeightMap.resize(100); //@@ WHY NOT JUST 80?
 
   // for storing sca pulseheights once they may no longer be integer (e.g. after ped subtraction)
-	std::vector<float> sca;
-	sca.reserve(8);
+  std::vector<float> sca;
+  sca.reserve(8);
 	
   for ( CSCStripDigiCollection::const_iterator it = rstripd.first; it != rstripd.second; ++it ) {
     int  thisChannel        = (*it).getStrip(); 
     std::vector<int> scaRaw = (*it).getADCCounts();
-		sca.clear();
-		for ( size_t i =0; i!=scaRaw.size(); ++i ) sca.push_back( static_cast<float>(scaRaw[i]) );
+    sca.clear();
+    for ( size_t i =0; i!=scaRaw.size(); ++i ) sca.push_back( static_cast<float>(scaRaw[i]) );
 
     //@@ Find bin with largest pulseheight (_before_ ped subtraction - shouldn't matter, right?)
     int tmax =  std::max_element( sca.begin(), sca.end() ) - sca.begin(); // counts from 0
@@ -287,22 +285,22 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     std::for_each( sca.begin(), sca.end(), CSCSubtractPedestal( ped ) );
 
     //@@ Max in first 3 or last time bins is unacceptable, if so set to zero (why?)
-		float phmax = 0.;
-		if ( tmax > 2 && tmax < 7 ) {
-			phmax = sca[tmax];
-		}
+    float phmax = 0.;
+    if ( tmax > 2 && tmax < 7 ) {
+      phmax = sca[tmax];
+    }
 		
-		// Fill the map, possibly apply gains from cond data, and unfold ME1A channels
+    // Fill the map, possibly apply gains from cond data, and unfold ME1A channels
 		
     if ( id_.ring() != 4 ) { // non-ME1a
       thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
       if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
     } 
     else { // ME1a, so unfold its 16 channels to its 48 strips
-	    for ( int j = 0; j < 3; ++j ) {
-	      thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( thisChannel+16*j, phmax, tmax, scaRaw, sca );
-				if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
-	    }
+      for ( int j = 0; j < 3; ++j ) {
+	thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( thisChannel+16*j, phmax, tmax, scaRaw, sca );
+	if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
+      }
     }
 
   }
@@ -420,15 +418,15 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   float stripLeft = 0.;
   float stripRight = 0.;
 
-	std::vector<float> w(4);
-	std::vector<float> wRaw(4);
+  std::vector<float> w(4);
+  std::vector<float> wRaw(4);
   
   for ( size_t i = 0; i != data.size(); ++i ) {
-		w = data[i].ph();
-		wRaw = data[i].phRaw();
+    w = data[i].ph();
+    wRaw = data[i].phRaw();
 
     // Require ADC to be > 0.
-		for ( size_t j = 0; j != data.size(); ++j ) {
+    for ( size_t j = 0; j != data.size(); ++j ) {
       if ( w[j] < 0. ) w[j] = 0.001;
     }
 
@@ -436,9 +434,9 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
     if (i == data.size()/2 +1) stripRight = w[1];
 
 
-     // Fill the data members 
-		std::copy( w.begin(), w.end(), std::back_inserter(strips_adc));
-		std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
+    // Fill the data members 
+    std::copy( w.begin(), w.end(), std::back_inserter(strips_adc));
+    std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
 
     if ( data[i].strip() < 1 ){
       LogTrace("CSCRecHit") << "problem in indexing of strip, strip id is: " << data[i].strip() << "\n";
