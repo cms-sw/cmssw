@@ -279,11 +279,6 @@ int main(int ac, char *av[]) {
 	TF1 funZMuTk = root::tf1_t<sig_tag, Expr>("ZMuTkFunction", zMuTk, fMin, fMax, 
 						  effTk, effSa, effIso, yieldZMuMu, 
 						  yieldBkgZMuTk, lambda, a0, a1, a2);
-	for(int i = 0; i < 100; ++i) {
-	  double x = fMin + i * (fMax - fMin)/100;
-	  double y = funZMuTk.Eval(x);
-	  cout << "f(" << x << ") = " << y << endl; 
-	}
 	funZMuTk.SetLineColor(kRed);
 	funZMuTk.SetLineWidth(2);
 	funZMuTk.SetLineStyle(kDashed);
