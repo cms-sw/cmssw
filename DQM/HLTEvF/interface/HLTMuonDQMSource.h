@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/04 14:08:32 $
- *  $Revision: 1.3.2.1 $
+ *  $Date: 2008/03/05 09:54:04 $
+ *  $Revision: 1.5 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -66,7 +66,7 @@ private:
   edm::InputTag l2seedscollectionTag_;
   edm::InputTag l3collectionTag_;
   edm::InputTag l3isolationTag_;
-  edm::InputTag l3linksTag_;
+  //  edm::InputTag l3linksTag_;
 
   // ----------member data ---------------------------
   bool verbose_;

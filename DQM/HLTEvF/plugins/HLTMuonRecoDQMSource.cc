@@ -12,7 +12,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonRecoDQMSource.cc,v 1.7 2008/03/05 13:24:44 muriel Exp $
+// $Id: HLTMuonRecoDQMSource.cc,v 1.1 2008/06/25 10:46:57 muriel Exp $
 //
 //
 
@@ -28,12 +28,13 @@ Implementation:
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "TMath.h" 
@@ -54,7 +55,6 @@ HLTMuonRecoDQMSource::HLTMuonRecoDQMSource( const edm::ParameterSet& parameters_
   level_ = parameters_.getUntrackedParameter<int>("Level",2);
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   candCollectionTag_ = parameters_.getUntrackedParameter<InputTag>("CandMuonTag",edm::InputTag("hltL2MuonCandidates"));
-  linksTag_      = parameters_.getUntrackedParameter<InputTag>("TrackLinksTag",edm::InputTag("hltL3Muons"));
   beamSpotTag_ = parameters_.getUntrackedParameter<InputTag>("BeamSpotTag",edm::InputTag("offlineBeamSpot"));
   l2seedscollectionTag_ = parameters_.getUntrackedParameter<InputTag>("l2MuonSeedTag",edm::InputTag("hltL2MuonSeeds"));
 
@@ -286,26 +286,15 @@ void HLTMuonRecoDQMSource::analyze(const Event& iEvent,
 	  }
 	}
 	if ( level_ == 3 ) {
-	  Handle<MuonTrackLinksCollection> mulinks; 
-	  iEvent.getByLabel (linksTag_,mulinks);
-	  if (!mulinks.failedToGet()) {
-	    TrackRef l2tk;
-	    MuonTrackLinksCollection::const_iterator l3muon;
-	    for ( l3muon=mulinks->begin(); l3muon != mulinks->end();++l3muon){
-	      if ( l3muon->globalTrack() == tk ) {
-		l2tk= l3muon->standAloneTrack();
-		if(tk->pt()*l2tk->pt() != 0 )hptres->Fill(1/tk->pt() - 1/l2tk->pt());
-		hetares->Fill(tk->eta()-l2tk->eta());
-		hetareseta->Fill(tk->eta(),tk->eta()-l2tk->eta());
-		hphires->Fill(tk->phi()-l2tk->phi());
-		double dphi=tk->phi()-l2tk->phi();
-		if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
-		else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
-		hphiresphi->Fill(tk->phi(),dphi);
-		break;
-	      }
-	    }
-	  }
+	  TrackRef l2tk=tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection> >()->l2Track();
+	  if(tk->pt()*l2tk->pt() != 0 )hptres->Fill(1/tk->pt() - 1/l2tk->pt());
+	  hetares->Fill(tk->eta()-l2tk->eta());
+	  hetareseta->Fill(tk->eta(),tk->eta()-l2tk->eta());
+	  hphires->Fill(tk->phi()-l2tk->phi());
+	  double dphi=tk->phi()-l2tk->phi();
+	  if (dphi>TMath::TwoPi())dphi-=2*TMath::TwoPi();
+	  else if (dphi<-TMath::TwoPi()) dphi+=TMath::TwoPi();
+	  hphiresphi->Fill(tk->phi(),dphi);
 	} else {
 	  Handle<L2MuonTrajectorySeedCollection> museeds;
 	  iEvent.getByLabel (l2seedscollectionTag_,museeds);

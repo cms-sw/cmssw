@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/05 09:54:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/06/25 10:46:58 $
+ *  $Revision: 1.1 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -63,7 +63,6 @@ private:
   int prescaleEvt_;     ///every n events
   double coneSize_;
   edm::InputTag candCollectionTag_;
-  edm::InputTag linksTag_;
   edm::InputTag beamSpotTag_;
   edm::InputTag l2seedscollectionTag_;
   // ----------member data ---------------------------
