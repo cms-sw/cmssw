@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HLTValidation")
+
+# TFileService
+process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = 'plots.root'
+
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("HLTriggerOffline.BJet.hltBLifetimeAOD_cff")
-
 process.load("HLTriggerOffline.BJet.hltBSoftmuonAOD_cff")
 
 process.maxEvents = cms.untracked.PSet(
@@ -19,4 +23,3 @@ process.validation = cms.Path(process.hltBLifetime+process.hltBSoftmuon)
 process.MessageLogger.categories.append('HLTBtagAnalyzer')
 process.MessageLogger.debugModules.extend(process.hltBLifetime_modules.modules)
 process.MessageLogger.debugModules.extend(process.hltBSoftmuon_modules.modules)
-

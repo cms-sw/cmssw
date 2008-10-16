@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HLTValidation")
+
+# TFileService
+process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = 'plots.root'
+
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories.append('HLTBtagAnalyzer')
@@ -31,6 +36,7 @@ process.extra_softmuon_rx = cms.Path( process.hltBSoftmuonExtraRelaxed )
 process.extra_softmuon_dr = cms.Path( process.hltBSoftmuonExtraByDR )
 process.extra_jetmctools  = cms.Path( process.hltJetMCTools )
 process.validation        = cms.Path( process.hltBLifetime + process.hltBLifetimeRelaxed + process.hltBSoftmuon + process.hltBSoftmuonRelaxed )
+
 process.schedule = cms.Schedule(
     process.extra_lifetime,
     process.extra_lifetime_rx,
@@ -39,4 +45,3 @@ process.schedule = cms.Schedule(
     process.extra_softmuon_dr,
     process.extra_jetmctools,
     process.validation)
-

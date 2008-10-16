@@ -7,21 +7,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HLTValidation")
+
+# TFileService
+process.load("PhysicsTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = 'plots.root'
+
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
 process.load("PhysicsTools.HepMCCandAlgos.genParticleCandidates_cfi")
-
 process.load("HLTriggerOffline.BJet.hltJetMCTools_cff")
-
 process.load("HLTriggerOffline.BJet.hltBLifetimeExtra_cff")
-
 process.load("HLTriggerOffline.BJet.hltBSoftmuonExtra_cff")
-
 process.load("HLTriggerOffline.BJet.hltBLifetime_cff")
-
 process.load("HLTriggerOffline.BJet.hltBSoftmuon_cff")
 
 process.maxEvents = cms.untracked.PSet(
@@ -41,14 +39,13 @@ process.schedule = cms.Schedule(process.extra_lifetime,process.extra_softmuon,pr
 process.MessageLogger.categories.append('HLTBtagAnalyzer')
 process.MessageLogger.debugModules.extend(process.hltBLifetime_modules.modules)
 process.MessageLogger.debugModules.extend(process.hltBSoftmuon_modules.modules)
-process.hltb1jet.offlineBJets = 'none'
-process.hltb2jet.offlineBJets = 'none'
-process.hltb3jet.offlineBJets = 'none'
-process.hltb4jet.offlineBJets = 'none'
-process.hltbht.offlineBJets = 'none'
+process.hltb1jet.offlineBJets   = 'none'
+process.hltb2jet.offlineBJets   = 'none'
+process.hltb3jet.offlineBJets   = 'none'
+process.hltb4jet.offlineBJets   = 'none'
+process.hltbht.offlineBJets     = 'none'
 process.hltb1jetmu.offlineBJets = 'none'
 process.hltb2jetmu.offlineBJets = 'none'
 process.hltb3jetmu.offlineBJets = 'none'
 process.hltb4jetmu.offlineBJets = 'none'
-process.hltbhtmu.offlineBJets = 'none'
-
+process.hltbhtmu.offlineBJets   = 'none'
