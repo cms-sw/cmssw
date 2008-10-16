@@ -28,11 +28,13 @@ private:
   virtual void endJob();
 
   void retrieveMEs();
-  uint32_t getBLadID(std::string) const; 
+  uint32_t getLadderBladeID(std::string) const; 
   uint32_t getLayerDiskID(std::string) const; 
   void fillPerformanceSummary() const;
+  void fillPerformanceSummaryWithSummaryMEs() const;
+  void fillPerformanceSummaryWithModuleMEs() const;
   void writeDB() const; 
-  void saveFile(std::string filename) const { dbe_->save(filename); }; 
+  void saveFile(std::string filename) const { dbe_->save(filename); }
 
 private: 
   bool useSummary_; 
@@ -44,9 +46,8 @@ private:
   edm::ParameterSet parameterSet_;
   DQMStore* dbe_;
 
-  int nEventsInRun; 
-  SiPixelHistogramId hManager;
-  std::map< uint32_t, std::vector<MonitorElement*> > ClientPointersToModuleMEs;
+  SiPixelHistogramId histogramManager;
+  std::map< uint32_t, std::vector<MonitorElement*> > mapOfdetIDtoMEs;
   SiPixelPerformanceSummary* performanceSummary;
 };
 
