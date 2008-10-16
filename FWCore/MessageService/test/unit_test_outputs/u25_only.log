@@ -96,7 +96,7 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i main_input:sourc                       1        1
+    1 FwkReport            -i PostSource                             1        1
     2 cat_A                -e UnitTestClient_R                   10000*   10000
     3 cat_B                -e UnitTestClient_R                   10000*   10000
 
