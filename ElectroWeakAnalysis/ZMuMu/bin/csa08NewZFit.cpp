@@ -136,9 +136,9 @@ int main(int ac, char *av[]) {
 	const char * kSigmaZMuSa = "SigmaZMuSa";
 	
 	funct::Parameter yieldZMuMu(kYieldZMuMu, commands.par(kYieldZMuMu));
-	funct::Parameter efficiencyTk(kEfficiencyTk, commands.par(kEfficiencyTk)); 
-	funct::Parameter efficiencySa(kEfficiencySa, commands.par(kEfficiencySa)); 
-	funct::Parameter efficiencyIso(kEfficiencyIso, commands.par(kEfficiencyIso)); 
+	funct::Parameter effTk(kEfficiencyTk, commands.par(kEfficiencyTk)); 
+	funct::Parameter effSa(kEfficiencySa, commands.par(kEfficiencySa)); 
+	funct::Parameter effIso(kEfficiencyIso, commands.par(kEfficiencyIso)); 
 	funct::Parameter yieldBkgZMuTk(kYieldBkgZMuTk, commands.par(kYieldBkgZMuTk));
 	funct::Parameter yieldBkgZMuSa(kYieldBkgZMuSa, commands.par(kYieldBkgZMuSa));
 	funct::Parameter yieldBkgZMuMuNotIso(kYieldBkgZMuMuNotIso, commands.par(kYieldBkgZMuMuNotIso));
@@ -182,26 +182,26 @@ int main(int ac, char *av[]) {
 	funct::Numerical<2> _2;
 	funct::Numerical<1> _1;
 
-	Expr zMuMuEfficiencyTerm = ((efficiencyTk ^ _2) * 
-	  (efficiencySa ^ _2)) * (efficiencyIso ^ _2); 
-	Expr zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ _2) * 
-	  (efficiencySa ^ _2)) * (_1 - (efficiencyIso ^ _2));
-	Expr zMuTkEfficiencyTerm = _2 * 
-	  ((efficiencyTk ^ _2) * (efficiencySa * (_1 - efficiencySa))) * (efficiencyIso ^ _2);
-	Expr zMuSaEfficiencyTerm = _2 * 
-	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (_1 - efficiencyTk)))* (efficiencyIso ^ _2);
+	Expr zMuMuEffTerm = ((effTk ^ _2) * 
+	  (effSa ^ _2)) * (effIso ^ _2); 
+	Expr zMuMuNoIsoEffTerm = ((effTk ^ _2) * 
+	  (effSa ^ _2)) * (_1 - (effIso ^ _2));
+	Expr zMuTkEffTerm = _2 * 
+	  ((effTk ^ _2) * (effSa * (_1 - effSa))) * (effIso ^ _2);
+	Expr zMuSaEffTerm = _2 * 
+	  ((effSa ^ funct::Numerical<2>()) * (effTk * (_1 - effTk)))* (effIso ^ _2);
 
-	Expr zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
+	Expr zMuMu = rebinMuMuConst * (zMuMuEffTerm * yieldZMuMu);
 
 	Expr zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
-	Expr zMuTk = rebinMuTkConst*(zMuTkEfficiencyTerm * zPeakPdfMuTk + zMuTkBkg);
+	Expr zMuTk = rebinMuTkConst*(zMuTkEffTerm * zPeakPdfMuTk + zMuTkBkg);
 
 	Expr zMuMuNoIsoBkg = yieldBkgZMuMuNotIso * (funct::Exponential(alpha) * funct::Polynomial<2>(b0, b1, b2));
 	Expr zMuMuNoIsoBkgScaled = rebinMuMuNoIsoConst * zMuMuNoIsoBkg;
-	Expr zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEfficiencyTerm * zPeakPdfMuMuNonIso) +  zMuMuNoIsoBkg);
+	Expr zMuMuNoIso = rebinMuMuNoIsoConst * ((zMuMuNoIsoEffTerm * zPeakPdfMuMuNonIso) +  zMuMuNoIsoBkg);
 
-	Expr zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa)) 
+	Expr zMuSa = rebinMuSaConst *(zMuSaEffTerm * (yieldZMuMu * funct::Gaussian(meanZMuSa, sigmaZMuSa)) 
 				      + (yieldBkgZMuSa * funct::Exponential(beta)));
 
 	TH1D histoZCount("histoZCount", "", 1, fMin, fMax);
@@ -215,9 +215,9 @@ int main(int ac, char *av[]) {
 	cout << "N. deg. of freedom: " << chi2.degreesOfFreedom() << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	commands.add(minuit, yieldZMuMu);
-	commands.add(minuit, efficiencyTk);
-	commands.add(minuit, efficiencySa);
-	commands.add(minuit, efficiencyIso);
+	commands.add(minuit, effTk);
+	commands.add(minuit, effSa);
+	commands.add(minuit, effIso);
 	commands.add(minuit, yieldBkgZMuTk);
 	commands.add(minuit, yieldBkgZMuSa);
 	commands.add(minuit, yieldBkgZMuMuNotIso);
@@ -263,21 +263,21 @@ int main(int ac, char *av[]) {
 	histoZMuSa->SetEntries(s);
 	string ZMuMuPlot = "ZMuMuFit_" + plot_string;
 	root::plot<Expr>(ZMuMuPlot.c_str(), *histoZMuMu, zMuMu, fMin, fMax, 
-			  efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu, 
+			  effTk, effSa, effIso, yieldZMuMu, 
 			  kRed, 2, kDashed, 100, 
 			  "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");
 	
 	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
 	root::plot<Expr>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
-			 efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu,
+			 effTk, effSa, effIso, yieldZMuMu,
 			 kRed, 2, kDashed, 100, 
 			 "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			 "Events");	
 	
 	string ZMuTkPlot = "ZMuTkFit_" + plot_string;
 	TF1 funZMuTk = root::tf1<Expr>("ZMuTkFunction", zMuTk, fMin, fMax, 
-				       efficiencyTk, efficiencySa, efficiencyIso, yieldZMuMu, 
+				       effTk, effSa, effIso, yieldZMuMu, 
 				       yieldBkgZMuTk, lambda, a0, a1, a2);
 	funZMuTk.SetLineColor(kRed);
 	funZMuTk.SetLineWidth(2);
@@ -302,7 +302,7 @@ int main(int ac, char *av[]) {
 	canvas->SaveAs(logZMuTkPlot.c_str());
 	string ZMuSaPlot = "ZMuSaFit_" + plot_string;
 	root::plot<Expr>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
-			 efficiencySa, efficiencyTk, efficiencyIso,
+			 effSa, effTk, effIso,
 			 yieldZMuMu, meanZMuSa, sigmaZMuSa, yieldBkgZMuSa, 
 			 kRed, 2, kDashed, 10000, 
 			 "Z -> #mu + (unmatched) standalone mass", 
