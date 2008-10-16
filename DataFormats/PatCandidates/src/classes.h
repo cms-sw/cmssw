@@ -9,6 +9,7 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/MHT.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
@@ -204,6 +205,7 @@ namespace {
   std::vector<pat::Photon>::const_iterator	    v_p_ph_ci;
   std::vector<pat::Jet>::const_iterator	            v_p_j_ci;
   std::vector<pat::MET>::const_iterator	            v_p_m_ci;
+  std::vector<pat::MHT>::const_iterator	            v_p_mht_ci;
   std::vector<pat::Particle>::const_iterator	    v_p_p_ci;
   std::vector<pat::PFParticle>::const_iterator	    v_p_pfp_ci;
   std::vector<pat::GenericParticle>::const_iterator v_p_gp_ci;
@@ -216,6 +218,7 @@ namespace {
   edm::Wrapper<std::vector<pat::Photon> >	    w_v_p_ph;
   edm::Wrapper<std::vector<pat::Jet> >	            w_v_p_j;
   edm::Wrapper<std::vector<pat::MET> >	            w_v_p_m;
+  edm::Wrapper<std::vector<pat::MHT> >	            w_v_p_mht;
   edm::Wrapper<std::vector<pat::Particle> >	    w_v_p_p;
   edm::Wrapper<std::vector<pat::PFParticle> >	    w_v_p_pfp;
   edm::Wrapper<std::vector<pat::GenericParticle> >  w_v_p_gp;
