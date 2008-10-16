@@ -182,16 +182,12 @@ int main(int ac, char *av[]) {
 	funct::Numerical<2> _2;
 	funct::Numerical<1> _1;
 
-	Expr zMuMuEffTerm = ((effTk ^ _2) * 
-	  (effSa ^ _2)) * (effIso ^ _2); 
-	Expr zMuMuNoIsoEffTerm = ((effTk ^ _2) * 
-	  (effSa ^ _2)) * (_1 - (effIso ^ _2));
-	Expr zMuTkEffTerm = _2 * 
-	  ((effTk ^ _2) * (effSa * (_1 - effSa))) * (effIso ^ _2);
-	Expr zMuSaEffTerm = _2 * 
-	  ((effSa ^ funct::Numerical<2>()) * (effTk * (_1 - effTk)))* (effIso ^ _2);
+	Expr zMuMuEffTerm = ((effTk ^ _2) *  (effSa ^ _2)) * (effIso ^ _2); 
+	Expr zMuMuNoIsoEffTerm = (effTk ^ _2) * (effSa ^ _2) * (_1 - (effIso ^ _2));
+	Expr zMuTkEffTerm = _2 * (effTk ^ _2) * effSa * (_1 - effSa) * (effIso ^ _2);
+	Expr zMuSaEffTerm = _2 * (effSa ^ _2) * effTk * (_1 - effTk) * (effIso ^ _2);
 
-	Expr zMuMu = rebinMuMuConst * (zMuMuEffTerm * yieldZMuMu);
+	Expr zMuMu = rebinMuMuConst * zMuMuEffTerm * yieldZMuMu;
 
 	Expr zMuTkBkg = yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
 	Expr zMuTkBkgScaled = rebinMuTkConst * zMuTkBkg;
