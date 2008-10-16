@@ -300,7 +300,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if correlated LCTs from TF, read needed info from TP data digis
       iEvent.getByLabel("muonCSCDigis", "MuonCSCALCTDigi"     ,ctp_ano_data_);
       iEvent.getByLabel("muonCSCDigis", "MuonCSCCLCTDigi"     ,ctp_cat_data_);
-      iEvent.getByLabel(m_DEsource[CTP][0].label(),"MPCSORTED",ctp_lct_data_);
+      iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_lct_data_);
     } else {
       iEvent.getByLabel(m_DEsource[CTP][0].label(),"MuonCSCALCTDigi",ctp_ano_data_);
       iEvent.getByLabel(m_DEsource[CTP][0].label(),"MuonCSCCLCTDigi",ctp_cat_data_);
@@ -654,8 +654,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
 //isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1]&=    dtf_trk_emul_.isValid();
   isValidDE[CTP][0] =     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
-  isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
-  isValidDE[CTP][0]&=     ctp_lct_data_.isValid(); isValidDE[CTP][1]&=    ctp_lct_emul_.isValid();
+  if (m_DEsource[CTP][0].label().find("tf") == std::string::npos) {
+    isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
+    isValidDE[CTP][0]&=     ctp_lct_data_.isValid(); isValidDE[CTP][1]&=    ctp_lct_emul_.isValid();
+  }
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
 //isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1]&=   ctf_trk_emul_ .isValid();
 //isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1]&=   ctf_sta_emul_ .isValid();
@@ -710,8 +712,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
   if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (        dtf_data,         dtf_emul, DTF,DTtf);
   if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (    dtf_trk_data,     dtf_trk_emul, DTF,DTtftrk);
+  if(m_DEsource[CTP][0].label().find("tf") == std::string::npos) {
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCALCTDigiCollection_>         (    ctp_ano_data,     ctp_ano_emul, CTP,CSCtpa);
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCCLCTDigiCollection_>         (    ctp_cat_data,     ctp_cat_emul, CTP,CSCtpc);
+  }
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_lct_data,     ctp_lct_emul, CTP,CSCtpl);
   if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (        ctf_data,         ctf_emul, CTF,CSCtf);
   if(m_doSys[CTF]&&isValid[CTF]) process<CSCCorrelatedLCTDigiCollection_>(    ctf_trk_data,     ctf_trk_emul, CTF,CSCtftrk);
