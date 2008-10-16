@@ -52,23 +52,6 @@ int main(int ac, char *av[]) {
     typedef funct::FunctExpression Expr;
     typedef funct::Product<funct::Parameter, funct::RootHistoPdf>::type ZPeak;
     typedef funct::Power<funct::Parameter, funct::Numerical<2> >::type IsoefficiencytermSQ;
-
-
-    typedef funct::Product<funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                                          funct::Power<funct::Parameter, funct::Numerical<2> >::type >::type, 
-                          funct::Difference<funct::Numerical<1>, IsoefficiencytermSQ >::type>::type  ZMuMuNoIsoEfficiencyTerm;
-
-    
-    typedef funct::Product<funct::Product<funct::Numerical<2>, 
-                                          funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                                                         funct::Product<funct::Parameter, 
-                                                                        funct::Difference<funct::Numerical<1>, funct::Parameter>::type 
-                                                                       >::type 
-                                                        >::type 
-                           >::type,  IsoefficiencytermSQ>::type  ZMuTkEfficiencyTerm;
-
-    typedef ZMuTkEfficiencyTerm ZMuSaEfficiencyTerm;
- 
     typedef fit::MultiHistoChiSquare<Expr, Expr, Expr, Expr> ChiSquared;
 
     double fMin, fMax;
@@ -203,11 +186,11 @@ int main(int ac, char *av[]) {
 	IsoefficiencytermSQ efficiencyIsoSquare = (efficiencyIso ^ _2);
 	Expr zMuMuEfficiencyTerm = ((efficiencyTk ^ _2) * 
 	  (efficiencySa ^ _2)) * efficiencyIsoSquare; 
-	ZMuMuNoIsoEfficiencyTerm zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ _2) * 
+	Expr zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ _2) * 
 	  (efficiencySa ^ _2)) * (_1 - efficiencyIsoSquare);
-	ZMuTkEfficiencyTerm zMuTkEfficiencyTerm = _2 * 
+	Expr zMuTkEfficiencyTerm = _2 * 
 	  ((efficiencyTk ^ _2) * (efficiencySa * (_1 - efficiencySa))) * efficiencyIsoSquare;
-	ZMuSaEfficiencyTerm zMuSaEfficiencyTerm = _2 * 
+	Expr zMuSaEfficiencyTerm = _2 * 
 	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (_1 - efficiencyTk)))* efficiencyIsoSquare;
 
 	Expr zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
