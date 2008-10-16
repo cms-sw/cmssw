@@ -44,7 +44,6 @@ namespace funct {
     virtual ~AbsFunctExpression() { }
     virtual double operator()(double x) const = 0;
     virtual AbsFunctExpression * clone() const = 0;
-    virtual std::ostream& print(std::ostream& cout) const = 0;
   };
 
   template<typename F>
@@ -53,7 +52,6 @@ namespace funct {
     virtual ~FunctExpressionT() { }
     virtual double operator()(double x) const { return _f(x); }
     virtual AbsFunctExpression * clone() const { return new FunctExpressionT<F>(_f); }
-    virtual std::ostream& print(std::ostream& cout) const { return cout << _f; }
   private:
     F _f;
   };
@@ -65,14 +63,9 @@ namespace funct {
    inline FunctExpression(const FunctExpression& e) : _f(e._f->clone()) { }
    inline FunctExpression& operator=(const FunctExpression& e) { _f.reset(e._f->clone()); return *this; }
    inline double operator()(double x) const { return (*_f)(x); }
-   inline std::ostream& print(std::ostream& cout) const { return _f->print(cout); }
  private:
    std::auto_ptr<AbsFunctExpression> _f;
  };
-
- inline std::ostream& operator<<(std::ostream& cout, const FunctExpression& e) { 
-   e.print(cout); return cout; 
- }
 
 }
 
