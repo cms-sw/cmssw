@@ -21,7 +21,8 @@
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
+//#include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 using namespace std; 
 using namespace edm;

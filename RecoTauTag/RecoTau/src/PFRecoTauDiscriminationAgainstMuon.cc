@@ -20,7 +20,7 @@ void PFRecoTauDiscriminationAgainstMuon::produce(Event& iEvent,const EventSetup&
 	}
       }
       else if (discriminatorOption_ == "twoDCut") {
-	double seg = muonid::getSegmentCompatibility(*muonref);
+	double seg = muon::segmentCompatibility(*muonref);
 	double calo= muonref->caloCompatibility(); 
 	double border = calo * a + seg * b +c;
 	if ( border > 0 ) {
