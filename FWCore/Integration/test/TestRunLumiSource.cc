@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.8 2008/07/03 04:19:52 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.9 2008/07/31 23:10:46 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -61,6 +61,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   TestRunLumiSource::readEvent_() {
+    EventSourceSentry(*this);
     unsigned int run = runLumiEvent_[currentIndex_];
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     unsigned int event = runLumiEvent_[currentIndex_ + 2];

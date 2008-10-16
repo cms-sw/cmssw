@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/07/31 23:11:55 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/10/08 22:09:13 $
+ *  $Revision: 1.27 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -154,6 +154,7 @@ namespace edm {
         << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
         << "Event numbers must begin at 1, not 0.";
     }
+    EventSourceSentry(*this);
     setTimestamp(tstamp);
     
     unsigned char *fedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();

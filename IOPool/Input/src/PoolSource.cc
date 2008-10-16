@@ -152,6 +152,7 @@ namespace edm {
       }
       return primaryPrincipal;
     }
+    EventSourceSentry(*this);
     return primaryFileSequence_->readEvent_();
   }
 
@@ -169,6 +170,7 @@ namespace edm {
       }
       return primaryPrincipal;
     }
+    EventSourceSentry(*this);
     return primaryFileSequence_->readIt(id);
   }
 

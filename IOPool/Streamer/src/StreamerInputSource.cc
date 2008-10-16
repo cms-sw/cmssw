@@ -268,6 +268,7 @@ namespace edm {
          << eventView.eventLength() << " "
          << eventView.eventData()
          << std::endl;
+    EventSourceSentry(*this);
     // uncompress if we need to
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
