@@ -56,8 +56,9 @@ namespace dedefs {
     ECALtp, HCALtp, 
     RCTem, RCTrgn, 
     GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
-    DTtpPh, DTtpTh, CSCtpa, CSCtpc, CSCtpl, CSCsta, 
-    MUrtf, DTtf, DTtftrk, CSCtf, CSCtftrk, CSCtftrc, CSCtfsta, RPCcen, RPCfor, 
+    DTtpPh, DTtpTh, DTtf, DTtftrk,  
+    CSCtpa, CSCtpc, CSCtpl, CSCsta, CSCtf, CSCtftrk, CSCtftrc, CSCtfsta, 
+    MUrtf,     RPCcen, RPCfor, 
     LTCi, 
     GMTmain, GMTcnd, GMTrdt, 
     GTdword
