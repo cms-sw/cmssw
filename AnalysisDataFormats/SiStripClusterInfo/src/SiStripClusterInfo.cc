@@ -67,7 +67,7 @@ SiStripClusterInfo::SiStripClusterInfo(const uint32_t  cluster_detId,
 
 SiStripClusterInfo::~SiStripClusterInfo(){
   delete SiStripPedestalsSubtractor_;
-  delete SiStripCommonModeNoiseSubtractor_;
+  if (SiStripCommonModeNoiseSubtractor_ != NULL)  delete SiStripCommonModeNoiseSubtractor_;
 }
 
 
