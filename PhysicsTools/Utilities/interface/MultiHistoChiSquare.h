@@ -30,10 +30,8 @@ namespace fit {
      double chi2 = chi1_() + chi2_() + chi3_() + chi4_();
      static size_t count = 0;
      ++count;
-     if(count % 10 == 0)
-     std::cout << ">>> " << count << ") chi2 = " << chi2 << std::endl;
+     if(count % 10 == 0) std::cout << ">>> total chi-2: " << chi2 << std::endl;
      return chi2;
-
    }
    void setHistos(TH1 *histo1, TH1 *histo2, TH1 *histo3, TH1 * histo4) { 
      chi1_.setHistos(histo1);

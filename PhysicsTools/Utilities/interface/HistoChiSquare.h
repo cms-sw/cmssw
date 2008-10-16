@@ -20,15 +20,15 @@ namespace fit {
       }
     }
     double operator()() const { 
-      double chi = 0;
+      double chi2 = 0;
       for(size_t i = 0; i < nBins_; ++i) { 
 	double x = xMin_ + ( i +.5 ) * deltaX_;
 	if((x > rangeMin_)&&(x < rangeMax_)&&(err_[i] > 0)) { 
 	  double r = ( cont_[i] - (*t_)(x) )/err_[i];
-	  chi += (r * r);
+	  chi2 += (r * r);
 	}
       }
-      return chi;
+     return chi2;
     }
     void setHistos(TH1 *histo) { 
       nBins_ = histo->GetNbinsX();
