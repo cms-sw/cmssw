@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/03 13:10:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/06 08:54:44 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -59,7 +59,7 @@ void DTSegmentsTask::beginJob(const edm::EventSetup& context){
  // the name of the 4D rec hits collection
   theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
 
-  theDbe->setCurrentFolder("DT/DTSegmentsTask");
+  theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
 
   // histos for phi segments
   phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsWheel", "phiSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
