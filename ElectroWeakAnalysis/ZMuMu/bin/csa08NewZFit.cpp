@@ -213,15 +213,18 @@ int main(int ac, char *av[]) {
 	ZPeak zPeakPdfMuMuNonIso = yieldZMuMu * zPdfMuMuNonIso;
 	ZPeak zPeakPdfMuTk = yieldZMuMu * zPdfMuTk;
 
-	IsoefficiencytermSQ efficiencyIsoSquare = (efficiencyIso ^ funct::Numerical<2>(2));
-	ZMuMuEfficiencyTerm zMuMuEfficiencyTerm = ((efficiencyTk ^ funct::Numerical<2>(2)) * 
-	  (efficiencySa ^ funct::Numerical<2>(2))) * efficiencyIsoSquare; 
-	ZMuMuNoIsoEfficiencyTerm zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ funct::Numerical<2>(2)) * 
-	  (efficiencySa ^ funct::Numerical<2>(2))) * (funct::Numerical<1>(1) - efficiencyIsoSquare);
-	ZMuTkEfficiencyTerm zMuTkEfficiencyTerm = funct::Numerical<2>(2) * 
-	  ((efficiencyTk ^ funct::Numerical<2>(2)) * (efficiencySa * (funct::Numerical<1>(1) - efficiencySa))) * efficiencyIsoSquare;
-	ZMuSaEfficiencyTerm zMuSaEfficiencyTerm = funct::Numerical<2>(2) * 
-	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (funct::Numerical<1>() - efficiencyTk)))* efficiencyIsoSquare;
+	funct::Numerical<2> _2;
+	funct::Numerical<1> _1;
+
+	IsoefficiencytermSQ efficiencyIsoSquare = (efficiencyIso ^ _2);
+	ZMuMuEfficiencyTerm zMuMuEfficiencyTerm = ((efficiencyTk ^ _2) * 
+	  (efficiencySa ^ _2)) * efficiencyIsoSquare; 
+	ZMuMuNoIsoEfficiencyTerm zMuMuNoIsoEfficiencyTerm = ((efficiencyTk ^ _2) * 
+	  (efficiencySa ^ _2)) * (_1 - efficiencyIsoSquare);
+	ZMuTkEfficiencyTerm zMuTkEfficiencyTerm = _2 * 
+	  ((efficiencyTk ^ _2) * (efficiencySa * (_1 - efficiencySa))) * efficiencyIsoSquare;
+	ZMuSaEfficiencyTerm zMuSaEfficiencyTerm = _2 * 
+	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (_1 - efficiencyTk)))* efficiencyIsoSquare;
 
 	ZMuMu zMuMu = rebinMuMuConst * (zMuMuEfficiencyTerm * yieldZMuMu);
 
