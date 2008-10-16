@@ -88,7 +88,6 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
       return;
     }
   
-  cout <<"DIT PROCESS"<<endl;
   ievt_++;
 
   // Loop over all FEDs reporting the event, unpacking if good.
@@ -107,7 +106,6 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
 void HcalDataIntegrityTask::unpack(const FEDRawData& raw, 
 				   const HcalElectronicsMap& emap){
   // get the DCC header
-  cout <<"DIT UNPACK"<<endl;
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
   if(!dccHeader) return;
 
@@ -202,7 +200,7 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
     {
       CDFProbThisDCC = true; 
     }
-  cout <<"DIT FILL"<<endl;
+
   if (CDFProbThisDCC)
     fedFatal_->Fill(dccid);
   fedEntries_->Fill(dccid);
