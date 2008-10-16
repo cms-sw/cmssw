@@ -5,7 +5,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const Event
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
   // fill the AssociationVector object
-  auto_ptr<CaloTauDiscriminatorAgainstElectron> theCaloTauDiscriminatorAgainstElectron(new CaloTauDiscriminatorAgainstElectron(CaloTauRefProd(theCaloTauCollection)));
+  auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorAgainstElectron(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
 
   for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
     CaloTauRef theCaloTauRef(theCaloTauCollection,iCaloTau);
