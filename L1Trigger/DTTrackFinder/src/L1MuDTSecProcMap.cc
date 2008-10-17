@@ -5,8 +5,8 @@
 //   Description: Sector Processor container 
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2008/10/13 07:44:43 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -85,7 +85,7 @@ L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id ) const {
 void L1MuDTSecProcMap::insert(const L1MuDTSecProcId& id, L1MuDTSectorProcessor* sp)  { 
 
   SPmap::const_iterator it = m_map.find(id);
-  if ( it != m_map.end() ) 
+  //  if ( it != m_map.end() ) 
     //    cerr << "Error: More than one Sector Processor with same identifier" 
     //         << endl;    
   m_map[id] = sp;
