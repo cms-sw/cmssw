@@ -32,6 +32,34 @@ namespace edm {
       : nLvl1Index_(0)
       , iLvl1IndexDefault_(0)
     {
+      reconfigure(iPS);
+
+      iReg.watchPostBeginJob(this,&PrescaleService::postBeginJob);
+      iReg.watchPostEndJob(this,&PrescaleService::postEndJob);
+      
+      iReg.watchPreProcessEvent(this,&PrescaleService::preEventProcessing);
+      iReg.watchPostProcessEvent(this,&PrescaleService::postEventProcessing);
+      
+      iReg.watchPreModule(this,&PrescaleService::preModule);
+      iReg.watchPostModule(this,&PrescaleService::postModule);
+    }
+
+      
+    //______________________________________________________________________________
+    PrescaleService::~PrescaleService()
+    {
+    
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // implementation of member functions
+    ////////////////////////////////////////////////////////////////////////////////
+
+    //______________________________________________________________________________
+    void PrescaleService::reconfigure(const ParameterSet &iPS)
+    {
+
       ParameterSet prcPS = getProcessParameterSet();
       
       // find all HLTPrescaler modules
@@ -61,7 +89,7 @@ namespace edm {
 	  }
 	}
       }
-      
+
       // get prescale table and check consistency with above information
       lvl1Labels_ = iPS.getParameter< vector<string> >("lvl1Labels");
       nLvl1Index_ = lvl1Labels_.size();
@@ -93,28 +121,7 @@ namespace edm {
 	    <<"contain any HLTPrescaler";
 	}
       }      
-      
-      iReg.watchPostBeginJob(this,&PrescaleService::postBeginJob);
-      iReg.watchPostEndJob(this,&PrescaleService::postEndJob);
-      
-      iReg.watchPreProcessEvent(this,&PrescaleService::preEventProcessing);
-      iReg.watchPostProcessEvent(this,&PrescaleService::postEventProcessing);
-      
-      iReg.watchPreModule(this,&PrescaleService::preModule);
-      iReg.watchPostModule(this,&PrescaleService::postModule);
     }
-
-      
-    //______________________________________________________________________________
-    PrescaleService::~PrescaleService()
-    {
-    
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // implementation of member functions
-    ////////////////////////////////////////////////////////////////////////////////
 
     //______________________________________________________________________________
     unsigned int PrescaleService::getPrescale(const std::string& prescaledPath)

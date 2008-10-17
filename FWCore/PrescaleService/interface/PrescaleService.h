@@ -34,6 +34,9 @@ namespace edm {
       //
       // member functions
       //
+
+      void reconfigure(const ParameterSet &);
+
       unsigned int getPrescale(unsigned int lvl1Index,
 			       const std::string&prescaledPath)throw(cms::Exception);
       unsigned int getPrescale(const std::string&prescaledPath)throw(cms::Exception);

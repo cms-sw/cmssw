@@ -1,3 +1,10 @@
+2008-05-23  Emilio Meschi  <emilio.meschia@cern.ch>
+
+	* tag V00-04-02
+	* moved most of constructor code to separate function "reconfigure"
+	* to allow reconfig of PrescaleService at run boundaries
+
+
 2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-01
