@@ -40,11 +40,11 @@
 	   if ( muons[i].isGlobalMuon() ) h1->Fill(muons[i].pt());
 	   if ( muons[i].isTrackerMuon() ) {
 	      h2->Fill(muons[i].pt());
-	      if (muonid::isGoodMuon(muons[i],TMLastStationLoose)) h3->Fill(muons[i].pt());
-	      if (muonid::isGoodMuon(muons[i],TMLastStationTight)) h4->Fill(muons[i].pt());
-	      h5->Fill(muonid::getSegmentCompatibility(muons[i]),muonid::getCaloCompatibility(muons[i]));
-	      if (muonid::isGoodMuon(muons[i],TM2DCompatibilityLoose)) h6->Fill(muons[i].pt());
-	      if (muonid::isGoodMuon(muons[i],TM2DCompatibilityTight)) h7->Fill(muons[i].pt());
+	      if (muon::isGoodMuon(muons[i],TMLastStationLoose)) h3->Fill(muons[i].pt());
+	      if (muon::isGoodMuon(muons[i],TMLastStationTight)) h4->Fill(muons[i].pt());
+	      h5->Fill(muon::getSegmentCompatibility(muons[i]),muon::getCaloCompatibility(muons[i]));
+	      if (muon::isGoodMuon(muons[i],TM2DCompatibilityLoose)) h6->Fill(muons[i].pt());
+	      if (muon::isGoodMuon(muons[i],TM2DCompatibilityTight)) h7->Fill(muons[i].pt());
 	   }
 	}
    }

@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.h,v 1.1 2007/07/16 23:57:32 dmytro Exp $
+// $Id: MuonRefProducer.h,v 1.2 2007/07/26 00:27:03 dmytro Exp $
 //
 
 
@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 class MuonRefProducer : public edm::EDProducer {
  public:
@@ -33,7 +33,7 @@ class MuonRefProducer : public edm::EDProducer {
  private:
    edm::InputTag theReferenceCollection_;
 
-   muonid::AlgorithmType type_;
+   muon::AlgorithmType type_;
    int    minNumberOfMatches_;
    double maxAbsDx_;
    double maxAbsPullX_;

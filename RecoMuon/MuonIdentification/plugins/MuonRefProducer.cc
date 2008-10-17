@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.cc,v 1.2 2007/07/26 00:27:03 dmytro Exp $
+// $Id: MuonRefProducer.cc,v 1.3 2007/09/06 00:54:25 dmytro Exp $
 //
 //
 
@@ -26,11 +26,12 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
 {
    theReferenceCollection_ = iConfig.getParameter<edm::InputTag>("ReferenceCollection");
-   type_ = muonid::TMLastStation; // default type
+   type_ = muon::TMLastStation; // default type
    std::string type = iConfig.getParameter<std::string>("algorithmType");
    if ( type.compare("TMLastStation") != 0 )
      edm::LogWarning("MuonIdentification") << "Unknown algorithm type is requested: " << type << "\nUsing the default one.";
@@ -71,7 +72,7 @@ void MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // loop over input collection
    for ( unsigned int i=0; i<muons->size(); ++i ) 
-     if ( muonid::isGoodMuon( (*muons)[i], type_, minNumberOfMatches_,
+     if ( muon::isGoodMuon( (*muons)[i], type_, minNumberOfMatches_,
 	  maxAbsDx_, maxAbsPullX_, maxAbsDy_, maxAbsPullY_, maxChamberDist_, maxChamberDistPull_, arbitrationType_) )
        outputCollection->push_back( edm::RefVector<std::vector<reco::Muon> >::value_type(muons,i) );
    iEvent.put(outputCollection);
