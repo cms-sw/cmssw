@@ -50,8 +50,6 @@ class DBImpl(object):
             bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
             for valuedict in bulkinput:
                 for (columnname,columnvalue) in valuedict.items():
-                    print 'columnname',columnname
-                    print 'columnvalue',columnvalue
                     insertdata[columnname].setData(columnvalue)
                 bulkOperation.processNextIteration()
             bulkOperation.flush()

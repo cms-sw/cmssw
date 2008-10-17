@@ -95,7 +95,9 @@ class entryComment(object):
         """
         transaction=self.__session.transaction()
         result=[]
+        
         try:
+            transaction.start(True)
             schema = self.__session.nominalSchema()
             query = schema.tableHandle(CommonUtils.commentTableName()).newQuery()
             condition='tablename = :tablename'
@@ -124,7 +126,7 @@ class entryComment(object):
         transaction=self.__session.transaction()
         try:
             transaction.start(False)
-            editor = self.__session.nominalSchema(CommonUtils.commentTableName()).tableHandle().dataEditor()
+            editor = self.__session.nominalSchema().tableHandle(CommonUtils.commentTableName()).dataEditor()
             inputData = coral.AttributeList()
             inputData.extend('newcomment','string')
             inputData.extend('entryid','unsigned long')
@@ -144,7 +146,7 @@ class entryComment(object):
         transaction=self.__session.transaction()
         try:
             transaction.start(False)
-            editor = self.__session.nominalSchema(CommonUtils.commentTableName()).tableHandle().dataEditor()
+            editor = self.__session.nominalSchema().tableHandle(CommonUtils.commentTableName()).dataEditor()
             inputData = coral.AttributeList()
             inputData.extend('newentryid','unsigned long')
             inputData.extend('oldentryid','unsigned long')
@@ -164,7 +166,7 @@ class entryComment(object):
         transaction=self.__session.transaction()
         try:
             transaction.start(False)
-            dbop=DBImpl.DBImpl(self.__session.nominalSchema(CommonUtils.commentTableName()))
+            dbop=DBImpl.DBImpl(self.__session.nominalSchema())
             condition='tablename = :tablename AND entryid = :entryid'
             conditionbindDict=coral.AttributeList()
             conditionbindDict.extend('tablename','string')
@@ -183,7 +185,7 @@ class entryComment(object):
         transaction=self.__session.transaction()
         try:
             transaction.start(False)
-            dbop=DBImpl.DBImpl(self.__session.nominalSchema(CommonUtils.commentTableName()))
+            dbop=DBImpl.DBImpl(self.__session.nominalSchema())
             condition='tablename = :tablename'
             conditionbindDict=coral.AttributeList()
             conditionbindDict.extend('tablename','string')
@@ -215,6 +217,22 @@ if __name__ == "__main__":
         bulkinput.append({'entryid':23,'tablename':CommonUtils.inventoryTableName(),'comment':'mycomment3'})
         bulkinput.append({'entryid':24,'tablename':CommonUtils.inventoryTableName(),'comment':'mycomment4'})
         entrycomment.bulkinsertComments(CommonUtils.inventoryTableName(),bulkinput)
+        print "test getCommentsForTable ",CommonUtils.inventoryTableName()
+        results=entrycomment.getCommentsForTable(CommonUtils.inventoryTableName())
+        print results
+        result=entrycomment.getCommentForId(CommonUtils.inventoryTableName(),23)
+        print result
+        entrycomment.modifyCommentForId(CommonUtils.inventoryTableName(),23, 'mynewcomment' )
+        print entrycomment.getCommentForId(CommonUtils.inventoryTableName(),23)
+        print 'test replaceid'
+        entrycomment.replaceId(CommonUtils.inventoryTableName(),23,33 )
+        print entrycomment.getCommentForId(CommonUtils.inventoryTableName(),33)
+        print 'test deletecomment for id'
+        entrycomment.deleteCommentForId(CommonUtils.inventoryTableName(), 24)
+        print entrycomment.getCommentsForTable(CommonUtils.inventoryTableName())
+        print 'clearAllEntriesForTable'
+        entrycomment.clearAllEntriesForTable(CommonUtils.inventoryTableName())
+        print entrycomment.getCommentsForTable(CommonUtils.inventoryTableName())
         del session
     except Exception, e:
         print "Failed in unit test"
