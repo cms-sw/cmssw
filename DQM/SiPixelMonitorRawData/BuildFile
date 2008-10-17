@@ -8,7 +8,6 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=boost>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiPixelMonitorRawData>
    <use name=DataFormats/FEDRawData>
