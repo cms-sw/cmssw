@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/30 03:30:19 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/02 20:26:03 $
+ *  $Revision: 1.8 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -106,7 +106,12 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
     /// select tracker hits; exclude some tracker hits in the global trajectory 
     ConstRecHitContainer selectTrackerHits(const ConstRecHitContainer&) const;
- 
+
+    /// resacle errors of outermost TEC RecHit
+    void fixTEC(ConstRecHitContainer& all,
+                double scl_x,
+                double scl_y) const;
+
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&, int) const;
 
@@ -131,35 +136,36 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
                                           const ConstRecHitContainer& muonhits,
                                           const TrajectoryStateOnSurface& firstPredTsos) const;
 
+    ///  get transient RecHits of a Track
+    TransientTrackingRecHit::ConstRecHitContainer
+    getTransientRecHits(const reco::TransientTrack&) const;
+
     ///
     GlobalMuonTrackMatcher* trackMatcher() const { return theTrackMatcher; }
 
     ///
     const MuonServiceProxy* service() const { return theService; }
 
-  TransientTrackingRecHit::ConstRecHitContainer
-    getTransientRecHits(const reco::TransientTrack& track) const;
-
-    /// Ordering along increasing radius (for DT rechits)
-    struct RadiusComparatorInOut{
-      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a,
-		      const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+    /// ordering along increasing radius (for DT rechits)
+    struct RadiusComparatorInOut {
+      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& a,
+		      const TransientTrackingRecHit::ConstRecHitPointer& b) const {
 	return a->det()->surface().position().perp() < b->det()->surface().position().perp(); 
       }
     };
 
-    /// Ordering along increasing zed (for CSC rechits)
-    struct ZedComparatorInOut{  
-      bool operator()( const TransientTrackingRecHit::ConstRecHitPointer &a, 
-		       const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+    /// ordering along increasing zed (for CSC rechits)
+    struct ZedComparatorInOut {  
+      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& a, 
+		      const TransientTrackingRecHit::ConstRecHitPointer& b) const {
 	return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z()); 
       }
     };
 
-    /// Ordering DT then CSC (for overlap regions)
+    /// ordering DT then CSC (for overlap regions)
     struct ComparatorInOut{
-      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &a,
-		      const TransientTrackingRecHit::ConstRecHitPointer &b) const{ 
+      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& a,
+		      const TransientTrackingRecHit::ConstRecHitPointer& b) const{ 
 	bool barrel_a = ( a->det()->subDetector() == GeomDetEnumerators::DT ||
 			  a->det()->subDetector() == GeomDetEnumerators::RPCBarrel );
 	
@@ -193,6 +199,8 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     bool theRPCInTheFit;
   
     int   theMuonHitsOption;
+    float theTECxScale;
+    float theTECyScale;
     float theProbCut;
     int   theHitThreshold;
     float theDTChi2Cut;
