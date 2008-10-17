@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 14:19:39 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/16 09:33:39 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -191,7 +191,7 @@ void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoT
 							<< " (tag "
 							<< histoTag
 							<< ") in: "
-							<< topFolder() + "/Wheel"+ wheel.str() + "/" + folder << endl;
+							<< topFolder() + "Wheel"+ wheel.str() + "/" + folder << endl;
   
   string histoTitle = "Occupancy summary WHEEL: "+wheel.str();
   if(tpMode) {
@@ -214,7 +214,7 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
   stringstream sector; sector << chId.sector();
 
 
-  string folderRoot = topFolder() + "/Wheel" + wheel.str() +
+  string folderRoot = topFolder() + "Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
