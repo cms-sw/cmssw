@@ -2,6 +2,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include <math.h>
+
+const float EcalRecHit::kPRECISION = 1e-06;
 
 EcalRecHit::EcalRecHit() : CaloRecHit() {
 }
@@ -11,7 +14,11 @@ EcalRecHit::EcalRecHit(const DetId& id, float energy, float time) :
 }
 
 bool EcalRecHit::isRecovered() const {
-        return time() == kRECOVERED;
+  return fabs(time() - kRECOVERED) <= kPRECISION;
+}
+
+bool EcalRecHit::isSaturated() const {
+  return fabs(time() - kSATURATED) <= kPRECISION;
 }
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
