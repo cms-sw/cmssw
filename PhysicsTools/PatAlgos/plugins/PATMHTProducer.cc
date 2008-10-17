@@ -1,5 +1,5 @@
 //
-// $Id: PATMHTProducer.cc,v 1.2 2008/10/16 16:53:41 fblekman Exp $
+// $Id: PATMHTProducer.cc,v 1.3 2008/10/16 17:10:05 fblekman Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMHTProducer.h"
@@ -195,7 +195,7 @@ void pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::LogInfo("PATMHTProducer")    << " met x,y: " << met_x << "," << met_y << " met_set: " << met_set << " met_et/sqrt(met_set): " << met_et/sqrt(met_set) << " met_phi: " << met_phi << " met_et: " << met_et << " met_et/sqrt(x,y): " << met_et/sqrt(met_x*met_x+met_y*met_y) << " met_sign: " << significance << std::endl;
   // and fill the output into the event..
   std::auto_ptr<pat::MHTCollection>  themetsigcoll (new pat::MHTCollection);
-  pat::MHT themetsigobj(Particle::LorentzVector(met_x,met_y,0,met_et),met_set,significance);
+  pat::MHT themetsigobj(reco::Particle::LorentzVector(met_x,met_y,0,met_et),met_set,significance);
   themetsigcoll->push_back(themetsigobj);
 
   iEvent.put( themetsigcoll);
