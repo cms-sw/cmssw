@@ -173,8 +173,6 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   MonitorElement *algoScalers = dbe_->get(folderName_+std::string("/l1AlgoBits"));
   MonitorElement *ttScalers = dbe_->get(folderName_+std::string("/l1TechAlgoBits"));
-  MonitorElement *l1AlgoCounter = dbe_->get(folderName_+std::string("/l1AlgoCounter"));
-  MonitorElement *l1TtCounter = dbe_->get(folderName_+std::string("/l1TtCounter"));
   
   if ( algoScalers == 0 || ttScalers ==0) {
     LogInfo("Status") << "cannot get l1 scalers histogram, bailing out.";
@@ -264,8 +262,6 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       ++currSlot;
     }
     // selected -------------------- end
-    
-
     float rate = (current_count-l1AlgoScalerCounters_[i-1])/delta_t;
     if ( rate > 1E-3 ) {
       LogDebug("Parameter") << "rate path " << i << " is " << rate;
@@ -307,7 +303,10 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     l1TechTrigRateHistories_[i-1]->setBinContent(nL, rate);
   }
   
-  ///  compute total rate
+  //  compute total rate
+  MonitorElement *l1AlgoCounter = dbe_->get(folderName_+std::string("/l1AlgoCounter"));
+  MonitorElement *l1TtCounter = dbe_->get(folderName_+std::string("/l1TtCounter"));
+  if ( l1AlgoCounter != 0 && l1TtCounter != 0 ) {
     float totAlgoCount = l1AlgoCounter->getIntValue();
     float totTtCount = l1TtCounter->getIntValue();
     float totAlgRate = (totAlgoCount - totAlgoPrevCount)/delta_t;
@@ -316,7 +315,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     totAlgoPrevCount = totAlgoCount;
     totalTtRate_->setBinContent(nL, totTtRate);
     totTtPrevCount = totTtCount;
-///
+  }
 
   
   currentLumiBlockNumber_ = nL;
