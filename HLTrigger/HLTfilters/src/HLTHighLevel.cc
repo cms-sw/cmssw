@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/01/09 14:30:05 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -26,7 +26,9 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
   triggerNames_(),
   andOr_    (iConfig.getParameter<bool> ("andOr" )),
-  n_        (0)
+  throw_    (iConfig.getUntrackedParameter<bool> ("throw",true)),
+  n_        (0),
+  first_    (true)
 
 {
   // get names from module parameters, then derive slot numbers
@@ -45,6 +47,12 @@ HLTHighLevel::~HLTHighLevel()
 //
 // member functions
 //
+bool
+HLTHighLevel:: beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+  first_=true;
+  return true;
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -65,15 +73,14 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      return false;
    }
 
-   // get hold of trigger names - based on TriggerResults object!
+   // get hold of trigger names and indices - based on TriggerResults object!
    triggerNames_.init(*trh);
-
    unsigned int n(n_);
    for (unsigned int i=0; i!=n; i++) {
      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
    }
    
-   // for empty input vectors (n==0), default to all HLT trigger paths!
+   // for empty input vector (n==0), default to all HLT trigger paths!
    if (n==0) {
      n=trh->size();
      HLTPathsByName_.resize(n);
@@ -85,27 +92,52 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // report on what is finally used
-   LogDebug("") << "HLT trigger paths: " + inputTag_.encode()
-		<< " - Number requested: " << n
-		<< " - andOr mode: " << andOr_;
-   if (n>0) {
-     LogDebug("") << "  HLT trigger paths requested: index, name and valididty:";
-     for (unsigned int i=0; i!=n; i++) {
-       bool validity ( (HLTPathsByIndex_[i]<trh->size()) && (HLTPathsByName_[i]!=invalid) );
+   if (first_) {
+     LogDebug("") << "HLT trigger paths: " + inputTag_.encode()
+		  << " - Number of paths: " << n
+		  << " - andOr mode: " << andOr_
+		  << " - throw mode: " << throw_;
+     LogDebug("") << "   The HLT trigger paths (# index name):";
+   }
 
-       LogTrace("") << " " << HLTPathsByIndex_[i]
-		    << " " << HLTPathsByName_[i]
-		    << " " << validity;
-
-       if (!validity) throw cms::Exception("Configuration")
-	 << " HLTHighLevel [instance: " << *moduleLabel()
-	 << " - path: " << *pathName()
-	 << "] configured with unknown HLT path name "
-	 << i << " " << HLTPathsByName_[i] <<"\n";
+   unsigned int nbad(0);
+   string message("   ");
+   for (unsigned int i=0; i!=n; i++) {
+     if (first_) {
+       LogTrace("") << " " << i 
+		    << " " << HLTPathsByIndex_[i]
+		    << " " << HLTPathsByName_[i];
+     }
+     if (HLTPathsByIndex_[i]>=trh->size()) {
+       nbad++;
+       message=message+" "+HLTPathsByName_[i];
      }
    }
 
-   // count number of requested HLT paths which have fired
+   if (nbad>0) {
+     if (first_) {
+       LogTrace("") << "  Unknown Triggers: " << message;
+       cout
+	 << " HLTHighLevel [instance: " << *moduleLabel()
+	 << " - path: " << *pathName()
+	 << "] configured with " << nbad
+	 << "/" << n
+	 << " unknown HLT path names: " << message
+	 << "\n";
+       first_=false;
+     }
+     if (throw_) {
+       throw cms::Exception("Configuration")
+	 << " HLTHighLevel [instance: " << *moduleLabel()
+	 << " - path: " << *pathName()
+	 << "] configured with " << nbad
+	 << "/" << n
+	 << " unknown HLT path names: " << message
+	 << "\n";
+     }
+   }
+
+   // count number of requested known HLT paths which have fired
    unsigned int fired(0);
    for (unsigned int i=0; i!=n; i++) {
      if (HLTPathsByIndex_[i]<trh->size()) {
@@ -115,9 +147,8 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   // Boolean filter result
-   const bool accept( ((!andOr_) && (fired==n)) ||
-		      (( andOr_) && (fired!=0)) );
+   // Boolean filter result (always at least one trigger)
+   const bool accept( (fired>0) && ( andOr_ || (fired==n-nbad) ) );
    LogDebug("") << "Accept = " << accept;
 
    return accept;

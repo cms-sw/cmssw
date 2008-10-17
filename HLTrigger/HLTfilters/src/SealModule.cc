@@ -65,10 +65,6 @@ typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 #include "HLTrigger/HLTfilters/src/HLTGlobalSums.cc"
 
 //
-// old names
-typedef HLTGlobalSums<CaloMET,0> HLTGlobalSumMET;
-typedef HLTGlobalSums<MET    ,0> HLTGlobalSumHT ;
-// new names
 typedef HLTGlobalSums<CaloMET,0> HLTGlobalSumsCaloMET;
 typedef HLTGlobalSums<MET    ,0> HLTGlobalSumsMET    ;
 
@@ -110,9 +106,6 @@ DEFINE_FWK_MODULE(HLT1SmartCaloMET);
 DEFINE_FWK_MODULE(HLT1SmartMET);
 DEFINE_FWK_MODULE(HLT1SmartTrack);
 DEFINE_FWK_MODULE(HLT1SmartCluster);
-
-DEFINE_FWK_MODULE(HLTGlobalSumMET);
-DEFINE_FWK_MODULE(HLTGlobalSumHT);
 
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsMET);

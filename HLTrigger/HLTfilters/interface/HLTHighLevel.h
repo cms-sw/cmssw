@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2007/06/19 12:31:18 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/12 08:50:55 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -29,6 +29,7 @@ class HLTHighLevel : public HLTFilter {
 
     explicit HLTHighLevel(const edm::ParameterSet&);
     ~HLTHighLevel();
+    virtual bool beginRun(edm::Run&, const edm::EventSetup&);
     virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   private:
@@ -41,14 +42,14 @@ class HLTHighLevel : public HLTFilter {
     /// false=and-mode (all requested triggers), true=or-mode (at least one)
     bool andOr_;
 
-    /*
-    // user provides: true: HLT Names (vstring), or false: HLT Index (vuint32)
-    // bool byName_;
-    // disabled: user must always provide names, never indices
-    */
+    /// throw on any requested trigger being unknown
+    bool throw_;
 
     /// number of HLT trigger paths requested in configuration
     unsigned int n_;
+
+    /// first message
+    bool first_;
 
     /// list of required HLT triggers by HLT name
     std::vector<std::string > HLTPathsByName_;
