@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/10/08 22:09:13 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/10/16 23:12:34 $
+ *  $Revision: 1.28 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -27,6 +27,7 @@
 
 #include <string>
 #include <iostream>
+#include <time.h>
 #include <sys/time.h>
 
 
@@ -37,11 +38,13 @@
 
 namespace daqsource{
   static unsigned int gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
+  static unsigned int gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
 }
 
 namespace edm {
  namespace daqsource{
   static unsigned int gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
+  static unsigned int gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
  }
 
   //______________________________________________________________________________
@@ -60,11 +63,13 @@ namespace edm {
     , ep_()
     , lumiSectionIndex_(1)
     , prescaleSetIndex_(0)
+    , lsTimedOut_(false)
     , is_(0)
     , mis_(0)
   {
     count = 0;
     pthread_mutex_init(&mutex_,0);
+    pthread_cond_init(&cond_,0);
     produces<FEDRawDataCollection>();
     setTimestamp(Timestamp::beginOfTime());
     
@@ -92,13 +97,17 @@ namespace edm {
       {
 	is_->fireItemRevoked("lumiSectionIndex");
 	is_->fireItemRevoked("prescaleSetIndex");
+	is_->fireItemRevoked("lsTimedOut");
       }
     if(mis_)
       {
 	mis_->fireItemRevoked("lumiSectionIndex");
 	mis_->fireItemRevoked("prescaleSetIndex");
+	mis_->fireItemRevoked("lsTimedOut");
       }
     delete reader_;
+    pthread_mutex_lock(&mutex_);
+    pthread_cond_signal(&cond_);
     pthread_mutex_unlock(&mutex_);
   }
   
@@ -111,8 +120,10 @@ namespace edm {
   InputSource::ItemType 
   DaqSource::getNextItemType() {
     if (noMoreEvents_) {
-      return IsStop;
+      pthread_mutex_lock(&mutex_);
+      pthread_cond_signal(&cond_);
       pthread_mutex_unlock(&mutex_);
+      return IsStop;
     }
     if (newRun_) {
       return IsRun;
@@ -146,6 +157,8 @@ namespace edm {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
       if (0 != fedCollection) delete fedCollection;
       noMoreEvents_ = true;
+      pthread_mutex_lock(&mutex_);
+      pthread_cond_signal(&cond_);
       pthread_mutex_unlock(&mutex_);
       return IsStop;
     }
@@ -157,33 +170,58 @@ namespace edm {
     EventSourceSentry(*this);
     setTimestamp(tstamp);
     
-    unsigned char *fedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();
+    unsigned char *gtpFedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();
+    unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).data();
 
     if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
 	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
+	pthread_mutex_lock(&mutex_);
+	pthread_cond_signal(&cond_);
 	pthread_mutex_unlock(&mutex_);
 	pthread_mutex_lock(&mutex_);
+	pthread_mutex_unlock(&mutex_);
         newLumi_ = true;
 	lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	resetLuminosityBlockPrincipal();
     }
     else if(!fakeLSid_){ 
 
-      if(evf::evtn::evm_board_sense(fedAddr)){
-	unsigned int thisEventLSid = evf::evtn::getlbn(fedAddr);
-       if(luminosityBlockNumber_ != (thisEventLSid + 1)){
-         luminosityBlockNumber_ = thisEventLSid + 1;
-	pthread_mutex_unlock(&mutex_);
-	pthread_mutex_lock(&mutex_);
-         newLumi_ = true;
-	lumiSectionIndex_.value_ = luminosityBlockNumber_;
-         resetLuminosityBlockPrincipal();
-       }
+      if(evf::evtn::evm_board_sense(gtpFedAddr)){
+	unsigned int thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
+	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	  luminosityBlockNumber_ = thisEventLSid + 1;
+	  pthread_mutex_lock(&mutex_);
+	  pthread_cond_signal(&cond_);
+	  pthread_mutex_unlock(&mutex_);
+	  pthread_mutex_lock(&mutex_);
+	  pthread_mutex_unlock(&mutex_);
+	  newLumi_ = true;
+	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	  resetLuminosityBlockPrincipal();
+	}
+      }
+      else if(evf::evtn::gtpe_board_sense(gtpeFedAddr)){
+	unsigned int thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
+	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	  luminosityBlockNumber_ = thisEventLSid + 1;
+	  pthread_mutex_lock(&mutex_);
+	  pthread_cond_signal(&cond_);
+	  pthread_mutex_unlock(&mutex_);
+	  pthread_mutex_lock(&mutex_);
+	  pthread_mutex_unlock(&mutex_);
+	  newLumi_ = true;
+	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	  resetLuminosityBlockPrincipal();
+	}
       }
     }
-    if(evf::evtn::evm_board_sense(fedAddr)){
-      bunchCrossing =  int(evf::evtn::getfdlbx(fedAddr));
-      orbitNumber =  int(evf::evtn::getorbit(fedAddr));
+    if(evf::evtn::evm_board_sense(gtpFedAddr)){
+      bunchCrossing =  int(evf::evtn::getfdlbx(gtpFedAddr));
+      orbitNumber =  int(evf::evtn::getorbit(gtpFedAddr));
+    }
+    else if(evf::evtn::gtpe_board_sense(gtpeFedAddr)){
+      bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
+      orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
     }
     eventId = EventID(runNumber_, eventId.event());
     
@@ -232,7 +270,6 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   DaqSource::readRun_() {
-    pthread_mutex_lock(&mutex_);
     assert(newRun_);
     assert(!noMoreEvents_);
     newRun_ = false;
@@ -290,24 +327,32 @@ namespace edm {
     is_ = is;
     is->fireItemAvailable("lumiSectionIndex", &lumiSectionIndex_);
     is->fireItemAvailable("prescaleSetIndex", &prescaleSetIndex_);
+    is->fireItemAvailable("lsTimedOut",       &lsTimedOut_);
   }
   void DaqSource::publishToXmas(xdata::InfoSpace *is)
   {
     mis_ = is;
     is->fireItemAvailable("lumiSectionIndex", &lumiSectionIndex_);
     is->fireItemAvailable("prescaleSetIndex", &prescaleSetIndex_);
+    is->fireItemAvailable("lsTimedOut",       &lsTimedOut_);
   }
 
-  void DaqSource::openBackDoor()
+  void DaqSource::openBackDoor(unsigned int timeout_sec)
   {
     count++;
     if(count==2) throw;
     pthread_mutex_lock(&mutex_);
+    timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += timeout_sec;
+    int rc = pthread_cond_timedwait(&cond_, &mutex_, &ts);
+    if(rc == ETIMEDOUT) lsTimedOut_.value_ = true; 
   }
   
   void DaqSource::closeBackDoor()
   {
     count--;
     pthread_mutex_unlock(&mutex_);
+    lsTimedOut_.value_ = false; 
   }
 }

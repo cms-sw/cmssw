@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2008/06/03 15:20:32 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/07/31 23:11:55 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -17,6 +17,7 @@
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include "xdata/UnsignedInteger32.h"
+#include "xdata/Boolean.h"
 
 #include <pthread.h>
 
@@ -51,7 +52,7 @@ namespace edm {
 
     virtual void publish(xdata::InfoSpace *);
     virtual void publishToXmas(xdata::InfoSpace *);
-    virtual void openBackDoor();
+    virtual void openBackDoor(unsigned int);
     virtual void closeBackDoor();
 
 
@@ -67,8 +68,10 @@ namespace edm {
     std::auto_ptr<EventPrincipal> ep_;
     
     pthread_mutex_t mutex_;
+    pthread_cond_t cond_;
     xdata::UnsignedInteger32         lumiSectionIndex_;
     xdata::UnsignedInteger32         prescaleSetIndex_;
+    xdata::Boolean                   lsTimedOut_;
     xdata::InfoSpace                *is_;
     xdata::InfoSpace                *mis_;
     int count;
