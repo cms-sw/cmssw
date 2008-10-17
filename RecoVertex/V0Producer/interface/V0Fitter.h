@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.14 2008/09/22 22:51:24 drell Exp $
+// $Id: V0Fitter.h,v 1.15 2008/10/08 21:40:38 drell Exp $
 //
 //
 
@@ -66,13 +66,13 @@ class V0Fitter {
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
   const reco::VertexCompositeCandidateCollection& getKshorts() const;
   const reco::VertexCompositeCandidateCollection& getLambdas() const;
-  const reco::VertexCompositeCandidateCollection& getLambdaBars() const;
+  //const reco::VertexCompositeCandidateCollection& getLambdaBars() const;
 
  private:
   // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()
   reco::VertexCompositeCandidateCollection theKshorts;
   reco::VertexCompositeCandidateCollection theLambdas;
-  reco::VertexCompositeCandidateCollection theLambdaBars;
+  //reco::VertexCompositeCandidateCollection theLambdaBars;
 
   // Vector used to temporarily hold candidates before cuts and selection
   //reco::VertexCompositeCandidateCollection preCutCands;

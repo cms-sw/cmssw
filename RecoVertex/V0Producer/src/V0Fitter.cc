@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.30 2008/09/22 22:51:25 drell Exp $
+// $Id: V0Fitter.cc,v 1.31 2008/10/08 21:40:39 drell Exp $
 //
 //
 
@@ -506,10 +506,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	if( doPostFitCuts &&
 	    theLambdaBar->mass() < lambdaMass + lambdaMassCut &&
 	    theLambdaBar->mass() > lambdaMass - lambdaMassCut ) {
-	  theLambdaBars.push_back( *theLambdaBar );
+	  //	  theLambdaBars.push_back( *theLambdaBar );
+	  theLambdas.push_back( *theLambdaBar );
 	}
 	else if (!doPostFitCuts) {
-	  theLambdaBars.push_back( *theLambdaBar );
+	  //	  theLambdaBars.push_back( *theLambdaBar );
+	  theLambdas.push_back( *theLambdaBar );
 	}
       }
 
@@ -532,9 +534,9 @@ const reco::VertexCompositeCandidateCollection& V0Fitter::getLambdas() const {
   return theLambdas;
 }
 
-const reco::VertexCompositeCandidateCollection& V0Fitter::getLambdaBars() const {
-  return theLambdaBars;
-}
+//const reco::VertexCompositeCandidateCollection& V0Fitter::getLambdaBars() const {
+//  return theLambdaBars;
+//}
 
 
 // Method that applies cuts to the vector of pre-cut candidates.
