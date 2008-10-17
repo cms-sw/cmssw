@@ -1,4 +1,4 @@
-2008-05-23  Emilio Meschi  <emilio.meschia@cern.ch>
+2008-10-17  Emilio Meschi  <emilio.meschia@cern.ch>
 
 	* tag V00-04-02
 	* moved most of constructor code to separate function "reconfigure"
