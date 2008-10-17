@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.7 2008/04/21 14:05:23 llista Exp $
+ * \version $Id: GsfElectron.h,v 1.8 2008/09/18 08:08:23 charlot Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.8  2008/09/18 08:08:23  charlot
+// updated description of classification
+//
 // Revision 1.7  2008/04/21 14:05:23  llista
 // added virtual function to identify particle type
 //
@@ -66,18 +69,23 @@ namespace reco {
 class GsfElectron : public RecoCandidate {
 
  public:
-  
-  GsfElectron() { } 
 
-  GsfElectron(const LorentzVector & p4,
-			const SuperClusterRef scl, 
-			const GsfTrackRef gsft,
-			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
-			const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
-			const GlobalPoint innPos, const GlobalVector innMom, 
-			const GlobalPoint vtxPos, const GlobalVector vtxMom, 
-			const GlobalPoint outPos, const GlobalVector outMom, 
-                        double HoE);
+  GsfElectron() ;
+
+  GsfElectron(
+	const LorentzVector & p4,
+	const SuperClusterRef scl,
+	const GsfTrackRef gsfTrack,
+	const GlobalPoint & tssuperPos, const GlobalVector & tssuperMom,
+	const GlobalPoint & tsseedPos, const GlobalVector & tsseedMom,
+	const GlobalPoint & innPos, const GlobalVector & innMom,
+	const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
+	const GlobalPoint & outPos, const GlobalVector & outMom,
+	double HoE,
+	float scSigmaEtaEta =0., float scSigmaIEtaIEta =0.,
+	float scE1x5 =0., float scE2x5Max =0., float scE5x5 =0.,
+        const TrackRef ctfTrack =TrackRef(), const float shFracInnerHits =0.
+	) ;
 
   virtual ~GsfElectron(){};
 
@@ -85,7 +93,7 @@ class GsfElectron : public RecoCandidate {
 
   // particle behaviour
    /** The electron classification.
-      barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering, 
+      barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering,
                 (30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
                  40: crack, 41: eta gaps, 42: phi gaps 
       endcaps : 100: golden, 110: bigbrem, 120: narrow, 130-134: showering
@@ -100,7 +108,8 @@ class GsfElectron : public RecoCandidate {
   void setDeltaEtaSuperClusterAtVtx(float de) {deltaEtaSuperClusterAtVtx_=de;}
   void setDeltaPhiSuperClusterAtVtx (float dphi) {deltaPhiSuperClusterAtVtx_=dphi;}
 
-  void setSuperCluster(const reco::SuperClusterRef &scl) {superCluster_=scl;}
+  void setSuperCluster(const reco::SuperClusterRef &scl) // used by GsfElectronSelector.h
+    { superCluster_=scl ; }
   void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
 
   // supercluster and electron track related quantities
@@ -156,8 +165,9 @@ class GsfElectron : public RecoCandidate {
   SuperClusterRef superCluster() const { return superCluster_; } 
 
   //! get associated GsfTrack pointer
-  reco::GsfTrackRef gsfTrack() const { return track_; } 
-  reco::TrackRef track() const {return TrackRef();} 
+  reco::GsfTrackRef gsfTrack() const { return track_ ; }
+  reco::TrackRef track() const { return ctfTrack_ ; }
+  float shFracInnerHits() const { return shFracInnerHits_ ; }
 
   //! number of related brem clusters
   int numberOfClusters() const {return superCluster_->clustersSize();}
@@ -168,7 +178,14 @@ class GsfElectron : public RecoCandidate {
 
   bool isElectron() const;
 
- private:
+   // super-cluster characteristics
+  float scSigmaEtaEta() const { return scSigmaEtaEta_ ; }
+  float scSigmaIEtaIEta() const { return scSigmaIEtaIEta_ ; }
+  float scE1x5() const { return scE1x5_ ; }
+  float scE2x5Max() const { return scE2x5Max_ ; }
+  float scE5x5() const { return scE5x5_ ; }
+
+private:
 
   // temporary
   //  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
@@ -202,12 +219,23 @@ class GsfElectron : public RecoCandidate {
   bool energyScaleCorrected_;
   bool momentumFromEpCombination_;
 
+  // super-cluster characteristics
+  float scSigmaEtaEta_ ;
+  float scSigmaIEtaIEta_ ;
+  float scE1x5_ ;
+  float scE2x5Max_ ;
+  float scE5x5_ ;
+
+  // ctf track
+  reco::TrackRef ctfTrack_;
+  float shFracInnerHits_;
+
   /// check overlap with another candidate
   virtual bool overlap( const Candidate & ) const;
 
 };
 
-  typedef GsfElectron PixelMatchGsfElectron;
+  typedef GsfElectron PixelMatchGsfElectron ;
 
 }
 #endif
