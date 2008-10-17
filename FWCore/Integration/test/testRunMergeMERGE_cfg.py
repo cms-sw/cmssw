@@ -12,6 +12,9 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(32)
+)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(

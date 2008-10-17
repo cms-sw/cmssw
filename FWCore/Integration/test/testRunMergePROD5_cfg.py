@@ -9,15 +9,15 @@ import FWCore.Framework.test.cmsExceptionsFatal_cff
 process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(99)
 )
 
 process.source = cms.Source("EmptySource",
     firstLuminosityBlock = cms.untracked.uint32(2),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(100),
+    numberEventsInLuminosityBlock = cms.untracked.uint32(3),
     firstEvent = cms.untracked.uint32(1),
     firstRun = cms.untracked.uint32(11),
-    numberEventsInRun = cms.untracked.uint32(100)
+    numberEventsInRun = cms.untracked.uint32(9)
 )
 
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer",

@@ -37,7 +37,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:testRunMergeRecombined.root')
+    fileName = cms.untracked.string('file:testRunMergeRecombined1.root')
 )
 
 process.test = cms.EDFilter("TestMergeResults",
