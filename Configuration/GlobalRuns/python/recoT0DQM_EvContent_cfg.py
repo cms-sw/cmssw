@@ -6,11 +6,15 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
+process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
+                                     ignoreTotal=cms.untracked.int32(1),
+                                     oncePerEventMode=cms.untracked.bool(False))
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
- 'file:0C26943A-6D99-DD11-AE50-001617C3B76E.root'   
+# 'file:0C26943A-6D99-DD11-AE50-001617C3B76E.root'   
+      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/471/00682B3A-3F9B-DD11-81F9-000423D99A8E.root'
 #     '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/682/201D431A-0699-DD11-AFE1-000423D98BE8.root'
 #     '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/555/02E4041E-1571-DD11-98CE-001D09F241B9.root'
     )
@@ -47,7 +51,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.23 $'),
+    version = cms.untracked.string('$Revision: 1.26 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
@@ -82,8 +86,9 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
  
-
-process.DQMOfflineCosmics_new = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.triggerOfflineDQMSource*process.siPixelOfflineDQM_source)
+#MonitorTrackResiduals_ckf
+process.SiStripDQMTier0_new = cms.Sequence(process.SiStripMonitorDigi*process.SiStripMonitorCluster*process.MonitorTrackResiduals_ckf*process.TrackMon_cosmicTk*process.TrackMon_ckf*process.TrackMon_rs)
+process.DQMOfflineCosmics_new = cms.Sequence(process.SiStripDQMTier0_new*process.ecal_dqm_source_offline*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.triggerOfflineDQMSource*process.siPixelOfflineDQM_source)
 #Paths
 process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics_new * process.MEtoEDMConverter)
 
