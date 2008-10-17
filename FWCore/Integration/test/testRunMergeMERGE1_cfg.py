@@ -1,3 +1,8 @@
+
+# This configuration tests the lumisToSkip, firstRun,
+# firstLuminosityBlock, and firstEvent parameters of
+# the PoolSource.
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MERGE")
