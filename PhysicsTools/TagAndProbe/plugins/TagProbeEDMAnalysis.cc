@@ -485,7 +485,8 @@ TagProbeEDMAnalysis::analyze(const edm::Event& iEvent,
 	 {
 	    if( (*cnd_type)[i] != tagProbeType_ ) continue;
 	    
-	    if( truthParentId_ != 0 && !( fabs((*cnd_gmid)[i]) == truthParentId_ ) ) continue;
+	    if( truthParentId_ != 0 && 
+	     !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
 	    
 	    bool inVar1Range = false;
 	    if( (*cnd_var1)[i] > var1Bins_[0] &&
@@ -1022,7 +1023,7 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar,
       eff = 0.0;
       err = 0.0;
     
-      doFit( bvar, bins, bin, bvar2, bins2, 0, eff, err );
+      doFit( bvar, bins, bin, bvar2, bins2, 0, eff, err, false );
 
       // Fill the efficiency hist
       effhist.SetBinContent(bin+1, eff);
@@ -1062,7 +1063,7 @@ void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vecto
 	 eff = 0.0;
 	 err = 0.0;
 
-	 doFit( bvar1, bins1, bin1, bvar2, bins2, bin2, eff, err );
+	 doFit( bvar1, bins1, bin1, bvar2, bins2, bin2, eff, err, true );
 	 // Fill the efficiency hist
 	 effhist.SetBinContent(bin1+1,bin2+1,eff);
 	 effhist.SetBinError(bin1+1,bin2+1,err);
@@ -1081,8 +1082,8 @@ void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vecto
 // ****************** Function to perform the efficiency fit ************ //
 
 void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
-				  std::string &bvar2, std::vector<double> bins2, int bin2,  
-				  double &eff, double &err )
+				 std::string &bvar2, std::vector<double> bins2, int bin2,  
+                                 double &eff, double &err, bool is2D )
 {
    // The fit variable - lepton invariant mass
    RooRealVar Mass("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
@@ -1377,6 +1378,7 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    ostringstream oss2;
    oss2 << bin2;
    string cname = "fit_canvas_" + bvar1 + "_" + oss1.str() + "_" + bvar2 + "_" + oss2.str();
+   if( !is2D ) cname = "fit_canvas_" + bvar1 + "_" + oss1.str();
    TCanvas *c = new TCanvas(cname.c_str(),"Sum over Modes, Signal Region",1000,1500);
    c->Divide(1,2);
    c->cd(1);
@@ -1391,9 +1393,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    frame1->SetName("pass");
    data->plotOn(frame1,Cut("ProbePass==1"));
    ProbePass.setLabel("pass");
-   totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data));
    totalPdf.plotOn(frame1,Slice(ProbePass),Components(bkgShapePdf),
-   LineStyle(kDashed),ProjWData(Mass,*data));
+   LineColor(kRed),ProjWData(Mass,*data));
+   totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
    frame1->Draw("e0");
 
    lhs->cd(2);
@@ -1402,9 +1404,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    frame2->SetName("fail");
    data->plotOn(frame2,Cut("ProbePass==0"));
    ProbePass.setLabel("fail");
-   totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data));
    totalPdf.plotOn(frame2,Slice(ProbePass),Components(bkgShapePdf),
-   LineStyle(kDashed),ProjWData(Mass,*data));
+   LineColor(kRed),ProjWData(Mass,*data));
+   totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
    frame2->Draw("e0");
 
 
@@ -1413,9 +1415,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    frame3->SetTitle("All Tag-Probes");
    frame3->SetName("total");
    data->plotOn(frame3);
-   totalPdf.plotOn(frame3,ProjWData(Mass,*data));
    totalPdf.plotOn(frame3,Components(bkgShapePdf),
-   LineStyle(kDashed),ProjWData(Mass,*data));
+   LineColor(kRed),ProjWData(Mass,*data));
+   totalPdf.plotOn(frame3,ProjWData(Mass,*data),Precision(1e-5));
    totalPdf.paramOn(frame3);
    frame3->Draw("e0");
 

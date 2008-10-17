@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.4 2008/10/07 18:11:21 kalanand Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.5 2008/10/07 20:48:24 neadam Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -70,7 +70,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
 			std::string &bvar2, std::vector<double> bins2 );
       void doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
 		  std::string &bvar2, std::vector<double> bins2, int bin2, 
-		  double &eff, double &err );
+                  double &eff, double &err, bool is2D = false );
 
       void ZllEffMCTruth();
       void ZllEffMCTruth2D();
