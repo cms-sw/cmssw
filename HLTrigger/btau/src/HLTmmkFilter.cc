@@ -39,8 +39,8 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iCo
                                                              minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
                                                              minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
                                                              fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-							     saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false))	,
-								 beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")){
+							     saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)),
+							     beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")){
 
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
   trkCandLabel_  = iConfig.getParameter<edm::InputTag>("TrackCand");
@@ -106,18 +106,19 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByLabel (trkCandLabel_,trkcands);
   
-  	if(saveTag_){
-  		filterobject->addCollectionTag(muCandLabel_);
-	  	filterobject->addCollectionTag(trkCandLabel_);
-	}
+  if(saveTag_){
+    filterobject->addCollectionTag(muCandLabel_);
+    filterobject->addCollectionTag(trkCandLabel_);
+  }
+  
   double e1,e2,e3;
   Particle::LorentzVector p,p1,p2,p3;
   
   //TrackRefs to mu cands in trkcand
   vector<TrackRef> trkMuCands;
   
-  //TrackRefs to already used mu tracks to avoid double counting candidates
-  vector<TrackRef> usedCands;
+  //Already used mu tracks to avoid double counting candidates
+  vector<bool> isUsedCand(trkcands->size(),false);
   
   int counter = 0;
   
@@ -149,29 +150,35 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 		// Pt threshold cut
 		if (trk2->pt() < minPt_) continue;
-		
+
+		RecoChargedCandidateCollection::const_iterator trkcand, endCandTrk;
+
+		std::vector<bool>::iterator isUsedIter, endIsUsedCand;
+
 		//get overlapping muon candidates
-		for (RecoChargedCandidateCollection::const_iterator trkcand = trkcands->begin(), endCandTrk=trkcands->end(); trkcand != endCandTrk; ++trkcand) {
+		for ( trkcand = trkcands->begin(), endCandTrk=trkcands->end(), isUsedIter = isUsedCand.begin(), endIsUsedCand = isUsedCand.end(); trkcand != endCandTrk && isUsedIter != endIsUsedCand; ++trkcand, ++isUsedIter) {
 			TrackRef trk3 = trkcand->get<TrackRef>();
 		
 			//check for overlapping muon tracks and save TrackRefs
  			if (overlap(*mucand1,*trkcand)) {
  				trkMuCands.push_back(trk3);
- 				usedCands.push_back(trk3);
+				*isUsedIter = true;
  				continue;
  			}
  			else if (overlap(*mucand2,*trkcand)){
  				trkMuCands.push_back(trk3);
- 				usedCands.push_back(trk3);
+				*isUsedIter = true;
  				continue;
  			}
+			
+			if(trkMuCands.size()==2) break;
 		}
 
 		//Not all overlapping candidates found, skip event
 		if (trkMuCands.size()!=2) continue;
 
-		//combine muons withall tracks
-  		for (RecoChargedCandidateCollection::const_iterator trkcand = trkcands->begin(), endCandTrk=trkcands->end(); trkcand != endCandTrk; ++trkcand) {
+		//combine muons with all tracks
+  		for ( trkcand = trkcands->begin(), endCandTrk=trkcands->end(), isUsedIter = isUsedCand.begin(), endIsUsedCand = isUsedCand.end(); trkcand != endCandTrk && isUsedIter != endIsUsedCand; ++trkcand, ++isUsedIter) {
  
   			TrackRef trk3 = trkcand->get<TrackRef>();
 
@@ -179,10 +186,10 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
  
  			//skip overlapping muon candidates
  			if(trk3==trkMuCands.at(0) || trk3==trkMuCands.at(1)) continue;
- 			
- 			//skip already used tracks
- 			if(usedCands.end()!=find(usedCands.begin(), usedCands.end(), trk3)) continue;
- 			
+
+			//skip already used tracks
+			if(*isUsedIter) continue;
+				
 			// eta cut
 			if (fabs(trk3->eta()) > maxEta_) continue;
 	
