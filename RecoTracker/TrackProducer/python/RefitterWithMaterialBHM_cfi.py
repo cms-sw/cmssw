@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackRefitter = cms.EDFilter("TrackRefitter",
+RefitterWithMaterialBHM = cms.EDFilter("TrackRefitter",
     src = cms.InputTag("ctfWithMaterialTracksBeamHaloMuon"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     Fitter = cms.string('KFFittingSmootherBH'),

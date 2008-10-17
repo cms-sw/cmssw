@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackRefitter = cms.EDFilter("TrackRefitter",
+RefitterWithMaterial = cms.EDFilter("TrackRefitter",
     src = cms.InputTag("generalTracks"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),

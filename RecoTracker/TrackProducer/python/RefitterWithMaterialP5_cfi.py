@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackRefitter = cms.EDFilter("TrackRefitter",
+RefitterWithMaterialP5 = cms.EDFilter("TrackRefitter",
     src = cms.InputTag("ctfWithMaterialTracksP5"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     Fitter = cms.string('FittingSmootherRKP5'),

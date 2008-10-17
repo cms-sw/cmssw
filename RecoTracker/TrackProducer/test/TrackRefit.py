@@ -23,7 +23,8 @@ process.maxEvents = cms.untracked.PSet(     input = cms.untracked.int32(200)    
 
 process.source = cms.Source("PoolSource",
 ### tracks from collisions                            
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/1E04FC31-F99A-DD11-94EE-0018F3D096DE.root')
+    fileNames = cms.untracked.vstring(
+'/store/relval/CMSSW_2_1_10/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0001/1E04FC31-F99A-DD11-94EE-0018F3D096DE.root')
 
 ### tracks from cosmics                            
 #    fileNames = cms.untracked.vstring(
@@ -45,7 +46,7 @@ process.source = cms.Source("PoolSource",
 #        '/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_SuperPointing_v1/0000/0A911B18-0273-DD11-A5A6-001731A283E1.root')
 
 ### tracks from beam halo muons                            
- )
+) 
 
 process.TRACKS = cms.OutputModule("PoolOutputModule",
                                 outputCommands = cms.untracked.vstring('drop *_*_*_*', 
@@ -56,7 +57,10 @@ process.TRACKS = cms.OutputModule("PoolOutputModule",
                                 fileName = cms.untracked.string('refitting.root')
                                 )
 
-process.p1 = cms.Path(process.TrackRefitter)
+process.p1 = cms.Path(process.RefitterWithMaterial
+                      #process.RefitterWithMaterialP5
+                      #process.RefitterWithMaterialBHM
+)
 process.outpath = cms.EndPath(process.TRACKS)
 
  
