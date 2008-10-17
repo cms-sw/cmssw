@@ -7,8 +7,8 @@
  *
  *  \author R. Wilkinson
  *
- *  $Date: 2008/08/25 21:59:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/09/12 23:05:47 $
+ *  $Revision: 1.1 $
  *  
  */
 
@@ -21,6 +21,7 @@
 class MuonSeedVFinder {
 public:
 
+  virtual ~MuonSeedVFinder() {}
   virtual void setBField(const MagneticField * field) = 0;
 
   virtual void seeds(const MuonTransientTrackingRecHit::MuonRecHitContainer & hits, 
