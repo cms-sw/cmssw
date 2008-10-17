@@ -1,10 +1,10 @@
-# /dev/CMSSW_2_1_10/HLT/V10 (CMSSW_2_1_10)
+# /dev/CMSSW_2_1_10/HLT/V13 (CMSSW_2_1_10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V10')
+  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V13')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -5065,7 +5065,7 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
       DoBackwardFilter = cms.bool( True ),
       DoSeedRefit = cms.bool( False ),
       SeedTransformerParameters = cms.PSet( 
-        Fitter = cms.string( "KFFitterSmootherSTA" ),
+        Fitter = cms.string( "KFFitterSmootherForL2Muon" ),
         RescaleError = cms.double( 100.0 ),
         MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
         Propagator = cms.string( "SteppingHelixPropagatorAny" ),
