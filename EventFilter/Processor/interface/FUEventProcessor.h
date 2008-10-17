@@ -118,6 +118,11 @@ namespace evf
 
     bool fireScalersUpdate();
 
+
+    std::string logsAsString();
+    void localLog(std::string);
+
+
     //
     // member data
     //
@@ -197,7 +202,8 @@ namespace evf
     // flahslist variables, scalers
     xdata::InfoSpace                *scalersInfoSpace_;
     xdata::Table                     scalersComplete_;
-
+    xdata::UnsignedInteger32         lsTimeOut_;
+    bool                             lastLumiTimedOut_; 
     // flashlist variables, squids
     xdata::Boolean                   squidPresent_; 
 
@@ -211,7 +217,19 @@ namespace evf
     std::list<std::string>           names_;
     bool                             wlMonitoringActive_;
     bool                             wlScalersActive_;
+    unsigned int                     scalersUpdateAttempted_;    
+    unsigned int                     scalersUpdateCounter_;
+    std::vector<std::pair<unsigned int, unsigned int> > lumiSectionsCtr_;
+    std::vector<bool>                lumiSectionsTo_;
+    unsigned int                     allPastLumiProcessed_;
+    unsigned int                     rollingLsIndex_;
+    bool                             rollingLsWrap_;
     SquidNet                         squidnet_;
+    std::vector<std::string>         logRing_;
+    unsigned int                     logRingIndex_;
+    bool                             logWrap_;
+    std::string                      lsidAsString_;
+    std::string                      psidAsString_;
   };
   
 } // namespace evf
