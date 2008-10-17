@@ -23,8 +23,7 @@
 // Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
 // tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
 // 
-// September 2008: V. Cuplov
-// Disable Pixel modules which are declared dead in the configuration python file
+// Disable Dead Pixel modules from configuration python file: V.C 9/08
 // 
  
 #include <vector>
@@ -48,7 +47,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
  
-
 using namespace std;
 using namespace edm;
 
@@ -60,7 +58,16 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
     theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
     theSiPixelGainCalibrationService_->setESObjects( es );
   }
+ fillDeadModules(es); // gets the dead module from config file or DB (not yet implemented).
 }
+
+
+void SiPixelDigitizerAlgorithm::fillDeadModules(const edm::EventSetup& es){
+
+  DeadModules = conf_.getParameter<Parameters>("DeadModules"); // get the dead module from cfg file
+  // Need to implement the option where we get the dead modules from the Database (soon)
+}
+
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
@@ -70,8 +77,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 {
   using std::cout;
   using std::endl;
-
- 
 
   // Common pixel parameters
   // This are parameters which are not likely to be changed
@@ -90,6 +95,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // calculate the noise in adc counts from noise in electrons.
   // Both defaults should be the same.
   theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
+
+
 
   // ADC saturation value, 255=8bit adc.
   //theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
@@ -111,8 +118,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //theReadoutNoise=conf_.getUntrackedParameter<double>("ReadoutNoiseInElec",500.);
   theReadoutNoise=conf_.getParameter<double>("ReadoutNoiseInElec");
 
-
-
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   //theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
   theTofLowerCut=conf_.getParameter<double>("TofLowerCut");
@@ -123,7 +128,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   //BPix Lorentz angle tangent per Tesla
   tanLorentzAnglePerTesla_BPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_BPix");
-
 
   // Fluctuate charge in track subsegments
   fluctuateCharge=conf_.getUntrackedParameter<bool>("FluctuateCharge",true);
@@ -212,7 +216,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   } // end the pixel inefficiency part
 
 
-
   // Init the random number services
   if(addNoise || thePixelLuminosity || fluctuateCharge) {
     edm::Service<edm::RandomNumberGenerator> rng;
@@ -231,7 +234,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     // problem because the service owns the engine and will destroy it
     gaussDistribution_ = new CLHEP::RandGaussQ(engine, 0., theReadoutNoise);
     flatDistribution_ = new CLHEP::RandFlat(engine, 0., 1.);
-
 
 
     if(addNoise) { 
@@ -447,11 +449,11 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       } //  end if 
     } // end for 
 
-      // ves 
+      // Remove pixel dead modules:
     if(use_module_killing_) {
       module_killing();
     } // end if use_module_killing
-      // ves
+
 
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
@@ -1339,15 +1341,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
 void SiPixelDigitizerAlgorithm::module_killing(void){
   if(!use_module_killing_)
     return;
-  
-  //  this  should only be done once! and Parameters should be a class member SiPixelDigitizerAlgorithm of so it's always accessible
-  //  std::cout << "Current DETID in module_killing function call " << detID << std::endl;
-  
+
   bool isbad=false;
   int detid = detID;
   
-  typedef std::vector<edm::ParameterSet> Parameters;
-  Parameters DeadModules = conf_.getParameter<Parameters>("DeadModules");
   Parameters::iterator itDeadModules=DeadModules.begin();
   
   for(; itDeadModules != DeadModules.end(); ++itDeadModules){
@@ -1367,7 +1364,6 @@ void SiPixelDigitizerAlgorithm::module_killing(void){
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
       // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude, 
-      //      std::cout << "We removed pixel hits for   " << detID << " and " << Module << std::endl;
       }
   } // end if Module=="whole""
   
@@ -1377,12 +1373,10 @@ void SiPixelDigitizerAlgorithm::module_killing(void){
     
 	if(Module=="tbmA" && ip.first>=80 && ip.first<=159){
 	  i->second.set(0.); // reset amplitude, 
-	  //	  std::cout << "We removed pixel hits for   " << detID << " and " << Module << std::endl;
 	}// end if Module=="tbmA"
 	
 	if( Module=="tbmB" && ip.first<=79){
 	  i->second.set(0.); // reset amplitude, 
-	  //	  std::cout << "We removed pixel hits for   " << detID << " and " << Module << std::endl;
 	}// end if Module=="tbmB"
   } // end pixel loop 
 } // end module_killing

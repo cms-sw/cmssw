@@ -1,7 +1,6 @@
 #ifndef SiPixelDigitizerAlgorithm_h
 #define SiPixelDigitizerAlgorithm_h
 
-
 #include <string>
 #include <map>
 
@@ -34,8 +33,6 @@
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
 
 
-
-
 // For the random numbers
 namespace CLHEP {
   class RandGaussQ;
@@ -56,11 +53,15 @@ class SiPixelDigitizerAlgorithm  {
   std::vector<PixelDigiSimLink> make_link() {
     return link_coll; }
   void init(const edm::EventSetup& es);
+  void fillDeadModules(const edm::EventSetup& es);
 
  private:
   
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters DeadModules;
+
   // Define internal classes
-  //
+  
   // Define a class to hold the calibration parameters per pixel
   // Internal
   class CalParameters {
@@ -246,8 +247,8 @@ class SiPixelDigitizerAlgorithm  {
     float moduleThickness; // sensor thickness 
     //  int digis; 
     const PixelGeomDetUnit* _detp;
-    //    uint32_t detID;     // Det id
-    int detID;
+    uint32_t detID;     // Det id
+    //int detID;
 
     std::vector<PSimHit> _PixelHits; //cache
     const PixelTopology* topol;
