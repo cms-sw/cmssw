@@ -4,7 +4,7 @@ from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,tagInventory
+from CondCore.TagCollection import Node,tagInventory,CommonUtils,entryComment
 def stripws(myinput):
     result=('').join(myinput.split(' '))
     result=('').join(result.split('\n'))
@@ -139,7 +139,12 @@ class tagInventoryBuilder:
                         tagentry.labelname=item['labelname']
                     else:
                         tagentry.labelname=''
-                    inv.addEntry(tagentry)
+                    tagid=inv.addEntry(tagentry)
+                    if item.has_key('comment'):
+                        entrycomment=entryComment(session)
+                        if entrycomment.existCommentTable() is False:
+                            entrycomment.createEntryCommentTable()
+                        entrycomment.insertComment(CommonUtils.inventoryTableName(),tagid,item['comment'])
             del session
         except Exception, e:
             print str(e)

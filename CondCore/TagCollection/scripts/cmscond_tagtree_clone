@@ -4,12 +4,35 @@ from ConfigParser import ConfigParser
 #from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,TagTree,tagInventory
+from CondCore.TagCollection import Node,TagTree,tagInventory,CommonUtils,entryComment
+
 def stripws(myinput):
     result=('').join(myinput.split(' '))
     result=('').join(result.split('\n')) 
     return result
 
+def copycomments(session,sourcetreename,desttreename):
+    entrycomment=entryComment(session)
+    if entrycomment.existCommentTable() is False:
+        entrycomment.createEntryCommentTable()
+    session.transaction().start(False)
+    data=coral.AttributeList()
+    editor=session.nominalSchema().tableHandle(CommonUtils.treeTableName(desttreename)).dataEditor()
+    query=session.nominalSchema().tableHandle(CommonUtils.treeTableName(sourcetreename)).newQuery()
+    conditionData=coral.AttributeList()
+    query.setCondition('',conditionData)
+    query.setRowCacheSize(2048)
+    editor.rowBuffer(data)
+    query.defineOutput(data)
+    bulkOperation=editor.bulkInsert(data,2048)
+    cursor=query.execute()
+    while (cursor.next() ):
+        bulkOperation.processNextIteration()
+    bulkOperation.flush()
+    del bulkOperation
+    del query
+    session.transaction().commit()
+    
 class tagTreeClone:
     def __init__(self):
         """
@@ -134,8 +157,10 @@ class tagTreeClone:
             newtree.importFromTree(self.__sourcetreename)
             allLeafs=newtree.getAllLeaves()
             if self.__realclone is True:
+                copycomments(session,self.__sourcetreename,self.__targettreename)
                 del session
                 return
+            #the rest don't know how to handle comments yet
             if len(self.__service_replace) != 0:
                 inv=tagInventory.tagInventory(session)
                 newtaglinks=inv.addEntriesReplaceService(self.__service_replace)

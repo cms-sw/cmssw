@@ -324,12 +324,34 @@ class  tagInventory(object):
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
-        
+    def getIDsByName( self, name ):
+        """get tagids correspond to a given tag name
+        """
+        transaction=self.__session.transaction()
+        ids=[]
+        try:
+            transaction.start(True)
+            query = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
+            condition='tagname = :tagname'
+            conditionBindData=coral.AttributeList()
+            conditionBindData.extend('tagname','string')
+            conditionBindData['tagname'].setData(name)
+            query.addToOutputList(tagid)
+            query.setCondition(condition,conditionBindData)
+            cursor = query.execute()
+            while ( cursor.next() ):
+                tagid=cursor.currentRow()['tagid'].data()
+                ids.append(tagid)
+            transaction.commit()
+        except Exception, e:
+            transaction.rollback()
+            raise Exception, str(e)
+        return ids
     def deleteAllEntries( self ):
         """Delete all entries in the inventory
         """
+        transaction=self.__session.transaction()
         try:
-            transaction=self.__session.transaction()
             transaction.start(False)
             schema = self.__session.nominalSchema()
             dbop=DBImpl.DBImpl(schema)

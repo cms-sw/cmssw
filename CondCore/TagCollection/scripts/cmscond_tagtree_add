@@ -4,7 +4,7 @@ from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,TagTree,tagInventory
+from CondCore.TagCollection import Node,TagTree,tagInventory,CommonUtils,entryComment
 def stripws(myinput):
     result=('').join(myinput.split(' '))
     result=('').join(result.split('\n')) 
@@ -174,6 +174,12 @@ class tagTreeBuilder:
                 if not item.has_key('parent'):
                     raise KeyError,'no parent parameter for'+mynode.nodelabel
                 mytree.insertNode(mynode,item['parent'])
+                if item.has_key('comment'):
+                  entrycomment=entryComment(session)
+                  if entrycomment.existCommentTable() is False:
+                      entrycomment.createEntryCommentTable()
+                  entrycomment.insertComment(CommonUtils.treeTableName(self.__treename),mynode.nodeid ,item['comment'])
+                        
             if len(self.__leafcollection)!=0:
                 inv=tagInventory.tagInventory(session)
                 for leafdata in self.__leafcollection:
@@ -197,6 +203,11 @@ class tagTreeBuilder:
                     if not leafdata.has_key('parent'):
                         raise KeyError,'no parent parameter for'+myleaf.nodelabel
                     mytree.insertNode(myleaf,leafdata['parent'])
+                    if leafdata.has_key('comment'):
+                        entrycomment=entryComment(session)
+                        if entrycomment.existCommentTable() is False:
+                            entrycomment.createEntryCommentTable()
+                        entrycomment.insertComment(CommonUtils.treeTableName(self.__treename),myleaf.nodeid ,item['comment'])
             del session
         except Exception, e:
             print str(e)

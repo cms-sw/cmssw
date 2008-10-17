@@ -5,7 +5,7 @@ from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
 from CondCore.TagCollection import Node
-from CondCore.TagCollection import TagTree
+from CondCore.TagCollection import TagTree,CommonUtils,entryComment
 class tagTreeDelete:
     def __init__(self):
         """
@@ -119,17 +119,32 @@ class tagTreeDelete:
             for treename in treelist:
                 tree=TagTree.tagTree(session,treename)
                 tree.deleteSubtree( 'ROOT' )
+                entrycomment=entryComment(session)
+                if entrycomment.existCommentTable() is True:
+                  entrycomment.clearAllEntriesForTable(CommonUtils.treeTableName(treename))
             del session
             return
         tree=TagTree.tagTree(session,self.__treename)
         if self.__branch=='' and self.__node=='':
             tree.deleteSubtree( 'ROOT' )
+            entrycomment=entryComment(session)
+                if entrycomment.existCommentTable() is True:
+                  entrycomment.clearAllEntriesForTable(CommonUtils.treeTableName(self.__treename))
         else:
             if self.__branch != '':
                 print self.__branch
                 tree.deleteSubtree(self.__branch)
+                entrycomment=entryComment(session)
+                if entrycomment.existCommentTable() is True:
+                  nodes=tree.getSubtree(self.__branch)
+                  for node in nodes:  
+                    entrycomment.deleteCommentForId(CommonUtils.treeTableName(self.__treename),node.nodeid)
+                  
             if self.__node != '':
                 tree.deleteNode(self.__node)
+                if entrycomment.existCommentTable() is True:
+                    node=getNode(self.__node)
+                    entrycomment.deleteCommentForId(CommonUtils.treeTableName(self.__treename),node.nodeid)
         del session
         #except Exception, e:
         #    print str(e)

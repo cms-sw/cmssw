@@ -4,7 +4,7 @@ from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
 import coral
-from CondCore.TagCollection import Node,tagInventory
+from CondCore.TagCollection import Node,tagInventory,CommonUtils,entryComment
 class tagInventoryDelete:
     def __init__(self):
         """
@@ -85,8 +85,16 @@ class tagInventoryDelete:
         try:
             if self.__all is True:
                 inv.deleteAllEntries()
+                entrycomment=entryComment(session)
+                if entrycomment.existCommentTable() is True:
+                    entrycomment.clearAllEntriesForTable(CommonUtils.inventoryTableName())
             else:
                 inv.deleteEntryByName(self.__tag)
+                entrycomment=entryComment(session)
+                if entrycomment.existCommentTable() is True:
+                    ids=inv.getIDsByName(self.__tag)
+                    for id in id:
+                       entrycomment.deleteCommentForId(CommonUtils.inventoryTableName(),id)
             del session
         except Exception, e:
             print str(e)

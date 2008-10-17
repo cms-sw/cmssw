@@ -12,6 +12,22 @@ class entryComment(object):
         self.__entryCommentTableColumns={'entryid':'unsigned long','tablename':'string','comment':'string'}
         self.__entryCommentTableNotNullColumns=['entryid','tablename']
         self.__entryCommentTablePK=('entryid','tablename')
+
+    def existCommentTable(self):
+        """Check if entry comment table exists
+        """
+        try:
+            transaction=self.__session.transaction()
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            result=schema.existsTable(CommonUtils.commentTableName())
+            transaction.commit()
+            #print result
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        return result
+    
     def createEntryCommentTable(self):
         """Create entry comment able.Existing table will be deleted.
         """
