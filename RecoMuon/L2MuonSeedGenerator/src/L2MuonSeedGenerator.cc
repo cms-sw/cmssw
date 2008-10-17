@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2007/03/23 20:55:23 $
- *   $Revision: 1.9 $
+ *   $Date: 2007/12/17 17:23:06 $
+ *   $Revision: 1.10 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
@@ -272,10 +272,8 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  
 	  edm::OwnVector<TrackingRecHit> container;
 	  
-	  L2MuonTrajectorySeed* l2seed = new L2MuonTrajectorySeed(*seedTSOS,container,alongMomentum,
-								  L1MuonParticleRef(muColl,l1ParticleIndex));
-	  
-	  output->push_back(*l2seed);
+	  output->push_back(L2MuonTrajectorySeed(*seedTSOS,container,alongMomentum,
+						 L1MuonParticleRef(muColl,l1ParticleIndex)));
 	}
       }
     } 
