@@ -63,26 +63,6 @@ using namespace std;
 
   }
 
-
-  
-  void CSCValHists::printPlots(){
-
-    plotMaker = new CSCValPlotFormatter();
-    plotMaker->makePlots(theMap);
-    plotMaker->makeGlobalScatterPlots(rHTree,"rechits");
-    plotMaker->makeGlobalScatterPlots(segTree,"segments");
-
-
-  }
-
-  
-  void CSCValHists::printComparisonPlots(string refFile){
-
-    plotMaker = new CSCValPlotFormatter();
-    plotMaker->makeComparisonPlots(theMap,refFile);
-
-  }
-
   
   void CSCValHists::fillRechitTree(float x, float y, float gx, float gy, int en, int st, int ri, int ch, int la){
 
@@ -288,54 +268,51 @@ using namespace std;
 
   }
 
+  void CSCValHists::fill1DHistByLayer(float x, string name, string title, CSCDetId id,
+                                      int bins, float xmin, float xmax, string folder){
 
-  void CSCValHists::fillOccupancyHistos(const bool wo[2][4][4][36], const bool sto[2][4][4][36],
-                                        const bool ro[2][4][4][36], const bool so[2][4][4][36]){
+    string endcap;
+    if (id.endcap() == 1) endcap = "+";
+    if (id.endcap() == 2) endcap = "-";
 
     map<string,pair<TH1*,string> >::iterator it;
-    string name1 = "hOWires";
-    string name2 = "hOStrips";
-    string name3 = "hORecHits";
-    string name4 = "hOSegments";
-    it = theMap.find(name1);
+    ostringstream oss1;
+    ostringstream oss2;
+    oss1 << name << "_" << endcap << id.station() << "_" << id.ring() << "_" << id.chamber() << "_L" << id.layer();
+    oss2 << title << "  (ME " << endcap << id.station() << "/" << id.ring() << "/" << id.chamber() << "/L" << id.layer() << ")";
+    name = oss1.str();
+    title = oss2.str();
+    it = theMap.find(name);
     if (it == theMap.end()){
-      theMap[name1] = pair<TH1*,string>(new TH2I("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5),"Digis");
-    }
-    it = theMap.find(name2);
-    if (it == theMap.end()){
-      theMap[name2] = pair<TH1*,string>(new TH2I("hOStrips","Strip Digi Occupancy",36,0.5,36.5,20,0.5,20.5),"Digis");
-    }
-    it = theMap.find(name3);
-    if (it == theMap.end()){
-      theMap[name3] = pair<TH1*,string>(new TH2I("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5),"recHits");
-    }
-    it = theMap.find(name4);
-    if (it == theMap.end()){
-      theMap[name4] = pair<TH1*,string>(new TH2I("hOSegments","Segments Occupancy",36,0.5,36.5,20,0.5,20.5),"Segments");
+      theMap[name] = pair<TH1*,string>(new TH1F(name.c_str(),title.c_str(),bins,xmin,xmax),folder);
     }
 
+    theMap[name].first->Fill(x);
 
-    for (int e = 0; e < 2; e++){
-      for (int s = 0; s < 4; s++){
-        for (int r = 0; r < 4; r++){
-          for (int c = 0; c < 36; c++){
-            int type = 0;
-            if (s == 0 && r == 0) type = 2;
-            else if (s == 0 && r == 1) type = 3;
-            else if (s == 0 && r == 2) type = 4;
-            else if (s == 0 && r == 3) type = 1;
-            else type = (s+1)*2 + (r+1);
-            if ((e+1) == 1) type = type + 10;
-            if ((e+1) == 2) type = 11 - type;
-            if (wo[e][s][r][c]) theMap[name1].first->Fill((c+1),type);
-            if (sto[e][s][r][c]) theMap[name2].first->Fill((c+1),type);
-            if (ro[e][s][r][c]) theMap[name3].first->Fill((c+1),type);
-            if (so[e][s][r][c]) theMap[name4].first->Fill((c+1),type);
-          }
-        }
-      }
+  }
+
+
+  void CSCValHists::fill2DHistByLayer(float x, float y, string name, string title, CSCDetId id,
+                                      int binsx, float xmin, float xmax,
+                                      int binsy, float ymin, float ymax, string folder){
+
+    string endcap;
+    if (id.endcap() == 1) endcap = "+";
+    if (id.endcap() == 2) endcap = "-";
+
+    map<string,pair<TH1*,string> >::iterator it;
+    ostringstream oss1;
+    ostringstream oss2;
+    oss1 << name << "_" << endcap << id.station() << "_" << id.ring() << "_" << id.chamber() << "_L" << id.layer();;
+    oss2 << title << "  (ME " << endcap << id.station() << "/" << id.ring() << "/" << id.chamber() << "/L" << id.layer() << ")";
+    name = oss1.str();
+    title = oss2.str();
+    it = theMap.find(name);
+    if (it == theMap.end()){
+      theMap[name] = pair<TH1*,string>(new TH2F(name.c_str(),title.c_str(),binsx,xmin,xmax,binsy,ymin,ymax),folder);
     }
 
+    theMap[name].first->Fill(x,y);
 
   }
 
@@ -407,28 +384,20 @@ using namespace std;
   }
 
 
-  unsigned short CSCValHists::tempChamberType( unsigned short istation, unsigned short iring ) {
-    int i = 2 * istation + iring; // i=2S+R ok for S=2, 3, 4
-    if ( istation == 1 ) {
-      --i;                       // ring 1R -> i=1+R (2S+R-1=1+R for S=1)
-      if ( i > 4 ) i = 1;        // But ring 1A (R=4) -> i=1
+  void CSCValHists::fill2DProfile(float x, float y, float z, string name, string title,
+                                  int binsx, float xmin, float xmax,
+                                  int binsy, float ymin, float ymax,
+                                  float zmin, float zmax, string folder){
+
+    map<string,pair<TH1*,string> >::iterator it;
+
+    it = theMap.find(name);
+    if (it == theMap.end()){
+      theMap[name] = pair<TProfile2D*,string>(new TProfile2D(name.c_str(),title.c_str(),binsx,xmin,xmax,binsy,ymin,ymax,zmin,zmax), folder);
     }
-    return i;
-  }
 
-
-  int CSCValHists::typeIndex(CSCDetId id){
-
-    // linearlized index bases on endcap, station, and ring based on CSCDetId
-    int i = 2 * id.station() + id.ring(); // i=2S+R ok for S=2, 3, 4
-    if ( id.station() == 1 ) {
-      --i;                       // ring 1R -> i=1+R (2S+R-1=1+R for S=1)
-      if ( i > 4 ) i = 1;        // But ring 1A (R=4) -> i=1
-    }
-    if (id.endcap() == 1) i = i+10;
-    if (id.endcap() == 2) i = 11-i;
-
-    return i;
+    TProfile2D *tempp = (TProfile2D*)theMap[name].first;
+    tempp->Fill(x,y,z);
 
   }
 

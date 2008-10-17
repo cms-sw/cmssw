@@ -16,15 +16,6 @@
  * Michael Schmitt, Northwestern University, July 2007
  */
 
-// system include files
-#include <memory>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-#include <iomanip>
-#include <fstream>
-
 // user include files
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,24 +34,24 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -83,7 +74,6 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
-
 #include "RecoLocalMuon/CSCValidation/src/CSCValHists.h"
 #include "TVector3.h"
 #include "TH1F.h"
@@ -91,7 +81,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TTree.h"
-
+#include "TProfile2D.h"
 
 class CSCValidation : public edm::EDAnalyzer {
 public:
@@ -101,9 +91,7 @@ public:
   /// Destructor
   virtual ~CSCValidation();
 
-  // Operations
-
-  /// Perform the real analysis
+  /// Perform the analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   void endJob();
 
@@ -143,6 +131,8 @@ private:
   void  doADCTiming(const CSCStripDigiCollection &, const CSCRecHit2DCollection  &);
   void  doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                     edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
+  void  doTrigger();
+  void  doStandalone();
 
   // some useful functions
   float  fitX(HepMatrix sp, HepMatrix ep);
@@ -151,6 +141,7 @@ private:
   float  getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   int    getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   void   findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
+  int    chamberSerial( CSCDetId id );
 
   // these functions handle Stoyan's efficiency code
   void  fillEfficiencyHistos(int bin, int flag);
@@ -169,7 +160,8 @@ private:
 
   // counters
   int nEventsAnalyzed;
-  int treeCount;
+  int rhTreeCount;
+  int segTreeCount;
 
   //
   //
@@ -185,6 +177,18 @@ private:
   bool writeTreeToFile;
   bool isSimulation;
   std::string rootFileName;
+  bool detailedAnalysis;
+  bool useDigis;
+  bool useTrigger;
+
+  edm::InputTag stripDigiTag;
+  edm::InputTag wireDigiTag;
+  edm::InputTag compDigiTag;
+  edm::InputTag cscRecHitTag;
+  edm::InputTag cscSegTag;
+  edm::InputTag saMuonTag;
+  edm::InputTag l1aTag;
+  edm::InputTag simHitTag;
 
   bool makeOccupancyPlots;
   bool makeStripPlots;
@@ -200,6 +204,8 @@ private:
   bool makeADCTimingPlots;
   bool makeRHNoisePlots;
   bool makeCalibPlots;
+  bool makeStandalonePlots;
+  bool makeTriggerPlots;
 
   // The histo managing object
   CSCValHists *histos;
@@ -220,6 +226,11 @@ private:
   TH2F *hEffDenominator;
   TH2F *hSensitiveAreaEvt;
 
+  // occupancy
+  TH2I *hOWires;
+  TH2I *hOStrips;
+  TH2I *hORecHits;
+  TH2I *hOSegments;
 
   /// Maps and vectors for module doGasGain()
   std::vector<int>     nmbhvsegm;
@@ -231,6 +242,22 @@ private:
   std::multimap<CSCDetId , CSCRecHit2D> SegRechits;
   std::multimap<CSCDetId , CSCRecHit2D> NonAssociatedRechits;
   std::map<CSCRecHit2D,float,ltrh> distRHmap;
+
+  int typeIndex(CSCDetId id){
+    // linearlized index bases on endcap, station, and ring
+    int index = 0;
+    if (id.station() == 1){
+      index = id.ring() + 1;
+      if (id.ring() == 4) index = 1;
+    }
+    else index = id.station()*2 + id.ring();
+    if (id.endcap() == 1) index = index + 9;
+    if (id.endcap() == 2) index = 10 - index;
+    return index;
+  }
+  
+
+
 
 };
 #endif

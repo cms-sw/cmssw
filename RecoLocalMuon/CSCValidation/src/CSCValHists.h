@@ -26,11 +26,12 @@
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "RecoLocalMuon/CSCValidation/src/CSCValPlotFormatter.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
+using namespace std;
 
 class CSCValHists{
 
@@ -50,12 +51,6 @@ class CSCValHists{
 
   // setup trees
   void setupTrees();
-
-  // produce a set of .gif files from produced histos
-  void printPlots();
-
-  // produce a set of compoarison .gif files from produced hists and same plots in reference file
-  void printComparisonPlots(string refFile);
 
   // fill the global rechit position tree (this needs work!)  
   void fillRechitTree(float x, float y, float gx, float gy,
@@ -109,9 +104,17 @@ class CSCValHists{
                            int binsx, float xmin, float xmax,
                            int binsy, float ymin, float ymax, string folder);
 
-  // special plot inspired by CSC online DQM to summarize occupancies
-  void fillOccupancyHistos(const bool wo[2][4][4][36], const bool sto[2][4][4][36],
-                           const bool ro[2][4][4][36], const bool so[2][4][4][36]);
+  // fill 1D histogram
+  // a histogram is created for every layer in every chamber
+  void fill1DHistByLayer(float x, string name, string title, CSCDetId id,
+                         int bins, float xmin, float xmax, string folder);
+
+  // fill 2D histogram
+  // a histogram is created for every layer in every chamber
+  void fill2DHistByLayer(float x, float y, string name, string title, CSCDetId id,
+                         int binsx, float xmin, float xmax,
+                         int binsy, float ymin, float ymax, string folder);
+
 
   // make a profile histogram
   void fillProfile(float x, float y, string name, string title, 
@@ -125,16 +128,16 @@ class CSCValHists{
                          float ymin, float ymax, string folder);
 
   // make a profile histogram
-  // one will be made for every chamber type
+  // one will be made for every chamber
   void fillProfileByChamber(float x, float y, string name, string title, CSCDetId id,
                             int binsx, float xmin, float xmax,
                             float ymin, float ymax, string folder);
 
-  // this is a temp function to mimic a function to be implemented in the CSCDetId for 2_1_0
-  unsigned short tempChamberType( unsigned short istation, unsigned short iring );
-
-  // linearlized index bases on endcap, station, and ring based on CSCDetId
-  int typeIndex(CSCDetId id);
+  // make a 2D profile histogram (usefull for summary plots)
+  void fill2DProfile(float x, float y, float z, string name, string title, 
+                     int binsx, float xmin, float xmax,
+                     int binsy, float ymin, float ymax,
+                     float zmin, float zmax, string folder);
 
   protected:
 
@@ -159,10 +162,6 @@ class CSCValHists{
   // The root tree
   TTree *rHTree;
   TTree *segTree;
-
-  // If you want to make pretty plots
-  CSCValPlotFormatter *plotMaker;
-  bool makePlots;
 
 };
 
