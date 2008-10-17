@@ -46,11 +46,6 @@ namespace {
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
 // &&& Not sure what we need for templates here.
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-//need to put vector defs here
-//creat a namepsace and put the 3 structs here
-//sould have every vector/db object that we want to store, needs to be here.
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"

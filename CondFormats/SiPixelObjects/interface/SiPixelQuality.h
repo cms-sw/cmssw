@@ -46,6 +46,7 @@ class SiPixelQuality {
   class BadComponentStrictWeakOrdering{
   public:
     bool operator() (const disabledModuleType& p,const uint32_t i) const {return p.DetID < i;}
+    bool operator() (const disabledModuleType& p,const disabledModuleType& q) const {return p.DetID < q.DetID;}   
   };
 
 

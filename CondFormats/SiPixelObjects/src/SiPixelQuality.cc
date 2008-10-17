@@ -8,6 +8,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include <algorithm>
+#include <iostream>
 
 
       //////////////////////////////////////
@@ -48,9 +49,13 @@ void SiPixelQuality::addDisabledModule(std::vector<SiPixelQuality::disabledModul
 
 // ask if module is OK
 bool SiPixelQuality::IsModuleUsable(const uint32_t& detid) const {
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(theDisabledModules.begin(),theDisabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
-  if (iter != theDisabledModules.end() && iter->DetID==detid)
-      return false;
+   if(IsFedBad(detid))
+     return true;
+   std::vector<SiPixelQuality::disabledModuleType>disabledModules = theDisabledModules;
+   std::sort(disabledModules.begin(),disabledModules.end(),SiPixelQuality::BadComponentStrictWeakOrdering());
+   std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(disabledModules.begin(),disabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
+   if (iter != disabledModules.end() && iter->DetID==detid && iter->errorType ==0)
+    return false;
   return true;
 }
 
@@ -58,19 +63,23 @@ bool SiPixelQuality::IsModuleUsable(const uint32_t& detid) const {
  bool SiPixelQuality::IsModuleBad(const uint32_t & detid) const {
    if(IsFedBad(detid))
      return true;
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(theDisabledModules.begin(),theDisabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
-  if (iter!=theDisabledModules.end() && iter->DetID==detid && iter->errorType == 0)  //errorType 0 corresponds to "whole" dead module
-     return true;
-  return false;
+   std::vector<SiPixelQuality::disabledModuleType>disabledModules = theDisabledModules;
+   std::sort(disabledModules.begin(),disabledModules.end(),SiPixelQuality::BadComponentStrictWeakOrdering());
+   std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(disabledModules.begin(),disabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
+   if (iter != disabledModules.end() && iter->DetID==detid && iter->errorType == 0) //errorType 0 corresponds to "whole" dead module
+      return true;
+   return false;
 }
 
 //ask if roc is bad
 bool SiPixelQuality::IsRocBad(const uint32_t& detid, const short& rocNb) const {
   if(IsModuleBad(detid))
     return true;
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(theDisabledModules.begin(),theDisabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
-  if (iter != theDisabledModules.end() && iter->DetID == detid)
-    return ((iter->BadRocs >> rocNb)&0x1);
+   std::vector<SiPixelQuality::disabledModuleType>disabledModules = theDisabledModules;
+   std::sort(disabledModules.begin(),disabledModules.end(),SiPixelQuality::BadComponentStrictWeakOrdering());
+   std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(disabledModules.begin(),disabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
+   if (iter != disabledModules.end() && iter->DetID == detid){
+     return ((iter->BadRocs >> rocNb)&0x1);}
   return false;
 }
 
@@ -78,8 +87,10 @@ bool SiPixelQuality::IsRocBad(const uint32_t& detid, const short& rocNb) const {
 
 
 short SiPixelQuality::getBadRocs(const uint32_t& detid) const{
-  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(theDisabledModules.begin(),theDisabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
-  if (iter != theDisabledModules.end() && iter->DetID==detid)
+  std::vector<SiPixelQuality::disabledModuleType>disabledModules = theDisabledModules;
+  std::sort(disabledModules.begin(),disabledModules.end(),SiPixelQuality::BadComponentStrictWeakOrdering());
+  std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(disabledModules.begin(),disabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
+  if (iter != disabledModules.end() && iter->DetID==detid)
     return iter->BadRocs;
   return 0;
 }
