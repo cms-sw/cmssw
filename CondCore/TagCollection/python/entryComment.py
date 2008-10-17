@@ -28,7 +28,7 @@ class entryComment(object):
                description.setNotNullConstraint(columnName,True)
            description.setPrimaryKey(self.__entryCommentTablePK)
            tablehandle=schema.createTable(description)
-           tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
+           tablehandle.privilegeManager().grantToPublic(coral.privilege_Select)
            transaction.commit()
         except Exception, e:
            transaction.rollback() 
@@ -40,20 +40,23 @@ class entryComment(object):
         try:
             transaction.start(False)
             tabrowValueDict={'entryid':entryid,'tablename':tablename,'comment':comment}
+            schema = self.__session.nominalSchema()
             dbop=DBImpl.DBImpl(schema)
-            dbop.insertOneRow(CommonUtils.commentTableName(),self.__entryCommentTableColumns,self.__entryCommentTableColumns,tabrowValueDict)
+            dbop.insertOneRow(CommonUtils.commentTableName(),self.__entryCommentTableColumns,tabrowValueDict)
             transaction.commit()
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
-    def bulkinsertComments( self, tableName,tabrowDefDict,bulkinput):
+    def bulkinsertComments( self, tableName,bulkinput):
         """bulk insert comments for a given table
-        """bulkinput [{valuedict}]
+        bulkinput [{'entryid':unsigned long, 'tablename':string,'comment':string}]
+        """
         transaction=self.__session.transaction()
         try:
             transaction.start(False)
+            schema = self.__session.nominalSchema()
             dbop=DBImpl.DBImpl(schema)
-            dbop.bulkInsertRow(CommonUtils.commentTableName(),self.__entryCommentTableColumns,bulkinput)
+            dbop.bulkInsert(CommonUtils.commentTableName(),self.__entryCommentTableColumns,bulkinput)
             transaction.commit()  
         except Exception, e:
             transaction.rollback()
@@ -193,4 +196,28 @@ class entryComment(object):
         
     
 if __name__ == "__main__":
-    pass
+    context = coral.Context()
+    context.setVerbosityLevel( 'ERROR' )
+    svc = coral.ConnectionService( context )
+    session = svc.connect( 'sqlite_file:testentryComment.db',
+                           accessMode = coral.access_Update )
+    try:
+        entrycomment=entryComment(session)
+        print "test create entrycomment table"
+        entrycomment.createEntryCommentTable()
+        print "test insert one comment"
+        entrycomment.insertComment(CommonUtils.inventoryTableName(),12,'comment1')
+        entrycomment.insertComment(CommonUtils.treeTableName('ABCTREE'),12,'comment1')
+        print "test bulk insert"
+        bulkinput=[]
+        bulkinput.append({'entryid':21,'tablename':CommonUtils.inventoryTableName(),'comment':'mycomment'})
+        bulkinput.append({'entryid':22,'tablename':CommonUtils.inventoryTableName(),'comment':'mycomment2'})
+        bulkinput.append({'entryid':23,'tablename':CommonUtils.inventoryTableName(),'comment':'mycomment3'})
+        bulkinput.append({'entryid':24,'tablename':CommonUtils.inventoryTableName(),'comment':'mycomment4'})
+        entrycomment.bulkinsertComments(CommonUtils.inventoryTableName(),bulkinput)
+        del session
+    except Exception, e:
+        print "Failed in unit test"
+        print str(e)
+        del session
+        
