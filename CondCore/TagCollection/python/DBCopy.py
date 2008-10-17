@@ -41,7 +41,7 @@ class DBCopy(object):
             #copy inventory id table
             source_query=self.__sourcesession.nominalSchema().tableHandle(CommonUtils.inventoryIDTableName()).newQuery()
             my_ideditor=self.__destsession.nominalSchema().tableHandle(CommonUtils.inventoryIDTableName()).dataEditor()
-            iddata=coral.AttributeList()
+            iddata=coral.AttributeList()            
             source_query.setCondition('',conditionData)
             source_query.setRowCacheSize(self.__rowcachesize)
             my_ideditor.rowBuffer(iddata)
@@ -53,6 +53,26 @@ class DBCopy(object):
             bulkOperation.flush()
             del bulkOperation
             del source_query
+
+            #copy comment table if exists
+            if self.__sourcesession.nominalSchema().existsTable(CommonUtils.commentTableName()):
+                source_query=self.__sourcesession.nominalSchema().tableHandle(CommonUtils.commentTableName()).newQuery()
+                my_commenteditor=self.__destsession.nominalSchema().tableHandle(CommonUtils.commentTableName()).dataEditor()
+                commentdata=coral.AttributeList()
+                qcondition=coral.AttributeList()
+                qcondition.extend('tablename','string')
+                qcondition['tablename'].setData(CommonUtils.commentTableName())
+                source_query.setCondition('tablename = :tablename',qcondition)
+                source_query.setRowCacheSize(self.__rowcachesize)
+                my_commenteditor.rowBuffer(commentdata)
+                source_query.defineOutput(commentdata)
+                bulkOperation=my_commenteditor.bulkInsert(commentdata,self.__rowcachesize)
+                cursor=source_query.execute()
+                while cursor.next():
+                    bulkOperation.processNextIteration()
+                bulkOperation.flush()
+                del bulkOperation
+                del source_query
             
             source_transaction.commit()
             dest_transaction.commit()
@@ -131,6 +151,26 @@ class DBCopy(object):
 	      bulkOperation.flush()
 	      del bulkOperation
 	      del source_query
+              #copy comment tables if exist
+              if self.__sourcesession.nominalSchema().existsTable(CommonUtils.commentTableName()):
+                  data=coral.AttributeList()
+                  dest_editor=self.__destsession.nominalSchema().tableHandle(CommonUtils.commentTableName()).dataEditor()
+                  source_query=self.__sourcesession.nominalSchema().tableHandle(CommonUtils.commentTableName()).newQuery()
+                  conditionData=coral.AttributeList()
+                  source_query.setCondition('tablename = :tablename',conditionData)
+                  conditionData.extend('tablename','string')
+                  conditionData['tablename'].setData(CommonUtils.treeTableName(treename))
+                  source_query.setRowCacheSize(self.__rowcachesize)
+                  dest_editor.rowBuffer(data)
+                  source_query.defineOutput(data)
+                  bulkOperation=dest_editor.bulkInsert(data,self.__rowcachesize)
+                  cursor=source_query.execute()
+                  while cursor.next():
+                      bulkOperation.processNextIteration()
+                  bulkOperation.flush()
+                  del bulkOperation
+                  del source_query
+              
 	      source_transaction.commit()
 	      dest_transaction.commit()
 	      #fix leaf node links
@@ -167,6 +207,12 @@ class DBCopy(object):
 	   alltablelist.append(CommonUtils.inventoryIDTableName())
 	except ValueError:
 	   raise 'Error: '+CommonUtils.inventoryIDTableName()+' does not exist'
+
+	try:
+	   i = tablelist.index(CommonUtils.commentTableName())
+	   alltablelist.append(CommonUtils.commentTableName())
+	except ValueError:
+           pass
 	
 	for tablename in tablelist:
 	   posbeg=tablename.find('TAGTREE_TABLE_')
