@@ -14,9 +14,10 @@ process.load('DQM.SiStripCommon.MessageLogger_cfi')
 process.DQMStore = cms.Service("DQMStore")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = "CRUZET4_V6H::All"
-process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.prefer("GlobalTag")
+process.GlobalTag.globaltag = "IDEAL_V9::All"
+#process.GlobalTag.globaltag = "CRUZET4_V6H::All"
+#process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
+#process.prefer("GlobalTag")
 
 process.load('DQM.SiStripMonitorHardware.siStripFEDCheck_cfi')
 process.siStripFEDCheck.PrintDebugMessages = True
