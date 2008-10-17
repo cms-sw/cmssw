@@ -13,6 +13,9 @@
 <use name=CondFormats/CSCObjects>
 <use name=root>
 <use name=rootinteractive>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=RecoMuon/TrackingTools>
+
 
 <flags EDM_PLUGIN=1>
 <export>
