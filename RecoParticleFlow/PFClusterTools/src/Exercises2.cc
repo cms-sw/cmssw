@@ -109,7 +109,9 @@ void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 	//use tree utility to extract calibratables
 	TreeUtility tu;
 	std::vector<Calibratable> calibVec;
-	tu.getCalibratablesFromRootFile(*source, calibVec);
+	PFToolsException e("TreeUtility has moved on, fix this up!");
+	throw e;
+	//tu.getCalibratablesFromRootFile(*source, calibVec);
 	if (debug_ > 0)
 		std::cout << "Got a vector of calibratables of size "<< calibVec.size()
 				<< "\n";
@@ -288,7 +290,7 @@ void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 		CalibratorPtr c = (*it).second;
 		std::for_each(elements_.begin(), elements_.end(), resetElement);
 		evaluateCalibrator(sm, c, tree, calibrated, ecal, hcal, offset, LINEAR,
-				LINEARCORR);
+				NONE);
 		std::for_each(elements_.begin(), elements_.end(), resetElement);
 	}
 	sm->printCalibrations(std::cout);
@@ -306,7 +308,7 @@ void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 		CalibratorPtr c = (*it).second;
 		std::for_each(elements_.begin(), elements_.end(), resetElement);
 		evaluateCalibrator(hsm, c, tree, calibrated, ecal, hcal, offset,
-				LINEAR, LINEARCORR);
+				LINEAR, NONE);
 		std::for_each(elements_.begin(), elements_.end(), resetElement);
 	}
 	hsm->printCalibrations(std::cout);
@@ -325,7 +327,7 @@ void Exercises2::calibrateCalibratables(const std::string& sourcefile,
 		CalibratorPtr c = (*it).second;
 		std::for_each(elements_.begin(), elements_.end(), resetElement);
 		evaluateCalibrator(esm, c, tree, calibrated, ecal, hcal, offset,
-				LINEAR, LINEARCORR);
+				LINEAR, NONE);
 		std::for_each(elements_.begin(), elements_.end(), resetElement);
 	}
 	esm->printCalibrations(std::cout);
@@ -394,18 +396,18 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 		if (s->getName() == "ecalOnly") {
 			options_->GetOpt("evolution", "ecalOnlyEcalBarrel", ecalBarrel);
 			options_->GetOpt("evolution", "ecalOnlyEcalEndcap", ecalEndcap);
-			assert(ecalBarrel.size() == 9 && ecalEndcap.size() == 9);
+			//assert(ecalBarrel.size() == 9 && ecalEndcap.size() == 9);
 		} else if (s->getName() == "hcalOnly") {
 			options_->GetOpt("evolution", "hcalOnlyHcalBarrel", hcalBarrel);
 			options_->GetOpt("evolution", "hcalOnlyHcalEndcap", hcalEndcap);
-			assert(hcalBarrel.size() == 9 && hcalEndcap.size() == 9);
+			//assert(hcalBarrel.size() == 9 && hcalEndcap.size() == 9);
 		} else {
 			options_->GetOpt("evolution", "ecalHcalEcalBarrel", ecalBarrel);
 			options_->GetOpt("evolution", "ecalHcalEcalEndcap", ecalEndcap);
 			options_->GetOpt("evolution", "ecalHcalHcalBarrel", hcalBarrel);
 			options_->GetOpt("evolution", "ecalHcalHcalEndcap", hcalEndcap);
-			assert(ecalBarrel.size() == 9 && ecalEndcap.size() == 9);
-			assert(hcalBarrel.size() == 9 && hcalEndcap.size() == 9);
+			//assert(ecalBarrel.size() == 9 && ecalEndcap.size() == 9);
+			//assert(hcalBarrel.size() == 9 && hcalEndcap.size() == 9);
 		}
 
 		for (std::vector<DetectorElementPtr>::iterator i = detEls.begin(); i
@@ -424,9 +426,12 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			barrelName.append(RegionNames[BARREL_POS]);
 			std::cout << "\tFixing "<< RegionNames[BARREL_POS]<< "\n";
 			TF1
-					fBarrel(
-							barrelName.c_str(),
-							"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+					//fBarrel(
+						//	barrelName.c_str(),
+							//"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+			fBarrel(barrelName.c_str(),
+										"([0]*[5]*x)*([5]*x<[1])+([2]+[3]*exp([4]*[5]*x))*([5]*x>[1])");
+
 
 			if (d->getType() == ECAL) {
 				unsigned count(0);
@@ -463,9 +468,11 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			endcapName.append(RegionNames[ENDCAP_POS]);
 			std::cout << "\tFixing "<< RegionNames[ENDCAP_POS]<< "\n";
 			TF1
-					fEndcap(
-							endcapName.c_str(),
-							"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+				//	fEndcap(
+					//		endcapName.c_str(),
+						//	"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+			fEndcap(endcapName.c_str(),
+										"([0]*[5]*x)*([5]*x<[1])+([2]+[3]*exp([4]*[5]*x))*([5]*x>[1])");
 
 			if (d->getType() == ECAL) {
 				unsigned count(0);

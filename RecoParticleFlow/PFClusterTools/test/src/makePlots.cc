@@ -1,7 +1,7 @@
 void makePlots(TFile& file) {
 	//TFile file("Exercises.root", "update");
 	TTree* tv__tree = (TTree *) gROOT->FindObject("CalibratedParticles");
-
+	//tv__tree->AddFriend("extraction/Extraction", "Exercises300.root");
 	TDirectory* plots = file.mkdir("plots");
 	file.cd("/plots");
 
@@ -10,6 +10,7 @@ void makePlots(TFile& file) {
 	plots->mkdir("bias");
 	plots->mkdir("ratios");
 	plots->mkdir("resolutions");
+	plots->mkdir("resolutions30");
 
 	file.cd("/plots/linearity");
 
@@ -66,7 +67,19 @@ void makePlots(TFile& file) {
 	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>uncalibrated_bias",
 			"calibrations_.provenance_ == 0", "box");
 	doBiasPlots(file, "uncalibrated_bias", "Uncalibrated", kRed);
-
+	
+	file.cd("/plots/resolutions30");
+	doResolution(tv__tree,"(20,1.0,6.0,100,0,50)","calibrations_.provenance_ < 0", "Corrected", kViolet);
+	doResolution(tv__tree,"(20,1.0,6.0,100,0,50)","calibrations_.provenance_ > 0", "Calibrated", kBlue);
+	doResolution(tv__tree,"(20,1.0,6.0,100,0,50)","calibrations_.provenance_ == 0", "Uncalibrated", kRed); 
+	
+	/*
+	file.cd("/plots/resolutions");
+	 
+	doResolution(tv__tree,"(20,1.0,18.0,100,0,500)","calibrations_.provenance_ < 0", "Corrected", kViolet);
+	doResolution(tv__tree,"(20,1.0,18.0,100,0,500)","calibrations_.provenance_ > 0", "Calibrated", kBlue);
+	doResolution(tv__tree,"(20,1.0,18.0,100,0,500)","calibrations_.provenance_ == 0", "Uncalibrated", kRed); 
+	*/
 }
 
 void doFullRatioPlots(TFile& f, std::string leadingName, std::string title,
@@ -234,7 +247,7 @@ void doResolution(TTree* t, std::string queryBins, std::string cut,
 	std::string leadingName_res(name);
 	leadingName_res.append("_res");
 
-	//f.cd("/plots/resolutions");
+	
 	//do tree business here
 	t->Draw(qryName.c_str(), cut.c_str(),"box");
 	TH2* temp = (TH2*) gDirectory->FindObject(name.c_str());
@@ -244,16 +257,12 @@ void doResolution(TTree* t, std::string queryBins, std::string cut,
 	reso->Divide(mean);
 	reso->SetTitle(name.c_str());
 	reso->SetName(leadingName_res.c_str());
+	reso->SetMarkerStyle(22);
+	reso->SetMarkerColor(color);
+	TF1* f = new TF1(name.c_str(), "[0]/x + [1]/(x*x)");
+	reso->Fit(f);
+	f->Write();
 	reso->Write();
 	leadingName_res.append("_graph");
-	TGraph*  gr = new TGraph(reso);
-	gr->SetName(leadingName_res.c_str());
-	
-	gr->SetMarkerColor(color);
-	TF1* f = new TF1(name.c_str(), "[0]/x + [1]/(x*x)");
-	gr->Fit(f);
-	gr->Draw("A*");
-	gr->Write();
-	f->Write();
 
 }

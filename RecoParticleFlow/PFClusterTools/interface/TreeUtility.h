@@ -7,6 +7,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <TFile.h>
+#include <TChain.h>
 #include <vector>
 #include <string>
 #include <map>
@@ -31,9 +32,9 @@ public:
 			std::vector<DetectorElementPtr >& elements,
 			std::vector<ParticleDepositPtr >& toBeFilled);
 
-	void recreateFromRootFile(TFile& file);
+	void recreateFromRootFile(TFile& f);
 
-	unsigned getCalibratablesFromRootFile(TFile& f,
+	unsigned getCalibratablesFromRootFile(TChain& tree,
 			std::vector<Calibratable>& toBeFilled);
 
 	unsigned convertCalibratablesToParticleDeposits(

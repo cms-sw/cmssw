@@ -94,27 +94,28 @@ Exercises3::Exercises3(IO* options) :
 
 }
 
-void Exercises3::calibrateCalibratables(const std::string& sourcefile,
+void Exercises3::calibrateCalibratables(TChain& sourceTree,
 		const std::string& exercisefile) {
 
 	if (debug_ > 0) {
 		std::cout << "Welcome to "<< __PRETTY_FUNCTION__ << "\n";
-		std::cout << "Opening TFile...\n";
+		std::cout << "Opening TTree...\n";
 	}
-	//open tfile
-	TFile* source = new TFile(sourcefile.c_str());
-	if (source == 0) {
-		std::string desc("Couldn't open file ");
-		desc += sourcefile;
-		PFToolsException e(desc);
-		throw e;
-	}
-	if (debug_ > 0)
-		std::cout << "Extracting calibratables...\n";
+//	//open tfile
+//	TFile* source = new TFile(sourcefile.c_str());
+//	if (source == 0) {
+//		std::string desc("Couldn't open file ");
+//		desc += sourcefile;
+//		PFToolsException e(desc);
+//		throw e;
+//	}
+//	if (debug_ > 0)
+//		std::cout << "Extracting calibratables...\n";
 	//use tree utility to extract calibratables
 	TreeUtility tu;
 	std::vector<Calibratable> calibVec;
-	tu.getCalibratablesFromRootFile(*source, calibVec);
+
+	tu.getCalibratablesFromRootFile(sourceTree, calibVec);
 	if (debug_ > 0)
 		std::cout << "Got a vector of calibratables of size "<< calibVec.size()
 				<< "\n";
@@ -127,9 +128,8 @@ void Exercises3::calibrateCalibratables(const std::string& sourcefile,
 	std::vector<ParticleDepositPtr> pdVec;
 	tu.convertCalibratablesToParticleDeposits(calibVec, pdVec, target_, offset,
 			ecal, hcal, withOffset_);
-	source->Close();
-	if (debug_ > 0)
-		std::cout << "Closed source file. Opening exercises file...\n";
+	//source->Close();
+
 	TFile* exercises = new TFile(exercisefile.c_str(), "recreate");
 	TH1F droppedParticles("droppedParticles", "droppedParticles", 100000, 0,
 			100000);
@@ -352,6 +352,7 @@ void Exercises3::evaluateSpaceManager(SpaceManagerPtr s,
 			TF1
 					fEndcap(endcapName.c_str(),
 							"([0]*[5]*x)*([5]*x<[1])+([2]+[3]*exp([4]*[5]*x))*([5]*x>[1])");
+			
 
 			if (d->getType() == ECAL) {
 				unsigned count(0);

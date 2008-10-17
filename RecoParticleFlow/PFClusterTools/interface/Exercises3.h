@@ -14,6 +14,7 @@
 #include <vector>
 #include <TFile.h>
 #include <TTree.h>
+#include <TChain.h>
 #include <fstream>
 
 namespace pftools {
@@ -23,9 +24,9 @@ public:
 	Exercises3(IO* options);
 	
 	virtual ~Exercises3();
-
-	void calibrateCalibratables(const std::string& sourcefile,
-			const std::string& exercisefile);
+	
+	void calibrateCalibratables(TChain& sourceTree,
+				const std::string& exercisefile);
 
 	//void gaussianFits(TFile& exercisefile, std::vector<Calibratable>& calibs);
 

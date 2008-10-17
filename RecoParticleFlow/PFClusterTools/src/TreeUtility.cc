@@ -12,28 +12,29 @@ TreeUtility::TreeUtility() {
 TreeUtility::~TreeUtility() {
 }
 
-unsigned TreeUtility::getCalibratablesFromRootFile(TFile& f,
+unsigned TreeUtility::getCalibratablesFromRootFile(TChain& tree,
 		std::vector<Calibratable>& toBeFilled) {
 
-	f.cd("extraction");
-	TTree* tree = (TTree*) f.Get("extraction/Extraction");
-	if (tree == 0) {
-		PFToolsException me("Couldn't open tree!");
-		throw me;
-	}
-	std::cout << "Successfully opened file. Getting branches..."<< std::endl;
+//	f.cd("extraction");
+//	TTree* tree = (TTree*) f.Get("extraction/Extraction");
+//	if (tree == 0) {
+//		PFToolsException me("Couldn't open tree!");
+//		throw me;
+//	}
+//	std::cout << "Successfully opened file. Getting branches..."<< std::endl;
 	CalibratablePtr calib_ptr(new Calibratable());
-	TBranch* calibBr = tree->GetBranch("Calibratable");
+	//TBranch* calibBr = tree.GetBranch("Calibratable");
 	//spwBr->SetAddress(&spw);
-	calibBr->SetAddress(&calib_ptr);
-	std::cout << "Looping over tree's "<< tree->GetEntries() << " entries...\n";
-	for (unsigned entries(0); entries < tree->GetEntries(); entries++) {
-		tree->GetEntry(entries);
+	tree.SetBranchAddress("Calibratable", &calib_ptr);
+	
+	std::cout << "Looping over tree's "<< tree.GetEntries() << " entries...\n";
+	for (unsigned entries(0); entries < tree.GetEntries(); entries++) {
+		tree.GetEntry(entries);
 		Calibratable c(*calib_ptr);
 		toBeFilled.push_back(c);
 	}
 
-	return tree->GetEntries();
+	return tree.GetEntries();
 
 }
 
@@ -45,7 +46,7 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	std::cout << "WARNING: Using fabs() for eta value assignments!\n";
-	
+	std::cout << "Input Calibratable has size " << input.size() << "\n"; 
 	std::cout << "Cutting on > 1 PFCandidate.\n";
 	
 	//neither of these two are supported yet
@@ -141,9 +142,10 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 		}
 		if (!veto)
 		toBeFilled.push_back(pd);
+	
 		++count;
 	}
-
+	
 	return toBeFilled.size();
 
 }

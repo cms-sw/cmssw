@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
+#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 
 #include <vector>
 #include <string>
@@ -37,6 +38,8 @@ public:
 	
 	/* Constructor with sensible defaults */
 	PFClusterCalibration();
+	
+	PFClusterCalibration(IO* io);
 
 	virtual ~PFClusterCalibration();
 
@@ -118,11 +121,14 @@ public:
 	std::vector<std::string>* getKnownSectorNames() {
 		return &names_;
 	}
+
 	
 	/* Dumps the member values to the stream */
 	friend std::ostream& pftools::operator<<(std::ostream& s, const PFClusterCalibration& cc);
 
 private:
+	
+	void init();
 
 	//where to select either barrel or endcap
 	double barrelEndcapEtaDiv_;

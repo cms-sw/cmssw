@@ -12,14 +12,16 @@
 	IO* io = new IO("pfClusterTools.opt");
 	Exercises3 ex(io);
 	std::cout << "Constructed exercises and options, calibrating...\n";
-	
+	TChain c("extraction/Extraction");
+	c.Add("../../../../../DipionDelV2_famosPions_0to30GeV_threshApp_200k.root");
+	c.Add("../../../../../DipionDelV2_famosPions_0to300GeV_threshApp_200k.root");
+	//c.SetBranchStatus("*", 1);
+	//ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to300GeV_threshApp_200k.root","Exercises300.root");
 	//ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to30GeV_threshApp_200k.root","Exercises30.root");
-	ex.calibrateCalibratables("../../../../../DipionDelV2_famosPions_0to300GeV_threshApp_200k.root","Exercises300.root");
-	
-	//ex.calibrateCalibratables("../../../UserCode/JamieBallin/test/DipionDelV2_famosProtons_0to50GeV_threshApp_50k.root","ExercisesProtons.root");
-	TFile f("Exercises300.root","update");
+	ex.calibrateCalibratables(c, "ExercisesCombined.root");
+	TFile f("ExercisesCombined.root","update");
 	gROOT->ProcessLine(".L src/makePlots.cc");
 	gROOT->ProcessLine("makePlots(f)");
 	f.Write();
-	f.Close();
+	f.Close(); 
 }

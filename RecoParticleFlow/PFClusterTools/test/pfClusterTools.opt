@@ -12,30 +12,30 @@ correction		doCorrection			1
 correction		doEtaCorrection			1
 //Bulk correction parameters
 correction		globalP0 				-2.314808
-correction		globalP1 				1.05
+correction		globalP1 				1.01
 correction		globalP2 				0.0
 //Low energy correction parameters
 correction		correctionLowLimit		1.0
-correction		lowEP0					5.906466e-01
-correction		lowEP1					4.608835e-01
+correction		lowEP0					3.249189e-01
+correction		lowEP1					7.907990e-01
 correction		allowNegativeEnergy		0
 correction		maxEToCorrect			-1.0
 
 //Auto fit evolution function to data
 evolution		autoFit					0
-evolution		basePlots				0
-evolution		basePlotsUseTruth		0
+evolution		basePlots				1
+evolution		basePlotsUseTruth		1
 
 evolution		ecalECut				0.0
 evolution		hcalECut				0.0
 evolution		barrelEndcapEtaDiv		1.4
 
 //Use hand fitted parameters specified below
-evolution		ecalHcalEcalBarrel		0.0		0.0		1.15	0.90    -0.035	1.1
-evolution 		ecalHcalEcalEndcap		0.280	5.0		1.10	0.40	-0.020	1.1
-evolution 		ecalHcalHcalBarrel		0.260	5.0		1.15	0.30	-0.020	1.1
-evolution		ecalHcalHcalEndcap		0.260	5.0		1.10	0.30	-0.02	1.1
-evolution		etaCorrection			0.0127 0.0479  1.40    -0.50   1.00    1.50   -0.0132  0.009507  
+evolution		ecalHcalEcalBarrel		0.67	3.0		1.15	0.90    -0.060	1.4
+evolution 		ecalHcalEcalEndcap		0.46	3.0		1.10	0.40	-0.020	1.4
+evolution 		ecalHcalHcalBarrel		0.46	3.0		1.15	0.30	-0.020	1.4
+evolution		ecalHcalHcalEndcap		0.460	3.0		1.10	0.30	-0.02	1.4
+evolution		etaCorrection			1.01   -1.02e-02 	5.17e-02 	 0.563 	-0.425 	0.110
 
 
 //What kind of interpolation is used for evaluating particle energy
