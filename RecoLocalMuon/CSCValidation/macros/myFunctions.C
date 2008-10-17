@@ -6,6 +6,60 @@ TFile* OpenFiles(std::string path){
 
 }
 
+void printEmptyChambers(std::string histoname, std::string oname, TFile* f){
+  TH2I *plot = (TH2I*)f->Get(histoname.c_str());
+  std::string endcap, chamber;
+  int limitr, limitc; 
+  std::vector<string> deadchambers;
+  
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      if (s == 0) limitr = 4;
+      if (s == 1 || s == 2) limitr = 2;
+      if (s == 3) limitr = 1;
+      for (int r = 0; r < limitr; r++){
+        if (s == 0) limitc = 36;
+        if (s != 0 && r == 0) limitc = 18;
+        if (s != 0 && r == 1) limitc = 36;
+        for (int c = 0; c < limitc; c++){
+          int type = 0; 
+          if (s == 0 && r == 0) type = 2; 
+          else if (s == 0 && r == 1) type = 3;
+          else if (s == 0 && r == 2) type = 4;
+          else if (s == 0 && r == 3) type = 1;
+          else type = (s+1)*2 + (r+1);
+          if (e == 0) type = type + 10;
+          if (e == 1) type = 11 - type;
+          int bin = plot->GetBin((c+1),type);
+          float content = plot->GetBinContent(bin);
+          std::ostringstream oss;
+          if (e == 0) endcap = "+";
+          if (e == 1) endcap = "-"; 
+          oss << "ME " << endcap << (s+1) << "/" << (r+1) << "/" << (c+1);
+          chamber = oss.str();
+          if (content == 0){
+            if (oname == "wire digis" && (s == 0 && r == 3)) continue;
+            else deadchambers.push_back(chamber);
+          }
+        }
+      }
+    }
+  }
+
+  int n_dc = deadchambers.size();
+  ofstream file;
+  file.open("deadchamberlist.txt",ios::app);
+  file << "Chambers with missing " << oname << "...\n" << endl;
+  if (n_dc > 0){
+    for (int n = 0; n < n_dc; n++){
+      file << deadchambers[n] << endl;
+    }
+  }
+  file << "\n\n\n\n";
+  file.close();
+
+}
+
 void make1DPlot(std::string histoname, TFile* f1, std::string histotitle, int statoption, std::string savename){
 
   TH1F *h1 = (TH1F*)f1->Get(histoname.c_str());
@@ -35,7 +89,7 @@ void make1DPlot(std::string histoname, TFile* f1, std::string histotitle, int st
     h1->Draw();
 
     c->Update();
-    c->Print(savename.c_str());
+    c->Print(savename.c_str(),"png");
   }
 
 }
@@ -88,7 +142,7 @@ void make1DPlot2(std::string histoname1, std::string histoname2, int statoption,
   }
 
   c->Update();
-  c->Print(savename.c_str());
+  c->Print(savename.c_str(),"png");
 
 }
 
@@ -142,9 +196,64 @@ void makeEffGif(std::string histoname, TFile* f1, std::string histotitle, std::s
     h1->GetXaxis()->SetBinLabel(20,"ME -4/2");
     h1->Draw();
     c->Update();
-    c->Print(savename.c_str());
+    c->Print(savename.c_str(),"png");
   }
 }
+
+void Draw2DProfile(std::string histoname, TFile* f1, std::string title, std::string option, std::string savename){
+
+  TProfile2D *test = f1->Get(histoname.c_str());
+  TH2D *plot = test->ProjectionXY("test2",option.c_str());
+  
+  if (plot){
+    TCanvas *c = new TCanvas("c","my canvas",1);
+    gStyle->SetPalette(1,0);
+    gPad->SetFillColor(4000);
+    c->SetFillStyle(4000);
+    gStyle->SetStatColor(0);
+    gStyle->SetTitleFillColor(0);
+    plot->SetStats(kFALSE);
+    plot->GetYaxis()->SetBinLabel(1,"ME- 4/1");
+    plot->GetYaxis()->SetBinLabel(2,"ME- 3/2");
+    plot->GetYaxis()->SetBinLabel(3,"ME- 3/1");
+    plot->GetYaxis()->SetBinLabel(4,"ME- 2/2");
+    plot->GetYaxis()->SetBinLabel(5,"ME- 2/1");
+    plot->GetYaxis()->SetBinLabel(6,"ME- 1/3");
+    plot->GetYaxis()->SetBinLabel(7,"ME- 1/2");
+    plot->GetYaxis()->SetBinLabel(8,"ME- 1/1b");
+    plot->GetYaxis()->SetBinLabel(9,"ME- 1/1a");
+    plot->GetYaxis()->SetBinLabel(10,"ME+ 1/1a");
+    plot->GetYaxis()->SetBinLabel(11,"ME+ 1/1b");
+    plot->GetYaxis()->SetBinLabel(12,"ME+ 1/2");
+    plot->GetYaxis()->SetBinLabel(13,"ME+ 1/3");
+    plot->GetYaxis()->SetBinLabel(14,"ME+ 2/1");
+    plot->GetYaxis()->SetBinLabel(15,"ME+ 2/2");
+    plot->GetYaxis()->SetBinLabel(16,"ME+ 3/1");
+    plot->GetYaxis()->SetBinLabel(17,"ME+ 3/2");
+    plot->GetYaxis()->SetBinLabel(18,"ME+ 4/1");
+
+    plot->SetTitle(title.c_str());
+
+    for (int i = 1; i < 37; i++){
+      ostringstream oss1;
+      oss1 << i;
+      string ch = oss1.str();
+      plot->GetXaxis()->SetBinLabel(i,ch.c_str());
+    }
+
+    c->SetRightMargin(0.12);
+    plot->GetYaxis()->SetNdivisions(20,kFALSE);
+    plot->GetXaxis()->SetNdivisions(36,kFALSE);
+    plot->GetXaxis()->SetTitle("Chamber #");
+    c->SetGrid();
+
+    plot->Draw("colz");
+    c->Update();
+    c->Print(savename.c_str(),"png");
+  }
+
+}
+
 
 void Draw2DTempPlot(std::string histo, TFile* f1, bool includeME11, std::string savename){
 
@@ -221,7 +330,7 @@ void Draw2DTempPlot(std::string histo, TFile* f1, bool includeME11, std::string 
   plot->Draw("COLZ");
 
   c->Update();
-  c->Print(savename.c_str());
+  c->Print(savename.c_str(),"png");
 
 
 }
@@ -297,7 +406,7 @@ void GlobalPosfromTree(std::string graphname, TFile* f1, int endcap, int station
 
   drawChamberLines(station);
 
-  c->Print(savename.c_str());
+  c->Print(savename.c_str(),"png");
 
 }
 
@@ -655,7 +764,7 @@ void compare1DPlot(std::string histoname, TFile* f1, TFile* f2, std::string hist
   }
 
   c->Update();
-  c->Print(savename.c_str());
+  c->Print(savename.c_str(),"png");
 
 }
 
@@ -720,7 +829,7 @@ void compareEffGif(std::string histoname, TFile* f1, TFile* f2, std::string hist
     h2->Draw("same");
     leg->Draw();
     c->Update();
-    c->Print(savename.c_str());
+    c->Print(savename.c_str(),"png");
   }
 }
 
@@ -823,7 +932,7 @@ void GlobalPosfromTreeCompare(std::string graphname, TFile* f1, TFile* f2, int e
   graph2->Draw("AP");
 
   //c->Update();
-  c->Print(savename.c_str());
+  c->Print(savename.c_str()"png");
 
 }
 
@@ -1075,13 +1184,13 @@ for(Int_t jesr=0;jesr<18;jesr++) {
      
      h->Draw();
      ss.str("");
-     ss<<result_histName.c_str()<<esr[jesr]<<".gif";
-     c1->Print(ss.str().c_str(),"gif");
+     ss<<result_histName.c_str()<<esr[jesr]<<".png";
+     c1->Print(ss.str().c_str(),"png");
      
      hentr->Draw();
      ss.str("");
-     ss<<result_histNameEntries.c_str()<<esr[jesr]<<".gif";
-     c1->Print(ss.str().c_str(),"gif");
+     ss<<result_histNameEntries.c_str()<<esr[jesr]<<".png";
+     c1->Print(ss.str().c_str(),"png");
    }
    delete h;
    delete hentr;
@@ -1090,8 +1199,8 @@ for(Int_t jesr=0;jesr<18;jesr++) {
    if(flag==2) {
    hb->Draw();      
    ss.str("");
-   ss<<"mean_afeb_time_bin_vs_csc_ME"<<".gif";      
-   c1->Print(ss.str().c_str(),"gif");
+   ss<<"mean_afeb_time_bin_vs_csc_ME"<<".png";      
+   c1->Print(ss.str().c_str(),"png");
 
    c1->Update();
    delete hb;    
