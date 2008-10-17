@@ -26,13 +26,13 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
     }
 }
 
-void ModuleWebRegistry::openBackDoor(const std::string &name)
+void ModuleWebRegistry::openBackDoor(const std::string &name, unsigned int timeout_sec)
 {
   idct i = clm_.find(name);
   if(i != clm_.end())
     {
       try{
-	(*i).second->openBackDoor();
+	(*i).second->openBackDoor(timeout_sec);
       }
       catch(...)
 	{
