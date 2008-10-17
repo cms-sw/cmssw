@@ -2,14 +2,14 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/14 18:57:06 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/09/12 23:08:34 $
+ *  $Revision: 1.11 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
  */
 #include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
+
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -23,15 +23,11 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "gsl/gsl_statistics.h"
 
 using namespace std;
-double ptmin = 3.;
-
 
 
 template <class T> T sqr(const T& t) {return t*t;}
@@ -81,7 +77,7 @@ TrajectorySeed MuonDTSeedFromRecHits::seed() const {
   }
 
   LogTrace(metname) << " Seed Pt: " << ptmean << " +/- " << sptmean << endl;
-     
+  
   // take the best candidate
   ConstMuonRecHitPointer last = best_cand();
   return createSeed(ptmean, sptmean,last);
@@ -198,12 +194,35 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
     if(stat == 0) continue;
 
-    std::vector<double> pts = thePtExtractor->pT_extract(*iter, *iter);
-    pt[stat-1] = pts[0];
-    spt[stat-1] = pts[1];
-    if(pt[stat-1]>0 && pt[stat-1] < ptmin) pt[stat-1] = ptmin;
-    if(pt[stat-1]<0 && pt[stat-1] > ptmin) pt[stat-1] = -ptmin;
+    GlobalPoint pos = (*iter)->globalPosition();
+    GlobalVector dir = (*iter)->globalDirection();
 
+    float dphi = -pos.phi()+dir.phi();
+    if(dphi>M_PI) dphi -= 2*M_PI;
+    if(dphi<-M_PI) dphi += 2*M_PI;
+    int ch = (dphi<0) ? 1 : -1;
+
+    if( stat==1 ) {
+      pt[0]=(-1.0+1.46/fabs(dphi)) * ch; 
+      if ( abs(pos.z()) > 500 ) {
+        // overlap 
+        float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
+        dphi = fabs((a1-a2)/(1+a1*a2));
+
+        pt[0] = fabs(-3.3104+(1.2373/dphi)) * ch;
+      }
+    }
+    // assign Pt from MB2 & vtx
+    if( stat==2 ) {
+      pt[1]=(-1.0+0.9598/fabs(dphi))*ch;
+      if ( abs(pos.z()) > 600 ) {
+        // overlap 
+        float a1 = dir.y()/dir.x(); float a2 = pos.y()/pos.x();
+        dphi = fabs((a1-a2)/(1+a1*a2));
+
+        pt[1] = fabs(10.236+(0.5766/dphi)) * ch;
+      }
+    }
     float ptmax = 2000.;
     if(pt[0] > ptmax) pt[0] = ptmax;
     if(pt[0] < -ptmax) pt[0] = -ptmax;
@@ -246,47 +265,58 @@ void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
       if ( radius2<450 ) stat2=1;
       if ( radius2>650 ) stat2=4;
 
+      GlobalVector globalDir1 = (*iter)->globalDirection();
+      GlobalVector globalDir2 = (*iter2)->globalDirection();
+      float dphi = -globalDir1.phi()+globalDir2.phi();
+      // Maybe these aren't necessary with Geom::Phi
+      if(dphi>M_PI) dphi -= 2*M_PI;
+      if(dphi<-M_PI) dphi += 2*M_PI;
+      // assume we're going inward, so + dphi means + charge
+      int ch = (dphi > 0) ? 1 : -1;
 
       if ( stat1>stat2) {
+        ch = -ch;
         int tmp = stat1;
         stat1 = stat2;
         stat2 = tmp;
       }
       unsigned int st = stat1*10+stat2;
-      int index = 0;
-      switch (st) {
-        case  12 : {//MB1-MB2
-          index = 2;
-          break;
+
+      if ( dphi ) {
+        dphi = fabs(dphi);
+        switch (st) {
+	case  12 : {//MB1-MB2
+	  pt[2]=(12.802+0.38647/dphi)*ch ; 
+	  GlobalPoint pos_iter = (*iter)->globalPosition();
+	  if (  (*iter)->det()->position().perp() <450 ) {
+	    if ( fabs(pos_iter.z())>500. ) {
+	      pt[2]=(12.802+0.16647/dphi)*ch ; 
+	    }
+	  } else {
+	    if ( fabs(pos_iter.z())>600. ) {
+	      pt[2]=(12.802+0.16647/dphi)*ch ; 
+	    }
+	  }
+	  ;break;
 	}
 	case  13 : {//MB1-MB3
-          index = 3;
-          break;
+	  pt[3]=(.0307+0.99111/dphi)*ch ; ;break;
 	}
 	case  14 : {//MB1-MB4
-          index = 5;
-          break;
+	  pt[5]=(2.7947+1.1991/dphi)*ch ; ;break;
 	}
 	case  23 : {//MB2-MB3
-          index = 4;
-          break;
+	  pt[4]=(2.4583+0.69044/dphi)*ch ;;break; 
 	}
 	case  24 : {//MB2-MB4
-          index = 6;
-          break;
+	  pt[6]=(2.5267+1.1375/dphi)*ch ; ;break; 
 	}
 	case  34 : {//MB3-MB4
-          index = 7;
-          break;
+	  pt[7]=(4.06444+0.59189/dphi)*ch ; ;break;
 	}
 	default: break;
-      }  
-      std::vector<double> pts = thePtExtractor->pT_extract(*iter, *iter2);
-      if(pts[0]>0 && pts[0] < ptmin) pts[0] = ptmin;
-      if(pts[0]<0 && pts[0] > ptmin) pts[0] = -ptmin;
-
-      pt[index] = pts[0];
-      spt[index] = pts[1];
+        }  
+      }
     }
   }
 }
