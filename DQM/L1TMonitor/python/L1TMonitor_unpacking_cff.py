@@ -8,7 +8,7 @@ l1tdttfunpack = cms.EDFilter("DTTFFEDReader",
 )
 
 l1bxtimingpath = cms.Path(cms.SequencePlaceholder("bxTiming"))
-l1tfedpath = cms.Path(cms.SequencePlaceholder("l1tfed"))
+#l1tfedpath = cms.Path(cms.SequencePlaceholder("l1tfed"))
 l1tltcpath = cms.Path(cms.SequencePlaceholder("l1tltcunpack")*cms.SequencePlaceholder("l1tltc"))
 l1tgtpath = cms.Path(l1GtUnpack*l1GtEvmUnpack*cms.SequencePlaceholder("l1tgt"))
 l1trpctfpath = cms.Path(l1GtUnpack*cms.SequencePlaceholder("l1trpctf"))
