@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/07 17:22:28 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/10/17 01:12:27 $
+ *  $Revision: 1.25 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -966,7 +966,7 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
 
 
 //
-// resacle errors of outermost TEC RecHit
+// rescale errors of outermost TEC RecHit
 //
 void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
                                          double scl_x,
@@ -983,7 +983,7 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
       lone_tec = i;
       nTEC++;
       
-      if( (i+1) != all.end() &&
+      if ( (i+1) != all.end() && (*(i+1))->isValid() &&
           (*(i+1))->det()->geographicalId().det() == DetId::Tracker &&
           (*(i+1))->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
         nTEC++;

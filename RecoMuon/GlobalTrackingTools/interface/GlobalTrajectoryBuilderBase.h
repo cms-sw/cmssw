@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/02 20:26:03 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/17 01:11:54 $
+ *  $Revision: 1.9 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -107,7 +107,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     /// select tracker hits; exclude some tracker hits in the global trajectory 
     ConstRecHitContainer selectTrackerHits(const ConstRecHitContainer&) const;
 
-    /// resacle errors of outermost TEC RecHit
+    /// rescale errors of outermost TEC RecHit
     void fixTEC(ConstRecHitContainer& all,
                 double scl_x,
                 double scl_y) const;
@@ -136,7 +136,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
                                           const ConstRecHitContainer& muonhits,
                                           const TrajectoryStateOnSurface& firstPredTsos) const;
 
-    ///  get transient RecHits of a Track
+    /// get transient RecHits of a Track
     TransientTrackingRecHit::ConstRecHitContainer
     getTransientRecHits(const reco::TransientTrack&) const;
 
@@ -172,11 +172,11 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 	bool barrel_b = ( b->det()->subDetector() == GeomDetEnumerators::DT ||
 			  b->det()->subDetector() == GeomDetEnumerators::RPCBarrel );
 	
-	//	if ( barrel_a && barrel_b )      return  a->det()->surface().position().perp() < b->det()->surface().position().perp(); 
-	if ( barrel_a && barrel_b )      return  a->globalPosition().perp() < b->globalPosition().perp(); 
-	else if ( !barrel_a && !barrel_b )      return  fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
-	else if ( barrel_a && !barrel_b  )  return true;
-	else if ( !barrel_a && barrel_b  )  return false;
+	// if ( barrel_a && barrel_b ) return  a->det()->surface().position().perp() < b->det()->surface().position().perp(); 
+	if ( barrel_a && barrel_b ) return  a->globalPosition().perp() < b->globalPosition().perp(); 
+	else if ( !barrel_a && !barrel_b ) return  fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
+	else if ( barrel_a && !barrel_b  ) return true;
+	else if ( !barrel_a && barrel_b  ) return false;
       }
     };
 
