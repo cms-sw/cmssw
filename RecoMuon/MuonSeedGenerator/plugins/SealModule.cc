@@ -2,11 +2,11 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoMuon/MuonSeedGenerator/src/CosmicMuonSeedGenerator.h"
+#include "RecoMuon/MuonSeedGenerator/plugins/CosmicMuonSeedGenerator.h"
 #include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedGenerator.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedProducer.h"
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedGenerator.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedMerger.h"
+#include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedProducer.h"
+#include "RecoMuon/MuonSeedGenerator/plugins/RPCSeedGenerator.h"
+#include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedMerger.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(CosmicMuonSeedGenerator);
