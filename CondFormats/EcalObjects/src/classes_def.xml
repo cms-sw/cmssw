@@ -1,54 +1,59 @@
 <lcgdict>
 
- <class name="EcalPedestals"/>
- 
- <class name="EcalWeightSet"/>
+<class name="EcalPedestals"/>
 
- <class name="EcalWeightXtalGroups"/>
- <class name="EcalXtalGroupId"/>
- <class name="EcalTBWeights"/>
+<class name="EcalWeightSet"/>
 
- <class name="EcalADCToGeVConstant"/>
+<class name="EcalWeightXtalGroups"/>
+<class name="EcalXtalGroupId"/>
+<class name="EcalTBWeights"/>
 
- <class name="EcalGainRatios"/>
+<class name="EcalADCToGeVConstant"/>
 
- <class name="EcalMGPAGainRatio"/>
- <class name="EcalIntercalibConstants"/>
- <class name="EcalIntercalibErrors"/>
+<class name="EcalGainRatios"/>
 
- <class name="EcalDCUTemperatures"/>
- <class name="EcalPTMTemperatures"/>
+<class name="EcalMGPAGainRatio"/>
+<class name="EcalIntercalibConstants"/>
+<class name="EcalIntercalibErrors"/>
 
- <class name="EcalChannelStatus"/>
- <class name="EcalChannelStatusCode"/>
+<class name="EcalDCUTemperatures"/>
+<class name="EcalPTMTemperatures"/>
 
- <class name="EcalLaserAPDPNRatios"/>
- <class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
- <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
- <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>
+<class name="EcalChannelStatus"/>
+<class name="EcalChannelStatusCode"/>
 
- <class name="EcalLaserAlphas"/>
+<class name="EcalLaserAPDPNRatios"/>
+<class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
+<class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
+<class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>
 
- <class name="EcalLaserAPDPNRatiosRef"/>
+<class name="EcalLaserAlphas"/>
 
- <class name="EcalMappingElectronics"/>
+<class name="EcalLaserAPDPNRatiosRef"/>
 
- <class name="EcalTPGFineGrainConstEB"/>
- <class name="EcalTPGFineGrainEBIdMap"/>
- <class name="EcalTPGFineGrainStripEE"/>
- <class name="EcalTPGFineGrainStripEE::Item"/>
- <class name="EcalTPGFineGrainTowerEE"/>
- <class name="EcalTPGGroups"/>
- <class name="EcalTPGLinearizationConst"/>
- <class name="EcalTPGLut"/>
- <class name="EcalTPGLutIdMap"/>
- <class name="EcalTPGPedestals"/>
- <class name="EcalTPGSlidingWindow"/>
- <class name="EcalTPGWeightIdMap"/>
- <class name="EcalTPGWeights"/>
+<class name="EcalMappingElectronics"/>
 
- <class pattern="*pair*"/>
- <class pattern="*map*"/>
- <class pattern="*EcalContainer*"/>
+<class name="EcalTPGFineGrainConstEB"/>
+<class name="EcalTPGFineGrainEBIdMap"/>
+<class name="EcalTPGFineGrainStripEE"/>
+<class name="EcalTPGFineGrainStripEE::Item"/>
+<class name="EcalTPGFineGrainTowerEE"/>
+<class name="EcalTPGGroups"/>
+<class name="EcalTPGLinearizationConst"/>
+<class name="EcalTPGLut"/>
+<class name="EcalTPGLutIdMap"/>
+<class name="EcalTPGPedestals"/>
+<class name="EcalTPGSlidingWindow"/>
+<class name="EcalTPGWeightIdMap"/>
+<class name="EcalTPGWeights"/>
+
+<class pattern="*pair*"/>
+<class pattern="*map*"/>
+<class pattern="*EcalContainer*"/>
+
+<class name="EcalTPGFineGrainEBGroup"/>
+<class name="EcalTPGLutGroup"/>
+<class name="EcalTPGWeightGroup"/>
+<class name="EcalTPGPhysicsConst"/>
 
 </lcgdict>
