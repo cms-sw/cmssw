@@ -1786,7 +1786,6 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     myfile_.open ("NoisyPixelList.txt");
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
-  
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   QRegExp rx("Module_");
@@ -1817,7 +1816,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	float noiseRate = (me->getEntries())/float(nevents_);
 //        if(noiseRate > noiseRate_){
 	  int detid=getDetId(me); int pixcol=-1; int pixrow=-1; 
-	  std::vector< pair< int, int> > noisyPixelsInModule;
+	  std::vector<std::pair<std::pair<int, int>, float> > noisyPixelsInModule;
 	  TH2F * hothisto = me->getTH2F();
 	  if(hothisto){
 	    for(int i=1; i!=hothisto->GetNbinsX()+1; i++){
@@ -1834,8 +1833,10 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 		  pixcol = i-1;
 		  pixrow = j-1;
 	          //cout<<"pixcol= "<<pixcol<<" , pixrow= "<<pixrow<<endl;
-	          std::pair< int, int > address(pixcol, pixrow);
-		  noisyPixelsInModule.push_back(address);
+ 
+		  std::pair<int, int> address(pixcol, pixrow);
+		  std::pair<std::pair<int, int>, float>  PixelStats(address, value);
+		  noisyPixelsInModule.push_back(PixelStats);
 		}
               }
 	    }
@@ -1869,41 +1870,53 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     int Nnoisies = noisyDetIds_.size();
     //cout<<"Number of noisy modules: "<<Nnoisies<<endl;
     int counter = 0;
-    for(std::map<uint32_t, std::vector< std::pair<int, int> > >::const_iterator it = noisyDetIds_.begin(); 
+    int n_noisyrocs_all = 0;
+    int n_noisyrocs_barrel = 0;
+    int n_noisyrocs_endcap = 0;
+    int n_verynoisyrocs_all = 0;
+    int n_verynoisyrocs_barrel = 0;
+    int n_verynoisyrocs_endcap = 0;
+    for(std::map<uint32_t, std::vector< std::pair<std::pair<int, int>, float> > >::const_iterator it = noisyDetIds_.begin(); 
         it != noisyDetIds_.end(); it++){
       uint32_t detid = (*it).first;
-      std::vector< std::pair< int, int> > noisyPixels = (*it).second;
+      std::vector< std::pair<std::pair<int, int>, float> > noisyPixels = (*it).second;
       //cout<<noisyPixels.size()<<" noisy pixels in a module "<< bei->pwd()<<endl;
-      for(std::vector< std::pair< int, int> >::const_iterator pxl = noisyPixels.begin(); 
+      // now convert into online conventions:
+      for(int fedid=0; fedid<=40; ++fedid){
+	SiPixelFrameConverter converter(theCablingMap.product(),fedid);
+	uint32_t newDetId = detid;
+	if(converter.hasDetUnit(newDetId)){
+	  realfedID=fedid;
+	  break;   
+	}
+      }
+      if(realfedID==-1) continue; 
+      DetId detId(detid);
+      uint32_t detSubId = detId.subdetId();
+      std::string outputname;
+      if (detSubId == 2){   //FPIX
+	PixelEndcapName nameworker(detid);
+	outputname = nameworker.name();
+      } else if(detSubId == 1){   //BPIX
+	PixelBarrelName nameworker(detid);
+	outputname = nameworker.name();
+
+      } else{
+	continue;
+      }	
+      std::map<int,int> myrocmap;
+      myfedmap[detid]=realfedID;
+      mynamemap[detid]=outputname;
+      
+      for(std::vector< std::pair< std::pair<int,int>, float> >::const_iterator pxl = noisyPixels.begin(); 
           pxl != noisyPixels.end(); pxl++){
-        int offlineColumn = (*pxl).first;
-        int offlineRow = (*pxl).second;
+        std::pair<int,int> offlineaddress = (*pxl).first;
+	float Noise_frac = (*pxl).second;
+	int offlineColumn = offlineaddress.first;
+        int offlineRow = offlineaddress.second;
         counter++;
         
-	// now convert into online conventions:
-        for(int fedid=0; fedid<=40; ++fedid){
-          SiPixelFrameConverter converter(theCablingMap.product(),fedid);
-	  uint32_t newDetId = detid;
-          if(converter.hasDetUnit(newDetId)){
-            realfedID=fedid;
-            break;   
-          }
-        }
-        if(realfedID==-1) continue; 
-        DetId detId(detid);
-        uint32_t detSubId = detId.subdetId();
-        std::string outputname;
-	if (detSubId == 2){   //FPIX
-  	  PixelEndcapName nameworker(detid);
-	  outputname = nameworker.name();
-        } else if(detSubId == 1){   //BPIX
-	  PixelBarrelName nameworker(detid);
-	  outputname = nameworker.name();
-        } else{
-          continue;
-	}
-        myfedmap[detid]=realfedID;
-        mynamemap[detid]=outputname;
+
         sipixelobjects::ElectronicIndex cabling; 
         SiPixelFrameConverter formatter(theCablingMap.product(),realfedID);
         sipixelobjects::DetectorIndex detector = {detid, offlineRow, offlineColumn};      
@@ -1919,11 +1932,30 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         sipixelobjects::LocalPixel locpixel(loc);
         int onlineColumn = locpixel.rocCol();
         int onlineRow= locpixel.rocRow();
-
+	myrocmap[(theRoc->idInDetUnit())]++;
         //cout<<counter<<" : \t detid= "<<detid<<" , OFF col,row= "<<offlineColumn<<","<<offlineRow<<" , ON roc,col,row= "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<<endl;
-        myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link<< std::endl;
+        myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link << ", Noise fraction: " << Noise_frac << std::endl;;
+      }
+      for(std::map<int, int>::const_iterator nrc = myrocmap.begin(); nrc != myrocmap.end(); nrc++){
+	if((*nrc).second > 1){
+	  n_noisyrocs_all++;
+	  if(detSubId == 2){
+	    n_noisyrocs_endcap++;
+	  } else if(detSubId == 1){
+	    n_noisyrocs_barrel++;}
+	}
+	if((*nrc).second > 40){
+	  n_verynoisyrocs_all++;
+	  if(detSubId == 2){
+	    n_verynoisyrocs_endcap++;
+	  } else if(detSubId == 1){
+	    n_verynoisyrocs_barrel++;}
+	}
       }
     }
+    myfile_ << "There are " << n_noisyrocs_all << " noisy ROCs (ROCs with at least 1 noisy pixel) in the entire detector. " << n_noisyrocs_endcap << " are in the FPIX and " << n_noisyrocs_barrel << " are in the BPIX. " << endl;
+    myfile_ << "There are " << n_verynoisyrocs_all << " highly noisy ROCs (ROCs with at least 10% of all pixels passing the noise threshold) in the entire detector. " << n_verynoisyrocs_endcap << " are in the FPIX and " << n_verynoisyrocs_barrel << " are in the BPIX. " << endl;
+
   }
   myfile_.close();
 //cout<<"...leaving SiPixelInformationExtractor::findNoisyPixels!"<<endl;

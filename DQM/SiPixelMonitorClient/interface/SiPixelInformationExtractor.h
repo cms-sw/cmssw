@@ -208,7 +208,7 @@ class SiPixelInformationExtractor {
   
   ofstream myfile_;  
   int nevents_;
-  std::map< uint32_t , std::vector< std::pair< int , int > > >  noisyDetIds_;
+  std::map< uint32_t , std::vector< std::pair< std::pair<int,int> , float > > >  noisyDetIds_;
   bool endOfModules_;
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   MonitorElement * EventRateBarrelPixels;
