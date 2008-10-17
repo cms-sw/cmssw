@@ -8,6 +8,8 @@
 #include "CondTools/SiPixel/test/SiPixelCondObjOfflineBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelCondObjOfflineReader.h"
 #include "CondTools/SiPixel/test/SiPixelCondObjAllPayloadsReader.h"
+#include "CondTools/SiPixel/test/SiPixelBadModuleByHandBuilder.h"
+#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
 
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
@@ -21,6 +23,8 @@ using cms::SiPixelCondObjOfflineBuilder;
 using cms::SiPixelCondObjOfflineReader;
 using cms::SiPixelCondObjAllPayloadsReader;
 using cms::SiPixelPerformanceSummaryBuilder;
+using ::SiPixelBadModuleByHandBuilder;
+using ::SiPixelBadModuleReader;
 using cms::SiPixelPerformanceSummaryReader;
 
 
@@ -35,3 +39,5 @@ DEFINE_ANOTHER_FWK_MODULE(SiPixelCondObjOfflineReader);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelCondObjAllPayloadsReader);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelPerformanceSummaryBuilder);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelPerformanceSummaryReader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelBadModuleByHandBuilder);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelBadModuleReader);
