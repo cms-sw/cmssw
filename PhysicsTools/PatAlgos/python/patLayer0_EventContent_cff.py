@@ -14,6 +14,8 @@ patLayer0EventContent = cms.PSet(
         'keep *_layer0PhotonIsolations_*_*', 
         'keep *_layer0PhotonID_*_*', 
         'keep *_layer0JetCorrFactors_*_*', 
+        'keep recoPFTauDiscriminator_*_*_*',
+        'keep recoCaloTauDiscriminator_*_*_*',
         'keep recoGenJetsedmAssociation_*_*_*', 
         'keep *_iterativeCone5GenJets_*_*', 
         'keep *_tauGenJets_*_*', 

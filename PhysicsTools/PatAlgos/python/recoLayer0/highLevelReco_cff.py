@@ -19,6 +19,9 @@ from PhysicsTools.PatAlgos.recoLayer0.jetFlavourId_cff import *
 # additional b-tagging
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
 
+# additional tau discriminators
+from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
+
 # Jet track association and jet charge
 from PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff import *
 
@@ -39,6 +42,7 @@ patHighLevelReco_withoutPFTau = cms.Sequence(
 )
 
 patHighLevelReco = cms.Sequence(
-    patHighLevelReco_withoutPFTau
+    patHighLevelReco_withoutPFTau *
+    patPFTauDiscrimination
 )
 
