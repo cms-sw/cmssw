@@ -151,7 +151,8 @@ PFTauDiscriminantManager::mainTrack()
       size_t nTracks = myChargedCandidates.size();
       if (!nTracks) 
       {
-         edm::LogError("PFTauDiscriminantManager") << "In ::mainTrack(), associated PFTauDecayMode has no associated tracks, returning null pointer.";
+         // ...removing this warning for now, not sure what to do about this case (as it shoudl be permissible to pass a jet->pftau->pfTauDecayMode of all gammas??)
+         //edm::LogError("PFTauDiscriminantManager") << "In ::mainTrack(), associated PFTauDecayMode has no associated tracks, returning null pointer.";
          return NULL;
       }
 
@@ -287,7 +288,7 @@ PFTauDiscriminantManager::branchTree(TTree* treeToBranch)
       return false;
    }
    //add magic variables _TARGET_ (for sig/bkg) and _WEIGHT_, and ISNULL for non-existence
-//   treeToBranch->Branch("__TARGET__", &iAmSignal_,  "__TARGET__/O");
+   //treeToBranch->Branch("__TARGET__", &iAmSignal_,  "__TARGET__/O");  //needs bugfix in MVA framework code..
    treeToBranch->Branch("__ISNULL__", &iAmNull_,    "__ISNULL__/O");
    treeToBranch->Branch("__WEIGHT__", &eventWeight_,"__WEIGHT__/D");
    treeToBranch->Branch("__PREPASS__", &prePass_,"__PREPASS__/O");
@@ -325,7 +326,7 @@ PFTauDiscriminantManager::~PFTauDiscriminantManager()
 
 
 
-}
+} //end namespace
 
 
 

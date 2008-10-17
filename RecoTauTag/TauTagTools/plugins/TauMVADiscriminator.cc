@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVADiscriminator.cc,v 1.1 2008/10/15 00:05:04 friis Exp $
+// $Id: TauMVADiscriminator.cc,v 1.2 2008/10/16 00:59:17 friis Exp $
 //
 //
 
@@ -40,6 +40,7 @@
 #include "RecoTauTag/TauTagTools/interface/DiscriminantList.h"
 #include "RecoTauTag/TauTagTools/interface/PFTauDiscriminantManager.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
+#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerRecord.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
@@ -61,6 +62,7 @@ class TauMVADiscriminator : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       InputTag                  pfTauDecayModeSrc_;
+      string                    computerName_;
       DiscriminantList          myDiscriminants_;
       PFTauDiscriminantManager  discriminantManager_;
 
@@ -68,7 +70,8 @@ class TauMVADiscriminator : public edm::EDProducer {
 };
 
 TauMVADiscriminator::TauMVADiscriminator(const edm::ParameterSet& iConfig):
-                   pfTauDecayModeSrc_(iConfig.getParameter<InputTag>("pfTauDecayModeSrc"))
+                   pfTauDecayModeSrc_(iConfig.getParameter<InputTag>("pfTauDecayModeSrc")),
+                   computerName_(iConfig.getParameter<string>("computerName"))
 {
    produces<PFTauDiscriminator>();
 
@@ -99,9 +102,9 @@ TauMVADiscriminator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto_ptr<PFTauDiscriminator> outputProduct(new PFTauDiscriminator(pfTauDecayModes->keyProduct()));
 
    //get appropriate MVA setup (specified in CFG file)
-   ESHandle<PhysicsTools::Calibration::MVAComputer> mvaHandle;
-   iSetup.get<MVAComputerRecord>().get(mvaHandle);
-   PhysicsTools::MVAComputer mvaComputer(mvaHandle.product());
+   ESHandle<PhysicsTools::Calibration::MVAComputerContainer> mvaHandle;
+   iSetup.get<BTauGenericMVAJetTagComputerRcd>().get(mvaHandle);
+   PhysicsTools::MVAComputer mvaComputer(&mvaHandle.product()->find(computerName_));
 
    size_t numberOfTaus = pfTauDecayModes->size();
    for(size_t iDecayMode = 0; iDecayMode < numberOfTaus; ++iDecayMode)

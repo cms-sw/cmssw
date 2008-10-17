@@ -87,7 +87,7 @@ GeneratorTau::computeDecayMode(const reco::GenParticle* theTau)
          decayProduct != pdgDecayProductTypes.end(); ++decayProduct)
    {
       int pdg_id = abs( (*decayProduct)->pdgId() );
-      edm::LogInfo("GeneratorTau") << "Has decay product w/ PDG ID: " << pdg_id;
+      //edm::LogInfo("GeneratorTau") << "Has decay product w/ PDG ID: " << pdg_id;
       if (pdg_id == 11) numElectrons++;
       else if (pdg_id == 13) numMuons++;
       else if (pdg_id == 211) numChargedPions++;
@@ -215,11 +215,11 @@ GeneratorTau::init()
    //make sure it is a real tau decay
    if (theDecayMode_ != kUndefined) {
       aFinalStateTau_ = true;
-      edm::LogInfo("GeneratorTau") << "Found decay type: " << theDecayMode_ << ", computing stable decay products.";
+      //edm::LogInfo("GeneratorTau") << "Found decay type: " << theDecayMode_ << ", computing stable decay products.";
       //get the stable decay products
       computeStableDecayProducts(this, stableDecayProducts_);
       //from the stable products, fill the lists
-      edm::LogInfo("GeneratorTau") << "Found " << stableDecayProducts_.size() << " stable decay products, filtering.";
+      //edm::LogInfo("GeneratorTau") << "Found " << stableDecayProducts_.size() << " stable decay products, filtering.";
       for (vector<const reco::GenParticle*>::const_iterator iter = stableDecayProducts_.begin();
             iter != stableDecayProducts_.end();
             ++iter)

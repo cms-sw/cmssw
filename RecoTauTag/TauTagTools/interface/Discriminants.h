@@ -3,6 +3,28 @@
 
 #include "RecoTauTag/TauTagTools/interface/PFTauDiscriminantBase.h"
 
+/*
+ * Discriminants.h
+ *
+ * Author: Evan K. Friis, UC Davis; friis@physics.ucdavis.edu
+ *
+ * A non-inclusive (for now) set of discriminants to be used for TauID.
+ *
+ * These discriminants inherit from the base class found in PFTauDiscriminantBase.h
+ *
+ * The arguments given in the constructor are:
+ *      DiscriminantBase<TYPE>(name, ROOT Branch Name, Is Required, Is Multiple, Default Value)
+ *
+ * Implementation is done by defining the abstract doComputatation(...) method (see src/Discriminants.cc)
+ * The return value(s) should be inserted into 'result', a vector of type TYPE.  Note that even if the value returns
+ * a single value, it (and only it) shoudl be inserted into the vector.  The vector is automatically cleared by the discriminant
+ * manager.
+ *
+ * Note on adding discriminants: If you get weird vtable errors during linking, make sure that you have implemented the destructor! 
+ * i.e. ~DecayMode(){}; versus ~DecayMode();
+ *
+ */
+
 namespace PFTauDiscriminants {
 using namespace std;
 

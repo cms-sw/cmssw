@@ -1,6 +1,19 @@
 #ifndef RECOTAUTAG_TAUMVADISCRIMINATOR_GENERATORTAU
 #define RECOTAUTAG_TAUMVADISCRIMINATOR_GENERATORTAU
 
+
+/*
+ * Class GeneratorTau
+ *
+ * Tool for retrieving visible decay products and determining PDG-style tau decay mode 
+ * from Pythia output (in CMS genParticle format)
+ *
+ * Author: Evan K. Friis, UC Davis; friis@physics.ucdavis.edu
+ *
+ * with code and contributions from Ricardo Vasquez Sierra and Christian Veelken, UC Davis
+ *
+ */
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
