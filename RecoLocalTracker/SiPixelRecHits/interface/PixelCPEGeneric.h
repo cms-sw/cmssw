@@ -41,6 +41,11 @@
 //#include "Geometry/Surface/interface/GloballyPositioned.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// The template header files
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
+
+
 #include <utility>
 #include <vector>
 
@@ -114,6 +119,9 @@ class PixelCPEGeneric : public PixelCPEBase
   double the_eff_charge_cut_highY;
   double the_size_cutX;
   double the_size_cutY;
+
+  bool inflate_errors;
+  bool inflate_all_errors_no_trk_angle;
 
  protected:
   //--- These functions are no longer needed, yet they are declared 

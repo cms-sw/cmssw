@@ -234,6 +234,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   cotalpha_ = gv_dot_gvx / gv_dot_gvz;
   cotbeta_  = gv_dot_gvy / gv_dot_gvz;
 
+  with_track_angle = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -274,6 +275,8 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
   trk_lp_x = trk_lp.x();
   trk_lp_y = trk_lp.y();
     
+  with_track_angle = true;
+
 }
 
 //-----------------------------------------------------------------------------

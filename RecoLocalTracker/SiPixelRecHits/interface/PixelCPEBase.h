@@ -154,6 +154,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable float trk_lp_x;
   mutable float trk_lp_y;
 
+  // ggiurgiu@jhu.edu (10/18/2008)
+  mutable bool with_track_angle; 
 
   // [Petar, 5/18/07] 
   // Add estimates of cot(alpha) and cot(beta) from the
