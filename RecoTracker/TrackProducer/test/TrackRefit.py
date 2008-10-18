@@ -17,9 +17,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "IDEAL_V5::All"
 
 ### Track refitter specific stuff
-process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff") #the correct one
+#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff") #the one for backward compatibility
 
-process.maxEvents = cms.untracked.PSet(     input = cms.untracked.int32(200)     )
+
+process.maxEvents = cms.untracked.PSet(     input = cms.untracked.int32(300)     
+)
 
 process.source = cms.Source("PoolSource",
 ### tracks from collisions                            
@@ -57,9 +60,12 @@ process.TRACKS = cms.OutputModule("PoolOutputModule",
                                 fileName = cms.untracked.string('refitting.root')
                                 )
 
-process.p1 = cms.Path(process.RefitterWithMaterial
-                      #process.RefitterWithMaterialP5
-                      #process.RefitterWithMaterialBHM
+process.options = cms.untracked.PSet(     wantSummary = cms.untracked.bool(True) )
+
+
+process.p1 = cms.Path(process.TrackRefitter
+                      #process.TrackRefitterP5
+                      #process.TrackRefitterBHM
 )
 process.outpath = cms.EndPath(process.TRACKS)
 
