@@ -5,7 +5,7 @@ process = cms.Process("HCALDQM")
 # Event Source
 #-----------------------------
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
     )
 
 ###process.source = cms.Source("NewEventStreamFileReader",
