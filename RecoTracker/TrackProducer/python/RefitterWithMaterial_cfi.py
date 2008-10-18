@@ -1,27 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-RefitterWithMaterial = cms.EDFilter("TrackRefitter",
-    src = cms.InputTag("generalTracks"),
-    beamSpot = cms.InputTag("offlineBeamSpot"),
-    Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
-    TTRHBuilder = cms.string('WithAngleAndTemplate'),
-    AlgorithmName = cms.string('undefAlgorithm'),
-    Propagator = cms.string('RungeKuttaTrackerPropagator'),
-
-    ### fitting without constraints
-    constraint = cms.string(''),
-
-    ### fitting with constraints                             
-    #constraint = cms.string('momentum'),
-    #constraint = cms.string('vertex'),
-
-    ### Usually this parameter has not to be set True because 
-    ### matched hits in the Tracker are already split when 
-    ### the tracks are reconstructed the first time                         
-    useHitsSplitting = cms.bool(False),
+import sys
+print "WARNING: RecoTracker/TrackProducer/python/RefitterWithMaterial_cff.py and \nRecoTracker/TrackProducer/python/RefitterWithMaterial_cfi.py are obsolete and will be removed soon.";
+print "Please use RecoTracker/TrackProducer/python/TrackRefitters_cff.py \nand RecoTracker/TrackProducer/python/TrackRefitter_cfi.py";
+print "if still using old configuration files."
+#print " Now exiting with -1 error. \nplease remove inclusion of this file and try again.";
+#print "starting with the next release including this file will cause an exception";
+#sys.exit(-1);
 
 
-    TrajectoryInEvent = cms.bool(True)
-)
-
+from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 
