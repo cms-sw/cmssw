@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/09/16 11:48:04 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/09/21 19:45:24 $
+ *  $Revision: 1.21 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -22,6 +22,7 @@
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 namespace edm {class Event; class EventSetup;}
@@ -73,6 +74,11 @@ public:
 
   MuonBestMeasurementFinder* bestMeasurementFinder() const {return theBestMeasurementFinder;}
 
+  double t0(const DTRecSegment4D* deseg) const;
+
+  PropagationDirection checkDirectionByT0(const DTRecSegment4D*, const DTRecSegment4D*) const;
+
+
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
@@ -85,10 +91,14 @@ private:
 
   void selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
 
-  /// reverse a trajectory without refit
+  /// reverse a trajectory without refit (out the measurements order changed)
   void reverseTrajectory(Trajectory&) const;
 
-  void reverseTrajectoryDirection(Trajectory&) const;
+  /// flip a trajectory with refit (the momentum direction is opposite)
+  void flipTrajectory(Trajectory&) const;
+
+  /// reverse the propagation direction of a trajectory
+  void reverseTrajectoryPropagationDirection(Trajectory&) const;
 
   /// check if the trajectory iterates the same hit more than once
   bool selfDuplicate(const Trajectory&) const;
@@ -98,8 +108,6 @@ private:
 
   /// check the direction of trajectory by checking the timing 
   void getDirectionByTime(Trajectory&) const;
-
-  void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
   std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
 
