@@ -13,6 +13,8 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
+#include "TColor.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
@@ -67,6 +69,11 @@ class HcalBaseClient{
   
   bool subDetsOn_[4];
   
+  // Define standard error palette
+  int pcol_error_[20];
+  float rgb_error_[20][3];
+
+
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;
   map<string, vector<QReport*> > dqmReportMapWarn_;

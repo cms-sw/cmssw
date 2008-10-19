@@ -13,6 +13,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+
+
 class HcalPedestalClient : public HcalBaseClient {
   
  public:
@@ -47,6 +51,7 @@ class HcalPedestalClient : public HcalBaseClient {
   
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlExpertOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
   
@@ -75,13 +80,44 @@ private:
   double nominalPedWidthInADC_;
   double maxPedMeanDiffADC_;
   double maxPedWidthDiffADC_; // specify maximum width of pedestal (in ADC)
-
+  double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
   TH2F* MeanMapByDepth[6];
   TH2F* RMSMapByDepth[6];
 
  // Problem Pedestal Plots
   TH2F* ProblemPedestals;
   TH2F* ProblemPedestalsByDepth[6];
+
+  // Pedestals from Database
+  TH2F* ADC_PedestalFromDBByDepth[6];
+  TH2F* ADC_WidthFromDBByDepth[6];
+  TH2F* fC_PedestalFromDBByDepth[6];
+  TH2F* fC_WidthFromDBByDepth[6];
+
+  // Raw pedestals in ADC
+  TH2F* rawADCPedestalMean[6];
+  TH2F* rawADCPedestalRMS[6];
+  TH1F* rawADCPedestalMean_1D[6];
+  TH1F* rawADCPedestalRMS_1D[6];
+  
+  // subtracted pedestals in ADC
+  TH2F* subADCPedestalMean[6];
+  TH2F* subADCPedestalRMS[6];
+  TH1F* subADCPedestalMean_1D[6];
+  TH1F* subADCPedestalRMS_1D[6];
+  
+  // Raw pedestals in FC
+  TH2F* rawFCPedestalMean[6];
+  TH2F* rawFCPedestalRMS[6];
+  TH1F* rawFCPedestalMean_1D[6];
+  TH1F* rawFCPedestalRMS_1D[6];
+  
+  // subtracted pedestals in FC
+  TH2F* subFCPedestalMean[6];
+  TH2F* subFCPedestalRMS[6];
+  TH1F* subFCPedestalMean_1D[6];
+  TH1F* subFCPedestalRMS_1D[6];
+  
 
 
 };

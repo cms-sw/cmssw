@@ -45,6 +45,35 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
       else if(subdets[i]=="HO") subDetsOn_[3] = true;
     }
   
+  // Define standard error palette
+  for( int i=0; i<20; ++i )
+    {
+      if ( i < 17 )
+        {
+          rgb_error_[i][0] = 0.80+0.01*i;
+          rgb_error_[i][1] = 0.00+0.03*i;
+          rgb_error_[i][2] = 0.00;
+        }
+      else if ( i < 19 )
+        {
+          rgb_error_[i][0] = 0.80+0.01*i;
+          rgb_error_[i][1] = 0.00+0.03*i+0.15+0.10*(i-17);
+          rgb_error_[i][2] = 0.00;
+        } 
+      else if ( i == 19 )
+	{
+	  rgb_error_[i][0] = 0.00;
+	  rgb_error_[i][1] = 0.80;
+          rgb_error_[i][2] = 0.00;
+        }
+      pcol_error_[19-i] = 901+i;
+      TColor* color = gROOT->GetColor( 901+i );
+      if( ! color ) color = new TColor( 901+i, 0, 0, 0, "" );
+      color->SetRGB( rgb_error_[i][0], 
+		     rgb_error_[i][1], 
+		     rgb_error_[i][2] );
+    } // for (int i=0;i<20;++i)
+
   return; 
 } // void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
 
