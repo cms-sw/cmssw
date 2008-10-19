@@ -46,7 +46,7 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
         angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
         rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)"),
-        otherCandidates("OtherCandidatesByDR\\((\\w+:?\\w+:?\\w+),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
+        otherCandidates("OtherCandidatesByDR\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
     boost::cmatch match;
     
