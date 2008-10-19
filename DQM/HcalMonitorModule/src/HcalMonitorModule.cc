@@ -4,18 +4,14 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/16 09:40:08 $
- * $Revision: 1.80 $
+ * $Date: 2008/10/18 21:02:36 $
+ * $Revision: 1.81 $
  * \author W Fisher
  *
 */
 
 //--------------------------------------------------------
 HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
-  ///cout << endl;
-  ///cout << " *** Hcal Monitor Module ***" << endl;
-  ///cout << endl;
-  /// Frankly, this isn't necessary. _jmsj
 
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
   actonLS_=false;
@@ -176,8 +172,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   psTime_.updateTime /= 1000.0;
   psTime_.elapsedTime=0;
   psTime_.vetoTime=psTime_.updateTime;
-
-  if(debug_) cout <<"ENDED CONSTRUCTR"<<endl;
 }
 
 //--------------------------------------------------------
@@ -213,7 +207,7 @@ HcalMonitorModule::~HcalMonitorModule(){
 //  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
 //  delete evtSel_; evtSel_ = NULL;
 //
-}
+} //void HcalMonitorModule::~HcalMonitorModule()
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginJob(const edm::EventSetup& c){
@@ -237,10 +231,9 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meEvtMask_->Fill(-1);
   }
 
-  cout <<"GETTING SERVICE?"<<endl;
   edm::ESHandle<HcalDbService> pSetup;
   c.get<HcalDbRecord>().get( pSetup );
-  cout <<"SUCCESS!"<<endl;
+
   readoutMap_=pSetup->getHcalMapping();
   DetId detid_;
   HcalDetId hcaldetid_; 
@@ -439,13 +432,14 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
+
   try{
-  e.getByType(rawraw);
+    e.getByType(rawraw);
   }
   catch(...)
     {
-      cout <<"NO RAW"<<endl;
-      rawOK_=false;}
+      rawOK_=false;
+    }
   if (rawOK_&&!rawraw.isValid()) {
     rawOK_=false;
   }
@@ -456,7 +450,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   }
   catch(...)
     {
-      cout <<"NO REPORT"<<endl;
       rawOK_=false;
     }
   if (rawOK_&&!report.isValid()) {
@@ -479,14 +472,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   HEpresent_ = false;
   HOpresent_ = false;
   HFpresent_ = false;
-  //CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
   
+  CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
+    
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
+
   try 
     {
       e.getByLabel(inputLabelDigi_,hbhe_digi);
@@ -766,17 +761,18 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if(ievt_%1000 == 0)
     cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
 
-  if(debug_){
-    cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
-    cout << "    RAW Data   ==> " << rawOK_<< endl;
-    cout << "    Digis      ==> " << digiOK_<< endl;
-    cout << "    RecHits    ==> " << rechitOK_<< endl;
-    cout << "    TrigRec    ==> " << trigOK_<< endl;
-    cout << "    TPdigis    ==> " << tpdOK_<< endl;    
-    cout << "    CaloTower  ==> " <<calotowerOK_ <<endl;
-    cout << "    LaserDigis ==> " << laserOK_ << endl;
-  }
-
+  if(debug_)
+    {
+      cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
+      cout << "    RAW Data   ==> " << rawOK_<< endl;
+      cout << "    Digis      ==> " << digiOK_<< endl;
+      cout << "    RecHits    ==> " << rechitOK_<< endl;
+      cout << "    TrigRec    ==> " << trigOK_<< endl;
+      cout << "    TPdigis    ==> " << tpdOK_<< endl;    
+      cout << "    CaloTower  ==> " << calotowerOK_ <<endl;
+      cout << "    LaserDigis ==> " << laserOK_ << endl;
+    }
+  
   return;
 }
 
@@ -831,9 +827,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 					       const HcalUnpackerReport& report, 
 					       const HcalElectronicsMap& emap)
 {
-  cout <<"SO"<<endl;
   vector<int> fedUnpackList;
-  cout <<"SIA"<<endl;
   for (int i=FEDNumbering::getHcalFEDIds().first; 
        i<=FEDNumbering::getHcalFEDIds().second; 
        i++) 
@@ -841,7 +835,6 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
       fedUnpackList.push_back(i);
     }
   
-  cout <<"S1"<<endl;
   for (vector<int>::const_iterator i=fedUnpackList.begin();
        i!=fedUnpackList.end(); 
        ++i) 
@@ -866,6 +859,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	  HOpresent_ = true;
 	  continue;
 	}
+      
       // Looking at HB and HE is more complicated, since they're combined into HBHE
       // walk through the HTR data...
       HcalHTRData htr;  
@@ -912,8 +906,10 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 		  } // if (!did.null())
 	      } // for (int fib=0;...)
 	  } // for (int fchan = 0;...)
+
       } // for (int spigot=0;...)
-    } // for (vector<int>::const_iterator i=fedUnpackList.begin();...)
+    } //  for (vector<int>::const_iterator i=fedUnpackList.begin();
+  return;
 } // void HcalMonitorModule::CheckSubdetectorStatus(...)
 
 #include "FWCore/Framework/interface/MakerMacros.h"
