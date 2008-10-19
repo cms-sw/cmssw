@@ -31,6 +31,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+
 template <class myHist>
 myHist* getAnyHisto(myHist* hist,
 		    std::string name, std::string process, DQMStore* dbe_,
@@ -56,7 +57,7 @@ myHist* getAnyHisto(myHist* hist,
 
   if (!me) 
     {
-      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED "<< title<<endl;
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title<<"]"<<endl;
       return NULL; // ME not found
     } // if (!me)
 
