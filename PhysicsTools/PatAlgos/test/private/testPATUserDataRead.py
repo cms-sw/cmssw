@@ -13,6 +13,9 @@ process.testRead = cms.EDProducer("PATUserDataTestModule",
     muons = cms.InputTag("testWrite"),
 )
 
+##  Use the two lines below to test the output of L1 with embedded external user data
+#process.source.fileNames = cms.untracked.vstring('file:PATLayer1_Output.fromAOD_full.root');
+#process.testRead.muons = cms.InputTag("selectedLayer1Muons")
 
 process.p = cms.Path(
     process.testRead
