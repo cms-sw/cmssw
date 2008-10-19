@@ -4,7 +4,6 @@
 
 HcalPedestalMonitor::HcalPedestalMonitor() 
 { 
-  doPerChannel_ = false;   
   shape_=NULL; 
 }
 
@@ -60,8 +59,8 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
       MonitorElement* dummy;
       // MeanMap, RMSMap values are in ADC, because they show the cells that can create problem cell errors 
-      setupDepthHists(dummy, MeanMapByDepth,"Pedestal Mean Map",true, "ADC");
-      setupDepthHists(dummy, RMSMapByDepth, "Pedestal RMS Map",true, "ADC");
+      setupDepthHists2D(dummy, MeanMapByDepth,"Pedestal Mean Map",true, "ADC");
+      setupDepthHists2D(dummy, RMSMapByDepth, "Pedestal RMS Map",true, "ADC");
       
       ProblemPedestals=m_dbe->book2D(" ProblemPedestals",
 				     "Problem Pedestal Rate for all HCAL",
@@ -74,21 +73,21 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
 
       // Using "" for units creates an extra space at end of name. Why?
-      setupDepthHists(ProblemPedestals, ProblemPedestalsByDepth, "Problem Pedestal Rate",true, "");
+      setupDepthHists2D(ProblemPedestals, ProblemPedestalsByDepth, "Problem Pedestal Rate",true, "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/adc/raw");
-      setupDepthHists(dummy, rawADCPedestalMean, "Pedestal Values Map",
+      setupDepthHists2D(dummy, rawADCPedestalMean, "Pedestal Values Map",
 		      true,"ADC");
-      setupDepthHists(dummy, rawADCPedestalRMS, "Pedestal Widths Map",
+      setupDepthHists2D(dummy, rawADCPedestalRMS, "Pedestal Widths Map",
 		      true,"ADC");
       setupDepthHists1D(dummy, rawADCPedestalMean_1D, "1D Pedestal Values",
 			true,"ADC");
       setupDepthHists1D(dummy, rawADCPedestalRMS_1D, "1D Pedestal Widths",
 			true,"ADC");
       m_dbe->setCurrentFolder(baseFolder_+"/adc/subtracted__beta_testing");
-      setupDepthHists(dummy, subADCPedestalMean, "Subtracted Pedestal Values Map",
+      setupDepthHists2D(dummy, subADCPedestalMean, "Subtracted Pedestal Values Map",
 		      true,"ADC");
-      setupDepthHists(dummy, subADCPedestalRMS, "Subtracted Pedestal Widths Map",
+      setupDepthHists2D(dummy, subADCPedestalRMS, "Subtracted Pedestal Widths Map",
 		      true,"ADC");
       setupDepthHists1D(dummy, subADCPedestalMean_1D, "1D Subtracted Pedestal Values",
 			true,"ADC");
@@ -96,18 +95,18 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			true,"ADC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/fc/raw");
-      setupDepthHists(dummy, rawFCPedestalMean, "Pedestal Values Map",
+      setupDepthHists2D(dummy, rawFCPedestalMean, "Pedestal Values Map",
 		      true,"fC");
-      setupDepthHists(dummy, rawFCPedestalRMS, "Pedestal Widths Map",
+      setupDepthHists2D(dummy, rawFCPedestalRMS, "Pedestal Widths Map",
 		      true,"fC");
       setupDepthHists1D(dummy, rawFCPedestalMean_1D, "1D Pedestal Values",
 			true,"fC");
       setupDepthHists1D(dummy, rawFCPedestalRMS_1D, "1D Pedestal Widths",
 			true,"fC");
       m_dbe->setCurrentFolder(baseFolder_+"/fc/subtracted__beta_testing");
-      setupDepthHists(dummy, subFCPedestalMean, "Subtracted Pedestal Values Map",
+      setupDepthHists2D(dummy, subFCPedestalMean, "Subtracted Pedestal Values Map",
 		      true,"fC");
-      setupDepthHists(dummy, subFCPedestalRMS, "Subtracted Pedestal Widths Map",
+      setupDepthHists2D(dummy, subFCPedestalRMS, "Subtracted Pedestal Widths Map",
 		      true,"fC");
       setupDepthHists1D(dummy, subFCPedestalMean_1D, "1D Subtracted Pedestal Values",
 			true,"fC");
@@ -115,15 +114,15 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			true,"fC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
-      setupDepthHists(ADC_PedestalFromDB, ADC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
+      setupDepthHists2D(ADC_PedestalFromDB, ADC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
 		      false,"ADC");
-      setupDepthHists(ADC_WidthFromDB, ADC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
+      setupDepthHists2D(ADC_WidthFromDB, ADC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
 		      false,"ADC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
-      setupDepthHists(fC_PedestalFromDB, fC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
+      setupDepthHists2D(fC_PedestalFromDB, fC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
 		      false,"fC");
-      setupDepthHists(fC_WidthFromDB, fC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
+      setupDepthHists2D(fC_WidthFromDB, fC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
 		      false,"fC");
 
       // initialize all counters to 0
@@ -741,7 +740,7 @@ void HcalPedestalMonitor::done()
 // *************************************************************************************************************** //
 
 
-void HcalPedestalMonitor::setupDepthHists(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, bool onlyDepthHistos, char* pedUnits)
+void HcalPedestalMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, bool onlyDepthHistos, char* pedUnits)
 {
   /* Code makes overall MonitorElement histogram, 
      and then vector of histograms for all 6 depths 
@@ -820,7 +819,7 @@ void HcalPedestalMonitor::setupDepthHists(MonitorElement* &h, std::vector<Monito
     }
 
   return;
-} // void HcalPedestalMonitor::setupDepthHists(MonitorElement* h, std::vector<MonitorElement*> &hh, char* name,...)
+} // void HcalPedestalMonitor::setupDepthHists2D(MonitorElement* h, std::vector<MonitorElement*> &hh, char* name,...)
 
 // ******************************************************************************************************************* //
 
@@ -901,7 +900,7 @@ void HcalPedestalMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<Moni
     }
 
   return;
-} // void HcalPedestalMonitor::setupDepthHists(MonitorElement* h, std::vector<MonitorElement*> &hh, char* name,...)
+} // void HcalPedestalMonitor::setupDepthHists1D(MonitorElement* h, std::vector<MonitorElement*> &hh, char* name,...)
 
 
 
