@@ -654,7 +654,7 @@ ofstream htmlFile;
 
 
   // Plot Pedestal Mean and RMS values
-  htmlFile << "<h2><strong><a name=\"OVERALL_PEDS\">Pedestal Means and RMS values</strong></h2>"<<endl;
+  htmlFile << "<h2><strong><a name=\"OVERALL_PEDS\">2D Maps of Pedestal Means and RMS Values</strong></h2>"<<endl;
   htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
@@ -695,7 +695,7 @@ ofstream htmlFile;
   // Subtracted Pedestals (ADC)
   htmlFile << "<h2><strong><a name=\"SUB_ADC\">Subtracted Pedestals from database (ADC)</strong></h2>"<<endl;
   htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl;
-  htmlFile <<"Plots of (computed pedestal values) - (reference pedestal values)."<<endl;
+  htmlFile <<"Plots of (computed pedestal values) - (reference pedestal values).<br>"<<endl;
   htmlFile <<"(If the database stores values in fC, the subtracted pedestal widths in ADC may not be plotted correctly here.)<br>"<<endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
@@ -742,7 +742,7 @@ ofstream htmlFile;
   // Subtracted Pedestals (fC)
   htmlFile << "<h2><strong><a name=\"SUB_fC\">Subtracted Pedestals from database (fC)</strong></h2>"<<endl;
   htmlFile <<"<a href= \"#EXPERT_PEDESTAL_TOP\" > Back to Top</a><br>"<<endl; 
-  htmlFile <<"Plots of (computed pedestal values) - (reference pedestal values)."<<endl;
+  htmlFile <<"Plots of (computed pedestal values) - (reference pedestal values).<br>"<<endl;
   htmlFile <<"(If the database stores values in ADC, the subtracted pedestal widths in fC may not be plotted correctly here.)<br>"<<endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
