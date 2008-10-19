@@ -8,6 +8,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
@@ -35,7 +36,7 @@ private:
     public:
         SingleDeposit(const edm::ParameterSet &) ;
         void cleanup() ;
-        void open(const edm::Event &iEvent) ;
+        void open(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
         double compute(const reco::CandidateBaseRef &cand) ;
         const reco::IsoDepositMap & map() { return *hDeps_; }
     private:
@@ -46,6 +47,7 @@ private:
         double weight_;
         StringObjectFunction<reco::Candidate> weightExpr_;
         reco::isodeposit::AbsVetos vetos_;
+        reco::isodeposit::EventDependentAbsVetos evdepVetos_; // note: these are a subset of the above. Don't delete twice!
         bool   skipDefaultVeto_; 
         edm::Handle<reco::IsoDepositMap> hDeps_; // transient
   };

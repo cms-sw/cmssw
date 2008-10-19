@@ -57,8 +57,10 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
     "New methods can be easily implemented if requested.";
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter< vstring >("vetos");
+  reco::isodeposit::EventDependentAbsVeto *evdep; 
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str()));
+    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+    if (evdep) evdepVetos_.push_back(evdep);
   }
   std::string weight = iConfig.getParameter<std::string>("weight");
   if (isNumber(weight)) {
@@ -75,9 +77,15 @@ void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
     for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
         delete *it;
     }
+    vetos_.clear();
+    // NOTE: we DON'T have to delete the evdepVetos_, they have already been deleted above. We just clear the vectors
+    evdepVetos_.clear();
 }
-void CandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent) {
+void CandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     iEvent.getByLabel(src_, hDeps_);
+    for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
+        (*it)->setEvent(iEvent,iSetup);
+    }
 }
 
 double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBaseRef &cand) {
@@ -89,13 +97,13 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
     }
     double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
     switch (mode_) {
-        case Count:        return dep.countWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case Sum:          return dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case SumRelative:  return dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
-        case Sum2:         return dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_);
-        case Sum2Relative: return dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_) / (dep.candEnergy() * dep.candEnergy()) ;
-        case Max:          return dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case MaxRelative:  return dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
+        case Count:        return weight * dep.countWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case Sum:          return weight * dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case SumRelative:  return weight * dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
+        case Sum2:         return weight * dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_);
+        case Sum2Relative: return weight * dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_) / (dep.candEnergy() * dep.candEnergy()) ;
+        case Max:          return weight * dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case MaxRelative:  return weight * dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
 }
@@ -122,7 +130,7 @@ CandIsolatorFromDeposits::~CandIsolatorFromDeposits() {
 void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetup){
 
   vector<SingleDeposit>::iterator it, begin = sources_.begin(), end = sources_.end();
-  for (it = begin; it != end; ++it) it->open(event);
+  for (it = begin; it != end; ++it) it->open(event, eventSetup);
 
   const IsoDepositMap & map = begin->map();
 

@@ -1,6 +1,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
+#include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVetos.h"
 #include <boost/regex.hpp>
 
 // ---------- FIRST DEFINE NEW VETOS ------------
@@ -25,8 +26,18 @@ namespace reco { namespace isodeposit {
 // ---------- THEN THE ACTUAL FACTORY CODE ------------
 reco::isodeposit::AbsVeto *
 IsoDepositVetoFactory::make(const char *string) {
-    using namespace reco::isodeposit;
+    reco::isodeposit::EventDependentAbsVeto * evdep = 0;
+    std::auto_ptr<reco::isodeposit::AbsVeto> ret(make(string,evdep));
+    if (evdep != 0) {
+        throw cms::Exception("Configuration") << "The resulting AbsVeto depends on the edm::Event.\n" 
+                                              << "Please use the two-arguments IsoDepositVetoFactory::make.\n";
+    }
+    return ret.release();
+}
 
+reco::isodeposit::AbsVeto *
+IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependentAbsVeto *&evdep) {
+    using namespace reco::isodeposit;
     static boost::regex 
         ecalSwitch("^Ecal(Barrel|Endcaps):(.*)"),
         threshold("Threshold\\((\\d+\\.\\d+)\\)"),
@@ -35,9 +46,11 @@ IsoDepositVetoFactory::make(const char *string) {
         angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
         angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
         rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)"),
+        otherCandidates("OtherCandidatesByDR\\((\\w+:?\\w+:?\\w+),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
     boost::cmatch match;
     
+    evdep = 0; // by default it does not depend on this
     if (regex_match(string, match, ecalSwitch)) {
         return new SwitchingEcalVeto(make(match[2].first), (match[1] == "Barrel") );
     } else if (regex_match(string, match, threshold)) {
@@ -56,6 +69,11 @@ IsoDepositVetoFactory::make(const char *string) {
         return new RectangularEtaPhiVeto(reco::isodeposit::Direction(), 
                     atof(match[1].first), atof(match[2].first), 
                     atof(match[3].first), atof(match[4].first));
+    } else if (regex_match(string, match, otherCandidates)) {
+        OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), 
+                                                                        atof(match[2].first));
+        evdep = ret;
+        return ret;
     } else {
         throw cms::Exception("Not Implemented") << "Veto " << string << " not implemented yet...";
     }
