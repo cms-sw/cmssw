@@ -9,7 +9,7 @@ class SimpleIsolator : public BaseIsolator {
         SimpleIsolator() {}
         SimpleIsolator(const edm::ParameterSet &conf, bool withCut) ;
         virtual ~SimpleIsolator() {}
-        virtual void beginEvent(const edm::Event &event) ;
+        virtual void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) ;
         virtual void endEvent() ;
 
         virtual std::string description() const { return input_.encode(); }

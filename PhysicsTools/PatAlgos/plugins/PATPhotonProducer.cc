@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.13 2008/09/30 21:33:06 srappocc Exp $
+// $Id: PATPhotonProducer.cc,v 1.14 2008/10/06 13:29:16 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -94,7 +94,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     iEvent.getByLabel(photonIDSrc_, photonID);
   }
 
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 

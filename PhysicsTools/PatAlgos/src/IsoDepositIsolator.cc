@@ -18,14 +18,13 @@ IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, bool withC
         std::string mode = conf.getParameter<std::string>("mode");
         if (mode == "sum") mode_ = Sum;
         else if (mode == "sumRelative") mode_ = SumRelative;
-        else if (mode == "max") mode_ = Max;                  // TODO: on request only
-        else if (mode == "maxRelative") mode_ = MaxRelative;  // TODO: on request only
+        else if (mode == "max") mode_ = Max;                  
+        else if (mode == "maxRelative") mode_ = MaxRelative;  
         else if (mode == "sum2") mode_ = Sum2;
         else if (mode == "sum2Relative") mode_ = Sum2Relative;
         else if (mode == "count") mode_ = Count;
         else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
-                "Supported modes are 'sum', 'sumRelative', 'count'." <<
-                //"Supported modes are 'sum', 'sumRelative', 'max', 'maxRelative', 'count'." << // TODO: on request only
+                "Supported modes are 'sum', 'sumRelative', 'max', 'maxRelative', 'sum2', 'sum2Relative', 'count'." <<
                 "New methods can be easily implemented if requested.";
     }
 
@@ -47,8 +46,10 @@ IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, bool withC
 
         typedef std::vector<std::string> vstring;
         vstring vetos = conf.getParameter< vstring >("vetos");
+        reco::isodeposit::EventDependentAbsVeto *evdep = 0;
         for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-              vetos_.push_back( IsoDepositVetoFactory::make( it->c_str() ) );
+              vetos_.push_back( IsoDepositVetoFactory::make( it->c_str(), evdep ) );
+              if (evdep != 0) evdepVetos_.push_back(evdep);
         }
     }
 
@@ -61,8 +62,11 @@ IsoDepositIsolator::~IsoDepositIsolator() {
 }
 
 void
-IsoDepositIsolator::beginEvent(const edm::Event &event) {
+IsoDepositIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
     event.getByLabel(input_, handle_);
+    for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
+        (*it)->setEvent(event,eventSetup);
+    }
 }
 
 void

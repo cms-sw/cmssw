@@ -11,7 +11,7 @@ SimpleIsolator::SimpleIsolator(const edm::ParameterSet &conf, bool withCut) :
 }
 
 void
-SimpleIsolator::beginEvent(const edm::Event &event) {
+SimpleIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
     event.getByLabel(input_, handle_);
 }
 

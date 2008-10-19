@@ -59,9 +59,9 @@ MultiIsolator::addIsolator(const edm::ParameterSet &conf, bool withCut, uint32_t
 
 
 void
-MultiIsolator::beginEvent(const edm::Event &event) {
+MultiIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
     for (boost::ptr_vector<BaseIsolator>::iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
-        it->beginEvent(event);
+        it->beginEvent(event, eventSetup);
     }
 }
 

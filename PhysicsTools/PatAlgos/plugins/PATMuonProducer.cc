@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.17 2008/10/10 14:02:33 lowette Exp $
+// $Id: PATMuonProducer.cc,v 1.18 2008/10/13 13:49:08 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -117,7 +117,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   
   
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 

@@ -48,7 +48,7 @@ pat::PATPhotonCleaner::~PATPhotonCleaner() {
 void pat::PATPhotonCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
   // start a new event
   helper_.newEvent(iEvent);
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
     // read the source photon

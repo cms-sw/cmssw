@@ -12,7 +12,7 @@ class BaseIsolator {
         BaseIsolator() {}
         BaseIsolator(const edm::ParameterSet &conf, bool withCut) ;
         virtual ~BaseIsolator() {}
-        virtual void beginEvent(const edm::Event &event) = 0;
+        virtual void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) = 0;
         virtual void endEvent() = 0;
 
         /// Tests if the value associated to this item is strictly below the cut.

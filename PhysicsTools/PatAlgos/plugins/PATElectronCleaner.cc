@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.6 2008/06/09 16:15:37 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.7 2008/06/20 13:15:31 gpetrucc Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -36,7 +36,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   // start a new event
   helper_.newEvent(iEvent);
 
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   // Get additional info from the event, if needed
   const reco::ClusterShape* clusterShape = 0;

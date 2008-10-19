@@ -29,7 +29,7 @@ class MultiIsolator {
         // You own the returned pointer!
         static BaseIsolator * make(const edm::ParameterSet &conf, bool withCut) ;
        
-        void beginEvent(const edm::Event &event);
+        void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup);
         void endEvent() ; 
 
         template<typename T>

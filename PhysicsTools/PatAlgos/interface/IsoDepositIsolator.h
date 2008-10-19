@@ -3,6 +3,7 @@
 
 #include "PhysicsTools/PatAlgos/interface/BaseIsolator.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
 
 
 namespace pat { namespace helper {
@@ -13,7 +14,7 @@ class IsoDepositIsolator : public BaseIsolator {
         IsoDepositIsolator() {}
         IsoDepositIsolator(const edm::ParameterSet &conf, bool withCut) ;
         virtual ~IsoDepositIsolator() ;
-        virtual void beginEvent(const edm::Event &event) ;
+        virtual void beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) ;
         virtual void endEvent() ;
 
         virtual std::string description() const ;
@@ -24,6 +25,7 @@ class IsoDepositIsolator : public BaseIsolator {
         float deltaR_;
         Mode  mode_;
         reco::isodeposit::AbsVetos vetos_;
+        reco::isodeposit::EventDependentAbsVetos evdepVetos_; // subset of the above, don't delete twice
         bool skipDefaultVeto_;
 
         virtual float getValue(const edm::ProductID &id, size_t index) const ;

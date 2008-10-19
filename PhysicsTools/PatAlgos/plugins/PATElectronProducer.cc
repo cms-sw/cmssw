@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.17 2008/10/07 18:06:59 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.18 2008/10/07 19:11:23 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -133,7 +133,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::Handle<edm::View<ElectronType> > electrons;
   iEvent.getByLabel(electronSrc_, electrons);
 
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 

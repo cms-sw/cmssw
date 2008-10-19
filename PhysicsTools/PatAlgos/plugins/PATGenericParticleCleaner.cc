@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleCleaner.cc,v 1.4 2008/06/20 13:15:32 gpetrucc Exp $
+// $Id: PATGenericParticleCleaner.cc,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleCleaner.h"
@@ -30,7 +30,7 @@ pat::PATGenericParticleCleaner::~PATGenericParticleCleaner() {
 void pat::PATGenericParticleCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
   // start a new event
   helper_.newEvent(iEvent);
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
   if (vertexingHelper_.enabled()) vertexingHelper_.newEvent(iEvent,iSetup);
 
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {

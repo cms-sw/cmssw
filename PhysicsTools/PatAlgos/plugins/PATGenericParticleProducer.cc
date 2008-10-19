@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.6 2008/09/01 14:35:48 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -81,7 +81,7 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   iEvent.getByLabel(src_, cands);
 
   // prepare isolation
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (vertexingHelper_.enabled())  vertexingHelper_.newEvent(iEvent,iSetup);
