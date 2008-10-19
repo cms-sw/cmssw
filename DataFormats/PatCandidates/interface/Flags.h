@@ -1,7 +1,7 @@
 #ifndef DataFormats_PatCandidates_interface_Flags_h
 #define DataFormats_PatCandidates_interface_Flags_h
 //
-// $Id: Flags.h,v 1.1 2008/03/11 17:05:50 gpetrucc Exp $
+// $Id: Flags.h,v 1.2 2008/07/22 12:44:19 gpetrucc Exp $
 //
 
 /**
@@ -9,12 +9,13 @@
   \brief    Flags used in PAT, and static translator from flags to strings 
 
   \author   Steven Lowette
-  \version  $Id: Flags.h,v 1.1 2008/03/11 17:05:50 gpetrucc Exp $
+  \version  $Id: Flags.h,v 1.2 2008/07/22 12:44:19 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
 #include <string>
 #include <vector>
+#include <boost/cstdint.hpp> 
 
 namespace pat {
     struct Flags {
