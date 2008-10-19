@@ -13,6 +13,17 @@ HcalPedestalMonitor::~HcalPedestalMonitor()
 
 void HcalPedestalMonitor::reset(){}
 
+void HcalPedestalMonitor::clearME()
+{
+  // remove monitor elements.  Is this necessary?
+  if(m_dbe)
+    {
+      m_dbe->setCurrentFolder(baseFolder_);
+      m_dbe->removeContents();
+    }
+  return;
+} // void HcalPedestalMonitor::clearME();
+
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 {
   if (showTiming)

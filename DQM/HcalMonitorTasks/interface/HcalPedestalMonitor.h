@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/10/15 20:05:08 $
-  * $Revision: 1.15 $
+  * $Date: 2008/10/19 09:21:47 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   */
 
@@ -39,7 +39,7 @@ private:
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, 
 			 bool onlyDepthHistos=false, char* pedUnits="none");
   void fillPedestalHistos(void);
-  
+  void clearME(); // overrides base class function
 
   // Configurable parameters
   //bool doPerChannel_; // enable histograms for each channel (not yet (or ever?) operational)
