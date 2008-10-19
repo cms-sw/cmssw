@@ -50,7 +50,7 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHadronShowerModel = cms.bool(True),
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_hf.root'),
-    bField = cms.double(4.0),
+    bField = cms.double(3.8),
     tuning_pList = cms.vdouble()
 )
 
