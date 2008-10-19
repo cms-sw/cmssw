@@ -47,6 +47,7 @@ void HcalExpertMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
   firstFED_ = FEDNumbering::getHcalFEDIds().first;
+  cout <<"FIRST FED = "<<firstFED_<<endl;
 
   for (int i=FEDNumbering::getHcalFEDIds().first; 
        i<=FEDNumbering::getHcalFEDIds().second; ++i) 
@@ -155,7 +156,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
 	  // detector ID
 	  HcalDetId id(HBHEiter->detid().rawId());
 	  int ieta=id.ieta();
-	  int iphi=id.iphi();
+	  //int iphi=id.iphi();
 	  SampleHist->Fill(ieta,energy);
 	  if ((HcalSubdetector)(id.subdet())==HcalBarrel)
 	    {
@@ -186,7 +187,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
 	  double energy = HOiter->energy();
 	  HcalDetId id(HOiter->detid().rawId());
 	  int ieta=id.ieta();
-	  int iphi=id.iphi();
+	  //int iphi=id.iphi();
 	  SampleHist->Fill(ieta,energy);
 	} // for (HOiter=hoHits.begin();...)
     } // if (hoHits.size()>0)  
@@ -208,7 +209,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
 	    double energy =  HFiter->energy();
 	    HcalDetId id(HFiter->detid().rawId());
 	    int ieta=id.ieta();
-	    int iphi=id.iphi();
+	    //int iphi=id.iphi();
 	    SampleHist->Fill(ieta,energy);
 	  } // for (HFiter=hfHits.begin();...)
       } // if (hfHits.size()>0)	  
@@ -371,6 +372,12 @@ void HcalExpertMonitor::unpack(const FEDRawData& raw,
   int EvFragLength = ((*lastDataWord>>32)*8);
   EvFragLength = raw.size();
 
+  // Dump out some raw data info
+  cout <<"RAWSIZE = "<<rawsize<<endl;
+  cout <<"dcc id = "<<dccid<<endl;
+  cout <<"dccBCN = "<<dccBCN<<endl;
+  cout <<"dccEvtNum = "<<dccEvtNum<<endl;
+    cout <<"EvFragLength = "<<EvFragLength<<endl;
   /* 1 */ //There should always be a second CDF header word indicated.
   if (!dccHeader->thereIsASecondCDFHeaderWord()) 
     {
