@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -20,12 +20,10 @@
 #include "PhysicsTools/Utilities/src/BinarySelectorSetter.h"
 #include "PhysicsTools/Utilities/src/TrinarySelectorSetter.h"
 #include "PhysicsTools/Utilities/src/IntSetter.h"
-#include "PhysicsTools/Utilities/src/CombinerStack.h"
 #include "PhysicsTools/Utilities/src/MethodStack.h"
 #include "PhysicsTools/Utilities/src/MethodArgumentStack.h"
 #include "PhysicsTools/Utilities/src/TypeStack.h"
 #include "PhysicsTools/Utilities/src/IntStack.h"
-#include "PhysicsTools/Utilities/src/CombinerSetter.h"
 #include "PhysicsTools/Utilities/src/FunctionSetter.h"
 #include "PhysicsTools/Utilities/src/CutSetter.h"
 #include "PhysicsTools/Utilities/src/BinaryCutSetter.h"
