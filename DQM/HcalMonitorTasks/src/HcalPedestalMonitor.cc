@@ -60,8 +60,8 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
       MonitorElement* dummy;
       // MeanMap, RMSMap values are in ADC, because they show the cells that can create problem cell errors 
-      setupDepthHists(dummy, MeanMapByDepth,"Pedestal Mean Map",true, "(ADC)");
-      setupDepthHists(dummy, RMSMapByDepth, "Pedestal RMS Map",true, "(ADC)");
+      setupDepthHists(dummy, MeanMapByDepth,"Pedestal Mean Map",true, "ADC");
+      setupDepthHists(dummy, RMSMapByDepth, "Pedestal RMS Map",true, "ADC");
       
       ProblemPedestals=m_dbe->book2D(" ProblemPedestals",
 				     "Problem Pedestal Rate for all HCAL",
@@ -72,58 +72,59 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       
       // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
-      
-      setupDepthHists(ProblemPedestals, ProblemPedestalsByDepth, "Problem Pedestal Rate ",true, "");
+
+      // Using "" for units creates an extra space at end of name. Why?
+      setupDepthHists(ProblemPedestals, ProblemPedestalsByDepth, "Problem Pedestal Rate",true, "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/adc/raw");
       setupDepthHists(dummy, rawADCPedestalMean, "Pedestal Values Map",
-		      true,"(ADC)");
+		      true,"ADC");
       setupDepthHists(dummy, rawADCPedestalRMS, "Pedestal Widths Map",
-		      true,"(ADC)");
+		      true,"ADC");
       setupDepthHists1D(dummy, rawADCPedestalMean_1D, "1D Pedestal Values",
-			true,"(ADC)");
+			true,"ADC");
       setupDepthHists1D(dummy, rawADCPedestalRMS_1D, "1D Pedestal Widths",
-			true,"(ADC)");
-      m_dbe->setCurrentFolder(baseFolder_+"/adc/subtracted (beta testing)");
+			true,"ADC");
+      m_dbe->setCurrentFolder(baseFolder_+"/adc/subtracted__beta_testing");
       setupDepthHists(dummy, subADCPedestalMean, "Subtracted Pedestal Values Map",
-		      true,"(ADC)");
+		      true,"ADC");
       setupDepthHists(dummy, subADCPedestalRMS, "Subtracted Pedestal Widths Map",
-		      true,"(ADC)");
+		      true,"ADC");
       setupDepthHists1D(dummy, subADCPedestalMean_1D, "1D Subtracted Pedestal Values",
-			true,"(ADC)");
+			true,"ADC");
       setupDepthHists1D(dummy, subADCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
-			true,"(ADC)");
+			true,"ADC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/fc/raw");
       setupDepthHists(dummy, rawFCPedestalMean, "Pedestal Values Map",
-		      true,"(fC)");
+		      true,"fC");
       setupDepthHists(dummy, rawFCPedestalRMS, "Pedestal Widths Map",
-		      true,"(fC)");
+		      true,"fC");
       setupDepthHists1D(dummy, rawFCPedestalMean_1D, "1D Pedestal Values",
-			true,"(fC)");
+			true,"fC");
       setupDepthHists1D(dummy, rawFCPedestalRMS_1D, "1D Pedestal Widths",
-			true,"(fC)");
-      m_dbe->setCurrentFolder(baseFolder_+"/fc/subtracted (beta testing)");
+			true,"fC");
+      m_dbe->setCurrentFolder(baseFolder_+"/fc/subtracted__beta_testing");
       setupDepthHists(dummy, subFCPedestalMean, "Subtracted Pedestal Values Map",
-		      true,"(fC)");
+		      true,"fC");
       setupDepthHists(dummy, subFCPedestalRMS, "Subtracted Pedestal Widths Map",
-		      true,"(fC)");
+		      true,"fC");
       setupDepthHists1D(dummy, subFCPedestalMean_1D, "1D Subtracted Pedestal Values",
-			true,"(fC)");
+			true,"fC");
       setupDepthHists1D(dummy, subFCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
-			true,"(fC)");
+			true,"fC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
       setupDepthHists(ADC_PedestalFromDB, ADC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
-		      false,"(ADC)");
+		      false,"ADC");
       setupDepthHists(ADC_WidthFromDB, ADC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
-		      false,"(ADC)");
+		      false,"ADC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
       setupDepthHists(fC_PedestalFromDB, fC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
-		      false,"(fC)");
+		      false,"fC");
       setupDepthHists(fC_WidthFromDB, fC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
-		      false,"(fC)");
+		      false,"fC");
 
       // initialize all counters to 0
       for (int eta=0;eta<(etaBins_-2);++eta)
@@ -414,10 +415,6 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   // Set value to be filled in problem histograms to be checkNevents (or remainder of ievt_/pedmon_checkNevents_)
   
   double fillvalue=0;
-  /*
-    if (fillvalue%ievt_!=0)
-    fillvalue=ievt_%pedmon_checkNevents_;
-  */
 
   int mydepth=0;
   double ADC_myval, ADC_RMS, ADC_sub_myval, ADC_sub_RMS;
@@ -436,7 +433,10 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      // Skip events that don't contain required number of events
 	      if (pedcounts[eta][phi][depth] < minEntriesPerPed_) continue;
 	      
-	      fillvalue = 1.*pedcounts[eta][phi][depth]/((endingTimeSlice_-startingTimeSlice_+1)*ievt_); // fraction of events used in pedestal determination (used for filling problem cells)
+	      // fillvalue = fraction of events used for pedestal determination
+	      // a small fillvalue causes the problem plots to get filled with a smaller value than a large fillvalue
+	      fillvalue = 1.*pedcounts[eta][phi][depth]/((endingTimeSlice_-startingTimeSlice_+1)*ievt_);
+
 
 	      // Compute mean and RMS for raw and subtracted pedestals in units of fC and ADC (phew!)
 
@@ -761,9 +761,9 @@ void HcalPedestalMonitor::setupDepthHists(MonitorElement* &h, std::vector<Monito
   else
     {
       if (doFCpeds_)
-	units<<"(fC)";
+	units<<"fC";
       else
-	units<<"(ADC)";
+	units<<"ADC";
     }
 
   // Book main plot
@@ -775,7 +775,7 @@ void HcalPedestalMonitor::setupDepthHists(MonitorElement* &h, std::vector<Monito
     {
       // Book main plot
       h=m_dbe->book2D(("All "+units.str()+" "+newname.str()).c_str(),
-		      (newname.str() + " for all HCAL "+units.str()).c_str(),
+		      (newname.str() + " for all HCAL ("+units.str().c_str()+")"),
 		      etaBins_,etaMin_,etaMax_,
 		      phiBins_,phiMin_,phiMax_);
       //h->SetOption("colz");
@@ -784,28 +784,28 @@ void HcalPedestalMonitor::setupDepthHists(MonitorElement* &h, std::vector<Monito
     }
 
   // Push back depth plots
-  hh.push_back(m_dbe->book2D(("HB HF Depth1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HB & HF only "+units.str()).c_str(),
+  hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+newname.str()+" "+units.str()).c_str(),
+			     (newname.str()+" Depth 1 -- HB & HF only ("+units.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,
 			     phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HB HF Depth2 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 2 -- HB & HF only "+units.str()).c_str(),
+  hh.push_back( m_dbe->book2D(("HB HF Depth 2 "+newname.str()+" "+units.str()).c_str(),
+			      (newname.str()+" Depth 2 -- HB & HF only ("+units.str().c_str()+")"),
 			      etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_));
   hh.push_back( m_dbe->book2D(("HE Depth 3 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 3 -- HE "+units.str()).c_str(),
+			      (newname.str()+" Depth 3 -- HE ("+units.str().c_str()+")"),
 			      etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_));
   hh.push_back( m_dbe->book2D(("HO ZDC "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" -- HO & ZDC "+units.str()).c_str(),
+			      (newname.str()+" -- HO & ZDC ("+units.str().c_str()+")"),
 			      etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_));
   hh.push_back(m_dbe->book2D(("HE Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HE only "+units.str()).c_str(),
+			     (newname.str()+" Depth 1 -- HE only ("+units.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,
 			     phiBins_,phiMin_,phiMax_));
   hh.push_back(m_dbe->book2D(("HE Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 2 -- HE only "+units.str()).c_str(),
+			     (newname.str()+" Depth 2 -- HE only ("+units.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,
 			     phiBins_,phiMin_,phiMax_));
   for (unsigned int i=0;i<hh.size();++i)
@@ -839,14 +839,22 @@ void HcalPedestalMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<Moni
 
   // Set units as either fC or ADC
   stringstream units;
+  int lowbound=-10;
+  int highbound=10;
+  if (pedUnits=="fC") 
+    highbound=20;
+
   if (pedUnits!="none")
     units<<pedUnits;
   else
     {
       if (doFCpeds_)
-	units<<"(fC)";
+	{
+	  units<<"fC";
+	  highbound=20; // set boundary higher because HF peds are > 5 fC 
+	}
       else
-	units<<"(ADC)";
+	units<<"ADC";
     }
 
   // Book main plot
@@ -858,30 +866,30 @@ void HcalPedestalMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<Moni
     {
       // Book main plot
       h=m_dbe->book1D(("All "+units.str()+" "+newname.str()).c_str(),
-		      (newname.str() + " for all HCAL"+units.str()).c_str(),
-		      200,-10,10);
+		      (newname.str() + " for all HCAL ("+units.str().c_str()+")"),
+		      200,lowbound,highbound);
       h->setAxisTitle(units.str().c_str(),1);
     }
 
   // Push back depth plots
   hh.push_back(m_dbe->book1D(("HB HF Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HB & HF only "+units.str()).c_str(),
-			     200,-10,10));
+			     (newname.str()+" Depth 1 -- HB & HF only ("+units.str().c_str()+")"),
+			     200,lowbound,highbound));
   hh.push_back( m_dbe->book1D(("HB HF Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 2 -- HB & HF only "+units.str()).c_str(),
-			      200,-10,10));
+			      (newname.str()+" Depth 2 -- HB & HF only ("+units.str().c_str()+")"),
+			      200,lowbound,highbound));
   hh.push_back( m_dbe->book1D(("HE Depth 3 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 3 -- HE "+units.str()).c_str(),
-			      200,-10,10));
+			      (newname.str()+" Depth 3 -- HE ("+units.str().c_str()+")"),
+			      200,lowbound,highbound));
   hh.push_back( m_dbe->book1D(("HO ZDC "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" -- HO & ZDC "+units.str()).c_str(),
-			      200,-10,10));
+			      (newname.str()+" -- HO & ZDC ("+units.str().c_str()+")"),
+			      200,lowbound,highbound));
   hh.push_back(m_dbe->book1D(("HE Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HE only "+units.str()).c_str(),
-			     200,-10,10));
+			     (newname.str()+" Depth 1 -- HE only ("+units.str().c_str()+")"),
+			     200,lowbound,highbound));
   hh.push_back(m_dbe->book1D(("HE Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 2 -- HE only "+units.str()).c_str(),
-			     200,-10,10));
+			     (newname.str()+" Depth 2 -- HE only ("+units.str().c_str()+")"),
+			     200,lowbound,highbound));
   for (unsigned int i=0;i<hh.size();++i)
     {
       hh[i]->setAxisTitle(units.str().c_str(),1);
