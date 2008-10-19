@@ -1,6 +1,10 @@
 #ifndef DQM_HCALMONITORTASKS_HCALBASEMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALBASEMONITOR_H
 
+// Define number of eta, phi bins for histogram objects
+#define ETABINS 87
+#define PHIBINS 72
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -28,8 +32,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/07/01 00:06:08 $
-  * $Revision: 1.12 $
+  * $Date: 2008/10/15 20:08:41 $
+  * $Revision: 1.13 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {

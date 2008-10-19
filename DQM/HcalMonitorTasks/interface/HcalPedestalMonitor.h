@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/03/01 00:39:58 $
-  * $Revision: 1.14 $
+  * $Date: 2008/10/15 20:05:08 $
+  * $Revision: 1.15 $
   * \author W. Fisher - FNAL
   */
 
@@ -34,13 +34,15 @@ public:
 
 private: 
   //void setupHists(PedestalHists& h);
-  void setupDepthHists(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, bool onlyDepthHistos=false, char* pedUnits="none");
-  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, bool onlyDepthHistos=false, char* pedUnits="none");
+  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, 
+			 char* name, bool onlyDepthHistos=false, char* pedUnits="none");
+  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, 
+			 bool onlyDepthHistos=false, char* pedUnits="none");
   void fillPedestalHistos(void);
   
 
   // Configurable parameters
-  bool doPerChannel_; // enable histograms for each channel (not yet operational)
+  //bool doPerChannel_; // enable histograms for each channel (not yet (or ever?) operational)
   bool doFCpeds_; // pedestal units in fC (if false, assume ADC)
   // specify time slices over which to calculate pedestals
   bool startingTimeSlice_;
@@ -58,6 +60,7 @@ private:
   double pedmon_minErrorFlag_;
   int pedmon_checkNevents_;
 
+  // Pedestal ADC/fC conversion stuffx
   const HcalQIEShape* shape_;
   const HcalQIECoder* channelCoder_;
   HcalCalibrations calibs_;
@@ -65,18 +68,17 @@ private:
   MonitorElement* meEVT_;
   int ievt_;
   
+  // Store means, RMS of pedestals by depth
   std::vector<MonitorElement*> MeanMapByDepth;
   std::vector<MonitorElement*> RMSMapByDepth;
 
+  // Original pedestal read info from database
   MonitorElement* ADC_PedestalFromDB;
   std::vector<MonitorElement*> ADC_PedestalFromDBByDepth;
-
   MonitorElement* ADC_WidthFromDB;
   std::vector<MonitorElement*> ADC_WidthFromDBByDepth;
-
   MonitorElement* fC_PedestalFromDB;
   std::vector<MonitorElement*> fC_PedestalFromDBByDepth;
-  
   MonitorElement* fC_WidthFromDB;
   std::vector<MonitorElement*> fC_WidthFromDBByDepth;
 
@@ -104,21 +106,21 @@ private:
   std::vector<MonitorElement*> subFCPedestalMean_1D;
   std::vector<MonitorElement*> subFCPedestalRMS_1D;
 
-  // Problem 
+  // Problem Histograms 
   MonitorElement* ProblemPedestals;
   std::vector<MonitorElement*> ProblemPedestalsByDepth;
 
 
-  //Quick pedestal code  -- these store the values that are used to compute pedestals
-  int pedcounts[87][72][4];
-  float rawpedsum[87][72][4];
-  float rawpedsum2[87][72][4];
-  float subpedsum[87][72][4];
-  float subpedsum2[87][72][4];
-  float fC_rawpedsum[87][72][4];
-  float fC_rawpedsum2[87][72][4];
-  float fC_subpedsum[87][72][4];
-  float fC_subpedsum2[87][72][4];
+  //Quick pedestal arrays -- these store the values that are used to compute pedestals
+  int pedcounts[ETABINS][PHIBINS][4];
+  float rawpedsum[ETABINS][PHIBINS][4];
+  float rawpedsum2[ETABINS][PHIBINS][4];
+  float subpedsum[ETABINS][PHIBINS][4];
+  float subpedsum2[ETABINS][PHIBINS][4];
+  float fC_rawpedsum[ETABINS][PHIBINS][4];
+  float fC_rawpedsum2[ETABINS][PHIBINS][4];
+  float fC_subpedsum[ETABINS][PHIBINS][4];
+  float fC_subpedsum2[ETABINS][PHIBINS][4];
 
 
 
