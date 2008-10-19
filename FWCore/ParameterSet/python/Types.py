@@ -398,6 +398,26 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return config
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+    def clone(self, *args, **params):
+        myparams = self.parameters_()
+        if len(params):
+            #need to treat items both in params and myparams specially
+            for key,value in params.iteritems():
+                if key in myparams:                    
+                    if isinstance(value,_ParameterTypeBase):
+                        myparams[key] =value
+                    else:
+                        myparams[key].setValue(value)
+                else:
+                    if isinstance(value,_ParameterTypeBase):
+                        myparams[key]=value
+                    else:
+                        self._Parameterizable__raiseBadSetAttr(key)
+
+        returnValue = PSet(**myparams)
+        returnValue._isModified = False
+        returnValue._isFrozen = False
+        return returnValue
     def copy(self):
         return copy.copy(self)
     def _place(self,name,proc):

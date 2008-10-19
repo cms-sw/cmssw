@@ -239,6 +239,7 @@ class _TypedParameterizable(_Parameterizable):
         #    del args['type_']
         arg = tuple([x for x in arg if x != None])
         super(_TypedParameterizable,self).__init__(*arg,**kargs)
+        saveOrigin(self, 1) 
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def type_(self):
@@ -266,8 +267,7 @@ class _TypedParameterizable(_Parameterizable):
             args.append(None)
         if len(params):
             #need to treat items both in params and myparams specially
-            for key in params.iterkeys():
-                value = params[key]
+            for key,value in params.iteritems():
                 if key in myparams:                    
                     if isinstance(value,_ParameterTypeBase):
                         myparams[key] =value

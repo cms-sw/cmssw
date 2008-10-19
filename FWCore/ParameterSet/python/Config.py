@@ -271,7 +271,7 @@ class Process(object):
                 else:
                     return True
             else:
-                return False
+                return True
         else:
             return True
 

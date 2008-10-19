@@ -20,6 +20,7 @@ class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
 class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
     def __init__(self,type_,*arg,**kargs):
         super(ESSource,self).__init__(type_,*arg,**kargs)
+        saveOrigin(self, 1)
     def _placeImpl(self,name,proc):
         if name == '':
             name=self.type_()
