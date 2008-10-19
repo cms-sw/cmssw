@@ -18,18 +18,27 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
                            # GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different values can trigger different levels of messaging
-                           
+
+                           # eta runs from -43->+43  (-41 -> +41 for HCAL, plus ZDC, which we put at |eta|=43.
+                           # add one empty bin beyond that for histogramming prettiness 
                            MaxEta = cms.untracked.double(44.5),
                            MinEta = cms.untracked.double(-44.5),
+                           # likewise, phi runs from 1-72.  Add some buffering bins around that region 
                            MaxPhi = cms.untracked.double(73.5),
                            MinPhi = cms.untracked.double(-0.5),
 
+                           # Determine whether or not to check individual subdetectors
                            checkHF = cms.untracked.bool(True),
                            checkHE = cms.untracked.bool(True),
                            checkHB = cms.untracked.bool(True),
                            checkHO = cms.untracked.bool(True),
 
-                           minErrorFlag = cms.untracked.double(0.05), # minimum error rate that will cause problem cells to be filled
+                           #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0?
+                           minErrorFlag = cms.untracked.double(0.00), 
+
+                           # Turn on/off timing diganostic ifno
+                           showTiming = cms.untracked.bool(False),
+                           
                            
                            DumpThreshold = cms.untracked.double(500.0),
                            thresholds = cms.untracked.vdouble(15.0, 5.0, 2.0, 1.5, 1.0),
@@ -110,13 +119,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCell_checkThreshold = cms.untracked.bool(True),
                            minADCcount = cms.untracked.double(0.0),
 
-                           # maximum allowed diff between observed, db pedestals before error is thrown
-                           maxPedestalDiffADC=cms.untracked.double(1.),
-                           maxPedestalWidthADC=cms.untracked.double(2.),
-                           
                            HO_NADA_Ecell_frac = cms.untracked.double(0.0),
                            HE_NADA_Ecell_frac = cms.untracked.double(0.0),
-                           showTiming = cms.untracked.bool(False),
+
                            makeSubdetHistos= cms.untracked.bool(True),
                            HB_NADA_Ecube_frac = cms.untracked.double(0.333),
                            HB_NADA_Ecand_cut2 = cms.untracked.double(10.0),
@@ -170,12 +175,9 @@ def setHcalTaskValues(process):
     # (This is useful if you've changed the global value, and you want it to propagate everywhere)
 
     # Set minimum value needed to put an entry into Problem histograms.  (values are between 0-1)
-    minErrorFlags = [process.PedestalMonitor_minErrorFlag]
-    for i in range(len(minErrorFlags)):
-        minErrorFlags[i] = process.minErrorFlag
+    process.PedestalMonitor_minErrorFlag = process.minErrorFlag
 
-    checkNevents = [process.PedestalMonitor_checkNevents]
-    for i in range(len(checkNevents)):
-        checkNevents[i] = process.checkNevents
+    process.PedestalMonitor_checkNevents = process.checkNevents
 
-    return
+
+    return 
