@@ -1,7 +1,6 @@
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # loading magnetic field and geometry
-process.load("MagneticField.Engine.uniformMagneticField_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
@@ -16,7 +15,7 @@ process.load("Alignment.HIPAlignmentAlgorithm.FrontierConditions_GlobalTag_cff")
 # setting global tag
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 # process.GlobalTag.globaltag = "CRUZET4_V6H::All"
-process.GlobalTag.globaltag = "CRUZET4_V5::All"
+process.GlobalTag.globaltag = "CRAFT_V2P::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 MessageLogger = cms.Service("MessageLogger",
@@ -29,9 +28,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 # configure magnetic field
 #from MagnecticField.Engine.uniformMagneticField_cfg import *
-process.UniformMagneticFieldESProducer.ZFieldInTesla = 0.0
-es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESProducer")
-
+#process.UniformMagneticFieldESProducer.ZFieldInTesla = 0.0
+#es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESProducer")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
