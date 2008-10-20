@@ -8,6 +8,7 @@ class CSCBadChambers{
   CSCBadChambers();
   ~CSCBadChambers();
 
+  int numberOfBadChambers;
   std::vector<int> chambers;
 };
 

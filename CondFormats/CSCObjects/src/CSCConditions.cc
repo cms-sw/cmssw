@@ -151,6 +151,9 @@ void CSCConditions::fillBadWireWords(){
 }
 
 bool CSCConditions::isInBadChamber( const CSCDetId& id ) const {
+
+  if ( theBadChambers->numberOfBadChambers == 0 ) return false;
+
   short int iri = id.ring();
   if ( iri == 4 ) iri = 1; // reset ME1A to ME11
   CSCIndexer indexer;
