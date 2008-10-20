@@ -1,3 +1,8 @@
+/* \class ZHLTFilter
+ *
+ * \author Pasquale Noli, Universita' di Napoli & INFN Napoli
+ *
+ */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
@@ -21,9 +26,10 @@ namespace modules {
       bool bothTriggerFlag = false;
       bool atLeastOneTriggerFlag=false;
       bool FirstTriggerFlag = false;
-      if((cond_ !="and" && cond_!="or") && cond_ !="first"){
-	cout << "Conditions are : and, or ,first !" <<endl;
-	return false;}
+      if(((cond_ !="exactlyOneMatched" && cond_!="atLeastOneMatched") && cond_ !="bothMatched") && cond_ != "firstMatched")
+	throw edm::Exception(edm::errors::Configuration) 
+	  << "Invalid condition type: " << cond_ << ". Valid types are:"
+	  << " exactlyOneMatched, atLeastOneMatched, bothMatched, firstMatched\n";
       const reco::Candidate* dau0 = z.daughter(0);
       const reco::Candidate * m0 = &*dau0->masterClone();
       const pat::Muon * mu0 = dynamic_cast<const pat::Muon*>(m0);//cast in patMuon
