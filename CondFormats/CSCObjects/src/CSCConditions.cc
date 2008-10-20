@@ -155,9 +155,10 @@ bool CSCConditions::isInBadChamber( const CSCDetId& id ) const {
   if ( iri == 4 ) iri = 1; // reset ME1A to ME11
   CSCIndexer indexer;
   int ilin = indexer.chamberIndex( id.endcap(), id.station(), iri, id.chamber() );
-  std::vector<int> bad = theBadChambers->chambers();
-  std::vector<int>::iterator it = std::find( bad.begin(), bad.end(), ilin );
-  if ( it != bad.end() ) return true; // id is in the list of bad chambers
+  std::vector<int>::const_iterator badbegin = theBadChambers->chambers.begin();
+  std::vector<int>::const_iterator badend = theBadChambers->chambers.end();
+  std::vector<int>::const_iterator it = std::find( badbegin, badend, ilin );
+  if ( it != badend ) return true; // id is in the list of bad chambers
   else return false;
 }
 
