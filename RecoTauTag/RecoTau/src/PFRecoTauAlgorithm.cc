@@ -242,10 +242,15 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	  myHCALenergy += myPFCands[i]->hcalEnergy();
 	  myECALenergy += myPFCands[i]->ecalEnergy();
 	  
-	  math::XYZPointF candPos(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+	  math::XYZPointF candPos;
+	  if (myPFCands[i]->particleId()==1) // if charged hadron
+	    candPos = myPFCands[i]->positionAtECALEntrance();
+	  else
+	    candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+
 	  double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
 	  double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
-	  double deltaEta = abs(myElecTrkEcalPos.eta()-myPFCands[i]->eta());
+	  double deltaEta = abs(myElecTrkEcalPos.eta()-candPos.eta());
 	  double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
 	  
 	if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
