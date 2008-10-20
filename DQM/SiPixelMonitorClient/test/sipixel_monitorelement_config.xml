@@ -19,8 +19,10 @@
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc"></MonElement> 
+     <MonElement name="adcCOMB"></MonElement> 
      <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"></MonElement> 
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="chargeCOMB"> </MonElement>
      <MonElement name="size">   </MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
@@ -28,9 +30,8 @@
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="charge"></MonElement> 
      <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"></MonElement> 
+     <MonElement name="charge"> </MonElement>
      <MonElement name="size">   </MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
@@ -39,8 +40,10 @@
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc"></MonElement> 
+     <MonElement name="adcCOMB"></MonElement> 
      <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"></MonElement> 
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="chargeCOMB"> </MonElement>
      <MonElement name="size">   </MonElement>
 </SubStructureGrandEndcapLevel> 
 </SummaryPlot>
