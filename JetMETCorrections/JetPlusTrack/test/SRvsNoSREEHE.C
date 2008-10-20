@@ -150,7 +150,7 @@ void setTDRStyle(Int_t xlog, Int_t ylog) {
 void Draw()
 {
    setTDRStyle(1,0);
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c1 = new TCanvas("X","Y",1);
    TAxis* xaxis = hprEH11x5->GetXaxis();
    hprEH11x5->GetXaxis()->SetTitle("p_{T} of #pi ^{+} and #pi ^{-}, GeV");
@@ -162,23 +162,23 @@ void Draw()
    hprEH11x5->Draw();
    TLegend *leg = new TLegend(0.4,0.2,0.9,0.4,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hprEH11x5,"No SR. ECAL 11x11, HCAL 5x5","P");
+   leg->AddEntry(hprEH11x5,"No HCAL ZS, no ECAL SR","P");
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    hprEH11x5->SetMarkerStyle(24);
    hprEH11x5->Draw("same");
-   leg->AddEntry(hprEH11x5,"With SR. ECAL 11x11, HCAL 5x5","P");
+   leg->AddEntry(hprEH11x5,"HCAL ZS, ECAL SR","P");
    leg->Draw();
 
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(1.5,0.95,"CMSSW_1_6_12, |#eta| > 1.6");
-   t->DrawLatex(1.5,0.90,"no ZSP in HCAL");
+   t->DrawLatex(1.5,0.95,"CMSSW_2_1_9, |#eta| > 1.5");
    c1->SaveAs("SRvsNoSR_EEHEmatrix.gif");
 
    setTDRStyle(0,0);
 
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c2 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11_1_2GeV->GetXaxis();
    hE11_1_2GeV->GetXaxis()->SetTitle("E in ECAL 11x11 / E^{true}");
@@ -189,27 +189,28 @@ void Draw()
    hE11_1_2GeV->SetMaximum(0.15);
    hE11_1_2GeV->SetLineWidth(3);
    hE11_1_2GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.6,0.7,0.9,0.8,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.5,0.7,0.9,0.9,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11_1_2GeV,"No SR","L");
+   leg->AddEntry(hE11_1_2GeV,"No HCAL ZS, no ECAL SR","L");
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    Double_t scale = 1./hE11_1_2GeV->Integral();
    hE11_1_2GeV->Scale(scale);
    hE11_1_2GeV->SetLineStyle(2);
    hE11_1_2GeV->SetLineWidth(3);
    hE11_1_2GeV->Draw("same");
-   leg->AddEntry(hE11_1_2GeV,"With SR","L");
+   leg->AddEntry(hE11_1_2GeV,"HCAL ZS, ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.12,"CMSSW_1_6_12");
-   t->DrawLatex(-1.8,0.10,"|#eta| > 1.6");
+   t->DrawLatex(-1.8,0.12,"CMSSW_2_1_9");
+   t->DrawLatex(-1.8,0.10,"|#eta| > 1.5");
    t->DrawLatex(-1.8,0.08,"1 < p_{T}^{trk} < 2 GeV");
 
    c2->SaveAs("SRvsNoSR_EEmatrix1_2GeV.gif");
 
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c3 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11_3_4GeV->GetXaxis();
    hE11_3_4GeV->GetXaxis()->SetTitle("E in ECAL 11x11 / E^{true}");
@@ -220,27 +221,28 @@ void Draw()
    hE11_3_4GeV->SetMaximum(0.18);
    hE11_3_4GeV->SetLineWidth(3);
    hE11_3_4GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.6,0.7,0.9,0.8,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.5,0.7,0.9,0.9,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11_3_4GeV,"No SR","L");
+   leg->AddEntry(hE11_3_4GeV,"No HCAL ZS, no ECAL SR","L");
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    Double_t scale = 1./hE11_3_4GeV->Integral();
    hE11_3_4GeV->Scale(scale);
    hE11_3_4GeV->SetLineStyle(2);
    hE11_3_4GeV->SetLineWidth(3);
    hE11_3_4GeV->Draw("same");
-   leg->AddEntry(hE11_3_4GeV,"With SR","L");
+   leg->AddEntry(hE11_3_4GeV,"HCAL ZS, ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.16,"CMSSW_1_6_12");
-   t->DrawLatex(-1.8,0.14,"|#eta| > 1.6");
+   t->DrawLatex(-1.8,0.16,"CMSSW_2_1_9");
+   t->DrawLatex(-1.8,0.14,"|#eta| > 1.5");
    t->DrawLatex(-1.8,0.12,"3 < p_{T}^{trk} < 4 GeV");
 
    c3->SaveAs("SRvsNoSR_EEmatrix3_4GeV.gif");
 
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c4 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11_5_10GeV->GetXaxis();
    hE11_5_10GeV->GetXaxis()->SetTitle("E in ECAL 11x11 / E^{true}");
@@ -251,27 +253,28 @@ void Draw()
    hE11_5_10GeV->SetMaximum(0.25);
    hE11_5_10GeV->SetLineWidth(3);
    hE11_5_10GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.6,0.7,0.9,0.8,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.5,0.7,0.9,0.9,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11_5_10GeV,"No SR","L");
+   leg->AddEntry(hE11_5_10GeV,"No HCAL ZS, no ECAL SR","L");
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    Double_t scale = 1./hE11_5_10GeV->Integral();
    hE11_5_10GeV->Scale(scale);
    hE11_5_10GeV->SetLineStyle(2);
    hE11_5_10GeV->SetLineWidth(3);
    hE11_5_10GeV->Draw("same");
-   leg->AddEntry(hE11_5_10GeV,"With SR","L");
+   leg->AddEntry(hE11_5_10GeV,"HCAL ZS, ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.20,"CMSSW_1_6_12");
-   t->DrawLatex(-1.8,0.17,"|#eta| > 1.6");
+   t->DrawLatex(-1.8,0.20,"CMSSW_2_1_9");
+   t->DrawLatex(-1.8,0.17,"|#eta| > 1.5");
    t->DrawLatex(-1.8,0.14,"5 < p_{T}^{trk} < 10 GeV");
 
    c4->SaveAs("SRvsNoSR_EEmatrix5_10GeV.gif");
 
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c5 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11H5_1_2GeV->GetXaxis();
    hE11H5_1_2GeV->GetXaxis()->SetTitle("E in ECAL 11x11 + HCAL 5x5 / E^{true}");
@@ -279,31 +282,31 @@ void Draw()
    hE11H5_1_2GeV->GetYaxis()->SetTitle("");
    Double_t scale = 1./hE11H5_1_2GeV->Integral();
    hE11H5_1_2GeV->Scale(scale);
-   hE11H5_1_2GeV->SetMaximum(0.1);
+   hE11H5_1_2GeV->SetMaximum(0.3);
    hE11H5_1_2GeV->SetLineWidth(3);
    hE11H5_1_2GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.2,0.7,0.8,0.9,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11H5_1_2GeV,"No SR","L");
+   leg->AddEntry(hE11H5_1_2GeV,"No HCAL ZS, no ECAL SR","L");
 
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    Double_t scale = 1./hE11H5_1_2GeV->Integral();
    hE11H5_1_2GeV->Scale(scale);
    hE11H5_1_2GeV->SetLineStyle(2);
    hE11H5_1_2GeV->SetLineWidth(3);
    hE11H5_1_2GeV->Draw("same");
-   leg->AddEntry(hE11H5_1_2GeV,"With SR","L");
+   leg->AddEntry(hE11H5_1_2GeV,"HCAL ZS, ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.09,"CMSSW_1_6_12, |#eta| > 1.6");
-   t->DrawLatex(-1.8,0.08,"no ZSP in HCAL");
+   t->DrawLatex(-1.8,0.09,"CMSSW_2_1_9, |#eta| > 1.5");
    t->DrawLatex(-1.8,0.07,"1 < p_{T}^{trk} < 2 GeV");
 
    c5->SaveAs("SRvsNoSR_EEHEmatrix1_2GeV.gif");
 
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c6 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11H5_3_4GeV->GetXaxis();
    hE11H5_3_4GeV->GetXaxis()->SetTitle("E in ECAL 11x11 + HCAL 5x5 / E^{true}");
@@ -314,27 +317,27 @@ void Draw()
    hE11H5_3_4GeV->SetMaximum(0.14);
    hE11H5_3_4GeV->SetLineWidth(3);
    hE11H5_3_4GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.15,0.4,0.55,0.6,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11H5_3_4GeV,"No SR","L");
+   leg->AddEntry(hE11H5_3_4GeV,"No HCAL ZS, no ECAL SR","L");
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    Double_t scale = 1./hE11H5_3_4GeV->Integral();
    hE11H5_3_4GeV->Scale(scale);
    hE11H5_3_4GeV->SetLineStyle(2);
    hE11H5_3_4GeV->SetLineWidth(3);
    hE11H5_3_4GeV->Draw("same");
-   leg->AddEntry(hE11H5_3_4GeV,"With SR","L");
+   leg->AddEntry(hE11H5_3_4GeV,"HCAL ZS, ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.13,"CMSSW_1_6_12, |#eta| > 1.6");
-   t->DrawLatex(-1.8,0.11,"no ZSP in HCAL");
-   t->DrawLatex(-1.8,0.09,"3 < p_{T}^{trk} < 4 GeV");
+   t->DrawLatex(-1.8,0.13,"CMSSW_2_1_9, |#eta| > 1.5");
+   t->DrawLatex(-1.8,0.12,"3 < p_{T}^{trk} < 4 GeV");
 
    c6->SaveAs("SRvsNoSR_EEHEmatrix3_4GeV.gif");
 
-   TFile* file = new TFile("nosr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    TCanvas* c7 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11H5_5_10GeV->GetXaxis();
    hE11H5_5_10GeV->GetXaxis()->SetTitle("E in ECAL 11x11 + HCAL 5x5 / E^{true}");
@@ -345,23 +348,23 @@ void Draw()
    hE11H5_5_10GeV->SetMaximum(0.18);
    hE11H5_5_10GeV->SetLineWidth(3);
    hE11H5_5_10GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.15,0.4,0.6,0.6,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11H5_5_10GeV,"No SR","L");
+   leg->AddEntry(hE11H5_5_10GeV,"No HCAL ZS, no ECAL SR","L");
 
-   TFile* file = new TFile("sr_endcap.root");
+   //   TFile* file = new TFile("sr_endcap.root");
+   TFile* file = new TFile("nozs_endcap.root");
    Double_t scale = 1./hE11H5_5_10GeV->Integral();
    hE11H5_5_10GeV->Scale(scale);
    hE11H5_5_10GeV->SetLineStyle(2);
    hE11H5_5_10GeV->SetLineWidth(3);
    hE11H5_5_10GeV->Draw("same");
-   leg->AddEntry(hE11H5_5_10GeV,"With SR","L");
+   leg->AddEntry(hE11H5_5_10GeV,"HCAL ZS, ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.16,"CMSSW_1_6_12, |#eta|< 1.3");
-   t->DrawLatex(-1.8,0.14,"no ZSP in HCAL");
-   t->DrawLatex(-1.8,0.12,"5 < p_{T}^{trk} < 10 GeV");
+   t->DrawLatex(-1.8,0.16,"CMSSW_2_1_9, |#eta|< 1.3");
+   t->DrawLatex(-1.8,0.14,"5 < p_{T}^{trk} < 10 GeV");
 
    c7->SaveAs("SRvsNoSR_EBHBmatrix5_10GeV.gif");
 }
