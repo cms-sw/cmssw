@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2008/07/10 15:24:37 $
-//  by         : $Author: ewidl $
+//  last update: $Date: 2008/10/10 17:03:37 $
+//  by         : $Author: flucke $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -243,6 +243,10 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
 {
   // get the measurements and their errors, use information updated with tsos if improving
   // (GF: Also for measurements or only for errors or do the former not change?)
+  // GF 10/2008: I doubt that it makes sense to update the hit with the tsos here:
+  //             That is an analytical extrapolation and not the best guess of the real 
+  //             track state on the module, but the latter should be better to get the best
+  //             hit uncertainty estimate!
   TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
 							hitPtr->clone(updatedTsos) : hitPtr);
 
