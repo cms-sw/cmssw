@@ -40,6 +40,9 @@ public:
   virtual void crosstalk(const CSCDetId&detId, int channel,
                  double stripLength, bool leftRight, 
                  float & capacitive, float & resistive) const = 0;
+
+  /// is supplied layer/chamber flagged as bad? (default impl. is no)
+  virtual bool isInBadChamber( const CSCDetId& id ) const { return false; }
   
 protected:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip) = 0;
