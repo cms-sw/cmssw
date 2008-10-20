@@ -90,6 +90,7 @@ private:
   MonitorElement* csctfTrackEta;
   MonitorElement* cscTrackStubNumbers;
   MonitorElement* csctfTrackQ;
+	MonitorElement* csctfAFerror;
   // JAG
 
   int nev_; // Number of events processed
