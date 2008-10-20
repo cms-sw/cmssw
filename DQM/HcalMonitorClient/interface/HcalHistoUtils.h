@@ -1,6 +1,15 @@
 #ifndef GUARD_HCALTESTUTILS_h
 #define GUARD_HCALTESTUTILS_h
 
+#define UTILS_ETAMIN -44.5
+#define UTILS_ETAMAX 44.5
+#define UTILS_PHIMIN -0.5
+#define UTILS_PHIMAX 73.5
+
+// Set spacing of dashed lines in 2-D plots
+#define UTILS_VERTLINESPACE 5
+#define UTILS_HORIZLINESPACE 5
+
 /******************************************************************************
  *
  * HcalTestUtils.h
@@ -224,12 +233,14 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   std::string histtype=hist->ClassName();
  
   // Set grids to on for all TH2F histograms (maybe add for others later?)
+  /*
+    // we now draw the lines directly, so that we can set our own grid spacing
   if (histtype=="TH2F")
     {
       can->SetGridx();
       can->SetGridy();
-    }
-
+      }
+  */
 
   // Don't draw stat box for color plots
   if (((std::string)hist->GetOption())=="col" || 
@@ -240,6 +251,29 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
   
+  int vertlinespace=UTILS_VERTLINESPACE;
+  int horizlinespace=UTILS_HORIZLINESPACE;
+  if (histtype=="TH2F")
+    {
+      // Draw vertical lines
+      for (int xx=int(UTILS_ETAMIN);xx<=int(UTILS_ETAMAX);++xx)
+	{
+	  if (xx%vertlinespace!=0) continue;
+	  TLine *vert = new TLine(xx,UTILS_PHIMIN,xx,UTILS_PHIMAX);
+	  vert->SetLineStyle(3);
+	  vert->Draw("same");
+	}
+      // Draw horizontal lines
+      for (int yy=-int(UTILS_PHIMIN);yy<=int(UTILS_PHIMAX);++yy)
+	{
+	  if (yy%horizlinespace!=0) continue;
+	  TLine *horiz = new TLine(UTILS_ETAMIN,yy,UTILS_ETAMAX,yy);
+	  horiz->SetLineStyle(3);
+	  horiz->Draw("same");
+	}
+      
+    }
+
   can->SaveAs(saveName.c_str());  
   delete can;
 
