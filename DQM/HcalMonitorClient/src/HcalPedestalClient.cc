@@ -14,9 +14,9 @@ void HcalPedestalClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   // Get variable values from cfg file
   nominalPedMeanInADC_      = ps.getUntrackedParameter<double>("PedestalClient_nominalPedMeanInADC",3);
   nominalPedWidthInADC_     = ps.getUntrackedParameter<double>("PedestalClient_nominalPedWidthInADC",1);
-  maxPedMeanDiffADC_        = ps.getUntrackedParameter<double>("PedestalClient_maxPedMEanDiffADC",1);
+  maxPedMeanDiffADC_        = ps.getUntrackedParameter<double>("PedestalClient_maxPedMeanDiffADC",1);
   maxPedWidthDiffADC_       = ps.getUntrackedParameter<double>("PedestalClient_maxPedWidthDiffADC",1);
-  doFCpeds_                 = ps.getUntrackedParameter<double>("PedestalClient_pedestalsInFC",1);
+  doFCpeds_                 = ps.getUntrackedParameter<bool>("PedestalClient_pedestalsInFC",1);
   startingTimeSlice_        = ps.getUntrackedParameter<int>("PedestalClient_startingTimeSlice",0);
   endingTimeSlice_          = ps.getUntrackedParameter<int>("PedestalClient_endingTimgSlice",1);
   minErrorFlag_             = ps.getUntrackedParameter<double>("PedestalClient_minErrorFlag",0.05);
@@ -265,7 +265,7 @@ void HcalPedestalClient::getHistograms()
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
-      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate ";
+      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate";
       ProblemPedestalsByDepth[i] = getAnyHisto(dummy2D, name.str(),process_,dbe_,debug_,cloneME_);
 
       if (ProblemPedestalsByDepth[i])
@@ -409,7 +409,7 @@ void HcalPedestalClient::resetAllME()
       // Reset arrays of histograms
 
       // Problem Pedestal Plots
-      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate ";
+      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate";
       resetME(name.str().c_str(),dbe_);
       name.str("");
 
@@ -555,7 +555,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile <<"<td> Problem Cells<br>(ieta, iphi)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td><td align=\"center\"> Mean (ADC)</td><td align=\"center\"> RMS (ADC)</td></tr>"<<endl;
+  htmlFile <<"<td> Problem Cells<br>(ieta, iphi, depth)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td><td align=\"center\"> Mean (ADC)</td><td align=\"center\"> RMS (ADC)</td></tr>"<<endl;
 
   if (ProblemPedestals==0)
     {
@@ -578,6 +578,8 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
             {
               eta=ieta+int(etaMin)-1;
               phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemPedestalsByDepth[depth]==0)
 		{
 		  continue;
@@ -590,7 +592,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
 		  else name <<"HE";
 		  if (MeanMapByDepth[depth]!=0 && RMSMapByDepth[depth]!=0)
-		    htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<")</td><td align=\"center\">"<<ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td><td align=\"center\"> "<<MeanMapByDepth[depth]->GetBinContent(ieta,iphi)<<" </td>  <td align=\"center\">"<<RMSMapByDepth[depth]->GetBinContent(ieta,iphi)<<"</td></tr>"<<endl;
+		    htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td><td align=\"center\"> "<<MeanMapByDepth[depth]->GetBinContent(ieta,iphi)<<" </td>  <td align=\"center\">"<<RMSMapByDepth[depth]->GetBinContent(ieta,iphi)<<"</td></tr>"<<endl;
 		  name.str("");
 		}
 	    } // for (int iphi=1;...)
@@ -846,7 +848,7 @@ void HcalPedestalClient::loadHistograms(TFile* infile)
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
-      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate ";
+      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate";
       ProblemPedestalsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
 
