@@ -3,7 +3,3 @@
 CSCBadChambers::CSCBadChambers(){}
 
 CSCBadChambers::~CSCBadChambers(){}
-
-std::vector<int> CSCBadChambers::chambers() const {
-  return theChambers;
-}

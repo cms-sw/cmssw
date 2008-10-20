@@ -7,11 +7,8 @@ class CSCBadChambers{
  public:
   CSCBadChambers();
   ~CSCBadChambers();
-  
-  std::vector<int> chambers() const;
 
- private:
-  std::vector<int> theChambers;
+  std::vector<int> chambers;
 };
 
 #endif
