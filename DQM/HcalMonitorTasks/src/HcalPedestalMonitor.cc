@@ -5,13 +5,18 @@
 HcalPedestalMonitor::HcalPedestalMonitor() 
 { 
   shape_=NULL; 
-}
+} // constructor
+
 
 HcalPedestalMonitor::~HcalPedestalMonitor() 
 {
-}
+  // Do we need to delete all pointers here?  If not, will he have a memory leak?  Does this even get explicitly called?  cout statements placed here didn't seem to work
+  
+} // destructor
+
 
 void HcalPedestalMonitor::reset(){}
+
 
 void HcalPedestalMonitor::clearME()
 {
@@ -23,6 +28,7 @@ void HcalPedestalMonitor::clearME()
     }
   return;
 } // void HcalPedestalMonitor::clearME();
+
 
 void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 {
@@ -43,7 +49,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalMonitor_pedestalsInFC", true);
 
-  minEntriesPerPed_ = ps.getUntrackedParameter<int>("PedestalMonitor_minEntriesPerPed",1);
+  minEntriesPerPed_ = ps.getUntrackedParameter<unsigned int>("PedestalMonitor_minEntriesPerPed",1);
 
   // set expected pedestal mean, width (in ADC)
   nominalPedMeanInADC_ = ps.getUntrackedParameter<double>("PedestalMonitor_nominalPedMeanInADC",3);
@@ -55,7 +61,6 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   pedmon_minErrorFlag_ = ps.getUntrackedParameter<double>("PedestalMonitor_minErrorFlag", minErrorFlag_);
   pedmon_checkNevents_ = ps.getUntrackedParameter<int>("PedestalMonitor_checkNevents", checkNevents_);
-
   // set bins over which pedestals will be computed
   startingTimeSlice_ = ps.getUntrackedParameter<int>("PedestalMonitor_startingTimeSlice",0);
   endingTimeSlice_   = ps.getUntrackedParameter<int>("PedestalMonitor_endingTimeSlice"  ,1); 
@@ -68,10 +73,9 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
       meEVT_->Fill(ievt_);
 
-      MonitorElement* dummy;
       // MeanMap, RMSMap values are in ADC, because they show the cells that can create problem cell errors 
-      setupDepthHists2D(dummy, MeanMapByDepth,"Pedestal Mean Map",true, "ADC");
-      setupDepthHists2D(dummy, RMSMapByDepth, "Pedestal RMS Map",true, "ADC");
+      setupDepthHists2D(MeanMapByDepth,"Pedestal Mean Map", "ADC");
+      setupDepthHists2D(RMSMapByDepth, "Pedestal RMS Map", "ADC");
       
       ProblemPedestals=m_dbe->book2D(" ProblemPedestals",
 				     "Problem Pedestal Rate for all HCAL",
@@ -84,57 +88,56 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
 
       // Using "" for units creates an extra space at end of name. Why?
-      setupDepthHists2D(ProblemPedestals, ProblemPedestalsByDepth, "Problem Pedestal Rate",true, "");
+      setupDepthHists2D(ProblemPedestalsByDepth, "Problem Pedestal Rate","");
 
       m_dbe->setCurrentFolder(baseFolder_+"/adc/raw");
-      setupDepthHists2D(dummy, rawADCPedestalMean, "Pedestal Values Map",
-		      true,"ADC");
-      setupDepthHists2D(dummy, rawADCPedestalRMS, "Pedestal Widths Map",
-		      true,"ADC");
-      setupDepthHists1D(dummy, rawADCPedestalMean_1D, "1D Pedestal Values",
-			true,"ADC");
-      setupDepthHists1D(dummy, rawADCPedestalRMS_1D, "1D Pedestal Widths",
-			true,"ADC");
+      setupDepthHists2D(rawADCPedestalMean, "Pedestal Values Map","ADC");
+      setupDepthHists2D( rawADCPedestalRMS, "Pedestal Widths Map","ADC");
+      setupDepthHists1D(rawADCPedestalMean_1D, "1D Pedestal Values",
+			"ADC",0,10,200);
+      setupDepthHists1D(rawADCPedestalRMS_1D, "1D Pedestal Widths",
+			"ADC",0,10,200);
       m_dbe->setCurrentFolder(baseFolder_+"/adc/subtracted__beta_testing");
-      setupDepthHists2D(dummy, subADCPedestalMean, "Subtracted Pedestal Values Map",
-		      true,"ADC");
-      setupDepthHists2D(dummy, subADCPedestalRMS, "Subtracted Pedestal Widths Map",
-		      true,"ADC");
-      setupDepthHists1D(dummy, subADCPedestalMean_1D, "1D Subtracted Pedestal Values",
-			true,"ADC");
-      setupDepthHists1D(dummy, subADCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
-			true,"ADC");
+      setupDepthHists2D(subADCPedestalMean, "Subtracted Pedestal Values Map",
+			"ADC");
+      setupDepthHists2D(subADCPedestalRMS, "Subtracted Pedestal Widths Map",
+			"ADC");
+      setupDepthHists1D(subADCPedestalMean_1D, "1D Subtracted Pedestal Values",
+			"ADC",-5,5,200);
+      setupDepthHists1D(subADCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
+			"ADC",-5,5,200);
 
       m_dbe->setCurrentFolder(baseFolder_+"/fc/raw");
-      setupDepthHists2D(dummy, rawFCPedestalMean, "Pedestal Values Map",
-		      true,"fC");
-      setupDepthHists2D(dummy, rawFCPedestalRMS, "Pedestal Widths Map",
-		      true,"fC");
-      setupDepthHists1D(dummy, rawFCPedestalMean_1D, "1D Pedestal Values",
-			true,"fC");
-      setupDepthHists1D(dummy, rawFCPedestalRMS_1D, "1D Pedestal Widths",
-			true,"fC");
+      setupDepthHists2D(rawFCPedestalMean, "Pedestal Values Map",
+			"fC");
+      setupDepthHists2D(rawFCPedestalRMS, "Pedestal Widths Map",
+			"fC");
+      setupDepthHists1D(rawFCPedestalMean_1D, "1D Pedestal Values",
+			"fC",-5,15,200);
+      setupDepthHists1D(rawFCPedestalRMS_1D, "1D Pedestal Widths",
+			"fC",0,10,200);
       m_dbe->setCurrentFolder(baseFolder_+"/fc/subtracted__beta_testing");
-      setupDepthHists2D(dummy, subFCPedestalMean, "Subtracted Pedestal Values Map",
-		      true,"fC");
-      setupDepthHists2D(dummy, subFCPedestalRMS, "Subtracted Pedestal Widths Map",
-		      true,"fC");
-      setupDepthHists1D(dummy, subFCPedestalMean_1D, "1D Subtracted Pedestal Values",
-			true,"fC");
-      setupDepthHists1D(dummy, subFCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
-			true,"fC");
+      setupDepthHists2D(subFCPedestalMean, "Subtracted Pedestal Values Map",
+			"fC");
+      setupDepthHists2D(subFCPedestalRMS, "Subtracted Pedestal Widths Map",
+			"fC");
+      setupDepthHists1D(subFCPedestalMean_1D, "1D Subtracted Pedestal Values",
+			"fC",-10,10,200);
+      setupDepthHists1D(subFCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
+			"fC",-5,5,200);
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
-      setupDepthHists2D(ADC_PedestalFromDB, ADC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
-		      false,"ADC");
-      setupDepthHists2D(ADC_WidthFromDB, ADC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
-		      false,"ADC");
+      setupDepthHists2D(ADC_PedestalFromDB, ADC_PedestalFromDBByDepth, 
+			"Pedestal Values from DataBase","ADC");
+      setupDepthHists2D(ADC_WidthFromDB, ADC_WidthFromDBByDepth, 
+			"Pedestal Widths from DataBase","ADC");
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/fc");
-      setupDepthHists2D(fC_PedestalFromDB, fC_PedestalFromDBByDepth, "Pedestal Values from DataBase",
-		      false,"fC");
-      setupDepthHists2D(fC_WidthFromDB, fC_WidthFromDBByDepth, "Pedestal Widths from DataBase",
-		      false,"fC");
+      setupDepthHists2D(fC_PedestalFromDB, fC_PedestalFromDBByDepth, 
+			"Pedestal Values from DataBase","fC");
+		      
+      setupDepthHists2D(fC_WidthFromDB, fC_WidthFromDBByDepth, 
+			"Pedestal Widths from DataBase","fC");
 
       // initialize all counters to 0
       for (int eta=0;eta<(etaBins_-2);++eta)
@@ -170,7 +173,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 } // void HcalPedestalMonitor::setup(...)
 
 
-// ******************************************************************************************************* //
+// *************************************************** //
 
 
 void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
@@ -191,7 +194,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   if(!shape_) shape_ = cond.getHcalShape(); // this one is generic
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalPedestalMonitor::processEvent   DQMStore not instantiated!!!\n");  
+    if(fVerbosity) cout<<"HcalPedestalMonitor::processEvent   DQMStore not instantiated!!!"<<endl;
     return; 
   }
   
@@ -408,7 +411,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 } // void HcalPestalMonitor::processEvent(...)
 
 
-// *************************************************************************************************************** //
+// *********************************************************** //
 
 
 void HcalPedestalMonitor::fillPedestalHistos(void)
@@ -739,7 +742,7 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 } //void HcalPedestalMonitor::fillPedestalHistos(void)
 
 
-// *************************************************************************************************************** //
+// *********************************************************** //
 
 
 void HcalPedestalMonitor::done()
@@ -748,174 +751,8 @@ void HcalPedestalMonitor::done()
   return;
 }
 
-// *************************************************************************************************************** //
 
-
-void HcalPedestalMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, bool onlyDepthHistos, char* pedUnits)
-{
-  /* Code makes overall MonitorElement histogram, 
-     and then vector of histograms for all 6 depths 
-     (4 depths, + 2 for separate HE histograms).
-     If 'onlyDepthHistos' is set true, then the overall plot is not made.
-  */
-
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  // Set units as either fC or ADC
-  stringstream units;
-  if (pedUnits!="none")
-    units<<pedUnits;
-  else
-    {
-      if (doFCpeds_)
-	units<<"fC";
-      else
-	units<<"ADC";
-    }
-
-  // Book main plot
-  // Switch char* to stringstream, just 'cuz code was originally set up for stringstream object
-  stringstream newname;
-  newname<<name;
-
-  if (onlyDepthHistos==false)
-    {
-      // Book main plot
-      h=m_dbe->book2D(("All "+units.str()+" "+newname.str()).c_str(),
-		      (newname.str() + " for all HCAL ("+units.str().c_str()+")"),
-		      etaBins_,etaMin_,etaMax_,
-		      phiBins_,phiMin_,phiMax_);
-      //h->SetOption("colz");
-      h->setAxisTitle("i#eta",1);
-      h->setAxisTitle("i#phi",2);
-    }
-
-  // Push back depth plots
-  hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HB & HF only ("+units.str().c_str()+")"),
-			     etaBins_,etaMin_,etaMax_,
-			     phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HB HF Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 2 -- HB & HF only ("+units.str().c_str()+")"),
-			      etaBins_,etaMin_,etaMax_,
-			      phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HE Depth 3 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 3 -- HE ("+units.str().c_str()+")"),
-			      etaBins_,etaMin_,etaMax_,
-			      phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HO ZDC "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" -- HO & ZDC ("+units.str().c_str()+")"),
-			      etaBins_,etaMin_,etaMax_,
-			      phiBins_,phiMin_,phiMax_));
-  hh.push_back(m_dbe->book2D(("HE Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HE only ("+units.str().c_str()+")"),
-			     etaBins_,etaMin_,etaMax_,
-			     phiBins_,phiMin_,phiMax_));
-  hh.push_back(m_dbe->book2D(("HE Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 2 -- HE only ("+units.str().c_str()+")"),
-			     etaBins_,etaMin_,etaMax_,
-			     phiBins_,phiMin_,phiMax_));
-  for (unsigned int i=0;i<hh.size();++i)
-    {
-      hh[i]->setAxisTitle("i#eta",1);
-      hh[i]->setAxisTitle("i#phi",2);
-    }
- 
-  if (showTiming)
-    {
-      cpu_timer.stop();  cout <<"TIMER:: HcalPedestalMonitor SETUPDEPTHHISTS "<<newname.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
-    }
-
-  return;
-} // void HcalPedestalMonitor::setupDepthHists2D(MonitorElement* h, std::vector<MonitorElement*> &hh, char* name,...)
-
-// ******************************************************************************************************************* //
-
-void HcalPedestalMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, bool onlyDepthHistos, char* pedUnits)
-{
-  /* Code makes overall MonitorElement histogram, 
-     and then vector of histograms for all 6 depths 
-     (4 depths, + 2 for separate HE histograms).
-     If 'onlyDepthHistos' is set true, then the overall plot is not made.
-  */
-
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  // Set units as either fC or ADC
-  stringstream units;
-  int lowbound=-10;
-  int highbound=10;
-  if (pedUnits=="fC") 
-    highbound=20;
-
-  if (pedUnits!="none")
-    units<<pedUnits;
-  else
-    {
-      if (doFCpeds_)
-	{
-	  units<<"fC";
-	  highbound=20; // set boundary higher because HF peds are > 5 fC 
-	}
-      else
-	units<<"ADC";
-    }
-
-  // Book main plot
-  // Switch char* to stringstream, just 'cuz code was originally set up for stringstream object
-  stringstream newname;
-  newname<<name;
-
-  if (onlyDepthHistos==false)
-    {
-      // Book main plot
-      h=m_dbe->book1D(("All "+units.str()+" "+newname.str()).c_str(),
-		      (newname.str() + " for all HCAL ("+units.str().c_str()+")"),
-		      200,lowbound,highbound);
-      h->setAxisTitle(units.str().c_str(),1);
-    }
-
-  // Push back depth plots
-  hh.push_back(m_dbe->book1D(("HB HF Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HB & HF only ("+units.str().c_str()+")"),
-			     200,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HB HF Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 2 -- HB & HF only ("+units.str().c_str()+")"),
-			      200,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HE Depth 3 "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" Depth 3 -- HE ("+units.str().c_str()+")"),
-			      200,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HO ZDC "+newname.str()+" "+units.str()).c_str(),
-			      (newname.str()+" -- HO & ZDC ("+units.str().c_str()+")"),
-			      200,lowbound,highbound));
-  hh.push_back(m_dbe->book1D(("HE Depth 1 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 1 -- HE only ("+units.str().c_str()+")"),
-			     200,lowbound,highbound));
-  hh.push_back(m_dbe->book1D(("HE Depth 2 "+newname.str()+" "+units.str()).c_str(),
-			     (newname.str()+" Depth 2 -- HE only ("+units.str().c_str()+")"),
-			     200,lowbound,highbound));
-  for (unsigned int i=0;i<hh.size();++i)
-    {
-      hh[i]->setAxisTitle(units.str().c_str(),1);
-    }
- 
-  if (showTiming)
-    {
-      cpu_timer.stop();  cout <<"TIMER:: HcalPedestalMonitor SETUPDEPTHHISTS1D "<<newname.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
-    }
-
-  return;
-} // void HcalPedestalMonitor::setupDepthHists1D(MonitorElement* h, std::vector<MonitorElement*> &hh, char* name,...)
-
-
-
-// ************************************************************************************************************ //
+// ******************************************************** //
 
 void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 {
@@ -1000,4 +837,4 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 } // void HcalPedestalMonitor::fillDBValues(void)
 
 
-// ************************************************************************************************************ //
+// ******************************************************** //

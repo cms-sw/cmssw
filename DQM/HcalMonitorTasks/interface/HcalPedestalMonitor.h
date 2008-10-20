@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2008/10/19 09:21:47 $
-  * $Revision: 1.16 $
+  * $Date: 2008/10/19 10:08:15 $
+  * $Revision: 1.17 $
   * \author W. Fisher - FNAL
   */
 
@@ -33,12 +33,7 @@ public:
   void fillDBValues(const HcalDbService& cond);
 
 private: 
-  //void setupHists(PedestalHists& h);
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, 
-			 char* name, bool onlyDepthHistos=false, char* pedUnits="none");
-  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* name, 
-			 bool onlyDepthHistos=false, char* pedUnits="none");
-  void fillPedestalHistos(void);
+  void fillPedestalHistos(void); // fills histograms once every (checkNevents_) events
   void clearME(); // overrides base class function
 
   // Configurable parameters
@@ -53,7 +48,7 @@ private:
   double nominalPedWidthInADC_;
   double maxPedMeanDiffADC_;
   double maxPedWidthDiffADC_; // specify maximum width of pedestal (in ADC)
-  int minEntriesPerPed_; // minimum # of events needed to calculate pedestals
+  unsigned int minEntriesPerPed_; // minimum # of events needed to calculate pedestals
   // Haven't yet figured out how to implement these reasonably.
   // I'd like for them to default to whatever the global minErrorFlag_ has been set to,
   // but user should be able to also set them directly.  Hmm... 
@@ -112,7 +107,7 @@ private:
 
 
   //Quick pedestal arrays -- these store the values that are used to compute pedestals
-  int pedcounts[ETABINS][PHIBINS][4];
+  unsigned int pedcounts[ETABINS][PHIBINS][4];
   float rawpedsum[ETABINS][PHIBINS][4];
   float rawpedsum2[ETABINS][PHIBINS][4];
   float subpedsum[ETABINS][PHIBINS][4];

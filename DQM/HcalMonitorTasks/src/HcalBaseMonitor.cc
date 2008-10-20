@@ -47,7 +47,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     
   if (etaMax_ > 44.5)
     {
-      cout <<"<HcalPedestalMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
+      cout <<"<HcalBaseMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
       cout <<"                      Value being set back to 44.5."<<endl;
       cout <<"                      Additional code changes are necessary to allow value of "<<etaMax_<<endl;
       etaMax_ = 44.5;
@@ -55,7 +55,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   if (etaMin_ < ETAMIN)
     {
-      cout <<"<HcalPedestalMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
+      cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
       cout <<"                      Value being set back to ETAMIN."<<endl;
       cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<endl;
       etaMin_ = ETAMIN;
@@ -168,4 +168,228 @@ bool HcalBaseMonitor::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
 
-} // bool  HcalPedestalMonitor::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
+} // bool  HcalBaseMonitor::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
+
+
+
+// Create vectors of MonitorElements for individual depths
+
+
+// *********************************************************** //
+
+
+void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
+{
+  /* Code makes overall 2D MonitorElement histogram,
+     and the vector of 2D MonitorElements for each individual depth.
+     Eta, Phi bins are set automatically from the etaMax_, etaMin_, etc.
+     values in HcalBaseMonitor.h
+  */
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  stringstream name;
+  name<<Name;
+  stringstream unitname;
+  stringstream unittitle;
+  if (Units=="")
+    {
+      unitname<<Units;
+      unittitle<<"No Units";
+    }
+  else
+    {
+      unitname<<" "<<Units;
+      unittitle<<Units;
+    }
+
+  h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
+		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
+		  etaBins_, etaMin_, etaMax_,
+		  phiBins_, phiMin_, phiMax_);
+  h->setAxisTitle("i#eta",1);
+  h->setAxisTitle("i#phi",2);
+  
+  setupDepthHists2D(hh, Name, Units);
+
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+  return;
+} // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
+
+
+// *************************************** //
+
+void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
+{
+  /* Code makes vector of 2D MonitorElements for all 6 depths
+     (4 depths, + 2 for separate HE histograms).
+  */
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  stringstream name;
+  name<<Name;
+
+  stringstream unitname;
+  stringstream unittitle;
+  if (Units=="")
+    {
+      unitname<<Units;
+      unittitle<<"No Units";
+    }
+  else
+    {
+      unitname<<" "<<Units;
+      unittitle<<Units;
+    }
+
+  // Push back depth plots
+  hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
+			     etaBins_,etaMin_,etaMax_,
+			     phiBins_,phiMin_,phiMax_));
+  hh.push_back( m_dbe->book2D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 2 -- HB & HF only ("+unittitle.str().c_str()+")"),
+			      etaBins_,etaMin_,etaMax_,
+			      phiBins_,phiMin_,phiMax_));
+  hh.push_back( m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
+			      etaBins_,etaMin_,etaMax_,
+			      phiBins_,phiMin_,phiMax_));
+  hh.push_back( m_dbe->book2D(("HO ZDC "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" -- HO & ZDC ("+unittitle.str().c_str()+")"),
+			      etaBins_,etaMin_,etaMax_,
+			      phiBins_,phiMin_,phiMax_));
+  hh.push_back(m_dbe->book2D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HE only ("+unittitle.str().c_str()+")"),
+			     etaBins_,etaMin_,etaMax_,
+			     phiBins_,phiMin_,phiMax_));
+  hh.push_back(m_dbe->book2D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
+			     etaBins_,etaMin_,etaMax_,
+			     phiBins_,phiMin_,phiMax_));
+  for (unsigned int i=0;i<hh.size();++i)
+    {
+      hh[i]->setAxisTitle("i#eta",1);
+      hh[i]->setAxisTitle("i#phi",2);
+    }
+ 
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+  return;
+} // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
+
+// *************************************************************** //
+
+void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+{
+  // Makes an overall 1D Monitor Element (for summing over depths) for h, and creates individual depth Monitor Elements for hh
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  stringstream name;
+  name<<Name;
+
+  stringstream unitname;
+  stringstream unittitle;
+  if (Units=="")
+    {
+      unitname<<Units;
+      unittitle<<"No Units";
+    }
+  else
+    {
+      unitname<<" "<<Units;
+      unittitle<<Units;
+    }
+  
+  // Create overall 1D Monitor Element
+  h=m_dbe->book1D(("All "+name.str()+unitname.str()).c_str(),
+		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
+		  Nbins,lowbound,highbound);
+  h->setAxisTitle(unitname.str().c_str(),1);
+  
+  // Create vector of Monitor Elements for individual depths
+  setupDepthHists1D(hh, Name, Units, lowbound, highbound, Nbins);
+
+   if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+   return;
+
+} //void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
+
+
+
+void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+{
+  // Makes histograms just for the vector of Monitor Elements
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  
+  stringstream name;
+  name<<Name;
+  stringstream unitname;
+  stringstream unittitle;
+  if (Units=="")
+    {
+      unitname<<Units;
+      unittitle<<"No Units";
+    }
+  else
+    {
+      unitname<<" "<<Units;
+      unittitle<<Units;
+    }
+
+  // Push back depth plots
+  hh.push_back(m_dbe->book1D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
+			     Nbins,lowbound,highbound));
+  hh.push_back( m_dbe->book1D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 2 -- HB & HF only ("+unittitle.str().c_str()+")"),
+			      Nbins,lowbound,highbound));
+  hh.push_back( m_dbe->book1D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
+			      Nbins,lowbound,highbound));
+  hh.push_back( m_dbe->book1D(("HO ZDC "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" -- HO & ZDC ("+unittitle.str().c_str()+")"),
+			      Nbins,lowbound,highbound));
+  hh.push_back(m_dbe->book1D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HE only ("+unittitle.str().c_str()+")"),
+			     Nbins,lowbound,highbound));
+  hh.push_back(m_dbe->book1D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
+			     Nbins,lowbound,highbound));
+
+  for (unsigned int i=0;i<hh.size();++i)
+    {
+      hh[i]->setAxisTitle(unitname.str().c_str(),1);
+    }
+ 
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+  return;
+} // void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+
+

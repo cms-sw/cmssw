@@ -24,6 +24,9 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <iostream>
 
 // Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
@@ -32,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/15 20:08:41 $
-  * $Revision: 1.13 $
+  * $Date: 2008/10/19 09:21:47 $
+  * $Revision: 1.14 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -53,6 +56,14 @@ public:
 
   bool vetoCell(HcalDetId id);
   bool validDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth); // determine whether ID is valid (disable at some point)
+  
+  // Set up vectors of Monitors for individual depths
+  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units);
+  void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
+
+  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
+  void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
+
 
 
 protected:
