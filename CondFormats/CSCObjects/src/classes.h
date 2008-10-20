@@ -57,6 +57,7 @@ namespace{
   std::map< int, CSCMapItem::MapItem > indexmap;
 }
 
+#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/CSCObjects/interface/CSCIdentifier.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/CSCObjects/interface/CSCTriggerMapping.h"

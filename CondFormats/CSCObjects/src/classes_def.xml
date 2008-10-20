@@ -42,6 +42,8 @@
  <class name="CSCBadWires::BadChannel"/>
  <class name="std::vector<CSCBadWires::BadChamber>"/>
  <class name="std::vector<CSCBadWires::BadChannel>"/>
+
+ <class name="CSCBadChambers"/>
  
  <class name="CSCMapItem"/>
  <class name="CSCMapItem::MapItem"/>
