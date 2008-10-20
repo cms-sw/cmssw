@@ -10,6 +10,7 @@
  * This class builds a TrajectoryStateClosestToPoint given an original 
  * TrajectoryStateOnSurface or FreeTrajectoryState. This new state is then 
  * defined at the point of closest approach to the reference point.
+ * In case the propagation was not successful, this state can be invalid.
  */
 
 class TSCPBuilderNoMaterial : 
@@ -27,16 +28,17 @@ public:
 
 private:
 
-  typedef Point3DBase< double, GlobalTag>    GlobalPointDouble;
-  typedef Vector3DBase< double, GlobalTag>    GlobalVectorDouble;
+  typedef Point3DBase< double, GlobalTag>	GlobalPointDouble;
+  typedef Vector3DBase< double, GlobalTag>	GlobalVectorDouble;
+  typedef std::pair<bool, FreeTrajectoryState> 	PairBoolFTS;
   
-  FreeTrajectoryState createFTSatTransverseImpactPoint(const FTS& originalFTS, 
+  PairBoolFTS createFTSatTransverseImpactPoint(const FTS& originalFTS, 
       const GlobalPoint& referencePoint) const; 
   
-  FreeTrajectoryState createFTSatTransverseImpactPointCharged(const FTS& originalFTS, 
+  PairBoolFTS createFTSatTransverseImpactPointCharged(const FTS& originalFTS, 
       const GlobalPoint& referencePoint) const; 
   
-  FreeTrajectoryState createFTSatTransverseImpactPointNeutral(const FTS& originalFTS, 
+  PairBoolFTS createFTSatTransverseImpactPointNeutral(const FTS& originalFTS, 
       const GlobalPoint& referencePoint) const; 
 };
 #endif
