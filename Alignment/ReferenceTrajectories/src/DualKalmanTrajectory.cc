@@ -3,9 +3,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2008/10/14 07:40:04 $
+///  (last update by $Author: flucke $)
  
 #include "Alignment/ReferenceTrajectories/interface/DualKalmanTrajectory.h"
 
@@ -165,8 +165,10 @@ bool DualKalmanTrajectory::fillKalmanPart(const Trajectory::DataContainer &trajM
   // 1: Use the unbiased residuals as for residual monitoring.
   // 2: Use the _updated_ state and calculate the sigma that is part of
   //    the pull as sqrt(sigma_hit^2 - sigma_tsos^2).
-  //    This should (?) lead to the pull as defined on p. 236 of Blobel's book.
-  //    Not sure whether this is 100% applicable/correct here...
+  //    This should lead to the pull as defined on p. 236 of Blobel's book.
+  //    Not sure whether this is 100% applicable/correct here, at least it might lead to 
+  //    numerical instabilities, cf.:
+  //    https://hypernews.cern.ch/HyperNews/CMS/get/recoTracking/517/1/1/1/1/1.html
 
   if (residualMethod != 1 && residualMethod != 2) {
     throw cms::Exception("BadConfig")
@@ -174,22 +176,30 @@ bool DualKalmanTrajectory::fillKalmanPart(const Trajectory::DataContainer &trajM
       << residualMethod << ".";
   }
 
-  TrajectoryStateCombiner tsosComb; // needed only for residualMethod==2
+//   TrajectoryStateCombiner tsosComb; // needed only for residualMethod==1
   for (unsigned int iMeas = (startFirst ? 0 : 1); iMeas < recHitNums.size(); ++iMeas, ++iNextHit) {
     const TrajectoryMeasurement &trajMeasurement = trajMeasurements[recHitNums[iMeas]];
-    TrajectoryStateOnSurface tsos = trajMeasurement.updatedState(); // for method 2
-    if (residualMethod == 1) { // overwrite for method 1
-      tsos = tsosComb(trajMeasurement.forwardPredictedState(), 
-		      trajMeasurement.backwardPredictedState()); 
-    }
+//     const TrajectoryStateOnSurface tsos = // depends on method
+//       (residualMethod == 1 ? tsosComb(trajMeasurement.forwardPredictedState(),
+// 				      trajMeasurement.backwardPredictedState())
+//                            : trajMeasurement.updatedState()); // for method 2 
+//
+//     if (!tsos.isValid()) return false;
+//     theTsosVec.push_back(tsos);
+//    
+//     if (residualMethod == 1) {
+//       if (!this->fillMeasurementAndError1(trajMeasurement.recHit(), iNextHit, tsos)) return false;
+//     } else {
+//       if (!this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, tsos)) return false;
+//     }
+
+    const TrajectoryStateOnSurface tsos = // depends on method
+      (residualMethod == 1 
+       ? this->fillMeasurementAndError1(trajMeasurement.recHit(), iNextHit, trajMeasurement)
+       : this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, trajMeasurement));
     if (!tsos.isValid()) return false;
     theTsosVec.push_back(tsos);
     
-    if (residualMethod == 1) {
-      if (!this->fillMeasurementAndError1(trajMeasurement.recHit(), iNextHit, tsos)) return false;
-    } else {
-      if (!this->fillMeasurementAndError2(trajMeasurement.recHit(), iNextHit, tsos)) return false;
-    }
     this->fillTrajectoryPositions(trajMeasurement.recHit()->projectionMatrix(),
 				  tsos, iNextHit);
   }
@@ -198,92 +208,87 @@ bool DualKalmanTrajectory::fillKalmanPart(const Trajectory::DataContainer &trajM
 } 
 
 //-----------------------------------------------------------------------------------------------
-bool DualKalmanTrajectory::fillMeasurementAndError1(const ConstRecHitPointer &hitPtr,
-						    unsigned int iHit,
-						    const TrajectoryStateOnSurface &tsos)
+TrajectoryStateOnSurface 
+DualKalmanTrajectory::fillMeasurementAndError1(const ConstRecHitPointer &hitPtr,
+					       unsigned int iHit,
+					       const TrajectoryMeasurement &trajMeasurement)
 {
   // Get the measurements and their errors.
-  // We have to add error from hit and tsos. The latter must not be biased from hitPtr!
+  // We have to add error from hit and that tsos that is combination of fwd and bwd state.
 
-  // No update of hit with tsos: it comes already from fwd+bwd tsos combination.
-  // See also https://hypernews.cern.ch/HyperNews/CMS/get/recoTracking/517/1.html .
-  // ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ? hitPtr->clone(tsos) : hitPtr);
-  ConstRecHitPointer newHitPtr(hitPtr);
+  TrajectoryStateCombiner tsosComb;
+  const TrajectoryStateOnSurface tsos = tsosComb(trajMeasurement.forwardPredictedState(),
+						 trajMeasurement.backwardPredictedState());
+  if (tsos.isValid()) {
+    // No update of hit with tsos: it comes already from fwd+bwd tsos combination.
+    // See also https://hypernews.cern.ch/HyperNews/CMS/get/recoTracking/517/1.html .
+    // ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ? hitPtr->clone(tsos) : hitPtr);
+    
+    const LocalPoint localMeasurement(hitPtr->localPosition());
+    const LocalError hitErr(this->hitErrorWithAPE(hitPtr));
+    // tsos prediction includes APE of other hits:
+    const LocalError tsosErr(tsos.localError().positionError());
+    const LocalError localMeasurementCov(hitErr.xx() + tsosErr.xx(),
+					 hitErr.xy() + tsosErr.xy(),
+					 hitErr.yy() + tsosErr.yy());
+    
+    theMeasurements[nMeasPerHit*iHit]   = localMeasurement.x();
+    theMeasurements[nMeasPerHit*iHit+1] = localMeasurement.y();
+    theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit]   = localMeasurementCov.xx();
+    theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit+1] = localMeasurementCov.xy();
+    theMeasurementsCov[nMeasPerHit*iHit+1][nMeasPerHit*iHit+1] = localMeasurementCov.yy();
+  }
 
-  const LocalPoint localMeasurement(newHitPtr->localPosition());
-//   const LocalError localMeasurementCov(newHitPtr->localPositionError() // sigh! no operator+ on LocalError...
-// 				       + tsos.localError().positionError());
-  const LocalError hitErr(newHitPtr->localPositionError()); // without APE FIXME: Should we add it?
-  const LocalError tsosErr(tsos.localError().positionError());// prediction with APE of other hits
-  const LocalError localMeasurementCov(hitErr.xx() + tsosErr.xx(),
-				       hitErr.xy() + tsosErr.xy(),
-				       hitErr.yy() + tsosErr.yy());
-
-  theMeasurements[nMeasPerHit*iHit]   = localMeasurement.x();
-  theMeasurements[nMeasPerHit*iHit+1] = localMeasurement.y();
-  theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit]   = localMeasurementCov.xx();
-  theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit+1] = localMeasurementCov.xy();
-  theMeasurementsCov[nMeasPerHit*iHit+1][nMeasPerHit*iHit+1] = localMeasurementCov.yy();
-
-  return false;
+  return tsos;
 }
 
 //-----------------------------------------------------------------------------------------------
-bool DualKalmanTrajectory::fillMeasurementAndError2(const ConstRecHitPointer &hitPtr,
-						    unsigned int iHit,
-						    const TrajectoryStateOnSurface &tsos)
+TrajectoryStateOnSurface
+DualKalmanTrajectory::fillMeasurementAndError2(const ConstRecHitPointer &hitPtr,
+					       unsigned int iHit,
+					       const TrajectoryMeasurement &trajMeasurement)
 {
-  // tsos should be updated state, i.e. track info containing info from hitPtr!
+  // Get the measurements and their errors.
+  // We have to subtract error of updated tsos from hit.
 
-  // No further update of hit: 
-  // - The Kalman fit used hitPtr as it comes here (besides APE, see below).
-  // - If the hit errors improve, we might get (rare) problems of negative diagonal elements, see below.
-  // ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ? hitPtr->clone(tsos) : hitPtr);
-  ConstRecHitPointer newHitPtr(hitPtr);
+  const TrajectoryStateOnSurface tsos = trajMeasurement.updatedState();
+  if (tsos.isValid()) {
+    // No further update of hit: 
+    // - The Kalman fit used hitPtr as it comes here (besides APE, see below).
+    // - If the hit errors improve, we might get (rare) problems of negative diagonal elements, see below.
+    // ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ? hitPtr->clone(tsos) : hitPtr);
 
-  const LocalPoint localMeasurement(newHitPtr->localPosition());
-  const LocalError hitErrNoAPE(newHitPtr->localPositionError());
-  LocalError hitErr;
-  if (newHitPtr->det() && newHitPtr->det()->alignmentPositionError()) {
-    // We have APE set, but
-    // - hit local errors are always without,
+    const LocalPoint localMeasurement(hitPtr->localPosition());
+    // Add APE manually to avoid that the hit error might be smaller than tsos error:
+    // - hit local errors are always without APE,
     // - the tsos errors include APE since they come from track fit.
-    // ==> Add APE manually to avoid that the hit error might be smaller than tsos error.
-    const AlgebraicSymMatrix errMat(HelpertRecHit2DLocalPos().parError(hitErrNoAPE,
-								       *(newHitPtr->det())));
-    hitErr = LocalError(errMat[0][0], errMat[0][1], errMat[1][1]);
-//     edm::LogError("Alignment") << "@SUB=DualKalmanTrajectory::fillMeasurementAndError2"
-// 			       << "Add APE, was s_x " << sqrt(hitErrNoAPE.xx()) 
-// 			       << " s_y " << sqrt(hitErrNoAPE.yy())
-// 			       << "\nNow s_x " << sqrt(hitErr.xx())
-// 			       << ", s_y " << sqrt(hitErr.yy());
-  } else {
-    hitErr = hitErrNoAPE;
+    const LocalError hitErr(this->hitErrorWithAPE(hitPtr));
+    const LocalError tsosErr(tsos.localError().positionError());
+    
+    // Should not be possible to become negative if all is correct - see above.
+    if (hitErr.xx() < tsosErr.xx() || hitErr.yy() < tsosErr.yy()) {
+      edm::LogError("Alignment") << "@SUB=DualKalmanTrajectory::fillMeasurementAndError2"
+				 << "not OK in subdet " << hitPtr->geographicalId().subdetId()
+				 << "\ns_x " << sqrt(hitErr.xx()) << " " << sqrt(tsosErr.xx())
+				 << "\ns_xy " << hitErr.xy() << " " << tsosErr.xy()
+				 << "\ns_y " << sqrt(hitErr.yy()) << " " << sqrt(tsosErr.yy());
+      return TrajectoryStateOnSurface(); // is invalid state
+    }
+
+    // cf. Blobel/Lohrmann, p. 236:
+    // But numerical stability? Should we return false if difference very small compared to values?
+    const LocalError localMeasurementCov(hitErr.xx() - tsosErr.xx(), // tsos puts correlation in,
+					 hitErr.xy() - tsosErr.xy(), // even for 1D strip!
+					 hitErr.yy() - tsosErr.yy());
+
+    theMeasurements[nMeasPerHit*iHit]   = localMeasurement.x();
+    theMeasurements[nMeasPerHit*iHit+1] = localMeasurement.y();
+    theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit]   = localMeasurementCov.xx();
+    theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit+1] = localMeasurementCov.xy();
+    theMeasurementsCov[nMeasPerHit*iHit+1][nMeasPerHit*iHit+1] = localMeasurementCov.yy();
   }
-  const LocalError tsosErr(tsos.localError().positionError());
 
-  // Should not be possible to become negative if all is correct - see above.
-  if (hitErr.xx() < tsosErr.xx() || hitErr.yy() < tsosErr.yy()) {
-    edm::LogError("Alignment") << "@SUB=DualKalmanTrajectory::fillMeasurementAndError2"
-			       << "not OK in subdet " << newHitPtr->geographicalId().subdetId()
-			       << "\ns_x " << sqrt(hitErr.xx()) << " " << sqrt(tsosErr.xx())
-			       << "\ns_xy " << hitErr.xy() << " " << tsosErr.xy()
-			       << "\ns_y " << sqrt(hitErr.yy()) << " " << sqrt(tsosErr.yy());
-    return false;
-  }
-
-  // cf. Blobel/Lohrmann, p. 236:
-  const LocalError localMeasurementCov(hitErr.xx() - tsosErr.xx(), // tsos puts correlation in,
-				       hitErr.xy() - tsosErr.xy(), // even for 1D strip!
-				       hitErr.yy() - tsosErr.yy());
-
-  theMeasurements[nMeasPerHit*iHit]   = localMeasurement.x();
-  theMeasurements[nMeasPerHit*iHit+1] = localMeasurement.y();
-  theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit]   = localMeasurementCov.xx();
-  theMeasurementsCov[nMeasPerHit*iHit]  [nMeasPerHit*iHit+1] = localMeasurementCov.xy();
-  theMeasurementsCov[nMeasPerHit*iHit+1][nMeasPerHit*iHit+1] = localMeasurementCov.yy();
-
-  return true;
+  return tsos;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -300,6 +305,17 @@ void DualKalmanTrajectory::fillTrajectoryPositions(const AlgebraicMatrix &projec
   theTrajectoryPositions[nMeasPerHit*iHit+1] = localPosition[1];
 }
 
+//-----------------------------------------------------------------------------------------------
+LocalError DualKalmanTrajectory::hitErrorWithAPE(const ConstRecHitPointer &hitPtr) const
+{
+  if (hitPtr->det() && hitPtr->det()->alignmentPositionError()) {
+    HelpertRecHit2DLocalPos help;
+    const AlgebraicSymMatrix errMat(help.parError(hitPtr->localPositionError(), *(hitPtr->det())));
+    return LocalError(errMat[0][0], errMat[0][1], errMat[1][1]);
+  } else {
+    return hitPtr->localPositionError();
+  }
+}
 
 //-----------------------------------------------------------------------------------------------
 AlgebraicVector

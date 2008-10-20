@@ -6,6 +6,8 @@
 /// A trajectory that provides derivatives w.r.t. to the track parameters as the DualReferenceTrajectory,
 /// i.e. extrapolating a helix with five parameters from the hit in the middle.
 /// But measurements, trajectory positions and uncertainties are taken from the Kalman track fit.
+/// More precisely, the uncertainties are those of the residuals, i.e. of 
+/// measurements() - trajectoryPositions().
 ///
 /// Currently two methods to set residual and error can be choosen via cfg:
 ///   1: the unbiased residal approach
@@ -13,19 +15,19 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2008/10/14 07:40:04 $
+///  (last update by $Author: flucke $)
 
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include <vector>
 
 class ReferenceTrajectory;
-class Trajectory;
 
 class DualKalmanTrajectory : public ReferenceTrajectoryBase
 {
@@ -50,8 +52,7 @@ protected:
 
   DualKalmanTrajectory( unsigned int nPar = 0, unsigned int nHits = 0 );
 
-  /** internal method to calculate members
-   */
+  /// calculate members
   virtual bool construct(const Trajectory::DataContainer &trajMeasurements,
 			 const TrajectoryStateOnSurface &referenceTsos,
 			 const std::vector<unsigned int> &forwardRecHitNums,
@@ -72,13 +73,20 @@ protected:
 		      const std::vector<unsigned int> &recHitNums, bool startFirst,
 		      unsigned int iNextHit, int residualMethod);
   /// helper for 'unbiased residual' method
-  bool fillMeasurementAndError1(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-				unsigned int iHit, const TrajectoryStateOnSurface &tsos);
+  TrajectoryStateOnSurface 
+  fillMeasurementAndError1(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
+			   unsigned int iHit, const TrajectoryMeasurement &trajMeasurement);
   /// helper for 'pull' method
-  bool fillMeasurementAndError2(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-				unsigned int iHit, const TrajectoryStateOnSurface &tsos);
+  TrajectoryStateOnSurface 
+  fillMeasurementAndError2(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
+			   unsigned int iHit, const TrajectoryMeasurement &trajMeasurement);
+
+  /// fill trajectoryPositions
   void fillTrajectoryPositions(const AlgebraicMatrix &projection,
 			       const TrajectoryStateOnSurface &tsos, unsigned int iHit);
+
+  /// local error including APE if APE is on
+  LocalError hitErrorWithAPE(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr) const;
 
   virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;
 
