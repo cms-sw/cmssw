@@ -5,9 +5,9 @@
  * An Electron with GsfTrack seeded from an ElectronPixelSeed
  * adapted from the TRecElectron class in ORCA
  *
- * \author U.Berthon, ClaudeCharlot,LLR
+ * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.8 2008/09/18 08:08:23 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.9 2008/10/17 13:41:50 chamont Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.9  2008/10/17 13:41:50  chamont
+// new attributes for cluster shape and best fitting ctf track
+//
 // Revision 1.8  2008/09/18 08:08:23  charlot
 // updated description of classification
 //
@@ -71,7 +74,8 @@ class GsfElectron : public RecoCandidate {
  public:
 
   GsfElectron() ;
-
+ 
+  //! one must give almost all attributes values when creating an electron
   GsfElectron(
 	const LorentzVector & p4,
 	const SuperClusterRef scl,
@@ -157,8 +161,9 @@ class GsfElectron : public RecoCandidate {
   //! determine the class of the electron
   void classifyElectron(const int myclass);
 
-  //! the errors on the supercluster energy and track momentum
+  //! the error on the supercluster energy
   float caloEnergyError() const {return energyError_;}
+  //! the error on the supercluster track momentum
   float trackMomentumError() const {return trackMomentumError_;}
 
   //! get associated superCluster Pointer
@@ -166,7 +171,9 @@ class GsfElectron : public RecoCandidate {
 
   //! get associated GsfTrack pointer
   reco::GsfTrackRef gsfTrack() const { return track_ ; }
+  //! get the CTF track best matching the GTF associated to this electron
   reco::TrackRef track() const { return ctfTrack_ ; }
+  //! measure the fraction of common hits between the GSF and CTF tracks
   float shFracInnerHits() const { return shFracInnerHits_ ; }
 
   //! number of related brem clusters
@@ -178,11 +185,15 @@ class GsfElectron : public RecoCandidate {
 
   bool isElectron() const;
 
-   // super-cluster characteristics
+  //! a characteristic from the associated super-cluster
   float scSigmaEtaEta() const { return scSigmaEtaEta_ ; }
+  //! a characteristic from the associated super-cluster
   float scSigmaIEtaIEta() const { return scSigmaIEtaIEta_ ; }
+  //! a characteristic from the associated super-cluster
   float scE1x5() const { return scE1x5_ ; }
+  //! a characteristic from the associated super-cluster
   float scE2x5Max() const { return scE2x5Max_ ; }
+  //! a characteristic from the associated super-cluster
   float scE5x5() const { return scE5x5_ ; }
 
 private:
