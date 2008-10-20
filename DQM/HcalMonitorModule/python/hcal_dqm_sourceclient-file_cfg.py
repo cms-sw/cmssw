@@ -56,8 +56,8 @@ process.load("DQMServices.Core.DQM_cfg")
 #replace DQMStore.referenceFileName = "Hcal_reference.root"
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.DQM.collectorHost = 'myhost'
-process.DQM.collectorPort = 9092
+process.DQM.collectorHost = 'cmsru2'
+process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'
 #replace dqmSaver.dirName          = "."
 process.dqmSaver.producer = 'DQM'
@@ -115,8 +115,7 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = False
 process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.
-process.hcalMonitor.PedestalsPerChannel = False
-process.hcalMonitor.PedestalsInFC = True
+process.hcalMonitor.PedestalMonitor_pedestalsInFC = True
 
 # Turn on/off individual hcalMonitor modules ------------
 process.hcalMonitor.DataFormatMonitor   = True
