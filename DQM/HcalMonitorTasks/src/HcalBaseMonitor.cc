@@ -42,7 +42,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   minErrorFlag_ = ps.getUntrackedParameter<double>("minErrorFlag",0.05);
   
   // Set eta, phi boundaries
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 44.5);
+  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", ETAMAX);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", ETAMIN);
     
   if (etaMax_ > 44.5)
@@ -56,9 +56,9 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   if (etaMin_ < ETAMIN)
     {
       cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
-      cout <<"                      Value being set back to ETAMIN."<<endl;
+      cout <<"                      Value being set back to -44.5."<<endl;
       cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<endl;
-      etaMin_ = ETAMIN;
+      etaMin_ = -44.5;
     }
 
   etaBins_ = (int)(etaMax_ - etaMin_);
