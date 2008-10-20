@@ -37,7 +37,7 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  debug_ = ps.getUntrackedParameter<int>("debug", 0);
 
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "Hcal");

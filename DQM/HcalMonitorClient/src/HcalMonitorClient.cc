@@ -49,7 +49,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   ct_client_=0;
   lastResetTime_=0;
 
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if(debug_) cout << "HcalMonitorClient: constructor...." << endl;
 
   // timing switch 
@@ -413,7 +413,7 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
 
-  if (debug_) cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
+  if (debug_>1) cout <<"Entered HcalMonitorClient::analyze(const Evt...)"<<endl;
   
   if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
@@ -436,7 +436,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   minlumisec_=min(minlumisec_,ilumisec_);
   maxlumisec_=max(maxlumisec_,ilumisec_);
 
-  if (debug_) 
+  if (debug_>1) 
     cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   ievt_++; //I think we want our web pages, etc. to display this counter (the number of events used in the task) rather than nevt_ (the number of times the MonitorClient analyze function below is called) -- Jeff, 1/22/08
@@ -453,11 +453,11 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(){
-  if (debug_) 
+  if (debug_>1) 
     cout <<"Entered HcalMonitorClient::analyze()"<<endl;
 
   //nevt_++; // counter not currently displayed anywhere 
-  if(debug_) printf("\nHcal Monitor Client heartbeat....\n");
+  if(debug_>1) cout<<"\nHcal Monitor Client heartbeat...."<<endl;
   
   createTests();  
   mui_->doMonitoring();
@@ -919,7 +919,7 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
 bool HcalMonitorClient::prescale(){
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_) cout <<"HcalMonitorClient::prescale"<<endl;
+  if (debug_>1) cout <<"HcalMonitorClient::prescale"<<endl;
   
   //First determine if we care...
   bool evtPS =    prescaleEvt_>0;
@@ -944,10 +944,14 @@ bool HcalMonitorClient::prescale(){
   }
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
-  if (debug_) printf("HcalMonitorClient::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
-		     ievent_,evtPS,
-		     ilumisec_,lsPS,
-		     psTime_.elapsedTime - psTime_.updateTime,timePS);
+  if (debug_>1) 
+    cout<<"HcalMonitor::prescale  evt: "<<ievent_<<"/"<<evtPS<<", ls: "<<ilumisec_<<"/"<<lsPS<<", time: "<<(psTime_.elapsedTime - psTime_.updateTime)<<"/"<<timePS<<endl;
+  /*
+  printf("HcalMonitorClient::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
+	 ievent_,evtPS,
+	 ilumisec_,lsPS,
+	 psTime_.elapsedTime - psTime_.updateTime,timePS);
+  */
 
   // if any criteria wants to keep the event, do so
   if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now

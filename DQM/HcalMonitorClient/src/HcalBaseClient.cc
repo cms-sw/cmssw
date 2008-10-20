@@ -22,7 +22,7 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   
   // verbosity switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if(debug_) cout << clientName_ <<" debugging switch is on"<<endl;
   
   // timing switch

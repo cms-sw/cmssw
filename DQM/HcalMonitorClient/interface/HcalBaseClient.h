@@ -56,7 +56,7 @@ class HcalBaseClient{
   int jevt_;
   
   bool cloneME_;
-  bool debug_;
+  int debug_;
   string process_;
   string baseFolder_;
   string clientName_;
