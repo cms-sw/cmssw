@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.13 2007/03/04 05:55:26 wmtan Exp $
+// $Id: Tracer.cc,v 1.14 2008/10/16 23:08:00 wmtan Exp $
 //
 
 // system include files
@@ -102,8 +102,11 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
    iRegistry.watchPreSource(this, &Tracer::preSourceEvent);
    iRegistry.watchPostSource(this, &Tracer::postSourceEvent);
 
-   iRegistry.watchPreSourceFile(this, &Tracer::preSourceFile);
-   iRegistry.watchPostSourceFile(this, &Tracer::postSourceFile);
+   iRegistry.watchPreOpenFile(this, &Tracer::preOpenFile);
+   iRegistry.watchPostOpenFile(this, &Tracer::postOpenFile);
+
+   iRegistry.watchPreCloseFile(this, &Tracer::preCloseFile);
+   iRegistry.watchPostCloseFile(this, &Tracer::postCloseFile);
 
    iRegistry.watchPreSourceRun(this, &Tracer::preSourceRun);
    iRegistry.watchPostSourceRun(this, &Tracer::postSourceRun);
@@ -174,12 +177,21 @@ Tracer::postSourceRun () {
 }
 
 void
-Tracer::preSourceFile() {
-  std::cout <<indention_<<indention_<<"source file"<<std::endl;
+Tracer::preOpenFile() {
+  std::cout <<indention_<<indention_<<"open input file"<<std::endl;
 }
 void
-Tracer::postSourceFile () {
-  std::cout <<indention_<<indention_<<"finished: source file"<<std::endl;
+Tracer::postOpenFile () {
+  std::cout <<indention_<<indention_<<"finished: open input file"<<std::endl;
+}
+
+void
+Tracer::preCloseFile() {
+  std::cout <<indention_<<indention_<<"close input file"<<std::endl;
+}
+void
+Tracer::postCloseFile () {
+  std::cout <<indention_<<indention_<<"finished: close input file"<<std::endl;
 }
 
 void 

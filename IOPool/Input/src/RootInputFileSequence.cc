@@ -142,7 +142,11 @@ namespace edm {
     if (rootFile_) {
     // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
-      rootFile_->close(primary());
+      {
+        std::auto_ptr<InputSource::FileCloseSentry> 
+	  sentry((primarySequence_ && primary()) ? new InputSource::FileCloseSentry(input_) : 0);
+        rootFile_->close(primary());
+      }
       logFileAction("  Closed file ", rootFile_->file());
       rootFile_.reset();
       if (duplicateChecker_.get() != 0) duplicateChecker_->inputFileClosed();
@@ -155,8 +159,8 @@ namespace edm {
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
-      std::auto_ptr<InputSource::FileSourceSentry> 
-	sentry((primarySequence_ && primary()) ? new InputSource::FileSourceSentry(input_) : 0);
+      std::auto_ptr<InputSource::FileOpenSentry> 
+	sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     }
     catch (cms::Exception e) {

@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.46 2008/07/31 23:17:14 wmtan Exp $
+$Id: InputSource.h,v 1.47 2008/10/16 23:06:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -228,9 +228,16 @@ namespace edm {
       SourceSentry sentry_;
     };
 
-    class FileSourceSentry {
+    class FileOpenSentry {
     public:
-      explicit FileSourceSentry(InputSource const& source);
+      explicit FileOpenSentry(InputSource const& source);
+    private:
+      SourceSentry sentry_;
+    };
+
+    class FileCloseSentry {
+    public:
+      explicit FileCloseSentry(InputSource const& source);
     private:
       SourceSentry sentry_;
     };

@@ -421,7 +421,11 @@ namespace edm {
      sentry_(source.actReg()->preSourceRunSignal_, source.actReg()->postSourceRunSignal_) {
   }
 
-  InputSource::FileSourceSentry::FileSourceSentry(InputSource const& source) :
-     sentry_(source.actReg()->preSourceFileSignal_, source.actReg()->postSourceFileSignal_) {
+  InputSource::FileOpenSentry::FileOpenSentry(InputSource const& source) :
+     sentry_(source.actReg()->preOpenFileSignal_, source.actReg()->postOpenFileSignal_) {
+  }
+
+  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source) :
+     sentry_(source.actReg()->preCloseFileSignal_, source.actReg()->postCloseFileSignal_) {
   }
 }

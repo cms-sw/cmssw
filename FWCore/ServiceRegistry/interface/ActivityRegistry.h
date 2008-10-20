@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.16 2007/06/14 02:25:50 wmtan Exp $
+// $Id: ActivityRegistry.h,v 1.17 2008/10/16 23:05:32 wmtan Exp $
 //
 
 // system include files
@@ -130,21 +130,38 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPostSourceRun)
         
       /// signal is emitted before the source opens a file
-      typedef sigc::signal<void> PreSourceFile;
-      PreSourceFile preSourceFileSignal_;
-      void watchPreSourceFile(PreSourceFile::slot_type const& iSlot) {
-        preSourceFileSignal_.connect(iSlot);
+      typedef sigc::signal<void> PreOpenFile;
+      PreOpenFile preOpenFileSignal_;
+      void watchPreOpenFile(PreOpenFile::slot_type const& iSlot) {
+        preOpenFileSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSourceFile)
+      AR_WATCH_USING_METHOD_0(watchPreOpenFile)
 
       /// signal is emitted after the source opens a file
-      typedef sigc::signal<void> PostSourceFile;
-      PostSourceFile postSourceFileSignal_;
-      void watchPostSourceFile(PostSourceFile::slot_type const& iSlot) {
-         PostSourceFile::slot_list_type sl = postSourceFileSignal_.slots();
+      typedef sigc::signal<void> PostOpenFile;
+      PostOpenFile postOpenFileSignal_;
+      void watchPostOpenFile(PostOpenFile::slot_type const& iSlot) {
+         PostOpenFile::slot_list_type sl = postOpenFileSignal_.slots();
          sl.push_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSourceFile)
+      AR_WATCH_USING_METHOD_0(watchPostOpenFile)
+        
+      /// signal is emitted before the Closesource closes a file
+      typedef sigc::signal<void> PreCloseFile;
+      PreCloseFile preCloseFileSignal_;
+      void watchPreCloseFile(PreCloseFile::slot_type const& iSlot) {
+        preCloseFileSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPreCloseFile)
+
+      /// signal is emitted after the source opens a file
+      typedef sigc::signal<void> PostCloseFile;
+      PostCloseFile postCloseFileSignal_;
+      void watchPostCloseFile(PostCloseFile::slot_type const& iSlot) {
+         PostCloseFile::slot_list_type sl = postCloseFileSignal_.slots();
+         sl.push_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPostCloseFile)
         
       typedef sigc::signal<void, edm::EventID const&, edm::Timestamp const&> PreProcessEvent;
       /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event

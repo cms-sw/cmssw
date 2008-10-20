@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.9 2007/06/14 21:03:39 wmtan Exp $
+// $Id: Tracer.h,v 1.10 2008/10/16 23:08:00 wmtan Exp $
 //
 
 // system include files
@@ -89,8 +89,11 @@ public:
          void preSourceRun();
          void postSourceRun();
 
-         void preSourceFile();
-         void postSourceFile();
+         void preOpenFile();
+         void postOpenFile();
+         
+         void preCloseFile();
+         void postCloseFile();
          
          void prePathBeginRun(std::string const& s);
          void postPathBeginRun(std::string const& s, HLTPathStatus const& hlt);

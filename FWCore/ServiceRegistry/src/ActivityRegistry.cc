@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.13 2007/11/07 05:06:41 wmtan Exp $
+// $Id: ActivityRegistry.cc,v 1.14 2008/10/16 23:05:33 wmtan Exp $
 //
 
 // system include files
@@ -66,13 +66,19 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    jobFailureSignal_.connect(iOther.jobFailureSignal_);
 
    preSourceSignal_.connect(iOther.preSourceSignal_);
-   preSourceLumiSignal_.connect(iOther.preSourceLumiSignal_);
-   preSourceRunSignal_.connect(iOther.preSourceRunSignal_);
-   preSourceFileSignal_.connect(iOther.preSourceFileSignal_);
    postSourceSignal_.connect(iOther.postSourceSignal_);
+
+   preSourceLumiSignal_.connect(iOther.preSourceLumiSignal_);
    postSourceLumiSignal_.connect(iOther.postSourceLumiSignal_);
+
+   preSourceRunSignal_.connect(iOther.preSourceRunSignal_);
    postSourceRunSignal_.connect(iOther.postSourceRunSignal_);
-   postSourceFileSignal_.connect(iOther.postSourceFileSignal_);
+
+   preOpenFileSignal_.connect(iOther.preOpenFileSignal_);
+   postOpenFileSignal_.connect(iOther.postOpenFileSignal_);
+   
+   preCloseFileSignal_.connect(iOther.preCloseFileSignal_);
+   postCloseFileSignal_.connect(iOther.postCloseFileSignal_);
    
    preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
    postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
@@ -183,13 +189,19 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFromReverse(jobFailureSignal_,iOther.jobFailureSignal_);
   
   copySlotsToFrom(preSourceSignal_,iOther.preSourceSignal_);
-  copySlotsToFrom(preSourceLumiSignal_,iOther.preSourceLumiSignal_);
-  copySlotsToFrom(preSourceRunSignal_,iOther.preSourceRunSignal_);
-  copySlotsToFrom(preSourceFileSignal_,iOther.preSourceFileSignal_);
   copySlotsToFromReverse(postSourceSignal_,iOther.postSourceSignal_);
+
+  copySlotsToFrom(preSourceLumiSignal_,iOther.preSourceLumiSignal_);
   copySlotsToFromReverse(postSourceLumiSignal_,iOther.postSourceLumiSignal_);
+
+  copySlotsToFrom(preSourceRunSignal_,iOther.preSourceRunSignal_);
   copySlotsToFromReverse(postSourceRunSignal_,iOther.postSourceRunSignal_);
-  copySlotsToFromReverse(postSourceFileSignal_,iOther.postSourceFileSignal_);
+
+  copySlotsToFrom(preOpenFileSignal_,iOther.preOpenFileSignal_);
+  copySlotsToFromReverse(postOpenFileSignal_,iOther.postOpenFileSignal_);
+  
+  copySlotsToFrom(preCloseFileSignal_,iOther.preCloseFileSignal_);
+  copySlotsToFromReverse(postCloseFileSignal_,iOther.postCloseFileSignal_);
   
   copySlotsToFrom(preProcessEventSignal_,iOther.preProcessEventSignal_);
   copySlotsToFromReverse(postProcessEventSignal_,iOther.postProcessEventSignal_);
