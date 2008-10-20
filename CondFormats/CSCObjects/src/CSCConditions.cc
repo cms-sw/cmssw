@@ -18,6 +18,7 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
   theCrosstalk(0),
   theBadStrips(0),
   theBadWires(0),
+  theBadChambers(0),
   readBadChannels_(false), readBadChambers_(false),
   theAverageGain( -1.0 )
 {
