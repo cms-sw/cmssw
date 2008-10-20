@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id$
+// $Id: SiStripFEDDataCheck.cc,v 1.1 2008/10/17 16:33:00 nc302 Exp $
 //
 //
 
@@ -137,18 +137,18 @@ SiStripFEDCheckPlugin::beginJob(const edm::EventSetup&)
   //book histograms
   fedsPresent_ = dqm_->book1D("FEDEntries",
                               "Number of times FED buffer is present in data",
-                              siStripFedIdMax-siStripFedIdMin,
-                              siStripFedIdMin,siStripFedIdMax+1);
+                              siStripFedIdMax-siStripFedIdMin+1,
+                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   fedsPresent_->setAxisTitle("FED-ID",1);
   fedFatalErrors_ = dqm_->book1D("FEDFatal",
                               "Number of fatal errors in FED buffer",
-                              siStripFedIdMax-siStripFedIdMin,
-                              siStripFedIdMin,siStripFedIdMax+1);
+                              siStripFedIdMax-siStripFedIdMin+1,
+                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   fedFatalErrors_->setAxisTitle("FED-ID",1);
   fedNonFatalErrors_ = dqm_->book1D("FEDNonFatal",
                               "Number of non fatal errors in FED buffer",
-                              siStripFedIdMax-siStripFedIdMin,
-                              siStripFedIdMin,siStripFedIdMax+1);
+                              siStripFedIdMax-siStripFedIdMin+1,
+                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   fedNonFatalErrors_->setAxisTitle("FED-ID",1);
 }
 
