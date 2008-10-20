@@ -32,7 +32,7 @@ void popcon::CSCBadChambersImpl::getNewObjects()
   std::cin >> snc;
  
   
-  m_to_transfer.push_back(std::make_pair(cnbadstrips,snc));
+  m_to_transfer.push_back(std::make_pair(cnbadchambers,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
 }

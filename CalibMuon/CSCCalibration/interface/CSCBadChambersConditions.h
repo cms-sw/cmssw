@@ -55,9 +55,9 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
  
   std::ifstream newdata;
 
-  newdata.open("badchambers1.dat",std::ios::in); //chambercontainer
+  newdata.open("badchambers.dat",std::ios::in);
   if(!newdata) {
-    std::cerr <<"Error: badchambers1.dat -> no such file!"<< std::endl;
+    std::cerr <<"Error: badchambers.dat -> no such file!"<< std::endl;
     exit(1);
   }
 
@@ -68,15 +68,19 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
   }
   newdata.close();
   
-  std::vector<CSCBadChambers> itemvector;
-  itemvector.resize(new_nrlines);
+  CSCBadChambers * itemvector;
+
+  //CSCBadChambers * itemvector = new CSCBadChambers();
+  //itemvector.resize(new_nrlines);
 
  cndbbadchambers->numberOfBadChambers = new_nrlines;
+ //cndbbadchambers->chambers[1] = new_badchambers[1];
 
+ 
   for(int i=0; i<new_nrlines-1;i++){
-     itemvector[i].chambers =  new_badchambers[i];
+     itemvector->chambers[i] =  new_badchambers[i];
   }
-
+ 
    return cndbbadchambers;
 }
 
