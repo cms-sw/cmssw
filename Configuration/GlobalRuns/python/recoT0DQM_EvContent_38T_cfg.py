@@ -45,7 +45,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_38T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3.8T')
 )
@@ -80,11 +80,7 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
 
-#MonitorTrackResiduals_ckf
-process.SiStripDQMTier0_new = cms.Sequence(process.SiStripMonitorDigi*process.SiStripMonitorCluster*process.MonitorTrackResiduals_ckf*process.TrackMon_cosmicTk*process.TrackMon_ckf*process.TrackMon_rs)
-process.DQMOfflineCosmics_new = cms.Sequence(process.SiStripDQMTier0_new*process.ecal_dqm_source_offline*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.triggerOfflineDQMSource*process.siPixelOfflineDQM_source)
-
 #Paths
-process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics_new * process.MEtoEDMConverter)
+process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.FEVT)
