@@ -2,6 +2,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/CSCObjects/interface/CSCChannelTranslator.h"
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
@@ -35,30 +36,43 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
 
 float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
 {
-  return theConditions.gain(detId, channel) * theGainsConstant;
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+  return theConditions.gain(idraw, iraw)  * theGainsConstant;
 }
 
 
 
 float CSCDbStripConditions::pedestal(const CSCDetId & detId, int channel) const
 {
-  return  theConditions.pedestal(detId, channel);
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+  return theConditions.pedestal(idraw, iraw);
 }
 
 
 float CSCDbStripConditions::pedestalSigma(const CSCDetId&detId, int channel) const
 {
-  return  theConditions.pedestalSigma(detId, channel);
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+  return theConditions.pedestalSigma(idraw, iraw);
 }
 
 
-void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
-                 double stripLength, bool leftRight,
-                 float & capacitive, float & resistive) const
+void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel, 
+			double stripLength, bool leftRight, 
+			float & capacitive, float & resistive) const
 {
-  resistive = theConditions.crosstalkIntercept(detId, channel, leftRight)
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+	
+  resistive = theConditions.crosstalkIntercept(idraw, iraw, leftRight)
              * theResistiveCrosstalkScaling;
-  float slope = theConditions.crosstalkSlope(detId, channel, leftRight);
+  float slope = theConditions.crosstalkSlope(idraw, iraw, leftRight);
   // ns before the peak where slope is max
   float maxSlopeTime = 60.; 
   // some confusion about +/-
@@ -71,8 +85,12 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
 
 void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, istrip );
+	
   std::vector<float> me(12); // buffer for matrix elements
-  theConditions.noiseMatrixElements( detId, istrip, me ); // fill it
+  theConditions.noiseMatrixElements( idraw, iraw, me ); // fill it
 
   CSCCorrelatedNoiseMatrix matrix;
   //TODO get the pedestals right
@@ -100,4 +118,3 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
   if(theNoisifier != 0) delete theNoisifier;
   theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
-
