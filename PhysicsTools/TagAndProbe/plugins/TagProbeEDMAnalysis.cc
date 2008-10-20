@@ -1338,12 +1338,18 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
 
    fitResult->Print("v");
 
+   eff = efficiency.getVal();
+   err = efficiency.getError();
+
+
    std::cout << "Signal yield: " << numSignal.getVal() << " +- "
 	     << numSignal.getError() << " + " << numSignal.getAsymErrorHi()
 	     <<" - "<< numSignal.getAsymErrorLo() << std::endl;
    std::cout << "Efficiency: "<< efficiency.getVal() << " +- "
 	     << efficiency.getError() << " + " << efficiency.getAsymErrorHi()
 	     <<" - "<< efficiency.getAsymErrorLo() << std::endl;
+
+
 
 
    // ********** Make and save Canvas for the plots ********** //
