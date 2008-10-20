@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.4 2008/09/22 22:18:08 yumiceva Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.5 2008/10/07 20:49:32 srappocc Exp $
 
 #include "TopQuarkAnalysis/TopPairBSM/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -79,10 +79,10 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
   fastjet::JetAlgorithm algorithm = static_cast<fastjet::JetAlgorithm>( algorithm_ );
 
   fastjet::JetDefinition jetDef( algorithm, 
-				 rBins_[iPt], recombScheme, strategy);   // Cambridge/Aachen
+				 rBins_[iPt], recombScheme, strategy);
 
   if ( verbose ) cout << "About to do jet clustering in CA" << endl;
-  // run the jet clustering.  pick out the two leading, central jets
+  // run the jet clustering
   fastjet::ClusterSequence clusterSeq(cell_particles, jetDef);
 
   if ( verbose ) cout << "Getting inclusive jets" << endl;
@@ -109,17 +109,12 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
   // These will store the indices of each subjet that 
   // are present in each jet
   vector<vector<int> > indices( centralJets.size() );
-  // This is the offset in the list of subjets for each jet
-  int offset = 0; 
 
   // Loop over central jets, attempt to find substructure
   vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(),
     centralJetsBegin = centralJets.begin(),
     centralJetsEnd = centralJets.end();
   for ( ; jetIt != centralJetsEnd; ++jetIt ) {
-
-    // Get the jet index
-    int jetIndex = jetIt - centralJetsBegin;
 
     if ( verbose ) cout << "---------------------" << endl << "Adding central jet " << *jetIt << endl;
     fastjet::PseudoJet localJet = *jetIt;
@@ -189,12 +184,11 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
       hardSubjets.push_back(subjet4);
     sort(hardSubjets.begin(), hardSubjets.end(), compEt );
 
-    // create the subjets
+    // create the subjets objects to put into the "output" objects
     vector<CATopPseudoSubJet>  subjetsOutput;
     std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = hardSubjets.begin(),
       itSubJet = itSubJetBegin, itSubJetEnd = hardSubjets.end();
     for (; itSubJet != itSubJetEnd; ++itSubJet ){
-      int index = itSubJet - itSubJetBegin;
       if ( verbose ) cout << "Adding subjet " << *itSubJet << endl;
       //       if ( verbose ) cout << "Adding input collection element " << (*itSubJet).user_index() << endl;
       //       if ( (*itSubJet).user_index() >= 0 && (*itSubJet).user_index() < cell_particles.size() )

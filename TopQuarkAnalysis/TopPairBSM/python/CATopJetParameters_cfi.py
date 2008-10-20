@@ -3,12 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # Cambridge-Aachen top jet producer parameters
 # $Id
 CATopJetParameters = cms.PSet(
-    src = cms.InputTag("towerMaker"),       # input calo towers
     algorithm = cms.int32(1),               # 0 = KT, 1 = CA, 2 = anti-KT
-    seedThreshold = cms.double(5.0),        # calo tower seed threshold                                           
     centralEtaCut = cms.double(2.5),        # eta for defining "central" jets                                     
     sumEtEtaCut = cms.double(3.0),          # eta for event SumEt                                                 
-    ptMin = cms.double(500.),               # lower pt cut on which jets to reco                                  
     etFrac = cms.double(0.7),               # fraction of event sumEt / 2 for a jet to be considered "hard"
     useAdjacency = cms.bool(False),         # veto adjacent subjets
     useMaxTower = cms.bool(False),          # use max tower in adjacency criterion, otherwise use centroid
