@@ -5,9 +5,9 @@ source = cms.Source("FlatRandomPtGunSource",
         MaxPt = cms.untracked.double(100.01),
         MinPt = cms.untracked.double(99.99),
         PartID = cms.untracked.vint32(211),
-        MaxEta = cms.untracked.double(5.0),
+        MaxEta = cms.untracked.double(2.5),
         MaxPhi = cms.untracked.double(3.14159265359),
-        MinEta = cms.untracked.double(-5.0),
+        MinEta = cms.untracked.double(-2.5),
         MinPhi = cms.untracked.double(-3.14159265359) ## in radians
 
     ),
