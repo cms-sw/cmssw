@@ -19,12 +19,13 @@ class GlobalFitCorrector;
 
 class GlobalFitJetCorrector : public JetCorrector{
  public:
-  GlobalFitJetCorrector(const edm::ParameterSet&, const edm::EventSetup&);
+  GlobalFitJetCorrector(const edm::ParameterSet&);
   virtual ~GlobalFitJetCorrector();
 
+  /// get correction using Jet information only
+  virtual double correction (const LorentzVector& fJet) const;
   /// apply correction using Jet information only
   virtual double correction (const reco::Jet& fJet) const;
-
   /// apply correction using all event information
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 

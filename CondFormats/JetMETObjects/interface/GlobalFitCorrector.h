@@ -10,30 +10,20 @@
 namespace reco{
   class CaloJet;
 }
-
-namespace CaloBoundaries{
-  static const double ecalRadius   =  129;
-  static const double ecalFront    =  314;
-  static const double ecalBack     = -314;
-  static const double hcalRadius   =  177;
-  static const double hcalFront    =  500;
-  static const double hcalBack     = -500;
-}
-
 class Parametrization;
-class CaloSubdetectorGeometry;
 class SimpleJetCorrectorParameters;
+
 
 class GlobalFitCorrector{
   
  public:
   
-  GlobalFitCorrector(const CaloSubdetectorGeometry* geom) : geom_(geom), params_(0) {};
-  GlobalFitCorrector(const CaloSubdetectorGeometry* geom, const std::string& file);
+  GlobalFitCorrector() : parametrization_(0), params_(0) {};
+  GlobalFitCorrector(const std::string& file);
   virtual ~GlobalFitCorrector();
   
   /// apply correction using CaloJet information
-  virtual double correction(const reco::CaloJet&) const;
+  virtual double correction(const reco::CaloJet& jet) const;
 
  private:
   
@@ -41,8 +31,7 @@ class GlobalFitCorrector{
   GlobalFitCorrector& operator=(const GlobalFitCorrector&);
 
   /// get tower index from eta
-  int indexEta(double eta);
-
+  int indexEta(double eta) const;
   /// get parametrization
   const Parametrization& parametrization() {return *parametrization_; };
 
@@ -53,10 +42,9 @@ class GlobalFitCorrector{
   typedef std::map<CalibKey,CalibVal> CalibMap;
 
   CalibMap jetParams_;
-  CalibMap towerParams_; 
+  CalibMap towerParams_;
 
   Parametrization* parametrization_;
-  const CaloSubdetectorGeometry* geom_;
   SimpleJetCorrectorParameters* params_;
 };
 
