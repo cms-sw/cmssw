@@ -1,5 +1,6 @@
 <library file="*.cc" name="DQMHLTEvFPlugins">
   <use name="DQM/HLTEvF">
+  <use name="HLTrigger/HLTcore">
   <use name="DQMServices/Core">
   <use name=DQMServices/Components>
   <use name=DQMServices/WebComponents>
