@@ -64,15 +64,6 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 {
    using namespace edm;
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 
    ESHandle<CaloTPGTranscoder> caloTPGTranscoder;
    iSetup.get<CaloTPGRecord>().get(caloTPGTranscoder);
@@ -81,14 +72,21 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
    ecalTPGScale->setEventSetup(iSetup);
 
    double output; 
-   ofstream scalesFile("L1CaloInputScales.cfi");
+   ofstream scalesFile("L1CaloInputScales_cfi.py");
 
 
    // Write the ecal scales, positive eta
 
-   scalesFile << "es_module L1CaloInputScalesProducer = "
-	      << "L1CaloInputScalesProducer {\n\tvdouble "
-	      << "L1EcalEtThresholdsPositiveEta = {" << endl; 
+   scalesFile << "import FWCore.ParameterSet.Config as cms\n" <<endl;
+
+   scalesFile << "L1CaloInputScalesProducer =cms.ESProducer(\"L1CaloInputScalesProducer\"," << endl;
+   scalesFile << "L1EcalEtThresholdsPositiveEta = cms.vdouble(" << endl; 
+
+
+   //Python does not support arrays over 255 entries so we neeed ton accomodate it by creating new array after 255 entries
+   int nEntries = 0;
+
+
 
    // loop over ietas, barrel
    for (unsigned short absIeta = 1; absIeta <= 28; absIeta++)
@@ -101,9 +99,16 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 					      EcalTrigTowerDetId(1, subdet,
 								 absIeta, 1));
 	   scalesFile << setprecision (8) << output;
+	   nEntries++;
+
 	   if (absIeta == 28 && input == 0xFF)
 	     {
-	       scalesFile << "}";
+	       scalesFile << "),";
+	     }
+	   else if(nEntries>254)
+	     {
+	       scalesFile <<")+cms.vdouble(";
+	       nEntries=0;
 	     }
 	   else
 	     {
@@ -115,8 +120,9 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 
    // Write the ecal scales, negative eta
 
-   scalesFile << endl << "\tvdouble L1EcalEtThresholdsNegativeEta = {" << endl;
+   scalesFile << endl << "\tL1EcalEtThresholdsNegativeEta = cms.vdouble(" << endl;
 
+   nEntries=0;
    // loop over ietas, barrel first
    for (unsigned short absIeta = 1; absIeta <= 28; absIeta++)
      {
@@ -129,9 +135,18 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(-1, subdet,
 							   absIeta, 2));
 	   scalesFile << setprecision (8) << output;
+	   nEntries++;
+
+
+
 	   if (absIeta == 28 && input == 0xFF)
 	     {
-	       scalesFile << "}";
+	       scalesFile << "),";
+	     }
+	   else if(nEntries>254)
+	     {
+	       scalesFile <<")+cms.vdouble(";
+	       nEntries=0;
 	     }
 	   else
 	     {
@@ -141,20 +156,30 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
        scalesFile << endl;
      }
 
-   // Write the hcal scales
+   // Write the hcal scales (Positive Eta)
 
-     scalesFile << endl << "\tvdouble L1HcalEtThresholds = {" << endl;
+     scalesFile << endl << "\tL1HcalEtThresholdsPositiveEta = cms.vdouble(" << endl;
 
    // loop over ietas
+
+     nEntries=0;
    for (unsigned short absIeta = 1; absIeta <= 32; absIeta++)
      {
        for (unsigned short input = 0; input <= 0xFF; input++)
 	 {
 	   output = caloTPGTranscoder->hcaletValue(absIeta, input); 
 	   scalesFile << setprecision (8) << output ;
+	   nEntries++;
+
+
 	   if (absIeta == 32 && input == 0xFF)
 	     {
-	       scalesFile << "}";
+	       scalesFile << "),";
+	     }
+	   else if(nEntries>254)
+	     {
+	       scalesFile <<")+cms.vdouble(";
+	       nEntries=0;
 	     }
 	   else
 	     {
@@ -163,7 +188,41 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 	 }
        scalesFile << endl;
      }
-   scalesFile << "}" << endl;
+
+   // Write the hcal scales (Negative Eta)
+
+     scalesFile << endl << "\tL1HcalEtThresholdsNegativeEta = cms.vdouble(" << endl;
+
+     nEntries=0;  
+   // loop over ietas
+   for (unsigned short absIeta = 1; absIeta <= 32; absIeta++)
+     {
+       for (unsigned short input = 0; input <= 0xFF; input++)
+	 {
+	   output = caloTPGTranscoder->hcaletValue(-absIeta, input); 
+	   scalesFile << setprecision (8) << output ;
+	   nEntries++;
+
+
+	   if (absIeta == 32 && input == 0xFF)
+	     {
+	       scalesFile << ")";
+	     }
+	   else if(nEntries>254)
+	     {
+	       scalesFile <<")+cms.vdouble(";
+	       nEntries=0;
+	     }
+	   else 
+	     {
+	       scalesFile << ", ";
+	     }
+	 }
+       scalesFile << endl;
+     }
+
+
+   scalesFile << ")" << endl;
 
    scalesFile.close();
 }

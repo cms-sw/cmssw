@@ -92,6 +92,9 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
    double ecal2;
    double hcal1;
    double hcal2;
+   double hcal3;
+   double hcal4;
+
 
    // compare the ecal scales
 
@@ -193,7 +196,12 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 {
 	   hcal1 = caloTPGTranscoder->hcaletValue(absIeta, input); // no eta-
 	   hcal2 = caloHcalScale->et(input, absIeta, 1); // sign in transcoder
-	   if ( !(hcal1 == hcal2) )
+	   hcal3 = caloTPGTranscoder->hcaletValue(-absIeta, input); // no eta-
+	   hcal4 = caloHcalScale->et(input, absIeta,-1); // sign in transcoder
+
+
+
+	   if ( (!(hcal1 == hcal2))||(!(hcal3==hcal4)))
 	     {
 	       hcalIsConsistent = false;
 	       /*LogWarning("InconsistentData") 
