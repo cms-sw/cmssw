@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/09/06 10:04:18 $
- * $Revision: 1.6 $
+ * $Date: 2008/10/07 07:59:24 $
+ * $Revision: 1.7 $
  * \author E. Di Marco
  *
 */
@@ -49,13 +49,19 @@ EBRawDataTask::EBRawDataTask(const ParameterSet& ps) {
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   GTEvmSource_ =  ps.getParameter<edm::InputTag>("GTEvmSource");
 
+  meEBEventTypePreCalibrationBX_ = 0;
+  meEBEventTypeCalibrationBX_ = 0;
+  meEBEventTypePostCalibrationBX_ = 0;
   meEBCRCErrors_ = 0;
   meEBRunNumberErrors_ = 0;
   meEBL1AErrors_ = 0;
   meEBOrbitNumberErrors_ = 0;
   meEBBunchCrossingErrors_ = 0;
   meEBTriggerTypeErrors_ = 0;
+  meEBGapErrors_ = 0;
 
+  calibrationBX_ = 3491;
+  
 }
 
 EBRawDataTask::~EBRawDataTask() {
@@ -86,12 +92,16 @@ void EBRawDataTask::endRun(const Run& r, const EventSetup& c) {
 
 void EBRawDataTask::reset(void) {
 
+  if ( meEBEventTypePreCalibrationBX_ ) meEBEventTypePreCalibrationBX_->Reset();
+  if ( meEBEventTypeCalibrationBX_ ) meEBEventTypeCalibrationBX_->Reset();
+  if ( meEBEventTypePostCalibrationBX_ ) meEBEventTypePostCalibrationBX_->Reset();
   if ( meEBCRCErrors_ ) meEBCRCErrors_->Reset();
   if ( meEBRunNumberErrors_ ) meEBRunNumberErrors_->Reset();
   if ( meEBL1AErrors_ ) meEBL1AErrors_->Reset();
   if ( meEBOrbitNumberErrors_ ) meEBOrbitNumberErrors_->Reset();
   if ( meEBBunchCrossingErrors_ ) meEBBunchCrossingErrors_->Reset();
   if ( meEBTriggerTypeErrors_ ) meEBTriggerTypeErrors_->Reset();
+  if ( meEBGapErrors_ ) meEBGapErrors_->Reset();
 
 }
 
@@ -103,6 +113,87 @@ void EBRawDataTask::setup(void){
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask");
+
+    sprintf(histo, "EBRDT event type pre calibration BX");
+    meEBEventTypePreCalibrationBX_ = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+    meEBEventTypePreCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
+    meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
+
+    sprintf(histo, "EBRDT event type calibration BX");
+    meEBEventTypeCalibrationBX_ = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+    meEBEventTypeCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
+    meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
+
+    sprintf(histo, "EBRDT event type post calibration BX");
+    meEBEventTypePostCalibrationBX_ = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+    meEBEventTypePostCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
+    meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
     sprintf(histo, "EBRDT CRC errors");
     meEBCRCErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -140,6 +231,12 @@ void EBRawDataTask::setup(void){
       meEBTriggerTypeErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
+    sprintf(histo, "EBRDT gap errors");
+    meEBGapErrors_ = dqmStore_->book1D(histo, histo, 36, 1, 37); 
+    for (int i = 0; i < 36; i++) {
+      meEBGapErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
 }
@@ -150,6 +247,15 @@ void EBRawDataTask::cleanup(void){
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask");
+
+    if ( meEBEventTypePreCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypePreCalibrationBX_->getName() );
+    meEBEventTypePreCalibrationBX_ = 0;
+
+    if ( meEBEventTypeCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypeCalibrationBX_->getName() );
+    meEBEventTypeCalibrationBX_ = 0;
+
+    if ( meEBEventTypePostCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypePostCalibrationBX_->getName() );
+    meEBEventTypePostCalibrationBX_ = 0;
 
     if ( meEBCRCErrors_ ) dqmStore_->removeElement( meEBCRCErrors_->getName() );
     meEBCRCErrors_ = 0;
@@ -168,6 +274,9 @@ void EBRawDataTask::cleanup(void){
 
     if ( meEBTriggerTypeErrors_ ) dqmStore_->removeElement( meEBTriggerTypeErrors_->getName() );
     meEBTriggerTypeErrors_ = 0;
+
+    if ( meEBGapErrors_ ) dqmStore_->removeElement( meEBGapErrors_->getName() );
+    meEBGapErrors_ = 0;
 
   }
 
@@ -383,13 +492,39 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 	  
 	}
 
-      }
-      
-    }
+	float evtType = dcch.getRunType();
 
+	if ( evtType < 0 || evtType > 22 ) evtType = -1;
+	else evtType += 0.5;
+
+	if ( ECALDCC_BunchCrossing < calibrationBX_ ) meEBEventTypePreCalibrationBX_->Fill( evtType, 1./36. );
+	if ( ECALDCC_BunchCrossing == calibrationBX_ ) meEBEventTypeCalibrationBX_->Fill( evtType, 1./36. );
+	if ( ECALDCC_BunchCrossing > calibrationBX_ ) meEBEventTypePostCalibrationBX_->Fill ( evtType, 1./36. );
+
+	if ( ECALDCC_BunchCrossing != calibrationBX_ ) {
+	  if ( evtType != EcalDCCHeaderBlock::COSMIC && 
+	       evtType == EcalDCCHeaderBlock::MTCC &&
+	       evtType == EcalDCCHeaderBlock::COSMICS_GLOBAL &&
+	       evtType == EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
+	       evtType == EcalDCCHeaderBlock::COSMICS_LOCAL &&
+	       evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBTriggerTypeErrors_->Fill( xism );
+	} else {
+	  if ( evtType == EcalDCCHeaderBlock::COSMIC ||
+	       evtType == EcalDCCHeaderBlock::MTCC ||
+	       evtType == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+	       evtType == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+	       evtType == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+	       evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBTriggerTypeErrors_->Fill( xism );
+	}
+
+      }
+
+    }
+    
   } else {
     LogWarning("EBRawDataTask") << EcalRawDataCollection_ << " not available";
   }
+  
 
 }
 

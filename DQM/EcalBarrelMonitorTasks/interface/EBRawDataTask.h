@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2008/07/12 08:26:47 $
- * $Revision: 1.2 $
+ * $Date: 2008/08/07 10:06:14 $
+ * $Revision: 1.3 $
  * \author E. Di Marco
  *
 */
@@ -70,14 +70,19 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag GTEvmSource_;
 
 MonitorElement* meEBCRCErrors_;
-
+MonitorElement* meEBEventTypePreCalibrationBX_;
+MonitorElement* meEBEventTypeCalibrationBX_;
+MonitorElement* meEBEventTypePostCalibrationBX_;
 MonitorElement* meEBRunNumberErrors_;
 MonitorElement* meEBL1AErrors_;
 MonitorElement* meEBOrbitNumberErrors_;
 MonitorElement* meEBBunchCrossingErrors_;
 MonitorElement* meEBTriggerTypeErrors_;
+MonitorElement* meEBGapErrors_;
 
 bool init_;
+
+float calibrationBX_; 
 
 enum activeEVM { TCS, FDLEVM };
 
