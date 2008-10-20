@@ -3,8 +3,8 @@ sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
 a = FWIncantation()
-os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
-rdbms = RDBMS()
+#os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
+rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
 dbName =  "oracle://cms_orcoff_prod/CMS_COND_21X_RUN_INFO"
 logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
@@ -15,12 +15,22 @@ from CondCore.Utilities import iovInspector as inspect
 db = rdbms.getDB(dbName)
 tags = db.allTags()
 
-tag = 'runsummary_test'
+# for inspecting last run after run has started  
+tag = 'runstart_test'
+
+# for inspecting last run after run has stopped  
+#tag = 'runsummary_test'
 
 try :
     log = db.lastLogEntry(tag)
-    print log.getState()
-    iov = inspect.Iov(db,tag)
+    #for printing all log info present into log db 
+    #print log.getState()
+
+    # for inspecting all payloads/runs
+    #iov = inspect.Iov(db,tag)
+
+    #for inspecting only last payload/run
+    iov = inspect.Iov(db,tag,0,0,0,1)
     print iov.list()
     for x in  iov.summaries():
         print x[1], x[2] ,x[3]
