@@ -18,7 +18,7 @@ hltBLifetimeRelaxed_modules = cms.PSet(
 hltBLifetimeRelaxed = cms.Sequence(hlt_BTagIP_Jet120_Relaxed+hlt_BTagIP_DoubleJet60_Relaxed+hlt_BTagIP_TripleJet40_Relaxed+hlt_BTagIP_QuadJet30_Relaxed+hlt_BTagIP_HT320_Relaxed)
 hlt_BTagIP_Jet120_Relaxed.triggerPath = 'HLT_BTagIP_Jet120_Relaxed'
 hlt_BTagIP_Jet120_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetimeLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -45,7 +45,7 @@ hlt_BTagIP_Jet120_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_DoubleJet60_Relaxed.triggerPath = 'HLT_BTagIP_DoubleJet60_Relaxed'
 hlt_BTagIP_DoubleJet60_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetimeLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -72,7 +72,7 @@ hlt_BTagIP_DoubleJet60_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_TripleJet40_Relaxed.triggerPath = 'HLT_BTagIP_TripleJet40_Relaxed'
 hlt_BTagIP_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetimeLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -99,7 +99,7 @@ hlt_BTagIP_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_QuadJet30_Relaxed.triggerPath = 'HLT_BTagIP_QuadJet30_Relaxed'
 hlt_BTagIP_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetimeLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -126,7 +126,7 @@ hlt_BTagIP_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_HT320_Relaxed.triggerPath = 'HLT_BTagIP_HT320_Relaxed'
 hlt_BTagIP_HT320_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetimeLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')

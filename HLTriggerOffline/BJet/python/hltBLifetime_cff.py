@@ -19,7 +19,7 @@ hltBLifetime_modules = cms.PSet(
 hltBLifetime = cms.Sequence(hlt_BTagIP_Jet180+hlt_BTagIP_DoubleJet120+hlt_BTagIP_TripleJet70+hlt_BTagIP_QuadJet40+hlt_BTagIP_HT470)
 hlt_BTagIP_Jet180.triggerPath = 'HLT_BTagIP_Jet180'
 hlt_BTagIP_Jet180.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -46,7 +46,7 @@ hlt_BTagIP_Jet180.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_DoubleJet120.triggerPath = 'HLT_BTagIP_DoubleJet120'
 hlt_BTagIP_DoubleJet120.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -73,7 +73,7 @@ hlt_BTagIP_DoubleJet120.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_TripleJet70.triggerPath = 'HLT_BTagIP_TripleJet70'
 hlt_BTagIP_TripleJet70.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -100,7 +100,7 @@ hlt_BTagIP_TripleJet70.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_QuadJet40.triggerPath = 'HLT_BTagIP_QuadJet40'
 hlt_BTagIP_QuadJet40.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -127,7 +127,7 @@ hlt_BTagIP_QuadJet40.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagIP_HT470.triggerPath = 'HLT_BTagIP_HT470'
 hlt_BTagIP_HT470.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')

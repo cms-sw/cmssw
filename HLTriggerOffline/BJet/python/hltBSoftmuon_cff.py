@@ -18,7 +18,7 @@ hltBSoftmuon_modules = cms.PSet(
 hltBSoftmuon = cms.Sequence(hlt_BTagMu_Jet20_Calib+hlt_BTagMu_DoubleJet120+hlt_BTagMu_TripleJet70+hlt_BTagMu_QuadJet40+hlt_BTagMu_HT370)
 hlt_BTagMu_Jet20_Calib.triggerPath = 'HLT_BTagMu_Jet20_Calib'
 hlt_BTagMu_Jet20_Calib.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -43,7 +43,7 @@ hlt_BTagMu_Jet20_Calib.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_DoubleJet120.triggerPath = 'HLT_BTagMu_DoubleJet120'
 hlt_BTagMu_DoubleJet120.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -68,7 +68,7 @@ hlt_BTagMu_DoubleJet120.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_TripleJet70.triggerPath = 'HLT_BTagMu_TripleJet70'
 hlt_BTagMu_TripleJet70.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -93,7 +93,7 @@ hlt_BTagMu_TripleJet70.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_QuadJet40.triggerPath = 'HLT_BTagMu_QuadJet40'
 hlt_BTagMu_QuadJet40.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -118,7 +118,7 @@ hlt_BTagMu_QuadJet40.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_HT370.triggerPath = 'HLT_BTagMu_HT370'
 hlt_BTagMu_HT370.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonHTL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftMuonHT","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')

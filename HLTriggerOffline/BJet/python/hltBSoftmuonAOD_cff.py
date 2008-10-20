@@ -18,7 +18,7 @@ hltBSoftmuon_modules = cms.PSet(
 hltBSoftmuon = cms.Sequence(hltb1jetmu+hltb2jetmu+hltb3jetmu+hltb4jetmu+hltbhtmu)
 hltb1jetmu.triggerPath = 'HLTB1JetMu'
 hltb1jetmu.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -43,7 +43,7 @@ hltb1jetmu.levels = cms.VPSet(cms.PSet(
     ))
 hltb2jetmu.triggerPath = 'HLTB2JetMu'
 hltb2jetmu.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -68,7 +68,7 @@ hltb2jetmu.levels = cms.VPSet(cms.PSet(
     ))
 hltb3jetmu.triggerPath = 'HLTB3JetMu'
 hltb3jetmu.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -93,7 +93,7 @@ hltb3jetmu.levels = cms.VPSet(cms.PSet(
     ))
 hltb4jetmu.triggerPath = 'HLTB4JetMu'
 hltb4jetmu.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -118,7 +118,7 @@ hltb4jetmu.levels = cms.VPSet(cms.PSet(
     ))
 hltbhtmu.triggerPath = 'HLTBHTMu'
 hltbhtmu.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonHTL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftMuonHT","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')

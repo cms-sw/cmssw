@@ -13,7 +13,7 @@ hltBtagLifetimeAnalyzer = cms.EDAnalyzer("HLTBtagLifetimeAnalyzer",
 
     triggerPath = cms.string('HLT_BTagIP_Jet180'),
     levels = cms.VPSet(cms.PSet(
-        filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+        filter = cms.InputTag("hltL1sBLifetime","","HLT"),
         jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
         name = cms.string('L1'),
         title = cms.string('L1')

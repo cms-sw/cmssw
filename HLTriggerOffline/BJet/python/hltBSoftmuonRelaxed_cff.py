@@ -16,7 +16,7 @@ hltBSoftmuonRelaxed_modules = cms.PSet(
 hltBSoftmuonRelaxed = cms.Sequence(hlt_BTagMu_DoubleJet60_Relaxed+hlt_BTagMu_TripleJet40_Relaxed+hlt_BTagMu_QuadJet30_Relaxed+hlt_BTagMu_HT250_Relaxed)
 hlt_BTagMu_DoubleJet60_Relaxed.triggerPath = 'HLT_BTagMu_DoubleJet60_Relaxed'
 hlt_BTagMu_DoubleJet60_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -41,7 +41,7 @@ hlt_BTagMu_DoubleJet60_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_TripleJet40_Relaxed.triggerPath = 'HLT_BTagMu_TripleJet40_Relaxed'
 hlt_BTagMu_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -66,7 +66,7 @@ hlt_BTagMu_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_QuadJet30_Relaxed.triggerPath = 'HLT_BTagMu_QuadJet30_Relaxed'
 hlt_BTagMu_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonNjetL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonNjet","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -91,7 +91,7 @@ hlt_BTagMu_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
     ))
 hlt_BTagMu_HT250_Relaxed.triggerPath = 'HLT_BTagMu_HT250_Relaxed'
 hlt_BTagMu_HT250_Relaxed.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBSoftmuonHTL1seedsLowEnergy","","HLT"),
+    filter = cms.InputTag("hltL1sBSoftmuonHTLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
     title = cms.string('L1')

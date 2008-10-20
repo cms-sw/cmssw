@@ -18,7 +18,7 @@ hltBLifetime_modules = cms.PSet(
 hltBLifetime = cms.Sequence(hltb1jet+hltb2jet+hltb3jet+hltb4jet+hltbht)
 hltb1jet.triggerPath = 'HLTB1Jet'
 hltb1jet.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -43,7 +43,7 @@ hltb1jet.levels = cms.VPSet(cms.PSet(
     ))
 hltb2jet.triggerPath = 'HLTB2Jet'
 hltb2jet.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -68,7 +68,7 @@ hltb2jet.levels = cms.VPSet(cms.PSet(
     ))
 hltb3jet.triggerPath = 'HLTB3Jet'
 hltb3jet.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -93,7 +93,7 @@ hltb3jet.levels = cms.VPSet(cms.PSet(
     ))
 hltb4jet.triggerPath = 'HLTB4Jet'
 hltb4jet.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
@@ -118,7 +118,7 @@ hltb4jet.levels = cms.VPSet(cms.PSet(
     ))
 hltbht.triggerPath = 'HLTBHT'
 hltbht.levels = cms.VPSet(cms.PSet(
-    filter = cms.InputTag("hltBLifetimeL1seeds","","HLT"),
+    filter = cms.InputTag("hltL1sBLifetime","","HLT"),
     jets = cms.InputTag("none"),
     name = cms.string('L1'),
     title = cms.string('L1')
