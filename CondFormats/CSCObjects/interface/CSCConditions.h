@@ -9,6 +9,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include <vector>
 #include <bitset>
 
@@ -17,6 +18,7 @@ class CSCDBPedestals;
 class CSCDBCrosstalk;
 class CSCBadStrips;
 class CSCBadWires;
+class CSCBadChambers;
 
 /**  Encapsulates a user interface into the CSC conditions
  *
@@ -58,10 +60,16 @@ public:
   const std::bitset<80>& badStripWord( const CSCDetId& id ) const;
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
 
+  /// is gven layer/chamber flagged as bad?
+  bool isInBadChamber( const CSCDetId& id ) const;
+
   void print() const;
 
   /// did we request reading bad channel info from db?
   bool readBadChannels() const { return readBadChannels_; }
+
+  /// did we request reading bad chamber info from db?
+  bool readBadChambers() const { return readBadChambers_; }
 
   /// fill bad channel words
   void fillBadStripWords();
@@ -79,7 +87,9 @@ private:
 
   const CSCBadStrips* theBadStrips;
   const CSCBadWires* theBadWires;
+  const CSCBadChambers* theBadChambers;
   bool readBadChannels_; // flag whether or not to even attempt reading bad channel info from db
+  bool readBadChambers_; // flag whether or not to even attempt reading bad chamber info from db
 
   // cache bad channel words once created
   std::vector< std::bitset<80> > badStripWords;

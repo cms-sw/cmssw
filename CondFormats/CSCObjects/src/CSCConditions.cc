@@ -8,6 +8,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
 #include "CondFormats/CSCObjects/interface/CSCBadWires.h"
+#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
 CSCConditions::CSCConditions( const edm::ParameterSet& ps ) 
@@ -17,10 +18,11 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
   theCrosstalk(0),
   theBadStrips(0),
   theBadWires(0),
-  readBadChannels_(false),
+  readBadChannels_(false), readBadChambers_(false),
   theAverageGain( -1.0 )
 {
   readBadChannels_ = ps.getParameter<bool>("readBadChannels");
+  readBadChambers_ = ps.getParameter<bool>("readBadChambers");
   // initialize #layers = 2808
   badStripWords.resize( 2808, 0 );
   badWireWords.resize( 2808, 0 );
@@ -74,7 +76,13 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   if( gainsWatcher_.check( es ) ) { // Yes...
     theAverageGain = -1.0; // ...reset, so next access will recalculate it
   }
-
+ 
+  if ( readBadChambers() ) {
+  // Entire bad chambers
+    edm::ESHandle<CSCBadChambers> hBadC;
+    es.get<CSCBadChambersRcd>().get( hBadC );
+    theBadChambers = hBadC.product();
+  }
 
 //  print();
 }
@@ -139,6 +147,17 @@ void CSCConditions::fillBadWireWords(){
     } // i
 
   } 
+}
+
+bool CSCConditions::isInBadChamber( const CSCDetId& id ) const {
+  short int iri = id.ring();
+  if ( iri == 4 ) iri = 1; // reset ME1A to ME11
+  CSCIndexer indexer;
+  int ilin = indexer.chamberIndex( id.endcap(), id.station(), iri, id.chamber() );
+  std::vector<int> bad = theBadChambers->chambers();
+  std::vector<int>::iterator it = std::find( bad.begin(), bad.end(), ilin );
+  if ( it != bad.end() ) return true; // id is in the list of bad chambers
+  else return false;
 }
 
 void CSCConditions::print() const
