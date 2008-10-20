@@ -1,18 +1,5 @@
-# The following comments couldn't be translated into the new config version:
-
-# of sigma above threshold for a cell to be considered hot
-# orig vale was 0.02
-# HotCell Tags for individual subdetectors
-# If these aren't specified, then the global 
-# values are used
-#untracked bool HBdebug = false
-#untracked bool HEdebug = false
-#untracked bool HOdebug = false
-#untracked bool HFdebug = false
-# Re-tuned threshold based on CRUZET1 run 43636 
-# First threshold is used when looking for hot cells 
-
 import FWCore.ParameterSet.Config as cms
+from copy import deepcopy
 
 hcalMonitor = cms.EDFilter("HcalMonitorModule",
 
@@ -68,8 +55,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            PedestalMonitor_endingTimeSlice              = cms.untracked.int32(1),
                            PedestalMonitor_minErrorFlag                 = cms.untracked.double(0.05),
                            PedestalMonitor_checkNevents                 = cms.untracked.int32(100),
-
-                           
+                           PedestalMonitor_minEntriesPerPed = cms.untracked.uint32(10),
+                                                      
                            HE_NADA_Ecell_cut = cms.untracked.double(0.0),
                            HF_NADA_Ecube_frac = cms.untracked.double(0.5714),
                            HB_NADA_Ecell_frac = cms.untracked.double(0.0),
@@ -83,7 +70,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            ExpertMonitor = cms.untracked.bool(False),
                            NADA_Ecube_frac = cms.untracked.double(0.3),
                            NADA_maxphi = cms.untracked.int32(1),
-                           minEntriesPerPed = cms.untracked.int32(10),
+
                            RecHitOccThresh = cms.untracked.double(2.0),
                            NADA_Ecand_cut0 = cms.untracked.double(1.5),
                            NADA_Ecand_cut1 = cms.untracked.double(2.5),
@@ -175,9 +162,12 @@ def setHcalTaskValues(process):
     # (This is useful if you've changed the global value, and you want it to propagate everywhere)
 
     # Set minimum value needed to put an entry into Problem histograms.  (values are between 0-1)
-    process.PedestalMonitor_minErrorFlag = process.minErrorFlag
 
-    process.PedestalMonitor_checkNevents = process.checkNevents
+    # Insidious python-ness:  You need to make a copy of the process.minErrorFlag, etc. variables,
+    # or future changes to PedestalMonitor_minErrorFlag will also change minErrorFlag!
+    process.PedestalMonitor_minErrorFlag = deepcopy(process.minErrorFlag)
 
+    process.PedestalMonitor_checkNevents = deepcopy(process.checkNevents)
+    
 
     return 
