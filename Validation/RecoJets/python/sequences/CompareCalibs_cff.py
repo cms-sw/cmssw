@@ -11,13 +11,15 @@ gfVsFact = Validation.RecoJets.producers.CompareCalibs_cfi.compareCalibs.clone()
 factVsGf = Validation.RecoJets.producers.CompareCalibs_cfi.compareCalibs.clone()
 
 ## do proper replacements
-gfVsFact.recs = 'uhhCaliIterativeCone5'
-gfVsFact.refs = 'L3JetCorJetIcone5'
-factVsGf.recs = 'L3JetCorJetIcone5'
-factVsGf.refs = 'uhhCaliIterativeCone5'
+gfVsFact.recs = 'gfCorICone5'
+gfVsFact.refs = 'L2L3CorJetIcone5'
+factVsGf.recs = 'L2L3CorJetIcone5'
+factVsGf.refs = 'gfCorICone5'
 
 ## sequences
 makeGfVsFactComparison = cms.Sequence(gfVsFact)
 makeFactVsGfComparison = cms.Sequence(factVsGf)
-
+makeAllComparison      = cms.Sequence(gfVsFact +
+                                      factVsGf
+                                      )
 
