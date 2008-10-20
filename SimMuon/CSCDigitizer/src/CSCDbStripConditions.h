@@ -27,6 +27,9 @@ public:
                  double stripLength, bool leftRight,
                  float & capacitive, float & resistive) const;
 
+  /// check list of bad chambers from db
+  virtual bool isInBadChamber( const CSCDetId& id ) const;
+
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);  
 

@@ -118,3 +118,8 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
   if(theNoisifier != 0) delete theNoisifier;
   theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
+
+bool CSCDbStripConditions::isInBadChamber( const CSCDetId& detId ) const
+{
+  return theConditions.isInBadChamber( detId );
+}
