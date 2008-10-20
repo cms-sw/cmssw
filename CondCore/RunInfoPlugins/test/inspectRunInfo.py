@@ -3,8 +3,8 @@ sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
 a = FWIncantation()
-os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
-rdbms = RDBMS()
+# os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
+rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
 dbName =  "oracle://cms_orcoff_prod/CMS_COND_21X_RUN_INFO"
 logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
