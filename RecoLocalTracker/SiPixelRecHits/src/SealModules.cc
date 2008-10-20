@@ -20,5 +20,3 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
-
-EVENTSETUP_RECORD_REG(TkPixelCPERecord);
