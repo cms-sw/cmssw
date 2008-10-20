@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/08 15:37:41 $
- * $Revision: 1.48 $
+ * $Date: 2008/10/16 09:30:32 $
+ * $Revision: 1.49 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -77,6 +77,9 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
   // switch on the mode for running on test pulses (different top folder)
   tpMode = ps.getUntrackedParameter<bool>("testPulseMode", false);
+  // switch on/off the filtering of synchronous noise events (cutting on the # of digis)
+  // time-boxes and occupancy plots are not filled and summary plots are created to report the problem
+  filterSyncNoise = ps.getUntrackedParameter<bool>("filterSyncNoise", false);
 
   dbe = edm::Service<DQMStore>().operator->();
 
@@ -130,6 +133,7 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
   if(doStaticBooking) {  // Static histo booking
     for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
       bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
+      if(filterSyncNoise) bookHistos(wh, string("SynchNoise"), "SyncNoiseEvents" );
       for(int st = 1; st <= 4; ++st) { // loop over stations
 	for(int sect = 1; sect <= 14; ++sect) { // loop over sectors
 	  if((sect == 13 || sect == 14) && st != 4) continue;
@@ -143,6 +147,8 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyNoise_perCh");
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyInTimeHits_perCh" );
 	  }
+
+
 
 	  for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
 	    if(st == 4 && sl == 2) continue;
@@ -351,7 +357,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str());
+
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
@@ -360,15 +366,28 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   LogTrace("DTDQM|DTMonitormodule|DTDigiTask")
     << "[DTDigiTask]: booking wheel histo:" << histoName
     << " (tag: " << histoTag
-    << ") folder: " << topFolder() + "Wheel" + wheel.str() + "/" + folder<<endl;
-  
-  string histoTitle = "# of digis per chamber WHEEL: "+wheel.str();
-  (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
-  (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
-  (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
-  (wheelHistos[histoTag])[wheelId]->setBinLabel(3,"MB3",2);
-  (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
-  (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
+    << ") folder: " << topFolder() + "Wheel" + wheel.str() + "/" <<endl;
+
+  if(folder == "Occupancies") {
+    dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str());
+    string histoTitle = "# of digis per chamber WHEEL: "+wheel.str();
+    (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(3,"MB3",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
+    (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
+  } else if(folder == "SynchNoise") {
+    dbe->setCurrentFolder(topFolder() + "SynchNoise");
+    string histoTitle = "# of Syncronous Noisy events WHEEL: "+wheel.str();
+    (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(3,"MB3",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
+    (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
+  }
+
 }
 
 
@@ -403,57 +422,46 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
   string histoTag;
 
-  int tdcCount = 0;
-
-  bool doSync = false; //FIXME: switch off but don't exactly understand what it's doing
 
   // Check if the digi container is empty
   if(dtdigis->begin() == dtdigis->end()) {
-    doSync = false;
     LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "Event " << nevents << " empty." << endl;
   }
 
-  if (doSync) { // dosync
-    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "     doSync" << endl;
-    DTChamberId chDone = ((*(dtdigis->begin())).first).chamberId();
+  if (filterSyncNoise) { // dosync
+    LogTrace("DTDQM|DTMonitormodule|DTDigiTask") << "     Filter Sync Noise" << endl;
     
+    // Count the # of digis per chamber
     DTDigiCollection::DigiRangeIterator dtLayerId_It;
-    for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); dtLayerId_It++){
+    for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); dtLayerId_It++) {
       DTChamberId chId = ((*dtLayerId_It).first).chamberId();
-      if (!(chId == chDone)) {
-	hitMap.insert(make_pair(chDone,tdcCount));
-	tdcCount = 0;
-	chDone = chId;
-
+      if(hitMap.find(chId) == hitMap.end()) {// new chamber
+	hitMap[chId] = 0;
       }
-      
-      
-      tdcCount += (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
-            
+      hitMap[chId] += (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
+    }
+
+    
+    // check chamber with # of digis above threshold and flag them as noisy
+    for (map<DTChamberId,int>::iterator iter = hitMap.begin(); iter != hitMap.end(); iter++) {
+      if((iter->second) > maxTDCHits) { 
+	syncNoisyChambers.insert(iter->first);
+	// FIXME: log noisy event in this chamber
+	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->Fill((*iter).first.sector(),(*iter).first.station()); 
+      }
     }
     
-    hitMap.insert(make_pair(chDone,tdcCount));
-    
-    bool eventSync = false;
-    bool stat = false;
-    std::map<DTChamberId,int>::iterator iter;
-    for (iter = hitMap.begin(); iter != hitMap.end(); iter++) {
-      
-      stat = false;
-      if ((iter->second) > maxTDCHits) { 
-	stat = true;
-	eventSync = true;
-      }
-      hitMapCheck.insert(make_pair((iter->first),stat));
-
-    }
+    // clear the map of # of digis per chamber: not needed anymore
     hitMap.clear();
-    
-    if (eventSync) {
-      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << "Event " << nevents << " probably sync noisy: time box not filled! " << endl;
+
+    // log
+    if (syncNoisyChambers.size() != 0) {
+      LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << "[DTDigiTask]** Synch Noise in event: " << nevents
+						      << " noisy time-boxes and occupancy will not be filled!" << endl; 
       syncNumTot++;
       syncNum++;
     }
+
     if (nevents%1000 == 0) {
       LogVerbatim("DTDQM|DTMonitormodule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
 						      << (syncNum*0.1) << "% sync noise events in the last 1000 events " << endl;
@@ -461,22 +469,17 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     }
   }
 
-  bool isSyncNoisy;
+  bool isSyncNoisy = false;
 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It) { // Loop over layers
-
-
     isSyncNoisy = false;
-    if (doSync) {
-      DTChamberId chId = ((*dtLayerId_It).first).superlayerId().chamberId();
-      std::map<DTChamberId,bool>::iterator iterch;
-      
-      for (iterch = hitMapCheck.begin(); iterch != hitMapCheck.end(); iterch++) {
-	if ((iterch->first) == chId) isSyncNoisy = iterch->second;
-
+    // check if chamber labeled as synch noisy
+    if (filterSyncNoise) {
+      DTChamberId chId = ((*dtLayerId_It).first).chamberId();
+      if(syncNoisyChambers.find(chId) != syncNoisyChambers.end()) {
+	isSyncNoisy = true;
       }
-
     }
 
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
@@ -611,7 +614,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     }
   }
   
-  hitMapCheck.clear();
+  syncNoisyChambers.clear();
 }
 
 

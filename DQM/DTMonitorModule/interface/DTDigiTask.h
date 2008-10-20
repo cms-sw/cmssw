@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/07/24 12:56:07 $
- * $Revision: 1.21 $
+ * $Date: 2008/10/16 09:30:32 $
+ * $Revision: 1.22 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -92,7 +92,7 @@ private:
   //  bool newChamber;
   //  DTChamberId chDone;
   std::map<DTChamberId,int> hitMap;
-  std::map<DTChamberId,bool> hitMapCheck;
+  std::set<DTChamberId> syncNoisyChambers;
   int syncNumTot;
   int syncNum;
 
@@ -136,6 +136,7 @@ private:
   int tdcRescale;
   bool doNoiseOccupancies;
   bool tpMode;
+  bool filterSyncNoise;
 };
 
 #endif

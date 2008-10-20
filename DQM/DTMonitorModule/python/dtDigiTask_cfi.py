@@ -5,7 +5,6 @@ dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     tdcRescale = cms.untracked.int32(1),
     # bin size for the time boxes
     timeBoxGranularity = cms.untracked.int32(4),
-    maxTDCHitsPerChamber = cms.untracked.int32(30000),
     # Set to true to read the ttrig from the DB
     readDB = cms.untracked.bool(False),
     # Value of the ttrig pedestal used when not reading from DB
@@ -29,7 +28,11 @@ dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     ResetCycle = cms.untracked.int32(10000),
     doNoiseOccupancies = cms.untracked.bool(False),
     # switch on the mode for running on test pulses (different top folder)
-    testPulseMode = cms.untracked.bool(False)
+    testPulseMode = cms.untracked.bool(False),
+    # switch for filtering on synch noise events (threshold on # of digis per chamber)
+    filterSyncNoise = cms.untracked.bool(False),
+    # threshold on # of digis per chamber to define sync noise
+    maxTDCHitsPerChamber = cms.untracked.int32(50)
 )
 
 
