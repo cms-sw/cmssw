@@ -140,15 +140,15 @@ process.LockService = cms.Service("LockService",
 )
 
 process.Reco = cms.Sequence(process.siPixelDigis)
-process.Calibration = cms.Sequence(process.siPixelCalibDigis*process.siPixelErrorsDigisToCalibDigis*process.siPixelGainCalibrationAnalysis*process.siPixelIsAliveCalibration*process.siPixelSCurveAnalysis)
+process.Calibration = cms.Sequence(process.siPixelCalibDigis*process.siPixelGainCalibrationAnalysis*process.siPixelIsAliveCalibration)
 process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.qTester*process.dqmEnv*process.Calibration*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*process.dqmSaver)
+process.p = cms.Path(process.Reco*process.qTester*process.dqmEnv*process.Calibration*process.sipixelEDAClient*process.dqmSaver)
 
-# cms.Path(process.Reco*process.DQMmodules*process.Calibration*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient)
+# cms.Path(process.Reco*process.DQMmodules*process.Calibration*process.RAWmonitor*process.DIGImonitprocess.sipixelEDAClient)
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
