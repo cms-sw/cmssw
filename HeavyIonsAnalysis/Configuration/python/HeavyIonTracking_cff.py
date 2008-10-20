@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
+
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import *
 from RecoPixelVertexing.PixelLowPtUtilities.firstStep_cff import *
 
@@ -22,4 +25,7 @@ firstStep = cms.Sequence(pixel3ProtoTracks
 						* primTrackCandidates
 						* globalPrimTracks )
 heavyIonTracking = cms.Sequence(firstStep)
+
+hiTrackingWithOfflineBeamSpot = cms.Sequence(offlineBeamSpot*trackerlocalreco*heavyIonTracking)
+
 
