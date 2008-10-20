@@ -164,8 +164,6 @@ namespace edm {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-    bool anyOutputModules() const {return !all_output_workers_.empty();}
-
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }

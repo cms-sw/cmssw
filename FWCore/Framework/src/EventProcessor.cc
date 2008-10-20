@@ -1517,11 +1517,6 @@ namespace edm {
     return schedule_->shouldWeCloseOutput();
   }
 
-  bool EventProcessor::anyOutputModules() const {
-    FDEBUG(1) << "\tanyOutputModules\n";
-    return schedule_->anyOutputModules();
-  }
-
   void EventProcessor::doErrorStuff() {
     FDEBUG(1) << "\tdoErrorStuff\n";
     edm::LogError("StateMachine")

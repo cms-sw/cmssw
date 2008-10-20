@@ -6,7 +6,7 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-$Id: EventProcessor.h,v 1.67 2008/08/14 17:47:15 paterno Exp $
+$Id: EventProcessor.h,v 1.68 2008/10/16 23:06:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -317,7 +317,6 @@ namespace edm {
     virtual void writeLumiCache();
     virtual void writeRunCache();
     virtual bool shouldWeCloseOutput() const;
-    virtual bool anyOutputModules() const;
 
     virtual void doErrorStuff();
 

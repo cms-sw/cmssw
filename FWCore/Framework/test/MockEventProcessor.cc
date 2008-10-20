@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.11 2008/04/22 22:31:42 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.12 2008/07/29 02:17:36 wmtan Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -170,10 +170,6 @@ namespace edm {
   bool MockEventProcessor::shouldWeCloseOutput() const {
     output_ << "\tshouldWeCloseOutput\n";
     return shouldWeCloseOutput_;
-  }
-
-  bool MockEventProcessor::anyOutputModules() const {
-    return true;
   }
 
   void MockEventProcessor::doErrorStuff() {

@@ -2,7 +2,7 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id: IEventProcessor.h,v 1.8 2008/04/22 22:31:41 wdd Exp $
+$Id: IEventProcessor.h,v 1.9 2008/07/29 02:17:36 wmtan Exp $
 
 Abstract base class for Event Processors
 
@@ -57,7 +57,6 @@ namespace edm
     virtual void writeLumiCache() = 0;
     virtual void writeRunCache() = 0;
     virtual bool shouldWeCloseOutput() const = 0;
-    virtual bool anyOutputModules() const = 0;
 
     virtual void doErrorStuff() = 0;
 

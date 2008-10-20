@@ -2,7 +2,7 @@
 #define FWCore_Framework_MockEventProcessor_h
 
 /*
-$Id: MockEventProcessor.h,v 1.9 2008/04/22 22:31:42 wdd Exp $
+$Id: MockEventProcessor.h,v 1.10 2008/07/29 02:17:36 wmtan Exp $
 
 Version of the Event Processor used for tests of
 the state machine and other tests.
@@ -46,7 +46,6 @@ namespace edm
     virtual void writeLumiCache();
     virtual void writeRunCache();
     virtual bool shouldWeCloseOutput() const;
-    virtual bool anyOutputModules() const;
 
     virtual void doErrorStuff();
 
