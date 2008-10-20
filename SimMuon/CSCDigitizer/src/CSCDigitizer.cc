@@ -8,6 +8,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCWireElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCNeutronReader.h"
+#include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -65,6 +66,8 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
+    if ( theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue; // skip 'bad' chamber
+
     const CSCLayer * layer = findLayer(hitMapItr->first);
     const edm::PSimHitContainer & layerSimHits = hitMapItr->second;
 
@@ -108,7 +111,8 @@ void CSCDigitizer::setMagneticField(const MagneticField * field) {
 
 void CSCDigitizer::setStripConditions(CSCStripConditions * cond)
 {
-  theStripElectronicsSim->setStripConditions(cond);
+  theConditions = cond; // cache here
+  theStripElectronicsSim->setStripConditions(cond); // percolate downwards
 }
 
 
