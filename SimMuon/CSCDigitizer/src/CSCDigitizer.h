@@ -77,6 +77,7 @@ private:
   CSCStripElectronicsSim * theStripElectronicsSim;
   CSCNeutronReader       * theNeutronReader;
   const CSCGeometry      * theCSCGeometry;
+  CSCStripConditions     * theConditions;
 };
 
 #endif
