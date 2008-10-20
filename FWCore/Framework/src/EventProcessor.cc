@@ -1220,25 +1220,8 @@ namespace edm {
 
     if (machine_.get() == 0) {
  
-      statemachine::FileMode fileMode = statemachine::FULLMERGE;
-
-      if (fileMode_.empty()) {
-	// The file mode was not explicitly specified.
-	if (!anyOutputModules()) {
-	  // If there are no output modules, the mode should be NOMERGE.
-          fileMode = statemachine::NOMERGE;
-	} else if (preg_.anyProducts(InLumi)) {
-	  // Otherwise, if there are any per lumi products, the mode should be MERGE.
-	  // For now, we don't use MERGE by default.
-          // fileMode = statemachine::MERGE;
-	} else if (preg_.anyProducts(InRun)) {
-	  // Otherwise, if there are any per run products, the mode should be FULLLUMIMERGE.
-	  // For now, we don't use FULLLUMIMERGE by default.
-          // fileMode = statemachine::FULLLUMIMERGE;
-	}
-	// Otherwise, the mode should be FULLMERGE.
-	
-      }
+      statemachine::FileMode fileMode;
+      if (fileMode_.empty()) fileMode = statemachine::FULLMERGE;
       else if (fileMode_ == std::string("MERGE")) fileMode = statemachine::MERGE;
       else if (fileMode_ == std::string("NOMERGE")) fileMode = statemachine::NOMERGE;
       else if (fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
