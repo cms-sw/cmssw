@@ -116,7 +116,10 @@ double GlobalFitCorrector::correction(const reco::CaloJet& jet) const
       closestTower = (int)twr;
     }
   }
-  
+  // save intermediate result (to catch
+  // cases without subsequent jet correction)
+  correction = towerCorrected.pt()/jet.pt();
+
   // -------------------------------------------
   // apply subsequent jet correction
   // -------------------------------------------
@@ -135,7 +138,9 @@ double GlobalFitCorrector::correction(const reco::CaloJet& jet) const
     measured->eta  = towerCorrected.eta(); 
     measured->phi  = towerCorrected.phi(); 
 
+    // apply subsequent jet correction
     correction = parametrization_->correctedJetEt(measured, &val[0])/towerCorrected.pt();
+    delete measured;
   }
   return correction;
 }
