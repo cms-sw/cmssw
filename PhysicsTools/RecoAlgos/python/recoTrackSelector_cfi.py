@@ -11,6 +11,7 @@ recoTrackSelector = cms.EDFilter("RecoTrackSelector",
     quality = cms.vstring('loose'),
     algorithm = cms.vstring(),
     minHit = cms.int32(3),
+    min3DHit = cms.int32(0),
     beamSpot = cms.InputTag("offlineBeamSpot")
 )
 

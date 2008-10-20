@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/08/09 15:36:38 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/08/12 11:50:53 $
+ *  $Revision: 1.15 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,6 +28,7 @@ class RecoTrackSelector {
     tip_(cfg.getParameter<double>("tip")),
     lip_(cfg.getParameter<double>("lip")),
     minHit_(cfg.getParameter<int>("minHit")),
+    min3DHit_(cfg.getParameter<int>("min3DHit")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
     bsSrc_(cfg.getParameter<edm::InputTag>("beamSpot")) 
     {
@@ -38,10 +39,10 @@ class RecoTrackSelector {
     }
   
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
-		      double tip, double lip, int minHit, double maxChi2, 
+		      double tip, double lip, int minHit, int min3DHit, double maxChi2, 
     		      std::vector<std::string> quality , std::vector<std::string> algorithm ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ) 
+    tip_( tip ), lip_( lip ), minHit_( minHit ), min3DHit_( min3DHit), maxChi2_( maxChi2 ) 
     { 
       for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j]));
       for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j]));
@@ -79,6 +80,8 @@ class RecoTrackSelector {
     }
     return
       (t.hitPattern().trackerLayersWithMeasurement() >= minHit_ &&
+       t.hitPattern().pixelLayersWithMeasurement() +
+       t.hitPattern().numberOfValidStripLayersWithMonoAndStereo() >= min3DHit_ &&
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        fabs(t.dxy(bs->position())) <= tip_ &&
@@ -97,6 +100,7 @@ class RecoTrackSelector {
   double tip_;
   double lip_;
   int    minHit_;
+  int    min3DHit_;
   double maxChi2_;
   std::vector<reco::TrackBase::TrackQuality> quality_;
   std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
