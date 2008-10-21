@@ -93,14 +93,10 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     electronIDSources = cms.PSet(
         # configure many IDs as InputTag <someName> = <someTag>
         # you can comment out those you don't want to save some disk space
-        robust     = cms.InputTag("electronIdCutBasedRobust"),
-        loose      = cms.InputTag("electronIdCutBasedLoose"),
-        tight      = cms.InputTag("electronIdCutBasedTight"),
-        ptdrLoose  = cms.InputTag("electronIdPTDRLoose"),
-        ptdrMedium = cms.InputTag("electronIdPTDRMedium"),
-        ptdrTight  = cms.InputTag("electronIdPTDRTight"),
-        neuralnet  = cms.InputTag("electronIdNeuralNet"),
-        likelihood = cms.InputTag("electronIdLikelihood"),
+        eidRobustLoose = cms.InputTag("patElectronIds","eidRobustLoose"),
+        eidRobustTight = cms.InputTag("patElectronIds","eidRobustTight"),
+        eidLoose       = cms.InputTag("patElectronIds","eidLoose"),
+        eidTight       = cms.InputTag("patElectronIds","eidTight"),
     ),
 
     # Trigger matching configurables
