@@ -134,7 +134,8 @@ def transformIntoGraph(depgraph,toplevel):
 
     # create package objects
     for key, value in depgraph.iteritems():
-        if key.count(".") == 2: packageDict[key] = Package(key)
+        if key.count(".") == 2 and key != toplevel: 
+            packageDict[key] = Package(key)
         for name in value.keys():
             if name.count(".") == 2: packageDict[name] = Package(name)
     # now create dependencies
