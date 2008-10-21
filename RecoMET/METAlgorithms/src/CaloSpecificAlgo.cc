@@ -15,7 +15,7 @@ using namespace std;
 // information will be added in the future. 
 //-------------------------------------
 //reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, CommonMETData met)
-reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, bool noHF)
+reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold)
 { 
   // Instantiate the container to hold the calorimeter specific information
   SpecificCaloMETData specific;
