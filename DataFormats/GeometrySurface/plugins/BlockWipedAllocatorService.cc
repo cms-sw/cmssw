@@ -36,6 +36,7 @@ public:
 
   // wipe the workspace before each event
   void preEventProcessing(const edm::EventID& iEvtid, const edm::Timestamp& iTime) {
+    std::cout << "BlockAllocator stat"<< std::endl;
     Dumper dumper;
     blockWipedPool().visit(dumper);
     blockWipedPool().wipe();

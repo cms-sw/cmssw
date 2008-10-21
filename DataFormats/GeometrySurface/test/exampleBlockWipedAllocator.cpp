@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 
+#define PBALLOC
+
 struct B 
 #ifdef PBALLOC
   : public BlockWipedPoolAllocated
