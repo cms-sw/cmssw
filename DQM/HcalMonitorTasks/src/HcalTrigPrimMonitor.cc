@@ -28,24 +28,18 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  cout << "TrigPrim eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  cout << "TrigPrim phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
   
   occThresh_ = ps.getUntrackedParameter<double>("TPOccThresh", 1.0);
-  cout << "TrigPrim occupancy threshold set to " << occThresh_ << endl;
 
   TPThresh_ = ps.getUntrackedParameter<double>("TPThreshold", 1.0);
-  cout << "TrigPrim threshold set to " << TPThresh_ << endl;
 
   TPdigi_ = ps.getUntrackedParameter<int>("TPdigiTS", 1);
-  cout << "TP digi set to " << TPdigi_ << endl;
 
   ADCdigi_ = ps.getUntrackedParameter<int>("ADCdigiTS", 3);
-  cout << "ADC digi set to " << ADCdigi_ << endl;
 
   checkNevents_=ps.getUntrackedParameter<int>("checkNevents",1000);
 

@@ -14,17 +14,14 @@ void HcalTemplateAnalysis::setup(const edm::ParameterSet& ps){
   if ( outputFile_.size() != 0 ) 
     cout << "Hcal DQM analysis histograms will be saved to " << outputFile_.c_str() << endl;    
   else outputFile_ = "Hcal_DQM_Analysis.root";
-
   
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 29.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -29.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  cout << "RecHit eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  cout << "RecHit phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
 
   rechitEnergy_HB = new TH1F("HB RecHit Energies","HB RecHit Energies",250,0,250);
   rechitTime_HB = new TH1F("HB RecHit Times","HB RecHit Times",250,0,250);
