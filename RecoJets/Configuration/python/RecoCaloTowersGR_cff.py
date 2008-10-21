@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: RecoCaloTowersGR_cff.py,v 1.2 2008/06/18 23:40:28 fedor Exp $
+# $Id: RecoCaloTowersGR_cff.py,v 1.3 2008/09/09 19:10:26 arizzi Exp $
 #
 # create GR calotowers here
 #
@@ -46,7 +46,7 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
     ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
     HBWeight = cms.double(1.0),
     # Method for momentum reconstruction
-    MomConstrMethod = cms.int32(0),
+    MomConstrMethod = cms.int32(1),
     #Depth, fraction of the respective calorimeter [0,1]
     MomEmDepth = cms.double(0),
     MomHadDepth = cms.double(0),
