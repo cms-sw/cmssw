@@ -446,7 +446,7 @@ void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
   // fill relevant muon histograms
   h_trackIso_->fill( muon->trackIso(), iMu , weight);
   h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
-  h_leptonID_->fill( muon->leptonID(), iMu , weight);
+  h_leptonID_->fill( muon->isGood(), iMu , weight);
 
   h_nChambers_->fill( muon->numberOfChambers(), iMu , weight);
 
@@ -767,7 +767,7 @@ void HistoMuon::fill( const reco::ShallowClonePtrCandidate *pshallow, uint iMu, 
   // fill relevant muon histograms from muon
   h_trackIso_->fill( muon->trackIso(), iMu , weight);
   h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
-  h_leptonID_->fill( muon->leptonID(), iMu , weight);
+  h_leptonID_->fill( muon->isGood(), iMu , weight);
 
   h_nChambers_->fill( muon->numberOfChambers(), iMu , weight);
 
