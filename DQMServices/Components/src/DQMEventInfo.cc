@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/05/06 05:13:05 $
- * $Revision: 1.20 $
- * $Author: dellaric $
+ * $Date: 2008/07/06 17:32:30 $
+ * $Revision: 1.21 $
+ * $Author: ameyer $
  *
  */
 
@@ -34,11 +34,9 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   string eventinfofolder = parameters_.getUntrackedParameter<string>("eventInfoFolder", "EventInfo") ;
   string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "YourSubsystem") ;
   string currentfolder = subsystemname + "/" +  eventinfofolder ;
-  cout << "currentfolder " << currentfolder << endl;
 
   evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 0.5);
   if(evtRateWindow_<=0.15) evtRateWindow_=0.15;
-  cout << "Event Rate averaged over " << evtRateWindow_ << " minutes" << endl;
 
   dbe_->setCurrentFolder(currentfolder) ;
 
@@ -80,9 +78,6 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
 }
 
 DQMEventInfo::~DQMEventInfo(){
-
-  cout<<"[DQMEventInfo]: destructor"<<endl;
-
 }
 
 void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
