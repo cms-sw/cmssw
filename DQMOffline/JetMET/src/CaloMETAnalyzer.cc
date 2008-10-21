@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/12 18:50:44 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/19 15:10:16 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -27,7 +27,6 @@ using namespace edm;
 
 CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
 
-  cout<<"[CaloMETAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
 
 }

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/14 20:35:49 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/10/21 03:57:41 $
+ *  $Revision: 1.14 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -28,8 +28,6 @@ using namespace edm;
 #define DEBUG 1
 
 JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
-
-  cout<<"[JetMETAnalyzer] Constructor called!"<<endl;
 
   parameters = pSet;
   

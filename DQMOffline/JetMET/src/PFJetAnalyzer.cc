@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2008/04/30 02:14:44 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -21,7 +21,6 @@ using namespace edm;
 
 PFJetAnalyzer::PFJetAnalyzer(const edm::ParameterSet& pSet) {
 
-  cout<<"[PFJetAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
 
 }
