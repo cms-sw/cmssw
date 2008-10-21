@@ -95,7 +95,6 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
   // For error type 30, the type of problem encoded in the TBM trailer
   // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
   // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
-  if(!reducedSet){
   hid = theHistogramId->setHistoId("TBMMessage",id_);
   meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
   meTBMMessage_->setAxisTitle("TBM message",1);
@@ -104,6 +103,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
   hid = theHistogramId->setHistoId("TBMType",id_);
   meTBMType_ = theDMBE->book1D(hid,"State Machine message",5,-0.5,4.5);
   meTBMType_->setAxisTitle("FSM Type",1);
+  if(!reducedSet){
   // For error type 31, the event number of the TBM header with the error
   hid = theHistogramId->setHistoId("EvtNbr",id_);
   meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
@@ -204,8 +204,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       numberOfErrors++;
       int errorType = di->getType();               // type of error
       (meErrorType_)->Fill((int)errorType);
-      if(!reducedSet){
-      if((errorType == 32)||(errorType == 33)||(errorType == 34)) {
+      if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
 	long long errorWord = di->getWord64();     // for 64-bit error words
 	if(errorType == 34) {
 	  int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -254,26 +253,33 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  (meTBMType_)->Fill((int)TBMType);
 	  break; }
 	case(31) : {
-	  int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
-	  (meEvtNbr_)->Fill((int)evtNbr);
+          if(!reducedSet){
+	    int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	    (meEvtNbr_)->Fill((int)evtNbr);
+	  }
 	  break; }
 	case(36) : {
-	  int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	  (meROCId_)->Fill((float)ROCId);
+          if(!reducedSet){
+	    int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	    (meROCId_)->Fill((float)ROCId);
+	  }
 	  break; }
 	case(37) : {
-	  int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	  (meDCOLId_)->Fill((float)DCOLId);
-	  int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	  (mePXId_)->Fill((float)PXId);
+          if(!reducedSet){
+	    int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	    (meDCOLId_)->Fill((float)DCOLId);
+	    int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	    (mePXId_)->Fill((float)PXId);
+	  }
 	  break; }
 	case(38) : {
-	  int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	  (meROCNmbr_)->Fill((float)ROCNmbr);
+          if(!reducedSet){
+	    int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	    (meROCNmbr_)->Fill((float)ROCNmbr);
+	  }
 	  break; }
 	default : break;
 	};
-      }
       }
     }
     
