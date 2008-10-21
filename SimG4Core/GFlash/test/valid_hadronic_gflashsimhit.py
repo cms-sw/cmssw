@@ -59,7 +59,9 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(
     cms.PSet(
       GflashG4Watcher = cms.PSet(
-        histFileName = cms.string('gflash_g4Watcher.root')
+        histFileName = cms.string('gflash_g4Watcher.root'),
+        recoEnergyScaleEB = cms.double(1.0),
+        recoEnergyScaleEE = cms.double(1.0)
       ),
     type = cms.string('GflashG4Watcher')
     )
