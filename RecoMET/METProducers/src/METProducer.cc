@@ -4,6 +4,11 @@
 // Creation Date:  20.04.2006.
 //
 //--------------------------------------------
+// Modification by R. Remington on 10/21/08
+// Added globalThreshold input Parameter to impose on each tower in tower collection
+// that is looped over by the CaloSpecificAlgo.  This is in order to fulfill Scheme B threhsolds...   
+
+
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
@@ -109,7 +114,7 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(input, output, noHF) );
+      calometcoll->push_back( calo.addInfo(input, output, noHF, globalThreshold) );
       event.put( calometcoll );
     }
     //-----------------------------------
