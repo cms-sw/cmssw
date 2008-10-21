@@ -11,8 +11,12 @@
 
 #include "QCDAnalysis/ChargedHadronSpectra/interface/EnergyLossPlain.h"
 
-#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+//#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
+//#include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -22,12 +26,12 @@
 EnergyLossProducer::EnergyLossProducer(const edm::ParameterSet& ps)
 {
   trackProducer          = ps.getParameter<string>("trackProducer");
-  pixelToStripMultiplier = ps.getParameter<double>("pixelToStripMultiplier");
-  pixelToStripExponent   = ps.getParameter<double>("pixelToStripExponent");
+//  pixelToStripMultiplier = ps.getParameter<double>("pixelToStripMultiplier");
+//  pixelToStripExponent   = ps.getParameter<double>("pixelToStripExponent");
 
-  produces<reco::TrackDeDxEstimateCollection>("energyLossPixHits");
-  produces<reco::TrackDeDxEstimateCollection>("energyLossStrHits");
-  produces<reco::TrackDeDxEstimateCollection>("energyLossAllHits");
+  produces<reco::DeDxDataValueMap>("energyLossPixHits");
+  produces<reco::DeDxDataValueMap>("energyLossStrHits");
+  produces<reco::DeDxDataValueMap>("energyLossAllHits");
 
   resultFile = new TFile("energyLoss.root","recreate");
 }
@@ -72,12 +76,13 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<reco::TrackCollection> trackHandle;
   ev.getByLabel(trackProducer,       trackHandle);
 
-  auto_ptr<reco::TrackDeDxEstimateCollection> outputPix
-      (new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
-  auto_ptr<reco::TrackDeDxEstimateCollection> outputStr
-      (new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
-  auto_ptr<reco::TrackDeDxEstimateCollection> outputAll
-      (new reco::TrackDeDxEstimateCollection(reco::TrackRefProd(trackHandle)));
+  auto_ptr<reco::DeDxDataValueMap> outputPix (new reco::DeDxDataValueMap);
+  auto_ptr<reco::DeDxDataValueMap> outputStr (new reco::DeDxDataValueMap);
+  auto_ptr<reco::DeDxDataValueMap> outputAll (new reco::DeDxDataValueMap);
+
+  reco::DeDxDataValueMap::Filler fillerPix(*outputPix);
+  reco::DeDxDataValueMap::Filler fillerStr(*outputStr);
+  reco::DeDxDataValueMap::Filler fillerAll(*outputAll);
 
   LogTrace("MinBiasTracking")
     << "[EnergyLossProducer]";
@@ -92,6 +97,10 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   EnergyLossPlain theEloss(theTracker, pixelToStripMultiplier,
                                        pixelToStripExponent);
 
+  vector<reco::DeDxData> estimatePix;
+  vector<reco::DeDxData> estimateStr;
+  vector<reco::DeDxData> estimateAll;
+
   // Take all trajectories
   int j = 0;
   for(vector<Trajectory>::const_iterator traje = trajeCollection.begin();
@@ -103,11 +112,11 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     theEloss.estimate(&(*traje), arithmeticMean, weightedMean);
 
     // Set values
-    outputPix->setValue(j, Measurement1D(weightedMean[0].second,
+    estimatePix.push_back(reco::DeDxData(weightedMean[0].second, 0,
                                          weightedMean[0].first));
-    outputStr->setValue(j, Measurement1D(weightedMean[1].second,
+    estimateStr.push_back(reco::DeDxData(weightedMean[1].second, 0,
                                          weightedMean[1].first));
-    outputAll->setValue(j, Measurement1D(weightedMean[2].second,
+    estimateAll.push_back(reco::DeDxData(weightedMean[2].second, 0,
                                          weightedMean[2].first));
 
     // Prepare conversion matrix
@@ -116,6 +125,14 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
       hnor->Fill(log(weightedMean[0].second),
                  log(weightedMean[1].second));
   }
+
+  fillerPix.insert(trackHandle, estimatePix.begin(), estimatePix.end());
+  fillerStr.insert(trackHandle, estimateStr.begin(), estimateStr.end());
+  fillerAll.insert(trackHandle, estimateAll.begin(), estimateAll.end());
+
+  fillerPix.fill();
+  fillerStr.fill();
+  fillerAll.fill();
 
   // Put back result to event
   ev.put(outputPix, "energyLossPixHits");
