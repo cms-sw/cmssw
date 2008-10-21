@@ -8,6 +8,7 @@
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -18,6 +19,7 @@
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc"></MonElement> 
@@ -31,6 +33,7 @@
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -41,6 +44,7 @@
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc"></MonElement> 
