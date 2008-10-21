@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.2 2008/10/21 12:03:33 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.3 2008/10/21 13:37:10 innocent Exp $
 //
 
 // system include files
@@ -85,14 +85,52 @@ inline void intrusive_ptr_release( const ReferenceCounted* iRef ) {
 }
 
 
+// #define CMSSW_POOLALLOCATOR
+
 #ifdef CMSSW_POOLALLOCATOR
 
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
-class ReferenceCountedPoolAllocated : 
-  public  ReferenceCounted,
-  public BlockWipedPoolAllocated
-{};
+class ReferenceCountedPoolAllocated :
+ public BlockWipedPoolAllocated
+{
+      
+   public:
+      ReferenceCountedPoolAllocated() : referenceCount_(0) {}
+      ReferenceCountedPoolAllocated( const ReferenceCountedPoolAllocated& iRHS ) : referenceCount_(0) {}
+  
+      const ReferenceCountedPoolAllocated& operator=( const ReferenceCountedPoolAllocated& ) {
+        return *this;
+      }
+      virtual ~ReferenceCountedPoolAllocated() {}
+  
+      // ---------- const member functions ---------------------
+
+      void addReference() const { ++referenceCount_ ; }
+      void removeReference() const { if( 0 == --referenceCount_ ) {
+          delete const_cast<ReferenceCountedPoolAllocated*>(this);
+        }
+      }
+  
+      unsigned int  references() const {return referenceCount_;}
+  
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+ 
+   private:
+
+      // ---------- member data --------------------------------
+      mutable unsigned int referenceCount_;
+};
+
+inline void intrusive_ptr_add_ref( const ReferenceCountedPoolAllocated* iRef ) {
+  iRef->addReference();
+}
+
+inline void intrusive_ptr_release( const ReferenceCountedPoolAllocated* iRef ) {
+  iRef->removeReference();
+} 
 
 #else
 typedef ReferenceCounted  ReferenceCountedPoolAllocated;

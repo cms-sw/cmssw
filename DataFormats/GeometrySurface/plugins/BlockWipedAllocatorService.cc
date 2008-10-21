@@ -41,12 +41,17 @@ public:
     blockWipedPool().visit(dumper);
     blockWipedPool().wipe();
   }
-
+ 
+  // wipe before each module
   void preModule(const edm::ModuleDescription& desc){
+//     blockWipedPool().wipe();
   }
 
 void postModule(const edm::ModuleDescription& desc){
-}
+//    std::cout << "BlockAllocator stat"<< std::endl;
+//    Dumper dumper;
+//    blockWipedPool().visit(dumper);
+ }
 
   // final stat
   void postEndJob() {
