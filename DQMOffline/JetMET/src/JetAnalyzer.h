@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/09/10 16:12:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/14 02:15:56 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -57,7 +57,6 @@ class JetAnalyzer : public JetAnalyzerBase {
 
   void setSource(std::string source) {
     _source = source;
-    cout<<"[JetAnalyzer] source = " << _source << endl;
   }
 
   void setLeadJetFlag(int flag) {

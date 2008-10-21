@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/14 02:15:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/14 16:19:54 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -21,7 +21,6 @@ using namespace edm;
 // ***********************************************************
 JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
 
-  cout<<"[JetAnalyzer] Constructor called!"<<endl;
   parameters   = pSet;
   _leadJetFlag = 0;
   _NJets       = 0;
