@@ -208,8 +208,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   if ( triggerObj->filterIndex(tag) >= triggerObj->size() ) {
     LogTrace("HLTMuonVal") << "No L1 Collection with label " << tag;
     return;
+  } else {
+    size_t filterIndex = triggerObj->filterIndex(tag);
+    triggerObj->getObjects( filterIndex, TriggerL1Mu, l1Cands );
   }
-  triggerObj->getObjects( triggerObj->filterIndex(tag), 81, l1Cands );
   theNumberOfL1Events++;
 
   // Get the HLT candidates //
@@ -219,8 +221,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     tag = InputTag(theHltCollectionLabels[i],"",theHltProcessName);
     if ( triggerObj->filterIndex(tag) >= triggerObj->size() )
       LogTrace("HLTMuonVal") <<"No HLT Collection with label "<< tag;
-    else
-      triggerObj->getObjects(triggerObj->filterIndex(tag),93,hltCands[i]);
+    else {
+      size_t filterIndex = triggerObj->filterIndex(tag);
+      triggerObj->getObjects( filterIndex, TriggerMuon, hltCands[i]);
+    }
   }
 
   for ( size_t i = 0; i < genMatches.size(); i++ ) {
