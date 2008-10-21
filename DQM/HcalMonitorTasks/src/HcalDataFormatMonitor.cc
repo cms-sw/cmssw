@@ -9,7 +9,6 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {
   //Initialize phatmap to a vector of vectors of uint64_t 0
   static size_t iphirange = IPHIMAX - IPHIMIN;
   static size_t ietarange = IETAMAX - IETAMIN;
-  std::cout << "............................" << iphirange << " " << ietarange << std::endl;
  
   std::vector<uint64_t> phatv (iphirange + 1, 0);
   // ... nothing goes at ieta=0, so an extra bin goes there.
@@ -59,7 +58,6 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {
   meChann_DataIntegrityCheck_[30]=meCh_DataIntegrityFED30_;
   meChann_DataIntegrityCheck_[31]=meCh_DataIntegrityFED31_;
 
-  cout << (int)sizeof(UScount) << endl;
   for (int f=0; f<32; f++) {
     for (int s=0; s<15; s++) {
       UScount[f][s]=0;}}
