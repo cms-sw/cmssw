@@ -74,8 +74,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				    edm::ESHandle<SiStripThreshold> & thresholdHandle,
 				    edm::ESHandle<SiStripNoises> & noiseHandle,
 				    edm::ESHandle<SiStripPedestals> & pedestalHandle
-				    ){
-  
+				    ){  
   theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
@@ -88,7 +87,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   //    the value strip-by-strip must be taken in SiGaussianTailNoiseAdded
   noiseRMS = noiseHandle->getNoise(strip,detNoiseRange);
   pedValue = pedestalHandle->getPed(strip,detPedestalRange);
-  
+
   /*
   // We will work on ONE copy of the map only,
   //  and pass references where it is needed.

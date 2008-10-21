@@ -25,7 +25,7 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
   
   numStrips = ns; 
   noiseRMS = nrms; 
-  
+
   std::vector<std::pair<int,float> > generatedNoise;
 
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);

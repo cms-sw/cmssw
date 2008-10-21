@@ -121,13 +121,11 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   //Loop on PSimHit
   SimHitMap.clear();
   
-  //  std::vector<PSimHit> trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
   //inside SimHitSelectorFromDb add the counter information from the original allhits collection 
   std::vector<std::pair<PSimHit,int> > trackerHits = SimHitSelectorFromDB_.getSimHit(allTrackerHits,theDetIdList);
   
   std::vector<std::pair<PSimHit,int> >::iterator isim;
   for (isim=trackerHits.begin() ; isim!= trackerHits.end();isim++) {
-    //    SimHitMap[(*isim).detUnitId()].push_back((*isim));
     //make a pair = <*isim, counter> and save also position in the vector for DigiSimLink
     SimHitMap[((*isim).first).detUnitId()].push_back(*isim);
     //    std::cout << "Hit in the final MAP  " << (*isim).second << std::endl; 
