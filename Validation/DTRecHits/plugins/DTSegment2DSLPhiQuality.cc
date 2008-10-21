@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:56:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/25 11:58:37 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -55,9 +55,6 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  if(debug)
-    cout << "[DTSegment2DSLPhiQuality] Constructor called" << endl;
-
   // Book the histos
   h2DHitSuperPhi = new HRes2DHit ("SuperPhi");
   h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi");
@@ -65,9 +62,6 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 
 // Destructor
 DTSegment2DSLPhiQuality::~DTSegment2DSLPhiQuality(){
-
-  if(debug)
-    cout << "[DTSegment2DSLPhiQuality] Destructor called" << endl;
 }
 
 void DTSegment2DSLPhiQuality::endJob() {
@@ -84,9 +78,6 @@ void DTSegment2DSLPhiQuality::endJob() {
 
 // The real analysis
 void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eventSetup){
-  if(debug)
-    cout << "--- [DTSegment2DSLPhiQuality] Analysing Event: #Run: " << event.id().run()
-	 << " #Event: " << event.id().event() << endl;
   theFile->cd();
 
   // Get the DT Geometry
