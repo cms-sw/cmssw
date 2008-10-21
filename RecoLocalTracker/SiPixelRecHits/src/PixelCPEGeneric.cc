@@ -110,7 +110,6 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
   //--- &&& externally settable (but tracked) parameters.  
 
-  double angle_from_clust = 0;
 
   //--- Position, including the half lorentz shift
   if (theVerboseLevel > 20) 
