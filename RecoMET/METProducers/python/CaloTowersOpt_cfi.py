@@ -92,3 +92,7 @@ calotoweroptmaker = cms.EDProducer(
 )
 
 
+calotoweroptmakerWithHO = calotoweroptmaker.clone()
+calotoweroptmakerWithHO.UseHO = True
+
+
