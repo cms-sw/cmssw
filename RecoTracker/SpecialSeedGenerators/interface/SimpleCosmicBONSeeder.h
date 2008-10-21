@@ -45,10 +45,10 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   void init(const edm::EventSetup& c);
-  void triplets(const edm::Event &e , const edm::EventSetup& c);
-  void seedsInOut(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
-  void seedsOutIn(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
-  void seeds(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
+  bool triplets(const edm::Event &e , const edm::EventSetup& c);
+  bool seedsInOut(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
+  bool seedsOutIn(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
+  bool seeds(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
   void done();
 
   bool goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer) const ;
@@ -79,6 +79,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   TrajectoryStateTransform transformer;
 
   ClusterChecker check_;
+  int32_t        maxTriplets_, maxSeeds_;
 
   OrderedHitTriplets hitTriplets;
 

@@ -50,7 +50,8 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 }
 
 SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
-  conf_(conf)
+  conf_(conf),
+  maxSeeds_(conf.getParameter<int32_t>("maxSeeds"))
 {  
 
   float ptmin=conf_.getParameter<double>("ptMin");
@@ -79,7 +80,7 @@ void SeedGeneratorForCosmics::run(TrajectorySeedCollection &output,const edm::Ev
   delete thePropagatorOp;
   delete theUpdator;
 }
-void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
+bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				    const edm::EventSetup& iSetup,
 				    const TrackingRegion& region){
   LogDebug("CosmicSeedFinder")<<"Number of triplets "<<HitTriplets.size();
@@ -136,11 +137,16 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
-	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId());
+	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
+	    transformer.persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId())
+          );
 	  output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
 
-	  delete PTraj;
+          if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
+            edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+            output.clear(); 
+            return false;
+          }
 	}
       }
     } else {
@@ -153,10 +159,16 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
-	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, (*(HitTriplets[it].outer())).geographicalId().rawId());
+	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
+	        transformer.persistentState(outerUpdated, (*(HitTriplets[it].outer())).geographicalId().rawId())
+          );
 	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
-	  delete PTraj;
+
+          if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
+            edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+            output.clear(); 
+            return false;
+          }
 	}
       }
     }
@@ -202,11 +214,17 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  if ( outerUpdated.isValid()) {
 	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	    
-	    PTrajectoryStateOnDet *PTraj=  
-	      transformer.persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
+            std::auto_ptr<PTrajectoryStateOnDet> PTraj(
+	      transformer.persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId())
+            );
 	    
 	    output.push_back( TrajectorySeed(*PTraj,hits,alongMomentum));
-	    delete PTraj;
+
+            if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
+              edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+              output.clear(); 
+              return false;
+            }
 	    
 	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
 	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
@@ -231,11 +249,17 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
 	  if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
-	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
-	  
+
+	  std::auto_ptr<PTrajectoryStateOnDet> PTraj(
+	    transformer.persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId())
+          );
 	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
-	  delete PTraj;
+
+          if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
+            edm::LogWarning("SeedGeneratorForCosmics") << "Found too many seeds, bailing out.\n";
+            output.clear(); 
+            return false;
+          }
 
 	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
 	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
@@ -243,4 +267,5 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
       
     }
   }
+  return true;
 }

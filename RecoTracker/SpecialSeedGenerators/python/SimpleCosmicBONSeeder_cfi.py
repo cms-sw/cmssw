@@ -37,6 +37,8 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
             MaxNumberOfCosmicClusters = cms.uint32(300),
             ClusterCollectionLabel = cms.InputTag("siStripClusters"),
     ),
+    maxTriplets = cms.int32(50000),
+    maxSeeds    = cms.int32(10000),
     RegionPSet = cms.PSet(
         originZPosition  = cms.double(0.0),
         originRadius     = cms.double(150.0),

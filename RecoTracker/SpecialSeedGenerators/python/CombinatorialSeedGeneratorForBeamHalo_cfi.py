@@ -105,6 +105,7 @@ combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True),
     requireBOFF = cms.bool(False),
+    maxSeeds = cms.int32(10000),
 )
 
 
