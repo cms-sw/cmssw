@@ -32,7 +32,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
 
-process.load("Producers.EcalCosmicTrackTimingProducer.ecalCosmicTrackTimingProducer_cfi")
+process.load("SUSYBSMAnalysis.HSCP.ecalCosmicTrackTimingProducer_cfi")
 process.dumpEv = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -60,7 +60,9 @@ process.outFile = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('ecalCosmicTrackTimingProducerTest.root'),
     outputCommands = cms.untracked.vstring('drop *',
            'keep *_ecalCosmicTrackTimingProducer_*_*',
-           'keep *_cosmicMuons_*_*')
+           'keep *_cosmicMuons_*_*',
+           'keep *_ecalRecHit_*_*'
+)
 )
 
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
