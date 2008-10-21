@@ -73,7 +73,7 @@ CVRAnalysis::CVRAnalysis(const edm::ParameterSet& iconfig) :
   trackcoll_( iconfig.getParameter<string>("trackcoll") ),
   vertexcoll_( iconfig.getParameter<string>("vertexcoll") ),
   beamspot_( iconfig.getParameter<string>("beamspot") ),
-  trackingtruth_ ( iconfig.getParameter<string>("truth") ),
+  trackingtruth_ ( iconfig.getParameter< edm::InputTag >("truth") ),
   associator_ ( iconfig.getParameter<string>("associator") ),
   histo_ ( VertexHisto ( "vertices.root", "tracks.root" ) ),
   bhisto_ ( VertexHisto ( "vertices-b.root", "tracks-b.root" ) )
