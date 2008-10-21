@@ -70,7 +70,7 @@ BlockAllocated<A2>::s_allocator =  BlockAllocated<A2>::allocator(100);
 
 
 struct Dumper {
-  void dump(BlockWipedAllocator const& alloc) const {
+  void visit(BlockWipedAllocator const& alloc) const {
     BlockWipedAllocator::Stat sa1 = alloc.stat();
     std::cout << "Alloc for size " << sa1.typeSize
 	      << ": " << sa1.blockSize
