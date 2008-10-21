@@ -109,7 +109,7 @@ void CVRAnalysis::analyze( const edm::Event & iEvent,
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder );
 
-  edm::Handle<reco::TrackCollection> tks;
+  edm::Handle< edm::View < reco::Track > > tks;
   iEvent.getByLabel( trackcoll_, tks );
   discussPrimary( iEvent );
 
