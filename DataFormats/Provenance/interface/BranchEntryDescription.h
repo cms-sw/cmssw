@@ -39,6 +39,16 @@ namespace edm {
 
     ~BranchEntryDescription() {}
 
+    void write(std::ostream& os) const;
+
+    ProductID const& productID() const {return productID_;}
+    bool const& isPresent() const {return isPresent_;}
+    CreatorStatus const& creatorStatus() const {return status_;}
+    std::vector<ProductID> const& parents() const {return parents_;}
+
+    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
+    std::auto_ptr<EntryDescription> convertToEntryDescription() const;
+  private:
     ProductID productID_;
 
     // The EDProduct IDs of the parents
@@ -66,24 +76,6 @@ namespace edm {
 
     ModuleDescriptionID moduleDescriptionID_;
 
-    // transient.  Filled in from the hash when needed.
-    mutable boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_;
-
-    void init() const;
-
-    void write(std::ostream& os) const;
-
-    std::string const& moduleName() const {init(); return moduleDescriptionPtr_->moduleName_;}
-    PassID const& passID() const {init(); return moduleDescriptionPtr_->passID();}
-    ParameterSetID const& psetID() const {init(); return moduleDescriptionPtr_->parameterSetID();}
-    ReleaseVersion const& releaseVersion() const {init(); return moduleDescriptionPtr_->releaseVersion();}
-    bool const& isPresent() const {return isPresent_;}
-    CreatorStatus const& creatorStatus() const {return status_;}
-    std::vector<ProductID> const& parents() const {return parents_;}
-
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
-    ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}
-    std::auto_ptr<EntryDescription> convertToEntryDescription() const;
   };
   
   inline

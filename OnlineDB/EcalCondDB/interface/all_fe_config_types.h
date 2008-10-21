@@ -19,10 +19,6 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigWeightInfo.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigWeightGroupDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigWeightDat.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigBadXTDat.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigBadTTDat.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigBadXTInfo.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigBadTTInfo.h"
 
 #endif
 

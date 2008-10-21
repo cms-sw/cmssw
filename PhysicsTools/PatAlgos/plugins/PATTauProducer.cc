@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.14 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.12 2008/07/08 21:24:51 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -15,13 +15,9 @@
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-
-// #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-// #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-// #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
@@ -35,28 +31,12 @@ using namespace pat;
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
   tauSrc_               = iConfig.getParameter<edm::InputTag>( "tauSource" );
-
   embedIsolationTracks_ = iConfig.getParameter<bool>         ( "embedIsolationTracks" );
   embedLeadTrack_       = iConfig.getParameter<bool>         ( "embedLeadTrack" );
   embedSignalTracks_    = iConfig.getParameter<bool>         ( "embedSignalTracks" );
-
   addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
-
-  if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
-  }
-
-  addGenJetMatch_    = iConfig.getParameter<bool>         ( "addGenJetMatch" );
-  if(addGenJetMatch_) {
-    embedGenJetMatch_  = iConfig.getParameter<bool>         ( "embedGenJetMatch" );
-    genJetMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
-  }
-
+  embedGenMatch_  = iConfig.getParameter<bool>         ( "embedGenMatch" );
+  genMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   addTrigMatch_   = iConfig.getParameter<bool>               ( "addTrigMatch" );
   trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
@@ -99,16 +79,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     return;
   }
    
-  // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
-  if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
-  }
-
-  edm::Handle<edm::Association<reco::GenJetCollection> > genJetMatch;  
-  if (addGenJetMatch_) iEvent.getByLabel(genJetMatchSrc_, genJetMatch); 
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
+  if (addGenMatch_) iEvent.getByLabel(genMatchSrc_, genMatch); 
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
@@ -118,23 +90,14 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (embedSignalTracks_)    aTau.embedSignalTracks();
     if (embedIsolationTracks_) aTau.embedIsolationTracks();
 
-    // store the match to the generated final state muons
+    // store the match to the generated final state taus
     if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genTau = (*genMatches[i])[tausRef];
-          aTau.addGenParticleRef(genTau);
-      }
-      if (embedGenMatch_) aTau.embedGenParticle();
-    }
-    
-    // store the match to the visible part of the generated tau
-    if (addGenJetMatch_) {
-      reco::GenJetRef genJetTau = (*genJetMatch)[tausRef];
-      if (genJetTau.isNonnull() && genJetTau.isAvailable() ) {
-        aTau.setGenJet( genJetTau );
+      reco::GenParticleRef genTau = (*genMatch)[tausRef];
+      if (genTau.isNonnull() && genTau.isAvailable() ) {
+        aTau.setGenLepton(genTau, embedGenMatch_);
       } // leave empty if no match found
     }
-        
+    
     // matches to trigger primitives
     if ( addTrigMatch_ ) {
       for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {

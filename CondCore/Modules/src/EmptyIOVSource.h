@@ -8,8 +8,7 @@
    Description: Fake event source to produce user designed run or time conditions.
 */
 //
-// Original Author:      Zhen Xie
-// $Id$
+// Author:      Zhen Xie
 //
 
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"

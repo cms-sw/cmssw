@@ -19,6 +19,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 #include "Reflex/Type.h"
 
@@ -41,7 +42,7 @@ namespace edm {
     ProductRegistry();
 
     // A constructor from the persistent data memebers from another product registry.
-    // saves time by not copying the transinet components.
+    // saves time by not copying the transient components.
     // The constructed registry will be frozen.
     ProductRegistry(ProductList const& productList, unsigned int nextID);
 
@@ -71,21 +72,9 @@ namespace edm {
       return productList_;
     }
 
-    ConstProductList const& constProductList() const {
-      //throwIfNotFrozen();
-      return constProductList_;
-    }
-
     unsigned int nextID() const {return nextID_;}
 
     void setNextID(unsigned int next) {nextID_ = next;}
-
-    const TypeLookup& productLookup() const {
-      return productLookup_;
-    }
-    const TypeLookup& elementLookup() const {
-      return elementLookup_;
-    }
 
     // Return all the branch names currently known to *this.  This
     // does a return-by-value of the vector so that it may be used in
@@ -116,7 +105,34 @@ namespace edm {
 
     bool anyProducts(BranchType const brType) const;
 
+    ConstProductList & constProductList() const {
+	 //throwIfNotFrozen();
+       return transients_.get().constProductList_;
+    }
+
+    TypeLookup & productLookup() const {return transients_.get().productLookup_;}
+
+    TypeLookup & elementLookup() const {return transients_.get().elementLookup_;}
+
+    struct Transients {
+      Transients();
+      bool frozen_;
+      ConstProductList constProductList_; 
+
+      // indices used to quickly find a group in the vector groups_
+      // by type, first one by the type of the EDProduct and the
+      // second by the type of object contained in a sequence in
+      // an EDProduct
+      TypeLookup productLookup_;
+      TypeLookup elementLookup_;
+    };
+
+    void setDefaultTransients() const {
+	transients_ = Transients();
+    };
+
   private:
+    bool & frozen() const {return transients_.get().frozen_;}
     
     void initializeTransients() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
@@ -128,15 +144,8 @@ namespace edm {
     
     ProductList productList_;
     unsigned int nextID_;
-    mutable bool frozen_; //! transient
-    mutable ConstProductList constProductList_; //!transient
+    mutable Transient<Transients> transients_;
     
-    // indices used to quickly find a group in the vector groups_
-    // by type, first one by the type of the EDProduct and the
-    // second by the type of object contained in a sequence in
-    // an EDProduct
-    mutable TypeLookup productLookup_; //!transient // 1->many
-    mutable TypeLookup elementLookup_; //!transient // 1->many
   };
 
   inline

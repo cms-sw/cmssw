@@ -78,6 +78,10 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   void fillRecordToIOVInfo();
   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
 				const std::string& roottag );
+   void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
+				const std::string& roottag,
+				std::map<std::string,cond::TagMetadata>& 
+				 replacement);
   //std::string setupFrontier(const std::string& frontierconnect);
   //unsigned int countslash(const std::string& input)const;
 };

@@ -42,7 +42,6 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
   edm::LogInfo("ESRecHitInfo") << "total # ESdigis: " << digi->size() ;  
   // Create empty output
   std::auto_ptr<ESRecHitCollection> rec(new EcalRecHitCollection());
-  rec->reserve(digi->size()); 
 
   // run the algorithm
   ESDigiCollection::const_iterator i;

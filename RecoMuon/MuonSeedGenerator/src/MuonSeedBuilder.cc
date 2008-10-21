@@ -1300,6 +1300,7 @@ TrajectorySeed MuonSeedBuilder::BetterChi2(std::vector<TrajectorySeed>& seeds ) 
       for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seeds[i].recHits().first; r1 != seeds[i].recHits().second; r1++){
           it++;
           //std::cout<<"    segmet : "<<it <<std::endl; 
+          if ( it > 3) break;
           theHits[it] = NRecHitsFromSegment( *r1 );
           theChi2[it] = NChi2OfSegment( *r1 );
       }

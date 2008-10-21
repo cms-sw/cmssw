@@ -1,6 +1,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/src/StreamerFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 
 using namespace edm;
@@ -21,7 +22,7 @@ namespace edm
            stream_reader_ = std::auto_ptr<StreamerInputFile>
                           (new StreamerInputFile(streamerNames_.at(0)));
       else {
-           throw cms::Exception("StreamerFileReader","StreamerFileReader")
+           throw edm::Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
               << " Not provided fileNames \n";
       }
   }
@@ -40,7 +41,7 @@ namespace edm
     const InitMsgView* header = stream_reader_->startMessage();
   
     if(header->code() != Header::INIT) //INIT Msg
-      throw cms::Exception("readHeader","StreamerFileReader")
+      throw edm::Exception(errors::FileReadError, "StreamerFileReader::readHeader")
         << "received wrong message type: expected INIT, got "
         << header->code() << "\n";
 

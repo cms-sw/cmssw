@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/09/03 15:22:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/09/02 16:27:05 $
+ *  $Revision: 1.6 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -140,29 +140,7 @@ class RPCEfficiency : public edm::EDAnalyzer {
       MonitorElement * hGlobalResClu3La5;
       MonitorElement * hGlobalResClu3La6;
 
-      //Endcap  
-      MonitorElement * hGlobalResClu1R3C;
-      MonitorElement * hGlobalResClu1R3B;
-      MonitorElement * hGlobalResClu1R3A;
-      MonitorElement * hGlobalResClu1R2C;
-      MonitorElement * hGlobalResClu1R2B; 
-      MonitorElement * hGlobalResClu1R2A;
-
-      MonitorElement * hGlobalResClu2R3C;
-      MonitorElement * hGlobalResClu2R3B;
-      MonitorElement * hGlobalResClu2R3A;
-      MonitorElement * hGlobalResClu2R2C;
-      MonitorElement * hGlobalResClu2R2B;
-      MonitorElement * hGlobalResClu2R2A;
-
-      MonitorElement * hGlobalResClu3R3C;
-      MonitorElement * hGlobalResClu3R3B;
-      MonitorElement * hGlobalResClu3R3A;
-      MonitorElement * hGlobalResClu3R2C;
-      MonitorElement * hGlobalResClu3R2B;
-      MonitorElement * hGlobalResClu3R2A;
-
- private:
+   private:
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
       std::ofstream ofrej;

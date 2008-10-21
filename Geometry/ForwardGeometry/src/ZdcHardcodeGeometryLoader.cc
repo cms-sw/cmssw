@@ -69,7 +69,7 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
     id = HcalZDCDetId(section, false, idepth);
     if(extTopology->valid(id)) zdcIds.push_back(id);
    }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 1000 ) ;
   if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 
   edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
@@ -79,11 +79,12 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
  for(std::vector<HcalZDCDetId>::const_iterator zdcIdItr = zdcIds.begin();
      zdcIdItr != zdcIds.end(); ++zdcIdItr)
    {
-      geom->addCell( *zdcIdItr, makeCell(*zdcIdItr, geom ) );
+     const CaloCellGeometry * geometry = makeCell(*zdcIdItr, geom );
+     geom->addCell(*zdcIdItr, geometry);
    }
 }
 
-CaloCellGeometry*
+const CaloCellGeometry*
 ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
 				    ReturnType          geom) const 
 {

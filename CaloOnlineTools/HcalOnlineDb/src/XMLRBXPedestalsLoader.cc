@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLRBXPedestalsLoader.cc,v 1.3 2008/06/24 01:09:48 elmer Exp $
+// $Id: XMLRBXPedestalsLoader.cc,v 1.2 2008/03/07 02:49:14 kukartse Exp $
 //
 
 // system include files
@@ -175,12 +175,6 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
   //fixRbxName( _rbx );
   cout << _rbx << endl;
   setTagValue( "NAME_LABEL", _rbx );  
-
-  // change kind of part name if this is ZDC (there is only one - ZDC01)
-  if (_rbx.find("ZDC01")!=string::npos){
-    setTagValue( "KIND_OF_PART", "HCAL ZDC RBX" );
-    cout << " --> ZDC RBX!" << endl;
-  }
 
   return 0;
 }

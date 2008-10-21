@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/24 12:23:36 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/07/07 12:46:40 $
+ *  $Revision: 1.26 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,8 +55,6 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
   percentual = parameters.getUntrackedParameter<int>("BadSLpercentual", 10);
-
-  //debug = parameters.getUntrackedParameter<bool>("debug", false);
 
 }
 
@@ -182,8 +180,6 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
       DTSuperLayerId slID = (*sl_it)->id();
 
-      edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Superlayer: " << slID;
-
       stringstream wheel; wheel << slID.wheel();	
       stringstream station; station << slID.station();	
       stringstream sector; sector << slID.sector();	
@@ -219,18 +215,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	if(BinNumber == 12) BinNumber=11;
 	TProfile* prof = res_histo_2D_root->ProfileX();
 	prof->GetXaxis()->SetRangeUser(0,2);
-	//prof->Fit("pol1","Q");
-	try {
-	  prof->Fit("pol1");
-	} catch (...) {
-          edm::LogError ("resolution") << "[DTResolutionTest]: Exception when fitting..."
-	  			       << "SuperLayer : " << slID << "\n"
-				       << "                    STEP : " << parameters.getUntrackedParameter<string>("STEP", "STEP3") << "\n"		
-				       << "Filling slope histogram with standard value -99. for bin " << BinNumber;
-	  if (SlopeHistos.find(make_pair(slID.wheel(),slID.sector())) == SlopeHistos.end()) bookHistos((*ch_it)->id());
-          SlopeHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, -99.);
-          continue;
-        }
+	prof->Fit("pol1","Q");
 	TF1 *fitting = prof->GetFunction("pol1");
 	double slope = fitting->GetParameter(1);
 	if (SlopeHistos.find(make_pair(slID.wheel(),slID.sector())) == SlopeHistos.end()) bookHistos((*ch_it)->id());

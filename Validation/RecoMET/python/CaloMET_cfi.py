@@ -11,17 +11,38 @@ metAnalyzer = cms.EDFilter("METTester",
     METType = cms.untracked.string('CaloMET')
 )
 
+metHOAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string('METTester_metHO.root'),
+    InputMETLabel = cms.InputTag("metHO"),
+    METType = cms.untracked.string('CaloMET')
+    )
+    
 metNoHFAnalyzer = cms.EDFilter("METTester",
     OutputFile = cms.untracked.string('METTester_metNoHF.root'),
     InputMETLabel = cms.InputTag("metNoHF"),
     METType = cms.untracked.string('CaloMET')
 )
 
+metNoHFHOAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string('METTester_metNoHFHO.root'),
+    InputMETLabel = cms.InputTag("metNoHFHO"),
+    METType = cms.untracked.string('CaloMET')
+    )
+    
 metOptAnalyzer = cms.EDFilter("METTester",
     OutputFile = cms.untracked.string('METTester_metOpt.root'),
     InputMETLabel = cms.InputTag("metOpt"),
     METType = cms.untracked.string('CaloMET')
 )
+
+metOptHOAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string('METTester_metOptHO.root'),
+    InputMETLabel = cms.InputTag("metOptHO"),
+    METType = cms.untracked.string('CaloMET')
+    )
 
 metOptNoHFAnalyzer = cms.EDFilter("METTester",
     OutputFile = cms.untracked.string('METTester_metOptNoHF.root'),
@@ -30,3 +51,9 @@ metOptNoHFAnalyzer = cms.EDFilter("METTester",
 )
 
 
+metOptNoHFHOAnalyzer = cms.EDAnalyzer(
+    "METTester",
+    OutputFile = cms.untracked.string('METTester_metOptNoHFHO.root'),
+    InputMETLabel = cms.InputTag("metOptNoHFHO"),
+    METType = cms.untracked.string('CaloMET')
+)

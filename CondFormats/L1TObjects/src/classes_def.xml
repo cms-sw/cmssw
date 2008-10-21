@@ -113,6 +113,7 @@
   <class name="L1GtAlgorithm"/>
   <class name="std::map<std::string, L1GtAlgorithm>"/>
   <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
+  <class name="std::pair<std::string, L1GtAlgorithm>"/>
   <class name="L1GtTriggerMenu">
     <field name="m_conditionMap" transient="true" />
   </class>

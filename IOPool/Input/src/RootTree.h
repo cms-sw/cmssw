@@ -55,7 +55,7 @@ namespace edm {
     template <typename T>
     void fillAux(T *& pAux) const {
       auxBranch_->SetAddress(&pAux);
-      auxBranch_->GetEntry(entryNumber_);
+      input::getEntry(auxBranch_, entryNumber_);
     }
     TTree const* tree() const {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
@@ -67,7 +67,7 @@ namespace edm {
     // below for backward compatibility
     void fillStatus() {
       statusBranch_->SetAddress(&pProductStatuses_);
-      statusBranch_->GetEntry(entryNumber_);
+      input::getEntry(statusBranch_, entryNumber_);
     }
 
   private:

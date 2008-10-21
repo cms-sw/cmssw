@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 19:00:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/15 14:44:39 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -32,16 +32,7 @@ DTVDriftAnalyzer::~DTVDriftAnalyzer(){
   theFile->Close();
 }
 
-/*void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
-  ESHandle<DTMtime> mTime;
-  eventSetup.get<DTMtimeRcd>().get(mTime);
-  mTimeMap = &*mTime;
-  cout << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
- 
-}*/
-void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {}
-
-void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
+void DTVDriftAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
   ESHandle<DTMtime> mTime;
   eventSetup.get<DTMtimeRcd>().get(mTime);
   mTimeMap = &*mTime;

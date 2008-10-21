@@ -20,6 +20,7 @@ process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
 process.SiPixelRawDataErrorSource.saveFile = False
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
+process.SiPixelRawDataErrorSource.reducedSet = False
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
@@ -86,15 +87,13 @@ process.GlobalTag.globaltag = "CRUZET4_V5P::All"
 from CondCore.DBCommon.CondDBCommon_cfi import *
 process.siPixelCalibGlobalTag =  cms.ESSource("PoolDBESSource",
                                               CondDBCommon,
-                                              connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X"),
+                                              connect = cms.string("frontier://FrontierProd/CMS_COND_21X_PIXEL"),
                                               
                                               toGet = cms.VPSet(
                                                 cms.PSet(record = cms.string('SiPixelCalibConfigurationRcd'),
                                                 tag = cms.string('GLOBALCALIB_default'))
-                                                ),
-                                              BlobStreamerName = cms.untracked.string("TBufferBlobStreamingService")
+                                                )
                                               )
-process.siPixelCalibGlobalTag.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
 process.es_prefer_dbcalib = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
@@ -111,26 +110,20 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siPixelDigis',
-        'siPixelCalibDigis',
-        'SiPixelRawDataErrorSource', 
-        'SiPixelDigiSource', 
-        'SiPixelClusterSource', 
-        'SiPixelRecHitSource', 
-        'sipixelEDAClient'),
-    cout = cms.untracked.PSet(
+    TEXTFILE = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('cout')
+    destinations = cms.untracked.vstring('TEXTFILE')
 )
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
 process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
-    ActionOnLumiSection = cms.untracked.bool(True),
+    ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
-    HighResolutionOccupancy = cms.untracked.bool(True)
+    HighResolutionOccupancy = cms.untracked.bool(True),
+    NoiseRateCutValue = cms.untracked.double(-1.)
 )
 
 process.qTester = cms.EDFilter("QualityTester",
@@ -152,7 +145,9 @@ process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.DQMmodules*process.Calibration*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient)
+process.p = cms.Path(process.Reco*process.qTester*process.dqmEnv*process.Calibration*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient*process.dqmSaver)
+
+# cms.Path(process.Reco*process.DQMmodules*process.Calibration*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient)
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'

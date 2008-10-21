@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # for Online running
 onlineAnalyser = cms.EDFilter("SiStripAnalyser",
     StaticUpdateFrequency    = cms.untracked.int32(1),
-    GlobalStatusFilling      = cms.untracked.bool(True),
+    GlobalStatusFilling      = cms.untracked.int32(1),
     TkMapCreationFrequency   = cms.untracked.int32(1),
     SummaryCreationFrequency = cms.untracked.int32(1),
     RawDataTag               = cms.untracked.InputTag("source"),                              
@@ -18,7 +18,7 @@ onlineAnalyser = cms.EDFilter("SiStripAnalyser",
 # for Offline running
 offlineAnalyser = cms.EDFilter("SiStripAnalyser",
     StaticUpdateFrequency    = cms.untracked.int32(-1),
-    GlobalStatusFilling      = cms.untracked.bool(True),
+    GlobalStatusFilling      = cms.untracked.int32(1),
     TkMapCreationFrequency   = cms.untracked.int32(-1),
     SummaryCreationFrequency = cms.untracked.int32(1),
     RawDataTag               = cms.untracked.InputTag("source"),                               

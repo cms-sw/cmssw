@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: kt6GenJets_cff.py,v 1.2 2008/04/21 03:28:53 rpw Exp $
+# $Id: kt6GenJets.cff,v 1.1 2007/08/02 21:58:23 fedor Exp $
 from RecoJets.JetProducers.GenJetParameters_cfi import *
 from RecoJets.JetProducers.FastjetParameters_cfi import *
 from RecoJets.JetProducers.KtJetParameters_cfi import *
@@ -8,7 +8,7 @@ kt6GenJets = cms.EDProducer("KtJetProducer",
     GenJetParameters,
     FastjetNoPU,
     KtJetParameters,
-    
+    JetPtMin = cms.double(1.0),
     alias = cms.untracked.string('KT6GenJet'),
     FJ_ktRParam = cms.double(0.6)
 )

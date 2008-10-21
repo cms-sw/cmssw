@@ -98,6 +98,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   bool doMatching;
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   bool useCMSSWPixelParameterization;
+  double ElectronsPerADC;  
+  double GevPerElectron;
 
   const TrackerGeometry* geometry;
   const TrackerGeometry* misAlignedGeometry;

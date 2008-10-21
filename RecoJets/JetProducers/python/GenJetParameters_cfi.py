@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Standard CalooJets parameters
-# $Id: GenJetParameters_cfi.py,v 1.3 2008/08/20 15:51:08 oehler Exp $
+# $Id: GenJetParameters.cfi,v 1.3 2008/03/11 21:34:33 fedor Exp $
 GenJetParameters = cms.PSet(
     src = cms.InputTag("genParticlesForJets"),
     verbose = cms.untracked.bool(False),

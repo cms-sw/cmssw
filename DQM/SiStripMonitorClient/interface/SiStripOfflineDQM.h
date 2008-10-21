@@ -73,7 +73,7 @@ private:
   bool createSummary_;
   std::string inputFileName_;
   std::string outputFileName_;
-
+  int globalStatusFilling_; 
   int nEvents_;
 
 };

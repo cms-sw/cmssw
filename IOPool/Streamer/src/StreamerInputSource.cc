@@ -94,6 +94,8 @@ namespace edm {
       buildClassCache(descs);
       loadExtraClasses();
       for(; i != e; ++i) {
+	i->setDefaultTransients();
+	i->init();
 	reg.copyProduct(*i);
 	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
       }
@@ -301,6 +303,7 @@ namespace edm {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
+    sd->processHistory().setDefaultTransients();
     ProcessHistoryRegistry::instance()->insertMapped(sd->processHistory());
 
     FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;

@@ -24,17 +24,15 @@ void PFBlock::bookLinkData() {
   unsigned dataSize =  linkDataSize();
   linkData_.reserve( dataSize );
 
-  // initialize linkData_ to no link(chi2 = dist = -1)
-  std::vector<std::pair<float,float> > chi2Data;
-  std::pair<float,float> dflt =  std::pair<float,float>(-1.,-1.);
-  chi2Data.insert( chi2Data.begin(), LINKTEST_NLINKTEST, dflt ); 
+  // initialize linkData_ to -1 (no link)
+  vector<double> chi2Data;
+  chi2Data.insert( chi2Data.begin(), LINKTEST_NLINKTEST, -1 ); 
   linkData_.insert( linkData_.begin(), dataSize, chi2Data );
 }
 
 
 
-void PFBlock::setLink(unsigned i1, unsigned i2, 
-		      double Chi2, double Dist,
+void PFBlock::setLink(unsigned i1, unsigned i2, double chi2,
                       LinkData& linkData, 
 		      LinkTest test) const {
   
@@ -43,12 +41,10 @@ void PFBlock::setLink(unsigned i1, unsigned i2,
   
   unsigned index = 0;
   bool ok =  matrix2vector(i1,i2, index);
-
-  if(ok) {
-    linkData[index][test] = std::pair<float,float>(Chi2,Dist);
-  } else {
+  if(ok)
+    linkData[index][test] = chi2;
+  else 
     assert(0);
-  }
   
 }
 
@@ -99,12 +95,35 @@ void PFBlock::associatedElements( unsigned i,
       continue;
     }
 
-    // double c2 = chi2(i, ie,  linkData );
-    // PJ the real distance is better to decide what cluster is closest 
-    // pJ -> Order the elements by increasing distance !
-    double c2 = dist(i, ie, linkData, test);
+    double c2 = chi2(i, ie,  linkData );
 
+    //Note Alex: By default, the chi2 obtained from the CHI2
+    //test is used unless the result of a specific test 
+    //is chosen:
+    
+    if( test !=  LINKTEST_CHI2 && 
+	test !=  LINKTEST_ALL ) {
+      c2 = chi2(i, ie,  linkData, test );
+    }
+     
+    if( test == LINKTEST_ALL ){
+      
+      //Note Alex: When LINKTEST_ALL is selected then all possible 
+      //tests are considered. It means that a loop should
+      //be implemented on all possible tests and retrieve the 
+      //chi2 from the first test that has not fail
+      //14/11/2007: maybe the test that gives the minimum chi2 should 
+      //be taken? to be studied when more tests are available.
+      
+      for( unsigned linktest = 0; linktest < LINKTEST_NLINKTEST; 
+	   ++linktest ){
+	c2 = chi2(i, ie,  linkData, LinkTest(linktest) );
+	//found a link
+	if( c2>0 ) break;
+      }//loop tests
 
+    }//all tests 
+    
     // not associated
     if( c2 < 0 ) { 
       continue;
@@ -143,58 +162,19 @@ double PFBlock::chi2( unsigned ie1, unsigned ie2,
                       const LinkData& linkData, 
 		      LinkTest  test ) const {
   
-  double Chi2 = -1;
+  assert( test<LINKTEST_ALL );
+ 
+  double chi2 = -1;
 
   unsigned index = 0;
-  if( !matrix2vector(ie1, ie2, index) ) return Chi2;
-  assert( index<linkData.size() );
-
-  unsigned firstTest = (test == LINKTEST_ALL) ? 0 : test; 
-  unsigned lastTest = (test == LINKTEST_ALL) ? LINKTEST_NLINKTEST : test+1; 
-      
-  //When LINKTEST_ALL is selected then all possible 
-  //tests are considered. It means that a loop should
-  //be implemented on all possible tests and retrieve the 
-  //chi2 from the first test that has not fail
-  //14/11/2007: maybe the test that gives the minimum chi2 should 
-  //be taken? to be studied when more tests are available.
-    
-  for( unsigned linktest = firstTest; linktest < lastTest; ++linktest ){
-    
-    Chi2 = (double)(linkData[index][linktest].first);
-    //found a link
-    if( Chi2 > 0 ) break;
-
-  }//loop tests
-
-  return Chi2;
-
+  if( matrix2vector(ie1, ie2, index) ) {
+    assert( index<linkData.size() );
+    chi2 = linkData[index][test]; 
+  }
+  return chi2;
 }
 
-double PFBlock::dist( unsigned ie1, unsigned ie2,
-                      const LinkData& linkData, 
-		      LinkTest  test ) const {
-  
-  double Dist = -1.;
 
-  unsigned index = 0;
-  if( !matrix2vector(ie1, ie2, index) ) return Dist;
-  assert( index<linkData.size() );
-
-  unsigned firstTest = (test == LINKTEST_ALL) ? 0 : test; 
-  unsigned lastTest = (test == LINKTEST_ALL) ? LINKTEST_NLINKTEST : test+1; 
-      
-  for( unsigned linktest = firstTest; linktest < lastTest; ++linktest ){
-
-    Dist = (double)(linkData[index][linktest].second);
-    //found a link
-    if ( Dist > 0. ) break;
-
-  }//loop tests
-
-  return Dist;
-
-}
 
 
 ostream& reco::operator<<(  ostream& out, 
@@ -291,7 +271,7 @@ ostream& reco::operator<<(  ostream& out,
   out<<endl;
   int width = 6;
   if( !block.linkData().empty() ) {
-    out<<"\tlink data (chi squared): "<<endl;
+    out<<"\tlink data: "<<endl;
     out<<setiosflags(ios::right);
     out<<"\t" << setw(width) << " ";
     for(unsigned ie=0; ie<elid.size(); ie++) out <<setw(width)<< elid[ie];
@@ -317,6 +297,7 @@ ostream& reco::operator<<(  ostream& out,
       }
       out<<endl;
     }
+
     out<<setprecision(3);  
     out<<resetiosflags(ios::right|ios::fixed);
   }
@@ -324,34 +305,6 @@ ostream& reco::operator<<(  ostream& out,
     out<<"\tno links."<<endl;
   }
       
-  width = 6;
-  if( !block.linkData().empty() ) {
-    out<<endl<<"\tlink data (distance x 1000): "<<endl;
-    out<<setiosflags(ios::right);
-    out<<"\t" << setw(width) << " ";
-    for(unsigned ie=0; ie<elid.size(); ie++) out <<setw(width)<< elid[ie];
-    out<<endl;  
-    out<<setiosflags(ios::fixed);
-    out<<setprecision(1);      
-  
-    for(unsigned i=0; i<block.elements_.size(); i++) {
-      out<<"\t";
-      out <<setw(width) << elid[i];
-      for(unsigned j=0; j<block.elements_.size(); j++) {
-        double Dist = block.dist(i,j, block.linkData(),PFBlock::LINKTEST_ALL);
-
-	if (Dist > -0.5) out<<setw(width)<< Dist*1000.; 
-        else  out <<setw(width)<< " ";
-      }
-      out<<endl;
-    }
-
-    out<<setprecision(3);  
-    out<<resetiosflags(ios::right|ios::fixed);
-  }
-  else {
-    out<<"\tno links."<<endl;
-  }
   
   return out;
 }

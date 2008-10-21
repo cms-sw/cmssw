@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.21 2008/06/12 22:17:22 dsr Exp $
+// $Id: AutoLibraryLoader.cc,v 1.22 2008/06/23 15:39:54 dsr Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "FWCore/FWLite/src/BareRootProductGetter.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "DataFormats/Common/interface/CacheStreamers.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 //
@@ -57,6 +58,7 @@ AutoLibraryLoader::enable()
    static BareRootProductGetter s_getter;
    static edm::EDProductGetter::Operate s_op(&s_getter);
    edm::RootAutoLibraryLoader::enable();
+   edm::setCacheStreamers();
    //this function must be called after enabling the autoloader
    // so that the Reflex dictionaries will be converted to ROOT 
    // dictionaries and the TClass we need will be available

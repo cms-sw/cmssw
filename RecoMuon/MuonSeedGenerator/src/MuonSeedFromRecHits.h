@@ -44,9 +44,6 @@ public:
   typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 
-  // makes a straight-line seed.  q/p = 0, and sigma(q/p) = 1/theMinMomentum
-  TrajectorySeed createDefaultSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
-
   protected:
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
   const MagneticField * theField;

@@ -66,10 +66,9 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	      conf.getParameter<bool>("UseHO"),
          // (for momentum reconstruction algorithm)
         conf.getParameter<int>("MomConstrMethod"),
-        conf.getParameter<double>("MomHBDepth"),
-        conf.getParameter<double>("MomHEDepth"),
-        conf.getParameter<double>("MomEBDepth"),
-        conf.getParameter<double>("MomEEDepth")
+        conf.getParameter<double>("MomEmDepth"),
+        conf.getParameter<double>("MomHadDepth"),
+        conf.getParameter<double>("MomTotDepth")
 	),
 
   hbheLabel_(conf.getParameter<edm::InputTag>("hbheInput")),

@@ -70,23 +70,29 @@ ConfigurableMultiVertexFitter * ConfigurableMultiVertexFitter::clone() const
   return new ConfigurableMultiVertexFitter ( *this );
 }
 
-std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
-    const std::vector < reco::TransientTrack > & t,
-    const reco::BeamSpot & s ) const
-{
-  return theRector->vertices ( t, s );
-}
-
-std::vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
-    const std::vector < reco::TransientTrack > & prims,
-    const std::vector < reco::TransientTrack > & secs,
-    const reco::BeamSpot & s ) const
-{
-  return theRector->vertices ( prims, secs, s );
-}
-
 vector < TransientVertex > ConfigurableMultiVertexFitter::vertices ( 
     const std::vector < reco::TransientTrack > & t ) const
+{
+  /*
+  if ( theCheater==1 && t.size()>3 )
+  {
+    std::vector < reco::TransientTrack > primaries;
+    reco::TransientTrack p1=t[0];
+    reco::TransientTrack p2=t[1];
+    reco::TransientTrack p3=t[2];
+    reco::TransientTrack p4=t[3];
+    primaries.push_back ( p1 );
+    primaries.push_back ( p2 );
+    primaries.push_back ( p3 );
+    primaries.push_back ( p4 );
+    return theRector->vertices ( t, primaries );
+  }
+    */
+  return theRector->vertices ( t );
+}
+
+vector < TransientVertex > ConfigurableMultiVertexFitter::vertices (
+  const std::vector < reco::TransientTrack > & t, const reco::BeamSpot & s ) const
 {
   return theRector->vertices ( t );
 }

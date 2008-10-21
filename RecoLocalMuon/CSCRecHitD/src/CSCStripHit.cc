@@ -1,4 +1,4 @@
-#include "RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h"
+#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 #include <iostream>
 
 CSCStripHit::CSCStripHit() :
@@ -19,7 +19,7 @@ CSCStripHit::CSCStripHit( const CSCDetId& id,
                           const ChannelContainer& strips, 
                           const StripHitADCContainer& s_adc,
                           const StripHitADCContainer& s_adcRaw,
-			                    const int& numberOfConsecutiveStrips,
+			  const int& numberOfConsecutiveStrips,
                           const int& closestMaximum,
                           const bool& isNearDeadStrip) :
   theDetId( id ), 

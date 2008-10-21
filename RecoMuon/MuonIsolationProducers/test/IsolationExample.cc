@@ -40,7 +40,7 @@ IsolationExample::IsolationExample(const edm::ParameterSet& conf)
     theEcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>("EcalMapCollection", 
 							       edm::InputTag("muIsoDepositCalByAssociatorTowers:ecal"))), 
     theHcalDepMapTag(conf.getUntrackedParameter<edm::InputTag>("HcalMapCollection",  
-                                                               edm::InputTag("muIsoDepositCalByAssociatorTowers:hcal"))), 
+                                                               edm::InputTag("muIsoDepositCalByAssociatorTowers:ecal"))), 
     theEventCount(0)
 {
   LogDebug("IsolationExample") <<" CTOR"<<endl;

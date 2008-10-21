@@ -43,6 +43,10 @@ void MuonCSCSeedFromRecHits::fillConstants(int chamberType1, int chamberType2, d
 
 TrajectorySeed MuonCSCSeedFromRecHits::seed() const
 {
+  if(theRhits.size() == 1) 
+  {
+     return createSeed(100., 100., theRhits[0]);
+  }
   //analyze();
   TrajectorySeed result;
   //@@ doesn't handle overlap between ME11 and ME12 correctly
@@ -71,7 +75,7 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   }
 
   //std::cout << "Station hits " << station1Hits.size() << " " 
-  //                             << station2Hits.size() << " "
+  //                            << station2Hits.size() << " "
   //                             << station3Hits.size() << std::endl;
 
   // see whether station 2 or station 3 is better
@@ -120,14 +124,14 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
         itr1 != end1; ++itr1)
   {
     CSCDetId cscId1((*itr1)->geographicalId().rawId());
-    int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
+    //int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
 
     for ( MuonRecHitContainer::const_iterator itr2 = hits2.begin(), end2 = hits2.end();
           itr2 != end2; ++itr2)
     {
 
       CSCDetId cscId2((*itr2)->geographicalId().rawId());
-      int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
+      //int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
 
         // take the first pair that comes along.  Probably want to rank them later
       std::vector<double> pts = thePtExtractor->pT_extract(*itr1, *itr2);
@@ -250,13 +254,10 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
   ConstMuonRecHitPointer me1= bestSegment();
   bool good=false;
 
-  if(me1)
-    if ( me1->isValid() )
-    {
-      good = createDefaultEndcapSeed(me1, seed); 
-      //seed = createDefaultSeed(me1);
-    }
-
+  if(me1 && me1->isValid() )
+  {
+    good = createDefaultEndcapSeed(me1, seed); 
+  }
 }
 
 
@@ -279,62 +280,16 @@ MuonCSCSeedFromRecHits::createDefaultEndcapSeed(ConstMuonRecHitPointer last,
   mat = last->parametersError().similarityT( last->projectionMatrix() );
   
   // We want pT but it's not in RecHit interface, so we've put it within this class
-  float momentum = computeDefaultPt(last);
+  //float momentum = computeDefaultPt(last);
+  std::vector<double> momentum = thePtExtractor->pT_extract(last, last);
   // FIXME
   //  float smomentum = 0.25*momentum; // FIXME!!!!
   float smomentum = 25; 
 
-  seed = createSeed(momentum,smomentum,last);
-  // FIXME
+  seed = createSeed(momentum[0],momentum[1],last);
   return true;
 }
 
-
-float MuonCSCSeedFromRecHits::computeDefaultPt(ConstMuonRecHitPointer muon) const 
-{
-// assume dZ = dPhi*R*C, here C = pZ/pT
-// =======================================================================
-// ptc: I suspect the following comment should really be
-// dZ/dPsi = 0.5*dz/dPhi
-// which I can derive if I assume the particle has travelled in a circle
-// projected onto the global xy plane, starting at the origin on the z-axis.
-// Here Psi is the angle traced out in the xy plane by the projection of the
-// helical path of the charged particle. The axis of the helix is assumed 
-// parallel to the main B field of the solenoid.
-// =======================================================================
-// dZ/dPhi = 0.5*dZ/dPsi, here phi = atan2(y,x), psi = rho*s
-
-// ptc: If the local direction is effectively (0,0,1) or (0,0,-1)
-// then it's ridiculous to follow this algorithm... just set some
-// arbitrary 'high' value and note the sign is undetermined
-
-//@@ DO SOMETHING SANE WITH THESE TRAP VALUES
-  static float small = 1.e-06;
-  static float big = 1.e+10;
-
-  LocalVector lod = muon->localDirection();
-  if ( fabs(lod.x())<small && fabs(lod.y())<small ) {
-    return big;
-  }
-
-  GlobalPoint gp = muon->globalPosition();
-  GlobalVector gv = muon->globalDirection();
-
-  //double dphi = gp.phi() - gv.phi();
-  //std::cout << "SEGDPHI," << gp.eta() << "," << dphi << " " << std::endl;
-  float getx0 = gp.x();
-  float getay = gv.y()/gv.z();
-  float gety0 = gp.y();
-  float getax = gv.x()/gv.z();
-  float getz0 = gp.z();
-  
-  float dZdPhi = 0.5f*gp.perp2()/(getx0*getay - gety0*getax);
-  float dZdT = getz0/gp.perp();
-  float rho = dZdT/dZdPhi;
-  // convert to pT (watch the sign !)
-  GlobalVector fld = theField->inInverseGeV( gp );
-  return -fld.z()/rho;
-}
 
 
 void MuonCSCSeedFromRecHits::analyze() const 

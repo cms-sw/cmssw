@@ -8,16 +8,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
     )
 
-###process.source = cms.Source("NewEventStreamFileReader",
-###                            fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat',
-###                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.1.0000.dat',
-###                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.2.0000.dat',
-###                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.3.0000.dat')
-###                            )
+process.source = cms.Source("NewEventStreamFileReader",
+                            fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat',
+                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.1.0000.dat',
+                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.2.0000.dat',
+                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.3.0000.dat')
+                            )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RAW/v1/000/051/199/EA1F908F-AD4E-DD11-8235-000423D6A6F4.root')
-)
+### process.source = cms.Source("PoolSource",
+###     fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RAW/v1/000/051/199/EA1F908F-AD4E-DD11-8235-000423D6A6F4.root')
+### )
 
 # process.source = cms.Source("EventStreamHttpReader",
 #                             sourceURL = cms.string('http://cmsmon:50082/urn:xdaq-application:lid=29'),
@@ -77,7 +77,7 @@ process.dqmSaver.saveByRun = 1
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRUZET4_V5P::All' # or any other appropriate
+process.GlobalTag.globaltag = 'CRZT210_V1::All' # or any other appropriate
 process.prefer("GlobalTag")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -123,12 +123,12 @@ process.hcalMonitor.DataFormatMonitor   = True
 process.hcalMonitor.DigiMonitor         = True
 process.hcalMonitor.RecHitMonitor       = True
 process.hcalMonitor.TrigPrimMonitor     = True
-process.hcalMonitor.DeadCellMonitor     = True
-process.hcalMonitor.HotCellMonitor      = True
-process.hcalMonitor.BeamMonitor         = True
-process.hcalMonitor.LEDMonitor          = False
-process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.PedestalMonitor     = False
+process.hcalMonitor.DeadCellMonitor     = False
+process.hcalMonitor.HotCellMonitor      = False
+process.hcalMonitor.LEDMonitor          = False
+process.hcalMonitor.BeamMonitor         = False
+process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.MTCCMonitor         = False
 process.hcalMonitor.HcalAnalysis        = False
 
@@ -142,7 +142,7 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 process.hcalClient.plotPedRAW = True
 process.hcalClient.DoPerChanTests = False
 # suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = ''
+process.hcalClient.baseHtmlDir = '.'
 
 # Turn on/off individual hcalClient modules -------------
 # by default, set them equal to the hcalMonitor values.
@@ -151,7 +151,7 @@ process.hcalClient.baseHtmlDir = ''
 # just set the appropriate client value to False)
 
 process.hcalClient.SummaryClient        = True
-process.hcalClient.DataFormatClient     = process.hcalMonitor.DataFormatMonitor
+process.hcalClient.DataFormatClient     = process.hcalMonitor.DataMonitor
 process.hcalClient.DigiClient           = process.hcalMonitor.DigiMonitor
 process.hcalClient.RecHitClient         = process.hcalMonitor.RecHitMonitor
 process.hcalClient.TrigPrimClient       = process.hcalMonitor.TrigPrimMonitor

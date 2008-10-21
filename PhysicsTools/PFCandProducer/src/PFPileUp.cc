@@ -3,7 +3,6 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -24,9 +23,6 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   inputTagPFCandidates_ 
     = iConfig.getParameter<InputTag>("PFCandidates");
 
-  inputTagVertices_ 
-    = iConfig.getParameter<InputTag>("Vertices");
-
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
@@ -34,6 +30,10 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
 
   produces<reco::PileUpPFCandidateCollection>();
   
+
+//   LogDebug("PFPileUp")
+//     <<" input collection : "<<inputTagPFCandidates_ ;
+   
 }
 
 
@@ -60,111 +60,32 @@ void PFPileUp::produce(Event& iEvent,
 			 inputTagPFCandidates_, 
 			 iEvent );
 
+  // get PFCandidates for isolation
   
-  // get vertices 
-
-  Handle<VertexCollection> vertices;
-  pfpat::fetchCollection(vertices, 
-			 inputTagVertices_, 
-			 iEvent );
   
   auto_ptr< reco::PileUpPFCandidateCollection > 
     pOutput( new reco::PileUpPFCandidateCollection ); 
   
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
-    // const reco::PFCandidate& cand = (*pfCandidates)[i];
-    PFCandidatePtr candptr(pfCandidates, i);
-
-//     PFCandidateRef pfcandref(pfCandidates,i); 
-
-    VertexRef vertexref;
-
-    switch( candptr->particleId() ) {
-    case PFCandidate::h:
-      vertexref = chargedHadronVertex( vertices, *candptr );
-      break;
-    default:
-      continue;
-    } 
+    const reco::PFCandidate& cand = (*pfCandidates)[i];
+    PFCandidateRef candref(pfCandidates, i);
     
-    // no associated vertex, or primary vertex
-    // not pile-up
-    if( vertexref.isNull() || 
-	vertexref.key()==0 ) continue;
+    bool isPileUp = false;
+    // just to debug ! all particles with neg charge 
+    // are considered to be pile-up
+    if( cand.charge()!=0 )
+      isPileUp = true; 
 
-    pOutput->push_back( PileUpPFCandidate( candptr, vertexref ) );
-   
+    if( isPileUp ) {
+      pOutput->push_back( PileUpPFCandidate( candref ) );
+    }
+    
   }
   
   iEvent.put( pOutput );
   
+//   LogDebug("PFPileUp")<<"STOP event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
 }
-
-
-
-VertexRef 
-PFPileUp::chargedHadronVertex( const Handle<VertexCollection>& vertices, const PFCandidate& pfcand ) const {
-
-  
-  reco::TrackBaseRef trackBaseRef( pfcand.trackRef() );
-  
-  unsigned nFoundVertex = 0;
-  size_t  iVertex = 0;
-  unsigned index=0;
-  typedef reco::VertexCollection::const_iterator IV;
-  for(IV iv=vertices->begin(); iv!=vertices->end(); ++iv, ++index) {
-//     cout<<(*iv).x()<<" "
-// 	<<(*iv).y()<<" "
-// 	<<(*iv).z()<<endl;
-
-    const reco::Vertex& vtx = *iv;
-    
-    typedef reco::Vertex::trackRef_iterator IT;
-    
-    // loop on tracks in vertices
-    for(IT iTrack=vtx.tracks_begin(); 
-	iTrack!=vtx.tracks_end(); ++iTrack) {
-	 
-      const reco::TrackBaseRef& baseRef = *iTrack;
-
-      // one of the tracks in the vertex is the same as 
-      // the track considered in the function
-      if(baseRef == trackBaseRef ) {
-	iVertex = index;
-	nFoundVertex++;
-      }	 	
-    }
-  } 
-
-  if( nFoundVertex == 1) {
-    return VertexRef( vertices, iVertex);
-  }
-  else if(nFoundVertex>1) assert(false);
-
-  assert( !iVertex );
-
-  // no vertex found with this track. 
-  // as a secondary solution, associate the closest vertex in z
-
-  double dzmin = 10000;
-  double ztrack = pfcand.vertex().z();
-  bool foundVertex = false;
-  index = 0;
-  for(IV iv=vertices->begin(); iv!=vertices->end(); ++iv, ++index) {
-
-    double dz = fabs(ztrack - iv->z());
-    if(dz<dzmin) {
-      dzmin = dz; 
-      iVertex = index;
-      foundVertex = true;
-    }
-  }
-
-  if( foundVertex ) 
-    return VertexRef( vertices, iVertex);  
-  else 
-    return VertexRef();
-}
-
 

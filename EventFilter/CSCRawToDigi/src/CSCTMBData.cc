@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/07/29 20:47:04 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/06/24 15:51:50 $
+ *  $Revision: 1.20 $
  *  \author A. Tumanov - Rice
  */
 
@@ -17,27 +17,12 @@
 bool CSCTMBData::debug =false;
 
 CSCTMBData::CSCTMBData() 
-  : theOriginalBuffer(0), 
-    theTMBHeader(2007, 0x50c3),
-    theCLCTData(),
-    theTMBScopeIsPresent(false), 
-    theTMBScope(0),
-    theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
-    theRPCDataIsPresent(false)
-{
-
-
-}
+  : theOriginalBuffer(0), theTMBScopeIsPresent(false), theTMBScope(0),
+theRPCDataIsPresent(false) {}
 
 
 CSCTMBData::CSCTMBData(unsigned short *buf) 
-  : theOriginalBuffer(buf), 
-    theTMBHeader(2007, 0x50c3),
-    theCLCTData(),
-    theTMBScopeIsPresent(false), 
-    theTMBScope(0), 
-    theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
-    theRPCDataIsPresent(false){
+  : theOriginalBuffer(buf), theTMBScopeIsPresent(false), theTMBScope(0), theRPCDataIsPresent(false){
   size_ = UnpackTMB(buf);
 } 
 
@@ -197,6 +182,12 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   theB0CLine = b0cLine;
   theE0FLine = maxLine;
 
+  int CRClow  = buf[maxLine-2] & 0x7ff;
+  int CRChigh = buf[maxLine-1] & 0x7ff;
+
+  
+  CRCCnt = (CRChigh<<11) | (CRClow);
+  
   // finally, the trailer
   int e0cLine = findLine(buf, 0x6e0c, currentPosition, maxLine);
   if (e0cLine == -1)
@@ -289,31 +280,13 @@ boost::dynamic_bitset<> CSCTMBData::pack()
   boost::dynamic_bitset<> clctData =  bitset_utilities::ushortToBitset(theCLCTData.sizeInWords()*16,
 								       theCLCTData.data());
   result = bitset_utilities::append(result,clctData);
-  boost::dynamic_bitset<> newResult = result;
-//  theTMBTrailer.setCRC(TMBCRCcalc());
-
+  int finalSize = result.size()/16 + theTMBTrailer.sizeInWords(); //size() returns # of bits 
+                                                                
+  theTMBTrailer.setWordCount(finalSize);
   boost::dynamic_bitset<> tmbTrailer =  bitset_utilities::ushortToBitset( theTMBTrailer.sizeInWords()*16,
 									  theTMBTrailer.data());
   result = bitset_utilities::append(result,tmbTrailer);
-  
-  // now convert to a vector<bitset<16>>, so we can calculate the crc
-  std::vector<std::bitset<16> > wordVector;
-  // try to tune so it stops before the e0f line
-  for(unsigned pos = 0; pos < result.size()-16; pos += 16)
-  {
-    std::bitset<16> word;
-    for(int i = 0; i < 16; ++i)
-    {
-      word[i] = result[pos+i];
-    }
-    wordVector.push_back(word);
-  }
-  theTMBTrailer.setCRC(calCRC22(wordVector).to_ulong());
-  tmbTrailer =  bitset_utilities::ushortToBitset( theTMBTrailer.sizeInWords()*16,
-                                                  theTMBTrailer.data());
-  newResult = bitset_utilities::append(newResult, tmbTrailer);
-
-  return newResult;
+  return result;
 }
 
 

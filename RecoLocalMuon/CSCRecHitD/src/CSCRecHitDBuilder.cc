@@ -1,5 +1,7 @@
 // This is CSCRecHitDBuilder.cc
 
+// Copied from RecHitB. Possible changes
+
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecHitDBuilder.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromWireOnly.h>
@@ -27,26 +29,39 @@
 #include <iostream>
 
 
+/* Constructor
+ *
+ */
 CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
   
   // Receives ParameterSet percolated down from EDProducer	
+
 
   useCalib               = ps.getUntrackedParameter<bool>("CSCUseCalibrations");  
   stripWireDeltaT        = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
   
   hitsFromStripOnly_     = new CSCHitFromStripOnly( ps ); 
   hitsFromWireOnly_      = new CSCHitFromWireOnly( ps );  
+  //hitsFromWireSegments_  = new CSCWireSegments( ps );
+  //hitsFromStripSegments_ = new CSCStripSegments( ps );
   make2DHits_            = new CSCMake2DRecHit( ps );
 }
 
-
+/* Destructor
+ *
+ */
 CSCRecHitDBuilder::~CSCRecHitDBuilder() {
   delete hitsFromStripOnly_;
   delete hitsFromWireOnly_;
+  //delete hitsFromWireSegments_;
+  //delete hitsFromStripSegments_;
   delete make2DHits_;   
 }
 
 
+/* Member function build
+ *
+ */
 void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCWireDigiCollection* wiredc,
                                CSCRecHit2DCollection& oc ) {
 
@@ -66,7 +81,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     const CSCWireDigiCollection::Range rwired = wiredc->get( id );
     // Skip if no wire digis in this layer
     if ( rwired.second == rwired.first ) {
-	    continue; 
+	continue; 
     }
           
     std::vector<CSCWireHit> rhv = hitsFromWireOnly_->runWire( id, layer, rwired);
@@ -217,11 +232,13 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 }
 
 
+/* getLayer
+ *
+ */
 const CSCLayer* CSCRecHitDBuilder::getLayer( const CSCDetId& detId )  {
   if ( !geom_ ) throw cms::Exception("MissingGeometry") << "[CSCRecHitDBuilder::getLayer] Missing geometry" << std::endl;
   return geom_->layer(detId);
 }
-
 
 void CSCRecHitDBuilder::setConditions( const CSCRecoConditions* reco ) {
   hitsFromStripOnly_->setConditions( reco );

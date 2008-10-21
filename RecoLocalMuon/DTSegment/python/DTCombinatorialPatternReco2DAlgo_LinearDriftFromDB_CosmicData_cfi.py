@@ -19,7 +19,8 @@ DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
         # Parameters for the cleaner
         nSharedHitsMax = cms.int32(2),
         AlphaMaxTheta = cms.double(100.0),
-        debug = cms.untracked.bool(False)
+        debug = cms.untracked.bool(False),
+        nUnSharedHitsMin = cms.int32(2)
     ),
     Reco2DAlgoName = cms.string('DTCombinatorialPatternReco')
 )

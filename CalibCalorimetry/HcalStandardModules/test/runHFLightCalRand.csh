@@ -40,54 +40,27 @@ if (-f "${cfg}") then
 else echo "No old "$cfg
 endif
 
-set anroot = hf_LightCalRand$1.root
-set antxt  = hf_LightCalRand$1.txt
+set anroot = hf_LighCalRand$1.root
+set antxt  = hf_LighCalRand$1.txt
 
 cat > ${cfg} <<EOF
 process HFLIHGTCALRAND = {
 
-//include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
-
-include "CondCore/DBCommon/data/CondDBSetup.cfi"
-
-es_module hcal_db_producer = HcalDbProducer {
-         untracked vstring dump = {""}
-         untracked string file = ""
-}
-
-es_source es_pool = PoolDBESSource { 
-      using CondDBSetup
-      string connect = "frontier://FrontierProd/CMS_COND_21X_HCAL"
-      string timetype = "runnumber"    
-      untracked uint32 authenticationMethod = 0
-           VPSet toGet = {
-                    {string record = "HcalPedestalsRcd"
-                     string tag    = "hcal_pedestals_fC_v7.00_offline"
-                    },
-                    {string record = "HcalPedestalWidthsRcd"
-                     string tag =    "hcal_widths_fC_v7.00_offline" 
-                    },
-                    {string record = "HcalGainsRcd"
-                     string tag =    "hcal_gains_v2.07_offline"
-                     //string tag =    "hcal_gains_v2.03_cosMoff_HBflat_7.5kV_max8.5kV_HF1250"
-                     //string tag =    "hcal_gains_v2.03_cosMoff_HBflat_7.5kV_max8.5kV_HF1250"
-                     //string tag =    "hcal_gains_v2.03_cosMoff_HBflat_7.5kV_max8.5kV_HF1350"
-                    },
-                    {string record = "HcalQIEDataRcd"
-                     string tag =    "qie_normalmode_v6.01"
-                    },
-                    {string record = "HcalElectronicsMapRcd"
-                     string tag =    "official_emap_v5_080208"
-                    }
-                  }
-             }
-es_source es_hardcode = HcalHardcodeCalibrations {untracked vstring toGet = 
-	  {"GainWidths", "ChannelQuality", "ZSThresholds", "RespCorrs"}}
-
-        untracked PSet maxEvents = {untracked int32 input = -1}
+        untracked PSet maxEvents = {untracked int32 input = ${nevents}}
         source = HcalTBSource {
                 untracked vstring fileNames = {'file:${file}'}
-
+/*
+                untracked vstring streams = { 'HCAL_Trigger',
+                    'HCAL_DCC700','HCAL_DCC701','HCAL_DCC702','HCAL_DCC703',
+                    'HCAL_DCC704','HCAL_DCC705','HCAL_DCC706','HCAL_DCC707',
+                    'HCAL_DCC708','HCAL_DCC709','HCAL_DCC710','HCAL_DCC711',
+                    'HCAL_DCC712','HCAL_DCC713','HCAL_DCC714','HCAL_DCC715',
+                    'HCAL_DCC716','HCAL_DCC717','HCAL_DCC718','HCAL_DCC719',
+                    'HCAL_DCC720','HCAL_DCC721','HCAL_DCC722','HCAL_DCC723',
+                    'HCAL_DCC724','HCAL_DCC725','HCAL_DCC726','HCAL_DCC727',
+                    'HCAL_DCC728','HCAL_DCC729','HCAL_DCC730','HCAL_DCC731' 
+                }
+*/
                 untracked vstring streams = { 'HCAL_DCC718','HCAL_DCC719','HCAL_DCC720',
 		    'HCAL_DCC721','HCAL_DCC722','HCAL_DCC723' }
 	}
@@ -109,6 +82,15 @@ es_source es_hardcode = HcalHardcodeCalibrations {untracked vstring toGet =
 
         path p = { hcalDigis, LightCalRand}
 
+  es_module = HcalDbProducer {}
+  es_source es_hardcode = HcalHardcodeCalibrations { untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
+
+  es_source es_ascii = HcalTextCalibrations { VPSet input = {
+                                                {string object = "ElectronicsMap"
+                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_16x_v4.txt"
+                                                }                                            
+    }
+  }
 }		
 EOF
 
@@ -122,23 +104,10 @@ endif
 echo "eval scramv1 runtime -csh"
 eval `scramv1 runtime -csh`
 
-set log = "hf_LightCalRand$1.log"
+set log = "hf_LighCalRand$1.log"
 if (-f "${log}") rm $log
 
-set pyt = HFLightCalRand.py
-if (-f "${pyt}") then
-    rm ${pyt}
-endif
-
-python cfg2py.py ${cfg} > ${pyt}
-if (-f "${pyt}") then
-    echo "File created: "${pyt}
-else 
-    echo "File "${pyt}" was NOT created => EXIT"
-    exit
-endif
-
-cmsRun ${pyt} > $log
+cmsRun ${cfg} > $log
 
 echo "\nHFLightCalRand job is over\n"
 

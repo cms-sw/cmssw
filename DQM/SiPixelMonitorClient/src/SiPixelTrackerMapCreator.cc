@@ -21,7 +21,8 @@ using namespace std;
 // -- Constructor
 // 
 SiPixelTrackerMapCreator::SiPixelTrackerMapCreator(string themEName, 
-                                                   string theTKType) 
+                                                   string theTKType,
+						   bool   offlineXMLfile_) 
 {
   cout << ACYellow << ACBold 
        << "[SiPixelTrackerMapCreator::SiPixelTrackerMapCreator()]" 
@@ -35,7 +36,7 @@ SiPixelTrackerMapCreator::SiPixelTrackerMapCreator(string themEName,
   title << themEName ;
 	
   trackerMap      = new SiPixelTrackerMap(title.str());
-  if (infoExtractor_ == 0) infoExtractor_  = new SiPixelInformationExtractor("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  if (infoExtractor_ == 0) infoExtractor_  = new SiPixelInformationExtractor(offlineXMLfile_);
 }
 
 //==============================================================================

@@ -15,14 +15,6 @@ SMFUSenderList::SMFUSenderList()
   FDEBUG(10) << "SMFUSenderList: Making a SMFUSenderList" << endl;
 }
 
-void SMFUSenderList::clear()
-{
-  boost::mutex::scoped_lock sl(list_lock_);
-  senderlist_.clear();
-  numberOfRB_ = 0;
-  numberOfOM_ = 0;
-}
-
 unsigned int SMFUSenderList::size()
 {
   boost::mutex::scoped_lock sl(list_lock_);
@@ -330,20 +322,6 @@ char* SMFUSenderList::getRegistryData(const char* hltURL,
     return foundPos->getregistryData(outModName);
   } else {
      return NULL;
-  }
-}
-
-void SMFUSenderList::shrinkRegistryData(const char* hltURL,
-    const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 fuID)
-{  
-  boost::mutex::scoped_lock sl(list_lock_);
-  boost::shared_ptr<stor::SMFUSenderEntry> foundPos = findEntry(hltURL, hltClassName, hltLocalId,
-                                                                hltInstance, hltTid, fuID, outModName);
-  if(foundPos != NULL)
-  {
-    foundPos->shrinkRegistryData(outModName);
   }
 }
 

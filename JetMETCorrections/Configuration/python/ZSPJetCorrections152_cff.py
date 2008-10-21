@@ -12,7 +12,7 @@ ZSPJetCorrectorIcone5 = cms.ESSource("ZSPJetCorrectionService",
 #   
 #   Define the producers of corrected jet collections for each algorithm.
 #
-ZSPJetCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
+ZSPJetCorJetIcone5 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("iterativeCone5CaloJets"),
     correctors = cms.vstring('ZSPJetCorrectorIcone5'),
     alias = cms.untracked.string('ZSPJetCorJetIcone5')

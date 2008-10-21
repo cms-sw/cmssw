@@ -14,8 +14,7 @@ DisplayEventContent = cms.PSet(
         'keep recoPFCandidates_particleFlow_*_*', 
         'keep recoCandidatesOwned_*_*_*', 
         'keep recoPFSimParticles_*_*_*', 
-        'keep recoTracks_*_*_*',
-        'keep recoGsfTracks_*_*_*', 
+        'keep recoTracks_*_*_*', 
         'keep recoCaloJets_*_*_*', 
         'keep recoPFJets_*_*_*', 
         'keep recoGenParticles_*_*_*', 
@@ -23,14 +22,7 @@ DisplayEventContent = cms.PSet(
         'keep CaloTowersSorted_*_*_*', 
         'keep *_offlinePrimaryVertices_*_*', 
         'keep *_offlinePrimaryVerticesFromCTFTracks_*_*', 
-        'keep edmHepMCProduct_*_*_*',
-        'keep recoConversions_*_*_*',
-        'keep recoPFConversions_*_*_*',
-        'keep recoMuons_*_*_*',
-        'keep recoNuclearInteractions_*_*_*',       
-        'keep *_pfNuclear_*_*'                              
-                                           
-                                           )
+        'keep edmHepMCProduct_*_*_*')
 )
 
 

@@ -50,6 +50,11 @@ public:
   buildRecHit( const SiPixelClusterRef & cluster,
 	       const LocalTrajectoryParameters & ltp) const;
 
+  /** \brief Turn on/off the module for reconstruction (using info from DB, usually) */
+  void setActive(bool active) { active_ = active; if (!active) empty = true; }
+  /** \brief Is this module active in reconstruction? */
+  bool isActive() const { return active_; }
+
 private:
 
   const PixelGeomDetUnit*               thePixelGDU;
@@ -58,6 +63,7 @@ private:
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > handle_;
   unsigned int id_;
   bool empty;
+  bool active_;
 };
 
 #endif

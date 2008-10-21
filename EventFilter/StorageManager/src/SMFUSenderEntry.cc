@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.12 2008/09/23 19:07:44 biery Exp $
+ $Id: SMFUSenderEntry.cc,v 1.9 2008/09/03 00:03:59 hcheung Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -39,7 +39,7 @@ SMFUSenderEntry::SMFUSenderEntry(const char* hltURL,
   FrameRefCollection frameRefs(numFramesToAllocate, 0);
   frameRefs[frameCount] = ref;
   registryCollection_.frameRefsMap_.insert(std::make_pair(outModName, frameRefs));
-  RegData registryData(new std::vector<unsigned char>(20000));
+  RegData registryData(1000000);
   registryCollection_.registryDataMap_.insert(std::make_pair(outModName, registryData));
   registryCollection_.totFramesMap_.insert(std::make_pair(outModName, numFramesToAllocate));
   registryCollection_.currFramesMap_.insert(std::make_pair(outModName, 1));
@@ -251,46 +251,7 @@ bool SMFUSenderEntry::getDataStatus() //const
 char* SMFUSenderEntry::getregistryData(const std::string outModName)
 {
    // this could be dangerous
-   RegData tmpRegData = registryCollection_.registryDataMap_[outModName];
-   return (char*) &(*tmpRegData)[0];
-}
-
-/**
- * 23-Sep-2008, KAB
- * This method is a temporary hack.  It can *not* be called until after
- * all use of the registry data has been completed.
- */
-void SMFUSenderEntry::shrinkRegistryData(const std::string outModName)
-{
-  // fetch information about the existing registry
-  RegData tmpRegData = registryCollection_.registryDataMap_[outModName];
-  InitMsgView initView(&(*tmpRegData)[0]);
-  uint32 fullSize = initView.size();
-  uint32 dataSize = initView.descLength();
-  uint32 newSize = fullSize - dataSize;
-  uint8 *msgPtr;
-
-  // set the data size to zero
-  msgPtr = const_cast<uint8*>(initView.descData());
-  uint32 *dataSizePtr = (uint32*) (((uint32) msgPtr) - sizeof(uint32));
-  *dataSizePtr = 0;
-
-  // set the full message size to the new size
-  msgPtr = initView.startAddress();
-  uint32 *msgSizePtr = (uint32*) (((uint32) msgPtr) + sizeof(uint8));
-  *msgSizePtr = newSize;
-
-  // re-sizing (shrinking) the vector vector does not work
-  // --> probably its capacity can only grow.
-  //tmpRegData->resize(newSize);
-  //tmpRegData->reserve(newSize);
-
-  // copy the registry data to a smaller vector
-  RegData newRegData(new std::vector<unsigned char>(newSize+32));
-  std::copy(&(*tmpRegData)[0], &(*tmpRegData)[newSize], &(*newRegData)[0]);
-
-  // replace the old vector with the new one in the data map
-  registryCollection_.registryDataMap_[outModName] = newRegData;
+   return (char*) &(registryCollection_.registryDataMap_[outModName][0]);
 }
 
 bool SMFUSenderEntry::regIsCopied(const std::string outModName) //const
@@ -521,11 +482,10 @@ bool SMFUSenderEntry::copyRegistry(const std::string outModName, toolbox::mem::R
     }
     // tempbuffer is filled with whole chain data
     registryCollection_.registrySizeMap_[outModName] = origsize; // is zero on create
-
-    RegData tmpRegData = registryCollection_.registryDataMap_[outModName];
-    if(registryCollection_.registryDataMap_[outModName]->size() < origsize) 
-        registryCollection_.registryDataMap_[outModName]->resize(origsize);
-    copy(&tempbuffer[0], &tempbuffer[0]+origsize, &(*tmpRegData)[0]);
+    if(registryCollection_.registryDataMap_[outModName].capacity() < origsize) 
+        registryCollection_.registryDataMap_[outModName].resize(origsize);
+    copy(&tempbuffer[0], &tempbuffer[0]+origsize, 
+        &(registryCollection_.registryDataMap_[outModName][0]));
     // get the real output module name
     InitMsgView dummymsg(&tempbuffer[0]);
     std::string dmoduleLabel = dummymsg.outputModuleLabel();
@@ -540,11 +500,10 @@ bool SMFUSenderEntry::copyRegistry(const std::string outModName, toolbox::mem::R
     copy(msg->dataPtr(), &msg->dataPtr()[sz], &tempbuffer[0]);
     // tempbuffer is filled with all data
     registryCollection_.registrySizeMap_[outModName] = origsize; // is zero on create
-
-    RegData tmpRegData = registryCollection_.registryDataMap_[outModName];
-    if(registryCollection_.registryDataMap_[outModName]->size() < origsize) 
-        registryCollection_.registryDataMap_[outModName]->resize(origsize);
-    copy(&tempbuffer[0], &tempbuffer[0]+origsize, &(*tmpRegData)[0]);
+    if(registryCollection_.registryDataMap_[outModName].capacity() < origsize) 
+        registryCollection_.registryDataMap_[outModName].resize(origsize);
+    copy(&tempbuffer[0], &tempbuffer[0]+origsize, 
+        &(registryCollection_.registryDataMap_[outModName][0]));
     // get the real output module name
     InitMsgView dummymsg(&tempbuffer[0]);
     std::string dmoduleLabel = dummymsg.outputModuleLabel();
@@ -569,7 +528,7 @@ void SMFUSenderEntry::addReg2Entry( const unsigned int frameCount, const unsigne
   FrameRefCollection frameRefs(numFramesToAllocate, 0);
   frameRefs[frameCount] = ref;
   registryCollection_.frameRefsMap_.insert(std::make_pair(outModName, frameRefs));
-  RegData registryData(new std::vector<unsigned char>(20000));
+  RegData registryData(1000000);
   registryCollection_.registryDataMap_.insert(std::make_pair(outModName, registryData));
   registryCollection_.totFramesMap_.insert(std::make_pair(outModName, numFramesToAllocate));
   registryCollection_.currFramesMap_.insert(std::make_pair(outModName, 1));

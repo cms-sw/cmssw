@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:30:35 EDT 2007
-// $Id: ParameterSetDescription.cc,v 1.1 2007/09/17 21:04:38 chrjones Exp $
+// $Id: ParameterSetDescription.cc,v 1.2 2008/01/18 20:10:28 wmtan Exp $
 //
 
 // system include files
@@ -84,7 +84,7 @@ ParameterSetDescription::validate(const edm::ParameterSet& ) const
     return;
   }
   if( not anythingAllowed() ) {
-    throw cms::Exception("InvalidConfiguration");
+    throw edm::Exception(errors::Configuration);
   }
    */
 }

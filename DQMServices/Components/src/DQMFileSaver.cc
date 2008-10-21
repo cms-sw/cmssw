@@ -344,9 +344,10 @@ DQMFileSaver::endJob(void)
 
       pos = fileBaseName_.rfind('/');
       std::string stream = fileBaseName_.substr(pos+1, fileBaseName_.size()-pos-2);
-      dbe_->save(fileBaseName_ + release + ".root", "",
-		 "^(Reference/)?([^/]+)", "\\1" + stream + "/\\2",
-	         DQMStore::SaveWithReferenceForQTest);
+      dbe_->save(fileBaseName_ + release + ".root",
+		 "", "^(Reference/)?([^/]+)", "\\1" + stream + "/\\2",
+	         (DQMStore::SaveReferenceTag) saveReference_,
+		 saveReferenceQMin_);
     }
     else if (convention_ == Offline && forceRunNumber_ > 0)
       saveForOffline(workflow_, forceRunNumber_);

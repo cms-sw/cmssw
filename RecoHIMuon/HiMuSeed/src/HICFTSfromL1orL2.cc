@@ -77,30 +77,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromStandAlone(const Trac
   ftsL2.push_back(FTSfromStandAlone((*recmuon)));
   } // endfor
   return ftsL2;
-} // end createFTSfromStandAlone
-
-vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const TrackCollection& recmuons)
-{
-// ========================================================================================
-//
-//  Switch on L2 muon trigger.
-//
-
-  vector<FreeTrajectoryState> ftsL2;
-//  RecQuery q(localRecAlgo);
-
-  TrackCollection::const_iterator recmuon = recmuons.begin();
-
-  int nrec = recmuons.size();
-  cout << "Number of muons found by the StandAlone : "
-       << nrec << endl;
-  for(recmuon=recmuons.begin(); recmuon!=recmuons.end(); recmuon++)
-  {
-  ftsL2.push_back(FTSfromStandAlone((*recmuon)));
-  } // endfor
-  return ftsL2;
-} // end createFTSfromStandAlone
-
+} // end createFTSfromL2
 
 
 //-----------------------------------------------------------------------------

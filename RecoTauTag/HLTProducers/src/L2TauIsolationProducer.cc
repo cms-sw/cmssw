@@ -13,23 +13,25 @@ L2TauIsolationProducer::L2TauIsolationProducer(const edm::ParameterSet& iConfig)
         
   //ECAL Isolation
   edm::ParameterSet ECALIsolParams = iConfig.getParameter<edm::ParameterSet>("ECALIsolation") ;
+    
   ECALIsolation_innerCone_ =  ECALIsolParams.getParameter<double>( "innerCone" );
   ECALIsolation_outerCone_ =  ECALIsolParams.getParameter<double>( "outerCone" );
   ECALIsolation_run_    =  ECALIsolParams.getParameter<bool>( "runAlgorithm" );
+  
 
   //ECAL Clustering
   edm::ParameterSet ECALClusterParams = iConfig.getParameter<edm::ParameterSet>("ECALClustering") ;
-  ECALClustering_run_                 =  ECALClusterParams.getParameter<bool>( "runAlgorithm" );
-  ECALClustering_clusterRadius_       =  ECALClusterParams.getParameter<double>( "clusterRadius" );
-  ECALClustering_innerCone_           =   ECALClusterParams.getParameter<double>( "innerCone" );
-  ECALClustering_outerCone_           =  ECALClusterParams.getParameter<double>( "outerCone" );
-  ECALClustering_clusterThreshold_    =  ECALClusterParams.getParameter<double>( "clusterThreshold" );
+  ECALClustering_run_    =  ECALClusterParams.getParameter<bool>( "runAlgorithm" );
+  ECALClustering_clusterRadius_ =  ECALClusterParams.getParameter<double>( "clusterRadius" );
     
   //Tower Isolation
+
   edm::ParameterSet TowerIsolParams = iConfig.getParameter<edm::ParameterSet>("TowerIsolation") ;
+      
   TowerIsolation_innerCone_ =  TowerIsolParams.getParameter<double>( "innerCone" );
   TowerIsolation_outerCone_ =  TowerIsolParams.getParameter<double>( "outerCone" );
   TowerIsolation_run_ =  TowerIsolParams.getParameter<bool>( "runAlgorithm" );
+ 
 
   //Add the products
   produces<L2TauInfoAssociation>( "L2TauIsolationInfoAssociator" );
@@ -49,17 +51,27 @@ void
 L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+
    Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
 
 
-   if(iEvent.getByLabel(l2CaloJets_ ,l2CaloJets)) //If there is input / do the job
+
+   iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
+
+
+   //If the JetCrystalsAssociation exists -> RUN The Producer
+   if(&(*l2CaloJets))
      {
+
 
        //Create the Association
        std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
+     
+       CaloJetCollection::const_iterator jcStart = l2CaloJets->begin();
+
 
        //Loop on Jets
-       for(CaloJetCollection::const_iterator jc = l2CaloJets->begin() ;jc!=l2CaloJets->end();++jc)
+       for(CaloJetCollection::const_iterator jc = jcStart ;jc!=l2CaloJets->end();++jc)
 	 {
 
 	   L2TauIsolationInfo l2info; //Create Info Object
@@ -75,7 +87,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	   //Run ECALClustering 
 	   if(ECALClustering_run_)
 	     {
-	       L2TauECALClustering ecal_clustering(ECALClustering_clusterRadius_,ECALClustering_innerCone_,ECALClustering_outerCone_,ECALClustering_clusterThreshold_);
+	       L2TauECALClustering ecal_clustering(ECALClustering_clusterRadius_);
 	       ecal_clustering.run(getECALHits(*jc,iEvent,iSetup),*jc,l2info);
 	     }
 
@@ -87,15 +99,21 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	       tower_isolation.run(*jc,l2info);
 
 	     }
+	  
+
+      
 
 	   //Store the info Class
-	   edm::Ref<CaloJetCollection> jcRef(l2CaloJets,jc-l2CaloJets->begin());
+	   edm::Ref<CaloJetCollection> jcRef(l2CaloJets,jc-jcStart);
 	   l2InfoAssoc->insert(jcRef, l2info);
+
+
 	         
 	 }
 
 
-       //Store The class in the event
+       //Store The staff in the event
+
        iEvent.put(l2InfoAssoc, "L2TauIsolationInfoAssociator");
      
      } //end of if(*jetCrystalsObj)

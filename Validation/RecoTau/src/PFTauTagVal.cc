@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.10 2008/03/30 12:47:26 vasquez Exp $
+// $Id: PFTauTagVal.cc,v 1.9 2008/03/08 00:34:19 vasquez Exp $
 //
 //
 // user include files
@@ -36,9 +36,8 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
   outPutFile_ = iConfig.getParameter<string>("OutPutFile"); 
   dataType_ = iConfig.getParameter<string>("DataType");
   PFTauProducer_ = iConfig.getParameter<string>("PFTauProducer");
-  PFTauDiscriminatorAgainstElectronProducer_    = iConfig.getParameter<string>("PFTauDiscriminatorAgainstElectronProducer");
-  PFTauDiscriminatorAgainstMuonProducer_    = iConfig.getParameter<string>("PFTauDiscriminatorAgainstMuonProducer");
-
+  PFTauDiscriminatorByIsolationProducer_ = iConfig.getParameter<string>("PFTauDiscriminatorByIsolationProducer");
+  
   DQMStore* dbe = &*edm::Service<DQMStore>();
  
   if(dbe) {
@@ -126,26 +125,7 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
     N_1_GammasIsolAnnulus_             = dbe->book1D("N_1_GammasIsolAnnulus","N_1_GammasIsolAnnulus",21,-0.5,20.5);
     N_1_NeutralHadronsSignal_          = dbe->book1D("N_1_NeutralHadronsSignal","N_1_NeutralHadronsSignal",21,-0.5,20.5);	      
     N_1_NeutralHadronsIsolAnnulus_     = dbe->book1D("N_1_NeutralHadronsIsolAnnulus","N_1_NeutralHadronsIsolAnnulus",21,-0.5,20.5);
- 
-    // Discrimination against electrons
-
-    dbe->setCurrentFolder("RecoTauV/Electron_Rejection_"+ExtensionName_.label());
-
-    nElectronRejection_ptTauJet_ =     dbe->book1D("n_Electron_Rejection_vs_ptTauJet","n_Electron_Rejection_vs_ptTauJet",  75, 0., 150.);
-    nElectronRejection_etaTauJet_ =    dbe->book1D("n_Electron_Rejection_vs_etaTauJet","n_Electron_Rejection_vs_etaTauJet", 60, -3.0, 3.0 ); 
-    nElectronRejection_phiTauJet_ =    dbe->book1D("n_Electron_Rejection_vs_phiTauJet", "n_Electron_Rejection_vs_phiTauJet", 36, -180., 180);
-    nElectronRejection_energyTauJet_ = dbe->book1D("n_Electron_Rejection_vs_energyTauJet", "n_Electron_Rejection_vs_energyTauJet",  45, 0., 450.0); 
-   
-    // Discrimination against muons
-
-    dbe->setCurrentFolder("RecoTauV/Muon_Rejection_"+ExtensionName_.label());
-
-    nMuonRejection_ptTauJet_ =     dbe->book1D("n_Muon_Rejection_vs_ptTauJet","n_Muon_Rejection_vs_ptTauJet",  75, 0., 150.);
-    nMuonRejection_etaTauJet_ =    dbe->book1D("n_Muon_Rejection_vs_etaTauJet","n_Muon_Rejection_vs_etaTauJet", 60, -3.0, 3.0 ); 
-    nMuonRejection_phiTauJet_ =    dbe->book1D("n_Muon_Rejection_vs_phiTauJet", "n_Muon_Rejection_vs_phiTauJet", 36, -180., 180);
-    nMuonRejection_energyTauJet_ = dbe->book1D("n_Muon_Rejection_vs_energyTauJet", "n_Muon_Rejection_vs_energyTauJet",  45, 0., 450.0); 
-   
-
+    
     tversion = edm::getReleaseVersion();
     cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;
  
@@ -219,12 +199,6 @@ void PFTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ------------------------------ PFTauCollection---------------------------------------------------------
   Handle<PFTauCollection> thePFTauHandle;
   iEvent.getByLabel(PFTauProducer_,thePFTauHandle);
-
-  Handle<PFTauDiscriminator> thePFTauDiscriminatorAgainstElectron;
-  iEvent.getByLabel(PFTauDiscriminatorAgainstElectronProducer_,thePFTauDiscriminatorAgainstElectron);
-  
-  Handle<PFTauDiscriminator> thePFTauDiscriminatorAgainstMuon;
-  iEvent.getByLabel(PFTauDiscriminatorAgainstMuonProducer_,thePFTauDiscriminatorAgainstMuon);
   
   cout<<"***"<<endl;
   cout<<"Found "<<thePFTauHandle->size()<<" had. tau-jet candidates"<<endl;
@@ -327,26 +301,6 @@ void PFTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      nChargedHadronsSignalCone_isolated_->Fill((*thePFTau).signalPFChargedHadrCands().size());
 	      nGammasSignalCone_isolated_->Fill((*thePFTau).signalPFGammaCands().size());	      
 	      nNeutralHadronsSignalCone_isolated_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
-	    }
-
-	    
-	    cerr<< "Is it here?"<< endl;
-	    float discriminator2 = (*thePFTauDiscriminatorAgainstElectron)[thePFTau];
-	    
-	    if (discriminator2 > 0.1) {
-	      nElectronRejection_ptTauJet_->Fill(MCjet->Perp());     
-	      nElectronRejection_etaTauJet_ ->Fill(MCjet->Eta());    
-	      nElectronRejection_phiTauJet_->Fill(MCjet->Phi()*180.0/TMath::Pi());     
-	      nElectronRejection_energyTauJet_->Fill(MCjet->E());
-	      
-	      cerr<< "Is it here2?"<< endl;
-	      bool discriminator = (*thePFTauDiscriminatorAgainstMuon)[thePFTau];	      
-	      if (discriminator) {
-		nMuonRejection_ptTauJet_->Fill(MCjet->Perp());     
-		nMuonRejection_etaTauJet_ ->Fill(MCjet->Eta());    
-		nMuonRejection_phiTauJet_->Fill(MCjet->Phi()*180.0/TMath::Pi());     
-		nMuonRejection_energyTauJet_->Fill(MCjet->E());
-	      }
 	    }
 	  }
 	}

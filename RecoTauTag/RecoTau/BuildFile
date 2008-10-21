@@ -20,8 +20,6 @@
 <use name=RecoJets/JetAlgorithms>
 <use name=RecoTauTag/TauTagTools>
 <use name=RecoMuon/MuonIdentification>
-<use name=PhysicsTools/RecoUtils>
-<use name=RecoVertex/KalmanVertexFit>
 <flags EDM_PLUGIN=1>
 <export>
   <use name=SimDataFormats/Vertex>
@@ -31,8 +29,6 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=RecoTauTag/TauTagTools>
-  <use name=PhysicsTools/RecoUtils>
-  <use name=RecoVertex/KalmanVertexFit>
   <lib name=RecoTauTagRecoTau>
 </export>
 

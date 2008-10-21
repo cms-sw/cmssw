@@ -122,6 +122,7 @@ combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
     SetMomentum = cms.bool(True),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
     requireBOFF = cms.bool(False),
+    maxSeeds = cms.int32(10000),
 )
 
 

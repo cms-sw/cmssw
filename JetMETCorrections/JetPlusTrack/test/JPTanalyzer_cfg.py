@@ -30,7 +30,7 @@ process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
 # process.load("JetMETCorrections.Configuration.MCJetCorrections152_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 )
 # test QCD file from 210 RelVal is on /castor/cern.ch/user/a/anikiten/jpt210qcdfile/
 process.source = cms.Source("PoolSource",
@@ -44,7 +44,6 @@ process.myanalysis = cms.EDFilter("JPTAnalyzer",
     zspjets = cms.string('ZSPJetCorJetIcone5'),
     genjets = cms.string('iterativeCone5GenJets'),
     JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorIcone5')
-#    genjets  = cms.string('iterativeCone5GenJetsNoNuBSM')
 )
 
 iterativeCone5JetTracksAssociatorAtVertex.jets = 'ZSPJetCorJetIcone5'

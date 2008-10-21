@@ -85,11 +85,6 @@ public:
 	std::map<int,long> cntCHAMB_Trailers;
 
 private:
-        void clear();
-        void zeroCounts();
-        /// checks DAV_ALCT, DAV_TMB, and DAV_CFEB
-        void checkDAVs();
-        void checkTriggerHeadersAndTrailers();
 	long DDU_WordsSinceLastHeader;
 	long DDU_WordCount;
 	long DDU_WordMismatch_Occurrences;
@@ -104,7 +99,6 @@ private:
 	long TMB_WordsExpected;
 	long TMB_Tbins;
 	long TMB_WordsExpectedCorrection;
-	unsigned TMB_Firmware_Revision;
 
 	long CFEB_SampleWordCount;
 	long CFEB_SampleCount;

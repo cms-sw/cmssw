@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.6 2008/09/10 12:09:28 oehler Exp $
+ * $Id: BaseJetProducer.h,v 1.3 2008/03/11 21:34:34 fedor Exp $
  *
  ************************************************************/
 
@@ -15,7 +15,6 @@
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace cms
 {
@@ -35,7 +34,6 @@ namespace cms
     // abstract method to be set up in actual implementations
     /** run algorithm itself */
     virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput) = 0;
-    reco::Particle::Point vertex;
 
   private:
     edm::InputTag mSrc;
@@ -44,9 +42,6 @@ namespace cms
     double mEtInputCut;
     double mEInputCut;
     double mJetPtMin;
-    bool mVertexCorrectedInput;
-    //should be: 0 (none), 1 (correct constituents), 2 (correct final jets), 3 (use built-in method of CaloTowers)
-    edm::InputTag mPVCollection;
   };
 }
 

@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2007/08/06 16:42:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/03 00:43:16 $
+ *  $Revision: 1.5 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
@@ -63,8 +63,9 @@ public:
 int testDaqSource::runIt(const std::string& config){
   edm::AssertHandler ah;
   std::vector<std::string> services;
-  services.reserve(1);
+  services.reserve(2);
   services.push_back(std::string("JobReportService"));
+  services.push_back(std::string("InitRootHandlers"));
   int rc=0;
   try {
     edm::EventProcessor proc(config, services);

@@ -12,11 +12,17 @@
 #include "DDLElementRegistry.h"
 
 // other DD parts
+#include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
 
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <map>
+#include <string>
 
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/core.hpp"

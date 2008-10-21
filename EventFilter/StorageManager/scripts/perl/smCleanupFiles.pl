@@ -1,13 +1,13 @@
 #!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.6 2008/09/17 23:51:52 loizides Exp $
+# $Id: smCleanupFiles.pl,v 1.4 2008/08/11 18:07:38 loizides Exp $
 
 use strict;
 use DBI;
 use Getopt::Long;
 use File::Basename;
 
-my ($help, $debug, $nothing, $force, $execute, $maxfiles);
-my ($hostname, $filename, $dataset, $stream, $config);
+my ($help, $debug, $nothing, $force, $execute, $maxfiles, $maxfile);
+my ($hostname, $filename, $dataset, $stream, $status);
 my ($runnumber, $uptorun, $safety, $rmexitcode, $chmodexitcode, );
 my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constraint_hostname, $constraint_dataset);
 
@@ -57,13 +57,12 @@ $dataset    = '';
 $uptorun    = 0;
 $runnumber  = 0;
 $safety     = 100;
+$status     = 'closed';
 $hostname   = '';
 $rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
 $force      = 0;
-$config     = "/nfshome0/smpro/configuration/db.conf";
-#$config     = "$ENV{HOME}/db.conf";
 
 $hostname   = `hostname -s`;
 chomp($hostname);
@@ -73,28 +72,22 @@ GetOptions(
            "debug"         => \$debug,
            "nothing"       => \$nothing,
            "force"         => \$force,
-           "config=s"      => \$config,
            "hostname=s"    => \$hostname,
-           "run=i"         => \$runnumber,
-           "runnumber=i"   => \$runnumber,
+           "run=s"         => \$runnumber,
+           "runnumber=s"   => \$runnumber,
 	   "uptorun=s"	   => \$uptorun,
 	   "filename=s"	   => \$filename,
 	   "dataset=s"	   => \$dataset,
+	   "safety=s"	   => \$safety,
            "stream=s"      => \$stream,
-           "maxfiles=i"    => \$maxfiles
+           "status=s"      => \$status,
+           "maxfiles=s"    => \$maxfiles,
+           "maxfile=s"     => \$maxfiles,
 	  );
 
 $help && usage;
 if ($nothing) { $execute = 0; $debug = 1; }
 
-my $reader = "xxx";
-my $phrase = "xxx";
-if(-e $config) {
-    eval `cat $config`;
-} else {
-    print "Error: Can not read $config file, exiting!\n";
-    usage();
-}
 
 # Look for files in FILES_TRANS_CHECKED - implies closed and safety >= 100 in the old scheme. 
 # Alternate queries for different values of these? even needed?
@@ -103,8 +96,7 @@ if(-e $config) {
 my $basesql = "select PATHNAME, CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME, HOSTNAME from CMS_STOMGR.FILES_TRANS_CHECKED inner join " .
                "CMS_STOMGR.FILES_CREATED on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME inner join " .
                "CMS_STOMGR.FILES_INJECTED on CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
-               "where not exists (select * from CMS_STOMGR.FILES_DELETED " . 
-                                  "where CMS_STOMGR.FILES_DELETED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME)";
+               "where not exists (select * from CMS_STOMGR.FILES_DELETED where CMS_STOMGR.FILES_DELETED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME)";
 
 # Sorting by time
 my $endsql = " order by ITIME";
@@ -129,7 +121,8 @@ $myquery = "$basesql $constraint_runnumber $constraint_uptorun $constraint_filen
 $debug && print "******BASE QUERY: \n   $myquery, \n";
 
 my $dbi    = "DBI:Oracle:cms_rcms";
-my $dbh    = DBI->connect($dbi,$reader,$phrase)
+my $reader = "CMS_STOMGR_W";
+my $dbh    = DBI->connect($dbi,$reader,"qwerty")
     or die "Can't make DB connection: $DBI::errstr \n";
 
 my $insertDel = $dbh->prepare("insert into CMS_STOMGR.FILES_DELETED (FILENAME,DTIME) VALUES (?,TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))");

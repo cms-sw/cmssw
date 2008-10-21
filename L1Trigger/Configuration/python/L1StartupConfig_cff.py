@@ -27,6 +27,7 @@ l1CaloScales.L1CaloRegionEtScaleLSB = cms.double(0.25)
 L1GctConfigProducers.JetFinderCentralJetSeed = cms.uint32(0)
 L1GctConfigProducers.JetFinderForwardJetSeed = cms.uint32(0)
 L1GctConfigProducers.L1CaloJetZeroSuppressionThresholdInGeV = cms.double(0.0)
+L1GctConfigProducers.L1CaloHtScaleLsbInGeV = cms.double(0.25)
 
 # GCT jet corrections
 L1GctConfigProducers.CalibrationStyle = cms.string('PowerSeries')
@@ -66,3 +67,7 @@ l1CaloScales.L1CaloJetThresholds = cms.vdouble(
     100.0, 102.0, 104.0, 106.0, 108.0,
     110.0, 112.0, 114.0, 116.0, 118.0,
     120.0, 122.0, 124.0, 126.0)
+
+# GCT HF ring sum scale
+L1GctConfigProducers.HfLutThresholds = cms.vuint32(8, 12, 16, 24, 200, 800, 2000) 
+

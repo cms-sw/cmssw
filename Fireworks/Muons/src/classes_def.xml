@@ -1,5 +1,0 @@
-<lcgdict>
-  <class name="MuonsProxy3DBuilder"/>
-  <class name="MuonsProxyRhoPhiZ2DBuilder"/>
-  <class name="DTSegmentsProxyRhoPhiZ2DBuilder"/>
-</lcgdict>

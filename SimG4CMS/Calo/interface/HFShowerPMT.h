@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
 class DDCompactView;    
 class G4Step;
@@ -32,7 +31,6 @@ private:
 
 private:    
 
-  HFCherenkov*          cherenkov;
   double                pePerGeV;        // PE per GeV of energy deposit
   int                   indexR, indexF;
   std::vector<double>   rTable;          // R-table

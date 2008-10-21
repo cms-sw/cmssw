@@ -7,6 +7,8 @@ from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.Configuration.RecoTrackerBHM_cff import *
+from RecoTracker.DeDx.dedxEstimators_Cosmics_cff import *
+
 #
 # calorimeters
 #
@@ -43,5 +45,7 @@ metrecoCosmics = cms.Sequence(metreco)
 egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
 
 
-reconstructionCosmics = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)
+reconstructionCosmics = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics*doAlldEdXEstimators)
+
+reconstructionCosmics_woDeDx = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)
 reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)

@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.9 2008/06/27 20:21:27 wdd Exp $
+// $Id: TestMergeResults.cc,v 1.11 2008/09/29 23:26:44 wmtan Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -207,8 +207,11 @@ namespace edmtest
 
     if (expectedDroppedEvent_.size() > 0) {
       edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
-      e.getByLabel(tag, h_thing);
-      assert(h_thing->a == expectedDroppedEvent_[0]);
+      e.getByLabel(tag, h_thingWithIsEqual);
+      assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);
+
+      e.getByLabel(tag, h_thingWithMerge);
+      assert(h_thingWithMerge.isValid());
     }
 
     // I'm not sure this test belongs in this module.  Originally it tested
@@ -224,7 +227,7 @@ namespace edmtest
       edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
       e.getByLabel(tag, h_thing);
       std::string expectedParent = expectedParents_[parentIndex_];
-      BranchID actualParentBranchID = h_thing.provenance()->entryDescription().parents_[0];
+      BranchID actualParentBranchID = h_thing.provenance()->entryDescription().parents()[0];
 
       // There ought to be a get that uses the BranchID as an argument, but
       // there is not at the moment so we get the Provenance first and use that
@@ -252,6 +255,15 @@ namespace edmtest
 
     edm::InputTag tagnew("thingWithMergeProducer", "beginRun");
     checkExpectedRunProducts(index4_, expectedBeginRunNew_, tagnew, "beginRun", run);
+
+    if (expectedDroppedEvent_.size() > 1) {
+      edm::InputTag tagd("makeThingToBeDropped", "beginRun", "PROD");
+      run.getByLabel(tagd, h_thingWithIsEqual);
+      assert(h_thingWithIsEqual->a == expectedDroppedEvent_[1]);
+
+      run.getByLabel(tagd, h_thingWithMerge);
+      assert(!h_thingWithMerge.isValid());
+    }
   }
 
   void TestMergeResults::endRun(Run const& run, EventSetup const&) {
@@ -268,6 +280,15 @@ namespace edmtest
 
     edm::InputTag tagnew("thingWithMergeProducer", "endRun");
     checkExpectedRunProducts(index5_, expectedEndRunNew_, tagnew, "endRun", run);
+
+    if (expectedDroppedEvent_.size() > 2) {
+      edm::InputTag tagd("makeThingToBeDropped", "endRun", "PROD");
+      run.getByLabel(tagd, h_thingWithIsEqual);
+      assert(h_thingWithIsEqual->a == expectedDroppedEvent_[2]);
+
+      run.getByLabel(tagd, h_thingWithMerge);
+      assert(!h_thingWithMerge.isValid());
+    }
   }
 
   void TestMergeResults::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
@@ -284,6 +305,15 @@ namespace edmtest
 
     edm::InputTag tagnew("thingWithMergeProducer", "beginLumi");
     checkExpectedLumiProducts(index6_, expectedBeginLumiNew_, tagnew, "beginLumi", lumi);
+
+    if (expectedDroppedEvent_.size() > 3) {
+      edm::InputTag tagd("makeThingToBeDropped", "beginLumi", "PROD");
+      lumi.getByLabel(tagd, h_thingWithIsEqual);
+      assert(h_thingWithIsEqual->a == expectedDroppedEvent_[3]);
+
+      lumi.getByLabel(tagd, h_thingWithMerge);
+      assert(!h_thingWithMerge.isValid());
+    }
   }
 
   void TestMergeResults::endLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
@@ -300,6 +330,15 @@ namespace edmtest
 
     edm::InputTag tagnew("thingWithMergeProducer", "endLumi");
     checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tagnew, "endLumi", lumi);
+
+    if (expectedDroppedEvent_.size() > 4) {
+      edm::InputTag tagd("makeThingToBeDropped", "endLumi", "PROD");
+      lumi.getByLabel(tagd, h_thingWithIsEqual);
+      assert(h_thingWithIsEqual->a == expectedDroppedEvent_[4]);
+
+      lumi.getByLabel(tagd, h_thingWithMerge);
+      assert(!h_thingWithMerge.isValid());
+    }
   }
 
   void TestMergeResults::respondToOpenInputFile(FileBlock const& fb) {

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.7 2008/04/26 03:35:20 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.6 2008/04/26 03:09:31 pivarski Exp $
 //
 
 // system include files
@@ -25,8 +25,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h> 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -56,7 +55,7 @@ class AlignmentMonitorBase {
       void startingNewLoop();
 
       /// Called for each event: don't reimplement
-      void duringLoop(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks);
+      void duringLoop(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks);
 
       /// Called at end of loop: don't reimplement
       void endOfLoop(const edm::EventSetup &iSetup);
@@ -70,7 +69,7 @@ class AlignmentMonitorBase {
       virtual void book() = 0;
 
       /// Called for each event (by "run()"): may be reimplemented
-      virtual void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) { };
+      virtual void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) { };
 
       /// Called after updating AlignableTracker and AlignableMuon (by
       /// "endOfLoop()"): may be reimplemented

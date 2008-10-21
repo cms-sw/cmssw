@@ -22,9 +22,6 @@
 class TrackAssociatorByHits : public TrackAssociatorBase {
   
  public:
-
-  enum SimToRecoDenomType {denomnone,denomsim,denomreco};
-
   explicit TrackAssociatorByHits( const edm::ParameterSet& );  
   ~TrackAssociatorByHits();
   
@@ -77,7 +74,7 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   // ----- member data
   const edm::ParameterSet& conf_;
   const bool AbsoluteNumberOfHits;
-  SimToRecoDenomType SimToRecoDenominator;
+  const std::string SimToRecoDenominator;
   const double quality_SimToReco;
   const double purity_SimToReco;
   const double cut_RecoToSim;
