@@ -45,8 +45,6 @@ RPCEfficiencySecond::~RPCEfficiencySecond(){}
 
 
 void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
-  
-  std::cout<<"Begining RPC EFFICIENCY SECOND"<<std::endl;
 
   dbe = edm::Service<DQMStore>().operator->();
 
@@ -272,8 +270,6 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  if(debug)
-    std::cout<<"Begin End Run"<<std::endl;
 
   if(debug)
     std::cout <<"\t Getting the RPC Geometry"<<std::endl;

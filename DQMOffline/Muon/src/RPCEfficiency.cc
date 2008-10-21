@@ -67,8 +67,6 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
   //Interface
 
-  if(debug) std::cout<<"Begin Constructor"<<std::endl;
-  
   dbe = edm::Service<DQMStore>().operator->();
   
   std::string folder = "Muons/MuonSegEff/";
@@ -222,8 +220,6 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
 void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
-  if(debug) std::cout<<"Begin Begin RUN"<<std::endl;
-
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
@@ -365,12 +361,10 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 
 RPCEfficiency::~RPCEfficiency()
 {
-  if(debug) std::cout<<"Begin Destructor "<<std::endl;
 }
 
 void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if(debug) std::cout<<"BEGIN ANALYZER "<<std::endl;
   statistics->Fill(1);
   using namespace edm;
   
@@ -1266,12 +1260,10 @@ void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
   if (EffSaveRootFile){
     dbe->save(EffRootFileName);
   }
-  std::cout<<"RPCEFFICIENCY DONE"<<std::endl;
 }
 
 
 void RPCEfficiency::endJob()
 {
-  if(debug) std::cout<<"Begin End Job"<<std::endl;
   dbe =0;
 }
