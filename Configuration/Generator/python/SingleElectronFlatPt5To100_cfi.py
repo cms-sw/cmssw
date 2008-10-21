@@ -13,7 +13,7 @@ source = cms.Source("FlatRandomPtGunSource",
     ),
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
 
-    psethack = cms.string('single electron pt 35'),
+    psethack = cms.string('single electron pt 5 to 100'),
     AddAntiParticle = cms.untracked.bool(True),
     firstRun = cms.untracked.uint32(1)
 )
