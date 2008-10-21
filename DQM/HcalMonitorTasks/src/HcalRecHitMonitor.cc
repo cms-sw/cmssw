@@ -77,15 +77,12 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  cout << "RecHit eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
   
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  cout << "RecHit phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
   
   occThresh_ = ps.getUntrackedParameter<double>("RecHitOccThresh", 1.0);
-  cout << "RecHit occupancy threshold set to " << occThresh_ << endl;
   
   ievt_=0;
   

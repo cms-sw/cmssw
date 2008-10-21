@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/19 09:38:12 $
- * $Revision: 1.82 $
+ * $Date: 2008/10/21 11:42:53 $
+ * $Revision: 1.83 $
  * \author W Fisher
  *
 */
@@ -156,7 +156,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   if(debug_) cout << "===>HcalMonitor update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
 
   prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
-  cout << "===>HcalMonitor time prescale = " << prescaleTime_ << " minute(s)"<< endl;
+  if(debug_) cout << "===>HcalMonitor time prescale = " << prescaleTime_ << " minute(s)"<< endl;
   
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
