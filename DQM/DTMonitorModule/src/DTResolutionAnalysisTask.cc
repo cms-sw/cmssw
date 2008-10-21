@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 14:15:43 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/07/25 15:14:18 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -35,8 +35,6 @@ using namespace std;
 DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  if(debug)
-    cout << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
@@ -49,8 +47,6 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
 
 
 DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
-  if(debug)
-    cout << "[DTResolutionAnalysisTask] Destructor called!" << endl;
 }
 
 
@@ -80,8 +76,6 @@ void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& setup){
 
 void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 						    const EventSetup& context) {
-  if(debug)
-    cout<<"[DTResolutionTask]: Begin of LS transition"<<endl;
   
   if(resetCycle != -1 && lumiSeg.id().luminosityBlock() % resetCycle == 0) {
     for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
@@ -97,9 +91,6 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
 
 
 void DTResolutionAnalysisTask::endJob(){
- if(debug)
-    cout<<"[DTResolutionAnalysisTask] endjob called!"<<endl;
-
 }
   
 

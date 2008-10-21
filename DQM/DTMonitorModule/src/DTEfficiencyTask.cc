@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:54 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/06 13:26:47 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -43,8 +43,6 @@ using namespace std;
 DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  if(debug)
-    cout << "[DTEfficiencyTask] Constructor called!" << endl;
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
@@ -55,8 +53,6 @@ DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
 
 
 DTEfficiencyTask::~DTEfficiencyTask(){
-  if(debug)
-    cout << "[DTEfficiencyTask] Destructor called!" << endl;
 }  
 
 
@@ -70,8 +66,6 @@ void DTEfficiencyTask::beginJob(const edm::EventSetup& context){
 
 void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  if(debug)
-    cout<<"[DTEfficiencyTask]: Begin of LS transition"<<endl;
   
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
     for(map<DTLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerL.begin();
@@ -88,9 +82,6 @@ void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 
 
 void DTEfficiencyTask::endJob(){
- if(debug)
-    cout<<"[DTEfficiencyTask] endjob called!"<<endl;
-
   theDbe->rmdir("DT/DTEfficiencyTask");
 }
   

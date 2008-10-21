@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/02 13:45:56 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/07 13:59:06 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,8 +42,6 @@ using namespace std;
 DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  if(debug)
-    cout << "[DTCalibValidation] Constructor called!" << endl;
 
   // Get the DQM needed services
 
@@ -61,8 +59,6 @@ DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
 
 
 DTCalibValidation::~DTCalibValidation(){
-  if(debug)
-    cout << "[DTCalibValidation] Destructor called!" << endl;
 }
 
 
@@ -110,8 +106,6 @@ void DTCalibValidation::beginRun(const Run& run, const EventSetup& setup) {
 
 
 void DTCalibValidation::endJob(){
- if(debug)
-    cout<<"[DTCalibValidation] endjob called!"<<endl;
 
  cout<<"Segments used to compute residuals: "<<rightSegment<<endl;
  cout<<"Segments not used to compute residuals: "<<wrongSegment<<endl;
