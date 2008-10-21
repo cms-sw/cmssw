@@ -240,7 +240,7 @@ $ZWIDGETS{'pathmillescript_button'} = $MW->Button(
    -anchor  => 'center',
    -justify => 'center',
    -text    => 'Browse',
-   -command => sub{$pathmillescript_variable = &open_file},
+   -command => sub{$pathmillescript_variable = &new_open_file($pathmillescript_variable,"Choose Mille script")},
   )->grid(
    -row    => $row_offset+1,
    -column => 1,
@@ -250,7 +250,7 @@ $ZWIDGETS{'pathmillescript_button'} = $MW->Button(
 # Widget pathcfg_button isa Button
 $ZWIDGETS{'pathcfg_button'} = $MW->Button(
    -text => 'Browse',
-   -command => sub{$pathcfg_variable = &open_file},
+   -command => sub{$pathcfg_variable = &new_open_file($pathcfg_variable,"Choose cfg/py file")},
   )->grid(
    -row    => $row_offset+3,
    -column => 1,
@@ -260,7 +260,7 @@ $ZWIDGETS{'pathcfg_button'} = $MW->Button(
 # Widget pathdata_button isa Button
 $ZWIDGETS{'pathdata_button'} = $MW->Button(
    -text => 'Browse',
-   -command => sub{$pathdata_variable = &open_file},
+   -command => sub{$pathdata_variable = &new_open_file($pathdata_variable,"Choose data file")},
   )->grid(
    -row    => $row_offset+5,
    -column => 1,
@@ -270,7 +270,7 @@ $ZWIDGETS{'pathdata_button'} = $MW->Button(
 # Widget pathpedescript_button isa Button
 $ZWIDGETS{'pathpedescript_button'} = $MW->Button(
    -text => 'Browse',
-   -command => sub{$pathpedescript_variable = &open_file},   
+   -command => sub{$pathpedescript_variable = &new_open_file($pathpedescript_variable,"Choose Pede script")},   
   )->grid(
    -row    => $row_offset+7,
    -column => 1,
@@ -643,6 +643,21 @@ sub ZloadFonts {
 sub open_file {
   my $open = $MW->getOpenFile(-filetypes => $types,
                               -defaultextension => '*');
+  return $open;
+}
+
+sub new_open_file ($$) {
+  my $infile = shift; # Original input file name
+  my $title  = shift; # Title of the browse window
+
+  my $open = $MW->getOpenFile(-filetypes => $types,
+#                              -initialfile => $infile,
+                              -title => $title,
+                              -defaultextension => '*');
+  if (!defined($open)) {
+    $open = $infile;
+  }
+
   return $open;
 }
 
