@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 10:56:50 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/08/28 09:56:39 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -39,8 +39,6 @@ using namespace edm;
 
 
 MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
-
-  cout<<"[MuonAnalyzer] Constructor called!"<<endl;
 
   parameters = pSet;
 

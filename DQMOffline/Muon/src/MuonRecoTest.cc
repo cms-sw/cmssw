@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/16 13:02:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/26 10:57:05 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,6 @@ using namespace std;
 
 MuonRecoTest::MuonRecoTest(const edm::ParameterSet& ps){
 
-  cout << "[MuonRecoTest]: Constructor called!"<<endl;
   parameters = ps;
 
   theDbe = edm::Service<DQMStore>().operator->();

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/06 08:54:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/16 13:55:56 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -36,8 +36,6 @@ using namespace std;
 DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  if(debug)
-    cout << "[DTSegmentsTask] Constructor called!" << endl;
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
@@ -49,8 +47,6 @@ DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
 
 
 DTSegmentsTask::~DTSegmentsTask(){
-  if(debug)
-    cout << "[DTSegmentsTask] Destructor called!" << endl;
 }
 
 
@@ -121,9 +117,6 @@ void DTSegmentsTask::beginJob(const edm::EventSetup& context){
 
 
 void DTSegmentsTask::endJob(){
- if(debug)
-    cout<<"[DTSegmentsTask] endjob called!"<<endl;
-
   bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
@@ -135,14 +128,11 @@ void DTSegmentsTask::endJob(){
   
 void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
-  if(debug)
-    cout << "[DTSegmentsTask] Analyze #Run: " << event.id().run()
-	 << " #Event: " << event.id().event() << endl;
-  if(!(event.id().event()%1000) && debug)
-    {
-      cout << "[DTSegmentsTask] Analyze #Run: " << event.id().run()
-	   << " #Event: " << event.id().event() << endl;
-    }
+//  if(!(event.id().event()%1000) && debug)
+//    {
+//      cout << "[DTSegmentsTask] Analyze #Run: " << event.id().run()
+//	   << " #Event: " << event.id().event() << endl;
+//    }
 
 
   // Get the map of noisy channels

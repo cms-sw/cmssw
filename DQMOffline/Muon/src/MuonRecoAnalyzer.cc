@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:46:19 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/09/03 13:11:19 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -26,10 +26,7 @@ using namespace edm;
 
 
 MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
-
- cout<<"[MuonRecoAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
-
 }
 
 

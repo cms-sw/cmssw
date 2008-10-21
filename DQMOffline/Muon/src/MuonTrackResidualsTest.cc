@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/16 13:20:43 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/08/26 10:57:16 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -34,8 +34,6 @@ using namespace std;
 
 
 MuonTrackResidualsTest::MuonTrackResidualsTest(const edm::ParameterSet& ps){
-
-  cout << "[MuonTrackResidualsTest]: Constructor called!"<<endl;
   parameters = ps;
 
   theDbe = edm::Service<DQMStore>().operator->();

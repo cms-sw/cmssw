@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/23 13:47:44 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/06/30 19:53:01 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -31,7 +31,6 @@ using namespace edm;
 
 SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
 
-  cout<<"[SegmentTrackAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
 
   const ParameterSet SegmentsTrackAssociatorParameters = parameters.getParameter<ParameterSet>("SegmentsTrackAssociatorParameters");

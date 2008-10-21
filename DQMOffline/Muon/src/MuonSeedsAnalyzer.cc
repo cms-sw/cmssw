@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.9 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -34,10 +34,7 @@ using namespace edm;
 
 
 MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
-
-  cout<<"[MuonSeedsAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
- 
 }
 
 
