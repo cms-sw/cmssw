@@ -34,8 +34,8 @@ allLayer1Electrons.isoDeposits       = cms.PSet(                             ## 
    #ecal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
     hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers")
     )
-allLayer1Electrons.userData.userFunctions      = ['pt() / (pt() + trackIso() + caloIso())']
-allLayer1Electrons.userData.userFunctionLabels = ['relIso']
+#allLayer1Electrons.userData.userFunctions      = ['pt() / (pt() + trackIso() + caloIso())']
+#allLayer1Electrons.userData.userFunctionLabels = ['relIso']
 
 #---------------------------------------
 # Muon
@@ -83,8 +83,8 @@ allLayer1Muons.isoDeposits           = cms.PSet(                             ## 
       cms.InputTag("layer0MuonIsolations", "muIsoDepositJets")
       )
     )
-allLayer1Muons.userData.userFunctions      = cms.vstring('pt() / (pt() + trackIso() + caloIso())')
-allLayer1Muons.userData.userFunctionLabels = cms.vstring('relIso')
+#allLayer1Muons.userData.userFunctions      = cms.vstring('pt() / (pt() + trackIso() + caloIso())')
+#allLayer1Muons.userData.userFunctionLabels = cms.vstring('relIso')
 
 #---------------------------------------
 # Tau

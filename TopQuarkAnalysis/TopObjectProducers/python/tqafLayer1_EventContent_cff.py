@@ -13,9 +13,17 @@ def tqafLayer1EventContent(process):
     #
     process.load("PhysicsTools.PatAlgos.patLayer1_EventContent_cff")
     process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent.outputCommands)
+
+    #
+    # tqaf layer1 event content (on top of pat layer0 & 1 / aod specific) 
+    #
+    process.patLayer1EventContent_aod = cms.PSet(
+        outputCommands = cms.untracked.vstring('keep *_genEventPdfInfo_*_*')
+    )
+    process.tqafEventContent.outputCommands.extend(process.patLayer1EventContent_aod.outputCommands)
     
     #
-    # tqaf layer1 event content (on top of pat layer0 & 1)
+    # tqaf layer1 event content (on top of pat layer0 & 1 / top specific)
     #
     process.patLayer1EventContent_tqaf = cms.PSet(
         outputCommands = cms.untracked.vstring('keep *_selectedLayer1CaloTaus_*_*',
