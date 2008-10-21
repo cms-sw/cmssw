@@ -164,10 +164,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
-//  initQCriterion<MostProbableLandau>(qalgos_);
-//  initQCriterion<ContentsTH2FWithinRange>(qalgos_);
-//  initQCriterion<ContentsProfWithinRange>(qalgos_);
-//  initQCriterion<ContentsProf2DWithinRange>(qalgos_);
 }
 
 DQMStore::~DQMStore(void)
@@ -326,10 +322,6 @@ DQMStore::book(const std::string &dir, const std::string &name,
     }
     else
     {    
-//      delete h;
-//      throw cms::Exception("DQMStore")
-//	<< context << ": monitor element '"
-//	<< path << "' already exists";
       if (verbose_)
         std::cout << "DQMStore: "
                   << context << ": monitor element '"
@@ -351,10 +343,6 @@ DQMStore::book(const std::string &dir, const std::string &name,
 	       std::string &path, const char *context)
 {
   // Check if the request monitor element already exists.
-//  if (findObject(dir, name, path))
-//    throw cms::Exception("DQMStore")
-//      << context << ": monitor element '"
-//      << path << "' already exists";
   if (MonitorElement *me = findObject(dir, name, path)) {
       if (verbose_)
         std::cout << "DQMStore: "
