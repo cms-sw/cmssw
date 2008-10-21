@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 03:57:41 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/10/21 10:42:27 $
+ *  $Revision: 1.15 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -25,7 +25,7 @@
 using namespace std;
 using namespace edm;
 
-#define DEBUG 1
+#define DEBUG 0
 
 JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
@@ -67,6 +67,9 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // --- do the analysis on the MET
   if(theCaloMETAnalyzerFlag)
     theCaloMETAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
+
+  LoJetTrigger = parameters.getParameter<std::string>("JetLo");
+  HiJetTrigger = parameters.getParameter<std::string>("JetHi");
 
 }
 
@@ -127,10 +130,15 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       //                << " Accept = " << triggerResults.accept(i)
       //                << std::endl;
       
-      if ( triggerNames.triggerName(i) == "HLT_L1Jet15" ) {
+
+      if ( triggerNames.triggerName(i) == LoJetTrigger ) {
 	JetLoPass =  triggerResults->accept(i);
+	if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
       }
-      if ( triggerNames.triggerName(i) == "HLT_Jet80" ) {
+      //      if ( triggerNames.triggerName(i) == "HLT_L1Jet15" ) {
+      //	JetLoPass =  triggerResults->accept(i);
+      //      }
+      if ( triggerNames.triggerName(i) == HiJetTrigger ) {
 	JetHiPass =  triggerResults->accept(i);
       }
     }

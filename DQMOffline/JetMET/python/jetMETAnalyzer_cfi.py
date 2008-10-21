@@ -21,6 +21,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     ),
     OutputFileName = cms.string('jetMETMonitoring.root'),
     jetAnalysis = cms.PSet(
+        ptThreshold = cms.double(3.),
         eBin    = cms.int32(100),
         phiMin  = cms.double(-3.2),
         ptBin   = cms.int32(100),
@@ -47,7 +48,11 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     CaloMETCollectionLabel     = cms.InputTag("met"),
     CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
     ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
-    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT")
+    TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
+    JetLo                      = cms.string("HLT_Jet30"),
+    JetHi                      = cms.string("HLT_Jet110")
+
+
 )
 
 

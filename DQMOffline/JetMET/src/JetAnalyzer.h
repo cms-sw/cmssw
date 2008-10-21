@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/10/14 02:15:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/21 10:10:57 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -91,10 +91,11 @@ class JetAnalyzer : public JetAnalyzerBase {
   // Calo Jet Label
   edm::InputTag theCaloJetCollectionLabel;
 
-  int _JetLoPass;
-  int _JetHiPass;
-  int _leadJetFlag;
-  int _NJets;
+  int   _JetLoPass;
+  int   _JetHiPass;
+  int   _leadJetFlag;
+  int   _NJets;
+  double _ptThreshold;
 
   //histo binning parameters
   int    etaBin;
@@ -132,16 +133,71 @@ class JetAnalyzer : public JetAnalyzerBase {
   //  MonitorElement* ptCaloJet;
 
   // Generic Jet Parameters
-  MonitorElement* mEta;
-  MonitorElement* mPhi;
-  MonitorElement* mE;
-  MonitorElement* mP;
+
+  // --- Used for Data Certification
   MonitorElement* mPt;
   MonitorElement* mPt_1;
   MonitorElement* mPt_2;
   MonitorElement* mPt_3;
-  MonitorElement* mMass;
+  MonitorElement* mEta;
+  MonitorElement* mPhi;
   MonitorElement* mConstituents;
+  MonitorElement* mHFrac;
+  MonitorElement* mEFrac;
+
+  MonitorElement* mPt_Barrel;
+  MonitorElement* mEta_Barrel;
+  MonitorElement* mPhi_Barrel;
+
+  MonitorElement* mPt_EndCap;
+  MonitorElement* mEta_EndCap;
+  MonitorElement* mPhi_EndCap;
+
+  MonitorElement* mPt_Forward;
+  MonitorElement* mEta_Forward;
+  MonitorElement* mPhi_Forward;
+
+  MonitorElement* mPt_Barrel_Lo;
+  MonitorElement* mEta_Barrel_Lo;
+  MonitorElement* mPhi_Barrel_Lo;
+  MonitorElement* mConstituents_Barrel_Lo;
+  MonitorElement* mHFrac_Barrel_Lo;
+  MonitorElement* mPt_EndCap_Lo;
+  MonitorElement* mEta_EndCap_Lo;
+  MonitorElement* mPhi_EndCap_Lo;
+  MonitorElement* mConstituents_EndCap_Lo;
+  MonitorElement* mHFrac_EndCap_Lo;
+  MonitorElement* mPt_Forward_Lo;
+  MonitorElement* mEta_Forward_Lo;
+  MonitorElement* mPhi_Forward_Lo;
+  MonitorElement* mConstituents_Forward_Lo;
+  MonitorElement* mHFrac_Forward_Lo;
+
+  MonitorElement* mPt_Barrel_Hi;
+  MonitorElement* mEta_Barrel_Hi;
+  MonitorElement* mPhi_Barrel_Hi;
+  MonitorElement* mConstituents_Barrel_Hi;
+  MonitorElement* mHFrac_Barrel_Hi;
+  MonitorElement* mPt_EndCap_Hi;
+  MonitorElement* mEta_EndCap_Hi;
+  MonitorElement* mPhi_EndCap_Hi;
+  MonitorElement* mConstituents_EndCap_Hi;
+  MonitorElement* mHFrac_EndCap_Hi;
+  MonitorElement* mPt_Forward_Hi;
+  MonitorElement* mEta_Forward_Hi;
+  MonitorElement* mPhi_Forward_Hi;
+  MonitorElement* mConstituents_Forward_Hi;
+  MonitorElement* mHFrac_Forward_Hi;
+  // ---
+
+
+  MonitorElement* mE_Barrel;
+  MonitorElement* mE_EndCap;
+  MonitorElement* mE_Forward;
+
+  MonitorElement* mE;
+  MonitorElement* mP;
+  MonitorElement* mMass;
   MonitorElement* mNJets;
 
   // Leading Jet Parameters
@@ -150,15 +206,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mEFirst;
   MonitorElement* mPtFirst;
 
-  MonitorElement* mPt_Barrel;
-  MonitorElement* mPhi_Barrel;
-  MonitorElement* mE_Barrel;
-  MonitorElement* mPt_EndCap;
-  MonitorElement* mPhi_EndCap;
-  MonitorElement* mE_EndCap;
-  MonitorElement* mPt_Forward;
-  MonitorElement* mPhi_Forward;
-  MonitorElement* mE_Forward;
 
   // CaloJet specific
   MonitorElement* mMaxEInEmTowers;
@@ -170,8 +217,8 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mEmEnergyInEB;
   MonitorElement* mEmEnergyInEE;
   MonitorElement* mEmEnergyInHF;
-  MonitorElement* mEnergyFractionHadronic;
-  MonitorElement* mEnergyFractionEm;
+  //  MonitorElement* mEnergyFractionHadronic;
+  //  MonitorElement* mEnergyFractionEm;
   MonitorElement* mN90;
 
 
@@ -183,8 +230,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mEta_Hi;
   MonitorElement* mPhi_Hi;
   MonitorElement* mPt_Hi;
-
-
 
 };
 #endif
