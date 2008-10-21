@@ -1137,7 +1137,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = book1D(dir, h->GetName(), h);
+      me = book1D(dir, h->GetName(), (TH1F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1147,7 +1147,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = book1S(dir, h->GetName(), h);
+      me = book1S(dir, h->GetName(), (TH1S *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1157,7 +1157,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = book2D(dir, h->GetName(), h);
+      me = book2D(dir, h->GetName(), (TH2F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1167,7 +1167,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = book2S(dir, h->GetName(), h);
+      me = book2S(dir, h->GetName(), (TH2S *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1177,7 +1177,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = book3D(dir, h->GetName(), h);
+      me = book3D(dir, h->GetName(), (TH3F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1187,7 +1187,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = bookProfile(dir, h->GetName(), h);
+      me = bookProfile(dir, h->GetName(), (TProfile *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1197,7 +1197,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   {
     MonitorElement *me = findObject(dir, h->GetName(), path);
     if (! me)
-      me = bookProfile2D(dir, h->GetName(), h);
+      me = bookProfile2D(dir, h->GetName(), (TProfile2D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
     else if (isCollateME(me) || collateHistograms_)
@@ -1266,36 +1266,38 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
     }
     else if (kind == "qr")
     {
-      size_t dot = label.find('.');
-      if (dot == std::string::npos)
+      // Handle qreports, but skip them while reading in references.
+      if (! isSubdirectory(s_referenceDirName, dir))
       {
-	std::cout << "*** DQMStore: WARNING: quality report label in '" << label
-		  << "' is missing a '.' and cannot be extracted\n";
-	return false;
-      }
+        size_t dot = label.find('.');
+        if (dot == std::string::npos)
+        {
+	  std::cout << "*** DQMStore: WARNING: quality report label in '" << label
+		    << "' is missing a '.' and cannot be extracted\n";
+	  return false;
+        }
 
-      std::string path;
-      std::string mename (label, 0, dot);
-      std::string qrname (label, dot+1, std::string::npos);
+        std::string path;
+        std::string mename (label, 0, dot);
+        std::string qrname (label, dot+1, std::string::npos);
 
-      m.reset();
-      if (! s_rxmeqr.match(value, 0, 0, &m))
-      {
-	std::cout << "*** DQMStore: WARNING: quality test value '"
-		  << value << "' is incorrectly formatted\n";
-	return false;
-      }
+        m.reset();
+        if (! s_rxmeqr.match(value, 0, 0, &m))
+        {
+	  std::cout << "*** DQMStore: WARNING: quality test value '"
+		    << value << "' is incorrectly formatted\n";
+	  return false;
+        }
 
-      MonitorElement *me = findObject(dir, mename, path);
-      if (! me)
-      {
-	std::cout << "*** DQMStore: WARNING: no monitor element '"
-		  << mename << "' for quality test '"
-		  << label << "' \n";
-	return false;
-      }
+        MonitorElement *me = findObject(dir, mename, path);
+        if (! me)
+        {
+	  std::cout << "*** DQMStore: WARNING: no monitor element '"
+		    << mename << "' for quality test '"
+		    << label << "' \n";
+	  return false;
+        }
 
-      if ( dir.find(s_referenceDirName + "/") != 0 ) {
         DQMNet::QValue qv;
         qv.qtname = qrname;
         qv.code = atoi(m.matchString(value, 1).c_str());
@@ -1424,8 +1426,11 @@ DQMStore::save(const std::string &filename,
   std::string refpath;
   refpath.reserve(s_referenceDirName.size() + path.size() + 2);
   refpath += s_referenceDirName;
-  refpath += '/';
-  refpath += path;
+  if (! path.empty())
+  {
+    refpath += '/';
+    refpath += path;
+  }
 
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
@@ -1591,7 +1596,6 @@ DQMStore::readDirectory(TFile *file,
       dirpart = prepend;
     else
       dirpart = prepend + '/' + dirpart;
-
   }
   else if (! prepend.empty())
   {
@@ -1606,8 +1610,8 @@ DQMStore::readDirectory(TFile *file,
   TIter next (gDirectory->GetListOfKeys());
   while ((key = (TKey *) next()))
   {
-    TObject *obj = key->ReadObj();
-    if (dynamic_cast<TDirectory *>(obj))
+    std::auto_ptr<TObject> obj(key->ReadObj());
+    if (dynamic_cast<TDirectory *>(obj.get()))
     {
       std::string subdir;
       subdir.reserve(curdir.size() + strlen(obj->GetName()) + 2);
@@ -1629,7 +1633,7 @@ DQMStore::readDirectory(TFile *file,
 		  << "' into '" << dirpart << "'\n";
 
       makeDirectory(dirpart);
-      if (extract(obj, dirpart, overwrite))
+      if (extract(obj.get(), dirpart, overwrite))
 	++count;
     }
   }
@@ -1655,14 +1659,13 @@ DQMStore::open(const std::string &filename,
   if (verbose_)
     std::cout << "DQMStore::open: reading from file '" << filename << "'\n";
 
-  TFile *f = TFile::Open(filename.c_str());
-  if (!f || f->IsZombie())
+  std::auto_ptr<TFile> f(TFile::Open(filename.c_str()));
+  if (! f.get() || f->IsZombie())
     throw cms::Exception("DQMStore")
       << "Failed to open file '" << filename << "'";
 
-  unsigned n = readDirectory(f, overwrite, onlypath, prepend, "");
+  unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "");
   f->Close();
-  delete f;
 
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
