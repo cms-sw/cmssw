@@ -36,7 +36,7 @@ public:
   }
 
   // wipe the workspace before each event
-  void preEventProcessing(const edm::EventID&, const edm::Timestamp&) { wiper{};}
+  void preEventProcessing(const edm::EventID&, const edm::Timestamp&) { wiper();}
 
   // nope event-principal deleted in source
   void preSource() {
