@@ -734,32 +734,6 @@ DQMStore::tagAllContents(const std::string &path, unsigned int myTag)
   }
 }
 
-#if 0
-/// opposite action of tag method (myTag > 0)
-void
-DQMStore::untag(MonitorElement *me, unsigned int myTag)
-{
-}
-
-/// opposite action of tag method
-void
-DQMStore::untag(const std::string &path, unsigned int myTag)
-{
-}
-
-/// opposite action of tagContents method
-void
-DQMStore::untagContents(const std::string &path, unsigned int myTag)
-{
-}
-
-/// opposite action of tagAllContents method
-void
-DQMStore::untagAllContents(const std::string &path, unsigned int myTag)
-{
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -1024,14 +998,6 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
   }
 }
 
-#if 0
-/// get vector with all children of folder in <rDir>
-/// (does NOT include contents of subfolders)
-void
-DQMStore::getContents(const std::string &pathname, std::vector<MonitorElement *> &into) const
-{}
-#endif
-
 /// get vector with children of folder, including all subfolders + their children;
 /// must use an exact pathname
 std::vector<MonitorElement*>
@@ -1076,19 +1042,6 @@ DQMStore::getMatchingContents(const std::string &pattern) const
 
   return result;
 }
-
-#if 0
-/// same as above for tagged MonitorElements
-std::vector<MonitorElement*>
-DQMStore::getAllContents(const std::string &pathname, unsigned int tag) const
-{}
-
-/// get vector with all children of folder and all subfolders of <rDir>;
-/// pathname may include wildcards (*, ?) ==> SLOW!
-void
-DQMStore::getAllContents (const std::string &pathname, std::vector<MonitorElement*> &into) const
-{}
-#endif
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -1783,15 +1736,6 @@ DQMStore::removeElement(const std::string &name)
   removeElement(pwd_, name);
 }
 
-#if 0
-/// remove Monitor Element <name> from <pathname> in <Dir>
-void
-DQMStore::remove(const std::string &pathname, const std::string &name)
-{
-  removeElement(pathname, name, false);
-}
-#endif
-
 /// remove monitoring element from directory; 
 /// if warning = true, print message if element does not exist
 void
@@ -1908,21 +1852,6 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
       mi->second.addQReport(qts.second);
 }
 
-#if 0
-/// attach quality test <qc> to all ME matching <search_string>;
-/// if tag != 0, this applies to tagged contents
-/// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
-/// (b) include wildcards (e.g. A/?/C/histo, A/B/\*/histo or A/B/\*): SLOW
-void
-DQMStore::useQTest(unsigned int tag, const std::string &search_string, QCriterion *qc) const
-{}
-
-/// get QReport from ME (null pointer if no such QReport)
-QReport *
-DQMStore::getQReport(MonitorElement *me, const std::string &qtname)
-{}
-#endif
-
 /// run quality tests (also finds updated contents in last monitoring cycle,
 /// including newly added content) 
 void
@@ -1976,18 +1905,6 @@ DQMStore::getStatus(const std::string &path /* = "" */) const
   }
   return status;
 }
-
-#if 0
-/// same as above for tag;
-int
-DQMStore::getStatus(unsigned int tag) const
-{}
-
-/// same as above for vector with MonitorElements
-int
-DQMStore::getStatus(const std::vector<MonitorElement *> &group) const
-{}
-#endif
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -2086,161 +2003,3 @@ DQMStore::isReferenceME(MonitorElement *me) const
 bool
 DQMStore::isCollateME(MonitorElement *me) const
 { return me && isSubdirectory(s_collateDirName, me->path_); }
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-#if 0
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-// get vector with children of folder, including all subfolders + their children;
-// exact pathname: FAST
-// pathname including wildcards (*, ?): SLOW!
-vector<MonitorElement*>
-DQMStore::getAllContents(string pathname) const
-{
-  vector<MonitorElement *> ret;
-  getAllContents(pathname, Own, ret);
-  return ret;
-}
-
-// same as above for tagged MonitorElements
-vector<MonitorElement*>
-DQMStore::getAllContents(string pathname,  unsigned int tag) const
-{
-  vector<MonitorElement *> ret;
-  ctdir_it tg = Tags.find(tag);
-  if(tg == Tags.end()) return ret;
-  getAllContents(pathname, tg->second, ret);
-  return ret;
-}
-
-// get vector with all children of folder and all subfolders of <rDir>;
-// pathname may include wildcards (*, ?) ==> SLOW!
-void
-DQMStore::getAllContents(string & pathname, const rootDir & rDir, vector<MonitorElement*> & put_here) const
-{
-  // simple case: no wildcards ==> single directory
-  if(!hasWildCards(pathname))
-  {
-    chopLastSlash(pathname);
-    MonitorElementRootFolder * dir = getDirectory(pathname, rDir);
-    if(dir)
-      dir->getAllContents(put_here);
-  }
-  else
-    // case of search-string with wildcards
-    scanContents(pathname, rDir, put_here);
-}
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// get all contents;
-// return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>;
-// if showContents = false, change form to <dir pathname>:
-// (useful for subscription requests; meant to imply "all contents")
-void
-DQMStore::getContents(std::vector<string> & put_here, bool showContents) const
-{
-  get(put_here, false, showContents);
-}
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// get "global" folder <inpath> status (one of: STATUS_OK, WARNING, ERROR, OTHER);
-// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
-// see Core/interface/QTestStatus.h for details on "OTHER"
-int
-DQMStore::getStatus(std::string inpath) const
-{
-  if(isTopFolder(inpath))
-    return getRootFolder(Own)->getStatus();
-
-  MonitorElementRootFolder * folder = getDirectory(inpath, Own);
-  if(!folder)
-  {
-    cerr << " *** Cannot determine status for unknown directory = "
-	 << inpath << endl;
-    return -1;
-  }
-
-  return folder->getStatus();
-}
-
-// same as above for tag;
-int
-DQMStore::getStatus(unsigned int tag) const
-{
-  MonitorElementRootFolder * folder = 0;
-  tdir_it tg;
-  if(tagHelper->getTag(tag, tg, false)) // do not create
-    folder = getDirectory(ROOT_PATHNAME, tg->second);
-
-  if(!folder)
-  {
-    cerr << " *** Cannot determine status for unknown tag = "
-	 << tag << endl;
-    return -1;
-  }
-  return folder->getStatus();
-}
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// get QReport from ME (null pointer if no such QReport)
-QReport *
-DQMStore::getQReport(MonitorElement * me, string qtname)
-{
-  QReport * ret = 0;
-  if(me)
-  {
-    qr_it it = me->qreports_.find(qtname);
-    if(it != me->qreports_.end())
-      ret = it->second;
-  }
-
-  return ret;
-}
-
-// get "global" status (one of: STATUS_OK, WARNING, ERROR, OTHER) for group of MEs;
-// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
-// see Core/interface/QTestStatus.h for details on "OTHER"
-int
-DQMStore::getStatus(const vector<MonitorElement *> & ME_group) const
-{
-  if(hasError(ME_group))
-    return dqm::qstatus::ERROR;
-  else if(hasWarning(ME_group))
-    return dqm::qstatus::WARNING;
-  else if(hasOtherReport(ME_group))
-    return dqm::qstatus::OTHER;
-  else
-    return dqm::qstatus::STATUS_OK;
-}
-#endif
