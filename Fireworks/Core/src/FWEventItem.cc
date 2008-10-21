@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.25 2008/09/24 14:50:55 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.26 2008/09/26 07:08:58 dmytro Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWItemAccessorBase.h"
 
 //
 // constants, enums and typedefs
@@ -36,61 +37,16 @@
 //
 // constructors and destructor
 //
-FWEventItem::FWEventItem(FWModelChangeManager* iCM,
-                         FWSelectionManager* iSM,
+FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
-                         const std::string& iName,
-			 const TClass* iClass,
-                         const std::string& iPurpose,
-			 const FWDisplayProperties& iProperties,
-			 const std::string& iModuleLabel,
-			 const std::string& iProductInstanceLabel,
-			 const std::string& iProcessName,
-                         unsigned int iLayer) :
-  m_changeManager(iCM),
-  m_selectionManager(iSM),
-  m_id(iId),
-  m_name(iName),
-  m_type(iClass),
-  m_purpose(iPurpose),
-  m_colProxy(iClass->GetCollectionProxy()?iClass->GetCollectionProxy()->Generate():
-                                          static_cast<TVirtualCollectionProxy*>(0)),
-  m_data(0),
-  m_collectionOffset(0),
-  m_displayProperties(iProperties),
-  m_layer(iLayer),
-  m_moduleLabel(iModuleLabel),
-  m_productInstanceLabel(iProductInstanceLabel),
-  m_processName(iProcessName),
-  m_event(0),
-  m_filter("",""),
-  m_printedNoDataError(false)
-{
-  assert(m_type->GetTypeInfo());
-  ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
-  assert(dataType != ROOT::Reflex::Type() );
-
-  std::string wrapperName = std::string("edm::Wrapper<")+dataType.Name(ROOT::Reflex::SCOPED)+" >";
-  std::cout <<wrapperName<<std::endl;
-  m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
-
-  assert(m_wrapperType != ROOT::Reflex::Type());
-}
-
-FWEventItem::FWEventItem(FWModelChangeManager* iCM,
-                         FWSelectionManager* iSM,
-                         unsigned int iId,
+                         boost::shared_ptr<FWItemAccessorBase> iAccessor,
                          const FWPhysicsObjectDesc& iDesc) :
-m_changeManager(iCM),
-m_selectionManager(iSM),
+m_context(iContext),
 m_id(iId),
 m_name(iDesc.name()),
 m_type(iDesc.type()),
 m_purpose(iDesc.purpose()),
-m_colProxy(m_type->GetCollectionProxy()?m_type->GetCollectionProxy()->Generate():
-                                        static_cast<TVirtualCollectionProxy*>(0)),
-m_data(0),
-m_collectionOffset(0),
+m_accessor(iAccessor),
 m_displayProperties(iDesc.displayProperties()),
 m_layer(iDesc.layer()),
 m_moduleLabel(iDesc.moduleLabel()),
@@ -109,24 +65,12 @@ m_printedNoDataError(false)
    m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
    
    assert(m_wrapperType != ROOT::Reflex::Type());
-   if(0==m_colProxy) {
-      //is this an object which has only one member item and that item is a container?
-      if(dataType.DataMemberSize()==1) {
-         ROOT::Reflex::Type memType( dataType.DataMemberAt(0).TypeOf() );
-         assert(memType != ROOT::Reflex::Type());
-         const TClass* rootMemType = TClass::GetClass(memType.TypeInfo());
-         assert(rootMemType != 0);
-         if(rootMemType->GetCollectionProxy()) {
-            m_colProxy=boost::shared_ptr<TVirtualCollectionProxy>(rootMemType->GetCollectionProxy()->Generate());
-         }
-      }
-      if(0==m_colProxy) {
-         m_itemInfos.reserve(1);
-      }
+   if(!m_accessor->isCollection()) {
+      m_itemInfos.reserve(1);
    }
    m_filter.setClassName(modelType()->GetName());
    //only want to listen to this signal when we need to run the filter
-   m_shouldFilterConnection = m_changeManager->changeSignalsAreDone_.connect(sigc::mem_fun(*this,&FWEventItem::runFilter));
+   m_shouldFilterConnection = changeManager()->changeSignalsAreDone_.connect(sigc::mem_fun(*this,&FWEventItem::runFilter));
    m_shouldFilterConnection.block(true);
 
 }
@@ -159,15 +103,12 @@ FWEventItem::setEvent(const fwlite::Event* iEvent)
 {
    if ( m_event != iEvent ) m_printedNoDataError = false;
    m_event = iEvent;
-   m_data = 0;
-   if(m_colProxy.get()) {
-      m_colProxy->PopProxy();
-   }
+   m_accessor->reset();
    m_itemInfos.clear();
    preItemChanged_(this);
    //want filter to rerun after all changes have been made
    m_shouldFilterConnection.block(false);
-   m_changeManager->changed(this);
+   changeManager()->changed(this);
 }
 
 void 
@@ -175,18 +116,15 @@ FWEventItem::setLabels(const std::string& iModule,
 		       const std::string& iProductInstance,
 		       const std::string& iProcess) 
 {
-  m_moduleLabel = iModule;
-  m_productInstanceLabel = iProductInstance;
-  m_processName = iProcess;
-  m_data = 0;
-   if(m_colProxy.get()) {
-      m_colProxy->PopProxy();
-   }
+   m_moduleLabel = iModule;
+   m_productInstanceLabel = iProductInstance;
+   m_processName = iProcess;
+   m_accessor->reset();
    m_itemInfos.clear();
    preItemChanged_(this);
    //want filter to rerun after all changes have been made
    m_shouldFilterConnection.block(false);
-   m_changeManager->changed(this);
+   changeManager()->changed(this);
 }
 
 void 
@@ -243,16 +181,17 @@ FWEventItem::runFilter()
 {   
    m_shouldFilterConnection.block(true);
 
-   //if(not m_filter.trivialFilter() && m_colProxy.get() && m_data) {
-   if(m_colProxy.get() && m_data) {
+   if(m_accessor->isCollection() && m_accessor->data()) {
       //std::cout <<"runFilter"<<std::endl;
       FWChangeSentry sentry(*(this->changeManager()));
-      int size = m_colProxy->Size();
+      //int size = m_colProxy->Size();
+      int size = m_accessor->size();
       std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
       for(int index = 0; index != size; ++index,++itInfo) {
          bool changed = false;
          bool wasVisible = itInfo->m_displayProperties.isVisible();
-         if(not m_filter.passesFilter(m_colProxy->At(index))) {
+         //if(not m_filter.passesFilter(m_colProxy->At(index))) {
+         if(not m_filter.passesFilter(m_accessor->modelData(index))) {
             itInfo->m_displayProperties.setIsVisible(false);
             changed = wasVisible==true;
          } else {
@@ -261,7 +200,7 @@ FWEventItem::runFilter()
          }
          if(changed) {
             FWModelId id(this,index);
-            m_changeManager->changed(id);
+            changeManager()->changed(id);
          }
       }
    }
@@ -274,8 +213,8 @@ FWEventItem::unselect(int iIndex) const
    if(bool& sel = m_itemInfos.at(iIndex).m_isSelected) {
       sel=false;
       FWModelId id(this,iIndex);
-      m_selectionManager->unselect(id);
-      m_changeManager->changed(id);
+      selectionManager()->unselect(id);
+      changeManager()->changed(id);
    }
 }
 void
@@ -285,8 +224,8 @@ FWEventItem::select(int iIndex) const
    if(not sel) {
       sel = true;
       FWModelId id(this,iIndex);
-      m_selectionManager->select(id);
-      m_changeManager->changed(id);
+      selectionManager()->select(id);
+      changeManager()->changed(id);
    }
 }
 void 
@@ -296,9 +235,9 @@ FWEventItem::toggleSelect(int iIndex) const
    sel = not sel;
    FWModelId id(this,iIndex);
    if (sel)
-	m_selectionManager->select(id);
-   else m_selectionManager->unselect(id);
-   m_changeManager->changed(id);
+	selectionManager()->select(id);
+   else selectionManager()->unselect(id);
+   changeManager()->changed(id);
 }
 
 void 
@@ -310,24 +249,24 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
          != iProps ) {
          prop = iProps;
          FWModelId id(this,iIndex);
-         //m_selectionManager->select(id);
-         m_changeManager->changed(id);
+         //selectionManager()->select(id);
+         changeManager()->changed(id);
       }
    } else {
       if(iProps.isVisible()) {
          FWChangeSentry sentry(*(this->changeManager()));
-         int size = m_colProxy->Size();
+         int size = m_accessor->size();
          std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
          for(int index = 0; index != size; ++index,++itInfo) {
             if( itInfo->m_displayProperties.isVisible() ) {
                itInfo->m_displayProperties.setIsVisible(false);
                FWModelId id(this,index);
-               m_changeManager->changed(id);
+               changeManager()->changed(id);
             }
          }
          m_itemInfos.at(iIndex).m_displayProperties.setIsVisible(true);
          FWModelId id(this,iIndex);
-         m_changeManager->changed(id);
+         changeManager()->changed(id);
          const_cast<FWEventItem*>(this)->m_displayProperties.setIsVisible(true);
          //NOTE: need to send out a signal here
          defaultDisplayPropertiesChanged_(this);
@@ -346,7 +285,7 @@ FWEventItem::data(const std::type_info& iInfo) const
   assert(iInfo == *(m_type->GetTypeInfo()) );
 
   //lookup data if we don't already have it
-  if(0 == m_data) {
+  if(0==m_accessor->data()) {
     void* wrapper=0;
     void* temp = &wrapper;
     if(m_event) {
@@ -402,25 +341,22 @@ FWEventItem::data(const std::type_info& iInfo) const
 	return 0;
       }
 
-      //get the Event data from the wrapper
-      Object product(wrapperObj.Get("obj"));
-      if(product.TypeOf().IsTypedef()) {
-	product = Object(product.TypeOf().ToType(),product.Address());
-      }
-      setData(product.Address());
+      setData(wrapperObj);
     }
   }
-  return m_data;
+  //return m_data;
+  return m_accessor->data();
 }
 
+
 void 
-FWEventItem::setData(const void* iData) const
+FWEventItem::setData(const ROOT::Reflex::Object& iData) const
 {
-   m_data = iData;
-   if(m_colProxy) {
-      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_collectionOffset);
-      m_itemInfos.reserve(m_colProxy->Size());
-      m_itemInfos.resize(m_colProxy->Size(),ModelInfo(m_displayProperties,false));
+   m_accessor->setWrapper(iData);
+   //std::cout <<"size "<<m_accessor->size()<<std::endl;
+   if(m_accessor->isCollection()) {
+      m_itemInfos.reserve(m_accessor->size());
+      m_itemInfos.resize(m_accessor->size(),ModelInfo(m_displayProperties,false));
    } else {
       m_itemInfos.push_back(ModelInfo(m_displayProperties,false));
    }
@@ -429,7 +365,8 @@ FWEventItem::setData(const void* iData) const
 void 
 FWEventItem::getPrimaryData() const
 {
-   if(0!=m_data) return;
+   //if(0!=m_data) return;
+   if(0!=m_accessor->data()) return;
    this->data(*(m_type->GetTypeInfo()));
 }
 
@@ -510,21 +447,20 @@ FWEventItem::size() const
 bool 
 FWEventItem::isCollection() const
 {
-   return 0!= m_colProxy.get();
+   return m_accessor->isCollection();
 }
 
 const TClass* 
 FWEventItem::modelType() const
 {
-   return 0 != m_colProxy.get()? m_colProxy->GetValueClass() : m_type;
+   return m_accessor->modelType();
 }
 
 const void* 
 FWEventItem::modelData(int iIndex) const
 {
    getPrimaryData();
-   if ( 0 == m_data) { return m_data; }
-   return 0 != m_colProxy.get()? m_colProxy->At(iIndex) : m_data;
+   return m_accessor->modelData(iIndex);
 }
 
 std::string 

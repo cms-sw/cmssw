@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.25 2008/07/22 09:29:11 jmuelmen Exp $
+// $Id: FWEventItem.h,v 1.26 2008/08/21 21:11:36 chrjones Exp $
 //
 
 // system include files
@@ -34,12 +34,15 @@
 
 #include "Fireworks/Core/interface/FWModelFilter.h"
 
+#include "Fireworks/Core/interface/Context.h"
+
 // forward declarations
 class TClass;
 class FWModelChangeManager;
 class FWSelectionManager;
 class DetIdToMatrix;
 class TVirtualCollectionProxy;
+class FWItemAccessorBase;
 
 namespace fwlite {
   class Event;
@@ -64,22 +67,9 @@ class FWEventItem
          }
       };
    
-      FWEventItem(FWModelChangeManager* iCM,
-                  FWSelectionManager* iSM,
+      FWEventItem(fireworks::Context* iContext,
                   unsigned int iItemId,
-                  const std::string& iName,
-		  const TClass* iClass,
-                  const std::string& iPurpose = std::string(),
-		  const FWDisplayProperties& iProperties =
-		  FWDisplayProperties(),
-		  const std::string& iModuleLabel = std::string(),
-		  const std::string& iProductInstanceLabel = std::string(),
-		  const std::string& iProcessName = std::string(),
-                  unsigned int iLayer=1);
-   
-      FWEventItem(FWModelChangeManager* iCM,
-                  FWSelectionManager* iSM,
-                  unsigned int iItemId,
+                  boost::shared_ptr<FWItemAccessorBase> iAccessor,
                   const FWPhysicsObjectDesc& iDesc);
       //virtual ~FWEventItem();
 
@@ -118,10 +108,10 @@ class FWEventItem
    
       //convenience methods
       FWModelChangeManager* changeManager() const {
-         return m_changeManager;
+         return m_context->modelChangeManager();
       }
       FWSelectionManager* selectionManager() const {
-         return m_selectionManager;
+         return m_context->selectionManager();
       }
 
       bool hasEvent() const {return 0 != m_event; }
@@ -173,20 +163,17 @@ class FWEventItem
       //FWEventItem(const FWEventItem&); // stop default
 
       //const FWEventItem& operator=(const FWEventItem&); // stop default
-      void setData(const void* ) const;
+      void setData(const ROOT::Reflex::Object& ) const;
    
       void getPrimaryData() const;
       void runFilter();
       // ---------- member data --------------------------------
-      FWModelChangeManager* m_changeManager;
-      FWSelectionManager* m_selectionManager;
+      fireworks::Context* m_context;
       unsigned int m_id;
       std::string m_name;
       const TClass* m_type;
       std::string m_purpose;
-      boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr 
-      mutable const void * m_data;
-      size_t m_collectionOffset;
+      boost::shared_ptr<FWItemAccessorBase> m_accessor;
       FWDisplayProperties m_displayProperties;
       unsigned int m_layer;
       mutable std::vector<ModelInfo> m_itemInfos;
