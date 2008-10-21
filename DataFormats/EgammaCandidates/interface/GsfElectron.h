@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot, LLR
  *
- * \version $Id: GsfElectron.h,v 1.9 2008/10/17 13:41:50 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.10 2008/10/20 12:25:00 chamont Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.10  2008/10/20 12:25:00  chamont
+// few doxygen comments
+//
 // Revision 1.9  2008/10/17 13:41:50  chamont
 // new attributes for cluster shape and best fitting ctf track
 //
@@ -66,6 +69,7 @@
 
 
 #include <vector>
+#include <limits>
 
 namespace reco {
 
@@ -86,7 +90,8 @@ class GsfElectron : public RecoCandidate {
 	const GlobalPoint & vtxPos, const GlobalVector & vtxMom,
 	const GlobalPoint & outPos, const GlobalVector & outMom,
 	double HoE,
-	float scSigmaEtaEta =0., float scSigmaIEtaIEta =0.,
+	float scSigmaEtaEta =std::numeric_limits<float>::infinity(),
+	float scSigmaIEtaIEta =std::numeric_limits<float>::infinity(),
 	float scE1x5 =0., float scE2x5Max =0., float scE5x5 =0.,
         const TrackRef ctfTrack =TrackRef(), const float shFracInnerHits =0.
 	) ;
