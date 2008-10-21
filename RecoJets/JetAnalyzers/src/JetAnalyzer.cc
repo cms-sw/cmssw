@@ -80,8 +80,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   // variables. Example as follows:
   //
 
-  std::cout << " Beginning JetAnalyzer Analysis " << std::endl;
-
   calojets_   = pSet.getParameter< std::string > ("calojets");
   genJets_    = pSet.getParameter< std::string > ("genjets");
   recmet_     = pSet.getParameter< std::string > ("recmet");
@@ -111,12 +109,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
     else if ( (*iParam) == "ExcludeInteractions" ) ExcludeInteractions_ =  myJetParams.getParameter<bool>( *iParam );
   }
 
-  cout << "---------- Input Parameters ---------------------------" << endl;
-  cout << "  Monte:  " << _Monte << endl;    
-  cout << "  EtaMin: " << _EtaMin << endl;    
-  cout << "  EtaMax: " << _EtaMax << endl;    
-  cout << "  Output histograms written to: " << _HistName << std::endl;
-  cout << "-------------------------------------------------------" << endl;  
+//  cout << "---------- Input Parameters ---------------------------" << endl;
+//  cout << "  Monte:  " << _Monte << endl;    
+//  cout << "  EtaMin: " << _EtaMin << endl;    
+//  cout << "  EtaMax: " << _EtaMax << endl;    
+//  cout << "  Output histograms written to: " << _HistName << std::endl;
+//  cout << "-------------------------------------------------------" << endl;  
 
   if (_PlotMCParticles){
     cout << "Sorry, PlotMCParticles option has been disabled for now" << endl;
@@ -135,9 +133,9 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   m_file->cd();
   bookHistograms();
 
-  for(int ieta=0;ieta<NETA+1;ieta++){
-    cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;
-  }
+//  for(int ieta=0;ieta<NETA+1;ieta++){
+//    cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;
+//  }
 }
 void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) {
 
