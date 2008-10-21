@@ -37,6 +37,7 @@ struct TrackCategories
         TertiaryVertex,
         TierciaryVertex = TertiaryVertex,
         BadInnerHits,
+        SharedInnerHits,
         Unknown
     };
 

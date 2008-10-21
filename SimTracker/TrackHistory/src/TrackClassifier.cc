@@ -214,10 +214,9 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
             // In those cases the bad hit was used by track reconstruction
             if (hit.state == TrackQuality::Layer::Noise ||
                     hit.state == TrackQuality::Layer::Misassoc)
-            {
                 flags_[TrackCategories::BadInnerHits] = true;
-                return; // we found a bad one, we are done here
-            }
+            else if (hit.state == TrackQuality::Layer::Shared)
+                flags_[TrackCategories::SharedInnerHits] = true;
         }
     }
 }

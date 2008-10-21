@@ -21,6 +21,7 @@ const char * TrackCategories::Names[] =
     "SecondaryVertex",
     "TertiaryVertex",
     "BadInnerHits",
+    "SharedInnerHits",
     "Unknown"
 };
 

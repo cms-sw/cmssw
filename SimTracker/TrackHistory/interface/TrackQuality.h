@@ -46,6 +46,7 @@ public:
             Noise,
             Bad,
             Dead,
+            Shared,
             Misassoc
         };
 

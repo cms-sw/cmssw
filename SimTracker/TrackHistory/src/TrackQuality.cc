@@ -91,9 +91,10 @@ static const int statePriorities[] =
     /* Unknown */  3,
     /* Good */     5,
     /* Missed */   0,
-    /* Noise */    6,
+    /* Noise */    7,
     /* Bad */      2,
     /* Dead */     4,
+    /* Shared */   6,
     /* Misassoc */ 1
 };
 
@@ -131,6 +132,7 @@ static DetLayer getDetLayer(DetId detId)
             det = TrackQuality::Layer::StripTOB;
             layer = TOBDetId(detId).layer();
             break;
+
         case StripSubdetector::TEC:
             det = TrackQuality::Layer::StripTEC;
             layer = TECDetId(detId).wheel();
@@ -302,9 +304,13 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
                                  range.second,
                                  matchedHit);
 
-            // if it does, set state of hit to Good (was Misassoc before)
-            if (pos != range.second)
-                pos->state = Layer::Good;
+            // if it does, check for being a shared hit (was Misassoc before)
+            if (pos != range.second) {
+                if (range.second - range.first > 1) // more than one SimHit
+                    pos->state = Layer::Shared;
+                else
+                    pos->state = Layer::Good; // only hit -> good hit
+	    }
         }
     }
 
