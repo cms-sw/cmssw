@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/19 15:10:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/21 10:42:27 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -100,22 +100,29 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Trigger information 
   //
   if(&triggerResults) {   
-    /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
-    /*
-    int ntrigs = triggerResults.size();
-    std::cout << triggerResults << std::endl;
-    std::cout << "ntrigs=" << ntrigs << std::endl;
-    */
 
+    /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
+
+    //
+    //
+    // Check how many HLT triggers are in triggerResults 
+    int ntrigs = triggerResults.size();
+    //std::cout << "ntrigs=" << ntrigs << std::endl;
+
+    //
+    //
+    // Fill HLTPathsJetMBByIndex_[i]
+    // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
     edm::TriggerNames triggerNames; // TriggerNames class
     triggerNames.init(triggerResults);
-
     unsigned int n(nHLTPathsJetMB_);
     for (unsigned int i=0; i!=n; i++) {
       HLTPathsJetMBByIndex_[i]=triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
     }
     
-    // for empty input vectors (n==0), default to all HLT trigger paths!
+    //
+    //
+    // for empty input vectors (n==0), use all HLT trigger paths!
     if (n==0) {
       n=triggerResults.size();
       HLTPathsJetMBByName_.resize(n);
@@ -126,6 +133,10 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }  
 
+    //
+    //
+    // Check if each HLT trigger defined in jetMETAnalyzer_cfi is accepted or not
+    // 
     /*
     const string invalid("@@invalid@@");
     if (n>0) {
@@ -149,8 +160,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }
 
-    if (fired==0) return;
-
     // ...Loop over trigger paths and check bits for jet triggers
     /*
     for (int itrig = 0; itrig != ntrigs; ++itrig){
@@ -159,6 +168,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       std::cout << trigName << " " << accept << std::endl;
     }
     */
+
+    if (fired==0) return;
 
   } else {
 
