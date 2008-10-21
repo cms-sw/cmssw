@@ -1859,8 +1859,7 @@ hltL1IsoSingleElectronPixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFil
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1IsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -1914,8 +1913,7 @@ hltL1IsoElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegional
     )
 )
 hltL1IsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2230,8 +2228,7 @@ hltL1NonIsoSingleElectronPixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatch
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1NonIsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2285,8 +2282,7 @@ hltL1NonIsoElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegio
     )
 )
 hltL1NonIsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2411,8 +2407,7 @@ hltL1IsoLargeWindowSingleElectronPixelMatchFilter = cms.EDFilter( "HLTElectronPi
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1IsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoLargeWindowElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoLargeWindowElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2466,8 +2461,7 @@ hltL1IsoLargeWindowElectronsRegionalPixelSeedGenerator = cms.EDProducer( "Egamma
     )
 )
 hltL1IsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2601,8 +2595,7 @@ hltL1NonIsoHLTLooseIsoSingleElectronLWEt15PixelMatchFilter = cms.EDFilter( "HLTE
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1NonIsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoLargeWindowElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoLargeWindowElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2656,8 +2649,7 @@ hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator = cms.EDProducer( "Ega
     )
 )
 hltL1NonIsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoLargeWindowElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2825,8 +2817,7 @@ hltL1NonIsoHLTNonIsoSingleElectronEt10PixelMatchFilter = cms.EDFilter( "HLTElect
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 hltCkfL1IsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoStartUpElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoStartUpElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2855,8 +2846,7 @@ hltPixelMatchStartUpElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectro
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
 )
 hltCkfL1NonIsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoStartUpElectronPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoStartUpElectronPixelSeeds" ),
     TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2910,8 +2900,7 @@ hltL1IsoStartUpElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTR
     )
 )
 hltL1IsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoStartUpElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoStartUpElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -2952,8 +2941,7 @@ hltL1NonIsoStartUpElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaH
     )
 )
 hltL1NonIsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoStartUpElectronsRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoStartUpElectronsRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -3246,8 +3234,7 @@ hltL1IsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegionalPix
     )
 )
 hltL1IsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1IsoEgammaRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1IsoEgammaRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -3288,8 +3275,7 @@ hltL1NonIsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegional
     )
 )
 hltL1NonIsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL1NonIsoEgammaRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL1NonIsoEgammaRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -6550,8 +6536,7 @@ hltBLifetimeRegionalPixelSeedGenerator = cms.EDProducer( "SeedGeneratorFromRegio
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltBLifetimeRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltBLifetimeRegionalPixelSeedGenerator" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltBLifetimeRegionalPixelSeedGenerator" ),
     TrajectoryBuilder = cms.string( "bJetRegionalTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -6681,8 +6666,7 @@ hltBLifetimeRegionalPixelSeedGeneratorRelaxed = cms.EDProducer( "SeedGeneratorFr
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltBLifetimeRegionalPixelSeedGeneratorRelaxed" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltBLifetimeRegionalPixelSeedGeneratorRelaxed" ),
     TrajectoryBuilder = cms.string( "bJetRegionalTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -6975,8 +6959,7 @@ hltMumuPixelSeedFromL2Candidate = cms.EDProducer( "SeedGeneratorFromRegionHitsED
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltCkfTrackCandidatesMumu = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltMumuPixelSeedFromL2Candidate" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltMumuPixelSeedFromL2Candidate" ),
     TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilderMumu" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -7100,8 +7083,7 @@ hltMumukPixelSeedFromL2Candidate = cms.EDProducer( "SeedGeneratorFromRegionHitsE
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltCkfTrackCandidatesMumuk = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltMumukPixelSeedFromL2Candidate" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltMumukPixelSeedFromL2Candidate" ),
     TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilderMumuk" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -7347,8 +7329,7 @@ hltL3SingleTauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltCkfTrackCandidatesL3SingleTau = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL3SingleTauPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL3SingleTauPixelSeeds" ),
     TrajectoryBuilder = cms.string( "trajBuilderL3" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -7536,8 +7517,7 @@ hltL3SingleTauMETPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltCkfTrackCandidatesL3SingleTauMET = cms.EDProducer( "CkfTrackCandidateMaker",
-    SeedProducer = cms.string( "hltL3SingleTauMETPixelSeeds" ),
-    SeedLabel = cms.string( "" ),
+    src = cms.InputTag( "hltL3SingleTauMETPixelSeeds" ),
     TrajectoryBuilder = cms.string( "trajBuilderL3" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),

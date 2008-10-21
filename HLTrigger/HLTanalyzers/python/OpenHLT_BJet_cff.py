@@ -35,7 +35,7 @@ openHltBLifetimeRegionalPixelSeedGenerator = copy.deepcopy(hltBLifetimeRegionalP
 openHltBLifetimeRegionalPixelSeedGenerator.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
 
 openHltBLifetimeRegionalCkfTrackCandidates = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidates)
-openHltBLifetimeRegionalCkfTrackCandidates.SeedProducer = cms.string("openHltBLifetimeRegionalPixelSeedGenerator")
+openHltBLifetimeRegionalCkfTrackCandidates.src = cms.InputTag("openHltBLifetimeRegionalPixelSeedGenerator")
 
 openHltBLifetimeRegionalCtfWithMaterialTracks = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracks)
 openHltBLifetimeRegionalCtfWithMaterialTracks.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidates")
@@ -71,7 +71,7 @@ openHltBLifetimeRegionalPixelSeedGeneratorRelaxed = copy.deepcopy(hltBLifetimeRe
 openHltBLifetimeRegionalPixelSeedGeneratorRelaxed.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
 
 openHltBLifetimeRegionalCkfTrackCandidatesRelaxed = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidatesRelaxed)
-openHltBLifetimeRegionalCkfTrackCandidatesRelaxed.SeedProducer = cms.string("openHltBLifetimeRegionalPixelSeedGeneratorRelaxed")
+openHltBLifetimeRegionalCkfTrackCandidatesRelaxed.src = cms.InputTag("openHltBLifetimeRegionalPixelSeedGeneratorRelaxed")
 
 openHltBLifetimeRegionalCtfWithMaterialTracksRelaxed = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracksRelaxed)
 openHltBLifetimeRegionalCtfWithMaterialTracksRelaxed.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidatesRelaxed")
