@@ -1947,7 +1947,7 @@ void PFRootEventManager::reconstructGenJets() {
   if (verbosity_ == VERBOSE || jetsDebug_) {
     cout<<endl;
     cout<<"start reconstruct GenJets  --- "<<endl;
-    cout<< " input gen particles for jet: all muons/neutrinos removed " << endl;
+    cout<< " input gen particles for jet: all neutrinos removed ; muons present" << endl;
   }
 
   genJets_.clear();
@@ -1958,7 +1958,10 @@ void PFRootEventManager::reconstructGenJets() {
     const reco::GenParticle&    genPart = *(genParticlesforJets_[i]);
 
     // remove all muons/neutrinos for PFJet studies
-    if (reco::isNeutrino( genPart ) || reco::isMuon( genPart )) continue;
+    //    if (reco::isNeutrino( genPart ) || reco::isMuon( genPart )) continue;
+    //    remove all neutrinos for PFJet studies
+    if (reco::isNeutrino( genPart )) continue;
+
     if (jetsDebug_ ) {
       cout << "      #" << i << "  PDG code:" << genPart.pdgId() 
 	   << " status " << genPart.status()
