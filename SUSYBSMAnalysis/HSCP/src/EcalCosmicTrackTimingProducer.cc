@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper
 //         Created:  Fri Aug 29 09:49:44 CDT 2008
-// $Id: EcalCosmicTrackTimingProducer.cc,v 1.5 2008/09/29 14:06:05 scooper Exp $
+// $Id: EcalCosmicTrackTimingProducer.cc,v 1.1 2008/10/03 07:41:59 arizzi Exp $
 //
 //
 
@@ -36,6 +36,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 
 // *** for TrackAssociation
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -80,7 +82,7 @@ class EcalCosmicTrackTimingProducer : public edm::EDProducer {
 //
 // constants, enums and typedefs
 //
-
+                
 
 //
 // static data member definitions
@@ -103,7 +105,7 @@ EcalCosmicTrackTimingProducer::EcalCosmicTrackTimingProducer(const edm::Paramete
   barrelClusterCollection_ (iConfig.getParameter<edm::InputTag>("barrelClusterCollection")),
   endcapClusterCollection_ (iConfig.getParameter<edm::InputTag>("endcapClusterCollection"))
 {
-  produces<std::vector<float> >("EcalCosmicTrackTiming");
+  produces<susybsm::TracksEcalRecHitsMap>("EcalCosmicTrackMatchedHitsMap");
   //now do what ever other initialization is needed
   // TrackAssociator parameters
   edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -133,7 +135,7 @@ EcalCosmicTrackTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
   using namespace std;
   
   bool hasEndcapClusters = true;
-  auto_ptr<vector<float> > trackTimes(new vector<float>);
+  auto_ptr<susybsm::TracksEcalRecHitsMap> trackRecHitsMap(new susybsm::TracksEcalRecHitsMap);
   Handle<EcalRecHitCollection> hits;
   iEvent.getByLabel(ecalRecHitCollectionEB_, hits);
   if (!(hits.isValid())) 
@@ -207,36 +209,22 @@ EcalCosmicTrackTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
   if ( recoTracks.isValid() ) {
     std::map<int,std::vector<DetId> > trackDetIdMap;
-    int tracks = 0;
-    for(reco::TrackCollection::const_iterator recoTrack = recoTracks->begin(); recoTrack != recoTracks->end(); ++recoTrack){
-      
+    int trackNum = 0;
+    for(reco::TrackCollection::const_iterator recoTrack = recoTracks->begin(); recoTrack != recoTracks->end(); ++recoTrack){ 
+
       //TODO: for now, make no geometric/quality requirements
       //if(fabs(recoTrack->d0())>70 || fabs(recoTrack->dz())>70)
       //  continue;
       //if(recoTrack->numberOfValidHits()<20)
       //  continue;
 
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, trackParameters_);      
+      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, trackParameters_);
+      trackNum++;
       
-      //for (unsigned int i=0; i<info.crossedEcalIds.size(); i++) {	 
-      //  // only checks for barrel
-      //  if (info.crossedEcalIds[i].det() == DetId::Ecal && info.crossedEcalIds[i].subdetId() == 1) {	     
-      //    EBDetId ebDetId (info.crossedEcalIds[i]);	   
-      //    //trackAssoc_muonsEcal_->Fill(ebDetId.iphi(), ebDetId.ieta());
-
-      //    EcalRecHitCollection::const_iterator thishit = hits->find(ebDetId);
-      //    if (thishit == hits->end()) continue;
-      //    
-      //    EcalRecHit myhit = (*thishit);	 
-      //  }
-      //}
-      
-      tracks++;
       if(info.crossedEcalIds.size()>0)
-        trackDetIdMap.insert(std::pair<int,std::vector<DetId> > (tracks,info.crossedEcalIds));
+        trackDetIdMap.insert(std::pair<int,std::vector<DetId> > (trackNum,info.crossedEcalIds));
       else
-        trackDetIdMap.insert(std::pair<int,std::vector<DetId> > (tracks,std::vector<DetId>())); // No tracks crossed Ecal
-      trackTimes->push_back(-999);
+        trackDetIdMap.insert(std::pair<int,std::vector<DetId> > (trackNum,std::vector<DetId>())); // No tracks crossed Ecal
     }      
     
     // Now to match recoTracks with cosmic clusters
@@ -298,12 +286,19 @@ EcalCosmicTrackTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
       if(bestDr < 1000) {
         // Find the RecHit corresponding to this DetId
         EcalRecHitCollection::const_iterator thishit = hits->find(bestSeed);
-        EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(bestSeed);
-        int timingCorrectionIndex = elecId.dccId()-1; //FEDid-600-1 = DCCid-1
-        if (thishit != hits->end())
-          (*trackTimes)[bestTrack-1] = thishit->time() + 5.7-FEDTimingCorrections[timingCorrectionIndex];
-        else
-          (*trackTimes)[bestTrack-1] = -999;
+        if(thishit != hits->end())
+        {
+          reco::TrackRef trackRef = edm::Ref<reco::TrackCollection>(recoTracks, bestTrack);
+          int index = &(*thishit) - &hits->front();
+          if(index >= 0 && index < (int)hits->size())
+          {
+            EcalRecHitRef hitRef = edm::Ref<EcalRecHitCollection>(hits,index);
+            trackRecHitsMap->insert(trackRef,hitRef);
+          }
+          LogWarning("EcalCosmicTrackTimingProducer") << "success!  inserted track with dR: " << bestDr
+            << " into index: " << bestTrack-1 << " with time: " << thishit->time() << ";    tracksInEvent: " <<
+            recoTracks->size();
+        }
         seeds.erase(find(seeds.begin(),seeds.end(), bestSeed));
         trackDetIdMap.erase(trackDetIdMap.find(bestTrack));
         trackDetIdToSeedMap[bestTrackDet] = bestSeed;
@@ -312,7 +307,7 @@ EcalCosmicTrackTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
       }
       else {
 	//edm::LogVerbatim("TrackAssociator") << "could not match cluster seed to track; bestDR : " << bestDr;
-        LogWarning("EcalCosmicTrackTimingProducer") << "could not match cluster seed to track; bestDR : " << bestDr;
+        //LogWarning("EcalCosmicTrackTimingProducer") << "could not match cluster seed to track; bestDR : " << bestDr;
         trackDetIdMap.erase(trackDetIdMap.find(bestTrack));
 	//break; // no match found
       }
@@ -331,7 +326,7 @@ EcalCosmicTrackTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
   // *** end of TrackAssociator code *** //
 
-  iEvent.put(trackTimes, "EcalCosmicTrackTiming");
+  iEvent.put(trackRecHitsMap, "EcalCosmicTrackMatchedHitsMap");
 }
 
 
