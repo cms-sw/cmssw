@@ -26,6 +26,9 @@ public:
      virtual int preamble () { return 3 + (title().length() != 0); }
      virtual bool rowIsSelected(int row) const = 0;      
      virtual bool rowIsVisible (int row) const { return true; }
+     void setPrintIndex(bool iValue) {
+        m_print_index = iValue;
+     }
 private:
      bool 		sort_asc_;
      int 		sort_col_;
