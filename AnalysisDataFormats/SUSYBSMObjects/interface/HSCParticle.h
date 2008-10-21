@@ -1,9 +1,11 @@
 #ifndef HSCParticle_H
 #define HSCParticle_H
 #include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include <vector>
 
 namespace susybsm {
@@ -75,6 +77,7 @@ typedef  std::vector<HSCParticle> HSCParticleCollection;
 typedef  edm::Ref<HSCParticleCollection> HSCParticleRef;
 typedef  edm::RefProd<HSCParticleCollection> HSCParticleRefProd;
 typedef  edm::RefVector<HSCParticleCollection> HSCParticleRefVector;
+typedef  edm::AssociationMap<edm::OneToOne<reco::TrackCollection, EcalRecHitCollection> > TracksEcalRecHitsMap;
  
  
 }

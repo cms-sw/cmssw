@@ -22,5 +22,9 @@ namespace {
   susybsm::HSCParticleRefVector hv;
   edm::Wrapper<susybsm::HSCParticleCollection> wr1;
   
+  susybsm::TracksEcalRecHitsMap terhm;
+  edm::Wrapper<susybsm::TracksEcalRecHitsMap> wr2;
+  edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > > hlpr1;
+  
  }
 }
