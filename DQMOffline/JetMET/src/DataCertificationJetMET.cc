@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.10 2008/10/15 03:41:06 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.11 2008/10/15 18:42:01 chlebana Exp $
 //
 //
 
@@ -126,7 +126,12 @@ int data_certificate(double chi2, double mean, double chi2_tolerance, double mea
 
 // ------------------------------------------------------------
 void
-fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2){
+fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2, int verbose){
+  //
+  Option_t *fit_option;
+  fit_option = "QR0";
+  if      (verbose==1) fit_option = "R0";
+  else if (verbose==2) fit_option = "VR0";
   //
   Double_t par[6];
   Double_t pare[6];
@@ -156,7 +161,7 @@ fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2){
   double chi2=4.;
   //if (fn->GetNDF()>0.) chi2=fn->GetChisquare()/fn->GetNDF();
   if (chi2>3.){
-    hist->Fit(f1,"R0");
+    hist->Fit(f1,fit_option);
     f1->GetParameters(&par[0]);
     fn->SetParameters(par);
     fn->ReleaseParameter(0);
@@ -170,7 +175,7 @@ fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2){
     fn->SetParName(4,"Mean2");
     fn->SetParName(5,"Sigma2");
     fn->SetParameter(5,par[2]*10.);
-    hist->Fit(fn,"R0");
+    hist->Fit(fn,fit_option);
     fn->GetParameters(&par[0]);
     pare[2]=fn->GetParError(2);
     pare[5]=fn->GetParError(5);
@@ -187,8 +192,7 @@ fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2){
   // set the initial value for the 2nd one to ~ x10 larger
 //   if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
 //     fn->SetParameter(5,par[2]*10.);
-//     std::cout << "aaa3" << std::endl;
-//     hist->Fit(fn,"R");
+//     hist->Fit(fn,fit_option);
 //     fn->GetParameters(&par[0]);
 //     f1->SetParameter(0,par[0]);
 //     f1->SetParameter(1,par[1]);
@@ -203,8 +207,7 @@ fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2){
   // set the initial value for the 2nd one to ~ x100 larger
   if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
     fn->SetParameter(5,par[2]*100.);
-    std::cout << "aaa4" << std::endl;
-    hist->Fit(fn,"R0");
+    hist->Fit(fn,fit_option);
     fn->GetParameters(&par[0]);
     f1->SetParameter(0,par[0]);
     f1->SetParameter(1,par[1]);
@@ -218,7 +221,12 @@ fitd(TH1F* hist, TF1* fn, TF1* f1, TF1* f2){
 
 // ------------------------------------------------------------
 void
-fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
+fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2, int verbose){
+  //
+  Option_t *fit_option;
+  fit_option = "QR0";
+  if      (verbose==1) fit_option = "R0";
+  else if (verbose==2) fit_option = "VR0";
   //
   Double_t par[6];
   Double_t pare[6];
@@ -231,7 +239,7 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
   //
   //
   // First, single Gaussian fit
-//   hist->Fit(f2,"RV")
+//   hist->Fit(f2,fit_option)
 //   f2->GetParameters(&par[3]);
 //   fn->SetParameters(par);
 //   fn->FixParameter(0,0.);
@@ -248,7 +256,7 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
   double chi2=4.;
   //if (fn->GetNDF()>0.) chi2=fn->GetChisquare()/fn->GetNDF();
   if (chi2>3.){
-    hist->Fit(f1,"R0");
+    hist->Fit(f1,fit_option);
     f1->GetParameters(&par[0]);
     fn->SetParameters(par);
     fn->ReleaseParameter(0);
@@ -262,7 +270,7 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
     fn->SetParName(4,"Mean2");
     fn->SetParName(5,"Sigma2");
     fn->SetParameter(5,par[2]*10.);
-    hist->Fit(fn,"R0");
+    hist->Fit(fn,fit_option);
     fn->GetParameters(&par[0]);
     pare[2]=fn->GetParError(2);
     pare[5]=fn->GetParError(5);
@@ -280,7 +288,7 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
 //   if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
 //     fn->SetParameter(5,par[2]*10.);
 //     std::cout << "aaa3" << std::endl;
-//     hist->Fit(fn,"R");
+//     hist->Fit(fn,fit_option);
 //     fn->GetParameters(&par[0]);
 //     f1->SetParameter(0,par[0]);
 //     f1->SetParameter(1,par[1]);
@@ -295,8 +303,7 @@ fitdd(TH1D* hist, TF1* fn, TF1* f1, TF1* f2){
   // set the initial value for the 2nd one to ~ x100 larger
   if ( fabs(par[2]-par[5])<sqrt(pow(pare[2],2)+pow(pare[5],2)) ){
     fn->SetParameter(5,par[2]*100.);
-    std::cout << "aaa4" << std::endl;
-    hist->Fit(fn,"R0");
+    hist->Fit(fn,fit_option);
     fn->GetParameters(&par[0]);
     f1->SetParameter(0,par[0]);
     f1->SetParameter(1,par[1]);
@@ -320,7 +327,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // Open input files
   //----------------------------------------------------------------
 
-
   verbose   = conf_.getUntrackedParameter<int>("Verbose");
   testType  = conf_.getUntrackedParameter<int>("TestType");
 
@@ -341,6 +347,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   std::string RunDir;
   std::string RunNum;
+  int         RunNumber;
 
   // TODO: Make sure this is correct....
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
@@ -349,7 +356,8 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     RunNum = *ic;
   }
   RunNum.erase(0,4);
-  std::cout << "--- >>" << RunNum << "<<" << std::endl;
+  RunNumber = atoi(RunNum.c_str());
+  std::cout << "--- >>" << RunNumber << "<<" << std::endl;
 
   // --- Reference set of histograms
   rdbe = edm::Service<DQMStore>().operator->();
@@ -367,14 +375,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   const int nLSBins=500;
 
-  Double_t par[6];
+  //Double_t par[6];
+  //double chindf[6];
+  //double para[6][6];
+
   TF1 *g1    = new TF1("g1","gaus",-50,50);
   TF1 *g2    = new TF1("g2","gaus",-500,500);
   TF1 *dgaus = new TF1("dgaus","gaus(0)+gaus(3)",-500,500);
-  TF1 *sgaus = new TF1("sgaus","gaus",-500,500);
-
-  double chindf[6];
-  double para[6][6];
+  //TF1 *sgaus = new TF1("sgaus","gaus",-500,500);
 
   TH1F *hMExy[6];
   TF1  *fitfun[6];
@@ -444,7 +452,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   Jet_Tag_L3[0][2] = "JetMET_Jet_IterativeCone_Forward";
   Jet_Tag_L3[1][0] = "JetMET_Jet_SISCone_Barrel";
   Jet_Tag_L3[1][1] = "JetMET_Jet_SISCone_EndCap";
-  Jet_Tag_L3[1][2] = "JetMET_Jet_PFlow_Forward";
+  Jet_Tag_L3[1][2] = "JetMET_Jet_SISCone_Forward";
   Jet_Tag_L3[2][0] = "JetMET_Jet_PFlow_Barrel";
   Jet_Tag_L3[2][1] = "JetMET_Jet_PFlow_EndCap";
   Jet_Tag_L3[2][2] = "JetMET_Jet_PFlow_Forward";
@@ -726,30 +734,22 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // JET Data Certification Results
   if (DEBUG) {
     std::cout << std::endl;
-    printf("%6s %15d %35s %10d\n",RunNum.c_str(),0,"JetMET", allOK);
+    printf("%6d %15d %-35s %10d\n",RunNumber,0,"JetMET", allOK);
     for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-      printf("%6s %15d %35s %10d\n",RunNum.c_str(),0,Jet_Tag_L2[iAlgo].c_str(), Jet_DCF_L2[iAlgo]);
+      printf("%6d %15d %-35s %10d\n",RunNumber,0,Jet_Tag_L2[iAlgo].c_str(), Jet_DCF_L2[iAlgo]);
     }
     for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
       for (int iL3Flag=0; iL3Flag<NL3Flags; iL3Flag++) {    
-	printf("%6s %15d %35s %10d\n",RunNum.c_str(),0,Jet_Tag_L3[iAlgo][iL3Flag].c_str(), Jet_DCF_L3[iAlgo][iL3Flag]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,0,Jet_Tag_L3[iAlgo][iL3Flag].c_str(), Jet_DCF_L3[iAlgo][iL3Flag]);
       }
     }
     std::cout << std::endl;    
   }
 
-
-
-
   // ****************************
   // Loop over Monitoring Elements and fill working histograms
   for(std::vector<MonitorElement*>::const_iterator ime = mes.begin(); ime!=mes.end(); ++ime) {
     std::string name = (*ime)->getName();
-
-    //    std::cout << "Name = " << name << std::endl;
-    //    if (name == "METTask_CaloMEx") {
-    //      std::cout << "Found Name = " << name << " Bins = " << (*ime)->getNbinsX() << std::endl;
-    //    }
 
     if (name == "METTask_CaloMEx")     hMExy[0] = (*ime)->getTH1F();
     if (name == "METTask_CaloMEy")     hMExy[1] = (*ime)->getTH1F();
@@ -763,40 +763,40 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
   }
 
-  //  std::cout << "Mean = " << hMExy[0]->GetMean() << std::endl;
-
   for (int i=0;i<4;i++) {
-    fitd(hMExy[i],dgaus,g1,g2);
-    fitfun[i]  = hMExy[i]->GetFunction("dgaus");
-    fitfun1[i] = (TF1*)g1->Clone();
-    fitfun2[i] = (TF1*)g2->Clone();
+    if (hMExy[i]->GetSum()>0.){
+      fitd(hMExy[i],dgaus,g1,g2,verbose);
+      fitfun[i]  = hMExy[i]->GetFunction("dgaus");
+      fitfun1[i] = (TF1*)g1->Clone();
+      fitfun2[i] = (TF1*)g2->Clone();
+    }
   }
 
   // Slice *_LS histograms
-  TH1D *CaloMEx_LS[1000];
-  TH1D *CaloMEy_LS[1000];
-  TH1D *CaloMExNoHF_LS[1000];
-  TH1D *CaloMEyNoHF_LS[1000];
-  TF1 *fitfun_CaloMEx_LS[1000];
-  TF1 *fitfun_CaloMEy_LS[1000];
-  TF1 *fitfun_CaloMExNoHF_LS[1000];
-  TF1 *fitfun_CaloMEyNoHF_LS[1000];
-  TF1 *fitfun1_CaloMEx_LS[1000];
-  TF1 *fitfun1_CaloMEy_LS[1000];
-  TF1 *fitfun1_CaloMExNoHF_LS[1000];
-  TF1 *fitfun1_CaloMEyNoHF_LS[1000];
-  TF1 *fitfun2_CaloMEx_LS[1000];
-  TF1 *fitfun2_CaloMEy_LS[1000];
-  TF1 *fitfun2_CaloMExNoHF_LS[1000];
-  TF1 *fitfun2_CaloMEyNoHF_LS[1000];
-  int JetMET_MET[1000];
-  int JetMET_MET_All[1000];
-  int JetMET_MEx_All[1000];
-  int JetMET_MEy_All[1000];
-  int JetMET_MET_NoHF[1000];
-  int JetMET_MEx_NoHF[1000];
-  int JetMET_MEy_NoHF[1000];
-  for (int i=0;i<1000;i++){
+  TH1D *CaloMEx_LS[500];
+  TH1D *CaloMEy_LS[500];
+  TH1D *CaloMExNoHF_LS[500];
+  TH1D *CaloMEyNoHF_LS[500];
+  TF1 *fitfun_CaloMEx_LS[500];
+  TF1 *fitfun_CaloMEy_LS[500];
+  TF1 *fitfun_CaloMExNoHF_LS[500];
+  TF1 *fitfun_CaloMEyNoHF_LS[500];
+  TF1 *fitfun1_CaloMEx_LS[500];
+  TF1 *fitfun1_CaloMEy_LS[500];
+  TF1 *fitfun1_CaloMExNoHF_LS[500];
+  TF1 *fitfun1_CaloMEyNoHF_LS[500];
+  TF1 *fitfun2_CaloMEx_LS[500];
+  TF1 *fitfun2_CaloMEy_LS[500];
+  TF1 *fitfun2_CaloMExNoHF_LS[500];
+  TF1 *fitfun2_CaloMEyNoHF_LS[500];
+  int JetMET_MET[500];
+  int JetMET_MET_All[500];
+  int JetMET_MEx_All[500];
+  int JetMET_MEy_All[500];
+  int JetMET_MET_NoHF[500];
+  int JetMET_MEx_NoHF[500];
+  int JetMET_MEy_NoHF[500];
+  for (int i=0;i<500;i++){
     JetMET_MET[i]     =-1;
     JetMET_MET_All[i] =-1;
     JetMET_MEx_All[i] =-1;
@@ -807,11 +807,8 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   }
   char ctitle[100];
 
-  for (int LS=0; LS<500; LS++){
-
-    //    std::cout << std::endl;
-    //    std::cout << "LS = " << LS << std::endl; 
-    //    std::cout << std::endl;
+  // (LS=0 assigned to the entire run)
+  for (int LS=1; LS<500; LS++){
 
     // Projection returns a 
     sprintf(ctitle,"CaloMEx_%04d",LS);     CaloMEx_LS[LS]=hCaloMEx_LS->ProjectionX(ctitle,LS+1,LS+1);
@@ -820,19 +817,25 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     sprintf(ctitle,"CaloMEyNoHF_%04d",LS); CaloMEyNoHF_LS[LS]=hCaloMEyNoHF_LS->ProjectionX(ctitle,LS+1,LS+1);
 
     if (CaloMEx_LS[LS]->GetSum()>0.) {
-      fitdd(CaloMEx_LS[LS],dgaus,g1,g2);
+      fitdd(CaloMEx_LS[LS],dgaus,g1,g2,verbose);
         fitfun_CaloMEx_LS[LS]=CaloMEx_LS[LS]->GetFunction("dgaus");
         fitfun1_CaloMEx_LS[LS]=(TF1*)g1->Clone();
         fitfun2_CaloMEx_LS[LS]=(TF1*)g2->Clone();
-      fitdd(CaloMEy_LS[LS],dgaus,g1,g2);
+    }
+    if (CaloMEy_LS[LS]->GetSum()>0.) {
+      fitdd(CaloMEy_LS[LS],dgaus,g1,g2,verbose);
         fitfun_CaloMEy_LS[LS]=CaloMEy_LS[LS]->GetFunction("dgaus");
         fitfun1_CaloMEy_LS[LS]=(TF1*)g1->Clone();
         fitfun2_CaloMEy_LS[LS]=(TF1*)g2->Clone();
-      fitdd(CaloMExNoHF_LS[LS],dgaus,g1,g2);
+    }
+    if (CaloMExNoHF_LS[LS]->GetSum()>0.) {
+      fitdd(CaloMExNoHF_LS[LS],dgaus,g1,g2,verbose);
         fitfun_CaloMExNoHF_LS[LS]=CaloMExNoHF_LS[LS]->GetFunction("dgaus");
         fitfun1_CaloMExNoHF_LS[LS]=(TF1*)g1->Clone();
         fitfun2_CaloMExNoHF_LS[LS]=(TF1*)g2->Clone();
-      fitdd(CaloMEyNoHF_LS[LS],dgaus,g1,g2);
+    }
+    if (CaloMEyNoHF_LS[LS]->GetSum()>0.) {
+      fitdd(CaloMEyNoHF_LS[LS],dgaus,g1,g2,verbose);
         fitfun_CaloMEyNoHF_LS[LS]=CaloMEyNoHF_LS[LS]->GetFunction("dgaus");
         fitfun1_CaloMEyNoHF_LS[LS]=(TF1*)g1->Clone();
         fitfun2_CaloMEyNoHF_LS[LS]=(TF1*)g2->Clone();
@@ -844,26 +847,47 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   //--- Print out data certification summary
   //----------------------------------------------------------------
 
+  if (verbose) {
   std::cout << std::endl;
   printf("| Variable                       |   Reduced chi^2              | Mean               | Width      |\n");
+  }
   //
   // Entire run
   for (int i=0;i<4;i++){
     int nmean=1;
     if (fitfun[i]->GetNumberFreeParameters()==3) nmean=4;
+    if (verbose)
     printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
            hMExy[i]->GetName(),
            fitfun[i]->GetChisquare(),double(fitfun[i]->GetNDF()),
            fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
            fitfun[i]->GetParameter(nmean),  fitfun[i]->GetParError(nmean+1),
            fitfun[i]->GetParameter(nmean+1),fitfun[i]->GetParError(nmean+1));
+    if (i==0)
+      JetMET_MEx_All[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+                                          fitfun[i]->GetParameter(nmean),
+                                          5.,10.);
+    if (i==1)
+      JetMET_MEy_All[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+                                          fitfun[i]->GetParameter(nmean),
+                                          5.,10.);
+    if (i==2)
+      JetMET_MEx_NoHF[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+                                          fitfun[i]->GetParameter(nmean),
+                                          5.,10.);
+    if (i==3)
+      JetMET_MEy_NoHF[0]=data_certificate(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
+                                          fitfun[i]->GetParameter(nmean),
+                                          5.,10.);
   }
   //
   // Each lumi section
-  for (int LS=0; LS<500; LS++){
+  // (LS=0 assigned to the entire run)
+  for (int LS=1; LS<500; LS++){
     if (CaloMEx_LS[LS]->GetSum()>0.) {
       int nmean=1;
       if (fitfun_CaloMEx_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
+      if (verbose)
       printf("\n| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
              CaloMEx_LS[LS]->GetName(),
              fitfun_CaloMEx_LS[LS]->GetChisquare(),double(fitfun_CaloMEx_LS[LS]->GetNDF()),
@@ -877,6 +901,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     if (CaloMEy_LS[LS]->GetSum()>0.) {
       int nmean=1;
       if (fitfun_CaloMEy_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
+      if (verbose)
       printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
              CaloMEy_LS[LS]->GetName(),
              fitfun_CaloMEy_LS[LS]->GetChisquare(),double(fitfun_CaloMEy_LS[LS]->GetNDF()),
@@ -890,6 +915,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     if (CaloMExNoHF_LS[LS]->GetSum()>0.) {
       int nmean=1;
       if (fitfun_CaloMExNoHF_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
+      if (verbose)
       printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
              CaloMExNoHF_LS[LS]->GetName(),
              fitfun_CaloMExNoHF_LS[LS]->GetChisquare(),double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
@@ -903,6 +929,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     if (CaloMEyNoHF_LS[LS]->GetSum()>0.) {
       int nmean=1;
       if (fitfun_CaloMEyNoHF_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
+      if (verbose)
       printf("| %-30s | %8.3f/%8.3f = %8.3f | %8.3f+-%8.3f | %8.3f+-%8.3f |\n",
              CaloMEyNoHF_LS[LS]->GetName(),
              fitfun_CaloMEyNoHF_LS[LS]->GetChisquare(),double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
@@ -913,14 +940,13 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
                                            fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),
                                            5.,10.);
     }
-  }
+  } // loop over LS
 
 
   //
   // Data certification format
   std::cout << std::endl;
-  int irun=1;
-  printf("run, lumi-sec,        tag name, output\n");
+  printf("   run,       lumi-sec, tag name,                                   output\n");
   for (int LS=0; LS<nLSBins; LS++){
     JetMET_MET_All[LS] = JetMET_MEx_All[LS] * JetMET_MEy_All[LS];
     JetMET_MET_NoHF[LS]= JetMET_MEx_NoHF[LS]* JetMET_MEy_NoHF[LS];
@@ -934,55 +960,32 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     //    std::cout  << ">>> " << LS << " " << JetMET_MET_All[LS] << " " 
     //	       << JetMET_MET_NoHF[LS] << " " << JetMET_MET[LS] << std::endl;
 
-    if (CaloMEx_LS[LS]->GetSum()>0.) {
-      if (LS==0){
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET",     JetMET_MET[LS]);
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
+    if (JetMET_MET[LS]>-1.) {
+      if (LS==0 || LS==1){
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
       }
-      else if (CaloMEx_LS[LS-1]->GetSum()==0.) {	
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET",     JetMET_MET[LS]);
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
+      else if (JetMET_MET[LS-1]==-1.) {	
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
       }
       else {
 	if (JetMET_MET[LS]!=JetMET_MET[LS-1])
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET",     JetMET_MET[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);
 	if (JetMET_MET_All[LS]!=JetMET_MET_All[LS-1])
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_All", JetMET_MET_All[LS]);
 	if (JetMET_MET_NoHF[LS]!=JetMET_MET_NoHF[LS-1])
-	printf("%4d %4d %20s %4d\n",irun,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
+	printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET_NoHF",JetMET_MET_NoHF[LS]);
       }
     }
   }
 
   std::cout << std::endl;
 
-//     if(name.find(tagname)>=name.size())
-//       continue;
-//     totF++;
-//     std::cout << "hm found " << name << std::endl;
-//     float filled=0;
-//     float tot=0;
-//     for(int ix=0; ix<=(*ime)->getNbinsX(); ++ix){
-//       for(int iy=0; iy<=(*ime)->getNbinsY(); ++iy){
-//      tot++;
-//      if((*ime)->getBinContent(ix,iy)>0){
-//        filled++;
-//        std::cout << " " << (*ime)->getBinContent(ix,iy);
-//        bla->Fill((*ime)->getBinContent(ix,iy));
-//      }
-//       }
-//       std::cout << std::endl;
-//     }
-//     std::cout << name  << " " << filled/tot << std::endl;
-//   }
-//   std::cout << "tot " << totF << std::endl;
-
-
   // -- 
   
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
