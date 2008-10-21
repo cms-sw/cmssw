@@ -2,14 +2,13 @@
 
 void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers);
 
-void RelValMacro(TString ref_vers="218",
-		 TString val_vers="218"){
+void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname){
 
   ifstream RelValStream("InputRelVal.txt");
   
-  TFile TTbar_ref_file("HcalRecHitValidationRelVal_TTbar_"+ref_vers+".root"); 
-  TFile TTbar_val_file("HcalRecHitValidationRelVal_TTbar_"+val_vers+".root"); 
-  
+  TFile Ref_File(rfname); 
+  TFile Val_File(vfname); 
+
   //Service variables
   //CaloTowers
   const int TTbar_CT_HB_nHist1 = 5;
@@ -25,14 +24,14 @@ void RelValMacro(TString ref_vers="218",
   const int TTbar_RH_nHist1   = 16;
   const int TTbar_RH_nProfInd = 16;
 
-  ProcessSubDetCT(TTbar_ref_file, TTbar_val_file, RelValStream, TTbar_CT_HB_nHist1, TTbar_CT_HB_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(TTbar_ref_file, TTbar_val_file, RelValStream, TTbar_CT_HE_nHist1, TTbar_CT_HE_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(TTbar_ref_file, TTbar_val_file, RelValStream, TTbar_CT_HF_nHist1, TTbar_CT_HF_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HB_nHist1, TTbar_CT_HB_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HE_nHist1, TTbar_CT_HE_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HF_nHist1, TTbar_CT_HF_nHistTot, ref_vers, val_vers);
 
-  ProcessRelValRecHit(TTbar_ref_file, TTbar_val_file, RelValStream, TTbar_RH_nHist1, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers);
+  ProcessRelValRecHit(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers);
 
-  TTbar_ref_file.Close();
-  TTbar_val_file.Close();
+  Ref_File.Close();
+  Val_File.Close();
 
   return;
 }
