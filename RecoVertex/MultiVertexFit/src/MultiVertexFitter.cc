@@ -8,7 +8,6 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/KalmanChiSquare.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
