@@ -83,110 +83,114 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
 
-
   for( ; towerCand != towers->end(); towerCand++ ) 
-       {
-	 const Candidate* candidate = &(*towerCand);
-	 if (candidate) {
-	   const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
-	   if (calotower)
-	     {
-	       totalEt  += calotower->et();
-	       totalEm  += calotower->emEt();
-	       totalHad += calotower->hadEt();
-	       
-	       bool hadIsDone = false;
-	       bool emIsDone = false;
-	       int cell = calotower->constituentsSize();
-	       while ( --cell >= 0 && (!hadIsDone || !emIsDone) ) 
-		 {
-		   DetId id = calotower->constituent( cell );
-		   if( !hadIsDone && id.det() == DetId::Hcal ) 
-		     {
-		       HcalSubdetector subdet = HcalDetId(id).subdet();
-		       if( subdet == HcalBarrel || subdet == HcalOuter )
-			 {
-			   if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-			   specific.HadEtInHB   += calotower->hadEt();
-			   specific.HadEtInHO   += calotower->outerEt();
-			 }
-		       else if( subdet == HcalEndcap )
-			 {
-			   if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-			   specific.HadEtInHE   += calotower->hadEt();
-			 }
-		       else if( subdet == HcalForward )
-			 {
-			   if (!noHF)
-			     {
-			       if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-			       if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
-			     }
-			   
-			   specific.HadEtInHF   += calotower->hadEt();
-			   specific.EmEtInHF    += calotower->emEt(); 
-			   
-			   if (calotower->eta()>=0)
-			     {
-			       sumEtInpHF            += calotower->et();
-			       MExInpHF -= (calotower->et() * cos(calotower->phi()));
-			       MEyInpHF -= (calotower->et() * sin(calotower->phi()));
-			     }
-			   else
-			     {
-			       sumEtInmHF            += calotower->et();
-			       MExInmHF -= (calotower->et() * cos(calotower->phi()));
-			       MEyInmHF -= (calotower->et() * sin(calotower->phi()));
-			     }
-			 }
-		       hadIsDone = true;
-		     }
-		   else if( !emIsDone && id.det() == DetId::Ecal )
-		     {
-		       EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
-		       if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
-		       if( subdet == EcalBarrel )
-			 {
-			   specific.EmEtInEB    += calotower->emEt(); 
-			 }
-		       else if( subdet == EcalEndcap ) 
-			 {
-			   specific.EmEtInEE    += calotower->emEt();
-			 }
-		       emIsDone = true;
-		     }
-		 }
-	     }
-	 }
-       }
-  
-  // Form sub-det specific MET-vectors
-  LorentzVector METpHF(MExInpHF, MEyInpHF, 0, sqrt(MExInpHF*MExInpHF + MEyInpHF*MEyInpHF));
-  LorentzVector METmHF(MExInmHF, MEyInmHF, 0, sqrt(MExInmHF*MExInmHF + MEyInmHF*MEyInmHF));
-
-  specific.CaloMETInpHF = METpHF.pt();
-  specific.CaloMETInmHF = METmHF.pt();
-
-  specific.CaloMETPhiInpHF = METpHF.Phi();
-  specific.CaloMETPhiInmHF = METmHF.Phi();
-
-  specific.CaloSETInpHF = sumEtInpHF;
-  specific.CaloSETInmHF = sumEtInmHF;
- 
-  // Instantiate containers for the MET candidate and initialise them with
-  // the MET information in "met" (of type CommonMETData)
-
-  // remove HF from MET calculation if specified, but keep HF specific calculations
-  if (noHF)
     {
+      const Candidate* candidate = &(*towerCand);
+      if (candidate) {
+	const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
+	if (calotower)
+	  {
+	    if(calotower->et() < globalThreshold) continue;
+	    totalEt  += calotower->et();
+	    totalEm  += calotower->emEt();
+	           
+	    //totalHad += calotower->hadEt() + calotower->outerEt() ;
+	           
+	    bool hadIsDone = false;
+	    bool emIsDone = false;
+	    int cell = calotower->constituentsSize();
+	    while ( --cell >= 0 && (!hadIsDone || !emIsDone) ) 
+	      {
+		DetId id = calotower->constituent( cell );
+		if( !hadIsDone && id.det() == DetId::Hcal ) 
+		  {
+		    HcalSubdetector subdet = HcalDetId(id).subdet();
+		    if( subdet == HcalBarrel || subdet == HcalOuter )
+		      {
+			if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+			specific.HadEtInHB   += calotower->hadEt();
+			specific.HadEtInHO   += calotower->outerEt();
+		      }
+		    else if( subdet == HcalEndcap )
+		      {
+			if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+			specific.HadEtInHE   += calotower->hadEt();
+		      }
+		    else if( subdet == HcalForward )
+		      {
+			if (!noHF)
+			  {
+			    if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+			    if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+			    //These quantities should be nonzero only if HF is included, i.e., noHF == false
+			    specific.HadEtInHF   += calotower->hadEt();
+			    specific.EmEtInHF    += calotower->emEt();
+			  }
+			else
+			  {
+			    //These quantities need to be corrected from above if HF is excluded
+			    // totalHad             -= calotower->hadEt();  
+			    totalEm              -= calotower->emEt();
+			    totalEt              -= calotower->et();
+			  }
+			// These get calculate regardless of NoHF == true or not.
+			// They are needed below for either case. 
+			if (calotower->eta()>=0)
+			  {
+			    sumEtInpHF  += calotower->et();
+			    MExInpHF    -= (calotower->et() * cos(calotower->phi()));
+			    MEyInpHF    -= (calotower->et() * sin(calotower->phi()));
+			  }
+			else
+			  {
+			    sumEtInmHF  += calotower->et();
+			    MExInmHF    -= (calotower->et() * cos(calotower->phi()));
+			    MEyInmHF    -= (calotower->et() * sin(calotower->phi()));
+			  }
+		      }
+		    hadIsDone = true;
+		  }
+		else if( !emIsDone && id.det() == DetId::Ecal )
+		  {
+		    EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
+		    if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+		    if( subdet == EcalBarrel )
+		      {
+			specific.EmEtInEB    += calotower->emEt(); 
+		      }
+		    else if( subdet == EcalEndcap ) 
+		      {
+			specific.EmEtInEE    += calotower->emEt();
+		      }
+		    emIsDone = true;
+		  }
+	      }
+	  }
+      }
+    }
+  
+  //Following Greg L's suggestion to calculate this quantity outside of the loop and to avoid confusion. 
+  //This should work regardless of HO's inclusion / exclusion .
+  totalHad += (totalEt - totalEm);
+  
+  if(!noHF)
+    { // Form sub-det specific MET-vectors
+      LorentzVector METpHF(MExInpHF, MEyInpHF, 0, sqrt(MExInpHF*MExInpHF + MEyInpHF*MEyInpHF));
+      LorentzVector METmHF(MExInmHF, MEyInmHF, 0, sqrt(MExInmHF*MExInmHF + MEyInmHF*MEyInmHF));
+      specific.CaloMETInpHF = METpHF.pt();
+      specific.CaloMETInmHF = METmHF.pt();
+      specific.CaloMETPhiInpHF = METpHF.Phi();
+      specific.CaloMETPhiInmHF = METmHF.Phi();
+      specific.CaloSETInpHF = sumEtInpHF;
+      specific.CaloSETInmHF = sumEtInmHF;
+    }
+  else
+    { // remove HF from MET calculation 
       met.mex   -= (MExInmHF + MExInpHF);
       met.mey   -= (MEyInmHF + MEyInpHF);
       met.sumet -= (sumEtInpHF + sumEtInmHF);
-      totalEm   -= specific.EmEtInHF;
-      totalHad  -= specific.HadEtInHF;
-      totalEt   -= (sumEtInpHF + sumEtInmHF);
       met.met    = sqrt(met.mex*met.mex + met.mey*met.mey);   
- } 
+    } 
 
   specific.MaxEtInEmTowers         = MaxTowerEm;  
   specific.MaxEtInHadTowers        = MaxTowerHad;         
