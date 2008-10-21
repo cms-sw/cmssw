@@ -3,13 +3,12 @@
 
 /** \class GsfElectronAlgo
  
- * Class to reconstruct electron tracks from electron pixel seeds
- *  keep track of information about the initiating supercluster
- *
- * \author U.Berthon, C.Charlot, LLR Palaiseau
- *
- * \version   2nd Version Oct 10, 2006  
- *
+  Top algorithm producing GsfElectron objects from supercluster driven Gsf tracking
+ 
+  \author U.Berthon, C.Charlot, LLR Palaiseau
+ 
+  \version   2nd Version Oct 10, 2006  
+ 
  ************************************************************/
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
