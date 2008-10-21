@@ -28,6 +28,7 @@ public:
   BlockWipedAllocatorService(const edm::ParameterSet & iConfig,
 			     edm::ActivityRegistry & iAR ) {
     
+    iAR.watchPreSource(this,&BlockWipedAllocatorService::preSource);
     iAR.watchPreProcessEvent(this,&BlockWipedAllocatorService::preEventProcessing);
     iAR.watchPostEndJob(this,&BlockWipedAllocatorService::postEndJob);
     iAR.watchPreModule(this,&BlockWipedAllocatorService::preModule);
@@ -35,11 +36,26 @@ public:
   }
 
   // wipe the workspace before each event
-  void preEventProcessing(const edm::EventID& iEvtid, const edm::Timestamp& iTime) {
+  void preEventProcessing(const edm::EventID&, const edm::Timestamp&) {}
+
+  void preSource() {
+   wiper();
+  }
+
+  void wiper() {
     std::cout << "BlockAllocator stat"<< std::endl;
     Dumper dumper;
     blockWipedPool().visit(dumper);
     blockWipedPool().wipe();
+    {
+       static int c=0;
+       if (20==c) {
+       blockWipedPool().clear();
+       c=0;
+       }
+       c++;
+    }
+
   }
  
   // wipe before each module
@@ -55,8 +71,7 @@ void postModule(const edm::ModuleDescription& desc){
 
   // final stat
   void postEndJob() {
-    Dumper dumper;
-    blockWipedPool().visit(dumper);
+    wiper();
   }
   
 };
