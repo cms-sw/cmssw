@@ -17,6 +17,7 @@
 #include "TDirectory.h"
 #include "sys/stat.h"
 #include "classlib/utils/Regexp.h"
+#include "boost/lexical_cast.hpp"
 
 // 15-Jul-2008, KAB: copied from DQMStore
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
@@ -191,20 +192,20 @@ int DQMInstance::writeFile(std::string filePrefix)
   char fileName[1024];
   TTimeStamp now;
   now.Set();
+  std::string runString("Run ");
+  runString.append(boost::lexical_cast<std::string>(runNumber_));
 
   for (std::map<std::string, DQMGroup * >::iterator i0 = 
 	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
   {
-    std::string groupName = i0->first;
     DQMGroup * group = i0->second;
-    sprintf(fileName,"%s/dqm_%s_%8.8d_%4.4d_%4.4d.root", 
+    sprintf(fileName,"%s/dqm_%8.8d_%4.4d_%4.4d.root", 
 	    filePrefix.c_str(), 
-	    groupName.c_str(), 
 	    runNumber_, 
 	    lumiSection_, 
 	    instance_);
 
-    TFile * file = new TFile(fileName,"RECREATE");
+    TFile * file = new TFile(fileName,"UPDATE");
     if (( file != NULL ) && file->IsOpen())
     {
       int ctr=0;
@@ -216,8 +217,40 @@ int DQMInstance::writeFile(std::string filePrefix)
       {
 	std::string folderName = i1->first;
 	TString path(folderName.c_str());
+	DQMFolder * folder = i1->second;
 
 	TObjArray * tokens = path.Tokenize(token);
+
+        // 15-Oct-2008, KAB - add several extra levels to the
+        // directory structure to match consumer-based histograms.
+        // The TObjArray is the owner of the memory used by its elements,
+        // so it takes care of deleting the extra entries that we add.
+        TObjString * tmpEntry;
+        int origSize = tokens->GetEntries();
+        if (origSize >= 2) {
+          tokens->Expand(origSize + 3);
+        }
+        else {
+          tokens->Expand(origSize + 2);
+        }
+        for (int idx = origSize-1; idx >= 0; --idx) {
+          tmpEntry = (TObjString *) tokens->RemoveAt(idx);
+          if (origSize >= 2 && idx > 0) {
+            tokens->AddAt(tmpEntry, idx+3);
+          }
+          else {
+            tokens->AddAt(tmpEntry, idx+2);
+          }
+        }
+        if (origSize >= 2) {
+          tmpEntry = new TObjString("Run summary");
+          tokens->AddAt(tmpEntry, 3);
+        }
+        tmpEntry = new TObjString(runString.c_str());
+        tokens->AddAt(tmpEntry, 1);
+        tmpEntry = new TObjString("DQMData");
+        tokens->AddAt(tmpEntry, 0);
+
 	int nTokens = tokens->GetEntries();
 	TDirectory * newDir = NULL;
 	TDirectory * oldDir = (TDirectory *)file;
@@ -233,13 +266,7 @@ int DQMInstance::writeFile(std::string filePrefix)
 	  oldDir = newDir;
 	}
 	delete(tokens);
-      }
-
-      for ( std::map<std::string, DQMFolder *>::iterator i1 = 
-	      group->dqmFolders_.begin(); i1 != group->dqmFolders_.end(); ++i1)
-      {
-	std::string folderName = i1->first;
-	DQMFolder * folder = i1->second;
+        oldDir->cd();
 
 	for ( std::map<std::string, TObject *>::iterator i2 = 
 	      folder->dqmObjects_.begin(); i2 != folder->dqmObjects_.end(); 
@@ -249,7 +276,6 @@ int DQMInstance::writeFile(std::string filePrefix)
 	  TObject *object = i2->second;
 	  if ( object != NULL ) 
 	  {
-	    file->cd(folderName.c_str());
 	    object->Write();
 	    reply++;
 	    ctr++;
