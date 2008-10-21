@@ -18,6 +18,8 @@
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <cmath>
 
 using namespace SurfaceSideDefinition;
@@ -47,6 +49,11 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
     if ( !parametersOK || dphi2>theMaxDPhi2 )  return TsosWP(TrajectoryStateOnSurface(),0.);
   }
   else {
+    LogDebug("AnalyticalPropagator")<<"not going anywhere. Already on surface.\n"
+				    <<"plane.localZ(fts.position()): "<<plane.localZ(fts.position())<<"\n"
+				    <<"maxDistToPlane: "<<maxDistToPlane<<"\n"
+				    <<"maxDz: "<<maxDz<<"\n"
+				    <<"plane.position().mag(): "<<plane.position().mag();
     x = fts.position();
     p = fts.momentum();
     s = 0.;
