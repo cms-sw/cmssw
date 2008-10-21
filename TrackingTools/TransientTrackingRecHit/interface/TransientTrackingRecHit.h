@@ -7,11 +7,12 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 //RC #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
 class GeomDetUnit;
 
 class TransientTrackingRecHit : public TrackingRecHit, 
-				public ReferenceCounted {
+				public ReferenceCountedPoolAllocated {
 public:
 
   //RC typedef edm::OwnVector<const TransientTrackingRecHit>        RecHitContainer;

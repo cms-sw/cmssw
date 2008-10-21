@@ -20,7 +20,7 @@
 
 namespace reco {
 
-  class BasicTransientTrack : private ReferenceCounted {
+  class BasicTransientTrack : public ReferenceCountedPoolAllocated {
   public:
 
     typedef BasicTransientTrack                              BTT;

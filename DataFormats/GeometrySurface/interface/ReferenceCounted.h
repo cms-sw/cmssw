@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.1 2007/01/17 20:58:44 wmtan Exp $
+// $Id: ReferenceCounted.h,v 1.2 2008/10/21 12:03:33 innocent Exp $
 //
 
 // system include files
@@ -85,6 +85,7 @@ inline void intrusive_ptr_release( const ReferenceCounted* iRef ) {
 }
 
 
+#ifdef CMSSW_POOLALLOCATOR
 
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
@@ -93,6 +94,9 @@ class ReferenceCountedPoolAllocated :
   public BlockWipedPoolAllocated
 {};
 
+#else
+typedef ReferenceCounted  ReferenceCountedPoolAllocated;
+#endif
 
 
 #endif /* SURFACE_REFERENCECOUNTED_H */
