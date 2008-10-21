@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/18 21:02:36 $
- * $Revision: 1.81 $
+ * $Date: 2008/10/19 09:38:12 $
+ * $Revision: 1.82 $
  * \author W Fisher
  *
 */
@@ -47,11 +47,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   dbe_ = Service<DQMStore>().operator->();
   
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
-  if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
-
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
-
   
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
@@ -177,7 +174,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-  cout <<"HcalMonitorModule: Destructor...\n"<<endl;
 // if (dbe_){    
 //   if(digiMon_!=NULL)   {  digiMon_->clearME();}
 //   if(dfMon_!=NULL)     {  dfMon_->clearME();}
@@ -214,8 +210,6 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   ievt_ = 0;
   
   ievt_pre_=0;
-
-  if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
 
   if ( dbe_ != NULL ){
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
@@ -306,11 +300,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
-  if(debug_) cout <<"HcalMonitorModule::beginRun"<<endl;
-
   fedsListed_ = false;
   reset();
-  if(debug_) cout <<"Finished beginRun"<<endl;
 }
 
 //--------------------------------------------------------
@@ -333,15 +324,11 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 //--------------------------------------------------------
 void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context){
-  cout <<"HcalMonitorModule::endRun"<<endl;
   }
 
 
 //--------------------------------------------------------
 void HcalMonitorModule::endJob(void) {
-
-  if(debug_) cout << "HcalMonitorModule: end job...." << endl;  
-  cout << "HcalMonitorModule::endJob, analyzed " << ievt_ << " events" << endl;
   
   if ( meStatus_ ) meStatus_->Fill(2);
 
@@ -366,8 +353,6 @@ void HcalMonitorModule::endJob(void) {
 //--------------------------------------------------------
 void HcalMonitorModule::reset(){
 
-  if(debug_) cout << "HcalMonitorModule: reset...." << endl;
-
   if(rhMon_!=NULL)   rhMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();
   if(dfMon_!=NULL)   dfMon_->reset();
@@ -387,8 +372,6 @@ void HcalMonitorModule::reset(){
 
 //--------------------------------------------------------
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
-
-  if(debug_) cout << "HcalMonitorModule: analyze...." << endl;
 
   // environment datamembers
   irun_     = e.id().run();
