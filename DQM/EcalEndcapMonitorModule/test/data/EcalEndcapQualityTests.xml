@@ -1129,4 +1129,8 @@
         <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
+<LINK name="*EcalEndcap/EERawDataTask/EERDT gap errors">
+        <TestName activate="true">EE_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>

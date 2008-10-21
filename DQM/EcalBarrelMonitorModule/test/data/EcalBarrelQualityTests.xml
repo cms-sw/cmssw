@@ -919,4 +919,8 @@
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT gap errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>
