@@ -30,4 +30,5 @@ from RecoTracker.TrackProducer.RSFinalFitWithMaterial_cfi import *
 # include TrackProducer and clone with new module label
 rsWithMaterialTracksP5 = copy.deepcopy(rsWithMaterialTracks)
 rsWithMaterialTracksP5.src = 'rsTrackCandidatesP5'
+rsWithMaterialTracksP5.TTRHBuilder = 'WithTrackAngle'
 
