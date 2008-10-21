@@ -16,11 +16,12 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.9 2008/06/13 23:30:23 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.10 2008/08/15 06:38:41 jmuelmen Exp $
 //
 
 // system include files
 #include <vector>
+#include <boost/shared_ptr.hpp>
 #include "sigc++/signal.h"
 
 // user include files
@@ -30,11 +31,16 @@
 namespace fwlite {
   class Event;
 }
+namespace fireworks {
+   class Context;
+}
+
 class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWModelChangeManager;
 class FWSelectionManager;
 class DetIdToMatrix;
+class FWItemAccessorFactory;
 
 class FWEventItemsManager : public FWConfigurable
 {
@@ -64,6 +70,8 @@ class FWEventItemsManager : public FWConfigurable
       void newEvent(const fwlite::Event* iEvent);
       void setGeom(const DetIdToMatrix* geom);
    
+      void setContext(fireworks::Context*);
+   
       sigc::signal<void, FWEventItem*> newItem_;
       sigc::signal<void> goingToClearItems_;
    private:
@@ -77,9 +85,11 @@ class FWEventItemsManager : public FWConfigurable
       std::vector<FWEventItem*> m_items;
       FWModelChangeManager* m_changeManager;
       FWSelectionManager* m_selectionManager;
+      fireworks::Context* m_context;
    
       const fwlite::Event* m_event;
-     const DetIdToMatrix *m_geom;
+      const DetIdToMatrix *m_geom;
+      boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.13 2008/06/13 23:30:23 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.14 2008/08/15 06:38:42 jmuelmen Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 
+#include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 //
 // constants, enums and typedefs
 //
@@ -41,7 +42,8 @@ FWSelectionManager* iSelMgr):
 m_changeManager(iManager),
 m_selectionManager(iSelMgr),
 m_event(0),
-m_geom(0)
+m_geom(0),
+m_accessorFactory(new FWItemAccessorFactory())
 {
 }
 
@@ -77,7 +79,8 @@ FWEventItemsManager::~FWEventItemsManager()
 const FWEventItem* 
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
-  m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,m_items.size(),iItem) );
+  m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(iItem.type()),
+                                    iItem) );
   newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
    m_items.back()->setGeom(m_geom);
@@ -227,6 +230,11 @@ FWEventItemsManager::removeItem(const FWEventItem* iItem)
    m_items[iItem->id()]=0;
 }
 
+void 
+FWEventItemsManager::setContext(fireworks::Context* iContext)
+{
+   m_context = iContext;
+}
 
 //
 // const member functions
