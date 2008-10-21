@@ -6,7 +6,8 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     speed = cms.int32(0),
     PixelErrorParametrization = cms.string('NOTcmsim'),
     Alpha2Order = cms.bool(True),
-    UseClusterSplitter = cms.bool(False)
+    UseClusterSplitter = cms.bool(False),
+    ClusterProbComputationFlag = cms.untracked.int32(0)
 )
 
 
