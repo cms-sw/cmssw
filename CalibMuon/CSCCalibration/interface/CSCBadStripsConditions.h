@@ -43,9 +43,7 @@ class CSCBadStripsConditions: public edm::ESProducer, public edm::EventSetupReco
 // to workaround plugin library
 inline CSCBadStrips *  CSCBadStripsConditions::prefillBadStrips()
 {
-  //  const int MAX_SIZE = 217728;
   CSCBadStrips * cndbbadstrips = new CSCBadStrips();
-  //bool bad=false; //use boolean to fill bad channels
 
   int new_index, new_chan;
   int new_layer,new_channel, new_flag1, new_flag2, new_flag3,new_pointer;
@@ -59,8 +57,6 @@ inline CSCBadStrips *  CSCBadStripsConditions::prefillBadStrips()
   std::vector<int> new_cham_id;
   std::vector<int> new_point;
 
-  // int counter;
-  //  int db_nrlines=0;
   int new_nrlines1=0;
   int new_nrlines2=0;
  
@@ -105,13 +101,9 @@ inline CSCBadStrips *  CSCBadStripsConditions::prefillBadStrips()
   CSCBadStrips::BadChannelContainer & itemvector2 = cndbbadstrips->channels;
   itemvector2.resize(new_nrlines2);
   
-  // std::cout<<new_nrlines1<<" "<<new_nrlines2<<std::endl;
-  cndbbadstrips->numberOfBadChannels = new_nrlines2;
+  cndbbadstrips->numberOfBadChannels = new_nrlines2-1;
 
-  //if(new_index_id.empty()) bad=false; 
-  //if(!new_index_id.empty()) bad=true;
-
-  for(int i=0; i<new_nrlines1-1;i++){
+  for(int i=0; i<new_nrlines1;i++){
     itemvector1[i].chamber_index = new_index_id[i];
     itemvector1[i].pointer = new_point[i];
     itemvector1[i].bad_channels = new_badchannels[i];

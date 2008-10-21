@@ -43,7 +43,6 @@ class CSCBadWiresConditions: public edm::ESProducer, public edm::EventSetupRecor
 // to workaround plugin library
 inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
 {
-  //  const int MAX_SIZE = 217728;
   CSCBadWires * cndbbadwires = new CSCBadWires();
   bool bad=false; //use boolean to fill bad channels
 
@@ -56,8 +55,6 @@ inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
   std::vector<int> new_cham_id;
   std::vector<int> new_point;
 
-  // int counter;
-  //  int db_nrlines=0;
   int new_nrlines=0;
  
   std::ifstream newdata;
@@ -84,12 +81,12 @@ inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
   itemvector.resize(new_nrlines);
   CSCBadWires::BadChamberContainer & itemvector1 = cndbbadwires->chambers;
   itemvector1.resize(new_nrlines);
-  cndbbadwires->numberOfBadChannels = new_nrlines;
+  cndbbadwires->numberOfBadChannels = new_nrlines-1;
 
   if(new_index_id.empty()) bad=false; 
   if(!new_index_id.empty()) bad=true;
 
-  for(unsigned int i=0; i<new_index_id.size()-1;++i){
+  for(unsigned int i=0; i<new_index_id.size();++i){
        itemvector[i].layer =  new_layer;
        itemvector[i].channel =  new_channel;
        itemvector[i].flag1 =  new_flag1;
