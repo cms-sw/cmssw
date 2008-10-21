@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginmanager_t.cc,v 1.3 2007/08/06 19:50:26 wmtan Exp $
+// $Id: pluginmanager_t.cc,v 1.5 2008/01/22 22:10:38 wmtan Exp $
 //
 
 // system include files
@@ -58,6 +58,17 @@ struct Catcher {
 };
 */
 
+namespace testedmplugin {
+  struct DummyThree: public DummyBase {
+    int value() const {
+      return 3;
+    }
+  };
+}
+
+DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory,testedmplugin::DummyThree,"DummyThree");
+
+
 void
 TestPluginManager::test()
 {
@@ -87,7 +98,10 @@ TestPluginManager::test()
 
   std::auto_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
   CPPUNIT_ASSERT(1==ptr->value());
-
+  CPPUNIT_ASSERT(db.loadableFor("Test Dummy", "DummyThree") == "static");
+  std::auto_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
+  CPPUNIT_ASSERT(3==ptr2->value());
+ 
   CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), cms::Exception);
   
 }

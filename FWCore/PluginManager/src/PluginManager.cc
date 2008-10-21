@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.8 2007/07/02 21:10:22 chrjones Exp $
+// $Id: PluginManager.cc,v 1.9 2007/07/03 19:17:37 chrjones Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 #include "FWCore/PluginManager/interface/CacheParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,7 +48,15 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
     pfm->newFactory_.connect(boost::bind(boost::mem_fn(&PluginManager::newFactory),this,_1));
-    
+
+    // When building a single big executable the plugins are already registered in the 
+    // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
+    // with the relevant information.
+    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i)
+    {
+    	categoryToInfos_[(*i)->category()] = (*i)->available();
+    }
+
     //read in the files
     //Since we are looping in the 'precidence' order then the lists in categoryToInfos_ will also be
     // in that order
