@@ -41,6 +41,8 @@
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
+#include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(CSCPedestalsRcd,CSCPedestals);
