@@ -29,7 +29,7 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       dbe = Service<DQMStore>().operator->();
 
       // wire digis
-      dbe->setCurrentFolder("Muons/CSCOfflineMonitor/Digis");
+      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Digis");
       hWireAll  = dbe->book1D("hWireAll","all wire group numbers",121,-0.5,120.5);
       hWireTBinAll  = dbe->book1D("hWireTBinAll","time bins all wires",21,-0.5,20.5);
       hWirenGroupsTotal = dbe->book1D("hWirenGroupsTotal","total number of wire groups",101,-0.5,100.5);
@@ -130,7 +130,7 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
 
 
       //Pedestal Noise Plots
-      dbe->setCurrentFolder("Muons/CSCOfflineMonitor/PedestalNoise");
+      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/PedestalNoise");
 
       hStripPedAll = dbe->book1D("hStripPed","Pedestal Noise Distribution",50,-25.,25.);
 
@@ -158,7 +158,7 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       //hPedvsStrip = dbe->book2D("hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.);
 
       // recHits
-      dbe->setCurrentFolder("Muons/CSCOfflineMonitor/recHits");
+      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/recHits");
       hRHCodeBroad = dbe->book1D("hRHCodeBroad","broad scope code for recHits",33,-16.5,16.5);
       hRHCodeNarrow.push_back(dbe->book1D("hRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5));
       hRHCodeNarrow.push_back(dbe->book1D("hRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5));
@@ -309,7 +309,7 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       hRHnrechits = dbe->book1D("hRHnrechits","recHits per Event (all chambers)",50,0,50);
 
       // segments
-      dbe->setCurrentFolder("Muons/CSCOfflineMonitor/Segments");
+      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Segments");
       hSCodeBroad = dbe->book1D("hSCodeBroad","broad scope code for recHits",33,-16.5,16.5);
       hSCodeNarrow.push_back(dbe->book1D("hSCodeNarrow1","narrow scope Segment code station 1",801,-400.5,400.5));
       hSCodeNarrow.push_back(dbe->book1D("hSCodeNarrow2","narrow scope Segment code station 2",801,-400.5,400.5));
@@ -395,6 +395,7 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       hSResid.push_back(dbe->book1D("hSResidp42","Fitted Position on Strip - Reconstructed for Layer 3 (ME +4/2)",100,-0.5,0.5));
 
       //occupancy plots
+      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/LocalRecoOccupancy");
       hOWires = dbe->book2D("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
       hOStrips = dbe->book2D("hOStrips","Strip Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
       hORecHits = dbe->book2D("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5);
