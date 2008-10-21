@@ -32,6 +32,8 @@ class GflashG4Watcher : public SimWatcher,
 
   G4bool        inc_flag;
   G4double      inc_energy;
+  G4double      out_energy;
+  G4ThreeVector inc_vertex;
   G4ThreeVector inc_direction;
   G4ThreeVector inc_position;
 
@@ -42,15 +44,30 @@ class GflashG4Watcher : public SimWatcher,
   // histograms for GflashG4Watcher
 
   std::string histFileName_;
+  double recoEnergyScaleEB_;
+  double recoEnergyScaleEE_;
+
   TFile*    histFile_;
 
   TH1F*     em_incE;
-  TH1F*     em_ssp_rho;
-  TH1F*     em_ssp_z;
-  TH1F*     em_long;
-  TH2F*     em_lateral;
-  TH1F*     em_long_sd;
-  TH2F*     em_lateral_sd;
+  TH1F*     em_vtx_rho;
+  TH1F*     em_vtx_z;
+
+  TH1F*     eb_ssp_rho;
+  TH1F*     eb_hit_long;
+  TH1F*     eb_hit_lat;
+  TH2F*     eb_hit_rz;
+  TH1F*     eb_hit_long_sd;
+  TH1F*     eb_hit_lat_sd;
+  TH2F*     eb_hit_rz_sd;
+
+  TH1F*     ee_ssp_z;
+  TH1F*     ee_hit_long;
+  TH1F*     ee_hit_lat;
+  TH2F*     ee_hit_rz;
+  TH1F*     ee_hit_long_sd;
+  TH1F*     ee_hit_lat_sd;
+  TH2F*     ee_hit_rz_sd;
 
 };
 

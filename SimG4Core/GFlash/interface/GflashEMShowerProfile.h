@@ -26,8 +26,6 @@ public:
 
 private:  
 
-  edm::ParameterSet theParSet;
-
   GflashHistogram* theHisto;
   GflashTrajectory* theHelix;
   G4Step *theGflashStep;
@@ -36,6 +34,10 @@ private:
 
   CLHEP::RandGaussQ* theRandGauss;
   Gflash::CalorimeterNumber jCalorimeter;
+
+  edm::ParameterSet theParSet;
+
+  bool theWatcherOn;
   G4double theBField;
 
   // temporary addition for tuning parameters

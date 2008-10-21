@@ -52,6 +52,7 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_had.root'),
     bField = cms.double(3.8),
+    watcherOn = cms.bool(False),
     tuning_pList = cms.vdouble()
 )
 

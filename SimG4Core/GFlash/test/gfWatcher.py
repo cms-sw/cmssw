@@ -5,7 +5,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -31,10 +32,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         PartID = cms.untracked.vint32(11),
-        MinEta = cms.untracked.double(-1.0),
-        MaxEta = cms.untracked.double(1.0),
-        MinPhi = cms.untracked.double(-3.14159265359),
-        MaxPhi = cms.untracked.double(3.14159265359),
+        MinEta = cms.untracked.double(0.07),
+        MaxEta = cms.untracked.double(0.07),
+        MinPhi = cms.untracked.double(0.1),
+        MaxPhi = cms.untracked.double(0.1),
         MinE = cms.untracked.double(20.0),
         MaxE = cms.untracked.double(20.0)
     ),
@@ -43,6 +44,7 @@ process.source = cms.Source("FlatRandomEGunSource",
 
 process.load("SimG4Core.GFlash.cmsGflashGeometryXML_cfi")
 
+
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/GFlash'
 process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHadronPhysics = cms.string('QGSP_BERT'),
@@ -50,14 +52,26 @@ process.g4SimHits.Physics.GFlash = cms.PSet(
     GflashHadronShowerModel = cms.bool(True),
     GflashHistogram = cms.bool(True),
     GflashHistogramName = cms.string('gflash_em.root'),
-    bField = cms.double(3.8),
-    watcherOn = cms.bool(False),
+    bField = cms.double(0.0),
+    watcherOn = cms.bool(True),
     tuning_pList = cms.vdouble()
 )
 
 
+process.g4SimHits.Watchers = cms.VPSet(
+    cms.PSet(
+      GflashG4Watcher = cms.PSet(
+        histFileName = cms.string('watcher_gf.root'),
+        recoEnergyScaleEB = cms.double(1.0),
+        recoEnergyScaleEE = cms.double(1.0)
+      ),
+    type = cms.string('GflashG4Watcher')
+    )
+)
+
+
 process.o1 = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('sim_gflash_em.root')
+    fileName = cms.untracked.string('sim_g4_em.root')
 )
 
 process.p1 = cms.Path(process.g4SimHits)

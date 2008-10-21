@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.11 2008/09/29 22:24:33 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.12 2008/10/08 01:56:24 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -8,6 +8,8 @@
 #include "G4VPhysicalVolume.hh" 
 #include "G4LogicalVolume.hh"
 #include "G4VSensitiveDetector.hh"
+#include "G4EventManager.hh"
+#include "G4SteppingManager.hh"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -15,6 +17,7 @@
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
@@ -31,6 +34,7 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterS
 
   jCalorimeter = Gflash::kNULL;
   theBField = parSet.getParameter<double>("bField");
+  theWatcherOn = parSet.getParameter<bool>("watcherOn");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -57,6 +61,7 @@ GflashEMShowerProfile::~GflashEMShowerProfile()
 
 void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 {
+
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1
 
@@ -303,6 +308,12 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
       theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
       theGflashStep->SetTotalEnergyDeposit(emSpotEnergy);
     
+      // if there is a watcher defined in a job and the flag is turned on
+      if(theWatcherOn) {
+	SteppingAction* userSteppingAction = (SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
+	userSteppingAction->m_g4StepSignal(theGflashStep);
+      }
+
       G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
 
       if(theHisto->getStoreFlag()) {
