@@ -187,19 +187,14 @@ rpcRecHits.rpcDigiLabel = 'simMuonRPCDigis'
 dt1DRecHits.dtDigiLabel = 'simMuonDTDigis'
 
 # Muon reconstruction sequence
-from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
-from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
-from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cfi import *
-from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
-from FastSimulation.Configuration.globalMuons_cff import *
-globalMuons.TrackerCollectionLabel = 'generalTracks'
+from RecoMuon.Configuration.RecoMuon_cff import *
 globalMuons.GLBTrajBuilderParameters.TrackRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 
 famosMuonSequence = cms.Sequence(
     muonDigi+
     muonlocalreco+
-    MuonSeed+
+    ancientMuonSeed+
     standAloneMuons+
     globalMuons
 )
