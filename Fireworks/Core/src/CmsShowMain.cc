@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.40 2008/08/25 00:08:29 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.41 2008/09/22 17:41:58 amraktad Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
+#include "Fireworks/Core/interface/Context.h"
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -144,12 +145,15 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                       m_selectionManager.get())),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_textView(0),
+  m_context(new fireworks::Context(m_changeManager.get(), 
+                                   m_selectionManager.get())),
   m_playTimer(0),
   m_playBackTimer(0),
   m_isPlaying(false),
   m_playDelay(3000)
   //  m_configFileName(iConfigFileName)
 {
+   m_eiManager->setContext(m_context.get());
    try {
       std::string descString(argv[0]);
       descString += " [options] <data file>\nAllowed options";

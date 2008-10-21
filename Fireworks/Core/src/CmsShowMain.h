@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.6 2008/08/20 21:02:05 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.7 2008/08/24 13:23:26 dmytro Exp $
 //
 
 // system include files
@@ -46,9 +46,12 @@ class FWTextView;
 class TTimer;
 class TMonitor;
 class TSocket;
-
 class CmsShowNavigator;
 class CmsShowTaskExecutor;
+
+namespace fireworks {
+   class Context;
+}
 
 namespace fwlite {
   class Event;
@@ -113,6 +116,7 @@ private:
   std::auto_ptr<FWViewManagerManager> m_viewManager;
   std::auto_ptr<FWGUIManager> m_guiManager;
   std::auto_ptr<FWTextView> m_textView;
+  std::auto_ptr<fireworks::Context> m_context;
 
   CmsShowNavigator* m_navigator;
 
