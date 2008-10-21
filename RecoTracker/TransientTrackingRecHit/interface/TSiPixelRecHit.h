@@ -72,43 +72,38 @@ public:
   }
 
 
+  //!  Probability of the compatibility of the track with the pixel cluster shape.
+  virtual float clusterProbability() {
+    return theHitData.clusterProbability( theClusterProbComputationFlag );
+  }
+
+
+
 private:
 
   SiPixelRecHit                         theHitData;
   const PixelClusterParameterEstimator* theCPE;
+  unsigned int                          theClusterProbComputationFlag;
 
-  /// This constructor copy the TrackingRecHit, it should be used when the 
-  /// TrackingRecHit exist already in some collection
+  /// This private constructor copies the TrackingRecHit.  It should be used when the 
+  /// TrackingRecHit exist already in some collection.
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 		 const PixelClusterParameterEstimator* cpe,
-		 float weight, float annealing) : 
-    TransientTrackingRecHit(geom, *rh, weight, annealing) , theCPE(cpe) {
-    if (rh->hasPositionAndError())
-      theHitData = SiPixelRecHit(*rh);
-    else{
-    const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
-    if (gdu){
-      PixelClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
-      theHitData = SiPixelRecHit(lval.first, lval.second,geom->geographicalId(),rh->cluster());
-    }else{
-      edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
-      theHitData = SiPixelRecHit(*rh);
-    }
-    }
-  }
+		 float weight, float annealing);
 
-  /// Creates the TrackingRecHit internally, avoids redundent cloning
+
+
+  /// Another private constructor.  It creates the TrackingRecHit internally, 
+  /// avoiding redundent cloning.
   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 				const GeomDet* det, 
 		  //				const SiPixelCluster& clust,
 		  clusterRef clust,
 		  const PixelClusterParameterEstimator* cpe,
-		  float weight, float annealing) :
-    TransientTrackingRecHit(det,weight, annealing), 
-    theHitData( pos, err, det->geographicalId(), clust),
-    theCPE(cpe)
-  {}
+		  float weight, float annealing);
+
   
+
   //  TSiPixelRecHit( const TSiPixelRecHit& other ) :
   //  TransientTrackingRecHit( other.det()), 
   //  theHitData( other.specificHit()->clone()),
