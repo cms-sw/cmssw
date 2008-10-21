@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/14 16:19:54 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/10/14 20:35:49 $
+ *  $Revision: 1.13 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -137,7 +137,18 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
 
+    //     std::cout << "triggerResults is valid" << std::endl;
+    //     std::cout << triggerResults << std::endl;
+    //     std::cout << triggerResults.isValid() << std::endl;
+
   } else {
+
+    edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
+    triggerResults = (*tr);
+    //     std::cout << "triggerResults is not valid" << std::endl;
+    //     std::cout << triggerResults << std::endl;
+    //     std::cout << triggerResults.isValid() << std::endl;
+
     if (DEBUG) std::cout << "trigger not valid " << std::endl;
     edm::LogInfo("JetAnalyzer") << "TriggerResults::HLT not found, "
       "automatically select events";
