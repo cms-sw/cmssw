@@ -23,8 +23,15 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
     GlobalPoint center(0,0,0);
     propState = middle.extrapolate(fts, center, propagator(dir));
     if ( !propState.isValid()) return false;
+
     FreeTrajectoryState & dest = *propState.freeState();
     GlobalPoint middlePoint = dest.position();
+    const double toCloseToEachOther=1e-4;
+    if ( (middlePoint-initialPoint).mag() < toCloseToEachOther){
+      LogDebug("SimpleNavigableLayer")<<"initial state and PCA are identical. Things are bound to fail. Do not add the link.";
+      return false;
+    }
+
     std::string dirS;
     if (dir==alongMomentum) dirS = "alongMomentum";
     else if (dir==oppositeToMomentum) dirS = "oppositeToMomentum";
