@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -192,14 +193,15 @@ namespace edm {
 	  itLabel != itLabelEnd;
 	  ++itLabel) {
 	if (allowUnscheduled) {
-	  unscheduledLabels.insert(*itLabel);
 	  //Need to hold onto the parameters long enough to make the call to getWorker
 	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
 	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
 			      processName_, getReleaseVersion(), getPassID());
 	  Worker* newWorker(wreg.getWorker(params));
-	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker)) {
+	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+              dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) {
+            unscheduledLabels.insert(*itLabel);
 	    unscheduled_->addWorker(newWorker);
 	    //add to list so it gets reset each new event
             addToAllWorkers(newWorker);
@@ -253,7 +255,8 @@ namespace edm {
 	  itProdInfoEnd = prodsList.end();
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
-      if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
+      if(processName_ == itProdInfo->second.processName() &&
+         unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
 	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
 	demandBranches_.push_back(bd);
       }
@@ -371,21 +374,9 @@ namespace edm {
     Workers holder;
     fillWorkers(name,tmpworkers);
 
-    // check for any OutputModules
     for(PathWorkers::iterator wi(tmpworkers.begin()),
 	  we(tmpworkers.end()); wi != we; ++wi) {
-      Worker* tworker = wi->getWorker();
-      if(dynamic_cast<OutputWorker*>(tworker) != 0) {
-	throw edm::Exception(edm::errors::Configuration)
-	  << "\nOutputModule "
-	  << tworker->description().moduleLabel_
-	  << " appears in path " << name << ".\n"
-	  << "An output module is allowed only on an endpath.\n"
-	  << "If you wish to select specific events for output,\n"
-	  << "you need to use the 'SelectEvents' parameter\n"
-	  << "in the specification for that output module.\n";
-      }
-      holder.push_back(tworker);
+      holder.push_back(wi->getWorker());
     }
 
     // an empty path will cause an extra bit that is not used
@@ -401,27 +392,9 @@ namespace edm {
     fillWorkers(name,tmpworkers);
     Workers holder;
 
-    // check for any Filters or Producers
     for(PathWorkers::iterator wi(tmpworkers.begin()),
 	  we(tmpworkers.end()); wi != we; ++wi) {
-      Worker* tworker = wi->getWorker();
-      if(dynamic_cast<WorkerT<EDFilter>*>(tworker) != 0) {
-	throw edm::Exception(edm::errors::Configuration)
-	  << "\nFilter "
-	  << tworker->description().moduleLabel_
-	  << " appears in endpath " << name << ".\n"
-	  << "A filter is not allowed in an endpath.\n";
-      }
-      if(dynamic_cast<WorkerT<EDProducer>*>(tworker) != 0) {
-	LogWarning("Producer on endpath")
-          // throw edm::Exception(edm::errors::Configuration)
-	  << "\nProducer "
-	  << tworker->description().moduleLabel_
-	  << " appears in endpath " << name << ".\n"
-	  // << "A producer is not allowed in an endpath.\n";
-	  << "A producer should not be in an endpath.\n";
-      }
-      holder.push_back(tworker);
+      holder.push_back(wi->getWorker());
     }
 
     if (!tmpworkers.empty()) {

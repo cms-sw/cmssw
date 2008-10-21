@@ -14,6 +14,7 @@ and how it came into existence.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 /*
   EventEntryDescription
@@ -27,13 +28,48 @@ and how it came into existence.
 */
 
 namespace edm {
-  struct EventEntryDescription {
+  class EventEntryDescription {
+  public:
     EventEntryDescription();
 
     ~EventEntryDescription() {}
 
     // Only the 'salient attributes' are encoded into the ID.
     EntryDescriptionID id() const;
+
+    void write(std::ostream& os) const;
+
+    std::string const& moduleName() const {return getModuleDescriptionPtr()->moduleName_;}
+    PassID const& passID() const {return getModuleDescriptionPtr()->passID();}
+    ParameterSetID const& psetID() const {return getModuleDescriptionPtr()->parameterSetID();}
+    ReleaseVersion const& releaseVersion() const {return getModuleDescriptionPtr()->releaseVersion();}
+    std::vector<BranchID> const& parents() const {return parents_;}
+    std::vector<BranchID> & parents() {return parents_;}
+
+    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
+    ModuleDescriptionID & moduleDescriptionID() {return moduleDescriptionID_;}
+    ModuleDescription const& moduleDescription() const {return *getModuleDescriptionPtr();}
+
+    struct Transients {
+      Transients() : moduleDescriptionPtr_() {}
+      boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_;
+    };
+
+    void setDefaultTransients() const {
+	transients_ = Transients();
+    };
+
+  private:
+    void init() const;
+
+    boost::shared_ptr<ModuleDescription> & getModuleDescriptionPtr() const {
+      init();
+      return transients_.get().moduleDescriptionPtr_;
+    }
+
+    boost::shared_ptr<ModuleDescription> & moduleDescriptionPtr() const {
+      return transients_.get().moduleDescriptionPtr_;
+    }
 
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
@@ -42,21 +78,7 @@ namespace edm {
 
     ModuleDescriptionID moduleDescriptionID_;
 
-    // transient.  Filled in from the hash when needed.
-    mutable boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_; //! transient
-
-    void init() const;
-
-    void write(std::ostream& os) const;
-
-    std::string const& moduleName() const {init(); return moduleDescriptionPtr_->moduleName_;}
-    PassID const& passID() const {init(); return moduleDescriptionPtr_->passID();}
-    ParameterSetID const& psetID() const {init(); return moduleDescriptionPtr_->parameterSetID();}
-    ReleaseVersion const& releaseVersion() const {init(); return moduleDescriptionPtr_->releaseVersion();}
-    std::vector<BranchID> const& parents() const {return parents_;}
-
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
-    ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}
+    mutable Transient<Transients> transients_;
   };
   
   inline

@@ -23,7 +23,6 @@ class SMFUSenderList  //< list of data senders with thread-safe access
 
   // following method uses the list lock
 
-  void clear();
   /// number of registered data senders
   unsigned int size();
   unsigned int numberOfRB() const { return numberOfRB_;}
@@ -60,10 +59,6 @@ class SMFUSenderList  //< list of data senders with thread-safe access
     const std::string outModName, const uint32 fuID);
   /// methods for access to sender info and statistics
   char* getRegistryData(const char* hltURL,
-    const char* hltClassName, const unsigned int hltLocalId,
-    const unsigned int hltInstance, const unsigned int hltTid, 
-    const std::string outModName, const uint32 fuID);
-  void shrinkRegistryData(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, 
     const std::string outModName, const uint32 fuID);

@@ -235,3 +235,14 @@ const L1GctHfEtSumsLut* L1GctGlobalHfSumAlgos::getESLut(const L1GctHfLutSetup::h
   }
 }
 
+/// Get thresholds
+std::vector<unsigned> L1GctGlobalHfSumAlgos::getThresholds(const L1GctHfLutSetup::hfLutType type) const
+{
+  std::vector<unsigned> result;
+  const L1GctHfBitCountsLut* BCLut = getBCLut(type);
+  if (BCLut != 0) { result = BCLut->lutFunction()->getThresholds(type); }
+  const L1GctHfEtSumsLut* ESLut = getESLut(type);
+  if (ESLut != 0) { result = ESLut->lutFunction()->getThresholds(type); }
+  return result;
+} 
+

@@ -24,7 +24,8 @@ using namespace ctfseeding;
 
 CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf): 
   conf_(conf),
-  requireBOFF(conf.getParameter<bool>("requireBOFF"))
+  requireBOFF(conf.getParameter<bool>("requireBOFF")),
+  theMaxSeeds(conf.getParameter<int32_t>("maxSeeds"))
 {
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
@@ -147,7 +148,8 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   ClusterChecker check(conf_);
   if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
       if (!check.tooManyClusters(e)){
-          run(iSetup, e, *output);
+          bool ok = run(iSetup, e, *output);
+          if (!ok) { ; } // nothing to do
       }
   }
   
@@ -156,32 +158,36 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   e.put(output);
 }
 
-void CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
+bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
 					       const edm::Event& e,
 					       TrajectorySeedCollection& output){
 	std::vector<TrackingRegion*> regions = theRegionProducer->regions(e, iSetup);
 	std::vector<TrackingRegion*>::const_iterator iReg;
+        bool ok = true;
 	for (iReg = regions.begin(); iReg != regions.end(); iReg++){
 		if(!theSeedBuilder->momentumFromPSet()) theSeedBuilder->setMomentumTo((*iReg)->ptMin());
 		std::vector<OrderedHitsGenerator*>::const_iterator iGen;
 		int i = 0;
 		for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){ 
-		  buildSeeds(iSetup, 
+		  ok = buildSeeds(iSetup, 
 			     e, 
 			     (*iGen)->run(**iReg, e, iSetup),
 			     theNavDirs[i], 
 			     thePropDirs[i], 
 			     output);
 		  i++;
+                  if (!ok) break;
 		}
+                if (!ok) break;
 	}
 	//clear memory
 	for (std::vector<TrackingRegion*>::iterator iReg = regions.begin(); iReg != regions.end(); iReg++){
 		delete *iReg;
 	}
+        return ok;
 }
 
-void CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
+bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 					 const edm::Event& e,
 					 const OrderedSeedingHits& osh,
 					 const NavigationDirection& navdir,
@@ -206,6 +212,12 @@ void CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 		}
 	}
   }	 
+  if ((theMaxSeeds > 0) && (output.size() > size_t(theMaxSeeds))) {
+    output.clear(); 
+    edm::LogWarning("CtfSpecialSeedGenerator") << "Too many seeds, bailing out.\n";
+    return false;
+  }
+  return true;
 }
 //checks the hits are on diffrent layers
 bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){

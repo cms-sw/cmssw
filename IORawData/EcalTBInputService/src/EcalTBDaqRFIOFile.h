@@ -3,9 +3,6 @@
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFile.h"
 
-#include <string>
-#include <stdio.h>
-
 using namespace std;
 
 class EcalTBDaqRFIOFile : public EcalTBDaqFile {
@@ -13,7 +10,7 @@ class EcalTBDaqRFIOFile : public EcalTBDaqFile {
  public:
 
   /// Constructor
-  EcalTBDaqRFIOFile(): filename_(), isBinary_(), infile_() {};
+  EcalTBDaqRFIOFile(): filename_(), infile_() {};
 
   /// Constructor
   EcalTBDaqRFIOFile(const std::string& filename, const bool& isBinary);
@@ -35,7 +32,6 @@ class EcalTBDaqRFIOFile : public EcalTBDaqFile {
  protected:
 
   std::string filename_;
-  bool isBinary_;
   FILE* infile_;
 
 };

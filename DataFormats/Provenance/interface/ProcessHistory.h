@@ -7,6 +7,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 namespace edm {
   class ProcessHistory {
@@ -25,12 +26,12 @@ namespace edm {
 
     typedef collection_type::size_type size_type;
 
-    ProcessHistory() : data_(), id_() {}
-    explicit ProcessHistory(size_type n) : data_(n), id_() {}
-    explicit ProcessHistory(collection_type const& vec) : data_(vec), id_() {}
+    ProcessHistory() : data_(), transients_() {}
+    explicit ProcessHistory(size_type n) : data_(n), transients_() {}
+    explicit ProcessHistory(collection_type const& vec) : data_(vec), transients_() {}
 
-    void push_back(const_reference t) {data_.push_back(t); id_=ProcessHistoryID();}
-    void swap(ProcessHistory& other) {data_.swap(other.data_); id_.swap(other.id_);}
+    void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
+    void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
     bool empty() const {return data_.empty();}
     size_type size() const {return data_.size();}
     size_type capacity() const {return data_.capacity();}
@@ -57,15 +58,26 @@ namespace edm {
     collection_type const& data() const {return data_;}
     ProcessHistoryID id() const;
 
+
     // Return true, and fill in config appropriately, if the a process
     // with the given name is recorded in this ProcessHistory. Return
     // false, and do not modify config, if process with the given name
     // is found.
     bool getConfigurationForProcess(std::string const& name, ProcessConfiguration& config) const;
 
+    struct Transients {
+      Transients() : phid_() {}
+      ProcessHistoryID phid_;
+    };
+
+    void setDefaultTransients() const {
+	transients_ = Transients();
+    };
+
   private:
+    ProcessHistoryID & phid() const {return transients_.get().phid_;}
     collection_type data_;
-    mutable ProcessHistoryID id_;
+    mutable Transient<Transients> transients_;
   };
 
   // Free swap function

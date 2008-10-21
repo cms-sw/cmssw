@@ -324,17 +324,27 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
     //chi2 = chi2/((double)nsamp_used - 3.) ;
   }//!end of loop on iterations       
   
-  //!      results of the fit are calculated
 
+  //!   protection again diverging/unstable fit 
+  if( variation_func_max > 2000. || variation_func_max < -1000. ) {
+    InitFitParameters(samples,max_sample);
+    return -102;
+  }
+  
+
+  //!      results of the fit are calculated
   fAmp_max_ += variation_func_max ;
   fTim_max_ += variation_tim_max ;
   fPed_max_ += variation_ped_max ;
 
-  //!   protection again diverging fit 
-  if( fAmp_max_ > 5. * max_sample || fAmp_max_ < -1000 || fabs(fTim_max_+0.5) > 4.5 ) {
-          InitFitParameters(samples,max_sample);
-          return -102 ;
+
+  // protection against unphysical results:
+  // ampli mismatched to MaxSample, ampli largely negative, time off preselected range
+  if( fAmp_max_>2*samples[max_sample]  ||  fAmp_max_<-100 ||  fTim_max_<0  ||  9<fTim_max_ ) {
+    InitFitParameters(samples,max_sample);
+    return -104;
   }
+  
 
   //std::cout <<"chi2: "<<chi2<<" ampl: "<<fAmp_max_<<" time: "<<fTim_max_<<" pede: "<<fPed_max_<<std::endl;
   return chi2;

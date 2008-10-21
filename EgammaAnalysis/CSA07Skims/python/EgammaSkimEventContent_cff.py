@@ -11,8 +11,7 @@ egammaSkimEventContent = cms.PSet(
 #
 egammaLooseZEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('egammaLooseZCluster', 
-            'egammaLooseZTrack')
+        SelectEvents = cms.vstring('egammaLooseZCluster', 'egammaLooseZTrack')
     )
 )
 #
@@ -28,8 +27,7 @@ egammaVeryHighEtEventSelection = cms.PSet(
 #
 egammaWPlusEMOrJetEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('electronFilterWPath', 
-            'muonFilterWPath')
+        SelectEvents = cms.vstring('electronFilterWPath', 'muonFilterWPath')
     )
 )
 #
@@ -37,8 +35,7 @@ egammaWPlusEMOrJetEventSelection = cms.PSet(
 #
 egammaZPlusEMOrJetEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('electronFilterZPath', 
-            'muonFilterZPath')
+        SelectEvents = cms.vstring('electronFilterZPath', 'muonFilterZPath')
     )
 )
 

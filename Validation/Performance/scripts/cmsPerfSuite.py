@@ -217,7 +217,7 @@ Legal entries for individual candles (--candle option):
         if candleoption == "":
             candleoption = "MinBias"
         if stepOptions == "":
-            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO"
+            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI-RECO"
         cmsScimark      = 0
         cmsScimarkLarge = 0
         ValgrindEvents  = 0
@@ -288,7 +288,7 @@ def runcmd(command):
     cmdout   = process.read()
     exitstat = process.close()
     if _verbose:
-        logh.write(cmdout + "\n")
+        logh.write(cmdout)# + "\n") No need of extra \n!
         logh.flush()
     return exitstat
 
@@ -334,9 +334,9 @@ def mkCandleDir(pfdir,candle,profiler):
     #runCmdSet(cmd)
     return adir
 
-def cpIgProfGenSim(dir,candle):
+def cprootfile(dir,candle):
     cmds = ("cd %s" % dir,
-            "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,candle))
+            "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
     runCmdSet(cmds)
 
 def displayErrors(file):
@@ -459,7 +459,7 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
                     logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                 else:
                     logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-                    cpIgProfGenSim(adir,candle)                
+                    cprootfile(adir,candle)                
 
             if _unittest:
                 # Run cmsDriver.py
@@ -531,7 +531,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         path=os.path.abspath(".")
         logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s\n" % (getDate(),host,path,user))
         showtags=os.popen4("showtags -r")[1].read()
-        logh.write(showtags + "\n")
+        logh.write(showtags) # + "\n") No need for extra \n!
 
         #For the log:
         if _verbose:
@@ -562,12 +562,13 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         for cpu in cpus:
             Commands[cpu] = []
 
+        logh.write("Full path of all the scripts used in this run of the Performance Suite:\n")
         for script in AllScripts:
             which="which " + script
 
             #Logging the actual version of cmsDriver.py, cmsRelvalreport.py, cmsSimPyRelVal.pl
             whichstdout=os.popen4(which)[1].read()
-            logh.write(whichstdout + "\n")
+            logh.write(whichstdout) # + "\n") No need of the extra \n!
             if script in Scripts:
                 for cpu in cpus:
                     command="taskset -c %s %s" % (cpu,script)
@@ -679,18 +680,31 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=cmssw_version)
 
         #Create a tarball of the work directory
-        TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
+        #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
+        TarFile = "%s_%s_%s_%s.tar" % (cmssw_version, str(stepOptions), host, user)
         AbsTarFile = os.path.join(perfsuitedir,TarFile)
         tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
         printFlush(tarcmd)
-        printFlush(os.popen4(tarcmd)[1].read())
+        printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
 
         #Archive it on CASTOR
         castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(castordir,TarFile))
-
         printFlush(castorcmd)
-        printFlush(os.popen4(castorcmd)[1].read())
-
+        castorcmdstderr=os.popen3(castorcmd)[2].read()
+        #Checking the stderr of the rfcp command to copy the tarball.gz on CASTOR:
+        if castorcmdstderr:
+            #If it failed print the stderr message to the log and tell the user the tarball.gz is kept in the working directory
+            printFlush(castorcmdstderr)
+            printFlush("Since the CASTOR archiving for the tarball failed the file %s is kept in directory %s"%(TarFile, perfsuitedir))
+        else:
+            #If it was successful then remove the tarball.gz from the working directory:
+            TarGzipFile=TarFile+".gz"
+            printFlush("Successfully archived the tarball %s in CASTOR!\nDeleting the local copy of the tarball"%(TarGzipFile))
+            AbsTarGzipFile=AbsTarFile+".gz"
+            rmtarballcmd="rm -Rf %s"%(AbsTarGzipFile)
+            printFlush(rmtarballcmd)
+            printFlush(os.popen4(rmtarballcmd)[1].read())
+            
         #End of script actions!
 
         #Print a time stamp at the end:

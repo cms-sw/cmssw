@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 //used for friendlyName translation
 #include "FWCore/Utilities/interface/FriendlyName.h"
 
@@ -32,6 +33,8 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
 
+#include "TROOT.h"
+#include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
@@ -58,7 +61,8 @@ namespace edm {
 		     std::vector<EventID> const& whichEventsToProcess,
                      bool noEventSort,
 		     bool dropMetaData,
-		     GroupSelectorRules const& groupSelectorRules) :
+		     GroupSelectorRules const& groupSelectorRules,
+                     bool dropMergeable) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -151,7 +155,7 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
     }
 
-    metaDataTree->GetEntry(0);
+    input::getEntry(metaDataTree, 0);
 
     readEntryDescriptionTree();
 
@@ -252,6 +256,28 @@ namespace edm {
       }
     }
 
+    // Drop on input mergeable run and lumi products, this needs to be invoked for
+    // secondary file input
+    if (dropMergeable) {
+      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
+          it != itEnd;) {
+        BranchDescription const& prod = it->second;
+        if (prod.branchType() != InEvent) {
+          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
+          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+          if (dummy->isMergeable()) {
+            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            ProductRegistry::ProductList::iterator icopy = it;
+            ++it;
+            prodList.erase(icopy);
+          } else {
+            ++it;
+          }
+        }
+        else ++it;
+      }
+    }
+
     // Set up information from the product registry.
     for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd; ++it) {
@@ -290,12 +316,12 @@ namespace edm {
       EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
 
       for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-        entryDescriptionTree->GetEntry(i);
+        input::getEntry(entryDescriptionTree, i);
         if (idBuffer != entryDescriptionBuffer.id())
 	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
-	// This throws away the parentage information, for now.
+	// This discards the parentage information, for now.
 	EventEntryDescription eid;
-	eid.moduleDescriptionID_ = entryDescriptionBuffer.moduleDescriptionID_;
+	eid.moduleDescriptionID() = entryDescriptionBuffer.moduleDescriptionID();
         registry.insertMapped(eid);
       }
     } else {
@@ -306,7 +332,7 @@ namespace edm {
       EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
 
       for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-        entryDescriptionTree->GetEntry(i);
+        input::getEntry(entryDescriptionTree, i);
         if (idBuffer != entryDescriptionBuffer.id())
 	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
         registry.insertMapped(entryDescriptionBuffer);
@@ -644,10 +670,10 @@ namespace edm {
       History* pHistory = &history_;
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
-	throw edm::Exception(edm::errors::FatalRootError)
+	throw edm::Exception(edm::errors::EventCorruption)
 	  << "Failed to find history branch in event history tree";
       eventHistoryBranch->SetAddress(&pHistory);
-      eventHistoryTree_->GetEntry(eventTree_.entryNumber());
+      input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
       eventAux_.processHistoryID_ = history_.processHistoryID();
     } else {
       // for backward compatibility.  If we could figure out how many
@@ -822,6 +848,8 @@ namespace edm {
     fillRunAuxiliary();
     assert(runAux_.run() == fileIndexIter_->run_);
     overrideRunNumber(runAux_.id_);
+    Service<JobReport> reportSvc;
+    reportSvc->reportInputRunNumber(runAux_.run());
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if (eventTree_.next()) {
@@ -905,13 +933,27 @@ namespace edm {
     return thisLumi;
   }
 
-
-  
   bool
   RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
     fileIndexIter_ = fileIndex_.findEventPosition(run, lumi, event, exact);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
+    return true;
+  }
+
+  bool
+  RootFile::setEntryAtLumi(LuminosityBlockID const& lumi) {
+    fileIndexIter_ = fileIndex_.findLumiPosition(lumi.run(), lumi.luminosityBlock(), true);
+    if (fileIndexIter_ == fileIndexEnd_) return false;
+    lumiTree_.setEntryNumber(fileIndexIter_->entry_);
+    return true;
+  }
+
+  bool
+  RootFile::setEntryAtRun(RunID const& run) {
+    fileIndexIter_ = fileIndex_.findRunPosition(run.run(), true);
+    if (fileIndexIter_ == fileIndexEnd_) return false;
+    runTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;
   }
 
@@ -935,7 +977,7 @@ namespace edm {
   RootFile::overrideRunNumber(EventID & id, bool isRealData) {
     if (forcedRunOffset_ != 0) {
       if (isRealData) {
-        throw cms::Exception("Configuration","RootFile::RootFile()")
+        throw edm::Exception(errors::Configuration,"RootFile::RootFile()")
           << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
       }
       id = EventID(id.run() + forcedRunOffset_, id.event());
@@ -951,7 +993,7 @@ namespace edm {
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw edm::Exception(edm::errors::EventCorruption)
 	<< "Failed to find the event history tree\n";
   }
 

@@ -36,12 +36,13 @@ class SeedGeneratorForCosmics{
 
 
   void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
-  void  seeds(TrajectorySeedCollection &output,
+  bool  seeds(TrajectorySeedCollection &output,
 	      const edm::EventSetup& c,
 	      const TrackingRegion& region);
  
  private:
   edm::ParameterSet conf_;
+  int32_t           maxSeeds_;
   GlobalTrackingRegion region;
   CosmicHitPairGenerator* thePairGenerator;
   CosmicHitTripletGenerator* theTripletGenerator; 

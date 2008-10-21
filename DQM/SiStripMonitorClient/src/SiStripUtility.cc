@@ -139,3 +139,26 @@ void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, vector<string>& m
     }
   }
 }
+//
+// -- Get Status of Monitor Element
+//
+int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
+  int status = 0; 
+  if (me->getQReports().size() == 0) {
+    status       = 0;
+    bad_channels = -1;
+  } else {
+    std::vector<QReport *> qreports = me->getQReports();
+    bad_channels =qreports[0]->getBadChannels().size();
+    if (me->hasError()) {
+      status = dqm::qstatus::ERROR;
+    } else if (me->hasWarning()) {
+      status = dqm::qstatus::WARNING;
+    } else if (me->hasOtherReport()) {
+      status = dqm::qstatus::OTHER;
+    } else {  
+      status = dqm::qstatus::STATUS_OK;
+    }
+  }
+  return status;
+}

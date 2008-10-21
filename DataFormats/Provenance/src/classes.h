@@ -33,6 +33,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 #include <map>
 #include <set>
 #include <vector>

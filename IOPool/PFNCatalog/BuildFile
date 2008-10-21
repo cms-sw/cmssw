@@ -1,5 +1,0 @@
-<use name=FileCatalog>
-<export>
-    <lib name=IOPoolPFNCatalog>
-</export>
-<Flags SEAL_PLUGIN_NAME=IOPoolPFNCatalog>

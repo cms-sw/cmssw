@@ -1,15 +1,17 @@
 /*
  *  Fabian Stoeckli
  *  Feb. 2007
+ * 
  */
 
 
 #include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOSource.h"
-#include "GeneratorInterface/MCatNLOInterface/interface/HWRGEN.h"
-#include "GeneratorInterface/MCatNLOInterface/interface/Dummies.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
@@ -21,6 +23,7 @@
 #include <ctype.h>
 
 // include Herwig stuff
+#include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
 #include "herwig.h"
@@ -31,14 +34,14 @@ extern"C" {
   void setlhaparm_(char*);
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN:
-//void cmsending_(int*);
+  void cmsending_(int*);
 }
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
 #define setlhaparm setlhaparm_
 #define setherwpdf setherwpdf_
-//#define cmsending cmsending_
+#define cmsending cmsending_
 
 using namespace edm;
 using namespace std;
@@ -150,7 +153,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   header_str << "Setting MCatNLO random number generator seed." << "\n";
   header_str << "----------------------------------------------" << "\n";
   edm::Service<RandomNumberGenerator> rng;
-  randomEngine = &(rng->getEngine());
   int seed = rng->mySeed();
   double x[5];
   int s = seed;
@@ -499,9 +501,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   header2_str << "   NRN(2) = "<<hwevnt.NRN[1]<<"\n";
 
   hwuinc();
-
-  // *** commented out the seeting stables for PI0 and B hadrons
-  /*
   hwusta("PI0     ",1);
   if(jpr == 20) {
     hwusta("B+      ",1);
@@ -526,7 +525,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     hwusta("OMG_BBR+",1);
     hwusta("B_C+    ",1);
   }
-  */
 
   hweini();
 
@@ -623,7 +621,7 @@ bool MCatNLOSource::produce(Event & e) {
   hwepro();
   hwbgen();
   
-  if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR == 0) {
+  if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR != 0) {
     double eventok = 0.0;
     eventok=hwmsct_dummy(&eventok);
     if(eventok > 0.5) 
@@ -1423,7 +1421,6 @@ bool MCatNLOSource::hwgive(const std::string& ParameterString) {
 }
 
 
-#ifdef NEVER
 //-------------------------------------------------------------------------------
 // dummy hwaend (has to be REMOVED from herwig)
 #define hwaend hwaend_
@@ -1432,7 +1429,6 @@ extern "C" {
   void hwaend(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
-#endif
 
 
 bool MCatNLOSource::give(const std::string& iParm )
@@ -1761,10 +1757,8 @@ void MCatNLOSource::endRun(Run & r) {
 
 }
 
-#ifdef NEVER
 extern "C" {
   void cmsending_(int* ecode) {
     throw edm::Exception(edm::errors::LogicError,"Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }
-#endif

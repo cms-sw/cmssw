@@ -3310,7 +3310,7 @@ hltL1sL1Mu = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreL1Mu = cms.EDFilter( "HLTPrescaler" )
 hltMuLevel1PathL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1Mu" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -3328,7 +3328,7 @@ hltL1sL1MuOpen = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuLevel1PathL1OpenFiltered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1MuOpen" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -3346,7 +3346,7 @@ hltL1sSingleMuNoIso = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreL2Mu9 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuNoIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuNoIso" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -3786,7 +3786,7 @@ hltL1sSingleMuIso = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoMu9 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuIso" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -3970,7 +3970,7 @@ hltL1sSingleMuIso10 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoMu13 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuIsoL1Filtered10 = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuIso10" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4066,7 +4066,7 @@ hltL1sSingleMuPrescale3 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreMu3 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuPrescale3L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuPrescale3" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4110,7 +4110,7 @@ hltL1sSingleMuPrescale5 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreMu5 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuPrescale5L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuPrescale5" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4154,7 +4154,7 @@ hltL1sSingleMuPrescale77 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreMu7 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuPrescale77L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuPrescale77" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4254,7 +4254,7 @@ hltL1sSingleMuNoIso10 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreMu13 = cms.EDFilter( "HLTPrescaler" )
 hltSingleMuNoIsoL1Filtered10 = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSingleMuNoIso10" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4384,7 +4384,7 @@ hltL1sDiMuonIso = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleIsoMu3 = cms.EDFilter( "HLTPrescaler" )
 hltDiMuonIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sDiMuonIso" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4440,7 +4440,7 @@ hltL1sDiMuonNoIso = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu3 = cms.EDFilter( "HLTPrescaler" )
 hltDiMuonNoIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sDiMuonNoIso" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4514,7 +4514,7 @@ hltL1sJpsiMM = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu3JPsi = cms.EDFilter( "HLTPrescaler" )
 hltJpsiMML1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sJpsiMM" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4576,7 +4576,7 @@ hltL1sUpsilonMM = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu3Upsilon = cms.EDFilter( "HLTPrescaler" )
 hltUpsilonMML1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sUpsilonMM" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4638,7 +4638,7 @@ hltL1sZMM = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu7Z = cms.EDFilter( "HLTPrescaler" )
 hltZMML1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sZMM" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -4700,7 +4700,7 @@ hltL1sSameSignMu = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu3SameSign = cms.EDFilter( "HLTPrescaler" )
 hltSameSignMuL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sSameSignMu" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -5180,7 +5180,7 @@ hltL1sJpsitoMumuRelaxed = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu3BJPsi = cms.EDFilter( "HLTPrescaler" )
 hltJpsitoMumuL1FilteredRelaxed = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sJpsitoMumuRelaxed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -5212,7 +5212,7 @@ hltL1sJpsitoMumu = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreDoubleMu4BJPsi = cms.EDFilter( "HLTPrescaler" )
 hltJpsitoMumuL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sJpsitoMumu" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -5244,7 +5244,7 @@ hltL1sMuMuk = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreTripleMu3TauTo3Mu = cms.EDFilter( "HLTPrescaler" )
 hltMuMukL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuMuk" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -5973,7 +5973,7 @@ hltL1sIsoEgMu = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoEle8IsoMu7 = cms.EDFilter( "HLTPrescaler" )
 hltEMuL1MuonFilter = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sIsoEgMu" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 4.0 ),
@@ -6093,7 +6093,7 @@ hltL1sEgMuNonIso = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoEle10Mu10L1R = cms.EDFilter( "HLTPrescaler" )
 hltNonIsoEMuL1MuonFilter = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sEgMuNonIso" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -6629,7 +6629,7 @@ hltL1sMuonTau = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoMu14IsoTauTrk3 = cms.EDFilter( "HLTPrescaler" )
 hltMuonTauL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuonTau" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
@@ -6783,7 +6783,7 @@ hltL1sMuB = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoMu7BTagIPJet35 = cms.EDFilter( "HLTPrescaler" )
 hltMuBLifetimeL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuB" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 7.0 ),
@@ -6831,7 +6831,7 @@ hltMuBLifetimeIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
 )
 hltPreIsoMu7BTagMuJet20 = cms.EDFilter( "HLTPrescaler" )
 hltMuBSoftL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuB" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -6887,7 +6887,7 @@ hltL1sMuJets = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreIsoMu7Jet40 = cms.EDFilter( "HLTPrescaler" )
 hltMuJetsL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuJets" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 7.0 ),
@@ -6950,7 +6950,7 @@ hltL1sMuNoL2IsoJets = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreNoL2IsoMu8Jet40 = cms.EDFilter( "HLTPrescaler" )
 hltMuNoL2IsoJetsL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuNoL2IsoJets" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 8.0 ),
@@ -7007,7 +7007,7 @@ hltL1sMuNoIsoJets = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreMu14Jet50 = cms.EDFilter( "HLTPrescaler" )
 hltMuNoIsoJetsL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuNoIsoJets" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 14.0 ),
@@ -7058,7 +7058,7 @@ hltL1sMuNoIsoJets30 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreMu5TripleJet30 = cms.EDFilter( "HLTPrescaler" )
 hltMuNoIsoJetsMinPt4L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "l1extraParticles" ),
+    CandTag = cms.InputTag( "l1ParamMuons" ),
     PreviousCandTag = cms.InputTag( "hltL1sMuNoIsoJets30" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 5.0 ),

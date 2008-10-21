@@ -61,8 +61,8 @@ std::vector<HcalGenericDetId> allCells (bool h2_mode) {
      }
    }
 
-}
   return result;
+  }
 
  }
 }

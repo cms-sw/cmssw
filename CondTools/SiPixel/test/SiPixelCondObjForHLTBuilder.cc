@@ -51,7 +51,7 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
    float mingain=0;
    float maxgain=10;
    float minped=0;
-   float maxped=255;
+   float maxped=50;
    SiPixelGainCalibration_ = new SiPixelGainCalibrationForHLT(minped,maxped,mingain,maxgain);
 
 

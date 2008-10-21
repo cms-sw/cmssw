@@ -173,7 +173,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   os0 << abs(stationCoded[0]);
   os1 << abs(stationCoded[1]);
 
-  std::cout<<" st1 = "<<stationCoded[0]<<" st2 = "<<stationCoded[1]<<std::endl;
+  //  std::cout<<" st1 = "<<stationCoded[0]<<" st2 = "<<stationCoded[1]<<std::endl;
   //std::cout<<" detId_first = "<<detId_first.rawId()<<"  detId_second = "<< detId_second.rawId()<<std::endl;
   std::string  combination = "0";
   std::string init_combination = combination;
@@ -357,9 +357,9 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   }
 
   std::vector<double> pTestimate(2);// 
-  std::cout<<" combination = "<<combination<<std::endl;
+  //  std::cout<<" combination = "<<combination<<std::endl;
   if(init_combination!=combination){
-    std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
+    //    std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
     pTestimate = getPt(chamberCombination[combination], eta, dPhi);
     if(singleSegment){
       pTestimate[0] = fabs(pTestimate[0]);
@@ -371,7 +371,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     pTestimate[0] = pTestimate[1] = 100;
     // hmm
   }
-  std::cout<<" pTestimate[0] = "<<pTestimate[0]<<" pTestimate[1] = "<<pTestimate[1]<<std::endl;
+  // std::cout<<" pTestimate[0] = "<<pTestimate[0]<<" pTestimate[1] = "<<pTestimate[1]<<std::endl;
   /*
                               MuonRecHitContainer_clusters[cluster][iHit+1]->isDT());
           if(specialCase){
@@ -443,11 +443,11 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
 
 // it is a copy from the Seed code - call it from there?
 std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double> & vPara, double eta, double dPhi ) const {
-  std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
+  // std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
   double h  = fabs(eta);
   double estPt  = ( vPara[0] + vPara[1]*h + vPara[2]*h*h ) / dPhi;
   double estSPt = ( vPara[3] + vPara[4]*h + vPara[5]*h*h ) * estPt;
-  std::cout<<"estPt = "<<estPt<<std::endl;
+  // std::cout<<"estPt = "<<estPt<<std::endl;
   std::vector<double> paraPt ;
   paraPt.push_back( estPt );
   paraPt.push_back( estSPt ) ;

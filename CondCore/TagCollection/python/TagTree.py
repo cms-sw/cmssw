@@ -58,7 +58,7 @@ class tagTree(object):
 
     def importFromTree( self, sourcetreename ):
         """fill up this tree by cloning from the given source tree
-        in the same database
+        in the SAME database
         """
         sourcetagTreeTableName = 'TAGTREE_TABLE_'+str.upper(sourcetreename)
         sourcetagTreeIDs = 'TAGTREE_'+str.upper(sourcetreename)+'_IDS'
@@ -136,7 +136,7 @@ class tagTree(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
-        
+
     def insertNode( self, node, parentLabel='ROOT' ):
         """Append a new node to specified parent. \n
         Silently ignore duplicate entry \n

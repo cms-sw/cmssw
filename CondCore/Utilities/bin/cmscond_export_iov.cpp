@@ -1,3 +1,5 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
@@ -28,8 +30,8 @@
 
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
-
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/CommonOptions.h"
+//#include <boost/program_options.hpp>
 #include <iterator>
 #include <limits>
 #include <iostream>
@@ -40,27 +42,25 @@
 
 
 int main( int argc, char** argv ){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_export_iov [options] \n");
-  visible.add_options()
+  cond::CommonOptions myopt("cmscond_export_iov");
+  myopt.addDictionary();
+  myopt.addAuthentication(false);
+  myopt.addFileConfig();
+  myopt.addBlobStreamer();
+  myopt.addLogDB();
+  myopt.visibles().add_options()
     ("sourceConnect,s",boost::program_options::value<std::string>(),"source connection string(required)")
     ("destConnect,d",boost::program_options::value<std::string>(),"destionation connection string(required)")
-    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if no plugin available)")
     ("inputTag,i",boost::program_options::value<std::string>(),"tag to export( default = destination tag)")
     ("destTag,t",boost::program_options::value<std::string>(),"destination tag (required)")
     ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
     ("endTime,e",boost::program_options::value<cond::Time_t>(),"end time (last till) (optional)")
-    //("payloadName,n",boost::program_options::value<std::string>(),"payload object name(required)")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
-    ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
-    ("blobStreamer,B",boost::program_options::value<std::string>(),"BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)")
-    ("logDB,l",boost::program_options::value<std::string>(),"logDB(optional")
     ("sql","dump the sql output (optional)")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
     ;
-  desc.add(visible);
+  myopt.description().add( myopt.visibles() );
   std::string sourceConnect, destConnect;
   std::string dictionary;
   std::string destTag;
@@ -78,9 +78,9 @@ int main( int argc, char** argv ){
   std::string blobStreamerName("COND/Services/TBufferBlobStreamingService");
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).run(), vm);
     if (vm.count("help")) {
-      std::cout << visible <<std::endl;;
+      std::cout << myopt.visibles() <<std::endl;;
       return 0;
     }
     if( vm.count("configFile") ){
@@ -88,7 +88,7 @@ int main( int argc, char** argv ){
       if (! configuration_filename.empty()){
         std::fstream configuration_file;
         configuration_file.open(configuration_filename.c_str(), std::fstream::in);
-        boost::program_options::store(boost::program_options::parse_config_file(configuration_file,desc), vm);
+        boost::program_options::store(boost::program_options::parse_config_file(configuration_file,myopt.visibles()), vm);
         configuration_file.close();
       }
     }

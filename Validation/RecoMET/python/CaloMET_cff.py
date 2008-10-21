@@ -6,5 +6,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # Fill validation histograms for MET. Assumes met, metNoHF, metOpt, metOptNoHF are in the event
 from Validation.RecoMET.CaloMET_cfi import *
-analyzeCaloMET = cms.Sequence(metAnalyzer*metNoHFAnalyzer*metOptAnalyzer*metOptNoHFAnalyzer)
-
+analyzeCaloMETNoHO = cms.Sequence(metAnalyzer*metNoHFAnalyzer*metOptAnalyzer*metOptNoHFAnalyzer)
+analyzeCaloMETHO = cms.Sequence(metHOAnalyzer*metNoHFHOAnalyzer*metOptHOAnalyzer*metOptNoHFHOAnalyzer)
+analyzeCaloMET = cms.Sequence(analyzeCaloMETNoHO*analyzeCaloMETHO)

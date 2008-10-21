@@ -7,14 +7,18 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
+  EventEntryInfo::Transients::Transients() :
+    moduleDescriptionID_(),
+    entryDescriptionPtr_(),
+    noEntryDescription_(false)
+  {}
+
   EventEntryInfo::EventEntryInfo() :
     branchID_(),
     productID_(),
     productStatus_(productstatus::uninitialized()),
     entryDescriptionID_(),
-    moduleDescriptionID_(),
-    entryDescriptionPtr_(),
-    noEntryDescription_(false)
+    transients_()
   {}
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid) :
@@ -22,9 +26,7 @@ namespace edm {
     productID_(),
     productStatus_(productstatus::uninitialized()),
     entryDescriptionID_(),
-    moduleDescriptionID_(),
-    entryDescriptionPtr_(),
-    noEntryDescription_(false)
+    transients_()
   {}
 
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -34,9 +36,7 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(),
-    moduleDescriptionID_(),
-    entryDescriptionPtr_(),
-    noEntryDescription_(false)
+    transients_()
   {}
 
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -47,9 +47,7 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(edid),
-    moduleDescriptionID_(),
-    entryDescriptionPtr_(),
-    noEntryDescription_(false)
+    transients_()
   {}
 
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -60,10 +58,11 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(edPtr->id()),
-    moduleDescriptionID_(edPtr->moduleDescriptionID()),
-    entryDescriptionPtr_(edPtr),
-    noEntryDescription_(false)
-    { EntryDescriptionRegistry::instance()->insertMapped(*edPtr);}
+    transients_() {
+       moduleDescriptionID() = edPtr->moduleDescriptionID();
+       entryDescriptionPtr() = edPtr;
+       EntryDescriptionRegistry::instance()->insertMapped(*edPtr);
+  }
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
 		   ProductStatus status,
@@ -74,14 +73,13 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(),
-    moduleDescriptionID_(mdid),
-    entryDescriptionPtr_(new EventEntryDescription),
-    noEntryDescription_(false)
-    {
-      entryDescriptionPtr_->parents_ = parents;
-      entryDescriptionPtr_->moduleDescriptionID_ = mdid;
-      entryDescriptionID_ = entryDescriptionPtr_->id();
-      EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr_);
+    transients_() {
+      moduleDescriptionID() = mdid;
+      entryDescriptionPtr() = boost::shared_ptr<EventEntryDescription>(new EventEntryDescription);
+      entryDescriptionPtr()->parents() = parents;
+      entryDescriptionPtr()->moduleDescriptionID() = mdid;
+      entryDescriptionID_ = entryDescriptionPtr()->id();
+      EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr());
   }
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -91,10 +89,10 @@ namespace edm {
     productID_(),
     productStatus_(status),
     entryDescriptionID_(),
-    moduleDescriptionID_(mdid),
-    entryDescriptionPtr_(),
-    noEntryDescription_(true)
-    { }
+    transients_() {
+      moduleDescriptionID() = mdid;
+      noEntryDescription() = true;
+    }
 
   EventEntryInfo
   EventEntryInfo::makeEntryInfo() const {
@@ -103,12 +101,12 @@ namespace edm {
 
   EventEntryDescription const &
   EventEntryInfo::entryDescription() const {
-    if (!entryDescriptionPtr_) {
-      entryDescriptionPtr_.reset(new EventEntryDescription);
-      EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr_);
-      moduleDescriptionID_= entryDescriptionPtr_->moduleDescriptionID();
+    if (!entryDescriptionPtr()) {
+      entryDescriptionPtr().reset(new EventEntryDescription);
+      EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr());
+      moduleDescriptionID() = entryDescriptionPtr()->moduleDescriptionID();
     }
-    return *entryDescriptionPtr_;
+    return *entryDescriptionPtr();
   }
 
   void

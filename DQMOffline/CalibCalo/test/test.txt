@@ -11,14 +11,3 @@ CMSSW_2_1_0
 > cmsDriver.py testALCA -s ALCA:EcalCalPi0Calib+DQM -n 10 --filein rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V4_v1/0000/08F4EB59-2460-DD11-9D90-000423D98DD4.root
 > ln -s yourstreamhere.root dqm.root
 > cmsRun edm2me_cfg.py
-
-CMSSW_2_1_6
------------
-
->cmsDriver.py testALCA -s ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPhiSym_cff:EcalCalPhiSym+DQM -n 1000 --filein rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V4_v1/0000/08F4EB59-2460-DD11-9D90-000423D98DD4.root
-
->cmsDriver.py testALCA -s ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPi0Calib_cff:EcalCalPi0Calib+DQM -n 1000 --filein rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_0/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V4_v1/0000/08F4EB59-2460-DD11-9D90-000423D98DD4.root
-
-
-> ln -s yourstreamhere.root dqm.root
-> cmsRun edm2me_cfg.py

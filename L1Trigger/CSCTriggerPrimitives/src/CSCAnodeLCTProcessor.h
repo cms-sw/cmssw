@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/30 08:38:21 $
- * $Revision: 1.15 $
+ * $Date: 2008/07/29 10:56:05 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -49,7 +49,7 @@ class CSCAnodeLCTProcessor
 
   /** Runs the LCT processor code. Called in normal running or in testing
       mode. */
-  void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  void run(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
   /** Access routine to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -132,9 +132,9 @@ class CSCAnodeLCTProcessor
   void clear(const int wire, const int pattern);
 
   /** ALCT algorithm methods. */
-  void readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
-  bool pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
-  bool preTrigger(const int key_wire, const int start_bx);
+  void readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  bool pulseExtension(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  bool preTrigger(const int key_wire);
   bool patternDetection(const int key_wire);
   void ghostCancellationLogic();
   void lctSearch();
@@ -149,7 +149,7 @@ class CSCAnodeLCTProcessor
   void dumpConfigParams() const;
 
   /** Dump digis on wire groups. */
-  void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
+  void dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
 
   void showPatterns(const int key_wire);
 };

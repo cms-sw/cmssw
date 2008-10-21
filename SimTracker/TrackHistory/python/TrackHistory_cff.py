@@ -1,18 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-# Magnetic Field, Geometry, TransientTracks
-from Configuration.StandardSequences.MagneticField_cff import *
-
 # Track Associators
 from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
-
 # Track history parameters
 trackHistory = cms.PSet(
-    bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
-    trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
-    trackProducer = cms.untracked.InputTag("generalTracks")
+    associationModule = cms.string('TrackAssociatorByHits'),
+    trackingParticleProduct = cms.string(''),
+    trackingParticleModule = cms.string('trackingtruthprod'),
+    bestMatchByMaxValue = cms.bool(True),
+    recoTrackModule = cms.string('ctfWithMaterialTracks')
 )
-
 

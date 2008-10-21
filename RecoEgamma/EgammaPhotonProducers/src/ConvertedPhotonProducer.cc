@@ -126,7 +126,7 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
 
   if ( ! theEcalImpactPositionFinder_) {
-    
+    std::cout << " Creating theEcalImpactPositionFinder " << std::endl;
      // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
     theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
   }  

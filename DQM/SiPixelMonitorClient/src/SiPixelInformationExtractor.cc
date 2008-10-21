@@ -10,13 +10,23 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelHistoPlotter.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
+
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -47,6 +57,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <map>
 
 #include <cstdlib> // for free() - Root can allocate with malloc() - sigh...
  
@@ -57,7 +68,7 @@ using namespace edm;
 /*! \brief Constructor of the SiPixelInformationExtractor class.
  *  
  */
-SiPixelInformationExtractor::SiPixelInformationExtractor(std::string summaryXMLfileName) : summaryXMLfileName_(summaryXMLfileName) {
+SiPixelInformationExtractor::SiPixelInformationExtractor(bool offlineXMLfile) : offlineXMLfile_(offlineXMLfile) {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
   
@@ -152,8 +163,9 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   vector<string> hlist;
   string tkmap_name;
   SiPixelConfigParser config_parser;
-//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  string localPath = summaryXMLfileName_;
+  string localPath;
+  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
+  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   config_parser.getDocument(edm::FileInPath(localPath).fullPath());
 //  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
 //  if (hlist.size() == 0) return;
@@ -1323,7 +1335,7 @@ void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei,
 //  cout<<"... leaving SiPixelInformationExtractor::getHistosFromPath!"<<endl;
 }
 
-void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
+void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float noiseRate_) {
 //std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
   bei->cd();
   bei->setCurrentFolder("Pixel/EventInfo");
@@ -1359,6 +1371,18 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
   SummaryHCmO = bei->bookFloat("Pixel_HalfCylinder_mO");
   SummaryHCpI = bei->bookFloat("Pixel_HalfCylinder_pI");
   SummaryHCpO = bei->bookFloat("Pixel_HalfCylinder_pO");
+  bei->cd();  
+  if(noiseRate_>=0.){
+    bei->setCurrentFolder("Pixel/Barrel");
+    EventRateBarrelPixels = bei->book1D("barrelEventRate","Digi event rate for all Barrel pixels",1000,0.,0.01);
+    EventRateBarrelPixels->setAxisTitle("Event Rate",1);
+    EventRateBarrelPixels->setAxisTitle("Number of Pixels",2);
+    bei->cd();  
+    bei->setCurrentFolder("Pixel/Endcap");
+    EventRateEndcapPixels = bei->book1D("endcapEventRate","Digi event rate for all Endcap pixels",1000,0.,0.01);
+    EventRateEndcapPixels->setAxisTitle("Event Rate",1);
+    EventRateEndcapPixels->setAxisTitle("Number of Pixels",2);
+  }
 }
 
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 
@@ -1695,7 +1719,6 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	        for(int kk=1; kk<9; kk++){
 		  if(me->getBinContent(kk)>0.){
 		    if(kk!=6 && kk!=7) anyerr=true;
-		    else anyerr=false;
 		  }
 		}
 	      }
@@ -1751,39 +1774,167 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
 
-void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei)
+void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, float noiseRate_, edm::EventSetup const& eSetup)
 {
-  bei->cd();
-  bei->setCurrentFolder("Pixel/EventInfo");
-  MonitorElement * me0 = bei->get("Pixel/EventInfo/iEvent");
-  int nevents=-1;
-  if(me0) nevents = me0->getIntValue(); 
-  if(nevents==0) nevents=-1;
-  //cout<<"nevents: "<<nevents<<endl;
-  //nevents=1000;
-  bei->cd();
-  bei->setCurrentFolder("Pixel/Endcap");
-  EndcapNdigisFREQProjection = bei->book1D("endcapNdigisFREQProjection","Endcap: Digi event rate per module",1000,0.,1.);
-  EndcapNdigisFREQProjection = bei->get("Pixel/Endcap/endcapNdigisFREQProjection");
-  MonitorElement * me1 = bei->get("Pixel/Endcap/SUMDIG_ndigisFREQ_Endcap");
-  if(me1){
-    for(int i=1; i!=673; i++){
-      //cout<<"entries: "<<me1->getBinContent(i)/float(nevents)<<" in bin "<<i<<endl;
-      EndcapNdigisFREQProjection->Fill(me1->getBinContent(i)/float(nevents));
-      //if(i>63&&i<90) cout<<"noisy edges: "<<me1->getBinContent(i)/float(nevents)<<endl;
-    }
+//cout<<"Entering SiPixelInformationExtractor::findNoisyPixels with noiseRate set to "<<noiseRate_<<endl;
+
+  
+  if(init){
+    endOfModules_=false;
+    nevents_=-1;
+    bei->cd();
+    bei->setCurrentFolder("Pixel/EventInfo");
+    MonitorElement * me = bei->get("Pixel/EventInfo/iEvent");
+    if(me) nevents_ = me->getIntValue(); 
+    if(nevents_==0) nevents_=-1;
+    //cout<<"nevents_: "<<nevents_<<endl;
+    //nevents_=1000;
+    bei->cd();  
+    myfile_.open ("NoisyPixelList.txt");
+    myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
   
-  bei->cd();
-  bei->setCurrentFolder("Pixel/Barrel");
-  BarrelNdigisFREQProjection = bei->book1D("barrelNdigisFREQProjection","Barrel: Digi event rate per module",1000,0.,1.);
-  BarrelNdigisFREQProjection = bei->get("Pixel/Barrel/barrelNdigisFREQProjection");
-  MonitorElement * me2 = bei->get("Pixel/Barrel/SUMDIG_ndigisFREQ_Barrel");
-  if(me2){
-    for(int i=1; i!=769; i++){
-      BarrelNdigisFREQProjection->Fill(me2->getBinContent(i)/float(nevents));
+  string currDir = bei->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QRegExp rx("Module_");
+  if(rx.search(dname)!=-1){
+    vector<string> meVec = bei->getMEs();
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+      string full_path = currDir + "/" + (*it);
+      if(full_path.find("hitmap_siPixelDigis")!=string::npos){
+        //broken HV bond:
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")!=string::npos) continue;
+        //?noisy?
+	//if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos) continue;
+        //ROG with HV problem (short?):
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_1/Module_3")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_1/Module_4")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_2/Module_2")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_10/Panel_2/Module_3")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_1/Module_3")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_1/Module_4")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_2/Module_2")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_11/Panel_2/Module_3")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_3")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_2")!=string::npos) continue;
+	if(currDir.find("HalfCylinder_mI/Disk_1/Blade_12/Panel_2/Module_3")!=string::npos) continue;
+        MonitorElement * me = bei->get(full_path);
+        if (!me) continue;
+	float noiseRate = (me->getEntries())/float(nevents_);
+//        if(noiseRate > noiseRate_){
+	  int detid=getDetId(me); int pixcol=-1; int pixrow=-1; 
+	  std::vector< pair< int, int> > noisyPixelsInModule;
+	  TH2F * hothisto = me->getTH2F();
+	  if(hothisto){
+	    for(int i=1; i!=hothisto->GetNbinsX()+1; i++){
+	      for(int j=1; j!=hothisto->GetNbinsY()+1; j++){
+	        float value = (hothisto->GetBinContent(i,j))/float(nevents_);
+		if(me->getPathname().find("Barrel")!=string::npos){
+                  EventRateBarrelPixels = bei->get("Pixel/Barrel/barrelEventRate");
+                  if(EventRateBarrelPixels) EventRateBarrelPixels->Fill(value);
+		}else if(me->getPathname().find("Endcap")!=string::npos){
+                  EventRateEndcapPixels = bei->get("Pixel/Endcap/endcapEventRate");
+                  if(EventRateEndcapPixels) EventRateEndcapPixels->Fill(value);
+		}
+		if(value > noiseRate_){
+		  pixcol = i-1;
+		  pixrow = j-1;
+	          //cout<<"pixcol= "<<pixcol<<" , pixrow= "<<pixrow<<endl;
+	          std::pair< int, int > address(pixcol, pixrow);
+		  noisyPixelsInModule.push_back(address);
+		}
+              }
+	    }
+	  }
+	  noisyDetIds_[detid] = noisyPixelsInModule;
+	  //if(noisyPixelsInModule.size()>=20) cout<<"This module has 20 or more hot pixels: "<<detid<<","<<bei->pwd()<<","<<noisyPixelsInModule.size()<<endl;
+//	}
+      }
     }
   }
+  vector<string> subDirVec = bei->getSubdirs();  
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    if((*ic).find("AdditionalPixelErrors")!=string::npos) continue;
+    bei->cd(*ic);
+    init=false;
+    findNoisyPixels(bei,init,noiseRate_,eSetup);
+    bei->goUp();
+  }
+
+  if(bei->pwd().find("EventInfo")!=string::npos) endOfModules_ = true;
+  
+  if(!endOfModules_) return;
+  
+  if(currDir == "Pixel/EventInfo/reportSummaryContents"){
+    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+    std::vector<std::pair<sipixelobjects::DetectorIndex,double> > pixelvec;
+    std::map<uint32_t,int> myfedmap;
+    std::map<uint32_t,std::string> mynamemap;
+    int realfedID = -1;
+    int Nnoisies = noisyDetIds_.size();
+    //cout<<"Number of noisy modules: "<<Nnoisies<<endl;
+    int counter = 0;
+    for(std::map<uint32_t, std::vector< std::pair<int, int> > >::const_iterator it = noisyDetIds_.begin(); 
+        it != noisyDetIds_.end(); it++){
+      uint32_t detid = (*it).first;
+      std::vector< std::pair< int, int> > noisyPixels = (*it).second;
+      //cout<<noisyPixels.size()<<" noisy pixels in a module "<< bei->pwd()<<endl;
+      for(std::vector< std::pair< int, int> >::const_iterator pxl = noisyPixels.begin(); 
+          pxl != noisyPixels.end(); pxl++){
+        int offlineColumn = (*pxl).first;
+        int offlineRow = (*pxl).second;
+        counter++;
+        
+	// now convert into online conventions:
+        for(int fedid=0; fedid<=40; ++fedid){
+          SiPixelFrameConverter converter(theCablingMap.product(),fedid);
+	  uint32_t newDetId = detid;
+          if(converter.hasDetUnit(newDetId)){
+            realfedID=fedid;
+            break;   
+          }
+        }
+        if(realfedID==-1) continue; 
+        DetId detId(detid);
+        uint32_t detSubId = detId.subdetId();
+        std::string outputname;
+	if (detSubId == 2){   //FPIX
+  	  PixelEndcapName nameworker(detid);
+	  outputname = nameworker.name();
+        } else if(detSubId == 1){   //BPIX
+	  PixelBarrelName nameworker(detid);
+	  outputname = nameworker.name();
+        } else{
+          continue;
+	}
+        myfedmap[detid]=realfedID;
+        mynamemap[detid]=outputname;
+        sipixelobjects::ElectronicIndex cabling; 
+        SiPixelFrameConverter formatter(theCablingMap.product(),realfedID);
+        sipixelobjects::DetectorIndex detector = {detid, offlineRow, offlineColumn};      
+	formatter.toCabling(cabling,detector);
+        // cabling should now contain cabling.roc and cabling.dcol  and cabling.pxid
+        // however, the coordinates now need to be converted from dcl,pxid to the row,col coordinates used in the calibration info 
+        sipixelobjects::LocalPixel::DcolPxid loc;
+        loc.dcol = cabling.dcol;
+        loc.pxid = cabling.pxid;
+        const sipixelobjects::PixelFEDCabling *theFed= theCablingMap.product()->fed(realfedID);
+        const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
+        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
+        sipixelobjects::LocalPixel locpixel(loc);
+        int onlineColumn = locpixel.rocCol();
+        int onlineRow= locpixel.rocRow();
+
+        //cout<<counter<<" : \t detid= "<<detid<<" , OFF col,row= "<<offlineColumn<<","<<offlineRow<<" , ON roc,col,row= "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<<endl;
+        myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link<< std::endl;
+      }
+    }
+  }
+  myfile_.close();
+//cout<<"...leaving SiPixelInformationExtractor::findNoisyPixels!"<<endl;
+  return;
 }
 
 

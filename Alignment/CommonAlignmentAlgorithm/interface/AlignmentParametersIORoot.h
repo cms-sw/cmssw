@@ -5,9 +5,9 @@
 ///
 /// Concrete class for ROOT-based I/O of AlignmentParameters 
 ///
-///  $Date: 2007/10/08 14:38:15 $
-///  $Revision: 1.5 $
-/// (last update by $Author: cklae $)
+///  $Date: 2007/03/16 16:35:03 $
+///  $Revision: 1.4 $
+/// (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
@@ -48,7 +48,7 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
   void setBranchAddresses(void);
 
   // Alignment parameter tree 
-  int theCovRang, theCovarRang, theHieraLevel, theParamType;
+  int theCovRang, theCovarRang, theHieraLevel;
   align::ID theId;
   align::StructureType theObjId;
 

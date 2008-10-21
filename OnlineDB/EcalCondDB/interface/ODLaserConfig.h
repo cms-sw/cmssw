@@ -45,11 +45,7 @@ class ODLaserConfig : public IODConfig {
   inline int getFPMode() const { return m_fp_mode; }
   inline void setHalModuleFile(std::string x) { m_hal_mod_file = x; }
   inline std::string getHalModuleFile() const { return m_hal_mod_file; }
-  inline void setMatacqVernierMax(int x) { m_matacq_vernier_max = x; } 
-  inline int getMatacqVernierMax() { return m_matacq_vernier_max; } 
-  inline void setMatacqVernierMin(int x) { m_matacq_vernier_min = x; } 
-  inline int getMatacqVernierMin() { return m_matacq_vernier_min; } 
-  
+
   inline void setHalAddressTableFile(std::string x) { m_hal_add_file = x; }
   inline std::string getHalAddressTableFile() const { return m_hal_add_file; }
 
@@ -147,8 +143,6 @@ class ODLaserConfig : public IODConfig {
   int  m_raw_mode;
   std::string m_aqmode;
   std::string m_mq_file;
-  int m_matacq_vernier_min;
-  int m_matacq_vernier_max;
 
   // emtc 
   int m_emtc_1;

@@ -7,55 +7,59 @@
 
 namespace edm {
 
+  FileIndex::FileIndex() : entries_(), transients_() {}
+
   // The default value for sortState_ reflects the fact that
   // the index is always sorted using Run, Lumi, and Event
   // number by the PoolOutputModule before being written out.
   // In the other case when we create a new FileIndex, the
   // vector is empty, which is consistent with it having been
   // sorted.
-  FileIndex::FileIndex() : entries_(), allEventsInEntryOrder_(false), resultCached_(false), sortState_(kSorted_Run_Lumi_Event) {}
+
+  FileIndex::Transients::Transients() : allInEntryOrder_(false), resultCached_(false), sortState_(kSorted_Run_Lumi_Event) {}
 
   void
   FileIndex::addEntry(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry) {
     entries_.push_back(FileIndex::Element(run, lumi, event, entry));
-    resultCached_ = false;
-    sortState_ = kNotSorted;
+    resultCached() = false;
+    sortState() = kNotSorted;
   }
 
   void FileIndex::sortBy_Run_Lumi_Event() {
     stable_sort_all(entries_);
-    resultCached_ = false;
-    sortState_ = kSorted_Run_Lumi_Event;
+    resultCached() = false;
+    sortState() = kSorted_Run_Lumi_Event;
   }
 
   void FileIndex::sortBy_Run_Lumi_EventEntry() {
     stable_sort_all(entries_, Compare_Run_Lumi_EventEntry());
-    resultCached_ = false;
-    sortState_ = kSorted_Run_Lumi_EventEntry;
+    resultCached() = false;
+    sortState() = kSorted_Run_Lumi_EventEntry;
   }
 
   bool FileIndex::allEventsInEntryOrder() const {
-    if (!resultCached_) {
-      resultCached_ = true;
+    if (!resultCached()) {
+      resultCached() = true;
       EntryNumber_t maxEntry = Element::invalidEntry;
       for (std::vector<FileIndex::Element>::const_iterator it = entries_.begin(), itEnd = entries_.end(); it != itEnd; ++it) {
         if (it->getEntryType() == kEvent) {
 	  if (it->entry_ < maxEntry) {
-	    allEventsInEntryOrder_ = false;
-	    return allEventsInEntryOrder_;
+	    allInEntryOrder() = false;
+	    return false;
           }
 	  maxEntry = it->entry_;
         }
       }
-      allEventsInEntryOrder_ = true;
+      allInEntryOrder() = true;
+      return true;
     }
-    return allEventsInEntryOrder_;
+    return allInEntryOrder();
   }
 
   FileIndex::const_iterator
   FileIndex::findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
 
-    assert(sortState_ == kSorted_Run_Lumi_Event);
+    assert(sortState() == kSorted_Run_Lumi_Event);
 
     Element el(run, lumi, event);
     const_iterator it = lower_bound_all(entries_, el);
@@ -70,23 +74,24 @@ namespace edm {
   FileIndex::const_iterator
   FileIndex::findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
 
-    assert(sortState_ == kSorted_Run_Lumi_Event);
+    assert(sortState() == kSorted_Run_Lumi_Event);
 
     const_iterator it = findPosition(run, lumi, event);
     const_iterator itEnd = entries_.end();
     while (it != itEnd && it->getEntryType() != FileIndex::kEvent) {
       ++it;
     }
+    if (it == itEnd) return itEnd;
     if (lumi == 0) lumi = it->lumi_;
-    if (exact && (it->run_ != run || it->lumi_ != lumi || it->event_ != event)) it = entries_.end();
+    if (exact && (it->run_ != run || it->lumi_ != lumi || it->event_ != event)) return itEnd;
     return it;
   }
 
   FileIndex::const_iterator
   FileIndex::findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const {
-    assert(sortState_ != kNotSorted);
+    assert(sortState() != kNotSorted);
     const_iterator it;
-    if (sortState_ == kSorted_Run_Lumi_EventEntry) {
+    if (sortState() == kSorted_Run_Lumi_EventEntry) {
       Element el(run, lumi, 0U);
       it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
     }
@@ -97,15 +102,16 @@ namespace edm {
     while (it != itEnd && it->getEntryType() != FileIndex::kLumi) {
       ++it;
     }
-    if (exact && (it->run_ != run || it->lumi_ != lumi)) it = entries_.end();
+    if (it == itEnd) return itEnd;
+    if (exact && (it->run_ != run || it->lumi_ != lumi)) return itEnd;
     return it;
   }
 
   FileIndex::const_iterator
   FileIndex::findRunPosition(RunNumber_t run, bool exact) const {
-    assert(sortState_ != kNotSorted);
+    assert(sortState() != kNotSorted);
     const_iterator it;
-    if (sortState_ == kSorted_Run_Lumi_EventEntry) {
+    if (sortState() == kSorted_Run_Lumi_EventEntry) {
       Element el(run, 0U, 0U);
       it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
     }
@@ -116,15 +122,16 @@ namespace edm {
     while (it != itEnd && it->getEntryType() != FileIndex::kRun) {
       ++it;
     }
-    if (exact && (it->run_ != run)) it = entries_.end();
+    if (it == itEnd) return itEnd;
+    if (exact && (it->run_ != run)) return itEnd;
     return it;
   }
 
   FileIndex::const_iterator
   FileIndex::findLumiOrRunPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const {
-    assert(sortState_ != kNotSorted);
+    assert(sortState() != kNotSorted);
     const_iterator it;
-    if (sortState_ == kSorted_Run_Lumi_EventEntry) {
+    if (sortState() == kSorted_Run_Lumi_EventEntry) {
       Element el(run, lumi, 0U);
       it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
     }

@@ -4,78 +4,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include <vector>
-#include <iostream>
 
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
-#include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace pftools {
-/**
- * \class CalibratableElement
- * \brief Small wrapper class for storing individual rechit and cluster information.
- * 
- * \author Jamie Ballin
- * \date	June 2008
- */
-class CalibratableElement {
-public:
-	CalibratableElement() {
-		reset();
-	}
-
-	CalibratableElement(double energy, double eta, double phi, int layer) :
-		energy_(energy), eta_(eta), phi_(phi), layer_(layer) {
-	}
-
-	double energy_, eta_, phi_;
-	int layer_;
-
-	void reset() {
-		energy_ = 0.0;
-		eta_ = 0.0;
-		phi_ = 0.0;
-		layer_ = 0;
-	}
-};
-
-class CandidateWrapper {
-public:
-	CandidateWrapper() {
-		reset();
-	}
-
-	CandidateWrapper(double energy, double eta, double phi, double energyEcal,
-			double energyHcal, int type) :
-		energy_(energy), eta_(eta), phi_(phi), energyEcal_(energyEcal),
-				energyHcal_(energyHcal), type_(type) {
-
-	}
-
-	double energy_, eta_, phi_, energyEcal_, energyHcal_;
-	int cluster_numEcal_, cluster_numHcal_;
-	int type_;
-
-//	std::vector<CalibratableElement> cluster_ecal_;
-//	std::vector<CalibratableElement> cluster_hcal_;
-//	std::vector<CalibratableElement> rechits_ecal_;
-//	std::vector<CalibratableElement> rechits_hcal_;
-
-	void reset() {
-		energy_ = 0;
-		eta_ = 0;
-		phi_ = 0;
-		energyEcal_ = 0;
-		energyHcal_ = 0;
-		cluster_numEcal_ = 0;
-		cluster_numHcal_ = 0;
-		type_ = -1;
-//		cluster_ecal_.clear();
-//		cluster_hcal_.clear();
-//		rechits_ecal_.clear();
-//		rechits_hcal_.clear();
-	}
-};
 /**
  \class Calibratable 
  \brief Wraps essential single particle calibration data ready for export to a Root file.
@@ -94,8 +26,59 @@ public:
 
 	virtual ~Calibratable() {
 	}
+	;
 
-	virtual void reset();
+	virtual void reset() {
+
+		calibrations_.clear();
+
+		sim_energyEvent_ = 0;
+		sim_eta_ = 0;
+		sim_phi_ = 0;
+		sim_numEvent_ = 0;
+		sim_isMC_ = false;
+		
+		tb_isTB_ = false;
+		
+		sim_etaEcal_ = 0;
+		sim_etaHcal_ = 0;
+		sim_phiEcal_ = 0;
+		sim_phiHcal_ = 0;
+
+		cluster_energyEvent_ = 0;
+		cluster_energyEcal_ = 0;
+		cluster_energyHcal_ = 0;
+		cluster_etaEcal_ = 0;
+		cluster_phiEcal_ = 0;
+		cluster_etaHcal_ = 0;
+		cluster_phiHcal_ = 0;
+		cluster_numEcal_ = 0;
+		cluster_numHcal_= 0;
+
+		rechits_energyEvent_ = 0;
+		rechits_energyEcal_ = 0;
+		rechits_energyHcal_ = 0;
+		rechits_etaEcal_ = 0;
+		rechits_phiEcal_ = 0;
+		rechits_etaHcal_ = 0;
+		rechits_phiHcal_ = 0;
+		rechits_numEcal_ = 0;
+		rechits_numHcal_ = 0;
+
+		cand_energyEvent_ = 0;
+		cand_energyEcal_ = 0;
+		cand_energyHcal_ = 0;
+		cand_eta_ = 0;
+		cand_phi_ = 0;
+		cand_numEvent_ = 0;
+
+		pfele_energyEvent_ = 0;
+		pfele_energyEcal_ = 0;
+		pfele_energyHcal_ = 0;
+		pfele_numEcal_ = 0;
+		pfele_numHcal_ = 0;
+	}
+	;
 
 	/*
 	 * For each collection: candidates, clusters, rechits and truth
@@ -113,53 +96,32 @@ public:
 	bool sim_isMC_;
 	//test beam specific
 	bool tb_isTB_;
-	//leading track
-	double recotrk_numHits_, recotrk_quality_, recotrk_charge_;
-	double recotrk_etaEcal_, recotrk_phiEcal_;
-	//delta phi between sim particle and leading track
-	double recotrk_deltaRWithSim_;
-	math::XYZTLorentzVector recotrk_momentum_;
+	//tracks
+	//track momentum magnitude
+	double recotrk_p2_, recotrk_Dp_, recotrk_nunHits_, recotrk_quality_;
 	//clusters
-	double cluster_energyEvent_, cluster_energyEcal_, cluster_energyHcal_;
-	std::vector<CalibratableElement> cluster_ecal_, cluster_hcal_;
+	double cluster_energyEvent_, cluster_energyEcal_, cluster_energyHcal_,
+			cluster_etaEcal_, cluster_phiEcal_, cluster_etaHcal_,
+			cluster_phiHcal_;
 	int cluster_numEcal_, cluster_numHcal_;
-	CalibratableElement cluster_meanEcal_, cluster_meanHcal_;
-
 	//rechits
-	double rechits_energyEvent_, rechits_energyEcal_, rechits_energyHcal_;
-	std::vector<CalibratableElement> rechits_ecal_, rechits_hcal_;
+	double rechits_energyEvent_, rechits_energyEcal_, rechits_energyHcal_,
+			rechits_etaEcal_, rechits_phiEcal_, rechits_etaHcal_,
+			rechits_phiHcal_;
 	int rechits_numEcal_, rechits_numHcal_;
-	CalibratableElement rechits_meanEcal_, rechits_meanHcal_;
-
 	//pf candidates
-	std::vector<CandidateWrapper> cands_;
-	CandidateWrapper cands_mean_;
-	int cands_num_;
-
 	double cand_energyEvent_, cand_energyEcal_, cand_energyHcal_, cand_eta_,
 			cand_phi_;
-	int cand_type_;
+	int cand_numEvent_;
 	//pf elements
 	double pfele_energyEvent_, pfele_energyEcal_, pfele_energyHcal_;
 	int pfele_numEcal_, pfele_numHcal_;
 
 	std::vector<CalibrationResultWrapper> calibrations_;
 
-	//Recomputes cluster and rechit averages using the vectors of DepositDiets
-	//Users should call this before filling the tree.
-	virtual void recompute();
-
-	virtual CalibratableElement computeMean(
-			const std::vector<CalibratableElement>& diets);
-
-	virtual CandidateWrapper computeMean(
-			const std::vector<CandidateWrapper>& wrappers);
-	
-	
 
 };
 typedef boost::shared_ptr<Calibratable> CalibratablePtr;
-std::ostream& operator<<(std::ostream& s, const Calibratable& calib_);
 }
 #endif /*CALIBRATABLE_H_*/
 

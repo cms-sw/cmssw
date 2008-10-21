@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.3 2008/08/14 08:41:21 schmittm Exp $
+// $Id: CSCSkim.cc,v 1.2 2008/07/30 15:57:13 rahatlou Exp $
 //
 //
 //======================================================================
@@ -31,10 +31,6 @@
 //    1  = loose skim demanding hit chambers and/or segments
 //    2  = ask for hit chambers in both endcaps
 //    3  = segments in neighboring chambers - good for alignment
-//    4  = messy events
-//    5  = select events with DIGIs from one particular chamber
-//    6  = overlap with DT
-//    7  = nearly horizontal track going through ME1/1,2/1,3/1,4/1
 //
 //
 //======================================================================
@@ -51,8 +47,6 @@ CSCSkim::CSCSkim(const edm::ParameterSet& pset)
 {
 
   // Get the various input parameters
-  bool isSimulation = false;
-  isSimulation       = pset.getUntrackedParameter<bool>("isSimulation",false);
   outputFileName     = pset.getUntrackedParameter<string>("outputFileName","outputSkim.root");
   histogramFileName  = pset.getUntrackedParameter<string>("histogramFileName","histos.root");
   typeOfSkim              = pset.getUntrackedParameter<int>("typeOfSkim",1);
@@ -62,10 +56,6 @@ CSCSkim::CSCSkim(const edm::ParameterSet& pset)
   demandChambersBothSides = pset.getUntrackedParameter<bool>("demandChambersBothSides",false);
   makeHistograms          = pset.getUntrackedParameter<bool>("makeHistograms",false);
   makeHistogramsForMessyEvents = pset.getUntrackedParameter<bool>("makeHistogramsForMessyEvebts",false);
-  whichEndcap             = pset.getUntrackedParameter<int>("whichEndcap",2);
-  whichStation            = pset.getUntrackedParameter<int>("whichStation",3);
-  whichRing               = pset.getUntrackedParameter<int>("whichRing",2);
-  whichChamber            = pset.getUntrackedParameter<int>("whichChamber",24);
 
   LogInfo("[CSCSkim] Setup")
     << "\n\t===== CSCSkim =====\n"
@@ -100,9 +90,6 @@ CSCSkim::beginJob(const edm::EventSetup&)
   nEventsChambersBothSides = 0;
   nEventsOverlappingChambers = 0;
   nEventsMessy = 0;
-  nEventsCertainChamber = 0;
-  nEventsDTOverlap = 0;
-  nEventsHaloLike = 0;
   iRun = 0;
   iEvent = 0;
 
@@ -130,6 +117,7 @@ CSCSkim::beginJob(const edm::EventSetup&)
     }
 
   }
+
 }
 
 //================
@@ -151,9 +139,6 @@ CSCSkim::endJob() {
     << "\t\tevents chambers both sides ...\t" << nEventsChambersBothSides << "\n"
     << "\t\tevents w/ overlaps .......... \t" << nEventsOverlappingChambers << "\n"
     << "\t\tevents lots of hit chambers . \t" << nEventsMessy << "\n"
-    << "\t\tevents from certain chamber . \t" << nEventsCertainChamber << "\n"
-    << "\t\tevents in DT-CSC overlap .... \t" << nEventsDTOverlap << "\n"
-    << "\t\tevents halo-like ............ \t" << nEventsHaloLike << "\n"
     <<     "\t=========================================================================\n\n";
 
 
@@ -179,6 +164,7 @@ CSCSkim::endJob() {
   }
 }
 
+
 //================
 //  FILTER MAIN
 //================
@@ -192,19 +178,6 @@ CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup)
   iEvent = event.id().event();
 
   LogDebug("[CSCSkim] EventInfo") << "Run: " << iRun << "\tEvent: " << iEvent << "\tn Analyzed: " << nEventsAnalyzed;
-
-  // Get the DIGI collections
-  edm::Handle<CSCWireDigiCollection> wires;
-  edm::Handle<CSCStripDigiCollection> strips;
-
-  if (isSimulation){
-    event.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("simMuonCSCDigis","MuonCSCStripDigi",strips);
-  }
-  else {
-    event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
-  }
 
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> cscRecHits;
@@ -234,35 +207,11 @@ CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup)
     if (messyEvent) {nEventsMessy++;}
   }
 
-  // select events with DIGIs in a certain chamber
-  bool hasChamber = false;
-  if (typeOfSkim == 5) {
-    hasChamber = doCertainChamberSelection(wires,strips);
-    if (hasChamber) {nEventsCertainChamber++;}
-  }
-
-  // select events in the DT-CSC overlap region
-  bool DTOverlapCandidate = false;
-  if (typeOfSkim == 6) {
-    DTOverlapCandidate = doDTOverlap(cscSegments);
-    if (DTOverlapCandidate) {nEventsDTOverlap++;}
-  }
-
-  // select halo-like events
-  bool HaloLike = false;
-  if (typeOfSkim == 7) {
-    HaloLike = doHaloLike(cscSegments);
-    if (HaloLike) {nEventsHaloLike++;}
-  }
-
   // set filter flag
   bool selectThisEvent = false;
   if (typeOfSkim == 1 || typeOfSkim == 2) {selectThisEvent = basicEvent;}
   if (typeOfSkim == 3) {selectThisEvent = goodOverlapEvent;}
   if (typeOfSkim == 4) {selectThisEvent = messyEvent;}
-  if (typeOfSkim == 5) {selectThisEvent = hasChamber;}
-  if (typeOfSkim == 6) {selectThisEvent = DTOverlapCandidate;}
-  if (typeOfSkim == 7) {selectThisEvent = HaloLike;}
 
   if (selectThisEvent) {nEventsSelected++;}
 
@@ -480,12 +429,12 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments){
 
 }
 
-//============================================================
+//--------------------------------------------------
 //
 // This module selects events with a large numbere
 // of recHits and larger number of chambers with hits.
 //
-//============================================================
+//--------------------------------------------------
 bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::Handle<CSCSegmentCollection> cscSegments){
 
   // how many RecHits in the collection?
@@ -608,309 +557,10 @@ bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits
   }
   */
 
+
   return selectEvent;
 }
 
-
-//============================================================
-//
-// Select events with DIGIs are a particular chamber.
-//
-//============================================================
-bool CSCSkim::doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires,
-					edm::Handle<CSCStripDigiCollection> strips) {
-
-  // Loop through the wire DIGIs, looking for a match
-  bool certainChamberIsPresentInWires = false;
-  for (CSCWireDigiCollection::DigiRangeIterator jw=wires->begin(); jw!=wires->end(); jw++) {
-    CSCDetId id = (CSCDetId)(*jw).first;
-    int kEndcap  = id.endcap();
-    int kRing    = id.ring();
-    int kStation = id.station();
-    int kChamber = id.chamber();
-    if ( (kEndcap     == whichEndcap) &&
-         (kStation    == whichStation) &&
-         (kRing       == whichRing) &&
-         (kChamber    == whichChamber) )
-      {certainChamberIsPresentInWires = true;}
-  } // end wire loop
-
-
-  // Loop through the strip DIGIs, looking for a match
-  bool certainChamberIsPresentInStrips = false;
-  for (CSCStripDigiCollection::DigiRangeIterator js=strips->begin(); js!=strips->end(); js++) {
-    CSCDetId id = (CSCDetId)(*js).first;
-    int kEndcap  = id.endcap();
-    int kRing    = id.ring();
-    int kStation = id.station();
-    int kChamber = id.chamber();
-    if ( (kEndcap     == whichEndcap) &&
-         (kStation    == whichStation) &&
-         (kRing       == whichRing) &&
-         (kChamber    == whichChamber) )
-      {certainChamberIsPresentInStrips = true;}
-  }
-
-  bool certainChamberIsPresent = certainChamberIsPresentInWires || certainChamberIsPresentInStrips;
-
-  return certainChamberIsPresent;
-}
-
-
-
-//============================================================
-//
-// Select events which *might* probe the DT-CSC overlap region.
-//
-//============================================================
-bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
-  const float chisqMax = 100.;
-  const int nhitsMin = 5;
-  const int maxNSegments = 3;
-
-  // initialize
-  bool DTOverlapCandidate = false;
-  int cntMEP13[36];
-  int cntMEN13[36];
-  int cntMEP22[36];
-  int cntMEN22[36];
-  int cntMEP32[36];
-  int cntMEN32[36];
-  for (int i=0; i<36; ++i) {
-    cntMEP13[i] = 0;
-    cntMEN13[i] = 0;
-    cntMEP22[i] = 0;
-    cntMEN22[i] = 0;
-    cntMEP32[i] = 0;
-    cntMEN32[i] = 0;
-  }
-
-  // -----------------------
-  // loop over segments
-  // -----------------------
-
-  int nSegments = cscSegments->size();
-  if (nSegments < 2) return DTOverlapCandidate;
-
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
-    // which chamber?
-    CSCDetId id  = (CSCDetId)(*it).cscDetId();
-    int kEndcap  = id.endcap();
-    int kStation = id.station();
-    int kRing    = id.ring();
-    int kChamber = id.chamber();
-    // segment information
-    float chisq    = (*it).chi2();
-    int nhits      = (*it).nRecHits();
-    bool goodSegment = (chisq < chisqMax) && (nhits >= nhitsMin) ;
-    if (goodSegment) {
-      if ( (kStation == 1) && (kRing == 3) ) {
-	if (kEndcap == 1) {cntMEP13[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN13[kChamber-1]++;}
-      }
-      if ( (kStation == 2) && (kRing == 2) ) {
-	if (kEndcap == 1) {cntMEP22[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN22[kChamber-1]++;}
-      }
-      if ( (kStation == 3) && (kRing == 2) ) {
-	if (kEndcap == 1) {cntMEP32[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN32[kChamber-1]++;}
-      }
-    } // this is a good segment
-  } // end loop over segments
-
-  // ---------------------------------------------
-  // veto messy events
-  // ---------------------------------------------
-  bool tooManySegments = false;
-  for (int i=0; i<36; ++i) {
-    if ( (cntMEP13[i] > maxNSegments) ||
-         (cntMEN13[i] > maxNSegments) ||
-         (cntMEP22[i] > maxNSegments) ||
-         (cntMEN22[i] > maxNSegments) ||
-         (cntMEP32[i] > maxNSegments) ||
-         (cntMEN32[i] > maxNSegments) ) tooManySegments = true;
-  }
-  if (tooManySegments) {
-    return DTOverlapCandidate;
-  }
-
-  // ---------------------------------------------
-  // check for relevant matchup of segments
-  // ---------------------------------------------
-  bool matchup = false;
-  for (int i=0; i<36; ++i) {
-    if ( (cntMEP13[i] > 0) && (cntMEP22[i]+cntMEP32[i] > 0) ) {matchup = true;}
-    if ( (cntMEN13[i] > 0) && (cntMEN22[i]+cntMEN32[i] > 0) ) {matchup = true;}
-  }
-  /*
-  if (matchup) {
-    cout << "\tYYY looks like a good event.  Select!\n";
-    cout << "-- pos endcap --\n"
-	 << "ME1/3: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP13[k];}
-    cout << "\nME2/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP22[k];}
-    cout << "\nME3/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP32[k];}
-    cout << endl;
-  }
-  */
-
-  // set the selection flag
-  DTOverlapCandidate = matchup;
-  return DTOverlapCandidate;
-}
-
-
-
-
-//============================================================
-//
-// Select events which register in the inner parts of
-// stations 1, 2, 3 and 4.
-//
-//============================================================
-bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
-  const float chisqMax = 100.;
-  const int nhitsMin = 5; // on a segment
-  const int maxNSegments = 3; // in a chamber
-
-  // initialize
-  bool HaloLike = false;
-  int cntMEP11[36];
-  int cntMEN11[36];
-  int cntMEP12[36];
-  int cntMEN12[36];
-  int cntMEP21[36];
-  int cntMEN21[36];
-  int cntMEP31[36];
-  int cntMEN31[36];
-  int cntMEP41[36];
-  int cntMEN41[36];
-  for (int i=0; i<36; ++i) {
-    cntMEP11[i] = 0;
-    cntMEN11[i] = 0;
-    cntMEP12[i] = 0;
-    cntMEN12[i] = 0;
-    cntMEP21[i] = 0;
-    cntMEN21[i] = 0;
-    cntMEP31[i] = 0;
-    cntMEN31[i] = 0;
-    cntMEP41[i] = 0;
-    cntMEN41[i] = 0;
-  }
-
-  // -----------------------
-  // loop over segments
-  // -----------------------
-  int nSegments = cscSegments->size();
-  if (nSegments < 4) return HaloLike;
-
-  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
-    // which chamber?
-    CSCDetId id  = (CSCDetId)(*it).cscDetId();
-    int kEndcap  = id.endcap();
-    int kStation = id.station();
-    int kRing    = id.ring();
-    int kChamber = id.chamber();
-    // segment information
-    float chisq    = (*it).chi2();
-    int nhits      = (*it).nRecHits();
-    bool goodSegment = (chisq < chisqMax) && (nhits >= nhitsMin) ;
-    if (goodSegment) {
-      if ( (kStation == 1) && (kRing == 1) ) {
-	if (kEndcap == 1) {cntMEP11[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN11[kChamber-1]++;}
-      }
-      if ( (kStation == 1) && (kRing == 2) ) {
-	if (kEndcap == 1) {cntMEP12[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN12[kChamber-1]++;}
-      }
-      if ( (kStation == 2) && (kRing == 1) ) {
-	if (kEndcap == 1) {cntMEP21[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN21[kChamber-1]++;}
-      }
-      if ( (kStation == 3) && (kRing == 1) ) {
-	if (kEndcap == 1) {cntMEP31[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN31[kChamber-1]++;}
-      }
-      if ( (kStation == 4) && (kRing == 1) ) {
-	if (kEndcap == 1) {cntMEP41[kChamber-1]++;}
-	if (kEndcap == 2) {cntMEN41[kChamber-1]++;}
-      }
-    } // this is a good segment
-  } // end loop over segments
-
-  // ---------------------------------------------
-  // veto messy events
-  // ---------------------------------------------
-  bool tooManySegments = false;
-  for (int i=0; i<36; ++i) {
-    if ( (cntMEP11[i] > 3*maxNSegments) ||
-         (cntMEN11[i] > 3*maxNSegments) ||
-	 (cntMEP12[i] > maxNSegments) ||
-         (cntMEN12[i] > maxNSegments) ||
-         (cntMEP21[i] > maxNSegments) ||
-         (cntMEN21[i] > maxNSegments) ||
-         (cntMEP31[i] > maxNSegments) ||
-         (cntMEN31[i] > maxNSegments) ||
-         (cntMEP41[i] > maxNSegments) ||
-         (cntMEN41[i] > maxNSegments) ) tooManySegments = true;
-  }
-  if (tooManySegments) {
-    return HaloLike;
-  }
-
-  // ---------------------------------------------
-  // check for relevant matchup of segments
-  // ---------------------------------------------
-  bool matchup = false;
-  for (int i=0; i<36; ++i) {
-    if ( (cntMEP11[i]+cntMEP12[i] > 0) && 
-         (cntMEP21[i] > 0) &&
-         (cntMEP31[i] > 0) &&
-         (cntMEP41[i] > 0) ) {matchup = true;}
-    if ( (cntMEN11[i]+cntMEN12[i] > 0) && 
-         (cntMEN21[i] > 0) &&
-         (cntMEN31[i] > 0) &&
-         (cntMEN41[i] > 0) ) {matchup = true;}
-  }
-  /*
-  if (matchup) {
-    cout << "\tYYY looks like a good event.  Select!\n";
-    cout << "-- pos endcap --\n"
-	 << "ME1/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP11[k];}
-    cout << "\nME1/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP12[k];}
-    cout << "\nME2/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP21[k];}
-    cout << "\nME3/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP31[k];}
-    cout << "\nME4/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP41[k];}
-    cout << endl;
-    cout << "-- neg endcap --\n"
-	 << "ME1/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN11[k];}
-    cout << "\nME1/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN12[k];}
-    cout << "\nME2/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN21[k];}
-    cout << "\nME3/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN31[k];}
-    cout << "\nME4/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN41[k];}
-    cout << endl;
-    cout << "\tn Analyzed = " << nEventsAnalyzed << "\tn Halo-like = " << nEventsHaloLike << endl;
-  }
-  */
-
-  // set the selection flag
-  HaloLike = matchup;
-  return HaloLike;
-}
 
 
 //--------------------------------------------------------------
@@ -921,7 +571,7 @@ int CSCSkim::chamberSerial( int kEndcap, int kStation, int kRing, int kChamber )
     int kSerial = kChamber;
     if (kStation == 1 && kRing == 1) {kSerial = kChamber;}
     if (kStation == 1 && kRing == 2) {kSerial = kChamber + 36;}
-    if (kStation == 1 && kRing == 3) {kSerial = kChamber + 72;}
+    if (kStation == 1 && kRing == 3) {kSerial = kChamber + 73;}
     if (kStation == 1 && kRing == 4) {kSerial = kChamber;}
     if (kStation == 2 && kRing == 1) {kSerial = kChamber + 108;}
     if (kStation == 2 && kRing == 2) {kSerial = kChamber + 126;}

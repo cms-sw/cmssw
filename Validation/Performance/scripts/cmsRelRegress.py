@@ -95,7 +95,7 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                     profdir = os.path.basename(adir)
 
                     if prof == "TimingReport" or prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemLive":
-                        stepreg = re.compile("%s_([^_]*)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
+                        stepreg = re.compile("%s_([^_]*(_PILEUP)?)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
                         
                         for log in stepLogs:
                             base = os.path.basename(log)
@@ -104,7 +104,7 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                             searchob = stepreg.search(base)
                             if searchob:
                                 step = searchob.groups()[0]
-                                outpath = os.path.join(adir,"%s_regression" % base)
+                                outpath = os.path.join(adir,"%s_%s_%s_regression" % (CandFname[candle],step,prof))
                                 oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
                                 if prof == "IgProfMemTotal" or prof == "IgProfMemLive":
                                     oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base + ".gz")
@@ -120,7 +120,6 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
 
                                         if   prof == "EdmSize":
                                             cpr.cmpEdmSizeReport(outpath,oldlog,log)
-                                            
                                         elif prof == "TimingReport":
                                             logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
                                             outd   = os.path.join(adir,logdir)
@@ -129,12 +128,10 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                             print "** Comparing", candle, step, prof, "previous release: %s and latest release: %s" % (oldlog,log)
                                             print "**"
                                             oldRelName = getOldRelName(oldRelName,olddir)
-                                            
                                             cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
                                         elif prof == "valgrind":
                                             cpr.cmpCallgrindReport(outpath,oldlog,log)
                                         elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
-                                            
                                             cpr.cmpIgProfReport(outpath,oldlog,log)
                                     except cpr.PerfReportErr,detail:
                                         print "WARNING: Perfreport return non-zero exit status when comparing %s and %s. Perfreport output follows" % (oldlog,log)

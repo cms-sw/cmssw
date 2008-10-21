@@ -394,3 +394,20 @@ def listtableset( schema,tableset ):
   raise Exception (" " + str(e))
   return False
 
+if __name__ == "__main__":
+    context = coral.Context()
+    context.setVerbosityLevel( 'ERROR' )
+    svc = coral.ConnectionService( context )
+    session = svc.connect( 'sqlite_file:source.db',
+                           accessMode = coral.access_Update )
+    session.transaction().start(True)
+    schema=session.nominalSchema()
+    print 'TEST listobjects'
+    print listobjects(schema)
+    print 'TEST dumpobjectlist'
+    dumpobjectlist(schema)
+    print 'TEST listtables'
+    print listtables(schema,'TAGINVENTORY_TABLE')
+    
+    session.transaction().commit()
+    del session

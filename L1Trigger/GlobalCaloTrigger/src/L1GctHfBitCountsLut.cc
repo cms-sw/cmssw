@@ -46,6 +46,13 @@ L1GctHfBitCountsLut L1GctHfBitCountsLut::operator= (const L1GctHfBitCountsLut& l
 std::ostream& operator << (std::ostream& os, const L1GctHfBitCountsLut& lut)
 {
   os << "===L1GctHfBitCountsLut===" << std::endl;
+  std::vector<unsigned> thresholds = lut.m_lutFunction->getThresholds(lut.m_lutType);
+  std::vector<unsigned>::const_iterator thr = thresholds.begin();
+  os << "Thresholds are: " << *(thr++);
+  for ( ; thr != thresholds.end(); thr++) {
+    os << ", " << *thr;
+  }
+  os << std::endl;
   os << "\n===Lookup table contents===\n" << std::endl;
   const L1GctLut<L1GctHfBitCountsLut::NAddress,L1GctHfBitCountsLut::NData>* temp=&lut;
   os << *temp;

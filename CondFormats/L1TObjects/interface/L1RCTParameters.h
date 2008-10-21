@@ -46,17 +46,10 @@ class L1RCTParameters {
 		  bool noiseVetoHB,
 		  bool noiseVetoHEplus,
 		  bool noiseVetoHEminus,
-		  bool useLindsey,
-		  const std::vector<double>& eGammaECalScaleFactors,
-		  const std::vector<double>& eGammaHCalScaleFactors,
-		  const std::vector<double>& jetMETECalScaleFactors,
-		  const std::vector<double>& jetMETHCalScaleFactors,
-		  const std::vector<double>& ecal_calib_Lindsey,
-		  const std::vector<double>& hcal_calib_Lindsey,
-		  const std::vector<double>& hcal_high_calib_Lindsey,
-		  const std::vector<double>& cross_terms_Lindsey,
-		  const std::vector<double>& lowHoverE_smear,
-		  const std::vector<double>& highHoverE_smear
+		  std::vector<double> eGammaECalScaleFactors,
+		  std::vector<double> eGammaHCalScaleFactors,
+		  std::vector<double> jetMETECalScaleFactors,
+		  std::vector<double> jetMETHCalScaleFactors
 		  );
 
   // destructor -- no virtual methods in this class
@@ -94,10 +87,6 @@ class L1RCTParameters {
   short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const; // negative eta is used
   unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const;
   unsigned short calcIAbsEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const;
-  
-  // Sum ecal and hcal TPGs using JetMET / EGamma Correactions and Lindsey's Calibration if flag is set
-  float JetMETTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const;
-  float EGammaTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const;
 
   void print(std::ostream& s) const {return;}
 
@@ -184,9 +173,6 @@ class L1RCTParameters {
 
   bool noiseVetoHEminus_;
 
-  // Use Lindsey's Corrections ?
-  bool useCorrectionsLindsey;
-
   // eGamma object ET is computed using the trigger tower ET defined as
   // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]
   // The result is then digitized using the eGamma LSB
@@ -200,25 +186,6 @@ class L1RCTParameters {
 
   std::vector<double> jetMETECalScaleFactors_;
   std::vector<double> jetMETHCalScaleFactors_;
-
-
-  // Applies Lindsey's calibration to HCAL and ECAL (ECAL must corrected by eGamma scale factors)
-  // Provides corrected Et sum.
-  float correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const unsigned& index) const;
-
-  // Lindsey's Calibration Coefficients
-  // Basically a higher order approximation of the energy response of the calorimeters.
-  // Powers in ecal and hcal Et are defined below.
-  std::vector<std::vector<double> > ecal_calib_Lindsey_;  // [0] = ecal^3, [1] = ecal^2, [2] = ecal
-  std::vector<std::vector<double> > hcal_calib_Lindsey_;  // [0] = hcal^3, [1] = hcal^2, [2] = hcal
-  std::vector<std::vector<double> > hcal_high_calib_Lindsey_; // same as above but used to capture Et dependence for large Et
-  std::vector<std::vector<double> > cross_terms_Lindsey_; // [0] = ecal^2*hcal, [1] = hcal^2*ecal, [2] = ecal*hcal
-                                                          // [3] = ecal^3*hcal, [1] = hcal^3*ecal, [2] = ecal^2*hcal^2
-  // These two sets of correction factors help to center the corrected 
-  // Et distributions for different values of H/E.
-  std::vector<double> HoverE_smear_low_Lindsey_;
-  std::vector<double> HoverE_smear_high_Lindsey_;
-  
 
 };
 

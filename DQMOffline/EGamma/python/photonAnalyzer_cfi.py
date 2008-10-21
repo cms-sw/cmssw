@@ -7,6 +7,10 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
 
+    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+
+    prescaleFactor = cms.untracked.int32(1),
 
     cutStep = cms.double(50.0),
     numberOfSteps = cms.int32(2),                          
@@ -57,8 +61,26 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksBin = cms.int32(100),
     dPhiTracksMin = cms.double(-0.5),
     dPhiTracksMax = cms.double(0.5),
-                                
-
+# parameters for pizer finding                                
+    seleXtalMinEnergy = cms.double(0.0),
+    clusSeedThr = cms.double(0.5),
+    clusPhiSize = cms.int32(3),
+    clusEtaSize = cms.int32(3),
+    ParameterLogWeighted = cms.bool(True),                          
+    ParameterX0 = cms.double(0.89),
+    ParameterW0 = cms.double(4.2),
+    ParameterT0_barl = cms.double(5.7),
+    selePtGammaOne = cms.double(0.9),
+    selePtGammaTwo = cms.double(0.9),                          
+    seleS4S9GammaOne = cms.double(0.85),
+    seleS4S9GammaTwo = cms.double(0.85),
+    selePtPi0 = cms.double(2.5),
+    selePi0Iso = cms.double(0.5),
+    selePi0BeltDR = cms.double(0.2),
+    selePi0BeltDeta = cms.double(0.05),
+    seleMinvMaxPi0 = cms.double(0.5),
+    seleMinvMinPi0 = cms.double(0.0),
+#                                
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('DQMOfflinePhotons.root'),
 

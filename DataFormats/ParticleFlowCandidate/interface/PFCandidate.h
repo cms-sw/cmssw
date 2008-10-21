@@ -13,7 +13,6 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -48,7 +47,7 @@ namespace reco {
     PFCandidate();
 
     /// constructor from a reference (keeps track of source relationship)
-    PFCandidate( const PFCandidatePtr& sourcePtr );
+    PFCandidate( const PFCandidateRef& sourceRef );
     
     /*     PFCandidate( Charge q,  */
     /*                  const LorentzVector & p4,  */
@@ -65,23 +64,13 @@ namespace reco {
     virtual PFCandidate * clone() const;
 
 
- /*    /// set source ref */
-/*     void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; } */
+    /// set source ref
+    void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; }
 
-/*     size_type numberOfSourceCandidateRefs() const {return 1;} */
+    size_type numberOfSourceCandidateRefs() const {return 1;}
 
-/*     CandidateBaseRef sourceCandidateRef( size_type i ) const { */
-/*       return  CandidateBaseRef(sourceRef_); */
-/*     } */
-
-    void setSourcePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
-
-    size_t numberOfSourceCandidatePtrs() const { 
-      return 1;
-    }
-    
-    CandidatePtr sourceCandidatePtr( size_type i ) const {
-      return sourcePtr_;
+    CandidateBaseRef sourceCandidateRef( size_type i ) const {
+      return  CandidateBaseRef(sourceRef_);
     }
 
     /// returns the pdg id corresponding to the particle type.
@@ -106,13 +95,6 @@ namespace reco {
     /// return a reference to the corresponding track, if charged. 
     /// otherwise, return a null reference
     reco::TrackRef trackRef() const { return trackRef_; }
-
-    /// set gsftrack reference 
-    void setGsfTrackRef(const reco::GsfTrackRef& ref);   
-
-    /// return a reference to the corresponding GSF track, if an electron. 
-    /// otherwise, return a null reference 
-    reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }     
 
     /// set muon reference
     void setMuonRef(const reco::MuonRef& ref);
@@ -289,13 +271,10 @@ namespace reco {
     ElementsInBlocks elementsInBlocks_;
 
     /// reference to the source PFCandidate, if any
-/*     PFCandidateRef sourceRef_; */
-    PFCandidatePtr sourcePtr_;
+    PFCandidateRef sourceRef_;
 
     reco::TrackRef trackRef_;
     
-    reco::GsfTrackRef gsfTrackRef_;  
-
     reco::MuonRef  muonRef_;
 
     reco::NuclearInteractionRef nuclearRef_;

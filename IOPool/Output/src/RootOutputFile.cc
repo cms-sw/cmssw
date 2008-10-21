@@ -102,7 +102,6 @@ namespace edm {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
-    TTree::SetMaxTreeSize(kMaxLong64);
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
@@ -199,11 +198,22 @@ namespace edm {
   void RootOutputFile::writeOne(EventPrincipal const& e) {
     // Auxiliary branch
     pEventAux_ = &e.aux();
-
+   
+    // Store an invailid process history ID in EventAuxiliary for obsolete field.
+    pEventAux_->processHistoryID_ = ProcessHistoryID();
+    
+    // Because getting the data may cause an exception to be thrown we want to do that
+    // first before writing anything to the file about this event
+    // NOTE: pEventAux_ must be set before calling fillBranches since it gets written out
+    // in that routine.
+    fillBranches(InEvent, e, pEventEntryInfoVector_);
+     
     // History branch
     History historyForOutput(e.history());
     historyForOutput.addEntry(om_->selectorConfig());
-    historyForOutput.setProcessHistoryID(pEventAux_->processHistoryID());
+    //NOTE: EventPrincipal::processHistoryID has the real value since we just injected a dummy
+    // value for processHistoryID into the EventAuxilliary
+    historyForOutput.setProcessHistoryID(e.processHistoryID());
     pHistory_ = &historyForOutput;
     int sz = eventHistoryTree_->Fill();
     if ( sz <= 0)
@@ -225,11 +235,6 @@ namespace edm {
     // Add event to index
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
-
-    // Store an invailid process history ID in EventAuxiliary for obsolete field.
-    pEventAux_->processHistoryID_ = ProcessHistoryID();
-
-    fillBranches(InEvent, e, pEventEntryInfoVector_);
 
     // Report event written 
     Service<JobReport> reportSvc;

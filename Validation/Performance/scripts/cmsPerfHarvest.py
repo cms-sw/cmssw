@@ -47,8 +47,12 @@ def visit_timesize_steps(candle,profsetdir):
                 try:
                     if step == None:
                         print "Error: could not resolve step something is wrong"
-                        step = "None"                                           
-                    out["TimingReport"] = {step: cpr.getTimingLogData(globule)}
+                        step = "None"
+                    if not out.has_key("TimingReport"):
+                        out["TimingReport"] = {}
+                    stepdict = out["TimingReport"]
+                    stepdict[step] = cpr.getTimingLogData(globule)
+                    out["TimingReport"] = stepdict
                 except (OSError, IOError), detail:
                     print detail
             else:
@@ -68,16 +72,20 @@ def visit(visitdir):
                 if found:
                     profset = found.groups()[0]
                     if profset == "TimeSize": # Just do timesize for now!
-                        if out.has_key((candle,profset)):
-                            print "Error: we already have a profset that matches %s" % str((candle,profset))
+                        if candle == None:
+                            print "Error: could not resolve candle something is wrong"
+                            candle = "None"
+                        if profset == None:
+                            print "Error: could not resolve profset something is wrong"
+                            profset = "None"
+                        if not out.has_key(candle):
+                            out[candle] = {}
+                        candledict = out[candle]
+                        if candledict.has_key(profset):
+                            print "Error: we already have a profset that matches %s" % str(profset)
                         else:
-                            if candle == None:
-                                print "Error: could not resolve candle something is wrong"
-                                candle = "None"
-                            if profset == None:
-                                print "Error: could not resolve profset something is wrong"
-                                profset = "None"                                
-                            out[candle] = {profset: visit_timesize_steps(candle,globule)}
+                            candledict[profset] = visit_timesize_steps(candle,globule)
+                            out[candle] = candledict
     return out
         
 

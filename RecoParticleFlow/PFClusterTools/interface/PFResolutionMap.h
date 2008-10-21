@@ -43,19 +43,15 @@ class PFResolutionMap : public TH2D {
 
   ///  extrapolation requires overloading of this function
   int  FindBin(double eta, double e);
-
-  double getRes(double eta, double phi, double e,int MapEta = -1); 
-
+  
   const char* GetMapFile() const {return mapFile_.c_str();}
 
   /// print this map
   friend std::ostream& operator<<(std::ostream& out, const PFResolutionMap& rm);
   
  private:
-  bool IsInAPhiCrack(double phi, double eta);
-  double minimum(double a,double b);
-  double dCrackPhi(double phi, double eta);
   static const unsigned lineSize_;
+
   std::string           mapFile_;
 };
 

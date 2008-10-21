@@ -1,16 +1,12 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.22 $
- *  $Date: 2008/02/12 22:50:54 $
- *  (last update by $Author: cklae $)
+ *  $Revision: 1.21 $
+ *  $Date: 2008/01/22 18:46:13 $
+ *  (last update by $Author: muzaffar $)
  */
 
-// This class's header should be first
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -19,10 +15,11 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
+// This class's header
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 //__________________________________________________________________________________________________
 AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
@@ -273,12 +270,27 @@ void AlignmentParameterStore::applyParameters(void)
 void AlignmentParameterStore::applyParameters(Alignable* alignable)
 {
 
-  AlignmentParameters *pars = (alignable ? alignable->alignmentParameters() : 0);
-  if (!pars) {
+  // Get alignment parameters
+  RigidBodyAlignmentParameters* ap = 
+    dynamic_cast<RigidBodyAlignmentParameters*>( alignable->alignmentParameters() );
+
+  if ( !ap )
     throw cms::Exception("BadAlignable") 
-      << "applyParameters: provided alignable does not have alignment parameters";
-  }
-  pars->apply();
+      << "applyParameters: provided alignable does not have rigid body alignment parameters";
+
+  // Translation in local frame
+  AlgebraicVector shift = ap->translation(); // fixme: should be LocalVector
+
+  // Translation local->global
+  align::LocalVector lv(shift[0], shift[1], shift[2]);
+  alignable->move( alignable->surface().toGlobal(lv) );
+
+  // Rotation in local frame
+  align::EulerAngles angles = ap->rotation();
+  align::RotationType rot = alignable->surface().toGlobal( align::toMatrix(angles) );
+  align::rectify(rot); // correct for rounding errors
+  alignable->rotateInGlobalFrame(rot);
+//   alignable->rotateInLocalFrame( align::toMatrix(angles) );
 }
 
 
@@ -508,7 +520,7 @@ void AlignmentParameterStore::attachAlignmentParameters( const align::Alignables
     for ( Parameters::const_iterator ipar = parvec.begin(); ipar != parvec.end(); ++ipar) 
     {
       // Get new alignment parameters
-      AlignmentParameters* ap = *ipar; 
+      RigidBodyAlignmentParameters* ap = dynamic_cast<RigidBodyAlignmentParameters*>(*ipar); 
 
       // Check if parameters belong to alignable 
       if ( ap->alignable() == (*iali) )
@@ -519,8 +531,7 @@ void AlignmentParameterStore::attachAlignmentParameters( const align::Alignables
           ++ipass;
           found=true;
         } 
-        else edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::attachAlignmentParameters" 
-					<< "More than one parameters for Alignable.";
+        else edm::LogError("DuplicateParameters") << "More than one parameters for Alignable";
       }
     }
     if (!found) ++ifail;
@@ -638,11 +649,6 @@ bool AlignmentParameterStore
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
   if (!ali || !ali->alignmentParameters()) return false;
 
-  if (ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody) {
-    throw cms::Exception("BadConfig") << "AlignmentParameterStore::hierarchyConstraints"
-				      << " requires 'ali' to have rigid body alignment parameters.";
-  }
-
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
   paramIdsVecOut.clear();
   factorsVecOut.clear();
@@ -651,12 +657,6 @@ bool AlignmentParameterStore
   bool firstComp = true;
   for (align::Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
        iComp != iCompE; ++iComp) {
-    if ((*iComp)->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody) {
-      throw cms::Exception("BadConfig")
-	<< "AlignmentParameterStore::hierarchyConstraints"
-	<< " requires all 'aliComps' to have rigid body alignment parameters.";
-    }
-
     const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
     const std::vector<bool> &aliCompSel = (*iComp)->alignmentParameters()->selector();
     for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {

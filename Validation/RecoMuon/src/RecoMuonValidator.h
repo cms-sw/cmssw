@@ -9,6 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include <map>
+
 class DQMStore;
 class MonitorElement;
 class MuonServiceProxy;
@@ -26,14 +28,9 @@ class RecoMuonValidator : public edm::EDAnalyzer
 
  protected:
   edm::InputTag simLabel_;
-  edm::InputTag trkMuLabel_;
-  edm::InputTag staMuLabel_;
-  edm::InputTag glbMuLabel_;
-  edm::InputTag muonLabel_;
+  edm::InputTag recoLabel_;
 
-  edm::InputTag trkMuAssocLabel_;
-  edm::InputTag staMuAssocLabel_;
-  edm::InputTag glbMuAssocLabel_;
+  edm::InputTag assocLabel_;
   
   std::string outputFileName_;
   std::string subDir_;
@@ -41,17 +38,13 @@ class RecoMuonValidator : public edm::EDAnalyzer
   MuonServiceProxy * theMuonService;
   DQMStore * theDQM;
   
+  std::map<std::string, MonitorElement*> meMap_;
+
   bool doAbsEta_;
   bool doAssoc_;
 
-  TrackAssociatorBase* trkMuAssociator_, * staMuAssociator_, * glbMuAssociator_;
-
-  struct MuonME;
-  MuonME * trkMuME_, * staMuME_, * glbMuME_;
-
-  struct CommonME;
-  CommonME * commonME_;
+  TrackAssociatorBase* theAssociator;
 };
 
 #endif
-/* vim:set ts=2 sts=2 sw=2 expandtab: */
+

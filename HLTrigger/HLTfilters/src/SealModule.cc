@@ -38,7 +38,7 @@ typedef HLTSinglet<CaloJet               ,TriggerJet> HLT1CaloJet  ;
 typedef HLTSinglet<CaloJet              ,TriggerBJet> HLT1CaloBJet ;
 typedef HLTSinglet<CompositeCandidate             ,0> HLT1Composite;
 typedef HLTSinglet<CaloMET               ,TriggerMET> HLT1CaloMET  ;
-typedef HLTSinglet<MET                    ,TriggerHT> HLT1CaloHT   ;
+typedef HLTSinglet<MET                   ,TriggerMET> HLT1MET      ;
 typedef HLTSinglet<RecoChargedCandidate,TriggerTrack> HLT1Track    ;
 typedef HLTSinglet<RecoEcalCandidate, TriggerCluster> HLT1Cluster  ;
 
@@ -56,7 +56,7 @@ typedef HLTSmartSinglet<CaloJet               ,TriggerJet> HLT1SmartCaloJet  ;
 typedef HLTSmartSinglet<CaloJet              ,TriggerBJet> HLT1SmartCaloBJet ;
 typedef HLTSmartSinglet<CompositeCandidate             ,0> HLT1SmartComposite;
 typedef HLTSmartSinglet<CaloMET               ,TriggerMET> HLT1SmartCaloMET  ;
-typedef HLTSmartSinglet<MET                    ,TriggerHT> HLT1SmartCaloHT   ;
+typedef HLTSmartSinglet<MET                   ,TriggerMET> HLT1SmartMET      ;
 typedef HLTSmartSinglet<RecoChargedCandidate,TriggerTrack> HLT1SmartTrack    ;
 typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 
@@ -65,9 +65,12 @@ typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 #include "HLTrigger/HLTfilters/src/HLTGlobalSums.cc"
 
 //
-
-typedef HLTGlobalSums<CaloMET,TriggerMET> HLTGlobalSumMET  ;
-typedef HLTGlobalSums<MET     ,TriggerHT> HLTGlobalSumHT   ;
+// old names
+typedef HLTGlobalSums<CaloMET,0> HLTGlobalSumMET;
+typedef HLTGlobalSums<MET    ,0> HLTGlobalSumHT ;
+// new names
+typedef HLTGlobalSums<CaloMET,0> HLTGlobalSumsCaloMET;
+typedef HLTGlobalSums<MET    ,0> HLTGlobalSumsMET    ;
 
 //
 
@@ -92,7 +95,7 @@ DEFINE_FWK_MODULE(HLT1CaloJet);
 DEFINE_FWK_MODULE(HLT1CaloBJet);
 DEFINE_FWK_MODULE(HLT1Composite);
 DEFINE_FWK_MODULE(HLT1CaloMET);
-DEFINE_FWK_MODULE(HLT1CaloHT);
+DEFINE_FWK_MODULE(HLT1MET);
 DEFINE_FWK_MODULE(HLT1Track);
 DEFINE_FWK_MODULE(HLT1Cluster);
 
@@ -104,9 +107,12 @@ DEFINE_FWK_MODULE(HLT1SmartCaloJet);
 DEFINE_FWK_MODULE(HLT1SmartCaloBJet);
 DEFINE_FWK_MODULE(HLT1SmartComposite);
 DEFINE_FWK_MODULE(HLT1SmartCaloMET);
-DEFINE_FWK_MODULE(HLT1SmartCaloHT);
+DEFINE_FWK_MODULE(HLT1SmartMET);
 DEFINE_FWK_MODULE(HLT1SmartTrack);
 DEFINE_FWK_MODULE(HLT1SmartCluster);
 
 DEFINE_FWK_MODULE(HLTGlobalSumMET);
 DEFINE_FWK_MODULE(HLTGlobalSumHT);
+
+DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
+DEFINE_FWK_MODULE(HLTGlobalSumsMET);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.4 2008/09/12 19:29:28 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.3 2008/09/12 04:52:28 wsun Exp $
 //
 //
 
@@ -94,7 +94,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
      {
        // Get L1TriggerKey
        iSetup.get< L1TriggerKeyRcd >().get( key ) ;
-       triggerKeyOK = oldKeyList->token( key->tscKey() ) == "" ;
+       triggerKeyOK = oldKeyList->token( key->getTSCKey() ) == "" ;
      }
    catch( l1t::DataAlreadyPresentException& ex )
      {
@@ -115,10 +115,10 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
       if( m_writeL1TriggerKey )
 	{
 	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
-	  if( !( keyList->addKey( key->tscKey(), token ) ) )
+	  if( !( keyList->addKey( key->getTSCKey(), token ) ) )
 	    {
 	      throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
-				     + key->tscKey()
+				     + key->getTSCKey()
 				     + " already in L1TriggerKeyList" ) ;
 	    }
 	}
@@ -172,7 +172,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
    if( keyList )
    {
-      // Write L1TriggerKeyList to ORCON
+      // Write L1TriggerKeyList to ORCON with IOV since-time = previous run
       m_writer.writeKeyList( keyList, m_tag ) ;
    }
 }

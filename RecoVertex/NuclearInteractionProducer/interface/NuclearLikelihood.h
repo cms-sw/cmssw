@@ -11,7 +11,7 @@ class NuclearLikelihood {
             double result() const { return likelihood_; }
  
         private :
-            int secondaryTrackMaxHits(const reco::Vertex& vtx , int& id);
+            int secondaryTrackMaxHits(const reco::Vertex& vtx );
             double likelihood_;
 };
 

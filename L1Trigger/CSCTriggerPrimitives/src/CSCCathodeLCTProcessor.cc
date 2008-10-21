@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/08/28 13:50:16 $
-//   $Revision: 1.30 $
+//   $Date: 2008/07/30 08:38:21 $
+//   $Revision: 1.29 $
 //
 //   Modifications: 
 //
@@ -617,9 +617,10 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	  }
 	}
 	else {
-	  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	    << "+++ Skipping comparator digi: strip = " << thisStrip
-	    << ", layer = " << i << ", bx = " << thisDigiBx << " +++";
+	  edm::LogWarning("CSCCathodeLCTProcessor")
+	    << "Unexpected BX time of comparator digi: strip = " << thisStrip
+	    << ", layer = " << i << ", bx = " << thisDigiBx
+	    << "; skipping it... +++\n";
 	}
       }
     }
@@ -1368,8 +1369,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
     }
     else if (isTMB07) {
       ptnFinding2007(pulse, nStrips, bx_time);
-      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	   hstrip < nStrips; hstrip++) {
+      for (int hstrip = 0; hstrip < nStrips; hstrip++) {
 	if (infoV > 1) {
 	  if (nhits[hstrip] > 0) {
 	    LogTrace("CSCCathodeLCTProcessor")
@@ -1889,8 +1889,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
       int latch_bx = first_bx + drift_delay;
       ptnFinding2007(pulse, maxHalfStrips, latch_bx);
       if (infoV > 1) {
-	for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	     hstrip < maxHalfStrips; hstrip++) {
+	for (int hstrip = 0; hstrip < maxHalfStrips; hstrip++) {
 	  if (nhits[hstrip] > 0) {
 	    LogTrace("CSCCathodeLCTProcessor")
 	      << " bx = " << std::setw(2) << latch_bx << " --->"
@@ -1914,8 +1913,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
 
       // Calculate quality from pattern id and number of hits, and
       // simultaneously select best-quality LCT.
-      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	   hstrip < maxHalfStrips; hstrip++) {
+      for (int hstrip = 0; hstrip < maxHalfStrips; hstrip++) {
 	// The bend-direction bit pid[0] is ignored (left and right
 	// bends have equal quality).
 	quality[hstrip] = (best_pid[hstrip] & 14) | (nhits[hstrip] << 5);      
@@ -1938,8 +1936,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
 	// zero, and repeat the search.
 	markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
 
-        for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	   hstrip < maxHalfStrips; hstrip++) {
+	for (int hstrip = 0; hstrip < maxHalfStrips; hstrip++) {
 	  if (quality[hstrip] > best_quality[1]) {
 	    best_halfstrip[1] = hstrip;
 	    best_quality[1]   = quality[hstrip];
@@ -1966,7 +1963,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
 	    keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;           // obsolete
 	    keystrip_data[ilct][CLCT_QUALITY]    = nhits[best_hs];
 	    keystrip_data[ilct][CLCT_CFEB]       =
-	      keystrip_data[ilct][CLCT_STRIP]/cfeb_strips[1];
+	      (best_hs-stagger[CSCConstants::KEY_CLCT_LAYER-1])/cfeb_strips[1];
 	    int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
 	      cfeb_strips[1]*keystrip_data[ilct][CLCT_CFEB];
 
@@ -2007,8 +2004,7 @@ void CSCCathodeLCTProcessor::ptnFinding2007(
   unsigned int layers_hit;
 
   // Loop over candidate key strips.
-  for (int key_hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-       key_hstrip < nStrips; key_hstrip++) {
+  for (int key_hstrip = 0; key_hstrip < nStrips; key_hstrip++) {
     best_pid[key_hstrip] = 0;
     nhits[key_hstrip] = 0;
 

@@ -17,13 +17,14 @@ class JetTagPlotter : public BaseBTagPlotter {
  public:
 
   JetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-		 const edm::ParameterSet& pSet, bool mc , bool update);
+		 const edm::ParameterSet& pSet, bool mc , bool update, bool willFinalize);
 
   virtual ~JetTagPlotter () ;
 
   void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour);
 
   // final computation, plotting, printing .......
+  void createPlotsForFinalize();
   void finalize () ;
 
   // get "2d" histograms for misid. vs. b-eff
@@ -51,6 +52,7 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   bool finalized;
   bool mcPlots_;
+  bool willFinalize_;
 
   // for the misid vs. eff plots
   EffPurFromHistos * effPurFromHistos ;

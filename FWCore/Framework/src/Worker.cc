@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.26 2008/01/05 05:28:52 wmtan Exp $
+$Id: Worker.cc,v 1.27 2008/01/11 20:30:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
@@ -91,38 +91,47 @@ private:
     catch(cms::Exception& e) {
 	// should event id be included?
 	LogError("BeginJob")
-	  << "A cms::Exception is going through "<< workerType()<<":\n";
+	  << "A cms::Exception is going through " << workerType() << ":\n";
 
-	e << "A cms::Exception is going through "<< workerType()<<":\n"
+	e << "A cms::Exception is going through " << workerType() << ":\n"
 	  << description();
+	throw edm::Exception(errors::OtherCMS, std::string(), e);
+    }
+    catch(std::bad_alloc& e) {
+	LogError("BeginJob")
+	  << "A std::bad_alloc is going through " << workerType() << ":\n"
+	  << description() << "\n";
 	throw;
     }
     catch(std::exception& e) {
 	LogError("BeginJob")
-	  << "An std::exception is going through "<< workerType()<<":\n"
+	  << "A std::exception is going through " << workerType() << ":\n"
 	  << description() << "\n";
-	throw;
+	throw edm::Exception(errors::StdException)
+	  << "A std::exception is going through " << workerType() << ":\n"
+	  << description() << "\n";
     }
     catch(std::string& s) {
 	LogError("BeginJob") 
 	  << "module caught an std::string during beginJob\n";
 
-	throw cms::Exception("BadExceptionType","std::string") 
-	  << "string = " << s << "\n"
-	  << description() << "\n" ;
+	throw edm::Exception(errors::BadExceptionType)
+	  << "std::string = " << s << "\n"
+	  << description() << "\n";
     }
     catch(char const* c) {
 	LogError("BeginJob") 
 	  << "module caught an const char* during beginJob\n";
 
-	throw cms::Exception("BadExceptionType","const char*") 
+	throw edm::Exception(errors::BadExceptionType)
 	  << "cstring = " << c << "\n"
-	  << description() ;
+	  << description();
     }
     catch(...) {
 	LogError("BeginJob")
 	  << "An unknown Exception occured in\n" << description() << "\n";
-	throw;
+	throw edm::Exception(errors::Unknown)
+	  << "An unknown Exception occured in\n" << description() << "\n";
     }
   }
   
@@ -133,39 +142,48 @@ private:
     }
     catch(cms::Exception& e) {
 	LogError("EndJob")
-	  << "A cms::Exception is going through "<< workerType()<<":\n";
+	  << "A cms::Exception is going through " << workerType() << ":\n";
 
 	// should event id be included?
-	e << "A cms::Exception is going through "<< workerType()<<":\n"
+	e << "A cms::Exception is going through " << workerType() << ":\n"
 	  << description();
+	throw edm::Exception(errors::OtherCMS, std::string(), e);
+    }
+    catch(std::bad_alloc& e) {
+	LogError("EndJob")
+	  << "A std::bad_alloc is going through " << workerType() << ":\n"
+	  << description() << "\n";
 	throw;
     }
     catch(std::exception& e) {
 	LogError("EndJob")
-	  << "An std::exception is going through "<< workerType()<<":\n"
+	  << "An std::exception is going through " << workerType() << ":\n"
 	  << description() << "\n";
-	throw;
+	throw edm::Exception(errors::StdException)
+	  << "A std::exception is going through " << workerType() << ":\n"
+	  << description() << "\n";
     }
     catch(std::string& s) {
 	LogError("EndJob") 
 	  << "module caught an std::string during endJob\n";
 
-	throw cms::Exception("BadExceptionType","std::string") 
-	  << "string = " << s << "\n"
+	throw edm::Exception(errors::BadExceptionType)
+	  << "std::string = " << s << "\n"
 	  << description() << "\n";
     }
     catch(char const* c) {
 	LogError("EndJob") 
 	  << "module caught an const char* during endJob\n";
 
-	throw cms::Exception("BadExceptionType","const char*") 
+	throw edm::Exception(errors::BadExceptionType)
 	  << "cstring = " << c << "\n"
 	  << description() << "\n";
     }
     catch(...) {
 	LogError("EndJob")
 	  << "An unknown Exception occured in\n" << description() << "\n";
-	throw;
+	throw edm::Exception(errors::Unknown)
+	  << "An unknown Exception occured in\n" << description() << "\n";
     }
   }
   

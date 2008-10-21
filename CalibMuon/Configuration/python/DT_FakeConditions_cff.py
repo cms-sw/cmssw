@@ -6,4 +6,4 @@ import FWCore.ParameterSet.Config as cms
 #(the replace should be moved to main cfg in order to avoid warning message)
 from CalibMuon.DTCalibration.DTFakeTTrigESProducer_cfi import *
 from CalibMuon.DTCalibration.DTFakeT0ESProducer_cfi import *
-
+from CalibMuon.DTCalibration.DTFakeVDriftESProducer_cfi import *

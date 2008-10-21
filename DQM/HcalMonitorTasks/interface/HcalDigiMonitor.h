@@ -11,8 +11,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/09/05 21:10:49 $
-  * $Revision: 1.30 $
+  * $Date: 2008/08/20 17:52:28 $
+  * $Revision: 1.29 $
   * \author W. Fisher - FNAL
   */
 
@@ -22,7 +22,6 @@ struct DigiHists
   // check whether to create histograms for each subdetector
   bool origcheck;
   bool check;
-  int checkNevents;
   
   bool makeDiagnostics; // determine whether or not to make diagnostic plots
   
@@ -108,8 +107,7 @@ private:  ///Methods
   void fillErrors(const HBHEDataFrame& hb);
   void fillErrors(const HODataFrame& ho);
   void fillErrors(const HFDataFrame& hf);
-  void fillPedestalHistos(void);
-  void reset_Nevents(DigiHists& h);
+  void reset_Nevents(void);
   void fill_Nevents(DigiHists& h);
   void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
 

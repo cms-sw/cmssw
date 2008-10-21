@@ -69,10 +69,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
   //   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-               ,1000,-50.,50.);
+               ,100,-100,100);
   h_deltaETvisible_MCPF_  
     = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-               ,1000,-50.,50.);
+               ,100,-100,100);
 
   readOptions(file, true, true);
  
@@ -147,7 +147,7 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
-// PFJet benchmark options and output jetfile to be open before input file!!!--
+  // PFJet benchmark options and output jetfile to be open before input file!!!--
 
   doPFJetBenchmark_ = false;
   options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
@@ -166,9 +166,6 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
 
 
-    fastsim_=true;
-    options_->GetOpt("Simulation","Fast",fastsim_);
- 
     PFJetBenchmark_.setup( outjetfilename, 
                            pfjBenchmarkDebug,
                            PlotAgainstReco,
@@ -528,70 +525,6 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
 
-  // PFElectrons options -----------------------------
-  double chi2EcalGSF = 900;
-  options_->GetOpt("particle_flow", "final_chi2cut_gsfecal", chi2EcalGSF);
-
-  double chi2EcalBrem = 25;
-  options_->GetOpt("particle_flow", "final_chi2cut_bremecal", chi2EcalBrem);
-
-  double chi2HcalGSF = 100;
-  options_->GetOpt("particle_flow", "final_chi2cut_gsfhcal", chi2HcalGSF);
-
-  double chi2HcalBrem = 25;
-  options_->GetOpt("particle_flow", "final_chi2cut_bremhcal", chi2HcalBrem);
-
-  double chi2PsGSF = 100;
-  options_->GetOpt("particle_flow", "final_chi2cut_gsfps", chi2PsGSF);
-
-  double chi2PsBrem = 25;
-  options_->GetOpt("particle_flow", "final_chi2cut_bremps", chi2PsBrem);
-
-
-  double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
-  options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
-
-  bool usePFElectrons = false;   // set true to use PFElectrons
-  options_->GetOpt("particle_flow", "usePFElectrons", usePFElectrons);
-
-  string mvaWeightFileEleID = "";
-  options_->GetOpt("particle_flow", "electronID_mvaWeightFile", 
-		   mvaWeightFileEleID);
-  mvaWeightFileEleID = expand(mvaWeightFileEleID);
-
-  try { 
-    pfAlgo_.setPFEleParameters(chi2EcalGSF,
-			       chi2EcalBrem,
-			       chi2HcalGSF,
-			       chi2HcalBrem,
-			       chi2PsGSF,
-			       chi2PsBrem,
-			       mvaEleCut,
-			       mvaWeightFileEleID,
-			       usePFElectrons);
-  }
-  catch( std::exception& err ) {
-    cerr<<"exception setting PFAlgo Electron parameters: "
-        <<err.what()<<". terminating."<<endl;
-    exit(1);
-  }
-
-
-  bool usePFConversions = false;   // set true to use PFConversions
-  options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
-
-  try { 
-    std::cout << " Setting conversions " << std::endl;
-    pfAlgo_.setPFConversionParameters(usePFConversions);
-  }
-  catch( std::exception& err ) {
-    cerr<<"exception setting PFAlgo Conversions parameters: "
-        <<err.what()<<". terminating."<<endl;
-    exit(1);
-  }
-
-
-
   int    algo = 2;
   options_->GetOpt("particle_flow", "algorithm", algo);
 
@@ -872,50 +805,6 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<stdTracksbranchname<< endl;
   }
   
-  string gsfTracksbranchname; 
-  options_->GetOpt("root","gsfrecTracks_branch",gsfTracksbranchname); 
-  gsfrecTracksBranch_ = tree_->GetBranch(gsfTracksbranchname.c_str()); 
-  if(!gsfrecTracksBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : gsfrecTracks_branch not found : " 
-        <<gsfTracksbranchname<< endl; 
-  } 
-
-  //muons
-  string muonbranchname;
-  options_->GetOpt("root","muon_branch",muonbranchname); 
-  muonsBranch_= tree_->GetBranch(muonbranchname.c_str());
-  if(!muonsBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : muon_branch not found : " 
-        <<muonbranchname<< endl; 
-  } 
-  //nuclear
-  useNuclear_=false;
-   options_->GetOpt("particle_flow", "useNuclear", useNuclear_);
-   if( useNuclear_ ) {
-
-  string nuclearbranchname;
-  options_->GetOpt("root","nuclear_branch",nuclearbranchname); 
-  nuclearBranch_= tree_->GetBranch(nuclearbranchname.c_str());
-  if(!nuclearBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : nuclear_branch not found : " 
-        <<nuclearbranchname<< endl; 
-  } 
-  }
-  //conversion
-
-  useConversions_=false;
-   options_->GetOpt("particle_flow", "useConversion", useConversions_);
-   if( useConversions_ ) {
-
-  string conversionbranchname;
-  options_->GetOpt("root","conversion_branch",conversionbranchname); 
-  conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
-  if(!conversionBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : conversion_branch not found : " 
-        <<conversionbranchname<< endl; 
-  } 
-  }
-
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -925,7 +814,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : trueParticles_branch not found : "
         <<trueParticlesbranchname<< endl;
   }
-  
 
   string MCTruthbranchname;
   options_->GetOpt("root","MCTruth_branch", MCTruthbranchname);
@@ -961,22 +849,6 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<genParticleCandBranchName<< endl;
     }  
   }
-       
-  // calo tower base candidates 
-  string caloTowerCandBranchName;
-  caloTowerBaseCandidatesBranch_ = 0;
-  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
-		   caloTowerCandBranchName);
-  if(!caloTowerCandBranchName.empty() ){  
-    caloTowerBaseCandidatesBranch_= 
-      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
-    if(!caloTowerBaseCandidatesBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-	  <<"caloTowerBaseCandidates_branch not found : "
-          <<caloTowerCandBranchName<< endl;
-    }  
-  }
-
       
   string genJetBranchName; 
   options_->GetOpt("root","genJetBranchName", genJetBranchName);
@@ -1024,11 +896,6 @@ void PFRootEventManager::setAddresses() {
     clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
-  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
-  if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
-  if( nuclearBranch_ ) nuclearBranch_->SetAddress(&nuclear_); 
-  if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
-
   if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
   if( MCTruthBranch_ ) { 
     MCTruthBranch_->SetAddress(&MCTruth_);
@@ -1083,20 +950,13 @@ bool PFRootEventManager::processEntry(int entry) {
   if( outEvent_ ) outEvent_->setNumber(entry);
 
   if(verbosity_ == VERBOSE  || 
-     entry < 10 ||
-     entry < 100 && entry%10 == 0 || 
-     entry < 1000 && entry%100 == 0 || 
-     entry%1000 == 0 ) 
+     entry%10 == 0) 
     cout<<"process entry "<< entry << endl;
   
   bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
-    cout<<"number of gsfrecTracks   : "<<gsfrecTracks_.size()<<endl;
-    cout<<"number of muons          : "<<muons_.size()<<endl;
-    cout<<"number of nuclear ints   : "<<nuclear_.size()<<endl;
-    cout<<"number of conversions    : "<<conversion_.size()<<endl;
     cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
     cout<<"number of true particles : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
@@ -1151,25 +1011,12 @@ bool PFRootEventManager::processEntry(int entry) {
           <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
           << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
     } // end debug print
-
-    // PJ : printout for bad events (selected by the "if")
-    if ( resPt < -1. ) { 
-      cout << " =====================PFJetBenchmark =================" << endl;
-      cout<<"process entry "<< entry << endl;
-      cout<<"Resol Pt max "<<resPt
-	  <<" resChargedHadEnergy Max " << resChargedHadEnergy
-	  <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
-	  << " resNeutralEmEnergy Max "<< resNeutralEmEnergy 
-	  << " Jet pt " << genJets_[0].pt() << endl;
-      // return true;
-    } else { 
-      // return false;
-    }
     //   if (resNeutralEmEnergy>0.5) return true;
     //   else return false;
   }// end PFJet Benchmark
-    
-  // evaluate tau Benchmark   
+  
+  // evaluate tau Benchmark 
+  
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
     double deltaEt = 0.;
     deltaEt  = tauBenchmark( *pfCandidates_ ); 
@@ -1242,20 +1089,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
-  if(gsfrecTracksBranch_) {
-    gsfrecTracksBranch_->GetEntry(entry);
-  }
-  if(muonsBranch_) {
-    muonsBranch_->GetEntry(entry);
-  }
-  if(nuclearBranch_) {
-    nuclearBranch_->GetEntry(entry);
-  }
-  if(conversionBranch_) {
-    conversionBranch_->GetEntry(entry);
-  }
-
-
   if(genParticlesforJetsBranch_) {
     genParticlesforJetsBranch_->GetEntry(entry);
   }
@@ -1320,10 +1153,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   if ( recTracksBranch_ ) { 
     PreprocessRecTracks( recTracks_);
-  }
-
-  if(gsfrecTracksBranch_) {
-    PreprocessRecTracks( gsfrecTracks_);
   }
    
   //   if(clustersECALBranch_ && !doClustering_) {
@@ -1517,15 +1346,6 @@ PFRootEventManager::PreprocessRecTracks(reco::PFRecTrackCollection& recTracks) {
     recTracks[i].calculatePositionREP();
   }
 }
-
-void 
-PFRootEventManager::PreprocessRecTracks(reco::GsfPFRecTrackCollection& recTracks) {  
-  for( unsigned i=0; i<recTracks.size(); ++i ) {     
-    recTracks[i].calculatePositionREP();
-  }
-}
-
-
  
 void 
 PFRootEventManager::PreprocessRecHits(reco::PFRecHitCollection& rechits, 
@@ -1806,24 +1626,9 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
                                                       edm::ProductID(4) );   
 
-  edm::OrphanHandle< reco::GsfPFRecTrackCollection > gsftrackh( &gsfrecTracks_, 
-                                                          edm::ProductID(5) );  
-
-  edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
-						   edm::ProductID(6) );
-
-  edm::OrphanHandle< reco::PFNuclearInteractionCollection > nuclh( &nuclear_, 
-                                                          edm::ProductID(7) );
-
-  edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
-							   edm::ProductID(8) );
-
- 
 
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
-  vector<bool> gsftrackMask;
-  fillTrackMask( gsftrackMask, gsfrecTracks_ );
   vector<bool> ecalMask;
   fillClusterMask( ecalMask, *clustersECAL_ );
   vector<bool> hcalMask;
@@ -1831,15 +1636,8 @@ void PFRootEventManager::particleFlow() {
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
-  pfBlockAlgo_.setInput( trackh, gsftrackh, 
-			 muonh,nuclh,convh,
-			 ecalh, hcalh, psh,
-			 trackMask,gsftrackMask,
-			 ecalMask, hcalMask, psMask );
-  //  pfBlockAlgo_.setInput( trackh, 
-  // 			 //			 gsftrackh, 
-  // 			 ecalh, hcalh, psh,
-  //                          trackMask, gsftrackMask,ecalMask, hcalMask, psMask ); 
+  pfBlockAlgo_.setInput( trackh, ecalh, hcalh, psh,
+                         trackMask, ecalMask, hcalMask, psMask ); 
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -2076,100 +1874,52 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   //the code was giving wrong results on non single tau events. 
 
   // first check that this is a single tau event. 
-
-  TLorentzVector partTOTMC;
   bool tauFound = false;
   bool tooManyTaus = false;
-  if (fastsim_){
-
-    for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-      const reco::PFSimParticle& ptc = trueParticles_[i];
-      if (abs(ptc.pdgCode()) == 15) {
-	// this is a tau
-	if( i ) tooManyTaus = true;
-	else tauFound=true;
-      }
-    }
-    
-    if(!tauFound || tooManyTaus ) {
-      cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
-      return -9999;
-    }
-    
-    // loop on the daugthers of the tau
-    const std::vector<int>& ptcdaughters = trueParticles_[0].daughterIds();
-    
-    // will contain the sum of the lorentz vectors of the visible daughters
-    // of the tau.
-    
-    
-    for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
-      
-      const reco::PFTrajectoryPoint& tpatvtx 
-	= trueParticles_[ptcdaughters[dapt]].trajectoryPoint(0);
-      TLorentzVector partMC;
-      partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-			tpatvtx.momentum().Py(),
-			tpatvtx.momentum().Pz(),
-			tpatvtx.momentum().E());
-      
-      partTOTMC += partMC;
-      if (tauBenchmarkDebug_) {
-	//pdgcode
-	int pdgcode =  trueParticles_[ptcdaughters[dapt]].pdgCode();
-	cout << pdgcode << endl;
-	cout << tpatvtx << endl;
-	cout << partMC.Px() << " " << partMC.Py() << " " 
-	     << partMC.Pz() << " " << partMC.E()
-	     << " PT=" 
-	     << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-	     << endl;
-      }//debug
-    }//loop daughter
-  }else{
-
-    uint itau=0;
-    const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
-    for ( HepMC::GenEvent::particle_const_iterator 
-	    piter  = myGenEvent->particles_begin();
-	  piter != myGenEvent->particles_end(); 
-	  ++piter ) {
-      
-    
-      if (abs((*piter)->pdg_id())==15){
-	itau++;
-	tauFound=true;
-	for ( HepMC::GenVertex::particles_out_const_iterator bp =
-		(*piter)->end_vertex()->particles_out_const_begin();
-	      bp != (*piter)->end_vertex()->particles_out_const_end(); ++bp ) {
-	  uint nuId=abs((*bp)->pdg_id());
-	  bool isNeutrino=(nuId==12)||(nuId==14)||(nuId==16);
-	  if (!isNeutrino){
-	    
-
-	    TLorentzVector partMC;
-	    partMC.SetPxPyPzE((*bp)->momentum().x(),
-			      (*bp)->momentum().y(),
-			      (*bp)->momentum().z(),
-			      (*bp)->momentum().e());
-	    partTOTMC += partMC;
-	  }
-	}
-      }
-    }
-    if (itau>1) tooManyTaus=true;
-
-    if(!tauFound || tooManyTaus ) {
-      cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
-      return -9999;
+  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    if (abs(ptc.pdgCode()) == 15) {
+      // this is a tau
+      if( i ) tooManyTaus = true;
+      else tauFound=true;
     }
   }
+  
+  if(!tauFound || tooManyTaus ) {
+    cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+    return -9999;
+  }
 
+  // loop on the daugthers of the tau
+  const std::vector<int>& ptcdaughters = trueParticles_[0].daughterIds();
 
+  // will contain the sum of the lorentz vectors of the visible daughters
+  // of the tau.
+  TLorentzVector partTOTMC;
 
-
-
-
+  for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+    
+    const reco::PFTrajectoryPoint& tpatvtx 
+      = trueParticles_[ptcdaughters[dapt]].trajectoryPoint(0);
+    TLorentzVector partMC;
+    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+		      tpatvtx.momentum().Py(),
+		      tpatvtx.momentum().Pz(),
+		      tpatvtx.momentum().E());
+    
+    partTOTMC += partMC;
+    if (tauBenchmarkDebug_) {
+      //pdgcode
+      int pdgcode =  trueParticles_[ptcdaughters[dapt]].pdgCode();
+      cout << pdgcode << endl;
+      cout << tpatvtx << endl;
+      cout << partMC.Px() << " " << partMC.Py() << " " 
+	   << partMC.Pz() << " " << partMC.E()
+	   << " PT=" 
+	   << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
+	   << endl;
+    }//debug
+  }//loop daughter
 
   EventColin::Jet jetmc;
 
@@ -2893,24 +2643,6 @@ PFRootEventManager::fillClusterMask(vector<bool>& mask,
 void  
 PFRootEventManager::fillTrackMask(vector<bool>& mask, 
                                   const reco::PFRecTrackCollection& tracks) 
-  const {
-  
-  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
-  if(!cutg) return;
-
-  mask.clear();
-  mask.reserve( tracks.size() );
-  for(unsigned i=0; i<tracks.size(); i++) {
-    if( trackInsideGCut( tracks[i] ) )
-      mask.push_back( true );
-    else 
-      mask.push_back( false );   
-  }
-}
-
-void  
-PFRootEventManager::fillTrackMask(vector<bool>& mask, 
-                                  const reco::GsfPFRecTrackCollection& tracks) 
   const {
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");

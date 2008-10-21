@@ -76,6 +76,16 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   edm::ParameterSet const& conf) 
   : pset_(conf)
 {
+  thePixelDataFile = 0;
+  thePixelBarrelResolutionFile = 0;
+  thePixelForwardResolutionFile = 0;
+  thePixelBarrelParametrization = 0;
+  thePixelEndcapParametrization = 0;
+  theSiStripErrorParametrization = 0; 
+
+  random = 0;
+
+
 #ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
 #endif
@@ -115,6 +125,10 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 #ifdef FAMOS_DEBUG
   std::cout << (useCMSSWPixelParameterization? "CMSSW" : "ORCA") << " pixel parametrization chosen in config file." << std::endl;
 #endif
+
+  //Clusters
+  GevPerElectron =  conf.getParameter<double>("GevPerElectron");
+  ElectronsPerADC =  conf.getParameter<double>("ElectronsPerADC");
   
   //
   // TIB
@@ -464,15 +478,15 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
   theBarrelMultiplicityBetaCumulativeProbabilities.clear();
   theForwardMultiplicityAlphaCumulativeProbabilities.clear();
   theForwardMultiplicityBetaCumulativeProbabilities.clear();
-  //
-  delete thePixelDataFile;
-  delete thePixelBarrelResolutionFile;
-  delete thePixelForwardResolutionFile;
-  delete thePixelBarrelParametrization;
-  delete thePixelEndcapParametrization;
-  delete theSiStripErrorParametrization;
+  
+  if(thePixelDataFile) delete thePixelDataFile;
+  if(thePixelBarrelResolutionFile) delete thePixelBarrelResolutionFile;
+  if(thePixelForwardResolutionFile) delete thePixelForwardResolutionFile;
+  if(thePixelBarrelParametrization) delete thePixelBarrelParametrization;
+  if(thePixelEndcapParametrization) delete thePixelEndcapParametrization;
+  if(theSiStripErrorParametrization) delete theSiStripErrorParametrization;
 
-  delete random;
+  if(random) delete random;
 
 }  
 
@@ -731,15 +745,18 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 			     error.yy()+lape.yy() );
       }
       
+      float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
+
       //create cluster
       theClusters[trackID].push_back(
-                                       new FastTrackerCluster(position, error, det,
+                                      new FastTrackerCluster(position, error, det,
                                                               simHitCounter, trackID,
                                                               eeID,
-                                                              (*isim).energyLoss())
+							      //(*isim).energyLoss())
+                                                             chargeADC)
                                     );
       
-      // std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " << (*isim).energyLoss() << std::endl;
+      //       std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " <<chargeADC << std::endl;
       
       // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
 

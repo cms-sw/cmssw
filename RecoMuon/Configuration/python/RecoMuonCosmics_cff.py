@@ -303,8 +303,17 @@ lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.BWFilterParameters.EnableC
 lhcStandAloneMuonsBarrelOnly.InputObjects = 'lhcMuonSeedBarrelOnly'
 #lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.NavigationType = 'Direct'
 
+# Muon Id producer
+lhcSTAMuonsBarrelOnly = muons.clone()
+lhcSTAMuonsBarrelOnly.inputCollectionLabels = ['lhcStandAloneMuonsBarrelOnly']
+lhcSTAMuonsBarrelOnly.inputCollectionTypes = ['outer tracks']
+lhcSTAMuonsBarrelOnly.fillIsolation = False
+
 # Seqeunces
 lhcMuonBarrelOnly = cms.Sequence(lhcMuonSeedBarrelOnly*lhcStandAloneMuonsBarrelOnly)
+
+# Final sequence
+muonrecocosmicLHCBarrelOnly = cms.Sequence(lhcMuonBarrelOnly*lhcSTAMuonsBarrelOnly)
 
 ##############################################
 
@@ -320,17 +329,22 @@ lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.BWFilterParameters.Enable
 lhcStandAloneMuonsEndCapsOnly.InputObjects = 'lhcMuonSeedEndCapsOnly'
 #lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.NavigationType = 'Direct'
 
+# Muon Id producer
+lhcSTAMuonsEndCapsOnly = muons.clone()
+lhcSTAMuonsEndCapsOnly.inputCollectionLabels = ['lhcStandAloneMuonsEndCapsOnly']
+lhcSTAMuonsEndCapsOnly.inputCollectionTypes = ['outer tracks']
+lhcSTAMuonsEndCapsOnly.fillIsolation = False
+
 # Seqeunces
 lhcMuonEndCapsOnly = cms.Sequence(lhcMuonSeedEndCapsOnly*lhcStandAloneMuonsEndCapsOnly)
 
+# Final sequence
+muonrecocosmicLHCEndCapsOnly = cms.Sequence(lhcMuonEndCapsOnly*lhcSTAMuonsEndCapsOnly)
+
 ## Fianl sequence for cosmics a la LHC 
-muonRecoLHC = cms.Sequence(lhcMuonBarrelOnly*lhcMuonEndCapsOnly)
+muonRecoLHC = cms.Sequence(muonrecocosmicLHCBarrelOnly*muonrecocosmicLHCEndCapsOnly)
 
 ##############################################
-
-
-
-
 
 
 ########################### SEQUENCE TO BE ADDED in ReconstructionGR_cff ##############################################

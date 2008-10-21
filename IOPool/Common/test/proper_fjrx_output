@@ -5,9 +5,6 @@
 <LFN></LFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<Runs>
-  <Run>100</Run>
-</Runs>
 <Branches>
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
@@ -15,13 +12,12 @@
 </Branches>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>10</EventsRead>
-<LumiSections>
-<LumiSection>
-<LumiSectionNumber Value="1"/>
-<RunNumber Value="100"/>
-</LumiSection>
+<Runs>
+<Run ID="100">
+   <LumiSection ID="1"/>
+</Run>
 
-</LumiSections>
+</Runs>
 </InputFile>
 
 <InputFile>
@@ -29,22 +25,18 @@
 <LFN></LFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<Runs>
-  <Run>200</Run>
-</Runs>
 <Branches>
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>15</EventsRead>
-<LumiSections>
-<LumiSection>
-<LumiSectionNumber Value="1"/>
-<RunNumber Value="200"/>
-</LumiSection>
+<Runs>
+<Run ID="200">
+   <LumiSection ID="1"/>
+</Run>
 
-</LumiSections>
+</Runs>
 </InputFile>
 
 <File>
@@ -52,10 +44,6 @@
 <LFN></LFN>
 <Catalog></Catalog>
 <ModuleLabel>output</ModuleLabel>
-<Runs>
-  <Run>100</Run>
-  <Run>200</Run>
-</Runs>
 <Branches>
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
@@ -68,18 +56,16 @@
 
 <BranchHash>7dc99e51d599f427e45b5da85dfa67c1</BranchHash>
 
-<LumiSections>
-<LumiSection>
-<LumiSectionNumber Value="1"/>
-<RunNumber Value="100"/>
-</LumiSection>
+<Runs>
+<Run ID="100">
+   <LumiSection ID="1"/>
+</Run>
 
-<LumiSection>
-<LumiSectionNumber Value="1"/>
-<RunNumber Value="200"/>
-</LumiSection>
+<Run ID="200">
+   <LumiSection ID="1"/>
+</Run>
 
-</LumiSections>
+</Runs>
 
 <Inputs>
 <Input>

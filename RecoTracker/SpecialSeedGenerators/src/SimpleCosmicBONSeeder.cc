@@ -18,7 +18,9 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
   tripletsVerbosity_(conf.getParameter<edm::ParameterSet>("TripletsPSet").getUntrackedParameter<uint32_t>("debugLevel",0)),
   seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel",0)),
   helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel",0)),
-  check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"))
+  check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+  maxTriplets_(conf.getParameter<int32_t>("maxTriplets")),
+  maxSeeds_(conf.getParameter<int32_t>("maxSeeds"))
 {
   edm::ParameterSet regionConf = conf_.getParameter<edm::ParameterSet>("RegionPSet");
   float ptmin        = regionConf.getParameter<double>("ptMin");
@@ -44,17 +46,20 @@ void SimpleCosmicBONSeeder::produce(edm::Event& ev, const edm::EventSetup& es)
   es.get<IdealMagneticFieldRecord>().get(magfield);
   if ((magfield->inTesla(GlobalPoint(0,0,0)).mag() > 0.01) && !check_.tooManyClusters(ev)){
     init(es);
-    triplets(ev,es);
-    seedsOutIn(*output,es);
+    bool tripletsOk = triplets(ev,es);
+    if (tripletsOk) {
 
-    if (writeTriplets_) {
-        for (OrderedHitTriplets::const_iterator it = hitTriplets.begin(); it != hitTriplets.end(); ++it) {
-            const TrackingRecHit * hit1 = it->inner();    
-            const TrackingRecHit * hit2 = it->middle();
-            const TrackingRecHit * hit3 = it->outer();
-            outtriplets->push_back(hit1->clone());
-            outtriplets->push_back(hit2->clone());
-            outtriplets->push_back(hit3->clone());
+        bool seedsOk    = seedsOutIn(*output,es);
+
+        if (writeTriplets_) {
+            for (OrderedHitTriplets::const_iterator it = hitTriplets.begin(); it != hitTriplets.end(); ++it) {
+                const TrackingRecHit * hit1 = it->inner();    
+                const TrackingRecHit * hit2 = it->middle();
+                const TrackingRecHit * hit3 = it->outer();
+                outtriplets->push_back(hit1->clone());
+                outtriplets->push_back(hit2->clone());
+                outtriplets->push_back(hit3->clone());
+            }
         }
     }
 
@@ -113,13 +118,14 @@ struct HigherInnerHit {
     }
 };
 
-void SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup& es) {
+bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup& es) {
     using namespace ctfseeding;
 
     hitTriplets.clear();
     hitTriplets.reserve(0);
     SeedingLayerSets lss = theLsb.layers(es);
     SeedingLayerSets::const_iterator iLss;
+
     for (iLss = lss.begin(); iLss != lss.end(); iLss++){
         SeedingLayers ls = *iLss;
         if (ls.size() != 3){
@@ -146,6 +152,12 @@ void SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                     if (goodTriplet(innerpos,middlepos,outerpos)) {
                         OrderedHitTriplet oht(*iInnerHit,*iMiddleHit,*iOuterHit);
                         hitTriplets.push_back(oht);
+                        if ((maxTriplets_ > 0) && (hitTriplets.size() > size_t(maxTriplets_))) {
+                            hitTriplets.clear();                      // clear
+                            //OrderedHitTriplets().swap(hitTriplets); // really clear   
+                            edm::LogWarning("SimpleCosmicBONSeeder") << "Found too many triplets, bailing out.\n";
+                            return false;
+                        }
                         if (tripletsVerbosity_ > 2) {
                             std::cout << " accepted seed #" << (hitTriplets.size()-1) << " w/: " 
                                 << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
@@ -163,6 +175,7 @@ void SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
         }
     }
     //std::sort(hitTriplets.begin(),hitTriplets.end(),HigherInnerHit());
+    return true;
 }
 
 bool SimpleCosmicBONSeeder::goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer) const {
@@ -179,7 +192,7 @@ bool SimpleCosmicBONSeeder::goodTriplet(const GlobalPoint &inner, const GlobalPo
     return true;
 }
 
-void SimpleCosmicBONSeeder::seedsInOut(TrajectorySeedCollection &output, const edm::EventSetup& iSetup)
+bool SimpleCosmicBONSeeder::seedsInOut(TrajectorySeedCollection &output, const edm::EventSetup& iSetup)
 {
 #if 0
     typedef TrajectoryStateOnSurface TSOS;
@@ -272,6 +285,7 @@ void SimpleCosmicBONSeeder::seedsInOut(TrajectorySeedCollection &output, const e
         }
     }
 #endif
+    return true;
 }
 
 std::pair<GlobalVector,int>
@@ -324,10 +338,10 @@ SimpleCosmicBONSeeder::pqFromHelixFit(const GlobalPoint &inner, const GlobalPoin
     return mypq;
 }
 
-void SimpleCosmicBONSeeder::seedsOutIn(TrajectorySeedCollection &output, const edm::EventSetup& iSetup)
+bool SimpleCosmicBONSeeder::seedsOutIn(TrajectorySeedCollection &output, const edm::EventSetup& iSetup)
 {
     typedef TrajectoryStateOnSurface TSOS;
-
+    
     for (size_t it=0;it<hitTriplets.size();it++){
         const OrderedHitTriplet &trip = hitTriplets[it];
 
@@ -466,15 +480,21 @@ void SimpleCosmicBONSeeder::seedsOutIn(TrajectorySeedCollection &output, const e
                 std::cout << "    Cartesian error (X,P) = \n" << updated.cartesianError().matrix() << std::endl;
             }
             
-            PTrajectoryStateOnDet *PTraj = transformer.persistentState(updated, (*(seedOnMiddle_ ? trip.middle() : trip.inner())).geographicalId().rawId());
+            std::auto_ptr<PTrajectoryStateOnDet> PTraj(transformer.persistentState(updated, 
+                                                            (*(seedOnMiddle_ ? trip.middle() : trip.inner())).geographicalId().rawId()));
             output.push_back(TrajectorySeed(*PTraj,hits,
                                                 ( (outer.y()-inner.y()>0) ? alongMomentum : oppositeToMomentum) ));
-            delete PTraj;
+            if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) { 
+                output.clear(); 
+                edm::LogWarning("SimpleCosmicBONSeeder") << "Found too many seeds, bailing out.\n";
+                return false;
+            }
         }
     }
+    return true;
 }
 
-void SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::EventSetup& iSetup)
+bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::EventSetup& iSetup)
 {
 #if 0
     typedef TrajectoryStateOnSurface TSOS;
@@ -545,6 +565,7 @@ void SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
         }
     }
 #endif
+    return true;
 }
 void SimpleCosmicBONSeeder::done(){
   delete thePropagatorAl;

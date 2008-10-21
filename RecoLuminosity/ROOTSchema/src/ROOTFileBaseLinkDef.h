@@ -30,6 +30,7 @@
 #pragma link C++ struct HCAL_HLX::LUMI_HF_RING_SET+;
 #pragma link C++ struct HCAL_HLX::LUMI_SECTION+;
 
+
 #endif
 #endif
 

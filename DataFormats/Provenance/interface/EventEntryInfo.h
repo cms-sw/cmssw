@@ -17,6 +17,7 @@ and how it came into existence, plus the product identifier and the status.
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 /*
   EventEntryInfo
@@ -60,22 +61,36 @@ namespace edm {
     ProductID const& productID() const {return productID_;}
     ProductStatus const& productStatus() const {return productStatus_;}
     EntryDescriptionID const& entryDescriptionID() const {return entryDescriptionID_;}
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     EventEntryDescription const& entryDescription() const;
-    bool noEntryDescription() const {return noEntryDescription_;}
     void setStatus(ProductStatus status) {productStatus_ = status;}
     void setPresent();
     void setNotPresent();
-    void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID_ = mdid;}
+    void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID() = mdid;}
+
+    ModuleDescriptionID & moduleDescriptionID() const {return transients_.get().moduleDescriptionID_;}
+
+    bool & noEntryDescription() const {return transients_.get().noEntryDescription_;}
+
+    struct Transients {
+      Transients();
+      ModuleDescriptionID moduleDescriptionID_;
+      boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_;
+      bool noEntryDescription_;
+    };
+
+    void setDefaultTransients() const {
+	transients_ = Transients();
+    };
 
   private:
+
+    boost::shared_ptr<EventEntryDescription> & entryDescriptionPtr() const {return transients_.get().entryDescriptionPtr_;}
+
     BranchID branchID_;
     ProductID productID_;
     ProductStatus productStatus_;
     EntryDescriptionID entryDescriptionID_;
-    mutable ModuleDescriptionID moduleDescriptionID_; //transient
-    mutable boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_; //! transient
-    bool noEntryDescription_; //!transient
+    mutable Transient<Transients> transients_;
   };
 
   inline

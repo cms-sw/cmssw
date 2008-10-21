@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2008/04/23 16:56:34 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/01/18 13:29:26 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -19,7 +19,6 @@ class StandAloneMuonFilter;
 class StandAloneMuonBackwardFilter;
 class StandAloneMuonRefitter;
 class MuonServiceProxy;
-class SeedTransformer;
 
 namespace edm {class ParameterSet;}
 
@@ -58,7 +57,7 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
  private:
   
-  DetLayerWithState propagateTheSeedTSOS(TrajectoryStateOnSurface& aTSOS, DetId& aDetId);
+  DetLayerWithState propagateTheSeedTSOS(const TrajectorySeed& seed);
 
  private:
 
@@ -76,11 +75,9 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   // FIXME
   //  StandAloneMuonBackwardFilter* theBWFilter;
   StandAloneMuonRefitter* theRefitter;
-  SeedTransformer* theSeedTransformer;
 
   bool doBackwardFilter;
   bool doRefit;
-  bool doSeedRefit;
   std::string theBWSeedType;
 
   const MuonServiceProxy *theService;

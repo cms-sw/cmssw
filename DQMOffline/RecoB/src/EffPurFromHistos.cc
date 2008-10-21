@@ -43,14 +43,14 @@ EffPurFromHistos::EffPurFromHistos
   discrNoCutEffic = new FlavourHistograms<double> (
 	"totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), true, true, false, "b", false, label, mcPlots_ );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label, mcPlots_ );
 
   // conditional discriminator cut for efficiency histos
 
   discrCutEfficScan = new FlavourHistograms<double> (
 	"effVsDiscrCut" + histoExtension, "Eff. vs Disc. Cut: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), true, true, false, "b", false, label , mcPlots_ );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label , mcPlots_ );
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_ == true){ 
     

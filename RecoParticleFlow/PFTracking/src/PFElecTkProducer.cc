@@ -19,13 +19,11 @@
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "TMath.h"
 using namespace std;
 using namespace edm;
@@ -127,62 +125,48 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     //OTHER GSF TRACK COLLECTION
     if(conf_.getParameter<bool>("AddGSFTkColl")){
      
-      Handle<GsfElectronCollection> ElecCollection;
-      iEvent.getByLabel(conf_.getParameter<InputTag >("GsfElectrons"), ElecCollection);
-      GsfElectronCollection::const_iterator iel = ElecCollection->begin();
-      GsfElectronCollection::const_iterator iel_end = ElecCollection->end();
+      vector< InputTag > GContainers = 
+	conf_.getParameter< vector < InputTag > >("GsfColList");
+      for(uint igc=0; igc<GContainers.size(); igc++){
+	Handle<GsfTrackCollection> otherGsfColl;
+	iEvent.getByLabel(GContainers[igc],otherGsfColl);
+	GsfTrackCollection othergsftracks = *(otherGsfColl.product());
 
-      Handle<GsfTrackCollection> otherGsfColl;
-      iEvent.getByLabel(conf_.getParameter<InputTag >("GsfTracks"),otherGsfColl);
-      GsfTrackCollection othergsftracks = *(otherGsfColl.product());
+	Handle<vector<Trajectory> > TrajectoryCollection;
+	iEvent.getByLabel(GContainers[igc],TrajectoryCollection);
+	vector<Trajectory> newtj= *(TrajectoryCollection.product());
+	
+	for (uint igsf=0; igsf<othergsftracks.size();igsf++) {
+	  if(otherElId(gsftracks,othergsftracks[igsf])){
+	    GsfTrackRef trackRef(otherGsfColl, igsf);
+	    int kf_ind=FindPfRef(PfRTkColl,othergsftracks[igsf],true);
+	    
+	    if (kf_ind>=0) {	      
+	      PFRecTrackRef kf_ref(thePfRecTrackCollection,
+				   kf_ind);
+	      pftrack_=GsfPFRecTrack( othergsftracks[igsf].charge(), 
+				      reco::PFRecTrack::GSF, 
+				      igsf, trackRef,
+				      kf_ref);
+	    } else  {
+	      PFRecTrackRef dummyRef;
+	      pftrack_=GsfPFRecTrack( othergsftracks[igsf].charge(), 
+				      reco::PFRecTrack::GSF, 
+				      igsf, trackRef,
+				      dummyRef);
+	    }
+	    bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
+								  othergsftracks[igsf], 
+								  newtj[igsf],
+								  modemomentum_); 
+	    if(validgsfbrem)
+	      gsfPFRecTrackCollection->push_back(pftrack_);
 
-      Handle<vector<Trajectory> > TrajectoryCollection;
-      iEvent.getByLabel(conf_.getParameter<InputTag >("GsfTracks"),TrajectoryCollection);
-      vector<Trajectory> newtj= *(TrajectoryCollection.product());
- 
-      for(;iel!=iel_end;++iel){
-       uint ibest =9999; float diffbest=10000.;
-       for (uint igsf=0; igsf<othergsftracks.size();igsf++) {
-	 float diff =(iel->gsfTrack()->momentum()-othergsftracks[igsf].momentum()).Mag2();
-	 if (diff<diffbest){
-	   ibest=igsf;
-	   diffbest=diff;
-	 }
-       }
-
-       if (ibest==9999 || diffbest>0.00001) continue;
-
-       if(otherElId(gsftracks,othergsftracks[ibest])){
-	 GsfTrackRef trackRef(otherGsfColl, ibest);
-	 
-	 int kf_ind=FindPfRef(PfRTkColl,othergsftracks[ibest],true);
-	 
-	 if (kf_ind>=0) {	      
-	   PFRecTrackRef kf_ref(thePfRecTrackCollection,
-				kf_ind);
-	   pftrack_=GsfPFRecTrack( othergsftracks[ibest].charge(), 
-				   reco::PFRecTrack::GSF, 
-				   ibest, trackRef,
-				   kf_ref);
-	 } else  {
-	   PFRecTrackRef dummyRef;
-	   pftrack_=GsfPFRecTrack( othergsftracks[ibest].charge(), 
-				   reco::PFRecTrack::GSF, 
-				   ibest, trackRef,
-				   dummyRef);
-	 }
-	 bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
-							       othergsftracks[ibest], 
-							       newtj[ibest],
-							       modemomentum_); 
-	 if(validgsfbrem)
-	   gsfPFRecTrackCollection->push_back(pftrack_);
-	 
-       }
+	  }
+	}
       }
     }
     
-
 
 
 
@@ -260,6 +244,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 bool 
 PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl, 
 			    reco::GsfTrack GsfTk){
+
   int nhits=GsfTk.numberOfValidHits();
   GsfTrackCollection::const_iterator igs=GsfColl.begin();
   GsfTrackCollection::const_iterator igs_end=GsfColl.end();  
@@ -290,9 +275,7 @@ PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl,
 void 
 PFElecTkProducer::beginJob(const EventSetup& iSetup)
 {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
+  pfTransformer_= new PFTrackTransformer();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

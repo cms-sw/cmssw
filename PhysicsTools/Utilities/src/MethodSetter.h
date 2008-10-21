@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MethodSetter.h,v 1.4 2008/07/21 09:04:08 gpetrucc Exp $
+ * \version $Id: MethodSetter.h,v 1.3 2008/01/08 10:14:33 llista Exp $
  */
 #include "PhysicsTools/Utilities/src/MethodStack.h"
 #include "PhysicsTools/Utilities/src/TypeStack.h"
@@ -22,7 +22,7 @@ namespace reco {
       MethodStack & methStack_;
       TypeStack & typeStack_;
       MethodArgumentStack & intStack_;
-      void push(const std::string&, const std::vector<AnyMethodArgument>&,const char*) const;
+      void push(const std::string&, const std::vector<AnyMethodArgument>&) const;
     };
   }
 }
