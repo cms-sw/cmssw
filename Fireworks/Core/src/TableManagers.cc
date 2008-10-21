@@ -1,9 +1,8 @@
-#define private public
 #include "TableWidget.h"
 #include "LightTableWidget.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
-#undef private
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include <string.h>
 #include "boost/bind.hpp"
 #include "TColor.h"
@@ -43,7 +42,7 @@ FWTableManager::FWTableManager ()
        title_frame	(0),
        item	(0)
 {
-     m_print_index = true;
+   setPrintIndex(true);
 }
 
 void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height,
@@ -89,6 +88,8 @@ void FWTableManager::Selection (int row, int mask)
      // This function handles the propagation of the table selection
      // to the framework.  For propagation in the opposite direction,
      // see FWTextView::selectionChanged().
+     FWChangeSentry sentry(*(item->changeManager()));
+
      if (row >= NumberOfRows()) // click on an empty line
 	  return;
      int index = table_row_to_index(row);
@@ -115,14 +116,13 @@ void FWTableManager::Selection (int row, int mask)
      }
      default:
  	  // means only this line is selected
-	  item->m_selectionManager->clearSelection();
+	  item->selectionManager()->clearSelection();
 	  item->select(index);
 	  break;
 //      case 1:
 // 	  // select everything between old and new
 // 	  break;
      };
-     item->m_selectionManager->finishedAllSelections();
 }
 
 void FWTableManager::selectRows ()
@@ -272,7 +272,7 @@ void FWTableManager::setItem (FWEventItem *i)
 {
      item = i;
      if (item != 0) {
-	  widget->SetTextColor(item->m_displayProperties.color());
+	  widget->SetTextColor(item->defaultDisplayProperties().color());
 	  i->goingToBeDestroyed_.connect(
 	       boost::bind(&FWTableManager::itemGoingToBeDestroyed, this));
      }
