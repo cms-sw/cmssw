@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/10/17 01:12:27 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/10/17 21:10:15 $
+ *  $Revision: 1.26 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -220,7 +220,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       }
 
       // check for single TEC RecHits in trajectories in the overalp region
-      if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 ) {
+      if ( fabs(mom.eta()) > 0.95 && fabs(mom.eta()) < 1.15 && mom.perp() < 60 ) {
         if ( theTECxScale < 0 || theTECyScale < 0 )
 	  trackerRecHits = selectTrackerHits(trackerRecHits);
 	else
