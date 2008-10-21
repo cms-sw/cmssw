@@ -19,7 +19,7 @@ electronPixelSeedConfiguration = cms.PSet(
     z2MaxB = cms.double(0.09),
     r2MinF = cms.double(-0.15),
     r2MaxF = cms.double(0.15),
-    rMinI = cms.double(-0.2) ## intermediate region SC in EB and 2nd hits in PXF
+    rMinI = cms.double(-0.2), ## intermediate region SC in EB and 2nd hits in PXF
     rMaxI = cms.double(0.2), ## intermediate region SC in EB and 2nd hits in PXF
 
     # phi windows (dynamic)
