@@ -45,3 +45,7 @@ DEFINE_ANOTHER_FWK_MODULE(DTOccupancyTest);
 
 #include "DQM/DTMonitorClient/src/DTSummaryClients.h"
 DEFINE_ANOTHER_FWK_MODULE(DTSummaryClients);
+
+#include "DQM/DTMonitorClient/src/DTOfflineSummaryClients.h"
+DEFINE_ANOTHER_FWK_MODULE(DTOfflineSummaryClients);
+
