@@ -58,7 +58,7 @@ void LatencyTask::book() {
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
     timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
 						 nBins, LOWBIN, HIGHBIN,   // binning + range
-						 100, 0., -1.,"" ) );  // Y range : automatic
+						 100, 0., -1.,"s" ) );  // Y range : automatic
     dqm()->setCurrentFolder( pwd );
   
     timingMap_[title].vNumOfEntries_.resize(nBins,0);
@@ -85,7 +85,7 @@ void LatencyTask::book() {
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram in " << dqm()->pwd();
     timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
 						 nBins, LOWBIN, HIGHBIN,   // binning + range
-						 100, 0., -1.,"" ) );  // Y range : automatic
+						 100, 0., -1.,"s" ) );  // Y range : automatic
   
     timingMap_[title].vNumOfEntries_.resize(nBins,0);
     timingMap_[title].vSumOfContents_.resize(nBins,0);
