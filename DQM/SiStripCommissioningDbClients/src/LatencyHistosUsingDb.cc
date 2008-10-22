@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.14 2008/05/28 14:56:12 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.15 2008/07/18 12:10:33 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -175,6 +175,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
     // Cast to retrieve appropriate description object
     pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
     if ( !desc ) { continue; }
+    if ( desc->getDelayCoarse() >= 15 ) { continue; }
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
     // Construct key from device description
@@ -324,10 +325,6 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
   SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
-  std::stringstream ss;
-  anal->print(ss);
-  edm::LogError("Latency analysis result") << ss.str();
-
   SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first
   SiStripFedKey fed_key( anal->fedKey() );
   
