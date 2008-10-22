@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/10/22 13:01:50 $
- * $Revision: 1.10 $
+ * $Date: 2008/10/22 16:14:14 $
+ * $Revision: 1.11 $
  * \author E. Di Marco
  *
 */
@@ -496,11 +496,10 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
         float evtType = dcch.getRunType();
 
         if ( evtType < 0 || evtType > 22 ) evtType = -1;
-        else evtType += 0.5;
 
-        if ( ECALDCC_BunchCrossing < calibrationBX_ ) meEBEventTypePreCalibrationBX_->Fill( evtType, 1./36. );
-        if ( ECALDCC_BunchCrossing == calibrationBX_ ) meEBEventTypeCalibrationBX_->Fill( evtType, 1./36. );
-        if ( ECALDCC_BunchCrossing > calibrationBX_ ) meEBEventTypePostCalibrationBX_->Fill ( evtType, 1./36. );
+        if ( ECALDCC_BunchCrossing < calibrationBX_ ) meEBEventTypePreCalibrationBX_->Fill( evtType+0.5, 1./36. );
+        if ( ECALDCC_BunchCrossing == calibrationBX_ ) meEBEventTypeCalibrationBX_->Fill( evtType+0.5, 1./36. );
+        if ( ECALDCC_BunchCrossing > calibrationBX_ ) meEBEventTypePostCalibrationBX_->Fill ( evtType+0.5, 1./36. );
 
         if ( ECALDCC_BunchCrossing != calibrationBX_ ) {
           if ( evtType != EcalDCCHeaderBlock::COSMIC &&
