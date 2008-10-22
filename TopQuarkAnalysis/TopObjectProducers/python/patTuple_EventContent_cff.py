@@ -29,6 +29,7 @@ def makePatTupleEventContent(process):
                                                'keep *_genEventPdfInfo_*_*',       ## genEvent info
                                                'keep *_hltTriggerSummaryAOD_*_*',  ## hlt TriggerEvent
                                                'keep *_towerMaker_*_*'             ## all caloTowers
+                                               'keep *_offlineBeamSpot_*_*'        ## offline beamspot
                                                )
     )
     process.patTupleEventContent.outputCommands.extend(process.patTupleEventContent_aod.outputCommands)
