@@ -14,7 +14,7 @@ namespace {
 		<< "/" << sa1.currentAvailable
 		<< ", " << sa1.totalAvailable
 		<< "/" << sa1.nBlocks
-		<< ", " << sa1.alive
+	//		<< ", " << sa1.alive
 		<< std::endl;
     }
     
@@ -46,6 +46,7 @@ public:
 
   void wiper() {
     std::cout << "BlockAllocator stat"<< std::endl;
+    srd::ciut << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
     Dumper dumper;
     blockWipedPool().visit(dumper);
     blockWipedPool().wipe();

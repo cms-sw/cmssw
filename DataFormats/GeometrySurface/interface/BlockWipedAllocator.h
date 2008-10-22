@@ -125,6 +125,8 @@ BlockWipedAllocator & blockWipedAllocator() {
  */
 class BlockWipedPoolAllocated {
 public:
+  // instance counter...
+  static int s_alive;
   static void * operator new(size_t s);
   
   static void operator delete(void * p);
