@@ -130,12 +130,16 @@ void CalibrationAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
   if ( iapv == 0 ) { ss << " (first of pair)"; }
   else if ( iapv == 1 ) { ss << " (second of pair)"; }
   ss << std::endl;
-  ss << " Mean values:" << std::endl;
-  ss << " Amplitude of the pulse : " << mean_amplitude_[iapv] << std::endl
-     << " Tail amplitude after 150ns : " << mean_tail_[iapv] << std::endl
-     << " Rise time : " << mean_riseTime_[iapv] << std::endl
-     << " Time constant : " << mean_timeConstant_[iapv] << std::endl
-     << " Smearing parameter : " << mean_smearing_[iapv] << std::endl
-     << " Chi2 of the fit : " << mean_chi2_[iapv] << std::endl;
+  ss << " Mean Amplitude of the pulse : " << mean_amplitude_[iapv] << std::endl
+     << " Mean Tail amplitude after 150ns : " << mean_tail_[iapv] << std::endl
+     << " Mean Rise time : " << mean_riseTime_[iapv] << std::endl
+     << " Mean Time constant : " << mean_timeConstant_[iapv] << std::endl
+     << " Mean Smearing parameter : " << mean_smearing_[iapv] << std::endl
+     << " Mean Chi2 of the fit : " << mean_chi2_[iapv] << std::endl;
+  if(deconvMode()) {
+    ss << "Data obtained in deconvolution mode." << std::endl;
+  } else {
+    ss << "Data obtained in peak mode." << std::endl;
+  }
 }
 
