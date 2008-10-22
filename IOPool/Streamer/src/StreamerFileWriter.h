@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerFileWriter_h
 #define IOPool_Streamer_StreamerFileWriter_h 
 
-// $Id: StreamerFileWriter.h,v 1.9 2007/05/01 22:41:12 hcheung Exp $
+// $Id: StreamerFileWriter.h,v 1.10 2007/09/20 20:46:55 wmtan Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -42,7 +42,10 @@ namespace edm
     // u called stop, just before destruction
     uint32 getStreamEOFSize() const {return stream_eof_size_;}
     uint32 getIndexEOFSize() const {return index_eof_size_;}
- 
+
+    uint32 get_adler32_stream() const { return stream_writer_->adler32();}
+    uint32 get_adler32_index()  const { return index_writer_->adler32();}
+
   private:
     void updateHLTStats(std::vector<uint8> const& packedHlt);
 
@@ -56,4 +59,3 @@ namespace edm
   };
 }
 #endif
-

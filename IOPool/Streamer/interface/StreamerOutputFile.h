@@ -45,9 +45,11 @@ class StreamerOutputFile
      */
      uint64 write(const EventMsgView&);
 
-      //Returns how many bytes were written out
-      uint32 writeEOF(uint32 statusCode,
-                    const std::vector<uint32>& hltStats);
+     //Returns how many bytes were written out
+     uint32 writeEOF(uint32 statusCode,
+                     const std::vector<uint32>& hltStats);
+
+     uint32 adler32() const { return streamerfile_->adler32(); }
 
   private:
      void writeEventHeader(const EventMsgView& ineview);

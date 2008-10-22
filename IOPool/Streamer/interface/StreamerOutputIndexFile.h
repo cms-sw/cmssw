@@ -34,10 +34,11 @@
 
      uint32 writeEOF(uint32 statusCode,
                     const std::vector<uint32>& hltStats);
-    
+
+     uint32 adler32() const { return indexfile_->adler32(); }
+
   private:
     OutputFile* indexfile_;
 
   };
 #endif
-
