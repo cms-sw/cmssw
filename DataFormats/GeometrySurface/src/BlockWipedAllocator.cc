@@ -3,24 +3,26 @@
 
 BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
 					  std::size_t blockSize):
-  m_typeSize(typeSize), m_blockSize(blockSize){
+  m_typeSize(typeSize), m_blockSize(blockSize), alive(0){
   wipe();
 }
   
 
 BlockWipedAllocator::BlockWipedAllocator(BlockWipedAllocator const & rh) :
-  m_typeSize(rh.m_typeSize), m_blockSize(rh.m_blockSize) {
+  m_typeSize(rh.m_typeSize), m_blockSize(rh.m_blockSize),alive(0) {
   wipe();
 }
 
 BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & rh) {
   m_typeSize=rh.m_typeSize; m_blockSize=rh.m_blockSize;
+  alive=0;
   wipe();
   return *this;
 }
     
 
 void * BlockWipedAllocator::alloc() {
+  alive++;
   void * ret = m_next;
   m_next+=m_typeSize;
   Block & block = *m_current;
@@ -30,7 +32,9 @@ void * BlockWipedAllocator::alloc() {
   return ret;
 }
   
-void BlockWipedAllocator::dealloc(void *) {}
+void BlockWipedAllocator::dealloc(void *) {
+  alive--;
+}
 
 void BlockWipedAllocator::clear() const {
   me().m_blocks.clear();
@@ -100,7 +104,7 @@ void * BlockWipedPoolAllocated::operator new(size_t s) {
 }
 
 void BlockWipedPoolAllocated::operator delete(void * p) {
-  // allocator().dealloc(p);
+  allocator().dealloc(p);
 }
 
 BlockWipedAllocator & BlockWipedPoolAllocated::allocator(size_t s) {

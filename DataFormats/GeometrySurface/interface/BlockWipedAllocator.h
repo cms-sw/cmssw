@@ -52,6 +52,7 @@ public:
     size_t currentAvailable;
     size_t totalAvailable;
     size_t nBlocks;
+    int alive;
   };
   
   Stat stat() const;
@@ -76,6 +77,8 @@ private:
   pointer m_next;
   iterator m_current;
   Blocks m_blocks;
+
+  int m_alive; // for stat purposes
 
 };
 

@@ -10,10 +10,11 @@ namespace {
       BlockWipedAllocator::Stat sa1 = alloc.stat();
       std::cout << "Alloc for size " << sa1.typeSize
 		<< ": " << sa1.blockSize
-		<< " " << sa1.currentOccupancy
-		<< " " << sa1.currentAvailable
-		<< " " << sa1.totalAvailable
-		<< " " << sa1.nBlocks 
+		<< ", " << sa1.currentOccupancy
+		<< "/" << sa1.currentAvailable
+		<< ", " << sa1.totalAvailable
+		<< "/" << sa1.nBlocks
+		<< ", " << sa1.alive
 		<< std::endl;
     }
     
