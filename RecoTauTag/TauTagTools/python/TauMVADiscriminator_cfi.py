@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-tauMVADiscriminatorHighEfficiency = cms.EDProducer("TauMVADiscriminator",
+pfRecoTauDiscriminationByMVAHighEfficiency = cms.EDProducer("TauMVADiscriminator",
     pfTauDecayModeSrc = cms.InputTag("pfTauDecayModeHighEfficiency"),
+    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingTrackPtCutHighEfficiency"),
     computerName      = cms.string('ZTauTauTraining')
 )
 
-tauMVADiscriminatorInsideOut = cms.EDProducer("TauMVADiscriminator",
+pfRecoTauDiscriminationByMVAInsideOut = cms.EDProducer("TauMVADiscriminator",
     pfTauDecayModeSrc = cms.InputTag("pfTauDecayModeInsideOut"),
+    preDiscriminants  = cms.VInputTag("pfRecoTauDiscriminationByLeadingTrackPtCutInsideOut"),
     computerName      = cms.string('ZTauTauTraining')
 )
 
