@@ -219,15 +219,9 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     meEBhitLog10Energy_->Fill(log10(isim->energy()));
     meEBhitEnergy2_->Fill(isim->energy());
     
-    double logen = log10(isim->energy());
-    for( int i=0; i<140; i++ ) {
-      if( (-10. + float(i)/10.) <= logen && logen < (-10. + float(i+1)/10.) ) econtr[i] += isim->energy();
-    }
+    int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+    if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
 
-  }
-
-  for( int i=0; i<140; i++ ) { 
-    if( EBEnergy_ != 0 ) econtr[i] = econtr[i]/EBEnergy_; 
   }
 
   if (menEBCrystals_) menEBCrystals_->Fill(ebmap.size());
@@ -258,15 +252,9 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
     for( unsigned i=0; i<25; i++ ) {
       for( unsigned int j=0; j<CaloHitMap[ids25[i]].size(); j++ ) {
-	double logen = log10( CaloHitMap[ids25[i]][j]->energy());
-	for( int k=0; k<140; k++ ) {
-	  if( (-10. + float(k)/10.) <= logen && logen < (-10. + float(k+1)/10.) ) econtr25[k] += CaloHitMap[ids25[i]][j]->energy();
-	}
+	int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
+	if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
       }
-    }
-
-    for( int i=0; i<140; i++ ) { 
-      econtr25[i] = econtr25[i]/eb25; 
     }
 
     MapType  newebmap;
@@ -289,13 +277,13 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
     if( meEBhitLog10EnergyNorm_ && EBEnergy_ != 0 ) {
       for( int i=0; i<140; i++ ) {
-	meEBhitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i] );
+	meEBhitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i]/EBEnergy_ );
       }
     }
 
     if( meEBhitLog10Energy25Norm_ && eb25 != 0 ) {
       for( int i=0; i<140; i++ ) {
-	meEBhitLog10Energy25Norm_->Fill( -10.+(float(i)+0.5)/10., econtr25[i] );
+	meEBhitLog10Energy25Norm_->Fill( -10.+(float(i)+0.5)/10., econtr25[i]/eb25 );
       }
     }
 

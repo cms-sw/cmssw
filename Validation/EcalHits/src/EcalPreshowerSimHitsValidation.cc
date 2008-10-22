@@ -195,10 +195,8 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
     ESEnergy_ += isim->energy();
     meEShitLog10Energy_->Fill(log10(isim->energy()));
   
-    double logen = log10(isim->energy());
-    for( int i=0; i<140; i++ ) {
-      if( (-10. + float(i)/10.) <= logen && logen < (-10. + float(i+1)/10.) ) econtr[i] += isim->energy();
-    }
+    int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+    if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
   
     if (esid.plane() == 1 ) { 
       if (esid.zside() > 0 ) {
@@ -233,12 +231,9 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   if (menESHits2zp_) menESHits2zp_->Fill(nESHits2zp);
   if (menESHits2zm_) menESHits2zm_->Fill(nESHits2zm);
   
-  for( int i=0; i<140; i++ ) { 
-    if( ESEnergy_ != 0 ) econtr[i] = econtr[i]/ESEnergy_; 
-  }
   if( meEShitLog10EnergyNorm_ && ESEnergy_ != 0 ) {
     for( int i=0; i<140; i++ ) {
-      meEShitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i] );
+      meEShitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i]/ESEnergy_ );
     }
   }
 

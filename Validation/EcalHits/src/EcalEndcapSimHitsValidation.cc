@@ -247,15 +247,9 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     if (meEEHitEnergy2_) meEEHitEnergy2_->Fill(isim->energy());
     eemap[crystid] += isim->energy();
 
-    double logen = log10(isim->energy());
-    for( int i=0; i<140; i++ ) {
-      if( (-10. + float(i)/10.) <= logen && logen < (-10. + float(i+1)/10.) ) econtr[i] += isim->energy();
-    }
+    int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
+    if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
 
-  }
-
-  for( int i=0; i<140; i++ ) { 
-    if( (EEetzp_+EEetzm_) != 0 ) econtr[i] = econtr[i]/(EEetzp_+EEetzm_); 
   }
   
   if (meEEzpCrystals_) meEEzpCrystals_->Fill(eemapzp.size());
@@ -291,15 +285,9 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
     for( unsigned i=0; i<25; i++ ) {
       for( unsigned int j=0; j<CaloHitMap[ids25[i]].size(); j++ ) {
-	double logen = log10( CaloHitMap[ids25[i]][j]->energy());
-	for( int k=0; k<140; k++ ) {
-	  if( (-10. + float(k)/10.) <= logen && logen < (-10. + float(k+1)/10.) ) econtr25[k] += CaloHitMap[ids25[i]][j]->energy();
-	}
+	int log10i = int( ( log10( CaloHitMap[ids25[i]][j]->energy()) + 10. ) * 10. );
+	if( log10i >=0 && log10i < 140 ) econtr25[log10i] += CaloHitMap[ids25[i]][j]->energy();
       }
-    }
-
-    for( int i=0; i<140; i++ ) { 
-      econtr25[i] = econtr25[i]/ee25; 
     }
 
     MapType  neweemap;
@@ -322,13 +310,13 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
     if( meEEhitLog10EnergyNorm_ && (EEetzp_+EEetzm_) != 0 ) {
       for( int i=0; i<140; i++ ) {
-	meEEhitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i] );
+	meEEhitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i]/(EEetzp_+EEetzm_) );
       }
     }
 
     if( meEEhitLog10Energy25Norm_ && ee25 != 0 ) {
       for( int i=0; i<140; i++ ) {
-	meEEhitLog10Energy25Norm_->Fill( -10.+(float(i)+0.5)/10., econtr25[i] );
+	meEEhitLog10Energy25Norm_->Fill( -10.+(float(i)+0.5)/10., econtr25[i]/ee25 );
       }
     }
     
