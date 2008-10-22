@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.6 2008/04/07 14:37:50 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.7 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -205,6 +205,7 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& d
   SiStripFecKey fec_key( anal->fecKey() );
   SiStripFedKey fed_key( anal->fedKey() );
 
+  std::ofstream ofile("calibrationResults.txt",ios_base::app);
   for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
 
     // Create description
@@ -234,6 +235,30 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& d
 					     isha_,
 					     vfs_ );
   
+    // debug simplified printout in text file
+    ofile << " " <<  anal->amplitudeMean()[iapv]
+          << " " <<  anal->tailMean()[iapv]
+          << " " <<  anal->riseTimeMean()[iapv]
+          << " " <<  anal->timeConstantMean()[iapv]
+          << " " <<  anal->smearingMean()[iapv]
+          << " " <<  anal->chi2Mean()[iapv]
+          << " " <<  anal->deconvMode()
+          << " " <<  fec_key.fecCrate()
+          << " " <<  fec_key.fecSlot()
+          << " " <<  fec_key.fecRing()
+          << " " <<  fec_key.ccuAddr()
+          << " " <<  fec_key.ccuChan()
+          << " " <<  SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv )
+          << " " <<  db()->dbParams().partitions().begin()->second.partitionName()
+          << " " <<  db()->dbParams().partitions().begin()->second.runNumber()
+          << " " <<  fed_key.fedId()
+          << " " <<  fed_key.feUnit()
+          << " " <<  fed_key.feChan()
+          << " " <<  fed_key.fedApv()
+          << " " <<  calchan_
+          << " " <<  isha_
+          << " " <<  vfs_ << std::endl;
+
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
@@ -244,6 +269,7 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& d
     // Store description
     desc.push_back( tmp );
   }
+  ofile.close();
   
 #endif
 
