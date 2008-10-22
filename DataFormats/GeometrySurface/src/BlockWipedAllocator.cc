@@ -54,7 +54,7 @@ BlockWipedAllocator::Stat BlockWipedAllocator::stat() const {
   Stat s = { m_typeSize, m_blockSize, (*m_current).m_allocated,
 	     (&*(*m_current).m_data.end()-m_next)/m_typeSize,
 	     std::distance(const_iterator(m_current),m_blocks.end()),
-	     m_blocks.size()};
+	     m_blocks.size(), m_alive};
   return s;
 }
 

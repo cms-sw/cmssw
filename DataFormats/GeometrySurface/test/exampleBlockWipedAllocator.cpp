@@ -70,21 +70,21 @@ BlockAllocated<A1>::s_allocator =  BlockAllocated<A1>::allocator(10);
 BlockAllocated<A2>::s_allocator =  BlockAllocated<A2>::allocator(100);
 */
 
-
 struct Dumper {
   void visit(BlockWipedAllocator const& alloc) const {
     BlockWipedAllocator::Stat sa1 = alloc.stat();
     std::cout << "Alloc for size " << sa1.typeSize
 	      << ": " << sa1.blockSize
-	      << " " << sa1.currentOccupancy
-	      << " " << sa1.currentAvailable
-	      << " " << sa1.totalAvailable
-	      << " " << sa1.nBlocks 
+	      << ", " << sa1.currentOccupancy
+	      << "/" << sa1.currentAvailable
+	      << ", " << sa1.totalAvailable
+	      << "/" << sa1.nBlocks
+	      << ", " << sa1.alive
 	      << std::endl;
   }
-
+  
 };
-
+ 
 void dump(std::string const & mess="") {
 #ifdef DEBUG
   std::cout << mess << std::endl;
