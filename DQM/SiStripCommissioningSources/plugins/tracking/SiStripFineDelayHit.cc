@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.8 2008/07/07 16:24:08 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.9 2008/07/18 12:10:34 delaer Exp $
 //
 //
 
@@ -456,7 +456,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	   // correct the leading charge for the crossing angle
     	   leadingCharge = uint8_t(leadingCharge*fabs(it->second.second));
            // correct for module thickness for TEC and TOB
-           if((((((it->first)>>25)&0x7f)==0xd)||((((it->first)>>25)&0x7f)==0xe))&&((((it->first)>>5)&0x7)>4))
+	   if((((it->first>>25)&0x7f)==0xd) ||
+	      ((((it->first>>25)&0x7f)==0xe) && (((it->first>>5)&0x7)>4)))
              leadingCharge = uint8_t((leadingCharge*0.64));
   	 }
   	 //code the time of flight in the digi
