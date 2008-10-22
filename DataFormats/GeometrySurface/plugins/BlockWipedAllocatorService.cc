@@ -46,7 +46,7 @@ public:
 
   void wiper() {
     std::cout << "BlockAllocator stat"<< std::endl;
-    srd::ciut << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
+    std::cout << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
     Dumper dumper;
     blockWipedPool().visit(dumper);
     blockWipedPool().wipe();
