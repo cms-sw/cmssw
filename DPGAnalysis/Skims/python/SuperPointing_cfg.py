@@ -8,7 +8,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/SuperPointing_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET4 SuperPointing skim')
 )
@@ -17,7 +17,6 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
