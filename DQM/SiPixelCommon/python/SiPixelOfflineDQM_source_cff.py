@@ -46,5 +46,9 @@ SiPixelRecHitSource.bladeOn = True
 SiPixelRecHitSource.diskOn = True
 SiPixelRecHitSource.ringOn = True
 
+#DQM service
+dqmInfo = cms.EDFilter("DQMEventInfo",
+    subSystemFolder = cms.untracked.string('Pixel')
+)
 
-siPixelOfflineDQM_source = cms.Sequence(SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource)
+siPixelOfflineDQM_source = cms.Sequence(SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
