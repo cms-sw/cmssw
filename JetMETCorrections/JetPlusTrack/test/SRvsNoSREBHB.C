@@ -150,30 +150,35 @@ void setTDRStyle(Int_t xlog, Int_t ylog) {
 void Draw()
 {
    setTDRStyle(1,0);
-   TFile* file = new TFile("nosr_barrel.root");
+   TFile* file = new TFile("nozs_barrel.root");
    TCanvas* c1 = new TCanvas("X","Y",1);
    TAxis* xaxis = hprEH11x5->GetXaxis();
    hprEH11x5->GetXaxis()->SetTitle("p_{T} of #pi ^{+} and #pi ^{-}, GeV");
    hprEH11x5->GetYaxis()->SetTitleOffset(1.3);
-   hprEH11x5->GetYaxis()->SetTitle("Energy / E^{true}");
+   hprEH11x5->GetYaxis()->SetTitle("Mean energy ECAL+HCAL / E^{true}");
    hprEH11x5->SetMarkerStyle(21);
-   hprEH11x5->SetMaximum(0.9);
+   hprEH11x5->SetMaximum(1.0);
    hprEH11x5->SetMinimum(0.2);
    hprEH11x5->Draw();
-   TLegend *leg = new TLegend(0.4,0.2,0.9,0.4,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.4,0.2,0.9,0.5,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hprEH11x5,"No SR. ECAL 11x11, HCAL 5x5","P");
+   leg->AddEntry(hprEH11x5,"No HCAL ZS, No ECAL SR","P");
 
    TFile* file = new TFile("sr_barrel.root");
    hprEH11x5->SetMarkerStyle(24);
    hprEH11x5->Draw("same");
-   leg->AddEntry(hprEH11x5,"With SR. ECAL 11x11, HCAL 5x5","P");
+   leg->AddEntry(hprEH11x5,"No HCAL ZS, ECAL SR","P");
+
+   TFile* file = new TFile("zs_barrel.root");
+   hprEH11x5->SetMarkerStyle(25);
+   hprEH11x5->Draw("same");
+   leg->AddEntry(hprEH11x5,"HCAL ZS, ECAL SR","P");
+
    leg->Draw();
 
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(1.5,0.8,"CMSSW_1_6_12, |#eta|< 1.3");
-   t->DrawLatex(1.5,0.7,"no ZSP in HCAL");
+   t->DrawLatex(2.0,0.9,"CMSSW_2_1_9, |#eta|< 1.0");
    c1->SaveAs("SRvsNoSR_EBHBmatrix.gif");
 
    setTDRStyle(0,0);
@@ -365,5 +370,5 @@ void Draw()
    t->DrawLatex(-1.8,0.12,"5 < p_{T}^{trk} < 10 GeV");
 
    c7->SaveAs("SRvsNoSR_EBHBmatrix5_10GeV.gif");
-
+   */
 }
