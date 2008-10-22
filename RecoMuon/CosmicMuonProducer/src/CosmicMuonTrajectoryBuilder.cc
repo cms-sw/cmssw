@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2008/09/21 20:00:40 $
- *  $Revision: 1.40 $
+ *  $Date: 2008/10/18 22:23:35 $
+ *  $Revision: 1.41 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -496,6 +496,7 @@ void CosmicMuonTrajectoryBuilder::buildSecondHalf(Trajectory& traj) {
     LogTrace(category_)<<"inside-out: reverseTrajectory"; 
     reverseTrajectory(traj);
   }
+  if (traj.empty()) return;
   TrajectoryStateOnSurface tsos = traj.lastMeasurement().updatedState();
   if ( !tsos.isValid() ) tsos = traj.lastMeasurement().predictedState();
  LogTrace(category_)<<"last tsos on traj: pos: "<< tsos.globalPosition()<<" mom: "<< tsos.globalMomentum();
@@ -605,10 +606,6 @@ void CosmicMuonTrajectoryBuilder::reverseTrajectory(Trajectory& traj) const {
   Trajectory newTraj(traj.seed(), newDir);
   
  const std::vector<TrajectoryMeasurement>& meas = traj.measurements();
-
-  while (!traj.empty()) {
-    traj.pop();
-  }
 
   for (std::vector<TrajectoryMeasurement>::const_reverse_iterator itm = meas.rbegin();
        itm != meas.rend(); ++itm ) {
