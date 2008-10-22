@@ -101,7 +101,7 @@ inline CSCBadStrips *  CSCBadStripsConditions::prefillBadStrips()
   CSCBadStrips::BadChannelContainer & itemvector2 = cndbbadstrips->channels;
   itemvector2.resize(new_nrlines2);
   
-  cndbbadstrips->numberOfBadChannels = new_nrlines2-1;
+  cndbbadstrips->numberOfBadChannels = new_nrlines2;
 
   for(int i=0; i<new_nrlines1;i++){
     itemvector1[i].chamber_index = new_index_id[i];
@@ -109,7 +109,7 @@ inline CSCBadStrips *  CSCBadStripsConditions::prefillBadStrips()
     itemvector1[i].bad_channels = new_badchannels[i];
   }
 
-  for(int j=0;j<new_nrlines2-1;j++) {
+  for(int j=0;j<new_nrlines2;j++) {
     itemvector2[j].layer =  new_layer_id[j];
     itemvector2[j].channel = new_chan_id[j];
     itemvector2[j].flag1 =  new_flag1_id[j];

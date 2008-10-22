@@ -81,7 +81,7 @@ inline CSCBadWires *  CSCBadWiresConditions::prefillBadWires()
   itemvector.resize(new_nrlines);
   CSCBadWires::BadChamberContainer & itemvector1 = cndbbadwires->chambers;
   itemvector1.resize(new_nrlines);
-  cndbbadwires->numberOfBadChannels = new_nrlines-1;
+  cndbbadwires->numberOfBadChannels = new_nrlines;
 
   if(new_index_id.empty()) bad=false; 
   if(!new_index_id.empty()) bad=true;
