@@ -52,12 +52,8 @@ allLayer1Muons.embedStandAloneMuon   = True
 
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import allLayer1Jets
 
-allLayer1Jets.addTagInfoRefs         = True
-allLayer1Jets.tagInfoModule          = "layer0TagInfos"
-allLayer1Jets.tagInfoNames           = ['secondaryVertexTagInfos',
-                                        'softElectronTagInfos',
-                                        'softMuonTagInfos',
-                                        'impactParameterTagInfos']
+allLayer1Jets.embedCaloTowers        = False
+
 
 ## selection
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedLayer1Electrons
