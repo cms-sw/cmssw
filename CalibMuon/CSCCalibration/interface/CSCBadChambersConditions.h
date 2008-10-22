@@ -69,7 +69,7 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
   }
   newdata.close();
   
-  cndbbadchambers->numberOfBadChambers = new_nrlines-1;
+  cndbbadchambers->numberOfBadChambers = new_nrlines;
   //std::cout <<"numberOfBadChambers "<<new_nrlines<<std::endl;
 
   std::vector<int>& itemvector = cndbbadchambers->chambers;
