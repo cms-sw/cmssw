@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.89 2008/10/14 13:42:19 biery Exp $
+// $Id: StorageManager.cc,v 1.90 2008/10/14 22:01:06 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1447,7 +1447,9 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
         *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
-        for(int i=0;i<=(int)nLogicalDisk_;i++) {
+        int nD = nLogicalDisk_;
+        if (nD == 0) nD=1;
+        for(int i=0;i<nD;i++) {
            string path(filePath_);
            if(nLogicalDisk_>0) {
               std::ostringstream oss;
@@ -1478,6 +1480,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td colspan=5>" << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
+        }
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "# CopyWorker" << endl;
@@ -1500,7 +1503,6 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td colspan=5>" << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
-        }
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=7>"                                       << endl;
     *out << "      " << "Output Streams (updated only every 10 sec)"          << endl;
