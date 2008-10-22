@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.36 2008/10/09 00:55:29 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.37 2008/10/09 02:28:43 loizides Exp $
 
 use strict;
 use DBI;
@@ -61,7 +61,7 @@ sub usage
 
   Hostname is the host on which the file is found. By default, this will be set to the name as 
   returned by the `hostname` command. Currently supported hosts for copies are: cms-tier0-stage, 
-  cmsdisk1, csc-daq00, vmepcS2B18-39 (tracker node), srv-c2d05-19 (DQM) and the Storage Manager nodes.
+  cmsdisk1, csc-daq00, vmepcS2B18-39 (tracker node), srv-C2D05-19 (DQM) and the Storage Manager nodes.
  
   --------------------------------------------------------------------------------------------
   If you are not sure about what you are doing please send an inquiry to hn-cms-tier0-operations\@cern.ch.
@@ -338,9 +338,9 @@ unless($hostname eq 'srv-C2D05-03'      ||
        $hostname eq 'srv-C2D05-02'      || 
        $hostname eq 'csc-C2D07-08'      || #csc
        $hostname eq 'vmepcS2B18-39'     || #tracker
-       $hostname eq 'srv-c2d05-19'      || #dqm
+       $hostname eq 'srv-C2D05-19'      || #dqm
        $hostname =~ 'srv-C2C07-') { 
-    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, csc-daq00, srv-c2d05-19 or vmepcS2B18-39.\n";
+    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, csc-daq00, srv-C2D05-19 or vmepcS2B18-39.\n";
     usageShort();
 }
 
