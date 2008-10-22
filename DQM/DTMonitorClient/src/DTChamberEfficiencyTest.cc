@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/29 10:27:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/10/08 09:10:59 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -89,6 +89,8 @@ void DTChamberEfficiencyTest::beginRun(const edm::Run& run, const edm::EventSetu
     bookHistos((*ch_it)->id());
   }
 
+  //summary histo booking
+  bookHistos();
 }
 
 void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
@@ -211,6 +213,17 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     }
   }
 
+  //Fill the report summary histos
+  for(int wh=-2; wh<=2; wh++){
+    for(int sec=1; sec<=12; sec++){
+      for(int st=1; st<=4; st++){
+
+	summaryHistos[wh]->Fill(sec,st,1);
+      
+      }
+    }
+  }
+
 }
 
 
@@ -264,5 +277,22 @@ void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
   xEfficiencyHistos[HistoName] = dbe->book1D(xEfficiencyHistoName.c_str(),xEfficiencyHistoName.c_str(),25,-250.,250.);
   yEfficiencyHistos[HistoName] = dbe->book1D(yEfficiencyHistoName.c_str(),yEfficiencyHistoName.c_str(),25,-250.,250.);
   xVSyEffHistos[HistoName] = dbe->book2D(xVSyEffHistoName.c_str(),xVSyEffHistoName.c_str(),25,-250.,250., 25,-250.,250.);
+
+}
+
+
+void DTChamberEfficiencyTest::bookHistos() {
+
+  for(int wh=-2; wh<=2; wh++){
+    stringstream wheel; wheel << wh;
+    string histoName =  "chEfficiencySummary_W" + wheel.str();
+    dbe->setCurrentFolder("DT/01-DTChamberEfficiency");
+    summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
+    summaryHistos[wh]->setAxisTitle("Sector",1);
+    summaryHistos[wh]->setBinLabel(1,"MB1",2);
+    summaryHistos[wh]->setBinLabel(2,"MB2",2);
+    summaryHistos[wh]->setBinLabel(3,"MB3",2);
+    summaryHistos[wh]->setBinLabel(4,"MB4",2);
+  }
 
 }
