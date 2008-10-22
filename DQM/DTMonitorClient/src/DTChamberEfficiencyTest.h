@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/29 10:27:16 $
+ *  $Revision: 1.6 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -66,6 +66,9 @@ protected:
   /// book the new ME
   void bookHistos(const DTChamberId & ch);
 
+  /// book the report summary
+  void bookHistos();
+
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId & chID);
 
@@ -93,6 +96,7 @@ private:
   std::map< std::string , MonitorElement* > xEfficiencyHistos;
   std::map< std::string , MonitorElement* > yEfficiencyHistos;
   std::map< std::string , MonitorElement* > xVSyEffHistos;
+  std::map< int, MonitorElement* > summaryHistos;
 
 };
 
