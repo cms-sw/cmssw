@@ -28,7 +28,7 @@ SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal )
    peak_fitter_->SetParLimits(1,0,4800);
    peak_fitter_->SetParLimits(2,0,20);
    peak_fitter_->FixParameter(3,50);
-   peak_fitter_->SetParLimits(4,0,50);
+   peak_fitter_->SetParLimits(4,0,100);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
    deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
    deconv_fitter_->SetNpx(1000);
@@ -37,7 +37,7 @@ SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal )
    deconv_fitter_->SetParLimits(2,0,200);
    deconv_fitter_->SetParLimits(3,5,100);
    deconv_fitter_->FixParameter(3,50);
-   deconv_fitter_->SetParLimits(4,0,50);
+   deconv_fitter_->SetParLimits(4,0,100);
    deconv_fitter_->SetParameters(0.,-2.82,0.96,50,20);
 }
 
@@ -119,6 +119,9 @@ void SamplingAlgorithm::analyse() {
     return;
   }
 
+  // set the right error mode: rms
+  prof->SetErrorOption(" ");
+
   // prune the profile
   pruneProfile(prof);
 
@@ -133,11 +136,12 @@ void SamplingAlgorithm::analyse() {
 
     // initialize  the fit (overal latency)
     float max = prof->GetBinCenter(prof->GetMaximumBin());
-    peak_fitter_->SetParameters(0.,50-max,10,50,10);
+    float ampl = prof->GetMaximum();
+    peak_fitter_->SetParameters(0.,50-max,ampl/20.,50,10);
 
     // fit
-    prof->Fit(peak_fitter_,"Q");
-    prof->Fit(peak_fitter_,"QEWM");
+    if(prof->Fit(peak_fitter_,"Q")==0)
+      prof->Fit(peak_fitter_,"QEM");
 
     // Set monitorables
     samp_->max_   = peak_fitter_->GetMaximumX();
@@ -146,8 +150,9 @@ void SamplingAlgorithm::analyse() {
   } else { // sistrip::FINE_DELAY
 
     // fit
-    prof->Fit(deconv_fitter_,"Q");
-    prof->Fit(deconv_fitter_,"QEWM");
+    if(prof->Fit(deconv_fitter_,"Q")==0)
+      prof->Fit(deconv_fitter_,"QEM");
+
     // Set monitorables
     samp_->max_   = deconv_fitter_->GetMaximumX();
     samp_->error_ = deconv_fitter_->GetParError(1);
