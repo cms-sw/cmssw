@@ -76,6 +76,9 @@ private:
  MonitorElement* menESHits1zm_;
  MonitorElement* menESHits2zm_;
 
+ MonitorElement* meEShitLog10Energy_;
+ MonitorElement* meEShitLog10EnergyNorm_;
+
  MonitorElement* meESEnergyHits1zp_;
  MonitorElement* meESEnergyHits2zp_;
 

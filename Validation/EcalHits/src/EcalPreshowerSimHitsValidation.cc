@@ -54,6 +54,9 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   meESEnergyHits1zm_ = 0;
   meESEnergyHits2zm_ = 0;
 
+  meEShitLog10Energy_       = 0;
+  meEShitLog10EnergyNorm_   = 0;
+
   meE1alphaE2zp_ = 0;
   meE1alphaE2zm_ = 0;
   meEEoverESzp_  = 0;
@@ -91,6 +94,12 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
 
     sprintf (histo, "ES hits energy layer 2 z-" ) ;
     meESEnergyHits2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
+
+    sprintf (histo, "ES hits log10energy spectrum" );
+    meEShitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
+
+    sprintf (histo, "ES hits log10energy spectrum vs normalized energy" );
+    meEShitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
 
     sprintf (histo, "ES E1+07E2 z+" ) ;
     meE1alphaE2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
@@ -148,7 +157,7 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   }
 
   double ESEnergy_ = 0.;
-  std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
+  //std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
 
   // endcap
   double EEetzp_ = 0.;
@@ -168,10 +177,11 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   double ESet2zp_ = 0.;
   double ESet1zm_ = 0.;
   double ESet2zm_ = 0.;
+  std::vector<double> econtr(140, 0. );
   
   for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin();
        isim != theESCaloHits.end(); ++isim){
-    CaloHitMap[(*isim).id()].push_back((*isim));
+    //CaloHitMap[(*isim).id()].push_back((*isim));
     
     ESDetId esid (isim->id()) ;
     
@@ -183,7 +193,13 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
       << " Energy = " << isim->energy();
     
     ESEnergy_ += isim->energy();
-    
+    meEShitLog10Energy_->Fill(log10(isim->energy()));
+  
+    double logen = log10(isim->energy());
+    for( int i=0; i<140; i++ ) {
+      if( (-10. + float(i)/10.) <= logen && logen < (-10. + float(i+1)/10.) ) econtr[i] += isim->energy();
+    }
+  
     if (esid.plane() == 1 ) { 
       if (esid.zside() > 0 ) {
 	nESHits1zp++ ;
@@ -217,6 +233,16 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   if (menESHits2zp_) menESHits2zp_->Fill(nESHits2zp);
   if (menESHits2zm_) menESHits2zm_->Fill(nESHits2zm);
   
+  for( int i=0; i<140; i++ ) { 
+    if( ESEnergy_ != 0 ) econtr[i] = econtr[i]/ESEnergy_; 
+  }
+  if( meEShitLog10EnergyNorm_ && ESEnergy_ != 0 ) {
+    for( int i=0; i<140; i++ ) {
+      meEShitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i] );
+    }
+  }
+
+
   for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
 	p != MCEvt->GetEvent()->particles_end(); ++p ) {
     

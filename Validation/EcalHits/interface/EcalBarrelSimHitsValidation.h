@@ -63,6 +63,11 @@ private:
  virtual float energyInMatrixEB(int nCellInEta, int nCellInPhi, 
                                 int centralEta, int centralPhi, int centralZ,
                                 MapType& themap); 
+
+ std::vector<uint32_t> getIdsAroundMax(int nCellInEta, int nCellInPhi, 
+                                int centralEta, int centralPhi, int centralZ,
+                                MapType& themap); 
+
  
  bool  fillEBMatrix(int nCellInEta, int nCellInPhi,
                     int CentralEta, int CentralPhi,int CentralZ,
@@ -93,6 +98,12 @@ private:
  MonitorElement* meEBLongitudinalShower_;
 
  MonitorElement* meEBhitEnergy_;
+
+ MonitorElement* meEBhitLog10Energy_;
+
+ MonitorElement* meEBhitLog10EnergyNorm_;
+
+ MonitorElement* meEBhitLog10Energy25Norm_;
 
  MonitorElement* meEBhitEnergy2_;
 

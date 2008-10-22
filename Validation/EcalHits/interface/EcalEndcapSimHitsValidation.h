@@ -64,6 +64,10 @@ private:
                                 int centralX, int centralY, int centralZ,
                                 MapType& themap); 
  
+ std::vector<uint32_t> getIdsAroundMax(int nCellInX, int nCellInY, 
+                                int centralX, int centralY, int centralZ,
+                                MapType& themap); 
+
  bool  fillEEMatrix(int nCellInX, int nCellInY,
                     int CentralX, int CentralY,int CentralZ,
                     MapType& fillmap, MapType&  themap);
@@ -96,6 +100,14 @@ private:
  MonitorElement* meEELongitudinalShower_;
 
  MonitorElement* meEEHitEnergy_;
+
+ MonitorElement* meEEhitLog10Energy_;
+
+ MonitorElement* meEEhitLog10EnergyNorm_;
+
+ MonitorElement* meEEhitLog10Energy25Norm_;
+
+
  MonitorElement* meEEHitEnergy2_;
 
  MonitorElement* meEEcrystalEnergy_;

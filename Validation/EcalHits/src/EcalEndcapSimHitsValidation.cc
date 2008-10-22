@@ -49,6 +49,9 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   meEEzmOccupancy_        = 0;
   meEELongitudinalShower_ = 0;
   meEEHitEnergy_          = 0;
+  meEEhitLog10Energy_       = 0;
+  meEEhitLog10EnergyNorm_   = 0;
+  meEEhitLog10Energy25Norm_ = 0;
   meEEHitEnergy2_         = 0;
   meEEcrystalEnergy_      = 0;
   meEEcrystalEnergy2_     = 0;
@@ -98,6 +101,15 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
 
     sprintf (histo, "EE hits energy spectrum" );
     meEEHitEnergy_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
+
+    sprintf (histo, "EE hits log10energy spectrum" );
+    meEEhitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
+
+    sprintf (histo, "EE hits log10energy spectrum vs normalized energy" );
+    meEEhitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+
+    sprintf (histo, "EE hits log10energy spectrum vs normalized energy25" );
+    meEEhitLog10Energy25Norm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
 
     sprintf (histo, "EE hits energy spectrum 2" );
     meEEHitEnergy2_ = dbe_->book1D(histo, histo, 1000, 0., 0.001);
@@ -180,7 +192,7 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   
   myEntries++;
 
-  std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
+  std::map<unsigned int, std::vector<PCaloHit*>,std::less<unsigned int> > CaloHitMap;
   
   double EEetzp_ = 0.;
   double EEetzm_ = 0.;
@@ -190,6 +202,8 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   double ee9  = 0.0;
   double ee16 = 0.0;
   double ee25 = 0.0;
+  std::vector<double> econtr(140, 0. );
+  std::vector<double> econtr25(140, 0. );
   
   MapType eemap;
   MapType eemapzp;
@@ -200,9 +214,9 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin();
        isim != theEECaloHits.end(); ++isim){
 
-    if ( (*isim).time() > 500. ) { continue; }
+    if ( isim->time() > 500. ) { continue; }
 
-    CaloHitMap[(*isim).id()].push_back((*isim));
+    CaloHitMap[ isim->id()].push_back(&(*isim));
     
     EEDetId eeid (isim->id()) ;
     
@@ -229,8 +243,19 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     }
 
     if (meEEHitEnergy_) meEEHitEnergy_->Fill(isim->energy());
+    if( meEEhitLog10Energy_ ) meEEhitLog10Energy_->Fill(log10(isim->energy()));
     if (meEEHitEnergy2_) meEEHitEnergy2_->Fill(isim->energy());
     eemap[crystid] += isim->energy();
+
+    double logen = log10(isim->energy());
+    for( int i=0; i<140; i++ ) {
+      if( (-10. + float(i)/10.) <= logen && logen < (-10. + float(i+1)/10.) ) econtr[i] += isim->energy();
+    }
+
+  }
+
+  for( int i=0; i<140; i++ ) { 
+    if( (EEetzp_+EEetzm_) != 0 ) econtr[i] = econtr[i]/(EEetzp_+EEetzm_); 
   }
   
   if (meEEzpCrystals_) meEEzpCrystals_->Fill(eemapzp.size());
@@ -262,6 +287,21 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     ee25=  energyInMatrixEE(5,5,bx,by,bz,eemap);
     if (meEEe25_) meEEe25_->Fill(ee25);
     
+    std::vector<uint32_t> ids25; ids25 = getIdsAroundMax(5,5,bx,by,bz,eemap);
+
+    for( unsigned i=0; i<25; i++ ) {
+      for( unsigned int j=0; j<CaloHitMap[ids25[i]].size(); j++ ) {
+	double logen = log10( CaloHitMap[ids25[i]][j]->energy());
+	for( int k=0; k<140; k++ ) {
+	  if( (-10. + float(k)/10.) <= logen && logen < (-10. + float(k+1)/10.) ) econtr25[k] += CaloHitMap[ids25[i]][j]->energy();
+	}
+      }
+    }
+
+    for( int i=0; i<140; i++ ) { 
+      econtr25[i] = econtr25[i]/ee25; 
+    }
+
     MapType  neweemap;
     if( fillEEMatrix(3,3,bx,by,bz,neweemap, eemap)){
       ee4 = eCluster2x2(neweemap);
@@ -279,6 +319,18 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     if (meEEe16oe25_ && ee25 > 0.1 ) meEEe16oe25_->Fill(ee16/ee25);
     if (meEEe1oe25_  && ee25 > 0.1 ) meEEe1oe25_ ->Fill(ee1/ee25);
     if (meEEe9oe25_  && ee25 > 0.1 ) meEEe9oe25_ ->Fill(ee9/ee25);
+
+    if( meEEhitLog10EnergyNorm_ && (EEetzp_+EEetzm_) != 0 ) {
+      for( int i=0; i<140; i++ ) {
+	meEEhitLog10EnergyNorm_->Fill( -10.+(float(i)+0.5)/10., econtr[i] );
+      }
+    }
+
+    if( meEEhitLog10Energy25Norm_ && ee25 != 0 ) {
+      for( int i=0; i<140; i++ ) {
+	meEEhitLog10Energy25Norm_->Fill( -10.+(float(i)+0.5)/10., econtr25[i] );
+      }
+    }
     
   }
     
@@ -322,6 +374,33 @@ float EcalEndcapSimHitsValidation::energyInMatrixEE(int nCellInX, int nCellInY,
     << " for " << ncristals << " crystals";
   return totalEnergy;
   
+}
+
+std::vector<uint32_t> EcalEndcapSimHitsValidation::getIdsAroundMax( int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType& themap){
+  
+  int   ncristals   = 0;
+  std::vector<uint32_t> ids( nCellInX*nCellInY );
+        
+  int goBackInX = nCellInX/2;
+  int goBackInY = nCellInY/2;
+  int startX    = centralX-goBackInX;
+  int startY    = centralY-goBackInY;
+  
+  for (int ix=startX; ix<startX+nCellInX; ix++) {
+    for (int iy=startY; iy<startY+nCellInY; iy++) {
+      uint32_t index ;
+      
+      if(EEDetId::validDetId(ix,iy,centralZ)) {
+        index = EEDetId(ix,iy,centralZ).rawId();
+      }
+      else { continue; }
+
+      ids[ncristals] = index;
+      ncristals     += 1;
+    }
+  }
+  
+  return ids;
 }
 
 bool  EcalEndcapSimHitsValidation::fillEEMatrix(int nCellInX, int nCellInY,
