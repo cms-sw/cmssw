@@ -14,6 +14,11 @@ from DQMOffline.Muon.muonQualityTests_cff import *
 
 muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
 muonMonitors = cms.Sequence(rpcSource*muonTrackAnalyzers*dtSegmentsMonitor*muonAnalyzer)
-muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
+
+dqmInfoMuons = cms.EDFilter("DQMEventInfo",
+                            subSystemFolder = cms.untracked.string('Muons')
+                            )
+
+muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests*dqmInfoMuons)
 
 

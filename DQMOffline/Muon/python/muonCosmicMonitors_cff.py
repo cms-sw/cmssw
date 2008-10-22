@@ -26,7 +26,11 @@ muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyz
 
 muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*dtSegmentsMonitor*cscMonitor*rpcSource*muonStandAloneCosmicAnalyzer)
 
-muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
+dqmInfoMuons = cms.EDFilter("DQMEventInfo",
+                            subSystemFolder = cms.untracked.string('Muons')
+                            )
+
+muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests*dqmInfoMuons)
 
 muonStandAloneCosmicAnalyzer.DoMuonRecoAnalysis = False
 
