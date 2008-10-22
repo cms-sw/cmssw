@@ -70,7 +70,6 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> >hitangleassociation;
   std::vector<TrajectoryMeasurement> TMeas=traj.measurements();
   std::vector<TrajectoryMeasurement>::iterator itm;
-  int i=0;
   for (itm=TMeas.begin();itm!=TMeas.end();itm++){
     TrajectoryStateOnSurface tsos=itm->updatedState();
     const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
