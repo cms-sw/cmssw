@@ -62,3 +62,4 @@ REGISTER_PLUGIN(CSCBadStripsRcd,CSCBadStrips);
 REGISTER_PLUGIN(CSCBadWiresRcd,CSCBadWires);
 REGISTER_PLUGIN(CSCIdentifierRcd,CSCIdentifier);
 REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
+REGISTER_PLUGIN(CSCL1TPParametersRcd,CSCL1TPParameters);
