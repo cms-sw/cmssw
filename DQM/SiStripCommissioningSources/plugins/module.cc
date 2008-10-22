@@ -10,3 +10,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningRunTypeFilter);
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSeedFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSeedFilter);
 
+#include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningBasicPrescaler.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningBasicPrescaler);
+
