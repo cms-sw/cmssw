@@ -31,7 +31,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
-#include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
 
 
 // ROOT headers
@@ -46,29 +45,6 @@
 #include <TString.h>
 #include <TStyle.h>
 
-// RooFit headers
-
-#include <RooAbsData.h>
-#include <RooDataSet.h>
-#include <RooAddPdf.h>
-#include <RooBifurGauss.h>
-#include <RooBreitWigner.h>
-#include <RooCategory.h>
-#include <RooCatType.h>
-#include <RooCBShape.h>
-#include <RooChi2Var.h>
-#include <RooDataHist.h>
-#include <RooFitResult.h>
-#include <RooGenericPdf.h>
-#include <RooGlobalFunc.h>
-#include <RooLandau.h>
-#include <RooMinuit.h>
-#include <RooNLLVar.h>
-#include <RooPlot.h>
-#include <RooRealVar.h>
-#include <RooSimultaneous.h>
-#include <RooTreeData.h>
-#include <RooVoigtian.h>
 
 using namespace std;
 using namespace edm;
@@ -187,52 +163,104 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
    SBSStanDev_  = iConfig.getUntrackedParameter< double >("SBSStanDev",2);
 
    // Fitter variables
+
+   // 1. ZLineShape
+   fitZLineShape_ = false;
+   ParameterSet dLineShape;
+   ZLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape",dLineShape);
+
    vector<double> dSigM;
    dSigM.push_back(91.1876);
    dSigM.push_back(85.0);
    dSigM.push_back(95.0);
-   signalMean_     = iConfig.getUntrackedParameter< vector<double> >("SignalMean",dSigM);
+   zMean_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZMean",dSigM);
    vector<double> dSigW;
    dSigW.push_back(2.3);
    dSigW.push_back(1.0);
    dSigW.push_back(4.0);
-   signalWidth_     = iConfig.getUntrackedParameter< vector<double> >("SignalWidth",dSigW);
+   zWidth_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidth",dSigW);
    vector<double> dSigS;
    dSigS.push_back(1.5);
    dSigS.push_back(0.0);
    dSigS.push_back(4.0);
-   signalSigma_     = iConfig.getUntrackedParameter< vector<double> >("SignalSigma",dSigS);
+   zSigma_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZSigma",dSigS);
    vector<double> dSigWL;
    dSigWL.push_back(3.0);
    dSigWL.push_back(1.0);
    dSigWL.push_back(10.0);
-   signalWidthL_    = iConfig.getUntrackedParameter< vector<double> >("SignalWidthL",dSigWL);
+   zWidthL_    = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidthL",dSigWL);
    vector<double> dSigWR;
    dSigWR.push_back(0.52);
    dSigWR.push_back(0.0);
    dSigWR.push_back(2.0);
-   signalWidthR_    = iConfig.getUntrackedParameter< vector<double> >("SignalWidthR",dSigWR);
-   
+   zWidthR_    = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidthR",dSigWR);
    vector<double> dBGF;
    dBGF.push_back(0.87);
    dBGF.push_back(0.0);
    dBGF.push_back(1.0);
-   bifurGaussFrac_  = iConfig.getUntrackedParameter< vector<double> >("BifurGaussFrac",dBGF);
+   zBifurGaussFrac_  = ZLineShape_.getUntrackedParameter< vector<double> >("ZBifurGaussFrac",dBGF);
+
+   // 2. CBLineShape
+   fitCBLineShape_ = false;
+   ParameterSet dCBLineShape;
+   CBLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dCBLineShape);
+
+   vector<double> dCBM;
+   dCBM.push_back(91.1876);
+   dCBM.push_back(85.0);
+   dCBM.push_back(95.0);
+   cbMean_          = CBLineShape_.getUntrackedParameter< vector<double> >("CBMean",dCBM);
+   vector<double> dCBS;
+   dCBS.push_back(1.5);
+   dCBS.push_back(0.0);
+   dCBS.push_back(4.0);
+   cbSigma_         = CBLineShape_.getUntrackedParameter< vector<double> >("CBSigma",dCBS);
+   vector<double> dCBAlpha;
+   dCBAlpha.push_back(3.0);
+   dCBAlpha.push_back(1.0);
+   dCBAlpha.push_back(10.0);
+   cbAlpha_         = CBLineShape_.getUntrackedParameter< vector<double> >("CBAlpha",dCBAlpha);
+   vector<double> dCBN;
+   dCBN.push_back(3.0);
+   dCBN.push_back(0.0);
+   dCBN.push_back(20.0);
+   cbN_             = CBLineShape_.getUntrackedParameter< vector<double> >("CBN",dCBN);
+
+   // 3. GaussLineShape
+   fitGaussLineShape_ = false;
+   ParameterSet dGaussLineShape;
+   GaussLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dGaussLineShape);
+
+   vector<double> dGaussM;
+   dGaussM.push_back(91.1876);
+   dGaussM.push_back(85.0);
+   dGaussM.push_back(95.0);
+   gaussMean_          = GaussLineShape_.getUntrackedParameter< vector<double> >("GaussMean",dGaussM);
+   vector<double> dGaussS;
+   dGaussS.push_back(1.5);
+   dGaussS.push_back(0.0);
+   dGaussS.push_back(4.0);
+   gaussSigma_         = GaussLineShape_.getUntrackedParameter< vector<double> >("GaussSigma",dGaussS);
+
+   // 1. CMS Background Line Shape
+   fitCMSBkgLineShape_ = false;
+   ParameterSet dBkgLineShape;
+   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dBkgLineShape);
 
    vector<double> dBAl;
    dBAl.push_back(63.0);
-   bkgAlpha_        = iConfig.getUntrackedParameter< vector<double> >("BkgAlpha",dBAl);
+   cmsBkgAlpha_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgAlpha",dBAl);
    vector<double> dBBt;
    dBBt.push_back(0.001);
-   bkgBeta_         = iConfig.getUntrackedParameter< vector<double> >("BkgBeta",dBBt);
+   cmsBkgBeta_         = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgBeta",dBBt);
    vector<double> dBPk;
    dBPk.push_back(91.1876);
-   bkgPeak_         = iConfig.getUntrackedParameter< vector<double> >("BkgPeak",dBPk);
+   cmsBkgPeak_         = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgPeak",dBPk);
    vector<double> dBGam;
    dBGam.push_back(0.08);
    dBGam.push_back(0.0);
    dBGam.push_back(1.0);
-   bkgGamma_        = iConfig.getUntrackedParameter< vector<double> >("BkgGamma",dBGam);
+   cmsBkgGamma_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgGamma",dBGam);
 
    vector<double> dEff;
    dEff.push_back(0.98);
@@ -357,6 +385,8 @@ TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
       delete [] Histograms_; 
       Histograms_ = 0;
    }
+
+   cleanFitVariables();
 }
 
 
@@ -367,6 +397,7 @@ void
 TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
 			     const edm::EventSetup& iSetup)
 {
+
    // Safety check .. if mode = read, the user should use an empty source.
    if( mode_ == "Read" ) return;
 
@@ -596,8 +627,8 @@ int TagProbeEDMAnalysis::SaveHistogram(TH1F& Histo, std::string outFileName, Int
 
 
 
-// ****************** Zll Eff Side band subtraction *************
-void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, 
+// ****************** TP Eff Side band subtraction *************
+void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar, 
 				     vector< double > bins, string &bvar2, 
 				     double bvar2Lo, double bvar2Hi )
 {
@@ -606,7 +637,7 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar,
    fitTree_->SetDirectory(outRootFile_);
   
    //return;
-   cout << "***** Here in Zll sideband subtraction ******" << endl;
+   cout << "***** Here in TP sideband subtraction ******" << endl;
    cout << "Number of entries " << fitTree_->GetEntries() << endl;
    
    string hname = "sbs_eff_" + bvar;
@@ -774,8 +805,8 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar,
 
 
 
-// ****************** Zll Eff Side band subtraction *************
-void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, 
+// ****************** TP Eff Side band subtraction *************
+void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1, 
 				       vector< double > bins1,
 				       string &bvar2, vector< double > bins2 )
 {
@@ -784,7 +815,7 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1,
   fitTree_->SetDirectory(outRootFile_);
   
   //return;
-  cout << "***** Here in Zll sideband subtraction 2D ******" << endl;
+  cout << "***** Here in TP sideband subtraction 2D ******" << endl;
   cout << "Number of entries " << fitTree_->GetEntries() << endl;
    
   string hname = "sbs_eff_" + bvar1 + "_" + bvar2;
@@ -998,11 +1029,11 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
 
 
 // ********** Z -> l+l- Fitter ********** //
-void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, 
+void TagProbeEDMAnalysis::TPEffFitter( string &fileName, string &bvar, 
 					vector< double > bins, string &bvar2, 
 					double bvar2Lo, double bvar2Hi )
 {
-   cout << "Here in Zll fitter" << endl;
+   cout << "Here in TP fitter" << endl;
     
    outRootFile_->cd();
    fitTree_ = (TTree*)outRootFile_->Get("fitter_tree");
@@ -1010,7 +1041,7 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar,
    string hname = "fit_eff_" + bvar;
    string htitle = "Efficiency vs " + bvar;
    int bnbins = bins.size()-1;
-   cout << "ZllEffFitter: The number of bins is " << bnbins << endl;
+   cout << "TPEffFitter: The number of bins is " << bnbins << endl;
    TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
     
    vector< double > bins2;
@@ -1039,20 +1070,20 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar,
 
 
 // ********** Z -> l+l- Fitter ********** //
-void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vector< double > bins1,
+void TagProbeEDMAnalysis::TPEffFitter2D( string &fileName, string &bvar1, vector< double > bins1,
 					  string &bvar2, vector<double> bins2 )
 {
 
    outRootFile_->cd();
    fitTree_->SetDirectory(outRootFile_);
   
-   cout << "Here in Zll fitter 2D" << endl;
+   cout << "Here in TP fitter 2D" << endl;
   
    string hname = "fit_eff_" + bvar1 + "_" + bvar2;
    string htitle = "Efficiency: " + bvar1 + " vs " + bvar2;
    int bnbins1 = bins1.size()-1;
    int bnbins2 = bins2.size()-1;
-   cout << "ZllEffFitter2D: The number of bins is " << bnbins1 << ":" << bnbins2 << endl;
+   cout << "TPEffFitter2D: The number of bins is " << bnbins1 << ":" << bnbins2 << endl;
    TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
    double eff = 0.0, err = 0.0;
 
@@ -1078,6 +1109,187 @@ void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vecto
 // ************************************** //
 
 
+// ***** Function to return the signal Pdf depending on the users choice of fit func ******* //
+void TagProbeEDMAnalysis::makeSignalPdf( )
+{
+   if( !CBLineShape_.empty() )
+   {
+      // So we can clean up ...
+      fitCBLineShape_ = true;
+
+      // Signal PDF variables
+      rooCBMean_  = new RooRealVar("cbMean","cbMean",cbMean_[0]);
+      rooCBSigma_ = new RooRealVar("cbSigma","cbSigma",cbSigma_[0]);
+      rooCBAlpha_ = new RooRealVar("cbAlpha","cbAlpha",cbAlpha_[0]);
+      rooCBN_     = new RooRealVar("cbN","cbN",cbN_[0]);
+
+      // If the user has set a range, make the variable float
+      if( cbMean_.size() == 3 )
+      {
+	 rooCBMean_->setRange(cbMean_[1],cbMean_[2]);
+	 rooCBMean_->setConstant(false);
+      }
+      if( cbSigma_.size() == 3 )
+      {
+	 rooCBSigma_->setRange(cbSigma_[1],cbSigma_[2]);
+	 rooCBSigma_->setConstant(false);
+      }
+      if( cbAlpha_.size() == 3 )
+      {
+	 rooCBAlpha_->setRange(cbAlpha_[1],cbAlpha_[2]);
+	 rooCBAlpha_->setConstant(false);
+      }
+      if( cbN_.size() == 3 )
+      {
+	 rooCBN_->setRange(cbN_[1],cbN_[2]);
+	 rooCBN_->setConstant(false);
+      }
+
+      rooCBPdf_ = new RooCBShape("cbPdf","cbPdf",*rooMass_,*rooCBMean_,
+      *rooCBSigma_,*rooCBAlpha_,*rooCBN_);
+
+      rooCBDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
+      *rooCBPdf_,*rooCBPdf_,*rooCBDummyFrac_);
+   }
+   else if( !GaussLineShape_.empty() )
+   {
+      // So we can clean up ...
+      fitGaussLineShape_ = true;
+
+      // Signal PDF variables
+      rooGaussMean_  = new RooRealVar("gaussMean","gaussMean",gaussMean_[0]);
+      rooGaussSigma_ = new RooRealVar("gaussSigma","gaussSigma",gaussSigma_[0]);
+
+      // If the user has set a range, make the variable float
+      if( gaussMean_.size() == 3 )
+      {
+	 rooGaussMean_->setRange(gaussMean_[1],gaussMean_[2]);
+	 rooGaussMean_->setConstant(false);
+      }
+      if( gaussSigma_.size() == 3 )
+      {
+	 rooGaussSigma_->setRange(gaussSigma_[1],gaussSigma_[2]);
+	 rooGaussSigma_->setConstant(false);
+      }
+
+      rooGaussPdf_ = new RooGaussian("gaussPdf","gaussPdf",*rooMass_,*rooGaussMean_,
+      *rooGaussSigma_);
+
+      rooGaussDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
+      *rooGaussPdf_,*rooGaussPdf_,*rooGaussDummyFrac_);
+   }
+   else
+   {
+      // So we can clean up ...
+      fitZLineShape_ = true;
+
+      // Signal PDF variables
+      rooZMean_   = new RooRealVar("zMean","zMean",zMean_[0]);
+      rooZWidth_  = new RooRealVar("zWidth","zWidth",zWidth_[0]);
+      rooZSigma_  = new RooRealVar("zSigma","zSigma",zSigma_[0]);
+      rooZWidthL_ = new RooRealVar("zWidthL","zWidthL",zWidthL_[0]);
+      rooZWidthR_ = new RooRealVar("zWidthR","zWidthR",zWidthR_[0]);
+
+      // If the user has set a range, make the variable float
+      if( zMean_.size() == 3 )
+      {
+	 rooZMean_->setRange(zMean_[1],zMean_[2]);
+	 rooZMean_->setConstant(false);
+      }
+      if( zWidth_.size() == 3 )
+      {
+	 rooZWidth_->setRange(zWidth_[1],zWidth_[2]);
+	 rooZWidth_->setConstant(false);
+      }
+      if( zSigma_.size() == 3 )
+      {
+	 rooZSigma_->setRange(zSigma_[1],zSigma_[2]);
+	 rooZSigma_->setConstant(false);
+      }
+      if( zWidthL_.size() == 3 )
+      {
+	 rooZWidthL_->setRange(zWidthL_[1],zWidthL_[2]);
+	 rooZWidthL_->setConstant(false);
+      }
+      if( zWidthR_.size() == 3 )
+      {
+	 rooZWidthR_->setRange(zWidthR_[1],zWidthR_[2]);
+	 rooZWidthR_->setConstant(false);
+      }
+      // Voigtian
+      rooZVoigtPdf_ = new RooVoigtian("zVoigtPdf", "zVoigtPdf", 
+      *rooMass_, *rooZMean_, *rooZWidth_, *rooZSigma_);
+
+      // Bifurcated Gaussian
+      rooZBifurGaussPdf_ = new RooBifurGauss("zBifurGaussPdf", "zBifurGaussPdf", 
+      *rooMass_, *rooZMean_, *rooZWidthL_, *rooZWidthR_);
+      
+      // Bifurcated Gaussian fraction
+      rooZBifurGaussFrac_ = new RooRealVar("zBifurGaussFrac","zBifurGaussFrac",zBifurGaussFrac_[0]);
+      if( zBifurGaussFrac_.size() == 3 )
+      {
+	 rooZBifurGaussFrac_->setRange(zBifurGaussFrac_[1],zBifurGaussFrac_[2]);
+	 rooZBifurGaussFrac_->setConstant(false);
+      } 
+
+      // The total signal PDF
+      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
+      *rooZVoigtPdf_,*rooZBifurGaussPdf_,*rooZBifurGaussFrac_);
+   }
+
+   return;
+}
+
+// ***** Function to return the background Pdf depending on the users choice of fit func ******* //
+void TagProbeEDMAnalysis::makeBkgPdf( )
+{
+   // So we can clean up ...
+   fitCMSBkgLineShape_ = true;
+
+   // Background PDF variables
+   rooCMSBkgPeak_  = new RooRealVar("cmsBkgPeak","cmsBkgPeak",cmsBkgPeak_[0]);
+   rooCMSBkgBeta_ = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
+   rooCMSBkgAlpha_ = new RooRealVar("cmsBkgAlpha","cmsBkgAlpha",cmsBkgAlpha_[0]);
+   rooCMSBkgGamma_     = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
+
+   // If the user has specified a range, let the bkg shape 
+   // variables float in the fit
+   if( cmsBkgAlpha_.size() == 3 )
+   {
+      rooCMSBkgAlpha_->setRange(cmsBkgAlpha_[1],cmsBkgAlpha_[2]);
+      rooCMSBkgAlpha_->setConstant(false);
+   }
+   if( cmsBkgBeta_.size() == 3 )
+   {
+      rooCMSBkgBeta_->setRange(cmsBkgBeta_[1],cmsBkgBeta_[2]);
+      rooCMSBkgBeta_->setConstant(false);
+   }
+   if( cmsBkgGamma_.size() == 3 )
+   {
+      rooCMSBkgGamma_->setRange(cmsBkgGamma_[1],cmsBkgGamma_[2]);
+      rooCMSBkgGamma_->setConstant(false);
+   }
+   if( cmsBkgPeak_.size() == 3 )
+   {
+      rooCMSBkgPeak_->setRange(cmsBkgPeak_[1],cmsBkgPeak_[2]);
+      rooCMSBkgPeak_->setConstant(false);
+   }
+
+   rooCMSBkgPdf_ = new RooCMSShapePdf("cmsBkgPdf","cmsBkgPdf",*rooMass_,*rooCMSBkgAlpha_,
+   *rooCMSBkgBeta_,*rooCMSBkgGamma_,*rooCMSBkgPeak_);
+
+   rooCMSBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+   bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
+   *rooCMSBkgPdf_,*rooCMSBkgPdf_,*rooCMSBkgDummyFrac_);
+
+   return;
+}
+
 
 // ****************** Function to perform the efficiency fit ************ //
 
@@ -1086,8 +1298,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
                                  double &eff, double &err, bool is2D )
 {
    // The fit variable - lepton invariant mass
-   RooRealVar Mass("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
-   Mass.setBins(massNbins_);
+   rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
+   rooMass_->setBins(massNbins_);
+   RooRealVar Mass = *rooMass_;
 
    // The binning variables
    string bunits = "GeV";
@@ -1125,93 +1338,12 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    RooArgList(Mass,ProbePass),*data);
 
    // ********** Construct signal shape PDF ********** //
-   // Signal PDF variables
-   RooRealVar signalMean("signalMean","signalMean",signalMean_[0]);
-   RooRealVar signalWidth("signalWidth","signalWidth",signalWidth_[0]);
-   RooRealVar signalSigma("signalSigma","signalSigma",signalSigma_[0]);
-   RooRealVar signalWidthL("signalWidthL","signalWidthL",signalWidthL_[0]);
-   RooRealVar signalWidthR("signalWidthR","signalWidthR",signalWidthR_[0]);
 
-   // If the user has set a range, make the variable float
-   if( signalMean_.size() == 3 )
-   {
-      signalMean.setRange(signalMean_[1],signalMean_[2]);
-      signalMean.setConstant(false);
-   }
-   if( signalWidth_.size() == 3 )
-   {
-      signalWidth.setRange(signalWidth_[1],signalWidth_[2]);
-      signalWidth.setConstant(false);
-   }
-   if( signalSigma_.size() == 3 )
-   {
-      signalSigma.setRange(signalSigma_[1],signalSigma_[2]);
-      signalSigma.setConstant(false);
-   }
-   if( signalWidthL_.size() == 3 )
-   {
-      signalWidthL.setRange(signalWidthL_[1],signalWidthL_[2]);
-      signalWidthL.setConstant(false);
-   }
-   if( signalWidthR_.size() == 3 )
-   {
-      signalWidthR.setRange(signalWidthR_[1],signalWidthR_[2]);
-      signalWidthR.setConstant(false);
-   }
-   // Voigtian
-   RooVoigtian signalVoigtPdf("signalVoigtPdf", "signalVoigtPdf", 
-   Mass, signalMean, signalWidth, signalSigma);
-
-   // Bifurcated Gaussian
-   RooBifurGauss signalGaussBifurPdf("signalGaussBifurPdf", "signalGaussBifurPdf", 
-   Mass, signalMean, signalWidthL, signalWidthR);
-
-   // Bifurcated Gaussian fraction
-   RooRealVar bifurGaussFrac("bifurGaussFrac","bifurGaussFrac",bifurGaussFrac_[0]);
-   if( bifurGaussFrac_.size() == 3 )
-   {
-      bifurGaussFrac.setRange(bifurGaussFrac_[1],bifurGaussFrac_[2]);
-      bifurGaussFrac.setConstant(false);
-   } 
-
-   // The total signal PDF
-   RooAddPdf  signalShapePdf("signalShapePdf", "signalShapePdf",
-   signalVoigtPdf,signalGaussBifurPdf,bifurGaussFrac);
+   makeSignalPdf();
 
    // ********** Construct background shape PDF ********** //
 
-   // Background PDF variables
-   RooRealVar bkgAlpha("bkgAlpha","bkgAlpha",bkgAlpha_[0]);
-   RooRealVar bkgBeta("bkgBeta","bkgBeta",bkgBeta_[0]);
-   RooRealVar bkgGamma("bkgGamma","bkgGamma",bkgGamma_[0]);
-   RooRealVar bkgPeak("bkgPeak","bkgPeak",bkgPeak_[0]);
-
-   // If the user has specified a range, let the bkg shape 
-   // variables float in the fit
-   if( bkgAlpha_.size() == 3 )
-   {
-      bkgAlpha.setRange(bkgAlpha_[1],bkgAlpha_[2]);
-      bkgAlpha.setConstant(false);
-   }
-   if( bkgBeta_.size() == 3 )
-   {
-      bkgBeta.setRange(bkgBeta_[1],bkgBeta_[2]);
-      bkgBeta.setConstant(false);
-   }
-   if( bkgGamma_.size() == 3 )
-   {
-      bkgGamma.setRange(bkgGamma_[1],bkgGamma_[2]);
-      bkgGamma.setConstant(false);
-   }
-   if( bkgPeak_.size() == 3 )
-   {
-      bkgPeak.setRange(bkgPeak_[1],bkgPeak_[2]);
-      bkgPeak.setConstant(false);
-   }
-
-   // CMS Background shape
-   RooCMSShapePdf bkgShapePdf("bkgShapePdf","bkgShapePdf", 
-   Mass,bkgAlpha,bkgBeta,bkgGamma,bkgPeak);
+   makeBkgPdf();
 
    // Now define some efficiency/yield variables  
    RooRealVar efficiency("efficiency","efficiency",efficiency_[0]);
@@ -1246,9 +1378,9 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    RooFormulaVar numSigFail("numSigFail","numSignal*(1.0 - efficiency)", 
    RooArgList(numSignal,efficiency) );
 
-   RooArgList componentspass(signalShapePdf,bkgShapePdf);
+   RooArgList componentspass(*signalShapePdf_,*bkgShapePdf_);
    RooArgList yieldspass(numSigPass, numBkgPass);
-   RooArgList componentsfail(signalShapePdf,bkgShapePdf);
+   RooArgList componentsfail(*signalShapePdf_,*bkgShapePdf_);
    RooArgList yieldsfail(numSigFail, numBkgFail);	  
 
    RooAddPdf sumpass("sumpass","fixed extended sum pdf",componentspass,yieldspass);
@@ -1399,7 +1531,7 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    frame1->SetName("pass");
    data->plotOn(frame1,Cut("ProbePass==1"));
    ProbePass.setLabel("pass");
-   totalPdf.plotOn(frame1,Slice(ProbePass),Components(bkgShapePdf),
+   totalPdf.plotOn(frame1,Slice(ProbePass),Components(*bkgShapePdf_),
    LineColor(kRed),ProjWData(Mass,*data));
    totalPdf.plotOn(frame1,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
    frame1->Draw("e0");
@@ -1410,18 +1542,17 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
    frame2->SetName("fail");
    data->plotOn(frame2,Cut("ProbePass==0"));
    ProbePass.setLabel("fail");
-   totalPdf.plotOn(frame2,Slice(ProbePass),Components(bkgShapePdf),
+   totalPdf.plotOn(frame2,Slice(ProbePass),Components(*bkgShapePdf_),
    LineColor(kRed),ProjWData(Mass,*data));
    totalPdf.plotOn(frame2,Slice(ProbePass),ProjWData(Mass,*data),Precision(1e-5));
    frame2->Draw("e0");
-
 
    c->cd(2);
    RooPlot* frame3 = Mass.frame();
    frame3->SetTitle("All Tag-Probes");
    frame3->SetName("total");
    data->plotOn(frame3);
-   totalPdf.plotOn(frame3,Components(bkgShapePdf),
+   totalPdf.plotOn(frame3,Components(*bkgShapePdf_),
    LineColor(kRed),ProjWData(Mass,*data));
    totalPdf.plotOn(frame3,ProjWData(Mass,*data),Precision(1e-5));
    totalPdf.paramOn(frame3);
@@ -1439,7 +1570,7 @@ void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1
 
 
 // ********** Get the true efficiency from this TTree ********** //
-void TagProbeEDMAnalysis::ZllEffMCTruth()
+void TagProbeEDMAnalysis::TPEffMCTruth()
 {
    // Loop over the number of different types of 
    // efficiency measurement in the input tree
@@ -1471,7 +1602,7 @@ void TagProbeEDMAnalysis::ZllEffMCTruth()
 
 
 // ********** Get the true 2D efficiency from this TTree ********** //
-void TagProbeEDMAnalysis::ZllEffMCTruth2D()
+void TagProbeEDMAnalysis::TPEffMCTruth2D()
 {
    // Loop over the number of different types of 
    // efficiency measurement in the input tree
@@ -1501,10 +1632,10 @@ void TagProbeEDMAnalysis::CalculateEfficiencies()
 
    if( calcEffsTruth_ ) 
    {
-      ZllEffMCTruth();
+      TPEffMCTruth();
 
       // 2D MC Truth
-      if( do2DFit_ ) ZllEffMCTruth2D();
+      if( do2DFit_ ) TPEffMCTruth2D();
    }
 
    if( calcEffsFitter_ || calcEffsSB_ )
@@ -1519,26 +1650,26 @@ void TagProbeEDMAnalysis::CalculateEfficiencies()
       if( calcEffsFitter_ )
       {
 	 // We have filled the simple tree ... call the fitter
-	 ZllEffFitter( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
-	 ZllEffFitter( fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
+	 TPEffFitter( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
+	 TPEffFitter( fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
 
 	 // 2D Fit
 	 if( do2DFit_ )
 	 {
-	    ZllEffFitter2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
+	    TPEffFitter2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
 	 }
       }
 
       if( calcEffsSB_ )
       {
 	 // We have filled the simple tree ... call side band subtraction
-	 ZllEffSBS(  fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
-	 ZllEffSBS(  fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
+	 TPEffSBS(  fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
+	 TPEffSBS(  fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
 
 	 // 2D SBS
 	 if( do2DFit_ )
 	 {
-	    ZllEffSBS2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
+	    TPEffSBS2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
 	 }
       }
    }
@@ -1562,6 +1693,8 @@ TagProbeEDMAnalysis::beginJob(const edm::EventSetup&)
 void 
 TagProbeEDMAnalysis::endJob() 
 {
+   //return;
+
    // Check for the various modes ...
    if( mode_ == "Write" )
    {

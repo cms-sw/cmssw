@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.5 2008/10/07 20:48:24 neadam Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.6 2008/10/17 16:03:19 neadam Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
 
 // ROOT
 
@@ -44,6 +45,29 @@
 #include <TH2F.h>
 #include <TTree.h>
 
+// RooFit headers
+#include <RooAbsData.h>
+#include <RooDataSet.h>
+#include <RooAddPdf.h>
+#include <RooBifurGauss.h>
+#include <RooBreitWigner.h>
+#include <RooCategory.h>
+#include <RooCatType.h>
+#include <RooCBShape.h>
+#include <RooChi2Var.h>
+#include <RooDataHist.h>
+#include <RooFitResult.h>
+#include <RooGaussian.h>
+#include <RooGenericPdf.h>
+#include <RooGlobalFunc.h>
+#include <RooLandau.h>
+#include <RooMinuit.h>
+#include <RooNLLVar.h>
+#include <RooPlot.h>
+#include <RooRealVar.h>
+#include <RooSimultaneous.h>
+#include <RooTreeData.h>
+#include <RooVoigtian.h>
 
 
 class TagProbeEDMAnalysis : public edm::EDAnalyzer
@@ -60,20 +84,24 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       int SaveHistogram(TH1F& Histo, std::string outFileName, Int_t LogY);
 
       void SideBandSubtraction(const TH1F& Total, TH1F& Result, Double_t Peak, Double_t SD);
-      void ZllEffFitter( std::string &fileName, std::string &bvar, std::vector<double> bins,
+      void TPEffFitter( std::string &fileName, std::string &bvar, std::vector<double> bins,
 			 std::string &bvar2, double bvar2Lo, double bvar2Hi );
-      void ZllEffFitter2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
+      void TPEffFitter2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
 			   std::string &bvar2, std::vector<double> bins2 );
-      void ZllEffSBS( std::string &fileName, std::string &bvar, std::vector<double> bins,
+      void TPEffSBS( std::string &fileName, std::string &bvar, std::vector<double> bins,
 		      std::string &bvar2, double bvar2Lo, double bvar2Hi );
-      void ZllEffSBS2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
+      void TPEffSBS2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
 			std::string &bvar2, std::vector<double> bins2 );
+      void makeSignalPdf();
+      void makeBkgPdf();
       void doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
 		  std::string &bvar2, std::vector<double> bins2, int bin2, 
                   double &eff, double &err, bool is2D = false );
 
-      void ZllEffMCTruth();
-      void ZllEffMCTruth2D();
+
+
+      void TPEffMCTruth();
+      void TPEffMCTruth2D();
 
       void CalculateEfficiencies();
 
@@ -124,18 +152,134 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer
       double var2High_;              // Upper bound for var2 eff range
       std::vector<double> var2Bins_; // Bin boundaries for var2 if non-uniform desired
 
-      std::vector<double> signalMean_;       // Fit mean
-      std::vector<double> signalWidth_;      // Fit width
-      std::vector<double> signalSigma_;      // Fit sigma
-      std::vector<double> signalWidthL_;     // Fit left width
-      std::vector<double> signalWidthR_;     // Fit right width
 
-      std::vector<double> bifurGaussFrac_;   // Fraction of signal shape from bifur Gauss
+      // Parameter set fo the available fit functions 
 
-      std::vector<double> bkgAlpha_;         // Fit background shape alpha
-      std::vector<double> bkgBeta_;          // Fit background shape beta
-      std::vector<double> bkgPeak_;          // Fit background shape peak
-      std::vector<double> bkgGamma_;         // Fit background shape gamma
+      // The signal & background Pdf & Fit variable
+      RooRealVar *rooMass_;
+      RooAddPdf  *signalShapePdf_;
+      RooAddPdf  *bkgShapePdf_;
+      
+      // 1. Z line shape
+      bool fitZLineShape_;
+      edm::ParameterSet   ZLineShape_;
+      std::vector<double> zMean_;       // Fit mean
+      std::vector<double> zWidth_;      // Fit width
+      std::vector<double> zSigma_;      // Fit sigma
+      std::vector<double> zWidthL_;     // Fit left width
+      std::vector<double> zWidthR_;     // Fit right width
+      std::vector<double> zBifurGaussFrac_;   // Fraction of signal shape from bifur Gauss
+
+      // Private variables/functions needed for ZLineShape
+      RooRealVar *rooZMean_;
+      RooRealVar *rooZWidth_;
+      RooRealVar *rooZSigma_;
+      RooRealVar *rooZWidthL_;
+      RooRealVar *rooZWidthR_;
+      RooRealVar *rooZBifurGaussFrac_;
+
+      RooVoigtian   *rooZVoigtPdf_;
+      RooBifurGauss *rooZBifurGaussPdf_;
+
+      // 2. Crystal Ball Line Shape
+      bool fitCBLineShape_;
+      edm::ParameterSet   CBLineShape_;
+      std::vector<double> cbMean_;           // Fit mean
+      std::vector<double> cbSigma_;          // Fit sigma
+      std::vector<double> cbAlpha_;          // Fit alpha
+      std::vector<double> cbN_;              // Fit n
+
+      // Private variables/functions needed for CBLineShape
+      RooRealVar *rooCBMean_;
+      RooRealVar *rooCBSigma_;
+      RooRealVar *rooCBAlpha_;
+      RooRealVar *rooCBN_;
+      RooRealVar *rooCBDummyFrac_;
+
+      RooCBShape *rooCBPdf_;
+
+      // 3. Plain old Gaussian Line Shape
+      bool fitGaussLineShape_;
+      edm::ParameterSet   GaussLineShape_;
+      std::vector<double> gaussMean_;           // Fit mean
+      std::vector<double> gaussSigma_;          // Fit sigma
+
+      // Private variables/functions needed for CBLineShape
+      RooRealVar  *rooGaussMean_;
+      RooRealVar  *rooGaussSigma_;
+      RooRealVar  *rooGaussDummyFrac_;
+
+      RooGaussian *rooGaussPdf_;
+
+      // The background Pdf and fit variables
+
+      // 1. CMS Background shape
+      bool fitCMSBkgLineShape_;
+      edm::ParameterSet   CMSBkgLineShape_;
+      std::vector<double> cmsBkgAlpha_;         // Fit background shape alpha
+      std::vector<double> cmsBkgBeta_;          // Fit background shape beta
+      std::vector<double> cmsBkgPeak_;          // Fit background shape peak
+      std::vector<double> cmsBkgGamma_;         // Fit background shape gamma
+
+      RooRealVar *rooCMSBkgAlpha_;
+      RooRealVar *rooCMSBkgBeta_;
+      RooRealVar *rooCMSBkgPeak_;
+      RooRealVar *rooCMSBkgGamma_;
+      RooRealVar *rooCMSBkgDummyFrac_;
+
+      RooCMSShapePdf *rooCMSBkgPdf_;
+
+      void cleanFitVariables()
+      {
+	 if( !calcEffsFitter_ ) return;
+
+	 if( rooMass_ != NULL )               delete rooMass_;
+	 if( signalShapePdf_ != NULL )        delete signalShapePdf_;
+
+	 // Clean Z line shape
+	 if( fitZLineShape_ )
+	 {
+	    if( rooZMean_ != NULL )           delete rooZMean_;
+	    if( rooZWidth_ != NULL )          delete rooZWidth_;
+	    if( rooZSigma_ != NULL )          delete rooZSigma_;
+	    if( rooZWidthL_ != NULL )         delete rooZWidthL_;
+	    if( rooZWidthR_ != NULL )         delete rooZWidthR_;
+	    if( rooZBifurGaussFrac_ != NULL ) delete rooZBifurGaussFrac_;
+	    if( rooZVoigtPdf_ != NULL )       delete rooZVoigtPdf_;
+	    if( rooZBifurGaussPdf_ != NULL )  delete rooZBifurGaussPdf_;
+	 }
+
+	 if( fitCBLineShape_ )
+	 {
+	    // Clean CB line shape
+	    if( rooCBMean_ != NULL )           delete rooCBMean_;
+	    if( rooCBSigma_ != NULL )          delete rooCBSigma_;
+	    if( rooCBAlpha_ != NULL )          delete rooCBAlpha_;
+	    if( rooCBN_ != NULL )              delete rooCBN_;
+	    if( rooCBDummyFrac_ != NULL )      delete rooCBDummyFrac_;
+	    if( rooCBPdf_ != NULL )            delete rooCBPdf_;
+	 }
+
+	 if( fitGaussLineShape_ )
+	 {
+	    // Clean Gauss line shape
+	    if( rooGaussMean_ != NULL )           delete rooGaussMean_;
+	    if( rooGaussSigma_ != NULL )          delete rooGaussSigma_;
+	    if( rooGaussDummyFrac_ != NULL )      delete rooGaussDummyFrac_;
+	    if( rooGaussPdf_ != NULL )            delete rooGaussPdf_;
+	 }
+
+	 if( fitCMSBkgLineShape_ )
+	 {
+	    // Clean CMS Bkg line shape
+	    if( rooCMSBkgAlpha_ != NULL )          delete rooCMSBkgAlpha_;
+	    if( rooCMSBkgBeta_ != NULL )           delete rooCMSBkgBeta_;
+	    if( rooCMSBkgPeak_ != NULL )           delete rooCMSBkgPeak_;
+	    if( rooCMSBkgGamma_ != NULL )          delete rooCMSBkgGamma_;
+	    if( rooCMSBkgDummyFrac_ != NULL )      delete rooCMSBkgDummyFrac_;
+	    if( rooCMSBkgPdf_ != NULL )            delete rooCMSBkgPdf_;
+	 }
+      }
 
       std::vector<double> efficiency_;       // Signal efficiency from fit
       std::vector<double> numSignal_;        // Signal events from fit
