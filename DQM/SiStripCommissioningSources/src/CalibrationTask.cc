@@ -110,6 +110,7 @@ void CalibrationTask::fill( const SiStripEventSummary& summary,
       updateHistoSet( calib_[apv*16+k],bin,digis.data[apv*128+ical+k*8].adc()-ped[apv*128+ical+k*8]-(digis.data[apv*128+isub+k*8].adc()-ped[apv*128+isub+k*8]));
     }
   }
+  if(bin>=62) update(); //TODO: temporary: find a better solution later
 }
 
 // -----------------------------------------------------------------------------
@@ -128,6 +129,7 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
   if(lastCalChan_==8) {
     // set new parameter value
     lastCalChan_ = calchan;
+    calchanElement_->Fill(lastCalChan_);
     return;
   }
 
@@ -136,7 +138,7 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
   if(calchan!=lastCalChan_) {
     
     // set histograms before saving
-    update();
+    update(); //TODO: we must do this for all tasks, otherwise only the first is updated.
 
     // change the title
     for(int apv=0;apv<2;++apv) {
@@ -154,8 +156,6 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
 	calib_[apv*16+i].histo()->setAxisTitle(title);
       }
     }
-    // set the calchan value in the correspond string
-    calchanElement_->Fill(lastCalChan_);
 
     // Strip filename of ".root" extension
     std::string name;
@@ -204,6 +204,7 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
     }
     // set new parameter values
     lastCalChan_ = calchan;
+    calchanElement_->Fill(lastCalChan_);
   }
 }
 

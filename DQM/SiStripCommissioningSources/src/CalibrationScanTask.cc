@@ -39,6 +39,8 @@ CalibrationScanTask::CalibrationScanTask( DQMStore* dqm,
   int stop  = start + 256;
   int value = 0;
   ped.reserve(256);
+  LogDebug("Commissioning") << "[CalibrationScanTask::CalibrationScanTask] Loading pedestal for " << conn.detId();
+  if(conn.detId()==0) return;
   for(int strip = start; strip < stop; ++strip) {
     value = int(pedestalsHandle->getPed(strip,detPedRange));
     if(value>895) value -= 1024;
@@ -125,6 +127,7 @@ void CalibrationScanTask::fill( const SiStripEventSummary& summary,
     updateHistoSet( calib1_,bin,digis.data[ical+k*8].adc()-ped[ical+k*8]-(digis.data[isub+k*8].adc()-ped[isub+k*8]));
     updateHistoSet( calib2_,bin,digis.data[128+ical+k*8].adc()-ped[128+ical+k*8]-(digis.data[128+isub+k*8].adc()-ped[128+isub+k*8]));
   }
+  if(bin>=62) update(); //TODO: temporary: find a better solution later
 }
 
 // -----------------------------------------------------------------------------
@@ -144,12 +147,17 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
     lastVFS_  = vfs;
   }
 
+  // set the calchan value in the correspond string
+  ishaElement_->Fill(lastISHA_);
+  vfsElement_->Fill(lastVFS_);
+  calchanElement_->Fill(lastCalchan_);
+
   // check if ISHA/VFS has changed
   // in that case, save the histograms, reset them, change the title and continue
   if(lastISHA_!=isha || lastVFS_!=vfs) {
 
     // set histograms before saving
-    update();
+    update(); //TODO: we must do this for all tasks, otherwise only the first is updated.
     
     // change the title
     std::stringstream complement;
@@ -171,11 +179,6 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
 					    connection().i2cAddr(1),
 					    complement.str() ).title(); 
     calib2_.histo()->setTitle(title2);
-
-    // set the calchan value in the correspond string
-    ishaElement_->Fill(lastISHA_);
-    vfsElement_->Fill(lastVFS_);
-    calchanElement_->Fill(lastCalchan_);
 
     // Strip filename of ".root" extension
     std::string name;
@@ -226,6 +229,10 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
     // set new parameter values
     lastISHA_=isha;
     lastVFS_=vfs;
+    // set the calchan value in the correspond string
+    ishaElement_->Fill(lastISHA_);
+    vfsElement_->Fill(lastVFS_);
+    calchanElement_->Fill(lastCalchan_);
   }
 }
 
