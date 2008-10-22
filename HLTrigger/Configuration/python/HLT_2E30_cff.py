@@ -1,10 +1,10 @@
-# /dev/CMSSW_2_1_10/HLT/V17 (CMSSW_2_1_10)
+# /dev/CMSSW_2_2_0_pre0/HLT/V1 (CMSSW_3_0_X_2008-10-21-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_2_1_10/HLT/V17')
+  tableName = cms.string('/dev/CMSSW_2_2_0_pre0/HLT/V1')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -20,7 +20,8 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
-  MaxDPhi = cms.double( 1.6 )
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
 )
 ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
   label = cms.untracked.string( "parametrizedField" ),
@@ -38,7 +39,8 @@ KFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SteppingHelixPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForL2Refit" ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
   ComponentName = cms.string( "KFTrajectorySmootherForL2Muon" ),
@@ -46,7 +48,8 @@ KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer"
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForL2Refit" ),
   errorRescaling = cms.double( 100.0 ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "KFFitterSmootherForL2Muon" ),
@@ -56,7 +59,8 @@ KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  NoInvalidHitsBeginEnd = cms.bool( False )
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
@@ -93,14 +97,16 @@ CkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( True )
+  alwaysUseInvalidHits = cms.bool( True ),
+  appendToDataLabel = cms.string( "" )
 )
 FitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   ComponentName = cms.string( "FitterRK" ),
   Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "FittingSmootherRK" ),
@@ -110,7 +116,8 @@ FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  NoInvalidHitsBeginEnd = cms.bool( False )
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
 GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProducer",
@@ -122,6 +129,8 @@ GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProd
   TTRHBuilder = cms.string( "WithTrackAngle" ),
   MeasurementTrackerName = cms.string( "" ),
   trajectoryFilterName = cms.string( "ckfBaseTrajectoryFilter" ),
+  inOutTrajectoryFilterName = cms.string( "" ),
+  useSameTrajFilter = cms.bool( True ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   foundHitBonus = cms.double( 5.0 ),
@@ -130,14 +139,16 @@ GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProd
   lockHits = cms.bool( True ),
   bestHitOnly = cms.bool( True ),
   requireSeedHitsInRebuild = cms.bool( True ),
-  minNrOfHitsForRebuild = cms.int32( 5 )
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFFitterForRefitInsideOut = cms.ESProducer( "KFTrajectoryFitterESProducer",
   ComponentName = cms.string( "KFFitterForRefitInsideOut" ),
   Propagator = cms.string( "SmartPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForRefit" ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFSmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
   ComponentName = cms.string( "KFSmootherForMuonTrackLoader" ),
@@ -145,7 +156,8 @@ KFSmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForMuonTrackLoader" ),
   errorRescaling = cms.double( 10.0 ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFSmootherForRefitInsideOut = cms.ESProducer( "KFTrajectorySmootherESProducer",
   ComponentName = cms.string( "KFSmootherForRefitInsideOut" ),
@@ -153,7 +165,8 @@ KFSmootherForRefitInsideOut = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForRefit" ),
   errorRescaling = cms.double( 100.0 ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFUpdatorESProducer = cms.ESProducer( "KFUpdatorESProducer",
   ComponentName = cms.string( "KFUpdator" )
@@ -163,7 +176,8 @@ L3MuKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SmartPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForL3Refit" ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "PropagatorWithMaterial" ),
@@ -255,42 +269,48 @@ SmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
   PropagationDirection = cms.string( "alongMomentum" ),
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAlong" )
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAlong" ),
+  appendToDataLabel = cms.string( "" )
 )
 SmartPropagatorAny = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "SmartPropagatorAny" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" )
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+  appendToDataLabel = cms.string( "" )
 )
 SmartPropagatorAnyOpposite = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "SmartPropagatorAnyOpposite" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" )
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+  appendToDataLabel = cms.string( "" )
 )
 SmartPropagatorAnyRK = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "SmartPropagatorAnyRK" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "RKTrackerPropagator" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" )
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+  appendToDataLabel = cms.string( "" )
 )
 SmartPropagatorOpposite = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "SmartPropagatorOpposite" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorOpposite" )
+  MuonPropagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+  appendToDataLabel = cms.string( "" )
 )
 SmartPropagatorRK = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "SmartPropagatorRK" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "RKTrackerPropagator" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAlong" )
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAlong" ),
+  appendToDataLabel = cms.string( "" )
 )
 SmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
   ComponentName = cms.string( "SmootherRK" ),
@@ -298,7 +318,8 @@ SmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
   errorRescaling = cms.double( 100.0 ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 SteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   ComponentName = cms.string( "SteppingHelixPropagatorAlong" ),
@@ -377,10 +398,12 @@ bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer"
   maxCand = cms.int32( 1 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "bJetRegionalTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -395,6 +418,7 @@ bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
 )
 ckfBaseTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "ckfBaseTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -419,7 +443,8 @@ hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 3 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 hltCkfTrajectoryBuilderMumuk = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryBuilderMumuk" ),
@@ -433,10 +458,12 @@ hltCkfTrajectoryBuilderMumuk = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 3 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryFilterMumu" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -451,6 +478,7 @@ hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
 )
 hltCkfTrajectoryFilterMumuk = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryFilterMumuk" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -465,6 +493,7 @@ hltCkfTrajectoryFilterMumuk = cms.ESProducer( "TrajectoryFilterESProducer",
 )
 muonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "muonCkfTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
     maxLostHits = cms.int32( 1 ),
@@ -481,6 +510,7 @@ navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "SimpleNavigationSchool" )
 )
 pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
+  appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
@@ -514,15 +544,18 @@ TTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProduc
   ComponentName = cms.string( "TTRHBuilderPixelOnly" ),
   StripCPE = cms.string( "Fake" ),
   PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" )
+  Matcher = cms.string( "StandardMatcher" ),
+  appendToDataLabel = cms.string( "" )
 )
 WithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "WithTrackAngle" ),
   StripCPE = cms.string( "StripCPEfromTrackAngle" ),
   PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" )
+  Matcher = cms.string( "StandardMatcher" ),
+  appendToDataLabel = cms.string( "" )
 )
 pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
+  appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
     'BPix1+BPix2+FPix1_pos',
@@ -568,10 +601,12 @@ trajBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False )
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "trajFilterL3" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -585,7 +620,9 @@ trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
   )
 )
 trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "TrajectoryCleanerBySharedHits" )
+  ComponentName = cms.string( "TrajectoryCleanerBySharedHits" ),
+  appendToDataLabel = cms.string( "" ),
+  fractionShared = cms.double( 0.5 )
 )
 
 UpdaterService = cms.Service( "UpdaterService",
@@ -1899,7 +1936,9 @@ hltCkfL1IsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfL1IsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -1954,7 +1993,9 @@ hltL1IsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidate
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1IsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2270,7 +2311,9 @@ hltCkfL1NonIsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfL1NonIsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2325,7 +2368,9 @@ hltL1NonIsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandid
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1NonIsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2451,7 +2496,9 @@ hltCkfL1IsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker"
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfL1IsoLargeWindowWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2506,7 +2553,9 @@ hltL1IsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTra
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1IsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2640,7 +2689,9 @@ hltCkfL1NonIsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMak
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfL1NonIsoLargeWindowWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2695,7 +2746,9 @@ hltL1NonIsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "Ckf
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1NonIsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2864,7 +2917,9 @@ hltCkfL1IsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfL1IsoStartUpWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2894,7 +2949,9 @@ hltCkfL1NonIsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfL1NonIsoStartUpWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2949,7 +3006,9 @@ hltL1IsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCa
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2991,7 +3050,9 @@ hltL1NonIsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrac
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1NonIsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3286,7 +3347,9 @@ hltL1IsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMak
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1IsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3328,7 +3391,9 @@ hltL1NonIsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidate
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -5466,7 +5531,8 @@ hltL3TrackCandidateFromL2 = cms.EDProducer( "CkfTrajectoryMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    doSeedingRegionRebuilding = cms.bool( False )
+    doSeedingRegionRebuilding = cms.bool( False ),
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL3Muons = cms.EDProducer( "L3MuonProducer",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
@@ -6604,7 +6670,9 @@ hltBLifetimeRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -6735,7 +6803,9 @@ hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.EDProducer( "CkfTrackCandida
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7030,7 +7100,9 @@ hltCkfTrackCandidatesMumu = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfWithMaterialTracksMumu = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7159,7 +7231,9 @@ hltCkfTrackCandidatesMumuk = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfWithMaterialTracksMumuk = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7406,7 +7480,9 @@ hltCkfTrackCandidatesL3SingleTau = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfWithMaterialTracksL3SingleTau = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7595,7 +7671,9 @@ hltCkfTrackCandidatesL3SingleTauMET = cms.EDProducer( "CkfTrackCandidateMaker",
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    fractionShared = cms.double( 0.5 )
 )
 hltCtfWithMaterialTracksL3SingleTauMET = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
