@@ -132,3 +132,19 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
  
 }
 
+// -----------------------------------------------------------------------------
+/** */
+void CalibrationHistograms::printAnalyses() {
+  Analyses::iterator ianal = data().begin();
+  Analyses::iterator janal = data().end();
+  for ( ; ianal != janal; ++ianal ) {
+    if ( ianal->second ) {
+      std::stringstream ss;
+      ianal->second->print( ss,0 );
+      ianal->second->print( ss,1 );
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str();
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+    }
+  }
+}
+

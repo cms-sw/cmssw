@@ -16,6 +16,8 @@ class CalibrationHistograms : virtual public CommissioningHistograms {
   
   void histoAnalysis( bool debug );
 
+  void printAnalyses(); // override
+
  protected: 
 
   int calchan_;
