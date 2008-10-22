@@ -28,7 +28,7 @@ def makePatTupleEventContent(process):
                                                'keep *_genEventWeight_*_*',        ## genEvent info
                                                'keep *_genEventPdfInfo_*_*',       ## genEvent info
                                                'keep *_hltTriggerSummaryAOD_*_*',  ## hlt TriggerEvent
-                                               'keep *_towerMaker_*_*'             ## all caloTowers
+                                               'keep *_towerMaker_*_*',            ## all caloTowers
                                                'keep *_offlineBeamSpot_*_*'        ## offline beamspot
                                                )
     )

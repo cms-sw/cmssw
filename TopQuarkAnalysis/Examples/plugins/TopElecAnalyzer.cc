@@ -107,13 +107,13 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     // --------------------------------------------------
     // get userFunction 
     // --------------------------------------------------
-    std::cout << std::endl;
-    if(elec->userDataObject("relIso")){
-      std::cout << ::std::setw( 12 ) << ::std::left << elec->userDataObject("relIso") << std::endl;
-    }
-    else{
-      std::cout << ::std::setw( 12 ) << ::std::left << "userData ValueMap is empty..." << std::endl;
-    }
+    //std::cout << std::endl;
+    //if(elec->userDataObject("relIso")){
+    //  std::cout << ::std::setw( 12 ) << ::std::left << elec->userDataObject("relIso") << std::endl;
+    //}
+    //else{
+    //  std::cout << ::std::setw( 12 ) << ::std::left << "userData ValueMap is empty..." << std::endl;
+    //}
     
     // --------------------------------------------------
     // get embedded objects
