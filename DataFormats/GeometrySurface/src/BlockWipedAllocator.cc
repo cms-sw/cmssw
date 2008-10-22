@@ -3,19 +3,19 @@
 
 BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
 					  std::size_t blockSize):
-  m_typeSize(typeSize), m_blockSize(blockSize), alive(0){
+  m_typeSize(typeSize), m_blockSize(blockSize), m_alive(0){
   wipe();
 }
   
 
 BlockWipedAllocator::BlockWipedAllocator(BlockWipedAllocator const & rh) :
-  m_typeSize(rh.m_typeSize), m_blockSize(rh.m_blockSize),alive(0) {
+  m_typeSize(rh.m_typeSize), m_blockSize(rh.m_blockSize),m_alive(0) {
   wipe();
 }
 
 BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & rh) {
   m_typeSize=rh.m_typeSize; m_blockSize=rh.m_blockSize;
-  alive=0;
+  m_alive=0;
   wipe();
   return *this;
 }
