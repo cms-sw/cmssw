@@ -45,7 +45,7 @@ RPCEfficiencySecond::~RPCEfficiencySecond(){}
 
 
 void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
-
+  
   dbe = edm::Service<DQMStore>().operator->();
 
   if(debug) std::cout<<"Booking Residuals Barrel"<<std::endl;
@@ -271,8 +271,7 @@ void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
-  if(debug)
-    std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  if(debug) std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   

@@ -229,7 +229,6 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	
 	RPCDetId rpcId = (*r)->id();
 	int region=rpcId.region();
 	//booking all histograms
@@ -361,10 +360,12 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 
 RPCEfficiency::~RPCEfficiency()
 {
+
 }
 
 void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   statistics->Fill(1);
   using namespace edm;
   
@@ -396,9 +397,13 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  int stripDetected=digiIt->strip();
 	  sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
 	  meMap[meIdRPC]->Fill(digiIt->bx());
-	  if(rpcId.region()==0) sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-	  else sprintf(meIdRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
+	  if(rpcId.region()==0){
+	    sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+	  }else {
+	    sprintf(meIdRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
+	  }
 	  meMap[meIdRPC]->Fill(stripDetected); //have a look to this!
+	  
 	}
       }
     }
@@ -728,7 +733,11 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		LocalVector segDirMB4inMB3Frame=DTSurface3.toLocal(DTSurface4.toGlobal(segmentDirectionMB4));
 		
 		double cosAng=fabs(dx*dx3+dz*dz3/sqrt((dx3*dx3+dz3*dz3)*(dx*dx+dz*dz)));
-		assert(fabs(cosAng)<=1.);
+		if(fabs(cosAng)>1.){
+		  std::cout<<"dx="<<dx<<" dz="<<dz<<std::endl;
+		  std::cout<<"dx3="<<dx3<<" dz3="<<dz<<std::endl;
+		  std::cout<<cosAng<<std::endl;
+		}
 		
 		if(cosAng>MinCosAng){
 		  compatiblesegments=true;
@@ -959,7 +968,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	
 	if(debug) std::cout<<"CSC \t \t This Segment is in Chamber id: "<<CSCId<<std::endl;
 	if(debug) std::cout<<"CSC \t \t Number of segments in this CSC = "<<CSCSegmentsCounter[CSCId]<<std::endl;
-	if(debug) std::cout<<"CSC \t \t Is the only one in this CSC? and is not ind the ring 1 or station 4?"<<std::endl;
+	if(debug) std::cout<<"CSC \t \t Is the only one in this CSC? is not ind the ring 1 or station 4? Are there more than 2 segments in the event?"<<std::endl;
 
     	if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1){
 	  if(debug) std::cout<<"CSC \t \t yes"<<std::endl;
@@ -983,8 +992,11 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  LocalPoint segmentPosition= segment->localPosition();
 	  LocalVector segmentDirection=segment->localDirection();
 	
-	  
-	  if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)){ //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
+	  if(debug) std::cout<<"CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 "<<std::endl;
+
+	  if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)){ 
+	    
+	    //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
 
 	    if(debug) std::cout<<"CSC \t \t yes"<<std::endl;
 	    if(debug) std::cout<<"CSC \t \t CSC Segment Dimension "<<segment->dimension()<<std::endl; 
@@ -1201,41 +1213,44 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  stripDetected=digiIt->strip();
 			}
 		      }
-		      if(anycoincidence){
-			assert(stripDetected!=-1);
-			if(debug) std::cout<<"CSC  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
-			if(debug) std::cout<<"CSC  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
-			//----RESIDUALS----
-			if(inves){
-			  if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
-			  if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
-			  if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
-			  if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
-			  if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
-			  if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
-			}
-			//------------------------
-			sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
-			if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
-			meMap[meIdRPC]->Fill(stripPredicted);
+		    }
+		    if(anycoincidence){
+		      assert(stripDetected!=-1);
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t At least onee Strip inside the range Detected"<<stripDetected<<" Predicted"<<stripPredicted<<" range"<<rangestrips<<std::endl;
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t Minimum Residual from Rec Hits="<<minres<<"cm"<<std::endl;
+		      if(debug) std::cout<<"CSC  \t \t \t \t \t Norm of Cosine Directors="<<dx*dx+dy*dy+dz*dz<<"~1?"<<std::endl;
+
+		      //----RESIDUALS----
+		      if(inves){
+			float cosal = dx/sqrt(dx*dx+dz*dz);
+			if(rollId.ring()==2&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);}
+			if(rollId.ring()==2&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);}
+			if(rollId.ring()==2&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);}
+			if(rollId.ring()==3&&rollId.roll()==1){if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);}
+			if(rollId.ring()==3&&rollId.roll()==2){if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);}
+			if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);}
 		      }
-		      else{
-			RPCGeomServ rpcsrv(rollasociated->id());
-			std::string nameRoll = rpcsrv.name();
-			if(debug) std::cout<<"CSC \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
-			if(debug) ofrej<<"CSC \t EndCap "<<rpcRegion
-				       <<"\t cscStation "<<cscStation
-				       <<"\t cscRing "<<cscRing			   
-				       <<"\t cscChamber "<<cscChamber
-				       <<"\t Roll "<<nameRoll
-				       <<"\t Event "<<iEvent.id().event()
-				       <<"\t CSCId "<<CSCId
-				       <<"\t Event "	
-				       <<iEvent.id().event()
-				       <<"\t Run "
-				       <<iEvent.id().run()
-				       <<std::endl;
-		      }
+		      //------------------------
+		      sprintf(meIdRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+		      if(debug) std::cout <<"CSC \t \t \t \t \t \t COINCEDENCE!!! Event="<<iEvent.id()<<"Filling Filling RPC Data Occupancy for "<<meIdRPC<<" with "<<stripPredicted<<std::endl;
+		      meMap[meIdRPC]->Fill(stripPredicted);
+		    }
+		    else{
+		      RPCGeomServ rpcsrv(rollasociated->id());
+		      std::string nameRoll = rpcsrv.name();
+		      if(debug) std::cout<<"CSC \t \t \t \t \t \t A roll was ineficient in event"<<iEvent.id().event()<<std::endl;
+		      if(debug) ofrej<<"CSC \t EndCap "<<rpcRegion
+				     <<"\t cscStation "<<cscStation
+				     <<"\t cscRing "<<cscRing			   
+				     <<"\t cscChamber "<<cscChamber
+				     <<"\t Roll "<<nameRoll
+				     <<"\t Event "<<iEvent.id().event()
+				     <<"\t CSCId "<<CSCId
+				     <<"\t Event "	
+				     <<iEvent.id().event()
+				     <<"\t Run "
+				     <<iEvent.id().run()
+				     <<std::endl;
 		    }
 		  }else{
 		    if(debug) std::cout<<"CSC \t \t \t \t No the prediction is outside of this roll"<<std::endl;
