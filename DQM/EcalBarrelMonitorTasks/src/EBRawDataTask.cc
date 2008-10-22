@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/10/20 16:52:05 $
- * $Revision: 1.8 $
+ * $Date: 2008/10/20 17:14:05 $
+ * $Revision: 1.9 $
  * \author E. Di Marco
  *
 */
@@ -504,18 +504,18 @@ void EBRawDataTask::analyze(const Event& e, const EventSetup& c){
 
         if ( ECALDCC_BunchCrossing != calibrationBX_ ) {
           if ( evtType != EcalDCCHeaderBlock::COSMIC &&
-               evtType == EcalDCCHeaderBlock::MTCC &&
-               evtType == EcalDCCHeaderBlock::COSMICS_GLOBAL &&
-               evtType == EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
-               evtType == EcalDCCHeaderBlock::COSMICS_LOCAL &&
-               evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBTriggerTypeErrors_->Fill( xism );
+               evtType != EcalDCCHeaderBlock::MTCC &&
+               evtType != EcalDCCHeaderBlock::COSMICS_GLOBAL &&
+               evtType != EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
+               evtType != EcalDCCHeaderBlock::COSMICS_LOCAL &&
+               evtType != EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBGapErrors_->Fill( xism );
         } else {
           if ( evtType == EcalDCCHeaderBlock::COSMIC ||
                evtType == EcalDCCHeaderBlock::MTCC ||
                evtType == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
                evtType == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
                evtType == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBTriggerTypeErrors_->Fill( xism );
+               evtType == EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEBGapErrors_->Fill( xism );
         }
 
       }
