@@ -20,13 +20,13 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     TkSizeMin = cms.double(-0.5),
     TkSizeMax = cms.double(499.5),
 
-    TrackPtBin = cms.int32(100),
-    TrackPtMin = cms.double(-0.5),
-    TrackPtMax = cms.double(30.0),
+    TrackPtBin = cms.int32(500),
+    TrackPtMin = cms.double(0),
+    TrackPtMax = cms.double(500),
 
-    ptErrBin = cms.int32(500),
+    ptErrBin = cms.int32(100),
     ptErrMin = cms.double(0.0),
-    ptErrMax = cms.double(1000.0),
+    ptErrMax = cms.double(10.0),
 
     D0Max = cms.double(0.5),
     D0Min = cms.double(-0.5),                        
@@ -85,20 +85,20 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     TrackPyMax = cms.double(50.0),
 
     pErrBin = cms.int32(1000),
-    pErrMin = cms.double(-1000.0),
-    pErrMax = cms.double(1000.0),
+    pErrMin = cms.double(-500.0),
+    pErrMax = cms.double(500.0),
 
-    pxErrBin = cms.int32(1000),
-    pxErrMax = cms.double(1000.0),
-    pxErrMin = cms.double(-1000.0),
+    pxErrBin = cms.int32(200),
+    pxErrMax = cms.double(10.0),
+    pxErrMin = cms.double(-10.0),
 
-    pyErrBin = cms.int32(1000),                        
-    pyErrMin = cms.double(-1000.0),
-    pyErrMax = cms.double(1000.0),
+    pyErrBin = cms.int32(200),                        
+    pyErrMin = cms.double(-10.0),
+    pyErrMax = cms.double(10.0),
 
-    pzErrBin = cms.int32(1000),
-    pzErrMin = cms.double(-1000.0),
-    pzErrMax = cms.double(1000.0)
+    pzErrBin = cms.int32(200),
+    pzErrMin = cms.double(-10.0),
+    pzErrMax = cms.double(10.0)
 
 )
 
