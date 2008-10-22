@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/22 10:23:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/25 14:17:23 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -38,26 +38,27 @@ using namespace std;
 
 
 DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
-
-  edm::LogVerbatim ("noise") << "[DTNoiseAnalysisTest]: Constructor";
+  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
   dbe = edm::Service<DQMStore>().operator->();
 
   // get the cfi parameters
   noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef",500);
 
+  // switch on/off the summaries for the Synchronous noise
+  doSynchNoise = ps.getUntrackedParameter<bool>("doSynchNoise", false);;
+
+
 }
 
 
 DTNoiseAnalysisTest::~DTNoiseAnalysisTest(){
-
-  edm::LogVerbatim ("noise") << "DTNoiseAnalysisTest: analyzed " << nevents << " events";
+  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "DTNoiseAnalysisTest: analyzed " << nevents << " events";
 }
 
 
 void DTNoiseAnalysisTest::beginJob(const edm::EventSetup& context){
-
-  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: BeginJob"; 
+  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") <<"[DTNoiseAnalysisTest]: BeginJob"; 
 
   nevents = 0;
   // Get the geometry
@@ -71,19 +72,20 @@ void DTNoiseAnalysisTest::beginJob(const edm::EventSetup& context){
 
 void DTNoiseAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: Begin of LS transition";
+  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") <<"[DTNoiseAnalysisTest]: Begin of LS transition";
 }
 
 
 void DTNoiseAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
-  edm::LogVerbatim ("noise") << "[DTNoiseAnalysisTest]: "<<nevents<<" events";
-
+  if(nevents%1000 == 0) LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+    << "[DTNoiseAnalysisTest]: "<<nevents<<" events";
 }
 
 void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
+  LogVerbatim ("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+    <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // Reset the summary plots
   for(map<int, MonitorElement* >::iterator plot =  noiseHistos.begin();
@@ -103,14 +105,15 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
   
-  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: Fill the summary histos";
+  LogTrace ("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+    <<"[DTNoiseAnalysisTest]: Fill the summary histos";
 
   for (; ch_it != ch_end; ++ch_it) { // loop over chambers
     DTChamberId chID = (*ch_it)->id();
     
     MonitorElement * histo = dbe->get(getMEName(chID));
     
-    if(histo){ // check the pointer
+    if(histo) { // check the pointer
       
       TH2F * histo_root = histo->getTH2F();
       
@@ -151,6 +154,36 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
       }
     }
   }
+
+
+  // build the summary of synch noise
+  
+
+  if(doSynchNoise) {
+    LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+      << "[DTNoiseAnalysisTest]: fill summaries for synch noise" << endl;
+    summarySynchNoiseHisto->Reset();
+    for(int wheel = -2; wheel != 3; ++wheel) {
+      // Get the histo produced by DTDigiTask
+      MonitorElement * histoNoiseSynch = dbe->get(getSynchNoiseMEName(wheel));
+      if(histoNoiseSynch != 0) {
+	for(int sect = 1; sect != 13; ++sect) { // loop over sectors
+	  TH2F * histo = histoNoiseSynch->getTH2F();
+	  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+	    << "   Wheel: " << wheel << " sect: " << sect
+	    << " integral is: " << histo->Integral(sect,sect,1,4) << endl;
+	  if(histo->Integral(sect,sect,1,4) != 0) {
+	    summarySynchNoiseHisto->Fill(sect,wheel,1);
+	  }
+	}
+      } else {
+	LogWarning("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
+	  << "   Histo: " << getSynchNoiseMEName(wheel) << " not found!" << endl;
+      }
+    }
+
+  }
+
 }	       
 
 
@@ -209,5 +242,27 @@ void DTNoiseAnalysisTest::bookHistos() {
   summaryNoiseHisto->setAxisTitle("Sector",1);
   summaryNoiseHisto->setAxisTitle("Wheel",2);
 
+
+  if(doSynchNoise) {
+    dbe->setCurrentFolder("DT/01-Digi/SynchNoise/");
+    histoName =  "SynchNoiseSummary";
+    summarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
+    summarySynchNoiseHisto->setAxisTitle("Sector",1);
+    summarySynchNoiseHisto->setAxisTitle("Wheel",2);
+  }
+
 }
 
+
+
+string DTNoiseAnalysisTest::getSynchNoiseMEName(int wheelId) const {
+  
+  stringstream wheel; wheel << wheelId;	
+  string folderName = 
+    "DT/01-Digi/SynchNoise/";
+  string histoname = folderName + string("SyncNoiseEvents")  
+    + "_W" + wheel.str();
+
+  return histoname;
+  
+}

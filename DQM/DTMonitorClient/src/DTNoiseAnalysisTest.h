@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/07/04 10:14:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/25 14:18:20 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -52,9 +52,6 @@ protected:
   /// book the summary histograms
   void bookHistos();
 
-  /// Get the ME name
-  std::string getMEName(const DTChamberId & chID);
-
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// DQM Client Diagnostic
@@ -62,6 +59,11 @@ protected:
 
 
 private:
+
+  /// Get the ME name
+  std::string getMEName(const DTChamberId & chID);
+  std::string getSynchNoiseMEName(int wheelId) const;
+
 
   int nevents;
   
@@ -77,6 +79,9 @@ private:
   std::map< int, MonitorElement* > noiseHistos;
   std::map< int, MonitorElement* > noisyCellHistos;
   MonitorElement* summaryNoiseHisto;
+  MonitorElement* summarySynchNoiseHisto;
+
+  bool doSynchNoise;
 
 };
 
