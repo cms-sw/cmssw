@@ -13,7 +13,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 // Original Author:  Evan K.Friis, UC Davis  (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVATrainer.cc,v 1.1 2008/10/15 00:05:04 friis Exp $
+// $Id: TauMVATrainer.cc,v 1.2 2008/10/16 00:59:17 friis Exp $
 //
 //
 
@@ -76,6 +76,7 @@ class TauMVATrainer : public edm::EDAnalyzer {
 
       std::string               outputRootFileName_;
       map<string, TTree*>       myTrainerTrees_;
+      TTree*                    theTruthTree_;  //cache this to prevent string lookup
       PFTauDiscriminantManager  discriminantManager_;
       TFile*                    outputFile_;
       DiscriminantList          myDiscriminants_;
@@ -102,8 +103,8 @@ TauMVATrainer::TauMVATrainer(const edm::ParameterSet& iConfig):
    edm::LogInfo("TauMVATrainer") << "Adding discriminants to TauDiscriminantManager...";
    // add the discriminants to the discriminant manager
    for(DiscriminantList::const_iterator aDiscriminant  = myDiscriminants_.begin();
-                                       aDiscriminant != myDiscriminants_.end();
-                                     ++aDiscriminant)
+                                        aDiscriminant != myDiscriminants_.end();
+                                      ++aDiscriminant)
    {
       discriminantManager_.addDiscriminant(*aDiscriminant);
    }
@@ -113,6 +114,7 @@ TauMVATrainer::TauMVATrainer(const edm::ParameterSet& iConfig):
    TTree* truthTree = new TTree("truth", "truth");
 //   truthTree->SetDebug();
    myTrainerTrees_.insert(make_pair("truth", truthTree));
+   theTruthTree_ = truthTree;
    // branch this trees according to the holder variables in the discrimimnant manager
    discriminantManager_.branchTree(truthTree);
 
@@ -162,7 +164,7 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // compute quantities for the truth object and fill associated tree
       discriminantManager_.setEventData(*theTrueTau, iEvent);
-      myTrainerTrees_["truth"]->Fill();
+      theTruthTree_->Fill();
 
       // loop over the reco object collections
       for(tauMatchingInfos::iterator iMatchingInfo  = matchingInfo_.begin();
