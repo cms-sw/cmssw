@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2008/10/20 17:14:05 $
- * $Revision: 1.9 $
+ * $Date: 2008/10/22 13:01:50 $
+ * $Revision: 1.10 $
  * \author E. Di Marco
  *
 */
@@ -60,7 +60,7 @@ EBRawDataTask::EBRawDataTask(const ParameterSet& ps) {
   meEBTriggerTypeErrors_ = 0;
   meEBGapErrors_ = 0;
 
-  calibrationBX_ = 3491;
+  calibrationBX_ = 3490;
 
 }
 
