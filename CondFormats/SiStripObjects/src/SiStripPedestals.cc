@@ -62,7 +62,7 @@ void SiStripPedestals::encode(InputVector& Vi, std::vector<unsigned char>& Vo){
   for(size_t i = 0; i<Vo.size(); ++i)
     Vo[i]   &=      0x00u;
   
-  for(int stripIndex =0; stripIndex<Vi.size(); ++stripIndex){
+  for(unsigned int stripIndex =0; stripIndex<Vi.size(); ++stripIndex){
     unsigned char*  data    =       &Vo[Vo.size()-1];
     uint32_t lowBit         =       stripIndex * BITS_PER_STRIP;
     uint8_t firstByteBit    =       (lowBit & 0x6);

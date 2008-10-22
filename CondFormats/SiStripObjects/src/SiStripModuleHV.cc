@@ -12,7 +12,7 @@ bool SiStripModuleHV::put(std::vector<uint32_t>& DetId) {
   
   std::vector<uint32_t> v_detidcompare;
  
-  for(int in= 0;in<v_hvoff.size();in++){
+  for(unsigned int in= 0;in<v_hvoff.size();in++){
      v_detidcompare.push_back(v_hvoff[in]);
      
  
