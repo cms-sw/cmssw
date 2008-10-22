@@ -472,14 +472,14 @@ DQMStore::book1D(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::book1D(const std::string &name, TH1F *source)
 {
-  return book1D(pwd_, name, static_cast<TH1F *>(source->Clone()));
+  return book1D(pwd_, name, static_cast<TH1F *>(source->Clone(name.c_str())));
 }
 
 /// Book 1S histogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book1S(const std::string &name, TH1S *source)
 {
-  return book1S(pwd_, name, static_cast<TH1S *>(source->Clone()));
+  return book1S(pwd_, name, static_cast<TH1S *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
@@ -532,14 +532,14 @@ DQMStore::book2D(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::book2D(const std::string &name, TH2F *source)
 {
-  return book2D(pwd_, name, static_cast<TH2F *>(source->Clone()));
+  return book2D(pwd_, name, static_cast<TH2F *>(source->Clone(name.c_str())));
 }
 
 /// Book 2DShistogram by cloning an existing histogram.
 MonitorElement *
 DQMStore::book2S(const std::string &name, TH2S *source)
 {
-  return book2S(pwd_, name, static_cast<TH2S *>(source->Clone()));
+  return book2S(pwd_, name, static_cast<TH2S *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
@@ -567,7 +567,7 @@ DQMStore::book3D(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::book3D(const std::string &name, TH3F *source)
 {
-  return book3D(pwd_, name, static_cast<TH3F *>(source->Clone()));
+  return book3D(pwd_, name, static_cast<TH3F *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
@@ -599,7 +599,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, TProfile *source)
 {
-  return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone()));
+  return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone(name.c_str())));
 }
 
 // -------------------------------------------------------------------
@@ -633,7 +633,7 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 {
-  return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone()));
+  return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone(name.c_str())));
 }
 
 //////////////////////////////////////////////////////////////////////
