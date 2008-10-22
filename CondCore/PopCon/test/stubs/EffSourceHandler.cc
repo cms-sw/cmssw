@@ -14,7 +14,7 @@
 
 popcon::ExEffSource::ExEffSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExEffSource")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
+  m_since(pset.getUntrackedParameter<boost::int64_t>("since",5)),
   m_type(pset.getUntrackedParameter<std::string>("type","NULL")),
   m_params(pset.getUntrackedParameter<std::vector<double> >("params", std::vector<double>() )){
 }
@@ -60,7 +60,7 @@ void popcon::ExEffSource::getNewObjects() {
     return;
   }
   
-  m_to_transfer.push_back(std::make_pair(p0,m_since));
+  m_to_transfer.push_back(std::make_pair(p0,(unsigned long long)m_since));
   
   
   std::ostringstream ss;

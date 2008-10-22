@@ -26,7 +26,7 @@ namespace popcon{
     
   private:
     std::string m_name;
-    unsigned long long m_since;
+    boost::int64_t m_since;
     std::string m_type;
     std::vector<double> m_params;
   };
