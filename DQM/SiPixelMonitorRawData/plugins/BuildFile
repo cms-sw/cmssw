@@ -1,4 +1,4 @@
 <use name=DQM/SiPixelMonitorRawData>
-<library file="*.cc" name=DQMSiPixelMonitorRawData>
+<library file="*.cc" name=DQMSiPixelMonitorRawDataPlugins>
   <flags EDM_PLUGIN=1>
 </library>
