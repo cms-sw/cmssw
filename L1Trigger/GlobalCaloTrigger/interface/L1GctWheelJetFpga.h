@@ -23,6 +23,7 @@
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
+class L1GctJetSorter;
 class L1GctJetCounter;
 
 #include <vector>
@@ -128,15 +129,17 @@ public:
 private:
 
   static const int MAX_JETS_IN;    ///< Maximum number of jets we can have as input
-  static const int MAX_RAW_CJETS;  ///< Max. possible central jets to sort over
-  static const int MAX_RAW_FJETS;  ///< Max. possible forward jets to sort over
-  static const int MAX_RAW_TJETS;  ///< Max. possible tau jets to sort over
     
   /// algo ID
   int m_id;
 
   /// the jet leaf cards
   std::vector<L1GctJetLeafCard*> m_inputLeafCards;
+
+  /// Jet sorters
+  L1GctJetSorter* m_centralJetSorter;
+  L1GctJetSorter* m_forwardJetSorter;
+  L1GctJetSorter* m_tauJetSorter;
 
   /// the jet counters
   std::vector<L1GctJetCounter*> m_jetCounters;

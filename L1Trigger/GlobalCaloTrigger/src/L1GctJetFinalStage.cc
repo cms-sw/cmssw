@@ -1,9 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include <cassert>
 
 using std::ostream;
 using std::endl;
@@ -17,6 +16,9 @@ const int L1GctJetFinalStage::MAX_JETS_OUT = 4;
 L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpgas):
   L1GctProcessor(),
   m_wheelFpgas(wheelFpgas),
+  m_centralJetSorter(new L1GctJetSorter()),
+  m_forwardJetSorter(new L1GctJetSorter()),
+  m_tauJetSorter(new L1GctJetSorter()),
   m_inputCentralJets(MAX_JETS_IN),
   m_inputForwardJets(MAX_JETS_IN),
   m_inputTauJets(MAX_JETS_IN),
@@ -45,6 +47,9 @@ L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpga
 
 L1GctJetFinalStage::~L1GctJetFinalStage()
 {
+  if (m_centralJetSorter != 0) delete m_centralJetSorter;
+  if (m_forwardJetSorter != 0) delete m_forwardJetSorter;
+  if (m_tauJetSorter != 0)     delete m_tauJetSorter;
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)
@@ -119,58 +124,39 @@ void L1GctJetFinalStage::fetchInput()
 void L1GctJetFinalStage::process()
 {
   //Process jets
-  sort(m_inputCentralJets.begin(), m_inputCentralJets.end(), L1GctJetFinderBase::rankGreaterThan());
-  sort(m_inputForwardJets.begin(), m_inputForwardJets.end(), L1GctJetFinderBase::rankGreaterThan());
-  sort(m_inputTauJets.begin(), m_inputTauJets.end(), L1GctJetFinderBase::rankGreaterThan());
+  m_centralJetSorter->setJets(m_inputCentralJets);
+  m_forwardJetSorter->setJets(m_inputForwardJets);
+  m_tauJetSorter->setJets(m_inputTauJets);
 
-  //Copy data to output buffer
-  m_centralJets.store(m_inputCentralJets, bxRel());
-  m_forwardJets.store(m_inputForwardJets, bxRel());
-  m_tauJets.store    (m_inputTauJets,     bxRel());
+  m_centralJets.store(m_centralJetSorter->getSortedJets(), bxRel());
+  m_forwardJets.store(m_forwardJetSorter->getSortedJets(), bxRel());
+  m_tauJets.store    (m_tauJetSorter->getSortedJets(),     bxRel());
 }
 
 void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
 {
-  assert (jet.isCentral() && jet.bx() == bxAbs());
-  if(i >= 0 && i < MAX_JETS_IN)
+  if( ((jet.isCentral() && jet.bx() == bxAbs()) || jet.empty())
+      && (i >= 0 && i < MAX_JETS_IN))
   {
     m_inputCentralJets.at(i) = jet;
-  }
-  else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "In L1GctJetFinalStage::setInputCentralJet() : Central Jet " << i
-    << " is outside input range of 0 to " << (MAX_JETS_IN-1) << "\n";
   }
 }
 
 void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
 {
-  assert (jet.isForward() && jet.bx() == bxAbs());
-  if(i >= 0 && i < MAX_JETS_IN)
+  if( ((jet.isForward() && jet.bx() == bxAbs()) || jet.empty())
+     && (i >= 0 && i < MAX_JETS_IN))
   {
     m_inputForwardJets.at(i) = jet;
-  }
-  else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "In L1GctJetFinalStage::setInputForwardJet() : Forward Jet " << i
-    << " is outside input range of 0 to " << (MAX_JETS_IN-1) << "\n";
   }
 }
 
 void L1GctJetFinalStage::setInputTauJet(int i, L1GctJetCand jet)
 {
-  assert (jet.isTau() && jet.bx() == bxAbs());
-  if(i >= 0 && i < MAX_JETS_IN)
+  if( ((jet.isTau() && jet.bx() == bxAbs()) || jet.empty())
+    && (i >= 0 && i < MAX_JETS_IN))
   {
     m_inputTauJets.at(i) = jet;
-  }
-  else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "In L1GctJetFinalStage::setInputTauJet() : Tau Jet " << i
-    << " is outside input range of 0 to " << (MAX_JETS_IN-1) << "\n";
   }
 }
 
@@ -178,7 +164,8 @@ void L1GctJetFinalStage::storeJets(JetVector& storageVector, JetVector jets, uns
 {
   for(unsigned short iJet = 0; iJet < L1GctWheelJetFpga::MAX_JETS_OUT; ++iJet)
   {
-    assert(jets.at(iJet).bx() == bxAbs());
-    storageVector.at((iWheel*L1GctWheelJetFpga::MAX_JETS_OUT) + iJet) = jets.at(iJet);
+    if (jets.at(iJet).bx() == bxAbs()) {
+      storageVector.at((iWheel*L1GctWheelJetFpga::MAX_JETS_OUT) + iJet) = jets.at(iJet);
+    }
   }
 }

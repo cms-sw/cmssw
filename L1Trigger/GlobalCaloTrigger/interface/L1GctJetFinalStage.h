@@ -8,6 +8,7 @@
 #include <vector>
 
 class L1GctWheelJetFpga;
+class L1GctJetSorter;
 
 /*!
 * \class L1GctJetFinalStage
@@ -67,6 +68,11 @@ private:
   
   /// wheel jet FPGAs
   std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
+
+  /// Jet sorters
+  L1GctJetSorter* m_centralJetSorter;
+  L1GctJetSorter* m_forwardJetSorter;
+  L1GctJetSorter* m_tauJetSorter;
 
   // input data
   JetVector m_inputCentralJets;
