@@ -14,12 +14,13 @@
 
 */
 //
-// $Id: LuminosityBlockID.h,v 1.6 2006/12/18 19:15:18 wmtan Exp $
+// $Id: LuminosityBlockID.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 //
 
 // system include files
 #include <functional>
 #include <iosfwd>
+#include "boost/cstdint.hpp"
 
 // user include files
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -37,6 +38,7 @@ class LuminosityBlockID
    
    
       LuminosityBlockID() : run_(0), luminosityBlock_(0) {}
+      explicit LuminosityBlockID(boost::uint64_t id);
       LuminosityBlockID(RunNumber_t iRun, LuminosityBlockNumber_t iLuminosityBlock) :
 	run_(iRun), luminosityBlock_(iLuminosityBlock) {}
       
@@ -45,6 +47,8 @@ class LuminosityBlockID
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
       LuminosityBlockNumber_t luminosityBlock() const { return luminosityBlock_; }
+
+      boost::uint64_t value() const;
    
       //moving from one LuminosityBlockID to another one
       LuminosityBlockID next() const {
