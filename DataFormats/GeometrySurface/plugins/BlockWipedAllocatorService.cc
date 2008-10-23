@@ -3,6 +3,8 @@
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 #include <iostream>
 
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+
 
 namespace {
   struct Dumper {
@@ -45,6 +47,12 @@ public:
   }
 
   void wiper() {
+    std::cout << "ReferenceCounted stat"<< std::endl;
+    std::cout << "still alive/referenced " 
+	      << ReferenceCountedPoolAllocated::s_alive
+	      << "/" << ReferenceCountedPoolAllocated::s_referenced
+	      << std::endl;
+
     std::cout << "BlockAllocator stat"<< std::endl;
     std::cout << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
     Dumper dumper;

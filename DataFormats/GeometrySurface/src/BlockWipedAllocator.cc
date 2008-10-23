@@ -122,3 +122,7 @@ BlockWipedAllocator::Stat BlockWipedPoolAllocated::stat(size_t s) {
   return allocator(s).stat();
 }
   
+
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+int ReferenceCountedPoolAllocated::s_alive=0;
+int ReferenceCountedPoolAllocated::s_referenced=0;
