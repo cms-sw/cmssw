@@ -30,7 +30,6 @@
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 // RCT data includes
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -41,7 +40,7 @@
 using std::vector;
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
-  m_jetEtCalibLut(new L1GctJetEtCalibrationLut()),
+  m_jetEtCalibLuts(),
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
  {
 
@@ -78,6 +77,15 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_gct = new L1GlobalCaloTrigger(jfType);
   m_gct->setBxRange(firstBx, lastBx);
 
+  // Fill the jetEtCalibLuts vector
+  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
+
+  for (unsigned ieta=0; ieta<L1GctJetFinderBase::COL_OFFSET; ieta++) {
+    nextLut->setEtaBin(ieta);
+    m_jetEtCalibLuts.push_back(nextLut);
+    nextLut.reset ( new L1GctJetEtCalibrationLut() );
+  }
+
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
 
@@ -89,7 +97,6 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
 }
 
 L1GctEmulator::~L1GctEmulator() {
-  if (m_jetEtCalibLut != 0) delete m_jetEtCalibLut;
   if (m_gct != 0) delete m_gct;
 }
 
@@ -146,12 +153,15 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
       << "Cannot continue without the channel mask" << std::endl;
   }
 
-  // tell the jet Et Lut about the scales
-  m_jetEtCalibLut->setFunction(calibFun.product());
-  m_jetEtCalibLut->setOutputEtScale(etScale.product());
+  // tell the jet Et Luts about the scales
+  for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
+    m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+    m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+  }
+
 
   // pass all the setup info to the gct
-  m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
   m_gct->setJetFinderParams(jfPars.product());
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
   m_gct->setupHfSumLuts(hfLSetup.product());

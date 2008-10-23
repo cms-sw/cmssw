@@ -29,16 +29,20 @@
 
 #include <string>
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+
 //
 // class declaration
 //
 
-class L1GlobalCaloTrigger;
-class L1GctJetEtCalibrationLut;
-
 
 class L1GctPrintLuts : public edm::EDAnalyzer {
  public:
+
+  /// typedefs
+  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
+
   explicit L1GctPrintLuts(const edm::ParameterSet&);
   ~L1GctPrintLuts();
 
@@ -60,8 +64,8 @@ class L1GctPrintLuts : public edm::EDAnalyzer {
   // pointer to the actual emulator
   L1GlobalCaloTrigger* m_gct;
 
-  // pointer to the jet Et LUT
-  L1GctJetEtCalibrationLut* m_jetEtCalibLut;
+  // pointers to the jet Et LUTs
+  lutPtrVector m_jetEtCalibLuts;
 
 };
 #endif

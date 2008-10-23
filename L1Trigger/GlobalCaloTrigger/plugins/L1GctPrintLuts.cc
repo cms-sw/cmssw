@@ -39,8 +39,17 @@ L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig) :
   m_jetCountOutFileName(iConfig.getUntrackedParameter<std::string>("jetCountFilename","gctJetCountContents.txt")),
   m_hfSumLutOutFileName(iConfig.getUntrackedParameter<std::string>("hfSumLutFilename","gctHfSumLutContents.txt")),
   m_gct(new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder)),
-  m_jetEtCalibLut(new L1GctJetEtCalibrationLut())
+  m_jetEtCalibLuts()
 {
+  // Fill the jetEtCalibLuts vector
+  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
+
+  for (unsigned ieta=0; ieta<L1GctJetFinderBase::COL_OFFSET; ieta++) {
+    nextLut->setEtaBin(ieta);
+    m_jetEtCalibLuts.push_back(nextLut);
+    nextLut.reset ( new L1GctJetEtCalibrationLut() );
+  }
+
 }
 
 L1GctPrintLuts::~L1GctPrintLuts()
@@ -84,7 +93,9 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
       file << " Gct lookup table printout \n"
            << "===========================\n\n"
 	   << "Jet Et Calibration lut contents\n" << std::endl;
-      file << *m_jetEtCalibLut << std::endl;
+      for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
+        file << *m_jetEtCalibLuts.at(ieta) << std::endl;
+      }
     } else {
       edm::LogWarning("LutFileError") << "Error opening file " << m_jetRanksOutFileName << ". No lookup tables written." << std::endl;
     }
@@ -197,12 +208,15 @@ void L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       << "Cannot continue without the channel mask" << std::endl;
   }
 
-  // tell the jet Et Lut about the scales
-  m_jetEtCalibLut->setFunction(calibFun.product());
-  m_jetEtCalibLut->setOutputEtScale(etScale.product());
+  // tell the jet Et Luts about the scales
+  for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
+    m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+    m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+  }
+
 
   // pass all the setup info to the gct
-  m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
   m_gct->setJetFinderParams(jfPars.product());
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
   m_gct->setupHfSumLuts(hfLSetup.product());

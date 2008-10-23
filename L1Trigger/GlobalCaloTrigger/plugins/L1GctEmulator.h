@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.2 2007/05/20 22:21:43 jbrooke Exp $
+// $Id: L1GctEmulator.h,v 1.3 2007/05/21 11:38:13 jbrooke Exp $
 //
 //
 
@@ -26,13 +26,15 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-
-class L1GlobalCaloTrigger;
-class L1GctJetEtCalibrationLut;
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 
 class L1GctEmulator : public edm::EDProducer {
  public:
+
+  /// typedefs
+  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
 
   /// constructor
   explicit L1GctEmulator(const edm::ParameterSet& ps);
@@ -53,8 +55,8 @@ class L1GctEmulator : public edm::EDProducer {
   // pointer to the actual emulator
   L1GlobalCaloTrigger* m_gct;
 
-  // pointer to the jet Et LUT
-  L1GctJetEtCalibrationLut* m_jetEtCalibLut;
+  // pointers to the jet Et LUTs
+  lutPtrVector m_jetEtCalibLuts;
 
   // untracked parameters
   bool m_verbose;
