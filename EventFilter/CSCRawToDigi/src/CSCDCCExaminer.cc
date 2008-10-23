@@ -488,7 +488,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       dmbSize   [sourceID][currentChamber] = 4;
 
       // Print DMB_ID from DMB Header
-      cout<<"DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
+      cout<< "Crate=" << setw(3) << setfill('0') << ((buf0[1]>>4)&0x00FF) << " DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
       // Print ALCT_DAV and TMB_DAV from DMB Header
       //cout<<setw(1)<<((buf0[0]&0x0020)>>5)<<" "<<((buf0[0]&0x0040)>>6)<<" ";
       cout<<setw(1)<<((buf0[0]&0x0200)>>9)<<" "<<((buf0[0]&0x0800)>>11)<<" "; //change of format 16.09.05
@@ -713,7 +713,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	//				((buf_1[2]&0x0800)>>11) * ((buf_1[2]&0x0700)>>8) * TMB_Tbins * 2;  // RPC raw hits
                 ( fTMB_Format2007 ? 
 			( TMB_Firmware_Revision >= 0x50c3 ?
-				((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * TMB_Tbins * 2 :// RPC raw hits TMB2007 rev.0x50c3 
+				// ((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * TMB_Tbins * 2 :// RPC raw hits TMB2007 rev.0x50c3 
+				((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * ((buf_1[0]>>5) & 0x1F) * 2 : // RPC raw hits TMB2007 rev.0x50c3
                 		((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2):// RPC raw hits TMB2007
                 ((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2 );  // RPC raw hits
     }
