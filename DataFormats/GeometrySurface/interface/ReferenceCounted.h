@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.4 2008/10/21 16:11:08 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.5 2008/10/23 07:25:01 innocent Exp $
 //
 
 // system include files
@@ -147,9 +147,6 @@ inline void intrusive_ptr_release( const ReferenceCountedPoolAllocated* iRef ) {
   iRef->removeReference();
 } 
 
-#else
-typedef ReferenceCounted  ReferenceCountedPoolAllocated;
-#endif
 
 
 #endif /* SURFACE_REFERENCECOUNTED_H */
