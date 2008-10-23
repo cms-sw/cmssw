@@ -88,10 +88,11 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
    uint maxI = mucands->size();
-   for (uint i=0;i!=maxI;i++){
+   for (uint i=0;i!=maxI;++i){
      TrackRef tk = (*mucands)[i].track();
      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
      TrackRef staTrack = l3seedRef->l2Track();
+     LogDebug("HLTMuonL3PreFilter") <<"L2 from: "<<iEvent.getProvenance(staTrack.id()).moduleLabel() <<" index: "<<staTrack.key();
      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
    }
 
@@ -111,6 +112,7 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    int n = 0;
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it = L2toL3s.begin();
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   LogDebug("HLTMuonL3PreFilter")<<"looking at: "<<L2toL3s.size()<<" L2->L3s from: "<<mucands->size();
    for (; L2toL3s_it!=L2toL3s_end; ++L2toL3s_it){
 
      if (!triggeredByLevel2(L2toL3s_it->first,vl2cands)) continue;
