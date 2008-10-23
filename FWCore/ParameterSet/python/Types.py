@@ -731,6 +731,11 @@ if __name__ == "__main__":
             self.assertEqual(s.configValue(),"'\\0'")
             s2=string('')
             self.assertEqual(s2.value(),'')
+        def testvstring(self):
+            a = vstring("", "Barack", "John", "Sarah", "Joe")
+            self.assertEqual(len(a), 5)
+            self.assertEqual(a[0], "")
+            self.assertEqual(a[3], "Sarah")
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
