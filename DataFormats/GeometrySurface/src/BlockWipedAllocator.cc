@@ -117,8 +117,8 @@ void * BlockWipedPoolAllocated::operator new(size_t s) {
 
 void BlockWipedPoolAllocated::operator delete(void * p, size_t s) {
   s_alive--;
-  if (!s_usePool) ::operator delete(p);
-  allocator(s).dealloc(p);
+  (s_usePool) ? allocator(s).dealloc(p) : ::operator delete(p);
+
 }
 
 BlockWipedAllocator & BlockWipedPoolAllocated::allocator(size_t s) {
