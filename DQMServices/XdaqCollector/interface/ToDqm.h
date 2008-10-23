@@ -1,4 +1,4 @@
-// $Id: ToDqm.h,v 1.1 2008/07/01 13:22:26 ameyer Exp $
+// $Id: ToDqm.h,v 1.2 2008/10/13 13:03:50 vpatras Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
@@ -37,6 +37,7 @@
 #define Qsize_max 1000
 #endif*/
 
+#include "DQMServices/XdaqCollector/interface/FlashlistElements.h"
 
 namespace xmas2dqm
 {
@@ -57,12 +58,13 @@ namespace xmas2dqm
 					
 			void free_memory();
 			
-			std::string runNumber_;
+			xdata::String runNumber_;
 			
 			std::queue<xdata::Table::Reference> QTable_;
 			
 			std::queue<xdata::Table *> MemoryTable_;
 			
+			xdata::Bag<xmas2dqm::wse::FlashlistElements> flashlistMonitor_;
 			
 			//semaphore to protect access to runNumber_
 			toolbox::BSem BSem_;		

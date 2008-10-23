@@ -144,16 +144,25 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 	if(ref_table != NULL)
 	{
 		size_t row = ref_table->getRowCount();
+		
 
 		for ( size_t r = 0; r < ref_table->numberOfRows_; r++ )
 		{
+			
+			//check if the  flashlist contains the element we want to monitor
+			if(!ref_table->columnData_[xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element])
+			{
+				break;
+			}
+		
 			/* remove prints for benchmarking*/
 			/*
 			std::cout << "********* Printing table inside DQMSourceExample ***************" << std::endl;
 			std:: cout << ref_table->columnData_["context"]->elementAt(r)->toString() << std::endl;
 			std:: cout << ref_table->columnData_["slotNumber"]->elementAt(r)->toString() << std::endl;*/
 			
-			if(ref_table->columnData_["wcHistogram"]->elementAt(r)->toString() == "[]")
+			//if(ref_table->columnData_["wcHistogram"]->elementAt(r)->toString() == "[]")
+			if(ref_table->columnData_[xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString()]->elementAt(r)->toString() == "[]")
 			{
 				/* remove prints for benchmarking*/
 				/*std::cout << ref_table->columnData_["context"]->elementAt(r)->toString() << " has empty bxHistogram" << std::endl;*/
@@ -161,18 +170,23 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 			}
 			
 			
+			//check if there is a column runNumber in the LAS table
 			if(ref_table->columnData_["runNumber"])
 			{
 				/* remove prints for benchmarking*/
 				
 				
-				xmas2dqm::wse::ToDqm::instance()->BSem_.take();
-				xmas2dqm::wse::ToDqm::instance()->runNumber_ = ref_table->columnData_["runNumber"]->elementAt(r)->toString();
-				xmas2dqm::wse::ToDqm::instance()->BSem_.give();
-				std::cout << "runNumber ... = " << ref_table->columnData_["runNumber"]->elementAt(r)->toString() << std::endl;
+				//xmas2dqm::wse::ToDqm::instance()->BSem_.take();
+				
+				//if runNumber in LAS record different than currnet runNumber go to next LAS record
+				if (xmas2dqm::wse::ToDqm::instance()->runNumber_.toString() != ref_table->columnData_["runNumber"]->elementAt(r)->toString())
+				{
+					continue;
+				}
 				
 				
-				//continue;
+				//xmas2dqm::wse::ToDqm::instance()->BSem_.give();
+				//std::cout << "runNumber ... = " << ref_table->columnData_["runNumber"]->elementAt(r)->toString() << std::endl;
 			}	
 			
 			//boost::tokenizer<> Context_tokens(ref_table->columnData_["Context"]->elementAt(r)->toString());
@@ -186,13 +200,20 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 			//std::string host_slot = *(++Context_tokens.begin()) + "_" + ref_table->columnData_["slotNumber"]->elementAt(r)->toString();
 			
 			std::string host_slot;
+			host_slot = *(++ Context_tokens.begin());
 
-			//host_slot = *(++ Context_tokens.begin()) + "-" + *(++ ++ Context_tokens.begin()) + "-" + *(++ ++ ++Context_tokens.begin()) + "_" + ref_table->columnData_["slotNumber"]->elementAt(r)->toString();
-			host_slot = *(++ Context_tokens.begin()) + "_" + ref_table->columnData_["slotNumber"]->elementAt(r)->toString();
+			//check if there is a column slotNumber in the LAS table in order to use as key for the histogram map the combination of host+slot
+			//useful mostly for bxHistogram, wcHistogram of frlHisto, where the histograms (flashlist elements) refer to host+slot
+			if(ref_table->columnData_["slotNumber"])
+			{
+				//host_slot = *(++ Context_tokens.begin()) + "-" + *(++ ++ Context_tokens.begin()) + "-" + *(++ ++ ++Context_tokens.begin()) + "_" + ref_table->columnData_["slotNumber"]->elementAt(r)->toString();
+				host_slot = host_slot + "_" + ref_table->columnData_["slotNumber"]->elementAt(r)->toString();
+			}
 		
 			//host_slot = host_slot + "_" + ref_table->columnData_["slotNumber"]->elementAt(r)->toString();
 			
 		
+			//check if there is no entry in the map for this host (+slot in case of wcHistogram, bxHistogram)
 			if( HostSlotMap.find(host_slot) == HostSlotMap.end())
 			{
 				/* remove prints for benchmarking*/
@@ -203,70 +224,85 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 			
 				HostSlotMap[host_slot]->lastTimestamp = ref_table->columnData_["timestamp"]->elementAt(r)->toString();
 				
-				//remove this part, now bxHistogram not in frlHisto flashlist
-				// create and cd into new folder for bxHistograms
-  				// dbe_->setCurrentFolder(monitorName_ + "bxHisto");
-// 				HostSlotMap[host_slot]->bxHistogram1D = dbe_->book1D("bx_"+ host_slot, "FRL bxHisto", BXBIN, 1, BXBIN);
-// 				
-// 	  			HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("LHC orbit Bunch"/*"x-axis title"*/, 1);
-//   				HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
-// 			
-// 				/* remove prints for benchmarking*/
-// 				/*std::cout << "booked histogram = " << host_slot << std::endl;*/
-// 				boost::tokenizer<> bxHistogram_values(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString());
-//    	    			
-// 				int ibx=0; //bx counter - bin counter
-// 				
-// 				for(boost::tokenizer<>::iterator itok=bxHistogram_values.begin(); itok!=bxHistogram_values.end();++itok)
-// 	    			{
-// 					ibx++;
-// 					//remove for benchmarking
-//        					/*std::cout << *itok << std::endl;*/
-// 					string s = *itok;
-// 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
-// 					
-// 					std::istringstream istrfloat(s);
-//    					float bin_value;
-//    					istrfloat >> bin_value;
-// 					
-// 					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
-// 					if(ibx >= BXBIN)
-// 						break;
-//    				}
-				
-				
-				// create and cd into new folder for wcHistograms
-  				dbe_->setCurrentFolder(monitorName_ + "wcHisto");
+				// create and cd into new folder 
+  				//dbe_->setCurrentFolder(monitorName_ + "wcHisto");
+				dbe_->setCurrentFolder(monitorName_ + xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString());
 				
 				//the wcHistogramResolution equals the value of the register Histogram of the FRL, not the value of the bytes resolution for the bin
 				// the value of the register multiplied by 16 gives the byte resolution - range of a wcHistogram bin
-				HostSlotMap[host_slot]->wcHistogram1D = dbe_->book1D("wc_"+ host_slot, "FRL wcHisto", WCBIN, 
-				MIN_EVENT_FRAGMENT_SIZE, MIN_EVENT_FRAGMENT_SIZE + WCBIN*16*atoi(ref_table->columnData_["wcHistogramResolution"]->elementAt(r)->toString().c_str()));
+				// if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "wcHistogram")
+// 				{
+// 					HostSlotMap[host_slot]->Histogram1D = dbe_->book1D("wc_"+ host_slot, "FRL wcHisto", WCBIN, 
+// 					MIN_EVENT_FRAGMENT_SIZE, MIN_EVENT_FRAGMENT_SIZE + WCBIN*16*atoi(ref_table->columnData_["wcHistogramResolution"]->elementAt(r)->toString().c_str()));
+// 					HostSlotMap[host_slot]->Histogram1D->setAxisTitle("Event fragment size (Bytes)"/*"x-axis title"*/, 1);
+//   					HostSlotMap[host_slot]->Histogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
+// 				}
+// 				else if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "bxHistogram")
+// 				{
+//  					HostSlotMap[host_slot]->Histogram1D = dbe_->book1D("bx_"+ host_slot, "FRL bxHisto", BXBIN, 1, BXBIN);
+//  				
+//  	  				HostSlotMap[host_slot]->Histogram1D->setAxisTitle("LHC orbit Bunch"/*"x-axis title"*/, 1);
+//    					HostSlotMap[host_slot]->Histogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
+// 				}
 				
-	  			HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Event fragment size (Bytes)"/*"x-axis title"*/, 1);
-  				HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
+				std::istringstream str2num;
+  				int nbins;
+				double xmin,xmax;
+
+				str2num.str(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.bins.toString());
+				str2num >> nbins; // now stream is in end of file state
+				str2num.clear(); // clear end of file state
+
+				str2num.str(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.xmin.toString());
+				str2num >> xmin; // now stream is in end of file state
+				str2num.clear(); // clear end of file state
+
+				str2num.str(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.xmax.toString());
+				str2num >> xmax; // now stream is in end of file state
+				str2num.clear(); // clear end of file state
+
+				HostSlotMap[host_slot]->Histogram1D = dbe_->book1D(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() + "_" + host_slot, "", nbins, xmin, xmax);
+				HostSlotMap[host_slot]->Histogram1D->setAxisTitle(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.xtitle.toString()/*"x-axis title"*/, 1);
+  				HostSlotMap[host_slot]->Histogram1D->setAxisTitle(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.ytitle.toString()/*"y-axis title"*/, 2);
+				
 			
 				/* remove prints for benchmarking*/
 				/*std::cout << "booked histogram = " << host_slot << std::endl;*/
-				boost::tokenizer<> wcHistogram_values(ref_table->columnData_["wcHistogram"]->elementAt(r)->toString());
-   	    			
-				int iwc=0; //wc counter - bin counter
 				
-				for(boost::tokenizer<>::iterator itok=wcHistogram_values.begin(); itok!=wcHistogram_values.end();++itok)
+				
+				boost::char_separator<char> histo_sep("[,]");
+				tokenizer Histogram_values(ref_table->columnData_[xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString()]->elementAt(r)->toString(), histo_sep);
+   	    			
+				int iwc=0; //bin counter
+				
+				for(tokenizer::iterator itok=Histogram_values.begin(); itok!=Histogram_values.end();++itok)
 	    			{
 					iwc++;
 					//remove for benchmarking
-       					/*std::cout << *itok << std::endl;*/
+       					//std::cout << "iwc = "<< iwc << " *itok = " << *itok << std::endl;
 					string s = *itok;
+					//std::cout << "iwc = "<< iwc << " s = " << s << std::endl;
 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
 					
 					std::istringstream istrfloat(s);
    					float bin_value;
    					istrfloat >> bin_value;
 					
+					//std::cout << "iwc = "<< iwc << " bin_value = " << bin_value << std::endl;
 					
-					HostSlotMap[host_slot]->wcHistogram1D->setBinContent(iwc-1, bin_value/*atoi(s.c_str())*/);					
-					if(iwc >= WCBIN)
+					if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "wcHistogram" || xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "bxHistogram")
+					{
+						HostSlotMap[host_slot]->Histogram1D->setBinContent(iwc-1, bin_value/*atoi(s.c_str())*/);
+					}
+					else
+					{
+						HostSlotMap[host_slot]->Histogram1D->Fill(bin_value);
+					}					
+					
+					if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "wcHistogram" && iwc >= nbins /*WCBIN*/)
+						break;
+						
+					if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "bxHistogram" && iwc >= nbins /*BXBIN*/)
 						break;
    				}
 				
@@ -275,6 +311,14 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 			else
 			{
 			
+				std::istringstream str2num;
+  				int nbins;
+
+				str2num.str(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.bins.toString());
+				str2num >> nbins; // now stream is in end of file state
+				str2num.clear(); // clear end of file state
+				
+				
 				//check if the timestamp has changed and proceed adding data only if timestamp has changed
 				if(HostSlotMap[host_slot]->lastTimestamp == ref_table->columnData_["timestamp"]->elementAt(r)->toString())
 				{
@@ -289,42 +333,18 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 				
 				
 				
-				/* remove prints for benchmarking*/
-				/*std::cout << "histogram..." << host_slot << " already booked..." << std::endl;*/
-				
-				//remove this part, now bxHistogram not in frlHisto flashlist
-				//insert bxHistogram values
-// 				boost::tokenizer<> bxHistogram_values(ref_table->columnData_["bxHistogram"]->elementAt(r)->toString());
-   	    			
-				// int ibx=0; //bx counter
-// 				for(boost::tokenizer<>::iterator itok=bxHistogram_values.begin(); itok!=bxHistogram_values.end();++itok)
-// 	    			{
-// 					ibx++;
-//        					/*remove for benchmarking */
-// 					//std::cout << *itok << std::endl;
-// 					string s = *itok;
-// 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
-// 					
-// 					std::istringstream istrfloat(s);
-//    					float bin_value;
-//    					istrfloat >> bin_value;
-// 					
-// 					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
-// 					if(ibx >= BXBIN)
-// 						break;
-//    				}
-				
-				
 				//insert wcHistogram values
-				boost::tokenizer<> wcHistogram_values(ref_table->columnData_["wcHistogram"]->elementAt(r)->toString());
+				boost::char_separator<char> histo_sep("[,]");
+				tokenizer Histogram_values(ref_table->columnData_[xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString()]->elementAt(r)->toString(), histo_sep);
    	    			
-				int iwc=0; //wc counter - bin counter
+				int iwc=0; //bin counter
 				
-				for(boost::tokenizer<>::iterator itok=wcHistogram_values.begin(); itok!=wcHistogram_values.end();++itok)
+				for(tokenizer::iterator itok=Histogram_values.begin(); itok!=Histogram_values.end();++itok)
 	    			{
 					iwc++;
 					//remove for benchmarking
-       					/*std::cout << *itok << std::endl;*/
+       					//std::cout << "fill booked histogram iwc = "<< iwc << " *itok = " << *itok << std::endl;
+					
 					string s = *itok;
 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
 					
@@ -332,8 +352,19 @@ void XmasToDQMSource::analyze(const Event& iEvent,
    					float bin_value;
    					istrfloat >> bin_value;
 					
-					HostSlotMap[host_slot]->wcHistogram1D->setBinContent(iwc-1, bin_value/*atoi(s.c_str())*/);					
-					if(iwc >= WCBIN)
+					if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "wcHistogram" || xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "bxHistogram")
+					{
+						HostSlotMap[host_slot]->Histogram1D->setBinContent(iwc-1, bin_value/*atoi(s.c_str())*/);
+					}
+					else
+					{
+						HostSlotMap[host_slot]->Histogram1D->Fill(bin_value);
+					}					
+
+					if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "wcHistogram" && iwc >= nbins/*WCBIN*/)
+						break;
+						
+					if(xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString() == "bxHistogram" && iwc >= nbins /*BXBIN*/)
 						break;
    				}
 				

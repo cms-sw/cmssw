@@ -27,8 +27,9 @@
 struct Data 
 {
     std::string lastTimestamp;
-    MonitorElement * bxHistogram1D;
-    MonitorElement * wcHistogram1D;
+    //MonitorElement * bxHistogram1D;
+    //MonitorElement * wcHistogram1D;
+    MonitorElement * Histogram1D;
 };
 
 class XmasToDQMSource : public edm::EDAnalyzer {

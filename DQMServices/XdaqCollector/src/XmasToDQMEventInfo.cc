@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/07/06 17:32:30 $
- * $Revision: 1.21 $
- * $Author: ameyer $
+ * $Date: 2008/10/13 13:00:47 $
+ * $Revision: 1.1 $
+ * $Author: vpatras $
  *
  */
 
@@ -110,9 +110,10 @@ void XmasToDQMEventInfo::analyze(const Event& e, const EventSetup& c){
   //runId_->Fill(e.id().run());
   std::string runNumber;
   
-  xmas2dqm::wse::ToDqm::instance()->BSem_.take();
-  runNumber = xmas2dqm::wse::ToDqm::instance()->runNumber_;
-  xmas2dqm::wse::ToDqm::instance()->BSem_.give();
+  //xmas2dqm::wse::ToDqm::instance()->BSem_.take();
+  runNumber = xmas2dqm::wse::ToDqm::instance()->runNumber_.toString();
+  std::cout << "EventInfo runNumber ... = " << runNumber << std::endl;
+  //xmas2dqm::wse::ToDqm::instance()->BSem_.give();
   
   std::istringstream istrfloat(runNumber);
   float runNumber_value;

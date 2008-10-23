@@ -1,4 +1,4 @@
-// $Id: XmasToDQM.cc,v 1.2 2008/07/02 10:00:35 vpatras Exp $
+// $Id: XmasToDQM.cc,v 1.3 2008/10/13 13:06:17 vpatras Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
@@ -111,12 +111,16 @@ xmas2dqm::wse::XmasToDQM::XmasToDQM(xdaq::ApplicationStub* s)  throw (xdaq::exce
 	getApplicationInfoSpace()->fireItemAvailable("LASurl",&LASurl_);
 	getApplicationInfoSpace()->fireItemAvailable("Period",&Period_);
 	getApplicationInfoSpace()->fireItemAvailable("LASQueueSize",&LASQueueSize_);
+	getApplicationInfoSpace()->fireItemAvailable("flashlistMonitor",&xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_);
+	getApplicationInfoSpace()->fireItemAvailable("runNumber",&xmas2dqm::wse::ToDqm::instance()->runNumber_);
 	
 	// Add infospace listeners for exporting data values
 	getApplicationInfoSpace()->addItemChangedListener ("stateName", this);
 	getApplicationInfoSpace()->addItemChangedListener ("LASurl", this);
 	getApplicationInfoSpace()->addItemChangedListener ("Period", this);
 	getApplicationInfoSpace()->addItemChangedListener ("LASQueueSize", this);
+	getApplicationInfoSpace()->addItemChangedListener ("flashlistMonitor", this);
+	getApplicationInfoSpace()->addItemChangedListener ("runNumber", this);
 	
 	LASurl_ = "http://srv-c2d04-18.cms:9943/urn:xdaq-application:lid=100/retrieveCollection";
 	Period_ = "10";
@@ -255,7 +259,10 @@ int xmas2dqm::wse::XmasToDQM::getEXDR_LAS(/*xdata::Table::Reference & rtable*/ x
     	CURL *curl_handle;
 	CURLcode code;
 	 
-  	char *data="fmt=exdr&flash=urn:xdaq-flashlist:frlHisto";
+  	char data[200] = "fmt=exdr&flash=";
+	
+	strcat(data, xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.flashlist.toString().c_str());
+	
 	
     	struct MemoryStruct chunk;
   
@@ -435,6 +442,25 @@ void xmas2dqm::wse::XmasToDQM::actionPerformed (xdata::Event& e)
 			startLASReadout_ = toolbox::TimeVal::gettimeofday();
         
 			LASReadoutTimer_->scheduleAtFixedRate( startLASReadout_, this, interval,  0, std::string("LASReadout") );	
+		} 
+	
+	
+		if ( item == "flashlistMonitor")
+		{
+
+			LOG4CPLUS_INFO(getApplicationLogger(), "flashlist = " << xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.flashlist.toString());
+			LOG4CPLUS_INFO(getApplicationLogger(), "element = " << xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.element.toString());
+			LOG4CPLUS_INFO(getApplicationLogger(), "xtitle = " << xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.xtitle.toString());
+			LOG4CPLUS_INFO(getApplicationLogger(), "ytitle = " << xmas2dqm::wse::ToDqm::instance()->flashlistMonitor_.bag.ytitle.toString());
+			
+			//flashlistMonitor_.bag.flashlist = "abc";
+			//std::cout << "flashlist = " << flashlistMonitor_.bag.flashlist.toString() << std::endl;
+		}
+		
+		if ( item == "runNumber")
+		{
+
+			LOG4CPLUS_INFO(getApplicationLogger(), "set runNumber to... = " << xmas2dqm::wse::ToDqm::instance()->runNumber_.toString());
 		} 
 	
 	}

@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.2 2008-01-18 16:21:56 oh Exp $
+// $Id: XmasToDQM.h,v 1.1 2008/07/01 13:22:26 ameyer Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
@@ -63,6 +63,8 @@
 #include <curl/easy.h>
 #include <fstream> // for ifstream, ofstream, ios_base
 #include <iostream>
+
+//#include "DQMServices/XdaqCollector/interface/FlashlistElements.h"
 
 namespace xmas2dqm 
 {
@@ -156,6 +158,8 @@ namespace xmas2dqm
 			xdata::String Period_; //LAS parsing period time in seconds 
 			xdata::String LASQueueSize_; //LAS parsing period time in seconds 
 			
+			//xdata::Bag<xmas2dqm::wse::FlashlistElements> flashlistMonitor_;
+			
 			
 			private:
 
@@ -177,6 +181,7 @@ namespace xmas2dqm
 			
 			toolbox::task::Timer * LASReadoutTimer_;
 			toolbox::TimeVal startLASReadout_;
+						
 						
 		};
 	}
