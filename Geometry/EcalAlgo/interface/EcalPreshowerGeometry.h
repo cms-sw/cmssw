@@ -51,6 +51,8 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static unsigned int numberOfAlignments() { return 1 ; }
 
+      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
+
    private:
 
       /// number of modules

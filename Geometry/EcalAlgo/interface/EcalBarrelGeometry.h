@@ -62,6 +62,8 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       static unsigned int numberOfAlignments() { return 36 ; }
 
+      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
+
    private:
       /** number of crystals in eta direction */
       int _nnxtalEta;

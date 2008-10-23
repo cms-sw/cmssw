@@ -58,6 +58,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       static unsigned int numberOfAlignments() { return 4 ; }
 
+      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
+
    private:
 
       static int myPhi( int i ) { i+=720; return ( 1 + (i-1)%360 ) ; }
