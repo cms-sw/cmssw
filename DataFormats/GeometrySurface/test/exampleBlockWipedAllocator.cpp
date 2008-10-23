@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #define PBALLOC
+#define DEBUG
 
 struct B 
 #ifdef PBALLOC
@@ -79,7 +80,7 @@ struct Dumper {
 	      << "/" << sa1.currentAvailable
 	      << ", " << sa1.totalAvailable
 	      << "/" << sa1.nBlocks
-	      << ", " << sa1.alive
+      //	      << ", " << sa1.alive
 	      << std::endl;
   }
   
@@ -89,6 +90,8 @@ void dump(std::string const & mess="") {
 #ifdef DEBUG
   std::cout << mess << std::endl;
 #ifdef PBALLOC
+  std::cout << "BlockAllocator stat"<< std::endl;
+  std::cout << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
   Dumper dumper;
   blockWipedPool().visit(dumper);
 #endif
@@ -124,8 +127,9 @@ void gen(BP & bp) {
   flip = !flip;
 }
 
-int main() {
-  
+int main(int v) {
+  if (v>1) BlockWipedPoolAllocated::usePool();
+
   dump();
 
   for (int i=0;i<500;i++) {

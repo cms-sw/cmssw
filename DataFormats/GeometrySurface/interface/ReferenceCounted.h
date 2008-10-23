@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.5 2008/10/23 07:25:01 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.6 2008/10/23 07:48:37 innocent Exp $
 //
 
 // system include files
@@ -85,7 +85,7 @@ inline void intrusive_ptr_release( const ReferenceCounted* iRef ) {
 }
 
 
-// #define CMSSW_POOLALLOCATOR
+#define CMSSW_POOLALLOCATOR
 
 #ifdef CMSSW_POOLALLOCATOR
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"

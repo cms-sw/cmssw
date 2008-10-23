@@ -102,14 +102,22 @@ BlockWipedPool & blockWipedPool() {
 
 
 int BlockWipedPoolAllocated::s_alive=0;
+bool BlockWipedPoolAllocated::s_usePool=false;
+
+void BlockWipedPoolAllocated::usePool() { 
+  // throw id s_alive!=0???
+  if (0==s_alive) s_usePool=true;
+}
+
 
 void * BlockWipedPoolAllocated::operator new(size_t s) {
   s_alive++;
-  return allocator(s).alloc();
+  return (s_usePool) ? allocator(s).alloc() : ::operator new(s);
 }
 
 void BlockWipedPoolAllocated::operator delete(void * p) {
   s_alive--;
+  if (s_usePool) ::operator delete(p);
   // allocator().dealloc(p);
 }
 

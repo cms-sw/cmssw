@@ -136,8 +136,11 @@ public:
 
   static BlockWipedAllocator::Stat stat(size_t s);
   
+  // throw id s_alive!=0???
+  static void usePool();
+
 private:
-  
+  static bool s_usePool;
   // static BlockAllocator * s_allocator;
 };
 
