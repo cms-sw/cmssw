@@ -105,7 +105,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
       //copy the track over
       (*outTracks)[i] = Track(*(*candidates)[i].track());
       //candidate points to this new track: NO, other wise isolation ValueMap is screwed up.
-      (*candidates)[i].setTrack( TrackRef(rTracks,i));
+      //(*candidates)[i].setTrack( TrackRef(rTracks,i));
     }
     event.put(outTracks);
   }
