@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource",
+SiPixelFakeQualityESSource = cms.ESSource("SiPixelFakeQualityESSource",
     file = cms.FileInPath('CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt')
 )
 
