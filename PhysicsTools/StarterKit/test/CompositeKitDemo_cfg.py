@@ -39,7 +39,7 @@ process.load("PhysicsTools.PatAlgos.patLayer1_cff")
 
 
 # produce Z to mu mu candidates
-process.zToMuMu = cms.EDProducer("CandViewShallowCloneCombiner",
+process.zToMuMu = cms.EDProducer("CandViewShallowClonePtrCombiner",
     decay = cms.string('selectedLayer1Muons@+ selectedLayer1Muons@-'),
     cut = cms.string('0.0 < mass < 20000.0'),
     name = cms.string('zToMuMu'),
