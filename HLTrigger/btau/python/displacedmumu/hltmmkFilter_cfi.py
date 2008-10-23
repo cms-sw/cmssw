@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.Muon.CommonModules_cff import *
-import copy
-
 hltmmkFilter = cms.EDFilter("HLTmmkFilter",
     MinCosinePointingAngle = cms.double(0.9),
     MinLxySignificance = cms.double(3.0),
