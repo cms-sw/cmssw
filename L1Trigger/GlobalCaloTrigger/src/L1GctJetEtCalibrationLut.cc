@@ -29,12 +29,16 @@ void L1GctJetEtCalibrationLut::setOutputEtScale(const L1CaloEtScale* const scale
   m_outputEtScale = scale;
 }
 
+void L1GctJetEtCalibrationLut::setEtaBin(const unsigned eta) {
+  static const unsigned nEtaBits = 4;
+  static const uint8_t etaMask    = static_cast<uint8_t>((1 << nEtaBits) - 1);
+  m_etaBin = static_cast<uint8_t>(eta) & etaMask;
+}
+
 uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
 {
-  static const unsigned nEtaBits = 4;
   static const uint16_t maxEtMask  = static_cast<uint16_t>((1 << JET_ENERGY_BITWIDTH) - 1);
-  static const uint16_t etaMask    = static_cast<uint16_t>((1 << nEtaBits) - 1);
-  static const uint16_t tauBitMask = static_cast<uint16_t>( 1 << (JET_ENERGY_BITWIDTH + nEtaBits));
+  static const uint16_t tauBitMask = static_cast<uint16_t>( 1 << (JET_ENERGY_BITWIDTH));
   static const uint16_t ovrFlowOut = 0xffff;
   uint16_t jetEt = lutAddress & maxEtMask;
   // Check for saturation
@@ -42,10 +46,9 @@ uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
     return ovrFlowOut;
   } else {
     double uncoEt = static_cast<double>(jetEt) * m_outputEtScale->linearLsb();
-    unsigned eta = static_cast<unsigned>((lutAddress >> JET_ENERGY_BITWIDTH) & etaMask);
     bool tauVeto = ((lutAddress & tauBitMask)==0);
   
-    double corrEt = m_lutFunction->correctedEt(uncoEt, eta, tauVeto);
+    double corrEt = m_lutFunction->correctedEt(uncoEt, etaBin(), tauVeto);
     return m_lutFunction->calibratedEt(corrEt) | (m_outputEtScale->rank(corrEt) << JET_ENERGY_BITWIDTH);
   }
 }
@@ -56,7 +59,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut
   os << "==================================================" << std::endl;
   os << "===Level-1 Trigger:  GCT Jet Et Calibration Lut===" << std::endl;
   os << "==================================================" << std::endl;
-  os << "===Parameter settings===" << std::endl;
+  os << "===Parameter settings for eta bin " << lut.etaBin() << "===" << std::endl;
   os << *lut.getFunction() << std::endl;
   os << "\n===Lookup table contents===\n" << std::endl;
   const L1GctLut<L1GctJetEtCalibrationLut::NAddress,L1GctJetEtCalibrationLut::NData>* temp=&lut;

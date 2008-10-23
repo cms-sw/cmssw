@@ -3,6 +3,7 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include "FWCore/Utilities/interface/Exception.h"  
@@ -23,8 +24,9 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_neighbourJetFinders(2),
   m_gotNeighbourPointers(false),
   m_gotJetFinderParams(false),
+  m_gotJetEtCalLuts(false),
   m_CenJetSeed(0), m_FwdJetSeed(0), m_TauJetSeed(0), m_EtaBoundry(0),
-  m_jetEtCalLut(0),
+  m_jetEtCalLuts(),
   m_inputRegions(MAX_REGIONS_IN),
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
@@ -82,16 +84,20 @@ void L1GctJetFinderBase::setJetFinderParams(const L1GctJetFinderParams* jfpars)
 }
 
 /// Set pointer to calibration Lut - needed to complete the setup
-void L1GctJetFinderBase::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut)
+void L1GctJetFinderBase::setJetEtCalibrationLuts(const L1GctJetFinderBase::lutPtrVector& jfluts)
 {
-  m_jetEtCalLut = lut;
+  m_jetEtCalLuts = jfluts;
+  m_gotJetEtCalLuts = (jfluts.size() >= COL_OFFSET);
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
 {
   using std::endl;
   os << "ID = " << algo.m_id << endl;
-  os << "JetEtCalibrationLut* = " <<  algo.m_jetEtCalLut << endl;
+  os << "Calibration lut pointers stored for " << algo.m_jetEtCalLuts.size() << " eta bins" << endl;
+  for (unsigned ieta=0; ieta<algo.m_jetEtCalLuts.size(); ieta++) {
+    os << "Eta bin " << ieta << ", JetEtCalibrationLut* = " <<  algo.m_jetEtCalLuts.at(ieta) << endl;
+  }
   os << "No of input regions " << algo.m_inputRegions.size() << endl;
 //   for(unsigned i=0; i < algo.m_inputRegions.size(); ++i)
 //     {
@@ -192,6 +198,7 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
   }
 }
 
+
 // PROTECTED METHODS BELOW
 /// fetch the protoJets from neighbour jetFinder
 void L1GctJetFinderBase::fetchProtoJetsFromNeighbour(const fetchType ft)
@@ -218,16 +225,18 @@ void L1GctJetFinderBase::fetchProtoJetsFromNeighbour(const fetchType ft)
   }
 }
 
-
 /// Sort the found jets. All jetFinders should call this in process().
 void L1GctJetFinderBase::sortJets()
 {
-  //transform the jets to the final GCT output format
-  for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
-    m_sortedJets.at(j) = m_outputJets.at(j).jetCand(m_jetEtCalLut);
+  JetVector tempJets(MAX_JETS_OUT);
+  for (unsigned j=0; j<MAX_JETS_OUT; j++) {
+    tempJets.at(j) = m_outputJets.at(j).jetCand(m_jetEtCalLuts);
   }
-  //presort the jets into descending order of energy
-  sort(m_sortedJets.begin(), m_sortedJets.end(), rankGreaterThan());
+
+  // Sort the jets
+  L1GctJetSorter jSorter(tempJets);
+  m_sortedJets = jSorter.getSortedJets();
+
   //store jets in "pipeline memory" for checking
   m_outputJetsPipe.store(m_outputJets, bxRel());
 }
@@ -283,7 +292,8 @@ L1GctJetFinderBase::etTotalType L1GctJetFinderBase::calcHtStrip(const UShort str
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
       if (m_outputJets.at(i).rctPhi() == strip) {
-	ht += m_outputJets.at(i).calibratedEt(m_jetEtCalLut);
+	unsigned ieta = m_outputJets.at(i).rctEta();
+	ht += m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
 	of |= m_outputJets.at(i).overFlow();
       }
     }
