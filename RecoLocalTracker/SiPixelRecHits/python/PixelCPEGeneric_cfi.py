@@ -15,7 +15,10 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
 
     # ggiurgiu@jhu.edu
     inflate_errors = cms.untracked.bool(False),
-    inflate_all_errors_no_trk_angle = cms.untracked.bool(False)
+    inflate_all_errors_no_trk_angle = cms.untracked.bool(False),
+
+    # petar, for clusterProbability() from TTRHs
+    ClusterProbComputationFlag = cms.int32(0)         
 )
 
 

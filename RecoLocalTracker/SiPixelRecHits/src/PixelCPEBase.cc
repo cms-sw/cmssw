@@ -71,7 +71,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   //--- CPE itself...
   //
   clusterProbComputationFlag_ 
-    = (unsigned int) conf.getParameter<int>( "ClusterProbComputationFlag");
+    = (unsigned int) conf.getParameter<int>("ClusterProbComputationFlag");
 
 }
 
