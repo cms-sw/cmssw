@@ -113,6 +113,8 @@ void L1GctJetFinalStage::resetPipelines() {
 
 void L1GctJetFinalStage::fetchInput()
 {
+  // We fetch and store the negative eta jets first. This ensures they have
+  // higher priority when sorting equal rank jets.
   for(unsigned short iWheel=0; iWheel < MAX_WHEEL_FPGAS; ++iWheel)
   {
     storeJets(m_inputCentralJets, m_wheelFpgas.at(iWheel)->getCentralJets(), iWheel);

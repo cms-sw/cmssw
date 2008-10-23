@@ -669,6 +669,8 @@ L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() con
 // instantiate hardware/algorithms
 void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 
+  // The first half of the jet leaf cards are at negative eta,
+  // followed by positive eta
   // Jet Leaf cards
   for (int jlc=0; jlc<N_JET_LEAF_CARDS; jlc++) {
     theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3, jfType);
@@ -706,6 +708,8 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
    vector<L1GctJetLeafCard*> wheelJetLeafCards(3);
    vector<L1GctJetLeafCard*> wheelEnergyLeafCards(3);
 
+   // The first wheel card is at negative eta,
+   // the second one is at positive eta
    for (int i=0; i<N_WHEEL_CARDS; i++) {
      for (int j=0; j<3; j++) {
        wheelJetLeafCards.at(j)=theJetLeafCards.at(i*3+j);
