@@ -18,7 +18,7 @@ class SiPixelLorentzAngle {
   inline const std::map<unsigned int,float>&  getLorentzAngles () const {return m_LA;}
 
   bool   putLorentzAngle(const uint32_t&, float&);
-  const float&  getLorentzAngle (const uint32_t&) const;
+  float  getLorentzAngle (const uint32_t&) const;
 
 
  private:

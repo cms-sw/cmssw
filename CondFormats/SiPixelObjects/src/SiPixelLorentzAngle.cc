@@ -10,7 +10,7 @@ bool SiPixelLorentzAngle::putLorentzAngle(const uint32_t& detid, float& value){
   else m_LA[detid]=value;
   return true;
 }
-const float& SiPixelLorentzAngle::getLorentzAngle(const uint32_t& detid) const  {
+float SiPixelLorentzAngle::getLorentzAngle(const uint32_t& detid) const  {
   std::map<unsigned int,float>::const_iterator id=m_LA.find(detid);
   if(id!=m_LA.end()) return id->second;
   else {
