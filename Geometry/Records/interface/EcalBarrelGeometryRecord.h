@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -24,7 +25,9 @@ class EcalBarrelGeometryRecord :
 		boost::mpl::vector<
                 IdealGeometryRecord,
 		EBAlignmentRcd, 
-		EBAlignmentErrorRcd> > {};
+		EBAlignmentErrorRcd,
+		GlobalPositionRcd    
+		> > {};
 
 #endif /* RECORDS_ECALBARRELGEOMETRYRECORD_H */
 

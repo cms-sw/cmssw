@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
 
@@ -24,7 +25,9 @@ class EcalEndcapGeometryRecord :
 		boost::mpl::vector<
                 IdealGeometryRecord,
 		EEAlignmentRcd, 
-		EEAlignmentErrorRcd> > {};
+		EEAlignmentErrorRcd,
+		GlobalPositionRcd
+		> > {};
 
 #endif /* RECORDS_ECALENDCAPGEOMETRYRECORD_H */
 
