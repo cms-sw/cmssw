@@ -14,7 +14,6 @@
 
 */
 //
-// $Id: LuminosityBlockID.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 //
 
 // system include files
