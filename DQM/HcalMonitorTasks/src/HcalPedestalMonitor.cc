@@ -140,9 +140,9 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			"Pedestal Widths from DataBase","fC");
 
       // initialize all counters to 0
-      for (int eta=0;eta<(etaBins_-2);++eta)
+      for (int eta=0;eta<ETABINS;++eta)
 	{
-	  for (int phi=0;phi<72;++phi)
+	  for (int phi=0;phi<PHIBINS;++phi)
 	    {
 	      for (int depth=0;depth<4;++depth)
 		{
@@ -748,6 +748,7 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 void HcalPedestalMonitor::done()
 {
   // I'd like to put in another call to fillPedestalHistos() here, but this gets called after root file gets written?
+  // update on 22 October 2008:  DQMFileSaver gets called with endRun, not endJob.  If we want the the plots to be updated, we should call them in endRun
   return;
 }
 
