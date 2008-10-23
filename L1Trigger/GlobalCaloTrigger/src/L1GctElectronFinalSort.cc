@@ -4,8 +4,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
-#include <cassert>
-
 L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
                                                          L1GctEmLeafCard* negEtaCard):
   L1GctProcessor(),
@@ -81,9 +79,10 @@ void L1GctElectronFinalSort::process(){
 }
 
 void L1GctElectronFinalSort::setInputEmCand(unsigned i, const L1GctEmCand& cand){
-  assert (i<m_inputCands.size());
-  assert (cand.bx()==bxAbs());
-  m_inputCands.at(i) = cand;
+  if ((i<m_inputCands.size()) 
+    && (cand.bx()==bxAbs())) {
+    m_inputCands.at(i) = cand;
+  }
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand) {

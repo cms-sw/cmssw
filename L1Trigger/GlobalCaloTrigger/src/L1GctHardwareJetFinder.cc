@@ -1,7 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
  
 #include "FWCore/Utilities/interface/Exception.h"  
-#include <cassert>
 
 //DEFINE STATICS
 const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctHardwareJetFinder::N_COLS;
@@ -127,10 +126,11 @@ void L1GctHardwareJetFinder::findLocalMaxima()
         }
       }
       if (localMax) {
-        assert(jetNum < MAX_JETS_OUT);
+        if (jetNum < MAX_JETS_OUT) {
                 
-        m_localMaxima.at(jetNum) = m_inputRegions.at(centreIndex);
-        ++jetNum;
+	  m_localMaxima.at(jetNum) = m_inputRegions.at(centreIndex);
+	  ++jetNum;
+	}
       }
       ++centreIndex;
     }

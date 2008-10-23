@@ -6,8 +6,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <cassert>
-
 using std::ostream;
 using std::endl;
 using std::vector;
@@ -425,28 +423,5 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
     }
   }
 }
-
-// //----------------------------------------------------------------------------------
-// //
-// // The following method contains the bit-slicing
-// // of the Hf information for minbias triggers
-// // into 5-bit fields so it can be output using the 
-// // L1GctJetCounts object (from DataFormats/L1GlobalCaloTrigger).
-// //
-// // NOTE: the reverse operation of combining the 5-bit fields
-// // back into Hf information is carried out in L1GctJetCounts.
-// //
-// void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector)
-// {
-//   assert (N_JET_COUNTERS_USED<=6 && N_JET_COUNTERS_MAX>11);
-//   jcVector.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
-//   jcVector.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
-
-//   jcVector.at(8)  = m_plusWheelJetFpga->getOutputHfSums().etSum0;
-//   jcVector.at(9)  = m_minusWheelJetFpga->getOutputHfSums().etSum0;
-
-//   jcVector.at(10) = m_plusWheelJetFpga->getOutputHfSums().etSum1;
-//   jcVector.at(11) = m_minusWheelJetFpga->getOutputHfSums().etSum1;
-// }
 
 
