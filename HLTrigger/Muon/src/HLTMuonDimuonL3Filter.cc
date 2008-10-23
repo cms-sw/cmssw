@@ -179,7 +179,6 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      // eta cut
 	      LogDebug("HLTMuonDimuonL3Filter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
 	      if (fabs(tk2->eta())>max_Eta_) continue;
-	      if(!triggeredByLevel2(tk2,vl2cands)) continue;
 	      
 	      // cut on number of hits
 	      if (tk2->numberOfValidHits()<min_Nhits_) continue;
