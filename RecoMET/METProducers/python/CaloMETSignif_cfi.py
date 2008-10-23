@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # Run the missing ET significance algorithm.
 
 # product
-metsig = cms.EDProducer("METProducer",
+metsignificance = cms.EDProducer("METProducer",
     src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMETSignif'),
     alias = cms.string('RawCaloMETSignif'),
