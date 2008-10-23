@@ -8,6 +8,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Region.h"
+#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 
 #include <TFile.h>
 #include <TTree.h>

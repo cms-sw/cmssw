@@ -72,7 +72,7 @@ void PFClusterCalibration::init() {
 	}
 }
 
-PFClusterCalibration::PFClusterCalibration(IO* options_) :
+/*PFClusterCalibration::PFClusterCalibration(IO* options_) :
 	barrelEndcapEtaDiv_(1.0), ecalOnlyDiv_(0.3), hcalOnlyDiv_(0.5),
 			doCorrection_(1), allowNegativeEnergy_(0), doEtaCorrection_(1),
 			maxEToCorrect_(-1.0), correctionLowLimit_(0.), globalP0_(0.0),
@@ -106,7 +106,7 @@ PFClusterCalibration::PFClusterCalibration(IO* options_) :
 	options_->GetOpt("evolution", "etaCorrection", etaParams);
 	setEtaCorrectionParameters(etaParams);
 
-}
+} */
 
 PFClusterCalibration::PFClusterCalibration() :
 	barrelEndcapEtaDiv_(1.0), ecalOnlyDiv_(0.3), hcalOnlyDiv_(0.5),

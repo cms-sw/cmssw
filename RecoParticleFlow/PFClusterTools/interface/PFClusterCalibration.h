@@ -4,7 +4,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
-#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
+//#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 
 #include <vector>
 #include <string>
@@ -39,7 +39,7 @@ public:
 	/* Constructor with sensible defaults */
 	PFClusterCalibration();
 	
-	PFClusterCalibration(IO* io);
+	//PFClusterCalibration(IO* io);
 
 	virtual ~PFClusterCalibration();
 

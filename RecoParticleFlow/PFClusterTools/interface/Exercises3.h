@@ -7,7 +7,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.h"
-#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 
 #include <string>
@@ -17,7 +16,10 @@
 #include <TChain.h>
 #include <fstream>
 
+
 namespace pftools {
+class IO;
+
 class Exercises3 {
 public:
 		
