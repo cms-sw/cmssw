@@ -32,7 +32,7 @@ namespace edm {
 
   class StreamedProduct {
   public:
-    StreamedProduct() : prod_(0), desc_(0), mod_(), productID_(productstatus::neverCreated()), status_(), parents_(0) {}
+    StreamedProduct() : prod_(0), desc_(0), mod_(), productID_(), status_(productstatus::neverCreated()), parents_(0) {}
     explicit StreamedProduct(BranchDescription const& desc) :
 	prod_(0), desc_(&desc), mod_(), productID_(), status_(productstatus::neverCreated()), parents_(0) {}
 
