@@ -36,6 +36,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_ = ps.getUntrackedParameter<bool>("checkHF",true);
 
+  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100);
 
 
   // Minimum error rate that will caused the problem histogram to be filled
@@ -328,8 +329,6 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
                   (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
 		  nbinsx, lowboundx, highboundx,
 		  nbinsy, lowboundy, highboundy);
-  h->setAxisTitle("i#eta",1);
-  h->setAxisTitle("i#phi",2);
 
   setupDepthHists2D(hh, Name, Units, 
 		    nbinsx, lowboundx, highboundx,
@@ -401,11 +400,6 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
 			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
 			     nbinsx, lowboundx, highboundx,
 			     nbinsy, lowboundy, highboundy));
-  for (unsigned int i=0;i<hh.size();++i)
-    {
-      hh[i]->setAxisTitle("i#eta",1);
-      hh[i]->setAxisTitle("i#phi",2);
-    }
  
   if (showTiming)
     {
