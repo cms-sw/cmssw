@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/10/22 16:14:14 $
- * $Revision: 1.11 $
+ * $Date: 2008/10/22 17:38:10 $
+ * $Revision: 1.12 $
  * \author E. Di Marco
  *
 */
@@ -514,7 +514,8 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
                evtType != EcalDCCHeaderBlock::COSMICS_GLOBAL &&
                evtType != EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
                evtType != EcalDCCHeaderBlock::COSMICS_LOCAL &&
-               evtType != EcalDCCHeaderBlock::PHYSICS_LOCAL ) meEEGapErrors_->Fill( xism );
+               evtType != EcalDCCHeaderBlock::PHYSICS_LOCAL &&
+	       evtType != -1 ) meEEGapErrors_->Fill( xism );
         } else {
           if ( evtType == EcalDCCHeaderBlock::COSMIC ||
                evtType == EcalDCCHeaderBlock::MTCC ||
