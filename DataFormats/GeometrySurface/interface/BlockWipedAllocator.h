@@ -129,7 +129,7 @@ public:
   static int s_alive;
   static void * operator new(size_t s);
   
-  static void operator delete(void * p);
+  static void operator delete(void * p, size_t s);
   
   static BlockWipedAllocator & allocator(size_t s);
   

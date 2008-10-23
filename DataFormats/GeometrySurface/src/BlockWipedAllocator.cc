@@ -23,7 +23,7 @@ BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & 
 // cannot keep the count as dealloc is never called...
 
 void * BlockWipedAllocator::alloc() {
-  //  m_alive++;
+  m_alive++;
   void * ret = m_next;
   m_next+=m_typeSize;
   Block & block = *m_current;
@@ -34,7 +34,7 @@ void * BlockWipedAllocator::alloc() {
 }
   
 void BlockWipedAllocator::dealloc(void *) {
-  //  m_alive--;
+  m_alive--;
 }
 
 void BlockWipedAllocator::clear() const {
@@ -115,10 +115,10 @@ void * BlockWipedPoolAllocated::operator new(size_t s) {
   return (s_usePool) ? allocator(s).alloc() : ::operator new(s);
 }
 
-void BlockWipedPoolAllocated::operator delete(void * p) {
+void BlockWipedPoolAllocated::operator delete(void * p, size_t s) {
   s_alive--;
   if (!s_usePool) ::operator delete(p);
-  // allocator().dealloc(p);
+  allocator(s).dealloc(p);
 }
 
 BlockWipedAllocator & BlockWipedPoolAllocated::allocator(size_t s) {

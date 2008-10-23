@@ -16,7 +16,7 @@ namespace {
 		<< "/" << sa1.currentAvailable
 		<< ", " << sa1.totalAvailable
 		<< "/" << sa1.nBlocks
-	//		<< ", " << sa1.alive
+		<< ", " << sa1.alive
 		<< std::endl;
     }
     
@@ -46,7 +46,7 @@ public:
    // wiper();
   }
 
-  void wiper() {
+  void dump() {
     std::cout << "ReferenceCounted stat"<< std::endl;
     std::cout << "still alive/referenced " 
 	      << ReferenceCountedPoolAllocated::s_alive
@@ -57,6 +57,11 @@ public:
     std::cout << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
     Dumper dumper;
     blockWipedPool().visit(dumper);
+  }
+
+
+  void wiper() {
+    dump();
     blockWipedPool().wipe();
     {
        static int c=0;
@@ -69,16 +74,14 @@ public:
 
   }
  
-  // wipe before each module
+  // wipe before each module (no, obj in event....)
   void preModule(const edm::ModuleDescription& desc){
-//     blockWipedPool().wipe();
+    //     blockWipedPool().wipe();
   }
 
-void postModule(const edm::ModuleDescription& desc){
-//    std::cout << "BlockAllocator stat"<< std::endl;
-//    Dumper dumper;
-//    blockWipedPool().visit(dumper);
- }
+  void postModule(const edm::ModuleDescription& desc){
+    dump();
+    }
 
   // final stat
   void postEndJob() {

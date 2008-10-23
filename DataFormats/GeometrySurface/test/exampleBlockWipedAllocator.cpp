@@ -80,7 +80,7 @@ struct Dumper {
 	      << "/" << sa1.currentAvailable
 	      << ", " << sa1.totalAvailable
 	      << "/" << sa1.nBlocks
-      //	      << ", " << sa1.alive
+      	      << ", " << sa1.alive
 	      << std::endl;
   }
   
@@ -102,14 +102,16 @@ void dump(std::string const & mess="") {
 	    << " " << sa1.currentOccupancy
 	    << " " << sa1.currentAvailable
 	    << " " << sa1.totalAvailable
-	    << " " << sa1.nBlocks 
+	    << " " << sa1.nBlocks       	  
+	    << ", " << sa1.alive
 	    << std::endl;
   std::cout << "A2 " << sa2.blockSize
 	    << " " << sa2.currentOccupancy
 	    << " " << sa2.currentAvailable
 	    << " " << sa2.totalAvailable
-	    << " " << sa2.nBlocks 
-	    << std::endl;
+	    << " " << sa2.nBlocks
+	    << ", " << sa2.alive
+ 	    << std::endl;
 #endif
 #endif
 }
