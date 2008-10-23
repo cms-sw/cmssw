@@ -173,7 +173,7 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    uint iTk2=0;
 	    uint maxItk2=L2toL3s_it2->second.size();
 	    for (; iTk2!=maxItk2; iTk2++){
-	      RecoChargedCandidateRef & cand2=L2toL3s_it1->second[iTk1];
+	      RecoChargedCandidateRef & cand2=L2toL3s_it2->second[iTk2];
 	      TrackRef tk2 = cand2->get<TrackRef>();
 	      
 	      // eta cut
