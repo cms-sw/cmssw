@@ -35,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/19 09:21:47 $
-  * $Revision: 1.14 $
+  * $Date: 2008/10/20 12:24:03 $
+  * $Revision: 1.15 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -58,9 +58,19 @@ public:
   bool validDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth); // determine whether ID is valid (disable at some point)
   
   // Set up vectors of Monitors for individual depths
+  // 2-D histograms with eta-phi binning assumed
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units);
   void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
+  // Generic 2-D histograms
+  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units,
+			 int nbinsx, int lowboundx, int highboundx,
+			 int nbinsy, int lowboundy, int highboundy);
+  
+  void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units,
+			 int nbinsx, int lowboundx, int highboundx,
+			 int nbinsy, int lowboundy, int highboundy);
 
+  // 1-D histograms
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
   void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
 

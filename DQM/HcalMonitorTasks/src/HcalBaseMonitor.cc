@@ -229,6 +229,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
 {
   /* Code makes vector of 2D MonitorElements for all 6 depths
      (4 depths, + 2 for separate HE histograms).
+     Bins are automatically set for eta/phi indices
   */
 
   if (showTiming)
@@ -291,7 +292,130 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
 
+
 // *************************************************************** //
+
+void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, 
+					int nbinsx, int lowboundx, int highboundx, 
+					int nbinsy, int lowboundy, int highboundy)
+{
+  /* Code makes overall 2D MonitorElement histogram,
+     and the vector of 2D MonitorElements for each individual depth.
+     Bin ranges, sizes are specified by user
+  */
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  stringstream name;
+  name<<Name;
+  stringstream unitname;
+  stringstream unittitle;
+  if (Units=="")
+    {
+      unitname<<Units;
+      unittitle<<"No Units";
+    }
+  else
+    {
+      unitname<<" "<<Units;
+      unittitle<<Units;
+    }
+
+  h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
+                  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
+		  nbinsx, lowboundx, highboundx,
+		  nbinsy, lowboundy, highboundy);
+  h->setAxisTitle("i#eta",1);
+  h->setAxisTitle("i#phi",2);
+
+  setupDepthHists2D(hh, Name, Units, 
+		    nbinsx, lowboundx, highboundx,
+		    nbinsy, lowboundy, highboundy);
+
+
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+  return;
+} // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int nbinsx...)
+
+// *************************************************************** //
+
+
+void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units,
+					int nbinsx, int lowboundx, int highboundx,
+					int nbinsy, int lowboundy, int highboundy)
+{
+  /* Code makes vector of 2D MonitorElements for all 6 depths
+     (4 depths, + 2 for separate HE histograms).
+     Bins are automatically set for eta/phi indices
+  */
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  stringstream name;
+  name<<Name;
+
+  stringstream unitname;
+  stringstream unittitle;
+  if (Units=="")
+    {
+      unitname<<Units;
+      unittitle<<"No Units";
+    }
+  else
+    {
+      unitname<<" "<<Units;
+      unittitle<<Units;
+    }
+
+  // Push back depth plots
+  hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
+			     nbinsx, lowboundx, highboundx,
+			     nbinsy, lowboundy, highboundy));
+  hh.push_back( m_dbe->book2D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 2 -- HB & HF only ("+unittitle.str().c_str()+")"),
+			      nbinsx, lowboundx, highboundx,
+			      nbinsy, lowboundy, highboundy));
+  hh.push_back( m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
+			      nbinsx, lowboundx, highboundx,
+			      nbinsy, lowboundy, highboundy));
+  hh.push_back( m_dbe->book2D(("HO ZDC "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" -- HO & ZDC ("+unittitle.str().c_str()+")"),
+			      nbinsx, lowboundx, highboundx,
+			      nbinsy, lowboundy, highboundy));
+  hh.push_back(m_dbe->book2D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HE only ("+unittitle.str().c_str()+")"),
+			     nbinsx, lowboundx, highboundx,
+			     nbinsy, lowboundy, highboundy));
+  hh.push_back(m_dbe->book2D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
+			     nbinsx, lowboundx, highboundx,
+			     nbinsy, lowboundy, highboundy));
+  for (unsigned int i=0;i<hh.size();++i)
+    {
+      hh[i]->setAxisTitle("i#eta",1);
+      hh[i]->setAxisTitle("i#phi",2);
+    }
+ 
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+  return;
+} // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
+
+// ****************************************** //
 
 void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
 {
