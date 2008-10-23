@@ -30,6 +30,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 #include <string>
 
@@ -43,8 +45,11 @@ L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  theOnePerTrackPool = parameterSet.getUntrackedParameter<bool>("OnePerTrackPool",false);
   produces<RecoChargedCandidateCollection>();
+  theOutputTack = parameterSet.getUntrackedParameter<bool>("OutputTracks",false);
+  if (theOutputTack)
+    produces<TrackCollection>();
 }
   
 /// destructor
@@ -66,19 +71,43 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
   auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
 
-  for (unsigned int i=0; i<tracks->size(); i++) {
+  //make the L2->L3s pools
+  
+  if (theOnePerTrackPool){
+    typedef std::map<reco::TrackRef, reco::TrackRef > L2toL3sMap;
+    L2toL3sMap L2toL3s;
+    uint maxI = tracks->size();
+    for (uint i=0;i!=maxI;i++){
+      TrackRef tk(tracks,i);
+      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+      TrackRef staTrack = l3seedRef->l2Track();
+      L2toL3sMap::iterator f=L2toL3s.find(staTrack);
+      if (f!=L2toL3s.end()){
+	if (f->second->pt() < tk->pt()) f->second=tk;
+      } else L2toL3s[staTrack] = tk;
+    }
+    
+    L2toL3sMap::iterator i=L2toL3s.begin();
+    for (;i!=L2toL3s.end();++i) insertOne(i->second, *candidates);
+    
+  }
+  else{
+    for (unsigned int i=0; i<tracks->size(); i++) {
       TrackRef tkref(tracks,i);
-      Particle::Charge q = tkref->charge();
-      Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
-      Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
+      insertOne(tkref, *candidates);
+    }
+  }
 
-      int pid = 13;
-      if(abs(q)==1) pid = q < 0 ? 13 : -13;
-      else LogWarning(metname) << "L3MuonCandidate has charge = "<<q;
-      RecoChargedCandidate cand(q, p4, vtx, pid); 
-
-      cand.setTrack(tkref);
-      candidates->push_back(cand);
+  if (theOutputTack){
+    std::auto_ptr<TrackCollection> outTracks( new TrackCollection(candidates->size()));
+    TrackRefProd rTracks = event.getRefBeforePut<TrackCollection>();
+    for (uint i=0;i!=candidates->size();i++){
+      //copy the track over
+      (*outTracks)[i] = Track(*(*candidates)[i].track());
+      //candidate points to this new track: NO, other wise isolation ValueMap is screwed up.
+      (*candidates)[i].setTrack( TrackRef(rTracks,i));
+    }
+    event.put(outTracks);
   }
   
   event.put(candidates);
@@ -86,3 +115,17 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   LogTrace(metname)<<" Event loaded"
 		   <<"================================";
 }
+
+void L3MuonCandidateProducer::insertOne(const reco::TrackRef & tkref, RecoChargedCandidateCollection & candidates){
+  const string metname = "Muon|RecoMuon|L3MuonCandidateProducer";
+  Particle::Charge q = tkref->charge();
+  Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
+  Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
+  
+  int pid = 13;
+  if(abs(q)==1) pid = q < 0 ? 13 : -13;
+  else LogWarning(metname) << "L3MuonCandidate has charge = "<<q;
+  candidates.push_back(RecoChargedCandidate(q, p4, vtx, pid)); 
+  candidates.back().setTrack(tkref);
+}
+
