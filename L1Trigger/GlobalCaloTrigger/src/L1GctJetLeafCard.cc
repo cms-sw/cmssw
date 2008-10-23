@@ -3,7 +3,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
+//#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 
@@ -173,74 +173,75 @@ void L1GctJetLeafCard::fetchInput() {
 void L1GctJetLeafCard::process() {
 
   // Check the setup
-  assert(setupOk());
+  if (setupOk()) {
 
-  // Perform the jet finding
-  m_jetFinderA->process();
-  m_jetFinderB->process();
-  m_jetFinderC->process();
+    // Perform the jet finding
+    m_jetFinderA->process();
+    m_jetFinderB->process();
+    m_jetFinderC->process();
 
-  // Finish Et and Ht sums for the Leaf Card
-  // First Et and missing Et
-  std::vector< etTotalType > etStripSum(6);
-  etStripSum.at(0) = m_jetFinderA->getEtStrip0();
-  etStripSum.at(1) = m_jetFinderA->getEtStrip1();
-  etStripSum.at(2) = m_jetFinderB->getEtStrip0();
-  etStripSum.at(3) = m_jetFinderB->getEtStrip1();
-  etStripSum.at(4) = m_jetFinderC->getEtStrip0();
-  etStripSum.at(5) = m_jetFinderC->getEtStrip1();
+    // Finish Et and Ht sums for the Leaf Card
+    // First Et and missing Et
+    std::vector< etTotalType > etStripSum(6);
+    etStripSum.at(0) = m_jetFinderA->getEtStrip0();
+    etStripSum.at(1) = m_jetFinderA->getEtStrip1();
+    etStripSum.at(2) = m_jetFinderB->getEtStrip0();
+    etStripSum.at(3) = m_jetFinderB->getEtStrip1();
+    etStripSum.at(4) = m_jetFinderC->getEtStrip0();
+    etStripSum.at(5) = m_jetFinderC->getEtStrip1();
 
-  m_etSum.reset();
-  m_exSum.reset();
-  m_eySum.reset();
+    m_etSum.reset();
+    m_exSum.reset();
+    m_eySum.reset();
 
-  for (unsigned i=0; i<6; ++i) {
-    m_etSum = m_etSum + etStripSum.at(i);
+    for (unsigned i=0; i<6; ++i) {
+      m_etSum = m_etSum + etStripSum.at(i);
+    }
+
+    for (unsigned i=0; i<3; ++i) {
+      unsigned jphi = 2*(phiPosition*3+i);
+      m_exSum = m_exSum + exComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
+      m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
+    }
+
+    // Exactly the same procedure for Ht and missing Ht
+    // Note using etTotalType for the strips but the output sum is etHadType
+    std::vector< etTotalType > htStripSum(6);
+    htStripSum.at(0) = m_jetFinderA->getHtStrip0();
+    htStripSum.at(1) = m_jetFinderA->getHtStrip1();
+    htStripSum.at(2) = m_jetFinderB->getHtStrip0();
+    htStripSum.at(3) = m_jetFinderB->getHtStrip1();
+    htStripSum.at(4) = m_jetFinderC->getHtStrip0();
+    htStripSum.at(5) = m_jetFinderC->getHtStrip1();
+
+    m_htSum.reset();
+    m_hxSum.reset();
+    m_hySum.reset();
+
+    for (unsigned i=0; i<6; ++i) {
+      m_htSum = m_htSum + htStripSum.at(i);
+    }
+
+    for (unsigned i=0; i<3; ++i) {
+      unsigned jphi = 2*(phiPosition*3+i);
+      m_hxSum = m_hxSum + exComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
+      m_hySum = m_hySum + eyComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
+    }
+
+    m_hfSums = 
+      m_jetFinderA->getHfSums() +
+      m_jetFinderB->getHfSums() +
+      m_jetFinderC->getHfSums();
+
+    // Store the outputs in pipelines
+    m_exSumPipe.store  (m_exSum,  bxRel());
+    m_eySumPipe.store  (m_eySum,  bxRel());
+    m_hxSumPipe.store  (m_hxSum,  bxRel());
+    m_hySumPipe.store  (m_hySum,  bxRel());
+    m_etSumPipe.store  (m_etSum,  bxRel());
+    m_htSumPipe.store  (m_htSum,  bxRel());
+    m_hfSumsPipe.store (m_hfSums, bxRel());
   }
-
-  for (unsigned i=0; i<3; ++i) {
-    unsigned jphi = 2*(phiPosition*3+i);
-    m_exSum = m_exSum + exComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
-    m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
-  }
-
-  // Exactly the same procedure for Ht and missing Ht
-  // Note using etTotalType for the strips but the output sum is etHadType
-  std::vector< etTotalType > htStripSum(6);
-  htStripSum.at(0) = m_jetFinderA->getHtStrip0();
-  htStripSum.at(1) = m_jetFinderA->getHtStrip1();
-  htStripSum.at(2) = m_jetFinderB->getHtStrip0();
-  htStripSum.at(3) = m_jetFinderB->getHtStrip1();
-  htStripSum.at(4) = m_jetFinderC->getHtStrip0();
-  htStripSum.at(5) = m_jetFinderC->getHtStrip1();
-
-  m_htSum.reset();
-  m_hxSum.reset();
-  m_hySum.reset();
-
-  for (unsigned i=0; i<6; ++i) {
-    m_htSum = m_htSum + htStripSum.at(i);
-  }
-
-  for (unsigned i=0; i<3; ++i) {
-    unsigned jphi = 2*(phiPosition*3+i);
-    m_hxSum = m_hxSum + exComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
-    m_hySum = m_hySum + eyComponent(htStripSum.at(2*i), htStripSum.at(2*i+1), jphi);
-  }
-
-  m_hfSums = 
-    m_jetFinderA->getHfSums() +
-    m_jetFinderB->getHfSums() +
-    m_jetFinderC->getHfSums();
-
-  // Store the outputs in pipelines
-  m_exSumPipe.store  (m_exSum,  bxRel());
-  m_eySumPipe.store  (m_eySum,  bxRel());
-  m_hxSumPipe.store  (m_hxSum,  bxRel());
-  m_hySumPipe.store  (m_hySum,  bxRel());
-  m_etSumPipe.store  (m_etSum,  bxRel());
-  m_htSumPipe.store  (m_htSum,  bxRel());
-  m_hfSumsPipe.store (m_hfSums, bxRel());
 }
 
 bool L1GctJetLeafCard::setupOk() const {
