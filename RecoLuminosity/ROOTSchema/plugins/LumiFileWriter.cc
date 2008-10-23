@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.7 2008/09/23 14:58:37 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.8 2008/10/01 09:37:26 ahunt Exp $
 //
 //
 
@@ -40,10 +40,11 @@ LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
    // TCP Receiver configuration
    unsigned int listenPort = iConfig.getUntrackedParameter< unsigned int >("SourcePort", 51002);
    unsigned int AquireMode = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
-   std::string  DistribIP  = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcS2F17-18");
+   DistribIP1 = iConfig.getUntrackedParameter< std::string  >("PrimaryHLXDAQIP", "vmepcS2F17-18");
+   DistribIP2 = iConfig.getUntrackedParameter< std::string  >("SecondaryHLXDAQIP", "vmepcS2F17-19");
    reconTime               = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",60);
 
-   HLXTCP_ = new HCAL_HLX::TCPReceiver( listenPort, DistribIP, AquireMode );
+   HLXTCP_ = new HCAL_HLX::TCPReceiver( listenPort, DistribIP1, AquireMode );
    LumiSchema_ = new HCAL_HLX::ROOTSchema();
 
    // ROOTFileWriter configuration
@@ -90,11 +91,23 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
 			     const edm::EventSetup& iSetup){
   
   while(HLXTCP_->IsConnected() == false){
-    if(HLXTCP_->Connect() != 1){
-      std::cout << " Reconnect in " << reconTime << " seconds." <<  std::endl;
-      sleep(reconTime);
-    }
+     HLXTCP_->SetIP( DistribIP1 );
+     if( HLXTCP_->Connect() != 1){
+	std::cout << "Failed to connect to " << DistribIP1 << "." << std::endl;
+	sleep( 1 );
+	std::cout << "Trying " << DistribIP2 << std::endl;
+	HLXTCP_->SetIP( DistribIP2 );
+	if( HLXTCP_->Connect() == 1) break;
+	std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
+	std::cout << " Reconnect in " << reconTime << " seconds." <<  std::endl;
+	sleep(reconTime);
+     }
   }
+  if( HLXTCP_->IsConnected() == true ){
+     std::cout << "Successfully connected." << std::endl; 
+  }
+
+
     
   if( HLXTCP_->ReceiveLumiSection(*lumiSection_) == 1 ){
     
