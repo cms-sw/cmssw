@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/08/05 16:25:05 $
- *  $Revision: 1.69 $
+ *  $Date: 2008/10/14 19:46:38 $
+ *  $Revision: 1.70 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -712,34 +712,21 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   }
   else LogError(metname)<<"Wrong propagation direction!";
   
-  DetId hitId = outerDetId;
-  LogDebug(metname) << "outerId " << outerId << " hitId  " << hitId ;
-  if(!hitId.null()) LogDebug(metname)<<" det " << hitId.det() << " subdet " << hitId.subdetId();
-  bool compatible = true;
-  if(!hitId.null() && hitId.det() == DetId::Muon) {    
-    const DetLayer* hitLayer = theService->detLayerGeometry()->idToLayer(hitId);    
-    FreeTrajectoryState outerFts =  *outerTSOS.freeState();
-    compatible = false;
-    if(hitLayer->location() == GeomDetEnumerators::barrel) {
-      compatible = checkCompatible(outerFts,dynamic_cast<const BarrelDetLayer*>(hitLayer));
-    } else if (hitLayer->location() == GeomDetEnumerators::endcap) {
-      compatible = checkCompatible(outerFts,dynamic_cast<const ForwardDetLayer*>(hitLayer));
-    } else {
-      LogDebug(metname)<<"Cannot find layer!";
-      compatible = false;
-    }
-  }
+  const GeomDet *outerDet = theService->trackingGeometry()->idToDet(outerDetId);
+  GlobalPoint outerTSOSPos = outerTSOS.globalParameters().position();
+  bool inside = outerDet->surface().bounds().inside(outerDet->toLocal(outerTSOSPos));
+
   
   GlobalPoint hitPos = (outerRecHit->isValid()) ? outerRecHit->globalPosition() :  outerTSOS.globalParameters().position() ;
   
-  if(!compatible) {
+  if(!inside) {
     LogTrace(metname)<<"The Global Muon outerMostMeasurementState is not compatible with the recHit detector! Setting outerMost postition to recHit position if recHit isValid: " << outerRecHit->isValid();
-    LogTrace(metname)<<"From " << outerTSOS.globalParameters().position() << " to " <<  hitPos;
+    LogTrace(metname)<<"From " << outerTSOSPos << " to " <<  hitPos;
   }
   
   
   //build the TrackExtra
-  GlobalPoint v = (compatible) ? outerTSOS.globalParameters().position() : hitPos ;
+  GlobalPoint v = (inside) ? outerTSOSPos : hitPos ;
   GlobalVector p = outerTSOS.globalParameters().momentum();
   math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
   math::XYZVector outmom( p.x(), p.y(), p.z() );
@@ -756,42 +743,4 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   
   return trackExtra;
  
-}
-
-bool MuonTrackLoader::checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer* dl) const {
-  float epsilon_ = 100.;
-  float z0 = fts.position().z();
-  float r0 = fts.position().perp();
-  float zm = fts.momentum().z();
-  float rm = fts.momentum().perp();
-  float slope = zm/rm;
-  if (! (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ) slope = -slope;
-  const BoundCylinder bc = dl->specificSurface();
-  float radius = bc.radius();
-  float length = bc.bounds().length()/2.;
-  
-  float z1 = slope*(radius - r0) + z0;
-  return ( fabs(z1) <= fabs(length)+epsilon_ );
-  
-}
-
-bool MuonTrackLoader::checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer* dl) const {
-  float epsilon_ = 100.;
-  float z0 = fts.position().z();
-  float r0 = fts.position().perp();
-  float zm = fts.momentum().z();
-  float rm = fts.momentum().perp();
-  float slope = rm/zm;
-  
-  if (! (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ) slope = -slope;
-  
-  const BoundDisk bd = dl->specificSurface();
-  
-  float outRadius = bd.outerRadius();
-  float inRadius = bd.innerRadius();
-  float z = bd.position().z();
-  
-  float r1 = slope*(z - z0) + r0;
-  return (r1 >= inRadius-epsilon_ && r1 <= outRadius+epsilon_);
-  
 }

@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2008/07/31 12:57:52 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/10/14 19:46:38 $
+ *  $Revision: 1.25 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -67,11 +67,6 @@ class MuonTrackLoader {
     std::pair<bool,reco::Track> buildTrackUpdatedAtPCA(const reco::Track& trackAtPCA, const reco::BeamSpot &) const;
 
     reco::TrackExtra buildTrackExtra(const Trajectory&) const;
-
-    bool checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer*) const;
-    
-    bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
-
 
     const MuonServiceProxy *theService;
 
