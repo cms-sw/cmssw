@@ -1937,8 +1937,7 @@ hltCkfL1IsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfL1IsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -1994,8 +1993,7 @@ hltL1IsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidate
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1IsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2312,8 +2310,7 @@ hltCkfL1NonIsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfL1NonIsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2369,8 +2366,7 @@ hltL1NonIsoElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandid
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1NonIsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2497,8 +2493,7 @@ hltCkfL1IsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker"
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfL1IsoLargeWindowWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2554,8 +2549,7 @@ hltL1IsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTra
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1IsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2690,8 +2684,7 @@ hltCkfL1NonIsoLargeWindowTrackCandidates = cms.EDProducer( "CkfTrackCandidateMak
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfL1NonIsoLargeWindowWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2747,8 +2740,7 @@ hltL1NonIsoLargeWindowElectronsRegionalCkfTrackCandidates = cms.EDProducer( "Ckf
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1NonIsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -2918,8 +2910,7 @@ hltCkfL1IsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfL1IsoStartUpWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -2950,8 +2941,7 @@ hltCkfL1NonIsoStartUpTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfL1NonIsoStartUpWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3007,8 +2997,7 @@ hltL1IsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCa
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3051,8 +3040,7 @@ hltL1NonIsoStartUpElectronsRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrac
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1NonIsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3348,8 +3336,7 @@ hltL1IsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMak
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1IsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -3392,8 +3379,7 @@ hltL1NonIsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidate
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
@@ -6671,8 +6657,7 @@ hltBLifetimeRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -6804,8 +6789,7 @@ hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.EDProducer( "CkfTrackCandida
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7101,8 +7085,7 @@ hltCkfTrackCandidatesMumu = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfWithMaterialTracksMumu = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7232,8 +7215,7 @@ hltCkfTrackCandidatesMumuk = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfWithMaterialTracksMumuk = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7481,8 +7463,7 @@ hltCkfTrackCandidatesL3SingleTau = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfWithMaterialTracksL3SingleTau = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
@@ -7672,8 +7653,7 @@ hltCkfTrackCandidatesL3SingleTauMET = cms.EDProducer( "CkfTrackCandidateMaker",
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    fractionShared = cms.double( 0.5 )
+    cleanTrajectoryAfterInOut = cms.bool( False )
 )
 hltCtfWithMaterialTracksL3SingleTauMET = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
