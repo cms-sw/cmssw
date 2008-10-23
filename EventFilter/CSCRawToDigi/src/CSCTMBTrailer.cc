@@ -43,7 +43,10 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
     break;
   case 2007:
     ///in 2007 format de0f line moved
-    thePadding = (theData[3] == 0xde0f ? 2 : 0);
+    // =VB= check for 1st word to be 0xDE0F, then check 3rd 
+    // to handle freaky cases of double 0xDE0F signatures in trailer 
+    thePadding = (theData[1] == 0xde0f ? 0 : (theData[3] == 0xde0f ? 2 : 0)); 
+//    thePadding = (theData[3] == 0xde0f ? 2 : 0);
     break;
   default: 
     edm::LogError("CSCTMBTrailer|CSCRawToDigi")

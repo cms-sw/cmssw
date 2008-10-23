@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/07/29 20:47:04 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/07/29 21:02:09 $
+ *  $Revision: 1.26 $
  *  \author A. Tumanov - Rice
  */
 
@@ -82,6 +82,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   unsigned short int firmwareVersion=0;
   int Ntbins = 0 ;
   int NHeaderFrames = 0;
+  int NRPCtbins = 0; // =VB= number of RPC tbins  
   
   int b0cLine=0;///assumes that buf starts at the tmb data
                 ///this is not true if something is wrong in the data 
@@ -91,11 +92,13 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   if (buf[b0cLine]==0xdb0c) {
     firmwareVersion=2007;
     Ntbins = buf[b0cLine+19]&0xF8;
+    NRPCtbins = (buf[b0cLine+36]>>5)&0x1F; // =VB= get RPC tbins  
     NHeaderFrames = buf[b0cLine+5]&0x3F;
   } 
   else if (buf[b0cLine]==0x6b0c) {
     firmwareVersion=2006;
     Ntbins =  buf[b0cLine+1]&0x1f ;
+    NRPCtbins = Ntbins;
     NHeaderFrames = buf[b0cLine+4]&0x1f;
   } 
   else {
@@ -107,7 +110,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: error in header in 2007 format!";
   }
 
-  int MaxSizeRPC = 1+Ntbins*2*4+1;
+  int MaxSizeRPC = 1+NRPCtbins*2*4+1;
   //int MaxSizeScope = 5;
   int e0bLine =-1;
   switch (firmwareVersion) {
@@ -164,10 +167,10 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int TotTMBReadout=0;
   switch (firmwareVersion) {
   case 2007:
-    TotTMBReadout= 43+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8;
+    TotTMBReadout= 43+Ntbins*6*5+1+NRPCtbins*2*4+2+8*256+8;
     break;
   case 2006:
-    TotTMBReadout= 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
+    TotTMBReadout= 27+Ntbins*6*5+1+NRPCtbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
     break;
   default:
     edm::LogError("CSCTMBData|CSCRawToDigi") << "can't find TotTMBReadout - unknown firmware version!";
