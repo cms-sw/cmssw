@@ -181,6 +181,7 @@
   <class name="pat::PATObject<pat::JetType>" />
   <class name="pat::PATObject<pat::METType>" />
   <class name="pat::PATObject<pat::ParticleType>" />
+  <class name="pat::PATObject<pat::CompositeCandidateType>" />
   <class name="pat::PATObject<pat::PFParticleType>" />
   <class name="pat::PATObject<reco::RecoCandidate>" />
   <class name="pat::Lepton<pat::ElectronType>" />
@@ -205,6 +206,7 @@
   <class name="pat::MHT" />
      <class name="std::vector<SpecificCaloMETData> "/>
   <class name="pat::Particle" />
+  <class name="pat::CompositeCandidate" />
   <class name="pat::PFParticle" />
   <class name="pat::GenericParticle" />
   <class name="pat::Hemisphere" />
@@ -218,6 +220,7 @@
   <class name="std::vector<pat::MET>" />
   <class name="std::vector<pat::MHT>" />
   <class name="std::vector<pat::Particle>" />
+  <class name="std::vector<pat::CompositeCandidate>" />
   <class name="std::vector<pat::PFParticle>" />
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
@@ -231,6 +234,7 @@
   <class name="std::vector<pat::MET>::const_iterator" />
   <class name="std::vector<pat::MHT>::const_iterator" />
   <class name="std::vector<pat::Particle>::const_iterator" />
+  <class name="std::vector<pat::CompositeCandidate>::const_iterator" />
   <class name="std::vector<pat::PFParticle>::const_iterator" />
   <class name="std::vector<pat::GenericParticle>::const_iterator" />
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
@@ -244,6 +248,7 @@
   <class name="edm::Wrapper<std::vector<pat::MET> >" />
   <class name="edm::Wrapper<std::vector<pat::MHT> >" />
   <class name="edm::Wrapper<std::vector<pat::Particle> >" />
+  <class name="edm::Wrapper<std::vector<pat::CompositeCandidate> >" />
   <class name="edm::Wrapper<std::vector<pat::PFParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
@@ -257,6 +262,7 @@
   <class name="pat::METRef" />
 <!-- no ref needed for pat::MHT as it is filled from PAT objects -->
   <class name="pat::ParticleRef" />
+  <class name="pat::CompositeCandidateRef" />
   <class name="pat::PFParticleRef" />
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
@@ -269,6 +275,7 @@
   <class name="pat::JetRefVector" />
   <class name="pat::METRefVector" />
   <class name="pat::ParticleRefVector" />
+  <class name="pat::CompositeCandidateRefVector" />
   <class name="pat::PFParticleRefVector" />
   <class name="pat::GenericParticleRefVector" />
   <class name="pat::HemisphereRefVector" />
@@ -281,6 +288,7 @@
   <class name="edm::Wrapper<pat::JetRefVector>" />
   <class name="edm::Wrapper<pat::METRefVector>" />
   <class name="edm::Wrapper<pat::ParticleRefVector>" />
+  <class name="edm::Wrapper<pat::CompositeCandidateRefVector>" />
   <class name="edm::Wrapper<pat::PFParticleRefVector>" />
   <class name="edm::Wrapper<pat::GenericParticleRefVector>" />
   <class name="edm::Wrapper<pat::HemisphereRefVector>" />
@@ -295,6 +303,7 @@
   <class name="edm::reftobase::Holder<reco::Candidate, pat::METRef>" />
 <!-- no reftobase needed for pat::MHT as it is filled from PAT objects -->
   <class name="edm::reftobase::Holder<reco::Candidate, pat::ParticleRef>" />
+  <class name="edm::reftobase::Holder<reco::Candidate, pat::CompositeCandidateRef>" />
   <class name="edm::reftobase::Holder<reco::Candidate, pat::PFParticleRef>" />
   <class name="edm::reftobase::Holder<reco::Candidate, pat::GenericParticleRef>" />
     <!-- With indirect holder (RefHolder) -->
@@ -306,6 +315,7 @@
   <class name="edm::reftobase::RefHolder<pat::METRef>" />
 <!-- no reftobase needed for pat::MHT as it is filled from PAT objects -->
   <class name="edm::reftobase::RefHolder<pat::ParticleRef>" />
+  <class name="edm::reftobase::RefHolder<pat::CompositeCandidateRef>" />
   <class name="edm::reftobase::RefHolder<pat::PFParticleRef>" />
   <class name="edm::reftobase::RefHolder<pat::GenericParticleRef>" />
   <!-- RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful? -->

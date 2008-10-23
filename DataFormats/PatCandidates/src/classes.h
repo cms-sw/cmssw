@@ -11,6 +11,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/MHT.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
@@ -207,6 +208,7 @@ namespace {
   std::vector<pat::MET>::const_iterator	            v_p_m_ci;
   std::vector<pat::MHT>::const_iterator	            v_p_mht_ci;
   std::vector<pat::Particle>::const_iterator	    v_p_p_ci;
+  std::vector<pat::CompositeCandidate>::const_iterator	v_p_cc_ci;
   std::vector<pat::PFParticle>::const_iterator	    v_p_pfp_ci;
   std::vector<pat::GenericParticle>::const_iterator v_p_gp_ci;
   std::vector<pat::Hemisphere>::const_iterator	    v_p_h_ci;
@@ -220,6 +222,7 @@ namespace {
   edm::Wrapper<std::vector<pat::MET> >	            w_v_p_m;
   edm::Wrapper<std::vector<pat::MHT> >	            w_v_p_mht;
   edm::Wrapper<std::vector<pat::Particle> >	    w_v_p_p;
+  edm::Wrapper<std::vector<pat::CompositeCandidate> > w_v_cc_p;
   edm::Wrapper<std::vector<pat::PFParticle> >	    w_v_p_pfp;
   edm::Wrapper<std::vector<pat::GenericParticle> >  w_v_p_gp;
   edm::Wrapper<std::vector<pat::Hemisphere> >	    w_v_p_h;
@@ -232,6 +235,7 @@ namespace {
   pat::JetRef	            p_r_j;
   pat::METRef	            p_r_m;
   pat::ParticleRef	    p_r_p;
+  pat::CompositeCandidateRef	    p_r_cc;
   pat::PFParticleRef	    p_r_pgp;
   pat::GenericParticleRef   p_r_gp;
   pat::HemisphereRef	    p_r_h;
@@ -244,6 +248,7 @@ namespace {
   edm::Wrapper<pat::JetRefVector>	        p_rv_j;
   edm::Wrapper<pat::METRefVector>	        p_rv_m;
   edm::Wrapper<pat::ParticleRefVector>	        p_rv_p;
+  edm::Wrapper<pat::CompositeCandidateRefVector> p_rv_cc;
   edm::Wrapper<pat::PFParticleRefVector>	p_rv_pgp;
   edm::Wrapper<pat::GenericParticleRefVector>   p_rv_gp;
   edm::Wrapper<pat::HemisphereRefVector>	p_rv_h;
@@ -257,6 +262,7 @@ namespace {
   edm::reftobase::Holder<reco::Candidate, pat::JetRef>	         	rb_cand_h_p_j;
   edm::reftobase::Holder<reco::Candidate, pat::METRef>	         	rb_cand_h_p_m;
   edm::reftobase::Holder<reco::Candidate, pat::ParticleRef>	 	rb_cand_h_p_p;
+  edm::reftobase::Holder<reco::Candidate, pat::CompositeCandidateRef>	rb_cand_h_p_cc;
   edm::reftobase::Holder<reco::Candidate, pat::PFParticleRef>	 	rb_cand_h_p_pfp;
   edm::reftobase::Holder<reco::Candidate, pat::GenericParticleRef>	rb_cand_h_p_gp;
     /*   With indirect holder (RefHolder)   */
@@ -267,6 +273,7 @@ namespace {
   edm::reftobase::RefHolder<pat::JetRef>	 	rb_rh_p_j;
   edm::reftobase::RefHolder<pat::METRef>	 	rb_rh_p_m;
   edm::reftobase::RefHolder<pat::ParticleRef>	 	rb_rh_p_p;
+  edm::reftobase::RefHolder<pat::CompositeCandidateRef>	rb_rh_p_cc;
   edm::reftobase::RefHolder<pat::PFParticleRef>	 	rb_rh_p_pfp;
   edm::reftobase::RefHolder<pat::GenericParticleRef>    rb_rh_p_gp;
   /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
