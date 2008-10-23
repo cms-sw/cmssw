@@ -19,7 +19,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id$
+// $Id: significanceAlgo.cc,v 1.8 2008/10/23 17:13:24 xs32 Exp $
 //
 //
 
@@ -92,19 +92,22 @@ metsig::ASignificance(const std::vector<SigInputObj>& EventVec, double &met_r, d
   met_r = sqrt(xmet*xmet + ymet*ymet);
   met_set = set_worker;
   //--- Ensure met_phi is in [-pi, pi] ---//
-  double tmp_met_phi;
-  if( (xmet) >=0.0 ) {
-    tmp_met_phi = TMath::ATan( (ymet) / (xmet) );
-  }
-  else {
-    if( (ymet) >=0.0 ) {
-      tmp_met_phi = TMath::ATan(ymet/xmet) + TMath::Pi();
-    }
-    else{ // => ymet<0
-      tmp_met_phi = TMath::ATan(ymet/xmet) - TMath::Pi();
-    }
-  }
-  met_phi = tmp_met_phi;
+
+//   double tmp_met_phi;
+//   if( (xmet) >=0.0 ) {
+//     tmp_met_phi = TMath::ATan( (ymet) / (xmet) );
+//   }
+//   else {
+//     if( (ymet) >=0.0 ) {
+//       tmp_met_phi = TMath::ATan(ymet/xmet) + TMath::Pi();
+//     }
+//     else{ // => ymet<0
+//       tmp_met_phi = TMath::ATan(ymet/xmet) - TMath::Pi();
+//     }
+//   }
+//   met_phi = tmp_met_phi;
+
+  met_phi= TMath::ATan2(ymet, xmet);
   
   //--- Calculate Significance ---//
   v_tot.Invert();
