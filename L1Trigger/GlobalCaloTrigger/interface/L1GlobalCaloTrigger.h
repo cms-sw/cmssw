@@ -9,6 +9,7 @@
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 #include <vector>
@@ -59,6 +60,9 @@ public:
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
 
+  typedef L1GctJetFinderBase::lutPtr       lutPtr;
+  typedef L1GctJetFinderBase::lutPtrVector lutPtrVector;
+
   /// construct the GCT
   L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
 
@@ -77,8 +81,8 @@ public:
   /// Setup the jet finder parameters
   void setJetFinderParams(const L1GctJetFinderParams* jfpars);
 
-  /// setup the Jet Calibration Lut
-  void setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut);
+  /// setup the Jet Calibration Luts
+  void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
   /// setup Jet Counter LUTs
   void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
@@ -196,7 +200,7 @@ public:
   L1GctElectronFinalSort* getNonIsoEmFinalStage() const { return theNonIsoEmFinalStage; }
 
   /// get the Jet Et calibration LUT
-  const L1GctJetEtCalibrationLut* getJetEtCalibLut() const { return m_jetEtCalLut; }
+  const lutPtrVector getJetEtCalibLuts() const { return m_jetEtCalLuts; }
 
   ///=================================================================================================
   /// Print method
@@ -223,9 +227,7 @@ public:
   void build(L1GctJetLeafCard::jetFinderType jfType);
 
   /// check we have done all the setup
-  bool setupOk() { return (m_jetFinderParams != 0)
-                           && (m_jetEtCalLut != 0)
-                      && (m_inputChannelMask != 0); }
+  bool setupOk();
 
   /// ordering of the electron sorters to give the correct
   /// priority to the candidates in the final sort 
@@ -280,7 +282,7 @@ public:
   const L1GctJetFinderParams* m_jetFinderParams;
 
   /// Jet Et calibration LUT
-  const L1GctJetEtCalibrationLut* m_jetEtCalLut;
+  lutPtrVector m_jetEtCalLuts;
 
   /// Input channel mask
   const L1GctChannelMask* m_inputChannelMask;

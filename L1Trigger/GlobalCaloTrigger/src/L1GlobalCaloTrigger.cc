@@ -6,7 +6,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
@@ -17,8 +16,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include <cassert>
 
 using std::vector;
 
@@ -37,7 +34,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
   theWheelJetFpgas(N_WHEEL_CARDS),
   theWheelEnergyFpgas(N_WHEEL_CARDS),
   m_jetFinderParams(0),
-  m_jetEtCalLut(0),
+  m_jetEtCalLuts(),
   m_inputChannelMask(0),
   m_bxRangeAuto(true),
   m_bxStart(0), m_numOfBx(1),
@@ -46,7 +43,6 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
 
   // construct hardware
   build(jfType);
-  
 }
 
 /// GCT Destructor
@@ -135,29 +131,30 @@ void L1GlobalCaloTrigger::reset() {
 void L1GlobalCaloTrigger::process() {
 
   // Shouldn't get here unless the setup has been completed
-  assert (setupOk());
+  if (setupOk()) {
 
-  /// Sort the input data by bunch crossing number
-  sortInputData();
-  // Extract the earliest and latest bunch crossing
-  // in the input if required, and forward to the processors
-  // to determine the size of the output vectors
-  bxSetup();
+    /// Sort the input data by bunch crossing number
+    sortInputData();
+    // Extract the earliest and latest bunch crossing
+    // in the input if required, and forward to the processors
+    // to determine the size of the output vectors
+    bxSetup();
 
-  vector<L1CaloEmCand>::iterator emc=m_allInputEmCands.begin();
-  vector<L1CaloRegion>::iterator rgn=m_allInputRegions.begin();
-  int bx = m_bxStart;
+    vector<L1CaloEmCand>::iterator emc=m_allInputEmCands.begin();
+    vector<L1CaloRegion>::iterator rgn=m_allInputRegions.begin();
+    int bx = m_bxStart;
 
-  // Loop over bunch crossings
-  for (int i=0; i<m_numOfBx; i++) {
-    // Perform partial reset (reset processing logic but preserve pipeline contents)
-    bxReset(bx);
-    // Fill input data into processors for this bunch crossing
-    fillEmCands(emc, bx);
-    fillRegions(rgn, bx);
-    // Process this bunch crossing
-    bxProcess(bx);
-    bx++;
+    // Loop over bunch crossings
+    for (int i=0; i<m_numOfBx; i++) {
+      // Perform partial reset (reset processing logic but preserve pipeline contents)
+      bxReset(bx);
+      // Fill input data into processors for this bunch crossing
+      fillEmCands(emc, bx);
+      fillRegions(rgn, bx);
+      // Process this bunch crossing
+      bxProcess(bx);
+      bx++;
+    }
   }
 }
 
@@ -310,27 +307,28 @@ void L1GlobalCaloTrigger::bxProcess(const int bx) {
 void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars) {
 
   // Some parameters not (yet?) implemented
-  assert (jfpars->CENTRAL_FORWARD_ETA_BOUNDARY==7);
-  assert (jfpars->CENTRAL_JET_SEED==jfpars->TAU_JET_SEED);
+  if ((jfpars->CENTRAL_FORWARD_ETA_BOUNDARY==7) &&
+      (jfpars->CENTRAL_JET_SEED==jfpars->TAU_JET_SEED)) { 
 
-  m_jetFinderParams = jfpars;
-  // Need to propagate the new parameters to all the JetFinders
-  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    theJetLeafCards.at(i)->getJetFinderA()->setJetFinderParams(jfpars);
-    theJetLeafCards.at(i)->getJetFinderB()->setJetFinderParams(jfpars);
-    theJetLeafCards.at(i)->getJetFinderC()->setJetFinderParams(jfpars);
+    m_jetFinderParams = jfpars;
+    // Need to propagate the new parameters to all the JetFinders
+    for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+      theJetLeafCards.at(i)->getJetFinderA()->setJetFinderParams(jfpars);
+      theJetLeafCards.at(i)->getJetFinderB()->setJetFinderParams(jfpars);
+      theJetLeafCards.at(i)->getJetFinderC()->setJetFinderParams(jfpars);
+    }
   }
 }
 
 /// setup the Jet Calibration Lut
-void L1GlobalCaloTrigger::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut) {
+void L1GlobalCaloTrigger::setJetEtCalibrationLuts(const L1GlobalCaloTrigger::lutPtrVector& jfluts) {
 
-  m_jetEtCalLut = lut;
+  m_jetEtCalLuts = jfluts;
   // Need to propagate the new lut to all the JetFinders
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    theJetLeafCards.at(i)->getJetFinderA()->setJetEtCalibrationLut(lut);
-    theJetLeafCards.at(i)->getJetFinderB()->setJetEtCalibrationLut(lut);
-    theJetLeafCards.at(i)->getJetFinderC()->setJetEtCalibrationLut(lut);
+    theJetLeafCards.at(i)->getJetFinderA()->setJetEtCalibrationLuts(jfluts);
+    theJetLeafCards.at(i)->getJetFinderB()->setJetEtCalibrationLuts(jfluts);
+    theJetLeafCards.at(i)->getJetFinderC()->setJetEtCalibrationLuts(jfluts);
   }
 }
 
@@ -349,7 +347,7 @@ void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosP
   }
 }
 
-  /// setup Hf sum LUTs
+/// setup Hf sum LUTs
 void L1GlobalCaloTrigger::setupHfSumLuts(const L1GctHfLutSetup* iSetup) {
   if (getHfSumProcessor() != 0) {
     getHfSumProcessor()->setupLuts(iSetup);
@@ -359,6 +357,16 @@ void L1GlobalCaloTrigger::setupHfSumLuts(const L1GctHfLutSetup* iSetup) {
 /// setup the input channel mask
 void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* mask) {
   m_inputChannelMask = mask;
+}
+
+/// check we have done all the setup
+bool L1GlobalCaloTrigger::setupOk() { 
+  bool result = true;
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    result &= theJetLeafCards.at(i)->setupOk();
+  }
+  result &= (m_inputChannelMask != 0);
+  return result;
 }
 
 /// provide access to hf sum processor
@@ -728,9 +736,9 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 ///    crates  9 -12 : priority 3 (lowest)
 unsigned L1GlobalCaloTrigger::sorterNo(const L1CaloEmCand& em) const {
   unsigned crate = em.rctCrate();
-  assert (crate<18);
   unsigned result = ( ((crate%9) < 4) ? 1 : 0 );
   if (crate>=9) result += 2;
-  return result;
+  if (crate>=18) result = 0;
+  return result; 
 }
 

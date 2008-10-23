@@ -3,6 +3,7 @@
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <functional>
+#include <vector>
 #include <ostream>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -18,6 +19,8 @@
  *  Move this to DataFormats/L1GlobalCaloTrigger if possible
  */
 
+#include "boost/shared_ptr.hpp"
+
 class L1GctJetCand;
 class L1GctJetEtCalibrationLut;
 
@@ -31,6 +34,9 @@ public:
     kRawsumMaxValue = (1<<kRawsumBitWidth) - 1
   };
   
+  //Typedefs
+  typedef boost::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
+
   //Constructors/destructors
   L1GctJet(const uint16_t rawsum=0, const unsigned eta=0, const unsigned phi=0, const bool overFlow=false,
            const bool forwardJet=true, const bool tauVeto=true, const int16_t bx=0);
@@ -96,12 +102,13 @@ public:
   /// the bunch crossing number
   int16_t bx() const { return m_bx; }
 
-  /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
-  L1GctJetCand jetCand(const L1GctJetEtCalibrationLut* lut) const;
+  /// Functions to convert from internal format to external jet candidates at the output of the jetFinder 
+  L1GctJetCand jetCand(const lutPtr lut) const;
+  L1GctJetCand jetCand(const std::vector<lutPtr> luts) const;
 
   /// The two separate Lut outputs
-  uint16_t rank(const L1GctJetEtCalibrationLut* lut) const;
-  unsigned calibratedEt(const L1GctJetEtCalibrationLut* lut) const;
+  uint16_t rank(const lutPtr lut) const;
+  unsigned calibratedEt(const lutPtr lut) const;
 
 
  private:
@@ -114,7 +121,7 @@ public:
   bool m_tauVeto;
   int16_t m_bx;
 
-  uint16_t lutValue (const L1GctJetEtCalibrationLut* lut) const;
+  uint16_t lutValue (const lutPtr lut) const;
 
 };
 
