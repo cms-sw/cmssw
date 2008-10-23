@@ -152,10 +152,11 @@ void Draw()
    setTDRStyle(1,0);
    TFile* file = new TFile("nozs_barrel.root");
    TCanvas* c1 = new TCanvas("X","Y",1);
+
    TAxis* xaxis = hprEH11x5->GetXaxis();
    hprEH11x5->GetXaxis()->SetTitle("p_{T} of #pi ^{+} and #pi ^{-}, GeV");
    hprEH11x5->GetYaxis()->SetTitleOffset(1.3);
-   hprEH11x5->GetYaxis()->SetTitle("Mean energy ECAL+HCAL / E^{true}");
+   hprEH11x5->GetYaxis()->SetTitle("E of calo rec hits in ECAL(11x11)+HCAL(5x5)/E^{true}");
    hprEH11x5->SetMarkerStyle(21);
    hprEH11x5->SetMaximum(1.0);
    hprEH11x5->SetMinimum(0.2);
@@ -179,55 +180,24 @@ void Draw()
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
    t->DrawLatex(2.0,0.9,"CMSSW_2_1_9, |#eta|< 1.0");
-   c1->SaveAs("SRvsNoSR_EBHBmatrix.gif");
+   c1->SaveAs("EBHBmatrix.gif");
 
    setTDRStyle(0,0);
 
-   TFile* file = new TFile("nosr_barrel.root");
+   TFile* file = new TFile("nozs_barrel.root");
    TCanvas* c2 = new TCanvas("X","Y",1);
-   TAxis* xaxis = hE11_1_2GeV->GetXaxis();
-   hE11_1_2GeV->GetXaxis()->SetTitle("E in ECAL 11x11 / E^{true}");
-   hE11_1_2GeV->GetYaxis()->SetTitleOffset(1.3);
-   hE11_1_2GeV->GetYaxis()->SetTitle("");
-   Double_t scale = 1./hE11_1_2GeV->Integral();
-   hE11_1_2GeV->Scale(scale);
-   hE11_1_2GeV->SetMaximum(0.15);
-   hE11_1_2GeV->SetLineWidth(3);
-   hE11_1_2GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.6,0.7,0.9,0.8,NULL,"brNDC");
-   leg->SetFillColor(10);
-   leg->AddEntry(hE11_1_2GeV,"No SR","L");
-
-   TFile* file = new TFile("sr_barrel.root");
-   Double_t scale = 1./hE11_1_2GeV->Integral();
-   hE11_1_2GeV->Scale(scale);
-   hE11_1_2GeV->SetLineStyle(2);
-   hE11_1_2GeV->SetLineWidth(3);
-   hE11_1_2GeV->Draw("same");
-   leg->AddEntry(hE11_1_2GeV,"With SR","L");
-   leg->Draw();
-   TLatex *t = new TLatex();
-   t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.12,"CMSSW_1_6_12");
-   t->DrawLatex(-1.8,0.10,"|#eta|< 1.3");
-   t->DrawLatex(-1.8,0.08,"1 < p_{T}^{trk} < 2 GeV");
-
-   c2->SaveAs("SRvsNoSR_EBmatrix1_2GeV.gif");
-
-   TFile* file = new TFile("nosr_barrel.root");
-   TCanvas* c3 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11_3_4GeV->GetXaxis();
-   hE11_3_4GeV->GetXaxis()->SetTitle("E in ECAL 11x11 / E^{true}");
+   hE11_3_4GeV->GetXaxis()->SetTitle("E of calo rec hits in ECAL 11x11 / E^{true}");
    hE11_3_4GeV->GetYaxis()->SetTitleOffset(1.3);
    hE11_3_4GeV->GetYaxis()->SetTitle("");
    Double_t scale = 1./hE11_3_4GeV->Integral();
    hE11_3_4GeV->Scale(scale);
-   hE11_3_4GeV->SetMaximum(0.18);
+   hE11_3_4GeV->SetMaximum(0.20);
    hE11_3_4GeV->SetLineWidth(3);
    hE11_3_4GeV->Draw("hist");
    TLegend *leg = new TLegend(0.6,0.7,0.9,0.8,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11_3_4GeV,"No SR","L");
+   leg->AddEntry(hE11_3_4GeV,"No ECAL SR","L");
 
    TFile* file = new TFile("sr_barrel.root");
    Double_t scale = 1./hE11_3_4GeV->Integral();
@@ -235,83 +205,53 @@ void Draw()
    hE11_3_4GeV->SetLineStyle(2);
    hE11_3_4GeV->SetLineWidth(3);
    hE11_3_4GeV->Draw("same");
-   leg->AddEntry(hE11_3_4GeV,"With SR","L");
+   leg->AddEntry(hE11_3_4GeV,"ECAL SR","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.16,"CMSSW_1_6_12");
-   t->DrawLatex(-1.8,0.14,"|#eta|< 1.3");
-   t->DrawLatex(-1.8,0.12,"3 < p_{T}^{trk} < 4 GeV");
+   t->DrawLatex(-1.8,0.12,"CMSSW_2_1_9");
+   t->DrawLatex(-1.8,0.10,"|#eta|< 1.0");
+   t->DrawLatex(-1.8,0.08,"3 < p_{T}^{trk} < 4 GeV");
 
-   c3->SaveAs("SRvsNoSR_EBmatrix3_4GeV.gif");
+   c2->SaveAs("EBmatrix3_4GeV.gif");
 
-   TFile* file = new TFile("nosr_barrel.root");
-   TCanvas* c4 = new TCanvas("X","Y",1);
-   TAxis* xaxis = hE11_5_10GeV->GetXaxis();
-   hE11_5_10GeV->GetXaxis()->SetTitle("E in ECAL 11x11 / E^{true}");
-   hE11_5_10GeV->GetYaxis()->SetTitleOffset(1.3);
-   hE11_5_10GeV->GetYaxis()->SetTitle("");
-   Double_t scale = 1./hE11_5_10GeV->Integral();
-   hE11_5_10GeV->Scale(scale);
-   hE11_5_10GeV->SetMaximum(0.25);
-   hE11_5_10GeV->SetLineWidth(3);
-   hE11_5_10GeV->Draw("hist");
+   setTDRStyle(0,0);
+
+   TFile* file = new TFile("nozs_barrel.root");
+   TCanvas* c3 = new TCanvas("X","Y",1);
+   TAxis* xaxis = hH5_3_4GeV->GetXaxis();
+   hH5_3_4GeV->GetXaxis()->SetTitle("E of calo rec hits in HCAL 5x5 / E^{true}");
+   hH5_3_4GeV->GetYaxis()->SetTitleOffset(1.3);
+   hH5_3_4GeV->GetYaxis()->SetTitle("");
+   Double_t scale = 1./hH5_3_4GeV->Integral();
+   hH5_3_4GeV->Scale(scale);
+   hH5_3_4GeV->SetMaximum(0.16);
+   hH5_3_4GeV->SetLineWidth(3);
+   hH5_3_4GeV->Draw("hist");
    TLegend *leg = new TLegend(0.6,0.7,0.9,0.8,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11_5_10GeV,"No SR","L");
+   leg->AddEntry(hH5_3_4GeV,"No HCAL ZS","L");
 
-   TFile* file = new TFile("sr_barrel.root");
-   Double_t scale = 1./hE11_5_10GeV->Integral();
-   hE11_5_10GeV->Scale(scale);
-   hE11_5_10GeV->SetLineStyle(2);
-   hE11_5_10GeV->SetLineWidth(3);
-   hE11_5_10GeV->Draw("same");
-   leg->AddEntry(hE11_5_10GeV,"With SR","L");
+   TFile* file = new TFile("zs_barrel.root");
+   Double_t scale = 1./hH5_3_4GeV->Integral();
+   hH5_3_4GeV->Scale(scale);
+   hH5_3_4GeV->SetLineStyle(2);
+   hH5_3_4GeV->SetLineWidth(3);
+   hH5_3_4GeV->Draw("same");
+   leg->AddEntry(hH5_3_4GeV,"HCAL ZS","L");
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.20,"CMSSW_1_6_12");
-   t->DrawLatex(-1.8,0.17,"|#eta|< 1.3");
-   t->DrawLatex(-1.8,0.14,"5 < p_{T}^{trk} < 10 GeV");
+   t->DrawLatex(-1.8,0.12,"CMSSW_2_1_9");
+   t->DrawLatex(-1.8,0.10,"|#eta|< 1.0");
+   t->DrawLatex(-1.8,0.08,"3 < p_{T}^{trk} < 4 GeV");
 
-   c4->SaveAs("SRvsNoSR_EBmatrix5_10GeV.gif");
+   c3->SaveAs("HBmatrix3_4GeV.gif");
 
-
-   TFile* file = new TFile("nosr_barrel.root");
-   TCanvas* c5 = new TCanvas("X","Y",1);
-   TAxis* xaxis = hE11H5_1_2GeV->GetXaxis();
-   hE11H5_1_2GeV->GetXaxis()->SetTitle("E in ECAL 11x11 + HCAL 5x5 / E^{true}");
-   hE11H5_1_2GeV->GetYaxis()->SetTitleOffset(1.3);
-   hE11H5_1_2GeV->GetYaxis()->SetTitle("");
-   Double_t scale = 1./hE11H5_1_2GeV->Integral();
-   hE11H5_1_2GeV->Scale(scale);
-   hE11H5_1_2GeV->SetMaximum(0.1);
-   hE11H5_1_2GeV->SetLineWidth(3);
-   hE11H5_1_2GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6,NULL,"brNDC");
-   leg->SetFillColor(10);
-   leg->AddEntry(hE11H5_1_2GeV,"No SR","L");
-
-   TFile* file = new TFile("sr_barrel.root");
-   Double_t scale = 1./hE11H5_1_2GeV->Integral();
-   hE11H5_1_2GeV->Scale(scale);
-   hE11H5_1_2GeV->SetLineStyle(2);
-   hE11H5_1_2GeV->SetLineWidth(3);
-   hE11H5_1_2GeV->Draw("same");
-   leg->AddEntry(hE11H5_1_2GeV,"With SR","L");
-   leg->Draw();
-   TLatex *t = new TLatex();
-   t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.09,"CMSSW_1_6_12, |#eta|< 1.3");
-   t->DrawLatex(-1.8,0.08,"no ZSP in HCAL");
-   t->DrawLatex(-1.8,0.07,"1 < p_{T}^{trk} < 2 GeV");
-
-   c5->SaveAs("SRvsNoSR_EBHBmatrix1_2GeV.gif");
-
-   TFile* file = new TFile("nosr_barrel.root");
-   TCanvas* c6 = new TCanvas("X","Y",1);
+   TFile* file = new TFile("nozs_barrel.root");
+   TCanvas* c4 = new TCanvas("X","Y",1);
    TAxis* xaxis = hE11H5_3_4GeV->GetXaxis();
-   hE11H5_3_4GeV->GetXaxis()->SetTitle("E in ECAL 11x11 + HCAL 5x5 / E^{true}");
+   hE11H5_3_4GeV->GetXaxis()->SetTitle("E of calo rec hits in ECAL 11x11 + HCAL 5x5 / E^{true}");
    hE11H5_3_4GeV->GetYaxis()->SetTitleOffset(1.3);
    hE11H5_3_4GeV->GetYaxis()->SetTitle("");
    Double_t scale = 1./hE11H5_3_4GeV->Integral();
@@ -319,56 +259,32 @@ void Draw()
    hE11H5_3_4GeV->SetMaximum(0.14);
    hE11H5_3_4GeV->SetLineWidth(3);
    hE11H5_3_4GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.15,0.4,0.5,0.6,NULL,"brNDC");
    leg->SetFillColor(10);
-   leg->AddEntry(hE11H5_3_4GeV,"No SR","L");
+   leg->AddEntry(hE11H5_3_4GeV,"No HCAL ZS, ECAL SR","L");
 
    TFile* file = new TFile("sr_barrel.root");
+   Double_t scale = 1./hE11H5_3_4GeV->Integral();
+   hE11H5_3_4GeV->Scale(scale);
+   hE11H5_3_4GeV->SetLineStyle(3);
+   hE11H5_3_4GeV->SetLineWidth(3);
+   hE11H5_3_4GeV->Draw("same");
+   leg->AddEntry(hE11H5_3_4GeV,"No HCAL ZS, ECAL SR","L");
+
+   TFile* file = new TFile("zs_barrel.root");
    Double_t scale = 1./hE11H5_3_4GeV->Integral();
    hE11H5_3_4GeV->Scale(scale);
    hE11H5_3_4GeV->SetLineStyle(2);
    hE11H5_3_4GeV->SetLineWidth(3);
    hE11H5_3_4GeV->Draw("same");
-   leg->AddEntry(hE11H5_3_4GeV,"With SR","L");
+   leg->AddEntry(hE11H5_3_4GeV,"HCAL ZS, ECAL SR","L");
+
+
    leg->Draw();
    TLatex *t = new TLatex();
    t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.13,"CMSSW_1_6_12, |#eta|< 1.3");
-   t->DrawLatex(-1.8,0.11,"no ZSP in HCAL");
-   t->DrawLatex(-1.8,0.09,"3 < p_{T}^{trk} < 4 GeV");
+   t->DrawLatex(-1.8,0.13,"CMSSW_2_1_9, |#eta|< 1.0");
+   t->DrawLatex(-1.8,0.12,"3 < p_{T}^{trk} < 4 GeV");
 
-   c6->SaveAs("SRvsNoSR_EBHBmatrix3_4GeV.gif");
-
-
-   TFile* file = new TFile("nosr_barrel.root");
-   TCanvas* c7 = new TCanvas("X","Y",1);
-   TAxis* xaxis = hE11H5_5_10GeV->GetXaxis();
-   hE11H5_5_10GeV->GetXaxis()->SetTitle("E in ECAL 11x11 + HCAL 5x5 / E^{true}");
-   hE11H5_5_10GeV->GetYaxis()->SetTitleOffset(1.3);
-   hE11H5_5_10GeV->GetYaxis()->SetTitle("");
-   Double_t scale = 1./hE11H5_5_10GeV->Integral();
-   hE11H5_5_10GeV->Scale(scale);
-   hE11H5_5_10GeV->SetMaximum(0.18);
-   hE11H5_5_10GeV->SetLineWidth(3);
-   hE11H5_5_10GeV->Draw("hist");
-   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6,NULL,"brNDC");
-   leg->SetFillColor(10);
-   leg->AddEntry(hE11H5_5_10GeV,"No SR","L");
-
-   TFile* file = new TFile("sr_barrel.root");
-   Double_t scale = 1./hE11H5_5_10GeV->Integral();
-   hE11H5_5_10GeV->Scale(scale);
-   hE11H5_5_10GeV->SetLineStyle(2);
-   hE11H5_5_10GeV->SetLineWidth(3);
-   hE11H5_5_10GeV->Draw("same");
-   leg->AddEntry(hE11H5_5_10GeV,"With SR","L");
-   leg->Draw();
-   TLatex *t = new TLatex();
-   t->SetTextSize(0.042);
-   t->DrawLatex(-1.8,0.16,"CMSSW_1_6_12, |#eta|< 1.3");
-   t->DrawLatex(-1.8,0.14,"no ZSP in HCAL");
-   t->DrawLatex(-1.8,0.12,"5 < p_{T}^{trk} < 10 GeV");
-
-   c7->SaveAs("SRvsNoSR_EBHBmatrix5_10GeV.gif");
-   */
+   c4->SaveAs("EBHBmatrix3_4GeV.gif");
 }
