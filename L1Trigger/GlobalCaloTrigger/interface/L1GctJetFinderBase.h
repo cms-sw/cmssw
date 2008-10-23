@@ -62,7 +62,7 @@ public:
   typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
 
 
-  // For HF-based triggers we sum the Etin the two "inner" (large eta) rings;
+  // For HF-based triggers we sum the Et in the two "inner" (large eta) rings;
   // and count towers over threshold based on the "fineGrain" bit from the RCT.
   // Define a data type to transfer the result of all calculations.
   // The results are defined as L1GctJetCount types since they don't have
@@ -101,6 +101,9 @@ public:
 
   };
 
+  typedef L1GctJet::lutPtr lutPtr;
+  typedef std::vector<lutPtr> lutPtrVector;
+
   //Statics
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area.
   static const unsigned int COL_OFFSET;  ///< The index offset between columns
@@ -118,12 +121,12 @@ public:
   void setJetFinderParams(const L1GctJetFinderParams* jfpars);
 
   /// Set pointer to calibration Lut - needed to complete the setup
-  void setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut);
+  void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
   /// Check setup is Ok
   bool setupOk() const { return m_gotNeighbourPointers
                              && m_gotJetFinderParams
-                             && (m_jetEtCalLut != 0); }
+                             && m_gotJetEtCalLuts; }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
@@ -152,8 +155,8 @@ public:
   /// get output jets in raw format
   RawJetVector getRawJets() const { return m_outputJetsPipe.contents; } 
 
-  /// Return pointer to calibration LUT
-  const L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
+  /// Return pointers to calibration LUTs
+  const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
 
   // The hardware output quantities
   JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
@@ -163,14 +166,6 @@ public:
   etTotalType getHtStrip1() const { return m_outputHtStrip1; }  ///< Get the total calibrated energy in jets (Ht) in strip 1
 
   hfTowerSumsType getHfSums() const { return m_outputHfSums; }  ///< Get the Hf tower Et sums and tower-over-threshold counts
-
-  // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
-  struct rankGreaterThan : public std::binary_function<L1GctJetCand, L1GctJetCand, bool> 
-  {
-    bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) {
-      return ( x.rank() > y.rank() ) ;
-    }
-  };
 
  protected:
 
@@ -198,14 +193,17 @@ public:
   /// Remember whether jetfinder parameters have been stored
   bool m_gotJetFinderParams;
 
+  /// Remember whether jet Et calibration Lut pointers have been stored
+  bool m_gotJetEtCalLuts;
+
   /// jetFinder parameters (from EventSetup)
   unsigned m_CenJetSeed;
   unsigned m_FwdJetSeed;
   unsigned m_TauJetSeed;
   unsigned m_EtaBoundry;
 
-  /// Jet Et Converstion LUT pointer
-  const L1GctJetEtCalibrationLut* m_jetEtCalLut;
+  /// Jet Et Conversion LUT pointer
+  lutPtrVector m_jetEtCalLuts;
     
   /// input data required for jet finding
   RegionsVector m_inputRegions;
@@ -266,6 +264,8 @@ public:
 
   /// Output jets "pipeline memory" for checking
   RawJetPipeline m_outputJetsPipe;
+
+
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
