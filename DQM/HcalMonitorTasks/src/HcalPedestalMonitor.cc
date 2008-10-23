@@ -87,7 +87,6 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
 
-      // Using "" for units creates an extra space at end of name. Why?
       setupDepthHists2D(ProblemPedestalsByDepth, "Problem Pedestal Rate","");
 
       m_dbe->setCurrentFolder(baseFolder_+"/adc/raw");
