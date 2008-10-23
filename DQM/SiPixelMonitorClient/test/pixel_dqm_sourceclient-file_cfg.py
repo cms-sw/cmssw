@@ -44,20 +44,27 @@ process.SiPixelRawDataErrorSource.saveFile = False
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
 process.SiPixelRawDataErrorSource.reducedSet = False
+process.SiPixelRawDataErrorSource.modOn = False
+process.SiPixelRawDataErrorSource.ladOn = True
+process.SiPixelRawDataErrorSource.layOn = True
+process.SiPixelRawDataErrorSource.phiOn = True
+process.SiPixelRawDataErrorSource.bladeOn = True
+process.SiPixelRawDataErrorSource.diskOn = True
+process.SiPixelRawDataErrorSource.ringOn = True
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
 process.SiPixelDigiSource.isPIB = False
 process.SiPixelDigiSource.slowDown = False
-process.SiPixelDigiSource.modOn = True
-process.SiPixelDigiSource.twoDimOn = True
-process.SiPixelDigiSource.hiRes = True
-process.SiPixelDigiSource.ladOn = False
-process.SiPixelDigiSource.layOn = False
-process.SiPixelDigiSource.phiOn = False
-process.SiPixelDigiSource.bladeOn = False
-process.SiPixelDigiSource.diskOn = False
-process.SiPixelDigiSource.ringOn = False
+process.SiPixelDigiSource.modOn = False
+process.SiPixelDigiSource.twoDimOn = False
+process.SiPixelDigiSource.hiRes = False
+process.SiPixelDigiSource.ladOn = True
+process.SiPixelDigiSource.layOn = True
+process.SiPixelDigiSource.phiOn = True
+process.SiPixelDigiSource.bladeOn = True
+process.SiPixelDigiSource.diskOn = True
+process.SiPixelDigiSource.ringOn = True
 
 process.load("DQM.SiPixelMonitorCluster.SiPixelMonitorCluster_cfi")
 process.SiPixelClusterSource.saveFile = False
@@ -126,20 +133,24 @@ process.source = cms.Source("PoolSource",
         #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/5E761ABB-387A-DD11-AE3B-000423D6BA18.root',
         #'/store/data/Commissioning08/BeamHalo/RAW/MW36_v1/000/061/070/6C2235E0-397A-DD11-BBEE-001617C3B79A.root',
         #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/833/386470E1-3D95-DD11-96A0-001617E30E2C.root'
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/0C26943A-6D99-DD11-AE50-001617C3B76E.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/120325B6-6999-DD11-BA84-000423D99160.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/186132D3-6C99-DD11-8EA9-000423D98C20.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/1A67D61F-6A99-DD11-8182-001617DBD288.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/1EF5898A-6E99-DD11-AE5B-001617E30D12.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/22C058FC-6899-DD11-A731-001617C3B5F4.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/22D9207E-6A99-DD11-8FF5-000423D99658.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/261D55FE-6899-DD11-99F6-000423D9989E.root',
-        '/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/3C29146C-6A99-DD11-BE42-000423D999CA.root'
+        
+	#'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/0C26943A-6D99-DD11-AE50-001617C3B76E.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/120325B6-6999-DD11-BA84-000423D99160.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/186132D3-6C99-DD11-8EA9-000423D98C20.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/1A67D61F-6A99-DD11-8182-001617DBD288.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/1EF5898A-6E99-DD11-AE5B-001617E30D12.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/22C058FC-6899-DD11-A731-001617C3B5F4.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/22D9207E-6A99-DD11-8FF5-000423D99658.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/261D55FE-6899-DD11-99F6-000423D9989E.root',
+        #'/store/data/Commissioning08/Cosmics/RAW/v1/000/065/935/3C29146C-6A99-DD11-BE42-000423D999CA.root'
+	
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/ECBAB6B1-519C-DD11-BBB5-000423D94E70.root'
+	
 	)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(-1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -163,7 +174,7 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     HighResolutionOccupancy = cms.untracked.bool(True),
     NoiseRateCutValue = cms.untracked.double(-1.), #negative value means test is not run; default cut value is 0.001
     NEventsForNoiseCalculation = cms.untracked.int32(100),
-    UseOfflineXMLFile = cms.untracked.bool(False)
+    UseOfflineXMLFile = cms.untracked.bool(True)
 )
 
 process.qTester = cms.EDFilter("QualityTester",

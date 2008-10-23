@@ -174,7 +174,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   fillEndcapSummary(bei, endcap_structure_name, endcap_me_names);
   
   bei->cd();
-  if(source_type_==0||source_type_==5){//do this only if RawData source is present
+  if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
     string federror_structure_name;
     vector<string> federror_me_names;
     if (!configParser_->getMENamesForFEDErrorSummary(federror_structure_name, federror_me_names)){
@@ -672,6 +672,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
   string currDir = bei->pwd();
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
+  else if(source_type_==20) prefix="SUMOFF";
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
@@ -1125,6 +1126,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
                                               int nbin, 
 					      string& me_name, 
 					      vector<MonitorElement*> & mes) {
+//cout<<"Entering SiPixelActionExecutor::getGrandSummaryME for: "<<me_name<<endl;
   if((bei->pwd()).find("Pixel")==string::npos) return;
   vector<string> contents = bei->getMEs();
       
@@ -1137,7 +1139,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
       MonitorElement* me = bei->get(fullpathname);
       
       if (me) {
-      //cout<<"Found ME "<<fullpathname<<endl;
+//      cout<<"Found grand ME: "<<fullpathname<<endl;
 	me->Reset();
 	mes.push_back(me);
 	//cout<<"reset and add the following me: "<<me->getName()<<endl;
@@ -1147,6 +1149,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
   }
   MonitorElement* temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
   if (temp_me) mes.push_back(temp_me);
+//  if(temp_me) cout<<"finally found grand ME: "<<me_name<<endl;
 }
 
 
@@ -1156,7 +1159,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
 //
 MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
-//cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
+//cout<<"Entering SiPixelActionExecutor::getSummaryME for: "<<me_name<<endl;
   MonitorElement* me = 0;
   if((bei->pwd()).find("Pixel")==string::npos) return me;
   vector<string> contents = bei->getMEs();    
@@ -1168,12 +1171,14 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
       me = bei->get(fullpathname);
       
       if (me) {
+//      cout<<"got this ME: "<<fullpathname<<endl;
 	me->Reset();
 	return me;
       }
     }
   }
   contents.clear();
+  
   if(me_name.find("SUMOFF")==string::npos){
     if(me_name.find("Panel_2")!=string::npos)  me = bei->book1D(me_name.c_str(), me_name.c_str(),3,1.,4.);
     else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
@@ -1182,6 +1187,8 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
   }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
   }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),12,1.,13.);
   }
+  
+//  if(me) cout<<"Finally got this ME: "<<me_name<<endl;
   //if(me_name.find("ALLMODS_adc_")!=string::npos) me = bei->book1D(me_name.c_str(), me_name.c_str(),256, 0., 256.);
   
   //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
@@ -1194,6 +1201,7 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
                                                        string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
   MonitorElement* me = 0;
+  if((bei->pwd()).find("Pixel")==string::npos) return me;
   vector<string> contents = bei->getMEs();
       
   for (vector<string>::const_iterator it = contents.begin();
@@ -1204,12 +1212,15 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
       me = bei->get(fullpathname);
       
       if (me) {
+      //cout<<"got the ME: "<<fullpathname<<endl;
 	me->Reset();
 	return me;
       }
     }
   }
+  contents.clear();
   me = bei->book1D(me_name.c_str(), me_name.c_str(),40,-0.5,39.5);
+  //if(me) cout<<"finally got the ME: "<<me_name<<endl;
   return me;
   //cout<<"...leaving SiPixelActionExecutor::getFEDSummaryME!"<<endl;
 }
