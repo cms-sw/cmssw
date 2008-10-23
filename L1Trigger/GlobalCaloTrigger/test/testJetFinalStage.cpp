@@ -41,6 +41,8 @@ typedef vector<L1GctJetCand> JetsVector;
 typedef vector<L1GctJet>  RawJetsVector;
 typedef unsigned long int ULong;
 
+typedef L1GctJetFinderBase::lutPtr       lutPtr;
+typedef L1GctJetFinderBase::lutPtrVector lutPtrVector;
 
 // Name of the files for test input data and results output.
 const string testDataFile = "testJetFinalStageInput.txt";  
@@ -55,12 +57,12 @@ const int numOutputJets = 4; //Num. Jets of each type outputted.
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinalStage instance passed into it.
-void classTest(L1GctJetFinalStage *myJetFinalStage, L1GctJetEtCalibrationLut *myLut);
+void classTest(L1GctJetFinalStage *myJetFinalStage, const lutPtrVector myLut);
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets,
-                  L1GctJetEtCalibrationLut *lut);
+                  const lutPtrVector lut);
 /// Sanity checks on the data read from file.
 bool checkTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                    JetsVector &inputTauJets, JetsVector &trueCentralJets,
@@ -70,7 +72,7 @@ void safeOpenInputFile(ifstream &fin, const string name);
 /// Function to safely open output files of any name, using a referenced return ofstream
 void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, L1GctJetEtCalibrationLut *lut);
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, const lutPtrVector lut);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
@@ -94,16 +96,16 @@ int main(int argc, char **argv)
     produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
     // Instance of the class
-    L1GctJetEtCalibrationLut* myJetEtCalLut = lutProducer->produce();
+    lutPtrVector myJetEtCalLut = lutProducer->produce();
     delete lutProducer;
   
     vector<L1GctJetLeafCard*> jetLeafCrds(L1GctWheelJetFpga::MAX_LEAF_CARDS);
     for(unsigned i=0; i < L1GctWheelJetFpga::MAX_LEAF_CARDS; ++i)
     {
       jetLeafCrds[i] = new L1GctJetLeafCard(0, 0);
-      jetLeafCrds[i]->getJetFinderA()->setJetEtCalibrationLut(myJetEtCalLut);
-      jetLeafCrds[i]->getJetFinderB()->setJetEtCalibrationLut(myJetEtCalLut);
-      jetLeafCrds[i]->getJetFinderC()->setJetEtCalibrationLut(myJetEtCalLut);
+      jetLeafCrds[i]->getJetFinderA()->setJetEtCalibrationLuts(myJetEtCalLut);
+      jetLeafCrds[i]->getJetFinderB()->setJetEtCalibrationLuts(myJetEtCalLut);
+      jetLeafCrds[i]->getJetFinderC()->setJetEtCalibrationLuts(myJetEtCalLut);
     }
     
     vector<L1GctWheelJetFpga*> wheelJetFpgas(L1GctJetFinalStage::MAX_WHEEL_FPGAS);
@@ -125,7 +127,6 @@ int main(int argc, char **argv)
     {
       delete *it;
     }
-    delete myJetEtCalLut;     
   }
   catch (cms::Exception& e)
   {
@@ -140,7 +141,7 @@ int main(int argc, char **argv)
 }
 
 // Runs the test on the L1GctJetFinalStage passed into it.
-void classTest(L1GctJetFinalStage *myJetFinalStage, L1GctJetEtCalibrationLut* lut)
+void classTest(L1GctJetFinalStage *myJetFinalStage, const lutPtrVector lut)
 {
   bool testPass = true; //flag to mark test failure
     
@@ -261,7 +262,7 @@ void classTest(L1GctJetFinalStage *myJetFinalStage, L1GctJetEtCalibrationLut* lu
 void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets,
-                  L1GctJetEtCalibrationLut* lut)
+                  const lutPtrVector lut)
 {
   // File input stream
   ifstream fin;
@@ -291,17 +292,17 @@ bool checkTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
   // Check the data read from file makes sense before we try to use it for testing
   JetsVector::const_iterator jet;
   for (jet=inputCentralJets.begin(); jet!=inputCentralJets.end(); ++jet) { checkOk &= jet->isCentral(); 
-    if (!jet->isCentral()) {cout << "data check fail input Central rank=" << jet->rank() << endl;} } 
+    if (!jet->isCentral() && !jet->empty()) {cout << "data check fail input Central rank=" << jet->rank() << endl;} } 
   for (jet=inputForwardJets.begin(); jet!=inputForwardJets.end(); ++jet) { checkOk &= jet->isForward();
-    if (!jet->isForward()) {cout << "data check fail input Forward rank=" << jet->rank() << endl;} }
+    if (!jet->isForward() && !jet->empty()) {cout << "data check fail input Forward rank=" << jet->rank() << endl;} }
   for (jet=inputTauJets.begin();     jet!=inputTauJets.end();     ++jet) { checkOk &= jet->isTau();
-    if (!jet->isTau()) {cout << "data check fail input Tau rank=" << jet->rank() << endl;} }
+    if (!jet->isTau() && !jet->empty()) {cout << "data check fail input Tau rank=" << jet->rank() << endl;} }
   for (jet=trueCentralJets.begin();  jet!=trueCentralJets.end();  ++jet) { checkOk &= jet->isCentral();
-    if (!jet->isCentral()) {cout << "data check fail true Central rank=" << jet->rank() << endl;} }
+    if (!jet->isCentral() && !jet->empty()) {cout << "data check fail true Central rank=" << jet->rank() << endl;} }
   for (jet=trueForwardJets.begin();  jet!=trueForwardJets.end();  ++jet) { checkOk &= jet->isForward();
-    if (!jet->isForward()) {cout << "data check fail true Forward rank=" << jet->rank() << endl;} }
+    if (!jet->isForward() && !jet->empty()) {cout << "data check fail true Forward rank=" << jet->rank() << endl;} }
   for (jet=trueTauJets.begin();      jet!=trueTauJets.end();      ++jet) { checkOk &= jet->isTau();
-    if (!jet->isTau()) {cout << "data check fail true Tau rank=" << jet->rank() << endl;} }
+    if (!jet->isTau() && !jet->empty()) {cout << "data check fail true Tau rank=" << jet->rank() << endl;} }
   return checkOk;
 }
     
@@ -337,12 +338,12 @@ void safeOpenOutputFile(ofstream &fout, const string name)
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, L1GctJetEtCalibrationLut* lut)
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, const lutPtrVector lut)
 {
   for(int i=0; i < numJets; ++i)
   {
     L1GctJet tempJet=readSingleJet(fin);
-    jets.push_back(tempJet.jetCand(lut));
+    jets.push_back(tempJet.jetCand(lut.at(tempJet.rctEta())));
   }
 }
 
@@ -370,9 +371,13 @@ L1GctJet readSingleJet(ifstream &fin)
   }
  
   //return object
+  // Arguments to ctor are: rank, eta, phi, overFlow, forwardJet, tauVeto, bx
   L1GctJet tempJet(jetComponents[0], jetComponents[1],
-                   jetComponents[2], jetComponents[3]);
+		   jetComponents[2], false,
+		   ((jetComponents[1]<4) || (jetComponents[1]>=18)), 
+		   static_cast<bool>(jetComponents[3]), 0);
 
+  std::cout << "Read jet " << tempJet << std::endl;
   return tempJet;
 }
 
@@ -391,9 +396,12 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
   {
     if (!vector1.empty())  //Make sure it isn't empty
     {
+      cout << "Number of jets to compare is " << vector1.size() << endl;
       //compare the vectors
       for(ULong i = 0; i < vector1.size(); ++i)
       {
+	cout << "jet1: " << vector1[i] << endl;
+	cout << "jet2: " << vector2[i] << endl;
         if(vector1[i].rank()      != vector2[i].rank())      { cout << "rank fail " << endl;
                                                                cout << "found "     << vector1[i].rank()
                                                                     << " expected " << vector2[i].rank()

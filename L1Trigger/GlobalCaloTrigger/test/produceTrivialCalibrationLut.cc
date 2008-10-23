@@ -77,7 +77,7 @@ void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
   setOrcaStyleParams();
 }
 
-L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
+produceTrivialCalibrationLut::lutPtrVector produceTrivialCalibrationLut::produce()
 {
   L1CaloEtScale* jetScale = new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds);
   L1GctJetEtCalibrationFunction* calibFun = new L1GctJetEtCalibrationFunction();
@@ -88,12 +88,18 @@ L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
 
   calibFun->setCorrectionFunctionType(m_corrFunType);
 
-  L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut();
-  lut->setFunction(calibFun);
-  lut->setOutputEtScale(jetScale);
+  lutPtrVector lutVector;
+  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
 
+  for (unsigned ieta=0; ieta<L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES; ieta++) {
+    nextLut->setEtaBin(ieta);
+    nextLut->setFunction(calibFun);
+    nextLut->setOutputEtScale(jetScale);
+    lutVector.push_back(nextLut);
+    nextLut.reset ( new L1GctJetEtCalibrationLut() );
+  }
 
-  return lut;
+  return lutVector;
 }
 
 //--------------------------------------------------------------------------

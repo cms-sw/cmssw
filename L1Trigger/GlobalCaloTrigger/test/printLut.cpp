@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
+typedef produceTrivialCalibrationLut::lutPtrVector lutPtrVector;
 
 int main(int argc, char **argv)
 {
@@ -11,18 +14,28 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  std::ofstream outFile(filename, std::ios::out | std::ios::trunc);
-  if (!outFile.is_open()) {
-    std::cout << "Failed to open output file " << filename << "\n";
-    return -1;
-  }
+  bool allOk=true;
 
   produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
-  L1GctJetEtCalibrationLut* lut=lutProducer->produce();
+  lutPtrVector lutVector=lutProducer->produce();
 
-  outFile << *lut;
-  outFile.close();
+  for (lutPtrVector::const_iterator lut = lutVector.begin(); lut != lutVector.end(); lut++) { 
+    std::stringstream ss;
+    std::string nextFile;
+    ss << filename << (*lut)->etaBin() << ".txt";
+    ss >> nextFile;
+    std::ofstream outFile(nextFile.c_str(), std::ios::out | std::ios::trunc);
+    if (!outFile.is_open()) {
+      std::cout << "Failed to open output file " << nextFile << "\n";
+      allOk=false;
+    } else {
 
-  return 0;
+      outFile << **lut;
+      outFile.close();
+
+    }
+  }
+
+  return ( allOk ? 0 : -1 );
 }
 

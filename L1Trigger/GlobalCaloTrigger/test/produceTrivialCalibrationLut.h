@@ -3,16 +3,22 @@
 
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
+
 class produceTrivialCalibrationLut
 {
  public:
+  //Typedefs
+  typedef boost::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
+  typedef std::vector<lutPtr> lutPtrVector;
+
   produceTrivialCalibrationLut();
   ~produceTrivialCalibrationLut();
 
   void setPowerSeriesCorrectionType();
   void setOrcaStyleCorrectionType();
 
-  L1GctJetEtCalibrationLut* produce();
+  lutPtrVector produce();
 
  private:
 

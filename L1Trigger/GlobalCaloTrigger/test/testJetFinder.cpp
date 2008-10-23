@@ -39,6 +39,9 @@ typedef vector<L1GctJet>  RawJetsVector;
 typedef vector<L1GctJetCand> JetsVector;
 typedef unsigned long int ULong;
 
+typedef L1GctJetFinderBase::lutPtr       lutPtr;
+typedef L1GctJetFinderBase::lutPtrVector lutPtrVector;
+
 
 // Name of the files for test input data and results output.
 const string testDataFile = "testJetFinderInput.txt";  
@@ -91,16 +94,15 @@ int main(int argc, char **argv)
     produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
     // Instance of the class
-    L1GctJetEtCalibrationLut* myJetEtCalLut = lutProducer->produce();
+    lutPtrVector myJetEtCalLut = lutProducer->produce();
     delete lutProducer;
   
     L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9); //TEST OBJECT on heap;
-    myJetFinder->setJetEtCalibrationLut(myJetEtCalLut); 
+    myJetFinder->setJetEtCalibrationLuts(myJetEtCalLut); 
        
     classTest(myJetFinder);
     
     //clean up
-    delete myJetEtCalLut; 
     delete myJetFinder;
   }
   catch (cms::Exception& e)
@@ -154,7 +156,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
 
   sumOfJetHt = 0;
   for (RawJetsVector::const_iterator it=outputJets.begin(); it!=outputJets.end(); ++it) {
-    sumOfJetHt += it->calibratedEt(myJetFinder->getJetEtCalLut());
+    sumOfJetHt += it->calibratedEt(myJetFinder->getJetEtCalLuts().at(it->rctEta()));
   }
 
   //Test the outputted jets against the known results
@@ -392,8 +394,11 @@ L1GctJet readSingleJet(ifstream &fin)
   }
  
   //return object
+  // Arguments to ctor are: rank, eta, phi, overFlow, forwardJet, tauVeto, bx
   L1GctJet tempJet(jetComponents[0], jetComponents[1],
-                       jetComponents[2], static_cast<bool>(jetComponents[3]));
+		   jetComponents[2], false,
+		   ((jetComponents[1]<4) || (jetComponents[1]>=18)), 
+		   static_cast<bool>(jetComponents[3]), 0);
   return tempJet;
 }
 

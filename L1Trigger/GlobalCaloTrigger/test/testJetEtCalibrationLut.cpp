@@ -20,6 +20,9 @@
 #include <exception>
 #include <vector>
 
+
+typedef std::vector<L1GctJet::lutPtr> lutPtrVector;
+
 using namespace std;
 
 int main()
@@ -31,12 +34,15 @@ int main()
     lutProducer->setOrcaStyleCorrectionType();
 
     // Instance of the class
-    L1GctJetEtCalibrationLut* lut = lutProducer->produce();
+    lutPtrVector lutVector = lutProducer->produce();
 
     delete lutProducer;
 
     // print it out
-    cout << (*lut);
+    for (lutPtrVector::const_iterator lut = lutVector.begin(); lut != lutVector.end(); lut++) {
+      cout << "\n===Lookup table for eta=" << (*lut)->etaBin() << "===" << endl;
+      cout << (**lut) << endl;
+    }
   }
   catch (cms::Exception& e)
     {

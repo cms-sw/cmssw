@@ -64,6 +64,15 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder);
   m_tester = new gctTestFunctions();
 
+  // Fill the jetEtCalibLuts vector
+  lutPtr nextLut( new L1GctJetEtCalibrationLut() );
+
+  for (unsigned ieta=0; ieta<L1GctJetFinderBase::COL_OFFSET; ieta++) {
+    nextLut->setEtaBin(ieta);
+    m_jetEtCalibLuts.push_back(nextLut);
+    nextLut.reset ( new L1GctJetEtCalibrationLut() );
+  }
+
 }
 
 
@@ -199,15 +208,14 @@ L1GctTest::configureGct(const edm::EventSetup& c)
 
   m_gct->setJetFinderParams(jfPars.product());
 
-  // make a jet Et Lut and tell it about the scales
-  m_jetEtCalibLut = new L1GctJetEtCalibrationLut();
-
-  // tell the jet Et Lut about the scales
-  m_jetEtCalibLut->setFunction(calibFun.product());
-  m_jetEtCalibLut->setOutputEtScale(etScale.product());
+  // tell the jet Et Luts about the scales
+  for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
+    m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+    m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+  }
 
   // pass all the setup info to the gct
-  m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
   m_gct->setJetFinderParams(jfPars.product());
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
   m_gct->setupHfSumLuts(hfLSetup.product());

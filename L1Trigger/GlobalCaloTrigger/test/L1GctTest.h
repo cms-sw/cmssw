@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.4 2008/04/15 10:35:42 heath Exp $
+// $Id: L1GctTest.h,v 1.6 2008/07/02 15:48:23 heath Exp $
 //
 //
 
@@ -28,8 +28,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class L1GlobalCaloTrigger;
-class L1GctJetEtCalibrationLut;
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+
 class gctTestFunctions;
 
 //
@@ -38,6 +38,11 @@ class gctTestFunctions;
 
 class L1GctTest : public edm::EDAnalyzer {
 public:
+
+  /// typedefs
+  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
+
   explicit L1GctTest(const edm::ParameterSet&);
   ~L1GctTest();
 
@@ -52,7 +57,7 @@ private:
   // ----------member data ---------------------------
 
   L1GlobalCaloTrigger* m_gct;
-  L1GctJetEtCalibrationLut* m_jetEtCalibLut;
+  lutPtrVector m_jetEtCalibLuts;
 
   gctTestFunctions* m_tester;
 

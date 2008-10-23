@@ -122,35 +122,35 @@ bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct, const int nu
     unsigned etSumRing1NegativeEta = gct->getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(bx);
 
     if (etSumRing0PositiveEta != etSumLut(m_expectedRing0EtSumPositiveEta.at(bx)))
-      { cout << "Hf Et Sum Positive Eta, expected " << m_expectedRing0EtSumPositiveEta.at(bx) 
+      { cout << "Hf Et Sum Positive Eta, expected " << etSumLut(m_expectedRing0EtSumPositiveEta.at(bx)) 
 	     << ", found " << etSumRing0PositiveEta << endl;
       testPass = false; }
     if (etSumRing0NegativeEta != etSumLut(m_expectedRing0EtSumNegativeEta.at(bx)))
-      { cout << "Hf Et Sum Negative Eta, expected " << m_expectedRing0EtSumNegativeEta.at(bx) 
+      { cout << "Hf Et Sum Negative Eta, expected " << etSumLut(m_expectedRing0EtSumNegativeEta.at(bx)) 
 	     << ", found " << etSumRing0NegativeEta << endl;
       testPass = false; }
     if (etSumRing1PositiveEta != etSumLut(m_expectedRing1EtSumPositiveEta.at(bx)))
-      { cout << "Hf Et Sum Positive Eta, expected " << m_expectedRing1EtSumPositiveEta.at(bx) 
+      { cout << "Hf Et Sum Positive Eta, expected " << etSumLut(m_expectedRing1EtSumPositiveEta.at(bx)) 
 	     << ", found " << etSumRing1PositiveEta << endl;
       testPass = false; }
     if (etSumRing1NegativeEta != etSumLut(m_expectedRing1EtSumNegativeEta.at(bx)))
-      { cout << "Hf Et Sum Negative Eta, expected " << m_expectedRing1EtSumNegativeEta.at(bx) 
+      { cout << "Hf Et Sum Negative Eta, expected " << etSumLut(m_expectedRing1EtSumNegativeEta.at(bx)) 
 	     << ", found " << etSumRing1NegativeEta << endl;
       testPass = false; }
     if (bitCountRing0PositiveEta != countLut(m_expectedRing0BitCountPositiveEta.at(bx)))
-      { cout << "Hf Tower Count Positive Eta, expected " << m_expectedRing0BitCountPositiveEta.at(bx)
+      { cout << "000Hf Tower Count Positive Eta, expected " << countLut(m_expectedRing0BitCountPositiveEta.at(bx))
 	     << ", found " << bitCountRing0PositiveEta << endl;
       testPass = false; }
     if (bitCountRing0NegativeEta != countLut(m_expectedRing0BitCountNegativeEta.at(bx)))
-      { cout << "Hf Tower Count Negative Eta, expected " << m_expectedRing0BitCountNegativeEta.at(bx)
+      { cout << "111Hf Tower Count Negative Eta, expected " << countLut(m_expectedRing0BitCountNegativeEta.at(bx))
 	     << ", found " << bitCountRing0NegativeEta << endl;
       testPass = false; }
     if (bitCountRing1PositiveEta != countLut(m_expectedRing1BitCountPositiveEta.at(bx)))
-      { cout << "Hf Tower Count Positive Eta, expected " << m_expectedRing1BitCountPositiveEta.at(bx)
-	     << ", found " << bitCountRing0PositiveEta << endl;
+      { cout << "222Hf Tower Count Positive Eta, expected " << countLut(m_expectedRing1BitCountPositiveEta.at(bx))
+	     << ", found " << bitCountRing1PositiveEta << endl;
       testPass = false; }
     if (bitCountRing1NegativeEta != countLut(m_expectedRing1BitCountNegativeEta.at(bx)))
-      { cout << "Hf Tower Count Negative Eta, expected " << m_expectedRing1BitCountNegativeEta.at(bx)
+      { cout << "333Hf Tower Count Negative Eta, expected " << countLut(m_expectedRing1BitCountNegativeEta.at(bx))
 	     << ", found " << bitCountRing1NegativeEta << endl;
       testPass = false; }
 
@@ -161,6 +161,8 @@ bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct, const int nu
 
 unsigned gctTestHfEtSums::etSumLut (const unsigned expectedValue) const
 {
+  // Note this assumes a particluar set of LUT thresholds and will
+  // have to be re-written if the LUT changes
   static const unsigned maxLut = L1GctHfLutSetup::kHfOutputMaxValue;
   unsigned result = maxLut;
   unsigned compressedEt = expectedValue >> 1;
@@ -170,9 +172,11 @@ unsigned gctTestHfEtSums::etSumLut (const unsigned expectedValue) const
 
 unsigned gctTestHfEtSums::countLut (const unsigned expectedValue) const
 {
+  // Note this assumes a particluar set of LUT thresholds and will
+  // have to be re-written if the LUT changes
   static const unsigned maxLut = L1GctHfLutSetup::kHfOutputMaxValue;
   unsigned result = maxLut;
-  unsigned compressedEt = expectedValue >> 1;
+  unsigned compressedEt = expectedValue;
   if (compressedEt < maxLut) result = compressedEt;
   return result;
 }
