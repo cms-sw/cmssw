@@ -15,6 +15,9 @@ pixel3PrimTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
 ckfBaseTrajectoryFilterForMinBias.filterPset.minimumNumberOfHits = 6
 ckfBaseTrajectoryFilterForMinBias.filterPset.minPt           = 2.0
 
+primTrackCandidates.TrajectoryBuilder = "CkfTrajectoryBuilder"
+
+import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
 globalPrimTracks.Fitter = 'KFFittingSmoother'
 globalPrimTracks.useHitsSplitting = True
 
