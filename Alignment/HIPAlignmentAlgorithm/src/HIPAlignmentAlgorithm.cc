@@ -173,10 +173,17 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 		ap->setUserVariables(userpar);
     }
 	
+	// get iteration number from file     
+	int iterForReadingIn = readIterationFile(siterationfile);
+	
 	// try to read in alignment parameters from a previous iteration
+	/*
 	AlignablePositions theAlignablePositionsFromFile =
     theIO.readAlignableAbsolutePositions(theAlignables,
 										 (char*)salignedfile.c_str(),-1,ioerr);
+	*/
+	AlignablePositions theAlignablePositionsFromFile =
+    theIO.readAlignableAbsolutePositions(theAlignables, (char*)salignedfile.c_str(), iterForReadingIn,ioerr);
 	
 	int numAlignablesFromFile = theAlignablePositionsFromFile.size();
 	
