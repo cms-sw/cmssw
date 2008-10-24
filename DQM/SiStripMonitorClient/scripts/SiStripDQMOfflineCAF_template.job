@@ -5,9 +5,10 @@ setenv STAGE_SVCCLASS cmscaf
 set run=xRUN_NAMEx
 set job=xJOB_NAMEx
 set tmpdir=/tmp/$USER/$run/$job
+set outdir=xOUTPUT_DIRx
 mkdir -p $tmpdir
 cd xCURRENT_DIRx/$run/$job
-cmsRun SiStripDQMOfflineGlobalRunCAFxSUFFIXx >! DQM_SiStrip_${run}.log
-xCOPYx $tmpdir/DQM_SiStrip_${run}.root xOUTPUT_DIRx/DQM_SiStrip_${job}.root
-xCOPYx DQM_SiStrip_${run}.log xOUTPUT_DIRx/DQM_SiStrip_${job}.log
+cmsRun SiStripDQMOfflineGlobalRunCAF_cfg.py >! SiStripDQMOfflineGlobalRunCAF-${run}.log
+xCOPYx $tmpdir/SiStripDQMOfflineGlobalRunCAF-${run}.root ${outdir}/SiStripDQMOfflineGlobalRunCAF-${job}.root
+xCOPYx SiStripDQMOfflineGlobalRunCAF-${run}.log ${outdir}/SiStripDQMOfflineGlobalRunCAF-${job}.log
 rm -rf $tmpdir

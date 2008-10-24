@@ -10,6 +10,9 @@ process.MessageLogger = cms.Service( "MessageLogger",
         threshold = cms.untracked.string( 'ERROR' )
     )
 )
+process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck",
+    ignoreTotal = cms.untracked.int32( 0 )
+)
 
 # Magnetic Field
 process.load( "Configuration.StandardSequences.MagneticField_xMAG_FIELDx_cff" )
@@ -20,11 +23,17 @@ process.load( "Configuration.StandardSequences.Geometry_cff" )
 # Calibration 
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 process.GlobalTag.connect   = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V5P::All"
+process.GlobalTag.globaltag = "xGLOBAL_TAGx"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # SiStrip DQM
-process.load( "xINCLUDE_DIRECTORYx.SiStripDQMOfflineGlobalRunCAF_cff" )
+process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
+
+# Input
+process.load( "xINCLUDE_DIRECTORYx.inputFiles_cff" )
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( -1 )
+)
 
 # HLT Filter
 process.hltFilter = cms.EDFilter( "HLTHighLevel",
@@ -37,20 +46,25 @@ process.hltFilter = cms.EDFilter( "HLTHighLevel",
     TriggerResultsTag = cms.InputTag( "TriggerResults", "", "FU" )
 )
 
-# Scheduling
-process.p = cms.Path(
-xRECO_FROM_RAWx
-xHLT_FILTERx
-xDQM_FROM_RAWx
-    process.SiStripDQMRecoGlobalRunCAF           *
-    process.SiStripDQMSourceGlobalRunCAF_reduced *
-#     process.SiStripDQMClientGlobalRunCAF         *
-#     process.qTester                              *
-    process.dqmSaver
+# Output
+process.out = cms.OutputModule( "PoolOutputModule",
+    fileName       = cms.untracked.string( 'xOUTPUT_DIRECTORYx/SiStripDQMOfflineGlobalRunCAF-xRUN_NUMBERx.root' ),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_MEtoEDMConverter_*_SiStripDQMOfflineGlobalRunCAF'
+    )
 )
 
-# Input
-process.load( "xINCLUDE_DIRECTORYx.xINPUT_FILESx" )
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( -1 )
+# Scheduling
+process.p = cms.Path(
+xRECO_FROM_RAWxprocess.SiStripDQMRecoFromRaw                *
+xHLT_FILTERxprocess.hltFilter                            *
+xDQM_FROM_RAWxprocess.SiStripDQMSourceGlobalRunCAF_fromRAW *
+    process.SiStripDQMRecoGlobalRunCAF           *
+    process.SiStripDQMSourceGlobalRunCAF_reduced *
+    process.MEtoEDMConverter
+)
+
+process.outpath = cms.EndPath(
+    process.out
 )

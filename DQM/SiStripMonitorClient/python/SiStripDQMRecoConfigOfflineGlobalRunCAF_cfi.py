@@ -1,29 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
-# SiStrip DQM Reco
+### SiStrip DQM Reconstruction ###
 
 from DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff import *
 
-# Refitting needed due to missing trajectories in RECO
+## Refitting ##
 from RecoTracker.TrackProducer.RefitterWithMaterial_cfi import *
-# Clone for Cosmic Track Finder
+# cosmic track finder #
 import RecoTracker.TrackProducer.RefitterWithMaterial_cfi
 cosmictrackfinderP5Refitter                   = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
 cosmictrackfinderP5Refitter.src               = 'cosmictrackfinderP5'
 cosmictrackfinderP5Refitter.TrajectoryInEvent = True
-# Clone for CTF Track Finder
+# CTF #
 import RecoTracker.TrackProducer.RefitterWithMaterial_cfi
 ctfWithMaterialTracksP5Refitter                   = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
 ctfWithMaterialTracksP5Refitter.src               = 'ctfWithMaterialTracksP5'
 ctfWithMaterialTracksP5Refitter.TrajectoryInEvent = True
-# Clone for RS Track Finder
+# RS #
 import RecoTracker.TrackProducer.RefitterWithMaterial_cfi
 rsWithMaterialTracksP5Refitter                   = RecoTracker.TrackProducer.RefitterWithMaterial_cfi.TrackRefitter.clone()
 rsWithMaterialTracksP5Refitter.src               = 'rsWithMaterialTracksP5'
 rsWithMaterialTracksP5Refitter.TrajectoryInEvent = True
 
-# Scheduling
-
+## Scheduling ##
+# additional reco needed for running from RAW #
 SiStripDQMRecoFromRaw = cms.Sequence(
     siStripDigis     *
     siPixelDigis     *
@@ -31,7 +31,7 @@ SiStripDQMRecoFromRaw = cms.Sequence(
     trackerlocalreco *
     tracksP5
 )
-
+# reco needed for DQM #
 SiStripDQMRecoGlobalRunCAF = cms.Sequence(
     cosmictrackfinderP5Refitter     +
     ctfWithMaterialTracksP5Refitter +

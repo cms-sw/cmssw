@@ -1,30 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
-# DQM SERVICES
+### DQM Services ###
 
-# DQM Store
+## DQM store ##
 from DQMServices.Core.DQM_cfg import *
 DQM.collectorHost = ''
 
-#  DQM File Saving and Environment
+## DQM file saving and environment ##
 from DQMServices.Components.DQMEnvironment_cfi import *
+# File saving #
 dqmSaver.convention        = 'Online'
-dqmSaver.dirName           = '/afs/cern.ch/user/v/vadler/scratch0/cms/SiStripDQM/CMSSW_2_1_7/output'
+dqmSaver.dirName           = '.'
 dqmSaver.producer          = 'DQM'
 dqmSaver.saveByRun         = 1
 dqmSaver.saveAtJobEnd      = True
 dqmSaver.referenceHandling = 'qtests'
+# Environment #
 dqmEnv.subSystemFolder = 'SiStrip'
 
-# Quality Tester 
-qTester = cms.EDAnalyzer("QualityTester",
-    qtList                  = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
-    getQualityTestsFromFile = cms.untracked.bool(True),
-    prescaleFactor          = cms.untracked.int32(1)
+## ME2EDM/EDM2ME ##
+from DQMServices.Components.MEtoEDMConverter_cfi import *
+from DQMServices.Components.EDMtoMEConverter_cfi import *
+
+## Quality tester ##
+qTester = cms.EDAnalyzer( "QualityTester",
+    qtList                  = cms.untracked.FileInPath( 'DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml' ),
+    getQualityTestsFromFile = cms.untracked.bool( True ),
+    prescaleFactor          = cms.untracked.int32( 1 )
 )
 
-# DQM MODULES
+### SiStrip DQM Modules ###
 
+## SiStrip DQM reconstruction ##
 from DQM.SiStripMonitorClient.SiStripDQMRecoConfigOfflineGlobalRunCAF_cfi   import *
+## SiStrip DQM sources ##
 from DQM.SiStripMonitorClient.SiStripDQMSourceConfigOfflineGlobalRunCAF_cfi import *
-from DQM.SiStripMonitorClient.SiStripDQMClientConfigOfflineGlobalRunCAF_cfi import *
+## SiStrip DQM client ##
+from DQM.SiStripMonitorClient.SiStripClientConfig_cff import *

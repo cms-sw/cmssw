@@ -1,61 +1,87 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CAFHarvestingJob")
+process = cms.Process( "SiStripDQMConvertOfflineGlobalRun" )
 
-#-------------------------------------------------
-## Empty Event Source
-#-------------------------------------------------
-process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(58733),
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(58733),
-    interval = cms.uint64(1)
+### Miscellanous ###
+
+process.options = cms.untracked.PSet(
+   fileMode    = cms.untracked.string( 'FULLMERGE' ),
+   wantSummary = cms.untracked.bool( True )
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
-
-#-------------------------------------------------
-## Message Logger
-#-------------------------------------------------
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+# Logging #
+process.MessageLogger = cms.Service( "MessageLogger",
+    destination = cms.untracked.vstring(
+        'cout'
     ),
-    destinations = cms.untracked.vstring('error.log', 
-        'cout')
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string( 'INFO' )
+    )
 )
 
-#-------------------------------------------------
-# DQM Services
-#-------------------------------------------------
+# # Profiling #
+# process.ProfilerService = cms.Service( "ProfilerService",
+#     paths = cms.untracked.vstring(
+#         'FullEvent'
+#     )
+# )
 
-process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
-    verbose = cms.untracked.int32(1)
+# Memory check #
+process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck",
+#     oncePerEventMode = cms.untracked.bool( True ),
+    ignoreTotal      = cms.untracked.int32( 0 )
 )
 
-process.qTester = cms.EDFilter("QualityTester",
-    qtestOnEndJob = cms.untracked.bool(True),
-    qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
-    QualityTestPrescaler = cms.untracked.int32(1),
-    getQualityTestsFromFile = cms.untracked.bool(True)
+### Import ###
+
+# Magnetic fiels #
+process.load( "Configuration.StandardSequences.MagneticField_0T_cff" )
+# Geometry #
+process.load( "Configuration.StandardSequences.Geometry_cff" )
+# Calibration 
+process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
+process.GlobalTag.connect   = 'frontier://PromptProd/CMS_COND_21X_GLOBALTAG'
+process.GlobalTag.globaltag = 'CRAFT_V2P::All'
+process.es_prefer_GlobalTag = cms.ESPrefer( 'PoolDBESSource', 'GlobalTag' )
+
+### Input ###
+
+# Source #
+process.source = cms.Source( "PoolSource",
+    processingMode = cms.untracked.string( 'Runs' ),
+    fileNames      = cms.untracked.vstring(
+        'file1.root',
+        'file2.root'
+    )
+)
+# Input steering #
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( -1 )
 )
 
-#-------------------------------------------------
-## DQM Harvesting
-#-------------------------------------------------
-process.dqmHarvesing = cms.EDFilter("SiStripOfflineDQM",
-    CreateSummary = cms.untracked.bool(True),
-    InputFileName = cms.untracked.string('DQM_SiStrip_R000058733-standAlone.root'),
-    OutputFileName = cms.untracked.string('DQM_SiStrip_R000058289_CAF.root'),
-    GlobalStatusFilling = cms.untracked.int32(1)
+### SiStrip DQM ###
+
+process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
+
+### Output ###
+
+# DQM store #
+# process.DQMStore.referenceFileName = ''
+# process.DQMStore.collateHistograms = False
+# process.DQMStore.verbose = 1
+
+# EDM2ME #
+# process.EDMtoMEConverter.convertOnEndLumi = False
+# process.EDMtoMEConverter.convertOnEndRun  = True
+
+# DQM saver #
+process.dqmSaver.dirName = '.'
+
+### Scheduling ###
+
+process.p = cms.Path(
+    process.EDMtoMEConverter        *
+    process.SiStripOfflineDQMClient *
+    process.qTester                 *
+    process.dqmSaver
 )
-
-#-------------------------------------------------
-## Scheduling
-#-------------------------------------------------
-process.p = cms.Path(process.qTester*process.dqmHarvesing)
-

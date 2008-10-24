@@ -1,61 +1,57 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CAFHarvestingJob")
+process = cms.Process( "SiStripDQMConvertOfflineGlobalRun" )
 
-#-------------------------------------------------
-## Empty Event Source
-#-------------------------------------------------
-process.source = cms.Source("EmptyIOVSource",
-    timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(xRUN_NUMBERx),
-    lastRun  = cms.untracked.uint32(xRUN_NUMBERx),
-    interval = cms.uint64(1)
+### Miscellanous ###
+
+process.options = cms.untracked.PSet(
+   fileMode    = cms.untracked.string( 'FULLMERGE' ),
+   wantSummary = cms.untracked.bool( True )
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
-
-#-------------------------------------------------
-## Message Logger
-#-------------------------------------------------
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
+# Logging #
+process.MessageLogger = cms.Service( "MessageLogger",
+    destination = cms.untracked.vstring(
+        'cout'
     ),
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string( 'ERROR' )
+    )
 )
 
-#-------------------------------------------------
-# DQM Services
-#-------------------------------------------------
+### Import ###
 
-process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
-    verbose           = cms.untracked.int32(0)
+# Magnetic fiels #
+process.load( "Configuration.StandardSequences.MagneticField_xMAG_FIELDx_cff" )
+# Geometry #
+process.load( "Configuration.StandardSequences.Geometry_cff" )
+# Calibration 
+process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
+process.GlobalTag.connect   = 'frontier://PromptProd/CMS_COND_21X_GLOBALTAG'
+process.GlobalTag.globaltag = 'xGLOBAL_TAGx'
+process.es_prefer_GlobalTag = cms.ESPrefer( 'PoolDBESSource', 'GlobalTag' )
+
+### Input ###
+
+# Source #
+process.load( "xINCLUDE_DIRECTORYx.inputFilesCAF_cff" )
+# Input steering #
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( -1 )
 )
 
-process.qTester = cms.EDFilter("QualityTester",
-    qtestOnEndJob           = cms.untracked.bool(True),
-    qtList                  = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
-    QualityTestPrescaler    = cms.untracked.int32(1),
-    getQualityTestsFromFile = cms.untracked.bool(True)
-)
+### SiStrip DQM ###
 
-#-------------------------------------------------
-## DQM Harvesting
-#-------------------------------------------------
-process.dqmHarvesing = cms.EDFilter("SiStripOfflineDQM",
-    CreateSummary       = cms.untracked.bool(True),
-    InputFileName       = cms.untracked.string('xMERGED_INPUT_FILEx'),
-    OutputFileName      = cms.untracked.string('xMERGED_OUTPUT_FILEx'),
-    GlobalStatusFilling      = cms.untracked.int32(1)
-)
+process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
 
-#-------------------------------------------------
-## Scheduling
-#-------------------------------------------------
+# DQM saver #
+process.dqmSaver.dirName = 'xMERGE_PATHx'
+
+### Scheduling ###
+
 process.p = cms.Path(
-    process.qTester      *
-    process.dqmHarvesing
+    process.EDMtoMEConverter        *
+    process.SiStripOfflineDQMClient *
+    process.qTester                 *
+    process.dqmSaver
 )
-
