@@ -753,7 +753,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
         TarFile = "%s_%s_%s_%s.tar" % (cmssw_version, str(stepOptions), host, user)
         AbsTarFile = os.path.join(perfsuitedir,TarFile)
-        tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
+        tarcmd  = "tar -cf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
         printFlush(tarcmd)
         printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
 
