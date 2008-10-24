@@ -36,6 +36,7 @@
 #include "PhysicsTools/StarterKit/interface/HistoMET.h"
 #include "PhysicsTools/StarterKit/interface/HistoPhoton.h"
 #include "PhysicsTools/StarterKit/interface/HistoTrack.h"
+#include "PhysicsTools/StarterKit/interface/HistoGenParticle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -75,7 +76,8 @@ public:
 			       KinAxisLimits const & jetAxis, 
 			       KinAxisLimits const & METAxis, 
 			       KinAxisLimits const & photonAxis,
-			       KinAxisLimits const & trackAxis 
+			       KinAxisLimits const & trackAxis,
+			       KinAxisLimits const & genParticlesAxis
 			       );
   virtual ~PhysicsHistograms();
 
@@ -138,6 +140,11 @@ public:
   inline void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll, double w = 1.0 )
     { trackHistograms_->fillCollection(coll,w); }
 
+  //--- ... or GenParticle.
+  //
+  inline void fillCollection( const std::vector<reco::GenParticle> & coll, double w = 1.0 )
+    { genParticleHistograms_->fillCollection(coll,w); }
+
 
 
   // &&& Design note: again, let's be explicit.  This could be compressed into
@@ -196,6 +203,13 @@ public:
   inline void addTrackHistoGroup( pat::HistoTrack * hgr )
     { trackHistograms_->addHistoGroup(hgr); }
 
+  //--- Add one histo to genParticle group, or a whole group of genParticle histograms
+  //
+  inline void addGenParticleHisto ( pat::PhysVarHisto * h )
+    { genParticleHistograms_->addHisto(h); }
+  inline void addGenParticleHistoGroup( pat::HistoGenParticle * hgr )
+    { genParticleHistograms_->addHistoGroup(hgr); }
+
   //--- Add one generic histo to list
   inline void addHisto( pat::PhysVarHisto * h )
     { allVarHistos_.push_back( h ); }
@@ -211,13 +225,14 @@ private:
   edm::Service<TFileService> fs;
 
   // Histogram objects that make "standard" plots for each object
-  pat::HistoMuon     * muonHistograms_;
-  pat::HistoElectron * electronHistograms_;
-  pat::HistoTau      * tauHistograms_;
-  pat::HistoMET      * metHistograms_;
-  pat::HistoJet      * jetHistograms_;
-  pat::HistoPhoton   * photonHistograms_;
-  pat::HistoTrack    * trackHistograms_;
+  pat::HistoMuon           * muonHistograms_;
+  pat::HistoElectron       * electronHistograms_;
+  pat::HistoTau            * tauHistograms_;
+  pat::HistoMET            * metHistograms_;
+  pat::HistoJet            * jetHistograms_;
+  pat::HistoPhoton         * photonHistograms_;
+  pat::HistoTrack          * trackHistograms_;
+  pat::HistoGenParticle    * genParticleHistograms_;
 
   //--- The summary of all PhysVarHistos.
   // &&& Is this still needed?

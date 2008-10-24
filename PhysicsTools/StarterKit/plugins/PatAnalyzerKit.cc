@@ -44,7 +44,9 @@ void PatAnalyzerKit::produce( edm::Event & evt, const edm::EventSetup & es )
 		      tauHandle_,
 		      jetHandle_,
 		      METHandle_,
-		      photonHandle_);
+		      photonHandle_,
+		      trackHandle_,
+		      genParticlesHandle_);
 
 
 
@@ -63,7 +65,9 @@ void PatAnalyzerKit::produce( edm::Event & evt, const edm::EventSetup & es )
 			  tauHandle_,
 			  jetHandle_,
 			  METHandle_,
-			  photonHandle_);
+			  photonHandle_,
+			  trackHandle_,
+			  genParticlesHandle_);
 }
 
 

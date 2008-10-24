@@ -1,9 +1,9 @@
-#ifndef StarterKit_HistoParticle_h
-#define StarterKit_HistoParticle_h
+#ifndef StarterKit_HistoGenParticle_h
+#define StarterKit_HistoGenParticle_h
 
 //------------------------------------------------------------
-// Title: HistoParticle.h
-// Purpose: To histogram Particles
+// Title: HistoGenParticle.h
+// Purpose: To histogram GenParticles
 //
 // Authors:
 // Liz Sexton-Kennedy <sexton@fnal.gov>
@@ -14,16 +14,16 @@
 //
 // Interface:
 //
-//   HistoParticle ( TFile * file );
+//   HistoGenParticle ( TFile * file );
 //   Description: Constructor.
 //
-//   void fill( TK::Particle * );
+//   void fill( TK::GenParticle * );
 //   Description: Fill object. Will fill relevant jet variables
 //
 //   void write();
 //   Description: Write object to file in question.
 //
-//   ~HistoParticle
+//   ~HistoGenParticle
 //    Description: Destructor. Deallocates memory.
 //
 //------------------------------------------------------------
@@ -35,7 +35,7 @@
 
 
 // CMSSW include files
-#include "DataFormats/PatCandidates/interface/Particle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "PhysicsTools/StarterKit/interface/HistoGroup.h"
 
 // STL include files
@@ -47,18 +47,18 @@
 
 namespace pat {
 
-  class HistoParticle : public HistoGroup<Particle> {
+  class HistoGenParticle : public HistoGroup<reco::GenParticle> {
 
   public:
-    HistoParticle(std::string dir = "particle", std::string group = "Particle",
+    HistoGenParticle(std::string dir = "particle", std::string group = "GenParticle",
 	      std::string pre ="p",
 	      double pt1=0, double pt2=200, double m1=0, double m2=200,
 	      TFileDirectory * parentDir=0);
-    virtual ~HistoParticle() ;
+    virtual ~HistoGenParticle() ;
 
     // fill a plain ol' particle:
-    virtual void fill( const Particle *particle, double weight = 1.0 );
-    virtual void fill( const Particle &particle, double weight = 1.0 ) { fill(&particle, weight); }
+    virtual void fill( const reco::GenParticle *particle, double weight = 1.0 );
+    virtual void fill( const reco::GenParticle &particle, double weight = 1.0 ) { fill(&particle, weight); }
 
     // fill a particle that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the particle itself
@@ -66,9 +66,14 @@ namespace pat {
     virtual void fill( const reco::ShallowClonePtrCandidate &particle, double weight = 1.0 )
     { fill(&particle, weight); }
 
+    virtual void fillCollection( const std::vector<reco::GenParticle> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();
+
+  protected:
+    // break down pdg ids into a few categories
+    int   getKey( reco::Particle const * p );
 
   };
 

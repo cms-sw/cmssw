@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Mon Jul  7 10:37:27 CDT 2008
-// $Id: PatKitHelper.h,v 1.1 2008/07/07 20:06:54 srappocc Exp $
+// $Id: PatKitHelper.h,v 1.2 2008/07/08 21:53:11 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Mon Jul  7 10:37:27 CDT 2008
@@ -50,7 +50,9 @@ namespace pat {
 		     edm::Handle<std::vector<pat::Tau> > &      tauHandle,
 		     edm::Handle<std::vector<pat::Jet> > &      jetHandle,
 		     edm::Handle<std::vector<pat::MET> > &      METHandle,
-		     edm::Handle<std::vector<pat::Photon> > &   photonHandle
+		     edm::Handle<std::vector<pat::Photon> > &   photonHandle,
+		     edm::Handle<std::vector<reco::RecoChargedCandidate> > &   trackHandle,
+		     edm::Handle<std::vector<reco::GenParticle> > & genParticles
 		     );
 
     
@@ -61,7 +63,9 @@ namespace pat {
 			 edm::Handle<std::vector<pat::Tau> > &      tauHandle,
 			 edm::Handle<std::vector<pat::Jet> > &      jetHandle,
 			 edm::Handle<std::vector<pat::MET> > &      METHandle,
-			 edm::Handle<std::vector<pat::Photon> > &   photonHandle
+			 edm::Handle<std::vector<pat::Photon> > &   photonHandle,
+			 edm::Handle<std::vector<reco::RecoChargedCandidate> > &   trackHandle,
+			 edm::Handle<std::vector<reco::GenParticle> > & genParticles
 			 );
     
     
@@ -98,7 +102,6 @@ namespace pat {
     // List of ntuple variables
     std::vector< pat::PhysVarHisto* > ntVars_ ;
 
-    
     
     // run and event numbers
     pat::PhysVarHisto *  h_runNumber_;
