@@ -1,7 +1,7 @@
 /** \class RPCBookFolderStructure
  *
- *  $Date: 2008/07/02 13:39:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/28 16:54:20 $
+ *  $Revision: 1.2 $
  * \author Anna Cimmino (INFN Napoli)
  *
  * Create folder structure for DQM histo saving
@@ -18,11 +18,12 @@ class RPCBookFolderStructure {
       ~RPCBookFolderStructure(){};
 
       std::string folderStructure(RPCDetId detId){ 
+	
 	std::stringstream myStream ;
 	myStream.str("");
   
 	if(detId.region() ==  0) 
-	  myStream <<"Barrel/Wheel_"<<detId.ring()<<"/station_"<<detId.station()<<"/sector_"<<detId.sector();
+	  myStream <<"Barrel/Wheel_"<<detId.ring()<<"/sector_"<<detId.sector()<<"/station_"<<detId.station();
 	else if(detId.region() == -1) 
 	  myStream <<"Endcap-/Disk_"<<detId.station()<<"/ring_"<<detId.ring()<<"/sector_"<<detId.sector();
 	else if(detId.region() ==  1) 
