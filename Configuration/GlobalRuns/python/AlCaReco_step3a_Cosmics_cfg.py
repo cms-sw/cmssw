@@ -8,7 +8,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('ALCA')
 
 # import of standard configurations
-process.load('Configuration/StandardSequences/Services_cff')
+##process.load('Configuration/StandardSequences/Services_cff')
+process.DQMStore = cms.Service("DQMStore")
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
 process.load('Configuration/StandardSequences/GeometryPilot2_cff')
@@ -18,7 +19,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.77.2.1 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step3a nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
