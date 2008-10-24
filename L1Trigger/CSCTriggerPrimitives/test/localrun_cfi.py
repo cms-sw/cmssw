@@ -9,7 +9,7 @@ ext = "_Monitor_000.raw"
 source = cms.Source("DaqSource",
     readerPluginName = cms.untracked.string("CSCFileReader"),
     readerPset = cms.untracked.PSet(
-        #firstEvent = cms.untracked.int32(0),
+        #firstEvent = cms.untracked.int32(35555),
         RUI00 = cms.untracked.vstring(dir+file+"EmuRUI00"+ext),
         RUI01 = cms.untracked.vstring(dir+file+"EmuRUI01"+ext),
         RUI02 = cms.untracked.vstring(dir+file+"EmuRUI02"+ext),
@@ -47,10 +47,10 @@ source = cms.Source("DaqSource",
         RUI34 = cms.untracked.vstring(dir+file+"EmuRUI34"+ext),
         RUI35 = cms.untracked.vstring(dir+file+"EmuRUI35"+ext),
         RUI36 = cms.untracked.vstring(dir+file+"EmuRUI36"+ext),
-        FED750 = cms.untracked.vstring("RUI01", "RUI02", "RUI03", "RUI04", "RUI05", "RUI06", "RUI07", "RUI08", "RUI09", "RUI10"),
-        FED751 = cms.untracked.vstring("RUI11", "RUI12", "RUI13", "RUI14", "RUI15", "RUI16", "RUI17", "RUI18"),
-        FED752 = cms.untracked.vstring("RUI19", "RUI20", "RUI21", "RUI22", "RUI23", "RUI24", "RUI25", "RUI26", "RUI27", "RUI28"),
-        FED753 = cms.untracked.vstring("RUI29", "RUI30", "RUI31", "RUI32", "RUI33", "RUI34", "RUI35", "RUI36")
+        FED750 = cms.untracked.vstring("RUI01", "RUI02", "RUI03", "RUI04", "RUI05", "RUI06", "RUI07", "RUI08", "RUI09"),
+        FED751 = cms.untracked.vstring("RUI10", "RUI11", "RUI12", "RUI13", "RUI14", "RUI15", "RUI16", "RUI17", "RUI18"),
+        FED752 = cms.untracked.vstring("RUI19", "RUI20", "RUI21", "RUI22", "RUI23", "RUI24", "RUI25", "RUI26", "RUI27"),
+        FED753 = cms.untracked.vstring("RUI28", "RUI29", "RUI30", "RUI31", "RUI32", "RUI33", "RUI34", "RUI35", "RUI36")
         #FED760 = cms.untracked.vstring("RUI00")
     )
 )
