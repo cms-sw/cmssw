@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.6 2008/10/23 07:48:37 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.7 2008/10/23 08:13:27 innocent Exp $
 //
 
 // system include files
@@ -26,23 +26,23 @@
 
 // forward declarations
 
-class ReferenceCounted
+class BasicReferenceCounted
 {
 
    public:
-      ReferenceCounted() : referenceCount_(0) {}
-      ReferenceCounted( const ReferenceCounted& iRHS ) : referenceCount_(0) {}
+      BasicReferenceCounted() : referenceCount_(0) {}
+      BasicReferenceCounted( const BasicReferenceCounted& iRHS ) : referenceCount_(0) {}
 
-      const ReferenceCounted& operator=( const ReferenceCounted& ) {
+      const BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
 	return *this;
       }
-      virtual ~ReferenceCounted() {}
+      virtual ~BasicReferenceCounted() {}
 
       // ---------- const member functions ---------------------
 
       void addReference() const { ++referenceCount_ ; }
       void removeReference() const { if( 0 == --referenceCount_ ) {
-	  delete const_cast<ReferenceCounted*>(this);
+	  delete const_cast<BasicReferenceCounted*>(this);
 	}
       }
 
@@ -76,11 +76,11 @@ template <class T> class ConstReferenceCountingPointer :
     boost::intrusive_ptr<const T>(&(*other)) {}
 };
 
-inline void intrusive_ptr_add_ref( const ReferenceCounted* iRef ) {
+inline void intrusive_ptr_add_ref( const BasicReferenceCounted* iRef ) {
   iRef->addReference();
 }
 
-inline void intrusive_ptr_release( const ReferenceCounted* iRef ) {
+inline void intrusive_ptr_release( const BasicReferenceCounted* iRef ) {
   iRef->removeReference();
 }
 
@@ -146,6 +146,16 @@ inline void intrusive_ptr_add_ref( const ReferenceCountedPoolAllocated* iRef ) {
 inline void intrusive_ptr_release( const ReferenceCountedPoolAllocated* iRef ) {
   iRef->removeReference();
 } 
+
+// condition uses naive RefCount
+typedef BasicReferenceCounted ReferenceCountedInConditions;
+
+
+// transient objects in algo and events are "poo allocated"
+typedef ReferenceCountedPoolAllocated  ReferenceCountedInEvent;
+
+// just to avoid changing all around 
+typedef ReferenceCountedPoolAllocated ReferenceCounted;
 
 
 

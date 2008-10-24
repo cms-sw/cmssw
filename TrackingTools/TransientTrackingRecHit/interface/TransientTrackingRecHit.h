@@ -12,7 +12,7 @@
 class GeomDetUnit;
 
 class TransientTrackingRecHit : public TrackingRecHit, 
-				public ReferenceCountedPoolAllocated {
+				public ReferenceCountedInEvent {
 public:
 
   //RC typedef edm::OwnVector<const TransientTrackingRecHit>        RecHitContainer;

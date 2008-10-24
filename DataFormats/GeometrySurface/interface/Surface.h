@@ -30,7 +30,7 @@ class TangentPlane;
  */
 
 class Surface : public GloballyPositioned<float> 
-		, public ReferenceCounted 
+		, public ReferenceCountedInConditions 
 {
 public:
   typedef SurfaceOrientation::Side Side;
