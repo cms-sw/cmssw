@@ -23,7 +23,7 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadTTDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadXTInfo.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadTTInfo.h"
-
+#include "OnlineDB/EcalCondDB/interface/FEConfigMainInfo.h"
 #endif
 
 
