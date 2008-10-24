@@ -119,6 +119,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
     if ( pcmet == 0 && c->hasMasterClonePtr() )  pcmet = dynamic_cast<const pat::MET*>( &*(c->masterClonePtr()) );
     if ( pcphoton == 0 && c->hasMasterClonePtr() )  pcphoton = dynamic_cast<const pat::Photon*>( &*(c->masterClonePtr()) );
 
+    if ( pctrack == 0 && c->hasMasterClonePtr() )  pctrack = dynamic_cast<const reco::RecoChargedCandidate*>( &*(c->masterClonePtr()) );
     if ( pccomposite == 0 && c->hasMasterClonePtr() )  pccomposite = dynamic_cast<const reco::CompositeCandidate*>( &*(c->masterClonePtr()) );
 
     // ------------------------------------------------------
@@ -135,7 +136,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoMuon_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -158,7 +159,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoElectron_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -182,7 +183,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoTau_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -206,7 +207,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoJet_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -230,7 +231,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoMET_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -255,7 +256,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoPhoton_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -278,7 +279,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoTrack_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -301,7 +302,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand, double weight 
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoComposite_.map[role]    ->fill( pshallow, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -368,6 +369,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
     if ( pcmet == 0 && c->hasMasterClonePtr() )  pcmet = dynamic_cast<const pat::MET*>( &*(c->masterClonePtr()) );
     if ( pcphoton == 0 && c->hasMasterClonePtr() )  pcphoton = dynamic_cast<const pat::Photon*>( &*(c->masterClonePtr()) );
 
+    if ( pctrack == 0 && c->hasMasterClonePtr() )  pctrack = dynamic_cast<const reco::RecoChargedCandidate*>( &*(c->masterClonePtr()) );
     if ( pccomposite == 0 && c->hasMasterClonePtr() )  pccomposite = dynamic_cast<const reco::CompositeCandidate*>( &*(c->masterClonePtr()) );
 
     // ------------------------------------------------------
@@ -384,7 +386,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoMuon_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -407,7 +409,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoElectron_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -431,7 +433,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoTau_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -455,7 +457,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoJet_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -479,7 +481,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoMET_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -504,7 +506,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoPhoton_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -527,7 +529,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoTrack_.map[role]    ->fill( pshallow, 1, weight );
       }
       // Here is if the candidate is a straightforward pointer
@@ -550,7 +552,7 @@ void HistoComposite::fill( const reco::ShallowClonePtrCandidate * pshallow, doub
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
       // detector information from the base object
-      if ( c->hasMasterClone() ) {
+      if ( c->hasMasterClonePtr() ) {
 	histoComposite_.map[role]    ->fill( pshallow, weight );
       }
       // Here is if the candidate is a straightforward pointer
