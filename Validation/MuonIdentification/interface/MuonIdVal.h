@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.2 2008/02/29 20:48:57 ksmith Exp $
+// $Id: MuonIdVal.h,v 1.3 2008/08/23 09:17:41 jribnik Exp $
 //
 //
 
@@ -33,8 +33,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -66,11 +64,11 @@ class MuonIdVal : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
       edm::InputTag inputMuonCollection_;
-      edm::InputTag inputTrackCollection_;
       edm::InputTag inputDTRecSegment4DCollection_;
       edm::InputTag inputCSCSegmentCollection_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
+      bool makeDQMPlots_;
       bool makeEnergyPlots_;
       bool makeIsoPlots_;
       bool make2DPlots_;
@@ -78,7 +76,6 @@ class MuonIdVal : public edm::EDAnalyzer {
       std::string baseFolder_;
 
       edm::Handle<reco::MuonCollection> muonCollectionH_;
-      edm::Handle<reco::TrackCollection> trackCollectionH_;
       edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
       edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
