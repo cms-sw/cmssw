@@ -1,0 +1,5 @@
+#!/bin/tcsh
+cd /afs/cern.ch/user/v/vadler/cms/SiStripDQM/CMSSW_2_1_10/src/DQM/SiStripMonitorClient/test
+cmsenv
+setenv STAGE_SVCCLASS cmscaf
+cmsRun SiStripCAFHarvest_cfg.py >&! /afs/cern.ch/user/v/vadler/scratch0/cms/SiStripDQM/CMSSW_2_1_10/output/SiStripCAFHarvest.log
