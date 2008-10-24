@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/09/21 14:37:51 $
- * $Revision: 1.33 $
+ * $Date: 2008/10/10 12:41:24 $
+ * $Revision: 1.34 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.34  2008/10/10 12:41:24  jbrooke
+ * put back checks on energy sum vector size, change [] to .at()
+ *
  * Revision 1.33  2008/09/21 14:37:51  jad
  * updated HF Sums & Counts and added individual Jet Candidates and differences
  *
@@ -385,6 +388,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // collections regardless of input data by default but I leave this for now
   bool doJet = true;
   bool doEm = true;
+  bool doHFminbias = true;
+  bool doES = true;
   
   e.getByLabel(gctCenJetsSource_, l1CenJets);
   e.getByLabel(gctForJetsSource_, l1ForJets);
@@ -396,51 +401,51 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctEnergySumsSource_, l1EtTotal);
 
   if (!l1CenJets.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1CenJets"
+    edm::LogWarning("DataNotFound") << " Could not find l1CenJets"
       ", label was " << gctCenJetsSource_ ;
     doJet = false;
   }
    
   if (!l1ForJets.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1ForJets"
+    edm::LogWarning("DataNotFound") << " Could not find l1ForJets"
       ", label was " << gctForJetsSource_ ;
     doJet = false;
   }
    
   if (!l1TauJets.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1TauJets"
+    edm::LogWarning("DataNotFound") << " Could not find l1TauJets"
       ", label was " << gctTauJetsSource_ ;
     doJet = false;
   }
 
   if (!l1HFSums.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1HFSums"
+    edm::LogWarning("DataNotFound") << " Could not find l1HFSums"
       ", label was " << gctEnergySumsSource_ ;
-    doJet = false;
+    doHFminbias = false;
   }
 
   if (!l1HFCounts.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1HFCounts"
+    edm::LogWarning("DataNotFound") << " Could not find l1HFCounts"
       ", label was " << gctEnergySumsSource_ ;
-    doJet = false;
+    doHFminbias = false;
   }   
 
   if (!l1EtMiss.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1EtMiss"
+    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss"
       ", label was " << gctEnergySumsSource_ ;
-    doJet = false;
+    doES = false;
   }
      
   if (!l1EtHad.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1EtHad"
+    edm::LogWarning("DataNotFound") << " Could not find l1EtHad"
       ", label was " << gctEnergySumsSource_ ;
-    doJet = false;
+    doES = false;
   }
    
   if (!l1EtTotal.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1EtTotal"
+    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal"
       ", label was " << gctEnergySumsSource_ ;
-    doJet = false;
+    doES = false;
   }
 
   // EM data
@@ -448,20 +453,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
   
   if (!l1IsoEm.isValid()) {
-    edm::LogInfo("DataNotFound") << " Could not find l1IsoEm "
+    edm::LogWarning("DataNotFound") << " Could not find l1IsoEm "
       " elements, label was " << gctIsoEmSource_ ;
     doEm = false;
   }
 
   if (!l1NonIsoEm.isValid()) {
-    edm::LogInfo("DataNotFound") << " Could not find l1NonIsoEm "
+    edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm "
       " elements, label was " << gctNonIsoEmSource_ ;
     doEm = false;
   }
 
   if ( (! doEm) && (! doJet) ) {
     if (  verbose_ )
-      edm::LogInfo("DataNotFound") << "L1TGCT: Bailing, didn't find squat."<<std::endl;
+      edm::LogWarning("DataNotFound") << "L1TGCT: Bailing, didn't find squat."<<std::endl;
     return;
   }
     
@@ -567,6 +572,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctTauJetsRankDiff23_->Fill((*l1TauJets).at(2).rank()-(*l1TauJets).at(3).rank());
     }
     
+  }
+
+  if (doES) {
     // Energy sums
     if ( l1EtMiss->size() ) {
       l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
@@ -579,6 +587,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     if ( l1EtTotal->size() ) {
       l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
     }
+  }
+
+  if (doHFminbias) {
 
     //Fill HF Ring Histograms
     for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
