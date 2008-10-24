@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 import os
 
-command = "ResponseFitter HistoSettings.dat"
+command = "ReadTree TreeSettings.conf"
 os.system(command)
-command = "L3Correction HistoSettings.dat"
+command = "ResponseFitter HistoSettings.conf"
 os.system(command)
-command = "L2Correction HistoSettings.dat"
+command = "L3Correction HistoSettings.conf"
+os.system(command)
+command = "L2Correction HistoSettings.conf"
 os.system(command)
