@@ -21,7 +21,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
 
   //  get the store
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmLabel = moduleLabel.label();
+  dqmLabel = "OfflinePV/"+moduleLabel.label();
   dqmStore_->setCurrentFolder(dqmLabel);
 
 //   xPos = dqmStore_->book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
