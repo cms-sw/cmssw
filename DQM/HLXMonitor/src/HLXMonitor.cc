@@ -6,6 +6,7 @@
 
 // STL Headers
 
+#include <math.h>
 #include <iomanip>
 #include <TSystem.h>
 
@@ -17,7 +18,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    NUM_HLX          = iConfig.getUntrackedParameter< unsigned int >("numHlx",     36);
    NUM_BUNCHES      = iConfig.getUntrackedParameter< unsigned int >("numBunches", 3564);
-   MAX_LS           = iConfig.getUntrackedParameter< unsigned int >("maximumNumLS", 1920);
+   MAX_LS           = iConfig.getUntrackedParameter< unsigned int >("maximumNumLS", 480);
    listenPort       = iConfig.getUntrackedParameter< unsigned int >("SourcePort", 51001);
    OutputFilePrefix = iConfig.getUntrackedParameter< std::string  >("outputFile", "lumi");
    OutputDir        = iConfig.getUntrackedParameter< std::string  >("outputDir","  data");
@@ -30,7 +31,8 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    Accumulate       = iConfig.getUntrackedParameter< bool         >("Accumulate",  true); // all
    TriggerBX        = iConfig.getUntrackedParameter< unsigned int >("TriggerBX",   50);
    reconnTime       = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
-   DistribIP        = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcs2f17-19");
+   DistribIP1       = iConfig.getUntrackedParameter< std::string  >("PrimaryHLXDAQIP", "vmepcs2f17-18");
+   DistribIP2       = iConfig.getUntrackedParameter< std::string  >("SecondaryHLXDAQIP", "vmepcs2f17-19");
    ResetAtNewRun    = iConfig.getUntrackedParameter< bool         >("NewRun_Reset","true");
    SaveAtEndJob     = iConfig.getUntrackedParameter< bool         >("SaveAtEndJob","true");
 
@@ -38,7 +40,15 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    subSystemName_   = iConfig.getUntrackedParameter<std::string   >("subSystemName", "HLX") ;
 
    // Set the lumi section counter
+   lsBinOld = 0;
    lumiSectionCount = 0;
+   sectionInstantSumEt = 0;
+   sectionInstantErrSumEt = 0;
+   sectionInstantSumOcc1 = 0;
+   sectionInstantErrSumOcc1 = 0;
+   sectionInstantSumOcc2 = 0;
+   sectionInstantErrSumOcc2 = 0;
+   sectionInstantNorm = 0;
 
    // HLX Config info
    set1BelowIndex   = 0;
@@ -341,29 +351,42 @@ HLXMonitor::SetupHists()
    std::string LumiEtSumYTitle = "Luminosity: E_{T} Sum";
    std::string LumiOccYTitle   = "Luminosity: Occupancy";
 
-   LumiEtSum = dbe_->bookProfile("LumiEtSum","Luminosity ",NBINS, XMIN, XMAX, EtSumBins, EtSumMin, EtSumMax );
-   LumiEtSum->setAxisTitle( LumiXTitle, 1 );
-   LumiEtSum->setAxisTitle( LumiEtSumYTitle, 2 );
+   LumiAvgEtSum = dbe_->bookProfile("LumiAvgEtSum","Average Luminosity ",int(XMAX-XMIN), XMIN, XMAX, EtSumBins, EtSumMin, EtSumMax );
+   LumiAvgEtSum->setAxisTitle( LumiXTitle, 1 );
+   LumiAvgEtSum->setAxisTitle( LumiEtSumYTitle, 2 );
  
-   LumiOccSet1 = dbe_->bookProfile("LumiOccSet1","Luminosity - Set 1", NBINS, XMIN, XMAX, OccBins, OccMax, OccMin );
-   LumiOccSet1->setAxisTitle( LumiXTitle, 1 );
-   LumiOccSet1->setAxisTitle( LumiOccYTitle, 2 );
+   LumiAvgOccSet1 = dbe_->bookProfile("LumiAvgOccSet1","Average Luminosity - Set 1", int(XMAX-XMIN), XMIN, XMAX, OccBins, OccMax, OccMin );
+   LumiAvgOccSet1->setAxisTitle( LumiXTitle, 1 );
+   LumiAvgOccSet1->setAxisTitle( LumiOccYTitle, 2 );
 
-   LumiOccSet2 = dbe_->bookProfile("LumiOccSet2","Luminosity - Set 2", NBINS, XMIN, XMAX, OccBins, OccMax, OccMin );
-   LumiOccSet2->setAxisTitle( LumiXTitle, 1 );
-   LumiOccSet2->setAxisTitle( LumiOccYTitle, 2 );
+   LumiAvgOccSet2 = dbe_->bookProfile("LumiAvgOccSet2","Average Luminosity - Set 2", int(XMAX-XMIN), XMIN, XMAX, OccBins, OccMax, OccMin );
+   LumiAvgOccSet2->setAxisTitle( LumiXTitle, 1 );
+   LumiAvgOccSet2->setAxisTitle( LumiOccYTitle, 2 );
 
-   LumiDiffEtSumOcc1 = dbe_->bookProfile("LumiDiffEtSumOcc1","Luminosity ",NBINS, XMIN, XMAX, OccBins, OccMax, OccMin  );
-   LumiDiffEtSumOcc1->setAxisTitle( LumiXTitle, 1 );
-   LumiDiffEtSumOcc1->setAxisTitle( LumiEtSumYTitle, 2 );
+   LumiInstantEtSum = dbe_->book1D("LumiInstantEtSum","Instantaneous Luminosity ",int(XMAX-XMIN), XMIN, XMAX );
+   LumiInstantEtSum->setAxisTitle( LumiXTitle, 1 );
+   LumiInstantEtSum->setAxisTitle( LumiEtSumYTitle, 2 );
+ 
+   LumiInstantOccSet1 = dbe_->book1D("LumiInstantOccSet1","Instantaneous Luminosity - Set 1", int(XMAX-XMIN), XMIN, XMAX );
+   LumiInstantOccSet1->setAxisTitle( LumiXTitle, 1 );
+   LumiInstantOccSet1->setAxisTitle( LumiOccYTitle, 2 );
 
-   LumiDiffEtSumOcc2 = dbe_->bookProfile("LumiDiffEtSumOcc2","Luminosity ",NBINS, XMIN, XMAX, OccBins, OccMax, OccMin  );
-   LumiDiffEtSumOcc2->setAxisTitle( LumiXTitle, 1 );
-   LumiDiffEtSumOcc2->setAxisTitle( LumiEtSumYTitle, 2 );
+   LumiInstantOccSet2 = dbe_->book1D("LumiInstantOccSet2","Instantaneous Luminosity - Set 2", int(XMAX-XMIN), XMIN, XMAX );
+   LumiInstantOccSet2->setAxisTitle( LumiXTitle, 1 );
+   LumiInstantOccSet2->setAxisTitle( LumiOccYTitle, 2 );
 
-   LumiDiffOcc1Occ2 = dbe_->bookProfile("LumiDiffOcc1Occ2","Luminosity ",NBINS, XMIN, XMAX, OccBins, OccMax, OccMin  );
-   LumiDiffOcc1Occ2->setAxisTitle( LumiXTitle, 1 );
-   LumiDiffOcc1Occ2->setAxisTitle( LumiEtSumYTitle, 2 );
+   LumiIntegratedEtSum = dbe_->book1D("LumiIntegratedEtSum","Integrated Luminosity ",int(XMAX-XMIN), XMIN, XMAX );
+   LumiIntegratedEtSum->setAxisTitle( LumiXTitle, 1 );
+   LumiIntegratedEtSum->setAxisTitle( LumiEtSumYTitle, 2 );
+ 
+   LumiIntegratedOccSet1 = dbe_->book1D("LumiIntegratedOccSet1","Integrated Luminosity - Set 1", int(XMAX-XMIN), XMIN, XMAX );
+   LumiIntegratedOccSet1->setAxisTitle( LumiXTitle, 1 );
+   LumiIntegratedOccSet1->setAxisTitle( LumiOccYTitle, 2 );
+
+   LumiIntegratedOccSet2 = dbe_->book1D("LumiIntegratedOccSet2","Integrated Luminosity - Set 2", int(XMAX-XMIN), XMIN, XMAX );
+   LumiIntegratedOccSet2->setAxisTitle( LumiXTitle, 1 );
+   LumiIntegratedOccSet2->setAxisTitle( LumiOccYTitle, 2 );
+
 
    // Sanity check sum histograms
    dbe_->setCurrentFolder(monitorName_+"/CheckSums");
@@ -380,9 +403,10 @@ HLXMonitor::SetupHists()
    SumAllOccSet2->setAxisTitle( sumYTitle, 2 );
 
    // History histograms
-   dbe_->setCurrentFolder(monitorName_+"/History");
+   dbe_->setCurrentFolder(monitorName_+"/HistoryRaw");
 
-   std::string HistXTitle = "Time (0.25 LS)";
+   std::string HistXTitle = "Time (LS)";
+   std::string RecentHistXTitle = "Time (LS/64)";
    std::string HistEtSumYTitle = "Average E_{T} Sum";
    std::string HistOccYTitle = "Average Occupancy";
    std::string HistLumiYTitle = "Luminosity";
@@ -391,102 +415,168 @@ HLXMonitor::SetupHists()
 
    // Et Sum histories
    HistAvgEtSumHFP        = dbe_->bookProfile( "HistAvgEtSumHFP", "Average Et Sum: HF+",          
-   MAX_LS, 0, MAX_LS, EtSumBins, EtSumMin, EtSumMax);
+   MAX_LS, 0.5, (double)MAX_LS+0.5, EtSumBins, EtSumMin, EtSumMax);
    HistAvgEtSumHFP->setAxisTitle( HistXTitle, 1 );
    HistAvgEtSumHFP->setAxisTitle( HistEtSumYTitle, 2 );
 
    HistAvgEtSumHFM        = dbe_->bookProfile( "HistAvgEtSumHFM", "Average Et Sum: HF-",          
-   MAX_LS, 0, MAX_LS, EtSumBins, EtSumMin, EtSumMax);
+   MAX_LS, 0.5, (double)MAX_LS+0.5, EtSumBins, EtSumMin, EtSumMax);
    HistAvgEtSumHFM->setAxisTitle( HistXTitle, 1 );
    HistAvgEtSumHFM->setAxisTitle( HistEtSumYTitle, 2 );
 
    // Tower Occupancy Histories
    HistAvgOccBelowSet1HFP = dbe_->bookProfile( "HistAvgOccBelowSet1HFP", "Average Occ Set1Below: HF+",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBelowSet1HFP->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBelowSet1HFP->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBelowSet1HFM = dbe_->bookProfile( "HistAvgOccBelowSet1HFM", "Average Occ Set1Below: HF-",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBelowSet1HFM->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBelowSet1HFM->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBetweenSet1HFP = dbe_->bookProfile( "HistAvgOccBetweenSet1HFP", "Average Occ Set1Between: HF+",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBetweenSet1HFP->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBetweenSet1HFP->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBetweenSet1HFM = dbe_->bookProfile( "HistAvgOccBetweenSet1HFM", "Average Occ Set1Between: HF-",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBetweenSet1HFM->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBetweenSet1HFM->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccAboveSet1HFP = dbe_->bookProfile( "HistAvgOccAboveSet1HFP", "Average Occ Set1Above: HF+",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccAboveSet1HFP->setAxisTitle( HistXTitle, 1 );
    HistAvgOccAboveSet1HFP->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccAboveSet1HFM = dbe_->bookProfile( "HistAvgOccAboveSet1HFM", "Average Occ Set1Above: HF-",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccAboveSet1HFM->setAxisTitle( HistXTitle, 1 );
    HistAvgOccAboveSet1HFM->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBelowSet2HFP = dbe_->bookProfile( "HistAvgOccBelowSet2HFP", "Average Occ Set2Below: HF+",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBelowSet2HFP->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBelowSet2HFP->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBelowSet2HFM = dbe_->bookProfile( "HistAvgOccBelowSet2HFM", "Average Occ Set2Below: HF-",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBelowSet2HFM->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBelowSet2HFM->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBetweenSet2HFP = dbe_->bookProfile( "HistAvgOccBetweenSet2HFP", "Average Occ Set2Between: HF+",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBetweenSet2HFP->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBetweenSet2HFP->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccBetweenSet2HFM = dbe_->bookProfile( "HistAvgOccBetweenSet2HFM", "Average Occ Set2Between: HF-",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccBetweenSet2HFM->setAxisTitle( HistXTitle, 1 );
    HistAvgOccBetweenSet2HFM->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccAboveSet2HFP = dbe_->bookProfile( "HistAvgOccAboveSet2HFP", "Average Occ Set2Above: HF+",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccAboveSet2HFP->setAxisTitle( HistXTitle, 1 );
    HistAvgOccAboveSet2HFP->setAxisTitle( HistOccYTitle, 2 );
 
    HistAvgOccAboveSet2HFM = dbe_->bookProfile( "HistAvgOccAboveSet2HFM", "Average Occ Set2Above: HF-",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax );
    HistAvgOccAboveSet2HFM->setAxisTitle( HistXTitle, 1 );
    HistAvgOccAboveSet2HFM->setAxisTitle( HistOccYTitle, 2 );
 
-   // Lumi Histories
-   HistLumiEtSum   = dbe_->bookProfile( "HistLumiEtSum", "Average Instant Luminosity: Et Sum",
-   MAX_LS, 0, MAX_LS, EtSumBins, EtSumMin, EtSumMax);
-   HistLumiEtSum->setAxisTitle( HistXTitle, 1 );
-   HistLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
-
-   HistLumiOccSet1 = dbe_->bookProfile( "HistLumiOccSet1", "Average Instant Luminosity: Occ Set1",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax);
-   HistLumiOccSet1->setAxisTitle( HistXTitle, 1 );
-   HistLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
-
-   HistLumiOccSet2 = dbe_->bookProfile( "HistLumiOccSet2", "Average Instant Luminosity: Occ Set2",
-   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax);
-   HistLumiOccSet2->setAxisTitle( HistXTitle, 1 );
-   HistLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
-
    // Et Sum histories
    BXvsTimeAvgEtSumHFP  = dbe_->book2D( "BXvsTimeAvgEtSumHFP", "Average Et Sum: HF+",          
-   MAX_LS/4, (double)0, (double)(MAX_LS/4), NBINS, (double)XMIN, (double)XMAX);
+   MAX_LS, 0.5, (double)MAX_LS+0.5, NBINS, (double)XMIN, (double)XMAX);
    BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeXTitle, 1 );
    BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeYTitle, 2 );
 
    BXvsTimeAvgEtSumHFM  = dbe_->book2D( "BXvsTimeAvgEtSumHFM", "Average Et Sum: HF+",          
-   (MAX_LS/4), (double)0, (double)(MAX_LS/4), NBINS, (double)XMIN, (double)XMAX);
+   MAX_LS, 0.5, (double)MAX_LS+0.5, NBINS, (double)XMIN, (double)XMAX);
    BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeXTitle, 1 );
    BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeYTitle, 2 );
+
+   dbe_->setCurrentFolder(monitorName_+"/HistoryLumi");
+
+   // Lumi Histories
+   HistAvgLumiEtSum   = dbe_->bookProfile( "HistAvgLumiEtSum", "Average Instant Luminosity: Et Sum",
+   MAX_LS, 0.5, (double)MAX_LS+0.5, EtSumBins, EtSumMin, EtSumMax);
+   HistAvgLumiEtSum->setAxisTitle( HistXTitle, 1 );
+   HistAvgLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistAvgLumiOccSet1 = dbe_->bookProfile( "HistAvgLumiOccSet1", "Average Instant Luminosity: Occ Set1",
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax);
+   HistAvgLumiOccSet1->setAxisTitle( HistXTitle, 1 );
+   HistAvgLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistAvgLumiOccSet2 = dbe_->bookProfile( "HistAvgLumiOccSet2", "Average Instant Luminosity: Occ Set2",
+   MAX_LS, 0.5, (double)MAX_LS+0.5, OccBins, OccMin, OccMax);
+   HistAvgLumiOccSet2->setAxisTitle( HistXTitle, 1 );
+   HistAvgLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistInstantLumiEtSum   = dbe_->book1D( "HistInstantLumiEtSum", "Instant Luminosity: Et Sum",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistInstantLumiEtSum->setAxisTitle( HistXTitle, 1 );
+   HistInstantLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistInstantLumiOccSet1 = dbe_->book1D( "HistInstantLumiOccSet1", "Instant Luminosity: Occ Set1",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistInstantLumiOccSet1->setAxisTitle( HistXTitle, 1 );
+   HistInstantLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistInstantLumiOccSet2 = dbe_->book1D( "HistInstantLumiOccSet2", "Instant Luminosity: Occ Set2",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistInstantLumiOccSet2->setAxisTitle( HistXTitle, 1 );
+   HistInstantLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistIntegratedLumiEtSum   = dbe_->book1D( "HistIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistIntegratedLumiEtSum->setAxisTitle( HistXTitle, 1 );
+   HistIntegratedLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistIntegratedLumiOccSet1 = dbe_->book1D( "HistIntegratedLumiOccSet1", "Integrated Luminosity: Occ Set1",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistIntegratedLumiOccSet1->setAxisTitle( HistXTitle, 1 );
+   HistIntegratedLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistIntegratedLumiOccSet2 = dbe_->book1D( "HistIntegratedLumiOccSet2", "Integrated Luminosity: Occ Set2",
+   MAX_LS, 0.5, (double)MAX_LS+0.5);
+   HistIntegratedLumiOccSet2->setAxisTitle( HistXTitle, 1 );
+   HistIntegratedLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
+
+   dbe_->setCurrentFolder(monitorName_+"/RecentHistoryLumi");
+
+   // Lumi Recent Histories (past 128 short sections)
+   RecentInstantLumiEtSum   = dbe_->book1D( "RecentInstantLumiEtSum", "Instant Luminosity: Et Sum",
+   128, 0.5, (double)128+0.5);
+   RecentInstantLumiEtSum->setAxisTitle( RecentHistXTitle, 1 );
+   RecentInstantLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
+
+   RecentInstantLumiOccSet1 = dbe_->book1D( "RecentInstantLumiOccSet1", "Instant Luminosity: Occ Set1",
+   128, 0.5, (double)128+0.5);
+   RecentInstantLumiOccSet1->setAxisTitle( RecentHistXTitle, 1 );
+   RecentInstantLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
+
+   RecentInstantLumiOccSet2 = dbe_->book1D( "RecentInstantLumiOccSet2", "Instant Luminosity: Occ Set2",
+   128, 0.5, (double)128+0.5);
+   RecentInstantLumiOccSet2->setAxisTitle( RecentHistXTitle, 1 );
+   RecentInstantLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
+
+   RecentIntegratedLumiEtSum   = dbe_->book1D( "RecentIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
+   128, 0.5, (double)128+0.5);
+   RecentIntegratedLumiEtSum->setAxisTitle( RecentHistXTitle, 1 );
+   RecentIntegratedLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
+
+   RecentIntegratedLumiOccSet1 = dbe_->book1D( "RecentIntegratedLumiOccSet1", "Integrated Luminosity: Occ Set1",
+   128, 0.5, (double)128+0.5);
+   RecentIntegratedLumiOccSet1->setAxisTitle( RecentHistXTitle, 1 );
+   RecentIntegratedLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
+
+   RecentIntegratedLumiOccSet2 = dbe_->book1D( "RecentIntegratedLumiOccSet2", "Integrated Luminosity: Occ Set2",
+   128, 0.5, (double)128+0.5);
+   RecentIntegratedLumiOccSet2->setAxisTitle( RecentHistXTitle, 1 );
+   RecentIntegratedLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
+
  
    dbe_->showDirStructure();
 }
@@ -528,45 +618,71 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   int attemptCounter = 0;
-   int errorCode = 0;
-   do
+   while( HLXTCP.IsConnected() == false )
    {
-      errorCode = HLXTCP.ReceiveLumiSection(lumiSection);
-
-      while(errorCode !=1)
+      HLXTCP.SetIP(DistribIP1);
+      if( HLXTCP.Connect() != 1 )
       {
-	 HLXTCP.Disconnect();
-	 //cout << "Connecting to TCPDistributor" << endl;
-	 errorCode = HLXTCP.Connect();
-	 if(errorCode != 1) 
-	 {
- 	   if( (attemptCounter%10)==0 ){  
-	     cout << "*** Connection Failed: " << errorCode 
-		  << " Will attempt to reconnect in " << reconnTime << " seconds." << endl;
-	     cout << "This message will be printed once every 10 attempts." << endl;
- 	   }
- 	   ++attemptCounter;
-	   sleep(reconnTime);
-	 }
-      }    
-   } while( errorCode != 1 );
+	 std::cout << "Failed to connect to " << DistribIP1 << "." << std::endl;
+	 sleep( 1 );
+	 std::cout << "Trying " << DistribIP2 << std::endl;
+	 HLXTCP.SetIP( DistribIP2 );
+	 if( HLXTCP.Connect() == 1) break;
+	 std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
+	 std::cout << " Reconnect in " << reconnTime << " seconds." <<  std::endl;
+	 sleep(reconnTime);
+      }
+   }
+   if( HLXTCP.IsConnected() == true )
+   {
+      std::cout << "Successfully connected." << std::endl; 
+   }
 
-   // If this is the first time through, set the runNumber ...
-   if( runNumber_ == 0 ) runNumber_ = lumiSection.hdr.runNumber;
-   //std::cout << "Run number is: " << runNumber_ << std::endl;
-  
-   // Fill the monitoring histograms 
-   FillHistograms(lumiSection);
-   FillHistoHFCompare(lumiSection);
-   FillEventInfo(lumiSection);
+   if( HLXTCP.ReceiveLumiSection( lumiSection ) == 1 )
+   {
+      // If this is the first time through, set the runNumber ...
+      if( runNumber_ != lumiSection.hdr.runNumber ) runNumber_ = lumiSection.hdr.runNumber;
+      //std::cout << "Run number is: " << runNumber_ << std::endl;
+      
+      // Fill the monitoring histograms 
+      FillHistograms(lumiSection);
+      FillHistoHFCompare(lumiSection);
+      FillEventInfo(lumiSection);
+      
+      cout << "Run: " << lumiSection.hdr.runNumber 
+	   << " Section: " << lumiSection.hdr.sectionNumber 
+	   << " Orbit: " << lumiSection.hdr.startOrbit << endl;
+      cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
+      cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
+      cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
+   }
+   else
+   {
+      HLXTCP.Disconnect();
+      EndRun();
+   }
 
-   cout << "Run: " << lumiSection.hdr.runNumber 
-  	<< " Section: " << lumiSection.hdr.sectionNumber 
-  	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
-   cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
-   cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
-   cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
+//    do
+//    {
+//       errorCode = HLXTCP.ReceiveLumiSection(lumiSection);
+
+//       while(errorCode !=1)
+//       {
+// 	 HLXTCP.Disconnect();
+// 	 //cout << "Connecting to TCPDistributor" << endl;
+// 	 errorCode = HLXTCP.Connect();
+// 	 if(errorCode != 1) 
+// 	 {
+//  	   if( (attemptCounter%10)==0 ){  
+// 	     cout << "*** Connection Failed: " << errorCode 
+// 		  << " Will attempt to reconnect in " << reconnTime << " seconds." << endl;
+// 	     cout << "This message will be printed once every 10 attempts." << endl;
+//  	   }
+//  	   ++attemptCounter;
+// 	   sleep(reconnTime);
+// 	 }
+//       }    
+//    } while( errorCode != 1 );
 
 }
 
@@ -586,36 +702,62 @@ void HLXMonitor::SaveDQMFile(){
 // ------------ method called once each job just before starting event loop  ------------
 void HLXMonitor::beginJob(const edm::EventSetup&)
 { 
-   HLXTCP.SetIP(DistribIP);
-
-   int attemptCounter = 0;
+   HLXTCP.SetIP(DistribIP1);
    int errorCode = HLXTCP.SetPort(listenPort);
    cout << "SetPort: " << listenPort << " Success: " << errorCode << endl;
    errorCode = HLXTCP.SetMode(AquireMode);
    cout << "AquireMode: " << AquireMode << " Success: " << errorCode << endl;
-  
-   do
+
+   while( HLXTCP.IsConnected() == false )
    {
-      //cout << "BEGINJOB: Connecting to TCPDistributor" << endl;
-      errorCode = HLXTCP.Connect();
-      //cout << "ErrorCode " << errorCode << endl;
-      if(errorCode != 1)
+      HLXTCP.SetIP(DistribIP1);
+      if( HLXTCP.Connect() != 1 )
       {
- 	if( (attemptCounter%10)==0 ){
-	  cout << "BeginJob: Attempting to reconnect in " << reconnTime << " seconds." << endl;
-	  cout << "This message will be printed once every 10 attempts." << endl;
- 	}
- 	++attemptCounter;
-	sleep(reconnTime);
+	 std::cout << "Failed to connect to " << DistribIP1 << "." << std::endl;
+	 sleep( 1 );
+	 std::cout << "Trying " << DistribIP2 << std::endl;
+	 HLXTCP.SetIP( DistribIP2 );
+	 if( HLXTCP.Connect() == 1) break;
+	 std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
+	 std::cout << " Reconnect in " << reconnTime << " seconds." <<  std::endl;
+	 sleep(reconnTime);
       }
-   } while(errorCode != 1);
+   }
+   if( HLXTCP.IsConnected() == true )
+   {
+      std::cout << "Successfully connected." << std::endl; 
+   }
+
+//    do
+//    {
+//       //cout << "BEGINJOB: Connecting to TCPDistributor" << endl;
+//       errorCode = HLXTCP.Connect();
+//       //cout << "ErrorCode " << errorCode << endl;
+//       if(errorCode != 1)
+//       {
+//  	if( (attemptCounter%10)==0 ){
+// 	  cout << "BeginJob: Attempting to reconnect in " << reconnTime << " seconds." << endl;
+// 	  cout << "This message will be printed once every 10 attempts." << endl;
+//  	}
+//  	++attemptCounter;
+// 	sleep(reconnTime);
+//       }
+//    } while(errorCode != 1);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void HLXMonitor::endJob() 
 {
-   // Fill the report summaries at end job?? 
+   // Fill the report summaries at end job
    // Loop over the HLX's and fill the map, 
+   // also calculate the overall quality.
+   HLXTCP.Disconnect();
+   EndRun( SaveAtEndJob );
+}
+
+void HLXMonitor::EndRun( bool saveFile )
+{
+   // Run summary - Loop over the HLX's and fill the map, 
    // also calculate the overall quality.
    float overall = 0.0;
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
@@ -628,25 +770,121 @@ void HLXMonitor::endJob()
    }   
       
    overall /= (float)NUM_HLX;
-   if( overall > 1.0 ) overall = -1.0;
+   if( overall > 1.0 ) overall = 0.0;
    //std::cout << "Filling report summary! Main. " << overall << std::endl;
    reportSummary_->Fill(overall);
-
+   
+   // Do some things that should be done at the end of the run ...
+   if( saveFile ) SaveDQMFile();  
    expectedNibbles_ = 0;
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
-
-   if( SaveAtEndJob ) SaveDQMFile();
-   HLXTCP.Disconnect();
+   
+   std::cout << "** Here in end run **" << std::endl;
+   if(ResetAtNewRun) ResetAll();
+   runNumber_ = 0;
 }
 
 
 void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 {
-   int lsBin = int(lumiSectionCount/16);
+   int lsBin = int(lumiSectionCount/64);
    int lsBinBX = int(lumiSectionCount/64);
-   HistLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
-   HistLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
-   HistLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
+   HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
+   HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
+   HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
+
+   int fillBin = lumiSectionCount+1;
+   if( fillBin > 128 )
+   {
+      for( int iBin = 1; iBin<128; iBin++ )
+      {
+	 RecentInstantLumiEtSum->setBinContent(iBin,RecentInstantLumiEtSum->getBinContent(iBin));
+	 RecentInstantLumiOccSet1->setBinContent(iBin,RecentInstantLumiOccSet1->getBinContent(iBin));
+	 RecentInstantLumiOccSet2->setBinContent(iBin,RecentInstantLumiOccSet2->getBinContent(iBin));
+	 RecentIntegratedLumiEtSum->setBinContent(iBin,RecentIntegratedLumiEtSum->getBinContent(iBin));
+	 RecentIntegratedLumiOccSet1->setBinContent(iBin,RecentIntegratedLumiOccSet1->getBinContent(iBin));
+	 RecentIntegratedLumiOccSet2->setBinContent(iBin,RecentIntegratedLumiOccSet2->getBinContent(iBin));
+      }
+      fillBin = 128;
+   }
+
+   RecentInstantLumiEtSum->setBinContent(fillBin,sectionInstantSumEt);
+   RecentInstantLumiEtSum->setBinError(fillBin,sqrt(sectionInstantErrSumEt));
+   RecentInstantLumiOccSet1->setBinContent(fillBin,sectionInstantSumOcc1);
+   RecentInstantLumiOccSet1->setBinError(fillBin,sqrt(sectionInstantErrSumOcc1));
+   RecentInstantLumiOccSet2->setBinContent(fillBin,sectionInstantSumOcc2);
+   RecentInstantLumiOccSet2->setBinError(fillBin,sqrt(sectionInstantErrSumOcc2));
+      
+   double recentOldBinContent = RecentIntegratedLumiEtSum->getBinContent(fillBin-1);
+   double recentNewBinContent = recentOldBinContent + sectionInstantSumEt; 
+   RecentIntegratedLumiEtSum->setBinContent(fillBin,recentNewBinContent);
+   recentOldBinContent = RecentIntegratedLumiOccSet1->getBinContent(fillBin-1);
+   recentNewBinContent = recentOldBinContent + sectionInstantSumOcc1; 
+   RecentIntegratedLumiOccSet1->setBinContent(fillBin,recentNewBinContent);
+   recentOldBinContent = RecentIntegratedLumiOccSet2->getBinContent(fillBin-1-1);
+   recentNewBinContent = recentOldBinContent + sectionInstantSumOcc2; 
+   RecentIntegratedLumiOccSet2->setBinContent(fillBin,recentNewBinContent);
+
+   double recentOldBinError = RecentIntegratedLumiEtSum->getBinError(fillBin-1);
+   double recentNewBinError = sqrt(recentOldBinError*recentOldBinError + sectionInstantErrSumEt); 
+   RecentIntegratedLumiEtSum->setBinError(fillBin,recentNewBinError);
+   recentOldBinError = RecentIntegratedLumiOccSet1->getBinError(fillBin-1);
+   recentNewBinError = sqrt(recentOldBinError*recentOldBinError + sectionInstantErrSumOcc1); 
+   RecentIntegratedLumiOccSet1->setBinError(fillBin,recentNewBinError);
+   recentOldBinError = RecentIntegratedLumiOccSet2->getBinError(fillBin-1);
+   recentNewBinError = sqrt(recentOldBinError*recentOldBinError + sectionInstantErrSumOcc2); 
+   RecentIntegratedLumiOccSet2->setBinError(fillBin,recentNewBinError);
+
+   if( lsBinOld != lsBin )
+   {
+      HistInstantLumiEtSum->setBinContent(lsBinOld,sectionInstantSumEt);
+      HistInstantLumiEtSum->setBinError(lsBinOld,sqrt(sectionInstantErrSumEt));
+      HistInstantLumiOccSet1->setBinContent(lsBinOld,sectionInstantSumOcc1);
+      HistInstantLumiOccSet1->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc1));
+      HistInstantLumiOccSet2->setBinContent(lsBinOld,sectionInstantSumOcc2);
+      HistInstantLumiOccSet2->setBinError(lsBinOld,sqrt(sectionInstantErrSumOcc2));
+      
+      double histOldBinContent = HistIntegratedLumiEtSum->getBinContent(lsBinOld-1);
+      double histNewBinContent = histOldBinContent + sectionInstantSumEt; 
+      HistIntegratedLumiEtSum->setBinContent(lsBinOld,histNewBinContent);
+      histOldBinContent = HistIntegratedLumiOccSet1->getBinContent(lsBinOld-1);
+      histNewBinContent = histOldBinContent + sectionInstantSumOcc1; 
+      HistIntegratedLumiOccSet1->setBinContent(lsBinOld,histNewBinContent);
+      histOldBinContent = HistIntegratedLumiOccSet2->getBinContent(lsBinOld-1);
+      histNewBinContent = histOldBinContent + sectionInstantSumOcc2; 
+      HistIntegratedLumiOccSet2->setBinContent(lsBinOld,histNewBinContent);
+
+      double histOldBinError = HistIntegratedLumiEtSum->getBinError(lsBinOld-1);
+      double histNewBinError = sqrt(histOldBinError*histOldBinError + sectionInstantErrSumEt); 
+      HistIntegratedLumiEtSum->setBinError(lsBinOld,histNewBinError);
+      histOldBinError = HistIntegratedLumiOccSet1->getBinError(lsBinOld-1);
+      histNewBinError = sqrt(histOldBinError*histOldBinError + sectionInstantErrSumOcc1); 
+      HistIntegratedLumiOccSet1->setBinError(lsBinOld,histNewBinError);
+      histOldBinError = HistIntegratedLumiOccSet2->getBinError(lsBinOld-1);
+      histNewBinError = sqrt(histOldBinError*histOldBinError + sectionInstantErrSumOcc2); 
+      HistIntegratedLumiOccSet2->setBinError(lsBinOld,histNewBinError);
+
+      sectionInstantSumEt = 0;
+      sectionInstantErrSumEt = 0;
+      sectionInstantSumOcc1 = 0;
+      sectionInstantErrSumOcc1 = 0;
+      sectionInstantSumOcc2 = 0;
+      sectionInstantErrSumOcc2 = 0;
+      sectionInstantNorm = 0;
+      lsBinOld = lsBin;
+   }
+
+   sectionInstantSumEt += section.lumiSummary.InstantETLumi;
+   sectionInstantErrSumEt += section.lumiSummary.InstantETLumiErr*section.lumiSummary.InstantETLumiErr;
+   sectionInstantSumOcc1 += section.lumiSummary.InstantOccLumi[0];
+   sectionInstantErrSumOcc1 += section.lumiSummary.InstantOccLumiErr[0]*section.lumiSummary.InstantOccLumiErr[0];
+   sectionInstantSumOcc2 += section.lumiSummary.InstantOccLumi[1];
+   sectionInstantErrSumOcc2 += section.lumiSummary.InstantOccLumiErr[1]*section.lumiSummary.InstantOccLumiErr[1];
+   ++sectionInstantNorm;
+   
+   dbe_->softReset(LumiInstantEtSum);
+   dbe_->softReset(LumiInstantOccSet1);
+   dbe_->softReset(LumiInstantOccSet2);
 
    for( int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX )
    {
@@ -699,7 +937,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 		  HistAvgOccBetweenSet2HFP->Fill( lsBin, normOccSet2Between  );
 		  HistAvgOccAboveSet2HFP->Fill( lsBin,   normOccSet2Above    );
 
-		  if( iBX >= XMIN && iBX <= XMAX ) BXvsTimeAvgEtSumHFP->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
+		  if( iBX >= (XMIN-1) && iBX <= (XMAX-1) ) BXvsTimeAvgEtSumHFP->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
 	       }
 	       else
 	       {
@@ -711,7 +949,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 		  HistAvgOccBetweenSet2HFM->Fill( lsBin, normOccSet2Between  );
 		  HistAvgOccAboveSet2HFM->Fill( lsBin,   normOccSet2Above    );
 
-		  if( iBX >= XMIN && iBX <= XMAX ) BXvsTimeAvgEtSumHFM->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
+		  if( iBX >= (XMIN-1) && iBX <= (XMAX-1) ) BXvsTimeAvgEtSumHFM->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
 	       }
 
 	       utotal1 += section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
@@ -746,13 +984,40 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	    }
 
 
-	    LumiEtSum->Fill(iBX, section.lumiDetail.ETLumi[iBX]);
-	    LumiOccSet1->Fill(iBX, section.lumiDetail.OccLumi[0][iBX]);
-	    LumiOccSet2->Fill(iBX, section.lumiDetail.OccLumi[1][iBX]);
+	    LumiAvgEtSum->Fill(iBX, section.lumiDetail.ETLumi[iBX]);
+	    LumiAvgOccSet1->Fill(iBX, section.lumiDetail.OccLumi[0][iBX]);
+	    LumiAvgOccSet2->Fill(iBX, section.lumiDetail.OccLumi[1][iBX]);
 
-	    LumiDiffEtSumOcc1->Fill(iBX, (section.lumiDetail.ETLumi[iBX]-section.lumiDetail.OccLumi[0][iBX]));
-	    LumiDiffEtSumOcc2->Fill(iBX, (section.lumiDetail.ETLumi[iBX]-section.lumiDetail.OccLumi[1][iBX]));
-	    LumiDiffOcc1Occ2->Fill(iBX, (section.lumiDetail.ETLumi[iBX]-section.lumiDetail.OccLumi[1][iBX]));
+	    int iBin = iBX - (int)XMIN + 1;
+	    if( iBin <= int(XMAX-XMIN) && iBin >= 1 )
+	    {
+	      LumiInstantEtSum->setBinContent(iBin, section.lumiDetail.ETLumi[iBX]);
+	      LumiInstantOccSet1->setBinContent(iBin, section.lumiDetail.OccLumi[0][iBX]);
+	      LumiInstantOccSet2->setBinContent(iBin, section.lumiDetail.OccLumi[1][iBX]);
+	      LumiInstantEtSum->setBinError(iBin, section.lumiDetail.ETLumiErr[iBX]);
+	      LumiInstantOccSet1->setBinError(iBin, section.lumiDetail.OccLumiErr[0][iBX]);
+	      LumiInstantOccSet2->setBinError(iBin, section.lumiDetail.OccLumiErr[1][iBX]);
+
+	      double oldBinContent = LumiIntegratedEtSum->getBinContent(iBin);
+	      double newBinContent = oldBinContent + section.lumiDetail.ETLumi[iBX];
+	      LumiIntegratedEtSum->setBinContent(iBin, newBinContent);
+	      oldBinContent = LumiIntegratedOccSet1->getBinContent(iBin);
+	      newBinContent = oldBinContent + section.lumiDetail.OccLumi[0][iBX];
+	      LumiIntegratedOccSet1->setBinContent(iBin, newBinContent);
+	      oldBinContent = LumiIntegratedOccSet2->getBinContent(iBin);
+	      newBinContent = oldBinContent + section.lumiDetail.OccLumi[1][iBX];
+	      LumiIntegratedOccSet2->setBinContent(iBin, newBinContent);
+
+	      double oldBinError = LumiIntegratedEtSum->getBinError(iBin);
+	      double newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.ETLumiErr[iBX]*section.lumiDetail.ETLumiErr[iBX]);
+	      LumiIntegratedEtSum->setBinError(iBin, newBinError);
+	      oldBinError = LumiIntegratedOccSet1->getBinError(iBin);
+	      newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[0][iBX]*section.lumiDetail.OccLumiErr[0][iBX]);
+	      LumiIntegratedOccSet1->setBinError(iBin, newBinError);
+	      oldBinError = LumiIntegratedOccSet2->getBinError(iBin);
+	      newBinError = sqrt(oldBinError*oldBinError + section.lumiDetail.OccLumiErr[1][iBX]*section.lumiDetail.OccLumiErr[1][iBX]);
+	      LumiIntegratedOccSet2->setBinError(iBin, newBinError);
+	    }
 
 	 }
 
@@ -834,35 +1099,8 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
 void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
 {
    // New run .. set the run number and fill run summaries ...
-   if( runNumber_ != section.hdr.runNumber )
-   {
-      //std::cout << "New Run!!" << std::endl;
-
-      // Run summary - Loop over the HLX's and fill the map, 
-      // also calculate the overall quality.
-      float overall = 0.0;
-      for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
-	 unsigned int iWedge = HLXHFMap[iHLX] + 1;
-	 unsigned int iEta = 2;
-	 if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
-	 float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
-	 reportSummaryMap_->setBinContent(iWedge,iEta,frac);
-	 overall += frac;
-      }   
-      
-      overall /= (float)NUM_HLX;
-      if( overall > 1.0 ) overall = 0.0;
-      //std::cout << "Filling report summary! Main. " << overall << std::endl;
-      reportSummary_->Fill(overall);
-
-      // Do some things that should be done at the end of the run ...
-      SaveDQMFile();  
-      expectedNibbles_ = 0;
-      for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
-
-      if(ResetAtNewRun) ResetAll();
-      runNumber_ = section.hdr.runNumber;
-   }
+   std::cout << "Run number " << runNumber_ << " Section hdr run number " 
+	     << section.hdr.runNumber << std::endl;
 
    runId_->Fill( section.hdr.runNumber );
    lumisecId_->Fill( (int)(section.hdr.sectionNumber/64) + 1 );
@@ -908,12 +1146,15 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(AvgOccAboveSet2);
 
    // Luminosity Monitoring
-   dbe_->softReset(LumiEtSum);
-   dbe_->softReset(LumiOccSet1);
-   dbe_->softReset(LumiOccSet2);
-   dbe_->softReset(LumiDiffEtSumOcc1);
-   dbe_->softReset(LumiDiffEtSumOcc2);
-   dbe_->softReset(LumiDiffOcc1Occ2);
+   dbe_->softReset(LumiAvgEtSum);
+   dbe_->softReset(LumiAvgOccSet1);
+   dbe_->softReset(LumiAvgOccSet2);
+   dbe_->softReset(LumiInstantEtSum);
+   dbe_->softReset(LumiInstantOccSet1);
+   dbe_->softReset(LumiInstantOccSet2);
+   dbe_->softReset(LumiIntegratedEtSum);
+   dbe_->softReset(LumiIntegratedOccSet1);
+   dbe_->softReset(LumiIntegratedOccSet2);
 
    // Sanity Check for Occupancy
    dbe_->softReset(SumAllOccSet1);
@@ -938,9 +1179,22 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(HistAvgOccAboveSet2HFP);
    dbe_->softReset(HistAvgOccAboveSet2HFM);
 
-   dbe_->softReset(HistLumiEtSum);
-   dbe_->softReset(HistLumiOccSet1);
-   dbe_->softReset(HistLumiOccSet2);
+   dbe_->softReset(HistAvgLumiEtSum);
+   dbe_->softReset(HistAvgLumiOccSet1);
+   dbe_->softReset(HistAvgLumiOccSet2);
+   dbe_->softReset(HistInstantLumiEtSum);
+   dbe_->softReset(HistInstantLumiOccSet1);
+   dbe_->softReset(HistInstantLumiOccSet2);
+   dbe_->softReset(HistIntegratedLumiEtSum);
+   dbe_->softReset(HistIntegratedLumiOccSet1);
+   dbe_->softReset(HistIntegratedLumiOccSet2);
+
+   dbe_->softReset(RecentInstantLumiEtSum);
+   dbe_->softReset(RecentInstantLumiOccSet1);
+   dbe_->softReset(RecentInstantLumiOccSet2);
+   dbe_->softReset(RecentIntegratedLumiEtSum);
+   dbe_->softReset(RecentIntegratedLumiOccSet1);
+   dbe_->softReset(RecentIntegratedLumiOccSet2);
 
    dbe_->softReset(BXvsTimeAvgEtSumHFP);
    dbe_->softReset(BXvsTimeAvgEtSumHFM);

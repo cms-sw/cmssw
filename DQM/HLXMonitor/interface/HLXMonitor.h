@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.8 2008/09/11 18:04:00 neadam Exp $
+// $Id: HLXMonitor.h,v 1.9 2008/09/12 20:37:57 neadam Exp $
 //
 //
 
@@ -76,6 +76,8 @@ class HLXMonitor : public edm::EDAnalyzer
 
       void ResetAll();
 
+      void EndRun( bool saveFile = true );
+
       //  void FillHistoHistory(const LUMI_SECTION&);
 
       // ----------member data ---------------------------
@@ -106,12 +108,15 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * AvgOccAboveSet2;
 
       // Luminosity Monitoring
-      MonitorElement * LumiEtSum;
-      MonitorElement * LumiOccSet1;
-      MonitorElement * LumiOccSet2;
-      MonitorElement * LumiDiffEtSumOcc1;
-      MonitorElement * LumiDiffEtSumOcc2;
-      MonitorElement * LumiDiffOcc1Occ2;
+      MonitorElement * LumiAvgEtSum;
+      MonitorElement * LumiAvgOccSet1;
+      MonitorElement * LumiAvgOccSet2;
+      MonitorElement * LumiInstantEtSum;
+      MonitorElement * LumiInstantOccSet1;
+      MonitorElement * LumiInstantOccSet2;
+      MonitorElement * LumiIntegratedEtSum;
+      MonitorElement * LumiIntegratedOccSet1;
+      MonitorElement * LumiIntegratedOccSet2;
 
       // Sanity Check for Occupancy
       MonitorElement * SumAllOccSet1;
@@ -132,12 +137,26 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * HistAvgOccBetweenSet2HFM;
       MonitorElement * HistAvgOccAboveSet2HFP;
       MonitorElement * HistAvgOccAboveSet2HFM;
-      MonitorElement * HistLumiEtSum;
-      MonitorElement * HistLumiOccSet1;
-      MonitorElement * HistLumiOccSet2;
-
       MonitorElement * BXvsTimeAvgEtSumHFP;
       MonitorElement * BXvsTimeAvgEtSumHFM;
+
+      MonitorElement * HistAvgLumiEtSum;
+      MonitorElement * HistAvgLumiOccSet1;
+      MonitorElement * HistAvgLumiOccSet2;
+      MonitorElement * HistInstantLumiEtSum;
+      MonitorElement * HistInstantLumiOccSet1;
+      MonitorElement * HistInstantLumiOccSet2;
+      MonitorElement * HistIntegratedLumiEtSum;
+      MonitorElement * HistIntegratedLumiOccSet1;
+      MonitorElement * HistIntegratedLumiOccSet2;
+
+      MonitorElement * RecentInstantLumiEtSum;
+      MonitorElement * RecentInstantLumiOccSet1;
+      MonitorElement * RecentInstantLumiOccSet2;
+      MonitorElement * RecentIntegratedLumiEtSum;
+      MonitorElement * RecentIntegratedLumiOccSet1;
+      MonitorElement * RecentIntegratedLumiOccSet2;
+
 
       //EventInfo Clone
       //////////////////////////////////////////////////////////////////
@@ -180,7 +199,8 @@ class HLXMonitor : public edm::EDAnalyzer
       int prescaleEvt_;
 
       unsigned int reconnTime;
-      std::string DistribIP;
+      std::string DistribIP1;
+      std::string DistribIP2;
 
       unsigned int set1BelowIndex;
       unsigned int set1BetweenIndex;
@@ -212,6 +232,14 @@ class HLXMonitor : public edm::EDAnalyzer
       unsigned int HLXHFMap[36];
 
       unsigned int lumiSectionCount;
+      int lsBinOld;
+      double sectionInstantSumEt;
+      double sectionInstantErrSumEt;
+      double sectionInstantSumOcc1;
+      double sectionInstantErrSumOcc1;
+      double sectionInstantSumOcc2;
+      double sectionInstantErrSumOcc2;
+      double sectionInstantNorm;
 
 };
 
