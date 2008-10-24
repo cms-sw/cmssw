@@ -110,7 +110,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
         SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
         TrackNeutrino = cms.bool(False),
-        KillHeavy = cms.bool(False)
+        KillHeavy = cms.bool(False),
+        MaxTrackTime = cms.double(1000.)
     ),
     TrackingAction = cms.PSet(
         DetailedTiming = cms.untracked.bool(False)
