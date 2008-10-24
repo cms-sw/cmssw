@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/21 12:07:47 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -16,6 +16,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <cmath>
 #include <string>
 using namespace std;
 using namespace edm;
@@ -42,26 +43,34 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore 
   emNoBin = parameters.getParameter<int>("emSizeBin");
   emNoMin = parameters.getParameter<double>("emSizeMin");
   emNoMax = parameters.getParameter<double>("emSizeMax");
-  std::string histname = "ecalDepositedEnergy_";
-  ecalDepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, emNoBin, emNoMin, emNoMax);
+  std::string histname = "ecalDepositedEnergyBarrel_";
+  ecalDepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, emNoBin, emNoMin, emNoMax);
+  histname = "ecalDepositedEnergyEndcap_";
+  ecalDepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, emNoBin, emNoMin, emNoMax);
 
   emS9NoBin = parameters.getParameter<int>("emS9SizeBin");
   emS9NoMin = parameters.getParameter<double>("emS9SizeMin");
   emS9NoMax = parameters.getParameter<double>("emS9SizeMax");
-  histname = "ecalS9DepositedEnergy_";
-  ecalS9DepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, emS9NoBin, emS9NoMin, emS9NoMax);
+  histname = "ecalS9DepositedEnergyBarrel_";
+  ecalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, emS9NoBin, emS9NoMin, emS9NoMax);
+  histname = "ecalS9DepositedEnergyEndcap_";
+  ecalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, emS9NoBin, emS9NoMin, emS9NoMax);
   
   hadNoBin = parameters.getParameter<int>("hadSizeBin");
   hadNoMin = parameters.getParameter<double>("hadSizeMin");
   hadNoMax = parameters.getParameter<double>("hadSizeMax");
-  histname = "hadDepositedEnergy_";
-  hcalDepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, hadNoBin, hadNoMin, hadNoMax);
+  histname = "hadDepositedEnergyBarrel_";
+  hcalDepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, hadNoBin, hadNoMin, hadNoMax);
+  histname = "hadDepositedEnergyEndcap_";
+  hcalDepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, hadNoBin, hadNoMin, hadNoMax);
 
   hadS9NoBin = parameters.getParameter<int>("hadS9SizeBin");
   hadS9NoMin = parameters.getParameter<double>("hadS9SizeMin");
   hadS9NoMax = parameters.getParameter<double>("hadS9SizeMax");
-  histname = "hadS9DepositedEnergy_";
-  hcalS9DepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  histname = "hadS9DepositedEnergyBarrel_";
+  hcalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, histname+AlgoName, hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  histname = "hadS9DepositedEnergyEndcap_";
+  hcalS9DepEnergyEndcap = dbe->book1D(histname+AlgoName, histname+AlgoName, hadS9NoBin, hadS9NoMin, hadS9NoMax);
 
   hoNoBin = parameters.getParameter<int>("hoSizeBin");
   hoNoMin = parameters.getParameter<double>("hoSizeMin");
@@ -88,27 +97,41 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   
   // energy deposited in ECAL
   LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.em;
-  ecalDepEnergy->Fill(muEnergy.em);
-  
+  if (fabs(recoMu.eta()) > 1.479) 
+    ecalDepEnergyEndcap->Fill(muEnergy.em);
+  else
+    ecalDepEnergyBarrel->Fill(muEnergy.em);
+
   // energy deposited in HCAL
-  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.had;
-  hcalDepEnergy->Fill(muEnergy.had);
+  LogTrace(metname) << "Energy deposited in HCAL: "<<muEnergy.had;
+  if (fabs(recoMu.eta()) > 1.4)
+    hcalDepEnergyEndcap->Fill(muEnergy.had);
+  else
+    hcalDepEnergyBarrel->Fill(muEnergy.had);
   
   // energy deposited in HO
-  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.ho;
-  hoDepEnergy->Fill(muEnergy.ho);
+  LogTrace(metname) << "Energy deposited in HO: "<<muEnergy.ho;
+  if (fabs(recoMu.eta()) < 1.26)
+    hoDepEnergy->Fill(muEnergy.ho);
   
   // energy deposited in ECAL in 3*3 towers
   LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.emS9;
-  ecalS9DepEnergy->Fill(muEnergy.emS9);
+  if (fabs(recoMu.eta()) > 1.479) 
+    ecalS9DepEnergyEndcap->Fill(muEnergy.em);
+  else
+    ecalS9DepEnergyBarrel->Fill(muEnergy.em);
      
   // energy deposited in HCAL in 3*3 crystals
-  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.hadS9;
-  hcalS9DepEnergy->Fill(muEnergy.hadS9);
+  LogTrace(metname) << "Energy deposited in HCAL: "<<muEnergy.hadS9;
+  if (fabs(recoMu.eta()) > 1.4)
+    hcalS9DepEnergyEndcap->Fill(muEnergy.had);
+  else
+    hcalS9DepEnergyBarrel->Fill(muEnergy.had);
   
   // energy deposited in HO in 3*3 crystals
-  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.hoS9;
-  hoS9DepEnergy->Fill(muEnergy.hoS9);
+  LogTrace(metname) << "Energy deposited in HO: "<<muEnergy.hoS9;
+  if (fabs(recoMu.eta()) < 1.26)
+    hoS9DepEnergy->Fill(muEnergy.ho);
   
 }
 
