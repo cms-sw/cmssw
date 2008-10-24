@@ -20,17 +20,16 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string HistoFilename             = c1.getValue<string>("HistoFilename","Histo.root");
-  string FitterFilename            = c1.getValue<string>("FitterFilename","Fitter.root");
-  string L3ResponseTxtFilename     = c1.getValue<string>("L3ResponseTxtFilename","L3Response.txt");
-  string L3CorrectionTxtFilename   = c1.getValue<string>("L3CorrectionTxtFilename","L3Correction.txt");
-  string L3OutputROOTFilename      = c1.getValue<string>("L3OutputROOTFilename","L3Graphs.root");
-  string L2CorrectionTxtFilename   = c1.getValue<string>("L2CorrectionTxtFilename","L2Correction.txt");
-  string L2OutputROOTFilename      = c1.getValue<string>("L2OutputROOTFilename","L2Graphs.root");
-  bool UseRatioForResponse         = c1.getValue<bool>("UseRatioForResponse",false);
-  vector<double> pt_vec            = c1.getVector<double>("RefPtBoundaries","5,10,12,15,20,27,35,45,57,72,90,120,150,200,300,400,550,750,1000,1500,5000");
-  vector<double> eta_vec           = c1.getVector<double>("EtaBoundaries", 
-"-5.191,-4.889,-4.716,-4.538,-4.363,-4.191,-4.013,-3.839,-3.664,-3.489,-3.314,-3.139,-2.964,-2.853,-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,-1.830,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,-1.218,-1.131,-1.044,-0.957,-0.879,-0.783,-0.696,-0.609,-0.522,-0.435,-0.348,-0.261,-0.174,-0.087,0.000,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.879,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.500,2.650,2.853,2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191");
+  string HistoFilename           = c1.getValue<string>("HistoFilename");
+  string FitterFilename          = c1.getValue<string>("FitterFilename");
+  string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
+  string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
+  string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
+  string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
+  string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
+  bool UseRatioForResponse       = c1.getValue<bool>("UseRatioForResponse");
+  vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
+  vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
@@ -91,7 +90,7 @@ int main(int argc, char**argv)
        { 
          cor = hcorrection[ptbin]->GetBinContent(etabin+1);
          e_cor = hcorrection[ptbin]->GetBinError(etabin+1);
-         if (cor>0 && e_cor>0.0001 && e_cor<0.2)
+         if (cor>0 && e_cor>0.0001 && e_cor<0.3)
            {
              correction_x[auxi] = h->GetBinContent(ptbin+1);//average CaloPt for the eta bin
              correction_ex[auxi] = 0.;
@@ -104,9 +103,9 @@ int main(int argc, char**argv)
      if (auxi>1)
        { 
          MaxCaloPt[etabin]=correction_x[auxi-1];
-         MinCaloPt[etabin]=correction_x[0];
+         MinCaloPt[etabin]=correction_x[1];
          if (auxi>10)
-           sprintf(func,"[0]-[1]/(pow(log10(x),[2])+[3])+[4]/x");
+           sprintf(func,"[0]+[1]/(pow(log10(x),[2])+[3])");
          else
            sprintf(func,"[0]+[1]*log10(x)+[2]*pow(log10(x),2)");
          Correction[etabin] = new TF1(name,func,MinCaloPt[etabin],MaxCaloPt[etabin]);      
@@ -133,7 +132,6 @@ int main(int argc, char**argv)
      Correction[etabin]->SetParameter(1,0.);
      Correction[etabin]->SetParameter(2,0.);
      Correction[etabin]->SetParameter(3,0.);
-     Correction[etabin]->SetParameter(4,0.);
      g_EtaCorrection[etabin]->Fit(name,"RQ");
      cout<<name<<" fitted....."<<endl;
      ///////////// L2 Relative correction calculation for every eta bin /////////
@@ -153,7 +151,7 @@ int main(int argc, char**argv)
      sprintf(name,"L2Correction%d",etabin); 
      if (auxi>=2)
        {
-         sprintf(func,"[0]+[1]*log10(x)+[2]*pow(log10(x),2)+[3]*pow(log10(x),3)+[4]*pow(log10(x),4)+[5]*pow(log10(x),5)");
+         sprintf(func,"[0]+[1]*log10(x)+[2]*pow(log10(x),2)");
          if (auxi==2)
            sprintf(func,"[0]+[1]*log10(x)");
        }

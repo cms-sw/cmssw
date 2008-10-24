@@ -16,15 +16,14 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string TreeFilename              = c1.getValue<string>("TreeFilename","Tree.root");
-  string HistoFilename             = c1.getValue<string>("HistoFilename","Histo.root");
-  bool UseRatioForResponse         = c1.getValue<bool>("UseRatioForResponse",false);
-  double CALOPT_MIN                = c1.getValue<double>("CALOPT_MIN",1.0); 
-  double DR_MIN                    = c1.getValue<double>("DR_MIN",0.25);
-  int NJETS_MAX                    = c1.getValue<int>("NJETS_MAX",2); 
-  vector<double> pt_vec            = c1.getVector<double>("RefPtBoundaries","5,10,12,15,20,27,35,45,57,72,90,120,150,200,300,400,550,750,1000,1500,5000");
-  vector<double> eta_vec           = c1.getVector<double>("EtaBoundaries", 
-"-5.191,-4.889,-4.716,-4.538,-4.363,-4.191,-4.013,-3.839,-3.664,-3.489,-3.314,-3.139,-2.964,-2.853,-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,-1.830,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,-1.218,-1.131,-1.044,-0.957,-0.879,-0.783,-0.696,-0.609,-0.522,-0.435,-0.348,-0.261,-0.174,-0.087,0.000,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.879,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.500,2.650,2.853,2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191");
+  string TreeFilename      = c1.getValue<string>("TreeFilename");
+  string HistoFilename     = c1.getValue<string>("HistoFilename");
+  bool UseRatioForResponse = c1.getValue<bool>("UseRatioForResponse");
+  double CALOPT_MIN        = c1.getValue<double>("CALOPT_MIN"); 
+  double DR_MIN            = c1.getValue<double>("DR_MIN");
+  int NJETS_MAX            = c1.getValue<int>("NJETS_MAX"); 
+  vector<double> pt_vec    = c1.getVector<double>("RefPtBoundaries");
+  vector<double> eta_vec   = c1.getVector<double>("EtaBoundaries");
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
