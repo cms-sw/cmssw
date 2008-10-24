@@ -78,6 +78,14 @@ void HcalSimHitStudy::beginJob(const edm::EventSetup& ) {
       meHEEneHit2_ = dbe_->book1D("Hit38","Energy in HE 2",         100,0.,0.0001);
       meHOEneHit2_ = dbe_->book1D("Hit39","Energy in HO 2",         100,0.,0.0001);
       meHFEneHit2_ = dbe_->book1D("Hit40","Energy in HF 2",         100,0.,0.0001);
+      meHBL10Ene_ = dbe_->book1D("Hit41","Log10Energy in HB", 140, -10., 4. );
+      meHEL10Ene_ = dbe_->book1D("Hit42","Log10Energy in HE", 140, -10., 4. );
+      meHFL10Ene_ = dbe_->book1D("Hit43","Log10Energy in HF", 140, -10., 4. );
+      meHOL10Ene_ = dbe_->book1D("Hit44","Log10Energy in HO", 140, -10., 4. );
+      meHBL10EneP_ = dbe_->bookProfile("Hit45","Log10Energy in HB vs Hit contribution", 140, -10., 4., 100, 0., 1. );
+      meHEL10EneP_ = dbe_->bookProfile("Hit46","Log10Energy in HE vs Hit contribution", 140, -10., 4., 100, 0., 1. );
+      meHFL10EneP_ = dbe_->bookProfile("Hit47","Log10Energy in HF vs Hit contribution", 140, -10., 4., 100, 0., 1. );
+      meHOL10EneP_ = dbe_->bookProfile("Hit48","Log10Energy in HO vs Hit contribution", 140, -10., 4., 100, 0., 1. );
     }
   }
 }
@@ -112,8 +120,16 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 
   int nHit = hits.size();
   int nHB=0, nHE=0, nHO=0, nHF=0, nBad1=0, nBad2=0, nBad=0;
+  std::vector<double> encontHB(140, 0.);
+  std::vector<double> encontHE(140, 0.);
+  std::vector<double> encontHF(140, 0.);
+  std::vector<double> encontHO(140, 0.);
+  double entotHB = 0, entotHE = 0, entotHF = 0, entotHO = 0; 
+
   for (int i=0; i<nHit; i++) {
     double energy    = hits[i].energy();
+    double log10en   = log10(energy);
+    int log10i       = int( (log10en+10.)*10. );
     double time      = hits[i].time();
     unsigned int id_ = hits[i].id();
     HcalDetId id     = HcalDetId(id_);
@@ -151,6 +167,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHBEneHit_->Fill(energy);
 	  meHBEneHit2_->Fill(energy);
 	  meHBTimHit_->Fill(time);
+	  meHBL10Ene_->Fill(log10en);
+	  if( log10i >=0 && log10i < 140 ) encontHB[log10i] += energy;
+	  entotHB += energy;
 	} else if (subdet == static_cast<int>(HcalEndcap)) {
 	  meHEDepHit_->Fill(double(depth));
 	  meHEEtaHit_->Fill(double(eta));
@@ -158,6 +177,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHEEneHit_->Fill(energy);
 	  meHEEneHit2_->Fill(energy);
 	  meHETimHit_->Fill(time);
+	  meHEL10Ene_->Fill(log10en);
+	  if( log10i >=0 && log10i < 140 ) encontHE[log10i] += energy;
+	  entotHE += energy;
 	} else if (subdet == static_cast<int>(HcalOuter)) {
 	  meHODepHit_->Fill(double(depth));
 	  meHOEtaHit_->Fill(double(eta));
@@ -165,6 +187,9 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHOEneHit_->Fill(energy);
 	  meHOEneHit2_->Fill(energy);
 	  meHOTimHit_->Fill(time);
+	  meHOL10Ene_->Fill(log10en);
+	  if( log10i >=0 && log10i < 140 ) encontHO[log10i] += energy;
+	  entotHO += energy;
 	} else if (subdet == static_cast<int>(HcalForward)) {
 	  meHFDepHit_->Fill(double(depth));
 	  meHFEtaHit_->Fill(double(eta));
@@ -172,10 +197,18 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	  meHFEneHit_->Fill(energy);
 	  meHFEneHit2_->Fill(energy);
 	  meHFTimHit_->Fill(time);
+	  meHFL10Ene_->Fill(log10en);
+	  if( log10i >=0 && log10i < 140 ) encontHF[log10i] += energy;
+	  entotHF += energy;
 	}
       }
     }
   }
+  if( entotHB != 0 ) for( int i=0; i<140; i++ ) meHBL10EneP_->Fill( -10.+(float(i)+0.5)/10., encontHB[i]/entotHB );
+  if( entotHE != 0 ) for( int i=0; i<140; i++ ) meHEL10EneP_->Fill( -10.+(float(i)+0.5)/10., encontHE[i]/entotHE );
+  if( entotHF != 0 ) for( int i=0; i<140; i++ ) meHFL10EneP_->Fill( -10.+(float(i)+0.5)/10., encontHF[i]/entotHF );
+  if( entotHO != 0 ) for( int i=0; i<140; i++ ) meHOL10EneP_->Fill( -10.+(float(i)+0.5)/10., encontHO[i]/entotHO );
+
   if (dbe_) {
     meAllNHit_->Fill(double(nHit));
     meBadDetHit_->Fill(double(nBad1));
