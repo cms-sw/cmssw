@@ -1,6 +1,6 @@
 /** \class RPCBookFolderStructure
  *
- *  $Date: 2008/06/25 14:41:10 $
+ *  $Date: 2008/07/02 13:39:07 $
  *  $Revision: 1.1 $
  * \author Anna Cimmino (INFN Napoli)
  *
@@ -18,7 +18,6 @@ class RPCBookFolderStructure {
       ~RPCBookFolderStructure(){};
 
       std::string folderStructure(RPCDetId detId){ 
-	
 	std::stringstream myStream ;
 	myStream.str("");
   
