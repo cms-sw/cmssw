@@ -10,6 +10,12 @@
 #include <iostream>
 #include <stdlib.h>
 
+// Data Formats
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
 const int SiPixelRawDataErrorModule::LINK_bits = 6;
 const int SiPixelRawDataErrorModule::ROC_bits  = 5;
 const int SiPixelRawDataErrorModule::DCOL_bits = 5;
@@ -76,56 +82,299 @@ SiPixelRawDataErrorModule::~SiPixelRawDataErrorModule() {}
 //
 // Book histograms for errors with detId
 //
-void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool reducedSet) {
+void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool reducedSet, int type) {
+  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool isHalfModule = false;
+  if(barrel){
+    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
+  }
 
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-  // Types of errors
-  hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
-  meErrorType_->setAxisTitle("Type of errors",1);
-  // Number of errors
-  hid = theHistogramId->setHistoId("NErrors",id_);
-  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,-0.5,499.5);
-  meNErrors_->setAxisTitle("Number of errors",1);
-  // For error type 30, the type of problem encoded in the TBM trailer
-  // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
-  // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
-  hid = theHistogramId->setHistoId("TBMMessage",id_);
-  meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
-  meTBMMessage_->setAxisTitle("TBM message",1);
-  // For error type 30, the type of problem encoded in the FSM bits, 0 = none
-  // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
-  hid = theHistogramId->setHistoId("TBMType",id_);
-  meTBMType_ = theDMBE->book1D(hid,"State Machine message",5,-0.5,4.5);
-  meTBMType_->setAxisTitle("FSM Type",1);
-  if(!reducedSet){
-  // For error type 31, the event number of the TBM header with the error
-  hid = theHistogramId->setHistoId("EvtNbr",id_);
-  meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
-  meEvtNbr_->setAxisTitle("Event number",1);
-  // For error type 36, the invalid ROC number
-  hid = theHistogramId->setHistoId("ROCId",id_);
-  meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,-0.5,24.5);
-  meROCId_->setAxisTitle("ROC Id",1);
-  // For error type 37, the invalid dcol values
-  hid = theHistogramId->setHistoId("DCOLId",id_);
-  meDCOLId_ = theDMBE->book1D(hid,"DCOL address for error type 37",32,-0.5,31.5);
-  meDCOLId_->setAxisTitle("DCOL address",1);
-  // For error type 37, the invalid ROC values
-  hid = theHistogramId->setHistoId("PXId",id_);
-  mePXId_ = theDMBE->book1D(hid,"Pixel address for error type 37",256,-0.5,255.5);
-  mePXId_->setAxisTitle("Pixel address",1);
-  // For error type 38, the ROC that is being read out of order
-  hid = theHistogramId->setHistoId("ROCNmbr",id_);
-  meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,-0.5,24.5);
-  meROCNmbr_->setAxisTitle("ROC number on DetUnit",1);
+
+  if(type==0){
+    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+    // Types of errors
+    hid = theHistogramId->setHistoId("errorType",id_);
+    meErrorType_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
+    meErrorType_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    hid = theHistogramId->setHistoId("NErrors",id_);
+    meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,-0.5,499.5);
+    meNErrors_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    hid = theHistogramId->setHistoId("TBMMessage",id_);
+    meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessage_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    hid = theHistogramId->setHistoId("TBMType",id_);
+    meTBMType_ = theDMBE->book1D(hid,"State Machine message",5,-0.5,4.5);
+    meTBMType_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      hid = theHistogramId->setHistoId("EvtNbr",id_);
+      meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbr_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      hid = theHistogramId->setHistoId("ROCId",id_);
+      meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCId_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      hid = theHistogramId->setHistoId("DCOLId",id_);
+      meDCOLId_ = theDMBE->book1D(hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLId_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      hid = theHistogramId->setHistoId("PXId",id_);
+      mePXId_ = theDMBE->book1D(hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXId_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      hid = theHistogramId->setHistoId("ROCNmbr",id_);
+      meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbr_->setAxisTitle("ROC number on DetUnit",1);
+    }
+    delete theHistogramId;
   }
-  delete theHistogramId;
+  
+  if(type==1 && barrel){
+    uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+    char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
+    hid = src.label() + "_" + sladder;
+    if(isHalfModule) hid += "H";
+    else hid += "F";
+    // Types of errors
+    meErrorTypeLad_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeLad_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    meNErrorsLad_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsLad_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    meTBMMessageLad_ = theDMBE->book1D("TBMMessage_" + hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageLad_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    meTBMTypeLad_ = theDMBE->book1D("TBMType_" + hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeLad_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      meEvtNbrLad_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbrLad_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      meROCIdLad_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCIdLad_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      meDCOLIdLad_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLIdLad_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      mePXIdLad_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXIdLad_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      meROCNmbrLad_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbrLad_->setAxisTitle("ROC number on DetUnit",1);
+    }
+  }
+  
+  if(type==2 && barrel){
+    uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).layerName();
+    char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
+    hid = src.label() + "_" + slayer;
+    // Types of errors
+    meErrorTypeLay_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeLay_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    meNErrorsLay_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsLay_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    meTBMMessageLay_ = theDMBE->book1D("TBMMessage_" + hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageLay_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    meTBMTypeLay_ = theDMBE->book1D("TBMType_" + hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeLay_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      meEvtNbrLay_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbrLay_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      meROCIdLay_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCIdLay_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      meDCOLIdLay_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLIdLay_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      mePXIdLay_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXIdLay_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      meROCNmbrLay_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbrLay_->setAxisTitle("ROC number on DetUnit",1);
+    }
+  }
+  
+  if(type==3 && barrel){
+    uint32_t DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).moduleName();
+    char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
+    hid = src.label() + "_" + smodule;
+    // Types of errors
+    meErrorTypePhi_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
+    meErrorTypePhi_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    meNErrorsPhi_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsPhi_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    meTBMMessagePhi_ = theDMBE->book1D("TBMMessage_" + hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessagePhi_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    meTBMTypePhi_ = theDMBE->book1D("TBMType_" + hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypePhi_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      meEvtNbrPhi_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbrPhi_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      meROCIdPhi_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCIdPhi_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      meDCOLIdPhi_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLIdPhi_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      mePXIdPhi_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXIdPhi_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      meROCNmbrPhi_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbrPhi_->setAxisTitle("ROC number on DetUnit",1);
+    }
+  }
+  
+  if(type==4 && endcap){
+    uint32_t blade = PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).bladeName();
+    char sblade[80]; sprintf(sblade,"Blade_%02i",blade);
+    hid = src.label() + "_" + sblade;
+    // Types of errors
+    meErrorTypeBlade_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeBlade_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    meNErrorsBlade_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsBlade_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    meTBMMessageBlade_ = theDMBE->book1D("TBMMessage_" + hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageBlade_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    meTBMTypeBlade_ = theDMBE->book1D("TBMType_" + hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeBlade_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      meEvtNbrBlade_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbrBlade_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      meROCIdBlade_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCIdBlade_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      meDCOLIdBlade_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLIdBlade_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      mePXIdBlade_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXIdBlade_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      meROCNmbrBlade_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbrBlade_->setAxisTitle("ROC number on DetUnit",1);
+    }
+  }
+  
+  if(type==5 && endcap){
+    uint32_t disk = PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).diskName();
+    char sdisk[80]; sprintf(sdisk,"Disk_%i",disk);
+    hid = src.label() + "_" + sdisk;
+    // Types of errors
+    meErrorTypeDisk_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeDisk_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    meNErrorsDisk_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsDisk_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    meTBMMessageDisk_ = theDMBE->book1D("TBMMessage_" + hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageDisk_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    meTBMTypeDisk_ = theDMBE->book1D("TBMType_" + hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeDisk_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      meEvtNbrDisk_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbrDisk_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      meROCIdDisk_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCIdDisk_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      meDCOLIdDisk_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLIdDisk_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      mePXIdDisk_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXIdDisk_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      meROCNmbrDisk_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbrDisk_->setAxisTitle("ROC number on DetUnit",1);
+    }
+  }
+  
+  if(type==6 && endcap){
+    uint32_t panel = PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).pannelName();
+    uint32_t module = PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).plaquetteName();
+    char slab[80]; sprintf(slab,"Panel_%i_Ring_%i",panel, module);
+    hid = src.label() + "_" + slab;
+    // Types of errors
+    meErrorTypeRing_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
+    meErrorTypeRing_->setAxisTitle("Type of errors",1);
+    // Number of errors
+    meNErrorsRing_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsRing_->setAxisTitle("Number of errors",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    meTBMMessageRing_ = theDMBE->book1D("TBMMessage_" + hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessageRing_->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+    // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
+    meTBMTypeRing_ = theDMBE->book1D("TBMType_" + hid,"State Machine message",5,-0.5,4.5);
+    meTBMTypeRing_->setAxisTitle("FSM Type",1);
+    if(!reducedSet){
+      // For error type 31, the event number of the TBM header with the error
+      meEvtNbrRing_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
+      meEvtNbrRing_->setAxisTitle("Event number",1);
+      // For error type 36, the invalid ROC number
+      meROCIdRing_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
+      meROCIdRing_->setAxisTitle("ROC Id",1);
+      // For error type 37, the invalid dcol values
+      meDCOLIdRing_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
+      meDCOLIdRing_->setAxisTitle("DCOL address",1);
+      // For error type 37, the invalid ROC values
+      mePXIdRing_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
+      mePXIdRing_->setAxisTitle("Pixel address",1);
+      // For error type 38, the ROC that is being read out of order
+      meROCNmbrRing_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
+      meROCNmbrRing_->setAxisTitle("ROC number on DetUnit",1);
+    }
+  }
+  
+  
 }
 //
 // Book histograms for errors with detId
@@ -190,7 +439,15 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
 //
 // Fill histograms
 //
-void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet ) {
+void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {
+  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool isHalfModule = false;
+  uint32_t DBladder = 0;
+  if(barrel){
+    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
+    DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
+  }
   
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(id_); // search  errors of detid
   
@@ -203,87 +460,588 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfErrors++;
       int errorType = di->getType();               // type of error
-      (meErrorType_)->Fill((int)errorType);
-      if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
-	long long errorWord = di->getWord64();     // for 64-bit error words
-	if(errorType == 34) {
-	  int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	  (meEvtSize_)->Fill((float)evtSize); }
-      } else {
-	uint32_t errorWord = di->getWord32();      // for 32-bit error words
-	switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
-	case(30) : {
-	  int T0 = (errorWord >> DB0_shift) & DataBit_mask;
-	  int T1 = (errorWord >> DB1_shift) & DataBit_mask;
-	  int T2 = (errorWord >> DB2_shift) & DataBit_mask;
-	  int T3 = (errorWord >> DB3_shift) & DataBit_mask;
-	  int T4 = (errorWord >> DB4_shift) & DataBit_mask;
-	  int T5 = (errorWord >> DB5_shift) & DataBit_mask;
-	  int T6 = (errorWord >> DB6_shift) & DataBit_mask;
-	  int T7 = (errorWord >> DB7_shift) & DataBit_mask;
-	  int TBMMessage;
-	  if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T3==1) { TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T4==1) { TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
-	  int StateMach_bits      = 4;
-	  int StateMach_shift     = 8;
-	  uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
-	  int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
-	  int TBMType;
-	  switch(StateMach) {
-	  case(0) : {
-	    TBMType = 0;
-	    break; }
-	  case(1) : {
-	    TBMType = 1;
-	    break; }
-	  case(2) : case(4) : case(6) : {
-	    TBMType = 2;
-	    break; }
-	  case(8) : {
-	    TBMType = 3;
-	    break; }
+      if(modon){
+        (meErrorType_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSize_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
 	    default : TBMType = 4;
+	    };
+	    (meTBMType_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbr_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCId_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLId_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXId_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbr_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
 	  };
-	  (meTBMType_)->Fill((int)TBMType);
-	  break; }
-	case(31) : {
-          if(!reducedSet){
-	    int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
-	    (meEvtNbr_)->Fill((int)evtNbr);
-	  }
-	  break; }
-	case(36) : {
-          if(!reducedSet){
-	    int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	    (meROCId_)->Fill((float)ROCId);
-	  }
-	  break; }
-	case(37) : {
-          if(!reducedSet){
-	    int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	    (meDCOLId_)->Fill((float)DCOLId);
-	    int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	    (mePXId_)->Fill((float)PXId);
-	  }
-	  break; }
-	case(38) : {
-          if(!reducedSet){
-	    int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	    (meROCNmbr_)->Fill((float)ROCNmbr);
-	  }
-	  break; }
-	default : break;
-	};
+	}  
       }
-    }
+      
+      if(ladon && barrel){
+        (meErrorTypeLad_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSizeLad_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessageLad_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
+	    default : TBMType = 4;
+	    };
+	    (meTBMTypeLad_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbrLad_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCIdLad_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLIdLad_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXIdLad_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbrLad_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
+	  };
+	}
+      }
+      
+      if(layon && barrel){
+        (meErrorTypeLay_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSizeLay_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessageLay_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
+	    default : TBMType = 4;
+	    };
+	    (meTBMTypeLay_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbrLay_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCIdLay_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLIdLay_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXIdLay_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbrLay_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
+	  };
+	}
+      }
+      
+      if(phion && barrel){
+        (meErrorTypePhi_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSizePhi_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessagePhi_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
+	    default : TBMType = 4;
+	    };
+	    (meTBMTypePhi_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbrPhi_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCIdPhi_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLIdPhi_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXIdPhi_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbrPhi_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
+	  };
+	}
+      }
+      
+      if(bladeon && endcap){
+        (meErrorTypeBlade_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSizeBlade_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessageBlade_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
+	    default : TBMType = 4;
+	    };
+	    (meTBMTypeBlade_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbrBlade_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCIdBlade_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLIdBlade_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXIdBlade_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbrBlade_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
+	  };
+	}
+      }
+      
+      if(diskon && endcap){
+        (meErrorTypeDisk_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSizeDisk_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessageDisk_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
+	    default : TBMType = 4;
+	    };
+	    (meTBMTypeDisk_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbrDisk_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCIdDisk_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLIdDisk_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXIdDisk_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbrDisk_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
+	  };
+	}
+      }
+      
+      if(ringon && endcap){
+        (meErrorTypeRing_)->Fill((int)errorType);
+        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+	  long long errorWord = di->getWord64();     // for 64-bit error words
+	  if(errorType == 34) {
+	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
+	    (meEvtSizeRing_)->Fill((float)evtSize); 
+	  }
+        } else {
+	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
+	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
+	  case(30) : {
+	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int T2 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int T3 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int T4 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int T5 = (errorWord >> DB5_shift) & DataBit_mask;
+	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
+	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
+	    int TBMMessage;
+	    if (T0==1) { TBMMessage=0; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessageRing_)->Fill((int)TBMMessage); }
+	    int StateMach_bits      = 4;
+	    int StateMach_shift     = 8;
+	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
+	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
+	    int TBMType;
+	    switch(StateMach) {
+	    case(0) : {
+	      TBMType = 0;
+	      break; }
+	    case(1) : {
+	      TBMType = 1;
+	      break; }
+	    case(2) : case(4) : case(6) : {
+	      TBMType = 2;
+	      break; }
+	    case(8) : {
+	      TBMType = 3;
+	      break; }
+	    default : TBMType = 4;
+	    };
+	    (meTBMTypeRing_)->Fill((int)TBMType);
+	    break; }
+	  case(31) : {
+            if(!reducedSet){
+	      int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
+	      (meEvtNbrRing_)->Fill((int)evtNbr);
+	    }
+	    break; }
+	  case(36) : {
+            if(!reducedSet){
+	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCIdRing_)->Fill((float)ROCId);
+	    }
+	    break; }
+	  case(37) : {
+            if(!reducedSet){
+	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
+	      (meDCOLIdRing_)->Fill((float)DCOLId);
+	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
+	      (mePXIdRing_)->Fill((float)PXId);
+	    }
+	    break; }
+	  case(38) : {
+            if(!reducedSet){
+	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
+	      (meROCNmbrRing_)->Fill((float)ROCNmbr);
+	    }
+	    break; }
+	  default : break;
+	  };
+	}
+      }
+    }//for loop
     
-    (meNErrors_)->Fill((float)numberOfErrors);
+    if(modon) (meNErrors_)->Fill((float)numberOfErrors);
+    if(ladon && barrel) (meNErrorsLad_)->Fill((float)numberOfErrors);
+    if(layon && barrel) (meNErrorsLay_)->Fill((float)numberOfErrors);
+    if(phion && barrel) (meNErrorsPhi_)->Fill((float)numberOfErrors);
+    if(bladeon && endcap) (meNErrorsBlade_)->Fill((float)numberOfErrors);
+    if(diskon && endcap) (meNErrorsDisk_)->Fill((float)numberOfErrors);
+    if(ringon && endcap) (meNErrorsRing_)->Fill((float)numberOfErrors);
     //std::cout<<"number of errors="<<numberOfErrors<<std::endl;
     
   }

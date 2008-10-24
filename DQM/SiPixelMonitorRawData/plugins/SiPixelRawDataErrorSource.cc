@@ -52,7 +52,14 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
-  reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) )
+  reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
+  modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
+  ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
+  layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
+  phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
+  ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
+  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -70,6 +77,11 @@ SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource()
 void SiPixelRawDataErrorSource::beginJob(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::beginJob - Initialisation ... " << std::endl;
+  LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
+		       << layOn << "/" << phiOn << std::endl;
+  LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
+		       << ringOn << std::endl;
+
   eventNo = 0;
   // Build map
   buildStructure(iSetup);
@@ -108,7 +120,7 @@ SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSet
 
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, reducedSet);
+    (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
 
@@ -209,16 +221,73 @@ void SiPixelRawDataErrorSource::bookMEs(){
   
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
-    if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
-      (*struct_iter).second->book( conf_, reducedSet );
-    }
-    else {
-      //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
-      if(!isPIB) throw cms::Exception("LogicError")
-                       << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
-    }
 
-  }
+    if(modOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
+        (*struct_iter).second->book( conf_, reducedSet, 0 );
+      }
+      else {
+        //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
+        if(!isPIB) throw cms::Exception("LogicError")
+                       << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
+      }
+    }
+    
+    if(ladOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)) {
+        (*struct_iter).second->book( conf_, reducedSet, 1 );
+      }
+      else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
+      }
+    }
+    
+    if(layOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)) {
+        (*struct_iter).second->book( conf_, reducedSet, 2 );
+      }
+      else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
+      }
+    }
+    
+    if(phiOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)) {
+        (*struct_iter).second->book( conf_, reducedSet, 3 );
+      }
+      else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
+      }
+    }
+    
+    if(bladeOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)) {
+        (*struct_iter).second->book( conf_, reducedSet, 4 );
+      }
+      else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
+      }
+    }
+    
+    if(diskOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)) {
+        (*struct_iter).second->book( conf_, reducedSet, 5 );
+      }
+      else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
+      }
+    }
+    
+    if(ringOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)) {
+        (*struct_iter).second->book( conf_, reducedSet, 6 );
+      }
+      else {
+        LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
+      }
+    }
+    
+  }//for loop
 
   for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
     /// Create folder tree for errors without detId and book histograms 

@@ -21,6 +21,13 @@ process.SiPixelRawDataErrorSource.saveFile = True
 #process.SiPixelHLTSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
 #process.SiPixelHLTSource.reducedSet = False
+process.SiPixelRawDataErrorSource.modOn = True
+process.SiPixelRawDataErrorSource.ladOn = False
+process.SiPixelRawDataErrorSource.layOn = False
+process.SiPixelRawDataErrorSource.phiOn = False
+process.SiPixelRawDataErrorSource.ringOn = False
+process.SiPixelRawDataErrorSource.bladeOn = False
+process.SiPixelRawDataErrorSource.diskOn = False
 
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
@@ -30,7 +37,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V6P::All"
+process.GlobalTag.globaltag = "CRAFT_V2P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 
