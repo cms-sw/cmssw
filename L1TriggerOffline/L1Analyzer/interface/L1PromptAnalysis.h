@@ -6,8 +6,8 @@
  *   Description:  This code is designed for l1 prompt analysis
 //                 starting point is a GMTTreeMaker By Ivan Mikulec. 
 */                
-//   $Date: 2008/09/13 12:53:49 $
-//   $Revision: 1.7 $
+//   $Date: 2008/09/16 17:49:44 $
+//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -55,6 +55,7 @@ class TTree;
     const int MAXCSC = 12;    
     const int MAXGMT = 12;
     const int MAXGT = 12;
+    const int MAXRCTREG = 400;
 
 class L1PromptAnalysis : public edm::EDAnalyzer {
 
@@ -182,6 +183,61 @@ class L1PromptAnalysis : public edm::EDAnalyzer {
     float           phijet[MAXGT];
     float           etajet[MAXGT];
 
+    //GCT
+    edm::InputTag gctCenJetsSource_ ;
+    edm::InputTag gctForJetsSource_ ;
+    edm::InputTag gctTauJetsSource_ ;
+    edm::InputTag gctEnergySumsSource_;
+    edm::InputTag gctIsoEmSource_ ;
+    edm::InputTag gctNonIsoEmSource_ ;
+    
+    int gctIsoEmSize;
+    float gctIsoEmEta[4];
+    float gctIsoEmPhi[4];
+    float gctIsoEmRnk[4];
+    int gctNonIsoEmSize;
+    float gctNonIsoEmEta[4];
+    float gctNonIsoEmPhi[4];
+    float gctNonIsoEmRnk[4];
+    int gctCJetSize;
+    float gctCJetEta[4];
+    float gctCJetPhi[4];
+    float gctCJetRnk[4];
+    int gctFJetSize;
+    float gctFJetEta[4];
+    float gctFJetPhi[4];
+    float gctFJetRnk[4];
+    int gctTJetSize;
+    float gctTJetEta[4];
+    float gctTJetPhi[4];
+    float gctTJetRnk[4];
+    float gctEtMiss;
+    float gctEtMissPhi;
+    float gctEtHad;
+    float gctEtTot;
+    int gctHFRingEtSumSize;
+    float gctHFRingEtSumEta[4];
+    float gctHFBitCountsSize;
+    float gctHFBitCountsEta[4];
+//  RCT
+     
+    edm::InputTag rctSource_; 
+    int rctRegSize;
+    float rctRegEta[MAXRCTREG];
+    float rctRegPhi[MAXRCTREG];
+    float rctRegRnk[MAXRCTREG];
+    int rctRegVeto[MAXRCTREG];
+    int rctRegBx[MAXRCTREG];
+    int rctRegOverFlow[MAXRCTREG];
+    int rctRegMip[MAXRCTREG];
+    int rctRegFGrain[MAXRCTREG];
+    int rctEmSize;
+    int rctIsIsoEm[MAXRCTREG];
+    float rctEmEta[MAXRCTREG];
+    float rctEmPhi[MAXRCTREG];
+    float rctEmRnk[MAXRCTREG];
+    int rctEmBx[MAXRCTREG];
+
 
     TFile* m_file;
     TTree* m_tree;
@@ -193,7 +249,7 @@ class L1PromptAnalysis : public edm::EDAnalyzer {
     edm::InputTag m_SimulationInputTag;
     
     bool m_PhysVal;
-    
+    bool verbose_;
     std::string m_outfilename;
       
 };

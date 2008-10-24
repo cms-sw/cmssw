@@ -8,7 +8,7 @@
  *   Description:  This code is designed for l1 prompt analysis
 //                 starting point is a GMTTreeMaker By Ivan Mikulec. 
 */
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -53,6 +53,11 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+
+
 
 using namespace std;
 
@@ -60,7 +65,10 @@ using namespace std;
 // Constructors --
 //----------------
 L1PromptAnalysis::L1PromptAnalysis(const edm::ParameterSet& ps) : m_file(0), m_tree(0) {
-  
+
+  verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
+
+//gt, gmt  
   m_GMTInputTag = ps.getParameter<edm::InputTag>("GMTInputTag");
   m_GTEvmInputTag = ps.getParameter<edm::InputTag>("GTEvmInputTag");
   m_GTInputTag = ps.getParameter<edm::InputTag>("GTInputTag");
@@ -68,6 +76,16 @@ L1PromptAnalysis::L1PromptAnalysis(const edm::ParameterSet& ps) : m_file(0), m_t
   m_SimulationInputTag = ps.getParameter<edm::InputTag>("SimulationInputTag");
   m_PhysVal = ps.getParameter<bool>("PhysVal");
   m_outfilename = ps.getUntrackedParameter<string>("OutputFile","L1PromptAnalysis.root");
+//gct
+  gctCenJetsSource_ = ps.getParameter<edm::InputTag>("gctCentralJetsSource");
+  gctForJetsSource_ = ps.getParameter<edm::InputTag>("gctForwardJetsSource");
+  gctTauJetsSource_ = ps.getParameter<edm::InputTag>("gctTauJetsSource");
+  gctEnergySumsSource_ = ps.getParameter<edm::InputTag>("gctEnergySumsSource");
+  gctIsoEmSource_ = ps.getParameter<edm::InputTag>("gctIsoEmSource");
+  gctNonIsoEmSource_ = ps.getParameter<edm::InputTag>("gctNonIsoEmSource");
+  
+//rct
+  rctSource_= ps.getParameter< edm::InputTag >("rctSource");
 }
 
 //--------------
@@ -426,6 +444,354 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
     }
   }
   
+//////////////////////////////////////////////// GCT /////////////////////////////////////////////////
+
+  bool doJet = true;
+  bool doEm = true;
+  bool doHFminbias = true;
+  bool doES = true;
+    gctIsoEmSize=-999;
+    gctNonIsoEmSize=-999;
+    gctCJetSize=-999;
+    gctFJetSize=-999;
+    gctTJetSize=-999;
+    gctEtMiss=-999;
+    gctEtMissPhi=-999.;
+    gctEtHad=-999.;
+    gctEtTot=-999.;
+    gctHFRingEtSumSize=-999;
+    gctHFBitCountsSize=-999;
+    for(int ii=0;ii<4;ii++ ){
+    gctIsoEmEta[ii]=-999.;
+    gctIsoEmPhi[ii]=-999.;
+    gctIsoEmRnk[ii]=-999.;
+    gctNonIsoEmEta[ii]=-999.;
+    gctNonIsoEmPhi[ii]=-999.;
+    gctNonIsoEmRnk[ii]=-999.;
+    gctCJetEta[ii]=-999.;
+    gctCJetPhi[ii]=-999.;
+    gctCJetRnk[ii]=-999.;
+    gctFJetEta[ii]=-999.;
+    gctFJetPhi[ii]=-999.;
+    gctFJetRnk[ii]=-999.;
+    gctTJetEta[ii]=-999.;
+    gctTJetPhi[ii]=-999.;
+    gctTJetRnk[ii]=-999.;
+    gctHFRingEtSumEta[ii]=-999.;
+    gctHFBitCountsEta[ii]=-999.;
+    }
+  
+  edm::Handle < L1GctEmCandCollection > l1IsoEm;
+  e.getByLabel(gctIsoEmSource_, l1IsoEm);
+  if (!l1IsoEm.isValid()) {
+    edm::LogWarning("DataNotFound") << " Could not find l1IsoEm "
+      " elements, label was " << gctIsoEmSource_ ;
+    doEm = false;
+  }
+
+  edm::Handle < L1GctEmCandCollection > l1NonIsoEm;
+  e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
+  if (!l1NonIsoEm.isValid()) {
+    edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm "
+      " elements, label was " << gctNonIsoEmSource_ ;
+    doEm = false;
+  }
+
+  edm::Handle < L1GctJetCandCollection > l1CenJets;
+  e.getByLabel(gctCenJetsSource_, l1CenJets);
+  if (!l1CenJets.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1CenJets"
+      ", label was " << gctCenJetsSource_ ;
+    doJet = false;
+  }
+
+  edm::Handle < L1GctJetCandCollection > l1ForJets;
+  e.getByLabel(gctForJetsSource_, l1ForJets);
+  if (!l1ForJets.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1ForJets"
+      ", label was " << gctForJetsSource_ ;
+    doJet = false;
+  }
+
+  edm::Handle < L1GctJetCandCollection > l1TauJets;
+  e.getByLabel(gctTauJetsSource_, l1TauJets);
+  if (!l1TauJets.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1TauJets"
+      ", label was " << gctTauJetsSource_ ;
+    doJet = false;
+  }
+
+  edm::Handle < L1GctHFRingEtSumsCollection > l1HFSums; 
+  e.getByLabel(gctEnergySumsSource_, l1HFSums);
+  if (!l1HFSums.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1HFSums"
+      ", label was " << gctEnergySumsSource_ ;
+    doHFminbias = false;
+  }
+
+  edm::Handle < L1GctHFBitCountsCollection > l1HFCounts;
+  e.getByLabel(gctEnergySumsSource_, l1HFCounts);  
+  if (!l1HFCounts.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1HFCounts"
+      ", label was " << gctEnergySumsSource_ ;
+    doHFminbias = false;
+  }   
+
+
+  edm::Handle < L1GctEtMissCollection >  l1EtMiss;
+  e.getByLabel(gctEnergySumsSource_, l1EtMiss);
+  if (!l1EtMiss.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss"
+      ", label was " << gctEnergySumsSource_ ;
+    doES = false;
+  }
+
+  edm::Handle < L1GctEtHadCollection >   l1EtHad;
+  e.getByLabel(gctEnergySumsSource_, l1EtHad);
+  if (!l1EtHad.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtHad"
+      ", label was " << gctEnergySumsSource_ ;
+    doES = false;
+  }
+
+  edm::Handle < L1GctEtTotalCollection > l1EtTotal;
+  e.getByLabel(gctEnergySumsSource_, l1EtTotal);
+  if (!l1EtTotal.isValid())  {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal"
+      ", label was " << gctEnergySumsSource_ ;
+    doES = false;
+  }
+
+  if ( doJet ) {
+    // Central jets
+    if ( verbose_ ) {
+      edm::LogInfo("L1Prompt") << "L1PromptAnalysis: number of central jets = " 
+		<< l1CenJets->size() << std::endl;
+    }
+    gctCJetSize= l1CenJets->size();//1
+    int icj=0;
+    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
+	 cj != l1CenJets->end(); cj++) {
+      gctCJetEta[icj]=cj->regionId().ieta();//2
+      gctCJetPhi[icj]=cj->regionId().iphi();//3
+      gctCJetRnk[icj]=cj->rank();//4
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: Central jet " 
+		  << cj->regionId().iphi() << ", " << cj->regionId().ieta()
+		  << ", " << cj->rank() << std::endl;
+      }
+      icj++;
+    }
+
+    // Forward jets
+    if ( verbose_ ) {
+      edm::LogInfo("L1Prompt") << "L1PromptAnalysis: number of forward jets = " 
+		<< l1ForJets->size() << std::endl;
+    }
+    gctFJetSize= l1ForJets->size();//5
+    int ifj=0;
+    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
+	 fj != l1ForJets->end(); fj++) {
+      gctFJetEta[ifj]=fj->regionId().ieta();//6
+      gctFJetPhi[ifj]=fj->regionId().iphi();//7
+      gctFJetRnk[ifj]=fj->rank();//8
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: Forward jet " 
+		  << fj->regionId().iphi() << ", " << fj->regionId().ieta()
+		  << ", " << fj->rank() << std::endl;
+      }
+      ifj++;
+    }
+
+    // Tau jets
+    if ( verbose_ ) {
+      edm::LogInfo("L1Prompt") << "L1PromptAnalysis: number of tau jets = " 
+		<< l1TauJets->size() << std::endl;
+    }
+    gctFJetSize= l1TauJets->size();//9
+    int itj=0;
+    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
+	 tj != l1TauJets->end(); tj++) {
+      //if ( tj->rank() == 0 ) continue;
+      gctTJetEta[itj]=tj->regionId().ieta();//10
+      gctTJetPhi[itj]=tj->regionId().iphi();//11
+      gctTJetRnk[itj]=tj->rank();//12
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: Tau jet " 
+			       << tj->regionId().iphi() << ", " << tj->regionId().ieta()
+			       << ", " << tj->rank() << std::endl;
+      }
+      itj++;
+    }
+        
+  }
+
+  if (doES) {
+    // Energy sums
+    if ( l1EtMiss->size() ) {
+      gctEtMiss= l1EtMiss->at(0).et();//
+      gctEtMissPhi= l1EtMiss->at(0).phi();//
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: Et Miss " 
+			       << l1EtMiss->size() << ", " << l1EtMiss->at(0).et()
+			       << ", " << l1EtMiss->at(0).phi() << std::endl;
+      }
+    }
+    // these don't have phi values
+    if ( l1EtHad->size() ) {
+      gctEtHad= l1EtHad->at(0).et();//
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: Et Had " 
+			       << l1EtHad->size() << ", " << l1EtHad->at(0).et() << std::endl;
+      }
+    }
+    if ( l1EtTotal->size() ) {
+      gctEtTot=l1EtTotal->at(0).et();//
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: Et Total " 
+			       << l1EtTotal->size() << ", " << l1EtTotal->at(0).et() << std::endl;
+      }
+    }
+  }
+
+  if (doHFminbias) {
+
+    //Fill HF Ring Histograms
+    gctHFRingEtSumSize=l1HFSums->size();
+    int ies=0;
+    for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
+       gctHFRingEtSumEta[ies]= hfs->etSum(ies);
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: HF Sums " 
+			       << l1HFSums->size() << ", " << hfs->etSum(ies) << std::endl;
+      }
+      ies++;
+    }
+    
+    int ibc=0;
+    gctHFBitCountsSize=l1HFCounts->size();
+    for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); hfc++){ 
+      gctHFBitCountsEta[ibc]=hfc->bitCount(ibc);
+      if ( verbose_ ) {
+	edm::LogInfo("L1Prompt") << "L1PromptAnalysis: HF Counts " 
+			       << l1HFCounts->size() << ", " << hfc->bitCount(ibc) << std::endl;
+      }
+      ibc++;
+    }
+
+
+  }
+
+
+  if ( doEm ) {
+
+    // Isolated EM
+    if ( verbose_ ) {
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of iso em cands: " 
+		<< l1IsoEm->size() << std::endl;
+    }
+    int iie=0;
+    gctIsoEmSize = l1IsoEm->size();
+    for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
+      //if ( ie->rank() == 0 ) continue;
+      gctIsoEmEta[iie] = ie->regionId().ieta();
+      gctIsoEmPhi[iie] = ie->regionId().iphi();
+      gctIsoEmRnk[iie] = ie->rank();
+     iie++;
+    } 
+
+    // Non-isolated EM
+    if ( verbose_ ) {
+      edm::LogInfo("L1TGCT") << "L1TGCT: number of non-iso em cands: " 
+		<< l1NonIsoEm->size() << std::endl;
+    }
+    gctNonIsoEmSize = l1NonIsoEm->size();
+    int ine=0;
+    for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
+      gctNonIsoEmEta[ine] = ne->regionId().ieta();
+      gctNonIsoEmPhi[ine] = ne->regionId().iphi();
+      gctNonIsoEmRnk[ine] = ne->rank();
+      ine++;  
+    } 
+
+   }
+   
+///////////////////////RCT///////////////////////////
+  bool doEmRCT = true; 
+  bool doHdRCT = true;
+    rctRegSize=-999;
+    rctEmSize=-999;
+    for(int ii=0;ii<MAXRCTREG;ii++){
+    rctRegEta[ii]=-999.;
+    rctRegPhi[ii]=-999.;
+    rctRegRnk[ii]=-999.;
+    rctRegVeto[ii]=-999;
+    rctRegBx[ii]=-999;
+    rctRegOverFlow[ii]=-999;
+    rctRegMip[ii]=-999;
+    rctRegFGrain[ii]=-999;
+    rctIsIsoEm[ii]=-999;
+    rctEmEta[ii]=-999.;
+    rctEmPhi[ii]=-999.;
+    rctEmRnk[ii]=-999.;
+    rctEmBx[ii]=-999;
+    }
+
+  edm::Handle < L1CaloEmCollection > em;
+  e.getByLabel(rctSource_,em);
+  
+  if (!em.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
+			       << rctSource_.label() ;
+    doEmRCT = false;
+  }
+  
+  
+  edm::Handle < L1CaloRegionCollection > rgn;
+  e.getByLabel(rctSource_,rgn);
+  if (!rgn.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
+			       << rctSource_.label() ;
+    doHdRCT = false;
+  }
+  
+  if ( doHdRCT ) {
+    // Regions
+    int irg=0;
+    rctRegSize=rgn->size();
+    for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
+	 ireg != rgn->end(); ireg++) {
+
+      rctRegEta[irg]=ireg->rctEta();
+      rctRegPhi[irg]=ireg->rctPhi();
+      rctRegRnk[irg]=ireg->et();
+      rctRegVeto[irg]=ireg->tauVeto();
+      rctRegBx[irg]=ireg->bx();
+      rctRegOverFlow[irg]=ireg->overFlow();
+      rctRegMip[irg]=ireg->mip();
+      rctRegFGrain[irg]=ireg->fineGrain();
+     irg++;
+     }
+
+  }
+
+  if ( doEmRCT ) {
+  // Isolated and non-isolated EM
+  rctEmSize = em->size();
+  int iem=0;
+  for (L1CaloEmCollection::const_iterator emit = em->begin(); emit != em->end(); emit++) {
+      rctIsIsoEm[iem]= emit->isolated();
+      rctEmEta[iem]=emit->regionId().ieta();
+      rctEmPhi[iem]=emit->regionId().iphi();
+      rctEmRnk[iem]=emit->rank();
+      rctEmBx[iem]=emit->bx();
+      iem++;
+  }
+  }
+
+
+
+
   m_tree->Fill();
 
 }
@@ -549,6 +915,70 @@ void L1PromptAnalysis::book() {
     m_tree->Branch("Etajet",etajet,"Etajet[Njet]/F");
  }
   
+  if(gctIsoEmSource_.label() != "none") {
+    
+    m_tree->Branch("gctIsoEmSize",&gctIsoEmSize,"gctIsoEmSize/I");
+    m_tree->Branch("gctIsoEmEta",gctIsoEmEta,"gctIsoEmEta[4]/F");
+    m_tree->Branch("gctIsoEmPhi",gctIsoEmPhi,"gctIsoEmPhi[4]/F");
+    m_tree->Branch("gctIsoEmRnk",gctIsoEmRnk,"gctIsoEmRnk[4]/F");
+    
+ }
+  if(gctNonIsoEmSource_.label() != "none") {
+    m_tree->Branch("gctNonIsoEmSize",&gctNonIsoEmSize,"gctNonIsoEmSize/I");
+    m_tree->Branch("gctNonIsoEmEta",gctNonIsoEmEta,"gctNonIsoEmEta[4]/F");
+    m_tree->Branch("gctNonIsoEmPhi",gctNonIsoEmPhi,"gctNonIsoEmPhi[4]/F");
+    m_tree->Branch("gctNonIsoEmRnk",gctNonIsoEmRnk,"gctNonIsoEmRnk[4]/F");
+ }
+  if(gctCenJetsSource_.label() != "none") {
+    m_tree->Branch("gctCJetSize",&gctCJetSize,"gctCJetSize/I");
+    m_tree->Branch("gctCJetEta",gctCJetEta,"gctCJetEta[4]/F");
+    m_tree->Branch("gctCJetPhi",gctCJetPhi,"gctCJetPhi[4]/F");
+    m_tree->Branch("gctCJetRnk",gctCJetRnk,"gctCJetRnk[4]/F");
+ }
+  if(gctForJetsSource_.label() != "none") {
+    m_tree->Branch("gctFJetSize",&gctFJetSize,"gctFJetSize/I");
+    m_tree->Branch("gctFJetEta",gctFJetEta,"gctFJetEta[4]/F");
+    m_tree->Branch("gctFJetPhi",gctFJetPhi,"gctFJetPhi[4]/F");
+    m_tree->Branch("gctFJetRnk",gctFJetRnk,"gctFJetRnk[4]/F");
+ }
+  if(gctTauJetsSource_.label() != "none") {
+    m_tree->Branch("gctTJetSize",&gctTJetSize,"gctTJetSize/I");
+    m_tree->Branch("gctTJetEta",gctTJetEta,"gctTJetEta[4]/F");
+    m_tree->Branch("gctTJetPhi",gctTJetPhi,"gctTJetPhi[4]/F");
+    m_tree->Branch("gctTJetRnk",gctTJetRnk,"gctTJetRnk[4]/F");
+ }
+  if(gctEnergySumsSource_.label() != "none") {
+    m_tree->Branch("gctEtMiss",&gctEtMiss,"gctEtMiss/F");
+    m_tree->Branch("gctEtMissPhi",&gctEtMissPhi,"gctEtMissPhi/F");
+    m_tree->Branch("gctEtHad",&gctEtHad,"gctEtHad/F");
+    
+    m_tree->Branch("gctEtTot",&gctEtTot,"gctEtTot/F");
+    m_tree->Branch("gctHFRingEtSumSize",&gctHFRingEtSumSize,"gctHFRingEtSumSize/I");
+    m_tree->Branch("gctHFRingEtSumEta",gctHFRingEtSumEta,"gctHFRingEtSumEta[4]/F");
+    m_tree->Branch("gctHFBitCountsSize",&gctHFBitCountsSize,"gctHFBitCountsSize/I");
+    m_tree->Branch("gctHFBitCountsEta",gctHFBitCountsEta,"gctHFBitCountsEta[4]/F");
+ }
+ 
+ 
+  if(rctSource_.label() != "none") {
+    m_tree->Branch("rctRegSize",&rctRegSize,"rctRegSize/I");
+    m_tree->Branch("rctRegEta",rctRegEta,"rctRegEta[rctRegSize]/F");
+    m_tree->Branch("rctRegPhi",rctRegPhi,"rctRegPhi[rctRegSize]/F");
+    m_tree->Branch("rctRegRnk",rctRegRnk,"rctRegRnk[rctRegSize]/F");
+    m_tree->Branch("rctRegVeto",rctRegVeto,"rctRegVeto[rctRegSize]/I");
+    m_tree->Branch("rctRegBx",rctRegBx,"rctRegBx[rctRegSize]/I");
+    m_tree->Branch("rctRegOverFlow",rctRegOverFlow,"rctRegOverFlow[rctRegSize]/I");
+    m_tree->Branch("rctRegMip",rctRegMip,"rctRegMip[rctRegSize]/I");
+    m_tree->Branch("rctRegFGrain",rctRegFGrain,"rctRegFGrain[rctRegSize]/I");
+    m_tree->Branch("rctEmSize",&rctEmSize,"rctEmSize/I");
+    m_tree->Branch("rctIsIsoEm",&rctIsIsoEm,"rctIsIsoEm[rctEmSize]/I");
+    m_tree->Branch("rctEmEta",rctEmEta,"rctEmEta[rctEmSize]/F");
+    m_tree->Branch("rctEmPhi",rctEmPhi,"rctEmPhi[rctEmSize]/F");
+    m_tree->Branch("rctEmRnk",rctEmRnk,"rctEmRnk[rctEmSize]/F");
+    m_tree->Branch("rctEmBx",rctEmBx,"rctEmBx[rctEmSize]/I");
+ }
+ 
+ 
 }
 
 
