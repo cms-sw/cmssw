@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.RingMakerESProducer.RingMakerESProducerMTCC_cff import *
 import copy
 from RecoTracker.RoadSearchSeedFinder.roadSearchSeedDumper_cfi import *
+from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsMTCC_cff import *
 # include RoadSearchSeedDumper
 roadSearchSeedDumperMTCC = copy.deepcopy(roadSearchSeedDumper)
 roadSearchSeedDumperMTCC.RoadSearchSeedInputTag = 'roadSearchSeedsMTCC'

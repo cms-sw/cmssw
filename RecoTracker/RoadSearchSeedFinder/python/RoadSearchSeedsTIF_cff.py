@@ -12,7 +12,7 @@ from RecoTracker.RoadSearchSeedFinder.RoadSearchSeeds_cfi import *
 # RoadSearchSeedFinder
 roadSearchSeedsTIF = copy.deepcopy(roadSearchSeeds)
 roadSearchSeedsTIF.Mode = 'STRAIGHT-LINE'
-roadSearchSeedsP5.doClusterCheck = True
+roadSearchSeedsTIF.doClusterCheck = True
 roadSearchSeedsTIF.RoadsLabel = 'TIF'
 roadSearchSeedsTIF.InnerSeedRecHitAccessMode = 'STANDARD'
 roadSearchSeedsTIF.InnerSeedRecHitAccessUseRPhi = True

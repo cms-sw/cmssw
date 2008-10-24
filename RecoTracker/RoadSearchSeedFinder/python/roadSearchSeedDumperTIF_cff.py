@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.RingMakerESProducer.RingMakerESProducerTIF_cff import *
 import copy
 from RecoTracker.RoadSearchSeedFinder.roadSearchSeedDumper_cfi import *
+from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsTIF_cff import *
 # include RoadSearchSeedDumper
 roadSearchSeedDumperTIF = copy.deepcopy(roadSearchSeedDumper)
 roadSearchSeedDumperTIF.RoadSearchSeedInputTag = 'roadSearchSeedsTIF'
