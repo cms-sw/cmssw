@@ -23,10 +23,13 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0?
                            minErrorFlag = cms.untracked.double(0.00), 
 
-                           # Turn on/off timing diganostic ifno
+                           # Turn on/off timing diganostic info
                            showTiming = cms.untracked.bool(False),
-                           
-                           
+
+                           # Make expert-level diagnostic plots (enabling this may drastically slow code!)
+                           MakeDiagnosticPlots = cms.untracked.bool(False),
+
+                           pedestalsInFC                               = cms.untracked.bool(False),
                            DumpThreshold = cms.untracked.double(500.0),
                            thresholds = cms.untracked.vdouble(15.0, 5.0, 2.0, 1.5, 1.0),
                            coolcellfrac = cms.untracked.double(0.5),
@@ -54,9 +57,23 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            PedestalMonitor_startingTimeSlice            = cms.untracked.int32(0),
                            PedestalMonitor_endingTimeSlice              = cms.untracked.int32(1),
                            PedestalMonitor_minErrorFlag                 = cms.untracked.double(0.05),
-                           PedestalMonitor_checkNevents                 = cms.untracked.int32(100),
+                           PedestalMonitor_checkNevents                 = cms.untracked.int32(500),
                            PedestalMonitor_minEntriesPerPed = cms.untracked.uint32(10),
-                                                      
+
+                           # DEAD CELL MONITOR
+                           DeadCellMonitor                              = cms.untracked.bool(True),
+                           DeadCellMonitor_pedestalsInFC                = cms.untracked.bool(False),
+                           DeadCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
+                           DeadCellMonitor_test_occupancy               = cms.untracked.bool(True),
+                           DeadCellMonitor_test_neighbor                = cms.untracked.bool(True),
+                           DeadCellMonitor_test_pedestal                = cms.untracked.bool(True),
+                           DeadCellMonitor_checkNevents                 = cms.untracked.int32(500),
+                           DeadCellMonitor_checkNevents_occupancy       = cms.untracked.int32(500),
+                           DeadCellMonitor_checkNevents_pedestal        = cms.untracked.int32(500),
+                           DeadCellMonitor_checkNevents_neighbor        = cms.untracked.int32(500),
+                           DeadCellMonitor_pedestal_Nsigma              = cms.untracked.double(0.),
+                           DeadCellMonitor_minErrorFlag                 = cms.untracked.double(0.),
+                           
                            HE_NADA_Ecell_cut = cms.untracked.double(0.0),
                            HF_NADA_Ecube_frac = cms.untracked.double(0.5714),
                            HB_NADA_Ecell_frac = cms.untracked.double(0.0),
@@ -81,7 +98,6 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            caloTowerLabel = cms.InputTag("towerMaker"),
                            HE_NADA_Ecand_cut2 = cms.untracked.double(10.0),
                            HF_NADA_Ecell_cut = cms.untracked.double(0.0),
-                           MakeDiagnosticPlots = cms.untracked.bool(True),
                            NADA_Ecell_frac = cms.untracked.double(0.02),
                            HO_NADA_Ecube_cut = cms.untracked.double(0.1),
                            HF_NADA_Ecell_frac = cms.untracked.double(0.0),
@@ -118,7 +134,6 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HOthresholds = cms.untracked.vdouble(2.0, 3.0, 1.0, 5.0, 10.0),
                            ped_Nsigma = cms.untracked.double(-3.1),
                            HotCells = cms.untracked.vstring(),
-                           DeadCellMonitor = cms.untracked.bool(True),
                            HO_NADA_Ecand_cut2 = cms.untracked.double(10.0),
                            HO_NADA_Ecand_cut1 = cms.untracked.double(2.5),
                            HO_NADA_Ecand_cut0 = cms.untracked.double(1.5),
@@ -165,9 +180,18 @@ def setHcalTaskValues(process):
 
     # Insidious python-ness:  You need to make a copy of the process.minErrorFlag, etc. variables,
     # or future changes to PedestalMonitor_minErrorFlag will also change minErrorFlag!
-    process.PedestalMonitor_minErrorFlag = deepcopy(process.minErrorFlag)
+    minErrorFlag = deepcopy(process.minErrorFlag)
+    process.PedestalMonitor_minErrorFlag = minErrorFlag
+    process.DeadCellMonitor_minErrorFlag = minErrorFlag
 
-    process.PedestalMonitor_checkNevents = deepcopy(process.checkNevents)
-    
+    checkNevents = deepcopy(process.checkNevents)
+    process.PedestalMonitor_checkNevents = checkNevents
+    process.DeadCellMonitor_checkNevents = checkNevents
+    process.DeadCellMonitor_checkNevents_occupancy = checkNevents
+    process.DeadCellMonitor_checkNevents_pedestal  = checkNevents
+    process.DeadCellMonitor_checkNevents_neighbor  = checkNevents
+
+    makeDiagnosticPlots = deepcopy(process.MakeDiagnosticPlots)
+    process.DeadCellMonitor_makeDiagnosticPlots = makeDiagnosticPlots
 
     return 
