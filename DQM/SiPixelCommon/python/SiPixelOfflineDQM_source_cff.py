@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 # Pixel RawDataError Monitoring
 from DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi import * 
-process.SiPixelRawDataErrorSource.saveFile = False
-process.SiPixelRawDataErrorSource.isPIB = False
-process.SiPixelRawDataErrorSource.slowDown = False
-process.SiPixelRawDataErrorSource.reducedSet = False
+SiPixelRawDataErrorSource.saveFile = False
+SiPixelRawDataErrorSource.isPIB = False
+SiPixelRawDataErrorSource.slowDown = False
+SiPixelRawDataErrorSource.reducedSet = False
 
 # Pixel Digi Monitoring
 from DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi import *
