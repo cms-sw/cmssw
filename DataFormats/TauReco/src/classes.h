@@ -24,8 +24,8 @@
 namespace {
   namespace {
     reco::L2TauIsolationInfo                                    l2iI;
-    reco::L2TauInfoAssociation                                  l2ts;
-    edm::Wrapper<reco::L2TauInfoAssociation>                    wl2ts;
+    L2TauInfoAssociation                                        l2ts;
+    edm::Wrapper<L2TauInfoAssociation>                          wl2ts;
 
 
     std::vector<reco::BaseTauTagInfo>                           btti_v;
