@@ -9,7 +9,10 @@
 #------Configure here ---------------------------------------
 #$GLOBAL="GlobalCruzet4";
 #$GLOBAL="GlobalRAFF";
-$GLOBAL="GlobalBeamCommissioning08";
+$GLOBAL="Commissioning08";
+$pathToFiles="Cosmics/RAW/v1";
+#$eventSource="\"NewEventStreamFileReader\"";
+$eventSource="\"PoolSource\"";
 $nfiles= 100;  #number of files processed per job
 $numJobs = 2; #number of jobs you want to submit (use -1 if all)
 $nEvents = -1; #number of events you want to run in each job (use -1 if all)
@@ -28,7 +31,7 @@ $A = $ZERO.$A;
 $B = substr($RUN,2);
 
 ##look in castor and get list of files
-system("nsls /castor/cern.ch/cms/store/data/$GLOBAL/HLTDEBUG/000/$A/$B/ > files.txt");
+system("nsls /castor/cern.ch/cms/store/data/$GLOBAL/$pathToFiles/000/$A/$B/ > files.txt");
 $count = `wc -l < files.txt`;
 die "wc failed: $?" if $?;
 chomp($count);
@@ -84,10 +87,11 @@ print CFGFILE "\n";
 print CFGFILE "process.load(\"L1TriggerConfig.L1GeometryProducers.l1CaloGeometry_cfi\")\n"; 
 print CFGFILE "process.load(\"L1TriggerConfig.L1GeometryProducers.l1CaloGeomRecordSource_cff\")\n"; 
 print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.gtUnpack_cff\")\n"; 
+print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.gctUnpack_cff\")\n"; 
 print CFGFILE "process.load(\"L1TriggerOffline.L1Analyzer.L1PromptAnalysis_cfi\")\n";
 print CFGFILE "process.l1PromptAnalysis.OutputFile = '$RUN\_$myn.root'\n";
 print CFGFILE "\n";
-print CFGFILE "process.source = cms.Source(\"NewEventStreamFileReader\",\n";
+print CFGFILE "process.source = cms.Source($eventSource,\n";
 print CFGFILE "fileNames = cms.untracked.vstring(\n";
 $ii=0;
 foreach $ll (@names)
@@ -95,10 +99,10 @@ foreach $ll (@names)
 $ii++;
 #print "$ll";
 if($ii != $total){
-print CFGFILE "\'/store/data/$GLOBAL/HLTDEBUG/000/$A/$B/$ll\',\n";
+print CFGFILE "\'/store/data/$GLOBAL/$pathToFiles/000/$A/$B/$ll\',\n";
 } else
 {
-print CFGFILE "\'/store/data/$GLOBAL/HLTDEBUG/000/$A/$B/$ll\'\n";
+print CFGFILE "\'/store/data/$GLOBAL/$pathToFiles/000/$A/$B/$ll\'\n";
 }
 }
 @names=();
@@ -109,11 +113,11 @@ print CFGFILE "process.maxEvents = cms.untracked.PSet(\n";
 print CFGFILE "    input = cms.untracked.int32($nEvents)\n";
 print CFGFILE ")\n";
 print CFGFILE "\n";
-print CFGFILE "process.p = cms.Path(process.l1GtUnpack+process.l1GtEvmUnpack+process.l1PromptAnalysis)\n";
+print CFGFILE "process.p = cms.Path(process.l1GtUnpack+process.l1GctHwDigis+process.l1GtEvmUnpack+process.l1PromptAnalysis)\n";
 print CFGFILE "\n";
 
 print "bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n";
-system("bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n");
+#system("bsub -J $RUN -q cmscaf -o $RUN\_$myn.log submit.ch l1prompt_$RUN\_$myn\_cfg.py $RUN\_$myn\n");
 
 
 if($myn==$numJobs) {exit;}
