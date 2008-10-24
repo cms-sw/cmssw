@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+# Pixel RawDataError Monitoring
+from DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi import * 
+process.SiPixelRawDataErrorSource.saveFile = False
+process.SiPixelRawDataErrorSource.isPIB = False
+process.SiPixelRawDataErrorSource.slowDown = False
+process.SiPixelRawDataErrorSource.reducedSet = False
+
 # Pixel Digi Monitoring
 from DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi import *
 SiPixelDigiSource.saveFile = False
@@ -16,6 +23,14 @@ SiPixelRecHitSource.saveFile = False
 
         
 ##online/offline
+#RawDataErrors
+SiPixelRawDataErrorSource.modOn = False
+SiPixelRawDataErrorSource.ladOn = True
+SiPixelRawDataErrorSource.layOn = True
+SiPixelRawDataErrorSource.phiOn = True
+SiPixelRawDataErrorSource.bladeOn = True
+SiPixelRawDataErrorSource.diskOn = True
+SiPixelRawDataErrorSource.ringOn = True
 #Digi
 SiPixelDigiSource.modOn = False
 SiPixelDigiSource.twoDimOn = False
@@ -51,4 +66,4 @@ dqmInfo = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel')
 )
 
-siPixelOfflineDQM_source = cms.Sequence(SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
+siPixelOfflineDQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
