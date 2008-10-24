@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2008/04/22 17:17:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/06/19 15:44:48 $
+ *  $Revision: 1.11 $
  *  \author J. Mans - UMD
  */
 
@@ -111,6 +111,11 @@ class HcalHTRData {
   unsigned int readoutVMECrateId() const;
   /** \brief Is this event a calibration-stream event? */
   bool isCalibrationStream() const;
+  /** \brief Is this event an unsuppresed event? */
+  bool isUnsuppressed() const;
+  /** \brief Was this channel passed as part of Mark&Pass ZS?*/
+  bool wasMarkAndPassZS(int fiber, int fiberchan) const;
+  
   /** \brief Is this event a pattern-ram event? */
   bool isPatternRAMEvent() const;
   /** \brief Is this event a histogram event? (do not call standard
@@ -128,10 +133,12 @@ class HcalHTRData {
   /** \brief Get the errors word */
   inline unsigned int getErrorsWord() const { 
     return m_rawConst[2]&0xFFFF; }
-  /** \brief Get the number of daq data samples when not zero-suppressed */
+  /** \brief Get the total number of precision data 16-bit words */
+  int getNPrecisionWords() const;
+  /** \brief Get the number of daq data samples per channel when not zero-suppressed */
   int getNDD() const;
   /** \brief Get the number of trigger data samples when not
-      zero-suppressed */
+      zero-suppressed (not available after FW 4)*/
   int getNTP() const;
   /** \brief Get the number of presamples in daq data */
   int getNPS() const;
@@ -175,6 +182,8 @@ class HcalHTRData {
   inline unsigned int getFib8OrbMsgBCN() const {
   return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-5]&0xFFF);
 }
+
+
 
  /** \brief Get the HTR Ext Header words*/
   inline unsigned int getExtHdr1() const { 

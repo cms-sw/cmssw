@@ -81,9 +81,15 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       continue;
     }
     // check
+    if (dccHeader->getSpigotCRCError(spigot)) {
+      if (!silent) 
+	edm::LogWarning("Invalid Data") << "CRC Error on HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+      report.countSpigotFormatError();
+      continue;
+    }  
     if (!htr.check()) {
       if (!silent) 
-edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+	edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       report.countSpigotFormatError();
       continue;
     }  

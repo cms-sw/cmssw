@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2008/04/22 17:17:25 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/06/19 15:44:48 $
+ *  $Revision: 1.9 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -302,6 +302,17 @@ unsigned int HcalHTRData::readoutVMECrateId() const{
 bool HcalHTRData::isCalibrationStream() const {
   return (m_formatVersion==-1)?(false):(m_rawConst[2]&0x4000);
 }
+bool HcalHTRData::isUnsuppressed() const {
+  return (m_formatVersion<4)?(false):(m_rawConst[6]&0x8000);
+}
+bool HcalHTRData::wasMarkAndPassZS(int fiber, int fiberchan) const {
+  if (fiber<1 || fiber>8 || fiberchan<0 || fiberchan>2) return false;
+  if (!isUnsuppressed() || m_formatVersion<5) return false;
+  unsigned short val=(fiber<5)?(m_rawConst[m_rawLength-12]):(m_rawConst[m_rawLength-11]);
+  int shift=(((fiber-1)%4)*3)+fiberchan;
+  return ((val>>shift)&0x1)!=0;
+} 
+
 bool HcalHTRData::isPatternRAMEvent() const {
   return (m_formatVersion==-1)?(false):(m_rawConst[2]&0x1000);
 }
@@ -312,7 +323,13 @@ int HcalHTRData::getNDD() const {
   return (m_formatVersion==-1)?(m_rawConst[m_rawLength-4]>>8):(m_rawConst[m_rawLength-4]>>11);
 }
 int HcalHTRData::getNTP() const {
-  return (m_formatVersion==-1)?(m_rawConst[m_rawLength-4]&0xFF):(m_rawConst[m_rawLength-4]>>11);
+  int retval=-1;
+  if (m_formatVersion==-1) retval=m_rawConst[m_rawLength-4]&0xFF;
+  else if (m_formatVersion<3) retval=m_rawConst[m_rawLength-4]>>11;
+  return retval;
+}
+int HcalHTRData::getNPrecisionWords() const {
+  return (m_formatVersion==-1)?(m_rawConst[m_rawLength-4]&0xFF):(m_rawConst[m_rawLength-4]&0x7FF);
 }
 int HcalHTRData::getNPS() const {
   return (m_formatVersion==-1)?(0):((m_rawConst[5]>>3)&0x1F);
