@@ -20,6 +20,7 @@
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
@@ -180,6 +181,13 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
       toBeFitted.push_back(tsk1);
       toBeFitted.push_back(tsk2);
 
+      // 
+      TwoTrackMinimumDistance md;
+      md.calculate  (  tsk1.initialFreeState(),  tsk2.initialFreeState() );
+      float minAppDist = md.distance(); 
+ 
+
+
       //      std::cout << " Before vertex " << std::endl;
       reco::Vertex theConversionVertex = (reco::Vertex) theVertexFinder_->run(toBeFitted);
       //std::cout << " After vertex " << std::endl;
@@ -198,6 +206,12 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 	trkRefs.push_back(trk1);
 	trkRefs.push_back(trk2);
 
+	std::vector<math::XYZVector> trackPin;
+	std::vector<math::XYZVector> trackPout;
+        trackPin.push_back( trk1->innerMomentum());
+        trackPin.push_back( trk2->innerMomentum());
+        trackPout.push_back( trk1->outerMomentum());
+        trackPout.push_back( trk2->outerMomentum());
 
 	//	std::cout << " Before impact finder " << std::endl;
 	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterBarrelHandle);
@@ -207,7 +221,8 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 	  trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterEndcapHandle);
 	}
 
-	reco::Conversion newCandidate(scRefs, trkRefs, trkPositionAtEcal, theConversionVertex, clusterRefs);
+
+	reco::Conversion  newCandidate(scRefs,  trkRefs,  trkPositionAtEcal, theConversionVertex, clusterRefs,  minAppDist, trackPin, trackPout );
 
 	// Check this candidate is already in the collection.
 	// This is checking that two tracks in a conversion candidate are identicial.

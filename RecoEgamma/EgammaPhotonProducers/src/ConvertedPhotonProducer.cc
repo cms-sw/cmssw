@@ -396,7 +396,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 
 
 	
-	reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trackPin, trackPout, trkPositionAtEcal, theConversionVertex, minAppDist, matchingBC);
+	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout );
 	outputConvPhotonCollection.push_back(newCandidate);
 	
 	

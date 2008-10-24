@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.4 2008/09/29 22:17:03 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.1 2008/10/02 12:19:32 nancy Exp $
 //
 //
 
@@ -369,6 +369,10 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
    reco::VertexCollection vertexs;
    std::vector<bool> isPaired;
    isPaired.assign(allTracks.size(), false);
+   std::vector<math::XYZVector> trackPin;
+   std::vector<math::XYZVector> trackPout;
+   float minAppDist=-99.; // dummy
+
    ///for( std::vector<edm::Ref<reco::TrackCollection> >::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
    for( reco::TrackRefVector::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
        //Level 1 loop, in all tracks matched with ECAL
@@ -445,11 +449,18 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	       scPtrVec.push_back(trackMatchedBC[right_index]);
 	   }
 
+
+	   trackPin.push_back((*ll)->innerMomentum());
+	   trackPin.push_back(right->innerMomentum());
+	   trackPout.push_back((*ll)->outerMomentum());
+	   trackPout.push_back(right->outerMomentum());
+
+
 	   //TODO: currently, scPtrVec is assigned as matching BC; no Kalman vertex fit, so theConversionVertex validity is false by default
 	   //      for first track (called left), trkPositionAtEcal and matchingBC must be valid
 	   //      for second track (called right), trkPositionAtEcal and matchingBC is not necessary valid
 	   //      so, BE CAREFUL check number of elements before reading them out
-	   reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
+	   reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout );
 	   outputConvPhotonCollection.push_back(newCandidate);
 
 	   found_right = true;
@@ -471,7 +482,7 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	   matchingBC.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
 	   scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
 
-	   reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
+	   reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackPin, trackPout );
 	   outputConvPhotonCollection.push_back(newCandidate);
 
 	   isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
