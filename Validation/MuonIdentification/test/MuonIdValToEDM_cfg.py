@@ -11,6 +11,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:/tmp/jribnik/bah.root")
 )
 
+process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.Geometry_cff import")
+
 process.load("Validation.MuonIdentification.muonIdVal_cff")
 process.muonIdVal.makeEnergyPlots = cms.untracked.bool(True)
 process.muonIdVal.makeIsoPlots = cms.untracked.bool(True)
