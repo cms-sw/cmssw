@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/10/16 09:30:32 $
- * $Revision: 1.22 $
+ * $Date: 2008/10/20 10:15:26 $
+ * $Revision: 1.23 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -137,6 +137,9 @@ private:
   bool doNoiseOccupancies;
   bool tpMode;
   bool filterSyncNoise;
+  
+  std::map<DTChamberId, int> nSynchNoiseEvents;
+
 };
 
 #endif

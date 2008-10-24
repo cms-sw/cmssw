@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/16 09:30:32 $
- * $Revision: 1.49 $
+ * $Date: 2008/10/20 10:15:26 $
+ * $Revision: 1.50 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -379,7 +379,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
     (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   } else if(folder == "SynchNoise") {
     dbe->setCurrentFolder(topFolder() + "SynchNoise");
-    string histoTitle = "# of Syncronous Noisy events WHEEL: "+wheel.str();
+    string histoTitle = "Event rate of Syncronous Noisy events WHEEL: "+wheel.str();
     (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
@@ -446,8 +446,10 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     for (map<DTChamberId,int>::iterator iter = hitMap.begin(); iter != hitMap.end(); iter++) {
       if((iter->second) > maxTDCHits) { 
 	syncNoisyChambers.insert(iter->first);
+	nSynchNoiseEvents[iter->first]++;// FIXME check and optimize
 	// FIXME: log noisy event in this chamber
-	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->Fill((*iter).first.sector(),(*iter).first.station()); 
+	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
+									     (double)nSynchNoiseEvents[iter->first]/(double)nevents); 
       }
     }
     
