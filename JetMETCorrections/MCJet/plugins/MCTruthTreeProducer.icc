@@ -32,7 +32,7 @@ MCTruthTreeProducer<Jet>::MCTruthTreeProducer(edm::ParameterSet const& cfg)
 {
   jets_          = cfg.getParameter<std::string> ("jets");
   genjets_       = cfg.getParameter<std::string> ("genjets");
-  histogramFile_ = cfg.getParameter<std::string>("histogramFile");
+  histogramFile_ = cfg.getParameter<std::string> ("histogramFile");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
@@ -40,9 +40,10 @@ void MCTruthTreeProducer<Jet>::beginJob(EventSetup const& iSetup)
 {
   m_file_        = new TFile(histogramFile_.c_str(),"RECREATE");
   mcTruthTree_   = new TTree("mcTruthTree","mcTruthTree");
-  
+
   mcTruthTree_->Branch("ptCalo",     &ptCalo_,     "ptCalo_/F");
   mcTruthTree_->Branch("ptGen",      &ptGen_,      "ptGen_/F");
+  mcTruthTree_->Branch("ptHat",      &ptHat_,      "ptHat_/F");
   mcTruthTree_->Branch("etaCalo",    &etaCalo_,    "etaCalo_/F");
   mcTruthTree_->Branch("etaGen",     &etaGen_,     "etaGen_/F");
   mcTruthTree_->Branch("phiCalo",    &phiCalo_,    "phiCalo_/F");
@@ -68,12 +69,15 @@ void MCTruthTreeProducer<Jet>::analyze(edm::Event const& event, edm::EventSetup 
 { 
   edm::Handle<GenJetCollection> genjets;
   edm::Handle<JetCollection> jets;
+  edm::Handle<double> genEventScale;
   typename JetCollection::const_iterator i_jet,i_matched;
   GenJetCollection::const_iterator i_genjet;
   event.getByLabel (genjets_,genjets);
   event.getByLabel (jets_,jets);
+  event.getByLabel("genEventScale",genEventScale);
   float rr;  
   int njet(0);
+  ptHat_ = *genEventScale;
   if (jets->size()>0 && genjets->size()>0)
     {
       for (i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++)

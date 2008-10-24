@@ -27,7 +27,7 @@ class MCTruthTreeProducer : public edm::EDAnalyzer
     std::string genjets_;
     TFile* m_file_;
     TTree* mcTruthTree_;
-    float ptCalo_,ptGen_,dR_,etaCalo_,etaGen_,phiCalo_,phiGen_;
+    float ptCalo_,ptGen_,ptHat_,dR_,etaCalo_,etaGen_,phiCalo_,phiGen_;
     int rank_;
 };
 }
