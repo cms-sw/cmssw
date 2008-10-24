@@ -40,6 +40,7 @@
 #include "TH1F.h"
 #include <vector>
 
+
 // Include DQM core
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -78,7 +79,11 @@ private:
 
   // Reconstructed product of interest
   std::string TauProducer_;
-  std::vector<std::string> TauProducerDiscriminators_; 
+
+  // std::vector<std::string> TauProducerDiscriminators_; 
+  // std::vector<double> TauDiscriminatorCuts_;
+
+  std::vector< edm::ParameterSet > discriminators_;
 
   // CMSSW version
 
@@ -90,7 +95,6 @@ private:
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
   std::map<std::string,  MonitorElement *> energyTauVisibleMap;
   
-
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus
   // Number of PFTau Candidates with a leading charged hadron in it (within a cone of 0.1 avound the jet axis and a minimum pt of 6 GeV)

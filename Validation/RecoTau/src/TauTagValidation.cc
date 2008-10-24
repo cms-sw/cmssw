@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.11 2008/10/08 09:46:45 vasquez Exp $
+// $Id: TauTagValidation.cc,v 1.1 2008/10/17 10:08:30 vasquez Exp $
 //
 //
 // user include files
@@ -48,7 +48,13 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   TauProducer_ = iConfig.getParameter<string>("TauProducer");
 
   // The vector of Tau Discriminators to be monitored
-  TauProducerDiscriminators_ = iConfig.getUntrackedParameter<std::vector<string> >("TauProducerDiscriminators");
+  // TauProducerDiscriminators_ = iConfig.getUntrackedParameter<std::vector<string> >("TauProducerDiscriminators");
+  
+  // The cut on the Discriminators
+  //  TauDiscriminatorCuts_ = iConfig.getUntrackedParameter<std::vector<double> > ("TauDiscriminatorCuts");
+
+  // Get the discriminators and their cuts
+  discriminators_ = iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ); 
 
   //  cout << " RefCollection: " << refCollection_.label() << " "<< refCollection_.instance() << endl;
   
@@ -103,9 +109,8 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
     energyTauVisibleMap.insert( std::make_pair(refCollection_.instance(),energyTemp));
 
     // Number of Tau Candidates matched to MC Taus    
-    
 
-    dbeTau->setCurrentFolder("RecoTauV/" + TauProducer_ + "Matched_" + TauProducer_);
+    dbeTau->setCurrentFolder("RecoTauV/"+TauProducer_ + "Matched_" + TauProducer_);
 
     ptTemp    =  dbeTau->book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", 75, 0., 150.);
     etaTemp   =  dbeTau->book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", 60, -3.0, 3.0 );
@@ -117,75 +122,75 @@ void TauTagValidation::beginJob(const edm::EventSetup& iConfig)
     phiTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,phiTemp));
     energyTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,energyTemp));  
 
-    for ( std::vector<string>::iterator it = TauProducerDiscriminators_.begin(); it!= TauProducerDiscriminators_.end(); it++)
+    for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
       {
-	dbeTau->setCurrentFolder("RecoTauV/" + (*it) + "_" + TauProducer_);
+	string DiscriminatorLabel = it->getParameter<string>("discriminator");
+
+	dbeTau->setCurrentFolder("RecoTauV/" + DiscriminatorLabel + "_" + TauProducer_);
 	
-	ptTemp    =  dbeTau->book1D((*it) + "_vs_ptTauVisible", (*it) +"_vs_ptTauVisible", 75, 0., 150.);
-	etaTemp   =  dbeTau->book1D((*it) + "_vs_etaTauVisible", (*it) + "_vs_etaTauVisible", 60, -3.0, 3.0 );
-	phiTemp   =  dbeTau->book1D((*it) + "_vs_phiTauVisible", (*it) + "_vs_phiTauVisible", 36, -180., 180.);
-	energyTemp =  dbeTau->book1D((*it) + "_vs_energyTauVisible", (*it) + "_vs_energyTauVisible", 45, 0., 450.0);
+	ptTemp    =  dbeTau->book1D(DiscriminatorLabel + "_vs_ptTauVisible", DiscriminatorLabel +"_vs_ptTauVisible", 75, 0., 150.);
+	etaTemp   =  dbeTau->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", 60, -3.0, 3.0 );
+	phiTemp   =  dbeTau->book1D(DiscriminatorLabel + "_vs_phiTauVisible", DiscriminatorLabel + "_vs_phiTauVisible", 36, -180., 180.);
+	energyTemp =  dbeTau->book1D(DiscriminatorLabel + "_vs_energyTauVisible", DiscriminatorLabel + "_vs_energyTauVisible", 45, 0., 450.0);
 	
 	
-	ptTauVisibleMap.insert( std::make_pair((*it),ptTemp));
-	etaTauVisibleMap.insert( std::make_pair((*it),etaTemp));
-	phiTauVisibleMap.insert( std::make_pair((*it),phiTemp));
-	energyTauVisibleMap.insert( std::make_pair((*it),energyTemp));
+	ptTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,ptTemp));
+	etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
+	phiTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,phiTemp));
+	energyTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,energyTemp));
 
 	//	if ( TauProducer_.find("pfRecoTau") != string::npos) 
 	// {
-
-
 	
-	if ( (*it).find("LeadingTrackPtCut") != string::npos){
+	if ( DiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
 	  if ( TauProducer_.find("pfRecoTau") != string::npos)
 	    {
-	      nPFJet_LeadingChargedHadron_ChargedHadronsSignal_	        =dbeTau->book1D((*it) + "_ChargedHadronsSignal",(*it) + "_ChargedHadronsSignal", 21, -0.5, 20.5);		 
-	      nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_    =dbeTau->book1D((*it) + "_ChargedHadronsIsolAnnulus",(*it) + "_ChargedHadronsIsolAnnulus", 21, -0.5, 20.5);	 
-	      nPFJet_LeadingChargedHadron_GammasSignal_		        =dbeTau->book1D((*it) + "_GammasSignal",(*it) + "_GammasSignal",21, -0.5, 20.5);				 
-	      nPFJet_LeadingChargedHadron_GammasIsolAnnulus_ 	        =dbeTau->book1D((*it) + "_GammasIsolAnnulus",(*it) + "_GammasIsolAnnulus",21, -0.5, 20.5);  		 
-	      nPFJet_LeadingChargedHadron_NeutralHadronsSignal_	        =dbeTau->book1D((*it) + "_NeutralHadronsSignal",(*it) + "_NeutralHadronsSignal",21, -0.5, 20.5);		 
-	      nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_	=dbeTau->book1D((*it) + "_NeutralHadronsIsolAnnulus",(*it) + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);   	      
+	      nPFJet_LeadingChargedHadron_ChargedHadronsSignal_	        =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);		 
+	      nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_    =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsIsolAnnulus",DiscriminatorLabel + "_ChargedHadronsIsolAnnulus", 21, -0.5, 20.5);	 
+	      nPFJet_LeadingChargedHadron_GammasSignal_		        =dbeTau->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);				 
+	      nPFJet_LeadingChargedHadron_GammasIsolAnnulus_ 	        =dbeTau->book1D(DiscriminatorLabel + "_GammasIsolAnnulus",DiscriminatorLabel + "_GammasIsolAnnulus",21, -0.5, 20.5);  		 
+	      nPFJet_LeadingChargedHadron_NeutralHadronsSignal_	        =dbeTau->book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);		 
+	      nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_	=dbeTau->book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);   	      
 	    }
 	  else if (TauProducer_.find("caloRecoTau") != string::npos)
 	    {
-	      nCaloJet_LeadingTrack_signalTracksInvariantMass_   =dbeTau->book1D((*it) + "_signalTracksInvariantMass",(*it) + "_signalTracksInvariantMass",  75, 0., 150.); 
-	      nCaloJet_LeadingTrack_signalTracks_		 =dbeTau->book1D((*it) + "_signalTracks", (*it) + "_signalTracks" , 15, -0.5, 14.5);         	     
-	      nCaloJet_LeadingTrack_isolationTracks_	    	 =dbeTau->book1D((*it) + "_isolationTracks", (*it) + "_isolationTracks",  15, -0.5, 14.5);      		 
-	      nCaloJet_LeadingTrack_isolationECALhitsEtSum_      =dbeTau->book1D((*it) + "_isolationECALhitsEtSum", (*it) + "_isolationECALhitsEtSum", 75, 0., 75.);       
+	      nCaloJet_LeadingTrack_signalTracksInvariantMass_   =dbeTau->book1D(DiscriminatorLabel + "_signalTracksInvariantMass",DiscriminatorLabel + "_signalTracksInvariantMass",  75, 0., 150.); 
+	      nCaloJet_LeadingTrack_signalTracks_		 =dbeTau->book1D(DiscriminatorLabel + "_signalTracks", DiscriminatorLabel + "_signalTracks" , 15, -0.5, 14.5);         	     
+	      nCaloJet_LeadingTrack_isolationTracks_	    	 =dbeTau->book1D(DiscriminatorLabel + "_isolationTracks", DiscriminatorLabel + "_isolationTracks",  15, -0.5, 14.5);      		 
+	      nCaloJet_LeadingTrack_isolationECALhitsEtSum_      =dbeTau->book1D(DiscriminatorLabel + "_isolationECALhitsEtSum", DiscriminatorLabel + "_isolationECALhitsEtSum", 75, 0., 75.);       
 	    }
 	}
 	
-	if ( (*it).find("ByIsolationLater") != string::npos ){
+	if ( DiscriminatorLabel.find("ByIsolationLater") != string::npos ){
 	  if ( TauProducer_.find("pfRecoTau") != string::npos)
 	    {
-	      nIsolated_NoChargedHadrons_ChargedHadronsSignal_	      =dbeTau->book1D((*it) + "_ChargedHadronsSignal",(*it) + "_ChargedHadronsSignal", 21, -0.5, 20.5);	 	      
-	      nIsolated_NoChargedHadrons_GammasSignal_		      =dbeTau->book1D((*it) + "_GammasSignal",(*it) + "_GammasSignal",21, -0.5, 20.5);			   
-	      nIsolated_NoChargedHadrons_GammasIsolAnnulus_           =dbeTau->book1D((*it) + "_GammasIsolAnnulus",(*it) + "_GammasIsolAnnulus",21, -0.5, 20.5);  		   
-	      nIsolated_NoChargedHadrons_NeutralHadronsSignal_	      =dbeTau->book1D((*it) + "_NeutralHadronsSignal",(*it) + "_NeutralHadronsSignal",21, -0.5, 20.5);	   
-	      nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus_   =dbeTau->book1D((*it) + "_NeutralHadronsIsolAnnulus",(*it) + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5); 
+	      nIsolated_NoChargedHadrons_ChargedHadronsSignal_	      =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);	 	      
+	      nIsolated_NoChargedHadrons_GammasSignal_		      =dbeTau->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);			   
+	      nIsolated_NoChargedHadrons_GammasIsolAnnulus_           =dbeTau->book1D(DiscriminatorLabel + "_GammasIsolAnnulus",DiscriminatorLabel + "_GammasIsolAnnulus",21, -0.5, 20.5);  		   
+	      nIsolated_NoChargedHadrons_NeutralHadronsSignal_	      =dbeTau->book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);	   
+	      nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus_   =dbeTau->book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5); 
 	    }
 	  else if (TauProducer_.find("caloRecoTau") != string::npos)
 	    {
-	      nTrackIsolated_isolationECALhitsEtSum_      =dbeTau->book1D((*it) + "_isolationECALhitsEtSum", (*it) + "_isolationECALhitsEtSum", 75, 0., 75.);	  
-	      nTrackIsolated_signalTracksInvariantMass_	  =dbeTau->book1D((*it) + "_signalTracksInvariantMass",(*it) + "_signalTracksInvariantMass", 75, 0., 150.);
-	      nTrackIsolated_signalTracks_		  =dbeTau->book1D((*it) + "_signalTracks",(*it) + "_signalTracks", 15, -0.5, 14.5);                        
+	      nTrackIsolated_isolationECALhitsEtSum_      =dbeTau->book1D(DiscriminatorLabel + "_isolationECALhitsEtSum", DiscriminatorLabel + "_isolationECALhitsEtSum", 75, 0., 75.);	  
+	      nTrackIsolated_signalTracksInvariantMass_	  =dbeTau->book1D(DiscriminatorLabel + "_signalTracksInvariantMass",DiscriminatorLabel + "_signalTracksInvariantMass", 75, 0., 150.);
+	      nTrackIsolated_signalTracks_		  =dbeTau->book1D(DiscriminatorLabel + "_signalTracks",DiscriminatorLabel + "_signalTracks", 15, -0.5, 14.5);                        
 	    }
 	}
 
-	if ( (*it).find("ByIsolation") != string::npos ){
+	if ( DiscriminatorLabel.find("ByIsolation") != string::npos ){
 	  if ( TauProducer_.find("pfRecoTau") != string::npos)
 	    {
-	      nIsolated_NoChargedNoGammas_ChargedHadronsSignal_        =dbeTau->book1D((*it) + "_ChargedHadronsSignal",(*it) + "_ChargedHadronsSignal", 21, -0.5, 20.5);	  
-	      nIsolated_NoChargedNoGammas_GammasSignal_                =dbeTau->book1D((*it) + "_GammasSignal",(*it) + "_GammasSignal",21, -0.5, 20.5);	 
-	      nIsolated_NoChargedNoGammas_NeutralHadronsSignal_	       =dbeTau->book1D((*it) + "_NeutralHadronsSignal",(*it) + "_NeutralHadronsSignal",21, -0.5, 20.5);	   	 
-	      nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_   =dbeTau->book1D((*it) + "_NeutralHadronsIsolAnnulus",(*it) + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5); 
+	      nIsolated_NoChargedNoGammas_ChargedHadronsSignal_        =dbeTau->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);	  
+	      nIsolated_NoChargedNoGammas_GammasSignal_                =dbeTau->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);	 
+	      nIsolated_NoChargedNoGammas_NeutralHadronsSignal_	       =dbeTau->book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);	   	 
+	      nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_   =dbeTau->book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5); 
 
 	    }
 	  else if (TauProducer_.find("caloRecoTau") != string::npos)
 	    {
-	      nEMIsolated_signalTracksInvariantMass_  =dbeTau->book1D((*it)+"_signalTracksInvariantMass",(*it)+"_signalTracksInvariantMass", 75, 0., 150.);
-	      nEMIsolated_signalTracks_               =dbeTau->book1D((*it)+"_signalTracks",(*it)+"_signalTracks", 15, -0.5, 14.5);    
+	      nEMIsolated_signalTracksInvariantMass_  =dbeTau->book1D(DiscriminatorLabel+"_signalTracksInvariantMass",DiscriminatorLabel+"_signalTracksInvariantMass", 75, 0., 150.);
+	      nEMIsolated_signalTracks_               =dbeTau->book1D(DiscriminatorLabel+"_signalTracks",DiscriminatorLabel+"_signalTracks", 15, -0.5, 14.5);    
 	    }
 	}
 
@@ -237,72 +242,70 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       Handle<PFTauCollection> thePFTauHandle;
       iEvent.getByLabel(TauProducer_,thePFTauHandle);
 
-      //      std::map<std::string, Handle<PFTauDiscriminator> >  discriminatorHandleMap;
-     
-
       for (LVCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
-  
+	
 	bool truePFTau = false;
 	double delta=TMath::Pi();
 	PFTauCollection::size_type  thePFTauClosest=thePFTauHandle->size();
 	
 	for (PFTauCollection::size_type iPFTau=0 ; iPFTau <  thePFTauHandle->size() ; iPFTau++) 
 	  {	
-	    for ( std::vector<string>::iterator it = TauProducerDiscriminators_.begin(); it!= TauProducerDiscriminators_.end(); it++)
-	      {
-		PFTauRef thePFTauSearch(thePFTauHandle,iPFTau);
+	    PFTauRef thePFTauSearch(thePFTauHandle,iPFTau);
 	    
-		LV PFTauDirection((*thePFTauSearch).px(), (*thePFTauSearch).py(), (*thePFTauSearch).pz(), (*thePFTauSearch).energy());
-		
-		if ( ROOT::Math::VectorUtil::DeltaR(PFTauDirection, (*RefJet)) < delta){
-		  delta =  ROOT::Math::VectorUtil::DeltaR(PFTauDirection, (*RefJet));
-		  thePFTauClosest = iPFTau;
-		}
-	      }
+	    LV PFTauDirection((*thePFTauSearch).px(), (*thePFTauSearch).py(), (*thePFTauSearch).pz(), (*thePFTauSearch).energy());
+	    
+	    if ( ROOT::Math::VectorUtil::DeltaR(PFTauDirection, (*RefJet)) < delta){
+	      delta =  ROOT::Math::VectorUtil::DeltaR(PFTauDirection, (*RefJet));
+	      thePFTauClosest = iPFTau;
+	    }
 	    if ( delta <  matching_criteria ) {
 	      truePFTau=true;
-	      //	      numTruePFTausCand++;
 	    }
 	  }
-
+	
 	if (truePFTau && (thePFTauClosest != thePFTauHandle->size())) {
-
+	  
 	  ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
 	  etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
 	  phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
 	  energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
-
+	  
 	  PFTauRef thePFTau(thePFTauHandle,thePFTauClosest);
 	  Handle<PFTauDiscriminator> currentDiscriminator;
 
-	  for ( std::vector<string>::iterator it = TauProducerDiscriminators_.begin(); it!= TauProducerDiscriminators_.end(); it++) {
-	    iEvent.getByLabel((*it), currentDiscriminator);
-
-	    if((*currentDiscriminator)[thePFTau] == 1)
-	      {
-		ptTauVisibleMap.find( (*it))->second->Fill(RefJet->pt());
-		etaTauVisibleMap.find( (*it) )->second->Fill(RefJet->eta());
-		phiTauVisibleMap.find( (*it) )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-		energyTauVisibleMap.find( (*it) )->second->Fill(RefJet->energy());
-
-		if ( (*it).find("LeadingTrackPtCut") != string::npos){
-		  nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
-		  nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
-		  nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
-		  nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size()); 
-		  nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
-		  nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+	  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
+	    {
+	      
+	      string currentDiscriminatorLabel = it->getParameter<string>("discriminator");	      
+	      iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+	      
+	      if((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut"))
+		{
+		  ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
+		  etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
+		  phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+		  energyTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->energy());
+		  
+		  if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
+		    nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
+		    nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
+		    nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
+		    nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size()); 
+		    nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
+		    nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+		  }
+		  
+		  else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
+		    nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());	 
+		    nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
+		    nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
+		    nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());		  
+		  }
 		}
-
-		else if ( (*it).find("ByIsolation") != string::npos ){
-		  nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());	 
-		  nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());		 
-		  nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());	 
-		  nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());		  
-		}
+	      else {
+		break; 
 	      }
-	    else { break; }
-	  }
+	    }
 	}
       }
     }
@@ -322,8 +325,6 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	
 	for (CaloTauCollection::size_type iCaloTau=0 ; iCaloTau <  theCaloTauHandle->size() ; iCaloTau++) 
 	  {	
-	    for ( std::vector<string>::iterator it = TauProducerDiscriminators_.begin(); it!= TauProducerDiscriminators_.end(); it++)
-	      {
 		CaloTauRef theCaloTauSearch(theCaloTauHandle,iCaloTau);
 	    
 		LV CaloTauDirection((*theCaloTauSearch).px(), (*theCaloTauSearch).py(), (*theCaloTauSearch).pz(), (*theCaloTauSearch).energy());
@@ -332,16 +333,15 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  delta =  ROOT::Math::VectorUtil::DeltaR(CaloTauDirection, (*RefJet));
 		  theCaloTauClosest = iCaloTau;
 		}
-	      }
+
 	    if ( delta <  matching_criteria ) {
 	      trueCaloTau=true;
-	      //	      numTruePFTausCand++;
 	    }
 	  }
 
 	if (trueCaloTau && (theCaloTauClosest != theCaloTauHandle->size())) {
 
-	  ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->eta());
+	  ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
 	  etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
 	  phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
 	  energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
@@ -349,30 +349,35 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  CaloTauRef theCaloTau(theCaloTauHandle,theCaloTauClosest);
 	  Handle<CaloTauDiscriminator> currentDiscriminator;
 
-	  for ( std::vector<string>::iterator it = TauProducerDiscriminators_.begin(); it!= TauProducerDiscriminators_.end(); it++) {
-	    iEvent.getByLabel((*it), currentDiscriminator);
+	  for (  std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
+	    {
 
+	      string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
+	      iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+	      
 
-	    if((*currentDiscriminator)[theCaloTau] == 1)
+	    if((*currentDiscriminator)[theCaloTau] >= it->getParameter<double>("selectionCut") )
 	      {
-		ptTauVisibleMap.find( (*it))->second->Fill(RefJet->pt());
-		etaTauVisibleMap.find( (*it) )->second->Fill(RefJet->eta());
-		phiTauVisibleMap.find( (*it) )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
-		energyTauVisibleMap.find( (*it) )->second->Fill(RefJet->energy());
+		ptTauVisibleMap.find( currentDiscriminatorLabel)->second->Fill(RefJet->pt());
+		etaTauVisibleMap.find( currentDiscriminatorLabel )->second->Fill(RefJet->eta());
+		phiTauVisibleMap.find( currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+		energyTauVisibleMap.find( currentDiscriminatorLabel )->second->Fill(RefJet->energy());
 
-		if ( (*it).find("LeadingTrackPtCut") != string::npos){
+		if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
 		  nCaloJet_LeadingTrack_signalTracksInvariantMass_->Fill((*theCaloTau).signalTracksInvariantMass());
 		  nCaloJet_LeadingTrack_signalTracks_->Fill((*theCaloTau).signalTracks().size()); 
 		  nCaloJet_LeadingTrack_isolationTracks_->Fill((*theCaloTau).isolationTracks().size());
 		  nCaloJet_LeadingTrack_isolationECALhitsEtSum_->Fill((*theCaloTau).isolationECALhitsEtSum());
 		}
 
-		else if ( (*it).find("ByIsolation") != string::npos ){
+		else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
 		  nEMIsolated_signalTracksInvariantMass_->Fill((*theCaloTau).signalTracksInvariantMass());
 		  nEMIsolated_signalTracks_->Fill((*theCaloTau).signalTracks().size());     
 		}
 	      }
-	    else { break; }
+	    else {
+	      break; 
+	    }
 	  }
 	}
       }
