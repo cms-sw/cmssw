@@ -136,7 +136,7 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      uint iTk1=0;
      uint maxItk1=L2toL3s_it1->second.size();
      for (; iTk1!=maxItk1; iTk1++){
-
+       bool thisL3Index1isDone=false;
        RecoChargedCandidateRef & cand1=L2toL3s_it1->second[iTk1];
        TrackRef tk1 = cand1->get<TrackRef>();
        // eta cut
@@ -273,14 +273,18 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	      
 	      //break anyway since a L3 track pair has been found matching the criteria
+	      thisL3Index1isDone=true;
 	      atLeastOnePair=true;
 	      break;
-	    }
+	    }//loop on the track of the second L2
 	    //break the loop if fast accept.
 	    if (atLeastOnePair && fast_Accept_) break;
        }//loop on the second L2
+
+       
        //break the loop if fast accept.
        if (atLeastOnePair && fast_Accept_) break;
+       if (thisL3Index1isDone) break;
      }//loop on tracks for first L2
      //break the loop if fast accept.
      if (atLeastOnePair && fast_Accept_) break;
