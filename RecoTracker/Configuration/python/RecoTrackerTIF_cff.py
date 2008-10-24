@@ -22,9 +22,10 @@ from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidatesTIF_cff 
 # RS track fit with material 
 from RecoTracker.TrackProducer.RSFinalFitWithMaterialTIF_cff import *
 # include track info
-from AnalysisAlgos.TrackInfoProducer.TrackInfoProducerTIF_cff import *
+#from AnalysisAlgos.TrackInfoProducer.TrackInfoProducerTIF_cff import *
 ckftracksTIF = cms.Sequence(combinatorialcosmicseedfinderTIF*ckfTrackCandidatesTIF*ctfWithMaterialTracksTIF)
 rstracksTIF = cms.Sequence(roadSearchSeedsTIF*roadSearchCloudsTIF*rsTrackCandidatesTIF*rsWithMaterialTracksTIF)
 cosmictracksTIF = cms.Sequence(cosmicseedfinderTIF*cosmictrackfinderTIF)
-tracksTIF = cms.Sequence(cosmictracksTIF*ckftracksTIF*rstracksTIF*trackinfoTIF)
+#tracksTIF = cms.Sequence(cosmictracksTIF*ckftracksTIF*rstracksTIF*trackinfoTIF)
+tracksTIF = cms.Sequence(cosmictracksTIF*ckftracksTIF*rstracksTIF)
 
