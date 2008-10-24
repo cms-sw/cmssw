@@ -15,11 +15,14 @@ import DQMOffline.Muon.muonAnalyzer_cfi
 muonStandAloneCosmicAnalyzer = DQMOffline.Muon.muonAnalyzer_cfi.muonAnalyzer.clone()
 #dedicated clients for offline dqm
 from DQMOffline.Muon.muonQualityTests_cff import *
+#analyzers from Validation subsystem
+from Validation.MuonIdentification.muonIdVal_cff import *
+muonIdVal.makeDQMPlots = True
 
 muonTrackCosmicAnalyzers = cms.Sequence(standAloneCosmicMuonsMonitors*MonitorTrackTKCosmicMuons*MonitorTrackGLBCosmicMuons)
 muonTrackCosmicAnalyzersHLT = cms.Sequence(MonitorTrackSTACosmicMuonsHLTDT*MonitorTrackSTACosmicMuonsHLTCSC)
 
-muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer)
+muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer*muonIdVal)
 ##muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*cscMonitor*muonCosmicAnalyzer)
 
 muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyzers")*dtSegmentsMonitor*rpcSource*muonCosmicMonitors)
