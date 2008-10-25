@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.20 2008/10/01 12:35:34 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.21 2008/10/25 17:17:35 fwyzard Exp $
 
 
 #include <memory>
@@ -193,11 +193,11 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
       for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
-        if (! muon->combinedMuon().isNull() and muon->caloCompatibility() > m_qualityCut)
-          leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
+        if (muon->isGlobalMuon())
+          leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
         else 
-        if (! muon->track().isNull() and muon->caloCompatibility() > m_qualityCut)
-          leptons.push_back(edm::RefToBase<reco::Track>( muon->track() ));
+        if (muon->isTrackerMuon() and muon->caloCompatibility() > m_qualityCut)
+          leptons.push_back(edm::RefToBase<reco::Track>( muon->innerTrack() ));
       }
       break;
     }
