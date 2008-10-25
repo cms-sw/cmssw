@@ -14,7 +14,7 @@ pf2pat = cms.Sequence(
     pfPileUpSequence + 
     pfElectronSequence +
     pfMuonSequence + 
-    pfJets + 
+    pfJetsSequence + 
     pfTauSequence +  
     pfTopProjection
     )

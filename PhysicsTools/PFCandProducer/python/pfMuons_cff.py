@@ -8,8 +8,7 @@ from PhysicsTools.PFCandProducer.pfNoMuons_cfi import *
 pfMuonSequence = cms.Sequence(
     pfAllMuons +
     pfMuonsPtGt5 +
-    pfMuons +
-    pfNoMuons
+    pfMuons
     )
 
 

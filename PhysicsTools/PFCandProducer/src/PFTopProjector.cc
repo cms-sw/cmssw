@@ -101,6 +101,15 @@ void PFTopProjector::produce(Event& iEvent,
   pfpat::fetchCollection(pfCandidates, 
 			 inputTagPFCandidates_, 
 			 iEvent );
+
+  if( !pfCandidates.isValid() ) {
+    std::ostringstream  err;
+    err<<"The collection of input PFCandidates must be supplied."<<endl
+       <<"It is now set to : "<<inputTagPFCandidates_<<endl;
+    edm::LogError("PFPAT")<<err.str();
+    throw cms::Exception( "MissingProduct", err.str());
+  }
+
   edm::ProductID pfCandidatesID = pfCandidates.id();
 
   // for each object in the following collections, the 

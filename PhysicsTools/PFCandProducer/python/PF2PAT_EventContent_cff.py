@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 
 PF2PATEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
+    'keep *_offlinePrimaryVerticesWithBS_*_*',
+    'keep *_particleFlow_*_*',
     'keep *_pfMET_*_*',
     'keep *_pfCandToVertexAssociator_*_*',
     'keep *_pfPileUp_*_*',
@@ -14,3 +16,10 @@ PF2PATEventContent = cms.PSet(
     'keep *_pfTopProjection_*_*'
     )
 )
+
+PF2PATStudiesEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+    'keep *_particleFlow_*_*'
+    )
+)
+
