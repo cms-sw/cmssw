@@ -3,27 +3,6 @@ def customise(process):
 
 # HCAL geometry
     
-    process.XMLIdealGeometryESSource.geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml', 
-        'Geometry/CMSCommonData/data/rotations.xml', 
-        'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-        'Geometry/CMSCommonData/data/cms.xml', 
-        'Geometry/CMSCommonData/data/cmsMother.xml', 
-        'Geometry/CMSCommonData/data/caloBase.xml', 
-        'Geometry/CMSCommonData/data/cmsCalo.xml', 
-        'Geometry/CMSCommonData/data/muonBase.xml', 
-        'Geometry/HcalCommonData/data/hcalrotations.xml', 
-        'Geometry/HcalCommonData/data/hcalalgo.xml', 
-        'Geometry/HcalCommonData/data/hcalbarrelalgo.xml', 
-        'Geometry/HcalCommonData/data/hcalendcapalgo.xml', 
-        'Geometry/HcalCommonData/data/hcalouteralgo.xml', 
-        'Geometry/HcalCommonData/data/hcalforwardalgo.xml', 
-        'Geometry/HcalCommonData/data/hcalforwardfibre.xml', 
-        'Geometry/HcalCommonData/data/hcalforwardmaterial.xml', 
-        'Geometry/HcalCommonData/data/hcalsens.xml', 
-        'Geometry/HcalSimData/data/CaloUtil.xml', 
-        'Geometry/HcalSimData/data/HcalProdCuts.xml', 
-        'Geometry/CMSCommonData/data/FieldParameters.xml')
-
     process.CaloGeometryBuilder.SelectedCalos = cms.vstring ('HCAL','TOWER')
 
 # extend the particle gun acceptance
