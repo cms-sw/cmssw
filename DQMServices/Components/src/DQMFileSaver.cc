@@ -47,11 +47,8 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run)
 void
 DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrite)
 {
-  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
-  for (size_t i = 0, e = systems.size(); i != e; ++i)
-    if (systems[i] != "Reference")
-      dbe_->save(fileBaseName_ + systems[i] + suffix + ".root",
-	         systems[i], "^(Reference/)?([^/]+)", rewrite,
+    dbe_->save(fileBaseName_ + subSystemName_ + suffix + ".root",
+	         "" , "^(Reference/)?([^/]+)", rewrite,
 	         (DQMStore::SaveReferenceTag) saveReference_,
 	         saveReferenceQMin_);
 }
@@ -62,6 +59,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     workflow_ (""),
     producer_ ("DQM"),
     dirName_ ("."),
+    subSystemName_ ("SubSystem"),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
@@ -173,6 +171,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   //   and run number to be overridden (for mc data).
   if (convention_ == Online)
   {
+    subSystemName_ = ps.getUntrackedParameter<std::string>("subSystemName", subSystemName_);
     getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
