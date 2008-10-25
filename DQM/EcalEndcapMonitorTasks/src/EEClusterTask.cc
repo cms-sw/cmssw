@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/08/05 15:37:25 $
- * $Revision: 1.52 $
+ * $Date: 2008/10/10 13:15:20 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -550,6 +550,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
 
   }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
