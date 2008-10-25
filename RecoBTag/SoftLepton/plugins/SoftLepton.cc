@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.19 2008/08/27 11:15:58 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.20 2008/10/01 12:35:34 fwyzard Exp $
 
 
 #include <memory>
@@ -179,15 +179,6 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       break;
     }
   } { // else
-    // look for vector<PixelMatchElectron>
-    Handle<reco::PixelMatchGsfElectronCollection> h_electrons;
-    event.getByLabel(m_leptons, h_electrons);
-    if (h_electrons.isValid()) {
-      for (reco::PixelMatchGsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
-        leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
-      break;
-    }
-  } { // else
     // look for vector<GsfElectron>
     Handle<reco::GsfElectronCollection> h_electrons;
     event.getByLabel(m_leptons, h_electrons);
@@ -220,7 +211,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       break;
     }
   } { // else
-    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::PixelMatchGsfElectronCollection\", \"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
   } } while (false);
 
   // output collections
