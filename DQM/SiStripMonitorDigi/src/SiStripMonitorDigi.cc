@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.31 2008/09/28 09:33:14 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.32 2008/10/13 12:33:32 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -61,6 +61,9 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   layerswitchnumdigisprofon = ParametersDigiProf.getParameter<bool>("layerswitchon");
   edm::ParameterSet ParametersDigiADC = conf_.getParameter<edm::ParameterSet>("TProfDigiADC");
   layerswitchdigiadcprofon = ParametersDigiProf.getParameter<bool>("layerswitchon");
+
+  edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
+  subdetswitchtotdigiprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
 
   edm::ParameterSet ParametersDetsOn =  conf_.getParameter<edm::ParameterSet>("detectorson");
   tibon = ParametersDetsOn.getParameter<bool>("tibon");
@@ -169,12 +172,25 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
         int32_t lnumber = det_layer_pair.second;
         std::vector<uint32_t> layerDetIds;
-        if (det_layer_pair.first == "TIB")      substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
-        else if (det_layer_pair.first == "TOB") substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
-        else if (det_layer_pair.first == "TID" && lnumber > 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
-        else if (det_layer_pair.first == "TID" && lnumber < 0) substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber > 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
-        else if (det_layer_pair.first == "TEC" && lnumber < 0) substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
+        if (det_layer_pair.first == "TIB") {
+          substructure.getTIBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0,0);
+          if (subdetswitchtotdigiprofon && SubDetMEsMap.find("TIB") == SubDetMEsMap.end()) createSubDetMEs("TIB");
+        } else if (det_layer_pair.first == "TOB") {
+          substructure.getTOBDetectors(SelectedDetIds,layerDetIds,lnumber,0,0);
+	  if (subdetswitchtotdigiprofon && SubDetMEsMap.find("TOB") == SubDetMEsMap.end()) createSubDetMEs("TOB");
+        } else if (det_layer_pair.first == "TID" && lnumber > 0) {
+          substructure.getTIDDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0);
+          if (subdetswitchtotdigiprofon && SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");
+        } else if (det_layer_pair.first == "TID" && lnumber < 0) {
+          substructure.getTIDDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0);
+          if (subdetswitchtotdigiprofon && SubDetMEsMap.find("TID") == SubDetMEsMap.end()) createSubDetMEs("TID");          
+        } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
+          substructure.getTECDetectors(SelectedDetIds,layerDetIds,2,abs(lnumber),0,0,0,0);
+          if (subdetswitchtotdigiprofon && SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
+        } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
+          substructure.getTECDetectors(SelectedDetIds,layerDetIds,1,abs(lnumber),0,0,0,0);
+          if (subdetswitchtotdigiprofon && SubDetMEsMap.find("TEC") == SubDetMEsMap.end()) createSubDetMEs("TEC");
+        }
 
 	int subdetid;
 	int subsubdetid;
@@ -205,6 +221,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   runNb   = iEvent.id().run();
   //  eventNb = iEvent.id().event();
   eventNb++;
+  float iOrbit = iEvent.orbitNumber()/11223.0;
 
   // get all digi collections
   //edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
@@ -220,6 +237,12 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     
     if (!digi_detsetvektor.isValid()) continue; 
     
+    int nTotDigiTIB = 0; 
+    int nTotDigiTOB = 0;
+    int nTotDigiTEC = 0;
+    int nTotDigiTID = 0;
+
+
     for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
 	 iterLayer != LayerDetMap.end(); iterLayer++) {
 
@@ -274,8 +297,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  (local_modmes.NumberOfDigis)->Fill(static_cast<float>(digi_detset.size()));
         
         ndigi_layer += digi_detset.size();
+
 	if (layerswitchnumdigisprofon) {
-	  //	  if (layer_label.find("TOB") != std::string::npos) std::cout  << detid << " " << iDet << " " << digi_detset.size() << std::endl;
           local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,digi_detset.size()*1.0);
         }
 	
@@ -348,10 +371,24 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	fillME(local_layermes.LayerADCsCoolestStrip ,smallest_adc_layer);
 	if (createTrendMEs) fillTrend(local_layermes.LayerADCsCoolestStripTrend,smallest_adc_layer);
       }
+
+      if (layer_label.find("TIB") != std::string::npos)      nTotDigiTIB += ndigi_layer;
+      else if (layer_label.find("TOB") != std::string::npos) nTotDigiTOB += ndigi_layer;
+      else if (layer_label.find("TEC") != std::string::npos) nTotDigiTEC += ndigi_layer;        
+      else if (layer_label.find("TID") != std::string::npos) nTotDigiTID += ndigi_layer;        
     }
-
+    if (subdetswitchtotdigiprofon) {
+      for (std::map<std::string, MonitorElement*>::iterator it = SubDetMEsMap.begin();
+	   it != SubDetMEsMap.end(); it++) {
+	MonitorElement* me = it->second;
+	if (!me) continue;
+	if (it->first == "TIB") me->Fill(iOrbit,nTotDigiTIB);
+	else if (it->first == "TOB") me->Fill(iOrbit,nTotDigiTOB);
+	else if (it->first == "TID") me->Fill(iOrbit,nTotDigiTID);
+	else if (it->first == "TEC") me->Fill(iOrbit,nTotDigiTEC);      
+      }
+    }    
   } //end of loop over digi producers (ZeroSuppressed, VirginRaw, ProcessedRaw, ScopeMode)
-
 }//end of method analyze
 
 
@@ -623,7 +660,27 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
   }
 
 }
-
+//
+// -- Create SubDetector MEs
+//
+void SiStripMonitorDigi::createSubDetMEs(std::string label) {
+  edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
+  std::string HistoName;
+  dqmStore_->cd("SiStrip/MechanicalView/"+label);
+  HistoName = "TotalNumberOfDigiProfile__" + label;
+  MonitorElement* me = dqmStore_->bookProfile(HistoName,HistoName,
+					      Parameters.getParameter<int32_t>("Nbins"),
+					      Parameters.getParameter<double>("xmin"),
+					      Parameters.getParameter<double>("xmax"),
+					      100, //that parameter should not be there !?
+					      Parameters.getParameter<double>("ymin"),
+					      Parameters.getParameter<double>("ymax"),
+					      "" );
+  if (!me) return;
+  me->setAxisTitle("Orbit Seconds",1);
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
+  SubDetMEsMap.insert( std::make_pair(label, me));
+}
 //-------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::getLayerLabel(uint32_t detid, std::string& label, int& subdetid, int& subsubdetid) {
   StripSubdetector subdet(detid);

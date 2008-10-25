@@ -6,11 +6,10 @@ process = cms.Process("MonitorDigiRealData")
 # Event Source
 #--------------------------
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0029CA89-9B71-DD11-8B56-001617C3B6FE.root',
-                                      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/02162C6D-9E71-DD11-B740-0016177CA7A0.root',
-                                      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0279F81F-B771-DD11-AD2D-000423D99EEE.root',
-                                      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0287A430-B071-DD11-9A02-001617E30CD4.root')
-
+    fileNames = cms.untracked.vstring(
+      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/2A8E332E-769F-DD11-8E22-001617DBD224.root',
+      '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/993/4A64178D-799F-DD11-9C47-000423D996B4.root'
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -43,7 +42,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.GlobalTag.globaltag = "CRAFT_V3P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------

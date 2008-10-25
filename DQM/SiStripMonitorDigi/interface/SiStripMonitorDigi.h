@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.11 2008/09/16 08:22:14 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.12 2008/09/28 09:33:13 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -56,6 +56,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
  	
   };
 
+
  private:
   void createMEs(const edm::EventSetup& es);
   void ResetModuleMEs(uint32_t idet);
@@ -73,6 +74,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   void createModuleMEs(ModMEs& mod_single, uint32_t detid);
   void createLayerMEs(std::string label, int ndet);
+  void createSubDetMEs(std::string label);
   void getLayerLabel(uint32_t detid, std::string& label, int& subdetid, int& subsubdetid);
       
 
@@ -86,6 +88,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   std::map<std::string, std::vector< uint32_t > > LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
+  std::map<std::string, MonitorElement* > SubDetMEsMap;
        
   edm::ParameterSet Parameters;
   
@@ -113,6 +116,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool moduleswitchadccooleston;
   bool moduleswitchdigiadcson;
   bool moduleswitchstripoccupancyon;
+  bool subdetswitchtotdigiprofon;
+
   bool Mod_On_;
 
   bool tibon;

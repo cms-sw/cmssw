@@ -60,6 +60,15 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         moduleswitchon = cms.bool(False)        
     ),
 
+    TProfTotalNumberOfDigis = cms.PSet(
+        Nbins = cms.int32(600),
+        xmin = cms.double(0.0),
+        xmax = cms.double(1.0*60*60),
+        ymin = cms.double(0.0),
+        ymax = cms.double(1000000.0),
+        subdetswitchon = cms.bool(True)
+    ),
+
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
         UpdateMode = cms.int32(1),
