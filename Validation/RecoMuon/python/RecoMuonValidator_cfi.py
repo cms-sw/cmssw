@@ -21,62 +21,59 @@ recoMuonValidator = cms.EDFilter("RecoMuonValidator",
     #
     # Histogram dimensions     #
     #
-    nBinP = cms.untracked.uint32(50),
+    nBinP = cms.untracked.uint32(25),
     minP = cms.untracked.double(0.0),
     maxP = cms.untracked.double(200.0),
 
-    nBinPt = cms.untracked.uint32(50),
+    nBinPt = cms.untracked.uint32(25),
     minPt = cms.untracked.double(0.0),
     maxPt = cms.untracked.double(200.0),
 
     doAbsEta = cms.untracked.bool(True),
-    nBinEta = cms.untracked.uint32(50),
+    nBinEta = cms.untracked.uint32(25),
     minEta = cms.untracked.double(0.0),
     maxEta = cms.untracked.double(2.4),
 
-    nBinPhi = cms.untracked.uint32(50),
+    nBinPhi = cms.untracked.uint32(25),
 
     # Pull width     #
-    nBinPull = cms.untracked.uint32(50),
+    nBinPull = cms.untracked.uint32(25),
     wPull = cms.untracked.double(10.0),
 
-    nBinErr = cms.untracked.uint32(50),
+    nBinErr = cms.untracked.uint32(25),
 
     # |p| resolution     #
-    minErrP = cms.untracked.double(-0.1),
-    maxErrP = cms.untracked.double(0.1),
+    minErrP = cms.untracked.double(-0.2),
+    maxErrP = cms.untracked.double(0.2),
 
     # pT resolution     #
-    minErrPt = cms.untracked.double(-0.1),
-    maxErrPt = cms.untracked.double(0.1),
+    minErrPt = cms.untracked.double(-0.2),
+    maxErrPt = cms.untracked.double(0.2),
 
     # q/pT resolution     #
-    minErrQPt = cms.untracked.double(-10.0),
-    maxErrQPt = cms.untracked.double(10.0),
+    minErrQPt = cms.untracked.double(-5.0),
+    maxErrQPt = cms.untracked.double(5.0),
 
     # Eta resolution     #
-    minErrEta = cms.untracked.double(-0.01),
-    maxErrEta = cms.untracked.double(0.01),
+    minErrEta = cms.untracked.double(-0.02),
+    maxErrEta = cms.untracked.double(0.02),
 
     # Phi resolution     #
-    minErrPhi = cms.untracked.double(-0.003),
-    maxErrPhi = cms.untracked.double(0.003),
+    minErrPhi = cms.untracked.double(-0.01),
+    maxErrPhi = cms.untracked.double(0.01),
 
     # Dxy resolution     #
-    minErrDxy = cms.untracked.double(-0.01),
-    maxErrDxy = cms.untracked.double(0.01),
+    minErrDxy = cms.untracked.double(-0.1),
+    maxErrDxy = cms.untracked.double(0.1),
 
     # Dz resolution     #
-    minErrDz = cms.untracked.double(-0.01),
-    maxErrDz = cms.untracked.double(0.01),
+    minErrDz = cms.untracked.double(-0.1),
+    maxErrDz = cms.untracked.double(0.1),
 
     # Number of sim-reco associations     #
-    nAssoc = cms.untracked.uint32(50),
+    nAssoc = cms.untracked.uint32(10),
 
     # Number of sim,reco Tracks     #
-    nTrks = cms.untracked.uint32(50),
-
-    # Number of hits     #
-    nHits = cms.untracked.uint32(70)
+    nTrks = cms.untracked.uint32(50)
 )
 

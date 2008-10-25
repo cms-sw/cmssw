@@ -34,11 +34,11 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     min = cms.double(0),
     max = cms.double(2.5),
 
-    nintPhi = cms.int32(63),
+    nintPhi = cms.int32(25),
     minPhi = cms.double(-3.15),
     maxPhi = cms.double(3.15),
 
-    nintpT = cms.int32(300),
+    nintpT = cms.int32(25),
     minpT = cms.double(0.0),
     maxpT = cms.double(3100.0),
 

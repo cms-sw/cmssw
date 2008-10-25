@@ -54,7 +54,6 @@ struct HistoDimensions {
   double minErrDz, maxErrDz;
 
   unsigned int nTrks, nAssoc;
-  unsigned int nHits;
   unsigned int nDof;
 };
 
@@ -128,41 +127,45 @@ struct RecoMuonValidator::MuonME {
     hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
 
     // -- Number of Hits
-    hNHits_ = dqm->book1D("NHits", "Number of hits", hDim.nHits, 0, hDim.nHits);
+    const int nHits = 80;
+    hNHits_ = dqm->book1D("NHits", "Number of hits", nHits, 0, nHits);
     hNHits_vs_Pt_  = dqm->book2D("NHits_vs_Pt", "Number of hits vs p_{T}",
-                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, nHits/4, 0, nHits);
     hNHits_vs_Eta_ = dqm->book2D("NHits_vs_Eta", "Number of hits vs #eta",
-                                 hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+                                 hDim.nBinEta, hDim.minEta, hDim.maxEta, nHits/4, 0, nHits);
 
-    hNSimHits_ = dqm->book1D("NSimHits", "Number of simHits", hDim.nHits, 0, hDim.nHits);
+    hNSimHits_ = dqm->book1D("NSimHits", "Number of simHits", nHits, 0, nHits);
 
-    hNLostHits_ = dqm->book1D("NLostHits", "Number of Lost hits", hDim.nHits, 0, hDim.nHits);
+    const int nLostHits = 5;
+    hNLostHits_ = dqm->book1D("NLostHits", "Number of Lost hits", nLostHits, 0, nLostHits);
     hNLostHits_vs_Pt_  = dqm->book2D("NLostHits_vs_Pt", "Number of lost Hits vs p_{T}",
-                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nLostHits, 0, nLostHits);
     hNLostHits_vs_Eta_ = dqm->book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
-                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, nLostHits, 0, nLostHits);
 
-    hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", hDim.nHits, 0, hDim.nHits);
+    const int nTrackerHits = 40;
+    hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", nTrackerHits, 0, nTrackerHits);
     hNTrackerHits_vs_Pt_ = dqm->book2D("NTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
-                                       hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+                                       hDim.nBinPt, hDim.minPt, hDim.maxPt, nTrackerHits/4, 0, nTrackerHits);
     hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
-                                        hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+                                        hDim.nBinEta, hDim.minEta, hDim.maxEta, nTrackerHits/4, 0, nTrackerHits);
 
-    hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", hDim.nHits, 0, hDim.nHits);
+    const int nMuonHits = 40;
+    hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", nMuonHits, 0, nMuonHits);
     hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
-                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4, 0, nMuonHits);
     hNMuonHits_vs_Eta_ = dqm->book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
-                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, nMuonHits/4, 0, nMuonHits);
 
     hNDof_ = dqm->book1D("NDof", "Number of DoF", hDim.nDof, 0, hDim.nDof);
-    hChi2_ = dqm->book1D("Chi2", "#Chi^{2}", 200, 0, 200);
-    hChi2Norm_ = dqm->book1D("Chi2Norm", "Normalized #Chi^{2}", hDim.nBinErr, 0, 100);
+    hChi2_ = dqm->book1D("Chi2", "#Chi^{2}", hDim.nBinErr, 0, 200);
+    hChi2Norm_ = dqm->book1D("Chi2Norm", "Normalized #Chi^{2}", hDim.nBinErr, 0, 50);
     hChi2Prob_ = dqm->book1D("Chi2Prob", "Prob(#Chi^{2})", hDim.nBinErr, 0, 1);
 
     hNDof_vs_Eta_ = dqm->book2D("NDof_vs_Eta", "Number of DoF vs #eta",
-                                hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nDof, 0, hDim.nDof);
+                                hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0, hDim.nDof);
     hChi2_vs_Eta_ = dqm->book2D("Chi2_vs_Eta", "#Chi^{2} vs #eta",
-                                hDim.nBinEta, hDim.minEta, hDim.maxEta, 200, 0, 200);
+                                hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0, 200);
     hChi2Norm_vs_Eta_ = dqm->book2D("Chi2Norm_vs_Eta", "Normalized #Chi^{2} vs #eta",
                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0, 100);
     hChi2Prob_vs_Eta_ = dqm->book2D("Chi2Prob_vs_Eta", "Prob(#Chi^{2}) vs #eta",
@@ -382,7 +385,6 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
   hDim.nTrks = pset.getUntrackedParameter<unsigned int>("nTrks");
   hDim.nAssoc = pset.getUntrackedParameter<unsigned int>("nAssoc");
-  hDim.nHits = pset.getUntrackedParameter<unsigned int>("nHits");
   hDim.nDof = pset.getUntrackedParameter<unsigned int>("nDof", 55);
 
   // Labels for simulation and reconstruction tracks
@@ -437,10 +439,11 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hNSim_  = theDQM->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
   commonME_->hNMuon_ = theDQM->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
 
-  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", hDim.nHits, 0, hDim.nHits);
+  const int nHits = 40;
+  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", nHits, 0, nHits);
 
-  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", hDim.nHits, 0, hDim.nHits);
-  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", hDim.nHits, 0, hDim.nHits);
+  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits/4, 0, nHits);
+  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", nHits/4, 0, nHits);
 
   // - histograms on tracking variables
   theDQM->setCurrentFolder(subDir_+"/Trk");
