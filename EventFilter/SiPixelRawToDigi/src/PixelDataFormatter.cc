@@ -67,7 +67,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       new SiPixelFrameConverter(theCablingMap, fedId) : 0;
 
   // check CRC bit
-  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); trailer++; trailer--;
+  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
   bool CRC_OK = errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors);
   
   if(CRC_OK) {
@@ -83,11 +83,12 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
     // check trailers
     bool moreTrailers = true;
+    trailer++;
     while (moreTrailers) {
+      trailer--;
       LogTrace("")<<"TRAILER: " <<  print(*trailer);
       bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
       moreTrailers = trailerStatus;
-      trailer--;
     }
 
     // data words
