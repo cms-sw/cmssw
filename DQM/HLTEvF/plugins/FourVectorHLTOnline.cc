@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.1 2008/10/20 15:16:05 berryhil Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.2 2008/10/24 19:38:47 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -44,9 +44,7 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   }
   
   
-  dirname_="HLT/FourVectorHLTOnline" + 
-    iConfig.getParameter<std::string>("@module_label");
-  
+  dirname_="HLT/FourVectorHLTOnline";
   if (dbe_ != 0 ) {
     dbe_->setCurrentFolder(dirname_);
   }
