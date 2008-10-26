@@ -265,7 +265,7 @@ void HcalPedestalClient::getHistograms()
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
-      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate";
+      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
       ProblemPedestalsByDepth[i] = getAnyHisto(dummy2D, name.str(),process_,dbe_,debug_,cloneME_);
 
       if (ProblemPedestalsByDepth[i])
@@ -409,7 +409,7 @@ void HcalPedestalClient::resetAllME()
       // Reset arrays of histograms
 
       // Problem Pedestal Plots
-      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate";
+      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
       resetME(name.str().c_str(),dbe_);
       name.str("");
 
@@ -500,8 +500,13 @@ void HcalPedestalClient::resetAllME()
 
 void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 {
-  
-  cout << "Preparing HcalPedestalClient html output ..." << endl;
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  if (debug_) cout << "Preparing HcalPedestalClient html output ..." << endl;
+
   string client = "PedestalMonitor";
 
   ofstream htmlFile;
@@ -607,12 +612,23 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   htmlFile.close();
   htmlExpertOutput(runNo, htmlDir, htmlName);
+
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalPedestalClient HTMLOUTPUT  -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   return;
-}
+} //void HcalPedestalClient::htmlOutput(int runNo, ...) 
 
 
 void HcalPedestalClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName)
 {
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   if (debug_) 
     cout <<" <HcalPedestalClient::htmlExpertOutput>  Preparing Expert html output ..." <<endl;
   
@@ -661,11 +677,16 @@ ofstream htmlFile;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   gStyle->SetPalette(1); // set back to normal rainbow color
+  
+
+  // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
+  // remap so that HE depths are plotted consecutively
+  int mydepth[6]={0,1,4,5,2,3};
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,MeanMapByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,RMSMapByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,MeanMapByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,RMSMapByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -680,15 +701,15 @@ ofstream htmlFile;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,rawADCPedestalMean[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawADCPedestalRMS[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,rawADCPedestalMean_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawADCPedestalRMS_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawADCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -705,15 +726,15 @@ ofstream htmlFile;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subADCPedestalMean[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subADCPedestalRMS[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subADCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subADCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subADCPedestalMean_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subADCPedestalRMS_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subADCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subADCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -727,15 +748,15 @@ ofstream htmlFile;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,rawFCPedestalMean[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawFCPedestalRMS[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawFCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawFCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,rawFCPedestalMean_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,rawFCPedestalRMS_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawFCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,rawFCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -752,15 +773,15 @@ ofstream htmlFile;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subFCPedestalMean[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subFCPedestalRMS[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subFCPedestalMean[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subFCPedestalRMS[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,subFCPedestalMean_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,subFCPedestalRMS_1D[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subFCPedestalMean_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,subFCPedestalRMS_1D[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -793,8 +814,8 @@ ofstream htmlFile;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,ADC_WidthFromDBByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ADC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ADC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -811,8 +832,8 @@ ofstream htmlFile;
   for (int i=0;i<6;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,fC_PedestalFromDBByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,fC_WidthFromDBByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,fC_PedestalFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,fC_WidthFromDBByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -825,6 +846,12 @@ ofstream htmlFile;
   htmlFile << "</html> " << endl;
   
   htmlFile.close();
+
+  if (showTiming_)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalPedestalClient  HTMLEXPERTOUTPUT ->"<<cpu_timer.cpuTime()<<endl;
+    }
+
 } // void HcalPedestalClient::htmlExpertOutput(...)
 
 
@@ -848,7 +875,7 @@ void HcalPedestalClient::loadHistograms(TFile* infile)
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
-      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<"Problem Pedestal Rate";
+      name<<process_.c_str()<<"PedestalMonitor/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
       ProblemPedestalsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
 
