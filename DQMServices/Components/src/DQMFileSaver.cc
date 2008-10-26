@@ -1,5 +1,6 @@
 #include "DQMServices/Components/src/DQMFileSaver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -47,10 +48,29 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run)
 void
 DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrite)
 {
-    dbe_->save(fileBaseName_ + subSystemName_ + suffix + ".root",
+   std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
+
+   for (size_t i = 0, e = systems.size(); i != e; ++i) {
+     if (systems[i] != "Reference") {
+       dbe_->cd();
+       if (MonitorElement* me = dbe_->get(systems[i] + "/EventInfo/processName")){
+         dbe_->save(fileBaseName_ + me->getStringValue() + suffix + ".root",
 	         "" , "^(Reference/)?([^/]+)", rewrite,
 	         (DQMStore::SaveReferenceTag) saveReference_,
 	         saveReferenceQMin_);
+         return;
+       }
+     }
+   }
+
+   // if no EventInfo Folder is found, then store subsystem wise
+   for (size_t i = 0, e = systems.size(); i != e; ++i)
+     if (systems[i] != "Reference")
+         dbe_->save(fileBaseName_ + systems[i] + suffix + ".root",
+	         systems[i] , "^(Reference/)?([^/]+)", rewrite,
+	         (DQMStore::SaveReferenceTag) saveReference_,
+	         saveReferenceQMin_);
+
 }
 
 //--------------------------------------------------------
@@ -59,7 +79,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     workflow_ (""),
     producer_ ("DQM"),
     dirName_ ("."),
-    subSystemName_ ("SubSystem"),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
@@ -171,7 +190,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   //   and run number to be overridden (for mc data).
   if (convention_ == Online)
   {
-    subSystemName_ = ps.getUntrackedParameter<std::string>("subSystemName", subSystemName_);
     getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
