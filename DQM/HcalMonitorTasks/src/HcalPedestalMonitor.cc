@@ -87,7 +87,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
 
-      setupDepthHists2D(ProblemPedestalsByDepth, "Problem Pedestal Rate","");
+      setupDepthHists2D(ProblemPedestalsByDepth, " Problem Pedestal Rate","");
 
       m_dbe->setCurrentFolder(baseFolder_+"/adc/raw");
       setupDepthHists2D(rawADCPedestalMean, "Pedestal Values Map","ADC");
@@ -776,9 +776,10 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 	    {
 	      for (int iphi=(int)phiMin_;iphi<=(int)phiMax_;++iphi)
 		{
-		  HcalDetId hcal((HcalSubdetector)(subdet), ieta, iphi, depth);
 		  //if (!hcal.validDetId((HcalSubdetector)(subdet), ieta, iphi, depth)) continue; // implement once this is available in future version of HcalDetId.h
 		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, depth)) continue;
+		  HcalDetId hcal((HcalSubdetector)(subdet), ieta, iphi, depth);
+
 		  float ADC_ped=0;
 		  float ADC_width=0;
 		  float fC_ped=0;
@@ -798,6 +799,7 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 			  ADC_ped+=channelCoder_->adc(*shape_,
 						      (float)calibs_.pedestal(capid),
 						      capid);
+
 			}
 		      else
 			{
@@ -810,10 +812,18 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 			}
 		    }//capid loop
 
+		  // getWidth returns width^2; need to take square root
+		  // (Still need a good way to convert units)
+		  if (fVerbosity>1)
+		    {
+		      cout <<"<HcalPedestalMonitor::fillDBValues> HcalDet ID = "<<(HcalSubdetector)subdet<<": ("<<ieta<<", "<<iphi<<", "<<depth<<")"<<endl;
+		      cout <<"\tADC pedestal = "<<ADC_ped/4.<<" +/- "<<pow((double)ADC_width/4.,0.5)<<endl;
+		      cout <<"\tfC pedestal = "<<fC_ped/4.<<" +/- "<<pow((double)fC_width/4.,0.5)<<endl;
+		    }
 		  ADC_PedestalFromDB->Fill(ieta,iphi,ADC_ped/4.);
-		  ADC_WidthFromDB->Fill(ieta,iphi,ADC_width/4.);
+		  ADC_WidthFromDB->Fill(ieta,iphi,pow((double)ADC_width/4.,0.5));
 		  fC_PedestalFromDB->Fill(ieta,iphi,fC_ped/4.);
-		  fC_WidthFromDB->Fill(ieta,iphi,fC_width/4.);
+		  fC_WidthFromDB->Fill(ieta,iphi,pow((double)fC_width/4.,0.5));
 
 		  if (((HcalSubdetector)(subdet)==HcalEndcap) && depth<3) fill_offset=4;
 		  else fill_offset=0;

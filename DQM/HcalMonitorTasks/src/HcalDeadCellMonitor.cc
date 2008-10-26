@@ -43,9 +43,10 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   // Set checkNevents values
   deadmon_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents",checkNevents_);
   deadmon_checkNevents_occupancy_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents_occupancy",deadmon_checkNevents_);
-  deadmon_checkNevents_pedestal_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents_pedestal",deadmon_checkNevents_);
-  deadmon_checkNevents_neighbor_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents_neighbor",deadmon_checkNevents_);
-  
+  deadmon_checkNevents_pedestal_  = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents_pedestal" ,deadmon_checkNevents_);
+  deadmon_checkNevents_neighbor_  = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents_neighbor" ,deadmon_checkNevents_);
+  deadmon_checkNevents_energy_    = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents_energy"   ,deadmon_checkNevents_);
+ 
   // Set which dead cell checks will be performed
   deadmon_test_occupancy_ = ps.getUntrackedParameter<bool>("DeadCellMonitor_test_occupancy",true);
   deadmon_test_pedestal_ = ps.getUntrackedParameter<bool>("DeadCellMonitor_test_pedestal",true);
@@ -53,8 +54,11 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
   deadmon_minErrorFlag_ = ps.getUntrackedParameter<double>("DeadCellMonitor_minErrorFlag",0.0);
 
-  nsigma_ = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_Nsigma");
-
+  nsigma_ = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_Nsigma",-10);
+  HBnsigma_ = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HB_Nsigma",nsigma_);
+  HEnsigma_ = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HE_Nsigma",nsigma_);
+  HOnsigma_ = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HO_Nsigma",nsigma_);
+  HFnsigma_ = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HF_Nsigma",nsigma_);
 
   // Set initial event # to 0
   ievt_=0;
@@ -130,9 +134,14 @@ void HcalDeadCellMonitor::createMaps(const HcalDbService& cond)
       cpu_timer.reset(); cpu_timer.start();
     }
   
+  if (fVerbosity>0)
+    cout <<"<HcalDeadCellMonitor::createMaps>:  Making pedestal maps"<<endl;
   float ped=0;
   float width=0;
   HcalCalibrations calibs;
+  const HcalQIEShape* shape = cond.getHcalShape();
+
+  double myNsigma=0;
 
   for (int ieta=(int)etaMin_;ieta<=(int)etaMax_;++ieta)
     {
@@ -145,43 +154,63 @@ void HcalDeadCellMonitor::createMaps(const HcalDbService& cond)
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth))
 		    continue;
 		  HcalDetId hcal((HcalSubdetector)(subdet), ieta, iphi, depth);
-		   
+		  
+		  if (hcal.subdet()==HcalBarrel)
+		    myNsigma=HBnsigma_;
+		  else if (hcal.subdet()==HcalEndcap)
+		    myNsigma=HEnsigma_;
+		  else if (hcal.subdet()==HcalOuter)
+		    myNsigma=HOnsigma_;
+		  else if (hcal.subdet()==HcalForward)
+		    myNsigma=HFnsigma_;
+		  
 		  calibs=cond.getHcalCalibrations(hcal);
 		  const HcalPedestalWidth* pedw = cond.getPedestalWidth(hcal);
 		   
+		  ped=0.;
+		  width=0.;
+
 		  // loop over capids
 		  for (int capid=0;capid<4;++capid)
 		    {
-		      if (!doFCpeds_)
-			{
-			  // pedestals in ADC
-			  ped+=calibs.pedestal(capid);
-			  width+=pedw->getWidth(capid); // add in quadrature?  Make use of correlations?
-			}
-		      else
+		      if (doFCpeds_)
 			{
 			  // pedestals in fC
-			  HcalQIECoder* channelCoder=0;
-			  const HcalQIEShape* shape = cond.getHcalShape();
+			  const HcalQIECoder* channelCoder=cond.getHcalCoder(hcal);
+
 			  // Convert pedestals to ADC
 			  ped+=channelCoder->adc(*shape,
 						 (float)calibs.pedestal(capid),
 						 capid);
-			  
+
 			  // Okay, this definitely isn't right.  Need to figure out how to convert from fC to ADC properly
 			  // Right now, take width as half the difference between (ped+width)- (ped-width), converting each to ADC
+
 			  width+=0.5*(channelCoder->adc(*shape,
-							(float)pedw->getWidth(capid)+(float)calibs.pedestal(capid),
+							(float)calibs.pedestal(capid)+(float)pow((double)pedw->getWidth(capid),(double)0.5),
 							capid)
 				      - channelCoder->adc(*shape,
-							  (float)calibs.pedestal(capid),
+							  (float)calibs.pedestal(capid)-(float)pow((double)pedw->getWidth(capid),(double)0.5),
 							  capid));
-			} // else (pedestals in fC)
+			} // if (doFCpeds_) // (pedestals in fC)
+		      else
+			{
+			  // pedestals in ADC
+			  ped+=calibs.pedestal(capid);
+			  width+=pedw->getWidth(capid); // add in quadrature?  Make use of correlations?
+			} // else //pedestals in ADC
 		    } // for (int capid=0;capid<4;++capid)
-		  
+
+		  ped/=4.;  // pedestal value is average over capids
+		  if (doFCpeds_)
+		    width/=4.;
+		  else
+		    width=pow((double)width/4.,(double)0.5); // getWidth returns width^2
+
 		  pedestals_[hcal]=ped;
 		  widths_[hcal]=width;
-		  pedestal_thresholds_[hcal]=ped+nsigma_*width;
+		  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::createMaps>  Pedestal Value -- ID = "<<(HcalSubdetector)subdet<<"  ("<<ieta<<", "<<iphi<<", "<<depth<<"): "<<ped<<"; width = "<<width<<endl;
+		  pedestal_thresholds_[hcal]=ped+myNsigma*width;
 		} // for (int subdet=1,...)
 	    } // for (int depth=1;...)
 	} // for (int phi ...)
@@ -218,7 +247,7 @@ void HcalDeadCellMonitor::done()
           for (int d=0;d<6;++d)
             {
 	      binval=ProblemDeadCellsByDepth[d]->getBinContent(ieta,iphi);
-	      if (binval<deadmon_minErrorFlag_) continue;
+	      if (binval<=deadmon_minErrorFlag_) continue;
 
 	      // Set subdetector labels for output
 	      if (d<2) // HB/HF
@@ -285,7 +314,9 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  
+
+  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent> Processing event..."<<endl;
+
   if (deadmon_test_occupancy_ || deadmon_test_pedestal_)
     processEvent_digi(hbhedigi,hodigi,hfdigi,cond);
   
@@ -313,6 +344,8 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       cpu_timer.reset(); cpu_timer.start();
     }
 
+  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent_digi> Processing digi..."<<endl;
+
   ievt_++;
 
   // Variables used in pedestal check
@@ -329,6 +362,10 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
   HcalCalibrationWidths widths;
   HcalCalibrations calibs;
   const HcalQIEShape* shape=cond.getHcalShape();
+
+  // Loop over HBHE digis
+
+  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent_digi> Processing HBHE..."<<endl;
 
   for (HBHEDigiCollection::const_iterator j=hbhedigi.begin();
        j!=hbhedigi.end(); ++j)
@@ -353,6 +390,7 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       cond.makeHcalCalibrationWidth(digi.id(),&widths);
       calibs = cond.getHcalCalibrations(digi.id());
 
+      // Find digi time slice with maximum (pedestal-subtracted) ADC count
       for (int i=0;i<digi.size();++i)
 	{
 	  int thisCapid = digi.sample(i).capid();
@@ -381,6 +419,8 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 
 	} // for (int i=max(0,maxbin-1);...)      
 
+      // Compare ADCsum to minimum expected value (pedestal+nsigma)
+
       // Search for digi in map of pedestal+threshold values
       if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	{
@@ -389,10 +429,11 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	}
       else if (ADCsum==0)
 	belowpedestal[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
-
     } // for (HBHEDigiCollection...)
 
   // Loop over HO
+  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent_digi> Processing HO..."<<endl;
+
   for (HODigiCollection::const_iterator j=hodigi.begin();
        j!=hodigi.end(); ++j)
     {
@@ -457,7 +498,8 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 
   
   // Loop over HF
-  
+  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent_digi> Processing HF..."<<endl;
+
   for (HFDigiCollection::const_iterator j=hfdigi.begin();
        j!=hfdigi.end(); ++j)
     {
@@ -520,15 +562,38 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 
     } // for (HFDigiCollection...)
 
+  // Fill histograms 
+  if (ievt_%deadmon_checkNevents_occupancy_==0)
+    {
+    if (deadmon_test_occupancy_)
+      {
+	if (fVerbosity) cout <<"<HcalDeadCellMonitor::processEvent_digi> Filling DeadCell Occupancy plots"<<endl;
+	fillNevents_occupancy();
+      }
+    }
+
+  if (ievt_%deadmon_checkNevents_pedestal_==0)
+    {
+      if( deadmon_test_pedestal_)
+	{
+	  if (fVerbosity) cout <<"<HcalDeadCellMonitor::processEvent_digi> Filling DeadCell Pedestal plots"<<endl;
+	  fillNevents_pedestal();
+	}
+    }
+
+  // Fill problem cells
+  if (((ievt_%deadmon_checkNevents_occupancy_==0)&&deadmon_test_occupancy_)||
+      ((ievt_%deadmon_checkNevents_pedestal_ ==0)&&deadmon_test_pedestal_ )||
+      ((ievt_%deadmon_checkNevents_neighbor_ ==0)&&deadmon_test_neighbor_ )||
+      ((ievt_%deadmon_checkNevents_energy_   ==0)&&deadmon_test_energy_))
+    {
+      fillNevents_problemCells();
+    }
 
    if (showTiming)
     {
       cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor PROCESSEVENT_DIGI -> "<<cpu_timer.cpuTime()<<endl;
     }
-
-
-   if (ievt_%deadmon_checkNevents_occupancy_==0 && deadmon_test_occupancy_)
-     fillNevents_occupancy();
 
   return;
 } // void HcalDeadCellMonitor::processEvent_digi
@@ -538,10 +603,15 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 
 void HcalDeadCellMonitor::fillNevents_occupancy(void)
 {
+  // Fill Histograms showing digi cells with no occupancy
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
+
+  if (fVerbosity>0)
+    cout <<"<HcalDeadCellMonitor::fillNevents_occupancy> FILLING OCCUPANCY PLOTS"<<endl;
 
   int mydepth=0;
   int ieta=0;
@@ -563,7 +633,7 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 		    mydepth=depth+2;
 		  if (occupancy[eta][phi][mydepth]==0)
 		    {
-		      if (fVerbosity>0) cout <<"BAD DIGI = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
+		      if (fVerbosity>0) cout <<"DEAD CELL; NO OCCUPANCY = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
 		      if (subdet==2 && depth<2) // HE depth positions(0,1) found -- shift up to positions (4,5)
 			mydepth=depth+4;
 		      else
@@ -574,7 +644,8 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 			oldevts-=1;
 		      oldevts*=deadmon_checkNevents_occupancy_;
 		      int newevts=ievt_-oldevts;
-		      if (fVerbosity>0)
+		      if (newevts<0) newevts=0;
+		      if (fVerbosity>2)
 			{
 			  cout <<"\t MYDEPTH = "<<mydepth<<endl;
 			  cout <<"\t oldevents = "<<oldevts<<"  new = "<<newevts<<endl;
@@ -604,3 +675,151 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 } // void HcalDeadCellMonitor::fillNevents_occupancy(void)
 
 
+
+
+/* ----------------------------------- */
+
+void HcalDeadCellMonitor::fillNevents_pedestal(void)
+{
+  // Fill Histograms showing digi cells below pedestal values
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  if (fVerbosity>0)
+    cout <<"<HcalDeadCellMonitor::fillNevents_pedestal> FILLING OCCUPANCY PLOTS"<<endl;
+
+  int mydepth=0;
+  int ieta=0;
+  int iphi=0;
+  for (int eta=0;eta<(etaBins_-2);++eta)
+    {
+      ieta=eta-int((etaBins_-2)/2);
+      for (int phi=0;phi<72;++phi)
+        {
+	  iphi=phi+1;
+	  for (int depth=0;depth<4;++depth) // this is one unit less "true" depth (for indexing purposes)
+            {
+	      for (int subdet=1;subdet<=4;++subdet)
+		{
+		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		    continue;
+		  
+		  int oldevts=(ievt_/deadmon_checkNevents_pedestal_);
+		  if (ievt_%deadmon_checkNevents_pedestal_==0)
+		    oldevts-=1;
+		  oldevts*=deadmon_checkNevents_pedestal_;
+		  int newevts=ievt_-oldevts;
+		  if (newevts<0) newevts=0; // shouldn't happen
+		  //cout <<"GOOD  "<<subdet<<" ("<<eta<<", "<<phi<<", "<<mydepth<<") = "<<belowpedestal[eta][phi][mydepth]<<endl;
+		  mydepth=depth;
+		  if (subdet==4) // remember that HF's elements stored in depths (2,3), not (0,1)
+		    mydepth=depth+2;
+
+		  if (belowpedestal[eta][phi][mydepth]<(unsigned int)newevts)
+		    {
+		      belowpedestal[eta][phi][mydepth]=0;
+		      continue; // cells must be below pedestal threshold for all the full range 'newevts' to be considered dead
+		    }
+
+
+		  if (fVerbosity>0) cout <<"DEAD CELL; BELOW PEDESTAL THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
+		  if (subdet==2 && depth<2) // HE depth positions(0,1) found -- shift up to positions (4,5)
+		    mydepth=depth+4;
+		  else
+		    mydepth=depth; // switches back HF to its correct depth
+		  // no digi was found for the N events; set histogram error rate
+		  
+		  if (fVerbosity>0)
+		    {
+		      cout <<"\t MYDEPTH = "<<mydepth<<endl;
+		      cout <<"\t oldevents = "<<oldevts<<"  new = "<<newevts<<endl;
+		      cout <<"\t\t"<<(oldevts*BelowPedestalDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2)+newevts)*1./ievt_<<endl;
+		    }
+		  // BinContent starts at 1, not 0 (offset by 0)
+		  // Offset by another 1 due to empty bins at edges
+		  BelowPedestalDeadCellsByDepth[mydepth]->setBinContent( eta+2,phi+2,
+									 (oldevts*BelowPedestalDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2)+newevts)*1./ievt_);
+		  //reset counter
+		  belowpedestal[eta][phi][depth]=0;
+		} // for (int subdet=1;subdet<=4;++subdet)
+	      
+	    } // for (int depth=0;depth<4;++depth)
+	} // for (int phi=0;...)
+    } // for (int eta=0;...)
+  
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_BELOWPEDESTAL -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+  return;
+
+
+} // void HcalDeadCellMonitor::fillNevents_pedestal(void)
+
+
+void HcalDeadCellMonitor::fillNevents_problemCells(void)
+{
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  if (fVerbosity>0)
+    cout <<"<HcalDeadCellMonitor::fillNevents_problemCells> FILLING PROBLEM CELL PLOTS"<<endl;
+
+  int ieta=0;
+  int iphi=0;
+
+  double problemvalue=0;
+  double sumproblemvalue=0; // summed over all depths
+  for (int eta=0;eta<(etaBins_-2);++eta)
+    {
+      ieta=eta-int((etaBins_-2)/2);
+      for (int phi=0;phi<72;++phi)
+        {
+	  iphi=phi+1;
+	  sumproblemvalue=0;
+	  for (int mydepth=0;mydepth<6;++mydepth)
+	    {
+	      // total bad fraction is sum of fractions from individual tests
+	      // (eventually, do we want to be more careful about how we handle this, in case checkNevents is
+	      //  drastically different for the different tests?)
+	      problemvalue=0;
+	      if (deadmon_test_occupancy_)
+		{
+		  problemvalue+=UnoccupiedDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  sumproblemvalue+=UnoccupiedDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		}
+	      if (deadmon_test_pedestal_)
+		{
+		  problemvalue+=BelowPedestalDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  sumproblemvalue+=BelowPedestalDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		}
+	      if (deadmon_test_neighbor_)
+		{
+		  problemvalue+=BelowNeighborsDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  sumproblemvalue+=BelowNeighborsDeadCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		}
+	      if (deadmon_test_energy_)
+		{
+		  problemvalue+=BelowEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		  sumproblemvalue+=BelowEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2);
+		}
+	      problemvalue=min(1.,problemvalue);
+	      ProblemDeadCellsByDepth[mydepth]->setBinContent(eta+2,phi+2,problemvalue);
+	    } // for (int mydepth=0;mydepth<6;...)
+	  sumproblemvalue=min(1.,sumproblemvalue);
+	  ProblemDeadCells->setBinContent(eta+2,phi+2,sumproblemvalue);
+	} // loop on phi=0;phi<72
+    } // loop on eta=0; eta<(etaBins_-2)
+  
+  if (showTiming)
+    {
+      cpu_timer.stop();  cout <<"TIMER:: HcalDeadCellMonitor FILLNEVENTS_PROBLEMCELLS -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+} // void HcalDeadCellMonitor::fillNevents_problemCells(void)

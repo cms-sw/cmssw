@@ -67,11 +67,17 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_test_occupancy               = cms.untracked.bool(True),
                            DeadCellMonitor_test_neighbor                = cms.untracked.bool(True),
                            DeadCellMonitor_test_pedestal                = cms.untracked.bool(True),
+                           DeadCellMonitor_test_energy                  = cms.untracked.bool(True),
                            DeadCellMonitor_checkNevents                 = cms.untracked.int32(500),
                            DeadCellMonitor_checkNevents_occupancy       = cms.untracked.int32(500),
                            DeadCellMonitor_checkNevents_pedestal        = cms.untracked.int32(500),
                            DeadCellMonitor_checkNevents_neighbor        = cms.untracked.int32(500),
+                           DeadCellMonitor_checkNevents_energy          = cms.untracked.int32(500),
                            DeadCellMonitor_pedestal_Nsigma              = cms.untracked.double(0.),
+                           DeadCellMonitor_pedestal_HB_Nsigma           = cms.untracked.double(0.),
+                           DeadCellMonitor_pedestal_HE_Nsigma           = cms.untracked.double(0.),
+                           DeadCellMonitor_pedestal_HO_Nsigma           = cms.untracked.double(0.),
+                           DeadCellMonitor_pedestal_HF_Nsigma           = cms.untracked.double(0.),
                            DeadCellMonitor_minErrorFlag                 = cms.untracked.double(0.),
                            
                            HE_NADA_Ecell_cut = cms.untracked.double(0.0),
@@ -180,18 +186,35 @@ def setHcalTaskValues(process):
 
     # Insidious python-ness:  You need to make a copy of the process.minErrorFlag, etc. variables,
     # or future changes to PedestalMonitor_minErrorFlag will also change minErrorFlag!
+
+    # set minimum error value
     minErrorFlag = deepcopy(process.minErrorFlag)
     process.PedestalMonitor_minErrorFlag = minErrorFlag
     process.DeadCellMonitor_minErrorFlag = minErrorFlag
 
+    # set checkNevents
     checkNevents = deepcopy(process.checkNevents)
     process.PedestalMonitor_checkNevents = checkNevents
     process.DeadCellMonitor_checkNevents = checkNevents
     process.DeadCellMonitor_checkNevents_occupancy = checkNevents
     process.DeadCellMonitor_checkNevents_pedestal  = checkNevents
     process.DeadCellMonitor_checkNevents_neighbor  = checkNevents
+    process.DeadCellMonitor_checkNevents_energy    = checkNevents
 
+    # set pedestalsInFC
+    pedestalsInFC = deepcopy(process.pedestalsInFC)
+    process.PedestalMonitor_pedestalsInFC=pedestalsInFC
+    process.DeadCellMonitor_pedestalsInFC=pedestalsInFC
+
+    # set makeDiagnoticPlots
     makeDiagnosticPlots = deepcopy(process.MakeDiagnosticPlots)
     process.DeadCellMonitor_makeDiagnosticPlots = makeDiagnosticPlots
 
+    # Set HB/HE/HO/HF
+    nsigma = deepcopy(process.DeadCellMonitor_pedestal_Nsigma)
+    process.DeadCellMonitor_pedestal_HB_Nsigma           = nsigma
+    process.DeadCellMonitor_pedestal_HE_Nsigma           = nsigma
+    process.DeadCellMonitor_pedestal_HO_Nsigma           = nsigma
+    process.DeadCellMonitor_pedestal_HF_Nsigma           = nsigma
+                                                                                      
     return 

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/21 20:57:32 $
- * $Revision: 1.84 $
+ * $Date: 2008/10/24 13:10:08 $
+ * $Revision: 1.85 $
  * \author W Fisher
  *
 */
@@ -294,6 +294,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   // fill reference pedestals with database values
   if (pedMon_!=NULL)
     pedMon_->fillDBValues(*conditions_);
+  if (deadMon_!=NULL)
+    deadMon_->createMaps(*conditions_);
 
   return;
 } // HcalMonitorModule::beginJob(...)
@@ -386,7 +388,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
+  if (debug_>1) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
   // skip this event if we're prescaling...
   ievt_pre_++; // need to increment counter before calling prescale
@@ -785,20 +787,24 @@ bool HcalMonitorModule::prescale()
   bool updatePS = prescaleUpdate_>0;
 
   // If no prescales are set, keep the event
-  if(!evtPS && !lsPS && !timePS && !updatePS) return false;
-
+  if(!evtPS && !lsPS && !timePS && !updatePS)
+    {
+      return false;
+    }
   //check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
   //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
   // we can't just call (ievent_%prescaleEvt_) because ievent values not consecutive
   if (evtPS && (ievt_pre_%prescaleEvt_)!=0) evtPS = false;
-  if(timePS){
-    double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
-    if(elapsed<prescaleTime_){
-      timePS = false;  //timestamp veto
-      psTime_.vetoTime = psTime_.updateTime;
-    }
-  } //if (timePS)
+  if(timePS)
+    {
+      double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
+      if(elapsed<prescaleTime_){
+	timePS = false;  //timestamp veto
+	psTime_.vetoTime = psTime_.updateTime;
+      }
+    } //if (timePS)
+
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
   if (debug_>1) 

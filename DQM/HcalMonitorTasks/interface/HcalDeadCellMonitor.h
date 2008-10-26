@@ -10,8 +10,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/09/15 23:12:24 $
-  * $Revision: 1.16 $
+  * $Date: 2008/10/24 13:11:38 $
+  * $Revision: 1.17 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -53,6 +53,9 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void fillNevents_occupancy();
   void fillNevents_pedestal();
   void fillNevents_neighbor();
+  void fillNevents_energy();
+
+  void fillNevents_problemCells();
 
   bool doFCpeds_; //specify whether pedestals are in fC (if not, assume ADC)
   bool deadmon_makeDiagnostics_;
@@ -86,8 +89,10 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   std::vector<MonitorElement*>UnoccupiedDeadCellsByDepth;
   std::vector<MonitorElement*>BelowPedestalDeadCellsByDepth;
   double nsigma_;
+  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_;
   std::vector<MonitorElement*>BelowNeighborsDeadCellsByDepth;
-  std::vector<MonitorElement*>BelowEnergyThresholdCellsxByDepth;
+  std::vector<MonitorElement*>BelowEnergyThresholdCellsByDepth;
+
 
   // map of pedestals from database (in ADC)
   std::map<HcalDetId, float> pedestals_;
