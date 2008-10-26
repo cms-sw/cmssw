@@ -5,13 +5,25 @@
   <monitorable name="SiStrip/Tracks/TrackPhi_CKFTk"></monitorable>
   <monitorable name="SiStrip/Tracks/TrackEta_CKFTk"></monitorable>
 </layout>
-<layout name="OnTrackCluster">
+<layout name="OnTrackCluster_Number">
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_TotalNumberOfClusters_OnTrack_in_TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TIB/Summary_TotalNumberOfClusters_OnTrack_in_TIB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/Summary_TotalNumberOfClusters_OnTrack_in_TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/Summary_TotalNumberOfClusters_OnTrack_in_TID"></monitorable>
+</layout>
+<layout name="OnTrackCluster_StoN">
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterStoNCorr_OnTrack_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_ClusterStoNCorr_OnTrack_in_TIB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/Summary_ClusterStoNCorr_OnTrack_in_TEC"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/Summary_ClusterStoNCorr_OnTrack_in_TID"></monitorable>
 </layout>
-<layout name="OffTrackCluster">
+<layout name="OffTrackCluster_Number">
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_TotalNumberOfClusters_OffTrack_in_TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TIB/Summary_TotalNumberOfClusters_OffTrack_in_TIB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/Summary_TotalNumberOfClusters_OffTrack_in_TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/Summary_TotalNumberOfClusters_OffTrack_in_TID"></monitorable>
+</layout>
+<layout name="OffTrackCluster(Charge)">
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterCharge_OffTrack_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_ClusterCharge_OffTrack_in_TIB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/Summary_ClusterCharge_OffTrack_in_TEC"></monitorable>

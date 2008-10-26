@@ -291,6 +291,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
     for (map<int,string>::const_iterator ic = tags.begin();
          ic != tags.end(); ic++) {
       hist->GetXaxis()->SetBinLabel(ic->first, (ic->second).c_str());
+      hist->LabelsOption("X", ">");
     }
     hist->LabelsOption("uv");
   }
