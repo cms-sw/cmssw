@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.7 2008/01/22 18:47:42 muzaffar Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.8 2008/05/17 14:23:13 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.7 $
-  \date $Date: 2008/01/22 18:47:42 $
+  \version $Revision: 1.8 $
+  \date $Date: 2008/05/17 14:23:13 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,10 +72,6 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
     if ( count_ % timingPrescaleFactor_ == 0 ) status = true;
   }
 
-  if ( clusterPrescaleFactor_ ) {
-    if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
-  }
-
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -117,6 +113,17 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
            dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
         if ( cosmicPrescaleFactor_ ) {
           if ( count_ % cosmicPrescaleFactor_ == 0 ) status = true;
+        }
+      }
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
+        if ( clusterPrescaleFactor_ ) {
+          if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
         }
       }
 
