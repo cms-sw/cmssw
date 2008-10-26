@@ -77,7 +77,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
       ProblemDeadCells=m_dbe->book2D(" ProblemDeadCells",
-                                     "Problem Dead Cell Rate for all HCAL",
+                                     " Problem Dead Cell Rate for all HCAL",
                                      etaBins_,etaMin_,etaMax_,
                                      phiBins_,phiMin_,phiMax_);
       ProblemDeadCells->setAxisTitle("i#eta",1);
@@ -86,7 +86,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_deadcells");
-      setupDepthHists2D(ProblemDeadCellsByDepth, "Problem Dead Cell Rate","");
+      setupDepthHists2D(ProblemDeadCellsByDepth, " Problem Dead Cell Rate","");
 
       // Set up plots for each failure mode of dead cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)

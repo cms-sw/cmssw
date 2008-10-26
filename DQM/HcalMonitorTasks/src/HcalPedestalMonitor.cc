@@ -78,7 +78,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       setupDepthHists2D(RMSMapByDepth, "Pedestal RMS Map", "ADC");
       
       ProblemPedestals=m_dbe->book2D(" ProblemPedestals",
-				     "Problem Pedestal Rate for all HCAL",
+				     " Problem Pedestal Rate for all HCAL",
 				     etaBins_,etaMin_,etaMax_,
 				     phiBins_,phiMin_,phiMax_);
       ProblemPedestals->setAxisTitle("i#eta",1);
