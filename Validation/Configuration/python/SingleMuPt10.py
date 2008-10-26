@@ -42,7 +42,7 @@ def customise(process):
             analyzer.outputFile=""
         #In MuonSimHitsValidAnalyzer there is a DT_outputFile to be silenced too:
         if hasattr(analyzer,"DT_outputFile"):
-            analyzer.DT_outputFile="pippo.root"
+            analyzer.DT_outputFile=""
 
     #process.MessageLogger.categories=cms.untracked.vstring('DQMStore'
     #                                                       )
