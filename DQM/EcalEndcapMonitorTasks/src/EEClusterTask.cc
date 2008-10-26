@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/10/10 13:15:20 $
- * $Revision: 1.53 $
+ * $Date: 2008/10/25 09:14:51 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -532,6 +532,9 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
       if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
+           dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
