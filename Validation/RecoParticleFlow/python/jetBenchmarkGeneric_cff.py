@@ -14,8 +14,8 @@ genParticlesForJets.ignoreParticleIDs.append(16)
 genParticlesForJets.excludeResonances = False
 
 jetBenchmarkGeneric = cms.Sequence( 
-    process.genJetParticles*
-    process.recoGenJets*
+    genJetParticles*
+    recoGenJets*
     pfJetBenchmarkGeneric +
     caloJetBenchmarkGeneric
     )
