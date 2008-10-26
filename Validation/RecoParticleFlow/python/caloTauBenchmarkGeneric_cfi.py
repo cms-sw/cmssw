@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-jets = 'iterativeCone5PFJets'
+jets = 'iterativeCone5CaloJets'
 
 caloTauBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('tauBenchmarkGeneric.root'),
