@@ -354,7 +354,7 @@ void SinglePionEfficiency::Loop()
 	  // ==> pi+
 	  if(fabs(etaSim1) >= eta[ieta] && fabs(etaSim1) < eta[ieta+1]) {
 	    // checking leakage
-	    if(ptSim1 > 2. && ptSim1 < 10.)
+	    if(ptSim1 > 10. && ptSim1 < 10000.)
 	      {
 		if(drTrk1 < 0.01 && purityTrk1 == 1) 
 		  {
@@ -384,7 +384,7 @@ void SinglePionEfficiency::Loop()
 	  // ==> pi-
 	  if(fabs(etaSim2) >= eta[ieta] && fabs(etaSim2) < eta[ieta+1]) {
 	    // checking leakage
-	    if(ptSim2 > 2. && ptSim2 < 10.)
+	    if(ptSim2 > 10. && ptSim2 < 1000.)
 	      {
 		if(drTrk2 < 0.01 && purityTrk2 == 1) 
 		  {
@@ -423,46 +423,63 @@ void SinglePionEfficiency::Loop()
      for(Int_t ipt = 0; ipt <= nptbins; ipt++) {
 
        if(ieta < netabins && ipt < nptbins) {
-	 if(ipt == 0) 
-	   { 
-	     trkeff[ieta][ipt] = 1.; etrkeff[ieta][ipt] = 0.;
-	     responceVSptF[ieta][ipt] = 0.;
-	   } else {
-	     trkeff[ieta][ipt] = 1.*ntrkreco[ieta][ipt]/ntrk[ieta][ipt];
-	     etrkeff[ieta][ipt] = sqrt( trkeff[ieta][ipt]*(1.-trkeff[ieta][ipt])/ntrk[ieta][ipt] );
-	     responceVSptF[ieta][ipt] = responceVSpt[ieta][ipt]/ntrkrecor[ieta][ipt];
-	     //	     trkeff[ieta][ipt] = 1.;
-	     //	     etrkeff[ieta][ipt] = 0.;
-	   } 
-	 cout <<" ieta = " << ieta
-	      <<" eta = " << eta[ieta]
-	      <<" ipt = " << ipt
-	      <<" pt = " << pt[ipt]
-	      <<" ntrkreco = " << ntrkreco[ieta][ipt] 
-	      <<" ntrkrecor = " << ntrkrecor[ieta][ipt] 
-	      <<" ntrk = " << ntrk[ieta][ipt]
-	      <<" eff = " << trkeff[ieta][ipt] 
-	      <<" +/- " << etrkeff[ieta][ipt] 
-	      <<" responce = " << responceVSptF[ieta][ipt] << endl;
-	 hResp->Fill(pt[ipt],eta[ieta],responceVSptF[ieta][ipt]);
 
-	 myoutput << ieta << " " 
-		  << ipt  << " " 
-		  << eta[ieta] << " " 
-		  << pt[ipt] << " "
-		  << trkeff[ieta][ipt] << endl;
+	 if(ntrk[ieta][ipt] != 0 && ntrkrecor[ieta][ipt] != 0) {
+	   trkeff[ieta][ipt] = 1.*ntrkreco[ieta][ipt]/ntrk[ieta][ipt];
+	   etrkeff[ieta][ipt] = sqrt( trkeff[ieta][ipt]*(1.-trkeff[ieta][ipt])/ntrk[ieta][ipt] );
+	   responceVSptF[ieta][ipt] = responceVSpt[ieta][ipt]/ntrkrecor[ieta][ipt];
+	   
+	   cout <<" ieta = " << ieta
+		<<" eta = " << eta[ieta]
+		<<" ipt = " << ipt
+		<<" pt = " << pt[ipt]
+		<<" ntrkreco = " << ntrkreco[ieta][ipt] 
+		<<" ntrkrecor = " << ntrkrecor[ieta][ipt] 
+		<<" ntrk = " << ntrk[ieta][ipt]
+		<<" eff = " << trkeff[ieta][ipt] 
+		<<" +/- " << etrkeff[ieta][ipt] 
+		<<" responce = " << responceVSptF[ieta][ipt] << endl;
+	   hResp->Fill(pt[ipt],eta[ieta],responceVSptF[ieta][ipt]);
+	   
+	   myoutput << ieta << " " 
+		    << ipt  << " " 
+		    << eta[ieta] << " " 
+		    << pt[ipt] << " "
+		    << trkeff[ieta][ipt] << endl;
+	   
+	   myoutput_resp << ieta << " " 
+			 << ipt  << " " 
+			 << eta[ieta] << " " 
+			 << pt[ipt] << " "
+			 << responceVSptF[ieta][ipt] << endl;
+	   
+	   myoutput_eff1 << ieta << " " 
+			 << ipt  << " " 
+			 << eta[ieta] << " " 
+			 << pt[ipt] << " "
+			 << " 1." << endl;
+	 } else {
 
-	 myoutput_resp << ieta << " " 
-		       << ipt  << " " 
-		       << eta[ieta] << " " 
-		       << pt[ipt] << " "
-		       << responceVSptF[ieta][ipt] << endl;
-
-	 myoutput_eff1 << ieta << " " 
-		       << ipt  << " " 
-		       << eta[ieta] << " " 
-		       << pt[ipt] << " "
-		       << " 1." << endl;
+	   trkeff[ieta][ipt] = trkeff[ieta][ipt-1];
+	   responceVSptF[ieta][ipt] = responceVSptF[ieta][ipt-1];
+	   myoutput << ieta << " " 
+		    << ipt  << " " 
+		    << eta[ieta] << " " 
+		    << pt[ipt] << " "
+		    << trkeff[ieta][ipt] << endl;
+	   
+	   myoutput_resp << ieta << " " 
+			 << ipt  << " " 
+			 << eta[ieta] << " " 
+			 << pt[ipt] << " "
+			 << responceVSptF[ieta][ipt] << endl;
+	   
+	   myoutput_eff1 << ieta << " " 
+			 << ipt  << " " 
+			 << eta[ieta] << " " 
+			 << pt[ipt] << " "
+			 << " 1." << endl;
+	 }
        }
 
        if(ipt == nptbins && ieta < netabins) {
@@ -471,13 +488,13 @@ void SinglePionEfficiency::Loop()
 		  << eta[ieta] << " " 
 		  << pt[ipt] << " "
 		  << trkeff[ieta][ipt-1] << endl;
-
+	 
 	 myoutput_resp << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
 		       << pt[ipt] << " "
 		       << responceVSptF[ieta][ipt-1] << endl;
-
+	 
 	 myoutput_eff1 << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
@@ -490,13 +507,13 @@ void SinglePionEfficiency::Loop()
 		  << eta[ieta] << " " 
 		  << pt[ipt] << " "
 		  << trkeff[ieta-1][ipt] << endl;
-
+	 
 	 myoutput_resp << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
 		       << pt[ipt] << " "
 		       << responceVSptF[ieta-1][ipt] << endl;
-
+	 
 	 myoutput_eff1 << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
@@ -509,13 +526,13 @@ void SinglePionEfficiency::Loop()
 		  << eta[ieta] << " " 
 		  << pt[ipt] << " "
 		  << trkeff[ieta-1][ipt-1] << endl;
-
+	 
 	 myoutput_resp << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
 		       << pt[ipt] << " "
 		       << responceVSptF[ieta-1][ipt-1] << endl;
-
+	 
 	 myoutput_eff1 << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
@@ -524,10 +541,10 @@ void SinglePionEfficiency::Loop()
        }
      }
    }
-
+   
    //
    // plot leakage graph
-
+   /*
    Float_t leakage[netabins], eleakage[netabins];
    Float_t MeanNotInter[netabins], MeanErrorNotInter[netabins];
    Float_t MeanInter[netabins], MeanErrorInter[netabins];
@@ -694,9 +711,8 @@ void SinglePionEfficiency::Loop()
 
    c5->SaveAs("eMean_at_eta1.9.gif");
    c5->SaveAs("eMean_at_eta1.9.eps");
-
+   */
    TFile efile("response.root","recreate");
    hResp->Write();
    efile.Close();
-
 }

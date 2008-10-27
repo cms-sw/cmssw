@@ -118,26 +118,20 @@ SinglePionEfficiency::SinglePionEfficiency(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
 /*
-o   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SinglePionEfficiencyNewNoZSP_10.root");
-      if (!f) {
-         f = new TFile("SinglePionEfficiencyNewNoZSP_10.root");
-      }
-      tree = (TTree*)gDirectory->Get("t1");
-
-   }
+  if (tree == 0) {
+    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SinglePionEfficiencyNew.root");
+    if (!f) {
+      f = new TFile("SinglePionEfficiencyNew.root");
+    }
+    tree = (TTree*)gDirectory->Get("t1");
+  }
 */
+
    if (tree == 0) {
      TChain * chain = new TChain("t1","");
-
-     //     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiency/SinglePionEfficiency_*.root");
-     //     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNew/SinglePionEfficiencyNewNoZSP_*.root");
-     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNew/SinglePionEfficiencyNewNoSR_*.root");
-     //     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNew/SinglePionEfficiencyNewWithZSP_*.root");
-
+     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNewNOZS/SinglePionEfficiencyNewNOZS_*.root");
      tree = chain;
    }
-
    Init(tree);
 }
 
