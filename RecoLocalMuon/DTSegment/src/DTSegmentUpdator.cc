@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/08/18 10:11:31 $
- * $Revision: 1.26 $
+ * $Date: 2008/10/27 16:34:35 $
+ * $Revision: 1.27 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -591,7 +591,6 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
 
     if (vdrift_4parfit) {
       float dvDrift  = dvDrift0;
-      cout << "dvDrift " << dvDrift<< "vminf " << vminf<<endl;
       if ( dvDrift0 < 0. )  {   dvDrift=  - dvDrift0 +.01;  }
 
       t0cor_dvDrift =   dvDrift + t0cor_10 ;
