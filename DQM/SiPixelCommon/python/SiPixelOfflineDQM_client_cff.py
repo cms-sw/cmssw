@@ -6,7 +6,8 @@ sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     ActionOnRunEnd = cms.untracked.bool(True),
     HighResolutionOccupancy = cms.untracked.bool(False),
     NoiseRateCutValue = cms.untracked.double(-1.),
-    UseOfflineXMLFile = cms.untracked.bool(True)
+    UseOfflineXMLFile = cms.untracked.bool(True),
+    Tier0Flag = cms.untracked.bool(True)
 )
 
 PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)
