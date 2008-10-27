@@ -225,7 +225,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     }
 
   portcardname_ = tableMat[1][colM["PORT_CARD"]] ;
-  cout << mthn << "Loading PortCard " << portcardname_ << endl ;
+//  cout << mthn << "Loading PortCard " << portcardname_ << endl ;
   if(portcardname_.find("FPix") != std::string::npos)
     {
       type_ = "fpix" ;
@@ -243,11 +243,11 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   channelAddress_ = atoi(tableMat[1][colM["CHANNEL"]].c_str() ) ;
   i2cSpeed_       = atoi(tableMat[1][colM["I2C_SPEED"]].c_str()       ) ;
 
-//   cout << mthn << 
-//     "ringAddress_\t"    << ringAddress_	    << endl <<
-//     "ccuAddress_\t"     << ccuAddress_	    << endl <<
-//     "channelAddress_\t" << channelAddress_  << endl <<
-//     "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
+//  cout << mthn << 
+//    "ringAddress_\t"    << ringAddress_	    << endl <<
+//    "ccuAddress_\t"     << ccuAddress_	    << endl <<
+//    "channelAddress_\t" << channelAddress_  << endl <<
+//    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
   
 
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix

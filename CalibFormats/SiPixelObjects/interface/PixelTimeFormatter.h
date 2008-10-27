@@ -58,7 +58,7 @@ namespace pos{
 	      thisTime->tm_min,
 	      thisTime->tm_sec ); 
       date = theDate ;
-      std::cout << "[PixelTimeFormatter::getTime()]\t\t\t\t    Time: " << date << std::endl ;					  
+      //std::cout << "[PixelTimeFormatter::getTime()]\t\t\t\t    Time: " << date << std::endl ;					  
       return date ;
     }
 

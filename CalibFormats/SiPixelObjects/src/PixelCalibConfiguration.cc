@@ -22,6 +22,7 @@ using namespace std;
 PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::string> > & tableMat):
 						 PixelCalibBase(), PixelConfigBase("","","") 
 {
+  std::string mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    " ;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   /**
@@ -62,7 +63,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
     {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << "[PixelCalibConfiguration::PixelCalibConfiguration()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
     }
@@ -78,11 +79,11 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
   
   if (tmp=="Mode:"){
     in >> mode_;
-    std::cout << "PixelCalibConfiguration mode="<<mode_<< std::endl;
+    std::cout << mthn << "mode="<<mode_<< std::endl;
     in >>tmp;
   } else {
     mode_="FEDChannelOffsetPixel";
-    std::cout << "PixelCalibCOnfiguration mode not set, is this an old file? "
+    std::cout << mthn << "mode not set, is this an old file? "
 	      << std::endl;
     assert(0);
   }
