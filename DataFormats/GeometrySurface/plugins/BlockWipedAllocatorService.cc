@@ -36,7 +36,7 @@ public:
   BlockWipedAllocatorService(const edm::ParameterSet & iConfig,
 			     edm::ActivityRegistry & iAR ) {
     
-    m_useAlloc = =iConfig.getUntrackedParameter<bool>("usePoolAllocator",false);
+    m_useAlloc = iConfig.getUntrackedParameter<bool>("usePoolAllocator",false);
     if (m_useAlloc) BlockWipedPoolAllocated::usePool();
     iAR.watchPreSource(this,&BlockWipedAllocatorService::preSource);
     iAR.watchPreProcessEvent(this,&BlockWipedAllocatorService::preEventProcessing);
