@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.53 2008/04/30 08:00:24 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.54 2008/05/27 11:37:22 elmer Exp $
 //
 //
 
@@ -260,11 +260,11 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       }
     } 
   } else {
-    std::vector<TrajectorySeed> elePixelSeeds=
+    std::vector<SeedWithInfo> elePixelSeeds=
       myMatchEle->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
-      std::vector<TrajectorySeed>::iterator s;
+      std::vector<SeedWithInfo>::iterator s;
       for (s = elePixelSeeds.begin(); s != elePixelSeeds.end(); s++) {
-	  reco::ElectronPixelSeed seed(seedCluster,*s);
+	  reco::ElectronPixelSeed seed(seedCluster,s->seed(),s->subDet2(),s->dRz2(),s->dPhi2());
 	  result.push_back(seed);
       }
   }
@@ -294,11 +294,11 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       }
     }
   } else {
-    std::vector<TrajectorySeed> posPixelSeeds=
+    std::vector<SeedWithInfo> posPixelSeeds=
       myMatchPos->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
-    std::vector<TrajectorySeed>::iterator s;
+    std::vector<SeedWithInfo>::iterator s;
     for (s = posPixelSeeds.begin(); s != posPixelSeeds.end(); s++) {
-      reco::ElectronPixelSeed seed(seedCluster,*s);
+      reco::ElectronPixelSeed seed(seedCluster,s->seed(),s->subDet2(),s->dRz2(),s->dPhi2());
       result.push_back(seed);
     }
   }
