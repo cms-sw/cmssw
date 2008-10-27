@@ -6,11 +6,12 @@
 //   \class L1PromptAnalysis
 /**
  *   Description:  This code is designed for l1 prompt analysis
-//                 starting point is a GMTTreeMaker By Ivan Mikulec. 
+//                 starting point is a GMTTreeMaker By Ivan Mikulec now
+//                 extended from Lorenzo Agostino. 
 */
-//   $Revision: 1.2 $
 //
-//   I. Mikulec            HEPHY Vienna
+//
+//
 //
 //--------------------------------------------------
 
@@ -833,86 +834,86 @@ void L1PromptAnalysis::book() {
   
   // GMT data 
   if(m_GMTInputTag.label() != "none") {
-    m_tree->Branch("Bxgmt",&bxgmt,"Bxgmt/I");
+    m_tree->Branch("gmtEvBx",&bxgmt,"gmtEvBx/I");
 
     // DTBX Trigger block branches
-    m_tree->Branch("Ndt",&ndt,"Ndt/I");
-    m_tree->Branch("Bxd",bxd,"Bxd[Ndt]/I");
-    m_tree->Branch("Ptd",ptd,"Ptd[Ndt]/F");
-    m_tree->Branch("Chad",chad,"Chad[Ndt]/I");
-    m_tree->Branch("Etad",etad,"Etad[Ndt]/F");
-    m_tree->Branch("Etafined",etafined,"Etafined[Ndt]/I");
-    m_tree->Branch("Phid",phid,"Phid[Ndt]/F");
-    m_tree->Branch("Quald",quald,"Quald[Ndt]/I");
-    m_tree->Branch("Dwd",dwd,"Dwd[Ndt]/I");
-    m_tree->Branch("Chd",chd,"Chd[Ndt]/I");  
+    m_tree->Branch("gmtNdt",&ndt,"gmtNdt/I");
+    m_tree->Branch("gmtBxdt",bxd,"gmtBxdt[gmtNdt]/I");
+    m_tree->Branch("gmtPtdt",ptd,"gmtPtdt[gmtNdt]/F");
+    m_tree->Branch("gmtChdt",chad,"gmtChdt[gmtNdt]/I");
+    m_tree->Branch("gmtEtadt",etad,"gmtEtadt[gmtNdt]/F");
+    m_tree->Branch("gmtFineEtadt",etafined,"gmtFineEtadt[gmtNdt]/I");
+    m_tree->Branch("gmtPhidt",phid,"gmtPhidt[gmtNdt]/F");
+    m_tree->Branch("gmtQualdt",quald,"gmtQualdt[gmtNdt]/I");
+    m_tree->Branch("gmtDwdt",dwd,"gmtDwdt[gmtNdt]/I");
+//    m_tree->Branch("gmtChdt",chd,"gmtChdt[gmtNdt]/I");  
   
     // CSC Trigger block branches
-    m_tree->Branch("Ncsc",&ncsc,"Ncsc/I");
-    m_tree->Branch("Bxc",bxc,"Bxc[Ncsc]/I");
-    m_tree->Branch("Ptc",ptc,"Ptc[Ncsc]/F");
-    m_tree->Branch("Chac",chac,"Chac[Ncsc]/I");
-    m_tree->Branch("Etac",etac,"Etac[Ncsc]/F");
-    m_tree->Branch("Phic",phic,"Phic[Ncsc]/F");
-    m_tree->Branch("Qualc",qualc,"Qualc[Ncsc]/I");
-    m_tree->Branch("Dwc",dwc,"Dwc[Ncsc]/I");
+    m_tree->Branch("gmtNcsc",&ncsc,"gmtNcsc/I");
+    m_tree->Branch("gmtBxcsc",bxc,"gmtBxcsc[gmtNcsc]/I");
+    m_tree->Branch("gmtPtcsc",ptc,"gmtPtcsc[gmtNcsc]/F");
+    m_tree->Branch("gmtChcsc",chac,"gmtChcsc[gmtNcsc]/I");
+    m_tree->Branch("gmtEtacsc",etac,"gmtEtacsc[gmtNcsc]/F");
+    m_tree->Branch("gmtPhicsc",phic,"gmtPhicsc[gmtNcsc]/F");
+    m_tree->Branch("gmtQualcsc",qualc,"gmtQualcsc[gmtNcsc]/I");
+    m_tree->Branch("gmtDwcsc",dwc,"gmtDwcsc[gmtNcsc]/I");
    
     // RPC barrel Trigger branches
-    m_tree->Branch("Nrpcb",&nrpcb,"Nrpcb/I");
-    m_tree->Branch("Bxrb",bxrb,"Bxrb[Nrpcb]/I");
-    m_tree->Branch("Ptrb",ptrb,"Ptrb[Nrpcb]/F");
-    m_tree->Branch("Charb",charb,"Charb[Nrpcb]/I");
-    m_tree->Branch("Etarb",etarb,"Etarb[Nrpcb]/F");
-    m_tree->Branch("Phirb",phirb,"Phirb[Nrpcb]/F");
-    m_tree->Branch("Qualrb",qualrb,"Qualrb[Nrpcb]/I");
-    m_tree->Branch("Dwrb",dwrb,"Dwrb[Nrpcb]/I");
+    m_tree->Branch("gmtNrpcb",&nrpcb,"gmtNrpcb/I");
+    m_tree->Branch("gmtBxrpcb",bxrb,"gmtBxrpcb[gmtNrpcb]/I");
+    m_tree->Branch("gmtPtrpcb",ptrb,"gmtPtrpcb[gmtNrpcb]/F");
+    m_tree->Branch("gmtCharpcb",charb,"gmtCharpcb[gmtNrpcb]/I");
+    m_tree->Branch("gmtEtarpcb",etarb,"gmtEtarpcb[gmtNrpcb]/F");
+    m_tree->Branch("gmtPhirpcb",phirb,"gmtPhirpcb[gmtNrpcb]/F");
+    m_tree->Branch("gmtQualrpcb",qualrb,"gmtQualrpcb[gmtNrpcb]/I");
+    m_tree->Branch("gmtDwrpcb",dwrb,"gmtDwrpcb[gmtNrpcb]/I");
   
     // RPC forward Trigger branches
-    m_tree->Branch("Nrpcf",&nrpcf,"Nrpcf/I");
-    m_tree->Branch("Bxrf",bxrf,"Bxrf[Nrpcf]/I");
-    m_tree->Branch("Ptrf",ptrf,"Ptrf[Nrpcf]/F");
-    m_tree->Branch("Charf",charf,"Charf[Nrpcf]/I");
-    m_tree->Branch("Etarf",etarf,"Etarf[Nrpcf]/F");
-    m_tree->Branch("Phirf",phirf,"Phirf[Nrpcf]/F");
-    m_tree->Branch("Qualrf",qualrf,"Qualrf[Nrpcf]/I");
-    m_tree->Branch("Dwrf",dwrf,"Dwrf[Nrpcf]/I");
+    m_tree->Branch("gmtNrpcf",&nrpcf,"gmtNrpcf/I");
+    m_tree->Branch("gmtBxrpcf",bxrf,"gmtBxrpcf[gmtNrpcf]/I");
+    m_tree->Branch("gmtPtrpcf",ptrf,"gmtPtrpcf[gmtNrpcf]/F");
+    m_tree->Branch("gmtCharpcf",charf,"gmtCharpcf[gmtNrpcf]/I");
+    m_tree->Branch("gmtEtarpcf",etarf,"gmtEtarpcf[gmtNrpcf]/F");
+    m_tree->Branch("gmtPhirpcf",phirf,"gmtPhirpcf[gmtNrpcf]/F");
+    m_tree->Branch("gmtQualrpcf",qualrf,"gmtQualrpcf[gmtNrpcf]/I");
+    m_tree->Branch("gmtDwrpcf",dwrf,"gmtDwrpcf[gmtNrpcf]/I");
   
     // Global Muon trigger branches
-    m_tree->Branch("Ngmt",&ngmt,"Ngmt/I");
-    m_tree->Branch("Bxg",bxg,"Bxg[Ngmt]/I");
-    m_tree->Branch("Ptg",ptg,"Ptg[Ngmt]/F");
-    m_tree->Branch("Chag",chag,"Chag[Ngmt]/I");
-    m_tree->Branch("Etag",etag,"Etag[Ngmt]/F");
-    m_tree->Branch("Phig",phig,"Phig[Ngmt]/F");
-    m_tree->Branch("Qualg",qualg,"Qualg[Ngmt]/I");
-    m_tree->Branch("Detg",detg,"Detg[Ngmt]/I");
-    m_tree->Branch("Rankg",rankg,"Rankg[Ngmt]/I");
-    m_tree->Branch("Isolg",isolg,"Isolg[Ngmt]/I");
-    m_tree->Branch("Mipg",mipg,"Mipg[Ngmt]/I");
-    m_tree->Branch("Dwg",dwg,"Dwg[Ngmt]/I");
-    m_tree->Branch("IdxRPCb",idxRPCb,"IdxRPCb[Ngmt]/I");
-    m_tree->Branch("IdxRPCf",idxRPCf,"IdxRPCf[Ngmt]/I");
-    m_tree->Branch("IdxDTBX",idxDTBX,"IdxDTBX[Ngmt]/I");
-    m_tree->Branch("IdxCSC",idxCSC,"IdxCSC[Ngmt]/I");
+    m_tree->Branch("gmtN",&ngmt,"gmtN/I");
+    m_tree->Branch("gmtCandBx",bxg,"gmtBx[gmtN]/I");
+    m_tree->Branch("gmtPt",ptg,"gmtPt[gmtN]/F");
+    m_tree->Branch("gmtCha",chag,"gmtCha[gmtN]/I");
+    m_tree->Branch("gmtEta",etag,"gmtEta[gmtN]/F");
+    m_tree->Branch("gmtPhi",phig,"gmtPhi[gmtN]/F");
+    m_tree->Branch("gmtQual",qualg,"gmtQual[gmtN]/I");
+    m_tree->Branch("gmtDet",detg,"gmtDet[gmtN]/I");
+    m_tree->Branch("gmtRank",rankg,"gmtRank[gmtN]/I");
+    m_tree->Branch("gmtIsol",isolg,"gmtIsol[gmtN]/I");
+    m_tree->Branch("gmtMip",mipg,"gmtMip[gmtN]/I");
+    m_tree->Branch("gmtDw",dwg,"gmtDw[gmtN]/I");
+    m_tree->Branch("gmtIdxRPCb",idxRPCb,"gmtIdxRPCb[gmtN]/I");
+    m_tree->Branch("gmtIdxRPCf",idxRPCf,"gmtIdxRPCf[gmtN]/I");
+    m_tree->Branch("gmtIdxDTBX",idxDTBX,"gmtIdxDTBX[gmtN]/I");
+    m_tree->Branch("gmtIdxCSC",idxCSC,"gmtIdxCSC[gmtN]/I");
   }
     
   if(m_GTInputTag.label() != "none") {
     // PSB block branches
-    m_tree->Branch("Gttw1",gttw1,"Gttw1[3]/l");
-    m_tree->Branch("Gttw2",gttw2,"Gttw2[3]/l");
-    m_tree->Branch("Gttt",gttt,"Gttt[3]/l");
+    m_tree->Branch("gttw1",gttw1,"gttw1[3]/l");
+    m_tree->Branch("gttw2",gttw2,"gttw2[3]/l");
+    m_tree->Branch("gttt",gttt,"gttt[3]/l");
     
-    m_tree->Branch("Nele",&nele,"Nele/I");
-    m_tree->Branch("Bxel",bxel,"Bxel[Nele]/I");
-    m_tree->Branch("Rankel",rankel,"Rankel[Nele]/F");
-    m_tree->Branch("Phiel",phiel,"Phiel[Nele]/F");
-    m_tree->Branch("Etael",etael,"Etael[Nele]/F");
+    m_tree->Branch("gtNele",&nele,"gtNele/I");
+    m_tree->Branch("gtBxel",bxel,"gtBxel[gtNele]/I");
+    m_tree->Branch("gtRankel",rankel,"gtRankel[gtNele]/F");
+    m_tree->Branch("gtPhiel",phiel,"gtPhiel[gtNele]/F");
+    m_tree->Branch("gtEtael",etael,"gtEtael[gtNele]/F");
     
-    m_tree->Branch("Njet",&njet,"Njet/I");
-    m_tree->Branch("Bxjet",bxjet,"Bxjet[Njet]/I");
-    m_tree->Branch("Rankjet",rankjet,"Rankjet[Njet]/F");
-    m_tree->Branch("Phijet",phijet,"Phijet[Njet]/F");
-    m_tree->Branch("Etajet",etajet,"Etajet[Njet]/F");
+    m_tree->Branch("gtNjet",&njet,"gtNjet/I");
+    m_tree->Branch("gtBxjet",bxjet,"gtBxjet[gtNjet]/I");
+    m_tree->Branch("gtRankjet",rankjet,"gtRankjet[gtNjet]/F");
+    m_tree->Branch("gtPhijet",phijet,"gtPhijet[gtNjet]/F");
+    m_tree->Branch("gtEtajet",etajet,"gtEtajet[gtNjet]/F");
  }
   
   if(gctIsoEmSource_.label() != "none") {
