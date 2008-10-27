@@ -37,8 +37,22 @@ function print_help() {
 }
 
 
+# function to build a python script for cmsDriver
+function build_python_cfi() {
+cat > sherpa_cfi.py << EOF
+import FWCore.ParameterSet.Config as cms
+
+source=cms.Source("SherpaSource",
+  firstRun  = cms.untracked.uint32(1),
+  libDir    = cms.untracked.string('SherpaRun'),
+  resultDir = cms.untracked.string('Result')
+)
+EOF
+}
+
+
 # function to build a python script for cmsRun
-function build_python() {
+function build_python_cfg() {
 cat > sherpa_cfg.py << EOF
 import FWCore.ParameterSet.Config as cms
 
@@ -270,7 +284,9 @@ cd -
 
 # generate & compile pyhton script
 cd ${MYCMSSWTEST}
-build_python
+build_python_cfi
+mv *_cfi.py ../python/
+build_python_cfg
 cd ..
 scramv1 b
 cd -
