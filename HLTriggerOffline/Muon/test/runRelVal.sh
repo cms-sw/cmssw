@@ -27,4 +27,5 @@ FILES=`echo $FILES | sed 's/,,,,//'`
 cat muonTriggerRateTimeAnalyzer_cfg.py | sed "s:vstring():vstring($FILES):" > ana.py
 
 cmsRun ana.py
+cmsRun PostProcessor_cfg.py
 
