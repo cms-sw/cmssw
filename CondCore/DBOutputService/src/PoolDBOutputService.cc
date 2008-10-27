@@ -29,7 +29,7 @@
 
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
-  //m_currentTime( 0 ),
+  m_currentTime( 0 ),
   m_session( 0 ),
   m_dbstarted( false ),
   m_logdb( 0 ),
@@ -79,6 +79,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   iAR.watchPostEndJob(this,&cond::service::PoolDBOutputService::postEndJob);
   iAR.watchPreModule(this,&cond::service::PoolDBOutputService::preModule);
   iAR.watchPostModule(this,&cond::service::PoolDBOutputService::postModule);
+  iAR.watchPreBeginLumi(this,&cond::service::PoolDBOutputService::preBeginLumi);
 }
 cond::Connection& 
 cond::service::PoolDBOutputService::connection() const{
@@ -146,15 +147,22 @@ cond::service::PoolDBOutputService::postEndJob()
 void 
 cond::service::PoolDBOutputService::preEventProcessing(const edm::EventID& iEvtid, const edm::Timestamp& iTime)
 {
-  if( m_timetype == cond::runnumber ){
+  if( m_timetype == cond::runnumber ){//runnumber
     m_currentTime=iEvtid.run();
-  }else{ //timestamp
+  }else if( m_timetype == cond::timestamp ){ //timestamp
     m_currentTime=iTime.value();
   }
 }
 
 void
 cond::service::PoolDBOutputService::preModule(const edm::ModuleDescription& desc){
+}
+
+void 
+cond::service::PoolDBOutputService::preBeginLumi(const edm::LuminosityBlockID& iLumiid,  const edm::Timestamp& iTime ){
+  if( m_timetype == cond::lumiid ){
+    m_currentTime=iLumiid.value();
+  }
 }
 
 void

@@ -22,7 +22,7 @@
 */
 //
 // Author:      Zhen Xie
-//
+// $Id$
 namespace edm{
   class Event;
   class EventSetup;
@@ -92,6 +92,8 @@ namespace cond{
       			       const edm::Timestamp & iTime );
       void preModule(const edm::ModuleDescription& desc);
       void postModule(const edm::ModuleDescription& desc);
+      void preBeginLumi(const edm::LuminosityBlockID&, 
+			const edm::Timestamp& );
       //
       // return the database session in use
       //
