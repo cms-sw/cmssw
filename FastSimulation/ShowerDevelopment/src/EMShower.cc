@@ -129,8 +129,8 @@ void EMShower::prepareSteps()
   double dt;
   double radlen;
   int stps;
-  unsigned first_Ecal_step=0;
-  unsigned last_Ecal_step=0;
+  int first_Ecal_step=0;
+  int last_Ecal_step=0;
   // The maximum is in principe 8 (with 5X0 steps in the ECAL)
   steps.reserve(20);
   
