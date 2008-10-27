@@ -20,7 +20,12 @@ DTCombinatorialPatternReco2DAlgo_LinearDrift = cms.PSet(
         nSharedHitsMax = cms.int32(2),
         AlphaMaxTheta = cms.double(0.1),
         debug = cms.untracked.bool(False),
-        nUnSharedHitsMin = cms.int32(2)
+        nUnSharedHitsMin = cms.int32(2),
+        # Parameters for  T0 fit segment in the Updator and
+        T0SegCorrectionDebug = cms.untracked.bool(False),
+        hit_afterT0_resolution = cms.double(0.03),
+        performT0_vdriftSegCorrection = cms.bool(False),
+        performT0SegCorrection = cms.bool(False)
     ),
     Reco2DAlgoName = cms.string('DTCombinatorialPatternReco')
 )

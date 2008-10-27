@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2007/12/19 15:54:06 $
- * $Revision: 1.8 $
+ * $Date: 2008/08/06 16:52:26 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -148,7 +148,6 @@ class DTSegmentUpdator{
     bool vdrift_4parfit;
     double T0_hit_resolution;
     bool T0_seg_debug;
-
 
 };
 #endif // DTSegment_DTSegmentUpdator_h

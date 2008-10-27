@@ -28,7 +28,12 @@ DTCombinatorialPatternReco4DAlgo_LinearDrift_CosmicData = cms.PSet(
         # theta segment will be recomputed from the 1D rechits
         # If false the theta segment will be taken from the Event. Caveat: in this case the
         # event must contain the 2D segments!
-        AllDTRecHits = cms.bool(True)
+        AllDTRecHits = cms.bool(True),
+        # Parameters for the Updator and T0 fit segment 
+        performT0SegCorrection = cms.bool(False),
+        T0SegCorrectionDebug = cms.untracked.bool(False),
+        performT0_vdriftSegCorrection = cms.bool(False),
+        hit_afterT0_resolution = cms.double(0.03)
     )
 )
 

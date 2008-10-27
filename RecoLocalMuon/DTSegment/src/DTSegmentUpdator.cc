@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/08/06 16:52:26 $
- * $Revision: 1.25 $
+ * $Date: 2008/08/18 10:11:31 $
+ * $Revision: 1.26 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -42,12 +42,10 @@ using namespace edm;
 /// Constructor
 DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
   theFitter(new DTLinearFit()) ,
-
   T0_fit_flag(config.getParameter<bool>("performT0SegCorrection")), 
   vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
   T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
   T0_seg_debug(config.getUntrackedParameter<bool>("T0SegCorrectionDebug",false)) 
-
 {  
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
@@ -101,11 +99,7 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
           cout << " Attention: in Update 4D the phi time segment has not been updated properly! segPhi " <<segPhi->theT0 <<" t0cor" << t0cor <<endl;
       }
       else {  
-
-
         updateHitsN(seg->phiSegment(),vminf,cminf,pos,dir,step);
-
-
       }
       // nothing to do here the hits have been already corrected for position and direction in the fitT0_seg
       if(T0_seg_debug)  
@@ -128,7 +122,6 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
       double  vminf=0.;//value wich will be computed in the fit 
       float  cminf=0.;
 
-
       if (T0_seg_debug){
         cout << "  before  fitT0_seg(seg) in Update 4D, t0cor_seg in Zed = " << t0cor_seg << endl;
       }
@@ -140,28 +133,20 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
 
         updateHitsN(seg->zSegment(),vminf, cminf,pos,dir,2); 		 // apply found corrections to hits
 
-
         if(segZed->theT0 != t0cor)  //just a check that the computed value is correctly stored in the segment	
           cout << " Attention: in Update 4D the theta time segment has not been updated properly! segZed " 
             <<segZed->theT0 <<" t0cor" << t0cor  << endl;
 
       } 
       else{ 
-
         updateHitsN(seg->zSegment(), vminf ,cminf ,pos,dir,step);
-
-
       }
-
-
       if(T0_seg_debug)  cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->theT0 << endl;
 
     } 			 // end if T0_seg_flag	    
     else 
 
       updateHits(seg->zSegment(),pos,dir,step);
-
-
   }   
 
   fit(seg);
@@ -361,28 +346,28 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
 void DTSegmentUpdator::fitT0(DTRecSegment2D* seg) {
   // WARNING: since this method is called both with a 2D and a 2DPhi as argument
   // seg->geographicalId() can be a superLayerId or a chamberId 
-    
+
   double x,y;
   double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
   int leftHits=0,rightHits=0;
-  
+
   vector<DTRecHit1D> hits=seg->specificRecHits();
-  
+
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
-    
+
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
     LocalPoint pos = ( theGeom->idToDet(seg->geographicalId()) )->toLocal(glbPos);
-    
+
     x=pos.z();
     y=pos.x();
-    
+
     sx+=x;
     sy+=y;
     sxy+=x*y;
     sxx+=x*x;
     s++;
-    
+
     if (hit->lrSide()==DTEnums::Left) {
       leftHits++;
       ssx+=x;
@@ -395,9 +380,9 @@ void DTSegmentUpdator::fitT0(DTRecSegment2D* seg) {
       ss--;
     }  
   }      
-  
+
   double t0_corr=0.;
-  
+
   if (leftHits && rightHits) {
     double delta = ss*ss*sxx+s*sx*sx+s*ssx*ssx-s*s*sxx-2*ss*sx*ssx;
     if (delta) {
@@ -406,9 +391,9 @@ void DTSegmentUpdator::fitT0(DTRecSegment2D* seg) {
       t0_corr=(ssx*s*sxy+sxx*ss*sy+sx*sx*ssy-sxx*s*ssy-sx*ss*sxy-ssx*sx*sy)/delta;
     }
   }
-  
+
   t0_corr/=-0.00543; // convert drift distance to time
-  
+
   seg->setT0(t0_corr);  
 }
 
@@ -595,18 +580,19 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
   float t0cor_dvDrift=0.;
 
   if ( nptfit>2            )  {
-    t0cor = - cminf/0.00543; // in ns ;
-    if ( (abs(vminf))< 0.09 )  dvDrift0 = vminf;
+    t0cor = - cminf/0.00543 ; // in ns ;
+    if ( (abs(vminf))< 0.09 )  dvDrift0 = vminf/10.;
     // Per Nicola ... si potrebbe sostituire il valore della vdrift costante  usata nell'algo per creare le hits...
 
-    int   t0cor_10 = int(t0cor *10); //in 0.1 ns;
+    float   t0cor_10 = int(t0cor *10)/10.; //in 0.1 ns;
 
     t0cor_dvDrift=t0cor_10;
 
 
     if (vdrift_4parfit) {
       float dvDrift  = dvDrift0;
-      if ( dvDrift0 < 0. )  {   dvDrift=  - dvDrift0 +.1;  }
+      cout << "dvDrift " << dvDrift<< "vminf " << vminf<<endl;
+      if ( dvDrift0 < 0. )  {   dvDrift=  - dvDrift0 +.01;  }
 
       t0cor_dvDrift =   dvDrift + t0cor_10 ;
       if ( t0cor_10 < 0. )    t0cor_dvDrift = - dvDrift + t0cor_10 ;
@@ -950,7 +936,7 @@ void DTSegmentUpdator::Fit4Var(
 }  //end nptfit >=3
 
 if (debug)    cout << "   dt0= 0 : slope 4  = "<<bminf << "  pos out = " << aminf <<" chi2fitN4 = " << chi2fitN4 <<"  nppar= " <<nppar4<< " T0_ev ns= " << cminf/0.00543 <<" delta v = "<< vminf <<endl;
-if (abs(vminf)>=0.09) {  //checks only vdrift less then 10 % accepted
+if ((abs(vminf)>=0.09)&&debug ) {  //checks only vdrift less then 10 % accepted
   cout << "  vminf gt 0.09 det=  " <<  endl;
   cout << "   dt0= 0 : slope 4  = "<<bminf << "  pos out = " << aminf <<" chi2fitN4 = " << chi2fitN4 << " T0_ev ns= " << cminf/0.00543 <<" delta v = "<< vminf <<endl;
   cout << "   dt0= 0 : slope 2  = "<<b     << "  pos in  = " << a     <<" chi2fitN2 = " << chi2fitN2 <<"  nppar= " <<nppar-1<< " nptfit= " << nptfit <<endl;
