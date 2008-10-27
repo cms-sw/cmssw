@@ -6,15 +6,25 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <cmath>
-#include <ostream>
+#include <iostream>
+#include <fstream>
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/10/24 13:11:38 $
-  * $Revision: 1.17 $
+  * $Date: 2008/10/26 18:22:01 $
+  * $Revision: 1.18 $
   * \author J. Temple - Univ. of Maryland
   */
 
+struct neighborParams{
+  int DeltaIphi;
+  int DeltaIeta;
+  int DeltaDepth;
+  double maxCellEnergy; // cells above this threshold can never be considered "dead" by this algorithm
+  double minNeighborEnergy; //neighbors must have some amount of energy to be counted
+  double minGoodNeighborFrac; // fraction of neighbors with good energy must be above this value
+  double maxEnergyFrac; // cell energy/(neighbors); must be less than maxEnergyFrac for cell to be dead
+};
 
 class HcalDeadCellMonitor: public HcalBaseMonitor {
 
@@ -24,7 +34,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   ~HcalDeadCellMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  //  const HcalDbService& cond);
+  void setupNeighborParams(const edm::ParameterSet& ps, neighborParams& N, char* type);
   void done(); // overrides base class function
   void clearME(); // overrides base class function
   void reset();
@@ -48,6 +58,15 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 			 //const ZDCDigiCollection& zdcdigi, 
 			 const HcalDbService& cond
 			 );
+
+  void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
+				  const HORecHitCollection& hoHits,
+				  const HFRecHitCollection& hfHits);
+
+  void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
+				     const HORecHitCollection& hoHits,
+				     const HFRecHitCollection& hfHits);
+
  private:
 
   void fillNevents_occupancy();
@@ -73,6 +92,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   int deadmon_checkNevents_neighbor_;
   int deadmon_checkNevents_energy_;
 
+  double energyThreshold_;
   double HBenergyThreshold_;
   double HEenergyThreshold_;
   double HOenergyThreshold_;
@@ -98,11 +118,31 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   std::map<HcalDetId, float> pedestals_;
   std::map<HcalDetId, float> widths_;
   std::map<HcalDetId, float> pedestal_thresholds_;
+  std::map<HcalDetId, double> rechitEnergies_;
   
+
   unsigned int occupancy[ETABINS][PHIBINS][4]; // will get filled when an occupied digi is found
   unsigned int belowpedestal[ETABINS][PHIBINS][4]; // filled when digi is below pedestal+nsigma
   unsigned int belowneighbors[ETABINS][PHIBINS][4];
   unsigned int belowenergy[ETABINS][PHIBINS][4];
+
+  // Diagnostic plots
+  MonitorElement* d_HBnormped;
+  MonitorElement* d_HEnormped;
+  MonitorElement* d_HOnormped;
+  MonitorElement* d_HFnormped;
+
+  MonitorElement* d_HBrechitenergy;
+  MonitorElement* d_HErechitenergy;
+  MonitorElement* d_HOrechitenergy;
+  MonitorElement* d_HFrechitenergy;
+
+  MonitorElement* d_HBenergyVsNeighbor;
+  MonitorElement* d_HEenergyVsNeighbor;
+  MonitorElement* d_HOenergyVsNeighbor;
+  MonitorElement* d_HFenergyVsNeighbor;
+
+  neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_;
 };
 
 #endif
