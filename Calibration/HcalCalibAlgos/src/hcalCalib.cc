@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id$
+// $Id: hcalCalib.cc,v 1.1 2008/10/23 17:29:31 anastass Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -78,9 +78,7 @@ void hcalCalib::Begin(TTree * /*tree*/) {
   //  cellIds.reserve(1000000);
   //  targetEnergies.reserve(1000000);
     
-    
-  //  histoFile = new TFile(HISTO_FILENAME.Data(), "RECREATE");
-  histoFile = new TFile("histo.root", "RECREATE");
+      histoFile = new TFile(HISTO_FILENAME.Data(), "RECREATE");
 
 
   h1_trkP    = new TH1F("h1_trkP", "Track momenta; p_{trk} (GeV); Number of tracks", 100, 0, 200);
@@ -273,8 +271,9 @@ Bool_t hcalCalib::Process(Long64_t entry) {
 
   if (CALIB_TYPE=="ISO_TRACK") {
     if (accumulate(energies.begin(), energies.end(), 0.0) / targetE < MIN_EOVERP) acceptEvent=kFALSE;
-
     if (accumulate(energies.begin(), energies.end(), 0.0) / targetE > MAX_EOVERP) acceptEvent=kFALSE;
+
+    if (emEnergy > MAX_TRK_EME) acceptEvent=kFALSE;
 
     if (abs(dEtaHitRef)>1 || abs(dPhiHitRef)>1) acceptEvent=kFALSE;
 
@@ -422,8 +421,33 @@ void hcalCalib::Terminate() {
     minIEta = 999;
   }
    
+
+  // save the histograms 
+  h1_trkP->Write();
+  h1_allTrkP->Write();
+  h1_rawSumE->Write();
+  h1_rawResp->Write();
+  h1_corResp->Write();
+  h1_rawRespBarrel->Write();
+  h1_corRespBarrel->Write();
+  h1_rawRespEndcap->Write();
+  h1_corRespEndcap->Write();
+  h1_numEventsTwrIEta->Write();
+  h2_dHitRefBarrel->Write();
+  h2_dHitRefEndcap->Write();
+  for (Int_t i=0; i<48; ++i) {
+    h1_corRespIEta[i]->Write();
+  }
+
+
+
+
+
   histoFile->Write();
   histoFile->Close();
+
+  cout << "\n Finished calibration.\n " << endl; 
+
     
 }  // end of Terminate()
 

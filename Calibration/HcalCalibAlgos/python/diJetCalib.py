@@ -35,6 +35,9 @@ process.hcalCalib = cms.EDAnalyzer("HcalCalibrator",
 
 # ------- maximum e/p to accept an IsoTrack for calibration (not used for DiJets)  
   maxEOverP = cms.untracked.double(999.0),
+
+# ------- MIP cut: maximum EM energy associated with the track (not used for DiJEts)  
+  maxTrkEmE = cms.untracked.double(1.0),                                  
                                    
 #--------Maximum Et allowed for third jet in the event (affects only DiJets)                                   
   maxEtThirdJet = cms.untracked.double(5.0),

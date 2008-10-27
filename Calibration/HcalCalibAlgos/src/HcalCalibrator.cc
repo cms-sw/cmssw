@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id$
+// $Id: HcalCalibrator.cc,v 1.1 2008/10/23 17:29:31 anastass Exp $
 //
 //
 //_________________________________________________________________________________
@@ -80,6 +80,7 @@ HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf) :
   mMinCellE(conf.getUntrackedParameter<double>("minCellE")),
   mMinEOverP(conf.getUntrackedParameter<double>("minEOverP")),
   mMaxEOverP(conf.getUntrackedParameter<double>("maxEOverP")),
+  mMaxTrkEmE(conf.getUntrackedParameter<double>("maxTrkEmE")),
   mMaxEtThirdJet(conf.getUntrackedParameter<double>("maxEtThirdJet")),
   mMinDPhiDiJets(conf.getUntrackedParameter<double>("minDPhiDiJets")),
   mSumDepths(conf.getUntrackedParameter<bool>("sumDepths")),
@@ -165,6 +166,7 @@ HcalCalibrator::endJob() {
   calibrator->SetMinCellE(mMinCellE);
   calibrator->SetMinEOverP(mMinEOverP);
   calibrator->SetMaxEOverP(mMaxEOverP);
+  calibrator->SetMaxTrkEmE(mMaxTrkEmE);
   calibrator->SetHbClusterSize(mHbClusterSize);
   calibrator->SetHeClusterSize(mHeClusterSize);
   calibrator->SetCalibAbsIEtaMax(mCalibAbsIEtaMax);

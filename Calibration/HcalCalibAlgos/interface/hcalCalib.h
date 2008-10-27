@@ -9,7 +9,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id$
+// $Id: hcalCalib.h,v 1.1 2008/10/23 17:29:30 anastass Exp $
 //
 ///////////////////////////////////////////////////////////////
 
@@ -93,7 +93,8 @@ public :
     Float_t MIN_CELL_E;
     Float_t MIN_EOVERP;
     Float_t MAX_EOVERP;
- 
+    Float_t MAX_TRK_EME;
+
     Float_t MAX_ET_THIRD_JET;
     Float_t MIN_DPHI_DIJETS;
    
@@ -129,6 +130,7 @@ public :
     void SetMinCellE(Float_t e)                     { MIN_CELL_E = e; }
     void SetMinEOverP(Float_t e)                    { MIN_EOVERP = e; }
     void SetMaxEOverP(Float_t e)                    { MAX_EOVERP = e; }
+    void SetMaxTrkEmE(Float_t e)                    { MAX_TRK_EME = e; }
     void SetCalibType(TString s)                    { CALIB_TYPE = s; }
     void SetCalibMethod(TString s)                  { CALIB_METHOD = s; }  
     void SetHbClusterSize(Int_t i)                  { HB_CLUSTER_SIZE = i; }      

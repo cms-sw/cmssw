@@ -44,7 +44,8 @@ private:
   double mMaxTargetE;
   double mMinCellE;
   double mMinEOverP;
-  double mMaxEOverP; 
+  double mMaxEOverP;
+  double mMaxTrkEmE; 
  
   double mMaxEtThirdJet;
   double mMinDPhiDiJets;
