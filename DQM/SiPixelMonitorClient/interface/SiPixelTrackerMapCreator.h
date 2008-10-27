@@ -17,7 +17,8 @@ class SiPixelTrackerMapCreator {
  public:
 
   SiPixelTrackerMapCreator(  std::string            themEName,
-                             std::string            theTKType);
+                             std::string            theTKType,
+			     bool                   offlineXMLfile);
  ~SiPixelTrackerMapCreator();
 
   void create(               DQMStore * bei);
@@ -35,6 +36,7 @@ class SiPixelTrackerMapCreator {
   						  
   std::string					    mEName ;
   std::string					    TKType ;
+  bool                                              offlineXMLfile_;
   
   bool exploreBeiStructure(  DQMStore * bei) ;
 };

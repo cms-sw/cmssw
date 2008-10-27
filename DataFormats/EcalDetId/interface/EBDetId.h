@@ -12,7 +12,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.21 2008/03/03 15:20:05 ferriff Exp $
+ *  $Id: EBDetId.h,v 1.20 2007/06/27 06:01:51 innocent Exp $
  */
 
 
@@ -71,16 +71,15 @@ class EBDetId : public DetId {
   /// get a compact index for arrays
   int hashedIndex() const { return numberByEtaPhi(); }
 
-  uint32_t denseIndex() const { return hashedIndex() ; }
-
-  static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
-
-  static EBDetId detIdFromDenseIndex( uint32_t di ) { return unhashIndex( di ) ; }
-
   /// get a DetId from a compact index for arrays
-  static EBDetId unhashIndex( int hi ) ;
+  static EBDetId unhashIndex(int hi)  {
+    int pseudo_eta = hi/MAX_IPHI - MAX_IETA;
+    return EBDetId(pseudo_eta<0 ? pseudo_eta :  pseudo_eta+1, hi%MAX_IPHI+1);
+  }
 
-  static bool validHashIndex(int i) { return !(i<MIN_HASH || i>MAX_HASH); }
+  static bool validHashIndex(int i) {
+    return !(i<MIN_HASH || i>MAX_HASH);
+  }
 
   /// check if a valid index combination
   static bool validDetId(int i, int j) ;
@@ -110,8 +109,6 @@ class EBDetId : public DetId {
   static const int MIN_HASH =  0; // always 0 ...
   static const int MAX_HASH =  2*MAX_IPHI*MAX_IETA-1;
   static const int SIZE_HASH = 2*MAX_IPHI*MAX_IETA;
-
-  enum { kSizeForDenseIndexing = SIZE_HASH } ;
   
 
   // function modes for (int, int) constructor

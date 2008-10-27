@@ -1,3 +1,52 @@
+2008-10-16  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-22
+	* Modified the writing of DQM histograms to disk - all top-level
+	  folders are now written to the same file (for a given update),
+	  and the directory structure was modified to match what is
+	  used in DQM archives created by event consumers.
+
+2008-10-16  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-21
+	* Added DQM received data statistics in monitoring and also gives the SM
+	  config information and CVS version.
+
+2008-10-15  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-20
+	* Added protection to the actionPerformed() method to prevent uninitialized
+	  members being referenced in the Halted state (from Kurt). Also minor bug 
+	  fix for monitoring web page of copy workers listed from Constantin.
+
+2008-10-13  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-19
+	* Install performance statistics for stored data rates like for
+	  received data rates. Changed the stored volume infospace variable
+	  to actually give the stored volume and not the received data volume.
+
+2008-10-12  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-18
+	* Changed SMPerformanceMeter to use Kurt's counter classes and also
+	  introduce a rate over a time period as well as a rate over a
+	  given number of samples. Both are now given and the samples and
+	  time period can be set in the SM XML xdaq config file (see sm_onenode.xml)
+	  Also getting  and reporting statistics for received event sizes 
+	  using a new counter class, still need to get the compression ratio
+	  and fragment queue size when statistics gathering is moved to 
+	  the FragmentCollector
+
+2008-10-09  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-17
+	* Added rcmsStateListener parameters to the SM application infospace
+	  as requested by Hannes to support large configurations in the online.
+	  Also, modified the sequence of operations at end run to correctly
+	  assign file and event count statistics. This tag requires
+	  EventFilter/Utilities V00-14-16.
+
 2008-09-23  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-16

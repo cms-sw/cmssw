@@ -24,7 +24,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   vector<std::string> parameterNames = myHltParams.getParameterNames() ;
   
   for ( vector<std::string>::iterator iParam = parameterNames.begin();
-	iParam != parameterNames.end(); iParam++ ){
+        iParam != parameterNames.end(); iParam++ ){
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
   }
 
@@ -124,25 +124,27 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTInfo::analyze(const edm::TriggerResults * hltresults,
- 		      const l1extra::L1EmParticleCollection * L1ExtEmIsol,
- 		      const l1extra::L1EmParticleCollection * L1ExtEmNIsol,
-		      const l1extra::L1MuonParticleCollection * L1ExtMu,
-		      const l1extra::L1JetParticleCollection * L1ExtJetC,
-		      const l1extra::L1JetParticleCollection * L1ExtJetF,
-		      const l1extra::L1JetParticleCollection * L1ExtTau,
-		      const l1extra::L1EtMissParticleCollection * L1ExtMet,
-		      const L1GlobalTriggerReadoutRecord * L1GTRR,
-		      const L1GlobalTriggerObjectMapRecord * L1GTOMRec,
-		      const L1GctJetCountsCollection * L1GctCounts,
-		      TTree* HltTree) {
+void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & hltresults,
+                      const edm::Handle<l1extra::L1EmParticleCollection>     & L1ExtEmIsol,
+                      const edm::Handle<l1extra::L1EmParticleCollection>     & L1ExtEmNIsol,
+                      const edm::Handle<l1extra::L1MuonParticleCollection>   & L1ExtMu,
+                      const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtJetC,
+                      const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtJetF,
+                      const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtTau,
+                      const edm::Handle<l1extra::L1EtMissParticleCollection> & L1ExtMet,
+                      const edm::Handle<L1GlobalTriggerReadoutRecord>        & L1GTRR,
+                      const edm::Handle<L1GlobalTriggerObjectMapRecord>      & L1GTOMRec,
+                      const edm::Handle<L1GctJetCountsCollection>            & L1GctCounts,
+		      const edm::Handle<L1GctHFBitCounts>                    & l1GctHFBitCounts,
+		      const edm::Handle<L1GctHFRingEtSums>                   & l1GctHFRingEtSums,
+                      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
 
 
   /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
 
-  if (hltresults) {
+  if (hltresults.isValid()) {
     int ntrigs = hltresults->size();
     if (ntrigs==0){std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
 
@@ -150,9 +152,9 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
 
     // 1st event : Book as many branches as trigger paths provided in the input...
     if (HltEvtCnt==0){
-      for (int itrig = 0; itrig != ntrigs; ++itrig){
-	TString trigName = triggerNames_.triggerName(itrig);
-	HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
+      for (int itrig = 0; itrig != ntrigs; ++itrig) {
+        TString trigName = triggerNames_.triggerName(itrig);
+        HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
       }
       HltEvtCnt++;
     }
@@ -166,8 +168,8 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
       else {trigflag[itrig] = 0;}
 
       if (_Debug){
-	if (_Debug) std::cout << "%HLTInfo --  Number of HLT Triggers: " << ntrigs << std::endl;
-	std::cout << "%HLTInfo --  HLTTrigger(" << itrig << "): " << trigName << " = " << accept << std::endl;
+        if (_Debug) std::cout << "%HLTInfo --  Number of HLT Triggers: " << ntrigs << std::endl;
+        std::cout << "%HLTInfo --  HLTTrigger(" << itrig << "): " << trigName << " = " << accept << std::endl;
       }
 
     }
@@ -183,7 +185,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     l1extiemeta[i] = -999.;
     l1extiemphi[i] = -999.;
   }
-  if (L1ExtEmIsol) {
+  if (L1ExtEmIsol.isValid()) {
     nl1extiem = maxL1EmIsol;
     l1extra::L1EmParticleCollection myl1iems;
     myl1iems = * L1ExtEmIsol;
@@ -209,7 +211,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     l1extnemeta[i] = -999.;
     l1extnemphi[i] = -999.;
   }
-  if (L1ExtEmNIsol) {
+  if (L1ExtEmNIsol.isValid()) {
     nl1extnem = maxL1EmNIsol;
     l1extra::L1EmParticleCollection myl1nems;
     myl1nems = * L1ExtEmNIsol;
@@ -240,7 +242,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     l1extmurpc[i] = -999;
     l1extmuqul[i] = -999;
   }
-  if (L1ExtMu) {
+  if (L1ExtMu.isValid()) {
     nl1extmu = maxL1Mu;
     l1extra::L1MuonParticleCollection myl1mus;
     myl1mus = * L1ExtMu;
@@ -272,7 +274,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     l1extjtceta[i] = -999.;
     l1extjtcphi[i] = -999.;
   }
-  if (L1ExtJetC) {
+  if (L1ExtJetC.isValid()) {
     nl1extjetc = maxL1CenJet;
     l1extra::L1JetParticleCollection myl1jetsc;
     myl1jetsc = * L1ExtJetC;
@@ -298,7 +300,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     l1extjtfeta[i] = -999.;
     l1extjtfphi[i] = -999.;
   }
-  if (L1ExtJetF) {
+  if (L1ExtJetF.isValid()) {
     nl1extjetf = maxL1ForJet;
     l1extra::L1JetParticleCollection myl1jetsf;
     myl1jetsf = * L1ExtJetF;
@@ -324,7 +326,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     l1exttaueta[i] = -999.;
     l1exttauphi[i] = -999.;
   }
-  if (L1ExtTau) {
+  if (L1ExtTau.isValid()) {
     nl1exttau = maxL1TauJet;
     l1extra::L1JetParticleCollection myl1taus;
     myl1taus = * L1ExtTau;
@@ -343,7 +345,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
     if (_Debug) std::cout << "%HLTInfo -- No L1 TAU object" << std::endl;
   }
 
-  if (L1ExtMet) {
+  if (L1ExtMet.isValid()) {
     met    = L1ExtMet->begin()->energy();
     metphi = L1ExtMet->begin()->phi();
     mettot = L1ExtMet->begin()->etTotal();
@@ -355,7 +357,7 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
 
   TString algoBitToName[128];
   // 1st event : Book as many branches as trigger paths provided in the input...
-  if (L1GTRR && L1GTOMRec) {  
+  if (L1GTRR.isValid() and L1GTOMRec.isValid()) {  
     DecisionWord gtDecisionWord = L1GTRR->decisionWord();
     const unsigned int numberTriggerBits(gtDecisionWord.size());
     if (L1EvtCnt==0){
@@ -363,17 +365,17 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec =  L1GTOMRec->gtObjectMap();
       // 1st event : Book as many branches as trigger paths provided in the input...
       for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-	   itMap != objMapVec.end(); ++itMap) {
-	// Get trigger bits
-	int itrig = (*itMap).algoBitNumber();
-	// Get trigger names
-	algoBitToName[itrig] = TString( (*itMap).algoName() );
-	
-	HltTree->Branch(algoBitToName[itrig],l1flag+itrig,algoBitToName[itrig]+"/I");
+           itMap != objMapVec.end(); ++itMap) {
+        // Get trigger bits
+        int itrig = (*itMap).algoBitNumber();
+        // Get trigger names
+        algoBitToName[itrig] = TString( (*itMap).algoName() );
+        
+        HltTree->Branch(algoBitToName[itrig],l1flag+itrig,algoBitToName[itrig]+"/I");
       }
       L1EvtCnt++;
     }
-    for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {	
+    for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {     
       // ...Fill the corresponding accepts in branch-variables
       l1flag[iBit] = gtDecisionWord[iBit];
       //std::cout << "L1 TD: "<<iBit<<" "<<algoBitToName[iBit]<<" "<<gtDecisionWord[iBit]<< std::endl;
@@ -384,42 +386,43 @@ void HLTInfo::analyze(const edm::TriggerResults * hltresults,
   }
 
   // Minbias triggers from GCT
-  // Jet Count 	 Quantity
-  //   6 	HFTowerCountPositiveEta
-  //   7 	HFTowerCountNegativeEta
-  //   8 	HFRing0EtSumPositiveEta
-  //   9 	HFRing0EtSumNegativeEta
-  //  10 	HFRing1EtSumPositiveEta
-  //  11 	HFRing1EtSumNegativeEta
+  // Jet Count   Quantity
+  //   6        HFTowerCountPositiveEta
+  //   7        HFTowerCountNegativeEta
+  //   8        HFRing0EtSumPositiveEta
+  //   9        HFRing0EtSumNegativeEta
+  //  10        HFRing1EtSumPositiveEta
+  //  11        HFRing1EtSumNegativeEta
   //
   // LSB for feature bits = 0.125 GeV.
   // The default LSB for the ring sums is 0.5 GeV.
-  
-  if (L1GctCounts) {
+
+  if (l1GctHFBitCounts.isValid()) {
     /*
     for (int i=6;i<=11;i++) {
-      std::cout<<i<<" "<<L1GctCounts->count(i)<<std::endl;
+      std::cout<<i<<" "<<L1GctCounts.count(i)<<std::endl;
     }
-    std::cout<<"A "<<L1GctCounts->hfTowerCountPositiveEta()<<std::endl;
-    std::cout<<"B "<<L1GctCounts->hfTowerCountNegativeEta()<<std::endl;
-    std::cout<<"C "<<L1GctCounts->hfRing0EtSumPositiveEta()<<std::endl;
-    std::cout<<"D "<<L1GctCounts->hfRing0EtSumNegativeEta()<<std::endl;
-    std::cout<<"E "<<L1GctCounts->hfRing1EtSumPositiveEta()<<std::endl;
-    std::cout<<"F "<<L1GctCounts->hfRing1EtSumNegativeEta()<<std::endl;
+    std::cout<<"A "<<L1GctCounts.hfTowerCountPositiveEta()<<std::endl;
+    std::cout<<"B "<<L1GctCounts.hfTowerCountNegativeEta()<<std::endl;
+    std::cout<<"C "<<L1GctCounts.hfRing0EtSumPositiveEta()<<std::endl;
+    std::cout<<"D "<<L1GctCounts.hfRing0EtSumNegativeEta()<<std::endl;
+    std::cout<<"E "<<L1GctCounts.hfRing1EtSumPositiveEta()<<std::endl;
+    std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
     */
-
     
-    for (L1GctJetCountsCollection::const_iterator jbx=L1GctCounts->begin(); jbx!=L1GctCounts->end(); jbx++) {
-      l1hfTowerCountPositiveEta = (int)(* jbx).hfTowerCountPositiveEta();
-      l1hfTowerCountNegativeEta = (int)(* jbx).hfTowerCountNegativeEta();
-      l1hfRing0EtSumPositiveEta = (int)(* jbx).hfRing0EtSumPositiveEta();
-      l1hfRing0EtSumNegativeEta = (int)(* jbx).hfRing0EtSumNegativeEta();
-      l1hfRing1EtSumPositiveEta = (int)(* jbx).hfRing1EtSumPositiveEta();
-      l1hfRing1EtSumNegativeEta = (int)(* jbx).hfRing1EtSumNegativeEta();
-    }
+    l1hfTowerCountPositiveEta = (int)l1GctHFBitCounts->bitCount(0);
+    l1hfTowerCountNegativeEta = (int)l1GctHFBitCounts->bitCount(1);
   } else {
-    if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
+    if (_Debug) std::cout << "%HLTInfo -- No L1 GctHFBitCounts" << std::endl;
   }
 
-  
+  if (l1GctHFRingEtSums.isValid()) {
+    l1hfRing0EtSumPositiveEta = (int)l1GctHFRingEtSums->etSum(0);
+    l1hfRing0EtSumNegativeEta = (int)l1GctHFRingEtSums->etSum(1);
+    l1hfRing1EtSumPositiveEta = (int)l1GctHFRingEtSums->etSum(2);
+    l1hfRing1EtSumNegativeEta = (int)l1GctHFRingEtSums->etSum(3);
+  } else {
+    if (_Debug) std::cout << "%HLTInfo -- No L1 GctHFRingEtSums" << std::endl;
+  }
+
 }

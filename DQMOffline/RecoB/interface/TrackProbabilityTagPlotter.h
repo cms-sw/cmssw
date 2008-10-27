@@ -15,12 +15,13 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackProbabilityTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update, bool mc);
+	const edm::ParameterSet& pSet, bool update, bool mc, bool wf);
 
   ~TrackProbabilityTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * tagInfo, const int & jetFlavour);
 
+  virtual void createPlotsForFinalize ();
   virtual void finalize ();
 
   void epsPlot(const TString & name);
@@ -36,7 +37,8 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
   FlavourHistograms<double> * tkcntHistosSig2D[5];
   EffPurFromHistos * effPurFromHistos[4] ;
   bool finalized;
-  bool mcPlots_;
+  bool mcPlots_;  bool willFinalize_;
+
 } ;
 
 #endif

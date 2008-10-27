@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -23,8 +24,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/08/08 13:54:36 $ 
- **  $Revision: 1.7 $
+ **  $Date: 2008/09/11 17:51:36 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -52,6 +53,7 @@ class PhotonValidator : public edm::EDAnalyzer
       
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob( const edm::EventSetup& ) ;
+  virtual void beginRun( edm::Run& r, edm::EventSetup const & theEventSetup) ;
   virtual void endJob() ;
 
  private:
@@ -68,8 +70,9 @@ class PhotonValidator : public edm::EDAnalyzer
       
   std::string fName_;
   DQMStore *dbe_;
-  int verbosity_;
+  edm::ESHandle<MagneticField> theMF_;
 
+  int verbosity_;
   int nEvt_;
   int nEntry_;
   int nSimPho_;
@@ -78,6 +81,8 @@ class PhotonValidator : public edm::EDAnalyzer
   int nRecConv_;
   int nRecConvAss_;
   int nRecConvAssWithEcal_;
+
+  int nInvalidPCA_;
 
   edm::ParameterSet parameters_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;	    
@@ -136,13 +141,13 @@ class PhotonValidator : public edm::EDAnalyzer
   double recMaxPt_;
 
   std::vector<double> etaintervals_, etaintervalslarge_, phiintervals_, rintervals_, zintervals_;
-  std::vector<double> pTintervals_;
+  std::vector<double> etintervals_;
   std::vector<int> totSimPhoEta_, totMatchedSimPhoEta_, totSimPhoPhi_, totMatchedSimPhoPhi_;
-  std::vector<int> totSimConvEta_, totSimConvPhi_, totSimConvR_, totSimConvZ_;
-  std::vector<int> totMatchedSimConvEtaTwoTracks_,totMatchedSimConvPhiTwoTracks_, totMatchedSimConvRTwoTracks_, totMatchedSimConvZTwoTracks_;
+  std::vector<int> totSimConvEta_, totSimConvPhi_, totSimConvR_, totSimConvZ_, totSimConvEt_;
+  std::vector<int> totMatchedSimConvEtaTwoTracks_,totMatchedSimConvPhiTwoTracks_, totMatchedSimConvRTwoTracks_, totMatchedSimConvZTwoTracks_, totMatchedSimConvEtTwoTracks_ ;
   std::vector<int> totMatchedSimConvEtaOneTrack_, totMatchedSimConvPhiOneTrack_,  totMatchedSimConvROneTrack_, totMatchedSimConvZOneTrack_;
-  std::vector<int> totMatchedRecConvEtaTwoTracks_,totMatchedRecConvPhiTwoTracks_, totMatchedRecConvRTwoTracks_, totMatchedRecConvZTwoTracks_;
-  std::vector<int> totRecAssConvEtaTwoTracks_,totRecAssConvPhiTwoTracks_, totRecAssConvRTwoTracks_, totRecAssConvZTwoTracks_;
+  std::vector<int> totMatchedRecConvEtaTwoTracks_,totMatchedRecConvPhiTwoTracks_, totMatchedRecConvRTwoTracks_, totMatchedRecConvZTwoTracks_,totMatchedRecConvEtTwoTracks_ ;
+  std::vector<int> totRecAssConvEtaTwoTracks_,totRecAssConvPhiTwoTracks_, totRecAssConvRTwoTracks_, totRecAssConvZTwoTracks_,totRecAssConvEtTwoTracks_ ;
 
 
   MonitorElement* h_nSimPho_;
@@ -173,12 +178,13 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*  convEffPhiTwoTracks_;
   MonitorElement*  convEffRTwoTracks_;
   MonitorElement*  convEffZTwoTracks_;
+  MonitorElement*  convEffEtTwoTracks_;
 
   MonitorElement*  convFakeRateEtaTwoTracks_;
   MonitorElement*  convFakeRatePhiTwoTracks_;
   MonitorElement*  convFakeRateRTwoTracks_;
   MonitorElement*  convFakeRateZTwoTracks_;
-
+  MonitorElement*  convFakeRateEtTwoTracks_;
 
 
   MonitorElement*  convEffEtaOneTrack_;
@@ -262,6 +268,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h2_DCotTracksVsR_;
   MonitorElement* p_DCotTracksVsR_;
 
+  MonitorElement* h_distMinAppTracks_[2][3];
+
 
 
   MonitorElement* h_DPhiTracksAtEcal_[2][3];
@@ -300,6 +308,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* p_Chi2VsEta_[3];
   MonitorElement* h2_Chi2VsR_[3];
   MonitorElement* p_Chi2VsR_[3];
+
+  MonitorElement* h_TkD0_[3];
 
   MonitorElement* h_TkPtPull_[3];
   MonitorElement* h2_TkPtPull_[3];

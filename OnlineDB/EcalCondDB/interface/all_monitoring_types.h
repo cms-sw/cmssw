@@ -9,8 +9,6 @@
 #include "OnlineDB/EcalCondDB/interface/RunCommentDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPTMTempDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunConfigDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunFEConfigDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunTPGConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunH4TablePositionDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonCrystalConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonDelaysTTDat.h"

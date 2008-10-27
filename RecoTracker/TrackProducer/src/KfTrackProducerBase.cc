@@ -44,8 +44,14 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
 
     reco::Track * theTrack = (*i).second.first;
-    PropagationDirection seedDir = (*i).second.second;
     
+    // Hits are going to be re-sorted along momentum few lines later. 
+    // Therefore the direction stored in the TrackExtra 
+    // has to be "alongMomentum" as well. Anyway, this direction can be differnt from the one of the orignal
+    // seed! The name seedDirection() for the Track's method (and the corresponding data member) is
+    // misleading and should be changed into something like "hitsDirection()". TO BE FIXED!
+    PropagationDirection seedDir = alongMomentum;
+
     LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
 
     reco::Track t = * theTrack;

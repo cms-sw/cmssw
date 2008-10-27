@@ -73,6 +73,7 @@ process.load('HLTrigger.HLTfilters.hltLevel1GTSeed_cfi')
 # 
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
     'L1_SingleJet15'
+    #'L1_HTT250 OR L1_ETM10 OR L1_ETT60 OR L1_SingleEG15'
     #'L1_HTT250 OR L1_HTT300 OR L1_SingleEG15'
     #'NOT L1_SingleEG15'
     #'L1_ZeroBias'

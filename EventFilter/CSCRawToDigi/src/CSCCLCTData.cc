@@ -91,6 +91,7 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 		  << " cfeb = " << cfeb << " distrip = " << chamberDistrip
 		  << " HalfStrip = " << HalfStrip
 		  << " Output " << output;
+
 	      ///what is actually stored in comparator digis are 0/1 for left/right halfstrip for each strip
 
 	      ///constructing four bitted words for tbits on
@@ -164,28 +165,6 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer)
 }
 
 
-void CSCCLCTData::add(const CSCComparatorDigi & digi, int layer)
-{
-  //FIXME do flipping
-  int strip = digi.getStrip();
-  int halfStrip = (strip-1)*2 + digi.getComparator();
-  int cfeb = (strip-1)/16;
-  int distrip = ((strip-1)%16) / 2;
-  assert(distrip < 8 && cfeb < 6 && halfStrip < 161);
-
-  std::vector<int> timeBinsOn = digi.getTimeBinsOn();
-  for(std::vector<int>::const_iterator tbinItr = timeBinsOn.begin();
-      tbinItr != timeBinsOn.end(); ++tbinItr)
-  {
-    int tbin = *tbinItr;
-    if(tbin >= 0 && tbin < ntbins_)
-    {
-       dataWord(cfeb, tbin, layer).set(distrip, true);
-    }
-  }
-}
-
-
 bool CSCCLCTData::check() const 
 {
   bool result = true;
@@ -211,45 +190,5 @@ bool CSCCLCTData::check() const
     }
   if(!result) LogTrace("CSCCLCTData|CSCRawToDigi") << "++ Bad CLCT Data ++ ";
   return result;
-}
-
-
-void CSCCLCTData::selfTest()
-{
-  CSCCLCTData clctData(5, 16);
-  // aim for output 4 in 5th time bin, = 0000000000010000
-  CSCComparatorDigi comparatorDigi1(1, 0, 0x10);
-  // aim for output 5 in 6th time bin, = 0000 0000 1010 0000
-  CSCComparatorDigi comparatorDigi2(39, 1, 0xA0);
-  // aim for output 7 in 7th time bin, = 000 0001 1100 0000
-  CSCComparatorDigi comparatorDigi3(80, 1, 0x1C0);
-
-  clctData.add(comparatorDigi1,1);
-  clctData.add(comparatorDigi2,4);
-  clctData.add(comparatorDigi3,6);
-
-  CSCDetId layer1(1,4,1,2,1);  
-  CSCDetId layer4(1,4,1,2,4);
-  CSCDetId layer6(1,4,1,2,6);
-
-  std::vector<CSCComparatorDigi> digis1 = clctData.comparatorDigis(1);
-  std::vector<CSCComparatorDigi> digis2 = clctData.comparatorDigis(4);
-  std::vector<CSCComparatorDigi> digis3 = clctData.comparatorDigis(6);
-
-  assert(digis1.size() == 1);
-  assert(digis2.size() == 1);
-  assert(digis3.size() == 1);
-
-  assert(digis1[0].getStrip() == 1);
-  assert(digis1[0].getComparator() == 0);
-  assert(digis1[0].getTimeBin() == 4);
-
-  assert(digis2[0].getStrip() == 39);
-  assert(digis2[0].getComparator() == 1);
-  assert(digis2[0].getTimeBin() == 5);
-
-  assert(digis3[0].getStrip() == 80);
-  assert(digis3[0].getComparator() == 1);
-  assert(digis3[0].getTimeBin() == 6);
 }
 

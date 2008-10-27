@@ -8,7 +8,7 @@ kt10PFJets = cms.EDProducer("KtJetProducer",
     FastjetNoPU,
     KtJetParameters,
     PFJetParameters,
-    
+    JetPtMin = cms.double(1.0),
     alias = cms.untracked.string('KT10PFJet'),
     FJ_ktRParam = cms.double(1.0)
 )

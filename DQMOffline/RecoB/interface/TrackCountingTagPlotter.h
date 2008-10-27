@@ -14,13 +14,14 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackCountingTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update, bool mc);
+	const edm::ParameterSet& pSet, bool update, bool mc, bool willfinalize);
 
   ~TrackCountingTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
 
   virtual void finalize ();
+  virtual void createPlotsForFinalize ();
 
   void epsPlot(const TString & name);
 
@@ -31,6 +32,8 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
   int	nBinEffPur_ ;
   double startEffPur_ ; 
   double endEffPur_ ; 
+
+  bool willFinalize_;
 
   FlavourHistograms<double> * tkcntHistosSig3D[5];
   FlavourHistograms<double> * tkcntHistosSig2D[5];

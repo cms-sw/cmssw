@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.40 2008/09/04 17:47:21 biery Exp $
+   $Id: StorageManager.h,v 1.45 2008/10/13 13:05:36 hcheung Exp $
 */
 
 #include <string>
@@ -29,6 +29,7 @@
 
 #include "EventFilter/StorageManager/interface/JobController.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
+#include "EventFilter/StorageManager/interface/ForeverAverageCounter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -202,26 +203,38 @@ namespace stor {
     xdata::Vector<xdata::UnsignedInteger32> storedEventsInStream_;
     xdata::Vector<xdata::UnsignedInteger32> receivedEventsFromOutMod_;
     typedef std::map<std::string,uint32> countMap;
+    typedef std::map<std::string, boost::shared_ptr<ForeverAverageCounter> > valueMap;
     typedef std::map<uint32,std::string> idMap;
     typedef std::map<uint32,std::string>::iterator idMap_iter;
     countMap receivedEventsMap_;
+    valueMap avEventSizeMap_;
+    valueMap avCompressRatioMap_;
     idMap modId2ModOutMap_;
     countMap storedEventsMap_;
     xdata::Vector<xdata::UnsignedInteger32> fileSize_;
     xdata::Vector<xdata::String> namesOfStream_;
     xdata::Vector<xdata::String> namesOfOutMod_;
 
-    // *** for performance measurements
+    // *** for received data performance measurements
     void addMeasurement(unsigned long size);
     stor::SMPerformanceMeter *pmeter_;
+    void addDQMMeasurement(unsigned long size);
+    stor::SMPerformanceMeter *DQMpmeter_;
 
     // *** measurements for last set of samples
     xdata::UnsignedInteger32 samples_; // number of samples/frames per measurement
+    xdata::UnsignedInteger32 period4samples_; // time period per measurement
     xdata::Double instantBandwidth_; // bandwidth in MB/s
     xdata::Double instantRate_;      // number of frames/s
     xdata::Double instantLatency_;   // micro-seconds/frame
     xdata::Double maxBandwidth_;     // maximum bandwidth in MB/s
     xdata::Double minBandwidth_;     // minimum bandwidth in MB/s
+    // *** measurements for last time period
+    xdata::Double instantBandwidth2_;// bandwidth in MB/s
+    xdata::Double instantRate2_;     // number of frames/s
+    xdata::Double instantLatency2_;  // micro-seconds/frame
+    xdata::Double maxBandwidth2_;    // maximum bandwidth in MB/s
+    xdata::Double minBandwidth2_;    // minimum bandwidth in MB/s
 
     // *** measurements for all samples
     xdata::Double duration_;         // time for run in seconds
@@ -229,6 +242,73 @@ namespace stor {
     xdata::Double meanBandwidth_;    // bandwidth in MB/s
     xdata::Double meanRate_;         // number of frames/s
     xdata::Double meanLatency_;      // micro-seconds/frame
+    xdata::Double receivedVolume_;   // total received data in MB
+
+    xdata::Double duration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 totalSamples2_; //number of samples/frames per measurement
+    xdata::Double meanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double meanRate2_;         // number of frames/s
+    xdata::Double meanLatency2_;      // micro-seconds/frame
+
+    // *** for stored data performance measurements
+    // *** measurements for last set of samples
+    xdata::UnsignedInteger32 store_samples_; // number of samples/frames per measurement
+    xdata::UnsignedInteger32 store_period4samples_; // time period per measurement
+    xdata::Double store_instantBandwidth_; // bandwidth in MB/s
+    xdata::Double store_instantRate_;      // number of frames/s
+    xdata::Double store_instantLatency_;   // micro-seconds/frame
+    xdata::Double store_maxBandwidth_;     // maximum bandwidth in MB/s
+    xdata::Double store_minBandwidth_;     // minimum bandwidth in MB/s
+    // *** measurements for last time period
+    xdata::Double store_instantBandwidth2_;// bandwidth in MB/s
+    xdata::Double store_instantRate2_;     // number of frames/s
+    xdata::Double store_instantLatency2_;  // micro-seconds/frame
+    xdata::Double store_maxBandwidth2_;    // maximum bandwidth in MB/s
+    xdata::Double store_minBandwidth2_;    // minimum bandwidth in MB/s
+
+    // *** measurements for all samples
+    xdata::Double store_duration_;         // time for run in seconds
+    xdata::UnsignedInteger32 store_totalSamples_; //number of samples/frames per measurement
+    xdata::Double store_meanBandwidth_;    // bandwidth in MB/s
+    xdata::Double store_meanRate_;         // number of frames/s
+    xdata::Double store_meanLatency_;      // micro-seconds/frame
+    xdata::Double store_receivedVolume_;   // total received data in MB
+
+    xdata::Double store_duration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 store_totalSamples2_; //number of samples/frames per measurement
+    xdata::Double store_meanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double store_meanRate2_;         // number of frames/s
+    xdata::Double store_meanLatency2_;      // micro-seconds/frame
+
+    // Statistics for received DQM data
+    // *** measurements for last set of samples
+    xdata::UnsignedInteger32 DQMsamples_; // number of samples/frames per measurement
+    xdata::UnsignedInteger32 DQMperiod4samples_; // time period per measurement
+    xdata::Double DQMinstantBandwidth_; // bandwidth in MB/s
+    xdata::Double DQMinstantRate_;      // number of frames/s
+    xdata::Double DQMinstantLatency_;   // micro-seconds/frame
+    xdata::Double DQMmaxBandwidth_;     // maximum bandwidth in MB/s
+    xdata::Double DQMminBandwidth_;     // minimum bandwidth in MB/s
+    // *** measurements for last time period
+    xdata::Double DQMinstantBandwidth2_;// bandwidth in MB/s
+    xdata::Double DQMinstantRate2_;     // number of frames/s
+    xdata::Double DQMinstantLatency2_;  // micro-seconds/frame
+    xdata::Double DQMmaxBandwidth2_;    // maximum bandwidth in MB/s
+    xdata::Double DQMminBandwidth2_;    // minimum bandwidth in MB/s
+
+    // *** measurements for all samples
+    xdata::Double DQMduration_;         // time for run in seconds
+    xdata::UnsignedInteger32 DQMtotalSamples_; //number of samples/frames per measurement
+    xdata::Double DQMmeanBandwidth_;    // bandwidth in MB/s
+    xdata::Double DQMmeanRate_;         // number of frames/s
+    xdata::Double DQMmeanLatency_;      // micro-seconds/frame
+    xdata::Double DQMreceivedVolume_;   // total received data in MB
+
+    xdata::Double DQMduration2_;         // time for run in seconds
+    xdata::UnsignedInteger32 DQMtotalSamples2_; //number of samples/frames per measurement
+    xdata::Double DQMmeanBandwidth2_;    // bandwidth in MB/s
+    xdata::Double DQMmeanRate2_;         // number of frames/s
+    xdata::Double DQMmeanLatency2_;      // micro-seconds/frame
 
     // *** additional flashlist contents (rest was already there)
     xdata::String            class_;
@@ -257,6 +337,8 @@ namespace stor {
     unsigned int lastEventSeen_; // report last seen event id
     unsigned int lastErrorEventSeen_; // report last error event id seen
     boost::mutex rblist_lock_;  // quick (temporary) fix for registration problem
+
+    std::string sm_cvs_version_;
 
     enum
     {

@@ -160,6 +160,7 @@ if ( $opt_flag == "true" ) then
 	set rsys = "rfio:"
 	set osys = "file:"
 	set iscastor = `echo $filename | grep -o /castor/cern.ch`
+	set isdata = `echo $filename | grep -o /store/data`
 	set calibtype = `echo $filename | grep -o -e "PixelAlive" -e "SCurve" -e "GainCalibration"`
 	set file_extension = `echo $filename | grep -o -e ".dmp" -e ".root" -e ".dat"`
 	set endrun = `echo $filename | grep -o -e "_[0-9]\{2,\}\."`
@@ -178,6 +179,8 @@ if ( $opt_flag == "true" ) then
 
 	if(  $iscastor == "/castor/cern.ch" ) then
 	    set filetorun = $rsys$filename
+	else if ( $isdata == "/store/data" ) then
+	    set filetorun = $filename
 	else
 	    set filetorun = $osys$filename
 	endif

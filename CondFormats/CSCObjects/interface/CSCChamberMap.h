@@ -28,8 +28,6 @@ class CSCChamberMap{
   /// slink id for given DetId
   int slink(const CSCDetId&) const;
 
-  int dduSlot(const CSCDetId&) const;
-
   /// Data are public. @@Should be private?
   typedef std::map< int, CSCMapItem::MapItem > CSCMap;
   CSCMap ch_map;

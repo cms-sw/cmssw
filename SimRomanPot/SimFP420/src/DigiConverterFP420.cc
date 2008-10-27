@@ -5,11 +5,11 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/DigiConverterFP420.h"
+//#define mydigidebug8
 
-DigiConverterFP420::DigiConverterFP420(float in,int verbosity){
+DigiConverterFP420::DigiConverterFP420(float in){
 
   electronperADC = in;
-  verbos = verbosity;
   
   const int defaultBits = 10;
   const int largestBits = 30;
@@ -23,10 +23,10 @@ DigiConverterFP420::DigiConverterFP420(float in,int verbosity){
   
   theMaxADC = ~(~0 << adcBits);
   //      cout << "theMaxADC= "<< theMaxADC  << endl; // = 1023
-  if(verbos>0) {
-    std::cout << " ***DigiConverterFP420: constructor" << std::endl;
-    std::cout << "with known electronperADC =  " << electronperADC << "the adcBits =  " << adcBits << "  theMaxADC=  " << theMaxADC << "for known defaultBits=  " << defaultBits << " largestBits=  " << largestBits << std::endl;
-  }
+#ifdef mydigidebug8
+  std::cout << " ***DigiConverterFP420: constructor" << std::endl;
+  std::cout << "with known electronperADC =  " << electronperADC << "the adcBits =  " << adcBits << "  theMaxADC=  " << theMaxADC << "for known defaultBits=  " << defaultBits << " largestBits=  " << largestBits << std::endl;
+#endif
 }
 
 DConverterFP420::DigitalMapType
@@ -40,10 +40,10 @@ DigiConverterFP420::convert(const signal_map_type& analogSignal){
     //with truncation check
     int adc = convert((*i).second);
     
-    if(verbos>0) {
-      std::cout << " ***DigiConverterFP420: convert: after truncation " << std::endl;
-      std::cout << "adc =  " << adc << " (*i).first =  " << (*i).first << std::endl;
-    }
+#ifdef mydigidebug8
+    std::cout << " ***DigiConverterFP420: convert: after truncation " << std::endl;
+    std::cout << "adc =  " << adc << " (*i).first =  " << (*i).first << std::endl;
+#endif
     if ( adc > 0) _temp.insert( _temp.end(),
 				DigitalMapType::value_type((*i).first, adc));
   }
@@ -56,10 +56,10 @@ DigiConverterFP420::convert(const signal_map_type& analogSignal){
 int DigiConverterFP420::truncate(float in_adc) {
   
   int adc = int(in_adc);
-  if(verbos>0) {
-    std::cout << " ***DigiConverterFP420: truncate" << std::endl;
-    std::cout << "if adc =  " << adc << "bigger theMaxADC =  " << theMaxADC << " adc=theMaxADC !!!"  << std::endl;
-  }
+#ifdef mydigidebug8
+  std::cout << " ***DigiConverterFP420: truncate" << std::endl;
+  std::cout << "if adc =  " << adc << "bigger theMaxADC =  " << theMaxADC << " adc=theMaxADC !!!"  << std::endl;
+#endif
   if (adc > theMaxADC) adc = theMaxADC;
   
   return adc;

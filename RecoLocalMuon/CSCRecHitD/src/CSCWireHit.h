@@ -6,6 +6,9 @@
  *
  * Yields the position in terms wire group # of a 1-D reconstructed 
  * wire hit in one layer of an Endcap Muon CSC.
+ * 
+ *
+ * \author Dominique Fortin - UCR
  *
  */
 

@@ -10,7 +10,6 @@
   <class name="reco::PFCandidate::ElementsInBlocks"/>
   <class name="edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef>"/>
   <class name="edm::reftobase::RefHolder<reco::PFCandidateRef>"/>
-  <class name="reco::PFCandidatePtr"/>
 
   <class name="reco::IsolatedPFCandidate" />
   <class name="std::vector<reco::IsolatedPFCandidate>"/>
@@ -18,7 +17,6 @@
   <class name="reco::IsolatedPFCandidateRef"/>
   <class name="reco::IsolatedPFCandidateRefProd"/>
   <class name="reco::IsolatedPFCandidateRefVector"/>
-  <class name="reco::IsolatedPFCandidatePtr"/>
 
   <class name="reco::PileUpPFCandidate" />
   <class name="std::vector<reco::PileUpPFCandidate>"/>
@@ -26,7 +24,6 @@
   <class name="reco::PileUpPFCandidateRef"/>
   <class name="reco::PileUpPFCandidateRefProd"/>
   <class name="reco::PileUpPFCandidateRefVector"/>
-  <class name="reco::PileUpPFCandidatePtr"/>
 
 </lcgdict>
  

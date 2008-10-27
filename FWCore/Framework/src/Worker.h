@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.32 2008/01/11 20:30:09 wmtan Exp $
+$Id: Worker.h,v 1.33 2008/01/15 06:52:00 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -142,7 +142,7 @@ namespace edm {
 
     ModuleDescription md_;
     ActionTable const* actions_; // memory assumed to be managed elsewhere
-    boost::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
+    boost::shared_ptr<edm::Exception> cached_exception_; // if state is 'exception'
 
     Sigs sigs_;
   };
@@ -179,8 +179,7 @@ namespace edm {
       case Fail: return false;
       case Exception: {
 	  // rethrow the cached exception again
-	  // only cms::Exceptions can be cached and contributing to
-	  // actions or processing routing.  It seems impossible to
+	  // It seems impossible to
 	  // get here a second time until a cms::Exception has been 
 	  // thrown prviously.
 	  LogWarning("repeat") << "A module has been invoked a second "
@@ -262,7 +261,12 @@ namespace edm {
 	      state_ = Exception;
 	      e << "cms::Exception going through module ";
               exceptionContext(md_, ep, e);
-	      cached_exception_.reset(new cms::Exception(e));
+	      edm::Exception *edmEx = dynamic_cast<edm::Exception *>(&e);
+	      if (edmEx) {
+	        cached_exception_.reset(new edm::Exception(*edmEx));
+	      } else {
+	        cached_exception_.reset(new edm::Exception(errors::OtherCMS, std::string(), e));
+	      }
 	      throw;
 	  }
 	}
@@ -271,9 +275,9 @@ namespace edm {
     catch(std::bad_alloc& bda) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("std::bad_alloc"));
+	cached_exception_.reset(new edm::Exception(errors::BadAlloc));
 	*cached_exception_
-	  << "An std::bad_alloc exception occurred during a call to the module ";
+	  << "A std::bad_alloc exception occurred during a call to the module ";
 	exceptionContext(md_, ep, *cached_exception_)
 	  << "The job has probably exhausted the virtual memory available to the process.\n";
 	throw *cached_exception_;
@@ -281,9 +285,9 @@ namespace edm {
     catch(std::exception& e) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("StdException"));
+	cached_exception_.reset(new edm::Exception(errors::StdException));
 	*cached_exception_
-	  << "An std::exception occurred during a call to the module ";
+	  << "A std::exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.what();
 	throw *cached_exception_;
@@ -291,9 +295,9 @@ namespace edm {
     catch(std::string& s) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("BadExceptionType","std::string"));
+	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
 	*cached_exception_
-	  << "An std::string thrown as an exception occurred during a call to the module ";
+	  << "A std::string thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
 	  << "Previous information:\n string = " << s;
 	throw *cached_exception_;
@@ -301,7 +305,7 @@ namespace edm {
     catch(char const* c) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("BadExceptionType","const char*"));
+	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
 	*cached_exception_
 	  << "A const char* thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
@@ -311,11 +315,11 @@ namespace edm {
     catch(...) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("repeated"));
+	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
 	*cached_exception_
 	  << "An unknown occurred during a previous call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n";
-        throw;
+	throw *cached_exception_;
     }
 
     return rc;

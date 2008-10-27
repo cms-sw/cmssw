@@ -31,30 +31,37 @@ namespace edm {
     // fragment FWCore/Framework/test/cmsExceptionsFatalOption.cff.
 
     enum ErrorCodes {
-       Unknown=0,
-       ProductNotFound,
-       DictionaryNotFound,
-       InsertFailure,
-       Configuration,
-       LogicError,
-       UnimplementedFeature,
-       InvalidReference,
-       NullPointerError,
-       NoProductSpecified,
-       EventTimeout,
-       EventCorruption,
+       OtherCMS = 8001,
+       StdException = 8002,
+       Unknown = 8003,
+       BadAlloc = 8004,
+       BadExceptionType = 8005,
 
-       ModuleFailure,
-       ScheduleExecutionFailure,
-       EventProcessorFailure,
+       ProductNotFound = 8006,
+       DictionaryNotFound = 8007,
+       InsertFailure = 8008,
+       Configuration = 8009,
+       LogicError = 8010,
+       UnimplementedFeature = 8011,
+       InvalidReference = 8012,
+       NullPointerError = 8013,
+       NoProductSpecified = 8014,
+       EventTimeout = 8015,
+       EventCorruption = 8016,
 
-       FileInPathError,
-       FatalRootError,
+       ScheduleExecutionFailure = 8017,
+       EventProcessorFailure = 8018,
 
-       ProductDoesNotSupportViews,
-       ProductDoesNotSupportPtr,
+       FileInPathError = 8019,
+       FileOpenError = 8020,
+       FileReadError = 8021,
+       FatalRootError = 8022,
+       MismatchedInputFiles = 8023,
 
-       NotFound
+       ProductDoesNotSupportViews = 8024,
+       ProductDoesNotSupportPtr = 8025,
+
+       NotFound = 8026
     };
 
   }

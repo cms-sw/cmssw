@@ -1,5 +1,17 @@
 // -*- C++ -*-
 //
+// Oct3 2008
+// Difference in tag V00-02-45 with previous code
+
+// 1. One new object on data format, which was realised in  
+//     CRUZET data analysis.
+//2.  Remove all histogram and cout in the code
+//3. An upgrade in code, which increases the acceptance of 
+//    muon near the edge (this also realised in CRUZET data).
+// Difference in wrt V00-02-45
+// 1. initialisation tmpHOCalib.htime = -1000;
+// 2. By mistake HLT was commented out
+
 // Package:    AlCaHOCalibProducer
 // Class:      AlCaHOCalibProducer
 // 
@@ -555,10 +567,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }// else { return;}
     
     //HLT 
-    
+
     Handle<edm::TriggerResults> trigRes;
     bool isTrig=true;
-    
+
     try{
       iEvent.getByLabel(hltLabel_, trigRes);
     } catch (cms::Exception &iEvent) { isTrig=false;}
@@ -577,6 +589,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (i<32 && ihlt>0) hlttr += int(pow(2., double(i%32))*ihlt);
       }
     }
+
     
     int Noccu_old = Noccu;
     
@@ -823,6 +836,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for (int i=0; i<18; i++) {tmpHOCalib.hocorsig[i]=-100.0;}
 	for (int i=0; i<9; i++) {tmpHOCalib.hbhesig[i]=-100.0;}
 	tmpHOCalib.hocro = -100;
+        tmpHOCalib.htime = -1000;
 	
 	int isect = 0;
 

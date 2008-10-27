@@ -4,12 +4,19 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "DataFormats/Provenance/interface/TransientStreamer.h"
+#include "DataFormats/Common/interface/CacheStreamers.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
 
 #include <string.h>
 #include <sstream>
 
 #include "TSystem.h"
 #include "TError.h"
+#include "TTree.h"
+#include "Cintex/Cintex.h"
+#include "TH1.h"
+#include "G__ci.h"
 
 namespace {
 
@@ -180,6 +187,19 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   if(autoLibraryLoader_) {
     RootAutoLibraryLoader::enable();
   }
+
+  // Enable Cintex.
+  ROOT::Cintex::Cintex::Enable();
+
+  // Set ROOT parameters.
+  TTree::SetMaxTreeSize(kMaxLong64);
+  TH1::AddDirectory(kFALSE);
+  G__SetCatchException(0);
+
+  // Set custom streamers
+  setCacheStreamers();
+  setTransientStreamers();
+  setRefCoreStreamer();
 }
 
 

@@ -54,11 +54,11 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
 
  private:
   
-  void  run(const edm::EventSetup& c, 
+  bool run(const edm::EventSetup& c, 
 	    const edm::Event& e, 
             TrajectorySeedCollection& output);
 
-  void buildSeeds(const edm::EventSetup& iSetup,
+  bool buildSeeds(const edm::EventSetup& iSetup,
                   const edm::Event& e,
 		  const OrderedSeedingHits& osh,
 		  const NavigationDirection& navdir,
@@ -92,6 +92,7 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   BoundPlane::BoundPlanePointer upperScintillator;
   BoundPlane::BoundPlanePointer lowerScintillator;
   bool requireBOFF;
+  int32_t theMaxSeeds;
 };
 #endif
 

@@ -1,8 +1,8 @@
 #include "DQMOffline/RecoB/interface/TrackCountingTagPlotter.h"
 
 TrackCountingTagPlotter::TrackCountingTagPlotter(const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc) :
-	BaseTagInfoPlotter(tagName, etaPtBin)
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc, bool wf) :
+  BaseTagInfoPlotter(tagName, etaPtBin), willFinalize_(wf)
 {
   mcPlots_ = mc;
   nBinEffPur_  = pSet.getParameter<int>("nBinEffPur");
@@ -65,6 +65,8 @@ TrackCountingTagPlotter::TrackCountingTagPlotter(const TString & tagName,
        ("ips4" + theExtensionString, "2D Significance of impact parameter 4th trk",
 	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
+  if (willFinalize_ == true) createPlotsForFinalize();
+
 }
 
 
@@ -115,8 +117,9 @@ void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->significance(n,0));
 }
 
-void TrackCountingTagPlotter::finalize ()
-{
+
+
+void TrackCountingTagPlotter::createPlotsForFinalize (){
   //
   // final processing:
   // produce the misid. vs. eff histograms
@@ -133,6 +136,10 @@ void TrackCountingTagPlotter::finalize ()
   effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],std::string((const char *)("TrackCounting"+theExtensionString)),mcPlots_,
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
+}
+
+void TrackCountingTagPlotter::finalize ()
+{
   for(int n=0; n < 4; n++) effPurFromHistos[n]->compute();
   finalized = true;
 }

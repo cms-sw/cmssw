@@ -38,8 +38,6 @@ public:
   /// from the header or trailer
   int sizeInWords() const {return theSizeInWords;}
 
-  void addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dmbID);
-
   ///packs data into bits
   boost::dynamic_bitset<> pack();  
 

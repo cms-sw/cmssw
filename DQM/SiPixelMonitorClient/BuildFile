@@ -1,8 +1,13 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=DQMServices/Core>
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
@@ -15,10 +20,13 @@
 <lib name=DQMSiPixelMonitorClient>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
 <use name=DQMServices/Components>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=DQMServices/Core>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
 <use name=DQMServices/XdaqCollector>

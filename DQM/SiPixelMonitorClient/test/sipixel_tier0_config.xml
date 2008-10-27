@@ -1,0 +1,89 @@
+<MonElementConfiguration> 
+<TkMap name="Summary Map" update_frequency="200">
+</TkMap>
+<SummaryPlot>
+<SubStructureBarrelLevel name="Layer_" update_frequency="300"> 
+     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="adc"></MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
+     <MonElement name="ClustX"> </MonElement>
+     <MonElement name="ClustY"> </MonElement>
+     <MonElement name="nRecHits"> </MonElement>
+</SubStructureBarrelLevel> 
+<SubStructureGrandBarrelLevel name="Ladder_" update_frequency="300"> 
+     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="adc"></MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
+     <MonElement name="ClustX"> </MonElement>
+     <MonElement name="ClustY"> </MonElement>
+     <MonElement name="nRecHits"> </MonElement>
+</SubStructureGrandBarrelLevel> 
+<SubStructureEndcapLevel name="Disk_" update_frequency="300"> 
+     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="adc"></MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
+     <MonElement name="ClustX"> </MonElement>
+     <MonElement name="ClustY"> </MonElement>
+     <MonElement name="nRecHits"> </MonElement>
+</SubStructureEndcapLevel> 
+<SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
+     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="adc"></MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
+     <MonElement name="ClustX"> </MonElement>
+     <MonElement name="ClustY"> </MonElement>
+     <MonElement name="nRecHits"> </MonElement>
+</SubStructureGrandEndcapLevel> 
+</SummaryPlot>
+
+<QTests>
+<QTestMessageLimit name="limit" value="0">
+</QTestMessageLimit>
+</QTests>
+
+<Source>
+<SourceType name="source" code="20">
+</SourceType>
+</Source>
+
+</MonElementConfiguration> 

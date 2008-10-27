@@ -1,3 +1,10 @@
+2008-10-09  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-16
+	* StateMachine: add rcmsStateListener() method, the result of
+	which should be published to the client application infospace
+	(AutoBU, RB, EP, and SM)
+
 2008-09-17  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-14-15

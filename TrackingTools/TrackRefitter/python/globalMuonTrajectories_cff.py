@@ -16,9 +16,7 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 globalMuons = cms.EDFilter("TracksToTrajectories",
     Tracks = cms.InputTag("globalMuons"),
     TrackTransformer = cms.PSet(
-        DoPredictionsOnly = cms.bool(False),
         Fitter = cms.string('KFFitterForRefitInsideOut'),
-#        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
@@ -27,6 +25,5 @@ globalMuons = cms.EDFilter("TracksToTrajectories",
         Propagator = cms.string('SmartPropagatorAnyRK')
     )
 )
-
 
 

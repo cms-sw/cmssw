@@ -10,8 +10,8 @@
 namespace edm {
   ProcessHistoryID
   ProcessHistory::id() const {
-    if(id_.isValid()) {
-      return id_;
+    if(phid().isValid()) {
+      return phid();
     }
     // This implementation is ripe for optimization.
     // We do not use operator<< because it does not write out everything.
@@ -25,8 +25,8 @@ namespace edm {
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
     ProcessHistoryID tmp(md5alg.digest().toString());
-    id_.swap(tmp);
-    return id_;
+    phid().swap(tmp);
+    return phid();
   }
 
   bool

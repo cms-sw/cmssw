@@ -18,5 +18,6 @@ FittingSmootherRKP5.Smoother = 'RKSmoother'
 FittingSmootherRKP5.MinNumberOfHits = 4
 ctfWithMaterialTracksP5.src = 'ckfTrackCandidatesP5'
 ctfWithMaterialTracksP5.Fitter = 'FittingSmootherRKP5'
+ctfWithMaterialTracksP5.TTRHBuilder = 'WithTrackAngle'
 
 

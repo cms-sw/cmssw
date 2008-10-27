@@ -11,52 +11,52 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     ),
 
     TH1ADCsCoolestStrip = cms.PSet(
-       xmin = cms.double(-0.5),
-       layerswitchon = cms.bool(False),
        Nbinx = cms.int32(60),
+       xmin = cms.double(-0.5),
        xmax = cms.double(299.5),
+       layerswitchon = cms.bool(False),
        moduleswitchon = cms.bool(True)
     ),
     TH1ADCsHottestStrip = cms.PSet(
-        xmin = cms.double(-0.5),
-        layerswitchon = cms.bool(False),
         Nbinx = cms.int32(60),
+        xmin = cms.double(-0.5),
         xmax = cms.double(299.5),
+        layerswitchon = cms.bool(False),
         moduleswitchon = cms.bool(True)
     ),
     TH1DigiADCs = cms.PSet(
+        Nbinx = cms.int32(64),
         xmin = cms.double(-0.5),
+        xmax = cms.double(255.5),        
         layerswitchon = cms.bool(True),
-        Nbinx = cms.int32(100),
-        xmax = cms.double(499.5),
         moduleswitchon = cms.bool(True)
     ),
     TH1NumberOfDigis = cms.PSet(
-        xmin = cms.double(-0.5),
-        layerswitchon = cms.bool(True),
         Nbinx = cms.int32(50),
+        xmin = cms.double(-0.5),
         xmax = cms.double(499.5),
+        layerswitchon = cms.bool(True),
         moduleswitchon = cms.bool(True)
     ),
     TH1StripOccupancy = cms.PSet(
-        xmin = cms.double(0.0),
-        layerswitchon = cms.bool(True),
-        Nbinx = cms.int32(100),
-        xmax = cms.double(1.0),
+        Nbinx = cms.int32(51),
+        xmin = cms.double(-0.01),
+        xmax = cms.double(1.01),
+        layerswitchon = cms.bool(True),        
         moduleswitchon = cms.bool(True)
     ),
     TProfNumberOfDigi = cms.PSet(
-        xmin = cms.double(-0.5),
-        layerswitchon = cms.bool(True),        
         Nbinx = cms.int32(100),
+        xmin = cms.double(-0.5),
         xmax = cms.double(499.5),
+        layerswitchon = cms.bool(True),        
         moduleswitchon = cms.bool(False)        
     ),
     TProfDigiADC = cms.PSet(
-        xmin = cms.double(0.0),
-        layerswitchon = cms.bool(True),        
         Nbinx = cms.int32(100),
+        xmin = cms.double(0.0),
         xmax = cms.double(499.5),
+        layerswitchon = cms.bool(True),
         moduleswitchon = cms.bool(False)        
     ),
 
@@ -71,6 +71,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         ymin = cms.double(0.0)
     ),
 
+    Mod_On = cms.bool(True),
     #select detectors
     detectorson = cms.PSet(
         tidon = cms.bool(True),

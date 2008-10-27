@@ -5,8 +5,8 @@
 #include "DQMOffline/RecoB/interface/TrackIPTagPlotter.h"
 
 TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc) :
-	BaseTagInfoPlotter(tagName, etaPtBin)
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc, bool wf) :
+  BaseTagInfoPlotter(tagName, etaPtBin), willFinalize_(wf)
 {
 
   mcPlots_ = mc;
@@ -216,6 +216,9 @@ TrackIPTagPlotter::TrackIPTagPlotter(const TString & tagName,
        ("jetDistSign" + theExtensionString, "JetDistance significance",
 	50, -100.0, 100.0, false, true, true, "b", update,std::string((const char *)("TrackIPPlots"+theExtensionString)), mc);
 
+
+  if (willFinalize_) createPlotsForFinalize();
+
 }
 
 
@@ -322,12 +325,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
 
 }
 
-void TrackIPTagPlotter::finalize ()
-{
-  //
-  // final processing:
-  // produce the misid. vs. eff histograms
-  //
+void TrackIPTagPlotter::createPlotsForFinalize (){
   effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],std::string((const char *)("TrackIPPlots"+theExtensionString)), mcPlots_, 
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
@@ -340,6 +338,15 @@ void TrackIPTagPlotter::finalize ()
   effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],std::string((const char *)("TrackIPPlots"+theExtensionString)), mcPlots_,
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
+}
+
+
+void TrackIPTagPlotter::finalize ()
+{
+  //
+  // final processing:
+  // produce the misid. vs. eff histograms
+  //
   for(int n=0; n < 4; n++) effPurFromHistos[n]->compute();
   finalized = true;
 }

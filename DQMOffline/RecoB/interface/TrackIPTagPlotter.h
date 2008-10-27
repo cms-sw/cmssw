@@ -14,12 +14,13 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackIPTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update, bool mc);
+	const edm::ParameterSet& pSet, bool update, bool mc, bool wf);
 
   ~TrackIPTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
 
+  virtual void createPlotsForFinalize ();
   virtual void finalize ();
 
   void epsPlot(const TString & name);
@@ -32,6 +33,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   double startEffPur_ ; 
   double endEffPur_ ; 
   bool mcPlots_;
+  bool willFinalize_;
 
   FlavourHistograms<double> * tkcntHistosSig3D[5];
   FlavourHistograms<double> * tkcntHistosSig2D[5];

@@ -87,17 +87,17 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTMuon::analyze(const MuonCollection * Muon,
-		      const RecoChargedCandidateCollection * MuCands2,
-		      const edm::ValueMap<bool> * isoMap2,
-		      const RecoChargedCandidateCollection * MuCands3,
-		      const edm::ValueMap<bool> * isoMap3,
-		      const MuonTrackLinksCollection * mulinks,
+void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
+		      const edm::Handle<RecoChargedCandidateCollection> & MuCands2,
+		      const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
+		      const edm::Handle<RecoChargedCandidateCollection> & MuCands3,
+		      const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+		      const edm::Handle<MuonTrackLinksCollection>       & mulinks,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTMuon " << std::endl;
 
-  if (Muon) {
+  if (Muon.isValid()) {
     MuonCollection mymuons;
     mymuons = * Muon;
     std::sort(mymuons.begin(),mymuons.end(),PtGreater());
@@ -119,7 +119,7 @@ void HLTMuon::analyze(const MuonCollection * Muon,
 
   // Dealing with L2 muons
   RecoChargedCandidateCollection myMucands2;
-  if (MuCands2) {
+  if (MuCands2.isValid()) {
 //     RecoChargedCandidateCollection myMucands2;
     myMucands2 = * MuCands2;
     std::sort(myMucands2.begin(),myMucands2.end(),PtGreater());
@@ -166,7 +166,7 @@ void HLTMuon::analyze(const MuonCollection * Muon,
 			muonl2pterr[imu2c] = l2_err0/l2_abspar0;
       muonl2chg[imu2c] = tk->charge();
 
-      if (isoMap2){
+      if (isoMap2.isValid()){
 	// Isolation flag (this is a bool value: true => isolated)
 	edm::ValueMap<bool> ::value_type muon1IsIsolated = (*isoMap2)[tk];
 	muonl2iso[imu2c] = muon1IsIsolated;
@@ -180,7 +180,7 @@ void HLTMuon::analyze(const MuonCollection * Muon,
 
   // Dealing with L3 muons
   RecoChargedCandidateCollection myMucands3;
-  if (MuCands3) {
+  if (MuCands3.isValid()) {
     myMucands3 = * MuCands3;
     std::sort(myMucands3.begin(),myMucands3.end(),PtGreater());
     nmu3cand = myMucands3.size();
@@ -200,7 +200,7 @@ void HLTMuon::analyze(const MuonCollection * Muon,
 	il3++;
       }
       int imu2idx = 0;
-      if (MuCands2) {
+      if (MuCands2.isValid()) {
 	typedef RecoChargedCandidateCollection::const_iterator candl2;
 	for (candl2 i=myMucands2.begin(); i!=myMucands2.end(); i++) {
 	  TrackRef tkl2 = i->get<TrackRef>();
@@ -248,7 +248,7 @@ void HLTMuon::analyze(const MuonCollection * Muon,
       muonl3pterr[imu3c] = l3_err0/l3_abspar0;
       muonl3chg[imu3c] = tk->charge();
 
-      if (isoMap3){
+      if (isoMap3.isValid()){
 	// Isolation flag (this is a bool value: true => isolated)
 	edm::ValueMap<bool> ::value_type muon1IsIsolated = (*isoMap3)[tk];
 	muonl3iso[imu3c] = muon1IsIsolated;

@@ -435,7 +435,7 @@ void PhiSymmetryCalibration::endJob()
        miscal_resid_barl_histos[ieta] = new TH1F(t1.str().c_str(),"",50,.8,1.2);
        ostringstream t2;
        t2<<"co_barl_"<<ieta+1;
-       correl_barl_histos[ieta] = new TH2F(t2.str().c_str(),"",50,.8,1.2,50,.8,1.2);
+       correl_barl_histos[ieta] = new TH2F(t1.str().c_str(),"",50,.8,1.2,50,.8,1.2);
      }
 
     std::vector<TH1F*> miscal_resid_endc_histos(kEndcEtaRings);
@@ -483,7 +483,7 @@ void PhiSymmetryCalibration::endJob()
       int sign = ee.zside()>0 ? 1 : 0;
       newCalibs_endc[ix][iy][sign] = 
                                     oldCalibs_endc[ix][iy][sign]/
-                                 (1+epsilon_M_endc[ix][iy][sign]);
+                                 (1+epsilon_M_endc[ix][iy][sign])/1.03;
       eehisto.Fill(newCalibs_endc[ix][iy][sign]);
       endcapWriter.writeLine(ee,newCalibs_endc[ix][iy][sign]);
       miscal_resid_endc_histos[endcapRing_[ix][iy]]->Fill(newCalibs_endc[ix][iy][sign]);

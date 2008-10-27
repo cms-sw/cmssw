@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/09/23 05:08:04 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/15 18:43:44 $
+ *  $Revision: 1.3 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -17,6 +17,7 @@
 
 #include <TH1F.h>
 #include <cmath>
+//#include <boost/tokenizer.hpp>
 
 using namespace std;
 using namespace edm;
@@ -27,95 +28,22 @@ typedef vector<string> vstring;
 PostProcessor::PostProcessor(const ParameterSet& pset)
 {
   commands_ = pset.getParameter<vstring>("commands");
-  effCmds_ = pset.getParameter<vstring>("efficiency");
-  resCmds_ = pset.getParameter<vstring>("resolution");
-
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
   subDir_ = pset.getUntrackedParameter<string>("subDir");
 }
 
 void PostProcessor::endJob()
 {
-  theDQM = 0;
-  theDQM = Service<DQMStore>().operator->();
+  DQMStore * dqm = 0;
+  dqm = Service<DQMStore>().operator->();
 
-  if ( ! theDQM ) {
+  if ( ! dqm ) {
     LogInfo("PostProcessor") << "Cannot create DQMStore instance\n";
     return;
   }
 
-  if ( subDir_[subDir_.size()-1] == '/' ) subDir_.erase(subDir_.size()-1);
-
-  // Process wildcard in the sub-directory
-  vector<string> subDirs;
-  if ( subDir_[subDir_.size()-1] == '*' ) {
-    const string::size_type shiftPos = subDir_.rfind('/');
-
-    const string searchPath = subDir_.substr(0, shiftPos);
-    theDQM->cd(searchPath);
-
-    vector<string> foundDirs = theDQM->getSubdirs();
-    const string matchStr = subDir_.substr(0, subDir_.size()-2);
-
-    for(vector<string>::const_iterator iDir = foundDirs.begin();
-        iDir != foundDirs.end(); ++iDir) {
-      const string dirPrefix = iDir->substr(0, matchStr.size());
-
-      if ( dirPrefix == matchStr ) {
-        subDirs.push_back(*iDir);
-      }
-    }
-  }
-  else {
-    subDirs.push_back(subDir_);
-  }
-
-  for(vector<string>::const_iterator iSubDir = subDirs.begin();
-      iSubDir != subDirs.end(); ++iSubDir) {
-    typedef boost::escaped_list_separator<char> elsc;
-
-    const string& dirName = *iSubDir;
-
-    for(vstring::const_iterator iCmd = effCmds_.begin();
-        iCmd != effCmds_.end(); ++iCmd) {
-      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
-
-      vector<string> args;
-      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
-          iToken != tokens.end(); ++iToken) {
-        if ( iToken->empty() ) continue;
-        args.push_back(*iToken);
-      }
-
-      if ( args.size() != 4 ) {
-        cout << "Wrong input to effCmds\n";
-        continue;
-      }
-
-      computeEfficiency(dirName, args[0], args[1], args[2], args[3]);
-    }
-
-    for(vstring::const_iterator iCmd = resCmds_.begin();
-        iCmd != resCmds_.end(); ++ iCmd) {
-      boost::tokenizer<elsc> tokens(*iCmd, elsc("\\", " \t", "\'"));
-
-      vector<string> args;
-      for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
-          iToken != tokens.end(); ++iToken) {
-        if ( iToken->empty() ) continue;
-        args.push_back(*iToken);
-      }
-
-      if ( args.size() != 3 ) {
-        cout << "Wrong input to resCmds\n";
-        continue;
-      }
-
-      computeResolution(dirName, args[0], args[1], args[2]);
-    }
-  }
-
-/*
+  theDQM = dqm;
+  
   for(vstring::const_iterator iCmd = commands_.begin();
       iCmd != commands_.end(); ++iCmd) {
     const string& cmd = *iCmd;
@@ -126,20 +54,17 @@ void PostProcessor::endJob()
     tokenizer<elsc> tokens(cmd, elsc("\\", " \t", "\'"));
 
     vector<tokenizer<elsc>::value_type> args;
-    copy(tokens.begin(), tokens.end(), args.begin());
+
+    for(tokenizer<elsc>::const_iterator tok_iter = tokens.begin();
+        tok_iter != tokens.end(); ++tok_iter) {
+      args.push_back(*tok_iter);
+    }
 
     if ( args.empty() ) continue;
 
-    if (args[1][0] != 'C' ) {
-      processLoop(args[0],args);
-    }
-    else {
-      computeFunction(args[0],args);
-    }
-  }
-*/
+    processLoop(args[0],args);
 
-  theDQM->showDirStructure();
+  }
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }
@@ -147,25 +72,12 @@ void PostProcessor::endJob()
 void PostProcessor::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
                                       const string& recoMEName, const string& simMEName)
 {
-  if ( ! theDQM->dirExists(startDir) ) {
-    LogError("PostProcessor") << "computeEfficiency() : Cannot find sub-directory " << startDir << endl; 
-    return;
-  }
-
-  theDQM->cd();
-
-  ME* simME  = theDQM->get(startDir+"/"+simMEName);
-  ME* recoME = theDQM->get(startDir+"/"+recoMEName);
-
-  if ( !simME ) {
-    LogError("PostProcessor") << "computeEfficiency() : "
-                              << "No sim-ME '" << simMEName << "' found\n";
-    return;
-  }
-
-  if ( !recoME ) {
-    LogError("PostProcessor") << "computeEfficiency() : " 
-                              << "No reco-ME '" << recoMEName << "' found\n";
+  theDQM->cd(startDir);
+  ME* simME  = theDQM->get(simMEName);
+  ME* recoME = theDQM->get(recoMEName);
+  if ( !simME || !recoME ) {
+    LogError("PostProcessor") << "computeEfficiency() : No reco-ME '" << recoMEName 
+                              << "' or sim-ME '" << simMEName << "' found\n";
     return;
   }
 
@@ -176,24 +88,15 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     return;
   }
 
-  string efficDir = startDir;
-  string newEfficMEName = efficMEName;
-  string::size_type shiftPos;
-  if ( string::npos != (shiftPos = efficMEName.rfind('/')) ) {
-    efficDir += "/"+efficMEName.substr(0, shiftPos);
-    newEfficMEName.erase(0, shiftPos+1);
-  }
-  theDQM->setCurrentFolder(efficDir);
-  ME* efficME = theDQM->book1D(newEfficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax());
-
+  theDQM->setCurrentFolder(startDir);
+  ME* efficME = theDQM->book1D(efficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax());
   if ( !efficME ) {
     LogError("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
     return;
   }
 
-//  hReco->Sumw2();
-//  hSim->Sumw2();
-
+  hReco->Sumw2();
+  hSim->Sumw2();
   //  efficME->getTH1F()->Divide(hReco, hSim, 1., 1., "B");
 
   const int nBin = efficME->getNbinsX();
@@ -205,21 +108,14 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     efficME->setBinContent(bin, eff);
     efficME->setBinError(bin, err);
   }
-  efficME->setEntries(simME->getEntries());
 
 }
 
 void PostProcessor::computeResolution(const string& startDir, const string& namePrefix, const string& titlePrefix,
                                       const std::string& srcName)
 {
-  if ( ! theDQM->dirExists(startDir) ) {
-    LogError("PostProcessor") << "computeResolution() : Cannot find sub-directory " << startDir << endl;
-    return;
-  }
-
-  theDQM->cd();
-
-  ME* srcME = theDQM->get(startDir+"/"+srcName);
+  theDQM->cd(startDir);
+  ME* srcME = theDQM->get(srcName);
   if ( !srcME ) {
     LogError("PostProcessor") << "computeResolution() : No source ME '" << srcName << "' found\n";
     return;
@@ -231,22 +127,14 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
     return;
   }
 
+  theDQM->setCurrentFolder(startDir);
+
   const int nBin = hSrc->GetNbinsX();
   const double xMin = hSrc->GetXaxis()->GetXmin();
   const double xMax = hSrc->GetXaxis()->GetXmax();
 
-  string newDir = startDir;
-  string newPrefix = namePrefix;
-  string::size_type shiftPos;
-  if ( string::npos != (shiftPos = namePrefix.rfind('/')) ) {
-    newDir += "/"+namePrefix.substr(0, shiftPos);
-    newPrefix.erase(0, shiftPos+1);
-  }
-
-  theDQM->setCurrentFolder(newDir);
-
-  ME* meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
-  ME* sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
+  ME* meanME = theDQM->book1D(namePrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
+  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
 //  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
 
   FitSlicesYTool fitTool(srcME);
@@ -259,7 +147,7 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
 void PostProcessor::processLoop( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
 {
   if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-
+  
   std::vector<std::string> subDirs =   theDQM->getSubdirs();
   std::vector<std::string> mes     =  theDQM->getMEs();
 
@@ -294,19 +182,13 @@ void PostProcessor::processLoop( const std::string& startDir, vector<boost::toke
   for(vstring::const_iterator iDir = subDirs.begin(); iDir != subDirs.end();++iDir) {
     const string& theSubDir = *iDir;
     processLoop(theSubDir,args);
-  }
-    computeFunction(startDir,args);
-}
 
-void PostProcessor::computeFunction( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
-{
-  if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-  
+  }
+
   string path1, path2;
+    
   switch ( args[1][0] ) {
     // Efficiency plots
-  case 'C':
-  case 'c':
   case 'E':
   case 'e':
     if ( args.size() != 6 ) break;;
@@ -333,6 +215,6 @@ void PostProcessor::computeFunction( const std::string& startDir, vector<boost::
   default:
     LogError("PostProcessor") << "Invalid command\n";
   }
+  
+  
 }
-
-/* vim:set ts=2 sts=2 sw=2 expandtab: */

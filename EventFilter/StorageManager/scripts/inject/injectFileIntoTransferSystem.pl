@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.32 2008/09/18 00:08:03 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.36 2008/10/09 00:55:29 loizides Exp $
 
 use strict;
 use DBI;
@@ -26,6 +26,8 @@ sub usage
   $0 --help  : show this message
 
   --------------------------------------------------------------------------------------------
+  For more help, https://twiki.cern.ch/twiki/bin/view/CMS/ManuallyInjectIntoTransferSystem
+  --------------------------------------------------------------------------------------------
 
   This script will inform the Tier-0 transfer system to transfer a given file from a host
   in Cessy to Castor (DBS). In order to allow for safe copying it will insert relevant
@@ -35,7 +37,7 @@ sub usage
 
   Required parameters for injecting files to be transferred:
   $0 --filename file --path path 
-     --type type [--destination default] [--filesize size] [--hostname host]
+     --type type --config file [--destination default] [--filesize size] [--hostname host]
  
   Filename and path to file on the given host point to the file to be transferred.
 
@@ -48,15 +50,18 @@ sub usage
     - Lumi files require runnumber, lumisection, appname, and appversion. 
     - DQM files  require runnumber, lumisection, appname, and appversion.
 
-  Destination determines where the file goes on Tier0. It wil be set to default if not set by 
-  user. 
+  Config file has to specify a user and password for the cms_rcms online database. At best
+  see the example in ~tier0/.tier0trans.conf.
+
+  Destination determines where the file goes on Tier0. It will be set to default if not set by 
+  user (and typically there should be no need to change it).
 
   Filesize [in Bytes] is required. Since in most case submitting host is where the file resides 
   the filesize will be determined automatically.
 
   Hostname is the host on which the file is found. By default, this will be set to the name as 
   returned by the `hostname` command. Currently supported hosts for copies are: cms-tier0-stage, 
-  cmsdisk1, csc-daq00, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
+  cmsdisk1, csc-daq00, vmepcS2B18-39 (tracker node), srv-c2d05-19 (DQM) and the Storage Manager nodes.
  
   --------------------------------------------------------------------------------------------
   If you are not sure about what you are doing please send an inquiry to hn-cms-tier0-operations\@cern.ch.
@@ -65,7 +70,7 @@ sub usage
   Other parameters (leave out if you do not know what they mean):
   --debug           : Print out extra messages
   --test            : Run in test modus to check logic. No DB inserts or T0 notification.
-  --config          : Config file used (for user and password, see example in ~tier0/.tier0trans.conf)
+  --renotify        : Use this option if your files are stuck in FILES_INJECTED
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
   --appversion      : Application version (e.g. CMSSW_2_0_8)
@@ -143,7 +148,7 @@ sub checkOption($) {
 my ($help, $debug, $hostname, $filename, $pathname, $index, $indexsize, $filesize, $test);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
-my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check, $config);
+my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check, $config, $renotify);
 
 $help        = 0;
 $debug       = 0;
@@ -174,12 +179,13 @@ $destination = 'default';
 $index       = '';
 $indexsize   = -1;
 $comment     = '';
-$config      = "/nfshome0/tier0/.tier0trans.conf";
+$config      = '';
 
 GetOptions(
            "h|help"                   => \$help,
            "debug"                    => \$debug,
            "test"                     => \$test,
+           "renotify"                 => \$renotify,
            "check"                    => \$check,
            "config=s"                 => \$config,
            "hostname=s"               => \$hostname,
@@ -230,13 +236,16 @@ $checksum    = checkOption($checksum);
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
-my $reader = "CMS_STOMGR_W";
-my $phrase = "qwerty";
+my $reader = "XXX";
+my $phrase = "xxx";
 
-if(-e $config) {
+if($config eq '') {
+    print "Error: You have to specify a config file (--config option), exiting!\n";
+    usageShort();
+} elsif (-e $config) {
     eval `cat $config`;
 } else {
-    print "Error: Can not read $config file, exiting!\n";
+    print "Error: Can not read config file: $config, exiting!\n";
     usageShort();
 }
 
@@ -244,6 +253,13 @@ unless($filename) {
     print "Error: No filename supplied, exiting!\n";
     usageShort();
 }
+
+# redirect signals
+$SIG{ABRT} = \&IGNORE;
+$SIG{INT}  = \&IGNORE;
+$SIG{KILL} = \&IGNORE;
+$SIG{QUIT} = \&IGNORE;
+$SIG{TERM} = \&IGNORE;
 
 # when $check is enabled, just want to query for a file and then exit
 if($check) {
@@ -268,24 +284,24 @@ if($check) {
         "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME " .
         "left outer join CMS_STOMGR.FILES_DELETED ".
         "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_DELETED.FILENAME " .
-        "where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
+        "where CMS_STOMGR.FILES_CREATED.FILENAME=?";
 
     #
-    sleep(2);
+    sleep(3);
     #
 
     # setup DB connection
     my $dbi    = "DBI:Oracle:cms_rcms";
     $debug && print "Setting up DB connection for $dbi and $reader\n";
     my $dbh = DBI->connect($dbi,$reader,$phrase) or die("Error: Connection to Oracle DB failed");
-    $debug && print "DB connection set up succesfully \n";
+    $debug && print "DB connection set up successfully \n";
 
     $debug && print "Preparing check query: $SQLcheck \n";
     my $checkHan = $dbh->prepare($SQLcheck) or die("Error: DB query prepare failed - $dbh->errstr \n");
     
     my $dbErr;
     $debug && print "Querying tables for file status \n";
-    my $rowsCcheck = $checkHan->execute() or $dbErr=$checkHan->errstr;
+    my $rowsCcheck = $checkHan->execute($filename) or $dbErr=$checkHan->errstr;
     if(defined($dbErr)) {
 	print "Error: Query failed.\n";
 	print "Error string from DB is $dbErr\n";
@@ -314,16 +330,17 @@ unless($pathname) {
 
 # try to match hostname and alias
 $hostname = hostname()         if $hostname eq 'unset';
-$hostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
+$hostname = 'srv-C2D05-03'     if $hostname eq 'cms-tier0-stage';
 $hostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
 $hostname = 'csc-C2D07-08'     if $hostname eq 'csc-daq00';
 
-unless($hostname eq 'srv-S2C17-01'      || 
+unless($hostname eq 'srv-C2D05-03'      || 
        $hostname eq 'srv-C2D05-02'      || 
-       $hostname eq 'csc-C2D07-08'      || 
-       $hostname eq 'vmepcS2B18-39'     ||
+       $hostname eq 'csc-C2D07-08'      || #csc
+       $hostname eq 'vmepcS2B18-39'     || #tracker
+       $hostname eq 'srv-c2d05-19'      || #dqm
        $hostname =~ 'srv-C2C07-') { 
-    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, cmsmon, csc-daq00 or vmepcS2B18-39.\n";
+    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, csc-daq00, srv-c2d05-19 or vmepcS2B18-39.\n";
     usageShort();
 }
 
@@ -473,6 +490,20 @@ $debug && print "Notify command: \n $TIERZERO \n";
 sleep(1);
 #
 
+# do we just renotify
+if (defined $renotify) {
+    my $T0out=`$TIERZERO 2>&1`;
+    if($T0out =~ /Connection established/ ) {
+        print "File sucessfully re-submitted for transfer.\n";
+        exit 0;
+    } else {
+        print "Did not connect properly to transfer system logger. Error follows below\n\n";
+        print $T0out;
+        print "\n";
+        exit 1;
+    }
+}
+
 # setup DB connection
 my $dbi    = "DBI:Oracle:cms_rcms";
 $debug && print "Setting up DB connection for $dbi and $reader\n";
@@ -574,4 +605,12 @@ $dbh->disconnect;
 if ($test==1) {
     print "\n\nNo obvious logic errors detected\n";
 }
+
+# reset signal
+$SIG{ABRT} = 'DEFAULT';
+$SIG{INT}  = 'DEFAULT';
+$SIG{KILL} = 'DEFAULT';
+$SIG{QUIT} = 'DEFAULT';
+$SIG{TERM} = 'DEFAULT';
+
 exit 0;

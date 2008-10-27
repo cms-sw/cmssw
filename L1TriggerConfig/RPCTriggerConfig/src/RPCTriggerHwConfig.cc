@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 13:57:29 CEST 2008
-// $Id: RPCTriggerHwConfig.cc,v 1.3 2008/06/24 10:28:58 michals Exp $
+// $Id: RPCTriggerHwConfig.cc,v 1.2 2008/04/10 13:37:16 fruboes Exp $
 //
 //
 
@@ -49,11 +49,9 @@ class RPCTriggerHwConfig : public edm::ESProducer {
       // ----------member data ---------------------------
     std::vector<int> m_disableTowers;
     std::vector<int>   m_disableCrates;
-    std::vector<int> m_disableTowersInCrates;
 
     std::vector<int> m_enableTowers;
     std::vector<int> m_enableCrates;
-    std::vector<int> m_enableTowersInCrates;
 
     bool m_disableAll;
 
@@ -82,18 +80,15 @@ RPCTriggerHwConfig::RPCTriggerHwConfig(const edm::ParameterSet& iConfig)
    //now do what ever other initialization is needed
     m_disableTowers =  iConfig.getParameter<std::vector<int> >("disableTowers");
     m_disableCrates =  iConfig.getParameter<std::vector<int> >("disableCrates");
-    m_disableTowersInCrates =  iConfig.getParameter<std::vector<int> >("disableTowersInCrates");
 
     m_disableAll = iConfig.getParameter<bool>("disableAll");
 
     m_enableTowers =  iConfig.getParameter<std::vector<int> >("enableTowers");
     m_enableCrates =  iConfig.getParameter<std::vector<int> >("enableCrates");
-    m_enableTowersInCrates =  iConfig.getParameter<std::vector<int> >("enableTowersInCrates");
 
     if (m_disableAll) {
       m_disableTowers.clear();
       m_disableCrates.clear();
-      m_disableTowersInCrates.clear();
       // check if m_enableTowers  & m_enableCrates are not empty?
     }
 
@@ -127,29 +122,21 @@ RPCTriggerHwConfig::produce(const L1RPCHwConfigRcd& iRecord)
    if (m_disableAll) {
      pL1RPCHwConfig->enableAll(false);
      std::vector<int>::iterator crIt = m_enableCrates.begin();
-     std::vector<int>::iterator twIt = m_enableTowers.begin();
      for (; crIt!=m_enableCrates.end(); ++crIt){
        pL1RPCHwConfig->enableCrate(*crIt,true);
      }
-     for (; twIt!=m_enableTowers.end(); ++twIt){
-       pL1RPCHwConfig->enableTower(*twIt,true);
-     }
-     for (unsigned int It=0; It<m_enableTowersInCrates.size(); It++) {
+     for (unsigned int It=0; It<m_enableTowers.size(); It++) {
        if (It%2 == 0)
-       pL1RPCHwConfig->enableTowerInCrate(m_enableTowersInCrates[It+1], m_enableTowersInCrates[It], true);
+       pL1RPCHwConfig->enableTowerInCrate(m_enableTowers[It+1], m_enableTowers[It], true);
      }
    } else {
      std::vector<int>::iterator crIt = m_disableCrates.begin();
-     std::vector<int>::iterator twIt = m_disableTowers.begin();
      for (; crIt!=m_disableCrates.end(); ++crIt){
        pL1RPCHwConfig->enableCrate(*crIt,false);
      }
-     for (; twIt!=m_disableTowers.end(); ++twIt){
-       pL1RPCHwConfig->enableTower(*twIt,false);
-     }
-     for (unsigned int It=0; It<m_disableTowersInCrates.size(); It++) {
+     for (unsigned int It=0; It<m_disableTowers.size(); It++) {
        if (It%2 == 0)
-       pL1RPCHwConfig->enableTowerInCrate(m_disableTowersInCrates[It+1], m_disableTowersInCrates[It], false);
+       pL1RPCHwConfig->enableTowerInCrate(m_disableTowers[It+1], m_disableTowers[It], false);
      }
 
    }

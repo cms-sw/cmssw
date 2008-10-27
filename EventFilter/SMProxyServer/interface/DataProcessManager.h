@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.8 2008/06/13 15:45:09 biery Exp $
+// $Id: DataProcessManager.h,v 1.9 2008/06/25 18:06:48 biery Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -108,21 +108,13 @@ namespace stor
     // *** for performance measurements
     unsigned long receivedevents() { return receivedEvents_; }
     unsigned long receivedDQMevents() { return receivedDQMEvents_; }
-    double bandwidth() { return pmeter_->bandwidth(); }
-    double rate() { return pmeter_->rate(); }
-    double latency() { return pmeter_->latency(); }
-    double meanbandwidth() { return pmeter_->meanbandwidth(); }
-    double maxbandwidth() { return pmeter_->maxbandwidth(); }
-    double minbandwidth() { return pmeter_->minbandwidth(); }
-    double meanrate() { return pmeter_->meanrate(); }
-    double meanlatency() { return pmeter_->meanlatency(); }
-    unsigned long totalsamples() { return pmeter_->totalsamples(); }
-    double totalvolumemb() { return pmeter_->totalvolumemb(); }
-    double duration() { return pmeter_->duration(); }
     stor::SMPerfStats getStats() { return stats_; }
     void addMeasurement(unsigned long size);
-    void setSamples(unsigned long num_samples) { pmeter_->setSamples(num_samples); }
-    unsigned long samples() { return pmeter_->samples(); }
+    void setSamples(unsigned long num_samples);
+    void setPeriod4Samples(unsigned long period4samples);
+    unsigned long samples() { return pmeter_->getSetSamples(); }
+    unsigned long period4samples() { return pmeter_->getPeriod4Samples(); }
+    double totalvolumemb() { return pmeter_->totalvolumemb(); }
 
     double getSampleCount(STATS_TIME_FRAME timeFrame = SHORT_TERM,
                           STATS_TIMING_TYPE timingType = EVENT_FETCH,
@@ -205,6 +197,7 @@ namespace stor
     stor::SMPerformanceMeter *pmeter_;
     // *** measurements for last set of samples
     xdata::UnsignedInteger32 samples_; // number of samples per measurement
+    xdata::UnsignedInteger32 period4samples_; // time period for measurement
     stor::SMPerfStats stats_;
 
     // statistics (long term and short term)

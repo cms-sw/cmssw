@@ -14,7 +14,9 @@
 #include "xoap/Method.h"
 
 #include "xdata/String.h"
+#include "xdata/Bag.h"
 
+#include "xdaq2rc/ClassnameAndInstance.h"
 #include "xdaq2rc/RcmsStateNotifier.h"
 
 #include <string>
@@ -60,6 +62,12 @@ namespace evf
     
     // lookup the RCMS state listener
     void findRcmsStateListener() { rcmsStateNotifier_.findRcmsStateListener(); }
+
+    // get the RCMS StateListener parameter (classname/instance)
+    xdata::Bag<xdaq2rc::ClassnameAndInstance>* rcmsStateListener()
+    {
+      return rcmsStateNotifier_.getRcmsStateListenerParameter();
+    }
 
     // report if RCMS StateListener was found
     xdata::Boolean* foundRcmsStateListener()

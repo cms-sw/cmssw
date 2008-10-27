@@ -1,13 +1,8 @@
 #!/bin/bash
-# $Id: mkstore.sh,v 1.5 2008/04/29 10:43:53 loizides Exp $
+# $Id: mkstore.sh,v 1.6 2008/06/11 13:58:04 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
-fi
-
-dummymode=$1
-if test -n "$dummymode"; then
-    dummymode=1
 fi
 
 store=/store
@@ -27,25 +22,14 @@ for i in emulator global; do
     mkdir -p scripts && chmod 755 scripts
 done
 
-if test "$dummymode" = "1"; then
-    for i in emulator global; do
-        cd $store/$i/scripts
-        touch dummy.pl
-        chmod 755 dummy.pl
-        for k in  insertFile.pl notifyTier0.pl closeFile.pl; do
-            ln -fs dummy.pl $k;
-        done
+for i in emulator global; do
+    cd $store/$i/scripts
+    touch dummy.pl
+    chmod 755 dummy.pl
+    for k in  insertFile.pl notifyTier0.pl closeFile.pl; do
+        ln -fs dummy.pl $k;
     done
-else
-    for i in emulator global; do
-        cd $store/$i/scripts
-        touch dummy.pl
-        chmod 755 dummy.pl
-        ln -s ~smpro/scripts/insertFile.pl insertFile.pl 
-        ln -s ~smpro/scripts/closeFile.pl closeFile.pl 
-        ln -s ~smpro/scripts/notifyTier0.pl notifyTier0.pl 
-    done
-fi
+done
 
 set counter=0
 for i in `ls -d $store/sata* 2>/dev/null`; do

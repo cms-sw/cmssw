@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.17 2008/07/31 23:16:35 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.18 2008/08/26 21:22:54 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -53,6 +53,8 @@ namespace edm {
     void endJob();
     InputSource::ItemType getNextItemType();
     std::auto_ptr<EventPrincipal> readIt(EventID const& id, LuminosityBlockNumber_t lumi = 0U, bool exact = false);
+    boost::shared_ptr<LuminosityBlockPrincipal> readIt(LuminosityBlockID const& id);
+    boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
     void rewind_();
     void readMany_(int number, EventPrincipalVector& result);

@@ -15,9 +15,5 @@
 	<TestName activate="true">DeadChannel_0</TestName>
 </LINK>
 
-<LINK name="*/Occupancy*RE*">
-	<TestName activate="true">DeadChannel_0</TestName>
-</LINK>
-
 
 </TESTSCONFIGURATION>

@@ -52,7 +52,7 @@ namespace edmtestp
     /**
     if(!ist_)
       {
-	throw cms::Exception("Configuration","TestFileReader")
+	throw edm::Exception(errors::Configuration,"TestFileReader")
 	  << "cannot open file " << filename_;
       }
 
@@ -63,7 +63,7 @@ namespace edmtestp
 
     if(edm::registryIsSubset(*p,prods)==false)
       {
-	throw cms::Exception("Configuration","TestFileReader")
+	throw edm::Exception(errors::Configuration,"TestFileReader")
 	  << "the header record in flie " << filename_
 	  << "is not consistent with the one for the program \n";
       }

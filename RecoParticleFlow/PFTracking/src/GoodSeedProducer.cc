@@ -22,12 +22,9 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <fstream>
 #include <string>
 #include "TMath.h"
-#include "Math/VectorUtil.h"
 
 using namespace edm;
 using namespace std;
@@ -49,25 +46,10 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   minPt_=iConfig.getParameter<double>("MinPt");
   maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
-
-
-  //ISOLATION REQUEST AS DONE IN THE TAU GROUP
-  HcalIsolWindow_                       =iConfig.getParameter<double>("HcalWindow");
-  EcalStripSumE_minClusEnergy_ = iConfig.getParameter<double>("EcalStripSumE_minClusEnergy");
-  EcalStripSumE_deltaEta_ = iConfig.getParameter<double>("EcalStripSumE_deltaEta");
-  EcalStripSumE_deltaPhiOverQ_minValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_minValue");
-  EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
-   minEoverP_= iConfig.getParameter<double>("EOverPLead_minValue");
-   maxHoverP_= iConfig.getParameter<double>("HOverPLead_maxValue");
- 
-  //
-
+  
   pfCLusTagECLabel_=
     iConfig.getParameter<InputTag>("PFEcalClusterLabel");
-
-  pfCLusTagHCLabel_=
-   iConfig.getParameter<InputTag>("PFHcalClusterLabel");  
-
+  
   pfCLusTagPSLabel_=
     iConfig.getParameter<InputTag>("PFPSClusterLabel");
   
@@ -156,10 +138,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        iklus++){
     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
   }
-
-  //HCAL clusters
-  Handle<PFClusterCollection> theHCPfClustCollection;
-  iEvent.getByLabel(pfCLusTagHCLabel_,theHCPfClustCollection);
   
   //PS clusters
   Handle<PFClusterCollection> thePSPfClustCollection;
@@ -223,10 +201,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 						  Tk[i].outerPosition().y(),
 						  Tk[i].outerPosition().z(),
 						  0.);
-
       BaseParticlePropagator theOutParticle = 
 	BaseParticlePropagator( RawParticle(mom,pos),
-				0,0,B_.z());
+				0.,0.,4.);
       theOutParticle.setCharge(Tk[i].charge());
       
       theOutParticle.propagateToEcalEntrance(false);
@@ -237,11 +214,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       float dr=1000;
       float EE=0;
       float feta=0;
-      math::XYZPointF ElecTrkEcalPos(0,0,0);
+      
       if(theOutParticle.getSuccess()!=0){
-	ElecTrkEcalPos=math::XYZPointF(theOutParticle.vertex().x(),
-				       theOutParticle.vertex().y(),
-				       theOutParticle.vertex().z());
 	bool isBelowPS=(fabs(theOutParticle.vertex().eta())>1.65) ? true :false;	
 	
 	for(vector<PFCluster>::const_iterator aClus = basClus.begin();
@@ -250,7 +224,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    = PFCluster::getDepthCorrection(aClus->energy(),
 						  isBelowPS,
 						  false);
-	
+	  
 	  math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
 	    math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;	
 	  
@@ -289,10 +263,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       float chi2cut=thr[ibin+0];
       float ep_cutmin=thr[ibin+1];
       bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) && (nhitpi>10));
-  
       if (Tk[i].pt()>maxPt_) GoodMatching=true;
       if (Tk[i].pt()<minPt_) GoodMatching=false;
-
       //ENDCAP
       //USE OF PRESHOWER 
       if (fabs(Tk[i].eta())>1.68){
@@ -311,12 +283,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	   &&(ps2chi<p2c));
 	GoodMatching = (GoodMatching && GoodPSMatching);
       }
-  
-
-      if(IsIsolated(float(Tk[i].charge()),Tk[i].p(),
-		    ElecTrkEcalPos,*theECPfClustCollection,*theHCPfClustCollection)) 
- 	GoodMatching=true;
-
+      
+      
       bool GoodRange= ((fabs(Tk[i].eta())<maxEta_) && 
                        (Tk[i].pt()>minPt_));
       //KF FILTERING FOR UNMATCHED EVENTS
@@ -328,6 +296,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       bool GoodTkId= false;
       
       if((!GoodMatching) &&(GoodKFFiltering) &&(GoodRange)){
+
 	chi=chichi;
 	chired=1000;
 	chiRatio=1000;
@@ -474,12 +443,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 GoodSeedProducer::beginJob(const EventSetup& es)
 {
-  //Magnetic Field
-  ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
-  B_=magneticField->inTesla(GlobalPoint(0,0,0));
-  
-  pfTransformer_= new PFTrackTransformer(B_);
+
+
+  pfTransformer_= new PFTrackTransformer();
 
 
 
@@ -545,7 +511,7 @@ int GoodSeedProducer::getBin(float eta, float pt){
 void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
 
   BaseParticlePropagator OutParticle(RawParticle(mom,pos)
-				     ,0.,0.,B_.z()) ;
+				     ,0.,0.,4.) ;
 
   OutParticle.propagateToPreshowerLayer1(false);
   if (OutParticle.getSuccess()!=0){
@@ -599,56 +565,4 @@ void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
     }
     
   }
-}
-
-bool GoodSeedProducer::IsIsolated(float charge, float P,
-				  math::XYZPointF myElecTrkEcalPos,
-                                  const PFClusterCollection &ecalColl,
-                                  const PFClusterCollection &hcalColl){
-
-
-  double myHCALenergy3x3=0.;
-  double myStripClusterE=0.;
- 
-
-  //  reco::TrackRef myElecTrk;
-  
-  if (fabs(myElecTrkEcalPos.z())<1. && myElecTrkEcalPos.x()<1. && myElecTrkEcalPos.y()<1. ) return false; 
-
-  
-  
-  PFClusterCollection::const_iterator hc=hcalColl.begin();
-  PFClusterCollection::const_iterator hcend=hcalColl.end();
-  for (;hc!=hcend;++hc){
-    math::XYZPoint clusPos = hc->position();
-    double en = hc->energy();
-    double deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
-    if (deltaR<HcalIsolWindow_) {
-      myHCALenergy3x3 += en;
-      
-    }
-  }
-
-
-
-  PFClusterCollection::const_iterator ec=ecalColl.begin();
-  PFClusterCollection::const_iterator ecend=ecalColl.end();
-  for (;ec!=ecend;++ec){
-    math::XYZPoint clusPos = ec->position();
-    double en = ec->energy();
-
-
-    double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
-    double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
-    double deltaPhiOverQ = deltaPhi/charge;
-    if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
-      myStripClusterE += en;
-    }
-  }	  
-  
-  double EoP=myStripClusterE/P;
-  double HoP=myHCALenergy3x3/P;
-
-
-  return ((EoP>minEoverP_)&&(EoP<2.5) && (HoP<maxHoverP_))?true:false;
 }

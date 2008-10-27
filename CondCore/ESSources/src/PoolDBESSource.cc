@@ -8,7 +8,7 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
-// $Id: PoolDBESSource.cc,v 1.103 2008/09/03 12:56:42 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.104 2008/09/03 13:47:15 xiezhen Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -179,9 +179,29 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(userconnect);
     cond::ConnectionHandler::Instance().connect(m_session);
     cond::CoralTransaction& coraldb=c->coralTransaction();
-    coraldb.start(true);
-    this->fillTagCollectionFromDB(coraldb, globaltag);
-    coraldb.commit();
+    
+    if( iConfig.exists("toGet") ){
+       typedef std::vector< edm::ParameterSet > Parameters;
+      std::map<std::string,cond::TagMetadata> replacement;
+      Parameters toGet = iConfig.getParameter<Parameters>("toGet");
+      for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+	cond::TagMetadata nm;
+	nm.recordname=itToGet->getParameter<std::string>("record");
+	nm.labelname=itToGet->getUntrackedParameter<std::string>("label","");
+	nm.tag=itToGet->getUntrackedParameter<std::string>("tag");
+	nm.pfn=itToGet->getUntrackedParameter<std::string>("connect");
+	nm.objectname="";
+	std::string k=nm.recordname+"@"+nm.labelname;
+	replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
+      }
+      coraldb.start(true);
+      this->fillTagCollectionFromDB(coraldb, globaltag,replacement);
+      coraldb.commit();
+    }else{
+      coraldb.start(true);
+      this->fillTagCollectionFromDB(coraldb, globaltag);
+      coraldb.commit();
+    }
     std::set<cond::TagMetadata>::iterator it;
     std::set<cond::TagMetadata>::iterator itBeg=m_tagCollection.begin();
     std::set<cond::TagMetadata>::iterator itEnd=m_tagCollection.end();
@@ -215,18 +235,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	usingRecordWithKey( recordKey );
       }    
     }
-    /*
-      std::map< std::string, cond::TagMetadata >::iterator jt;
-      std::map< std::string, cond::TagMetadata >::iterator jtBeg=m_tagCollection.begin();
-      std::map< std::string, cond::TagMetadata >::iterator jtEnd=m_tagCollection.end();
-      for( jt=jtBeg; jt!=jtEnd; ++jt ){
-	std::cout<<"tag "<<jt->first<<std::endl;
-	std::cout<<"pfn "<<jt->second.pfn<<std::endl;
-	std::cout<<"recordname "<<jt->second.recordname<<std::endl;
-	std::cout<<"objectname "<<jt->second.objectname<<std::endl;
-	std::cout<<"labelname "<<jt->second.labelname<<std::endl;
-      }
-    */
   }
   this->fillRecordToIOVInfo();
 }
@@ -415,4 +423,31 @@ PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
 					 const std::string& roottag ){
   cond::TagCollectionRetriever tagRetriever( coraldb );
   tagRetriever.getTagCollection(roottag,m_tagCollection);
+}
+
+void 
+PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb, 
+					 const std::string& roottag,
+					 std::map<std::string,cond::TagMetadata>& replacement){
+  std::set< cond::TagMetadata > tagcoll;
+  cond::TagCollectionRetriever tagRetriever( coraldb );
+  tagRetriever.getTagCollection(roottag,tagcoll);
+  std::set<cond::TagMetadata>::iterator it;
+  std::set<cond::TagMetadata>::iterator itBeg=tagcoll.begin();
+  std::set<cond::TagMetadata>::iterator itEnd=tagcoll.end();
+  for(it=itBeg; it!=itEnd; ++it){
+    std::string k=it->recordname+"@"+it->labelname;
+    std::map<std::string,cond::TagMetadata>::iterator fid=replacement.find(k);
+    if(fid != replacement.end()){
+      cond::TagMetadata m;
+      m.recordname=it->recordname;
+      m.labelname=it->labelname;
+      m.pfn=fid->second.pfn;
+      m.tag=fid->second.tag;
+      m.objectname=it->objectname;
+      m_tagCollection.insert(m);
+    }else{
+      m_tagCollection.insert(*it);
+    }
+  }
 }

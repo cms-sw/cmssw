@@ -15,6 +15,8 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+// Forward declaration of LocalPoint fails... due to typedef'ing?
+#include <DataFormats/GeometryVector/interface/LocalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 

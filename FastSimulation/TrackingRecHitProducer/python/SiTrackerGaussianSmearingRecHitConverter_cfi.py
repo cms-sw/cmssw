@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHitConverter",
+
+    #converting energy loss from GeV to ADC counts
+    GevPerElectron = cms.double(3.61e-09),
+    ElectronsPerADC = cms.double(250.0),
+             
     HitFindingProbability_TEC3 = cms.double(1.0),
     HitFindingProbability_TEC4 = cms.double(1.0),
     TIB1y = cms.double(3.3775), ## 11.7/sqrt(12.)

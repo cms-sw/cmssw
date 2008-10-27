@@ -398,8 +398,6 @@ class _Labelable(object):
             myDeps=set(presentDeps)
             knownDeps[self.label_()]=myDeps
         presentDeps.add(self.label_())
-    def fillNamesList(self, l, otherSequences):
-        l.append(self.__label)
 
 
 class _Unlabelable(object):

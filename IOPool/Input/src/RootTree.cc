@@ -10,7 +10,6 @@
 #include "TVirtualIndex.h"
 #include "TTreeIndex.h"
 #include "TTreeCache.h"
-class TBranch;
 
 #include <iostream>
 
@@ -144,5 +143,31 @@ namespace edm {
 
     entryNumber_ = theEntryNumber;
     tree_->LoadTree(theEntryNumber);
+  }
+
+  namespace input {
+    Int_t
+    getEntry(TBranch* branch, EntryNumber entryNumber) {
+      Int_t n = 0;
+      try {
+        n = branch->GetEntry(entryNumber);
+      }
+      catch(cms::Exception e) {
+	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
+      }
+      return n;
+    }
+
+    Int_t
+    getEntry(TTree* tree, EntryNumber entryNumber) {
+      Int_t n = 0;
+      try {
+        n = tree->GetEntry(entryNumber);
+      }
+      catch(cms::Exception e) {
+	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
+      }
+      return n;
+    }
   }
 }

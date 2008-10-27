@@ -44,7 +44,7 @@ process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
-process.multiTrackValidator.outputFile = 'valid_mu_1GeV.root'
+process.multiTrackValidator.out = 'valid_mu_1GeV.root'
 process.MessageLogger.destinations = ['detailedInfo_mu1.txt']
 
 

@@ -9,7 +9,7 @@
 class TagInfoPlotterFactory  {
  public:
    BaseTagInfoPlotter* buildPlotter(string dataFormatType, const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc);
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc, bool wf);
 };
 
 

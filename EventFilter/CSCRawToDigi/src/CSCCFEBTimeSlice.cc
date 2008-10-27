@@ -10,14 +10,6 @@ unsigned layerInverseGrayCode[] = {1,5,0,4,2,3};
 unsigned channelGrayCode[] = {0,1,3,2, 6,7,5,4, 12,13,15,14, 10,11,9,8};
 unsigned channelInverseGrayCode[] = {0,1,3,2, 7,6,4,5, 15,14,12,13, 8,9,11,10};
 
-CSCCFEBTimeSlice::CSCCFEBTimeSlice() 
-{
-    bzero(this, 99*2);
-  dummy = 0x7FFF;
-  blank_space_1 = 0x7;
-  blank_space_3 = 0x7;
-}
-
 
 CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const 
 {

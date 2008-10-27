@@ -18,8 +18,7 @@ interface other than constructors specific to this derived type.
 #define EDM_MAP_ENTRY(map, ns, name) map[ns::name]=#name
 #define EDM_MAP_ENTRY_NONS(map, name) map[name]=#name
 
-namespace edm
-{
+namespace edm {
   template <class Code>
   class CodedException : public cms::Exception
   {
@@ -38,6 +37,8 @@ namespace edm
     virtual ~CodedException() throw();
 
     Code categoryCode() const { return category_; }
+
+    int returnCode() const { return static_cast<int>(category_); }
 
     static std::string codeToString(Code);
 

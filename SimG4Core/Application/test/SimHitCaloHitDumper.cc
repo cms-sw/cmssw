@@ -78,130 +78,90 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
 
    int oldsize = 0;
 
-   if ( PixelBarrelHitsLowTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
-     std::pair<int,std::string> label1(theTrackerHits.size(),"PixelBarrelHitsLowTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label1);
-   }
-   if ( PixelBarrelHitsHighTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
-     std::pair<int,std::string> label2(theTrackerHits.size()-oldsize,"PixelBarrelHitsHighTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label2);
-   }
-   if ( PixelEndcapHitsLowTof.isValid() ) { 
-     theTrackerHits.insert(theTrackerHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
-     std::pair<int,std::string> label3(theTrackerHits.size()-oldsize,"PixelEndcapHitsLowTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label3);
-   }
-   if ( PixelEndcapHitsHighTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
-     std::pair<int,std::string> label4(theTrackerHits.size()-oldsize,"PixelEndcapHitsHighTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label4);
-   }
-   if ( TIBHitsLowTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
-     std::pair<int,std::string> label5(theTrackerHits.size()-oldsize,"TIBHitsLowTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label5);
-   }
-   if ( TIBHitsHighTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
-     std::pair<int,std::string> label6(theTrackerHits.size()-oldsize,"TIBHitsHighTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label6);
-   }
-   if ( TIDHitsLowTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
-     std::pair<int,std::string> label7(theTrackerHits.size()-oldsize,"TIDHitsLowTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label7);
-   }
-   if ( TIDHitsHighTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
-     std::pair<int,std::string> label8(theTrackerHits.size()-oldsize,"TIDHitsHighTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label8);
-   }
-   if ( TOBHitsLowTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
-     std::pair<int,std::string> label9(theTrackerHits.size()-oldsize,"TOBHitsLowTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label9);
-   }
-   if ( TOBHitsHighTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
-     std::pair<int,std::string> label10(theTrackerHits.size()-oldsize,"TOBHitsHighTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label10);
-   }
-   if ( TECHitsLowTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
-     std::pair<int,std::string> label11(theTrackerHits.size()-oldsize,"TECHitsLowTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label11);
-   }
-   if ( TECHitsHighTof.isValid() ) {
-     theTrackerHits.insert(theTrackerHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
-     std::pair<int,std::string> label12(theTrackerHits.size()-oldsize,"TECHitsHighTof");
-     oldsize = theTrackerHits.size();
-     theTrackerComposition.push_back(label12);
-   }
+   theTrackerHits.insert(theTrackerHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
+   std::pair<int,std::string> label1(theTrackerHits.size(),"PixelBarrelHitsLowTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label1);
+   theTrackerHits.insert(theTrackerHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
+   std::pair<int,std::string> label2(theTrackerHits.size()-oldsize,"PixelBarrelHitsHighTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label2);
+   theTrackerHits.insert(theTrackerHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
+   std::pair<int,std::string> label3(theTrackerHits.size()-oldsize,"PixelEndcapHitsLowTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label3);
+   theTrackerHits.insert(theTrackerHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
+   std::pair<int,std::string> label4(theTrackerHits.size()-oldsize,"PixelEndcapHitsHighTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label4);
+   theTrackerHits.insert(theTrackerHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
+   std::pair<int,std::string> label5(theTrackerHits.size()-oldsize,"TIBHitsLowTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label5);
+   theTrackerHits.insert(theTrackerHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
+   std::pair<int,std::string> label6(theTrackerHits.size()-oldsize,"TIBHitsHighTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label6);
+   theTrackerHits.insert(theTrackerHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
+   std::pair<int,std::string> label7(theTrackerHits.size()-oldsize,"TIDHitsLowTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label7);
+   theTrackerHits.insert(theTrackerHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
+   std::pair<int,std::string> label8(theTrackerHits.size()-oldsize,"TIDHitsHighTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label8);
+   theTrackerHits.insert(theTrackerHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
+   std::pair<int,std::string> label9(theTrackerHits.size()-oldsize,"TOBHitsLowTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label9);
+   theTrackerHits.insert(theTrackerHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
+   std::pair<int,std::string> label10(theTrackerHits.size()-oldsize,"TOBHitsHighTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label10);
+   theTrackerHits.insert(theTrackerHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
+   std::pair<int,std::string> label11(theTrackerHits.size()-oldsize,"TECHitsLowTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label11);
+   theTrackerHits.insert(theTrackerHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
+   std::pair<int,std::string> label12(theTrackerHits.size()-oldsize,"TECHitsHighTof");
+   oldsize = theTrackerHits.size();
+   theTrackerComposition.push_back(label12);
 
    oldsize = 0;
-   if ( DTHits.isValid() ) {
-     theMuonHits.insert(theMuonHits.end(), DTHits->begin(), DTHits->end() );
-     std::pair<int,std::string> label13(theMuonHits.size()-oldsize,"DTHits");
-     oldsize = theMuonHits.size();
-     theMuonComposition.push_back(label13);
-   }
-   if ( CSCHits.isValid() ) {
-     theMuonHits.insert(theMuonHits.end(), CSCHits->begin(), CSCHits->end() );
-     std::pair<int,std::string> label14(theMuonHits.size()-oldsize,"CSCHits");
-     oldsize = theMuonHits.size();
-     theMuonComposition.push_back(label14);
-   }
-   if ( RPCHits.isValid() ) {
-     theMuonHits.insert(theMuonHits.end(), RPCHits->begin(), RPCHits->end() );
-     std::pair<int,std::string> label15(theMuonHits.size()-oldsize,"RPCHits");
-     oldsize = theMuonHits.size();
-     theMuonComposition.push_back(label15);
-   }
+   theMuonHits.insert(theMuonHits.end(), DTHits->begin(), DTHits->end() );
+   std::pair<int,std::string> label13(theMuonHits.size()-oldsize,"DTHits");
+   oldsize = theMuonHits.size();
+   theMuonComposition.push_back(label13);
+   theMuonHits.insert(theMuonHits.end(), CSCHits->begin(), CSCHits->end() );
+   std::pair<int,std::string> label14(theMuonHits.size()-oldsize,"CSCHits");
+   oldsize = theMuonHits.size();
+   theMuonComposition.push_back(label14);
+   theMuonHits.insert(theMuonHits.end(), RPCHits->begin(), RPCHits->end() );
+   std::pair<int,std::string> label15(theMuonHits.size()-oldsize,"RPCHits");
+   oldsize = theMuonHits.size();
+   theMuonComposition.push_back(label15);
 
    oldsize = 0;
-   if ( EBHits.isValid() ) {
-     theCaloHits.insert(theCaloHits.end(), EBHits->begin(), EBHits->end() );
-     std::pair<int,std::string> label16(theCaloHits.size()-oldsize,"EBHits");
-     oldsize = theCaloHits.size();
-     theCaloComposition.push_back(label16);
-   }
-   if ( EEHits.isValid() ) {
-     theCaloHits.insert(theCaloHits.end(), EEHits->begin(), EEHits->end() );
-     std::pair<int,std::string> label17(theCaloHits.size()-oldsize,"EEHits");
-     oldsize = theCaloHits.size();
-     theCaloComposition.push_back(label17);
-   }
-   if ( ESHits.isValid() ) {
-     theCaloHits.insert(theCaloHits.end(), ESHits->begin(), ESHits->end() );
-     std::pair<int,std::string> label18(theCaloHits.size()-oldsize,"ESHits");
-     oldsize = theCaloHits.size();
-     theCaloComposition.push_back(label18);
-   }
-   if ( HcalHits.isValid() ) {
-     theCaloHits.insert(theCaloHits.end(), HcalHits->begin(), HcalHits->end() );
-     std::pair<int,std::string> label19(theCaloHits.size()-oldsize,"HcalHits");
-     oldsize = theCaloHits.size();
-     theCaloComposition.push_back(label19);
-   }
-   if ( CaloTkHits.isValid() ) {
-     theCaloHits.insert(theCaloHits.end(), CaloTkHits->begin(), CaloTkHits->end() );
-     std::pair<int,std::string> label20(theCaloHits.size()-oldsize,"CaloTkHits");
-     oldsize = theCaloHits.size();
-     theCaloComposition.push_back(label20);
-   } 
+   theCaloHits.insert(theCaloHits.end(), EBHits->begin(), EBHits->end() );
+   std::pair<int,std::string> label16(theCaloHits.size()-oldsize,"EBHits");
+   oldsize = theCaloHits.size();
+   theCaloComposition.push_back(label16);
+   theCaloHits.insert(theCaloHits.end(), EEHits->begin(), EEHits->end() );
+   std::pair<int,std::string> label17(theCaloHits.size()-oldsize,"EEHits");
+   oldsize = theCaloHits.size();
+   theCaloComposition.push_back(label17);
+   theCaloHits.insert(theCaloHits.end(), ESHits->begin(), ESHits->end() );
+   std::pair<int,std::string> label18(theCaloHits.size()-oldsize,"ESHits");
+   oldsize = theCaloHits.size();
+   theCaloComposition.push_back(label18);
+   theCaloHits.insert(theCaloHits.end(), HcalHits->begin(), HcalHits->end() );
+   std::pair<int,std::string> label19(theCaloHits.size()-oldsize,"HcalHits");
+   oldsize = theCaloHits.size();
+   theCaloComposition.push_back(label19);
+   theCaloHits.insert(theCaloHits.end(), CaloTkHits->begin(), CaloTkHits->end() );
+   std::pair<int,std::string> label20(theCaloHits.size()-oldsize,"CaloTkHits");
+   oldsize = theCaloHits.size();
+   theCaloComposition.push_back(label20);
 
    std::cout << "\n SimHit / CaloHit structure dump \n" << std::endl;
    std::cout << " Tracker Hits in the event = " << theTrackerHits.size() << std::endl; 

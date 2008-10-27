@@ -436,7 +436,7 @@ namespace edm {
           it != itEnd; ++it) {
         EventEntryDescription entryDesc;
         EntryDescriptionRegistry::instance()->getMapped(*it, entryDesc);
-	std::vector<BranchID> const& parents = entryDesc.parents_;
+	std::vector<BranchID> const& parents = entryDesc.parents();
 	for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
 	  j != jEnd; ++j) {
 	  branchChildren_.insertChild(*j, child);

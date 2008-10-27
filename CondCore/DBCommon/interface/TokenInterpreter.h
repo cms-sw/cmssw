@@ -9,10 +9,16 @@
    Description: Utility class desect token and return original information. It is implicitly assumed that the dictionary containing the class is loaded.
 */
 namespace cond{
+   /// check if the token is valid
+  bool validToken(const std::string& tokenString);
+ 
   class TokenInterpreter{
+  public:
   public:
     explicit TokenInterpreter(const std::string& tokenString);
     ~TokenInterpreter();
+    /// check if the token is valid
+    bool isValid() const;
     /// return the container name
     std::string containerName() const;
     /// return the true class name

@@ -83,11 +83,11 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     
     ### Run parameters
     RunParameters = cms.PSet(
-        HistogramFile = cms.string('openhlt.root'),
+        HistogramFile = cms.untracked.string('openhlt.root'),
+        EtaMin        = cms.untracked.double(-5.2),
+        EtaMax        = cms.untracked.double( 5.2),
         CalJetMin     = cms.double(0.0),
         GenJetMin     = cms.double(0.0),
-        EtaMin        = cms.double(-5.2),
-        EtaMax        = cms.double( 5.2),
         Monte         = cms.bool(True),
         Debug         = cms.bool(False)
     )

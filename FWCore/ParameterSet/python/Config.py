@@ -13,6 +13,7 @@ from Modules import *
 from Modules import _Module
 from SequenceTypes import *
 from SequenceTypes import _ModuleSequenceType  #extend needs it
+from SequenceVisitors import PathValidator, EndPathValidator
 import DictTypes
 
 from ExceptionHandling import *
@@ -458,15 +459,6 @@ class Process(object):
     def _sequencesInDependencyOrder(self):
         #for each sequence, see what other sequences it depends upon
         returnValue=DictTypes.SortedKeysDict()
-        class SequenceVisitor(object):
-            def __init__(self,d):
-                self.deps = d
-            def enter(self,visitee):
-                if isinstance(visitee,Sequence):
-                    d.append(visitee)
-                pass
-            def leave(self,visitee):
-                pass
         dependencies = {}
         for label,seq in self.sequences.iteritems():
             d = []
@@ -476,11 +468,15 @@ class Process(object):
         resolvedDependencies=True
         #keep looping until we can no longer get rid of all dependencies
         # if that happens it means we have circular dependencies
+        iterCount = 0
         while resolvedDependencies:
+            iterCount += 1
             resolvedDependencies = (0 != len(dependencies))
             oldDeps = dict(dependencies)
             for label,(seq,deps) in oldDeps.iteritems():
-                if len(deps)==0:
+                # don't try too hard
+                if len(deps)==0 or iterCount > 100:
+                    iterCount = 0
                     resolvedDependencies=True
                     returnValue[label]=seq
                     #remove this as a dependency for all other sequences
@@ -586,11 +582,15 @@ class Process(object):
         p.addVString(True, "@trigger_paths", triggerPaths)
         processPSet.addPSet(False, "@trigger_paths", p)
         # add all these paths
+        #pathValidator = PathValidator()
+        #endpathValidator = EndPathValidator()
         for triggername in triggerPaths:
             #self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
+            #self.paths_()[triggername].visit(pathValidator)
             self.paths_()[triggername].insertInto(processPSet, triggername, self.__dict__)
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
+            #self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         # all the placeholders should be resolved now, so...
         #if self.schedule_() != None:

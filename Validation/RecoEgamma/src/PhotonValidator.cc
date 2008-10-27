@@ -28,8 +28,13 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 //
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 //
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -67,8 +72,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/08/22 16:42:10 $ 
- **  $Revision: 1.8 $
+ **  $Date: 2008/09/11 17:51:19 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -124,9 +129,19 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
   }
 
 
+void  PhotonValidator::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+ 
+    //get magnetic field
+  edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
+  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
+
+}
+
+
+
 
 PhotonValidator::~PhotonValidator() {
-
+  
   delete thePhotonMCTruthFinder_;
 
 
@@ -161,6 +176,9 @@ void PhotonValidator::initVectors() {
   int    zBin = parameters_.getParameter<int>("zBin");
  
 
+  double etMin = parameters_.getParameter<double>("etMin");
+  double etMax = parameters_.getParameter<double>("etMax");
+  int etBin = parameters_.getParameter<int>("etBin");
 
  
   double step=(etaMax-etaMin)/etaBin;
@@ -222,6 +240,18 @@ void PhotonValidator::initVectors() {
     
     }   
 
+    step=(etMax-etMin)/etBin;
+    etintervals_.push_back(etMin);
+    for (int k=1;k<etBin+1;k++) {
+      double d=etMin+k*step;
+      etintervals_.push_back(d);
+      totSimConvEt_.push_back(0);     
+      totMatchedSimConvEtTwoTracks_.push_back(0);  
+      totMatchedRecConvEtTwoTracks_.push_back(0);     
+      totRecAssConvEtTwoTracks_.push_back(0);     
+    }   
+    
+
 
 
 }
@@ -240,7 +270,7 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
   nRecConvAss_=0;
   nRecConvAssWithEcal_=0;
    
-
+  nInvalidPCA_=0;
   
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -462,6 +492,8 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
 
     histname = "convEffVsEtaTwoTracks";
     convEffEtaTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
+    histname = "convEffVsEtTwoTracks";
+    convEffEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
     histname = "convEffVsPhiTwoTracks";
     convEffPhiTwoTracks_ =  dbe_->book1D(histname,histname,phiBin,phiMin,phiMax);
     histname = "convEffVsRTwoTracks";
@@ -478,7 +510,8 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     convFakeRateRTwoTracks_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
     histname = "convFakeRateVsZTwoTracks";
     convFakeRateZTwoTracks_ =  dbe_->book1D(histname,histname,zBin,zMin,zMax);
-
+    histname = "convFakeRateVsEtTwoTracks";
+    convFakeRateEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
 
 
     histname="nConv";
@@ -606,6 +639,10 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     p_DCotTracksVsR_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax);
 
 
+    histname="hDistMinAppTracks";
+    h_distMinAppTracks_[1][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",dEtaTracksBin,-0.1,0.6); 
+    h_distMinAppTracks_[1][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",dEtaTracksBin,-0.1,0.6); 
+    h_distMinAppTracks_[1][2]= dbe_->book1D(histname+"Encap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",dEtaTracksBin,-0.1,0.6); 
 
 
 
@@ -684,6 +721,13 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
 
 
 
+    histname="hTkD0";
+    h_TkD0_[0]=dbe_->book1D(histname+"All"," Reco Track D0*q: All ",100,-0.1,0.6);
+    h_TkD0_[1]=dbe_->book1D(histname+"Barrel"," Reco Track D0*q: All ",100,-0.1,0.6);
+    h_TkD0_[2]=dbe_->book1D(histname+"Endcap"," Reco Track D0*q: All ",100,-0.1,0.6);
+
+
+
     histname="hTkPtPull";
     h_TkPtPull_[0]=dbe_->book1D(histname+"All"," Reco Track Pt pull: All ",100, -10., 10.);
     histname="hTkPtPull";
@@ -749,6 +793,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   // get the geometry from the event setup:
   esup.get<CaloGeometryRecord>().get(theCaloGeom_);
+
+
+ // Transform Track into TransientTrack (needed by the Vertex fitter)
+  edm::ESHandle<TransientTrackBuilder> theTTB;
+  esup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTB);
 
 
   ///// Get the recontructed  photons
@@ -937,6 +986,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    totSimConvZ_[f]++;
 	  }
 	}
+	for (unsigned int f=0; f<etintervals_.size()-1; f++){
+	  if ((*mcPho).fourMomentum().et() >etintervals_[f]&&
+	      (*mcPho).fourMomentum().et()<etintervals_[f+1]) {
+	    totSimConvEt_[f]++;
+	  }
+	}
+
+
       
       }
       
@@ -1181,6 +1238,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       //std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
       for (unsigned int i=0; i<tracks.size(); i++) {
 
+
+
+
+
         type =0;
 	nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) );
 	nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
@@ -1272,7 +1333,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    totMatchedSimConvZTwoTracks_[f]++;
 	  }
 	}
-
+	for (unsigned int f=0; f<etintervals_.size()-1; f++){
+	  if ((*mcPho).fourMomentum().et()>etintervals_[f]&&
+	      (*mcPho).fourMomentum().et()<etintervals_[f+1]) {
+	    totMatchedSimConvEtTwoTracks_[f]++;
+	  }
+	}
 
 
 	///////////  Quantities per conversion
@@ -1295,12 +1361,23 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
         
 
+	reco::TrackRef track1 = tracks[0];
+	reco::TrackRef track2 = tracks[1];
+	reco::TransientTrack tt1 = (*theTTB).build( &track1);
+	reco::TransientTrack tt2 = (*theTTB).build( &track2);
+	TwoTrackMinimumDistance md;
+        md.calculate  (  tt1.initialFreeState(),  tt2.initialFreeState() );
+        if (md.status() )  {
+	  //cout << " Min Dist " << md.distance() << std::endl;
+	  h_distMinAppTracks_[1][0]->Fill ( md.distance() );
+	}  else {
+	  nInvalidPCA_++;
 
+	}
 
 	float  dPhiTracksAtVtx = -99;
 	float phiTk1=  tracks[0]->innerMomentum().phi();
 	float phiTk2=  tracks[1]->innerMomentum().phi();
-
 	dPhiTracksAtVtx = phiTk1-phiTk2;
 	dPhiTracksAtVtx = phiNormalization( dPhiTracksAtVtx );
 
@@ -1312,6 +1389,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_DCotTracks_[type][0] ->Fill ( aConv->pairCotThetaSeparation() );
 	h2_DCotTracksVsEta_->Fill( mcEta_, aConv->pairCotThetaSeparation() );
 	h2_DCotTracksVsR_->Fill( mcConvR_, aConv->pairCotThetaSeparation() );
+
+
 
 
 
@@ -1423,15 +1502,20 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
           h_TkPtPull_[0] ->Fill(ptres/pterror);
 	  h2_TkPtPull_[0] ->Fill(mcEta_, ptres/pterror);
 
+          h_TkD0_[0]->Fill ( tracks[i]->d0()* tracks[i]->charge() );
+
+
 	  if ( aConv->bcMatchingWithTracks()[i].isNonnull() ) hBCEnergyOverTrackPout_[0]->Fill  ( aConv->bcMatchingWithTracks()[i]->energy()/sqrt(aConv->tracks()[i]->outerMomentum().Mag2())  );
 
 	  if ( phoIsInBarrel ) {
+	    h_TkD0_[1]->Fill ( tracks[i]->d0()* tracks[i]->charge() );
 	    h_TkPtPull_[1] ->Fill(ptres/pterror);
 	    h2_PtRecVsPtSim_[1]->Fill ( simPt, recPt);
 	    if ( aConv->bcMatchingWithTracks()[i].isNonnull() ) hBCEnergyOverTrackPout_[1]->Fill  ( aConv->bcMatchingWithTracks()[i]->energy()/sqrt(aConv->tracks()[i]->outerMomentum().Mag2())  );
 
 	  }
 	  if ( phoIsInEndcap ) { 
+	    h_TkD0_[2]->Fill ( tracks[i]->d0()* tracks[i]->charge() );
             h_TkPtPull_[2] ->Fill(ptres/pterror);
 	    h2_PtRecVsPtSim_[2]->Fill ( simPt, recPt);
 	    if ( aConv->bcMatchingWithTracks()[i].isNonnull() ) hBCEnergyOverTrackPout_[2]->Fill  ( aConv->bcMatchingWithTracks()[i]->energy()/sqrt(aConv->tracks()[i]->outerMomentum().Mag2())  );
@@ -1465,7 +1549,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   ///////////////////  Measure fake rate
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
     reco::Photon aPho = reco::Photon(*iPho);
-    
+    float et= aPho.superCluster()->energy()/cosh( aPho.superCluster()->eta()) ;    
     std::vector<reco::ConversionRef> conversions = aPho.conversions();
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
     
@@ -1507,6 +1591,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if (mcConvZ_>zintervals_[f]&&
 	    mcConvZ_<zintervals_[f+1]) {
 	  totMatchedRecConvZTwoTracks_[f]++;
+	}
+      }
+
+      for (unsigned int f=0; f<etintervals_.size()-1; f++){
+	if ( et >etintervals_[f]&&
+	     et <etintervals_[f+1]) {
+	  totMatchedRecConvEtTwoTracks_[f]++;
 	}
       }
 
@@ -1562,6 +1653,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      totRecAssConvZTwoTracks_[f]++;
 	    }
 	  }
+	  for (unsigned int f=0; f<etintervals_.size()-1; f++){
+	    if ( et >etintervals_[f]&&
+		 et <etintervals_[f+1]) {
+	      totRecAssConvEtTwoTracks_[f]++;
+	    }
+	  }
+
+
 	  
 	  
 	}
@@ -1645,12 +1744,13 @@ void PhotonValidator::endJob()
   fillPlotFromVectors(convEffPhiTwoTracks_,totMatchedSimConvPhiTwoTracks_,totSimConvPhi_,"effic");
   fillPlotFromVectors(convEffRTwoTracks_,totMatchedSimConvRTwoTracks_,totSimConvR_,"effic");
   fillPlotFromVectors(convEffZTwoTracks_,totMatchedSimConvZTwoTracks_,totSimConvZ_,"effic");
-  
+  fillPlotFromVectors(convEffEtTwoTracks_,totMatchedSimConvEtTwoTracks_,totSimConvEt_,"effic");  
+
   fillPlotFromVectors(convFakeRateEtaTwoTracks_,totRecAssConvEtaTwoTracks_,totMatchedRecConvEtaTwoTracks_,"fakerate");
   fillPlotFromVectors(convFakeRatePhiTwoTracks_,totRecAssConvPhiTwoTracks_,totMatchedRecConvPhiTwoTracks_,"fakerate");
   fillPlotFromVectors(convFakeRateRTwoTracks_, totRecAssConvRTwoTracks_,totMatchedRecConvRTwoTracks_,"fakerate");
   fillPlotFromVectors(convFakeRateZTwoTracks_,totRecAssConvZTwoTracks_,totMatchedRecConvZTwoTracks_,"fakerate");
-
+  fillPlotFromVectors(convFakeRateEtTwoTracks_,totRecAssConvEtTwoTracks_,totMatchedRecConvEtTwoTracks_,"fakerate");
 
 
 

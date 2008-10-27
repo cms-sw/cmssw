@@ -8,8 +8,8 @@ using namespace RecoBTag;
 
 
 JetTagPlotter::JetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-		       const edm::ParameterSet& pSet, bool mc, bool update) :
-		       BaseBTagPlotter(tagName, etaPtBin) {
+		       const edm::ParameterSet& pSet, bool mc, bool update, bool wf) :
+		       BaseBTagPlotter(tagName, etaPtBin), willFinalize_(wf) {
 
   // discriminator range: algorithm dependent
   mcPlots_ = mc;
@@ -90,6 +90,9 @@ JetTagPlotter::JetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin
     dJetPartonPt = 0;
     dJetPartonPseudoRapidity = 0;
   }
+
+  if (willFinalize_ == true) createPlotsForFinalize();
+
 }  
   
   
@@ -193,6 +196,13 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   
 }
 
+
+
+void JetTagPlotter::createPlotsForFinalize(){
+    effPurFromHistos = new EffPurFromHistos ( dDiscriminator,std::string((const char *)("JetTag"+theExtensionString)),mcPlots_, 
+					    nBinEffPur_, startEffPur_, endEffPur_);
+
+}
 
 void JetTagPlotter::finalize()
 {

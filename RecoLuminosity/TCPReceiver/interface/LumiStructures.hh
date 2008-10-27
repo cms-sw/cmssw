@@ -34,16 +34,16 @@ namespace HCAL_HLX
 
     float InstantLumi;
     float InstantLumiErr;
-    i16 InstantLumiQlty;
+    u8 InstantLumiQlty;
 
     float InstantETLumi;
     float InstantETLumiErr;
-    i16 InstantETLumiQlty;
+    u8 InstantETLumiQlty;
     float ETNormalization;  // Calculated
 
     float InstantOccLumi[2];
     float InstantOccLumiErr[2];
-    i16 InstantOccLumiQlty[2];
+    u8 InstantOccLumiQlty[2];
     float OccNormalization[2];
 
     float lumiNoise[2];
@@ -54,12 +54,12 @@ namespace HCAL_HLX
 
     float ETLumi[HCAL_HLX_MAX_BUNCHES];
     float ETLumiErr[HCAL_HLX_MAX_BUNCHES];
-    i16 ETLumiQlty[HCAL_HLX_MAX_BUNCHES];
+    u8 ETLumiQlty[HCAL_HLX_MAX_BUNCHES];
     float ETBXNormalization[HCAL_HLX_MAX_BUNCHES];
 
     float OccLumi[2][HCAL_HLX_MAX_BUNCHES];
     float OccLumiErr[2][HCAL_HLX_MAX_BUNCHES];
-    i16 OccLumiQlty[2][HCAL_HLX_MAX_BUNCHES];
+    u8 OccLumiQlty[2][HCAL_HLX_MAX_BUNCHES];
     float OccBXNormalization[2][HCAL_HLX_MAX_BUNCHES];
   };
 
@@ -94,6 +94,19 @@ namespace HCAL_HLX
     int TriggerDeadtime;
   };
 
+  /*
+  struct LUMI_SECTION_HST {
+    bool IsDataTaking;
+    int BeginOrbitNumber;
+    int EndOrbitNumber;
+    int RunNumber;
+    int LumiSectionNumber;
+    int FillNumber;
+    int SecStopTime;
+    int SecStartTime;
+  };
+  */
+
   struct LUMI_RAW_HEADER { // Used in NibbleCollector 
     u16 marker;
     u8  hlxID;
@@ -113,27 +126,27 @@ namespace HCAL_HLX
     u16  numOrbits;
     u16  numBunches; // Number of bunches histogrammed
     bool bCMSLive;
-    bool bOC0;
   };
   
   struct ET_SUM_NIBBLE {
     LUMI_NIBBLE_HEADER hdr;
+    bool bIsComplete;
     u32 data[HCAL_HLX_MAX_BUNCHES];
   };
   
   struct OCCUPANCY_NIBBLE {
     LUMI_NIBBLE_HEADER hdr;
+    bool bIsComplete[6];
     u16 data[6][HCAL_HLX_MAX_BUNCHES];
   };
 
   struct LHC_NIBBLE {
     LUMI_NIBBLE_HEADER hdr;
+    bool bIsComplete;
     u16 data[HCAL_HLX_MAX_BUNCHES];
   };
 
   struct LUMI_SECTION_HEADER {
-    u32 timestamp;
-    u32 timestamp_micros;
     u32  runNumber;   // Run number
     u32  sectionNumber; // Section number
     u32  startOrbit;  // Start orbit of lumi section
@@ -141,7 +154,6 @@ namespace HCAL_HLX
     u16  numBunches;  // Total number of bunches (from start of orbit)
     u16  numHLXs;     // Number of HLXs in lumi section
     bool bCMSLive;    // Is CMS taking data?
-    bool bOC0;        // Was section initialised by an OC0?
   };
 
   struct LUMI_SECTION_SUB_HEADER {

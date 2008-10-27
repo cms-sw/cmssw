@@ -10,7 +10,6 @@ GlobalMuonRefitter = cms.PSet(
     Fitter = cms.string('KFFitterForRefitInsideOut'),
     DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
     TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-    DoPredictionsOnly = cms.bool(False),
     Smoother = cms.string('KFSmootherForRefitInsideOut'),
     MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
     RefitDirection = cms.string('insideOut'),

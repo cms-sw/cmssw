@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.83 2008/09/20 12:51:18 biery Exp $
+// $Id: StorageManager.cc,v 1.88.2.1 2008/10/15 12:20:09 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -120,10 +120,12 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   dqmRecords_(0), 
   closedFiles_(0), 
   openFiles_(0), 
+  receivedVolume_(0.),
   storedVolume_(0.),
   progressMarker_(ProgressMarker::instance()->idle()),
   lastEventSeen_(0),
-  lastErrorEventSeen_(0)
+  lastErrorEventSeen_(0),
+  sm_cvs_version_("$Id$")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -152,6 +154,11 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("fileSize",      &fileSize_);
   ispace->fireItemAvailable("namesOfStream",      &namesOfStream_);
   ispace->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
+
+  ispace->fireItemAvailable("rcmsStateListener", fsm_.rcmsStateListener());
+  ispace->fireItemAvailable("foundRcmsStateListener", fsm_.foundRcmsStateListener());
+
+  ispace->addItemRetrieveListener("closedFiles", this);
 
   // Bind specific messages to functions
   i2o::bind(this,
@@ -252,7 +259,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
 
   // for performance measurements
-  samples_          = 100; // measurements every 25MB (about)
+  ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
+  ispace->fireItemAvailable("receivedPeriod4Stats",&period4samples_);
+  samples_          = 1000; // measurements every 60MB (about) is the default
+  period4samples_   = 5;
   instantBandwidth_ = 0.;
   instantRate_      = 0.;
   instantLatency_   = 0.;
@@ -261,11 +271,54 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   meanBandwidth_    = 0.;
   meanRate_         = 0.;
   meanLatency_      = 0.;
+
+  instantBandwidth2_= 0.;
+  instantRate2_     = 0.;
+  instantLatency2_  = 0.;
+  totalSamples2_    = 0;
+  duration2_        = 0.;
+  meanBandwidth2_   = 0.;
+  meanRate2_        = 0.;
+  meanLatency2_     = 0.;
+
   maxBandwidth_     = 0.;
   minBandwidth_     = 999999.;
 
+  maxBandwidth2_    = 0.;
+  minBandwidth2_    = 999999.; 
+
+  ispace->fireItemAvailable("receivedDQMSamples4Stats",&DQMsamples_);
+  ispace->fireItemAvailable("receivedDQMPeriod4Stats",&DQMperiod4samples_);
+  DQMsamples_          = 20;
+  DQMperiod4samples_   = 300;
+  DQMinstantBandwidth_ = 0.;
+  DQMinstantRate_      = 0.;
+  DQMinstantLatency_   = 0.;
+  DQMtotalSamples_     = 0;
+  DQMduration_         = 0.;
+  DQMmeanBandwidth_    = 0.;
+  DQMmeanRate_         = 0.;
+  DQMmeanLatency_      = 0.;
+
+  DQMinstantBandwidth2_= 0.;
+  DQMinstantRate2_     = 0.;
+  DQMinstantLatency2_  = 0.;
+  DQMtotalSamples2_    = 0;
+  DQMduration2_        = 0.;
+  DQMmeanBandwidth2_   = 0.;
+  DQMmeanRate2_        = 0.;
+  DQMmeanLatency2_     = 0.;
+
+  DQMmaxBandwidth_     = 0.;
+  DQMminBandwidth_     = 999999.;
+
+  DQMmaxBandwidth2_    = 0.;
+  DQMminBandwidth2_    = 999999.; 
+
   pmeter_ = new stor::SMPerformanceMeter();
-  pmeter_->init(samples_);
+  pmeter_->init(samples_, period4samples_);
+  DQMpmeter_ = new stor::SMPerformanceMeter();
+  DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
 
   string        xmlClass = getApplicationDescriptor()->getClassName();
   unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -277,9 +330,11 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
 
   storedEventsInStream_.reserve(20);
   storedEventsInStream_.clear();
-  receivedEventsFromOutMod_.reserve(6);
+  receivedEventsFromOutMod_.reserve(10);
   receivedEventsFromOutMod_.clear();
   receivedEventsMap_.clear();
+  avEventSizeMap_.clear();
+  avCompressRatioMap_.clear();
   modId2ModOutMap_.clear();
   storedEventsMap_.clear();
 
@@ -296,6 +351,7 @@ StorageManager::~StorageManager()
 {
   delete ah_;
   delete pmeter_;
+  delete DQMpmeter_;
 }
 
 xoap::MessageReference
@@ -425,6 +481,10 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
           if(!alreadyStoredOutMod) {
             modId2ModOutMap_.insert(std::make_pair(moduleId,moduleLabel));
             receivedEventsMap_.insert(std::make_pair(moduleLabel,0));
+            avEventSizeMap_.insert(std::make_pair(moduleLabel,
+              boost::shared_ptr<ForeverAverageCounter>(new ForeverAverageCounter()) ));
+            avCompressRatioMap_.insert(std::make_pair(moduleLabel,
+              boost::shared_ptr<ForeverAverageCounter>(new ForeverAverageCounter()) ));
           }
 
           // limit this (and other) interaction with the InitMsgCollection
@@ -654,6 +714,8 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
            std::string moduleLabel = modId2ModOutMap_[moduleId];
            // TODO: what happens if this is an invalid non-known moduleId??
            ++(receivedEventsMap_[moduleLabel]);
+           avEventSizeMap_[moduleLabel]->addSample((double)msg->originalSize);
+           // TODO: get the uncompressed size to find compression ratio for stats
          }
 
          if(status == -1) {
@@ -717,6 +779,8 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
       std::string moduleLabel = modId2ModOutMap_[moduleId];
       // TODO: what happens if this is an invalid non-known moduleId??
       ++(receivedEventsMap_[moduleLabel]);
+      avEventSizeMap_[moduleLabel]->addSample((double)msg->originalSize);
+      // TODO: get the uncompressed size to find compression ratio for stats
     }
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
@@ -1089,6 +1153,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
          unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
                                          +thislen;
          addMeasurement(actualFrameSize);
+         addDQMMeasurement(actualFrameSize);
 
          // no data sender list update yet for DQM data, should add it here
       }
@@ -1117,6 +1182,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
     unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
                                     + len;
     addMeasurement(actualFrameSize);
+    addDQMMeasurement(actualFrameSize);
 
     // no data sender list update yet for DQM data, should add it here
   }
@@ -1134,23 +1200,48 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 //////////// ***  Performance //////////////////////////////////////////////////////////
 void StorageManager::addMeasurement(unsigned long size)
 {
-  // for bandwidth performance measurements
+  // for bandwidth performance measurements, first sample based
   if ( pmeter_->addSample(size) )
   {
     // Copy measurements for our record
     stor::SMPerfStats stats = pmeter_->getStats();
-    // following are set for flashlist monitoring
-    instantBandwidth_ = stats.throughput_;
-    instantRate_      = stats.rate_;
-    instantLatency_   = stats.latency_;
-    totalSamples_     = stats.sampleCounter_;
-    duration_         = stats.allTime_;
-    meanBandwidth_    = stats.meanThroughput_;
-    meanRate_         = stats.meanRate_;
-    meanLatency_      = stats.meanLatency_;
-    maxBandwidth_     = stats.maxBandwidth_;
-    minBandwidth_     = stats.minBandwidth_;
+
+    instantBandwidth_= stats.shortTermCounter_->getValueRate();
+    instantRate_     = stats.shortTermCounter_->getSampleRate();
+    instantLatency_  = 1000000.0 / instantRate_;
+
+    double now = ForeverCounter::getCurrentTime();
+    totalSamples_    = stats.longTermCounter_->getSampleCount();
+    duration_        = stats.longTermCounter_->getDuration(now);
+    meanBandwidth_   = stats.longTermCounter_->getValueRate(now);
+    meanRate_        = stats.longTermCounter_->getSampleRate(now);
+    meanLatency_     = 1000000.0 / meanRate_;
+
+    maxBandwidth_    = stats.maxBandwidth_;
+    minBandwidth_    = stats.minBandwidth_;
   }
+
+  // for time period bandwidth performance measurements
+  if ( pmeter_->getStats().shortPeriodCounter_->hasValidResult() )
+  {
+    // Copy measurements for our record
+    stor::SMPerfStats stats = pmeter_->getStats();
+
+    instantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
+    instantRate2_     = stats.shortPeriodCounter_->getSampleRate();
+    instantLatency2_  = 1000000.0 / instantRate2_;
+
+    double now = ForeverCounter::getCurrentTime();
+    totalSamples2_    = stats.longTermCounter_->getSampleCount();
+    duration2_        = stats.longTermCounter_->getDuration(now);
+    meanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
+    meanRate2_        = stats.longTermCounter_->getSampleRate(now);
+    meanLatency2_     = 1000000.0 / meanRate2_;
+
+    maxBandwidth2_    = stats.maxBandwidth2_;
+    minBandwidth2_    = stats.minBandwidth2_;
+  }
+  receivedVolume_ = pmeter_->totalvolumemb();
 
   // TODO fixme: Find a better place to put this testing of the Fragment Collector thread status!
   // leave this for now until we have the transition available and have clean up code
@@ -1166,6 +1257,52 @@ void StorageManager::addMeasurement(unsigned long size)
     fsm_.fireFailed(reasonForFailedState_,this);
 
   }
+}
+
+void StorageManager::addDQMMeasurement(unsigned long size)
+{
+  // for bandwidth performance measurements, first sample based
+  if ( DQMpmeter_->addSample(size) )
+  {
+    // Copy measurements for our record
+    stor::SMPerfStats stats = DQMpmeter_->getStats();
+
+    DQMinstantBandwidth_= stats.shortTermCounter_->getValueRate();
+    DQMinstantRate_     = stats.shortTermCounter_->getSampleRate();
+    DQMinstantLatency_  = 1000000.0 / DQMinstantRate_;
+
+    double now = ForeverCounter::getCurrentTime();
+    DQMtotalSamples_    = stats.longTermCounter_->getSampleCount();
+    DQMduration_        = stats.longTermCounter_->getDuration(now);
+    DQMmeanBandwidth_   = stats.longTermCounter_->getValueRate(now);
+    DQMmeanRate_        = stats.longTermCounter_->getSampleRate(now);
+    DQMmeanLatency_     = 1000000.0 / DQMmeanRate_;
+
+    DQMmaxBandwidth_    = stats.maxBandwidth_;
+    DQMminBandwidth_    = stats.minBandwidth_;
+  }
+
+  // for time period bandwidth performance measurements
+  if ( DQMpmeter_->getStats().shortPeriodCounter_->hasValidResult() )
+  {
+    // Copy measurements for our record
+    stor::SMPerfStats stats = DQMpmeter_->getStats();
+
+    DQMinstantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
+    DQMinstantRate2_     = stats.shortPeriodCounter_->getSampleRate();
+    DQMinstantLatency2_  = 1000000.0 / DQMinstantRate2_;
+
+    double now = ForeverCounter::getCurrentTime();
+    DQMtotalSamples2_    = stats.longTermCounter_->getSampleCount();
+    DQMduration2_        = stats.longTermCounter_->getDuration(now);
+    DQMmeanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
+    DQMmeanRate2_        = stats.longTermCounter_->getSampleRate(now);
+    DQMmeanLatency2_     = 1000000.0 / DQMmeanRate2_;
+
+    DQMmaxBandwidth2_    = stats.maxBandwidth2_;
+    DQMminBandwidth2_    = stats.minBandwidth2_;
+  }
+  DQMreceivedVolume_ = DQMpmeter_->totalvolumemb();
 }
 
 //////////// *** Default web page //////////////////////////////////////////////////////////
@@ -1244,11 +1381,11 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "  <td>"                                                   << endl;
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\""	 << endl;
-  *out << " readonly title=\"Note: parts of this info updates every 30s !!!\">"<< endl;
+  *out << " readonly title=\"Note: parts of this info updates every 10 sec !!!\">"<< endl;
   *out << "<colgroup> <colgroup align=\"right\">"			 << endl;
     *out << "  <tr>"						 	 << endl;
-    *out << "    <th colspan=2>"					 << endl;
-    *out << "      " << "Storage Status"				 << endl;
+    *out << "    <th colspan=7>"					 << endl;
+    *out << "      " << "Storage Manager Statistics"			 << endl;
     *out << "    </th>"							 << endl;
     *out << "  </tr>"							 << endl;
         *out << "<tr>" << endl;
@@ -1258,57 +1395,79 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td align=right>" << endl;
           *out << runNumber_ << endl;
           *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
+          *out << "</td>" << endl;
         *out << "</tr>" << endl;
         *out << "<tr class=\"special\">" << endl;
           *out << "<td >" << endl;
-          *out << "Events Received for this Run" << endl;
+          *out << "Total (Non-unique) Events Received" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << receivedEvents_ << endl;
+          *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr class=\"special\">" << endl;
+          *out << "<td >" << endl;
+          *out << "Output Module" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=center>" << endl;
+          *out << "Events" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=center>" << endl;
+          *out << "Size (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=center>" << endl;
+          *out << "Size/Evt (KB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=center>" << endl;
+          *out << "RMS (KB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=center>" << endl;
+          *out << "Min (KB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=center>" << endl;
+          *out << "Max (KB)" << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
         idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
         for( ; oi != oe; ++oi) {
           *out << "<tr>" << endl;
             *out << "<td >" << endl;
-            *out << "Events Received for Output Module " << oi->second << endl;
+            *out << oi->second << endl;
             *out << "</td>" << endl;
             *out << "<td align=right>" << endl;
-            *out << receivedEventsMap_[oi->second] << endl;
+            //*out << receivedEventsMap_[oi->second] << endl;
+            *out << receivedEventsMap_[oi->second] << " (" << avEventSizeMap_[oi->second]->getSampleCount() << ") "<< endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << avEventSizeMap_[oi->second]->getValueSum()/(double)0x100000 << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << avEventSizeMap_[oi->second]->getValueAverage()/(double)0x400 << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << avEventSizeMap_[oi->second]->getValueRMS()/(double)0x400 << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << avEventSizeMap_[oi->second]->getValueMin()/(double)0x400 << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << avEventSizeMap_[oi->second]->getValueMax()/(double)0x400 << endl;
             *out << "</td>" << endl;
           *out << "</tr>" << endl;
         }
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
-/*  Take the value from the last monitoring workloop (every 10 sec) as
-    this piece of code doesn't seem to work always for all SM instances?
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
 
-        if(fsm_.stateName()->value_ == "Enabled")
-        {
-          if(jc_.get() != NULL) {
-            storedEvents_ = 0;
-            storedEventsInStream_.clear();
-            namesOfStream_.clear();
-            // following is thread safe as size of all_storedEvents is fixed (number of streams)
-            std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
-            std::vector<std::string> all_storedNames = jc_->get_storedNames();
-            for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
-                it != itEnd; ++it) {
-                  storedEvents_ = storedEvents_ + (*it);
-                  storedEventsInStream_.push_back(*it);
-            }
-            for(std::vector<std::string>::iterator it = all_storedNames.begin(), itEnd = all_storedNames.end();
-                it != itEnd; ++it) {
-                  namesOfStream_.push_back(*it);
-            }
-          }
-        }
-*/
         *out << "<tr class=\"special\">" << endl;
           *out << "<td >" << endl;
-          *out << "Events Stored for this Run (updated only every 10 sec)" << endl;
+          *out << "Events Stored (updated every 10s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << storedEvents_ << endl;
+          *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
         xdata::Vector<xdata::String>::iterator ni(namesOfStream_.begin());
@@ -1322,10 +1481,12 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
             *out << "<td align=right>" << endl;
             *out << si->value_ << endl;
             *out << "</td>" << endl;
+            *out << "<td colspan=5>" << endl;
+            *out << "</td>" << endl;
             ++ni;
           *out << "</tr>" << endl;
         }
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "Last Event ID" << endl;
@@ -1333,13 +1494,17 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td align=right>" << endl;
           *out << lastEventSeen_ << endl;
           *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
+          *out << "</td>" << endl;
         *out << "</tr>" << endl;
         *out << "<tr class=\"special\">" << endl;
           *out << "<td >" << endl;
-          *out << "Error Events Received for this Run" << endl;
+          *out << "Error Events Received" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << receivedErrorEvents_ << endl;
+          *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
         *out << "<tr>" << endl;
@@ -1349,9 +1514,13 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td align=right>" << endl;
           *out << lastErrorEventSeen_ << endl;
           *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
+          *out << "</td>" << endl;
         *out << "</tr>" << endl;
-        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
-        for(int i=0;i<=(int)nLogicalDisk_;i++) {
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"7\"></td></tr>" << endl;
+        int nD = nLogicalDisk_;
+        if (nD == 0) nD=1;
+        for(int i=0;i<nD;i++) {
            string path(filePath_);
            if(nLogicalDisk_>0) {
               std::ostringstream oss;
@@ -1379,7 +1548,10 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
              *out << "<td align=right>" << endl;
           *out << used << "% (" << btotal-bfree << " of " << btotal << " GB)" << endl;
           *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
+          *out << "</td>" << endl;
         *out << "</tr>" << endl;
+        }
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "# CopyWorker" << endl;
@@ -1387,6 +1559,8 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td align=right>" << endl;
           int ps1 = system("exit `ps ax | grep CopyWorker | grep perl | grep -v grep | wc -l`") / 256;
           *out << ps1 << endl;
+          *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
         *out << "<tr>" << endl;
@@ -1397,11 +1571,12 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           int ps2 = system("exit `ps ax | grep InjectWorker | grep perl | grep -v grep | wc -l`") / 256;
           *out << ps2 << endl;
           *out << "</td>" << endl;
+          *out << "<td colspan=5>" << endl;
+          *out << "</td>" << endl;
         *out << "</tr>" << endl;
-        }
     *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=4>"                                       << endl;
-    *out << "      " << "Streams (updated only every 10 sec)"          << endl;
+    *out << "    <th colspan=7>"                                       << endl;
+    *out << "      " << "Output Streams (updated only every 10 sec)"          << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr class=\"special\">"			       << endl;
@@ -1417,6 +1592,8 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 	*out << "<td align=right>" << endl;
 	*out << "size (kB)" << endl;
 	*out << "</td>" << endl;
+        *out << "<td colspan=3>" << endl;
+        *out << "</td>" << endl;
         *out << "</tr>" << endl;
 
     for(ismap it = streams_.begin(); it != streams_.end(); it++)
@@ -1434,6 +1611,8 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 	*out << "<td align=right>" << endl;
 	*out << (*it).second.totSizeInkBytes_ << endl;
 	*out << "</td>" << endl;
+        *out << "<td colspan=3>" << endl;
+        *out << "</td>" << endl;
         *out << "  </tr>" << endl;
       }
     *out << "</table>" << endl;
@@ -1442,7 +1621,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Memory Pool Usage"                            << endl;
+    *out << "      " << "Received Data Statistics "                    << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -1490,7 +1669,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 // performance statistics
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Performance for last " << samples_ << " frames"<< endl;
+    *out << "      " << "Statistics for last " << samples_ << " frames" << " (and last " << period4samples_ << " sec)" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << endl;
@@ -1498,7 +1677,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << instantBandwidth_ << endl;
+          *out << instantBandwidth_ << " (" << instantBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -1506,7 +1685,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Rate (Frames/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << instantRate_ << endl;
+          *out << instantRate_ << " (" << instantRate2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -1514,7 +1693,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Latency (us/frame)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << instantLatency_ << endl;
+          *out << instantLatency_ << " (" << instantLatency2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -1522,7 +1701,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Maximum Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << maxBandwidth_ << endl;
+          *out << maxBandwidth_ << " (" << maxBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -1530,14 +1709,14 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Minimum Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << minBandwidth_ << endl;
+          *out << minBandwidth_ << " (" << minBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 // mean performance statistics for whole run
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << totalSamples_ << " frames, duration "
-         << duration_ << " seconds" << endl;
+    *out << "      " << "Mean Performance for " << totalSamples_ << " (" << totalSamples2_ << ")" << " frames, duration "
+         << duration_ << " (" << duration2_ << ")" << " seconds" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << endl;
@@ -1545,7 +1724,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Bandwidth (MB/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << meanBandwidth_ << endl;
+          *out << meanBandwidth_ << " (" << meanBandwidth2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -1553,7 +1732,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Rate (Frames/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << meanRate_ << endl;
+          *out << meanRate_ << " (" << meanRate2_ << ")" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
@@ -1561,7 +1740,243 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Latency (us/frame)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << meanLatency_ << endl;
+          *out << meanLatency_ << " (" << meanLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Total Volume Received (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << receivedVolume_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+
+  *out << "</table>" << endl;
+
+// statistics for stored data
+
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Stored Data Statistics (updated every 10s) "                    << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+
+        *out << "<tr>" << endl;
+        *out << "<th >" << endl;
+        *out << "Parameter" << endl;
+        *out << "</th>" << endl;
+        *out << "<th>" << endl;
+        *out << "Value" << endl;
+        *out << "</th>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "(Non-unique) Events Stored" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_totalSamples_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// performance statistics
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Statistics for last " << store_samples_ << " events" << " (and last " << store_period4samples_ << " sec)" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_instantBandwidth_ << " (" << store_instantBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Events/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_instantRate_ << " (" << store_instantRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/event)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_instantLatency_ << " (" << store_instantLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Maximum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_maxBandwidth_ << " (" << store_maxBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Minimum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_minBandwidth_ << " (" << store_minBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// mean performance statistics for whole run
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Mean Performance for " << store_totalSamples_ << " (" << store_totalSamples2_ << ")" << " events, duration "
+         << store_duration_ << " (" << store_duration2_ << ")" << " seconds" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_meanBandwidth_ << " (" << store_meanBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (events/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_meanRate_ << " (" << store_meanRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/event)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_meanLatency_ << " (" << store_meanLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Total (Event) Volume Stored (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << store_receivedVolume_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+
+  *out << "</table>" << endl;
+
+// statistics for received DQM data only
+
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Received DQM Data Statistics "                    << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+
+        *out << "<tr>" << endl;
+        *out << "<th >" << endl;
+        *out << "Parameter" << endl;
+        *out << "</th>" << endl;
+        *out << "<th>" << endl;
+        *out << "Value" << endl;
+        *out << "</th>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "DQM Folder Updates Received" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMtotalSamples_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// performance statistics
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Statistics for last " << DQMsamples_ << " folder updates" << " (and last " << DQMperiod4samples_ << " sec)" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMinstantBandwidth_ << " (" << DQMinstantBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Updates/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMinstantRate_ << " (" << DQMinstantRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/update)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMinstantLatency_ << " (" << DQMinstantLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Maximum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmaxBandwidth_ << " (" << DQMmaxBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Minimum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMminBandwidth_ << " (" << DQMminBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// mean performance statistics for whole run
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Mean Performance for " << DQMtotalSamples_ << " (" << DQMtotalSamples2_ << ")" << " events, duration "
+         << DQMduration_ << " (" << DQMduration2_ << ")" << " seconds" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmeanBandwidth_ << " (" << DQMmeanBandwidth2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Updates/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmeanRate_ << " (" << DQMmeanRate2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/update)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMmeanLatency_ << " (" << DQMmeanLatency2_ << ")" << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Total DQM Data Volume Stored (MB)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << DQMreceivedVolume_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 
@@ -1615,6 +2030,46 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << smrbsenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
+
+  *out << "</table>" << endl;
+
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "SM Configuration Information "                << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+
+    *out << "<tr>" << endl;
+    *out << "<th >" << endl;
+    *out << "Parameter" << endl;
+    *out << "</th>" << endl;
+    *out << "<th>" << endl;
+    *out << "Value" << endl;
+    *out << "</th>" << endl;
+    *out << "</tr>" << endl;
+    *out << "<tr>" << endl;
+      *out << "<td >" << endl;
+      *out << "SM CVS Version" << endl;
+      *out << "</td>" << endl;
+      *out << "<td>" << endl;
+      *out << sm_cvs_version_ << endl;
+      *out << "</td>" << endl;
+    *out << "  </tr>" << endl;
+    *out << "<tr class=\"special\">" << endl;
+      *out << "<td colspan=2>" << endl;
+      *out << "SM cfg string" << endl;
+      *out << "</td>" << endl;
+    *out << "  </tr>" << endl;
+    *out << "<tr>"					     << endl;
+      *out << " <td colspan=2>"					     << endl;
+      *out << "<textarea rows=" << 10 << " cols=100 scroll=yes";
+      *out << " readonly title=\"SM config\">"		     << endl;
+      *out << smConfigString_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+    *out << "</tr>"					     << endl;
 
   *out << "</table>" << endl;
 
@@ -4021,6 +4476,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("namesOfStream",      &namesOfStream_);
   is->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
   is->fireItemAvailable("dqmRecords",           &dqmRecords_);
+  is->fireItemAvailable("receivedVolume",       &receivedVolume_);
   is->fireItemAvailable("storedVolume",         &storedVolume_);
   is->fireItemAvailable("memoryUsed",           &memoryUsed_);
   is->fireItemAvailable("instantBandwidth",     &instantBandwidth_);
@@ -4079,6 +4535,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("namesOfStream", this);
   is->addItemRetrieveListener("namesOfOutMod", this);
   is->addItemRetrieveListener("dqmRecords",           this);
+  is->addItemRetrieveListener("receivedVolume",       this);
   is->addItemRetrieveListener("storedVolume",         this);
   is->addItemRetrieveListener("memoryUsed",           this);
   is->addItemRetrieveListener("instantBandwidth",     this);
@@ -4127,6 +4584,15 @@ void StorageManager::setupFlashList()
 
 void StorageManager::actionPerformed(xdata::Event& e)  
 {
+  // 14-Oct-2008, KAB - skip all processing in this method, for now,
+  // when the SM state is halted.  This will protect against the use
+  // of un-initialized variables (like jc_).
+  if (fsm_.stateName()->toString()=="Halted") {return;}
+  if (fsm_.stateName()->toString()=="halting") {return;}
+  // paranoia - also return if jc_.get() is null.  Although, to do this
+  // right, we would need a lock
+  if (jc_.get() == 0) {return;}
+
   if (e.type() == "ItemRetrieveEvent") {
     std::ostringstream oss;
     oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
@@ -4139,8 +4605,11 @@ void StorageManager::actionPerformed(xdata::Event& e)
       connectedRBs_   = smrbsenders_.size();
     else if (item == "memoryUsed")
       memoryUsed_     = pool_->getMemoryUsage().getUsed();
+    else if (item == "receivedVolume")
+      receivedVolume_   = pmeter_->totalvolumemb();
     else if (item == "storedVolume")
-      storedVolume_   = pmeter_->totalvolumemb();
+      //storedVolume_   = pmeter_->totalvolumemb();
+      storedVolume_   = store_receivedVolume_;
     else if (item == "closedFiles") {
         std::list<std::string>& files = jc_->get_filelist();
         std::list<std::string>& currfiles= jc_->get_currfiles();
@@ -4385,6 +4854,10 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       consumerQueueSize_ = cutoff;
     if (DQMconsumerQueueSize_ < cutoff)
       DQMconsumerQueueSize_ = cutoff;
+
+    // if samples_ is given in the XML config we need to set it
+    pmeter_->init(samples_, period4samples_);
+    DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
     
     // the rethrows below need to be XDAQ exception types (JBK)
     try {
@@ -4470,10 +4943,15 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     storedEvents_ = 0;
     receivedEvents_ = 0;
     receivedErrorEvents_ = 0;
+    storedVolume_ = 0;
+    receivedVolume_ = 0;
+    DQMreceivedVolume_ = 0;
     receivedEventsFromOutMod_.clear();
     namesOfStream_.clear();
     namesOfOutMod_.clear();
     receivedEventsMap_.clear();
+    avEventSizeMap_.clear();
+    avCompressRatioMap_.clear();
     modId2ModOutMap_.clear();
     storedEventsMap_.clear();
     dqmRecords_   = 0;
@@ -4481,6 +4959,8 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     openFiles_  = 0;
     lastEventSeen_ = 0;
     lastErrorEventSeen_ = 0;
+    pmeter_->init(samples_, period4samples_);
+    DQMpmeter_->init(DQMsamples_, DQMperiod4samples_);
     jc_->start();
 
     boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();
@@ -4563,15 +5043,23 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
 
 void StorageManager::stopAction()
 {
+  jc_->stop();
+  jc_->join();
+
+  // 08-Oct-2008, KAB
+  // The file statistics need to be determined after we close
+  // the files, n'est pas?  And since the file closing is
+  // done underneath jc.stop(), the following code needs
+  // to come after jc_->stop(), I believe.
   std::list<std::string>& files = jc_->get_filelist();
   std::list<std::string>& currfiles= jc_->get_currfiles();
   closedFiles_ = files.size() - currfiles.size();
   openFiles_ = currfiles.size();
-  
+
   unsigned int totInFile = 0;
   for(list<string>::const_iterator it = files.begin();
       it != files.end(); it++)
-    {
+  {
       string name;
       unsigned int nev;
       unsigned long long size;
@@ -4581,28 +5069,24 @@ void StorageManager::stopAction()
       totInFile += nev;
       fileSize_.push_back((unsigned int) (size / 1048576));
       FDEBUG(5) << name << " " << nev << " " << size << std::endl;
-    }
+  }
   receivedEventsFromOutMod_.clear();
   namesOfOutMod_.clear();
   idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
   for( ; oi != oe; ++oi) {
-    receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
-    namesOfOutMod_.push_back(oi->second);
+      receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
+      namesOfOutMod_.push_back(oi->second);
   }
   storedEvents_ = 0;
   storedEventsInStream_.clear();
   // following is thread safe as size of all_storedEvents is fixed (number of streams)
   std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
   for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
-    it != itEnd; ++it) {
+      it != itEnd; ++it) {
       storedEvents_ = storedEvents_ + (*it);
       storedEventsInStream_.push_back(*it);
   }
   
-  jc_->stop();
-
-  jc_->join();
-
   // should clear the event server(s) last event/queue
   boost::shared_ptr<EventServer> eventServer;
   boost::shared_ptr<DQMEventServer> dqmeventServer;
@@ -4756,6 +5240,32 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
               namesOfStream_.push_back(*it);
         }
       }
+      boost::shared_ptr<stor::SMOnlyStats> stored_stats = jc_->get_stats();
+      store_samples_ = stored_stats->samples_;
+      store_period4samples_ = stored_stats->period4samples_;
+      store_instantBandwidth_ = stored_stats->instantBandwidth_;
+      store_instantRate_ = stored_stats->instantRate_;
+      store_instantLatency_ = stored_stats->instantLatency_;
+      store_totalSamples_ = (unsigned long)stored_stats->totalSamples_;
+      store_duration_ = stored_stats->duration_;
+      store_meanBandwidth_ = stored_stats->meanBandwidth_;
+      store_meanRate_ = stored_stats->meanRate_;
+      store_meanLatency_ = stored_stats->meanLatency_;
+      store_maxBandwidth_ = stored_stats->maxBandwidth_;
+      store_minBandwidth_ = stored_stats->minBandwidth_;
+      store_instantBandwidth2_ = stored_stats->instantBandwidth2_;
+      store_instantRate2_ = stored_stats->instantRate2_;
+      store_instantLatency2_ = stored_stats->instantLatency2_;
+      store_totalSamples2_ = (unsigned long)stored_stats->totalSamples2_;
+      store_duration2_ = stored_stats->duration2_;
+      store_meanBandwidth2_ = stored_stats->meanBandwidth2_;
+      store_meanRate2_ = stored_stats->meanRate2_;
+      store_meanLatency2_ = stored_stats->meanLatency2_;
+      store_maxBandwidth2_ = stored_stats->maxBandwidth2_;
+      store_minBandwidth2_ = stored_stats->minBandwidth2_;
+      store_receivedVolume_ = stored_stats->receivedVolume_;
+      storedVolume_   = store_receivedVolume_;
+
       // end temporary solution
       
       std::list<std::string>& files = jc_->get_filelist();

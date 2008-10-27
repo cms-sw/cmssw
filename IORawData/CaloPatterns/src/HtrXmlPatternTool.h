@@ -16,7 +16,6 @@ public:
   void prepareDirs();
   void createHists();
   void writeXML();
-  HtrXmlPatternSet* GetPatternSet() {return m_patternSet;}
 private:
   HtrXmlPatternSet* m_patternSet;
   HtrXmlPatternToolParameters* m_params;

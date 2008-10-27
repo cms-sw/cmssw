@@ -17,7 +17,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
-//#define DebugLog
+//#define ddebug
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
@@ -47,7 +47,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   G4String value                     = "Calorimeter";
   std::vector<std::string> caloNames = getNames (value, sv);
-#ifdef DebugLog
+#ifdef ddebug
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<caloNames.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << caloNames[i];
@@ -55,7 +55,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "Levels";
   std::vector<double>      levels      = getNumbers (value, sv);
-#ifdef DebugLog
+#ifdef ddebug
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<levels.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << levels[i];
@@ -63,7 +63,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "Neighbours";
   std::vector<double>      neighbours  = getNumbers (value, sv);
-#ifdef DebugLog
+#ifdef ddebug
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<neighbours.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << neighbours[i];
@@ -71,7 +71,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "Inside";
   std::vector<std::string> insideNames = getNames (value, sv);
-#ifdef DebugLog
+#ifdef ddebug
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<insideNames.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << insideNames[i];
@@ -79,7 +79,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "InsideLevel";
   std::vector<double>      insideLevel = getNumbers (value, sv);
-#ifdef DebugLog
+#ifdef ddebug
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<insideLevel.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << insideLevel[i];
@@ -180,7 +180,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
   
   if (testBeam) {
     if (trkInfo->getIDonCaloSurface() == 0) {
-#ifdef DebugLog
+#ifdef ddebug
       LogDebug("CaloSim") << "CaloTrkProcessing set IDonCaloSurface to " << id 
 			  << " at step Number "
 			  << theTrack->GetCurrentStepNumber();
@@ -191,7 +191,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 	trkInfo->putInHistory();
     } 
   } else {
-#ifdef DebugLog
+#ifdef ddebug
     LogDebug("CaloSim") << "CaloTrkProcessing Entered for " << id 
 			<< " at stepNumber "<< theTrack->GetCurrentStepNumber()
 			<< " IDonCaloSur.. " << trkInfo->getIDonCaloSurface()
@@ -222,7 +222,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
           trkInfo->setCaloIDChecked(true);
 	  lastTrackID = id;
 	  if (theTrack->GetKineticEnergy()/MeV > eMin) trkInfo->putInHistory();
-#ifdef DebugLog
+#ifdef ddebug
 	  LogDebug("CaloSim") <<"CaloTrkProcessing: set ID on Calo " << ical
 			      << " surface (Inside " << inside << ") to " 
 			      << id << " of a Track with Kinetic Energy " 
@@ -237,14 +237,11 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
 						     const DDsvalues_type &sv){
 
-#ifdef DebugLog
   LogDebug("CaloSim") << "CaloTrkProcessing::getNames called for " << str;
-#endif
+
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
     LogDebug("CaloSim") << value;
-#endif
     const std::vector<std::string> & fvec = value.strings();
     int nval = fvec.size();
     if (nval < 1) {
@@ -266,14 +263,11 @@ std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
 std::vector<double> CaloTrkProcessing::getNumbers(const G4String str,
 						  const DDsvalues_type &sv) {
 
-#ifdef DebugLog
   LogDebug("CaloSim") << "CaloTrkProcessing::getNumbers called for " << str;
-#endif
+
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
     LogDebug("CaloSim") << value;
-#endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 1) {
@@ -299,7 +293,7 @@ int CaloTrkProcessing::isItCalo(const G4VTouchable* touch) {
     if (lastLevel != detectors[it].level) {
       lastLevel = detectors[it].level;
       lv        = detLV(touch, lastLevel);
-#ifdef DebugLog
+#ifdef ddebug
       std::string  name1 = "Unknown";
       if (lv != 0) name1 = lv->GetName(); 
       LogDebug("CaloSim") << "CaloTrkProcessing: volume " << name1
@@ -333,7 +327,7 @@ int CaloTrkProcessing::isItInside(const G4VTouchable* touch, int idcal,
 	if (lastLevel != detectors[it1].fromLevels[it2]) {
 	  lastLevel = detectors[it1].fromLevels[it2];
 	  lv        = detLV(touch,lastLevel);
-#ifdef DebugLog
+#ifdef ddebug
 	  std::string  name1 = "Unknown";
 	  if (lv != 0) name1 = lv->GetName(); 
 	  LogDebug("CaloSim") << "CaloTrkProcessing: volume " << name1
@@ -354,7 +348,7 @@ int CaloTrkProcessing::isItInside(const G4VTouchable* touch, int idcal,
     } else {
       lastLevel = detectors[it1].fromLevels[idin];
       lv        = detLV(touch,lastLevel);
-#ifdef DebugLog
+#ifdef ddebug
       std::string  name1 = "Unknown";
       if (lv != 0) name1 = lv->GetName(); 
       LogDebug("CaloSim") << "CaloTrkProcessing: volume " << name1

@@ -1,4 +1,4 @@
-// $Id: NamedCompositeCandidate.cc,v 1.3 2008/05/08 15:46:00 srappocc Exp $
+// $Id: NamedCompositeCandidate.cc,v 1.2 2008/04/29 15:55:59 srappocc Exp $
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -50,7 +50,7 @@ void NamedCompositeCandidate::applyRoles()
   }
 }
 
-Candidate * NamedCompositeCandidate::daughter(const std::string& s ) 
+Candidate * NamedCompositeCandidate::daughter( std::string s ) 
 {
   int ret = -1;
   int i = 0, N = roles_.size();
@@ -70,7 +70,7 @@ Candidate * NamedCompositeCandidate::daughter(const std::string& s )
   return daughter(ret);
 }
 
-const Candidate * NamedCompositeCandidate::daughter(const std::string& s ) const 
+const Candidate * NamedCompositeCandidate::daughter( std::string s ) const 
 {
   int ret = -1;
   int i = 0, N = roles_.size();
@@ -90,7 +90,7 @@ const Candidate * NamedCompositeCandidate::daughter(const std::string& s ) const
   return daughter(ret);
 }
 
-void NamedCompositeCandidate::addDaughter( const Candidate & cand, const std::string& s )
+void NamedCompositeCandidate::addDaughter( const Candidate & cand, std::string s )
 {
 
   role_collection::iterator begin = roles_.begin(), end = roles_.end();
@@ -110,7 +110,7 @@ void NamedCompositeCandidate::addDaughter( const Candidate & cand, const std::st
   CompositeCandidate::addDaughter( c );
 }
 
-void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, const std::string& s )
+void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::string s )
 {
   role_collection::iterator begin = roles_.begin(), end = roles_.end();
   bool isFound = ( find( begin, end, s) != end );

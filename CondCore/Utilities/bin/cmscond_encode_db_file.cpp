@@ -70,7 +70,7 @@ int main( int argc, char** argv ){
   try{
     inputFile.read(inputFileName);
     cont = inputFile.content();
-    cond::DecodingKey::validatePassword(key);
+    cond::DecodingKey::validateKey(key);
   } catch (const cond::Exception& exc){
     std::cerr << exc.what()<<std::endl;
     return 1;

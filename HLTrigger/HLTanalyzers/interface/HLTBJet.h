@@ -18,7 +18,17 @@ public:
   
   void setup(const edm::ParameterSet & config, TTree * tree);
   void clear(void);
-  void analyze(const edm::Event & event, const edm::EventSetup & setup, TTree * tree);
+  void analyze(const edm::Handle<edm::View<reco::Jet> >  & rawBJets,
+               const edm::Handle<edm::View<reco::Jet> >  & correctedBJets, 
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25Relaxed,
+               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3Relaxed,
+               const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
+               const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
+               const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
+               const edm::Handle<reco::JetTagCollection> & performanceBJetsL3,
+               TTree * tree);
 
 private:
   void analyseJets(
@@ -46,18 +56,6 @@ private:
       const edm::View<reco::Jet>   & jets, 
       const reco::JetTagCollection & tagsL25, 
       const reco::JetTagCollection & tagsL3);
-
-  // labels for input HLT collections
-  edm::InputTag m_jets;
-  edm::InputTag m_correctedJets;
-  edm::InputTag m_lifetimeBJetsL25;
-  edm::InputTag m_lifetimeBJetsL3;
-  edm::InputTag m_lifetimeBJetsL25Relaxed;
-  edm::InputTag m_lifetimeBJetsL3Relaxed;
-  edm::InputTag m_softmuonBJetsL25;
-  edm::InputTag m_softmuonBJetsL3;
-  edm::InputTag m_performanceBJetsL25;
-  edm::InputTag m_performanceBJetsL3;
 
   // set of variables for uncorrected L2 jets
   int NohBJetL2;

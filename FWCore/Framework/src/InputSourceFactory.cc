@@ -39,11 +39,14 @@ namespace edm {
     std::auto_ptr<InputSource> wm;
     try {
       wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
-    } catch( cms::Exception& iException) {
-      edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating source ");
-      toThrow<<modtype<<"\n";
-      toThrow.append(iException);
-      throw toThrow;
+    }
+    catch(edm::Exception& ex) {
+      ex << "Error occured while creating source " << modtype << "\n";
+      throw ex;
+    }
+    catch(cms::Exception& e) {
+      e << "Error occured while creating source " << modtype << "\n";
+      throw e;
     }
     
     if(wm.get()==0) {

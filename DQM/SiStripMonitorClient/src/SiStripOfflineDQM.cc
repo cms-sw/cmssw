@@ -14,7 +14,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.17 2008/03/01 00:37:15 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.19 2008/08/29 10:08:51 dutta Exp $
 //
 //
 
@@ -59,9 +59,10 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  createSummary_  = pSet.getUntrackedParameter<bool>("CreateSummary",true);
-  inputFileName_  = pSet.getUntrackedParameter<std::string>("InputFileName","");
-  outputFileName_ = pSet.getUntrackedParameter<std::string>("OutputFileName","");
+  createSummary_       = pSet.getUntrackedParameter<bool>("CreateSummary",true);
+  inputFileName_       = pSet.getUntrackedParameter<std::string>("InputFileName","");
+  outputFileName_      = pSet.getUntrackedParameter<std::string>("OutputFileName","");
+  globalStatusFilling_ = pSet.getUntrackedParameter<int>("GlobalStatusFilling", 1);
 
   nEvents_  = 0;
 }
@@ -91,6 +92,7 @@ void SiStripOfflineDQM::beginJob( const edm::EventSetup &eSetup) {
       createSummary_ = false;
     }
   }
+  if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
 
   edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::beginJob done";
 }
@@ -134,6 +136,10 @@ void SiStripOfflineDQM::endJob() {
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::EndJob";
   // create Summary Plots
   if (createSummary_)       actionExecutor_->createSummaryOffline(dqmStore_);
+
+  // Fill Global Status
+  if (globalStatusFilling_ == 1) actionExecutor_->fillGlobalStatusFromModule(dqmStore_);
+  if (globalStatusFilling_ == 2) actionExecutor_->fillGlobalStatusFromLayer(dqmStore_);
 
   // Save Output file
   //  std::string outputFileName = inputFileName_.replace(inputFileName_.find("-standAlone"), 11, "");

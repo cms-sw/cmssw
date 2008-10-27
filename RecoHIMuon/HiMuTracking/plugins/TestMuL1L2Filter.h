@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.h,v 1.1 2008/08/04 15:35:39 kodolova Exp $
+// $Id: TestMuL1L2Filter.h,v 1.1 2008/07/14 16:59:27 kodolova Exp $
 //
 //
 
@@ -62,7 +62,6 @@ class TestMuL1L2Filter : public edm::EDFilter {
   edm::InputTag candTag_; 
   edm::InputTag rphirecHitsTag;
   std::string recHitBuilderName;
-
    public:
 
   //constructor

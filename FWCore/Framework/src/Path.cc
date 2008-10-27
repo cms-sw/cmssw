@@ -55,7 +55,9 @@ namespace edm {
 	  if (isEvent) ++timesExcept_;
 	  state_ = edm::hlt::Exception;
 	  recordStatus(nwrwue, isEvent);
-	  throw e << "Exception going through path " << name_ << "\n";
+          throw edm::Exception(errors::ScheduleExecutionFailure,
+              "ProcessingStopped", e)
+              << "Exception going through path " << name_ << "\n";
       }
     }
 

@@ -7,7 +7,6 @@ OutALCARECOTkAlLAS = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlLAS')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-                                           'keep *_laserAlignmentT0Producer_*_*',
-                                           'keep *_MEtoEDMConverter_*_*')
+        'keep *_laserAlignmentT0Producer_*_*')
 )
 

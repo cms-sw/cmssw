@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.8 2008/06/16 07:14:59 flucke Exp $
+// $Id: TrackHitFilter.cc,v 1.7 2008/02/05 14:30:54 covarell Exp $
 //
 //
 
@@ -185,9 +185,6 @@ bool TrackHitFilter::keepThisHit(DetId id, int type, int layer)
   } 
   else if ( theHitSel == "TOBOnly" ) {
      if (abs(type)!=5) keepthishit = false;
-  }
-  else if ( theHitSel == "TOBandTIBOnly" ){
-	  if (!(abs(type)==5 || abs(type)==3)) keepthishit = false;
   }
   else if ( theHitSel == "TOBandTIBl4Only" ) {
     if (!(abs(type)==5 || (abs(type)==3 && layer>=4))) keepthishit = false;

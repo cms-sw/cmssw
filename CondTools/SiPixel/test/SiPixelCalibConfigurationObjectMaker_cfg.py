@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelCalibConfTest")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'sqlite_file:siPixelCalibConfiguration.db'
+process.CondDBCommon.DBParameters.authenticationPath = '.'
+process.CondDBCommon.DBParameters.messageLevel = 0
 
 process.source = cms.Source("EmptyIOVSource",
     firstRun = cms.untracked.uint32(1),
@@ -30,8 +33,5 @@ process.SiPixelCalibConfigurationObjectMaker = cms.EDFilter("SiPixelCalibConfigu
 )
 
 process.p1 = cms.Path(process.SiPixelCalibConfigurationObjectMaker)
-process.CondDBCommon.connect = 'sqlite_file:siPixelCalibConfiguration.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.'
-process.CondDBCommon.DBParameters.messageLevel = 0
 
 

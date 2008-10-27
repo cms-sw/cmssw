@@ -13,12 +13,12 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Oct 22 15:20:51 CDT 2007
-// $Id: TauMET.cc,v 1.1 2008/08/27 00:40:26 kalavase Exp $
+// $Id$
 //
 //
 
 
-#include "JetMETCorrections/Type1MET/interface/TauMET.h"
+#include "TauMET.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"

@@ -1,7 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 Rethrow = cms.untracked.vstring(
+  'OtherCMS',
+  'StdException',
   'Unknown',
+  'BadAlloc',
+  'BadExceptionType',
   'ProductNotFound',
   'DictionaryNotFound',
   'InsertFailure',
@@ -13,10 +17,14 @@ Rethrow = cms.untracked.vstring(
   'NoProductSpecified',
   'EventTimeout',
   'EventCorruption',
-  'ModuleFailure',
   'ScheduleExecutionFailure',
   'EventProcessorFailure',
   'FileInPathError',
+  'FileOpenError',
+  'FileReadError',
   'FatalRootError',
+  'MismatchedInputFiles',
+  'ProductDoesNotSupportViews',
+  'ProductDoesNotSupportPtr',
   'NotFound'
 )

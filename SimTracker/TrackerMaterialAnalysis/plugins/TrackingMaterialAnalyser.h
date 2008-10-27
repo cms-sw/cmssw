@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
-#include "MaterialAccountingGroup.h"
+#include "MaterialAccountingLayer.h"
 #include "TrackingMaterialPlotter.h"
 
 class TrackingMaterialAnalyser : public edm::EDAnalyzer
@@ -20,35 +20,31 @@ public:
   virtual ~TrackingMaterialAnalyser();
   
 private:
-  enum SplitMode {
-    NEAREST_LAYER,
-    INNER_LAYER,
-    OUTER_LAYER,
-    UNDEFINED
-  };
-  
   void analyze(const edm::Event &, const edm::EventSetup &);
   void beginJob(const edm::EventSetup &);
   void endJob();
 
+  void parseBarrelLayers( const std::vector<BarrelDetLayer*> & layers );
+  void parseForwardLayers( const std::vector<ForwardDetLayer*> & neg_layers, const std::vector<ForwardDetLayer*> & pos_layers );
+  
   void split( MaterialAccountingTrack & track );
   int  findLayer( const MaterialAccountingDetector & detector );
 
   void saveParameters(const char* name);
-  void saveXml(const char* name);
   void saveLayerPlots();
   
   edm::InputTag                             m_material;
-  SplitMode                                 m_splitMode;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;
+  bool                                      m_symmetricForwardLayers;
   bool                                      m_saveSummaryPlot;
   bool                                      m_saveDetailedPlots;
   bool                                      m_saveParameters;
-  bool                                      m_saveXml;
-  std::vector<MaterialAccountingGroup *>    m_groups;
-  std::vector<std::string>                  m_groupNames;
+  std::vector<MaterialAccountingLayer *>    m_layers;
   TrackingMaterialPlotter *                 m_plotter;
 };
+
+
+
 
 #endif // TrackingMaterialAnalyser_h

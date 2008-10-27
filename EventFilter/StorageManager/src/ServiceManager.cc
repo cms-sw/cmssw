@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.15 2008/08/27 22:41:10 biery Exp $
+// $Id: ServiceManager.cc,v 1.17 2008/10/08 19:49:51 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -23,10 +23,14 @@ ServiceManager::ServiceManager(const std::string& config):
   timeouttime_(0),
   lasttimechecked_(0),
   errorStreamPSetIndex_(-1),
-  errorStreamCreated_(false)
+  errorStreamCreated_(false),
+  samples_(1000),
+  period4samples_(10)
 {
   storedNames_.clear();
   collectStreamerPSets(config);
+  pmeter_ = new stor::SMPerformanceMeter();
+  pmeter_->init(samples_, period4samples_);
 } 
 
 
@@ -36,16 +40,12 @@ ServiceManager::~ServiceManager()
   outputModuleIds_.clear();
   storedEvents_.clear();
   storedNames_.clear();
+  delete pmeter_;
 }
 
 
-void ServiceManager::stop()
+void ServiceManager::start()
 {
-  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end();
-      it != itEnd; ++it) {
-      (*it)->stop();
-  }
-
   psetHLTOutputLabels_.clear();
   for (unsigned int idx = 0; idx < outModPSets_.size(); idx++) {
     psetHLTOutputLabels_.push_back(std::string());  // empty string
@@ -60,6 +60,16 @@ void ServiceManager::stop()
   timeouttime_ = 0;
   lasttimechecked_ = 0;
   errorStreamCreated_ = false;
+  pmeter_->init(samples_, period4samples_);
+}
+
+
+void ServiceManager::stop()
+{
+  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end();
+      it != itEnd; ++it) {
+      (*it)->stop();
+  }
 }
 
 
@@ -183,6 +193,7 @@ void ServiceManager::manageEventMsg(EventMsgView& msg)
       continue;
 
     ++storedEvents_[outputIdx];
+    pmeter_->addSample(msg.size());
     if ((*it)->lumiSection() > currentlumi_) {
       currentlumi_ = (*it)->lumiSection();
       timeouttime_ = (*it)->getCurrentTime();
@@ -372,3 +383,52 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
      }
 }
 
+boost::shared_ptr<stor::SMOnlyStats> ServiceManager::get_stats()
+{ 
+// Copy measurements for a different thread potentially
+// TODO create each time or use a data member?
+    boost::shared_ptr<stor::SMOnlyStats> outstats(new stor::SMOnlyStats() );
+
+    if ( pmeter_->getStats().shortTermCounter_->hasValidResult() )
+    {
+      stor::SMPerfStats stats = pmeter_->getStats();
+
+      outstats->instantBandwidth_= stats.shortTermCounter_->getValueRate();
+      outstats->instantRate_     = stats.shortTermCounter_->getSampleRate();
+      outstats->instantLatency_  = 1000000.0 / outstats->instantRate_;
+
+      double now = stor::ForeverCounter::getCurrentTime();
+      outstats->totalSamples_    = stats.longTermCounter_->getSampleCount();
+      outstats->duration_        = stats.longTermCounter_->getDuration(now);
+      outstats->meanBandwidth_   = stats.longTermCounter_->getValueRate(now);
+      outstats->meanRate_        = stats.longTermCounter_->getSampleRate(now);
+      outstats->meanLatency_     = 1000000.0 / outstats->meanRate_;
+
+      outstats->maxBandwidth_    = stats.maxBandwidth_;
+      outstats->minBandwidth_    = stats.minBandwidth_;
+    }
+
+    // for time period bandwidth performance measurements
+    if ( pmeter_->getStats().shortPeriodCounter_->hasValidResult() )
+    {
+      stor::SMPerfStats stats = pmeter_->getStats();
+
+      outstats->instantBandwidth2_= stats.shortPeriodCounter_->getValueRate();
+      outstats->instantRate2_     = stats.shortPeriodCounter_->getSampleRate();
+      outstats->instantLatency2_  = 1000000.0 / outstats->instantRate2_;
+
+      double now = stor::ForeverCounter::getCurrentTime();
+      outstats->totalSamples2_    = stats.longTermCounter_->getSampleCount();
+      outstats->duration2_        = stats.longTermCounter_->getDuration(now);
+      outstats->meanBandwidth2_   = stats.longTermCounter_->getValueRate(now);
+      outstats->meanRate2_        = stats.longTermCounter_->getSampleRate(now);
+      outstats->meanLatency2_     = 1000000.0 / outstats->meanRate2_;
+
+      outstats->maxBandwidth2_    = stats.maxBandwidth2_;
+      outstats->minBandwidth2_    = stats.minBandwidth2_;
+    }
+    outstats->receivedVolume_ = pmeter_->totalvolumemb();
+    outstats->samples_ = samples_;
+    outstats->period4samples_ = period4samples_;
+    return outstats;
+}

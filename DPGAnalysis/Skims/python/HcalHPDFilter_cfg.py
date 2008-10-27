@@ -18,7 +18,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
     ),
-    fileName = cms.untracked.string('/tmp/efe/hpd_filtered.root')
+    fileName = cms.untracked.string('hpd_filtered.root')
 )
 
 process.p = cms.Path(process.myFilter)

@@ -34,9 +34,9 @@ PFCandidate::PFCandidate() :
 }
 
 
-PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ) {
-  *this = *sourcePtr;
-  sourcePtr_ = sourcePtr;
+PFCandidate::PFCandidate( const PFCandidateRef& sourceRef ) {
+  *this = *sourceRef;
+  sourceRef_ = sourceRef;
 }
 
 
@@ -142,19 +142,6 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
   trackRef_ = ref;
 }
 
-void PFCandidate::setGsfTrackRef(const reco::GsfTrackRef& ref) {
-  if( particleId_ != e ) {
-    string err;
-    err += "PFCandidate::setGsfTrackRef: this is not an electron ! particleId_=";
-    char num[4];
-    sprintf( num, "%d", particleId_);
-    err += num;
-
-    throw cms::Exception("InconsistentReference",
-                         err.c_str() );
-  }
-  gsfTrackRef_ = ref;
-}
 
 void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
 
@@ -272,7 +259,7 @@ ostream& reco::operator<<(ostream& out,
     out<<"("<<blockRef.key()<<"|"<<indexInBlock<<"), ";
   }
 
-  out<<" source:"<<c.sourcePtr_.id()<<"/"<<c.sourcePtr_.key();
+  out<<" source:"<<c.sourceRef_.id()<<"/"<<c.sourceRef_.key();
 
 //   PFBlockRef blockRef = c.block(); 
 //   int blockid = blockRef.key(); 

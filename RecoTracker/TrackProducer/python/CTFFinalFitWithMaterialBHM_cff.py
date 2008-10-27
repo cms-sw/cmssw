@@ -35,4 +35,5 @@ ctfWithMaterialTracksBeamHaloMuon.Fitter = 'KFFittingSmootherBH'
 ctfWithMaterialTracksBeamHaloMuon.Propagator = 'BeamHaloPropagatorAlong'
 ctfWithMaterialTracksBeamHaloMuon.src = 'ckfTrackCandidatesBeamHaloMuon'
 ctfWithMaterialTracksBeamHaloMuon.AlgorithmName = 'beamhalo'
+ctfWithMaterialTracksBeamHaloMuon.TTRHBuilder = 'WithTrackAngle'
 

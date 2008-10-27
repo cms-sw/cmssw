@@ -30,15 +30,6 @@ class ODFEDAQConfig : public IODConfig {
   inline void setWeightId(int x) { m_wei = x; }
   inline int getWeightId() const { return m_wei; }
 
-  inline void setBadXtId(int x) { m_bxt = x; }
-  inline int getBadXtId() const { return m_bxt; }
-  inline void setBadTTId(int x) { m_btt = x; }
-  inline int getBadTTId() const { return m_btt; }
-  inline void setTriggerBadXtId(int x) { m_tbxt = x; }
-  inline int getTriggerBadXtId() const { return m_tbxt; }
-  inline void setTriggerBadTTId(int x) { m_tbtt = x; }
-  inline int getTriggerBadTTId() const { return m_tbtt; }
-
   inline void setComment(std::string x) { m_com = x; }
   inline std::string getComment() const { return m_com; }
 
@@ -62,11 +53,6 @@ class ODFEDAQConfig : public IODConfig {
   int m_ped;
   int m_del;
   int m_wei;
-
-  int m_bxt;
-  int m_btt;
-  int m_tbxt;
-  int m_tbtt;
   int m_version;
   std::string m_com;
   

@@ -33,8 +33,10 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
        iDet!=detectorModules_.end(); ++iDet) {
     float nDigisMean = (float)RandGauss::shoot(50.,20.); // generate random values for each detId
     float nDigisRMS = (float)RandGauss::shoot(20.,4.);
+    float noisePercentage = (float)RandGauss::shoot(7.,1.);
     
     performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS); // set values
+    performanceSummary->setNoisePercentage(*iDet, noisePercentage);
   }
   clock_t presentTime = clock();
   performanceSummary->setTimeValue((unsigned long long)presentTime);

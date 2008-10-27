@@ -1,7 +1,7 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.10 2008/08/27 22:34:41 biery Exp $
+// $Id: ServiceManager.h,v 1.12 2008/10/08 19:49:51 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
@@ -11,6 +11,7 @@
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/InitMsgCollection.h>
+#include <EventFilter/StorageManager/interface/SMPerformanceMeter.h>
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -32,6 +33,7 @@ namespace edm
     explicit ServiceManager(const std::string& config);
     ~ServiceManager(); 
     
+    void start(); 
     void stop(); 
     
     void manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, 
@@ -47,6 +49,7 @@ namespace edm
     std::list<std::string>& get_currfiles();
     std::vector<uint32>& get_storedEvents();
     std::vector<std::string>& get_storedNames();
+    boost::shared_ptr<stor::SMOnlyStats> get_stats();
 
     std::map<std::string, Strings> getStreamSelectionTable();
     
@@ -66,6 +69,9 @@ namespace edm
     double                                 lasttimechecked_;
     int                                    errorStreamPSetIndex_;
     bool                                   errorStreamCreated_;
+    unsigned long samples_;
+    unsigned long period4samples_;
+    stor::SMPerformanceMeter *pmeter_;
   };
   
 }//edm-namespace

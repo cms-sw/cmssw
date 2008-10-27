@@ -46,6 +46,13 @@ L1GctHfEtSumsLut L1GctHfEtSumsLut::operator= (const L1GctHfEtSumsLut& lut)
 std::ostream& operator << (std::ostream& os, const L1GctHfEtSumsLut& lut)
 {
   os << "===L1GctHfEtSumsLut===" << std::endl;
+  std::vector<unsigned> thresholds = lut.m_lutFunction->getThresholds(lut.m_lutType);
+  std::vector<unsigned>::const_iterator thr = thresholds.begin();
+  os << "Thresholds are: " << *(thr++);
+  for ( ; thr != thresholds.end(); thr++) {
+    os << ", " << *thr;
+  }
+  os << std::endl;
   os << "\n===Lookup table contents===\n" << std::endl;
   const L1GctLut<L1GctHfEtSumsLut::NAddress,L1GctHfEtSumsLut::NData>* temp=&lut;
   os << *temp;

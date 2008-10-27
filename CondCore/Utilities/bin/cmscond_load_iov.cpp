@@ -13,8 +13,8 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 
-
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/CommonOptions.h"
+//#include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
 #include <fstream>
@@ -67,35 +67,30 @@ namespace{
 }
     
 int main( int argc, char** argv ){
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_load_iov [options] inputFile \n");
-  visible.add_options()
-    ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
-    ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
-    ;
+  //boost::program_options::options_description desc("options");
+  //boost::program_options::options_description visible("Load a new IOV collection using already existing payloads as described in a text file.\n Usage: cmscond_load_iov [options] inputFile \n options");
+  cond::CommonOptions myopt("cmscond_load_iov","inputFile");
+  myopt.addConnect();
+  myopt.addAuthentication(true);
   boost::program_options::options_description invisible;
   invisible.add_options()
     ("inputFile",boost::program_options::value<std::string>(), "input file")
     ;
-  desc.add(visible);
-  desc.add(invisible);
+  myopt.description().add( myopt.visibles() );
+  myopt.description().add(invisible);
   boost::program_options::positional_options_description posdesc;
   posdesc.add("inputFile", -1);
 
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(posdesc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).positional(posdesc).run(), vm);
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
     std::cerr << er.what()<<std::endl;
     return 1;
   }
   if (vm.count("help")) {
-    std::cout << visible <<std::endl;;
+    std::cout << myopt.visibles() <<std::endl;;
     return 0;
   }
 
@@ -154,12 +149,16 @@ int main( int argc, char** argv ){
   }else{
     session->configuration().setMessageLevel(cond::Debug);
   }
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
-  ::putenv(const_cast<char*>(authenv.c_str()));
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );
+    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+    ::putenv(const_cast<char*>(userenv.c_str()));
+    ::putenv(const_cast<char*>(passenv.c_str()));
+  }
   cond::Connection myconnection(connect,-1);
   session->open();
   try{
@@ -178,7 +177,7 @@ int main( int argc, char** argv ){
       coraldb.commit();
     }
 
-    // FIXME need to get timetype from input!!!!
+    
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);

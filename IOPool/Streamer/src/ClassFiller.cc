@@ -38,7 +38,7 @@ namespace edm {
     if (ttest != 0) {
       ttest->BuildRealData();
     } else {
-      throw cms::Exception("Configuration")
+      throw edm::Exception(errors::Configuration)
 			<< "Could not find TClass for " << name << "\n";
     }
   }
@@ -74,7 +74,7 @@ namespace edm {
       // tc_ = TClass::GetClass("edm::SendEvent");
       
       if(tc == 0) {
-	throw cms::Exception("Configuration","getRootClass")
+	throw edm::Exception(errors::Configuration,"getRootClass")
 	  << "could not find TClass for " << name
 	  << "\n";
       }

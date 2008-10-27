@@ -42,7 +42,7 @@ from CalibTracker.SiStripESProducers.SiStripBadChannelFakeESSource_cfi import *
 
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import *
 siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-     cms.PSet( record = cms.string("SiStripFedCablingRcd"), tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripDetCablingRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") ),

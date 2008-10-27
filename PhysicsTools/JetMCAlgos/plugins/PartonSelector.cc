@@ -42,20 +42,14 @@ class PartonSelector : public edm::EDProducer
   private:
 
     virtual void produce(edm::Event&, const edm::EventSetup& ); 
-    bool withLeptons;  // Optionally specify leptons
-    bool withTop;      // Optionally include top quarks in the list 
+    bool withLeptons;
 };
 //=========================================================================
 
 PartonSelector::PartonSelector( const edm::ParameterSet& iConfig )
 { 
     produces<reco::GenParticleRefVector>();
-    withLeptons         = iConfig.getParameter<bool>("withLeptons"); 
-    if ( iConfig.exists("withTop") ) {
-      withTop = iConfig.getParameter<bool>("withTop");
-    } else {
-      withTop = false;
-    }
+    withLeptons         = iConfig.getParameter<bool>("withLeptons");   
 }
 
 //=========================================================================
@@ -83,7 +77,6 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
     if (m<6) continue;    
 
     const GenParticle & aParticle = (*particles)[ m ];
-
     bool isAParton = false;
     bool isALepton = false;
     int flavour = abs(aParticle.pdgId());
@@ -92,7 +85,6 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
        flavour == 3 ||
        flavour == 4 ||
        flavour == 5 ||  
-       (flavour == 6 && withTop) ||
        flavour == 21 ) isAParton = true;
     if(flavour == 11 ||
        flavour == 12 ||
@@ -100,7 +92,6 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
        flavour == 14 ||
        flavour == 15 ||
        flavour == 16 ) isALepton = true;
-
 
     //Add Partons status 3
     if( aParticle.status() == 3 && isAParton ) {

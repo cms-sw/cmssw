@@ -18,6 +18,7 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+#include "DataFormats/Provenance/interface/Transient.h"
 
 #include "Reflex/Type.h"
 /*
@@ -70,32 +71,79 @@ namespace edm {
     std::string const& processName() const {return processName_;}
     BranchID const& branchID() const {return branchID_;}
     ProductID const& oldProductID() const {return productID_;}
-    ProductID const& productIDtoAssign() const {return productIDtoAssign_;}
+    ProductID & productIDtoAssign() const {return transients_.get().productIDtoAssign_;}
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& productInstanceName() const {return productInstanceName_;} 
-    bool const& produced() const {return produced_;}
-    bool const& present() const {return present_;}
-    bool const& transient() const {return transient_;}
-    ROOT::Reflex::Type const& type() const {return type_;}
-    int const& splitLevel() const {return splitLevel_;}
-    int const& basketSize() const {return basketSize_;}
+    bool & produced() const {return transients_.get().produced_;}
+    bool & present() const {return transients_.get().present_;}
+    bool & transient() const {return transients_.get().transient_;}
+    ROOT::Reflex::Type & type() const {return transients_.get().type_;}
+    int & splitLevel() const {return transients_.get().splitLevel_;}
+    int & basketSize() const {return transients_.get().basketSize_;}
 
-    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
+    ModuleDescriptionID & moduleDescriptionID() const {return transients_.get().moduleDescriptionID_;}
     std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
     ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return psetIDs().size() == 1;}
     std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     std::set<std::string> & branchAliases() {return branchAliases_;}
-    std::string const& branchName() const {return branchName_;}
+    std::string & branchName() const {return transients_.get().branchName_;}
     BranchType const& branchType() const {return branchType_;}
-    std::string const& wrappedName() const {return wrappedName_;}
+    std::string & wrappedName() const {return transients_.get().wrappedName_;}
 
-    void setPresent(bool present) const {present_ = present;}
-    void setProductIDtoAssign(ProductID const& id) const {productIDtoAssign_ = id;}
+    void setPresent(bool isPresent) const {present() = isPresent;}
+    void setProductIDtoAssign(ProductID const& id) const {productIDtoAssign() = id;}
     void updateFriendlyClassName();
+
+    void setDefaultTransients() const {
+	transients_ = Transients();
+    };
+
+    struct Transients {
+      Transients();
+
+      // The module description id of the producer.
+      // This is only valid if produced_ is true.
+      // This is just used as a cache, and is not logically
+      // part of the branch description.
+      ModuleDescriptionID moduleDescriptionID_;
+
+      // An ID to be assigned to products on the branch,
+      // This is only valid if produced_ is true.
+      ProductID productIDtoAssign_;
+
+      // The branch name, which is currently derivable fron the other attributes.
+      std::string branchName_;
+
+      // The wrapped class name, which is currently derivable fron the other attributes.
+      std::string wrappedName_;
+
+      // Was this branch produced in this process
+      // rather than in a previous process
+      bool produced_;
+
+      // Is the branch present in the product tree
+      // in the input file (or any of the input files)
+      bool present_;
+
+      // Is the class of the branch marked as transient
+      // in the data dictionary
+      bool transient_;
+
+      // The Reflex Type of the wrapped object.
+      ROOT::Reflex::Type type_;
+
+      // The split level of the branch, as marked
+      // in the data dictionary.
+      int splitLevel_;
+
+      // The basket size of the branch, as marked
+      // in the data dictionary.
+      int basketSize_;
+    };
 
   private:
     void throwIfInvalid_() const;
@@ -130,12 +178,6 @@ namespace edm {
     std::string productInstanceName_;
 
   private:
-    // The module description id of the producer.
-    // This is only valid if produced_ is true.
-    // This is just used as a cache, and is not logically
-    // part of the branch description.
-    mutable ModuleDescriptionID moduleDescriptionID_; //! transient
-
     // ID's of parameter set of the creators of products
     // on this branch
     std::set<ParameterSetID> psetIDs_;
@@ -147,38 +189,7 @@ namespace edm {
     // The branch ROOT alias(es), which are settable by the user.
     std::set<std::string> branchAliases_;
 
-    // An ID to be assigned to products on the branch,
-    // This is only valid if produced_ is true.
-    mutable ProductID productIDtoAssign_; //!transient
-
-    // The branch name, which is currently derivable fron the other attributes.
-    mutable std::string branchName_; //! transient
-
-    // The wrapped class name, which is currently derivable fron the other attributes.
-    mutable std::string wrappedName_; //! transient
-
-    // Was this branch produced in this process
-    // rather than in a previous process
-    bool produced_; //! transient
-
-    // Is the branch present in the product tree
-    // in the input file (or any of the input files)
-    mutable bool present_; //! transient
-
-    // Is the class of the branch marked as transient
-    // in the data dictionary
-    mutable bool transient_; //! transient
-
-    // The Reflex Type of the wrapped object.
-    mutable ROOT::Reflex::Type type_; //! transient
-
-    // The split level of the branch, as marked
-    // in the data dictionary.
-    mutable int splitLevel_; //! transient
-
-    // The basket size of the branch, as marked
-    // in the data dictionary.
-    mutable int basketSize_; //! transient
+    mutable Transient<Transients> transients_;
   };
   
   inline

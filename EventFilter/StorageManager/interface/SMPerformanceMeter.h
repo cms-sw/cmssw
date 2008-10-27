@@ -4,15 +4,18 @@
      Header file for performance statistics for
      Storage Manager and SMProxyServer.
 
-     $Id$
+     $Id: SMPerformanceMeter.h,v 1.5 2008/10/12 15:18:14 hcheung Exp $
 */
 
 #include <string>
 
-#include "toolbox/Chrono.h"
 #include "toolbox/string.h"
 
+#include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
+#include "EventFilter/StorageManager/interface/ForeverCounter.h"
+#include "EventFilter/StorageManager/interface/RollingSampleCounter.h"
+#include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
 
 namespace stor {
 
@@ -22,21 +25,50 @@ namespace stor {
     public:
     void reset();
     void fullReset();
-    // variables for the mean over the whole run
     unsigned long samples_;
-    double totalMB4mean_;
-    double meanThroughput_;
-    double meanRate_;
-    double  meanLatency_;
-    unsigned long sampleCounter_;
-    double  allTime_;
+    unsigned long period4samples_;
+    boost::shared_ptr<ForeverCounter> longTermCounter_;
+    boost::shared_ptr<RollingSampleCounter> shortTermCounter_;
+    boost::shared_ptr<RollingIntervalCounter> shortPeriodCounter_;
+    // for sample based statistics
     double maxBandwidth_;
     double minBandwidth_;
-    // variables for each set of "samples_"
-    double totalMB_;
-    double throughput_;
-    double rate_;
-    double  latency_;
+    // for time period based statistics
+    double maxBandwidth2_;
+    double minBandwidth2_;
+  };
+
+  struct SMOnlyStats
+  {
+    SMOnlyStats();
+    public:
+    unsigned long samples_;
+    unsigned long period4samples_;
+    // for sample based statistics
+    double instantBandwidth_;
+    double instantRate_;
+    double instantLatency_;
+    double totalSamples_;
+    double duration_;
+    double meanBandwidth_;
+    double meanRate_;
+    double meanLatency_;
+    double maxBandwidth_;
+    double minBandwidth_;
+
+    // for time period based statistics
+    double instantBandwidth2_;
+    double instantRate2_;
+    double instantLatency2_;
+    double totalSamples2_;
+    double duration2_;
+    double meanBandwidth2_;
+    double meanRate2_;
+    double meanLatency2_;
+    double maxBandwidth2_;
+    double minBandwidth2_;
+
+    double receivedVolume_;
   };
 
   class SMPerformanceMeter 
@@ -47,29 +79,21 @@ namespace stor {
 
     virtual ~SMPerformanceMeter(){}
 
-    void init(unsigned long samples);
+    void init(unsigned long samples, unsigned long time_period);
     bool addSample(unsigned long size);
     void setSamples(unsigned long num_samples);
+    void setPeriod4Samples(unsigned long time_period);
+    unsigned long getSetSamples() { return stats_.samples_; }
+    unsigned long getPeriod4Samples() { return stats_.period4samples_; }
   
     SMPerfStats getStats();
     unsigned long samples();
-    double bandwidth();
-    double rate();
-    double latency();
-    double meanbandwidth();
-    double maxbandwidth();
-    double minbandwidth();
-    double meanrate();
-    double meanlatency();
-    unsigned long totalsamples();
     double totalvolumemb();
-    double duration();
 
     protected:
 
-    SMPerfStats stats_;
     unsigned long loopCounter_;
-    toolbox::Chrono chrono_;	
+    SMPerfStats stats_;
 
     boost::mutex data_lock_;
   }; //end class

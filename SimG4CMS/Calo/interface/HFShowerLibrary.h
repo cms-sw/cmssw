@@ -36,15 +36,11 @@ public:
 
 public:
 
-  struct Hit {
-    Hit() {}
-    G4ThreeVector             position;
-    int                       depth;
-    double                    time;
-  };
-
   void                initRun(G4ParticleTable * theParticleTable);
-  std::vector<Hit>    getHits(G4Step * aStep, bool & ok);
+  int                 getHits(G4Step * aStep);
+  G4ThreeVector       getPosHit(int i);
+  int                 getDepth(int i);
+  double              getTSlice(int i);
 
 protected:
 
@@ -56,6 +52,13 @@ protected:
   void                storePhoton(int j);
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
 				  int&);
+
+  struct Hit {
+    Hit() {}
+    G4ThreeVector     position;
+    int               depth;
+    double            time;
+  };
 
 private:
 
@@ -75,6 +78,9 @@ private:
   int                 emPDG, epPDG, gammaPDG;
   int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
+
+  int                 nHit;
+  std::vector<Hit>    hit;
 
   int                 npe;
   std::vector<HFShowerPhoton> pe;
