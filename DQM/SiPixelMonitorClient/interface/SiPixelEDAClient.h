@@ -72,6 +72,7 @@ private:
   int noiseRateDenominator_;
   bool offlineXMLfile_;
   int nFEDs_;
+  bool Tier0Flag_;
 
   std::ostringstream html_out_;
 };

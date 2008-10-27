@@ -106,16 +106,19 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
   void bookGlobalQualityFlag    (DQMStore                               * bei,
-                                 float                                    noiseRate);
+                                 float                                    noiseRate,
+				 bool                                     Tier0Flag);
 
   void computeGlobalQualityFlag (DQMStore                               * bei,
                                  bool                                     init,
-				 int                                      nFEDs);
+				 int                                      nFEDs,
+				 bool                                     Tier0Flag);
   
   void fillGlobalQualityPlot    (DQMStore                               * bei,
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup,
-				 int                                      nFEDs);
+				 int                                      nFEDs,
+				 bool                                     Tier0Flag);
   
   void findNoisyPixels (         DQMStore                               * bei,
                                  bool                                     init,

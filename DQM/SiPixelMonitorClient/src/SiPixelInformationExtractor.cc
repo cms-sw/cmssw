@@ -1337,7 +1337,7 @@ void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float noiseRate_) {
+void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float noiseRate_,bool Tier0Flag) {
 //std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
   bei->cd();
   bei->setCurrentFolder("Pixel/EventInfo");
@@ -1362,9 +1362,22 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float no
   //SummaryReportMap->setBinLabel(37,"Outside",2);
   //SummaryReportMap->setBinLabel(36,"LHC",2);
   //SummaryReportMap->setBinLabel(35,"Ring",2);
-  SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,0.,36.);
-  SummaryReportMap->setAxisTitle("FED #",1);
-  SummaryReportMap->setAxisTitle("Link #",2);
+  if(!Tier0Flag){
+    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,0.,36.);
+    SummaryReportMap->setAxisTitle("FED #",1);
+    SummaryReportMap->setAxisTitle("Link #",2);
+  }else{
+    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",7,0.,7.,22,1.,23.);
+    SummaryReportMap->setAxisTitle("Layer(Disk)",1);
+    SummaryReportMap->setAxisTitle("Ladder #",2);
+    SummaryReportMap->setBinLabel(1,"Barrel_Layer_1",1);
+    SummaryReportMap->setBinLabel(2,"Barrel_Layer_2",1);
+    SummaryReportMap->setBinLabel(3,"Barrel_Layer_3",1);
+    SummaryReportMap->setBinLabel(4,"Endcap_Disk_1 -z",1);
+    SummaryReportMap->setBinLabel(5,"Endcap_Disk_2 -z",1);
+    SummaryReportMap->setBinLabel(6,"Endcap_Disk_1 +z",1);
+    SummaryReportMap->setBinLabel(7,"Endcap_Disk_2 +z",1);
+  }
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
   SummaryBarrel = bei->bookFloat("Pixel_Barrel");
   SummaryShellmI = bei->bookFloat("Pixel_Shell_mI");
@@ -1392,7 +1405,8 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float no
 
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 
                                                            bool init,
-							   int nFEDs)
+							   int nFEDs,
+							   bool Tier0Flag)
 {
 //cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 //   cout << ACRed << ACBold
@@ -1443,9 +1457,11 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   
-  QRegExp rx("Module_");
+  QRegExp rx, rxb, rxe;
+  if(!Tier0Flag) rx = QRegExp("Module_");
+  else { rxb = QRegExp("Ladder_"); rxe = QRegExp("Blade_"); }
  
-  if(rx.search(dname)!=-1){
+  if(rx.search(dname)!=-1 || rxb.search(dname)!=-1 || rxe.search(dname)!=-1){
     if(currDir.find("Pixel")!=string::npos) allMods_++;
     if(currDir.find("Barrel")!=string::npos) bpix_mods_++;
     if(currDir.find("Shell_mI")!=string::npos) shellmI_mods_++;
@@ -1543,7 +1559,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
        ic != subDirVec.end(); ic++) {
     bei->cd(*ic);
     init=false;
-    computeGlobalQualityFlag(bei,init,nFEDs);
+    computeGlobalQualityFlag(bei,init,nFEDs,Tier0Flag);
     bei->goUp();
   }
   SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
@@ -1783,13 +1799,19 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }*/
 
-void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs)
+void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag)
 {
   //calculate eta and phi of the modules and fill a 2D plot:
   if(init){
-    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,0.,36.);
-    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,0.,36.);
-    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,0.,36.);
+    if(!Tier0Flag){
+      allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,0.,36.);
+      errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,0.,36.);
+      goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,0.,36.);
+    }else{
+      allmodsMap = new TH2F("allmodsMap","allmodsMap",7,0.,7.,22,1.,23.);
+      errmodsMap = new TH2F("errmodsMap","errmodsMap",7,0.,7.,22,1.,23.);
+      goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",7,0.,7.,22,1.,23.);
+    }
     count=0; errcount=0;
     //cout<<"Number of FEDs in the readout: "<<nFEDs<<endl;
     if(nFEDs==0){
@@ -1800,17 +1822,22 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   }
   if(nFEDs==0) return;
   eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  QRegExp rx("Module_");
-  if(rx.search(dname)!=-1){
+  
+  QRegExp rx, rxb, rxe;
+  if(!Tier0Flag) rx = QRegExp("Module_");
+  else { rxb = QRegExp("Ladder_"); rxe = QRegExp("Blade_"); }
+  
+  if(rx.search(dname)!=-1 || rxb.search(dname)!=-1 || rxe.search(dname)!=-1){
     vector<string> meVec = bei->getMEs();
     bool first=true; bool once=true;
     int detId=-1; int fedId=-1; int linkId=-1;
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       //checking for any digis or FED errors to decide if this module is in DAQ:  
       string full_path = currDir + "/" + (*it);
-      if(detId==-1 && (full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos)){
+      if(!Tier0Flag && detId==-1 && (full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos)){
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
@@ -1866,6 +1893,79 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	    //cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  }
 	}
+      }else if(Tier0Flag && detId==-1 && (full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos)){
+        MonitorElement * me = bei->get(full_path);
+        if (!me) continue;
+	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
+	   (full_path.find("NErrors")!=string::npos && me->getMean()>0.)){ 
+          detId = 0;
+          int structId = -1; int subStructId = -1;
+	  if(full_path.find("Layer_1")!=string::npos) structId = 0;
+	  else if(full_path.find("Layer_2")!=string::npos) structId = 1;
+	  else if(full_path.find("Layer_3")!=string::npos) structId = 2;
+	  else if((full_path.find("HalfCylinder_mI")!=string::npos && full_path.find("Disk_1")!=string::npos) ||
+	          (full_path.find("HalfCylinder_mO")!=string::npos && full_path.find("Disk_1")!=string::npos)) structId = 3;
+	  else if((full_path.find("HalfCylinder_mI")!=string::npos && full_path.find("Disk_2")!=string::npos) ||
+	          (full_path.find("HalfCylinder_mO")!=string::npos && full_path.find("Disk_2")!=string::npos)) structId = 4;
+	  else if((full_path.find("HalfCylinder_pI")!=string::npos && full_path.find("Disk_1")!=string::npos) ||
+	          (full_path.find("HalfCylinder_pO")!=string::npos && full_path.find("Disk_1")!=string::npos)) structId = 5;
+	  else if((full_path.find("HalfCylinder_pI")!=string::npos && full_path.find("Disk_2")!=string::npos) ||
+	          (full_path.find("HalfCylinder_pO")!=string::npos && full_path.find("Disk_2")!=string::npos)) structId = 6;
+	  if(full_path.find("_01")!=string::npos) subStructId = 1;
+	  else if(full_path.find("_02")!=string::npos) subStructId = 2;
+	  else if(full_path.find("_03")!=string::npos) subStructId = 3;
+	  else if(full_path.find("_04")!=string::npos) subStructId = 4;
+	  else if(full_path.find("_05")!=string::npos) subStructId = 5;
+	  else if(full_path.find("_06")!=string::npos) subStructId = 6;
+	  else if(full_path.find("_07")!=string::npos) subStructId = 7;
+	  else if(full_path.find("_08")!=string::npos) subStructId = 8;
+	  else if(full_path.find("_09")!=string::npos) subStructId = 9;
+	  else if(full_path.find("_10")!=string::npos) subStructId = 10;
+	  else if(full_path.find("_11")!=string::npos) subStructId = 11;
+	  else if(full_path.find("_12")!=string::npos) subStructId = 12;
+	  else if(full_path.find("_13")!=string::npos) subStructId = 13;
+	  else if(full_path.find("_14")!=string::npos) subStructId = 14;
+	  else if(full_path.find("_15")!=string::npos) subStructId = 15;
+	  else if(full_path.find("_16")!=string::npos) subStructId = 16;
+	  else if(full_path.find("_17")!=string::npos) subStructId = 17;
+	  else if(full_path.find("_18")!=string::npos) subStructId = 18;
+	  else if(full_path.find("_19")!=string::npos) subStructId = 19;
+	  else if(full_path.find("_20")!=string::npos) subStructId = 20;
+	  else if(full_path.find("_21")!=string::npos) subStructId = 21;
+	  else if(full_path.find("_22")!=string::npos) subStructId = 22;
+	  allmodsMap->Fill(structId,subStructId);
+          
+	  //use presence of any FED error as error flag (except for TBM or ROC resets):
+          bool anyerr=false; bool type30=false; bool othererr=false;
+          if(full_path.find("ndigis")!=string::npos) full_path = full_path.replace(full_path.find("ndigis"),7,"NErrors");
+	  me = bei->get(full_path);
+	  if(me) anyerr=true;
+          //if(anyerr) cout<<"here is an error: "<<detId<<","<<me->getMean()<<endl;
+	  if(full_path.find("NErrors")!=string::npos) full_path = full_path.replace(full_path.find("NErrors"),9,"errorType");
+	  me = bei->get(full_path);
+	  if(me){
+	    for(int jj=1; jj<16; jj++){
+	      if(me->getBinContent(jj)>0.){
+	        if(jj!=6) othererr=true;
+		else type30=true;
+	      }
+	    }
+	    if(type30){
+	      full_path = full_path.replace(full_path.find("errorType"),10,"TBMMessage");
+	      me = bei->get(full_path);
+	      if(me){
+	        for(int kk=1; kk<9; kk++){
+		  if(me->getBinContent(kk)>0.){
+		    if(kk!=6 && kk!=7) othererr=true;
+		  }
+		}
+	      }
+	    }
+	  }
+          if(anyerr && othererr){
+	    errmodsMap->Fill(structId,subStructId);
+	  }
+	}
       }
     }
   }
@@ -1875,7 +1975,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
        ic != subDirVec.end(); ic++) {
     bei->cd(*ic);
     init=false;
-    fillGlobalQualityPlot(bei,init,eSetup,nFEDs);
+    fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag);
     bei->goUp();
   }
   
@@ -1883,18 +1983,34 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){ 
       float contents=0.;
-      for(int i=1; i!=41; i++)for(int j=1; j!=37; j++){
-        //cout<<"bin: "<<i<<","<<j<<endl;
-        contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
-        goodmodsMap->SetBinContent(i,j,contents);
-        //cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
-        if(allmodsMap->GetBinContent(i,j)>0){
-	  contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
-        }else{
-          contents = 0.;
+      if(!Tier0Flag){
+        for(int i=1; i!=41; i++)for(int j=1; j!=37; j++){
+          //cout<<"bin: "<<i<<","<<j<<endl;
+          contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
+          goodmodsMap->SetBinContent(i,j,contents);
+          //cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
+          if(allmodsMap->GetBinContent(i,j)>0){
+	    contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
+          }else{
+            contents = 0.;
+          }
+          //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
+          SummaryReportMap->setBinContent(i,j,contents);
         }
-        //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
-        SummaryReportMap->setBinContent(i,j,contents);
+      }else{
+        for(int i=1; i!=8; i++)for(int j=1; j!=23; j++){
+          //cout<<"bin: "<<i<<","<<j<<endl;
+          contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
+          goodmodsMap->SetBinContent(i,j,contents);
+          //cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
+          if(allmodsMap->GetBinContent(i,j)>0){
+	    contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
+          }else{
+            contents = 0.;
+          }
+          //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
+          SummaryReportMap->setBinContent(i,j,contents);
+        }
       }
     }
   }

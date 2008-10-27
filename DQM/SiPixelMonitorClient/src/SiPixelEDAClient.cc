@@ -89,6 +89,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   hiRes_                 = ps.getUntrackedParameter<bool>("HighResolutionOccupancy",false);
   noiseRate_             = ps.getUntrackedParameter<double>("NoiseRateCutValue",0.001);
   noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000);
+  Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false);
   
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_,offlineXMLfile_);
@@ -170,7 +171,7 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     //cout << " Creating occupancy plots" << endl;
     sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     //cout << " Booking summary report ME's" << endl;
-    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_);
+    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_,Tier0Flag_);
     // check if any Pixel FED is in readout:
     edm::Handle<FEDRawDataCollection> rawDataHandle;
     e.getByLabel("source", rawDataHandle);
@@ -211,9 +212,9 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
-    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_);
+    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
     init=true;
-    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_);
+    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
@@ -259,9 +260,9 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
-    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_);
+    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
     init=true;
-    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_);
+    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
