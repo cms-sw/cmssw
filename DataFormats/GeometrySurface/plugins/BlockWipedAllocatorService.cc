@@ -1,7 +1,10 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 #include <iostream>
+
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
