@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import *
 hcalOfflineDQMClient = cms.Sequence(hcalClient)
-hcalClient.plotPedRAW        = True
-hcalClient.DoPerChanTests    = False
+#hcalClient.plotPedRAW        = True
+#hcalClient.DoPerChanTests    = False
 hcalClient.baseHtmlDir       = ''
 hcalClient.SummaryClient     = True
 hcalClient.DataFormatClient  = True
