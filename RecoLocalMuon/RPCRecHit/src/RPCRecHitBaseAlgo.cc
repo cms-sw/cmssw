@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/16 07:25:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/14 09:12:38 $
+ *  $Revision: 1.6 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -42,7 +42,7 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
 
 
 
-  // Reporting on ReClusterization
+//   // Reporting on ReClusterization
 
 //   if ( (tcls.size() - cls.size()) != 0 ) {
 //     std::cout << std::endl;

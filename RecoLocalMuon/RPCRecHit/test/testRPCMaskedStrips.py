@@ -21,7 +21,8 @@ process.source = cms.Source("PoolSource",
 
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
-    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/BeamCommissioning08/BeamHalo/RECO/v1/000/063/463/0229F62C-2387-DD11-97B2-000423D987FC.root')
+    #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/BeamCommissioning08/BeamHalo/RECO/v1/000/063/463/0229F62C-2387-DD11-97B2-000423D987FC.root')
+    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/v1/000/066/722/001B1910-539D-DD11-AD9E-000423D94E70.root')
 )
 
 
