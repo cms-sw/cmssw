@@ -12,8 +12,8 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline):
 }
 
 void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float& baseline){
-
-  std::string folder=path+std::string("/")+MapName;
+  
+  std::string folder=path;
   dqmStore_->setCurrentFolder(folder);
   
   std::string name=MapName+std::string("_");
