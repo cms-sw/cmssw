@@ -5,19 +5,22 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/06/05
-#  version:     1.3
+#  date:        2008/09/19
+#  version:     2.1
 #
 
 print_help() {
     echo "" && \
-    echo "install_hepmc2 version 1.3" && echo && \
+    echo "install_hepmc2 version 2.1" && echo && \
     echo "options: -v  version    define HepMC2 version ( "${HEPMC2VER}" )" && \
     echo "         -d  path       define HepMC2 installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
     echo "         -f             require flags for 32-bit compilation ( "${FLAGS}" )" && \
     echo "         -W  location   (web)location of HepMC2 tarball ( "${HEPMC2WEBLOCATION}" )" && \
     echo "         -S  filename   file name of HepMC2 tarball ( "${HEPMC2FILE}" )" && \
+    echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
+    echo "                         -> 0: nothing, 1: +objects (make clean)" && \
+    echo "         -D             debug flag, compile with '-g' option ("${FLGDEBUG}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -25,18 +28,19 @@ print_help() {
 # save current path
 HDIR=`pwd`
 
+
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
 HEPMC2VER="2.01.10"        # HepMC2 version  to be installed
-HMCFLAGS=" "               # compiler flags
-HMMFLAGS=" "               # 'make' flags
 FLAGS="FALSE"              # apply compiler/'make' flags
 HEPMC2WEBLOCATION=""       # (web)location of HEPMC2 tarball
 HEPMC2FILE=""              # file name of HEPMC2 tarball
+LVLCLEAN=0                 # cleaning level (0-2)
+FLGDEBUG="FALSE"           # debug flag for compilation
 
 
 # get & evaluate options
-while getopts :v:d:W:S:fh OPT
+while getopts :v:d:W:S:C:fDh OPT
 do
   case $OPT in
   v) HEPMC2VER=$OPTARG ;;
@@ -44,6 +48,8 @@ do
   f) FLAGS=TRUE ;;
   W) HEPMC2WEBLOCATION=$OPTARG ;;
   S) HEPMC2FILE=$OPTARG ;;
+  C) LVLCLEAN=$OPTARG ;;
+  D) FLGDEBUG=TRUE ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -69,6 +75,7 @@ if [ "$HEPMC2FILE" = "" ]; then
   HEPMC2FILE="HepMC-"${HEPMC2VER}".tar.gz"
 fi
 
+
 # make HEPMC2 version a global variable
 export HEPMC2VER=${HEPMC2VER}
 # always use absolute path name...
@@ -80,16 +87,38 @@ echo "  -> installation directory: '"${IDIR}"'"
 echo "  -> flags: '"${FLAGS}"'"
 echo "  -> HepMC2 location: '"${HEPMC2WEBLOCATION}"'"
 echo "  -> HepMC2 file name: '"${HEPMC2FILE}"'"
+echo "  -> cleaning level: '"${LVLCLEAN}"'"
+echo "  -> debugging mode: '"${FLGDEBUG}"'"
+
 
 # set path to local HEPMC2 installation
 export HEPMC2DIR=${IDIR}"/HepMC-"${HEPMC2VER}
 
 
 # add compiler & linker flags
+echo "CFLAGS   (old):  "$CFLAGS
+echo "FFLAGS   (old):  "$FFLAGS
+echo "CXXFLAGS (old):  "$CXXFLAGS
+echo "LDFLAGS  (old):  "$LDFLAGS
+CF32BIT=""
 if [ "$FLAGS" = "TRUE" ]; then
-    HMCFLAGS=${HMCFLAGS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-    HMMFLAGS=${HMMFLAGS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+  CF32BIT="-m32"
+  export CFLAGS=${CFLAGS}" "${CF32BIT}
+  export FFLAGS=${FFLAGS}" "${CF32BIT}
+  export CXXFLAGS=${CXXFLAGS}" "${CF32BIT}
+  export LDFLAGS=${LDFLAGS}" "${CF32BIT}
 fi
+CFDEBUG=""
+if [ "$FLGDEBUG" = "TRUE" ]; then
+  CFDEBUG="-g"
+  export CFLAGS=${CFLAGS}" "${CFDEBUG}
+  export FFLAGS=${FFLAGS}" "${CFDEBUG}
+  export CXXFLAGS=${CXXFLAGS}" "${CFDEBUG}
+fi
+echo "CFLAGS   (new):  "$CFLAGS
+echo "FFLAGS   (new):  "$FFLAGS
+echo "CXXFLAGS (new):  "$CXXFLAGS
+echo "LDFLAGS  (new):  "$LDFLAGS
 
 
 # download, extract compile/install HEPMC2
@@ -100,10 +129,16 @@ if [ ! -d ${HEPMC2DIR} ]; then
   tar -xzf ${HEPMC2FILE}
   rm ${HEPMC2FILE}
   cd ${HEPMC2DIR}
-  echo " -> configuring HepMC2 with flags: "${HMCFLAGS}
-  ./configure  --prefix=${HEPMC2DIR} ${HMCFLAGS}
-  echo " -> installing HepMC2 with flags: "${HMMFLAGS}
-  make install ${HMMFLAGS}
+  echo " -> configuring HepMC2"
+  ./configure --prefix=${HEPMC2DIR}
+  echo " -> installing HepMC2"
+  make install
+  if [ ${LVLCLEAN} -gt 0 ]; then 
+    echo " -> cleaning up HEPMC2 installation, level: "${LVLCLEAN}" ..."
+    if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
+      make clean
+    fi
+  fi
 else
   echo " <W> path exists => using already installed HepMC2"
 fi
@@ -112,5 +147,3 @@ cd ${HDIR}
 
 echo " -> HEPMC2 installation directory is: "
 echo "  "${HEPMC2DIR}
-
-

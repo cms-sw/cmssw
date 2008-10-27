@@ -5,13 +5,13 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/06/05
-#  version:     1.3
+#  date:        2008/09/19
+#  version:     2.1
 #
 
 print_help() {
     echo "" && \
-    echo "install_lhapdf version 1.3" && echo && \
+    echo "install_lhapdf version 2.1" && echo && \
     echo "options: -v  version    define LHAPDF version ( "${LHAPDFVER}" )" && \
     echo "         -d  path       define LHAPDF installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -19,6 +19,9 @@ print_help() {
     echo "         -n             use 'nopdf' version ( "${NOPDF}" )" && \
     echo "         -W  location   (web)location of LHAPDF tarball ( "${LHAPDFWEBLOCATION}" )" && \
     echo "         -S  filename   file name of LHAPDF tarball ( "${LHAPDFFILE}" )" && \
+    echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
+    echo "                         -> 0: nothing, 1: +objects (make clean)" && \
+    echo "         -D             debug flag, compile with '-g' option ("${FLGDEBUG}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -26,19 +29,20 @@ print_help() {
 # save current path
 HDIR=`pwd`
 
+
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
 LHAPDFVER="5.3.1"          # LHAPDF version to be installed
-LHCFLAGS=" "               # compiler flags
-LHMFLAGS=" "               # 'make' flags
 FLAGS="FALSE"              # apply compiler/'make' flags
 NOPDF="FALSE"              # install 'nopdf' version
 LHAPDFWEBLOCATION=""       # (web)location of LHAPDF tarball
 LHAPDFFILE=""              # file name of LHAPDF tarball
+LVLCLEAN=0                 # cleaning level (0-2)
+FLGDEBUG="FALSE"           # debug flag for compilation
 
 
 # get & evaluate options
-while getopts :v:d:W:S:fnh OPT
+while getopts :v:d:W:S:C:fnDh OPT
 do
   case $OPT in
   v) LHAPDFVER=$OPTARG ;;
@@ -47,6 +51,8 @@ do
   n) NOPDF=TRUE ;;
   W) LHAPDFWEBLOCATION=$OPTARG ;;
   S) LHAPDFFILE=$OPTARG ;;
+  C) LVLCLEAN=$OPTARG ;;
+  D) FLGDEBUG=TRUE ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -76,6 +82,7 @@ if [ "$LHAPDFFILE" = "" ]; then
   fi
 fi
 
+
 # make LHAPDF version a global variable
 export LHAPDFVER=${LHAPDFVER}
 # always use absolute path name...
@@ -88,16 +95,38 @@ echo "  -> flags: '"${FLAGS}"'"
 echo "  -> no PDF version: '"${NOPDF}"'"
 echo "  -> LHAPDF location: '"${LHAPDFWEBLOCATION}"'"
 echo "  -> LHAPDF file name: '"${LHAPDFFILE}"'"
+echo "  -> cleaning level: '"${LVLCLEAN}"'"
+echo "  -> debugging mode: '"${FLGDEBUG}"'"
+
 
 # set path to local LHAPDF installation
 export LHAPDFDIR=${IDIR}"/lhapdf-"${LHAPDFVER}
 
 
 # add compiler & linker flags
+echo "CFLAGS   (old):  "$CFLAGS
+echo "FFLAGS   (old):  "$FFLAGS
+echo "CXXFLAGS (old):  "$CXXFLAGS
+echo "LDFLAGS  (old):  "$LDFLAGS
+CF32BIT=""
 if [ "$FLAGS" = "TRUE" ]; then
-    LHCFLAGS=${LHCFLAGS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-    LHMFLAGS=${LHMFLAGS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
+  CF32BIT="-m32"
+  export CFLAGS=${CFLAGS}" "${CF32BIT}
+  export FFLAGS=${FFLAGS}" "${CF32BIT}
+  export CXXFLAGS=${CXXFLAGS}" "${CF32BIT}
+  export LDFLAGS=${LDFLAGS}" "${CF32BIT}
 fi
+CFDEBUG=""
+if [ "$FLGDEBUG" = "TRUE" ]; then
+  CFDEBUG="-g"
+  export CFLAGS=${CFLAGS}" "${CFDEBUG}
+  export FFLAGS=${FFLAGS}" "${CFDEBUG}
+  export CXXFLAGS=${CXXFLAGS}" "${CFDEBUG}
+fi
+echo "CFLAGS   (new):  "$CFLAGS
+echo "FFLAGS   (new):  "$FFLAGS
+echo "CXXFLAGS (new):  "$CXXFLAGS
+echo "LDFLAGS  (new):  "$LDFLAGS
 
 
 # download, extract compile/install LHAPDF
@@ -108,11 +137,17 @@ if [ ! -d ${LHAPDFDIR} ]; then
   tar -xzf ${LHAPDFFILE}
   rm ${LHAPDFFILE}
   cd ${LHAPDFDIR}
-  echo " -> configuring LHAPDF with flags: "${LHCFLAGS}
-  ./configure  --prefix=${LHAPDFDIR} ${LHCFLAGS}
-  echo " -> installing LHAPDF with flags: "${LHMFLAGS}
-  make ${LHMFLAGS}
-  make install ${LHMFLAGS}
+  echo " -> configuring LHAPDF"
+  ./configure --prefix=${LHAPDFDIR}
+  echo " -> installing LHAPDF"
+  make
+  make install
+  if [ ${LVLCLEAN} -gt 0 ]; then 
+    echo " -> cleaning up LHAPDF installation, level: "${LVLCLEAN}" ..."
+    if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
+      make clean
+    fi
+  fi
 else
   echo " <W> path exists => using already installed LHAPDF"
 fi
@@ -121,5 +156,3 @@ cd ${HDIR}
 
 echo " -> LHAPDF installation directory is: "
 echo "  "${LHAPDFDIR}
-
-

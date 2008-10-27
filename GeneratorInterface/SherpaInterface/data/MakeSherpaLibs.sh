@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/05/13
-#  version:     1.5
+#  date:        2008/10/13
+#  version:     2.2
 #
 
 
@@ -18,8 +18,10 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 1.5" && echo && \
-    echo "options: -r  path       path to your SHERPA installation" && \
+    echo "MakeSherpaLibs version 2.2" && echo && \
+    echo "options: -r  path       path to your SHERPA installation OR" && \
+    echo "                         path to your CMSSW installation (if you want" && \
+    echo "                         to use the SHERPA package of that release)"
     echo "                         -> ( "${shr}" )" && \
     echo "         -p  process    SHERPA process/dataset name ( "${prc}" )" && \
     echo "         -o  options    library/cross section options ( "${lbo}" )" && \
@@ -102,16 +104,21 @@ clean_libs() {
     rm aclocal.m4 ChangeLog depcomp install-sh libtool ltmain.sh missing
     rm AUTHORS COPYING INSTALL NEWS README 
     rm -rf autom4te.cache
-    ddir=fsrchannels
-    rm -rf ${ddir}*/Makefile*
-    rm -rf ${ddir}*/.deps
-    rm -rf ${ddir}*/*.C
-    rm -rf ${ddir}*/*.H
-    ddir=P2_
-    rm -rf ${ddir}*/Makefile*
-    rm -rf ${ddir}*/.deps
-    rm -rf ${ddir}*/*.C
-    rm -rf ${ddir}*/*.H
+#    ddir=fsrchannels
+#    rm -rf ${ddir}*/Makefile*
+#    rm -rf ${ddir}*/.deps
+#    rm -rf ${ddir}*/*.C
+#    rm -rf ${ddir}*/*.H
+#    ddir=P2_
+#    rm -rf ${ddir}*/Makefile*
+#    rm -rf ${ddir}*/.deps
+#    rm -rf ${ddir}*/*.C
+#    rm -rf ${ddir}*/*.H
+###
+    find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
+    find ./ -type d -name '.deps'     -exec rm -rf {} \;
+    find ./ -type f -name '*.C'       -exec rm -rf {} \;
+    find ./ -type f -name '*.H'       -exec rm -rf {} \;
 ###FIXME: MM (27 May 2008)
     cd ../..
   done
@@ -167,18 +174,58 @@ do
 done
 
 # make sure to use absolute path names...
-cd ${shr}; shr=`pwd`; cd ${HDIR}
-cd ${inc}; inc=`pwd`; cd ${HDIR}
-cd ${fin}; fin=`pwd`; cd ${HDIR}
+cd ${shr} && shr=`pwd`; cd ${HDIR}
+cd ${inc} && inc=`pwd`; cd ${HDIR}
+cd ${fin} && fin=`pwd`; cd ${HDIR}
+
+# test whether to take $shr from CMSSW installation
+mmtmp="xxx"
+mmcnt=1
+while [ ! "${mmtmp}" = "" ]; do
+  let mmcnt=$mmcnt+1
+  mmtmp=`echo ${shr} | cut -f ${mmcnt} -d "/"`
+#  echo "mmtmp: "$mmtmp
+#  echo "mmcnt: "$mmcnt
+done
+let mmcnt=$mmcnt-1
+mmtmp=`echo ${shr} | cut -f ${mmcnt} -d "/"`
+#echo "final mmtmp: "$mmtmp
+#echo "final mmcnt: "$mmcnt
+if [ `echo ${mmtmp} | grep -c "CMSSW_"` -gt 0 ]; then
+  newshr=""
+  cd ${shr} &&
+  newshr=`scramv1 tool info sherpa | grep BASE | cut -f 2 -d "="`
+  if [ "${newshr}" = "" ]; then
+    echo " <E> no 'sherpa' tool defined in CMSSW, are you sure that"
+    echo " <E>  1. the command 'scramv1' is available ?"
+    echo " <E>  2. the path to your CMSSW is correct ?"
+    echo " <E>  3. there exists a SHERPA package in your CMSSW ?"
+    exit 0
+  fi
+  export SHERPA_SHARE_PATH=${newshr}/share/SHERPA-MC
+  export SHERPA_INCLUDE_PATH=${newshr}/include/SHERPA-MC
+  export SHERPA_LIBRARY_PATH=${newshr}/lib/SHERPA-MC
+  cd ${HDIR}
+  shr=${newshr}
+  USE_CMSSW_SHERPA="TRUE"
+else
+  USE_CMSSW_SHERPA="FALSE"
+fi
 
 # find 'Run' directory
-cd ${shr}
-shdir=`ls | grep "SHERPA"`
-echo " <I> SHERPA directory is: "${shdir}
-cd -
-shrun=${shr}/${shdir}/Run
+if [ "${USE_CMSSW_SHERPA=}" = "FALSE" ]; then
+  cd ${shr}
+  shdir=`ls | grep "SHERPA"`
+  echo " <I> SHERPA directory is: "${shdir}
+  cd -
+  shrun=${shr}/${shdir}/Run
+else
+  shrun=${HDIR}/SHERPATMP/Run
+  mkdir -p ${shrun}
+fi
 
 echo "  -> SHERPA path: '"${shr}"'"
+echo "  -> SHERPA run path: '"${shrun}"'"
 echo "  -> SHERPA data card directory: '"${pth}"'"
 echo "  -> PROCESS name: '"${prc}"'"
 echo "  -> Library & cross section otions: '"${lbo}"'"
@@ -490,4 +537,7 @@ mv *.tgz ${fin}/
 
 # go back to original directory
 cd ${HDIR}
+if [ "${USE_CMSSW_SHERPA=}" = "TRUE" ]; then
+  rm -rf ./SHERPATMP
+fi
 

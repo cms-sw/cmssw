@@ -9,13 +9,13 @@
 #               SHERPA patches [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/06/13
-#  version:     1.9
+#  date:        2008/10/09
+#  version:     2.2
 #
 
 print_help() {
     echo "" && \
-    echo "install_sherpa version 1.9" && echo && \
+    echo "install_sherpa version 2.1" && echo && \
     echo "options: -v  version    define SHERPA version ( "${SHERPAVER}" )" && \
     echo "         -d  path       define SHERPA installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -31,6 +31,12 @@ print_help() {
     echo "         -M             enable multithreading [V >= 1.1.0] ( "${MULTITHR}" )" && \
     echo "         -W  location   (web)location of SHERPA tarball ( "${SHERPAWEBLOCATION}" )" && \
     echo "         -S  filename   file name of SHERPA tarball ( "${SHERPAFILE}" )" && \
+    echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
+    echo "                         -> 0: nothing, 1: +objects, 2: +sourcecode" && \
+    echo "         -D             debug flag, compile with '-g' option ("${FLGDEBUG}" )" && \
+    echo "         -I             installation flag ( "${FLGINSTL}" )" && \
+    echo "                         -> use 'configure/make/make install' instead" && \
+    echo "                         -> of 'TOOLS/makeinstall'" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -38,13 +44,14 @@ print_help() {
 # save current path
 HDIR=`pwd`
 
+
 # dummy setup (if all options are missing)
 IDIR="/tmp"                # installation directory
-SHERPAVER="1.1.1"          # SHERPA version to be installed
+SHERPAVER="1.1.2"          # SHERPA version to be installed
 SHCFLAGS=" "               # SHERPA compiler flags
 SHMFLAGS=" -t"             # SHERPA 'make' flags
 HEPMC="FALSE"              # install HepMC2
-HVER="2.01.10"             # HepMC2 version  to be installed
+HVER="2.03.09"             # HepMC2 version  to be installed
 LHAPDF="FALSE"             # install LHAPDF
 LINKPDF="FALSE"            # link (softlink) LHAPDF sets
 LVER="5.3.1"               # LHAPDF version  to be installed
@@ -56,10 +63,13 @@ PDIR="./"                  # path containing patches
 MULTITHR="FALSE"           # use multithreading
 SHERPAWEBLOCATION=""       # (web)location of SHERPA tarball
 SHERPAFILE=""              # file name of SHERPA tarball
+LVLCLEAN=0                 # cleaning level (0-2)
+FLGDEBUG="FALSE"           # debug flag for compilation
+FLGINSTL="FALSE"           # installation flag
 
 
 # get & evaluate options
-while getopts :v:d:m:l:p:F:W:S:fLMh OPT
+while getopts :v:d:m:l:p:F:W:S:C:fLMDIh OPT
 do
   case $OPT in
   v) SHERPAVER=$OPTARG ;;
@@ -73,6 +83,9 @@ do
   M) MULTITHR=TRUE ;;
   W) SHERPAWEBLOCATION=$OPTARG ;;
   S) SHERPAFILE=$OPTARG ;;
+  C) LVLCLEAN=$OPTARG ;;
+  D) FLGDEBUG=TRUE ;;
+  I) FLGINSTL=TRUE ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -133,6 +146,9 @@ echo "  -> flags: '"${FLAGS}"'"
 echo "  -> multithreading: '"${MULTITHR}"'"
 echo "  -> SHERPA location: '"${SHERPAWEBLOCATION}"'"
 echo "  -> SHERPA file name: '"${SHERPAFILE}"'"
+echo "  -> cleaning level: '"${LVLCLEAN}"'"
+echo "  -> debugging mode: '"${FLGDEBUG}"'"
+echo "  -> use conf/make/make: '"${FLGINSTL}"'"
 echo "  -> HepMC2: '"${HEPMC}"', version '"${HVER}"'"
 echo "  -> LHAPDF: '"${LHAPDF}"', version '"${LVER}"'"
 echo "  -> link PDFsets: '"${LINKPDF}"'"
@@ -142,6 +158,12 @@ echo "  -> link PDFsets: '"${LINKPDF}"'"
 IFLG=" "
 if [ "$FLAGS" = "TRUE" ]; then
   IFLG=" -f"
+fi
+if [ ${LVLCLEAN} -gt 0 ]; then
+  IFLG=${IFLG}" -C "${LVLCLEAN}
+fi
+if [ "$FLGDEBUG" = "TRUE" ]; then
+  IFLG=${IFLG}" -D"
 fi
 
 
@@ -169,12 +191,6 @@ if [ "$HEPMC" = "TRUE" ]; then
   if [ "${SHERPAVER}" = "1.0.11" ]; then
     SHCFLAGS=${SHCFLAGS}" --enable-hepmc2"
     SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2"
-  elif [ "${SHERPAVER}" = "1.1.0" ]; then
-    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
-  elif [ "${SHERPAVER}" = "1.1.1" ]; then
-    SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
   else
     SHCFLAGS=${SHCFLAGS}" --enable-hepmc2="${HEPMC2DIR}
     SHMFLAGS=${SHMFLAGS}" --copt --enable-hepmc2="${HEPMC2DIR}
@@ -205,12 +221,6 @@ if [ "$LHAPDF" = "TRUE" ]; then
   if [ "${SHERPAVER}" = "1.0.11" ]; then
     SHCFLAGS=${SHCFLAGS}" --enable-lhapdf"
     SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf"
-  elif [ "${SHERPAVER}" = "1.1.0" ]; then
-    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
-  elif [ "${SHERPAVER}" = "1.1.1" ]; then
-    SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
-    SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
   else
     SHCFLAGS=${SHCFLAGS}" --enable-lhapdf="${LHAPDFDIR}
     SHMFLAGS=${SHMFLAGS}" --copt --enable-lhapdf="${LHAPDFDIR}
@@ -236,21 +246,37 @@ cd ${HDIR}
 
 
 # add compiler & linker flags
+M_CFLAGS=""
+M_FFLAGS=""
+M_CXXFLAGS=""
+M_LDFLAGS=""
+M_FFLGS2=""
+M_CXXFLGS2=""
+CF32BIT=""
 if [ "$FLAGS" = "TRUE" ]; then
-### FIXME (use CMSSW script to make gcc 32-bit compatible?)
-#  SHCFLAGS=${SHCFLAGS}" CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-#  SHMFLAGS=${SHMFLAGS}" --copt CFLAGS=-m32 --copt FFLAGS=-m32 --copt CXXFLAGS=-m32 --copt LDFLAGS=-m32"
-### FIXME
-# NEW???
-  SHCFLAGS=${SHCFLAGS}" CXXFLAGS=-m32 FFLAGS=-m32 CFLAGS=-m32 LDFLAGS=-m32"
-  SHMFLAGS=${SHMFLAGS}" --cxx -m32 --f -m32 --copt CFLAGS=-m32 --copt LDFLAGS=-m32"
-### FIXME
-##  if [ "$SHERPAVER" = "1.1.0" ]; then
-  if [ ${vb} -ge 1 ]; then  # version >= 1.1.X
-    if [ "$MULTITHR" = "TRUE" ]; then
-      SHCFLAGS=${SHCFLAGS}" --enable-multithread"
-      SHMFLAGS=${SHMFLAGS}" --copt --enable-multithread"
-    fi
+  CF32BIT="-m32"
+  M_CFLAGS="CFLAGS="${CF32BIT}
+  M_FFLAGS="FFLAGS="${CF32BIT}
+  M_CXXFLAGS="CXXFLAGS="${CF32BIT}
+  M_LDFLAGS="LDFLAGS="${CF32BIT}
+  M_FFLGS2=${M_FFLGS2}" --f "${CF32BIT}
+  M_CXXFLGS2=${M_CXXFLGS2}" --cxx "${CF32BIT}
+fi
+CFDEBUG=""
+if [ "$FLGDEBUG" = "TRUE" ]; then
+  CFDEBUG="-g"
+  M_FFLGS2=${M_FFLGS2}" --f "${CFDEBUG}
+  M_CXXFLGS2=${M_CXXFLGS2}" --cxx "${CFDEBUG}
+fi
+CONFFLG=${M_CFLAGS}" "${M_FFLAGS}" "${M_CXXFLAGS}" "${M_LDFLAGS}
+MAKEFLG=" --copt "${M_CFLAGS}" --copt "${M_LDFLAGS}" "${M_CXXFLGS2}" "${M_FFLGS2}
+SHCFLAGS=${SHCFLAGS}" "${CONFFLG}
+SHMFLAGS=${SHMFLAGS}" "${MAKEFLG}
+
+if [ ${vb} -ge 1 ]; then  # enable multithreading if version >= 1.1.X
+  if [ "$MULTITHR" = "TRUE" ]; then
+    SHCFLAGS=${SHCFLAGS}" --enable-multithread"
+    SHMFLAGS=${SHMFLAGS}" --copt --enable-multithread"
   fi
 fi
 
@@ -260,29 +286,13 @@ cd ${SHERPADIR}
 if [ "$PATCHES" = "TRUE" ]; then
   echo " <I> applying patches to SHERPA..."
   if [ -e ${PDIR}/${shpatchfile} ]; then
-    cd ${PDIR}
-    filelist=`tar -tzf ${shpatchfile}`
-    tar -xzvf ${shpatchfile}
-    cd -
-    fcmd1a="ls ${PDIR}/*.patch"
-    fcmd1b="fgrep -i -v -e lha"
-    for pfile1 in `${fcmd1a} | ${fcmd1b}`; do
-      echo "  -> applying patch: "${pfile1}
-      patch -p0 < ${pfile1}
+    pfilelist=`tar -xzvf ${PDIR}/${shpatchfile}`
+    for pfile in `echo ${pfilelist}`; do
+      echo "  -> applying patch: "${pfile}
+      patch -p0 < ${pfile}
+      echo " <I> (patches) removing file "${pfile}
+      rm ${pfile}
     done
-    if [ "$PATCHLHAPDF" = "TRUE" ]; then
-      fcmd2="ls ${PDIR}/*lha*.patch"
-      for pfile2 in `${fcmd2}`; do
-        echo "  -> applying patch: "${pfile2}
-        patch -p0 < ${pfile2}
-      done
-    fi
-    cd ${PDIR}
-    for file in `echo $filelist`; do
-      echo " <I> (patches) removing file "$file
-      rm $file
-    done
-    cd -
   else
     echo " <W> file "${PDIR}/${shpatchfile}" does not exist,"
     echo " <W>  cannot apply Sherpa patches"
@@ -290,34 +300,23 @@ if [ "$PATCHES" = "TRUE" ]; then
 fi
 cd ${HDIR}
 
+
 # apply the necessary fixes
 cd ${SHERPADIR}
 if [ "$FIXES" = "TRUE" ]; then
   echo " <I> applying fixes to SHERPA..."
   if [ -e ${FDIR}/${shfixfile} ]; then
-    cd ${FDIR}
-    filelist=`tar -tzf ${shfixfile}`
-    tar -xzvf ${shfixfile}
-    cd -
-    fcmd1a="ls ${FDIR}/fix_*.sh"
-    fcmd1b="fgrep -i -v -e lhapdf"
-    for ffile1 in `${fcmd1a} | ${fcmd1b}`; do
-      echo "  -> applying fix: "${ffile1}
-      ${ffile1} ${FDIR}
+    ffilelist=`tar -xzvf ${FDIR}/${shfixfile}`
+    for ffile in `echo ${ffilelist}`; do
+      echo "  -> applying fix: "${ffile}
+      if [ `echo ${ffile} | grep -i -c lhapdf` -gt 0 ]; then
+        ./${ffile} ${LHAPDFDIR}
+      else
+        ./${ffile} ${PWD}
+      fi
+      echo " <I> (fixes) removing file "${ffile}
+      rm ${ffile}
     done
-#  if [ "$FIXLHAPDF" = "TRUE" ]; then
-    fcmd2="ls ${FDIR}/fix*lhapdf*.sh"
-    for ffile2 in `${fcmd2}`; do
-      echo "  -> applying fix: "${ffile2}
-      ${ffile2} ${LHAPDFDIR}
-    done
-#  fi
-    cd ${FDIR}
-    for file in `echo $filelist`; do
-      echo " <I> (fixes) removing file "$file
-      rm $file
-    done
-    cd -
   else
     echo " <W> file "${FDIR}/${shfixfile}" does not exist,"
     echo " <W>  cannot apply Sherpa fixes"
@@ -325,7 +324,7 @@ if [ "$FIXES" = "TRUE" ]; then
 fi
 cd ${HDIR}
 
-#sleep 1000
+
 
 # compile and install SHERPA
 cd ${SHERPADIR}
@@ -333,11 +332,29 @@ if [ -e ${SHERPADIR}/bin/Sherpa ]; then
   echo " <W> installed SHERPA exists, cleaning up"
   ./TOOLS/makeinstall --clean-up
 fi
-###  ./TOOLS/makeinstall --clean-up
-#MM#echo " -> configuring SHERPA with flags: "${SHCFLAGS}
-#MM#./configure --prefix=${SHERPADIR} ${SHCFLAGS}
-echo " -> installing SHERPA with flags: "${SHMFLAGS}
-./TOOLS/makeinstall ${SHMFLAGS}
+
+if [ "$FLGINSTL" = "TRUE" ]; then
+  if [ "$FIXES" = "TRUE" ]; then
+    aclocal
+    autoheader
+    automake
+    autoconf
+  fi
+  echo " -> configuring SHERPA with flags: --prefix="${SHERPADIR}" "${SHCFLAGS}
+  echo "./configure --prefix="${SHERPADIR}" "${SHCFLAGS} > ../sherpa_configr.cmd
+  ./configure --prefix=${SHERPADIR} ${SHCFLAGS} > ../sherpa_install.log 2>&1
+  echo "-> making SHERPA with flags: "${CONFFLG}
+  echo "make "${CONFFLG} >> ../sherpa_configr.cmd
+  make ${CONFFLG} >> ../sherpa_install.log 2>&1
+  echo "-> making install SHERPA with flags: "${CONFFLG}
+  echo "make install "${CONFFLG} >> ../sherpa_configr.cmd
+  make install ${CONFFLG} >> ../sherpa_install.log 2>&1
+else
+  echo " -> installing SHERPA with flags: "${SHMFLAGS}
+  echo "./TOOLS/makeinstall "${SHMFLAGS} > ../sherpa_install.cmd
+  ./TOOLS/makeinstall ${SHMFLAGS}
+fi
+
 if [ ! -e ./bin/Sherpa ]; then
   echo " <E> -------------------------------------------------------"
   echo " <E> -------------------------------------------------------"
@@ -348,21 +365,30 @@ if [ ! -e ./bin/Sherpa ]; then
   echo " <E> -------------------------------------------------------"
 else
   echo " <I> installation of SHERPA was successful..."
+  if [ -e sherpa_install.log ]; then mv sherpa_install.log ../; fi
 fi
-echo " -> cleaning up SHERPA installation..."
-./TOOLS/makeinstall --clean-up
-###FIXME (MM, 30.05.2008)
-rm -rf .deps     */.deps     */*/.deps     */*/*/.deps
-rm -rf Makefile* */Makefile* */*/Makefile* */*/*/Makefile*
-rm -rf autom4te.cache
-rm stamp-h1 missing ltmain.sh libtool install-sh depcomp config* aclocal.m4 acinclude.m4
-# even more brutal stripping
-## delete 'SHERPA' only in Grid/Crab mode, NEVER in local mode
-##rm -rf AHADIC++ AMEGIC++ AMISIC++ ANALYSIS APACIC++ ATOOLS BEAM EXTRA_XS HADRONS++ HELICITIES MODEL PDF PHASIC++ PHOTONS++ SHERPA TOOLS
-rm -rf AHADIC++ AMEGIC++ AMISIC++ ANALYSIS APACIC++ ATOOLS BEAM EXTRA_XS HADRONS++ HELICITIES MODEL PDF PHASIC++ PHOTONS++ TOOLS
-#rm AUTHORS COPYING README
-rm ChangeLog INSTALL NEWS
-###FIXME (MM, 30.05.2008)
+
+if [ ${LVLCLEAN} -gt 0 ]; then 
+  echo " -> cleaning up SHERPA installation, level: "${LVLCLEAN}" ..."
+  if [ ${LVLCLEAN} -ge 1 ]; then  # normal cleanup (objects)
+    ./TOOLS/makeinstall --clean-up
+  fi
+  if [ ${LVLCLEAN} -ge 2 ]; then  # clean also sourcecode
+#    rm -rf .deps     */.deps     */*/.deps     */*/*/.deps
+#    rm -rf Makefile* */Makefile* */*/Makefile* */*/*/Makefile*
+    find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
+    find ./ -type d -name '.deps'     -exec rm -rf {} \;
+#    find ./ -type f -name '*.C'       -exec rm -rf {} \;
+#    find ./ -type f -name '*.H'       -exec rm -rf {} \;
+    rm -rf autom4te.cache
+    rm stamp-h1 missing ltmain.sh libtool install-sh depcomp config* aclocal.m4 acinclude.m4
+    rm -rf AHADIC++ AMEGIC++ AMISIC++ ANALYSIS APACIC++ ATOOLS BEAM
+    rm -rf EXTRA_XS HADRONS++ HELICITIES MODEL PDF PHASIC++ PHOTONS++ TOOLS
+    rm AUTHORS COPYING README
+    rm ChangeLog INSTALL NEWS
+  fi
+fi
+
 shdir=`ls | grep "SHERPA"`
 echo " <I> SHERPA directory is: "${shdir}
 cp ./bin/Sherpa ./${shdir}/Run/
