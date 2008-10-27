@@ -19,21 +19,21 @@ from DQMOffline.Muon.muonQualityTests_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 muonIdVal.makeDQMPlots = True
 
+dqmInfoMuons = cms.EDFilter("DQMEventInfo",
+                            subSystemFolder = cms.untracked.string('Muons')
+                            )
+
 muonTrackCosmicAnalyzers = cms.Sequence(standAloneCosmicMuonsMonitors*MonitorTrackTKCosmicMuons*MonitorTrackGLBCosmicMuons)
 muonTrackCosmicAnalyzersHLT = cms.Sequence(MonitorTrackSTACosmicMuonsHLTDT*MonitorTrackSTACosmicMuonsHLTCSC)
 
-muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer*muonIdVal)
+muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer*muonIdVal*dqmInfoMuons)
 ##muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*cscMonitor*muonCosmicAnalyzer)
 
 muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyzers")*dtSegmentsMonitor*rpcSource*muonCosmicMonitors)
 
 muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*dtSegmentsMonitor*cscMonitor*rpcSource*muonStandAloneCosmicAnalyzer)
 
-dqmInfoMuons = cms.EDFilter("DQMEventInfo",
-                            subSystemFolder = cms.untracked.string('Muons')
-                            )
-
-muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests*dqmInfoMuons)
+muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
 
 muonStandAloneCosmicAnalyzer.DoMuonRecoAnalysis = False
 
