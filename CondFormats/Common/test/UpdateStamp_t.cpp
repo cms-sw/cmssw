@@ -4,7 +4,7 @@
 
 #define private public
 #include "CondFormats/Common/interface/UpdateStamp.h"
-#undefine private
+#undef private
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 namespace {
@@ -24,14 +24,14 @@ namespace {
    };
 
   void Test::construct() {
-    UpdateStamp object;
+    cond::UpdateStamp object;
     CPPUNIT_ASSERT(-1==object.m_revision);
     CPPUNIT_ASSERT(0==object.m_timestamp);
     CPPUNIT_ASSERT("not stamped"==object.m_comment);
   }
 
   void Test::stamp() {
-    UpdateStamp object;
+    cond::UpdateStamp object;
     cond::Time_t otime = cond::time::now();
     {
       cond::Time_t btime = cond::time::now();
