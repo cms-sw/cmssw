@@ -3,14 +3,14 @@ void PFRecoTauDiscriminationByLeadingTrackPtCut::produce(Event& iEvent,const Eve
   Handle<PFTauCollection> thePFTauCollection;
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
  
- double theleadTrackPtCutDiscriminator = 0.;
+
  auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByLeadingTrackPtCut(new PFTauDiscriminator(PFTauRefProd(thePFTauCollection)));
 
  //loop over the PFTau candidates
  for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
    PFTauRef thePFTauRef(thePFTauCollection,iPFTau);
    PFTau thePFTau=*thePFTauRef;
-   
+ double theleadTrackPtCutDiscriminator = 0.;   
    // fill the AssociationVector object
    if (!thePFTau.leadPFChargedHadrCand()) 
      {
