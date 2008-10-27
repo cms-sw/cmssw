@@ -8,7 +8,7 @@ namespace cond {
   class IOVSequence;
 
   IOVSequence * migrateIOV(IOV const & iov);
-  IOV * backportIOV(IOVSequence cons& sequence);
+  IOV * backportIOV(IOVSequence const & sequence);
 
 }
 

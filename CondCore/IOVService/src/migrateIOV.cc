@@ -17,7 +17,7 @@ namespace cond {
 			      boost::bind(&IOV::Item::second,_1),
 			      std::string("")
 			      )
-		  )
+		  );
       return result;
   }
 
@@ -25,15 +25,15 @@ namespace cond {
 
 
 
-  IOV * backportIOV(IOVSequence cons& sequence) {
-    IOV result = new IOV(sequence.timeType(), sequence.firstsince());
+  IOV * backportIOV(IOVSequence const & sequence) {
+    IOV * result = new IOV(sequence.timeType(), sequence.firstsince());
     (*result).iov.reserve(sequence.iovs().size());
     std::for_each(sequence.iovs().begin(),sequence.iovs().end(),
 		  boost::bind(&IOV::add,result,
 			      boost::bind(&IOVSequence::Item::tillTime,_1),
 			      boost::bind(&IOVSequence::Item:: payloadToken,_1)
 			      )
-		  )
+		  );
       return result;
   }
 
