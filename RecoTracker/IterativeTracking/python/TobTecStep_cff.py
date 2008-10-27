@@ -13,6 +13,9 @@ fifthClusters = cms.EDFilter("TrackClusterRemover",
     stripClusters = cms.InputTag("fourthClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
+# To debug this tracking iteration, you can run it on all hits,
+# as opposed to only those not used by previous iterations, with this ...
+#       maxChi2 = cms.double(0.0)
     )
 )
 
