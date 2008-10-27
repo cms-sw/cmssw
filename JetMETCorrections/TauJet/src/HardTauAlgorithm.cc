@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
@@ -92,7 +93,9 @@ void HardTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup
 
         // geometry initialization
         ESHandle<CaloGeometry> geometry;
-        iSetup.get<IdealGeometryRecord>().get(geometry);
+////        iSetup.get<IdealGeometryRecord>().get(geometry);
+        iSetup.get<CaloGeometryRecord>().get(geometry);
+
 
         EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
         EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
