@@ -124,14 +124,10 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
     if runCleaner == "CaloJet":
         process.allLayer0Jets.jetSource = jetCollection
     elif runCleaner == "PFJet":
-        layer0CaloJets = process.allLayer0Jets;
-        process.allLayer0Jets = process.allLayer0PFJets.clone(jetSource = cms.InputTag(jetCollection))
-        process.patLayer0.replace(layer0CaloJets, process.allLayer0Jets)
+        process.globalReplace('allLayer0Jets', process.allLayer0PFJets.clone(jetSource = cms.InputTag(jetCollection)))
     elif runCleaner == "BasicJet":
-        layer0CaloJets = process.allLayer0Jets;
         from PhysicsTools.PatAlgos.cleaningLayer0.basicJetCleaner_cfi import allLayer0Jets as allLayer0BasicJets;
-        process.allLayer0Jets = allLayer0BasicJets.clone(jetSource = cms.InputTag(jetCollection))
-        process.patLayer0.replace(layer0CaloJets, process.allLayer0Jets)
+        process.globalReplace('allLayer0Jets', process.allLayer0BasicJets.clone(jetSource = cms.InputTag(jetCollection)))
     elif runCleaner == None:
         process.patLayer0.remove(process.allLayer0Jets)
         # MC match
