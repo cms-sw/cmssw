@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.20.2.1 2008/07/03 14:27:39 gpetrucc Exp $
+// Last commit: $Id: $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#define USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
  
 namespace Fed9U { class Fed9UEvent; }
 class FEDRawDataCollection;

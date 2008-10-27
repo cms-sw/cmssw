@@ -177,24 +177,62 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
       } 
       
       try {
+#ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
+	uint16_t last_strip = 0;
+	uint16_t strips = 256 * iconn->nApvPairs();
+#endif
 #ifdef USE_FED9U_EVENT_STREAMLINE
         const Fed9U::Fed9USu8& samples = fedEvents_[iconn->fedId()]->getFeUnit(iunit).getSampleSpecialPointer(ichan,0);
         Fed9U::u32 len = fedEvents_[iconn->fedId()]->getFeUnit(iunit).getChannelDataLength(ichan)-7;
         Fed9U::u32 i=0;
         while (i < len) {
-          uint16_t strip = iconn->apvPairNumber()*256 + samples[i++];
+          uint16_t first_strip = iconn->apvPairNumber()*256 + samples[i++];
           unsigned char width = samples[i++];
           for ( uint16_t istr = 0; istr < ((uint16_t)width); istr++) {
-            clusterizer_->algorithm()->add(record,idet->first,(uint16_t)(strip+istr),(samples[i++]));
+	    uint16_t strip = first_strip + istr;
+#ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
+	    if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { // check for corrupt FED data
+	      if ( edm::isDebugEnabled() ) {
+		std::stringstream ss;
+		ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+		   << " Corrupt FED data found for FED id " << iconn->fedId()
+		   << " and channel " << iconn->fedCh()
+		   << "!  present strip: " << strip
+		   << "  last strip: " << last_strip
+		   << "  detector strips: " << strips;
+		edm::LogWarning(mlRawToDigi_) << ss.str();
+		}
+	      continue; 
+	    } 
+	    last_strip = strip;
+#endif
+            clusterizer_->algorithm()->add(record,idet->first,strip,(samples[i++]));
           }
         }
 #else
 	Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvents_[iconn->fedId()]->channel( iunit, ichan )).getIterator();
 	for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0;) {
-	  uint16_t strip = iconn->apvPairNumber()*256 + *i++;
+	  uint16_t first_strip = iconn->apvPairNumber()*256 + *i++;
 	  unsigned char width = *i++; 
 	  for ( uint16_t istr = 0; istr < ((uint16_t)width); istr++) {
-	    clusterizer_->algorithm()->add(record,idet->first,(uint16_t)(strip+istr),(uint16_t)(*i++));
+	    uint16_t strip = first_strip + istr;
+#ifdef USE_PATCH_TO_CATCH_CORRUPT_FED_DATA
+	    if ( !( strip < strips && ( !strip || strip > last_strip ) ) ) { // check for corrupt FED data
+	      if ( edm::isDebugEnabled() ) {
+		std::stringstream ss;
+		ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+		   << " Corrupt FED data found for FED id " << iconn->fedId()
+		   << " and channel " << iconn->fedCh()
+		   << "!  present strip: " << strip
+		   << "  last strip: " << last_strip
+		   << "  detector strips: " << strips;
+		edm::LogWarning(mlRawToDigi_) << ss.str();
+		}
+	      continue; 
+	    } 
+	    last_strip = strip;
+#endif
+	    clusterizer_->algorithm()->add(record,idet->first,strip,(uint16_t)(*i++));
 	  }
 	}
 #endif	

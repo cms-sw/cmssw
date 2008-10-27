@@ -12,7 +12,6 @@ using namespace std;
 using namespace sistrip;
 
 SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
-
   productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
@@ -37,8 +36,9 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 }
 
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
-  updateCabling( setup );  
-  clusterizer_->eventSetup(setup);
+  //@@ unstable behaviour if uncommented!
+  //updateCabling( setup );  
+  //clusterizer_->eventSetup(setup);
 }
 
 void SiStripRawToClusters::beginRun( edm::Run&, const edm::EventSetup& setup) {
@@ -52,7 +52,7 @@ void SiStripRawToClusters::produce( edm::Event& event,const edm::EventSetup& set
   clusterizer_->eventSetup( setup );
   
   edm::Handle<FEDRawDataCollection> buffers;
-  event.getByLabel( productLabel_ , buffers ); 
+  event.getByLabel( productLabel_, buffers ); 
   boost::shared_ptr<LazyUnpacker> unpacker( new LazyUnpacker( *cabling_, *clusterizer_, *buffers ) );
   std::auto_ptr<LazyGetter> collection( new LazyGetter( cabling_->getRegionCabling().size() * 
 							SiStripRegionCabling::ALLSUBDETS * 
