@@ -109,11 +109,13 @@ class SiPixelInformationExtractor {
                                  float                                    noiseRate);
 
   void computeGlobalQualityFlag (DQMStore                               * bei,
-                                 bool                                     init);
+                                 bool                                     init,
+				 int                                      nFEDs);
   
   void fillGlobalQualityPlot    (DQMStore                               * bei,
                                  bool                                     init,
-                                 edm::EventSetup const                  & eSetup);
+                                 edm::EventSetup const                  & eSetup,
+				 int                                      nFEDs);
   
   void findNoisyPixels (         DQMStore                               * bei,
                                  bool                                     init,

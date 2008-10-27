@@ -44,27 +44,27 @@ process.SiPixelRawDataErrorSource.saveFile = False
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
 process.SiPixelRawDataErrorSource.reducedSet = False
-process.SiPixelRawDataErrorSource.modOn = False
-process.SiPixelRawDataErrorSource.ladOn = True
-process.SiPixelRawDataErrorSource.layOn = True
-process.SiPixelRawDataErrorSource.phiOn = True
-process.SiPixelRawDataErrorSource.bladeOn = True
-process.SiPixelRawDataErrorSource.diskOn = True
-process.SiPixelRawDataErrorSource.ringOn = True
+process.SiPixelRawDataErrorSource.modOn = True
+process.SiPixelRawDataErrorSource.ladOn = False
+process.SiPixelRawDataErrorSource.layOn = False
+process.SiPixelRawDataErrorSource.phiOn = False
+process.SiPixelRawDataErrorSource.bladeOn = False
+process.SiPixelRawDataErrorSource.diskOn = False
+process.SiPixelRawDataErrorSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.SiPixelDigiSource.saveFile = False
 process.SiPixelDigiSource.isPIB = False
 process.SiPixelDigiSource.slowDown = False
-process.SiPixelDigiSource.modOn = False
-process.SiPixelDigiSource.twoDimOn = False
-process.SiPixelDigiSource.hiRes = False
-process.SiPixelDigiSource.ladOn = True
-process.SiPixelDigiSource.layOn = True
-process.SiPixelDigiSource.phiOn = True
-process.SiPixelDigiSource.bladeOn = True
-process.SiPixelDigiSource.diskOn = True
-process.SiPixelDigiSource.ringOn = True
+process.SiPixelDigiSource.modOn = True
+process.SiPixelDigiSource.twoDimOn = True
+process.SiPixelDigiSource.hiRes = True
+process.SiPixelDigiSource.ladOn = False
+process.SiPixelDigiSource.layOn = False
+process.SiPixelDigiSource.phiOn = False
+process.SiPixelDigiSource.bladeOn = False
+process.SiPixelDigiSource.diskOn = False
+process.SiPixelDigiSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorCluster.SiPixelMonitorCluster_cfi")
 process.SiPixelClusterSource.saveFile = False
@@ -105,7 +105,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V1P::All"
+process.GlobalTag.globaltag = "CRAFT_V2P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
@@ -150,7 +150,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -172,9 +172,9 @@ process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
     HighResolutionOccupancy = cms.untracked.bool(True),
-    NoiseRateCutValue = cms.untracked.double(-1.), #negative value means test is not run; default cut value is 0.001
-    NEventsForNoiseCalculation = cms.untracked.int32(100),
-    UseOfflineXMLFile = cms.untracked.bool(True)
+    NoiseRateCutValue = cms.untracked.double(0.001), #negative value means test is not run; default cut value is 0.001
+    NEventsForNoiseCalculation = cms.untracked.int32(1000),
+    UseOfflineXMLFile = cms.untracked.bool(False)
 )
 
 process.qTester = cms.EDFilter("QualityTester",

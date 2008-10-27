@@ -1335,31 +1335,36 @@ void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei,
 //  cout<<"... leaving SiPixelInformationExtractor::getHistosFromPath!"<<endl;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float noiseRate_) {
 //std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
   bei->cd();
   bei->setCurrentFolder("Pixel/EventInfo");
   SummaryReport = bei->bookFloat("reportSummary");
   //SummaryReportMap = bei->book2D("reportSummaryMap","Pixel EtaPhi Summary Map",60,-3.,3.,64,-3.2,3.2);
-  SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",28,0.,28.,48,0.,48.);
-  SummaryReportMap->setAxisTitle("Eta",1);
-  SummaryReportMap->setAxisTitle("Phi",2);
-  SummaryReportMap->setBinLabel(1,"Endcap",1);
-  SummaryReportMap->setBinLabel(2,"+z Disk_2",1);
-  SummaryReportMap->setBinLabel(6,"Endcap",1);
-  SummaryReportMap->setBinLabel(7,"+z Disk_1",1);
-  SummaryReportMap->setBinLabel(12,"Barrel +z",1);
-  SummaryReportMap->setBinLabel(16,"Barrel -z",1);
-  SummaryReportMap->setBinLabel(20,"Endcap",1);
-  SummaryReportMap->setBinLabel(21,"-z Disk_1",1);
-  SummaryReportMap->setBinLabel(25,"Endcap",1);
-  SummaryReportMap->setBinLabel(26,"-z Disk_2",1);
-  SummaryReportMap->setBinLabel(13,"Inside",2);
-  SummaryReportMap->setBinLabel(12,"LHC",2);
-  SummaryReportMap->setBinLabel(11,"Ring",2);
-  SummaryReportMap->setBinLabel(37,"Outside",2);
-  SummaryReportMap->setBinLabel(36,"LHC",2);
-  SummaryReportMap->setBinLabel(35,"Ring",2);
+  //SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",28,0.,28.,48,0.,48.);
+  //SummaryReportMap->setAxisTitle("Eta",1);
+  //SummaryReportMap->setAxisTitle("Phi",2);
+  //SummaryReportMap->setBinLabel(1,"Endcap",1);
+  //SummaryReportMap->setBinLabel(2,"+z Disk_2",1);
+  //SummaryReportMap->setBinLabel(6,"Endcap",1);
+  //SummaryReportMap->setBinLabel(7,"+z Disk_1",1);
+  //SummaryReportMap->setBinLabel(12,"Barrel +z",1);
+  //SummaryReportMap->setBinLabel(16,"Barrel -z",1);
+  //SummaryReportMap->setBinLabel(20,"Endcap",1);
+  //SummaryReportMap->setBinLabel(21,"-z Disk_1",1);
+  //SummaryReportMap->setBinLabel(25,"Endcap",1);
+  //SummaryReportMap->setBinLabel(26,"-z Disk_2",1);
+  //SummaryReportMap->setBinLabel(13,"Inside",2);
+  //SummaryReportMap->setBinLabel(12,"LHC",2);
+  //SummaryReportMap->setBinLabel(11,"Ring",2);
+  //SummaryReportMap->setBinLabel(37,"Outside",2);
+  //SummaryReportMap->setBinLabel(36,"LHC",2);
+  //SummaryReportMap->setBinLabel(35,"Ring",2);
+  SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,0.,36.);
+  SummaryReportMap->setAxisTitle("FED #",1);
+  SummaryReportMap->setAxisTitle("Link #",2);
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
   SummaryBarrel = bei->bookFloat("Pixel_Barrel");
   SummaryShellmI = bei->bookFloat("Pixel_Shell_mI");
@@ -1386,7 +1391,8 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei, float no
 }
 
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 
-                                                           bool init)
+                                                           bool init,
+							   int nFEDs)
 {
 //cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 //   cout << ACRed << ACBold
@@ -1395,7 +1401,6 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 //        << " Enter" 
 //        << endl ;
   if(init){
-    gotDigis=false;
     allMods_=0; errorMods_=0; qflag_=0.; 
     bpix_mods_=0; err_bpix_mods_=0; bpix_flag_=0.;
     shellmI_mods_=0; err_shellmI_mods_=0; shellmI_flag_=0.;
@@ -1407,7 +1412,33 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     hcylmO_mods_=0; err_hcylmO_mods_=0; hcylmO_flag_=0.;
     hcylpI_mods_=0; err_hcylpI_mods_=0; hcylpI_flag_=0.;
     hcylpO_mods_=0; err_hcylpO_mods_=0; hcylpO_flag_=0.;
+    if(nFEDs==0){
+      SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
+      if(SummaryReport) SummaryReport->Fill(-1.);
+      SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Barrel");
+      if(SummaryBarrel) SummaryBarrel->Fill(-1.);
+      SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mI");
+      if(SummaryShellmI) SummaryShellmI->Fill(-1.);
+      SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mO");
+      if(SummaryShellmO)   SummaryShellmO->Fill(-1.);
+      SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pI");
+      if(SummaryShellpI)   SummaryShellpI->Fill(-1.);
+      SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pO");
+      if(SummaryShellpO)   SummaryShellpO->Fill(-1.);
+      SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Endcap");
+      if(SummaryEndcap)   SummaryEndcap->Fill(-1.);
+      SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mI");
+      if(SummaryHCmI)   SummaryHCmI->Fill(-1.);
+      SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mO");
+      if(SummaryHCmO)   SummaryHCmO->Fill(-1.);
+      SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pI");
+      if(SummaryHCpI)   SummaryHCpI->Fill(-1.);
+      SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pO");
+      if(SummaryHCpO)   SummaryHCpO->Fill(-1.);
+    }
+    init=false;
   }
+  if(nFEDs==0) return;  
   
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
@@ -1428,16 +1459,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     if(currDir.find("HalfCylinder_pO")!=string::npos) hcylpO_mods_++;
       
     vector<string> meVec = bei->getMEs();
-    //checking for any digis anywhere to decide if Pixel detector is in DAQ:  
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
-      if(full_path.find("ndigis")!=string::npos){
-        MonitorElement * me = bei->get(full_path);
-        if (!me) continue;
-        if(me->getEntries()>0) gotDigis = true;
-      }
-    }
-      
+    
     //checking for FED errors only:
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
@@ -1515,26 +1537,13 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
   if(hcylmO_mods_>0) hcylmO_flag_ = (float(hcylmO_mods_)-float(err_hcylmO_mods_))/float(hcylmO_mods_);
   if(hcylpI_mods_>0) hcylpI_flag_ = (float(hcylpI_mods_)-float(err_hcylpI_mods_))/float(hcylpI_mods_);
   if(hcylpO_mods_>0) hcylpO_flag_ = (float(hcylpO_mods_)-float(err_hcylpO_mods_))/float(hcylpO_mods_);
-  if(!gotDigis){
-    qflag_ = -1.;
-    bpix_flag_ = -1.;
-    shellmI_flag_ = -1.;
-    shellmO_flag_ = -1.;
-    shellpI_flag_ = -1.;
-    shellpO_flag_ = -1.;
-    fpix_flag_ = -1.;
-    hcylmI_flag_ = -1.;
-    hcylmO_flag_ = -1.;
-    hcylpI_flag_ = -1.;
-    hcylpO_flag_ = -1.;
-  }
   
   vector<string> subDirVec = bei->getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     bei->cd(*ic);
     init=false;
-    computeGlobalQualityFlag(bei,init);
+    computeGlobalQualityFlag(bei,init,nFEDs);
     bei->goUp();
   }
   SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
@@ -1562,7 +1571,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 
 }
 
-void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup)
+/*void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup)
 {
   //calculate eta and phi of the modules and fill a 2D plot:
   
@@ -1595,7 +1604,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       
       if(!once) continue;
       MonitorElement * me = bei->get(full_path);
-      if (!me) continue;
+      if (!me) continue;*/
 /*      int id=0;
       if(first){ id = getDetId(me); first=false; }
       DetId detid = DetId(id);
@@ -1619,7 +1628,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	}
       }*/
       
-      if(full_path.find("Endcap")!=string::npos){ // Endcaps
+/*      if(full_path.find("Endcap")!=string::npos){ // Endcaps
         if(full_path.find("_m")!=string::npos) xoffA = 19; // the -z endcaps are on the right hand side in x
 	if(full_path.find("_m")!=string::npos && full_path.find("Disk_2")!=string::npos) xoffB = 5; // on -z Disk_2 is right of Disk_1
 	if(full_path.find("_p")!=string::npos && full_path.find("Disk_1")!=string::npos) xoffB = 5; // on +z Disk_2 is left of Disk_1
@@ -1772,7 +1781,131 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   if(goodmodsMap) goodmodsMap->Clear();
   if(errmodsMap) errmodsMap->Clear();
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
+}*/
+
+void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs)
+{
+  //calculate eta and phi of the modules and fill a 2D plot:
+  if(init){
+    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,0.,36.);
+    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,0.,36.);
+    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,0.,36.);
+    count=0; errcount=0;
+    //cout<<"Number of FEDs in the readout: "<<nFEDs<<endl;
+    if(nFEDs==0){
+      SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
+      if(SummaryReportMap) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,0.);
+    }
+    init=false;
+  }
+  if(nFEDs==0) return;
+  eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+  string currDir = bei->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QRegExp rx("Module_");
+  if(rx.search(dname)!=-1){
+    vector<string> meVec = bei->getMEs();
+    bool first=true; bool once=true;
+    int detId=-1; int fedId=-1; int linkId=-1;
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+      //checking for any digis or FED errors to decide if this module is in DAQ:  
+      string full_path = currDir + "/" + (*it);
+      if(detId==-1 && (full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos)){
+        MonitorElement * me = bei->get(full_path);
+        if (!me) continue;
+	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
+	   (full_path.find("NErrors")!=string::npos && me->getMean()>0.)){ 
+          detId = getDetId(me);
+	  //cout<<"got a module with digis or errors and the detid is: "<<detId<<endl;
+          for(int fedid=0; fedid<=40; ++fedid){
+            SiPixelFrameConverter converter(theCablingMap.product(),fedid);
+	    uint32_t newDetId = detId;
+            if(converter.hasDetUnit(newDetId)){
+              fedId=fedid;
+              break;   
+            }
+          }
+          if(fedId==-1) continue; 
+          sipixelobjects::ElectronicIndex cabling; 
+          SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
+          sipixelobjects::DetectorIndex detector = {detId, 1, 1};      
+	  formatter.toCabling(cabling,detector);
+          linkId = cabling.link;
+	  allmodsMap->Fill(fedId,linkId);
+	  //cout<<"this is a module that has digis and/or errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
+          
+	  //use presence of any FED error as error flag (except for TBM or ROC resets):
+          bool anyerr=false; bool type30=false; bool othererr=false;
+          if(full_path.find("ndigis")!=string::npos) full_path = full_path.replace(full_path.find("ndigis"),7,"NErrors");
+	  me = bei->get(full_path);
+	  if(me) anyerr=true;
+          //if(anyerr) cout<<"here is an error: "<<detId<<","<<me->getMean()<<endl;
+	  if(full_path.find("NErrors")!=string::npos) full_path = full_path.replace(full_path.find("NErrors"),9,"errorType");
+	  me = bei->get(full_path);
+	  if(me){
+	    for(int jj=1; jj<16; jj++){
+	      if(me->getBinContent(jj)>0.){
+	        if(jj!=6) othererr=true;
+		else type30=true;
+	      }
+	    }
+	    if(type30){
+	      full_path = full_path.replace(full_path.find("errorType"),10,"TBMMessage");
+	      me = bei->get(full_path);
+	      if(me){
+	        for(int kk=1; kk<9; kk++){
+		  if(me->getBinContent(kk)>0.){
+		    if(kk!=6 && kk!=7) othererr=true;
+		  }
+		}
+	      }
+	    }
+	  }
+          if(anyerr && othererr){
+	    errmodsMap->Fill(fedId,linkId);
+	    //cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
+	  }
+	}
+      }
+    }
+  }
+
+  vector<string> subDirVec = bei->getSubdirs();  
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    bei->cd(*ic);
+    init=false;
+    fillGlobalQualityPlot(bei,init,eSetup,nFEDs);
+    bei->goUp();
+  }
+  
+  if(bei->pwd() == "Pixel/EventInfo/reportSummaryContents"){
+    SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
+    if(SummaryReportMap){ 
+      float contents=0.;
+      for(int i=1; i!=41; i++)for(int j=1; j!=37; j++){
+        //cout<<"bin: "<<i<<","<<j<<endl;
+        contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
+        goodmodsMap->SetBinContent(i,j,contents);
+        //cout<<"\t the map: "<<allmodsMap->GetBinContent(i,j)<<","<<errmodsMap->GetBinContent(i,j)<<endl;
+        if(allmodsMap->GetBinContent(i,j)>0){
+	  contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
+        }else{
+          contents = 0.;
+        }
+        //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
+        SummaryReportMap->setBinContent(i,j,contents);
+      }
+    }
+  }
+  
+  if(allmodsMap) allmodsMap->Clear();
+  if(goodmodsMap) goodmodsMap->Clear();
+  if(errmodsMap) errmodsMap->Clear();
+  //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, float noiseRate_, int noiseRateDenominator_, edm::EventSetup const& eSetup)
 {
@@ -1782,6 +1915,11 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
   if(init){
     endOfModules_=false;
     nevents_=noiseRateDenominator_;
+    if(nevents_ == -1){
+      bei->cd();
+      bei->setCurrentFolder("Pixel/EventInfo");
+      nevents_ = (bei->get("Pixel/EventInfo/processedEvents"))->getIntValue();
+    }
     bei->cd();  
     myfile_.open ("NoisyPixelList.txt");
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;

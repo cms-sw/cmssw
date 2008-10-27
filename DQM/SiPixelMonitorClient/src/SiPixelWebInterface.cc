@@ -274,12 +274,6 @@ void SiPixelWebInterface::performAction() {
       infoExtractor_->createImages(bei_);
       break;
     }
-  case SiPixelWebInterface::ComputeGlobalQualityFlag  :
-    {
-      bool init=true;
-      infoExtractor_->computeGlobalQualityFlag(bei_,init);
-      break;
-    }
   case SiPixelWebInterface::dumpModIds  :
     {
       actionExecutor_->dumpModIds(bei_);

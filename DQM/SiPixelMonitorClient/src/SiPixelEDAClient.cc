@@ -8,6 +8,24 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -153,6 +171,15 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     //cout << " Booking summary report ME's" << endl;
     sipixelInformationExtractor_->bookGlobalQualityFlag(bei_, noiseRate_);
+    // check if any Pixel FED is in readout:
+    edm::Handle<FEDRawDataCollection> rawDataHandle;
+    e.getByLabel("source", rawDataHandle);
+    const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+    nFEDs_ = 0;
+    for(int i = 0; i != 40; i++){
+      if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
+    }
+    //cout<<"nFEDs_= "<<nFEDs_<<endl; 
   }
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
   sipixelWebInterface_->performAction();
@@ -183,10 +210,10 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->performAction();
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-    sipixelWebInterface_->performAction();
     bool init=true;
-    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_);
+    init=true;
+    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
@@ -231,10 +258,10 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->performAction();
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-    sipixelWebInterface_->performAction();
     bool init=true;
-    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+    sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init,nFEDs_);
+    init=true;
+    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);

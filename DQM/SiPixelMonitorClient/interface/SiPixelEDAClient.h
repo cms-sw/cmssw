@@ -71,6 +71,7 @@ private:
   double noiseRate_;
   int noiseRateDenominator_;
   bool offlineXMLfile_;
+  int nFEDs_;
 
   std::ostringstream html_out_;
 };
