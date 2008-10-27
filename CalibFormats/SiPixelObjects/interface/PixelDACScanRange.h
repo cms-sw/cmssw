@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <cassert>
 
 namespace pos{
 /*! \class PixelConfigurationVerifier PixelConfigurationVerifier.h "interface/PixelConfigurationVerifier.h"
