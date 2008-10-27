@@ -150,7 +150,9 @@ namespace edm {
     
     OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
-     std::set<T> keepPlusAncestors;
+    std::set<T> keep;
+
+    std::set<T> keepPlusAncestors;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
@@ -167,16 +169,23 @@ namespace edm {
 	// No product with this ID is in the event.
 	// Create and write the provenance.
 	if (i->branchDescription_->produced()) {
+          keep.insert(T(i->branchDescription_->branchID(),
+		      productstatus::neverCreated(),
+		      i->branchDescription_->moduleDescriptionID()));
           keepPlusAncestors.insert(T(i->branchDescription_->branchID(),
 			      productstatus::neverCreated(),
 			      i->branchDescription_->moduleDescriptionID()));
 	} else {
+          keep.insert(T(i->branchDescription_->branchID(),
+		      productstatus::dropped(),
+		      i->branchDescription_->moduleDescriptionID()));
           keepPlusAncestors.insert(T(i->branchDescription_->branchID(),
 			      productstatus::dropped(),
 			      i->branchDescription_->moduleDescriptionID()));
 	}
       } else {
 	product = oh.wrapper();
+        keep.insert(*oh.entryInfo());
         keepPlusAncestors.insert(*oh.entryInfo());
         assert(principal.branchMapperPtr());
         insertAncestors(*oh.entryInfo(),*principal.branchMapperPtr(),keepPlusAncestors);
@@ -194,7 +203,11 @@ namespace edm {
       }
     }
      
-     entryInfoVecPtr->assign(keepPlusAncestors.begin(),keepPlusAncestors.end());
+    if (om_->dropMetaData()) {
+      entryInfoVecPtr->assign(keep.begin(),keep.end());
+    } else {
+      entryInfoVecPtr->assign(keepPlusAncestors.begin(),keepPlusAncestors.end());
+    }
     treePointers_[branchType]->fillTree();
     entryInfoVecPtr->clear();
   }

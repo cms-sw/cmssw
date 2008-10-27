@@ -33,6 +33,7 @@ namespace edm {
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
+    dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     outputFileCount_(0),
     inputFileCount_(0),
