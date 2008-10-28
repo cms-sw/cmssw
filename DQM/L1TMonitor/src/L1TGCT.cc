@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/10/10 12:41:24 $
- * $Revision: 1.34 $
+ * $Date: 2008/10/24 08:38:54 $
+ * $Revision: 1.35 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.35  2008/10/24 08:38:54  jbrooke
+ * fix empty jet plots
+ *
  * Revision 1.34  2008/10/10 12:41:24  jbrooke
  * put back checks on energy sum vector size, change [] to .at()
  *
@@ -177,7 +180,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
     edm::LogInfo("L1TGCT") << "L1T Monitoring histograms will be saved to "
-	      << outputFile_ << std::endl;
+                           << outputFile_ << std::endl;
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -254,12 +257,12 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
                                             PHIBINS, PHIMIN, PHIMAX, 
                                             ETABINS, ETAMIN, ETAMAX);
     l1GctHFRing0TowerCountPosEtaNegEta_ = dbe->book2D("HFRing0TowerCountCorr", "HF RING0 TOWER COUNT CORRELATION NEG POS ETA",
-                                                 PHIBINS, PHIMIN, PHIMAX, 
-                                                 ETABINS, ETAMIN, ETAMAX);
+                                                      PHIBINS, PHIMIN, PHIMAX, 
+                                                      ETABINS, ETAMIN, ETAMAX);
 
     l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION NEG POS ETA",
-                                                 PHIBINS, PHIMIN, PHIMAX, 
-                                                 ETABINS, ETAMIN, ETAMAX);
+                                                      PHIBINS, PHIMIN, PHIMAX, 
+                                                      ETABINS, ETAMIN, ETAMAX);
 
 
     // For Qtests need 1D eta and phi histograms (would be better if Qtests ran on 2D histograms too!)
@@ -371,7 +374,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     edm::LogInfo("L1TGCT") << "L1TGCT: analyze...." << std::endl;
   }
   
-  // update to those generated in GctRawToDigi
+  // Get all the collections
   edm::Handle < L1GctEmCandCollection > l1IsoEm;
   edm::Handle < L1GctEmCandCollection > l1NonIsoEm;
   edm::Handle < L1GctJetCandCollection > l1CenJets;
@@ -383,14 +386,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctEtHadCollection >   l1EtHad;
   edm::Handle < L1GctEtTotalCollection > l1EtTotal;
 
-  // Split this into two parts as this appears to be the way the HW works.
-  // This should not be necessary. The unpacker should produce all 
-  // collections regardless of input data by default but I leave this for now
-  bool doJet = true;
-  bool doEm = true;
-  bool doHFminbias = true;
-  bool doES = true;
-  
+  e.getByLabel(gctIsoEmSource_, l1IsoEm);
+  e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
   e.getByLabel(gctCenJetsSource_, l1CenJets);
   e.getByLabel(gctForJetsSource_, l1ForJets);
   e.getByLabel(gctTauJetsSource_, l1TauJets);
@@ -400,294 +397,207 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctEnergySumsSource_, l1EtHad);
   e.getByLabel(gctEnergySumsSource_, l1EtTotal);
 
-  if (!l1CenJets.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1CenJets"
-      ", label was " << gctCenJetsSource_ ;
-    doJet = false;
-  }
-   
-  if (!l1ForJets.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1ForJets"
-      ", label was " << gctForJetsSource_ ;
-    doJet = false;
-  }
-   
-  if (!l1TauJets.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1TauJets"
-      ", label was " << gctTauJetsSource_ ;
-    doJet = false;
-  }
+  // Fill histograms
 
-  if (!l1HFSums.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1HFSums"
-      ", label was " << gctEnergySumsSource_ ;
-    doHFminbias = false;
-  }
-
-  if (!l1HFCounts.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1HFCounts"
-      ", label was " << gctEnergySumsSource_ ;
-    doHFminbias = false;
-  }   
-
-  if (!l1EtMiss.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss"
-      ", label was " << gctEnergySumsSource_ ;
-    doES = false;
-  }
-     
-  if (!l1EtHad.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1EtHad"
-      ", label was " << gctEnergySumsSource_ ;
-    doES = false;
-  }
-   
-  if (!l1EtTotal.isValid())  {
-    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal"
-      ", label was " << gctEnergySumsSource_ ;
-    doES = false;
-  }
-
-  // EM data
-  e.getByLabel(gctIsoEmSource_, l1IsoEm);
-  e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
-  
-  if (!l1IsoEm.isValid()) {
-    edm::LogWarning("DataNotFound") << " Could not find l1IsoEm "
-      " elements, label was " << gctIsoEmSource_ ;
-    doEm = false;
-  }
-
-  if (!l1NonIsoEm.isValid()) {
-    edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm "
-      " elements, label was " << gctNonIsoEmSource_ ;
-    doEm = false;
-  }
-
-  if ( (! doEm) && (! doJet) ) {
-    if (  verbose_ )
-      edm::LogWarning("DataNotFound") << "L1TGCT: Bailing, didn't find squat."<<std::endl;
-    return;
-  }
-    
-  // Fill the histograms for the jets
- 
-  if ( doJet ) {
-    // Central jets
-    if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of central jets = " 
-		<< l1CenJets->size() << std::endl;
-    }
-    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
-	 cj != l1CenJets->end(); cj++) {
-      //if ( cj->rank() == 0 ) continue;
-      l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta(),cj->rank());
-      l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta());
-      l1GctCenJetsOccEta_->Fill(cj->regionId().ieta());
-      l1GctCenJetsOccPhi_->Fill(cj->regionId().iphi());
+  // Central jets
+  if (l1CenJets.isValid()) {
+    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();cj != l1CenJets->end(); cj++) {
       l1GctCenJetsRank_->Fill(cj->rank());
-      if ( verbose_ ) {
-	edm::LogInfo("L1TGCT") << "L1TGCT: Central jet " 
-		  << cj->regionId().iphi() << ", " << cj->regionId().ieta()
-		  << ", " << cj->rank() << std::endl;
+      // only plot eta and phi maps for non-zero candidates
+      if (cj->rank()) {
+        l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta(),cj->rank());
+        l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta());
+        l1GctCenJetsOccEta_->Fill(cj->regionId().ieta());
+        l1GctCenJetsOccPhi_->Fill(cj->regionId().iphi());
       }
     }
-
-	if ( l1CenJets->size()==4){
-      	// Rank for each candidate
-      	l1GctCenJetsRankCand0_->Fill((*l1CenJets).at(0).rank());
-      	l1GctCenJetsRankCand1_->Fill((*l1CenJets).at(1).rank());
-      	l1GctCenJetsRankCand2_->Fill((*l1CenJets).at(2).rank());
-      	l1GctCenJetsRankCand3_->Fill((*l1CenJets).at(3).rank());
-
-      	// Differences between candidate ranks
-      	l1GctCenJetsRankDiff01_->Fill((*l1CenJets).at(0).rank()-(*l1CenJets).at(1).rank());
-      	l1GctCenJetsRankDiff12_->Fill((*l1CenJets).at(1).rank()-(*l1CenJets).at(2).rank());
-      	l1GctCenJetsRankDiff23_->Fill((*l1CenJets).at(2).rank()-(*l1CenJets).at(3).rank());
-    	}
-
-    // Forward jets
-    if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of forward jets = " 
-		<< l1ForJets->size() << std::endl;
+    if ( l1CenJets->size()==4){
+      // Rank for each candidate
+      l1GctCenJetsRankCand0_->Fill((*l1CenJets).at(0).rank());
+      l1GctCenJetsRankCand1_->Fill((*l1CenJets).at(1).rank());
+      l1GctCenJetsRankCand2_->Fill((*l1CenJets).at(2).rank());
+      l1GctCenJetsRankCand3_->Fill((*l1CenJets).at(3).rank());
+      // Differences between candidate ranks
+      l1GctCenJetsRankDiff01_->Fill((*l1CenJets).at(0).rank()-(*l1CenJets).at(1).rank());
+      l1GctCenJetsRankDiff12_->Fill((*l1CenJets).at(1).rank()-(*l1CenJets).at(2).rank());
+      l1GctCenJetsRankDiff23_->Fill((*l1CenJets).at(2).rank()-(*l1CenJets).at(3).rank());
     }
-    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
-	 fj != l1ForJets->end(); fj++) {
-      //if ( fj->rank() == 0 ) continue;
-      l1GctForJetsEtEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta(),fj->rank());
-      l1GctForJetsOccEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta());
-      l1GctForJetsOccEta_->Fill(fj->regionId().ieta());
-      l1GctForJetsOccPhi_->Fill(fj->regionId().iphi());
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1CenJets label was " << gctCenJetsSource_ ;
+  }
+
+
+  // Forward jets
+  if (l1ForJets.isValid()) {
+    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
       l1GctForJetsRank_->Fill(fj->rank());
-      if ( verbose_ ) {
-	edm::LogInfo("L1TGCT") << "L1TGCT: Forward jet " 
-		  << fj->regionId().iphi() << ", " << fj->regionId().ieta()
-		  << ", " << fj->rank() << std::endl;
+      // only plot eta and phi maps for non-zero candidates
+      if (fj->rank()) {
+        l1GctForJetsEtEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta(),fj->rank());
+        l1GctForJetsOccEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta());
+        l1GctForJetsOccEta_->Fill(fj->regionId().ieta());
+        l1GctForJetsOccPhi_->Fill(fj->regionId().iphi());
       }
     }
-
-	if ( l1ForJets->size()==4){
-      	// Rank for each candidate
-      	l1GctForJetsRankCand0_->Fill((*l1ForJets).at(0).rank());
-      	l1GctForJetsRankCand1_->Fill((*l1ForJets).at(1).rank());
-      	l1GctForJetsRankCand2_->Fill((*l1ForJets).at(2).rank());
-      	l1GctForJetsRankCand3_->Fill((*l1ForJets).at(3).rank());
-
-      	// Differences between candidate ranks
-      	l1GctForJetsRankDiff01_->Fill((*l1ForJets).at(0).rank()-(*l1ForJets).at(1).rank());
-      	l1GctForJetsRankDiff12_->Fill((*l1ForJets).at(1).rank()-(*l1ForJets).at(2).rank());
-      	l1GctForJetsRankDiff23_->Fill((*l1ForJets).at(2).rank()-(*l1ForJets).at(3).rank());
-    	}
-
-    // Tau jets
-    if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of tau jets = " 
-		<< l1TauJets->size() << std::endl;
+    if ( l1ForJets->size()==4){
+      // Rank for each candidate
+      l1GctForJetsRankCand0_->Fill((*l1ForJets).at(0).rank());
+      l1GctForJetsRankCand1_->Fill((*l1ForJets).at(1).rank());
+      l1GctForJetsRankCand2_->Fill((*l1ForJets).at(2).rank());
+      l1GctForJetsRankCand3_->Fill((*l1ForJets).at(3).rank());
+      // Differences between candidate ranks
+      l1GctForJetsRankDiff01_->Fill((*l1ForJets).at(0).rank()-(*l1ForJets).at(1).rank());
+      l1GctForJetsRankDiff12_->Fill((*l1ForJets).at(1).rank()-(*l1ForJets).at(2).rank());
+      l1GctForJetsRankDiff23_->Fill((*l1ForJets).at(2).rank()-(*l1ForJets).at(3).rank());
     }
-    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
-	 tj != l1TauJets->end(); tj++) {
-      //if ( tj->rank() == 0 ) continue;
-      l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta(),tj->rank());
-      l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta());
-      l1GctTauJetsOccEta_->Fill(tj->regionId().ieta());
-      l1GctTauJetsOccPhi_->Fill(tj->regionId().iphi());
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1ForJets label was " << gctForJetsSource_ ;
+  }
+
+  // Tau jets
+  if (l1TauJets.isValid()) {
+    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
       l1GctTauJetsRank_->Fill(tj->rank());
-      if ( verbose_ ) {
-	edm::LogInfo("L1TGCT") << "L1TGCT: Tau jet " 
-			       << tj->regionId().iphi() << ", " << tj->regionId().ieta()
-			       << ", " << tj->rank() << std::endl;
+      // only plot eta and phi maps for non-zero candidates
+      if (tj->rank()) {
+        l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta(),tj->rank());
+        l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta());
+        l1GctTauJetsOccEta_->Fill(tj->regionId().ieta());
+        l1GctTauJetsOccPhi_->Fill(tj->regionId().iphi());
       }
     }
-    
-    if ( l1TauJets->size()==4){
+    if (l1TauJets->size()==4){
       // Rank for each candidate
       l1GctTauJetsRankCand0_->Fill((*l1TauJets).at(0).rank());
       l1GctTauJetsRankCand1_->Fill((*l1TauJets).at(1).rank());
       l1GctTauJetsRankCand2_->Fill((*l1TauJets).at(2).rank());
       l1GctTauJetsRankCand3_->Fill((*l1TauJets).at(3).rank());
-      
       // Differences between candidate ranks
       l1GctTauJetsRankDiff01_->Fill((*l1TauJets).at(0).rank()-(*l1TauJets).at(1).rank());
       l1GctTauJetsRankDiff12_->Fill((*l1TauJets).at(1).rank()-(*l1TauJets).at(2).rank());
       l1GctTauJetsRankDiff23_->Fill((*l1TauJets).at(2).rank()-(*l1TauJets).at(3).rank());
     }
-    
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1TauJets label was " << gctTauJetsSource_ ;
   }
+  
 
-  if (doES) {
-    // Energy sums
-    if ( l1EtMiss->size() ) {
+  // Missing ET
+  if (l1EtMiss.isValid()) { 
+    if (l1EtMiss->size()) {
       l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
       l1GctEtMissPhi_->Fill(l1EtMiss->at(0).phi());
     }
-    // these don't have phi values
-    if ( l1EtHad->size() ) {
-      l1GctEtHad_->Fill(l1EtHad->at(0).et());
-    }
-    if ( l1EtTotal->size() ) {
-      l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
-    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss label was " << gctEnergySumsSource_ ;    
   }
 
-  if (doHFminbias) {
+  // HT 
+  if (l1EtHad.isValid()) {
+    if (l1EtHad->size()) { 
+      l1GctEtHad_->Fill(l1EtHad->at(0).et());
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtHad label was " << gctEnergySumsSource_ ;    
+  }
 
-    //Fill HF Ring Histograms
+  // Total ET
+  if (l1EtTotal.isValid()) {
+    if (l1EtTotal->size()) { 
+      l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtTotal label was " << gctEnergySumsSource_ ;    
+  }
+
+  //HF Ring Et Sums
+  if (l1HFSums.isValid()) {
     for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
+      // Individual ring Et sums
       l1GctHFRing0ETSumPosEta_->Fill(hfs->etSum(0));
       l1GctHFRing0ETSumNegEta_->Fill(hfs->etSum(1));
       l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(2));
       l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(3));
-	
+      // Ratio of ring Et sums
       if (hfs->etSum(2)!=0) l1GctHFRingRatioPosEta_->Fill((hfs->etSum(0))/(hfs->etSum(2)));
       if (hfs->etSum(3)!=0) l1GctHFRingRatioNegEta_->Fill((hfs->etSum(1))/(hfs->etSum(3)));
-
+      // Correlate positive and neagative eta
       l1GctHFRing0PosEtaNegEta_->Fill(hfs->etSum(0),hfs->etSum(1));
       l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(2),hfs->etSum(3));
     }
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1HFSums label was " << gctEnergySumsSource_ ;
+  }
 
+  // HF Ring Counts
+  if (l1HFCounts.isValid()) {
     for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); hfc++){ 
+      // Individual ring counts
       l1GctHFRing0TowerCountPosEta_->Fill(hfc->bitCount(0));
       l1GctHFRing0TowerCountNegEta_->Fill(hfc->bitCount(1));
       l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(2));
       l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(3));
-      	
+      // Correlate positive and negative eta
       l1GctHFRing0TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0),hfc->bitCount(1));
       l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2),hfc->bitCount(3));
     }
-
-
+  } else {    
+    edm::LogWarning("DataNotFound") << " Could not find l1HFCounts label was " << gctEnergySumsSource_ ;
   }
 
-
-  if ( doEm ) {
-    // Isolated EM
-    if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of iso em cands: " 
-		<< l1IsoEm->size() << std::endl;
-    }
+  // Isolated EM
+  if (l1IsoEm.isValid()) {
     for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
-      //if ( ie->rank() == 0 ) continue;
-      l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
-      l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta());
-      l1GctIsoEmOccEta_->Fill(ie->regionId().ieta());
-      l1GctIsoEmOccPhi_->Fill(ie->regionId().iphi());
       l1GctIsoEmRank_->Fill(ie->rank());
-      if ( verbose_ ) {
-	edm::LogInfo("L1TGCT") << "L1TGCT: iso em " 
-		  << ie->regionId().iphi() << ", " 
-		  << ie->regionId().ieta() << ", " << ie->rank()
-		  << std::endl;
+      // only plot eta and phi maps for non-zero candidates
+      if (ie->rank()){ 
+        l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
+        l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta());
+        l1GctIsoEmOccEta_->Fill(ie->regionId().ieta());
+        l1GctIsoEmOccPhi_->Fill(ie->regionId().iphi());
       }
-
-    } 
-
-    if ( l1IsoEm->size()==4){
+    }
+    if (l1IsoEm->size()==4){
       // Rank for each candidate
       l1GctIsoEmRankCand0_->Fill((*l1IsoEm).at(0).rank());
       l1GctIsoEmRankCand1_->Fill((*l1IsoEm).at(1).rank());
       l1GctIsoEmRankCand2_->Fill((*l1IsoEm).at(2).rank());
       l1GctIsoEmRankCand3_->Fill((*l1IsoEm).at(3).rank());
-
       // Differences between candidate ranks
       l1GctIsoEmRankDiff01_->Fill((*l1IsoEm).at(0).rank()-(*l1IsoEm).at(1).rank());
       l1GctIsoEmRankDiff12_->Fill((*l1IsoEm).at(1).rank()-(*l1IsoEm).at(2).rank());
       l1GctIsoEmRankDiff23_->Fill((*l1IsoEm).at(2).rank()-(*l1IsoEm).at(3).rank());
     }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1IsoEm label was " << gctIsoEmSource_ ;
+  } 
 
-    // Non-isolated EM
-    if ( verbose_ ) {
-      edm::LogInfo("L1TGCT") << "L1TGCT: number of non-iso em cands: " 
-		<< l1NonIsoEm->size() << std::endl;
-    }
+  // Non-isolated EM
+  if (l1NonIsoEm.isValid()) { 
     for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
-      //if ( ne->rank() == 0 ) continue;
-      l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
-      l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta());
-      l1GctNonIsoEmOccEta_->Fill(ne->regionId().ieta());
-      l1GctNonIsoEmOccPhi_->Fill(ne->regionId().iphi());
       l1GctNonIsoEmRank_->Fill(ne->rank());
-
-      if ( verbose_ ) {
-	edm::LogInfo("L1TGCT") << "L1TGCT: non-iso em " 
-		  << ne->regionId().iphi() << ", " 
-		  << ne->regionId().ieta() << ", " << ne->rank()
-		  << std::endl;
+      // only plot eta and phi maps for non-zero candidates
+      if (ne->rank()){ 
+        l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
+        l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta());
+        l1GctNonIsoEmOccEta_->Fill(ne->regionId().ieta());
+        l1GctNonIsoEmOccPhi_->Fill(ne->regionId().iphi());
       }
-    } 
-
-    if ( l1NonIsoEm->size()==4){
+    }
+    if (l1NonIsoEm->size()==4){
       // Rank for each candidate
       l1GctNonIsoEmRankCand0_->Fill((*l1NonIsoEm).at(0).rank());
       l1GctNonIsoEmRankCand1_->Fill((*l1NonIsoEm).at(1).rank());
       l1GctNonIsoEmRankCand2_->Fill((*l1NonIsoEm).at(2).rank());
       l1GctNonIsoEmRankCand3_->Fill((*l1NonIsoEm).at(3).rank());
-      
       // Differences between candidate ranks
       l1GctNonIsoEmRankDiff01_->Fill((*l1NonIsoEm).at(0).rank()-(*l1NonIsoEm).at(1).rank());
       l1GctNonIsoEmRankDiff12_->Fill((*l1NonIsoEm).at(1).rank()-(*l1NonIsoEm).at(2).rank());
       l1GctNonIsoEmRankDiff23_->Fill((*l1NonIsoEm).at(2).rank()-(*l1NonIsoEm).at(3).rank());
     }
-  }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm label was " << gctNonIsoEmSource_ ;
+  }     
 }
 
   
