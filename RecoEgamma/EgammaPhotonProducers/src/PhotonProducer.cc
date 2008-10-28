@@ -310,7 +310,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     PhotonIsolationVariables isolVarR03, isolVarR04;
     CutBasedPhotonID idOutput;
     thePhotonIDCalculator_-> calculate ( &newCandidate,evt,es,fidFlags,isolVarR04, isolVarR03,idOutput);
-    std::cout << " ID flags " << idOutput.isLooseEM << " " << idOutput.isLoosePhoton << " " << idOutput.isTightPhoton << std::endl;
+//    std::cout << " ID flags " << idOutput.isLooseEM << " " << idOutput.isLoosePhoton << " " << idOutput.isTightPhoton << std::endl;
     newCandidate.setFiducialVolumeFlags (fidFlags.isEBPho, 
 					 fidFlags.isEEPho, 
 					 fidFlags.isEBGap, 
