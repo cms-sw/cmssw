@@ -160,8 +160,11 @@ void PFRootEventManager::readOptions(const char* file,
     bool pfjBenchmarkDebug;
     options_->GetOpt("pfjet_benchmark", "debug", pfjBenchmarkDebug);
     
-    bool PlotAgainstReco=0;
-    options_->GetOpt("pfjet_benchmark", "PlotAgainstReco", PlotAgainstReco);
+    bool plotAgainstReco=0;
+    options_->GetOpt("pfjet_benchmark", "plotAgainstReco", plotAgainstReco);
+    
+    bool onlyTwoJets=1;
+    options_->GetOpt("pfjet_benchmark", "onlyTwoJets", onlyTwoJets);
     
     double deltaRMax=0.1;
     options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
@@ -172,7 +175,8 @@ void PFRootEventManager::readOptions(const char* file,
  
     PFJetBenchmark_.setup( outjetfilename, 
                            pfjBenchmarkDebug,
-                           PlotAgainstReco,
+                           plotAgainstReco,
+			   onlyTwoJets,
                            deltaRMax );
   }
 
@@ -1119,8 +1123,6 @@ void PFRootEventManager::setAddresses() {
 
 PFRootEventManager::~PFRootEventManager() {
 
-  std::cout << "Je rentre dans le destructeur" << std::endl;
-
   if(outFile_) {
     outFile_->Close();
   }
@@ -1130,7 +1132,6 @@ PFRootEventManager::~PFRootEventManager() {
 
   delete options_;
 
-  std::cout << "Je sors dans le destructeur" << std::endl;
 }
 
 
