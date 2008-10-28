@@ -34,7 +34,7 @@ namespace cond {
     iterator find(cond::Time_t time);
 
     const_iterator find(cond::Time_t time) const;
-
+""
 
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}
 
@@ -47,6 +47,12 @@ namespace cond {
     
     Container const & iovs() const  { return m_iovs;}
 
+    // if true the sequence is not guaranted to be the same in previous version
+    bool freeUpdate() const { return m_freeUpdate;}
+    
+    void enableFreeUpdate()  { m_freeUpdate=true;}
+
+
     std::string const & metadataToken() const { return m_metadata;}
 
 
@@ -56,6 +62,8 @@ namespace cond {
     Container m_iovs;
     int m_timetype;
     cond::Time_t m_firstsince;
+
+    bool m_freeUpdate;
 
     std::string m_metadata;
 

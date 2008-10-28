@@ -10,7 +10,7 @@ namespace cond {
   
   IOVSequence::IOVSequence(int type, cond::Time_t since, 
 			   std::string const& imetadata) :
-    m_timetype(type), m_firstsince(since),
+    m_timetype(type), m_firstsince(since),m_freeUpdate(false),
     m_metadata(imetadata){}
     
   IOVSequence::~IOVSequence(){}
