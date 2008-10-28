@@ -1,7 +1,9 @@
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
+#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+
 
 
 void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
@@ -113,7 +115,13 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
 
 }
 
-void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& e, const edm::EventSetup& es, CutBasedPhotonQuantities &phoid){
+void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho,
+				     const edm::Event& e,
+				     const edm::EventSetup& es,
+				     PhotonFiducialFlags& phofid, 
+				     PhotonIsolationVariables& phoisolR1, 
+				     PhotonIsolationVariables& phoisolR2, 
+				     CutBasedPhotonID &phoid){
 
   //need to do the following things here:
   //1.)  Call base class methods to calculate photonID variables like fiducial and
@@ -130,11 +138,11 @@ void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& 
   bool isEBEEGap = false;
   classify(pho, isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap);
 
-  phoid.isEBPho_ = isEBPho;
-  phoid.isEEPho_ = isEEPho;
-  phoid.isEBGap_ = isEBGap;
-  phoid.isEEGap_ = isEEGap;
-  phoid.isEBEEGap_ = isEBEEGap;
+  phofid.isEBPho = isEBPho;
+  phofid.isEEPho = isEEPho;
+  phofid.isEBGap = isEBGap;
+  phofid.isEEGap = isEEGap;
+  phofid.isEBEEGap = isEBEEGap;
 
 
   //Calculate hollow cone track isolation, CONE A
@@ -149,10 +157,10 @@ void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& 
   calculateTrackIso(pho, e, strkisoA, sntrkA, isolationtrackThresholdA_,    
 		    trackConeOuterRadiusA_, 0.);
 
-  phoid.nTrkHollowConeA_ = ntrkA;
-  phoid.isolationHollowTrkConeA_ = trkisoA;
-  phoid.nTrkSolidConeA_ = sntrkA;
-  phoid.isolationSolidTrkConeA_ = strkisoA;
+  phoisolR1.nTrkHollowCone = ntrkA;
+  phoisolR1.isolationHollowTrkCone = trkisoA;
+  phoisolR1.nTrkSolidCone = sntrkA;
+  phoisolR1.isolationSolidTrkCone = strkisoA;
 
   //Calculate hollow cone track isolation, CONE B
   int ntrkB=0;
@@ -166,10 +174,10 @@ void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& 
   calculateTrackIso(pho, e, strkisoB, sntrkB, isolationtrackThresholdB_,    
 		    trackConeOuterRadiusB_, 0.);
 
-  phoid.nTrkHollowConeB_ = ntrkB;
-  phoid.isolationHollowTrkConeB_ = trkisoB;
-  phoid.nTrkSolidConeB_ = sntrkB;
-  phoid.isolationSolidTrkConeB_ = strkisoB;
+  phoisolR2.nTrkHollowCone = ntrkB;
+  phoisolR2.isolationHollowTrkCone = trkisoB;
+  phoisolR2.nTrkSolidCone = sntrkB;
+  phoisolR2.isolationSolidTrkCone = strkisoB;
 
 //   std::cout << "Output from solid cone track isolation: ";
 //   std::cout << " Sum pT: " << strkiso << " ntrk: " << sntrk << std::endl;
@@ -180,7 +188,7 @@ void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& 
                                                 photonEcalRecHitEtaSliceA_,
 						photonEcalRecHitThreshEA_,
 						photonEcalRecHitThreshEtA_);
-  phoid.isolationEcalRecHitA_ = EcalRecHitIsoA;
+  phoisolR1.isolationEcalRecHit = EcalRecHitIsoA;
 
   double EcalRecHitIsoB = calculateEcalRecHitIso(pho, e, es,
 						photonEcalRecHitConeOuterRadiusB_,
@@ -188,51 +196,34 @@ void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& 
                                                 photonEcalRecHitEtaSliceB_,
 						photonEcalRecHitThreshEB_,
 						photonEcalRecHitThreshEtB_);
-  phoid.isolationEcalRecHitB_ = EcalRecHitIsoB;
+  phoisolR2.isolationEcalRecHit = EcalRecHitIsoB;
 
   double HcalTowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
 					      photonHcalTowerConeInnerRadiusA_,
 					      photonHcalTowerThreshEA_);
-  phoid.isolationHcalTowerA_ = HcalTowerIsoA;
+  phoisolR1.isolationHcalTower = HcalTowerIsoA;
 
   double HcalTowerIsoB = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusB_,
 					      photonHcalTowerConeInnerRadiusB_,
 					      photonHcalTowerThreshEB_);
-  phoid.isolationHcalTowerB_ = HcalTowerIsoB;
+  phoisolR2.isolationHcalTower = HcalTowerIsoB;
 
-  double r9 = 0;
-  r9 = calculateR9(pho, e, es);
-  phoid.r9_ = r9;
-
-  double E1x5 = 0;
-  E1x5 = calculateE1x5(pho, e, es);
-  phoid.e1x5_ = E1x5;
-
-  double E2x5 = 0;
-  E2x5 = calculateE2x5(pho, e, es);
-  phoid.e2x5_ = E2x5;
-
-  double sigmaIetaIeta=0;
-  sigmaIetaIeta = calculateSigmaIetaIeta(pho, e, es);
-  phoid.sigmaIetaIeta_ = sigmaIetaIeta;
-
-//   reco::PhotonID temp(false, false, false, strkiso,
-// 		      trkiso, sntrk, ntrk,
-// 		      EcalRecHitIso, HcalTowerIso, 
-// 		      EcalR9, E1x5, E2x5, E5x5, sigmaIetaIeta,
-// 		      isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap,
-// 		      isElec);
+  CutBasedPhotonID phID;
   if (isEBPho)
-    decideEB(phoid, pho);
+    decideEB(phofid, phoisolR1, pho, phoid );
   else
-    decideEE(phoid, pho);
+    decideEE(phofid, phoisolR1, pho, phoid );
   
-  //  std::cout << "Cut based decision: " << temp.isLooseEM() << " " << temp.isLoosePhoton() <<  " " << temp.isTightPhoton() << std::endl;
+  std::cout << "Cut based decision: " <<phoid.isLooseEM << " " << phoid.isLoosePhoton <<  " " << phoid.isTightPhoton << std::endl;
   
   //  return temp;
 
 }
-void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::Photon* pho){
+
+void CutBasedPhotonIDAlgo::decideEB(PhotonFiducialFlags phofid, 
+				    PhotonIsolationVariables &phoIsolR1, 
+				    const reco::Photon* pho,
+				    CutBasedPhotonID&  phID ){
 
 
   ////////////
@@ -243,22 +234,22 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   
   //Require supercluster is within fiducial volume.
   if(dorequireFiducial_){
-    if (phID.isEBEEGap_) {
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phofid.isEBEEGap) {
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
-    if (phID.isEBPho_ && phID.isEBGap_){ 
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phofid.isEBPho && phofid.isEBGap){ 
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
-    if (phID.isEEPho_ && phID.isEEGap_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phofid.isEEPho && phofid.isEEGap){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
@@ -274,60 +265,60 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
     
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(phID.isolationEcalRecHitA_ > looseEMEcalRecHitIsolationCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationEcalRecHit > looseEMEcalRecHitIsolationCutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(phID.isolationHcalTowerA_ > looseEMHcalTowerIsolationCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationHcalTower > looseEMHcalTowerIsolationCutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the solid cone.
   if (dophotonSCNTrkCut_){
-    if (phID.nTrkSolidConeA_ > looseEMSolidConeNTrkCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.nTrkSolidCone > looseEMSolidConeNTrkCutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the hollow cone.
   if (dophotonHCNTrkCut_){
-    if (phID.nTrkHollowConeA_ > looseEMHollowConeNTrkCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.nTrkHollowCone > looseEMHollowConeNTrkCutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (phID.isolationSolidTrkConeA_ > looseEMSolidConeTrkIsolationCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationSolidTrkCone > looseEMSolidConeTrkIsolationCutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (phID.isolationHollowTrkConeA_ > looseEMHollowConeTrkIsolationCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationHollowTrkCone > looseEMHollowConeTrkIsolationCutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }  
   }
@@ -336,29 +327,29 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   if (dophotonHadOverEMCut_){
     float hadoverE = pho->hadronicOverEm();
     if (hadoverE > looseEMHadOverEMCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //eta width
   if (dophotonsigmaeeCut_){
-    double sigmaee = phID.sigmaIetaIeta_;
+    double sigmaee = pho->covIetaIeta();
     if (sigmaee > looseEMEtaWidthCutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
   //R9 cut
   if (dophotonR9Cut_){
-    if (phID.r9_ < looseEMR9CutEB_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (pho->r9() < looseEMR9CutEB_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
@@ -373,60 +364,60 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   //////////////
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(phID.isolationEcalRecHitA_ > loosephotonEcalRecHitIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationEcalRecHit > loosephotonEcalRecHitIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(phID.isolationHcalTowerA_ > loosephotonHcalTowerIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationHcalTower > loosephotonHcalTowerIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the solid cone.
   if (dophotonSCNTrkCut_){
-    if (phID.nTrkSolidConeA_ > loosephotonSolidConeNTrkCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.nTrkSolidCone > loosephotonSolidConeNTrkCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the hollow cone.
   if (dophotonHCNTrkCut_){
-    if (phID.nTrkHollowConeA_ > loosephotonHollowConeNTrkCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;    
+    if (phoIsolR1.nTrkHollowCone > loosephotonHollowConeNTrkCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;    
       return;
     }
   }
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (phID.isolationSolidTrkConeA_ > loosephotonSolidConeTrkIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationSolidTrkCone > loosephotonSolidConeTrkIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (phID.isolationHollowTrkConeA_ > loosephotonHollowConeTrkIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationHollowTrkCone > loosephotonHollowConeTrkIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }  
   }
@@ -435,9 +426,9 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   if (dophotonHadOverEMCut_){
     float hadoverE = pho->hadronicOverEm();
     if (hadoverE > loosephotonHadOverEMCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
@@ -446,20 +437,20 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
 
   if (dophotonsigmaeeCut_){
  
-    double sigmaee = phID.sigmaIetaIeta_;
+    double sigmaee = pho->covIetaIeta();
     if (sigmaee > loosephotonEtaWidthCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
   //R9 cut
   if (dophotonR9Cut_){
-    if (phID.r9_ < loosephotonR9CutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;      
+    if (pho->r9() < loosephotonR9CutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;      
       return;
     }
   }
@@ -474,60 +465,60 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   //////////////
     //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(phID.isolationEcalRecHitA_ > tightphotonEcalRecHitIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationEcalRecHit > tightphotonEcalRecHitIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(phID.isolationHcalTowerA_ > tightphotonHcalTowerIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationHcalTower > tightphotonHcalTowerIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the solid cone.
   if (dophotonSCNTrkCut_){
-    if (phID.nTrkSolidConeA_ > tightphotonSolidConeNTrkCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.nTrkSolidCone > tightphotonSolidConeNTrkCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the hollow cone.
   if (dophotonHCNTrkCut_){
-    if (phID.nTrkHollowConeA_ > tightphotonHollowConeNTrkCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.nTrkHollowCone > tightphotonHollowConeNTrkCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (phID.isolationSolidTrkConeA_ > tightphotonSolidConeTrkIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationSolidTrkCone > tightphotonSolidConeTrkIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (phID.isolationHollowTrkConeA_ > tightphotonHollowConeTrkIsolationCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationHollowTrkCone > tightphotonHollowConeTrkIsolationCutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }  
   }
@@ -536,9 +527,9 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   if (dophotonHadOverEMCut_){
     float hadoverE = pho->hadronicOverEm();
     if (hadoverE > tightphotonHadOverEMCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
@@ -546,37 +537,39 @@ void CutBasedPhotonIDAlgo::decideEB(CutBasedPhotonQuantities &phID, const reco::
   //eta width
 
   if (dophotonsigmaeeCut_){
-    double sigmaee = phID.sigmaIetaIeta_;
+    double sigmaee = pho->covIetaIeta();
     if (sigmaee > tightphotonEtaWidthCutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
   //R9 cut
   if (dophotonR9Cut_){
-    if (phID.r9_ < tightphotonR9CutEB_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;
+    if (pho->r9() < tightphotonR9CutEB_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
 
   //if you got here, you must have passed all cuts!
-  phID.isLooseEM_ = true;
-  phID.isLoosePhoton_ = true;
-  phID.isTightPhoton_ = true;
+  phID.isLooseEM = true;
+  phID.isLoosePhoton = true;
+  phID.isTightPhoton = true;
   
 }
 
 
 
-void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::Photon* pho){
-
-
+void CutBasedPhotonIDAlgo::decideEE(PhotonFiducialFlags phofid, 
+				    PhotonIsolationVariables &phoIsolR1, 
+				    const reco::Photon* pho, 
+				    CutBasedPhotonID&  phID ){
+  
   ////////////
   //If one has selected to apply fiducial cuts, they will be
   //applied for all looseEM, loosePhoton, tightPhoton.
@@ -585,23 +578,23 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
 
   //Require supercluster is within fiducial volume.
   if(dorequireFiducial_){
-    if (phID.isEBEEGap_) {
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phofid.isEBEEGap) {
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
 
       return;
     }
-    if (phID.isEBPho_ && phID.isEBGap_){ 
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phofid.isEBPho && phofid.isEBGap){ 
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
-    if (phID.isEEPho_ && phID.isEEGap_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phofid.isEEPho && phofid.isEEGap){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
@@ -617,60 +610,60 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
     
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(phID.isolationEcalRecHitA_ > looseEMEcalRecHitIsolationCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;      
+    if(phoIsolR1.isolationEcalRecHit > looseEMEcalRecHitIsolationCutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;      
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(phID.isolationHcalTowerA_ > looseEMHcalTowerIsolationCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if(phoIsolR1.isolationHcalTower > looseEMHcalTowerIsolationCutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
   
   //Cut on number of tracks within the solid cone.
   if (dophotonSCNTrkCut_){
-    if (phID.nTrkSolidConeA_ > looseEMSolidConeNTrkCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.nTrkSolidCone > looseEMSolidConeNTrkCutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on number of tracks within the hollow cone.
   if (dophotonHCNTrkCut_){
-    if (phID.nTrkHollowConeA_ > looseEMHollowConeNTrkCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;     
+    if (phoIsolR1.nTrkHollowCone > looseEMHollowConeNTrkCutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;     
       return;
     }
   }
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (phID.isolationSolidTrkConeA_ > looseEMSolidConeTrkIsolationCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationSolidTrkCone > looseEMSolidConeTrkIsolationCutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (phID.isolationHollowTrkConeA_ > looseEMHollowConeTrkIsolationCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+    if (phoIsolR1.isolationHollowTrkCone > looseEMHollowConeTrkIsolationCutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }  
   }
@@ -679,9 +672,9 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
   if (dophotonHadOverEMCut_){
     float hadoverE = pho->hadronicOverEm();
     if (hadoverE > looseEMHadOverEMCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;
       return;
     }
   }
@@ -689,21 +682,21 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
   //eta width
 
   if (dophotonsigmaeeCut_){   
-    double sigmaee = phID.sigmaIetaIeta_;
+    double sigmaee = pho->covIetaIeta();
     
     if (sigmaee > looseEMEtaWidthCutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;      
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;      
       return;
     }
   }
   //R9 cut
   if (dophotonR9Cut_){
-    if (phID.r9_ < looseEMR9CutEE_){
-      phID.isLooseEM_ = false;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;      
+    if (pho->r9() < looseEMR9CutEE_){
+      phID.isLooseEM = false;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;      
       return;
     }
   }
@@ -718,60 +711,60 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
   //////////////
   //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(phID.isolationEcalRecHitA_ > loosephotonEcalRecHitIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+    if(phoIsolR1.isolationEcalRecHit > loosephotonEcalRecHitIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(phID.isolationHcalTowerA_ > loosephotonHcalTowerIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;        
+    if(phoIsolR1.isolationHcalTower > loosephotonHcalTowerIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;        
       return;
     }
   }
 
   //Cut on number of tracks within the solid cone.
   if (dophotonSCNTrkCut_){
-    if (phID.nTrkSolidConeA_ > loosephotonSolidConeNTrkCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.nTrkSolidCone > loosephotonSolidConeNTrkCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
 
   //Cut on number of tracks within the hollow cone.
   if (dophotonHCNTrkCut_){
-    if (phID.nTrkHollowConeA_ > loosephotonHollowConeNTrkCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.nTrkHollowCone > loosephotonHollowConeNTrkCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (phID.isolationSolidTrkConeA_ > loosephotonSolidConeTrkIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.isolationSolidTrkCone > loosephotonSolidConeTrkIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (phID.isolationHollowTrkConeA_ > loosephotonHollowConeTrkIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.isolationHollowTrkCone > loosephotonHollowConeTrkIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }  
   }
@@ -780,9 +773,9 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
   if (dophotonHadOverEMCut_){
     float hadoverE = pho->hadronicOverEm();
     if (hadoverE > loosephotonHadOverEMCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
@@ -791,21 +784,21 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
 
   if (dophotonsigmaeeCut_){
     
-    double sigmaee = phID.sigmaIetaIeta_;
+    double sigmaee = pho->covIetaIeta();
   
     if (sigmaee > loosephotonEtaWidthCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
   //R9 cut
   if (dophotonR9Cut_){
-    if (phID.r9_ < loosephotonR9CutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = false;
-      phID.isTightPhoton_ = false;  
+    if (pho->r9() < loosephotonR9CutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = false;
+      phID.isTightPhoton = false;  
       return;
     }
   }
@@ -820,60 +813,60 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
   //////////////
     //Cut on the sum of ecal rec hits in a cone
   if(dophotonEcalRecHitIsolationCut_){
-    if(phID.isolationEcalRecHitA_ > tightphotonEcalRecHitIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if(phoIsolR1.isolationEcalRecHit > tightphotonEcalRecHitIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
   
   //Cut on the sum of hcal rec hits in a cone (HBHE)
   if(dophotonHcalTowerIsolationCut_){
-    if(phID.isolationHcalTowerA_ > tightphotonHcalTowerIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if(phoIsolR1.isolationHcalTower > tightphotonHcalTowerIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
 
   //Cut on number of tracks within the solid cone.
   if (dophotonSCNTrkCut_){
-    if (phID.nTrkSolidConeA_ > tightphotonSolidConeNTrkCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.nTrkSolidCone > tightphotonSolidConeNTrkCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
 
   //Cut on number of tracks within the hollow cone.
   if (dophotonHCNTrkCut_){
-    if (phID.nTrkHollowConeA_ > tightphotonHollowConeNTrkCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.nTrkHollowCone > tightphotonHollowConeNTrkCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
   
   //Cut on the sum of tracks within a solid cone
   if (dophotonSCTrkIsolationCut_){
-    if (phID.isolationSolidTrkConeA_ > tightphotonSolidConeTrkIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.isolationSolidTrkCone > tightphotonSolidConeTrkIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
 
   //Cut on the sum of tracks within a hollow cone
   if (dophotonHCTrkIsolationCut_){
-    if (phID.isolationHollowTrkConeA_ > tightphotonHollowConeTrkIsolationCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if (phoIsolR1.isolationHollowTrkCone > tightphotonHollowConeTrkIsolationCutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }  
   }
@@ -882,9 +875,9 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
   if (dophotonHadOverEMCut_){
     float hadoverE = pho->hadronicOverEm();
     if (hadoverE > tightphotonHadOverEMCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
@@ -893,28 +886,28 @@ void CutBasedPhotonIDAlgo::decideEE(CutBasedPhotonQuantities &phID, const reco::
 
   if (dophotonsigmaeeCut_){
    
-    double sigmaee = phID.sigmaIetaIeta_;
+    double sigmaee = pho->covIetaIeta();
         
     if (sigmaee > tightphotonEtaWidthCutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
   //R9 cut
   if (dophotonR9Cut_){
-    if (phID.r9_ < tightphotonR9CutEE_){
-      phID.isLooseEM_ = true;
-      phID.isLoosePhoton_ = true;
-      phID.isTightPhoton_ = false;  
+    if (pho->r9() < tightphotonR9CutEE_){
+      phID.isLooseEM = true;
+      phID.isLoosePhoton = true;
+      phID.isTightPhoton = false;  
       return;
     }
   }
 
   //if you got here, you must have passed all cuts!
-  phID.isLooseEM_ = true;
-  phID.isLoosePhoton_ = true;
-  phID.isTightPhoton_ = true;   
+  phID.isLooseEM = true;
+  phID.isLoosePhoton = true;
+  phID.isTightPhoton = true;   
   
 }
