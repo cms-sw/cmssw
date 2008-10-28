@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFJetBenchmarkAnalyzer.cc,v 1.2 2008/10/10 21:19:50 cbern Exp $
+// $Id: PFJetBenchmarkAnalyzer.cc,v 1.3 2008/10/28 14:12:06 pjanot Exp $
 // Extensions by Joanna Weng
 //
 
@@ -144,11 +144,20 @@ PFJetBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
  // get gen jet collection
   Handle<GenJetCollection> genjets;
-  iEvent.getByLabel(sGenJetAlgo, genjets);
+  bool isGen = iEvent.getByLabel(sGenJetAlgo, genjets);
+  if (!isGen) { 
+    std::cout << "Warning : no Gen jets in input !" << std::endl;
+    return;
+  }
 
   // get rec PFJet collection
   Handle<PFJetCollection> pfjets;
-  iEvent.getByLabel(sJetAlgo, pfjets);   
+  bool isReco = iEvent.getByLabel(sJetAlgo, pfjets);   
+  if (!isReco) { 
+    std::cout << "Warning : no PF jets in input !" << std::endl;
+    return;
+  }
+  // Analyse (no "z" in "analyse" : we are in Europe, dammit!) 
   PFJetBenchmark_.process(*pfjets, *genjets);
 }
 

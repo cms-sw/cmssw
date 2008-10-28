@@ -90,12 +90,21 @@ void GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   { 
     // Get Truth Candidates (GenCandidates, GenJets, etc.)
     Handle<candidateCollection> truth_hnd;
-    iEvent.getByLabel(inputTruthLabel_, truth_hnd);
+    bool isGen = iEvent.getByLabel(inputTruthLabel_, truth_hnd);
+    if ( !isGen ) { 
+      std::cout << "Warning : no Gen jets in input !" << std::endl;
+      return;
+    }
+
     truth_candidates = truth_hnd.product();
 
     // Get Reco Candidates (PFlow, CaloJet, etc.)
     Handle<candidateCollection> reco_hnd;
-    iEvent.getByLabel(inputRecoLabel_, reco_hnd);
+    bool isReco = iEvent.getByLabel(inputRecoLabel_, reco_hnd);
+    if ( !isReco ) { 
+      std::cout << "Warning : no Reco jets in input !" << std::endl;
+      return; 
+    }
     reco_candidates = reco_hnd.product();
 
     // no longer needed with template-ized Benchmark
