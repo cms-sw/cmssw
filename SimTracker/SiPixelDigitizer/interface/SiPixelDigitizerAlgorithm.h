@@ -32,6 +32,15 @@
 // pixel gain payload access (offline version)
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
 
+//Begin: Accessing Lorentz Angle from the DB:
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+
+
+//Begin: Accessing the Dead pixel modules from the DB:
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+
 
 // For the random numbers
 namespace CLHEP {
@@ -54,9 +63,18 @@ class SiPixelDigitizerAlgorithm  {
     return link_coll; }
   void init(const edm::EventSetup& es);
   void fillDeadModules(const edm::EventSetup& es);
+  void fillLorentzAngle(const edm::EventSetup& es);
 
  private:
   
+  //Accessing Lorentz angle from DB:
+  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+
+  //Accessing Dead pixel modules from DB:
+  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+
+
+
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters DeadModules;
 
@@ -248,7 +266,7 @@ class SiPixelDigitizerAlgorithm  {
     //  int digis; 
     const PixelGeomDetUnit* _detp;
     uint32_t detID;     // Det id
-    //int detID;
+
 
     std::vector<PSimHit> _PixelHits; //cache
     const PixelTopology* topol;
@@ -310,7 +328,9 @@ class SiPixelDigitizerAlgorithm  {
     void pixel_inefficiency();
     bool use_ineff_from_db_;
 
-    bool use_module_killing_; // if we want to disable dead pixel modules
+    bool use_module_killing_; // remove or not the dead pixel modules
+    bool use_deadmodule_DB_; // if we want to get dead pixel modules from the DataBase.
+    bool use_LorentzAngle_DB_; // if we want to get LA from the DataBase.
 
     void pixel_inefficiency_db(); 
        // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
@@ -318,7 +338,8 @@ class SiPixelDigitizerAlgorithm  {
     float missCalibrate(int col, int row, float amp) const;  
     LocalVector DriftDirection();
 
-    void module_killing(); 
+    void module_killing_conf();
+    void module_killing_DB(); 
 
    // For random numbers
     CLHEP::RandFlat *flatDistribution_;

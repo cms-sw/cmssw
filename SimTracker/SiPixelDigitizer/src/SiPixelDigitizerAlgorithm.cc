@@ -23,9 +23,13 @@
 // Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
 // tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
 // 
-// Disable Dead Pixel modules from configuration python file: V.C 9/08
+// September 2008: V. Cuplov
+// Disable Pixel modules which are declared dead in the configuration python file
 // 
- 
+// October 2008: V Cuplov
+// Accessing/Reading the Lorentz angle from the DataBase instead the cfg file.
+
+
 #include <vector>
 #include <iostream>
 
@@ -47,6 +51,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
  
+//Begin: Accessing Lorentz Angle from the DB:
+#include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+//End: Accessing Lorentz Angle from the DB:
+
+//Begin: Accessing Dead pixel modules from the DB:
+#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 using namespace std;
 using namespace edm;
 
@@ -58,21 +71,41 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
     theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
     theSiPixelGainCalibrationService_->setESObjects( es );
   }
- fillDeadModules(es); // gets the dead module from config file or DB (not yet implemented).
-}
 
+  fillDeadModules(es); // gets the dead module from config file or DB.
+  fillLorentzAngle(es); // gets the Lorentz angle from the config file or DB.
+
+}
 
 void SiPixelDigitizerAlgorithm::fillDeadModules(const edm::EventSetup& es){
-
-  DeadModules = conf_.getParameter<Parameters>("DeadModules"); // get the dead module from cfg file
-  // Need to implement the option where we get the dead modules from the Database (soon)
+  if(!use_deadmodule_DB_){
+    DeadModules = conf_.getParameter<Parameters>("DeadModules"); // get the dead module from cfg file
+  }
+  else{  // Get Dead pixel modules from the Record: 
+         // An ESHandle was defined in the header file   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+  }
 }
 
+void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
+  if(!use_LorentzAngle_DB_){
+    // Get the Lorentz angle from the cfg file:
+    tanLorentzAnglePerTesla_FPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_FPix");
+    tanLorentzAnglePerTesla_BPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_BPix");
+  } 
+  else {
+    // Get Lorentz angle from the Record: 
+    // An ESHandle was defined in the header file edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+    es.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
+  }
+}
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
   use_ineff_from_db_(conf_.getParameter<bool>("useDB")),
-  use_module_killing_(conf_.getParameter<bool>("killModules")), //use this boolean to kill dead modules
+  use_module_killing_(conf_.getParameter<bool>("killModules")), 
+  use_deadmodule_DB_(conf_.getParameter<bool>("DeadModules_DB")), //use this boolean to kill dead modules using DB
+  use_LorentzAngle_DB_(conf_.getParameter<bool>("LorentzAngle_DB")), //use this boolean to read Lorentz angle from DB 
   theSiPixelGainCalibrationService_(0)
 {
   using std::cout;
@@ -122,13 +155,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
   theTofLowerCut=conf_.getParameter<double>("TofLowerCut");
   theTofUpperCut=conf_.getParameter<double>("TofUpperCut");
-
-  //FPix Lorentz angle tangent per Tesla
-  tanLorentzAnglePerTesla_FPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_FPix");
-
-  //BPix Lorentz angle tangent per Tesla
-  tanLorentzAnglePerTesla_BPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_BPix");
-
+  
   // Fluctuate charge in track subsegments
   fluctuateCharge=conf_.getUntrackedParameter<bool>("FluctuateCharge",true);
 
@@ -450,11 +477,13 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     } // end for 
 
       // Remove pixel dead modules:
-    if(use_module_killing_) {
-      module_killing();
-    } // end if use_module_killing
-
-
+    if(use_module_killing_ && use_deadmodule_DB_) {
+      module_killing_DB();
+    }
+    else if(use_module_killing_ && !use_deadmodule_DB_){
+      module_killing_conf();
+    }
+  
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
 
@@ -1269,15 +1298,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
 
   float alpha2_FPix;
   float alpha2_BPix;
-
-  if ( alpha2Order) {
-    alpha2_FPix = tanLorentzAnglePerTesla_FPix*tanLorentzAnglePerTesla_FPix;
-    alpha2_BPix = tanLorentzAnglePerTesla_BPix*tanLorentzAnglePerTesla_BPix;
-  }else {
-    alpha2_FPix = 0.0;
-    alpha2_BPix = 0.0;
-  }
-
+  float alpha2;
 
   //float dir_x = -tanLorentzAnglePerTesla * Bfield.y();
   //float dir_y = +tanLorentzAnglePerTesla * Bfield.x();
@@ -1291,19 +1312,56 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   float scale = 0.0;
   
   unsigned int Sub_detid=DetId(detID).subdetId();
-  if    (Sub_detid==  PixelSubdetector::PixelBarrel){// barrel layers
-    dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
-    dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
-    dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-    scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-    
-  } else {                // forward disks
-    dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
-    dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
-    dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-    scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-  }
+
+//Read Lorentz angle from cfg file:**************************************************************
+  if(!use_LorentzAngle_DB_){ 
+
+    if ( alpha2Order) {
+      alpha2_FPix = tanLorentzAnglePerTesla_FPix*tanLorentzAnglePerTesla_FPix;
+      alpha2_BPix = tanLorentzAnglePerTesla_BPix*tanLorentzAnglePerTesla_BPix;
+    }else {
+      alpha2_FPix = 0.0;
+      alpha2_BPix = 0.0;
+    }
+
+      if (Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
+	dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
+	dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
+	dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+	scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+	
+      } else {// forward disks
+	dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
+	dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
+	dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+	scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+      }
+    } // end: Read LA from cfg file.
   
+    //Read Lorentz angle from DB:********************************************************************
+    if(use_LorentzAngle_DB_){ 
+  std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
+  std::map<unsigned int,float>::const_iterator it;
+  
+
+  for (it=detid_la.begin();it!=detid_la.end();it++)
+    {
+      if (detID==it->first) {
+	if (alpha2Order) {
+	  alpha2 = it->second * it->second;
+	}  
+	else {
+	  alpha2 = 0.0;
+	} 
+	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
+	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
+	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
+	scale = (1 + alpha2 * Bfield.z()*Bfield.z() );
+      }
+    } 
+  }// end: Read LA from DataBase.
+
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  
 
 #ifdef TP_DEBUG
@@ -1338,7 +1396,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
 
 
 //****************************************************************************************************
-void SiPixelDigitizerAlgorithm::module_killing(void){
+void SiPixelDigitizerAlgorithm::module_killing_conf(void){
   if(!use_module_killing_)
     return;
 
@@ -1363,22 +1421,74 @@ void SiPixelDigitizerAlgorithm::module_killing(void){
   if(Module=="whole"){
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
       // make pixel amplitude =0, pixel will be lost at clusterization    
-      i->second.set(0.); // reset amplitude, 
+      i->second.set(0.); // reset amplitude
       }
-  } // end if Module=="whole""
+  }
   
   
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
     
 	if(Module=="tbmA" && ip.first>=80 && ip.first<=159){
-	  i->second.set(0.); // reset amplitude, 
-	}// end if Module=="tbmA"
+	  i->second.set(0.);
+	}
 	
 	if( Module=="tbmB" && ip.first<=79){
-	  i->second.set(0.); // reset amplitude, 
-	}// end if Module=="tbmB"
+	  i->second.set(0.);
+	}
+
   } // end pixel loop 
-} // end module_killing
+} // end module_killing_conf
 
 
+
+
+//****************************************************************************************************
+void SiPixelDigitizerAlgorithm::module_killing_DB(void){
+  if(!use_module_killing_)
+    return;
+
+  bool isbad=false;
+  int detid = detID;
+  
+
+  std::vector<SiPixelQuality::disabledModuleType>disabledModules = SiPixelBadModule_->getBadComponentList();
+  for (size_t id=0;id<disabledModules.size();id++)
+    {
+      SiPixelQuality::disabledModuleType badmodule = disabledModules[id];
+
+    if(detid==badmodule.DetID){
+      isbad=true;
+      break;
+    }
+  }
+  
+  if(!isbad)
+    return;
+  
+
+  SiPixelQuality::disabledModuleType badmodule;
+
+  if(badmodule.errorType == 0){
+
+    for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
+      // make pixel amplitude =0, pixel will be lost at clusterization    
+      i->second.set(0.); // reset amplitude
+      }
+  }
+  
+  for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
+    pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
+    
+	if(badmodule.errorType == 1 && ip.first>=80 && ip.first<=159){
+	  i->second.set(0.);
+	}
+	
+	if(badmodule.errorType == 2 && ip.first<=79){
+	  i->second.set(0.);
+	}
+
+  } // end pixel loop 
+} // end module_killing_DB
+
+ 
