@@ -1049,8 +1049,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
       fillzoos(8,dccid);
-      mapHTRproblem(dccid,spigot);
-      continue; }
+      mapHTRproblem(dccid,spigot);}
     //    if (dccid ==709) cout << "Passed HTR Check,  Spigot =  " << spigot << endl;
 
 
@@ -1076,15 +1075,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       channAOK=true;
       // Beginning digitized hit of this Half-HTR?
       if (qie_work==qie_begin) {
-	channum= (3*qie_work->fiber()) - 2 + qie_work->fiberChan();  
-	channDIM_x = (channum*3);
+	channum= (3* (qie_work->fiber() -1)) + qie_work->fiberChan();  
+	channDIM_x = (channum*3)+1;
 	lastcapid=qie_work->capid();
 	samplecounter=1;}
     
       // or the first TS of a this channel's DAQ data?
       else if (qie_work->fiberAndChan() != lastfibchan) {
-	channum= (3*qie_work->fiber()) - 2 + qie_work->fiberChan();
-	channDIM_x = (channum*3);
+	channum= (3* (qie_work->fiber() - 1)) + qie_work->fiberChan();
+	channDIM_x = (channum*3)+1;
 	if (samplecounter != htr.getNDD() ) {
 	  meChannSumm_DataIntegrityCheck_->Fill(chsummDIM_x,chsummDIM_y+1);
 	  meChann_DataIntegrityCheck_[dccid-700]->Fill(channDIM_x, channDIM_y);
@@ -1355,9 +1354,9 @@ void HcalDataFormatMonitor::label_ySpigots(MonitorElement* me_ptr, int ybins) {
 //No size checking; better have enough x-axis bins!
 void HcalDataFormatMonitor::label_xChanns(MonitorElement* me_ptr, int xbins) {
   char label[10];
-  for (int ch=1; ch<=HcalHTRData::CHANNELS_PER_SPIGOT; ch++) {
-    sprintf(label, "Ch %02d", ch);
-    me_ptr->setBinLabel((1+(ch*xbins)), label, 1); //margin of 3 at low value
+  for (int ch=0; ch<=HcalHTRData::CHANNELS_PER_SPIGOT; ch++) {
+    sprintf(label, "Ch %02d", ch+1);
+    me_ptr->setBinLabel((2+(ch*xbins)), label, 1); //margin of 3 at low value
   }
 }
 
