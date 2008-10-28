@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.9 2008/07/16 23:12:56 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.10 2008/07/17 00:51:23 chrjones Exp $
 //
 
 // system include files
@@ -195,13 +195,18 @@ DataAdderTableManager::Sort(int col, bool sortOrder)
 //
 // constructors and destructor
 //
-static void addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet)
+static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet, 
+                                 unsigned int& oLabelWidth)
 {
+   TGLayoutHints* returnValue = new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2);
    TGCompositeFrame* hf = new TGHorizontalFrame(iParent);
-   hf->AddFrame(new TGLabel(hf,iName),new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2));
+   TGLabel* label = new TGLabel(hf,iName);
+   oLabelWidth= label->GetWidth();
+   hf->AddFrame(label, returnValue);
    oSet = new TGTextEntry(hf,"");
    hf->AddFrame(oSet,new TGLayoutHints(kLHintsExpandX|kLHintsCenterY));
-   iParent->AddFrame(hf);
+   iParent->AddFrame(hf, new TGLayoutHints(kLHintsExpandX));
+   return returnValue;
 }
 
 FWGUIEventDataAdder::FWGUIEventDataAdder(
@@ -314,12 +319,35 @@ FWGUIEventDataAdder::createWindow()
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
    
-   addToFrame(vf, "Name:", m_name);
-   addToFrame(vf, "Purpose:", m_purpose);
-   addToFrame(vf,"C++ type:",m_type);
-   addToFrame(vf,"Module label:",m_moduleLabel);
-   addToFrame(vf,"Product instance label:",m_productInstanceLabel);
-   addToFrame(vf,"Process name:",m_processName);
+   unsigned int maxWidth = 0;
+   std::vector<TGLayoutHints*> hints(6);
+   std::vector<unsigned int> widths(6);
+   assert(6==hints.size());
+   unsigned int index = 0;
+   hints[index]=addToFrame(vf, "Name:", m_name,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   ++index;
+   hints[index]=addToFrame(vf, "Purpose:", m_purpose,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   ++index;
+   hints[index]=addToFrame(vf,"C++ type:",m_type,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   ++index;
+   hints[index]=addToFrame(vf,"Module label:",m_moduleLabel,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   ++index;
+   hints[index]=addToFrame(vf,"Product instance label:",m_productInstanceLabel,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   ++index;
+   hints[index]=addToFrame(vf,"Process name:",m_processName,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   
+   std::vector<unsigned int>::iterator itW = widths.begin();
+   for(std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
+       itH != itEnd;
+       ++itH,++itW) {
+      (*itH)->SetPadLeft(maxWidth - *itW);
+   }
    
    m_tableManager= new DataAdderTableManager(&m_useableData);
    m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
