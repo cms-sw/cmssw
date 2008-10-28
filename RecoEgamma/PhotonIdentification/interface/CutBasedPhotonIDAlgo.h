@@ -2,60 +2,13 @@
 #define CutBasedPhotonIDAlgo_H
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIDAlgo.h"
+#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-struct CutBasedPhotonQuantities
-{
-  //Did this pass the cuts in the configuration?
-  bool isLooseEM_;
-  bool isLoosePhoton_;
-  bool isTightPhoton_;
-  
-  //These are analysis quantities calculated in the PhotonIDAlgo class
-  //EcalRecHit isolation
-  float isolationEcalRecHitA_;
-  //HcalRecHit isolation
-  float isolationHcalTowerA_;
-  //Sum of track pT in a cone of dR
-  float isolationSolidTrkConeA_;
-  //Sum of track pT in a hollow cone of outer radius, inner radius
-  float isolationHollowTrkConeA_;
-  //Number of tracks in a cone of dR
-  int nTrkSolidConeA_;
-  //Number of tracks in a hollow cone of outer radius, inner radius
-  int nTrkHollowConeA_;
-
-  //EcalRecHit isolation
-  float isolationEcalRecHitB_;
-  //HcalRecHit isolation
-  float isolationHcalTowerB_;
-  //Sum of track pT in a cone of dR
-  float isolationSolidTrkConeB_;
-  //Sum of track pT in a hollow cone of outer radius, inner radius
-  float isolationHollowTrkConeB_;
-  //Number of tracks in a cone of dR
-  int nTrkSolidConeB_;
-  //Number of tracks in a hollow cone of outer radius, inner radius
-  int nTrkHollowConeB_;
-  //Highest energy 2x5 array
-  float e2x5_;
-  //Highest energy 1x5 array
-  float e1x5_;
-  //log weighted width in ieta
-  float sigmaIetaIeta_;
-  float r9_;
-  //Fiducial flags
-  bool isEBPho_;//Photon is in EB
-  bool isEEPho_;//Photon is in EE
-  bool isEBGap_;//Photon is in supermodule/supercrystal gap in EB
-  bool isEEGap_;//Photon is in crystal gap in EE
-  bool isEBEEGap_;//Photon is in border between EB and EE.
-
-};
 
 class CutBasedPhotonIDAlgo : PhotonIDAlgo {
 
@@ -66,9 +19,20 @@ public:
   virtual ~CutBasedPhotonIDAlgo(){};
 
   void setup(const edm::ParameterSet& conf);
-  void calculate(const reco::Photon*, const edm::Event&, const edm::EventSetup& es, CutBasedPhotonQuantities &phoid);
-  void decideEB(CutBasedPhotonQuantities &phID, const reco::Photon* pho);
-  void decideEE(CutBasedPhotonQuantities &phID, const reco::Photon* pho);
+  void calculate(const reco::Photon*, 
+		 const edm::Event&, const edm::EventSetup& es,
+		 PhotonFiducialFlags& phofid, 
+		 PhotonIsolationVariables& phoisolR03, 
+		 PhotonIsolationVariables& phoisolR04, 
+		 CutBasedPhotonID &phoid);
+  void decideEB(PhotonFiducialFlags phofid, 
+		PhotonIsolationVariables &phoIsolR04, 
+		const reco::Photon* pho, 
+		CutBasedPhotonID&  phID );
+  void decideEE(PhotonFiducialFlags phofid, 
+		PhotonIsolationVariables &phoIsolR04, 
+		const reco::Photon* pho, 
+		CutBasedPhotonID&  phID );
  private:
   
   //Which cuts to do?
