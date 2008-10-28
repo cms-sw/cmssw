@@ -29,7 +29,7 @@ roadSearchClouds = cms.EDFilter("RoadSearchCloudMaker",
     # scale factor for window around phi in which detid's are looked up within a ring
     scalefactorRoadSeedWindow = cms.double(1.5),
     # maximal number of RecHits per DetId in RoadSearchCloud
-    MaxDetHitsInCloudPerDetId = cms.uint32(32),
+    MaxDetHitsInCloudPerDetId = cms.uint32(8),
     IncreaseMaxNumberOfMissedLayersPerCloud = cms.uint32(3),
     # roads service label
     RoadsLabel = cms.string(''),

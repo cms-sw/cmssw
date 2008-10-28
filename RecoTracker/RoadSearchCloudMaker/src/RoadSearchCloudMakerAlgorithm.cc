@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/09/21 15:50:02 $
-// $Revision: 1.52 $
+// $Date: 2008/08/13 18:43:52 $
+// $Revision: 1.53 $
 //
 
 #include <vector>
@@ -184,7 +184,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
   
   // get hit matcher
   SiStripRecHitMatcher* theHitMatcher = new SiStripRecHitMatcher(3.0);
-  
+
+  edm::LogInfo("RoadSearch") << "Found " << inputSeeds->size() << " input seeds.";   
   // loop over seeds
   for ( RoadSearchSeedCollection::const_iterator seed = inputSeeds->begin(); seed != inputSeeds->end(); ++seed) {
     
@@ -206,7 +207,24 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
         
       GlobalPoint innerSeedHitGlobalPosition = tracker->idToDet(innerSeedRingHit->geographicalId())->surface().toGlobal(innerSeedRingHit->localPosition());
       GlobalPoint outerSeedHitGlobalPosition = tracker->idToDet(outerSeedRingHit->geographicalId())->surface().toGlobal(outerSeedRingHit->localPosition());
-        
+ 
+      LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " inner hit (x/y/z): "
+			     << innerSeedHitGlobalPosition.x() << " / "
+			     << innerSeedHitGlobalPosition.y() << " / "
+			     << innerSeedHitGlobalPosition.z();
+      LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " outer hit (x/y/z): "
+			     << outerSeedHitGlobalPosition.x() << " / "
+			     << outerSeedHitGlobalPosition.y() << " / "
+			     << outerSeedHitGlobalPosition.z();
+      
+      LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " inner hit (r/phi): "
+			     << innerSeedHitGlobalPosition.perp() << " / "
+			     << innerSeedHitGlobalPosition.phi();
+      LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " outer hit (r/phi): "
+			     << outerSeedHitGlobalPosition.perp() << " / "
+			     << outerSeedHitGlobalPosition.phi();
+
+
       // extrapolation parameters, phio: [0,2pi]
       double d0 = 0.0;
       double phi0 = -99.;
@@ -250,6 +268,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	      phi0 = phi0h;
 	      k0 = omegah;
 	    }              
+	    LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " trajectory parameters: d0 = "<< d0 << " phi0 = " << phi0;
 	  }
 	}
       } else {
@@ -289,6 +308,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	// caluclate minNumberOfUsedLayersPerCloud, maxNumberOfMissedLayersPerCloud and maxNumberOfConsecutiveMissedLayersPerCloud 
 	// by rounding to integer minFractionOfUsedLayersPerCloud. maxFractionOfMissedLayersPerCloud and maxFractionOfConsecutiveMissedLayersPerCloud
 	unsigned int minNumberOfUsedLayersPerCloud = static_cast<unsigned int>(totalLayers * minFractionOfUsedLayersPerCloud + 0.5);
+	if (minNumberOfUsedLayersPerCloud < 3) minNumberOfUsedLayersPerCloud = 3;
 	unsigned int maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
 	unsigned int maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
 
@@ -320,6 +340,9 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	    }
 	    if (ringPhi == -99) continue;
 	    intersectsLayer = true;
+
+	    LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " testing ring at R = " << ringRadius
+				   << " Z = " << ringZ << " ringPhi = " << ringPhi;
               
 	    int nDetIds = (*ring)->getNumDetIds();
 	    double theHalfRoad = theMinimumHalfRoad*(2.0*Geom::pi())/((double)nDetIds);
@@ -345,6 +368,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 								   tracker.product(),theHitMatcher,cloud);
 	      }
 	    }
+	  LogDebug("RoadSearch") << "Seed # " <<seed-inputSeeds->begin() << " now has " << usedHitsInThisLayer << "  hits in ring at R = " << ringRadius
+				 << " Z = " << ringZ << " ringPhi = " << ringPhi;
 	  }
             
 	  if ( !firstHitFound ) {
@@ -358,6 +383,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	      // re-caluclate minNumberOfUsedLayersPerCloud, maxNumberOfMissedLayersPerCloud and maxNumberOfConsecutiveMissedLayersPerCloud 
 	      // by rounding to integer minFractionOfUsedLayersPerCloud. maxFractionOfMissedLayersPerCloud and maxFractionOfConsecutiveMissedLayersPerCloud
 	      minNumberOfUsedLayersPerCloud = static_cast<unsigned int>(totalLayers * minFractionOfUsedLayersPerCloud + 0.5);
+	      if (minNumberOfUsedLayersPerCloud < 3) minNumberOfUsedLayersPerCloud = 3;
 	      maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
 	      maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
 
@@ -381,27 +407,30 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 		++consecutiveMissedLayers;
 	      }
 	    }
-	    LogDebug("RoadSearch") << "Layer info: " 
-				       << " totalLayers: " << totalLayers 
-				       << " usedLayers: " << usedLayers 
-				       << " missedLayers: " << missedLayers
-				       << " consecutiveMissedLayers: " << consecutiveMissedLayers;
+	    LogDebug("RoadSearch") << "Seed # "<<seed-inputSeeds->begin() << " Layer info: " 
+				   << " totalLayers: " << totalLayers 
+				   << " usedLayers: " << usedLayers 
+				   << " missedLayers: " << missedLayers
+				   << " consecutiveMissedLayers: " << consecutiveMissedLayers;
 
 	    // break condition, hole larger than maxNumberOfConsecutiveMissedLayersPerCloud
 	    if ( consecutiveMissedLayers > maxNumberOfConsecutiveMissedLayersPerCloud ) {
-// 	      edm::LogInfo("RoadSearch") << "BREAK: More than " << maxNumberOfConsecutiveMissedLayersPerCloud << " missed consecutive layers!";
+ 	      LogDebug("RoadSearch") << "BREAK: seed # "<<seed-inputSeeds->begin() 
+				     << " More than " << maxNumberOfConsecutiveMissedLayersPerCloud << " missed consecutive layers!";
 	      break;
 	    }
 
 	    // break condition, already  missed too many layers
 	    if ( missedLayers > maxNumberOfMissedLayersPerCloud ) {
-// 	      edm::LogInfo("RoadSearch") << "BREAK: More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
+ 	      LogDebug("RoadSearch") << "BREAK: seed # "<<seed-inputSeeds->begin() 
+				     << " More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
 	      break;
 	    }
 
 	    // break condition, cannot satisfy minimal number of used layers
 	    if ( totalLayers-missedLayers < minNumberOfUsedLayersPerCloud ) {
-// 	      edm::LogInfo("RoadSearch") << "BREAK: Cannot satisfy at least " << minNumberOfUsedLayersPerCloud << " used layers!";
+ 	      LogDebug("RoadSearch") << "BREAK: seed # "<<seed-inputSeeds->begin() 
+				     << " Cannot satisfy at least " << minNumberOfUsedLayersPerCloud << " used layers!";
 	      break;
 	    }
 	  }	  
@@ -415,26 +444,28 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	      CloudArray[phibin][etabin].push_back(cloud);
 
 	      if ( roadType == Roads::RPhi ){ 
-		output_ << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits\n";
+		LogDebug("RoadSearch") << "This r-phi seed # "<<seed-inputSeeds->begin()
+				       <<" yields a cloud with " <<cloud.size() <<" hits on " << usedLayers << " layers out of " << totalLayers;
 	      } else {
-		output_ << "This z-phi seed yields a cloud with "<<cloud.size() <<" hits\n";
+		LogDebug("RoadSearch") << "This z-phi seed # "<<seed-inputSeeds->begin()
+				       <<" yields a cloud with " <<cloud.size() <<" hits on " << usedLayers << " layers out of " << totalLayers;
 	      }
 	    } else {
-// 	      edm::LogInfo("RoadSearch") << "Missed layers: " << missedLayers << " More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
+ 	      LogDebug("RoadSearch") << "Missed layers: " << missedLayers << " More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
 	      if ( roadType == Roads::RPhi ){ 
-		output_ << "This r-phi seed yields no clouds\n";
+		LogDebug("RoadSearch") << "This r-phi seed # "<<seed-inputSeeds->begin() <<" yields no clouds";
 	      } else {
-		output_ << "This z-phi seed yields no clouds\n";
+		LogDebug("RoadSearch") << "This z-phi seed # "<<seed-inputSeeds->begin() <<" yields no clouds";
 	      }
 	    }
 	  }
-// 	  else {
-// 	    edm::LogInfo("RoadSearch") << "Used layers: " << usedLayers << " Cannot satisfy at least " << minNumberOfUsedLayersPerCloud << " used layers!";
-// 	  }
+ 	  else {
+ 	    LogDebug("RoadSearch") << "Seed # "<<seed-inputSeeds->begin() <<" fails: used layers = " << usedLayers << " < " << minNumberOfUsedLayersPerCloud;
+ 	  }
 	}
-// 	else {
-// 	  edm::LogInfo("RoadSearch") << "Consecutive missed layers: " << consecutiveMissedLayers << " more than " << maxNumberOfConsecutiveMissedLayersPerCloud << " missed consecutive layers!";
-// 	}
+ 	else {
+ 	  LogDebug("RoadSearch") << "Seed # "<<seed-inputSeeds->begin() <<" fails: consecutive missed layers = " << consecutiveMissedLayers << " > " << maxNumberOfConsecutiveMissedLayersPerCloud;
+ 	}
       }
     }
   }
@@ -458,6 +489,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 
   delete theHitMatcher;
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " clouds."; 
+  for ( RoadSearchCloudCollection::const_iterator ic = output.begin(); ic!=output.end(); ++ic)
+    edm::LogInfo("RoadSearch") << "    Cloud " << ic-output.begin()<< " has " << ic->size() << " hits."; 
   
 }
 
@@ -482,6 +515,13 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
       const SiStripRecHit2D *recHit = (SiStripRecHit2D*)(*recHitIterator);
       DetId hitId = recHit->geographicalId();
 
+      GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
+      //LogDebug("RoadSearch") << "    Testing hit at (x/y/z): " << ghit.x() << " / " << ghit.y() << " / " << ghit.z();
+      LogDebug("RoadSearch") << "    Testing hit at (x/y/z): " 
+			     << tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition()).x() << " / " 
+			     << tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition()).y() << " / " 
+			     << tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition()).z();
+
       if ( roadType == Roads::RPhi ) {
         if (double_ring_layer && isSingleLayer(hitId)) {
           //
@@ -505,6 +545,9 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
             float dp = (hitphi-phi);
             float dx = hitRadius*tan(dp);
             
+	    LogDebug("RoadSearch") << "   Hit phi = " << hitphi << " expected phi = " << phi
+				       <<"  dx = " << dx << " for dxMax = " << phiMax(roadType,phi0,k0);
+
             // switch cut to dx instead of dphi
             if ( std::abs(dx) < phiMax(roadType,phi0,k0) ) {
               if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
@@ -526,6 +569,8 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
               
 	    float dp = (hitphi-phi);
 	    float dx = hitRadius*tan(dp);
+	    LogDebug("RoadSearch") << "   Hit phi = " << hitphi << " expected phi = " << phi
+				       <<"  dx = " << dx << " for dxMax = " << phiMax(roadType,phi0,k0);
 	    // switch cut to dx instead of dphi
 	    if ( std::abs(dx) < phiMax(roadType,phi0,k0) ) {
               if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
@@ -562,6 +607,11 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 
 	    double dxinter = CheckXYIntersection(innerHitLocal, outerHitLocal, 
 					       innerRoadLocal, outerRoadLocal);
+
+	    LogDebug("RoadSearch") << " Hit phi inner = " << innerHitGlobal.phi() << " and outer = " << outerHitGlobal.phi()
+				   << " expected inner phi = " << innerExtrapolatedPhi
+				   << " and outer phi = "      << outerExtrapolatedPhi
+				   <<"  dx = " << dxinter << " for dxMax = " << phiMax(roadType,phi0,k0);
 
 	    if ( fabs(dxinter) < phiMax(roadType,phi0,k0)) {
 	      //

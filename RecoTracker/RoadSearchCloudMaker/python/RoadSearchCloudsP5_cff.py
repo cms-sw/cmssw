@@ -28,3 +28,4 @@ roadSearchCloudsP5.IncreaseMaxNumberOfConsecutiveMissedLayersPerCloud = 0
 roadSearchCloudsP5.IncreaseMaxNumberOfMissedLayersPerCloud = 0
 roadSearchCloudsP5.StraightLineNoBeamSpotCloud = True
 
+roadSearchCloudsP5.MaxDetHitsInCloudPerDetId = 4
