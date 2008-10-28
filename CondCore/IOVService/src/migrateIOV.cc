@@ -7,24 +7,21 @@
 
 namespace cond {
 
-
   IOVSequence * migrateIOV(IOV const & iov) {
+    const std::string invalidToken(" ");
     IOVSequence * result = new IOVSequence(iov.timetype,iov.firstsince,"");
     (*result).iovs().reserve(iov.iov.size());
     std::for_each(iov.iov.begin(),iov.iov.end(),
 		  boost::bind(&IOVSequence::add,result,
 			      boost::bind(&IOV::Item::first,_1),
 			      boost::bind(&IOV::Item::second,_1),
-			      std::string("")
+			      invalidToken
 			      )
 		  );
-      return result;
+    return result;
   }
-
-
-
-
-
+  
+  
   IOV * backportIOV(IOVSequence const & sequence) {
     IOV * result = new IOV(sequence.timeType(), sequence.firstsince());
     (*result).iov.reserve(sequence.iovs().size());
@@ -34,10 +31,7 @@ namespace cond {
 			      boost::bind(&IOVSequence::Item:: payloadToken,_1)
 			      )
 		  );
-      return result;
+    return result;
   }
-
-
-
 
 }
