@@ -24,21 +24,14 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 #        int32 max_queue_depth = 5
 #    }
 
-#process.load("run39924_cfi")
-#process.load("run080428_164658_cfi")
-#process.load("run080515_095949_cfi")
-#process.load("run080528_190406_cfi")
-process.load("run080609_103605_cfi")
-#process.load("run080625_103525_cfi")
-#process.load("run51792_cfi")
+process.load("localrun_cfi")
 
-#    source = PoolSource {
-#	untracked vstring fileNames = {"file:/data0/slava/data/csc_00014419.root"}
-#        untracked uint32 debugVebosity = 10
-#        untracked bool   debugFlag     = false
-##	untracked uint32 skipEvents    = 2370
-#    }
-
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
+##        untracked uint32 debugVebosity = 10
+##        untracked bool   debugFlag     = false
+###	untracked uint32 skipEvents    = 2370
+#)
 #process.load("run43434_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -57,6 +50,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # es_source of ideal geometry
 # ===========================
+#process.load("Configuration/StandardSequences/Geometry_cff")
+
 # endcap muon only...
 process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
 
@@ -103,10 +98,12 @@ process.cscunpacker = cms.EDFilter("CSCDCCUnpacker",
 # CSC Trigger Primitives configuration
 # ====================================
 process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
-# replace l1csctpconf.isMTCC = true # MTCC version
-# replace l1csctpconf.isTMB07 = true # TMB07 firmware version
-# replace l1csctpconf.alctParamMTCC2.alctDriftDelay = 2
-# replace l1csctpconf.alctParamMTCC2.alctL1aWindow  = 7
+process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesDBConfig_cff")
+# process.l1csctpconf.alctParamMTCC2.alctDriftDelay = 2
+# process.l1csctpconf.alctParamMTCC2.alctL1aWindowWidth = 7
+#process.l1csctpconf.alctParamMTCC2.alctDriftDelay = 9
+#process.l1csctpconf.alctParamMTCC2.alctL1aWindowWidth = 9
+
 
 # CSC Trigger Primitives emulator
 # ===============================
@@ -123,17 +120,23 @@ process.load("CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
 process.lctreader.isMTCCData = False
 
+#process.myfilter = cms.EDFilter(
+#  'EventNumberFilter',
+#  runEventNumbers = cms.vuint32(1,4309, 1,4310)
+#)
+
 # Output
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/lcts_080609_103605.root"),
-    #fileName = cms.untracked.string("/data0/slava/test/lcts_run080625_103525.root"),
-    #fileName = cms.untracked.string("/data0/slava/test/lcts_run51792.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_run58731.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run59318.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run65882.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
 
 # Scheduler path
 # ==============
+#process.p = cms.Path(process.myfilter*process.cscunpacker*process.cscTriggerPrimitiveDigis*process.lctreader)
 process.p = cms.Path(process.cscunpacker*process.cscTriggerPrimitiveDigis*process.lctreader)
 process.ep = cms.EndPath(process.out)
