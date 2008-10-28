@@ -84,7 +84,7 @@ class Summary {
     void SetValue(const HWStatusBit bit, const int value = 1);
     void SetValue(Address adr, const HWStatusBit bit, const int value = 1);
 
-    const HWStatusBitSet GetValue(Address& adr) const;
+    const HWStatusBitSet GetValue(Address adr) const;
     const int IsPhysicsReady(const unsigned int px, const unsigned int py);
     //const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 

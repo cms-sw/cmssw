@@ -135,6 +135,13 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
           ReSetValue(adr, HOT);
           ReSetValue(adr, COLD);
 
+          /*
+          std::cout << "adr = " << detector.AddressName(adr);
+          std::cout << ", x = " << x << ", y = " << y;
+          std::cout << ", value = " << GetValue(adr);
+          std::cout << "\n";
+          */
+
           // No data? Still not reporting...
           if (n == 0) {
             ReSetValue(adr, DATA);
@@ -161,6 +168,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
             }
 
           }
+
         }
 
       }
@@ -351,7 +359,6 @@ void Summary::WriteChamberState(TH2*& h2, const int mask, const int value, const
         }
       }
     }
-
 
   }
 }
@@ -673,7 +680,7 @@ const double Summary::GetReportingArea(Address adr) const {
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
-const HWStatusBitSet Summary::GetValue(Address& adr) const {
+const HWStatusBitSet Summary::GetValue(Address adr) const {
 
   HWStatusBitSet state;
   state.reset();
@@ -839,25 +846,48 @@ const bool Summary::ChamberAddressToCoords(const Address& adr, unsigned int& x, 
   x = adr.chamber;
   y = 0;
 
-  if (adr.station == 4) {
-    y = 1;
-    if (adr.ring == 1) y = 2;
+  if (adr.side == 1) {
+    switch (adr.station) {
+      case 1:
+        y = 10;
+        if (adr.ring == 2) y = 11;
+        if (adr.ring == 3) y = 12;
+        break;
+      case 2:
+        y = 13;
+        if (adr.ring == 2) y = 14;
+        break;
+      case 3:
+        y = 15;
+        if (adr.ring == 2) y = 16;
+        break;
+      case 4:
+        y = 17;
+        if (adr.ring == 2) y = 18;
+        break;
+    }
   } else
-  if (adr.station == 3) {
-    y = 3;
-    if (adr.ring == 1) y = 4;
-  } else
-  if (adr.station == 2) {
-    y = 5;
-    if (adr.ring == 1) y = 6;
-  } else
-  if (adr.station == 1) {
-    y = 7;
-    if (adr.ring == 2) y = 8;
-    if (adr.ring == 1) y = 9;
+  if (adr.side == 2) {
+    switch (adr.station) {
+      case 1:
+        y = 7;
+        if (adr.ring == 2) y = 8;
+        if (adr.ring == 1) y = 9;
+        break;
+      case 2:
+        y = 5;
+        if (adr.ring == 1) y = 6;
+        break;
+      case 3:
+        y = 3;
+        if (adr.ring == 1) y = 4;
+        break;
+      case 4:
+        y = 1;
+        if (adr.ring == 1) y = 2;
+        break;
+    }
   }
-
-  if (adr.side == 1) y = 19 - y;
 
   return true;
 
