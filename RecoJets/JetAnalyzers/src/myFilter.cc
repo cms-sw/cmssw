@@ -356,18 +356,16 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     double caloMET    = calomet->pt();
     double caloMETSig = calomet->mEtSig();
     double caloSumET  = calomet->sumEt();
-    if (caloMET > 100.) filter_MET = true;
+    if ((caloMET > 300.) && (evtType = 0)) filter_MET = true;
   }
 
 
+  if (nRBX > 3) filter_NRBX = true;
 
   // *********************************************************
   _nEvent++;  
-  //  if ( (filter_HighPtTower) || (filter_EMF) ) {
 
-  if (nRBX > 3) filter_NRBX = true;
-
-  if (filter_NRBX) {
+  if (filter_MET) {
     result = true;
     _acceptedEvt++;
   }

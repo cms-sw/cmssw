@@ -41,6 +41,15 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 // #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+// #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include <TROOT.h>
@@ -230,7 +239,7 @@ void myJetAna::beginJob( const EventSetup & ) {
 
 // ************************
 // ************************
-void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
+void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
  
   int EtaOk10, EtaOk13, EtaOk40;
 
@@ -247,7 +256,6 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
   // --------------------------------------------------------------
   // --------------------------------------------------------------
-
   
   // *********************
   // *** Classify Event
@@ -364,10 +372,56 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
 
   // **************************************************************
+  // ** Access Trigger Information
+  // **************************************************************
+
+  // **** Get the TriggerResults container
+  edm::Handle<TriggerResults> triggerResults;
+  evt.getByLabel("TriggerResults::HLT", triggerResults);
+  //  evt.getByLabel("TriggerResults::FU", triggerResults);
+
+  Int_t JetLoPass = 0;
+
+  if (triggerResults.isValid()) {
+    if (DEBUG) std::cout << "trigger valid " << std::endl;
+    edm::TriggerNames triggerNames;    // TriggerNames class
+    triggerNames.init(*triggerResults);
+    unsigned int n = triggerResults->size();
+    for (unsigned int i=0; i!=n; i++) {
+
+      //      std::cout << ">>> Trigger Name = " << triggerNames.triggerName(i)
+      //                << " Accept = " << triggerResults.accept(i)
+      //                << std::endl;
+
+      if ( triggerNames.triggerName(i) == "HLT_Jet30" ) {
+        JetLoPass =  triggerResults->accept(i);
+        if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
+      }
+
+    }
+      
+  } else {
+
+    edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
+    triggerResults = (*tr);
+    //     std::cout << "triggerResults is not valid" << std::endl;
+    //     std::cout << triggerResults << std::endl;
+    //     std::cout << triggerResults.isValid() << std::endl;
+    
+    if (DEBUG) std::cout << "trigger not valid " << std::endl;
+    edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
+      "automatically select events";
+    //return;
+  }
+
+
+
+  // **************************************************************
   // ** Loop over the two leading CaloJets and fill some histograms
   // **************************************************************
   Handle<CaloJetCollection> caloJets;
   evt.getByLabel( CaloJetAlgorithm, caloJets );
+
 
   jetInd    = 0;
   allJetInd = 0;
