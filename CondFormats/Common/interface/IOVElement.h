@@ -32,8 +32,13 @@ namespace cond {
   };
 
 
-
 } // ns cond
+
+bool operator==(cond::IOVElement const & lh, cond::IOVElement const & rh) {
+  return lh.tillTime()==rh.tillTime()
+    &&  lh.hpayloadToken()==rh.payloadToken()
+    &&  lh.metadataToken()==rh.metadataToken();
+}
 
 
 #endif // IOVElement_h
