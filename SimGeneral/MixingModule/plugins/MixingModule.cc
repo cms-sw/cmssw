@@ -236,7 +236,7 @@ namespace edm
     playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
   }
 
-  void MixingModule::put(edm::Event &e) {
+  void MixingModule::put(edm::Event &e, const edm::EventSetup& setup) {
 
     if (playbackInfo_) {
       std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);

@@ -54,7 +54,7 @@ namespace edm
  
     private:
       virtual bool verifyRegistry(std::string object, std::string subdet,InputTag &tag,std::string &label);
-      virtual void put(edm::Event &e) ;
+      virtual void put(edm::Event &e,const edm::EventSetup& e);
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& e); 
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& e);
