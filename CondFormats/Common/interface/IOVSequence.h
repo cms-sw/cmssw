@@ -34,7 +34,6 @@ namespace cond {
     iterator find(cond::Time_t time);
 
     const_iterator find(cond::Time_t time) const;
-""
 
     cond::TimeType timeType() const { return cond::timeTypeSpecs[m_timetype].type;}
 

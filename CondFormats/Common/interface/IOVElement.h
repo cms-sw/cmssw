@@ -34,9 +34,9 @@ namespace cond {
 
 } // ns cond
 
-bool operator==(cond::IOVElement const & lh, cond::IOVElement const & rh) {
+inline bool operator==(cond::IOVElement const & lh, cond::IOVElement const & rh) {
   return lh.tillTime()==rh.tillTime()
-    &&  lh.hpayloadToken()==rh.payloadToken()
+    &&  lh.payloadToken()==rh.payloadToken()
     &&  lh.metadataToken()==rh.metadataToken();
 }
 
