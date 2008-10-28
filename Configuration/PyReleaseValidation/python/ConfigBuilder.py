@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.94 $"
+__version__ = "$Revision: 1.95 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -340,7 +340,6 @@ class ConfigBuilder(object):
 	if self._options.eventcontent != None:
 	    self.eventcontent=self._options.eventcontent	
 
-
 # for alca, skims, etc
     def addExtraStream(self,name,stream):
 # define output module and go from there
@@ -578,7 +577,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.94 $"),
+              (version=cms.untracked.string("$Revision: 1.95 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
