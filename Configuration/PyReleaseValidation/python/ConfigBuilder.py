@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.93 $"
+__version__ = "$Revision: 1.94 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -274,7 +274,7 @@ class ConfigBuilder(object):
 	self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
 	self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
 	self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
-	self.L1MENUDefaultCFF='L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030.L1Menu2008_2E30_Unprescaled_cff'
+	self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
 	self.HLTDefaultCFF="HLTrigger/Configuration/HLT_2E30_cff"
 	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
@@ -578,7 +578,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.93 $"),
+              (version=cms.untracked.string("$Revision: 1.94 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
