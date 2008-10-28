@@ -224,9 +224,11 @@ ostream& reco::operator<<(  ostream& out,
   int iHF = 0;
 
   // for each element in turn
+  std::vector<bool> toPrint(elements.size(),static_cast<bool>(true));
   for(unsigned ie=0; ie<elements.size(); ie++) {
     
     PFBlockElement::Type type = elements[ie].type();
+    std::multimap<double, unsigned> ecalElems;
     switch(type){
     case PFBlockElement::TRACK:
       iTK++;
@@ -237,8 +239,16 @@ ostream& reco::operator<<(  ostream& out,
       ss << "GSF" << iGSF;
       break;
     case PFBlockElement::BREM:
+      block.associatedElements( ie,  block.linkData(),
+				ecalElems ,
+				reco::PFBlockElement::ECAL,
+				reco::PFBlock::LINKTEST_ALL );
       iBREM++;
-      ss << "BR" << iBREM;
+      if ( ecalElems.size() ) { 
+	ss << "BR" << iBREM;
+      } else {
+	toPrint[ie] = false;
+      }
       break;    
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();
@@ -285,7 +295,7 @@ ostream& reco::operator<<(  ostream& out,
     // clear stringstream
     ss.str("");
 
-    out<<"\t"<< s <<" "<<elements[ie] <<endl;
+    if ( toPrint[ie] ) out<<"\t"<< s <<" "<<elements[ie] <<endl;
   }
   
   out<<endl;
@@ -294,15 +304,18 @@ ostream& reco::operator<<(  ostream& out,
     out<<"\tlink data (chi squared): "<<endl;
     out<<setiosflags(ios::right);
     out<<"\t" << setw(width) << " ";
-    for(unsigned ie=0; ie<elid.size(); ie++) out <<setw(width)<< elid[ie];
+    for(unsigned ie=0; ie<elid.size(); ie++) 
+      if ( toPrint[ie] ) out <<setw(width)<< elid[ie];
     out<<endl;  
     out<<setiosflags(ios::fixed);
     out<<setprecision(1);      
   
     for(unsigned i=0; i<block.elements_.size(); i++) {
+      if ( !toPrint[i] ) continue;
       out<<"\t";
       out <<setw(width) << elid[i];
       for(unsigned j=0; j<block.elements_.size(); j++) {
+	if ( !toPrint[j] ) continue;
         double chi2 = block.chi2(i,j, block.linkData() );
 
 	//Note Alex: we might want to print out all the
@@ -329,15 +342,18 @@ ostream& reco::operator<<(  ostream& out,
     out<<endl<<"\tlink data (distance x 1000): "<<endl;
     out<<setiosflags(ios::right);
     out<<"\t" << setw(width) << " ";
-    for(unsigned ie=0; ie<elid.size(); ie++) out <<setw(width)<< elid[ie];
+    for(unsigned ie=0; ie<elid.size(); ie++) 
+      if ( toPrint[ie] ) out <<setw(width)<< elid[ie];
     out<<endl;  
     out<<setiosflags(ios::fixed);
     out<<setprecision(1);      
   
     for(unsigned i=0; i<block.elements_.size(); i++) {
+      if ( !toPrint[i] ) continue;
       out<<"\t";
       out <<setw(width) << elid[i];
       for(unsigned j=0; j<block.elements_.size(); j++) {
+	if ( !toPrint[j] ) continue;
         double Dist = block.dist(i,j, block.linkData(),PFBlock::LINKTEST_ALL);
 
 	if (Dist > -0.5) out<<setw(width)<< Dist*1000.; 
