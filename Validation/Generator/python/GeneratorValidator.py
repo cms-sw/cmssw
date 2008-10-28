@@ -231,7 +231,7 @@ class JobManager:
                             cfile.write(template.safe_substitute(directory=scratch, cfg = scratch+'/'+cfg_filename, CMSSW=CMS_dir ))
                             cfile.close()
                             os.chmod(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 0755)
-                            status, output = commands.getstatusoutput("condor_submit " + scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0])
+                            status, output = commands.getstatusoutput("bsub " + scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0])
                             for line in output.split('\n'):
                                 if "submitted" in line:
                                     self.__jobNumber[file.split('.')[0].split('__')[0]].append(line.split(' ')[2].lstrip('<').rstrip('>'))
