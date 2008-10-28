@@ -20,6 +20,9 @@ namespace edm {
     virtual std::auto_ptr<Worker> makeWorker(WorkerParams const&,
                                              sigc::signal<void, ModuleDescription const&>& iPre,
                                              sigc::signal<void, ModuleDescription const&>& iPost) const = 0;
+  protected:
+    ModuleDescription createModuleDescription(WorkerParams const &p) const;
+    void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, cms::Exception const& iException) const;
   };
 
   template <class T>
@@ -27,7 +30,7 @@ namespace edm {
   public:
     //typedef T worker_type;
     explicit WorkerMaker();
-    std::auto_ptr<Worker> makeWorker(WorkerParams const&,
+    virtual std::auto_ptr<Worker> makeWorker(WorkerParams const&,
                                      sigc::signal<void, ModuleDescription const&>&,
                                      sigc::signal<void, ModuleDescription const&>&) const;
   };
@@ -44,30 +47,19 @@ namespace edm {
     typedef typename UserType::ModuleType ModuleType;
     typedef typename UserType::WorkerType WorkerType;
 
-    ParameterSet const& procParams = *p.procPset_;
-    ParameterSet const& conf = *p.pset_;
-    ModuleDescription md;
-    md.parameterSetID_ = conf.id();
-    md.moduleName_ = conf.template getParameter<std::string>("@module_type");
-    md.moduleLabel_ = conf.template getParameter<std::string>("@module_label");
-    md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_); 
+    ModuleDescription md = createModuleDescription(p);
 
     std::auto_ptr<Worker> worker;
     try {
        pre(md);
-       std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, conf));
+       std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));
        post(md);
     } catch( cms::Exception& iException){
-       edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
-       toThrow<<md.moduleName_<<" with label "<<md.moduleLabel_<<"\n";
-       toThrow.append(iException);
-       post(md);
-       throw toThrow;
+       throwConfigurationException(md, post, iException);
     }
     return worker;
   }
-
 }
 
 #endif

@@ -60,7 +60,6 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.11 2007/06/14 17:52:15 wmtan Exp $
 //
 
 // system include files
@@ -76,82 +75,64 @@
 namespace edm {
    namespace eventsetup {
 
-template <class T>
- class NoDataException : public cms::Exception
+class NoDataExceptionBase : public cms::Exception
 {
-      // ---------- friend classes and functions ---------------
+public:
+  NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
+                        const DataKey& iDataKey,
+                        const char* category_name = "NoDataException") ;
+  NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
+                        const DataKey& iDataKey,
+                        const char* category_name ,
+                        const std::string& iExtraInfo );
+  virtual ~NoDataExceptionBase() throw();
+  const DataKey& dataKey() const;
+protected:
+  static std::string standardMessage(const EventSetupRecordKey& iKey);
+  const std::string &beginDataTypeMessage() const;
+  void endDataTypeMessage() const;
+  // ---------- Constructors and destructor ----------------
+  //NoDataExceptionBase(const NoDataExceptionBase&) ; //allow default
+  //const NoDataExceptionBase& operator=(const NoDataExceptionBase&); // allow default
 
-   public:
-      // ---------- constants, enums and typedefs --------------
+  // ---------- data members -------------------------------
+  EventSetupRecordKey record_;
+  DataKey dataKey_;
+  mutable std::string dataTypeMessage_;
+};
 
-      // ---------- Constructors and destructor ----------------
-      NoDataException(const EventSetupRecordKey& iRecordKey,
-                      const DataKey& iDataKey,
-                      const char* category_name = "NoDataException") : 
-        cms::Exception(category_name),
-        record_(iRecordKey),
-        dataKey_(iDataKey),
-        dataTypeMessage_()
-        {
-          this->append(dataTypeMessage()+std::string("\n "));
-          this->append(standardMessage(iRecordKey));
-        }
+template <class T>
+ class NoDataException : public NoDataExceptionBase 
+{
+public:
+  NoDataException(const EventSetupRecordKey& iRecordKey,
+                  const DataKey& iDataKey,
+                  const char* category_name = "NoDataException") :
+  NoDataExceptionBase(iRecordKey, iDataKey, category_name)
+  {
+    this->append(dataTypeMessage()+std::string("\n "));
+    this->append(standardMessage(iRecordKey));
+  }
 
-      NoDataException(const EventSetupRecordKey& iRecordKey,
-		      const DataKey& iDataKey,
-		      const char* category_name ,
-                      const std::string& iExtraInfo ) : 
-	cms::Exception(category_name),
-	record_(iRecordKey),
-	dataKey_(iDataKey),
-        dataTypeMessage_()
-      {
-        this->append(dataTypeMessage()+std::string("\n "));
-	this->append(iExtraInfo);
-      }
-      virtual ~NoDataException() throw() {}
+  NoDataException(const EventSetupRecordKey& iRecordKey,
+                  const DataKey& iDataKey,
+                  const char* category_name ,
+                  const std::string& iExtraInfo ) :
+  NoDataExceptionBase(iRecordKey, iDataKey, category_name, iExtraInfo)  
+  {
+    this->append(dataTypeMessage()+std::string("\n "));
+    this->append(iExtraInfo);
+  }
 
-      // ---------- const member functions ---------------------
-      const DataKey& dataKey() const { return dataKey_; }
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-   
-   protected:
-      const std::string& dataTypeMessage () const { 
-	 if(dataTypeMessage_.size() == 0) {
-
-	    dataTypeMessage_ = std::string("No data of type ") 
-	       +"\""
-            +heterocontainer::HCTypeTagTemplate<T,DataKey>::className() 
-	       +"\" with label "
-	       +"\""
-	         +dataKey_.name().value() 
-	       +"\" "
-	       +"in record \""
-	       +record_.name()
-               +"\"";
-	 }
-	 return dataTypeMessage_;
-      }
-
-   private:
-      static std::string standardMessage(const EventSetupRecordKey& iKey) {
-         return std::string(" A provider for this data exists, but it's unable to deliver the data for this \"")
-         +iKey.name()
-         +"\" record.\n Perhaps no valid data exists for this event? Please check the data's interval of validity.\n";
-      }                                    
-      // ---------- Constructors and destructor ----------------
-      //NoDataException(const NoDataException&) ; //allow default
-
-      //const NoDataException& operator=(const NoDataException&); // allow default
-
-      // ---------- data members -------------------------------
-      EventSetupRecordKey record_;
-      DataKey dataKey_;
-      mutable std::string dataTypeMessage_;
-      
+protected:
+  const std::string& dataTypeMessage () const {
+       if(this->dataTypeMessage_.size() == 0) {
+	  this->beginDataTypeMessage() 
+             + heterocontainer::HCTypeTagTemplate<T,DataKey>::className();
+         this->endDataTypeMessage();
+       }
+       return this->dataTypeMessage_;
+   }
 };
 
    }

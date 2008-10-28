@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.17 2007/08/27 16:10:11 wmtan Exp $
 //
 
 // system include files
@@ -35,22 +34,34 @@ namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
       class DataProxyProvider;
-     
-template <class T>
-      class ComponentMakerBase {
-public:
-         virtual ~ComponentMakerBase() {}
+    
+      class ComponentMakerBaseHelper
+      {
+      public:
+        virtual ~ComponentMakerBaseHelper() {}
+      protected:
+        ComponentDescription createComponentDescription(ParameterSet const& iConfiguration,
+                                                       std::string const& iProcessName,
+                                                       ReleaseVersion const& iVersion,
+                                                       PassID const& iPass) const;
+      };
+ 
+      template <class T>
+      class ComponentMakerBase : private ComponentMakerBaseHelper {
+      public:
          typedef typename T::base_type base_type;
          virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
                      ParameterSet const& iConfiguration,
                      std::string const& iProcessName,
                      ReleaseVersion const& iVersion,
                      PassID const& iPass) const = 0;
+      protected:
+	using ComponentMakerBaseHelper::createComponentDescription;
       };
       
-template <class T, class TComponent>
+   template <class T, class TComponent>
    class ComponentMaker : public ComponentMakerBase<T>
-{
+   {
 
    public:
    ComponentMaker() {}
@@ -67,7 +78,6 @@ template <class T, class TComponent>
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-
    private:
       ComponentMaker(const ComponentMaker&); // stop default
 
@@ -96,22 +106,18 @@ template <class T, class TComponent>
 
 template< class T, class TComponent>
 boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
-ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
+ComponentMaker<T,TComponent>::addTo(EventSetupProvider& iProvider,
                                         ParameterSet const& iConfiguration,
                                         std::string const& iProcessName,
                                         ReleaseVersion const& iVersion,
                                         PassID const& iPass) const
 {
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
-   
-   ComponentDescription description;
-   description.type_  = iConfiguration.template getParameter<std::string>("@module_type");
-   description.label_ = iConfiguration.template getParameter<std::string>("@module_label");
-
-   description.releaseVersion_ = iVersion;
-   description.pid_           = iConfiguration.id();
-   description.processName_   = iProcessName;
-   description.passID_          = iPass;
+   ComponentDescription description =
+       this->createComponentDescription(iConfiguration,
+                                        iProcessName,
+                                        iVersion,
+                                        iPass);
       
    this->setDescription(component.get(),description);
    this->setDescriptionForFinder(component.get(),description);
