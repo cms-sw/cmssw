@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.13 2008/09/26 07:08:58 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.14 2008/09/29 18:00:23 amraktad Exp $
 //
 
 // system include files
@@ -224,7 +224,9 @@ FWGlimpseView::~FWGlimpseView()
    glviewer->fFrame=0;
    delete glviewer;
    
-   delete m_viewer;
+   m_viewer->Destroy();
+   m_scene->Destroy();
+   //delete m_viewer;
 }
 
 void 

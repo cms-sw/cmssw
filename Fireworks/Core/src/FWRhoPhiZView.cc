@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.24 2008/09/27 16:57:59 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.25 2008/09/29 18:00:23 amraktad Exp $
 //
 
 #define private public
@@ -194,8 +194,12 @@ FWRhoPhiZView::~FWRhoPhiZView()
    TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
    glviewer->fFrame=0;
    delete glviewer;
-   delete m_viewer;
-   delete m_projMgr;
+   m_viewer->Destroy();
+   //delete m_viewer;
+   //delete m_projMgr;
+   m_projMgr->Destroy();
+   m_scene->Destroy();
+   m_axes->Destroy();
 }
 
 //

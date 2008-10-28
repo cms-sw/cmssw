@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.23 2008/09/26 07:08:58 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.24 2008/09/29 18:00:23 amraktad Exp $
 //
 
 // system include files
@@ -174,7 +174,9 @@ FWEveLegoView::~FWEveLegoView()
    glviewer->fFrame=0;
    delete glviewer;
    
-   delete m_viewer;
+   m_viewer->Destroy();
+   m_scene->Destroy();
+   //delete m_viewer;
 }
 
 void

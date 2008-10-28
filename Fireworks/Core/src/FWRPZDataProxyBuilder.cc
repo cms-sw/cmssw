@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.17 2008/07/01 19:14:54 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.18 2008/07/10 21:21:58 dmytro Exp $
 //
 
 // system include files
@@ -83,7 +83,8 @@ FWRPZDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
    m_needsUpdate=false;
    if(0!=m_elements) {
       //m_elements->DestroyElements();
-      delete m_elements;
+      m_elements->Destroy();
+      //delete m_elements;
       m_elements=0;
    }
 }

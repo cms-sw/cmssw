@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.14 2008/07/25 14:45:36 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.15 2008/08/24 13:24:50 dmytro Exp $
 //
 
 // system include files
@@ -111,7 +111,8 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
 FWEveLegoViewManager::~FWEveLegoViewManager()
 {
    delete m_data;
-   delete m_lego;
+   m_lego->Destroy();
+   //delete m_lego;
 }
 
 //

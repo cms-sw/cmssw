@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.12 2008/06/25 22:23:36 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.13 2008/07/01 04:43:54 chrjones Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ FWRPZ2DDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    if(0!=m_rhoPhiElements) {
       //m_rhoPhiElements->DestroyElements();
-      delete m_rhoPhiElements;
+       m_rhoPhiElements->Destroy();
    }
    bool unique = m_rhoPhiElements!=m_rhoZElements;
    m_rhoPhiElements=0;
@@ -101,7 +101,7 @@ FWRPZ2DDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
       if(0!=m_rhoZElements) {
          //m_rhoZElements->DestroyElements();
       }
-      delete m_rhoZElements;
+      m_rhoZElements->Destroy();
       m_rhoZElements=0;
    }
 }
