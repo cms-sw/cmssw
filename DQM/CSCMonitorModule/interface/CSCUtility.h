@@ -26,6 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include "stdint.h"
 
 /**
  * Type Definition Section
@@ -54,6 +55,15 @@ bool stringToNumber(T& t, const std::string& s, std::ios_base& (*f)(std::ios_bas
   return !(iss >> f >> t).fail();
 }
 
+#undef get16bits
+#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
+#define get16bits(d) (*((const uint16_t *) (d)))
+#endif
+
+#if !defined (get16bits)
+#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]) )
+#endif
+
 class CSCUtility {
 
   public:
@@ -71,7 +81,7 @@ class CSCUtility {
     static int tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " ");
     static void splitString(std::string str, const std::string delim, std::vector<std::string>& results);
     static void trimString(std::string& str);
-
+    static uint32_t fastHash(const char * data, int len);
 
 };
 

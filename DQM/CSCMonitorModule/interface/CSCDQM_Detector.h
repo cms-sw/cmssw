@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDetector.h
+ *       Filename:  CSCDQM_Detector.h
  *
  *    Description:  CSC detector functions.
  *
@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef CSCDQM_CSCDetector_H
-#define CSCDQM_CSCDetector_H
+#ifndef CSCDQM_Detector_H
+#define CSCDQM_Detector_H
 
 #include <math.h>
 #include <float.h>
@@ -28,6 +28,8 @@
 #include <iomanip>
 
 #include "DQM/CSCMonitorModule/interface/CSCUtility.h"
+
+namespace cscdqm {
 
 #define N_SIDES    2
 #define N_STATIONS 4
@@ -48,7 +50,7 @@
 //#define P_X(i)        int(i / partitions_y)
 //#define P_Y(i,x)      (i - x * partitions_y)
 
-struct CSCAddressMask {
+typedef struct AddressMask {
   bool side;
   bool station;
   bool ring;
@@ -58,7 +60,7 @@ struct CSCAddressMask {
   bool hv;
 };
 
-struct CSCAddress {
+typedef struct Address {
 
   unsigned int side;
   unsigned int station;
@@ -68,9 +70,9 @@ struct CSCAddress {
   unsigned int cfeb;
   unsigned int hv;
 
-  CSCAddressMask mask;
+  AddressMask mask;
 
-  const bool operator== (const CSCAddress& a) const {
+  const bool operator== (const Address& a) const {
     if (mask.side    == a.mask.side    && mask.side    == true && side    != a.side)    return false;
     if (mask.station == a.mask.station && mask.station == true && station != a.station) return false;
     if (mask.ring    == a.mask.ring    && mask.ring    == true && ring    != a.ring)    return false;
@@ -81,7 +83,7 @@ struct CSCAddress {
     return true;
   };
 
-  CSCAddress* operator= (const CSCAddress& a) {
+  Address* operator= (const Address& a) {
     mask.side    = a.mask.side;
     side         = a.side;
     mask.station = a.mask.station;
@@ -101,15 +103,15 @@ struct CSCAddress {
 
 };
 
-struct CSCAddressBox {
-  CSCAddress adr;
+typedef struct AddressBox {
+  Address adr;
   float xmin;
   float xmax;
   float ymin;
   float ymax;
 };
 
-struct CSCAddressBoxStationPartition {
+struct AddressBoxStationPartition {
   unsigned int from[2];
   unsigned int to[2];
 };
@@ -117,23 +119,23 @@ struct CSCAddressBoxStationPartition {
 typedef std::map<const unsigned int, std::vector<unsigned int> > PartitionMap;
 typedef PartitionMap::iterator PartitionMapIterator;
 
-class CSCDetector {
+class Detector {
 
   public:
 
-    CSCDetector(const unsigned int p_partitions_x = 0, const unsigned int p_partitions_y = 0);
+    Detector(const unsigned int p_partitions_x = 0, const unsigned int p_partitions_y = 0);
 
-    const bool NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const;
-    const bool NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const;
-    //const bool NextAddressBoxByPartition(unsigned int& i, unsigned int& px, unsigned int& py, const CSCAddressBox*& box, const CSCAddress& mask, const float xmin, const float xmax, const float ymin, const float ymax);
-    const bool NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, CSCAddressBox*& box);
+    const bool NextAddress(unsigned int& i, const Address*& adr, const Address& mask) const;
+    const bool NextAddressBox(unsigned int& i, const AddressBox*& box, const Address& mask) const;
+    //const bool NextAddressBoxByPartition(unsigned int& i, unsigned int& px, unsigned int& py, const AddressBox*& box, const Address& mask, const float xmin, const float xmax, const float ymin, const float ymax);
+    const bool NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, AddressBox*& box);
 
     const float Area(const unsigned int station) const;
-    const float Area(const CSCAddress& adr) const;
+    const float Area(const Address& adr) const;
 
-    void PrintAddress(const CSCAddress& adr) const;
-    const std::string AddressName(const CSCAddress& adr) const;
-    const bool AddressFromString(const std::string str_address, CSCAddress& adr) const;
+    void PrintAddress(const Address& adr) const;
+    const std::string AddressName(const Address& adr) const;
+    const bool AddressFromString(const std::string str_address, Address& adr) const;
 
     const unsigned int NumberOfRings(const unsigned int station) const;
     const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring) const;
@@ -151,7 +153,7 @@ class CSCDetector {
     const float PhiMinCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
     const float PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
 
-    CSCAddressBox boxes[N_ELEMENTS];
+    AddressBox boxes[N_ELEMENTS];
     float station_area[N_STATIONS];
 
     unsigned int partitions_x;
@@ -160,8 +162,10 @@ class CSCDetector {
 
     // To improve performance
     PartitionMap partitions;
-    CSCAddressBoxStationPartition station_partitions[N_STATIONS];
+    AddressBoxStationPartition station_partitions[N_STATIONS];
 
 };
+
+}
 
 #endif

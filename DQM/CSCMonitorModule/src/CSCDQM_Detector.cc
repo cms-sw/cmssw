@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCDetector.cc
+ *       Filename:  Detector.cc
  *
- *    Description:  Class CSCDetector implementation
+ *    Description:  Class Detector implementation
  *
  *        Version:  1.0
  *        Created:  05/19/2008 10:59:34 AM
@@ -16,20 +16,22 @@
  * =====================================================================================
  */
 
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCDetector.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Detector.h"
+
+namespace cscdqm {
 
 /**
  * @brief  Constructor
  * @param  
  * @return 
  */
-CSCDetector::CSCDetector(const unsigned int p_partitions_x, const unsigned int p_partitions_y) {
+Detector::Detector(const unsigned int p_partitions_x, const unsigned int p_partitions_y) {
 
   partitions_x = p_partitions_x;
   partitions_y = p_partitions_y;
 
   unsigned int i = 0; 
-  CSCAddress adr;
+  Address adr;
 
   adr.mask.layer = false;
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
@@ -128,7 +130,7 @@ CSCDetector::CSCDetector(const unsigned int p_partitions_x, const unsigned int p
  * @param  station Station number
  * @return Area that is being covered by station
  */
-const float CSCDetector::Area(const unsigned int station) const {
+const float Detector::Area(const unsigned int station) const {
   if (station > 0 && station <= N_STATIONS) {
     return station_area[station - 1];
   }
@@ -140,7 +142,7 @@ const float CSCDetector::Area(const unsigned int station) const {
  * @param  adr Address
  * @return Area that is being covered by address
  */
-const float CSCDetector::Area(const CSCAddress& adr) const {
+const float Detector::Area(const Address& adr) const {
   float a = 0;
   for(unsigned int i = 0; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == adr) {
@@ -155,7 +157,7 @@ const float CSCDetector::Area(const CSCAddress& adr) const {
  * @param  station Station number (1, 2, 3, 4)
  * @return number of rings for the given station
  */
-const unsigned int CSCDetector::NumberOfRings(const unsigned int station) const {
+const unsigned int Detector::NumberOfRings(const unsigned int station) const {
   switch (station) {
     case 1:
       return 3;
@@ -175,7 +177,7 @@ const unsigned int CSCDetector::NumberOfRings(const unsigned int station) const 
  * @param  ring Ring number (1...3)
  * @return number of chambers
  */
-const unsigned int CSCDetector::NumberOfChambers(const unsigned int station, const unsigned int ring) const {
+const unsigned int Detector::NumberOfChambers(const unsigned int station, const unsigned int ring) const {
   if(station == 1 && ring == 1) return 36;
   if(station == 1 && ring == 2) return 36;
   if(station == 1 && ring == 3) return 36;
@@ -193,7 +195,7 @@ const unsigned int CSCDetector::NumberOfChambers(const unsigned int station, con
  * @param  ring Ring number (1...3)
  * @return Number of CFEBs per Chamber
  */
-const unsigned int CSCDetector::NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring) const {
+const unsigned int Detector::NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring) const {
   if(station == 1 && ring == 1) return 4;
   if(station == 1 && ring == 2) return 5;
   if(station == 1 && ring == 3) return 4;
@@ -211,7 +213,7 @@ const unsigned int CSCDetector::NumberOfChamberCFEBs(const unsigned int station,
  * @param  ring Ring number (1...3)
  * @return Number of HVs per Chamber
  */
-const unsigned int CSCDetector::NumberOfChamberHVs(const unsigned int station, const unsigned int ring) const {
+const unsigned int Detector::NumberOfChamberHVs(const unsigned int station, const unsigned int ring) const {
   if(station == 1 && ring == 1) return 2;
   if(station == 1 && ring == 2) return 3;
   if(station == 1 && ring == 3) return 3;
@@ -228,7 +230,7 @@ const unsigned int CSCDetector::NumberOfChamberHVs(const unsigned int station, c
  * @param  adr Address to print
  * @return 
  */
-void CSCDetector::PrintAddress(const CSCAddress& adr) const {
+void Detector::PrintAddress(const Address& adr) const {
 
   std::cout << "Side (" << std::boolalpha << adr.mask.side << ")"; 
   if (adr.mask.side) std::cout <<  " = " << adr.side;
@@ -254,7 +256,7 @@ void CSCDetector::PrintAddress(const CSCAddress& adr) const {
   std::cout << std::endl;
 }
 
-const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const {
+const bool Detector::NextAddress(unsigned int& i, const Address*& adr, const Address& mask) const {
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
         adr = &boxes[i].adr;
@@ -265,7 +267,7 @@ const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, con
   return false;
 }
 
-const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const {
+const bool Detector::NextAddressBox(unsigned int& i, const AddressBox*& box, const Address& mask) const {
 
   /*
   if (mask.mask.station) {
@@ -298,15 +300,15 @@ const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& bo
   return false;
 }
 
-const bool CSCDetector::NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, CSCAddressBox*& box) {
+const bool Detector::NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, AddressBox*& box) {
 
 /*
-const bool CSCDetector::NextAddressBoxByPartition (
+const bool Detector::NextAddressBoxByPartition (
     unsigned int& i,
     unsigned int& px,
     unsigned int& py,
-    const CSCAddressBox*& box,
-    const CSCAddress& mask,
+    const AddressBox*& box,
+    const Address& mask,
     const float xmin, const float xmax,
     const float ymin, const float ymax) {
 
@@ -335,7 +337,7 @@ const bool CSCDetector::NextAddressBoxByPartition (
 
 }
 
-const float CSCDetector::Eta(const float r, const float z) const {
+const float Detector::Eta(const float r, const float z) const {
   if(r > 0.0 || z > 0.0) {
     float sin_theta, cos_theta;
     sin_theta = r/sqrt(r*r+z*z);
@@ -348,7 +350,7 @@ const float CSCDetector::Eta(const float r, const float z) const {
 
 
 // Transform eta coordinate to local canvas coordinate
-const float CSCDetector::EtaToX(const float eta) const {
+const float Detector::EtaToX(const float eta) const {
   float x_min   = -2.5;
   float x_max   =  2.5;
   float eta_min = -2.5;
@@ -359,7 +361,7 @@ const float CSCDetector::EtaToX(const float eta) const {
 }
 
 // Transform phi coordinate to local canvas coordinate
-const float CSCDetector::PhiToY(const float phi) const {
+const float Detector::PhiToY(const float phi) const {
   float y_min   = 0.0;
   float y_max   = 2.0 * 3.14159;
   float phi_min = 0.0;
@@ -369,7 +371,7 @@ const float CSCDetector::PhiToY(const float phi) const {
   return a * phi + b;
 }
 
-const float CSCDetector::Z(const int station, const int ring) const {
+const float Detector::Z(const int station, const int ring) const {
   float z_csc = 0;
   
   if(station == 1 && ring == 1) z_csc = (5834.5 + 6101.5) / 2.0;
@@ -382,7 +384,7 @@ const float CSCDetector::Z(const int station, const int ring) const {
   return z_csc;
 }
 
-const float CSCDetector::RMinHV(const int station, const int ring, const int n_hv) const {
+const float Detector::RMinHV(const int station, const int ring, const int n_hv) const {
   float r_min_hv = 0;
   
   if(station == 1 && ring == 1) {
@@ -431,7 +433,7 @@ const float CSCDetector::RMinHV(const int station, const int ring, const int n_h
   return r_min_hv;
 }
 
-const float CSCDetector::RMaxHV(const int station, const int ring, const int n_hv) const {
+const float Detector::RMaxHV(const int station, const int ring, const int n_hv) const {
   float r_max_hv = 0;
   
   if(station == 1 && ring == 1) {
@@ -480,7 +482,7 @@ const float CSCDetector::RMaxHV(const int station, const int ring, const int n_h
   return r_max_hv;
 }
 
-const float CSCDetector::PhiMinCFEB(const int station, const int ring, const int chamber, const int cfeb) const {
+const float Detector::PhiMinCFEB(const int station, const int ring, const int chamber, const int cfeb) const {
   float phi_min_cfeb;
   
   int n_cfeb = NumberOfChamberCFEBs(station, ring);
@@ -491,7 +493,7 @@ const float CSCDetector::PhiMinCFEB(const int station, const int ring, const int
   return phi_min_cfeb;
 }
 
-const float CSCDetector::PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const {
+const float Detector::PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const {
   float phi_max_cfeb;
   
   int n_cfeb = NumberOfChamberCFEBs(station, ring);
@@ -507,7 +509,7 @@ const float CSCDetector::PhiMaxCFEB(const int station, const int ring, const int
  * @param  adr Address
  * @return Address name as string
  */
-const std::string CSCDetector::AddressName(const CSCAddress& adr) const {
+const std::string Detector::AddressName(const Address& adr) const {
   std::ostringstream oss;
   oss << "CSC";
   if (adr.mask.side) {
@@ -534,7 +536,7 @@ const std::string CSCDetector::AddressName(const CSCAddress& adr) const {
   return oss.str();
 }
 
-const bool CSCDetector::AddressFromString(const std::string str_address, CSCAddress& adr) const {
+const bool Detector::AddressFromString(const std::string str_address, Address& adr) const {
   
   std::vector<std::string> tokens;
   CSCUtility::splitString(str_address, ",", tokens);
@@ -592,3 +594,4 @@ const bool CSCDetector::AddressFromString(const std::string str_address, CSCAddr
 
 }
 
+}

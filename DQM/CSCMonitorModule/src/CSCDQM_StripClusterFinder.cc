@@ -1,9 +1,9 @@
 
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFinder.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
 
 namespace cscdqm {
 
-CSCStripClusterFinder::CSCStripClusterFinder(int l, int s, int cf, int st)
+StripClusterFinder::StripClusterFinder(int l, int s, int cf, int st)
 {
 //
 // Options
@@ -13,12 +13,12 @@ CSCStripClusterFinder::CSCStripClusterFinder(int l, int s, int cf, int st)
 	TimeSliceNmb = s;
 	StripNmb = cf*16;
 }
-void CSCStripClusterFinder::DoAction(int LayerId,float *Cathodes)
+void StripClusterFinder::DoAction(int LayerId,float *Cathodes)
 {
   int TimeId,StripId;
   this->LId=LayerId;
   MEStripClusters.clear();
-  CSCStripClusterFitData PulseHeightMapTMP;
+  StripClusterFitData PulseHeightMapTMP;
   
   thePulseHeightMap.clear();
   
@@ -89,9 +89,9 @@ void CSCStripClusterFinder::DoAction(int LayerId,float *Cathodes)
   return;
 }
 
-void CSCStripClusterFinder::SearchMax(void)
+void StripClusterFinder::SearchMax(void)
 {
-  CSCStripCluster tmpCluster;
+  StripCluster tmpCluster;
   for(i=1;i<(thePulseHeightMap.size()-1);i++){
     if(thePulseHeightMap[i].channel_==63 || thePulseHeightMap[i].channel_==64) continue; 
     for(j=1;j<15;j++){
@@ -119,7 +119,7 @@ void CSCStripClusterFinder::SearchMax(void)
   }
   return;
 }
-void CSCStripClusterFinder::SearchBorders(void)
+void StripClusterFinder::SearchBorders(void)
 {
   uint32_t iS,iT,iL,jL,iR,jR;
   
@@ -178,7 +178,7 @@ void CSCStripClusterFinder::SearchBorders(void)
   return;
 }
     
-void CSCStripClusterFinder::Match(void)
+void StripClusterFinder::Match(void)
 {
   //              MATCHING THE OVERLAPING CLASTERS
   bool find2match;
@@ -190,7 +190,7 @@ void CSCStripClusterFinder::Match(void)
   return;
 }
 
-bool CSCStripClusterFinder::FindAndMatch(void)
+bool StripClusterFinder::FindAndMatch(void)
 {
   // Find clusters to match
   icstart=0; //!!!???
@@ -232,7 +232,7 @@ bool CSCStripClusterFinder::FindAndMatch(void)
   }
   return false;
 }
-void CSCStripClusterFinder::KillCluster(void)
+void StripClusterFinder::KillCluster(void)
 {
   // Match Clusters and kill one of clusters.
   if(IC1MIN<IC2MIN)
@@ -257,7 +257,7 @@ void CSCStripClusterFinder::KillCluster(void)
 
   return;
 }
-void CSCStripClusterFinder::RefindMax(void)
+void StripClusterFinder::RefindMax(void)
 {
   int iLS,iRS,iLT,iRT;
   int iS,jT;
@@ -346,11 +346,11 @@ void CSCStripClusterFinder::RefindMax(void)
   }
   return;
 }
-void CSCStripClusterFinder::printClusters(void)
+void StripClusterFinder::printClusters(void)
 {
   int iS,jT;
   cout << "====================================================================" << endl;	
-  cout << "debug information from CSCStripClusterFinder" << endl;	
+  cout << "debug information from StripClusterFinder" << endl;	
   for(i=0;i<MEStripClusters.size();i++){
     if(!MEStripClusters[i].localMax.size()) continue;
     cout << " Cluster: " << i+1 
@@ -381,7 +381,7 @@ void CSCStripClusterFinder::printClusters(void)
  cout << "======================================================================" << endl;	
    return;
 }
-bool  CSCStripClusterFinder::Sort::operator()(CSCStripClusterFitData a , CSCStripClusterFitData b) const
+bool  StripClusterFinder::Sort::operator()(StripClusterFitData a , StripClusterFitData b) const
 {return  a.channel_ < b.channel_;}
 
 }

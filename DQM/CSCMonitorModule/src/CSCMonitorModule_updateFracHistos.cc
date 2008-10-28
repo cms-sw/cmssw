@@ -145,22 +145,22 @@ void CSCMonitorModule::updateFracHistos() {
 
     if (MEEMU("CSC_Format_Errors", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, FORMAT_ERR, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::FORMAT_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_L1A_out_of_sync", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, L1SYNC_ERR, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::L1SYNC_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_DMB_input_fifo_full", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::FIFOFULL_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_DMB_input_timeout", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, INPUTTO_ERR, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::INPUTTO_ERR, threshold, sigfail);
     }
 
     threshold = effParameters.getUntrackedParameter<double>("threshold_nodata", 1.0);
@@ -168,22 +168,22 @@ void CSCMonitorModule::updateFracHistos() {
 
     if (MEEMU("CSC_wo_ALCT", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, NODATA_ALCT, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::NODATA_ALCT, threshold, sigfail);
     }
 
     if (MEEMU("CSC_wo_CLCT", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, NODATA_CLCT, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::NODATA_CLCT, threshold, sigfail);
     }
 
     if (MEEMU("CSC_wo_CFEB", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, NODATA_CFEB, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::NODATA_CFEB, threshold, sigfail);
     }
 
     if (MEEMU("CSC_Format_Warnings", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, CFEB_BWORDS, threshold, sigfail);
+      summary.ReadErrorChambers(rep, err, cscdqm::CFEB_BWORDS, threshold, sigfail);
     }
 
   }
@@ -275,7 +275,7 @@ void CSCMonitorModule::updateFracHistos() {
 
   // Looping via addresses (scope: side->station->ring) and
   // filling in HW efficiencies
-  CSCAddress adr;
+  cscdqm::Address adr;
   adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   adr.mask.side = true;
 
@@ -291,14 +291,14 @@ void CSCMonitorModule::updateFracHistos() {
       e_station = 0;
       adr.mask.ring = true;
 
-      for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+      for (adr.ring = 1; adr.ring <= summary.getDetector().NumberOfRings(adr.station); adr.ring++) {
 
         e_ring = summary.GetEfficiencyHW(adr);
         e_station += e_ring;
 
-        if (summary.Detector().NumberOfRings(adr.station) > 1) {
+        if (summary.getDetector().NumberOfRings(adr.station) > 1) {
 
-          if (MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) {
+          if (MEReportSummaryContents(summary.getDetector().AddressName(adr), me1)) {
 
             me1->Fill(e_ring);
 
@@ -309,15 +309,15 @@ void CSCMonitorModule::updateFracHistos() {
       }
 
       adr.mask.ring = false;
-      e_station = e_station / summary.Detector().NumberOfRings(adr.station);
-      if (MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) me1->Fill(e_station);
+      e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
+      if (MEReportSummaryContents(summary.getDetector().AddressName(adr), me1)) me1->Fill(e_station);
       e_side += e_station;
 
     }
 
     adr.mask.station = false;
     e_side = e_side / N_STATIONS;
-    if (MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) me1->Fill(e_side);
+    if (MEReportSummaryContents(summary.getDetector().AddressName(adr), me1)) me1->Fill(e_side);
     e_detector += e_side; 
 
   }

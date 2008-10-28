@@ -12,7 +12,23 @@ process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
 # Event Source
 #-----------------------------
 
-process.load("DQM.Integration.test.inputsource_playback_cfi")
+#process.load("DQM.Integration.python.test.inputsource_playback_cfi")
+maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+process.source = cms.Source("EventStreamHttpReader",
+    sourceURL = cms.string('http://localhost:50082/urn:xdaq-application:lid=29'),
+    consumerPriority = cms.untracked.string('normal'),
+    max_event_size = cms.int32(7000000),
+    consumerName = cms.untracked.string('Playback Source'),
+    max_queue_depth = cms.int32(5),
+    maxEventRequestRate = cms.untracked.double(12.0),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('*')
+    ),
+    headerRetryInterval = cms.untracked.int32(3)
+)
 
 process.EventStreamHttpReader.consumerName = 'CSC DQM Consumer'
 
@@ -24,7 +40,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #process.DQMStore.referenceFileName = '/home/dqmdevlocal/reference/csc_reference.root'
-process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/CMSSW_2_1_0/src/DQM/CSCMonitorModule/data/csc_reference.root'
+process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/CMSSW_2_1_9/src/DQM/CSCMonitorModule/data/csc_reference.root'
 #process.DQMStore.referenceFileName = '/nfshome0/valdo/CMSSW_2_1_0/src/DQM/CSCMonitorModule/data/csc_reference.root'
 
 #----------------------------
@@ -34,8 +50,8 @@ process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/CMSSW_2_1_0/src/
 process.load("DQM.Integration.test.environment_playback_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 
-#process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
-process.DQM.collectorHost = 'localhost'
+process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
+#process.DQM.collectorHost = 'localhost'
 process.dqmSaver.dirName = '.'
 
 #-----------------------------

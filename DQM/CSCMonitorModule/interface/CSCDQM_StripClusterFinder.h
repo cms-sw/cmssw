@@ -1,7 +1,7 @@
-#ifndef CSCDQM_CSCStripClusterFinder_h
-#define CSCDQM_CSCStripClusterFinder_h
+#ifndef CSCDQM_StripClusterFinder_h
+#define CSCDQM_StripClusterFinder_h
 
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripCluster.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_StripCluster.h"
 
 #include <vector>
 #include <iostream>
@@ -18,21 +18,21 @@ namespace cscdqm {
 
 using namespace std;
 
-class CSCStripClusterFinder
+class StripClusterFinder
 {
  public:
-  CSCStripClusterFinder(int l, int s, int cf, int st );
+  StripClusterFinder(int l, int s, int cf, int st );
   void DoAction(int layerId,float *cathodes);
   void printClusters(void);
-  std::vector<CSCStripClusterFitData> thePulseHeightMap;
+  std::vector<StripClusterFitData> thePulseHeightMap;
  public:
   class Sort{
   public:
-    bool  operator()(CSCStripClusterFitData a,CSCStripClusterFitData b) const;
+    bool  operator()(StripClusterFitData a,StripClusterFitData b) const;
   };
-  std::vector<CSCStripCluster> MEStripClusters;
+  std::vector<StripCluster> MEStripClusters;
   ClusterLocalMax localMaxTMP;
-  std::vector<CSCStripCluster> getClusters(){ return MEStripClusters;}
+  std::vector<StripCluster> getClusters(){ return MEStripClusters;}
  private:
   int32_t LId;
   uint32_t i;

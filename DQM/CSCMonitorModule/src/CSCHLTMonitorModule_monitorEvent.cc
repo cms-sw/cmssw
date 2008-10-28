@@ -62,8 +62,7 @@ void CSCHLTMonitorModule::monitorEvent(const edm::Event& e){
     //if fed has data then unpack it
     if ( fedData.size() >= 32 ) {
 
-      unsigned int index = 0;
-      if (fedIndex(id, index)) mes["FEDEntries"]->Fill(index); 
+      mes["FEDEntries"]->Fill(id); 
 
       const short unsigned int *data = (short unsigned int *) fedData.data();
 
@@ -74,11 +73,11 @@ void CSCHLTMonitorModule::monitorEvent(const edm::Event& e){
       }
 
       if ((examiner.errors() & examinerMask) > 0) {
-        if (fedIndex(id, index)) mes["FEDFatal"]->Fill(index); 
+        mes["FEDFatal"]->Fill(id); 
       }
 
       if (examiner.warnings() != 0) {
-        if (fedIndex(id, index)) mes["FEDNonFatal"]->Fill(index); 
+        mes["FEDNonFatal"]->Fill(id); 
       }
      
     }

@@ -107,22 +107,22 @@ void CSCMonitorModule::setup() {
 
   // reportSummaryContents booking
   dbe->setCurrentFolder(rootDir + SUMCONTENTS_FOLDER);
-  CSCAddress adr;
+  cscdqm::Address adr;
   adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   adr.mask.side = true;
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
     adr.mask.station = adr.mask.ring = false;
-    me = dbe->bookFloat(summary.Detector().AddressName(adr));
+    me = dbe->bookFloat(summary.getDetector().AddressName(adr));
     me->Fill(-1.0);
     adr.mask.station = true; 
     for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
       adr.mask.ring = false;
-      dbe->bookFloat(summary.Detector().AddressName(adr));
+      dbe->bookFloat(summary.getDetector().AddressName(adr));
       me->Fill(-1.0);
-      if (summary.Detector().NumberOfRings(adr.station) > 1) {
+      if (summary.getDetector().NumberOfRings(adr.station) > 1) {
         adr.mask.ring = true;
-        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
-          dbe->bookFloat(summary.Detector().AddressName(adr));
+        for (adr.ring = 1; adr.ring <= summary.getDetector().NumberOfRings(adr.station); adr.ring++) {
+          dbe->bookFloat(summary.getDetector().AddressName(adr));
           me->Fill(-1.0);
         }
       }

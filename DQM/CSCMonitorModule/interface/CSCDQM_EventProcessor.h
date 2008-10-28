@@ -38,8 +38,8 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_HistoType.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCSummary.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFinder.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFinder.h"
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
@@ -124,7 +124,7 @@ namespace cscdqm {
 
       std::set<HistoType> blocked;
       HPType* histoProvider;
-      CSCSummary summary;
+      Summary summary;
 
       uint32_t nEvents; 
       uint32_t nBadEvents; 

@@ -100,7 +100,6 @@ class CSCHLTMonitorModule: public edm::EDAnalyzer {
 
     /** Histogram filling and calculation methods */
     void monitorEvent(const edm::Event& e) ;
-    const bool fedIndex(const unsigned int fedId, unsigned int& index) const;
 
     /** Monitor Elements */
     MeMap mes;
@@ -124,8 +123,9 @@ class CSCHLTMonitorModule: public edm::EDAnalyzer {
     Bitset32        examinerCRCKey;
 
     /** FED mapping, increments, etc. */
-    uint32_t                     nEvents;
-    std::set<unsigned int>       fedIds;
+    uint32_t        nEvents;
+    uint32_t        fedIdMin;
+    uint32_t        fedIdMax;
     
 };
 

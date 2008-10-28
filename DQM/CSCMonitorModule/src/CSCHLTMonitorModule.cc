@@ -34,10 +34,8 @@ CSCHLTMonitorModule::CSCHLTMonitorModule(const edm::ParameterSet& ps){
   inputObjectsTag = parameters.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)"source");
   monitorName = parameters.getUntrackedParameter<std::string>("monitorName", "CSC");
 
-  std::vector<unsigned int> vIds = parameters.getUntrackedParameter<std::vector<unsigned int> >("FEDIds");
-  for(std::vector<unsigned int>::iterator i = vIds.begin(); i != vIds.end(); i++) {
-    fedIds.insert(*i);
-  }
+  fedIdMin = parameters.getUntrackedParameter<unsigned int>("FEDIdMin", 0);
+  fedIdMax = parameters.getUntrackedParameter<unsigned int>("FEDIdMax", 1);
 
   rootDir = monitorName + "/";
   nEvents = 0;
@@ -73,10 +71,10 @@ void CSCHLTMonitorModule::setup() {
   // Base folder for the contents of this job
   dbe->setCurrentFolder(rootDir + FED_FOLDER);
 
-  unsigned int fsize = fedIds.size();
-  mes.insert(std::make_pair("FEDEntries", dbe->book1D("FEDEntries", "CSC FED Entries", fsize, 0, fsize)));
-  mes.insert(std::make_pair("FEDFatal", dbe->book1D("FEDFatal", "CSC FED Fatal Errors", fsize, 0, fsize)));
-  mes.insert(std::make_pair("FEDNonFatal", dbe->book1D("FEDNonFatal", "CSC FED Non Fatal Errors", fsize, 0, fsize)));
+  unsigned int fsize = fedIdMax - fedIdMin + 1;
+  mes.insert(std::make_pair("FEDEntries", dbe->book1D("FEDEntries", "CSC FED Entries", fsize, fedIdMin, fedIdMax)));
+  mes.insert(std::make_pair("FEDFatal", dbe->book1D("FEDFatal", "CSC FED Fatal Errors", fsize, fedIdMin, fedIdMax)));
+  mes.insert(std::make_pair("FEDNonFatal", dbe->book1D("FEDNonFatal", "CSC FED Non Fatal Errors", fsize, fedIdMin, fedIdMax)));
 
   for(MeMap::iterator iter = mes.begin(); iter != mes.end(); iter++) {
     MonitorElement *me = iter->second; 
@@ -85,13 +83,6 @@ void CSCHLTMonitorModule::setup() {
     me->setAxisTitle("# of Events", 2);
     h->SetOption("bar1text");
     h->SetStats(0);
-    unsigned int index = 1;
-    for (std::set<unsigned int>::iterator i = fedIds.begin(); i != fedIds.end(); i++ ) {
-      std::stringstream out;
-      out << *i;
-      h->GetXaxis()->SetBinLabel(index, out.str().c_str());
-      index++;
-    }
   }
   
   this->init = true;
@@ -119,26 +110,6 @@ void CSCHLTMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
   // Pass event to monitoring chain
   monitorEvent(e);
 
-}
-
-
-/**
- * @brief  Get FED index on FED id
- * @param  fedId FED ID
- * @param  index FED index in histograms
- * @return true if FED was found, false - otherwise
- */
-const bool CSCHLTMonitorModule::fedIndex(const unsigned int fedId, unsigned int& index) const {
-  index = 0;
-  for (std::set<unsigned int>::iterator i = fedIds.begin(); i != fedIds.end(); i++ ) {
-    if (*i == fedId) {
-      //LOGINFO("FED identified") << "FED id: " << fedId << " has index: " << index;
-      return true;
-    }
-    index++;
-  }
-  LOGINFO("FED id not defined") << "FED id: " << fedId << " is not defined in cfg file.";
-  return false;
 }
 
 /**

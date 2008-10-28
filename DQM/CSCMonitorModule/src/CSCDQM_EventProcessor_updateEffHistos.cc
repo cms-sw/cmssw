@@ -163,7 +163,7 @@ namespace cscdqm {
 
     // Looping via addresses (scope: side->station->ring) and
     // filling in HW efficiencies
-    CSCAddress adr;
+    Address adr;
     adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
     adr.mask.side = true;
   
@@ -175,23 +175,23 @@ namespace cscdqm {
       for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
         e_station = 0;
         adr.mask.ring = true;
-        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+        for (adr.ring = 1; adr.ring <= summary.getDetector().NumberOfRings(adr.station); adr.ring++) {
           e_ring = summary.GetEfficiencyHW(adr);
           e_station += e_ring;
-          if (summary.Detector().NumberOfRings(adr.station) > 1) {
-            if (histoProvider->getEffParamHisto(summary.Detector().AddressName(adr), me)) {
+          if (summary.getDetector().NumberOfRings(adr.station) > 1) {
+            if (histoProvider->getEffParamHisto(summary.getDetector().AddressName(adr), me)) {
               me->Fill(e_ring);
             }
           }
         }
         adr.mask.ring = false;
-        e_station = e_station / summary.Detector().NumberOfRings(adr.station);
-        if (histoProvider->getEffParamHisto(summary.Detector().AddressName(adr), me)) me1->Fill(e_station);
+        e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
+        if (histoProvider->getEffParamHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_station);
         e_side += e_station;
       }
       adr.mask.station = false;
       e_side = e_side / N_STATIONS;
-      if (histoProvider->getEffParamHisto(summary.Detector().AddressName(adr), me)) me1->Fill(e_side);
+      if (histoProvider->getEffParamHisto(summary.getDetector().AddressName(adr), me)) me1->Fill(e_side);
       e_detector += e_side; 
     }
     e_detector = e_detector / N_SIDES;

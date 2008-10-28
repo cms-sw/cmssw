@@ -1,11 +1,11 @@
-#ifndef CSCDQM_CSCStripClusterFitData_h
-#define CSCDQM_CSCStripClusterFitData_h
+#ifndef CSCDQM_StripClusterFitData_h
+#define CSCDQM_StripClusterFitData_h
 
 #include <TObject.h>
 
 namespace cscdqm {
 
-class CSCStripClusterFitData {
+class StripClusterFitData {
  public:
   int channel()  {return channel_;}
   float height(int i)  {return height_[i];}
@@ -15,9 +15,9 @@ class CSCStripClusterFitData {
   int channel_;
   float height_[16]; //or 16 for Cosmic Test
   float   bx_;
-  CSCStripClusterFitData();
-  virtual ~CSCStripClusterFitData();
-//  ClassDef(CSCStripClusterFitData,1) //CSCStripClusterFitData
+  StripClusterFitData();
+  virtual ~StripClusterFitData();
+//  ClassDef(StripClusterFitData,1) //StripClusterFitData
 };
 
 }

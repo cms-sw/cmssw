@@ -1139,13 +1139,13 @@ namespace cscdqm {
           }
         }
       }
-      std::vector<CSCStripCluster> Clus;
+      std::vector<StripCluster> Clus;
       Clus.clear();
-      CSCStripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
+      StripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
   
       for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
       
-        // CSCStripClusterFinder *ClusterFinder = new CSCStripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
+        // StripClusterFinder *ClusterFinder = new StripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
       
         ClusterFinder.DoAction(nLayer - 1, Cathodes);
         Clus = ClusterFinder.getClusters();

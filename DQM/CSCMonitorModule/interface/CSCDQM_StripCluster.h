@@ -1,18 +1,18 @@
-#ifndef CSCDQM_CSCStripCluster_h
-#define CSCDQM_CSCStripCluster_h
+#ifndef CSCDQM_StripCluster_h
+#define CSCDQM_StripCluster_h
 
 #include <TObject.h>
 #include <vector>
 #include <algorithm>
 
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCStripClusterFitData.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_StripClusterFitData.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_ClusterLocalMax.h"
 
 namespace cscdqm {
 
-class CSCStripCluster {
+class StripCluster {
  public:
-  std::vector<CSCStripClusterFitData> ClusterPulseMapHeight;
+  std::vector<StripClusterFitData> ClusterPulseMapHeight;
   std::vector<ClusterLocalMax> localMax;
   int LFTBNDTime;
   int LFTBNDStrip;
@@ -29,9 +29,9 @@ class CSCStripCluster {
   int rIRTBNDTime(void){return IRTBNDTime;}
   int rIRTBNDStrip(void){return IRTBNDStrip;}	
   int rnlocal(){return localMax.size();}
-  CSCStripCluster();
-  virtual ~CSCStripCluster();
-//  ClassDef(CSCStripCluster,1) //CSCStripCluster
+  StripCluster();
+  virtual ~StripCluster();
+//  ClassDef(StripCluster,1) //StripCluster
 
 };
 

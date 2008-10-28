@@ -54,7 +54,7 @@
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCSummary.h"
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Summary.h"
 #include "DQM/CSCMonitorModule/interface/CSCUtility.h"
 
 /**
@@ -157,7 +157,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     const bool MEReportSummaryContents(const std::string name, MonitorElement*& me);
 
     /** CSC summary map */
-    CSCSummary summary;
+    cscdqm::Summary summary;
     
 };
 

@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCSummary.h
+ *       Filename:  Summary.h
  *
  *    Description:  CSC summary map and appropriate functions.
  *
@@ -16,15 +16,16 @@
  * =====================================================================================
  */
 
-#ifndef CSCDQM_CSCSummary_H
-#define CSCDQM_CSCSummary_H
+#ifndef CSCDQM_Summary_H
+#define CSCDQM_Summary_H
 
 #include <TH2.h>
 #include <math.h>
 #include <vector>
 #include <bitset>
 #include <iostream>
-#include "DQM/CSCMonitorModule/interface/CSCDQM_CSCDetector.h"
+
+#include "DQM/CSCMonitorModule/interface/CSCDQM_Detector.h"
 
 #define HWSTATUSBITSETSIZE    12
 #define HWSTATUSERRORBITS     0xffe
@@ -33,6 +34,8 @@
 #define HWSTATUSANYERROR(s)   (HWSTATUSANY(s, HWSTATUSERRORBITS))
 
 #define NTICS                 100
+
+namespace cscdqm {
 
 enum HWStatusBit {
 
@@ -55,16 +58,16 @@ enum HWStatusBit {
 
 typedef std::bitset<HWSTATUSBITSETSIZE> HWStatusBitSet;
 
-class CSCSummary {
+class Summary {
 
   public:
 
-    CSCSummary();
-    ~CSCSummary();
+    Summary();
+    ~Summary();
 
     void Reset();
 
-    const CSCDetector Detector() const { return detector; }
+    const Detector getDetector() const { return detector; }
 
     void ReadReportingChambers(TH2*& h2, const double threshold = 1.0);
     void ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_coef = 0.1, const double cold_Sfail = 5.0, const double hot_coef = 2.0, const double hot_Sfail = 5.0);
@@ -77,35 +80,37 @@ class CSCSummary {
     void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true, const bool op_any = false) const;
 
     void ReSetValue(const HWStatusBit bit);
-    void ReSetValue(CSCAddress adr, const HWStatusBit bit);
+    void ReSetValue(Address adr, const HWStatusBit bit);
     void SetValue(const HWStatusBit bit, const int value = 1);
-    void SetValue(CSCAddress adr, const HWStatusBit bit, const int value = 1);
+    void SetValue(Address adr, const HWStatusBit bit, const int value = 1);
 
-    const HWStatusBitSet GetValue(CSCAddress& adr) const;
+    const HWStatusBitSet GetValue(Address& adr) const;
     const int IsPhysicsReady(const unsigned int px, const unsigned int py);
     //const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const double GetEfficiencyHW() const;
     const double GetEfficiencyHW(const unsigned int station) const;
-    const double GetEfficiencyHW(CSCAddress adr) const; 
+    const double GetEfficiencyHW(Address adr) const; 
     const double GetEfficiencyArea(const unsigned int station) const; 
-    const double GetEfficiencyArea(CSCAddress adr) const; 
+    const double GetEfficiencyArea(Address adr) const; 
 
   private:
 
-    const bool ChamberCoordsToAddress(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
-    const bool ChamberAddressToCoords(const CSCAddress& adr, unsigned int& x, unsigned int& y) const;
-    const double GetReportingArea(CSCAddress adr) const; 
+    const bool ChamberCoordsToAddress(const unsigned int x, const unsigned int y, Address& adr) const;
+    const bool ChamberAddressToCoords(const Address& adr, unsigned int& x, unsigned int& y) const;
+    const double GetReportingArea(Address adr) const; 
     const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const;
     const double SignificanceLevelHot(const unsigned int N, const unsigned int n) const;
 
     // Atomic HW element status matrix
     HWStatusBitSet map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_LAYERS][N_CFEBS][N_HVS];
 
-    std::vector<CSCAddress*> masked;
+    std::vector<Address*> masked;
 
-    CSCDetector detector;
+    Detector detector;
 
 };
+
+}
 
 #endif

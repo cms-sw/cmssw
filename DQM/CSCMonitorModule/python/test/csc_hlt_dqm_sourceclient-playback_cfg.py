@@ -11,10 +11,26 @@ process.load("DQM.CSCMonitorModule.test.csc_hlt_dqm_sourceclient_cfi")
 #----------------------------
 # Event Source
 #-----------------------------
+#process.load("DQM.Integration.test.inputsource_playback_cfi")
 
-process.load("DQM.Integration.test.inputsource_playback_cfi")
+maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+process.source = cms.Source("EventStreamHttpReader",
+    sourceURL = cms.string('http://localhost:50082/urn:xdaq-application:lid=29'),
+    consumerPriority = cms.untracked.string('normal'),
+    max_event_size = cms.int32(7000000),
+    consumerName = cms.untracked.string('Playback Source'),
+    max_queue_depth = cms.int32(5),
+    maxEventRequestRate = cms.untracked.double(12.0),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('*')
+    ),
+    headerRetryInterval = cms.untracked.int32(3)
+)
 process.EventStreamHttpReader.consumerName = 'CSC HLT DQM Consumer'
-process.EventStreamHttpReader.sourceURL = "http://localhost:50082/urn:xdaq-application:lid=29"
+#process.EventStreamHttpReader.sourceURL = "http://localhost:50082/urn:xdaq-application:lid=29"
 
 #----------------------------
 # DQM Environment
@@ -34,10 +50,21 @@ process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
 #process.DQM.collectorHost = 'localhost'
 process.dqmSaver.dirName = '.'
 
+#-------------------------------------------------
+# Global Tag
+#-------------------------------------------------
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.connect = "sqlite_file:/nfshome0/malgeri/public/globtag/CRZT210_V1H.db"
+#process.GlobalTag.connect = "frontier://FrontierDev/CMS_COND_CSC"
+process.GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRZT210_V1H::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
 #--------------------------
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmClient+process.dqmEnv+process.dqmSaver)
+process.p = cms.Path(process.cscDQMEvF+process.dqmEnv+process.dqmSaver)
 
 
