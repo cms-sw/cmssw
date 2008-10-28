@@ -23,9 +23,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0?
                            minErrorFlag = cms.untracked.double(0.00), 
 
-                           # Turn on/off timing diganostic info
-                           showTiming = cms.untracked.bool(False),
-
+                           # Turn on/off timing diagnostic info
+                           showTiming          = cms.untracked.bool(False),
+                           dump2database       = cms.untracked.bool(False),
                            # Make expert-level diagnostic plots (enabling this may drastically slow code!)
                            MakeDiagnosticPlots = cms.untracked.bool(False),
 
@@ -79,12 +79,14 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_pedestal_HE_Nsigma           = cms.untracked.double(0.),
                            DeadCellMonitor_pedestal_HO_Nsigma           = cms.untracked.double(0.),
                            DeadCellMonitor_pedestal_HF_Nsigma           = cms.untracked.double(0.),
+                           DeadCellMonitor_pedestal_ZDC_Nsigma          = cms.untracked.double(0.),
                            # Checking for cells consistently below energy threshold
-                           DeadCellMonitor_energyThreshold              = cms.untracked.double(-1.),
-                           DeadCellMonitor_HB_energyThreshold           = cms.untracked.double(-1.),
-                           DeadCellMonitor_HE_energyThreshold           = cms.untracked.double(-2), # |ieta=29| has many below -1.5
-                           DeadCellMonitor_HO_energyThreshold           = cms.untracked.double(-3),
-                           DeadCellMonitor_HF_energyThreshold           = cms.untracked.double(-1.),
+                           DeadCellMonitor_energyThreshold              = cms.untracked.double(0.),
+                           DeadCellMonitor_HB_energyThreshold           = cms.untracked.double(0.),
+                           DeadCellMonitor_HE_energyThreshold           = cms.untracked.double(0.), # |ieta=29| has many below -1.5
+                           DeadCellMonitor_HO_energyThreshold           = cms.untracked.double(0.),
+                           DeadCellMonitor_HF_energyThreshold           = cms.untracked.double(0.),
+                           DeadCellMonitor_ZDC_energyThreshold          = cms.untracked.double(-999.), # not yet implemented
                            # Check for cells below their neighbors
                            DeadCellMonitor_neighbor_deltaIeta           = cms.untracked.int32(1),
                            DeadCellMonitor_neighbor_deltaIphi           = cms.untracked.int32(1),
@@ -125,7 +127,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_HF_neighbor_minNeighborEnergy   = cms.untracked.double(1.),
                            DeadCellMonitor_HF_neighbor_minGoodNeighborFrac = cms.untracked.double(.7),
                            DeadCellMonitor_HF_neighbor_maxEnergyFrac       = cms.untracked.double(.2),
-                           DeadCellMonitor_minErrorFlag                 = cms.untracked.double(0.02),
+                           DeadCellMonitor_minErrorFlag                    = cms.untracked.double(0.00),
                            
                            HE_NADA_Ecell_cut = cms.untracked.double(0.0),
                            HF_NADA_Ecube_frac = cms.untracked.double(0.5714),

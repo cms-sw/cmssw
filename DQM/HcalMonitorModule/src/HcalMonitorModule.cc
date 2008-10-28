@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/24 13:10:08 $
- * $Revision: 1.85 $
+ * $Date: 2008/10/26 18:22:50 $
+ * $Revision: 1.86 $
  * \author W Fisher
  *
 */
@@ -332,6 +332,9 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   // Do final pedestal histogram filling
   if (pedMon_!=NULL)
     pedMon_->fillPedestalHistos();
+  if (deadMon_!=NULL)
+    deadMon_->fillDeadHistosAtEndRun();
+
   return;
     }
 
