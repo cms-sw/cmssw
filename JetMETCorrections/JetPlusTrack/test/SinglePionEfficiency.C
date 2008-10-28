@@ -462,6 +462,7 @@ void SinglePionEfficiency::Loop()
 
 	   trkeff[ieta][ipt] = trkeff[ieta][ipt-1];
 	   responceVSptF[ieta][ipt] = responceVSptF[ieta][ipt-1];
+	   hResp->Fill(pt[ipt],eta[ieta],responceVSptF[ieta][ipt]);
 	   myoutput << ieta << " " 
 		    << ipt  << " " 
 		    << eta[ieta] << " " 
@@ -544,7 +545,6 @@ void SinglePionEfficiency::Loop()
    
    //
    // plot leakage graph
-   /*
    Float_t leakage[netabins], eleakage[netabins];
    Float_t MeanNotInter[netabins], MeanErrorNotInter[netabins];
    Float_t MeanInter[netabins], MeanErrorInter[netabins];
@@ -711,7 +711,7 @@ void SinglePionEfficiency::Loop()
 
    c5->SaveAs("eMean_at_eta1.9.gif");
    c5->SaveAs("eMean_at_eta1.9.eps");
-   */
+
    TFile efile("response.root","recreate");
    hResp->Write();
    efile.Close();
