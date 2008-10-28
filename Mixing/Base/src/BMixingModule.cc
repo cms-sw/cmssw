@@ -199,7 +199,7 @@ namespace edm {
     doPileUp(e,setup);
 
     // Put output into event (here only playback info)
-    put(e);
+    put(e,setup);
   }
 
  

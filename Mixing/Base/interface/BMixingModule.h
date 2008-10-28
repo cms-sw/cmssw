@@ -52,7 +52,7 @@ namespace edm {
       virtual void addPileups(const int bcr, edm::Event*, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
-      virtual void put(edm::Event &e) {;}
+      virtual void put(edm::Event &e,const edm::EventSetup& c) {;}
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& c) {std::cout << "BMixingModule::doPileUp must be overwritten!" << std::endl;}
       virtual void setEventStartInfo(const unsigned int s) {;} //to be set in CF
       virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
