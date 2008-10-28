@@ -51,7 +51,7 @@ public:
 
 private:
     
-  TkHistoMap *tkhisto, *tkhistoZ, *tkhistoPhi, *tkhistoR;
+  TkHistoMap *tkhisto, *tkhistoZ, *tkhistoPhi, *tkhistoR, *tkhistoCheck;
      
 };
 //
@@ -61,6 +61,7 @@ testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig )
   tkhistoZ  =new TkHistoMap("Z","Z");
   tkhistoPhi=new TkHistoMap("Phi","Phi");
   tkhistoR  =new TkHistoMap("R","R",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
+  tkhistoCheck = new TkHistoMap("check","check");
 }
 
 
@@ -88,6 +89,8 @@ void testTkHistoMap::endJob(void)
     tkhistoPhi->getMap(ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.cd(4);
     tkhistoR->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
+    C.cd(5);
+    tkhistoCheck->getMap  (ilayer)->getTProfile2D()->Draw("BOXCOL");
     C.Update();
     ps.NewPage();
   }
@@ -138,7 +141,8 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     tkhistoZ->fill(TkDetIdList[i],globalPos.z());
     tkhistoPhi->fill(TkDetIdList[i],globalPos.phi());
     tkhistoR->fill(TkDetIdList[i],globalPos.perp());
-    
+    tkhistoCheck->add(TkDetIdList[i],1.);
+    tkhistoCheck->add(TkDetIdList[i],1.);
 
     // For usage that reset histo content use setBinContent instead than fill
     /* 

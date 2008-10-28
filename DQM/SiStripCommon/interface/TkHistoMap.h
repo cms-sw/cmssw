@@ -22,6 +22,7 @@ class TkHistoMap{
 
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
+  void add(uint32_t& detid,float value);
 
  private:
 
