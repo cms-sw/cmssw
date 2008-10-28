@@ -19,7 +19,7 @@ class L1GctRegion : public L1CaloRegion
  public:
 
   enum numberOfBits {
-    kGctRegionNBits    = 12,
+    kGctRegionNBits    = 10,
     kGctRegionOFlowBit = 1 << kGctRegionNBits,
     kGctRegionMaxValue = kGctRegionOFlowBit - 1
   };
@@ -32,7 +32,7 @@ class L1GctRegion : public L1CaloRegion
   ~L1GctRegion();
 
   // Replace et() method to use 12 bits for all eta
-  unsigned et() const { return raw()&0x3ff; }
+  unsigned et() const { return overFlow() ? kGctRegionMaxValue : raw()&kGctRegionMaxValue; }
 
   // Replace local eta with a non-physical value
   unsigned rctEta() const { return ( empty() ? 12 : id().rctEta() ); }

@@ -2,27 +2,22 @@
 
 L1GctRegion::L1GctRegion(const unsigned et, const bool overFlow, const bool fineGrain,
                          const unsigned ieta, const unsigned iphi, const int16_t bx) :
-  L1CaloRegion( ((et>kGctRegionMaxValue) ? kGctRegionMaxValue : et),
-                ((et>kGctRegionMaxValue) || overFlow), 
-                fineGrain, false, false, ieta, iphi)
+  L1CaloRegion( L1CaloRegion::makeGctJetRegion( (((et>kGctRegionMaxValue) || overFlow) ? kGctRegionMaxValue : et),
+						((et>kGctRegionMaxValue) || overFlow), fineGrain, ieta, iphi, bx) )
 {
-  this->setBx(bx);
 }
 
 L1GctRegion::L1GctRegion(const unsigned et, const bool overFlow, const bool fineGrain,
                          const unsigned ieta, const unsigned iphi) :
-  L1CaloRegion( ((et>kGctRegionMaxValue) ? kGctRegionMaxValue : et),
-                ((et>kGctRegionMaxValue) || overFlow), 
-                fineGrain, false, false, ieta, iphi)
+  L1CaloRegion( L1CaloRegion::makeGctJetRegion( (((et>kGctRegionMaxValue) || overFlow) ? kGctRegionMaxValue : et),
+						((et>kGctRegionMaxValue) || overFlow), fineGrain, ieta, iphi, 0) )
 {
-  this->setBx(0);
 }
 
 L1GctRegion::L1GctRegion(const L1CaloRegion& r) :
-  L1CaloRegion( (r.overFlow() ? kGctRegionMaxValue : r.et()),
-                 r.overFlow(), r.fineGrain(), false, false, r.gctEta(), r.gctPhi())
+  L1CaloRegion( L1CaloRegion::makeGctJetRegion( (r.overFlow() ? kGctRegionMaxValue : r.et()),
+						r.overFlow(), r.fineGrain(), r.gctEta(), r.gctPhi(), r.bx()) )
 {
-  this->setBx(r.bx());
 }
 
 L1GctRegion::L1GctRegion() : L1CaloRegion()
