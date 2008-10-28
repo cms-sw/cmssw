@@ -264,7 +264,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     for (int f=0; f<32; f++){      
       sprintf(label, "FED %03d Channel Integrity", f+700);
       meChann_DataIntegrityCheck_[f] =  m_dbe->book2D(label,label,
-			      76,0,76,
+			      73,0,73,
 			      46,0,46);
       label_xChanns (meChann_DataIntegrityCheck_[f], 3); // 2 bins + 1 margin per ch.
       label_ySpigots(meChann_DataIntegrityCheck_[f], 3); // 2 bins + 1 margin per spgt
@@ -1354,7 +1354,7 @@ void HcalDataFormatMonitor::label_ySpigots(MonitorElement* me_ptr, int ybins) {
 //No size checking; better have enough x-axis bins!
 void HcalDataFormatMonitor::label_xChanns(MonitorElement* me_ptr, int xbins) {
   char label[10];
-  for (int ch=0; ch<=HcalHTRData::CHANNELS_PER_SPIGOT; ch++) {
+  for (int ch=0; ch<HcalHTRData::CHANNELS_PER_SPIGOT; ch++) {
     sprintf(label, "Ch %02d", ch+1);
     me_ptr->setBinLabel((2+(ch*xbins)), label, 1); //margin of 3 at low value
   }
