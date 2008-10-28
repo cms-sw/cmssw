@@ -195,12 +195,12 @@ private:
                      const VertexState & priorSeed,
                      bool withPrior) const;
 
-  float getWeight ( float chi2 ) const;
+  double getWeight ( float chi2 ) const;
 private:
-  float theMaxShift;
-  float theMaxLPShift;
+  double theMaxShift;
+  double theMaxLPShift;
   int theMaxStep;
-  float theWeightThreshold;
+  double theWeightThreshold;
   mutable int theNr;
 
   LinearizationPointFinder * theLinP;
