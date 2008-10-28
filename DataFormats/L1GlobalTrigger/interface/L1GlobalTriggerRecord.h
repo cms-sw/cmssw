@@ -19,7 +19,7 @@
 
 // system include files
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"

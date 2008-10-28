@@ -21,7 +21,7 @@
 // system include files
 #include <string>
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 #include <boost/cstdint.hpp>
 
