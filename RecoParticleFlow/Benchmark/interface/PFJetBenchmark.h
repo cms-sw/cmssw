@@ -44,7 +44,8 @@ class PFJetBenchmark {
   void setup(
 	     std::string Filename,
 	     bool debug, 
-	     bool PlotAgainstReco=0, 
+	     bool plotAgainstReco=0, 
+	     bool onlyTwoJets=1,
 	     double deltaRMax=0.1,
              std::string benchmarkLabel_ = "ParticleFlow", 
 	     double recPt = -1, 
@@ -124,7 +125,8 @@ class PFJetBenchmark {
 		
   PFBenchmarkAlgo *algo_;
   bool debug_;
-  bool PlotAgainstReco_;
+  bool plotAgainstReco_;
+  bool onlyTwoJets_;
   double deltaRMax_;
   double resPtMax_;
   double resChargedHadEnergyMax_;

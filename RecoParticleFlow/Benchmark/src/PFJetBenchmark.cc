@@ -29,7 +29,7 @@
   hE##name->GetXaxis()->SetTitle(xtitle); hE##name->GetYaxis()->SetTitle(ytitle);  hB##name->GetXaxis()->SetTitle(xtitle); hB##name->GetYaxis()->SetTitle(ytitle)
 */
 
-#define PT (PlotAgainstReco_)?"reconstructed P_{T}" :"generated P_{T}"
+#define PT (plotAgainstReco_)?"reconstructed P_{T}" :"generated P_{T}"
 
 using namespace reco;
 using namespace std;
@@ -60,14 +60,16 @@ void PFJetBenchmark::write() {
 void PFJetBenchmark::setup(
 			   string Filename,
 			   bool debug, 
-			   bool PlotAgainstReco, 
+			   bool plotAgainstReco,
+			   bool onlyTwoJets,
 			   double deltaRMax, 
 			   string benchmarkLabel_, 
 			   double recPt, 
 			   double maxEta, 
 			   DQMStore * dbe_store) {
   debug_ = debug; 
-  PlotAgainstReco_ = PlotAgainstReco; 
+  plotAgainstReco_ = plotAgainstReco;
+  onlyTwoJets_ = onlyTwoJets;
   deltaRMax_ = deltaRMax;
   outputFile_=Filename;
   recPt_cut = recPt;
@@ -78,7 +80,8 @@ void PFJetBenchmark::setup(
   cout<< "PFJetBenchmark Setup parameters =============================================="<<endl;
   cout << "Filename to write histograms " << Filename<<endl;
   cout << "PFJetBenchmark debug " << debug_<< endl;
-  cout << "PlotAgainstReco " << PlotAgainstReco_ << endl;
+  cout << "plotAgainstReco " << plotAgainstReco_ << endl;
+  cout << "onlyTwoJets " << onlyTwoJets_ << endl;
   cout << "deltaRMax " << deltaRMax << endl;
   cout << "benchmarkLabel " << benchmarkLabel_ << endl;
   cout << "recPt_cut " << recPt_cut << endl;
@@ -88,7 +91,7 @@ void PFJetBenchmark::setup(
 
   // Establish DQM Store
   string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
-  if (PlotAgainstReco) path += "Reco"; else path += "Gen";
+  if (plotAgainstReco) path += "Reco"; else path += "Gen";
   if (dbe_) {
     dbe_->setCurrentFolder(path.c_str());
   }
@@ -172,6 +175,13 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
   int NPFJets = 0;
 	
   for(unsigned i=0; i<pfJets.size(); i++) {   
+
+    // Count the number of jets with a larger energy
+    unsigned highJets = 0;
+    for(unsigned j=0; j<pfJets.size(); j++) { 
+      if ( j != i && pfJets[j].pt() > pfJets[i].pt() ) highJets++;
+    }
+    if ( onlyTwoJets_ && highJets > 1 ) continue;
 		
 		
     const reco::PFJet& pfj = pfJets[i];
@@ -209,7 +219,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       // get the quantities to place on the denominator and/or divide by
       double pt_denom;
       double true_pt = truth->pt();
-      if (PlotAgainstReco_) {pt_denom = rec_pt;}
+      if (plotAgainstReco_) {pt_denom = rec_pt;}
       else {pt_denom = true_pt;}
       // get true specific quantities
       double true_ChargedHadEnergy;

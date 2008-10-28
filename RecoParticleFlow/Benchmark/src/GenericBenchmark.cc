@@ -121,7 +121,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 }
 
 
-void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, double recPt_cut, double maxEta_cut, double deltaR_cut) {
+void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, bool onlyTwoJets, double recPt_cut, double maxEta_cut, double deltaR_cut) {
 
   // loop over reco particles
   for (unsigned int i = 0; i < RecoCollection->size(); i++) {
@@ -133,6 +133,14 @@ void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, co
    if  ((particle!=NULL) &&  (gen_particle!=NULL)){
       //   std::cout << RecoCollection->size() << " " << GenCollection->size() <<particle  <<gen_particle << std::endl;   
 
+    // Count the number of jets with a larger energy
+    unsigned highJets = 0;
+    for(unsigned j=0; j<RecoCollection->size(); j++) { 
+      const reco::Candidate *otherParticle = &(*RecoCollection)[j];
+      if ( j != i && otherParticle->pt() > particle->pt() ) highJets++;
+    }
+    if ( onlyTwoJets && highJets > 1 ) continue;
+		
     //skip reconstructed PFJets with p_t < recPt_cut
     if (particle->pt() < recPt_cut and recPt_cut != -1.)
       continue;
