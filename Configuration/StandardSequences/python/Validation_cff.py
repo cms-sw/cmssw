@@ -7,4 +7,4 @@ from Validation.Configuration.globalValidation_cff import *
 
 from HLTriggerOffline.Common.HLTValidation_cff import *
 
-validation = cms.Sequence(globaldigisanalyze*globalhitsanalyze*globalValidation*hltvalidation)
+validation = cms.Sequence(globaldigisanalyze*globalhitsanalyze*hltvalidation)
