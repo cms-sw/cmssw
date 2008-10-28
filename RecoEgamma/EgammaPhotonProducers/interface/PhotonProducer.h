@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.24 2008/08/17 12:47:38 nancy Exp $ 
- **  $Date: 2008/08/17 12:47:38 $ 
- **  $Revision: 1.24 $
+ **  $Id: PhotonProducer.h,v 1.25 2008/08/29 08:41:36 nancy Exp $ 
+ **  $Date: 2008/08/29 08:41:36 $ 
+ **  $Revision: 1.25 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -29,7 +29,7 @@
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
+#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -44,9 +44,12 @@ class PhotonProducer : public edm::EDProducer {
 
  private:
 
-  void fillPhotonCollection(const edm::Handle<reco::SuperClusterCollection> & scHandle,
-			    const CaloSubdetectorGeometry *geometry,
-			    const CaloSubdetectorGeometry *geometryES,
+  void fillPhotonCollection(edm::Event& evt,
+			    edm::EventSetup const & es,
+                            const edm::Handle<reco::SuperClusterCollection> & scHandle,
+                            const CaloGeometry* geometry,
+			    const CaloSubdetectorGeometry* subDetGeometry,
+			    const CaloSubdetectorGeometry* geometryES,
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* hits,
 			    HBHERecHitMetaCollection *mhbhe,
@@ -96,6 +99,7 @@ class PhotonProducer : public edm::EDProducer {
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
 
   bool validPixelSeeds_;
+  CutBasedPhotonIDAlgo* thePhotonIDCalculator_;
 
   //int nEvt_;
 
