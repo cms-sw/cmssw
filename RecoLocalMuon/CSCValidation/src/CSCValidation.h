@@ -131,8 +131,8 @@ private:
   void  doADCTiming(const CSCStripDigiCollection &, const CSCRecHit2DCollection  &);
   void  doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                     edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
-  void  doTrigger();
-  void  doStandalone();
+  bool  doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection);
+  void  doStandalone(edm::Handle<reco::TrackCollection> saMuons);
 
   // some useful functions
   float  fitX(HepMatrix sp, HepMatrix ep);
@@ -251,8 +251,8 @@ private:
       if (id.ring() == 4) index = 1;
     }
     else index = id.station()*2 + id.ring();
-    if (id.endcap() == 1) index = index + 9;
-    if (id.endcap() == 2) index = 10 - index;
+    if (id.endcap() == 1) index = index + 10;
+    if (id.endcap() == 2) index = 11 - index;
     return index;
   }
   

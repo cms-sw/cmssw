@@ -99,7 +99,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hSensitiveAreaEvt = new TH2F("hSensitiveAreaEvt","events in sensitive area",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
  
   // setup trees to hold global position data for rechits and segments
-  histos->setupTrees();
+  if (writeTreeToFile) histos->setupTrees();
 
 
 }
@@ -180,9 +180,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   // get the trigger collection
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  if (useTrigger){
+  if (makeTriggerPlots){
     event.getByLabel(l1aTag,pCollection);
-    std::vector<L1MuGMTReadoutRecord> L1Mrec = pCollection->getRecords();
   }
 
   // get the standalone muon collection
@@ -198,8 +197,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // Only do this for the first event
   if (nEventsAnalyzed == 1 && makeCalibPlots) doCalibrations(eventSetup);
 
-  // Look at the l1a trigger info (not implemented yet)
-  if (makeTriggerPlots) doTrigger();
+  // Look at the l1a trigger info (returns true if csc L1A present)
+  bool CSCL1A = false;
+  if (makeTriggerPlots) CSCL1A = doTrigger(pCollection);
   
   // look at various chamber occupancies
   if (makeOccupancyPlots) doOccupancies(strips,wires,recHits,cscSegments);
@@ -241,7 +241,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   if (makeRHNoisePlots && useDigis) doNoiseHits(recHits,cscSegments,cscGeom,strips);
 
   // look at standalone muons (not implemented yet)
-  if (makeStandalonePlots) doStandalone();
+  if (makeStandalonePlots) doStandalone(saMuons);
 
 }
 
@@ -258,6 +258,11 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
   bool stripo[2][4][4][36];
   bool rechito[2][4][4][36];
   bool segmento[2][4][4][36];
+
+  bool hasWires = false;
+  bool hasStrips = false;
+  bool hasRecHits = false;
+  bool hasSegments = false;
 
   for (int e = 0; e < 2; e++){
     for (int s = 0; s < 4; s++){
@@ -283,8 +288,12 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
       std::vector<CSCWireDigi>::const_iterator wireIt = (*wi).second.first;
       std::vector<CSCWireDigi>::const_iterator lastWire = (*wi).second.second;
       for( ; wireIt != lastWire; ++wireIt){
-        wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-        histos->fill1DHist(chamberSerial(id),"hOWireSerial","Wire Occupancy by Chamber Serial",601,-0.5,600.5,"Digis");
+        if (!wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1]){
+          wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+          hOWires->Fill(kChamber,typeIndex(id));
+          histos->fill1DHist(chamberSerial(id),"hOWireSerial","Wire Occupancy by Chamber Serial",601,-0.5,600.5,"Digis");
+          hasWires = true;
+        }
       }
     }
   
@@ -308,8 +317,12 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
           if (diff > threshold) { thisStripFired = true; }
         }
         if (thisStripFired) {
-          stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-          histos->fill1DHist(chamberSerial(id),"hOStripSerial","Strip Occupancy by Chamber Serial",601,-0.5,600.5,"Digis");
+          if (!stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1]){
+            stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+            hOStrips->Fill(kChamber,typeIndex(id));
+            histos->fill1DHist(chamberSerial(id),"hOStripSerial","Strip Occupancy by Chamber Serial",601,-0.5,600.5,"Digis");
+            hasStrips = true;
+          }
         }
       }
     }
@@ -323,8 +336,12 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
     int kRing    = idrec.ring();
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
-    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-    histos->fill1DHist(chamberSerial(idrec),"hORecHitsSerial","RecHit Occupancy by Chamber Serial",601,-0.5,600.5,"recHits");
+    if (!rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1]){
+      rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+      histos->fill1DHist(chamberSerial(idrec),"hORecHitsSerial","RecHit Occupancy by Chamber Serial",601,-0.5,600.5,"recHits");
+      hORecHits->Fill(kChamber,typeIndex(idrec));
+      hasRecHits = true;
+    }
   }
 
   //segments
@@ -334,35 +351,21 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-    histos->fill1DHist(chamberSerial(id),"hOSegmentsSerial","Segment Occupancy by Chamber Serial",601,-0.5,600.5,"Segments");
-  }
-
-  // Fill occupancy plots
-  for (int e = 0; e < 2; e++){
-    for (int s = 0; s < 4; s++){
-      for (int r = 0; r < 4; r++){
-        for (int c = 0; c < 36; c++){
-          int type = 0;
-          if (s == 0 && r == 0) type = 2;
-          else if (s == 0 && r == 1) type = 3;
-          else if (s == 0 && r == 2) type = 4;
-          else if (s == 0 && r == 3) type = 1;
-          else type = (s+1)*2 + (r+1);
-          if ((e+1) == 1) type = type + 10;
-          if ((e+1) == 2) type = 11 - type;
-          if (useDigis){
-            if (wireo[e][s][r][c]) hOWires->Fill((c+1),type);
-            if (stripo[e][s][r][c]) hOStrips->Fill((c+1),type);
-          }
-          if (rechito[e][s][r][c]) hORecHits->Fill((c+1),type);
-          if (segmento[e][s][r][c]) hOSegments->Fill((c+1),type);
-        }
-      }
+    if (!segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1]){
+      segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+      histos->fill1DHist(chamberSerial(id),"hOSegmentsSerial","Segment Occupancy by Chamber Serial",601,-0.5,600.5,"Segments");
+      hOSegments->Fill(kChamber,typeIndex(id));
+      hasSegments = true;
     }
   }
 
-
+  // overall CSC occupancy (events with CSC data compared to total)
+  histos->fill1DHist(0,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
+  if (hasWires) histos->fill1DHist(1,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
+  if (hasStrips) histos->fill1DHist(2,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
+  if (hasWires && hasStrips) histos->fill1DHist(3,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
+  if (hasRecHits) histos->fill1DHist(4,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
+  if (hasSegments) histos->fill1DHist(5,"hCSCOccupancy","overall CSC occupancy",6,-0.5,5.5,"GeneralHists");
 
 }
 
@@ -372,8 +375,97 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
 //
 // ==============================================
 
-void CSCValidation::doTrigger(){
+bool CSCValidation::doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection){
 
+  vector<L1MuGMTReadoutRecord> L1Mrec = pCollection->getRecords();
+  vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
+
+  bool csc_l1a  = false;
+  bool dt_l1a   = false;
+  bool rpcf_l1a = false;
+  bool rpcb_l1a = false;
+  bool beamHaloTrigger = false;
+
+  int myBXNumber = -1000;
+
+  for(igmtrr=L1Mrec.begin(); igmtrr!=L1Mrec.end(); igmtrr++) {
+    std::vector<L1MuRegionalCand>::const_iterator iter1;
+    std::vector<L1MuRegionalCand> rmc;
+
+    // CSC
+    int icsc = 0;
+    rmc = igmtrr->getCSCCands();
+    for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      if ( !(*iter1).empty() ) {
+        icsc++;
+        int kQuality = (*iter1).quality();   // kQuality = 1 means beam halo
+        if (kQuality == 1) beamHaloTrigger = true;
+      }
+    }
+    if (igmtrr->getBxInEvent() == 0 && icsc>0) csc_l1a = true;
+    if (igmtrr->getBxInEvent() == 0 ) { myBXNumber = igmtrr->getBxNr(); }
+
+    // DT
+    int idt = 0;
+    rmc = igmtrr->getDTBXCands();
+    for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      if ( !(*iter1).empty() ) {
+        idt++;
+      }
+    }
+    if(igmtrr->getBxInEvent()==0 && idt>0) dt_l1a = true;
+
+    // RPC Barrel
+    int irpcb = 0;
+    rmc = igmtrr->getBrlRPCCands();
+    for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      if ( !(*iter1).empty() ) {
+        irpcb++;
+      }
+    }
+    if(igmtrr->getBxInEvent()==0 && irpcb>0) rpcb_l1a = true;
+
+    // RPC Forward
+    int irpcf = 0;
+    rmc = igmtrr->getFwdRPCCands();
+    for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+      if ( !(*iter1).empty() ) {
+        irpcf++;
+      }
+    }
+    if(igmtrr->getBxInEvent()==0 && irpcf>0) rpcf_l1a = true;
+
+  }
+
+  // Fill some histograms with L1A info
+  if (csc_l1a)          histos->fill1DHist(myBXNumber,"vtBXNumber","BX Number",4001,-0.5,4000.5,"Trigger");
+  if (csc_l1a)          histos->fill1DHist(1,"vtBits","trigger bits",11,-0.5,10.5,"Trigger");
+  if (dt_l1a)           histos->fill1DHist(2,"vtBits","trigger bits",11,-0.5,10.5,"Trigger");
+  if (rpcb_l1a)         histos->fill1DHist(3,"vtBits","trigger bits",11,-0.5,10.5,"Trigger");
+  if (rpcf_l1a)         histos->fill1DHist(4,"vtBits","trigger bits",11,-0.5,10.5,"Trigger");
+  if (beamHaloTrigger)  histos->fill1DHist(8,"vtBits","trigger bits",11,-0.5,10.5,"Trigger");
+
+  if (csc_l1a) {
+    histos->fill1DHist(1,"vtCSCY","trigger bits",11,-0.5,10.5,"Trigger");
+    if (dt_l1a)   histos->fill1DHist(2,"vtCSCY","trigger bits",11,-0.5,10.5,"Trigger");
+    if (rpcb_l1a) histos->fill1DHist(3,"vtCSCY","trigger bits",11,-0.5,10.5,"Trigger");
+    if (rpcf_l1a) histos->fill1DHist(4,"vtCSCY","trigger bits",11,-0.5,10.5,"Trigger");
+    if (  dt_l1a || rpcb_l1a || rpcf_l1a)  histos->fill1DHist(5,"vtCSCY","trigger bits",11,-0.5,10.5,"Trigger");
+    if (!(dt_l1a || rpcb_l1a || rpcf_l1a)) histos->fill1DHist(6,"vtCSCY","trigger bits",11,-0.5,10.5,"Trigger");
+  } else {
+    histos->fill1DHist(1,"vtCSCN","trigger bits",11,-0.5,10.5,"Trigger");
+    if (dt_l1a)   histos->fill1DHist(2,"vtCSCN","trigger bits",11,-0.5,10.5,"Trigger");
+    if (rpcb_l1a) histos->fill1DHist(3,"vtCSCN","trigger bits",11,-0.5,10.5,"Trigger");
+    if (rpcf_l1a) histos->fill1DHist(4,"vtCSCN","trigger bits",11,-0.5,10.5,"Trigger");
+    if (  dt_l1a || rpcb_l1a || rpcf_l1a)  histos->fill1DHist(5,"vtCSCN","trigger bits",11,-0.5,10.5,"Trigger");
+    if (!(dt_l1a || rpcb_l1a || rpcf_l1a)) histos->fill1DHist(6,"vtCSCN","trigger bits",11,-0.5,10.5,"Trigger");
+  }
+
+  // if valid CSC L1A then return true for possible use elsewhere
+
+  if (csc_l1a) return true;
+  
+  return false;
 
 }
 
@@ -459,6 +551,7 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
       nWireGroupsTotal++;
       histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Numbers Fired",id,113,-0.5,112.5,"Digis");
       histos->fill1DHistByType(myTBin,"hWireTBin","Wire TimeBin Fired",id,17,-0.5,16.5,"Digis");
+      histos->fillProfile(chamberSerial(id),myTBin,"hWireTBinProfile","Wire TimeBin Fired",601,-0.5,600.5,-0.5,16.5,"Digis");
       if (detailedAnalysis){
         histos->fill1DHistByLayer(myWire,"hWireWire","Wiregroup Numbers Fired",id,113,-0.5,112.5,"WireNumberByLayer");
         histos->fill1DHistByLayer(myTBin,"hWireTBin","Wire TimeBin Fired",id,17,-0.5,16.5,"WireTimeByLayer");
@@ -543,7 +636,7 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
 	float ADC = thisSignal - thisPedestal;
         histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution",50,-25.,25.,"PedestalNoise");
         histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
-        histos->fill2DProfile(id.chamber(),typeIndex(id),ADC,"hStripPedAll","Pedestal Noise Summary",36,0.5,36.5,18,0.5,18.5,-10,10,"PedestalNoise");
+        histos->fillProfile(chamberSerial(id),ADC,"hStripPedMEProfile","Wire TimeBin Fired",601,-0.5,600.5,-25,25,"PedestalNoise");
         if (detailedAnalysis){
           histos->fill1DHistByLayer(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoiseByLayer");
         }
@@ -652,6 +745,8 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     histos->fill1DHistByType(xyerr,"hRHxyerr","Corr. RecHit XY Error",idrec,100,-1,2,"recHits");
     histos->fill1DHistByType(stpos,"hRHstpos","Reconstructed Position on Strip",idrec,120,-0.6,0.6,"recHits");
     histos->fill1DHistByType(sterr,"hRHsterr","Estimated Error on Strip Measurement",idrec,120,-0.05,0.25,"recHits");
+    histos->fillProfile(chamberSerial(idrec),rHSumQ,"hRHSumQProfile","Sum 3x3 recHit Charge",601,-0.5,600.5,0,4000,"recHits");
+    histos->fillProfile(chamberSerial(idrec),rHtime,"hRHTimingProfile","recHit Timing",601,-0.5,600.5,-1,11,"recHits");
     if (detailedAnalysis){
       if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByLayer(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"RHQByLayer");
       else histos->fill1DHistByLayer(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"RHQByLayer");
@@ -712,7 +807,6 @@ void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     }
 
     histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
-    histos->fill2DProfile(idrec.chamber(),typeIndex(idrec),simHitXres,"hRHResidSummary","Rechit/Simhit Local X Residual Summary",36,0.5,36.5,18,0.5,18.5,-10,10,"Resolution");
   }
 
 }
@@ -826,14 +920,12 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
     histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
     histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"Resolution");
-    histos->fill1DHistByType((chisq/nDOF),"hSChiSq","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
+    histos->fill1DHistByType((chisq/nDOF),"hSChiSq","segments chi-squared/ndof",id,110,-0.05,1.05,"Segments");
     histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
     histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",64,0,1.6,"Segments");
     histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
-
-    histos->fill2DProfile(kChamber,typeIndex(id),nhits,"hSnHitsSummary","Hits per Segment",36,0.5,36.5,18,0.5,18.5,0,7,"Segments");
-    histos->fill2DProfile(kChamber,typeIndex(id),residual,"hSResidSummary","Fitted Position on Strip - Reconstructed for Layer 3",36,0.5,36.5,18,0.5,18.5,-1,1,"Segments");
-
+    histos->fillProfile(chamberSerial(id),nhits,"hSnHitsProfile","N hits on Segments",601,-0.5,600.5,-0.5,7.5,"Segments");
+    histos->fillProfile(chamberSerial(id),residual,"hSResidProfile","Fitted Position on Strip - Reconstructed for Layer 3",601,-0.5,600.5,-0.5,0.5,"Resolution");
     if (detailedAnalysis){
       histos->fill1DHistByChamber(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"HitsOnSegmentByChamber");
       histos->fill1DHistByChamber(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"DetailedSegments");
@@ -856,8 +948,43 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
 //
 // ==============================================
 
-void CSCValidation::doStandalone(){
+void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons){
 
+  int nSAMuons = saMuons->size();
+  histos->fill1DHist(nSAMuons,"trNSAMuons","N Standalone Muons per Event",6,-0.5,5.5,"STAMuons");
+
+  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {
+    float preco  = muon->p();
+    float ptreco = muon->pt();
+    int   n = muon->recHitsSize();
+
+    // loop over hits
+    int nDTHits = 0;
+    int nCSCHits = 0;
+    for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit ) {
+      const DetId detId( (*hit)->geographicalId() );
+      if (detId.det() == DetId::Muon) {
+        if (detId.subdetId() == MuonSubdetId::DT) {
+          //DTChamberId dtId(detId.rawId());
+          //int chamberId = dtId.sector();
+          nDTHits++;
+        }
+        else if (detId.subdetId() == MuonSubdetId::CSC) {
+          //CSCDetId cscId(detId.rawId());
+          //int chamberId = cscId.chamber();
+          nCSCHits++;
+        }
+      }
+    }
+
+    // fill histograms
+    histos->fill1DHist(n,"trN","N hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
+    histos->fill1DHist(nDTHits,"trNDT","N DT hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
+    histos->fill1DHist(nCSCHits,"trNCSC","N CSC hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
+    histos->fill1DHist(preco,"trP","STA Muon Momentum",100,0,1000,"STAMuons");
+    histos->fill1DHist(ptreco,"trPT","STA Muon pT",100,0,20,"STAMuons");
+
+  }
 
 }
 
@@ -939,9 +1066,16 @@ float CSCValidation::fitX(HepMatrix points, HepMatrix errors){
 float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
 
   float ADC[8];
+  for (int i = 0; i < 8; i++){
+    ADC[i] = 0;
+  }
   float timing = 0;
   float peakADC = 0;
   int peakTime = 0;
+
+  if (idRH.station() == 1 && idRH.ring() == 4){
+    while(centerStrip> 16) centerStrip -= 16;
+  }
 
   // Loop over strip digis responsible for this recHit and sum charge
   CSCStripDigiCollection::DigiRangeIterator gTstripIter;
@@ -976,10 +1110,10 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
     float normADC;
     for (int i = 0; i < 8; i++){
       normADC = ADC[i]/ADC[peakTime];
-      histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"StripSignalProfile");
+      histos->fillProfileByChamber(i,normADC,"hSignalProfile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"StripSignalProfile");
     }
-    histos->fill1DHistByLayer(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"StripSignalProfile");
-    histos->fill2DProfile(idRH.chamber(),typeIndex(idRH),ADC[0],"ped_subracted_all","ADC in first time bin",36,0.5,36.5,18,0.5,18.5,-10,40,"StripSignalProfile");
+    histos->fill1DHistByLayer(ADC[0],"hSigProPed","ADC in first time bin",idRH,400,-300,100,"StripSignalProfile");
+    histos->fillProfile(chamberSerial(idRH),ADC[0],"hSigProPedProfile","ADC in first time bin",601,-0.5,600.5,-150,100,"StripSignalProfile");
   }
 
 
