@@ -214,7 +214,6 @@ void CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho,
   else
     decideEE(phofid, phoisolR1, pho, phoid );
   
-  std::cout << "Cut based decision: " <<phoid.isLooseEM << " " << phoid.isLoosePhoton <<  " " << phoid.isTightPhoton << std::endl;
   
   //  return temp;
 
