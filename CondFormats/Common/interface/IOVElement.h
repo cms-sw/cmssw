@@ -23,6 +23,12 @@ namespace cond {
     std::string const & payloadToken()  const {return m_payload;}
     std::string const & metadataToken() const { return m_metadata;}
 
+   bool operator==(IOVElement const & rh) const {
+     return tillTime()==rh.tillTime()
+       &&  payloadToken()==rh.payloadToken()
+      &&   metadataToken()==rh.metadataToken();
+   }
+
 
   private:
     cond::Time_t m_tillTime;
@@ -34,11 +40,12 @@ namespace cond {
 
 } // ns cond
 
+/*
 inline bool operator==(cond::IOVElement const & lh, cond::IOVElement const & rh) {
   return lh.tillTime()==rh.tillTime()
     &&  lh.payloadToken()==rh.payloadToken()
     &&  lh.metadataToken()==rh.metadataToken();
 }
-
+*/
 
 #endif // IOVElement_h
