@@ -9,6 +9,7 @@ pfTauBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     recPt = cms.double(5.0),
     deltaRMax = cms.double(0.3),
     PlotAgainstRecoQuantities = cms.bool(False),
+    OnlyTwoJets = cms.bool(False),
     BenchmarkLabel = cms.string( jets ),
     InputRecoLabel = cms.InputTag( jets )
 )

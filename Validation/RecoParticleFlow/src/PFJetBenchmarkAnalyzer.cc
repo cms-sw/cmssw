@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFJetBenchmarkAnalyzer.cc,v 1.1 2008/09/24 12:52:40 weng Exp $
+// $Id: PFJetBenchmarkAnalyzer.cc,v 1.2 2008/10/10 21:19:50 cbern Exp $
 // Extensions by Joanna Weng
 //
 
@@ -69,7 +69,8 @@ InputTag sGenJetAlgo;
 InputTag sJetAlgo;
 string outjetfilename;
 bool pfjBenchmarkDebug;
-bool PlotAgainstReco;
+bool plotAgainstReco;
+bool onlyTwoJets;
 double deltaRMax=0.1;
 string benchmarkLabel_;
 double recPt;
@@ -98,8 +99,10 @@ PFJetBenchmarkAnalyzer::PFJetBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<string>("OutputFile");
   pfjBenchmarkDebug = 
     iConfig.getParameter<bool>("pfjBenchmarkDebug");
-  PlotAgainstReco = 
+  plotAgainstReco = 
     iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
+  onlyTwoJets = 
+    iConfig.getParameter<bool>("OnlyTwoJets");
   deltaRMax = 
     iConfig.getParameter<double>("deltaRMax");	  
   benchmarkLabel_  = 
@@ -114,7 +117,8 @@ PFJetBenchmarkAnalyzer::PFJetBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
   PFJetBenchmark_.setup(
 			outjetfilename, 
 			pfjBenchmarkDebug,
-			PlotAgainstReco,
+			plotAgainstReco,
+			onlyTwoJets,
 			deltaRMax,
 			benchmarkLabel_, 
 			recPt, 

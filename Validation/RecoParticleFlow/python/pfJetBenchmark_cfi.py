@@ -10,6 +10,7 @@ pfJetBenchmark = cms.EDAnalyzer("PFJetBenchmarkAnalyzer",
     pfjBenchmarkDebug = cms.bool(False),                           
     deltaRMax = cms.double(0.2),
     PlotAgainstRecoQuantities = cms.bool(False),
+    OnlyTwoJets = cms.bool(False),
     BenchmarkLabel = cms.string( pfJets ),
     InputRecoLabel = cms.InputTag( pfJets )
 )

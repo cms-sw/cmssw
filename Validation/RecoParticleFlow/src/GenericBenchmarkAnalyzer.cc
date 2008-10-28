@@ -43,6 +43,7 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
   outputFile_                  = iConfig.getUntrackedParameter<std::string>("OutputFile");
   benchmarkLabel_              = iConfig.getParameter<std::string>("BenchmarkLabel"); 
   plotAgainstRecoQuantities_   = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
+  onlyTwoJets_                 = iConfig.getParameter<bool>("OnlyTwoJets");
   recPt_cut                    = iConfig.getParameter<double>("recPt");
   maxEta_cut                    = iConfig.getParameter<double>("maxEta");
   deltaR_cut                    = iConfig.getParameter<double>("deltaRMax");
@@ -115,7 +116,7 @@ void GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   // Analyze!
   // ==========================================================
 
-  fill(reco_candidates,truth_candidates,plotAgainstRecoQuantities_, recPt_cut, maxEta_cut, deltaR_cut);
+  fill(reco_candidates,truth_candidates,plotAgainstRecoQuantities_, onlyTwoJets_, recPt_cut, maxEta_cut, deltaR_cut);
 
 }
 

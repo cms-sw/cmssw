@@ -31,6 +31,7 @@ public:
   edm::InputTag inputRecoLabel_;
   std::string benchmarkLabel_;
   bool plotAgainstRecoQuantities_;
+  bool onlyTwoJets_;
   double recPt_cut;
   double maxEta_cut;
   double deltaR_cut;
