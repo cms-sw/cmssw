@@ -15,6 +15,7 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=RecoEgamma/EgammaPhotonAlgos>
+<use name=RecoEgamma/PhotonIdentification>
 <use name=RecoEgamma/EgammaTools>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/CkfPattern>
@@ -43,6 +44,7 @@
   <use name=RecoEgamma/EgammaTools>
   <use name=RecoEgamma/EgammaIsolationAlgos>
   <use name=RecoEgamma/EgammaPhotonAlgos>
+  <use name=RecoEgamma/PhotonIdentification>
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/CkfPattern>
   <use name=RecoTracker/TrackProducer>
