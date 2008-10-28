@@ -1,10 +1,10 @@
-# /dev/CMSSW_2_2_0_pre0/HLT/V4 (CMSSW_3_0_X_2008-10-24-0200_HLT4)
+# /dev/CMSSW_2_2_0_pre0/HLT/V5 (CMSSW_3_0_X_2008-10-24-0200_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_2_2_0_pre0/HLT/V4')
+  tableName = cms.string('/dev/CMSSW_2_2_0_pre0/HLT/V5')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -811,7 +811,9 @@ hltIterativeCone5CaloJets = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltMCJetCorJetIcone5 = cms.EDProducer( "JetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
@@ -956,7 +958,9 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltMCJetCorJetIcone5Regional = cms.EDProducer( "JetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
@@ -7216,7 +7220,9 @@ hltIcone5Tau1 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau2 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7236,7 +7242,9 @@ hltIcone5Tau2 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau3 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7256,7 +7264,9 @@ hltIcone5Tau3 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau4 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForAll" ),
@@ -7276,7 +7286,9 @@ hltIcone5Tau4 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hlt1METSingleTau = cms.EDFilter( "HLT1CaloMET",
     inputTag = cms.InputTag( "hltMet" ),
@@ -7806,7 +7818,9 @@ hltIcone5Tau1Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForTaus" ),
@@ -7826,7 +7840,9 @@ hltIcone5Tau2Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForTaus" ),
@@ -7846,7 +7862,9 @@ hltIcone5Tau3Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForTaus" ),
@@ -7866,7 +7884,9 @@ hltIcone5Tau4Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" )
+    alias = cms.untracked.string( "IC5CaloJet" ),
+    correctInputToSignalVertex = cms.bool( True ),
+    pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltL2DoubleTauJets = cms.EDProducer( "L2TauJetsProvider",
     L1ParticlesTau = cms.InputTag( 'hltL1extraParticles','Tau' ),
