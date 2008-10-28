@@ -4,13 +4,13 @@ import FWCore.ParameterSet.Config as cms
 # module to for parton closure
 #----------------------------------------------
 
-partonClosure = cms.EDFilter("PartonClosure",
+partonCorrection = cms.EDFilter("PartonCorrection",
 ## input
-  recs = cms.InputTag("iterativeCone5CaloJets"),
+  recs = cms.InputTag("iterativeCone5GenJets"),
   refs = cms.InputTag("genParticles"),
                              
 ## histogram directory
-  hist = cms.string('partonClosure.hist'),
+  hist = cms.string('partonCorrection.hist'),
 
 ## pt bins for calibration
   type = cms.int32 (  0),   # comparison type can be (0:ratio/1:rel diff)
@@ -32,8 +32,8 @@ partonClosure = cms.EDFilter("PartonClosure",
   minEtaRec = cms.double( -5.0),
   maxEtaRec = cms.double(  5.0),
                              
-  minEmfCaloJet = cms.double( 0.0),
-  maxEmfCaloJet = cms.double( 1.0),
+  minEmfGenJet  = cms.double( 0.0),
+  maxEmfGenJet  = cms.double( 1.0),
   status        = cms.int32 (   3),
   partons       = cms.vint32(1, 2, 3, 4, 5)
 # partons       = cms.vint32(5)

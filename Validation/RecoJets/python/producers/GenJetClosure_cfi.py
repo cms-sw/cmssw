@@ -23,7 +23,7 @@ genJetClosure = cms.EDFilter("GenJetClosure",
 
 ## configure visible range and reconstruction quality                             
   maxDR     = cms.double(  0.3),
-  minPtRef  = cms.double(  5.0),                             
+  minPtRef  = cms.double( 10.0),                             
   maxPtRef  = cms.double(999.0),                             
   minPtRec  = cms.double( 15.0),
   maxPtRec  = cms.double(999.0),

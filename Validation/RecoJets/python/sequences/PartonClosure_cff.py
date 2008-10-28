@@ -14,7 +14,7 @@ l3Calib = Validation.RecoJets.producers.PartonClosure_cfi.partonClosure.clone()
 
 ## do proper replacements
 noCalib.recs = 'iterativeCone5CaloJets'
-gfCalib.recs = 'gfCorICone5'
+gfCalib.recs = 'gfCorJetIcone5'
 l2Calib.recs = 'L2L3CorJetIcone5'
 l3Calib.recs = 'L2L3CorJetIcone5'
 
