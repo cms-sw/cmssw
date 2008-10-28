@@ -38,7 +38,7 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmInfoEB = cms.EDFilter("DQMEventInfo",
+process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 

@@ -44,18 +44,18 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmInfoEE = cms.EDFilter("DQMEventInfo",
+process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
-process.dqmQTestEE = cms.EDFilter("QualityTester",
+process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
     reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-process.dqmSaver = cms.EDFilter("DQMFileSaver",
+process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )

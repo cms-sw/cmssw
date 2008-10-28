@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelMonitorClient = cms.EDFilter("EcalBarrelMonitorClient",
+ecalBarrelMonitorClient = cms.EDAnalyzer("EcalBarrelMonitorClient",
     inputFile = cms.untracked.string(''),
     dbName = cms.untracked.string(''),
     dbHostName = cms.untracked.string(''),

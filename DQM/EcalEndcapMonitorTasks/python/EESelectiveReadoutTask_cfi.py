@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEndcapSelectiveReadoutTask = cms.EDFilter("EESelectiveReadoutTask",
+ecalEndcapSelectiveReadoutTask = cms.EDAnalyzer("EESelectiveReadoutTask",
     prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),

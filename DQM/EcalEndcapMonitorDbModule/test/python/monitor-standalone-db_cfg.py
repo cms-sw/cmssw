@@ -4,7 +4,7 @@ process = cms.Process("MONITOR")
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.ecalDbMonitor = cms.EDFilter("EcalEndcapMonitorDbModule",
+process.ecalDbMonitor = cms.EDAnalyzer("EcalEndcapMonitorDbModule",
     xmlFile = cms.untracked.string('test.xml'),
     htmlDir = cms.untracked.string('.'),
     prefixME = cms.untracked.string('EcalEndcap'),

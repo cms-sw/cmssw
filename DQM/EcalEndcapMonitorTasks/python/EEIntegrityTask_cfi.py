@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEndcapIntegrityTask = cms.EDFilter("EEIntegrityTask",
+ecalEndcapIntegrityTask = cms.EDAnalyzer("EEIntegrityTask",
     prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEndcapTriggerTowerTask = cms.EDFilter("EETriggerTowerTask",
+ecalEndcapTriggerTowerTask = cms.EDAnalyzer("EETriggerTowerTask",
     prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

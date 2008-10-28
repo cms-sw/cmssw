@@ -57,15 +57,15 @@ process.ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
     testpulsePrescaleFactor = cms.untracked.int32(1)
 )
 
-process.dqmInfoEB = cms.EDFilter("DQMEventInfo",
+process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-process.dqmInfoEE = cms.EDFilter("DQMEventInfo",
+process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
-process.dqmSaver = cms.EDFilter("DQMFileSaver",
+process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )

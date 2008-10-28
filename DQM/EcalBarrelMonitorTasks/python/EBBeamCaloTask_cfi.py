@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelBeamCaloTask = cms.EDFilter("EBBeamCaloTask",
+ecalBarrelBeamCaloTask = cms.EDAnalyzer("EBBeamCaloTask",
     prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),

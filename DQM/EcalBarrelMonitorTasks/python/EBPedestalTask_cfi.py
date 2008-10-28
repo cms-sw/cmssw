@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelPedestalTask = cms.EDFilter("EBPedestalTask",
+ecalBarrelPedestalTask = cms.EDAnalyzer("EBPedestalTask",
     prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
