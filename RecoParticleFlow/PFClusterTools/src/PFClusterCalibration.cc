@@ -27,14 +27,6 @@ void PFClusterCalibration::init() {
 	/* These are the types of calibration I know about:
 	 * ecalOnly_elementName
 	 * etc. Sorry, it's not very nice, but well, neither is ROOT... */
-	std::string eoeb("ecalOnlyEcalBarrel");
-	names_.push_back(eoeb);
-	std::string eoee("ecalOnlyEcalEndcap");
-	names_.push_back(eoee);
-	std::string hohb("hcalOnlyHcalBarrel");
-	names_.push_back(hohb);
-	std::string hohe("hcalOnlyHcalEndcap");
-	names_.push_back(hohe);
 
 	std::string eheb("ecalHcalEcalBarrel");
 	names_.push_back(eheb);
