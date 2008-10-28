@@ -3979,6 +3979,11 @@
         <output_pin nr="45" pin="a" />
         <output_pin nr="45" pin="a" />
       </L1_SingleIsoEG15>
+      <L1_SingleIsoEG20>
+        SingleIsoEG_0x14
+        <output_pin nr="94" pin="a" />
+        <output_pin nr="94" pin="a" />
+      </L1_SingleIsoEG20>
       <L1_SingleIsoEG25>
         SingleIsoEG_0x19
         <output_pin nr="46" pin="a" />
@@ -6427,6 +6432,27 @@
       </phi>
       <location>A0</location>
     </SingleIsoEG_0x0F_x2>
+    <SingleIsoEG_0x14 condition="calo" particle="ieg" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        14
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+      <location>A0</location>
+    </SingleIsoEG_0x14>
     <SingleIsoEG_0x14_x1 condition="calo" particle="ieg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
