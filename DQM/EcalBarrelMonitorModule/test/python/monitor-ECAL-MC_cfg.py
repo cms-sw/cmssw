@@ -41,14 +41,6 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    laserPrescaleFactor = cms.untracked.int32(1),
-    ledPrescaleFactor = cms.untracked.int32(1),
-    pedestalPrescaleFactor = cms.untracked.int32(1),
-    testpulsePrescaleFactor = cms.untracked.int32(1)
-)
-
 process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
@@ -104,7 +96,7 @@ process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule
 process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapMonitorClient)
 
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence*process.dqmSaver)
-process.q = cms.Path(process.ecalDataSequence*~process.ecalPrescaler*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
+process.q = cms.Path(process.ecalDataSequence*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.r = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask*process.ecalEndcapDefaultTasksSequence*process.ecalEndcapClusterTask)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
