@@ -91,6 +91,11 @@ class RoadSearchTrackCandidateMakerAlgorithm
 					const TrackingRecHit* InnerHit, 
 					const TrackingRecHit* OuterHit);
 
+  FreeTrajectoryState initialTrajectoryFromTriplet(const edm::EventSetup& es,
+						   const TrackingRecHit* InnerHit, 
+						   const TrackingRecHit* MiddleHit, 
+						   const TrackingRecHit* OuterHit);
+
   Trajectory createSeedTrajectory(FreeTrajectoryState& fts,
 				  const TrackingRecHit* InnerHit, 
 				  const DetLayer* innerHitLayer);
@@ -109,6 +114,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
   unsigned int theNumHitCut;
   double theChi2Cut;
+  bool CosmicReco_;
   bool NoFieldCosmic_;
   bool CosmicTrackMerging_;
   int MinChunkLength_;

@@ -80,7 +80,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   theTransformer = new TrajectoryStateTransform;
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits;
   
-  NoFieldCosmic_  = conf_.getParameter<bool>("StraightLineNoBeamSpotCloud");
+  CosmicReco_  = conf_.getParameter<bool>("StraightLineNoBeamSpotCloud");
   CosmicTrackMerging_ = conf_.getParameter<bool>("CosmicTrackMerging");
   MinChunkLength_ = conf_.getParameter<int>("MinimumChunkLength");
   nFoundMin_      = conf_.getParameter<int>("nFoundMin");
@@ -143,6 +143,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   es.get<IdealMagneticFieldRecord>().get(magField_);
   magField = magField_.product();
   
+  NoFieldCosmic_ = (CosmicReco_ && (magField->inTesla(GlobalPoint(0,0,0)).mag() < 0.01));
+
   theMeasurementTracker->update(e);
   //const MeasurementTracker*  theMeasurementTracker = new MeasurementTracker(es,mt_params); // will need this later
   
@@ -175,7 +177,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     
     std::vector<Trajectory> CloudTrajectories;
     
-    if (!NoFieldCosmic_){
+    if (!CosmicReco_){
       std::sort(recHits.begin(),recHits.end(),SortHitPointersByGlobalPosition(tracker.product(),alongMomentum));
     }
     else {
@@ -240,12 +242,22 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
            ihit != theLayerHits.end(); ++ihit) {
 	
 	  GlobalPoint gp = trackerGeom->idToDet((*ihit)->geographicalId())->surface().toGlobal((*ihit)->localPosition());
-	  std::cout << "   Hit "<< ntothit
-		    << " r/z = "
-		    << gp.perp() << " " << gp.z()
-		    <<" in layer " << ilhv-RecHitsByLayer.begin()
-		    << " is hit " << (ihit-theLayerHits.begin())+1 
-		    << " of " << theLayerHits.size() << std::endl;
+	  if (CosmicReco_){
+	    std::cout << "   Hit "<< ntothit
+		      << " x/y/z = "
+		      << gp.x() << " " << gp.y() << " " << gp.z()
+		      <<" in layer " << ilhv-RecHitsByLayer.begin()
+		      << " is hit " << (ihit-theLayerHits.begin())+1 
+		      << " of " << theLayerHits.size() << std::endl;
+	  }
+	  else {
+	    std::cout << "   Hit "<< ntothit
+		      << " r/z = "
+		      << gp.perp() << " " << gp.z()
+		      <<" in layer " << ilhv-RecHitsByLayer.begin()
+		      << " is hit " << (ihit-theLayerHits.begin())+1 
+		      << " of " << theLayerHits.size() << std::endl;
+	  }
 	  ntothit++;
 	}
       }
@@ -358,22 +370,57 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	const DetLayer* innerHitLayer =
 	  theMeasurementTracker->geometricSearchTracker()->detLayer((*innerHit)->geographicalId());
 
-        for (RoadSearchCloud::RecHitVector::iterator outerHit = recHits_outer.begin();
-             outerHit != recHits_outer.end(); ++outerHit) {
+
+	RoadSearchCloud::RecHitVector::iterator middleHit, outerHit;
+	RoadSearchCloud::RecHitVector::iterator firstHit, lastHit;
+
+	bool triplets = (CosmicReco_ && (magField->inTesla(GlobalPoint(0,0,0)).mag() > 0.01));
+	
+	if (!triplets){
+	  firstHit = recHits_outer.begin();
+	  lastHit  = recHits_outer.end();
+	}
+	else if (triplets){
+	  firstHit = recHits_outer.begin()+1;
+	  lastHit = recHits_outer.end();
+	}
+
+        for (RoadSearchCloud::RecHitVector::iterator outerHit = firstHit; outerHit != lastHit; ++outerHit) {
           
+	  const DetLayer* middleHitLayer = 0;
+	  if (triplets){
+	    middleHit = outerHit-1;
+	    middleHitLayer = theMeasurementTracker->geometricSearchTracker()->detLayer((*middleHit)->geographicalId());
+	  }
 	  const DetLayer* outerHitLayer =
 	    theMeasurementTracker->geometricSearchTracker()->detLayer((*outerHit)->geographicalId());
+	  if (middleHitLayer == outerHitLayer) continue;
 
-          if (debug_){
-	    std::map<const DetLayer*, int>::iterator ilro = layer_reference.find(outerHitLayer);
-	    if (ilro != layer_reference.end()) {
-	      std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 << " and  " ;
-	      std::cout << "Outer Hit on Layer " << ilro->second << std::endl;
+	  FreeTrajectoryState fts;
+	  if (!triplets){
+	    if (debug_){
+	      std::map<const DetLayer*, int>::iterator ilro = layer_reference.find(outerHitLayer);
+	      if (ilro != layer_reference.end()) {
+		std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 << " and  " ;
+		std::cout << "Outer Hit on Layer " << ilro->second << std::endl;
+	      }
 	    }
+	    fts = initialTrajectory(es,*innerHit,*outerHit);
+	  }
+	  else if (triplets){
+	    if (debug_){
+	      std::map<const DetLayer*, int>::iterator ilrm = layer_reference.find(middleHitLayer);
+	      std::map<const DetLayer*, int>::iterator ilro = layer_reference.find(outerHitLayer);
+	      if (ilro != layer_reference.end() && ilrm != layer_reference.end()) {
+		std::cout << "Try trajectory with Hits on Layers " << ilayer0 << " , "
+			  << ilrm->second <<  " and  " << ilro->second << std::endl;
+	      }
+	    }
+	    fts = initialTrajectoryFromTriplet(es,*innerHit,*middleHit,*outerHit);
 	  }
 
-	  FreeTrajectoryState fts = initialTrajectory(es,*innerHit,*outerHit);
 	  if (!fts.hasError()) continue;
+	  if (debug_) std::cout<<"FTS: " << fts << std::endl;
 
 	  Trajectory seedTraj = createSeedTrajectory(fts,*innerHit,innerHitLayer);
 
@@ -1171,7 +1218,7 @@ bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( std::vector<s
         // only use useful layers
         if (good_layers.find(ilayer->first) == good_layers.end()) continue;
         // only use stereo layers
-        if (!NoFieldCosmic_ && !lstereo[ilayer-recHitsByLayer.begin()]) continue;
+        if (!CosmicReco_ && !lstereo[ilayer-recHitsByLayer.begin()]) continue;
         middle_layers.push_back(ilayer->first);
         if (middle_layers.size() >= max_middle_layers) break;
       }
@@ -1219,7 +1266,7 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 	  // linear z extrapolation of two hits have to be inside tracker ( |z| < 275 cm)
 	  FastLine linearFit(outer, inner);
 	  double z_0 = -linearFit.c()/linearFit.n2();
-	  if ( std::abs(z_0) > 275 && !NoFieldCosmic_ ) return fts;
+	  if ( std::abs(z_0) > 275 && !CosmicReco_ ) return fts;
 
           GlobalError vertexErr(dr2,
                                 0, dr2,
@@ -1274,6 +1321,7 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 			      cosmicSeedPt_*dzdr);
 	    GlobalTrajectoryParameters thePars(XYZ0,PXYZ,q,magField);
 	    AlgebraicSymMatrix66 CErr = AlgebraicMatrixID();
+	    CErr *= 5.0;
 	    // CErr(3,3) = (theInnerHit->localPositionError().yy()*theInnerHit->localPositionError().yy() +
 	    //		 theOuterHit->localPositionError().yy()*theOuterHit->localPositionError().yy());
 	    fts = FreeTrajectoryState(thePars,
@@ -1286,6 +1334,63 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 	  }
 	  //                       RoadSearchSeedFinderAlgorithm::initialError( *outerHit, *(*innerHit),
           //                                  vertexPos, vertexErr));
+
+	  return fts;
+}
+
+FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectoryFromTriplet(const edm::EventSetup& es,
+											 const TrackingRecHit* theInnerHit,
+											 const TrackingRecHit* theMiddleHit,
+											 const TrackingRecHit* theOuterHit)
+{
+  FreeTrajectoryState fts;
+
+          GlobalPoint inner = trackerGeom->idToDet(theInnerHit->geographicalId())->surface().toGlobal(theInnerHit->localPosition());
+          GlobalPoint middle= trackerGeom->idToDet(theMiddleHit->geographicalId())->surface().toGlobal(theMiddleHit->localPosition());
+          GlobalPoint outer = trackerGeom->idToDet(theOuterHit->geographicalId())->surface().toGlobal(theOuterHit->localPosition());
+          
+          LogDebug("RoadSearch") << "inner hit: r/phi/z = "<< inner.perp() << " " << inner.phi() << " " << inner.z() ;
+          LogDebug("RoadSearch") << "middlehit: r/phi/z = "<< inner.perp() << " " << inner.phi() << " " << inner.z() ;
+          LogDebug("RoadSearch") << "outer hit: r/phi/z = "<< outer.perp() << " " << outer.phi() << " " << outer.z() ;
+          
+          // hits should be reasonably separated in r
+          const double dRmin = 0.1; // cm
+          if (outer.perp() - inner.perp() < dRmin) return fts;
+	  const double dr2 = initialVertexErrorXY_*initialVertexErrorXY_;
+          const double dz2 = 5.3*5.3;
+
+	  // linear z extrapolation of two hits have to be inside tracker ( |z| < 275 cm)
+	  FastLine linearFit(outer, inner);
+	  double z_0 = -linearFit.c()/linearFit.n2();
+	  if ( std::abs(z_0) > 275 && !CosmicReco_ ) return fts;
+
+
+          FastHelix helix(outer, middle, inner, es);
+          if (!helix.isValid()) return fts;
+          
+          AlgebraicSymMatrix55 C = AlgebraicMatrixID();
+          float zErr = dz2;
+          float transverseErr = dr2; // assume equal cxx cyy
+          C(3, 3) = transverseErr;
+          C(4, 4) = zErr;
+          CurvilinearTrajectoryError initialError(C);
+
+
+	  thePropagator = theAloPropagator;//GC
+	  GlobalVector gv=helix.stateAtVertex().parameters().momentum();
+	  float charge=helix.stateAtVertex().parameters().charge();
+
+	  if (CosmicReco_ && gv.y()>0){
+	    if (debug_) std::cout<<"Flipping direction!!!" << std::endl;
+	    thePropagator = theRevPropagator;
+	    gv=-1.*gv;
+	    charge=-1.*charge;
+	  }
+
+	  GlobalTrajectoryParameters Gtp(inner,gv,int(charge),&(*magField));
+	  fts = FreeTrajectoryState(Gtp, initialError);
+
+	 //fts = FreeTrajectoryState( helix.stateAtVertex().parameters(), initialError);
 
 	  return fts;
 }
@@ -1486,18 +1591,25 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
       std::cout << "==========ENTERING COSMIC MODE===========" << std::endl;
       int t=0;
       for (std::vector<Trajectory>::iterator it = traj.begin(); it != traj.end(); it++) {
-	std::cout << "Tajectory " << t << " is valid: " << it->isValid() << std::endl;
-	++t;
+	std::cout << "Trajectory " << it-traj.begin() << " has "<<it->recHits().size()<<" hits and is valid: " << it->isValid() << std::endl;
+	TransientTrackingRecHit::ConstRecHitContainer itHits = it->recHits();
+	
+
+	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=itHits.begin(); rhit!=itHits.end(); ++rhit)
+	  std::cout << "-->good hit position: " << (*rhit)->globalPosition().x() << ", " 
+		    << (*rhit)->globalPosition().y() << ", "<< (*rhit)->globalPosition().z() << std::endl;
+
       }
     }
 
     //double nested looop to find trajectories that match in phi
     for ( unsigned int i = 0; i < traj.size(); ++i) {
-    
+      if (trajUsed[i]) continue;    
       for ( unsigned int j = i+1; j != traj.size(); ++j) {
+	if (trajUsed[j]) continue;    
 	
-	if (debugCosmics_) std::cout<< "Trajectory 1 has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid"<<std::endl;
-	if (debugCosmics_) std::cout<< "Trajectory 2 has "<<traj[j].recHits().size()<<" hits with chi2=" << traj[j].chiSquared() << " and is valid"<<std::endl;           
+	if (debugCosmics_) std::cout<< "Trajectory " <<i<< " has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid"<<std::endl;
+	if (debugCosmics_) std::cout<< "Trajectory " <<j<< " has "<<traj[j].recHits().size()<<" hits with chi2=" << traj[j].chiSquared() << " and is valid"<<std::endl;           
 	
 	TrajectoryMeasurement firstTraj1 = traj[i].firstMeasurement();
 	TrajectoryMeasurement firstTraj2 = traj[j].firstMeasurement();
@@ -1506,7 +1618,9 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 
 	
 	if(debugCosmics_) 
-	  std::cout << "phi1: " << firstTraj1TSOS.globalMomentum().phi() << " phi2: " << firstTraj2TSOS.globalMomentum().phi() << " --> delta_phi: " << firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi() << std::endl;
+	  std::cout << "phi1: " << firstTraj1TSOS.globalMomentum().phi() 
+		    << " phi2: " << firstTraj2TSOS.globalMomentum().phi() 
+		    << " --> delta_phi: " << firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi() << std::endl;
 	
 	//generate new trajectory if delta_phi<0.3
 	//use phi of momentum vector associated to *innermost* hit of trajectories
@@ -1529,20 +1643,24 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	  std::cout<<"Traj1 first (x/y/z): " 
 		   << firstTraj1TSOS.globalPosition().x() <<" / "
 		   << firstTraj1TSOS.globalPosition().y() <<" / "
-		   << firstTraj1TSOS.globalPosition().z() << std::endl;
+		   << firstTraj1TSOS.globalPosition().z() 
+		   << "   phi: " << firstTraj1TSOS.globalMomentum().phi() << std::endl;
 	  std::cout<<"Traj1  last (x/y/z): " 
 		   << lastTraj1TSOS.globalPosition().x() <<" / "
 		   << lastTraj1TSOS.globalPosition().y() <<" / "
-		   << lastTraj1TSOS.globalPosition().z() << std::endl;
+		   << lastTraj1TSOS.globalPosition().z() 
+		   << "   phi: " << lastTraj1TSOS.globalMomentum().phi() << std::endl;
 
 	  std::cout<<"Traj2 first (x/y/z): " 
 		   << firstTraj2TSOS.globalPosition().x() <<" / "
 		   << firstTraj2TSOS.globalPosition().y() <<" / "
-		   << firstTraj2TSOS.globalPosition().z() << std::endl;
+		   << firstTraj2TSOS.globalPosition().z()
+		   << "   phi: " << firstTraj2TSOS.globalMomentum().phi() << std::endl;
 	  std::cout<<"Traj2  last (x/y/z): " 
 		   << lastTraj2TSOS.globalPosition().x() <<" / "
 		   << lastTraj2TSOS.globalPosition().y() <<" / "
-		   << lastTraj2TSOS.globalPosition().z() << std::endl;
+		   << lastTraj2TSOS.globalPosition().z()
+		   << "   phi: " << lastTraj2TSOS.globalMomentum().phi() << std::endl;
 
 	}
 
@@ -1577,7 +1695,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	std::vector<Trajectory> freshStartLowerTrajectory = theSmoother->trajectories(*lowerTrajectory);
 	//--JR
 	if (freshStartUpperTrajectory.empty() || freshStartLowerTrajectory .empty()){
-	  std::cout << " the smoother has failed."<<std::endl;
+	  if (debugCosmics_) std::cout << " the smoother has failed."<<std::endl;
 	  continue;
 	}
 	//--JR
@@ -1602,8 +1720,17 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	
 	bool addHitToFreshStartTrajectory = false;
 	bool propagationFailed = false;
+	int lostHits = 0;
 	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
-	  
+
+	  if(debugCosmics_ && lostHits>0){
+	    std::cout << " Lost " << lostHits << " of " << ttHits.size() << " on lower trajectory " << std::endl;
+	    std::cout << " Lost " << ((float)lostHits/(float)ttHits.size()) << " of hits of on lower trajectory " << std::endl;
+	  }
+	  if ((float)lostHits/(float)ttHits.size() > 0.5) {
+	      propagationFailed = true;
+	      break;
+	  }
 	  if(debugCosmics_) std::cout << "-->hit position: " << (*rhit)->globalPosition().x() << ", " << (*rhit)->globalPosition().y() << ", "<< (*rhit)->globalPosition().z() << std::endl;
 	  
 	  TrajectoryStateOnSurface predTsos;
@@ -1691,7 +1818,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	    
 	    if (!predTsos.isValid()) {
 	      if(debugCosmics_) std::cout<<"predTsos is not valid!" <<std::endl;
-	      propagationFailed = true;
+	      //propagationFailed = true;
+	      ++lostHits;
 	      //break;
 	      continue;
 	    }
@@ -1702,7 +1830,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	    MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
 	    if (!est.first) {
 	      if(debugCosmics_) std::cout<<"Failed to add one of the original hits on a low occupancy layer!!!!" << std::endl;
-	      propagationFailed = true;
+	      //propagationFailed = true;
+	      ++lostHits;
 	      //break;
 	      continue;
 	    }
@@ -1717,12 +1846,12 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 
 	  if(debugCosmics_) std::cout<<"#hits for new trajectory (his from upper trajectory added): " << freshStartTrajectory.measurements().size() << std::endl;
 	}
-	/*
+
 	if (propagationFailed) {
 	  if (debugCosmics_) std::cout<<"Propagation failed so go to next trajectory" << std::endl;
 	  continue;
 	}
-	*/
+
 	//put final trajectory together
 	if(debugCosmics_) std::cout << "put final trajectory together..." << std::endl;
 	edm::OwnVector<TrackingRecHit> goodHits;
@@ -1792,7 +1921,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	delete state;
       }
     }
-     
+    if (debugCosmics_) std::cout << "Original collection had " << theTrajectories.size() 
+				 << " candidates.  Merged collection has " << theCollection.size() << std::endl;
   } //if(CosmicTrackMerging_)
   
   
