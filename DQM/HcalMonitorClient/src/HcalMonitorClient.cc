@@ -249,7 +249,7 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( led_client_ )        led_client_->beginJob(c);
   if( laser_client_ )      laser_client_->beginJob(c);
   if( hot_client_ )        hot_client_->beginJob();
-  if( dead_client_ )       dead_client_->beginJob();
+  if( dead_client_ )       dead_client_->beginJob(c);
   if( tp_client_ )         tp_client_->beginJob();
   if( ct_client_ )         ct_client_->beginJob();
   return;

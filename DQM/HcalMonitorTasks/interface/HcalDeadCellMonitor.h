@@ -11,8 +11,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/10/26 18:22:01 $
-  * $Revision: 1.18 $
+  * $Date: 2008/10/27 19:09:01 $
+  * $Revision: 1.19 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -66,7 +66,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void processEvent_rechitneighbors( const HBHERecHitCollection& hbheHits,
 				     const HORecHitCollection& hoHits,
 				     const HFRecHitCollection& hfHits);
-
+  void fillDeadHistosAtEndRun();
  private:
 
   void fillNevents_occupancy();
@@ -97,6 +97,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   double HEenergyThreshold_;
   double HOenergyThreshold_;
   double HFenergyThreshold_;
+  double ZDCenergyThreshold_;
 
   MonitorElement* meEVT_;
   int ievt_;
@@ -109,7 +110,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   std::vector<MonitorElement*>UnoccupiedDeadCellsByDepth;
   std::vector<MonitorElement*>BelowPedestalDeadCellsByDepth;
   double nsigma_;
-  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_;
+  double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
   std::vector<MonitorElement*>BelowNeighborsDeadCellsByDepth;
   std::vector<MonitorElement*>BelowEnergyThresholdCellsByDepth;
 

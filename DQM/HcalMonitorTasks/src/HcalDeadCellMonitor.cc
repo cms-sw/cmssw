@@ -25,7 +25,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
     }
   
   if (fVerbosity>0)
-    cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
+    cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<endl;
 
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"DeadCellMonitor";
@@ -33,11 +33,11 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   // Dead Cell Monitor - specific cfg variables
 
   if (fVerbosity>1)
-    cout <<"<HcalPedestalMonitor::setup>  Getting variable values from cfg files"<<endl;
+    cout <<"<HcalDeadCellMonitor::setup>  Getting variable values from cfg files"<<endl;
   // determine whether database pedestals are in FC or ADC
   doFCpeds_ = ps.getUntrackedParameter<bool>("DeadCellMonitor_pedestalsInFC", true);
 
-  // deadmon_makeDiagnostics_ will take on base taks value unless otherwise specified
+  // deadmon_makeDiagnostics_ will take on base task value unless otherwise specified
   deadmon_makeDiagnostics_ = ps.getUntrackedParameter<bool>("DeadCellMonitor_makeDiagnosticPlots",makeDiagnostics);
   
   // Set checkNevents values
@@ -61,13 +61,15 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   HEnsigma_     = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HE_Nsigma",nsigma_);
   HOnsigma_     = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HO_Nsigma",nsigma_);
   HFnsigma_     = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_HF_Nsigma",nsigma_);
+  ZDCnsigma_    = ps.getUntrackedParameter<double>("DeadCellMonitor_pedestal_ZDC_Nsigma", nsigma_);
 
   // rechit energy test -- cell must be below threshold value for a number of consecutive events to be considered dead
   energyThreshold_       = ps.getUntrackedParameter<double>("DeadCellMonitor_energyThreshold",   1);
-  HBenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HB_energyThreshold",1);
-  HEenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HE_energyThreshold",1);
-  HOenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HO_energyThreshold",1);
-  HFenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HF_energyThreshold",1);
+  HBenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HB_energyThreshold",energyThreshold_);
+  HEenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HE_energyThreshold",energyThreshold_);
+  HOenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HO_energyThreshold",energyThreshold_);
+  HFenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HF_energyThreshold",energyThreshold_);
+  HFenergyThreshold_     = ps.getUntrackedParameter<double>("DeadCellMonitor_HF_energyThreshold",-999);
 
   // neighboring-cell tests
   defaultNeighborParams_.DeltaIphi = ps.getUntrackedParameter<int>("DeadCellMonitor_neighbor_deltaIphi", 1);
@@ -81,7 +83,8 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   setupNeighborParams(ps,HENeighborParams_ ,"HE");
   setupNeighborParams(ps,HONeighborParams_ ,"HO");
   setupNeighborParams(ps,HFNeighborParams_ ,"HF");
-								   
+  HFNeighborParams_.DeltaIphi*=2; // HF cell segmentation is 10 degrees, not 5 (mostly).  Need to multiply by 2 to convert from cell range to degree format
+
   // Set initial event # to 0
   ievt_=0;
 
@@ -89,7 +92,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   if (m_dbe)
     {
       if (fVerbosity>1)
-	cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
+	cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<endl;
 
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("Dead Cell Task Event Number");
@@ -113,30 +116,72 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
       m_dbe->setCurrentFolder(baseFolder_+"/dead_unoccupied");
       //units<<"("<<deadmon_checkNevents_occupancy_<<" consec. events)";
-      units.str("");
       setupDepthHists2D(UnoccupiedDeadCellsByDepth,
-			"Dead Cells with No Digis",
-			(char*)units.str().c_str());
+			"Dead Cells with No Digis","");
       
       m_dbe->setCurrentFolder(baseFolder_+"/dead_pedestaltest");
-      setupDepthHists2D(BelowPedestalDeadCellsByDepth,"Dead Cells Failing Pedestal Test",
-			(char*)units.str().c_str());
-            
+      setupDepthHists2D(BelowPedestalDeadCellsByDepth,"Dead Cells Failing Pedestal Test","");
+
+      // set more descriptive titles for pedestal plots
+      units.str("");
+      units<<"Dead Cells Failing Pedestal Test Depth 1 -- HB < ped + "<<HBnsigma_<<"#sigma, HF < ped + "<<HFnsigma_<<"#sigma";
+      BelowPedestalDeadCellsByDepth[0]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells Failing Pedestal Test Depth 2 -- HB < ped + "<<HBnsigma_<<"#sigma, HF < ped + "<<HFnsigma_<<"#sigma";
+      BelowPedestalDeadCellsByDepth[1]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells Failing Pedestal Test Depth 3 -- HE < ped + "<<HEnsigma_<<"#sigma";
+      BelowPedestalDeadCellsByDepth[2]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells Failing Pedestal Test Depth 4 -- HO < ped + "<<HOnsigma_<<"#sigma, ZDC TBD";
+      BelowPedestalDeadCellsByDepth[3]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells Failing Pedestal Test Depth 1 -- HE < ped + "<<HEnsigma_<<"#sigma";
+      BelowPedestalDeadCellsByDepth[4]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells Failing Pedestal Test Depth 2 -- HE < ped + "<<HEnsigma_<<"#sigma";
+      BelowPedestalDeadCellsByDepth[5]->setTitle(units.str().c_str());
+      units.str("");
+
       m_dbe->setCurrentFolder(baseFolder_+"/dead_neighbortest");
-      setupDepthHists2D(BelowNeighborsDeadCellsByDepth,"Dead Cells Failing Neighbor Test",
-			(char*)units.str().c_str());
-      
+      setupDepthHists2D(BelowNeighborsDeadCellsByDepth,"Dead Cells Failing Neighbor Test","");
 
       m_dbe->setCurrentFolder(baseFolder_+"/dead_energytest");
-      setupDepthHists2D(BelowEnergyThresholdCellsByDepth,"Dead Cells Failing Energy Threshold Test",(char*)units.str().c_str());
+      setupDepthHists2D(BelowEnergyThresholdCellsByDepth,"Dead Cells Failing Energy Threshold Test","");
+      // set more descriptive titles for threshold plots
+      units.str("");
+      units<<"Dead Cells with Consistent Low Energy Depth 1 -- HB <"<<HBenergyThreshold_<<" GeV, HF <"<<HFenergyThreshold_<<" GeV";
+      BelowEnergyThresholdCellsByDepth[0]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells with Consistent Low Energy Depth 2 -- HB <"<<HBenergyThreshold_<<" GeV, HF <"<<HFenergyThreshold_<<" GeV";
+      BelowEnergyThresholdCellsByDepth[1]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells with Consistent Low Energy Depth 3 -- HE <"<<HEenergyThreshold_<<" GeV";
+      BelowEnergyThresholdCellsByDepth[2]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells with Consistent Low Energy Depth 4 -- HO <"<<HOenergyThreshold_<<" GeV, ZDC TBD";
+      BelowEnergyThresholdCellsByDepth[3]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells with Consistent Low Energy Depth 1 -- HE <"<<HEenergyThreshold_<<" GeV";
+      BelowEnergyThresholdCellsByDepth[4]->setTitle(units.str().c_str());
+      units.str("");
+      units<<"Dead Cells with Consistent Low Energy Depth 2 -- HE <"<<HEenergyThreshold_<<" GeV";
+      BelowEnergyThresholdCellsByDepth[5]->setTitle(units.str().c_str());
+      units.str("");
 
       if (deadmon_makeDiagnostics_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/pedestal");
-	  d_HBnormped=m_dbe->book1D("HB_normped","HB (ADC-pedestal)/nsigma",500,-10,40);
-	  d_HEnormped=m_dbe->book1D("HE_normped","HE (ADC-pedestal)/nsigma",500,-10,40);
-	  d_HOnormped=m_dbe->book1D("HO_normped","HO (ADC-pedestal)/nsigma",500,-10,40);
-	  d_HFnormped=m_dbe->book1D("HF_normped","HF (ADC-pedestal)/nsigma",500,-10,40);
+	  d_HBnormped=m_dbe->book1D("HB_normped","HB Dead Cell pedestal diagnostic ",300,-10,20);
+	  d_HEnormped=m_dbe->book1D("HE_normped","HE Dead Cell pedestal diagnostic",300,-10,20);
+	  d_HOnormped=m_dbe->book1D("HO_normped","HO Dead Cell pedestal diagnostic",300,-10,20);
+	  d_HFnormped=m_dbe->book1D("HF_normped","HF Dead Cell pedestal diagnostic",300,-10,20);
+	  // JEFF
+	  d_HBnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
+	  d_HEnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
+	  d_HOnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
+	  d_HFnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
+
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/energythreshold");
 	  d_HBrechitenergy=m_dbe->book1D("HB_rechitenergy","HB rechit energy",500,-10,40);
 	  d_HErechitenergy=m_dbe->book1D("HE_rechitenergy","HE rechit energy",500,-10,40);
@@ -144,10 +189,10 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  d_HFrechitenergy=m_dbe->book1D("HF_rechitenergy","HF rechit energy",500,-10,40);
 
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/neighborcells");
-	  d_HBenergyVsNeighbor=m_dbe->book2D("HB_energyVsNeighbor","HB rec hit energy vs. #Sigma Neighbors",100,0,25,100,-5,15);
-	  d_HEenergyVsNeighbor=m_dbe->book2D("HE_energyVsNeighbor","HE rec hit energy vs. #Sigma Neighbors",100,0,25,100,-5,15);
-	  d_HOenergyVsNeighbor=m_dbe->book2D("HO_energyVsNeighbor","HO rec hit energy vs. #Sigma Neighbors",100,0,25,100,-5,15);
-	  d_HFenergyVsNeighbor=m_dbe->book2D("HF_energyVsNeighbor","HF rec hit energy vs. #Sigma Neighbors",100,0,25,100,-5,15);
+	  d_HBenergyVsNeighbor=m_dbe->book2D("HB_energyVsNeighbor","HB rec hit energy vs.  #Sigma Neighbors",100,0,25,100,-5,15);
+	  d_HEenergyVsNeighbor=m_dbe->book2D("HE_energyVsNeighbor","HE rec hit energy vs.  #Sigma Neighbors",100,0,25,100,-5,15);
+	  d_HOenergyVsNeighbor=m_dbe->book2D("HO_energyVsNeighbor","HO rec hit energy vs.  #Sigma Neighbors",100,0,25,100,-5,15);
+	  d_HFenergyVsNeighbor=m_dbe->book2D("HF_energyVsNeighbor","HF rec hit energy vs.  #Sigma Neighbors",100,0,25,100,-5,15);
 
 	} // if (deadmon_makeDiagnostics_)
     } // if (m_dbe)
@@ -430,6 +475,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
     }
 
   ++ievt_;
+  if (m_dbe) meEVT_->Fill(ievt_);
 
   if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent> Processing event..."<<endl;
 
@@ -461,6 +507,30 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   return;
 } // void HcalDeadCellMonitor::processEvent(...)
+
+/* --------------------------------------- */
+
+void HcalDeadCellMonitor::fillDeadHistosAtEndRun()
+{
+  // Fill histograms one last time at endRun call
+  
+  /*
+    I'm not sure I like this feature.  Suppose checkNevents=500, and the end run occurs at 501?
+    Then the occupancy plot would create errors for whichever digis were not found in a single event.
+    That's not desired behavior.
+    We could just exclude the occupancy test from running here, but I'm not sure that's the best solution either.
+    For now (28 Oct. 2008), just disable this functionality.  We'll come back to it if necessary.
+  */
+  return;
+
+  if (deadmon_test_occupancy_ && ievt_%deadmon_checkNevents_occupancy_>0) fillNevents_occupancy();
+  if (deadmon_test_pedestal_  && ievt_%deadmon_checkNevents_pedestal_ >0) fillNevents_pedestal();
+  if (deadmon_test_neighbor_  && ievt_%deadmon_checkNevents_neighbor_ >0) fillNevents_neighbor();
+  if (deadmon_test_energy_    && ievt_%deadmon_checkNevents_energy_   >0) fillNevents_energy();
+  if (deadmon_test_occupancy_ || deadmon_test_pedestal_ || 
+      deadmon_test_neighbor_  || deadmon_test_energy_)  
+    fillNevents_problemCells();
+}
 
 /* --------------------------------------- */
 
@@ -578,10 +648,10 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 
  if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent_rechitneighbors> Processing rechits..."<<endl;
 
- // if Energy test wasn't run, need to make map here
+ // if Energy test wasn't run, need to creat map of Detid:rechitenergy here
  if (!deadmon_test_energy_)
    {
-     rechitEnergies_.clear();
+     rechitEnergies_.clear(); // clear old map
      for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
        { // loop over all hits
 	 float en = HBHEiter->energy();
@@ -688,9 +758,13 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	 allneighbors=0;
 	 cellsfound=0;
 	 enNeighbor=0;
+	 int HEDeltaIphi = HENeighborParams_.DeltaIphi;
+	 // now correct for boundaries
+	 if (abs(ieta)>20) HEDeltaIphi*=2; // double iphi boundary range when segmentation switches to 10 degrees
+	 // This still needs to be worked on to properly deal with boundaries
 	 for (int nD=-1*HENeighborParams_.DeltaDepth;nD<=HENeighborParams_.DeltaDepth;++nD)
 	   {
-	     for (int nP =-1*HENeighborParams_.DeltaIphi;nP<=HENeighborParams_.DeltaIphi;++nP)
+	     for (int nP =-1*HEDeltaIphi;nP<=HEDeltaIphi;++nP)
 	       {
 		 for (int nE =-1*HENeighborParams_.DeltaIeta;nE<=HENeighborParams_.DeltaIeta;++nE)
 		   {
@@ -721,6 +795,7 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	   continue;
 	 // Case 3:  Tests passed; cell marked as dead
 	 belowneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
+	 cout <<"FOUND HE: "<<ieta<<"  "<<iphi<<"  "<<depth<<"   cell E = "<<en<<"  # neighbors =  "<<cellsfound<<"/"<<allneighbors<<"   avg en = "<<enNeighbor*1./allneighbors<<endl; 
        }
    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
 
@@ -794,9 +869,12 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	 allneighbors=0;
 	 cellsfound=0;
 	 enNeighbor=0;
+	 int HFDeltaIphi = HFNeighborParams_.DeltaIphi;
+	 if (abs(ieta)>39) HFDeltaIphi*=2;  // double phi range when segmentation switches to 20 degrees
+	 // Still need to create a more robust handling of boundary cases
 	 for (int nD=-1*HFNeighborParams_.DeltaDepth;nD<=HFNeighborParams_.DeltaDepth;++nD)
 	   {
-	     for (int nP =-1*HFNeighborParams_.DeltaIphi;nP<=HFNeighborParams_.DeltaIphi;++nP)
+	     for (int nP =-1*HFDeltaIphi;nP<=HFDeltaIphi;++nP)
 	       {
 		 for (int nE =-1*HFNeighborParams_.DeltaIeta;nE<=HFNeighborParams_.DeltaIeta;++nE)
 		   {
@@ -932,13 +1010,16 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       // We'll assume steeply-peaked distribution, so that charge deposit occurs
       // in slices (i-1) -> (i+2) around maximum deposit time i
       
+      int bins=0;
       for (int i=max(0,maxbin-1);i<=min(digi.size()-1,maxbin+2);++i)
 	{
 	  ADCsum+=digi.sample(i).adc();
-
+	  ++bins;
 	} // for (int i=max(0,maxbin-1);...)      
 
       // Compare ADCsum to minimum expected value (pedestal+nsigma)
+      // we want to compare the average over the sum to the average (ped+nsigma)
+      ADCsum*=1./bins;
 
       // Search for digi in map of pedestal+threshold values
       if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
@@ -1008,12 +1089,14 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	  // We'll assume steeply-peaked distribution, so that charge deposit occurs
 	  // in slices (i-1) -> (i+2) around maximum deposit time i
       
+	  int bins=0;
 	  for (int i=max(0,maxbin-1);i<=min(digi.size()-1,maxbin+2);++i)
 	    {
 	      ADCsum+=digi.sample(i).adc();
-
+	      ++bins;
 	    } // for (int i=max(0,maxbin-1);...)      
-
+	  
+	  ADCsum*=1./bins;
 	  // Search for digi in map of pedestal+threshold values
 	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	    {
@@ -1081,12 +1164,14 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
 	  // We'll assume steeply-peaked distribution, so that charge deposit occurs
 	  // in slices (i-1) -> (i+2) around maximum deposit time i
       
+	  int bins=0;
 	  for (int i=max(0,maxbin-1);i<=min(digi.size()-1,maxbin+2);++i)
 	    {
 	      ADCsum+=digi.sample(i).adc();
-
+	      ++bins;
 	    } // for (int i=max(0,maxbin-1);...)      
 
+	  ADCsum*=1./bins;
 	  // Search for digi in map of pedestal+threshold values
 	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
 	    {
@@ -1246,7 +1331,7 @@ void HcalDeadCellMonitor::fillNevents_pedestal(void)
 		  oldevts*=deadmon_checkNevents_pedestal_;
 		  int newevts=ievt_-oldevts;
 		  if (newevts<0) newevts=0; // shouldn't happen
-		  //cout <<"GOOD  "<<subdet<<" ("<<eta<<", "<<phi<<", "<<mydepth<<") = "<<belowpedestal[eta][phi][mydepth]<<endl;
+
 		  mydepth=depth;
 		  if (subdet==4) // remember that HF's elements stored in depths (2,3), not (0,1)
 		    mydepth=depth+2;
@@ -1326,27 +1411,36 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
 		  mydepth=depth;
 		  if (subdet==4) // remember that HF's elements stored in depths (2,3), not (0,1)
 		    mydepth=depth+2;
-		  if (belowenergy[eta][phi][mydepth]>0)
+
+		  // Allow for case when we perform check at end of run, so that ievt_%checkNevents != 0
+		  
+		  int oldevts=(ievt_/deadmon_checkNevents_pedestal_);
+		  if (ievt_%deadmon_checkNevents_pedestal_==0)
+		    oldevts-=1;
+		  oldevts*=deadmon_checkNevents_pedestal_;
+		  int newevts=ievt_-oldevts;
+		  if (newevts<0) newevts=0; // shouldn't happen
+
+		  // Cell must be below energy threshold for a number of consecutive events to be considered bad
+		  if (belowenergy[eta][phi][mydepth]>=(unsigned int)newevts) // should never be > newevts, right?
 		    {
-		      if (fVerbosity>2) cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
+		      if (fVerbosity>2) 
+			cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<endl;
 		      if (subdet==2 && depth<2) // HE depth positions(0,1) found -- shift up to positions (4,5)
 			mydepth=depth+4;
 		      else
 			mydepth=depth; // switches back HF to its correct depth
-		      // no digi was found for the N events; set histogram error rate
-		      int oldevts=(ievt_/deadmon_checkNevents_energy_);
-		      if (ievt_%deadmon_checkNevents_energy_==0)
-			oldevts-=1;
-		      oldevts*=deadmon_checkNevents_energy_;
+		      
+		      // Cell is below energy for all 'newevts' consecutive events; update histogram
 		      // BinContent starts at 1, not 0 (offset by 0)
 		      // Offset by another 1 due to empty bins at edges
+
 		      BelowEnergyThresholdCellsByDepth[mydepth]->setBinContent( eta+2,phi+2,
 									  (oldevts*BelowEnergyThresholdCellsByDepth[mydepth]->getBinContent(eta+2,phi+2)+belowenergy[eta][phi][mydepth])*1./ievt_);
-		      //reset counter
-		      belowenergy[eta][phi][depth]=0;
-		    } // if (belowenergy[eta][phi][mydepth]>0)
+		    } // if (belowenergy[eta][phi][mydepth]>=maxevents)
 		} // for (int subdet=1;subdet<=4;++subdet)
-
+	      // reset counter
+	      belowenergy[eta][phi][depth]=0;
 	    } // for (int depth=0;depth<4;++depth)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)

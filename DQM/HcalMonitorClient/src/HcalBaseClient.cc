@@ -131,3 +131,54 @@ void HcalBaseClient::getTestResults(int& totalTests,
 
   return;
 }
+/*
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* &h)
+{
+  TH2F* dummy;
+  ostringstream hname;
+  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
+  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
+  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
+  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
+  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
+  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  return;
+} // void HcalBaseClient::getSJ6histos(2D)
+
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* &h)
+{
+  TH1F* dummy;
+  ostringstream hname;
+  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
+  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
+  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
+  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
+  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
+  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+  return;
+} // void HcalBaseClient::getSJ6histos(1D)
+*/

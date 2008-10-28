@@ -43,9 +43,19 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           CapIdRMS_ErrThresh        = cms.untracked.double(0.25),
 
                           # Dead Cell Client
-                          DeadCellClient            = cms.untracked.bool(True),
-                          deadcellErrorFrac         = cms.untracked.double(0.05),
-
+                          DeadCellClient                            = cms.untracked.bool(True),
+                          DeadCellClient_test_occupancy             = cms.untracked.bool(True),
+                          DeadCellClient_test_pedestal              = cms.untracked.bool(True),
+                          DeadCellClient_test_energy                = cms.untracked.bool(True),
+                          DeadCellClient_test_neighbor              = cms.untracked.bool(False),
+                          DeadCellClient_checkNevents               = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_occupancy     = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_pedestal      = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_energy        = cms.untracked.int32(100),
+                          DeadCellClient_checkNevents_neighbor      = cms.untracked.int32(100),
+                          DeadCellClient_minErrorFlag               = cms.untracked.double(0.01),
+                          DeadCellClient_makeDiagnosticPlots        = cms.untracked.bool(False),
+                          
                           # DataFormatClient
                           DataFormatClient          = cms.untracked.bool(True),
 
@@ -82,17 +92,29 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #This way, when you disable the DataFormat Monitor, the DataFormat client is also turned off automatically, etc.
     
     client.PedestalClient    = monitor.PedestalMonitor
-    client.PedestalClient_nominalPedMeanInADC    = monitor.PedestalMonitor_nominalPedMeanInADC
-    client.PedestalClient_nominalPedWidthInADC   = monitor.PedestalMonitor_nominalPedWidthInADC
-    client.PedestalClient_maxPedMeanDiffADC      = monitor.PedestalMonitor_maxPedMeanDiffADC
-    client.PedestalClient_maxPedWidthDiffADC     = monitor.PedestalMonitor_maxPedWidthDiffADC
-    client.PedestalClient_pedestalsInFC          = monitor.PedestalMonitor_pedestalsInFC
-    client.PedestalClient_startingTimeSlice      = monitor.PedestalMonitor_startingTimeSlice
-    client.PedestalClient_endingTimeSlice        = monitor.PedestalMonitor_endingTimeSlice
-    #client.PedestalClient_minErrorFlag           = monitor.   # want to keep these separate?
-    
+    client.PedestalClient_nominalPedMeanInADC     = monitor.PedestalMonitor_nominalPedMeanInADC
+    client.PedestalClient_nominalPedWidthInADC    = monitor.PedestalMonitor_nominalPedWidthInADC
+    client.PedestalClient_maxPedMeanDiffADC       = monitor.PedestalMonitor_maxPedMeanDiffADC
+    client.PedestalClient_maxPedWidthDiffADC      = monitor.PedestalMonitor_maxPedWidthDiffADC
+    client.PedestalClient_pedestalsInFC           = monitor.PedestalMonitor_pedestalsInFC
+    client.PedestalClient_startingTimeSlice       = monitor.PedestalMonitor_startingTimeSlice
+    client.PedestalClient_endingTimeSlice         = monitor.PedestalMonitor_endingTimeSlice
+    #client.PedestalClient_minErrorFlag            = monitor.PedestalMonitor_minErrorFlag # want to keep these separate?
+
+    client.DeadCellClient                         = monitor.DeadCellMonitor
+    client.DeadCellClient_test_occupancy          = monitor.DeadCellMonitor_test_occupancy
+    client.DeadCellClient_test_pedestal           = monitor.DeadCellMonitor_test_pedestal
+    client.DeadCellClient_test_energy             = monitor.DeadCellMonitor_test_energy
+    client.DeadCellClient_test_neighbor           = monitor.DeadCellMonitor_test_neighbor
+    client.DeadCellClient_checkNevents_occupancy  = monitor.DeadCellMonitor_checkNevents_occupancy 
+    client.DeadCellClient_checkNevents_pedestal   = monitor.DeadCellMonitor_checkNevents_pedestal
+    client.DeadCellClient_checkNevents_neighbor   = monitor.DeadCellMonitor_checkNevents_neighbor       
+    client.DeadCellClient_checkNevents_energy     = monitor.DeadCellMonitor_checkNevents_energy        
+    #client.DeadCellClient_minErrorFlag            = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
+    client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
+
     client.DigiClient        = monitor.DigiMonitor
-    client.DeadCellClient    = monitor.DeadCellMonitor
+
     client.DataFormatClient  = monitor.DataFormatMonitor
     client.HotCellClient     = monitor.HotCellMonitor
     client.LEDClient         = monitor.LEDMonitor
@@ -110,6 +132,16 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "Pedestal Client    = ", client.PedestalClient
         print "Digi Client        = ", client.DigiClient
         print "DeadCell Client    = ", client.DeadCellClient
+        print "\t\t Test DeadCell occupancy? ", client.DeadCellClient_test_occupancy
+        print "\t\t Test DeadCell pedestal? ", client.DeadCellClient_test_pedestal
+        print "\t\t Test DeadCell energy? ", client.DeadCellClient_test_energy
+        print "\t\t Test DeadCell neighbor? ", client.DeadCellClient_test_neighbor
+        print "\t\t CheckNevents DeadCell occupancy", client.DeadCellClient_checkNevents_occupancy
+        print "\t\t CheckNevents DeadCell pedestal", client.DeadCellClient_checkNevents_pedestal
+        print "\t\t CheckNevents DeadCell energy", client.DeadCellClient_checkNevents_energy
+        print "\t\t CheckNevents DeadCell neighbor", client.DeadCellClient_checkNevents_neighbor
+        print "\t\t Min Error Flag  = ",client.DeadCellClient_minErrorFlag
+        print "\t\t make diagnostics? ",client.DeadCellClient_makeDiagnosticPlots
         print "DataFormat Client  = ", client.DataFormatClient
         print "HotCell Client     = ", client.HotCellClient
         print "Summary Client     = ", client.SummaryClient

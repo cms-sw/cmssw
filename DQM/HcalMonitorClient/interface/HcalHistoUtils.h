@@ -10,6 +10,14 @@
 #define UTILS_VERTLINESPACE 5
 #define UTILS_HORIZLINESPACE 5
 
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TColor.h"
+
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TFile.h"
+
 /******************************************************************************
  *
  * HcalTestUtils.h
@@ -178,6 +186,16 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     if ( name.substr(i, 5) == "__Run" ){
       name.replace(i, name.size()-i, "");
     }
+    if (name.substr(i,1) == "(" || name.substr(i,1)==")")
+      name.replace(i,1,"_");
+    if (name.substr(i,1)==",")
+      name.replace(i,1,"_");
+    if (name.substr(i,1)=="<")
+      name.replace(i,1,"_lt_");
+    if (name.substr(i,1)==">")
+      name.replace(i,1,"_gt_");
+    if (name.substr(i,1)=="+")
+      name.replace(i,1,"_plus_");
   } // for (unsigned int i=0; i< name.size();
 
 

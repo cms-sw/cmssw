@@ -25,6 +25,7 @@
 #include <vector>
 #include <string>
 
+// Don't like having these here in the header; can we move them to src?
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -50,6 +51,11 @@ class HcalBaseClient{
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
   
+  /*
+  void getSJ6histos( char* dir, char* name, TH2F* &h);
+  void getSJ6histos( char* dir, char* name, TH1F* &h);
+  */
+
  protected:
 
   int ievt_;
