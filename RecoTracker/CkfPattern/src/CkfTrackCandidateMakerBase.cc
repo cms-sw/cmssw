@@ -58,15 +58,8 @@ namespace cms{
     theSeedCleaner(0)
   {  
     //produces<TrackCandidateCollection>();  
-    if (!conf.exists("src")){
-      edm::LogError("CkfTrackCandidateMakerBase")<<"Configuration migration required: please use \n"
-						 <<"InputTag src =...\n"
-						 <<"instead of \n"
-						 <<"string SeedProducer=...\n"
-						 <<"string SeedLabel=...\n"
-						 <<" configuration backward compatible, but migration is required!";
+    if (!conf.exists("src"))
       theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
-    }
     else
       theSeedLabel= conf.getParameter<edm::InputTag>("src");
   }
