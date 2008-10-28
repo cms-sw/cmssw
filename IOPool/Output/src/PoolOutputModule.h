@@ -34,7 +34,7 @@ namespace edm {
     int const& splitLevel() const {return splitLevel_;}
     int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
     bool const& fastCloning() const {return fastCloning_;}
-    bool const& dropMetaData() const {return dropMetaData_;}
+    bool const& dropMetaData() const {return dropMetaDataForDroppedData_;}
 
     struct OutputItem {
       class Sorter {
@@ -109,7 +109,7 @@ namespace edm {
     int const splitLevel_;
     int const treeMaxVirtualSize_;
     bool fastCloning_;
-    bool dropMetaData_;
+    bool dropMetaDataForDroppedData_;
     std::string const moduleLabel_;
     int outputFileCount_;
     int inputFileCount_;
