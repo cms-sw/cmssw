@@ -2,7 +2,7 @@
 #define __PFBlockElementGsfTrack__
 
 #include <iostream>
-
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
@@ -27,16 +27,26 @@ namespace reco {
     void Dump(std::ostream& out = std::cout, 
               const char* tab = " " ) const;
 
-    /// \return reference to the corresponding PFRecTrack
+    /// \return reference to the corresponding PFGsfRecTrack
     GsfPFRecTrackRef GsftrackRefPF() const {
       return GsftrackRefPF_;
     }
     
-    /// \return reference to the corresponding Track
+    /// \return reference to the corresponding GsfTrack
     reco::GsfTrackRef GsftrackRef() const {
       return GsftrackRef_;
     }
+ 
     
+    
+   
+    /// \return position at ECAL entrance
+    const math::XYZPointF& positionAtECALEntrance() const {
+      return positionAtECALEntrance_;
+    }
+    
+
+
     const GsfPFRecTrack & GsftrackPF() const { return *GsftrackRefPF_;}
   
     const math::XYZTLorentzVector& Pin() const    { return Pin_; }
@@ -53,6 +63,12 @@ namespace reco {
     /// The CorrespondingKFTrackRef is needeed. 
     math::XYZTLorentzVector Pin_;
     math::XYZTLorentzVector Pout_;
+
+
+    /// position at ECAL entrance
+    math::XYZPointF        positionAtECALEntrance_;
+    
+
 
   };
 }

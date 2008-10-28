@@ -15,7 +15,19 @@ PFBlockElementGsfTrack::PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, c
   GsftrackRefPF_( gsfref ), 
   GsftrackRef_( gsfref->gsfTrackRef() ),
   Pin_(Pin),
-  Pout_(Pout) {}
+  Pout_(Pout) {
+
+  if(gsfref.isNull() )
+    throw cms::Exception("NullRef")
+      <<" PFBlockElementGsfTrack constructed from a null reference to PFGsfRecTrack.";
+  const reco::PFTrajectoryPoint& atECAL 
+    = gsfref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+  if( atECAL.isValid() ) 
+    positionAtECALEntrance_.SetCoordinates( atECAL.position().x(),
+					    atECAL.position().y(),
+					    atECAL.position().z() );
+
+}
 
 void PFBlockElementGsfTrack::Dump(ostream& out, 
                                const char* tab ) const {
