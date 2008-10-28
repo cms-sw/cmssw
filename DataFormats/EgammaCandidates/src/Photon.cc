@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.16 2008/04/21 23:16:16 nancy Exp $
+// $Id: Photon.cc,v 1.17 2008/04/22 19:14:07 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -13,7 +13,9 @@ Photon::Photon( const LorentzVector & p4,
     RecoCandidate( 0, p4, vtx, 22 ), caloPosition_( caloPos ),
     superCluster_(scl), 
     hadOverEm_(HoE), 
-    pixelSeed_( hasPixelSeed ) {}
+    pixelSeed_( hasPixelSeed )
+
+{}
 
 Photon::~Photon() { }
 
@@ -31,7 +33,9 @@ std::vector<reco::ConversionRef>  Photon::conversions() const {
    return conversions_;
 }
 
-bool Photon::isConverted() const {
+
+
+bool Photon::hasConversionTracks() const {
   
   if ( this->conversions().size() > 0) 
     return true;
