@@ -49,12 +49,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pfcluster_barrelEndcapEtaDiv");
   clusterCalibration->setBarrelBoundary(barrelEta);
 	
+  /* Now obsolete 
   double ecalEcut = 
     iConfig.getParameter<double>("pfcluster_ecalECut");
   double hcalEcut = 
     iConfig.getParameter<double>("pfcluster_hcalECut");
 
   clusterCalibration->setEcalHcalEnergyCuts(ecalEcut,hcalEcut);
+  */
  
   std::vector<std::string>* names = clusterCalibration->getKnownSectorNames();
   for(std::vector<std::string>::iterator i = names->begin(); i != names->end(); ++i) {
