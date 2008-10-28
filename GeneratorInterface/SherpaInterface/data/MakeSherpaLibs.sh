@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/10/13
-#  version:     2.2
+#  date:        2008/10/28
+#  version:     2.3
 #
 
 
@@ -18,25 +18,25 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 2.2" && echo && \
+    echo "MakeSherpaLibs version 2.3" && echo && \
     echo "options: -r  path       path to your SHERPA installation OR" && \
     echo "                         path to your CMSSW installation (if you want" && \
     echo "                         to use the SHERPA package of that release)"
     echo "                         -> ( "${shr}" )" && \
+    echo "         -i  path       path to SHERPA datacard (and library, see -o) files" && \
+    echo "                         -> ( "${inc}" )" && \
     echo "         -p  process    SHERPA process/dataset name ( "${prc}" )" && \
     echo "         -o  options    library/cross section options ( "${lbo}" )" && \
     echo "                         [ 'LBCR' : generate libraries and cross sections     ]" && \
     echo "                         [ 'LIBS' : generate libraries only                   ]" && \
     echo "                         [ 'CRSS' : generate cross sections, needs libraries! ]" && \
     echo "                         [ 'EVTS' : generate events, needs libs + crss. sec.! ]" && \
-    echo "         -i  path       path to SHERPA datacard (and library, see -o) files" && \
-    echo "                         -> ( "${inc}" )" && \
+    echo "         -f  path       output path for SHERPA library & cross section files" && \
+    echo "                         -> ( "${fin}" )" && \
+#    echo "         -d  directory  (optional) name of SHERPA 'Run' subdirectory ( "${pth}" )" && \
     echo "         -D  filename   (optional) name of data card file ( "${cfdc}" )" && \
     echo "         -L  filename   (optional) name of library file ( "${cflb}" )" && \
     echo "         -C  filename   (optional) name of cross section file ( "${cfcr}" )" && \
-    echo "         -f  path       output path for SHERPA library & cross section files" && \
-    echo "                         -> ( "${fin}" )" && \
-    echo "         -d  directory  (optional) name of SHERPA 'Run' subdirectory ( "${pth}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -135,6 +135,10 @@ HDIR=`pwd`
 
 # dummy setup (if all options are missing)
 shr=${HDIR}/SHERPA-MC-1.1.2        # path to SHERPA installation
+scrloc=`which scramv1 &> tmp.tmp; cat tmp.tmp | cut -f1 -d"/"; rm tmp.tmp`
+if [ "${scrloc}" = "" ]; then
+  shr=`scramv1 tool info sherpa | grep "SHERPA_BASE" | cut -f2 -d"="`
+fi
 pth="LHC"                          # name of SHERPA data card directory
 prc="XXX"                          # SHERPA process name
 lbo="LBCR"                         # library/cross section option
@@ -145,18 +149,18 @@ cfcr=""                            # custom cross section file name
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 
 # get & evaluate options
-while getopts :r:d:p:o:i:D:L:C:f:h OPT
+while getopts :r:i:p:o:f:d:D:L:C:h OPT
 do
   case $OPT in
   r) shr=$OPTARG ;;
-  d) pth=$OPTARG ;;
+  i) inc=$OPTARG ;;
   p) prc=$OPTARG ;;
   o) lbo=$OPTARG ;;
-  i) inc=$OPTARG ;;
+  f) fin=$OPTARG ;;
+  d) pth=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
   C) cfcr=$OPTARG ;;
-  f) fin=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -209,7 +213,8 @@ if [ `echo ${mmtmp} | grep -c "CMSSW_"` -gt 0 ]; then
   shr=${newshr}
   USE_CMSSW_SHERPA="TRUE"
 else
-  USE_CMSSW_SHERPA="FALSE"
+#  USE_CMSSW_SHERPA="FALSE"
+  USE_CMSSW_SHERPA="TRUE"
 fi
 
 # find 'Run' directory
