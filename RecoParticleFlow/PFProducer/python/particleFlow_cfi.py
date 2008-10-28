@@ -54,27 +54,25 @@ particleFlow = cms.EDProducer("PFProducer",
     # Brand-new cluster calibration !
     # Use this new calibration ?
     pf_newCalib = cms.bool(False),
-    # Apply corrections?
+   # Apply corrections?
     pfcluster_doCorrection = cms.uint32(1),
     # Bulk correction parameters
-    pfcluster_globalP0 = cms.double(-2.315),
-    pfcluster_globalP1 = cms.double(1.05),
+    pfcluster_globalP0 = cms.double(-2.315),                              
+    pfcluster_globalP1 = cms.double(1.01),
     # Low energy correction parameters
-    pfcluster_lowEP0 = cms.double(5.906466e-01),
-    pfcluster_lowEP1 = cms.double(4.608835e-01),
+    pfcluster_lowEP0 = cms.double(3.249189e-01),
+    pfcluster_lowEP1 = cms.double(7.907990e-01),
     pfcluster_allowNegative     = cms.uint32(0),
-    pfcluster_maxEToCorrect = cms.double(-1.0),
     pfcluster_doEtaCorrection = cms.uint32(1),
-    pfcluster_ecalECut = cms.double(0.0),
-    pfcluster_hcalECut = cms.double(0.0),
     pfcluster_barrelEndcapEtaDiv = cms.double(1.4),
+
     #Use hand fitted parameters specified below
-    ecalHcalEcalBarrel = cms.vdouble(0.0,     0.0,    1.15,   0.90,   -0.035,         1.1),
-    ecalHcalEcalEndcap = cms.vdouble(0.280,   5.0,    1.10,   0.40,   -0.020,         1.1),
-    ecalHcalHcalBarrel = cms.vdouble(0.260,   5.0,    1.15,   0.30,   -0.020,         1.1),
-    ecalHcalHcalEndcap = cms.vdouble(0.260,   5.0,    1.10,   0.30,   -0.020,         1.1),
-    # Fitted parameters for eta correction
-    pfcluster_etaCorrection = cms.vdouble( 0.0127, 0.0479,  1.40,    -0.50,   1.00,    1.50,   -0.0132, 0.009507  )
+    #P1 adjusts the height of the peak
+    ecalHcalEcalBarrel = cms.vdouble(0.67,    3.0,    1.15,    0.90,  -0.060,    1.4),
+    ecalHcalEcalEndcap = cms.vdouble(0.46,    3.0,    1.10,    0.40,   -0.020,    1.4),
+    ecalHcalHcalBarrel = cms.vdouble(0.46,    3.0,    1.15,    0.30,   -0.020,    1.4),
+    ecalHcalHcalEndcap = cms.vdouble(0.460,    3.0,    1.10,   0.30,  -0.02,    1.4),
+    pfcluster_etaCorrection = cms.vdouble(1.01,   -1.02e-02,   5.17e-02,      0.563,     -0.425,     0.110)
 
 )
 
