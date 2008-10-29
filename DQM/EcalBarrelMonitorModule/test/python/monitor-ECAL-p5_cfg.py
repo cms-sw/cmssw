@@ -54,7 +54,8 @@ process.ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
     laserPrescaleFactor = cms.untracked.int32(1),
     ledPrescaleFactor = cms.untracked.int32(1),
     pedestalPrescaleFactor = cms.untracked.int32(1),
-    testpulsePrescaleFactor = cms.untracked.int32(1)
+    testpulsePrescaleFactor = cms.untracked.int32(1),
+    pedestaloffsetPrescaleFactor = cms.untracked.int32(1)
 )
 
 process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
