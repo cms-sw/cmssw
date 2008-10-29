@@ -186,8 +186,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          const edm::EventSetup& theEventSetup) const 
 {
 
-    bool debug = false;
-    // bool debug = true;
+   bool debug = false;
+   //bool debug = true;
 
    double NewResponse = fJet.energy();
 
@@ -198,16 +198,24 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    // Get muons
    //   edm::Handle<reco::MuonCollection> muons;
    //   reco::MuonCollection::const_iterator muon;
-   edm::Handle<edm::View<reco::Muon> > muons;
+   
+   
+   edm::Handle<reco::TrackCollection> muons;
+   
+   //edm::Handle<edm::View<reco::Muon> > muons;
+   
    iEvent.getByLabel(m_muonsSrc, muons);
-   edm::View<reco::Muon>::const_iterator muon;
-
+   
+   //edm::View<reco::Muon>::const_iterator muon;
+   
+   reco::TrackCollection::const_iterator muon;
+   
    if(debug){
    cout <<" muon collection size = " << muons->size() << endl;   
 
    if(muons->size() != 0) {
      for (muon = muons->begin(); muon != muons->end(); ++muon) {
-       reco::TrackRef glbTrack = muon->combinedMuon();
+       //reco::TrackRef glbTrack = muon->combinedMuon();
        cout <<" muon pT = " << muon->pt() 
 	    <<" muon eta = " << muon->eta()
 	    <<" muon phi = " << muon->phi() << endl;  
