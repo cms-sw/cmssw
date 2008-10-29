@@ -28,8 +28,6 @@ void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setu
   setup.get<IdealMagneticFieldRecord>().get(theMF);  
   setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 
-  dbe_->showDirStructure();
-
   int j=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
