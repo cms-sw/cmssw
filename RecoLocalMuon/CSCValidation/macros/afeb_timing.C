@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string.h> 
 #include <vector.h> 
+#include "triggerCscIdSector.h"
+
 gROOT->Reset();
 gROOT->SetStyle("Plain"); // to get rid of gray color of pad and have it white
 gStyle->SetPalette(1,0); // 
@@ -11,13 +13,12 @@ std::ostringstream ss,ss1;
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // select run number
-std::string run="CRUZET3_51285";
+std::string run="62232";
 
 //  input file with histograms
 ss.str("");
 ss<<"validationHists_"<<run<<".root";
 TFile f_in(ss.str().c_str());
-
 // output file with histograms
 ss.str("");
 ss<<"afeb_timing_"<<run<<".root";
@@ -113,24 +114,39 @@ std::string result_histTitleFr="Fraction of (Nmb of AFEB time bins > 2), %";
 std::string result_graphNameMean = "graph_mean_afeb_time_bin_vs_csc_ME_";
 std::string result_graphTitleMean ="CSC Anode Mean Time Bin"; 
 
+std::string result_histNameNmbAnodeTimeBins = "normal_nmb_afeb_time_bins_occupancy";
+std::string result_histTitleNmbAnodeTimeBins ="Number of AFEB time bins normalized occupancy, %";
+
+std::string result_graphNameMeanTrig = "graph_mean_afeb_time_bin_vs_trigger_csc_ME";
+std::string result_graphTitleMeanTrig ="CSC Anode Mean Time Bin";
+
+
 // folders in output hist file
 f_out.cd();
+f_out.mkdir("Summary");
+f_out.mkdir("Results");
 f_out.mkdir("Input_hists");
 f_out.mkdir("Y_projections");
 f_out.mkdir("Slices");
-f_out.mkdir("Results");
 
 
-TH2F *h2,*h2norm;
+TH1F *hnnmboc_all;
+TH2F *h2,*h2norm, *h_csc_me, *h2norm;
 TH2F *hmean[9],*hnoc[9],*hnnmboc[9],*hentr[9],*hfrgt2[9];
-TGraphErrors *gr_mean[9];
-TCanvas *cgraph[9];
+TGraphErrors *gr_mean[9],*gr_mean_trig[2];
+TCanvas *cgraph[9],*cgr_mean_trig[2];
 
 Int_t gr_np[9];
 Float_t gr_x[9][72];
 Float_t gr_y[9][72];
 Float_t gr_x_er[9][72]={0.0};
 Float_t gr_y_er[9][72];
+
+vector<Float_t> gr_y_trg_minus, gr_y_trg_plus,
+                gr_y_trg_minus_er, gr_y_trg_plus_er,
+                gr_x_trg_minus,gr_x_trg_plus,
+                gr_x_trg_minus_er,gr_x_trg_plus_er;
+std::vector<std::string> trg_minus_cscid, trg_plus_cscid;
 
 // endcap, station, ring
 Int_t esr[18]={111,112,113,121,122,131,132,141,142,
@@ -174,7 +190,7 @@ for(Int_t isr=0;isr<9;isr++) {
      ss<<result_histName.c_str()<<sr[isr];
      ss1.str("");
      ss1<<result_histTitle<<" in run "<<run.c_str();
-     TH2F *hmean[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
+     hmean[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
      for(Int_t i=1;i<=nx;i++) hmean[isr]->GetXaxis()->SetBinLabel(i,xLabel_ME_CSC[i-1].c_str());
      hmean[isr]->SetStats(kFALSE);
      hmean[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
@@ -189,7 +205,7 @@ for(Int_t isr=0;isr<9;isr++) {
      ss<<result_histNameEntries.c_str()<<sr[isr];
      ss1.str("");
      ss1<<result_histTitleEntries<<" in run "<<run.c_str();
-     TH2F *hentr[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
+     hentr[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
      for(Int_t i=1;i<=nx;i++) hentr[isr]->GetXaxis()->SetBinLabel(i,xLabel_ME_CSC[i-1].c_str());
      hentr[isr]->SetStats(kFALSE);
      hentr[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
@@ -202,7 +218,7 @@ for(Int_t isr=0;isr<9;isr++) {
      ss<<result_histNameFr.c_str()<<sr[isr];
      ss1.str("");
      ss1<<result_histTitleFr<<" in run "<<run.c_str();
-     TH2F *hfrgt2[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
+     hfrgt2[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
      for(Int_t i=1;i<=nx;i++) hfrgt2[isr]->GetXaxis()->SetBinLabel(i,xLabel_ME_CSC[i-1].c_str());
      hfrgt2[isr]->SetStats(kFALSE);
      hfrgt2[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
@@ -217,7 +233,7 @@ for(Int_t isr=0;isr<9;isr++) {
      ss.str(""); ss1.str("");
      ss<<"normal_afeb_time_bin_vs_csc_ME_"<<sr[isr];
      ss1<<"Normalized AFEB time bin occupancy, %"<<" in run "<<run.c_str();
-     TH2F *hnoc[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,16,0.0,16.0);
+     hnoc[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,16,0.0,16.0);
      for(Int_t i=1;i<=nx;i++) hnoc[isr]->GetXaxis()->SetBinLabel(i,xLabel_ME_CSC[i-1].c_str());
      hnoc[isr]->SetStats(kFALSE);
      hnoc[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
@@ -232,7 +248,7 @@ for(Int_t isr=0;isr<9;isr++) {
      ss.str(""); ss1.str("");
      ss<<"normal_nmb_afeb_time_bins_vs_csc_ME_"<<sr[isr];
      ss1<<"Normalized Nmb of AFEB time bins occupancy, %"<<" in run "<<run.c_str();
-     TH2F *hnnmboc[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,8,0.0,8.0);
+     hnnmboc[isr]=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,16,0.0,16.0);
      for(Int_t i=1;i<=nx;i++) hnnmboc[isr]->GetXaxis()->SetBinLabel(i,xLabel_ME_CSC[i-1].c_str());
      hnnmboc[isr]->SetStats(kFALSE);
      hnnmboc[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
@@ -243,9 +259,19 @@ for(Int_t isr=0;isr<9;isr++) {
      hnnmboc[isr]->SetMaximum(100.0);
 } // end of for(Int_t isr=0
 
-TCanvas *c1=new TCanvas("c1","canvas");
+/// Histogram of number of anode time bins ON for all afebs
+     ss.str(""); ss1.str("");
+     ss<<result_histNameNmbAnodeTimeBins.c_str();
+     ss1<<result_histTitleNmbAnodeTimeBins.c_str()<<" in run "<<run.c_str();
+     hnnmboc_all=new TH1F(ss.str().c_str(),ss1.str().c_str(),16,0.0,16.0);
+     hnnmboc_all->GetXaxis()->SetTitle(title_nmb_time_bin.c_str());
+     hnnmboc_all->GetYaxis()->SetTitle("Normalized occupancy, %");
+     
+     hnnmboc_all->SetFillColor(4);
+     
+//***TCanvas *c1=new TCanvas("c1","canvas");
 
-c1->cd();
+//***c1->cd();
 
 /// get two types of input hists and analyze them
 
@@ -259,7 +285,7 @@ for(Int_t inp=1;inp<=2;inp++) {
   gStyle->SetOptStat(0);
 
   // book two output 2D hists for mean time and number of entris vs CSC and ME
-  TH2F *h_csc_me=new TH2F(ss.str().c_str(),ss1.str().c_str(),36,1.0,37.0,18,1.0,19.0);
+  h_csc_me=new TH2F(ss.str().c_str(),ss1.str().c_str(),36,1.0,37.0,18,1.0,19.0);
   h_csc_me->SetStats(kFALSE);
   h_csc_me->GetXaxis()->SetTitle("CSC #");
   for(Int_t i=1;i<=18;i++) h_csc_me->GetYaxis()->SetBinLabel(i,yTitle_ME[i-1].c_str());
@@ -311,16 +337,16 @@ for(Int_t jesr=0;jesr<18;jesr++) {
      ss<<input_histName[inp-1].c_str()<<idchamber<<"_norm";
      ss1<<h2->GetTitle()<<" normalized, %"<<" in run "<<run.c_str();
      if(inp==1) {Int_t ny=16; Float_t ylow=0.0; Float_t yhigh=16.0;}
-     if(inp==2) {Int_t ny=8; Float_t ylow=0.0; Float_t yhigh=8.0;}
+     if(inp==2) {Int_t ny=16; Float_t ylow=0.0; Float_t yhigh=16.0;}
      Int_t nx=nafeb[indisr]; Float_t xlow=1.0; Float_t xhigh=xlow+nx;
-     TH2F *h2norm=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
+     h2norm=new TH2F(ss.str().c_str(),ss1.str().c_str(),nx,xlow,xhigh,ny,ylow,yhigh);
      h2norm->SetStats(kFALSE);
      
      f_out.cd("Input_hists");
 
      // saving original (modified to fraction in %), adding X,Y titles, 
      //color and "COLZ" option
-     
+
      for(Int_t i=1;i<=h2->GetNbinsX();i++) {
        Float_t sum=0.0;
        for(Int_t j=1;j<=h2->GetNbinsY();j++) sum=sum+h2->GetBinContent(i,j);
@@ -356,24 +382,56 @@ for(Int_t jesr=0;jesr<18;jesr++) {
 
      if(h1d->GetEntries() > 0) {
        Float_t entr=h1d->GetEntries();
-       for(Int_t m=1; m<h1d->GetNbinsX();m++) {
+       for(Int_t m=1; m<=h1d->GetNbinsX();m++) {
 	 Float_t w=h1d->GetBinContent(m);
+         if(inp==2) {
+           Float_t fm=h1d->GetBinCenter(m);
+           hnnmboc_all->Fill(fm,w);
+         }
          w=100.0*w/entr;
          if(inp==1) hnoc[indisr]->SetBinContent(cscbin,m,w);
          if(inp==2) hnnmboc[indisr]->SetBinContent(cscbin,m,w);
        }
+       
        Float_t mean=h1d->GetMean()-0.5;
 
        if(inp==1) {
          gr_y[indisr][cscbin-1]=mean;
          gr_y_er[indisr][cscbin-1]=h1d->GetMeanError(1);
-       }  
+         Float_t grmean=mean;
 
-       if(inp==1) {
          if(mean<4.0) mean=4.0;
          if(mean>12.0) mean=12.0;
 	 Int_t imean=mean; mean=imean;
-        h_csc_me->SetBinContent(csc,me,mean);
+         h_csc_me->SetBinContent(csc,me,mean);
+
+         // for trigger sector graphs
+         Int_t station=sr[indisr]/10;
+         Int_t ring=sr[indisr]-station*10;
+         Int_t sector= triggerSector(station,ring,csc);
+         if(esr[jesr] > 200) sector=sector+6;
+         Int_t trigcscid=triggerCscId(station,ring,csc);
+	 /* Like in D. Wang presentation, though maybe different in ME1/1 */
+         Float_t xtrigcsc = sector*100+station*20+trigcscid;
+         ss.str("");
+	 if(esr[jesr] < 200) { // ME+
+           gr_y_trg_plus.push_back(grmean);
+           gr_y_trg_plus_er.push_back(h1d->GetMeanError(1));
+           gr_x_trg_plus.push_back(xtrigcsc);
+           gr_x_trg_plus_er.push_back(0.0);
+           ss<<"ME+"<<station<<"/"<<ring<<"/"<<csc;
+           trg_plus_cscid.push_back(ss.str().c_str());
+           ss.str("");  
+	 }
+	 if(esr[jesr] > 200) { // ME-
+           gr_y_trg_minus.push_back(grmean);
+           gr_y_trg_minus_er.push_back(h1d->GetMeanError(1));
+           gr_x_trg_minus.push_back(xtrigcsc);
+           gr_x_trg_minus_er.push_back(0.0);
+           ss<<"ME-"<<station<<"/"<<ring<<"/"<<csc;
+           trg_minus_cscid.push_back(ss.str().c_str());
+           ss.str("");  
+	 }
        }
      }
      delete h1d;   
@@ -425,56 +483,61 @@ for(Int_t jesr=0;jesr<18;jesr++) {
    }
      delete h2;
   }
-
-  f_out.cd("Results");
-   if(entries[jesr]>0 && esr[jesr] > 200) {
-     
-     if(inp==1) {
-       hmean[indisr]->SetStats(kFALSE);
-       hmean[indisr]->Write();
-       hentr[indisr]->SetStats(kFALSE);
-       hentr[indisr]->Write();
-       hnoc[indisr]->Write();
-     }
-     if(inp==2) {
-       hnnmboc[indisr]->Write();
-       hfrgt2[indisr]->Write();
-     }
-     c1->Update();
-
-     // printing
-     /*
-     hmean[indisr]->Draw();
-     ss.str("");
-     ss<<result_histName.c_str()<<esr[jesr]<<"_run_"<<run<<".gif";
-     c1->Print(ss.str().c_str(),"gif");
-
-     hentr[indisr]->Draw();
-     ss.str("");
-     ss<<result_histNameEntries.c_str()<<esr[jesr]<<"_run_"<<run<<".gif";
-     c1->Print(ss.str().c_str(),"gif");
-     */
-   }
   } // end if not ME42
 } // end of for(jesr=0
+   f_out.cd("Summary");
    h_csc_me->Write();
-
-   /*
-if(inp==1) {
-   h_csc_me->Draw();      
-   ss.str("");
-   ss<<"mean_afeb_time_bin_vs_csc_ME"<<"_run_"<<run<<".gif";      
-   c1->Print(ss.str().c_str(),"gif");
-
-   c1->Update();
-}
-   */
    delete h_csc_me;    
 
 } // end of for(inp=1
 
+/// Write others resulting hists
 
-for(Int_t isr=0;isr<9;isr++) {
+f_out.cd("Results");
+for(Int_t isr=0;isr<8;isr++) {
+  if(hmean[isr] != NULL) {
+       hmean[isr]->SetStats(kFALSE);
+       hmean[isr]->Write();
+  }
+  if(hentr[isr] != NULL) {
+       hentr[isr]->SetStats(kFALSE);
+       hentr[isr]->Write();
+  }
+  if(hnoc[isr] != NULL) hnoc[isr]->Write();
+
+  if(hnnmboc[isr] != NULL)     hnnmboc[isr]->Write();
+  if(hfrgt2[isr] != NULL)     hfrgt2[isr]->Write();
+}
+
+Int_t movf=hnnmboc_all->GetNbinsX()+1; // overflow bin    
+Double_t norm=100.0/(hnnmboc_all->Integral()+hnnmboc_all->GetBinContent(movf));
+hnnmboc_all->Scale(norm);
+
+c_hnnmboc_all_clone= new TCanvas(result_histNameNmbAnodeTimeBins.c_str());
+c_hnnmboc_all_clone->cd();
+c_hnnmboc_all_clone->SetLogy();
+hnnmboc_all->SetStats(kFALSE);
+
+hnnmboc_all->Draw();
+TText txt;
+txt.SetTextSize(0.05);
+
+Float_t fr=hnnmboc_all->Integral()+hnnmboc_all->GetBinContent(movf)-
+                                   hnnmboc_all->GetBinContent(1)-
+                                   hnnmboc_all->GetBinContent(2)-
+                                   hnnmboc_all->GetBinContent(3);
+Int_t ifr=fr*1000.0;
+fr=ifr; fr=fr/1000.0;
+ss.str("");
+ss<<"Nmb of Time Bins > 2 = "<<fr<<" %";
+txt.DrawTextNDC(0.35,0.8,ss.str().c_str());
+
+c_hnnmboc_all_clone->Update();
+f_out.cd("Summary");
+c_hnnmboc_all_clone->Write();
+
+
+for(Int_t isr=0;isr<8;isr++) {
    delete hmean[isr]; delete hentr[isr]; delete hnoc[isr]; delete hnnmboc[isr];
    delete  hfrgt2[isr];
 }
@@ -494,6 +557,8 @@ if(ncscmis > 0) {
 }
 
 /// Plot and save graphs
+
+// mean anode time bin vs CSC in given ME+-
 for(Int_t isr=0;isr<8;isr++) {
      ss.str("");
      ss<<result_graphNameMean.c_str()<<sr[isr];
@@ -502,27 +567,89 @@ for(Int_t isr=0;isr<8;isr++) {
      cgraph[isr]->cd();
      cgraph[isr]->SetGrid();
      Float_t x[72],y[72],ery[72],erx[72];
-     for(Int_t n=0;n<gr_np[isr];n++) {
-       x[n]=gr_x[isr][n]; y[n]=gr_y[isr][n];
-       erx[n]=0.0; 
-       ery[n]=gr_y_er[isr][n];
+     if(gr_np[isr]>0) {
+      for(Int_t n=0;n<gr_np[isr];n++) {
+        x[n]=gr_x[isr][n];
+        y[n]=gr_y[isr][n];
+        erx[n]=0.0; 
+        ery[n]=gr_y_er[isr][n];
+      }
+      gr_mean[isr]=new TGraphErrors(gr_np[isr],x,y,erx,ery);  
+      ss1.str("");
+      ss1<<result_graphTitleMean<<" in run "<<run.c_str();
+      gr_mean[isr]->SetTitle(ss1.str().c_str());
+      gr_mean[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
+      gr_mean[isr]->GetYaxis()->SetTitle(title_time_bin.c_str());
+      gr_mean[isr]->SetMinimum(4.0); 
+      gr_mean[isr]->SetMaximum(12.0); 
+      gr_mean[isr]->SetMarkerStyle(20);
+      gr_mean[isr]->SetMarkerColor(4);
+      gr_mean[isr]->SetMarkerSize(1.2);
+      gr_mean[isr]->SetLineColor(4);    // Blue error bar
+      gr_mean[isr]->Draw("APZ"); 
+      cgraph[isr]->Update();
+      f_out.cd("Results");
+      cgraph[isr]->Write();
      }
-     TGraphErrors *gr_mean[isr]=new TGraphErrors(gr_np[isr],x,y,erx,ery);  
-     ss1.str("");
-     ss1<<result_graphTitleMean<<" in run "<<run.c_str();
-     gr_mean[isr]->SetTitle(ss1.str().c_str());
-     gr_mean[isr]->GetXaxis()->SetTitle(xTitle_ME_CSC[isr].c_str());
-     gr_mean[isr]->GetYaxis()->SetTitle(title_time_bin.c_str());
-     gr_mean[isr]->SetMinimum(4.0);
-     gr_mean[isr]->SetMaximum(12.0);
-     gr_mean[isr]->SetMarkerStyle(20);
-     gr_mean[isr]->SetMarkerColor(4);
-     gr_mean[isr]->SetMarkerSize(1.2);
-     gr_mean[isr]->SetLineColor(4);    // Blue error bar
-     gr_mean[isr]->Draw("APZ"); 
-     cgraph[isr]->Update();
-     f_out.cd("Results");
-     cgraph[isr]->Write();
-}
 }
 
+// Text output for anode mean time vs CSC
+
+std::cout<<std::endl;
+for(Int_t i=0;i<trg_plus_cscid.size();i++) 
+  //printf("%s %7.2f \n",trg_plus_cscid[i],gr_y_trg_plus[i]); 
+  std::cout<<trg_plus_cscid[i]<<"   "<<gr_y_trg_plus[i]<<std::endl;
+for(Int_t i=0;i<trg_minus_cscid.size();i++) 
+  std::cout<<trg_minus_cscid[i]<<"   "<<gr_y_trg_minus[i]<<std::endl;
+
+std::cout<<std::endl;
+std::cout<<"Total CSCs "<<trg_plus_cscid.size()+trg_minus_cscid.size()<<std::endl;
+std::cout<<std::endl;
+
+// mean anode time bin vs csc in trigger sector for ME+ and ME-
+
+Float_t x_tr[234],y_tr[234],ery_tr[234],erx_tr[234];
+for(Int_t i=0;i<2;i++) {
+     ss.str("");
+     if(i==0) ss<<result_graphNameMeanTrig.c_str()<<"+";
+     if(i==1) ss<<result_graphNameMeanTrig.c_str()<<"-";    
+     if(i==0) Int_t x_size=gr_x_trg_plus.size();
+     if(i==1) Int_t x_size=gr_x_trg_minus.size();
+     std::cout<<i+1<<" "<<x_size<<std::endl;
+     if(x_size > 0) {
+      cgr_mean_trig[i] = new TCanvas(ss.str().c_str());
+      cgr_mean_trig[i]->cd();
+      cgr_mean_trig[i]->SetGrid();
+      for(Int_t n=0;n<x_size;n++) {
+        if(i==0) {
+         y_tr[n]=gr_y_trg_plus[n];
+         ery_tr[n]=gr_y_trg_plus_er[n];
+        }
+        if(i==1) {
+         y_tr[n]=gr_y_trg_minus[n];
+         ery_tr[n]=gr_y_trg_minus_er[n];
+        }
+        x_tr[n]=n+1;
+        erx_tr[n]=0.0; 
+      }
+      gr_mean_trig[i]=new TGraphErrors(x_size,x_tr,y_tr,erx_tr,ery_tr);  
+      ss1.str("");
+      if(i==0) ss1<<"ME+ "<<result_graphTitleMeanTrig<<" in run "<<run.c_str();
+      if(i==1) ss1<<"ME- "<<result_graphTitleMeanTrig<<" in run "<<run.c_str();
+      gr_mean_trig[i]->SetTitle(ss1.str().c_str());
+      gr_mean_trig[i]->GetXaxis()->SetTitle("ChamberId=SectorId*100+StationId*10+CSCID in increasing order");
+      gr_mean_trig[i]->GetYaxis()->SetTitle(title_time_bin.c_str());
+      gr_mean_trig[i]->SetMinimum(4.0);
+      gr_mean_trig[i]->SetMaximum(12.0);
+      gr_mean_trig[i]->SetMarkerStyle(20);
+      gr_mean_trig[i]->SetMarkerColor(4);
+      gr_mean_trig[i]->SetMarkerSize(1.0);
+      gr_mean_trig[i]->SetLineColor(4);    // Blue error bar
+      gr_mean_trig[i]->Draw("APZ"); 
+      cgr_mean_trig[i]->Update();
+      f_out.cd("Summary");
+      cgr_mean_trig[i]->Write();
+     }
+}
+f_out.Close();
+}
