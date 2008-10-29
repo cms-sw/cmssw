@@ -64,7 +64,7 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
    dbeDT_ = 0;
    dbeDT_ = Service<DQMStore>().operator->();
    if ( dbeDT_ ) {
-     if ( verbososity ) {
+     if ( verbosity ) {
        dbeDT_->setVerbose(1);
      } else {
        dbeDT_->setVerbose(0);
