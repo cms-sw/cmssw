@@ -31,8 +31,9 @@ void MethodInvoker::setArgs() {
   }
 }
 
-Object MethodInvoker::value(const Object & o) const {
+std::pair<Object,bool> MethodInvoker::value(const Object & o) const {
   Object ret;
+  bool   owned = false;
   /* no need to check the type at run time
   if(method_.IsVirtual()) {
     Type dynType = o.DynamicType();
@@ -54,6 +55,11 @@ Object MethodInvoker::value(const Object & o) const {
       << "method \"" << method_.Name() << "\" called with " << args_.size() 
       << " arguments returned a null pointer ";   
   Type retType = ret.TypeOf();
+  if (retType.IsClass() && !retType.IsPointer() && !retType.IsReference()) {
+    //std::cout << "Object, and not pointer, at " << addr << ", type " <<  retType.Name() 
+    //          << ", from " << method_.Name() << ": I need to delete it" << std::endl;
+    owned = true;
+  }
   bool stripped = false;
   while(retType.IsTypedef()) { 
     retType = retType.ToType(); stripped = true; 
@@ -75,5 +81,5 @@ Object MethodInvoker::value(const Object & o) const {
       << "method \"" << method_.Name() 
       << "\" returned void invoked on object of type \"" 
       << o.TypeOf().Name() << "\"\n";
-  return ret;
+  return std::make_pair(ret,owned);
 }

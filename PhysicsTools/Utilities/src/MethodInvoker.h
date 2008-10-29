@@ -12,7 +12,8 @@ namespace reco {
       explicit MethodInvoker(const ROOT::Reflex::Member & method,
 			     const std::vector<AnyMethodArgument>    & ints   = std::vector<AnyMethodArgument>() );
       MethodInvoker(const MethodInvoker &); 
-      ROOT::Reflex::Object value(const ROOT::Reflex::Object & o) const;
+      /// Returns the object, and an info about if we have to delete such object or not
+      std::pair<ROOT::Reflex::Object,bool> value(const ROOT::Reflex::Object & o) const;
       const ROOT::Reflex::Member & method() const { return method_; }
       MethodInvoker & operator=(const MethodInvoker &);
     private:

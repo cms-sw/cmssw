@@ -34,12 +34,18 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType)
 
 double ExpressionVar::value(const Object & o) const {
   using namespace method;
-  Object ro = o;
+  std::pair<Object,bool> ro(o,false);
+  std::vector<Object> toBeDeleted;
   for(vector<MethodInvoker>::const_iterator m = methods_.begin();
       m != methods_.end(); ++m) {
-    ro = m->value(ro);
+      if (ro.second) { toBeDeleted.push_back(ro.first); }
+      ro = m->value(ro.first);
   }
-  void * addr = ro.Address();
+  for (std::vector<Object>::iterator it = toBeDeleted.begin(), ed = toBeDeleted.end(); it != ed; ++it) {
+      //std::cout << "Should delete Object at " << it->Address() << ", type = " << it->TypeOf().Name() << std::endl;
+      it->Destruct();
+  }
+  void * addr = ro.first.Address();
   double ret = 0;
   switch(retType_) {
   case(doubleType) : ret = * static_cast<double         *>(addr); break;
