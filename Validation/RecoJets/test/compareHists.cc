@@ -133,12 +133,14 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirIn = 0;
-  std::string workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName ; // new format
+  //  std::string workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName ; // new format
+  std::string workDir = std::string ("DQMData/RecoJetsV/") + moduleName ; // new format
   inputFile->GetObject (workDir.c_str(), dirIn);
 
   if (!dirIn) {
     std::cout << "Fall back to old format for file " << inputFileName << std::endl;
-    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
+    //    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
+    workDir = std::string ("DQMData/") + moduleName; // old format
     inputFile->GetObject (workDir.c_str(), dirIn);
     if (!dirIn) {
       std::cerr << "Can't access workDir in file " << inputFileName << std::endl;
@@ -153,12 +155,14 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirRef = 0;
-  workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
+  //  workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
+  workDir = std::string ("DQMData/RecoJetsV/") + moduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
 
   if (!dirRef) {
     std::cout << "Fall back to old format for file " << refFileName << std::endl;
-    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
+    //    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
+    workDir = std::string ("DQMData/") + moduleName; // old format
     refFile->GetObject (workDir.c_str(), dirRef);
     if (!dirRef) {
       std::cerr << "Can't access workDir in file " << refFileName << std::endl;
