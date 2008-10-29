@@ -48,7 +48,7 @@ process.hltFilter = cms.EDFilter( "HLTHighLevel",
 
 # Output
 process.out = cms.OutputModule( "PoolOutputModule",
-    fileName       = cms.untracked.string( 'xOUTPUT_DIRECTORYx/SiStripDQMOfflineGlobalRunCAF-xRUN_NUMBERx.root' ),
+    fileName       = cms.untracked.string( 'xOUTPUT_DIRECTORYx/SiStripDQMOfflineGlobalRunCAF-xRUN_NAMEx.root' ),
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_MEtoEDMConverter_*_SiStripDQMOfflineGlobalRunCAF'

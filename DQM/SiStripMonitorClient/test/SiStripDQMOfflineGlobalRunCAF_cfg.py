@@ -39,7 +39,7 @@ process.load( "Configuration.StandardSequences.Geometry_cff" )
 # Calibration 
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 process.GlobalTag.connect   = 'frontier://PromptProd/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_V2P::All'
+process.GlobalTag.globaltag = 'CRAFT_V3P::All'
 process.es_prefer_GlobalTag = cms.ESPrefer( 'PoolDBESSource', 'GlobalTag' )
 
 ### SiStrip DQM ###
@@ -51,18 +51,17 @@ process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
 # Source #
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        # run 62815, prompt reconstruction
-#         'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning08/Cosmics/RECO/v1/000/062/815/DC2578D7-D783-DD11-952C-000423D6C8E6.root', # 22509 events
-#         'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning08/Cosmics/RECO/v1/000/062/815/7A768201-D383-DD11-BABC-001617C3B6DE.root'  # 37902 events
-        'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning08/Cosmics/RECO/v1/000/062/815/5448D972-D783-DD11-BA04-000423D9997E.root',
-        'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning08/Cosmics/RECO/v1/000/062/815/5488DB89-DD83-DD11-A492-000423D99F3E.root'
-    ),    
-#     skipEvents = cms.untracked.uint32( 22000 )
-    skipEvents = cms.untracked.uint32( 28000 )
+        # run 66615, prompt reconstruction
+        'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/v1/000/066/615/60006306-D99B-DD11-AE94-001617E30F58.root',
+        'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/v1/000/066/615/42770840-E79B-DD11-AB9B-0016177CA7A0.root',
+        'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/v1/000/066/615/AA2F3B3D-E79B-DD11-B9D4-001617E30D12.root',
+        'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/v1/000/066/615/D02321A7-D79B-DD11-917C-001617C3B76A.root',
+        'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/v1/000/066/615/54529935-E79B-DD11-86A4-001617DBD316.root'
+    )
 )
 # Input steering #
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 1000 )
+    input = cms.untracked.int32( 25000 )
 )
 
 # HLT Filter #
@@ -83,8 +82,7 @@ process.dqmSaver.dirName = '.'
 
 # PoolOutput #
 process.out = cms.OutputModule( "PoolOutputModule",
-#     fileName       = cms.untracked.string( '/afs/cern.ch/user/v/vadler/scratch0/cms/SiStripDQM/CMSSW_2_1_10/output/SiStripDQMOfflineGlobalRunCAF.root' ),
-    fileName       = cms.untracked.string( './SiStripDQMOfflineGlobalRunCAF_test.root' ),
+    fileName       = cms.untracked.string( './SiStripDQMOfflineGlobalRunCAF.root' ),
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_MEtoEDMConverter_*_SiStripDQMOfflineGlobalRunCAF'
