@@ -5,6 +5,6 @@ import Validation.CaloTowers.CaloTowersParam_cfi
 AllCaloTowersValidation = Validation.CaloTowers.CaloTowersParam_cfi.calotowersAnalyzer.clone()
 calotowersValidationSequence = cms.Sequence(AllCaloTowersValidation)
 AllCaloTowersValidation.hcalselector = 'All'
-AllCaloTowersValidation.outputFile = 'CaloTowersValidationAll.root'
+AllCaloTowersValidation.outputFile = ''
 
 

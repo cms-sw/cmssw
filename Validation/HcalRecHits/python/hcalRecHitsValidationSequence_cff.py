@@ -7,6 +7,6 @@ AllRecHitsValidation = Validation.HcalRecHits.HcalRecHitParam_cfi.hcalRecoAnalyz
 hcalRecHitsValidationSequence = cms.Sequence(AllRecHitsValidation)
 
 AllRecHitsValidation.hcalselector = 'all'
-AllRecHitsValidation.outputFile = 'HcalRecHitsValidationAll.root'
+AllRecHitsValidation.outputFile = ''
 
 
