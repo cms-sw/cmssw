@@ -116,6 +116,12 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
 
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
   
+  // Get the RecTrack collection from the event
+  Handle<reco::TrackCollection> tracks;
+  event.getByLabel(theInputLabel.label(),tracks);
+
+  if(tracks->empty()) return;
+  
   // Get the Trajectory collection from the event
   Handle<Trajectories> trajectories;
   event.getByLabel(theInputLabel,trajectories);
@@ -127,10 +133,6 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
     printTrajectoryRecHits(*trajectory,trackingGeometry);
 
   
-  // Get the RecTrack collection from the event
-  Handle<reco::TrackCollection> tracks;
-  event.getByLabel(theInputLabel.label(),tracks);
-
   for (reco::TrackCollection::const_iterator tr = tracks->begin(); 
        tr != tracks->end(); ++tr) 
     printTrackRecHits(*tr,trackingGeometry);

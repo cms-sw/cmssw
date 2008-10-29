@@ -51,6 +51,8 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
   theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
   theDoPredictionsOnly = parameterSet.getParameter<bool>("DoPredictionsOnly");
 
+  theTrackIsCosmic = parameterSet.getUntrackedParameter<bool>("TrackFromCosmicReco",false);
+
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
 }
 
@@ -128,21 +130,33 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 // FIXME: check this method!
 TrackTransformer::RefitDirection 
 TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
- 
- if (!recHits.empty()){
-    double rFirst = trackingGeometry()->idToDet(recHits.front()->geographicalId())->position().mag();
-    double rLast  = trackingGeometry()->idToDet(recHits.back()->geographicalId() )->position().mag();
-    if(rFirst < rLast) return insideOut;
+  
+  if (!recHits.empty()){
+    GlobalPoint first = trackingGeometry()->idToDet(recHits.front()->geographicalId())->position();
+    GlobalPoint last = trackingGeometry()->idToDet(recHits.back()->geographicalId())->position();
+
+    if(theTrackIsCosmic){
+      GlobalVector diffVec = last - first;
+      GlobalVector refVec = first - GlobalPoint(0,0,0);
+      if(first.phi()>0)
+	return diffVec.basicVector().dot(refVec.basicVector())<0 ? insideOut : outsideIn;
+      else
+	return diffVec.basicVector().dot(refVec.basicVector())>0 ? insideOut : outsideIn;
+    }
+
+   double rFirst = first.mag();
+   double rLast  = last.mag();
+   if(rFirst < rLast) return insideOut;
     else if(rFirst > rLast) return outsideIn;
-    else{
-      LogError("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
+   else{
+     LogDebug("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
       return undetermined;
-    }
-  }
+   }
+ }
   else{
-    LogError("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
+    LogDebug("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
     return undetermined;
-    }
+  }
 }
 
 
@@ -185,7 +199,9 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   
   // Determine the RH order
   RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit); // FIXME change nome of the *type*  --> RecHit order!
-  
+  LogTrace(metname) << "RH " << recHitsOrder;
+
+
   // Apply rule -A-
   if(recHitsOrder==insideOut && theRefitDirection==oppositeToMomentum ||
      recHitsOrder==outsideIn && theRefitDirection==alongMomentum) reverse(recHitsForReFit.begin(),recHitsForReFit.end());

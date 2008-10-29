@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2008/07/21 17:13:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/15 17:52:38 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -88,6 +88,7 @@ public:
   unsigned long long theCacheId_TRH;
   
   bool theRPCInTheFit;
+  bool theTrackIsCosmic;
 
   bool theDoPredictionsOnly;
   PropagationDirection theRefitDirection;

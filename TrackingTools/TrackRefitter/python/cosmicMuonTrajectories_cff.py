@@ -23,6 +23,7 @@ cosmicMuons = cms.EDProducer("TracksToTrajectories",
                                                          MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
                                                          RefitDirection = cms.string('alongMomentum'),
                                                          RefitRPCHits = cms.bool(True),
+                                                         TrackFromCosmicReco = cms.untracked.bool(True),
                                                          Propagator = cms.string('SmartPropagatorAnyRK')
                                                          )
                              )
