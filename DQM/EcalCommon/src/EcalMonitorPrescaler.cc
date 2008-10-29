@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.9 2008/10/26 09:36:31 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.10 2008/10/29 13:17:10 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.9 $
-  \date $Date: 2008/10/26 09:36:31 $
+  \version $Revision: 1.10 $
+  \date $Date: 2008/10/29 13:17:10 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -104,6 +104,12 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
            dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
         if ( testpulsePrescaleFactor_ ) { 
           if ( count_ % testpulsePrescaleFactor_ == 0 ) status = true;
+        }
+      }
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ) {
+        if ( pedestaloffsetPrescaleFactor_ ) {
+          if ( count_ % pedestaloffsetPrescaleFactor_ == 0 ) status = true;
         }
       }
 
