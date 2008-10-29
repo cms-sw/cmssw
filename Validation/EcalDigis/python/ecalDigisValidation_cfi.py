@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalDigisValidation = cms.EDFilter("EcalDigisValidation",
-    outputFile = cms.untracked.string('EcalDigisValidation.root'),
-    verbose = cms.untracked.bool(True),
+    outputFile = cms.untracked.string(''),
+    verbose = cms.untracked.bool(False),
     EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
     ESdigiCollection = cms.InputTag("simEcalPreshowerDigis"),
     moduleLabelMC = cms.string('source'),

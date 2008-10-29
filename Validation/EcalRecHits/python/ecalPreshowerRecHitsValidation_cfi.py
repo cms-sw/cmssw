@@ -4,7 +4,7 @@ ecalPreshowerRecHitsValidation = cms.EDFilter("EcalPreshowerRecHitsValidation",
     EErechitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     ESrechitCollection = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     EEuncalibrechitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEE"),
-    verbose = cms.untracked.bool(True)
+    verbose = cms.untracked.bool(False)
 )
 
 

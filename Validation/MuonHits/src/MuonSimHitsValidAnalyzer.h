@@ -103,9 +103,6 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   TFile *theCSCFile;
   TFile *theRPCFile;
 
-  // Switch for debug output
-  bool verbose_;
-
 
   /// G4MC info
   int nRawGenPart;

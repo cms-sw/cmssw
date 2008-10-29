@@ -136,7 +136,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   // Book histograms
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
+  //  dbe_->showDirStructure();
 
   dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/ALL");
 

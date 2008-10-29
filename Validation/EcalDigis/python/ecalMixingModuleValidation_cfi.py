@@ -7,7 +7,7 @@ ecalMixingModuleValidation = cms.EDFilter("EcalMixingModuleValidation",
     es_electronics_sim,
     hitsProducer = cms.string('g4SimHits'),
     EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis"),
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
     EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
     ESdigiCollection = cms.InputTag("simEcalPreshowerDigis"),
     moduleLabelMC = cms.string('source')

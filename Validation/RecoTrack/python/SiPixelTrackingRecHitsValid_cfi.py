@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 PixelTrackingRecHitsValid = cms.EDFilter("SiPixelTrackingRecHitsValid",
                                          src = cms.untracked.string('TrackRefitter'),
-                                         outputFile = cms.untracked.string('pixeltrackingrechitshist.root'),
+                                         outputFile = cms.untracked.string(''),
                                          #debugNtuple = cms.untracked.string('SiPixelTrackingRecHitsValid_Ntuple.root'),
                                          debugNtuple = cms.untracked.string(''),
                                          Fitter = cms.string('KFFittingSmoother'),

@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 ecalRecHitsValidation = cms.EDFilter("EcalRecHitsValidation",
     hitsProducer = cms.string('g4SimHits'),
-    outputFile = cms.untracked.string('EcalRecHitsValidation.root'),
+    outputFile = cms.untracked.string(''),
     EEuncalibrechitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEE"),
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
     EErechitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     ESrechitCollection = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     EBuncalibrechitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB"),

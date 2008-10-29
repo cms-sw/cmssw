@@ -34,25 +34,22 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) {
 
    fDBE = Service<DQMStore>().operator->();
    fOutputFile = ps.getUntrackedParameter<string>("outputFile", "TrackerHitHisto.root");
-//    src_ =  ps.getParameter<edm::InputTag>( "src" );
-  
-  //get Labels to use to extract information
-  PxlBrlLowSrc_ = ps.getParameter<edm::InputTag>("PxlBrlLowSrc");
-  PxlBrlHighSrc_ = ps.getParameter<edm::InputTag>("PxlBrlHighSrc");
-  PxlFwdLowSrc_ = ps.getParameter<edm::InputTag>("PxlFwdLowSrc");
-  PxlFwdHighSrc_ = ps.getParameter<edm::InputTag>("PxlFwdHighSrc");
+   verbose_ = ps.getUntrackedParameter<bool>("Verbosity",False);
+   //get Labels to use to extract information
+   PxlBrlLowSrc_ = ps.getParameter<edm::InputTag>("PxlBrlLowSrc");
+   PxlBrlHighSrc_ = ps.getParameter<edm::InputTag>("PxlBrlHighSrc");
+   PxlFwdLowSrc_ = ps.getParameter<edm::InputTag>("PxlFwdLowSrc");
+   PxlFwdHighSrc_ = ps.getParameter<edm::InputTag>("PxlFwdHighSrc");
+   
+   SiTIBLowSrc_ = ps.getParameter<edm::InputTag>("SiTIBLowSrc");
+   SiTIBHighSrc_ = ps.getParameter<edm::InputTag>("SiTIBHighSrc");
+   SiTOBLowSrc_ = ps.getParameter<edm::InputTag>("SiTOBLowSrc");
+   SiTOBHighSrc_ = ps.getParameter<edm::InputTag>("SiTOBHighSrc");
+   SiTIDLowSrc_ = ps.getParameter<edm::InputTag>("SiTIDLowSrc");
+   SiTIDHighSrc_ = ps.getParameter<edm::InputTag>("SiTIDHighSrc");
+   SiTECLowSrc_ = ps.getParameter<edm::InputTag>("SiTECLowSrc");
+   SiTECHighSrc_ = ps.getParameter<edm::InputTag>("SiTECHighSrc");
 
-  SiTIBLowSrc_ = ps.getParameter<edm::InputTag>("SiTIBLowSrc");
-  SiTIBHighSrc_ = ps.getParameter<edm::InputTag>("SiTIBHighSrc");
-  SiTOBLowSrc_ = ps.getParameter<edm::InputTag>("SiTOBLowSrc");
-  SiTOBHighSrc_ = ps.getParameter<edm::InputTag>("SiTOBHighSrc");
-  SiTIDLowSrc_ = ps.getParameter<edm::InputTag>("SiTIDLowSrc");
-  SiTIDHighSrc_ = ps.getParameter<edm::InputTag>("SiTIDHighSrc");
-  SiTECLowSrc_ = ps.getParameter<edm::InputTag>("SiTECLowSrc");
-  SiTECHighSrc_ = ps.getParameter<edm::InputTag>("SiTECHighSrc");
-
-  // use value of first digit to determine default output level (inclusive)
-  // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
 
 ////// booking histograms
    	

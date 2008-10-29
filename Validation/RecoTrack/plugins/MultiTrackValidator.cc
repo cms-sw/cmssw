@@ -25,7 +25,7 @@ using namespace edm;
 
 void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
 
-  dbe_->showDirStructure();
+  //  dbe_->showDirStructure();
 
   int j=0;
   for (unsigned int ww=0;ww<associators.size();ww++){

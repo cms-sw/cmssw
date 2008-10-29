@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 ecalSimHitsValidation = cms.EDFilter("EcalSimHitsValidation",
     ESHitsCollection = cms.string('EcalHitsES'),
-    outputFile = cms.untracked.string('EcalSimHitsValidation.root'),
-    verbose = cms.untracked.bool(True),
+    outputFile = cms.untracked.string(''),
+    verbose = cms.untracked.bool(False),
     moduleLabelMC = cms.string('source'),
     EBHitsCollection = cms.string('EcalHitsEB'),
     EEHitsCollection = cms.string('EcalHitsEE'),

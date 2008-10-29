@@ -16,10 +16,10 @@ ecalSelectiveReadoutValidation = cms.EDFilter("EcalSelectiveReadoutValidation",
     FEDRawCollection = cms.InputTag("source"),
 
     #Versbose mode switch:
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
 
     #Name of the output histrogram root file:
-    outputFile = cms.untracked.string('EcalSelectiveReadoutValidationHistos.root'),
+    outputFile = cms.untracked.string(''),
 
     #Switch to enable locale amplitude reconstruction from digis instead 
     #of RecHit's:

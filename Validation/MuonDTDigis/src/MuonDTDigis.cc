@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2008/02/29 20:48:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/17 11:52:40 $
+ *  $Revision: 1.6 $
  *  \authors: R. Bellan
  */
 
@@ -63,13 +63,6 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 // End of comment . See more in Destructor (~MuonDTDigis) method
 
   
-  // ---------------------- 
-
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
 
   // ----------------------                 
   // get hold of back-end interface 

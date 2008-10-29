@@ -30,109 +30,104 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
 
    nRawGenPart = 0;
  // ROOT Histos output files
-  DToutputFile_ =  iPSet.getUntrackedParameter<std::string>("DT_outputFile", ""); 
-//  CSCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("CSC_outputFile", "");
-//  RPCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("RPC_outputFile", "");
-
-
-  /// get labels for input tags
- //  CSCHitsSrc_ = iPSet.getParameter<edm::InputTag>("CSCHitsSrc");
+   DToutputFile_ =  iPSet.getUntrackedParameter<std::string>("DT_outputFile", ""); 
+   //  CSCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("CSC_outputFile", "");
+   //  RPCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("RPC_outputFile", "");
+   
+   
+   /// get labels for input tags
+   //  CSCHitsSrc_ = iPSet.getParameter<edm::InputTag>("CSCHitsSrc");
    DTHitsSrc_  = iPSet.getParameter<edm::InputTag>("DTHitsSrc");
- //  RPCHitsSrc_ = iPSet.getParameter<edm::InputTag>("RPCHitsSrc");
-
-  /// use value of first digit to determine default output level (inclusive)
-  /// 0 is none, 1 is basic, 2 is fill output, 3 is gather output
-  verbosity %= 10;
-
-
-  /// print out Parameter Set information being used
-  if (verbosity > 0) {
-    edm::LogInfo ("MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer") 
-      << "\n===============================\n"
-      << "Initialized as EDAnalyzer with parameter values:\n"
-      << "    Name      = " << fName << "\n"
-      << "    Verbosity = " << verbosity << "\n"
-      << "    Label     = " << label << "\n"
-      << "    GetProv   = " << getAllProvenances << "\n"
-      << "    PrintProv = " << printProvenanceInfo << "\n"
-  //    << "    CSCHitsSrc=  " <<CSCHitsSrc_.label() 
-  //    << ":" << CSCHitsSrc_.instance() << "\n"
-      << "    DTHitsSrc =  " <<DTHitsSrc_.label()
-      << ":" << DTHitsSrc_.instance() << "\n"
- //     << "    RPCHitsSrc=  " <<RPCHitsSrc_.label()
- //     << ":" << RPCHitsSrc_.instance() << "\n"
-      << "===============================\n";
-  }
-
+   //  RPCHitsSrc_ = iPSet.getParameter<edm::InputTag>("RPCHitsSrc");
+   
+   /// print out Parameter Set information being used
+   if (verbosity) {
+     edm::LogInfo ("MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer") 
+       << "\n===============================\n"
+       << "Initialized as EDAnalyzer with parameter values:\n"
+       << "    Name      = " << fName << "\n"
+       << "    Verbosity = " << verbosity << "\n"
+       << "    Label     = " << label << "\n"
+       << "    GetProv   = " << getAllProvenances << "\n"
+       << "    PrintProv = " << printProvenanceInfo << "\n"
+       //    << "    CSCHitsSrc=  " <<CSCHitsSrc_.label() 
+       //    << ":" << CSCHitsSrc_.instance() << "\n"
+       << "    DTHitsSrc =  " <<DTHitsSrc_.label()
+       << ":" << DTHitsSrc_.instance() << "\n"
+       //     << "    RPCHitsSrc=  " <<RPCHitsSrc_.label()
+       //     << ":" << RPCHitsSrc_.instance() << "\n"
+       << "===============================\n";
+   }
+   
    // ----------------------
-  // get hold of back-end interface DT
-  dbeDT_ = 0;
-  dbeDT_ = Service<DQMStore>().operator->();
-  if ( dbeDT_ ) {
-    if ( verbose_ ) {
-      dbeDT_->setVerbose(1);
-    } else {
-      dbeDT_->setVerbose(0);
-    }
-  }
-  if ( dbeDT_ ) {
-    if ( verbose_ ) dbeDT_->showDirStructure();
-  }
-
-  // ----------------------
-
-    bookHistos_DT();
+   // get hold of back-end interface DT
+   dbeDT_ = 0;
+   dbeDT_ = Service<DQMStore>().operator->();
+   if ( dbeDT_ ) {
+     if ( verbososity ) {
+       dbeDT_->setVerbose(1);
+     } else {
+       dbeDT_->setVerbose(0);
+     }
+   }
+   if ( dbeDT_ ) {
+     if ( verbosity ) dbeDT_->showDirStructure();
+   }
+   
+   // ----------------------
+   
+   bookHistos_DT();
  
-/*
+   /*
    // get hold of back-end interface CSC
-  dbeCSC_ = 0;
-  dbeCSC_ = Service<DQMStore>().operator->();
-  if ( dbeCSC_ ) {
-    if ( verbose_ ) {
-      dbeCSC_->setVerbose(1);
-    } else {
-      dbeCSC_->setVerbose(0);
-    }
-  }
-  if ( dbeCSC_ ) {
-    if ( verbose_ ) dbeCSC_->showDirStructure();
-  }
-
-  // ----------------------
-
- bookHistos_CSC();
-
+   dbeCSC_ = 0;
+   dbeCSC_ = Service<DQMStore>().operator->();
+   if ( dbeCSC_ ) {
+   if ( verbosity ) {
+   dbeCSC_->setVerbose(1);
+   } else {
+   dbeCSC_->setVerbose(0);
+   }
+   }
+   if ( dbeCSC_ ) {
+   if ( verbosity ) dbeCSC_->showDirStructure();
+   }
+   
+   // ----------------------
+   
+   bookHistos_CSC();
+   
    // get hold of back-end interface RPC
-  dbeRPC_ = 0;
-  dbeRPC_ = Service<DQMStore>().operator->();
-  if ( dbeRPC_ ) {
-    if ( verbose_ ) {
-      dbeRPC_->setVerbose(1);
-    } else {
-      dbeRPC_->setVerbose(0);
-    }
-  }
-  if ( dbeRPC_ ) {
-    if ( verbose_ ) dbeRPC_->showDirStructure();
-  }
-
-  // ----------------------
-
- bookHistos_RPC();
-*/
-
- pow6=1000000.0; 
- mom4 =0.;
- mom1 = 0; 
- costeta = 0.;
- radius = 0;
- sinteta = 0.;
- globposx = 0.;
- globposy = 0;
- nummu_DT = 0; 
- nummu_CSC =0;
- nummu_RPC=0;
-
+   dbeRPC_ = 0;
+   dbeRPC_ = Service<DQMStore>().operator->();
+   if ( dbeRPC_ ) {
+   if ( verbosity ) {
+   dbeRPC_->setVerbose(1);
+   } else {
+   dbeRPC_->setVerbose(0);
+   }
+   }
+   if ( dbeRPC_ ) {
+   if ( verbosity ) dbeRPC_->showDirStructure();
+   }
+   
+   // ----------------------
+   
+   bookHistos_RPC();
+   */
+   
+   pow6=1000000.0; 
+   mom4 =0.;
+   mom1 = 0; 
+   costeta = 0.;
+   radius = 0;
+   sinteta = 0.;
+   globposx = 0.;
+   globposy = 0;
+   nummu_DT = 0; 
+   nummu_CSC =0;
+   nummu_RPC=0;
+   
 }
 
 MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer() 
