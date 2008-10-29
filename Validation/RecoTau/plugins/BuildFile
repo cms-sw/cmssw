@@ -5,6 +5,6 @@
 <use name=DQMServices/Core>
 <use name=DataFormats/Math>
 
-<library file=DecayModeCountingTool.cc name=ValidationRecoTauPlugins>
+<library file=*.cc name=ValidationRecoTauPlugins>
 <flags EDM_PLUGIN=1>
 </library>
