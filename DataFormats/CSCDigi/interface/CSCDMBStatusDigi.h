@@ -5,12 +5,13 @@
  *
  *  Digi for CSC DMB info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.5 $
  *
  */
 
 #include <vector>
+#include <iosfwd>
 
 class CSCDMBStatusDigi{
 
@@ -32,13 +33,7 @@ private:
   uint16_t trailer_[8];
 };
 
-#include<iostream>
-/// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCDMBStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
+
+std::ostream & operator<<(std::ostream & o, const CSCDMBStatusDigi& digi);
 
 #endif

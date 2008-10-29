@@ -5,14 +5,14 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU. 
  *
- * $Date: 2006/05/16 15:22:57 $
- * $Revision: 1.5 $
+ * $Date: 2006/11/17 17:45:11 $
+ * $Revision: 1.6 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <boost/cstdint.hpp>
-
+#include <iosfwd>
 
 class CSCRPCDigi{
 
@@ -22,7 +22,6 @@ public:
   CSCRPCDigi (int rpc, int pad, int bxn , int tbin);  /// from the rpc#, pad#, bxn#, tbin#
   CSCRPCDigi ();                             /// default
 
-  
   /// get RPC
   int getRpc() const {return rpc_;}
   /// return pad number
@@ -35,7 +34,6 @@ public:
   /// Print content of digi
   void print() const;
 
-
 private:
 
   uint16_t rpc_;
@@ -43,19 +41,8 @@ private:
   uint16_t bxn_;
   uint16_t tbin_;
 
-
 };
 
-
-
-
-#include<iostream>
-// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCRPCDigi& digi) {
-  return o << " RPC = " << digi.getRpc() << "  Pad = "<< digi.getPad()
-	   << "  Tbin = " << digi.getTbin() << "  Bxn = " << digi.getBXN();
-}
-
-
+std::ostream & operator<<(std::ostream & o, const CSCRPCDigi& digi);
 
 #endif

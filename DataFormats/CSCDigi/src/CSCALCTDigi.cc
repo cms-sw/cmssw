@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2007/03/21 15:50:43 $
- * $Revision: 1.9 $
+ * $Date: 2007/07/23 12:08:20 $
+ * $Revision: 1.10 $
  *
  * \author N. Terentiev, CMU
  */
@@ -11,6 +11,7 @@
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
 
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -98,3 +99,14 @@ void CSCALCTDigi::print() const {
     std::cout << "Not a valid Anode LCT." << std::endl;
   }
 }
+
+std::ostream & operator<<(std::ostream & o, const CSCALCTDigi& digi) {
+  return o << "CSC ALCT #"         << digi.getTrknmb()
+           << ": Valid = "         << digi.isValid()
+           << " Quality = "        << digi.getQuality()
+           << " Accel. = "         << digi.getAccelerator()
+           << " PatternB = "       << digi.getCollisionB()
+           << " Key wire group = " << digi.getKeyWG()
+           << " BX = "             << digi.getBX();
+}
+

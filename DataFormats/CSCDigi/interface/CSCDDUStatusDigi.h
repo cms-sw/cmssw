@@ -5,12 +5,13 @@
  *
  *  Digi for CSC DDU info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.4 $
  *
  */
 
 #include <vector>
+#include <iosfwd>
 
 class CSCDDUStatusDigi{
 
@@ -32,13 +33,6 @@ private:
   uint16_t trailer_[12];
 };
 
-#include<iostream>
-/// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const CSCDDUStatusDigi& digi) {
-  o << " "; 
-  o <<"\n";
- 
-  return o;
-}
+std::ostream & operator<<(std::ostream & o, const CSCDDUStatusDigi& digi);
 
 #endif

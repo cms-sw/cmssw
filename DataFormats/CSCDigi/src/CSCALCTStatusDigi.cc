@@ -2,13 +2,13 @@
  * 
  *  Digi for CSC ALCT info available in DDU
  *
- *  $Date: 2007/07/23 12:08:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/12 17:41:10 $
+ *  $Revision: 1.3 $
  *
  */
 #include <DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h>
 
-using namespace std;
+#include<iostream>
 
 CSCALCTStatusDigi::CSCALCTStatusDigi(const uint16_t * header, const uint16_t * trailer)
 {
@@ -17,3 +17,11 @@ CSCALCTStatusDigi::CSCALCTStatusDigi(const uint16_t * header, const uint16_t * t
   memcpy(header_, header, headerSizeInBytes);
   memcpy(trailer_, trailer, trailerSizeInBytes);
 }
+
+std::ostream & operator<<(std::ostream & o, const CSCALCTStatusDigi& digi) {
+  o << " ";  
+  o <<"\n";
+
+  return o;
+}
+

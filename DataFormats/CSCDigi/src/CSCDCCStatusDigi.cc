@@ -2,13 +2,12 @@
  * 
  *  Digi for CSC DCC info available in DDU
  *
- *  $Date: 2008/02/12 17:40:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/28 17:54:27 $
+ *  $Revision: 1.4 $
  *
  */
-#include <DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h>
-
-using namespace std;
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
+#include <iostream>
 
 CSCDCCStatusDigi::CSCDCCStatusDigi(const uint16_t * header, const uint16_t * trailer, const uint32_t & error) 
 {
@@ -18,3 +17,11 @@ CSCDCCStatusDigi::CSCDCCStatusDigi(const uint16_t * header, const uint16_t * tra
   memcpy(header_, header, headerSizeInBytes);
   memcpy(trailer_, trailer, trailerSizeInBytes);
 }
+
+std::ostream & operator<<(std::ostream & o, const CSCDCCStatusDigi& digi) {
+  o << " ";
+  o <<"\n";
+
+  return o;
+}
+
