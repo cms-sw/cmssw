@@ -49,8 +49,8 @@ void RPCDigiValid::endJob() {
 
 void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup){
 
-  cout << endl <<"--- [RPCDigiQuality] Analysing Event: #Run: " << event.id().run()
-       << " #Event: " << event.id().event() << endl;
+  //  cout << endl <<"--- [RPCDigiQuality] Analysing Event: #Run: " << event.id().run()
+  //       << " #Event: " << event.id().event() << endl;
   
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
@@ -73,7 +73,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup){
     const RPCRoll* soll = dynamic_cast<const RPCRoll* >( rpcGeom->roll(Rsid));
     int ptype = simIt->particleType();
 
-    std::cout <<"This is a Simhit with Parent "<<ptype<<std::endl;
+    //    std::cout <<"This is a Simhit with Parent "<<ptype<<std::endl;
     if (ptype == 13 || ptype == -13) {
       std::vector<double> buff;
       if (allsims.find(Rsid) != allsims.end() ){
@@ -83,9 +83,11 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup){
       allsims[Rsid]=buff;
     }
     GlobalPoint p=soll->toGlobal(simIt->localPosition());
+    /*
     std::cout <<"Muon Position phi="<<p.phi()
 	    <<" R="<<p.perp()
 	      <<" z="<<p.z()<<std::endl;
+    */
     xyview->Fill(p.x(),p.y());
     rzview->Fill(p.z(),p.perp());
 
@@ -109,7 +111,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup){
     }
     
 
-    std::cout<<" Number of Digi "<<ndigi<<" for "<<Rsid<<std::endl;
+    //    std::cout<<" Number of Digi "<<ndigi<<" for "<<Rsid<<std::endl;
 
     if (sims.size() == 1 &&  ndigi == 1){
       double dis = roll->centreOfStrip(range.first->strip()).x()-sims[0];
