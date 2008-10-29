@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <iostream>
 #include <utility>
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
