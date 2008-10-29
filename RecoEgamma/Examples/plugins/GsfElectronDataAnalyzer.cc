@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.4 2008/09/13 08:30:26 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.5 2008/10/28 21:51:31 charlot Exp $
 //
 //
 
@@ -209,7 +209,7 @@ void GsfElectronDataAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histSclSigIEtaIEtaendcaps_ =  new TH1F("h_scl_sigietaieta_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05);
   histSclE1x5_ =  new TH1F("h_scl_E1x5","ele supercluster energy in 1x5",nbinp,0.,pmax);
   histSclE2x5max_ =  new TH1F("h_scl_E2x5max","ele supercluster energy in 2x5 max",nbinp,0.,pmax);
-  histSclE5x5_ =  new TH1F("h_scl_E1x5","ele supercluster energy in 5x5",nbinp,0.,pmax);
+  histSclE5x5_ =  new TH1F("h_scl_E5x5","ele supercluster energy in 5x5",nbinp,0.,pmax);
 
   // matched electron, gsf tracks
   h_ele_foundHits      = new TH1F( "h_ele_foundHits",      "ele track # found hits",      nbinfhits,0.,fhitsmax);
@@ -274,10 +274,10 @@ void GsfElectronDataAnalyzer::beginJob(edm::EventSetup const&iSetup){
  
   h_ele_seed_dphi2_ = new TH1F("h_ele_seedDphi2", "ele seed dphi 2nd layer", 50,-0.003,+0.003) ;
   h_ele_seed_dphi2VsEta_ = new TH2F("h_ele_seedDphi2VsEta", "ele seed dphi 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.003,+0.003) ;
-  h_ele_seed_dphi2VsPt_ = new TH2F("h_ele_seedDphi2VsPt", "ele seed dphi 2nd layer vs pt", nbineta2D,etamin,etamax,50,-0.003,+0.003) ;
-  h_ele_seed_drz2_ = new TH1F("h_ele_seedDrz2", "ele seed dr/dz 2nd layer", 50,-0.02,+0.02) ;
-  h_ele_seed_drz2VsEta_ = new TH2F("h_ele_seedDrz2VsEta", "ele seed dr/dz 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.02,+0.02) ;
-  h_ele_seed_drz2VsPt_ = new TH2F("h_ele_seedDrz2VsPt", "ele seed dr/dz 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.02,+0.02) ;
+  h_ele_seed_dphi2VsPt_ = new TH2F("h_ele_seedDphi2VsPt", "ele seed dphi 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.003,+0.003) ;
+  h_ele_seed_drz2_ = new TH1F("h_ele_seedDrz2", "ele seed dr/dz 2nd layer", 50,-0.03,+0.03) ;
+  h_ele_seed_drz2VsEta_ = new TH2F("h_ele_seedDrz2VsEta", "ele seed dr/dz 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.03,+0.03) ;
+  h_ele_seed_drz2VsPt_ = new TH2F("h_ele_seedDrz2VsPt", "ele seed dr/dz 2nd layer vs pt", nbinpt2D,0.,ptmax,50,-0.03,+0.03) ;
   h_ele_seed_subdet2_ = new TH1F("h_ele_seedSubdet2", "ele seed subdet 2nd layer", 10,0.,10.) ;
 
   // classes  
