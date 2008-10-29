@@ -12,3 +12,6 @@ from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 
 DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaCosmicPhotonMonitors*dtSources)
 
+# this is a TEMPORARY HUGLY hack until the L1TGMT gets fixed
+DQMOfflineCosmics.remove(l1tgmt)
+
