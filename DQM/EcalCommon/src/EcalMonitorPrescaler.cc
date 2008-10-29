@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.8 2008/05/17 14:23:13 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.9 2008/10/26 09:36:31 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.8 $
-  \date $Date: 2008/05/17 14:23:13 $
+  \version $Revision: 1.9 $
+  \date $Date: 2008/10/26 09:36:31 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,6 +34,8 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
   ledPrescaleFactor_ = ps.getUntrackedParameter<int>("ledPrescaleFactor", 0);
   pedestalPrescaleFactor_ = ps.getUntrackedParameter<int>("pedestalPrescaleFactor", 0);
   testpulsePrescaleFactor_ = ps.getUntrackedParameter<int>("testpulsePrescaleFactor", 0);
+
+  pedestaloffsetPrescaleFactor_ = ps.getUntrackedParameter<int>("pedestaloffsetPrescaleFactor", 0);
 
   triggertowerPrescaleFactor_ = ps.getUntrackedParameter<int>("triggertowerPrescaleFactor" , 0);
   timingPrescaleFactor_ = ps.getUntrackedParameter<int>("timingPrescaleFactor" , 0);
