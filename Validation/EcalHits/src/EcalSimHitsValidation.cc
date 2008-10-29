@@ -35,12 +35,6 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
-  if ( verbose_ ) {
-    std::cout << " verbose switch is ON" << std::endl;
-  } else {
-    std::cout << " verbose switch is OFF" << std::endl;
-  }
-
   // DQMServices                                                        
   dbe_ = 0;
 

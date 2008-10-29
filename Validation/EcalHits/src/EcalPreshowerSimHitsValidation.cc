@@ -25,12 +25,6 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
-  if ( verbose_ ) {
-    std::cout << " verbose switch is ON" << std::endl;
-  } else {
-    std::cout << " verbose switch is OFF" << std::endl;
-  }
-
   // get hold of back-end interface
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();

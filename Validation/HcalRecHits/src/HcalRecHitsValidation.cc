@@ -48,7 +48,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   if(mc_ == "no") imc = 0;
 
   if ( dbe_ ) {
-    std::cout << " dbe_->setCurrentFolder" << std::endl; 
     dbe_->setCurrentFolder("HcalRecHitsV/HcalRecHitTask");
 
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2008/02/29 20:48:26 $
- * $Revision: 1.27 $
+ * $Date: 2008/05/05 10:45:22 $
+ * $Revision: 1.28 $
  * \author F. Cossutti
  *
 */
@@ -37,13 +37,7 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
  
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-                                                                                                                                          
+                                                                                                                                           
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface

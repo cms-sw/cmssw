@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/07/02 09:00:55 $
- * $Revision: 1.17 $
+ * $Date: 2008/07/03 14:29:00 $
+ * $Revision: 1.18 $
  *
  */
 
@@ -91,12 +91,6 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
  
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-  
-  if(verbose_){
-    cout << " verbose switch is ON" << endl;
-  } else{
-    cout << " verbose switch is OFF" << endl;
-  }
   
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->();

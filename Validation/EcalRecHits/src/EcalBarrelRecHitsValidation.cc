@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2008/02/15 10:35:34 $
+ * $Date: 2008/02/29 20:48:32 $
  * \author C. Rovelli
  *
  */
@@ -23,13 +23,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
   // ---------------------- 
   // verbosity switch 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-  
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-  
+    
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;

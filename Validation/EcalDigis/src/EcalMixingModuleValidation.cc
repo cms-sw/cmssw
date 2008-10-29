@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2008/05/15 17:13:45 $
- * $Revision: 1.19 $
+ * $Date: 2008/07/03 20:32:04 $
+ * $Revision: 1.20 $
  * \author F. Cossutti
  *
 */
@@ -81,13 +81,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
  
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
-  } else {
-    cout << " verbose switch is OFF" << endl;
-  }
-                                                                                                                                          
+                                                                                                                                           
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface

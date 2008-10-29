@@ -36,7 +36,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   Char_t histo[100];
 
   if ( dbe_ ) {
-    std::cout << " dbe_->setCurrentFolder" << std::endl; 
     dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   }
 
