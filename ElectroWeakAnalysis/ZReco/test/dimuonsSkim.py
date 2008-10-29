@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("ElectroWeakAnalysis.ZReco.dimuons_SkimPaths_cff")
 process.load("ElectroWeakAnalysis.ZReco.dimuonsOutputModule_cfi")
 
-process.dimuonsOutputModule.fileName = 'file:/tmp/fabozzi/dimuons.root'
+process.dimuonsOutputModule.fileName = 'dimuons.root'
 
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
