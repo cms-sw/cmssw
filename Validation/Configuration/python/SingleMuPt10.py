@@ -13,6 +13,9 @@ def customise(process):
     process.schedule.append(process.raw2digi_step)
     process.schedule.append(process.reconstruction_step)
 
+    process.load('Validation.GlobalDigis.globaldigis_analyze_cfi')
+    process.load('Validation.GlobalRecHits.globalrechits_analyze_cfi')
+    process.load('Validation.GlobalHits.globalhits_analyze_cfi')
     process.load("Validation/Configuration/trackerSimValid_cff")
     process.load("Validation/Configuration/muonSimValid_cff")
     process.local_validation = cms.Path(process.globalhitsanalyze+process.globaldigisanalyze+process.trackerSimValid+process.muonSimValid)
