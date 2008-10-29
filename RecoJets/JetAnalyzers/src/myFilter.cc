@@ -11,9 +11,17 @@
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
 using namespace edm;
 using namespace reco;
 using namespace std;
+
+#define DEBUG 1
 
 typedef struct RBX_struct {
   double et;
@@ -58,6 +66,9 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
   _passMETSig  = 0;
   _passHighPtTower    = 0;
   _passNRBX    = 0;
+  _passHLT     = 0;
+
+  theTriggerResultsLabel = cfg.getParameter<edm::InputTag>("TriggerResultsLabel");
 }
 
 myFilter::~myFilter() {
@@ -95,6 +106,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   bool filter_METSig  = false;
   bool filter_HighPtTower  = false;
   bool filter_NRBX         = false;
+  bool filter_HLT          = false;
 
   // *********************************************************
   // --- Event Classification
@@ -203,6 +215,29 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   }
 
 
+
+  // *********************************************************
+  // --- Access Trigger Info
+  // *********************************************************
+
+  // **** Get the TriggerResults container
+  Handle<TriggerResults> triggerResults;
+  evt.getByLabel(theTriggerResultsLabel, triggerResults);
+
+  Int_t JetLoPass = 0;
+
+  if (triggerResults.isValid()) {
+    if (DEBUG) std::cout << "trigger valid " << std::endl;
+    edm::TriggerNames triggerNames;    // TriggerNames class
+    triggerNames.init(*triggerResults);
+    unsigned int n = triggerResults->size();
+    for (unsigned int i=0; i!=n; i++) {
+      if ( triggerNames.triggerName(i) == "HLT_Jet30" ) {
+        JetLoPass =  triggerResults->accept(i);
+        if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
+      }
+    }
+  }
 
   // *********************************************************
   // --- Vertex Selection
@@ -321,6 +356,11 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   int njet = 0;
   for ( CaloJetCollection::const_iterator ijet=jets->begin(); ijet!=jets->end(); ijet++) {
 
+    if ( (ijet->pt() > 100.) && (JetLoPass != 0) ) {
+      filter_HLT = true;
+    }
+
+
     if ((ijet->pt() > 100.) && (evtType == 0)) {
       filter_HighPtTower = true; 
     }
@@ -365,7 +405,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   // *********************************************************
   _nEvent++;  
 
-  if (filter_MET) {
+  if ( (filter_HLT) || (filter_NJets) )  {
     result = true;
     _acceptedEvt++;
   }
@@ -384,6 +424,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   if (filter_METSig)       _passMETSig++;
   if (filter_HighPtTower)  _passHighPtTower++;
   if (filter_NRBX)         _passNRBX++;
+  if (filter_HLT)          _passHLT++;
 
   return result;
 }

@@ -96,8 +96,9 @@ HPD HPDColl[144];
 
 myJetAna::myJetAna( const ParameterSet & cfg ) :
   CaloJetAlgorithm( cfg.getParameter<string>( "CaloJetAlgorithm" ) ), 
-  GenJetAlgorithm( cfg.getParameter<string>( "GenJetAlgorithm" ) )
+  GenJetAlgorithm( cfg.getParameter<string>( "GenJetAlgorithm" ) )  
 {
+  theTriggerResultsLabel = cfg.getParameter<edm::InputTag>("TriggerResultsLabel");
 }
 
 
@@ -216,8 +217,9 @@ void myJetAna::beginJob( const EventSetup & ) {
 
   h_jetEt      = fs->make<TH1F>( "jetEt", "Total Jet Et", 100, 0, 3000 );
 
-  h_jet1Pt    = fs->make<TH1F>( "jet1Pt", "Jet1 Pt", 100, 0, 3000 );
-  h_jet2Pt    = fs->make<TH1F>( "jet2Pt", "Jet2 Pt", 100, 0, 3000 );
+  h_jet1Pt       = fs->make<TH1F>( "jet1Pt", "Jet1 Pt", 100, 0, 1000 );
+  h_jet2Pt       = fs->make<TH1F>( "jet2Pt", "Jet2 Pt", 100, 0, 1000 );
+  h_jet1PtHLT    = fs->make<TH1F>( "jet1PtHLT", "Jet1 Pt HLT", 100, 0, 1000 );
 
   h_TotalUnclusteredEt = fs->make<TH1F>( "TotalUnclusteredEt", "Total Unclustered Et", 100, 0, 500 );
   h_UnclusteredEt      = fs->make<TH1F>( "UnclusteredEt", "Unclustered Et", 100, 0, 50 );
@@ -376,12 +378,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // **************************************************************
 
   // **** Get the TriggerResults container
-  edm::Handle<TriggerResults> triggerResults;
-  evt.getByLabel("TriggerResults::HLT", triggerResults);
-  //  evt.getByLabel("TriggerResults::FU", triggerResults);
+  Handle<TriggerResults> triggerResults;
+  evt.getByLabel(theTriggerResultsLabel, triggerResults);
 
   Int_t JetLoPass = 0;
-
+  
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
     edm::TriggerNames triggerNames;    // TriggerNames class
@@ -392,10 +393,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       //      std::cout << ">>> Trigger Name = " << triggerNames.triggerName(i)
       //                << " Accept = " << triggerResults.accept(i)
       //                << std::endl;
+      //      if (DEBUG) std::cout <<  triggerNames.triggerName(i) << std::endl;
 
       if ( triggerNames.triggerName(i) == "HLT_Jet30" ) {
         JetLoPass =  triggerResults->accept(i);
-        if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
+        if (DEBUG) std::cout << "Found  HLT_Jet30 " 
+			     << JetLoPass
+			     << std::endl;
       }
 
     }
@@ -404,6 +408,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
     edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
     triggerResults = (*tr);
+
     //     std::cout << "triggerResults is not valid" << std::endl;
     //     std::cout << triggerResults << std::endl;
     //     std::cout << triggerResults.isValid() << std::endl;
@@ -413,6 +418,19 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       "automatically select events";
     //return;
   }
+
+  /****
+  Handle <L1GlobalTriggerReadoutRecord> gtRecord_h;
+  evt.getByType (gtRecord_h); // assume only one L1 trigger record here
+  const L1GlobalTriggerReadoutRecord* gtRecord = gtRecord_h.failedToGet () ? 0 : &*gtRecord_h;
+  
+  if (gtRecord) { // object is available
+    for (int l1bit = 0; l1bit < 128; ++l1bit) {
+      if (gtRecord->decisionWord() [l1bit]) h_L1TrigBit->Fill (l1bit);
+    }
+  }
+  ****/
+
 
 
 
@@ -460,12 +478,15 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     allJetInd++;
     if (allJetInd == 1) {
       h_jet1Pt->Fill( cal->pt() );
+      if (JetLoPass != 0) h_jet1PtHLT->Fill( cal->pt() );
       pt1 = cal->pt();
       p4tmp[0] = cal->p4();
       if ( fabs(cal->eta()) < 1.0) EtaOk10++;
       if ( fabs(cal->eta()) < 1.3) EtaOk13++;
       if ( fabs(cal->eta()) < 4.0) EtaOk40++;
-    }
+      
+      
+  }
     if (allJetInd == 2) {
       h_jet2Pt->Fill( cal->pt() );
       p4tmp[1] = cal->p4();
