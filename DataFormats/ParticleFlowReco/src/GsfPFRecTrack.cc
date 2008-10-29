@@ -10,7 +10,7 @@ GsfPFRecTrack::GsfPFRecTrack(double charge,
 			     int trackId, 
 			     const reco::GsfTrackRef& gsftrackRef,
 			     const edm::Ref<std::vector<PFRecTrack> >& kfpfrectrackref) : 
-  PFRecTrack(charge,algoType,trackId,(*kfpfrectrackref).trackRef()), 
+  PFRecTrack(charge,algoType),
   gsfTrackRef_(gsftrackRef),
   kfPFRecTrackRef_(kfpfrectrackref),
   pfBremVec_(0)
