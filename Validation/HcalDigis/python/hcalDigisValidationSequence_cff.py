@@ -11,12 +11,12 @@ import Validation.HcalDigis.HcalDigiParam_cfi
 HFDigisValidation = Validation.HcalDigis.HcalDigiParam_cfi.hcalDigiAnalyzer.clone()
 hcalDigisValidationSequence = cms.Sequence(HBDigisValidation+HEDigisValidation+HODigisValidation+HFDigisValidation)
 HBDigisValidation.hcalselector = 'HB'
-HBDigisValidation.outputFile = 'HcalDigisValidationHB.root'
+HBDigisValidation.outputFile = ''
 HEDigisValidation.hcalselector = 'HE'
-HEDigisValidation.outputFile = 'HcalDigisValidationHE.root'
+HEDigisValidation.outputFile = ''
 HODigisValidation.hcalselector = 'HO'
-HODigisValidation.outputFile = 'HcalDigisValidationHO.root'
+HODigisValidation.outputFile = ''
 HFDigisValidation.hcalselector = 'HF'
-HFDigisValidation.outputFile = 'HcalDigisValidationHF.root'
+HFDigisValidation.outputFile = ''
 
 
