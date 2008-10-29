@@ -40,7 +40,6 @@ TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   src_ =  conf.getParameter<edm::InputTag>( "src" );
   
   dbe_  = edm::Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
   
 
@@ -92,7 +91,7 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
   event.getByLabel(src_,TruthTrackContainer );
   event.getByLabel(src_,TruthVertexContainer);
 
-  std::cout << "Using Collection " << src_ << std::endl;
+  //  std::cout << "Using Collection " << src_ << std::endl;
   
   TrackingParticleCollection *tPC   = const_cast<TrackingParticleCollection*>(TruthTrackContainer.product());
   const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
@@ -105,7 +104,7 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
   //  const HepMC::GenEvent *genEvent = mcp -> GetEvent();
   */
 
-  cout << "Found " << tPC -> size() << " tracks and " << tVC -> size() << " vertices." <<endl;
+  //  cout << "Found " << tPC -> size() << " tracks and " << tVC -> size() << " vertices." <<endl;
    
 
 // Loop over TrackingParticle's

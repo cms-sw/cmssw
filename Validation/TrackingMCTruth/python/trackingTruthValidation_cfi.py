@@ -6,7 +6,7 @@ trackingTruthValid = cms.EDFilter("TrackingTruthValid",
     #   string outputFile = "trackingtruthhisto.root" 
     #to run on merged collection (default)
     src = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    outputFile = cms.string('trackingtruthhisto.root')
+    outputFile = cms.string('')
 )
 
 
