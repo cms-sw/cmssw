@@ -132,9 +132,8 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
         iEvent.getByLabel(muGmtInputTag, muonData);
 
         if (!muonData.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerGTL")
-            << "\nError: std::vector<L1MuGMTCand> with input tag " << muGmtInputTag
+            edm::LogWarning("L1GlobalTriggerGTL")
+            << "\nWarning: std::vector<L1MuGMTCand> with input tag " << muGmtInputTag
             << "\nrequested in configuration, but not found in the event.\n"
             << std::endl;
         }
@@ -178,6 +177,9 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     const bool receiveCastor,
     const edm::InputTag castorInputTag) {
 
+
+    // call only once the isDebugEnabled()
+    bool debugEnabled = edm::isDebugEnabled();
 
 	// get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
@@ -263,9 +265,8 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     //if (receiveCastor) {
     //
     //    if (!castorData.isValid()) {
-    //        //throw cms::Exception("ProductNotFound")
-    //        edm::LogError("L1GlobalTriggerGTL")
-    //        << "\nError: CASTOR record with input tag " << castorInputTag
+    //        edm::LogWarning("L1GlobalTriggerGTL")
+    //        << "\nWarning: CASTOR record with input tag " << castorInputTag
     //        << "\nrequested in configuration, but not found in the event.\n"
     //        << std::endl;
     //
@@ -316,7 +317,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = muCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         muCondition->print(myCout);
 
@@ -342,7 +343,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = caloCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         caloCondition->print(myCout);
 
@@ -359,7 +360,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = eSumCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         eSumCondition->print(myCout);
 
@@ -376,7 +377,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = jcCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         jcCondition->print(myCout);
 
@@ -394,7 +395,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = bcCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         bcCondition->print(myCout);
 
@@ -412,7 +413,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = etCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         etCondition->print(myCout);
 
@@ -437,7 +438,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = castorCondition;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         castorCondition->print(myCout);
 
@@ -568,7 +569,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     cMapResults[itCond->first] = correlationCond;
 
-                    if (edm::isDebugEnabled() ) {
+                    if (debugEnabled ) {
                         std::ostringstream myCout;
                         correlationCond->print(myCout);
 
@@ -630,7 +631,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
             objMap.setOperandTokenVector(gtAlg.operandTokenVector());
             objMap.setCombinationVector(*(gtAlg.gtAlgoCombinationVector()));
 
-            if (edm::isDebugEnabled() ) {
+            if (debugEnabled ) {
                 std::ostringstream myCout1;
                 objMap.print(myCout1);
 
@@ -641,7 +642,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
         }
 
-        if (edm::isDebugEnabled() ) {
+        if (debugEnabled ) {
             std::ostringstream myCout;
             (itAlgo->second).print(myCout);
             gtAlg.print(myCout);

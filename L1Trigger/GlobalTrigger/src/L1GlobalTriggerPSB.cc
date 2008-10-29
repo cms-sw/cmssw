@@ -135,12 +135,15 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
     const bool receiveHfRingEtSums)
 {
 
-    LogDebug("L1GlobalTriggerPSB")
-            << "\n**** L1GlobalTriggerPSB receiving calorimeter data for BxInEvent = "
-            << iBxInEvent << "\n     from " << caloGctInputTag << "\n"
-            << std::endl;
+    //LogDebug("L1GlobalTriggerPSB")
+    //        << "\n**** L1GlobalTriggerPSB receiving calorimeter data for BxInEvent = "
+    //        << iBxInEvent << "\n     from " << caloGctInputTag << "\n"
+    //        << std::endl;
 
     reset();
+
+    std::ostringstream warningsStream;
+    bool warningEnabled = edm::isWarningEnabled();
 
     if (receiveNoIsoEG) {
 
@@ -149,12 +152,13 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "nonIsoEm", emCands);
 
         if (!emCands.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEmCandCollection with input label " << caloGctInputTag.label()
-            << " and instance \"nonIsoEm\" \n"
-            << "requested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctEmCandCollection with input label " << caloGctInputTag.label()
+                << " and instance \"nonIsoEm\" \n"
+                << "requested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -170,16 +174,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        int numberObjects = m_candL1NoIsoEG->size();
-        if (numberObjects < nrL1NoIsoEG) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEmCandCollection contains for BxInEvent = " << iBxInEvent
-            << " only " << numberObjects << " NoIsoEG objects instead of expected "
-            << nrL1NoIsoEG << " objects.\n"
-            << std::endl;
-        }
-
     }
 
     if (receiveIsoEG) {
@@ -189,12 +183,14 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "isoEm",    isoEmCands);
 
         if (!isoEmCands.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEmCandCollection with input label " << caloGctInputTag.label()
-            << " and instance \"isoEm\" \n"
-            << "requested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctEmCandCollection with input label "
+                << caloGctInputTag.label()
+                << " and instance \"isoEm\" \n"
+                << "requested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -210,16 +206,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        int numberObjects = m_candL1IsoEG->size();
-        if (numberObjects < nrL1IsoEG) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEmCandCollection contains for BxInEvent = " << iBxInEvent
-            << " only " << numberObjects << " IsoEG objects instead of expected "
-            << nrL1IsoEG << " objects.\n"
-            << std::endl;
-        }
-
     }
 
 
@@ -230,12 +216,13 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "cenJets", cenJets);
 
         if (!cenJets.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCandCollection with input label " << caloGctInputTag.label()
-            << " and instance \"cenJets\" \n"
-            << "requested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctJetCandCollection with input label " << caloGctInputTag.label()
+                << " and instance \"cenJets\" \n"
+                << "requested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -251,15 +238,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        int numberObjects = m_candL1CenJet->size();
-        if (numberObjects < nrL1CenJet) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCandCollection contains for BxInEvent = " << iBxInEvent
-            << " only " << numberObjects << " CenJet objects instead of expected "
-            << nrL1CenJet << " objects.\n"
-            << std::endl;
-        }
     }
 
     if (receiveForJet) {
@@ -269,13 +247,14 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "forJets", forJets);
 
         if (!forJets.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCandCollection with input label "
-            << caloGctInputTag.label()
-            << " and instance \"forJets\" \n"
-            << "requested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctJetCandCollection with input label "
+                << caloGctInputTag.label()
+                << " and instance \"forJets\" \n"
+                << "requested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -291,15 +270,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        int numberObjects = m_candL1ForJet->size();
-        if (numberObjects < nrL1ForJet) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCandCollection contains for BxInEvent = " << iBxInEvent
-            << " only " << numberObjects << " ForJet objects instead of expected "
-            << nrL1ForJet << " objects.\n"
-            << std::endl;
-        }
     }
 
     if (receiveTauJet) {
@@ -309,12 +279,13 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag.label(), "tauJets", tauJets);
 
         if (!tauJets.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCandCollection with input label " << caloGctInputTag.label()
-            << " and instance \"tauJets\" \n"
-            << "requested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctJetCandCollection with input label " << caloGctInputTag.label()
+                << " and instance \"tauJets\" \n"
+                << "requested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -330,16 +301,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        int numberObjects = m_candL1TauJet->size();
-        if (numberObjects < nrL1TauJet) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCandCollection contains for BxInEvent = " << iBxInEvent
-            << " only " << numberObjects << " TauJet objects instead of expected "
-            << nrL1TauJet << " objects.\n"
-            << std::endl;
-        }
-
     }
 
     // get GCT ETM
@@ -349,11 +310,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag, missEtColl) ;
 
         if (!missEtColl.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEtMissCollection with input tag " << caloGctInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctEtMissCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -369,14 +331,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        if ( m_candETM == 0) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEtMissCollection contains for BxInEvent = " << iBxInEvent
-            << " no ETM object.\n"
-            << std::endl;
-        }
-
     }
 
     // get GCT ETT
@@ -386,11 +340,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag, sumEtColl) ;
 
         if (!sumEtColl.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEtTotalCollection with input tag " << caloGctInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctEtTotalCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -406,13 +361,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        if ( m_candETT == 0) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEtTotalCollection contains for BxInEvent = " << iBxInEvent
-            << " no ETT object.\n"
-            << std::endl;
-        }
     }
 
     // get GCT HTT
@@ -422,11 +370,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag, sumHtColl) ;
 
         if (!sumHtColl.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEtHadCollection with input tag " << caloGctInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctEtHadCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -442,13 +391,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        if ( m_candHTT == 0) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctEtHadCollection contains for BxInEvent = " << iBxInEvent
-            << " no HTT object.\n"
-            << std::endl;
-        }
     }
 
     // get GCT JetCounts
@@ -458,11 +400,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag, jetCountColl) ;
 
         if (!jetCountColl.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCountsCollection with input tag " << caloGctInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctJetCountsCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -478,13 +421,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        if ( m_candJetCounts == 0) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctJetCountsCollection contains for BxInEvent = " << iBxInEvent
-            << " no JetCounts object.\n"
-            << std::endl;
-        }
     }
 
 
@@ -495,11 +431,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag, hfBitCountsColl) ;
 
         if (!hfBitCountsColl.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctHFBitCountsCollection with input tag " << caloGctInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctHFBitCountsCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -515,13 +452,6 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        if ( m_candHfBitCounts == 0) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctHFBitCountsCollection contains for BxInEvent = " << iBxInEvent
-            << " no HfBitCounts object.\n"
-            << std::endl;
-        }
     }
 
     // get GCT HfRingEtSums
@@ -531,11 +461,12 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
         iEvent.getByLabel(caloGctInputTag, hfRingEtSums) ;
 
         if (!hfRingEtSums.isValid()) {
-            //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctHFRingEtSumsCollection with input tag " << caloGctInputTag
-            << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;
+            if (warningEnabled) {
+                warningsStream
+                << "\nWarning: L1GctHFRingEtSumsCollection with input tag " << caloGctInputTag
+                << "\nrequested in configuration, but not found in the event.\n"
+                << std::endl;
+            }
         }
         else {
 
@@ -551,20 +482,21 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        if ( m_candHfRingEtSums == 0) {
-            //throw cms::Exception("EventCorruption")
-            edm::LogError("L1GlobalTriggerPSB")
-            << "\nError: L1GctHFRingEtSumsCollection contains for BxInEvent = " << iBxInEvent
-            << " no HfRingEtSums object.\n"
-            << std::endl;
+    }
+
+    if (warningEnabled) {
+        if (warningsStream.tellp() > 0) {
+            edm::LogWarning("L1GlobalTriggerPSB")
+                << warningsStream.str();
         }
     }
 
     if ( edm::isDebugEnabled() ) {
+
         LogDebug("L1GlobalTriggerPSB")
-        << "**** L1GlobalTriggerPSB received calorimeter data from input tag "
-        << caloGctInputTag
-        << std::endl;
+                << "\n**** L1GlobalTriggerPSB receiving calorimeter data for BxInEvent = "
+                << iBxInEvent << "\n     from " << caloGctInputTag << "\n"
+                << std::endl;
 
         printGctObjectData(iBxInEvent);
     }

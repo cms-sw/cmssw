@@ -1009,7 +1009,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     }
 
 
-    if ( daqNrGmtBoards > 0 ) {
+    if ( receiveMu ) {
 
 
         //LogDebug("L1GlobalTrigger")
@@ -1024,7 +1024,18 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
         iEvent.getByLabel(m_muGmtInputTag, gmtRcHandle);
 
-        gtDaqReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
+        if (!gmtRcHandle.isValid()) {
+            edm::LogWarning("L1GlobalTrigger")
+            << "\nWarning: L1MuGMTReadoutCollection with input tag " << m_muGmtInputTag
+            << "\nrequested in configuration, but not found in the event.\n"
+            << std::endl;
+        }
+        else {
+
+            gtDaqReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
+
+
+        }
 
     }
 
