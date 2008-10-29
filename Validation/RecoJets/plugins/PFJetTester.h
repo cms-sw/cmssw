@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for PFlowJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: PFJetTester.h,v 1.3 2008/02/29 20:49:03 ksmith Exp $
+// $Id: PFJetTester.h,v 1.1 2008/06/10 21:03:41 rwolf Exp $
 
 #include <string>
 
@@ -33,20 +33,39 @@ public:
   edm::InputTag mInputGenCollection;
   std::string mOutputFile;
 
+  // count number of events
+  MonitorElement* numberofevents;
+
   // Generic Jet Parameters
   MonitorElement* mEta;
+  MonitorElement* mEtaFineBin;  //new
   MonitorElement* mPhi;
+  MonitorElement* mPhiFineBin;  //new
   MonitorElement* mE;
+  MonitorElement* mE_80;  //new
+  MonitorElement* mE_3000;  //new
   MonitorElement* mP;
+  MonitorElement* mP_80;  //new
+  MonitorElement* mP_3000;  //new
   MonitorElement* mPt;
+  MonitorElement* mPt_80;  //new
+  MonitorElement* mPt_3000;  //new
   MonitorElement* mMass;
+  MonitorElement* mMass_80;
+  MonitorElement* mMass_3000;  //new
   MonitorElement* mConstituents;
+  MonitorElement* mConstituents_80;  //new
+  MonitorElement* mConstituents_3000;  //new
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
   MonitorElement* mEFirst;
+  MonitorElement* mEFirst_80;  //new
+  MonitorElement* mEFirst_3000;  //new
   MonitorElement* mPtFirst;
+  MonitorElement* mPtFirst_80;  //new
+  MonitorElement* mPtFirst_3000;  //new
 
   // PFlowJet specific
 
@@ -82,6 +101,12 @@ public:
   MonitorElement* mDeltaPhi;
   MonitorElement* mEScale;
   MonitorElement* mDeltaE;
+
+  MonitorElement* mEScale_pt10;   ///new
+  MonitorElement* mEScaleFineBin;  //new
+  //MonitorElement* mlinEScale;  //new
+   
+
 
   // Matching parameters
   double mMatchGenPtThreshold;

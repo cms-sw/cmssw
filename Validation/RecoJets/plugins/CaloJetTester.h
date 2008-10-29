@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.6 2008/09/02 20:41:31 chlebana Exp $
+// $Id: CaloJetTester.h,v 1.7 2008/09/15 12:03:12 chlebana Exp $
 
 #include <string>
 
@@ -147,7 +147,11 @@ private:
   MonitorElement* mDeltaEta;
   MonitorElement* mDeltaPhi;
   MonitorElement* mEScale;
+  MonitorElement* mlinEScale;  //new
   MonitorElement* mDeltaE;
+
+  MonitorElement* mEScale_pt10;  //new
+  MonitorElement* mEScaleFineBin;  //new
 
   MonitorElement* mDelEta;
   MonitorElement* mDelPhi;

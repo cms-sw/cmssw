@@ -38,20 +38,34 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
 {
 
   //**** @@@
-  mEta = mPhi = mE = mP = mPt = mMass = mConstituents
+  numberofevents  //new
+    = mEta = mPhi = mE = mP = mPt = mMass = mConstituents
     = mEtaFirst = mPhiFirst = mEFirst = mPtFirst 
-    =mChargedHadronEnergy
+    = mChargedHadronEnergy
     = mNeutralHadronEnergy = mChargedEmEnergy = mChargedMuEnergy
     = mNeutralEmEnergy =  mChargedMultiplicity = mNeutralMultiplicity
     = mMuonMultiplicity =   mAllGenJetsPt = mMatchedGenJetsPt = mAllGenJetsEta = mMatchedGenJetsEta 
     = mGenJetMatchEnergyFraction = mReverseMatchEnergyFraction = mRMatch
-    = mDeltaEta = mDeltaPhi = mEScale = mDeltaE= 0;
+    = mDeltaEta = mDeltaPhi = mEScale = mDeltaE
+    // new histograms
+    = mEtaFineBin = mPhiFineBin
+    //= mE_80 = mE_3000 = mP_80 = mP_3000 = mPt_80 = mPt_3000 = mMass_80 = mMass_3000 = mConstituents_80 = mConstituents_3000
+
+= 0;
+
   //cout<<" PFJetTester -----------------------------------------------------> 1"<<endl;//////////////////////
   //cout<<"setting all variables zero -----------------------------------------------------> 2"<<endl;//////////////////////
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
     //cout<<" Creating the histograms -----------------------------------------------------> 3"<<endl;//////////////////////
     dbe->setCurrentFolder("RecoJetsV/PFJetTask_" + mInputCollection.label());
+
+    numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2); // new
+    
+    //FineBin histograms
+    mEtaFineBin = dbe->book1D("EtaFineBin", "EtaFineBin", 500, -5, 5);
+    mPhiFineBin = dbe->book1D("PhiFineBin", "PhiFineBin", 500, -5, 5);
+    
     mEta = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mPhi = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
     mE = dbe->book1D("E", "E", 100, 0, 500); 
@@ -73,12 +87,16 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     mChargedMultiplicity= dbe->book1D("mChargedMultiplicity ", "mChargedMultiplicity ", 100, 0, 100);     
     mNeutralMultiplicity = dbe->book1D(" mNeutralMultiplicity", "mNeutralMultiplicity", 100, 0, 100);
     mMuonMultiplicity= dbe->book1D("mMuonMultiplicity", "mMuonMultiplicity", 100, 0, 100);
+
     double log10PtMin = 0.5;
     double log10PtMax = 4.;
     int log10PtBins = 14;
     double etaMin = -5.;
     double etaMax = 5.;
     int etaBins = 50;
+
+    int log10PtFineBins = 50;
+
     mAllGenJetsPt = dbe->book1D("GenJetLOGpT", "GenJet LOG(pT_gen)", 
 				log10PtBins, log10PtMin, log10PtMax);
     mMatchedGenJetsPt = dbe->book1D("MatchedGenJetLOGpT", "MatchedGenJet LOG(pT_gen)", 
@@ -101,6 +119,11 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
 			  log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
     mDeltaE = dbe->book3D("DeltaE", "DeltaE vs LOG(pT_gen) vs eta", 
 			  log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 2000, -200, 200);
+    //
+    mEScale_pt10 = dbe->book3D("EScale_pt10", "EnergyScale vs LOG(pT_gen) vs eta", 
+			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
+    mEScaleFineBin = dbe->book3D("EScaleFineBin", "EnergyScale vs LOG(pT_gen) vs eta", 
+			    log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
 
     //__________________________________________________
 
@@ -137,6 +160,9 @@ void PFJetTester::endJob() {
 
 void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 {
+  double countsfornumberofevents = 1;
+  numberofevents->Fill(countsfornumberofevents);  // new
+
   //cout<<" start analyze -----------------------------------------------------> 4"<<endl;//////////////////////
   Handle<PFJetCollection> pfJets;
   //cout<<"  -----------------------------------------------------> 4a"<<endl;//////////////////////
@@ -149,6 +175,10 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     if (mEta) mEta->Fill (jet->eta());
     //cout<<jet->eta()<<" ------------------------------------------------------------------> 6"<<endl;
     if (mPhi) mPhi->Fill (jet->phi());
+    //
+    if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
+    if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
+    //
     if (mE) mE->Fill (jet->energy());
     if (mP) mP->Fill (jet->p());
     if (mPt) mPt->Fill (jet->pt());
@@ -247,6 +277,14 @@ void PFJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet
   mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fPFJet.phi()-fGenJet.phi());
   mEScale->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
   mDeltaE->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()-fGenJet.energy());
+  //
+  mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+  
+  if (fGenJet.pt()>10) {
+    mEScale_pt10->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+  }
+
+
 
   //_______________________________________________________________________________________________________________
 
