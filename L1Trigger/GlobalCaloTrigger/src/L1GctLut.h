@@ -6,7 +6,6 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <cassert>
  
 /*!
  * \author Greg Heath
@@ -98,7 +97,7 @@ L1GctLut<NAddressBits, NDataBits>::~L1GctLut() {}
 template <int NAddressBits, int NDataBits>
 uint16_t L1GctLut<NAddressBits, NDataBits>::lutValue(const uint16_t lutAddress) const
 {
-  assert (m_setupOk);
+  if (!m_setupOk) return (uint16_t) 0;
   uint16_t address=(lutAddress & MAX_ADDRESS_BITMASK);
   uint16_t data=(value(address) & MAX_DATA_BITMASK);
   return data;
