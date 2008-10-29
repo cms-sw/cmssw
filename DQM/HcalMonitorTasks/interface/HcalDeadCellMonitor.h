@@ -11,8 +11,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/10/27 19:09:01 $
-  * $Revision: 1.19 $
+  * $Date: 2008/10/28 20:05:11 $
+  * $Revision: 1.20 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -84,6 +84,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   bool deadmon_test_pedestal_;
   bool deadmon_test_neighbor_;
   bool deadmon_test_energy_;
+  bool deadmon_test_rechit_occupancy_;
 
   int deadmon_checkNevents_;  // specify how often to check is cell is dead
   // Let each test have its own checkNevents value
@@ -91,6 +92,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   int deadmon_checkNevents_pedestal_;
   int deadmon_checkNevents_neighbor_;
   int deadmon_checkNevents_energy_;
+  int deadmon_checkNevents_rechit_occupancy_;
 
   double energyThreshold_;
   double HBenergyThreshold_;
@@ -108,6 +110,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   std::vector<MonitorElement*> ProblemDeadCellsByDepth;
 
   std::vector<MonitorElement*>UnoccupiedDeadCellsByDepth;
+  std::vector<MonitorElement*>UnoccupiedRecHitsByDepth;
   std::vector<MonitorElement*>BelowPedestalDeadCellsByDepth;
   double nsigma_;
   double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
@@ -123,27 +126,31 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   
 
   unsigned int occupancy[ETABINS][PHIBINS][4]; // will get filled when an occupied digi is found
-  unsigned int belowpedestal[ETABINS][PHIBINS][4]; // filled when digi is below pedestal+nsigma
+  unsigned int rechit_occupancy[ETABINS][PHIBINS][4]; // filled when rechit is presentx
+  unsigned int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is below pedestal+nsigma
   unsigned int belowneighbors[ETABINS][PHIBINS][4];
-  unsigned int belowenergy[ETABINS][PHIBINS][4];
+  unsigned int aboveenergy[ETABINS][PHIBINS][4];
 
   // Diagnostic plots
   MonitorElement* d_HBnormped;
   MonitorElement* d_HEnormped;
   MonitorElement* d_HOnormped;
   MonitorElement* d_HFnormped;
+  MonitorElement* d_ZDCnormped;
 
   MonitorElement* d_HBrechitenergy;
   MonitorElement* d_HErechitenergy;
   MonitorElement* d_HOrechitenergy;
   MonitorElement* d_HFrechitenergy;
+  MonitorElement* d_ZDCrechitenergy;
 
   MonitorElement* d_HBenergyVsNeighbor;
   MonitorElement* d_HEenergyVsNeighbor;
   MonitorElement* d_HOenergyVsNeighbor;
   MonitorElement* d_HFenergyVsNeighbor;
+  MonitorElement* d_ZDCenergyVsNeighbor;
 
-  neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_;
+  neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
 };
 
 #endif
