@@ -118,7 +118,7 @@ void TtSemiLepKinFitter::setupLeptons()
 void TtSemiLepKinFitter::setupConstraints() 
 {
   massConstr_[kWHadMass    ] = new TFitConstraintM("WMassHad",    "WMassHad",    0, 0 , 80.35);
-  massConstr_[kWLepMass    ] = new TFitConstraintM("WMassLap",    "WMassLap",    0, 0 , 80.35);
+  massConstr_[kWLepMass    ] = new TFitConstraintM("WMassLep",    "WMassLep",    0, 0 , 80.35);
   massConstr_[kTopHadMass  ] = new TFitConstraintM("TopMassHad",  "TopMassHad",  0, 0,   175.);
   massConstr_[kTopLepMass  ] = new TFitConstraintM("TopMassLep",  "TopMassLep",  0, 0,   175.);
   massConstr_[kNeutrinoMass] = new TFitConstraintM("NeutrinoMass","NeutrinoMass",0, 0,     0.);
