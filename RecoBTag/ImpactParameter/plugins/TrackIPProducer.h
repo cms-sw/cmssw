@@ -30,15 +30,12 @@ class TrackIPProducer : public edm::EDProducer {
     unsigned long long  m_calibrationCacheId3D;
     bool m_useDB;
 
-
     int  m_cutPixelHits;
     int  m_cutTotalHits;
     double  m_cutMaxTIP;
     double  m_cutMinPt;
-    double  m_cutMaxDecayLen;
     double  m_cutMaxChiSquared;
     double  m_cutMaxLIP;
-    double  m_cutMaxDistToAxis;
     bool  m_directionWithTracks;
     bool  m_useTrackQuality;
 };

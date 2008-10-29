@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.15 2008/02/12 15:37:28 tboccali Exp $
+// $Id: TrackIPProducer.cc,v 1.16 2008/05/28 14:08:42 jandrea Exp $
 //
 //
 
@@ -66,10 +66,8 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_cutTotalHits     =  m_config.getParameter<int>("minimumNumberOfHits"); // used
   m_cutMaxTIP        =  m_config.getParameter<double>("maximumTransverseImpactParameter"); // used
   m_cutMinPt         =  m_config.getParameter<double>("minimumTransverseMomentum"); // used
-  m_cutMaxDecayLen   =  m_config.getParameter<double>("maximumDecayLength"); //used
   m_cutMaxChiSquared =  m_config.getParameter<double>("maximumChiSquared"); //used
   m_cutMaxLIP        =  m_config.getParameter<double>("maximumLongitudinalImpactParameter"); //used
-  m_cutMaxDistToAxis =  m_config.getParameter<double>("maximumDistanceToJetAxis"); //used
   m_directionWithTracks  =  m_config.getParameter<bool>("jetDirectionUsingTracks"); //used
   m_useTrackQuality      =  m_config.getParameter<bool>("useTrackQuality"); //used
   
