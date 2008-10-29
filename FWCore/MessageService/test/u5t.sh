@@ -4,11 +4,11 @@ pushd $LOCAL_TMP_DIR
 
 status=0
   
-rm -f warnings.log infos.log job_report.xml 
+rm -f u5_errors.log u5_default.log u5_noreset.log u5_reset.log 
 
-cmsRun -t -j job_report.xml -p $LOCAL_TEST_DIR/u9_cfg.py
+cmsRun --multithread -p $LOCAL_TEST_DIR/u5_cfg.py
  
-for file in warnings.log infos.log job_report.xml   
+for file in u5_errors.log u5_default.log u5_noreset.log u5_reset.log
 do
   sed -i -r -f $LOCAL_TEST_DIR/filter-timestamps.sed $file
   diff $LOCAL_TEST_DIR/unit_test_outputs/$file $LOCAL_TMP_DIR/$file  

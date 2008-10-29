@@ -1,12 +1,14 @@
 Atlas of MessageLogger tests
 
-u1	Gives different thresholds to multiple destinations, and assigns
+Tests marked $ are tested in both single thread and multithread running
+
+u1 $	Gives different thresholds to multiple destinations, and assigns
 	limit=0 to annoying message categories preEventProcessing and FwkJob.
 	Incidnetally tests noTimeStamps.  Also generates a job report file
 	(u1_job_report.mxml).   
 	---------- UnitTestClient_A
 
-u2	Tests handling of a message generated pre-configuration, by using the
+u2 $	Tests handling of a message generated pre-configuration, by using the
 	special generate_preconfiguration_message parameter in the cfg file.
 	---------- UnitTestClient_A
 
@@ -15,23 +17,40 @@ u3	Generates a plain-vanilla statistics destination (not matching any
 	---------- UnitTestClient_A
 
 u4	Generates a pair of statistics destinations but assigns a different 
-	file name for one of them (other than the pset name) anda threshold for
+	file name for one of them (other than the pset name) and a threshold for
 	the other.
 	---------- UnitTestClient_A
 	
-u5	Tests reset versus no reset behavior when multiple statistics 
+u5 $	Tests reset versus no reset behavior when multiple statistics 
 	summaries are triggered.  (That is, if untracked bool reset = true 
 	then the next time statistics are triggered, they start from having
 	been cleared the last time the sumary was sent out.)
 	---------- UnitTestClient_B
 
-u9	Tests behavior when using the official MessageLogger.cfi.
+u6 $	Tests hex and other manipulators
+	---------- UnitTestClient_C
+	
+u7	Filtering all but one category (for example FwkJob).
+	Creates a fwkJobReports u7_job_report.mxml as well as logs. 
+	---------- UnitTestClient_C
+	
+u8 $	Tests defaults and limits:
+	  overall defaults of no time stamps	  
+	  overall defaults for all destinations, for unnamed categories,
+	  and for specific category
+ 	  default limit for a destination superceding overall default
+	  default limit for a destination not superceding specific 
+	  category overall default
+          limit for specific category superceding both defaults
+	---------- UnitTestClient_E
+
+u9 $	Tests behavior when using the official MessageLogger.cfi.
 	---------- UnitTestClient_G
 
 u10	Use of  extensionless filenames
 	---------- UnitTestClient_C
 
-u11	reportEvery, and some overall defaults
+u11 $	reportEvery, and some overall defaults
 	overall defaults regarding reportEvery
 	overall defaults for all destinations, for unnamed categories 
 	overall defaults for all destinations, specific category     
@@ -48,7 +67,7 @@ u12	Tests the placeholder feature.
 u13	Tests LogVerbatim and LogTrace
 	---------- UnitTestClient_H
 
-u14	Message suppression by severity and by module.  For example,
+u14 $	Message suppression by severity and by module.  For example,
 	suppressInfo = { "sendSomeMessages", "source" }
 	Does not test suppressInfo = "*" or any excludeModule or such.
 	---------- UnitTestClient_I
@@ -57,7 +76,7 @@ u15	LogVerbatim and LogTrace; also whether isInfoEnalbled() works
 	when it is enabled.  
 	---------- UnitTestClient_H
 	
-u16	Explicit specification of filenames and of extensions in destinations,
+u16 $	Explicit specification of filenames and of extensions in destinations,
 	statistics, and jobReports.
 	---------- UnitTestClient_A
 	
@@ -74,7 +93,7 @@ u18	LogSystem, LogAbsolute, LogProblem, LogPrint, and LogVerbatim.
 u19	Long header lines, to test the non-breaking behavior.
 	---------- UnitTestClient_N
 	
-u20	Test default configuration file for MessageLogger service
+u20 $	Test default configuration file for MessageLogger service
 	for users that include MessageLogger.cfi and nothing else.
 	Side-tests the behavior of isMessageProcessingSetUp() when
 	it should be returning true.
@@ -84,13 +103,13 @@ u21	By-severity default limit on each type of message,
 	and specific-category override of that default.
 	---------- UnitTestClient_O
 	
-u22	Tests effect of LogFlush by cfg-configurable choices of how many 
+u22 $	Tests effect of LogFlush by cfg-configurable choices of how many 
 	messages to use to clog the queue and whether or not FlushMessageLog
 	is invoked.  Under normal testing, it will invoke FlushMessageLog in
 	a situation where its absence would result in different output.
 	---------- UnitTestClient_P
 
-u23	Tests effect of GroupLogStatistics(category) 
+u23 $	Tests effect of GroupLogStatistics(category) 
 	by having 6 differently labeled modules (of two distinct classes)
 	all of which issue LogIssue with two "grouped" categories.
 	---------- UnitTestClient_Q
@@ -103,20 +122,19 @@ u24	Behavior when duplicate file names are supplied.  We create two
 u25	Imposition of limits and thresholds of specific interest to user
 	requests:  Limits per-category on ERROR and WARNING messages.
 	---------- UnitTestClient_R
-	
 
-u27	Tests proper output of both ungrouped and grouped categories
+u27 $	Tests proper output of both ungrouped and grouped categories
 	in summary placed in the FrameworkJobReport.xml. 
 	---------- UnitTestClient_Q
 
 u28	Tests distinct threshold level for linked statistics destination:
 	A destination with different PSet name uses output= to share the
 	same stream as an ordinary output destination.  But their thresholds
-	are different.
+	are different.  The statistics destination does ot report the INFO
+	messages that the output destination did get.
 	---------- UnitTestClient_A
-	(Currently omitted from test/Buildfile, and u28.sh is not present)
 
-u30	Tests LoggedErrorsSummary, using modues that have normal categories
+u30 $	Tests LoggedErrorsSummary, using modues that have normal categories
 	and also grouped categories.   The expectation is that even grouped
 	categories will be separated by module on the per-event summary.
 	---------- UnitTestClient_S
