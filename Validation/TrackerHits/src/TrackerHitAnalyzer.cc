@@ -34,7 +34,7 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) {
 
    fDBE = Service<DQMStore>().operator->();
    fOutputFile = ps.getUntrackedParameter<string>("outputFile", "TrackerHitHisto.root");
-   verbose_ = ps.getUntrackedParameter<bool>("Verbosity",False);
+   verbose_ = ps.getUntrackedParameter<bool>("Verbosity",false);
    //get Labels to use to extract information
    PxlBrlLowSrc_ = ps.getParameter<edm::InputTag>("PxlBrlLowSrc");
    PxlBrlHighSrc_ = ps.getParameter<edm::InputTag>("PxlBrlHighSrc");

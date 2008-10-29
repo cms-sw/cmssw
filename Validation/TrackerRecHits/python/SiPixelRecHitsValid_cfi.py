@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pixRecHitsValid = cms.EDFilter("SiPixelRecHitsValid",
     src = cms.InputTag("siPixelRecHits"),
-    outputFile = cms.untracked.string('pixelrechitshisto.root'),
+    outputFile = cms.untracked.string(''),
     associatePixel = cms.bool(True),
     ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 
         'g4SimHitsTrackerHitsPixelBarrelHighTof', 
@@ -10,7 +10,7 @@ pixRecHitsValid = cms.EDFilter("SiPixelRecHitsValid",
         'g4SimHitsTrackerHitsPixelEndcapHighTof'),
     associateRecoTracks = cms.bool(False),
     associateStrip = cms.bool(False),
-    verbose = cms.untracked.bool(True)
+    verbose = cms.untracked.bool(False)
 )
 
 
