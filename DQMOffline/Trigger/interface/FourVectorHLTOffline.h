@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.9 2008/10/29 14:49:07 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.10 berryhil Exp $
 //
 //
 
@@ -94,155 +94,75 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       class PathInfo {
 	PathInfo():
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
 	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1)
-=======
-<<<<<<< FourVectorHLTOffline.h
-	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1)
-=======
-	  pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), filterName_("unset"), objectType_(-1)
->>>>>>> 1.8
->>>>>>> 1.9
-=======
-	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), objectType_(-1)
->>>>>>> 1.7
-=======
-<<<<<<< FourVectorHLTOffline.h
-	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1)
-=======
-	  pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), filterName_("unset"), objectType_(-1)
->>>>>>> 1.8
->>>>>>> 1.9
 	  {};
       public:
 	void setHistos(
                        MonitorElement* const NOn, 
-                       MonitorElement* const onEtOn, 
-                       MonitorElement* const onEtaOn, 
-		       MonitorElement* const onPhiOn, 
-		       MonitorElement* const onEtavsonPhiOn,  
-                       MonitorElement* const offEtOff, 
-                       MonitorElement* const offEtaOff, 
-		       MonitorElement* const offPhiOff, 
-		       MonitorElement* const offEtavsoffPhiOff,
-                       MonitorElement* const l1EtL1, 
-                       MonitorElement* const l1EtaL1, 
-		       MonitorElement* const l1PhiL1, 
-		       MonitorElement* const l1Etavsl1PhiL1,
-                       MonitorElement* const l1EtL1On, 
-                       MonitorElement* const l1EtaL1On, 
-		       MonitorElement* const l1PhiL1On, 
-		       MonitorElement* const l1Etavsl1PhiL1On,  
-                       MonitorElement* const offEtL1Off, 
-                       MonitorElement* const offEtaL1Off, 
-		       MonitorElement* const offPhiL1Off, 
-		       MonitorElement* const offEtavsoffPhiL1Off,
-                       MonitorElement* const offEtOnOff, 
-                       MonitorElement* const offEtaOnOff, 
-		       MonitorElement* const offPhiOnOff, 
-		       MonitorElement* const offEtavsoffPhiOnOff) {
+                       MonitorElement* const etOn, 
+                       MonitorElement* const etaOn, 
+		       MonitorElement* const phiOn, 
+		       MonitorElement* const etavsphiOn,  
+                       MonitorElement* const etOff, 
+                       MonitorElement* const etaOff, 
+		       MonitorElement* const phiOff, 
+		       MonitorElement* const etavsphiOff,
+                       MonitorElement* const etL1, 
+                       MonitorElement* const etaL1, 
+		       MonitorElement* const phiL1, 
+		       MonitorElement* const etavsphiL1) {
 	  NOn_ = NOn;
-	  onEtOn_ = onEtOn;
-	  onEtaOn_ = onEtaOn;
-	  onPhiOn_ = onPhiOn;
-	  onEtavsonPhiOn_ = onEtavsonPhiOn;
-	  offEtOff_ = offEtOff;
-	  offEtaOff_ = offEtaOff;
-	  offPhiOff_ = offPhiOff;
-	  offEtavsoffPhiOff_ = offEtavsoffPhiOff;
-	  l1EtL1_ = l1EtL1;
-	  l1EtaL1_ = l1EtaL1;
-	  l1PhiL1_ = l1PhiL1;
-	  l1Etavsl1PhiL1_ = l1Etavsl1PhiL1;
-	  l1EtL1On_ = l1EtL1On;
-	  l1EtaL1On_ = l1EtaL1On;
-	  l1PhiL1On_ = l1PhiL1On;
-	  l1Etavsl1PhiL1On_ = l1Etavsl1PhiL1On;
-	  offEtL1Off_ = offEtL1Off;
-	  offEtaL1Off_ = offEtaL1Off;
-	  offPhiL1Off_ = offPhiL1Off;
-	  offEtavsoffPhiL1Off_ = offEtavsoffPhiL1Off;
-	  offEtOnOff_ = offEtOnOff;
-	  offEtaOnOff_ = offEtaOnOff;
-	  offPhiOnOff_ = offPhiOnOff;
-	  offEtavsoffPhiOnOff_ = offEtavsoffPhiOnOff;
+	  etOn_ = etOn;
+	  etaOn_ = etaOn;
+	  phiOn_ = phiOn;
+	  etavsphiOn_ = etavsphiOn;
+	  etOff_ = etOff;
+	  etaOff_ = etaOff;
+	  phiOff_ = phiOff;
+	  etavsphiOff_ = etavsphiOff;
+	  etL1_ = etL1;
+	  etaL1_ = etaL1;
+	  phiL1_ = phiL1;
+	  etavsphiL1_ = etavsphiL1;
 	}
 	MonitorElement * getNOnHisto() {
 	  return NOn_;
 	}
-	MonitorElement * getOnEtOnHisto() {
-	  return onEtOn_;
+	MonitorElement * getEtOnHisto() {
+	  return etOn_;
 	}
-	MonitorElement * getOnEtaOnHisto() {
-	  return onEtaOn_;
+	MonitorElement * getEtaOnHisto() {
+	  return etaOn_;
 	}
-	MonitorElement * getOnPhiOnHisto() {
-	  return onPhiOn_;
+	MonitorElement * getPhiOnHisto() {
+	  return phiOn_;
 	}
-	MonitorElement * getOnEtaVsOnPhiOnHisto() {
-	  return onEtavsonPhiOn_;
+	MonitorElement * getEtaVsPhiOnHisto() {
+	  return etavsphiOn_;
 	}
-	MonitorElement * getOffEtOffHisto() {
-	  return offEtOff_;
+	MonitorElement * getEtOffHisto() {
+	  return etOff_;
 	}
-	MonitorElement * getOffEtaOffHisto() {
-	  return offEtaOff_;
+	MonitorElement * getEtaOffHisto() {
+	  return etaOff_;
 	}
-	MonitorElement * getOffPhiOffHisto() {
-	  return offPhiOff_;
+	MonitorElement * getPhiOffHisto() {
+	  return phiOff_;
 	}
-	MonitorElement * getOffEtaVsOffPhiOffHisto() {
-	  return offEtavsoffPhiOff_;
+	MonitorElement * getEtaVsPhiOffHisto() {
+	  return etavsphiOff_;
 	}
-	MonitorElement * getL1EtL1Histo() {
-	  return l1EtL1_;
+	MonitorElement * getEtL1Histo() {
+	  return etL1_;
 	}
-	MonitorElement * getL1EtaL1Histo() {
-	  return l1EtaL1_;
+	MonitorElement * getEtaL1Histo() {
+	  return etaL1_;
 	}
-	MonitorElement * getL1PhiL1Histo() {
-	  return l1PhiL1_;
+	MonitorElement * getPhiL1Histo() {
+	  return phiL1_;
 	}
-	MonitorElement * getL1EtaVsL1PhiL1Histo() {
-	  return l1Etavsl1PhiL1_;
-	}
-	MonitorElement * getL1EtL1OnHisto() {
-	  return l1EtL1On_;
-	}
-	MonitorElement * getL1EtaL1OnHisto() {
-	  return l1EtaL1On_;
-	}
-	MonitorElement * getL1PhiL1OnHisto() {
-	  return l1PhiL1On_;
-	}
-	MonitorElement * getL1EtaVsL1PhiL1OnHisto() {
-	  return l1Etavsl1PhiL1On_;
-	}
-	MonitorElement * getOffEtL1OffHisto() {
-	  return offEtL1Off_;
-	}
-	MonitorElement * getOffEtaL1OffHisto() {
-	  return offEtaL1Off_;
-	}
-	MonitorElement * getOffPhiL1OffHisto() {
-	  return offPhiL1Off_;
-	}
-	MonitorElement * getOffEtaVsOffPhiL1OffHisto() {
-	  return offEtavsoffPhiL1Off_;
-	}
-	MonitorElement * getOffEtOnOffHisto() {
-	  return offEtOnOff_;
-	}
-	MonitorElement * getOffEtaOnOffHisto() {
-	  return offEtaOnOff_;
-	}
-	MonitorElement * getOffPhiOnOffHisto() {
-	  return offPhiOnOff_;
-	}
-	MonitorElement * getOffEtaVsOffPhiOnOffHisto() {
-	  return offEtavsoffPhiOnOff_;
+	MonitorElement * getEtaVsPhiL1Histo() {
+	  return etavsphiL1_;
 	}
 	const std::string getLabel(void ) const {
 	  return filterName_;
@@ -254,151 +174,40 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	const std::string getPath(void ) const {
 	  return pathName_;
 	}
-	const std::string getDenomPath(void ) const {
-	  return denomPathName_;
-	}
-	const int getObjectType(void ) const {
-	  return objectType_;
-	}
-
         const edm::InputTag getTag(void) const{
-	  edm::InputTag tagName(filterName_,"",processName_);
+	  edm::InputTag tagName(filterName_,"","HLT");
           return tagName;
 	}
-        void setProcess(std::string process) {
-	  processName_ = process;
-	  return;
-	}
 	~PathInfo() {};
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
 	PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
-=======
-<<<<<<< FourVectorHLTOffline.h
-	PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
-=======
-	PathInfo(std::string denomPathName, std::string pathName, std::string filterName, size_t type, float ptmin, 
->>>>>>> 1.8
->>>>>>> 1.9
-=======
-	PathInfo(std::string pathName, std::string filterName, size_t type, float ptmin, 
->>>>>>> 1.7
-=======
-<<<<<<< FourVectorHLTOffline.h
-	PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
-=======
-	PathInfo(std::string denomPathName, std::string pathName, std::string filterName, size_t type, float ptmin, 
->>>>>>> 1.8
->>>>>>> 1.9
 		 float ptmax):
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
 	  pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type), 
-=======
-<<<<<<< FourVectorHLTOffline.h
-	  pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type), 
->>>>>>> 1.9
-=======
-	  pathName_(pathName), filterName_(filterName), objectType_(type),
->>>>>>> 1.7
-=======
-<<<<<<< FourVectorHLTOffline.h
-	  pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type), 
->>>>>>> 1.9
 	  NOn_(0),etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
 	  etOff_(0), etaOff_(0), phiOff_(0), etavsphiOff_(0),
 	  etL1_(0), etaL1_(0), phiL1_(0), etavsphiL1_(0),
-=======
-	  denomPathName_(denomPathName), pathName_(pathName), filterName_(filterName), objectType_(type),
-	  NOn_(0),
-          onEtOn_(0), onEtaOn_(0), onPhiOn_(0), onEtavsonPhiOn_(0),
-	  offEtOff_(0), offEtaOff_(0), offPhiOff_(0), offEtavsoffPhiOff_(0),
-	  l1EtL1_(0), l1EtaL1_(0), l1PhiL1_(0), l1Etavsl1PhiL1_(0),
-          l1EtL1On_(0), l1EtaL1On_(0), l1PhiL1On_(0), l1Etavsl1PhiL1On_(0),
-	  offEtL1Off_(0), offEtaL1Off_(0), offPhiL1Off_(0), offEtavsoffPhiL1Off_(0),
-	  offEtOnOff_(0), offEtaOnOff_(0), offPhiOnOff_(0), offEtavsoffPhiOnOff_(0),
->>>>>>> 1.8
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
 	  PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type,
-=======
-<<<<<<< FourVectorHLTOffline.h
-	  PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type,
-=======
-	  PathInfo(std::string denomPathName, std::string pathName, std::string filterName, size_t type,
->>>>>>> 1.8
->>>>>>> 1.9
-=======
-	  PathInfo(std::string pathName, std::string filterName, size_t type,
->>>>>>> 1.7
-=======
-<<<<<<< FourVectorHLTOffline.h
-	  PathInfo(std::string pathName, std::string filterName, std::string processName, size_t type,
-=======
-	  PathInfo(std::string denomPathName, std::string pathName, std::string filterName, size_t type,
->>>>>>> 1.8
->>>>>>> 1.9
 		   MonitorElement *NOn,
-		   MonitorElement *onEtOn,
-		   MonitorElement *onEtaOn,
-		   MonitorElement *onPhiOn,
-		   MonitorElement *onEtavsonPhiOn,
-		   MonitorElement *offEtOff,
-		   MonitorElement *offEtaOff,
-		   MonitorElement *offPhiOff,
-		   MonitorElement *offEtavsoffPhiOff,
-		   MonitorElement *l1EtL1,
-		   MonitorElement *l1EtaL1,
-		   MonitorElement *l1PhiL1,
-		   MonitorElement *l1Etavsl1PhiL1,
-		   MonitorElement *l1EtL1On,
-		   MonitorElement *l1EtaL1On,
-		   MonitorElement *l1PhiL1On,
-		   MonitorElement *l1Etavsl1PhiL1On,
-		   MonitorElement *offEtL1Off,
-		   MonitorElement *offEtaL1Off,
-		   MonitorElement *offPhiL1Off,
-		   MonitorElement *offEtavsoffPhiL1Off,
-		   MonitorElement *offEtOnOff,
-		   MonitorElement *offEtaOnOff,
-		   MonitorElement *offPhiOnOff,
-		   MonitorElement *offEtavsoffPhiOnOff,
+		   MonitorElement *etOn,
+		   MonitorElement *etaOn,
+		   MonitorElement *phiOn,
+		   MonitorElement *etavsphiOn,
+		   MonitorElement *etOff,
+		   MonitorElement *etaOff,
+		   MonitorElement *phiOff,
+		   MonitorElement *etavsphiOff,
+		   MonitorElement *etL1,
+		   MonitorElement *etaL1,
+		   MonitorElement *phiL1,
+		   MonitorElement *etavsphiL1,
 		   float ptmin, float ptmax
 		   ):
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
-<<<<<<< FourVectorHLTOffline.h
 	    pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type),
-=======
-<<<<<<< FourVectorHLTOffline.h
-	    pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type),
->>>>>>> 1.9
-=======
-	    pathName_(pathName), filterName_(filterName), objectType_(type),
->>>>>>> 1.7
-=======
-<<<<<<< FourVectorHLTOffline.h
-	    pathName_(pathName), filterName_(filterName), processName_(processName), objectType_(type),
->>>>>>> 1.9
 	    NOn_(NOn), etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
 	    etOff_(etOff), etaOff_(etaOff), phiOff_(phiOff), etavsphiOff_(etavsphiOff),
 	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
-=======
-	    denomPathName_(denomPathName), pathName_(pathName), filterName_(filterName), objectType_(type),
-	    NOn_(NOn), 
-            onEtOn_(onEtOn), onEtaOn_(onEtaOn), onPhiOn_(onPhiOn), onEtavsonPhiOn_(onEtavsonPhiOn),
-	    offEtOff_(offEtOff), offEtaOff_(offEtaOff), offPhiOff_(offPhiOff), offEtavsoffPhiOff_(offEtavsoffPhiOff),
-	    l1EtL1_(l1EtL1), l1EtaL1_(l1EtaL1), l1PhiL1_(l1PhiL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
-            l1EtL1On_(l1EtL1On), l1EtaL1On_(l1EtaL1On), l1PhiL1On_(l1PhiL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
-	    offEtL1Off_(offEtL1Off), offEtaL1Off_(offEtaL1Off), offPhiL1Off_(offPhiL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
-	    offEtOnOff_(offEtOnOff), offEtaOnOff_(offEtaOnOff), offPhiOnOff_(offPhiOnOff), offEtavsoffPhiOnOff_(offEtavsoffPhiOnOff),
->>>>>>> 1.8
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -407,19 +216,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	    }
       private:
 	  int pathIndex_;
-	  std::string denomPathName_;
 	  std::string pathName_;
 	  std::string filterName_;
 	  std::string processName_;
 	  int objectType_;
 
 	  // we don't own this data
-	  MonitorElement *NOn_, *onEtOn_, *onEtaOn_, *onPhiOn_, *onEtavsonPhiOn_;
-	  MonitorElement *offEtOff_, *offEtaOff_, *offPhiOff_, *offEtavsoffPhiOff_;
-	  MonitorElement *l1EtL1_, *l1EtaL1_, *l1PhiL1_, *l1Etavsl1PhiL1_;
-	  MonitorElement *l1EtL1On_, *l1EtaL1On_, *l1PhiL1On_, *l1Etavsl1PhiL1On_;
-	  MonitorElement *offEtL1Off_, *offEtaL1Off_, *offPhiL1Off_, *offEtavsoffPhiL1Off_;
-	  MonitorElement *offEtOnOff_, *offEtaOnOff_, *offPhiOnOff_, *offEtavsoffPhiOnOff_;
+	  MonitorElement *NOn_, *etOn_, *etaOn_, *phiOn_, *etavsphiOn_;
+	  MonitorElement *etOff_, *etaOff_, *phiOff_, *etavsphiOff_;
+	  MonitorElement *etL1_, *etaL1_, *phiL1_, *etavsphiL1_;
 
 	  float ptmin_, ptmax_;
 
