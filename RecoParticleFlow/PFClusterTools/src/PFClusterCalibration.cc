@@ -10,8 +10,8 @@
 using namespace pftools;
 
 void PFClusterCalibration::init() {
-
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
+  
+  //std::cout << __PRETTY_FUNCTION__ << std::endl;
 	correction_ = new TF1("correction",
 			"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])");
 	etaCorrection_
@@ -105,11 +105,11 @@ PFClusterCalibration::PFClusterCalibration() :
 			doCorrection_(1), allowNegativeEnergy_(0), doEtaCorrection_(1),
 			maxEToCorrect_(-1.0), correctionLowLimit_(0.), globalP0_(0.0),
 			globalP1_(1.0), lowEP0_(0.0), lowEP1_(1.0) {
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
+  //	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	init();
-	std::cout
-			<< "WARNING! PFClusterCalibration evolution functions have not yet been initialised - ensure this is done.\n";
-	std::cout << "PFClusterCalibration construction complete."<< std::endl;
+	//	std::cout
+	//			<< "WARNING! PFClusterCalibration evolution functions have not yet been initialised - ensure this is done.\n";
+	//	std::cout << "PFClusterCalibration construction complete."<< std::endl;
 
 }
 
@@ -124,15 +124,15 @@ void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params
 				<< std::endl;
 		return;
 	}
-	std::cout << "Fixing eta correction:\n\t";
+	//	std::cout << "Fixing eta correction:\n\t";
 	unsigned count(0);
 	for (std::vector<double>::const_iterator dit = params.begin(); dit
 			!= params.end(); ++dit) {
-		std::cout << *dit << "\t";
+	  //std::cout << *dit << "\t";
 		etaCorrection_->FixParameter(count, *dit);
 		++count;
 	}
-	std::cout << std::endl;
+	//	std::cout << std::endl;
 	/*for(double eta(0); eta < 2.5; eta += 0.05) {
 	 std::cout << "Eta = " << eta << ",\tcorr = " << etaCorrection_->Eval(eta) << "\n"; 
 	 }*/
@@ -142,14 +142,14 @@ void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
 		std::vector<double> params) {
 	TF1* func = &(namesAndFunctions_.find(sector)->second);
 	unsigned count(0);
-	std::cout << "Fixing for "<< sector << "\n";
+	//std::cout << "Fixing for "<< sector << "\n";
 	for (std::vector<double>::const_iterator dit = params.begin(); dit
 			!= params.end(); ++dit) {
 		func->FixParameter(count, *dit);
-		std::cout << "\t"<< count << ": "<< *dit;
+		//std::cout << "\t"<< count << ": "<< *dit;
 		++count;
 	}
-	std::cout << std::endl;
+	//	std::cout << std::endl;
 	func->SetMinimum(0);
 }
 
@@ -170,8 +170,8 @@ void PFClusterCalibration::setCorrections(const double& lowEP0,
 	correction_->FixParameter(3, lowEP1_);
 	correction_->FixParameter(4, correctionLowLimit_);
 
-	std::cout << __PRETTY_FUNCTION__ << ": setting correctionLowLimit_ = "
-			<< correctionLowLimit_ << "\n";
+	//	std::cout << __PRETTY_FUNCTION__ << ": setting correctionLowLimit_ = "
+	//		<< correctionLowLimit_ << "\n";
 }
 
 double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,

@@ -74,8 +74,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     iConfig.getParameter<std::vector<double> >("pfcluster_etaCorrection");
   clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
   // use configuration file to setup input/output collection names
-  std::cout << "Finished initialisaing PFClusterCalibration: it looks like...\n";
-  std::cout  << *clusterCalibration << std::endl;
+  //std::cout << "Finished initialisaing PFClusterCalibration: it looks like...\n";
+  //std::cout  << *clusterCalibration << std::endl;
 
   //Done with PFClusterCalibration //
 
