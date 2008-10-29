@@ -166,8 +166,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		for(TrackRefVector::const_iterator track = tracks.begin();
 		    track != tracks.end(); track++) {
 			double w = svInfo.trackWeight(i, *track);
-			if (w >= minTrackWeight)
+			if (w >= minTrackWeight) {
 				vertexKinematics.add(**track, w);
+				vars.insert(btau::trackEtaRel, etaRel(jetDir,
+						(*track)->momentum()), true);
+			}
 		}
 	}
 
@@ -278,7 +281,6 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		vars.insert(btau::trackMomentum, trackMag, true);
 		vars.insert(btau::trackEta, trackMom.Eta(), true);
 
-		vars.insert(btau::trackEtaRel, etaRel(jetDir, trackMom), true);
 		vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
 		vars.insert(btau::trackPPar, jetDir.Dot(trackMom), true);
 		vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);
@@ -288,8 +290,14 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 	if (vtxType == btag::Vertices::NoVertex &&
 	    vertexKinematics.numberOfTracks() >= pseudoMultiplicityMin &&
-	    pseudoVertexV0Filter(pseudoVertexTracks))
+	    pseudoVertexV0Filter(pseudoVertexTracks)) {
 		vtxType = btag::Vertices::PseudoVertex;
+		for(std::vector<TrackRef>::const_iterator track =
+						pseudoVertexTracks.begin();
+		    track != pseudoVertexTracks.end(); ++track)
+			vars.insert(btau::trackEtaRel, etaRel(jetDir,
+						(*track)->momentum()), true);
+	}
 
 	vars.insert(btau::vertexCategory, vtxType, true);
 	vars.insert(btau::trackSumJetDeltaR,

@@ -17,6 +17,7 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	minPt(params.getParameter<double>("ptMin")),
 	maxNormChi2(params.getParameter<double>("normChi2Max")),
 	maxJetDeltaR(params.getParameter<double>("jetDeltaRMax")),
+	maxDistToAxis(params.getParameter<double>("maxDistToAxis")),
 	sip2dValMin(params.getParameter<double>("sip2dValMin")),
 	sip2dValMax(params.getParameter<double>("sip2dValMax")),
 	sip2dSigMin(params.getParameter<double>("sip2dSigMin")),
@@ -51,6 +52,7 @@ TrackSelector::operator () (const Track &track,
 	       track.pt() >= minPt &&
 	       track.normalizedChi2() < maxNormChi2 &&
 	       VectorUtil::DeltaR(jet.momentum(), track.momentum()) < maxJetDeltaR &&
+	       std::abs(ipData.distanceToJetAxis) <= maxDistToAxis &&
 	       ipData.ip2d.value()        >= sip2dValMin &&
 	       ipData.ip2d.value()        <= sip2dValMax &&
 	       ipData.ip2d.significance() >= sip2dSigMin &&

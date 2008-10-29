@@ -26,6 +26,7 @@ class TrackSelector {
 	double				minPt;
 	double				maxNormChi2;
 	double				maxJetDeltaR;
+	double				maxDistToAxis;
 	double				sip2dValMin;
 	double				sip2dValMax;
 	double				sip2dSigMin;

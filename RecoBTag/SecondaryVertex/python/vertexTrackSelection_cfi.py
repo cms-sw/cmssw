@@ -6,6 +6,7 @@ vertexTrackSelectionBlock = cms.PSet(
 		jetDeltaRMax = cms.double(0.3),
 		qualityClass = cms.string('highPurity'),
 		pixelHitsMin = cms.uint32(2),
+		maxDistToAxis = cms.double(0.07),
 		sip3dSigMin = cms.double(-99999.9),
 		sip3dSigMax = cms.double(99999.9),
 		sip2dValMax = cms.double(99999.9),
