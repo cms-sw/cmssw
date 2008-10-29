@@ -16,11 +16,11 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
   kmaxProton     = p.getParameter<double>("ProtonThreshold")*MeV;
   kmaxNeutron    = p.getParameter<double>("NeutronThreshold")*MeV;
+  maxTrackTime        = p.getParameter<double>("MaxTrackTime")*ns;
   savePDandCinTracker = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInTracker",false);
   savePDandCinCalo    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo",false);
   savePDandCinMuon    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInMuon",false);
   saveFirstSecondary  = p.getUntrackedParameter<bool>("SaveFirstLevelSecondary",false);
-  maxTrackTime        = p.getParameter<double>("MaxTrackTime")*ns;
 
   edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
 				       << " flag for saving decay products in "
@@ -34,8 +34,10 @@ StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
 				       << killHeavy << " protons below " 
 				       << kmaxProton <<" MeV, neutrons below "
 				       << kmaxNeutron << " MeV and ions"
-				       << " below " << kmaxIon << " MeV\n";
-
+				       << " below " << kmaxIon << " MeV\n"
+				       << "               kill tracks with "
+				       << "time larger than " << maxTrackTime
+				       << " ns";
   initPointer();
 }
 
@@ -58,6 +60,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
       flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
     if (saveFirstSecondary) flag = isItFromPrimary(*mother, flag);
     newTA.secondary(aTrack, *mother, flag);
+
+    if (aTrack->GetTrackStatus() == fStopAndKill) classification = fKill;
     if (killHeavy) {
       int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
       double ke  = aTrack->GetKineticEnergy()/MeV;
@@ -71,11 +75,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
       if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
 	classification = fKill;
     }
-    if (maxTrackTime>0.) {
-      if (aTrack->GetGlobalTime()>maxTrackTime) { 
-        classification = fKill;
-      }
-    }
+    if (maxTrackTime>0. && aTrack->GetGlobalTime()>maxTrackTime) 
+      classification = fKill;
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
 				     << aTrack->GetTrackID() << " Parent " 
 				     << aTrack->GetParentID() << " Type "
