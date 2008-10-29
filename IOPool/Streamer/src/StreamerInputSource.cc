@@ -17,7 +17,7 @@
 
 #include "zlib.h"
 
-
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -56,7 +56,8 @@ namespace edm {
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
-    runEndingFlag_(false)
+    runEndingFlag_(false),
+    productGetter_()
   {
   }
 
@@ -298,6 +299,7 @@ namespace edm {
     xbuf_.SetBuffer(&dest_[0],dest_size,kFALSE);
     RootDebug tracer(10,10);
 
+    setRefCoreStreamer(&productGetter_);
     std::auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
 
     if(sd.get()==0) {
@@ -330,7 +332,9 @@ namespace edm {
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->aux(),
                                                    productRegistry(),
                                                    processConfiguration(),
-						   sd->processHistory().id()));
+                                                   sd->processHistory().id()));
+    productGetter_.setEventPrincipal(ep.get());
+
     // no process name list handling
 
     ProductID largestID;
@@ -354,6 +358,7 @@ namespace edm {
 				spi->productID(),
 				*spi->parents()));
 
+	ep->branchMapperPtr()->insert(*eventEntryDesc);
 	if(spi->productID() > largestID) {
 	   largestID = spi->productID();
 	}
@@ -453,5 +458,19 @@ namespace edm {
      << "StreamerInputSource::setRun()\n"
      << "Run number cannot be modified for this type of Input Source\n"
      << "Contact a Storage Manager Developer\n";
+  }
+
+  StreamerInputSource::ProductGetter::ProductGetter() : eventPrincipal_(0) {}
+
+  StreamerInputSource::ProductGetter::~ProductGetter() {}
+
+  EDProduct const*
+  StreamerInputSource::ProductGetter::getIt(edm::ProductID const& id) const {
+    return eventPrincipal_ ? eventPrincipal_->getIt(id) : 0;
+  }
+
+  void
+  StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal *ep) {
+    eventPrincipal_ = ep;
   }
 }
