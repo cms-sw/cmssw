@@ -190,7 +190,7 @@ sub inject($$)
     $indfile =~ s/\.dat$/\.ind/;
     my $indfilesize = -1;
     if (-e "$pathname/$indfile") {
-        $indfilesize = -s "$indfile";
+        $indfilesize = -s "$pathname/$indfile";
     } else {
         $indfile     = '';
     }
@@ -355,7 +355,7 @@ my $phrase = "xxx";
 if (-r $config) {
     eval `cat $config`;
 } else {
-    mydie("Error: Can not read config file \"$config\" does not exist","");
+    mydie("Error: Can not read config file \"$config\"","");
     usageShort();
 }
 
