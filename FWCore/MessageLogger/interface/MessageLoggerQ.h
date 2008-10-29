@@ -14,6 +14,7 @@ class ParameterSet;
 class ELdestination;
 namespace service {
 class NamedDestination;
+class AbstractMLscribe;
 }
 
 
@@ -54,10 +55,19 @@ public:
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );
 
+  // ---  bookkeeping for single-thread mode
+  static  void  setMLscribe_ptr(edm::service::AbstractMLscribe * m);
+
 private:
   // ---  traditional birth/death, but disallowed to users:
   MessageLoggerQ();
   ~MessageLoggerQ();
+
+  // ---  place an item onto the queue, or execute the command directly
+  static  void  simpleCommand( OpCode opcode, void * operand );
+  static  void  handshakedCommand( OpCode opcode, 
+  				   void * operand, 
+				   std::string const & commandMnemonic);
 
   // --- no copying:
   MessageLoggerQ( MessageLoggerQ const & );
@@ -70,6 +80,8 @@ private:
 
   // --- data:
   static  SingleConsumerQ  buf;
+  static  edm::service::AbstractMLscribe * mlscribe_ptr;
+  static  bool singleThread;
 
 };  // MessageLoggerQ
 

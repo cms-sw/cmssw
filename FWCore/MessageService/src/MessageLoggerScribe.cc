@@ -156,6 +156,12 @@
 //		 and configure_statistics()
 //	 using hardwired default output filename if there is one
 //
+//  32 - 10/21/08 mf - in ctor and in run() and new runCommand()
+//	 split up run() to have ability to implement single-thread
+//
+//  33 - 20/22/08 mf
+//	 implementatoin of singleThread
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -196,6 +202,28 @@ MessageLoggerScribe::MessageLoggerScribe()
 , jobReportOption( )
 , clean_slate_configuration( true )
 , active( true )
+, singleThread (false)						// changeLog 32
+, done (false)							// changeLog 32
+, purge_mode (false)						// changeLog 32
+, count (false)							// changeLog 32
+{
+  admin_p->setContextSupplier(msg_context);
+}
+
+MessageLoggerScribe::MessageLoggerScribe(bool singleThreadMode)	// changeLog 33
+: admin_p   ( ELadministrator::instance() )
+, early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
+, errorlog_p( new ErrorLog() )
+, file_ps   ( )
+, job_pset_p( 0 )
+, extern_dests( )
+, jobReportOption( )
+, clean_slate_configuration( true )
+, active( true )
+, singleThread (singleThreadMode)				
+, done (false)							
+, purge_mode (false)						
+, count (false)							
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -217,9 +245,6 @@ void
 {
   MessageLoggerQ::OpCode  opcode;
   void *                  operand;
-  bool  done = false;
-  bool  purge_mode = false;
-  int count = 0;
 
   MessageDrop::instance()->messageLoggerScribeIsRunning = 
   				MLSCRIBE_RUNNING_INDICATOR;	// ChangeLog 30
@@ -229,52 +254,67 @@ void
 
   do  {
     MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
-    switch(opcode)  {  // interpret the work item
-      default:  {
-        assert(false);  // can't happen (we certainly hope!)
-        break;
-      }
-      case MessageLoggerQ::END_THREAD:  {
-        assert( operand == 0 );
-        done = true;
-        MessageDrop::instance()->messageLoggerScribeIsRunning = 
-		(unsigned char) -1; 				// ChangeLog 30
-        break;
-      }
-      case MessageLoggerQ::LOG_A_MESSAGE:  {
-        ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-	try {
-	  if(active && !purge_mode) log (errorobj_p);        
-	}
-	catch(cms::Exception& e)
-	{
-	    ++count;
-	    std::cerr << "MessageLoggerScribe caught " << count
-		 << " cms::Exceptions, text = \n"
-		 << e.what() << "\n";
+    runCommand (opcode, operand);
+  } while(! done);
 
-	    if(count > 25)
-	      {
-		cerr << "MessageLogger will no longer be processing "
-		     << "messages due to errors (entering purge mode).\n";
-		purge_mode = true;
-	      }
-	}
-	catch(...)
-	{
-	    std::cerr << "MessageLoggerScribe caught an unknown exception and "
-		 << "will no longer be processing "
-		 << "messages. (entering purge mode)\n";
-	    purge_mode = true;
-	}
-        delete errorobj_p;  // dispose of the message text
-        break;
+}  // MessageLoggerScribe::run()
+
+void
+  MessageLoggerScribe::runCommand(				// changeLog 32
+  	MessageLoggerQ::OpCode  opcode, 
+	void * operand)
+{
+  switch(opcode)  {  // interpret the work item
+    default:  {
+      assert(false);  // can't happen (we certainly hope!)
+      break;
+    }
+    case MessageLoggerQ::END_THREAD:  {
+      assert( operand == 0 );
+      done = true;
+      MessageDrop::instance()->messageLoggerScribeIsRunning = 
+	      (unsigned char) -1; 				// ChangeLog 30
+      break;
+    }
+    case MessageLoggerQ::LOG_A_MESSAGE:  {
+      ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
+      try {
+	if(active && !purge_mode) log (errorobj_p);        
       }
-      case MessageLoggerQ::CONFIGURE:  {			// changelog 17
+      catch(cms::Exception& e)
+      {
+	  ++count;
+	  std::cerr << "MessageLoggerScribe caught " << count
+	       << " cms::Exceptions, text = \n"
+	       << e.what() << "\n";
+
+	  if(count > 25)
+	    {
+	      cerr << "MessageLogger will no longer be processing "
+		   << "messages due to errors (entering purge mode).\n";
+	      purge_mode = true;
+	    }
+      }
+      catch(...)
+      {
+	  std::cerr << "MessageLoggerScribe caught an unknown exception and "
+	       << "will no longer be processing "
+	       << "messages. (entering purge mode)\n";
+	  purge_mode = true;
+      }
+      delete errorobj_p;  // dispose of the message text
+      break;
+    }
+    case MessageLoggerQ::CONFIGURE:  {			// changelog 17
+      if (singleThread) {
+	job_pset_p = static_cast<ParameterSet *>(operand);
+	configure_errorlog();
+	break;
+      } else {
 	ConfigurationHandshake * h_p = 
-	  	static_cast<ConfigurationHandshake *>(operand);
+		static_cast<ConfigurationHandshake *>(operand);
 	job_pset_p = static_cast<ParameterSet *>(h_p->p);
-        boost::mutex::scoped_lock sl(h_p->m);   // get lock
+	boost::mutex::scoped_lock sl(h_p->m);   // get lock
 	try {
 	  configure_errorlog();
 	}
@@ -295,122 +335,133 @@ void
 	// of the MessageLoggerQ to delete it.
 	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
 	// finally, release the scoped lock by letting it go out of scope 
-        break;
+	break;
       }
-      case MessageLoggerQ::EXTERN_DEST: {
-	try {
-	  extern_dests.push_back( static_cast<NamedDestination *>(operand) );
-	  configure_external_dests();
+    }
+    case MessageLoggerQ::EXTERN_DEST: {
+      try {
+	extern_dests.push_back( static_cast<NamedDestination *>(operand) );
+	configure_external_dests();
+      }
+      catch(cms::Exception& e)				// change log 21
+	{
+	  std::cerr << "MessageLoggerScribe caught a cms::Exception "
+	       << "during extern dest configuration:\n"
+	       << e.what() << "\n"
+	       << "This is a serious problem, and the extern dest " 
+	       << "will not be produced.\n"
+	       << "However, the rest of the logger continues to run.\n";
 	}
-	catch(cms::Exception& e)				// change log 21
-	  {
-	    std::cerr << "MessageLoggerScribe caught a cms::Exception "
-		 << "during extern dest configuration:\n"
-		 << e.what() << "\n"
-		 << "This is a serious problem, and the extern dest " 
-		 << "will not be produced.\n"
-		 << "However, the rest of the logger continues to run.\n";
-	  }
-	catch(...)						// change log 21
-	  {
-	    std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-		 << "during extern dest configuration. "
-		 << "This is a serious problem, and the extern dest " 
-		 << "will not be produced.\n"
-		 << "The rest of the logger will attempt to continue to run.\n";
-	  }
-        break;
-      }
-      case MessageLoggerQ::SUMMARIZE: {
-        assert( operand == 0 );
-	try {
-	  triggerStatisticsSummaries();
+      catch(...)						// change log 21
+	{
+	  std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+	       << "during extern dest configuration. "
+	       << "This is a serious problem, and the extern dest " 
+	       << "will not be produced.\n"
+	       << "The rest of the logger will attempt to continue to run.\n";
 	}
-	catch(cms::Exception& e)
-	  {
-	    std::cerr << "MessageLoggerScribe caught exception "
-		 << "during summarize:\n"
-		 << e.what() << "\n";
-	  }
-	catch(...)
-	  {
-	    std::cerr << "MessageLoggerScribe caught unkonwn exception type "
-		 << "during summarize. (Ignored)\n";
-	  }
-        break;
+      break;
+    }
+    case MessageLoggerQ::SUMMARIZE: {
+      assert( operand == 0 );
+      try {
+	triggerStatisticsSummaries();
       }
-      case MessageLoggerQ::JOBREPORT:  {			// change log 19
-        std::string* jobReportOption_p =
-		static_cast<std::string*>(operand);
-	try {
-	  jobReportOption = *jobReportOption_p;
+      catch(cms::Exception& e)
+	{
+	  std::cerr << "MessageLoggerScribe caught exception "
+	       << "during summarize:\n"
+	       << e.what() << "\n";
 	}
-	catch(cms::Exception& e)
-	  {
-	    std::cerr << "MessageLoggerScribe caught a cms::Exception "
-		 << "during processing of --jobReport option:\n"
-		 << e.what() << "\n"
-		 << "This likely will affect or prevent the job reoport.\n"
-		 << "However, the rest of the logger continues to run.\n";
-	  }
-	catch(...)
-	  {
-	    std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-		 << "during processing of --jobReport option.\n"
-		 << "This likely will affect or prevent the job reoport.\n"
-		 << "However, the rest of the logger continues to run.\n";
-	  }
-        delete jobReportOption_p;  // dispose of the message text
-        break;
+      catch(...)
+	{
+	  std::cerr << "MessageLoggerScribe caught unkonwn exception type "
+	       << "during summarize. (Ignored)\n";
+	}
+      break;
+    }
+    case MessageLoggerQ::JOBREPORT:  {			// change log 19
+      std::string* jobReportOption_p =
+	      static_cast<std::string*>(operand);
+      try {
+	jobReportOption = *jobReportOption_p;
       }
-      case MessageLoggerQ::JOBMODE:  {			// change log 24
-        std::string* jobMode_p =
-		static_cast<std::string*>(operand);
-        JobMode jm = MessageLoggerDefaults::mode(*jobMode_p);
-	messageLoggerDefaults = 
-	  value_ptr<MessageLoggerDefaults>(new MessageLoggerDefaults(jm));
-		// Note - since messageLoggerDefaults is a value_ptr, 
-		//        there is no concern about deleting here.
-	delete jobMode_p;  // dispose of the message text
-        break;
-      }
-      case MessageLoggerQ::SHUT_UP:  {
-        assert( operand == 0 );
-        active = false;
-        break;
-      }
-      case MessageLoggerQ::FLUSH_LOG_Q:  {			// changelog 26
+      catch(cms::Exception& e)
+	{
+	  std::cerr << "MessageLoggerScribe caught a cms::Exception "
+	       << "during processing of --jobReport option:\n"
+	       << e.what() << "\n"
+	       << "This likely will affect or prevent the job report.\n"
+	       << "However, the rest of the logger continues to run.\n";
+	}
+      catch(...)
+	{
+	  std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+	       << "during processing of --jobReport option.\n"
+	       << "This likely will affect or prevent the job report.\n"
+	       << "However, the rest of the logger continues to run.\n";
+	}
+      delete jobReportOption_p;  // dispose of the message text
+				 // which will have been new-ed
+				 // in MessageLogger.cc (service version)
+      break;
+    }
+    case MessageLoggerQ::JOBMODE:  {			// change log 24
+      std::string* jobMode_p =
+	      static_cast<std::string*>(operand);
+      JobMode jm = MessageLoggerDefaults::mode(*jobMode_p);
+      messageLoggerDefaults = 
+	value_ptr<MessageLoggerDefaults>(new MessageLoggerDefaults(jm));
+	      // Note - since messageLoggerDefaults is a value_ptr, 
+	      //        there is no concern about deleting here.
+      delete jobMode_p;  // dispose of the message text
+      			 // which will have been new-ed
+			 // in MessageLogger.cc (service version)
+      break;
+    }
+    case MessageLoggerQ::SHUT_UP:  {
+      assert( operand == 0 );
+      active = false;
+      break;
+    }
+    case MessageLoggerQ::FLUSH_LOG_Q:  {			// changelog 26
+      if (singleThread) return;
+      ConfigurationHandshake * h_p = 
+	      static_cast<ConfigurationHandshake *>(operand);
+      job_pset_p = static_cast<ParameterSet *>(h_p->p);
+      boost::mutex::scoped_lock sl(h_p->m);   // get lock
+      h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
+      // finally, release the scoped lock by letting it go out of scope 
+      break;
+    }
+    case MessageLoggerQ::GROUP_STATS:  {			// change log 27
+      std::string* cat_p =
+	      static_cast<std::string*>(operand);
+      ELstatistics::noteGroupedCategory(*cat_p);
+      delete cat_p;  // dispose of the message text
+      break;
+    }
+    case MessageLoggerQ::FJR_SUMMARY:  {			// changelog 29
+      if (singleThread) {
+	std::map<std::string, double> * smp = 
+		static_cast<std::map<std::string, double> *>(operand);
+	triggerFJRmessageSummary(*smp);
+	break;
+      } else {
 	ConfigurationHandshake * h_p = 
-	  	static_cast<ConfigurationHandshake *>(operand);
-	job_pset_p = static_cast<ParameterSet *>(h_p->p);
-        boost::mutex::scoped_lock sl(h_p->m);   // get lock
-	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
-	// finally, release the scoped lock by letting it go out of scope 
-        break;
-      }
-      case MessageLoggerQ::GROUP_STATS:  {			// change log 27
-        std::string* cat_p =
-		static_cast<std::string*>(operand);
-	ELstatistics::noteGroupedCategory(*cat_p);
-	delete cat_p;  // dispose of the message text
-        break;
-      }
-      case MessageLoggerQ::FJR_SUMMARY:  {			// changelog 29
-	ConfigurationHandshake * h_p = 
-	  	static_cast<ConfigurationHandshake *>(operand);
-        boost::mutex::scoped_lock sl(h_p->m);   // get lock
+		static_cast<ConfigurationHandshake *>(operand);
+	boost::mutex::scoped_lock sl(h_p->m);   // get lock
 	std::map<std::string, double> * smp = 
 		static_cast<std::map<std::string, double> *>(h_p->p);
 	triggerFJRmessageSummary(*smp);
 	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
 	// finally, release the scoped lock by letting it go out of scope 
-        break;
+	break;
       }
-    }  // switch
+    }
+  }  // switch
 
-  } while(! done);
-
-}  // MessageLoggerScribe::run()
+}  // MessageLoggerScribe::runCommand(opcode, operand)
 
 void MessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
   ELcontextSupplier& cs =
@@ -443,13 +494,15 @@ void
     // does.  We suppress the timestamp to allow for automated unit testing.
     early_dest.suppressTime();
     LogError ("preconfiguration") << preconfiguration_message;
-    MessageLoggerQ::OpCode  opcode;
-    void *                  operand;
-    MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
-    assert (opcode == MessageLoggerQ::LOG_A_MESSAGE);
-    ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-    log (errorobj_p);        
-    delete errorobj_p;  // dispose of the message text
+    if (!singleThread) {
+      MessageLoggerQ::OpCode  opcode;
+      void *                  operand;
+      MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
+      assert (opcode == MessageLoggerQ::LOG_A_MESSAGE);
+      ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
+      log (errorobj_p);        
+      delete errorobj_p;  // dispose of the message text
+    }
   }
 
   if ( !stream_ps.empty() ) {
@@ -464,6 +517,8 @@ void
   configure_external_dests();
 
 }  // MessageLoggerScribe::configure_errorlog()
+
+
 
 
 void

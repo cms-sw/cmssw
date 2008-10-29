@@ -114,6 +114,7 @@ u28	Tests distinct threshold level for linked statistics destination:
 	same stream as an ordinary output destination.  But their thresholds
 	are different.
 	---------- UnitTestClient_A
+	(Currently omitted from test/Buildfile, and u28.sh is not present)
 
 u30	Tests LoggedErrorsSummary, using modues that have normal categories
 	and also grouped categories.   The expectation is that even grouped

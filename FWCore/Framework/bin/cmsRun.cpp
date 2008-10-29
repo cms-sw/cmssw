@@ -15,6 +15,7 @@ it.
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
+#include <cstring>
 
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -40,6 +41,7 @@ static char const* const kParameterSetCommandOpt = "parameter-set,p";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
 static char const* const kJobModeCommandOpt = "mode,m";
+static char const* const kMultiThreadMessageLoggerOpt = "multithreadML,t";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
@@ -99,16 +101,43 @@ int main(int argc, char* argv[])
     return 1;
   }
   
+  // Decide whether to use the multi-thread or single-thread message logger
+  //    (Just walk the command-line arguments, since the boost parser will
+  //    be run below and can lead to error messages which should be sent via
+  //    the message logger)
+  bool multiThreadML = false;
+  for (int i=0; i<argc; ++i) {
+    if ( (std::strncmp (argv[i],"-t", 20) == 0) ||
+         (std::strncmp (argv[i],"--multithreadML", 20) == 0) )
+    { multiThreadML = true; 
+      break; 
+    }
+  } 
+ 
+  // TEMPORARY -- REMOVE AT ONCE!!!!!
+  // if ( multiThreadML ) std::cerr << "\n\n multiThreadML \n\n";
+  
   // Load the message service plug-in
   boost::shared_ptr<edm::Presence> theMessageServicePresence;
-  try {
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-        makePresence("MessageServicePresence").release());
-  } catch(cms::Exception& e) {
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
 
+  if (multiThreadML)
+  {
+    try {
+      theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+          makePresence("MessageServicePresence").release());
+    } catch(cms::Exception& e) {
+      std::cerr << e.what() << std::endl;
+      return 1;
+    }
+  } else {
+    try {
+      theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+          makePresence("SingleThreadMSPresence").release());
+    } catch(cms::Exception& e) {
+      std::cerr << e.what() << std::endl;
+      return 1;
+    }
+  }
   
   //
   // Specify default services to be enabled with their default parameters.
@@ -144,6 +173,8 @@ int main(int argc, char* argv[])
     	"enable job report files (if any) specified in configuration file")
     (kJobModeCommandOpt, boost::program_options::value<std::string>(),
     	"Job Mode for MessageLogger defaults - default mode is grid")
+    (kMultiThreadMessageLoggerOpt,
+    	"MessageLogger handles multiple threads - default is single-thread")
     (kStrictOpt, "strict parsing");
 
   boost::program_options::positional_options_description p;

@@ -8,6 +8,8 @@
 #include "FWCore/MessageService/interface/MsgContext.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -61,17 +63,29 @@ namespace service {
 //   8 - 6/19/08 mf
 //	 triggerFJRmessageSummary
 //
+//   9 - 10/21/08 mf
+//	 variables and routines in preparation for single-thread
+//
+//  10 - 10/22/08 mf
+//	 derivation from AbstractMLscribe to allow for single-thread calling
+//	 from MessageLoggerQ without introducing coupling to MessageService
+//
 // -----------------------------------------------------------------------
 
-class MessageLoggerScribe
+class MessageLoggerScribe : public AbstractMLscribe
 {
 public:
   // ---  birth/death:
   MessageLoggerScribe();
-  ~MessageLoggerScribe();
+  explicit MessageLoggerScribe(bool singleThreadMode);
+  virtual ~MessageLoggerScribe();
 
   // --- receive and act on messages:
+  virtual
   void  run();
+  virtual							// changelog 10
+  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
+		  						// changeLog 9
 
   // --- obtain a pointer to the errorlog 
   static ErrorLog * getErrorLog_ptr() {return static_errorlog_p;}
@@ -193,7 +207,11 @@ private:
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
   bool				      active;
-    
+  bool 				      singleThread;		// changeLog 9
+  bool 				      done;			// changeLog 9
+  bool 				      purge_mode;		// changeLog 9
+  int				      count;			// changeLog 9
+      
 };  // MessageLoggerScribe
 
 

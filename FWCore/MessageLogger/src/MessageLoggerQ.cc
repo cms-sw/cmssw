@@ -1,4 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -29,12 +30,16 @@
 //	Addition of GRP command, to be used by GroupLogStatistics
 // 7 - 6/18/08 mf
 //	Addition of JRS command, to be used by SummarizeInJobReport
+// 8 - 10/24/08 mf
+//	Support for singleThread
+//
 
 using namespace edm;
 
 
 SingleConsumerQ  MessageLoggerQ::buf(buf_size, buf_depth);
-
+edm::service::AbstractMLscribe * MessageLoggerQ::mlscribe_ptr = 0;// changeLog 8
+bool MessageLoggerQ::singleThread = false;			  // changeLog 8
 
 MessageLoggerQ::MessageLoggerQ()
 { }
@@ -52,138 +57,153 @@ MessageLoggerQ *
 }  // MessageLoggerQ::instance()
 
 void
+  MessageLoggerQ::setMLscribe_ptr(edm::service::AbstractMLscribe * m)
+  								// changeLog 8
+{
+  mlscribe_ptr = m;
+  singleThread = true; 
+}  // MessageLoggerQ::setMLscribe_ptr(m)
+
+void
+  MessageLoggerQ::simpleCommand(OpCode opcode, void * operand)  // changeLog 8
+{
+  if (singleThread){ 
+    mlscribe_ptr->runCommand(opcode, operand);
+  }  else {
+    SingleConsumerQ::ProducerBuffer b(buf);
+    char * slot_p = static_cast<char *>(b.buffer()); 
+    OpCode o = opcode;
+    void * v = operand;
+    std::memcpy(slot_p, &o, sizeof(OpCode));
+    std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+    b.commit(buf_size);
+  }
+} // simpleCommand
+
+void
+  MessageLoggerQ::handshakedCommand( 
+  	OpCode opcode, 
+	void * operand,
+	std::string const & commandMnemonic )
+{
+  if (singleThread){ 
+    try {
+      mlscribe_ptr->runCommand(opcode, operand);
+    } 
+    catch(edm::Exception& ex)
+    {
+      ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
+      ex << "and forwarded to the main thread from the Messages thread.";
+      std::cerr << "exception from MessageLoggerQ::" 
+                << commandMnemonic << " - exception what() is \n" 
+    	        << ex.what(); 
+      throw ex;
+    }
+  }  else {
+    Place_for_passing_exception_ptr epp = 
+    				new Pointer_to_new_exception_on_heap(0);
+    ConfigurationHandshake h(operand,epp);
+    SingleConsumerQ::ProducerBuffer b(buf);
+    char * slot_p = static_cast<char *>(b.buffer());
+    OpCode o = opcode;
+    void * v(static_cast<void *>(&h));
+    std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+    std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+    Pointer_to_new_exception_on_heap ep;
+    {
+      boost::mutex::scoped_lock sl(h.m);       // get lock
+      b.commit(buf_size);
+      // wait for result to appear (in epp)
+      h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
+      // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
+      ep = *h.epp;
+      // finally, release the scoped lock by letting it go out of scope 
+    }
+    if ( ep ) {
+      edm::Exception ex(*ep);
+      delete ep;
+      ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
+      ex << "and forwarded to the main thread from the Messages thread.";
+      std::cerr << "exception from MessageLoggerQ::" 
+                << commandMnemonic << " - exception what() is \n" 
+    		<< ex.what(); 
+      throw ex;
+    }  
+  }
+}  // handshakedCommand
+
+void
   MessageLoggerQ::MLqEND()
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(END_THREAD);
-  void * v(0);
-
-  std::memcpy(slot_p               , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  simpleCommand (END_THREAD, (void *)0); 
 }  // MessageLoggerQ::END()
 
 void
   MessageLoggerQ::MLqSHT()
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(SHUT_UP);
-  void * v(0);
-
-  std::memcpy(slot_p               , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  simpleCommand (SHUT_UP, (void *)0); 
 }  // MessageLoggerQ::SHT()
 
 void
   MessageLoggerQ::MLqLOG( ErrorObj * p )
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(LOG_A_MESSAGE);
-  void * v(static_cast<void *>(p));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  simpleCommand (LOG_A_MESSAGE, static_cast<void *>(p)); 
 }  // MessageLoggerQ::LOG()
 
 
 void
   MessageLoggerQ::MLqCFG( ParameterSet * p )
 {
-  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
-  ConfigurationHandshake h((void*)p,epp);
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(CONFIGURE);
-  void * v(static_cast<void *>(&h));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  Pointer_to_new_exception_on_heap ep;
-  {
-    boost::mutex::scoped_lock sl(h.m);       // get lock
-    b.commit(buf_size);
-    // wait for result to appear (in epp)
-    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
-    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
-    ep = *h.epp;
-    // finally, release the scoped lock by letting it go out of scope 
-  }
-  if ( ep ) {
-    edm::Exception ex(*ep);
-    delete ep;
-    ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
-    ex << "and forwarded to the main thread from the Messages thread.";
-    std::cerr << "exception from MessageLoggerQ::CFG - exception what() is \n" 
-    		<< ex.what(); 
-    throw ex;
-  }  
+  handshakedCommand(CONFIGURE, p, "CFG" );
 }  // MessageLoggerQ::CFG()
 
 void
 MessageLoggerQ::MLqEXT( service::NamedDestination* p )
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(EXTERN_DEST);
-  void * v(static_cast<void *>(p));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);  
+  simpleCommand (EXTERN_DEST, static_cast<void *>(p)); 
 }
 
 void
   MessageLoggerQ::MLqSUM( )
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(SUMMARIZE);
-  void * v(0);
-
-  std::memcpy(slot_p               , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  simpleCommand (SUMMARIZE, 0); 
 }  // MessageLoggerQ::SUM()
 
 void
   MessageLoggerQ::MLqJOB( std::string * j )
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(JOBREPORT);
-  void * v(static_cast<void *>(j));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  simpleCommand (JOBREPORT, static_cast<void *>(j)); 
 }  // MessageLoggerQ::JOB()
 
 void
   MessageLoggerQ::MLqMOD( std::string * jm )
 {
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(JOBMODE);
-  void * v(static_cast<void *>(jm));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  simpleCommand (JOBMODE, static_cast<void *>(jm)); 
 }  // MessageLoggerQ::MOD()
 
+
+void
+  MessageLoggerQ::MLqFLS(  )			// Change Log 5
+{
+  if (singleThread) return;
+  // The ConfigurationHandshake, developed for synchronous CFG, contains a
+  // place to convey exception information.  FLS does not need this, nor does
+  // it need the parameter set, but we are reusing ConfigurationHandshake 
+  // rather than reinventing the mechanism.
+  handshakedCommand(FLUSH_LOG_Q, 0, "FLS" );
+}  // MessageLoggerQ::FLS()
+
+void
+  MessageLoggerQ::MLqGRP( std::string * cat_p )  	// Change Log 6
+{
+  simpleCommand (GROUP_STATS, static_cast<void *>(cat_p)); 
+}  // MessageLoggerQ::GRP()
+
+void
+  MessageLoggerQ::MLqJRS( std::map<std::string, double> * sum_p )
+{
+  handshakedCommand(FJR_SUMMARY, sum_p, "JRS" );
+}  // MessageLoggerQ::CFG()
 
 void
   MessageLoggerQ::consume( OpCode & opcode, void * & operand )
@@ -195,80 +215,4 @@ void
   std::memcpy(&operand, slot_p+sizeof(OpCode), sizeof(void *));
   b.commit(buf_size);
 }  // MessageLoggerQ::consume()
-
-void
-  MessageLoggerQ::MLqFLS(  )			// Change Log 5
-{
-  // The ConfigurationHandshake, developed for synchronous CFG, contains a
-  // place to convey exception information.  FLS does not need this, nor does
-  // it need the parameter set, but we are reusing ConfigurationHandshake 
-  // rather than reinventing the mechanism.
-  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
-  ParameterSet * p = 0;
-  ConfigurationHandshake h(p,epp);
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(FLUSH_LOG_Q);
-  void * v(static_cast<void *>(&h));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  {
-    boost::mutex::scoped_lock sl(h.m);       // get lock
-    b.commit(buf_size);
-    // wait for result to appear (in epp)
-    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
-    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
-    // finally, release the scoped lock by letting it go out of scope 
-  }
-}  // MessageLoggerQ::FLS()
-
-void
-  MessageLoggerQ::MLqGRP( std::string * cat_p )  	// Change Log 6
-{
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(GROUP_STATS);
-  void * v(static_cast<void *>(cat_p));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
-}  // MessageLoggerQ::GRP()
-
-void
-  MessageLoggerQ::MLqJRS( std::map<std::string, double> * sum_p )
-{
-  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
-  ConfigurationHandshake h((void*)sum_p,epp);
-  SingleConsumerQ::ProducerBuffer b(buf);
-  char * slot_p = static_cast<char *>(b.buffer());
-
-  OpCode o(FJR_SUMMARY);
-  void * v(static_cast<void *>(&h));
-
-  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
-  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  Pointer_to_new_exception_on_heap ep;
-  {
-    boost::mutex::scoped_lock sl(h.m);       // get lock
-    b.commit(buf_size);
-    // wait for result to appear (in epp)
-    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
-    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
-    ep = *h.epp;
-    // finally, release the scoped lock by letting it go out of scope 
-  }
-  if ( ep ) {
-    edm::Exception ex(*ep);
-    delete ep;
-    ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
-    ex << "and forwarded to the main thread from the Messages thread.\n";
-    std::cerr << "exception from MessageLoggerQ::JRS - exception what() is \n" 
-    		<< ex.what(); 
-    throw ex;
-  }  
-}  // MessageLoggerQ::CFG()
 
