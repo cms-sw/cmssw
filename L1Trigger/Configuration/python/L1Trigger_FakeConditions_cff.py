@@ -20,10 +20,6 @@ from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 # GT configuration
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 
-# GT menu
-from L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008_2E30_Unprescaled_cff import *
-
-
 # these are never stored in L1 DB
 # they should be moved to CSC/DT/RPC fake conditions
 from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
