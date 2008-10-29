@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2008/09/17 11:52:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/29 09:23:59 $
+ *  $Revision: 1.7 $
  *  \authors: R. Bellan
  */
 
@@ -238,7 +238,6 @@ MuonDTDigis::~MuonDTDigis(){
 
 // End of comment.
 
-  cout << " outputFile_.size() " << outputFile_.size() << " dbe " << dbe_ << endl; 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_); 
 
   if(verbose_)

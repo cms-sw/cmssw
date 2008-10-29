@@ -673,13 +673,13 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
     int ny = emap_HB1->getNbinsY();
     float cnorm;
     float fev = float (nevtot);
-    std::cout << "*** nevtot " <<  nevtot << std::endl; 
+    //    std::cout << "*** nevtot " <<  nevtot << std::endl; 
 
     float sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, sumphi_he3,
       sumphi_ho, sumphi_hf1, sumphi_hf2;
 
     if(nx != 82 || ny != 72) 
-      std::cout << "*** problem with binning " << std::endl;
+      //      std::cout << "*** problem with binning " << std::endl;
 
     float phi_factor;  
 
@@ -846,8 +846,6 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
 
   }
    
-  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
-  std::cout << " dbe_ = " << dbe_ << std::endl;
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }

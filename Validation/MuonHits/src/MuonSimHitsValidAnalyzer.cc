@@ -738,7 +738,7 @@ void MuonSimHitsValidAnalyzer::saveHistos_DT()
    
   if ( dbeDT_ ) {
     dbeDT_->setCurrentFolder("MuonDTHitsV/DTHitsValidationTask");
-    cout << " DTFile.size " << DToutputFile_.size() << " dbeDT " << dbeDT_ << endl;
+    //    cout << " DTFile.size " << DToutputFile_.size() << " dbeDT " << dbeDT_ << endl;
     dbeDT_->save(DToutputFile_);
   } 
 
@@ -756,7 +756,7 @@ void MuonSimHitsValidAnalyzer::saveHistos_RPC()
 
   if ( dbeRPC_ ) {
     dbeRPC_->setCurrentFolder("MuonRPCHitsV/RPCHitsValidationTask");
-    cout << " RPCFile.size " << RPCoutputFile_.size() << " dbeRPC " << dbeRPC_ << endl;
+    //    cout << " RPCFile.size " << RPCoutputFile_.size() << " dbeRPC " << dbeRPC_ << endl;
     dbeRPC_->save(RPCoutputFile_);
   }
 
@@ -777,7 +777,7 @@ void MuonSimHitsValidAnalyzer::saveHistos_CSC()
  
   if ( dbeCSC_ ) {
     dbeCSC_->setCurrentFolder("MuonCSCHitsV/CSCHitsValidationTask");
-    cout << " CSCFile.size " << CSCoutputFile_.size() << " dbeCSC " << dbeCSC_ << endl;
+    //    cout << " CSCFile.size " << CSCoutputFile_.size() << " dbeCSC " << dbeCSC_ << endl;
     dbeCSC_->save(CSCoutputFile_);
   }
 

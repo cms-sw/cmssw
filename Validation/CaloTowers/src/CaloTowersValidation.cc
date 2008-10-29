@@ -172,8 +172,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 CaloTowersValidation::~CaloTowersValidation() {
    
-  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
-  std::cout << " dbe_ = " << dbe_ << std::endl;
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }

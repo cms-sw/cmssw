@@ -35,6 +35,7 @@ CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe,
 
 CSCComparatorDigiValidation::~CSCComparatorDigiValidation()
 {
+  /*
   for(int i = 0; i < 10; ++i)
   {
     std::cout << "Mean of " << theTimeBinPlots[i]->getName()
@@ -43,7 +44,7 @@ CSCComparatorDigiValidation::~CSCComparatorDigiValidation()
     std::cout << "Mean charge of " << the3StripPlots[i]->getName()
       << " is " << the3StripPlots[i]->getMean() << std::endl;
   }
-
+  */
 }
 
 
