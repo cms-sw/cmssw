@@ -235,6 +235,3 @@ std::vector<reco::GenParticle*> DecayModeCountingTool::getGenStableDecayProducts
   }
   return decayProducts;
 }
-
-
-DEFINE_FWK_MODULE(DecayModeCountingTool);
