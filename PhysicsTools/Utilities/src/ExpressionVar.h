@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
  */
 #include "PhysicsTools/Utilities/src/ExpressionBase.h"
@@ -24,6 +24,7 @@ namespace reco {
       static bool isValidReturnType(method::TypeCode);
     private:
       std::vector<MethodInvoker> methods_;
+      static void trueDelete(ROOT::Reflex::Object & o) ;
       method::TypeCode retType_;
     }; 
   }

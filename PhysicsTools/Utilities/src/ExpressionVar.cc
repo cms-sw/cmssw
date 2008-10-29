@@ -1,5 +1,7 @@
 #include "PhysicsTools/Utilities/src/ExpressionVar.h"
 #include "Reflex/Object.h"
+#include <Reflex/Builder/NewDelFunctions.h>
+#include <map>
 #include <assert.h>
 using namespace reco::parser;
 using namespace ROOT::Reflex;
@@ -43,7 +45,8 @@ double ExpressionVar::value(const Object & o) const {
   }
   for (std::vector<Object>::iterator it = toBeDeleted.begin(), ed = toBeDeleted.end(); it != ed; ++it) {
       //std::cout << "Should delete Object at " << it->Address() << ", type = " << it->TypeOf().Name() << std::endl;
-      it->Destruct();
+      //it->Destruct(); // this is not ok, it uses "free" while we need "delete"
+      trueDelete(*it);
   }
   void * addr = ro.first.Address();
   double ret = 0;
@@ -63,4 +66,16 @@ double ExpressionVar::value(const Object & o) const {
   assert(false);
   };
   return ret;
+}
+
+void ExpressionVar::trueDelete(ROOT::Reflex::Object & obj) {
+     static std::map<void *, ROOT::Reflex::NewDelFunctions *> deleters_;
+     void * reflexTypeId = obj.TypeOf().Id();
+     std::map<void *, ROOT::Reflex::NewDelFunctions *>::iterator match = deleters_.find(reflexTypeId);
+     if (match == deleters_.end()) {
+         ROOT::Reflex::Object newDel = obj.Invoke("__getNewDelFunctions");
+         ROOT::Reflex::NewDelFunctions *ptr = static_cast<ROOT::Reflex::NewDelFunctions *>(newDel.Address());
+         match = deleters_.insert(std::make_pair(reflexTypeId, ptr)).first;   
+     }
+     (*match->second->fDelete)(obj.Address());
 }
