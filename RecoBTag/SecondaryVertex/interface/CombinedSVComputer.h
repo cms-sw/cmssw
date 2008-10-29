@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"  
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -27,7 +28,8 @@ class CombinedSVComputer {
 	const reco::TrackIPTagInfo::TrackIPData &
 	threshTrack(const reco::TrackIPTagInfo &trackIPTagInfo,
 	            const reco::TrackIPTagInfo::SortCriteria sort,
-	            const reco::Jet &jet) const;
+	            const reco::Jet &jet,
+	            const GlobalPoint &pv) const;
 
 	bool					trackFlip;
 	bool					vertexFlip;

@@ -25,6 +25,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -168,7 +169,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 			// select tracks for SV finder
 
-			if (trackSelector(*trackRef, ipData[i], *jetRef)) {
+			if (trackSelector(*trackRef, ipData[i], *jetRef,
+				          RecoVertex::convertPos(
+			                  		pv.position()))) {
 				fitTracks.push_back(
 					trackBuilder->build(trackRef));
 				trackData.back().second.svStatus =

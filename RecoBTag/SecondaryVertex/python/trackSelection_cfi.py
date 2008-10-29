@@ -7,6 +7,7 @@ trackSelectionBlock = cms.PSet(
 		qualityClass = cms.string('highPurity'),
 		pixelHitsMin = cms.uint32(0),
 		maxDistToAxis = cms.double(0.07),
+		maxDecayLen = cms.double(5),
 		sip3dSigMin = cms.double(-99999.9),
 		sip3dSigMax = cms.double(99999.9),
 		sip2dValMax = cms.double(99999.9),

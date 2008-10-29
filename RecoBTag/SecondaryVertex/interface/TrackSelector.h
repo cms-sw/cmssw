@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
@@ -16,7 +17,8 @@ class TrackSelector {
 
 	bool operator() (const reco::Track &track,
 	                 const reco::TrackIPTagInfo::TrackIPData &ipData,
-	                 const reco::Jet &jet) const;
+	                 const reco::Jet &jet,
+	                 const GlobalPoint &pv) const;
 
     private:
 	bool				selectQuality;
@@ -27,6 +29,7 @@ class TrackSelector {
 	double				maxNormChi2;
 	double				maxJetDeltaR;
 	double				maxDistToAxis;
+	double				maxDecayLen;
 	double				sip2dValMin;
 	double				sip2dValMax;
 	double				sip2dSigMin;

@@ -22,6 +22,8 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/VertexTypes.h"
 
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+
 #include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
@@ -89,7 +91,8 @@ inline CombinedSVComputer::IterationRange CombinedSVComputer::flipIterate(
 const TrackIPTagInfo::TrackIPData &
 CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
                                 const TrackIPTagInfo::SortCriteria sort,
-                                const reco::Jet &jet) const
+                                const reco::Jet &jet,
+                                const GlobalPoint &pv) const
 {
 	const edm::RefVector<TrackCollection> &tracks =
 					trackIPTagInfo.selectedTracks();
@@ -104,7 +107,7 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 		const TrackIPTagInfo::TrackIPData &data = ipData[idx];
 		const Track &track = *tracks[idx];
 
-		if (!trackNoDeltaRSelector(track, data, jet))
+		if (!trackNoDeltaRSelector(track, data, jet, pv))
 			continue;
 
 		kin.add(track);
@@ -220,7 +223,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 		// filter track
 
-		if (!trackSelector(track, data, *jet))
+		if (!trackSelector(track, data, *jet, pv))
 			continue;
 
 		// add track to kinematics for all tracks in jet
@@ -230,7 +233,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		// if no vertex was reconstructed, attempt pseudo vertex
 
 		if (vtxType == btag::Vertices::NoVertex &&
-		    trackPseudoSelector(track, data, *jet)) {
+		    trackPseudoSelector(track, data, *jet, pv)) {
 			pseudoVertexTracks.push_back(trackRef);
 			vertexKinematics.add(track);
 		}
@@ -249,7 +252,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 			const TrackRef &pairTrackRef = tracks[pairIdx];
 			const Track &pairTrack = *pairTrackRef;
 
-			if (!trackSelector(pairTrack, pairTrackData, *jet))
+			if (!trackSelector(pairTrack, pairTrackData, *jet, pv))
 				continue;
 
 			trackPairV0Test[1] = pairTrackRef;
@@ -306,13 +309,13 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 	            allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
 	vars.insert(btau::trackSip3dSigAboveCharm,
 	            flipValue(
-	            	threshTrack(ipInfo, TrackIPTagInfo::IP3DSig, *jet)
+	            	threshTrack(ipInfo, TrackIPTagInfo::IP3DSig, *jet, pv)
 	            					.ip3d.significance(),
 	            	false),
 	            true);
 	vars.insert(btau::trackSip2dSigAboveCharm,
 	            flipValue(
-	            	threshTrack(ipInfo, TrackIPTagInfo::IP2DSig, *jet)
+	            	threshTrack(ipInfo, TrackIPTagInfo::IP2DSig, *jet, pv)
 	            					.ip2d.significance(),
 	            	false),
 	            true);

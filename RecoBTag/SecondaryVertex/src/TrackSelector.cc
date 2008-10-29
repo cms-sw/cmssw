@@ -2,8 +2,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
@@ -18,6 +20,7 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	maxNormChi2(params.getParameter<double>("normChi2Max")),
 	maxJetDeltaR(params.getParameter<double>("jetDeltaRMax")),
 	maxDistToAxis(params.getParameter<double>("maxDistToAxis")),
+	maxDecayLen(params.getParameter<double>("maxDecayLen")),
 	sip2dValMin(params.getParameter<double>("sip2dValMin")),
 	sip2dValMax(params.getParameter<double>("sip2dValMax")),
 	sip2dSigMin(params.getParameter<double>("sip2dSigMin")),
@@ -42,7 +45,8 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 bool
 TrackSelector::operator () (const Track &track,
                             const TrackIPTagInfo::TrackIPData &ipData,
-                            const Jet &jet) const
+                            const Jet &jet,
+                            const GlobalPoint &pv) const
 {
 	return (!selectQuality || track.quality(quality)) &&
 	       (minPixelHits <= 0 ||
@@ -51,8 +55,10 @@ TrackSelector::operator () (const Track &track,
 	        track.hitPattern().numberOfValidHits() >= (int)minPixelHits) &&
 	       track.pt() >= minPt &&
 	       track.normalizedChi2() < maxNormChi2 &&
-	       VectorUtil::DeltaR(jet.momentum(), track.momentum()) < maxJetDeltaR &&
+	       VectorUtil::DeltaR(jet.momentum(),
+	                          track.momentum()) < maxJetDeltaR &&
 	       std::abs(ipData.distanceToJetAxis) <= maxDistToAxis &&
+	       (ipData.closestToJetAxis - pv).mag() <= maxDecayLen &&
 	       ipData.ip2d.value()        >= sip2dValMin &&
 	       ipData.ip2d.value()        <= sip2dValMax &&
 	       ipData.ip2d.significance() >= sip2dSigMin &&
