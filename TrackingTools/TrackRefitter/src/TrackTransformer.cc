@@ -95,6 +95,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();
   if ( newCacheId_TRH != theCacheId_TRH ) {
+    theCacheId_TRH = newCacheId_TRH;
     LogTrace(metname) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
