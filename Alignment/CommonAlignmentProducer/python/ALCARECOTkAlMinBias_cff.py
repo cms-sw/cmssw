@@ -1,14 +1,15 @@
+# AlCaReco for track based alignment using min. bias events
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-# AlCaReco for track based alignment using min. bias events
-ALCARECOTkAlMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+ALCARECOTkAlMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel'],
+    throw = False # tolerate triggers stated above, but not available
+    )
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT+ALCARECOTkAlMinBias)
-ALCARECOTkAlMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
-
-ALCARECOTkAlMinBiasHLT.HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel']
 ALCARECOTkAlMinBias.filter = True ##do not store empty events	
 
 ALCARECOTkAlMinBias.applyBasicCuts = True
@@ -23,3 +24,4 @@ ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
+seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT+ALCARECOTkAlMinBias)

@@ -1,14 +1,15 @@
+# AlCaReco for track based alignment using WMuNu events
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-# AlCaReco for track based alignment using WMuNu events
-ALCARECOTkAlWMuNuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+ALCARECOTkAlWMuNuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    HLTPaths = ['HLT_IsoMu11'], ##these need further studies
+    throw = False # tolerate triggers stated above, but not available
+)
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlWMuNu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-seqALCARECOTkAlWMuNu = cms.Sequence(ALCARECOTkAlWMuNuHLT+ALCARECOTkAlWMuNu)
-ALCARECOTkAlWMuNuHLT.andOr = True ## choose logical OR between Triggerbits
-
-ALCARECOTkAlWMuNuHLT.HLTPaths = ['HLT_IsoMu11'] ##these need further studies
 
 ALCARECOTkAlWMuNu.filter = True ##do not store empty events
 
@@ -38,4 +39,4 @@ ALCARECOTkAlWMuNu.TwoBodyDecaySelector.useUnsignedCharge = True
 ALCARECOTkAlWMuNu.TwoBodyDecaySelector.applyAcoplanarityFilter = True
 ALCARECOTkAlWMuNu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 
-
+seqALCARECOTkAlWMuNu = cms.Sequence(ALCARECOTkAlWMuNuHLT+ALCARECOTkAlWMuNu)

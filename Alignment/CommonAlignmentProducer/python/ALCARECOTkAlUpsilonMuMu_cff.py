@@ -1,14 +1,15 @@
+# AlCaReco for track based alignment using Upsilon->MuMu events
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-# AlCaReco for track based alignment using Upsilon->MuMu events
-ALCARECOTkAlUpsilonMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+ALCARECOTkAlUpsilonMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    HLTPaths = ['HLT_DoubleMu3_Upsilon'],
+    throw = False # tolerate triggers stated above, but not available
+    )
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlUpsilonMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMu)
-ALCARECOTkAlUpsilonMuMuHLT.andOr = True ## choose logical OR between Triggerbits
-
-ALCARECOTkAlUpsilonMuMuHLT.HLTPaths = ['HLT_DoubleMu3_Upsilon']
 ALCARECOTkAlUpsilonMuMu.filter = True ##do not store empty events
 
 ALCARECOTkAlUpsilonMuMu.applyBasicCuts = True
@@ -31,4 +32,5 @@ ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 
+seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMu)
 

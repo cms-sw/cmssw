@@ -4,18 +4,21 @@ import FWCore.ParameterSet.Config as cms
 #_________________________________HLT bits___________________________________________
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 
-ALCARECOTkAlCosmicsCTF0THLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-ALCARECOTkAlCosmicsCTF0THLT.andOr = True ## choose logical OR between Triggerbits
-ALCARECOTkAlCosmicsCTF0THLT.HLTPaths = ['HLT_TrackerCosmics_CTF']
+ALCARECOTkAlCosmicsCTF0THLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    HLTPaths = ['HLT_TrackerCosmics_CTF'],
+    throw = False # tolerate triggers stated above, but not available
+    )
 
-ALCARECOTkAlCosmicsCosmicTF0THLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-ALCARECOTkAlCosmicsCosmicTF0THLT.andOr = True ## choose logical OR between Triggerbits
-ALCARECOTkAlCosmicsCosmicTF0THLT.HLTPaths = ['HLT_TrackerCosmics_CoTF']
+# same as above, but other path
+ALCARECOTkAlCosmicsCosmicTF0THLT = ALCARECOTkAlCosmicsCTF0THLT.clone(
+    HLTPaths = ['HLT_TrackerCosmics_CoTF']
+    )
 
-ALCARECOTkAlCosmicsRS0THLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-ALCARECOTkAlCosmicsRS0THLT.andOr = True ## choose logical OR between Triggerbits
-ALCARECOTkAlCosmicsRS0THLT.HLTPaths = ['HLT_TrackerCosmics_RS']
-
+# same as above, but other path
+ALCARECOTkAlCosmicsRS0THLT = ALCARECOTkAlCosmicsCTF0THLT.clone(
+    HLTPaths = ['HLT_TrackerCosmics_RS']
+    )
 
 #________________________________Track selection____________________________________
 # take from stream that is HLT-less

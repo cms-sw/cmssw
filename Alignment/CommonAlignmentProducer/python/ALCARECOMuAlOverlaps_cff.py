@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOMuAlOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15']
+    HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15'],
+    throw = False # tolerate triggers stated above, but not available
     )
 
 

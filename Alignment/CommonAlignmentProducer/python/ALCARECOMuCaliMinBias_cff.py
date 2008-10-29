@@ -1,17 +1,20 @@
 # The following comments couldn't be translated into the new config version:
 
 # to be precisely defined!!!
+
+# AlCaReco for muon calibration using MinBias events
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-# AlCaReco for muon calibration using MinBias events
-ALCARECOMuCaliMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+ALCARECOMuCaliMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    HLTPaths = ['HLTMuon'],
+    andOr = True, ## choose logical OR between Triggerbits
+    throw = False # tolerate triggers stated above, but not available
+    )
+
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuCaliMinBias = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone()
-seqALCARECOMuCaliMinBias = cms.Sequence(ALCARECOMuCaliMinBiasHLT+ALCARECOMuCaliMinBias)
-ALCARECOMuCaliMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOMuCaliMinBiasHLT.HLTPaths = ['HLTMuon']
 ALCARECOMuCaliMinBias.filter = True ##do not store empty events	
 
 ALCARECOMuCaliMinBias.applyBasicCuts = True
@@ -38,3 +41,4 @@ ALCARECOMuCaliMinBias.applyNHighestPt = False
 ALCARECOMuCaliMinBias.applyMultiplicityFilter = False
 ALCARECOMuCaliMinBias.applyMassPairFilter = False
 
+seqALCARECOMuCaliMinBias = cms.Sequence(ALCARECOMuCaliMinBiasHLT+ALCARECOMuCaliMinBias)

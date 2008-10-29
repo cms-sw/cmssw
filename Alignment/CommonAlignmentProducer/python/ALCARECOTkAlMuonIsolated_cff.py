@@ -9,8 +9,10 @@ ALCARECOTkAlMuonIsolatedHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel
     #for L = 10e30:  HLT_Mu3 , HLT_Mu5
     #for L = 10e31:  unknown
     #for L = 10e32:  HLT_IsoMu11 , HLT_Mu15_L1Mu7
-    HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15']
+    HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15'],
+    throw = False # tolerate triggers stated above, but not available
     )
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlMuonIsolated = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     filter = True, ##do not store empty events

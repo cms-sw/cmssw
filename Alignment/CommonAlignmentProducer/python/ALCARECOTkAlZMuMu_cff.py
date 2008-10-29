@@ -2,13 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for track based alignment using ZMuMu events
-ALCARECOTkAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+ALCARECOTkAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    HLTPaths = ['HLT_DoubleMu7_Z'],
+    throw = False # tolerate triggers stated above, but not available
+    )
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMu)
-ALCARECOTkAlZMuMuHLT.andOr = True ## choose logical OR between Triggerbits
-
-ALCARECOTkAlZMuMuHLT.HLTPaths = ['HLT_DoubleMu7_Z']
 ALCARECOTkAlZMuMu.filter = True ##do not store empty events
 
 ALCARECOTkAlZMuMu.applyBasicCuts = True
@@ -30,3 +31,4 @@ ALCARECOTkAlZMuMu.TwoBodyDecaySelector.applyChargeFilter = True
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
+seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMu)
