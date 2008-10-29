@@ -8,5 +8,4 @@ CSCFakeNoiseMatrixConditions = cms.ESSource("CSCFakeNoiseMatrixConditions")
 
 CSCFakeCrosstalkConditions = cms.ESSource("CSCFakeCrosstalkConditions")
 
-CSCBadChambers = cms.ESSource("CSCBadChambers")
 
