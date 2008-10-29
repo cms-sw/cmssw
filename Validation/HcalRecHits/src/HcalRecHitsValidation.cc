@@ -677,10 +677,10 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
 
     float sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, sumphi_he3,
       sumphi_ho, sumphi_hf1, sumphi_hf2;
-
+    /*
     if(nx != 82 || ny != 72) 
-      //      std::cout << "*** problem with binning " << std::endl;
-
+            std::cout << "*** problem with binning " << std::endl;
+    */
     float phi_factor;  
 
     for (int i = 1; i <= nx; i++) {
