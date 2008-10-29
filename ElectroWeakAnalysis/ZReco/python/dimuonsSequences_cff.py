@@ -11,8 +11,7 @@ allLayer0TrackCands.removeOverlaps = cms.PSet(
     muons = cms.PSet(
     collection = cms.InputTag("allLayer0Muons"),
     deltaR = cms.double(0.3),
-    checkRecoComponents = cms.bool(True) # Require them to 'overlap' according to the Candidate OverlapChecker tool
-                                         # that is, to have the same track / globalMuon track / standaloneMuon track
+    checkRecoComponents = cms.bool(True)
     )
 )
 
@@ -58,7 +57,6 @@ selectedLayer1TrackCands.cut = 'pt > 10.'
 
 # SEQUENCE FOR PAT MUONS
 
-#  include "PhysicsTools/RecoAlgos/data/goodMuons.cfi"
 from PhysicsTools.PatAlgos.cleaningLayer0.muonCleaner_cfi import *
 allLayer0Muons.isolation.tracker = cms.PSet(
     veto = cms.double(0.015),
@@ -88,39 +86,31 @@ allLayer1Muons.trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1Muon
 selectedLayer1Muons.src = 'allLayer1Muons'
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 
-from PhysicsTools.RecoAlgos.goodTracks_cfi import *
-
-from PhysicsTools.IsolationAlgos.goodMuonIsolations_cfi import *
-goodMuonIsolations.src = 'selectedLayer1Muons'
-from PhysicsTools.IsolationAlgos.goodTrackIsolations_cfi import *
-goodTrackIsolations.src = 'selectedLayer1TrackCands'
-from ElectroWeakAnalysis.ZReco.muonIsolations_cfi import *
-
-#  include "PhysicsTools/IsolationAlgos/data/highPtTrackIsolations.cfi"
 from ElectroWeakAnalysis.ZReco.dimuons_cfi import *
 from ElectroWeakAnalysis.ZReco.dimuonsOneTrack_cfi import *
 from ElectroWeakAnalysis.ZReco.dimuonsGlobal_cfi import *
 from ElectroWeakAnalysis.ZReco.dimuonsOneStandAloneMuon_cfi import *
 from ElectroWeakAnalysis.ZReco.mcTruthForDimuons_cff import *
+
 patLayer0 = cms.Sequence(
     patAODMuonIsolation*
     allLayer0Muons*
     patAODTrackCandSequence*
     allLayer0TrackCands*
-    muonMatch*trackMuMatch*
+    muonMatch*
+    trackMuMatch*
     patLayer0MuonIsolation*
     patLayer0TrackCandSequence*
     patHLT1MuonNonIso*
-    muonTrigMatchHLT1MuonNonIso)
+    muonTrigMatchHLT1MuonNonIso )
+
 patLayer1 = cms.Sequence(
     layer1Muons*
     allLayer1TrackCands*
     selectedLayer1TrackCands )
+
 goodMuonRecoForDimuon = cms.Sequence(
     patLayer0*
-    patLayer1*
-    goodTrackIsolations*
-    goodMuonIsolations*
-    muonIsolations)
+    patLayer1 )
 
 
