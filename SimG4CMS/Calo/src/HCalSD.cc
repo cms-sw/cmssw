@@ -385,6 +385,7 @@ void HCalSD::initRun() {
 		      << " for mu+ = " << mupPDG;
 #endif
   if (showerLibrary) showerLibrary->initRun(theParticleTable);
+  if (showerParam)   showerParam->initRun(theParticleTable);
 }
 
 uint32_t HCalSD::setDetUnitId (int det, G4ThreeVector pos, int depth, 

@@ -19,12 +19,15 @@
 //#define DebugLog
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
-			     edm::ParameterSet const & p) : fibre(0) {
+			     edm::ParameterSet const & p) : showerLibrary(0),
+							    fibre(0) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
   trackEM                 = m_HF.getParameter<bool>("TrackEM");
-  edm::LogInfo("HFShower") << "HFShowerParam:: P.E. per GeV " << pePerGeV
+  bool useShowerLibrary   = m_HF.getParameter<bool>("UseShowerLibrary");
+  edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
+			   << useShowerLibrary << " P.E. per GeV " << pePerGeV
 			   << " and Track EM Flag " << trackEM;
   
   G4String attribute = "ReadOutName";
@@ -52,11 +55,24 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
       << "cannot match " << attribute << " to " << name <<"\n";
   }
   
+  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
   fibre = new HFFibre(name, cpv, p);
 }
 
 HFShowerParam::~HFShowerParam() {
-  if (fibre) delete fibre;
+  if (fibre)         delete fibre;
+  if (showerLibrary) delete showerLibrary;
+}
+
+void HFShowerParam::initRun(G4ParticleTable * theParticleTable) {
+
+  emPDG = theParticleTable->FindParticle("e-")->GetPDGEncoding();
+  epPDG = theParticleTable->FindParticle("e+")->GetPDGEncoding();
+  gammaPDG = theParticleTable->FindParticle("gamma")->GetPDGEncoding();
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFShowerParam: Particle code for e- = " << emPDG
+		       << " for e+ = " << epPDG << " for gamma = " << gammaPDG;
+#endif
 }
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
@@ -64,7 +80,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track    = aStep->GetTrack();   
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
-  G4String      partType = track->GetDefinition()->GetParticleName();
+  G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
   G4ThreeVector localPoint = (preStepPoint->GetTouchable()->GetHistory()->GetTopTransform()).TransformPoint(hitPoint);
 
   double pin    = (preStepPoint->GetTotalEnergy())/GeV;
@@ -72,7 +88,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
   double zz     = std::abs(zint) - gpar[4];
 
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerParam: getHits " << partType
+  LogDebug("HFShower") << "HFShowerParam: getHits " 
+		       << track->GetDefinition()->GetParticleName()
 		       << " of energy " << pin << " GeV" 
                        << " Pos x,y,z = " << hitPoint.x() << "," 
 		       << hitPoint.y() << "," << zint << " (" << zz << ","
@@ -82,7 +99,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
   HFShowerParam::Hit hit;
   hit.position = hitPoint;
   // take only e+-/gamma
-  if (partType == "e-" || partType == "e+" || partType == "gamma" ) {
+  if (particleCode == emPDG || particleCode == epPDG ||
+      particleCode == gammaPDG ) {
     // Leave out the last part
     double edep = 0.;
     bool   kill = false;
@@ -93,24 +111,45 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
       edep = (aStep->GetTotalEnergyDeposit())/GeV;
     }
     if (edep > 0) {
-      edep         *= 0.5*pePerGeV;
-      double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-
-      double time = fibre->tShift(hitPoint,1,false); // remaining part
-      hit.depth   = 1;
-      hit.time    = tSlice+time;
-      hit.edep    = edep;
-      hits.push_back(hit);
-      if (zz >= gpar[0]) {
-	time      = fibre->tShift(hitPoint,2,false);
-	hit.depth = 2;
-	hit.time  = tSlice+time;
+      if (showerLibrary && kill) {
+	std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill);
+	for (unsigned int i=0; i<hitSL.size(); i++) {
+	  hit.position = hitSL[i].position;
+	  hit.depth    = hitSL[i].depth;
+	  hit.time     = hitSL[i].time;
+	  hit.edep     = 1;
+	  hits.push_back(hit);
+	}
+      } else {
+	edep         *= 0.5*pePerGeV;
+	double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
+	double time = fibre->tShift(hitPoint,1,false); // remaining part
+	hit.depth   = 1;
+	hit.time    = tSlice+time;
+	hit.edep    = edep;
 	hits.push_back(hit);
+	if (zz >= gpar[0]) {
+	  time      = fibre->tShift(hitPoint,2,false);
+	  hit.depth = 2;
+	  hit.time  = tSlice+time;
+	  hits.push_back(hit);
+	}
       }
-      if (kill) track->SetTrackStatus(fStopAndKill);
+      if (kill) {
+	track->SetTrackStatus(fStopAndKill);
+	G4TrackVector tv = *(aStep->GetSecondary());
+	//	edm::LogInfo("HFShower") << "Prestep Point " << preStepPoint->GetPosition() << " Volume "  << preStepPoint->GetPhysicalVolume() << " " << preStepPoint->GetPhysicalVolume()->GetName();
+	//	edm::LogInfo("HFShower") << "Poststep Point " << aStep->GetPostStepPoint()->GetPosition() << " Volume "  << aStep->GetPostStepPoint()->GetPhysicalVolume() << " " << aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName();
+	for (unsigned int kk=0; kk<tv.size(); kk++) {
+	  if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
+	    tv[kk]->SetTrackStatus(fStopAndKill);
+	  //	  edm::LogInfo("HFShower") << "Track " << kk << " ID " << tv[kk]->GetTrackID() << " " << tv[kk]->GetParentID() << " Position " << tv[kk]->GetPosition() << " Volume " << tv[kk]->GetVolume() << " " << tv[kk]->GetVolume()->GetName();
+	}
+      }
 #ifdef DebugLog
       LogDebug("HFShower") << "HFShowerParam: getHits kill (" << kill
 			   << ") track " << track->GetTrackID() 
+			   << " at " << hitPoint
 			   << " and deposit " << edep << " " << hits.size()
 			   << " times" << " ZZ " << zz << " " << gpar[0];
 #endif

@@ -23,8 +23,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), 
-  theTrack(0), preStepPoint(0), m_trackManager(manager), currentHit(0),
-  hcID(-1), theHC(0){
+  theTrack(0), preStepPoint(0), eminHit(0), m_trackManager(manager), 
+  currentHit(0), hcID(-1), theHC(0){
 
   //Add Hcal Sentitive Detector Names
 
@@ -37,7 +37,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
   energyCut    = m_CaloSD.getParameter<double>("EminTrack")*GeV;
   tmaxHit      = m_CaloSD.getParameter<double>("TmaxHit")*ns;
-  eminHit      = m_CaloSD.getParameter<double>("EminHit")*MeV;
+  std::vector<double> eminHits = m_CaloSD.getParameter<std::vector<double> >("EminHits");
+  std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string> >("HCNames");
+  //  eminHit      = m_CaloSD.getParameter<double>("EminHit")*MeV;
   suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
   kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
@@ -51,6 +53,12 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   correctT     = beamZ/c_light/nanosecond;
 
   SetVerboseLevel(verbn);
+  for (unsigned int k=0; k<hcn.size(); k++) {
+    if (name == (G4String)(hcn[k])) {
+      if (k < eminHits.size()) eminHit = eminHits[k]*MeV;
+      break;
+    }
+  }
 #ifdef DebugLog
   LogDebug("CaloSim") << "***************************************************" 
 		      << "\n"
@@ -96,7 +104,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 			  << "        Correct TOF globally by " << correctT
 			  << " ns (Flag =" << corrTOFBeam << ")\n"
 			  << "        Save hits recorded before " << tmaxHit
-			  << " ns";
+			  << " ns and if energy is above " << eminHit/MeV
+			  << " MeV";
 }
 
 CaloSD::~CaloSD() { 
