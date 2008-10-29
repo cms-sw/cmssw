@@ -22,35 +22,4 @@ def customise(process):
 
     process.schedule.append(process.out_step)
 
-# drop the plain root file outputs of all analyzers
-# Note: all the validation "analyzers" are EDFilters!
-    for filter in (getattr(process,f) for f in process.filters_()):
-        if hasattr(filter,"outputFile"):
-            filter.outputFile=""
-        #Catch the problem with valid_HB.root that uses OutputFile instead of outputFile
-        #if hasattr(filter,"OutputFile"):
-        #    filter.OutputFile=""
-        #In MultiTrackValidator there is an out root output file to be silenced too:
-        #if hasattr(filter,"out"):
-        #    filter.out=""
-        #In SiPixelTrackingRecHitsValid there is a debugNtuple to be silenced too:
-        #if hasattr(filter,"debugNtuple"):
-        #    filter.debugNtuple=""
-# In Tracker, CSC and DT validation, EDAnalyzers are used instead of EDFilters:
-    for analyzer in (getattr(process,f) for f in process.analyzers_()):
-        if hasattr(analyzer,"outputFile"):
-            analyzer.outputFile=""
-        #In MuonSimHitsValidAnalyzer there is a DT_outputFile to be silenced too:
-        if hasattr(analyzer,"DT_outputFile"):
-            analyzer.DT_outputFile=""
-
-    #process.MessageLogger.categories=cms.untracked.vstring('DQMStore'
-    #                                                       )
-    #Configuring the standard output
-    #process.MessageLogger.cout =  cms.untracked.PSet(
-    #    noTimeStamps = cms.untracked.bool(True)
-    #    ,threshold = cms.untracked.string('INFO')
-    #    ,INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
-    #    ,DQMStore = cms.untracked.PSet(limit = cms.untracked.int32(0))
-    #    )
     return(process)

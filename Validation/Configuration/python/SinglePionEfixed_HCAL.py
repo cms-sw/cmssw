@@ -47,14 +47,5 @@ def customise(process):
 
     process.schedule.append(process.endjob_step)
     process.schedule.append(process.out_step)
- 
-# drop the plain root file outputs of all analyzers
-# Note: all the validation "analyzers" are EDFilters!
-    for filter in (getattr(process,f) for f in process.filters_()):
-        if hasattr(filter,"outputFile"):
-            filter.outputFile=""
-        #Catch the problem with valid_HB.root that uses OutputFile instead of outputFile
-        if hasattr(filter,"OutputFile"):
-            filter.OutputFile=""
-       
+        
     return(process)
