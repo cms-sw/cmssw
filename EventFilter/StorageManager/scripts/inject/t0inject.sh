@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.11 2008/09/18 00:36:28 loizides Exp $
+#$Id: t0inject.sh,v 1.12 2008/10/09 02:27:01 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -26,6 +26,10 @@ fi
 
 # db config file
 export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
+if [ ! -r $SMT0_CONFIG ]; then
+    echo "SMT0_CONFIG ($SMT0_CONFIG) can not be read"
+    exit
+fi
 
 #local run dir
 export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
