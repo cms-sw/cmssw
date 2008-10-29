@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.3 2007/05/21 11:38:13 jbrooke Exp $
+// $Id: L1GctEmulator.h,v 1.4 2008/10/23 20:03:51 heath Exp $
 //
 //
 
@@ -23,8 +23,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
@@ -47,7 +45,7 @@ class L1GctEmulator : public edm::EDProducer {
   void produce(edm::Event& e, const edm::EventSetup& c);
   void endJob() ;
 
-  void configureGct(const edm::EventSetup& c) ;
+  int configureGct(const edm::EventSetup& c) ;
 
   // input label
   std::string m_inputLabel;

@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Trigger configuration includes
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
@@ -109,120 +109,145 @@ void L1GctEmulator::endJob()
 {
 }
 
-void L1GctEmulator::configureGct(const edm::EventSetup& c)
+int L1GctEmulator::configureGct(const edm::EventSetup& c)
 {
-  assert(&c!=0);
-
-  // get data from EventSetup
-  edm::ESHandle< L1GctJetFinderParams > jfPars ;
-  c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
-  edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
-  c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
-  edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
-  c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
-  edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
-  c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
-  edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
-  c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
-  edm::ESHandle< L1GctChannelMask > chanMask ;
-  c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
-  edm::ESHandle< L1CaloEtScale > etScale ;
-  c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
-
-  if (jfPars.product() == 0) {
-    throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl
-      << "Cannot continue without these parameters" << std::endl;
+  int success = 0;
+  if (&c==0) {
+    success = -1;
+    if (m_verbose) {
+      edm::LogWarning("L1GctConfigFailure") << "Cannot find EventSetup information." << std::endl;
+    }
   }
 
-  if (calibFun.product() == 0) {
-    throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl
-      << "Cannot continue without this function" << std::endl;
+  if (success == 0) {
+    // get data from EventSetup
+    edm::ESHandle< L1GctJetFinderParams > jfPars ;
+    c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
+    edm::ESHandle< L1GctJetCounterSetup > jcPosPars ;
+    c.get< L1GctJetCounterPositiveEtaRcd >().get( jcPosPars ) ; // which record?
+    edm::ESHandle< L1GctJetCounterSetup > jcNegPars ;
+    c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
+    edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
+    c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+    edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
+    c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
+    edm::ESHandle< L1GctChannelMask > chanMask ;
+    c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
+    edm::ESHandle< L1CaloEtScale > etScale ;
+    c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+
+    if (jfPars.product() == 0) {
+      success = -1;
+      if (m_verbose) {
+	edm::LogWarning("L1GctConfigFailure")
+	  << "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl;
+      }
+    }
+
+    if (calibFun.product() == 0) {
+      success = -1;
+      if (m_verbose) {
+	edm::LogWarning("L1GctConfigFailure")
+	  << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl;
+      }
+    }
+
+    if (hfLSetup.product() == 0) {
+      success = -1;
+      if (m_verbose) {
+	edm::LogWarning("L1GctConfigFailure")
+	  << "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl;
+      }
+    }
+
+    if (chanMask.product() == 0) {
+      success = -1;
+      if (m_verbose) {
+	edm::LogWarning("L1GctConfigFailure")
+	  << "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl;
+      }
+    }
+
+    if (success==0) {
+      // tell the jet Et Luts about the scales
+      for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
+	m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
+	m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+      }
+
+
+      // pass all the setup info to the gct
+      m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
+      m_gct->setJetFinderParams(jfPars.product());
+      m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
+      m_gct->setupHfSumLuts(hfLSetup.product());
+      m_gct->setChannelMask(chanMask.product());
+    }
   }
 
-  if (hfLSetup.product() == 0) {
-    throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl
-      << "Cannot continue without these LUTs" << std::endl;
+  if (success != 0 && m_verbose) {
+    edm::LogError("L1GctConfigError")
+      << "Configuration failed - GCT emulator will not be run" << std::endl;
   }
-
-  if (chanMask.product() == 0) {
-    throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl
-      << "Cannot continue without the channel mask" << std::endl;
-  }
-
-  // tell the jet Et Luts about the scales
-  for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
-    m_jetEtCalibLuts.at(ieta)->setFunction(calibFun.product());
-    m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
-  }
-
-
-  // pass all the setup info to the gct
-  m_gct->setJetEtCalibrationLuts(m_jetEtCalibLuts);
-  m_gct->setJetFinderParams(jfPars.product());
-  m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
-  m_gct->setupHfSumLuts(hfLSetup.product());
-  m_gct->setChannelMask(chanMask.product());
-  
+  return success;
 }
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
-  // get config data from EventSetup
-  configureGct(c);
+  // get config data from EventSetup.
+  // check this has been done successfully before proceeding
+  if (configureGct(c) == 0) { 
 
-  // get the RCT data
-  edm::Handle<L1CaloEmCollection> em;
-  edm::Handle<L1CaloRegionCollection> rgn;
-  e.getByLabel(m_inputLabel, em);
-  e.getByLabel(m_inputLabel, rgn);
+    // get the RCT data
+    edm::Handle<L1CaloEmCollection> em;
+    edm::Handle<L1CaloRegionCollection> rgn;
+    e.getByLabel(m_inputLabel, em);
+    e.getByLabel(m_inputLabel, rgn);
 
-  // reset the GCT internal buffers
-  m_gct->reset();
+    // reset the GCT internal buffers
+    m_gct->reset();
 
-  // fill the GCT source cards
-  m_gct->fillEmCands(*em);
-  m_gct->fillRegions(*rgn);
+    // fill the GCT source cards
+    m_gct->fillEmCands(*em);
+    m_gct->fillRegions(*rgn);
   
-  // process the event
-  m_gct->process();
+    // process the event
+    m_gct->process();
 
-  // create the em and jet collections
-  std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection(m_gct->getIsoElectrons() ) );
-  std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection(m_gct->getNonIsoElectrons() ) );
-  std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection(m_gct->getCentralJets() ) );
-  std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection(m_gct->getForwardJets() ) );
-  std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection(m_gct->getTauJets() ) );
+    // create the em and jet collections
+    std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection(m_gct->getIsoElectrons() ) );
+    std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection(m_gct->getNonIsoElectrons() ) );
+    std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection(m_gct->getCentralJets() ) );
+    std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection(m_gct->getForwardJets() ) );
+    std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection(m_gct->getTauJets() ) );
 
-  // create the energy sum digis
-  std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
-  std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
-  std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
-  std::auto_ptr<L1GctEtMissCollection>  htMissResult(new L1GctEtMissCollection (m_gct->getHtMissCollection() ) );
+    // create the energy sum digis
+    std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
+    std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
+    std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
+    std::auto_ptr<L1GctEtMissCollection>  htMissResult(new L1GctEtMissCollection (m_gct->getHtMissCollection() ) );
 
-  // create the jet counts digis
-  std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
+    // create the jet counts digis
+    std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
 
-  // create the Hf sums digis
-  std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
-  std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection(m_gct->getHFRingEtSumsCollection() ) );
+    // create the Hf sums digis
+    std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
+    std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection(m_gct->getHFRingEtSumsCollection() ) );
 
-  // put the collections into the event
-  e.put(isoEmResult,"isoEm");
-  e.put(nonIsoEmResult,"nonIsoEm");
-  e.put(cenJetResult,"cenJets");
-  e.put(forJetResult,"forJets");
-  e.put(tauJetResult,"tauJets");
-  e.put(etTotResult);
-  e.put(etHadResult);
-  e.put(etMissResult);
-  e.put(htMissResult,"missingHt");
-  e.put(jetCountResult);
-  e.put(hfBitCountResult);
-  e.put(hfRingEtSumResult);
+    // put the collections into the event
+    e.put(isoEmResult,"isoEm");
+    e.put(nonIsoEmResult,"nonIsoEm");
+    e.put(cenJetResult,"cenJets");
+    e.put(forJetResult,"forJets");
+    e.put(tauJetResult,"tauJets");
+    e.put(etTotResult);
+    e.put(etHadResult);
+    e.put(etMissResult);
+    e.put(htMissResult,"missingHt");
+    e.put(jetCountResult);
+    e.put(hfBitCountResult);
+    e.put(hfRingEtSumResult);
+  }
 }
 
 DEFINE_FWK_MODULE(L1GctEmulator);

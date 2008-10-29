@@ -52,9 +52,9 @@ class L1GctPrintLuts : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  // ----------member data ---------------------------
+  int configureGct(const edm::EventSetup& c) ;
 
-  void configureGct(const edm::EventSetup& c) ;
+  // ----------member data ---------------------------
 
   // output file names
   std::string m_jetRanksOutFileName;
