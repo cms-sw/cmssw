@@ -4,7 +4,7 @@
 # Date:  28 - October - 2008
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Ana")
+process = cms.Process("Filter")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 #############   Set the number of events #############
 process.maxEvents = cms.untracked.PSet(
@@ -22,7 +22,14 @@ process.filter = cms.EDFilter("ptHatFilter",
 )
 ################### Output definition #########################3
 process.output = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *'),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_sisCone5GenJets_*_*',
+        'keep *_sisCone7GenJets_*_*',
+        'keep *_iterativeCone5GenJets_*_*',
+        'keep *_genEventScale_*_*',
+        'keep *_genParticles_*_*',
+	'keep edmGenInfoProduct_*_*_*',),
     fileName = cms.untracked.string('/uscms_data/d1/rharris/CMSSW_2_1_8/src/Configuration/GenProduction/test/PYTHIA6_QCDpt_0_15_10TeV_GEN_100Kevts_ptHatFiltered.root'),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p1')
