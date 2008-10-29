@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.25 2008/09/29 18:00:23 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.26 2008/10/28 14:18:40 chrjones Exp $
 //
 
 #define private public
@@ -298,14 +298,11 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
                                                    boost::bind(&TEveProjectionManager::SetCurrentDepth,
                                                                _1,oldLayer));
    m_projMgr->ImportElements(iChildren);
-   TEveElement::List_i it = m_projMgr->BeginChildren();
-   std::advance(it, m_projMgr->NumChildren() -1 );
+   TEveElement* lastChild = m_projMgr->LastChild();
+   updateCalo( lastChild, true );
+   updateCaloLines( lastChild );
    
-   //updateCaloThresholds( *it );
-   updateCalo( *it, true );
-   updateCaloLines( *it );
-      
-   return *it;
+   return lastChild;
 }
 
 void 
