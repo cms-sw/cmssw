@@ -97,7 +97,6 @@ cat > ${MACRO}<<EOF
 
 
   //produce pedestal noise plots
-  Draw2DProfile("PedestalNoise/hStripPedAll",f1,"Pedestal Noise Mean","E", "PedestalNoise_All.png");
   make1DPlot("PedestalNoise/hStripPedME+11",f1,"Pedestal Noise Distribution ME+1/1", 1110,"PedestalNoise_hStripPedME+11.png");
   make1DPlot("PedestalNoise/hStripPedME+12",f1,"Pedestal Noise Distribution ME+1/2", 1110,"PedestalNoise_hStripPedME+12.png");
   make1DPlot("PedestalNoise/hStripPedME+13",f1,"Pedestal Noise Distribution ME+1/3", 1110,"PedestalNoise_hStripPedME+13.png");

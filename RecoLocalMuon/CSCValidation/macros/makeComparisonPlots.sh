@@ -52,8 +52,8 @@ cat > ${MACRO}<<EOF
   compare1DPlot("Segments/hSnSegments",f1,f2,"Segments per Event", 1110, "Segments_hSnSegments.png");
 
   //efficiency plots
-  compareEffPng("Efficiency/hRHEff", f1,f2, "RecHit Efficiecy", "Efficiency_hRHEff.png");
-  compareEffPng("Efficiency/hSEff", f1,f2, "Segment Efficiecy", "Efficiency_hSEff.png");
+  compareEffGif("Efficiency/hRHEff", f1,f2, "RecHit Efficiecy", "Efficiency_hRHEff.png");
+  compareEffGif("Efficiency/hSEff", f1,f2, "Segment Efficiecy", "Efficiency_hSEff.png");
 
   
   //produce wire timing plots
