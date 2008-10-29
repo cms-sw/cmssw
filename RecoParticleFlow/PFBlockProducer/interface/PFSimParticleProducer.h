@@ -60,6 +60,7 @@ class PFSimParticleProducer : public edm::EDProducer {
   edm::InputTag    inputTagRecTracks_;
   edm::InputTag    inputTagEcalRecHitsEB_;
   edm::InputTag    inputTagEcalRecHitsEE_;
+  edm::InputTag    inputTagFamosSimHits_;
 
   // parameters for retrieving true particles information --
 
@@ -73,6 +74,9 @@ class PFSimParticleProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
+
+  /// unfolded mode ?
+  bool unfoldedMode_;
 
 };  
 

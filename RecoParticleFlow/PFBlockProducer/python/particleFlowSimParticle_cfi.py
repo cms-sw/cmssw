@@ -32,5 +32,10 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     RecTracks = cms.InputTag("elecpreid"),                                 
     #retrieving EcalRechits
     ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
-    ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE')
+    ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE'),
+
+    # Unfolded mode (only with fast sim, and upon request)
+    unfoldedMode = cms.untracked.bool(False),
+    famosSimHits = cms.untracked.InputTag('famosSimHits','EcalHitsEB')
+                                         
  )
