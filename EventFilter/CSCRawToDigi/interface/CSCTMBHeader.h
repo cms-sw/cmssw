@@ -10,6 +10,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <boost/shared_ptr.hpp>
 class CSCDMBHeader;
 class CSCTMBHeader2006;
