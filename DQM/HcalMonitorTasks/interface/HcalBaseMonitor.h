@@ -35,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/20 12:24:03 $
-  * $Revision: 1.15 $
+  * $Date: 2008/10/23 10:02:43 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -80,6 +80,7 @@ protected:
   
   int fVerbosity;
   bool showTiming; // controls whether to show timing diagnostic info
+  bool dump2database; // controls whether output written to file for database (will eventually write db directly)
   int checkNevents_; // controls when histograms should be updated
 
   double etaMax_, etaMin_;

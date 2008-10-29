@@ -23,7 +23,7 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   
   // verbosity switch
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
-  if(debug_) cout << clientName_ <<" debugging switch is on"<<endl;
+  if(debug_>0) cout << clientName_ <<" debugging switch is on"<<endl;
   
   // timing switch
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false); 
@@ -45,33 +45,16 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
       else if(subdets[i]=="HO") subDetsOn_[3] = true;
     }
   
-  // Define standard error palette
+  // Define error palette, ranging from yellow for low to red for high. 
   for( int i=0; i<20; ++i )
     {
-      if ( i < 17 )
-        {
-          rgb_error_[i][0] = 0.80+0.01*i;
-          rgb_error_[i][1] = 0.00+0.03*i;
-          rgb_error_[i][2] = 0.00;
-        }
-      else if ( i < 19 )
-        {
-          rgb_error_[i][0] = 0.80+0.01*i;
-          rgb_error_[i][1] = 0.00+0.03*i+0.15+0.10*(i-17);
-          rgb_error_[i][2] = 0.00;
-        } 
-      else if ( i == 19 )
-	{
-	  rgb_error_[i][0] = 0.00;
-	  rgb_error_[i][1] = 0.80;
-          rgb_error_[i][2] = 0.00;
-        }
-      pcol_error_[19-i] = 901+i;
+      //pcol_error_[19-i] = 901+i;
       TColor* color = gROOT->GetColor( 901+i );
       if( ! color ) color = new TColor( 901+i, 0, 0, 0, "" );
-      color->SetRGB( rgb_error_[i][0], 
-		     rgb_error_[i][1], 
-		     rgb_error_[i][2] );
+      color->SetRGB( 1.,
+		     1.-.05*i,
+		     0);
+      pcol_error_[i]=901+i;
     } // for (int i=0;i<20;++i)
 
   return; 
@@ -105,7 +88,7 @@ void HcalBaseClient::errorOutput(){
     }
   }
 
-  cout << clientName_ << " Error Report: "<< dqmQtests_.size() << " tests, "<<dqmReportMapErr_.size() << " errors, " <<dqmReportMapWarn_.size() << " warnings, "<< dqmReportMapOther_.size() << " others" << endl;
+  if (debug_>0) cout << clientName_ << " Error Report: "<< dqmQtests_.size() << " tests, "<<dqmReportMapErr_.size() << " errors, " <<dqmReportMapWarn_.size() << " warnings, "<< dqmReportMapOther_.size() << " others" << endl;
 
   return;
 }

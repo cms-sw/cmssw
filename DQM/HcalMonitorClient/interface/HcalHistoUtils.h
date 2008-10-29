@@ -172,10 +172,12 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     {
       return ""; // no histogram provided
     }
-
+  
+  // Grab the histogram's title, and convert it to something more palatable for use as a file name
+  
   // Run cleanString algorithm  -- direct call of cleanString causes a crash 
   std::string name = (std::string)hist->GetTitle();
-  //cout <<"TITLE = "<<name<<endl;
+  //cout <<"NAME = ["<<name<<"]"<<endl;
   for ( unsigned int i = 0; i < name.size(); ++i ) {
     if ( name.substr(i, 6) == " - Run" ){
       name.replace(i, name.size()-i, "");
@@ -186,6 +188,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
     if ( name.substr(i, 5) == "__Run" ){
       name.replace(i, name.size()-i, "");
     }
+
     if (name.substr(i,1) == "(" || name.substr(i,1)==")")
       name.replace(i,1,"_");
     if (name.substr(i,1)==",")
@@ -196,14 +199,17 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
       name.replace(i,1,"_gt_");
     if (name.substr(i,1)=="+")
       name.replace(i,1,"_plus_");
-  } // for (unsigned int i=0; i< name.size();
+    if (name.substr(i,1)=="#")
+      name.replace(i,1,"");
 
+  } // for (unsigned int i=0; i< name.size();
+  //cout <<"NEWNAME = ["<<name<<"]"<<endl;
 
   char dest[512]; // stores name of destination .gif file
   if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
   else sprintf(dest,"%s",name.c_str());
 
-  hist->SetTitle(dest);
+  //hist->SetTitle(dest); // no need to change the histogram title itself, right?
   std::string title = dest;
 
   int xwid = 900; 

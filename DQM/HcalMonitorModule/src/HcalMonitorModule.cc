@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/26 18:22:50 $
- * $Revision: 1.86 $
+ * $Date: 2008/10/28 20:04:02 $
+ * $Revision: 1.87 $
  * \author W Fisher
  *
 */
@@ -292,11 +292,13 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   c.get<HcalDbRecord>().get(conditions_);
 
   // fill reference pedestals with database values
+  // Need to repeat this so many times?  Just do it once? And then we can be smarter about the whole fC/ADC thing?
   if (pedMon_!=NULL)
     pedMon_->fillDBValues(*conditions_);
   if (deadMon_!=NULL)
     deadMon_->createMaps(*conditions_);
-
+  if (hotMon_!=NULL)
+    hotMon_->createMaps(*conditions_);
   return;
 } // HcalMonitorModule::beginJob(...)
 
@@ -691,7 +693,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
 			    *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
-      hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
+      //hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
     }
   if (showTiming_)
     {

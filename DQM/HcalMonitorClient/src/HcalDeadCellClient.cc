@@ -233,7 +233,7 @@ void HcalDeadCellClient::getHistograms()
 
   getSJ6histos("DeadCellMonitor/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
 
-  if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor/dead_unoccupied/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
+  if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor/dead_unoccupied_digi/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
   if (deadclient_test_pedestal_)  getSJ6histos("DeadCellMonitor/dead_pedestaltest/", "Dead Cells Failing Pedestal Test", BelowPedestalDeadCellsByDepth);
   if (deadclient_test_neighbor_)  getSJ6histos("DeadCellMonitor/dead_neighbortest/", "Dead Cells Failing Neighbor Test", BelowNeighborsDeadCellsByDepth);
   if (deadclient_test_energy_)    getSJ6histos("DeadCellMonitor/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
@@ -312,7 +312,7 @@ void HcalDeadCellClient::resetAllME()
       name.str("");
       if (deadclient_test_occupancy_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_unoccupied/"<<subdets_[i]<<"Dead Cells with No Digis";
+	  name<<process_.c_str()<<"DeadCellMonitor/dead_unoccupied_digi/"<<subdets_[i]<<"Dead Cells with No Digis";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
@@ -510,13 +510,13 @@ ofstream htmlFile;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
   htmlFile <<"<a name=\"EXPERT_DEADCELL_TOP\" href = \".\"> Back to Main HCAL DQM Page </a><br>"<<endl;
-  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Pedestal Status Page </a><br>"<<endl;
+  htmlFile <<"<a href= \""<<htmlName.c_str()<<"\" > Back to Dead Cell Status Page </a><br>"<<endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Pedestals</span></h2> " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Dead Cells</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
@@ -715,7 +715,7 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
       name.str("");
       if (deadclient_test_occupancy_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_unoccupied/"<<subdets_[i]<<"Dead Cells with No Digis";
+	  name<<process_.c_str()<<"DeadCellMonitor/dead_unoccupied_digi/"<<subdets_[i]<<"Dead Cells with No Digis";
 	  UnoccupiedDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}

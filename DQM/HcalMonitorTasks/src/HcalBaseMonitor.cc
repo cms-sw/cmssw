@@ -27,10 +27,10 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   // Global cfgs
   
-  fVerbosity = ps.getUntrackedParameter<int>("debug",0); // shouldn't fVerbosity be an int32?
-  makeDiagnostics=ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
-  showTiming = ps.getUntrackedParameter<bool>("showTiming",false);
-  
+  fVerbosity      = ps.getUntrackedParameter<int>("debug",0); 
+  makeDiagnostics = ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
+  showTiming      = ps.getUntrackedParameter<bool>("showTiming",false);
+  dump2database   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file 
   checkHB_ = ps.getUntrackedParameter<bool>("checkHB",true);
   checkHE_ = ps.getUntrackedParameter<bool>("checkHE",true);
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
