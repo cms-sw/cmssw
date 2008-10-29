@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/07/14 15:36:49 $
-//  $Revision: 1.6 $
+//  $Date: 2008/10/09 15:39:58 $
+//  $Revision: 1.7 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -349,7 +349,7 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
   // Create the root file
   // --------------------
   // theFiles[iLoop]->cd();
-  fillHistoMap(theFiles[iLoop]);
+  fillHistoMap(theFiles[iLoop], iLoop);
 
   loopCounter = iLoop;
   MuScleFitUtils::loopCounter = loopCounter;
@@ -540,6 +540,13 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     }
     // If likelihood has been run already, we can correct and "unbias" muons with the latest fit results 
     // -------------------------------------------------------------------------------------------------
+
+
+    // ------------
+    // ATTENTION
+    // The "<3" is a consequence of the kludge
+    // ------------
+
     if (loopCounter>0 && loopCounter<3) {
       recMu1 = (MuScleFitUtils::applyScale (recMu1, MuScleFitUtils::parvalue[loopCounter-1], -1));
       recMu2 = (MuScleFitUtils::applyScale (recMu2, MuScleFitUtils::parvalue[loopCounter-1],  1));
@@ -547,7 +554,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     if (debug>0) {
       cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
-    } 
+    }
 
     reco::Particle::LorentzVector bestRecRes (recMu1+recMu2);
 
@@ -581,51 +588,51 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     }
 
     Handle<SimTrackContainer> simTracks;
-      try {
-	event.getByLabel ("g4SimHits",simTracks);
-	plotter->fillSim(simTracks);
-      }
-      catch (...) { 
-	cout << "SimTracks not existent" << endl;
-      } 
+    try {
+      event.getByLabel ("g4SimHits",simTracks);
+      plotter->fillSim(simTracks);
+    }
+    catch (...) { 
+      cout << "SimTracks not existent" << endl;
+    } 
 
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = 
       MuScleFitUtils::findGenMuFromRes(evtMC);
-   //first is always mu-, second is always mu+
-   if(checkDeltaR(genMu.first,recMu1)){
-       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
-       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.first,(-genMu.first.Theta()+recMu1.Theta()),-1);
-       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.first,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
-							     +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
-       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,(-genMu.first.Eta()+recMu1.Eta()),-1);
-       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,(-genMu.first.Phi()+recMu1.Phi()),-1);
+    //first is always mu-, second is always mu+
+    if(checkDeltaR(genMu.first,recMu1)){
+      mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
+      mapHisto["hResolThetaGenVSMu"]->Fill(genMu.first,(-genMu.first.Theta()+recMu1.Theta()),-1);
+      mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.first,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
+                                                            +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
+      mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,(-genMu.first.Eta()+recMu1.Eta()),-1);
+      mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,(-genMu.first.Phi()+recMu1.Phi()),-1);
     }
-   if(checkDeltaR(genMu.second,recMu2)){
-       mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
-       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.second,(-genMu.second.Theta()+recMu2.Theta()),+1);
-       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.second,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
+    if(checkDeltaR(genMu.second,recMu2)){
+      mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
+      mapHisto["hResolThetaGenVSMu"]->Fill(genMu.second,(-genMu.second.Theta()+recMu2.Theta()),+1);
+      mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.second,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
-       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,(-genMu.second.Eta()+recMu2.Eta()),+1);
-       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,(-genMu.second.Phi()+recMu2.Phi()),+1);
+      mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,(-genMu.second.Eta()+recMu2.Eta()),+1);
+      mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,(-genMu.second.Phi()+recMu2.Phi()),+1);
     }
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
       MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
-   //first is always mu-, second is always mu+
-   if(checkDeltaR(simMu.first,recMu1)){
-       mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
-       mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
-       mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
-							     +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
-       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
-       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
+    //first is always mu-, second is always mu+
+    if(checkDeltaR(simMu.first,recMu1)){
+      mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
+      mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
+      mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
+                                                            +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
+      mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
+      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
     }
-   if(checkDeltaR(simMu.second,recMu2)){
-       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
-       mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
-       mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
+    if(checkDeltaR(simMu.second,recMu2)){
+      mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.second.Pt(),+1);
+      mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
+      mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
 							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
-       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
-       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
+      mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
+      mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
     }
 
     // Compute likelihood histograms
@@ -649,9 +656,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), massResol, initpar);
       } else {
 	massResol = MuScleFitUtils::massResolution (recMu1, recMu2, 
-							  MuScleFitUtils::parvalue[loopCounter-1]);
+                                                    MuScleFitUtils::parvalue[loopCounter-1]);
 	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), 
-						    massResol, MuScleFitUtils::parvalue[loopCounter-1]);
+                                              massResol, MuScleFitUtils::parvalue[loopCounter-1]);
       }
       if (prob>0) { 
 	deltalike = log(prob)*weight; // NB maximum likelihood --> deltalike is maximized
@@ -666,7 +673,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	Mass_fine_P->Fill(bestRecRes.mass(), prob);
       }
     }
-    
+
     // Compute f, g for each variable
     // ------------------------------
     if (!MuScleFitUtils::speedup) {
@@ -676,7 +683,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	}
       }
     }
-    
   } // end if ResFound  
 
   // Fill the pair
@@ -685,14 +691,14 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     if (debug>0) cout << "[MuScleFit]: filling the pair" << endl;
     MuScleFitUtils::SavedPair[iev] = make_pair (recMu1, recMu2);
   }
-  
+
   iev++;
   return kContinue;
 }
 
 // Histogram filling
 // -----------------
-void MuScleFit::fillHistoMap(TFile* outputFile) {
+void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //Reconstructed muon kinematics
   //-----------------------------
   outputFile->cd();
@@ -733,7 +739,7 @@ void MuScleFit::fillHistoMap(TFile* outputFile) {
 bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu){
   //first is always mu-, second is always mu+
   double deltaR = sqrt(MuScleFitUtils::deltaPhi(recMu.Phi(),genMu.Phi()) * MuScleFitUtils::deltaPhi(recMu.Phi(),genMu.Phi()) +
-			 ((recMu.Eta()-genMu.Eta()) * (recMu.Eta()-genMu.Eta())));
+                       ((recMu.Eta()-genMu.Eta()) * (recMu.Eta()-genMu.Eta())));
   if(deltaR<0.01)
     return true;
   else

@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/10/15 13:50:41 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/15 14:32:26 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -198,7 +198,7 @@ class HDelta : public Histograms {
     hPhi    = new TH1F (name+"_Phi", "phi angle", 100,0,3.2);
     hTheta  = new TH1F (name+"_Theta", "theta angle", 100,-3.2,3.2);
     hCotgTheta  = new TH1F (name+"_CotgTheta", "cotangent theta angle", 100,-3.2,3.2);
-    hDeltaR = new TH1F (name+"_DeltaR","DeltaR", 400, 0, 10 );
+    hDeltaR = new TH1F (name+"_DeltaR","DeltaR", 400, 0, 1 );
    }
   
   HDelta (const TString & name, TFile* file) {
@@ -970,15 +970,15 @@ public:
     nameSuffix_[1] = "Minus";
     TString titleSuffix[] = {" for mu+", " for mu-"};
 
-    mapHisto_[name]                  = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
+    mapHisto_[name]                  = new TH1F (name, "#Delta M/M", 4000, -1, 1);
     mapHisto_[name+"VSPairPt"]       = new HResolution (name+"VSPairPt", "resolution VS pt of the pair", 100, 0, 200, -1, 1, histoDir_);
-    mapHisto_[name+"VSPairDeltaEta"] = new HResolution (name+"VSPairDeltaEta", "resolution VS DeltaEta of the pair", 100, -0.1, 6.2, -1, 1, histoDir_);
-    mapHisto_[name+"VSPairDeltaPhi"] = new HResolution (name+"VSPairDeltaPhi", "resolution VS DeltaPhi of the pair", 100, -0.1, 3.2, -1, 1, histoDir_);
+    mapHisto_[name+"VSPairDeltaEta"] = new HResolution (name+"VSPairDeltaEta", "resolution VS #Delta#eta of the pair", 100, -0.1, 6.2, -1, 1, histoDir_);
+    mapHisto_[name+"VSPairDeltaPhi"] = new HResolution (name+"VSPairDeltaPhi", "resolution VS #Delta#phi of the pair", 100, -0.1, 3.2, -1, 1, histoDir_);
 
     for( int i=0; i<2; ++i ) {
       mapHisto_[name+"VSPt"+nameSuffix_[i]]  = new HResolution (name+"VSPt"+nameSuffix_[i], "resolution VS pt"+titleSuffix[i], 100, 0, 200, -1, 1, histoDir_);
-      mapHisto_[name+"VSEta"+nameSuffix_[i]] = new HResolution (name+"VSEta"+nameSuffix_[i], "resolution VS eta"+titleSuffix[i], 100, -3, 3, -1, 1, histoDir_);
-      mapHisto_[name+"VSPhi"+nameSuffix_[i]] = new HResolution (name+"VSPhi"+nameSuffix_[i], "resolution VS phi"+titleSuffix[i], 100, -3.2, 3.2, -1, 1, histoDir_);
+      mapHisto_[name+"VSEta"+nameSuffix_[i]] = new HResolution (name+"VSEta"+nameSuffix_[i], "resolution VS #eta"+titleSuffix[i], 100, -3, 3, -1, 1, histoDir_);
+      mapHisto_[name+"VSPhi"+nameSuffix_[i]] = new HResolution (name+"VSPhi"+nameSuffix_[i], "resolution VS #phi"+titleSuffix[i], 100, -3.2, 3.2, -1, 1, histoDir_);
     }
 
     // single particles histograms
@@ -1049,7 +1049,7 @@ public:
   } 
 
   virtual void Write() {
-    // histoDir_->cd();
+    histoDir_->cd();
 
     for (map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {

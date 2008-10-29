@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/10/14 16:09:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/15 13:51:08 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -40,7 +40,7 @@
 #include <fstream>
 #include <memory> // to use the std::auto_ptr
 
-// Includes the definitions of all the bias functions
+// Includes the definitions of all the bias and scale functions
 // These functions are selected in the constructor according
 // to the input parameters.
 #include "Functions.h"
@@ -465,12 +465,16 @@ MuScleFitUtils::applyBias (const lorentzVector& muon, int chg) {
 
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
 
+  if (MuScleFitUtils::debug>1) cout << "pt before bias = " << ptEtaPhiE[0] << endl;
+
   // Use functors (although not with the () operator)
   // Note that we always pass pt, eta and phi, but internally only the needed
   // values are used.
   // The functors used are takend from the same group used for the scaling
   // thus the name of the method used is "scale".
   biasFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, MuScleFitUtils::parBias);
+
+  if (MuScleFitUtils::debug>1) cout << "pt after bias = " << ptEtaPhiE[0] << endl;
 
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
@@ -502,6 +506,8 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
   double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
   int shift = parResol.size();
 
+  if (MuScleFitUtils::debug>1) cout << "pt before scale = " << ptEtaPhiE[0] << endl;
+
   // the address of parval[shift] is passed as pointer to double. Internally it is used as a normal array, thus:
   // array[0] = parval[shift], array[1] = parval[shift+1], ...
   scaleFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, &(parval[shift]));
@@ -510,6 +516,9 @@ lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
     cout << "[MuScleFitUtils]: Wrong fit type: " << ScaleFitType << " aborting!";
     abort();
   }
+
+  if (MuScleFitUtils::debug>1) cout << "pt after scale = " << ptEtaPhiE[0] << endl;
+
   return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
 
@@ -838,8 +847,11 @@ double MuScleFitUtils::massProb (double mass, double massResol, double * parval)
   double nres = 0;  // number of resonances contributing here
   for (int ires=0; ires<6; ires++) {
     if (resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires][MuonType]) {
+
       resConsidered[ires] = true;
       nres += 1; 
+
+      if (MuScleFitUtils::debug>1) cout << "massProb:resFound = " << ires << endl;
 
       // Interpolate the four values of GLValue[] in the 
       // grid square within which the (mass,sigma) values lay 
@@ -1021,26 +1033,23 @@ void MuScleFitUtils::minimizeLikelihood () {
   // ------------------------------------------------------
   int parnumber = (int)(parResol.size()+parScale.size()+parBgr.size());
 
-  parvalue.push_back (parResol);
+  // parvalue is a vector<vector<double> > storing all the parameters from all the loops
+  parvalue.push_back(parResol);
   vector<double> *tmpVec = &(parvalue.back());
-  tmpVec->insert (tmpVec->end(), parScale.begin(), parScale.end());
-  tmpVec->insert (tmpVec->end(), parBgr.begin(), parBgr.end());
+  tmpVec->insert( tmpVec->end(), parScale.begin(), parScale.end() );
+  tmpVec->insert( tmpVec->end(), parBgr.begin(), parBgr.end() );
 
-  vector<int>    parfix;
-  vector<int>    parorder;
-  vector<double> parerr   (3*parnumber,0.);
-  for (int i=0; i<(int)(parResol.size()); i++) {
-    parfix.push_back (parResolFix[i]);
-    parorder.push_back (parResolOrder[i]);
-  }
-  for (int i=0; i<(int)(parScale.size()); i++) {
-    parfix.push_back (parScaleFix[i]);
-    parorder.push_back (parScaleOrder[i]);
-  }
-  for (int i=0; i<(int)(parBgr.size()); i++) {
-    parfix.push_back (parBgrFix[i]);
-    parorder.push_back (parBgrOrder[i]);
-  }
+  vector<int> parfix(parResolFix);
+  parfix.insert( parfix.end(), parScaleFix.begin(), parScaleFix.end() );
+  parfix.insert( parfix.end(), parBgrFix.begin(), parBgrFix.end() );
+
+  vector<int> parorder(parResolOrder);
+  parorder.insert( parorder.end(), parScaleOrder.begin(), parScaleOrder.end() );
+  parorder.insert( parorder.end(), parBgrOrder.begin(), parBgrOrder.end() );
+
+  // This is filled later
+  vector<double> parerr(3*parnumber,0.);
+
   if (debug>19) {
     cout << "[MuScleFitUtils-minimizeLikelihood]: Parameters before likelihood " << endl;
     for (unsigned int i=0; i<(unsigned int)parnumber; i++) {
@@ -1112,11 +1121,12 @@ void MuScleFitUtils::minimizeLikelihood () {
   double erro;
   double cglo;
   int n_times = 0;
+  // n_times = number of loops required to unlock all parameters.
   for (int i=0; i<parnumber; i++) {
     if (n_times<ind[i]) n_times = ind[i];  // NB ind[] has been set as parorder[] previously
   }
   for (int iorder=0; iorder<n_times+1; iorder++) { // Repeat fit n_times times
-    bool somethingtodo = false; 
+    bool somethingtodo = false;
 //    for (int jpar=parResol.size(); jpar<parnumber; jpar++) {      
 // 	if (parfix[jpar]==0 && ind[jpar]==iorder) { // parfix=0 means parameter is free
 // 	  rmin.Release(jpar);
@@ -1130,7 +1140,8 @@ void MuScleFitUtils::minimizeLikelihood () {
     // the second time to verify the correction); and finally everything is
     // fixed to its final values and the resolution is fit again.
     // ---------------------------------------------------------------------
-    if (loopCounter==0) {
+
+    if (loopCounter==-1) {
       // Release resolution parameters and fit them at iteration 0
       // ---------------------------------------------------------
       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
@@ -1145,7 +1156,9 @@ void MuScleFitUtils::minimizeLikelihood () {
       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
 	rmin.FixParameter (ipar);
       }
-      for (int ipar=parResol.size(); ipar<parnumber; ipar++) {      
+      // Keep the background fixed for now
+      // for (int ipar=parResol.size(); ipar<parnumber; ipar++) {      
+      for (unsigned int ipar=parResol.size(); ipar<parResol.size()+parScale.size(); ipar++) {      
 	if (parfix[ipar]==0 && ind[ipar]==iorder) { // parfix=0 means parameter is free
 	  rmin.Release (ipar);
 	  somethingtodo = true;
@@ -1284,7 +1297,9 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
 
       // Compute probability of this mass value including background modeling
       // --------------------------------------------------------------------
+      if (MuScleFitUtils::debug>1) cout << "calling massProb inside likelihood function" << endl;
       double prob = MuScleFitUtils::massProb (corrMass, massResol, xval);
+      if (MuScleFitUtils::debug>1) cout << "likelihood:massProb = " << prob << endl;
 
       // Compute likelihood
       // ------------------
@@ -1303,7 +1318,7 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
       }
       if (MuScleFitUtils::debug>19)
 	cout << "[MuScleFitUtils-likelihood]: Mass probability = " << prob << endl;
-    } // weight!=0 
+    } // weight!=0
 
   } // End of loop on tree events
 
@@ -1532,6 +1547,10 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
     Mini[shift+1] = -0.1;
     Maxi[shift]   = 1.03;
     Maxi[shift+1] = 0.1;
+//     Mini[shift]   = 0;
+//     Mini[shift+1] = 0;
+//     Maxi[shift]   = 0;
+//     Maxi[shift+1] = 0;
     ind[shift]   = parScaleOrder[0];
     ind[shift+1] = parScaleOrder[1];
     parname[shift]   = "Pt offset";

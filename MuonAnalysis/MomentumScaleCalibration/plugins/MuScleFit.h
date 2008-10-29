@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/07/08 10:46:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/09 15:40:09 $
+ *  $Revision: 1.4 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -95,7 +95,7 @@ class MuScleFit: public edm::EDLooper {
 
   // Fill, clean and write to file the Map of Histograms
   // ---------------------------------------------------
-  void fillHistoMap(TFile* outputFile);
+  void fillHistoMap(TFile* outputFile, unsigned int iLoop);
   void clearHistoMap();
   void writeHistoMap();
 
