@@ -12,18 +12,20 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("ElectroWeakAnalysis.ZReco.dimuons_SkimPaths_cff")
 process.load("ElectroWeakAnalysis.ZReco.dimuonsOutputModule_cfi")
-              
+
+process.dimuonsOutputModule.fileName = 'file:/tmp/fabozzi/dimuons.root'
+
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
 )
                                                   
 process.maxEvents = cms.untracked.PSet(
-  input =cms.untracked.int32(10)
+  input =cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-       'file:/scratch1/cms/data/summer08/zmumu/06029757-B588-DD11-BDD7-001CC4AA8E08.root'
+       'file:/tmp/fabozzi/06029757-B588-DD11-BDD7-001CC4AA8E08.root'
   )
 )
 
