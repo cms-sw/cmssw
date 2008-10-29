@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.12 2008/10/02 18:43:42 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.13 2008/10/21 22:47:15 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -63,6 +63,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
     dbe_->setCurrentFolder(dirname_);
   }
   
+  processname_ = iConfig.getParameter<std::string>("processname");
   
   // plotting paramters
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
@@ -70,6 +71,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
+
 
   if (!plotAll_)
  {
@@ -85,7 +87,11 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
     int objectType = pathconf->getParameter<unsigned int>("type");
     float ptMin = pathconf->getUntrackedParameter<double>("ptMin");
     float ptMax = pathconf->getUntrackedParameter<double>("ptMax");
+<<<<<<< FourVectorHLTOffline.cc
+    hltPaths_.push_back(PathInfo(pathname, filtername, processname_, objectType, ptMin, ptMax));
+=======
     hltPaths_.push_back(PathInfo(denompathname, pathname, filtername, objectType, ptMin, ptMax));
+>>>>>>> 1.13
   }
 
   if (hltPaths_.size() > 0)
@@ -148,6 +154,26 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
 
+<<<<<<< FourVectorHLTOffline.cc
+    // Print paths in hltPaths vector:
+    cout << "----------- Analyzing new event --------- " << endl;
+    size_type nTrigObjFilters = triggerObj->sizeFilters();
+    for (size_type j=0;j<nTrigObjFilters;j++) {
+      
+      cout << "Trigger Obj Filter [" << j << "] " << triggerObj->filterTag(j).label() << endl;
+
+    }
+
+
+
+    /*
+    cout << "These are the paths that are in hltPaths and should be monitored: " << endl;
+
+    for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) 
+    { 
+
+      cout << v->getPath() << endl;
+=======
   edm::Handle<reco::MuonCollection> muonHandle;
   iEvent.getByLabel("muons",muonHandle);
   if(!muonHandle.isValid()) { 
@@ -230,7 +256,22 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
+>>>>>>> 1.13
 
+<<<<<<< FourVectorHLTOffline.cc
+    }
+    cout << "------------------------------------------ " << endl;
+    */
+
+
+    for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) 
+   { 
+
+   // fill scaler histograms
+    edm::InputTag filterTag = v->getTag();
+    if (plotAll_)
+   {
+=======
   std::vector<edm::Handle<l1extra::L1EmParticleCollection> > l1PhotonHandleList;
   iEvent.getManyByType(l1PhotonHandleList);        
   std::vector<edm::Handle<l1extra::L1EmParticleCollection> >::iterator l1PhotonHandle;
@@ -471,44 +512,84 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       edm::InputTag filterTag = v->getTag();
       if (plotAll_)
 	{
+>>>>>>> 1.13
 	// loop through indices and see if the filter is on the list of filters used by this path
       
     if (v->getLabel() == "dummy"){
+
         const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+	/*
+        cout << " --------------------This path ("<< v->getPath() << ")'s modules -------------------------" << endl;
+        for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
+        {
+          cout << v->getPath() << "\t" << *labelIter << endl;
+        }
+        cout << " --------------------End this paths moduls-----------------------" << endl;
+	*/
+	
 	//loop over labels
         for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
 	 {
-	   //cout << v->getPath() << "\t" << *labelIter << endl;
+
+	  // cout << v->getPath() << "\t" << *labelIter << endl;
            // last match wins...
-	   edm::InputTag testTag(*labelIter,"","HLT");
-	   //           cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
+	   //edm::InputTag testTag(*labelIter,"","HLT");
+	   edm::InputTag testTag(*labelIter,"",processname_);
+	   //cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
+
+
            int testindex = triggerObj->filterIndex(testTag);
            if ( !(testindex >= triggerObj->sizeFilters()) ) {
-	     //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
-            filterTag = testTag; v->setLabel(*labelIter);}
-	 }
-         }
-	}
 
+	     //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
+             //filterTag = testTag; 
+	     //v->setLabel(*labelIter);
+	     v->setLabel(testTag.label());
+	     //v->setProcess(testTag.process());
+
+	   }
+	 }  //end for labelIter
+        } //end if path label is "dummy"
+     } // end if plotAll_
+
+      //cout << " --------------------This path ("<< v->getPath() << ")'s label -------------------------" << endl;
+      //cout << v->getPath() << "\t" << v->getLabel() << endl;
+
+      filterTag = v->getTag();
       const int index = triggerObj->filterIndex(filterTag);
       if ( index >= triggerObj->sizeFilters() ) {
-	//        cout << "WTF no index "<< index << " of that name "
-	//	     << filterTag << endl;
+	 //cout << "WTF no index "<< index << " of that name " << filterTag << endl;
 	continue; // not in this event
       }
+
       LogDebug("FourVectorHLTOffline") << "filling ... " ;
       const trigger::Keys & k = triggerObj->filterKeys(index);
       //      const trigger::Vids & idtype = triggerObj->filterIds(index);
       // assume for now the first object type is the same as all objects in the collection
+<<<<<<< FourVectorHLTOffline.cc
+          cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
+      int triggertype = 0;     
+      if (idtype.size() > 0) triggertype = *idtype.begin();
+           cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
+=======
       //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
       //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
+>>>>>>> 1.13
       if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+<<<<<<< FourVectorHLTOffline.cc
+	v->getEtOnHisto()->Fill(toc[*ki].pt());
+	v->getEtaOnHisto()->Fill(toc[*ki].eta());
+	v->getPhiOnHisto()->Fill(toc[*ki].phi());
+	v->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+		  //cout << "pdgId "<<toc[*ki].id() << endl;
+=======
 	v->getOnEtOnHisto()->Fill(toc[*ki].pt());
 	v->getOnEtaOnHisto()->Fill(toc[*ki].eta());
 	v->getOnPhiOnHisto()->Fill(toc[*ki].phi());
 	v->getOnEtaVsOnPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
 	//	  cout << "pdgId "<<toc[*ki].id() << endl;
+>>>>>>> 1.13
       // for muon triggers, loop over and fill offline 4-vectors
       if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu)
 	{
@@ -731,15 +812,18 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 {
   LogDebug("FourVectorHLTOffline") << "beginRun, run " << run.id();
 // HLT config does not change within runs!
-  std::string process_ = "HLT";
-  if (!hltConfig_.init("HLT")) {
+  // this is now passed in ParameterSet as processname
+  //std::string process_ = "HLT";
+
+  if (!hltConfig_.init(processname_)) {
   LogDebug("FourVectorHLTOffline") << "HLTConfigProvider failed to initialize.";
     // check if trigger name in (new) config
     //	cout << "Available TriggerNames are: " << endl;
 	//	hltConfig_.dump("Triggers");
       }
-
-
+	else {
+    LogDebug("FourVectorHLTOffline") << "HLTConfigProvider initialized with " << hltConfig_.size() << " paths." << endl;
+  }
 
   if (1)
  {
@@ -757,6 +841,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     
     std::string denompathname = hltConfig_.triggerName(j);  
     std::string pathname = hltConfig_.triggerName(i);  
+<<<<<<< FourVectorHLTOffline.cc
+    LogDebug("FourVectorHLTOffline") << "HLTConfigProvider path  " << i << "  " <<  pathname << endl ;
+=======
     int objectType = 0;
     int denomobjectType = 0;
     //parse pathname to guess object type
@@ -793,12 +880,19 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       denomobjectType = trigger::TriggerTau;    
 
 
+>>>>>>> 1.13
     std::string filtername("dummy");
     float ptMin = 0.0;
     float ptMax = 100.0;
+<<<<<<< FourVectorHLTOffline.cc
+    //if (pathname.find("HLT_") != std::string::npos && plotAll_)
+    if (plotAll_)
+    hltPaths_.push_back(PathInfo(pathname, filtername, processname_, objectType, ptMin, ptMax));
+=======
     if (pathname.find("HLT_") != std::string::npos && plotAll_ && denomobjectType == objectType && objectType != 0)
     hltPaths_.push_back(PathInfo(denompathname, pathname, filtername, objectType, ptMin, ptMax));
     }
+>>>>>>> 1.13
     }
     // now set up all of the histos for each path
     for(PathInfoCollection::iterator v = hltPaths_.begin();
@@ -969,6 +1063,20 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
     }
  }
+
+ cout << " -------------------- beginRun -------------------------" << endl;
+ for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) 
+ { 
+
+     const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+     cout << " --------------------This path ("<< v->getPath() << ")'s modules -------------------------" << endl;
+     for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
+     {
+       cout << v->getPath() << "\t" << *labelIter << endl;
+     }
+     cout << " --------------------End this paths moduls-----------------------" << endl;
+ }
+
  return;
 
 

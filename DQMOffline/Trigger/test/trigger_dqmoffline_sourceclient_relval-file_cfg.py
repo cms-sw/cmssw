@@ -41,6 +41,11 @@ process.hltmonitor = cms.Sequence(hltResults)
 hltResults.triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 hltResults.triggerResultsLabel = cms.InputTag("TriggerResults","","HLT")
 
+process.hltEventInfoClient = cms.EDFilter("HLTEventInfoClient",
+    monitorDir = cms.untracked.string(''),
+    prescaleLS = cms.untracked.int32(-1),
+    prescaleEvt = cms.untracked.int32(1)
+)
 from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
 process.hltclient = cms.Sequence(hltFourVectorClient)
 hltFourVectorClient.prescaleLS = cms.untracked.int32(-1)
@@ -48,8 +53,9 @@ hltFourVectorClient.monitorDir = cms.untracked.string('')
 hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 
 
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
@@ -78,7 +84,11 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
+<<<<<<< trigger_dqmoffline_sourceclient_relval-file_cfg.py
+process.psource = cms.Path(process.hltmonitor*process.hltclient*process.hltEventInfoClient)
+=======
 process.psource = cms.Path(process.hltmonitoron*process.hltmonitor*process.hltclient)
+>>>>>>> 1.5
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''

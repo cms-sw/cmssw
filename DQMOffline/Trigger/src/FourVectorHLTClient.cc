@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: $
+//$Id: FourVectorHLTClient.cc,v 1.2 2008/10/15 09:39:35 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -117,6 +117,7 @@ void FourVectorHLTClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, c
 
 void FourVectorHLTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){   
 
+
 } 
 
 
@@ -140,8 +141,7 @@ void FourVectorHLTClient::analyze(const Event& e, const EventSetup& context){
 
 //--------------------------------------------------------
 void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
-
- LogDebug("FourVectorHLTClient")<<"FourVectorHLTClient:: endRun "  << endl;
+ LogDebug("FourVectorHLTClient")<<"FourVectorHLTClient:: endLuminosityBlock "  << endl;
 
  // QTests
  ////////////////////////////
@@ -161,7 +161,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   hltMEs = dbe_->getContents(sourceDir_.Data());
   
- // For easir work, build vector<TString> to hold HLT ME names
+ // For easier work, build vector<TString> to hold HLT ME names
  for(unsigned int i=0;i<hltMEs.size();i++) {
 
    if(hltMEs[i]->getName().find("HLT") == 0) hltMEName.push_back(TString(hltMEs[i]->getName()));
@@ -204,7 +204,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
    TString pathPrefis = curHltPath->String() + TString("_");
     LogDebug("FourVectorHLTClient")<< " path " << curHltPath->String() << endl;
 
-   TString pathFolder = clientDir_ + TString("/paths/") + curHltPath->String();
+   TString pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/distributions");
 
    dbe_->setCurrentFolder(pathFolder.Data());
 
@@ -232,8 +232,8 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
      TString histName = sourceDir_+TString("/")+tempHistName;
      TString klmgrvName = tempHistName+TString("_klmgrTest");
 
-     klmgrvTest_ = dbe_->bookFloat(klmgrvName.Data());
-     if (klmgrvTest_) klmgrvTest_->Fill(-999);
+     //klmgrvTest_ = dbe_->bookFloat(klmgrvName.Data());
+     //if (klmgrvTest_) klmgrvTest_->Fill(-999);
 
      MonitorElement *histME = dbe_->get(histName.Data());
 
@@ -246,24 +246,50 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
       LogDebug("FourVectorHLTClient")<< " histME pathName:" << histME->getPathname() << ",   kind: " << histME->kind() << "  (TH1F=" << MonitorElement::DQM_KIND_TH1F << ")" << endl;
 
-     // for now do only histogram TH1F
-     if(histME->kind() != MonitorElement::DQM_KIND_TH1F) continue;
+     if(histME->kind() == MonitorElement::DQM_KIND_TH1F) {
 
-     TH1F *hist = new TH1F();
-     hist = histME->getTH1F();
+       TH1F *hist = new TH1F();
+       hist = histME->getTH1F();
+       dbe_->book1D(hist->GetName(),hist);
 
-     // must be non empty hist to do KolmogorovTest
-     if(hist->GetEntries() == 0) continue;
-     if(hist->Integral() == 0) continue;
+       // must be non empty hist to do KolmogorovTest
+       if(hist->GetEntries() == 0) continue;
+       if(hist->Integral() == 0) continue;
 
-     LogDebug("FourVectorHLTClient")<< "endRun:   histName " << hist->GetName() << endl;
-     LogDebug("FourVectorHLTClient")<< "endRun:   hist entries:" << hist->GetEntries() << endl;
+       LogDebug("FourVectorHLTClient")<< "endRun:   histName " << hist->GetName() << endl;
+       LogDebug("FourVectorHLTClient")<< "endRun:   hist entries:" << hist->GetEntries() << endl;
 
-     float kl_prob = kl_test_->runTest(histME);
+       float kl_prob = kl_test_->runTest(histME);
 
-     LogDebug("FourVectorHLTClient")<< "endRun:   KLMGRV test = " << kl_prob << endl;
+       LogDebug("FourVectorHLTClient")<< "endRun:   KLMGRV test = " << kl_prob << endl;
      
-     if (klmgrvTest_) klmgrvTest_->Fill(kl_prob);
+       //if (klmgrvTest_) klmgrvTest_->Fill(kl_prob);
+
+		 }
+
+     if(histME->kind() == MonitorElement::DQM_KIND_TH2F) {
+
+       TH2F *hist = new TH2F();
+       hist = histME->getTH2F();
+       dbe_->book2D(hist->GetName(),hist);
+
+			 /*
+       // must be non empty hist to do KolmogorovTest
+       if(hist->GetEntries() == 0) continue;
+       if(hist->Integral() == 0) continue;
+
+       LogDebug("FourVectorHLTClient")<< "endRun:   histName " << hist->GetName() << endl;
+       LogDebug("FourVectorHLTClient")<< "endRun:   hist entries:" << hist->GetEntries() << endl;
+
+       float kl_prob = kl_test_->runTest(histME);
+
+       LogDebug("FourVectorHLTClient")<< "endRun:   KLMGRV test = " << kl_prob << endl;
+     
+       if (klmgrvTest_) klmgrvTest_->Fill(kl_prob);
+			 */
+
+		 }
+
 
 
    } // end for
@@ -271,6 +297,10 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
     ///////////////////////////
     // Efficiencies
     ///////////////////////////
+    pathFolder = clientDir_ + TString("/paths/") + curHltPath->String() + TString("/efficiencies");
+
+    dbe_->setCurrentFolder(pathFolder.Data());
+
     vector<TString> vObj;
     vObj.push_back(TString("phi"));
     vObj.push_back(TString("eta"));
@@ -323,6 +353,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
 
   hltPathNameColl->Delete();
   delete kl_test_;
+
 
 }
 

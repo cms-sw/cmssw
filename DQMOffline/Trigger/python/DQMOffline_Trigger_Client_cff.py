@@ -10,4 +10,3 @@ from DQM.L1TMonitorClient.L1TRPCTFClient_cff import *
 l1tmonitorClient = cms.Sequence(l1tcsctfseqClient*l1tdttpgseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tEventInfoseqClient)
 
 triggerOfflineDQMClient = cms.Sequence(l1tmonitorClient)
-
