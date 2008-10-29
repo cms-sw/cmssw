@@ -18,14 +18,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('CaloSim', 
         'EcalGeom', 
         'EcalSim', 
-        'G4cerr',
-        'G4cout',
         'HCalGeom', 
         'HcalSim', 
         'HcalTBSim', 
         'SimHCalData', 
         'VertexGenerator'),
-#    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
@@ -34,22 +31,19 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
+        VertexGenerator = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         EcalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         HCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
@@ -59,9 +53,6 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         SimHCalData = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        VertexGenerator = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     )
@@ -129,13 +120,15 @@ process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression,
     EminTrack      = cms.double(1.0),
-    SuppressHeavy  = cms.bool(False),
     TmaxHit        = cms.double(1000.0),
-    DetailedTiming = cms.untracked.bool(False),
-    Verbosity      = cms.untracked.int32(0),
+    EminHits       = cms.vdouble(0.0),
+    HCNames        = cms.vstring('HcalHits'),
+    SuppressHeavy  = cms.bool(False),
     CheckHits      = cms.untracked.int32(25),
-    CorrectTOFBeam = cms.untracked.bool(False),
-    UseMap         = cms.untracked.bool(True)
+    UseMap         = cms.untracked.bool(True),
+    Verbosity      = cms.untracked.int32(0),
+    DetailedTiming = cms.untracked.bool(False),
+    CorrectTOFBeam = cms.untracked.bool(False)
 )
 process.g4SimHits.ECalSD.UseBirkLaw = False
 process.g4SimHits.ECalSD.BirkC1 = 0.33333

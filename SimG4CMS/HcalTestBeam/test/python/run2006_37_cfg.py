@@ -1,59 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("SimG4CMS.HcalTestBeam.TB2007GeometryXML_cfi")
+process.load("SimG4CMS.HcalTestBeam.TB2006Geometry37XML_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('hcaltb07.root')
+    fileName = cms.string('hcaltb06_37.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('CaloSim', 
-        'EcalGeom', 
-        'EcalSim', 
         'HCalGeom', 
         'HcalSim', 
         'HcalTBSim', 
-        'SimHCalData', 
-        'SimG4CoreGeometry', 
-        'SimG4CoreApplication', 
-        'VertexGenerator'),
-    debugModules = cms.untracked.vstring('*'),
+        'SimHCalData'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        VertexGenerator = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreGeometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+        HCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -76,22 +56,39 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(1.562),
-    MaxEta = cms.untracked.double(1.562),
-    MinPhi = cms.untracked.double(0.0436),
-    MaxPhi = cms.untracked.double(0.0436),
+    MinEta = cms.untracked.double(0.2175),
+    MaxEta = cms.untracked.double(0.2175),
+    MinPhi = cms.untracked.double(0.15708),
+    MaxPhi = cms.untracked.double(0.15708),
     BeamPosition = cms.untracked.double(-800.0)
 )
 
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         process.common_beam_direction_parameters,
-        MinE = cms.untracked.double(9.99),
-        MaxE = cms.untracked.double(10.01),
-        PartID = cms.untracked.vint32(11)
+        MinE = cms.untracked.double(49.99),
+        MaxE = cms.untracked.double(50.01),
+        PartID = cms.untracked.vint32(211)
     ),
     Verbosity = cms.untracked.int32(0)
 )
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
+
+process.o1 = cms.OutputModule("PoolOutputModule",
+    process.FEVTSIMEventContent,
+    fileName = cms.untracked.string('sim2006_37.root')
+)
+
+process.common_heavy_suppression1 = cms.PSet(
+    NeutronThreshold = cms.double(30.0),
+    ProtonThreshold = cms.double(30.0),
+    IonThreshold = cms.double(30.0)
+)
+
+process.Timing = cms.Service("Timing")
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
@@ -109,27 +106,22 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     TimeOffset = cms.double(0.)
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
-)
-
-process.o1 = cms.OutputModule("PoolOutputModule",
-    process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('sim2007.root')
-)
-
-process.common_heavy_suppression1 = cms.PSet(
-    NeutronThreshold = cms.double(30.0),
-    ProtonThreshold = cms.double(30.0),
-    IonThreshold = cms.double(30.0)
-)
-process.Timing = cms.Service("Timing")
-
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
+process.g4SimHits.ECalSD.UseBirkLaw = False
+process.g4SimHits.ECalSD.BirkC1 = 0.0046
+process.g4SimHits.ECalSD.BirkC2 = 0.0
+process.g4SimHits.ECalSD.SlopeLightYield = 0.02
+process.g4SimHits.HCalSD.UseBirkLaw = False
+process.g4SimHits.HCalSD.BirkC1 = 0.013
+process.g4SimHits.HCalSD.BirkC2 = '9.6e-6'
+process.g4SimHits.HCalSD.UseShowerLibrary = False
+process.g4SimHits.HCalSD.TestNumberingScheme = True
+process.g4SimHits.HCalSD.UseHF = False
+process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression1,
     TrackNeutrino = cms.bool(False),
@@ -154,18 +146,6 @@ process.g4SimHits.CaloSD = cms.PSet(
     DetailedTiming = cms.untracked.bool(False),
     CorrectTOFBeam = cms.untracked.bool(False)
 )
-process.g4SimHits.ECalSD.UseBirkLaw = False
-process.g4SimHits.ECalSD.BirkC1 = 0.013
-process.g4SimHits.ECalSD.BirkC2 = '9.6e-6'
-process.g4SimHits.ECalSD.SlopeLightYield = 0.02
-process.g4SimHits.ECalSD.TestBeam = True
-process.g4SimHits.HCalSD.UseBirkLaw = False
-process.g4SimHits.HCalSD.BirkC1 = 0.013
-process.g4SimHits.HCalSD.BirkC2 = '9.6e-6'
-process.g4SimHits.HCalSD.UseShowerLibrary = False
-process.g4SimHits.HCalSD.TestNumberingScheme = True
-process.g4SimHits.HCalSD.UseHF = False
-process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB06Analysis = cms.PSet(
@@ -177,4 +157,5 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     ),
     type = cms.string('HcalTB06Analysis')
 ))
+
 
