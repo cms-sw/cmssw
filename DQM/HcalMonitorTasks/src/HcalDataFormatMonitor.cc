@@ -156,8 +156,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type="DCC DataIntegrity Check";
     meDCC_DataIntegrityCheck_ = m_dbe->book2D(type,type,
 					      55,0,55,
-					      23,0,23);
-    meDCC_DataIntegrityCheck_->setAxisTitle("Crate/FED",1);
+					      22,0,22);
+    //    meDCC_DataIntegrityCheck_->setAxisTitle("Crate/FED",1);  //Apply label in RenderPlugins, out of the way...
     meDCC_DataIntegrityCheck_->setBinLabel( 1," 0 702",1);
     meDCC_DataIntegrityCheck_->setBinLabel( 2," 0/703",1); //skip 3
     meDCC_DataIntegrityCheck_->setBinLabel( 4," 1 704",1);
@@ -280,6 +280,38 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "DCC Error and Warning";
     meDCCErrorAndWarnConditions_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,25.5);
     meDCCErrorAndWarnConditions_->setAxisTitle("HCAL FED ID", 1);      
+    meDCCErrorAndWarnConditions_->setBinLabel( 1, "700", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 2, "701", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 3, "702", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 4, "703", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 5, "704", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 6, "705", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 7, "706", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 8, "707", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel( 9, "708", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(10, "709", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(11, "710", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(12, "711", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(13, "712", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(14, "713", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(15, "714", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(16, "715", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(17, "716", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(18, "717", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(19, "718", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(20, "719", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(21, "720", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(22, "721", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(23, "722", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(24, "723", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(25, "724", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(26, "725", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(27, "726", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(28, "727", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(29, "728", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(30, "729", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(31, "730", 1);
+    meDCCErrorAndWarnConditions_->setBinLabel(32, "731", 1);
     meDCCErrorAndWarnConditions_->setBinLabel( 1, "MisM S14", 2);
     meDCCErrorAndWarnConditions_->setBinLabel( 2, "MisM S13", 2);
     meDCCErrorAndWarnConditions_->setBinLabel( 3, "MisM S12", 2);
@@ -335,19 +367,22 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCSummariesOfHTRs_->setBinLabel(19, "P not V", 2);
     meDCCSummariesOfHTRs_->setBinLabel(20, "Trunct by LRB", 2);
 
-    type = "DCC Status Flags (Nonzero Error Counters)";
-    meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
-    meDCCStatusFlags_->setAxisTitle("HCAL FED ID", 1);      
-    meDCCStatusFlags_->setBinLabel(1, "Saw OFW", 2);
-    meDCCStatusFlags_->setBinLabel(2, "Saw BSY", 2);
-    meDCCStatusFlags_->setBinLabel(3, "Saw SYN", 2);
-    meDCCStatusFlags_->setBinLabel(4, "MxMx_L1AEvN", 2);
-    meDCCStatusFlags_->setBinLabel(5, "MxMx_L1ABcN", 2);
-    meDCCStatusFlags_->setBinLabel(6, "MxMx_CT-EvN", 2);
-    meDCCStatusFlags_->setBinLabel(7, "MxMx_CT-BCN", 2);
-    meDCCStatusFlags_->setBinLabel(8, "BC0 Spacing", 2);
-    meDCCStatusFlags_->setBinLabel(9, "TTCSingErr", 2);
-    meDCCStatusFlags_->setBinLabel(10, "TTCDoubErr", 2);
+    // These status bits set in the header could be useful: They're set once, and stay on
+    // even if the event in which they're set is not analyzed...
+
+    ///type = "DCC Status Flags (Nonzero Error Counters)";
+    ///meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
+    ///meDCCStatusFlags_->setAxisTitle("HCAL FED ID", 1);      
+    ///meDCCStatusFlags_->setBinLabel(1, "Saw OFW", 2);
+    ///meDCCStatusFlags_->setBinLabel(2, "Saw BSY", 2);
+    ///meDCCStatusFlags_->setBinLabel(3, "Saw SYN", 2);
+    ///meDCCStatusFlags_->setBinLabel(4, "MxMx_L1AEvN", 2);
+    ///meDCCStatusFlags_->setBinLabel(5, "MxMx_L1ABcN", 2);
+    ///meDCCStatusFlags_->setBinLabel(6, "MxMx_CT-EvN", 2);
+    ///meDCCStatusFlags_->setBinLabel(7, "MxMx_CT-BCN", 2);
+    ///meDCCStatusFlags_->setBinLabel(8, "BC0 Spacing", 2);
+    ///meDCCStatusFlags_->setBinLabel(9, "TTCSingErr", 2);
+    ///meDCCStatusFlags_->setBinLabel(10, "TTCDoubErr", 2);
 
     type = "Event Fragment Size for each FED";
     meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
@@ -448,7 +483,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meErrWdCrate_ -> setAxisTitle("Crate #",1);
     labelHTRBits(meErrWdCrate_,2);
 
-    type = "Invalid HTR Data";
+    type = "Unpacking - HcalHTRData check failures";
     meInvHTRData_= m_dbe->book2D(type,type,16,-0.5,15.5,32,699.5,731.5);
     meInvHTRData_->setAxisTitle("Spigot #",1);
     meInvHTRData_->setAxisTitle("DCC #",2);
@@ -807,7 +842,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
   }
   
-  char TTS_state=(char) dccHeader->getAcceptTimeTTS();
+  // Unlovely. There are N bytes in the DCC's raw data, the last at raw.data(N-1).
+  // They're in words of 8 bytes.
+  // Take the last word, take its low byte, and the high 4 bits are the TTS state. Easy.
+  char TTS_state = ((raw.data()[raw.size()-8]>>4) & 0x0F);
+
+  //  char TTS_state=(char) dccHeader->getAcceptTimeTTS();
   if (TTS_state & 0x8) /*RDY*/ {
     meDCC_DataIntegrityCheck_->Fill(bin,20);
     ;}
@@ -861,9 +901,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     // One bit: data missing || mismatch <EvN, BcN, || OrN>
     if (dccHeader->getSpigotErrorFlag(i))  meDCCErrorAndWarnConditions_->Fill(dccid, i);
   /* [16:25] */ //Histogram DCC Error and Warning Counters being nonzero
-  if (dccHeader->SawTTS_OFW()        )  meDCCErrorAndWarnConditions_->Fill(dccid,16);
-  if (dccHeader->SawTTS_BSY()        )  meDCCErrorAndWarnConditions_->Fill(dccid,17);
-  if (dccHeader->SawTTS_SYN()        )  meDCCErrorAndWarnConditions_->Fill(dccid,18);
+  if (TTS_state & 0x1)                  meDCCErrorAndWarnConditions_->Fill(dccid,16);
+  if (TTS_state & 0x4)                  meDCCErrorAndWarnConditions_->Fill(dccid,17);
+  if (TTS_state & 0x2)                  meDCCErrorAndWarnConditions_->Fill(dccid,18);
   if (dccHeader->SawL1A_EvN_MxMx()   )  meDCCErrorAndWarnConditions_->Fill(dccid,19);
   if (dccHeader->SawL1A_BcN_MxMx()   )  meDCCErrorAndWarnConditions_->Fill(dccid,20);
   if (dccHeader->SawCT_EvN_MxMx()    )  meDCCErrorAndWarnConditions_->Fill(dccid,21);
@@ -942,7 +982,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   bool FoundPnotV=false;
   bool FoundT=false;
   for(int j=1; j<=HcalDCCHeader::SPIGOT_COUNT; j++) {
-    if (dccHeader->getSpigotDataLength(j-1) <(unsigned long)10) 
+    if ( dccHeader->getSpigotEnabled((unsigned int) j-1)         &&
+	 (dccHeader->getSpigotDataLength(j-1) <(unsigned long)10) ) 
       meDCC_DataIntegrityCheck_->Fill(bin,8);           // Lost HTR Data for sure
     if (dccHeader->getSpigotEnabled((unsigned int) j-1) &&
 	!dccHeader->getSpigotPresent((unsigned int) j-1)      ) FoundEnotP=true;
