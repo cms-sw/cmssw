@@ -49,6 +49,10 @@ MuonIdVal::beginJob(const edm::EventSetup&)
          hTMLastStationTightBool[i] = dbe_->book1D("hTMLastStationTightBool", "TMLastStationTight Boolean", 2, -0.5, 1.5);
          hTM2DCompatibilityLooseBool[i] = dbe_->book1D("hTM2DCompatibilityLooseBool", "TM2DCompatibilityLoose Boolean", 2, -0.5, 1.5);
          hTM2DCompatibilityTightBool[i] = dbe_->book1D("hTM2DCompatibilityTightBool", "TM2DCompatibilityTight Boolean", 2, -0.5, 1.5);
+         hTMOneStationLooseBool[i] = dbe_->book1D("hTMOneStationLooseBool", "TMOneStationLoose Boolean", 2, -0.5, 1.5);
+         hTMOneStationTightBool[i] = dbe_->book1D("hTMOneStationTightBool", "TMOneStationTight Boolean", 2, -0.5, 1.5);
+         hTMLastStationOptimizedLowPtLooseBool[i] = dbe_->book1D("hTMLastStationOptimizedLowPtLooseBool", "TMLastStationOptimizedLowPtLoose Boolean", 2, -0.5, 1.5);
+         hTMLastStationOptimizedLowPtTightBool[i] = dbe_->book1D("hTMLastStationOptimizedLowPtTightBool", "TMLastStationOptimizedLowPtTight Boolean", 2, -0.5, 1.5);
 
          if (makeEnergyPlots_) {
             hEnergyEMBarrel[i] = dbe_->book1D("hEnergyEMBarrel", "Energy in ECAL Barrel", 100, -0.5, 2.);
@@ -335,14 +339,18 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          hNumMatches[i]->Fill(muon->numberOfMatches());
          if (! makeDQMPlots_) {
             hCaloCompat[i]->Fill(muon->caloCompatibility());
-            hSegmentCompat[i]->Fill(muon::segmentCompatibility(*muon));
+            hSegmentCompat[i]->Fill(muon->segmentCompatibility());
             if (make2DPlots_)
-               hCaloSegmentCompat[i]->Fill(muon->caloCompatibility(), muon::segmentCompatibility(*muon));
+               hCaloSegmentCompat[i]->Fill(muon->caloCompatibility(), muon->segmentCompatibility());
             hGlobalMuonPromptTightBool[i]->Fill(muon->isGood(Muon::GlobalMuonPromptTight));
             hTMLastStationLooseBool[i]->Fill(muon->isGood(Muon::TMLastStationLoose));
             hTMLastStationTightBool[i]->Fill(muon->isGood(Muon::TMLastStationTight));
             hTM2DCompatibilityLooseBool[i]->Fill(muon->isGood(Muon::TM2DCompatibilityLoose));
             hTM2DCompatibilityTightBool[i]->Fill(muon->isGood(Muon::TM2DCompatibilityTight));
+            hTMOneStationLooseBool[i]->Fill(muon->isGood(Muon::TMOneStationLoose));
+            hTMOneStationTightBool[i]->Fill(muon->isGood(Muon::TMOneStationTight));
+            hTMLastStationOptimizedLowPtLooseBool[i]->Fill(muon->isGood(Muon::TMLastStationOptimizedLowPtLoose));
+            hTMLastStationOptimizedLowPtTightBool[i]->Fill(muon->isGood(Muon::TMLastStationOptimizedLowPtTight));
 
             if (makeEnergyPlots_) {
                //EM
