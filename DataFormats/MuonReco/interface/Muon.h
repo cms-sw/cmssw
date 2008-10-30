@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.44 2008/04/30 22:58:14 dmytro Exp $
+ * \version $Id: Muon.h,v 1.45 2008/05/19 00:53:55 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -89,6 +89,7 @@ namespace reco {
     float caloCompatibility() const { return caloCompatibility_; }
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
+    float segmentCompatibility() const;
     
     ///
     /// ====================== ISOLATION BLOCK ===========================
@@ -115,7 +116,11 @@ namespace reco {
 	 TMLastStationLoose,       // penetration depth loose selector
 	 TMLastStationTight,       // penetration depth tight selector
 	 TM2DCompatibilityLoose,   // likelihood based loose selector
-	 TM2DCompatibilityTight    // likelihood based tight selector
+	 TM2DCompatibilityTight,   // likelihood based tight selector
+         TMOneStationLoose,        // require one well matched segment
+         TMOneStationTight,        // require one well matched segment
+         TMLastStationOptimizedLowPtLoose, // combination of TMLastStation and TMOneStation
+         TMLastStationOptimizedLowPtTight  // combination of TMLastStation and TMOneStation
     };
     bool isGood( SelectionType type = AllArbitrated ) const;
      
