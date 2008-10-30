@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/05/05 10:55:35 $
+ * $Date: 2008/10/29 10:56:43 $
  * \author C. Rovelli
  *
 */
@@ -78,6 +78,15 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meEEe5x5OverSimHits_         = 0;
   meEEe5x5OverGun_             = 0;
   
+  meEBRecHitLog10Energy_         = 0;
+  meEERecHitLog10Energy_         = 0;
+  meESRecHitLog10Energy_         = 0;
+  meEBRecHitLog10EnergyContr_    = 0;
+  meEERecHitLog10EnergyContr_    = 0;
+  meESRecHitLog10EnergyContr_    = 0;
+  meEBRecHitLog10Energy5x5Contr_ = 0;
+  meEERecHitLog10Energy5x5Contr_ = 0;
+  
   // ---------------------- 
   Char_t histo[20];
    
@@ -138,6 +147,15 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5 over gun energy");
     meEEe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
+    meEBRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 80, -4., 4. ); 
+    meEERecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 80, -4., 4. ); 
+    meESRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4. ); 
+    meEBRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En vs Hit Contribution", "EcalRecHits Barrel Log10En vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
+    meEERecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En vs Hit Contribution", "EcalRecHits Endcap Log10En vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
+    meESRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Preshower Log10En vs Hit Contribution", "EcalRecHits Preshower Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+    meEBRecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
+    meEERecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
+
   }
 }
 
@@ -176,7 +194,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   const EBUncalibratedRecHitCollection *EBUncalibRecHit =0;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
-  if (EcalUncalibRecHitEB.isValid()){
+  if (EcalUncalibRecHitEB.isValid()) {
     EBUncalibRecHit = EcalUncalibRecHitEB.product() ;    
   } else {
     skipBarrel = true;
@@ -225,25 +243,24 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   // gun
   double eGun = 0.;
   if ( ! skipMC ) {
-    for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin(); p != MCEvt->GetEvent()->particles_end(); ++p ) 
-      {      
-        double htheta = (*p)->momentum().theta();
-        double heta = -log(tan(htheta * 0.5));
-        double hphi = (*p)->momentum().phi();
-        hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
-        hphi = hphi / M_PI * 180.;
+    for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin(); p != MCEvt->GetEvent()->particles_end(); ++p )  {      
+      double htheta = (*p)->momentum().theta();
+      double heta = -log(tan(htheta * 0.5));
+      double hphi = (*p)->momentum().phi();
+      hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
+      hphi = hphi / M_PI * 180.;
+      
+      LogDebug("EventInfo") << "EcalRecHitsTask: Particle gun type form MC = " << abs((*p)->pdg_id()) 
+			    << "\n" << "Energy = "<< (*p)->momentum().e() 
+			    << "\n" << "Eta = "   << heta 
+			    << "\n" << "Phi = "   << hphi;
+      
+      if ( (*p)->momentum().e() > eGun ) eGun = (*p)->momentum().e();
 
-        LogDebug("EventInfo") << "EcalRecHitsTask: Particle gun type form MC = " << abs((*p)->pdg_id()) 
-                              << "\n" << "Energy = "<< (*p)->momentum().e() 
-                              << "\n" << "Eta = "   << heta 
-                              << "\n" << "Phi = "   << hphi;
-
-        if ( (*p)->momentum().e() > eGun ) eGun = (*p)->momentum().e();
-
-        if (meGunEnergy_) meGunEnergy_->Fill((*p)->momentum().e());
-        if (meGunEta_)    meGunEta_   ->Fill(heta);
-        if (meGunPhi_)    meGunPhi_   ->Fill(hphi); 
-      }
+      if (meGunEnergy_) meGunEnergy_->Fill((*p)->momentum().e());
+      if (meGunEta_)    meGunEta_   ->Fill(heta);
+      if (meGunPhi_)    meGunPhi_   ->Fill(hphi); 
+    }
   }
 
   // -------------------------------------------------------------------
@@ -251,17 +268,19 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   if ( ! skipBarrel) {
 
-  // 1) loop over simHits  
-  const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
-  e.getByLabel("mix",barrelHitsName,crossingFrame);
-  std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-  
-  MapType ebSimMap;
-  MapType ebRecMap;
-  
-  for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr) 
-    {   
+    // 1) loop over simHits  
+    const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
+    e.getByLabel("mix",barrelHitsName,crossingFrame);
+    std::auto_ptr<MixCollection<PCaloHit> > 
+      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    
+    MapType ebSimMap;
+    MapType ebRecMap;
+    std::vector<double> ebcontr(80, 0. );
+    std::vector<double> ebcontr25(80, 0. );
+    double ebtotal = 0.;
+
+    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr)  {   
       EBDetId ebid = EBDetId(hitItr->id());
       
       LogDebug("SimHitInfo, barrel") 
@@ -272,77 +291,94 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       uint32_t crystid = ebid.rawId();
       ebSimMap[crystid] += hitItr->energy();
     }
-
-  
-
-  // 2) loop over RecHits 
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end() ; ++uncalibRecHit)
-    {
+    
+    
+    
+    // 2) loop over RecHits 
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end() ; ++uncalibRecHit) {
       EBDetId EBid = EBDetId(uncalibRecHit->id());
       
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
       ebRecMap[EBid.rawId()] += myRecHit->energy();
       
+      // Fill log10(Energy) stuff...   
+      ebtotal += myRecHit->energy();
+      meEBRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+      int log10i = int( ( log10( myRecHit->energy() ) + 4. ) * 10. );
+      if( log10i >=0 and log10i < 80 ) ebcontr[ log10i ] += myRecHit->energy();
+    
       // comparison Rec/Sim hit
-	  if ( ebSimMap[EBid.rawId()] != 0. )
-	    {
-          double uncEnergy = uncalibRecHit->amplitude()*barrelADCtoGeV_;
-	      if (meEBUnRecHitSimHitRatio_)                                {meEBUnRecHitSimHitRatio_    ->Fill(uncEnergy/ebSimMap[EBid.rawId()]);}
-	      if (meEBUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEBUnRecHitSimHitRatioGt35_->Fill(uncEnergy/ebSimMap[EBid.rawId()]);}
-	    }
-
-      if (myRecHit != EBRecHit->end())
-	{
-	  if ( ebSimMap[EBid.rawId()] != 0. )
-	    {
-	      if (meEBRecHitSimHitRatio_)                                {meEBRecHitSimHitRatio_    ->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]);}
-	      if (meEBRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEBRecHitSimHitRatioGt35_->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]);}
-	    }
+      if ( ebSimMap[EBid.rawId()] != 0. ) {
+	double uncEnergy = uncalibRecHit->amplitude()*barrelADCtoGeV_;
+	if (meEBUnRecHitSimHitRatio_)                                {meEBUnRecHitSimHitRatio_    ->Fill(uncEnergy/ebSimMap[EBid.rawId()]);}
+	if (meEBUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEBUnRecHitSimHitRatioGt35_->Fill(uncEnergy/ebSimMap[EBid.rawId()]);}
+      }
+      
+      if (myRecHit != EBRecHit->end()) {
+	if ( ebSimMap[EBid.rawId()] != 0. ) {
+	  if (meEBRecHitSimHitRatio_)                                {meEBRecHitSimHitRatio_    ->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]);}
+	  if (meEBRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEBRecHitSimHitRatioGt35_->Fill(myRecHit->energy()/ebSimMap[EBid.rawId()]);}
 	}
+      }
       else
 	continue;
     }  // loop over the UncalibratedRecHitCollection
+    
+    // RecHits matrix
+    uint32_t  ebcenterid = getUnitWithMaxEnergy(ebRecMap);
+    EBDetId myEBid(ebcenterid);
+    int bx = myEBid.ietaAbs();
+    int by = myEBid.iphi();
+    int bz = myEBid.zside();
+    findBarrelMatrix(5,5,bx,by,bz,ebRecMap);
+    double e5x5rec = 0.;
+    double e5x5sim = 0.;
+    for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
+      e5x5rec += ebRecMap[crystalMatrix[i]];
+      e5x5sim += ebSimMap[crystalMatrix[i]];
+      int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 8. ) * 10. );
+      if( log10i25 >=0 && log10i25 < 80 ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
+    }
+    
+    meEBe5x5_->Fill(e5x5rec);
+    if ( e5x5sim > 0. ) meEBe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
+    if ( eGun > 0. ) meEBe5x5OverGun_->Fill(e5x5rec/eGun);
+    
 
-  // RecHits matrix
-  uint32_t  ebcenterid = getUnitWithMaxEnergy(ebRecMap);
-  EBDetId myEBid(ebcenterid);
-  int bx = myEBid.ietaAbs();
-  int by = myEBid.iphi();
-  int bz = myEBid.zside();
-  findBarrelMatrix(5,5,bx,by,bz,ebRecMap);
-  double e5x5rec = 0.;
-  double e5x5sim = 0.;
-  for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
-    e5x5rec += ebRecMap[crystalMatrix[i]];
-    e5x5sim += ebSimMap[crystalMatrix[i]];
+    if( meEBRecHitLog10EnergyContr_  && ebtotal != 0 ) {
+      for( int i=0; i<80; i++ ) {
+	meEBRecHitLog10EnergyContr_->Fill( -4.+(float(i)+0.5)/10., ebcontr[i]/ebtotal );
+      }
+    }
+    
+    if( meEBRecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
+      for( int i=0; i<80; i++ ) {
+	meEBRecHitLog10Energy5x5Contr_->Fill( -4.+(float(i)+0.5)/10., ebcontr25[i]/e5x5rec );
+      }
+    }
   }
-  
-  meEBe5x5_->Fill(e5x5rec);
-  if ( e5x5sim > 0. ) meEBe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
-  if ( eGun > 0. ) meEBe5x5OverGun_->Fill(e5x5rec/eGun);
-  
-  }
-
 
   // -------------------------------------------------------------------
   // ENDCAP
 
   if ( ! skipEndcap ) {
 
-  // 1) loop over simHits
-  const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
-  e.getByLabel("mix",endcapHitsName,crossingFrame);
-  std::auto_ptr<MixCollection<PCaloHit> > 
-    endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    // 1) loop over simHits
+    const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
+    e.getByLabel("mix",endcapHitsName,crossingFrame);
+    std::auto_ptr<MixCollection<PCaloHit> > 
+      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
   
-  MapType eeSimMap;
-  MapType eeRecMap;
+    MapType eeSimMap;
+    MapType eeRecMap;
+    std::vector<double> eecontr(80, 0. );
+    std::vector<double> eecontr25(80, 0. );
+    double eetotal = 0.;
  
-  for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) 
-    {   
+    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) {   
       EEDetId eeid = EEDetId(hitItr->id()) ;
-
+      
       LogDebug("Endcap, HitInfo")
 	<<" CaloHit "      << hitItr->getName() << " DetID = "        << hitItr->id()   << "\n"
 	<< "Energy = "     << hitItr->energy()  << " Time = "         << hitItr->time() << "\n"
@@ -354,52 +390,69 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
 
 
-  // 2) loop over RecHits
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit)
-    {
+    // 2) loop over RecHits
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
       
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
       eeRecMap[EEid.rawId()] += myRecHit->energy();
 
-      // comparison Rec/Sim hit
-	  if ( eeSimMap[EEid.rawId()] != 0. )
-	    {
-          double uncEnergy = uncalibRecHit->amplitude()*endcapADCtoGeV_;
-	      if (meEEUnRecHitSimHitRatio_)                                {meEEUnRecHitSimHitRatio_    ->Fill(uncEnergy/eeSimMap[EEid.rawId()]);}
-	      if (meEEUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEEUnRecHitSimHitRatioGt35_->Fill(uncEnergy/eeSimMap[EEid.rawId()]);}
-	    }
+      // Fill log10(Energy) stuff...
+      eetotal += myRecHit->energy();   
+      meEERecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+      int log10i = int( ( log10( myRecHit->energy() ) + 4. ) * 10. );
+      if( log10i >=0 and log10i < 80 ) eecontr[ log10i ] += myRecHit->energy();
 
-      if (myRecHit != EERecHit->end())
-	{
-	  if ( eeSimMap[EEid.rawId()] != 0. )
-	    {
-	      if (meEERecHitSimHitRatio_)                                {meEERecHitSimHitRatio_    ->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
-	      if (meEERecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEERecHitSimHitRatioGt35_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
-	    }
+      // comparison Rec/Sim hit
+      if ( eeSimMap[EEid.rawId()] != 0. ) {
+	double uncEnergy = uncalibRecHit->amplitude()*endcapADCtoGeV_;
+	if (meEEUnRecHitSimHitRatio_)                                {meEEUnRecHitSimHitRatio_    ->Fill(uncEnergy/eeSimMap[EEid.rawId()]);}
+	if (meEEUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEEUnRecHitSimHitRatioGt35_->Fill(uncEnergy/eeSimMap[EEid.rawId()]);}
+      }
+
+      if (myRecHit != EERecHit->end()) {
+	if ( eeSimMap[EEid.rawId()] != 0. ) {
+	  if (meEERecHitSimHitRatio_)                                {meEERecHitSimHitRatio_    ->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
+	  if (meEERecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEERecHitSimHitRatioGt35_->Fill(myRecHit->energy()/eeSimMap[EEid.rawId()]); }
 	}
+      }
       else
 	continue;
     }  // loop over the UncalibratedechitCollection
   
-  // RecHits matrix
-  uint32_t  eecenterid = getUnitWithMaxEnergy(eeRecMap);
-  EEDetId myEEid(eecenterid);
-  int bx = myEEid.ix();
-  int by = myEEid.iy();
-  int bz = myEEid.zside();
-  findEndcapMatrix(5,5,bx,by,bz,eeRecMap);
-  double e5x5rec = 0.;
-  double e5x5sim = 0.;
-  for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
-    e5x5rec += eeRecMap[crystalMatrix[i]];
-    e5x5sim += eeSimMap[crystalMatrix[i]];
-  }
-  
-  meEEe5x5_->Fill(e5x5rec);
-  if ( e5x5sim > 0. ) meEEe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
-  if ( eGun > 0. ) meEEe5x5OverGun_->Fill(e5x5rec/eGun);
+    // RecHits matrix
+    uint32_t  eecenterid = getUnitWithMaxEnergy(eeRecMap);
+    EEDetId myEEid(eecenterid);
+    int bx = myEEid.ix();
+    int by = myEEid.iy();
+    int bz = myEEid.zside();
+    findEndcapMatrix(5,5,bx,by,bz,eeRecMap);
+    double e5x5rec = 0.;
+    double e5x5sim = 0.;
+    for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
+      e5x5rec += eeRecMap[crystalMatrix[i]];
+      e5x5sim += eeSimMap[crystalMatrix[i]];
+      int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 4. ) * 10. );
+      if( log10i25 >=0 && log10i25 < 80 ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
+    }
+    
+    meEEe5x5_->Fill(e5x5rec);
+    if ( e5x5sim > 0. ) meEEe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
+    if ( eGun > 0. ) meEEe5x5OverGun_->Fill(e5x5rec/eGun);
+    
+
+    if( meEERecHitLog10EnergyContr_  && eetotal != 0 ) {
+      for( int i=0; i<80; i++ ) {
+	meEERecHitLog10EnergyContr_->Fill( -4.+(float(i)+0.5)/10., eecontr[i]/eetotal );
+      }
+    }
+    
+    if( meEERecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
+      for( int i=0; i<80; i++ ) {
+	meEERecHitLog10Energy5x5Contr_->Fill( -4.+(float(i)+0.5)/10., eecontr25[i]/e5x5rec );
+      }
+    }
 
   }
 
@@ -408,16 +461,18 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   if ( ! skipPreshower ) {
 
-  // 1) loop over simHits
-  const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
-  e.getByLabel("mix",preshowerHitsName,crossingFrame);
-  std::auto_ptr<MixCollection<PCaloHit> > 
-    preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    // 1) loop over simHits
+    const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
+    e.getByLabel("mix",preshowerHitsName,crossingFrame);
+    std::auto_ptr<MixCollection<PCaloHit> > 
+      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
 
-  MapType esSimMap;
+    MapType esSimMap;
+    std::vector<double> escontr(90, 0. );
+    double estotal = 0.;
+
   
-  for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin(); hitItr != preshowerHits->end(); ++hitItr) 
-    {   
+    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin(); hitItr != preshowerHits->end(); ++hitItr) {   
       ESDetId esid = ESDetId(hitItr->id()) ;
 
       LogDebug("Preshower, HitInfo")
@@ -430,17 +485,34 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     }
 
 
-  // 2) loop over RecHits
-  for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit)
-    {
+    // 2) loop over RecHits
+    for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
       ESDetId ESid = ESDetId(recHit->id());
-      if ( esSimMap[ESid.rawId()] != 0. ){ if (meESRecHitSimHitRatio_){ meESRecHitSimHitRatio_ ->Fill(recHit->energy()/esSimMap[ESid.rawId()]); }}
+      if ( esSimMap[ESid.rawId()] != 0. ) { 
+	
+	// Fill log10(Energy) stuff...
+	estotal += recHit->energy();   
+	meESRecHitLog10Energy_->Fill( log10( recHit->energy() ) );
+	int log10i = int( ( log10( recHit->energy() ) + 5. ) * 10. );
+	if( log10i >=0 and log10i < 90 ) escontr[ log10i ] += recHit->energy();
+
+	if (meESRecHitSimHitRatio_) { 
+	  meESRecHitSimHitRatio_ ->Fill(recHit->energy()/esSimMap[ESid.rawId()]); 
+	}
+      }
       else
 	continue;
     }  // loop over the RechitCollection
 
-  }
+    if( meESRecHitLog10EnergyContr_  && estotal != 0 ) {
+      for( int i=0; i<90; i++ ) {
+	meESRecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., escontr[i]/estotal );
+      }
+    }
 
+    
+  }
+  
 }
 
   

@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2008/02/29 20:48:30 $
+ * $Date: 2008/05/05 10:55:34 $
  * \author C. Rovelli
  *
 */
@@ -107,6 +107,15 @@ private:
  MonitorElement* meEEe5x5_;
  MonitorElement* meEEe5x5OverSimHits_;
  MonitorElement* meEEe5x5OverGun_;
+
+ MonitorElement* meEBRecHitLog10Energy_;
+ MonitorElement* meEERecHitLog10Energy_;
+ MonitorElement* meESRecHitLog10Energy_;
+ MonitorElement* meEBRecHitLog10EnergyContr_;
+ MonitorElement* meEERecHitLog10EnergyContr_;
+ MonitorElement* meESRecHitLog10EnergyContr_;
+ MonitorElement* meEBRecHitLog10Energy5x5Contr_;
+ MonitorElement* meEERecHitLog10Energy5x5Contr_;
 
  std::vector<uint32_t> crystalMatrix;
 
