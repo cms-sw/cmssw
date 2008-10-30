@@ -257,7 +257,7 @@ DEutils<L1MuGMTCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   unsigned int ew = (aflag==3)?0 : itm->getDataWord();
   unsigned int mask = 0x3ffffff; //26-bit
   //mask bits 22 (isolation), 23 (mip) [not permanent!]
-  //mask &= (~(0x0c00000)); 
+  mask &= (~(0x0c00000)); 
   dw &= mask; ew &= mask;
   digi.setData(dw,ew);
   int de = (aflag==4)?0:itd->ptIndex();//ptValue();
@@ -604,19 +604,36 @@ DEutils<L1MuDTChambThDigiCollection>::de_equal(const cand_type& lhs, const cand_
 template <> inline bool 
 DEutils<L1MuRegionalCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
-  val &= (lhs.getDataWord() == rhs.getDataWord() );
-  //check whether collections being compared refer to same system and bx!
   val &= (lhs.type_idx() == rhs.type_idx());
   val &= (lhs.bx()       == rhs.bx());
+  if(!val) return val;
+  unsigned int dw = lhs.getDataWord();
+  unsigned int ew = rhs.getDataWord();
+  unsigned int mask = 0xffffffff; //32-bit
+  //RPC: mask bits 25,26,27 (3 lowest bits of bx counter); 
+  // emulator doesn't set these bits (permanent masking)
+  if(rhs.type_idx()==dedefs::RPC)
+    mask &= 0xf1ffffff;
+  dw &= mask; ew &= mask;
+  val &= (dw==ew);
+  //val &= (lhs.getDataWord() == rhs.getDataWord() );
+  //check whether collections being compared refer to same system and bx!
   return val;
 }
 
 template <> inline bool 
 DEutils<L1MuGMTCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
-  bool val = true;
-  val &= (lhs.getDataWord() == rhs.getDataWord() );
-  return val;
+  //return (lhs.getDataWord() == rhs.getDataWord() );
   //return lhs==rhs; //(dataword,bx..)
+  bool val = true;
+  unsigned int dw = rhs.getDataWord();
+  unsigned int ew = lhs.getDataWord();
+  unsigned int mask = 0x3ffffff; //26-bit
+  //mask bits 22 (isolation), 23 (mip) [not permanent!]
+  mask &= (~(0x0c00000)); 
+  dw &= mask; ew &= mask;
+  val &= (dw==ew);
+  return val;
   }
 
 template <> inline bool 
@@ -1088,12 +1105,12 @@ template <>
 inline std::string DEutils<CSCCorrelatedLCTDigiCollection_>::print(col_cit it) const {
   std::stringstream ss;
   ss 
-    //<< " ltc#:"     << it->getTrknmb()
+    //<< " lct#:"     << it->getTrknmb()
     //<< " val:"      << it->isValid()
     //<< " qua:"      << it->getQuality() 
     //<< " strip:"    << it->getStrip()
     //<< " bend:"     << ((it->getBend() == 0) ? 'L' : 'R')
-    //<< " patt:"     << it->getCLCTPattern()
+    //<< " patt:"     << it->getPattern()
     //<<"  key wire:" << it->getKeyWG()
     //<< " bx:"       << it->getBX()
     //<< " mpc-link:" << it->getMPCLink()
