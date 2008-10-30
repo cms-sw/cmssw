@@ -1,10 +1,18 @@
-<use name=DQMServices/ClientConfig>
-<use name=DQMServices/Core>
-<use name=EventFilter/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Sources>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/MetaDataService>
+<use name=CondFormats/RunInfo>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/Provenance>
+<use name=FWCore/PluginManager>
+<use name=DQMServices/ClientConfig>
+<use name=DQMServices/Core>
+<use name=EventFilter/Utilities>
+<use name=rootrflx>
 <export>
   <lib name=DQMServicesComponents>
 </export>
