@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/10/14 19:46:38 $
- *  $Revision: 1.70 $
+ *  $Date: 2008/10/23 17:11:01 $
+ *  $Revision: 1.71 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -349,15 +349,14 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
   }
 
-  //missing hits quality check
+  //missing hits quality check  
   for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
-    int hitTk = links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits();
-    int hitGlbTk =   links->globalTrack().get()->hitPattern().numberOfValidTrackerHits();
-    int hitSta =  links->standAloneTrack().get()->hitPattern().numberOfValidMuonHits();
-    int hitGlbSta = links->globalTrack().get()->hitPattern().numberOfValidMuonHits();
-    int hitGlb =  links->globalTrack().get()->hitPattern().numberOfValidHits(
- );
-    
+    int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+    int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+    int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
+    int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
+    int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
+        
     int missingSta = hitSta-hitGlbSta;
     int missingTk = hitTk-hitGlbTk;
     
@@ -366,10 +365,10 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
       LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
     }
   }
-    
+  
   // put the MuonCollection in the event
   LogTrace(metname) << "put the MuonCollection in the event" << "\n";
-
+  
   return event.put(trackLinksCollection);
 }
 
