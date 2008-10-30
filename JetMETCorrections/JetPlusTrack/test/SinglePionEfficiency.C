@@ -280,6 +280,8 @@ void SinglePionEfficiency::Loop()
    // N total and N reco tracks
    // find how to write output in file
    //~/scratch0/CMSSW_TEST/cmssw134gammajet/src/JetMETCorrections/GammaJet/src/GammaJetAnalysis.cc
+
+   // total number of analized MC tracks
    Int_t ntrk[netabins][nptbins] =   {  
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
@@ -294,6 +296,7 @@ void SinglePionEfficiency::Loop()
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
    };
+   // number of found tracks
    Int_t ntrkreco[netabins][nptbins] = {
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
@@ -308,7 +311,22 @@ void SinglePionEfficiency::Loop()
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
    };
-   
+   // number of lost tracks
+   Int_t ntrklost[netabins][nptbins] = {
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+   };
+   // number of tracks with impact point on calo
    Int_t ntrkrecor[netabins][nptbins] = {
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
@@ -324,10 +342,10 @@ void SinglePionEfficiency::Loop()
      {0,0,0,0,0,0,0,0,0,0,0,0},
    };
 
-   // efficiency and error
+   // trk efficiency and error
    Float_t trkeff[netabins][nptbins], etrkeff[netabins][nptbins];
-   //
-   Double_t responceVSpt[netabins][nptbins] = {
+   // response in 11x11 crystals + 5x5 HCAL around IP in ECAL
+   Double_t response[netabins][nptbins] = {
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
@@ -341,7 +359,48 @@ void SinglePionEfficiency::Loop()
      {0,0,0,0,0,0,0,0,0,0,0,0},
      {0,0,0,0,0,0,0,0,0,0,0,0},
    };
-   Double_t responceVSptF[netabins][nptbins];
+
+   // response for found tracks in cone 0.5 around MC track direction at vertex
+   Double_t responseFoundTrk[netabins][nptbins] = {
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+   };
+
+   // response for lost tracks in cone 0.5 around MC track direction at vertex
+   Double_t responseLostTrk[netabins][nptbins] = {
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+     {0,0,0,0,0,0,0,0,0,0,0,0},
+   };
+
+   // average response in 11x11 crystals + 5x5 HCAL around IP in ECAL
+   Double_t responseF[netabins][nptbins];
+   // average response for found tracks in cone 0.5 around MC track direction at vertex
+   Double_t responseFoundTrkF[netabins][nptbins];
+   // average response for lost tracks in cone 0.5 around MC track direction at vertex
+   Double_t responseLostTrkF[netabins][nptbins];
+   // ratio of responses of lost and found tracks
+   Double_t leak[netabins][nptbins];
+
    // 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -369,6 +428,9 @@ void SinglePionEfficiency::Loop()
 	      // number of reco tracks
 	      if(drTrk1 < 0.01 && purityTrk1 == 1) {
 		ntrkreco[ieta][ipt] = ntrkreco[ieta][ipt]+1;
+		// response for found tracks
+		responseFoundTrk[ieta][ipt] = responseFoundTrk[ieta][ipt] + etCalo1/ptSim1;  
+		//
 		Double_t theta = 2.*atan(exp(-etaSim1));
 		Double_t eSim1 = ptSim1/sin(theta);
 		if(e1ECAL11x11 > -1000. && e1HCAL5x5 > -1000. && fabs(etaSim1) < 1000.) { 
@@ -376,8 +438,13 @@ void SinglePionEfficiency::Loop()
 		  Double_t e_ecal11 = e1ECAL11x11/eSim1;
 		  Double_t e_hcal5  = e1HCAL5x5/eSim1;
 		  Double_t e_ecalhcal11x5 = e_ecal11 + e_hcal5;
-		  responceVSpt[ieta][ipt] = responceVSpt[ieta][ipt] + e_ecalhcal11x5;
+		  response[ieta][ipt] = response[ieta][ipt] + e_ecalhcal11x5;
 		}
+	      } else {
+		// response for lost tracks
+		ntrklost[ieta][ipt] = ntrklost[ieta][ipt]+1;
+		responseLostTrk[ieta][ipt] = responseLostTrk[ieta][ipt] + etCalo1/ptSim1;  
+		//
 	      }
 	    }
 	  }
@@ -399,6 +466,9 @@ void SinglePionEfficiency::Loop()
 	      // number of reco tracks
 	      if(drTrk2 < 0.01 && purityTrk2 == 1) {
 		ntrkreco[ieta][ipt] = ntrkreco[ieta][ipt]+1;
+		// response for found tracks
+		responseFoundTrk[ieta][ipt] = responseFoundTrk[ieta][ipt] + etCalo2/ptSim2;  
+		//
 		Double_t theta = 2.*atan(exp(-etaSim2));
 		Double_t eSim2 = ptSim2/sin(theta);
 		if(e2ECAL11x11 > -1000. && e2HCAL5x5 > -1000. && fabs(etaSim2) < 1000.) { 
@@ -406,8 +476,13 @@ void SinglePionEfficiency::Loop()
 		  Double_t e_ecal11 = e2ECAL11x11/eSim2;
 		  Double_t e_hcal5  = e2HCAL5x5/eSim2;
 		  Double_t e_ecalhcal11x5 = e_ecal11 + e_hcal5;
-		  responceVSpt[ieta][ipt] = responceVSpt[ieta][ipt] + e_ecalhcal11x5;
+		  response[ieta][ipt] = response[ieta][ipt] + e_ecalhcal11x5;
 		}
+	      } else {
+		// response for lost tracks
+		ntrklost[ieta][ipt] = ntrklost[ieta][ipt]+1;
+		responseLostTrk[ieta][ipt] = responseLostTrk[ieta][ipt] + etCalo2/ptSim2;  
+		//
 	      }
 	    }
 	  }
@@ -416,9 +491,116 @@ void SinglePionEfficiency::Loop()
    }
 
    // calculate efficiencfy, full graph and write output stream
-   ofstream myoutput("CMSSW_167_TrackNonEff.txt");
+   ofstream myoutput_eff("CMSSW_167_TrackNonEff.txt");
    ofstream myoutput_eff1("CMSSW_167_TrackNonEff_one.txt");
+   ofstream myoutput_leak("CMSSW_167_TrackLeakage.txt");
+   ofstream myoutput_leak1("CMSSW_167_TrackLeakage_one.txt");
    ofstream myoutput_resp("CMSSW_167_response.txt");
+
+   // calculate map of leackage
+   for(Int_t ieta = 0; ieta < netabins; ieta++) {
+     for(Int_t ipt = 0; ipt < nptbins; ipt++) {
+       
+	 // found tracks
+       if(ntrkreco[ieta][ipt] != 0) {
+	 
+	 responseFoundTrkF[ieta][ipt] = responseFoundTrk[ieta][ipt]/ntrkreco[ieta][ipt]; 
+	 
+       } else {
+	 
+	 responseFoundTrkF[ieta][ipt] = responseFoundTrkF[ieta][ipt-1];
+       }
+       // lost tracks
+       if(ntrklost[ieta][ipt] != 0) {
+	 
+	 responseLostTrkF[ieta][ipt] = responseLostTrk[ieta][ipt]/ntrklost[ieta][ipt]; 
+	 
+       } else {
+	 
+	 responseLostTrkF[ieta][ipt] = responseLostTrkF[ieta][ipt-1];
+
+       }
+     }
+   } 
+
+   for(Int_t ieta = 0; ieta <= netabins; ieta++) {
+     for(Int_t ipt = 0; ipt <= nptbins; ipt++) {
+
+       if(ieta < netabins && ipt < nptbins) {
+
+	 leak[ieta][ipt] = responseLostTrkF[ieta][ipt]/responseFoundTrkF[ieta][ipt];
+	 
+	 cout <<" ieta = " << ieta
+	      <<" eta = " << eta[ieta]
+	      <<" ipt = " << ipt
+	      <<" pt = " << pt[ipt]
+	      <<" ntrkreco = " << ntrkreco[ieta][ipt] 
+	      <<" ntrklost = " << ntrklost[ieta][ipt] 
+	      <<" responseFoundTrk = " << responseFoundTrkF[ieta][ipt] 
+	      <<" responseLostTrk = " << responseLostTrkF[ieta][ipt]
+	      <<" leak = " << leak[ieta][ipt] <<  endl;
+
+	 myoutput_leak << ieta << " " 
+		       << ipt  << " " 
+		       << eta[ieta] << " " 
+		       << pt[ipt] << " "
+		       << leak[ieta][ipt] << endl;
+	 myoutput_leak1 << ieta << " " 
+			<< ipt  << " " 
+			<< eta[ieta] << " " 
+			<< pt[ipt] << " "
+			<< " 1. " << endl;
+       }
+       if(ipt == nptbins && ieta < netabins) {
+	 
+	 myoutput_leak << ieta << " " 
+		       << ipt  << " " 
+		       << eta[ieta] << " " 
+		       << pt[ipt] << " "
+		       << leak[ieta][ipt-1] << endl;
+	 myoutput_leak1 << ieta << " " 
+			<< ipt  << " " 
+			<< eta[ieta] << " " 
+			<< pt[ipt] << " "
+			<< " 1. " << endl;
+       }
+       if(ipt < nptbins && ieta == netabins) {
+
+	 myoutput_leak << ieta << " " 
+		       << ipt  << " " 
+		       << eta[ieta] << " " 
+		       << pt[ipt] << " "
+		       << leak[ieta-1][ipt] << endl;
+	 myoutput_leak1 << ieta << " " 
+			<< ipt  << " " 
+			<< eta[ieta] << " " 
+			<< pt[ipt] << " "
+			<< " 1. " << endl;
+
+       }
+       if(ipt == nptbins && ieta == netabins) {
+
+	 myoutput_leak << ieta << " " 
+		       << ipt  << " " 
+		       << eta[ieta] << " " 
+		       << pt[ipt] << " "
+		       << leak[ieta-1][ipt-1] << endl;
+	 myoutput_leak1 << ieta << " " 
+			<< ipt  << " " 
+			<< eta[ieta] << " " 
+			<< pt[ipt] << " "
+			<< " 1. " << endl;
+
+       }
+     }
+   }
+
+   // calculate map of response and tracker efficiency
+
+   cout <<" " << endl;
+   cout <<" " << endl;
+   cout <<" " << endl;
+
    for(Int_t ieta = 0; ieta <= netabins; ieta++) {
      for(Int_t ipt = 0; ipt <= nptbins; ipt++) {
 
@@ -427,7 +609,7 @@ void SinglePionEfficiency::Loop()
 	 if(ntrk[ieta][ipt] != 0 && ntrkrecor[ieta][ipt] != 0) {
 	   trkeff[ieta][ipt] = 1.*ntrkreco[ieta][ipt]/ntrk[ieta][ipt];
 	   etrkeff[ieta][ipt] = sqrt( trkeff[ieta][ipt]*(1.-trkeff[ieta][ipt])/ntrk[ieta][ipt] );
-	   responceVSptF[ieta][ipt] = responceVSpt[ieta][ipt]/ntrkrecor[ieta][ipt];
+	   responseF[ieta][ipt] = response[ieta][ipt]/ntrkrecor[ieta][ipt];
 	   
 	   cout <<" ieta = " << ieta
 		<<" eta = " << eta[ieta]
@@ -438,20 +620,20 @@ void SinglePionEfficiency::Loop()
 		<<" ntrk = " << ntrk[ieta][ipt]
 		<<" eff = " << trkeff[ieta][ipt] 
 		<<" +/- " << etrkeff[ieta][ipt] 
-		<<" responce = " << responceVSptF[ieta][ipt] << endl;
-	   hResp->Fill(pt[ipt],eta[ieta],responceVSptF[ieta][ipt]);
+		<<" response = " << responseF[ieta][ipt] << endl;
+	   hResp->Fill(pt[ipt],eta[ieta],responseF[ieta][ipt]);
 	   
-	   myoutput << ieta << " " 
-		    << ipt  << " " 
-		    << eta[ieta] << " " 
-		    << pt[ipt] << " "
-		    << trkeff[ieta][ipt] << endl;
+	   myoutput_eff << ieta << " " 
+			<< ipt  << " " 
+			<< eta[ieta] << " " 
+			<< pt[ipt] << " "
+			<< trkeff[ieta][ipt] << endl;
 	   
 	   myoutput_resp << ieta << " " 
 			 << ipt  << " " 
 			 << eta[ieta] << " " 
 			 << pt[ipt] << " "
-			 << responceVSptF[ieta][ipt] << endl;
+			 << responseF[ieta][ipt] << endl;
 	   
 	   myoutput_eff1 << ieta << " " 
 			 << ipt  << " " 
@@ -461,19 +643,19 @@ void SinglePionEfficiency::Loop()
 	 } else {
 
 	   trkeff[ieta][ipt] = trkeff[ieta][ipt-1];
-	   responceVSptF[ieta][ipt] = responceVSptF[ieta][ipt-1];
-	   hResp->Fill(pt[ipt],eta[ieta],responceVSptF[ieta][ipt]);
-	   myoutput << ieta << " " 
-		    << ipt  << " " 
-		    << eta[ieta] << " " 
-		    << pt[ipt] << " "
-		    << trkeff[ieta][ipt] << endl;
+	   responseF[ieta][ipt] = responseF[ieta][ipt-1];
+	   hResp->Fill(pt[ipt],eta[ieta],responseF[ieta][ipt]);
+	   myoutput_eff << ieta << " " 
+			<< ipt  << " " 
+			<< eta[ieta] << " " 
+			<< pt[ipt] << " "
+			<< trkeff[ieta][ipt] << endl;
 	   
 	   myoutput_resp << ieta << " " 
 			 << ipt  << " " 
 			 << eta[ieta] << " " 
 			 << pt[ipt] << " "
-			 << responceVSptF[ieta][ipt] << endl;
+			 << responseF[ieta][ipt] << endl;
 	   
 	   myoutput_eff1 << ieta << " " 
 			 << ipt  << " " 
@@ -484,17 +666,17 @@ void SinglePionEfficiency::Loop()
        }
 
        if(ipt == nptbins && ieta < netabins) {
-	 myoutput << ieta << " " 
-		  << ipt  << " " 
-		  << eta[ieta] << " " 
-		  << pt[ipt] << " "
-		  << trkeff[ieta][ipt-1] << endl;
+	 myoutput_eff << ieta << " " 
+		      << ipt  << " " 
+		      << eta[ieta] << " " 
+		      << pt[ipt] << " "
+		      << trkeff[ieta][ipt-1] << endl;
 	 
 	 myoutput_resp << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
 		       << pt[ipt] << " "
-		       << responceVSptF[ieta][ipt-1] << endl;
+		       << responseF[ieta][ipt-1] << endl;
 	 
 	 myoutput_eff1 << ieta << " " 
 		       << ipt  << " " 
@@ -503,17 +685,17 @@ void SinglePionEfficiency::Loop()
 		       << " 1." << endl;
        }
        if(ipt < nptbins && ieta == netabins) {
-	 myoutput << ieta << " " 
-		  << ipt  << " " 
-		  << eta[ieta] << " " 
-		  << pt[ipt] << " "
-		  << trkeff[ieta-1][ipt] << endl;
+	 myoutput_eff << ieta << " " 
+		      << ipt  << " " 
+		      << eta[ieta] << " " 
+		      << pt[ipt] << " "
+		      << trkeff[ieta-1][ipt] << endl;
 	 
 	 myoutput_resp << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
 		       << pt[ipt] << " "
-		       << responceVSptF[ieta-1][ipt] << endl;
+		       << responseF[ieta-1][ipt] << endl;
 	 
 	 myoutput_eff1 << ieta << " " 
 		       << ipt  << " " 
@@ -522,17 +704,17 @@ void SinglePionEfficiency::Loop()
 		       << " 1." << endl;
        }
        if(ipt == nptbins && ieta == netabins) {
-	 myoutput << ieta << " " 
-		  << ipt  << " " 
-		  << eta[ieta] << " " 
-		  << pt[ipt] << " "
-		  << trkeff[ieta-1][ipt-1] << endl;
+	 myoutput_eff << ieta << " " 
+		      << ipt  << " " 
+		      << eta[ieta] << " " 
+		      << pt[ipt] << " "
+		      << trkeff[ieta-1][ipt-1] << endl;
 	 
 	 myoutput_resp << ieta << " " 
 		       << ipt  << " " 
 		       << eta[ieta] << " " 
 		       << pt[ipt] << " "
-		       << responceVSptF[ieta-1][ipt-1] << endl;
+		       << responseF[ieta-1][ipt-1] << endl;
 	 
 	 myoutput_eff1 << ieta << " " 
 		       << ipt  << " " 
@@ -567,7 +749,7 @@ void SinglePionEfficiency::Loop()
 	  <<" leakage = " << leakage[ih] <<" +/- " << eleakage[ih] << endl; 
    }
 
-   TGraph *leak = new TGraphErrors(netabins,etagr,leakage, eetagr,eleakage);
+   TGraph *gleak = new TGraphErrors(netabins,etagr,leakage, eetagr,eleakage);
    TGraph *eMeanNotInter = new TGraphErrors(netabins,etagr,MeanNotInter, eetagr,MeanErrorNotInter);
    TGraph *eMeanInter = new TGraphErrors(netabins,etagr,MeanInter, eetagr,MeanErrorInter);
    //  vs Eta
@@ -597,15 +779,15 @@ void SinglePionEfficiency::Loop()
    leg->Draw();
 
    c3->cd(2);
-   TAxis* xaxis = leak->GetXaxis();
-   leak->GetXaxis()->SetTitle("#eta");
-   leak->GetYaxis()->SetTitle("ratio = <E_{T for lost tracks}^{raw reco} / E_{T for found tracks}^{raw reco}>");
+   TAxis* xaxis = gleak->GetXaxis();
+   gleak->GetXaxis()->SetTitle("#eta");
+   gleak->GetYaxis()->SetTitle("ratio = <E_{T for lost tracks}^{raw reco} / E_{T for found tracks}^{raw reco}>");
    xaxis->SetLimits(0.0,2.4);
-   leak->SetMarkerStyle(21);
-   leak->SetMaximum(1.0);
+   gleak->SetMarkerStyle(21);
+   gleak->SetMaximum(1.0);
    //  leak->SetMinimum(0.7);
-   leak->SetMinimum(0.5);
-   leak->Draw("AP");
+   gleak->SetMinimum(0.5);
+   gleak->Draw("AP");
    TLatex *t = new TLatex();
    t->SetTextSize(0.08);
    //   t->DrawLatex(0.1,0.75,"<E_{T for lost tracks}^{raw reco} / E_{T for found tracks}^{raw reco}> for p_{T}^{#pi^{#pm}} >2 GeV");
