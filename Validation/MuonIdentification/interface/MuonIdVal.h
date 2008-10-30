@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.3 2008/08/23 09:17:41 jribnik Exp $
+// $Id: MuonIdVal.h,v 1.4 2008/10/24 14:59:49 jribnik Exp $
 //
 //
 
@@ -91,6 +91,10 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hTMLastStationTightBool[2];
       MonitorElement* hTM2DCompatibilityLooseBool[2];
       MonitorElement* hTM2DCompatibilityTightBool[2];
+      MonitorElement* hTMOneStationLooseBool[2];
+      MonitorElement* hTMOneStationTightBool[2];
+      MonitorElement* hTMLastStationOptimizedLowPtLooseBool[2];
+      MonitorElement* hTMLastStationOptimizedLowPtTightBool[2];
 
       MonitorElement* hEnergyEMBarrel[2];
       MonitorElement* hEnergyHABarrel[2];
