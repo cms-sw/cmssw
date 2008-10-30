@@ -38,7 +38,7 @@ void GenJetRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     //    LorentzVector currentGenJet((*jetItr).px(),(*jetItr).py(),(*jetItr).pz(),(*jetItr).energy());
     LorentzVector currentGenJet(0.,0.,0.,0.);
     
-    if ( (abs( (*jetItr).eta()) < etaMax) && ((*jetItr).pt() > ptMinGenJet_ ) ) {
+    if ( (fabs( (*jetItr).eta()) < etaMax) && ((*jetItr).pt() > ptMinGenJet_ ) ) {
       currentGenJet.SetPxPyPzE((*jetItr).px(),(*jetItr).py(),(*jetItr).pz(),(*jetItr).energy());
       product_GenJets->push_back(currentGenJet);
     }
