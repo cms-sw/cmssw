@@ -315,14 +315,12 @@ void L1GctWheelJetFpga::classifyJets()
 {
   JetVector::iterator currentJet;  
   
-  unsigned short pos=MAX_JETS_IN;
-  // We assign each jet a unique priority.
+  unsigned short pos=0;
   // In the case of two jets of equal rank, the sort will take the lower priority.
   // This corresponds to the lower position in the array. In order to mimic the hardware
-  // behaviour, the order of jets from the input leaf cards is reversed here.
-  for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet)
+  // behaviour, the order of jets from the input leaf cards is maintained here.
+  for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet, ++pos)
   {
-    pos--;
     if (!currentJet->empty()) {
       if(currentJet->isForward())  //forward jet
 	{
