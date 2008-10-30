@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterLazyTools.cc,v 1.2 2008/09/02 03:59:31 anderson Exp $
+// $Id: testEcalClusterLazyTools.cc,v 1.3 2008/09/03 11:01:36 sharper Exp $
 //
 //
 
@@ -103,7 +103,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
                 std::cout << "e1x3..................... " << lazyTools.e1x3( *it ) << std::endl;
                 std::cout << "e3x1..................... " << lazyTools.e3x1( *it ) << std::endl;
                 std::cout << "e1x5..................... " << lazyTools.e1x5( *it ) << std::endl;
-                std::cout << "e5x1..................... " << lazyTools.e5x1( *it ) << std::endl;
+                //std::cout << "e5x1..................... " << lazyTools.e5x1( *it ) << std::endl;
                 std::cout << "e2x2..................... " << lazyTools.e2x2( *it ) << std::endl;
                 std::cout << "e3x3..................... " << lazyTools.e5x5( *it ) << std::endl;
                 std::cout << "e4x4..................... " << lazyTools.e4x4( *it ) << std::endl;
@@ -145,7 +145,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
                 std::cout << "e1x3..................... " << lazyTools.e1x3( *it ) << std::endl;
                 std::cout << "e3x1..................... " << lazyTools.e3x1( *it ) << std::endl;
                 std::cout << "e1x5..................... " << lazyTools.e1x5( *it ) << std::endl;
-                std::cout << "e5x1..................... " << lazyTools.e5x1( *it ) << std::endl;
+                //std::cout << "e5x1..................... " << lazyTools.e5x1( *it ) << std::endl;
                 std::cout << "e2x2..................... " << lazyTools.e2x2( *it ) << std::endl;
                 std::cout << "e3x3..................... " << lazyTools.e5x5( *it ) << std::endl;
                 std::cout << "e4x4..................... " << lazyTools.e4x4( *it ) << std::endl;
