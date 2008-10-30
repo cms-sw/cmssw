@@ -18,11 +18,14 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
+#include "DQMOffline/Trigger/interface/MonElemContainer.h"
 #include "DQMOffline/Trigger/interface/MonElemManager.h"
+#include "DQMOffline/Trigger/interface/MonElemWithCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffData.h"
 #include "DQMOffline/Trigger/interface/ParticlePair.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
 #include "DQMOffline/Trigger/interface/EgammaHLTEffSrc.h"
+#include "DQMOffline/Trigger/interface/TrigCodes.h"
 
 #include <string>
 
@@ -33,7 +36,7 @@ namespace trigger{
 class EleHLTFilterMon {
 
  public:
-  //a helper struct to store the object collection handles to faciliate passing them in functions
+ 
  
   //comparision functor for EleHLTFilterMon
   //short for: pointer compared with string
@@ -47,28 +50,30 @@ class EleHLTFilterMon {
   };
   
  private:
-  //we own the pointers in the vectors
-  std::vector<MonElemManagerBase<EgHLTOffEle>*> eleMonElems_;
-  std::vector<MonElemManagerBase<trigger::TriggerObject>*> trigMonElems_;
-  std::vector<MonElemManagerBase<EgHLTOffEle>*> eleFailMonElems_;
-  std::vector<EgammaHLTEffSrcBase<EgHLTOffEle>*> eleEffHists_;
-  std::vector<MonElemManagerBase<ParticlePair<EgHLTOffEle> >*> diEleMonElems_;
-  
-  //std::vector<MonElemManager*> l1EleMonElems_;
   std::string filterName_;
+  const TrigCodes::TrigBitSet filterBit_;
+
+  //we own the pointers in the vectors
+  //std::vector<MonElemManagerBase<EgHLTOffEle>*> eleMonElems_;
+  std::vector<MonElemManagerBase<trigger::TriggerObject>*> trigMonElems_;
+  //  std::vector<MonElemManagerBase<EgHLTOffEle>*> eleFailMonElems_;
+  //  std::vector<MonElemWithCutBase<EgHLTOffEle>*> eleEffHists_;  
+  std::vector<MonElemContainer<EgHLTOffEle>*> eleEffHists_;
+  std::vector<MonElemManagerBase<ParticlePair<EgHLTOffEle> >*> diEleMonElems_;
+  std::vector<MonElemContainer<EgHLTOffEle>*> eleMonElems_;
+  std::vector<MonElemContainer<EgHLTOffEle>*> eleFailMonElems_;
+
+  
   
   
   //disabling copying
   EleHLTFilterMon(const EleHLTFilterMon&){}
   EleHLTFilterMon& operator=(const EleHLTFilterMon&){return *this;}
  public:
-  explicit EleHLTFilterMon(std::string filterName);
+  EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBitSet filterBit);
   ~EleHLTFilterMon();
   
-  //should really be in a helper class...
-  static void initStdEleHists(std::vector<MonElemManagerBase<EgHLTOffEle>*>& histVec,std::string baseName); //passing by value intentionally
-  static void initStdEffHists(std::vector<EgammaHLTEffSrcBase<EgHLTOffEle>*>& histVec,std::string baseName,int nrBins,double xMin,double xMax,float (EgHLTOffEle::*vsVarFunc)()const);
-
+ 
   void fill(const EgHLTOffData& evtData,float weight);
   
   //sort by filter name

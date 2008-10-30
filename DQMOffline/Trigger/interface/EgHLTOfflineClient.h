@@ -49,7 +49,9 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
  private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string dirName_;
-
+  std::vector<std::string> eleHLTPathNames_;//names of the HLT paths to use
+  std::vector<std::string> eleHLTFilterNames_;//names of the filter names to use, appended to the pathNames 
+  std::vector<std::string> eleHLTTightLooseFilters_;//names of the filter names to use, appended to the pathNames
   //disabling copying/assignment
   EgHLTOfflineClient(const EgHLTOfflineClient& rhs){}
   EgHLTOfflineClient& operator=(const EgHLTOfflineClient& rhs){return *this;}
@@ -70,8 +72,13 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   // DQM Client Diagnostic
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
 
-  void createEffHist(const std::string& name);
- 
+  //at somepoint these all may migrate to a helper class
+  void createN1EffHists(const std::string& baseName,const std::string& region="");
+  void createLooseTightTrigEff(const std::string& filterName,const std::string& region="");
+  void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region="");
+  MonitorElement* makeEffMonElemFromPassAndAll(const std::string& name,const MonitorElement* pass,const MonitorElement* all);
+  MonitorElement* makeEffMonElemFromPassAndFail(const std::string& name,const MonitorElement* pass,const MonitorElement* fail);
+  
 };
  
 

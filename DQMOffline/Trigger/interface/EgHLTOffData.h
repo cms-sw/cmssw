@@ -18,14 +18,21 @@
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 
 struct EgHLTOffData {
   public:
   edm::Handle<trigger::TriggerEvent> trigEvt;
  
-  std::vector<EgHLTOffEle> *eles; //EgHLTOffEle is lightweight and handles copying well hence it isnt a vector of pointers
+  const std::vector<EgHLTOffEle> *eles; //EgHLTOffEle is lightweight and handles copying well hence it isnt a vector of pointers
+  
+  const std::vector<reco::CaloJet>* jets;
+
+  TrigCodes::TrigBitSet evtTrigBits; //the triggers that fired in the event all in a handy bit set
+
+  //this is now a little redundant and will be deleted sometime soon
   std::vector<std::vector<int> > *filtersElePasses; //the filter numbers which each electron passed, the filter numbers are sorted and the electrons have an entry to entry correspondance to electrons in eles
 };
 

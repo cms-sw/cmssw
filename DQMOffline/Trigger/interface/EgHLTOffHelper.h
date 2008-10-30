@@ -20,6 +20,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEleSel.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -46,10 +47,12 @@ class EgHLTOffHelper {
   //as you may have guessed the following six members are to enable us to calculate sigmaEtaEta, with the first two being the tags needed
   edm::InputTag ecalRecHitsEBTag_;
   edm::InputTag ecalRecHitsEETag_;
+  edm::InputTag caloJetsTag_;
   const CaloGeometry* caloGeom_;
   const CaloTopology* caloTopology_;
   const EcalRecHitCollection* ebRecHits_;
   const EcalRecHitCollection* eeRecHits_;
+  const std::vector<reco::CaloJet>* jets_;
 
 
  public:
@@ -60,6 +63,7 @@ class EgHLTOffHelper {
 
   void getHandles(const edm::Event& event,const edm::EventSetup& setup);
   
+  const std::vector<reco::CaloJet>* jets()const{return jets_;}
 
   void fillEgHLTOffEleVec(edm::Handle<reco::GsfElectronCollection> gsfElectrons,std::vector<EgHLTOffEle>& egHLTOffEles);
   

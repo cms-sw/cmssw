@@ -23,6 +23,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 #include "DQMOffline/Trigger/interface/CutCodes.h"
+#include "DQMOffline/Trigger/interface/TrigCodes.h"
 
 class EgHLTOffEle { 
   
@@ -35,14 +36,21 @@ class EgHLTOffEle {
     float had;
   };
 
- 
+public:
+  //helper struct to store the cluster shapes
+  struct ClusShapeData {
+    float sigmaEtaEta;
+    //float sigmaIEtaIEta;
+    //float e2x5MaxOver5x5;
+    float sigmaPhiPhi;
+    //float sigmaIPhiIPhi;
+  };
+
 
  private:
   const reco::GsfElectron* gsfEle_; //pointers to the underlying electron (we do not own this)
   // const reco::ClusterShape* clusShape_; //pointers to the underlying cluster shape (we do not own this and it may be null)
-  float sigmaEtaEta_;
-  float sigmaPhiPhi_;
-
+  ClusShapeData clusShapeData_;
   IsolData isolData_;
 
   //these are bit-packed words telling me which cuts the electron fail (ie 0x0 is passed all cuts)
@@ -50,11 +58,15 @@ class EgHLTOffEle {
   int probeCutCode_;
   int cutCode_;
   
+  //and these are the trigger bits stored
+  //note that the trigger bits are defined at the begining of each job
+  //and do not necessaryly map between jobs
+  TrigCodes::TrigBitSet trigBits_;
 
  public:
   
- EgHLTOffEle(const reco::GsfElectron& ele,float sigmaEtaEta,const IsolData& isolData):
-   gsfEle_(&ele),sigmaEtaEta_(sigmaEtaEta),isolData_(isolData),
+ EgHLTOffEle(const reco::GsfElectron& ele,const ClusShapeData& shapeData,const IsolData& isolData):
+   gsfEle_(&ele),clusShapeData_(shapeData),isolData_(isolData),
    tagCutCode_(CutCodes::INVALID),probeCutCode_(CutCodes::INVALID),cutCode_(CutCodes::INVALID){}
   ~EgHLTOffEle(){}
   
@@ -62,7 +74,8 @@ class EgHLTOffEle {
   void setTagCutCode(int code){tagCutCode_=code;}
   void setProbeCutCode(int code){probeCutCode_=code;} 
   void setCutCode(int code){cutCode_=code;}
-  
+  void setTrigBits(TrigCodes::TrigBitSet bits){trigBits_=bits;}
+
   //kinematic and geometric methods
   float et()const{return gsfEle_->et();}
   float energy()const{return gsfEle_->energy();}
@@ -71,11 +84,12 @@ class EgHLTOffEle {
   float etSC()const{return gsfEle_->superCluster()->position().rho()/gsfEle_->superCluster()->position().r()*caloEnergy();}
   float caloEnergy()const{return gsfEle_->caloEnergy();}
   float etaSC()const{return gsfEle_->superCluster()->eta();}
+  float detEta()const{return etaSC();}
   float phiSC()const{return gsfEle_->superCluster()->phi();}
   float zVtx()const{return gsfEle_->TrackPositionAtVtx().z();}
   const math::XYZTLorentzVector& p4()const{return gsfEle_->p4();}
 
-  //classification (couldnt they have just used type)
+  //classification (couldnt they have just named it 'type')
   int classification()const{return gsfEle_->classification();}
 
   //track methods
@@ -96,7 +110,11 @@ class EgHLTOffEle {
   
   //variables with no direct method
   float sigmaEtaEta()const;
-  float sigmaEtaEtaUnCorr()const{return sigmaEtaEta_;}
+  float sigmaEtaEtaUnCorr()const{return clusShapeData_.sigmaEtaEta;}
+  //float sigmaIEtaIEta()const;						
+  float sigmaPhiPhi()const{return clusShapeData_.sigmaPhiPhi;}
+  //float sigmaIPhiIPhi()const{return clusShapeData_.sigmaIPhiIPhi;}
+  //float e2x5MaxOver5x5()const{return clusShapeData_.e2x5MaxOver5x5;}
   //float sigmaPhiPhi()const{return clusShape_!=NULL ? sqrt(clusShape_->covPhiPhi()) : 999;}
   float bremFrac()const{return (pVtx()-pCalo())/pVtx();}
   float invEOverInvP()const{return 1./gsfEle_->caloEnergy() - 1./gsfEle_->trackMomentumAtVtx().R();}
@@ -112,6 +130,9 @@ class EgHLTOffEle {
   int tagCutCode()const{return tagCutCode_;}
   int probeCutCode()const{return probeCutCode_;}
   int cutCode()const{return cutCode_;}
+
+  //trigger
+  TrigCodes::TrigBitSet trigBits()const{return trigBits_;}
   
 
 };

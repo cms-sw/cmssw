@@ -29,6 +29,17 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 template<class T> class MonElemManagerBase {
+  
+public:
+  MonElemManagerBase(){}
+  virtual ~MonElemManagerBase(){}
+  
+  virtual void fill(const T& obj,float weight)=0;
+
+};
+
+//this was the orginal base class but then I made a change where I wanted multiple MonElems wraped into a single Manager (ie endcap barrel) so a new base class was designed with interface only
+template<class T> class MonElemManagerHist : public MonElemManagerBase<T> {
 
  private:
   MonitorElement *monElem_; //we own this (or do we, currently I have decided we dont) FIXME
@@ -36,12 +47,12 @@ template<class T> class MonElemManagerBase {
  //disabling copying and assignment as I havnt figured out how I want them to work yet
  //incidently we cant copy a MonitorElement anyway at the moment (and we prob dont want to)
  private:
-  MonElemManagerBase(const MonElemManagerBase& rhs){}
-  MonElemManagerBase& operator=(const MonElemManagerBase& rhs){return *this;}
+  MonElemManagerHist(const MonElemManagerHist& rhs){}
+  MonElemManagerHist& operator=(const MonElemManagerHist& rhs){return *this;}
  public:
-  MonElemManagerBase(std::string name,std::string title,int nrBins,double xMin,double xMax);
-  MonElemManagerBase(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax);
-  virtual ~MonElemManagerBase();
+  MonElemManagerHist(std::string name,std::string title,int nrBins,double xMin,double xMax);
+  MonElemManagerHist(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax);
+  virtual ~MonElemManagerHist();
 
   MonitorElement* monElem(){return monElem_;}
   const MonitorElement* monElem()const{return monElem_;}
@@ -51,14 +62,14 @@ template<class T> class MonElemManagerBase {
 
 };
 
-template <class T> MonElemManagerBase<T>::MonElemManagerBase(std::string name,std::string title,int nrBins,double xMin,double xMax):
+template <class T> MonElemManagerHist<T>::MonElemManagerHist(std::string name,std::string title,int nrBins,double xMin,double xMax):
   monElem_(NULL)
 {
   DQMStore* dbe = edm::Service<DQMStore>().operator->();
   monElem_ =dbe->book1D(name,title,nrBins,xMin,xMax);
 }
   
-template <class T> MonElemManagerBase<T>::MonElemManagerBase(std::string name,std::string title,
+template <class T> MonElemManagerHist<T>::MonElemManagerHist(std::string name,std::string title,
 							     int nrBinsX,double xMin,double xMax,
 							     int nrBinsY,double yMin,double yMax):
   monElem_(NULL)
@@ -68,13 +79,13 @@ template <class T> MonElemManagerBase<T>::MonElemManagerBase(std::string name,st
 }
 
  
-template <class T> MonElemManagerBase<T>::~MonElemManagerBase()
+template <class T> MonElemManagerHist<T>::~MonElemManagerHist()
 {
   // delete monElem_;
 }
 
 //fills the MonitorElement with a member function of class T returning type varType
-template<class T,typename varType> class MonElemManager : public MonElemManagerBase<T> {
+template<class T,typename varType> class MonElemManager : public MonElemManagerHist<T> {
  private:
 
   varType (T::*varFunc_)()const;
@@ -88,7 +99,7 @@ template<class T,typename varType> class MonElemManager : public MonElemManagerB
  public:
   MonElemManager(std::string name,std::string title,int nrBins,double xMin,double xMax,
 		 varType (T::*varFunc)()const):
-    MonElemManagerBase<T>(name,title,nrBins,xMin,xMax),
+    MonElemManagerHist<T>(name,title,nrBins,xMin,xMax),
     varFunc_(varFunc){}
   ~MonElemManager();
 
@@ -101,7 +112,7 @@ template<class T,typename varType> class MonElemManager : public MonElemManagerB
 
 template<class T,typename varType> void MonElemManager<T,varType>::fill(const T& obj,float weight)
 {
-  MonElemManagerBase<T>::monElem()->Fill((obj.*varFunc_)(),weight);
+  MonElemManagerHist<T>::monElem()->Fill((obj.*varFunc_)(),weight);
 }
 
 template<class T,typename varType> MonElemManager<T,varType>::~MonElemManager()
@@ -111,7 +122,7 @@ template<class T,typename varType> MonElemManager<T,varType>::~MonElemManager()
 
 
 //fills a 2D monitor element with member functions of T returning varType1 and varType2 
-template<class T,typename varTypeX,typename varTypeY=varTypeX> class MonElemManager2D : public MonElemManagerBase<T> {
+template<class T,typename varTypeX,typename varTypeY=varTypeX> class MonElemManager2D : public MonElemManagerHist<T> {
  private:
 
  varTypeX (T::*varFuncX_)()const;
@@ -125,7 +136,7 @@ template<class T,typename varTypeX,typename varTypeY=varTypeX> class MonElemMana
  public:
  MonElemManager2D(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
 		  varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const):
-                  MonElemManagerBase<T>(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax),
+                  MonElemManagerHist<T>(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax),
                   varFuncX_(varFuncX),varFuncY_(varFuncY){}
  ~MonElemManager2D();
 
@@ -137,7 +148,7 @@ template<class T,typename varTypeX,typename varTypeY=varTypeX> class MonElemMana
 
 template<class T,typename varTypeX,typename varTypeY> void MonElemManager2D<T,varTypeX,varTypeY>::fill(const T& obj,float weight)
 {
-  MonElemManagerBase<T>::monElem()->Fill((obj.*varFuncX_)(),(obj.*varFuncY_)(),weight);
+  MonElemManagerHist<T>::monElem()->Fill((obj.*varFuncX_)(),(obj.*varFuncY_)(),weight);
 }
 
 template<class T,typename varTypeX,typename varTypeY> MonElemManager2D<T,varTypeX,varTypeY>::~MonElemManager2D()
