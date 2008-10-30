@@ -175,11 +175,11 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	   barrelMap[detId.ring()][detId.sector()].first += goodFraction;
 	   barrelMap[detId.ring()][detId.sector()].second++ ;
 	 }else if(detId.region()==-1){
-	   endcapMinusMap[-1 * detId.station()][detId.sector()].first +=  badChannels.size();
-	   endcapMinusMap[-1 * detId.station()][detId.sector()].second+=(*r)->nstrips() ;
+	   endcapMinusMap[-1 * detId.station()][detId.sector()].first +=  goodFraction;
+	   endcapMinusMap[-1 * detId.station()][detId.sector()].second++ ;
 	 }else {
-	   endcapPlusMap[detId.station()][detId.sector()].first +=  badChannels.size();
-	   endcapPlusMap[detId.station()][detId.sector()].second+=(*r)->nstrips();
+	   endcapPlusMap[detId.station()][detId.sector()].first += goodFraction;
+	   endcapPlusMap[detId.station()][detId.sector()].second++;
 	 }
 	 ty++;      
        }//End loop on rolls in given chambers
@@ -240,7 +240,7 @@ void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float>
 	  reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
       }  else reportSummaryMap->setBinContent((*itr).first+binOffSet,(*meItr).first,-1);
 	Good += (*meItr).second.first;
-	Rolls  += (*meItr).second.second;
+	Rolls += (*meItr).second.second;
       }
       allGood_ += Good;
       allRolls_ +=  Rolls ;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Anna Cimmino
 //         Created:  Wed Mar  5 20:43:10 CET 2008
-// $Id: RPCQualityTests.cc,v 1.2 2008/04/25 16:45:54 cimmino Exp $
+// $Id: RPCQualityTests.cc,v 1.3 2008/06/30 12:13:46 cimmino Exp $
 //
 //
 
@@ -196,7 +196,7 @@ map<std::string , RPCClient*> RPCQualityTests::makeQTestMap() {
 
   map<std::string , RPCClient*> qtmap;
 
-  qtmap["DeadChannelTest"] = new RPCDeadChannelTest(parameters_);
+  // qtmap["DeadChannelTest"] = new RPCDeadChannelTest(parameters_);
   //  qtmap["MultiplicityTest"] = new RPCMultiplicityTest(parameters_);
   return qtmap;
 
