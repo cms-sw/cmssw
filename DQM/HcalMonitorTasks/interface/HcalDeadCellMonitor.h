@@ -11,8 +11,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2008/10/28 20:05:11 $
-  * $Revision: 1.20 $
+  * $Date: 2008/10/29 23:37:34 $
+  * $Revision: 1.21 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -149,6 +149,8 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   MonitorElement* d_HOenergyVsNeighbor;
   MonitorElement* d_HFenergyVsNeighbor;
   MonitorElement* d_ZDCenergyVsNeighbor;
+
+  bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 
   neighborParams defaultNeighborParams_, HBNeighborParams_, HENeighborParams_, HONeighborParams_, HFNeighborParams_, ZDCNeighborParams_;
 };

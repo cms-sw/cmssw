@@ -29,7 +29,13 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"DeadCellMonitor";
-  
+
+  // Assume subdetectors not present until shown otherwise
+  HBpresent_=false;
+  HEpresent_=false;
+  HOpresent_=false;
+  HFpresent_=false;
+
   // Dead Cell Monitor - specific cfg variables
 
   if (fVerbosity>1)
@@ -499,7 +505,9 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   ++ievt_;
   if (m_dbe) meEVT_->Fill(ievt_);
-
+  
+  HOpresent_ = (hodigi.size()>0||hoHits.size()>0);
+  HFpresent_ = (hfdigi.size()>0||hfHits.size()>0);
   if (fVerbosity>1) cout <<"<HcalDeadCellMonitor::processEvent> Processing event..."<<endl;
 
   // Do Digi-Based dead cell searches 
@@ -586,14 +594,16 @@ void HcalDeadCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection&
      int depth = id.depth();
      if (id.subdet()==HcalBarrel)
        {
+	 HBpresent_=true;
 	 if (!checkHB_) continue;
 	 if (deadmon_makeDiagnostics_) d_HBrechitenergy->Fill(en);
 	 ++rechit_occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
 	 if (en>=HBenergyThreshold_)
 	   ++aboveenergy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
        }
-     else if (id.subdet()==HcalEndcap)
+     else //if (id.subdet()==HcalEndcap)
        {
+	 HEpresent_=true;
 	 if (!checkHE_) continue;
 	 if (deadmon_makeDiagnostics_) d_HErechitenergy->Fill(en);
 	 ++rechit_occupancy[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1];
@@ -683,10 +693,18 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
        { // loop over all hits
 	 float en = HBHEiter->energy();
 	 HcalDetId id(HBHEiter->detid().rawId());
-	 if (!checkHB_ && id.subdet()==HcalBarrel)
-	   continue;
-	 if (!checkHE_ && id.subdet()==HcalEndcap)
-	   continue;
+	 if (id.subdet()==HcalBarrel)
+	   {
+	     HBpresent_=true;
+	     if (!checkHB_)
+	       continue;
+	   }
+	 else
+	   {
+	     HEpresent_=true;
+	     if (!checkHE_)
+	       continue;
+	   }
 	 rechitEnergies_[id]=en;
        }
      // HO
@@ -740,6 +758,7 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 
      if (id.subdet()==HcalBarrel)
        {
+	 HBpresent_=true;
 	 if (!checkHB_) continue;
 	 // Search keys for neighboring cells
 	 if (en>HBNeighborParams_.maxCellEnergy) // cells above maxCellEnergy not considered dead
@@ -783,8 +802,9 @@ void HcalDeadCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollecti
 	 // Case 3:  Tests passed; cell marked as dead
 	 belowneighbors[ieta+(int)((etaBins_-2)/2)][iphi-1][depth-1]++;
        }
-     else if (id.subdet()==HcalEndcap)
+     else //if (id.subdet()==HcalEndcap)
        {
+	 HEpresent_=true;
 	 if (!checkHE_) continue;
 	 // Search keys for neighboring cells
 	 if (en>HENeighborParams_.maxCellEnergy) // cells above maxCellEnergy not considered dead
@@ -1011,9 +1031,18 @@ void HcalDeadCellMonitor::processEvent_digi( const HBHEDigiCollection& hbhedigi,
       maxbin=0;
       ADCsum=0;
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      if (!checkHB_ && (HcalSubdetector)(digi.id().subdet())==HcalBarrel) continue;
-      if (!checkHE_ && (HcalSubdetector)(digi.id().subdet())==HcalEndcap) continue;
-	    
+      if ((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
+	{
+	  HBpresent_=true;
+	  if (!checkHB_)
+	    continue;
+	}
+      else 
+	{
+	  HEpresent_=true;
+	  if (!checkHE_)
+	    continue;
+	}
       ieta=digi.id().ieta();
       iphi=digi.id().iphi();
       depth=digi.id().depth();
@@ -1286,6 +1315,9 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 		{
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
+		  // Ignore subdetectors that weren't in run
+		  if ((subdet==1 && !HBpresent_) || (subdet==2 &&!HEpresent_)||(subdet==3 &&!HOpresent_) || (subdet==4 &&!HFpresent_)) continue;
+		  // ignore subdetectors we explicitly mask off 
 		  if ((!checkHB_ && subdet==1) ||
 		      (!checkHE_ && subdet==2) ||
 		      (!checkHO_ && subdet==3) ||
@@ -1368,6 +1400,9 @@ void HcalDeadCellMonitor::fillNevents_pedestal(void)
 		{
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
+		  // Ignore subdetectors that weren't in run
+                  if ((subdet==1 && !HBpresent_) || (subdet==2 &&!HEpresent_)||(subdet==3 &&!HOpresent_) || (subdet==4 &&!HFpresent_)) continue;
+		  
 		  if ((!checkHB_ && subdet==1) ||
 		      (!checkHE_ && subdet==2) ||
 		      (!checkHO_ && subdet==3) ||
@@ -1462,6 +1497,9 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
 		{
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
+		  // Ignore subdetectors that weren't in run
+                  if ((subdet==1 && !HBpresent_) || (subdet==2 &&!HEpresent_)||(subdet==3 &&!HOpresent_) || (subdet==4 &&!HFpresent_)) continue;
+
 		  if ((!checkHB_ && subdet==1) ||
 		      (!checkHE_ && subdet==2) ||
 		      (!checkHO_ && subdet==3) ||
@@ -1559,6 +1597,8 @@ void HcalDeadCellMonitor::fillNevents_neighbor(void)
 		{
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
+		  // Ignore subdetectors that weren't in run
+                  if ((subdet==1 && !HBpresent_) || (subdet==2 &&!HEpresent_)||(subdet==3 &&!HOpresent_) || (subdet==4 &&!HFpresent_)) continue;
 		  if ((!checkHB_ && subdet==1) ||
 		      (!checkHE_ && subdet==2) ||
 		      (!checkHO_ && subdet==3) ||

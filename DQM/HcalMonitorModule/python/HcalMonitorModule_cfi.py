@@ -20,8 +20,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            checkHB = cms.untracked.bool(True),
                            checkHO = cms.untracked.bool(True),
 
-                           #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0?
-                           minErrorFlag = cms.untracked.double(0.00), 
+                           #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
+                           minErrorFlag = cms.untracked.double(0.01), 
 
                            # Turn on/off timing diagnostic info
                            showTiming          = cms.untracked.bool(False),
@@ -127,7 +127,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_HF_neighbor_minGoodNeighborFrac = cms.untracked.double(.7),
                            DeadCellMonitor_HF_neighbor_maxEnergyFrac       = cms.untracked.double(.2),
 
-                           DeadCellMonitor_minErrorFlag                    = cms.untracked.double(0.00),
+                           DeadCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
                            
                            # HOT CELL MONITOR
                            HotCellMonitor                              = cms.untracked.bool(True),
@@ -204,7 +204,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_HF_neighbor_maxEnergy           = cms.untracked.double(25),
                            HotCellMonitor_HF_neighbor_HotEnergyFrac       = cms.untracked.double(.02),
                            
-                           HotCellMonitor_minErrorFlag                    = cms.untracked.double(0.00),
+                           HotCellMonitor_minErrorFlag                    = cms.untracked.double(0.05),
                            
 
                            diagnosticPrescaleLS = cms.untracked.int32(-1),
