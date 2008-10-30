@@ -141,8 +141,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
   Handle< reco::PFRecTrackCollection > recTracks;
   std::vector<unsigned> recTrackSimID;
   unsigned recTrackID = 99999;
-  vector<unsigned> recHitContrib;
-  vector<double>   recHitContribFrac;
 
   if ( unfoldedMode_ ) { 
     //getting the PCAloHit
@@ -254,6 +252,9 @@ void PFSimParticleProducer::produce(Event& iEvent,
     // const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
     for(unsigned i=0; i<mySimEvent->nTracks(); i++) {
       
+      vector<unsigned> recHitContrib;
+      vector<double>   recHitContribFrac;
+
       const FSimTrack& fst = mySimEvent->track(i);
       
       int motherId = -1;
