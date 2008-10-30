@@ -30,8 +30,10 @@ private:
   int _passMETSig;
   int _passHighPtTower;
   int _passNRBX;
+  int _passHLT;
 
   std::string CaloJetAlgorithm;
+  edm::InputTag theTriggerResultsLabel;
 
 };
 

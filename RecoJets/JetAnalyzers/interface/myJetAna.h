@@ -54,6 +54,7 @@ private:
 
   std::string CaloJetAlgorithm;
   std::string GenJetAlgorithm;
+  edm::InputTag theTriggerResultsLabel;
   std::string JetCorrectionService;
 
 
@@ -180,6 +181,7 @@ private:
 
   TH1F *h_jet1Pt;
   TH1F *h_jet2Pt;
+  TH1F *h_jet1PtHLT;
 
   TH1F *EMFraction;
   TH1F *NTowers;
