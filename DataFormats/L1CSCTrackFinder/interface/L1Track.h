@@ -54,7 +54,9 @@ namespace csc{
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
 
       unsigned ptLUTAddress() const { return m_ptAddress; }
+      unsigned front_rear() const { return m_fr; }
       void setPtLUTAddress(const unsigned& adr) { m_ptAddress = adr; }
+      void set_front_rear(unsigned fr) { m_fr=fr; }
 
       unsigned outputLink() const {return m_output_link;}
       bool winner() const {return m_winner;}
@@ -86,6 +88,7 @@ namespace csc{
       //CSCCorrelatedLCTDigiCollection track_stubs;  same as above
       unsigned m_lphi;
       unsigned m_ptAddress;
+      unsigned m_fr;
       unsigned me1_id, me2_id, me3_id, me4_id, mb1_id;
       unsigned m_rank;
       unsigned m_output_link;
