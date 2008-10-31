@@ -142,7 +142,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
       
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_occasionally_above_threshold");
+      m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
       setupDepthHists2D(AboveEnergyThresholdCellsByDepth,
 			"Hot Cells Above Energy Threshold","");
       // set more descriptive titles for plots
@@ -165,7 +165,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       units<<"Hot Cells: Depth 2 -- HE > "<<HEenergyThreshold_<<" GeV";
       AboveEnergyThresholdCellsByDepth[5]->setTitle(units.str().c_str());
 
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_persistently_above_threshold");
+      m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
       setupDepthHists2D(AbovePersistentThresholdCellsByDepth,
 			"Hot Cells Persistently Above Energy Threshold","");
       // set more descriptive titles for plots
