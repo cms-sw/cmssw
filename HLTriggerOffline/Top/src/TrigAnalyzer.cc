@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/3
 //        
-// $Id$
+// $Id: TrigAnalyzer.cc,v 1.1 2008/09/16 09:00:20 lobelle Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 // constructors and destructor
 //
 
-# include "trigger/TrigAnalyzer/interface/TrigAnalyzer.h"
+# include "HLTriggerOffline/Top/interface/TrigAnalyzer.h"
 
 
 TrigAnalyzer::TrigAnalyzer(const edm::ParameterSet& iConfig)
@@ -231,8 +231,10 @@ TrigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //Muon Collection to use
     std::map<double,reco::Muon> muonMap; 
   
-    for (size_t i = 0; i< muonsH->size(); ++i){    
+    for (size_t i = 0; i< muonsH->size(); ++i){   
+      if ( (*muonsH)[i].isGlobalMuon()){  
       muonMap[(*muonsH)[i].pt()] = (*muonsH)[i];
+      }
     }     
 
     //Muon selection
