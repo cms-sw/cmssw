@@ -52,39 +52,23 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
-      const SiStripMatchedRecHit2DCollection::range range =
-        matchedHits->get(accessor.stripTIBLayer(theIdLayer) );
-      for(SiStripMatchedRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-        result.push_back( SeedingHit(&(*it), sl, es) );
-      }
+      range2SeedingHits( *matchedHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
       ev.getByLabel( theRPhiHits, rphiHits);
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
-	  const SiStripRecHit2DCollection::range range =
-	    rphiHits->get(accessor.stripTIBLayer(theIdLayer) );
-	  for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	    result.push_back( SeedingHit(&(*it), sl, es) );
-	  }
+          range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
 	}
       } else {
-	const SiStripRecHit2DCollection::range range =
-	  rphiHits->get(accessor.stripTIBLayer(theIdLayer) );
-	for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	  result.push_back( SeedingHit(&(*it), sl, es) );
-	}
+        range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByLabel( theStereoHits, stereoHits);
-      const SiStripRecHit2DCollection::range range =
-	stereoHits->get(accessor.stripTIBLayer(theIdLayer) );
-      for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	result.push_back( SeedingHit(&(*it), sl, es) );
-      }
+      range2SeedingHits( *stereoHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
     }
   }
   
@@ -92,48 +76,43 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   // TID
   //
   else if (theLayer->subDetector() == GeomDetEnumerators::TID) {
-    if (hasMatchedHits) {
-      edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
-      ev.getByLabel( theMatchedHits, matchedHits);
-      const SiStripMatchedRecHit2DCollection::range range =
-	matchedHits->get(accessor.stripTIDDisk(theSide,theIdLayer) );
-      for(SiStripMatchedRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-        int ring = TIDDetId( it->geographicalId() ).ring();
-        if (ringRange(ring))result.push_back( SeedingHit(&(*it), sl, es) );
+      if (hasMatchedHits) {
+          edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
+          ev.getByLabel( theMatchedHits, matchedHits);
+          std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
+          SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
+          for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+              int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+                  result.push_back( SeedingHit(&(*hit), sl, es) );
+              }
+          }
       }
-    }
-    if (hasRPhiHits) {
-      edm::Handle<SiStripRecHit2DCollection> rphiHits;
-      ev.getByLabel( theRPhiHits, rphiHits);
-      const SiStripRecHit2DCollection::range range =
-	rphiHits->get(accessor.stripTIDDisk(theSide,theIdLayer) );
-      for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-        int ring = TIDDetId( it->geographicalId() ).ring();
-        if (ringRange(ring)){
-	  bool 	isInGlued = SiStripDetId(it->geographicalId() ).partnerDetId();
-	  if (hasMatchedHits){
-	    if (isInGlued){
-	      // this is a brutal "cleaning". Add something smarter in the future
-	      if(!hasSimpleRphiHitsCleaner) result.push_back( SeedingHit(&(*it), sl, es) );
-	    }else{
-	      result.push_back( SeedingHit(&(*it), sl, es) );
-	    }
-	  } else {
-	    result.push_back( SeedingHit(&(*it), sl, es) );
-	  }
-	}
+      if (hasRPhiHits) {
+          edm::Handle<SiStripRecHit2DCollection> rphiHits;
+          ev.getByLabel( theRPhiHits, rphiHits);
+          std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
+          SiStripRecHit2DCollection::Range range = rphiHits->equal_range(getter.first, getter.second);
+          for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+              int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
+              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+                  result.push_back( SeedingHit(&(*hit), sl, es) );
+              }
+          }
       }
-    }
-    if (hasStereoHits) {
-      edm::Handle<SiStripRecHit2DCollection> stereoHits;
-        ev.getByLabel( theStereoHits, stereoHits);
-        const SiStripRecHit2DCollection::range range =
-                        stereoHits->get(accessor.stripTIDDisk(theSide,theIdLayer) );
-        for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-         int ring = TIDDetId( it->geographicalId() ).ring();
-           if (ringRange(ring))result.push_back( SeedingHit(&(*it), sl, es) );
-        }  
-    }
+      if (hasStereoHits) {
+          edm::Handle<SiStripRecHit2DCollection> stereoHits;
+          ev.getByLabel( theStereoHits, stereoHits);
+          std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
+          SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
+          for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+              int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+                  result.push_back( SeedingHit(&(*hit), sl, es) );
+              }
+          }
+      }
   }
   //
   // TOB
@@ -142,39 +121,23 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
-      const SiStripMatchedRecHit2DCollection::range range =
-        matchedHits->get(accessor.stripTOBLayer(theIdLayer) );
-      for(SiStripMatchedRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-        result.push_back( SeedingHit(&(*it), sl, es) );
-      }
+      range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
       ev.getByLabel( theRPhiHits, rphiHits);
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
-	  const SiStripRecHit2DCollection::range range =
-	    rphiHits->get(accessor.stripTOBLayer(theIdLayer) );
-	  for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	    result.push_back( SeedingHit(&(*it), sl, es) );
-	  }
+          range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
 	}
       } else {
-	const SiStripRecHit2DCollection::range range =
-	  rphiHits->get(accessor.stripTOBLayer(theIdLayer) );
-	for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	  result.push_back( SeedingHit(&(*it), sl, es) );
-	}
+        range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByLabel( theStereoHits, stereoHits);
-      const SiStripRecHit2DCollection::range range =
-	stereoHits->get(accessor.stripTOBLayer(theIdLayer) );
-      for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	result.push_back( SeedingHit(&(*it), sl, es) );
-      }
+      range2SeedingHits( *stereoHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
     }
   }
 
@@ -182,50 +145,44 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   // TEC
   //
   else if (theLayer->subDetector() == GeomDetEnumerators::TEC) {
-    //std::cout << "=== in TEC, hasSimpleCleaner: " << hasSimpleRphiHitsCleaner << std::endl;    
-    if (hasMatchedHits) {
-      edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
-      ev.getByLabel( theMatchedHits, matchedHits);
-      const SiStripMatchedRecHit2DCollection::range range =
-	matchedHits->get(accessor.stripTECDisk(theSide,theIdLayer) );
-      for(SiStripMatchedRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-        int ring = TECDetId( it->geographicalId() ).ring();
-        if (ringRange(ring))result.push_back( SeedingHit(&(*it), sl, es) );
+      if (hasMatchedHits) {
+          edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
+          ev.getByLabel( theMatchedHits, matchedHits);
+          std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
+          SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
+          for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+              int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+                  result.push_back( SeedingHit(&(*hit), sl, es) );
+              }
+          }
       }
-    }
-    if (hasRPhiHits) {
-      edm::Handle<SiStripRecHit2DCollection> rphiHits;
-      ev.getByLabel( theRPhiHits, rphiHits);
-      const SiStripRecHit2DCollection::range range =
-	rphiHits->get(accessor.stripTECDisk(theSide,theIdLayer) );
-      for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-        int ring = TECDetId( it->geographicalId() ).ring();
-	//      std::cout << "layer " << theIdLayer << " ring " << ring << std::endl;
-        if (ringRange(ring)){
-	  bool 	isInGlued = SiStripDetId(it->geographicalId() ).partnerDetId();
-	  if (hasMatchedHits){
-	    if(isInGlued){
-	      // this is a brutal "cleaning". Add something smarter in the future
-	      if (!hasSimpleRphiHitsCleaner) result.push_back( SeedingHit(&(*it), sl, es) );       
-	    }else{
-	      result.push_back( SeedingHit(&(*it), sl, es) );
-	    }
-	  }else {
-	    result.push_back( SeedingHit(&(*it), sl, es) );
-	  }
-        }
+      if (hasRPhiHits) {
+          edm::Handle<SiStripRecHit2DCollection> rphiHits;
+          ev.getByLabel( theRPhiHits, rphiHits);
+          std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
+          SiStripRecHit2DCollection::Range range = rphiHits->equal_range(getter.first, getter.second);
+          for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+              int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
+              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+                  result.push_back( SeedingHit(&(*hit), sl, es) );
+              }
+          }
+
       }
-    }
-    if (hasStereoHits) {
-      edm::Handle<SiStripRecHit2DCollection> stereoHits;
-      ev.getByLabel( theStereoHits, stereoHits);
-      const SiStripRecHit2DCollection::range range =
-	stereoHits->get(accessor.stripTECDisk(theSide,theIdLayer) );
-      for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
-	int ring = TECDetId( it->geographicalId() ).ring();
-	if (ringRange(ring))result.push_back( SeedingHit(&(*it), sl, es) );
+      if (hasStereoHits) {
+          edm::Handle<SiStripRecHit2DCollection> stereoHits;
+          ev.getByLabel( theStereoHits, stereoHits);
+          std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
+          SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
+          for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
+              int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+                  result.push_back( SeedingHit(&(*hit), sl, es) );
+              }
+          }
       }
-    }
   }
   
 

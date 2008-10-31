@@ -24,11 +24,10 @@ vector<SeedingHit> HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
   std::vector<SeedingHit> result;
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByLabel( theHitProducer, pixelHits);
-  const SiPixelRecHitCollection::range range = (theSide==SeedingLayer::Barrel) ?
-        pixelHits->get(accessor.pixelBarrelLayer(theIdLayer))
-      : pixelHits->get(accessor.pixelForwardDisk(theSide,theIdLayer));
-  for(SiPixelRecHitCollection::const_iterator it = range.first; it != range.second; it++){
-      result.push_back( SeedingHit(&(*it), sl, es) );
+  if (theSide==SeedingLayer::Barrel) {
+    range2SeedingHits( *pixelHits, result, accessor.pixelBarrelLayer(theIdLayer), sl, es );
+  } else {
+    range2SeedingHits( *pixelHits, result, accessor.pixelForwardDisk(theSide,theIdLayer), sl, es );
   }
   return result;
 }

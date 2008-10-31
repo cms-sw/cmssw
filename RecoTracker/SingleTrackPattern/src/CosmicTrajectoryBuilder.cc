@@ -184,7 +184,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit*> allHits;
 
-  SiStripRecHit2DCollection::const_iterator istrip;
+  SiStripRecHit2DCollection::DataContainer::const_iterator istrip;
   TrajectorySeed::range hRange= seed.recHits();
   TrajectorySeed::const_iterator ihit;
   float yref=0.;
@@ -197,8 +197,8 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 
   
   if ((&collpixel)!=0){
-    SiPixelRecHitCollection::const_iterator ipix;
-    for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
+    SiPixelRecHitCollection::DataContainer::const_iterator ipix;
+    for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
       float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*ipix));
@@ -208,7 +208,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   
 
   if ((&collrphi)!=0){
-    for(istrip=collrphi.begin();istrip!=collrphi.end();istrip++){
+    for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*istrip));   
@@ -219,16 +219,16 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
 
 
   if ((&collstereo)!=0){
-    for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
+    for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 	allHits.push_back(&(*istrip));
     }
   }
 
-//   SiStripMatchedRecHit2DCollection::const_iterator istripm;
+//   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripm;
 //   if ((&collmatched)!=0){
-//     for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
+//     for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++){
 //       float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
 //       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
 // 	allHits.push_back(&(*istripm));
