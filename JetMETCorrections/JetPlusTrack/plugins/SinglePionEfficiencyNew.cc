@@ -204,7 +204,9 @@ private:
   double ptSim2, etaSim2, phiSim2; 
   // reconstructed tracks
   double ptTrk1, etaTrk1, phiTrk1, drTrk1, purityTrk1;
-  double ptTrk2, etaTrk2, phiTrk2, drTrk2, purityTrk2; 
+  double ptTrk2, etaTrk2, phiTrk2, drTrk2, purityTrk2;
+  // track quality and number of valid hits
+  int trkQuality1, trkQuality2, trkNVhits1, trkNVhits2;
   // reconstructed pixel triplets
   double ptPxl1, etaPxl1, phiPxl1, drPxl1, purityPxl1; 
   double ptPxl2, etaPxl2, phiPxl2, drPxl2, purityPxl2;
@@ -320,6 +322,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    // Et in 7x7, 11x11 crystal matrix and 3x3, 5x5 HCAL matrix
    e1ECAL7x7 = 0.; e2ECAL7x7 = 0.; e1ECAL11x11 = 0.; e2ECAL11x11 = 0.; 
    e1HCAL3x3 = 0.; e2HCAL3x3 = 0.; e1HCAL5x5 = 0.; e2HCAL5x5 = 0.; 
+   //
+   trkQuality1 = -1; trkQuality2 = -1; trkNVhits1 = -1; trkNVhits2 = -1;
 
    //
    // extract tracker geometry
@@ -435,7 +439,7 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
    iEvent.getByLabel(hbheInputSrc,hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-   cout <<" ===> ZSP HBHERecHitCollection size = " << Hithbhe.size() << endl;
+   //   cout <<" ===> ZSP HBHERecHitCollection size = " << Hithbhe.size() << endl;
    //   cout <<" ===> NO ZSP HBHERecHitCollection size = " << HithbheR.size() << endl;
 
    for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++) {
@@ -602,17 +606,17 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     int t = 0;
 
-    ptSim1     = genpions[0].perp(); 
-    etaSim1    = genpions[0].eta(); 
-    phiSim1    = genpions[0].phi();
-
-    ptSim2     = genpions[1].perp(); 
-    etaSim2    = genpions[1].eta(); 
-    phiSim2    = genpions[1].phi();
+    std::string theTrackQuality = "highPurity";
+    reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
     for(TrackCollection::const_iterator track = tracks->begin();
 	track != tracks->end(); track++) {
       //     const reco::TrackExtraRef & trkExtra = track->extra();
+
+      int trkQuality = track->quality(trackQuality_);
+      int trkNVhits  = track->numberOfValidHits();
+      cout <<" track quality = " << trkQuality
+	   <<" number of valid hits = " << trkNVhits << endl;
 
       double eECAL7x7i = -1000.; 
       double eECAL11x11i = -1000.; 
@@ -797,6 +801,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       HepLorentzVector tracki(track->px(), track->py(), track->pz(), track->p());
       double DR1 = genpions[0].deltaR(tracki);
       if(DR1 < drTrk1) {
+	ptSim1     = genpions[0].perp(); 
+	etaSim1    = genpions[0].eta(); 
+	phiSim1    = genpions[0].phi();
         ptTrk1     = tracki.perp();
         etaTrk1    = tracki.eta(); 
         phiTrk1    = tracki.phi();
@@ -806,9 +813,14 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	e1ECAL11x11= eECAL11x11i;
 	e1HCAL3x3  = eHCAL3x3i;
 	e1HCAL5x5  = eHCAL5x5i;
+	trkQuality1 = trkQuality; 
+	trkNVhits1 = trkNVhits; 
       }
       double DR2 = genpions[1].deltaR(tracki);
       if(DR2 < drTrk2) {
+	ptSim2     = genpions[1].perp(); 
+	etaSim2    = genpions[1].eta(); 
+	phiSim2    = genpions[1].phi();
         ptTrk2     = tracki.perp();
         etaTrk2    = tracki.eta(); 
         phiTrk2    = tracki.phi();
@@ -818,6 +830,8 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
 	e2ECAL11x11= eECAL11x11i;
 	e2HCAL3x3  = eHCAL3x3i;
 	e2HCAL5x5  = eHCAL5x5i;
+	trkQuality2 = trkQuality; 
+	trkNVhits2 = trkNVhits; 
       }
       t++;
     }
@@ -940,6 +954,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       HepLorentzVector pxltracki(pxltrack->px(), pxltrack->py(), pxltrack->pz(), pxltrack->p());
       double DR1 = genpions[0].deltaR(pxltracki);
       if(DR1 < drPxl1) {
+	ptSim1     = genpions[0].perp(); 
+	etaSim1    = genpions[0].eta(); 
+	phiSim1    = genpions[0].phi();
         ptPxl1     = pxltracki.perp();
         etaPxl1    = pxltracki.eta(); 
         phiPxl1    = pxltracki.phi();
@@ -948,6 +965,9 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
       double DR2 = genpions[1].deltaR(pxltracki);
       if(DR2 < drPxl2) {
+	ptSim2     = genpions[1].perp(); 
+	etaSim2    = genpions[1].eta(); 
+	phiSim2    = genpions[1].phi();
         ptPxl2     = pxltracki.perp();
         etaPxl2    = pxltracki.eta(); 
         phiPxl2    = pxltracki.phi();
@@ -1035,6 +1055,11 @@ SinglePionEfficiencyNew::beginJob(const edm::EventSetup& iSetup)
   t1->Branch("e1HCAL5x5",&e1HCAL5x5,"e1HCAL5x5/D");
   t1->Branch("e2HCAL3x3",&e2HCAL3x3,"e2HCAL3x3/D");
   t1->Branch("e2HCAL5x5",&e2HCAL5x5,"e2HCAL5x5/D");
+  // tracker quality and number of hits
+  t1->Branch("trkQuality1",&trkQuality1,"trkQuality1/I");
+  t1->Branch("trkQuality2",&trkQuality2,"trkQuality2/I");
+  t1->Branch("trkNVhits1",&trkNVhits1,"trkNVhits1/I");
+  t1->Branch("trkNVhits2",&trkNVhits2,"trkNVhits2/I");
   //
   return ;
 }
