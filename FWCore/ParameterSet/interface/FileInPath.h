@@ -1,7 +1,7 @@
 #ifndef FWCore_ParameterSet_FileInPath_h
 #define FWCore_ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.8 2007/05/17 20:10:47 wmtan Exp $
+/// $Id: FileInPath.h,v 1.9 2007/06/14 04:55:59 wmtan Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -117,6 +117,21 @@ namespace edm
     /// Read from the given istream, and set contents accordingly.
     /// Reading errors are reflected in the state of the stream.
     void read(std::istream& is);
+
+    /// for boost::serialization
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+      ar & relativePath_;
+      ar & canonicalFilename_;
+      ar & location_;
+      ar & localTop_;
+      ar & releaseTop_;
+      ar & dataTop_;
+      ar & searchPath_;
+    }
+
+
 
   private:
     std::string    relativePath_;
