@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/10/23 17:11:01 $
- *  $Revision: 1.71 $
+ *  $Date: 2008/10/30 18:19:23 $
+ *  $Revision: 1.72 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -311,9 +311,11 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
-    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull()  << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
+    if ((*it)->trackerTrajectory() )  LogDebug(metname) << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+
     combinedTrajs.push_back((*it)->trajectory());
-    trackerTrajs.push_back((*it)->trackerTrajectory());
+    if ( thePutTkTrackFlag ) trackerTrajs.push_back((*it)->trackerTrajectory());
   
     // Create the links between sta and tracker tracks
     reco::MuonTrackLinks links;
