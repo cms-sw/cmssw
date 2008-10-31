@@ -8,11 +8,12 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include <vector>
 
-typedef  edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit> > SiPixelRecHitCollection;
+typedef  edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit> > SiPixelRecHitCollectionOld;
 
 // new collection(for some far indetermined future)
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-typedef edmNew::DetSetVector<SiPixelRecHit> SiPixelRecHitCollectionNew;
+typedef edmNew::DetSetVector<SiPixelRecHit> SiPixelRecHitCollection;
+typedef SiPixelRecHitCollection             SiPixelRecHitCollectionNew;
 
 #endif
 
