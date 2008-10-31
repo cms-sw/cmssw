@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/10/28 13:09:15 $
-// $Revision: 1.54 $
+// $Author: gpetrucc $
+// $Date: 2008/10/31 11:37:07 $
+// $Revision: 1.55 $
 //
 
 #include <vector>
@@ -813,7 +813,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, co
   // check if compatible with cloud, fill into cloud
   
   SiPixelRecHitCollection::const_iterator recHitMatch = inputRecHits->find(id);
-  if (recHitMatch == inputRecHits-end()) return usedRecHits;
+  if (recHitMatch == inputRecHits->end()) return usedRecHits;
 
   const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
   
