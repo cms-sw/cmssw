@@ -38,9 +38,9 @@ public:
 
   // Generic Jet Parameters
   MonitorElement* mEta;
-  MonitorElement* mEtaFineBin;  //new
+  MonitorElement* mEtaFineBin_Pt10;  //new
   MonitorElement* mPhi;
-  MonitorElement* mPhiFineBin;  //new
+  MonitorElement* mPhiFineBin_Pt10;  //new
   MonitorElement* mE;
   MonitorElement* mE_80;  //new
   MonitorElement* mE_3000;  //new
@@ -77,6 +77,16 @@ public:
   MonitorElement* mChargedMultiplicity;
   MonitorElement* mNeutralMultiplicity;
   MonitorElement* mMuonMultiplicity;
+  // new
+  MonitorElement* mNeutralEmEnergy_80;
+  MonitorElement* mNeutralEmEnergy_3000;   
+  MonitorElement* mNeutralHadronEnergy_80;
+  MonitorElement* mNeutralHadronEnergy_3000;
+  MonitorElement* mChargedEmEnergy_80;       
+  MonitorElement* mChargedEmEnergy_3000;
+  MonitorElement* mChargedHadronEnergy_80;       
+  MonitorElement* mChargedHadronEnergy_3000;       
+    
 
   //new Plots with Res./ Eff. as function of neutral, charged &  em fraction
 
@@ -104,7 +114,7 @@ public:
 
   MonitorElement* mEScale_pt10;   ///new
   MonitorElement* mEScaleFineBin;  //new
-  //MonitorElement* mlinEScale;  //new
+  MonitorElement* mlinEScale;  //new
    
 
 

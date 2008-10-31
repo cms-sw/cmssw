@@ -46,10 +46,14 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     = mNeutralEmEnergy =  mChargedMultiplicity = mNeutralMultiplicity
     = mMuonMultiplicity =   mAllGenJetsPt = mMatchedGenJetsPt = mAllGenJetsEta = mMatchedGenJetsEta 
     = mGenJetMatchEnergyFraction = mReverseMatchEnergyFraction = mRMatch
-    = mDeltaEta = mDeltaPhi = mEScale = mDeltaE
+    = mDeltaEta = mDeltaPhi = mEScale = mlinEScale = mDeltaE
     // new histograms
-    = mEtaFineBin = mPhiFineBin
-    //= mE_80 = mE_3000 = mP_80 = mP_3000 = mPt_80 = mPt_3000 = mMass_80 = mMass_3000 = mConstituents_80 = mConstituents_3000
+    = mEtaFineBin_Pt10 = mPhiFineBin_Pt10
+    = mE_80 = mE_3000 = mP_80 = mP_3000 = mPt_80 = mPt_3000 = mMass_80 = mMass_3000
+    //= mConstituents_80 = mConstituents_3000
+    = mNeutralEmEnergy_80 = mNeutralEmEnergy_3000 = mNeutralHadronEnergy_80 = mNeutralHadronEnergy_3000
+    = mChargedEmEnergy_80 = mChargedEmEnergy_3000
+    = mEScale_pt10 = mEScaleFineBin
 
 = 0;
 
@@ -63,8 +67,8 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2); // new
     
     //FineBin histograms
-    mEtaFineBin = dbe->book1D("EtaFineBin", "EtaFineBin", 500, -5, 5);
-    mPhiFineBin = dbe->book1D("PhiFineBin", "PhiFineBin", 500, -5, 5);
+    mEtaFineBin_Pt10 = dbe->book1D("EtaFineBin_Pt10", "EtaFineBin_Pt10", 500, -5, 5);
+    mPhiFineBin_Pt10 = dbe->book1D("PhiFineBin_Pt10", "PhiFineBin_Pt10", 500, -5, 5);
     
     mEta = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mPhi = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
@@ -73,20 +77,43 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     mPt = dbe->book1D("Pt", "Pt", 100, 0, 50); 
     mMass = dbe->book1D("Mass", "Mass", 100, 0, 25); 
     mConstituents = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100); 
+
+    // new
+    mE_80 = dbe->book1D("E_80", "E_80", 100,0,4500);
+    mE_3000           = dbe->book1D("E_3000", "E_3000", 100, 0, 6000); 
+    mP_80             = dbe->book1D("P_80", "P_80", 100, 0, 4500); 
+    mP_3000           = dbe->book1D("P_3000", "P_3000", 100, 0, 6000); 
+    mPt_80            = dbe->book1D("Pt_80", "Pt_80", 100, 0, 140); 
+    mPt_3000          = dbe->book1D("Pt_3000", "Pt_3000", 100, 0, 4000); 
+    mMass_80          = dbe->book1D("Mass_80", "Mass_80", 100, 0, 120); 
+    mMass_3000        = dbe->book1D("Mass_3000", "Mass_3000", 100, 0, 1500); 
+    //    mConstituents_80  = dbe->book1D("Constituents_80", "# of Constituents_80", 40, 0, 40); 
+    //    mConstituents_3000  = dbe->book1D("Constituents_3000", "# of Constituents_3000", 40, 0, 40); 
+
+    mNeutralEmEnergy_80 = dbe->book1D("mNeutralEmEnergy_80", "NeutralEmEnergy_80", 100, 0, 500);
+    mNeutralEmEnergy_3000 = dbe->book1D("mNeutralEmEnergy_3000", "NeutralEmEnergy_3000", 100, 0, 2000);   
+    mNeutralHadronEnergy_80 = dbe->book1D("mNeutralHadronEnergy_80", "NeutralHadronEnergy_80", 100, 0, 500);
+    mNeutralHadronEnergy_3000 = dbe->book1D("mNeutralHadronEnergy_3000", "NeutralHadronEnergy_3000", 100, 0, 2000);
+    mChargedEmEnergy_80 = dbe->book1D("mChargedEmEnergy_80", "ChargedEmEnergy_80", 100, 0, 500);       
+    mChargedEmEnergy_3000 = dbe->book1D("mChargedEmEnergy_3000", "ChargedEmEnergy_3000", 100, 0, 2000);   
+    mChargedHadronEnergy_80 = dbe->book1D("mChargedHadronEnergy_80", "ChargedHadronEnergy_80", 100, 0, 500);       
+    mChargedHadronEnergy_3000 = dbe->book1D("mChargedHadronEnergy_3000", "ChargedHadronEnergy_3000", 100, 0, 2000);       
+    
+
     //
     mEtaFirst = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5); 
     mPhiFirst = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5); 
     mEFirst = dbe->book1D("EFirst", "EFirst", 100, 0, 1000); 
     mPtFirst = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500); 
     //
-    mChargedHadronEnergy = dbe->book1D("mChargedHadronEnergy", "mChargedHadronEnergy", 100, 0, 100); 
-    mNeutralHadronEnergy = dbe->book1D("mNeutralHadronEnergy", "mNeutralHadronEnergy", 100, 0, 100);  
-    mChargedEmEnergy= dbe->book1D("mChargedEmEnergy ", "mChargedEmEnergy ", 100, 0, 100); 
-    mChargedMuEnergy = dbe->book1D("mChargedMuEnergy", "mChargedMuEnergy", 100, 0, 100); 
-    mNeutralEmEnergy= dbe->book1D("mNeutralEmEnergy", "mNeutralEmEnergy", 100, 0, 100);   
-    mChargedMultiplicity= dbe->book1D("mChargedMultiplicity ", "mChargedMultiplicity ", 100, 0, 100);     
-    mNeutralMultiplicity = dbe->book1D(" mNeutralMultiplicity", "mNeutralMultiplicity", 100, 0, 100);
-    mMuonMultiplicity= dbe->book1D("mMuonMultiplicity", "mMuonMultiplicity", 100, 0, 100);
+    mChargedHadronEnergy = dbe->book1D("mChargedHadronEnergy", "ChargedHadronEnergy", 100, 0, 100); 
+    mNeutralHadronEnergy = dbe->book1D("mNeutralHadronEnergy", "NeutralHadronEnergy", 100, 0, 100);  
+    mChargedEmEnergy = dbe->book1D("mChargedEmEnergy ", "ChargedEmEnergy ", 100, 0, 100); 
+    mChargedMuEnergy = dbe->book1D("mChargedMuEnergy", "ChargedMuEnergy", 100, 0, 100); 
+    mNeutralEmEnergy = dbe->book1D("mNeutralEmEnergy", "NeutralEmEnergy", 100, 0, 100);   
+    mChargedMultiplicity = dbe->book1D("mChargedMultiplicity ", "ChargedMultiplicity ", 100, 0, 100);     
+    mNeutralMultiplicity = dbe->book1D(" mNeutralMultiplicity", "NeutralMultiplicity", 100, 0, 100);
+    mMuonMultiplicity= dbe->book1D("mMuonMultiplicity", "MuonMultiplicity", 100, 0, 100);
 
     double log10PtMin = 0.5;
     double log10PtMax = 4.;
@@ -94,6 +121,10 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     double etaMin = -5.;
     double etaMax = 5.;
     int etaBins = 50;
+
+    double linPtMin = 5;
+    double linPtMax = 155;
+    int linPtBins = 15;
 
     int log10PtFineBins = 50;
 
@@ -122,6 +153,8 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     //
     mEScale_pt10 = dbe->book3D("EScale_pt10", "EnergyScale vs LOG(pT_gen) vs eta", 
 			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
+    mlinEScale = dbe->book3D("linEScale", "EnergyScale vs LOG(pT_gen) vs eta", 
+			    linPtBins, linPtMin, linPtMax, etaBins, etaMin, etaMax, 100, 0, 2);
     mEScaleFineBin = dbe->book3D("EScaleFineBin", "EnergyScale vs LOG(pT_gen) vs eta", 
 			    log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
 
@@ -176,14 +209,28 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     //cout<<jet->eta()<<" ------------------------------------------------------------------> 6"<<endl;
     if (mPhi) mPhi->Fill (jet->phi());
     //
-    if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
-    if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
+    if (mEtaFineBin_Pt10) mEtaFineBin_Pt10->Fill (jet->eta());
+    if (mPhiFineBin_Pt10) mPhiFineBin_Pt10->Fill (jet->phi());
     //
     if (mE) mE->Fill (jet->energy());
     if (mP) mP->Fill (jet->p());
     if (mPt) mPt->Fill (jet->pt());
     if (mMass) mMass->Fill (jet->mass());
     if (mConstituents) mConstituents->Fill (jet->nConstituents());
+
+    // new
+    
+    if (mE_80) mE_80->Fill (jet->energy());
+    if (mE_3000) mE_3000->Fill (jet->energy());
+    if (mP_80) mP_80->Fill (jet->p());
+    if (mP_3000) mP_3000->Fill (jet->p());
+    if (mPt_80) mPt_80->Fill (jet->pt());
+    if (mPt_3000) mPt_3000->Fill (jet->pt());
+    if (mMass_80) mMass_80->Fill (jet->mass());
+    if (mMass_3000) mMass_3000->Fill (jet->mass());
+//    if (mConstituents_80) mConstituents_80->Fill (jet->nConstituents());
+//    if (mConstituents_3000) mConstituents_3000->Fill (jet->nConstituents());
+    
     if (jet == pfJets->begin ()) { // first jet
       if (mEtaFirst) mEtaFirst->Fill (jet->eta());
       if (mPhiFirst) mPhiFirst->Fill (jet->phi());
@@ -198,6 +245,17 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     if (mChargedMultiplicity ) mChargedMultiplicity->Fill(jet->chargedMultiplicity());
     if (mNeutralMultiplicity ) mNeutralMultiplicity->Fill(jet->neutralMultiplicity());
     if (mMuonMultiplicity )mMuonMultiplicity->Fill (jet-> muonMultiplicity());
+
+    // new
+    if (mNeutralEmEnergy_80) mNeutralEmEnergy_80->Fill (jet->neutralEmEnergy());
+    if (mNeutralEmEnergy_3000) mNeutralEmEnergy_3000->Fill (jet->neutralEmEnergy());
+    if (mNeutralHadronEnergy_80) mNeutralHadronEnergy_80->Fill (jet->neutralHadronEnergy());
+    if (mNeutralHadronEnergy_3000) mNeutralHadronEnergy_3000->Fill (jet->neutralHadronEnergy());
+    if (mChargedEmEnergy_80) mChargedEmEnergy_80->Fill (jet->chargedEmEnergy());
+    if (mChargedEmEnergy_3000) mChargedEmEnergy_3000->Fill (jet->chargedEmEnergy());
+    if (mChargedHadronEnergy_80) mChargedHadronEnergy_80->Fill (jet->chargedHadronEnergy());
+    if (mChargedHadronEnergy_3000) mChargedHadronEnergy_3000->Fill (jet->chargedHadronEnergy());
+
     //_______________________________________________________
     if (mNeutralFraction) mNeutralFraction->Fill (jet->neutralMultiplicity()/jet->nConstituents());
   } 
@@ -276,6 +334,7 @@ void PFJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet
   mDeltaEta->Fill (logPtGen, fGenJet.eta(), fPFJet.eta()-fGenJet.eta());
   mDeltaPhi->Fill (logPtGen, fGenJet.eta(), fPFJet.phi()-fGenJet.phi());
   mEScale->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
+  mlinEScale->Fill (fGenJet.pt(), fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
   mDeltaE->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()-fGenJet.energy());
   //
   mEScaleFineBin->Fill (logPtGen, fGenJet.eta(), fPFJet.energy()/fGenJet.energy());
