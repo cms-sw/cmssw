@@ -11,7 +11,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"

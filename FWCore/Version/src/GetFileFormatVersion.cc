@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/interface/GetFileFormatVersion.h"
+#include "FWCore/Version/interface/GetFileFormatVersion.h"
 
 namespace edm
 {

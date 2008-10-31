@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 //#include "FWCore/Utilities/interface/Digest.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 

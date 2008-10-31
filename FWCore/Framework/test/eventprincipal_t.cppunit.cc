@@ -37,7 +37,7 @@ Test of the EventPrincipal class.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 class test_ep: public CppUnit::TestFixture 

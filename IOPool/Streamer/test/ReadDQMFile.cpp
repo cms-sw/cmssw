@@ -7,7 +7,7 @@ Example code to write DQM Event Message to file
 #include <iostream>
 
 #include "IOPool/Streamer/interface/MsgTools.h"
-//#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+//#include "FWCore/Version/interface/GetReleaseVersion.h"
 //#include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "IOPool/Streamer/interface/StreamDQMInputFile.h"

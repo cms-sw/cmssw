@@ -9,6 +9,7 @@
 <use name=FWCore/RootAutoLibraryLoader>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
+<use name=FWCore/Version>
 <use name=Utilities/StorageFactory>
 <use name=boost>
 <use name=rootcintex>
@@ -25,6 +26,7 @@
   <use name=FWCore/RootAutoLibraryLoader>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
+  <use name=FWCore/Version>
   <use name=Utilities/StorageFactory>
   <use name=boost>
   <use name=rootcore>

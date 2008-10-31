@@ -5,6 +5,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
+<use name=FWCore/Version>
 <use name=boost>
 <use name=rootcore>
 <use name=rootrflx>
@@ -16,6 +17,7 @@
   <use name=FWCore/PluginManager>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
+  <use name=FWCore/Version>
   <use name=boost>
   <use name=rootcore>
   <use name=rootrflx>

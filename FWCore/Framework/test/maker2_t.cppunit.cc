@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerT.h"

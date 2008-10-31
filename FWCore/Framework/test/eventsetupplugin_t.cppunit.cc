@@ -9,7 +9,7 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.7 2007/02/07 13:27:14 chrjones Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.8 2007/04/09 23:13:20 chrjones Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"

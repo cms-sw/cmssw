@@ -1,5 +1,5 @@
-#ifndef Utilities_GetFileFormatVersion_h
-#define Utilities_GetFileFormatVersion_h
+#ifndef FWCore_Version_GetFileFormatVersion_h
+#define FWCore_Version_GetFileFormatVersion_h
 
 namespace edm 
 {

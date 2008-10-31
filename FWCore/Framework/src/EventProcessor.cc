@@ -13,7 +13,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
