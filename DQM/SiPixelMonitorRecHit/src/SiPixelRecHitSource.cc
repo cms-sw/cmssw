@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.12 2008/08/08 14:26:36 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.13 2008/10/13 19:04:33 krose Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -119,19 +119,20 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     uint32_t TheID = (*struct_iter).first;
-	
-    SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(TheID);
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-    
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-    SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+
+    SiPixelRecHitCollection::const_iterator match = recHitColl->find(TheID);
 
       // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
       float rechit_y = 0;
       float rechit_count = 0;
-  for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
-	{
+      if (match != recHitColl->end()) {
+       SiPixelRecHitCollection::DetSet pixelrechitRange = *match;
+       SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+       SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
+       SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+       for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
+	 {
 	  
 
 	  rechit_count++;
@@ -153,7 +154,8 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  //cout << "ii" << endl;
 	
 	}
-	    (*struct_iter).second->nfill(rechit_count, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+      }
+      (*struct_iter).second->nfill(rechit_count, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
 
