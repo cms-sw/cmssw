@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.14 2007/03/07 10:57:01 uberthon Exp $
+// $Id: SiStripElectronAlgo.h,v 1.15 2007/03/08 18:34:11 futyand Exp $
 //
 
 // system include files
@@ -148,9 +148,9 @@ class SiStripElectronAlgo
       GlobalVector momentum_pos_;
       const SiStripRecHit2D* innerhit_pos_;
       std::vector<const TrackingRecHit*> outputHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputRphiHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputStereoHits_pos_;
-      edm::RefVector<SiStripRecHit2DCollection> outputMatchedHits_neg_;
+      std::vector<SiStripRecHit2D> outputRphiHits_pos_;
+      std::vector<SiStripRecHit2D> outputStereoHits_pos_;
+      std::vector<SiStripRecHit2D> outputMatchedHits_neg_;
 
       double phiVsRSlope_pos_;
       double slope_pos_;
@@ -170,8 +170,8 @@ class SiStripElectronAlgo
       GlobalVector momentum_neg_;
       const SiStripRecHit2D* innerhit_neg_;
       std::vector<const TrackingRecHit*> outputHits_neg_;
-      edm::RefVector<SiStripRecHit2DCollection> outputRphiHits_neg_;
-      edm::RefVector<SiStripRecHit2DCollection> outputStereoHits_neg_;
+      std::vector<SiStripRecHit2D> outputRphiHits_neg_;
+      std::vector<SiStripRecHit2D> outputStereoHits_neg_;
       double phiVsRSlope_neg_;
       double slope_neg_;
       double intercept_neg_;

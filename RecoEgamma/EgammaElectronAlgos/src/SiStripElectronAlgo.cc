@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.28 2007/08/28 01:40:37 ratnik Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.29 2008/04/10 15:33:28 uberthon Exp $
 //
 
 // system include files
@@ -120,21 +120,21 @@ void SiStripElectronAlgo::prepareEvent(const edm::ESHandle<TrackerGeometry>& tra
   matchedHitUsed_.clear();
 
   unsigned int counter = 0;
-  for (SiStripRecHit2DCollection::const_iterator it = rphiHits_p_->begin();  it != rphiHits_p_->end();  ++it) {
+  for (SiStripRecHit2DCollection::DataContainer::const_iterator it = rphiHits_p_->data().begin();  it != rphiHits_p_->data().end();  ++it) {
     rphiKey_[&(*it)] = counter;
     hitUsed_[&(*it)] = false;
     counter++;
   }
 
   counter = 0;
-  for (SiStripRecHit2DCollection::const_iterator it = stereoHits_p_->begin();  it != stereoHits_p_->end();  ++it) {
+  for (SiStripRecHit2DCollection::DataContainer::const_iterator it = stereoHits_p_->data().begin();  it != stereoHits_p_->data().end();  ++it) {
     stereoKey_[&(*it)] = counter;
     hitUsed_[&(*it)] = false;
     counter++;
   }
 
   counter = 0;
-  for (SiStripMatchedRecHit2DCollection::const_iterator it = matchedHits_p_->begin();  it != matchedHits_p_->end();  ++it) {
+  for (SiStripMatchedRecHit2DCollection::DataContainer::const_iterator it = matchedHits_p_->data().begin();  it != matchedHits_p_->data().end();  ++it) {
     matchedKey_[&(*it)] = counter;
     matchedHitUsed_[&(*it)] = false;
     counter++;
@@ -366,25 +366,22 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
   // expensive?)
 
   // Loop over the detector ids
-  const std::vector<DetId> ids = (stereo ? stereoHits_p_->ids() : rphiHits_p_->ids());
-  for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
-
+  SiStripRecHit2DCollection::const_iterator itdet = (stereo ? stereoHits_p_->begin() : rphiHits_p_->begin());
+  SiStripRecHit2DCollection::const_iterator eddet = (stereo ? stereoHits_p_->end()   : rphiHits_p_->end()  );
+  for (; itdet != eddet; ++itdet) {
     // Get the hits on this detector id
-    SiStripRecHit2DCollection::range hits = (stereo ? stereoHits_p_->get(*id) : rphiHits_p_->get(*id));
+    SiStripRecHit2DCollection::DetSet hits = *itdet;
+    DetId id(hits.detId());
 
     // Count the number of hits on this detector id
-    unsigned int numberOfHits = 0;
-    for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-      numberOfHits++;
-      if (numberOfHits > maxHitsOnDetId_) { break; }
-    }
+    unsigned int numberOfHits = hits.size();
       
     // Only take the hits if there aren't too many
     // (Would it be better to loop only once, fill a temporary list,
     // and copy that if numberOfHits <= maxHitsOnDetId_?)
     if (numberOfHits <= maxHitsOnDetId_) {
-      for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  
-           hit != hits.second;  ++hit) {
+      for (SiStripRecHit2DCollection::DetSet::const_iterator hit = hits.begin();  
+           hit != hits.end();  ++hit) {
         // check that hit is valid first !
 	if(!(*hit).isValid()) {
 	  LogDebug("") << " InValid hit skipped in coarseHitSelection " << std::endl ;
@@ -395,23 +392,23 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
         bool isStereoDet = false ;
         if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
-          theLayer = TIBDetId(*id).layer(); 
-          if(TIBDetId(*id).stereo()==1) { isStereoDet = true ; }
+          theLayer = TIBDetId(id).layer(); 
+          if(TIBDetId(id).stereo()==1) { isStereoDet = true ; }
         } else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
           theDet = "TOB" ;
-          theLayer = TOBDetId(*id).layer(); 
-          if(TOBDetId(*id).stereo()==1) { isStereoDet = true ; }
+          theLayer = TOBDetId(id).layer(); 
+          if(TOBDetId(id).stereo()==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
           theDet = "TID" ;
-          theLayer = TIDDetId(*id).wheel();  // or ring  ?
-          if(TIDDetId(*id).stereo()==1) { isStereoDet = true ; }
+          theLayer = TIDDetId(id).wheel();  // or ring  ?
+          if(TIDDetId(id).stereo()==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
           theDet = "TEC" ;
-          theLayer = TECDetId(*id).wheel();  // or ring or petal ?
-          if(TECDetId(*id).stereo()==1) { isStereoDet = true ; }
+          theLayer = TECDetId(id).wheel();  // or ring or petal ?
+          if(TECDetId(id).stereo()==1) { isStereoDet = true ; }
         } else {
           LogDebug("") << " UHOH BIG PROBLEM - Unrecognized SI Layer" ;
           LogDebug("") << " Det "<< theDet << " Lay " << theLayer ;
@@ -439,15 +436,15 @@ void SiStripElectronAlgo::coarseMatchedHitSelection(std::vector<const SiStripMat
 {
   
   // Loop over the detector ids
-  const std::vector<DetId> ids = matchedHits_p_->ids() ;
-  for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
+  SiStripMatchedRecHit2DCollection::const_iterator itdet = matchedHits_p_->begin(), eddet = matchedHits_p_->end();
+  for (; itdet != eddet; ++itdet) {
     
     // Get the hits on this detector id
-    SiStripMatchedRecHit2DCollection::range hits = matchedHits_p_->get(*id) ;
+    SiStripMatchedRecHit2DCollection::DetSet hits = *itdet ;
     
     // Count the number of hits on this detector id
     unsigned int numberOfHits = 0;
-    for (SiStripMatchedRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+    for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = hits.begin();  hit != hits.end();  ++hit) {
       if ( !((hit->geographicalId()).subdetId() == StripSubdetector::TIB) &&
            !( (hit->geographicalId()).subdetId() == StripSubdetector::TOB )) { break;}
       numberOfHits++;
@@ -456,7 +453,7 @@ void SiStripElectronAlgo::coarseMatchedHitSelection(std::vector<const SiStripMat
     
     // Only take the hits if there aren't too many
     if (numberOfHits <= maxHitsOnDetId_) {
-      for (SiStripMatchedRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+      for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = hits.begin();  hit != hits.end();  ++hit) {
 	if(!(*hit).isValid()) {
 	  LogDebug("") << " InValid hit skipped in coarseMatchedHitSelection " << std::endl ;
 	  continue ;
@@ -1087,10 +1084,10 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // Copy hits into an OwnVector, which we put in the TrackCandidate
   std::vector<const TrackingRecHit*> outputHits;
   // Reference rphi and stereo hits into RefVectors, which we put in the SiStripElectron
-  edm::RefVector<SiStripRecHit2DCollection> outputRphiHits;
-  edm::RefVector<SiStripRecHit2DCollection> outputStereoHits;
+  std::vector<SiStripRecHit2D> outputRphiHits;
+  std::vector<SiStripRecHit2D> outputStereoHits;
 
-  typedef edm::Ref<SiStripRecHit2DCollection> SiStripRecHit2DRef;
+  typedef edm::Ref<SiStripRecHit2DCollection,SiStripRecHit2D> SiStripRecHit2DRef;
 
 
   for (unsigned int i = 0;  i < uselist.size();  i++) {
@@ -1109,21 +1106,21 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
 	// Copy this hit for the TrajectorySeed
 	outputHits.push_back(hit);
-	outputStereoHits.push_back(SiStripRecHit2DRef(*stereoHits_hp_, stereoKey_[hit]));
+	outputStereoHits.push_back(*hit);
       }
       else if (typelist[i] == 1) {
 	numberOfBarrelRphiHits++;
 
 	// Copy this hit for the TrajectorySeed
 	outputHits.push_back(hit);
-	outputRphiHits.push_back(SiStripRecHit2DRef(*rphiHits_hp_, rphiKey_[hit]));
+	outputRphiHits.push_back(*hit);
       }
       else if (typelist[i] == 2) {
 	numberOfEndcapZphiHits++;
 
 	// Copy this hit for the TrajectorySeed
 	outputHits.push_back(hit);
-	outputRphiHits.push_back(SiStripRecHit2DRef(*rphiHits_hp_, rphiKey_[hit]));
+	outputRphiHits.push_back(*hit);
       }
     }
   } // end loop over all hits, after having culled the ones with big residuals
