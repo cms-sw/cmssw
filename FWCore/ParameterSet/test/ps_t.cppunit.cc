@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.11 2007/10/24 23:31:09 elmer Exp $
+ * $Id: ps_t.cppunit.cc,v 1.12 2007/11/07 05:47:18 wmtan Exp $
  */
 
 #include <algorithm>
@@ -189,6 +189,15 @@ void testps::stringTest()
   testbody<std::string>("Hello there");
   testbody<std::string>("123");
   testbody<std::string>("This\nis\tsilly\n");  
+  std::vector<std::string> vs;
+  vs.push_back("");
+  vs.push_back("1");
+  vs.push_back("");
+  vs.push_back("three");
+  edm::ParameterSet p1;
+  p1.addParameter<std::vector<std::string> >("vs",vs);
+  std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string> >("vs");
+  //FIXME doesn't count spaces
 }
 
 
