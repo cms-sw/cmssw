@@ -55,13 +55,25 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           DeadCellClient_checkNevents_neighbor      = cms.untracked.int32(100),
                           DeadCellClient_minErrorFlag               = cms.untracked.double(0.01),
                           DeadCellClient_makeDiagnosticPlots        = cms.untracked.bool(False),
+
+                          # Hot Cell Client
+                          HotCellClient                            = cms.untracked.bool(True),
+                          HotCellClient_test_persistent             = cms.untracked.bool(True),
+                          HotCellClient_test_pedestal              = cms.untracked.bool(True),
+                          HotCellClient_test_energy                = cms.untracked.bool(True),
+                          HotCellClient_test_neighbor              = cms.untracked.bool(False),
+                          HotCellClient_checkNevents               = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_persistent     = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_pedestal      = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_energy        = cms.untracked.int32(100),
+                          HotCellClient_checkNevents_neighbor      = cms.untracked.int32(100),
+                          HotCellClient_minErrorFlag               = cms.untracked.double(0.01),
+                          HotCellClient_makeDiagnosticPlots        = cms.untracked.bool(False),
+
+                          
                           
                           # DataFormatClient
                           DataFormatClient          = cms.untracked.bool(True),
-
-                          # Hot Cell Client
-                          HotCellClient             = cms.untracked.bool(True),
-                          hotcellErrorFrac          = cms.untracked.double(0.05),
 
                           # Summary Client
                           SummaryClient             = cms.untracked.bool(True),
@@ -113,6 +125,20 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #client.DeadCellClient_minErrorFlag            = monitor.DeadCellMonitor_minErrorFlag # want to keep these separate?
     client.DeadCellClient_makeDiagnosticPlots     = monitor.DeadCellMonitor_makeDiagnosticPlots          
 
+
+    client.HotCellClient                         = monitor.HotCellMonitor
+    client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent
+    client.HotCellClient_test_pedestal           = monitor.HotCellMonitor_test_pedestal
+    client.HotCellClient_test_energy             = monitor.HotCellMonitor_test_energy
+    client.HotCellClient_test_neighbor           = monitor.HotCellMonitor_test_neighbor
+    client.HotCellClient_checkNevents_persistent  = monitor.HotCellMonitor_checkNevents_persistent
+    client.HotCellClient_checkNevents_pedestal   = monitor.HotCellMonitor_checkNevents_pedestal
+    client.HotCellClient_checkNevents_neighbor   = monitor.HotCellMonitor_checkNevents_neighbor
+    client.HotCellClient_checkNevents_energy     = monitor.HotCellMonitor_checkNevents_energy
+    #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?
+    client.HotCellClient_makeDiagnosticPlots     = monitor.HotCellMonitor_makeDiagnosticPlots
+                                            
+
     client.DigiClient        = monitor.DigiMonitor
 
     client.DataFormatClient  = monitor.DataFormatMonitor
@@ -142,6 +168,19 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "\t\t CheckNevents DeadCell neighbor", client.DeadCellClient_checkNevents_neighbor
         print "\t\t Min Error Flag  = ",client.DeadCellClient_minErrorFlag
         print "\t\t make diagnostics? ",client.DeadCellClient_makeDiagnosticPlots
+
+        print "HotCell Client    = ", client.HotCellClient
+        print "\t\t Test HotCell persistently above threshold? ", client.HotCellClient_test_persistent
+        print "\t\t Test HotCell pedestal? ", client.HotCellClient_test_pedestal
+        print "\t\t Test HotCell energy? ", client.HotCellClient_test_energy
+        print "\t\t Test HotCell neighbor? ", client.HotCellClient_test_neighbor
+        print "\t\t CheckNevents HotCell persistent", client.HotCellClient_checkNevents_persistent
+        print "\t\t CheckNevents HotCell pedestal", client.HotCellClient_checkNevents_pedestal
+        print "\t\t CheckNevents HotCell energy", client.HotCellClient_checkNevents_energy
+        print "\t\t CheckNevents HotCell neighbor", client.HotCellClient_checkNevents_neighbor
+        print "\t\t Min Error Flag  = ",client.HotCellClient_minErrorFlag
+        print "\t\t make diagnostics? ",client.HotCellClient_makeDiagnosticPlots
+                                                                                        
         print "DataFormat Client  = ", client.DataFormatClient
         print "HotCell Client     = ", client.HotCellClient
         print "Summary Client     = ", client.SummaryClient
