@@ -315,12 +315,11 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
   edm::Handle<SiPixelRecHitCollection> recHitColl;
   e.getByLabel( src_ , recHitColl);
  
-  if(print) cout <<" FOUND "<<(recHitColl.product())->size()<<" Pixel Hits"
+  if(print) cout <<" FOUND "<<(recHitColl.product())->dataSize()<<" Pixel Hits"
 		 <<endl;
 
-  SiPixelRecHitCollection::id_iterator recHitIdIterator;
-  SiPixelRecHitCollection::id_iterator recHitIdIteratorBegin = (recHitColl.product())->id_begin();
-  SiPixelRecHitCollection::id_iterator recHitIdIteratorEnd   = (recHitColl.product())->id_end();
+  SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
+  SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd   = (recHitColl.product())->end();
 
 
    int numberOfDetUnits = 0;
@@ -343,10 +342,10 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
    int numOfRecHitsPerLay2F=0;
 
   // Loop over Detector IDs
-  for ( recHitIdIterator = recHitIdIteratorBegin; 
-	recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
+  for ( ; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
+    SiPixelRecHitCollection::DetSet detset = *recHitIdIterator;
 
-    DetId detId = DetId((*recHitIdIterator).rawId()); // Get the Detid object
+    DetId detId = DetId(detset.detId()); // Get the Detid object
     unsigned int detType=detId.det();    // det type, tracker=1
     unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
   
@@ -357,18 +356,10 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
  
 
 
-    if(print) cout <<"     Det ID " << (*recHitIdIterator).rawId() <<endl;
+    if(print) cout <<"     Det ID " << detId.rawId() <<endl;
     
     //  Get rechits
-    SiPixelRecHitCollection::range pixelrechitRange = 
-      (recHitColl.product())->get(*recHitIdIterator);
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = 
-      pixelrechitRange.first;
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = 
-      pixelrechitRange.second;
-    SiPixelRecHitCollection::const_iterator pixeliter;
-     // Skip if no rechits
-    if( pixelrechitRange.first == pixelrechitRange.second ) continue;
+   if( detset.empty() ) continue;
 
     // Get the geometrical information for this det
     const PixelGeomDetUnit * theGeomDet =
@@ -463,9 +454,9 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
 #endif  
    
     //----Loop over rechits for this detId
-    for (pixeliter = pixelrechitRangeIteratorBegin ; 
-	 pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
-      
+    SiPixelRecHitCollection::DetSet::const_iterator pixeliter=detset.begin();
+    SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
+    for(;pixeliter!=rechitRangeIteratorEnd;++pixeliter){//loop on the rechit
       if(print) cout <<"     Position " << pixeliter->localPosition() << endl;
 
       numOfRecHits++;

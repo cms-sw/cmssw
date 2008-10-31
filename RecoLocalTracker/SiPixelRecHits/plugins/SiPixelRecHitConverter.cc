@@ -55,13 +55,10 @@ namespace cms
     cpe_(0),              // the default, in case we fail to make one
     ready_(false),        // since we obviously aren't
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
-    theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0)),
-    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false))
+    theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0))
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
-    if (m_newCont)
-      produces<SiPixelRecHitCollectionNew>();
    
   }
   
@@ -110,15 +107,7 @@ namespace cms
     run( input, *output, geom );
 
 
-    // Step Z: temporary write also the old collection
-    std::auto_ptr<SiPixelRecHitCollection> old(new SiPixelRecHitCollection);
-    edmNew::copy(*output,*old);
-    e.put(old);
-    
-    
-    // Step D: write output to file
-    if (m_newCont)
-      e.put(output);
+    e.put(output);
 
   }
 
