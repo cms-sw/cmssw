@@ -82,7 +82,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V2P::All"
+process.GlobalTag.globaltag = "CRAFT_V3P::All"
 
 from CondCore.DBCommon.CondDBCommon_cfi import *
 process.siPixelCalibGlobalTag =  cms.ESSource("PoolDBESSource",
