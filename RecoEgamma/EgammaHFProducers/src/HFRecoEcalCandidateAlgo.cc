@@ -25,7 +25,7 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 }
 
 RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape) {
-  double energyCorrect=0.811474;
+  double energyCorrect=.53;
   double etaCorrect=.0131-.00319*sin(5.08*shape.CellEta());
   double phiAmpCorrect=-.00404;
   double phiFreqCorrect=6.331;
