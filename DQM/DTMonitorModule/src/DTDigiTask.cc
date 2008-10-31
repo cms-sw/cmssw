@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/10/20 10:15:26 $
- * $Revision: 1.50 $
+ * $Date: 2008/10/24 14:02:59 $
+ * $Revision: 1.51 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -74,7 +74,11 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
   tdcRescale = ps.getUntrackedParameter<int>("tdcRescale", 1);
+
+  doAllHitsOccupancies = ps.getUntrackedParameter<bool>("doAllHitsOccupancies", true);
   doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
+  doInTimeOccupancies = ps.getUntrackedParameter<bool>("doInTimeOccupancies", false);
+
   // switch on the mode for running on test pulses (different top folder)
   tpMode = ps.getUntrackedParameter<bool>("testPulseMode", false);
   // switch on/off the filtering of synchronous noise events (cutting on the # of digis)
@@ -132,7 +136,10 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
   // ----------------------------------------------------------------------
   if(doStaticBooking) {  // Static histo booking
     for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
-      bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
+      if(doAllHitsOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
+      if(doNoiseOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyNoiseHits");
+      if(doInTimeOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyInTimeHits");
+
       if(filterSyncNoise) bookHistos(wh, string("SynchNoise"), "SyncNoiseEvents" );
       for(int st = 1; st <= 4; ++st) { // loop over stations
 	for(int sect = 1; sect <= 14; ++sect) { // loop over sectors
@@ -141,12 +148,13 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 	  const  DTChamberId dtChId(wh,st,sect);
 
 	  // Occupancies 
-	  if (!doNoiseOccupancies) {
+	  if (doAllHitsOccupancies) 
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyAllHits_perCh");
-	  } else {
+	  if(doNoiseOccupancies) 
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyNoise_perCh");
+	  if(doInTimeOccupancies)
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyInTimeHits_perCh" );
-	  }
+
 
 
 
@@ -378,7 +386,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
     (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
     (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   } else if(folder == "SynchNoise") {
-    dbe->setCurrentFolder(topFolder() + "SynchNoise");
+    dbe->setCurrentFolder("DT/04-Noise/SynchNoise");
     string histoTitle = "Event rate of Syncronous Noisy events WHEEL: "+wheel.str();
     (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
@@ -557,7 +565,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
 	// Fill Occupancies
 	if (!isSyncNoisy) { // Discard synch noisy channels 
-	  if (!doNoiseOccupancies) { // Do not use ttrig table
+
+	  if (doAllHitsOccupancies) { // fill occupancies for all hits
 	    //Occupancies per chamber & layer
 	    histoTag = "OccupancyAllHits_perCh";
 	    map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
@@ -580,11 +589,13 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	    histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
 	   
 	    
-	  } else { // after-Calibration jobs: use ttrig DB
+	  } 
 
-	    if (tdcTime < inTimeHitsLowerBoundCorr ) { // FIXME: what about tdcTime > inTimeHitsUpperBoundCorr ???
+	  if(doNoiseOccupancies) { // fill occupancies for hits before the ttrig
+	    if (tdcTime < inTimeHitsLowerBoundCorr ) { 
+	      // FIXME: what about tdcTime > inTimeHitsUpperBoundCorr ???
+
 	      // Noise: Before tTrig
-	      
 	      //Occupancies Noise per chamber & layer
 	      histoTag = "OccupancyNoise_perCh";
 	      map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
@@ -596,9 +607,23 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	      mappedHisto->second->Fill((*digiIt).wire(),
 					(layer_number+(superlayer_number-1)*4)-1);
 
-	    } else if (tdcTime > inTimeHitsLowerBoundCorr && tdcTime < inTimeHitsUpperBoundCorr) { 
+	      // Fill the chamber occupancy
+	      histoTag = "OccupancyNoise";
+	      map<int, MonitorElement*>::const_iterator histoPerWheel =
+		wheelHistos[histoTag].find(dtChId.wheel());
+	      if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
+		bookHistos(dtChId.wheel(), string("Occupancies"), histoTag);
+		histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+	      }
+	      histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
+
+	    } 
+	  }
+	  
+	  if(doInTimeOccupancies) { // fill occpunacies for in-time hits only
+	    if (tdcTime > inTimeHitsLowerBoundCorr && tdcTime < inTimeHitsUpperBoundCorr) { 
 	      // Physical hits: within the time window	
-	      
+
 	      //Occupancies Signal per chamber & layer
 	      histoTag = "OccupancyInTimeHits_perCh";
 	      map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
@@ -609,6 +634,16 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	      }
 	      mappedHisto->second->Fill((*digiIt).wire(),
 					(layer_number+(superlayer_number-1)*4)-1);
+
+	      // Fill the chamber occupancy
+	      histoTag = "OccupancyInTimeHits";
+	      map<int, MonitorElement*>::const_iterator histoPerWheel =
+		wheelHistos[histoTag].find(dtChId.wheel());
+	      if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
+		bookHistos(dtChId.wheel(), string("Occupancies"), histoTag);
+		histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
+	      }
+	      histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
 
 	    }
 	  }
