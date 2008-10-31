@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.25 2008/10/17 13:43:28 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.26 2008/10/21 13:01:21 chamont Exp $
 //
 //
 
@@ -380,7 +380,7 @@ void GsfElectronAlgo::createElectron
       std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
       float scSigmaEtaEta = sqrt(covariances[0]) ;
       float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
-      float scE1x5 = EcalClusterTools::e5x1(seedCluster,reducedRecHits,topology)  ;
+      float scE1x5 = EcalClusterTools::e1x5(seedCluster,reducedRecHits,topology)  ;
       float scE2x5 = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
       float scE5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
 
