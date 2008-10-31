@@ -286,7 +286,9 @@ int main(int argc, char* argv[])
 
   if(vm.count(kStrictOpt))
   {
-    edm::setStrictParsing(true);
+    //edm::setStrictParsing(true);
+    edm::LogSystem("CommandLineProcessing") << "Strict configuration processing is now done from python";
+
   }
  
   // Now create and configure the services
