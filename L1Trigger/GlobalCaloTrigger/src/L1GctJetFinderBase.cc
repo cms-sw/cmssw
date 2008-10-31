@@ -178,7 +178,7 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
   // Find the column for this region in a global (eta,phi) array
   // Note the column numbers here are not the same as region->gctPhi()
   // because the RCT crates are not numbered from phi=0.
-  unsigned colAbsolute = crate*2 + region.rctPhi();
+  unsigned colAbsolute = (crate+1)*2 + region.rctPhi();
   unsigned colRelative = ((colAbsolute+NPHI) - m_minColThisJf) % NPHI;
   if (colRelative < this->nCols()) {
     // We are in the right range in phi

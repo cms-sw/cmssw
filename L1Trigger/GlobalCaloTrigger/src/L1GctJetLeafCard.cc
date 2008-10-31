@@ -3,7 +3,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
-//#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 
@@ -265,8 +264,8 @@ L1GctJetLeafCard::etComponentType
 L1GctJetLeafCard::exComponent(const L1GctJetLeafCard::etTotalType etStrip0,
                               const L1GctJetLeafCard::etTotalType etStrip1,
 			      const unsigned jphi) const {
-  unsigned fact0 = (2*jphi+10) % 36;
-  unsigned fact1 = (2*jphi+12) % 36;
+  unsigned fact0 = (2*jphi+6) % 36;
+  unsigned fact1 = (2*jphi+8) % 36;
   return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
 }
 
@@ -274,8 +273,8 @@ L1GctJetLeafCard::etComponentType
 L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip0,
                               const L1GctJetLeafCard::etTotalType etStrip1,
 			      const unsigned jphi) const {
-  unsigned fact0 = (2*jphi+19) % 36;
-  unsigned fact1 = (2*jphi+21) % 36;
+  unsigned fact0 = (2*jphi+15) % 36;
+  unsigned fact1 = (2*jphi+17) % 36;
   return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
 }
 
