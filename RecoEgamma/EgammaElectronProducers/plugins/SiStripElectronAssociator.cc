@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.3 2007/06/15 15:36:47 tboccali Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.4 2007/08/28 01:42:29 ratnik Exp $
 //
 //
 
@@ -138,15 +138,15 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 	    debugstr << " Looping over Mono hits " << "\n" ;
 
-	    for (edm::RefVector<SiStripRecHit2DCollection>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
+	    for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
 
 	      debugstr << " SiStripCand " 
-		       << " DetId " << (*hitIter)->geographicalId().rawId()
-		       << " localPos " << (*hitIter)->localPosition()
-		       << " deltasPos " << ((*hitIter)->localPosition() - pos).mag() ;
+		       << " DetId " << hitIter->geographicalId().rawId()
+		       << " localPos " << hitIter->localPosition()
+		       << " deltasPos " << (hitIter->localPosition() - pos).mag() ;
 
-		if ((*hitIter)->geographicalId().rawId() == id   &&
-		    ((*hitIter)->localPosition() - pos).mag() < positionTol ) {
+		if (hitIter->geographicalId().rawId() == id   &&
+		    (hitIter->localPosition() - pos).mag() < positionTol ) {
 		  hitInCommon = true;
 		  debugstr << " hitInCommon True " << "\n" ;
 		    break;
@@ -159,15 +159,15 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	    if(!hitInCommon) {
 	      debugstr << " Looping over Stereo hits " << "\n" ;
 
-	      for (edm::RefVector<SiStripRecHit2DCollection>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
+	      for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
 		
 		debugstr << " SiStripCand " 
-			 << " DetId " << (*hitIter)->geographicalId().rawId()
-			 << " localPos " << (*hitIter)->localPosition()
-			 << " deltasPos " << ((*hitIter)->localPosition() - pos).mag() ;
+			 << " DetId " << hitIter->geographicalId().rawId()
+			 << " localPos " << hitIter->localPosition()
+			 << " deltasPos " << (hitIter->localPosition() - pos).mag() ;
  		
-		if ((*hitIter)->geographicalId().rawId() == id   &&
-		    ((*hitIter)->localPosition() - pos).mag() < positionTol) {
+		if (hitIter->geographicalId().rawId() == id   &&
+		    (hitIter->localPosition() - pos).mag() < positionTol) {
 		  hitInCommon = true;
 		  debugstr << " hitInCommon True " << "\n"  ;
 		  break;
