@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V1 (CMSSW_3_0_X_2008-10-24-0200_HLT4)
+# /dev/CMSSW_3_0_0/pre0/HLT/V5 (CMSSW_3_0_X_2008-10-31-0200_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V5')
 )
 
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
@@ -40,7 +40,8 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
-  MaxDPhi = cms.double( 1.6 )
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
 )
 ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
   label = cms.untracked.string( "parametrizedField" ),
@@ -57,7 +58,8 @@ KFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SteppingHelixPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForL2Refit" ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
   ComponentName = cms.string( "KFTrajectorySmootherForL2Muon" ),
@@ -65,7 +67,8 @@ KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer"
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForL2Refit" ),
   errorRescaling = cms.double( 100.0 ),
-  minHits = cms.int32( 3 )
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
 KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   ComponentName = cms.string( "KFFitterSmootherForL2Muon" ),
@@ -75,7 +78,8 @@ KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  NoInvalidHitsBeginEnd = cms.bool( False )
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   ComponentName = cms.string( "PixelCPEGeneric" ),
@@ -115,6 +119,7 @@ bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer"
 )
 bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "bJetRegionalTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -159,6 +164,7 @@ hltCkfTrajectoryBuilderMumuk = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
 )
 hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryFilterMumu" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -173,6 +179,7 @@ hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
 )
 hltCkfTrajectoryFilterMumuk = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryFilterMumuk" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -186,6 +193,7 @@ hltCkfTrajectoryFilterMumuk = cms.ESProducer( "TrajectoryFilterESProducer",
   )
 )
 pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
+  appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
@@ -216,6 +224,7 @@ pixellayerpairs = cms.ESProducer( "PixelLayerPairsESProducer",
   )
 )
 pixellayertriplets = cms.ESProducer( "PixelLayerTripletsESProducer",
+  appendToDataLabel = cms.string( "" ),
   ComponentName = cms.string( "PixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
     'BPix1+BPix2+FPix1_pos',
@@ -243,7 +252,8 @@ softLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
   distance = cms.double( 0.5 )
 )
 softLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
-  appendToDataLabel = cms.string( "" )
+  appendToDataLabel = cms.string( "" ),
+  ipSign = cms.string( "any" )
 )
 trajBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "trajBuilderL3" ),
@@ -262,6 +272,7 @@ trajBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
 )
 trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "trajFilterL3" ),
+  appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minHitsMinPt = cms.int32( 3 ),
     nSigmaMinPt = cms.double( 5.0 ),
@@ -316,17 +327,18 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HBWeight = cms.double( 1.0 ),
     HESWeight = cms.double( 1.0 ),
     HEDWeight = cms.double( 1.0 ),
-    HOWeight = cms.double( 1.0 ),
+    HOWeight = cms.double( 1.0E-99 ),
     HF1Weight = cms.double( 1.0 ),
     HF2Weight = cms.double( 1.0 ),
     EcutTower = cms.double( -1000.0 ),
     EBSumThreshold = cms.double( 0.2 ),
     EESumThreshold = cms.double( 0.45 ),
-    UseHO = cms.bool( True ),
-    MomConstrMethod = cms.int32( 0 ),
-    MomEmDepth = cms.double( 0.0 ),
-    MomHadDepth = cms.double( 0.0 ),
-    MomTotDepth = cms.double( 0.0 ),
+    UseHO = cms.bool( False ),
+    MomConstrMethod = cms.int32( 1 ),
+    MomHBDepth = cms.double( 0.2 ),
+    MomHEDepth = cms.double( 0.4 ),
+    MomEBDepth = cms.double( 0.3 ),
+    MomEEDepth = cms.double( 0.0 ),
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
@@ -343,7 +355,7 @@ hltIterativeCone5CaloJets = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltMCJetCorJetIcone5 = cms.EDProducer( "JetCorrectionProducer",
@@ -414,17 +426,18 @@ hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     HBWeight = cms.double( 1.0 ),
     HESWeight = cms.double( 1.0 ),
     HEDWeight = cms.double( 1.0 ),
-    HOWeight = cms.double( 1.0 ),
+    HOWeight = cms.double( 1.0E-99 ),
     HF1Weight = cms.double( 1.0 ),
     HF2Weight = cms.double( 1.0 ),
     EcutTower = cms.double( -1000.0 ),
     EBSumThreshold = cms.double( 0.2 ),
     EESumThreshold = cms.double( 0.45 ),
-    UseHO = cms.bool( True ),
-    MomConstrMethod = cms.int32( 0 ),
-    MomEmDepth = cms.double( 0.0 ),
-    MomHadDepth = cms.double( 0.0 ),
-    MomTotDepth = cms.double( 0.0 ),
+    UseHO = cms.bool( False ),
+    MomConstrMethod = cms.int32( 1 ),
+    MomHBDepth = cms.double( 0.2 ),
+    MomHEDepth = cms.double( 0.4 ),
+    MomEBDepth = cms.double( 0.3 ),
+    MomEEDepth = cms.double( 0.0 ),
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
@@ -441,7 +454,7 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltMCJetCorJetIcone5Regional = cms.EDProducer( "JetCorrectionProducer",
@@ -3485,7 +3498,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME41 = cms.untracked.double( 7.0 ),
     XTasymmetry_ME41 = cms.untracked.double( 0.025 ),
     ConstSyst_ME41 = cms.untracked.double( 0.06 ),
-    readBadChannels = cms.bool( False )
+    readBadChannels = cms.bool( False ),
+    readBadChambers = cms.bool( False )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
@@ -3842,17 +3856,18 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     HBWeight = cms.double( 1.0 ),
     HESWeight = cms.double( 1.0 ),
     HEDWeight = cms.double( 1.0 ),
-    HOWeight = cms.double( 1.0 ),
+    HOWeight = cms.double( 1.0E-99 ),
     HF1Weight = cms.double( 1.0 ),
     HF2Weight = cms.double( 1.0 ),
     EcutTower = cms.double( -1000.0 ),
     EBSumThreshold = cms.double( 0.2 ),
     EESumThreshold = cms.double( 0.45 ),
-    UseHO = cms.bool( True ),
-    MomConstrMethod = cms.int32( 0 ),
-    MomEmDepth = cms.double( 0.0 ),
-    MomHadDepth = cms.double( 0.0 ),
-    MomTotDepth = cms.double( 0.0 ),
+    UseHO = cms.bool( False ),
+    MomConstrMethod = cms.int32( 1 ),
+    MomHBDepth = cms.double( 0.2 ),
+    MomHEDepth = cms.double( 0.4 ),
+    MomEBDepth = cms.double( 0.3 ),
+    MomEEDepth = cms.double( 0.0 ),
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
@@ -4774,11 +4789,10 @@ hltBLifetimeL25TagInfos = cms.EDProducer( "TrackIPProducer",
     minimumNumberOfHits = cms.int32( 3 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
-    maximumDecayLength = cms.double( 5.0 ),
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
-    maximumDistanceToJetAxis = cms.double( 0.07 ),
-    jetDirectionUsingTracks = cms.bool( False )
+    jetDirectionUsingTracks = cms.bool( False ),
+    useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
@@ -4807,11 +4821,10 @@ hltBLifetimeL3TagInfos = cms.EDProducer( "TrackIPProducer",
     minimumNumberOfHits = cms.int32( 8 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
-    maximumDecayLength = cms.double( 5.0 ),
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
-    maximumDistanceToJetAxis = cms.double( 0.07 ),
-    jetDirectionUsingTracks = cms.bool( False )
+    jetDirectionUsingTracks = cms.bool( False ),
+    useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
@@ -4857,11 +4870,10 @@ hltBLifetimeL25TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
     minimumNumberOfHits = cms.int32( 3 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
-    maximumDecayLength = cms.double( 5.0 ),
     maximumChiSquared = cms.double( 5.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
-    maximumDistanceToJetAxis = cms.double( 0.07 ),
-    jetDirectionUsingTracks = cms.bool( False )
+    jetDirectionUsingTracks = cms.bool( False ),
+    useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL25BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
@@ -4890,11 +4902,10 @@ hltBLifetimeL3TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
     minimumNumberOfHits = cms.int32( 8 ),
     maximumTransverseImpactParameter = cms.double( 0.2 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
-    maximumDecayLength = cms.double( 5.0 ),
     maximumChiSquared = cms.double( 20.0 ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
-    maximumDistanceToJetAxis = cms.double( 0.07 ),
-    jetDirectionUsingTracks = cms.bool( False )
+    jetDirectionUsingTracks = cms.bool( False ),
+    useTrackQuality = cms.bool( False )
 )
 hltBLifetimeL3BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
@@ -5246,7 +5257,7 @@ hltIcone5Tau1 = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau2 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
@@ -5268,7 +5279,7 @@ hltIcone5Tau2 = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau3 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
@@ -5290,7 +5301,7 @@ hltIcone5Tau3 = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau4 = cms.EDProducer( "CaloTowerCreatorForTauHLT",
@@ -5312,7 +5323,7 @@ hltIcone5Tau4 = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hlt1METSingleTau = cms.EDFilter( "HLT1CaloMET",
@@ -5660,17 +5671,18 @@ hltTowerMakerForTaus = cms.EDProducer( "CaloTowersCreator",
     HBWeight = cms.double( 1.0 ),
     HESWeight = cms.double( 1.0 ),
     HEDWeight = cms.double( 1.0 ),
-    HOWeight = cms.double( 1.0 ),
+    HOWeight = cms.double( 1.0E-99 ),
     HF1Weight = cms.double( 1.0 ),
     HF2Weight = cms.double( 1.0 ),
     EcutTower = cms.double( -1000.0 ),
     EBSumThreshold = cms.double( 0.2 ),
     EESumThreshold = cms.double( 0.45 ),
-    UseHO = cms.bool( True ),
-    MomConstrMethod = cms.int32( 0 ),
-    MomEmDepth = cms.double( 0.0 ),
-    MomHadDepth = cms.double( 0.0 ),
-    MomTotDepth = cms.double( 0.0 ),
+    UseHO = cms.bool( False ),
+    MomConstrMethod = cms.int32( 1 ),
+    MomHBDepth = cms.double( 0.2 ),
+    MomHEDepth = cms.double( 0.4 ),
+    MomEBDepth = cms.double( 0.3 ),
+    MomEEDepth = cms.double( 0.0 ),
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
@@ -5695,7 +5707,7 @@ hltIcone5Tau1Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
@@ -5717,7 +5729,7 @@ hltIcone5Tau2Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
@@ -5739,7 +5751,7 @@ hltIcone5Tau3Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
@@ -5761,7 +5773,7 @@ hltIcone5Tau4Regional = cms.EDProducer( "IterativeConeJetProducer",
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
     alias = cms.untracked.string( "IC5CaloJet" ),
-    correctInputToSignalVertex = cms.bool( True ),
+    correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 hltL2DoubleTauJets = cms.EDProducer( "L2TauJetsProvider",
