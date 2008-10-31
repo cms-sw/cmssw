@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 13:59:06 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/21 11:30:35 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -72,8 +72,10 @@ void DTCalibValidation::beginJob(const edm::EventSetup& context){
   segment4DLabel = parameters.getUntrackedParameter<string>("segment4DLabel");
   // the counter of segments not used to compute residuals
   wrongSegment = 0;
-   // the counter of segments used to compute residuals
+  // the counter of segments used to compute residuals
   rightSegment = 0;
+  // the analysis type
+  detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
 
   nevent=0;
 
@@ -527,12 +529,14 @@ void DTCalibValidation::bookHistos(DTSuperLayerId slId, int step) {
   histos.push_back(theDbe->book2D("hResDistVsDist"+slHistoName,
 				  "Residuals on the distance (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
 				  100, 0, 2.5, 200, -0.4, 0.4));
-  histos.push_back(theDbe->book1D("hResPos"+slHistoName,
-				  "Residuals on the position from wire (rec_hit - segm_extr) (cm)",
-				  200, -0.4, 0.4));
-  histos.push_back(theDbe->book2D("hResPosVsPos"+slHistoName,
-				  "Residuals on the position (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
-				  200, -2.5, 2.5, 200, -0.4, 0.4));
+  if(detailedAnalysis){
+    histos.push_back(theDbe->book1D("hResPos"+slHistoName,
+				    "Residuals on the position from wire (rec_hit - segm_extr) (cm)",
+				    200, -0.4, 0.4));
+    histos.push_back(theDbe->book2D("hResPosVsPos"+slHistoName,
+				    "Residuals on the position (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
+				    200, -2.5, 2.5, 200, -0.4, 0.4));
+  }
 
   histosPerSL[make_pair(slId, step)] = histos;
 }
@@ -550,7 +554,9 @@ void DTCalibValidation::fillHistos(DTSuperLayerId slId,
   vector<MonitorElement *> histos =  histosPerSL[make_pair(slId,step)];                          
   histos[0]->Fill(residualOnDistance);
   histos[1]->Fill(distance, residualOnDistance);
-  histos[2]->Fill(residualOnPosition);
-  histos[3]->Fill(position, residualOnPosition);
+  if(detailedAnalysis){
+    histos[2]->Fill(residualOnPosition);
+    histos[3]->Fill(position, residualOnPosition);
+  }
 }
 
