@@ -1,4 +1,3 @@
-#include "FWCore/ParameterSet/interface/PythonParseTree.h"
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -36,19 +35,6 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   ;
 
 
-  class_<PythonParseTree>("PythonParseTree", init<std::string>())
-      .def("modules",       &PythonParseTree::modules)
-      .def("modulesOfType", &PythonParseTree::modulesOfType)
-      .def("process",       &PythonParseTree::process)
-      .def("replaceValue",  &PythonParseTree::replaceValue)
-      .def("replaceValues", &PythonParseTree::replaceValues)
-      .def("dump",          &PythonParseTree::dump)
-      .def("typeOf",        &PythonParseTree::typeOf)
-      .def("value",         &PythonParseTree::value)
-      .def("values",        &PythonParseTree::values)
-      .def("children",      &PythonParseTree::children)
-      .def("dumpTree",      &PythonParseTree::dumpTree)
-  ;
 
   class_<PythonParameterSet>("ParameterSet")
     .def("addInt32", &PythonParameterSet::addParameter<int>)
@@ -111,7 +97,6 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("dump", &PythonProcessDesc::dump)
   ;
 
-   register_exception_translator<edm::Exception>(PythonParseTree::exceptionTranslator);
 }
 
 
