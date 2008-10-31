@@ -22,6 +22,7 @@ PixelFEDCard::PixelFEDCard():
 // Read configuration from DB
 PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" "," "," ")
 {
+  std::string mthn = "[PixelFEDCard::PixelFEDCard()]\t\t    " ;
   vector<string> ins = tableMat[0];
   map<string , int > colM;
   vector<string> colNames;
@@ -186,18 +187,18 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   for(unsigned int r = 0 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
     if(tableMat[r].size() == 0)
       {
-        cout << "__________________ NEW TABLE __________________"<< endl ;
+//        cout << mthn << "__________________ NEW TABLE __________________"<< endl ;
         size[indexsize] = r ;
-        cout << "size[" << indexsize << "] = " << size[indexsize] << endl ;
+//        cout << mthn << "size[" << indexsize << "] = " << size[indexsize] << endl ;
         indexsize++ ;
         continue ;
       }
     for(vector<string>::iterator it = tableMat[r].begin() ; it != tableMat[r].end() ; it++)
       {
-//      cout << *it <<"["<<&*it<<"]\t"  ;
-        cout << *it <<"\t"  ;
+//      cout << mthn << *it <<"["<<&*it<<"]\t"  ;
+//        cout << mthn << *it <<"\t"  ;
       }
-    cout << endl ;
+//    cout << mthn << endl ;
   }
 
   // Read below quantities pertaining to a single FED that are equal accross 36 channels
