@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.64 $
+ * $Date: 2008/05/23 09:15:25 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -83,6 +83,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 
   recHitEnergyMin_ = 1.; // GeV
   trigPrimEtMin_ = 5.; // GeV
+
 }
 
 EBOccupancyTask::~EBOccupancyTask(){

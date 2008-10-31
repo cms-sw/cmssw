@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/10/10 16:14:14 $
- * $Revision: 1.17 $
+ * $Date: 2008/10/26 17:41:30 $
+ * $Revision: 1.18 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -223,6 +223,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       EBDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(610+iDcc).size())/kByte );
 
     }
+
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
   }
