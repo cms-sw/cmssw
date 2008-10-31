@@ -201,7 +201,7 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
     edmNew::DetSet<SiStripRecHit2D> rphiHits = *itRPhiDet;
     StripSubdetector specDetId(rphiHits.detId());
     uint32_t partnerId = specDetId.partnerDetId();
-    if (partnerId = 0) continue;
+    if (partnerId == 0) continue;
     SiStripRecHit2DCollection::const_iterator itStereoDet = outstereo.find(partnerId);
     if (itStereoDet == edStereoDet) continue;
     edmNew::DetSet<SiStripRecHit2D> stereoHits = *itStereoDet;
