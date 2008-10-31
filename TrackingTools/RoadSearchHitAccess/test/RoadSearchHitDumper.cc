@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:33:36 $
-// $Revision: 1.2 $
+// $Date: 2007/03/07 22:07:33 $
+// $Revision: 1.3 $
 //
 
 #include <sstream>
@@ -98,7 +98,7 @@ void RoadSearchHitDumper::analyze(const edm::Event& e, const edm::EventSetup& es
   output<< "pixel collection size " << pixelRecHits->size() << std::endl;
 
   unsigned int nrphi=0;
-  for ( SiStripRecHit2DCollection::const_iterator recHit = rphiRecHits->begin() , recHitEnd = rphiRecHits->end();
+  for ( SiStripRecHit2DCollection::DataContainer::const_iterator recHit = rphiRecHits->data().begin() , recHitEnd = rphiRecHits->data().end();
 	recHit != recHitEnd; 
 	++recHit ) {
     DetId id = recHit->geographicalId();
@@ -111,7 +111,7 @@ void RoadSearchHitDumper::analyze(const edm::Event& e, const edm::EventSetup& es
   }//end of loop over rphi hits
 
   unsigned int nstereo=0;
-  for ( SiStripRecHit2DCollection::const_iterator recHit = stereoRecHits->begin() , recHitEnd = stereoRecHits->end();
+  for ( SiStripRecHit2DCollection::DataContainer::const_iterator recHit = stereoRecHits->data().begin() , recHitEnd = stereoRecHits->data().end();
 	recHit != recHitEnd; 
 	++recHit ) {
     DetId id = recHit->geographicalId();
@@ -125,7 +125,7 @@ void RoadSearchHitDumper::analyze(const edm::Event& e, const edm::EventSetup& es
   }//end of loop over stereo hits
 
   unsigned int nmatched=0;
-  for ( SiStripMatchedRecHit2DCollection::const_iterator recHit = matchedRecHits->begin() , recHitEnd = matchedRecHits->end();
+  for ( SiStripMatchedRecHit2DCollection::DataContainer::const_iterator recHit = matchedRecHits->data().begin() , recHitEnd = matchedRecHits->data().end();
 	recHit != recHitEnd; 
 	++recHit ) {
     DetId id = recHit->geographicalId();
@@ -139,7 +139,7 @@ void RoadSearchHitDumper::analyze(const edm::Event& e, const edm::EventSetup& es
   }//end of loop over matched hits
   
   unsigned int npixel=0;
-  for ( SiPixelRecHitCollection::const_iterator recHit = pixelRecHits->begin() , recHitEnd = pixelRecHits->end();
+  for ( SiPixelRecHitCollection::DataContainer::const_iterator recHit = pixelRecHits->data().begin() , recHitEnd = pixelRecHits->data().end();
 	recHit != recHitEnd; 
 	++recHit ) {
     DetId id = recHit->geographicalId();

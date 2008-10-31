@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/08/13 18:43:52 $
-// $Revision: 1.53 $
+// $Date: 2008/10/28 13:09:15 $
+// $Revision: 1.54 $
 //
 
 #include <vector>
@@ -168,11 +168,6 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
   
   // get RoadSearchSeed collection
   const RoadSearchSeedCollection* inputSeeds = input.product();
-  
-  // load the DetIds of the hits
-  const std::vector<DetId> availableIDs = rphiRecHits->ids();
-  const std::vector<DetId> availableIDs2 = stereoRecHits->ids();
-  const std::vector<DetId> availableIDs3 = pixRecHits->ids();
   
   // set collections for general hit access method
   recHitVectorClass.setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixRecHits);
@@ -817,10 +812,13 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, co
   // loop over SiPixelRecHit
   // check if compatible with cloud, fill into cloud
   
-  const SiPixelRecHitCollection::range recHitRange = inputRecHits->get(id);
+  SiPixelRecHitCollection::const_iterator recHitMatch = inputRecHits->find(id);
+  if (recHitMatch == inputRecHits-end()) return usedRecHits;
+
+  const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
   
-  for ( SiPixelRecHitCollection::const_iterator recHitIterator = recHitRange.first; 
-        recHitIterator != recHitRange.second; ++recHitIterator) {
+  for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
+        recHitIterator != recHitRange.end(); ++recHitIterator) {
     
     const SiPixelRecHit * recHit = &(*recHitIterator);
     
