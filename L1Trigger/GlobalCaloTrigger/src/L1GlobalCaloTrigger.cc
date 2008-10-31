@@ -15,7 +15,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using std::vector;
 
@@ -437,9 +436,9 @@ void L1GlobalCaloTrigger::setRegion(const L1CaloRegion& region)
     unsigned crate = region.rctCrate();
     // Find the relevant jetFinders
     static const unsigned NPHI = L1CaloRegionDetId::N_PHI/2;
-    unsigned thisphi = crate % NPHI;
-    unsigned nextphi = (crate+1) % NPHI;
-    unsigned prevphi = (crate+NPHI-1) % NPHI;
+    unsigned prevphi = crate % NPHI;
+    unsigned thisphi = (crate+1) % NPHI;
+    unsigned nextphi = (crate+2) % NPHI;
 
     // Send the region to six jetFinders.
     theJetFinders.at(thisphi)->setInputRegion(region);
