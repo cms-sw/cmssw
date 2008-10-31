@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/05/15 17:38:24 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/08 19:48:03 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -282,13 +282,25 @@ TransientTrackingRecHit::ConstRecHitContainer
 GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track) const {
 
   TransientTrackingRecHit::ConstRecHitContainer result;
-  
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
-    if((*hit)->isValid())
-      if ( (*hit)->geographicalId().det() == DetId::Tracker )
-        result.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
+  std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
+
+  TrajectoryStateTransform tsTrans;
+
+  TrajectoryStateOnSurface currTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
+  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+    if((*hit)->isValid()) {
+      DetId recoid = (*hit)->geographicalId();
+      if ( recoid.det() == DetId::Tracker ) {
+        TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
+        TrajectoryStateOnSurface predTsos =  theService->propagator(thePropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
+        LogTrace(metname)<<"predtsos "<<predTsos.isValid();
+        if ( predTsos.isValid() ) currTsos = predTsos;
+        TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
+        result.push_back(preciseHit);
+      } else if ( recoid.det() == DetId::Muon ) {
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
       }
+    }
+  }
   return result;
 }
