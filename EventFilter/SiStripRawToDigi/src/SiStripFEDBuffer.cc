@@ -220,7 +220,7 @@ namespace sistrip {
   FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, size_t fedBufferSize, bool allowBadBuffer)
     : FEDBufferBase(fedBuffer,fedBufferSize,allowBadBuffer)
   {
-    channels_.reserve(CHANNELS_PER_FED);
+    channels_.reserve(FEDCH_PER_FED);
     payloadPointer_ = NULL;
     //build the correct type of FE header object
     if (headerType() != HEADER_TYPE_INVALID) {
@@ -249,7 +249,7 @@ namespace sistrip {
       //if there was a problem either rethrow the exception or just mark channel pointers NULL
       if (!allowBadBuffer) throw;
       else {
-	channels_.insert(channels_.end(),size_t(CHANNELS_PER_FED-lastValidChannel_),FEDChannel(payloadPointer_,0));
+	channels_.insert(channels_.end(),size_t(FEDCH_PER_FED-lastValidChannel_),FEDChannel(payloadPointer_,0));
       }
     }
   }
@@ -262,12 +262,12 @@ namespace sistrip {
   void FEDBuffer::findChannels()
   {
     size_t offsetBeginningOfChannel = 0;
-    for (size_t i = 0; i < CHANNELS_PER_FED; i++) {
+    for (size_t i = 0; i < FEDCH_PER_FED; i++) {
       //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
-      if (!feEnabled(i/CHANNELS_PER_FEUNIT)) {
-	channels_.insert(channels_.end(),size_t(CHANNELS_PER_FEUNIT),FEDChannel(payloadPointer_,0));
-	i += CHANNELS_PER_FEUNIT-1;
-	lastValidChannel_ += CHANNELS_PER_FEUNIT;
+      if (!feEnabled(i/FEDCH_PER_FEUNIT)) {
+	channels_.insert(channels_.end(),size_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0));
+	i += FEDCH_PER_FEUNIT-1;
+	lastValidChannel_ += FEDCH_PER_FEUNIT;
 	continue;
       }
       //if FE unit is enabled
@@ -289,7 +289,7 @@ namespace sistrip {
       lastValidChannel_++;
       const size_t offsetEndOfChannel = offsetBeginningOfChannel+channelLength;
       //add padding if necessary and calculate offset for begining of next channel
-      if (!( (i+1) % CHANNELS_PER_FEUNIT )) {
+      if (!( (i+1) % FEDCH_PER_FEUNIT )) {
 	uint8_t numPaddingBytes = 8 - (offsetEndOfChannel % 8);
 	if (numPaddingBytes == 8) numPaddingBytes = 0;
 	offsetBeginningOfChannel = offsetEndOfChannel + numPaddingBytes;
@@ -302,7 +302,7 @@ namespace sistrip {
   bool FEDBuffer::doChecks() const
   {
     //check that all channels were unpacked properly
-    if (lastValidChannel_ != CHANNELS_PER_FED) return false;
+    if (lastValidChannel_ != FEDCH_PER_FED) return false;
     //do checks from base class
     if (!FEDBufferBase::doChecks()) return false;
     return true;
@@ -320,10 +320,10 @@ namespace sistrip {
 
   bool FEDBuffer::checkAllChannelStatusBits() const
   {
-    for (uint8_t iCh = 0; iCh < CHANNELS_PER_FED; iCh++) {
+    for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
       //if FE unit is disabled then skip all channels on it
-      if (!feEnabled(iCh/CHANNELS_PER_FED)) {
-	iCh += CHANNELS_PER_FEUNIT-1;
+      if (!feEnabled(iCh/FEDCH_PER_FED)) {
+	iCh += FEDCH_PER_FEUNIT-1;
 	continue;
       }
       //channel is bad then return false
@@ -335,7 +335,7 @@ namespace sistrip {
 
   bool FEDBuffer::checkChannelLengths() const
   {
-    return (lastValidChannel_ == CHANNELS_PER_FED);
+    return (lastValidChannel_ == FEDCH_PER_FED);
   }
 
   bool FEDBuffer::checkChannelLengthsMatchBufferLength() const
@@ -351,7 +351,7 @@ namespace sistrip {
     uint8_t lastEnabledFeUnit = 7;
     while (!feEnabled(lastEnabledFeUnit)) lastEnabledFeUnit--;
     //last channel is last channel on last enabled FE unit
-    const FEDChannel& lastChannel = channels_[internalFEDChannelNum(lastEnabledFeUnit,CHANNELS_PER_FEUNIT-1)];
+    const FEDChannel& lastChannel = channels_[internalFEDChannelNum(lastEnabledFeUnit,FEDCH_PER_FEUNIT-1)];
     const size_t offsetLastChannel = lastChannel.offset();
     const size_t offsetEndOfChannelData = offsetLastChannel+lastChannel.length();
     const size_t channelDataLength = offsetEndOfChannelData;
@@ -391,10 +391,10 @@ namespace sistrip {
     default:
       return false;
     }
-    for (uint8_t iCh = 0; iCh < CHANNELS_PER_FED; iCh++) {
+    for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
       //if FE unit is disabled then skip all channels on it
-      if (!feEnabled(iCh/CHANNELS_PER_FED)) {
-	iCh += CHANNELS_PER_FEUNIT-1;
+      if (!feEnabled(iCh/FEDCH_PER_FED)) {
+	iCh += FEDCH_PER_FEUNIT-1;
 	continue;
       }
       //only check enabled, working channels
@@ -434,7 +434,7 @@ namespace sistrip {
       if (!feEnabled(iFE)) continue;
       //get length from channels
       uint16_t lengthFromChannels = 0;
-      for (uint8_t iCh = 0; iCh < CHANNELS_PER_FEUNIT; iCh++) {
+      for (uint8_t iCh = 0; iCh < FEDCH_PER_FEUNIT; iCh++) {
 	lengthFromChannels += channels_[internalFEDChannelNum(iFE,iCh)].length();
       }
       //round to nearest 64bit word
@@ -453,8 +453,8 @@ namespace sistrip {
     if (!checkAllChannelStatusBits()) {
       summary << "Channels with errors: ";
       unsigned int badChannels = 0;
-      for (uint8_t iCh = 0; iCh < CHANNELS_PER_FED; iCh++) {
-	if (!feEnabled(iCh/CHANNELS_PER_FED)) continue;
+      for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
+	if (!feEnabled(iCh/FEDCH_PER_FED)) continue;
 	if (!checkStatusBits(iCh)) {
 	  summary << uint16_t(iCh) << " ";
 	  badChannels++;

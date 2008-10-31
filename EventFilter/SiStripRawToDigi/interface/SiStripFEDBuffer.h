@@ -1,6 +1,7 @@
 #ifndef EventFilter_SiStripRawToDigi_FEDBuffer_H
 #define EventFilter_SiStripRawToDigi_FEDBuffer_H
 
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
@@ -13,12 +14,6 @@
 namespace sistrip {
 
   static const uint8_t INVALID=0xFF;
-
-  static const uint8_t APVS_PER_CHANNEL=2;
-  static const uint8_t FEUNITS_PER_FED=8;
-  static const uint8_t CHANNELS_PER_FEUNIT=12;
-  static const uint8_t CHANNELS_PER_FED=FEUNITS_PER_FED*CHANNELS_PER_FEUNIT;
-  static const uint8_t APVS_PER_FED=CHANNELS_PER_FED*APVS_PER_CHANNEL;
   static const uint8_t APV_MAX_ADDRESS=192;
 
   enum BufferFormat { BUFFER_FORMAT_INVALID=INVALID,
@@ -543,7 +538,7 @@ namespace sistrip {
 
   inline uint8_t internalFEDChannelNum(uint8_t internalFEUnitNum, uint8_t internalChannelNum)
     {
-      return (internalFEUnitNum*CHANNELS_PER_FEUNIT + internalChannelNum);
+      return (internalFEUnitNum*FEDCH_PER_FEUNIT + internalChannelNum);
     }
 
   inline std::ostream& operator << (std::ostream& os, const FEDDAQHeader& data) { data.print(os); return os; }
@@ -558,7 +553,7 @@ namespace sistrip {
   inline bool FEDBuffer::channelGood(uint8_t internalFEDChannelNum) const
     {
       return ( (internalFEDChannelNum <= lastValidChannel_) &&
-	       feGood(internalFEDChannelNum/CHANNELS_PER_FEUNIT) &&
+	       feGood(internalFEDChannelNum/FEDCH_PER_FEUNIT) &&
 	       checkStatusBits(internalFEDChannelNum) );
     }
 
@@ -658,8 +653,8 @@ namespace sistrip {
 
   inline bool FEDFullDebugHeader::getBitVal(uint8_t internalFEDChannelNum, uint8_t bit) const
     {
-      const uint8_t* pFEWord = feWord(internalFEDChannelNum / CHANNELS_PER_FEUNIT);
-      const uint8_t bitInFeWord = (internalFEDChannelNum % CHANNELS_PER_FEUNIT) * 6 + bit;
+      const uint8_t* pFEWord = feWord(internalFEDChannelNum / FEDCH_PER_FEUNIT);
+      const uint8_t bitInFeWord = (internalFEDChannelNum % FEDCH_PER_FEUNIT) * 6 + bit;
       return ( pFEWord[bitInFeWord/8] & (0x1 << bitInFeWord%8) );
     }
 
