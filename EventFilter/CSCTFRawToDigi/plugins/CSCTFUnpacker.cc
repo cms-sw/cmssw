@@ -192,6 +192,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 						track.first.m_lphi      = iter->phi();
 						track.first.m_ptAddress = iter->ptLUTaddress();
+						track.first.m_fr        = iter->f_r();
 						track.first.m_ptAddress|=(iter->f_r() << 21);
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
 						track.first.setBx(iter->tbin()-central_sp_bx);
