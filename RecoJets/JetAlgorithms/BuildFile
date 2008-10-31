@@ -11,6 +11,8 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/Records>
 <export>
  <lib name=RecoJetsJetAlgorithms>
  <use name=DataFormats/JetReco>
