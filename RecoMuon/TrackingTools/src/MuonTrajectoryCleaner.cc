@@ -56,7 +56,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
       double chi2_dof_j = (*jter)->chiSquared()/(*jter)->ndof();
 
       LogTrace(metname) 
-	<< " MuonTrajSelector: trajC " 
+	<< " MuonTrajectoryCleaner: trajC " 
 	<< i << "(pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV)"
 	<< " chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() 
 	<< " (RH=" << (*iter)->foundHits() << ") = " << chi2_dof_i
@@ -209,7 +209,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       }
       
       LogTrace(metname) 
-	<< " MuonTrajSelector: candC " << i << " chi2/nRH = " 
+	<< " MuonTrajectoryCleaner: candC " << i << " chi2/nRH = " 
 	<< (*iter)->trajectory()->chiSquared() << "/" << (*iter)->trajectory()->foundHits() <<
 	" vs trajC " << j << " chi2/nRH = " << (*jter)->trajectory()->chiSquared() <<
 	"/" << (*jter)->trajectory()->foundHits() << " Shared RecHits: " << match;
@@ -233,15 +233,16 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
         directionMatch = true;
         LogTrace(metname)
-        << " MuonTrajSelector: candC " << i<<" and "<<j<< " direction matched: "
+        << " MuonTrajectoryCleaner: candC " << i<<" and "<<j<< " direction matched: "
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
 
       }
       
       // If there are matches, reject the worst track
       bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
-      
-      if ( (hitsMatch > 0) || directionMatch ) {
+      bool tracksMatch = (((*iter)->muonTrack() == (*jter)->muonTrack() ) || ((*iter)->trackerTrack() == (*jter)->trackerTrack()));
+
+      if ( ( tracksMatch ) || (hitsMatch > 0) || directionMatch ) {
 	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
           if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
             mask[i] = false;
