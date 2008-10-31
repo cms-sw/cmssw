@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2007/12/16 07:32:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/25 15:21:19 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -76,13 +76,6 @@ private:
   CosmicMuonSmoother* theSmoother;
 
   TrackTransformer* theTrackTransformer;
-
-  struct DecreasingGlobalY{
-    bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &lhs,
-		    const TransientTrackingRecHit::ConstRecHitPointer &rhs) const{ 
-      return lhs->globalPosition().y() > rhs->globalPosition().y(); 
-    }
-  };
 
   std::string thePropagatorName;
   std::string theTkTrackLabel;
