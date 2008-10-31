@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.4 2008/10/03 15:09:12 charlot Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.5 2008/10/06 14:53:20 charlot Exp $
 //
 //
 
@@ -490,7 +490,10 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
 	float p = t.globalMomentum().mag();
-	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow((phi-pAssSim.phi()),2));
+        double dphi = phi-pAssSim.phi();
+        if (fabs(dphi)>CLHEP::pi)
+         dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
 	if ( deltaR < 0.05 ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){

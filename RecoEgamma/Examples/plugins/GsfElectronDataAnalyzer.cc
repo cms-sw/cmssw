@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.5 2008/10/28 21:51:31 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.6 2008/10/29 07:58:28 charlot Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+#include "CLHEP/Units/PhysicalConstants.h"
 #include <iostream>
 #include "TMath.h"
 #include "TFile.h"
@@ -722,7 +723,10 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
        gsfIter!=gsfElectrons->end(); gsfIter++){
 	
-	double deltaR = sqrt(pow((gsfIter->eta()-moIter->eta()),2) + pow((gsfIter->phi()-moIter->phi()),2));
+        double dphi = moIter->phi()-pAssSim.phi();
+        if (fabs(dphi)>CLHEP::pi)
+         dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+    	double deltaR = sqrt(pow((moIter->eta()-pAssSim.eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
