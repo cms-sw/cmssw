@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.32 2008/10/13 12:33:32 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.33 2008/10/25 21:12:35 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -282,22 +282,22 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  
 	  if (layerswitchnumdigisprofon) 
 	    local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,0.0);
-
+	  
 	  continue; // no digis for this detid => jump to next step of loop
 	}//end of if "isearch == digi ..."
 	
-
+	
 	//digi_detset is a structure
 	//digi_detset.data is a std::vector<SiStripDigi>
 	//digi_detset.id is uint32_t
 	edm::DetSet<SiStripDigi> digi_detset = (*digi_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
-
+	
 	// nr. of digis per detector
 	if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL)) 
 	  (local_modmes.NumberOfDigis)->Fill(static_cast<float>(digi_detset.size()));
         
         ndigi_layer += digi_detset.size();
-
+	
 	if (layerswitchnumdigisprofon) {
           local_layermes.LayerNumberOfDigisProfile->Fill(iDet*1.0,digi_detset.size()*1.0);
         }
@@ -305,34 +305,34 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	// ADCs
 	int largest_adc=(digi_detset.data.begin())->adc();
 	int smallest_adc=(digi_detset.data.begin())->adc();
-
+	
 	int subdetid;
 	int subsubdetid;
 	std::string label;
 	getLayerLabel(detid, label, subdetid, subsubdetid);
         float det_occupancy = 0.0;
-
+	
 	for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
 	    digiIter!= digi_detset.data.end(); digiIter++ ){
 	  
 	  int this_adc = digiIter->adc();
 	  if (this_adc > 0.0) det_occupancy++;
-
+	  
 	  if(this_adc>largest_adc) largest_adc  = this_adc; 
 	  if(this_adc<smallest_adc) smallest_adc  = this_adc; 
 	  
 	  if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
 	    (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
-	  	  
+	  
 	  //Fill #ADCs for this digi at layer level
 	  if(layerswitchdigiadcson) {
 	    fillME(local_layermes.LayerDigiADCs , this_adc);
 	    if (createTrendMEs) fillTrend(local_layermes.LayerDigiADCsTrend, this_adc);
 	  }
-
+	  
 	  if (layerswitchdigiadcprofon) 
 	    local_layermes.LayerDigiADCProfile->Fill(iDet*1.0,this_adc);
-
+	  
 	}//end of loop over digis in this det
         
         // Occupancy
@@ -345,10 +345,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
             if (createTrendMEs) fillTrend(local_layermes.LayerStripOccupancyTrend, det_occupancy);
           }
         }
-
+	
         if  (largest_adc > largest_adc_layer) largest_adc_layer = largest_adc;
         if  (smallest_adc < smallest_adc_layer) smallest_adc_layer = smallest_adc;
-
+	
 	// nr. of adcs for hottest strip
 	if( Mod_On_ && moduleswitchadchotteston && (local_modmes.ADCsHottestStrip != NULL)) 
 	  (local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc));
@@ -677,7 +677,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 					      Parameters.getParameter<double>("ymax"),
 					      "" );
   if (!me) return;
-  me->setAxisTitle("Orbit Seconds",1);
+  me->setAxisTitle("Event Time in Seconds",1);
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
   SubDetMEsMap.insert( std::make_pair(label, me));
 }
