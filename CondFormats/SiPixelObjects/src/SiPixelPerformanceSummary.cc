@@ -3,68 +3,74 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
 
-SiPixelPerformanceSummary::SiPixelPerformanceSummary() : runNumber_(0), 
-                                                         numberOfEvents_(0), 
-							 timeValue_(0) {}
+using namespace edm; 
+using namespace std; 
 
 
-SiPixelPerformanceSummary::SiPixelPerformanceSummary(const SiPixelPerformanceSummary& spps) {
-  runNumber_ = spps.getRunNumber();
-  numberOfEvents_ = spps.getNumberOfEvents(); 
-  timeValue_ = spps.getTimeValue();
-  allDetSummaries_ = spps.getAllDetSummaries();
+SiPixelPerformanceSummary::SiPixelPerformanceSummary() 
+                         : timeStamp_(0), runNumber_(0), luminosityBlock_(0), numberOfEvents_(0) {}
+
+
+SiPixelPerformanceSummary::SiPixelPerformanceSummary(const SiPixelPerformanceSummary& performanceSummary) {
+        timeStamp_ = performanceSummary.getTimeStamp();
+        runNumber_ = performanceSummary.getRunNumber();
+  luminosityBlock_ = performanceSummary.getLuminosityBlock();
+   numberOfEvents_ = performanceSummary.getNumberOfEvents(); 
+  allDetSummaries_ = performanceSummary.getAllDetSummaries();
 }
 
 
 SiPixelPerformanceSummary::~SiPixelPerformanceSummary() {}
 
 
-std::pair<bool, std::vector<SiPixelPerformanceSummary::DetSummary>::iterator> 
-                SiPixelPerformanceSummary::initDet(const uint32_t detId) { 
-  std::vector<float> performanceValues; 
+void SiPixelPerformanceSummary::clear() {
+  timeStamp_=0; runNumber_=0; luminosityBlock_=0; numberOfEvents_=0; allDetSummaries_.clear(); 
+}
+
+
+pair<bool, vector<SiPixelPerformanceSummary::DetSummary>::iterator> 
+                  SiPixelPerformanceSummary::initDet(const uint32_t detId) { 
+  vector<float> performanceValues; 
   for (int i=0; i<kDetSummarySize; ++i) performanceValues.push_back(kDefaultValue);
   return setDet(detId, performanceValues);
 }
 
 
-std::pair<bool, std::vector<SiPixelPerformanceSummary::DetSummary>::iterator> 
-                SiPixelPerformanceSummary::setDet(const uint32_t detId, 
-		                                  const std::vector<float>& performanceValues) {
-  std::vector<DetSummary>::iterator iDetSum = allDetSummaries_.end();
+pair<bool, vector<SiPixelPerformanceSummary::DetSummary>::iterator> 
+                  SiPixelPerformanceSummary::setDet(const uint32_t detId, 
+		                                    const vector<float>& performanceValues) {
+  vector<DetSummary>::iterator iDetSumm = allDetSummaries_.end();
   
   if (performanceValues.size()!=kDetSummarySize) { // for inappropriate input
-    edm::LogError("Error") << "wrong input size = "<< performanceValues.size() 
-                   	   <<" can only add "<< kDetSummarySize 
-		    	   <<" values; NOT adding to SiPixelPerformanceSummary";
-    return std::make_pair(false, iDetSum);
+    cout << "not adding these "<< performanceValues.size() << " values; " 
+         << "SiPixelPerformanceSummary can only add "<< kDetSummarySize <<" values per DetSummary";
+    return make_pair(false, iDetSumm);
   }
-  iDetSum = std::lower_bound(allDetSummaries_.begin(), allDetSummaries_.end(), 
-                             detId, SiPixelPerformanceSummary::StrictWeakOrdering());
-
-  if (iDetSum!=allDetSummaries_.end() && // for an existong entry 
-      iDetSum->detId_==detId) return std::make_pair(false, iDetSum); 
-
+  iDetSumm = lower_bound(allDetSummaries_.begin(), allDetSummaries_.end(), 
+                         detId, SiPixelPerformanceSummary::StrictWeakOrdering()); 
   
-  DetSummary detSummary; // for a new entry, put at (position-1) returned by StrictWeakOrdering(?) 
-  	     detSummary.detId_ = detId;
-  	     detSummary.performanceValues_ = performanceValues;
-  return std::make_pair(true, allDetSummaries_.insert(iDetSum, detSummary));
+  if (iDetSumm!=allDetSummaries_.end() && // for an existong entry 
+      iDetSumm->detId_==detId) return make_pair(false, iDetSumm); 
+  
+  DetSummary newDetSumm; // for a new entry, put at (position-1) returned by StrictWeakOrdering
+  	     newDetSumm.detId_ = detId; 
+	     newDetSumm.performanceValues_ = performanceValues;
+  return make_pair(true, allDetSummaries_.insert(iDetSumm, newDetSumm));
 }
 
 
 bool SiPixelPerformanceSummary::setValue(uint32_t detId, int index, float performanceValue) {
   if (index>kDetSummarySize) {
-    edm::LogError("SetError") << "could not set the performance value for index = "<< index <<" > "<< kDetSummarySize;
+    cout << "cannot set the performance value for index = "<< index <<" > "<< kDetSummarySize;
     return false;
   }
-  std::pair<bool, std::vector<DetSummary>::iterator> initResult = initDet(detId);
-  if (initResult.first==true || initResult.second!=allDetSummaries_.end()) { 
+  pair<bool, vector<DetSummary>::iterator> initResult = initDet(detId);
+  if (initResult.first || initResult.second!=allDetSummaries_.end()) { 
     initResult.second->performanceValues_[index] = performanceValue;
     return true;
   }
   else {
-    edm::LogError("SetError") << "could not set the performance value; " 
-                              << "new entry could not be created for detId = "<< detId;
+    cout << "cannot set the performance value; cannot create new entry for detId = "<< detId;
     return false; 
   }
   return true;
@@ -73,185 +79,117 @@ bool SiPixelPerformanceSummary::setValue(uint32_t detId, int index, float perfor
 
 float SiPixelPerformanceSummary::getValue(uint32_t detId, int index) {
   if (index>kDetSummarySize) {
-    edm::LogError("GetError") << "could not get values for index = "<< index <<" > "<< kDetSummarySize;
+    cout << "cannot get value for detId = "<< detId <<" index = "<< index <<" > "<< kDetSummarySize; 
     return kDefaultValue;
   }
-  std::vector<float> performanceValues; 
-  performanceValues.clear();
-  getDetSummary(detId, performanceValues);
+  vector<float> performanceValues = getDetSummary(detId);
   if (performanceValues.size()==kDetSummarySize) return performanceValues[index]; 
   else return kDefaultValue; 
 }
 
-// for SiPixelMonitorRawData: 
 
-bool SiPixelPerformanceSummary::setNumberOfRawDataErrors(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 0, mean) && setValue(detId, 1, rms)); 
-} 
-
-bool SiPixelPerformanceSummary::setRawDataErrorType(uint32_t detId, int bin, float percentage) {
-  return setValue(detId, 2+bin, percentage);
-}
-
-bool SiPixelPerformanceSummary::setTBMType(uint32_t detId, int bin, float percentage) {
-  return setValue(detId, 16+bin, percentage);
-}
-
-bool SiPixelPerformanceSummary::setTBMMessage(uint32_t detId, int bin, float percentage) {
-  return setValue(detId, 21+bin, percentage);
-}
-
-bool SiPixelPerformanceSummary::setFEDfullType(uint32_t detId, int bin, float percentage) {
-  return setValue(detId, 29+bin, percentage);
-}
-
-bool SiPixelPerformanceSummary::setFEDtimeoutChannel(uint32_t detId, int bin, float percentage) {
-  return setValue(detId, 36+bin, percentage);
-}
-
-bool SiPixelPerformanceSummary::setSLinkErrSize(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 73, mean) && setValue(detId, 74, rms)); 
-}
- 
-bool SiPixelPerformanceSummary::setFEDmaxErrLink(uint32_t detId, float maxErrID) {
-  return setValue(detId, 75, maxErrID);
-}
- 
-bool SiPixelPerformanceSummary::setmaxErr36ROC(uint32_t detId, float maxErrID) {
-  return setValue(detId, 76, maxErrID);
-}
- 
-bool SiPixelPerformanceSummary::setmaxErrDCol(uint32_t detId, float maxErrID) {
-  return setValue(detId, 77, maxErrID);
-}
- 
-bool SiPixelPerformanceSummary::setmaxErrPixelRow(uint32_t detId, float maxErrID) {
-  return setValue(detId, 78, maxErrID);
-}
- 
-bool SiPixelPerformanceSummary::setmaxErr38ROC(uint32_t detId, float maxErrID) {
-  return setValue(detId, 79, maxErrID);
-}
- 
-// for SiPixelMonitorDigi
-
-bool SiPixelPerformanceSummary::setNumberOfDigis(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 80, mean) && setValue(detId, 81, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setADC(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 82, mean) && setValue(detId, 83, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setDigimapHotCold(uint32_t detId, float hot, float cold) {
-  return (setValue(detId, 84, hot) && setValue(detId, 85, cold)); 
-}
-
-// for SiPixelMonitorCluster
-
-bool SiPixelPerformanceSummary::setNumberOfClusters(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 86, mean) && setValue(detId, 87, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setClusterCharge(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 88, mean) && setValue(detId, 89, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setClusterSizeX(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 90, mean) && setValue(detId, 91, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setClusterSizeY(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 92, mean) && setValue(detId, 93, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setClustermapHotCold(uint32_t detId, float hot, float cold) {
-  return (setValue(detId, 94, hot) && setValue(detId, 95, cold)); 
-}
-
-// for SiPixelMonitorRecHit: 
-
-bool SiPixelPerformanceSummary::setNumberOfRecHits(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 96, mean) && setValue(detId, 97, rms)); 
+bool SiPixelPerformanceSummary::setRawDataErrorType(uint32_t detId, int bin, float nErrors) {
+  return  setValue(detId, bin, nErrors);
 }
 
 
-bool SiPixelPerformanceSummary::setRecHitMatchedClusterSizeX(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 98, mean) && setValue(detId, 99, rms)); 
+bool SiPixelPerformanceSummary::setNumberOfDigis(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 15, mean) && setValue(detId, 16, rms) && setValue(detId, 17, emPtn)); 
 }
 
-bool SiPixelPerformanceSummary::setRecHitMatchedClusterSizeY(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 100, mean) && setValue(detId, 101, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setRecHitmapHotCold(uint32_t detId, float hot, float cold) {
-  return (setValue(detId, 102, hot) && setValue(detId, 103, cold)); 
-}
-
-// for SiPixelMonitorTrack(Residual): 
-
-bool SiPixelPerformanceSummary::setResidualX(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 104, mean) && setValue(detId, 105, rms)); 
-}
-
-bool SiPixelPerformanceSummary::setResidualY(uint32_t detId, float mean, float rms) {
-  return (setValue(detId, 106, mean) && setValue(detId, 107, rms)); 
+bool SiPixelPerformanceSummary::setADC(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 18, mean) && setValue(detId, 19, rms) && setValue(detId, 20, emPtn)); 
 }
 
 
-void SiPixelPerformanceSummary::getAllDetIds(std::vector<uint32_t>& allDetIds) const {
-  std::vector<DetSummary>::const_iterator begin = allDetSummaries_.begin();
-  std::vector<DetSummary>::const_iterator end = allDetSummaries_.end();
-  for (std::vector<DetSummary>::const_iterator iDetSum=begin; 
-       iDetSum!=end; ++iDetSum) allDetIds.push_back(iDetSum->detId_);
+bool SiPixelPerformanceSummary::setNumberOfClusters(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 21, mean) && setValue(detId, 22, rms) && setValue(detId, 23, emPtn)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterCharge(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 24, mean) && setValue(detId, 25, rms) && setValue(detId, 26, emPtn)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterSize(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 27, mean) && setValue(detId, 28, rms) && setValue(detId, 29, emPtn)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterSizeX(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 30, mean) && setValue(detId, 31, rms) && setValue(detId, 32, emPtn)); 
+}
+
+bool SiPixelPerformanceSummary::setClusterSizeY(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 33, mean) && setValue(detId, 34, rms) && setValue(detId, 35, emPtn)); 
 }
 
 
-void SiPixelPerformanceSummary::getDetSummary(const uint32_t detId, 
-                                              std::vector<float>& performanceValues) const {
-  std::vector<DetSummary>::const_iterator iDetSum = std::find_if(allDetSummaries_.begin(), 
-                                                                 allDetSummaries_.end(), 
-							         MatchDetSummaryDetId(detId));
-  if (iDetSum==allDetSummaries_.end()) edm::LogError("get") << "cannot find any detSummary for detId = "
-                                                            <<  detId;
-  else performanceValues = iDetSum->performanceValues_; 
+bool SiPixelPerformanceSummary::setNumberOfRecHits(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 36, mean) && setValue(detId, 37, rms) && setValue(detId, 38, emPtn)); 
 }
 
 
-void SiPixelPerformanceSummary::print() const {
-  edm::LogInfo("print") << "SiPixelPerformanceSummary size = "<< allDetSummaries_.size() 
-                        << "; run number = "<< runNumber_ 
-                        << "; number of events = "<< numberOfEvents_ 
-			<< "; time value = "<< timeValue_ << std::endl;
+bool SiPixelPerformanceSummary::setResidualX(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 39, mean) && setValue(detId, 40, rms) && setValue(detId, 41, emPtn)); 
+}
+
+bool SiPixelPerformanceSummary::setResidualY(uint32_t detId, float mean, float rms, float emPtn) {
+  return (setValue(detId, 42, mean) && setValue(detId, 43, rms) && setValue(detId, 44, emPtn)); 
+}
+
+
+bool SiPixelPerformanceSummary::setNumberOfNoisCells(uint32_t detId, float nNpixCells) {
+  return  setValue(detId, 45, nNpixCells); 
+}
+
+bool SiPixelPerformanceSummary::setNumberOfDeadCells(uint32_t detId, float nNpixCells) {
+  return  setValue(detId, 46, nNpixCells); 
+}
+
+bool SiPixelPerformanceSummary::setNumberOfPixelHitsInTrackFit(uint32_t detId, float nPixelHits) {
+  return  setValue(detId, 47, nPixelHits); 
+}
+
+
+vector<uint32_t> SiPixelPerformanceSummary::getAllDetIds() const {
+  vector<uint32_t> allDetIds; 
+  for (vector<DetSummary>::const_iterator iDetSumm = allDetSummaries_.begin(); 
+       iDetSumm!=allDetSummaries_.end(); ++iDetSumm) allDetIds.push_back(iDetSumm->detId_); 
+  return allDetIds; 
+}
+
+
+vector<float> SiPixelPerformanceSummary::getDetSummary(const uint32_t detId) const {
+  vector<DetSummary>::const_iterator iDetSumm = find_if(allDetSummaries_.begin(), 
+                                                        allDetSummaries_.end(), 
+							MatchDetSummaryDetId(detId));
+  if (iDetSumm==allDetSummaries_.end()) { 
+    vector<float> performanceValues; 
+    cout << "cannot get DetSummary for detId = "<< detId; 
+    return performanceValues; 
+  }
+  else return iDetSumm->performanceValues_; 
 }
 
 
 void SiPixelPerformanceSummary::print(const uint32_t detId) const {
-  std::vector<DetSummary>::const_iterator iDetSum = std::find_if(allDetSummaries_.begin(), 
-                                                                 allDetSummaries_.end(), 
-								 MatchDetSummaryDetId(detId));
-  if (iDetSum==allDetSummaries_.end()) edm::LogError("print") << "cannot find any DetSummary for detId = "
-                                                              <<  detId; 
-  else {
-    edm::LogInfo("print") << "detId = "<< detId <<" detSummary for detId = "<< iDetSum->detId_;
-    print(iDetSum->performanceValues_);
-  }
+  vector<float> performanceValues = getDetSummary(detId);   
+  cout << "DetSummary for detId "<< detId <<" : ";
+  for (vector<float>::const_iterator v = performanceValues.begin(); v!=performanceValues.end(); ++v) cout <<" "<< *v; 
+  cout << endl;
 }
 
 
-void SiPixelPerformanceSummary::print(const std::vector<float>& performanceValues) const {
- for (std::vector<float>::const_iterator iPV=performanceValues.begin(); 
-      iPV!=performanceValues.end(); ++iPV) std::cout <<" "<< *iPV;
- std::cout << std::endl;
+void SiPixelPerformanceSummary::print() const {
+  cout << "SiPixelPerformanceSummary size (allDets) = "<< allDetSummaries_.size() << ", "
+       << "time stamp = "<< timeStamp_ << ", "
+       << "run number = "<< runNumber_ << ", "
+       << "luminosity section = "<< luminosityBlock_ << ", "
+       << "number of events = "<< numberOfEvents_ << endl;
 }
 
 
 void SiPixelPerformanceSummary::printAll() const {
   print();
-  std::vector<DetSummary>::const_iterator begin = allDetSummaries_.begin();
-  std::vector<DetSummary>::const_iterator end = allDetSummaries_.end();
-  for (std::vector<DetSummary>::const_iterator iDetSum=begin; iDetSum!=end; ++iDetSum) {
-    std::cout <<" detId = "<< iDetSum->detId_;
-    print(iDetSum->performanceValues_);
-  }
+  for (vector<DetSummary>::const_iterator iDetSumm = allDetSummaries_.begin(); 
+       iDetSumm!=allDetSummaries_.end(); ++iDetSumm) print(iDetSumm->detId_); 
 }
