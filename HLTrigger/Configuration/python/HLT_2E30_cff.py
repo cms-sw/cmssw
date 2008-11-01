@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V5 (CMSSW_3_0_X_2008-10-31-0200_HLT1)
+# /dev/CMSSW_3_0_0/pre0/HLT/V8 (CMSSW_3_0_X_2008-10-31-0200_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V5')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V8')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -846,8 +846,9 @@ hltIterativeCone5CaloJets = cms.EDProducer( "IterativeConeJetProducer",
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
-hltMCJetCorJetIcone5 = cms.EDProducer( "JetCorrectionProducer",
+hltMCJetCorJetIcone5 = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "MCJetCorJetIcone5" ),
     correctors = cms.vstring( 'MCJetCorrectorIcone5' )
 )
@@ -994,8 +995,9 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "IterativeConeJetProducer",
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
-hltMCJetCorJetIcone5Regional = cms.EDProducer( "JetCorrectionProducer",
+hltMCJetCorJetIcone5Regional = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
+    verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "corJetIcone5" ),
     correctors = cms.vstring( 'MCJetCorrectorIcone5' )
 )
