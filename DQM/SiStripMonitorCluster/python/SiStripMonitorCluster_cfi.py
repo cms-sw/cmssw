@@ -109,6 +109,14 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         minStoN    = cms.double(0.0),
         maxWidth   = cms.double(10000.0)
     ),
+    TProfTotalNumberOfClusters = cms.PSet(
+        Nbins = cms.int32(600),
+        xmin = cms.double(0.0),
+        xmax = cms.double(1.0*60*60),
+        ymin = cms.double(0.0),
+        ymax = cms.double(1000000.0),
+        subdetswitchon = cms.bool(False)
+    ),
                                      
     #select detectors
     detectorson = cms.PSet(
