@@ -31,8 +31,8 @@ AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.p
 
 
 #Options handling
-def optionParse():
-    global _dryrun, _debug, _unittest, _verbose    
+def optionParse(argslist=None):
+    global _dryrun, _debug, _unittest, _verbose
     parser = opt.OptionParser(usage='''./cmsPerfSuite.py [options]
        
 Examples:
@@ -134,7 +134,7 @@ Legal entries for individual candles (--candle option):
         help = 'Perform a simple test, overrides other options. Overrides verbosity and sets it to false.'         )            
 
     parser.add_option_group(devel)
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(argslist)
 
 
     _debug           = options.debug
@@ -556,6 +556,11 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
 ############
 # Runs benchmarking, cpu spinlocks on spare cores and profiles selected candles
 #
+
+#FIXME:
+#Could redesign interface of functions to use keyword arguments:
+#def runPerfSuite(**opts):
+#then instead of using castordir variable, would use opts['castordir'] etc
 def runPerfSuite(castordir        = _CASTOR_DIR,
                  perfsuitedir     = os.getcwd(),
                  TimeSizeEvents   = 100        ,
@@ -563,12 +568,12 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
                  ValgrindEvents   = 1          ,
                  cmsScimark       = 10         ,
                  cmsScimarkLarge  = 10         ,
-                 cmsdriverOptions = ""         ,
+                 cmsdriverOptions = ""         ,#Could use directly cmsRelValCmd.get_Options()
                  stepOptions      = ""         ,
                  quicktest        = False      ,
                  profilers        = ""         ,
                  cpus             = [1]        ,
-                 cores            = 4          ,
+                 cores            = 4          ,#Could use directly cmsCpuInfo.get_NumOfCores()
                  prevrel          = ""         ,
                  isAllCandles     = False      ,
                  candles          = Candles    ,
@@ -590,10 +595,18 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             logh.write("Production of regression information has been requested with release directory %s" % prevrel)
         if not cmsdriverOptions == "":
             logh.write("Running cmsDriver.py with the special user defined options: %s\n" % cmsdriverOptions)
-        
+            #Attach the full option synthax for cmsRelvalreportInput.py:
+            cmsdriverOptionsRelvalInput="--cmsdriver="+cmsdriverOptions
+            #FIXME: should import cmsRelvalreportInput.py and avoid these issues...
         if not stepOptions == "":
             logh.write("Running user defined steps only: %s\n" % stepOptions)
-
+            #Attach the full option synthax for cmsRelvalreportInput.py:
+            setpOptionsRelvalInput="--usersteps="+stepOptions
+            #FIXME: should import cmsRelvalreportInput.py and avoid these issues...
+        if bypasshlt:
+            #Attach the full option synthax for cmsRelvalreportInput.py:
+            bypasshltRelvalInput="--bypass-hlt"
+            #FIXME: should import cmsRelvalreportInput.py and avoid these issues...
         if not len(candles) == len(Candles):
             logh.write("Running only %s candle, instead of the whole suite\n" % str(candles))
         
@@ -791,7 +804,14 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             logh.close()
         raise
 
-if __name__ == "__main__":
+def main(argv=None): #argv is a list of arguments.
+                     #Valid ways to call main with arguments:
+                     #main(["--cmsScimark",10])
+                     #main(["-t100"]) #With the caveat that the options.timeSize will be of type string... so should avoid using this!
+                     #main(["-timeSize,100])
+                     #Invalid ways:
+                     #main(["One string with all options"])
+                     
     #Let's check the command line arguments
     (castordir       ,
      TimeSizeEvents  ,
@@ -811,7 +831,12 @@ if __name__ == "__main__":
      bypasshlt       ,
      runonspare      ,
      outputdir       ,
-     logfile         ) = optionParse()
+     logfile         ) = optionParse(argv)
+    print TimeSizeEvents
+    print IgProfEvents
+    print  ValgrindEvents  
+    print cmsScimark      
+    print cmsScimarkLarge 
    
     runPerfSuite(castordir        = castordir       ,
                  perfsuitedir     = outputdir       ,
@@ -831,5 +856,7 @@ if __name__ == "__main__":
                  candles          = candles         ,
                  bypasshlt        = bypasshlt       ,
                  runonspare       = runonspare      ,
-                 logfile          = logfile         )     
-
+                 logfile          = logfile         )
+    
+if __name__ == "__main__":
+    main()

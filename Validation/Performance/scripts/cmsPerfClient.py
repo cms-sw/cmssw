@@ -28,7 +28,7 @@ def optionparse():
                 for key in item:
                     out = out and key in validPerfSuitKeys
                     if   key == "cpus":
-                        out = out and type(item[key]) == type([])
+                        out = out and type(item[key]) == type("") #has to be a string not a list!
                     elif key == "cores":
                         out = out and type(item[key]) == type(123)
                     elif key == "castordir":
@@ -58,7 +58,7 @@ def optionparse():
                     elif key == "isAllCandles":
                         out = out and type(item[key]) == type(False)
                     elif key == "candles":
-                        out = out and type(item[key]) == type([])
+                        out = out and type(item[key]) == type("")#has to be a string not a list!
                     elif key == "bypasshlt":
                         out = out and type(item[key]) == type(False)
                     elif key == "runonspare":
