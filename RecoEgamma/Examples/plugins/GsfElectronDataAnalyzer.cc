@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.6 2008/10/29 07:58:28 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.7 2008/10/31 22:55:24 charlot Exp $
 //
 //
 
@@ -723,10 +723,10 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
        gsfIter!=gsfElectrons->end(); gsfIter++){
 	
-        double dphi = moIter->phi()-pAssSim.phi();
+        double dphi = gsfIter->phi()-moIter->phi();
         if (fabs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-    	double deltaR = sqrt(pow((moIter->eta()-pAssSim.eta()),2) + pow(dphi,2));
+    	double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
