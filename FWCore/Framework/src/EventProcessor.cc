@@ -442,7 +442,7 @@ namespace edm {
     alreadyHandlingException_(false),
     forceLooperToEnd_(false)
   {
-    boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+    boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
@@ -479,7 +479,7 @@ namespace edm {
     alreadyHandlingException_(false),
     forceLooperToEnd_(false)
   {
-    boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+    boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
