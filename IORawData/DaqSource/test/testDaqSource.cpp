@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2007/12/03 00:43:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/03 18:22:19 $
+ *  $Revision: 1.6 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
@@ -88,15 +88,15 @@ void testDaqSource::testReadFile(){
        << endl << endl;
 
   const std::string config=
-    "process TESTReadFile = { \n"
-    "untracked PSet maxEvents = {untracked int32 input = 1}"
-    "source = DaqSource{ untracked string readerPluginName = \"DaqFileReader\"\n"
-    "                    untracked PSet readerPset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
-    "module dummyunpacker = DummyUnpackingModule{ }\n"
-    "path p = {dummyunpacker}\n"
-    "}\n";
+    "import FWCore.ParameterSet.Config as cms\n"
+    "process = cms.Process('TESTReadFile')\n"
+    "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
+    "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFileReader'), readerPset = cms.untracked.PSet(fileName = cms.string('" + testfileLocation + "rawdt.raw')))\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.p = cms.Path(process.dummyunpacker)\n"
+    "\n";
   
-  int rc = runIt(config);  
+  int rc = runIt(config);
   CPPUNIT_ASSERT(rc==0);
 }
 
@@ -107,16 +107,15 @@ void testDaqSource::testReadFileWritePool(){
        << endl << endl;
 
   const std::string config=
-    "process TESTReadFileWritePool = { \n"
-    "untracked PSet maxEvents = {untracked int32 input = 1}"
-    "source = DaqSource{ untracked string readerPluginName = \"DaqFileReader\"\n"
-    "                    untracked PSet readerPset = { string fileName = \"" + testfileLocation+ "rawdt.raw" +"\"}} \n"
-    "module dummyunpacker = DummyUnpackingModule{ }\n"
-    "module out = PoolOutputModule {\n"
-    "                     string fileName =\"" + testfileLocation+ "rawdata.root" +"\"} \n"
-    "path p     = {dummyunpacker}\n"
-    "endpath ep = {out}\n"
-    "}\n";
+    "import FWCore.ParameterSet.Config as cms\n"
+    "process = cms.Process('TESTReadFileWritePool')\n"
+    "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
+    "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFileReader'), readerPset = cms.untracked.PSet(fileName = cms.string('" + testfileLocation + "rawdt.raw')))\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.out = cms.OutputModule('PoolOutputModule', fileName = cms.untracked.string('" + testfileLocation + "rawdata.root'))\n"
+    "process.p = cms.Path(process.dummyunpacker)\n"
+    "process.ep = cms.EndPath(process.out)\n"
+    "\n";
  int rc = runIt(config);
  CPPUNIT_ASSERT(rc==0);
 
@@ -129,12 +128,13 @@ void testDaqSource::testReadPool(){
        << endl << endl;
 
   const std::string config=
-    "process TestReadPool = { \n"
-    "untracked PSet maxEvents = {untracked int32 input = 1}"
-    " module dummyunpacker = DummyUnpackingModule{ }\n"
-    " path p = {dummyunpacker}\n"
-    " source = PoolSource{ untracked vstring fileNames ={\"file:" + testfileLocation+ "rawdata.root" +"\"}} \n"
-    "}\n";
+    "import FWCore.ParameterSet.Config as cms\n"
+    "process = cms.Process('TESTReadPool')\n"
+    "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.p = cms.Path(process.dummyunpacker)\n"
+    "process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring('file:" + testfileLocation + "rawdata.root'))\n"
+    "\n";
 
   int rc = runIt(config);
   CPPUNIT_ASSERT(rc==0);
@@ -149,15 +149,15 @@ void testDaqSource::testGenerate(){
        << endl << endl;
 
   const std::string config=
-    "process TESTGenerate = { \n"
-    "untracked PSet maxEvents = {untracked int32 input = 1}"
-    "source = DaqSource{ untracked string readerPluginName = \"DaqFakeReader\"\n"
-    "                    untracked PSet readerPset = { untracked int32 dummy = 0} }\n"
-    "module dummyunpacker = DummyUnpackingModule{ }\n"
-    "path p = {dummyunpacker}\n"
-    "}\n";
+    "import FWCore.ParameterSet.Config as cms\n"
+    "process = cms.Process('TESTGenerate')\n"
+    "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
+    "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFakeReader'), readerPset = cms.untracked.PSet( ))\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.p = cms.Path(process.dummyunpacker)\n"
+    "\n";
   
-  int rc = runIt(config);  
+  int rc = runIt(config);
   CPPUNIT_ASSERT(rc==0);
 }
 
@@ -168,16 +168,15 @@ void testDaqSource::testGenerateWritePool(){
        << endl << endl;
 
   const std::string config=
-    "process TESTGenerateWritePool = { \n"
-    "untracked PSet maxEvents = {untracked int32 input = 1}"
-    "source = DaqSource{ untracked string readerPluginName = \"DaqFakeReader\"\n"
-    "                    untracked PSet readerPset = { untracked int32 dummy = 0} }\n"
-    "module dummyunpacker = DummyUnpackingModule{ }\n"
-    "module out = PoolOutputModule {\n"
-    "                     untracked string fileName =\"" + testfileLocation+ "rawdata.root" +"\"} \n"
-    "path     p = {dummyunpacker}\n"
-    "endpath ep = {out}\n"
-    "}\n";
+    "import FWCore.ParameterSet.Config as cms\n"
+    "process = cms.Process('TESTGenerateWritePool')\n"
+    "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
+    "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFakeReader'), readerPset = cms.untracked.PSet( ))\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.out = cms.OutputModule('PoolOutputModule', fileName = cms.untracked.string('" + testfileLocation + "rawdata.root'))\n"
+    "process.p = cms.Path(process.dummyunpacker)\n"
+    "process.ep = cms.EndPath(process.out)\n"
+    "\n";
  int rc = runIt(config);
  CPPUNIT_ASSERT(rc==0);
 
