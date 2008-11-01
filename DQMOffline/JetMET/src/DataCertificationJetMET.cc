@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.13 2008/10/30 02:09:08 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.14 2008/11/01 15:21:13 hatake Exp $
 //
 //
 
@@ -360,17 +360,47 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // 
   // Reference
   std::vector<std::string>::const_iterator ic = subDirVec.begin();
-  RefRunDir = *ic;
-  RefRunNum = *ic;
+
+  // *** If the same file is read in then we have only one subdirectory
+  int ind = 0;
+  for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    if (ind == 0) {
+      RefRunDir = *ic;
+      RefRunNum = *ic;
+      RunDir = *ic;
+      RunNum = *ic;
+    }
+    if (ind == 1) {
+      RunDir = *ic;
+      RunNum = *ic;
+    }
+    std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
+    ind++;
+  }
+
+  if (RunDir == "JetMET") {
+    RunDir = "";
+    std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
+  }
+  if (RefRunDir == "JetMET") {
+    RefRunDir = "";
+    std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
+  }
+
+
+  
+  //  RefRunDir = *ic;
+  //  RefRunNum = *ic;
   RefRunNum.erase(0,4);
   RefRunNumber = atoi(RefRunNum.c_str());
   std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
-  ic++;
+  //  ic++;
 
   //
   // Current
-  RunDir = *ic;
-  RunNum = *ic;
+  //  RunDir = *ic;
+  //  RunNum = *ic;
   RunNum.erase(0,4);
   RunNumber = atoi(RunNum.c_str());
   std::cout << "--- >>" << RunNumber << "<<" << std::endl;
@@ -430,15 +460,15 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   Jet_Tag_L1[1]    = "JetMET_MET";
 
   std::string Jet_Tag_L2[NJetAlgo];
-  Jet_Tag_L2[0] = "JetMET_Jet_IterativeCone";
+  Jet_Tag_L2[0] = "JetMET_Jet_ICone";
   Jet_Tag_L2[1] = "JetMET_Jet_SISCone";
   Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
   Jet_Tag_L2[3] = "JetMET_Jet_JPT";
 
   std::string Jet_Tag_L3[NJetAlgo][NL3Flags];
-  Jet_Tag_L3[0][0] = "JetMET_Jet_IterativeCone_Barrel";
-  Jet_Tag_L3[0][1] = "JetMET_Jet_IterativeCone_EndCap";
-  Jet_Tag_L3[0][2] = "JetMET_Jet_IterativeCone_Forward";
+  Jet_Tag_L3[0][0] = "JetMET_Jet_ICone_Barrel";
+  Jet_Tag_L3[0][1] = "JetMET_Jet_ICone_EndCap";
+  Jet_Tag_L3[0][2] = "JetMET_Jet_ICone_Forward";
   Jet_Tag_L3[1][0] = "JetMET_Jet_SISCone_Barrel";
   Jet_Tag_L3[1][1] = "JetMET_Jet_SISCone_EndCap";
   Jet_Tag_L3[1][2] = "JetMET_Jet_SISCone_Forward";
@@ -458,28 +488,67 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   // --- Loop over jet algorithms for Layer 2
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
 
+    // *** Kludge to allow using root files written by stand alone job
     if (iAlgo == 0) {
-      refHistoName = RefRunDir+"/JetMET/Run summary/IterativeConeJets/";
-      //      newHistoName = RunDir+"/JetMET/Run summary/IterativeConeJets/";
-      newHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
+      if (RefRunDir == "") {
+        refHistoName = "JetMET/IterativeConeJets/";
+      } else {
+        refHistoName = RefRunDir+"/JetMET/Run summary/IterativeConeJets/";
+      }
+      if (RunDir == "") {
+        newHistoName = "JetMET/IterativeConeJets/";
+      } else {
+        newHistoName = RunDir+"/JetMET/Run summary/IterativeConeJets/";
+      }
     }
     if (iAlgo == 1) {
-      refHistoName = RefRunDir+"/JetMET/Run summary/SISConeJets/";
-      newHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
+      if (RefRunDir == "") {
+        refHistoName = "JetMET/SISConeJets/";
+      } else {
+        refHistoName = RefRunDir+"/JetMET/Run summary/SISConeJets/";
+      }
+      if (RunDir == "") {
+        newHistoName = "JetMET/SISConeJets/";
+      } else {
+        newHistoName = RunDir+"/JetMET/Run summary/SISConeJets/";
+      }
     }
     if (iAlgo == 2) {
-      refHistoName = RefRunDir+"/JetMET/Run summary/PFJets/";
-      newHistoName = RunDir+"/JetMET/Run summary/PFJets/";
+      if (RefRunDir == "") {
+        refHistoName = "JetMET/PFJets/";
+      } else {
+        refHistoName = RefRunDir+"/JetMET/Run summary/PFJets/";
+      }
+      if (RunDir == "") {
+        newHistoName = "JetMET/PFJets/";
+      } else {
+        newHistoName = RunDir+"/JetMET/Run summary/PFJets/";
+      }
     }
     if (iAlgo == 3) {
-      refHistoName = RefRunDir+"/JetMET/Run summary/JPT/";
-      newHistoName = RunDir+"/JetMET/Run summary/JPT/";
+      if (RefRunDir == "") {
+        refHistoName = "JetMET/JPT/";
+      } else {
+        refHistoName = RefRunDir+"/JetMET/Run summary/JPT/";
+      }
+      if (RunDir == "") {
+        newHistoName = "JetMET/JPT/";
+      } else {
+        newHistoName = RunDir+"/JetMET/Run summary/JPT/";
+      }
     }
 
     // ----------------
     // --- Layer 2
+
+    test_Pt           = 0.;
+    test_Eta          = 0.;
+    test_Phi          = 0.;
+    test_Constituents = 0.;
+    test_HFrac        = 0.;
+
     meRef = dbe->get(refHistoName+"Pt");
-    meNew = dbe->get(newHistoName+"Pt");
+    meNew = dbe->get(newHistoName+"Pt");    
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
@@ -548,8 +617,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }
     }
      
-    meRef = dbe->get(refHistoName+"EnergyFractionHadronic");
-    meNew = dbe->get(newHistoName+"EnergyFractionHadronic");
+    //    meRef = dbe->get(refHistoName+"EnergyFractionHadronic");
+    //    meNew = dbe->get(newHistoName+"EnergyFractionHadronic");
+    meRef = dbe->get(refHistoName+"HFrac");
+    meNew = dbe->get(newHistoName+"HFrac");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
@@ -565,6 +636,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }
     }
 
+    std::cout << "--- Layer 2 Algo "
+              << iAlgo    << " "
+              << test_Pt  << " "
+              << test_Eta << " "
+              << test_Phi << " "
+              << test_Constituents << " "
+              << test_HFrac << std::endl;
+
     if ( (test_Pt     > 0.95) && (test_Eta          > 0.95) && 
 	 (test_Phi    > 0.95) && (test_Constituents > 0.95) && 
 	 (test_HFrac  > 0.95) )  {      
@@ -579,6 +658,15 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     // ----------------
     // --- Layer 3
     // --- Barrel
+
+    test_Pt_Barrel   = 0.;
+    test_Phi_Barrel  = 0.;
+    test_Pt_EndCap   = 0.;
+    test_Phi_EndCap  = 0.;
+    test_Pt_Forward  = 0.;
+    test_Phi_Forward = 0.;
+
+
     meRef = dbe->get(refHistoName+"Pt_Barrel");
     meNew = dbe->get(newHistoName+"Pt_Barrel");
     if ((meRef) && (meNew)) {
@@ -685,6 +773,15 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }
     }
 
+    std::cout << "--- Layer 3 Algo "
+              << iAlgo    << " "
+              << test_Pt_Barrel    << " "
+              << test_Phi_Barrel   << " "
+              << test_Pt_EndCap    << " "
+              << test_Phi_EndCap   << " "
+              << test_Pt_Forward   << " "
+              << test_Phi_Forward  << " "
+              << std::endl;
 
     if ( (test_Pt_Barrel > 0.95) && (test_Phi_Barrel > 0.95) ) {
       Jet_DCF_L3[iAlgo][0] = 1;
@@ -732,6 +829,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     std::cout << std::endl;    
   }
 
+  //  return;
+
+
   //-----------------------------
   // MET DQM Data Certification
   //-----------------------------
@@ -754,28 +854,41 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   TH2F *hCaloMExNoHF_LS;
   TH2F *hCaloMEyNoHF_LS;
 
-  newHistoName = RunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
-  meNew = dbe->get(newHistoName+"CaloMEx");     if (meNew) hMExy[0] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMEy");     if (meNew) hMExy[1] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMExNoHF"); if (meNew) hMExy[2] = meNew->getTH1F();
-  meNew = dbe->get(newHistoName+"CaloMEyNoHF"); if (meNew) hMExy[3] = meNew->getTH1F();
+  //  newHistoName = RunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
+  if (RunDir == "") {
+    newHistoName = "JetMET/CaloMETAnalyzer/METTask_";
+  } else {
+    newHistoName = RunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
+  }
+
+
+  meNew = dbe->get(newHistoName+"CaloMEx");         if (meNew) hMExy[0] = meNew->getTH1F();
+  meNew = dbe->get(newHistoName+"CaloMEy");         if (meNew) hMExy[1] = meNew->getTH1F();
+  meNew = dbe->get(newHistoName+"CaloMExNoHF");     if (meNew) hMExy[2] = meNew->getTH1F();
+  meNew = dbe->get(newHistoName+"CaloMEyNoHF");     if (meNew) hMExy[3] = meNew->getTH1F();
   meNew = dbe->get(newHistoName+"CaloMETPhi");      if (meNew) hMETPhi[0] = meNew->getTH1F();
   meNew = dbe->get(newHistoName+"CaloMETPhiNoHF");  if (meNew) hMETPhi[1] = meNew->getTH1F();
 
-  meNew = dbe->get(newHistoName+"CaloMEx_LS");     if (meNew) hCaloMEx_LS     = meNew->getTH2F();
-  meNew = dbe->get(newHistoName+"CaloMEy_LS");     if (meNew) hCaloMEy_LS     = meNew->getTH2F();
-  meNew = dbe->get(newHistoName+"CaloMExNoHF_LS"); if (meNew) hCaloMExNoHF_LS = meNew->getTH2F();
-  meNew = dbe->get(newHistoName+"CaloMEyNoHF_LS"); if (meNew) hCaloMEyNoHF_LS = meNew->getTH2F();
+  meNew = dbe->get(newHistoName+"CaloMEx_LS");      if (meNew) hCaloMEx_LS     = meNew->getTH2F();
+  meNew = dbe->get(newHistoName+"CaloMEy_LS");      if (meNew) hCaloMEy_LS     = meNew->getTH2F();
+  meNew = dbe->get(newHistoName+"CaloMExNoHF_LS");  if (meNew) hCaloMExNoHF_LS = meNew->getTH2F();
+  meNew = dbe->get(newHistoName+"CaloMEyNoHF_LS");  if (meNew) hCaloMEyNoHF_LS = meNew->getTH2F();
 
   // Prepare reference histograms
   TH1F *hRefMExy[6];
   TH1F *hRefMETPhi[2];
 
-  refHistoName = RefRunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
-  meRef = dbe->get(refHistoName+"CaloMEx");     if (meRef) hRefMExy[0] = meRef->getTH1F();
-  meRef = dbe->get(refHistoName+"CaloMEy");     if (meRef) hRefMExy[1] = meRef->getTH1F();
-  meRef = dbe->get(refHistoName+"CaloMExNoHF"); if (meRef) hRefMExy[2] = meRef->getTH1F();
-  meRef = dbe->get(refHistoName+"CaloMEyNoHF"); if (meRef) hRefMExy[3] = meRef->getTH1F();
+  //  refHistoName = RefRunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
+  if (RefRunDir == "") {
+    refHistoName = "JetMET/CaloMETAnalyzer/METTask_";
+  } else {
+    refHistoName = RefRunDir+"/JetMET/Run summary/CaloMETAnalyzer/METTask_";
+  }
+
+  meRef = dbe->get(refHistoName+"CaloMEx");         if (meRef) hRefMExy[0] = meRef->getTH1F();
+  meRef = dbe->get(refHistoName+"CaloMEy");         if (meRef) hRefMExy[1] = meRef->getTH1F();
+  meRef = dbe->get(refHistoName+"CaloMExNoHF");     if (meRef) hRefMExy[2] = meRef->getTH1F();
+  meRef = dbe->get(refHistoName+"CaloMEyNoHF");     if (meRef) hRefMExy[3] = meRef->getTH1F();
   meRef = dbe->get(refHistoName+"CaloMETPhi");      if (meRef) hRefMETPhi[0] = meRef->getTH1F();
   meRef = dbe->get(refHistoName+"CaloMETPhiNoHF");  if (meRef) hRefMETPhi[1] = meRef->getTH1F();
 
