@@ -199,12 +199,12 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
 	  // insert the last strip according to the 
 	  // simhit position in the central strip 
 	  double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
-	  if (deltaw < 0.) {
+	  if (deltaw>0.) {
 	    if (lstrip < roll->nstrips() ){
 	      lstrip++;
 	      cls.push_back(lstrip);
 	    }
-	  }else {
+	  }else{
 	    if (fstrip > 1 ){
 	      fstrip--;
 	      cls.push_back(fstrip);
@@ -242,8 +242,6 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
   RPCGeomServ RPCname(rpcId);
   std::string nameRoll = RPCname.name();
 
-//   std::cout<<"   Noise   "<<"Roll: -->"<<"region:  "<<rpcId.region()<<"  Ring:  "<<rpcId.ring()<<"  Sector:   "
-// 	   <<rpcId.sector()<<"  station:   "<< rpcId.station()<<std::endl; 
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
