@@ -15,6 +15,13 @@ template <class T> class TkRotation;
 template <class T>
 std::ostream & operator<<( std::ostream& s, const TkRotation<T>& r);
 
+namespace geometryDetails {
+  void TkRotationErr1();
+  void TkRotationErr2();
+
+}
+
+
 /** Rotaion matrix used by Surface.
  */
 
@@ -99,7 +106,7 @@ public:
     
     T ll = axis.mag();
     if (ll == 0) {
-      // std::cerr << "TkRotation: zero axis" << std::endl;
+      geometryDetails::TkRotationErr1();
     }else{
       
       float cosa = cos(phi), sina = sin(phi);
@@ -220,7 +227,7 @@ public:
 	fabs(newX.dot(newY)) > del ||
 	fabs(newY.dot(newZ)) > del ||
 	fabs(newZ.dot(newX)) > del) {
-      // std::cerr << "TkRotation::rotateAxes: bad axis vectors" << std::endl;
+      geometryDetails::TkRotationErr2();
       return *this;
     } else {
       return transform(TkRotation(newX.x(), newY.x(), newZ.x(),
