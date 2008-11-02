@@ -26,8 +26,8 @@ MiscalibReaderFromXML::MiscalibReaderFromXML(CaloMiscalibMap & caloMap):caloMap_
       
 	     
 	try { 
-		std::cout << "Xerces-c initialization Number "
-		<< s_numberOfInstances<<std::endl;
+		//std::cout << "Xerces-c initialization Number "
+		//<< s_numberOfInstances<<std::endl;
 		if (s_numberOfInstances==0) 
 		XMLPlatformUtils::Initialize();  
 	}
@@ -35,7 +35,7 @@ MiscalibReaderFromXML::MiscalibReaderFromXML(CaloMiscalibMap & caloMap):caloMap_
 		std::cout << "Xerces-c error in initialization \n"
 		<< "Exception message is:  \n"
 		<< _toString(e.getMessage()) <<std::endl;
-		///throw and exception here
+		// throw an exception here
 	}
  
 	++s_numberOfInstances;
@@ -78,8 +78,6 @@ if(!well_formed_string) std::cout << "MiscalibReaderFromXML::getFloatAttribute P
 
 bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 
-	std::cout<<" Begin Parsing File "<<configFile <<std::endl; 
-
 	XercesDOMParser* parser = new XercesDOMParser;     
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
@@ -88,7 +86,8 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 	assert(doc);
 
         unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength();
-        std::cout << "Read number of Cells = " << linkTagsNum << std::endl;
+        // The following should be on LogInfo
+        //std::cout << "Read number of Cells = " << linkTagsNum << std::endl;
 
         if(linkTagsNum==0) std::cout <<"Number of Cells in file is 0 - probably bad file format"<<std::endl;
 
@@ -127,7 +126,8 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 		
 	}
  
-	       std::cout << "Number of good Cells =" << count << std::endl;
+        // The following should be on LogInfo
+        // std::cout << "Number of good Cells = " << count << std::endl;
 	return false;
 
 }
