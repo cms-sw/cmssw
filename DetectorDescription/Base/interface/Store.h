@@ -159,7 +159,7 @@ Store<N,I,K>::clear()
  {
    typename registry_type::iterator it = reg_.begin();
    for(; it != reg_.end(); ++it) {
-     std::cout << "deleting " << it->first << std::endl;
+//     std::cout << "deleting " << it->first << std::endl;
      delete it->second->second; it->second->second = 0;
      delete it->second; it->second = 0;
    }
