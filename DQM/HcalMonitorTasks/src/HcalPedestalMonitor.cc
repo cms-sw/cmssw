@@ -41,7 +41,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
     cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
 
   HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"PedestalMonitor";
+  baseFolder_ = rootFolder_+"PedestalMonitor_Hcal";
 
   // Pedestal Monitor - specific cfg variables
 

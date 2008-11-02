@@ -511,3 +511,22 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* 
 } // void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
 
 
+void HcalBaseMonitor::setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max)
+{
+  for (unsigned int i=0; i<hh.size();++i)
+    {
+      TH2F* histo=hh[i]->getTH2F();
+      histo->SetMinimum(min);
+      histo->SetMaximum(max);
+    }
+}
+
+void HcalBaseMonitor::setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max)
+{
+  for (unsigned int i=0; i<hh.size();++i)
+    {
+      TH1F* histo=hh[i]->getTH1F();
+      histo->SetMinimum(min);
+      histo->SetMaximum(max);
+    }
+}

@@ -28,7 +28,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
     cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<endl;
 
   HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"DeadCellMonitor";
+  baseFolder_ = rootFolder_+"DeadCellMonitor_Hcal";
 
   // Assume subdetectors not present until shown otherwise
   HBpresent_=false;

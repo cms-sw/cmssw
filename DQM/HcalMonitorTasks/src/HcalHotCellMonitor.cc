@@ -28,7 +28,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
     cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<endl;
 
   HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"HotCellMonitor";
+  baseFolder_ = rootFolder_+"HotCellMonitor_Hcal";
   
   // Hot Cell Monitor - specific cfg variables
 
@@ -133,11 +133,13 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
                                      phiBins_,phiMin_,phiMax_);
       ProblemHotCells->setAxisTitle("i#eta",1);
       ProblemHotCells->setAxisTitle("i#phi",2);
-      
+      (ProblemHotCells->getTH2F())->SetMinimum(0.);
+      (ProblemHotCells->getTH2F())->SetMaximum(1.);
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_hotcells");
       setupDepthHists2D(ProblemHotCellsByDepth, " Problem Hot Cell Rate","");
+      setMinMaxHists2D(ProblemHotCellsByDepth,0.,1.);
 
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
@@ -145,6 +147,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_above_threshold");
       setupDepthHists2D(AboveEnergyThresholdCellsByDepth,
 			"Hot Cells Above Energy Threshold","");
+      setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
+
       // set more descriptive titles for plots
       units.str("");
       units<<"Hot Cells: Depth 1 -- HB > "<<HBenergyThreshold_<<" GeV, HF > "<<HFenergyThreshold_<<" GeV";
@@ -168,6 +172,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/hot_rechit_always_above_threshold");
       setupDepthHists2D(AbovePersistentThresholdCellsByDepth,
 			"Hot Cells Persistently Above Energy Threshold","");
+      setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
+
       // set more descriptive titles for plots
       units.str("");
       units<<"Hot Cells: Depth 1 -- HB > "<<HBpersistentThreshold_<<" GeV, HF > "<<HFpersistentThreshold_<<" GeV for "<< hotmon_checkNevents_persistent_<<" consec. events";
@@ -191,6 +197,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 
       m_dbe->setCurrentFolder(baseFolder_+"/hot_pedestaltest");
       setupDepthHists2D(AbovePedestalHotCellsByDepth,"Hot Cells Above Pedestal","");
+      setMinMaxHists2D(AbovePedestalHotCellsByDepth,0.,1.);
+
       // set more descriptive titles for pedestal plots
       units.str("");
       units<<"Hot Cells Above Pedestal Depth 1 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
@@ -214,6 +222,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 
       m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
       setupDepthHists2D(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
+      setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
 
       if (hotmon_makeDiagnostics_)
 	{

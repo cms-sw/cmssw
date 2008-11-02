@@ -35,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/10/23 10:02:43 $
-  * $Revision: 1.16 $
+  * $Date: 2008/10/29 23:37:57 $
+  * $Revision: 1.17 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -70,11 +70,13 @@ public:
 			 int nbinsx, int lowboundx, int highboundx,
 			 int nbinsy, int lowboundy, int highboundy);
 
+  void setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max);
+ 
   // 1-D histograms
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
   void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
-
-
+  void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
+ 
 
 protected:
   
