@@ -25,6 +25,8 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
                             RPCDigiCollection & rpcDigis,
 			    RPCDigiSimLinks & rpcDigiSimLink)
 {
+
+  std::cout<<"Do Action"<<std::endl;
   theRPCSim->setRPCSimSetUp(theSimSetUp);
 
   // arrange the hits by roll
@@ -46,8 +48,11 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() <<" hit(s) in the rpc roll";
     TimeMe t2("RPCSim");
 
+    std::cout<<"Simulate"<<std::endl;
     theRPCSim->simulate(roll,rollSimHits);
+    std::cout<<"Simulate Noise"<<std::endl;
     theRPCSim->simulateNoise(roll);
+    std::cout<<"Fill digis"<<std::endl;
     theRPCSim->fillDigis(rollDetId,rpcDigis);
     rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
 
