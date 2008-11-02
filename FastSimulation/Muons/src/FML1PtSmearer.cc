@@ -24,7 +24,8 @@ FML1PtSmearer::FML1PtSmearer(const RandomEngine * engine)
     std::cout << "File " << fname << " not found in " << path << std::endl;
     throw Genexception(" resolution list not found for FastMuonLvl1Trigger.");
   } else {
-    cout << "Reading " << f1.name() << std::endl;
+    // The following should be on LogInfo
+    //cout << "Reading " << f1.name() << std::endl;
   }
   std::ifstream & listfile = *f1();
    

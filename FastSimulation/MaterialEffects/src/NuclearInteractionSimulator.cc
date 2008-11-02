@@ -100,7 +100,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
   // Open the root files
   //  for ( unsigned file=0; file<theFileNames.size(); ++file ) {
-  std::cout << "Opening nuclear-interaction files ..." << std::endl;
   unsigned fileNb = 0;
   for ( unsigned iname=0; iname<thePionNA.size(); ++iname ) {
     for ( unsigned iene=0; iene<thePionEN.size(); ++iene ) {
@@ -175,9 +174,9 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   // Return Loot in the same state as it was when entering. 
   gROOT->cd();
 
-  // Information
-  std::cout << " ---> A total of " << fileNb 
-	    << " nuclear-interaction files was sucessfully open" << std::endl;
+  // Information (Should be on LogInfo)
+//  std::cout << " ---> A total of " << fileNb 
+//	    << " nuclear-interaction files was sucessfully open" << std::endl;
 
   //  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   //  htot = dbe->book1D("Total", "All particles",150,0.,150.);
@@ -196,7 +195,6 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
   // Close all local files
   // Among other things, this allows the TROOT destructor to end up 
   // without crashing, while trying to close these files from outside
-  std::cout << "Closing nuclear-interaction files... " << std::endl;
   for ( unsigned ifile=0; ifile<theFiles.size(); ++ifile ) { 
     for ( unsigned iene=0; iene<theFiles[ifile].size(); ++iene ) {
       // std::cout << "Closing file " << iene << " with name " << theFileNames[ifile][iene] << std::endl;

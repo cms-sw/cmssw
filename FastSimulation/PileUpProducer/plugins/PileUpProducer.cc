@@ -79,7 +79,6 @@ PileUpProducer::~PileUpProducer() {
 void PileUpProducer::beginJob(const edm::EventSetup & es)
 {
   
-  std::cout << " PileUpProducer initializing " << std::endl;
   gROOT->cd();
   
   std::string fullPath;
@@ -96,7 +95,6 @@ void PileUpProducer::beginJob(const edm::EventSetup & es)
   myOutputBuffer = 0;
 
   // Open the root files
-  std::cout << "Opening minimum-bias event files ... " << std::endl;
   for ( unsigned file=0; file<theNumberOfFiles; ++file ) {
 
     edm::FileInPath myDataFile("FastSimulation/PileUpProducer/data/"+theFileNames[file]);
@@ -147,11 +145,9 @@ void PileUpProducer::beginJob(const edm::EventSetup & es)
  
 void PileUpProducer::endJob()
 { 
-    std::cout << " PileUpProducer terminating " << std::endl; 
   // Close all local files
   // Among other things, this allows the TROOT destructor to end up 
   // without crashing, while trying to close these files from outside
-  std::cout << "Closing minimum-bias event files... " << std::endl;
   for ( unsigned file=0; file<theFiles.size(); ++file ) {
     
     // std::cout << "Closing " << theFileNames[file] << std::endl;

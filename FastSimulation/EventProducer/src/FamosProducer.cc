@@ -31,8 +31,6 @@
 FamosProducer::FamosProducer(edm::ParameterSet const & p)      
 {    
 
-    std::cout << " FamosProducer initializing " << std::endl;
-
     produces<edm::SimTrackContainer>();
     produces<edm::SimVertexContainer>();
     produces<edm::PSimHitContainer>("TrackerHits");
@@ -63,7 +61,6 @@ FamosProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
  
 void FamosProducer::endJob()
 { 
-    std::cout << " FamosProducer terminating " << std::endl; 
 }
  
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)

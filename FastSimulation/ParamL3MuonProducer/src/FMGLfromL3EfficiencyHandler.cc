@@ -19,7 +19,8 @@ FMGLfromL3EfficiencyHandler::FMGLfromL3EfficiencyHandler(const RandomEngine * en
     std::cout << "File " << fname << " not found in " << path << std::endl;
     throw Genexception(" efficiency list not found for FMGLfromL3EfficiencyHandler.");
   } else {
-    std::cout << "Reading " << f1.name() << std::endl;
+    // The following should be on LogInfo 
+    //std::cout << "Reading " << f1.name() << std::endl;
   }
   std::ifstream & listfile = *f1();
   

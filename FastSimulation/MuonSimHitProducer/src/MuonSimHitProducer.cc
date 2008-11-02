@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.19 2008/07/12 13:47:49 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.20 2008/07/17 08:42:25 mulders Exp $
 //
 //
 
@@ -543,14 +543,15 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   // Tracks
   fullPattern_  = fastTracks.getUntrackedParameter<bool>("FullPatternRecognition");
 
-  std::cout << " MUON SIM HITS: FastSimulation parameters " << std::endl;
-  std::cout << " ============================================== " << std::endl;
-  std::cout << " Sim Hits produced for muons in the pseudorapidity range : "
-            << minEta_ << " -> " << maxEta_ << std::endl;
-  if ( fullPattern_ ) 
-    std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
-  else
-    std::cout << " The FAST tracking option is turned ON" << std::endl;
+// The following should be on LogInfo
+//  std::cout << " MUON SIM HITS: FastSimulation parameters " << std::endl;
+//  std::cout << " ============================================== " << std::endl;
+//  std::cout << " Sim Hits produced for muons in the pseudorapidity range : "
+//            << minEta_ << " -> " << maxEta_ << std::endl;
+  //if ( fullPattern_ ) 
+    //std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
+  //else
+    //std::cout << " The FAST tracking option is turned ON" << std::endl;
 
   // Material Effects
   theMaterialEffects = 0;

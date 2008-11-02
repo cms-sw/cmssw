@@ -156,12 +156,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 
 
 // Will be needed for the DB-based miscalibration
-  std::cout << " Getting HcalDb service " ;
   edm::ESHandle<HcalDbService> conditions;
   es.get<HcalDbRecord>().get(conditions);
   const HcalDbService * theDbService=conditions.product();
   //  myHcalSimParameterMap_->setDbService(theDbService);
-  std::cout << " - done " << std::endl;
   // Open the histogram for the fC to ADC conversion
   gROOT->cd();
   edm::FileInPath myDataFile("FastSimulation/CaloRecHitsProducer/data/adcvsfc.root");

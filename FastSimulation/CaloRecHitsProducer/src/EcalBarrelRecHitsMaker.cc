@@ -195,7 +195,8 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 	++ncells;
       }
       rms = std::sqrt(rms) / (float)ncells;
-      std::cout << " Found " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
+      // The following should be on LogInfo
+      //std::cout << " Found " << ncells << " cells in the barrel calibration map. RMS is " << rms << std::endl;
     }  
 }
 

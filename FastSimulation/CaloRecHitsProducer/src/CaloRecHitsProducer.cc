@@ -17,7 +17,7 @@
 // Random engine
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include <iostream>
+//#include <iostream>
 
 CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   : HcalRecHitsMaker_(NULL)
@@ -73,13 +73,9 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
-  std::cout << " Destructor CaloRecHitsProducer " << std::endl;
-
   if ( random ) { 
     delete random;
   }
-
-  std::cout << " Done " << std::endl;
 }
 
 void 
