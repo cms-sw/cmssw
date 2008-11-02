@@ -129,7 +129,7 @@ namespace geometryDetails {
 /// simple text output to standard streams
 template <class T>
 inline std::ostream & operator<<( std::ostream& s, const Basic2DVector<T>& v) {
-  return geometryDetails::2Dprint(s, v.x(),v.y());
+  return geometryDetails::print2D(s, v.x(),v.y());
 }
 
 

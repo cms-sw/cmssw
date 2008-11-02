@@ -200,13 +200,12 @@ private:
 
 namespace geometryDetails {
   std::ostream & print3D(std::ostream& s, double x, double y, double z);
-
 }
 
 /// simple text output to standard streams
 template <class T>
 inline std::ostream & operator<<( std::ostream& s, const Basic3DVector<T>& v) {
-  return geometryDetails::3Dprint(s, v.x(),v.y(), v.z());
+  return geometryDetails::print3D(s, v.x(),v.y(), v.z());
 }
 
 
