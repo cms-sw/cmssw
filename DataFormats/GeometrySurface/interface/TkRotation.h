@@ -99,7 +99,7 @@ public:
     
     T ll = axis.mag();
     if (ll == 0) {
-      std::cerr << "TkRotation: zero axis" << std::endl;
+      // std::cerr << "TkRotation: zero axis" << std::endl;
     }else{
       
       float cosa = cos(phi), sina = sin(phi);
@@ -220,7 +220,7 @@ public:
 	fabs(newX.dot(newY)) > del ||
 	fabs(newY.dot(newZ)) > del ||
 	fabs(newZ.dot(newX)) > del) {
-      std::cerr << "TkRotation::rotateAxes: bad axis vectors" << std::endl;
+      // std::cerr << "TkRotation::rotateAxes: bad axis vectors" << std::endl;
       return *this;
     } else {
       return transform(TkRotation(newX.x(), newY.x(), newZ.x(),
@@ -247,11 +247,11 @@ private:
 };
 
 
-template
+template<>
 std::ostream & operator<< <float>( std::ostream& s, const TkRotation<float>& r);
 
-template
-std::ostream & operator<< <double>( std::ostream& s, const TkRotation<float>& r);
+template<>
+std::ostream & operator<< <double>( std::ostream& s, const TkRotation<double>& r);
 
 
 template <class T, class U>

@@ -75,7 +75,7 @@ protected:
 
 template <class T, class PV, class F>
 inline std::ostream & operator<<( std::ostream& s, const PV3DBase<T,PV,F>& v) {
-  return s << " (" << v.x() << ',' << v.y() << ',' << v.z() << ") ";
+  return s << v.basicVector();
 } 
 
 #endif // GeometryVector_PV3DBase_h
