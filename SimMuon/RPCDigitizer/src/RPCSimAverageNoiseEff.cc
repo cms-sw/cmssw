@@ -6,6 +6,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 #include <cmath>
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -49,7 +50,6 @@ using namespace std;
 RPCSimAverageNoiseEff::RPCSimAverageNoiseEff(const edm::ParameterSet& config) : 
   RPCSim(config)
 {
-
   _rpcSync = new RPCSynchronizer(config);
 
   aveEff = config.getParameter<double>("averageEfficiency");
@@ -150,10 +150,15 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
   theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   RPCDetId rpcId = roll->id();
+  RPCGeomServ RPCname(rpcId);
+  std::string nameRoll = RPCname.name();
+
   const Topology& topology=roll->specs()->topology();
 
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
+
+    if(abs(_hit-> particleType()) != 13) continue;
 
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
@@ -214,12 +219,14 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
 	  if(flatDistribution->fire(1) < veff[*i-1]){
 	    std::pair<int, int> digi(*i,time_hit);
 	    strips.insert(digi);
+
 	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	  }
 	} 
 	else {
 	  std::pair<int, int> digi(*i,time_hit);
 	  theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
+
 	  strips.insert(digi);
 	}
       }
@@ -231,6 +238,12 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
 {
 
   RPCDetId rpcId = roll->id();
+
+  RPCGeomServ RPCname(rpcId);
+  std::string nameRoll = RPCname.name();
+
+//   std::cout<<"   Noise   "<<"Roll: -->"<<"region:  "<<rpcId.region()<<"  Ring:  "<<rpcId.ring()<<"  Sector:   "
+// 	   <<rpcId.sector()<<"  station:   "<< rpcId.station()<<std::endl; 
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
@@ -268,7 +281,6 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
       flatDistribution = new CLHEP::RandFlat(rndEngine, (nbxing*gate)/gate);
       int time_hit = (static_cast<int>(flatDistribution->fire())) - nbxing/2;
       std::pair<int, int> digi(j+1,time_hit);
-
       strips.insert(digi);
     }
   }
