@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <iostream>
 #include "DetectorDescription/Base/interface/DDReadMapType.h"
+#include <iosfwd>
 
 //! corresponds to a collection of named doubles 
 /** in XML: a set of <Numeric name="n" value="1"/> */

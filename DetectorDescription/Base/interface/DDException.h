@@ -1,7 +1,7 @@
 #ifndef DDException_h
 #define DDException_h
 
-#include<iostream>
+// #include<iostream>
 #include "FWCore/Utilities/interface/Exception.h"
 
 //! An exception for DDD errors
