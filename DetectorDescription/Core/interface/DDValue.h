@@ -92,10 +92,34 @@ public:
   //! Two DDValues are equal only if their id() is equal AND their values are equal
   /** If the DDValue::isEvalued() == true, the numerical representation is taken for comparison,
       else the std::string representation */
-  inline bool operator==(const DDValue &) const;
+  bool operator==(const DDValue & v) const;
+  /* {
+    return id()==v.id() 
+      && ( 
+	  vecPair_ == v.vecPair_ || 
+	  (
+	   vecPair_ && v.vecPair_ &&
+	   ( (vecPair_->first) ? (vecPair_->second.second == v.vecPair_->second.second) 
+	     : (vecPair_->second.first == v.vecPair_->second.first) 
+	     )
+	   )
+	   )
+  }
+  */
   
   //! A DDValue a is smaller than a DDValue b if (a.id()<b.id()) OR (a.id()==b.id() and value(a)<value(b))
-  inline bool operator<(const DDValue &) const;
+  bool operator<(const DDValue &) const;
+  /*{
+    return id()<v.id() || 
+      (
+       id()==v.id() && 
+       vecPair_ && v.vecPair_ &&
+       ( (vecPair_->first) ? (vecPair_->second.second < v.vecPair_->second.second) 
+	 : (vecPair_->second.first < v.vecPair_->second.first)
+	 )
+       )
+  }
+  */
   
 private:  
   typedef std::pair<bool, std::pair<std::vector<std::string>, std::vector<double> > >vecpair_type;
