@@ -244,18 +244,15 @@ private:
   T R11, R12, R13;
   T R21, R22, R23;
   T R31, R32, R33;
-
-  friend std::ostream & operator<< <>( std::ostream& s, const TkRotation& r);
 };
 
 
-template <class T>
-std::ostream & operator<<( std::ostream& s, const TkRotation<T>& r) {
-  TkRotation<T> rtmp = r;
-  return s << " (" << rtmp.xx() << ',' << rtmp.xy() << ',' << rtmp.xz() << ") "
-  << std::endl  << " (" << rtmp.yx() << ',' << rtmp.yy() << ',' << rtmp.yz() << ") "
-  << std::endl  << " (" << rtmp.zx() << ',' << rtmp.zy() << ',' << rtmp.zz() << ") ";
-} 
+template
+std::ostream & operator<< <float>( std::ostream& s, const TkRotation<float>& r);
+
+template
+std::ostream & operator<< <double>( std::ostream& s, const TkRotation<float>& r);
+
 
 template <class T, class U>
 inline Basic3DVector<U> operator*( const TkRotation<T>& r, const Basic3DVector<U>& v) {
