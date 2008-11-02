@@ -135,6 +135,44 @@ void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
     SummaryTIDB = dqm_store->bookFloat("SiStrip_TIDB");
     SummaryTECF = dqm_store->bookFloat("SiStrip_TECF");
     SummaryTECB = dqm_store->bookFloat("SiStrip_TECB");
+
+    dqm_store->setCurrentFolder("SiStrip/Tracks");      
+    OnTrackClusterReport = dqm_store->book1D("OnTrackClustersReport", "OnTrackClusterReport",34,0.5,34.5);
+    OnTrackClusterReport->setAxisTitle("# of On Track Clusters", 2);
+    OnTrackClusterReport->setBinLabel(1,"TIB_L1");
+    OnTrackClusterReport->setBinLabel(2,"TIB_L2");
+    OnTrackClusterReport->setBinLabel(3,"TIB_L3");
+    OnTrackClusterReport->setBinLabel(4,"TOB_L4");
+    OnTrackClusterReport->setBinLabel(5,"TOB_L1");
+    OnTrackClusterReport->setBinLabel(6,"TOB_L2");
+    OnTrackClusterReport->setBinLabel(7,"TOB_L3");
+    OnTrackClusterReport->setBinLabel(8,"TOB_L4");
+    OnTrackClusterReport->setBinLabel(9,"TOB_L5");
+    OnTrackClusterReport->setBinLabel(10,"TOB_L6");
+    OnTrackClusterReport->setBinLabel(11,"TIDF_W1");
+    OnTrackClusterReport->setBinLabel(12,"TIDF_W2");
+    OnTrackClusterReport->setBinLabel(13,"TIDF_W2");
+    OnTrackClusterReport->setBinLabel(14,"TIDB_W1");
+    OnTrackClusterReport->setBinLabel(15,"TIDB_W2");
+    OnTrackClusterReport->setBinLabel(16,"TIDB_W2");
+    OnTrackClusterReport->setBinLabel(17,"TECF_W1");
+    OnTrackClusterReport->setBinLabel(18,"TECF_W2");
+    OnTrackClusterReport->setBinLabel(19,"TECF_W3");
+    OnTrackClusterReport->setBinLabel(20,"TECF_W4");
+    OnTrackClusterReport->setBinLabel(21,"TECF_W5");
+    OnTrackClusterReport->setBinLabel(22,"TECF_W6");
+    OnTrackClusterReport->setBinLabel(23,"TECF_W7");
+    OnTrackClusterReport->setBinLabel(24,"TECF_W8");
+    OnTrackClusterReport->setBinLabel(25,"TECF_W9");
+    OnTrackClusterReport->setBinLabel(26,"TECB_W1");
+    OnTrackClusterReport->setBinLabel(27,"TECB_W2");
+    OnTrackClusterReport->setBinLabel(28,"TECB_W3");
+    OnTrackClusterReport->setBinLabel(29,"TECB_W4");
+    OnTrackClusterReport->setBinLabel(30,"TECB_W5");
+    OnTrackClusterReport->setBinLabel(31,"TECB_W6");
+    OnTrackClusterReport->setBinLabel(32,"TECB_W7");
+    OnTrackClusterReport->setBinLabel(33,"TECB_W8");
+    OnTrackClusterReport->setBinLabel(34,"TECB_W9");
     
     bookedGlobalStatus_ = true;
     fillDummyGlobalStatus();
@@ -182,22 +220,28 @@ void SiStripActionExecutor::fillGlobalStatusFromModule(DQMStore* dqm_store) {
   string dname;
   // Get Status for TIB
   dname = "SiStrip/MechanicalView/TIB";
-  fillSubDetStatusFromModule(dqm_store, dname, nDetTIBTot, nDetTIBErr, 1);  
+  fillSubDetStatusFromModule(dqm_store, dname, nDetTIBTot, nDetTIBErr, 1);
+  fillClusterReport(dqm_store, dname, 0);
   // Get Status for TOB
   dname = "SiStrip/MechanicalView/TOB";
   fillSubDetStatusFromModule(dqm_store, dname, nDetTOBTot, nDetTOBErr, 2);  
+  fillClusterReport(dqm_store, dname, 4);
   // Get Status for TIDF
   dname = "SiStrip/MechanicalView/TID/side_2";
   fillSubDetStatusFromModule(dqm_store, dname, nDetTIDFTot, nDetTIDFErr, 3);  
+  fillClusterReport(dqm_store, dname, 10);
   // Get Status for TIDB 
   dname = "SiStrip/MechanicalView/TID/side_1";
   fillSubDetStatusFromModule(dqm_store, dname, nDetTIDBTot, nDetTIDBErr, 4);  
+  fillClusterReport(dqm_store, dname, 13);
   // Get Status for TECF 
   dname = "SiStrip/MechanicalView/TEC/side_2";
   fillSubDetStatusFromModule(dqm_store, dname, nDetTECFTot, nDetTECFErr, 5);  
+  fillClusterReport(dqm_store, dname, 16);
   // Get Status for TECB
   dname = "SiStrip/MechanicalView/TEC/side_1";
   fillSubDetStatusFromModule(dqm_store, dname, nDetTECBTot, nDetTECBErr, 6);  
+  fillClusterReport(dqm_store, dname, 25);
 
   nDetTot = nDetTIBTot + nDetTOBTot + nDetTIDFTot + nDetTIDBTot + nDetTECFTot + nDetTECBTot;
   nDetErr = nDetTIBErr + nDetTOBErr + nDetTIDFErr + nDetTIDBErr + nDetTECFErr + nDetTECBErr;
@@ -246,17 +290,23 @@ void SiStripActionExecutor::fillGlobalStatusFromLayer(DQMStore* dqm_store) {
 
   string dname;
   dname = "SiStrip/MechanicalView/TIB";
-  fillSubDetStatusFromLayer(dqm_store, dname, nDetTIBTot, nDetTIBErr, 1);  
+  fillSubDetStatusFromLayer(dqm_store, dname, nDetTIBTot, nDetTIBErr, 1);
+  fillClusterReport(dqm_store, dname, 0);  
   dname = "SiStrip/MechanicalView/TOB";
   fillSubDetStatusFromLayer(dqm_store, dname, nDetTOBTot, nDetTOBErr, 2);  
+  fillClusterReport(dqm_store, dname, 4);
   dname = "SiStrip/MechanicalView/TID/side_2";
   fillSubDetStatusFromLayer(dqm_store, dname,  nDetTIDFTot, nDetTIDFErr, 3);  
+  fillClusterReport(dqm_store, dname, 10);
   dname = "SiStrip/MechanicalView/TID/side_1";
   fillSubDetStatusFromLayer(dqm_store, dname,  nDetTIDBTot, nDetTIDBErr, 4);  
+  fillClusterReport(dqm_store, dname, 13);
   dname = "SiStrip/MechanicalView/TEC/side_2";
   fillSubDetStatusFromLayer(dqm_store, dname,  nDetTECFTot, nDetTECFErr, 5);  
+  fillClusterReport(dqm_store, dname, 16);
   dname = "SiStrip/MechanicalView/TEC/side_1";
   fillSubDetStatusFromLayer(dqm_store, dname,  nDetTECBTot, nDetTECBErr, 6);  
+  fillClusterReport(dqm_store, dname, 25);
   
   nDetTot = nDetTIBTot + nDetTOBTot + nDetTIDFTot + nDetTIDBTot + nDetTECFTot + nDetTECBTot;
   nDetErr = nDetTIBErr + nDetTOBErr + nDetTIDFErr + nDetTIDBErr + nDetTECFErr + nDetTECBErr;
@@ -353,8 +403,9 @@ void SiStripActionExecutor::fillSubDetStatusFromLayer(DQMStore* dqm_store, strin
       for (vector<MonitorElement*>::const_iterator it = meVec.begin();
                it != meVec.end(); it++) {
 	MonitorElement * me = (*it);
-        string name = me->getName();     
 	if (!me) continue;
+        string name = me->getName();     
+
 	if (me->getQReports().size() != 0 && name.find("Profile") != string::npos) {
 	  int nbin = me->getNbinsX();
 	  int istat, nbad;
@@ -368,6 +419,35 @@ void SiStripActionExecutor::fillSubDetStatusFromLayer(DQMStore* dqm_store, strin
       ybin++;
       float eff_fac = 1 - (errdet*1.0/ndet);
       if ( ndet > 0) hist2->SetBinContent(xbin,ybin, eff_fac);
+    }
+  }
+}
+void SiStripActionExecutor::fillClusterReport(DQMStore* dqm_store, string& dname, int xbin) {
+  if (OnTrackClusterReport->kind() != MonitorElement::DQM_KIND_TH1F) return;
+  TH1F* hist1 = OnTrackClusterReport->getTH1F();
+  if (!hist1) return;
+  if (dqm_store->dirExists(dname)) {
+    dqm_store->cd(dname);
+    vector<string> subDirVec = dqm_store->getSubdirs();
+    unsigned int ilayer;
+    for (vector<string>::const_iterator ic = subDirVec.begin();
+	 ic != subDirVec.end(); ic++) {
+      string currDir = (*ic);
+      ilayer = atoi((currDir.substr(currDir.find_last_of("_")+1)).c_str());
+
+      vector<MonitorElement*> meVec;
+      meVec = dqm_store->getContents(currDir);
+      for (vector<MonitorElement*>::const_iterator it = meVec.begin();
+	   it != meVec.end(); it++) {
+        MonitorElement * me = (*it);
+        if (!me) continue;
+        string name = me->getName();
+        if (name.find("Summary_ClusterStoNCorr__OnTrack") != string::npos) {
+          float entries = me->getEntries();
+          hist1->SetBinContent(xbin+ilayer, entries);
+          break;
+        }
+      }  
     }
   }
 }
@@ -387,6 +467,8 @@ void SiStripActionExecutor::resetGlobalStatus() {
     SummaryTIDB->Reset();
     SummaryTECF->Reset();
     SummaryTECB->Reset();
+
+    OnTrackClusterReport->Reset();
   }
 }
 //

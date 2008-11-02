@@ -3,8 +3,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TText.h"
 #include "TROOT.h"
@@ -190,7 +189,8 @@ void SiStripHistoPlotter::getDummyImage(string & image) {
   string          line;
   ostringstream   local_str;
   // Read back the file line by line and temporarily store it in a stringstream
-  ifstream * imagefile = new ifstream("images/EmptyPlot.png",ios::in);
+  string localPath = string("DQM/TrackerCommon/test/images/EmptyPlot.png");
+  ifstream * imagefile = new ifstream((edm::FileInPath(localPath).fullPath()).c_str(),ios::in);
   if(imagefile->is_open()) {
     while (getline( *imagefile, line )) {
       local_str << line << endl ;
