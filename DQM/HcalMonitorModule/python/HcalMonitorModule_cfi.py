@@ -21,7 +21,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            checkHO = cms.untracked.bool(True),
 
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
-                           minErrorFlag = cms.untracked.double(0.01), 
+                           minErrorFlag = cms.untracked.double(0.05), 
 
                            # Turn on/off timing diagnostic info
                            showTiming          = cms.untracked.bool(False),

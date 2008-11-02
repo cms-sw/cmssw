@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/09/24 14:33:46 $
- * $Revision: 1.34 $
+ * $Date: 2008/10/15 20:04:26 $
+ * $Revision: 1.35 $
  * \author W. Fisher
  *
 */
@@ -135,7 +135,7 @@ public:
   bool showTiming_; 
   edm::CPUTimer cpu_timer; // 
 
-  /// counters and flags
+  // counters and flags
   int nevt_;
   int nlumisecs_;
   bool saved_;
@@ -212,11 +212,14 @@ public:
   bool checkHF_;
 
   // Determine which subdetectors are in the run (using FED info)
-  bool HBpresent_;
-  bool HEpresent_;
-  bool HOpresent_;
-  bool HFpresent_;
-
+  int HBpresent_;
+  int HEpresent_;
+  int HOpresent_;
+  int HFpresent_;
+  MonitorElement* meHB_;
+  MonitorElement* meHE_;
+  MonitorElement* meHO_;
+  MonitorElement* meHF_;
 };
 
 #endif

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/28 20:04:02 $
- * $Revision: 1.87 $
+ * $Date: 2008/10/29 23:38:24 $
+ * $Revision: 1.88 $
  * \author W Fisher
  *
 */
@@ -28,6 +28,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   ctMon_ = NULL;     beamMon_ = NULL;
   laserMon_ = NULL;
   expertMon_ = NULL;
+
+  // All subdetectors assumed out of the run by default
+  HBpresent_=0;
+  HEpresent_=0;
+  HOpresent_=0;
+  HFpresent_=0;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
@@ -220,9 +226,21 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     // process latency was (200,0,1), but that gave overflows
     meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
+    // Store whether or not subdetectors are present
+    meHB_ = dbe_->bookInt("HBpresent");
+    meHE_ = dbe_->bookInt("HEpresent");
+    meHO_ = dbe_->bookInt("HOpresent");
+    meHF_ = dbe_->bookInt("HFpresent");
+    
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
     meEvtMask_->Fill(-1);
+
+    // Should fill with 0 to start
+    meHB_->Fill(HBpresent_);
+    meHE_->Fill(HEpresent_);
+    meHO_->Fill(HOpresent_);
+    meHF_->Fill(HFpresent_);
   }
 
   edm::ESHandle<HcalDbService> pSetup;
@@ -305,6 +323,18 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 //--------------------------------------------------------
 void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
   fedsListed_ = false;
+
+  // I think we want to reset these at 0 at the start of each run
+  HBpresent_ = 0;
+  HEpresent_ = 0;
+  HOpresent_ = 0;
+  HFpresent_ = 0;
+
+  // Should fill with 0 to start
+  meHB_->Fill(HBpresent_);
+  meHE_->Fill(HEpresent_);
+  meHO_->Fill(HOpresent_);
+  meHF_->Fill(HFpresent_);
   reset();
 }
 
@@ -465,13 +495,22 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // check which Subdetectors are on by seeing which are reading out FED data
   // Assume subdetectors aren't present, unless we explicitly find otherwise
-  HBpresent_ = false;
-  HEpresent_ = false;
-  HOpresent_ = false;
-  HFpresent_ = false;
+  if ((checkHB_ && HBpresent_==0) ||
+      (checkHE_ && HEpresent_==0) ||
+      (checkHO_ && HOpresent_==0) ||
+      (checkHF_ && HFpresent_==0))
   
-  CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
+    CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
     
+  // Case where all subdetectors have no raw data -- skip event
+  if ((checkHB_ && HBpresent_==0) &&
+      (checkHE_ && HEpresent_==0) &&
+      (checkHO_ && HOpresent_==0) &&
+      (checkHF_ && HFpresent_==0))
+    {
+      if (debug_>1) cout <<"<HcalMonitorModule::analyze>  No HCAL raw data found for event "<<ievt_<<endl;
+      return;
+    }
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
@@ -850,14 +889,22 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
       // check for HF
       if (dccid>717 && dccid<724)
 	{
-	  HFpresent_ = true;
+	  if (HFpresent_==0)
+	    {
+	      HFpresent_ = 1;
+	      meHF_->Fill(HFpresent_);
+	    }
 	  continue;
 	}
 
       // check for HO
       if (dccid>723)
 	{
-	  HOpresent_ = true;
+	  if (HOpresent_==0)
+	    {
+	      HOpresent_ = 1;
+	      meHO_->Fill(HOpresent_);
+	    }
 	  continue;
 	}
       
@@ -889,25 +936,47 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 		    
 		    switch (((HcalSubdetector)did.subdetId()))
 		      {
-		      case (HcalBarrel): {
-			HBpresent_ = true;
-		      } break;
-		      case (HcalEndcap): {
-			HEpresent_ = true;
-		      } break;
-		      case (HcalOuter): { // shouldn't reach these last two cases
-			HOpresent_ = true;
-			return;
-		      } break;
-		      case (HcalForward): {
-			HFpresent_ = true;
-		      } break;
+		      case (HcalBarrel): 
+			{
+			  if (HBpresent_==0)
+			    {
+			      HBpresent_ = 1;
+			      meHB_->Fill(HBpresent_);
+			    }
+			} break; // case (HcalBarrel)
+		      case (HcalEndcap): 
+			{
+			  if (HEpresent_==0)
+			    {
+			      HEpresent_ = 1;
+			      meHE_->Fill(HEpresent_);
+			    }
+			} break; // case (HcalEndcap)
+		      case (HcalOuter): 
+			{ // shouldn't reach these last two cases
+			  if (HOpresent_==0)
+			    {
+			      {
+				HOpresent_ = 1;
+				meHO_->Fill(HOpresent_);
+				return;
+			      }
+			    } 
+			} break; // case (HcalOuter)
+		      case (HcalForward): 
+			{
+			  if (HFpresent_==0)
+			    {
+			      meHF_->Fill(HFpresent_);
+			      HFpresent_ = 1;
+			    }
+			} break; //case (HcalForward)
 		      default: break;
-		      }
+		      } // switch ((HcalSubdetector...)
 		  } // if (!did.null())
 	      } // for (int fib=0;...)
 	  } // for (int fchan = 0;...)
-
+	
       } // for (int spigot=0;...)
     } //  for (vector<int>::const_iterator i=fedUnpackList.begin();
   return;
