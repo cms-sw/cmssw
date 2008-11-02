@@ -5,6 +5,7 @@
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 #include <cmath>
+#include <iosfwd>
 
 template < class T> 
 class Basic2DVector {
@@ -118,6 +119,19 @@ private:
   T theX;
   T theY;
 };
+
+
+namespace geometryDetails {
+  std::ostream & print2D(std::ostream& s, double x, double y);
+
+}
+
+/// simple text output to standard streams
+template <class T>
+inline std::ostream & operator<<( std::ostream& s, const Basic2DVector<T>& v) {
+  return geometryDetails::2Dprint(s, v.x(),v.y());
+}
+
 
 /// vector sum and subtraction of vectors of possibly different precision
 template <class T, class U>
