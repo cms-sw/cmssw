@@ -200,7 +200,7 @@ void HcalDeadCellClient::report()
   this->setup();
 
   ostringstream name;
-  name<<process_.c_str()<<"Hcal/DeadCellMonitor/Dead Cell Task Event Number";
+  name<<process_.c_str()<<"Hcal/DeadCellMonitor_Hcal/Dead Cell Task Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) {
     string s = me->valueString();
@@ -227,31 +227,31 @@ void HcalDeadCellClient::getHistograms()
 
 
   // Grab individual histograms
-  name<<process_.c_str()<<"DeadCellMonitor/ ProblemDeadCells";
+  name<<process_.c_str()<<"DeadCellMonitor_Hcal/ ProblemDeadCells";
   ProblemDeadCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
 
-  getSJ6histos("DeadCellMonitor/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
+  getSJ6histos("DeadCellMonitor_Hcal/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
 
-  if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor/dead_unoccupied_digi/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
-  if (deadclient_test_pedestal_)  getSJ6histos("DeadCellMonitor/dead_pedestaltest/", "Dead Cells Failing Pedestal Test", BelowPedestalDeadCellsByDepth);
-  if (deadclient_test_neighbor_)  getSJ6histos("DeadCellMonitor/dead_neighbortest/", "Dead Cells Failing Neighbor Test", BelowNeighborsDeadCellsByDepth);
-  if (deadclient_test_energy_)    getSJ6histos("DeadCellMonitor/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
+  if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor_Hcal/dead_unoccupied_digi/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
+  if (deadclient_test_pedestal_)  getSJ6histos("DeadCellMonitor_Hcal/dead_pedestaltest/", "Dead Cells Failing Pedestal Test", BelowPedestalDeadCellsByDepth);
+  if (deadclient_test_neighbor_)  getSJ6histos("DeadCellMonitor_Hcal/dead_neighbortest/", "Dead Cells Failing Neighbor Test", BelowNeighborsDeadCellsByDepth);
+  if (deadclient_test_energy_)    getSJ6histos("DeadCellMonitor_Hcal/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
 
   if (deadclient_makeDiagnostics_)
     {
-      d_HBnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/energythreshold/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HBenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HEnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/pedestal/HE_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HErechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/energythreshold/HE_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HEenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/pedestal/HO_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/energythreshold/HO_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/pedestal/HF_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor/diagnostics/energythreshold/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HBnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HBenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HEnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HE_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HErechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HE_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HEenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HO_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HO_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFnormped=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
     } // if (deadclient_makeDiagnostics_)
 
 
@@ -299,7 +299,7 @@ void HcalDeadCellClient::resetAllME()
   ostringstream name;
 
   // Reset individual histograms
-  name<<process_.c_str()<<"DeadCellMonitor/ ProblemDeadCells";
+  name<<process_.c_str()<<"DeadCellMonitor_Hcal/ ProblemDeadCells";
   resetME(name.str().c_str(),dbe_);
   name.str("");
 
@@ -307,47 +307,47 @@ void HcalDeadCellClient::resetAllME()
     {
       // Reset arrays of histograms
       // Problem Pedestal Plots
-      name<<process_.c_str()<<"DeadCellMonitor/problem_deadcells/"<<subdets_[i]<<" Problem Dead Cell Rate";
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/problem_deadcells/"<<subdets_[i]<<" Problem Dead Cell Rate";
       resetME(name.str().c_str(),dbe_);
       name.str("");
       if (deadclient_test_occupancy_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_unoccupied_digi/"<<subdets_[i]<<"Dead Cells with No Digis";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_unoccupied_digi/"<<subdets_[i]<<"Dead Cells with No Digis";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (deadclient_test_pedestal_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_pedestaltest"<<subdets_[i]<<"Dead Cells Failing Pedestal Test";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_pedestaltest"<<subdets_[i]<<"Dead Cells Failing Pedestal Test";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (deadclient_test_neighbor_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_neighbortest"<<subdets_[i]<<"Dead Cells Failing Neighbor Test";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_neighbortest"<<subdets_[i]<<"Dead Cells Failing Neighbor Test";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (deadclient_test_energy_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (deadclient_makeDiagnostics_)
 	{
-	  resetME((process_+"DeadCellMonitor/diagnostics/pedestal/HB_normped").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/energythreshold/HB_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/pedestal/HE_normped").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/energythreshold/HE_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/pedestal/HO_normped").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/energythreshold/HO_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/pedestal/HF_normped").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/energythreshold/HF_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"DeadCellMonitor/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HB_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HE_normped").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HE_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HO_normped").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HO_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"DeadCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
     } // if (deadclient_makeDiagnostics_)
 
     }
@@ -693,7 +693,7 @@ ofstream htmlFile;
 
 void HcalDeadCellClient::loadHistograms(TFile* infile)
 {
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/DeadCellMonitor/Dead Cell Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/DeadCellMonitor_Hcal/Dead Cell Task Event Number");
   if(tnd)
     {
       string s =tnd->GetTitle();
@@ -703,37 +703,37 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
 
   ostringstream name;
   // Grab individual histograms
-  name<<process_.c_str()<<"DeadCellMonitor/ ProblemDeadCells";
+  name<<process_.c_str()<<"DeadCellMonitor_Hcal/ ProblemDeadCells";
   ProblemDeadCells = (TH2F*)infile->Get(name.str().c_str());
   name.str("");
   
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
-      name<<process_.c_str()<<"DeadCellMonitor/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
+      name<<process_.c_str()<<"DeadCellMonitor_Hcal/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
       ProblemDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       if (deadclient_test_occupancy_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_unoccupied_digi/"<<subdets_[i]<<"Dead Cells with No Digis";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_unoccupied_digi/"<<subdets_[i]<<"Dead Cells with No Digis";
 	  UnoccupiedDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
       if (deadclient_test_pedestal_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_pedestaltest"<<subdets_[i]<<"Dead Cells Failing Pedestal Test";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_pedestaltest"<<subdets_[i]<<"Dead Cells Failing Pedestal Test";
 	  BelowPedestalDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
       if (deadclient_test_neighbor_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_neighbortest"<<subdets_[i]<<"Dead Cells Failing Neighbor Test";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_neighbortest"<<subdets_[i]<<"Dead Cells Failing Neighbor Test";
 	  BelowNeighborsDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
       if (deadclient_test_energy_)
 	{
-	  name<<process_.c_str()<<"DeadCellMonitor/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
 	  BelowEnergyThresholdCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}

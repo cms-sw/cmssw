@@ -215,7 +215,7 @@ void HcalHotCellClient::report()
   this->setup();
 
   ostringstream name;
-  name<<process_.c_str()<<"Hcal/HotCellMonitor/Hot Cell Task Event Number";
+  name<<process_.c_str()<<"Hcal/HotCellMonitor_Hcal/Hot Cell Task Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) {
     string s = me->valueString();
@@ -242,32 +242,32 @@ void HcalHotCellClient::getHistograms()
 
 
   // Grab individual histograms
-  name<<process_.c_str()<<"HotCellMonitor/ ProblemHotCells";
+  name<<process_.c_str()<<"HotCellMonitor_Hcal/ ProblemHotCells";
   ProblemHotCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
 
-  getSJ6histos("HotCellMonitor/problem_hotcells/", " Problem Hot Cell Rate", ProblemHotCellsByDepth);
+  getSJ6histos("HotCellMonitor_Hcal/problem_hotcells/", " Problem Hot Cell Rate", ProblemHotCellsByDepth);
 
-  if (hotclient_test_persistent_) getSJ6histos("HotCellMonitor/hot_rechit_always_above_threshold/",   "Hot Cells Persistently Above Energy Threshold", AbovePersistentThresholdCellsByDepth);
-  if (hotclient_test_pedestal_)  getSJ6histos("HotCellMonitor/hot_pedestaltest/", "Hot Cells Above Pedestal", AbovePedestalHotCellsByDepth);
-  if (hotclient_test_neighbor_)  getSJ6histos("HotCellMonitor/hot_neighbortest/", "Hot Cells Failing Neighbor Test", AboveNeighborsHotCellsByDepth);
-  if (hotclient_test_energy_)    getSJ6histos("HotCellMonitor/hot_rechit_above_threshold/",   "Hot Cells Above Energy Threshold", AboveEnergyThresholdCellsByDepth);
+  if (hotclient_test_persistent_) getSJ6histos("HotCellMonitor_Hcal/hot_rechit_always_above_threshold/",   "Hot Cells Persistently Above Energy Threshold", AbovePersistentThresholdCellsByDepth);
+  if (hotclient_test_pedestal_)  getSJ6histos("HotCellMonitor_Hcal/hot_pedestaltest/", "Hot Cells Above Pedestal", AbovePedestalHotCellsByDepth);
+  if (hotclient_test_neighbor_)  getSJ6histos("HotCellMonitor_Hcal/hot_neighbortest/", "Hot Cells Failing Neighbor Test", AboveNeighborsHotCellsByDepth);
+  if (hotclient_test_energy_)    getSJ6histos("HotCellMonitor_Hcal/hot_rechit_above_threshold/",   "Hot Cells Above Energy Threshold", AboveEnergyThresholdCellsByDepth);
 
   if (hotclient_makeDiagnostics_)
     {
-      getSJ6histos("HotCellMonitor/diagnostics/rechitenergy/","Average rec hit energy per cell",d_avgrechitenergymap);
-      d_HBnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/energythreshold/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HBenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HEnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/pedestal/HE_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HErechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/energythreshold/HE_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HEenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/pedestal/HO_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/energythreshold/HO_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/pedestal/HF_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor/diagnostics/energythreshold/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Average rec hit energy per cell",d_avgrechitenergymap);
+      d_HBnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HBenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HEnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HErechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HE_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HEenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HO_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
     } // if (hotclient_makeDiagnostics_)
 
 
@@ -315,7 +315,7 @@ void HcalHotCellClient::resetAllME()
   ostringstream name;
 
   // Reset individual histograms
-  name<<process_.c_str()<<"HotCellMonitor/ ProblemHotCells";
+  name<<process_.c_str()<<"HotCellMonitor_Hcal/ ProblemHotCells";
   resetME(name.str().c_str(),dbe_);
   name.str("");
 
@@ -323,47 +323,47 @@ void HcalHotCellClient::resetAllME()
     {
       // Reset arrays of histograms
       // Problem Pedestal Plots
-      name<<process_.c_str()<<"HotCellMonitor/problem_hotcells/"<<subdets_[i]<<" Problem Hot Cell Rate";
+      name<<process_.c_str()<<"HotCellMonitor_Hcal/problem_hotcells/"<<subdets_[i]<<" Problem Hot Cell Rate";
       resetME(name.str().c_str(),dbe_);
       name.str("");
       if (hotclient_test_persistent_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_unoccupied_digi/"<<subdets_[i]<<"Hot Cells with No Digis";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_unoccupied_digi/"<<subdets_[i]<<"Hot Cells with No Digis";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (hotclient_test_pedestal_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_pedestaltest"<<subdets_[i]<<"Hot Cells Failing Pedestal Test";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_pedestaltest"<<subdets_[i]<<"Hot Cells Failing Pedestal Test";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (hotclient_test_neighbor_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_neighbortest"<<subdets_[i]<<"Hot Cells Failing Neighbor Test";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_neighbortest"<<subdets_[i]<<"Hot Cells Failing Neighbor Test";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (hotclient_test_energy_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_energytest"<<subdets_[i]<<"Hot Cells Failing Energy Threshold Test";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_energytest"<<subdets_[i]<<"Hot Cells Failing Energy Threshold Test";
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
       if (hotclient_makeDiagnostics_)
 	{
-	  resetME((process_+"HotCellMonitor/diagnostics/pedestal/HB_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/energythreshold/HB_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/pedestal/HE_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/energythreshold/HE_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/pedestal/HO_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/energythreshold/HO_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/pedestal/HF_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/energythreshold/HF_rechitenergy").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HB_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HE_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HO_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
     } // if (hotclient_makeDiagnostics_)
 
     }
@@ -711,7 +711,7 @@ ofstream htmlFile;
 
 void HcalHotCellClient::loadHistograms(TFile* infile)
 {
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/HotCellMonitor/Hot Cell Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/HotCellMonitor_Hcal/Hot Cell Task Event Number");
   if(tnd)
     {
       string s =tnd->GetTitle();
@@ -721,37 +721,37 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
 
   ostringstream name;
   // Grab individual histograms
-  name<<process_.c_str()<<"HotCellMonitor/ ProblemHotCells";
+  name<<process_.c_str()<<"HotCellMonitor_Hcal/ ProblemHotCells";
   ProblemHotCells = (TH2F*)infile->Get(name.str().c_str());
   name.str("");
   
   for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
-      name<<process_.c_str()<<"HotCellMonitor/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
+      name<<process_.c_str()<<"HotCellMonitor_Hcal/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
       ProblemHotCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
       if (hotclient_test_persistent_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_unoccupied_digi/"<<subdets_[i]<<"Hot Cells with No Digis";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_unoccupied_digi/"<<subdets_[i]<<"Hot Cells with No Digis";
 	  AbovePersistentThresholdCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
       if (hotclient_test_pedestal_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_pedestaltest"<<subdets_[i]<<"Hot Cells Failing Pedestal Test";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_pedestaltest"<<subdets_[i]<<"Hot Cells Failing Pedestal Test";
 	  AbovePedestalHotCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
       if (hotclient_test_neighbor_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_neighbortest"<<subdets_[i]<<"Hot Cells Failing Neighbor Test";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_neighbortest"<<subdets_[i]<<"Hot Cells Failing Neighbor Test";
 	  AboveNeighborsHotCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
       if (hotclient_test_energy_)
 	{
-	  name<<process_.c_str()<<"HotCellMonitor/hot_energytest"<<subdets_[i]<<"Hot Cells Failing Energy Threshold Test";
+	  name<<process_.c_str()<<"HotCellMonitor_Hcal/hot_energytest"<<subdets_[i]<<"Hot Cells Failing Energy Threshold Test";
 	  AboveEnergyThresholdCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
