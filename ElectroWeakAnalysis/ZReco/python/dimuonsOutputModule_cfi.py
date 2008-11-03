@@ -17,10 +17,8 @@ dimuonsEventContent = cms.PSet(
         'keep *_dimuonsOneStandAloneMuon_*_*', 
         'keep *_muonMatch_*_*', 
         'keep *_trackMuMatch_*_*', 
-        'keep *_allDimuonsMCMatch_*_*', 
-        'keep *_muonHLTMatchHLT1MuonIso_*_*', 
-        'keep *_muonHLTMatchHLT1MuonNonIso_*_*', 
-        'keep *_muonHLTMatchHLT2MuonNonIso_*_*')
+        'keep *_allDimuonsMCMatch_*_*'
+        )
 )
 dimuonsEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
