@@ -1,14 +1,14 @@
 /**
  * \class L1GtBoardMaps
- * 
- * 
- * Description: map of the L1 GT boards.  
+ *
+ *
+ * Description: map of the L1 GT boards.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -339,8 +339,12 @@ void L1GtBoardMaps::printGtQuadToPsbMap(std::ostream& myCout) const
                     objType = "MQF12";
                 } else if ( *cItQuad == Free ) {
                     objType = "Free";
+                } else if ( *cItQuad == HfQ ) {
+                    objType = "HfQ";
                 } else {
-                    // do nothing, return empty string
+                    myCout << "\n\nError: no such member " <<  (*cItQuad)
+                    << " in enum L1GtPsbQuad\n\n" << std::endl;
+                    objType = "ERROR";
                 }
 
                 myCout << objType << " ";

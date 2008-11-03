@@ -1,14 +1,14 @@
 /**
  * \class L1GtBoard
- * 
- * 
- * Description: class for L1 GT board.  
+ *
+ *
+ * Description: class for L1 GT board.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -392,8 +392,12 @@ void L1GtBoard::print(std::ostream& myCout) const
             objType = "MQF12";
         } else if ( *cIt == Free ) {
             objType = "Free";
+        } else if ( *cIt == HfQ ) {
+            objType = "HfQ";
         } else {
-            // do nothing, return empty string
+            myCout << "\n\nError: no such member " <<  (*cIt)
+            << " in enum L1GtPsbQuad\n\n" << std::endl;
+            objType = "ERROR";
         }
 
 
