@@ -60,6 +60,10 @@ namespace evf {
     void           initialize(unsigned int shmid,unsigned int semid);
     void           reset();
     
+    unsigned int   nRawCells()   const { return nRawCells_;  }
+    unsigned int   nRecoCells()  const { return nRecoCells_; }
+    unsigned int   nDqmCells()   const { return nDqmCells_;  }
+
     int            shmid()       const { return shmid_; }
     int            semid()       const { return semid_; }
     unsigned int   nClients()    const { return nClients_; }
@@ -311,6 +315,9 @@ namespace evf {
     unsigned int dqmCellPayloadSize_;
     unsigned int dqmCellTotalSize_;
     unsigned int dqmCellOffset_;
+
+    static const char* shmKeyPath_;
+    static const char* semKeyPath_;
     
   };
 
