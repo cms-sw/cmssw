@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/10/10 16:14:14 $
- * $Revision: 1.15 $
+ * $Date: 2008/10/26 17:41:30 $
+ * $Revision: 1.16 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -310,6 +310,22 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
   }
 
+  TH2F *h01[2];
+  float integral01[2];
+  for(int iside=0;iside<2;iside++) {
+    h01[iside] = UtilsClient::getHisto<TH2F*>( EEFullReadoutSRFlagMap_[iside] );
+    integral01[iside] = h01[iside]->GetEntries();
+    if( integral01[iside] != 0 ) h01[iside]->Scale( integral01[iside] );
+  }
+  
+  TH2F *h02[2];
+  float integral02[2];
+  for(int iside=0;iside<2;iside++) {
+    h02[iside] = UtilsClient::getHisto<TH2F*>( EEReadoutUnitForcedBitMap_[iside] );
+    integral02[iside] = h02[iside]->GetEntries();
+    if( integral02[iside] != 0 ) h02[iside]->Scale( integral02[iside] );
+  }
+
   // Selective Readout Flags
   Handle<EESrFlagCollection> eeSrFlags;
   if ( e.getByLabel(EESRFlagCollection_,eeSrFlags) ) {
@@ -330,14 +346,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
-      TH2F *h01[2];
-      float integral[2];
-      for(int iside=0;iside<2;iside++) {
-	h01[iside] = UtilsClient::getHisto<TH2F*>( EEFullReadoutSRFlagMap_[iside] );
-	integral[iside] = h01[iside]->GetEntries();
-	if( integral[iside] != 0 ) h01[iside]->Scale( integral[iside] );
-      }
-
       if(flag == EcalSrFlag::SRF_FULL){
 	if( zside < 0 ) {
 	  EEFullReadoutSRFlagMap_[0]->Fill(xix,xiy);
@@ -354,16 +362,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	}
       }
 
-      for(int iside=0;iside<2;iside++) {
-	if( integral[iside] != 0 ) h01[iside]->Scale( 1.0/integral[iside] );
-      }
-
-      TH2F *h02[2];
-      for(int iside=0;iside<2;iside++) {
-        h02[iside] = UtilsClient::getHisto<TH2F*>( EEReadoutUnitForcedBitMap_[iside] );
-        integral[iside] = h02[iside]->GetEntries();
-        if( integral[iside] != 0 ) h02[iside]->Scale( integral[iside] );
-      }
 
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
 	if( zside < 0 ) {
@@ -381,13 +379,31 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	}
       }
 
-      for(int iside=0;iside<2;iside++) {
-        if( integral[iside] != 0 ) h02[iside]->Scale( 1.0/integral[iside] );
-      }
-
     }
   } else {
     LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
+  }
+
+  for(int iside=0;iside<2;iside++) {
+    if( integral01[iside] != 0 ) h01[iside]->Scale( 1.0/integral01[iside] );
+    if( integral02[iside] != 0 ) h02[iside]->Scale( 1.0/integral02[iside] );  
+  }
+
+  TH2F *h03[2];
+  float integral03[2];
+  for(int iside=0;iside<2;iside++) {
+    h03[iside] = UtilsClient::getHisto<TH2F*>( EELowInterestTriggerTowerFlagMap_[iside] );
+    integral03[iside] = h03[iside]->GetEntries();
+    if( integral03[iside] != 0 ) h03[iside]->Scale( integral03[iside] );
+  }
+
+
+  TH2F *h04[2];
+  float integral04[2];
+  for(int iside=0;iside<2;iside++) {
+    h04[iside] = UtilsClient::getHisto<TH2F*>( EEHighInterestTriggerTowerFlagMap_[iside] );
+    integral04[iside] = h04[iside]->GetEntries();
+    if( integral04[iside] != 0 ) h04[iside]->Scale( integral04[iside] );
   }
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
@@ -418,14 +434,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         float xix = ix-0.5;
         float xiy = iy-0.5;
 
-	TH2F *h03[2];
-	float integral[2];
-	for(int iside=0;iside<2;iside++) {
-	  h03[iside] = UtilsClient::getHisto<TH2F*>( EELowInterestTriggerTowerFlagMap_[iside] );
-	  integral[iside] = h03[iside]->GetEntries();
-	  if( integral[iside] != 0 ) h03[iside]->Scale( integral[iside] );
-	}
-
         if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
 	  if ( ismt >= 1 && ismt <= 9 ) {
 	    EELowInterestTriggerTowerFlagMap_[0]->Fill(xix,xiy);
@@ -440,18 +448,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	  else {
 	    EELowInterestTriggerTowerFlagMap_[1]->Fill(-1,-1);
 	  }
-	}
-
-	for(int iside=0;iside<2;iside++) {
-	  if( integral[iside] != 0 ) h03[iside]->Scale( 1.0/integral[iside] );
-	}
-
-
-	TH2F *h04[2];
-	for(int iside=0;iside<2;iside++) {
-	  h04[iside] = UtilsClient::getHisto<TH2F*>( EEHighInterestTriggerTowerFlagMap_[iside] );
-	  integral[iside] = h04[iside]->GetEntries();
-	  if( integral[iside] != 0 ) h04[iside]->Scale( integral[iside] );
 	}
 
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
@@ -470,15 +466,16 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	  }
 	}
 
-	for(int iside=0;iside<2;iside++) {
-	  if( integral[iside] != 0 ) h04[iside]->Scale( 1.0/integral[iside] );
-	}
-
       }
 
     }
   } else {
     LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+  }
+
+  for(int iside=0;iside<2;iside++) {
+    if( integral03[iside] != 0 ) h03[iside]->Scale( 1.0/integral03[iside] );
+    if( integral04[iside] != 0 ) h04[iside]->Scale( 1.0/integral04[iside] );
   }
 
   if (!eeSrFlags.isValid()) return;

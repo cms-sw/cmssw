@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/10/26 17:41:30 $
- * $Revision: 1.18 $
+ * $Date: 2008/10/31 11:17:11 $
+ * $Revision: 1.19 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -227,6 +227,14 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
   }
+  
+  TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );
+  float integral01 = h01->GetEntries();
+  if( integral01 != 0 ) h01->Scale( integral01 );
+
+  TH2F *h02 = UtilsClient::getHisto<TH2F*>( EBReadoutUnitForcedBitMap_ );
+  float integral02 = h02->GetEntries();
+  if( integral02 != 0 ) h02->Scale( integral02 );
 
   // Selective Readout Flags
   Handle<EBSrFlagCollection> ebSrFlags;
@@ -244,9 +252,6 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
-      TH2F *h01 = UtilsClient::getHisto<TH2F*>( EBFullReadoutSRFlagMap_ );
-      float integral = h01->GetEntries();
-      if( integral != 0 ) h01->Scale( integral );
 
       if(flag == EcalSrFlag::SRF_FULL){
         EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
@@ -254,24 +259,30 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EBFullReadoutSRFlagMap_->Fill(-1,-18);
       }
 
-      if( integral != 0 ) h01->Scale( 1.0/h01->GetEntries() );
-
-      TH2F *h02 = UtilsClient::getHisto<TH2F*>( EBReadoutUnitForcedBitMap_ );
-      integral = h02->GetEntries();
-      if( integral != 0 ) h02->Scale( integral );
-
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
         EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
       } else {
 	EBReadoutUnitForcedBitMap_->Fill(-1,-18);
       }
-
-      if( integral != 0 ) h02->Scale( 1.0/h02->GetEntries() );
-
+      
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
   }
+
+  integral01 = h01->GetEntries();
+  if( integral01 != 0 ) h01->Scale( 1.0/integral01 );
+  integral02 = h02->GetEntries();
+  if( integral02 != 0 ) h02->Scale( 1.0/integral02 );
+
+
+  TH2F *h03 = UtilsClient::getHisto<TH2F*>( EBLowInterestTriggerTowerFlagMap_ );
+  float integral03 = h03->GetEntries();
+  if( integral03 != 0 ) h03->Scale( integral03 );
+
+  TH2F *h04 = UtilsClient::getHisto<TH2F*>( EBHighInterestTriggerTowerFlagMap_ );
+  float integral04 = h04->GetEntries();
+  if( integral04 != 0 ) h04->Scale( integral04 );
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
@@ -291,22 +302,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xiet = (iet>0) ? iet-0.5 : iet+0.5 ;
       float xipt = ipt-0.5;
 
-      TH2F *h03 = UtilsClient::getHisto<TH2F*>( EBLowInterestTriggerTowerFlagMap_ );
-      float integral = h03->GetEntries();
-      if( integral != 0 ) h03->Scale( integral );
-
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
         EBLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       } else {
 	EBLowInterestTriggerTowerFlagMap_->Fill(-1,-18);
       }
-
-      if( integral != 0 ) h03->Scale( 1.0/h03->GetEntries() );
-
-
-      TH2F *h04 = UtilsClient::getHisto<TH2F*>( EBHighInterestTriggerTowerFlagMap_ );
-      integral = h04->GetEntries();
-      if( integral != 0 ) h04->Scale( integral );
 
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
         EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
@@ -314,12 +314,15 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EBHighInterestTriggerTowerFlagMap_->Fill(-1,-18);
       }
 
-      if( integral != 0 ) h04->Scale( 1.0/h04->GetEntries() );
-
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
+
+  integral03 = h03->GetEntries();
+  if( integral03 != 0 ) h03->Scale( 1.0/integral03 );
+  integral04 = h04->GetEntries();
+  if( integral04 != 0 ) h04->Scale( 1.0/integral04 );
 
   if (!ebSrFlags.isValid()) return;
 
