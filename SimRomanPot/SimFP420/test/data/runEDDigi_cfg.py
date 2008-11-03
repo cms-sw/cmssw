@@ -64,5 +64,7 @@ process.g4SimHits.UseMagneticField = False
 #process.g4SimHits.Generator.ApplyPtCuts = False
 process.g4SimHits.Generator.ApplyPhiCuts = True
 process.g4SimHits.Generator.ApplyEtaCuts = False
+process.g4SimHits.NonBeamEvent = True
+process.FP420Digi.ApplyTofCut = False
 
 
