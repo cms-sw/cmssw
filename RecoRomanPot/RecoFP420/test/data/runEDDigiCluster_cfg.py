@@ -61,8 +61,10 @@ process.FlatVtxSmearingParameters.MinY = 0.0
 process.FlatVtxSmearingParameters.MaxY = 0.0
 process.FlatVtxSmearingParameters.MinZ = 41000.
 process.FlatVtxSmearingParameters.MaxZ = 41000.
+process.FP420Digi.ApplyTofCut = False
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Generator.ApplyPhiCuts = True
 process.g4SimHits.Generator.ApplyEtaCuts = False
+process.g4SimHits.NonBeamEvent = True
 
 
