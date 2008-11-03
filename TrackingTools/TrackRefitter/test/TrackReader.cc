@@ -77,6 +77,7 @@ void TrackReader::analyze(const Event & event, const EventSetup& setup){
 	if ( (*hit)->geographicalId().det() == DetId::Tracker ){
 	  LogDebug("TrackReader") << "Tracker hit"; 
 	  TransientTrackingRecHit::RecHitPointer tthit = theTrackerRecHitBuilder->build(&**hit);
+	  //	  TransientTrackingRecHit::RecHitPointer preciseHit = tthit.clone(predTsos); 
 	  LogTrace("TrackReader") << "Position: " << tthit->globalPosition();
 	}
 	else if ( (*hit)->geographicalId().det() == DetId::Muon ){
