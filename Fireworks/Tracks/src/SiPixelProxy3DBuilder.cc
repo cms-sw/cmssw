@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiPixelProxy3DBuilder.cc,v 1.15 2008/08/18 06:28:41 dmytro Exp $
+// $Id: SiPixelProxy3DBuilder.cc,v 1.1 2008/08/20 23:59:52 dmytro Exp $
 //
 
 // system include files
@@ -73,9 +73,8 @@ void SiPixelProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
        
       if (iItem->getGeom()) {
 	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
-	 TEveGeoShapeExtract* extract = iItem->getGeom()->getExtract( id );
-	 if(0!=extract) {
-	    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
+	 if(0!=shape) {
 	    shape->SetMainTransparency(50);
 	    shape->SetMainColor( iItem->defaultDisplayProperties().color() );
 	    shape->SetPickable(true);

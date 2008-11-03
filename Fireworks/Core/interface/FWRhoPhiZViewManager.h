@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.22 2008/07/07 02:15:45 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.23 2008/07/07 06:15:33 dmytro Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class FWRPZDataProxyBuilderBase;
  
 class TGeoHMatrix;
 class TGeoShape;
-class TEveGeoShapeExtract;
+class TEveGeoShape;
 class FWGUIManager;
 class FWRhoPhiZView;
 class FWViewBase;
@@ -94,7 +94,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
       void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
       void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
-      TEveGeoShapeExtract* makeShapeExtract( const char*, double, double, double, double );
+      TEveGeoShape* makeShape( const char*, double, double, double, double );
 
       
       // ---------- member data --------------------------------
@@ -110,6 +110,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoPhiViews;
       std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoZViews;
    
+      TEveElementList* m_eveStore;
+
       TEveSelection* m_eveSelection;
       
       FWSelectionManager* m_selectionManager;

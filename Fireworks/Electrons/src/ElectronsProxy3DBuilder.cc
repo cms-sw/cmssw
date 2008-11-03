@@ -84,9 +84,8 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
 	       k != detids.end(); ++k) {
 // 	       const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( k->rawId() );
-	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( k->rawId() );
-	       if(0!=extract) {
-		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+	       TEveGeoShape* shape = m_item->getGeom()->getShape( k->rawId() );
+	       if(0!=shape) {
 		    shape->SetMainTransparency(50);
 		    shape->SetMainColor(tList->GetMainColor());
 		    tList->AddElement(shape);

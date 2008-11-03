@@ -9,8 +9,9 @@
 //
 class TGeoManager;
 class TGeoVolume;
-class TEveGeoShapeExtract;
+class TEveGeoShape;
 class TEveElementList;
+
 #include "TGeoMatrix.h" 
 #include <map>
 #include <string>
@@ -37,14 +38,14 @@ class DetIdToMatrix
    // extract globally positioned shape for stand alone use
    // note: transformations are fixed for known differences
    //       between Sim and Reco geometries
-   TEveGeoShapeExtract* getExtract( unsigned int id, bool corrected = false  ) const;
+   TEveGeoShape* getShape( unsigned int id, bool corrected = false  ) const;
    
    // extract globally positioned shape for stand alone use
    // note: if matrix is not provided, it will be extracted from
    //       the geo manager and no correction will be applied
    //       to fix Sim/Reco geometry differences. 
    //       For expert use only!
-   TEveGeoShapeExtract* getExtract(const char* path, const char* name, 
+   TEveGeoShape* getShape(const char* path, const char* name, 
 				   const TGeoMatrix* matrix = 0) const;
 
    // get the detector volume in the geometry manager
@@ -54,7 +55,7 @@ class DetIdToMatrix
    std::vector<unsigned int> getAllIds() const;
 
    // extract shapes of all known elements
-   TEveGeoShapeExtract* getAllExtracts(const char* elementListName = "CMS") const;
+   TEveElementList* getAllShapes(const char* elementListName = "CMS") const;
    
    TGeoManager* getManager() const { return manager_; }
  private:

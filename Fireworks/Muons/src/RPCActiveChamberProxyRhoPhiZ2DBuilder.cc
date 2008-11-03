@@ -86,10 +86,8 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 
 	if ( ! rhoPhiProjection ) {
 	   // draw active chamber
-	   TEveGeoShapeExtract* extract = geom->getExtract( (*chamberId).rawId() );
-	   if(0!=extract) {
-	      TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
-	      shape->IncDenyDestroy();
+	   TEveGeoShape* shape = geom->getShape( (*chamberId).rawId() );
+	   if(0!=shape) {
 	      shape->SetMainTransparency(75);
 	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
 	      rpcList->AddElement(shape);

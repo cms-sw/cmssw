@@ -15,7 +15,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.7 2008/08/15 06:40:01 jmuelmen Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.8 2008/08/20 23:52:36 dmytro Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -78,9 +78,8 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 	   if((*recIt)->isValid()){
 	      DetId detid = (*recIt)->geographicalId();
 	      if (iItem->getGeom()) {
-		 TEveGeoShapeExtract* extract = iItem->getGeom()->getExtract( detid );
-		 if(0!=extract) {
-		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+		 TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
+		 if(0!=shape) {
 		    shape->SetMainTransparency(50);
 		    shape->SetMainColor(iItem->defaultDisplayProperties().color());
 		    trkList->AddElement(shape);

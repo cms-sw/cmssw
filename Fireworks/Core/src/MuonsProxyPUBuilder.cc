@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyPUBuilder.cc,v 1.3 2008/05/12 15:43:29 dmytro Exp $
+// $Id: MuonsProxyPUBuilder.cc,v 1.4 2008/07/17 10:04:17 dmytro Exp $
 //
 
 // system include files
@@ -317,9 +317,8 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
 	
 	   DetId id = chamber->id;
 	   const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
-	   TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
-	   if(0!=extract) {
-	     TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+	   TEveGeoShape* shape = m_item->getGeom()->getShape( chamber->id.rawId() );
+	   if(0!=shape) {
 	     shape->SetMainTransparency(50);
 	     shape->SetMainColor(m_item->defaultDisplayProperties().color());
 	     muonList->AddElement(shape);

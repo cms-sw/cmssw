@@ -6,7 +6,7 @@
 #include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "TEveGeoShapeExtract.h"
+#include "TEveGeoNode.h"
 #include "TEveTrans.h"
 #include "TColor.h"
 #include "TROOT.h"
@@ -138,57 +138,41 @@ std::vector<unsigned int> DetIdToMatrix::getAllIds() const
 }
    
 
-TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
+TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
 {
    if ( ! manager_ || ! path || ! name ) return 0;
    manager_->cd(path);
    // it's possible to get a corrected matrix from outside
    // if it's not provided, we take whatever the geo manager has
    if ( ! matrix ) matrix = manager_->GetCurrentMatrix();
-   const Double_t* rm = matrix->GetRotationMatrix();
-   const Double_t* tv = matrix->GetTranslation();
-   TEveTrans t;
-   t(1,1) = rm[0]; t(1,2) = rm[1]; t(1,3) = rm[2];
-   t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
-   t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
-   t(1,4) = tv[0]; t(2,4) = tv[1]; t(3,4) = tv[2];
    
-   TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(name,path);
-   extract->SetTrans(t.Array());
+   TEveGeoShape* shape = new TEveGeoShape(name,path);
+   shape->SetTransMatrix(*matrix);
    
    TGeoVolume* volume = manager_->GetCurrentVolume();
-   Int_t ci = volume->GetLineColor();
-   TColor* c = gROOT->GetColor(ci);
-   Float_t rgba[4] = { 1, 0, 0, 1 };
-   if (c) {
-      rgba[0] = c->GetRed();
-      rgba[1] = c->GetGreen();
-      rgba[2] = c->GetBlue();
-   }
-   
-   extract->SetRGBA(rgba);
-   extract->SetRnrSelf(kTRUE);
-   extract->SetRnrElements(kTRUE);
-   extract->SetShape( (TGeoShape*)(manager_->GetCurrentVolume()->GetShape()->Clone()) );
-   return extract;
+   shape->SetMainColor(volume->GetLineColor());
+   shape->SetRnrSelf(kTRUE);
+   shape->SetRnrChildren(kTRUE);
+   shape->SetShape(manager_->GetCurrentVolume()->GetShape());
+   return shape;
 }
 
-TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id,
-						bool corrected /* = false */ ) const
+TEveGeoShape* DetIdToMatrix::getShape( unsigned int id,
+				       bool corrected /* = false */ ) const
 {
    std::ostringstream s;
    s << id;
    if ( corrected )
-     return getExtract( getPath(id), s.str().c_str(), getMatrix(id) );
+     return getShape( getPath(id), s.str().c_str(), getMatrix(id) );
    else
-     return getExtract( getPath(id), s.str().c_str() );
+     return getShape( getPath(id), s.str().c_str() );
 }
 
-TEveGeoShapeExtract* DetIdToMatrix::getAllExtracts(const char* elementListName /*= "CMS"*/) const
+TEveElementList* DetIdToMatrix::getAllShapes(const char* elementListName /*= "CMS"*/) const
 {
-   TEveGeoShapeExtract* container = new TEveGeoShapeExtract( elementListName );
+   TEveElementList* container = new TEveElementList(elementListName );
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
-     container->AddElement( getExtract(itr->first) );
+     container->AddElement( getShape(itr->first) );
    return container;
 }
 

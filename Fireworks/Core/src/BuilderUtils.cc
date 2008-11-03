@@ -206,13 +206,13 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
       if (hit != hits->end())
 	size = hit->energy();
     }
-    TEveGeoShapeExtract* extract = geo.getExtract(k->rawId());
-    assert(extract != 0);
-    TEveTrans t = extract->GetTrans();
+
+    TEveGeoShape* orig = geo.getShape(k->rawId());
+    assert(orig != 0);
+    TEveTrans &t = orig->RefMainTrans();
     t.MoveLF(3, - size / 2);
-    // TGeoBBox *sc_box = new TGeoBBox(1.1, 1.1, size / 2, 0);
     TGeoShape* crystal_shape = 0;
-    if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(extract->GetShape())) {
+    if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(orig->GetShape())) {
       double scale = size/2/shape->GetDz();
       crystal_shape = new TGeoTrap( size/2,
 				    shape->GetTheta(), shape->GetPhi(),
@@ -224,14 +224,16 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 				    shape->GetAlpha2());
     }
     if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
-    TEveGeoShapeExtract *extract2 = new TEveGeoShapeExtract("SC");
-    extract2->SetTrans(t.Array());
+
+    TEveGeoShape* shape2 = new TEveGeoShape("SC");
+    shape2->RefMainTrans().SetFromArray(t.Array());
     Float_t rgba[4] = { 1, 0, 0, 1 };
-    extract2->SetRGBA(rgba);
-    extract2->SetRnrSelf(true);
-    extract2->SetRnrElements(true);
-    extract2->SetShape(crystal_shape);
-    ret->AddElement(TEveGeoShape::ImportShapeExtract(extract2,0));
+    shape2->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+    shape2->SetRnrSelf(true);
+    shape2->SetRnrChildren(true);
+    shape2->SetShape(crystal_shape);
+    ret->AddElement(shape2);
+    delete orig;
   }
   return ret;
 }

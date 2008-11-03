@@ -365,10 +365,8 @@ void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 	     
 	DetId id = chamber->id;
 	if ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) {
-	   TEveGeoShapeExtract* extract = geom->getExtract( chamber->id.rawId() );
-	   if(0!=extract) {
-	      TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
-	      shape->IncDenyDestroy();
+	   TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
+	   if(0!=shape) {
 	      shape->SetMainTransparency(75);
 	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
 	      if (! tracksOnly) parentList->AddElement(shape);

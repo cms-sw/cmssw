@@ -110,9 +110,8 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
 			 // Here's the local->global transformation matrix
 			 const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( detid );
 			 // And here are the shapes of the hit modules
-			 TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( detid );
-			 if(0!=extract) {
-			      TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+			 TEveGeoShape* shape = m_item->getGeom()->getShape( detid );
+			 if(0!=shape) {
 			      shape->SetMainTransparency(50);
 			      shape->SetMainColor(tList->GetMainColor());
 			      trkList->AddElement(shape);
