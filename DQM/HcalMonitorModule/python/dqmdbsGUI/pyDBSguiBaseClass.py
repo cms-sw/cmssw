@@ -159,7 +159,7 @@ class dbsBaseGui:
         # TO DO:  Make this default value changeable by user?  Save in cPickle?
         self.dbsRange.set(100) # specify range of runs over which to search, starting at the LastDBS value
 
-        self.lastFoundDBS.set(42100) # specify last run # found in DBS
+        self.lastFoundDBS.set(64042) # specify last run # found in DBS
 
         self.foundfiles=0 # number of files found in the latest DBS search -- deprecated variable?
 
