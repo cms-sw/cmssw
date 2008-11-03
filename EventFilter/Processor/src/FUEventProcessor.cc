@@ -125,21 +125,25 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , watching_(false)
   , wlScalers_(0)
   , asScalers_(0)
-  , lsTimeOut_(360)
-  , lastLumiTimedOut_(false)
+  , localLsIncludingTimeOuts_(0)
+  , lsTimeOut_(100)
+  , residualTimeOut_(0)
+  , lastLsTimedOut_(false)
+  , lastLsWithEvents_(0)
+  , lastLsWithTimeOut_(0)
   , reasonForFailedState_()
   , wlMonitoringActive_(false)
   , wlScalersActive_(false)
   , scalersUpdateAttempted_(0)
   , scalersUpdateCounter_(0)
-  , lumiSectionsCtr_(10)
-  , lumiSectionsTo_(10)
+  , lumiSectionsCtr_(lsRollSize_)
+  , lumiSectionsTo_(lsRollSize_)
   , allPastLumiProcessed_(0)
-  , rollingLsIndex_(10)
+  , rollingLsIndex_(lsRollSize_)
   , rollingLsWrap_(false)
   , squidnet_(3128,"http://localhost:8000/RELEASE-NOTES.txt")
-  , logRing_(50)
-  , logRingIndex_(50)
+  , logRing_(logRingSize_)
+  , logRingIndex_(logRingSize_)
   , logWrap_(false)
 {
   //list of variables for scalers flashlist
@@ -293,10 +297,14 @@ FUEventProcessor::~FUEventProcessor()
 bool FUEventProcessor::getTriggerReport(bool useLock)
   throw (toolbox::fsm::exception::Exception)
 {
+
+
   // Calling this method results in calling 
   // evtProcessor_->getTriggerReport, the value returned is encoded as
   // a xdata::Table.
   LOG4CPLUS_DEBUG(getApplicationLogger(),"getTriggerReport action invoked");
+  if(inRecovery_) { return false;} //stop scalers loop if caught in the middle of recovery
+
   //Get the trigger report.
   ModuleWebRegistry *mwr = 0;
   try{
@@ -318,24 +326,47 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
   if( it == scalersComplete_.end())
     {
       it = scalersComplete_.append();
+      it->setField("instance",instance_);
+
     }
-  it->setField("instance",instance_);
+  timeval tv;
   if(useLock) {
-    mwr->openBackDoor("DaqSource",lsTimeOut_.value_);
+    gettimeofday(&tv,0);
+    mwr->openBackDoor("DaqSource",residualTimeOut_);
+    residualTimeOut_ = lsTimeOut_.value_ ;
   }
-  if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
   try{
     xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
     if(lsid) {
       ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-      it->setField("lsid",*lsid);
-      if(rollingLsIndex_==0){rollingLsIndex_=10; rollingLsWrap_ = true;}
-      rollingLsIndex_--;
-      lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(ls,evtProcessor_->totalEvents()-allPastLumiProcessed_);
-      allPastLumiProcessed_ = evtProcessor_->totalEvents();
+
       xdata::Boolean *to =  (xdata::Boolean*)ispace->find("lsTimedOut");
       if(to!=0)
-	lumiSectionsTo_[rollingLsIndex_] = to->value_;
+	{
+	  lumiSectionsTo_[rollingLsIndex_] = to->value_;
+	  if(to->value_)
+	    {
+	      lastLsTimedOut_ = true; 
+	      if(ls==lastLsWithTimeOut_) //handle the case where more than one LS time out (no events coming)
+		  localLsIncludingTimeOuts_.value_++;
+	      else
+		localLsIncludingTimeOuts_.value_ = ls;
+	      lastLsWithTimeOut_ = ls;
+	    }
+	  else
+	    {
+	      lastLsWithEvents_ = ls;
+	      if(localLsIncludingTimeOuts_.value_==ls){
+		timeval tv1;
+		gettimeofday(&tv1,0);
+		residualTimeOut_ -= (tv1.tv_sec - tv.tv_sec); //adjust timeout to handle rest of LS where events come back
+		mwr->closeBackDoor("DaqSource"); 
+		return true;
+	      }
+	      localLsIncludingTimeOuts_.value_ = ls;
+	      lastLsTimedOut_ = false; 
+	    }
+	}
     }
     xdata::Serializable *psid = ispace->find("prescaleSetIndex");
     if(psid) {
@@ -351,11 +382,19 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
     }
     return false;
   }
+  it->setField("lsid", localLsIncludingTimeOuts_);
+  if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
+  rollingLsIndex_--;
+  lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
+								       evtProcessor_->totalEvents()-
+								       allPastLumiProcessed_);
+  allPastLumiProcessed_ = evtProcessor_->totalEvents();
+
+
+  if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
   if(useLock){
     mwr->closeBackDoor("DaqSource");
-  }
-  
-  if(inRecovery_) { return false;}
+  }  
   trh_.formatReportTable(tr,descs_);
   if(trh_.checkLumiSection(ls))
     {
@@ -464,6 +503,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     ::sleep(1);
   }
   watching_ = true;
+  residualTimeOut_ = lsTimeOut_.value_;
   startScalersWorkLoop();
   localLog("-I- Start completed");
   return false;
@@ -493,6 +533,7 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
     fsm_.fireFailed(reasonForFailedState_,this);
   }
   watching_ = false;
+  allPastLumiProcessed_ = 0;
   localLog("-I- Stop completed");
   return false;
 }
@@ -546,6 +587,7 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
     fsm_.fireFailed(reasonForFailedState_,this);
   }
   watching_ = false;
+  allPastLumiProcessed_ = 0;
   localLog("-I- Halt completed");
   return false;
 }
@@ -562,6 +604,7 @@ xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
 //______________________________________________________________________________
 void FUEventProcessor::initEventProcessor()
 {
+  trh_.resetFormat(); //reset the report table even if HLT didn't change
   if (epInitialized_) {
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "CMSSW EventProcessor already initialized: skip!");
@@ -734,7 +777,7 @@ void FUEventProcessor::initEventProcessor()
   if(getApplicationDescriptor()->getInstance() == 0) macro_state_legend_ = oss.str();
   //fill microstate legend information
   descs_ = evtProcessor_->getAllModuleDescriptions();
-  trh_.resetFormat();
+
   std::stringstream oss2;
   unsigned int outcount = 0;
   oss2 << 0 << "=In ";
@@ -928,7 +971,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   //version number, please update consistently with TAG
   *out << "<tr>"								<< endl;
   *out << "  <td colspan=\"5\" align=\"right\">"				<< endl;
-  *out << "    Version 1.3.6"							<< endl;
+  *out << "    Version 1.4.0"							<< endl;
   *out << "  </td>"								<< endl;
   *out << "</tr>"								<< endl;
 
@@ -1095,12 +1138,14 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 	*out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
 	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
       for(unsigned int i = 0; i < rollingLsIndex_; i++)
-	*out << "<td  " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
+	*out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
 	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
     }
   else
       for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td>" << lumiSectionsCtr_[i].first << "</td>" << endl;
+	*out << "<td  " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
+	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
+
   *out << "     </tr>"							<< endl;    
   *out << "     <tr>"							<< endl;
   *out << "       <td> Ev </td>";
@@ -1478,7 +1523,7 @@ void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
   *out << "<br>  " << micro2 << endl;
   *out << "<br>  " << nbAccepted_.value_ << "/" << nbProcessed_.value_  
        << " (" << float(nbAccepted_.value_)/float(nbProcessed_.value_)*100. <<"%)" << endl;
-  *out << "<br>  " << lsidAsString_ << endl;
+  *out << "<br>  " << lsidAsString_ << "/" << lsidTimedOutAsString_ << endl;
   *out << "<br>  " << psidAsString_ << endl;
   *out << " " << endl;
 }
@@ -1577,6 +1622,9 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 	    wlScalersActive_ = false;
 	    return false;
 	  }
+	  if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
+	  else lsidTimedOutAsString_ = "";
+	  if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) return true;
 	  if(!fireScalersUpdate()){
 	    wlScalersActive_ = false;
 	    return false;
@@ -1883,7 +1931,7 @@ void FUEventProcessor::localLog(string m)
   char datestring[256];
   strftime(datestring, sizeof(datestring),"%c", uptm);
 
-  if(logRingIndex_ == 0){logWrap_ = true; logRingIndex_ = 50;}
+  if(logRingIndex_ == 0){logWrap_ = true; logRingIndex_ = logRingSize_;}
   logRingIndex_--;
   ostringstream timestamp;
   timestamp << " at " << datestring;

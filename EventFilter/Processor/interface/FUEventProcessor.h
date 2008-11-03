@@ -202,8 +202,12 @@ namespace evf
     // flahslist variables, scalers
     xdata::InfoSpace                *scalersInfoSpace_;
     xdata::Table                     scalersComplete_;
+    xdata::UnsignedInteger32         localLsIncludingTimeOuts_;
     xdata::UnsignedInteger32         lsTimeOut_;
-    bool                             lastLumiTimedOut_; 
+    unsigned int                     residualTimeOut_;
+    bool                             lastLsTimedOut_; 
+    unsigned int                     lastLsWithEvents_;
+    unsigned int                     lastLsWithTimeOut_;
     // flashlist variables, squids
     xdata::Boolean                   squidPresent_; 
 
@@ -224,11 +228,14 @@ namespace evf
     unsigned int                     allPastLumiProcessed_;
     unsigned int                     rollingLsIndex_;
     bool                             rollingLsWrap_;
+    static const unsigned int        lsRollSize_ = 20;
     SquidNet                         squidnet_;
     std::vector<std::string>         logRing_;
     unsigned int                     logRingIndex_;
+    static const unsigned int        logRingSize_ = 50;
     bool                             logWrap_;
     std::string                      lsidAsString_;
+    std::string                      lsidTimedOutAsString_;
     std::string                      psidAsString_;
   };
   

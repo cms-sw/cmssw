@@ -1,3 +1,10 @@
+2008-11-03  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-01
+	* improved LS timeout logic
+	* reset of trigger report table when stopping
+	* web page now shows timed out LS index
+	
 2008-10-17  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-04-00
