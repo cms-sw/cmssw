@@ -3,7 +3,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using std::vector;
 using std::ostream;
@@ -14,36 +14,49 @@ const unsigned int L1GctWheelEnergyFpga::MAX_LEAF_CARDS = L1GctWheelJetFpga::MAX
 
 L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, vector<L1GctJetLeafCard*> leafCards) :
   L1GctProcessor(),
-	m_id(id),
-        m_inputLeafCards(leafCards),
-	m_inputEx(MAX_LEAF_CARDS),
-	m_inputEy(MAX_LEAF_CARDS),
-	m_inputEt(MAX_LEAF_CARDS)
+  m_id(id),
+  m_inputLeafCards(leafCards),
+  m_inputEx(MAX_LEAF_CARDS),
+  m_inputEy(MAX_LEAF_CARDS),
+  m_inputEt(MAX_LEAF_CARDS),
+  m_setupOk(true)
 {
   //Check wheelEnergyFpga setup
   if(m_id != 0 && m_id != 1)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be 0 or 1.\n";
-  } 
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
+	  << "ID number should be 0 or 1.\n";
+      } 
+    }
   
   if(m_inputLeafCards.size() != MAX_LEAF_CARDS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_LEAF_CARDS << " leaf card pointers, yet only " << m_inputLeafCards.size()
-    << " leaf card pointers are present.\n";
-  }
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
+	  << "This class needs " << MAX_LEAF_CARDS << " leaf card pointers, yet only " << m_inputLeafCards.size()
+	  << " leaf card pointers are present.\n";
+      }
+    }
   
   for(unsigned int i = 0; i < m_inputLeafCards.size(); ++i)
-  {
-    if(m_inputLeafCards.at(i) == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
-      << "Input Leaf card pointer " << i << " has not been set!\n";
+      if(m_inputLeafCards.at(i) == 0)
+	{
+	  m_setupOk = false;
+	  if (m_verbose) {
+	    edm::LogWarning("L1GctSetupError")
+	      << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
+	      << "Input Leaf card pointer " << i << " has not been set!\n";
+	  }
+	}
     }
+  if (!m_setupOk && m_verbose) {
+    edm::LogError("L1GctSetupError") << "L1GctWheelEnergyFpga has been incorrectly constructed";
   }
 }
 
@@ -96,21 +109,24 @@ void L1GctWheelEnergyFpga::resetProcessor()
 
 void L1GctWheelEnergyFpga::fetchInput()
 {
-  // Fetch the output values from each of our input leaf cards.
-  for (unsigned int i=0; i<MAX_LEAF_CARDS; i++) {
-    m_inputEx.at(i) = m_inputLeafCards.at(i)->getOutputEx();
-    m_inputEy.at(i) = m_inputLeafCards.at(i)->getOutputEy();
-    m_inputEt.at(i) = m_inputLeafCards.at(i)->getOutputEt();
+  if (m_setupOk) {
+    // Fetch the output values from each of our input leaf cards.
+    for (unsigned int i=0; i<MAX_LEAF_CARDS; i++) {
+      m_inputEx.at(i) = m_inputLeafCards.at(i)->getOutputEx();
+      m_inputEy.at(i) = m_inputLeafCards.at(i)->getOutputEy();
+      m_inputEt.at(i) = m_inputLeafCards.at(i)->getOutputEt();
+    }
   }
 }
 
 void L1GctWheelEnergyFpga::process()
 {
+  if (m_setupOk) {
+    m_outputEx = m_inputEx.at(0) + m_inputEx.at(1) + m_inputEx.at(2);
+    m_outputEy = m_inputEy.at(0) + m_inputEy.at(1) + m_inputEy.at(2);
+    m_outputEt = m_inputEt.at(0) + m_inputEt.at(1) + m_inputEt.at(2);
 
-  m_outputEx = m_inputEx.at(0) + m_inputEx.at(1) + m_inputEx.at(2);
-  m_outputEy = m_inputEy.at(0) + m_inputEy.at(1) + m_inputEy.at(2);
-  m_outputEt = m_inputEt.at(0) + m_inputEt.at(1) + m_inputEt.at(2);
-
+  }
 }
 
 

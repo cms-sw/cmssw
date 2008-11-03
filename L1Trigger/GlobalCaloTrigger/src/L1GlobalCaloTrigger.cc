@@ -359,12 +359,44 @@ void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* mask) {
 }
 
 /// check we have done all the setup
-bool L1GlobalCaloTrigger::setupOk() { 
+bool L1GlobalCaloTrigger::setupOk() const { 
   bool result = true;
+  result &= (m_inputChannelMask != 0);
+  // EM Leaf Card
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
+    result &= theEmLeafCards.at(i)->setupOk();
+  }
+
+  // Jet Leaf cards
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     result &= theJetLeafCards.at(i)->setupOk();
   }
-  result &= (m_inputChannelMask != 0);
+
+  // Jet Finders
+  for (int i=0; i<N_JET_LEAF_CARDS*3; i++) {
+    result &= theJetFinders.at(i)->setupOk();
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    result &= theWheelJetFpgas.at(i)->setupOk();
+  }
+
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    result &= theWheelEnergyFpgas.at(i)->setupOk();
+  }
+
+  // Electron Final Stage
+  result &= theIsoEmFinalStage->setupOk();
+  result &= theNonIsoEmFinalStage->setupOk();
+
+  // Jet Final Stage
+  result &= theJetFinalStage->setupOk();
+
+  // Energy Final Stage
+  result &= theEnergyFinalStage->setupOk();
+
+  // All done.
   return result;
 }
 
@@ -662,6 +694,79 @@ L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() con
   return result;
 }
 
+
+  /// control output messages
+void L1GlobalCaloTrigger::setVerbose() {
+  // EM Leaf Card
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
+    theEmLeafCards.at(i)->setVerbose();
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->setVerbose();
+  }
+
+  // Jet Finders
+  for (int i=0; i<N_JET_LEAF_CARDS*3; i++) {
+    theJetFinders.at(i)->setVerbose();
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelJetFpgas.at(i)->setVerbose();
+  }
+
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelEnergyFpgas.at(i)->setVerbose();
+  }
+
+  // Electron Final Stage
+  theIsoEmFinalStage->setVerbose();
+  theNonIsoEmFinalStage->setVerbose();
+
+  // Jet Final Stage
+  theJetFinalStage->setVerbose();
+
+  // Energy Final Stage
+  theEnergyFinalStage->setVerbose();
+}
+
+void L1GlobalCaloTrigger::setTerse() {
+  // EM Leaf Card
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
+    theEmLeafCards.at(i)->setTerse();
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->setTerse();
+  }
+
+  // Jet Finders
+  for (int i=0; i<N_JET_LEAF_CARDS*3; i++) {
+    theJetFinders.at(i)->setTerse();
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelJetFpgas.at(i)->setTerse();
+  }
+
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelEnergyFpgas.at(i)->setTerse();
+  }
+
+  // Electron Final Stage
+  theIsoEmFinalStage->setTerse();
+  theNonIsoEmFinalStage->setTerse();
+
+  // Jet Final Stage
+  theJetFinalStage->setTerse();
+
+  // Energy Final Stage
+  theEnergyFinalStage->setTerse();
+}
 
 /* PRIVATE METHODS */
 

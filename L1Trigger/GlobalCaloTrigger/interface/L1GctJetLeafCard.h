@@ -25,7 +25,7 @@
 
 class L1GctJetCand;
 
-class L1GctJetLeafCard : L1GctProcessor
+class L1GctJetLeafCard : public L1GctProcessor
 {
 public:
   //Type declaration
@@ -161,6 +161,8 @@ public:
   Pipeline<etTotalType>     m_etSumPipe;
   Pipeline<etHadType>       m_htSumPipe;
   Pipeline<hfTowerSumsType> m_hfSumsPipe;
+
+  bool m_ctorInputOk;
 
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine

@@ -63,6 +63,9 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   /// provide access to input pointer, Wheel Jet Fpga 0
   L1GctWheelJetFpga* getMinusWheelJetFpga() const { return m_minusWheelJetFpga; }
 
+  /// check setup
+  bool setupOk() const { return m_setupOk; }
+  
  protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   virtual void resetProcessor();
@@ -86,6 +89,8 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
 
   // Output data
   std::map<L1GctHfLutSetup::hfLutType, Pipeline<uint16_t> > m_hfOutputSumsPipe;
+
+  bool m_setupOk;
 
   // private methods
   // Convert bit count value using LUT and store in the pipeline

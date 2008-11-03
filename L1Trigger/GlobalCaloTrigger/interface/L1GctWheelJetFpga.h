@@ -117,6 +117,9 @@ public:
   L1GctJetCounter* getJetCounter(unsigned jcnum) const
     { return ( (jcnum<N_JET_COUNTERS) ? m_jetCounters.at(jcnum) : 0); }
 
+  /// Public access to setup check
+  bool setupOk() const { return checkSetup(); }
+
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
@@ -176,7 +179,7 @@ private:
       
   //PRIVATE METHODS
   /// Check the setup, independently of how we have been constructed
-  void checkSetup();
+  bool checkSetup() const;
   /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 
   void storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset);
   /// Classifies jets into central, forward or tau.

@@ -2,7 +2,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using std::ostream;
 using std::endl;
@@ -24,25 +24,35 @@ L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpga
   m_inputTauJets(MAX_JETS_IN),
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
-  m_tauJets(MAX_JETS_OUT)
+  m_tauJets(MAX_JETS_OUT),
+  m_setupOk(true)
 {
   if(m_wheelFpgas.size() != MAX_WHEEL_FPGAS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinalStage::L1GctJetFinalStage() : Jet Final Stage instance has been incorrectly constructed!\n"
-    << "This class needs " << MAX_WHEEL_FPGAS << " wheel jet FPGA pointers, yet only " << m_wheelFpgas.size()
-    << " wheel jet FPGA pointers are present.\n";
-  }
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetFinalStage::L1GctJetFinalStage() : Jet Final Stage instance has been incorrectly constructed!\n"
+	  << "This class needs " << MAX_WHEEL_FPGAS << " wheel jet FPGA pointers, yet only " << m_wheelFpgas.size()
+	  << " wheel jet FPGA pointers are present.\n";
+      }
+    }
   
   for(unsigned int i=0; i < MAX_WHEEL_FPGAS; ++i)
-  {
-    if(m_wheelFpgas.at(i) == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctJetFinalStage::L1GctJetFinalStage() : Jet Final Stage instance has been incorrectly constructed!\n"
-      << "Wheel jet FPGA pointer " << i << " has not been set!\n";
-    }
-  }  
+      if(m_wheelFpgas.at(i) == 0)
+	{
+	  m_setupOk = false;
+	  if (m_verbose) {
+	    edm::LogWarning("L1GctSetupError")
+	      << "L1GctJetFinalStage::L1GctJetFinalStage() : Jet Final Stage instance has been incorrectly constructed!\n"
+	      << "Wheel jet FPGA pointer " << i << " has not been set!\n";
+	  }
+	}
+    }  
+  if (!m_setupOk && m_verbose) {
+    edm::LogError("L1GctSetupError") << "L1GctJetFinalStage has been incorrectly constructed";
+  }
 }
 
 L1GctJetFinalStage::~L1GctJetFinalStage()
@@ -113,26 +123,30 @@ void L1GctJetFinalStage::resetPipelines() {
 
 void L1GctJetFinalStage::fetchInput()
 {
-  // We fetch and store the negative eta jets first. This ensures they have
-  // higher priority when sorting equal rank jets.
-  for(unsigned short iWheel=0; iWheel < MAX_WHEEL_FPGAS; ++iWheel)
-  {
-    storeJets(m_inputCentralJets, m_wheelFpgas.at(iWheel)->getCentralJets(), iWheel);
-    storeJets(m_inputForwardJets, m_wheelFpgas.at(iWheel)->getForwardJets(), iWheel);
-    storeJets(m_inputTauJets, m_wheelFpgas.at(iWheel)->getTauJets(), iWheel);
+  if (m_setupOk) {
+    // We fetch and store the negative eta jets first. This ensures they have
+    // higher priority when sorting equal rank jets.
+    for(unsigned short iWheel=0; iWheel < MAX_WHEEL_FPGAS; ++iWheel)
+      {
+	storeJets(m_inputCentralJets, m_wheelFpgas.at(iWheel)->getCentralJets(), iWheel);
+	storeJets(m_inputForwardJets, m_wheelFpgas.at(iWheel)->getForwardJets(), iWheel);
+	storeJets(m_inputTauJets, m_wheelFpgas.at(iWheel)->getTauJets(), iWheel);
+      }
   }
 }
 
 void L1GctJetFinalStage::process()
 {
-  //Process jets
-  m_centralJetSorter->setJets(m_inputCentralJets);
-  m_forwardJetSorter->setJets(m_inputForwardJets);
-  m_tauJetSorter->setJets(m_inputTauJets);
+  if (m_setupOk) {
+    //Process jets
+    m_centralJetSorter->setJets(m_inputCentralJets);
+    m_forwardJetSorter->setJets(m_inputForwardJets);
+    m_tauJetSorter->setJets(m_inputTauJets);
 
-  m_centralJets.store(m_centralJetSorter->getSortedJets(), bxRel());
-  m_forwardJets.store(m_forwardJetSorter->getSortedJets(), bxRel());
-  m_tauJets.store    (m_tauJetSorter->getSortedJets(),     bxRel());
+    m_centralJets.store(m_centralJetSorter->getSortedJets(), bxRel());
+    m_forwardJets.store(m_forwardJetSorter->getSortedJets(), bxRel());
+    m_tauJets.store    (m_tauJetSorter->getSortedJets(),     bxRel());
+  }
 }
 
 void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)

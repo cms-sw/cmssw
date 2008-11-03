@@ -2,7 +2,8 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-#include "FWCore/Utilities/interface/Exception.h"  
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 //DEFINE STATICS
 const int L1GctJetCounterLut::NAddress=JET_COUNTER_LUT_ADD_BITS;
@@ -11,18 +12,17 @@ L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterSetup::cutsListForJe
   L1GctLut<NAddress,1>(),
   m_cutList(cuts)
 {
-  for (unsigned i=0; i<cuts.size(); i++) {
-    checkCut(cuts.at(i));
-  }
   m_setupOk = true;
+  for (unsigned i=0; i<cuts.size(); i++) {
+    m_setupOk &= checkCut(cuts.at(i));
+  }
 }
 
 L1GctJetCounterLut::L1GctJetCounterLut(const L1GctJetCounterSetup::cutDescription& cut) :
   L1GctLut<NAddress,1>(),
   m_cutList(1, cut)
 {
-  checkCut(cut);
-  m_setupOk = true;
+  m_setupOk = checkCut(cut);
 }
 
 L1GctJetCounterLut::L1GctJetCounterLut() :
@@ -133,63 +133,88 @@ bool L1GctJetCounterLut::passesCut(const uint16_t lutAddress) const
   }
 }
   
-void L1GctJetCounterLut::checkCut(const L1GctJetCounterSetup::cutDescription cut) const
+bool L1GctJetCounterLut::checkCut(const L1GctJetCounterSetup::cutDescription cut) const
 {
+  bool result = true;
+
   switch (cut.cutType)
     {
     case L1GctJetCounterSetup::minRank:
       if (cut.cutValue1>=(1<<6)) {
-	throw cms::Exception("L1GctSetupError")
-	  << "Invalid cut supplied to L1GctJetCounterLut; rank value " << cut.cutValue1
-	  << " should be less than 64 " << std::endl;
+	if (m_verbose) {
+	  edm::LogWarning("L1GctSetupError")
+	    << "Invalid cut supplied to L1GctJetCounterLut; rank value " << cut.cutValue1
+	    << " should be less than 64 " << std::endl;
+	}
+	result = false;
       }
-      return;
+      break;
 
     case L1GctJetCounterSetup::maxRank:
       if (cut.cutValue1>=(1<<6)) {
-	throw cms::Exception("L1GctSetupError")
-	  << "Invalid cut supplied to L1GctJetCounterLut; rank value " << cut.cutValue1
-	  << " should be less than 64 " << std::endl;
+	if (m_verbose) {
+	  edm::LogWarning("L1GctSetupError")
+	    << "Invalid cut supplied to L1GctJetCounterLut; rank value " << cut.cutValue1
+	    << " should be less than 64 " << std::endl;
+	}
+	result = false;
       }
-      return;
+      break;
 
     case L1GctJetCounterSetup::centralEta:
       if (cut.cutValue1>=L1CaloRegionDetId::N_ETA/2) {
-	throw cms::Exception("L1GctSetupError")
-	  << "Invalid cut supplied to L1GctJetCounterLut; eta value " << cut.cutValue1
-	  << " should be less than " << L1CaloRegionDetId::N_ETA/2 << std::endl;
+	if (m_verbose) {
+	  edm::LogWarning("L1GctSetupError")
+	    << "Invalid cut supplied to L1GctJetCounterLut; eta value " << cut.cutValue1
+	    << " should be less than " << L1CaloRegionDetId::N_ETA/2 << std::endl;
+	}
+	result = false;
       }
-      return;
+      break;
 
     case L1GctJetCounterSetup::forwardEta:
       if (cut.cutValue1>=L1CaloRegionDetId::N_ETA/2) {
-	throw cms::Exception("L1GctSetupError")
-	  << "Invalid cut supplied to L1GctJetCounterLut; eta value " << cut.cutValue1
-	  << " should be less than " << L1CaloRegionDetId::N_ETA/2 << std::endl;
+	if (m_verbose) {
+	  edm::LogWarning("L1GctSetupError")
+	    << "Invalid cut supplied to L1GctJetCounterLut; eta value " << cut.cutValue1
+	    << " should be less than " << L1CaloRegionDetId::N_ETA/2 << std::endl;
+	}
+	result = false;
       }
-      return;
+      break;
 
     case L1GctJetCounterSetup::phiWindow:
       if (cut.cutValue1>=L1CaloRegionDetId::N_PHI) {
-	throw cms::Exception("L1GctSetupError")
-	  << "Invalid cut supplied to L1GctJetCounterLut; phi value1 " << cut.cutValue1
-	  << " should be less than " << L1CaloRegionDetId::N_PHI << std::endl;
+	if (m_verbose) {
+	  edm::LogWarning("L1GctSetupError")
+	    << "Invalid cut supplied to L1GctJetCounterLut; phi value1 " << cut.cutValue1
+	    << " should be less than " << L1CaloRegionDetId::N_PHI << std::endl;
+	}
+	result = false;
       }
       if (cut.cutValue2>=L1CaloRegionDetId::N_PHI) {
-	throw cms::Exception("L1GctSetupError")
-	  << "Invalid cut supplied to L1GctJetCounterLut; phi value2 " << cut.cutValue2
-	  << " should be less than " << L1CaloRegionDetId::N_PHI << std::endl;
+	if (m_verbose) {
+	  edm::LogWarning("L1GctSetupError")
+	    << "Invalid cut supplied to L1GctJetCounterLut; phi value2 " << cut.cutValue2
+	    << " should be less than " << L1CaloRegionDetId::N_PHI << std::endl;
+	}
+	result = false;
       }
-      return;
+      break;
 
     case L1GctJetCounterSetup::nullCutType:
-      return;
+      break;
 
     default:
-    throw cms::Exception("L1GctSetupError")
-      << "Invalid cut supplied to L1GctJetCounterLut; unrecognised cut type "
-      << cut.cutType << std::endl;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "Invalid cut supplied to L1GctJetCounterLut; unrecognised cut type "
+	  << cut.cutType << std::endl;
+      }
+      result = false;
     }
+
+  return result;
 
 }
   
@@ -218,11 +243,9 @@ bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJetCand jet, const unsigned
       return false;
 
     default:
-    throw cms::Exception("L1GctProcessingError")
-      << "Error in L1GctJetCounterLut; encountered unrecognised cut type "
-      << m_cutList.at(i).cutType << std::endl;
+      // It's an error but should have been picked up in the setup checking
+      return false;
     }
-
 }
 
 uint16_t L1GctJetCounterLut::value (const uint16_t lutAddress) const

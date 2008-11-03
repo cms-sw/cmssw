@@ -4,7 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using std::ostream;
 using std::endl;
@@ -37,47 +37,66 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
   m_jcVlMinusPipe(N_JET_COUNTERS_USED),
   m_outputEtMiss(), m_outputEtMissPhi(),
   m_outputEtSum(), m_outputEtHad(),
-  m_outputJetCounts(N_JET_COUNTERS_MAX)
+  m_outputJetCounts(N_JET_COUNTERS_MAX),
+  m_setupOk(true)
 {
   if(wheelFpga.size() != 2)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
-    << "This class needs two wheel card pointers. "
-    << "Number of wheel card pointers present is " << wheelFpga.size() << ".\n";
-  }
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
+	  << "This class needs two wheel card pointers. "
+	  << "Number of wheel card pointers present is " << wheelFpga.size() << ".\n";
+      }
+    }
   
   if(wheelJetFpga.size() != 2)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
-    << "This class needs two wheel jet fpga pointers. "
-    << "Number of wheel jet fpga pointers present is " << wheelJetFpga.size() << ".\n";
-  }
+    {
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
+	  << "This class needs two wheel jet fpga pointers. "
+	  << "Number of wheel jet fpga pointers present is " << wheelJetFpga.size() << ".\n";
+      }
+    }
   
-    if(m_plusWheelFpga == 0)
+  if(m_plusWheelFpga == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-      << "Plus Wheel Fpga pointer has not been set!\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+	  << "Plus Wheel Fpga pointer has not been set!\n";
+      }
     }
-    if(m_minusWheelFpga == 0)
+  if(m_minusWheelFpga == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-      << "Minus Wheel Fpga pointer has not been set!\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+	  << "Minus Wheel Fpga pointer has not been set!\n";
+      }
     }
-    if(m_plusWheelJetFpga == 0)
+  if(m_plusWheelJetFpga == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-      << "Plus Wheel Jet Fpga pointer has not been set!\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+	  << "Plus Wheel Jet Fpga pointer has not been set!\n";
+      }
     }
-    if(m_minusWheelJetFpga == 0)
+  if(m_minusWheelJetFpga == 0)
     {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
-      << "Minus Wheel Jet Fpga pointer has not been set!\n";
+      m_setupOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+	  << "Minus Wheel Jet Fpga pointer has not been set!\n";
+      }
     }
 
     // Set the scale for missing Ht
@@ -89,6 +108,12 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
 
     // Setup to perform the Hf sums
     m_hfSumProcessor = new L1GctGlobalHfSumAlgos(wheelJetFpga);
+
+    m_setupOk &= m_hfSumProcessor->setupOk();
+
+    if (!m_setupOk && m_verbose) {
+      edm::LogError("L1GctSetupError") << "L1GctGlobalEnergyAlgos has been incorrectly constructed";
+    }
 }
 
 L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
@@ -202,108 +227,112 @@ void L1GctGlobalEnergyAlgos::resetPipelines() {
 }
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
-  // input from WheelEnergyFpgas
-  m_exValPlusWheel = m_plusWheelFpga->getOutputEx();
-  m_eyValPlusWheel = m_plusWheelFpga->getOutputEy();
-  m_etValPlusWheel = m_plusWheelFpga->getOutputEt();
-  m_htValPlusWheel = m_plusWheelJetFpga->getOutputHt();
-  m_hxValPlusWheel = m_plusWheelJetFpga->getOutputHx();
-  m_hyValPlusWheel = m_plusWheelJetFpga->getOutputHy();
+  if (m_setupOk) {
+    // input from WheelEnergyFpgas
+    m_exValPlusWheel = m_plusWheelFpga->getOutputEx();
+    m_eyValPlusWheel = m_plusWheelFpga->getOutputEy();
+    m_etValPlusWheel = m_plusWheelFpga->getOutputEt();
+    m_htValPlusWheel = m_plusWheelJetFpga->getOutputHt();
+    m_hxValPlusWheel = m_plusWheelJetFpga->getOutputHx();
+    m_hyValPlusWheel = m_plusWheelJetFpga->getOutputHy();
   
-  m_exVlMinusWheel = m_minusWheelFpga->getOutputEx();
-  m_eyVlMinusWheel = m_minusWheelFpga->getOutputEy();
-  m_etVlMinusWheel = m_minusWheelFpga->getOutputEt();
-  m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
-  m_hxVlMinusWheel = m_minusWheelJetFpga->getOutputHx();
-  m_hyVlMinusWheel = m_minusWheelJetFpga->getOutputHy();
+    m_exVlMinusWheel = m_minusWheelFpga->getOutputEx();
+    m_eyVlMinusWheel = m_minusWheelFpga->getOutputEy();
+    m_etVlMinusWheel = m_minusWheelFpga->getOutputEt();
+    m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
+    m_hxVlMinusWheel = m_minusWheelJetFpga->getOutputHx();
+    m_hyVlMinusWheel = m_minusWheelJetFpga->getOutputHy();
 
-  //
-  for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
-    m_jcValPlusWheel.at(i) = m_plusWheelJetFpga->getOutputJc(i);
-    m_jcVlMinusWheel.at(i) = m_minusWheelJetFpga->getOutputJc(i);
+    //
+    for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
+      m_jcValPlusWheel.at(i) = m_plusWheelJetFpga->getOutputJc(i);
+      m_jcVlMinusWheel.at(i) = m_minusWheelJetFpga->getOutputJc(i);
+    }
+
+    m_hfSumProcessor->fetchInput();
   }
-
-  m_hfSumProcessor->fetchInput();
 }
 
 
 // process the event
 void L1GctGlobalEnergyAlgos::process()
 {
-  // Store the inputs in pipelines
-  m_exValPlusPipe.store(m_exValPlusWheel, bxRel());
-  m_eyValPlusPipe.store(m_eyValPlusWheel, bxRel());
-  m_etValPlusPipe.store(m_etValPlusWheel, bxRel());
-  m_htValPlusPipe.store(m_htValPlusWheel, bxRel());
-  m_hxValPlusPipe.store(m_hxValPlusWheel, bxRel());
-  m_hyValPlusPipe.store(m_hyValPlusWheel, bxRel());
+  if (m_setupOk) {
+    // Store the inputs in pipelines
+    m_exValPlusPipe.store(m_exValPlusWheel, bxRel());
+    m_eyValPlusPipe.store(m_eyValPlusWheel, bxRel());
+    m_etValPlusPipe.store(m_etValPlusWheel, bxRel());
+    m_htValPlusPipe.store(m_htValPlusWheel, bxRel());
+    m_hxValPlusPipe.store(m_hxValPlusWheel, bxRel());
+    m_hyValPlusPipe.store(m_hyValPlusWheel, bxRel());
 
-  m_exVlMinusPipe.store(m_exVlMinusWheel, bxRel());
-  m_eyVlMinusPipe.store(m_eyVlMinusWheel, bxRel());
-  m_etVlMinusPipe.store(m_etVlMinusWheel, bxRel());
-  m_htVlMinusPipe.store(m_htVlMinusWheel, bxRel());
-  m_hxVlMinusPipe.store(m_hxVlMinusWheel, bxRel());
-  m_hyVlMinusPipe.store(m_hyVlMinusWheel, bxRel());
+    m_exVlMinusPipe.store(m_exVlMinusWheel, bxRel());
+    m_eyVlMinusPipe.store(m_eyVlMinusWheel, bxRel());
+    m_etVlMinusPipe.store(m_etVlMinusWheel, bxRel());
+    m_htVlMinusPipe.store(m_htVlMinusWheel, bxRel());
+    m_hxVlMinusPipe.store(m_hxVlMinusWheel, bxRel());
+    m_hyVlMinusPipe.store(m_hyVlMinusWheel, bxRel());
 
-  m_jcValPlusPipe.store(m_jcValPlusWheel, bxRel());
-  m_jcVlMinusPipe.store(m_jcVlMinusWheel, bxRel());
+    m_jcValPlusPipe.store(m_jcValPlusWheel, bxRel());
+    m_jcVlMinusPipe.store(m_jcVlMinusWheel, bxRel());
 
-  // Process to produce the outputs
-  etComponentType ExSum, EySum;
-  etmiss_vec EtMissing, HtMissing;
+    // Process to produce the outputs
+    etComponentType ExSum, EySum;
+    etmiss_vec EtMissing, HtMissing;
 
-  //
-  //-----------------------------------------------------------------------------
-  // Form the Ex and Ey sums
-  ExSum = m_exValPlusWheel + m_exVlMinusWheel;
-  EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
-  // Execute the missing Et algorithm
-  m_metComponents.setComponents(-ExSum, -EySum);
-  EtMissing = m_metComponents.metVector();
+    //
+    //-----------------------------------------------------------------------------
+    // Form the Ex and Ey sums
+    ExSum = m_exValPlusWheel + m_exVlMinusWheel;
+    EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
+    // Execute the missing Et algorithm
+    m_metComponents.setComponents(-ExSum, -EySum);
+    EtMissing = m_metComponents.metVector();
 
-  m_outputEtMiss.store    (EtMissing.mag, bxRel());
-  m_outputEtMissPhi.store (EtMissing.phi, bxRel());
+    m_outputEtMiss.store    (EtMissing.mag, bxRel());
+    m_outputEtMissPhi.store (EtMissing.phi, bxRel());
 
-  //
-  //-----------------------------------------------------------------------------
-  // Form the Hx and Hy sums
-  ExSum = m_hxValPlusWheel + m_hxVlMinusWheel;
-  EySum = m_hyValPlusWheel + m_hyVlMinusWheel;
-  // Execute the missing Et algorithm
-  m_mhtComponents.setComponents(-ExSum, -EySum);
-  HtMissing = m_mhtComponents.metVector();
+    //
+    //-----------------------------------------------------------------------------
+    // Form the Hx and Hy sums
+    ExSum = m_hxValPlusWheel + m_hxVlMinusWheel;
+    EySum = m_hyValPlusWheel + m_hyVlMinusWheel;
+    // Execute the missing Et algorithm
+    m_mhtComponents.setComponents(-ExSum, -EySum);
+    HtMissing = m_mhtComponents.metVector();
 
-  // Store 6 bits each of magnitude and phi angle.
-  // Note EtMissPhi is 7 bits so we keep the range (0-70)
-  // and lose the LSB.
-  static const unsigned MAX_HT_VALUE = 0x3f;
-  static const unsigned PHI_HT_MASK  = 0x7e;
-  if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
-    HtMissing.mag.setValue(MAX_HT_VALUE);
+    // Store 6 bits each of magnitude and phi angle.
+    // Note EtMissPhi is 7 bits so we keep the range (0-70)
+    // and lose the LSB.
+    static const unsigned MAX_HT_VALUE = 0x3f;
+    static const unsigned PHI_HT_MASK  = 0x7e;
+    if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
+      HtMissing.mag.setValue(MAX_HT_VALUE);
+    }
+    HtMissing.phi.setValue(HtMissing.phi.value() & PHI_HT_MASK);
+
+    m_outputHtMiss.store    (HtMissing.mag, bxRel());
+    m_outputHtMissPhi.store (HtMissing.phi, bxRel());
+
+    //
+    //-----------------------------------------------------------------------------
+    // Form the Et and Ht sums
+    m_outputEtSum.store (m_etValPlusWheel + m_etVlMinusWheel, bxRel());
+    m_outputEtHad.store (m_htValPlusWheel + m_htVlMinusWheel, bxRel());
+
+    //
+    //-----------------------------------------------------------------------------
+    // Add the jet counts.
+    std::vector<L1GctJetCount<5> > temp(N_JET_COUNTERS_MAX);
+    for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
+      temp.at(i) =
+	L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
+	L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
+    }
+    m_outputJetCounts.store(temp, bxRel());
+
+    m_hfSumProcessor->process();
   }
-  HtMissing.phi.setValue(HtMissing.phi.value() & PHI_HT_MASK);
-
-  m_outputHtMiss.store    (HtMissing.mag, bxRel());
-  m_outputHtMissPhi.store (HtMissing.phi, bxRel());
-
-  //
-  //-----------------------------------------------------------------------------
-  // Form the Et and Ht sums
-  m_outputEtSum.store (m_etValPlusWheel + m_etVlMinusWheel, bxRel());
-  m_outputEtHad.store (m_htValPlusWheel + m_htVlMinusWheel, bxRel());
-
-  //
-  //-----------------------------------------------------------------------------
-  // Add the jet counts.
-  std::vector<L1GctJetCount<5> > temp(N_JET_COUNTERS_MAX);
-  for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
-    temp.at(i) =
-      L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
-      L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
-  }
-  m_outputJetCounts.store(temp, bxRel());
-
-  m_hfSumProcessor->process();
 }
 
 std::vector< std::vector<unsigned> > L1GctGlobalEnergyAlgos::getJetCountValuesColl() const {
@@ -322,6 +351,16 @@ std::vector<unsigned> L1GctGlobalEnergyAlgos::jetCountValues(const int bx) const
   }
   return jetCountValues;
 }
+
+//----------------------------------------------------------------------------------------------
+// check setup
+//
+bool L1GctGlobalEnergyAlgos::setupOk() const { 
+  return (m_setupOk && 
+	  m_hfSumProcessor != 0 &&
+	  m_hfSumProcessor->setupOk()); 
+}
+
   
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: x component of missing Et

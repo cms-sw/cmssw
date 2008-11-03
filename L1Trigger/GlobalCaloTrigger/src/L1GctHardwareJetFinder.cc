@@ -1,6 +1,4 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
- 
-#include "FWCore/Utilities/interface/Exception.h"  
 
 //DEFINE STATICS
 const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctHardwareJetFinder::N_COLS;
@@ -41,15 +39,19 @@ void L1GctHardwareJetFinder::reset()
 
 void L1GctHardwareJetFinder::fetchInput()
 {
-  findProtoJets();
+  if (setupOk()) {
+    findProtoJets();
+  }
 }
 
 void L1GctHardwareJetFinder::process() 
 {
-  fetchProtoJetsFromNeighbour(TOPBOT);
-  findJets();
-  sortJets();
-  doEnergySums();
+  if (setupOk()) {
+    fetchProtoJetsFromNeighbour(TOPBOT);
+    findJets();
+    sortJets();
+    doEnergySums();
+  }
 }
 
 /// HERE IS THE JETFINDER CODE

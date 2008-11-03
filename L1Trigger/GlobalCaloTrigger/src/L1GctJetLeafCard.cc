@@ -6,7 +6,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DEFINE STATICS
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
@@ -23,23 +23,30 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
   m_exSumPipe(), m_eySumPipe(),
   m_hxSumPipe(), m_hySumPipe(),
   m_etSumPipe(), m_htSumPipe(),
-  m_hfSumsPipe()
+  m_hfSumsPipe(),
+  m_ctorInputOk(true)
 {
   //Check jetLeafCard setup
   if(m_id < 0 || m_id > 5)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-    << "ID number should be between the range of 0 to 5\n";
-  } 
+    {
+      m_ctorInputOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+	  << "ID number should be between the range of 0 to 5\n";
+      } 
+    }
   
   //iphi is redundant
   if(phiPosition != m_id%3)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-    << "Argument iphi is " << phiPosition << ", should be " << (m_id%3) << " for this ID value \n";
-  } 
+    {
+      m_ctorInputOk = false;
+      if (m_verbose) {
+	edm::LogWarning("L1GctSetupError")
+	  << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+	  << "Argument iphi is " << phiPosition << ", should be " << (m_id%3) << " for this ID value \n";
+      } 
+    }
   
   switch (m_whichJetFinder) {
   case tdrJetFinder :
@@ -56,12 +63,18 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
 
   default :
 
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-      << "Unrecognised jetFinder type " << m_whichJetFinder << ", cannot setup jetFinders\n";
+    m_ctorInputOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<< "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
+	<< "Unrecognised jetFinder type " << m_whichJetFinder << ", cannot setup jetFinders\n";
+    }
 
   }
 
+  if (!m_ctorInputOk && m_verbose) {
+    edm::LogError("L1GctSetupError") << "Jet Leaf Card ID " << m_id << " has been incorrectly constructed";
+  }
 }
 
 L1GctJetLeafCard::~L1GctJetLeafCard()
@@ -91,9 +104,12 @@ void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neig
     m_jetFinderC->setNeighbourJetFinders(jfNeighbours);
 
   } else {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctJetLeafCard::setNeighbourLeafCards() : In Jet Leaf Card ID " << m_id 
-      << " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+    m_ctorInputOk = false;
+    if (m_verbose) {
+      edm::LogWarning("L1GctSetupError")
+	<< "L1GctJetLeafCard::setNeighbourLeafCards() : In Jet Leaf Card ID " << m_id 
+	<< " size of input vector should be 2, but is in fact " << neighbours.size() << "\n";
+    }
   }
 }
 
@@ -244,7 +260,8 @@ void L1GctJetLeafCard::process() {
 }
 
 bool L1GctJetLeafCard::setupOk() const {
-  return (m_jetFinderA->setupOk() &&
+  return (m_ctorInputOk &&
+	  m_jetFinderA->setupOk() &&
           m_jetFinderB->setupOk() &&
           m_jetFinderC->setupOk()); }
 
@@ -295,39 +312,42 @@ L1GctJetLeafCard::etValueForJetFinder(const etTotalType etStrip0, const unsigned
   static const int maxEt=1<<internalComponentSize;
 
   int rotatedValue0, rotatedValue1, myFact;
-  int etComponentSum;
+  int etComponentSum = 0;
 
   if (fact0 >= 36 || fact1 >= 36) {
-    throw cms::Exception("L1GctProcessingError")
-      << "L1GctJetLeafCard::rotateEtValue() has been called with factor numbers "
-      << fact0 << " and " << fact1 << "; should be less than 36 \n";
-  } 
+    if (m_verbose) {
+      edm::LogError("L1GctProcessingError")
+	<< "L1GctJetLeafCard::rotateEtValue() has been called with factor numbers "
+	<< fact0 << " and " << fact1 << "; should be less than 36 \n";
+    } 
+  } else {
 
-  // First strip - choose the required multiplication factor
-  if (fact0>18) { myFact = factors[(36-fact0)]; }
-  else { myFact = factors[fact0]; }
+    // First strip - choose the required multiplication factor
+    if (fact0>18) { myFact = factors[(36-fact0)]; }
+    else { myFact = factors[fact0]; }
 
-  // Multiply the 14-bit Et value by the 28-bit factor.
-  rotatedValue0 = static_cast<int>(etStrip0.value()) * myFact;
+    // Multiply the 14-bit Et value by the 28-bit factor.
+    rotatedValue0 = static_cast<int>(etStrip0.value()) * myFact;
 
-  // Second strip - choose the required multiplication factor
-  if (fact1>18) { myFact = factors[(36-fact1)]; }
-  else { myFact = factors[fact1]; }
+    // Second strip - choose the required multiplication factor
+    if (fact1>18) { myFact = factors[(36-fact1)]; }
+    else { myFact = factors[fact1]; }
 
-  // Multiply the 14-bit Et value by the 28-bit factor.
-  rotatedValue1 = static_cast<int>(etStrip1.value()) * myFact;
+    // Multiply the 14-bit Et value by the 28-bit factor.
+    rotatedValue1 = static_cast<int>(etStrip1.value()) * myFact;
 
-  // Add the two scaled values together, with full resolution including
-  // fractional parts from the sin(phi), cos(phi) scaling.
-  // Adjust the value to avoid truncation errors since these
-  // accumulate and cause problems for the missing Et measurement.
-  // Then discard the 13 LSB and interpret the result as
-  // a 15-bit twos complement integer.
-  etComponentSum = ((rotatedValue0 + rotatedValue1) + 0x1000)>>13;
+    // Add the two scaled values together, with full resolution including
+    // fractional parts from the sin(phi), cos(phi) scaling.
+    // Adjust the value to avoid truncation errors since these
+    // accumulate and cause problems for the missing Et measurement.
+    // Then discard the 13 LSB and interpret the result as
+    // a 15-bit twos complement integer.
+    etComponentSum = ((rotatedValue0 + rotatedValue1) + 0x1000)>>13;
 
-  etComponentSum = etComponentSum & (maxEt-1);
-  if (etComponentSum >= (maxEt/2)) {
-    etComponentSum = etComponentSum - maxEt;
+    etComponentSum = etComponentSum & (maxEt-1);
+    if (etComponentSum >= (maxEt/2)) {
+      etComponentSum = etComponentSum - maxEt;
+    }
   }
 
   // Store as a TwosComplement format integer and return
