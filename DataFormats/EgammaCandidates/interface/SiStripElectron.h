@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.12 2007/07/31 15:20:03 ratnik Exp $
+// $Id: SiStripElectron.h,v 1.13 2008/04/21 14:05:23 llista Exp $
 //
 
 // system include files
@@ -40,8 +40,8 @@ namespace reco {
     /// constructor from band algorithm
     SiStripElectron(const reco::SuperClusterRef& superCluster,
 		    Charge q,
-		    const edm::RefVector<SiStripRecHit2DCollection>& rphiRecHits,
-		    const edm::RefVector<SiStripRecHit2DCollection>& stereoRecHits,
+		    const std::vector<SiStripRecHit2D>& rphiRecHits,
+		    const std::vector<SiStripRecHit2D>& stereoRecHits,
 		    double superClusterPhiVsRSlope,
 		    double phiVsRSlope,
 		    double phiAtOrigin,
@@ -99,9 +99,9 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     
     /// reference to the rphiRecHits identified as belonging to an electron
-    const edm::RefVector<SiStripRecHit2DCollection>& rphiRecHits() const { return rphiRecHits_; }
+    const std::vector<SiStripRecHit2D>& rphiRecHits() const { return rphiRecHits_; }
     /// reference to the stereoRecHits identified as belonging to an electron
-    const edm::RefVector<SiStripRecHit2DCollection>& stereoRecHits() const { return stereoRecHits_; }
+    const std::vector<SiStripRecHit2D>& stereoRecHits() const { return stereoRecHits_; }
     
     /// returns phi(r) projection from supercluster
     double superClusterPhiVsRSlope() const { return superClusterPhiVsRSlope_; }
@@ -135,8 +135,8 @@ namespace reco {
     virtual bool overlap( const Candidate & ) const;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
-    edm::RefVector<SiStripRecHit2DCollection> rphiRecHits_;
-    edm::RefVector<SiStripRecHit2DCollection> stereoRecHits_;
+    std::vector<SiStripRecHit2D> rphiRecHits_;
+    std::vector<SiStripRecHit2D> stereoRecHits_;
     
     double superClusterPhiVsRSlope_;
     double phiVsRSlope_;
