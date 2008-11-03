@@ -4,8 +4,8 @@
 /** \class TrajectoryReader
  *  No description available.
  *
- *  $Date: 2006/11/22 18:37:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/07 14:21:49 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 // Base Class Headers
@@ -60,5 +60,8 @@ protected:
   
   TH1F *hDPtIn;
   TH1F *hDPtOut;
+  TH1F *hSuccess; 
+  TH1F *hNHitLost;
+  TH1F *hFractionHitLost;
 };
 #endif
