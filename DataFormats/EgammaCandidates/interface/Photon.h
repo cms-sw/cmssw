@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.21 2008/04/22 19:14:00 nancy Exp $
+ * \version $Id: Photon.h,v 1.22 2008/10/28 18:50:05 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -51,40 +51,42 @@ namespace reco {
 				   const float& c, 
 				   const float& d, 
 				   const float& e, 
-				   const float& f) 
-      { e1x5_=a; e2x5_=b; e3x3_=c; e5x5_=d; covEtaEta_=e; covIetaIeta_=f;}
+				   const float& f,
+				   const float& g)
+ 
+      { maxEnergyXtal_=a, e1x5_=b; e2x5_=c; e3x3_=d; e5x5_=e; covEtaEta_=f; covIetaIeta_=g;}
     /// set relevant isolation variables
-    void setIsolationVariablesCone04 ( const float a, 
+    void setIsolationVariablesConeDR04 ( const float a, 
 				 const float b, 
 				 const float c, 
 				 const float d, 
 				 const int e, 
 				 const int f  ) { 
-      isolationEcalRecHitSum04_=a; 
-      isolationHcalTowerSum04_=b;
-      isolationSolidTrkCone04_=c;
-      isolationHollowTrkCone04_=d;
-      nTrkSolidCone04_=e;
-      nTrkHollowCone04_=f;
+      isolationEcalRecHitSumConeDR04_=a; 
+      isolationHcalTowerSumConeDR04_=b;
+      isolationTrkSolidConeDR04_=c;
+      isolationTrkHollowConeDR04_=d;
+      nTrkSolidConeDR04_=e;
+      nTrkHollowConeDR04_=f;
     }
-    void setIsolationVariablesCone03 ( const float a, 
+    void setIsolationVariablesConeDR03 ( const float a, 
 				       const float b, 
 				       const float c, 
 				       const float d, 
 				       const int e, 
 				       const int f  ) { 
-      isolationEcalRecHitSum03_=a; 
-      isolationHcalTowerSum03_ =b;
-      isolationSolidTrkCone03_ =c;
-      isolationHollowTrkCone03_=d;
-      nTrkSolidCone03_ =e;
-      nTrkHollowCone03_=f;
+      isolationEcalRecHitSumConeDR03_=a; 
+      isolationHcalTowerSumConeDR03_ =b;
+      isolationTrkSolidConeDR03_ =c;
+      isolationTrkHollowConeDR03_=d;
+      nTrkSolidConeDR03_ =e;
+      nTrkHollowConeDR03_=f;
     }
 
 
  
     /// set ID variables and output
-    void setCutBasedIDOutput ( const bool a, const bool b, const bool c ) { cutBasedLooseEM_=a; cutBasedLoosePhoton_ =b;cutBasedTightPhoton_ =c;  } 
+    //    void setCutBasedIDOutput ( const bool a, const bool b, const bool c ) { cutBasedLooseEM_=a; cutBasedLoosePhoton_ =b;cutBasedTightPhoton_ =c;  } 
     ////////////  Retrieve quantities
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint caloPosition() const {return caloPosition_;}
@@ -106,46 +108,43 @@ namespace reco {
     /// true if photon is in boundary between EB and EE
     bool isEBEEGap() const{return isEBEEGap_;}
     ///  Shower shape variables
-    float e1x5()         const {return e1x5_;}
-    float e2x5()         const {return e2x5_;}
-    float e3x3()         const {return e3x3_;}
-    float e5x5()         const {return e5x5_;}
-    float covEtaEta()    const {return covEtaEta_;}
-    float covIetaIeta()  const {return covIetaIeta_;}
-    float r1 ()          const {return e1x5_/e5x5_;}
-    float r2 ()          const {return e2x5_/e5x5_;}
-    float r9 ()          const {return e3x3_/this->superCluster()->rawEnergy();}  
+    float maxEnergyXtal() const {return maxEnergyXtal_;}
+    float e1x5()          const {return e1x5_;}
+    float e2x5()          const {return e2x5_;}
+    float e3x3()          const {return e3x3_;}
+    float e5x5()          const {return e5x5_;}
+    float covEtaEta()     const {return covEtaEta_;}
+    float covIetaIeta()   const {return covIetaIeta_;}
+    float r1x5 ()         const {return e1x5_/e5x5_;}
+    float r2x5 ()         const {return e2x5_/e5x5_;}
+    float r9 ()           const {return e3x3_/this->superCluster()->rawEnergy();}  
 
     /// Isolation variables in cone dR=0.4
     ///Ecal isolation sum calculated from recHits
-    float ecalRecHitSumDR04()      const{return isolationEcalRecHitSum04_;}
+    float ecalRecHitSumConeDR04()      const{return isolationEcalRecHitSumConeDR04_;}
     /// Hcal isolation sum
-    float hcalRecHitSumDR04()      const{return isolationHcalTowerSum04_;}
+    float hcalTowerSumConeDR04()      const{return isolationHcalTowerSumConeDR04_;}
     //  Track pT sum c
-    float isolationSolidTrkConeDR04()    const{return  isolationSolidTrkCone04_;}
+    float isolationTrkSolidConeDR04()    const{return  isolationTrkSolidConeDR04_;}
     //As above, excluding the core at the center of the cone
-    float isolationHollowTrkConeDR04()   const{return  isolationHollowTrkCone04_;}
+    float isolationTrkHollowConeDR04()   const{return  isolationTrkHollowConeDR04_;}
     //Returns number of tracks in a cone of dR
-    int nTrkSolidConeDR04()              const{return  nTrkSolidCone04_;}
+    int nTrkSolidConeDR04()              const{return  nTrkSolidConeDR04_;}
     //As above, excluding the core at the center of the cone
-    int nTrkHollowConeDR04()             const{return  nTrkHollowCone04_;}
+    int nTrkHollowConeDR04()            const{return  nTrkHollowConeDR04_;}
+    //
     /// Isolation variables in cone dR=0.3
-    float ecalRecHitSumDR03()      const{return isolationEcalRecHitSum03_;}
+    float ecalRecHitSumConeDR03()      const{return isolationEcalRecHitSumConeDR03_;}
     /// Hcal isolation sum
-    float hcalRecHitSumDR03()      const{return isolationHcalTowerSum03_;}
+    float hcalRecHitSumConeDR03()      const{return isolationHcalTowerSumConeDR03_;}
     //  Track pT sum c
-    float isolationSolidTrkConeDR03()    const{return  isolationSolidTrkCone03_;}
+    float isolationTrkSolidConeDR03()    const{return  isolationTrkSolidConeDR03_;}
     //As above, excluding the core at the center of the cone
-    float isolationHollowTrkConeDR03()   const{return  isolationHollowTrkCone03_;}
+    float isolationTrkHollowConeDR03()   const{return  isolationTrkHollowConeDR03_;}
     //Returns number of tracks in a cone of dR
-    int nTrkSolidConeDR03()              const{return  nTrkSolidCone03_;}
+    int nTrkSolidConeDR03()              const{return  nTrkSolidConeDR03_;}
     //As above, excluding the core at the center of the cone
-    int nTrkHollowConeDR03()             const{return  nTrkHollowCone03_;}
-    /// Cut based ID outputs
-    bool isCutBasedLooseEM()     const{return cutBasedLooseEM_;}
-    bool isCutBasedLoosePhoton() const{return cutBasedLoosePhoton_;}
-    bool isCutBasedTightPhoton() const{return cutBasedTightPhoton_;}
-
+    int nTrkHollowConeDR03()             const{return  nTrkHollowConeDR03_;}
 
   private:
     /// check overlap with another candidate
@@ -165,6 +164,7 @@ namespace reco {
     bool isEEGap_;
     bool isEBEEGap_;
     /// shower shape variables
+    float maxEnergyXtal_;
     float e1x5_;
     float e2x5_;
     float e3x3_;
@@ -172,23 +172,20 @@ namespace reco {
     float covEtaEta_;
     float covIetaIeta_;
     /// Isolation variables in cone dR=0.4
-    float  isolationEcalRecHitSum04_;
-    float  isolationHcalTowerSum04_;
-    float  isolationSolidTrkCone04_;
-    float  isolationHollowTrkCone04_;
-    int  nTrkSolidCone04_;
-    int  nTrkHollowCone04_;
+    float  isolationEcalRecHitSumConeDR04_;
+    float  isolationHcalTowerSumConeDR04_;
+    float  isolationTrkSolidConeDR04_;
+    float  isolationTrkHollowConeDR04_;
+    int  nTrkSolidConeDR04_;
+    int  nTrkHollowConeDR04_;
     /// Isolation variables in cone dR=0.3
-    float  isolationEcalRecHitSum03_;
-    float  isolationHcalTowerSum03_;
-    float  isolationSolidTrkCone03_;
-    float  isolationHollowTrkCone03_;
-    int  nTrkSolidCone03_;
-    int  nTrkHollowCone03_;
-    /// cut Based ID outputs
-    bool cutBasedLooseEM_;
-    bool cutBasedLoosePhoton_;
-    bool cutBasedTightPhoton_;
+    float  isolationEcalRecHitSumConeDR03_;
+    float  isolationHcalTowerSumConeDR03_;
+    float  isolationTrkSolidConeDR03_;
+    float  isolationTrkHollowConeDR03_;
+    int  nTrkSolidConeDR03_;
+    int  nTrkHollowConeDR03_;
+
 
 
   };
