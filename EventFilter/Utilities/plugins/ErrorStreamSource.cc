@@ -151,6 +151,7 @@ bool ErrorStreamSource::produce(edm::Event& e)
     memcpy(fedData.data(),event+totalEventSize,fedsize);
   }
   e.put(result);
+  delete[] event;
   return true;
 }
 
