@@ -257,16 +257,16 @@ void HcalHotCellClient::getHistograms()
     {
       getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Average rec hit energy per cell",d_avgrechitenergymap);
       d_HBnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HBrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HB_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
       d_HBenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
       d_HEnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HErechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HE_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HErechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HE_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
       d_HEenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
       d_HOnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HOrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HO_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HOrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HO_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
       d_HOenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
       d_HFnormped=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(), process_, dbe_, debug_, cloneME_);
-      d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
+      d_HFrechitenergy=getAnyHisto(dummy1D,(process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HF_rechitenergy").c_str(), process_, dbe_, debug_, cloneME_);
       d_HFenergyVsNeighbor=getAnyHisto(dummy2D,(process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(), process_, dbe_, debug_, cloneME_);
     } // if (hotclient_makeDiagnostics_)
 
@@ -353,16 +353,16 @@ void HcalHotCellClient::resetAllME()
       if (hotclient_makeDiagnostics_)
 	{
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HB_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HB_rechitenergy").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HE_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HE_rechitenergy").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HO_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HO_rechitenergy").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped").c_str(),dbe_);
-	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/energythreshold/HF_rechitenergy").c_str(),dbe_);
+	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/rechitenergy/HF_rechitenergy").c_str(),dbe_);
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
     } // if (hotclient_makeDiagnostics_)
 
@@ -608,7 +608,7 @@ ofstream htmlFile;
   if (hotclient_test_energy_)
     {
       htmlFile << "<h2><strong><a name=\"ENERGY_PROBLEMS\">Energy Threshold Test Problems</strong></h2>"<<endl;
-      htmlFile <<"A cell fails this test if its rechit energy is above threshold for "<<hotclient_checkNevents_energy_<<" consecutive events <br>"<<endl;
+      htmlFile <<"A cell fails this test if its rechit energy is above threshold at any time.<br>"<<endl;
       htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\"> " << endl;
@@ -640,7 +640,7 @@ ofstream htmlFile;
   if (hotclient_test_persistent_)
     {
       htmlFile << "<h2><strong><a name=\"PERSISTENT_PROBLEMS\">Persistent Hot CellProblems</strong></h2>"<<endl;
-      htmlFile <<"A cell fails this test if its rechit energy is above threshold for "<<hotclient_checkNevents_persistent_<<" consecutive events<br>"<<endl;
+      htmlFile <<"A cell fails this test if its rechit energy is above threshold for "<<hotclient_checkNevents_persistent_<<" consecutive events.<br>"<<endl;
       htmlFile <<"<a href= \"#EXPERT_HOTCELL_TOP\" > Back to Top</a><br>"<<endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\"> " << endl;
@@ -677,12 +677,12 @@ ofstream htmlFile;
 	{
 	  gStyle->SetPalette(1);  // back to rainbow coloring
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HBenergyVsNeighbor, "i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HEenergyVsNeighbor, "i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HBenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HEenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<endl;
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HOenergyVsNeighbor, "i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HFenergyVsNeighbor, "i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HOenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HFenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<endl;
 	} // if (hotclient_makeDiagnostics_)
 
