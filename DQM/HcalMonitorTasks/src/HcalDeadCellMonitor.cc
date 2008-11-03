@@ -138,6 +138,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_deadcells");
       setupDepthHists2D(ProblemDeadCellsByDepth, " Problem Dead Cell Rate","");
+      setMinMaxHists2D(ProblemDeadCellsByDepth,0.,1.);
 
       // Set up plots for each failure mode of dead cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
@@ -145,12 +146,16 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       //units<<"("<<deadmon_checkNevents_occupancy_<<" consec. events)";
       setupDepthHists2D(UnoccupiedDeadCellsByDepth,
 			"Dead Cells with No Digis","");
+      setMinMaxHists2D(UnoccupiedDeadCellsByDepth,0.,1.);
+
       m_dbe->setCurrentFolder(baseFolder_+"/dead_unoccupied_rechit");
       setupDepthHists2D(UnoccupiedRecHitsByDepth,
 			"Dead Cells with No Rec Hits","");
+      setMinMaxHists2D(UnoccupiedRecHitsByDepth,0.,1.);
+
       m_dbe->setCurrentFolder(baseFolder_+"/dead_pedestaltest");
       setupDepthHists2D(BelowPedestalDeadCellsByDepth,"Dead Cells Failing Pedestal Test","");
-
+      setMinMaxHists2D(BelowPedestalDeadCellsByDepth,0.,1.);
       // set more descriptive titles for pedestal plots
       units.str("");
       units<<"Dead Cells Failing Pedestal Test Depth 1 -- HB < ped + "<<HBnsigma_<<" #sigma, HF < ped + "<<HFnsigma_<<" #sigma";
@@ -174,9 +179,11 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
       m_dbe->setCurrentFolder(baseFolder_+"/dead_neighbortest");
       setupDepthHists2D(BelowNeighborsDeadCellsByDepth,"Dead Cells Failing Neighbor Test","");
+      setMinMaxHists2D(BelowNeighborsDeadCellsByDepth,0.,1.);
 
       m_dbe->setCurrentFolder(baseFolder_+"/dead_energytest");
       setupDepthHists2D(BelowEnergyThresholdCellsByDepth,"Dead Cells Failing Energy Threshold Test","");
+      setMinMaxHists2D(BelowEnergyThresholdCellsByDepth,0.,1.);
       // set more descriptive titles for threshold plots
       units.str("");
       units<<"Dead Cells with Consistent Low Energy Depth 1 -- HB <"<<HBenergyThreshold_<<" GeV, HF <"<<HFenergyThreshold_<<" GeV";
