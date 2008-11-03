@@ -114,6 +114,63 @@ void HcalBaseClient::getTestResults(int& totalTests,
 
   return;
 }
+
+
+// ************************************************************************************************************ //
+
+bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
+{
+  // inputs are (subdetector, ieta, iphi, depth)
+  // stolen from latest version of DataFormats/HcalDetId/src/HcalDetId.cc (not yet available in CMSSW_2_1_9)
+
+  const int ie ( abs( ies ) ) ;
+
+  return ( ( ip >=  1         ) &&
+	   ( ip <= 72         ) &&
+	   ( dp >=  1         ) &&
+	   ( ie >=  1         ) &&
+	   ( ( ( sd == HcalBarrel ) &&
+	       ( ( ( ie <= 14         ) &&
+		   ( dp ==  1         )    ) ||
+		 ( ( ( ie == 15 ) || ( ie == 16 ) ) && 
+		   ( dp <= 2          )                ) ) ) ||
+	     (  ( sd == HcalEndcap ) &&
+		( ( ( ie == 16 ) &&
+		    ( dp ==  3 )          ) ||
+		  ( ( ie == 17 ) &&
+		    ( dp ==  1 )          ) ||
+		  ( ( ie >= 18 ) &&
+		    ( ie <= 20 ) &&
+		    ( dp <=  2 )          ) ||
+		  ( ( ie >= 21 ) &&
+		    ( ie <= 26 ) &&
+		    ( dp <=  2 ) &&
+		    ( ip%2 == 1 )         ) ||
+		  ( ( ie >= 27 ) &&
+		    ( ie <= 28 ) &&
+		    ( dp <=  3 ) &&
+		    ( ip%2 == 1 )         ) ||
+		  ( ( ie == 29 ) &&
+		    ( dp <=  2 ) &&
+		    ( ip%2 == 1 )         )          )      ) ||
+	     (  ( sd == HcalOuter ) &&
+		( ie <= 15 ) &&
+		( dp ==  4 )           ) ||
+	     (  ( sd == HcalForward ) &&
+		( dp <=  2 )          &&
+		( ( ( ie >= 29 ) &&
+		    ( ie <= 39 ) &&
+		    ( ip%2 == 1 )    ) ||
+		  ( ( ie >= 40 ) &&
+		    ( ie <= 41 ) &&
+		    ( ip%4 == 3 )         )  ) ) ) ) ;
+
+
+
+} // bool  HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
+
+
+
 /*
 void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* &h)
 {
@@ -165,3 +222,6 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* &h)
   return;
 } // void HcalBaseClient::getSJ6histos(1D)
 */
+
+
+

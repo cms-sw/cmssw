@@ -797,7 +797,7 @@ void HcalMonitorClient::htmlOutput(void){
   }
   
   if( summary_client_) {
-    summary_client_->analyze();  // Do analyze just before making html (which relies on analyze results)
+    //summary_client_->analyze();  // Do analyze just before making html (which relies on analyze results) -- no longer necessary with new code?
     htmlName = "HcalSummaryCellClient.html";
     // summary client html output function called separately within HcalSummaryClient, after analyze function
     summary_client_->htmlOutput(irun_, mytime_, minlumisec_, maxlumisec_, htmlDir, htmlName);
