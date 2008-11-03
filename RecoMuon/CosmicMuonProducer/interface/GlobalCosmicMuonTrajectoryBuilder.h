@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2008/04/25 15:21:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/31 15:27:24 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -21,8 +21,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -74,8 +74,6 @@ private:
   const MuonServiceProxy *theService;
 
   CosmicMuonSmoother* theSmoother;
-
-  TrackTransformer* theTrackTransformer;
 
   std::string thePropagatorName;
   std::string theTkTrackLabel;
