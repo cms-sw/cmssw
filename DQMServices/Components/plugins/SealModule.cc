@@ -13,11 +13,9 @@ DEFINE_ANOTHER_FWK_MODULE(DQMFileSaver);
 #include "DQMServices/Components/src/DQMFEDIntegrityClient.h"
 DEFINE_ANOTHER_FWK_MODULE(DQMFEDIntegrityClient);
 
-//Data Certification module for DAQ info
-//#include "DQMServices/Components/src/DQMDaqInfo.h"
-//DEFINE_ANOTHER_FWK_MODULE(DQMDaqInfo);
-
-
+Data Certification module for DAQ info
+#include "DQMServices/Components/src/DQMDaqInfo.h"
+DEFINE_ANOTHER_FWK_MODULE(DQMDaqInfo);
 
 // module converting between ME and ROOT in Run tree of edm file
 #include "DQMServices/Components/plugins/MEtoEDMConverter.h"
