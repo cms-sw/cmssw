@@ -677,12 +677,9 @@ PixelFEDCard::PixelFEDCard(string fileName):
   fscanf(infile,"TTCrx Coarse Delay Register 2:%d\n",&CoarseDel);
   fscanf(infile,"TTCrc      ClkDes2 Register 3:%x\n",&ClkDes2);
   fscanf(infile,"TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",&FineDes2Del);
-  FineDes1Del = 0xe; // Only initialize to default value, do not put it in 
-                     // params_fed.dat or in database! (viktor)
   if(localDEBUG)printf("TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
   if(localDEBUG)printf("TTCrc      ClkDes2 Register 3:%x\n",ClkDes2);
   if(localDEBUG)printf("TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
-  if(localDEBUG)printf("TTCrc Fine Dlay ClkDes1 Reg 0:%d\n",FineDes1Del);
   
   // Control register
   fscanf(infile,"Center Chip Control Reg:%x\n",&Ccntrl);
@@ -816,10 +813,15 @@ PixelFEDCard::PixelFEDCard(string fileName):
   if(localDEBUG)
     printf("FED Master delay 0=0,1=32,2=48,3=64:%d\n",FedTTCDelay);
 
+  fscanf(infile,"TTCrx Register 0 fine delay ClkDes1:%d\n",&FineDes1Del);
+  if(localDEBUG)
+    printf("TTCrx Register 0 fine delay ClkDes1:%d\n",FineDes1Del);
+
         int checkword=0;
   fscanf(infile,"Params FED file check word:%d\n",
                            &checkword);
-        if(checkword!=60508)cout<<"FEDID:"<<fedNumber<<" Params FED File read error. Checkword read "<<checkword<<" check word expected 060508"<<endl;
+        if(checkword!=90508)cout<<"FEDID:"<<fedNumber<<" Params FED File read error. Checkword read "<<checkword<<" check word expected 090508"<<endl;
+        assert(checkword==90508);
 
         if(localDEBUG)
     printf("Params FED file check word:%d\n",checkword);
@@ -1034,7 +1036,6 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"TTCrx Coarse Delay Register 2:%d\n",CoarseDel);
   fprintf(outfile,"TTCrc      ClkDes2 Register 3:0x%x\n",ClkDes2);
   fprintf(outfile,"TTCrc Fine Dlay ClkDes2 Reg 1:%d\n",FineDes2Del);
-  // We do not write TTCrc Fine Dlay ClkDes1 Reg 0 (FineDes1Del) into file...
   
   // Control register
   fprintf(outfile,"Center Chip Control Reg:0x%x\n",Ccntrl);
@@ -1112,10 +1113,14 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"Fifo-3 almost full level,sets TTs WARN (max 8191):%d\n",
          fifo3Wrnlvl);
 
-        fprintf(outfile,"FED Master delay 0=0,1=32,2=48,3=64:%d\n",
-                                 FedTTCDelay);
-                
- int checkword=60508;
+  fprintf(outfile,"FED Master delay 0=0,1=32,2=48,3=64:%d\n",
+          FedTTCDelay);
+  
+  fprintf(outfile,"TTCrx Register 0 fine delay ClkDes1:%d\n",
+          FineDes1Del);
+
+  int checkword=90508;
+
   fprintf(outfile,"Params FED file check word:%d\n",
                            checkword);
 
