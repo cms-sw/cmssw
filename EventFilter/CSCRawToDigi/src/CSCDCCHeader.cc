@@ -1,11 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
-<<<<<<< CSCDCCHeader.cc
-
 #include <iostream>
-=======
-#include <iostream>
->>>>>>> 1.9
 
 CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId)
 {
