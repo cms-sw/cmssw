@@ -223,6 +223,7 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(log_, "Start enabling ...");
     startMonitoringWorkLoop();
     startWatchingWorkLoop();
+    resourceTable_->setRunNumber(runNumber_);
     resourceTable_->resetCounters();
     resourceTable_->startDiscardWorkLoop();
     resourceTable_->startSendDataWorkLoop();
@@ -494,6 +495,8 @@ void FUResourceBroker::startMonitoringWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
 {
+  lock();
+  
   if (0==resourceTable_) {
     deltaT_.value_           =0.0;
     deltaN_.value_           =  0;
@@ -503,9 +506,11 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
     rate_                    =0.0;
     average_                 =0.0;
     rms_                     =0.0;
-
+    
+    unlock();
     return false;
   }
+
   
   struct timeval  monEndTime;
   struct timezone timezone;
@@ -515,7 +520,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   unsigned int nbSent      =resourceTable_->nbSent();
   uint64_t     sumOfSquares=resourceTable_->sumOfSquares();
   unsigned int sumOfSizes  =resourceTable_->sumOfSizes();
-
+  
   uint64_t     deltaSumOfSquares;
   
   gui_->monInfoSpace()->lock();
@@ -549,7 +554,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
     mean=((double)(deltaSumOfSizes_.value_))/((double)(deltaN_.value_));
     squareOfMean=mean*mean;
     variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
-
+    
     average_=deltaSumOfSizes_.value_/deltaN_.value_;
     rms_    =std::sqrt(variance);
   }
@@ -559,6 +564,8 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   }
   
   gui_->monInfoSpace()->unlock();  
+  
+  unlock();
   
   ::sleep(monSleepSec_.value_);
   
@@ -588,7 +595,12 @@ void FUResourceBroker::startWatchingWorkLoop() throw (evf::Exception)
 //______________________________________________________________________________
 bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
 {
-  if (0==resourceTable_) return false;
+  lock();
+  
+  if (0==resourceTable_) {
+    unlock();
+    return false;
+  }
   
   vector<pid_t> prcids=resourceTable_->clientPrcIds();
   for (UInt_t i=0;i<prcids.size();i++) {
@@ -600,12 +612,10 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     }
   }
   
-  resourceTable_->lockShm();
   vector<pid_t>  evt_prcids =resourceTable_->cellPrcIds();
   vector<UInt_t> evt_numbers=resourceTable_->cellEvtNumbers();
   vector<time_t> evt_tstamps=resourceTable_->cellTimeStamps(); 
-  resourceTable_->unlockShm();
-
+  
   time_t tcurr=time(0);  
   for (UInt_t i=0;i<evt_tstamps.size();i++) {
     pid_t  pid   =evt_prcids[i];
@@ -623,6 +633,8 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       }
     }
   }
+  
+  unlock();
   
   ::sleep(watchSleepSec_.value_);
   
@@ -699,7 +711,6 @@ void FUResourceBroker::exportParameters()
   gui_->addItemChangedListener("doFedIdCheck",      this);
   gui_->addItemChangedListener("doCrcCheck",        this);
   gui_->addItemChangedListener("doDumpEvents",      this);
-  //gui_->addItemChangedListener("runNumber",         this);
 }
 
 
@@ -757,7 +768,10 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   *out<<"<body>"<<endl;
   gui_->htmlHeadline(in,out);
 
+  lock();
+  
   if (0!=resourceTable_) {
+
     vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
     *out<<table().set("frame","void").set("rules","rows")
                  .set("class","modules").set("width","250")<<endl
@@ -787,12 +801,10 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
     *out<<table()<<endl;
     *out<<"<br><br>"<<endl;
 
-    resourceTable_->lockShm();
     vector<string> states      = resourceTable_->cellStates();
     vector<UInt_t> evt_numbers = resourceTable_->cellEvtNumbers();
     vector<pid_t>  prc_ids     = resourceTable_->cellPrcIds();
     vector<time_t> time_stamps = resourceTable_->cellTimeStamps();
-    resourceTable_->unlockShm();
 
     *out<<table().set("frame","void").set("rules","rows")
                  .set("class","modules").set("width","500")<<endl
@@ -848,6 +860,8 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
     
   }
   *out<<"</body>"<<endl<<"</html>"<<endl;
+  
+  unlock();
 }
 
 
