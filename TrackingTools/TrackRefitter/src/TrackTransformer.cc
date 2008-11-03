@@ -182,17 +182,18 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   // Other special cases can be handled:
   // (1 bis) RH IO | P IO | GFD IO => FD AM  ---> Start from IN
   // (2 bis) RH IO | P IO | GFD OI => FD OM  ---> Reverse RH and start from OUT
-  // (3 bis) RH IO | P OI | GFD OI => FD AM  ---> Reverse RH and start from IN
-  // (4 bis) RH IO | P OI | GFD IO => FD OM  ---> Start from OUT
+  // (3 bis) RH IO | P OI | GFD OI => FD AM  ---> Reverse RH and start from OUT
+  // (4 bis) RH IO | P OI | GFD IO => FD OM  ---> Start from IN
   // (5 bis) RH OI | P IO | GFD IO => FD AM  ---> Reverse RH and start from IN
   // (6 bis) RH OI | P IO | GFD OI => FD OM  ---> Start from OUT
-  // (7 bis) RH OI | P OI | GFD OI => FD AM  ---> Start from IN
-  // (8 bis) RH OI | P OI | GFD IO => FD OM  ---> Reverse RH and start from OUT
+  // (7 bis) RH OI | P OI | GFD OI => FD AM  ---> Start from OUT
+  // (8 bis) RH OI | P OI | GFD IO => FD OM  ---> Reverse RH and start from IN
   // 
   // *** Additional rule: ***
   // -A0- If P and GFD agree, then FD is AM otherwise is OM
   // -A00- rechit must be ordered as GFD in order to handle the case of cosmics
-  
+  // -B0- The starting state is decided by GFD
+
   // Determine the RH order
   RefitDirection::GeometricalDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit); // FIXME change nome of the *type*  --> RecHit order!
   LogTrace(metname) << "RH order (0-insideOut, 1-outsideIn): " << recHitsOrder;
@@ -212,17 +213,25 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   if(recHitsOrder == RefitDirection::insideOut && propagationDirection == oppositeToMomentum ||
      recHitsOrder == RefitDirection::outsideIn && propagationDirection == alongMomentum) 
     if(theRefitDirection.propagationDirection() != anyDirection) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-    else{}// reorder the rechit as defined in theRefitDirection.geometricalDirection();
+    else{}// reorder the rechit as defined in theRefitDirection.geometricalDirection(); // -A00-
   // -A-
   
-
-
   // Apply rule -B-
   TrajectoryStateOnSurface firstTSOS = track.innermostMeasurementState();
   unsigned int innerId = newTrack.innerDetId();
-  if(propagationDirection == oppositeToMomentum){
-    innerId   = newTrack.outerDetId();
-    firstTSOS = track.outermostMeasurementState();
+  if(theRefitDirection.propagationDirection() != anyDirection){
+    if(propagationDirection == oppositeToMomentum){
+      innerId   = newTrack.outerDetId();
+      firstTSOS = track.outermostMeasurementState();
+    }
+  }
+  else { // if(theRefitDirection.propagationDirection() == anyDirection)
+    // Apply rule -B0-
+    if(theRefitDirection.geometricalDirection() == RefitDirection::outsideIn){
+      innerId   = newTrack.outerDetId();
+      firstTSOS = track.outermostMeasurementState();
+    }
+    // -B0-
   }
   // -B-
 
