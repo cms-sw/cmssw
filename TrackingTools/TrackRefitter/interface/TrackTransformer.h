@@ -10,17 +10,19 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2008/10/15 17:52:38 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/10/29 10:57:53 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
+
+#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace edm {class ParameterSet; class EventSetup;}
@@ -76,11 +78,10 @@ public:
  protected:
   
  private:
+
   std::string thePropagatorName;
   edm::ESHandle<Propagator> propagator() const {return thePropagator;}
   edm::ESHandle<Propagator> thePropagator;
-  
-  enum RefitDirection{insideOut,outsideIn,undetermined};
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;
@@ -88,10 +89,9 @@ public:
   unsigned long long theCacheId_TRH;
   
   bool theRPCInTheFit;
-  bool theTrackIsCosmic;
 
   bool theDoPredictionsOnly;
-  PropagationDirection theRefitDirection;
+  RefitDirection theRefitDirection;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
@@ -101,9 +101,8 @@ public:
   
   std::string theSmootherName;
   edm::ESHandle<TrajectorySmoother> theSmoother;
-
-  
-  RefitDirection
+ 
+  RefitDirection::GeometricalDirection
     checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer&) const;
 
   std::string theTrackerRecHitBuilderName;
