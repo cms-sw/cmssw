@@ -66,7 +66,7 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
         if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
-          m_to_transfer.push_back(std::make_pair((L1RPCHwConfig*)disabledDevs,snc));
+          m_to_transfer.push_back(std::make_pair((L1RPCHwConfig*)disabledDevs,snc+1));
         }
 
         std::cout << "L1RPCHwConfigSourceHandler: L1RPCHwConfigSourceHandler::getNewObjects ends\n";
