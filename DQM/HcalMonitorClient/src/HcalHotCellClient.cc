@@ -677,12 +677,12 @@ ofstream htmlFile;
 	{
 	  gStyle->SetPalette(1);  // back to rainbow coloring
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HBenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HEenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HBenergyVsNeighbor, "Cell energy (GeV)","Neighbor energy (GeV)", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HEenergyVsNeighbor, "Cell energy (GeV)","Neighbor energy (GeV)", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<endl;
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HOenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HFenergyVsNeighbor, "Neighbor energy (GeV)","Cell energy (GeV)", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HOenergyVsNeighbor, "Cell energy (GeV)","Neighbor energy (GeV)", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HFenergyVsNeighbor, "Cell energy (GeV)","Neighbor energy (GeV)", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<endl;
 	} // if (hotclient_makeDiagnostics_)
 
