@@ -66,7 +66,8 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
     {
       char* type;
       
-      cout <<"SET TO HCAL/FEDIntegrity"<<endl;
+      if (fVerbosity)
+	cout <<"SET TO HCAL/FEDIntegrity"<<endl;
       m_dbe->setCurrentFolder("Hcal/FEDIntegrity/");
       type="FEDEntries";
       fedEntries_ = m_dbe->book1D(type,"# entries per HCAL FED",32,699.5,731.5);
