@@ -11,6 +11,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMOldReceiver.h"
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TColor.h"
@@ -50,6 +52,7 @@ class HcalBaseClient{
   bool hasErrors() const { return dqmReportMapErr_.size(); }
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
+  bool validDetId(HcalSubdetector sd, int ies, int ip, int dp);
   
   /*
   void getSJ6histos( char* dir, char* name, TH2F* &h);
