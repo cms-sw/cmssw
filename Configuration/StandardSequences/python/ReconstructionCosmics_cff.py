@@ -9,6 +9,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.Configuration.RecoTrackerBHM_cff import *
 from RecoTracker.DeDx.dedxEstimators_Cosmics_cff import *
 
+
 #
 # calorimeters
 #
@@ -19,6 +20,10 @@ from RecoEcal.Configuration.RecoEcalCosmics_cff import *
 #
 from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *
 from RecoMuon.Configuration.RecoMuonCosmics_cff import *
+
+# primary vertex
+from RecoVertex.Configuration.RecoVertexCosmicTracks_cff import *
+
 #
 # jets and met
 #
@@ -36,7 +41,7 @@ trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*tracksP5)
 caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
 muonsLocalRecoCosmics = cms.Sequence(muonlocalreco+muonlocalrecoNoDrift)
 
-localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics)
+localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics)
 
 # global reco
 muonsCosmics = cms.Sequence(muonRecoGR)
