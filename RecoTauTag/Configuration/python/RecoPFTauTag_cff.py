@@ -28,13 +28,6 @@ PFTauDiscrimination = cms.Sequence(
     pfRecoTauDiscriminationAgainstMuon
 )
 
-PFTau = cms.Sequence(
-    ic5PFJetTracksAssociatorAtVertex*
-    pfRecoTauTagInfoProducer*
-    pfRecoTauProducer*
-    PFTauDiscrimination
-)
-
 
 PFTauDiscriminationHighEfficiency = cms.Sequence(
     pfRecoTauDiscriminationByIsolationHighEfficiency*
@@ -47,8 +40,18 @@ PFTauDiscriminationHighEfficiency = cms.Sequence(
 )
 
 PFTauHighEfficiency = cms.Sequence(
-    ic5PFJetTracksAssociatorAtVertex*
-    pfRecoTauTagInfoProducer*
     pfRecoTauProducerHighEfficiency*
     PFTauDiscriminationHighEfficiency
 )
+
+PFTau = cms.Sequence(
+    ic5PFJetTracksAssociatorAtVertex*
+    pfRecoTauTagInfoProducer*
+    pfRecoTauProducer*
+    PFTauDiscrimination*
+    PFTauHighEfficiency*
+    PFTauDiscriminationHighEfficiency	
+)
+
+
+
