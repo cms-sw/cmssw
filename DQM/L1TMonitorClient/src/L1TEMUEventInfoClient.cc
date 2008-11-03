@@ -16,6 +16,7 @@
 #include <TProfile2D.h>
 #include <memory>
 #include <iostream>
+#include <vector>
 #include <iomanip>
 #include <string>
 #include <fstream>
@@ -98,7 +99,7 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   for (int i=0; i<nsys_; i++) {    
     
     if(i<nsysmon_)
-      sprintf(lbl,"L1TEMU_%s",syslabelext_[i]);
+      sprintf(lbl,"L1TEMU_%s",syslabelext_[i].data());
     else 
       sprintf(lbl,"L1TEMU_dummy%d",i-nsysmon_+1);
 
