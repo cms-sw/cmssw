@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.25 2008/08/29 08:41:36 nancy Exp $ 
- **  $Date: 2008/08/29 08:41:36 $ 
- **  $Revision: 1.25 $
+ **  $Id: PhotonProducer.h,v 1.26 2008/10/28 21:35:57 nancy Exp $ 
+ **  $Date: 2008/10/28 21:35:57 $ 
+ **  $Revision: 1.26 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -29,7 +29,7 @@
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -53,6 +53,7 @@ class PhotonProducer : public edm::EDProducer {
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* hits,
 			    HBHERecHitMetaCollection *mhbhe,
+			    std::vector<double> preselCutValues,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 			    const reco::ElectronPixelSeedCollection& pixelSeeds,
 			    math::XYZPoint & vtx,
@@ -99,8 +100,10 @@ class PhotonProducer : public edm::EDProducer {
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
 
   bool validPixelSeeds_;
-  CutBasedPhotonIDAlgo* thePhotonIDCalculator_;
+  PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
+  std::vector<double>  preselCutValuesBarrel_; 
+  std::vector<double>  preselCutValuesEndcap_; 
   //int nEvt_;
 
 };
