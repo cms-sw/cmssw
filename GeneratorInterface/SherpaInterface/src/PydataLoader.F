@@ -1,2 +1,2 @@
-#include "GeneratorInterface/CommonInterface/interface/pydata.f"
+#include "GeneratorInterface/CommonInterface/src/pydata.F"
 
