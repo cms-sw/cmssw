@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.PhotonIdentification.cutBasedID_cfi import *
+from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.15 2008/07/18 10:18:59 nancy Exp $
+# $Id: photons_cfi.py,v 1.16 2008/10/28 21:40:43 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
-    cutBasedIDPSet = cms.PSet(CutBasedIDAlgo),
+    isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     minR9 = cms.double(0.93),
     usePrimaryVertex = cms.bool(True),
@@ -33,7 +33,19 @@ photons = cms.EDProducer("PhotonProducer",
     hOverEConeSize = cms.double(0.1),
     posCalc_x0 = cms.double(0.89),
     MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
-    posCalc_t0_barl = cms.double(7.7)
+    posCalc_t0_barl = cms.double(7.7),
+    ecalRecHitSumBarrel = cms.double(5.0),
+    ecalRecHitSumEndcap = cms.double(5.0),
+    hcalTowerSumBarrel = cms.double(5.0),
+    hcalTowerSumEndcap = cms.double(5.0),
+    nTrackSolidConeBarrel =cms.double(999.),
+    nTrackSolidConeEndcap =cms.double(999.),
+    nTrackHollowConeBarrel =cms.double(999.),
+    nTrackHollowConeEndcap =cms.double(999.),
+    trackPtSumSolidConeBarrel =cms.double(999.),
+    trackPtSumSolidConeEndcap =cms.double(999.),                     
+    trackPtSumHollowConeBarrel =cms.double(999.),
+    trackPtSumHollowConeEndcap =cms.double(999.)                     
 )
 
 
