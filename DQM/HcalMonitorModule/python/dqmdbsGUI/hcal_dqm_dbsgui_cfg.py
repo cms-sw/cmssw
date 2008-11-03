@@ -107,7 +107,7 @@ process.hcalClient.baseHtmlDir = '.'  # set to '' to ignore html output
 # Summary Client is also unaffected
 setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=False)  # turn debug to True to dump out client settings
 
-process.hcalClient.SummaryClient        = False
+process.hcalClient.SummaryClient        = True
 
 
 #-----------------------------
