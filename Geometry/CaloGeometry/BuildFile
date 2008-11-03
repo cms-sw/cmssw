@@ -4,6 +4,7 @@
 <use name=DataFormats/CaloTowers>
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
+<use name=DataFormats/GeometryVector>
 <use name=clhep>
 <export>
   <lib name=GeometryCaloGeometry>
@@ -13,5 +14,6 @@
   <use name=DataFormats/CaloTowers>
   <use name=FWCore/Framework>
   <use name=Geometry/Records>
+  <use name=DataFormats/GeometryVector>
   <use name=clhep>
 </export>
