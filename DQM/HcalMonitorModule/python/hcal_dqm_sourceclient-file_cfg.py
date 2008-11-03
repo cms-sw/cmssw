@@ -70,7 +70,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = 'cmsru2'
 process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'
-#replace dqmSaver.dirName          = "." # suppress output if set to ""?
 process.dqmSaver.producer = 'DQM'
 process.dqmEnv.subSystemFolder = 'Hcal'
 # optionally change fileSaving  conditions
@@ -106,11 +105,10 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = 0
 process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.
-
 process.hcalMonitor.pedestalsInFC = True
 process.hcalMonitor.showTiming = False
-process.hcalMonitor.checkNevents=1000
-process.hcalMonitor.dump2database = True
+process.hcalMonitor.checkNevents=100
+process.hcalMonitor.dump2database = False
 
 # Turn on/off individual hcalMonitor modules ------------
 process.hcalMonitor.DataFormatMonitor   = True
@@ -147,13 +145,13 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 
 # hcalClient configurable values ------------------------
 # suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = '.'  # set to '' to ignore html output
+process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
 
 # Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
 # Summary Client is also unaffected
 setHcalClientValuesFromMonitor(process.hcalClient,process.hcalMonitor, debug=False)  # turn debug to True to dump out client settings
 
-process.hcalClient.SummaryClient        = False
+process.hcalClient.SummaryClient        = True
 
 
 #-----------------------------
