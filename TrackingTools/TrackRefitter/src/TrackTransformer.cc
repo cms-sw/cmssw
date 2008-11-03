@@ -164,7 +164,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
 
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
  
-  // 8 Cases are foreseen: 
+  // 8 cases are foreseen: 
   // [RH = rec hit order, P = momentum dir, FD = fit direction. IO/OI = inside-out/outside-in, AM/OM = along momentum/opposite to momentum]
   // (1) RH IO | P IO | FD AM  ---> Start from IN
   // (2) RH IO | P IO | FD OM  ---> Reverse RH and start from OUT
@@ -179,21 +179,48 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   // -A- If RH-FD agree (IO-AM,OI-OM) do not reverse the RH
   // -B- If FD along momentum start from innermost state, otherwise use outermost
   
+  // Other special cases can be handled:
+  // (1 bis) RH IO | P IO | GFD IO => FD AM  ---> Start from IN
+  // (2 bis) RH IO | P IO | GFD OI => FD OM  ---> Reverse RH and start from OUT
+  // (3 bis) RH IO | P OI | GFD OI => FD AM  ---> Reverse RH and start from IN
+  // (4 bis) RH IO | P OI | GFD IO => FD OM  ---> Start from OUT
+  // (5 bis) RH OI | P IO | GFD IO => FD AM  ---> Reverse RH and start from IN
+  // (6 bis) RH OI | P IO | GFD OI => FD OM  ---> Start from OUT
+  // (7 bis) RH OI | P OI | GFD OI => FD AM  ---> Start from IN
+  // (8 bis) RH OI | P OI | GFD IO => FD OM  ---> Reverse RH and start from OUT
+  // 
+  // *** Additional rule: ***
+  // -A0- If P and GFD agree, then FD is AM otherwise is OM
+  // -A00- rechit must be ordered as GFD in order to handle the case of cosmics
+  
   // Determine the RH order
   RefitDirection::GeometricalDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit); // FIXME change nome of the *type*  --> RecHit order!
   LogTrace(metname) << "RH order (0-insideOut, 1-outsideIn): " << recHitsOrder;
 
+  PropagationDirection propagationDirection = theRefitDirection.propagationDirection();
+
+  // Apply rule -A0-
+  if(propagationDirection == anyDirection){
+    GlobalVector momentum = track.innermostMeasurementState().globalMomentum();
+    GlobalVector position = track.innermostMeasurementState().globalPosition() - GlobalPoint(0,0,0);
+    RefitDirection::GeometricalDirection p = momentum.basicVector().dot(position.basicVector()) > 0 ? insideOut : outsideIn;
+    propagationDirection = p == theRefitDirection.geometricalDirection() ? alongMomentum : oppositeToMomentum;
+  }
+  // -A0-
 
   // Apply rule -A-
-  if(recHitsOrder == RefitDirection::insideOut && theRefitDirection.propagationDirection() == oppositeToMomentum ||
-     recHitsOrder == RefitDirection::outsideIn && theRefitDirection.propagationDirection() == alongMomentum) 
-    reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-  // - -
+  if(recHitsOrder == RefitDirection::insideOut && propagationDirection == oppositeToMomentum ||
+     recHitsOrder == RefitDirection::outsideIn && propagationDirection == alongMomentum) 
+    if(theRefitDirection.propagationDirection() != anyDirection) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
+    else{}// reorder the rechit as defined in theRefitDirection.geometricalDirection();
+  // -A-
+  
+
 
   // Apply rule -B-
   TrajectoryStateOnSurface firstTSOS = track.innermostMeasurementState();
   unsigned int innerId = newTrack.innerDetId();
-  if(theRefitDirection.propagationDirection() == oppositeToMomentum){
+  if(propagationDirection == oppositeToMomentum){
     innerId   = newTrack.outerDetId();
     firstTSOS = track.outermostMeasurementState();
   }
@@ -204,7 +231,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
     return vector<Trajectory>();
   }
 
-  TrajectorySeed seed(PTrajectoryStateOnDet(),TrajectorySeed::recHitContainer(),theRefitDirection.propagationDirection());
+  TrajectorySeed seed(PTrajectoryStateOnDet(),TrajectorySeed::recHitContainer(),propagationDirection);
 
   if(recHitsForReFit.front()->geographicalId() != DetId(innerId)){
     LogTrace(metname)<<"Propagation occured"<<endl;
@@ -216,7 +243,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   }
 
   if(theDoPredictionsOnly){
-    Trajectory aTraj(seed,theRefitDirection.propagationDirection());
+    Trajectory aTraj(seed,propagationDirection);
     TrajectoryStateOnSurface predTSOS = firstTSOS;
     for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = recHitsForReFit.begin(); 
 	ihit != recHitsForReFit.end(); ++ihit ) {
