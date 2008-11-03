@@ -3,9 +3,9 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2008/08/12 10:12:29 $
- * $Revision: 1.16 $
- * $Author: markusm $
+ * $Date: 2008/11/03 15:26:25 $
+ * $Revision: 1.1 $
+ * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
  *
@@ -73,11 +73,11 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
 
   reportSummaryContent[0] = dbe_->bookFloat("CSC FEDs");
   reportSummaryContent[1] = dbe_->bookFloat("DT FEDs");
-  reportSummaryContent[2] = dbe_->bookFloat("EcalBarrel FEDs");
-  reportSummaryContent[3] = dbe_->bookFloat("EcalEndcap FEDs");
+  reportSummaryContent[2] = dbe_->bookFloat("EB FEDs");
+  reportSummaryContent[3] = dbe_->bookFloat("EE FEDs");
   reportSummaryContent[4] = dbe_->bookFloat("L1T FEDs");
   reportSummaryContent[5] = dbe_->bookFloat("Pixel FEDs");
-  reportSummaryContent[6] = dbe_->bookFloat("SiStrip FEDs");
+  reportSummaryContent[6] = dbe_->bookFloat("Strip FEDs");
 
   // initialize reportSummaryContents to 1
   for (int i = 0; i < nSubsystems; ++i) {
@@ -92,11 +92,11 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   reportSummaryMap->setAxisTitle("", 2);
   reportSummaryMap->setBinLabel(1, "CSC", 2);
   reportSummaryMap->setBinLabel(2, "DT", 2);
-  reportSummaryMap->setBinLabel(3, "EcalBarrel", 2);
-  reportSummaryMap->setBinLabel(4, "EcalEndcap", 2);
+  reportSummaryMap->setBinLabel(3, "EB", 2);
+  reportSummaryMap->setBinLabel(4, "EE", 2);
   reportSummaryMap->setBinLabel(5, "L1T", 2);
   reportSummaryMap->setBinLabel(6, "Pixel", 2);
-  reportSummaryMap->setBinLabel(7, "SiStrip", 2);
+  reportSummaryMap->setBinLabel(7, "Strip", 2);
   reportSummaryMap->setBinLabel(1, " ", 1);
 
 }
