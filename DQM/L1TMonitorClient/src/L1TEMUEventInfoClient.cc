@@ -93,17 +93,16 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("L1TEMU/EventInfo/reportSummaryContents");
 
-  std::string lbl("");  
-  
+  char lbl[100];  
+
   for (int i=0; i<nsys_; i++) {    
     
-    lbl.clear(); lbl+="L1TEMU_"; 
     if(i<nsysmon_)
-      lbl+=syslabelext_[i];
+      sprintf(lbl,"L1TEMU_%s",syslabelext_[i]);
     else 
-      {lbl+="dummy"; lbl+=(i-nsysmon_);}
+      sprintf(lbl,"L1TEMU_dummy%d",i-nsysmon_+1);
 
-    reportSummaryContent_[i] = dbe_->bookFloat(lbl.data());
+    reportSummaryContent_[i] = dbe_->bookFloat(lbl);
     //if(reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo)) dbe_->removeElement(reportSummaryContent_[i]->getName());
   }
 
@@ -116,7 +115,7 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
   if ( reportSummaryMap_ = dbe_->get("L1TEMU/EventInfo/reportSummaryMap") ) {
-  dbe_->removeElement(reportSummaryMap_->getName());
+    dbe_->removeElement(reportSummaryMap_->getName());
   }
 
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 11, 1, nsysmon_+1);
