@@ -1,12 +1,14 @@
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include <iostream>
 
+template<>
 std::ostream & operator<< <float>( std::ostream& s, const TkRotation<float>& rtmp) {
   return s << " (" << rtmp.xx() << ',' << rtmp.xy() << ',' << rtmp.xz() << ")\n"
 	   << " (" << rtmp.yx() << ',' << rtmp.yy() << ',' << rtmp.yz() << ")\n"
 	   << " (" << rtmp.zx() << ',' << rtmp.zy() << ',' << rtmp.zz() << ") ";
 } 
 
+template<>
 std::ostream & operator<< <double>( std::ostream& s, const TkRotation<double>& rtmp) {
   return s << " (" << rtmp.xx() << ',' << rtmp.xy() << ',' << rtmp.xz() << ")\n"
 	   << " (" << rtmp.yx() << ',' << rtmp.yy() << ',' << rtmp.yz() << ")\n"
