@@ -140,6 +140,15 @@ TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitConta
   }
 }
 
+// void reorder(TransientTrackingRecHit::ConstRecHitContainer& recHits, RefitDirection::GeometricalDirection recHitsOrder) const{
+
+//   if(theRefitDirection.geometricalDirection() != recHitsOrder) reverse(recHits.begin(),recHits.end());
+
+//   if(theRefitDirection.geometricalDirection() == RefitDirection::insideOut &&recHitsOrder){}
+//   else if(theRefitDirection.geometricalDirection() == RefitDirection::outsideIn){} 
+//   else LogWarning("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
+// }
+
 
 /// Convert Tracks into Trajectories
 vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) const {
@@ -204,18 +213,24 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
   if(propagationDirection == anyDirection){
     GlobalVector momentum = track.innermostMeasurementState().globalMomentum();
     GlobalVector position = track.innermostMeasurementState().globalPosition() - GlobalPoint(0,0,0);
-    RefitDirection::GeometricalDirection p = momentum.basicVector().dot(position.basicVector()) > 0 ? insideOut : outsideIn;
+    RefitDirection::GeometricalDirection p = momentum.basicVector().dot(position.basicVector()) > 0 ? RefitDirection::insideOut : RefitDirection::outsideIn;
     propagationDirection = p == theRefitDirection.geometricalDirection() ? alongMomentum : oppositeToMomentum;
   }
   // -A0-
 
   // Apply rule -A-
-  if(recHitsOrder == RefitDirection::insideOut && propagationDirection == oppositeToMomentum ||
-     recHitsOrder == RefitDirection::outsideIn && propagationDirection == alongMomentum) 
-    if(theRefitDirection.propagationDirection() != anyDirection) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
-    else{}// reorder the rechit as defined in theRefitDirection.geometricalDirection(); // -A00-
+  if(theRefitDirection.propagationDirection() != anyDirection){
+    if(recHitsOrder == RefitDirection::insideOut && propagationDirection == oppositeToMomentum ||
+       recHitsOrder == RefitDirection::outsideIn && propagationDirection == alongMomentum) 
+      reverse(recHitsForReFit.begin(),recHitsForReFit.end());}
   // -A-
-  
+  // Apply rule -A00-
+  else{
+    // reorder the rechit as defined in theRefitDirection.geometricalDirection(); 
+    if(theRefitDirection.geometricalDirection() != recHitsOrder) reverse(recHitsForReFit.begin(),recHitsForReFit.end()); 
+  }
+  // -A00-
+    
   // Apply rule -B-
   TrajectoryStateOnSurface firstTSOS = track.innermostMeasurementState();
   unsigned int innerId = newTrack.innerDetId();
