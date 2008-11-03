@@ -151,12 +151,12 @@ void L1TEMUEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiS
   std::string lbl("");  
   for(int i=0; i<nsysmon_; i++) {
     lbl.clear();
-    lbl+="L1TEMU/"; lbl+=syslabelext_[i]; lbl+="/"; 
-    lbl+=syslabel_[i]; lbl+="ErrorFlag";
+    lbl+="L1TEMU/"; lbl+=syslabel_[i]; lbl+="/"; 
+    lbl+=syslabelext_[i]; lbl+="ErrorFlag";
     QHist[i]=dbe_->get(lbl.data());
     float pv = -1.;
     if(!sysmask_[i])
-      setSummary(QHist[i]);
+      pv = setSummary(QHist[i]);
     summaryContent[i] = pv;
     reportSummaryContent_[i]->Fill(pv);
   }
