@@ -1,5 +1,9 @@
 execute command:
 ================
+with no Hector transport:
+use 
+process.g4SimHits.NonBeamEvent = True
+process.FP420Digi.ApplyTofCut = False
 
 
 if Digitizer is available one can run:
