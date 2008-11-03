@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/07/02 16:50:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/10/16 09:33:40 $
+ *  $Revision: 1.5 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -92,6 +92,11 @@ private:
   TFile *rootFile;
   TNtuple *ntuple;
   bool tpMode;
+
+  bool runOnAllHitsOccupancies;
+  bool runOnNoiseOccupancies;
+  bool runOnInTimeOccupancies;
+  std::string nameMonitoredHisto;
 
 };
 
