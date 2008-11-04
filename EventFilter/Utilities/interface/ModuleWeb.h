@@ -24,7 +24,7 @@ namespace evf
     protected:
       std::string moduleName_;
     private:
-      virtual void openBackDoor(){};
+      virtual void openBackDoor(unsigned int timeout_sec = 0){};
       virtual void closeBackDoor(){};
       friend class ModuleWebRegistry;
     };
