@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:49:27 EDT 2007
-// $Id: PtrVectorBase.cc,v 1.3 2008/02/15 05:57:04 wmtan Exp $
+// $Id: PtrVectorBase.cc,v 1.4 2008/02/15 20:06:21 wmtan Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/traits.h"
+#include <ostream>
 
 //
 // constants, enums and typedefs
