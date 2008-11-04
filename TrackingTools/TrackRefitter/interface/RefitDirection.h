@@ -4,8 +4,8 @@
 /** \class RefitDirection
  *  Help class in order to handle the different refit possibilities
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/11/03 18:38:19 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -47,11 +47,11 @@ public:
 
   // Operations
   inline GeometricalDirection geometricalDirection() const {
-    if(theGeoDirection == undetermined) edm::LogWarning("Reco|TrackingTools|TrackTransformer") << "Try to use undetermined geometrical direction";
+    if(theGeoDirection == undetermined) LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use undetermined geometrical direction";
     return theGeoDirection;
   }
   inline PropagationDirection propagationDirection() const {
-    if(thePropagationDirection == anyDirection) edm::LogWarning("Reco|TrackingTools|TrackTransformer") << "Try to use anyDirection as propagation direction";
+    if(thePropagationDirection == anyDirection) LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use anyDirection as propagation direction";
     return thePropagationDirection;
   }
   
