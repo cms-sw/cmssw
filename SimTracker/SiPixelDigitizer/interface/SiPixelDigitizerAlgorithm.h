@@ -38,8 +38,8 @@
 
 
 //Begin: Accessing the Dead pixel modules from the DB:
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+//#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+//#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 
 
 // For the random numbers
@@ -71,7 +71,7 @@ class SiPixelDigitizerAlgorithm  {
   edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
 
   //Accessing Dead pixel modules from DB:
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  //  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
 
 
 
