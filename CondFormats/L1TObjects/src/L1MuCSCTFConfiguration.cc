@@ -1,4 +1,5 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
+#include <sstream>
 
 edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   edm::ParameterSet pset;

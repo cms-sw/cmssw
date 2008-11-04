@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
+#include <sstream>
 
 CSCNoiseMatrix::CSCNoiseMatrix(){}
 CSCNoiseMatrix::~CSCNoiseMatrix(){}
