@@ -367,6 +367,8 @@
   <class name="std::vector<pat::JetCorrFactors>" />
   <class name="edm::ValueMap<pat::JetCorrFactors>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
+  <class name="pat::JetCorrFactors::FlavourCorrections" />
+  <class name="std::vector<pat::JetCorrFactors::FlavourCorrections>" />
 
   <class name="StringMap" />
   <class name="edm::Wrapper<StringMap>" />

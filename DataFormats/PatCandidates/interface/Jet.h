@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.26 2008/10/08 15:11:33 srappocc Exp $
+// $Id: Jet.h,v 1.27 2008/10/09 17:48:23 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.26 2008/10/08 15:11:33 srappocc Exp $
+  \version  $Id: Jet.h,v 1.27 2008/10/09 17:48:23 lowette Exp $
 */
 
 
@@ -29,11 +29,8 @@
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
-//#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-//#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
-//#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
@@ -58,11 +55,6 @@ namespace pat {
 
   class Jet : public PATObject<JetType> {
 
-  public:
-    enum CorrectionType { NoCorrection=0, DefaultCorrection,
-			  udsCorrection, cCorrection, bCorrection, gCorrection, 
-			  NrOfCorrections };
-
     public:
 
       /// default constructor
@@ -84,26 +76,53 @@ namespace pat {
       const reco::GenJet * genJet() const;
       /// return the flavour of the parton underlying the jet
       int partonFlavour() const;
-      /// return the correction factor to go to a non-calibrated jet
-      JetCorrFactors jetCorrFactors() const;
-      /// return the original non-calibrated jet
-      JetType recJet() const;
-      /// return the associated non-calibrated jet
-      Jet noCorrJet() const;
-      /// return the associated default-calibrated jet
-      Jet defaultCorrJet() const;
-      /// return the associated uds-calibrated jet
-      Jet udsCorrJet() const;
-      /// return the associated gluon-calibrated jet
-      Jet gluCorrJet() const;
-      /// return the associated c-calibrated jet
-      Jet cCorrJet() const;
-      /// return the associated b-calibrated jet
-      Jet bCorrJet() const;
-      /// return the jet calibrated according to the MC flavour truth
-      Jet mcFlavCorrJet() const;
-      /// return the jet calibrated with weights assuming W decay
-      Jet wCorrJet() const;
+
+      // Return true if this jet carries jet energy correction information
+      bool  hasJetCorrFactors() const { return !jetEnergyCorrections_.empty(); }
+      /// return the correction factor for this jet. Throws an exception if they're not available.
+      const JetCorrFactors & jetCorrFactors() const {
+        if (!hasJetCorrFactors()) throw cms::Exception("Not Available") << "This pat::Jet does not carry jet energy correction information.\n";
+        return jetEnergyCorrections_.front();
+      }
+      /// Return the current level of jet energy corrections
+      std::string jetCorrName() const { 
+	return jetCorrFactors().corrStep(jetCorrStep()); 
+      }
+      /// Return flavour of the current level of jet energy corrections
+      std::string jetCorrFlavour() const {
+	return jetCorrFactors().flavour(jetCorrStep()); 
+      }
+      /// Return the current level of jet energy corrections
+      JetCorrFactors::CorrStep jetCorrStep() const { //FIXME: this one should be private
+        return jetEnergyCorrectionStep_;
+      }
+      /// Total correction factor to target step, starting from jetCorrStep()
+      float jetCorrFactor(std::string &step, const std::string &flavour="") const {
+	return jetCorrFactors().correction(jetCorrFactors().corrStep(step, flavour), jetCorrStep());
+      }
+      /// Copy of this jet with correction factor to target step
+      Jet correctedJet(const std::string &step, const std::string &flavour="") const ;
+      /// method to set the energy scale correction factors
+      void setJetCorrFactors(const JetCorrFactors & jetCorrF);
+      /// method to set the energy scale correction step used to make this jet
+      void setJetCorrStep(JetCorrFactors::CorrStep step); //FIXME: this one shouls be private
+#ifdef TO_BE_ADDED_LATER
+      /// Return true if this jet carries the jet correction factors of a different set, for systematic studies
+      bool hasCorrFactors(const std::string &set) const ;
+      /// Return the jet correction factors of a different set, for systematic studies
+      const JetCorrFactors & jetCorrFactors(const std::string &set) const ;
+      /// Return the jet correction factor from a different set, relative to the present energy corrections
+      float jetCorrFactor(const std::string &set, JetCorrFactors::CorrStep target) const ;
+      /// Copy of this jet with correction factor to target step from a different set
+      Jet correctedJet(const std::string &set, JetCorrFactors::CorrStep target) const ;
+      /// return the correction factor for this jet
+      float jetCorrFactor(const std::string &step, const std::string &flavour) const ;
+      /// return a copy of this jet with the requested correction factor applied
+      Jet   correctedJet( const std::string &step, const std::string &flavour) const ;
+      /// method to set the energy scale correction factors from a different set
+      void setJetCorrFactors(const std::string &set, const JetCorrFactors & jetCorrF);
+#endif
+
       /// get b discriminant from label name
       float bDiscriminator(const std::string &theLabel) const;
 
@@ -143,37 +162,33 @@ namespace pat {
       void setGenJet(const reco::GenJet & gj);
       /// method to set the flavour of the parton underlying the jet
       void setPartonFlavour(int partonFl);
-      /// method to set the energy scale correction factors
-      void setJetCorrFactors(const JetCorrFactors & jetCorrF);
-      /// method to set correction factor to go back to an uncorrected jet
-      void setNoCorrFactor(float noCorrF);
+//      /// method to set the energy scale correction factors
+//      void setJetCorrFactors(const JetCorrFactors & jetCorrF);
+//      /// method to set correction factor to go back to an uncorrected jet
+//      void setNoCorrFactor(float noCorrF);
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
 
       /// method to set the jet charge
       void setJetCharge(float jetCharge);
-    /// correction factor from correction type
-    float correctionFactor (CorrectionType type) const;
-    /// auxiliary method to convert a string to a correction type
-    static CorrectionType correctionType (const std::string& name);
 
-    /// method to set the vector of refs to the tracks associated to this jet
-    void setAssociatedTracks(const reco::TrackRefVector &tracks);
+      /// method to set the vector of refs to the tracks associated to this jet
+      void setAssociatedTracks(const reco::TrackRefVector &tracks);
 
-    bool isCaloJet()  const { return !specificCalo_.empty(); }
-    bool isPFJet()    const { return !specificPF_.empty(); }
-    bool isBasicJet() const { return !(isCaloJet() || isPFJet()); }
+      bool isCaloJet()  const { return !specificCalo_.empty(); }
+      bool isPFJet()    const { return !specificPF_.empty(); }
+      bool isBasicJet() const { return !(isCaloJet() || isPFJet()); }
 
-    const CaloSpecific & caloSpecific() const { 
-        if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
-        return specificCalo_[0];
-    }
-    const PFSpecific & pfSpecific() const { 
-        if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
-        return specificPF_[0];
-    }
+      const CaloSpecific & caloSpecific() const { 
+          if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
+          return specificCalo_[0];
+      }
+      const PFSpecific & pfSpecific() const { 
+          if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
+          return specificPF_[0];
+      }
 
-    //================== Calo Jet specific information ====================
+      //================== Calo Jet specific information ====================
       /** Returns the maximum energy deposited in ECAL towers*/
       float maxEInEmTowers() const {return caloSpecific().mMaxEInEmTowers;}
       /** Returns the maximum energy deposited in HCAL towers*/
@@ -267,8 +282,16 @@ namespace pat {
       std::vector<reco::GenJet> genJet_;
       int partonFlavour_;
       // energy scale correction factors
-      JetCorrFactors jetCorrF_;
-      float noCorrF_;
+
+      pat::JetCorrFactors::CorrStep    jetEnergyCorrectionStep_;
+      std::vector<pat::JetCorrFactors> jetEnergyCorrections_;
+#if TO_BE_ADDED_LATER
+      // Names for the additional jet energy corrections for systematic studies
+      // The default one carries no name, to save disk space.
+      // This means jetEnergyCorrectionExtraNames_.size() < jetEnergyCorrections_.size()
+      std::vector<std::string>         jetEnergyCorrectionExtraNames_;
+#endif
+
       // b-tag related members
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
       // track association
@@ -284,7 +307,9 @@ namespace pat {
       std::vector<PFSpecific>   specificPF_;
       void tryImportSpecific(const JetType &source);
 
+#if TO_BE_PORTED_LATER
     static const std::string correctionNames_[NrOfCorrections];
+#endif
   };
 
 
