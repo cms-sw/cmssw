@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/10/29 10:56:43 $
+ * $Date: 2008/10/30 12:04:03 $
  * \author C. Rovelli
  *
 */
@@ -337,7 +337,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
       e5x5rec += ebRecMap[crystalMatrix[i]];
       e5x5sim += ebSimMap[crystalMatrix[i]];
-      int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 8. ) * 10. );
+      int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 4. ) * 10. );
       if( log10i25 >=0 && log10i25 < 80 ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
     }
     
