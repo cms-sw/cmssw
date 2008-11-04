@@ -13,7 +13,7 @@ public:
   virtual RecHitPointer build ( const TrackingRecHit * p)  const = 0 ;
   
   /// build a tracking rechit refiting the rechit position and error according to the state estimate
-    virtual RecHitPointer build ( const TrackingRecHit * p, const TrajectoryStateOnSurface & state) const = 0 ;
+    virtual RecHitPointer build ( const TrackingRecHit * p, const TrajectoryStateOnSurface & state) const { return build(p); } ;
 };
 
 
