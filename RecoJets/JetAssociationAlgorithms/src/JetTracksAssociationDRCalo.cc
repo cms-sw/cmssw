@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.4 2007/09/24 20:59:58 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.5 2008/01/04 17:45:21 wmtan Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -40,7 +40,7 @@ namespace {
   {
     GlobalPoint trackPosition (fTrack.vx(), fTrack.vy(), fTrack.vz()); // reference point
     GlobalVector trackMomentum (fTrack.px(), fTrack.py(), fTrack.pz()); // reference momentum
-    if (fTrack.extra().product ()) { // use outer point information, if available
+    if (fTrack.extra().isAvailable() ) { // use outer point information, if available
       trackPosition =  GlobalPoint (fTrack.outerX(), fTrack.outerY(), fTrack.outerZ());
       trackMomentum = GlobalVector (fTrack.outerPx(), fTrack.outerPy(), fTrack.outerPz());
     }
