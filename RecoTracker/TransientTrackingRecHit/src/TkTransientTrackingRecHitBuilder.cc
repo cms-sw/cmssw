@@ -60,3 +60,10 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type"; 
 }
 
+TransientTrackingRecHit::RecHitPointer
+TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p,
+					 const TrajectoryStateOnSurface & tsos) const
+{
+  TransientTrackingRecHit::RecHitPointer noRefit = build(p);
+  return noRefit->clone(tsos);
+}
