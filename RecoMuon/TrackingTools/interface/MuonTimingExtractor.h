@@ -74,7 +74,7 @@ public:
      DetId driftCell;
   };
 
-  void fillTiming(edm::Event&, const edm::EventSetup&, reco::Muon& muon);
+  reco::MuonTime fillTiming(edm::Event&, const edm::EventSetup&, reco::TrackRef muonTrack);
 
 private:
   double fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr );
