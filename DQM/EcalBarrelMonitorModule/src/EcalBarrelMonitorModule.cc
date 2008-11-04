@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/06/24 07:35:26 $
- * $Revision: 1.182 $
+ * $Date: 2008/11/04 19:13:42 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -366,8 +366,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   evtNumber_ = e.id().event();
 
-  map<int, EcalDCCHeaderBlock> dccMap;
-
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -386,11 +384,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
       nebc++;
-
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[dcch.id()] = dcch;
 
       if ( meEBDCC_ ) meEBDCC_->Fill(Numbers::iSM( dcch, EcalBarrel )+0.5);
 

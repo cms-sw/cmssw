@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/11/04 19:13:42 $
- * $Revision: 1.59 $
+ * $Date: 2008/11/04 20:55:24 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -366,8 +366,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   evtNumber_ = e.id().event();
 
-  map<int, EcalDCCHeaderBlock> dccMap;
-
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -386,11 +384,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
 
       neec++;
-
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[dcch.id()] = dcch;
 
       if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( dcch, EcalEndcap )+0.5);
 
