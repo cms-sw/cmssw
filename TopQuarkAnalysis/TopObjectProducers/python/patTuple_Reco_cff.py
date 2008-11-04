@@ -75,6 +75,7 @@ selectedLayer1CaloTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.s
 
 ## do the proper replacements
 allLayer1CaloTaus.tauSource            = 'allLayer0CaloTaus'
+allLayer1CaloTaus.addTauID             = False
 allLayer1CaloTaus.trigPrimMatch        = ['tauTrigMatchHLT1CaloTau']
 allLayer1CaloTaus.genParticleMatch     =  'caloTauMatch'
 allLayer1CaloTaus.genJetMatch          =  'caloTauGenJetMatch'

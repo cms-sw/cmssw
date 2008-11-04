@@ -29,7 +29,7 @@ allLayer0Electrons.isolation.hcal    = cms.PSet(
 ## mc matching
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import jetPartonMatch
 
-jetPartonMatch.mcStatus = [2]
+jetPartonMatch.mcStatus = [3]
 
 
 ## production
