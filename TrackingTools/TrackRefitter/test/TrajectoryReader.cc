@@ -180,7 +180,7 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   if(traj_size != track_size){
     LogTrace(metname)
       <<"Mismatch between the # of Tracks ("<<track_size<<") and the # of Trajectories! ("
-      <<traj_size<<")";
+      <<traj_size<<") in "<<event.id();
     hSuccess->Fill(0);
   }
   else
