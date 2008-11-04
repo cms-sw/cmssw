@@ -2,6 +2,7 @@
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
 #include "RecoLocalCalo/HcalLaserReco/src/HcalLaserUnpacker.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <iostream>
 
 HcalLaserUnpacker::HcalLaserUnpacker(){}
 
