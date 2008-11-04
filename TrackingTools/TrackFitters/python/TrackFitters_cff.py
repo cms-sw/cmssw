@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from TrackingTools.TrackFitters.DAFFittingSmootherESProducer_cfi import *
-from TrackingTools.TrackFitters.DAFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.DAFTrajectorySmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.MRHFittingSmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.MRHTrajectoryFitterESProducer_cfi import *
+from TrackingTools.TrackFitters.MRHTrajectorySmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
 from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
