@@ -1354,7 +1354,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
 	else {
 	  alpha2 = 0.0;
 	} 
-	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	//std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
 	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
 	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
 	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
