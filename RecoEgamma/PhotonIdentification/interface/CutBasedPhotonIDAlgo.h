@@ -19,20 +19,13 @@ public:
   virtual ~CutBasedPhotonIDAlgo(){};
 
   void setup(const edm::ParameterSet& conf);
-  void calculate(const reco::Photon*, 
-		 const edm::Event&, const edm::EventSetup& es,
-		 PhotonFiducialFlags& phofid, 
-		 PhotonIsolationVariables& phoisolR03, 
-		 PhotonIsolationVariables& phoisolR04, 
-		 CutBasedPhotonID &phoid);
-  void decideEB(PhotonFiducialFlags phofid, 
-		PhotonIsolationVariables &phoIsolR04, 
-		const reco::Photon* pho, 
-		CutBasedPhotonID&  phID );
-  void decideEE(PhotonFiducialFlags phofid, 
-		PhotonIsolationVariables &phoIsolR04, 
-		const reco::Photon* pho, 
-		CutBasedPhotonID&  phID );
+  void decideEB(const reco::Photon* pho, 
+		bool &LoosePhoton, 
+		bool &TightPhoton 
+		);
+  void decideEE(const reco::Photon* pho, 
+		bool &LoosePhoton,
+		bool &TightPhoton);
  private:
   
   //Which cuts to do?
@@ -47,17 +40,6 @@ public:
   bool dophotonHadOverEMCut_;
   bool dophotonsigmaeeCut_;
   bool dophotonR9Cut_;
-
-  //Actual cut values
-  double looseEMEcalRecHitIsolationCutEB_;
-  double looseEMHcalTowerIsolationCutEB_;
-  double looseEMHollowConeTrkIsolationCutEB_;
-  double looseEMSolidConeTrkIsolationCutEB_;
-  int looseEMSolidConeNTrkCutEB_;
-  int looseEMHollowConeNTrkCutEB_;
-  double looseEMEtaWidthCutEB_;
-  double looseEMHadOverEMCutEB_;
-  double looseEMR9CutEB_;
 
   double loosephotonEcalRecHitIsolationCutEB_;
   double loosephotonHcalTowerIsolationCutEB_;
@@ -79,16 +61,6 @@ public:
   double tightphotonHadOverEMCutEB_;
   double tightphotonR9CutEB_;
 
-  double looseEMEcalRecHitIsolationCutEE_;
-  double looseEMHcalTowerIsolationCutEE_;
-  double looseEMHollowConeTrkIsolationCutEE_;
-  double looseEMSolidConeTrkIsolationCutEE_;
-  int looseEMSolidConeNTrkCutEE_;
-  int looseEMHollowConeNTrkCutEE_;
-  double looseEMEtaWidthCutEE_;
-  double looseEMHadOverEMCutEE_;
-  double looseEMR9CutEE_;
-
   double loosephotonEcalRecHitIsolationCutEE_;
   double loosephotonHcalTowerIsolationCutEE_;
   double loosephotonHollowConeTrkIsolationCutEE_;
@@ -109,30 +81,6 @@ public:
   double tightphotonHadOverEMCutEE_;
   double tightphotonR9CutEE_;
 
-  //Isolation parameters
-  double photonEcalRecHitConeInnerRadiusA_;
-  double photonEcalRecHitConeOuterRadiusA_;
-  double photonEcalRecHitEtaSliceA_;
-  double photonEcalRecHitThreshEA_;
-  double photonEcalRecHitThreshEtA_;
-  double photonHcalTowerConeInnerRadiusA_;
-  double photonHcalTowerConeOuterRadiusA_;
-  double photonHcalTowerThreshEA_;
-  double trackConeOuterRadiusA_;
-  double trackConeInnerRadiusA_;
-  double isolationtrackThresholdA_;
-
-  double photonEcalRecHitConeInnerRadiusB_;
-  double photonEcalRecHitConeOuterRadiusB_;
-  double photonEcalRecHitEtaSliceB_;
-  double photonEcalRecHitThreshEB_;
-  double photonEcalRecHitThreshEtB_;
-  double photonHcalTowerConeInnerRadiusB_;
-  double photonHcalTowerConeOuterRadiusB_;
-  double photonHcalTowerThreshEB_;
-  double trackConeOuterRadiusB_;
-  double trackConeInnerRadiusB_;
-  double isolationtrackThresholdB_;
  
 };
 
