@@ -12,6 +12,8 @@ SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClust
 
 void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuality* siStripQuality,HistoMap& DM){
 
+  _StripOccupancy.clear();
+
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] "<<std::endl;
 
   HistoMap::iterator it=DM.begin();
@@ -65,6 +67,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
       continue;
 
     if(diff<vPoissonProbs[entries]){
+      _StripOccupancy.push_back(entries);
       histo._th1f->SetBinContent(i,0.);
       histo._NEntries-=entries;
       histo._NEmptyBins++;

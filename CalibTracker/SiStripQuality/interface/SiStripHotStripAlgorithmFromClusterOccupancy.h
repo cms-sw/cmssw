@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.1 2007/10/24 08:42:45 giordano Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.2 2007/11/02 21:06:38 giordano Exp $
 //
 //
 
@@ -44,7 +44,7 @@ public:
   void setMinNumEntries(unsigned short m){MinNumEntries_=m;}
   void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
   void extractBadStrips(SiStripQuality*,HistoMap&);
-
+  std::vector<uint32_t> getStripOccupancy(){return _StripOccupancy;}
   
  private:
 
@@ -64,6 +64,7 @@ public:
   unsigned short MinNumEntriesPerStrip_;
 
   SiStripQuality *pQuality;
+  std::vector<uint32_t> _StripOccupancy;
   std::stringstream ss;   
 };
 #endif
