@@ -8,14 +8,13 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
+// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.2 2008/07/16 13:51:00 dmytro Exp $
 //
 
 // system include files
 #include "TEveElement.h"
 #include "TColor.h"
 #include "TGeoTube.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"
@@ -117,14 +116,12 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
     t(1,4) = eta;
     t(2,4) = phi;
     t(3,4) = 0.1;
-    TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("outline");
-    extract->SetTrans(t.Array());
-    extract->SetRGBA(rgba);
-    extract->SetRnrSelf(true);
-    extract->SetRnrElements(true);
-    extract->SetShape(shape);
-    TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, container);
-    element->SetPickable(kTRUE);
+    TEveGeoShape *egs = new TEveGeoShape("outline");
+    egs->SetTransMatrix(t.Array());
+    egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+    egs->SetShape(shape);
+    egs->SetPickable(kTRUE);
+    container->AddElement(egs);
     /* if ( triggeredObjects[iTriggeredObjects]->p4().et()<15)
        element->SetMainTransparency(90);
        else
