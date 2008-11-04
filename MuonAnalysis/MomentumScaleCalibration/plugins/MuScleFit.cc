@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/10/09 15:39:58 $
-//  $Revision: 1.7 $
+//  $Date: 2008/10/29 09:21:56 $
+//  $Revision: 1.8 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -160,6 +160,10 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   // Max number of loops (if > 2 then try to minimize likelihood more than once)
   // ---------------------------------------------------------------------------
   maxLoopNumber = pset.getUntrackedParameter<int>("maxLoopNumber", 2);
+  // Selection of fits according to loop
+  MuScleFitUtils::doResolFit = pset.getParameter<vector<int> >("doResolFit");
+  MuScleFitUtils::doScaleFit = pset.getParameter<vector<int> >("doScaleFit");
+  MuScleFitUtils::doBackgroundFit = pset.getParameter<vector<int> >("doBackgroundFit");
 
   // Bias and smear types
   // --------------------
@@ -540,16 +544,11 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     }
     // If likelihood has been run already, we can correct and "unbias" muons with the latest fit results 
     // -------------------------------------------------------------------------------------------------
-
-
-    // ------------
-    // ATTENTION
-    // The "<3" is a consequence of the kludge
-    // ------------
-
-    if (loopCounter>0 && loopCounter<3) {
-      recMu1 = (MuScleFitUtils::applyScale (recMu1, MuScleFitUtils::parvalue[loopCounter-1], -1));
-      recMu2 = (MuScleFitUtils::applyScale (recMu2, MuScleFitUtils::parvalue[loopCounter-1],  1));
+    if ( loopCounter>0 ) {
+      if ( MuScleFitUtils::doScaleFit[loopCounter-1] ) {
+        recMu1 = (MuScleFitUtils::applyScale (recMu1, MuScleFitUtils::parvalue[loopCounter-1], -1));
+        recMu2 = (MuScleFitUtils::applyScale (recMu2, MuScleFitUtils::parvalue[loopCounter-1],  1));
+      }
     }
     if (debug>0) {
       cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = " 
@@ -767,6 +766,23 @@ void MuScleFit::writeHistoMap() {
 // are not consistent.
 void MuScleFit::checkParameters() {
 
+  // Fits selection dimension check
+  if( MuScleFitUtils::doResolFit.size() != maxLoopNumber ) {
+    cout << "[MuScleFit-Constructor]: wrong size of resolution fits selector = " << MuScleFitUtils::doResolFit.size() << endl;
+    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    abort();
+  }
+  if( MuScleFitUtils::doScaleFit.size() != maxLoopNumber ) {
+    cout << "[MuScleFit-Constructor]: wrong size of scale fits selector = " << MuScleFitUtils::doScaleFit.size() << endl;
+    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    abort();
+  }
+  if( MuScleFitUtils::doBackgroundFit.size() != maxLoopNumber ) {
+    cout << "[MuScleFit-Constructor]: wrong size of background fits selector = " << MuScleFitUtils::doBackgroundFit.size() << endl;
+    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    abort();
+  }
+
   // Bias parameters: dimension check
   // --------------------------------
   if ((MuScleFitUtils::BiasType==1  && MuScleFitUtils::parBias.size()!=2) || // linear in pt
@@ -805,7 +821,8 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ResolFitType==3 && MuScleFitUtils::parResol.size()!=5) ||
       (MuScleFitUtils::ResolFitType==4 && MuScleFitUtils::parResol.size()!=6) ||
       (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>5) {
+      (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
+      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>6) {
     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
     abort();
   }
@@ -824,7 +841,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
       (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta plus sin in phi with chg
       (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
-      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>13) {
+      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>15) {
     cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
     abort();
   }

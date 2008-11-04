@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/10/15 13:51:08 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/29 09:23:10 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -20,7 +20,7 @@
 //
 //   MODS 7/7/08 TD:
 //   - changed parametrization of resolution in Pt: from sigma_pt = a*Pt + b*|eta| to 
-//                                                       sigma_pt = (a*Pt + b*|eta|)*Pt 
+//                                                       sigma_pt = (a*Pt + b*|eta|)*Pt
 //                                                  which is more correct (I hope)
 //   - changed parametrization of resolution in cotgth: from sigma_cotgth = f(eta) to f(cotgth)
 // --------------------------------------------------------------------------------------------
@@ -97,10 +97,14 @@ TF1 * GLBE = new TF1 ("GLBE",
   "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))+exp([4]+[5]*x)", 
   0, 1000);
 
+vector<int> MuScleFitUtils::doResolFit;
+vector<int> MuScleFitUtils::doScaleFit;
+vector<int> MuScleFitUtils::doBackgroundFit;
+
 int MuScleFitUtils::SmearType = 0;
 smearFunctionBase * MuScleFitUtils::smearFunction = 0;
 int MuScleFitUtils::BiasType  = 0;
-// No error, we use take functions from the same group for bias and scale.
+// No error, we take functions from the same group for bias and scale.
 scaleFunctionBase<vector<double> > * MuScleFitUtils::biasFunction = 0;
 int MuScleFitUtils::ResolFitType = 0;
 int MuScleFitUtils::ScaleFitType = 0;
@@ -666,16 +670,32 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
     sigma_phi2    = parval[2];
     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-  } else if (ResolFitType==5) { 
+  } else if (ResolFitType==5) {
     sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1;
     sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2;
     sigma_phi1    = parval[2]+parval[6]*pt1;
     sigma_phi2    = parval[2]+parval[6]*pt2;
     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
+  } else if (ResolFitType==6) {
+//     sigma_pt1     = parval[0]+parval[1]*pt1+parval[2]*pow(pt1,2)+parval[3]*pow(pt1,3)+parval[4]*pow(pt1,4);
+//     sigma_pt2     = parval[0]+parval[1]*pt2+parval[2]*pow(pt2,2)+parval[3]*pow(pt2,3)+parval[4]*pow(pt2,4);
+//     sigma_phi1    = parval[5];
+//     sigma_phi2    = parval[5];
+//     sigma_cotgth1 = parval[6]+parval[7]*fabs(cos(theta1)/sin(theta1))+parval[8]*pow(fabs(cos(theta1)/sin(theta1)),2);
+//     sigma_cotgth2 = parval[6]+parval[7]*fabs(cos(theta2)/sin(theta2))+parval[8]*pow(fabs(cos(theta2)/sin(theta2)),2);
+
+    // For simplicity we use parabolic descriptions for both pt and eta dependence
+    sigma_pt1     = parval[0]+parval[1]*pt1+parval[2]*pow(pt1,2)+parval[3]*pow(pt1,3)+parval[4]*pow(pt1,4)+parval[5]*eta1+parval[6]*pow(eta1,2);
+    sigma_pt2     = parval[0]+parval[1]*pt2+parval[2]*pow(pt2,2)+parval[3]*pow(pt2,3)+parval[4]*pow(pt2,4)+parval[5]*eta2+parval[6]*pow(eta2,2);
+    // For simplicity we use a parabolic fit for eta dependece
+    sigma_cotgth1 = parval[7]+parval[8]/pt1+parval[9]*eta1+parval[10]*pow(eta1,2);
+    sigma_cotgth2 = parval[7]+parval[8]/pt2+parval[9]*eta2+parval[10]*pow(eta2,2);
+    // This should be accurate
+    sigma_phi1    = parval[11]+parval[12]/pt1+parval[13]*eta1+parval[14]*pow(eta1,2);
+    sigma_phi2    = parval[11]+parval[12]/pt2+parval[13]*eta2+parval[14]*pow(eta2,2);
   }
  
-
   // double sigma_theta1 = parval[3];
   // double sigma_theta2 = parval[3];
 
@@ -716,7 +736,7 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
 // 	  cout << " P[0]=" 
 // 	       << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3] 
 // 	       << " P[4]=" << parval[4] << " P[5]=" << parval[5] << endl;
-// 	if (ResolFitType==2) 
+// 	if (ResolFitType==2)
 // 	  cout << " P[0]=" 
 // 	       << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3] << endl;
 // 	cout << "  Dmdpt1= " << dmdpt1 << " dmdpt2= " << dmdpt2 << " sigma_pt1=" 
@@ -1140,41 +1160,72 @@ void MuScleFitUtils::minimizeLikelihood () {
     // the second time to verify the correction); and finally everything is
     // fixed to its final values and the resolution is fit again.
     // ---------------------------------------------------------------------
+//     if (loopCounter<1) {
+//       // Release resolution parameters and fit them at iteration 0
+//       // ---------------------------------------------------------
+//       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
+// 	if (parfix[ipar]==0 && ind[ipar]==iorder) {
+// 	  rmin.Release (ipar);
+// 	  somethingtodo = true;
+// 	}
+//       }
+//     } else if (loopCounter<3) {
+//       // Fix resolution parameters and fit scale and bgr at iterations 1 and 2
+//       // ---------------------------------------------------------------------
+//       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
+// 	rmin.FixParameter (ipar);
+//       }
+//       // Keep the background fixed for now
+//       // for (int ipar=parResol.size(); ipar<parnumber; ipar++) {      
+//       for (unsigned int ipar=parResol.size(); ipar<parResol.size()+parScale.size(); ipar++) {      
+// 	if (parfix[ipar]==0 && ind[ipar]==iorder) { // parfix=0 means parameter is free
+// 	  rmin.Release (ipar);
+// 	  somethingtodo = true;
+// 	}
+//       } 
+//     } else if (loopCounter>=3) {
+//       // Temporary kludge to fit resolution at loops>2
+//       // ---------------------------------------------
+//       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
+// 	if (parfix[ipar]==0 && ind[ipar]==iorder) {
+// 	  rmin.Release (ipar);
+// 	  somethingtodo = true;
+// 	}
+//       }
+//       for (int ipar=parResol.size(); ipar<parnumber; ipar++) {
+// 	rmin.FixParameter (ipar);
+//       }
+//     }
 
-    if (loopCounter==-1) {
-      // Release resolution parameters and fit them at iteration 0
-      // ---------------------------------------------------------
+    // Modification of the kludge: use parameters from cfg to select which fit to do.
+    if (doResolFit[loopCounter]) {
+      // Release resolution parameters and fit them
+      // ------------------------------------------
       for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
 	if (parfix[ipar]==0 && ind[ipar]==iorder) {
 	  rmin.Release (ipar);
 	  somethingtodo = true;
 	}
       }
-    } else if (loopCounter<3) {
-      // Fix resolution parameters and fit scale and bgr at iterations 1 and 2
-      // ---------------------------------------------------------------------
-      for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
-	rmin.FixParameter (ipar);
-      }
-      // Keep the background fixed for now
-      // for (int ipar=parResol.size(); ipar<parnumber; ipar++) {      
+    }
+    if (doScaleFit[loopCounter]) {
+      // Release scale parameters and fit them
+      // -------------------------------------
       for (unsigned int ipar=parResol.size(); ipar<parResol.size()+parScale.size(); ipar++) {      
 	if (parfix[ipar]==0 && ind[ipar]==iorder) { // parfix=0 means parameter is free
 	  rmin.Release (ipar);
 	  somethingtodo = true;
 	}
       } 
-    } else if (loopCounter>=3) {
-      // Temporary kludge to fit resolution at loops>2
-      // ---------------------------------------------
-      for (unsigned int ipar=0; ipar<parResol.size(); ipar++) {
+    }
+    if (doBackgroundFit[loopCounter]) {
+      // Release background parameters and fit them
+      // ------------------------------------------
+      for (int ipar=parResol.size()+parScale.size(); ipar<parnumber; ipar++) {      
 	if (parfix[ipar]==0 && ind[ipar]==iorder) {
 	  rmin.Release (ipar);
 	  somethingtodo = true;
 	}
-      }
-      for (int ipar=parResol.size(); ipar<parnumber; ipar++) {
-	rmin.FixParameter (ipar);
       }
     } 
 
@@ -1357,6 +1408,9 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
       Maxi[0]    = 0.01;
       Maxi[1]    = 0.02;
       Maxi[2]    = 0.02;
+//       Maxi[0]    = 2;
+//       Maxi[1]    = 2;
+//       Maxi[2]    = 2;
     }
     ind[0]     = parResolOrder[0];
     ind[1]     = parResolOrder[1];
@@ -1534,7 +1588,116 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
     parname[4] = "Cth res. eta sc.";
     parname[5] = "Pt res. Pt^2 sc.";
     parname[6] = "Phi res. pt sc.";
-  } 
+  } else if (ResolFitType==6) {
+    Start[0]   = parResol[0]; // 0.001
+    Start[1]   = parResol[1]; // 0.001
+    Start[2]   = parResol[2]; // 0.001
+    Start[3]   = parResol[3]; // 0.001
+    Start[4]   = parResol[4]; // 0.001
+    Start[5]   = parResol[5]; // 0.000001
+    Start[6]   = parResol[6]; // 0.001
+    Start[7]   = parResol[7]; // 0.001
+    Start[8]   = parResol[8]; // 0.001
+    Start[9]   = parResol[9]; // 0.001
+    Start[10]  = parResol[10]; // 0.001
+    Start[11]  = parResol[11]; // 0.001
+    Start[12]  = parResol[12]; // 0.001
+    Start[13]  = parResol[13]; // 0.001
+    Start[14]  = parResol[14]; // 0.001
+    Step[0]    = 0.005;
+    Step[1]    = 0.0005;
+    Step[2]    = 0.000005;
+    Step[3]    = 0.00000005;
+    Step[4]    = 0.0000000005;
+    Step[5]    = 0.0005;
+    Step[6]    = 0.000005;
+    Step[7]    = 0.000005;
+    Step[8]    = 0.0005;
+    Step[9]    = 0.00000005;
+    Step[10]   = 0.0000005;
+    Step[11]   = 0.00005;
+    Step[12]   = 0.0005;
+    Step[13]   = 0.00000005;
+    Step[14]   = 0.000005;
+    Mini[0]    = 0.0;
+    Mini[1]    = -0.01;
+    Mini[2]    = -0.001;
+    Mini[3]    = -0.01;
+    Mini[4]    = -0.001;
+    Mini[5]    = -0.001;
+    Mini[6]    = -0.001;
+    Mini[7]    = 0.0;
+    Mini[8]    = 0.0;
+    Mini[9]    = -0.001;
+    Mini[10]   = -0.001;
+    Mini[11]   = 0.0;
+    Mini[12]   = 0.0;
+    Mini[13]   = -0.001;
+    Mini[14]   = -0.001;
+    if (MuonType==1) {
+      Maxi[0]    = 1.;
+      Maxi[1]    = 1.;
+      Maxi[2]    = 1.;
+      Maxi[3]    = 1.;
+      Maxi[4]    = 1.;
+      Maxi[5]    = 1.;
+      Maxi[6]    = 1.;
+      Maxi[7]    = 0.1;
+      Maxi[8]    = 1.;
+      Maxi[9]    = 1.;
+      Maxi[10]   = 1.;
+      Maxi[11]   = 1.;
+      Maxi[12]   = 1.;
+      Maxi[13]   = 1.;
+      Maxi[14]   = 1.;
+    } else {
+      Maxi[0]    = 0.1;
+      Maxi[1]    = 0.01;
+      Maxi[2]    = 0.01;
+      Maxi[3]    = 0.01;
+      Maxi[4]    = 0.01;
+      Maxi[5]    = 0.01;
+      Maxi[6]    = 0.1;
+      Maxi[7]    = 0.01;
+      Maxi[8]    = 0.01;
+      Maxi[9]    = 0.01;
+      Maxi[10]   = 0.01;
+      Maxi[11]   = 0.01;
+      Maxi[12]   = 0.01;
+      Maxi[13]   = 0.01;
+      Maxi[14]   = 0.01;
+    }
+    ind[0]      = parResolOrder[0];
+    ind[1]      = parResolOrder[1];
+    ind[2]      = parResolOrder[2];
+    ind[3]      = parResolOrder[1];
+    ind[4]      = parResolOrder[2];
+    ind[5]      = parResolOrder[3];
+    ind[6]      = parResolOrder[4];
+    ind[7]      = parResolOrder[5];
+    ind[8]      = parResolOrder[6];
+    ind[9]      = parResolOrder[7];
+    ind[10]     = parResolOrder[8];
+    ind[11]     = parResolOrder[9];
+    ind[12]     = parResolOrder[10];
+    ind[13]     = parResolOrder[11];
+    ind[14]     = parResolOrder[12];
+    parname[0]  = "Pt res. sc.";
+    parname[1]  = "Pt res. Pt sc.";
+    parname[2]  = "Pt res. Pt^2 sc.";
+    parname[3]  = "Pt res. Pt^3 sc.";
+    parname[4]  = "Pt res. Pt^4 sc.";
+    parname[5]  = "Pt res. Eta sc.";
+    parname[6]  = "Pt res. Eta^2 sc.";
+    parname[7]  = "Cth res. sc.";
+    parname[8]  = "Cth res. 1/Pt sc.";
+    parname[9]  = "Cth res. Eta sc.";
+    parname[10] = "Cth res. Eta^2 sc.";
+    parname[11] = "Phi res. sc.";
+    parname[12] = "Phi res. 1/Pt sc.";
+    parname[13] = "Phi res. Eta sc.";
+    parname[14] = "Phi res. Eta^2 sc.";
+  }
 
   int shift = parResol.size();
 

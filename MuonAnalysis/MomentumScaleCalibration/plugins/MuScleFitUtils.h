@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2008/07/03 10:39:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/09 15:39:26 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -116,6 +116,11 @@ public:
   static int ScaleFitType;
   static scaleFunctionBase<double*> * scaleFunction;
   static int BgrFitType;
+
+  // Parameters used to select whether to do a fit
+  static std::vector<int> doResolFit;
+  static std::vector<int> doScaleFit;
+  static std::vector<int> doBackgroundFit;
 
   static std::vector<double> parSmear;
   static std::vector<double> parBias;

@@ -15,14 +15,16 @@ using namespace std;
  * Made into a template so that it can be used with arrays too
  * (parval for the scale fit is an array, because Lykelihood is an
  * extern C function, because TMinuit asks it).</br>
- * Note that in the array case it takes the pointer by const reference.
- * Thus the elements of the array are modifiable.
+ * Note that in the array case it takes the pointer by const reference,
+ * thus the elements of the array are modifiable.
  */
 template <class T>
 class scaleFunctionBase {
  public:
   virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) = 0;
-   virtual ~scaleFunctionBase() = 0;
+  virtual ~scaleFunctionBase() = 0;
+  // Possibly use this to set the parameters for the fit
+  // virtual void setScaleFitParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname) = 0;
 };
 template <class T> inline scaleFunctionBase<T>::~scaleFunctionBase() { }  // defined even though it's pure virtual; should be faster this way.
 // No scale
@@ -31,6 +33,7 @@ template <class T>
 class scaleFunctionType0 : public scaleFunctionBase<T> {
 public:
   virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {}
+  // virtual void setScaleFitParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname) {}
 };
 // Linear in pt
 // ------------
@@ -40,6 +43,20 @@ public:
   virtual void scale(double & pt, const double & eta, const double & phi, const int chg, const T & parScale) {
     pt = (parScale[0] + parScale[1]*pt)*pt;
   }
+//   virtual void setScaleFitParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname) {
+//     Start[0]   = parScale[0]; // 1.0
+//     Start[1]   = parScale[1]; // 0.0
+//     Step[0]    = 0.001;
+//     Step[1]    = 0.01;
+//     Mini[0]    = 0.97;
+//     Mini[1]    = -0.1;
+//     Maxi[0]    = 1.03;
+//     Maxi[1]    = 0.1;
+//     ind[0]     = parScaleOrder[0];
+//     ind[1]     = parScaleOrder[1];
+//     parname[0] = "Pt offset";
+//     parname[1] = "Pt slope";
+//   }
 };
 // Linear in |eta|
 // ---------------
@@ -238,7 +255,8 @@ class smearFunctionType0 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y) { }
 };
-
+// The 3 parameters of smearType1 are: pt dependence of pt smear, phi smear and
+// cotgtheta smear.
 class smearFunctionType1 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y) {
@@ -271,7 +289,9 @@ class smearFunctionType3 : public smearFunctionBase {
     smearEta(eta);
   }
 };
-
+// The six parameters of SmearType=4 are respectively:
+// Pt dep. of Pt res., |eta| dep. of Pt res., Phi res., |eta| res., 
+// |eta| dep. of |eta| res., Pt^2 dep. of Pt res.
 class smearFunctionType4 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y) {
