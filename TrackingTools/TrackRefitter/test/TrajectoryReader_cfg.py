@@ -8,6 +8,10 @@ process.load("TrackingTools.TrackRefitter.globalMuonTrajectories_cff")
 process.load("TrackingTools.TrackRefitter.standAloneMuonTrajectories_cff")
 process.load("TrackingTools.TrackRefitter.ctfWithMaterialTrajectories_cff")
 
+process.globalMuons.TrackTransformer.RefitDirection = 'insideOut'
+process.generalTracks.TrackTransformer.RefitDirection = 'insideOut'
+process.standAloneMuons.TrackTransformer.RefitDirection = 'insideOut'
+
 process.load("Configuration.StandardSequences.Services_cff")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -21,11 +25,12 @@ process.GlobalTag.globaltag = 'IDEAL_V6::All'
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:RelValSingleMuPt10.root')
+                            skipEvents = cms.untracked.uint32(25),
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_10/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/78E29B63-4699-DD11-AB65-000423D98750.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(5)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -40,8 +45,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     DEBUG = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     ),
-    INFO = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)
+#    INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    TrackFitters = cms.untracked.PSet(
+    limit = cms.untracked.int32(10000000)
     ),
     TrajectoryReader = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
@@ -51,6 +57,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     categories = cms.untracked.vstring(
     'TrackTransformer', 
     'TracksToTrajectories', 
+    'TrackFitters',
     'TrajectoryReader'),
     destinations = cms.untracked.vstring('cout')
 )
@@ -74,7 +81,7 @@ process.glbMuons = cms.Sequence(process.globalMuons*process.GLBTrajectoriesReade
 process.staMuons = cms.Sequence(process.standAloneMuons*process.STATrajectoriesReader)
 process.tk = cms.Sequence(process.generalTracks*process.CTFTrajectoriesReader)
 
-process.testSTA = cms.Path(process.staMuons+process.tk+process.glbMuons)
+#process.testSTA = cms.Path(process.staMuons+process.tk+process.glbMuons)
 #process.testSTA = cms.Path(process.staMuons+process.tk)
-#process.testSTA = cms.Path(process.tk)
+process.testSTA = cms.Path(process.tk)
 #process.testSTA = cms.Path(process.staMuons)
