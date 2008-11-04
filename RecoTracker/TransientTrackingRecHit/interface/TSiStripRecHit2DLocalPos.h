@@ -58,8 +58,9 @@ public:
 
   static RecHitPointer build( const GeomDet * geom, const SiStripRecHit2D* rh,
 			      const StripClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe, weight, annealing));
+			      float weight=1., float annealing=1.,
+			      bool computeCoarseLocalPosition=false) {
+    return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe, weight, annealing,computeCoarseLocalPosition));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
@@ -87,9 +88,11 @@ private:
 
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,
-			    float weight, float annealing) : 
+			    float weight, float annealing,
+			    bool computeCoarseLocalPosition) : 
     TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
     {
+      if (computeCoarseLocalPosition){
       if (rh->hasPositionAndError())
 	theHitData = SiStripRecHit2D(*rh);
       else{
@@ -107,6 +110,7 @@ private:
 	theHitData = SiStripRecHit2D(*rh);
       }
       }
+    }
     }
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning

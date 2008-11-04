@@ -8,7 +8,7 @@
 TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE == 0){
-    return new TSiPixelRecHit( det(), &theHitData, 0, weight(), getAnnealingFactor());
+    return new TSiPixelRecHit( det(), &theHitData, 0, weight(), getAnnealingFactor(),false);
   }else{
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
@@ -28,9 +28,11 @@ const GeomDetUnit* TSiPixelRecHit::detUnit() const
 // TrackingRecHit exist already in some collection.
 TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 			       const PixelClusterParameterEstimator* cpe,
-			       float weight, float annealing) : 
+			       float weight, float annealing,
+			       bool computeCoarseLocalPosition) : 
   TransientTrackingRecHit(geom, *rh, weight, annealing), theCPE(cpe) 
 {
+  if (computeCoarseLocalPosition){
   if (rh->hasPositionAndError())
     theHitData = SiPixelRecHit(*rh);
   else{
@@ -43,7 +45,8 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
       theHitData = SiPixelRecHit(*rh);
     }
   }
-  
+  }
+
   // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.
   const PixelCPEBase * cpeB = dynamic_cast< const PixelCPEBase* >( cpe );
   if (cpeB) {

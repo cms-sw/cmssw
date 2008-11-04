@@ -4,7 +4,8 @@ TTRHBuilderAngleAndTemplate = cms.ESProducer("TkTransientTrackingRecHitBuilderES
     StripCPE = cms.string('StripCPEfromTrackAngle'),
     ComponentName = cms.string('WithAngleAndTemplate'),
     PixelCPE = cms.string('PixelCPETemplateReco'),
-    Matcher = cms.string('StandardMatcher')
+    Matcher = cms.string('StandardMatcher'),
+    ComputeCoarseLocalPositionFromDisk = cms.bool(False)                                             
 )
 
 

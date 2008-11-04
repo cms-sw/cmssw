@@ -59,8 +59,9 @@ public:
 
   static RecHitPointer build( const GeomDet * geom, const SiPixelRecHit* rh, 
 			      const PixelClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.) {
-  return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe,weight, annealing));
+			      float weight=1., float annealing=1.,
+			      bool computeCoarseLocalPosition=false) {
+    return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe,weight, annealing, computeCoarseLocalPosition));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
@@ -89,7 +90,8 @@ private:
   /// TrackingRecHit exist already in some collection.
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 		 const PixelClusterParameterEstimator* cpe,
-		 float weight, float annealing);
+		 float weight, float annealing, 
+		 bool computeCoarseLocalPosition);
 
 
 

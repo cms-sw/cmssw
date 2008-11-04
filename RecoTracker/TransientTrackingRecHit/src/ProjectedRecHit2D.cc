@@ -61,3 +61,41 @@ ProjectedRecHit2D::transientHits () const {
 						    
   return result;
 }
+
+ProjectedRecHit2D::ProjectedRecHit2D( const GeomDet * geom, const GeomDet* originaldet,
+				      const ProjectedSiStripRecHit2D* rh,
+				      const StripClusterParameterEstimator* cpe,
+				      float weight, float annealing,
+				      bool computeCoarseLocalPosition) :
+  GenericTransientTrackingRecHit( geom, *rh,weight, annealing), theCPE(cpe), theOriginalDet(originaldet) {
+  if (computeCoarseLocalPosition){
+    if (theCPE != 0) {
+      TrackingRecHitProjector<ProjectedRecHit2D> proj;
+      if(!originalHit().cluster().isNull()){
+	const SiStripCluster& clust = *(originalHit().cluster());  
+	
+	StripClusterParameterEstimator::LocalValues lv = 
+	  theCPE->localParameters( clust, *detUnit());
+	
+	RecHitPointer updatedOriginalHit = 
+	  TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
+					   originalHit().cluster(), theCPE, weight, annealing);
+	
+	RecHitPointer hit = proj.project( *updatedOriginalHit, *det()); 
+	trackingRecHit_ = hit->hit()->clone();
+      }else{
+	const SiStripCluster& clust = *(originalHit().cluster_regional());  
+	
+	StripClusterParameterEstimator::LocalValues lv = 
+	  theCPE->localParameters( clust, *detUnit());
+	
+	RecHitPointer updatedOriginalHit = 
+	  TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
+					   originalHit().cluster_regional(), theCPE, weight, annealing);
+	
+	RecHitPointer hit = proj.project( *updatedOriginalHit, *det()); 
+	trackingRecHit_ = hit->hit()->clone();
+      }
+    }
+  }
+}

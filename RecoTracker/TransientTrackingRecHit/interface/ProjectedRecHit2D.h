@@ -27,8 +27,9 @@ public:
 			      const GeomDet* originaldet,
 			      const ProjectedSiStripRecHit2D* rh,
 			      const StripClusterParameterEstimator* cpe,
-			      float weight=1., float annealing=1.) {
-    return RecHitPointer( new ProjectedRecHit2D( geom, originaldet, rh, cpe, weight, annealing));
+			      float weight=1., float annealing=1.,
+			      bool computeCoarseLocalPosition=false) {
+    return RecHitPointer( new ProjectedRecHit2D( geom, originaldet, rh, cpe, weight, annealing, computeCoarseLocalPosition));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err, 
@@ -56,8 +57,8 @@ private:
   ProjectedRecHit2D( const GeomDet * geom, const GeomDet* originaldet,
 		     const ProjectedSiStripRecHit2D* rh,
 		     const StripClusterParameterEstimator* cpe,
-		     float weight=1., float annealing=1.) :
-    GenericTransientTrackingRecHit( geom, *rh,weight, annealing), theCPE(cpe), theOriginalDet(originaldet) {}
+		     float weight, float annealing,
+		     bool computeCoarseLocalPosition);
 
   virtual ProjectedRecHit2D* clone() const {
     return new ProjectedRecHit2D(*this);

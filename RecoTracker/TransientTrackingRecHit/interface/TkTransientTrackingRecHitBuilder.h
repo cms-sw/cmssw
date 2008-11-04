@@ -14,7 +14,8 @@ class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
   TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 
 				    const PixelClusterParameterEstimator * ,
 				    const StripClusterParameterEstimator * ,
-                                    const SiStripRecHitMatcher           *);
+                                    const SiStripRecHitMatcher           *,
+				    bool computeCoarseLocalPositionFromDisk);
   TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator(){return pixelCPE;}
   const StripClusterParameterEstimator * stripClusterParameterEstimator(){return stripCPE;}
@@ -27,7 +28,7 @@ class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
   const PixelClusterParameterEstimator * pixelCPE;
   const StripClusterParameterEstimator * stripCPE;
   const SiStripRecHitMatcher           * theMatcher;
-  
+  bool theComputeCoarseLocalPosition;
 };
 
 

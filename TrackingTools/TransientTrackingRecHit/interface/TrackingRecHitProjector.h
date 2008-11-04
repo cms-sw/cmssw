@@ -10,11 +10,23 @@ class TrackingRecHitProjector {
 
   typedef  TransientTrackingRecHit::RecHitPointer      RecHitPointer;
 
+
   RecHitPointer project( const TransientTrackingRecHit& hit,
 			 const GeomDet& det, 
 			 const TrajectoryStateOnSurface& ts) const {
 
     GlobalVector gdir = ts.globalParameters().momentum();
+    return project(hit, det, gdir);
+  }
+  RecHitPointer project( const TransientTrackingRecHit& hit,
+			 const GeomDet& det) const {
+    GlobalVector gdir = hit.globalPosition() - GlobalPoint(0,0,0);
+    return project(hit, det, gdir);
+  }
+
+  RecHitPointer project( const TransientTrackingRecHit& hit,
+			 const GeomDet& det,
+			 const GlobalVector & gdir) const {
     const BoundPlane& gluedPlane = det.surface();
     const BoundPlane& hitPlane = hit.det()->surface();
 
