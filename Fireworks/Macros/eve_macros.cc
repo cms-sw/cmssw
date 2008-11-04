@@ -5,7 +5,6 @@
 
 #include <TEveElement.h>
 #include <TEveGeoNode.h>
-#include <TEveGeoShapeExtract.h>
 #include <TGeoNode.h>
 
 #include "eve_macros.h"

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.15 2008/10/28 14:18:08 chrjones Exp $
+// $Id: FWGlimpseView.cc,v 1.16 2008/11/04 11:46:33 amraktad Exp $
 //
 
 // system include files
@@ -177,6 +177,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    m_cylinder = fw::getShape("Detector outline", tube, kWhite);
    m_cylinder->SetPickable(kFALSE);
    m_cylinder->SetMainColor(kGray+3);  
+   wns->AddElement(m_cylinder);
    
    /*
    TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);

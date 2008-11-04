@@ -8,14 +8,13 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyEveLegoBuilder.cc,v 1.2 2008/07/16 13:51:01 dmytro Exp $
+// $Id: MetProxyEveLegoBuilder.cc,v 1.3 2008/08/18 20:08:27 chrjones Exp $
 //
 
 // system include files
 #include "TEveElement.h"
 #include "TColor.h"
 #include "TGeoTube.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"

@@ -8,12 +8,11 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/06/23 22:56:53 dmytro Exp $
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/07/01 19:16:43 chrjones Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoArb8.h"
 #include "TEveManager.h"
 #include "TH1F.h"

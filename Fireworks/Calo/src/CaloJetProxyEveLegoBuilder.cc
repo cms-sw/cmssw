@@ -8,14 +8,13 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.6 2008/07/16 13:50:59 dmytro Exp $
+// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.7 2008/07/16 16:09:23 chrjones Exp $
 //
 
 // system include files
 #include "TEveElement.h"
 #include "TColor.h"
 #include "TGeoTube.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"

@@ -8,14 +8,13 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.9 2008/07/16 16:09:23 chrjones Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.10 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // system include files
 #include "TEveElement.h"
 #include "TColor.h"
 #include "TGeoTube.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"

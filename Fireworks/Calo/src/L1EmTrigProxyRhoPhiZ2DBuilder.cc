@@ -8,12 +8,11 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/07/08 06:53:20 dmytro Exp $
+// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/07/16 13:51:00 dmytro Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoArb8.h"
 #include "TEveManager.h"
 #include "TGeoSphere.h"

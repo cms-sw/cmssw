@@ -8,12 +8,11 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatElectronsProxyRhoPhiZ2DBuilder.cc,v 1.13 2008/07/17 10:04:18 dmytro Exp $
+// $Id: PatElectronsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/09/26 07:42:09 dmytro Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoBBox.h"
 #include "TGeoTube.h"
 #include "TEveManager.h"
