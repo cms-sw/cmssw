@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <cassert>
+#include <ostream>
 
 namespace edm {
   EDProduct const*

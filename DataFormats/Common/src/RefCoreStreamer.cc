@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 class TBuffer;
 #include "TROOT.h"
+#include <ostream>
 
 namespace edm {
   void 
