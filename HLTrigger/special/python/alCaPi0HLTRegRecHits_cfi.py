@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 # AlCaPi0RecHits HLT filter
 alCaPi0RegRecHits = cms.EDFilter("HLTPi0RecHitsFilter",
-    barrelHits = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPT','EcalRecHitsEB' ),
-    endcapHits = cms.InputTag( 'hltEcalRegionalEgammaRecHitLowPT','EcalRecHitsEE' ),
+    barrelHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEB' ),
+    endcapHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEE' ),
+                                     
     pi0BarrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
     pi0EndcapHitCollection = cms.string( "pi0EcalRecHitsEE" ),                                
-
 
     clusSeedThr = cms.double( 0.5 ),
     clusSeedThrEndCap = cms.double( 1.0 ),                            
@@ -22,27 +22,38 @@ alCaPi0RegRecHits = cms.EDFilter("HLTPi0RecHitsFilter",
     seleS4S9GammaOne = cms.double( 0.8 ),
     seleS4S9GammaTwo = cms.double( 0.8 ),
     selePi0Iso = cms.double( 1.0 ),
-    selePi0IsoEndCap = cms.double( 1.0 ),                                 
     selePi0BeltDR = cms.double( 0.2 ),
     selePi0BeltDeta = cms.double( 0.05 ),
     ptMinForIsolation = cms.double( 0.9 ),
-                                 
-    Jets = cms.untracked.bool( False ),
-    JETSdoCentral =  cms.untracked.bool( True ),
-    JETSdoForward =  cms.untracked.bool( True ),
-    JETSdoTau =  cms.untracked.bool( True ),         
-    Ptmin_jets = cms.untracked.double (20.0),
-    CentralSource = cms.untracked.InputTag( 'hltL1extraParticles','Central' ),
-    ForwardSource = cms.untracked.InputTag( 'hltL1extraParticles','Forward' ),
-    TauSource = cms.untracked.InputTag( 'hltL1extraParticles','Tau' ),                                    
+    storeIsoClusRecHit = cms.bool( True ),
+                                     
+    ptMinEMObj = cms.double( 2.0 ),
+    EMregionEtaMargin = cms.double( 0.25 ),
+    EMregionPhiMargin = cms.double( 0.4 ),
 
+    RegionalMatch = cms.untracked.bool( True ),
+    Jets = cms.untracked.bool( False ),
+                                     
     selePtGammaEndCap = cms.double( 0.8 ),
     selePtPi0EndCap = cms.double( 2.0 ),
     seleS4S9GammaEndCap = cms.double( 0.85 ),                                 
     seleMinvMaxPi0EndCap = cms.double( 0.3 ),
     seleMinvMinPi0EndCap = cms.double( 0.05 ),                                 
     ptMinForIsolationEndCap = cms.double( 0.5 ),
-                                 
+    selePi0IsoEndCap = cms.double( 1.0 ),                                    
+
+    doSelForEtaBarrel = cms.untracked.bool( True ),
+    selePtGammaEta = cms.double(1.),
+    selePtEta = cms.double(3.5),                                     
+    seleS4S9GammaEta  = cms.double(0.88),                                 
+    seleMinvMaxEta = cms.double(0.7),
+    seleMinvMinEta = cms.double(0.4),                                   
+    ptMinForIsolationEta = cms.double(1.0),
+    seleIsoEta = cms.double(0.5),
+    seleEtaBeltDR = cms.double(0.3),
+    seleEtaBeltDeta = cms.double(0.1),
+    storeIsoClusRecHitEta = cms.bool( True ),                                   
+
     ParameterLogWeighted = cms.bool( True ),
     ParameterX0 = cms.double( 0.89 ),
     ParameterT0_barl = cms.double( 5.7 ),
@@ -52,12 +63,7 @@ alCaPi0RegRecHits = cms.EDFilter("HLTPi0RecHitsFilter",
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
     l1SeedFilterTag = cms.InputTag( "hltL1sAlCaEcalPi0" ),
-    debugLevel = cms.int32( 0 ),
-    storeIsoClusRecHit = cms.bool( True ),
-
-    ptMinEMObj = cms.double( 2.0 ),
-    EMregionEtaMargin = cms.double( 0.25 ),
-    EMregionPhiMargin = cms.double( 0.4 ) 
+    debugLevel = cms.int32( 0 )
 )
 
 

@@ -214,6 +214,27 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
  double ptMinEMObj_ ; 
  
+
+
+
+ bool doSelForEtaBarrel_; 
+ double selePtGammaEta_;
+ double selePtEta_;
+ double seleS4S9GammaEta_; 
+ double seleMinvMaxEta_; 
+ double seleMinvMinEta_; 
+ double ptMinForIsolationEta_; 
+ double seleIsoEta_; 
+ double seleEtaBeltDR_; 
+ double seleEtaBeltDeta_; 
+ bool storeIsoClusRecHitEta_;
+ 
+
+
+
+
+
+
  EcalElectronicsMapping* TheMapping;
  
 

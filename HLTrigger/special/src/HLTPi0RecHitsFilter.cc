@@ -113,6 +113,22 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   selePi0IsoEndCap_ = iConfig.getParameter<double> ("selePi0IsoEndCap");  
     
   
+  doSelForEtaBarrel_ = iConfig.getUntrackedParameter<bool>("doSelForEtaBarrel",false);  
+  if(doSelForEtaBarrel_ == true){
+    ///for Eta barrel selection
+    selePtGammaEta_ = iConfig.getParameter<double> ("selePtGammaEta");  
+    selePtEta_ = iConfig.getParameter<double> ("selePtEta");   
+    seleS4S9GammaEta_ = iConfig.getParameter<double> ("seleS4S9GammaEta");  
+    seleMinvMaxEta_ = iConfig.getParameter<double> ("seleMinvMaxEta");  
+    seleMinvMinEta_ = iConfig.getParameter<double> ("seleMinvMinEta");  
+    ptMinForIsolationEta_ = iConfig.getParameter<double> ("ptMinForIsolationEta");
+    seleIsoEta_ = iConfig.getParameter<double> ("seleIsoEta");  
+    seleEtaBeltDR_ = iConfig.getParameter<double> ("seleEtaBeltDR");  
+    seleEtaBeltDeta_ = iConfig.getParameter<double> ("seleEtaBeltDeta");  
+    storeIsoClusRecHitEta_ = iConfig.getParameter<bool> ("storeIsoClusRecHitEta");
+  }
+  
+  
   
 
   ParameterLogWeighted_ = iConfig.getParameter<bool> ("ParameterLogWeighted");
@@ -266,8 +282,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   bool accept=false;
 
-
-
+  
   
   ///first get all the FEDs around EM objects with PT > defined value. 
   
@@ -734,6 +749,95 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     } // End of the "j" loop over Simple Clusters
   } // End of the "i" loop over Simple Clusters
+
+  
+
+   ///do selection for eta->gg in barrel
+  if(doSelForEtaBarrel_){
+
+    for(Int_t i=0 ; i<nClus ; i++){
+      for(Int_t j=i+1 ; j<nClus ; j++){
+	
+	
+	if( etClus[i]>selePtGammaEta_ && etClus[j]>selePtGammaEta_ && s4s9Clus[i]>seleS4S9GammaEta_ && s4s9Clus[j]>seleS4S9GammaEta_){
+	  float theta_0 = 2. * atan(exp(-etaClus[i]));
+	  float theta_1 = 2. * atan(exp(-etaClus[j]));
+	  
+	  float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
+	  float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
+	  float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
+	  float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
+	  float p0z = eClus[i] * cos(theta_0);
+	  float p1z = eClus[j] * cos(theta_1);
+	  
+	  float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+	  if (pt_pi0 < selePtEta_ ) continue;
+	  
+	  float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	  
+	  if ( (m_inv<seleMinvMaxEta_) && (m_inv>seleMinvMinEta_) ){
+
+	    //New Loop on cluster to measure isolation:
+	    vector<int> IsoClus;
+	    IsoClus.clear();
+	    float Iso = 0;
+	    TVector3 pi0vect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	    for(Int_t k=0 ; k<nClus ; k++){
+	    
+	      if(etClus[k] < ptMinForIsolationEta_) continue; 
+	    
+	      if(k==i || k==j)continue;
+	      TVector3 Clusvect = TVector3(eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * cos(phiClus[k]), eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * sin(phiClus[k]) , eClus[k] * cos(2. * atan(exp(-etaClus[k]))));
+	      float dretaclpi0 = fabs(etaClus[k] - pi0vect.Eta());
+	      float drclpi0 = Clusvect.DeltaR(pi0vect);
+	      if((drclpi0<seleEtaBeltDR_) && (dretaclpi0<seleEtaBeltDeta_) ){
+		Iso = Iso + etClus[k];
+		IsoClus.push_back(k);
+	      }
+	    }
+
+	    if(Iso/pt_pi0<seleIsoEta_){
+	      
+	    
+	      it = find(indClusSelected.begin(),indClusSelected.end(),i);
+	      if( it == indClusSelected.end()){
+		indClusSelected.push_back(i);
+		for(unsigned int Rec=0;Rec<RecHitsCluster[i].size();Rec++) pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
+		
+	      }
+	      
+	      it = find(indClusSelected.begin(),indClusSelected.end(),j);
+	      if( it == indClusSelected.end()){
+		indClusSelected.push_back(j);
+		for(unsigned int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++) pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
+		
+	      }
+	      
+	      if( storeIsoClusRecHitEta_){
+		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		  int ind = IsoClus[iii];
+		  it = find(indClusSelected.begin(),indClusSelected.end(),ind);
+		  if( it == indClusSelected.end()){
+		    indClusSelected.push_back(ind);
+		    for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++)  pi0EBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
+		    
+		  }
+		} 
+	      }
+	      
+	    } /// Isolation passed
+	    
+	  } /// Inside Eta Mass window
+	  
+	} //// PT Cut && S4S9 Cut satisfied.
+	
+	
+      } // End of the "j" loop over Simple Clusters
+    } // End of the "i" loop over Simple Clusters
+    
+    
+  }
+  
 
   
 
