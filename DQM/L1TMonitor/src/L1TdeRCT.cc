@@ -913,6 +913,7 @@ if(first)
         rctNisoEmEff1Occ_->Fill  (iem->regionId().ieta(), iem->regionId().iphi(), 0.01);
 
         int channel;
+//
 
         channel=PHIBINS*iem->regionId().ieta()+iem->regionId().iphi();
         rctNisoEmEmulOcc1D_->Fill(channel);
@@ -1180,7 +1181,7 @@ if(first)
       {
         if(k==0)
         {
-          rctIsoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i]);
+          rctIsoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i],0.99);
 
           int chnl;
 
@@ -1194,7 +1195,7 @@ if(first)
 
         else
         {
-          rctNisoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i]);
+          rctNisoEmIneffOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i],0.99);
 
           int chnl;
 
@@ -1276,10 +1277,11 @@ if(first)
     DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmDataOcc_, rctNisoEmOvereff_);
   }
 
+//std::cout << " I am here " << std::endl ;
+
     // calculate region/bit information
   for(int i = 0; i < nRegionEmul; i++)
-    if(regionEmulRank[i] >= 1)
-    {
+{
       Bool_t regFound      = kFALSE;
       Bool_t overFlowFound  = kFALSE;
       Bool_t tauVetoFound   = kFALSE;
@@ -1288,10 +1290,11 @@ if(first)
       Bool_t fineGrainFound = kFALSE;
 
       for(int j = 0; j < nRegionData; j++)
+   {
         if(regionEmulEta[i] == regionDataEta[j] &&
            regionEmulPhi[i] == regionDataPhi[j])
         {
-          if(regionDataRank[j] >= 1)
+          if(regionDataRank[j] >= 1 && regionEmulRank[i] >= 1)
           {
             int chnl;
 
@@ -1335,7 +1338,10 @@ if(first)
             rctBitMatchedFineGrain2D_->Fill (regionEmulEta[i], regionEmulPhi[i]);
             fineGrainFound = kTRUE;
           }
+     
+
         }
+      }
 
       DivideME1D(rctRegMatchedOcc1D_, rctRegEmulOcc1D_, rctRegEff1D_);
       DivideME2D(rctRegMatchedOcc2D_, rctRegEmulOcc2D_, rctRegEff2D_);
@@ -1346,36 +1352,37 @@ if(first)
       DivideME2D (rctBitMatchedQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietEff2D_);
       DivideME2D (rctBitMatchedFineGrain2D_, rctBitEmulFineGrain2D_, rctBitFineGrainEff2D_);
 
-      if(regFound == kFALSE)
+
+      if(regFound == kFALSE && regionEmulRank[i] >= 1 )
       {
         int chnl;
 
         chnl = PHIBINS*regionEmulEta[i] + regionEmulPhi[i];
         rctRegUnmatchedEmulOcc1D_->Fill(chnl);
-        rctRegUnmatchedEmulOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i]);
+        rctRegUnmatchedEmulOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i],0.99);
 
         if(singlechannelhistos_) rctRegIneffChannel_[chnl]->Fill(regionEmulRank[i]);
       }
 
-      if(overFlowFound == kFALSE)
+      if(overFlowFound == kFALSE && regionEmulOverFlow[i] == true)
       {
         rctBitUnmatchedEmulOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i]);
       }
 
-      if(tauVetoFound == kFALSE)
+      if(tauVetoFound == kFALSE && regionEmulTauVeto[i] == true)
       {
         rctBitUnmatchedEmulTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i]);
       }
 
-      if (mipFound == kFALSE) {
+      if (mipFound == kFALSE && regionEmulMip[i] == true) {
         rctBitUnmatchedEmulMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i]);
       }
 
-      if (quietFound == kFALSE) {
+      if (quietFound == kFALSE && regionEmulQuiet[i] == true) {
         rctBitUnmatchedEmulQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i]);
       }
 
-      if (fineGrainFound == kFALSE) {
+      if (fineGrainFound == kFALSE && regionEmulFineGrain[i] == true ) {
         rctBitUnmatchedEmulFineGrain2D_->Fill (regionEmulEta[i], regionEmulPhi[i]);
       }
 
@@ -1384,13 +1391,15 @@ if(first)
       DivideME2D(rctBitUnmatchedEmulOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowIneff2D_);
       DivideME2D(rctBitUnmatchedEmulTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoIneff2D_);
       DivideME2D (rctBitUnmatchedEmulMip2D_, rctBitEmulMip2D_, rctBitMipIneff2D_);
-      DivideME2D (rctBitUnmatchedEmulMip2D_, rctBitEmulMip2D_, rctBitMipIneff2D_);
-      DivideME2D (rctBitUnmatchedEmulMip2D_, rctBitEmulMip2D_, rctBitMipIneff2D_);
-    }
+      DivideME2D (rctBitUnmatchedEmulQuiet2D_, rctBitEmulQuiet2D_, rctBitQuietIneff2D_);
+      DivideME2D (rctBitUnmatchedEmulFineGrain2D_, rctBitEmulFineGrain2D_, rctBitFineGrainIneff2D_);
+
+}
+
+//std::cout << " I am here 2 " << std::endl ;
 
   for(int i = 0; i < nRegionData; i++)
-    if(regionDataRank[i] >= 1)
-    {
+{
       Bool_t regFound       = kFALSE;
       Bool_t overFlowFound  = kFALSE;
       Bool_t tauVetoFound   = kFALSE;
@@ -1399,10 +1408,12 @@ if(first)
       Bool_t fineGrainFound = kFALSE;
 
       for(int j = 0; j < nRegionEmul; j++)
+     {
         if(regionEmulEta[j] == regionDataEta[i] &&
            regionEmulPhi[j] == regionDataPhi[i])
         {
-          if(regionEmulRank[j] >= 1)
+
+          if(regionEmulRank[j] >= 1 && regionDataRank[i] >= 1)
             regFound = kTRUE;
 
           if(regionDataOverFlow[i] == true &&
@@ -1422,8 +1433,9 @@ if(first)
           if (regionDataFineGrain[i] == true && regionEmulFineGrain[j] == true)
             fineGrainFound = kTRUE;
         }
+      }
 
-      if(regFound == kFALSE)
+      if(regFound == kFALSE && regionDataRank[i] >= 1)
       {
         int chnl;
 
@@ -1438,28 +1450,27 @@ if(first)
         if(singlechannelhistos_) rctRegOvereffChannel_[chnl]->Fill(regionDataRank[i]);
       }
 
-      if(overFlowFound == kFALSE)
+      if(overFlowFound == kFALSE && regionDataOverFlow[i] == true )
       {
         rctBitUnmatchedDataOverFlow2D_->Fill(regionDataEta[i], regionDataPhi[i]);
       }
 
-      if(tauVetoFound == kFALSE)
+      if(tauVetoFound == kFALSE && regionDataTauVeto[i] == true )
       {
         rctBitUnmatchedDataTauVeto2D_->Fill(regionDataEta[i], regionDataPhi[i]);
       }
 
-      if (mipFound == kFALSE) {
+      if (mipFound == kFALSE && regionDataMip[i] == true ) {
         rctBitUnmatchedDataMip2D_->Fill (regionDataEta[i], regionDataPhi[i]);
       }
 
-      if (quietFound == kFALSE) {
+      if (quietFound == kFALSE && regionDataQuiet[i] == true ) {
         rctBitUnmatchedDataQuiet2D_->Fill (regionDataEta[i], regionDataPhi[i]);
       }
 
-      if (fineGrainFound == kFALSE) {
+      if (fineGrainFound == kFALSE && regionDataFineGrain[i] == true ) {
         rctBitUnmatchedDataFineGrain2D_->Fill (regionDataEta[i], regionDataPhi[i]);
       }
-    }
 
     // we try a new definition of overefficiency:
     DivideME2D(rctRegUnmatchedDataOcc2D_, rctRegDataOcc2D_, rctRegOvereff2D_);
@@ -1471,6 +1482,8 @@ if(first)
           rctBitQuietOvereff2D_);
     DivideME2D (rctBitUnmatchedDataFineGrain2D_, rctBitDataFineGrain2D_,
           rctBitFineGrainOvereff2D_);
+}
+
 }
 
 void L1TdeRCT::DivideME2D(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result){
@@ -1492,4 +1505,3 @@ void L1TdeRCT::DivideME1D(MonitorElement* numerator, MonitorElement* denominator
    res->Divide(num,den,1,1,"");
 
 }
-
