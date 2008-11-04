@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/06/24 07:35:26 $
- * $Revision: 1.58 $
+ * $Date: 2008/11/04 19:13:42 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -406,7 +406,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
-      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
 
     }
 
@@ -415,7 +415,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   } else {
 
     if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
-    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
 
     LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
 
