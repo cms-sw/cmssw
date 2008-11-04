@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/05/17 07:59:57 $
- * $Revision: 1.57 $
+ * $Date: 2008/06/24 07:35:26 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -405,24 +405,23 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
         evtType_ = runType_;
       }
 
+      if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+
     }
 
     LogDebug("EcalEndcapMonitorModule") << "event: " << ievt_ << " DCC headers collection size: " << neec;
 
   } else {
 
+    if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
+    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+
     LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
 
   }
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
-
-  if ( evtType_ >= 0 && evtType_ <= 22 ) {
-    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
-  } else {
-    if ( evtType_ != -1 ) LogWarning("EcalEndcapMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
-    if ( meEvtType_ ) meEvtType_->Fill( -1 );
-  }
 
   if ( ievt_ == 1 ) {
     LogInfo("EcalEndcapMonitorModule") << "processing run " << runNumber_;

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/05/17 07:59:57 $
- * $Revision: 1.181 $
+ * $Date: 2008/06/24 07:35:26 $
+ * $Revision: 1.182 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -405,24 +405,23 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
         evtType_ = runType_;
       }
 
+      if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+
     }
 
     LogDebug("EcalBarrelMonitorModule") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
 
   } else {
 
+    if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
+    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
+
     LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
 
   }
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
-
-  if ( evtType_ >= 0 && evtType_ <= 22 ) {
-    if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
-  } else {
-    if ( evtType_ != -1 ) LogWarning("EcalBarrelMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
-    if ( meEvtType_ ) meEvtType_->Fill(-1);
-  }
 
   if ( ievt_ == 1 ) {
     LogInfo("EcalBarrelMonitorModule") << "processing run " << runNumber_;
