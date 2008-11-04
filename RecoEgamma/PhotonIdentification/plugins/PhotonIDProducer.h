@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 
 class PhotonIDProducer : public edm::EDProducer
@@ -29,8 +30,8 @@ class PhotonIDProducer : public edm::EDProducer
 
   std::string photonProducer_;
   std::string photonLabel_;
-  std::string photonIDLabel_;
-  std::string photonIDAssociation_; //association map
+  std::string photonCutBasedIDLooseLabel_;
+  std::string photonCutBasedIDTightLabel_;
 
   bool doCutBased_;
 
