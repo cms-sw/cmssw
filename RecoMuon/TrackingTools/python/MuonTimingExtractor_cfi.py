@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SUSYBSMAnalysis.HSCP.MuonSegmentMatcher_cff import *
+from RecoMuon.TrackingTools.MuonSegmentMatcher_cff import *
 
 MuonTimingExtractorBlock = cms.PSet(
   timingParameters = cms.PSet(
