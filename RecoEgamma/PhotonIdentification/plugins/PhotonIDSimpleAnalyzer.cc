@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.4 2008/08/29 18:26:47 anderson Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.5 2008/09/03 18:40:20 anderson Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -26,9 +26,12 @@
 ///////////////////////////////////////////////////////////////////////
 //                        CMSSW includes                             //
 ///////////////////////////////////////////////////////////////////////
-#include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
+//#include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
+//#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
+//#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -155,23 +158,25 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
   Handle<reco::PhotonCollection> photonColl;
   evt.getByLabel("photons", "", photonColl);
 
+  Handle<edm::ValueMap<Bool_t> > loosePhotonQual;
+  evt.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonQual);
   // grab PhotonId objects  
-  Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
-  evt.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
-
+//   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
+//   evt.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
+  
   // create reference to the object types we are interested in
   const reco::PhotonCollection *photons = photonColl.product();  
-  const reco::PhotonIDAssociationCollection *phoMap = photonIDMapColl.product();
+  const edm::ValueMap<Bool_t> *phoMap = loosePhotonQual.product();
 
   int photonCounter = 0;
-     
-  for (int i=0; i<int(photons->size()); i++)
-  {   
-       
-    edm::Ref<reco::PhotonCollection> photonref(photonColl, i);
-    reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photonref);
-    const reco::PhotonIDRef &phtn = photonIter->val;
-    const reco::PhotonRef &pho = photonIter->key;
+  int idxpho=0;
+  reco::PhotonCollection::const_iterator pho;
+  for (pho = (*photons).begin(); pho!= (*photons).end(); pho++){   
+    
+    edm::Ref<reco::PhotonCollection> photonref(photonColl, idxpho);
+    //reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photonref);
+    //const reco::PhotonIDRef &phtn = photonIter->val;
+    //const reco::PhotonRef &pho = photonIter->key;
 
     float photonEt       = pho->et();
     float superClusterEt = (pho->superCluster()->energy())/(cosh(pho->superCluster()->position().eta()));
@@ -180,7 +185,7 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
     bool passCuts = (              photonEt > minPhotonEt_     ) &&
                     (      fabs(pho->eta()) > minPhotonAbsEta_ ) &&
                     (      fabs(pho->eta()) < maxPhotonAbsEta_ ) &&
-                    (          (phtn)->r9() > minPhotonR9_     ) &&
+                    (             pho->r9() > minPhotonR9_     ) &&
                     ( pho->hadronicOverEm() < maxPhotonHoverE_ ) ;
 
     if ( passCuts )
@@ -189,16 +194,16 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       //                fill histograms                    //
       ///////////////////////////////////////////////////////
       // PhotonID Variables
-      h_isoEcalRecHit_->Fill((phtn)->isolationEcalRecHit());
-      h_isoHcalRecHit_->Fill((phtn)->isolationHcalRecHit());
-      h_trk_pt_solid_ ->Fill((phtn)->isolationSolidTrkCone());
-      h_trk_pt_hollow_->Fill((phtn)->isolationHollowTrkCone());
-      h_ntrk_solid_->   Fill((phtn)->nTrkSolidCone());
-      h_ntrk_hollow_->  Fill((phtn)->nTrkHollowCone());
-      h_ebgap_->        Fill((phtn)->isEBGap());
-      h_eeGap_->        Fill((phtn)->isEEGap()); 
-      h_ebeeGap_->      Fill((phtn)->isEBEEGap());
-      h_r9_->           Fill((phtn)->r9());
+      h_isoEcalRecHit_->Fill(pho->ecalRecHitSumConeDR04());
+      h_isoHcalRecHit_->Fill(pho->hcalTowerSumConeDR04());
+      h_trk_pt_solid_ ->Fill(pho->isolationTrkSolidConeDR04());
+      h_trk_pt_hollow_->Fill(pho->isolationTrkHollowConeDR04());
+      h_ntrk_solid_->   Fill(pho->nTrkSolidConeDR04());
+      h_ntrk_hollow_->  Fill(pho->nTrkHollowConeDR04());
+      h_ebgap_->        Fill(pho->isEBGap());
+      h_eeGap_->        Fill(pho->isEEGap()); 
+      h_ebeeGap_->      Fill(pho->isEBEEGap());
+      h_r9_->           Fill(pho->r9());
 
       // Photon Variables
       h_photonEt_->  Fill(photonEt);
@@ -213,24 +218,25 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       h_photonScEta_->     Fill(pho->superCluster()->position().eta());
       h_photonScPhi_->     Fill(pho->superCluster()->position().phi());
       h_photonScEtaWidth_->Fill(pho->superCluster()->etaWidth());
-
+      
       // It passed photon cuts, mark it
-      h_nPassingPho_->Fill(1.0);
+      Bool_t LoosePhotonQu = (*phoMap)[photonref];
+      h_nPassingPho_->Fill(LoosePhotonQu);
 
       ///////////////////////////////////////////////////////
       //                fill TTree (optional)              //
       ///////////////////////////////////////////////////////
       if ( createPhotonTTree_ ) {
-	recPhoton.isolationEcalRecHit    = (phtn)->isolationEcalRecHit();
-	recPhoton.isolationHcalRecHit    = (phtn)->isolationHcalRecHit();
-	recPhoton.isolationSolidTrkCone  = (phtn)->isolationSolidTrkCone();
-	recPhoton.isolationHollowTrkCone = (phtn)->isolationHollowTrkCone();
-	recPhoton.nTrkSolidCone          = (phtn)->nTrkSolidCone();
-	recPhoton.nTrkHollowCone         = (phtn)->nTrkHollowCone();
-	recPhoton.isEBGap                = (phtn)->isEBGap();
-	recPhoton.isEEGap                = (phtn)->isEEGap();
-	recPhoton.isEBEEGap              = (phtn)->isEBEEGap();
-        recPhoton.r9                     = (phtn)->r9();
+	recPhoton.isolationEcalRecHit    = pho->ecalRecHitSumConeDR04();
+	recPhoton.isolationHcalRecHit    = pho->hcalTowerSumConeDR04();
+	recPhoton.isolationSolidTrkCone  = pho->isolationTrkSolidConeDR04();
+	recPhoton.isolationHollowTrkCone = pho->isolationTrkHollowConeDR04();
+	recPhoton.nTrkSolidCone          = pho->nTrkSolidConeDR04();
+	recPhoton.nTrkHollowCone         = pho->nTrkHollowConeDR04();
+	recPhoton.isEBGap                = pho->isEBGap();
+	recPhoton.isEEGap                = pho->isEEGap();
+	recPhoton.isEBEEGap              = pho->isEBEEGap();
+        recPhoton.r9                     = pho->r9();
         recPhoton.et                     = pho->et();
         recPhoton.eta                    = pho->eta();
         recPhoton.phi                    = pho->phi();
@@ -243,7 +249,7 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 
       // Record whether it was near any module gap.
       // Very convoluted at the moment.
-      bool inAnyGap = (phtn)->isEBEEGap() || ((phtn)->isEBPho()&&(phtn)->isEBGap()) || ((phtn)->isEEPho()&&(phtn)->isEEGap());
+      bool inAnyGap = pho->isEBEEGap() || (pho->isEB()&&pho->isEBGap()) || (pho->isEE()&&pho->isEEGap());
       if (inAnyGap) {
         h_photonInAnyGap_->Fill(1.0);
       } else {
@@ -257,10 +263,10 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       // This didn't pass photon cuts, mark it
       h_nPassingPho_->Fill(0.0);
     }
-
+    idxpho++;
   } // End Loop over photons
   h_nPho_->Fill(photonCounter);
-
+ 
 }
 
 ///////////////////////////////////////////////////////////////////////
