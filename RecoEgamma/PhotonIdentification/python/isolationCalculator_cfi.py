@@ -4,11 +4,7 @@ isolationSumsCalculator = cms.PSet(
     #required inputs
     ComponentName = cms.string('isolationSumsCalculator'),
     #What collection of photons do I run on?
-    photonProducer = cms.string('photons'),                              
-    photonLabel = cms.string(''),
     #What labels do I use for my products?
-    photonIDAssociationLabel = cms.string('PhotonAssociatedID'),
-    photonIDLabel = cms.string('PhotonIDCutBasedProducer'),
     #What rechit collection do I use for ECAL iso?                          
     barrelEcalRecHitProducer = cms.string('ecalRecHit'),
     barrelEcalRecHitCollection = cms.string('EcalRecHitsEB'),
@@ -26,18 +22,8 @@ isolationSumsCalculator = cms.PSet(
     moduleEtaBoundary = cms.vdouble(0.0, 0.02, 0.43, 0.46, 0.78, 0.81, 1.13, 1.15, 1.45, 1.58),
     #What collection of tracks do I use for Track Isolation?
     trackProducer = cms.InputTag("generalTracks"),
-    doCutBased = cms.bool(True),
     #switches, turn on quality cuts for various quantities.
     RequireFiducial = cms.bool(False),
-#    DoHollowConeTrackIsolationCut = cms.bool(True),
-#    DoSolidConeTrackIsolationCut = cms.bool(False),
-#    DoHollowConeNTrkCut = cms.bool(False),
-#    DoSolidConeNTrkCut = cms.bool(False),
-#    DoHadOverEMCut = cms.bool(False),
-#    DoEtaWidthCut = cms.bool(False),
-#    DoHcalTowerIsolationCut = cms.bool(True),
-#    DoEcalRecHitIsolationCut = cms.bool(True),
-#    DoR9Cut = cms.bool(True),                               
     #configuration of parameters for isolations
     #tracks
     isolationtrackThresholdA = cms.double(0.0),
