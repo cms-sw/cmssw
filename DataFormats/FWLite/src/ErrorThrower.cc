@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 23 10:06:39 EDT 2008
-// $Id: ErrorThrower.cc,v 1.1 2008/09/23 15:49:32 chrjones Exp $
+// $Id: ErrorThrower.cc,v 1.2 2008/09/23 16:35:07 dsr Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "DataFormats/FWLite/interface/ErrorThrower.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include <ostream>
 
 using namespace fwlite;
 //
