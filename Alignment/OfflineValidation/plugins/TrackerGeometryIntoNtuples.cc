@@ -4,16 +4,16 @@
 // Class:      TrackerGeometryIntoNtuples
 // 
 /**\class TrackerGeometryIntoNtuples TrackerGeometryIntoNtuples.cc 
-
+ 
  Description: Takes a set of alignment constants and turns them into a ROOT file
-
+ 
  Implementation:
-     <Notes on implementation>
-*/
+ <Notes on implementation>
+ */
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.5 2008/02/21 12:03:16 flucke Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.1 2008/02/27 17:33:54 ebutz Exp $
 //
 //
 
@@ -44,6 +44,8 @@
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+#include "CLHEP/Matrix/SymMatrix.h"
+
 //
 // class decleration
 //
@@ -65,11 +67,12 @@ private:
 	//std::vector<AlignTransform> m_align;
 	Alignments* theAlignments;
 	AlignableTracker* theCurrentTracker;
-
+	
 	uint32_t m_rawid;
 	double m_x, m_y, m_z;
 	double m_alpha, m_beta, m_gamma;
-	double m_xx, m_yx, m_yy, m_zx, m_zy, m_zz;
+	int m_subdetid;
+	double m_xx, m_xy, m_yy, m_xz, m_yz, m_zz;
 	
 	TTree *m_tree;
 	TTree *m_treeErrors;
@@ -95,7 +98,10 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");
 	m_file = new TFile(m_outputFile.c_str(),"RECREATE");
 	m_tree = new TTree(m_outputTreename.c_str(),m_outputTreename.c_str());
-
+	//char errorTreeName[256];
+	//sprintf(errorTreeName, "%sErrors", m_outputTreename);
+	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
+	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
 	
 }
 
@@ -124,7 +130,7 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
-
+	
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;
@@ -138,24 +144,25 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	GeometryAligner aligner;
 	aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors),
-						  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+											 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	
 	
 	theCurrentTracker = new AlignableTracker(&(*theCurTracker));	
 	
 	Alignments* theAlignments = theCurrentTracker->alignments();
-	//not used AlignmentErrors* theAlignmentErrors = theCurrentTracker->alignmentErrors();	
+	//AlignmentErrors* theAlignmentErrors = theCurrentTracker->alignmentErrors();	
+	
 	//alignments
 	addBranches();
 	for (std::vector<AlignTransform>::const_iterator i = theAlignments->m_align.begin(); i != theAlignments->m_align.end(); ++i){
-
+		
 		m_rawid = i->rawId();
 		Hep3Vector translation = i->translation();
 		m_x = translation.x();
 		m_y = translation.y();
 		m_z = translation.z();
-
 		
+	
 		HepRotation rotation = i->rotation();
 		m_alpha = rotation.getPhi();
 		m_beta = rotation.getTheta();
@@ -163,25 +170,52 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 		m_tree->Fill();
 		
 	}
+	
+	std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
+	for (std::vector<AlignTransformError>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
 
+		m_rawid = i->rawId();
+		HepSymMatrix errMatrix = i->matrix();
+		DetId detid(m_rawid);
+		m_subdetid = detid.subdetId();
+		m_xx = errMatrix[0][0];
+		m_xy = errMatrix[0][1];
+		m_xz = errMatrix[0][2];
+		m_yy = errMatrix[1][1];
+		m_yz = errMatrix[1][2];
+		m_zz = errMatrix[2][2];
+		m_treeErrors->Fill();
+	}
+	
 	//write out 
 	m_file->cd();
 	m_tree->Write();
+	m_treeErrors->Write();
 	m_file->Close();
 }
 
 
 
 void TrackerGeometryIntoNtuples::addBranches() {
-
-   m_tree->Branch("rawid", &m_rawid, "rawid/I");
-   m_tree->Branch("x", &m_x, "x/D");
-   m_tree->Branch("y", &m_y, "y/D");
-   m_tree->Branch("z", &m_z, "z/D");
-	 m_tree->Branch("alpha", &m_alpha, "alpha/D");
-	 m_tree->Branch("beta", &m_beta, "beta/D");
-	 m_tree->Branch("gamma", &m_gamma, "gamma/D");
-
+	
+	m_tree->Branch("rawid", &m_rawid, "rawid/I");
+	m_tree->Branch("x", &m_x, "x/D");
+	m_tree->Branch("y", &m_y, "y/D");
+	m_tree->Branch("z", &m_z, "z/D");
+	m_tree->Branch("alpha", &m_alpha, "alpha/D");
+	m_tree->Branch("beta", &m_beta, "beta/D");
+	m_tree->Branch("gamma", &m_gamma, "gamma/D");
+	
+	
+	m_treeErrors->Branch("rawid", &m_rawid, "rawid/I");
+	m_treeErrors->Branch("subdetid", &m_subdetid, "subdetid/I");
+	m_treeErrors->Branch("xx", &m_xx, "xx/D");
+	m_treeErrors->Branch("yy", &m_yy, "yy/D");
+	m_treeErrors->Branch("zz", &m_zz, "zz/D");
+	m_treeErrors->Branch("xy", &m_xy, "xy/D");
+	m_treeErrors->Branch("xz", &m_xz, "xz/D");
+	m_treeErrors->Branch("yz", &m_yz, "yz/D");
+		
 }
 
 
