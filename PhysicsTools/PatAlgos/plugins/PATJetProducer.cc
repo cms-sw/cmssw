@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.24 2008/10/06 13:29:16 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.25 2008/10/08 15:11:59 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -202,7 +202,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         // calculate the energy correction factors
         const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
         ajet.setP4(jcf.scaleDefault() * itJet->p4());
-        ajet.setNoCorrFactor(1./jcf.scaleDefault());
         ajet.setJetCorrFactors(jcf);
     }
 
@@ -252,6 +251,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 //       (*theBResoCalc_)(abjet);
 //       ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
 //     }
+
 
     // add b-tag info if available & required
     if (addBTagInfo_) {
