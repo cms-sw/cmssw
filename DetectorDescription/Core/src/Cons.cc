@@ -2,7 +2,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <cmath>
-#include <iostream>
+#include <ostream>
 
 DDI::Cons::Cons(double zhalf,
 	 double rInMinusZ,

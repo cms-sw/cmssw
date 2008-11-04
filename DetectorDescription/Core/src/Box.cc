@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Box.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include <iostream>
+#include <ostream>
 
 void DDI::Box::stream(std::ostream & os) const
 {
