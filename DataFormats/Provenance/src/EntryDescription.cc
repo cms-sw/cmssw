@@ -2,6 +2,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include <ostream>
+#include <sstream>
 
 /*----------------------------------------------------------------------
 

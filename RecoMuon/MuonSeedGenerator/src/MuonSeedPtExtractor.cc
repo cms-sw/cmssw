@@ -9,6 +9,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "TMath.h"
+#include <sstream>
 
 MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par){
 
