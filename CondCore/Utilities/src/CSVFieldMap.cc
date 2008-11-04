@@ -1,5 +1,7 @@
 #include "CondCore/Utilities/interface/CSVFieldMap.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include <typeinfo>
+
 void CSVFieldMap::push_back(const std::string& fieldName, const std::string& fieldType){
   m_fieldMap.push_back(std::make_pair(fieldName, fieldType));
 }
