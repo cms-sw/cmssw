@@ -38,6 +38,8 @@ DCCEBEventBlock::DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m
 
 void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
+  reset();
+ 
   eventSize_ = numbBytes;	
   data_      = buffer;
   
@@ -147,8 +149,6 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   // debugging
   //display(cout);
   
-  if(headerUnpacking_) addHeaderToCollection();
-  
   // pointer for the 
   std::vector<short>::iterator it;
   
@@ -244,6 +244,10 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     // closing loop over FE/TTblock channels
     
   }// check if we need to perform unpacking of FE or mem data
+  
+  
+  if(headerUnpacking_) addHeaderToCollection();
+  
   
 }
 

@@ -35,6 +35,8 @@ DCCEEEventBlock::DCCEEEventBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m,
 
 void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
+  reset();
+  
   eventSize_ = numbBytes;	
   data_      = buffer;
   
@@ -149,7 +151,6 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   // debugging
   //display(cout);
   
-  if(headerUnpacking_) addHeaderToCollection();
   
   // pointer for the 
   std::vector<short>::iterator it;
@@ -247,6 +248,9 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     
   }// check if we need to perform unpacking of FE or mem data
   
+  
+  if(headerUnpacking_) addHeaderToCollection();
+  
 }
 
 
@@ -256,9 +260,10 @@ int DCCEEEventBlock::unpackTCCBlocks(){
 
   int STATUS(BLOCK_UNPACKED);
   std::vector<short>::iterator it;
-  for(it=tccChStatus_.begin();it!=tccChStatus_.end();it++){
+  uint tccChId(0);
+  for(it=tccChStatus_.begin();it!=tccChStatus_.end();it++, tccChId++){
     if( (*it) != CH_TIMEOUT &&  (*it) != CH_DISABLED){
-      STATUS = tccBlock_->unpack(&data_,&dwToEnd_);
+      STATUS = tccBlock_->unpack(&data_,&dwToEnd_,tccChId);
 	  if(STATUS == STOP_EVENT_UNPACKING) break;
     }
   }

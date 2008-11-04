@@ -58,6 +58,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   bx_                = ( *data_>>TOWER_BX_B     )   & TOWER_BX_MASK;
   l1_                = ( *data_>>TOWER_L1_B     )   & TOWER_L1_MASK;
   blockLength_       = ( *data_>>TOWER_LENGTH_B )   & TOWER_LENGTH_MASK;
+  
+  event_->setFESyncNumbers(l1_,bx_, (short)(expTowerID_-1));
 
   //debugging
   //display(cout);

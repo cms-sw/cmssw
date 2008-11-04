@@ -48,6 +48,8 @@ int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
   bx_             = ( *data_>>SRP_BX_B     ) & SRP_BX_MASK;
   l1_             = ( *data_>>SRP_L1_B     ) & SRP_L1_MASK;
   nSRFlags_       = ( *data_>>SRP_NFLAGS_B ) & SRP_NFLAGS_MASK;
+  
+  event_->setSRPSyncNumbers(l1_,bx_);
  
   if( ! checkSrpIdAndNumbSRFlags() ){ 
     // SRP flags are required to check FE data 

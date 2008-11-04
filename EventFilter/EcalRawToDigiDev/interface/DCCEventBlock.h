@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2008/07/14 11:22:44 $
- * $Revision: 1.13 $
+ * $Date: 2008/09/29 17:35:58 $
+ * $Revision: 1.14 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -39,6 +39,8 @@ class DCCEventBlock {
    virtual ~DCCEventBlock();  
  
    virtual void unpack( uint64_t * buffer, uint bufferSize, uint expFedId){};
+   
+   void reset();
 	
    void enableSyncChecks();
 	
@@ -54,6 +56,11 @@ class DCCEventBlock {
    uint l1A()                   { return l1_;       }
    uint bx()                    { return bx_;       }
    DCCDataUnpacker  * unpacker(){ return unpacker_; }
+   
+   void setSRPSyncNumbers(short l1, short bx){ srpLv1_=l1; srpBx_=bx; }
+   void setFESyncNumbers(short l1, short bx, short id){ feLv1_[id]= l1; feBx_[id]=bx;}
+   void setTCCSyncNumbers(short l1, short bx, short id){ tccLv1_[id]= l1; tccBx_[id]=bx;}
+   
 
     	
   protected :
@@ -69,6 +76,11 @@ class DCCEventBlock {
    
     std::vector<short> feChStatus_;
     std::vector<short> tccChStatus_;
+
+    std::vector<short> feLv1_; std::vector<short> feBx_;  
+    std::vector<short> tccLv1_; std::vector<short> tccBx_;    
+	short srpLv1_; short srpBx_; 
+
     
     uint srChStatus_;
 

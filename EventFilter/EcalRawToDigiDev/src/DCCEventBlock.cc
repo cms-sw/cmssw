@@ -22,9 +22,25 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
   for( int feChannel=1;  feChannel <= 70;  feChannel++) { feChStatus_.push_back(0);}
   for( int tccChannel=1; tccChannel <= 4 ; tccChannel++){ tccChStatus_.push_back(0);}
   
+  // setup and initialize sync vectors
+  for( int feChannel=1;  feChannel <= 70;  feChannel++) { feBx_.push_back(-1);  feLv1_.push_back(-1); }
+  for( int tccChannel=1; tccChannel <= 4 ; tccChannel++){ tccBx_.push_back(-1); tccLv1_.push_back(-1);}
+  srpBx_=-1;
+  srpLv1_=-1;
+  
 }
 
 
+void DCCEventBlock::reset(){
+
+  // reset sync vectors
+  for( int feChannel=1;  feChannel <= 70;  feChannel++) {   feBx_[feChannel-1]=-1;   feLv1_[feChannel-1]=-1; }
+  for( int tccChannel=1; tccChannel <= 4 ; tccChannel++){ tccBx_[tccChannel-1]=-1; tccLv1_[tccChannel-1]=-1;}
+  srpBx_=-1;
+  srpLv1_=-1;
+
+
+}
 
 void DCCEventBlock::enableSyncChecks(){
    towerBlock_   ->enableSyncChecks();
@@ -85,6 +101,15 @@ void DCCEventBlock::addHeaderToCollection(){
   theDCCheader.setSrpStatus(srChStatus_);
   theDCCheader.setTccStatus(tccChStatus_);
   theDCCheader.setFEStatus(feChStatus_);
+  
+  
+  theDCCheader.setSRPLv1(srpLv1_);
+  theDCCheader.setSRPBx(srpBx_);
+  theDCCheader.setFELv1(feLv1_);
+  theDCCheader.setFEBx(feBx_);
+  theDCCheader.setTCCLv1(tccLv1_);
+  theDCCheader.setTCCBx(tccBx_);
+  
 
   EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
   uint DCCruntype              = runType_;
