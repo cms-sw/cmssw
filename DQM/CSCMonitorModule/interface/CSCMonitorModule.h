@@ -71,7 +71,6 @@
 #define EVENTINFO_FOLDER   "EventInfo/"
 #define SUMCONTENTS_FOLDER "EventInfo/reportSummaryContents/"
 
-
 /**
  * Class Definition
  */
