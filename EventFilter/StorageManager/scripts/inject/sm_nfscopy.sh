@@ -1,16 +1,11 @@
 #!/bin/bash
-# $Id: sm_nfscopy.sh,v 1.3 2008/08/19 16:36:45 loizides Exp $
+# $Id: sm_nfscopy.sh,v 1.4 2008/09/15 17:18:18 loizides Exp $
 
 nfsserver=$1
 filename=$2
 destination=$3
 parallel=$4
 debug=$5;
-
-# exit if not first file of lumi section
-if test "$SM_FILECOUNTER" -gt "0"; then
-    exit 0;
-fi
 
 # main starts here
 if test -z "$3"; then
@@ -24,8 +19,9 @@ if test -n "$debug"; then
     grepstr=$execmd
     grepstr2=$grepstr
 else
-    execmd="cp -a $filename $destination"
-    execm2="chmod a+r $destination/`basename $filename`"
+    fname=`basename $filename`
+    execmd="cp -a $filename $destination/${fname}.part"
+    execm2="mv $destination/${fname}.part $destination/$fname && chmod a+r $destination/$fname"
     grepstr="cp -a"
     grepstr2=$destination
 fi
@@ -47,13 +43,16 @@ if test -n "$debug" -o "$nfsserver" = "local" -o -n "`mount | grep $nfsserver`";
     $execmd >/dev/null 2>&1
     if ! test $? -eq 0; then
         echo "Warning $0: error executing $execmd for parameters $@." 
+        exit 125;
     fi
     $execm2 >/dev/null 2>&1
     if ! test $? -eq 0; then
         echo "Warning $0: error executing $execm2 for parameters $@." 
+        exit 126;
     fi
 else
     echo "Warning $0: error $nfsserver not mounted for parameters $@." 
+    exit 127;
 fi 
 
 exit 0
