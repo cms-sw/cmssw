@@ -20,9 +20,6 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig),
   conf_(iConfig), 
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
-  Cluster_src_(iConfig.getParameter<edm::InputTag>( "Cluster_src" )),
-  Track_src_(iConfig.getUntrackedParameter<edm::InputTag>( "Track_src" )),
-  tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters",false)),
   filename(iConfig.getUntrackedParameter<std::string>("rootFilename","CondDB_TKCC_20X_v3_hlt_50822.root")),
   dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath",""))
 {
@@ -37,10 +34,10 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   dqmStore_ = edm::Service<DQMStore>().operator->(); 
   dqmStore_->setVerbose(iConfig.getUntrackedParameter<uint32_t>("verbosity",0)); 
 
-  dqmStore_->open(filename.c_str(), false, dirpath); 
+  if(filename!="")
+    dqmStore_->open(filename.c_str(), false, dirpath); 
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " after opening file ";  
 
-  bookHistos();
 }
 
 
@@ -49,6 +46,8 @@ SiStripQualityHotStripIdentifierRoot::~SiStripQualityHotStripIdentifierRoot(){
 }
 
 SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
+
+  bookHistos();
 
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<"SiStripQualityHotStripIdentifierRoot::getNewObject called"<<std::endl;
 
@@ -68,6 +67,18 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
     SiStripQuality* qobj = new SiStripQuality();
     theIdentifier.extractBadStrips(qobj,ClusterPositionHistoMap);
 
+    std::vector<uint32_t> stripOccupancy=theIdentifier.getStripOccupancy();
+    
+    uint32_t xmin=*std::min_element(stripOccupancy.begin(),stripOccupancy.end());
+    uint32_t xmax=*std::max_element(stripOccupancy.begin(),stripOccupancy.end());
+    
+    TH1F hStripOccupancy("hStripOccupancy","hStripOccupancy",10000,xmin,xmax);
+    for(size_t idx=0;idx<stripOccupancy.size();++idx)
+      hStripOccupancy.Fill(stripOccupancy[idx]);
+    
+    TFile f("Occupancy.root","RECREATE");
+    hStripOccupancy.Write();
+    f.Close();
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
 
     std::stringstream ss;  
@@ -112,11 +123,12 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
 
-    //edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] histo " << me_name << std::endl;
-
     if (strstr(me_name.c_str(),"ClusterPosition__det__")==NULL)
       continue;
-    
+
+    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] histo " << me_name << std::endl;
+
+
     unsigned int detid;
     char title[128];
     sprintf(title,"%s",me_name.c_str());

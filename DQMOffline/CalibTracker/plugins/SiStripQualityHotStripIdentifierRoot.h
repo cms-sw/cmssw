@@ -65,9 +65,6 @@ private:
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
   SiStripDetInfoFileReader* reader;
-  edm::InputTag Cluster_src_;
-  edm::InputTag Track_src_;
-  bool tracksCollection_in_EventTree;
 
   DQMStore* dqmStore_;
 
