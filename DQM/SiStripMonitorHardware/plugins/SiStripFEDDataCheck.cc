@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.3 2008/10/31 10:38:36 bainbrid Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.4 2008/11/04 09:39:30 nc302 Exp $
 //
 //
 
@@ -236,14 +236,14 @@ bool SiStripFEDCheckPlugin::hasFatalError(const FEDRawData& fedData, unsigned in
 
 bool SiStripFEDCheckPlugin::hasNonFatalError(const FEDRawData& fedData, unsigned int fedId) const
 {
-  try {
-    const sistrip::FEDBufferBase baseBuffer(fedData.data(),fedData.size(),true);
-    if (!baseBuffer.doTrackerSpecialHeaderChecks()) return true;
-  } catch (const cms::Exception& e) {
+  const sistrip::FEDBufferBase baseBuffer(fedData.data(),fedData.size(),true);
+  if (!baseBuffer.doTrackerSpecialHeaderChecks()) {
     if (printDebug_) {
-      edm::LogInfo("SiStripFEDCheck") << "Error constructing buffer object for FED ID " << fedId
-                                      << std::endl << e.what() << std::endl << "Check summary: "
+      edm::LogInfo("SiStripFEDCheck") << "Error with header for FED ID " << fedId << ". Check summary: "
                                       << std::endl << baseBuffer.checkSummary() << std::endl;
+      std::stringstream ss;
+      baseBuffer.dump(ss);
+      edm::LogInfo("SiStripFEDCheck") << ss.str();
     }
     return true;
   }

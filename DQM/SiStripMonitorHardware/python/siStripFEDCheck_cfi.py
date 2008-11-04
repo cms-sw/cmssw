@@ -14,13 +14,13 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   #Write the DQM store to a file (DQMStore.root) at the end of the run
   WriteDQMStore = cms.untracked.bool(False),
   #Use to disable all payload (non-fatal) checks
-  DoPayloadChecks = cms.untracked.bool(True),
+  DoPayloadChecks = cms.untracked.bool(False),
   #Use to disable check on channel lengths
-  CheckChannelLengths = cms.untracked.bool(True),
+  CheckChannelLengths = cms.untracked.bool(False),
   #Use to disable check on channel packet codes
-  CheckChannelPacketCodes = cms.untracked.bool(True),
+  CheckChannelPacketCodes = cms.untracked.bool(False),
   #Use to disable check on FE unit lengths in full debug header
-  CheckFELengths = cms.untracked.bool(True),
+  CheckFELengths = cms.untracked.bool(False),
   #Use to disable check on channel status bits
-  CheckChannelStatus = cms.untracked.bool(True),
+  CheckChannelStatus = cms.untracked.bool(False),
 )
