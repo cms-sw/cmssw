@@ -5,7 +5,6 @@
 #include "CondFormats/DataRecord/interface/L1TriggerScalerRcd.h"
 #include "CondFormats/RunInfo/interface/L1TriggerScaler.h"
 
-using namespace runinfo_test;
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RunSummaryRcd,RunSummary);
