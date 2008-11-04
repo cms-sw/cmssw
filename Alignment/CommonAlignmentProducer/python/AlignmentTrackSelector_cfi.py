@@ -1,21 +1,52 @@
-# The following comments couldn't be translated into the new config version:
-
-#Settings for the Global TrackSelector
 
 import FWCore.ParameterSet.Config as cms
 
 AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
-    minHitChargeStrip = cms.double(20.0),
-    rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-    applyMultiplicityFilter = cms.bool(False),
-    matchedrecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    src = cms.InputTag("generalTracks"),
+    filter = cms.bool(False),
+
+    # Settings for the base TrackSelector 	
+    # FIXME this should get its own PSet
+    applyBasicCuts = cms.bool(True),
+    ptMin = cms.double(0.0),
+    ptMax = cms.double(999.0),
     pMin = cms.double(0.0),
-    etaMin = cms.double(-2.6),
-    minHitIsolation = cms.double(0.01),
-    etaMax = cms.double(2.6),
     pMax = cms.double(9999.0),
+    etaMin = cms.double(-2.6),
+    etaMax = cms.double(2.6),
     phiMax = cms.double(3.1416),
     phiMin = cms.double(-3.1416),
+    chi2nMax = cms.double(999999.0),
+
+    nHitMin = cms.double(0.0),
+    nHitMax = cms.double(999.0),
+    nHitMin2D = cms.uint32(0),
+    countStereoHitAs2D = cms.bool(True),
+    minHitsPerSubDet = cms.PSet(
+        inTEC = cms.int32(0),
+        inTOB = cms.int32(0),
+        inFPIX = cms.int32(0),
+        inTID = cms.int32(0),
+        inBPIX = cms.int32(0),
+        inTIB = cms.int32(0)
+    ),
+    seedOnlyFrom = cms.int32(0),
+
+    applyMultiplicityFilter = cms.bool(False),
+    minMultiplicity = cms.int32(1),
+    maxMultiplicity = cms.int32(999999),
+    multiplicityOnInput = cms.bool(False),
+
+    applyNHighestPt = cms.bool(False),
+    nHighestPt = cms.int32(2),
+
+    rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+    matchedrecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    applyIsolationCut = cms.bool(False),
+    minHitIsolation = cms.double(0.01),
+    applyChargeCheck = cms.bool(False),
+    minHitChargeStrip = cms.double(20.0),
+
     GlobalSelector = cms.PSet(
         #for isolation Tests
         applyIsolationtest = cms.bool(False),
@@ -53,36 +84,7 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         applyChargeFilter = cms.bool(False),
         applyAcoplanarityFilter = cms.bool(False),
         applyMissingETFilter = cms.bool(False)
-    ),
-    ptMin = cms.double(10.0),
-    minMultiplicity = cms.int32(1),
-    nHitMin = cms.double(0.0),
-    ptMax = cms.double(999.0),
-    nHitMax = cms.double(999.0),
-    applyNHighestPt = cms.bool(False),
-    applyChargeCheck = cms.bool(False),
-    minHitsPerSubDet = cms.PSet(
-        inTEC = cms.int32(0),
-        inTOB = cms.int32(0),
-        inFPIX = cms.int32(0),
-        inTID = cms.int32(0),
-        inBPIX = cms.int32(0),
-        inTIB = cms.int32(0)
-    ),
-    nHighestPt = cms.int32(2),
-    countStereoHitAs2D = cms.bool(True),
-    nHitMin2D = cms.uint32(0),
-    src = cms.InputTag("generalTracks"), ##ctfWithMaterialTracks
-
-    applyIsolationCut = cms.bool(False),
-    multiplicityOnInput = cms.bool(False),
-    filter = cms.bool(False),
-    maxMultiplicity = cms.int32(999999),
-    seedOnlyFrom = cms.int32(0),
-    chi2nMax = cms.double(999999.0),
-    # Settings for the base TrackSelector 	
-    # FIXME this should get its own PSet
-    applyBasicCuts = cms.bool(True)
+    )
 )
 
 
