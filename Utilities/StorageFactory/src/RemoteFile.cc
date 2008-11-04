@@ -7,7 +7,7 @@
 #include <cassert>
 #include <spawn.h>
 #include <unistd.h>
-#include <iostream>
+#include <ostream>
 
 static std::string
 join (char **cmd)
