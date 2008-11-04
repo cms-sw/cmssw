@@ -32,8 +32,7 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
 			       bool computeCoarseLocalPosition) : 
   TransientTrackingRecHit(geom, *rh, weight, annealing), theCPE(cpe) 
 {
-  if (computeCoarseLocalPosition){
-  if (rh->hasPositionAndError())
+  if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
     theHitData = SiPixelRecHit(*rh);
   else{
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
@@ -44,7 +43,6 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
       edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
       theHitData = SiPixelRecHit(*rh);
     }
-  }
   }
 
   // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.

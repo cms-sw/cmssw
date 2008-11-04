@@ -92,8 +92,7 @@ private:
 			    bool computeCoarseLocalPosition) : 
     TransientTrackingRecHit(geom, weight, annealing), theCPE(cpe) 
     {
-      if (computeCoarseLocalPosition){
-      if (rh->hasPositionAndError())
+      if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
 	theHitData = SiStripRecHit2D(*rh);
       else{
       const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
@@ -110,7 +109,6 @@ private:
 	theHitData = SiStripRecHit2D(*rh);
       }
       }
-    }
     }
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
