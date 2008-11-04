@@ -447,10 +447,10 @@ cc      CALL STRCATH('./',TMPSTR1,TMPSTR)
       OPEN(33,FILE=TMPSTR,STATUS='unknown') ! NEW')
       CALL STRCATH(FILENAME,'.unw',TMPSTR)
       call GETUNIT(NUNIT)
-      OPEN(UNIT=NUNIT,NAME=TMPSTR,STATUS='OLD')
+      OPEN(UNIT=NUNIT,FILE=TMPSTR,STATUS='OLD')
       CALL STRCATH(FILENAME,'_unw.par',TMPSTR)
       CALL GETUNIT(NUNITINI)
-      OPEN(UNIT=NUNITINI,NAME=TMPSTR,STATUS='OLD')
+      OPEN(UNIT=NUNITINI,FILE=TMPSTR,STATUS='OLD')
 C OPEN A LOG FILE
       CALL ALSHCD(CSHO)
 C      IF(CSHO.EQ.'HER') THEN
@@ -1668,12 +1668,16 @@ C-----------------------------------------------------------------------
    9  K(I)=J
       B(I)=A(J)
       I=I+1
-      IF(IR(J)) 12,30,13
-  13  J=IR(J)
-      GOTO 8
-  12  J=-IR(J)
-      GOTO 9
-  30  IF(IOPT.EQ.2) RETURN
+
+        IF (IR(J).GT.0) THEN
+           J=IR(J)
+           GOTO 8
+        ELSEIF (IR(J).LT.0) then
+           J=-IR(J)
+           GOTO 9
+        ENDIF
+        IF (IOPT.EQ.2) RETURN 
+
       DO 31 I=1,N
   31  A(I)=B(I)
  999  END
