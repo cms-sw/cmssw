@@ -215,6 +215,8 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
     GlobalVector position = track.innermostMeasurementState().globalPosition() - GlobalPoint(0,0,0);
     RefitDirection::GeometricalDirection p = momentum.basicVector().dot(position.basicVector()) > 0 ? RefitDirection::insideOut : RefitDirection::outsideIn;
     propagationDirection = p == theRefitDirection.geometricalDirection() ? alongMomentum : oppositeToMomentum;
+    LogTrace(metname) << "P  (0-insideOut, 1-outsideIn): " << p;
+    LogTrace(metname) << "FD (0-OM, 1-AM, 2-ANY): " << propagationDirection;
   }
   // -A0-
 
