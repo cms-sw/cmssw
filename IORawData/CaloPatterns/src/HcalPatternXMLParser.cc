@@ -6,6 +6,7 @@
 #include <xercesc/framework/MemBufInputSource.hpp>
 XERCES_CPP_NAMESPACE_USE
 #include "IORawData/CaloPatterns/interface/HcalPatternXMLParser.h"
+#include <ostream>
 
 class HcalPatternXMLParserImpl {
 public:

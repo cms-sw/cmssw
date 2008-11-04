@@ -1,7 +1,7 @@
 /** \file LASvector.cc
  *  helper class contains vector algebra for Bruno's alignment algorithm
  *
- *  $Date: Fri Apr 20 10:42:57 CEST 2007 $
+ *  $Date: 2007/05/08 08:03:24 $
  *  $Revision: 1.1 $
  *  \author Maarten Thomas
  */
@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <math.h>
+#include <ostream>
 
 template<class Element>
 LASvector<Element> LASvector<Element>::operator+(const LASvector<Element> & source) const

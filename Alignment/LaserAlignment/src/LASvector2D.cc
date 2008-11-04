@@ -1,14 +1,15 @@
 /** \file LASvector2D.cc
  *  matrix algebra for Bruno's alignment algorithm
  *
- *  $Date: 2007/05/08 08:03:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/11 14:44:28 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/LaserAlignment/interface/LASvector2D.h"
+#include <ostream>
 
 template<class Element>
 LASvector2D<Element> LASvector2D<Element>::operator*(const LASvector<Element> & multiplicator) const
