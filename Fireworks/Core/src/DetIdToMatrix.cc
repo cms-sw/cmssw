@@ -148,12 +148,14 @@ TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const 
    
    TEveGeoShape* shape = new TEveGeoShape(name,path);
    shape->SetTransMatrix(*matrix);
-   
+   TGeoShape* gs = manager_->GetCurrentVolume()->GetShape();
+   UInt_t id = TMath::Max(gs->GetUniqueID(), UInt_t(1));
+   gs->SetUniqueID(id);
+   shape->SetShape(gs);
    TGeoVolume* volume = manager_->GetCurrentVolume();
    shape->SetMainColor(volume->GetLineColor());
    shape->SetRnrSelf(kTRUE);
    shape->SetRnrChildren(kTRUE);
-   shape->SetShape(manager_->GetCurrentVolume()->GetShape());
    return shape;
 }
 
