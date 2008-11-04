@@ -9,7 +9,6 @@
 
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 

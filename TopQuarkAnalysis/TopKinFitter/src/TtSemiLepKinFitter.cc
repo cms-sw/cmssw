@@ -8,6 +8,7 @@
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //default configuration is: Parametrization kEMom,
 //                          Max iterations =  200, 
@@ -58,8 +59,7 @@ void TtSemiLepKinFitter::printSetup()
     case kNeutrinoMass : constr += "    * neutrino   mass \n"; break;
     }
   }
-  edm::LogInfo( "Setup:" ) 
-    << "\n"
+  edm::LogVerbatim( "TtSemiLepKinFitter" ) 
     << "\n"
     << "+++++++++++ TtSemiLepKinFitter Setup ++++++++++++ \n"
     << "  Parametrization:                                \n" 
