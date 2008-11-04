@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 def customise(process):
 
-# HCAL geometry
+# geometry addition to avoid problems with ECAL chain
     
-    process.CaloGeometryBuilder.SelectedCalos = cms.vstring ('HCAL','TOWER')
+    process.load('Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi')
+    process.load('Geometry.EcalMapping.EcalMapping_cfi')
+    process.load('Geometry.EcalMapping.EcalMappingRecord_cfi')
 
 # extend the particle gun acceptance
 
