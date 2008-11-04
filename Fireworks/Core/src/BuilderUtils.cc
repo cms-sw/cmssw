@@ -10,7 +10,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TColor.h"
@@ -90,11 +89,11 @@ std::string fw::NamedCounter::str() const
    return s.str();
 }
 
-TEveGeoShapeExtract* fw::getShapeExtract( const char* name,
-					  TGeoBBox* shape,
-					  Color_t color )
+TEveGeoShape* fw::getShape( const char* name,
+			    TGeoBBox* shape,
+			    Color_t color )
 {
-   TEveGeoShapeExtract* extract = new TEveGeoShapeExtract(name);
+   TEveGeoShape* egs = new TEveGeoShape(name);
    TColor* c = gROOT->GetColor(color);
    Float_t rgba[4] = { 1, 0, 0, 1 };
    if (c) {
@@ -102,11 +101,9 @@ TEveGeoShapeExtract* fw::getShapeExtract( const char* name,
       rgba[1] = c->GetGreen();
       rgba[2] = c->GetBlue();
    }
-   extract->SetRGBA(rgba);
-   extract->SetRnrSelf(true);
-   extract->SetRnrElements(true);
-   extract->SetShape(shape);
-   return extract;
+   egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+   egs->SetShape(shape);
+   return egs;
 }
 
 void fw::addRhoZEnergyProjection( TEveElement* container,
@@ -138,33 +135,27 @@ void fw::addRhoZEnergyProjection( TEveElement* container,
    
    if ( fabs(r2 - r1) > 1 ) {
       TGeoBBox *sc_box = new TGeoBBox(0., fabs(r2-r1)/2, 1);
-      TEveTrans t;
+      TEveGeoShape *element = new TEveGeoShape("r-segment");
+      element->SetShape(sc_box);
+      TEveTrans &t = element->RefMainTrans();
       t(1,4) = 0; 
       t(2,4) = (r2+r1)/2;
       t(3,4) = fabs(z2)>fabs(z1) ? z2 : z1;
-      TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("r-segment");
-      extract->SetTrans(t.Array());
-      extract->SetRGBA(rgba);
-      extract->SetRnrSelf(true);
-      extract->SetRnrElements(true);
-      extract->SetShape(sc_box);
-      TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, 0);
+
       element->SetPickable(kTRUE);
+      element->SetMainColorRGB(rgba[0],rgba[1],rgba[2]);
       container->AddElement(element);
    }
    if ( fabs(z2 - z1) > 1 ) {
       TGeoBBox *sc_box = new TGeoBBox(0., 1, (z2-z1)/2);
-      TEveTrans t;
+      TEveGeoShape *element = new TEveGeoShape("z-segment");
+      element->SetShape(sc_box);
+      TEveTrans &t = element->RefMainTrans();
       t(1,4) = 0; 
       t(2,4) = fabs(r2)>fabs(r1) ? r2 : r1;
       t(3,4) = (z2+z1)/2;
-      TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("z-segment");
-      extract->SetTrans(t.Array());
-      extract->SetRGBA(rgba);
-      extract->SetRnrSelf(true);
-      extract->SetRnrElements(true);
-      extract->SetShape(sc_box);
-      TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, 0);
+
+      element->SetMainColorRGB(rgba[0],rgba[1],rgba[2]);
       element->SetPickable(kTRUE);
       container->AddElement(element);
    }
@@ -207,13 +198,14 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 	size = hit->energy();
     }
 
-    TEveGeoShape* orig = geo.getShape(k->rawId());
-    assert(orig != 0);
-    TEveTrans &t = orig->RefMainTrans();
+    TEveGeoShape* egs = geo.getShape(k->rawId());
+    // printf("1 egs  %d \n", egs->GetShape()->GetUniqueID());
+    assert(egs != 0);
+    TEveTrans &t = egs->RefMainTrans();
     t.MoveLF(3, - size / 2);
     TGeoShape* crystal_shape = 0;
-    if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(orig->GetShape())) {
-      double scale = size/2/shape->GetDz();
+    if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(egs->GetShape())) {
+      double scale = size*0.5/shape->GetDz();
       crystal_shape = new TGeoTrap( size/2,
 				    shape->GetTheta(), shape->GetPhi(),
 				    shape->GetH1()*scale + shape->GetH2()*(1-scale),
@@ -225,15 +217,12 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
     }
     if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
 
-    TEveGeoShape* shape2 = new TEveGeoShape("SC");
-    shape2->RefMainTrans().SetFromArray(t.Array());
+    egs->SetShape(crystal_shape);
     Float_t rgba[4] = { 1, 0, 0, 1 };
-    shape2->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
-    shape2->SetRnrSelf(true);
-    shape2->SetRnrChildren(true);
-    shape2->SetShape(crystal_shape);
-    ret->AddElement(shape2);
-    delete orig;
+    egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+    egs->SetRnrSelf(true);
+    egs->SetRnrChildren(true);
+    ret->AddElement(egs);
   }
   return ret;
 }

@@ -8,13 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.13 2008/07/17 10:04:17 dmytro Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.14 2008/11/03 11:50:02 amraktad Exp $
 //
 
 // system include files
 #include "TClass.h"
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TGeoTube.h"
@@ -201,13 +200,13 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 		     size = hit->energy();
 	       }
 	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
-	       TEveGeoShape* origs = m_item->getGeom()->getShape(k->rawId(), /*corrected*/ true );
-	       assert(origs != 0);
-	       TEveTrans &t = origs->RefMainTrans();
+	       TEveGeoShape* egs = m_item->getGeom()->getShape(k->rawId(), /*corrected*/ true );
+	       assert(egs != 0);
+	       TEveTrans &t = egs->RefMainTrans();
 	       t.MoveLF(3, - size / 2);
 	       // TGeoBBox *sc_box = new TGeoBBox(1.1, 1.1, size / 2, 0);
 	       TGeoShape* crystal_shape = 0;
-	       if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(origs->GetShape()) ) {
+	       if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(egs->GetShape()) ) {
 		  double scale = size/2/shape->GetDz();
 		  crystal_shape = new TGeoTrap( size/2,
 						shape->GetTheta(), shape->GetPhi(),
@@ -238,8 +237,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 		  }
 	       }
 	       if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
-	       TEveGeoShape *shape2 = new TEveGeoShape("SC");
-               shape2->RefMainTrans().SetFromArray(t.Array());
+	       egs->SetShape(crystal_shape);
 	       Float_t rgba[4] = { 1, 0, 0, 1 };
 	       if (find(seed_detids.begin(), seed_detids.end(), *k) != 
 		   seed_detids.end()) {
@@ -250,11 +248,11 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 			 rgba[2] = c->GetBlue();
 		    }
 	       } 
-	       shape2->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
-	       shape2->SetRnrSelf(true);
-	       shape2->SetRnrChildren(true);
-	       shape2->SetShape(crystal_shape);
-	       container->AddElement(shape2);
+	       egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+	       egs->SetRnrSelf(true);
+	       egs->SetRnrChildren(true);
+	       egs->SetShape(crystal_shape);
+	       container->AddElement(egs);
 /*
 	       TGeoTrap *crystal = dynamic_cast<TGeoTrap *>(extract->GetShape());
 	       assert(crystal != 0);

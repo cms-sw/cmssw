@@ -8,12 +8,11 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/07/16 13:51:01 dmytro Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/08/21 02:33:07 dmytro Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoArb8.h"
 #include "TEveManager.h"
 #include "TGeoSphere.h"
@@ -102,15 +101,15 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
       double size = mets->at(i).et();
       TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-      TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
-      
+      TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+      element->SetPickable(kTRUE);
+      container->AddElement(element);
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(2);
       // marker->SetLineStyle(kDotted);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-      TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
-      element->SetPickable(kTRUE);
-      container->AddElement(element);
+
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
       const double dx = 0.9*size*0.05;
       const double dy = 0.9*size*cos(0.05);

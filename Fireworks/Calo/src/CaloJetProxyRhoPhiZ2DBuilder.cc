@@ -8,12 +8,11 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.17 2008/08/09 23:58:21 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.18 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoArb8.h"
 #include "TEveManager.h"
 #include "TGeoSphere.h"
@@ -188,14 +187,14 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi(const FWEventItem* iItem,
 
    double size = jet->et();
    TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-   TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+   TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+   element->SetPickable(kTRUE);
+   container->AddElement(element);
       
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
    marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-   TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
-   element->SetPickable(kTRUE);
-   container->AddElement(element);
+
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
    marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    container->AddElement(marker);

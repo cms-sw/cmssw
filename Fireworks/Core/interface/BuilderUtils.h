@@ -12,7 +12,7 @@ namespace reco {
 }
    
 class TEveTrack;
-class TEveGeoShapeExtract;
+class TEveGeoShape;
 class TGeoBBox;
 class TEveElement;
 class TEveElementList;
@@ -37,9 +37,9 @@ namespace fw {
 			   double max_z = 300,
 			   double magnetic_field = 4 );
    
-   TEveGeoShapeExtract* getShapeExtract( const char* name,
-					 TGeoBBox* shape,
-					 Color_t color );
+   TEveGeoShape* getShape( const char* name,
+			   TGeoBBox* shape,
+			   Color_t color );
    
    void addRhoZEnergyProjection( TEveElement* container,
 				 double r_ecal, double z_ecal, 

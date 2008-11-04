@@ -8,13 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.12 2008/07/22 00:25:23 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.13 2008/11/03 11:50:02 amraktad Exp $
 //
 
 // system include files
 #include "TClass.h"
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TGeoTube.h"
@@ -184,12 +183,12 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
 		     size = hit->energy();
 	       }
 	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
-	       TEveGeoShape* origs = m_item->getGeom()->getShape(k->rawId(), /*corrected*/ true  );
-	       assert(origs != 0);
-               TEveTrans &t = origs->RefMainTrans();
+	       TEveGeoShape* egs = m_item->getGeom()->getShape(k->rawId(), /*corrected*/ true  );
+	       assert(egs != 0);
+               TEveTrans &t = egs->RefMainTrans();
 	       t.MoveLF(3, - size / 2);
 	       TGeoShape* crystal_shape = 0;
-	       if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(origs->GetShape()) ) {
+	       if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(egs->GetShape()) ) {
 		  double scale = size/2/shape->GetDz();
 		  crystal_shape = new TGeoTrap( size/2,
 						shape->GetTheta(), shape->GetPhi(),
@@ -220,8 +219,7 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
 		  }
 	       }
 	       if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
-	       TEveGeoShape *shape2 = new TEveGeoShape("SC");
-	       shape2->RefMainTrans().SetFromArray(t.Array());
+	       egs->SetShape(crystal_shape);
 	       Float_t rgba[4] = { 1, 0, 0, 1 };
 	       if (find(seed_detids.begin(), seed_detids.end(), *k) != 
 		   seed_detids.end()) {
@@ -233,12 +231,11 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
 // 		    }
 		    rgba[1] = 1;
 	       } 
-	       shape2->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
-	       shape2->SetRnrSelf(true);
-	       shape2->SetRnrChildren(true);
-	       shape2->SetShape(crystal_shape);
-	       container->AddElement(shape2);
-               delete origs;
+	       egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+	       egs->SetRnrSelf(true);
+	       egs->SetRnrChildren(true);
+	       egs->SetShape(crystal_shape);
+	       container->AddElement(egs);
 /*
 	       TGeoTrap *crystal = dynamic_cast<TGeoTrap *>(extract->GetShape());
 	       assert(crystal != 0);
@@ -443,11 +440,11 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 				 v.Y() * scale,
 				 -0.11 - 0.1 * size);
 	       }
-	       TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("ECAL crystal");
-	       extract->SetShape(box);
-	       extract->SetTrans(t_box.Array());
-	       extract->SetRGBA(rgba);
-	       container->AddElement(TEveGeoShape::ImportShapeExtract(extract, 0));
+	       TEveGeoShape * ebox = new TEveGeoShape("ECAL crystal");
+	       ebox->SetShape(box);
+	       ebox->SetTransMatrix(t_box.Array());
+	       ebox->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+	       container->AddElement(ebox);
 	  }
 	  container->AddElement(seed_boxes);
 	  container->AddElement(non_seed_boxes);
@@ -771,13 +768,12 @@ TEveElementList *ElectronDetailView::getEcalCrystalsBarrel (
 	  t_box.SetPos(v.Eta() * scale,
 		       v.Phi() * scale,
 		       -0.11);
-	  TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("EB crystal");
-	  extract->SetShape(box);
-	  extract->SetTrans(t_box.Array());
-	  extract->SetRGBA(rgba);
-	  TEveGeoShape *shape = TEveGeoShape::ImportShapeExtract(extract, 0);
- 	  shape->SetMainTransparency(80);
-	  ret->AddElement(shape);
+	  TEveGeoShape *egs = new TEveGeoShape("EB crystal");
+	  egs->SetShape(box);
+	  egs->SetTransMatrix(t_box.Array());
+	  egs->SetMainColorRGB(rgba[1], rgba[2], rgba[3]);
+ 	  egs->SetMainTransparency(80);
+	  ret->AddElement(egs);
      }
      return ret;
 }
@@ -831,13 +827,12 @@ TEveElementList *ElectronDetailView::getEcalCrystalsEndcap (
 	  t_box.SetPos(v.X() * scale,
 		       v.Y() * scale,
 		       -0.11);
-	  TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("EEcrystal");
-	  extract->SetShape(box);
-	  extract->SetTrans(t_box.Array());
-	  extract->SetRGBA(rgba);
-	  TEveGeoShape *shape = TEveGeoShape::ImportShapeExtract(extract, 0);
- 	  shape->SetMainTransparency(80);
-	  ret->AddElement(shape);
+	  TEveGeoShape *egs = new TEveGeoShape("EEcrystal");
+	  egs->SetShape(box);
+	  egs->SetTransMatrix(t_box.Array());
+	  egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
+ 	  egs->SetMainTransparency(80);
+	  ret->AddElement(egs);
      }
      return ret;
 }

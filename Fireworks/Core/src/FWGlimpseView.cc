@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.14 2008/09/29 18:00:23 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.15 2008/10/28 14:18:08 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,6 @@
 #include "TEveTrans.h"
 #include "TGeoTube.h"
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEveStraightLineSet.h"
 #include "TEveText.h"
 #include "TGeoArb8.h"
@@ -175,8 +174,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    gls->SetSelectable(kFALSE);
 
    TGeoTube* tube = new TGeoTube(129,130,310);
-   TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", tube, kWhite);
-   m_cylinder = TEveGeoShape::ImportShapeExtract(extract, wns);
+   m_cylinder = fw::getShape("Detector outline", tube, kWhite);
    m_cylinder->SetPickable(kFALSE);
    m_cylinder->SetMainColor(kGray+3);  
    

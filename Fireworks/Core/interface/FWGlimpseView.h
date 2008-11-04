@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.5 2008/07/17 10:11:32 dmytro Exp $
+// $Id: FWGlimpseView.h,v 1.6 2008/09/22 19:20:58 amraktad Exp $
 //
 
 // system include files
@@ -36,10 +36,10 @@ class TEvePad;
 class TEveViewer;
 class TEveScene;
 class TEveElementList;
+class TEveGeoShape;
 class TGLMatrix;
 class FWGlimpseViewManager;
 class FWEveValueScaler;
-
 class FWGlimpseView : public FWViewBase
 {
 
@@ -74,7 +74,7 @@ class FWGlimpseView : public FWViewBase
       TEveViewer* m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveScene* m_scene;
-      TEveElement*  m_cylinder;
+      TEveGeoShape*  m_cylinder;
       
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;

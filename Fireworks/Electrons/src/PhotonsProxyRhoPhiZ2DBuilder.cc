@@ -8,12 +8,11 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.13 2008/07/17 10:04:18 dmytro Exp $
+// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/09/21 13:16:22 jmuelmen Exp $
 //
 
 // system include files
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TGeoBBox.h"
 #include "TGeoTube.h"
 #include "TEveManager.h"
@@ -108,10 +107,9 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1, 
 					   phiRange.first * 180 / M_PI - 0.5,  
 					   phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal 
-	TEveGeoShapeExtract *sc = fw::getShapeExtract( "supercluster", sc_box, tList->GetMainColor() );
-	TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
-	element->SetPickable(kTRUE);
-	container->AddElement(element);
+	TEveGeoShape *sc = fw::getShape( "supercluster", sc_box, tList->GetMainColor() );
+	sc->SetPickable(kTRUE);
+	container->AddElement(sc);
 	
 	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
 	track->SetMainColor( iItem->defaultDisplayProperties().color() );

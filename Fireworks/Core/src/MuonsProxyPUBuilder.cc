@@ -8,13 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyPUBuilder.cc,v 1.4 2008/07/17 10:04:17 dmytro Exp $
+// $Id: MuonsProxyPUBuilder.cc,v 1.5 2008/11/03 11:50:02 amraktad Exp $
 //
 
 // system include files
 #include "TClass.h"
 #include "TEveGeoNode.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEveStraightLineSet.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"

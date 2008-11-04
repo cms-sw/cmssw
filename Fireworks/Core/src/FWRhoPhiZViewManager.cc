@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.37 2008/07/17 10:12:59 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.38 2008/11/03 11:50:02 amraktad Exp $
 //
 
 // system include files
@@ -23,7 +23,6 @@
 #include "TGLViewer.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TEveGeoShapeExtract.h"
 #include "TEvePolygonSetProjected.h"
 #include "RVersion.h"
 #include "TGeoBBox.h"
