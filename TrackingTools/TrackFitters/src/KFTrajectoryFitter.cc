@@ -72,33 +72,32 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   std::vector<Trajectory> ret(1, Trajectory(aSeed, thePropagator->propagationDirection()));
   Trajectory & myTraj = ret.front();
   myTraj.reserve(hits.size());
-
+  
   TSOS predTsos(firstPredTsos);
   TSOS currTsos;
-
+  
   int hitcounter = 1;
   for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit, ++hitcounter) {
 
     const TransientTrackingRecHit & hit = (**ihit);
-
+    
     if (hit.isValid() == false && hit.surface() == 0) {
       LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
-
     if (hit.isValid()) {
-      LogTrace("TrackFitters")
-	<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
-	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
-	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
-	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
-	<< "  HIT IS AT Loc " << hit.localPosition() << "\n"
-	<< "  WITH LocError " << hit.localPositionError() << "\n"
-	<< "  HIT IS AT Glo " << hit.globalPosition() << "\n"
-	<< "SURFACE POSITION" << "\n"
-	<< hit.surface()->position()<<"\n"
-	<< "SURFACE ROTATION" << "\n"
-	<< hit.surface()->rotation();
+      //       LogTrace("TrackFitters")
+      // 	<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+      // 	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
+      // 	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
+      // 	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
+      // 	<< "  HIT IS AT Loc " << hit.localPosition() << "\n"
+      // 	<< "  WITH LocError " << hit.localPositionError() << "\n"
+      // 	<< "  HIT IS AT Glo " << hit.globalPosition() << "\n"
+      // 	<< "SURFACE POSITION" << "\n"
+      // 	<< hit.surface()->position()<<"\n"
+      // 	<< "SURFACE ROTATION" << "\n"
+      // 	<< hit.surface()->rotation();
       
       DetId hitId = hit.geographicalId();
 
