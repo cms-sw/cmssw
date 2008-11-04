@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.17 2008/02/13 09:01:07 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.18 2008/06/20 04:57:06 franzoni Exp $
  */
 
 #include <vector>
@@ -121,6 +121,18 @@ class EcalDCCHeaderBlock
   void setTriggerTowerFlags(const std::vector<short>& triggerTowerFlag) { triggerTowerFlag_ = triggerTowerFlag; };
   void setFEStatus(const std::vector<short>& feStatus) { feStatus_ = feStatus; };
 
+  void setFEBx(const std::vector<short>& feBx)  { feBx_  = feBx;  }
+  void setTCCBx(const std::vector<short>& tccBx){ tccBx_ = tccBx; }
+  void setSRPBx(const short & srpBx)            { srpBx_ = srpBx; }
+  
+  void setFELv1(const std::vector<short>& feLv1)  { feLv1_ = feLv1;   }
+  void setTCCLv1(const std::vector<short>& tccLv1){ tccLv1_ = tccLv1; }
+  void setSRPLv1(const short & srpLv1)            { srpLv1_ = srpLv1; }
+
+
+
+
+
   //TODO add all the get methods
   
   int getDCCErrors() const{ return dccErrors_;}
@@ -144,6 +156,17 @@ class EcalDCCHeaderBlock
   std::vector<short> getTccStatus() const { return tccStatus_ ;}
   std::vector<short> getTriggerTowerFlag() const { return triggerTowerFlag_ ;}
   std::vector<short> getFEStatus() const { return feStatus_ ;}
+  
+  
+  std::vector<short> getFEBxs(){ return feBx_;  }
+  std::vector<short> getTCCBx(){ return tccBx_; }
+  short              getSRPBx(){ return srpBx_; }
+  
+  std::vector<short> getFELv1(){ return feLv1_;  }
+  std::vector<short> getTCCLv1(){ return tccLv1_; }
+  short              getSRPLv1(){ return srpLv1_; }
+  
+  
  private:
 
   int dccId_;  //to be used as the Key
@@ -172,6 +195,14 @@ class EcalDCCHeaderBlock
   std::vector<short> tccStatus_;
   std::vector<short> triggerTowerFlag_;
   std::vector<short> feStatus_;
+  
+  std::vector<short> feBx_;  
+  std::vector<short> tccBx_; 
+  short              srpBx_; 
+  
+  std::vector<short> feLv1_;  
+  std::vector<short> tccLv1_; 
+  short              srpLv1_; 
  
 };
 
