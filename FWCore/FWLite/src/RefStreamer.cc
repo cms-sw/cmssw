@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TROOT.h"
 #include <assert.h>
+#include <ostream>
 
 class TBuffer;
 
