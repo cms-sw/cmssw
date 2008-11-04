@@ -33,11 +33,12 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
        iDet!=detectorModules_.end(); ++iDet) {
     float nDigisMean = (float)RandGauss::shoot(50.,20.); // generate random values for each detId
     float nDigisRMS = (float)RandGauss::shoot(20.,4.);
+    float emptyFraction = (float)RandGauss::shoot(.5,.2);
     
-    performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS); // set values
+    performanceSummary->setNumberOfDigis(*iDet, nDigisMean, nDigisRMS, emptyFraction); // set values
   }
   clock_t presentTime = clock();
-  performanceSummary->setTimeValue((unsigned long long)presentTime);
+  performanceSummary->setTimeStamp((unsigned long long)presentTime);
   performanceSummary->print();
   
   edm::Service<cond::service::PoolDBOutputService> poolDBService; // write to DB
@@ -82,7 +83,7 @@ void SiPixelPerformanceSummaryBuilder::beginJob(const edm::EventSetup& iSetup) {
       detectorModules_.push_back((*it)->geographicalId().rawId());
     }
   }
-  edm::LogInfo("Modules") <<" detectorModules_.size() = "<< detectorModules_.size();
+  edm::LogInfo("Modules") << "detectorModules_.size() = "<< detectorModules_.size();
 }
 
 
