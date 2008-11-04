@@ -1,7 +1,7 @@
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include <iostream>
+#include <sstream>
 
 FebConnectorSpec::FebConnectorSpec(
     int num, const ChamberLocationSpec & chamber, const FebLocationSpec & feb)
