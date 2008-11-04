@@ -50,7 +50,7 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
         layerList = makeSimpleCosmicSeedLayers('ALL'),
         debugLevel = cms.untracked.uint32(0),  # debug triplet finding (0 to 3)
     ),
-    rescaleError    = cms.double(50),  # rescale seed error (a factor 50 was used historically for cosmics)
+    rescaleError    = cms.double(1),  # we don't need it anymore. At least for runs with BON
     seedOnMiddle    = cms.bool(False), # after finding the triplet, add only two hits to the seed
 
                                       
