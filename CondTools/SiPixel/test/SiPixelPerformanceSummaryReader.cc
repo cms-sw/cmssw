@@ -11,6 +11,7 @@
 
 
 using namespace cms;
+using namespace std;
 
 
 SiPixelPerformanceSummaryReader::SiPixelPerformanceSummaryReader(const edm::ParameterSet& iConfig) 
@@ -21,15 +22,13 @@ SiPixelPerformanceSummaryReader::~SiPixelPerformanceSummaryReader() {}
 
 
 void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::LogInfo("SiPixelPerformanceSummaryReader") << "start reading SiPixelPerformanceSummary" << std::endl;
+  edm::LogInfo("SiPixelPerformanceSummaryReader") << "start reading SiPixelPerformanceSummary" << endl;
   edm::ESHandle<SiPixelPerformanceSummary> SiPixelPerformanceSummary_;
   iSetup.get<SiPixelPerformanceSummaryRcd>().get(SiPixelPerformanceSummary_);
-  edm::LogInfo("SiPixelPerformanceSummaryReader") << "end reading SiPixelPerformanceSummary" << std::endl;
+  edm::LogInfo("SiPixelPerformanceSummaryReader") << "end reading SiPixelPerformanceSummary" << endl;
 
   SiPixelPerformanceSummary_->print();
-  std::vector<uint32_t> allDetIds;
-                        allDetIds.clear();
-  SiPixelPerformanceSummary_->getAllDetIds(allDetIds);
+  vector<uint32_t> allDetIds = SiPixelPerformanceSummary_->getAllDetIds();
   if (allDetIds.size()>0) SiPixelPerformanceSummary_->print(allDetIds[0]);
   SiPixelPerformanceSummary_->printAll(); 
 }
