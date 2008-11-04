@@ -2,6 +2,7 @@
 #define DataFormats_Provenance_Hash_h
 
 #include <string>
+#include <ostream>
 
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -11,7 +12,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.2 2007/06/14 03:38:30 wmtan Exp $
+$Id: Hash.h,v 1.3 2007/11/07 04:32:38 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
