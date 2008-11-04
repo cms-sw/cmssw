@@ -1,6 +1,7 @@
 #ifndef CSCAnodeData2006_h
 #define CSCAnodeData2006_h
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeDataFormat.h"
+#include <cassert>
 class CSCALCTHeader;
 
 class CSCAnodeDataFrame2006 {
