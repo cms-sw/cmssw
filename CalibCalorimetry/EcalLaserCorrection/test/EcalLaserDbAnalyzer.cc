@@ -98,24 +98,6 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
         const EcalLaserAlphas* myalpha =  pSetup->getAlphas();
         const EcalLaserAlphaMap& laserAlphaMap =  myalpha->getMap();
 
-        //  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator laserRatiosIter; // Laser iterator
-        //  EcalLaserAPDPNRatios::EcalLaserTimeStampMapIterator laserTimeIter;
-        //  EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator laserRefIter; 
-        //  EcalLaserAlphas::EcalLaserAlphaMapIterator laserAlphaIter; 	  
-
-        //   int ieta = 83;
-        //   int iphi = 168;
-        //   EBDetId ebdetid(ieta,iphi);
-
-        //   // use a channel to fetch values from DB
-        //   double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-        //   int ieta =  int( 1 + r1*85 );
-        //   r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-        //   int iphi =  int( 1 + r1*20 );
-        //   EBDetId ebdetid(ieta,iphi); //eta,phi
-        //   std::cout << "*** XTAL: " << ebdetid << std::endl;
-
-
         for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
                 if(ieta==0) continue;
                 for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
@@ -146,14 +128,8 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
                         } else {
                                 edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << endl;
                         }
-
-
                 }
         }
-
-
-
-
 }
 
 //define this as a plug-in
