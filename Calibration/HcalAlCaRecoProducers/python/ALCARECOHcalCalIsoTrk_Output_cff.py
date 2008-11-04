@@ -9,6 +9,8 @@ OutALCARECOHcalCalIsoTrk = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrk')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_IsoProd_*_*')
+        'keep *_IsoProd_*_*',
+	'keep triggerTriggerEvent_*_*_*'
+)
 )
 
