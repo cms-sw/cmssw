@@ -2,6 +2,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"

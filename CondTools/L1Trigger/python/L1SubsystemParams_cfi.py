@@ -98,6 +98,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1MuGMTChannelMaskRcd'),
+            tag = cms.string('L1MuGMTChannelMask_IDEAL'),
+            type = cms.string('L1MuGMTChannelMask'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1RCTParametersRcd'),
             tag = cms.string('L1RCTParameters_IDEAL'),
             type = cms.string('L1RCTParameters'),

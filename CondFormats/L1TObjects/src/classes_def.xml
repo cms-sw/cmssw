@@ -6,6 +6,7 @@
   <class name="L1MuTriggerScales"/>
   <class name="L1MuTriggerPtScale"/>
   <class name="L1MuGMTParameters"/>
+  <class name="L1MuGMTChannelMask"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
   <class name="L1GctChannelMask"/>

@@ -140,6 +140,12 @@ REGISTER_L1_WRITER(L1RPCConfigRcd, L1RPCConfig);
 REGISTER_PLUGIN(L1MuGMTParametersRcd, L1MuGMTParameters);
 REGISTER_L1_WRITER(L1MuGMTParametersRcd, L1MuGMTParameters);
 
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
+
+REGISTER_PLUGIN(L1MuGMTChannelMaskRcd, L1MuGMTChannelMask);
+REGISTER_L1_WRITER(L1MuGMTChannelMaskRcd, L1MuGMTChannelMask);
+
 // RCT records
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
