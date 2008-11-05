@@ -21,6 +21,9 @@ SiPixelClusterSource.saveFile = False
 from DQM.SiPixelMonitorRecHit.SiPixelMonitorRecHit_cfi import *
 SiPixelRecHitSource.saveFile = False
 
+# Pixel Track Monitoring
+from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
+SiPixelTrackResidualSource.saveFile = True
         
 ##online/offline
 #RawDataErrors
@@ -61,9 +64,20 @@ SiPixelRecHitSource.bladeOn = True
 SiPixelRecHitSource.diskOn = True
 SiPixelRecHitSource.ringOn = True
 
+#Track
+SiPixelTrackResidualSource.modOn = False
+SiPixelTrackResidualSource.ladOn = True
+SiPixelTrackResidualSource.layOn = True
+SiPixelTrackResidualSource.phiOn = True	
+SiPixelTrackResidualSource.bladeOn = True
+SiPixelTrackResidualSource.diskOn = True
+SiPixelTrackResidualSource.ringOn = True
+
 #DQM service
 dqmInfo = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel')
 )
 
-siPixelOfflineDQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
+siPixelOfflineDQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + dqmInfo)
+
+siPixelOfflineDQM_source_woTrack = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
