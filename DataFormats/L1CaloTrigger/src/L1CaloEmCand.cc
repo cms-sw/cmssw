@@ -72,10 +72,10 @@ void L1CaloEmCand::setBx(int16_t bx) {
 
 // pretty print
 ostream& operator<<(ostream& s, const L1CaloEmCand& cand) {
-  s << "L1CaloEmCand : " << hex;
+  s << "L1CaloEmCand : ";
   s << "rank=" << cand.rank();
   s << ", region=" << cand.rctRegion() << ", card=" << cand.rctCard() << ", crate=" << cand.rctCrate();
-  s << ", iso=" << cand.isolated() << dec;
-  s << hex << ", index=" << cand.index() << ", BX=" << cand.bx() << dec;
+  s << ", iso=" << cand.isolated();
+  s << ", index=" << cand.index() << ", BX=" << cand.bx();
   return s;
 }

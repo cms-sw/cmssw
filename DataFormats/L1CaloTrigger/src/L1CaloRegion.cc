@@ -101,13 +101,29 @@ L1CaloRegion L1CaloRegion::makeRegionFromGctIndices(unsigned et,
   return r;
 }
 
-L1CaloRegion L1CaloRegion::makeGctJetRegion(const unsigned et, 
-						 const bool overFlow, 
-						 const bool fineGrain,
-						 const unsigned ieta, 
-						 const unsigned iphi,
-						 const int16_t bx) {
+//constructor for unpacking
+L1CaloRegion L1CaloRegion::makeRegionFromUnpacker(uint16_t data, 
+                                                  unsigned ieta, 
+                                                  unsigned iphi, 
+                                                  uint16_t block, 
+                                                  uint16_t index, 
+                                                  int16_t bx)
+{
+  L1CaloRegion r;
+  r.setRegionId( L1CaloRegionDetId(ieta,iphi) );
+  r.setRawData(data);
+  r.setCaptureBlock(block);
+  r.setCaptureIndex(index);
+  r.setBx(bx);
+  return r;
+}
 
+L1CaloRegion L1CaloRegion::makeGctJetRegion(const unsigned et, 
+                                            const bool overFlow, 
+                                            const bool fineGrain,
+                                            const unsigned ieta, 
+                                            const unsigned iphi,
+                                            const int16_t bx) {
   L1CaloRegion r;
   r.setRegionId( L1CaloRegionDetId(ieta, iphi) );
   r.setBx(bx);
@@ -115,9 +131,6 @@ L1CaloRegion L1CaloRegion::makeGctJetRegion(const unsigned et,
   return r;
 
 }
-
-
-
 
 // set BX
 void L1CaloRegion::setBx(int16_t bx) {
@@ -158,27 +171,19 @@ void L1CaloRegion::pack12BitsEt(unsigned et, bool overFlow, bool fineGrain, bool
 
 // print to stream
 ostream& operator << (ostream& os, const L1CaloRegion& reg) {
-  os << "L1CaloRegion:" << hex;
+  os << "L1CaloRegion:";
   os << " Et=" << reg.et();
   os << " o/f=" << reg.overFlow();
   os << " f/g=" << reg.fineGrain();
-  os << " tau=" << reg.tauVeto();
-  os << " mip=" << reg.mip();
-  os << " qt=" << reg.quiet();
-  os << endl;
-  os << "             ";
+  os << " tau=" << reg.tauVeto() << endl;
   os << " RCT crate=" << reg.rctCrate();
-  os << " RCT crad=" << reg.rctCard();
+  os << " RCT card=" << reg.rctCard();
   os << " RCT rgn=" << reg.rctRegionIndex();
   os << " RCT eta=" << reg.rctEta();
-  os << " RCT phi=" << reg.rctPhi();
-  os << endl;
-  os << "             ";
+  os << " RCT phi=" << reg.rctPhi() << endl;
   os << " GCT eta=" << reg.gctEta();
-  os << " GCT phi=" << reg.gctPhi();
-  os << endl;
-  os << "              BX=" << reg.m_bx << endl;
-  os << dec;
+  os << " GCT phi=" << reg.gctPhi() << endl;
+  os << hex << " cap block=" << reg.capBlock() << dec << ", index=" << reg.capIndex() << ", BX=" << reg.bx();
   return os;
 }
 

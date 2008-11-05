@@ -44,17 +44,14 @@ ostream& operator<< (ostream& os, const L1CaloMipQuietRegion& rhs)
 {
   os <<"L1CaloMipQuietRegion:"
      << " MIP=" << rhs.mip()
-     << " Quiet=" << rhs.quiet() << showbase << hex
-     << "\n                     "
+     << " Quiet=" << rhs.quiet() << endl
      << " RCT crate=" << rhs.rctCrate()
      << " RCT card=" << rhs.rctCard()
      << " RCT rgn=" << rhs.rctRegionIndex()
      << " RCT eta=" << rhs.rctEta()
-     << " RCT phi=" << rhs.rctPhi()
-     << "\n                     "
+     << " RCT phi=" << rhs.rctPhi() << endl
      << " GCT eta=" << rhs.gctEta()
-     << " GCT phi=" << rhs.gctPhi() << dec << noshowbase
-     << "\n                      BX=" << rhs.bx()
-     << endl;
+     << " GCT phi=" << rhs.gctPhi()
+     << " BX=" << rhs.bx() << endl;
   return os;
 }

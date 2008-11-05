@@ -88,6 +88,13 @@ public:
 					       const bool quiet, 
 					       const unsigned ieta, 
 					       const unsigned iphi);
+  /// constructor from raw data and GCT indices for unpacking
+  static L1CaloRegion makeRegionFromUnpacker(const uint16_t data, 
+                                             const unsigned ieta, 
+                                             const unsigned iphi, 
+                                             const uint16_t block, 
+                                             const uint16_t index, 
+                                             const int16_t bx); 
   
   /// construct region for use in GCT internal jet-finding
   static L1CaloRegion makeGctJetRegion(const unsigned et, 
@@ -96,7 +103,6 @@ public:
 					    const unsigned ieta, 
 					    const unsigned iphi,
 					    const int16_t bx);
-
 
   // get/set methods for the data
 
@@ -127,8 +133,17 @@ public:
   /// get quiet bit
   bool quiet() const { return ((m_data>>13) & 0x1)!=0; }
 
-  /// set BX (used in RCT emulator)
-  void setBx(int16_t bx);
+  /// set cap block
+  void setCaptureBlock(uint16_t capBlock) { m_captureBlock = capBlock; }
+
+  /// set cap index
+  void setCaptureIndex(uint16_t capIndex) { m_captureIndex = capIndex; }
+
+  /// set bx
+  void setBx(int16_t bx); 
+
+  /// set data
+  void setRawData(uint32_t data) { m_data = data; }
 
   /// set MIP bit (required for GCT emulator standalone operation)
   void setMip(bool mip);
@@ -167,6 +182,12 @@ public:
   /// get GCT phi index
   unsigned gctPhi() const { return m_id.iphi(); }
 
+  /// which capture block did this come from
+  unsigned capBlock() const { return m_captureBlock; }
+
+  /// what index within capture block
+  unsigned capIndex() const { return m_captureIndex; }
+
   /// get bunch-crossing index
   int16_t bx() const { return m_bx; }
 
@@ -198,6 +219,8 @@ public:
 
   /// region data : et, overflow, fine grain/tau veto, mip and quiet bits
   uint16_t m_data;
+  uint16_t m_captureBlock;
+  uint8_t m_captureIndex;
   int16_t m_bx;
 
 };
