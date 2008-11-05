@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 gmttree = cms.EDFilter("L1MuGMTTree",
-    OutputFile = cms.untracked.string('gmttree.root'),
     GeneratorInputTag = cms.InputTag("none"),
-    PhysVal = cms.bool(True),
+    SimulationInputTag = cms.InputTag("none"),
+    GTInputTag = cms.InputTag("none"),
     GTEvmInputTag = cms.InputTag("none"),
     GMTInputTag = cms.InputTag("l1GmtEmulDigis"),
-    GTInputTag = cms.InputTag("none"),
-    SimulationInputTag = cms.InputTag("none"),
+
+    PhysVal = cms.bool(True),
+    OutputFile = cms.untracked.string('gmttree.root')
 )
 
 

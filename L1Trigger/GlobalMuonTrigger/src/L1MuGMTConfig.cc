@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2008/04/17 23:18:30 $
-//   $Revision: 1.10 $
+//   $Date: 2008/04/21 17:21:09 $
+//   $Revision: 1.11 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -63,6 +63,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
@@ -169,6 +170,9 @@ void L1MuGMTConfig::setDefaults() {
         << "L1 Global Muon Trigger : version of low quality assignment LUT : " << m_VersionSortRankEtaQLUT << endl;
     edm::LogVerbatim("GMT_Config_info") << stdss.str();
   }
+}
+
+void L1MuGMTConfig::createLUTsRegs() {
 
   // create Registers
   m_RegCDLConfig = new L1MuGMTRegCDLConfig();
@@ -208,7 +212,7 @@ void L1MuGMTConfig::setDefaults() {
 
 }
 
-void L1MuGMTConfig::clear() {
+void L1MuGMTConfig::clearLUTsRegs() {
   // delete Registers
   delete m_RegCDLConfig;
   delete m_RegMMConfigPhi;
@@ -387,5 +391,6 @@ const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=0;
 const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=0;
 const L1MuTriggerPtScale* L1MuGMTConfig::m_TriggerPtScale=0;
 const L1MuGMTParameters* L1MuGMTConfig::m_GMTParams=0;
+const L1MuGMTChannelMask* L1MuGMTConfig::m_GMTChanMask=0;
 
 const L1CaloGeometry* L1MuGMTConfig::m_caloGeom = 0 ;

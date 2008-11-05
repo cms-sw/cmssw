@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/04/10 09:59:18 $
-//   $Revision: 1.3 $
+//   $Date: 2007/07/06 15:35:38 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   Ivan Mikulec                    HEPHY Vienna
@@ -109,6 +109,13 @@ class L1MuGlobalMuonTrigger : public edm::EDProducer {
     static L1MuGMTConfig* m_config;
 
     static L1MuGMTDebugBlock* m_db;
+    
+    unsigned long long m_L1MuGMTScalesCacheID;
+    unsigned long long m_L1MuTriggerScalesCacheID;
+    unsigned long long m_L1MuTriggerPtScaleCacheID;
+    unsigned long long m_L1MuGMTParametersCacheID;
+    unsigned long long m_L1MuGMTChannelMaskCacheID;
+    unsigned long long m_L1CaloGeometryCacheID;
 };
 
 #endif // L1TriggerGlobalMuonTrigger_L1MuGlobalMuonTrigger_h

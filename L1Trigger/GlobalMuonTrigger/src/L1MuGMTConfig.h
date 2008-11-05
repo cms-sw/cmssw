@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2008/04/17 23:18:30 $
-//   $Revision: 1.10 $
+//   $Date: 2008/04/21 17:21:17 $
+//   $Revision: 1.11 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -72,6 +72,7 @@ class L1MuGMTScales;
 class L1MuTriggerScales;
 class L1MuTriggerPtScale;
 class L1MuGMTParameters;
+class L1MuGMTChannelMask;
 
 class L1CaloGeometry ;
 
@@ -185,19 +186,24 @@ class L1MuGMTConfig {
     void setGMTParams(const L1MuGMTParameters* gmtparams) { m_GMTParams = gmtparams; }
     static const L1MuGMTParameters* getGMTParams() { return m_GMTParams; }
     
+    void setGMTChanMask(const L1MuGMTChannelMask* gmtchanmask) { m_GMTChanMask = gmtchanmask; }
+    static const L1MuGMTChannelMask* getGMTChanMask() { return m_GMTChanMask; }
 
+    
     static const edm::ParameterSet* getParameterSet() { return m_ps; }
-     
+    
+    void createLUTsRegs();
+    void clearLUTsRegs();
     void dumpLUTs(std::string dir);
     void dumpRegs(std::string dir);
 
     void setDefaults();
-    void clear();
   
   private:
 
     static const edm::ParameterSet* m_ps;
     static const L1MuGMTParameters* m_GMTParams;
+    static const L1MuGMTChannelMask* m_GMTChanMask;
 
     static edm::InputTag m_DTInputTag;
     static edm::InputTag m_CSCInputTag;
@@ -233,7 +239,7 @@ class L1MuGMTConfig {
     static bool m_PropagatePhi;
     
     static unsigned m_VersionSortRankEtaQLUT;
-
+    
     // Register pointers
     static L1MuGMTRegCDLConfig* m_RegCDLConfig;
     static L1MuGMTRegMMConfigPhi* m_RegMMConfigPhi;
