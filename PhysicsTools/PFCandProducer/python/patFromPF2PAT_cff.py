@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # PAT Layer 0+1
 from PhysicsTools.PatAlgos.patLayer0_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
 from PhysicsTools.PatAlgos.patLayer1_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import * 
@@ -60,12 +61,20 @@ metTrigMatchHLT1MET65.src = cms.InputTag( myMET )
 
 # replaces for Taus --------------------------------------------------
 
-taus = "pfTaus"
+#taus = "pfTaus"
 
-allLayer1Taus.tauSource = cms.InputTag( taus )
-tauMatch.src = cms.InputTag( taus )
-tauGenJetMatch.src = cms.InputTag( taus )
-tauTrigMatchHLT1Tau.src = cms.InputTag( taus )
+#allLayer1Taus.tauSource = cms.InputTag( all )
+#tauMatch.src = cms.InputTag( taus )
+#tauGenJetMatch.src = cms.InputTag( taus )
+#tauTrigMatchHLT1Tau.src = cms.InputTag( taus )
+
+tauIDSources = cms.PSet(
+byIsolation = cms.InputTag("patPFRecoTauDiscriminationByIsolation"),
+againstElectron = cms.InputTag("patPFRecoTauDiscriminationAgainstElectron"),
+againstMuon = cms.InputTag("patPFRecoTauDiscriminationAgainstMuon")
+)
+
+
 
 # replaces for Muons -------------------------------------------------
 
@@ -108,6 +117,7 @@ patLayer1 = cms.Sequence(
     layer1Jets +
     allLayer1PFParticles + 
     layer1METs +
+    patPFTauDiscrimination +
     layer1Taus +
     layer1Muons
 )
