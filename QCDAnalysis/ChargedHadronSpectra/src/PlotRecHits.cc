@@ -132,14 +132,9 @@ void PlotRecHits::printPixelRecHits(const edm::Event& ev)
   {
     const SiPixelRecHitCollection* thePixelHits = (*pixelColl).product();
 
-    for(SiPixelRecHitCollection::id_iterator
-          id = thePixelHits->id_begin(); id!= thePixelHits->id_end(); id++)
+    for(SiPixelRecHitCollection::DataContainer::const_iterator
+            recHit = thePixelHits->data().begin(); recHit!= thePixelHits->data().end(); recHit++)
     {
-      SiPixelRecHitCollection::range range = thePixelHits->get(*id);
-
-      // Take all hits
-      for(SiPixelRecHitCollection::const_iterator
-            recHit = range.first; recHit!= range.second; recHit++)
       if(recHit->isValid())
         printPixelRecHit(&(*recHit));
     }
@@ -160,14 +155,9 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
   {
     const SiStripRecHit2DCollection* theStripHits = (*stripColl).product();
     
-    for(SiStripRecHit2DCollection::id_iterator
-          id = theStripHits->id_begin(); id!= theStripHits->id_end(); id++)
+    for(SiStripRecHit2DCollection::DataContainer::const_iterator
+            recHit = theStripHits->data().begin(); recHit!= theStripHits->data().end(); recHit++)
     {
-      SiStripRecHit2DCollection::range range = theStripHits->get(*id);
-
-      // Take all hits
-      for(SiStripRecHit2DCollection::const_iterator
-            recHit = range.first; recHit!= range.second; recHit++)
       if(recHit->isValid())
         printStripRecHit(&(*recHit));
     }
@@ -185,14 +175,8 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
   {
     const SiStripMatchedRecHit2DCollection* theStripHits = (*stripColl).product();
 
-    for(SiStripMatchedRecHit2DCollection::id_iterator
-          id = theStripHits->id_begin(); id!= theStripHits->id_end(); id++)
-    {
-      SiStripMatchedRecHit2DCollection::range range = theStripHits->get(*id);
-
-      // Take all hits
-      for(SiStripMatchedRecHit2DCollection::const_iterator
-            recHit = range.first; recHit!= range.second; recHit++)
+    for(SiStripMatchedRecHit2DCollection::DataContainer::const_iterator
+            recHit = theStripHits->data().begin(); recHit!= theStripHits->data().end(); recHit++)
       {
         if(recHit->monoHit()->isValid())
           printStripRecHit((recHit->monoHit()));
@@ -206,7 +190,6 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
         file << ", Point[{"<< p.x()<<","<<p.y()<<","<<p.z()<<"*z}]" << endl;
       }
     }
-  }
   }
 }
 
