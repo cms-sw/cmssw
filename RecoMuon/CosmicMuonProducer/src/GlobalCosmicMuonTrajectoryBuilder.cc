@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/10/08 19:48:03 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/10/31 15:26:41 $
+ *  $Revision: 1.13 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -22,8 +22,6 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-
-
 using namespace std;
 using namespace edm;
 
@@ -34,6 +32,10 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
 						                     const MuonServiceProxy* service) : theService(service) {
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
+
+  ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
+  theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
+
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
@@ -92,11 +94,46 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   LogTrace(metname) <<"It has "<<theTrackerTracks->front().found()<<" tk rhs";
 
-  //at most 1 track by SingleTrackPattern
-  reco::TrackRef tkTrack(theTrackerTracks,0); 
   reco::TrackRef muTrack = muCand.second;
 
-  if ( !match(*muTrack,*tkTrack).first ) return result;
+  //build tracker TrackCands and pick the best match if size greater than 2
+  vector<TrackCand> tkTrackCands;
+  for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){
+    reco::TrackRef tkTrack(theTrackerTracks,i);
+    TrackCand tkCand = TrackCand(0,tkTrack);
+    tkTrackCands.push_back(tkCand);
+    LogTrace(metname) << "chisq is " << theTrackMatcher->match(muCand,tkCand,0,0);
+    LogTrace(metname) << "d is " << theTrackMatcher->match(muCand,tkCand,1,0);
+    LogTrace(metname) << "r_pos is " << theTrackMatcher->match(muCand,tkCand,2,0);
+  }
+
+  // match muCand to tkTrackCands
+  vector<TrackCand> matched_trackerTracks = theTrackMatcher->match(muCand,tkTrackCands);
+
+  LogTrace(metname) <<"TrackMatcher found " << matched_trackerTracks.size() << "tracker tracks matched";
+  
+  if ( matched_trackerTracks.empty()) return result;
+  reco::TrackRef tkTrack;
+  
+  if(  matched_trackerTracks.size() == 1 ) {
+    tkTrack = matched_trackerTracks.front().second;
+  } else {
+    // in case of more than 1 tkTrack,
+    // select the best-one based on distance (matchOption==1)
+    // at innermost Mu hit surface. (surfaceOption == 0)
+    double quality = 1e6;
+    double max_quality = 1e6;
+    for( vector<TrackCand>::const_iterator iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end(); iter++) {
+      quality = theTrackMatcher->match(muCand,*iter, 1, 0);
+      LogTrace(metname) <<" quality of tracker track is " << quality;
+      if( quality < max_quality ) {
+        max_quality=quality;
+        tkTrack = iter->second;
+      }
+    }
+      LogTrace(metname) <<" Picked tracker track with quality " << max_quality;
+  }  
+  if ( tkTrack.isNull() ) return result;
 
   ConstRecHitContainer muRecHits;
 
@@ -181,20 +218,6 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
        }
   return result;
 }
-
-std::pair<bool,double> GlobalCosmicMuonTrajectoryBuilder::match(const reco::Track& muTrack, const reco::Track& tkTrack) {
-
-  float deltaPhi = muTrack.phi() - tkTrack.phi();
-  float deltaEta = muTrack.eta() - tkTrack.eta();
-
-  float deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
-
-  if (deltaR < 2 )
-   return pair<bool,double>(true, 0);
-
-  return pair<bool,double>(false, 0);
-
-} 
 
 void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, ConstRecHitContainer& muonHits, ConstRecHitContainer& tkHits) {
 
