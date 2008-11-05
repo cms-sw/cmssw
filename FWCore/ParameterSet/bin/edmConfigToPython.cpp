@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/src/PythonFormWriter.h"
 

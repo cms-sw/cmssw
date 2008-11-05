@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.16 2008/03/12 19:57:00 wmtan Exp $
+// $Id: types.cc,v 1.17 2008/04/24 20:37:54 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -13,7 +13,7 @@
 
 #include "boost/lexical_cast.hpp"
 #include "FWCore/ParameterSet/interface/split.h"
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/Utilities/interface/Parse.h"
 #include <cctype>
 #include <cstdlib>
 #include <limits>

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.22 2008/01/22 15:35:59 paterno Exp $
+// $Id: FileInPath.cc,v 1.23 2008/04/24 20:37:54 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/Utilities/interface/Parse.h"
 
 namespace bf = boost::filesystem;
 
