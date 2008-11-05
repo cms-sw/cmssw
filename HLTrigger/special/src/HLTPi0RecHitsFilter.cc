@@ -124,10 +124,10 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     seleEtaBeltDR_ = iConfig.getParameter<double> ("seleEtaBeltDR");  
     seleEtaBeltDeta_ = iConfig.getParameter<double> ("seleEtaBeltDeta");  
     storeIsoClusRecHitEta_ = iConfig.getParameter<bool> ("storeIsoClusRecHitEta");
-    removePi0CandidatesForEta_ = iConfig.getUntrackedParameter<bool>("removePi0Candidates",true);
+    removePi0CandidatesForEta_ = iConfig.getParameter<bool>("removePi0Candidates");
     if(removePi0CandidatesForEta_){
-      massLowPi0Cand_ = iConfig.getUntrackedParameter<double>("massLowPi0Cand",0.114);
-      massHighPi0Cand_ = iConfig.getUntrackedParameter<double>("massHighPi0Cand",0.154);
+      massLowPi0Cand_ = iConfig.getParameter<double>("massLowPi0Cand");
+      massHighPi0Cand_ = iConfig.getParameter<double>("massHighPi0Cand");
     }
     
   }
