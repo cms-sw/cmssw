@@ -405,7 +405,7 @@ c      CHARACTER XXX*500, PROCESS*500
       WRITE(*,*) ' FIRST EVENT TO READ ', FIREVT
       IF (FIREVT.LT.1) THEN
         WRITE(*,*)'Warning: First event parameter in MY-INPARM.DAT file'
-	WRITE(*,*)'         does not have to less than 1. So it set to 1.'
+        WRITE(*,*)'         cannot be less than 1. So it was set to 1.'
 	FIREVT=1
       ENDIF
       CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR)
