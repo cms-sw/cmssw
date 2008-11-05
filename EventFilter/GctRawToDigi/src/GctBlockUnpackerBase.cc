@@ -184,7 +184,7 @@ void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const 
           iphi = 2*((20-crate)%9);
         }        
         // First region is phi=0
-        rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
+        rctCalo_->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
         ++p;
         // Second region is phi=1
         if (iphi>0){
@@ -192,7 +192,7 @@ void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const 
         } else {
           iphi = 17;
         }
-        rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
+        rctCalo_->push_back( L1CaloRegion::makeRegionFromUnpacker(*p, ieta, iphi, id, i, bx) );
         ++p;
       } else { // Skip the first two regions which are duplicates. 
         ++p;
@@ -280,7 +280,8 @@ void GctBlockUnpackerBase::blockToAllRctCaloRegions(const unsigned char * d, con
 
 void GctBlockUnpackerBase::blockToGctInternEtSums(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  // Don't want to do this in HLT optimisation mode!                                                                                                                              
+  // Don't want to do this in HLT optimisation mode!                                                                                                                           
+  
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal Et Sums"; return; }
 
   unsigned int id = hdr.id();
@@ -291,11 +292,9 @@ void GctBlockUnpackerBase::blockToGctInternEtSums(const unsigned char * d, const
   uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
 
   for (unsigned int i=0; i<length; ++i) {
-    // Loop over timesamples (i.e. bunch crossings)                                                                                                                               
+    // Loop over timesamples (i.e. bunch crossings)                                                                                                                            
     for (unsigned int bx=0; bx<nSamples; ++bx) {
-
-      // FIXME! Use named ctor here
-      gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p, 0));
+      gctInternEtSums_->push_back(L1GctInternEtSum::fromTotalEtOrHt(id,i,bx,*p));
       ++p;
     }
   }
@@ -316,10 +315,11 @@ void GctBlockUnpackerBase::blockToGctInternEtSumsAndJetCluster(const unsigned ch
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
     for (unsigned int bx=0; bx<nSamples; ++bx) {
-
-      // FIXME! Use named ctor here
-      if (i<2) gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p, 0));
-      //if (i==3); Need a new class or ctor for et and ht or a filthy hack? et first then ht. overflow bits are 12 and 28 
+      if (i<2) gctInternEtSums_->push_back(L1GctInternEtSum::fromJetMissEt(id,i,bx,*p));
+      if (i==3){
+        gctInternEtSums_->push_back(L1GctInternEtSum::fromJetTotEt(id,i,bx,*p));
+        gctInternEtSums_->push_back(L1GctInternEtSum::fromJetTotHt(id,i,bx,*p));
+      } 
       if (i>4) gctInternJetData_->push_back(L1GctInternJetData::fromJetCluster(L1CaloRegionDetId(0,0),id,i,bx,*p));
       ++p;
     }  
@@ -397,5 +397,84 @@ void GctBlockUnpackerBase::blockToGctJetPreCluster(const unsigned char * d, cons
 
 void GctBlockUnpackerBase::blockToGctInternRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal HF ring data"; return; }
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
+
+  // Re-interpret pointer to 32 bits 
+  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+
+  for (unsigned int i=0; i<length/2; ++i) {
+    // Loop over timesamples (i.e. bunch crossings)
+    for (unsigned int bx=0; bx<nSamples; ++bx) {
+      gctInternHFData_->push_back(L1GctInternHFData::fromConcRingSums(id,i,bx,*p));
+      ++p;
+    }
+    for (unsigned int bx=0; bx<nSamples; ++bx) {
+      gctInternHFData_->push_back(L1GctInternHFData::fromConcBitCounts(id,i,bx,*p));
+      ++p;
+    }  
+  }
+}
+
+void GctBlockUnpackerBase::blockToGctWheelInputInternEtAndRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr)
+{
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of wheel input internal Et sums and HF ring data"; return; }
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
+
+  // Re-interpret pointer to 32 bits 
+  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+
+  for (unsigned int i=0; i<length; ++i) {
+    // Loop over timesamples (i.e. bunch crossings)
+    for (unsigned int bx=0; bx<nSamples; ++bx) {
+      if (i<3){
+        gctInternEtSums_->push_back(L1GctInternEtSum::fromTotalEtOrHt(id,i,bx,*p));
+      } else if (i>2 && i<9) {
+        gctInternEtSums_->push_back(L1GctInternEtSum::fromMissEtxOrEty(id,i,bx,*p));
+      } else if (i>8 && i<15) {
+        gctInternHFData_->push_back(L1GctInternHFData::fromWheelRingSums(id,i,bx,*p));
+      } else if (i>14){
+        gctInternHFData_->push_back(L1GctInternHFData::fromWheelBitCounts(id,i,bx,*p));
+      }
+      ++p;
+    }
+  }
+}
+
+void GctBlockUnpackerBase::blockToGctWheelOutputInternEtAndRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr)
+{
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of wheel output internal Et sums and HF ring data"; return; }
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
+
+  // Re-interpret pointer to 32 bits 
+  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+
+  for (unsigned int i=0; i<length; ++i) {
+    // Loop over timesamples (i.e. bunch crossings)
+    for (unsigned int bx=0; bx<nSamples; ++bx) {
+      if (i<1){
+        gctInternEtSums_->push_back(L1GctInternEtSum::fromTotalEtOrHt(id,i,bx,*p));
+      } else if (i>0 && i<3) {
+        gctInternEtSums_->push_back(L1GctInternEtSum::fromMissEtxOrEty(id,i,bx,*p));
+      } else if (i>2 && i<5) {
+        gctInternHFData_->push_back(L1GctInternHFData::fromWheelRingSums(id,i,bx,*p));
+      } else if (i>4){
+        gctInternHFData_->push_back(L1GctInternHFData::fromWheelBitCounts(id,i,bx,*p));
+      }
+      ++p;
+    }
+  }
 }
 

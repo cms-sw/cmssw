@@ -104,9 +104,9 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0x306] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     blockUnpackFn_[0x307] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     //  -- Wheel Pos-eta Energy FPGA                                                
-    blockUnpackFn_[0x380] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelPosEtaEnergy: Input TrigPathA (Et)
+    blockUnpackFn_[0x380] = &GctBlockUnpackerV2::blockToGctWheelInputInternEtAndRingSums;     // WheelPosEtaEnergy: Input TrigPathA (Et)
     blockUnpackFn_[0x381] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelPosEtaEnergy: Input TrigPathB (Ht)
-    blockUnpackFn_[0x383] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelPosEtaEnergy: Output TrigPathA (Et)
+    blockUnpackFn_[0x383] = &GctBlockUnpackerV2::blockToGctWheelOutputInternEtAndRingSums;     // WheelPosEtaEnergy: Output TrigPathA (Et)
     blockUnpackFn_[0x385] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelPosEtaEnergy: Output TrigPathB (Ht)
     blockUnpackFn_[0x386] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaEnergy: Test
     blockUnpackFn_[0x387] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
@@ -116,9 +116,9 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0x706] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     blockUnpackFn_[0x707] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
     //  -- Wheel Neg-eta Energy FPGA                                                
-    blockUnpackFn_[0x780] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelNegEtaEnergy: Input TrigPathA (Et)
+    blockUnpackFn_[0x780] = &GctBlockUnpackerV2::blockToGctWheelInputInternEtAndRingSums;     // WheelNegEtaEnergy: Input TrigPathA (Et)
     blockUnpackFn_[0x781] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelNegEtaEnergy: Input TrigPathB (Ht)
-    blockUnpackFn_[0x783] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelNegEtaEnergy: Output TrigPathA (Et)
+    blockUnpackFn_[0x783] = &GctBlockUnpackerV2::blockToGctWheelOutputInternEtAndRingSums;     // WheelNegEtaEnergy: Output TrigPathA (Et)
     blockUnpackFn_[0x785] = &GctBlockUnpackerV2::blockToGctInternEtSums;            // WheelNegEtaEnergy: Output TrigPathB (Ht)
     blockUnpackFn_[0x786] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelNegEtaEnergy: Test
     blockUnpackFn_[0x787] = &GctBlockUnpackerV2::blockDoNothing;                    // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)

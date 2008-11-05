@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.12 $
-* $Date: 2008/07/14 13:03:29 $
+* $Revision: 1.13 $
+* $Date: 2008/09/01 18:34:10 $
 */ 
 
 
@@ -73,6 +73,7 @@ public:
 
   void setInternJetDataCollection(L1GctInternJetDataCollection* coll) { gctInternJetData_ = coll; }
   void setInternEtSumCollection(L1GctInternEtSumCollection* coll) { gctInternEtSums_ = coll; }
+  void setInternHFDataCollection(L1GctInternHFDataCollection* coll) { gctInternHFData_ = coll; }
 
   /// Get digis from the block - will return true if it succeeds, false otherwise.
   virtual bool convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
@@ -117,6 +118,7 @@ protected:
   L1GctEtMissCollection* gctEtMiss_;  /// Missing Et
   L1GctInternJetDataCollection* gctInternJetData_; ///< GCT internal jet data
   L1GctInternEtSumCollection* gctInternEtSums_; ///< GCT internal Et sums
+  L1GctInternHFDataCollection* gctInternHFData_; ///< GCT internal HF data
 
 
   // PROTECTED METHODS
@@ -173,6 +175,12 @@ protected:
 
   /// unpack GCT internal HF ring sums
   void blockToGctInternRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal output of wheel
+  void blockToGctWheelOutputInternEtAndRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal input to wheel
+  void blockToGctWheelInputInternEtAndRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
 private:
 
