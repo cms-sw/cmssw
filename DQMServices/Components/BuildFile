@@ -12,6 +12,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=DQMServices/Core>
 <use name=EventFilter/Utilities>
+<use name=DataFormats/FEDRawData>
 <use name=rootrflx>
 <export>
   <lib name=DQMServicesComponents>
