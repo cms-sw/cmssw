@@ -276,7 +276,7 @@ namespace sistrip {
 
   //FEDChannel
 
-  FEDChannel::FEDChannel(const uint8_t* data, size_t offset)
+  inline FEDChannel::FEDChannel(const uint8_t* data, size_t offset)
     : data_(data),
     offset_(offset)
     {
