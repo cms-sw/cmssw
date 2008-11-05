@@ -1,6 +1,6 @@
 #!/bin/bash
 
-eval `scramv1 ru -csh`
+eval `scramv1 ru -sh`
 
 cd ${CMSSW_BASE}/src
 
