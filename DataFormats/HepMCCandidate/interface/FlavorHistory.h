@@ -42,6 +42,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
 namespace reco {
 
@@ -66,17 +67,23 @@ public:
   FlavorHistory( FLAVOR_T flavorSource,
 		 reco::CandidatePtr const & parton,
 		 reco::CandidatePtr const & progenitor,
-		 reco::CandidatePtr const & sister );
+		 reco::CandidatePtr const & sister,
+		 reco::ShallowClonePtrCandidate const & matchedJet,
+		 reco::ShallowClonePtrCandidate const & sisterJet);
   FlavorHistory( FLAVOR_T flavorSource,
 		 edm::Handle<edm::View<reco::Candidate> > h_partons,
 		 int iparton,
 		 int iprogenitor,
-		 int isister);
+		 int isister,
+		 reco::ShallowClonePtrCandidate const & matchedJet,
+		 reco::ShallowClonePtrCandidate const & sisterJet);
   FlavorHistory( FLAVOR_T flavorSource,
 		 edm::Handle<reco::CandidateCollection > h_partons,
 		 int iparton,
 		 int iprogenitor,
-		 int isister);
+		 int isister,
+		 reco::ShallowClonePtrCandidate const & matchedJet,
+		 reco::ShallowClonePtrCandidate const & sisterJet );
   ~FlavorHistory(){}
 
 
@@ -85,9 +92,15 @@ public:
   bool           hasParton             () const { return parton_.isNonnull(); }
   bool           hasSister             () const { return sister_.isNonnull(); }
   bool           hasProgenitor         () const { return progenitor_.isNonnull();}
+  bool           hasMatchedJet         () const { return matchedJet_.masterClonePtr().isNonnull(); }
+  bool           hasSisterJet          () const { return sisterJet_.masterClonePtr().isNonnull(); }
   const reco::CandidatePtr & parton    () const { return parton_; }
   const reco::CandidatePtr & sister    () const { return sister_; }
   const reco::CandidatePtr & progenitor() const { return progenitor_; }
+  const reco::ShallowClonePtrCandidate & 
+                             matchedJet() const { return matchedJet_; }
+  const reco::ShallowClonePtrCandidate & 
+                             sisterJet() const { return sisterJet_; }
 
   // Operators for sorting and keys
   bool operator< ( FlavorHistory const & right ) {
@@ -107,6 +120,8 @@ protected:
   reco::CandidatePtr    parton_;
   reco::CandidatePtr    progenitor_;
   reco::CandidatePtr    sister_;
+  reco::ShallowClonePtrCandidate matchedJet_;
+  reco::ShallowClonePtrCandidate sisterJet_;
 };
 
 }
