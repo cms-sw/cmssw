@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id: CSGContinuousAction.h,v 1.1 2008/07/30 15:41:24 chrjones Exp $
+// $Id: CSGContinuousAction.h,v 1.2 2008/08/18 06:23:29 dmytro Exp $
 //
 
 // system include files
@@ -44,6 +44,16 @@ public:
                             TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
     */
 
+   void createCustomIconsButton(TGCompositeFrame* p,
+                                const TGPicture* upPic,
+                                const TGPicture* downPic,
+                                const TGPicture* disabledPic,
+                                const TGPicture* upRunningPic,
+                                const TGPicture* downRunningPic,
+                                TGLayoutHints* l = 0,
+                                Int_t id = -1,
+                                GContext_t norm = TGButton::GetDefaultGC()(),
+                                UInt_t option = 0);
    void stop();
    
    sigc::signal<void> started_;
@@ -64,7 +74,16 @@ private:
    std::string m_imageFileName;
    std::string m_runningImageFileName;
    //const TGPicture* m_runningImage;
+   const TGPicture* m_upPic;
+   const TGPicture* m_downPic;
+   const TGPicture* m_disabledPic;
+   const TGPicture* m_runningUpPic;
+   const TGPicture* m_runningDownPic;
+   
+   FWCustomIconsButton* m_button;
+   
    bool m_isRunning;
+   
    
 };
 

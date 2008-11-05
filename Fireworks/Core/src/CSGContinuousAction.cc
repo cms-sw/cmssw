@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:21:18 EDT 2008
-// $Id$
+// $Id: CSGContinuousAction.cc,v 1.1 2008/07/30 15:41:24 chrjones Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
-
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 //
 // constants, enums and typedefs
@@ -31,6 +31,12 @@
 //
 CSGContinuousAction::CSGContinuousAction(CmsShowMainFrame *iFrame, const char *iName):
 CSGAction(iFrame,iName),
+m_upPic(0),
+m_downPic(0),
+m_disabledPic(0),
+m_runningUpPic(0),
+m_runningDownPic(0),
+m_button(0),
 m_isRunning(false)
 {
    activated.connect(boost::bind(&CSGContinuousAction::switchMode, this));
@@ -69,6 +75,27 @@ CSGContinuousAction::createToolBarEntry(TGToolBar *iToolbar, const char *iImageF
 }
 
 void 
+CSGContinuousAction::createCustomIconsButton(TGCompositeFrame* p,
+                                             const TGPicture* upPic,
+                                             const TGPicture* downPic,
+                                             const TGPicture* disabledPic,
+                                             const TGPicture* upRunningPic,
+                                             const TGPicture* downRunningPic,
+                                             TGLayoutHints* l,
+                                             Int_t id,
+                                             GContext_t norm,
+                                             UInt_t option)
+{
+   m_upPic=upPic;
+   m_downPic=downPic;
+   m_disabledPic=disabledPic;
+   m_runningUpPic=upRunningPic;
+   m_runningDownPic=downRunningPic;
+   m_button = 
+   CSGAction::createCustomIconsButton(p,upPic,downPic,disabledPic,l,id,norm,option);
+}
+
+void 
 CSGContinuousAction::switchMode()
 {
    if(!m_isRunning) {
@@ -76,6 +103,11 @@ CSGContinuousAction::switchMode()
       CSGAction::globalEnable();
       if(getToolBar() && m_runningImageFileName.size()) {
          getToolBar()->ChangeIcon(getToolBarData(),m_runningImageFileName.c_str());
+      }
+      if(0!=m_button) {
+         const TGPicture* tUp = m_runningUpPic;
+         const TGPicture* tDown = m_runningDownPic;
+         m_button->swapIcons(tUp,tDown,m_disabledPic);
       }
       started_();
    } else {
@@ -90,6 +122,12 @@ CSGContinuousAction::stop()
    m_isRunning=false;
    if(getToolBar() && m_imageFileName.size()) {
       getToolBar()->ChangeIcon(getToolBarData(),m_imageFileName.c_str());
+   }
+   if(0!=m_button) {
+      const TGPicture* tUp = m_upPic;
+      const TGPicture* tDown = m_downPic;
+
+      m_button->swapIcons(tUp,tDown,m_disabledPic);
    }
 }   
 

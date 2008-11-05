@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.7 2008/07/25 14:46:19 dmytro Exp $
+// $Id: CSGAction.cc,v 1.8 2008/08/25 00:08:29 dmytro Exp $
 //
 
 // system include files
@@ -23,7 +23,7 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
-
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 
 //
 // constants, enums and typedefs
@@ -42,8 +42,6 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_frame = frame;
    m_name = name;
    m_toolTip = "";
-   m_textButton = 0;
-   m_picButton = 0;
    m_menu = 0;
    m_toolBar = 0;
    m_tools = 0;
@@ -62,8 +60,11 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
 
 CSGAction::~CSGAction()
 {
-   delete m_textButton;
-   delete m_picButton;
+   for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
+       it != itEnd;
+       ++it) {
+      delete *it;
+   }
    delete m_menu;
    delete m_connector;
    if (m_textEntry) delete m_textEntry;
@@ -103,20 +104,21 @@ void CSGAction::setName(const std::string& name) {
 }
 
 void CSGAction::setToolTip(const std::string& tip) {
-  m_toolTip = tip;
-  if (m_textButton != 0) m_textButton->SetToolTipText(tip.c_str(), m_frame->getDelay());
-  if (m_picButton != 0) m_picButton->SetToolTipText(tip.c_str(), m_frame->getDelay());
+   m_toolTip = tip;
+   for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
+       it != itEnd;
+       ++it) {
+      (*it)->SetToolTipText(tip.c_str(), m_frame->getDelay());
+   }   
   if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
 
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
-   if (m_textButton != 0) {
-      delete m_textButton;
-   }
-   m_textButton = new TGTextButton(p, m_name.c_str(), id, norm, font, option);
-   if (m_toolTip != "") m_textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
-   p->AddFrame(m_textButton, l);
-   TQObject::Connect(m_textButton, "Pressed()", "CSGConnector", m_connector, "handleTextButton()");
+   TGTextButton* textButton = new TGTextButton(p, m_name.c_str(), id, norm, font, option);
+   if (m_toolTip != "") textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   p->AddFrame(textButton, l);
+   TQObject::Connect(textButton, "Clicked()", "CSGAction", this, "activate()");
+   m_buttons.push_back(textButton);
 }
 
 void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const char* text, Int_t id) 
@@ -125,7 +127,6 @@ void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const cha
       delete m_textEntry;
    }
    m_textEntry = new TGTextEntry(p, text, id);
-   // if (m_toolTip != "") m_textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
    p->AddFrame(m_textEntry, l);
    TQObject::Connect(m_textEntry, "ReturnPressed()", "CSGAction", this, "activate()");
 }
@@ -144,14 +145,31 @@ void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHin
 }
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {
-   if (m_picButton != 0) {
-      delete m_picButton;
-   }
-   m_picButton = new TGPictureButton(p, pic, id, norm, option);
-   if (m_toolTip != "") m_picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
-   p->AddFrame(m_picButton, l);
-   TQObject::Connect(m_picButton, "Pressed()", "CSGConnector", m_connector, "handlePictureButton()");
+   TGPictureButton* picButton = new TGPictureButton(p, pic, id, norm, option);
+   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   p->AddFrame(picButton, l);
+   TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
+   m_buttons.push_back(picButton);
 }
+
+FWCustomIconsButton*
+CSGAction::createCustomIconsButton(TGCompositeFrame* p,
+                                   const TGPicture* upPic,
+                                   const TGPicture* downPic,
+                                   const TGPicture* disabledPic,
+                                   TGLayoutHints* l,
+                                   Int_t id ,
+                                   GContext_t norm,
+                                   UInt_t option)
+{
+   FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, id, norm, option);
+   if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   p->AddFrame(picButton, l);
+   TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
+   m_buttons.push_back(picButton);
+   return picButton;
+}
+
 
 void CSGAction::createShortcut(UInt_t key, const char *mod) {
    Int_t keycode = gVirtualX->KeysymToKeycode((int)key);
@@ -186,49 +204,6 @@ void CSGAction::createShortcut(UInt_t key, const char *mod) {
 }
 
 void CSGAction::createMenuEntry(TGPopupMenu *menu) {
-  /*
-   TString realName(m_name);
-   TString subMenuName(m_name);
-   TGPopupMenu *rootMenu;
-   if (menubar->GetPopup(menu) == 0) {
-      // Menu heading doesn't exist yet, so make it
-      rootMenu = new TGPopupMenu(gClient->GetRoot());
-      menubar->AddPopup(menu,rootMenu,new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-      TQObject::Connect(rootMenu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
-   }
-   else {
-      rootMenu = menubar->GetPopup(menu);
-   }
-   if (realName.Contains("->")) {
-      // Have to add to submenu, so extract the names of submenu and of entry
-      while (!(subMenuName.EndsWith("->")) && subMenuName.Length() > 0) {
-         subMenuName.Resize(subMenuName.Length()-1);
-      }
-      subMenuName.Resize(subMenuName.Length()-2);
-      while (!(realName.BeginsWith("->")) && realName.Length() > 0) {
-         realName.Replace(0,1,0,0);
-      }
-      realName.Replace(0,2,0,0);
-      TGPopupMenu *subMenu;
-      if (rootMenu->GetEntry(subMenuName) != 0) {
-         subMenu = rootMenu->GetEntry(subMenuName)->GetPopup();
-         subMenu->AddEntry(realName, m_entry);
-      }
-      else {
-         // Submenu doesn't exist yet, so make it
-         subMenu = new TGPopupMenu(gClient->GetRoot());
-         subMenu->AddEntry(realName, m_entry);
-         rootMenu->AddPopup(subMenuName, subMenu);
-         // Each entry in the entire bar has unique id, so send to same connector
-         TQObject::Connect(subMenu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
-      }
-      m_menu = subMenu;
-   }
-   else { 
-      rootMenu->AddEntry(m_name.c_str(), m_entry);
-      m_menu = rootMenu;
-   }
-  */
   m_menu = menu;
   if (!(menu->HasConnection("Activated(Int_t)"))) TQObject::Connect(menu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
   menu->AddEntry(m_name.c_str(), m_entry);
@@ -242,7 +217,10 @@ void CSGAction::createToolBarEntry(TGToolBar *toolbar, const char *filename) {
    m_tools->fStayDown = kFALSE;
    m_tools->fId = m_entry;
    if(m_toolTip.size()) {m_tools->fTipText = m_toolTip.c_str();}
-   toolbar->AddButton(m_frame,m_tools,5);
+   TGButton* newButton = toolbar->AddButton(m_frame,m_tools,5);
+   newButton->SetBackgroundColor(toolbar->GetBackground());
+   newButton->ChangeOptions(0);
+   
    int size = toolbar->GetList()->GetSize();
    if (size == 1) {
       // First button in tool bar, so connect the bar
@@ -276,7 +254,7 @@ Bool_t CSGAction::resizeMenuEntry() {
    realName += scText;
    TIter next(m_menu->GetListOfEntries());
    TGMenuEntry *current;
-   while (current = (TGMenuEntry *)next()) {
+   while (0 != (current = (TGMenuEntry *)next())) {
       if (current == m_menu->GetEntry(m_entry)) {
          break;
       }
@@ -286,15 +264,7 @@ Bool_t CSGAction::resizeMenuEntry() {
    m_menu->AddEntry(realName, m_entry, 0, 0, current);
    return widthChanged;
 }  
-
-TGTextButton* CSGAction::getTextButton() const {
-   return m_textButton;
-}
-
-TGPictureButton* CSGAction::getPictureButton() const {
-   return m_picButton;
-}
-
+ 
 TGPopupMenu* CSGAction::getMenu() const {
    return m_menu;
 }
@@ -351,8 +321,12 @@ Bool_t CSGAction::isEnabled() const {
 void CSGAction::enableImp() {
    if(isEnabled()) {
       if (m_menu != 0) m_menu->EnableEntry(m_entry);
-      if (m_textButton != 0) m_textButton->SetEnabled(kTRUE);
-      if (m_picButton != 0) m_picButton->SetEnabled(kTRUE);
+      for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
+          it != itEnd;
+          ++it) {
+         (*it)->SetEnabled(kTRUE);
+      }   
+      
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
       if (m_keycode != 0) {
          int id = m_frame->GetId();
@@ -367,8 +341,11 @@ void CSGAction::enableImp() {
 void CSGAction::disableImp() {
    if(!isEnabled()) {
       if (m_menu != 0) m_menu->DisableEntry(m_entry);
-      if (m_textButton != 0) m_textButton->SetEnabled(kFALSE);
-      if (m_picButton != 0) m_picButton->SetEnabled(kFALSE);
+      for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
+          it != itEnd;
+          ++it) {
+         (*it)->SetEnabled(kFALSE);
+      }   
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
       if (m_keycode != 0) {
          int id = m_frame->GetId();
