@@ -35,12 +35,12 @@
                          DQMStore* dbe_, bool verb, bool clone)  
  *			   
  * std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
-    		         const char* xlab, const char* ylab) 
+    		         const char* xlab, const char* ylab, bool setLogy, bool setLogx) 
  *
  * void htmlAnyHisto(int runNo, myHist *hist, 
 		     const char* xlab, const char* ylab, 
 		     int width, ofstream& htmlFile, 
-		     std::string htmlDir)
+		     std::string htmlDir, bool setLogy, bool setLogx)
  
  *
  *****************************************************************************
@@ -161,7 +161,7 @@ myHist* getAnyHisto(myHist* hist,
 // MAKE GIF FROM HISTOGRAM IMAGE
 template <class myHist>
 std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
-		      const char* xlab, const char* ylab) 
+		      const char* xlab, const char* ylab, bool setLogy=0, bool setLogx=0 ) 
 {
   /* 
      Template function draws histogram plot, and saves it as a .gif image.
@@ -256,25 +256,17 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   hist->SetYTitle(ylab);
   std::string histtype=hist->ClassName();
  
-  // Set grids to on for all TH2F histograms (maybe add for others later?)
-  /*
-    // we now draw the lines directly, so that we can set our own grid spacing
-  if (histtype=="TH2F")
-    {
-      can->SetGridx();
-      can->SetGridy();
-      }
-  */
 
   // Don't draw stat box for color plots
   if (((std::string)hist->GetOption())=="col" || 
       ((std::string)hist->GetOption())=="colz")
     hist->SetStats(false);
 
-  // Draw with whatever options are set for the particluar histogram
+  // Draw with whatever options are set for the particular histogram
 
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
-  
+
+  // Draw Grid Lines
   int vertlinespace=UTILS_VERTLINESPACE;
   int horizlinespace=UTILS_HORIZLINESPACE;
   if (histtype=="TH2F")
@@ -297,6 +289,12 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 	}
       
     }
+  
+  // SetLogx, SetLogy don't seem to work.  Why not?
+  if (setLogx)
+    can->SetLogx();
+  if (setLogy)
+    can->SetLogy();  
 
   can->SaveAs(saveName.c_str());  
   delete can;
@@ -312,7 +310,8 @@ template <class myHist>
 void htmlAnyHisto(int runNo, myHist *hist, 
 		  const char* xlab, const char* ylab, 
 		  int width, ofstream& htmlFile, 
-		  std::string htmlDir)
+		  std::string htmlDir,
+		  bool setLogy=0, bool setLogx=0)
 {
 
   /*
@@ -334,9 +333,9 @@ void htmlAnyHisto(int runNo, myHist *hist,
 
       // Form full-sized and thumbnail .gifs from histogram
       std::string imgNameTMB = "";   
-      imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab); 
+      imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab,setLogy, setLogx); 
       std::string imgName = "";   
-      imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab);  
+      imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab, setLogy, setLogx);  
       
       // Add thumbnail image to html code, linked to full-sized image
       if (imgName.size() != 0 )

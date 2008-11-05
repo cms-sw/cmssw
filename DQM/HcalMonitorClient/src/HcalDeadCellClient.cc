@@ -14,12 +14,14 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   // Get variable values from cfg file
   // Set which dead cell checks will looked at
   deadclient_test_occupancy_         = ps.getUntrackedParameter<bool>("DeadCellClient_test_occupancy",true);
+  deadclient_test_rechit_occupancy_  = ps.getUntrackedParameter<bool>("DeadCellClient_test_occupancy",true);
   deadclient_test_pedestal_          = ps.getUntrackedParameter<bool>("DeadCellClient_test_pedestal",true);
   deadclient_test_neighbor_          = ps.getUntrackedParameter<bool>("DeadCellClient_test_neighbor",true);
   deadclient_test_energy_            = ps.getUntrackedParameter<bool>("DeadCellClient_test_energy",true);
 
   deadclient_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents",100);
   deadclient_checkNevents_occupancy_ = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents_occupancy",deadclient_checkNevents_);
+  deadclient_checkNevents_rechit_occupancy_ = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents_rechit_occupancy",deadclient_checkNevents_);
   deadclient_checkNevents_pedestal_  = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents_pedestal" ,deadclient_checkNevents_);
   deadclient_checkNevents_neighbor_  = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents_neighbor" ,deadclient_checkNevents_);
   deadclient_checkNevents_energy_    = ps.getUntrackedParameter<int>("DeadCellClient_checkNevents_energy"   ,deadclient_checkNevents_);
@@ -234,6 +236,8 @@ void HcalDeadCellClient::getHistograms()
   getSJ6histos("DeadCellMonitor_Hcal/problem_deadcells/", " Problem Dead Cell Rate", ProblemDeadCellsByDepth);
 
   if (deadclient_test_occupancy_) getSJ6histos("DeadCellMonitor_Hcal/dead_unoccupied_digi/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
+  if (deadclient_test_rechit_occupancy_) getSJ6histos("DeadCellMonitor_Hcal/dead_unoccupied_rechit/",   "Dead Cells with No Rec Hits", UnoccupiedRecHitsByDepth);
+ 
   if (deadclient_test_pedestal_)  getSJ6histos("DeadCellMonitor_Hcal/dead_pedestaltest/", "Dead Cells Failing Pedestal Test", BelowPedestalDeadCellsByDepth);
   if (deadclient_test_neighbor_)  getSJ6histos("DeadCellMonitor_Hcal/dead_neighbortest/", "Dead Cells Failing Neighbor Test", BelowNeighborsDeadCellsByDepth);
   if (deadclient_test_energy_)    getSJ6histos("DeadCellMonitor_Hcal/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
@@ -316,6 +320,13 @@ void HcalDeadCellClient::resetAllME()
 	  resetME(name.str().c_str(),dbe_);
 	  name.str("");
 	}
+      if (deadclient_test_rechit_occupancy_)
+	{
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_unoccupied_rechit/"<<subdets_[i]<<"Dead Cells with No Rec Hits";
+	  resetME(name.str().c_str(),dbe_);
+	  name.str("");
+	}
+
       if (deadclient_test_pedestal_)
 	{
 	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_pedestaltest"<<subdets_[i]<<"Dead Cells Failing Pedestal Test";
@@ -403,6 +414,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile<<"</tr>"<<endl;
   htmlFile<<"<tr align=\"center\"><td> A cell is considered dead if it meets any of the following criteria:"<<endl;
   if (deadclient_test_occupancy_) htmlFile<<"<br> A cell's digi is not present for a number of consecutive events; "<<endl;
+  if (deadclient_test_rechit_occupancy_) htmlFile<<"<br> A cell's rec hit is not present for a number of consecutive events; "<<endl;
+
   if (deadclient_test_pedestal_ ) htmlFile<<"<br> A cell's ADC sum is less than (pedestal + N sigma);"<<endl;
   if (deadclient_test_energy_   ) htmlFile<<"<br> A cell's energy is consistently less than a threshold value;"<<endl;
   if (deadclient_test_neighbor_ ) htmlFile<<"<br> A cell's energy is much less than the average of its neighbors;"<<endl;
@@ -525,7 +538,8 @@ ofstream htmlFile;
   htmlFile << "<table width=100%  border = 1>"<<endl;
   htmlFile << "<tr><td align=\"center\" colspan=1><a href=\"#OVERALL_PROBLEMS\">PROBLEM CELLS BY DEPTH </a></td></tr>"<<endl;
   htmlFile << "<tr><td align=\"center\">"<<endl;
-  if (deadclient_test_occupancy_) htmlFile<<"<br><a href=\"#OCC_PROBLEMS\">Dead cell according to Occupancy Test </a>"<<endl;
+  if (deadclient_test_occupancy_) htmlFile<<"<br><a href=\"#OCC_PROBLEMS\">Dead cell according to Digi Occupancy Test </a>"<<endl;
+  if (deadclient_test_rechit_occupancy_) htmlFile<<"<br><a href=\"#OCCRECHIT_PROBLEMS\">Dead cell according to RecHit Occupancy Test </a>"<<endl;
   if (deadclient_test_pedestal_ ) htmlFile<<"<br><a href=\"#PED_PROBLEMS\">Dead cell according to Pedestal Test </a>"<<endl;
   if (deadclient_test_energy_   ) htmlFile<<"<br><a href=\"#ENERGY_PROBLEMS\">Dead cell according to Energy Threshold Test </a>"<<endl;
   if (deadclient_test_neighbor_ ) htmlFile<<"<br><a href=\"#NEIGHBOR_PROBLEMS\">Dead cell according to Neighbor Test </a>"<<endl;
@@ -556,10 +570,10 @@ ofstream htmlFile;
   htmlFile <<"</table>"<<endl;
   htmlFile <<"<br><hr><br>"<<endl;
   
-  // Dead cells failing occupancy tests
+  // Dead cells failing digi occupancy tests
   if (deadclient_test_occupancy_)
     {
-      htmlFile << "<h2><strong><a name=\"OCC_PROBLEMS\">Occupancy Problems</strong></h2>"<<endl;
+      htmlFile << "<h2><strong><a name=\"OCC_PROBLEMS\">Digi Occupancy Problems</strong></h2>"<<endl;
       htmlFile <<"A cell fails this test if its digi is absent for "<<deadclient_checkNevents_occupancy_<<" consecutive events<br>"<<endl;
       htmlFile <<"<a href= \"#EXPERT_DEADCELL_TOP\" > Back to Top</a><br>"<<endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -570,6 +584,26 @@ ofstream htmlFile;
 	  htmlFile << "<tr align=\"left\">" << endl;
 	  htmlAnyHisto(runNo,UnoccupiedDeadCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlAnyHisto(runNo,UnoccupiedDeadCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlFile <<"</tr>"<<endl;
+	}
+      htmlFile <<"</table>"<<endl;
+      htmlFile <<"<br><hr><br>"<<endl;
+    }
+
+  // Dead cells failing rec hit occupancy tests
+  if (deadclient_test_rechit_occupancy_)
+    {
+      htmlFile << "<h2><strong><a name=\"OCCRECHIT_PROBLEMS\">rec HitOccupancy Problems</strong></h2>"<<endl;
+      htmlFile <<"A cell fails this test if its rechit is absent for "<<deadclient_checkNevents_rechit_occupancy_<<" consecutive events<br>"<<endl;
+      htmlFile <<"<a href= \"#EXPERT_DEADCELL_TOP\" > Back to Top</a><br>"<<endl;
+      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+      htmlFile << "cellpadding=\"10\"> " << endl;
+      gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
+      for (int i=0;i<3;++i)
+	{
+	  htmlFile << "<tr align=\"left\">" << endl;
+	  htmlAnyHisto(runNo,UnoccupiedRecHitsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,UnoccupiedRecHitsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<endl;
 	}
       htmlFile <<"</table>"<<endl;
@@ -595,12 +629,12 @@ ofstream htmlFile;
       if (deadclient_makeDiagnostics_)
 	{
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HBnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HEnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HBnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
+	  htmlAnyHisto(runNo, d_HEnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
 	  htmlFile <<"</tr>"<<endl;
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HOnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HFnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HOnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
+	  htmlAnyHisto(runNo, d_HFnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
 	  htmlFile <<"</tr>"<<endl;
 	} // if (deadclient_makeDiagnostics_)
       htmlFile <<"</table>"<<endl;
@@ -626,12 +660,12 @@ ofstream htmlFile;
       if (deadclient_makeDiagnostics_)
 	{
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HBrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HErechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HBrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
+	  htmlAnyHisto(runNo, d_HErechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
 	  htmlFile <<"</tr>"<<endl;
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HOrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HFrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HOrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
+	  htmlAnyHisto(runNo, d_HFrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
 	  htmlFile <<"</tr>"<<endl;
 	} // if (deadclient_makeDiagnostics_)
 
@@ -719,6 +753,13 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
 	  UnoccupiedDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
+      if (deadclient_test_rechit_occupancy_)
+	{
+	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_unoccupied_rechit/"<<subdets_[i]<<"Dead Cells with No Rec Hits";
+	  UnoccupiedRecHitsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
+	  name.str("");
+	}
+
       if (deadclient_test_pedestal_)
 	{
 	  name<<process_.c_str()<<"DeadCellMonitor_Hcal/dead_pedestaltest"<<subdets_[i]<<"Dead Cells Failing Pedestal Test";

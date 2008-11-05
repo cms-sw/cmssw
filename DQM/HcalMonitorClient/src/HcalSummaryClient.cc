@@ -62,6 +62,7 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   //digiMon_.onoff=(ps.getUntrackedParameter<bool>("DigiClient",false));
   //recHitMon_.onoff=(ps.getUntrackedParameter<bool>("RecHitClient",false));
   pedestalMon_.onoff=(ps.getUntrackedParameter<bool>("PedestalClient",false));
+  pedestalMon_.onoff=false; // don't include pedestal monitoring in overall data quality?
   //ledMon_.onoff=(ps.getUntrackedParameter<bool>("LEDClient",false));
   hotCellMon_.onoff=(ps.getUntrackedParameter<bool>("HotCellClient",false));
   deadCellMon_.onoff=(ps.getUntrackedParameter<bool>("DeadCellClient",false));

@@ -592,12 +592,12 @@ ofstream htmlFile;
       if (hotclient_makeDiagnostics_)
 	{
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HBnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HEnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HBnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
+	  htmlAnyHisto(runNo, d_HEnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
 	  htmlFile <<"</tr>"<<endl;
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HOnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HFnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HOnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
+	  htmlAnyHisto(runNo, d_HFnormped, "(ADC-ped)/width","", 92, htmlFile, htmlDir,1);
 	  htmlFile <<"</tr>"<<endl;
 	} // if (hotclient_makeDiagnostics_)
       htmlFile <<"</table>"<<endl;
@@ -623,12 +623,12 @@ ofstream htmlFile;
       if (hotclient_makeDiagnostics_)
 	{
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HBrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HErechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HBrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
+	  htmlAnyHisto(runNo, d_HErechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
 	  htmlFile <<"</tr>"<<endl;
 	  htmlFile <<"<tr align=\"left\">" <<endl;
-	  htmlAnyHisto(runNo, d_HOrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo, d_HFrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo, d_HOrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
+	  htmlAnyHisto(runNo, d_HFrechitenergy, "Energy (GeV)","", 92, htmlFile, htmlDir,1,1);
 	  htmlFile <<"</tr>"<<endl;
 	} // if (hotclient_makeDiagnostics_)
 
@@ -648,8 +648,8 @@ ofstream htmlFile;
       for (int i=0;i<3;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << endl;
-	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir,1,1);
+	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir,1,1);
 	  htmlFile <<"</tr>"<<endl;
 	}
       htmlFile <<"</table>"<<endl;
