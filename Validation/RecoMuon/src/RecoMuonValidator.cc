@@ -334,6 +334,8 @@ struct RecoMuonValidator::CommonME {
 
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 {
+  verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
+
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
 
   // Set histogram dimensions
@@ -462,7 +464,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   staMuME_->bookHistograms(theDQM, subDir_+"/Sta", hDim);
   glbMuME_->bookHistograms(theDQM, subDir_+"/Glb", hDim);
 
-  theDQM->showDirStructure();
+  if ( verbose_ > 0 ) theDQM->showDirStructure();
 
 }
 

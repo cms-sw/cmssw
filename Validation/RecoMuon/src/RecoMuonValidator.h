@@ -25,6 +25,8 @@ class RecoMuonValidator : public edm::EDAnalyzer
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
  protected:
+  unsigned int verbose_;
+
   edm::InputTag simLabel_;
   edm::InputTag trkMuLabel_;
   edm::InputTag staMuLabel_;
