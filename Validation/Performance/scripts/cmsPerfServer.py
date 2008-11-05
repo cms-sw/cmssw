@@ -71,6 +71,10 @@ def optionparse():
 
     return (options.port,options.outputdir)
 
+#class ClientThread(threading.Thread):
+    # Overloading the constructor to accept cmsPerfSuite parameters
+    
+
 def runserv(port):
     # Remember that localhost is the loopback network: it does not provide
     # or require any connection to the outside world. As such it is useful
