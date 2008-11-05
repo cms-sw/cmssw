@@ -20,6 +20,9 @@ from TrackingTools.GeomPropagators.SmartPropagatorRKOpposite_cfi import *
 # RungeKuttaTrackerPropagator + SteppingHelixPropagatorAny (dir = alongMomentum)
 from TrackingTools.GeomPropagators.SmartPropagatorAnyRK_cfi import *
 
+# RungeKuttaTrackerPropagatorOpposite + SteppingHelixPropagatorAny (dir = oppositeToMomentum)
+from TrackingTools.GeomPropagators.SmartPropagatorAnyRKOpposite_cfi import *
+
 # PropagatorWithMaterial + SteppingHelixPropagatorAlong (dir = alongMomentum)
 from TrackingTools.GeomPropagators.SmartPropagator_cfi import *
 
