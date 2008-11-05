@@ -17,7 +17,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
-// $Id: FlavorHistoryFilter.h,v 1.2 2008/07/29 17:36:05 srappocc Exp $
+// $Id: FlavorHistoryFilter.h,v 1.3 2008/11/05 15:52:48 srappocc Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 
 
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 //
 // class declaration
@@ -54,10 +54,8 @@ class FlavorHistoryFilter : public edm::EDFilter {
       
       // ----------member data ---------------------------
       edm::InputTag   src_;            // Input flavor history collection name
-      edm::InputTag   jets_;           // Jet collection to match to
       int             type_;           // Returns "true" only if FlavorHistory::flavorSource == type
       int             nmatched_;       // Returns "true" only if number of partons matched == nmatched
-      double          matchDR_;        // Delta R between gen partons and gen jets
       double          minPt_;          // For pt scheme
       double          minDR_;          // For deltaR scheme
       double          maxDR_;          // For deltaR scheme
@@ -65,9 +63,6 @@ class FlavorHistoryFilter : public edm::EDFilter {
       bool            requireSisters_; // Require sisters to exist to pass
       bool            verbose_;        // verbosity
 
-      reco::GenJetCollection::const_iterator
-	getClosestJet( edm::Handle<reco::GenJetCollection> const & pJets,
-		       reco::CandidatePtr const & parton ) const;
       
 };
 

@@ -4,6 +4,7 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 // #include "DataFormats/Common/interface/ValueMap.h"
 // #include <iterators>
@@ -73,13 +74,15 @@ ostream & operator<<( ostream & out, FlavorHistory const & cand)
 
 FlavorHistoryProducer::FlavorHistoryProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ),
+  matchedSrc_( p.getParameter<InputTag>( "matchedSrc") ),
   pdgIdToSelect_( p.getParameter<int> ("pdgIdToSelect") ),
   ptMinParticle_( p.getParameter<double>( "ptMinParticle") ),  
   ptMinShower_( p.getParameter<double>( "ptMinShower") ),  
   etaMaxParticle_( p.getParameter<double>( "etaMaxParticle" )),  
   etaMaxShower_( p.getParameter<double>( "etaMaxShower" )),
   flavorHistoryName_( p.getParameter<string>("flavorHistoryName") ),
-  verbose_( p.getUntrackedParameter<bool>( "verbose" ) )
+  verbose_( p.getUntrackedParameter<bool>( "verbose" ) ),
+  matchDR_ ( p.getParameter<double> ("matchDR") )
 {
   produces<vector<FlavorHistory> >(flavorHistoryName_);
 }
@@ -98,6 +101,9 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   // Get a handle to the particle collection (OwnVector)
   Handle<CandidateView > particlesViewH;
   evt.getByLabel( src_, particlesViewH );
+
+  Handle<CandidateView> matchedView;
+  evt.getByLabel( matchedSrc_, matchedView );
 
   // Copy the View to an vector for easier iterator manipulation convenience
   vector<const Candidate* > particles;
@@ -307,6 +313,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   // Also if the event is preliminarily classified as "matrix element", check to
   // make sure that they have a sister. If not, it is flavor excitation. 
   
+  if ( verbose_ ) cout << "Making sisters" << endl;
   // First make sure nothing went terribly wrong:
   if ( partonIndices.size() == progenitorIndices.size() ) {
     // Now loop over the candidates
@@ -324,6 +331,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	  if ( candi->pdgId() == -1 * candj->pdgId() && candi->status() == candj->status() 
 	       && progenitorIndices[ii] == progenitorIndices[jj] ) {
 	    sisterIndices[ii] = partonIndices[jj];
+	    if ( verbose_ ) cout << "Parton " << partonIndices[ii] << " has sister " << sisterIndices[ii] << endl;
 	  }
 	}
       }
@@ -333,10 +341,43 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	flavorSources[ii] = FlavorHistory::FLAVOR_EXC;
       }
 
+      if ( verbose_ ) cout << "Getting matched jet" << endl;
+      // Get the closest match in the matched object collection
+      CandidateView::const_iterator matched = getClosestJet( matchedView, *candi );
+      CandidateView::const_iterator matchedBegin = matchedView->begin();
+      CandidateView::const_iterator matchedEnd = matchedView->end();
+
+      if ( matched != matchedEnd) 
+	if ( verbose_ ) cout << "Matched jet = " << *matched << endl;
+      
+      if ( verbose_ ) cout << "Getting sister jet" << endl;
+      // Get the closest sister in the matched object collection, if sister is found
+      CandidateView::const_iterator sister = 
+	( sisterIndices[ii] >= 0 && static_cast<unsigned int>(sisterIndices[ii]) < particles.size() ) ? 
+	getClosestJet( matchedView, *particles[sisterIndices[ii]] ) :
+	matchedEnd ;
+
+      if ( sister != matchedEnd ) 
+	if ( verbose_ ) cout << "Sister jet = " << *sister << endl;
+
+      if ( verbose_ ) cout << "Making matched shallow clones" << endl;
+      ShallowClonePtrCandidate matchedCand ;
+      if ( matched != matchedEnd ) 
+	matchedCand = ShallowClonePtrCandidate( CandidatePtr(matchedView, matched - matchedBegin ) );
+      
+      
+      if ( verbose_ ) cout << "Making sister shallow clones" << endl;
+      ShallowClonePtrCandidate sisterCand;
+      if ( sister != matchedEnd )  
+	sisterCand = ShallowClonePtrCandidate( CandidatePtr(matchedView, sister - matchedBegin ) );
+      
+      if ( verbose_ ) cout << "Making history object" << endl;
       // Now create the flavor history object
       FlavorHistory history (flavorSources[ii], 
 			     particlesViewH, 
-			     partonIndices[ii], progenitorIndices[ii], sisterIndices[ii] );
+			     partonIndices[ii], progenitorIndices[ii], sisterIndices[ii],
+			     matchedCand,
+			     sisterCand );
       if ( verbose_ ) cout << "Adding flavor history : " << history << endl;
       flavorHistoryVector->push_back( history ); 
     }
@@ -376,6 +417,23 @@ void FlavorHistoryProducer::getAncestors(const Candidate &c,
 }
 
 
+CandidateView::const_iterator 
+FlavorHistoryProducer::getClosestJet( Handle<CandidateView> const & pJets,
+				      reco::Candidate const & parton ) const 
+{
+  double dr = matchDR_;
+  CandidateView::const_iterator j = pJets->begin(),
+    jend = pJets->end();
+  CandidateView::const_iterator bestJet = pJets->end();
+  for ( ; j != jend; ++j ) {
+    double dri = deltaR( parton.p4(), j->p4() );
+    if ( dri < dr ) {
+      dr = dri;
+      bestJet = j;
+    }
+  }
+  return bestJet;
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

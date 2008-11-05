@@ -28,9 +28,7 @@ using namespace std;
 //
 FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
   src_           ( iConfig.getParameter<edm::InputTag>("src" ) ),
-  jets_          ( iConfig.getParameter<edm::InputTag>("jets" ) ),
   type_          ( iConfig.getParameter<int> ("type" ) ),
-  matchDR_       ( iConfig.getParameter<double> ("matchDR") ),
   minPt_         ( iConfig.getParameter<double> ("minPt") ),
   minDR_         ( iConfig.getParameter<double> ("minDR") ),
   maxDR_         ( iConfig.getParameter<double> ("maxDR") ),
@@ -74,13 +72,6 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<vector<FlavorHistory> > pFlavorHistory;
   iEvent.getByLabel(src_,pFlavorHistory);
 
-  // Get the jet collection
-  Handle<GenJetCollection> pJets;
-  iEvent.getByLabel(jets_, pJets );
-
-  GenJetCollection::const_iterator ijetBegin = pJets->begin(),
-    ijetEnd = pJets->end(),
-    ijet = ijetBegin;
   
 //   if ( verbose_) cout << "Looking at GenJetCollection:" << endl;
 //   for ( ; ijet != ijetEnd; ++ijet ) {
@@ -98,22 +89,18 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ( verbose_) cout << "Looking at flavor history object: " << endl;
     if ( verbose_) cout << *i << endl;
 
-
-
     reco::CandidatePtr parton = i->parton();
 
     // Loop over Genjet collection and find the jet
     // closest the parton in question
-    GenJetCollection::const_iterator bestJet = getClosestJet( pJets,
-							      parton ),
-      jetsEnd = pJets->end();
+    reco::ShallowClonePtrCandidate const & bestJet = i->matchedJet();
 
     // Check to see if we got any genjet matches
-    if ( bestJet != jetsEnd ) {
+    if ( bestJet.masterClonePtr().isNonnull() ) {
 
 
-      if ( verbose_ ) cout << "Found best jet: " << *bestJet << endl;
-      if ( verbose_ ) cout << "delta R to parton = " << deltaR( bestJet->p4(), parton->p4() ) << endl;
+      if ( verbose_ ) cout << "Found best jet: " << bestJet << endl;
+      if ( verbose_ ) cout << "delta R to parton = " << deltaR( bestJet.p4(), parton->p4() ) << endl;
 
       // Make sure to consider only flavorSources of "type".
       // If "type < 0" then we ignore this. 
@@ -145,16 +132,16 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    // Find jet closest to sister
 	    reco::CandidatePtr sister = i->sister();
 	    if ( verbose_) cout << *sister << endl;
-	    GenJetCollection::const_iterator sisterJet = getClosestJet( pJets, sister );
+	    ShallowClonePtrCandidate sisterJet = i->sisterJet();
 
 	    // Here we found a sister jet
-	    if ( sisterJet != jetsEnd && sisterJet != bestJet ) {
-	      if ( verbose_) cout << "sister jet = " << *sisterJet << endl;
+	    if ( sisterJet.masterClonePtr().isNonnull()  ) {
+	      if ( verbose_) cout << "sister jet = " << sisterJet << endl;
 
 	      // If this jet is far enough away from the first jet, pass the event
-	      if ( verbose_) cout << "deltaR = " << deltaR( sisterJet->p4(), bestJet->p4() ) << endl;
+	      if ( verbose_) cout << "deltaR = " << deltaR( sisterJet.p4(), bestJet.p4() ) << endl;
 	      if ( verbose_) cout << "minDR  = " << minDR_ << endl;
-	      double dr = deltaR( sisterJet->p4(), bestJet->p4() );
+	      double dr = deltaR( sisterJet.p4(), bestJet.p4() );
 	      if (  dr > minDR_ &&
 		    dr < maxDR_ ) {
 		pass |= true;
@@ -204,25 +191,6 @@ FlavorHistoryFilter::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 FlavorHistoryFilter::endJob() {
-}
-
-
-GenJetCollection::const_iterator 
-FlavorHistoryFilter::getClosestJet( Handle<GenJetCollection> const & pJets,
-				    reco::CandidatePtr const & parton ) const 
-{
-  double dr = matchDR_;
-  GenJetCollection::const_iterator j = pJets->begin(),
-    jend = pJets->end();
-  GenJetCollection::const_iterator bestJet = pJets->end();
-  for ( ; j != jend; ++j ) {
-    double dri = deltaR( parton->p4(), j->p4() );
-    if ( dri < dr ) {
-      dr = dri;
-      bestJet = j;
-    }
-  }
-  return bestJet;
 }
 
 //define this as a plug-in

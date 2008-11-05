@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 cFlavorHistoryProducer = cms.EDProducer("FlavorHistoryProducer",
                                        src = cms.InputTag("genParticles"),
+                                       matchedSrc = cms.InputTag("iterativeCone5GenJets"),
+                                       matchDR = cms.double(0.5),
                                        pdgIdToSelect = cms.int32(4),
                                        ptMinParticle = cms.double(0.0),
                                        ptMinShower = cms.double(0.0),
@@ -13,6 +15,8 @@ cFlavorHistoryProducer = cms.EDProducer("FlavorHistoryProducer",
 
 bFlavorHistoryProducer = cms.EDProducer("FlavorHistoryProducer",
                                        src = cms.InputTag("genParticles"),
+                                       matchedSrc = cms.InputTag("iterativeCone5GenJets"),
+                                       matchDR = cms.double(0.5),
                                        pdgIdToSelect = cms.int32(5),
                                        ptMinParticle = cms.double(0.0),
                                        ptMinShower = cms.double(0.0),

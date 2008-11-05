@@ -80,8 +80,12 @@ class FlavorHistoryProducer : public edm::EDProducer {
   reco::Candidate const * getSister(const reco::Candidate &c);
 
   
+  reco::CandidateView::const_iterator 
+    getClosestJet( edm::Handle<reco::CandidateView> const & pJets,
+		   reco::Candidate const & parton ) const ;
   
-  edm::InputTag src_;               // source collection name 
+  edm::InputTag src_;               // GenParticles source collection name 
+  edm::InputTag matchedSrc_;        // matched particles source collection name
   int    pdgIdToSelect_;            // pdg of hf partons to select
   double ptMinParticle_;            // minimum pt of the partons
   double ptMinShower_;              // minimum pt of the shower
@@ -89,6 +93,7 @@ class FlavorHistoryProducer : public edm::EDProducer {
   double etaMaxShower_;             // max eta of the shower
   std::string flavorHistoryName_;   // name to give flavor history
   bool verbose_;                    // verbose flag
+  double matchDR_;                  // delta r to match matched particles
 };
 
 #endif
