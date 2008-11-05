@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: sm_nfscopy.sh,v 1.4 2008/09/15 17:18:18 loizides Exp $
+# $Id: sm_nfscopy.sh,v 1.5 2008/11/04 16:18:14 loizides Exp $
 
 nfsserver=$1
 filename=$2
@@ -21,7 +21,8 @@ if test -n "$debug"; then
 else
     fname=`basename $filename`
     execmd="cp -a $filename $destination/${fname}.part"
-    execm2="mv $destination/${fname}.part $destination/$fname && chmod a+r $destination/$fname"
+    execm2="mv $destination/${fname}.part $destination/$fname"
+    execm3="chmod a+r $destination/$fname"
     grepstr="cp -a"
     grepstr2=$destination
 fi
@@ -50,6 +51,7 @@ if test -n "$debug" -o "$nfsserver" = "local" -o -n "`mount | grep $nfsserver`";
         echo "Warning $0: error executing $execm2 for parameters $@." 
         exit 126;
     fi
+    $execm3 >/dev/null 2>&1
 else
     echo "Warning $0: error $nfsserver not mounted for parameters $@." 
     exit 127;
