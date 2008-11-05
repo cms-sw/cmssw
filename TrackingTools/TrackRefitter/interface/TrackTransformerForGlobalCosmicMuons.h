@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2008/11/05 09:35:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/05 11:30:25 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
@@ -73,9 +73,11 @@ public:
   
  private:
 
-  std::string thePropagatorName;
-  edm::ESHandle<Propagator> propagator() const {return thePropagator;}
-  edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<Propagator> thePropagatorIO;
+  edm::ESHandle<Propagator> thePropagatorOI;
+
+  edm::ESHandle<Propagator> propagator(bool) const;
+
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;

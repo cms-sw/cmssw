@@ -19,7 +19,6 @@ globalCosmicMuons = cms.EDProducer("TracksToTrajectories",
                                    TrackTransformer = cms.PSet(TrackerRecHitBuilder = cms.string('WithTrackAngle'),
                                                                MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
                                                                RefitRPCHits = cms.bool(True),
-                                                               Propagator = cms.string('SmartPropagatorAnyRK')
                                                                )
                                    )
 

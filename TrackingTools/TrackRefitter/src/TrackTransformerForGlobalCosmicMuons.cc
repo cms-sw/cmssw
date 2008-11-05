@@ -41,8 +41,6 @@ using namespace edm;
 /// Constructor
 TrackTransformerForGlobalCosmicMuons::TrackTransformerForGlobalCosmicMuons(const ParameterSet& parameterSet){
   
-  thePropagatorName = parameterSet.getParameter<string>("Propagator");
-
   theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
 
@@ -67,11 +65,12 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup){
     
     setup.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterIO);
     setup.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherIO);
-    
+    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",thePropagatorIO);
+
     setup.get<TrackingComponentsRecord>().get("KFFitterForRefitOutsideIn",theFitterOI);
     setup.get<TrackingComponentsRecord>().get("KFSmootherForRefitOutsideIn",theSmootherOI);
+    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",thePropagatorOI);
 
-    setup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
   }
 
   // Global Tracking Geometry
@@ -182,6 +181,11 @@ ESHandle<TrajectorySmoother> TrackTransformerForGlobalCosmicMuons::smoother(bool
   else return theSmootherIO;
 }
 
+ESHandle<Propagator> TrackTransformerForGlobalCosmicMuons::propagator(bool up) const{
+  if(up) return thePropagatorIO;
+  else return thePropagatorOI;
+}
+
 
 
 /// Convert Tracks into Trajectories
@@ -210,7 +214,7 @@ vector<Trajectory> TrackTransformerForGlobalCosmicMuons::transform(const reco::T
 
   if(recHitsForReFit.front()->geographicalId() != DetId(innerId)){
     LogTrace(metname)<<"Propagation occurring"<<endl;
-    firstTSOS = propagator()->propagate(firstTSOS, recHitsForReFit.front()->det()->surface());
+    firstTSOS = propagator(up)->propagate(firstTSOS, recHitsForReFit.front()->det()->surface());
     LogTrace(metname)<<"Final destination: " << recHitsForReFit.front()->det()->surface().position() << endl;
     if(!firstTSOS.isValid()){
       LogTrace(metname)<<"Propagation error!"<<endl;
