@@ -13,7 +13,7 @@ namespace reco {
     PFBrem(){}
     PFBrem(double DP,
 	   double SigmaDP,
-	   uint PointInd): 
+	   unsigned int PointInd): 
       deltaP_(DP),
       sigmadeltaP_(SigmaDP),
       indPoint_(PointInd) {}
@@ -21,12 +21,12 @@ namespace reco {
       
       double DeltaP(){return deltaP_;}
       double SigmaDeltaP(){return sigmadeltaP_;}
-      uint indTrajPoint() {return indPoint_;}
+      unsigned int indTrajPoint() {return indPoint_;}
   private:
       
       double deltaP_;
       double sigmadeltaP_;
-      uint indPoint_;
+      unsigned int indPoint_;
   };
   
   
