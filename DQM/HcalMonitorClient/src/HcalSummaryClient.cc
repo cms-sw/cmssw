@@ -180,7 +180,7 @@ void HcalSummaryClient::setup(void)
   MonitorElement* me;
   ostringstream histo;
   // set overall status
-  dqmStore_->setCurrentFolder( prefixME_ + "/HcalSummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo");
   histo<<"reportSummary";
   me=dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
   if (me)
