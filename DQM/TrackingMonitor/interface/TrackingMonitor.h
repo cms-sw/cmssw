@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.2 2008/03/01 00:43:45 dutta Exp $
+// $Id: TrackingMonitor.h,v 1.3 2008/04/29 23:20:09 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -37,6 +37,8 @@ class TrackingMonitor : public edm::EDAnalyzer {
 
   void fillHistosForState(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
   void bookHistosForState(std::string sname);
+  void doTrackerSpecificInitialization();
+  void doTrackerSpecificFillHists(const reco::TrackCollection::const_iterator );
 
       // ----------member data ---------------------------
 
@@ -52,6 +54,20 @@ class TrackingMonitor : public edm::EDAnalyzer {
   MonitorElement * NumberOfTracks;
   MonitorElement * NumberOfRecHitsPerTrack;
   MonitorElement * NumberOfMeanRecHitsPerTrack;
+  MonitorElement * NumberOfTOBRecHitsPerTrack;
+  MonitorElement * NumberOfTIBRecHitsPerTrack;
+  MonitorElement * NumberOfTIDRecHitsPerTrack;
+  MonitorElement * NumberOfTECRecHitsPerTrack;
+  MonitorElement * NumberOfPixBarrelRecHitsPerTrack;
+  MonitorElement * NumberOfPixEndcapRecHitsPerTrack;
+  MonitorElement * NumberOfLayersPerTrack;
+  MonitorElement * NumberOfTOBLayersPerTrack;
+  MonitorElement * NumberOfTIBLayersPerTrack;
+  MonitorElement * NumberOfTIDLayersPerTrack;
+  MonitorElement * NumberOfTECLayersPerTrack;
+  MonitorElement * NumberOfPixBarrelLayersPerTrack;
+  MonitorElement * NumberOfPixEndcapLayersPerTrack;
+  MonitorElement * NumberOfMeanLayersPerTrack;
   MonitorElement * Chi2;
   MonitorElement * Chi2overDoF;
   MonitorElement * DistanceOfClosestApproach;
@@ -96,6 +112,7 @@ class TrackingMonitor : public edm::EDAnalyzer {
   std::map<std::string, TkParameterMEs> TkParameterMEMap;
 
   bool createHistosForState_;
+  bool doTrackerSpecific_;
 
 };
 #endif

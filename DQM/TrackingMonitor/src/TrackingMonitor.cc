@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 18:04:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/07/22 22:43:36 $
+ *  $Revision: 1.10 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -34,7 +34,8 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
 
   dqmStore_->setCurrentFolder(MEFolderName);
 
-  //    
+  doTrackerSpecific_ = conf_.getParameter<bool>("doTrackerSpecific");
+
   int    TKNoBin = conf_.getParameter<int>("TkSizeBin");
   double TKNoMin = conf_.getParameter<double>("TkSizeMin");
   double TKNoMax = conf_.getParameter<double>("TkSizeMax");
@@ -42,6 +43,10 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   int    TKHitBin = conf_.getParameter<int>("RecHitBin");
   double TKHitMin = conf_.getParameter<double>("RecHitMin");
   double TKHitMax = conf_.getParameter<double>("RecHitMax");
+
+  int    TKLayBin = conf_.getParameter<int>("RecLayBin");
+  double TKLayMin = conf_.getParameter<double>("RecLayMin");
+  double TKLayMax = conf_.getParameter<double>("RecLayMax");
 
   int    Chi2Bin  = conf_.getParameter<int>("Chi2Bin");
   double Chi2Min  = conf_.getParameter<double>("Chi2Min");
@@ -86,6 +91,13 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
   NumberOfMeanRecHitsPerTrack->setAxisTitle("Mean number of RecHits per track");
 
+  histname = "NumberOfLayersPerTrack_";
+  NumberOfLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each track");
+
+  histname = "NumberOfMeanLayersPerTrack_";
+  NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per track");
 
   histname = "Chi2_";
   Chi2 = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
@@ -124,7 +136,9 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "zPointOfClosestApproach_";
   zPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, VZBin, VZMin, VZMax);
   zPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the z-axis");
- 
+
+  if(doTrackerSpecific_) doTrackerSpecificInitialization();
+
   std::string StateName = conf_.getParameter<std::string>("MeasurementState");
   if (StateName == "All") {
     bookHistosForState("OuterSurface");
@@ -149,15 +163,17 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(trackProducer, trackCollection);
   if (!trackCollection.isValid()) return;
 
-
   NumberOfTracks->Fill(trackCollection->size());
   std::string StateName = conf_.getParameter<std::string>("MeasurementState");
   
-  int totalRecHits = 0;
+  int totalRecHits = 0, totalLayers = 0;
   for (reco::TrackCollection::const_iterator track = trackCollection->begin(); track!=trackCollection->end(); ++track) {
 
     NumberOfRecHitsPerTrack->Fill(track->recHitsSize());
     totalRecHits += track->recHitsSize();
+
+    NumberOfLayersPerTrack->Fill(track->hitPattern().trackerLayersWithMeasurement());
+    totalLayers += track->hitPattern().trackerLayersWithMeasurement();
 
     Chi2->Fill(track->chi2());
     Chi2overDoF->Fill(track->normalizedChi2());
@@ -170,21 +186,28 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     xPointOfClosestApproach->Fill(track->vertex().x());
     yPointOfClosestApproach->Fill(track->vertex().y());
     zPointOfClosestApproach->Fill(track->vertex().z());
+
+    //Tracker Specific Histograms
     
+    if(doTrackerSpecific_) doTrackerSpecificFillHists(track);
 
     if (StateName == "All") {
       fillHistosForState(iSetup, (*track), std::string("OuterSurface"));
       fillHistosForState(iSetup, (*track), std::string("InnerSurface"));
-      fillHistosForState(iSetup, (*track), std::string("ImactPoint"));
+      fillHistosForState(iSetup, (*track), std::string("ImpactPoint"));
     } else {
       fillHistosForState(iSetup, (*track), StateName);
     }
   }
 
-  double meanrechits = 0;
+  double meanrechits = 0, meanlayers = 0;
   // check that track size to avoid division by zero.
-  if (trackCollection->size()) meanrechits = static_cast<double>(totalRecHits)/static_cast<double>(trackCollection->size());
+  if (trackCollection->size()) {
+    meanrechits = static_cast<double>(totalRecHits)/static_cast<double>(trackCollection->size());
+    meanlayers = static_cast<double>(totalLayers)/static_cast<double>(trackCollection->size());
+  }
   NumberOfMeanRecHitsPerTrack->Fill(meanrechits);
+  NumberOfMeanLayersPerTrack->Fill(meanlayers);
 }
 
 
@@ -454,4 +477,98 @@ void TrackingMonitor::fillHistosForState(const edm::EventSetup& iSetup, const re
     tkmes.TrackEtaErr->Fill(etaerror);
   }
 }
+
+
+void TrackingMonitor::doTrackerSpecificInitialization() {
+
+  std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
+  int    TKHitBin = conf_.getParameter<int>("RecHitBin");
+  double TKHitMin = conf_.getParameter<double>("RecHitMin");
+  double TKHitMax = conf_.getParameter<double>("RecHitMax");
+
+  int    TKLayBin = conf_.getParameter<int>("RecLayBin");
+  double TKLayMin = conf_.getParameter<double>("RecLayMin");
+  double TKLayMax = conf_.getParameter<double>("RecLayMax");
+
+  histname = "NumberOfTOBRecHitsPerTrack_";
+  NumberOfTOBRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfTOBRecHitsPerTrack->setAxisTitle("Number of TOB RecHits of each track");
+
+  histname = "NumberOfTIBRecHitsPerTrack_";
+  NumberOfTIBRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfTIBRecHitsPerTrack->setAxisTitle("Number of TIB RecHits of each track");
+
+  histname = "NumberOfTIDRecHitsPerTrack_";
+  NumberOfTIDRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfTIDRecHitsPerTrack->setAxisTitle("Number of TID RecHits of each track");
+
+  histname = "NumberOfTECRecHitsPerTrack_";
+  NumberOfTECRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfTECRecHitsPerTrack->setAxisTitle("Number of TEC RecHits of each track");
+
+  histname = "NumberOfPixBarrelRecHitsPerTrack_";
+  NumberOfPixBarrelRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfPixBarrelRecHitsPerTrack->setAxisTitle("Number of Pixel Barrel RecHits of each track");
+
+  histname = "NumberOfPixEndcapRecHitsPerTrack_";
+  NumberOfPixEndcapRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
+  NumberOfPixEndcapRecHitsPerTrack->setAxisTitle("Number of Pixel Endcap RecHits of each track");
+
+  histname = "NumberOfTOBLayersPerTrack_";
+  NumberOfTOBLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfTOBLayersPerTrack->setAxisTitle("Number of TOB Layers of each track");
+
+  histname = "NumberOfTIBLayersPerTrack_";
+  NumberOfTIBLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfTIBLayersPerTrack->setAxisTitle("Number of TIB Layers of each track");
+
+  histname = "NumberOfTIDLayersPerTrack_";
+  NumberOfTIDLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfTIDLayersPerTrack->setAxisTitle("Number of TID Layers of each track");
+
+  histname = "NumberOfTECLayersPerTrack_";
+  NumberOfTECLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfTECLayersPerTrack->setAxisTitle("Number of TID Layers of each track");
+
+  histname = "NumberOfPixBarrelLayersPerTrack_";
+  NumberOfPixBarrelLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfPixBarrelLayersPerTrack->setAxisTitle("Number of Pixel Barrel Layers of each track");
+
+  histname = "NumberOfPixEndcapLayersPerTrack_";
+  NumberOfPixEndcapLayersPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKLayBin, TKLayMin, TKLayMax);
+  NumberOfPixEndcapLayersPerTrack->setAxisTitle("Number of Pixel Endcap Layers of each track");
+
+}
+
+
+void TrackingMonitor::doTrackerSpecificFillHists(const reco::TrackCollection::const_iterator track) {
+
+    //Fill TIB Layers and RecHits
+    NumberOfTIBRecHitsPerTrack->Fill(track->hitPattern().numberOfValidStripTIBHits());
+    NumberOfTIBLayersPerTrack->Fill(track->hitPattern().stripTIBLayersWithMeasurement());
+
+    //Fill TOB Layers and RecHits
+    NumberOfTOBRecHitsPerTrack->Fill(track->hitPattern().numberOfValidStripTOBHits());
+    NumberOfTOBLayersPerTrack->Fill(track->hitPattern().stripTOBLayersWithMeasurement());
+
+    //Fill TID Layers and RecHits
+    NumberOfTIDRecHitsPerTrack->Fill(track->hitPattern().numberOfValidStripTIDHits());
+    NumberOfTIDLayersPerTrack->Fill(track->hitPattern().stripTIDLayersWithMeasurement());
+
+    //Fill TEC Layers and RecHits
+    NumberOfTECRecHitsPerTrack->Fill(track->hitPattern().numberOfValidStripTECHits());
+    NumberOfTECLayersPerTrack->Fill(track->hitPattern().stripTECLayersWithMeasurement());
+
+    //Fill PixBarrel Layers and RecHits
+    NumberOfPixBarrelRecHitsPerTrack->Fill(track->hitPattern().numberOfValidPixelBarrelHits());
+    NumberOfPixBarrelLayersPerTrack->Fill(track->hitPattern().pixelBarrelLayersWithMeasurement());
+
+    //Fill PixEndcap Layers and RecHits
+    NumberOfPixEndcapRecHitsPerTrack->Fill(track->hitPattern().numberOfValidPixelEndcapHits());
+    NumberOfPixEndcapLayersPerTrack->Fill(track->hitPattern().pixelEndcapLayersWithMeasurement());
+
+}
+
+
+
 DEFINE_FWK_MODULE(TrackingMonitor);
