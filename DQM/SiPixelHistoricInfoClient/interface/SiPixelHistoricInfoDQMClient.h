@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,23 +19,25 @@ class SiPixelHistoricInfoDQMClient : public edm::EDAnalyzer {
 
 public:
   explicit SiPixelHistoricInfoDQMClient(const edm::ParameterSet&);
- ~SiPixelHistoricInfoDQMClient();
+ ~SiPixelHistoricInfoDQMClient() {};
 
 private:
-  virtual void beginJob(const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) {};
+  void analyze(const edm::Event&, const edm::EventSetup&) {};
+  void endRun(const edm::Run&, const edm::EventSetup&);
+  void endJob();
 
-  void retrieveMEs();
   uint32_t getLadderBladeID(std::string) const; 
   uint32_t getLayerDiskID(std::string) const; 
-  void fillPerformanceSummary() const;
+  void retrieveMEs();
+  void getSummaryMEmeanRMSnBins(std::vector<MonitorElement*>::const_iterator, 
+                                float&, float&, float&) const; 
   void fillPerformanceSummaryWithSummaryMEs() const;
   void fillPerformanceSummaryWithModuleMEs() const;
+  void fillPerformanceSummary() const;
   void writeDB() const; 
-  void saveFile(std::string filename) const { dbe_->save(filename); }
+  void saveFile(std::string filename) const { dbe_->save(filename); };
 
 private: 
   bool useSummary_; 
