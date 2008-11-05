@@ -3,6 +3,7 @@ import os, time, sys, re, glob, exceptions
 import optparse as opt
 import cmsRelRegress as crr
 from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog
+import cmsRelValCmd,cmsCpuInfo
 
 class PerfSuite:
     def __init__(self):
@@ -59,7 +60,7 @@ class PerfSuite:
                             ValgrindEvents   = 1          ,
                             cmsScimark       = 10         ,
                             cmsScimarkLarge  = 10         ,  
-                            cmsdriverOptions = ""         ,
+                            cmsdriverOptions = cmsRelValCmd.get_cmsDriverOptions(), #Get these options automatically now!
                             stepOptions      = ""         ,
                             candleOptions    = ""         ,
                             profilers        = ""         ,
@@ -73,7 +74,7 @@ class PerfSuite:
                             verbose          = True       ,
                             previousrel      = ""         ,
                             castordir        = self._CASTOR_DIR,
-                            cores            = 4          , #Number of cpu cores on the machine
+                            cores            = cmsCpuInfo.get_NumOfCores(), #Get Number of cpu cores on the machine from /proc/cpuinfo
                             cpu              = "1"        ) #Cpu core on which the suite is run:
     
         parser.add_option('-q', '--quiet'      , action="store_false", dest='verbose'   ,
