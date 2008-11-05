@@ -19,6 +19,7 @@ OutALCARECOEcalCalElectron = cms.PSet(
         'keep *_egammaHOETower_*_*', 
         'keep *_egammaHOE_*_*', 
         'keep *_egammaHcalIsolation_*_*', 
-        'keep *_egammaTowerIsolation_*_*')
+        'keep *_egammaTowerIsolation_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
