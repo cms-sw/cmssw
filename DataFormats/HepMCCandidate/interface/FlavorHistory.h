@@ -82,9 +82,9 @@ public:
 
   // Accessors
   FLAVOR_T       flavorSource          () const { return flavorSource_; }
-  bool           hasParton             () const { return parton_.key() > 0; }
-  bool           hasSister             () const { return sister_.key() > 0; }
-  bool           hasProgenitor         () const { return progenitor_.key() > 0 ;}
+  bool           hasParton             () const { return parton_.isNonnull(); }
+  bool           hasSister             () const { return sister_.isNonnull(); }
+  bool           hasProgenitor         () const { return progenitor_.isNonnull();}
   const reco::CandidatePtr & parton    () const { return parton_; }
   const reco::CandidatePtr & sister    () const { return sister_; }
   const reco::CandidatePtr & progenitor() const { return progenitor_; }

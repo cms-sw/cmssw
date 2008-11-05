@@ -27,9 +27,9 @@ FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
 			      int progenitor,
 			      int sister ) :
   flavorSource_(flavorSource),
-  parton_(h_partons,parton),
-  progenitor_(h_partons,progenitor),
-  sister_(h_partons,sister)
+  parton_    ( parton     >= 0 && parton     < h_partons->size() ? CandidatePtr(h_partons,parton)     : CandidatePtr()),
+  progenitor_( progenitor >= 0 && progenitor < h_partons->size() ? CandidatePtr(h_partons,progenitor) : CandidatePtr()),
+  sister_    ( sister     >= 0 && sister     < h_partons->size() ? CandidatePtr(h_partons,sister)     : CandidatePtr())
 {
   
 }
@@ -40,9 +40,9 @@ FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
 			      int progenitor,
 			      int sister ) :
   flavorSource_(flavorSource),
-  parton_(h_partons,parton),
-  progenitor_(h_partons,progenitor),
-  sister_(h_partons,sister)
+  parton_    ( parton     >= 0 && parton     < h_partons->size() ? CandidatePtr(h_partons,parton)     : CandidatePtr()),
+  progenitor_( progenitor >= 0 && progenitor < h_partons->size() ? CandidatePtr(h_partons,progenitor) : CandidatePtr()),
+  sister_    ( sister     >= 0 && sister     < h_partons->size() ? CandidatePtr(h_partons,sister)     : CandidatePtr())
 {
   
 }
