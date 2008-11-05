@@ -26,6 +26,7 @@ process.source = cms.Source("PoolSource",
      '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6A430ADA-5999-DD11-994D-001617C3B5D8.root',
      '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/F2E24023-5899-DD11-BFBF-000423D94A20.root',
      '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/FE4A6F3F-FD99-DD11-9587-000423D98750.root'
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
