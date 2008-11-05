@@ -24,7 +24,7 @@ from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
 
 KFFitterForRefitOutsideIn = KFTrajectoryFitter.clone()
 KFFitterForRefitOutsideIn.ComponentName = cms.string('KFFitterForRefitOutsideIn')
-KFFitterForRefitOutsideIn.Propagator = cms.string('SmartPropagatorAnyRK')
+KFFitterForRefitOutsideIn.Propagator = cms.string('SmartPropagatorAnyRKOpposite')
 KFFitterForRefitOutsideIn.Updator = cms.string('KFUpdator')
 KFFitterForRefitOutsideIn.Estimator = cms.string('Chi2EstimatorForRefit')
 KFFitterForRefitOutsideIn.minHits = cms.int32(3)
@@ -32,7 +32,7 @@ KFFitterForRefitOutsideIn.minHits = cms.int32(3)
 
 KFSmootherForRefitOutsideIn = KFTrajectorySmoother.clone()
 KFSmootherForRefitOutsideIn.ComponentName = cms.string('KFSmootherForRefitOutsideIn')
-KFSmootherForRefitOutsideIn.Propagator = cms.string('SmartPropagatorRK')
+KFSmootherForRefitOutsideIn.Propagator = cms.string('SmartPropagatorAnyRKOpposite')
 KFSmootherForRefitOutsideIn.Updator = cms.string('KFUpdator')
 KFSmootherForRefitOutsideIn.Estimator = cms.string('Chi2EstimatorForRefit')
 KFSmootherForRefitOutsideIn.errorRescaling = cms.double(100.0)
