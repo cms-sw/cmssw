@@ -9,5 +9,6 @@ from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 seqALCARECOEcalCalElectronRECO = cms.Sequence(alCaIsolatedElectrons)
 seqALCARECOEcalCalElectron = cms.Sequence(ewkHLTFilter*electronFilter*seqALCARECOEcalCalElectronRECO) ##HLT selection: on
 
-ewkHLTFilter.HLTPaths = ['HLT_IsoEle15_L1I', 'HLT_DoubleIsoEle10_L1I', 'HLT_IsoEle18_L1R', 'HLT_DoubleIsoEle12_L1R']
+#ewkHLTFilter.HLTPaths = ['HLT_IsoEle15_L1I', 'HLT_DoubleIsoEle10_L1I', 'HLT_IsoEle18_L1R', 'HLT_DoubleIsoEle12_L1R']
+ewkHLTFilter.HLTPaths = ['HLT_LooseIsoEle15_LW_L1R']
 

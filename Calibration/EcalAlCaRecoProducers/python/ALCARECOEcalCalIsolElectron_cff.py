@@ -6,9 +6,9 @@ from Calibration.EcalAlCaRecoProducers.ewkHLTFilter_cfi import *
 from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
 goodElectrons = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(False),
+    filter = cms.bool(True),
     src = cms.InputTag("pixelMatchGsfElectrons"),
-    cut = cms.string('et > 20')
+    cut = cms.string('et > 15')
 )
 
 goodElectronFilter = cms.EDFilter("CandViewCountFilter",
@@ -17,20 +17,20 @@ goodElectronFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 goodElectrons2 = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(False),
+    filter = cms.bool(True),
     src = cms.InputTag("pixelMatchGsfElectrons"),
-    cut = cms.string('et > 15')
+    cut = cms.string('et > 1')
 )
 
 goodElectronFilter2 = cms.EDFilter("CandViewCountFilter",
     src = cms.InputTag("goodElectrons2"),
-    minNumber = cms.uint32(2)
+    minNumber = cms.uint32(0)
 )
 
 testSelector = cms.EDFilter("AssociatedVariableMaxCutCandViewSelector",
-    filter = cms.bool(False),
+    filter = cms.bool(True),
     src = cms.InputTag("egammaElectronTkIsolation"),
-    max = cms.double(2.5)
+    max = cms.double(0.1)
 )
 
 superClusterMerger =  cms.EDFilter("EgammaSuperClusterMerger",
@@ -43,7 +43,7 @@ superClusterCands = cms.EDProducer("ConcreteEcalCandidateProducer",
 )
 
 goodSuperClusters = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(False),
+    filter = cms.bool(True),
     src = cms.InputTag("superClusterCands"),
     cut = cms.string('et > 20')
 )
@@ -54,14 +54,14 @@ goodSuperClusterFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 goodSuperClusters2 = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(False),
+    filter = cms.bool(True),
     src = cms.InputTag("superClusterCands"),
     cut = cms.string('et > 10')
 )
 
 goodSuperClusterFilter2 = cms.EDFilter("CandViewCountFilter",
     src = cms.InputTag("goodSuperClusters2"),
-    minNumber = cms.uint32(2)
+    minNumber = cms.uint32(0)
 )
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence(alCaIsolatedElectrons)
