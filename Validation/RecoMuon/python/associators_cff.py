@@ -94,10 +94,8 @@ tpToL2MuonAssociation.tracksTag = 'hltL2Muons:UpdatedAtVtx'
 tpToL3MuonAssociation.tpTag = 'muonTP'
 tpToL3MuonAssociation.tracksTag = 'hltL3Muons'
 
-from SimGeneral.MixingModule.mixNoPU_cfi import *
-
-muonAssociation_seq = cms.Sequence(mix*(tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)
+muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociation))
 
-muonAssociationHLT_seq = cms.Sequence(mix*(tpToL2MuonAssociation+tpToL3MuonAssociation)
+muonAssociationHLT_seq = cms.Sequence((tpToL2MuonAssociation+tpToL3MuonAssociation)
                                      +(tpToL2TrackAssociation+tpToL3TrackAssociation))
