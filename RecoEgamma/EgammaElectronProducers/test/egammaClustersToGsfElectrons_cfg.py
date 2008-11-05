@@ -21,8 +21,11 @@ process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff")
 process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(1),
     debugFlag = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring('/store/relval/2008/7/13/RelVal-RelValSingleElectronPt35-1215820444-IDEAL_V5-2nd/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-1215820444-IDEAL_V5-2nd-IDEAL_V5-unmerged/0000/14AD4148-F850-DD11-A295-000423D98DD4.root', 
-        '/store/relval/2008/7/13/RelVal-RelValSingleElectronPt35-1215820444-IDEAL_V5-2nd/RelValSingleElectronPt35/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre8-RelVal-1215820444-IDEAL_V5-2nd-IDEAL_V5-unmerged/0000/F082A8E5-F650-DD11-B6DA-0019DB2F3F9B.root')
+    fileNames = cms.untracked.vstring(
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/26338BA9-5899-DD11-BD75-000423D985B0.root',
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/6A430ADA-5999-DD11-994D-001617C3B5D8.root',
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/F2E24023-5899-DD11-BFBF-000423D94A20.root',
+     '/store/relval/CMSSW_2_1_10/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0000/FE4A6F3F-FD99-DD11-9587-000423D98750.root'
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -31,12 +34,15 @@ process.maxEvents = cms.untracked.PSet(
 
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_*_*_electrons'),
+        'keep recoSuperClusters*_*_*_*', 
+        'keep *_iterativeCone5CaloJets_*_*', 
+        'keep *_*_*_electrons', 
+        'keep *HepMCProduct_*_*_*'),
     fileName = cms.untracked.string('electrons.root')
 )
 
 process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.pixelMatchGsfElectronSequence)
 process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'IDEAL_V5::All'
+process.GlobalTag.globaltag = 'IDEAL_V9::All'
 
 
