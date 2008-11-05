@@ -73,12 +73,21 @@ void L1GctHFBitCounts::setBitCount(unsigned i, uint16_t c) {
 }
 
 
-std::ostream& operator<<(std::ostream& s, const L1GctHFBitCounts& cand) {
+std::ostream& operator<<(std::ostream& s, const L1GctHFBitCounts& cand) 
+{
   s << "L1GctHFBitCounts :";
-  s << " ring1 eta+=" << cand.bitCount(0);
-  s << " ring1 eta-=" << cand.bitCount(1);
-  s << " ring2 eta+=" << cand.bitCount(2);
-  s << " ring2 eta-=" << cand.bitCount(3);
-  s << std::endl;
+
+  if (cand.empty()) {
+    s << " empty";
+  } else {    
+    s << " ring1 eta+=" << cand.bitCount(0);
+    s << " ring1 eta-=" << cand.bitCount(1);
+    s << " ring2 eta+=" << cand.bitCount(2);
+    s << " ring2 eta-=" << cand.bitCount(3);
+    s << std::endl; 
+  }
+
+  s << std::hex << " cap block=" << cand.capBlock() << std::dec << " index=" << cand.capIndex() << " BX=" << cand.bx();
+
   return s;
 }

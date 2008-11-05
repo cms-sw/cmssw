@@ -40,19 +40,45 @@ L1GctInternHFData L1GctInternHFData::fromConcBitCounts(const uint16_t capBlock,
   return d;
 }
 
+L1GctInternHFData L1GctInternHFData::fromWheelRingSums(const uint16_t capBlock,
+                                                       const uint16_t capIndex,
+                                                       const int16_t bx,
+                                                       const uint32_t data) {
+  L1GctInternHFData d;
+  d.setType(wheel_hf_ring_et_sums);
+  d.setCapIndex(capIndex);
+  d.setCapBlock(capBlock);
+  d.setBx(bx);
+  d.setData(data & 0xff);
+  return d;
+}
+
+L1GctInternHFData L1GctInternHFData::fromWheelBitCounts(const uint16_t capBlock,
+                                                        const uint16_t capIndex,
+                                                        const int16_t bx,
+                                                        const uint32_t data) {
+  L1GctInternHFData d;
+  d.setType(wheel_hf_bit_counts);
+  d.setCapIndex(capIndex);
+  d.setCapBlock(capBlock);
+  d.setBx(bx);
+  d.setCount(0,data & 0x3f);
+  return d;
+}
+
 
 // get value
-uint16_t L1GctInternHFData::value(unsigned const i) {
+uint16_t L1GctInternHFData::value(unsigned i) const {
   return (data_>>(i*8)) & 0xff;
 }
 
 /// get the et sums
-uint16_t L1GctInternHFData::et(unsigned const i) {
+uint16_t L1GctInternHFData::et(unsigned i) const {
   return value(i);
 }
 
 /// get the counts
-uint16_t L1GctInternHFData::count(unsigned const i) {
+uint16_t L1GctInternHFData::count(unsigned i) const {
   return value(i);
 } 
 
@@ -80,5 +106,38 @@ void L1GctInternHFData::setCount(unsigned i, uint16_t count) {
 }
 
 
-std::ostream& operator<<(std::ostream& s, const L1GctInternHFData& cand);
+std::ostream& operator<<(std::ostream& s, const L1GctInternHFData& cand)
+{
+  s << "L1GctInternHFData :";
+
+  if (cand.empty()) {
+    s << " empty";
+  } else {      
+    if (cand.type()==L1GctInternHFData::conc_hf_ring_et_sums){
+      s << " type=conc_hf_ring_et_sums";
+      s << " ring1 eta+=" << cand.et(0);
+      s << " ring1 eta-=" << cand.et(1);
+      s << " ring2 eta+=" << cand.et(2);
+      s << " ring2 eta-=" << cand.et(3); 
+   } else if (cand.type()==L1GctInternHFData::conc_hf_bit_counts){
+      s << " type=conc_hf_bit_counts";
+      s << " ring1 eta+=" << cand.count(0);
+      s << " ring1 eta-=" << cand.count(1);
+      s << " ring2 eta+=" << cand.count(2);
+      s << " ring2 eta-=" << cand.count(3);
+   } else if (cand.type()==L1GctInternHFData::wheel_hf_ring_et_sums){
+     s << " type=conc_hf_ring_et_sums";
+     s << " Et sum=" << cand.et(0);
+   } else if (cand.type()==L1GctInternHFData::wheel_hf_bit_counts){
+     s << " type=wheel_hf_bit_counts";
+     s << " Bit count=" << cand.et(0);
+   }
+  }
+  s << std::endl;
+    
+  s << std::hex << " cap block=" << cand.capBlock() << std::dec << " index=" << cand.capIndex() << " BX=" << cand.bx();
+
+  return s;
+
+}
 

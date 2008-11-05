@@ -21,7 +21,9 @@ class L1GctInternHFData {
   /// et sum type - not clear this is required
   enum L1GctInternHFDataType { null,
 			       conc_hf_ring_et_sums,
-			       conc_hf_bit_counts
+			       conc_hf_bit_counts,
+                               wheel_hf_ring_et_sums,
+                               wheel_hf_bit_counts
   };
   
   /// default constructor (for vector initialisation etc.)
@@ -40,9 +42,19 @@ class L1GctInternHFData {
 					     const int16_t bx,
 					     const uint32_t data);
   
+  static L1GctInternHFData fromWheelRingSums(const uint16_t capBlock,
+                                             const uint16_t capIndex,
+                                             const int16_t bx,
+                                             const uint32_t data);
+  
+  static L1GctInternHFData fromWheelBitCounts(const uint16_t capBlock,
+                                              const uint16_t capIndex,
+                                              const int16_t bx,
+                                              const uint32_t data);
+
   /// metadata
 
-  /// 'type' of object - not required?
+  /// 'type' of object 
   L1GctInternHFData::L1GctInternHFDataType type() const { return type_; }
 
   /// get capture block
@@ -61,19 +73,19 @@ class L1GctInternHFData {
   /// get the actual data
 
   /// is this ring sums or bit counts?
-  bool isRingSums() const { return (type_ == conc_hf_ring_et_sums); }
+  bool isRingSums() const { return (type_ == conc_hf_ring_et_sums || type_ == wheel_hf_ring_et_sums); }
 
   /// get the raw data
   uint32_t raw() const { return data_; }
   
   /// get value
-  uint16_t value(unsigned const i);
+  uint16_t value(unsigned i) const;
 
   /// get the et sums
-  uint16_t et(unsigned const i);
+  uint16_t et(unsigned i) const;
 
   /// get the counts
-  uint16_t count(unsigned const i);
+  uint16_t count(unsigned i) const;
 
 
   // setters  

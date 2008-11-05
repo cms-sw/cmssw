@@ -86,15 +86,15 @@ ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
   if (cand.empty()) {
     s << "L1GctJetCand empty jet";
   } else {
-    s << "L1GctJetCand : " << hex;
+    s << "L1GctJetCand : ";
     s << "rank=" << cand.rank();
-    s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex() << dec;
+    s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex();
     s << " type=";
     if (cand.isTau()) { s << "tau"; }
     else if (cand.isForward()) { s << "forward"; }
     else { s << "central"; }
   }
-  s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
+  s << hex << " cap block=" << cand.capBlock() << dec << ", index=" << cand.capIndex() << ", BX=" << cand.bx();
   return s;
 }
 

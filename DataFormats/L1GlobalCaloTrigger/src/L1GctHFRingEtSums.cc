@@ -74,12 +74,21 @@ void L1GctHFRingEtSums::setEtSum(unsigned i, uint16_t et) {
   data_ |= (et&0x7)<<(i*3);
 }
 
-std::ostream& operator<<(std::ostream& s, const L1GctHFRingEtSums& cand) {
+std::ostream& operator<<(std::ostream& s, const L1GctHFRingEtSums& cand) 
+{
   s << "L1GctHFRingEtSums :";
-  s << " ring1 eta+=" << cand.etSum(0);
-  s << " ring1 eta-=" << cand.etSum(1);
-  s << " ring2 eta+=" << cand.etSum(2);
-  s << " ring2 eta-=" << cand.etSum(3);
-  s << std::endl;
+
+  if (cand.empty()) {
+    s << " empty";
+  } else {    
+    s << " ring1 eta+=" << cand.etSum(0);
+    s << " ring1 eta-=" << cand.etSum(1);
+    s << " ring2 eta+=" << cand.etSum(2);
+    s << " ring2 eta-=" << cand.etSum(3);
+    s << std::endl;
+  }
+
+  s << std::hex << " cap block=" << cand.capBlock() << std::dec << " index=" << cand.capIndex() << " BX=" << cand.bx();
+
   return s;
 }

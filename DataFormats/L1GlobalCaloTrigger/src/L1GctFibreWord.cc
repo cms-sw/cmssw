@@ -21,7 +21,6 @@ L1GctFibreWord::L1GctFibreWord(uint32_t data, uint16_t block, uint16_t index, in
 std::ostream& operator<<(std::ostream& s, const L1GctFibreWord& fw) {
   s << "L1GctFibreWord : ";
   s << std::hex << fw.data() << ", block " << fw.block();
-  s << ", index : " << fw.index() << ", bx : " << fw.bx(); 
-  s << std::dec;
+  s << std::dec << ", index : " << fw.index() << ", bx : " << fw.bx(); 
   return s;
 }

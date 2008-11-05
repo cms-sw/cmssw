@@ -112,10 +112,10 @@ void L1GctEmCand::construct(unsigned rank, unsigned eta, unsigned phi) {
 // pretty print
 ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "L1GctEmCand : ";
-  s << "rank=" << hex << cand.rank();
+  s << "rank=" << cand.rank();
   s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex();
-  s << ", iso=" << cand.isolated() << dec;
-  s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
+  s << ", iso=" << cand.isolated();
+  s << hex << " cap block=" << cand.capBlock() << dec << ", index=" << cand.capIndex() << ", BX=" << cand.bx();
   return s;
 }
 

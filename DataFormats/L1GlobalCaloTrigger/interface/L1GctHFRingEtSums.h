@@ -38,8 +38,8 @@ class L1GctHFRingEtSums {
   /// named ctor for GCT emulator
   static L1GctHFRingEtSums fromGctEmulator(const int16_t bx,
 					   const uint16_t etSumPosEtaRing1,
-					   const uint16_t etSumPosEtaRing2,
 					   const uint16_t etSumNegEtaRing1,
+					   const uint16_t etSumPosEtaRing2,
 					   const uint16_t etSumNegEtaRing2);
   
   // optional named ctor for GT if required

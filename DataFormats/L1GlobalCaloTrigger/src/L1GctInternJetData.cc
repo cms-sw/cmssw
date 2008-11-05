@@ -143,15 +143,36 @@ std::ostream& operator<<(std::ostream& s, const L1GctInternJetData& c) {
   if (c.empty()) { 
     s << " empty!"; 
   }
-  s << " type=" << c.type();
-  s << " oflow=" << c.oflow();
-  s << " et=" << c.et();
-  s << " eta=" << c.eta();
-  s << " phi=" << c.phi();
-  s << " tauVeto=" << c.tauVeto();
-  s << " rank=" << c.rank();
+  if (c.type()==L1GctInternJetData::jet_cluster){
+    s << " type=jet_cluster";
+    s << " oflow=" << c.oflow();
+    s << " et=" << c.et();
+    s << " eta=" << c.eta();
+    s << " phi=" << c.phi();
+    s << " tauVeto=" << c.tauVeto();
+    s << " rank=" << c.rank();
+  } else if (c.type()==L1GctInternJetData::jet_precluster){
+    s << " type=jet_precluster";
+    s << " oflow=" << c.oflow();
+    s << " et=" << c.et();
+    s << " eta=" << c.eta();
+    s << " tauVeto=" << c.tauVeto();
+  } else if (c.type()==L1GctInternJetData::jet_cluster_minimal){
+    s << " type=jet_cluster_minimal";
+    s << " oflow=" << c.oflow();
+    s << " eta=" << c.eta();
+    s << " phi=" << c.phi();
+    s << " tauVeto=" << c.tauVeto();
+    s << " rank=" << c.rank();
+  } else if (c.type()==L1GctInternJetData::gct_trig_object){
+    s << " type=gct_trig_object";
+    s << " eta=" << c.eta();
+    s << " phi=" << c.phi();
+    s << " rank=" << c.rank();
+  }
   s << " cap block=" << std::hex << c.capBlock();
-  s << " index=" << c.capIndex();
+  s << " index=" << std::dec << c.capIndex();
   s << " BX=" << c.bx();
+
   return s; 
 }

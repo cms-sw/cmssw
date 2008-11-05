@@ -18,11 +18,11 @@ class L1GctInternEtSum {
 
   /// et sum type - not clear this is required
   enum L1GctInternEtSumType { null,
-			      wheel_hf_ring_et_sum,
-			      wheel_hf_ring_bit_count,  // aka wheel_hf_ring_jets_above_threshold
-			      jet_tot_et,  // from jet_tot_et_and_ht
-			      jet_miss_et,
-			      total_et  // from total_et_or_ht
+ 			      jet_tot_et,      // from jet_tot_et_and_ht in leaf output
+			      jet_tot_ht,      // from jet_tot_et_and_ht in leaf output
+			      jet_miss_et,     // leaf output
+			      total_et_or_ht,  // conc input, wheel input and output
+                              miss_etx_or_ety  // conc input, wheel input and output
   };
 
   /// default constructor (for vector initialisation etc.)
@@ -39,34 +39,31 @@ class L1GctInternEtSum {
   ~L1GctInternEtSum();
 
   // named ctors
-  /// use this for wheel_hf_et_sum
-  static L1GctInternEtSum fromWheelHfRingSum(uint16_t capBlock,
-					     uint16_t capIndex,
-					     int16_t bx,
-					     uint16_t data);
-  
-  static L1GctInternEtSum fromWheelHfBitCount(uint16_t capBlock,
-					      uint16_t capIndex,
-					      int16_t bx,
-					      uint16_t data);
-  
-
   static L1GctInternEtSum fromJetTotEt(uint16_t capBlock,
 				       uint16_t capIndex,
 				       int16_t bx,
-				       uint16_t data);
-  
+				       uint32_t data);
 
+  static L1GctInternEtSum fromJetTotHt(uint16_t capBlock,
+				       uint16_t capIndex,
+				       int16_t bx,
+				       uint32_t data);
+  
   static L1GctInternEtSum fromJetMissEt(uint16_t capBlock,
 					uint16_t capIndex,
 					int16_t bx,
 					uint32_t data);
   
 
-  static L1GctInternEtSum fromTotalEt(uint16_t capBlock,
-				      uint16_t capIndex,
-				      int16_t bx,
-				      uint32_t data);
+  static L1GctInternEtSum fromTotalEtOrHt(uint16_t capBlock,
+                                          uint16_t capIndex,
+                                          int16_t bx,
+                                          uint32_t data);
+
+  static L1GctInternEtSum fromMissEtxOrEty(uint16_t capBlock,
+                                          uint16_t capIndex,
+                                          int16_t bx,
+                                          uint32_t data);
 
   /// metadata
 

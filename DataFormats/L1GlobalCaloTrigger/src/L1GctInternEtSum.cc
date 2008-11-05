@@ -29,33 +29,10 @@ L1GctInternEtSum::~L1GctInternEtSum() {
 
 }
 
-L1GctInternEtSum L1GctInternEtSum::fromWheelHfRingSum(const uint16_t capBlock,
-							     const uint16_t capIndex,
-							     const int16_t bx,
-							     const uint16_t data) {
-  L1GctInternEtSum s;
-  s.setEt(data & 0xff);
-  s.setOflow(0);
-  s.setType(wheel_hf_ring_et_sum);
-  return s;
-}
-
-L1GctInternEtSum L1GctInternEtSum::fromWheelHfBitCount(const uint16_t capBlock,
-							      const uint16_t capIndex,
-							      const int16_t bx,
-							      const uint16_t data) {
-  L1GctInternEtSum s;
-  s.setEt(data & 0x3f);
-  s.setOflow(0);
-  s.setType(wheel_hf_ring_bit_count);
-  return s;
-}
-
-
 L1GctInternEtSum L1GctInternEtSum::fromJetTotEt(const uint16_t capBlock,
-						       const uint16_t capIndex,
-						       const int16_t bx,
-						       const uint16_t data) {
+                                                const uint16_t capIndex,
+                                                const int16_t bx,
+                                                const uint32_t data) {
   L1GctInternEtSum s;
   s.setEt(data & 0xfff);
   s.setOflow((data>>12)&0x1);
@@ -63,11 +40,21 @@ L1GctInternEtSum L1GctInternEtSum::fromJetTotEt(const uint16_t capBlock,
   return s;
 }
 
+L1GctInternEtSum L1GctInternEtSum::fromJetTotHt(const uint16_t capBlock,
+                                                const uint16_t capIndex,
+                                                const int16_t bx,
+                                                const uint32_t data) {
+  L1GctInternEtSum s;
+  s.setEt((data>>16) & 0xfff);
+  s.setOflow((data>>12)&0x1);
+  s.setType(jet_tot_ht);
+  return s;
+}
 
 L1GctInternEtSum L1GctInternEtSum::fromJetMissEt(const uint16_t capBlock,
-							const uint16_t capIndex,
-							const int16_t bx,
-							const uint32_t data) {
+                                                 const uint16_t capIndex,
+                                                 const int16_t bx,
+                                                 const uint32_t data) {
   L1GctInternEtSum s;
   s.setEt(data & 0xffff);
   s.setOflow((data>>17) & 0x1);
@@ -76,14 +63,25 @@ L1GctInternEtSum L1GctInternEtSum::fromJetMissEt(const uint16_t capBlock,
 }
 
 
-L1GctInternEtSum L1GctInternEtSum::fromTotalEt(const uint16_t capBlock,
-						      const uint16_t capIndex,
-						      const int16_t bx,
-						      const uint32_t data) {
+L1GctInternEtSum L1GctInternEtSum::fromTotalEtOrHt(const uint16_t capBlock,
+                                                   const uint16_t capIndex,
+                                                   const int16_t bx,
+                                                   const uint32_t data) {
   L1GctInternEtSum s;
-  s.setEt(data & 0xffff);
-  s.setOflow((data>>17) & 0x1);
-  s.setType(total_et);
+  s.setEt(data & 0xfff);
+  s.setOflow((data>>12) & 0x1);
+  s.setType(total_et_or_ht);
+  return s;
+}
+
+L1GctInternEtSum L1GctInternEtSum::fromMissEtxOrEty(const uint16_t capBlock,
+                                                    const uint16_t capIndex,
+                                                    const int16_t bx,
+                                                    const uint32_t data) {
+  L1GctInternEtSum s;
+  s.setEt(data & 0xfffff);
+  s.setOflow(0); // No over flow bit at the moment
+  s.setType(miss_etx_or_ety);
   return s;
 }
 
@@ -117,12 +115,32 @@ void L1GctInternEtSum::setOflow(uint8_t oflow) {
 }
 
 /// Pretty-print operator for L1GctInternEtSum
-std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& c) {
+std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& c) 
+{
   s << "L1GctInternEtSum : ";
-  s << " mag=" << c.et();
-  if (c.oflow()) { s << "; overflow set"; }
-  s << " cap block=" << c.capBlock(); 
-  s << " index=" << c.capIndex(); 
+
+  if (c.type()==L1GctInternEtSum::jet_miss_et){
+    s << " type=jet_miss_et";
+  } else if (c.type()==L1GctInternEtSum::jet_tot_et){
+    s << " type=jet_tot_et";
+  } else if (c.type()==L1GctInternEtSum::jet_tot_ht){
+    s << " type=jet_tot_ht";
+  } else if (c.type()==L1GctInternEtSum::total_et_or_ht){
+    s << " type=total_et_or_ht";
+  } else if (c.type()==L1GctInternEtSum::miss_etx_or_ety){
+    s << " type=miss_etx_or_ety";
+  }
+
+  if (c.empty()) { 
+    s << " empty!"; 
+  } else {
+    s << " mag=" << c.et();
+    if (c.oflow()) { s << " overflow set"; }
+  }
+
+  s << " cap block=" << std::hex << c.capBlock(); 
+  s << " index=" << std::dec << c.capIndex(); 
   s << " BX=" << c.bx(); 
-  return s;
+
+  return s; 
 }

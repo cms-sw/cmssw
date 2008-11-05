@@ -58,10 +58,11 @@ bool L1GctInternEmCand::empty() const {
 // pretty print
 ostream& operator<<(ostream& s, const L1GctInternEmCand& cand) {
   s << "L1GctInternEmCand : ";
-  s << "rank=" << hex << cand.rank();
+  s << "rank=" << cand.rank();
   s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0xf) << ", phi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated();
-  s << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
+  s << " cap block=" << hex << cand.capBlock();
+  s << ", index=" << dec << cand.capIndex() << ", BX=" << cand.bx();
   return s;
 }
 
