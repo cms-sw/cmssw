@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.11 2008/07/24 13:38:22 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.12 2008/07/24 23:08:57 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TGButton.h"
 #include "TGSplitFrame.h"
 #include "TGFont.h"
+#include "TGLabel.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
@@ -45,18 +46,32 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    //This doesn't seem to do anything
    //SetCleanup(kNoCleanup);
    
-   const unsigned int kIconHeight = 14;
+   const unsigned int kIconHeight = 20;
    m_buttons = new TGHorizontalFrame(this);
    this->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandX));
+   m_label = new TGLabel(m_buttons,"");
+   m_buttons->AddFrame(m_label, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandX|kLHintsExpandY));
+   TGPictureButton* temp;
+   m_infoButton = temp = new TGPictureButton(m_buttons,infoIcon());
+   temp->SetDisabledPicture(infoDisabledIcon());
+   m_buttons->AddFrame(m_infoButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
+   m_infoButton->AllowStayDown(kTRUE);
+   m_infoButton->Connect("Pressed()","FWGUISubviewArea",this,"selectButtonDown()");
+   m_infoButton->Connect("Released()","FWGUISubviewArea",this,"selectButtonUp()");
+   m_infoButton->SetToolTipText("Edit View");
+   
    //have to stop cleanup so that we don't delete the button which was clicked to tell us to delete
    //m_buttons->SetCleanup(kNoCleanup);
-   m_swapButton= new TGPictureButton(m_buttons, swapIcon());
+   m_swapButton= temp=new TGPictureButton(m_buttons, swapIcon());
+   temp->SetDisabledPicture(swapDisabledIcon());
+
    m_swapButton->SetToolTipText("Swap to big view");
    m_swapButton->SetHeight(kIconHeight);
    m_buttons->AddFrame(m_swapButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
    m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapToBigView()");
 
-   m_undockButton = new TGPictureButton(m_buttons,undockIcon());
+   m_undockButton = temp = new TGPictureButton(m_buttons,undockIcon());
+   temp->SetDisabledPicture(undockDisabledIcon());
    m_undockButton->SetToolTipText("Undock view to own window");
    m_undockButton->SetHeight(kIconHeight);
    m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
@@ -66,24 +81,9 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    //There is a problem with undocking on OS X
    m_undockButton->SetEnabled(kFALSE);
 #endif
-   m_label = new TGTextButton(m_buttons,"");
-   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_label->GetDefaultFontStruct());
-   m_label->SetFont(gClient->GetFontPool()->GetFont(
-                                                    defaultFont->GetFontAttributes().fFamily,
-                                                    7, 
-                                                    defaultFont->GetFontAttributes().fWeight,
-                                                    defaultFont->GetFontAttributes().fSlant)->GetFontStruct()
-   );
-   //m_label->SetTextJustify(kTextCenter);
-   m_label->SetTopMargin(m_label->GetTopMargin()-1);
-   m_label->SetBottomMargin(m_label->GetBottomMargin()-1);   
-   m_label->AllowStayDown(kTRUE);
-   m_buttons->AddFrame(m_label, new TGLayoutHints(kLHintsExpandX));
-   m_label->Connect("Pressed()","FWGUISubviewArea",this,"selectButtonDown()");
-   m_label->Connect("Released()","FWGUISubviewArea",this,"selectButtonUp()");
-   m_label->SetToolTipText("Edit View");
    
-   m_closeButton = new TGPictureButton(m_buttons,closeIcon());
+   m_closeButton = temp = new TGPictureButton(m_buttons,closeIcon());
+   temp->SetDisabledPicture(closeDisabledIcon());
    m_closeButton->SetToolTipText("Close view");
    m_closeButton->SetHeight(kIconHeight);
    m_buttons->AddFrame(m_closeButton, new TGLayoutHints(kLHintsRight|kLHintsTop|kLHintsExpandY));
@@ -109,6 +109,8 @@ FWGUISubviewArea::~FWGUISubviewArea()
    m_swapButton->Disconnect("Clicked()",this,"swapToBigView()");
    m_undockButton->Disconnect("Clicked()",this,"undock()");
    m_closeButton->Disconnect("Clicked()", this,"destroy()");
+   m_infoButton->Disconnect("Pressed()",this,"selectButtonDown()");
+   m_infoButton->Disconnect("Released()",this,"selectButtonUp()");
 
    
    //delete m_swapButton;
@@ -158,7 +160,7 @@ FWGUISubviewArea::setName(const std::string& iName)
 void 
 FWGUISubviewArea::unselect()
 {
-   m_label->SetDown(kFALSE);
+   m_infoButton->SetDown(kFALSE);
 }
 
 
@@ -246,7 +248,7 @@ FWGUISubviewArea::beingDocked(TGFrame*)
 bool 
 FWGUISubviewArea::isSelected() const
 {
-   return m_label->IsDown();
+   return m_infoButton->IsDown();
 }
 
 //
@@ -262,7 +264,24 @@ FWGUISubviewArea::swapIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.gif");
+      //s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.gif");
+      s_icon = gClient->GetPicture(coreIcondir+"moveup.png");
+   }
+   return s_icon;
+}
+
+const TGPicture * 
+FWGUISubviewArea::swapDisabledIcon()
+{
+   static const TGPicture* s_icon = 0;
+   if(0== s_icon) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      //s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.gif");
+      s_icon = gClient->GetPicture(coreIcondir+"moveup-disabled.png");
    }
    return s_icon;
 }
@@ -277,10 +296,27 @@ FWGUISubviewArea::closeIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"closeView.gif");
+      //s_icon = gClient->GetPicture(coreIcondir+"closeView.gif");
+      s_icon = gClient->GetPicture(coreIcondir+"delete.png");
    }
    return s_icon;
 }
+const TGPicture * 
+FWGUISubviewArea::closeDisabledIcon()
+{
+   static const TGPicture* s_icon = 0;
+   if(0== s_icon) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      //s_icon = gClient->GetPicture(coreIcondir+"closeView.gif");
+      s_icon = gClient->GetPicture(coreIcondir+"delete-disabled.png");
+   }
+   return s_icon;
+}
+
 
 const TGPicture * 
 FWGUISubviewArea::undockIcon()
@@ -292,7 +328,54 @@ FWGUISubviewArea::undockIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"undockView.gif");
+      //s_icon = gClient->GetPicture(coreIcondir+"undockView.gif");
+      s_icon = gClient->GetPicture(coreIcondir+"expand.png");
+   }
+   return s_icon;
+}
+
+const TGPicture * 
+FWGUISubviewArea::undockDisabledIcon()
+{
+   static const TGPicture* s_icon = 0;
+   if(0== s_icon) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      //s_icon = gClient->GetPicture(coreIcondir+"undockView.gif");
+      s_icon = gClient->GetPicture(coreIcondir+"expand-disabled.png");
+   }
+   return s_icon;
+}
+
+const TGPicture * 
+FWGUISubviewArea::infoIcon()
+{
+   static const TGPicture* s_icon = 0;
+   if(0== s_icon) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      s_icon = gClient->GetPicture(coreIcondir+"info.png");
+   }
+   return s_icon;
+}
+
+const TGPicture * 
+FWGUISubviewArea::infoDisabledIcon()
+{
+   static const TGPicture* s_icon = 0;
+   if(0== s_icon) {
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+      s_icon = gClient->GetPicture(coreIcondir+"info-disabled.png");
    }
    return s_icon;
 }

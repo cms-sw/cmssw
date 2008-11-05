@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.74 2008/08/29 02:33:04 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.75 2008/09/21 13:10:00 jmuelmen Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include <sstream>
 
 #include "TGButton.h"
+#include "TGLabel.h"
 #include "TGComboBox.h"
 #include "TGTextEntry.h"
 #include "TApplication.h"
@@ -81,6 +82,7 @@
 #include "Fireworks/Core/src/FWListWidget.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
 //
 // constants, enums and typedefs
 //
@@ -543,12 +545,24 @@ FWGUIManager::createList(TGSplitFrame *p)
 {
   TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
 
+  TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-  TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
+  TGHorizontalFrame* addFrame = new TGHorizontalFrame(p,p->GetWidth(), 10);
+  TGLabel* addLabel = new TGLabel(addFrame,"List View");
+  addLabel->SetTextJustify(kTextLeft);
+
+  addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
+  FWCustomIconsButton* addDataButton = new FWCustomIconsButton(addFrame,
+                                                               gClient->GetPicture(coreIcondir+"plus-sign.png"),
+                                                               gClient->GetPicture(coreIcondir+"plus-sign-over.png"),
+                                                               gClient->GetPicture(coreIcondir+"plus-sign-disabled.png"));
+  //TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
   addDataButton->SetToolTipText("Show additional collections");
   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
-  listFrame->AddFrame(addDataButton);
+   addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
+  listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
+  
   FWListWidget* ltf = new FWListWidget(listFrame);
   listFrame->SetEditable(kFALSE);
   listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));

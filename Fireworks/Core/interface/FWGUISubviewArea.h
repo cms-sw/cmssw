@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.7 2008/07/16 03:08:54 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.8 2008/07/24 23:08:57 chrjones Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 // forward declarations
 class TGSplitFrame;
 class TGButton;
-class TGTextButton;
+class TGLabel;
 
 class FWGUISubviewArea : public TGVerticalFrame
 {
@@ -50,8 +50,13 @@ class FWGUISubviewArea : public TGVerticalFrame
       bool isSelected() const;
       // ---------- static member functions --------------------
       static const TGPicture * swapIcon();
+      static const TGPicture * swapDisabledIcon();
       static const TGPicture * undockIcon();
+      static const TGPicture * undockDisabledIcon();
       static const TGPicture * closeIcon();
+      static const TGPicture * closeDisabledIcon();
+      static const TGPicture * infoIcon();
+      static const TGPicture * infoDisabledIcon();
    
       // ---------- member functions ---------------------------
       void setName(const std::string&);
@@ -89,8 +94,9 @@ class FWGUISubviewArea : public TGVerticalFrame
       TGButton* m_swapButton;
       TGButton* m_undockButton;
       TGButton* m_closeButton;
+      TGButton* m_infoButton;
       TGCompositeFrame* m_buttons;
-      TGTextButton* m_label;
+      TGLabel* m_label;
    
       bool m_undockedSwappableView;
       bool m_undockedDestructabledView;
