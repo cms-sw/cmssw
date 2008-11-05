@@ -6,8 +6,8 @@
  *  strored in the reco::Tracks. The final result is a std::vector of Trajectories (objs of the type "Trajectory"), 
  *  which is loaded into the Event in a transient way
  *
- *  $Date: 2006/11/23 11:34:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/20 09:40:59 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
-class TrackTransformer;
+class TrackTransformerBase;
 
 class TracksToTrajectories: public edm::EDProducer{
 public:
@@ -36,7 +36,7 @@ public:
  private:
   
   edm::InputTag theTracksLabel;
-  TrackTransformer *theTrackTransformer;
+  TrackTransformerBase *theTrackTransformer;
 };
 #endif
 

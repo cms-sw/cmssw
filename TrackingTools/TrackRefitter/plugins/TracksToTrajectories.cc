@@ -1,6 +1,7 @@
 #include "TrackingTools/TrackRefitter/plugins/TracksToTrajectories.h"
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformerForGlobalCosmicMuons.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,12 +19,25 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet){
+TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet):theTrackTransformer(0){
 
   theTracksLabel = parameterSet.getParameter<InputTag>("Tracks");
 
-  theTrackTransformer = new TrackTransformer(parameterSet.getParameter<ParameterSet>("TrackTransformer"));
-  
+  ParameterSet trackTransformerParam = parameterSet.getParameter<ParameterSet>("TrackTransformer");
+
+  string type = parameterSet.getParameter<string>("Type");
+
+  if(type == "Default") theTrackTransformer = new TrackTransformer(trackTransformerParam);
+  else if(type == "GlobalCosmicMuonsForAlignment") theTrackTransformer = new TrackTransformerForGlobalCosmicMuons(trackTransformerParam);
+  else{
+    throw cms::Exception("TracksToTrajectories") 
+      <<"The selected algorithme does not exist"
+      << "\n"
+      << "Possible choices are:"
+      << "\n"
+      << "Type = [Default, GlobalCosmicMuonsForAlignment]";
+  }
+
   produces<vector<Trajectory> >("Refitted");
   produces<TrajTrackAssociationCollection>("Refitted");
 }

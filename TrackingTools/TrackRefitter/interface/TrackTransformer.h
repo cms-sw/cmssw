@@ -10,10 +10,12 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2008/11/03 18:38:05 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/03 19:51:15 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
+
+#include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
 
 #include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
 
@@ -34,7 +36,7 @@ class Propagator;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 
-class TrackTransformer{
+class TrackTransformer: public TrackTransformerBase{
 
 public:
 
@@ -47,7 +49,7 @@ public:
   // Operations
 
   /// Convert a reco::Track into Trajectory
-  std::vector<Trajectory> transform(const reco::Track&) const;
+  virtual std::vector<Trajectory> transform(const reco::Track&) const;
 
   /// Convert a reco::TrackRef into Trajectory
   std::vector<Trajectory> transform(const reco::TrackRef&) const;
@@ -64,7 +66,7 @@ public:
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
 
   /// set the services needed by the TrackTransformer
-  void setServices(const edm::EventSetup&);
+  virtual void setServices(const edm::EventSetup&);
 
   /// the refitter used to refit the reco::Track
   edm::ESHandle<TrajectoryFitter> refitter() const {return theFitter;}

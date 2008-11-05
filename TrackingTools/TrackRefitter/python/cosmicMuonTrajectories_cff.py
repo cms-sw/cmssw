@@ -14,6 +14,7 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # the propagator must be the same as the one used by the Fitter
 #
 cosmicMuons = cms.EDProducer("TracksToTrajectories",
+                             Type = cms.string("Default"),
                              Tracks = cms.InputTag("cosmicMuons"),
                              TrackTransformer = cms.PSet(DoPredictionsOnly = cms.bool(False),
                                                          Fitter = cms.string('KFFitterForRefitInsideOut'),

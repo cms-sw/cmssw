@@ -14,6 +14,7 @@ from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
 # the propagator must be the same as the one used by the Fitter
 #
 globalCosmicMuons = cms.EDProducer("TracksToTrajectories",
+                                   Type = cms.string("GlobalCosmicMuonsForAlignment"),
                                    Tracks = cms.InputTag("globalCosmicMuons"),
                                    TrackTransformer = cms.PSet(TrackerRecHitBuilder = cms.string('WithTrackAngle'),
                                                                MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
