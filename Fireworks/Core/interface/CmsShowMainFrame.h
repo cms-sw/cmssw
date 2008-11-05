@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.9 2008/08/25 00:08:28 dmytro Exp $
+// $Id: CmsShowMainFrame.h,v 1.10 2008/08/29 02:33:03 dmytro Exp $
 //
 
 // system include files
@@ -63,8 +63,6 @@ public:
    
    // ---------- member functions ---------------------------
    void addToActionMap(CSGAction *action);
-   Bool_t activateTextButton(TGTextButton *button);
-   Bool_t activatePictureButton(TGPictureButton *button);
    Bool_t activateMenuEntry(int entry);
    Bool_t activateToolBarEntry(int entry);
    void defaultAction();
