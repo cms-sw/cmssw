@@ -22,15 +22,15 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     EtaMax = cms.double(3.0),
     EtaMin = cms.double(-3.0),
 
-    etaErrBin = cms.int32(500),
+    etaErrBin = cms.int32(100),
     etaErrMax = cms.double(0.5),
     etaErrMin = cms.double(0.0),
 
-    pErrBin = cms.int32(1000),
+    pErrBin = cms.int32(100),
     pErrMax = cms.double(1000.0),
     pErrMin = cms.double(-1000.0),
 
-    phiErrBin = cms.int32(500),
+    phiErrBin = cms.int32(100),
     phiErrMax = cms.double(0.5),
     phiErrMin = cms.double(0.0),
 
@@ -38,19 +38,19 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     PhiMax = cms.double(3.2),
     PhiMin = cms.double(-3.2),
     
-    ptErrBin = cms.int32(500),
+    ptErrBin = cms.int32(100),
     ptErrMax = cms.double(1000.0),
     ptErrMin = cms.double(0.0),
     
-    pxErrBin = cms.int32(1000),
+    pxErrBin = cms.int32(100),
     pxErrMax = cms.double(1000.0),
     pxErrMin = cms.double(-1000.0),
     
-    pyErrBin = cms.int32(1000),
+    pyErrBin = cms.int32(100),
     pyErrMax = cms.double(1000.0),
     pyErrMin = cms.double(-1000.0),
     
-    pzErrBin = cms.int32(1000),
+    pzErrBin = cms.int32(100),
     pzErrMax = cms.double(1000.0),
     pzErrMin = cms.double(-1000.0),
     
