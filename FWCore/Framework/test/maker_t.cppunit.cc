@@ -2,11 +2,7 @@
 #include <iostream>
 
 
-#include "FWCore/ParameterSet/interface/Makers.h"
-
 #include <cppunit/extensions/HelperMacros.h>
-
-using namespace edm;
 
 // ----------------------------------------------
 class testmaker: public CppUnit::TestFixture
