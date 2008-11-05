@@ -9,8 +9,6 @@
 #include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 HadronicProcessHelper::HadronicProcessHelper(const std::string & fileName){
