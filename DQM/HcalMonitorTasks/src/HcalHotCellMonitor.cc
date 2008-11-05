@@ -133,13 +133,15 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
                                      phiBins_,phiMin_,phiMax_);
       ProblemHotCells->setAxisTitle("i#eta",1);
       ProblemHotCells->setAxisTitle("i#phi",2);
-      (ProblemHotCells->getTH2F())->SetMinimum(0.);
+      
+      (ProblemHotCells->getTH2F())->SetMinimum(hotmon_minErrorFlag_);
       (ProblemHotCells->getTH2F())->SetMaximum(1.);
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_hotcells");
       setupDepthHists2D(ProblemHotCellsByDepth, " Problem Hot Cell Rate","");
-      setMinMaxHists2D(ProblemHotCellsByDepth,0.,1.);
+      
+      setMinMaxHists2D(ProblemHotCellsByDepth,hotmon_minErrorFlag_,1.); // set minimum to hotmon_minErrorFlag_?
 
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
@@ -489,7 +491,8 @@ void HcalHotCellMonitor::done()
 	      if (binval>hotmon_minErrorFlag_)
 		value=1;
 
-	      sprintf(buffer, "  %15i %15i %15i %15s %8i %10X \n",eta,phi,mydepth,subdetname,value,int(myid.rawId()));
+	      
+	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,int(value<<6),int(myid.rawId()));
 	      fOutput<<buffer;
 	    } // for (int d=0;d<6;++d) // loop over depth histograms
 	} // for (int iphi=1;iphi<=phiBins_;++iphi)

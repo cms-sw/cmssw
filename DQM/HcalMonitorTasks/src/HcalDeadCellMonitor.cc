@@ -133,12 +133,14 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
                                      phiBins_,phiMin_,phiMax_);
       ProblemDeadCells->setAxisTitle("i#eta",1);
       ProblemDeadCells->setAxisTitle("i#phi",2);
-      
+      // Only show problem cells that are above problem threshold
+      (ProblemDeadCells->getTH2F())->SetMinimum(deadmon_minErrorFlag_);
+      (ProblemDeadCells->getTH2F())->SetMaximum(1.);
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_deadcells");
       setupDepthHists2D(ProblemDeadCellsByDepth, " Problem Dead Cell Rate","");
-      setMinMaxHists2D(ProblemDeadCellsByDepth,0.,1.);
+      setMinMaxHists2D(ProblemDeadCellsByDepth,deadmon_minErrorFlag_,1.);
 
       // Set up plots for each failure mode of dead cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to setupDepthHists2D (since this also would affect the name of the histograms)
@@ -463,7 +465,7 @@ void HcalDeadCellMonitor::done()
 	      if (binval>deadmon_minErrorFlag_)
 		value=1;
 
-	      sprintf(buffer, "  %15i %15i %15i %15s %8i %10X \n",eta,phi,mydepth,subdetname,value,int(myid.rawId()));
+	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,(value<<5),int(myid.rawId()));
 	      fOutput<<buffer;
 	    } // for (int d=0;d<6;++d) // loop over depth histograms
 	} // for (int iphi=1;iphi<=phiBins_;++iphi)
