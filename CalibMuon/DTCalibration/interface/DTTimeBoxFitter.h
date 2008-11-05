@@ -5,8 +5,8 @@
  *  Fit the rising edge of the time box with the integral
  *  of a gaussian returning the mean value and the sigma.
  *
- *  $Date: 2008/04/07 13:02:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/06/06 17:09:51 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -15,12 +15,12 @@
 
 class TH1F;
 class TFile;
-class TString;
+#include "TString.h"
 
 class DTTimeBoxFitter {
 public:
   /// Constructor
-  DTTimeBoxFitter(const TString& debugFileName = "");
+  DTTimeBoxFitter(const TString& debugFileName = TString(""));
 
   /// Destructor
   virtual ~DTTimeBoxFitter();
