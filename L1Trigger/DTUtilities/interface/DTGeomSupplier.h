@@ -4,8 +4,8 @@
  *   Defines the ability to calculate coordinates 
  *   of L1DT Trigger objects
  *
- *   $Date: 2007/03/09 15:17:45 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/09/05 15:52:40 $
+ *   $Revision: 1.4 $
  *
  *   \author C.Grandi
  */
@@ -87,13 +87,7 @@ class DTGeomSupplier {
   }
 
   /// Print a trigger-data object with also local and global position/direction
-  virtual void print(const DTTrigData* trig) const {
-    trig->print();
-    std::cout << " Local (pos)(dir): " << localPosition(trig)
-	      << localDirection(trig) << std::endl;
-    std::cout << " CMS (pos)(dir): " << CMSPosition(trig) 
-	      << CMSDirection(trig) << std::endl;
-  }    
+  virtual void print(const DTTrigData* trig) const;
 
 protected:
 
