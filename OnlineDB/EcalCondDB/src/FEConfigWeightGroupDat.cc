@@ -97,7 +97,7 @@ void FEConfigWeightGroupDat::fetchData(map< EcalLogicID, FEConfigWeightGroupDat 
   try {
 
     m_readStmt->setSQL("SELECT d.group_id, d.w0, d.w1, d.w2, d.w3, d.w4 "
-		 "FROM fe_config_weight_per_group_dat d "
+		 "FROM fe_weight_per_group_dat d "
 		 "WHERE wei_conf_id = :wei_conf_id order by d.group_id ");
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
