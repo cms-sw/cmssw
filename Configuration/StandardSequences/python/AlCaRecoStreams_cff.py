@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/09/15 14:04:34 $ by $Author: futyand $
+# last update: $Date: 2008/10/08 19:48:12 $ by $Author: futyand $
 
 # AlCaReco sequence definitions:
 
@@ -26,7 +26,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
 # ECAL Calibration
 # ECAL calibration with isol. electrons
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalElectron_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 # HCAL Calibration
 # HCAL calibration with dijets
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_cff import *
@@ -65,7 +65,7 @@ pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUp
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias)
-pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron)
+pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron*ALCARECOEcalCalElectronCalibDQM)
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
