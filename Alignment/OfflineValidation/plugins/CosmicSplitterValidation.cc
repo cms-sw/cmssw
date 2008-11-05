@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.1 2008/02/27 17:33:54 ebutz Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.1 2008/09/23 14:02:05 ntran Exp $
 //
 //
 
@@ -100,6 +100,7 @@ private:
 	bool is_gold_muon(const edm::Event& e);
 	
 	edm::InputTag tracks_;
+	bool checkIfGolden_;
 	int totalTracksToAnalyzer_;
 	int goldenCtr;
 	int twoTracksCtr;
@@ -116,6 +117,7 @@ private:
 	TH1F* h_phi;
 	TH1F* h_dxy;
 	TH1F* h_dz;
+	TH1F* h_dpt;
 	TTree* _splitterTree;
 	// tree vars
 	//int _hits1, _hits2;
@@ -123,6 +125,7 @@ private:
 	double _dcaX2, _dcaY2, _dcaZ2;
 	double _theta1, _theta2, _phi1, _phi2;
 	double _dxy, _dz, _dtheta, _dphi;
+	double _pt1, _pt2, _dpt;
 };
 
 //
@@ -137,7 +140,8 @@ private:
 // constructors and destructor
 //
 CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iConfig):
-tracks_(iConfig.getParameter<edm::InputTag>("tracks"))
+tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
+checkIfGolden_(iConfig.getParameter<bool>("checkIfGolden"))
 {
 	
 }
@@ -156,7 +160,8 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 {
 
 	// check if golden muon
-	bool isGolden = is_gold_muon( iEvent );
+	bool isGolden = true;
+	if (checkIfGolden_) isGolden = is_gold_muon( iEvent );
 	//if (isGolden) std::cout << "FOUND A GOLDEN MUON EVENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 	
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
@@ -177,17 +182,22 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 		
 		// find dca
 		// track1
-		reco::TransientTrack tt1( track1, theMagField.product() );//, theGeometry);
-		FreeTrajectoryState fts1 = tt1.initialFreeState();
-		TSCPBuilderNoMaterial tscpBuilder1;
-		TrajectoryStateClosestToPoint tsAtClosestApproach1 = tscpBuilder1(fts1,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
-		GlobalPoint dca1 = tsAtClosestApproach1.theState().position();
+		//reco::TransientTrack tt1( track1, theMagField.product() );//, theGeometry);
+		//FreeTrajectoryState fts1 = tt1.initialFreeState();
+		//TSCPBuilderNoMaterial tscpBuilder1;
+		//TrajectoryStateClosestToPoint tsAtClosestApproach1 = tscpBuilder1(fts1,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
+		//GlobalPoint dca1 = tsAtClosestApproach1.theState().position();
+		math::XYZPoint dca1 = track1.referencePoint();
+		//std::cout << "analyzer: reference point1: " << refPoint1 << ", ref point the long way: " << dca1 << std::endl;
 		// track2
-		reco::TransientTrack tt2( track2, theMagField.product() );//, theGeometry);
-		FreeTrajectoryState fts2 = tt2.initialFreeState();
-		TSCPBuilderNoMaterial tscpBuilder2;
-		TrajectoryStateClosestToPoint tsAtClosestApproach2 = tscpBuilder2(fts2,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
-		GlobalPoint dca2 = tsAtClosestApproach2.theState().position();
+		//reco::TransientTrack tt2( track2, theMagField.product() );//, theGeometry);
+		//FreeTrajectoryState fts2 = tt2.initialFreeState();
+		//TSCPBuilderNoMaterial tscpBuilder2;
+		//TrajectoryStateClosestToPoint tsAtClosestApproach2 = tscpBuilder2(fts2,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
+		//GlobalPoint dca2 = tsAtClosestApproach2.theState().position();
+		math::XYZPoint dca2 = track2.referencePoint();
+		//std::cout << "analyzer: reference point2: " << refPoint2 << ", ref point the long way: " << dca2 << std::endl;
+
 		
 		double dtheta_Val = track1.theta() - track2.theta();
 		double dphi_Val = track1.phi() - track2.phi();
@@ -195,13 +205,16 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 		//double dxy2 = sqrt( dca1.x()*dca1.x() + dca2.y()*dca2.y() );
 		//double dxy_Val = dxy1 - dxy2;
 		double dxy_Val = track1.d0() - track2.d0();
-		double dz_Val = dca1.z() - dca2.z();
+		//double dz_Val = dca1.z() - dca2.z();
+		double dz_Val = track1.dz() - track2.dz();
+		double dpt_Val = track1.pt() - track2.pt();
 		
 		// fill histos
 		h_theta->Fill( dtheta_Val );
 		h_phi->Fill( dphi_Val );
 		h_dxy->Fill( dxy_Val );
 		h_dz->Fill( dz_Val );
+		h_dpt->Fill( dpt_Val );
 		
 		// fill tree
 		//int _hits1, _hits2;
@@ -219,6 +232,9 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 		_dz = dz_Val;
 		_dtheta = dtheta_Val;
 		_dphi = dphi_Val;
+		_pt1 = track1.pt();
+		_pt2 = track2.pt();
+		_dpt = dpt_Val;
 		_splitterTree->Fill();
 	}
 	
@@ -234,6 +250,7 @@ void CosmicSplitterValidation::beginJob(const edm::EventSetup& iSetup)
 	h_phi = tfile->make<TH1F>("h_phi","#Delta #phi",400,-0.2,0.2);
 	h_dxy = tfile->make<TH1F>("h_dxy", "#Delta dxy", 400, -2, 2);
 	h_dz = tfile->make<TH1F>("h_dz", "#Delta dz", 400, -50, 50);
+	h_dpt = tfile->make<TH1F>("h_dpt", "#Delta pt", 400, -20, 20);
 	
 	_splitterTree = tfile->make<TTree>("splitterTree","splitterTree");
 	//_splitterTree->Branch("hits1", &_hits1, "hits1/I");
@@ -252,7 +269,9 @@ void CosmicSplitterValidation::beginJob(const edm::EventSetup& iSetup)
 	_splitterTree->Branch("dz", &_dz, "dz/D");
 	_splitterTree->Branch("dphi", &_dphi, "dphi/D");
 	_splitterTree->Branch("dtheta", &_dtheta, "dtheta/D");
-	
+	_splitterTree->Branch("pt1", &_pt1, "pt1/D");
+	_splitterTree->Branch("pt2", &_pt2, "pt2/D");
+	_splitterTree->Branch("dpt", &_dpt, "dpt/D");
 	
 	
 	totalTracksToAnalyzer_ = 0;
