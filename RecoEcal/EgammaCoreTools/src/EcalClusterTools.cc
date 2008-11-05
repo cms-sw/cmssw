@@ -115,8 +115,10 @@ float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHi
         energies.push_back( matrixEnergy( cluster, recHits, topology, id, -1, 0,  0, 1 ) );
         energies.push_back( matrixEnergy( cluster, recHits, topology, id,  0, 1,  0, 1 ) );
         energies.push_back( matrixEnergy( cluster, recHits, topology, id,  0, 1, -1, 0 ) );
-        energies.sort();
-        return *--energies.end();
+
+
+	return *std::max_element(energies.begin(),energies.end());
+      
 }
 
 
@@ -129,8 +131,7 @@ float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHi
         energies.push_back( matrixEnergy( cluster, recHits, topology, id,  0, 1, -1, 1 ) );
         energies.push_back( matrixEnergy( cluster, recHits, topology, id, -1, 1,  0, 1 ) );
         energies.push_back( matrixEnergy( cluster, recHits, topology, id, -1, 0, -1, 1 ) );
-        energies.sort();
-        return *--energies.end();
+       	return *std::max_element(energies.begin(),energies.end());
 }
 
 
@@ -151,8 +152,7 @@ float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHi
         energies.push_back( matrixEnergy( cluster, recHits, topology, id, -2, 1, -2, 1 ) );
         energies.push_back( matrixEnergy( cluster, recHits, topology, id, -2, 1, -1, 2 ) );
         energies.push_back( matrixEnergy( cluster, recHits, topology, id, -1, 2, -1, 2 ) );
-        energies.sort();
-        return *--energies.end();
+       	return *std::max_element(energies.begin(),energies.end());
 }
 
 
@@ -180,8 +180,7 @@ float EcalClusterTools::e2nd( const reco::BasicCluster &cluster, const EcalRecHi
         for ( size_t i = 0; i < v_id.size(); ++i ) {
                 energies.push_back( recHitEnergy( v_id[i], recHits ) );
         }
-        energies.sort();
-        return *--(--energies.end());
+       	return *std::max_element(energies.begin(),energies.end());
 }
 
 
