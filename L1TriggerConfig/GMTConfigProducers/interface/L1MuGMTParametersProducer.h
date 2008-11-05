@@ -4,8 +4,8 @@
 //
 //   Description:  A class to produce the L1 GMT emulator parameters in the event setup
 //
-//   $Date: $
-//   $Revision: $
+//   $Date$
+//   $Revision$
 //
 //   Author :
 //   I. Mikulec
@@ -26,6 +26,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
 
 
 //
@@ -38,6 +40,7 @@ public:
   ~L1MuGMTParametersProducer();
   
   std::auto_ptr<L1MuGMTParameters> produceL1MuGMTParameters(const L1MuGMTParametersRcd&);
+  std::auto_ptr<L1MuGMTChannelMask> produceL1MuGMTChannelMask(const L1MuGMTChannelMaskRcd&);
 
 private:
   // ----------member data ---------------------------

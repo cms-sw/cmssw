@@ -18,6 +18,7 @@ L1MuGMTParametersProducer::L1MuGMTParametersProducer(const edm::ParameterSet& ps
  
   m_ps = new edm::ParameterSet(ps);
   setWhatProduced(this, &L1MuGMTParametersProducer::produceL1MuGMTParameters);
+  setWhatProduced(this, &L1MuGMTParametersProducer::produceL1MuGMTChannelMask);
   
 }
 
@@ -29,7 +30,7 @@ L1MuGMTParametersProducer::~L1MuGMTParametersProducer() {}
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
+// ------------ methods called to produce the data  ------------
 std::auto_ptr<L1MuGMTParameters> 
 L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& iRecord)
 {
@@ -80,6 +81,18 @@ L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& 
   gmtparams->setVersionSortRankEtaQLUT(m_ps->getParameter<unsigned>("VersionSortRankEtaQLUT"));
 
   return gmtparams ;
+}
+
+std::auto_ptr<L1MuGMTChannelMask> 
+L1MuGMTParametersProducer::produceL1MuGMTChannelMask(const L1MuGMTChannelMaskRcd& iRecord)
+{
+  using namespace edm::es;
+
+  std::auto_ptr<L1MuGMTChannelMask> gmtchanmask = std::auto_ptr<L1MuGMTChannelMask>( new L1MuGMTChannelMask() );
+
+  gmtchanmask->setSubsystemMask(m_ps->getParameter<unsigned>("SubsystemMask"));
+
+  return gmtchanmask ;
 }
 
 
