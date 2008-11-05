@@ -428,7 +428,7 @@ class dbsBaseGui:
                                    x.Helpwin(temptext,usetext=1,title="About this program..."))
         self.aboutmenu.add_command(label="Help",
                                    command = lambda x=helpfunctions:
-                                   x.Helpwin("%s"%os.path.join(self.basedir,dqmdbs_instructions.txt),title="Basic instructions for the user"))
+                                   x.Helpwin("%s"%os.path.join(self.basedir,"dqmdbs_instructions.txt"),title="Basic instructions for the user"))
         self.BAbout['menu']=self.aboutmenu
 
 
