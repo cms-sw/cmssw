@@ -6,7 +6,8 @@
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std; 
@@ -240,7 +241,9 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       
       // If there are matches, reject the worst track
       bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
-      bool tracksMatch = (((*iter)->muonTrack() == (*jter)->muonTrack() ) || ((*iter)->trackerTrack() == (*jter)->trackerTrack()));
+      bool tracksMatch = 
+      ( ( (*iter)->trackerTrack() == (*jter)->trackerTrack() ) && 
+        ( deltaR<double>((*iter)->muonTrack()->eta(),(*iter)->muonTrack()->phi(), (*jter)->muonTrack()->eta(),(*jter)->muonTrack()->phi()) < 0.2) );
 
       if ( ( tracksMatch ) || (hitsMatch > 0) || directionMatch ) {
 	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
