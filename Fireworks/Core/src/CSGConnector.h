@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:16:04 CDT 2008
-// $Id$
+// $Id: CSGConnector.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -35,8 +35,6 @@ public:
    //virtual ~CSGConnector();
    
    // ---------- member functions ---------------------------
-   void handleTextButton();
-   void handlePictureButton();
    void handleMenu(Int_t entry);
    void handleToolBar(Int_t entry);
    ClassDef(CSGConnector,0);

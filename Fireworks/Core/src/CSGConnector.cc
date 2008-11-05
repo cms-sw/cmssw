@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:15 CDT 2008
-// $Id$
+// $Id: CSGConnector.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -59,14 +59,6 @@ ClassImp(CSGConnector)
 //
 // member functions
 //
-void CSGConnector::handleTextButton() {
-   m_frame->activateTextButton(m_action->getTextButton());
-}
-
-void CSGConnector::handlePictureButton() {
-   m_frame->activatePictureButton(m_action->getPictureButton());
-}
-
 void CSGConnector::handleMenu(Int_t entry) {
    m_frame->activateMenuEntry(entry);
 }
