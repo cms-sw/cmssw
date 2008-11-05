@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.4 2008/07/30 15:40:53 chrjones Exp $
+// $Id: CSGAction.h,v 1.5 2008/08/25 00:08:28 dmytro Exp $
 //
 
 // system include files
 #include <string>
+#include <vector>
 #include <sigc++/sigc++.h>
 #include <TGFrame.h>
 #include <TGButton.h>
@@ -36,6 +37,7 @@ class TString;
 
 class TGTextEntry;
 class TGNumberEntryField;
+class FWCustomIconsButton;
 
 class CSGAction : public sigc::trackable {
 
@@ -47,10 +49,8 @@ public:
    const std::string& getName() const;
    const std::string& getToolTip() const;
    TString getSCCombo() const;
-   TGTextButton *getTextButton() const;
    TGTextEntry  *getTextEntry() const { return m_textEntry; }
    TGNumberEntryField *getNumberEntry() const { return m_numberEntry; }
-   TGPictureButton *getPictureButton() const;
    Int_t getKeycode() const;
    Int_t getModcode() const;
    TGPopupMenu *getMenu() const;
@@ -69,6 +69,14 @@ public:
    void createTextEntry(TGCompositeFrame* p, TGLayoutHints* l = 0, const char* text = 0, Int_t id = -1);
    void createNumberEntry(TGCompositeFrame* p,  bool intType, TGLayoutHints* l = 0, Int_t id = -1); 
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
+   FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
+                                const TGPicture* upPic,
+                                const TGPicture* downPic,
+                                const TGPicture* disabledPic,
+                                TGLayoutHints* l = 0,
+                                Int_t id = -1,
+                                GContext_t norm = TGButton::GetDefaultGC()(),
+                                UInt_t option = 0);
    void createShortcut(UInt_t key, const char *mod);
    void createMenuEntry(TGPopupMenu *menu);
    void createToolBarEntry(TGToolBar *toolbar, const char *filename);
@@ -97,8 +105,7 @@ private:
    std::string m_name;
    std::string m_toolTip;
    TString m_scCombo;
-   TGTextButton *m_textButton;
-   TGPictureButton *m_picButton;
+   std::vector<TGButton*> m_buttons;
    Int_t m_keycode;
    Int_t m_modcode;
    TGPopupMenu *m_menu;
