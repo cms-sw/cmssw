@@ -78,20 +78,13 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
   allLayersWithHits.clear();
   LogDebug("CosmicSeedFinder") <<"Reconstruction for geometry  "<<_geometry;
   if (_geometry=="STANDARD"  || _geometry=="TECPAIRS_TOBTRIPLETS"){
-    rphi_range1=collrphi.get(acc.stripTOBLayer(4));
-    rphi_range2=collrphi.get(acc.stripTOBLayer(5));
-    rphi_range3=collrphi.get(acc.stripTOBLayer(6));
-    
     const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[10]);
     const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[11]);
     const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[12]);
-    
-  
-
     //   //LayersWithHits
-    lh1=new  LayerWithHits(bl1,rphi_range1);   allLayersWithHits.push_back(lh1);
-    lh2=new  LayerWithHits(bl2,rphi_range2);   allLayersWithHits.push_back(lh2);
-    lh3=new  LayerWithHits(bl3,rphi_range3);   allLayersWithHits.push_back(lh3);
+    lh1=new  LayerWithHits(bl1,collrphi,acc.stripTOBLayer(4));   allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,collrphi,acc.stripTOBLayer(5));   allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,collrphi,acc.stripTOBLayer(6));   allLayersWithHits.push_back(lh3);
   }
   if(_geometry=="MTCC"){ 
 
@@ -99,14 +92,10 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
     const TIBLayer*  bl2=dynamic_cast<TIBLayer*>(bl[1]);
     const TOBLayer*  bl3=dynamic_cast<TOBLayer*>(bl[2]);
     const TOBLayer*  bl4=dynamic_cast<TOBLayer*>(bl[3]);
-    rphi_range1=collrphi.get(acc.stripTIBLayer(1));
-    rphi_range2=collrphi.get(acc.stripTIBLayer(2));
-    rphi_range3=collrphi.get(acc.stripTOBLayer(1));
-    rphi_range4=collrphi.get(acc.stripTOBLayer(2));
 
-    lh1=new  LayerWithHits(bl1,rphi_range1); allLayersWithHits.push_back(lh1);
-    lh2=new  LayerWithHits(bl2,rphi_range2); allLayersWithHits.push_back(lh2);
-    lh3=new  LayerWithHits(bl3,rphi_range3); allLayersWithHits.push_back(lh3);
-    lh4=new  LayerWithHits(bl4,rphi_range4); allLayersWithHits.push_back(lh4);
+    lh1=new  LayerWithHits(bl1,collrphi,acc.stripTIBLayer(1)); allLayersWithHits.push_back(lh1);
+    lh2=new  LayerWithHits(bl2,collrphi,acc.stripTIBLayer(2)); allLayersWithHits.push_back(lh2);
+    lh3=new  LayerWithHits(bl3,collrphi,acc.stripTOBLayer(1)); allLayersWithHits.push_back(lh3);
+    lh4=new  LayerWithHits(bl4,collrphi,acc.stripTOBLayer(2)); allLayersWithHits.push_back(lh4);
   }
 }

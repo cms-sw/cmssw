@@ -39,17 +39,6 @@ private:
   //definition of the map 
  
 
-  SiStripRecHit2DCollection::range rphi_range1;
-  SiStripRecHit2DCollection::range rphi_range2;
-  SiStripRecHit2DCollection::range rphi_range3;
-  SiStripRecHit2DCollection::range rphi_range4;
-
-  SiStripRecHit2DCollection::range stereo_range1;
-  SiStripRecHit2DCollection::range stereo_range2;
-  SiStripRecHit2DCollection::range stereo_range3;
-
-  SiStripMatchedRecHit2DCollection::range match_range1;
-  SiStripMatchedRecHit2DCollection::range match_range2;
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
