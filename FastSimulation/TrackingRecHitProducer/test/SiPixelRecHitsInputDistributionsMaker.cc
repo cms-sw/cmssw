@@ -306,11 +306,13 @@ void SiPixelRecHitsInputDistributionsMaker::analyze(const edm::Event& e, const e
       if (! ((subid==1) || (subid==2))) continue;
       
       const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId) );
-      
-      SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(detId);
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-      SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+     
+      SiPixelRecHitCollection::const_iterator pixelrechitMatch = recHitColl->find(detId);
+      if (pixelrechitMatch == recHitColl->end()) continue; 
+      SiPixelRecHitCollection::DetSet pixelrechitRange = *pixelrechitMatch;
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
+      SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
       std::vector<PSimHit> matched;
       
       //----Loop over rechits for this detId
