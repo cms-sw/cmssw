@@ -11,9 +11,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "TFile.h"
-#include "TH2F.h"
+#include "TString.h"
 #include "TObjArray.h"
+#include "TFile.h"
 
 
 class SiPixelHistoricInfoReader : public edm::EDAnalyzer {
@@ -30,21 +30,28 @@ public:
   virtual void endJob(); 
   
   std::string getMEregionString(uint32_t) const; 
-  void fillDebugHistogram(TString, float, float); 
+  void plot(); 
   
 private:
   edm::ParameterSet parameterSet_;
   
   bool firstBeginRun_; 
   bool printDebug_;
-  bool normEvents_; 
-  bool variable_[10]; 
+
+  bool variable_[15]; 
   std::vector<std::string> variables_; 
+
   std::vector<uint32_t> allDetIds; 
-  std::string outputFile_; 
-  TFile* outputFile; 
-  TObjArray* AllDetHistograms; 
   TString hisID, title; 
+  TObjArray* AllDetHistograms; 
+
+  bool normEvents_; 
+
+  bool makePlots_;
+  std::string typePlots_;
+  std::string outputDir_; 
+  std::string outputFile_; 
+  TFile* outputDirFile_; 
 };
 
 #endif
