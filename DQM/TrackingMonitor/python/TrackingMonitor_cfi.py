@@ -16,7 +16,7 @@ TrackMon = cms.EDFilter("TrackingMonitor",
 
     MeasurementState = cms.string('default'),
 
-    doTrackingSpecific = cms.bool(False),
+    doTrackerSpecific = cms.bool(False),
                         
     TkSizeBin = cms.int32(500),
     TkSizeMin = cms.double(-0.5),

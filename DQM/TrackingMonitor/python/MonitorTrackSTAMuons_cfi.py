@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # MonitorTrackGlobal
 MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     OutputMEsInRootFile = cms.bool(False),
-    doTrackingSpecific = cms.bool(False),
+    doTrackerSpecific = cms.bool(False),
     phiErrMax = cms.double(1.0),
     MeasurementState = cms.string('default'),
     etaErrMax = cms.double(0.5),
