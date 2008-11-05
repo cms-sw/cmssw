@@ -1,51 +1,74 @@
 import FWCore.ParameterSet.Config as cms
 
-wbb_me_flavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
+# NOTE:
+# Types are:
+# 3 = matrix element
+# 2 = flavor excitation
+# 1 = gluon splitting
+# 0 = none
+#-1 = any
+
+wbbMEFlavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
                                         src = cms.InputTag("bFlavorHistoryProducer", "bPartonFlavorHistory"),
                                         jets = cms.InputTag("iterativeCone5GenJets"),
-                                        type = cms.int32(3), # only look at matrix element products
-                                        minPt = cms.double(20.0),
+                                        type = cms.int32(3),
+                                        matchDR = cms.double(0.5),
+                                        minPt = cms.double(-1.0),
                                         minDR = cms.double(0.5),
+                                        maxDR = cms.double(99999.0),
                                         scheme = cms.string("deltaR"),
+       					requireSisters = cms.bool(True),
                                         verbose = cms.bool(False)
                                         )
 
-wbb_gs_flavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
+wbbGSFlavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
                                         src = cms.InputTag("bFlavorHistoryProducer", "bPartonFlavorHistory"),
                                         jets = cms.InputTag("iterativeCone5GenJets"),
-                                        type = cms.int32(1), # only look at gluon splitting products
-                                        minPt = cms.double(20.0),
-                                        minDR = cms.double(0.5),
+                                        type = cms.int32(1),
+                                        matchDR = cms.double(0.5),
+                                        minPt = cms.double(-1.0),
+                                        minDR = cms.double(0.0),
+                                        maxDR = cms.double(0.5),
                                         scheme = cms.string("deltaR"),
+       					requireSisters = cms.bool(True),
                                         verbose = cms.bool(False)
                                         )
 
-wcc_me_flavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
+wccMEFlavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
                                         src = cms.InputTag("cFlavorHistoryProducer", "cPartonFlavorHistory"),
                                         jets = cms.InputTag("iterativeCone5GenJets"),
-                                        type = cms.int32(3), # only look at matrix element products
-                                        minPt = cms.double(20.0),
+                                        type = cms.int32(3),
+                                        matchDR = cms.double(0.5),
+                                        minPt = cms.double(-1.0),
                                         minDR = cms.double(0.5),
+                                        maxDR = cms.double(99999.0),
                                         scheme = cms.string("deltaR"),
+       					requireSisters = cms.bool(True),
                                         verbose = cms.bool(False)
                                         )
 
-wcc_gs_flavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
+wccGSFlavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
                                         src = cms.InputTag("cFlavorHistoryProducer", "cPartonFlavorHistory"),
                                         jets = cms.InputTag("iterativeCone5GenJets"),
-                                        type = cms.int32(1), # only look at gluon splitting products
-                                        minPt = cms.double(20.0),
-                                        minDR = cms.double(0.5),
+                                        type = cms.int32(1),
+                                        matchDR = cms.double(0.5),
+                                        minPt = cms.double(-1.0),
+                                        minDR = cms.double(0.0),
+                                        maxDR = cms.double(0.5),
                                         scheme = cms.string("deltaR"),
+       					requireSisters = cms.bool(True),
                                         verbose = cms.bool(False)
                                         )
 
-wc_fe_flavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
+wcFEFlavorHistoryFilter = cms.EDFilter("FlavorHistoryFilter",
                                         src = cms.InputTag("cFlavorHistoryProducer", "cPartonFlavorHistory"),
                                         jets = cms.InputTag("iterativeCone5GenJets"),
-                                        type = cms.int32(2), # only look at flavor excitation products
-                                        minPt = cms.double(20.0),
-                                        minDR = cms.double(0.5),
+                                        type = cms.int32(2),
+                                        matchDR = cms.double(0.5),
+                                        minPt = cms.double(-1.0),
+                                        minDR = cms.double(0.0),
+                                        maxDR = cms.double(99999.0),
                                         scheme = cms.string("deltaR"),
+       					requireSisters = cms.bool(False),
                                         verbose = cms.bool(False)
                                         )

@@ -77,6 +77,8 @@ class FlavorHistoryProducer : public edm::EDProducer {
   void getAncestors(const reco::Candidate &c,
 		    std::vector<reco::Candidate const * > & moms );
 
+  reco::Candidate const * getSister(const reco::Candidate &c);
+
   
   
   edm::InputTag src_;               // source collection name 

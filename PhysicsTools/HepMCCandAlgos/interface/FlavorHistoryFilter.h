@@ -17,7 +17,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
-// $Id: FlavorHistoryFilter.h,v 1.1 2008/07/02 03:52:04 srappocc Exp $
+// $Id: FlavorHistoryFilter.h,v 1.2 2008/07/29 17:36:05 srappocc Exp $
 //
 //
 
@@ -55,10 +55,14 @@ class FlavorHistoryFilter : public edm::EDFilter {
       // ----------member data ---------------------------
       edm::InputTag   src_;            // Input flavor history collection name
       edm::InputTag   jets_;           // Jet collection to match to
-      int             type_;           // Returns "true" if FlavorHistory::flavorSource == type
+      int             type_;           // Returns "true" only if FlavorHistory::flavorSource == type
+      int             nmatched_;       // Returns "true" only if number of partons matched == nmatched
+      double          matchDR_;        // Delta R between gen partons and gen jets
       double          minPt_;          // For pt scheme
       double          minDR_;          // For deltaR scheme
+      double          maxDR_;          // For deltaR scheme
       std::string     scheme_;         // Which scheme to use
+      bool            requireSisters_; // Require sisters to exist to pass
       bool            verbose_;        // verbosity
 
       reco::GenJetCollection::const_iterator
