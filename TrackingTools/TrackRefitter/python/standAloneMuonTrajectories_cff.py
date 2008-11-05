@@ -24,7 +24,7 @@ standAloneMuons = cms.EDProducer("TracksToTrajectories",
                                                              MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
                                                              RefitDirection = cms.string('alongMomentum'),
                                                              RefitRPCHits = cms.bool(True),
-                                                             Propagator = cms.string('SmartPropagatorAnyRK')
+                                                             Propagator = cms.string('SmartPropagatorAnyRKOpposite')
                                                              )
                                  )
 
