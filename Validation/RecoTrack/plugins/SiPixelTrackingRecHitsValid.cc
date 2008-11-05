@@ -130,7 +130,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 
   // Book histograms
   dbe_ = Service<DQMStore>().operator->();
-  //  dbe_->showDirStructure();
+  dbe_->showDirStructure();
 
   //float math_pi = 3.14159265;
   //float radtodeg = 180.0 / math_pi;
@@ -1114,11 +1114,14 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  unsigned int subid = detId.subdetId();
 	  if ( !((subid==1) || (subid==2)) ) 
 	    continue; // end subid if
-	  
-	  SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(detId);
-	  SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-	  SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-	  SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+
+          SiPixelRecHitCollection::const_iterator match = recHitColl->find(detId);
+          if (match == recHitColl->end()) continue;
+
+          SiPixelRecHitCollection::DetSet pixelrechitRange = *match;
+          SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+          SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
+          SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
 	  std::vector<PSimHit> matched;
 	  
 	  //----Loop over rechits for this detId
