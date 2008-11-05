@@ -94,6 +94,9 @@ class CosmicTrackSplitter : public edm::EDProducer {
        bool stripFrontInvalidHits_;
        bool stripBackInvalidHits_;
        bool stripAllInvalidHits_;
+	
+	double dZcut_;
+	double dXYcut_;
 
        std::vector<uint32_t> detsToIgnore_;
 
@@ -112,7 +115,9 @@ CosmicTrackSplitter::CosmicTrackSplitter(const edm::ParameterSet &iConfig) :
     stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
     stripBackInvalidHits_( iConfig.getParameter<bool>("stripBackInvalidHits") ),
     stripAllInvalidHits_(  iConfig.getParameter<bool>("stripAllInvalidHits")  ),
-    detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") )
+    detsToIgnore_( iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore") ),
+	dZcut_(iConfig.getParameter<double>("dzCut") ),
+	dXYcut_(iConfig.getParameter<double>("dxyCut") )
 {
     // sanity check 
     if (stripAllInvalidHits_ && replaceWithInactiveHits_) {
@@ -131,8 +136,7 @@ CosmicTrackSplitter::CosmicTrackSplitter(const edm::ParameterSet &iConfig) :
 void 
 CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 {
-	std::cout << "Entering Producer" << std::endl;
-	
+		
     // read with View, so we can read also a TrackRefVector
     edm::Handle<std::vector<reco::Track> > tracks;
     iEvent.getByLabel(tracks_, tracks);
@@ -153,23 +157,45 @@ CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
     // loop on tracks
     for (std::vector<reco::Track>::const_iterator itt = tracks->begin(), edt = tracks->end(); itt != edt; ++itt) {
         hits.clear(); // extra safety
+
 		// try to find distance of closest approach
+		math::XYZPoint refPoint = itt->referencePoint();
+		GlobalPoint v( itt->vx(), itt->vy(), itt->vz() );
 		
-		reco::TransientTrack tt( *(itt), theMagField.product() );//, theGeometry);
-		FreeTrajectoryState fts = tt.initialFreeState();
-		TSCPBuilderNoMaterial tscpBuilder;
-		TrajectoryStateClosestToPoint tsAtClosestApproach     = tscpBuilder(fts,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
-		GlobalPoint v = tsAtClosestApproach.theState().position();
-		GlobalVector p = tsAtClosestApproach.theState().momentum();
-		//std::cout << "DCA: " << v << std::endl;
+		//checks on impact parameter
+		bool continueWithTrack = true;
+		if (fabs(v.z()) > dZcut_) continueWithTrack = false;
+		if (v.perp() > dXYcut_) continueWithTrack = false;
+		if (continueWithTrack == false) return;
 		
+				
+		// Loop once to see where to split the track along
+		int splitCtr = 0;
+		int theHitToSplitFrom = 0;
+		double closestDistToPCA = 1.0e10;
+		for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
+			splitCtr++;
+			const TrackingRecHit * hit = ith->get();
+			DetId detid = hit->geographicalId();
+			GlobalPoint posHit =  theGeometry->idToDetUnit( detid )->surface().toGlobal(hit->localPosition());
+			GlobalVector diffHitandPCA = posHit - v;
+			if (diffHitandPCA.mag() < closestDistToPCA){ 
+				closestDistToPCA = diffHitandPCA.mag(); 
+			}
+			else { 
+				theHitToSplitFrom = splitCtr - 1;
+				break;
+			}
+		}
 		
 		// LOOP TWICE, ONCE FOR TOP AND ONCE FOR BOTTOM
 		for (int i = 0; i < 2; ++i){
 			hits.clear(); // extra safety
 			int usedHitCtr = 0;
 			//std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
+			int hitCtr = 0;
 			for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
+				hitCtr++;
 				const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
 				//std::cout << "         hit number " << (ith - itt->recHitsBegin()) << std::endl;
 				// let's look at valid hits
@@ -188,14 +214,14 @@ CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 						//std::cout << "hit pos: " << pos << ", dca pos: " << v << std::endl;
 						
 						// top half
-						if ((i == 0)&&(pos.y() < v.y())){
-						//if ((i == 0)&&(pos.y() < 0)){
+						//if ((i == 0)&&(pos.y() < v.y())){
+						if ((i == 0)&&(hitCtr > theHitToSplitFrom)){
 							verdict = false;
 							//std::cout << "tophalf" << std::endl;
 						}
 						// bottom half
-						if ((i == 1)&&(pos.y() >= v.y())){
-						//if ((i == 1)&&(pos.y() >= 0)){
+						//if ((i == 1)&&(pos.y() >= v.y())){
+						if ((i == 1)&&(hitCtr <= theHitToSplitFrom)){
 							verdict = false;
 							//std::cout << "bottomhalf" << std::endl;
 						}
@@ -261,7 +287,7 @@ CosmicTrackSplitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 			for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
 				if (*begin) delete *begin;
 			} 
-			std::cout << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits..." << std::endl;
+			//std::cout << "loop: " << i << " has " << usedHitCtr << " active hits and " << hits.size() << " total hits..." << std::endl;
 			hits.clear();
 		} // loop twice for top and bottom
     } // loop on tracks
