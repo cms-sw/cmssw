@@ -290,10 +290,13 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
     {
       DetId detId = ((*it)->geographicalId());
       
-      SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(detId);
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-      SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+      SiPixelRecHitCollection::const_iterator dsmatch = recHitColl->find(detId);
+      if (dsmatch == recHitColl->end()) continue;
+
+      SiPixelRecHitCollection::DetSet pixelrechitRange = *dsmatch;
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
+      SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
       std::vector<PSimHit> matched;
       
       //----Loop over rechits for this detId

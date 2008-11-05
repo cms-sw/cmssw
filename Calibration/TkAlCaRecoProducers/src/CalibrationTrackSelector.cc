@@ -314,8 +314,8 @@ bool CalibrationTrackSelector::isIsolated(const TrackingRecHit* therechit, const
   evt.getByLabel( rphirecHitsTag_, rphirecHits );
   evt.getByLabel( matchedrecHitsTag_, matchedrecHits ); 
 
-  SiStripRecHit2DCollection::const_iterator istripSt; 
-  SiStripMatchedRecHit2DCollection::const_iterator istripStm; 
+  SiStripRecHit2DCollection::DataContainer::const_iterator istripSt; 
+  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripStm; 
   const SiStripRecHit2DCollection& stripcollSt = *rphirecHits;
   const SiStripMatchedRecHit2DCollection& stripcollStm = *matchedrecHits;
   
@@ -324,7 +324,7 @@ bool CalibrationTrackSelector::isIsolated(const TrackingRecHit* therechit, const
   // FIXME: instead of looping the full hit collection, we should explore the features of 
   // SiStripRecHit2DCollection::rangeRphi = rphirecHits.get(idet) and loop
   // only from rangeRphi.first until rangeRphi.second
-  for( istripSt=stripcollSt.begin(); istripSt!=stripcollSt.end(); ++istripSt ) {
+  for( istripSt=stripcollSt.data().begin(); istripSt!=stripcollSt.data().end(); ++istripSt ) {
     const SiStripRecHit2D *aHit = &*(istripSt);
     DetId mydet1 = aHit->geographicalId(); 
     if (idet.rawId() != mydet1.rawId()) continue; 
@@ -334,7 +334,7 @@ bool CalibrationTrackSelector::isIsolated(const TrackingRecHit* therechit, const
   }
   
   // FIXME: see above
-  for( istripStm=stripcollStm.begin(); istripStm!=stripcollStm.end(); ++istripStm ) {
+  for( istripStm=stripcollStm.data().begin(); istripStm!=stripcollStm.data().end(); ++istripStm ) {
     const SiStripMatchedRecHit2D *aHit = &*(istripStm);
     DetId mydet2 = aHit->geographicalId(); 
     if (idet.rawId() != mydet2.rawId()) continue;
