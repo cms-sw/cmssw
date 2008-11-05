@@ -11,7 +11,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.cc,v 1.7 2008/08/14 17:25:28 jad Exp $
+// $Id: GctTimingAnalyzer.cc,v 1.8 2008/09/04 16:57:28 tapper Exp $
 //
 //
 
@@ -73,10 +73,12 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       // Internal GCT EM cands
       Handle<L1GctInternEmCandCollection> internEm; 
       iEvent.getByLabel(m_gctSource,internEm);    
-      
-      for (L1GctInternEmCandCollection::const_iterator em=internEm->begin(); em!=internEm->end(); em++){
-        if (em->rank()>0) {
-          m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+
+      if (internEm.isValid()) {
+        for (L1GctInternEmCandCollection::const_iterator em=internEm->begin(); em!=internEm->end(); em++){
+          if (em->rank()>0) {
+            m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+          }
         }
       }
     }
@@ -91,7 +93,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
   }     
-
+  
   // Jets
   if (m_doJets){
 
@@ -124,28 +126,30 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
         m_outputFile << "BX = " << dec << m_evtNum << " " << (*tj) << std::endl; 
       }
     }
-
+  
     if (m_doInternal){
 
       // Internal GCT jet cands
       Handle<L1GctInternJetDataCollection> internJets; 
       iEvent.getByLabel(m_gctSource,internJets);    
-
-      for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
-        if ((j->et()>0) || (j->rank()>0)) {
-          m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
+    
+      if (internJets.isValid()){
+        for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
+          if ((j->et()>0) || (j->rank()>0)) {
+            m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
+          }
         }
       }
     }
-
-    // RCT regions
-    Handle<L1CaloRegionCollection> rctRn; 
-    iEvent.getByLabel(m_gctSource,rctRn);    
+  }
+  
+  // RCT regions
+  Handle<L1CaloRegionCollection> rctRn; 
+  iEvent.getByLabel(m_gctSource,rctRn);    
     
-    for (L1CaloRegionCollection::const_iterator rn=rctRn->begin(); rn!=rctRn->end(); rn++){
-      if (rn->et()>0) {
-        m_outputFile << "BX = " << dec << m_evtNum << " " << (*rn) << std::endl; 
-      }
+  for (L1CaloRegionCollection::const_iterator rn=rctRn->begin(); rn!=rctRn->end(); rn++){
+    if (rn->et()>0) {
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*rn) << std::endl; 
     }
   }
 
@@ -172,6 +176,19 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
 
+    if (m_doInternal){
+      // Internal HF data
+      Handle<L1GctInternHFDataCollection> internHF;
+      iEvent.getByLabel(m_gctSource,internHF);
+      
+      if (internHF.isValid()){
+        for (L1GctInternHFDataCollection::const_iterator hf=internHF->begin(); hf!=internHF->end(); hf++){
+          if (hf->value(0) || hf->value(1) || hf->value(2) || hf->value(3)){
+            m_outputFile << "BX = " << dec << m_evtNum << " " << (*hf) << std::endl; 
+          }
+        }
+      }
+    }    
   }
 
   // HT, MET and ET
@@ -208,14 +225,15 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     if (m_doInternal){
-
       // Internal GCT Et sums
       Handle<L1GctInternEtSumCollection> Et;
       iEvent.getByLabel(m_gctSource,Et);
       
-      for (L1GctInternEtSumCollection::const_iterator e=Et->begin(); e!=Et->end(); e++){
-        if (e->et()>0){
-          m_outputFile << "BX = " << dec << m_evtNum << " " << (*e) << std::endl;
+      if (Et.isValid()){
+        for (L1GctInternEtSumCollection::const_iterator e=Et->begin(); e!=Et->end(); e++){
+          if (e->et()>0){
+            m_outputFile << "BX = " << dec << m_evtNum << " " << (*e) << std::endl;
+          }
         }
       }
     }    
