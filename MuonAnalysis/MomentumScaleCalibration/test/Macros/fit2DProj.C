@@ -1,0 +1,589 @@
+#include "TROOT.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TF1.h"
+#include "TGraphErrors.h"
+#include "TLegend.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TStyle.h"
+#include "TFile.h"
+#include "TPaveText.h"
+#include <vector>
+#include <iostream>
+#include <sstream>
+
+/// Small function to simplify the creation of text in the TPaveText
+TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0) {
+  stringstream numString;
+  TString textString(text);
+  numString << num1;
+  textString += numString.str();
+  if( num2 != 0 ) {
+    textString += divider;
+    numString.str("");
+    numString << num2;
+    textString += numString.str();
+  }
+  return textString;
+}
+
+/// This function sets up the TPaveText with chi2/ndf and parameters values +- errors
+void setTPaveText(const TF1 * fit, TPaveText * paveText) {
+  Double_t chi2 = fit->GetChisquare();
+  Int_t ndf = fit->GetNDF();
+  paveText->AddText(setText("#chi^2 / ndf = ", chi2,  " / ", ndf));
+
+  for( int iPar=0; iPar<fit->GetNpar(); ++iPar ) {
+    TString parName(fit->GetParName(iPar));
+    Double_t parValue = fit->GetParameter(iPar); // value of Nth parameter
+    Double_t parError = fit->GetParError(iPar);  // error on Nth parameter
+    paveText->AddText(setText(parName + " = ", parValue, " #pm ", parError));
+  }
+}
+
+TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, int fitType, TFile * outputFile, const double & xDisplace = 0.);
+void macroPlot(TString name);
+
+Double_t gaussian(Double_t *x, Double_t *par);
+Double_t lorentzian(Double_t *x, Double_t *par);
+Double_t lorentzianPlusLinear(Double_t *x, Double_t *par);
+
+Double_t sinusoidal(Double_t *x, Double_t *par);
+Double_t parabolic(Double_t *x, Double_t *par);
+Double_t parabolic2(Double_t *x, Double_t *par);
+Double_t onlyParabolic(Double_t *x, Double_t *par);
+Double_t linear(Double_t *x, Double_t *par);
+Double_t overX(Double_t *x, Double_t *par);
+
+TF1* gaussianFit(TH1* histoY);
+TF1* lorentzianFit(TH1* histoY);
+TF1* linLorentzianFit(TH1* histoY);
+
+void setTDRStyle();
+//
+// Gaussian function    
+// -----------------------
+Double_t gaussian(Double_t *x, Double_t *par) {
+  return par[0]*exp(-0.5*((x[0]-par[2])/par[1])*((x[0]-par[2])/par[1]));
+}
+//
+// Lorentzian function
+// -----------------------
+Double_t lorentzian(Double_t *x, Double_t *par) {
+  return (0.5*par[0]*par[1]/3.14) /
+    TMath::Max( 1.e-10,(x[0]-par[2])*(x[0]-par[2]) + .25*par[1]*par[1]);
+}
+//
+// Linear + Lorentzian function
+// -----------------------
+Double_t lorentzianPlusLinear(Double_t *x, Double_t *par) {
+  return  ((0.5*par[0]*par[1]/3.14)/
+    TMath::Max(1.e-10,((x[0]-par[2])*(x[0]-par[2])+.25*par[1]*par[1])))+par[3]+par[4]*x[0];
+}
+
+TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, int fitType, TFile * outputFile, const double & xDisplace) {
+
+  //Read the TH2 from file
+  TFile *inputFile = new TFile(path);
+  TH2 * histo = (TH2*) inputFile->Get(name);; 
+  if (rebin > 0) histo->RebinX(rebin);
+
+  //Declare some variables
+  TH1 * histoY;
+  TString nameY;
+  vector<double> Ftop;
+  vector<double> Fwidth;
+  vector<double> Fmass;
+  vector<double> Etop;
+  vector<double> Ewidth;
+  vector<double> Emass;
+  vector<double> Fchi2;
+  vector<double> Xcenter;
+  vector<double> Ex;
+
+  TFile *fileOut=new TFile("fitCompare2.root","RECREATE");
+
+  for (int i=1; i<=(histo->GetXaxis()->GetNbins());i++) {
+
+    //Project on Y (set name and title)
+    char str[100];
+    sprintf(str,"%i",i);
+    TString iS(str);
+    nameY = name + "_" + iS;
+    cout << "nameY  " << nameY << endl;
+    histoY = histo->ProjectionY(nameY, i, i);
+    //histoY->Rebin(25); //<----------------------for pt reso and Z mass
+    char title[80];
+    double x= histo->GetXaxis()->GetBinCenter(i);
+    //sprintf(title,"Projection of bin=%i",i);
+    sprintf(title,"Projection of x=%f",x);
+    histoY->SetTitle(title);
+
+    if (histoY ->GetEntries() > minEntries) {
+      //Make the dirty work!
+      TF1 *fit;
+      if(fitType == 1){
+	fit = gaussianFit(histoY);
+      }
+      else if(fitType == 2){
+	fit = lorentzianFit(histoY);
+      }
+      else if(fitType == 3)
+	fit = linLorentzianFit(histoY);
+      else {
+	cout<<"Wrong fit type: 1=gaussian, 2=lorentzian, 3=lorentzian+linear."<<endl;
+	abort();
+      }
+
+      double *par = fit->GetParameters();
+      double *err = fit->GetParErrors();
+
+      //if(par[2]>150 || par[2]<50 || err[2]>5)
+      //	continue;
+      //if(err[1]>0.005) //<----------------useful for reso pt
+      //continue;
+      //if(err[1]>0.00005) //<----------------useful for reso phi
+      //continue;
+      //if(err[2]>0.0002) //<----------------useful for reso phi
+      //continue;
+      //if(err[2]>0.5) 
+      //continue;
+
+      // Only for check
+      TCanvas *c = new TCanvas(nameY, nameY);
+
+      //histoY->GetXaxis()->SetRangeUser(80,110);
+      histoY->Draw();
+      fit->Draw("same");
+      fileOut->cd();
+      c->Write();
+
+      //Store the fit results
+      Ftop.push_back(par[0]);
+      Fwidth.push_back(fabs(par[1]));//sometimes the gaussian has negative width (checked with Rene Brun)
+      Fmass.push_back(par[2]);
+      Etop.push_back(err[0]);
+      Ewidth.push_back(err[1]);
+      Emass.push_back(err[2]);
+
+      Fchi2.push_back(fit->GetChisquare()/fit->GetNDF());
+
+      double xx= histo->GetXaxis()->GetBinCenter(i);
+      Xcenter.push_back(xx);
+      double ex = 0;
+      Ex.push_back(ex); 
+    }
+  }
+
+  fileOut->Close();
+
+  //Plots the fit results in  TGraphs
+  const int nn= Ftop.size();                   
+  double x[nn],ym[nn],e[nn],eym[nn];
+  double yw[nn],eyw[nn],yc[nn];
+
+  cout << "number of bins = " << nn << endl;
+  cout << "Values:" << endl;
+
+  for (int j=0;j<nn;j++){
+    cout << "xCenter["<<j<<"] = " << Xcenter[j] << endl;
+    x[j]=Xcenter[j]+xDisplace;
+    cout << "Fmass["<<j<<"] = " << Fmass[j] << endl;
+    ym[j]=Fmass[j];
+    cout << "Emass["<<j<<"] = " << Emass[j] << endl;
+    eym[j]=Emass[j];
+    cout << "Fwidth["<<j<<"] = " << Fwidth[j] << endl;
+    yw[j]=Fwidth[j];
+    cout << "Ewidth["<<j<<"] = " << Ewidth[j] << endl;
+    eyw[j]=Ewidth[j];
+    cout << "Fchi2["<<j<<"] = " << Fchi2[j] << endl;
+    yc[j]=Fchi2[j];
+    e[j]=0;
+  }
+
+  TGraphErrors *grM = new TGraphErrors(nn,x,ym,e,eym);
+  grM->SetTitle(name+"_M");
+  grM->SetName(name+"_M");
+  TGraphErrors *grW = new TGraphErrors(nn,x,yw,e,eyw);
+  grW->SetTitle(name+"_W");
+  grW->SetName(name+"_W");
+  TGraphErrors *grC = new TGraphErrors(nn,x,yc,e,e);
+  grC->SetTitle(name+"_chi2");
+  grC->SetName(name+"_chi2");
+
+  grM->SetMarkerColor(4);
+  grM->SetMarkerStyle(20);
+  grW->SetMarkerColor(4);
+  grW->SetMarkerStyle(20);
+  grC->SetMarkerColor(4);
+  grC->SetMarkerStyle(20);
+
+  //Draw and save the graphs
+  outputFile->cd();
+  TCanvas * c1 = new TCanvas(name+"_W",name+"_W");
+  c1->cd();
+  grW->Draw("AP");
+  c1->Write();
+  // grW->Write();
+  TCanvas * c2 = new TCanvas(name+"_M",name+"_M");
+  c2->cd();
+  grM->Draw("Ap");
+  c2->Write();
+//  grM->Write();
+  TCanvas * c3 = new TCanvas(name+"_C",name+"_C");
+  c3->cd();
+  grC->Draw("Ap");
+  c3->Write();
+//  grC->Write();
+
+//  file->Close();
+
+  //return grW;
+  cout << "grM = " << grM << endl;
+  return grM;
+}
+
+TF1* gaussianFit(TH1* histoY){
+  TString name = histoY->GetName() + TString("Fit");
+
+  // Fit slices projected along Y from bins in X 
+  //TF1 *fit = new TF1(name,gaussian,9,10,3);
+  //TF1 *fit = new TF1(name,gaussian,2,4,3);
+  TF1 *fit = new TF1(name,gaussian,60,120,3);
+  //TF1 *fit = new TF1(name,gaussian,-1,1,3);
+
+  fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
+  //fit->SetParLimits(1,0.01,1);
+  //fit->SetParLimits(2,3.09,3.15);
+//   fit->SetParLimits(1, 40, 60);
+//   fit->SetParLimits(2, 0.01, 100);
+//   fit->SetParLimits(3, 88, 92);
+  fit->SetParNames("norm","width","mean");
+  fit->SetLineWidth(2);
+
+  //histoY -> Fit(name,"0","",(histoY->GetXaxis()->GetBinCenter(histoY->GetMaximumBin()))-0.2,
+  //	(histoY->GetXaxis()->GetBinCenter(histoY->GetMaximumBin()))+0.2);
+  //histoY -> Fit(name,"0","",histoY->GetMean()-2*histoY->GetRMS(),histoY->GetMean()+2*histoY->GetRMS());
+  //histoY -> Fit(name,"0","",histoY->GetRMS(),histoY->GetRMS());
+  //histoY -> Fit(name,"0","",2.95,3.25);
+  //histoY -> Fit(name,"0","",89,95);
+  // fit->SetParameters(100,0.05,9.5);
+  //fit->SetParameters(10,0.05,3.1);
+  //fit->SetParameters(100,2,91);
+  // histoY -> Fit(name,"0","",9.2,9.8);
+  //histoY -> Fit(name,"0","",3,3.2);
+  histoY -> Fit(name,"0","",60,120);
+  //histoY -> Fit(name,"0","",-0.025,0.025);
+  //histoY -> Fit(name,"0","",-0.002,0.002); //eta,phi,cotghtheta VS phi
+  //histoY -> Fit(name,"0","",-0.004,0.004); //cotgtheta vs eta
+  return fit;
+}
+
+TF1* lorentzianFit(TH1* histoY){
+  TString name = histoY->GetName() + TString("Fit");
+
+    // Fit slices projected along Y from bins in X 
+    TF1 *fit = new TF1(name,lorentzian,9,10,3);
+  fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
+  fit->SetParNames("norm","width","mean");
+  fit->SetLineWidth(2);
+  histoY -> Fit(name,"0","",9,10);
+  return fit;
+}
+
+TF1* linLorentzianFit(TH1* histoY){
+  TString name = histoY->GetName() + TString("Fit");
+
+  // Fit slices projected along Y from bins in X 
+  TF1 *fit = new TF1(name,lorentzianPlusLinear,70,110,5);
+  fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean(),10,-0.1);
+  fit->SetParNames("norm","width","mean","offset","slope");
+  fit->SetParLimits(1,-10,10);
+  //fit->SetParLimits(2,85,95);
+  fit->SetParLimits(2,90,93);
+  fit->SetParLimits(3,0,100);
+  fit->SetParLimits(4,-1,0);
+  fit->SetLineWidth(2);
+  histoY -> Fit(name,"0","",85,97);
+  return fit;
+}
+
+/****************************************************************************************/
+
+void macroPlot(TString name){
+
+  gROOT->SetBatch(true);
+
+  //Save the graphs in a file
+  TFile *outputFile = new TFile("filegraph.root","RECREATE");
+
+  setTDRStyle();
+  TGraphErrors *grM_1 = fit2DProj(name,"1_MuScleFit.root",100,4,1, outputFile);
+  TGraphErrors *grM_2 = fit2DProj(name,"2_MuScleFit.root",100,4,1, outputFile);
+
+  TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
+  c->SetGridx();
+  c->SetGridy();
+    
+  grM_1->SetMarkerColor(1);
+  grM_2->SetMarkerColor(2);
+ 
+  double x[2],y[2];
+  //x[0]=3.5; x[1]=8.5;      //<------useful for reso VS pt
+  //y[0]=0.04; y[1]= -0.04;  //<------useful for pt reso 
+  if( name.Contains("Eta") ) {
+    x[0]=-3; x[1]=3;       //<------useful for reso VS eta
+  }
+  //y[0]=0; y[1]= 0.01;       //<------useful for cotgth reso 
+  // x[0]=-3.15; x[1]=3.15; //<------useful for reso VS phi
+  else {
+    x[0] = 0.; x[1] = 200;
+  }
+  y[0]=80; y[1]=100; //<------useful for Z mass 
+  TGraph *gr = new TGraph(2,x,y);
+  gr->SetMarkerStyle(8);
+  gr->SetMarkerColor(108);
+
+  // Text for the fits
+  TPaveText * paveText1 = new TPaveText(0.20,0.15,0.49,0.35,"NDC");
+  paveText1->SetFillColor(0);
+  paveText1->SetTextColor(1);
+  paveText1->SetTextSize(0.02);
+  paveText1->SetBorderSize(1);
+  TPaveText * paveText2 = new TPaveText(0.59,0.15,0.88,0.35,"NDC");
+  paveText2->SetFillColor(0);
+  paveText2->SetTextColor(2);
+  paveText2->SetTextSize(0.02);
+  paveText2->SetBorderSize(1);
+
+  /*****************SINUSOIDAL FIT (PHI)********************/
+  if( name.Contains("Phi") ) {
+    TF1 *fit1 = new TF1("fit1",sinusoidal,-3.2,3.2,3);
+    fit1->SetParameters(9.45,1,1);
+    fit1->SetParNames("offset","amplitude","phase");
+    fit1->SetLineWidth(2);
+    fit1->SetLineColor(1);
+    fit1->SetParLimits(2,-3.14,3.14);
+    grM_1->Fit("fit1","","",-3,3);
+    setTPaveText(fit1, paveText1);
+
+    TF1 *fit2 = new TF1("fit2",sinusoidal,-3.2,3.2,3);
+    fit2->SetParameters(9.45,1,1);
+    fit2->SetParNames("offset","amplitude","phase");
+    fit2->SetLineWidth(2);
+    fit2->SetLineColor(2);
+    fit2->SetParLimits(2,-3.14,3.14);
+    grM_2->Fit("fit2","","",-3,3);
+    setTPaveText(fit2, paveText2);
+  }
+  /*****************************************/ 
+  if( name.Contains("Pt") ) {
+    TF1 * fit1 = new TF1("fit1", linear, 0., 150., 2);
+    fit1->SetParameters(0., 1.);
+    fit1->SetParNames("scale","pt coefficient");
+    fit1->SetLineWidth(2);
+    fit1->SetLineColor(1);
+    grM_1->Fit("fit1","","",0.,150.);
+    setTPaveText(fit1, paveText1);
+
+    TF1 * fit2 = new TF1("fit2", linear, 0., 150., 2);
+    fit2->SetParameters(0., 1.);
+    fit2->SetParNames("scale","pt coefficient");
+    fit2->SetLineWidth(2);
+    fit2->SetLineColor(2);
+    grM_2->Fit("fit2","","",0.,150.);
+    setTPaveText(fit2, paveText2);
+  }
+
+  c->cd();
+  gr->Draw("AP");
+  grM_1->Draw("P");
+  grM_2->Draw("P");
+
+  paveText1->Draw("same");
+  paveText2->Draw("same");
+
+  TLegend *leg = new TLegend(0.65,0.85,1,1);
+  leg->SetFillColor(0);
+  leg->AddEntry(grM_1,"before calibration","P");
+  leg->AddEntry(grM_2,"after calibration","P");
+  leg->Draw("same");
+
+  outputFile->cd();
+  c->Write();
+  outputFile->Close();
+}
+
+Double_t sinusoidal(Double_t *x, Double_t *par) {
+  return (par[0] + par[1]*sin(x[0]+par[2])); 
+}
+
+Double_t parabolic(Double_t *x, Double_t *par) {
+  return (par[0] + par[1]*fabs(x[0]) + par[2]*x[0]*x[0]) ; 
+}
+
+Double_t overX(Double_t *x, Double_t *par) {
+  return (par[0] + par[1]/x[0]) ; 
+}
+
+Double_t parabolic2(Double_t *x, Double_t *par) {
+  if(x>0)
+    return (par[0] + par[1]*fabs(x[0]) + par[2]*x[0]*x[0]) ; 
+  else
+    return (par[0] - par[1]*fabs(x[0]) + par[2]*x[0]*x[0]) ; 
+}
+
+Double_t onlyParabolic(Double_t *x, Double_t *par) {
+  return (par[0] + par[1]*x[0]*x[0]) ; 
+}
+
+Double_t linear(Double_t *x, Double_t *par) {
+  return (par[0] + par[1]*fabs(x[0])) ; 
+}
+
+
+/****************************************************************************************/
+
+void setTDRStyle() {
+  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
+
+  // For the canvas:
+  tdrStyle->SetCanvasBorderMode(0);
+  tdrStyle->SetCanvasColor(kWhite);
+  tdrStyle->SetCanvasDefH(600); //Height of canvas
+  tdrStyle->SetCanvasDefW(600); //Width of canvas
+  tdrStyle->SetCanvasDefX(0);   //POsition on screen
+  tdrStyle->SetCanvasDefY(0);
+
+  // For the Pad:
+  tdrStyle->SetPadBorderMode(0);
+  // tdrStyle->SetPadBorderSize(Width_t size = 1);
+  tdrStyle->SetPadColor(kWhite);
+  tdrStyle->SetPadGridX(false);
+  tdrStyle->SetPadGridY(false);
+  tdrStyle->SetGridColor(0);
+  tdrStyle->SetGridStyle(3);
+  tdrStyle->SetGridWidth(1);
+
+  // For the frame:
+  tdrStyle->SetFrameBorderMode(0);
+  tdrStyle->SetFrameBorderSize(1);
+  tdrStyle->SetFrameFillColor(0);
+  tdrStyle->SetFrameFillStyle(0);
+  tdrStyle->SetFrameLineColor(1);
+  tdrStyle->SetFrameLineStyle(1);
+  tdrStyle->SetFrameLineWidth(1);
+
+  // For the histo:
+  // tdrStyle->SetHistFillColor(1);
+  // tdrStyle->SetHistFillStyle(0);
+  tdrStyle->SetHistLineColor(1);
+  tdrStyle->SetHistLineStyle(0);
+  tdrStyle->SetHistLineWidth(1);
+  // tdrStyle->SetLegoInnerR(Float_t rad = 0.5);
+  // tdrStyle->SetNumberContours(Int_t number = 20);
+
+  tdrStyle->SetEndErrorSize(2);
+  //tdrStyle->SetErrorMarker(20);
+  tdrStyle->SetErrorX(0.);
+  
+  tdrStyle->SetMarkerStyle(20);
+
+  //For the fit/function:
+  tdrStyle->SetOptFit(1);
+  tdrStyle->SetFitFormat("5.4g");
+  tdrStyle->SetFuncColor(2);
+  tdrStyle->SetFuncStyle(1);
+  tdrStyle->SetFuncWidth(1);
+
+  //For the date:
+  tdrStyle->SetOptDate(0);
+  // tdrStyle->SetDateX(Float_t x = 0.01);
+  // tdrStyle->SetDateY(Float_t y = 0.01);
+
+  // For the statistics box:
+  tdrStyle->SetOptFile(0);
+  tdrStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
+  tdrStyle->SetStatColor(kWhite);
+  tdrStyle->SetStatFont(42);
+  tdrStyle->SetStatFontSize(0.025);
+  tdrStyle->SetStatTextColor(1);
+  tdrStyle->SetStatFormat("6.4g");
+  tdrStyle->SetStatBorderSize(1);
+  tdrStyle->SetStatH(0.1);
+  tdrStyle->SetStatW(0.15);
+  // tdrStyle->SetStatStyle(Style_t style = 1001);
+  // tdrStyle->SetStatX(Float_t x = 0);
+  // tdrStyle->SetStatY(Float_t y = 0);
+
+  // Margins:
+  tdrStyle->SetPadTopMargin(0.05);
+  tdrStyle->SetPadBottomMargin(0.13);
+  tdrStyle->SetPadLeftMargin(0.13);
+  tdrStyle->SetPadRightMargin(0.05);
+
+  // For the Global title:
+
+  tdrStyle->SetOptTitle(0);
+  /*tdrStyle->SetTitleFont(42);
+  tdrStyle->SetTitleColor(1);
+  tdrStyle->SetTitleTextColor(1);
+  tdrStyle->SetTitleFillColor(10);
+  tdrStyle->SetTitleFontSize(0.05);*/
+  // tdrStyle->SetTitleH(0); // Set the height of the title box
+  // tdrStyle->SetTitleW(0); // Set the width of the title box
+  // tdrStyle->SetTitleX(0); // Set the position of the title box
+  // tdrStyle->SetTitleY(0.985); // Set the position of the title box
+  // tdrStyle->SetTitleStyle(Style_t style = 1001);
+  // tdrStyle->SetTitleBorderSize(2);
+
+  // For the axis titles:
+
+  tdrStyle->SetTitleColor(1, "XYZ");
+  tdrStyle->SetTitleFont(42, "XYZ");
+  tdrStyle->SetTitleSize(0.06, "XYZ");
+  // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
+  // tdrStyle->SetTitleYSize(Float_t size = 0.02);
+  tdrStyle->SetTitleXOffset(0.9);
+  tdrStyle->SetTitleYOffset(1.05);
+  // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
+
+  // For the axis labels:
+
+  tdrStyle->SetLabelColor(1, "XYZ");
+  tdrStyle->SetLabelFont(42, "XYZ");
+  tdrStyle->SetLabelOffset(0.007, "XYZ");
+  tdrStyle->SetLabelSize(0.05, "XYZ");
+
+  // For the axis:
+
+  tdrStyle->SetAxisColor(1, "XYZ");
+  tdrStyle->SetStripDecimals(kTRUE);
+  tdrStyle->SetTickLength(0.03, "XYZ");
+  tdrStyle->SetNdivisions(510, "XYZ");
+  tdrStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
+  tdrStyle->SetPadTickY(1);
+
+  // Change for log plots:
+  tdrStyle->SetOptLogx(0);
+  tdrStyle->SetOptLogy(0);
+  tdrStyle->SetOptLogz(0);
+
+  // Postscript options:
+  // tdrStyle->SetPaperSize(15.,15.);
+  // tdrStyle->SetLineScalePS(Float_t scale = 3);
+  // tdrStyle->SetLineStyleString(Int_t i, const char* text);
+  // tdrStyle->SetHeaderPS(const char* header);
+  // tdrStyle->SetTitlePS(const char* pstitle);
+
+  // tdrStyle->SetBarOffset(Float_t baroff = 0.5);
+  // tdrStyle->SetBarWidth(Float_t barwidth = 0.5);
+  // tdrStyle->SetPaintTextFormat(const char* format = "g");
+  // tdrStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
+  // tdrStyle->SetTimeOffset(Double_t toffset);
+  // tdrStyle->SetHistMinimumZero(kTRUE);
+
+  //tdrStyle->SetOptFit(00000);
+  tdrStyle->cd();
+}
