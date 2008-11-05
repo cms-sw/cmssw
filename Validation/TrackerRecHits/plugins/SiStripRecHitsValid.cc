@@ -29,6 +29,25 @@
 using namespace std;
 using namespace edm;
 
+namespace helper { 
+    struct GetDetId { 
+        template<typename X> 
+        DetId operator()(const X &x) { return DetId(x.detId()); }
+    };
+
+    template<typename T>
+    std::pair<typename T::DetSet::const_iterator, typename T::DetSet::const_iterator> 
+    getRange(const T &detset, const DetId &id) {
+        typedef std::pair<typename T::DetSet::const_iterator, typename T::DetSet::const_iterator> return_type;
+        typename T::const_iterator match = detset.find(id);
+        if (match == detset.end()) return return_type();
+        typename T::DetSet hits = *match;
+        return return_type(hits.begin(), hits.end());
+    } 
+}
+
+
+
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   dbe_(0),	
@@ -39,7 +58,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
   dbe_ = Service<DQMStore>().operator->();
-  //  dbe_->showDirStructure();
+  dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/SISTRIP");
 
   meNumTotRphi = dbe_->book1D("NumTotRphi","Num of RecHits rphi",100, 0, 10000);
@@ -352,12 +371,12 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry &tracker(*pDD);
-  //  std::vector<DetId> rphidetIDs = rechitsrphi->ids();
-  std::vector<DetId> stereodetIDs = rechitsstereo->ids();
-  std::vector<DetId> matcheddetIDs = rechitsmatched->ids();
-  std::vector<DetId> IDs=rechitsrphi->ids();
-  IDs.insert(IDs.end(),stereodetIDs.begin(),stereodetIDs.end());
-  IDs.insert(IDs.end(),matcheddetIDs.begin(),matcheddetIDs.end());
+  // FIXME: this using of vector<DetId> is suboptimal, but I don't want to re-write the full class now
+  std::vector<DetId> IDs; 
+  IDs.reserve(rechitsrphi->size() + rechitsmatched->size() + rechitsstereo->size());
+  std::transform(rechitsrphi->begin(), rechitsrphi->end(), std::back_inserter(IDs), helper::GetDetId() );
+  std::transform(rechitsstereo->begin(), rechitsstereo->end(), std::back_inserter(IDs), helper::GetDetId() );
+  std::transform(rechitsmatched->begin(), rechitsmatched->end(), std::back_inserter(IDs), helper::GetDetId() );
   // loop over detunits
   //  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
   for(std::vector<DetId>::const_iterator it = IDs.begin(); it != IDs.end(); ++it ){//loop on rphi detector with hits
@@ -397,10 +416,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     numrechitrphi =0;
     //loop over rechits-rphi in the same subdetector
-    SiStripRecHit2DCollection::range          rechitrphiRange = rechitsrphi->get(detid);
-    SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
-    SiStripRecHit2DCollection::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
-    SiStripRecHit2DCollection::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
+    std::pair<SiStripRecHit2DCollection::DetSet::const_iterator,SiStripRecHit2DCollection::DetSet::const_iterator> rechitrphiRange = helper::getRange(*rechitsrphi, detid);
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
+    SiStripRecHit2DCollection::DetSet::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
     
     numrechitrphi = rechitrphiRangeIteratorEnd - rechitrphiRangeIteratorBegin;   
          
@@ -480,10 +499,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     int j=0;
     int j2=0;
     numrechitsas=0;
-    SiStripRecHit2DCollection::range rechitsasRange = rechitsstereo->get(detid);
-    SiStripRecHit2DCollection::const_iterator rechitsasRangeIteratorBegin = rechitsasRange.first;
-    SiStripRecHit2DCollection::const_iterator rechitsasRangeIteratorEnd   = rechitsasRange.second;
-    SiStripRecHit2DCollection::const_iterator itersas=rechitsasRangeIteratorBegin;
+    std::pair<SiStripRecHit2DCollection::DetSet::const_iterator,SiStripRecHit2DCollection::DetSet::const_iterator> rechitsasRange = helper::getRange(*rechitsstereo, detid);
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitsasRangeIteratorBegin = rechitsasRange.first;
+    SiStripRecHit2DCollection::DetSet::const_iterator rechitsasRangeIteratorEnd   = rechitsasRange.second;
+    SiStripRecHit2DCollection::DetSet::const_iterator itersas=rechitsasRangeIteratorBegin;
     numrechitsas = rechitsasRangeIteratorEnd - rechitsasRangeIteratorBegin;   
     if(numrechitsas > 0){
       totrechitsas+=numrechitsas;
@@ -559,10 +578,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     //loop over rechits-matched in the same subdetector
     numrechitmatched=0;
-    SiStripMatchedRecHit2DCollection::range rechitmatchedRange = rechitsmatched->get(detid);
-    SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
-    SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
-    SiStripMatchedRecHit2DCollection::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
+    std::pair<SiStripMatchedRecHit2DCollection::DetSet::const_iterator,SiStripMatchedRecHit2DCollection::DetSet::const_iterator> rechitmatchedRange = helper::getRange(*rechitsmatched, detid);
+    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
+    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
+    SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
     numrechitmatched = rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;   
     if(numrechitmatched > 0){
       totrechitmatched +=numrechitmatched;

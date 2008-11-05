@@ -41,7 +41,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
 {
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
   dbe_ = Service<DQMStore>().operator->();
-  //  dbe_->showDirStructure();
+  dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
   Char_t histo[200];
@@ -280,10 +280,12 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       
       const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId) );
       
-      SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(detId);
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
-      SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-      SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+      SiPixelRecHitCollection::const_iterator pixeldet = recHitColl->find(detId);
+      if (pixeldet == recHitColl->end()) continue;
+      SiPixelRecHitCollection::DetSet pixelrechitRange = *pixeldet;
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+      SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd   = pixelrechitRange.end();
+      SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
       std::vector<PSimHit> matched;
       
       //----Loop over rechits for this detId
