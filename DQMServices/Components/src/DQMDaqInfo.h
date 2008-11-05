@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id$
+// $Id: DQMDaqInfo.h,v 1.1 2008/10/21 16:00:07 segoni Exp $
 //
 //
 
@@ -35,8 +35,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //Run Info
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunSummary.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 
 //DQM
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -65,6 +66,7 @@ private:
   DQMStore *dbe_;  
   std::string outputFileName;
   bool saveData;
+  bool FedGranularity;
 
   enum subDetList { Pixel , SiStrip , ECAL , HCAL , DT , CSC , RPC };  
   
