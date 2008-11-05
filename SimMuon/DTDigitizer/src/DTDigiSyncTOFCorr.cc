@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/07 22:54:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/02/22 13:12:04 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -12,6 +12,7 @@
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
+#include <iostream>
 
 using namespace std;
 

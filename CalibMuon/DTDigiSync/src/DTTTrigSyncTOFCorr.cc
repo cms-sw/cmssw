@@ -1,18 +1,18 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/06 14:47:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/02/19 11:45:21 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DTTTrigSyncTOFCorr.h"
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include <iostream>
 
 using namespace std;
 
