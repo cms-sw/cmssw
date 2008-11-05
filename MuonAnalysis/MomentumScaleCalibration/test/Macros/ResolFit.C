@@ -1,5 +1,22 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <list>
+
+#include "TH1D.h"
+#include "TF1.h"
+#include "TCanvas.h"
+#include "TPaveText.h"
+#include "TFile.h"
+
+using namespace std;
+
+/**
+ * This function draws a histogram and a function on a canvas and adds a text box with the results of the fit.
+ */
 void draw(TH1D * h, TF1 * f) {
-  int lineWidth = 0.4;
+  Width_t lineWidth = Width_t(0.4);
   Color_t lineColor = kRed;
   f->SetLineColor(lineColor);
   f->SetLineWidth(lineWidth);
@@ -9,7 +26,7 @@ void draw(TH1D * h, TF1 * f) {
   f->Draw("same");
 
   // Text box with fit results
-  fitLabel = new TPaveText(0.65,0.3,0.85,0.5,"NDC");
+  TPaveText * fitLabel = new TPaveText(0.65,0.3,0.85,0.5,"NDC");
   fitLabel->SetBorderSize(1);
   fitLabel->SetTextAlign(12);
   fitLabel->SetTextSize(0.02);
@@ -27,7 +44,91 @@ void draw(TH1D * h, TF1 * f) {
   h->Write();
 }
 
-int ResolFit() {
+/**
+ * This function reads parameters from the FitParameters.txt file and returns them in a vector.
+ */
+pair<list<double>, list<double> > readParameters(int fitFile) {
+  list<double> parameters;
+  list<double> parameterErrors;
+
+  ifstream a("FitParameters.txt");
+  string line;
+  bool indexFound = false;
+  string iteration("Iteration ");
+  while (a) {
+    getline(a,line);
+    unsigned int lineInt = line.find("value");
+
+    // Take only the values from the matching iteration
+    if( line.find(iteration) != string::npos ) {
+      stringstream iterationNum;
+      iterationNum << fitFile;
+      if( line.find(iteration+iterationNum.str()) != string::npos ) {
+        indexFound = true;
+        cout << "In: " << line << endl;
+        cout << "Found Index = " << iteration+iterationNum.str() << endl;
+      }
+      else indexFound = false;
+    }
+
+    if ( (lineInt != string::npos) && indexFound ) {
+      int subStr1 = line.find("value");
+      int subStr2 = line.find("+-");
+      stringstream paramStr;
+      double param = 0;
+      paramStr << line.substr(subStr1+5,subStr2);
+      paramStr >> param;
+      parameters.push_back(param);
+      // cout << "paramStr = " << line.substr(subStr1+5,subStr2) << endl;
+      stringstream parErrorStr;
+      double parError = 0;
+      parErrorStr << line.substr(subStr2+1);
+      parErrorStr >> parError;
+      parameterErrors.push_back(parError);
+
+      // cout << "param = " << param << endl;
+      // cout << "parError = " << parError << endl;
+    }
+  }
+
+  //     cout << "Reading function from file" << endl;
+  //     TString param = "aaa a a a  a value = 193.4+-12";
+  //     int id = param.Index("value");
+  //     int length = param.Length();
+  //     cout << "param(id,-1)" << param(id, length) << endl;
+  return make_pair(parameters, parameterErrors);
+}
+
+/**
+ * Set parameters from the list to the function. It empties the list while using it.
+ */
+void setParameters(TF1 * f, pair<list<double>, list<double> > & parameters) {
+  int parNum = f->GetNpar();
+  for( int iPar=0; iPar<parNum; ++iPar ) {
+    // Read the first element and remove it from the list
+    f->SetParameter(iPar, parameters.first.front());
+    f->SetParError(iPar, parameters.second.front());
+    parameters.first.pop_front();
+    parameters.second.pop_front();
+  }
+}
+
+/**
+ * This macro fits and draws the histograms in the file written by ResolDraw.cc. 
+ * If the false is passed as argument, it searches for the file FitParameters, reads
+ * the parameters of the functions to draw over the histograms instead of fitting.
+ * ATTENTION: the functions used in this case must be the same of those which parameters
+ * have been written in FitParameters.txt.
+ */
+int ResolFit( int fitFile = -1 ) {
+
+  TString mainName("hResol");
+
+  // Read the values from the FitParameters.txt file if required
+  pair<list<double>, list<double> > parameters;
+  if( fitFile != -1 ) {
+    parameters = readParameters( fitFile );
+  }
 
   TFile inputFile("redrawed.root","READ");
   TFile outputFile("fitted.root","RECREATE");
@@ -37,25 +138,38 @@ int ResolFit() {
   // Pt resolution
   // -------------
   // VS pt
-  cout << "Fitting Pt resolution vs Pt" << endl;
-  TDirectory * tempDir = (TDirectory*) inputFile.Get("hResolPtGenVSMu");
-  TH1D * h = (TH1D*) tempDir->Get("hResolPtGenVSMu_ResoVSPt_resol");
+  TDirectory * tempDir = (TDirectory*) inputFile.Get(mainName+"PtGenVSMu");
+  TH1D * h = (TH1D*) tempDir->Get(mainName+"PtGenVSMu_ResoVSPt_resol");
   TF1 *f = new TF1("f","pol4",0,100);
-  h->Fit("f","R0");
+
+  if( fitFile == -1 ) {
+    cout << "Fitting Pt resolution vs Pt" << endl;
+    h->Fit("f","R0");
+  }
+  else {
+    setParameters(f, parameters);
+    // Put back the constant so that it can be used also by the following function
+    parameters.first.push_front(f->GetParameter(0));
+    parameters.second.push_front(f->GetParError(0));
+  }
+
   h->SetMinimum(0);
   h->SetMaximum(0.1);
   draw(h,f);
 
-//   TCanvas c("canvas", "canvas", 1000, 800);
-//   c->cd();
-//   h->Draw();
-
   // VS eta
-  cout << "Fitting Pt resolution vs Eta" << endl;
-  tempDir = (TDirectory*) inputFile.Get("hResolPtGenVSMu");
-  h = (TH1D*) tempDir->Get("hResolPtGenVSMu_ResoVSEta_resol");
-  f = new TF1("f","pol6",-2.5,2.5);
-  h->Fit("f","R0");
+  tempDir = (TDirectory*) inputFile.Get(mainName+"PtGenVSMu");
+  h = (TH1D*) tempDir->Get(mainName+"PtGenVSMu_ResoVSEta_resol");
+
+  f = new TF1("f","pol2",-2.5,2.5);
+  if( fitFile == -1 ) {
+    cout << "Fitting Pt resolution vs Eta" << endl;
+    h->Fit("f","R0");
+  }
+  else {
+    setParameters(f, parameters);
+  }
+
   h->SetMinimum(0);
   h->SetMaximum(0.045);
   draw(h,f);
@@ -63,20 +177,36 @@ int ResolFit() {
   // CotgTheta resolution
   // --------------------
   // VS pt
-  cout << "Fitting CotgTheta resolution vs Pt" << endl;
-  tempDir = (TDirectory*) inputFile.Get("hResolCotgThetaGenVSMu");
-  h = (TH1D*) tempDir->Get("hResolCotgThetaGenVSMu_ResoVSPt_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainName+"CotgThetaGenVSMu");
+  h = (TH1D*) tempDir->Get(mainName+"CotgThetaGenVSMu_ResoVSPt_resol");
+
   f = new TF1("f","[0]/x+[1]",0,100);
-  h->Fit("f","R0");
+  if( fitFile == -1 ) {
+    h->Fit("f","R0");
+    cout << "Fitting CotgTheta resolution vs Pt" << endl;
+  }
+  else {
+    setParameters(f, parameters);
+    parameters.first.push_front(f->GetParameter(0));
+    parameters.second.push_front(f->GetParError(0));
+  }
+
   h->SetMinimum(0);
   h->SetMaximum(0.015);
   draw(h,f);
   // VS eta
-  cout << "Fitting CotgTheta resolution vs Eta" << endl;
-  tempDir = (TDirectory*) inputFile.Get("hResolCotgThetaGenVSMu");
-  h = (TH1D*) tempDir->Get("hResolCotgThetaGenVSMu_ResoVSEta_resol");
-  f = new TF1("f","pol4",-3,3);
-  h->Fit("f","R0");
+  tempDir = (TDirectory*) inputFile.Get(mainName+"CotgThetaGenVSMu");
+  h = (TH1D*) tempDir->Get(mainName+"CotgThetaGenVSMu_ResoVSEta_resol");
+
+  f = new TF1("f","pol2",-3,3);
+  if( fitFile == -1 ) {
+    cout << "Fitting CotgTheta resolution vs Eta" << endl;
+    h->Fit("f","R0");
+  }
+  else {
+    setParameters(f, parameters);
+  }
+
   h->SetMinimum(0);
   h->SetMaximum(0.005);
   draw(h,f);
@@ -84,23 +214,38 @@ int ResolFit() {
   // Phi resolution
   // --------------
   // VS pt
-  cout << "Fitting Phi resolution vs Pt" << endl;
-  tempDir = (TDirectory*) inputFile.Get("hResolPhiGenVSMu");
-  h = (TH1D*) tempDir->Get("hResolPhiGenVSMu_ResoVSPt_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainName+"PhiGenVSMu");
+  h = (TH1D*) tempDir->Get(mainName+"PhiGenVSMu_ResoVSPt_resol");
+
   f = new TF1("f","[0]/x+[1]",0,100);
-  h->Fit("f","R0");
+  if( fitFile == -1 ) {
+    cout << "Fitting Phi resolution vs Pt" << endl;
+    h->Fit("f","R0");
+  }
+  else {
+    setParameters(f, parameters);
+    parameters.first.push_front(f->GetParameter(0));
+    parameters.second.push_front(f->GetParError(0));
+  }
+
   h->SetMinimum(0);
   h->SetMaximum(0.003);
   draw(h,f);
   // VS eta
-  cout << "Fitting Phi resolution vs Eta" << endl;
-  tempDir = (TDirectory*) inputFile.Get("hResolPhiGenVSMu");
-  h = (TH1D*) tempDir->Get("hResolPhiGenVSMu_ResoVSEta_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainName+"PhiGenVSMu");
+  h = (TH1D*) tempDir->Get(mainName+"PhiGenVSMu_ResoVSEta_resol");
+
   f = new TF1("f","pol2",-2.4,2.4);
-  h->Fit("f","R0");
+  if( fitFile == -1 ) {
+    cout << "Fitting Phi resolution vs Eta" << endl;
+    h->Fit("f","R0");
+  }
+  else {
+    setParameters(f, parameters);
+  }
+
   h->SetMinimum(0);
   h->SetMaximum(0.0005);
   draw(h,f);
-
   return 0;
 }
