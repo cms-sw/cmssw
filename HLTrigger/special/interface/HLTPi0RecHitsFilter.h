@@ -228,7 +228,9 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  double seleEtaBeltDR_; 
  double seleEtaBeltDeta_; 
  bool storeIsoClusRecHitEta_;
- 
+ bool removePi0CandidatesForEta_; 
+ double massLowPi0Cand_; 
+ double massHighPi0Cand_; 
 
 
 

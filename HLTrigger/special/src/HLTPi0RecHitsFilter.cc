@@ -71,10 +71,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   //gammaCandPhiSize_ = iConfig.getParameter<int> ("gammaCandPhiSize");
   //if ( gammaCandPhiSize_ % 2 == 0 ||  gammaCandEtaSize_ % 2 == 0)
   //  edm::LogError("AlCaPi0RecHitsProducerError") << "Size of eta/phi for sliding window should be odd numbers";
-
-
   
-
+  
 
 
   clusSeedThr_ = iConfig.getParameter<double> ("clusSeedThr");
@@ -126,6 +124,12 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     seleEtaBeltDR_ = iConfig.getParameter<double> ("seleEtaBeltDR");  
     seleEtaBeltDeta_ = iConfig.getParameter<double> ("seleEtaBeltDeta");  
     storeIsoClusRecHitEta_ = iConfig.getParameter<bool> ("storeIsoClusRecHitEta");
+    removePi0CandidatesForEta_ = iConfig.getUntrackedParameter<bool>("removePi0Candidates",true);
+    if(removePi0CandidatesForEta_){
+      massLowPi0Cand_ = iConfig.getUntrackedParameter<double>("massLowPi0Cand",0.114);
+      massHighPi0Cand_ = iConfig.getUntrackedParameter<double>("massHighPi0Cand",0.154);
+    }
+    
   }
   
   
@@ -755,10 +759,57 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ///do selection for eta->gg in barrel
   if(doSelForEtaBarrel_){
 
+     
+    vector<int> indClusPi0Candidates; 
+    if( removePi0CandidatesForEta_){
+      
+      for(Int_t i=0 ; i<nClus ; i++){
+	for(Int_t j=i+1 ; j<nClus ; j++){
+	  float theta_0 = 2. * atan(exp(-etaClus[i]));
+	  float theta_1 = 2. * atan(exp(-etaClus[j]));
+	  float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
+	  float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
+	  float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
+	  float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
+	  float p0z = eClus[i] * cos(theta_0);
+	  float p1z = eClus[j] * cos(theta_1);
+	  float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	  
+	  int tmp[2] = {i,j};
+	  
+	  if(m_inv > massLowPi0Cand_ && m_inv < massHighPi0Cand_){
+	    for( int k=0;k<2; k++){
+	      it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),tmp[k]);
+	      if( it == indClusPi0Candidates.end()) indClusPi0Candidates.push_back(tmp[k]);
+	      
+	    }
+	  }
+	  
+	}
+      }
+      
+    }
+    
+
+
     for(Int_t i=0 ; i<nClus ; i++){
       for(Int_t j=i+1 ; j<nClus ; j++){
 	
+	if( removePi0CandidatesForEta_){
+	  int tmp[2] = {i,j};
+	  int flagPi0 = 0; 
+	  for( int k=0;k<2; k++){
+	    it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),tmp[k]);
+	    if( it != indClusPi0Candidates.end())  {
+	      flagPi0 = 1; 
+	      break; 
+	    }
+	  }
+	  if(flagPi0==1) continue; 
+	}
 	
+	
+
 	if( etClus[i]>selePtGammaEta_ && etClus[j]>selePtGammaEta_ && s4s9Clus[i]>seleS4S9GammaEta_ && s4s9Clus[j]>seleS4S9GammaEta_){
 	  float theta_0 = 2. * atan(exp(-etaClus[i]));
 	  float theta_1 = 2. * atan(exp(-etaClus[j]));
@@ -837,8 +888,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     
   }
-  
-
+    
   
 
   if(debug_>=1) std::cout<<" pi0 barrel_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<pi0EBRecHitCollection->size()<<std::endl;
