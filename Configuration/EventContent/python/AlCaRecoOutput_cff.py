@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/08/11 09:31:53 $ by $Author: rmankel $
+# last update: $Date: 2008/10/08 19:42:56 $ by $Author: futyand $
 # Tracker Alignment
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
@@ -29,7 +29,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
 # ECAL calibration with phi symmetry 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_Output_cff import *
 # ECAL calibration with isol. electrons
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalElectron_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff import *
 # The following paths are obsoleted since pi0 calibration
 # has a HLT path (argiro,20080314 )
 # ECAL calibration with pi0 
