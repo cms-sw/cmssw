@@ -16,11 +16,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:38 EDT 2008
-// $Id: CmsShowTaskExecutorBase.h,v 1.2 2008/07/13 21:56:08 chrjones Exp $
+// $Id: CmsShowTaskExecutorBase.h,v 1.3 2008/07/25 23:58:19 chrjones Exp $
 //
 
 // system include files
-#include <RQ_OBJECT.h>
 #include <sigc++/signal.h>
 
 // user include files
@@ -29,8 +28,7 @@
 class TTimer;
 class CmsShowTaskTimer;
 
-class CmsShowTaskExecutorBase : public TQObject {
-   RQ_OBJECT("CmsShowTaskExecutorBase");
+class CmsShowTaskExecutorBase {
 
 public:
    CmsShowTaskExecutorBase();
