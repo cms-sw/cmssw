@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,8 +24,10 @@ public:
 private:
   virtual void beginJob(const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
 
   void retrieveMEs();
