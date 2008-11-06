@@ -35,7 +35,8 @@ class DAFTrackProducerAlgorithm {
   /// Run the Final Fit taking TrackCandidates as input
   void runWithCandidate(const TrackingGeometry *, 
 			const MagneticField *, 
-			const TrackCandidateCollection&,
+			//const TrackCandidateCollection&,
+			const std::vector<Trajectory>&,
 			const TrajectoryFitter *,
 			const TransientTrackingRecHitBuilder*,
 			const MultiRecHitCollector* measurementTracker,

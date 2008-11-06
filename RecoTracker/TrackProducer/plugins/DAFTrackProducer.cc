@@ -28,15 +28,17 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
-  produces<std::vector<Trajectory> >() ;
+  produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
+
+
 }
 
 
 void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
   edm::LogInfo("DAFTrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
-  //
+  
   // create empty output collections
   //
   std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
@@ -60,24 +62,38 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   setup.get<MultiRecHitRecord>().get(measurementCollectorName, measurementCollectorHandle);
   std::string  updatorName = getConf().getParameter<std::string>("UpdatorName");	
   setup.get<MultiRecHitRecord>().get(updatorName, updatorHandle);	 
-  //
-  //declare and get TrackColection to be retrieved from the event
-  //
+
   AlgoProductCollection algoResults;
-  try{  
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    reco::BeamSpot bs;
-    getFromEvt(theEvent,theTCCollection,bs);
-    measurementCollectorHandle->updateEvent(theEvent); 	
-    //
-    //run the algorithm  
-    //
-    LogDebug("DAFTrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("DAFTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
+
+  edm::Handle<std::vector<Trajectory> > theTrajectoryCollection;
+  reco::BeamSpot bs;
+
+  getFromEvt(theEvent,theTrajectoryCollection,bs);
+    
+  measurementCollectorHandle->updateEvent(theEvent); 	
+  
   //
-  //put everything in the event
+  //run the algorithm  
+  //
+  
+  theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTrajectoryCollection,
+			   theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
+  
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
-  LogDebug("DAFTrackProducer") << "end" << "\n";
+  
+}
+
+void DAFTrackProducer::getFromEvt(edm::Event& theEvent,edm::Handle<TrajectoryCollection>& theTrajectoryCollection, reco::BeamSpot& bs)
+{
+  //
+  //get the TrajectoryCollection from the event
+  //
+ 
+  edm::InputTag src_=getConf().getParameter<edm::InputTag>( "src" );
+    theEvent.getByLabel(src_,theTrajectoryCollection );  
+
+  //get the BeamSpot
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  bs = *recoBeamSpotHandle;
 }

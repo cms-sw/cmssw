@@ -25,7 +25,8 @@
 
 void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         const MagneticField * theMF,
-					         const TrackCandidateCollection& theTCCollection,
+					         //const TrackCandidateCollection& theTCCollection,
+						 const std::vector<Trajectory>& theTrajectoryCollection,
 					         const TrajectoryFitter * theFitter,
 					         const TransientTrackingRecHitBuilder* builder,
 						 const MultiRecHitCollector* measurementCollector,
@@ -33,44 +34,31 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 const reco::BeamSpot& bs,
 					         AlgoProductCollection& algoResults) const
 {
-  edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
-
+  edm::LogInfo("TrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
+  std::cout<< "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
-  for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++){
+  for (std::vector<Trajectory>::const_iterator i=theTrajectoryCollection.begin(); i!=theTrajectoryCollection.end() ;i++)
+
+
+{
     
       
-      const TrackCandidate * theTC = &(*i);
-      PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-      const TrackCandidate::range& recHitVec=theTC->recHits();
-      const TrajectorySeed& seed = theTC->seed();
 
-      TrajectoryStateTransform transformer;
-  
-      DetId  detId(state.detId());
-      TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
-								     &(theG->idToDet(detId)->surface()), 
-								     theMF);
+      
+    float ndof=0;
 
-      LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
-      
-      //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      TransientTrackingRecHit::RecHitContainer hits;
-      
-      float ndof=0;
-      LogDebug("DAFTrackProducerAlgorithm") << "about to build the rechits for the first round...."; 	    
-      for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	   i!=recHitVec.second; i++){
-	hits.push_back(builder->build(&(*i) ));
-      }
-      LogDebug("DAFTrackProducerAlgorithm") << "done" << std::endl;
       //first of all do a fit-smooth round to get the trajectory
-      LogDebug("DAFTrackProducerAlgorithm") << "About to build tha trajectory for the first round....";  	
+      LogDebug("DAFTrackProducerAlgorithm") << "About to build the trajectory for the first round...";  	
       //theMRHChi2Estimator->setAnnealingFactor(1);
-      std::vector<Trajectory> vtraj = theFitter->fit(seed, hits, theTSOS);
-      LogDebug("DAFTrackProducerAlgorithm") << "done" << std::endl;	
-      LogDebug("DAFTrackProducerAlgorithm") << "after the first round found " << vtraj.size() << " trajectories"  << std::endl; 
+      //  std::vector<Trajectory> vtraj = theFitter->fit(seed, hits, theTSOS);
+        std::vector<Trajectory> vtraj;
+	vtraj.push_back(*i);
+      
+	LogDebug("DAFTrackProducerAlgorithm") << "done" << std::endl;	
+	LogDebug("DAFTrackProducerAlgorithm") << "after the first round found " << vtraj.size() << " trajectories"  << std::endl; 
 
       if (vtraj.size() != 0){
+
 	//bool isFirstIteration=true;
 	std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = collectHits(vtraj, measurementCollector);
 	fit(hits, theFitter, vtraj);
@@ -93,15 +81,18 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 	//This is a kind of filter to remove tracks with too many outliers.
 	//Outliers are mrhits with all components with weight less than 1e-6 
   
-	std::vector<Trajectory> filtered;
-	filter(theFitter, vtraj, conf_.getParameter<int>("MinHits"), filtered);				
-	ndof = calculateNdof(filtered);	
-        bool ok = buildTrack(filtered, algoResults, ndof, bs);
-        if(ok) cont++;
+	//std::vector<Trajectory> filtered;
+	//filter(theFitter, vtraj, conf_.getParameter<int>("MinHits"), filtered);				
+	//ndof = calculateNdof(filtered);	
+        ndof=calculateNdof(vtraj);
+	//bool ok = buildTrack(filtered, algoResults, ndof, bs);
+        bool ok = buildTrack(vtraj, algoResults, ndof, bs);
+	if(ok) cont++;
 
       }
   }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  //edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  std::cout << "Number of Tracks found: " << cont << "\n";
 }
 
 std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> 

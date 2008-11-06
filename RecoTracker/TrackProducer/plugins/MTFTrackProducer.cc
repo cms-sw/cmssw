@@ -58,24 +58,38 @@ void MTFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   setup.get<MultiRecHitRecord>().get(measurementCollectorName, measurementCollectorHandle);
   std::string  updatorName = getConf().getParameter<std::string>("UpdatorName");	
   setup.get<MultiRecHitRecord>().get(updatorName, updatorHandle);	 
-  //
-  //declare and get TrackCollection to be retrieved from the event
-  //
+
   AlgoProductCollection algoResults;
-  try{  
-    edm::Handle<TrackCandidateCollection> theTCCollection;
-    reco::BeamSpot bs;
-    getFromEvt(theEvent,theTCCollection,bs);
-    measurementCollectorHandle->updateEvent(theEvent); 	
+
+  edm::Handle<std::vector<Trajectory> > theTrajectoryCollection;
+
+  reco::BeamSpot bs;
+
+
+  getFromEvt(theEvent,theTrajectoryCollection,bs);
+
+  measurementCollectorHandle->updateEvent(theEvent); 	
+  //
+  //run the algorithm  
     //
-    //run the algorithm  
-    //
-    LogDebug("MTFTrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("MTFTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
+
+  theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTrajectoryCollection,
+			   theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
   //
   //put everything in the event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("MTFTrackProducer") << "end" << "\n";
+}
+
+
+void MTFTrackProducer::getFromEvt(edm::Event& theEvent,edm::Handle<TrajectoryCollection>& theTrajectoryCollection, reco::BeamSpot& bs)
+{
+
+  edm::InputTag src_=getConf().getParameter<edm::InputTag>( "src" );
+  theEvent.getByLabel(src_,theTrajectoryCollection );  
+  
+  //get the BeamSpot
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  bs = *recoBeamSpotHandle;
 }

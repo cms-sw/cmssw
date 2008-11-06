@@ -25,7 +25,9 @@
 
 void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         const MagneticField * theMF,
-					         const TrackCandidateCollection& theTCCollection,
+					         //const TrackCandidateCollection& theTCCollection,
+						 const std::vector<Trajectory>& theTrajectoryCollection,
+
 					         const TrajectoryFitter * theFitter,
 					         const TransientTrackingRecHitBuilder* builder,
 						 const MultiTrackFilterHitCollector* measurementCollector,
@@ -33,56 +35,14 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 const reco::BeamSpot& bs,
 					         AlgoProductCollection& algoResults) const
 {
-  edm::LogInfo("MTFTrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
+  edm::LogInfo("MTFTrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
 
   int cont = 0;
   float ndof = 0;
   //a for cicle to get a vector of trajectories, for building the vector<MTM> 
-  std::vector<Trajectory> mvtraj; 
+  std::vector<Trajectory> mvtraj=theTrajectoryCollection; 
 
-  edm::LogInfo("MTFTrackProducer") << "About to build..." << "\n";
 
-  LogDebug("MTFTrackProducerAlgorithm") << "About to build a vector of trajectories, to get the measurements for the MTM..."; 
-  
-  for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++){
-    
-       
-      const TrackCandidate * theTC = &(*i);
-      PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-      const TrackCandidate::range& recHitVec=theTC->recHits();
-      const TrajectorySeed& seed = theTC->seed();
-
-      TrajectoryStateTransform transformer;
-  
-      DetId  detId(state.detId());
-      TrajectoryStateOnSurface theTSOS = transformer.transientState(state,
-								    &(theG->idToDet(detId)->surface()), 
-								    theMF);
-      
-      LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
-      
-      //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      TransientTrackingRecHit::RecHitContainer hits;
-      
-       	    
-      for (edm::OwnVector<TrackingRecHit>::const_iterator irec=recHitVec.first;
-	   irec!=recHitVec.second; irec++){
-	hits.push_back(builder->build( &(*irec) ));
-      }
-      
-
-      //first of all do a fit-smooth round to get the trajectory  	
-      //theMRHChi2Estimator->setAnnealingFactor(1);
-      //
-      
-      const std::vector<Trajectory> trajectory = theFitter->fit(seed, hits, theTSOS); 
-      
-      if (trajectory.size())
-	mvtraj.push_back(trajectory.front());
-      LogDebug("TrackProducer") << "Trajectory number " << mvtraj.size()-1 << "pushed back" << "\n";
-      
-      
-  }
   
   //now we create a map, in which we store a vector<TrajMeas> for each trajectory in the event
   std::map<int, std::vector<TrajectoryMeasurement> > mvtm;
@@ -97,7 +57,6 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       a++;
     }
   
-  LogDebug("MTFTrackProducerAlgorithm") << "done";
   LogDebug("MTFTrackProducerAlgorithm") << "after the cicle found " << mvtraj.size() << " trajectories"  << std::endl;
   LogDebug("MTFTrackProducerAlgorithm") << "built a map of " << mvtm.size() << " elements (trajectories, yeah)"  << std::endl;
   
@@ -151,15 +110,6 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
   mvtraj.swap(transientmvtraj);
   LogDebug("MTFTrackProducerAlgorithm") << " with " << mvtraj.size() << "trajectories\n"; 
 
-  //std::map<int, std::vector<TrajectoryMeasurement> > transientmvtm2;
-  //int w=0;
-      
-  //for(std::vector<Trajectory>::iterator imv=mvtraj.begin(); imv!=mvtraj.end(); imv++)
-  //{
-  //  Trajectory *traj = &(*imv);
-  //  transientmvtm2.insert( make_pair(w,traj->measurements()) );
-  //  w++;
-  //}
   
  
 
@@ -167,21 +117,6 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
   for(std::vector<double>::const_iterator ian = updator->getAnnealingProgram().begin(); ian != updator->getAnnealingProgram().end(); ian++)
     
     {
-      //creates a transientmvtm taking infos from the mvtraj vector
-      //      std::map<int, std::vector<TrajectoryMeasurement> > transientmvtm;
-      //int k=0;
-      
-      // for(std::vector<Trajectory>::iterator imv=mvtraj.begin(); imv!=mvtraj.end(); imv++)
-      //{
-      //  Trajectory *traj = &(*imv);
-      //  transientmvtm.insert( make_pair(k,traj->measurements()) );
-      //  k++;
-      //	}
-      
-      //subs the old mvtm with a new one which takes into account infos from the previous iteration step 
-      //mvtm.swap(transientmvtm);
-      
-      //mvtraj.swap(transientmvtrajone);
       
       //creates a transientmvtm taking infos from the mvtraj vector
       std::map<int, std::vector<TrajectoryMeasurement> > transientmvtm1;
@@ -282,38 +217,6 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //substitute the vector mvtraj with the transient one
       mvtraj.swap(transientmvtrajone);
       
-      //creates a transientmvtm taking infos from the mvtraj vector
-      //std::map<int, std::vector<TrajectoryMeasurement> > transientmvtm1;
-      //int b=0;
-      
-      //for(std::vector<Trajectory>::iterator imv=mvtraj.begin(); imv!=mvtraj.end(); imv++)
-      //{
-      //  Trajectory *traj = &(*imv);
-      //  transientmvtm1.insert( make_pair(b,traj->measurements()) );
-      //  b++;
-      //}
-      
-      //subs the old mvtm with a new one which takes into account infos from the previous iteration step 
-      //mvtm.swap(transientmvtm1);
-      
-      //update the vector with the hits to be used at succesive annealing step
-      //vecmrhits.clear();
-
-      
-      //for (n=0; n<mvtraj.size(); n++)
-      //{
-      //  
-      //  std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> 
-      //    curiterationhits = updateHits(mvtm, measurementCollector, updator, *ian, builder, n);
-	  
-      //  vecmrhits.push_back(curiterationhits);
-	  
-      //}
-      
-      
-
-      //LogDebug("MTFTrackProducerAlgorithm") << "vector vecmrhits has size " 
-      //				    << vecmrhits.size() << std::endl; 
       
       
       LogDebug("MTFTrackProducerAlgorithm") << "number of trajectories after annealing value " 
@@ -356,22 +259,6 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 }
 
 
-
-//std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> 
-//DAFTrackProducerAlgorithm::collectHits(const std::vector<Trajectory>& vtraj, 
-//    				       const MultiRecHitCollector* measurementCollector) const{
-//TransientTrackingRecHit::RecHitContainer hits;
-//build a vector of recHits with a particular mesurementCollector...in this case the SimpleDAF
-//std::vector<TrajectoryMeasurement> collectedmeas = measurementCollector->recHits(vtraj.front());
-//
-//      if (collectedmeas.empty()) return std::make_pair(TransientTrackingRecHit::RecHitContainer(), TrajectoryStateOnSurface());
-//put the collected rechits in a vector
-//      for (std::vector<TrajectoryMeasurement>::const_iterator iter = collectedmeas.begin(); iter!=collectedmeas.end(); iter++){
-//      	hits.push_back(iter->recHit());
-//      }
-//make a pair with the infos about tsos and hit, with the tsos with arbitrary error (to do the fit better)
-//      return std::make_pair(hits,TrajectoryStateWithArbitraryError()(collectedmeas.front().predictedState()));	
-//}
 
 
 
@@ -473,14 +360,7 @@ MTFTrackProducerAlgorithm::updateHits(const std::map<int, std::vector<Trajectory
       
       
     }
-  //std::vector<TrajectoryMeasurement> collectedmeas = measurementCollector->recHits(mapvtm,i,annealing);
-  
-  
-  //if (collectedmeas.empty()) return std::make_pair(TransientTrackingRecHit::RecHitContainer(), TrajectoryStateOnSurface());
-  //put the collected MultiRecHits in a vector
-  //for (std::vector<TrajectoryMeasurement>::const_iterator iter = collectedmeas.begin(); iter!=collectedmeas.end(); iter++){
-  //hits.push_back(iter->recHit());
-  //}
+
   
   return std::make_pair(multirechits,TrajectoryStateWithArbitraryError()(itmeas->second.back().predictedState()));
   
