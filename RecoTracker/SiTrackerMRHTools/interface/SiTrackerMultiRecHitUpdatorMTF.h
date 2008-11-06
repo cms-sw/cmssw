@@ -23,6 +23,8 @@ or updates an existing TSiTrackerMultiRecHitout given a vector of tsos.
 */
 class SiTrackerMultiRecHitUpdatorMTF{
  public:
+    typedef std::pair<LocalPoint,LocalError>  LocalParameters;
+
   SiTrackerMultiRecHitUpdatorMTF(const TransientTrackingRecHitBuilder* builder,
 				 const TrackingRecHitPropagator* hitpropagator,
 				 const float Chi2Cut,
@@ -86,6 +88,7 @@ class SiTrackerMultiRecHitUpdatorMTF{
 	private:
 	LocalError calcParametersError(TransientTrackingRecHit::ConstRecHitContainer& map) const;
 	LocalPoint calcParameters(TransientTrackingRecHit::ConstRecHitContainer& map, const LocalError& er) const;
+	LocalParameters calcParameters(TransientTrackingRecHit::ConstRecHitContainer& map) const;
 
 	const TransientTrackingRecHitBuilder* theBuilder;
 	const TrackingRecHitPropagator* theHitPropagator;

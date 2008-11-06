@@ -64,7 +64,7 @@ process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 #process.load("GiulioStuff.MyValidation.DAFValidator_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 process.Timing = cms.Service("Timing")
 
@@ -89,15 +89,18 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 #    outputCommands = cms.untracked.vstring('keep *'),
 #    fileName = cms.untracked.string('/tmp/tropiano/tracksMTF_100_ann80.root')
 #)
+process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+# replace this with whatever track type you want to look at
+process.TrackRefitter.TrajectoryInEvent = True
 
 from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
 process.withLooseQuality.src = 'ctfWithMaterialTracksMTF'
 process.ctfWithMaterialTracksMTF.TrajectoryInEvent = True
 
-process.ctfWithMaterialTracksMTF.src="MTFTrackCandidateMaker"
+process.ctfWithMaterialTracksMTF.src="TrackRefitter"
 process.validation = cms.Sequence(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
 #process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.MTFTrackCandidateMaker*process.ctfWithMaterialTracksMTF*process.tracksWithQuality*process.validation*process.mrhvalidation)
-process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.MTFTrackCandidateMaker*process.ctfWithMaterialTracksMTF*process.validation)
+process.p = cms.Path(process.TrackRefitter*process.ctfWithMaterialTracksMTF*process.validation)
 #process.outpath = cms.EndPath(process.out)
 process.MTFTrajectoryBuilder.ComponentName = 'MTFTrajectoryBuilder'
 process.MTFTrajectoryBuilder.trajectoryFilterName = 'newTrajectoryFilter'
@@ -107,7 +110,7 @@ process.MTFTrackCandidateMaker.useHitsSplitting = False
 
 process.MRHFittingSmoother.EstimateCut = -1
 process.MRHFittingSmoother.MinNumberOfHits = 3
-process.multiTrackValidator.outputFile = 'validationPlots_MTF_Singlemupt10_1.root'
+process.multiTrackValidator.outputFile = 'validationPlots_MTF_Singlemupt10_fitter.root'
 process.multiTrackValidator.label = ['ctfWithMaterialTracksMTF']
 process.multiTrackValidator.UseAssociators = True
 #process.mrhvalidation.TrackCollection = 'ctfWithMaterialTracksMTF'

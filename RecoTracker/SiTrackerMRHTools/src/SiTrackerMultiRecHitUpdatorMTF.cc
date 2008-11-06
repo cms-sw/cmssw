@@ -465,13 +465,11 @@ SiTrackerMultiRecHitUpdatorMTF::update(double rowsum,
     
     
     mymap = normmap;
-    LogDebug("SiTrackerMultiRecHitUpdatorMTF") << "NormMap size:" << normmap.size() << std::endl;
+    SiTrackerMultiRecHitUpdatorMTF::LocalParameters param=calcParameters(finalcomponents);
+
+    //    LocalError er = calcParametersError(finalcomponents);
     
-    LocalError er = calcParametersError(finalcomponents);
-    LogDebug("SiTrackerMultiRecHitUpdatorMTF") << "error done" << std::endl;
-    
-    LocalPoint pos  = calcParameters(finalcomponents, er);
-    LogDebug("SiTrackerMultiRecHitUpdatorMTF") << "position done" << std::endl;
+    //LocalPoint pos  = calcParameters(finalcomponents, er);
     
     std::vector<std::pair<const TrackingRecHit*,float> > newmap;
 
@@ -487,7 +485,7 @@ SiTrackerMultiRecHitUpdatorMTF::update(double rowsum,
     
 
     
-    SiTrackerMultiRecHit updatedmrh(pos, er, newmap.front().first->geographicalId(), newmap);
+    SiTrackerMultiRecHit updatedmrh(param.first,param.second, newmap.front().first->geographicalId(), newmap);
     
     LogDebug("SiTrackerMultiRecHitUpdatorMTF") << "SiTrackerMultiRecHit built " << std::endl;
     
@@ -501,6 +499,30 @@ SiTrackerMultiRecHitUpdatorMTF::update(double rowsum,
     
 }
 
+SiTrackerMultiRecHitUpdatorMTF::LocalParameters SiTrackerMultiRecHitUpdatorMTF::calcParameters(TransientTrackingRecHit::ConstRecHitContainer& map)const{
+  AlgebraicSymMatrix22 W_sum;
+  AlgebraicVector2 m_sum;
+  int ierr;
+  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = map.begin(); ihit != map.end(); ihit ++) {
+    AlgebraicVector2 m(asSVector<2>((*ihit)->parameters()));
+    AlgebraicSymMatrix22 V(asSMatrix<2>((*ihit)->parametersError()));
+    AlgebraicSymMatrix22 W(V.Inverse(ierr));
+    
+    if(ierr != 0) {
+      edm::LogError("SiTrackerMultiRecHitUpdator")<<"MultiRecHit::checkParameters: W not valid!"<<std::endl;
+    }
+    
+    else {
+      W_sum += ((*ihit)->weight()*W);
+      m_sum += ((*ihit)->weight()*(W*m));
+    }
+  }
+  AlgebraicSymMatrix22  V_sum= W_sum.Inverse(ierr);
+  AlgebraicVector2 parameters = V_sum*m_sum;
+  LocalError error=LocalError(V_sum(0,0), V_sum(0,1), V_sum(1,1));
+  LocalPoint position=LocalPoint(parameters(0), parameters(1));
+  return std::make_pair(position,error);
+}
 
 
 LocalError SiTrackerMultiRecHitUpdatorMTF::calcParametersError(TransientTrackingRecHit::ConstRecHitContainer& map) const {
