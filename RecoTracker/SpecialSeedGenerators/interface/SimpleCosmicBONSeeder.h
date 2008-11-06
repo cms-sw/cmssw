@@ -14,6 +14,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -83,6 +84,15 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
 
   OrderedHitTriplets hitTriplets;
 
+  int  goodHitsPerSeed_; // number of hits that must be good
+  bool checkCharge_;     // check cluster charge
+  bool matchedRecHitUsesAnd_;
+  std::vector<int32_t> chargeThresholds_;
+  bool checkMaxHitsPerModule_;
+  std::vector<int32_t> maxHitsPerModule_;
+  bool checkCharge(const TrackingRecHit *hit) const ;
+  bool checkCharge(const SiStripRecHit2D &hit, int subdetid) const ;
+  void checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const ;
 };
 
 #endif

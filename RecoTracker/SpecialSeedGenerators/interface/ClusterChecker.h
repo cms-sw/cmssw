@@ -20,46 +20,55 @@ class ClusterChecker {
       if (doACheck_){
 	clusterCollectionInputTag_ = conf.getParameter<edm::InputTag>("ClusterCollectionLabel");
 	maxNrOfCosmicClusters_ = conf.getParameter<unsigned int>("MaxNumberOfCosmicClusters");
+        if (conf.existsAs<uint32_t>("DontCountDetsAboveNClusters")) {
+            ignoreDetsAboveNClusters_ = conf.getParameter<uint32_t>("DontCountDetsAboveNClusters");
+        } else {
+            ignoreDetsAboveNClusters_ = 0;
+        }
       }
     }
     
-  bool tooManyClusters(const edm::Event & e){
-    if (!doACheck_) return false;
+  size_t tooManyClusters(const edm::Event & e){
+    if (!doACheck_) return 0;
 
     // get special input for cosmic cluster multiplicity filter
     edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterDSV;
     e.getByLabel(clusterCollectionInputTag_, clusterDSV);
-    bool tooManyClusters = false;
+    unsigned int totalClusters = 0;
     if (!clusterDSV.failedToGet()) {
       const edmNew::DetSetVector<SiStripCluster> & input = *clusterDSV;
 
-      unsigned int totalClusters = 0;
-      //loop over detectors
-      edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(), DSViter_end=input.end();
-      for (; DSViter!=DSViter_end; DSViter++ ) {
-	totalClusters+=DSViter->size();
-	if (totalClusters>maxNrOfCosmicClusters_) break;
+      if (ignoreDetsAboveNClusters_ == 0) {
+        totalClusters = input.dataSize();
+      } else {
+          //loop over detectors
+          edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(), DSViter_end=input.end();
+          for (; DSViter!=DSViter_end; DSViter++ ) {
+            size_t siz = DSViter->size();
+            if (siz > ignoreDetsAboveNClusters_) continue;
+            totalClusters += siz; 
+          }
       }
-      tooManyClusters = (totalClusters>maxNrOfCosmicClusters_);
     }
     else{
       edm::Handle<edm::LazyGetter<SiStripCluster> > lazyGH;
       e.getByLabel(clusterCollectionInputTag_, lazyGH);
       if (!lazyGH.failedToGet()){
-	tooManyClusters = (lazyGH->size()>maxNrOfCosmicClusters_);
+        totalClusters = lazyGH->size();
       }else{
 	//say something's wrong.
 	edm::LogError("ClusterChecker")<<"could not get any SiStrip cluster collections of type edm::DetSetVector<SiStripCluster> or edm::LazyGetter<SiStripCluster, with label: "<<clusterCollectionInputTag_;
-	tooManyClusters = true;
+        totalClusters = 999999;
       }
     }
-    return tooManyClusters;
+    return (totalClusters > maxNrOfCosmicClusters_) ? totalClusters : 0;
   }
 
  private: 
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
-  uint maxNrOfCosmicClusters_;
+  uint32_t maxNrOfCosmicClusters_;
+  uint32_t ignoreDetsAboveNClusters_;
 };
 
 #endif

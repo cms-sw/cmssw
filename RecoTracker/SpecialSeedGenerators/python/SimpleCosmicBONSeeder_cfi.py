@@ -36,6 +36,7 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
             doClusterCheck = cms.bool(True),
             MaxNumberOfCosmicClusters = cms.uint32(300),
             ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+            DontCountDetsAboveNClusters = cms.uint32(0),  # if N > 0, ignore in total the dets with more than N clusters
     ),
     maxTriplets = cms.int32(50000),
     maxSeeds    = cms.int32(10000),
@@ -53,6 +54,26 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
     rescaleError    = cms.double(1),  # we don't need it anymore. At least for runs with BON
     seedOnMiddle    = cms.bool(False), # after finding the triplet, add only two hits to the seed
 
+    ClusterChargeCheck = cms.PSet(
+        checkCharge                 = cms.bool(False), # Apply cuts on cluster charge
+        matchedRecHitsUseAnd        = cms.bool(True), # Both clusters in the pair should pass the charge cut
+        Thresholds  = cms.PSet( # Uncorrected thresholds
+            TIB = cms.int32(0), #
+            TID = cms.int32(0), # FIXME: to be optimized
+            TOB = cms.int32(0), # these are simple guesses from DQM of run 66615
+            TEC = cms.int32(0), #
+        ),
+    ),
+    HitsPerModuleCheck = cms.PSet(
+        checkHitsPerModule = cms.bool(False), # Apply cuts on the number of hits per module 
+        Thresholds  = cms.PSet( # 
+            TIB = cms.int32(99999), #
+            TID = cms.int32(99999), # FIXME: to be optimized
+            TOB = cms.int32(99999), # 
+            TEC = cms.int32(99999), #
+        ),
+    ),
+    minimumGoodHitsInSeed = cms.int32(0),   # At least two high charge clusters in the seed
                                       
     writeTriplets   = cms.bool(False), # write the triplets to the Event as OwnVector<TrackingRecHit>
     helixDebugLevel = cms.untracked.uint32(0), # debug FastHelix (0 to 2)
