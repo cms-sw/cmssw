@@ -361,8 +361,8 @@ int main(int argc, char *argv[]){
       //    ProcFil.push_back(PPEX_DIR+"ppex_misAlCa_2.root");
       //    ProcFil.push_back(PPEX_DIR+"ppex_misAlCa_3.root");
       //    ProcFil.push_back(PPEX_DIR+"ppex_misAlCa_4.root");
-      //      ProcFil.push_back(PPEX_DIR+"ppex*");
-      ProcFil.push_back(PPEX_DIR+"ppex_2*.root");
+      ProcFil.push_back(PPEX_DIR+"ppex*");
+      //      ProcFil.push_back(PPEX_DIR+"ppex_2*.root");
 
       TabChain.push_back(new TChain("HltTree"));
       for (unsigned int ipfile = 0; ipfile < ProcFil.size(); ipfile++){
@@ -381,14 +381,14 @@ int main(int argc, char *argv[]){
       //    TString PPMUX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT184/ppmux/";
       TString PPMUX_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/ppmux/";    
       ProcFil.clear();
-      //      ProcFil.push_back(PPMUX_DIR+"ppmux*");
+      ProcFil.push_back(PPMUX_DIR+"ppmux*");
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_1.root");
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_2.root");
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_3.root");
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_4.root"); 
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_5.root"); 
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_6.root"); 
-      ProcFil.push_back(PPMUX_DIR+"ppmux_2*.root");
+      //      ProcFil.push_back(PPMUX_DIR+"ppmux_2*.root");
     
       TabChain.push_back(new TChain("HltTree"));
       for (unsigned int ipfile = 0; ipfile < ProcFil.size(); ipfile++){
@@ -408,8 +408,8 @@ int main(int argc, char *argv[]){
       //    TString MB_DIR="rfio:/castor/cern.ch/user/a/apana/OpenHLT184/MinBias/";
       TString MB_DIR="rfio:/castor/cern.ch/user/j/jjhollar/OpenHLT212/minbiasnew/";
       ProcFil.clear();
-      //      ProcFil.push_back(MB_DIR+"minbias*");
-      ProcFil.push_back(MB_DIR+"minbias_1*.root");
+      ProcFil.push_back(MB_DIR+"minbias*");
+      //      ProcFil.push_back(MB_DIR+"minbias_1*.root");
 
       //    ProcFil.push_back(MB_DIR+"minbias_misAlCa_0.root");
       //    ProcFil.push_back(MB_DIR+"minbias_misAlCa_1.root"); 
