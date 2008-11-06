@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorModule.dtChamberEfficiencyTask_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
-dtSegmentAnalysisMonitor.detailedAnalysis = True
+#dtSegmentAnalysisMonitor.detailedAnalysis = True
 from DQM.DTMonitorModule.dtResolutionTask_cfi import *
 
 dqmInfoDT = cms.EDFilter("DQMEventInfo",
