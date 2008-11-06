@@ -69,9 +69,9 @@ metTrigMatchHLT1MET65.src = cms.InputTag( myMET )
 #tauTrigMatchHLT1Tau.src = cms.InputTag( taus )
 
 tauIDSources = cms.PSet(
-byIsolation = cms.InputTag("patPFRecoTauDiscriminationByIsolation"),
-againstElectron = cms.InputTag("patPFRecoTauDiscriminationAgainstElectron"),
-againstMuon = cms.InputTag("patPFRecoTauDiscriminationAgainstMuon")
+    byIsolation = cms.InputTag("patPFRecoTauDiscriminationByIsolation"),
+    againstElectron = cms.InputTag("patPFRecoTauDiscriminationAgainstElectron"),
+    againstMuon = cms.InputTag("patPFRecoTauDiscriminationAgainstMuon")
 )
 
 
@@ -132,13 +132,13 @@ patTrigMatch = cms.Sequence(
     jetTrigMatchHLT1ElectronRelaxed +
     patTrigMatchHLT1MuonNonIso +
     patTrigMatchHLT2jet +
-    patTrigMatchHLT1MET65 +
-    tauTrigMatchHLT1Tau
+    patTrigMatchHLT1MET65
+    + tauTrigMatchHLT1Tau
 )
 
 patFromPF2PAT = cms.Sequence (
 #    allLayer0Electrons +
-#    allLayer0Photons + 
+#    allLayer0Potons + 
     patTrigMatch +
     jetTrackAssociation +
     patHighLevelReco +

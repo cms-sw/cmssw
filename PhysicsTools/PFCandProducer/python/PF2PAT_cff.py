@@ -9,12 +9,12 @@ from PhysicsTools.PFCandProducer.pfJets_cff import *
 from PhysicsTools.PFCandProducer.pfTaus_cff import *
 from PhysicsTools.PFCandProducer.pfTopProjection_cfi import *
 
-pf2pat = cms.Sequence(
+PF2PAT = cms.Sequence(
     pfMET +
     pfPileUpSequence + 
     pfElectronSequence +
     pfMuonSequence + 
-    pfJetsSequence + 
+    pfJetSequence + 
     pfTauSequence +  
     pfTopProjection
     )
