@@ -38,7 +38,7 @@ METAlgo::~METAlgo() {}
 // symmetrically distributed about the origin.)
 //----------------------------------
 //void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double globalThreshold) 
-void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, double globalThreshold) 
+void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, double globalThreshold, bool geomCut) 
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
@@ -52,7 +52,7 @@ void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, 
   for (unsigned int candidate_i = 0; candidate_i < input->size(); candidate_i++)
   {
     const Candidate *candidate = &((*input)[candidate_i]);
-    if( candidate->et() > globalThreshold )
+    if( candidate->et() > globalThreshold  && (!geomCut || fabs(candidate->eta()) < 5))
       {
 	double phi   = candidate->phi();
 	double theta = candidate->theta();

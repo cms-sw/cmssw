@@ -14,6 +14,8 @@ genMet = cms.EDProducer("METProducer",
     alias = cms.string('GenMET'), ## Alias  for FWLite		  
 
     noHF = cms.bool(False), ## do not exclude HF	
+ 
+    geomCut = cms.bool(False), ## make geometry cuts on input objects
 
     globalThreshold = cms.double(0.0), ## Global Threshold for input objects
 

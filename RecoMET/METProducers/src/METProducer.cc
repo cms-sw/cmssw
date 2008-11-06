@@ -55,6 +55,7 @@ namespace cms
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
     noHF = iConfig.getParameter<bool>("noHF");
+    geomCut = iConfig.getParameter<bool>("geomCut");
 
     if(      METtype == "CaloMET" ) 
       produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
@@ -103,7 +104,7 @@ namespace cms
     */
     //-----------------------------------
     // Step C2: Invoke the MET algorithm, which runs on any CandidateCollection input. 
-    alg_.run(input, &output, globalThreshold);
+    alg_.run(input, &output, globalThreshold, geomCut);
     //-----------------------------------
     // Step D: Invoke the specific "afterburner", which adds information
     //         depending on the input type, given via the config parameter.

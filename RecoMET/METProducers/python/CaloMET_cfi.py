@@ -17,6 +17,7 @@ met = cms.EDProducer("METProducer",
                          METType = cms.string('CaloMET'),
                          alias = cms.string('RawCaloMET'),
                          noHF = cms.bool(False),
+                         geomCut = cms.bool(False), ## make geometry cuts on input objects
                          globalThreshold = cms.double(0.5),
                          InputType = cms.string('CandidateCollection')
                      )
@@ -30,6 +31,7 @@ metOpt = cms.EDProducer("METProducer",
                             METType = cms.string('CaloMET'),
                             alias = cms.string('RawCaloMETOpt'),
                             noHF = cms.bool(False),
+                            geomCut = cms.bool(False), ## make geometry cuts on input objects
                             globalThreshold = cms.double(0.0),
                             InputType = cms.string('CandidateCollection')
                         )
@@ -43,6 +45,7 @@ metNoHF = cms.EDProducer("METProducer",
                              METType = cms.string('CaloMET'),
                              alias = cms.string('RawCaloMETNoHF'),
                              noHF = cms.bool(True),
+                             geomCut = cms.bool(False), ## make geometry cuts on input objects
                              globalThreshold = cms.double(0.5),
                              InputType = cms.string('CandidateCollection')
                          )
@@ -56,6 +59,7 @@ metOptNoHF = cms.EDProducer("METProducer",
                                 METType = cms.string('CaloMET'),
                                 alias = cms.string('RawCaloMETOptNoHF'),
                                 noHF = cms.bool(True),
+                                geomCut = cms.bool(False), ## make geometry cuts on input objects
                                 globalThreshold = cms.double(0.0),
                                 InputType = cms.string('CandidateCollection')
                             )
