@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/22 09:38:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/06 16:08:17 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -109,7 +109,7 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
     theSummaryContents[ii]->Reset();
   }
 
-  bool noDTData = false;
+//   bool noDTData = false;
 
   // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
   // accordignly
@@ -145,14 +145,14 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 
   // Fill the map using, at the moment, only the information from DT chamber efficiency
   // problems at a granularity smaller than the chamber are ignored
-  for(int wheel=-2; wheel<=2; wheel++){ // loop over wheels
+  for(int wheel=-2; wheel<=2; wheel++) { // loop over wheels
     // retrieve the chamber efficiency summary
     stringstream str;
     str << "DT/02-Segments/segmentSummary_W" << wheel;
     MonitorElement * segmentWheelSummary =  dbe->get(str.str());
     if(segmentWheelSummary != 0) {
       int nFailingChambers = 0;
-      for(int sector=1; sector<=12; sector++){ // loop over sectors
+      for(int sector=1; sector<=12; sector++) { // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations
 	  double chamberStatus = segmentWheelSummary->getBinContent(sector, station);
 	  LogTrace("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
