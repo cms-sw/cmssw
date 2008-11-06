@@ -17,6 +17,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include <iostream>
 
 using namespace std;
@@ -28,25 +30,25 @@ using namespace l1extra;
 typedef std::vector< edm::ParameterSet > Parameters;
 
 /// Constructor
-HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset, 
-				       int triggerIndex)
+HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset, 
+					string triggerName )
 {
 
-
   theHltProcessName        = pset.getParameter<string>("HltProcessName");
-  Parameters triggerLists  = pset.getParameter<Parameters>
-                             ("TriggerCollection");
-  ParameterSet thisTrigger = triggerLists[triggerIndex];
-  theL1CollectionLabel     = thisTrigger.getParameter<string>
-                             ("L1CollectionLabel");
-  theHltCollectionLabels   = thisTrigger.getParameter< vector<string> >
-                             ("HltCollectionLabels");
-  theL1ReferenceThreshold  = thisTrigger.getParameter<double>
-                             ("L1ReferenceThreshold");    
-  theHltReferenceThreshold = thisTrigger.getParameter<double>
-                             ("HltReferenceThreshold");    
-  theNumberOfObjects       = thisTrigger.getParameter<unsigned int>
-                             ("NumberOfObjects");
+  theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
+
+  theTriggerName = triggerName;
+  HLTConfigProvider hltConfig;
+  hltConfig.init(theHltProcessName);
+  vector<string> moduleNames = hltConfig.moduleLabels( triggerName );
+  theHltCollectionLabels.clear();
+  for ( size_t i = 0; i < moduleNames.size(); i++ ) {
+    string module = moduleNames[i];
+    if ( TString(module).Contains("L1Filtered") ) 
+      theL1CollectionLabel = module;
+    else if ( TString(module).Contains("Filtered") ) 
+      theHltCollectionLabels.push_back(module);
+  }
 
   m_useMuonFromGenerator = pset.getParameter<bool>("UseMuonFromGenerator");
   m_useMuonFromReco      = pset.getParameter<bool>("UseMuonFromReco");
@@ -75,8 +77,7 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   theNtuplePath     = pset.getUntrackedParameter<std::string>
                       ( "NtuplePath", "" );
   m_makeNtuple = false;
-  if ( theL1CollectionLabel == theNtuplePath + "L1Filtered" &&
-       theNtupleFileName != "" ) 
+  if ( theTriggerName == theNtuplePath && theNtupleFileName != "" ) 
     m_makeNtuple = true;
   if ( m_makeNtuple ) {
     theFile      = new TFile(theNtupleFileName.c_str(),"RECREATE");
@@ -250,23 +251,20 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     L1MuonParticleRef l1Cand = L1MuonParticleRef( l1Cands[i] );
     double eta   = l1Cand->eta();
     double phi   = l1Cand->phi();
-    double ptLUT = l1Cand->pt();  // L1 pt is taken from a lookup table
-    double pt    = ptLUT + 0.001; // In case ptLUT, which is discrete, exactly
-                                  // equals theL1ReferenceThreshold
+//     double ptLUT = l1Cand->pt();  // L1 pt is taken from a lookup table
+//     double pt    = ptLUT + 0.001; 
 
-    if ( pt > theL1ReferenceThreshold ) {
-      double maxDeltaR = theL1DrCut;
-      numL1Cands++;
-      if ( m_useMuonFromGenerator ){
-	int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
-	if ( match != -1 ) 
-	  genMatches[match].l1Cand = &*l1Cand;
-      }
-      if ( m_useMuonFromReco ){
-	int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
-	if ( match != -1 ) 
-	  recMatches[match].l1Cand = &*l1Cand;
-      }
+    double maxDeltaR = theL1DrCut;
+    numL1Cands++;
+    if ( m_useMuonFromGenerator ){
+      int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
+      if ( match != -1 ) 
+	genMatches[match].l1Cand = &*l1Cand;
+    }
+    if ( m_useMuonFromReco ){
+      int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
+      if ( match != -1 ) 
+	recMatches[match].l1Cand = &*l1Cand;
     }
   }
 
@@ -289,20 +287,18 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       RecoChargedCandidateRef hltCand = hltCands[i][candNum];
       double eta = hltCand->eta();
       double phi = hltCand->phi();
-      double pt  = hltCand->pt();
+      //      double pt  = hltCand->pt();
 
-      if ( pt > theHltReferenceThreshold ) {
-	numFound++;
-	if ( m_useMuonFromGenerator ){
-	  int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
-	  if ( match != -1 ) 
-	    genMatches[match].hltCands[i] = &*hltCand;
-	}
-	if ( m_useMuonFromReco ){
-	  int match  = findRecMatch( eta, phi, maxDeltaR, recMatches );
-	  if ( match != -1 ) 
-	    recMatches[match].hltCands[i] = &*hltCand;
-	}
+      numFound++;
+      if ( m_useMuonFromGenerator ){
+	int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
+	if ( match != -1 ) 
+	  genMatches[match].hltCands[i] = &*hltCand;
+      }
+      if ( m_useMuonFromReco ){
+	int match  = findRecMatch( eta, phi, maxDeltaR, recMatches );
+	if ( match != -1 ) 
+	  recMatches[match].hltCands[i] = &*hltCand;
       }
     }
     if ( numFound >= theNumberOfObjects ){
@@ -455,18 +451,16 @@ HLTMuonGenericRate::findRecMatch( double eta, double phi,  double maxDeltaR,
 void 
 HLTMuonGenericRate::begin() 
 {
-  TString dirLabel, myLabel, newFolder, histName, histTitle;
+  TString myLabel, newFolder;
   vector<TH1F*> h;
   if (dbe_) {
     dbe_->cd();
     dbe_->setCurrentFolder("HLT/Muon");
 
-    dirLabel = theL1CollectionLabel;
-    dirLabel.Resize( dirLabel.Index("L1") ); // Truncate starting at "L1"
     myLabel = theL1CollectionLabel;
     myLabel = myLabel(myLabel.Index("L1"),myLabel.Length());
 
-    newFolder = "HLT/Muon/Distributions/" + dirLabel;
+    newFolder = "HLT/Muon/Distributions/" + theTriggerName;
     dbe_->setCurrentFolder( newFolder.Data() );
 
     NumberOfEvents     = dbe_->bookInt("NumberOfEvents");
@@ -496,15 +490,11 @@ HLTMuonGenericRate::begin()
     }
 
     for (unsigned int i = 0; i < theHltCollectionLabels.size(); i++) {
-      dbe_->cd();
-      newFolder = "HLT/Muon/Distributions/" + dirLabel;
-      dbe_->setCurrentFolder( newFolder.Data() );
       myLabel = theHltCollectionLabels[i];
-      if ( myLabel.Contains("L2") )
-	myLabel = myLabel(myLabel.Index("L2"),myLabel.Length());
-      else if ( myLabel.Contains("L3") )
-	myLabel = myLabel(myLabel.Index("L3"),myLabel.Length());
-
+      TString level = ( myLabel.Contains("L2") ) ? "L2" : "L3";
+      myLabel = myLabel(myLabel.Index(level),myLabel.Length());
+      myLabel = myLabel(0,myLabel.Index("Filtered")+8);
+      
       if (m_useMuonFromGenerator) {
 	hPassMaxPtGen.push_back( bookIt( "genPassMaxPt_" + myLabel, "Highest Gen Muon pt with >= 1 Candidate, label=" + myLabel, theMaxPtParameters) );   
 	hPassPtGen.push_back( bookIt( "genPassPt_" + myLabel, "Highest Gen Muon pt with >= 1 Candidate, label=" + myLabel, thePtParameters) );   
