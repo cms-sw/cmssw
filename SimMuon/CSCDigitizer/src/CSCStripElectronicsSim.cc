@@ -55,7 +55,6 @@ CSCStripElectronicsSim::~CSCStripElectronicsSim() {
 
 void CSCStripElectronicsSim::initParameters() {
   TimeMe t("CSCStripEl:init");
-  theLayerGeometry = theLayer->geometry();
   nElements = theLayerGeometry->numberOfStrips();
   theComparatorThreshold = 20.;
   //selfTest();

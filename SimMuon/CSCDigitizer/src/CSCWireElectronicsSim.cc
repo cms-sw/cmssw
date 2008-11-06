@@ -21,7 +21,6 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p)
 
 
 void CSCWireElectronicsSim::initParameters() {
-  theLayerGeometry = theLayer->geometry();
   nElements = theLayerGeometry->numberOfWireGroups();
   theWireNoise = theSpecs->wireNoise(theShapingTime)
                 * e_SI * pow(10.0,15);
