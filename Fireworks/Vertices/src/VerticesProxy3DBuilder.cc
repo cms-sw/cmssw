@@ -21,6 +21,7 @@ VerticesProxy3DBuilder::~VerticesProxy3DBuilder() { }
 
 void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** product)
 {
+  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
   TEveElementList * list = *product;
      
   if (list == NULL) {
@@ -72,7 +73,7 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
     TGeoTranslation position(vertex.x(), vertex.y(), vertex.z());
 
     // EVE-managed shape
-    TEveGeoShape * shape = new TEveGeoShape();
+    TEveGeoShape * shape = new TEveGeoShape("vertices");
     shape->SetShape(sphere);
     shape->SetTransMatrix(position * dimension);
     shape->SetMainColor(item->defaultDisplayProperties().color());

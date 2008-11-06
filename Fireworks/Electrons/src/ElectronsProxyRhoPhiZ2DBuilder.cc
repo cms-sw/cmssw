@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.14 2008/09/26 07:42:09 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.15 2008/11/04 11:46:35 amraktad Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ void
 ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
+     TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
      TEveElementList* tList = *product;
 
      // printf("calling ElectronsProxyRhoPhiZ2DBuilder::buildRhiPhi\n");
@@ -96,6 +97,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					  TEveElementList** product)
 {
      // printf("calling ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ\n");
+     TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
      TEveElementList* tList = *product;
      if(0 == tList) {
 	  tList =  new TEveElementList(iItem->name().c_str(),"Electron RhoZ",true);

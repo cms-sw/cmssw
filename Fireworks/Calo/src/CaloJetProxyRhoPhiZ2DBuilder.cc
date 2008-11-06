@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.18 2008/09/26 07:40:12 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.19 2008/11/04 11:46:33 amraktad Exp $
 //
 
 // system include files
@@ -171,6 +171,7 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi(const FWEventItem* iItem,
 						  TEveElementList* tList,
 						  const fw::NamedCounter& counter)
 {
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    const double r_ecal = 126;
    const unsigned int kBufferSize = 1024;
    char title[kBufferSize]; 

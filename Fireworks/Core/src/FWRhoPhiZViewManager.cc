@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.38 2008/11/03 11:50:02 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.39 2008/11/04 11:46:33 amraktad Exp $
 //
 
 // system include files
@@ -248,6 +248,7 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
 void 
 FWRhoPhiZViewManager::setupGeometry()
 {
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    if ( m_rhoPhiGeom.empty() ) {
       makeMuonGeometryRhoPhi();
       makeTrackerGeometryRhoPhi();

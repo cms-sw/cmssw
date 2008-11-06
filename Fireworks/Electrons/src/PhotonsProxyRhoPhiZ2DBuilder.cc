@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/09/21 13:16:22 jmuelmen Exp $
+// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 11:46:35 amraktad Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ void
 PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
+     TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
      TEveElementList* tList = *product;
 
      // printf("calling PhotonsProxyRhoPhiZ2DBuilder::buildRhiPhi\n");

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.2 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.3 2008/11/04 20:27:54 amraktad Exp $
 //
 
 // system include files
@@ -70,6 +70,7 @@ void
 L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
   TEveElementList* tList = *product;
+  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
 
   // Make the eve element list
   if(0 == tList) {

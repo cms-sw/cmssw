@@ -112,7 +112,7 @@ void fw::addRhoZEnergyProjection( TEveElement* container,
 			      double phi,
 			      Color_t color)
 {
-   
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    double z1 = r_ecal/tan(theta_min);
    if ( z1 > z_ecal ) z1 = z_ecal;
    if ( z1 < -z_ecal ) z1 = -z_ecal;
@@ -188,6 +188,7 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 				      const DetIdToMatrix &geo,
 				      const std::vector<DetId> &detids)
 {
+  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
   TEveElementList *ret = new TEveElementList("Ecal crystals");
   for (std::vector<DetId>::const_iterator k = detids.begin();
        k != detids.end(); ++k) {

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.16 2008/11/04 11:46:33 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.17 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -173,6 +173,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    gls->SetLOD(TGLRnrCtx::kLODMed);
    gls->SetSelectable(kFALSE);
 
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TGeoTube* tube = new TGeoTube(129,130,310);
    m_cylinder = fw::getShape("Detector outline", tube, kWhite);
    m_cylinder->SetPickable(kFALSE);

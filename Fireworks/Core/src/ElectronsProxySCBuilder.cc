@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.14 2008/11/03 11:50:02 amraktad Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.15 2008/11/04 11:46:33 amraktad Exp $
 //
 
 // system include files
@@ -77,6 +77,7 @@ ElectronsProxySCBuilder::~ElectronsProxySCBuilder()
 void ElectronsProxySCBuilder::build (TEveElementList **product) 
 {
      // printf("calling ElectronsProxySCBuilder::buildRhoZ\n");
+     TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
      TEveElementList* tList = *product;
      if(0 == tList) {
 	  tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);

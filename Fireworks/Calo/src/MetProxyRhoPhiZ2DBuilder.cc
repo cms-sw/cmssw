@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/08/21 02:33:07 dmytro Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/11/04 11:46:33 amraktad Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ void
 MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TEveElementList* tList = *product;
 
    if(0 == tList) {
