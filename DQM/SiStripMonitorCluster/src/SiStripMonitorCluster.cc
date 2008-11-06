@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.44 2008/10/05 14:09:57 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.45 2008/11/01 18:24:58 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -472,6 +472,7 @@ void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
 
   if (moduleswitchncluson)            mod_me.NumberOfClusters->Reset();
   if (moduleswitchclusposon)          mod_me.ClusterPosition->Reset();
+  if (moduleswitchclusstonVsposon)    mod_me.ClusterSignalOverNoiseVsPos->Reset();
   if (moduleswitchcluswidthon)        mod_me.ClusterWidth->Reset();
   if (moduleswitchcluschargeon)       mod_me.ClusterCharge->Reset();
   if (moduleswitchclusnoiseon)        mod_me.ClusterNoise->Reset();
@@ -534,6 +535,22 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid) 
   if(moduleswitchclusstonon) {
     hid = hidmanager.createHistoId("ClusterSignalOverNoise","det",detid);
     mod_single.ClusterSignalOverNoise = bookME1D("TH1ClusterStoN", hid.c_str());
+    dqmStore_->tag(mod_single.ClusterSignalOverNoise, detid);
+    mod_single.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
+  }
+
+  //ClusterSignalOverNoiseVsPos
+  if(moduleswitchclusstonVsposon) {
+    hid = hidmanager.createHistoId("ClusterSignalOverNoiseVsPos","det",detid);
+    Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoNVsPos");
+    mod_single.ClusterSignalOverNoiseVsPos= dqmStore_->bookProfile(hid.c_str(),hid.c_str(),
+								   Parameters.getParameter<int32_t>("Nbinx"),
+								   Parameters.getParameter<double>("xmin"),
+								   Parameters.getParameter<double>("xmax"),
+								   Parameters.getParameter<int32_t>("Nbiny"),
+								   Parameters.getParameter<double>("ymin"),
+								   Parameters.getParameter<double>("ymax")
+								   );
     dqmStore_->tag(mod_single.ClusterSignalOverNoise, detid);
     mod_single.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
   }
@@ -648,6 +665,11 @@ void SiStripMonitorCluster::fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cl
   if(moduleswitchclusstonon && (mod_mes.ClusterSignalOverNoise)) {// SignalToNoise
     if (cluster.noise > 0) 
       (mod_mes.ClusterSignalOverNoise)->Fill(cluster.charge/cluster.noise);
+  }
+
+  if(moduleswitchclusstonVsposon && (mod_mes.ClusterSignalOverNoiseVsPos)) {// SignalToNoise
+    if (cluster.noise > 0) 
+      (mod_mes.ClusterSignalOverNoiseVsPos)->Fill(cluster.position,cluster.charge/cluster.noise);
   }
 
   if(moduleswitchclusnoiseon && (mod_mes.ClusterNoise))  // Noise

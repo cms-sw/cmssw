@@ -71,6 +71,16 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         layerswitchon  = cms.bool(False),
         moduleswitchon = cms.bool(True)
     ),
+    TH1ClusterStoNVsPos = cms.PSet(
+        Nbinx          = cms.int32(768),
+        xmin           = cms.double(-0.5),
+        xmax           = cms.double(767.5),
+        Nbiny          = cms.int32(100),
+        ymin           = cms.double(-0.5),
+        ymax           = cms.double(299.5),
+        layerswitchon  = cms.bool(False),
+        moduleswitchon = cms.bool(False)
+    ),
     TH1ClusterCharge = cms.PSet(
         Nbinx          = cms.int32(200),
         xmin           = cms.double(-0.5),        

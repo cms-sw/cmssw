@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.19 2008/10/05 14:09:56 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.20 2008/11/01 18:24:58 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -42,6 +42,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
     MonitorElement* ClusterCharge;
     MonitorElement* ClusterNoise;
     MonitorElement* ClusterSignalOverNoise;
+    MonitorElement* ClusterSignalOverNoiseVsPos;
     MonitorElement* ModuleLocalOccupancy;
     MonitorElement* NrOfClusterizedStrips; // can be used at client level for occupancy calculations
   };
@@ -129,6 +130,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchncluson;
   bool moduleswitchcluschargeon;
   bool moduleswitchclusstonon;
+  bool moduleswitchclusstonVsposon;
   bool moduleswitchclusposon;
   bool moduleswitchclusnoiseon;
   bool moduleswitchcluswidthon;
