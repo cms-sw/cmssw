@@ -518,7 +518,9 @@ bool DEutils<T>::de_nequal(const cand_type& lhs, const cand_type& rhs) {
 template <> inline bool 
 DEutils<EcalTrigPrimDigiCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
-  val &= (lhs[lhs.sampleOfInterest()].raw() == rhs[rhs.sampleOfInterest()].raw());
+  unsigned int mask = 0x0fff; //keep only ttf[11:9], fg [8], Et [7:0]
+  mask &= 0x0eff; //fg bit temporary(!) mask
+  val &= ((lhs[lhs.sampleOfInterest()].raw()&mask) == (rhs[rhs.sampleOfInterest()].raw()&mask));
   val &= (lhs.id().rawId()                  == rhs.id().rawId());
   return val;
 }
@@ -822,7 +824,13 @@ bool DEutils<T>::is_empty(col_cit it) const {
 
 template<>
 inline bool DEutils<EcalTrigPrimDigiCollection>::is_empty(col_cit it) const { 
-  return ( it->size()==0 || it->sample(it->sampleOfInterest()).raw()==0);
+  bool val = false;
+  val |= ((it->sample(it->sampleOfInterest()).raw()&0x0fff)==0);
+  if(val) return val;
+  unsigned int ttf = it->ttFlag();
+  val |= ((ttf!=0x1) && (ttf!=0x3)); //compare only if ttf is 1 or 3
+  return val;  
+  //  return ( it->size()==0 || it->sample(it->sampleOfInterest()).raw()==0);
 }
 
 template<>
