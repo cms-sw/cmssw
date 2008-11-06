@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(2) )
 #can be 300 in that file
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -48,8 +48,8 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.23 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DQM/SiPixelMonitorTrack/test/SiPixelMonitorTrackResiduals_mc_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
@@ -91,7 +91,7 @@ process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_
 #MC
 process.SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
 process.SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
-
+process.SiPixelTrackResidualSource.saveFile = cms.untracked.bool(True)
 
 #event content analyzer
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
