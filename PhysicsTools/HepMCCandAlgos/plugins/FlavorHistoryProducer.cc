@@ -75,16 +75,16 @@ ostream & operator<<( ostream & out, FlavorHistory const & cand)
 FlavorHistoryProducer::FlavorHistoryProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ),
   matchedSrc_( p.getParameter<InputTag>( "matchedSrc") ),
+  matchDR_ ( p.getParameter<double> ("matchDR") ),
   pdgIdToSelect_( p.getParameter<int> ("pdgIdToSelect") ),
   ptMinParticle_( p.getParameter<double>( "ptMinParticle") ),  
   ptMinShower_( p.getParameter<double>( "ptMinShower") ),  
   etaMaxParticle_( p.getParameter<double>( "etaMaxParticle" )),  
   etaMaxShower_( p.getParameter<double>( "etaMaxShower" )),
   flavorHistoryName_( p.getParameter<string>("flavorHistoryName") ),
-  verbose_( p.getUntrackedParameter<bool>( "verbose" ) ),
-  matchDR_ ( p.getParameter<double> ("matchDR") )
+  verbose_( p.getUntrackedParameter<bool>( "verbose" ) )
 {
-  produces<vector<FlavorHistory> >(flavorHistoryName_);
+  produces<FlavorHistoryEvent >(flavorHistoryName_);
 }
 
 FlavorHistoryProducer::~FlavorHistoryProducer() { 
@@ -121,7 +121,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   vector<FlavorHistory::FLAVOR_T> flavorSources;
   
   // Make a new flavor history vector
-  auto_ptr<vector<FlavorHistory> > flavorHistoryVector ( new vector<FlavorHistory> () ) ;
+  auto_ptr<FlavorHistoryEvent > flavorHistoryEvent ( new FlavorHistoryEvent () ) ;
 
   // ------------------------------------------------------------
   // Loop over partons
@@ -379,24 +379,24 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 			     matchedCand,
 			     sisterCand );
       if ( verbose_ ) cout << "Adding flavor history : " << history << endl;
-      flavorHistoryVector->push_back( history ); 
+      flavorHistoryEvent->push_back( history ); 
     }
   }
   
 
-
-
+  // Calculate some nice variables for FlavorHistoryEvent
+  flavorHistoryEvent->cache();
 
   // Now add the flavor history to the event record
   if ( verbose_ ) {
-    cout << "Outputting pdg id = " << pdgIdToSelect_ << " with nelements = " << flavorHistoryVector->size() << endl;
-    vector<FlavorHistory>::const_iterator i = flavorHistoryVector->begin(),
-      iend = flavorHistoryVector->end();
+    cout << "Outputting pdg id = " << pdgIdToSelect_ << " with nelements = " << flavorHistoryEvent->size() << endl;
+    vector<FlavorHistory>::const_iterator i = flavorHistoryEvent->begin(),
+      iend = flavorHistoryEvent->end();
     for ( ; i !=iend; ++i ) {
       cout << *i << endl;
     }
   }
-  evt.put( flavorHistoryVector, flavorHistoryName_ );
+  evt.put( flavorHistoryEvent, flavorHistoryName_ );
 }
 
  

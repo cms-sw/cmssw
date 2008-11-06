@@ -28,15 +28,21 @@ using namespace std;
 //
 FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
   src_           ( iConfig.getParameter<edm::InputTag>("src" ) ),
-  type_          ( iConfig.getParameter<int> ("type" ) ),
+  schemeName_    ( iConfig.getParameter<string> ("scheme") ),
+  flavor_        ( iConfig.getParameter<int>    ("flavor") ),
+  noutput_       ( iConfig.getParameter<int>    ("noutput") ),
   minPt_         ( iConfig.getParameter<double> ("minPt") ),
   minDR_         ( iConfig.getParameter<double> ("minDR") ),
   maxDR_         ( iConfig.getParameter<double> ("maxDR") ),
-  scheme_        ( iConfig.getParameter<string> ("scheme") ),
-  requireSisters_( iConfig.getParameter<bool>   ("requireSisters") ),
   verbose_       ( iConfig.getParameter<bool>   ("verbose") )
 {
-
+  if ( schemeName_ != "deltaR" ) {
+    throw cms::Exception("FatalError") << "Incorrect scheme for flavor history filter\n"
+				       << "Curent available options are: \n" 
+				       << "        deltaR\n";
+  }
+  
+  
 }
 
 
@@ -69,116 +75,89 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // Get the flavor history
-  Handle<vector<FlavorHistory> > pFlavorHistory;
-  iEvent.getByLabel(src_,pFlavorHistory);
+  Handle<FlavorHistoryEvent > pFlavorHistoryEvent;
+  iEvent.getByLabel(src_,pFlavorHistoryEvent);
 
-  
-//   if ( verbose_) cout << "Looking at GenJetCollection:" << endl;
-//   for ( ; ijet != ijetEnd; ++ijet ) {
-//     if ( verbose_) cout << *ijet << endl;
-//   }
+  // Get the number of matched b-jets in the event
+  unsigned int nb = pFlavorHistoryEvent->nb();
+  // Get the number of matched c-jets in the event
+  unsigned int nc = pFlavorHistoryEvent->nc();
+  // Get the highest flavor in the event
+  unsigned int highestFlavor = pFlavorHistoryEvent->highestFlavor();
+  // Get the maximum delta R between two jets of the highest flavor
+  // in the event
+  double dr = pFlavorHistoryEvent->deltaR();
 
-  // boolean to decide to pass this event or not
-  bool pass = false;
-  
-  // Loop over the objects in the flavor history
-  vector<FlavorHistory>::const_iterator i = pFlavorHistory->begin(),
-    iend = pFlavorHistory->end();
-  for ( ; i != iend; ++i ) {
-
-    if ( verbose_) cout << "Looking at flavor history object: " << endl;
-    if ( verbose_) cout << *i << endl;
-
-    reco::CandidatePtr parton = i->parton();
-
-    // Loop over Genjet collection and find the jet
-    // closest the parton in question
-    reco::ShallowClonePtrCandidate const & bestJet = i->matchedJet();
-
-    // Check to see if we got any genjet matches
-    if ( bestJet.masterClonePtr().isNonnull() ) {
-
-
-      if ( verbose_ ) cout << "Found best jet: " << bestJet << endl;
-      if ( verbose_ ) cout << "delta R to parton = " << deltaR( bestJet.p4(), parton->p4() ) << endl;
-
-      // Make sure to consider only flavorSources of "type".
-      // If "type < 0" then we ignore this. 
-      if ( i->flavorSource() == type_ || type_ < 0 ) {
-
-	if ( verbose_ ) cout << "Flavor source matches" << endl;
-	
-	
-	// Have at least one jet within minDR_ of the parton, make decision:
-	if ( scheme_ == "deltaR" ) {
-	  
-	  // Here we decide as follows.
-	  // If there are sisters that satisfy minDr < dr < maxDr, pass the event
-	  // If there are sisters that satisfy dr < minDr || dr > maxDr, reject the event
-	  // If there are no sisters: 
-	  //      If we require sisters, then we fail the event. 
-	  //      Otherwise, we pass. 
-	  
-	  // No sisters
-	  if ( !i->hasSister() ) {
-	    if ( requireSisters_ ) 
-	      pass |= false;
-	    else 
-	      pass |= true;
-	  } 
-	  // Has a sister parton
-	  else {
-	    if ( verbose_) cout << "Found a sister" << endl;
-	    // Find jet closest to sister
-	    reco::CandidatePtr sister = i->sister();
-	    if ( verbose_) cout << *sister << endl;
-	    ShallowClonePtrCandidate sisterJet = i->sisterJet();
-
-	    // Here we found a sister jet
-	    if ( sisterJet.masterClonePtr().isNonnull()  ) {
-	      if ( verbose_) cout << "sister jet = " << sisterJet << endl;
-
-	      // If this jet is far enough away from the first jet, pass the event
-	      if ( verbose_) cout << "deltaR = " << deltaR( sisterJet.p4(), bestJet.p4() ) << endl;
-	      if ( verbose_) cout << "minDR  = " << minDR_ << endl;
-	      double dr = deltaR( sisterJet.p4(), bestJet.p4() );
-	      if (  dr > minDR_ &&
-		    dr < maxDR_ ) {
-		pass |= true;
-	      }
-	      // Otherwise, fail the event
-	      else {
-		pass |= false;
-	      }
-
-	    }// end if has sister jet
-
-	    // Here there is no sister jet
-	    else {
-	      if ( requireSisters_ ) {
-		pass |= false;
-	      }
-	      else {
-		pass |= true;
-	      }
-	    }// end if has no sister jet
-	  }// end if has sister parton
-	
-	}// end if scheme is deltaR
-	
-	// Otherwise throw exception, at the moment nothing else implemented
-	else {
-	  throw cms::Exception("FatalError") << "Incorrect scheme for flavor history filter\n"
-					     << "Options are: \n" 
-					     << "     deltaR\n";
-	}
-	
-      }// end if flavor source is the type we're looking for  
-    }// End if we found a genjet within minDR of the parton
+  if ( verbose_ ) {
+    cout << "Looking at flavor history event: " << endl;
+    cout << "   nb = " << nb << endl;
+    cout << "   nc = " << nc << endl;
+    cout << "   highestFlavor = " << highestFlavor << endl;
+    cout << "   dr = " << dr << endl;
   }
 
-  if ( verbose_) cout << "About to return pass = " << pass << endl;
-  return pass;
+  // First check that the highest flavor in the event is what this
+  // filter is checking. Otherwise we need to fail the event,
+  // since it should be handled by another filter
+  if ( highestFlavor > static_cast<unsigned int>(flavor_) ) {
+    return false;
+  }
+  
+  // If we are examining b quarks
+  if ( flavor_ == reco::FlavorHistory::bQuarkId ) {
+    // if we have no b quarks, return false
+    if ( nb <= 0 ) return false;
+    // here, nb > 0
+    else {
+      // if we want 1 b, require nb == 1
+      if ( noutput_ == 1 && nb == 1 ) {
+	return true;
+      }
+      // if we want 2 b, then look at delta R
+      else if ( noutput_ > 1 && nb > 1 ) {
+	// If dr is within the range we want, pass.
+	// Otherwise, fail.
+	return ( dr > minDR_ && dr < maxDR_ );
+      }
+      // otherwise return false
+      else {
+	return false;
+      }
+    }// end if nb > 0
+    
+  } // end if flavor is b quark
+
+  // If we are examining c quarks
+  else if ( flavor_ == reco::FlavorHistory::cQuarkId ) {
+    // make sure there are no b quarks in the event.
+    // If there are, another filter should handle it.
+    if ( nb > 0 ) return false;
+    
+    // if we have no c quarks, return false
+    if ( nc <= 0 ) return false;
+    // here, nc > 0
+    else {
+      // if we want 1 c, require nc == 1
+      if ( noutput_ == 1 && nc == 1 ) {
+	return true;
+      }
+      // if we want 2 c, then look at delta R
+      else if ( noutput_ > 1 && nc > 1 ) {
+	// If dr is within the range we want, pass.
+	// Otherwise, fail.
+	return ( dr > minDR_ && dr < maxDR_ );
+      }
+      // otherwise return false
+      else {
+	return false;
+      }
+    }// end if nc > 0
+    
+  }
+  // Otherwise return false
+  else {
+    return false;
+  }
 
 }
 

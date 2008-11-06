@@ -47,6 +47,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -86,6 +87,7 @@ class FlavorHistoryProducer : public edm::EDProducer {
   
   edm::InputTag src_;               // GenParticles source collection name 
   edm::InputTag matchedSrc_;        // matched particles source collection name
+  double matchDR_;                  // delta r to match matched particles
   int    pdgIdToSelect_;            // pdg of hf partons to select
   double ptMinParticle_;            // minimum pt of the partons
   double ptMinShower_;              // minimum pt of the shower
@@ -93,7 +95,6 @@ class FlavorHistoryProducer : public edm::EDProducer {
   double etaMaxShower_;             // max eta of the shower
   std::string flavorHistoryName_;   // name to give flavor history
   bool verbose_;                    // verbose flag
-  double matchDR_;                  // delta r to match matched particles
 };
 
 #endif
