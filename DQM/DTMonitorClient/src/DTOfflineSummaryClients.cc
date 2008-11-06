@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/09 09:38:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/10/22 09:38:05 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -148,16 +148,16 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
   for(int wheel=-2; wheel<=2; wheel++){ // loop over wheels
     // retrieve the chamber efficiency summary
     stringstream str;
-    str << "DT/01-DTChamberEfficiency/chEfficiencySummary_W" << wheel;
-    MonitorElement * wheelChEfficiencySummary =  dbe->get(str.str());
-    if(wheelChEfficiencySummary != 0) {
+    str << "DT/02-Segments/segmentSummary_W" << wheel;
+    MonitorElement * segmentWheelSummary =  dbe->get(str.str());
+    if(segmentWheelSummary != 0) {
       int nFailingChambers = 0;
       for(int sector=1; sector<=12; sector++){ // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations
-	  double chamberStatus = wheelChEfficiencySummary->getBinContent(sector, station);
+	  double chamberStatus = segmentWheelSummary->getBinContent(sector, station);
 	  LogTrace("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
 	    << "Wheel: " << wheel << " Stat: " << station << " Sect: " << sector << " status: " << chamberStatus << endl;
-	  if(chamberStatus == 1) {
+	  if(chamberStatus == 0 || chamberStatus == 1) {
 	    summaryReportMap->Fill(sector, wheel, 0.25);
 	  } else {
 	    nFailingChambers++;
@@ -171,14 +171,15 @@ void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg,
       totalStatus += (48.-nFailingChambers)/48.;
     } else {
       efficiencyFound = false;
-      LogError("DTDQM|DTMonitorClient|DTOfflineSummaryClients")<< " Wheel Chamber Efficiency Summary not found with name: " << str.str() << endl;
+      LogWarning("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
+	<< " [DTOfflineSummaryClients] Segment Summary not found with name: " << str.str() << endl;
     }
   }
 
 
   //if(efficiencyFound && !noDTData)
-  if(efficiencyFound)
-    summaryReport->Fill(totalStatus/5.);
+//   if(efficiencyFound)
+//     summaryReport->Fill(totalStatus/5.);
 
 //   cout << "-----------------------------------------------------------------------------" << endl;
 //   cout << " In the endLuminosityBlock: " << endl;
