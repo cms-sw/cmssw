@@ -23,7 +23,7 @@ SiPixelRecHitSource.saveFile = False
 
 # Pixel Track Monitoring
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
-SiPixelTrackResidualSource.saveFile = True
+SiPixelTrackResidualSource.saveFile = False
         
 ##online/offline
 #RawDataErrors
