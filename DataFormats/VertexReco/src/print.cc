@@ -17,7 +17,7 @@ namespace reco {
       out << "error = " << endl;
       for (int i = 0; i < 2; i++) {
 	for (int j = 0; j < 2; j++) {
-	  out.precision(6); out.width(13); out<<vtx.error(i, j);
+	  out.precision(6); out.width(13); out<<vtx.covariance(i, j);
 	}
 	out << endl;
       }

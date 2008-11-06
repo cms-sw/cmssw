@@ -15,7 +15,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.31 2007/09/18 14:01:02 speer Exp $
+ * \version $Id: Vertex.h,v 1.32 2007/09/25 11:21:51 speer Exp $
  *
  */
 #include <Rtypes.h>
@@ -23,7 +23,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include <iostream>
 #include "DataFormats/Common/interface/RefToBase.h" 
 
 namespace reco {
@@ -101,11 +100,9 @@ namespace reco {
     /// error on z
     double zError() const { return sqrt( covariance(2, 2) ); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double error( int i, int j ) const {
-      std::cout << "reco::Vertex::error(i, j) OBSOLETE, use covariance(i, j)"
-		<< std::endl;
-      return covariance_[ idx( i, j ) ]; 
-    }
+    // Note that:
+    //   double error( int i, int j ) const 
+    // is OBSOLETE, use covariance(i, j)
     double covariance( int i, int j ) const { 
       return covariance_[ idx( i, j ) ]; 
     }
