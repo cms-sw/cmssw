@@ -49,9 +49,8 @@ public:
  
   virtual ~CSCBaseElectronicsSim();
 
-  /**
-   * For verbosity
-   */  
+  /// for standalone apps who don't calculate it from the geometry
+  void setLayerId(const CSCDetId & id) {theLayerId = id;}
 
 protected:
   // constructor protected, so this class must be a base class
