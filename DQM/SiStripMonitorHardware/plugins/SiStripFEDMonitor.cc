@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.2 2008/10/20 13:13:45 nc302 Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.1 2008/11/06 16:06:57 nc302 Exp $
 //
 //
 
@@ -451,12 +451,12 @@ void SiStripFEDMonitorPlugin::bookTopLevelHistograms()
   const unsigned int siStripFedIdMin = numbering.getSiStripFEDIds().first;
   const unsigned int siStripFedIdMax = numbering.getSiStripFEDIds().second;
   //book histos
-  anyErrors_ = dqm_->book1D("AnyErrors",
+  anyErrors_ = dqm_->book1D("FedGenericErrors",
                             "Number of buffers with any error per FED",
                             siStripFedIdMax-siStripFedIdMin+1,
                             siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   anyErrors_->setAxisTitle("FED-ID",1);
-  corruptBuffers_ = dqm_->book1D("CorruptBuffers",
+  corruptBuffers_ = dqm_->book1D("FedCorruptBuffer",
                                  "Number of corrupt FED buffers per FED",
                                  siStripFedIdMax-siStripFedIdMin+1,
                                  siStripFedIdMin-0.5,siStripFedIdMax+0.5);
@@ -466,7 +466,7 @@ void SiStripFEDMonitorPlugin::bookTopLevelHistograms()
                                  siStripFedIdMax-siStripFedIdMin+1,
                                  siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   invalidBuffers_->setAxisTitle("FED-ID",1);
-  anyDaqProblems_ = dqm_->book1D("AnyDAQProblems",
+  anyDaqProblems_ = dqm_->book1D("FedFreeze",
                                  "Number of buffers with any problems flagged in DAQ header (including CRC)",
                                  siStripFedIdMax-siStripFedIdMin+1,
                                  siStripFedIdMin-0.5,siStripFedIdMax+0.5);
@@ -476,12 +476,12 @@ void SiStripFEDMonitorPlugin::bookTopLevelHistograms()
                          siStripFedIdMax-siStripFedIdMin+1,
                          siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   badIDs_->setAxisTitle("FED-ID",1);
-  badChannelStatusBits_ = dqm_->book1D("BadChannelStatusBits",
+  badChannelStatusBits_ = dqm_->book1D("TotalChannelsVsEvent",
                                        "Number of buffers with one or more enabled channel with bad status bits",
                                        siStripFedIdMax-siStripFedIdMin+1,
                                        siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   badChannelStatusBits_->setAxisTitle("FED-ID",1);
-  badActiveChannelStatusBits_ = dqm_->book1D("BadActiveChannelStatusBits",
+  badActiveChannelStatusBits_ = dqm_->book1D("FaultyChannelsVsEvent",
                                              "Number of buffers with one or more active channel with bad status bits",
                                              siStripFedIdMax-siStripFedIdMin+1,
                                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
@@ -502,7 +502,7 @@ void SiStripFEDMonitorPlugin::bookTopLevelHistograms()
                                 siStripFedIdMax-siStripFedIdMin+1,
                                 siStripFedIdMin-0.5,siStripFedIdMax+0.5);
     daqProblems_->setAxisTitle("FED-ID",1);
-    feOverflows_ = dqm_->book1D("FEOverflows",
+    feOverflows_ = dqm_->book1D("FedBxError",
                                 "Number of buffers with one or more FE overflow",
                                 siStripFedIdMax-siStripFedIdMin+1,
                                 siStripFedIdMin-0.5,siStripFedIdMax+0.5);
