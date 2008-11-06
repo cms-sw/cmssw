@@ -1680,7 +1680,7 @@ class dbsBaseGui:
 
                     # temporary code for moving hotcell, deadcell lists to new directory
                     # ADDED ON 2 NOV 2008
-                    statusname="HcalDQMstatus_%i.txt",%i
+                    statusname="HcalDQMstatus_%i.txt"%i
                     if os.path.isfile(statusname):
                         os.system("mv %s %s/%s"%(statusname,self.finalDir.get(),statusname))
                     #if os.path.isfile("hcalHotCells.txt"):
