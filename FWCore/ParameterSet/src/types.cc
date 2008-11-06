@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.17 2008/04/24 20:37:54 wmtan Exp $
+// $Id: types.cc,v 1.18 2008/11/05 14:41:43 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -19,6 +19,7 @@
 #include <limits>
 #include <sstream>
 #include <stdexcept>
+#include <cassert>
 
 using namespace edm;
 
