@@ -76,7 +76,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (verbose_ > 0) {
     edm::LogInfo("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
     for (unsigned int i=0; i<vertexes->size(); ++i) {
-      edm::LogInfo("PixelVertexProducer") << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize() << " tracks with a position of " << (*vertexes)[i].z() << " +- " << std::sqrt( (*vertexes)[i].error(2,2) );
+      edm::LogInfo("PixelVertexProducer") << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize() << " tracks with a position of " << (*vertexes)[i].z() << " +- " << std::sqrt( (*vertexes)[i].covariance(2,2) );
     }
   }
 

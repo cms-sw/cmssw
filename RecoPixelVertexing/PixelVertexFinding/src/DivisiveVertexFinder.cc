@@ -91,7 +91,7 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
     if (verbose_ > 0 ) edm::LogInfo("DivisiveVertexFinder") << " DivisiveClusterizer1D vertex " << iv 
 							    << " has " << out.first[iv].tracks().size()
 							    << " tracks and a position of " << v.z() 
-							    << " +- " << std::sqrt(v.error(2,2));
+							    << " +- " << std::sqrt(v.covariance(2,2));
     for (unsigned int itrk=0; itrk<out.first[iv].tracks().size(); ++itrk) {
       v.add( reco::TrackBaseRef(mapa[out.first[iv].tracks()[itrk]] ) );
     }
