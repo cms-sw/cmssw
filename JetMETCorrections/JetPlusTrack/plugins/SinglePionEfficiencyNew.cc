@@ -609,6 +609,14 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::string theTrackQuality = "highPurity";
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
+    ptSim1     = genpions[0].perp(); 
+    etaSim1    = genpions[0].eta(); 
+    phiSim1    = genpions[0].phi();
+
+    ptSim2     = genpions[1].perp(); 
+    etaSim2    = genpions[1].eta(); 
+    phiSim2    = genpions[1].phi();
+
     for(TrackCollection::const_iterator track = tracks->begin();
 	track != tracks->end(); track++) {
       //     const reco::TrackExtraRef & trkExtra = track->extra();
@@ -801,9 +809,6 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       HepLorentzVector tracki(track->px(), track->py(), track->pz(), track->p());
       double DR1 = genpions[0].deltaR(tracki);
       if(DR1 < drTrk1) {
-	ptSim1     = genpions[0].perp(); 
-	etaSim1    = genpions[0].eta(); 
-	phiSim1    = genpions[0].phi();
         ptTrk1     = tracki.perp();
         etaTrk1    = tracki.eta(); 
         phiTrk1    = tracki.phi();
@@ -818,9 +823,6 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
       double DR2 = genpions[1].deltaR(tracki);
       if(DR2 < drTrk2) {
-	ptSim2     = genpions[1].perp(); 
-	etaSim2    = genpions[1].eta(); 
-	phiSim2    = genpions[1].phi();
         ptTrk2     = tracki.perp();
         etaTrk2    = tracki.eta(); 
         phiTrk2    = tracki.phi();
@@ -954,9 +956,6 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       HepLorentzVector pxltracki(pxltrack->px(), pxltrack->py(), pxltrack->pz(), pxltrack->p());
       double DR1 = genpions[0].deltaR(pxltracki);
       if(DR1 < drPxl1) {
-	ptSim1     = genpions[0].perp(); 
-	etaSim1    = genpions[0].eta(); 
-	phiSim1    = genpions[0].phi();
         ptPxl1     = pxltracki.perp();
         etaPxl1    = pxltracki.eta(); 
         phiPxl1    = pxltracki.phi();
@@ -965,9 +964,6 @@ SinglePionEfficiencyNew::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
       double DR2 = genpions[1].deltaR(pxltracki);
       if(DR2 < drPxl2) {
-	ptSim2     = genpions[1].perp(); 
-	etaSim2    = genpions[1].eta(); 
-	phiSim2    = genpions[1].phi();
         ptPxl2     = pxltracki.perp();
         etaPxl2    = pxltracki.eta(); 
         phiPxl2    = pxltracki.phi();
