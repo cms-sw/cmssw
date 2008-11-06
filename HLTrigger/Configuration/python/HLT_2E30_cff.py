@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V13 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
+# /dev/CMSSW_3_0_0/pre0/HLT/V17 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V13')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V17')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -4797,7 +4797,11 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         debug = cms.untracked.bool( False ),
         nSharedHitsMax = cms.int32( 2 ),
         nUnSharedHitsMin = cms.int32( 2 ),
-        segmCleanerMode = cms.int32( 1 )
+        segmCleanerMode = cms.int32( 1 ),
+        performT0SegCorrection = cms.bool( False ),
+        performT0_vdriftSegCorrection = cms.bool( False ),
+        hit_afterT0_resolution = cms.double( 0.03 ),
+        T0SegCorrectionDebug = cms.untracked.bool( False )
       ),
       Reco2DAlgoName = cms.string( "DTCombinatorialPatternReco" ),
       recAlgoConfig = cms.PSet( 
@@ -4822,7 +4826,11 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
       debug = cms.untracked.bool( False ),
       nSharedHitsMax = cms.int32( 2 ),
       nUnSharedHitsMin = cms.int32( 2 ),
-      segmCleanerMode = cms.int32( 1 )
+      segmCleanerMode = cms.int32( 1 ),
+      performT0SegCorrection = cms.bool( False ),
+      performT0_vdriftSegCorrection = cms.bool( False ),
+      hit_afterT0_resolution = cms.double( 0.03 ),
+      T0SegCorrectionDebug = cms.untracked.bool( False )
     )
 )
 hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
@@ -9270,7 +9278,7 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "GlobalRegionProducer" ),
       RegionPSet = cms.PSet( 
-        ptMin = cms.double( 0.9 ),
+        ptMin = cms.double( 0.2 ),
         originRadius = cms.double( 0.2 ),
         originHalfLength = cms.double( 15.9 ),
         originXPos = cms.double( 0.0 ),
