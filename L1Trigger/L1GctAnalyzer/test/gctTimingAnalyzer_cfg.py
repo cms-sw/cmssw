@@ -28,6 +28,8 @@ process.l1GctHwDigis.verbose = cms.untracked.bool ( True )
 process.l1GctHwDigis.inputLabel = cms.InputTag( "gctRaw" )
 process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
 process.l1GctHwDigis.unpackInternJets = cms.untracked.bool ( True )
+process.l1GctHwDigis.unpackInternESums = cms.untracked.bool ( True )
+process.l1GctHwDigis.unpackInternHF = cms.untracked.bool ( True )
 
 #Timing Analyzer
 process.TimingAnalysis = cms.OutputModule( "GctTimingAnalyzer",
