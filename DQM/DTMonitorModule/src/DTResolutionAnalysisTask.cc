@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 11:30:35 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/11/05 17:35:45 $
+ *  $Revision: 1.13 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -43,10 +43,7 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   
   prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
-
-  // histogram's name
-  folderRoot = pset.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
-  histoTag = pset.getUntrackedParameter<string>("histoTag", "hResDist");
+  doSectorSummaries = pset.getUntrackedParameter<bool>("doSectorSummaries", false);
 
 }
 
@@ -72,7 +69,7 @@ void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& setup){
   for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId dtChId = (*chamber)->id();
-    bookHistos(dtChId);
+    if(doSectorSummaries) bookHistos(dtChId);
     for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
       if(dtChId.station() == 4 && sl == 2) continue;
       const  DTSuperLayerId dtSLId(dtChId,sl);
@@ -149,11 +146,11 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
 	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 4 but "
 	       << (*segment4D).dimension() << "!" << endl;
-// 	continue; //FIXME: remove the if
+ 	continue;
       } else if((*chamberId).station() == 4 && (*segment4D).dimension() != 2) {
 	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 2 but "
 	       << (*segment4D).dimension() << "!" << endl;
-// 	continue;
+ 	continue;
       }
 
 
@@ -171,7 +168,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	if(phiRecHits.size() != 8) {
 	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
 		 << " hits" << endl; // FIXME: info output
-	  // 	continue; // FIXME: remove the if
+	  continue;
 	}
 	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
       } else {
@@ -184,7 +181,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	if(zRecHits.size() != 4) {
 	  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
 		 << " hits, skipping" << endl; // FIXME: info output
-// 	  continue; // FIXME: remove the if
+ 	  continue;
 	}
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
       }
@@ -246,16 +243,16 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
 
 void DTResolutionAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") <<"[DTResolutionAnalysisTask]: End of LS transition";
+  if(!doSectorSummaries) return;
 
   // counts number of lumiSegs 
   int nLumiSegs = lumiSeg.id().luminosityBlock();
 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
+  
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") <<"[DTResolutionAnalysisTask]: End of LS transition" << nLumiSegs;
 
-  edm::LogVerbatim ("resolution") <<"[DTResolutionAnalyisTask]: "<<nLumiSegs<<" updates";
 
   for(map< DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
 	histo != histosPerSL.end();
@@ -264,9 +261,9 @@ void DTResolutionAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg
     // Fill the test histos
     int entry=-1;
     if((*histo).first.station() == 1) entry=0;
-    if((*histo).first.station() == 2) entry=3;
-    if((*histo).first.station() == 3) entry=6;
-    if((*histo).first.station() == 4) entry=9;
+    else if((*histo).first.station() == 2) entry=3;
+    else if((*histo).first.station() == 3) entry=6;
+    else if((*histo).first.station() == 4) entry=9;
     int BinNumber = entry+(*histo).first.superLayer();
     if(BinNumber == 12) BinNumber=11;
 
@@ -290,8 +287,9 @@ void DTResolutionAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg
       sigma = gfit->GetParameter(0);
     }
     else{
-      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask]: No fit, entries < 20 ..."
-					 << "SuperLayer : " << (*histo).first;
+      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask")
+	<< "[DTResolutionAnalysisTask] Fit of " << (*histo).first
+	<< " not performed because # entries < 20 ";
     }
   
     // Fill the summary histos

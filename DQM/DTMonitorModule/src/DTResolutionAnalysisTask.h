@@ -10,8 +10,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/07/25 14:15:43 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/05 17:35:58 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -61,9 +61,7 @@ private:
   
   int prescaleFactor;
   int resetCycle;
-
-  std::string folderRoot;
-  std::string histoTag;
+  bool doSectorSummaries;
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
