@@ -1,42 +1,58 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.12 2008/10/09 02:27:01 loizides Exp $
+#$Id: t0inject.sh,v 1.13 2008/10/29 00:21:02 loizides Exp $
 
 . /etc/init.d/functions
 
+# base dir for code
 export SMT0_BASE_DIR=/nfshome0/smpro/sm_scripts_cvs/inject
+
+# db config file
+export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
+
+#local run dir
+export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
+
+if test -d "/store/injectworker"; then
+    export SMT0_BASE_DIR=/opt/injectworker/inject
+    export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
+    export SMT0_LOCAL_RUN_DIR=/store/injectworker
+    if test -e "/opt/copyworker/t0_control.sh"; then
+        source /opt/copyworker/t0_control.sh > /dev/null
+    fi
+fi
+
 if [ ! -d $SMT0_BASE_DIR ]; then
     echo "SMT0_BASE_DIR ($SMT0_BASE_DIR) does not exist or is no directory"
     exit
 fi
 
+# main perl script
 SMT0_IW=$SMT0_BASE_DIR/InjectWorker.pl
+
 if [ ! -x $SMT0_IW ]; then
     echo "SMT0_IW ($SMT0_IW)does not exist or is not executable"
     exit
 fi
 
+# directory to monitor
 SMT0_MONDIR=/store/global/log
+
 if test -n "$SM_STORE"; then
     SMT0_MONDIR=$SM_STORE/global/log
 fi
+
 if [ ! -d $SMT0_MONDIR ]; then
     echo "SMT0_MONDIR ($SMT0_MONDIR) does not exist or is no directory"
     exit
 fi
 
-# db config file
-export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
 if [ ! -r $SMT0_CONFIG ]; then
     echo "SMT0_CONFIG ($SMT0_CONFIG) can not be read"
     exit
 fi
 
-#local run dir
-export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
-
 #exported variables
 export SM_NOTIFYSCRIPT=$SMT0_BASE_DIR/sendNotification.sh
-#export SM_NOTIFYSCRIPT=/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh
 export SM_HOOKSCRIPT=$SMT0_BASE_DIR/sm_hookscript.pl
 
 #
