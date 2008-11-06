@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/10/30 12:04:03 $
+ * $Date: 2008/11/04 18:32:39 $
  * \author C. Rovelli
  *
 */
@@ -147,14 +147,14 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5 over gun energy");
     meEEe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
-    meEBRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 80, -4., 4. ); 
-    meEERecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 80, -4., 4. ); 
+    meEBRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4. ); 
+    meEERecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4. ); 
     meESRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4. ); 
-    meEBRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En vs Hit Contribution", "EcalRecHits Barrel Log10En vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
-    meEERecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En vs Hit Contribution", "EcalRecHits Endcap Log10En vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
+    meEBRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En vs Hit Contribution", "EcalRecHits Barrel Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+    meEERecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En vs Hit Contribution", "EcalRecHits Endcap Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
     meESRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Preshower Log10En vs Hit Contribution", "EcalRecHits Preshower Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
-    meEBRecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
-    meEERecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", 80, -4., 4., 100, 0., 1. ); 
+    meEBRecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+    meEERecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
 
   }
 }
@@ -173,6 +173,10 @@ void EcalRecHitsValidation::endJob(){
 }
 
 void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
+
+  //Temporary stuff
+
+
   
   LogInfo("EcalRecHitsTask, EventInfo: ") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
@@ -304,9 +308,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       
       // Fill log10(Energy) stuff...   
       ebtotal += myRecHit->energy();
-      meEBRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
-      int log10i = int( ( log10( myRecHit->energy() ) + 4. ) * 10. );
-      if( log10i >=0 and log10i < 80 ) ebcontr[ log10i ] += myRecHit->energy();
+      if( myRecHit->energy() > 0 ) meEBRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+      int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
+      if( log10i >=0 and log10i < 90 ) ebcontr[ log10i ] += myRecHit->energy();
     
       // comparison Rec/Sim hit
       if ( ebSimMap[EBid.rawId()] != 0. ) {
@@ -337,8 +341,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
       e5x5rec += ebRecMap[crystalMatrix[i]];
       e5x5sim += ebSimMap[crystalMatrix[i]];
-      int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 4. ) * 10. );
-      if( log10i25 >=0 && log10i25 < 80 ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
+      int log10i25 = int( ( log10( ebRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
+      if( log10i25 >=0 && log10i25 < 90 ) ebcontr25[ log10i25 ] += ebRecMap[crystalMatrix[i]];
     }
     
     meEBe5x5_->Fill(e5x5rec);
@@ -347,14 +351,14 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     
 
     if( meEBRecHitLog10EnergyContr_  && ebtotal != 0 ) {
-      for( int i=0; i<80; i++ ) {
-	meEBRecHitLog10EnergyContr_->Fill( -4.+(float(i)+0.5)/10., ebcontr[i]/ebtotal );
+      for( int i=0; i<90; i++ ) {
+	meEBRecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., ebcontr[i]/ebtotal );
       }
     }
     
     if( meEBRecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
-      for( int i=0; i<80; i++ ) {
-	meEBRecHitLog10Energy5x5Contr_->Fill( -4.+(float(i)+0.5)/10., ebcontr25[i]/e5x5rec );
+      for( int i=0; i<90; i++ ) {
+	meEBRecHitLog10Energy5x5Contr_->Fill( -5.+(float(i)+0.5)/10., ebcontr25[i]/e5x5rec );
       }
     }
   }
@@ -400,9 +404,10 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
       // Fill log10(Energy) stuff...
       eetotal += myRecHit->energy();   
-      meEERecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
-      int log10i = int( ( log10( myRecHit->energy() ) + 4. ) * 10. );
-      if( log10i >=0 and log10i < 80 ) eecontr[ log10i ] += myRecHit->energy();
+      if( myRecHit->energy() > 0 ) meEERecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+
+      int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
+      if( log10i >=0 and log10i < 90 ) eecontr[ log10i ] += myRecHit->energy();
 
       // comparison Rec/Sim hit
       if ( eeSimMap[EEid.rawId()] != 0. ) {
@@ -433,8 +438,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
       e5x5rec += eeRecMap[crystalMatrix[i]];
       e5x5sim += eeSimMap[crystalMatrix[i]];
-      int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 4. ) * 10. );
-      if( log10i25 >=0 && log10i25 < 80 ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
+      int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
+      if( log10i25 >=0 && log10i25 < 90 ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
     }
     
     meEEe5x5_->Fill(e5x5rec);
@@ -443,14 +448,14 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     
 
     if( meEERecHitLog10EnergyContr_  && eetotal != 0 ) {
-      for( int i=0; i<80; i++ ) {
-	meEERecHitLog10EnergyContr_->Fill( -4.+(float(i)+0.5)/10., eecontr[i]/eetotal );
+      for( int i=0; i<90; i++ ) {
+	meEERecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., eecontr[i]/eetotal );
       }
     }
     
     if( meEERecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
-      for( int i=0; i<80; i++ ) {
-	meEERecHitLog10Energy5x5Contr_->Fill( -4.+(float(i)+0.5)/10., eecontr25[i]/e5x5rec );
+      for( int i=0; i<90; i++ ) {
+	meEERecHitLog10Energy5x5Contr_->Fill( -5.+(float(i)+0.5)/10., eecontr25[i]/e5x5rec );
       }
     }
 
@@ -492,7 +497,8 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 	
 	// Fill log10(Energy) stuff...
 	estotal += recHit->energy();   
-	meESRecHitLog10Energy_->Fill( log10( recHit->energy() ) );
+	if( recHit->energy() > 0 ) meESRecHitLog10Energy_->Fill( log10( recHit->energy() ) );
+
 	int log10i = int( ( log10( recHit->energy() ) + 5. ) * 10. );
 	if( log10i >=0 and log10i < 90 ) escontr[ log10i ] += recHit->energy();
 
