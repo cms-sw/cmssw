@@ -112,6 +112,24 @@ void JetAnaPythia<Jet>::beginJob(edm::EventSetup const& iSetup)
   hname = "PtHatFineWt";
   m_HistNames1D[hname] = new TH1F(hname,hname,5000,0,5000);
   m_HistNames1D.find(hname)->second->Sumw2();
+
+  mcTruthTree_   = new TTree("mcTruthTree","mcTruthTree");
+  mcTruthTree_->Branch("xsec",     &xsec,      "xsec/F");
+  mcTruthTree_->Branch("weight",     &weight,      "weight/F");
+  mcTruthTree_->Branch("pt_hat",     &pt_hat,      "pt_hat/F");
+  mcTruthTree_->Branch("nJets",     &nJets,      "nJets/I");
+  mcTruthTree_->Branch("etaJet1",     &etaJet1,      "etaJet1/F");
+  mcTruthTree_->Branch("etaJet2",     &etaJet2,      "etaJet2/F");
+  mcTruthTree_->Branch("ptJet1",     &ptJet1,      "ptJet1/F");
+  mcTruthTree_->Branch("ptJet2",     &ptJet2,      "ptJet2/F");
+  mcTruthTree_->Branch("diJetMass",     &diJetMass,      "diJetMass/F");
+  mcTruthTree_->Branch("etaPart1",     &etaPart1,      "etaPart1/F");
+  mcTruthTree_->Branch("etaPart2",     &etaPart2,      "etaPart2/F");
+  mcTruthTree_->Branch("ptPart1",     &ptPart1,      "ptPart1/F");
+  mcTruthTree_->Branch("ptPart2",     &ptPart2,      "ptPart2/F");
+  mcTruthTree_->Branch("diPartMass",     &diPartMass,      "diPartMass/F");
+
+  
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
@@ -125,22 +143,22 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
     // Process Info
     edm::Handle< GenInfoProduct > genInfoProduct;
     evt.getRun().getByLabel("source", genInfoProduct );
-    double cross_section = genInfoProduct->cross_section();
-    if(debug)std::cout << "cross section=" <<cross_section << " mb" << std::endl;
-    float weight = cross_section*(1.0e+09)/eventsGen;
+    xsec = genInfoProduct->cross_section();
+    if(debug)std::cout << "cross section=" <<xsec << " mb" << std::endl;
+    weight = xsec*(1.0e+09)/eventsGen;
   
     edm::Handle< double > genEventScale;
     evt.getByLabel("genEventScale", genEventScale );
-    double pt_hat = *genEventScale;
+    pt_hat = *genEventScale;
     if(debug)std::cout << "pt_hat=" <<pt_hat  <<  std::endl;
     hname = "PtHat";
-    FillHist1D(hname, float(pt_hat), 1.0); 
+    FillHist1D(hname, pt_hat, 1.0); 
     hname = "PtHatFine";
-    FillHist1D(hname, float(pt_hat), 1.0); 
+    FillHist1D(hname, pt_hat, 1.0); 
     hname = "PtHatWt";
-    FillHist1D(hname, float(pt_hat), weight); 
+    FillHist1D(hname, pt_hat, weight); 
     hname = "PtHatFineWt";
-    FillHist1D(hname, float(pt_hat), weight); 
+    FillHist1D(hname, pt_hat, weight); 
     if(anaLevel=="PtHatOnly")break;  //ptHatOnly should be very fast
 
     // Jet Info
@@ -154,7 +172,9 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
 
     /////////// Count the jets in the event /////////////////
     hname = "NumberOfJets";
-    FillHist1D(hname,jets->size(),1.0); 
+    nJets = jets->size();
+    FillHist1D(hname,nJets,1.0); 
+    
   
     // Two Leading Jet Info
     for(i_jet = jets->begin(); i_jet != jets->end() && index < 2; ++i_jet) 
@@ -170,30 +190,40 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
         if(debug)std::cout << "jet " << index+1 <<": pt=" <<i_jet->pt() << ", eta=" <<etajet[index] <<  std::endl;
         index++;
       }
-      ///  Histograms for Dijet Mass Analysis  ////
-      if(index==2&&abs(etajet[0])<1.3&&abs(etajet[1])<1.3){
+
+      // TTree variables //
+      etaJet1 = etajet[0];
+      etaJet2 = etajet[1];
+      ptJet1 = p4jet[0].pt();
+      ptJet2 = p4jet[1].pt();
+      diJetMass = (p4jet[0]+p4jet[1]).mass();
+
+     ///  Histograms for Dijet Mass Analysis  ////
+      if(index==2&&abs(etaJet1)<1.3&&abs(etaJet2)<1.3){
        hname = "DijetMass";
-       FillHist1D(hname,(p4jet[0]+p4jet[1]).mass() ,1.0); 
+       FillHist1D(hname,diJetMass ,1.0); 
        hname = "DijetMassWt";
-       FillHist1D(hname,(p4jet[0]+p4jet[1]).mass() ,weight); 
+       FillHist1D(hname,diJetMass ,weight); 
      }
 
       /// Histograms for Dijet Ratio Analysis: Inner region ///
-      if(index==2&&abs(etajet[0])<0.7&&abs(etajet[1])<0.7){
+      if(index==2&&abs(etaJet1)<0.7&&abs(etaJet2)<0.7){
        hname = "DijetMassIn";
-       FillHist1D(hname,(p4jet[0]+p4jet[1]).mass() ,1.0); 
+       FillHist1D(hname,diJetMass ,1.0); 
        hname = "DijetMassInWt";
-       FillHist1D(hname,(p4jet[0]+p4jet[1]).mass() ,weight); 
+       FillHist1D(hname,diJetMass ,weight); 
      }
       /// Histograms for Dijet Ratio Analysis: Outer region ////
-      if(index==2 && (abs(etajet[0])>0.7&&abs(etajet[0])<1.3) 
-                  && (abs(etajet[1])>0.7&&abs(etajet[1])<1.3) ){
+      if(index==2 && (abs(etaJet1)>0.7&&abs(etaJet1)<1.3) 
+                  && (abs(etaJet2)>0.7&&abs(etaJet2)<1.3) ){
        hname = "DijetMassOut";
-       FillHist1D(hname,(p4jet[0]+p4jet[1]).mass() ,1.0); 
+       FillHist1D(hname, diJetMass ,1.0); 
        hname = "DijetMassOutWt";
-       FillHist1D(hname,(p4jet[0]+p4jet[1]).mass() ,weight); 
+       FillHist1D(hname,diJetMass ,weight); 
      }
+     if(anaLevel=="Jets")break;  //Jets level for samples without genParticles
   
+
      // Parton Info
      edm::Handle<std::vector<reco::GenParticle> > genParticlesHandle_;
      evt.getByLabel("genParticles",genParticlesHandle_);
@@ -230,28 +260,36 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
         if(debug)std::cout <<  "parton 1 pt=" << parton1_p.pt()  << ", parton 2 pt=" << parton2_p.pt() << ", diparton mass=" << (parton1_p+parton2_p).mass() << std::endl;
      }
 
+      etaPart1 = parton1_p.eta();
+      etaPart2 = parton2_p.eta();
+      ptPart1 = parton1_p.pt();
+      ptPart2 = parton2_p.pt();  
+      diPartMass = (parton1_p+parton2_p).mass();  
      /// Diparton mass for dijet mass analysis  ////
-     if(abs(parton1_p.eta())<1.3&&abs(parton2_p.eta())<1.3){
+     if(abs(etaPart1)<1.3&&abs(etaPart2)<1.3){
        hname = "DipartonMass";
-       FillHist1D(hname,(parton1_p+parton2_p).mass(),1.0); 
+       FillHist1D(hname,diPartMass ,1.0); 
        hname = "DipartonMassWt";
-       FillHist1D(hname,(parton1_p+parton2_p).mass(),weight); 
+       FillHist1D(hname,diPartMass ,weight); 
      }
      /// Diparton mass for dijet ratio analysis: inner region ///
-     if(abs(parton1_p.eta())<0.7&&abs(parton2_p.eta())<0.7){
+     if(abs(etaPart1)<0.7&&abs(etaPart2)<0.7){
        hname = "DipartonMassIn";
-       FillHist1D(hname,(parton1_p+parton2_p).mass(),1.0); 
+       FillHist1D(hname,diPartMass ,1.0); 
        hname = "DipartonMassInWt";
-       FillHist1D(hname,(parton1_p+parton2_p).mass(),weight); 
+       FillHist1D(hname,diPartMass ,weight); 
      }
      /// Diparton mass for dijet ratio analysis: outer region ///
-     if(    (abs(parton1_p.eta())>0.7&&abs(parton1_p.eta())<1.3)
-         && (abs(parton2_p.eta())>0.7&&abs(parton2_p.eta())<1.3) ){
+     if(    (abs(etaPart1)>0.7&&abs(etaPart1)<1.3)
+         && (abs(etaPart2)>0.7&&abs(etaPart2)<1.3) ){
        hname = "DipartonMassOut";
-       FillHist1D(hname,(parton1_p+parton2_p).mass(),1.0); 
+       FillHist1D(hname,diPartMass ,1.0); 
        hname = "DipartonMassOutWt";
-       FillHist1D(hname,(parton1_p+parton2_p).mass(),weight); 
+       FillHist1D(hname,diPartMass ,weight); 
      }
+
+     // Fill the TTree //
+     mcTruthTree_->Fill();
    
      notDone=0;  //We are done, exit the while loop
    }//end of while
@@ -265,6 +303,7 @@ void JetAnaPythia<Jet>::endJob()
   if (m_file !=0) 
     {
       m_file->cd();
+      mcTruthTree_->Write(); 
       for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
         hid->second->Write();
       delete m_file;

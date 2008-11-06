@@ -4,6 +4,7 @@
 // Date:  28 - October - 2008
 #ifndef JetAnaPythia_h
 #define JetAnaPythia_h
+#include <TTree.h>
 #include <TH1.h>
 #include <TFile.h>
 #include "TNamed.h"
@@ -23,6 +24,18 @@ class JetAnaPythia : public edm::EDAnalyzer
        void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
        void endJob();
        std::map<TString, TH1*> m_HistNames1D;  
+       //// TTree variables //////
+       TTree* mcTruthTree_;
+       float xsec;
+       float weight;
+       float pt_hat;
+       int   nJets;
+       float etaJet1, etaJet2;
+       float ptJet1,  ptJet2;
+       float etaPart1, etaPart2;
+       float ptPart1,  ptPart2;
+       float diJetMass;
+       float diPartMass; 
        TFile* m_file;
        /////// Configurable parameters /////////////////////////////////////
        /////// Jet algorithm: it can be any Calo, Gen or PF algorithm //////
