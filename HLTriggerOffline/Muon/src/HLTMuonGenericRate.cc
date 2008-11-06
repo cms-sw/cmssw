@@ -84,7 +84,9 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
     TString vars = "eventNum:motherId:ptGen:etaGen:phiGen:";
     vars        += "ptL1:etaL1:phiL1:";
     vars        += "ptL2:etaL2:phiL2:";
-    vars        += "sumIso20:sumIso24:sumIso30";
+    vars        += "ptL3:etaL3:phiL3:";
+    vars        += "sumIso20:sumIso24:sumIso30:sumIso35:sumIso40:";
+    vars        += "numDep20:numDep24:numDep30:numDep35:numDep40:";
     theNtuple    = new TNtuple("nt","data",vars);
   }
 
@@ -333,11 +335,16 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	  theNtupleParameters[ 8] = genMatches[i].hltCands[j]->pt();
 	  theNtupleParameters[ 9] = genMatches[i].hltCands[j]->eta();
 	  theNtupleParameters[10] = genMatches[i].hltCands[j]->phi();
+	  const int numCones = 5;
+	  double coneSizes[] = {0.20,0.24,0.30,0.35,0.40};
 	  TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
 	  const IsoDeposit &dep = (*depMap)[tk];
-	  theNtupleParameters[14] = dep.depositWithin(0.20);
-	  theNtupleParameters[15] = dep.depositWithin(0.24);
-	  theNtupleParameters[16] = dep.depositWithin(0.30);
+	  for ( int m = 0; m < numCones; m++ ) {
+	    double dr = coneSizes[m];
+	    std::pair<double,int> depInfo = dep.depositAndCountWithin(dr);
+	    theNtupleParameters[14+m]          = depInfo.first;
+	    theNtupleParameters[14+m+numCones] = depInfo.second;
+	  }
 	}
 	if ( ( !isIsolatedPath && j == 1 ) ||
 	     (  isIsolatedPath && j == 2 ) ) {
