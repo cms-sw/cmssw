@@ -345,10 +345,10 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
   evt.getByLabel( rphirecHitsTag_, rphirecHits );
   evt.getByLabel( matchedrecHitsTag_, matchedrecHits ); 
 
-  SiStripRecHit2DCollection::const_iterator istripSt; 
-  SiStripMatchedRecHit2DCollection::const_iterator istripStm; 
-  const SiStripRecHit2DCollection& stripcollSt = *rphirecHits;
-  const SiStripMatchedRecHit2DCollection& stripcollStm = *matchedrecHits;
+  SiStripRecHit2DCollection::DataContainer::const_iterator istripSt; 
+  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripStm; 
+  const SiStripRecHit2DCollection::DataContainer& stripcollSt = rphirecHits->data();
+  const SiStripMatchedRecHit2DCollection::DataContainer& stripcollStm = matchedrecHits->data();
   
   DetId idet = therechit->geographicalId(); 
   
