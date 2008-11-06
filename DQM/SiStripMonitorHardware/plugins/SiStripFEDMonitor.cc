@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.1 2008/11/06 16:06:57 nc302 Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.3 2008/11/06 16:51:56 nc302 Exp $
 //
 //
 
@@ -97,6 +97,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
 SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
+    folderName_(iConfig.getUntrackedParameter<std::string>("FolderName","SiStrip/ReadoutView/FedMonitoringSummary")),
     printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     fillAllHistograms_(iConfig.getUntrackedParameter<bool>("FillAllHistograms",true)),

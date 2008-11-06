@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Raw data collection
   RawDataTag = cms.untracked.InputTag('source'),
+
+  #Folder in DQM Store to write global histograms to
+  FolderName = cms.untracked.string('SiStrip/ReadoutView/FedMonitoringSummary'),
   
   #Dump buffer info and raw data if any error is found
   PrintDebugMessages = cms.untracked.bool(False),
