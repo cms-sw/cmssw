@@ -160,6 +160,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
 
               if (S > cold_Sfail) {
 
+                /*
                 std::cout << "!COLD!";
                 std::cout << "adr = " << detector.AddressName(adr);
                 std::cout << ", n = " << n << ", N = " << N;
@@ -168,6 +169,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
                 std::cout << ", cold_Sfail = " << cold_Sfail;
                 std::cout << ", S = " << S;
                 std::cout << "\n";
+                */
 
                 SetValue(adr, COLD);
               }
@@ -180,6 +182,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
 
                 if (S > hot_Sfail) {
 
+                  /*
                   std::cout << "!HOT!";
                   std::cout << "adr = " << detector.AddressName(adr);
                   std::cout << ", n = " << n << ", N = " << N;
@@ -188,6 +191,7 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
                   std::cout << ", hot_Sfail = " << hot_Sfail;
                   std::cout << ", S = " << S;
                   std::cout << "\n";
+                  */
 
                   SetValue(adr, HOT);
                 }
