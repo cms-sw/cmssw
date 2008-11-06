@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.23 2008/11/06 14:22:37 loizides Exp $
+# $Id: setup_sm.sh,v 1.24 2008/11/06 14:44:05 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -20,6 +20,13 @@ fi
 
 hname=`hostname | cut -d. -f1`;
 nname="node"`echo $hname | cut -d- -f3` 
+case $hname in
+    srv-c2c06-* | srv-C2C06-*)
+        nname="nottobeused"
+        ;;
+    *)
+        ;;
+esac
 
 t0control="~cmsprod/$nname/t0_control.sh";
 if test -e "/opt/copyworker/t0_control.sh"; then
