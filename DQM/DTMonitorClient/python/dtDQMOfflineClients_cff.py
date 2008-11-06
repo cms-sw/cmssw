@@ -13,4 +13,5 @@ dtQualityTests = cms.EDFilter("QualityTester",
                          getQualityTestsFromFile = cms.untracked.bool(True)
                          )
 
-dtClients = cms.Sequence(chamberEfficiencyTest*dtQualityTests*segmentTest*resolutionAnalysisTest*dtOfflineSummaryClients)
+dtClients = cms.Sequence(segmentTest*dtOfflineSummaryClients)
+
