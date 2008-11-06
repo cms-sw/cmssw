@@ -1680,11 +1680,14 @@ class dbsBaseGui:
 
                     # temporary code for moving hotcell, deadcell lists to new directory
                     # ADDED ON 2 NOV 2008
-                    if os.path.isfile("hcalHotCells.txt"):
-                        os.system("mv %s %s/hcalHotCells_run%i.txt"%("hcalHotCells.txt",self.finalDir.get(),i))
+                    statusname="HcalDQMstatus_%i.txt",%i
+                    if os.path.isfile(statusname):
+                        os.system("mv %s %s/%s"%(statusname,self.finalDir.get(),statusname))
+                    #if os.path.isfile("hcalHotCells.txt"):
+                    #    os.system("mv %s %s/hcalHotCells_run%i.txt"%("hcalHotCells.txt",self.finalDir.get(),i))
 
-                    if os.path.isfile("hcalDeadCells.txt"):
-                        os.system("mv %s %s/hcalDeadCells_run%i.txt"%("hcalDeadCells.txt",self.finalDir.get(),i))
+                    #if os.path.isfile("hcalDeadCells.txt"):
+                    #    os.system("mv %s %s/hcalDeadCells_run%i.txt"%("hcalDeadCells.txt",self.finalDir.get(),i))
 
                         
                     self.commentLabel.configure(text = "moved %s\n to directory %s"%(myobject,
