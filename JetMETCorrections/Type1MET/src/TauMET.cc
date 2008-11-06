@@ -1,22 +1,7 @@
-// -*- C++ -*-
-//
 // Package:    TauMET
 // Class:      TauMET
 // 
-/**\class TauMET TauMET.cc TauMET.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Chi Nhan Nguyen
-//         Created:  Mon Oct 22 15:20:51 CDT 2007
-// $Id: TauMET.cc,v 1.1 2008/08/27 00:40:26 kalavase Exp $
-//
-//
-
+// Original Authors:  Alfredo Gurrola, Chi Nhan Nguyen
 
 #include "JetMETCorrections/Type1MET/interface/TauMET.h"
 
@@ -26,8 +11,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
@@ -36,67 +20,84 @@ using namespace std;
 namespace cms 
 {
 
-  TauMET::TauMET(const edm::ParameterSet& iConfig) : _algo()
-  {
+  TauMET::TauMET(const edm::ParameterSet& iConfig) : _algo() {
 
-    _InputPFJetsLabel    = iConfig.getParameter<string>("InputPFJetsLabel");
+    _InputTausLabel    = iConfig.getParameter<string>("InputTausLabel");
+    _tauType    = iConfig.getParameter<string>("tauType");
     _InputCaloJetsLabel    = iConfig.getParameter<string>("InputCaloJetsLabel");
+    _jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
+    _jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
     _correctorLabel      = iConfig.getParameter<string>("correctorLabel");
-    _UseCorrectedJets    = iConfig.getParameter<bool>("UseCorrectedJets");
+    _InputMETLabel    = iConfig.getParameter<string>("InputMETLabel");
+    _metType    = iConfig.getParameter<string>("metType");
     _JetMatchDeltaR      = iConfig.getParameter<double>("JetMatchDeltaR");
+    _TauMinEt      = iConfig.getParameter<double>("TauMinEt");
+    _TauEtaMax      = iConfig.getParameter<double>("TauEtaMax");
+    _UseSeedTrack      = iConfig.getParameter<bool>("UseSeedTrack");
+    _seedTrackPt      = iConfig.getParameter<double>("seedTrackPt");
+    _UseTrackIsolation      = iConfig.getParameter<bool>("UseTrackIsolation");
+    _trackIsolationMinPt      = iConfig.getParameter<double>("trackIsolationMinPt");
+    _UseECALIsolation      = iConfig.getParameter<bool>("UseECALIsolation");
+    _gammaIsolationMinPt      = iConfig.getParameter<double>("gammaIsolationMinPt");
+    _UseProngStructure      = iConfig.getParameter<bool>("UseProngStructure");
 
-    produces< METCollection   >("DeltaTauMETCorr");
+    if( _metType == "recoMET" ) {
+      produces< METCollection   >();
+    } else {
+      produces< CaloMETCollection   >();
+    }
 
   }
   
 
-  TauMET::~TauMET()
-  {
-    
+  TauMET::~TauMET() {
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
-    
   }
   
-  
-
   // ------------ method called to produce the data  ------------
-  void
-  TauMET::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-  {
+  void TauMET::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     using namespace edm;
 
-    Handle<PFJetCollection> pfjetHandle;
-    iEvent.getByLabel(_InputPFJetsLabel, pfjetHandle);
     Handle<CaloJetCollection> calojetHandle;
     iEvent.getByLabel(_InputCaloJetsLabel, calojetHandle);
     const JetCorrector* correctedjets = JetCorrector::getJetCorrector (_correctorLabel, iSetup);
 
-    //Handle<CaloMETCollection> metHandle;
-    //iEvent.getByLabel(_InputTyp1MetLabel, metHandle);
+    Handle<PFTauCollection> tauHandle;
+    iEvent.getByLabel(_InputTausLabel,tauHandle);
 
-    // Handle<JetTagCollection> jetTagHandle;
-    // iEvent.getByLabel(_InputJetTagLabel, jetTagHandle);
+    if( _metType == "recoCaloMET" ) {
+      Handle<CaloMETCollection> metHandle;
+      iEvent.getByLabel(_InputMETLabel,metHandle);
+      std::auto_ptr< CaloMETCollection > output( new CaloMETCollection() );
+      _algo.run(iEvent,iSetup,tauHandle,calojetHandle,_jetPTthreshold,_jetEMfracLimit,*correctedjets,*(metHandle.product()),
+                _JetMatchDeltaR,_TauMinEt,
+                _TauEtaMax,_UseSeedTrack,_seedTrackPt,_UseTrackIsolation,_trackIsolationMinPt,_UseECALIsolation,
+                _gammaIsolationMinPt,_UseProngStructure,&*output);
+      iEvent.put( output );
+    } else if( _metType == "recoMET" ) {
+      Handle<METCollection> metHandle;
+      iEvent.getByLabel(_InputMETLabel,metHandle);
+      std::auto_ptr< METCollection > output( new METCollection() );
+      _algo.run(iEvent,iSetup,tauHandle,calojetHandle,_jetPTthreshold,_jetEMfracLimit,*correctedjets,*(metHandle.product()),
+                _JetMatchDeltaR,_TauMinEt,
+                _TauEtaMax,_UseSeedTrack,_seedTrackPt,_UseTrackIsolation,_trackIsolationMinPt,_UseECALIsolation,
+                _gammaIsolationMinPt,_UseProngStructure,&*output);
+      iEvent.put( output );
+    } else {
+      std::cerr << "Incorrect Met Type!!! " << std::endl;
+      std::cerr << "Please re-run and set the metType to 'recoCaloMET' or 'recoMET' " << std::endl;
+      return;
+    }
 
-    // std::cout << "I'm starting" << std::endl;
-
-    std::auto_ptr< METCollection > output( new METCollection );
-    _algo.run(iEvent,iSetup,pfjetHandle,calojetHandle,*correctedjets, _UseCorrectedJets, _JetMatchDeltaR,&*output);
-
-    iEvent.put( output, "DeltaTauMETCorr" ); 
   }
   
   // ------------ method called once each job just before starting event loop  ------------
-  void 
-  TauMET::beginJob(const edm::EventSetup&)
-  {
-  }
+  void TauMET::beginJob(const edm::EventSetup&) { }
   
   // ------------ method called once each job just after ending the event loop  ------------
-  void 
-  TauMET::endJob() {
-  }
+  void TauMET::endJob() { }
 
   //DEFINE_FWK_MODULE(TauMET);  //define this as a plug-in
 }
