@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.3 2008/11/04 20:27:54 amraktad Exp $
+// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.4 2008/11/06 19:49:22 amraktad Exp $
 //
 
 // system include files
@@ -100,11 +100,11 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
   l1extra::L1MuonParticleCollection::const_iterator trigIt = triggerColl->begin(),
     trigEnd = triggerColl->end();
   // Loop over triggered objects and make some 4-vectors
+  TGeoTube *shape = new TGeoTube(0.48, 0.5, 0.0001);
   for ( ; trigIt != trigEnd; ++trigIt ) {
 
     // Get eve container
     TEveElementList* container = new TEveElementList( counter.str().c_str() );
-    TGeoTube *shape = new TGeoTube(0.48, 0.5, 0.0001);
     TEveTrans t;
     t.RotateLF(1,2,M_PI/2);
 

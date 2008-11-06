@@ -40,6 +40,9 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
     return;
   }
   
+  // actual 3D shape
+  TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
+
   for (unsigned int i = 0; i < vertices->size(); ++i) {
     const reco::Vertex & vertex = (*vertices)[i];
      /* std::cerr << "Vertex " << i << ":" << std::endl;
@@ -62,8 +65,6 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
      pointSet->SetNextPoint( vertex.x(), vertex.y(), vertex.z() );
      vList->AddElement(pointSet);
 
-    // actual 3D shape
-    TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
 
     // this is just an approximation - the full 3D covariance matrix could be used to show the correct correlations
     TGeoScale dimension(
