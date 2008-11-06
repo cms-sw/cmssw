@@ -142,10 +142,8 @@ void Summary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_
           std::cout << "\n";
           */
 
-          // No data? Still not reporting...
-          if (n == 0) {
-            ReSetValue(adr, DATA);
-          } else if (N > 0) {
+          if (N > 0) {
+
             SetValue(adr, DATA);
 
             eps_meas = (1.0 * n) / (1.0 * N);
