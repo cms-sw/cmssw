@@ -20,14 +20,20 @@ class HcalChannelStatus
 
  void setBit(unsigned int bitnumber) 
     {
-      uint32_t statadd = 0x1<<(bitnumber-1);
+      uint32_t statadd = 0x1<<(bitnumber);
       mStatus = mStatus|statadd;
     }
  void unsetBit(unsigned int bitnumber) 
     {
-      uint32_t statadd = 0x1<<(bitnumber-1);
+      uint32_t statadd = 0x1<<(bitnumber);
       statadd = ~statadd;
       mStatus = mStatus&statadd;
+    }
+
+ bool isBitSet(unsigned int bitnumber)
+    {
+      uint32_t statadd = 0x1<<(bitnumber);
+      return (mStatus&statadd)?(true):(false);
     }
 
  uint32_t rawId() const {return mId;}
