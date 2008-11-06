@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V13 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
+# /dev/CMSSW_3_0_0/pre0/HLT/V17 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V13')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V17')
 )
 
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
@@ -3436,7 +3436,11 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         debug = cms.untracked.bool( False ),
         nSharedHitsMax = cms.int32( 2 ),
         nUnSharedHitsMin = cms.int32( 2 ),
-        segmCleanerMode = cms.int32( 1 )
+        segmCleanerMode = cms.int32( 1 ),
+        performT0SegCorrection = cms.bool( False ),
+        performT0_vdriftSegCorrection = cms.bool( False ),
+        hit_afterT0_resolution = cms.double( 0.03 ),
+        T0SegCorrectionDebug = cms.untracked.bool( False )
       ),
       Reco2DAlgoName = cms.string( "DTCombinatorialPatternReco" ),
       recAlgoConfig = cms.PSet( 
@@ -3461,7 +3465,11 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
       debug = cms.untracked.bool( False ),
       nSharedHitsMax = cms.int32( 2 ),
       nUnSharedHitsMin = cms.int32( 2 ),
-      segmCleanerMode = cms.int32( 1 )
+      segmCleanerMode = cms.int32( 1 ),
+      performT0SegCorrection = cms.bool( False ),
+      performT0_vdriftSegCorrection = cms.bool( False ),
+      hit_afterT0_resolution = cms.double( 0.03 ),
+      T0SegCorrectionDebug = cms.untracked.bool( False )
     )
 )
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
