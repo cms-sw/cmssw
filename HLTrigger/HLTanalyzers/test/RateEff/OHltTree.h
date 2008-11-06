@@ -1371,7 +1371,7 @@ public :
 
 
 
-   OHltTree(TTree *tree=0,int ntrig=0);
+   OHltTree(TTree *tree=0,int ntrig=0,int nl1trig=0);
    virtual ~OHltTree();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -1379,12 +1379,15 @@ public :
    virtual void     Init(TTree *tree);
    virtual void	    SetMapBitOfStandardHLTPath();
    virtual void	    SetMapL1BitOfStandardHLTPath();
+   virtual void     ApplyL1Prescales(std::map<TString,int> map_Level1Prescl, int eventnum, int deterministic);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    void Loop(std::vector<int> *, std::vector<int> *, std::vector<int> * 
 	     ,std::vector< std::vector<int> > * overlapCount
 	     ,std::vector<TString> trignames
-	     ,std::map<TString,int> map_TrigPrescls
+	     //	     ,std::map<TString,int> map_TrigPrescls
+	     ,std::map<TString,int> map_L1Prescls 
+	     ,std::map<TString,int> map_HLTPrescls 
 	     ,std::map<TString,int> map_MultEle,std::map<TString,int> map_MultPho,std::map<TString,int> map_MultMu
 	     ,std::map<TString,int> map_MultJets,std::map<TString,int> map_MultMET
 	     ,int n=-1
@@ -1428,13 +1431,17 @@ public :
    void PrintOhltVariables(int level, int type);
    int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
    int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
+   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
    int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
    int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
    int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
    int OpenHlt1JetPassed(double pt);
+   int OpenHltFwdJetPassed(double esum);
+   int OpenHltDiJetAvePassed(double pt);
 
  private:
    int Ntrig;
+   int NL1trig;
    std::vector<int> triggerBit;
    std::vector<int> triggerBitNoPrescale;
    std::vector<int> L1AssHLTBit;
@@ -1444,6 +1451,7 @@ public :
    std::map<TString,int> map_BitOfStandardHLTPath;
    std::vector<int> L1BitOfStandardHLTPath;
    std::map<TString,int> map_L1BitOfStandardHLTPath;
+   std::vector<int> iCountL1NoPrescale;
    
    enum e_objType {
      muon,
@@ -1458,7 +1466,7 @@ public :
 #endif
 
 #ifdef OHltTree_cxx
-OHltTree::OHltTree(TTree *tree, int ntrig)
+OHltTree::OHltTree(TTree *tree, int ntrig, int nl1trig)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -1472,6 +1480,7 @@ OHltTree::OHltTree(TTree *tree, int ntrig)
    }
    Init(tree);
    Ntrig = ntrig;
+   NL1trig = nl1trig;
    triggerBit.reserve(Ntrig);
    triggerBitNoPrescale.reserve(Ntrig);
    L1AssHLTBit.reserve(Ntrig);
@@ -2687,6 +2696,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPath() {
   map_L1BitOfStandardHLTPath["AlCa_IsoTrack"] = L1_SingleJet30 + L1_SingleJet50 + L1_SingleJet70 + L1_SingleJet100 + L1_SingleTauJet30 + L1_SingleTauJet40 + L1_SingleTauJet60 + L1_SingleTauJet80;
   map_L1BitOfStandardHLTPath["AlCa_EcalPhiSym"] = L1_ZeroBias + L1_SingleJetCountsHFTow + L1_DoubleJetCountsHFTow + L1_SingleEG2 + L1_DoubleEG1 + L1_SingleJetCountsHFRing0Sum3 + L1_DoubleJetCountsHFRing0Sum3 + L1_SingleJetCountsHFRing0Sum6 + L1_DoubleJetCountsHFRing0Sum6;
   map_L1BitOfStandardHLTPath["AlCa_EcalPi0"] = L1_SingleIsoEG5 + L1_SingleIsoEG8 + L1_SingleIsoEG10 + L1_SingleIsoEG12 + L1_SingleIsoEG15 + L1_SingleIsoEG20 + L1_SingleIsoEG25 + L1_SingleEG5 + L1_SingleEG8 + L1_SingleEG10 + L1_SingleEG12 + L1_SingleEG15 + L1_SingleEG20 + L1_SingleEG25;
+
   /*20X
   map_L1BitOfStandardHLTPath["HLT2jet"] = L1_SingleJet150 + L1_DoubleJet70;
   map_L1BitOfStandardHLTPath["HLT3jet"] = L1_SingleJet150 + L1_DoubleJet70 + L1_TripleJet50;
@@ -2944,6 +2954,657 @@ void OHltTree::SetMapL1BitOfStandardHLTPath() {
   map_L1BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum3"] = L1_SingleJetCountsHFRing0Sum3;  
   map_L1BitOfStandardHLTPath["L1_DoubleJetCountsHFRing0Sum3"] = L1_DoubleJetCountsHFRing0Sum3;   
   map_L1BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum6"] = L1_SingleJetCountsHFRing0Sum6;    
+}
+
+void OHltTree::ApplyL1Prescales(std::map<TString,int> map_Level1Prescl, int eventnum, int deterministic)
+{
+  fChain->GetEntry(eventnum); 
+
+  int it = 0;
+
+  if(L1_DoubleEG10 == 1) {
+    iCountL1NoPrescale[it]++; 
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleEG10")->second != 0))
+      L1_DoubleEG10 = 0;
+  } it++;    
+  if(L1_DoubleEG15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleEG15")->second != 0)) 
+      L1_DoubleEG15 = 0; 
+  } it++;
+  if(L1_DoubleEG5 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleEG5")->second != 0)) 
+      L1_DoubleEG5 = 0; 
+  } it++;
+  if(L1_DoubleIsoEG10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleIsoEG10")->second != 0)) 
+      L1_DoubleIsoEG10 = 0; 
+  } it++;
+  if(L1_DoubleIsoEG8 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleIsoEG8")->second != 0)) 
+      L1_DoubleIsoEG8 = 0; 
+  } it++;
+  if(L1_DoubleJet100 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleJet100")->second != 0)) 
+      L1_DoubleJet100 = 0; 
+  } it++;
+  if(L1_DoubleJet70 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleJet70")->second != 0)) 
+      L1_DoubleJet70 = 0; 
+  } it++;
+  if(L1_DoubleMu3 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleMu3")->second != 0)) 
+      L1_DoubleMu3 = 0; 
+  } it++;
+  if(L1_DoubleTauJet20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleTauJet20")->second != 0)) 
+      L1_DoubleTauJet20 = 0; 
+  } it++;
+  if(L1_DoubleTauJet30 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleTauJet30")->second != 0)) 
+      L1_DoubleTauJet30 = 0; 
+  } it++;
+  if(L1_DoubleTauJet35 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleTauJet35")->second != 0)) 
+      L1_DoubleTauJet35 = 0; 
+  } it++;
+  if(L1_DoubleTauJet40 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleTauJet40")->second != 0)) 
+      L1_DoubleTauJet40 = 0; 
+  } it++;
+  if(L1_ETM10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM10")->second != 0)) 
+      L1_ETM10 = 0; 
+  } it++;
+  if(L1_ETM15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM15")->second != 0)) 
+      L1_ETM15 = 0; 
+  } it++;
+  if(L1_ETM20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM20")->second != 0)) 
+      L1_ETM20 = 0; 
+  } it++;
+  if(L1_ETM40 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM40")->second != 0)) 
+      L1_ETM40 = 0; 
+  } it++;
+  if(L1_ETM50 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM50")->second != 0)) 
+      L1_ETM50 = 0; 
+  } it++;
+  if(L1_ETM60 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM60")->second != 0)) 
+      L1_ETM60 = 0; 
+  } it++;
+  if(L1_ETT60 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETT60")->second != 0)) 
+      L1_ETT60 = 0; 
+  } it++;
+  if(L1_ExclusiveDoubleIsoEG6 == 1) {
+    iCountL1NoPrescale[it]++;   
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ExclusiveDoubleIsoEG6")->second != 0)) 
+      L1_ExclusiveDoubleIsoEG6 = 0; 
+  } it++;
+  if(L1_ExclusiveDoubleJet60 == 1) {
+    iCountL1NoPrescale[it]++;   
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ExclusiveDoubleJet60")->second != 0)) 
+      L1_ExclusiveDoubleJet60 = 0; 
+  } it++;
+  if(L1_ExclusiveJet25_Gap_Jet25 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ExclusiveJet25_Gap_Jet25")->second != 0)) 
+      L1_ExclusiveJet25_Gap_Jet25 = 0; 
+  } it++;
+  if(L1_HTT100 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_HTT100")->second != 0)) 
+      L1_HTT100 = 0; 
+  } it++;
+  if(L1_HTT200 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_HTT200")->second != 0)) 
+      L1_HTT200 = 0; 
+  } it++;
+  if(L1_HTT250 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_HTT250")->second != 0)) 
+      L1_HTT250 = 0; 
+  } it++;
+  if(L1_HTT300 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_HTT300")->second != 0)) 
+      L1_HTT300 = 0; 
+  } it++;
+  if(L1_HTT400 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_HTT400")->second != 0)) 
+      L1_HTT400 = 0; 
+  } it++;
+  if(L1_HTT500 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_HTT500")->second != 0)) 
+      L1_HTT500 = 0; 
+  } it++;
+  if(L1_IsoEG10_Jet15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_Jet15")->second != 0)) 
+      L1_IsoEG10_Jet15 = 0; 
+  } it++;
+  if(L1_IsoEG10_Jet15_ForJet10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_Jet15_ForJet10")->second != 0)) 
+      L1_IsoEG10_Jet15_ForJet10 = 0; 
+  } it++;
+  if(L1_IsoEG10_Jet20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_Jet20")->second != 0)) 
+      L1_IsoEG10_Jet20 = 0; 
+  } it++;
+  if(L1_IsoEG10_Jet30 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_Jet30")->second != 0)) 
+      L1_IsoEG10_Jet30 = 0; 
+  } it++;
+  if(L1_IsoEG10_Jet70 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_Jet70")->second != 0)) 
+      L1_IsoEG10_Jet70 = 0; 
+  } it++;
+  if(L1_IsoEG10_TauJet20 == 1) {
+    iCountL1NoPrescale[it]++;   
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_TauJet20")->second != 0)) 
+      L1_IsoEG10_TauJet20 = 0; 
+  } it++;
+  if(L1_IsoEG10_TauJet30 == 1) {
+    iCountL1NoPrescale[it]++;   
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_IsoEG10_TauJet30")->second != 0)) 
+      L1_IsoEG10_TauJet30 = 0; 
+  } it++;
+  if(L1_MinBias_HTT10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_MinBias_HTT10")->second != 0)) 
+      L1_MinBias_HTT10 = 0; 
+  } it++;
+  if(L1_Mu3_EG12 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu3_EG12")->second != 0)) 
+      L1_Mu3_EG12 = 0; 
+  } it++;
+  if(L1_Mu3_IsoEG5 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu3_IsoEG5")->second != 0)) 
+      L1_Mu3_IsoEG5 = 0; 
+    iCountL1NoPrescale[it]++;  
+  } it++;
+  if(L1_Mu3_Jet15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu3_Jet15")->second != 0)) 
+      L1_Mu3_Jet15 = 0; 
+  } it++;
+  if(L1_Mu5_IsoEG10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu5_IsoEG10")->second != 0)) 
+      L1_Mu5_IsoEG10 = 0; 
+  } it++;
+  if(L1_Mu5_Jet15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu5_Jet15")->second != 0)) 
+      L1_Mu5_Jet15 = 0; 
+  } it++;
+  if(L1_Mu5_Jet20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu5_Jet20")->second != 0)) 
+      L1_Mu5_Jet20 = 0; 
+  } it++;
+  if(L1_Mu5_TauJet20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu5_TauJet20")->second != 0)) 
+      L1_Mu5_TauJet20 = 0; 
+  } it++;
+  if(L1_Mu5_TauJet30 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu5_TauJet30")->second != 0)) 
+      L1_Mu5_TauJet30 = 0; 
+  } it++;
+  if(L1_SingleEG10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG10")->second != 0)) 
+      L1_SingleEG10 = 0; 
+  } it++;
+  if(L1_SingleEG12 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG12")->second != 0)) 
+      L1_SingleEG12 = 0; 
+  } it++;
+  if(L1_SingleEG15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG15")->second != 0)) 
+      L1_SingleEG15 = 0; 
+  } it++;
+  if(L1_SingleEG20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG20")->second != 0)) 
+      L1_SingleEG20 = 0; 
+  } it++;
+  if(L1_SingleEG25 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG25")->second != 0)) 
+      L1_SingleEG25 = 0; 
+  } it++;
+  if(L1_SingleEG5 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG5")->second != 0)) 
+      L1_SingleEG5 = 0; 
+  } it++;
+  if(L1_SingleEG8 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG8")->second != 0)) 
+      L1_SingleEG8 = 0; 
+  } it++;
+  if(L1_SingleIsoEG10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG10")->second != 0)) 
+      L1_SingleIsoEG10 = 0; 
+  } it++;
+  if(L1_SingleIsoEG12 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG12")->second != 0)) 
+      L1_SingleIsoEG12 = 0; 
+  } it++;
+  if(L1_SingleIsoEG15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG15")->second != 0)) 
+      L1_SingleIsoEG15 = 0; 
+  } it++;
+  if(L1_SingleIsoEG20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG20")->second != 0)) 
+      L1_SingleIsoEG20 = 0; 
+  } it++;
+  if(L1_SingleIsoEG25 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG25")->second != 0)) 
+      L1_SingleIsoEG25 = 0; 
+  } it++;
+  if(L1_SingleIsoEG5 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG5")->second != 0)) 
+      L1_SingleIsoEG5 = 0; 
+  } it++;
+  if(L1_SingleIsoEG8 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleIsoEG8")->second != 0)) 
+      L1_SingleIsoEG8 = 0; 
+  } it++;
+  if(L1_SingleJet100 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet100")->second != 0)) 
+      L1_SingleJet100 = 0; 
+  } it++;
+  if(L1_SingleJet15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet15")->second != 0)) 
+      L1_SingleJet15 = 0; 
+  } it++;
+  if(L1_SingleJet150 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet150")->second != 0)) 
+      L1_SingleJet150 = 0; 
+  } it++;
+  if(L1_SingleJet200 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet200")->second != 0)) 
+      L1_SingleJet200 = 0; 
+  } it++;
+  if(L1_SingleJet30 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet30")->second != 0)) 
+      L1_SingleJet30 = 0; 
+  } it++;
+  if(L1_SingleJet50 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet50")->second != 0)) 
+      L1_SingleJet50 = 0; 
+  } it++;
+  if(L1_SingleJet70 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJet70")->second != 0)) 
+      L1_SingleJet70 = 0; 
+  } it++;
+  if(L1_SingleMu10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu10")->second != 0)) 
+      L1_SingleMu10 = 0; 
+  } it++;
+  if(L1_SingleMu14 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu14")->second != 0)) 
+      L1_SingleMu14 = 0; 
+  } it++;
+  if(L1_SingleMu20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu20")->second != 0)) 
+      L1_SingleMu20 = 0; 
+  } it++;
+  if(L1_SingleMu25 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu25")->second != 0)) 
+      L1_SingleMu25 = 0; 
+  } it++;    
+  if(L1_SingleMu3 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu3")->second != 0)) 
+      L1_SingleMu3 = 0; 
+  } it++;
+  if(L1_SingleMu5 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu5")->second != 0)) 
+      L1_SingleMu5 = 0; 
+  } it++;
+  if(L1_SingleMu7 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMu7")->second != 0)) 
+      L1_SingleMu7 = 0; 
+  } it++;
+  if(L1_SingleTauJet10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet10")->second != 0)) 
+      L1_SingleTauJet10 = 0; 
+  } it++;
+  if(L1_SingleTauJet100 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet100")->second != 0)) 
+      L1_SingleTauJet100 = 0; 
+  } it++;
+  if(L1_SingleTauJet20 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet20")->second != 0)) 
+      L1_SingleTauJet20 = 0; 
+  } it++;
+  if(L1_SingleTauJet30 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet30")->second != 0)) 
+      L1_SingleTauJet30 = 0; 
+  } it++;
+  if(L1_SingleTauJet40 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet40")->second != 0)) 
+      L1_SingleTauJet40 = 0; 
+  } it++;
+  if(L1_SingleTauJet60 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet60")->second != 0)) 
+      L1_SingleTauJet60 = 0; 
+  } it++;
+  if(L1_SingleTauJet80 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleTauJet80")->second != 0)) 
+      L1_SingleTauJet80 = 0; 
+  } it++;
+  if(L1_TauJet30_ETM30 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_TauJet30_ETM30")->second != 0)) 
+      L1_TauJet30_ETM30 = 0; 
+  } it++;
+  if(L1_TauJet30_ETM40 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_TauJet30_ETM40")->second != 0)) 
+      L1_TauJet30_ETM40 = 0; 
+  } it++;
+  if(L1_TripleJet50 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_TripleJet50")->second != 0)) 
+      L1_TripleJet50 = 0; 
+  } it++;
+  if(L1_TripleMu3 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_TripleMu3")->second != 0)) 
+      L1_TripleMu3 = 0; 
+  } it++;
+  if(L1_VBF_DoubleTauHad == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_DoubleTauHad")->second != 0)) 
+      L1_VBF_DoubleTauHad = 0; 
+  } it++;
+  if(L1_VBF_ETM50 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_ETM50")->second != 0)) 
+      L1_VBF_ETM50 = 0; 
+  } it++;
+  if(L1_VBF_ETM50_veto == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_ETM50_veto")->second != 0)) 
+      L1_VBF_ETM50_veto = 0; 
+  } it++;    
+  if(L1_VBF_IsoEG10_Tau_TauHad == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_IsoEG10_Tau_TauHad")->second != 0)) 
+      L1_VBF_IsoEG10_Tau_TauHad = 0; 
+  } it++;
+  if(L1_VBF_IsoEG15 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_IsoEG15")->second != 0)) 
+      L1_VBF_IsoEG15 = 0; 
+  } it++;
+  if(L1_VBF_Mu10 == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_Mu10")->second != 0)) 
+      L1_VBF_Mu10 = 0; 
+  } it++;
+  if(L1_VBF_Mu7_Tau_TauHad == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_Mu7_Tau_TauHad")->second != 0)) 
+      L1_VBF_Mu7_Tau_TauHad = 0; 
+  } it++;
+  if(L1_VBF_QuadJet == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0)) 
+      L1_VBF_QuadJet = 0; 
+  } it++;
+  if(L1_SingleMuOpen == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_SingleMuOpen = 0;
+  } it++; 
+  if(L1_SingleMuBeamHalo == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_SingleMuBeamHalo = 0;
+  } it++; 
+  if(L1_SingleEG2 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_SingleEG2 = 0;
+  } it++; 
+  if(L1_DoubleEG1 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_DoubleEG1 = 0;
+  } it++; 
+  if(L1_QuadJet15 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_QuadJet15 = 0;
+  } it++; 
+  if(L1_QuadJet30 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_QuadJet30 = 0;
+  } it++; 
+  if(L1_ETM30 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_ETM30 = 0;
+  } it++; 
+  if(L1_EG5_TripleJet15 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_EG5_TripleJet15 = 0;
+  } it++; 
+  if(L1_Mu3_TripleJet15 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_Mu3_TripleJet15 = 0;
+  } it++; 
+  if(L1_SingleJetCountsHFTow == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_SingleJetCountsHFTow = 0;
+  } it++; 
+  if(L1_DoubleJetCountsHFTow == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_DoubleJetCountsHFTow = 0;
+  } it++; 
+  if(L1_SingleJetCountsHFRing0Sum3 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_SingleJetCountsHFRing0Sum3 = 0;
+  } it++; 
+  if(L1_DoubleJetCountsHFRing0Sum3 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_DoubleJetCountsHFRing0Sum3 = 0;
+  } it++; 
+  if(L1_SingleJetCountsHFRing0Sum6 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_SingleJetCountsHFRing0Sum6 = 0;
+  } it++; 
+  if(L1_DoubleJetCountsHFRing0Sum6 == 1) {  
+    iCountL1NoPrescale[it]++;   
+ 
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+      L1_DoubleJetCountsHFRing0Sum6 = 0;  
+  } it++; 
+  if(L1_ZeroBias == 1) { 
+    iCountL1NoPrescale[it]++;  
+
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ZeroBias")->second != 0)) 
+      L1_ZeroBias = 0; 
+  }
 }
 
 Bool_t OHltTree::Notify()
