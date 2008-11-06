@@ -34,7 +34,11 @@ genCandidatesForMET = cms.EDProducer(
 genParticlesForMETAllVisible = cms.EDFilter(
     "InputGenJetsParticleSelector",
     src = cms.InputTag("genParticles"),
-
+    partonicFinalState = cms.bool(False),
+    excludeResonances = cms.bool(False),
+    excludeFromResonancePids = cms.vuint32(),
+    tausAsJets = cms.bool(False),
+    
     ignoreParticleIDs = cms.vuint32(
     1000022, 2000012, 2000014,
     2000016, 1000039, 5000039,
