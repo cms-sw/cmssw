@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.5 2008/07/04 13:39:51 loizides Exp $
+# $Id: sendNotification.sh,v 1.6 2008/09/15 17:36:13 loizides Exp $
 
 # error dir and file
 errordir=/tmp
@@ -25,12 +25,15 @@ if test -z "$cpw"; then
 fi
 
 # send notification to T0 and check if connection was established
-export T0_BASE_DIR=/nfshome0/cmsprod/TransferTest
-export T0ROOT=${T0_BASE_DIR}/T0
-export CONFIG=${T0_BASE_DIR}/Config/TransferSystem_Cessy.cfg
-export PERL5LIB=${T0ROOT}/perl_lib:${T0_BASE_DIR}/perl
+if test -z "$T0_BASE_DIR"; then
+    export T0_BASE_DIR=/nfshome0/cmsprod/TransferTest
+    export T0ROOT=${T0_BASE_DIR}/T0
+    export CONFIG=${T0_BASE_DIR}/Config/TransferSystem_Cessy.cfg
+    export PERL5LIB=${T0ROOT}/perl_lib:${T0_BASE_DIR}/perl
+    export TO_NOTIFY=${T0ROOT}/operations/sendNotification.pl
+fi
 
-res=`${T0_BASE_DIR}/injection/sendNotification.pl --config $CONFIG $@ 2>&1 | grep "Connection established (3)"`
+res=`${T0_NOTIFY} --config $CONFIG $@ 2>&1 | grep "Connection established (3)"`
 if test -z "$res"; then
     echo "#Error: Most likely CopyManager is not running (cmsusr3)" >> $errorfile
     echo $0 $@ >> $errorfile
