@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <ostream>
 
 const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
 

@@ -1,8 +1,7 @@
 #ifndef DATAFORMATS_HCALDETID_HCALDETID_H
 #define DATAFORMATS_HCALDETID_HCALDETID_H 1
 
-#include <ostream>
-#include <iostream>
+#include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -10,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2007/09/26 09:04:17 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/06/25 22:13:29 $
+ *  $Revision: 1.12 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
