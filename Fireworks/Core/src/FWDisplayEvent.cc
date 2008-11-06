@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDisplayEvent
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.57 2008/07/17 23:02:41 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.58 2008/09/22 17:41:58 amraktad Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ double FWDisplayEvent::m_caloScale = 2;
 //
 // constructors and destructor
 //
-FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName, 
+FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                bool iEnableDebug,
 			       bool iNewLego) :
   m_configurationManager(new FWConfigurationManager),
@@ -102,21 +102,21 @@ m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   //tell ROOT where to find our macros
   std::string macPath(cmspath);
   macPath += "/src/Fireworks/Core/macros";
-  gROOT->SetMacroPath((std::string("./:")+macPath).c_str());  
+  gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
 
   // prepare geometry service
   // ATTN: this should be made configurable
   const char* geomtryFile = "cmsGeom10.root";
   m_detIdToGeo.loadGeometry( geomtryFile );
   m_detIdToGeo.loadMap( geomtryFile );
-   
+
   boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
 //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
 
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
-   
+
   if(iConfigFileName.empty() ) {
      std::cout << "WARNING: no configuration is loaded." << std::endl;
      m_configFileName = "newconfig.fwc";
@@ -129,12 +129,12 @@ m_viewManager( new FWViewManagerManager(m_changeManager.get())),
     char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), configFileName.c_str(), kReadPermission);
     if(0==whereConfig) {
       configFileName = "default.fwc";
-    } 
-    
+    }
+
     delete [] whereConfig;
     m_configurationManager->readFromFile(configFileName);
   }
-   
+
    if(not m_configFileName.empty() ) {
      /* //when the program quits we will want to save the configuration automatically
       m_guiManager->goingToQuit_.connect(
@@ -181,7 +181,7 @@ void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
   m_eiManager->add(iItem);
 }
 
-void FWDisplayEvent::registerDetailView (const std::string &item_name, 
+void FWDisplayEvent::registerDetailView (const std::string &item_name,
 					 FWDetailView *view)
 {
      m_guiManager->registerDetailView(item_name, view);
@@ -211,7 +211,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   return 0;
 }
 
-void 
+void
 FWDisplayEvent::writeConfigurationFile(const std::string& iFileName) const
 {
   m_configurationManager->writeToFile(iFileName);

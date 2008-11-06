@@ -79,9 +79,9 @@ void node_filter(TEveElement * node, int simplify /* = do_hide */, bool verbose 
 
   expand_node(node);
 
-  for (TEveElement::List_i i = node->BeginChildren(); i != node->EndChildren(); ++i) 
+  for (TEveElement::List_i i = node->BeginChildren(); i != node->EndChildren(); ++i)
   {
-    bool found = false; 
+    bool found = false;
     TEveGeoNode * child = (TEveGeoNode*)(*i);
     for (unsigned int det = 0; det < filters.size(); ++det) {
       if (filters[det].MatchB( child->GetName() )) {

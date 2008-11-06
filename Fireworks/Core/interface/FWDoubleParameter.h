@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDoubleParameter
-// 
+//
 /**\class FWDoubleParameter FWDoubleParameter.h Fireworks/Core/interface/FWDoubleParameter.h
 
  Description: Provides access to a simple double parameter
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id$
+// $Id: FWDoubleParameter.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
 //
 
 // system include files
@@ -61,16 +61,16 @@ class FWDoubleParameter : public FWParameterBase
       double max() const {
          return m_max;
       }
-   
+
       virtual void addTo(FWConfiguration& ) const ;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       virtual void setFrom(const FWConfiguration&);
       void set(double);
-   
+
       sigc::signal<void,double> changed_;
-   
+
    private:
       FWDoubleParameter(const FWDoubleParameter&); // stop default
 

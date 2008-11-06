@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWItemChangeSignal
-// 
+//
 /**\class FWItemChangeSignal FWItemChangeSignal.h Fireworks/Core/interface/FWItemChangeSignal.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jan 21 19:30:17 EST 2008
-// $Id: FWItemChangeSignal.h,v 1.1 2008/01/22 18:18:17 chrjones Exp $
+// $Id: FWItemChangeSignal.h,v 1.1 2008/01/25 01:52:26 chrjones Exp $
 //
 
 // system include files

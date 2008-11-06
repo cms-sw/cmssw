@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWBoolParameter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWBoolParameter.cc,v 1.1 2008/06/20 05:57:06 dmytro Exp $
+// $Id: FWBoolParameter.cc,v 1.2 2008/09/27 16:55:02 dmytro Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ FWBoolParameter::~FWBoolParameter()
 //
 // member functions
 //
-void 
+void
 FWBoolParameter::setFrom(const FWConfiguration& iFrom)
 {
    if (const FWConfiguration* config = iFrom.valueForKey(name()) ) {
@@ -73,7 +73,7 @@ FWBoolParameter::setFrom(const FWConfiguration& iFrom)
    changed_(m_value);
 }
 
-void 
+void
 FWBoolParameter::set(bool iValue)
 {
    m_value = iValue;
@@ -83,7 +83,7 @@ FWBoolParameter::set(bool iValue)
 //
 // const member functions
 //
-void 
+void
 FWBoolParameter::addTo(FWConfiguration& iTo) const
 {
    std::ostringstream s;

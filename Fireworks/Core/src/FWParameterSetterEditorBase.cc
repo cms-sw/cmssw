@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWParameterSetterEditorBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jun 26 11:18:08 EDT 2008
-// $Id$
+// $Id: FWParameterSetterEditorBase.cc,v 1.1 2008/06/29 13:11:25 chrjones Exp $
 //
 
 // system include files

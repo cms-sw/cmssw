@@ -2,7 +2,7 @@
 #define Fireworks_Calo_CaloProxyLegoBuilder_h
 // -*- C++ -*-
 //  Description: muon model proxy
-//  
+//
 //  Original Author: D.Kovalskyi
 //
 #include "Fireworks/Core/interface/FWDataProxyBuilder.h"

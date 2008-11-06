@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWViewManagerManager
-// 
+//
 /**\class FWViewManagerManager FWViewManagerManager.h Fireworks/Core/interface/FWViewManagerManager.h
 
  Description: Manages all the FWViewManagerBase instances
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.6 2008/07/08 00:26:18 chrjones Exp $
+// $Id: FWViewManagerManager.h,v 1.7 2008/07/12 17:55:29 dmytro Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ class FWViewManagerManager
       std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
       FWModelChangeManager* m_changeManager;
       std::map<std::string, const FWEventItem*> m_typeToItems; //use this to tell view managers registered after the item
-   
+
 };
 
 

@@ -16,7 +16,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/TrackDetailView.h"
 
-TrackDetailView::TrackDetailView () 
+TrackDetailView::TrackDetailView ()
 {
 
 }
@@ -45,22 +45,22 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
      rnrStyle->SetMagField( -4.0);
      //get this from geometry, units are CM
      rnrStyle->SetMaxR(120.0);
-     rnrStyle->SetMaxZ(300.0);    
-     
+     rnrStyle->SetMaxZ(300.0);
+
      const reco::TrackCollection* tracks=0;
      m_item->get(tracks);
      //fwlite::Handle<reco::TrackCollection> tracks;
      //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
-     
+
      if(0 == tracks ) return;
 
      //  Original Commented out here
      //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
-     
+
      int index=0;
      //cout <<"----"<<endl;
      TEveRecTrack t;
-     
+
      t.fBeta = 1.;
      for(reco::TrackCollection::const_iterator it = tracks->begin();
 	 it != tracks->end();++it,++index) {
@@ -73,22 +73,22 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
 			    it->vy(),
 			    it->vz());
 	  t.fSign = it->charge();
-	  
+
 	  TEveElementList* trkList = new TEveElementList(Form("track%d",index));
-	  gEve->AddElement(trkList,tList);  
+	  gEve->AddElement(trkList,tList);
 	  TEveTrack* trk = new TEveTrack(&t,rnrStyle);
 	  trk->SetMainColor(m_item->defaultDisplayProperties().color());
 	  trk->MakeTrack();
 	  trkList->AddElement(trk);
-	  
+
 	  /* The addition of RecHits is in a try-catch block to avoid exceptions
 	   * occuring when TrackExtras and/or RecHits aren't available.
 	   */
-	  
+
 	  try {
-	       
+
 	       //      HitPattern pattern = (*it).HitPattern();
-	       
+
 	       Int_t nHits = (*it).recHitsSize();
 	       // const reco::HitPattern& p = (*it).hitPattern();
 	       // If we have muon tracks, then this is going to be bad
@@ -100,7 +100,7 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
 	       Int_t globalRecHitIndex = 0;
 	       Double_t localRecHitPoint[3];
 	       Double_t globalRecHitPoint[3];
-      
+
 	       for(trackingRecHit_iterator recIt = it->recHitsBegin(); recIt != it->recHitsEnd(); ++recIt){
 		    if((*recIt)->isValid()){
 			 DetId detid = (*recIt)->geographicalId();
@@ -121,43 +121,43 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
 			 localRecHitPoint[0] = lp.x();
 			 localRecHitPoint[1] = lp.y();
 			 localRecHitPoint[2] = 0;
-	  
+
 			 // reset global position
 			 globalRecHitPoint[0] = 0;
 			 globalRecHitPoint[1] = 0;
 			 globalRecHitPoint[2] = 0;
 
 
-			 /*  Do segments for the recHits.  Right now they're going to be of arbitrary length.  
-			     Eventually, we'll have detector geom in here, but for now, we'll just use 5cm 
+			 /*  Do segments for the recHits.  Right now they're going to be of arbitrary length.
+			     Eventually, we'll have detector geom in here, but for now, we'll just use 5cm
 			     segments in the local y.  These transform nicely.
 			 */
-	  
+
 			 Double_t localRecHitInnerPoint[3];
 			 Double_t localRecHitOuterPoint[3];
 			 Double_t globalRecHitInnerPoint[3];
 			 Double_t globalRecHitOuterPoint[3];
-	  
+
 			 localRecHitInnerPoint[0] = 0;
 			 localRecHitInnerPoint[1] = 2.5;
 			 localRecHitInnerPoint[2] = 0;
-	  
+
 			 localRecHitOuterPoint[0] = 0;
 			 localRecHitOuterPoint[1] = -2.5;
 			 localRecHitOuterPoint[2] = 0;
-	  
+
 			 // Transform from local to global, if possible
 			 if ( matrix ) {
 			      matrix->LocalToMaster(localRecHitPoint, globalRecHitPoint);
 			      matrix->LocalToMaster(localRecHitInnerPoint, globalRecHitInnerPoint);
 			      matrix->LocalToMaster(localRecHitOuterPoint, globalRecHitOuterPoint);
 			      // Now we add the point to the TEvePointSet
-			      recHitsMarker->SetPoint(globalRecHitIndex, globalRecHitPoint[0], 
+			      recHitsMarker->SetPoint(globalRecHitIndex, globalRecHitPoint[0],
 						      globalRecHitPoint[1], globalRecHitPoint[2]);
 			      recHitsLines->AddLine(globalRecHitInnerPoint[0], globalRecHitInnerPoint[1], globalRecHitInnerPoint[2],
 						    globalRecHitOuterPoint[0], globalRecHitOuterPoint[1], globalRecHitOuterPoint[2]);
 			      globalRecHitIndex++;
-			 }	 
+			 }
 
 		    }// if the hit isValid().
 	       }// For Loop Over Rec hits (recIt)
@@ -165,7 +165,7 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
 	       // This saved just in case we want to use points for recHits.
 	       //recHitsMarker->SetMainColor(iItem->defaultDisplayProperties().color());
 	       //recHitsMarker->SetMarkerSize(1);
-	       //trkList->AddElement(recHitsMarker);            
+	       //trkList->AddElement(recHitsMarker);
 
 	       recHitsLines->SetMainColor(m_item->defaultDisplayProperties().color());
 	       trkList->AddElement(recHitsLines);
@@ -173,6 +173,6 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
 	  catch (...) {
 	       //      std::cout << "Sorry, don't have the recHits for this event." << std::endl;
 	  }
-    
+
      }
 }

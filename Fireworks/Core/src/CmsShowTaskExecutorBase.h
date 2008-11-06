@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowTaskExecutorBase
-// 
+//
 /**\class CmsShowTaskExecutorBase CmsShowTaskExecutorBase.h Fireworks/Core/interface/CmsShowTaskExecutorBase.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:38 EDT 2008
-// $Id: CmsShowTaskExecutorBase.h,v 1.3 2008/07/25 23:58:19 chrjones Exp $
+// $Id: CmsShowTaskExecutorBase.h,v 1.4 2008/11/05 09:21:46 chrjones Exp $
 //
 
 // system include files
@@ -33,15 +33,15 @@ class CmsShowTaskExecutorBase {
 public:
    CmsShowTaskExecutorBase();
    virtual ~CmsShowTaskExecutorBase();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void requestNextTask();
    void doNextTask();
-   
+
    virtual void startDoingTasks()=0;
 
    sigc::signal<void> tasksCompleted_;
@@ -51,9 +51,9 @@ protected:
    virtual bool moreTasksAvailable() = 0;
 private:
    CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase&); // stop default
-   
+
    const CmsShowTaskExecutorBase& operator=(const CmsShowTaskExecutorBase&); // stop default
-   
+
    // ---------- member data --------------------------------
    //TTimer* m_timer;
    CmsShowTaskTimer* m_taskTimer;

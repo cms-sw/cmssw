@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListEventItem
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.21 2008/07/15 15:25:37 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.22 2008/07/16 20:48:58 chrjones Exp $
 //
 
 // system include files
@@ -57,14 +57,14 @@ defaultMemberFunctionNames()
 
 static
 ROOT::Reflex::Member
-recursiveFindMember(const std::string& iName, 
+recursiveFindMember(const std::string& iName,
                     const ROOT::Reflex::Type& iType)
 {
    using namespace ROOT::Reflex;
 
    Member temp = iType.MemberByName(iName);
    if(temp) {return temp;}
-   
+
    //try all base classes
    for(Base_Iterator it = iType.Base_Begin(), itEnd = iType.Base_End();
        it != itEnd;
@@ -83,11 +83,11 @@ findDefaultMember(const TClass* iClass) {
    if(0==iClass) {
       return Member();
    }
-   
+
    Type rType = Type::ByTypeInfo(*(iClass->GetTypeInfo()));
    assert(rType != Type() );
    //std::cout <<"Type "<<rType.Name(SCOPED)<<std::endl;
-   
+
    Member returnValue;
    const std::vector<std::string>& names = defaultMemberFunctionNames();
    for(std::vector<std::string>::const_iterator it = names.begin(), itEnd=names.end();
@@ -120,7 +120,7 @@ namespace {
 
    typedef std::string(*FunctionType)(const std::string&,const ROOT::Reflex::Object&);
    typedef std::map<std::string, FunctionType> TypeToStringMap;
-    
+
    template<typename T>
    static void addToStringMap(TypeToStringMap& iMap) {
       iMap[typeid(T).name()]=valueToString<T>;
@@ -130,15 +130,15 @@ namespace {
    double valueToDouble(const ROOT::Reflex::Object& iObj) {
       return double(*(reinterpret_cast<T*>(iObj.Address())));
    }
-   
+
    typedef double(*DoubleFunctionType)(const ROOT::Reflex::Object&);
    typedef std::map<std::string, DoubleFunctionType> TypeToDoubleMap;
-   
+
    template<typename T>
    static void addToDoubleMap(TypeToDoubleMap& iMap) {
       iMap[typeid(T).name()]=valueToDouble<T>;
    }
-   
+
 }
 
 static
@@ -149,15 +149,15 @@ stringValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMe
       addToStringMap<float>(s_map);
       addToStringMap<double>(s_map);
    }
-   
+
    ROOT::Reflex::Object val = iMember.Invoke(iObj);
-   
+
    TypeToStringMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
    if(itFound == s_map.end()) {
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
       return std::string();
    }
-   
+
    return itFound->second(iMember.Name(),val);
 }
 
@@ -178,7 +178,7 @@ doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMe
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
       return -999.0;
    }
-   
+
    return itFound->second(val);
  }
 
@@ -229,13 +229,13 @@ void
   delete this;
 }
 
-bool 
+bool
 FWListEventItem::doSelection(bool iToggleSelection)
 {
    return true;
 }
 
-void 
+void
 FWListEventItem::SetMainColor(Color_t iColor)
 {
    FWDisplayProperties prop(iColor,m_item->defaultDisplayProperties().isVisible());
@@ -244,27 +244,27 @@ FWListEventItem::SetMainColor(Color_t iColor)
 }
 
 
-Bool_t 
+Bool_t
 FWListEventItem::SetRnrState(Bool_t rnr)
 {
    FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    m_item->setDefaultDisplayProperties(prop);
    return TEveElementList::SetRnrState(rnr);
 }
-Bool_t 
+Bool_t
 FWListEventItem::SingleRnrState() const
 {
    return kTRUE;
 }
 
-void 
+void
 FWListEventItem::defaultDisplayPropertiesChanged(const FWEventItem* iItem)
 {
    TEveElementList::SetMainColor(iItem->defaultDisplayProperties().color());
    TEveElementList::SetRnrState(iItem->defaultDisplayProperties().isVisible());
 }
 
-void 
+void
 FWListEventItem::itemChanged(const FWEventItem* iItem)
 {
    //std::cout <<"item changed "<<iItem->name()<<std::endl;
@@ -281,7 +281,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
          if(m_memberFunction) {
             //the const_cast is fine since I'm calling a const member function
             ROOT::Reflex::Type rType = ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo()));
-            
+
             ROOT::Reflex::Object temp(rType,
                                       const_cast<void*>(eventItem()->modelData(index)));
             //now convert it to the type expected by the function (since it might want a base class
@@ -289,7 +289,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
             data = stringValueFor(obj,m_memberFunction);
             doubleData = doubleValueFor(obj,m_memberFunction);
          }
-         FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
+         FWListModel* model = new FWListModel(FWModelId(eventItem(),index),
                                               m_detailViewManager,
                                               data);
          m_indexOrderedItems.push_back(model);
@@ -305,7 +305,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
    }
 }
 
-void 
+void
 FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
 {
    //std::cout <<"modelsChanged "<<std::endl;
@@ -324,12 +324,12 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
          modelChanged = model->update(info.displayProperties());
          if(info.isSelected() xor element->GetSelectedLevel()==1) {
             modelChanged = true;
-            if(info.isSelected()) {         
+            if(info.isSelected()) {
                gEve->GetSelection()->AddElement(element);
             } else {
                gEve->GetSelection()->RemoveElement(element);
             }
-         }      
+         }
          if(modelChanged) {
             element->ElementChanged();
             aChildChanged=true;
@@ -348,13 +348,13 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
 //
 // const member functions
 //
-FWEventItem* 
+FWEventItem*
 FWListEventItem::eventItem() const
 {
    return m_item;
 }
 
-void 
+void
 FWListEventItem::openDetailViewFor(int index) const
 {
    m_detailViewManager->openDetailViewFor( FWModelId(m_item,index));

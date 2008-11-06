@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDoubleParameter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWDoubleParameter.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWDoubleParameter.cc,v 1.2 2008/09/27 16:55:02 dmytro Exp $
 //
 
 // system include files
@@ -67,7 +67,7 @@ FWDoubleParameter::~FWDoubleParameter()
 //
 // member functions
 //
-void 
+void
 FWDoubleParameter::setFrom(const FWConfiguration& iFrom)
 {
    if (const FWConfiguration* config = iFrom.valueForKey(name()) ) {
@@ -77,7 +77,7 @@ FWDoubleParameter::setFrom(const FWConfiguration& iFrom)
    changed_(m_value);
 }
 
-void 
+void
 FWDoubleParameter::set(double iValue)
 {
    m_value = iValue;
@@ -87,7 +87,7 @@ FWDoubleParameter::set(double iValue)
 //
 // const member functions
 //
-void 
+void
 FWDoubleParameter::addTo(FWConfiguration& iTo) const
 {
    std::ostringstream s;

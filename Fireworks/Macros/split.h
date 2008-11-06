@@ -8,14 +8,14 @@
 //              C &container,
 //              E const delimiter,
 //              bool keepBlankFields = true)
-// 
+//
 // Function that splits a string 's' at the occurrences of 'delimiter', and adds the pieces at the end of 'container'.
 // // If keepBlankFields is false (the default), consecutive delimiters are treated as a single field separator; otherwise, they produce empty fields.
-// 
+//
 // The function is templated on
 //   the character type E (used both for string and delimiter)
 //   the container type C (container::value_type must be constructible from std::basic_string<E>)
-// 
+//
 // see: http://www.codeproject.com/KB/stl/Split_string.aspx
 
 template <typename E, typename C>
@@ -37,7 +37,7 @@ size_t split(std::basic_string<E> const& s,
                 // append the current field to the given container
                 container.push_back(std::basic_string<E>(first, it));
                 ++n;
-                
+
                 // skip the delimiter
                 first = it + 1;
             }

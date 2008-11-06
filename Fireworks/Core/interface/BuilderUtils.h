@@ -10,7 +10,7 @@ namespace reco {
    class Track;
    class Candidate;
 }
-   
+
 class TEveTrack;
 class TEveGeoShape;
 class TGeoBBox;
@@ -24,7 +24,7 @@ namespace fwlite {
    class Event;
 }
 
-  
+
 namespace fw {
    std::pair<double,double> getPhiRange( const std::vector<double>& phis,
 					 double phi );
@@ -36,14 +36,14 @@ namespace fw {
 			   double max_r = 120,
 			   double max_z = 300,
 			   double magnetic_field = 4 );
-   
+
    TEveGeoShape* getShape( const char* name,
 			   TGeoBBox* shape,
 			   Color_t color );
-   
+
    void addRhoZEnergyProjection( TEveElement* container,
-				 double r_ecal, double z_ecal, 
-				 double theta_min, double theta_max, 
+				 double r_ecal, double z_ecal,
+				 double theta_min, double theta_max,
 				 double phi,
 				 Color_t color);
    class NamedCounter
@@ -51,7 +51,7 @@ namespace fw {
 	std::string m_name;
 	unsigned int m_index;
       public:
-	NamedCounter( std::string name ): 
+	NamedCounter( std::string name ):
 	  m_name( name ), m_index(0){}
 	void operator++() { ++m_index; }
 	std::string str() const;
@@ -71,7 +71,7 @@ namespace fw {
 				  reco::Candidate const * cand,
 				  double scale_factor = 2);
      double estimate_field( const reco::Track& track );
-   
+
      std::string getTimeGMT( const fwlite::Event& event );
 }
 

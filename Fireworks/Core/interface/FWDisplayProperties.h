@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDisplayProperties
-// 
+//
 /**\class FWDisplayProperties FWDisplayProperties.h Fireworks/Core/interface/FWDisplayProperties.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.4 2008/03/05 20:32:02 chrjones Exp $
+// $Id: FWDisplayProperties.h,v 1.5 2008/08/20 23:49:22 dmytro Exp $
 //
 
 // system include files
@@ -42,21 +42,21 @@ class FWDisplayProperties
       bool isVisible() const {
 	return m_isVisible;
       }
-   
+
       bool operator==(const FWDisplayProperties& iRHS) const {
          return m_color == iRHS.m_color && m_isVisible == iRHS.m_isVisible;
       }
       bool operator!=(const FWDisplayProperties& iRHS) const {
          return not (*this == iRHS);
       }
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void setIsVisible(bool iSet) {
          m_isVisible = iSet;
       }
-   
+
       void setColor(Color_t iColor);
    private:
       //FWDisplayProperties(const FWDisplayProperties&); // stop default

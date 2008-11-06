@@ -65,16 +65,16 @@ void FWTextViewHeader::dump (FILE *f) const
 		       "%8sMET significance %5.2f (GeV)^1/2",
 		       met, "", metPhi, "", sumEt, "", mEtSig);
      int len = std::max(n1, n2);
-     for (int i = 0; i < len; ++i) 
+     for (int i = 0; i < len; ++i)
 	  fprintf(f, "=");
      fprintf(f, "\n%s\n", s1);
      fprintf(f, "%s\n", s2);
-     for (int i = 0; i < len; ++i) 
+     for (int i = 0; i < len; ++i)
 	  fprintf(f, "=");
      fprintf(f, "\n");
 }
 
-void FWTextViewHeader::setContent (int run_, int event_, double met_, 
+void FWTextViewHeader::setContent (int run_, int event_, double met_,
 				   double metPhi_, double sumEt_, double mEtSig_)
 {
      run 	= run_;
@@ -85,7 +85,7 @@ void FWTextViewHeader::setContent (int run_, int event_, double met_,
      mEtSig	= mEtSig_ ;
 }
 
-FWTextViewPage::FWTextViewPage (const std::string &title_, 
+FWTextViewPage::FWTextViewPage (const std::string &title_,
 				const std::vector<FWTableManager *> &tables_,
 				TGCompositeFrame *frame_,
 				TGTab *parent_tab_,
@@ -103,12 +103,12 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      const int width=frame->GetWidth();
      const int height=frame->GetHeight();
      TGHorizontalFrame *m_buttons = new TGHorizontalFrame(frame, width, 25, kFixedHeight);
-     TGPictureButton *m_undockButton = 
+     TGPictureButton *m_undockButton =
 	  new TGPictureButton(m_buttons, FWGUISubviewArea::undockIcon());
      m_undockButton->SetToolTipText("Undock view to own window");
      m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsExpandY));
      m_undockButton->Connect("Clicked()", "FWTextViewPage", this, "undock()");
-     TGTextButton *m_dumpButton = 
+     TGTextButton *m_dumpButton =
 	  new TGTextButton(m_buttons, "Dump to file");
      m_dumpButton->SetToolTipText("Dump tables to file");
      m_buttons->AddFrame(m_dumpButton, new TGLayoutHints(kLHintsExpandY));
@@ -120,19 +120,19 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      append_button = new TGCheckButton(m_buttons, "append to file");
      append_button->SetToolTipText("Append to dump file");
      m_buttons->AddFrame(append_button, new TGLayoutHints(kLHintsExpandY));
-     TGTextButton *m_termDumpButton = 
+     TGTextButton *m_termDumpButton =
 	  new TGTextButton(m_buttons, "Dump to terminal");
      m_termDumpButton->SetToolTipText("Dump tables to terminal");
      m_buttons->AddFrame(m_termDumpButton, new TGLayoutHints(kLHintsExpandY));
      m_termDumpButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToTerminal()");
 #if 0
-     TGPictureButton *m_copyButton = 
+     TGPictureButton *m_copyButton =
 	  new TGPictureButton(m_buttons, copyIcon());
      m_copyButton->SetToolTipText("Copy tables to X server selection");
      m_buttons->AddFrame(m_copyButton, new TGLayoutHints(kLHintsExpandY));
      m_copyButton->Connect("Clicked()", "FWTextViewPage", this, "copyToSelection()");
 #endif
-     TGTextButton *m_printButton = 
+     TGTextButton *m_printButton =
 	  new TGTextButton(m_buttons, "Dump to printer");
      m_printButton->SetToolTipText("Dump tables to printer");
      m_buttons->AddFrame(m_printButton, new TGLayoutHints(kLHintsExpandY));
@@ -162,21 +162,21 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      }
      frame->MapSubwindows();
      frame->Layout();
-     frame->MapWindow(); 
-} 
+     frame->MapWindow();
+}
 
 void FWTextViewPage::undock ()
 {
-   // Extract the frame contained in this split frame an reparent it in a 
+   // Extract the frame contained in this split frame an reparent it in a
    // transient frame. Keep a pointer on the transient frame to be able to
    // swallow the child frame back to this.
    if (undocked == 0) {
 	parent = (TGCompositeFrame *)dynamic_cast<const TGCompositeFrame *>(frame->GetParent());
 	assert(parent != 0);
-// 	printf("this frame: %d, parent: %d; TGTab: %d\n", 
+// 	printf("this frame: %d, parent: %d; TGTab: %d\n",
 // 	       frame->GetId(), parent->GetId(), parent_tab->GetId());
 // 	frame->UnmapWindow();
-	undocked = new 
+	undocked = new
 	     TGTransientFrame(gClient->GetDefaultRoot(), frame, 800, 600);
 	frame->ReparentWindow(undocked);
 	undocked->AddFrame(frame, new TGLayoutHints(kLHintsExpandX |
@@ -196,7 +196,7 @@ void FWTextViewPage::redock ()
      if (undocked) {
 	  TGFrame *frame = (TGFrame *)
 	       dynamic_cast<TGFrameElement*>(undocked->GetList()->First())->fFrame;
-// 	  printf("undocked window: %d, frame to reparent: %d; parent: %d\n", 
+// 	  printf("undocked window: %d, frame to reparent: %d; parent: %d\n",
 // 		 undocked->GetId(), frame->GetId(), parent->GetId());
 	  frame->UnmapWindow();
 	  undocked->RemoveFrame(frame);
@@ -238,7 +238,7 @@ void FWTextViewPage::update ()
 //      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 // 	  i != tables.end(); ++i) {
 // 	  printf("\t%s: %d entries\n", (*i)->title().c_str(), (*i)->NumberOfRows());
-//      }     
+//      }
 //      printf("current tab is %d\n", parent_tab->GetCurrent());
      view->header.update(header_view);
 //      int total_lines = 0;
@@ -337,25 +337,25 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
        changeman	(chg),
        parent_tab	(gui->m_textViewTab)
 //        main		(de)
-{      
+{
      // stick managers in a vector for easier collective operations
      FWTableManager *managers_retreat[] = {
 	  el_manager		,
 	  mu_manager		,
 	  jet_manager		,
-	  l1em_manager    	,	
-	  l1mu_manager    	,	
-	  l1jet_manager    	,	
-	  hlt_manager   	,	
-	  track_manager 	,	
+	  l1em_manager    	,
+	  l1mu_manager    	,
+	  l1jet_manager    	,
+	  hlt_manager   	,
+	  track_manager 	,
 	  vertex_manager	,
      };
      l1em_manager->setTitle("L1 EM objects");
      l1mu_manager->setTitle("L1 muons");
      l1jet_manager->setTitle("L1 jets");
-     managers.insert(managers.begin(), 
-		     managers_retreat, 
-		     managers_retreat + 
+     managers.insert(managers.begin(),
+		     managers_retreat,
+		     managers_retreat +
 		     sizeof(managers_retreat) / sizeof(FWTableManager *));
      // connect to the selection manager
      seleman->selectionChanged_.
@@ -363,9 +363,9 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      // and to the change manager
      changeman->changeSignalsAreDone_.
  	  connect(boost::bind(&FWTextView::changesDone,this, de));
-//      for (std::vector<FWItemChangeSignal>::iterator i = 
+//      for (std::vector<FWItemChangeSignal>::iterator i =
 // 	       changeman->m_itemChangeSignals.begin();
-// 	  i != changeman->m_itemChangeSignals.end(); 
+// 	  i != changeman->m_itemChangeSignals.end();
 // 	  ++i) {
 // 	  i->connect(boost::bind(&FWTextView::itemChanged, this, _1));
 // 	  printf("connecting to something\n");
@@ -379,29 +379,29 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
 //   b->StartEmbedding();
 //   fMain = new TGMainFrame(gClient->GetRoot(),width,height);
 //   b->StopEmbedding();
-     
+
 //      mu_manager->MakeFrame(fMain, width, height);
 //      el_manager->MakeFrame(fMain, width, height);
 //      jet_manager->MakeFrame(fMain, width, height);
-	  
+
 //      l1_manager->MakeFrame(fMain, width, height);
 //      hlt_manager->MakeFrame(fMain, width, height);
 
 //      track_manager->MakeFrame(fMain, width, height);
 //      vertex_manager->MakeFrame(fMain, width, height);
-	  
+
 // //      // use hierarchical cleaning
 //       fMain->SetCleanup(kDeepCleanup);
-     
-// //      // Set a name to the main frame 
-//       fMain->SetWindowName("Text view"); 
-     
-//      // Map all subwindows of main frame 
-//      fMain->MapSubwindows(); 
-     
-//      // Map main frame 
-//      fMain->MapWindow(); 
-     
+
+// //      // Set a name to the main frame
+//       fMain->SetWindowName("Text view");
+
+//      // Map all subwindows of main frame
+//      fMain->MapSubwindows();
+
+//      // Map main frame
+//      fMain->MapWindow();
+
      // resize main window to tableWidth plus size of scroller and for first few cells heights.
      // so far I don't know how to figure out scroller size, I just found it's about 30 units.
 //      fMain->Resize(width+20,height+20);
@@ -413,8 +413,8 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      v_objs.push_back(jet_manager);
      v_objs.push_back(el_manager);
      v_objs.push_back(mu_manager);
-     FWTextViewPage *objects = new FWTextViewPage("Physics objects", v_objs, 
-						  gui->m_textViewFrame[0], 
+     FWTextViewPage *objects = new FWTextViewPage("Physics objects", v_objs,
+						  gui->m_textViewFrame[0],
 						  gui->m_textViewTab,
 						  this, kLHintsLeft);
      std::vector<FWTableManager *> v_trigger;
@@ -423,15 +423,15 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      v_trigger.push_back(l1jet_manager);
 //      v_trigger.push_back(hlt_manager);
      FWTextViewPage *trigger = new FWTextViewPage("Trigger information", v_trigger,
-						  gui->m_textViewFrame[1], 
-						  gui->m_textViewTab, this, 
+						  gui->m_textViewFrame[1],
+						  gui->m_textViewTab, this,
 						  kLHintsTop);
      std::vector<FWTableManager *> v_tracks;
      v_tracks.push_back(track_manager);
      v_tracks.push_back(vertex_manager);
      FWTextViewPage *tracks = new FWTextViewPage("Tracking", v_tracks,
-						 gui->m_textViewFrame[2], 
-						 gui->m_textViewTab, this, 
+						 gui->m_textViewFrame[2],
+						 gui->m_textViewTab, this,
 						 kLHintsLeft);
      page = objects;
      objects->setNext(trigger);
@@ -471,59 +471,59 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      const l1extra::L1EmParticleCollection	*l1ems = 0;
      const l1extra::L1MuonParticleCollection	*l1mus = 0;
      const l1extra::L1JetParticleCollection	*l1jets = 0;
-     for (std::vector<FWEventItem *>::const_iterator 
+     for (std::vector<FWEventItem *>::const_iterator
 	       i = de->m_eiManager->m_items.begin(),
-	       end = de->m_eiManager->m_items.end(); 
+	       end = de->m_eiManager->m_items.end();
 	  i != end; ++i) {
 	  if (*i == 0) // event items can be null after they'be been removed
 	       continue;
 //  	  printf("event item: %s found\n", (*i)->name().c_str());
-	  if ((*i)->name() == "Electrons") { 
+	  if ((*i)->name() == "Electrons") {
 	       (*i)->get(els);
 //   	       (*i)->select(0);
 //   	       (*i)->select(2);
-	  } else if ((*i)->name() == "Muons") { 
+	  } else if ((*i)->name() == "Muons") {
 	       (*i)->get(mus);
-	  } else if ((*i)->name() == "Jets") { 
+	  } else if ((*i)->name() == "Jets") {
 	       (*i)->get(jets);
-	  } else if ((*i)->name() == "MET") { 
+	  } else if ((*i)->name() == "MET") {
 	       (*i)->get(mets);
-	  } else if ((*i)->name() == "Tracks") { 
+	  } else if ((*i)->name() == "Tracks") {
 	       (*i)->get(tracks);
-	  } else if ((*i)->name() == "Vertices") { 
+	  } else if ((*i)->name() == "Vertices") {
 	       (*i)->get(vertices);
-	  } else if ((*i)->name() == "L1EmTrig") { 
+	  } else if ((*i)->name() == "L1EmTrig") {
 	       (*i)->get(l1ems);
-	  } else if ((*i)->name() == "L1-Muons") { 
+	  } else if ((*i)->name() == "L1-Muons") {
 	       (*i)->get(l1mus);
-	  } else if ((*i)->name() == "L1-Jets") { 
+	  } else if ((*i)->name() == "L1-Jets") {
 	       (*i)->get(l1jets);
 	  }
      }
      // if I try to do this in the ctor, someone pulls the items out
      // from under me later
-     for (std::vector<FWEventItem *>::const_iterator 
+     for (std::vector<FWEventItem *>::const_iterator
 	       i = de->m_eiManager->m_items.begin(),
-	       end = de->m_eiManager->m_items.end(); 
+	       end = de->m_eiManager->m_items.end();
 	  i != end; ++i) {
 	  if (*i == 0) // event items can be null after they'be been removed
 	       continue;
 // 	  printf("event item: %s\n", (*i)->name().c_str());
-	  if ((*i)->name() == "Electrons") { 
+	  if ((*i)->name() == "Electrons") {
 	       el_manager->setItem(*i);
-	  } else if ((*i)->name() == "Muons") { 
+	  } else if ((*i)->name() == "Muons") {
 	       mu_manager->setItem(*i);
-	  } else if ((*i)->name() == "Jets") { 
+	  } else if ((*i)->name() == "Jets") {
 	       jet_manager->setItem(*i);
-	  } else if ((*i)->name() == "Tracks") { 
+	  } else if ((*i)->name() == "Tracks") {
 	       track_manager->setItem(*i);
-	  } else if ((*i)->name() == "Vertices") { 
+	  } else if ((*i)->name() == "Vertices") {
 	       vertex_manager->setItem(*i);
-	  } else if ((*i)->name() == "L1EmTrig") { 
+	  } else if ((*i)->name() == "L1EmTrig") {
 	       l1em_manager->setItem(*i);
-	  } else if ((*i)->name() == "L1-Muons") { 	
+	  } else if ((*i)->name() == "L1-Muons") {
 	       l1mu_manager->setItem(*i);
-	  } else if ((*i)->name() == "L1-Jets") { 
+	  } else if ((*i)->name() == "L1-Jets") {
 	       l1jet_manager->setItem(*i);
 	  }
      }
@@ -592,17 +592,17 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      printf("MET %5.1f\t MET phi %.2f\t Sum Et %5.1f\t sig(MET) %.2f\n",
 	    met.p4().Et(), met.phi(), met.sumEt(), met.mEtSig());
 #endif
-     printf("%d electrons\t%d muons\t%d jets\t\n", 
+     printf("%d electrons\t%d muons\t%d jets\t\n",
 	    n_els, n_mus, n_jets);
 #endif
      if (n_mets == 1) { // this should always be the case for non-sick files
 	  const CaloMET &met = *mets->begin();
-	  header.setContent(ev.aux_.run(), ev.aux_.event(), 
+	  header.setContent(ev.aux_.run(), ev.aux_.event(),
 			    met.p4().Et(), met.phi(), met.sumEt(), met.mEtSig());
      } else {
-	  header.setContent(ev.aux_.run(), ev.aux_.event(), 
+	  header.setContent(ev.aux_.run(), ev.aux_.event(),
 			    -1, -1, -1, -1);
-     }	  
+     }
      //------------------------------------------------------------
      // print muons
      //------------------------------------------------------------
@@ -631,11 +631,11 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  printf("%5.1f\t %c\t %c\t %c\t %c\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t"
 		 "%6.3f\t\t %d\t\t %6.3f\t %7.3f\t %c\t\t %c\t\t %c\t\t %c\n",
 		 muon.pt(), // is this right?
-		 muon.isGlobalMuon() 		? 'y' : 'n', 
-		 muon.isTrackerMuon()		? 'y' : 'n', 
-		 muon.isStandAloneMuon()	? 'y' : 'n', 
+		 muon.isGlobalMuon() 		? 'y' : 'n',
+		 muon.isTrackerMuon()		? 'y' : 'n',
+		 muon.isStandAloneMuon()	? 'y' : 'n',
 		 muon.isCaloMuon()		? 'y' : 'n',
- 		 0., 0., // what iso? 
+ 		 0., 0., // what iso?
 		 trpt, muon.eta(), muon.phi(),
  		 0., // how to get chi^2?
  		 muon.numberOfMatches(Muon::SegmentArbitration), // is this the right arbitration?
@@ -646,11 +646,11 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  MuonRowStruct row = {
 	       i,
 	       muon.pt(), // is this right?
-	       muon.isGlobalMuon() 		? FLAG_YES : FLAG_NO, 
-	       muon.isTrackerMuon()		? FLAG_YES : FLAG_NO, 
-	       muon.isStandAloneMuon()	? FLAG_YES : FLAG_NO, 
+	       muon.isGlobalMuon() 		? FLAG_YES : FLAG_NO,
+	       muon.isTrackerMuon()		? FLAG_YES : FLAG_NO,
+	       muon.isStandAloneMuon()	? FLAG_YES : FLAG_NO,
 	       muon.isCaloMuon()		? FLAG_YES : FLAG_NO,
-// 	       0., 0., // what iso? 
+// 	       0., 0., // what iso?
 	       trpt, muon.eta(), muon.phi(),
 // 	       0., // how to get chi^2?
 // 	       muon.numberOfMatches(Muon::SegmentArbitration), // is this the right arbitration?
@@ -691,7 +691,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 		 'm', 'm', 'm' // can we get these flags?
 	       );
 #endif
-	  ElectronRowStruct row = { 		 
+	  ElectronRowStruct row = {
 	       i,
 	       et, electron.eta(), electron.phi(),
 	       electron.eSuperClusterOverP(), electron.hadronicOverEm(),
@@ -725,7 +725,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 		 et, jet.eta(), jet.phi(),
 		 jet.p4().E() * jet.emEnergyFraction(),		// this has got
 		 jet.p4().E() * jet.energyFractionHadronic(),	// to be a joke
-		 jet.emEnergyFraction(), 
+		 jet.emEnergyFraction(),
 		 0.	// how do we get the charge fraction?
 	       );
 #endif
@@ -734,7 +734,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       et, jet.eta(), jet.phi(),
 	       jet.p4().E() * jet.emEnergyFraction(),		// this has got
 	       jet.p4().E() * jet.energyFractionHadronic(),	// to be a joke
-	       jet.emEnergyFraction(), 
+	       jet.emEnergyFraction(),
 //	       0.	// how do we get the charge fraction?
 	  };
 	  jet_manager->rows.push_back(row);
@@ -752,7 +752,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       i,
 	       tr.pt(), tr.eta(), tr.phi(),
 	       tr.d0(), tr.d0Error(), tr.dz(), tr.dzError(),
-	       tr.vx(), tr.vy(), tr.vz(), 
+	       tr.vx(), tr.vy(), tr.vz(),
 	       tr.hitPattern().numberOfValidPixelHits(),
 	       tr.hitPattern().numberOfValidStripHits(),
 // 	       125,
@@ -771,9 +771,9 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  const reco::Vertex &vtx = vertices->at(i);
 	  VertexRowStruct row = {
 	       i,
-	       vtx.x(), vtx.xError(), 
-	       vtx.y(), vtx.yError(), 
-	       vtx.z(), vtx.zError(), 
+	       vtx.x(), vtx.xError(),
+	       vtx.y(), vtx.yError(),
+	       vtx.z(), vtx.zError(),
 	       vtx.tracksSize(), vtx.chi2(), vtx.ndof()
 	  };
 	  vertex_manager->rows.push_back(row);
@@ -824,7 +824,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  l1jet_manager->rows.push_back(row);
      }
      l1jet_manager->sort(0, true);
-//      static int i = 0; 
+//      static int i = 0;
 //      i++;
 //      if (i == 3) {
 // 	  page->deselect();
@@ -864,23 +864,23 @@ void FWTextView::selectionChanged (const FWSelectionManager &m)
 {
 //      printf("selectionChanged\n");
      // clear old selection
-     for (std::vector<FWTableManager *>::iterator 
+     for (std::vector<FWTableManager *>::iterator
 	       i = managers.begin(), end = managers.end();
-	  i != end; ++i) 
+	  i != end; ++i)
 	  (*i)->sel_indices.clear();
      // propagate new selection
      for (std::set<FWModelId>::const_iterator i = m.m_selection.begin(),
 	       end = m.m_selection.end(); i != end; ++i) {
-	  for (std::vector<FWTableManager *>::iterator 
+	  for (std::vector<FWTableManager *>::iterator
 		    j = managers.begin(), end = managers.end();
 	       j != end; ++j) {
 	       if (i->item() == (*j)->item)
 		    (*j)->sel_indices.insert(i->index());
 	  }
      }
-     for (std::vector<FWTableManager *>::iterator 
+     for (std::vector<FWTableManager *>::iterator
 	       i = managers.begin(), end = managers.end();
-	  i != end; ++i) 
+	  i != end; ++i)
 	  if ((*i)->item != 0) {
 	       (*i)->selectRows();
 	  }
@@ -890,7 +890,7 @@ void FWTextView::changesDone (const CmsShowMain *)
 {
 //      printf("changesDone\n");
 //      selectionChanged(*main->m_selectionManager);
-     for (std::vector<FWTableManager *>::iterator 
+     for (std::vector<FWTableManager *>::iterator
 	       i = managers.begin(), end = managers.end();
 	  i != end; ++i) {
 	  (*i)->vis_indices.clear();
@@ -903,7 +903,7 @@ void FWTextView::changesDone (const CmsShowMain *)
 	       }
 	  }
 	  (*i)->resort(); // because invisible lines are supposed to
-			  // be at the bottom 
+			  // be at the bottom
  	  (*i)->selectRows();
      }
 }

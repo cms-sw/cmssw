@@ -18,7 +18,7 @@ DetIdToMatrix::~DetIdToMatrix()
    // if ( manager_ ) delete manager_;
 }
 
-void DetIdToMatrix::loadGeometry(const char* fileName) 
+void DetIdToMatrix::loadGeometry(const char* fileName)
 {
    // ATTN: not sure if I can close the file and keep the manager in the memory
    //       it's not essential for id to matrix functionality, but the geo manager
@@ -33,15 +33,15 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
    }
 }
 
-void DetIdToMatrix::loadMap(const char* fileName) 
+void DetIdToMatrix::loadMap(const char* fileName)
 {
    if (!manager_) {
       std::cout << "ERROR: CMS detector geometry is not available. DetId to Matrix map Initialization failed." << std::endl;
       return;
    }
-   
+
    TFile f(fileName);
-   // ATTN: not sure who owns the object 
+   // ATTN: not sure who owns the object
    TTree* tree = (TTree*)f.Get("idToGeo");
    if (!tree) {
       std::cout << "ERROR: cannot find detector id map in the file. Initialization failed." << std::endl;
@@ -62,19 +62,19 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
 {
    std::map<unsigned int, TGeoHMatrix>::const_iterator itr = idToMatrix_.find(id);
    if ( itr != idToMatrix_.end() ) return &(itr->second);
-   
+
    const char* path = getPath( id );
    if ( ! path ) return 0;
    if ( ! manager_->cd(path) ) {
       std::cout << "ERROR: incorrect path " << path << "\nfor DetId: " << id << std::endl;
       return 0;
    }
-   
+
    // CSC chamber frame has local coordinates rotated with respect
    // to the reference framed used in the offline reconstruction
    // -z is endcap is also reflected
-   static const TGeoRotation inverseCscRotation("iCscRot",0,90,0); 
-   
+   static const TGeoRotation inverseCscRotation("iCscRot",0,90,0);
+
    DetId detId(id);
    if ( detId.subdetId() == MuonSubdetId::CSC ) {
       TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
@@ -93,23 +93,23 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
        // std::cout << "after: " << std::endl;
        // m.Print();
        return &idToMatrix_[id];
-     } 
+     }
       /* else {
 	std::cout << "BARREL station: " << rpcid.station() << std::endl;
 	(*(manager_->GetCurrentMatrix())).Print();
        }
       */
-   }      
+   }
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
-   
+
    // some ECAL crystall are reflected
    if ( detId.det() == DetId::Ecal && m.IsReflection() ) m.ReflectX(kFALSE);
-	
+
    idToMatrix_[id] = m;
    return &idToMatrix_[id];
 }
 
-const char* DetIdToMatrix::getPath( unsigned int id ) const 
+const char* DetIdToMatrix::getPath( unsigned int id ) const
 {
    std::map<unsigned int, std::string>::const_iterator itr = idToPath_.find(id);
    if ( itr != idToPath_.end() )
@@ -117,7 +117,7 @@ const char* DetIdToMatrix::getPath( unsigned int id ) const
    else
      return 0;
 }
-   
+
 const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id ) const
 {
    std::map<unsigned int, std::string>::const_iterator itr = idToPath_.find(id);
@@ -128,7 +128,7 @@ const TGeoVolume* DetIdToMatrix::getVolume( unsigned int id ) const
    else
      return 0;
 }
-   
+
 std::vector<unsigned int> DetIdToMatrix::getAllIds() const
 {
    std::vector<unsigned int> ids;
@@ -136,7 +136,7 @@ std::vector<unsigned int> DetIdToMatrix::getAllIds() const
      ids.push_back( itr->first );
    return ids;
 }
-   
+
 
 TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
 {
@@ -145,7 +145,7 @@ TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const 
    // it's possible to get a corrected matrix from outside
    // if it's not provided, we take whatever the geo manager has
    if ( ! matrix ) matrix = manager_->GetCurrentMatrix();
-   
+
    TEveGeoShape* shape = new TEveGeoShape(name,path);
    shape->SetTransMatrix(*matrix);
    TGeoShape* gs = manager_->GetCurrentVolume()->GetShape();

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWParameterSetterEditorBase
-// 
+//
 /**\class FWParameterSetterEditorBase FWParameterSetterEditorBase.h Fireworks/Core/interface/FWParameterSetterEditorBase.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jun 26 11:17:59 EDT 2008
-// $Id$
+// $Id: FWParameterSetterEditorBase.h,v 1.1 2008/06/29 13:11:25 chrjones Exp $
 //
 
 // system include files

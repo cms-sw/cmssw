@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWItemTVirtualCollectionProxyAccessor
-// 
+//
 /**\class FWItemTVirtualCollectionProxyAccessor FWItemTVirtualCollectionProxyAccessor.h Fireworks/Core/interface/FWItemTVirtualCollectionProxyAccessor.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:45 EDT 2008
-// $Id$
+// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.1 2008/10/21 19:08:23 chrjones Exp $
 //
 
 // system include files
@@ -41,23 +41,23 @@ public:
    virtual unsigned int size() const;
    const TClass* modelType() const;
    const TClass* type() const;
-   
+
    bool isCollection() const;
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void setWrapper(const ROOT::Reflex::Object& );
    void reset();
 
 private:
    FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor&); // stop default
-   
+
    const FWItemTVirtualCollectionProxyAccessor& operator=(const FWItemTVirtualCollectionProxyAccessor&); // stop default
-   
+
    // ---------- member data --------------------------------
    const TClass* m_type;
-   boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr 
+   boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr
    mutable const void * m_data;
 };
 

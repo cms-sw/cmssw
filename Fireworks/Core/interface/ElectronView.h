@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     ElectronSCViewManager
-// 
+//
 /**\class ElectronSCViewManager ElectronSCViewManager.h Fireworks/Core/interface/ElectronSCViewManager.h
 
    Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: ElectronView.h,v 1.1.2.1 2008/03/06 18:46:10 jmuelmen Exp $
+// $Id: ElectronView.h,v 1.2 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files

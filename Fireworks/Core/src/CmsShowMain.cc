@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowMain
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.41 2008/09/22 17:41:58 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.42 2008/10/21 19:20:39 chrjones Exp $
 //
 
 // system include files
@@ -145,7 +145,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                       m_selectionManager.get())),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_textView(0),
-  m_context(new fireworks::Context(m_changeManager.get(), 
+  m_context(new fireworks::Context(m_changeManager.get(),
                                    m_selectionManager.get())),
   m_playTimer(0),
   m_playBackTimer(0),
@@ -157,7 +157,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    try {
       std::string descString(argv[0]);
       descString += " [options] <data file>\nAllowed options";
-      
+
       namespace po = boost::program_options;
       po::options_description desc(descString);
       desc.add_options()
@@ -174,7 +174,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
-      
+
       int newArgc = argc;
       char **newArgv = argv;
       po::variables_map vm;
@@ -187,7 +187,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          std::cout << desc <<std::endl;
          exit(0);
       }
-      
+
       if (vm.count(kInputFileOpt)) {
          m_inputFileName = vm[kInputFileOpt].as<std::string>();
       } else {
@@ -211,7 +211,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
-      
+
       if (vm.count(kGeomFileOpt)) {
          m_geomFileName = vm[kGeomFileOpt].as<std::string>();
       } else {
@@ -220,7 +220,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_geomFileName.append("/cmsGeom10.root");
       }
       bool debugMode = vm.count(kDebugOpt);
-      
+
       //Delay creating guiManager until here so that if we have a 'help' request we don't
       // open any graphics
       m_guiManager = std::auto_ptr<FWGUIManager>(new FWGUIManager(m_selectionManager.get(),
@@ -228,22 +228,22 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                                   m_changeManager.get(),
                                                                   m_viewManager.get(),
                                                                   false));
-      
+
       if ( vm.count(kAdvancedRenderOpt) ) {
          TEveLine::SetDefaultSmooth(kTRUE);
       }
-      
+
       m_textView = std::auto_ptr<FWTextView>(
 					     new FWTextView(this, &*m_selectionManager, &*m_changeManager,
 							    &*m_guiManager) );
-      
+
       printf("Input: %s\n", m_inputFileName.c_str());
       printf("Config: %s\n", m_configFileName.c_str());
       printf("Geom: %s\n", m_geomFileName.c_str());
       //connect up the managers
       m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
                                                 m_changeManager.get(), _1) );
-      
+
       m_eiManager->newItem_.connect(boost::bind(&FWViewManagerManager::registerEventItem,
                                                 m_viewManager.get(), _1));
       m_configurationManager->add("EventItems",m_eiManager.get());
@@ -255,8 +255,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //tell ROOT where to find our macros
       std::string macPath(cmspath);
       macPath += "/src/Fireworks/Core/macros";
-      gROOT->SetMacroPath((std::string("./:")+macPath).c_str());  
-      
+      gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
+
       gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
       TEveTrack::SetDefaultBreakProjectedTracks(kFALSE);
 
@@ -266,7 +266,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       CmsShowTaskExecutor::TaskFunctor f;
       f=boost::bind(&CmsShowMain::loadGeometry,this);
       m_startupTasks->addTask(f);
-      
+
       //loadGeometry();
       /*
       // prepare geometry service
@@ -274,7 +274,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
       m_detIdToGeo.loadMap( m_geomFileName.c_str() );
       */
-      
+
       //setupViewManagers();
       f=boost::bind(&CmsShowMain::setupViewManagers,this);
       m_startupTasks->addTask(f);
@@ -283,23 +283,23 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       rpzViewManager->setGeom(&m_detIdToGeo);
       m_viewManager->add(rpzViewManager);
       //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
-      
+
       m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
-      
+
       m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
       */
-      
+
       //setupConfiguration();
       f=boost::bind(&CmsShowMain::setupConfiguration,this);
       m_startupTasks->addTask(f);
       //CDJ Old position
       //gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
       //TEveTrackProjected::SetBreakTracks(kFALSE);
-   
+
       //setupDetailedViewManagers();
       f=boost::bind(&CmsShowMain::setupDetailedViewManagers,this);
       m_startupTasks->addTask(f);
-      
+
       //setupDataHandling();
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
@@ -321,7 +321,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
       if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
       if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
-      if (CSGAction* action = m_guiManager->getAction("Event Filter")) 
+      if (CSGAction* action = m_guiManager->getAction("Event Filter"))
          action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
       else
          printf("Why?\n\n\n\n\n\n");
@@ -337,7 +337,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }else{
          gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       }
-           
+
       if(vm.count(kPortCommandOpt)) {
          f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
@@ -386,9 +386,9 @@ CmsShowMain::~CmsShowMain()
 //
 void CmsShowMain::resetInitialization() {
   //printf("Need to reset\n");
-} 
+}
 
-void CmsShowMain::draw(const fwlite::Event& event) 
+void CmsShowMain::draw(const fwlite::Event& event)
 {
   // TStopwatch stopwatch;
   m_guiManager->updateStatus("loading event ...");
@@ -428,7 +428,7 @@ void CmsShowMain::openData()
    m_guiManager->clearStatus();
 }
 
-void CmsShowMain::quit() 
+void CmsShowMain::quit()
 {
   // m_configurationManager->writeToFile(m_configFileName);
   gApplication->Terminate(0);
@@ -439,7 +439,7 @@ void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
   m_eiManager->add(iItem);
 }
 
-void CmsShowMain::registerDetailView (const std::string &item_name, 
+void CmsShowMain::registerDetailView (const std::string &item_name,
 					 FWDetailView *view)
 {
   m_guiManager->registerDetailView(item_name, view);
@@ -468,7 +468,7 @@ CmsShowMain::draw(const fwlite::Event& iEvent) const
   return m_guiManager->allowInteraction();
 }
 
-void 
+void
 CmsShowMain::writeConfigurationFile(const std::string& iFileName) const
 {
   m_configurationManager->writeToFile(iFileName);
@@ -477,7 +477,7 @@ CmsShowMain::writeConfigurationFile(const std::string& iFileName) const
 
 //STARTUP TASKS
 
-void 
+void
 CmsShowMain::loadGeometry()
 {      // prepare geometry service
    // ATTN: this should be made configurable
@@ -486,7 +486,7 @@ CmsShowMain::loadGeometry()
    m_detIdToGeo.loadMap( m_geomFileName.c_str() );
 }
 
-void 
+void
 CmsShowMain::setupViewManagers()
 {
   m_guiManager->updateStatus("Setting up view manager...");
@@ -494,13 +494,13 @@ CmsShowMain::setupViewManagers()
    rpzViewManager->setGeom(&m_detIdToGeo);
    m_viewManager->add(rpzViewManager);
    //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
-   
+
    m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
-   
-   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );   
+
+   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
 }
 
-void 
+void
 CmsShowMain::setupConfiguration()
 {
   m_guiManager->updateStatus("Setting up configuration...");
@@ -511,7 +511,7 @@ CmsShowMain::setupConfiguration()
       m_guiManager->createView("Rho Z");
       m_guiManager->createView("3D Lego");
       m_guiManager->createView("Glimpse");
-      
+
       FWPhysicsObjectDesc ecal("ECal",
                                TClass::GetClass("CaloTowerCollection"),
                                "ECal",
@@ -521,7 +521,7 @@ CmsShowMain::setupConfiguration()
                                "",
                                "",
                                2);
-      
+
       FWPhysicsObjectDesc hcal("HCal",
                                TClass::GetClass("CaloTowerCollection"),
                                "HCal",
@@ -531,7 +531,7 @@ CmsShowMain::setupConfiguration()
                                "",
                                "",
                                2);
-      
+
       FWPhysicsObjectDesc jets("Jets",
                                TClass::GetClass("reco::CaloJetCollection"),
                                "Jets",
@@ -541,8 +541,8 @@ CmsShowMain::setupConfiguration()
                                "",
                                "$.pt()>15",
                                3);
-      
-      
+
+
       FWPhysicsObjectDesc l1EmTrigs("L1EmTrig",
                                     TClass::GetClass("l1extra::L1EmParticleCollection"),
                                     "L1EmTrig",
@@ -552,7 +552,7 @@ CmsShowMain::setupConfiguration()
                                     "",
                                     "$.pt()>15",
                                     3);
-      
+
       FWPhysicsObjectDesc l1Muons("L1-Muons",
                                   TClass::GetClass("l1extra::L1MuonParticleCollection"),
                                   "L1-Muons",
@@ -562,7 +562,7 @@ CmsShowMain::setupConfiguration()
                                   "",
                                   "",
                                   3);
-      
+
       FWPhysicsObjectDesc l1MET("L1-MET",
                                 TClass::GetClass("l1extra::L1EtMissParticleCollection"),
                                 "L1-MET",
@@ -572,7 +572,7 @@ CmsShowMain::setupConfiguration()
                                 "",
                                 "",
                                 3);
-      
+
       FWPhysicsObjectDesc l1Jets("L1-Jets",
                                  TClass::GetClass("l1extra::L1JetParticleCollection"),
                                  "L1-Jets",
@@ -582,8 +582,8 @@ CmsShowMain::setupConfiguration()
                                  "",
                                  "$.pt()>15",
                                  3);
-      
-      
+
+
       FWPhysicsObjectDesc tracks("Tracks",
                                  TClass::GetClass("reco::TrackCollection"),
                                  "Tracks",
@@ -593,7 +593,7 @@ CmsShowMain::setupConfiguration()
                                  "",
                                  "$.pt()>2",
                                  1);
-      
+
       FWPhysicsObjectDesc muons("Muons",
                                 TClass::GetClass("reco::MuonCollection"),
                                 "Muons",
@@ -603,7 +603,7 @@ CmsShowMain::setupConfiguration()
                                 "",
                                 "$.isGlobalMuon()",
                                 5);
-      
+
       FWPhysicsObjectDesc electrons("Electrons",
                                     TClass::GetClass("reco::GsfElectronCollection"),
                                     "Electrons",
@@ -613,7 +613,7 @@ CmsShowMain::setupConfiguration()
                                     "",
                                     "$.hadronicOverEm()<0.05",
                                     3);
-      
+
       FWPhysicsObjectDesc genParticles("GenParticles",
                                        TClass::GetClass("reco::GenParticleCollection"),
                                        "GenParticles",
@@ -623,7 +623,7 @@ CmsShowMain::setupConfiguration()
                                        "",
                                        "abs($.pdgId())==11 || abs($.pdgId())==13",
                                        6);
-      
+
       // Vertices
       FWPhysicsObjectDesc vertices("Vertices",
                                    TClass::GetClass("std::vector<reco::Vertex>"),
@@ -634,7 +634,7 @@ CmsShowMain::setupConfiguration()
                                    "",
                                    "",
                                    10);
-      
+
       FWPhysicsObjectDesc mets("MET",
                                TClass::GetClass("reco::CaloMETCollection"),
                                "MET",
@@ -644,7 +644,7 @@ CmsShowMain::setupConfiguration()
                                "",
                                "",
                                3);
-      
+
       FWPhysicsObjectDesc dtSegments("DT-segments",
                                      TClass::GetClass("DTRecSegment4DCollection"),
                                      "DT-segments",
@@ -654,7 +654,7 @@ CmsShowMain::setupConfiguration()
                                      "",
                                      "",
                                      1);
-      
+
       FWPhysicsObjectDesc cscSegments("CSC-segments",
                                       TClass::GetClass("CSCSegmentCollection"),
                                       "CSC-segments",
@@ -679,17 +679,17 @@ CmsShowMain::setupConfiguration()
       registerPhysicsObject(mets);
       registerPhysicsObject(dtSegments);
       registerPhysicsObject(cscSegments);
-      
+
    } else {
       char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
       if(0==whereConfig) {
          m_configFileName = "default.fwc";
-      } 
-      
+      }
+
       delete [] whereConfig;
       m_configurationManager->readFromFile(m_configFileName);
    }
-   
+
    if(not m_configFileName.empty() ) {
       /* //when the program quits we will want to save the configuration automatically
        m_guiManager->goingToQuit_.connect(
@@ -704,7 +704,7 @@ CmsShowMain::setupConfiguration()
    }
 }
 
-void 
+void
 CmsShowMain::setupDetailedViewManagers()
 {
   m_guiManager->updateStatus("Setting up detailed views...");
@@ -713,7 +713,7 @@ CmsShowMain::setupDetailedViewManagers()
    registerDetailView("Muons", new MuonDetailView);
    registerDetailView("Tracks", new TrackDetailView);
    registerDetailView("GenParticles", new GenParticleDetailView);
-   
+
 }
 
 namespace {
@@ -728,7 +728,7 @@ namespace {
    };
 }
 
-void 
+void
 CmsShowMain::setupDataHandling()
 {
    m_guiManager->updateStatus("Setting up data handling...");
@@ -755,9 +755,9 @@ CmsShowMain::setupDataHandling()
      action->activated.connect(boost::bind(&CmsShowNavigator::goToRun,m_navigator, action));
    if (CSGAction* action = m_guiManager->getAction("Event Entry"))
      action->activated.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator, action));
-   if (CSGAction* action = m_guiManager->getAction("Event Filter")) 
+   if (CSGAction* action = m_guiManager->getAction("Event Filter"))
      action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
-     
+
    {
       SignalTimer* timer = new SignalTimer();
       timer->timeout_.connect(m_guiManager->getAction(cmsshow::sNextEvent)->activated);
@@ -766,20 +766,20 @@ CmsShowMain::setupDataHandling()
       timer->timeout_.connect(m_guiManager->getAction(cmsshow::sPreviousEvent)->activated);
       m_playBackTimer=timer;
    }
-   
+
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
       m_navigator->loadFile(m_inputFileName);
-   }   
+   }
 }
-void 
+void
 CmsShowMain::setupDebugSupport()
 {
    m_guiManager->updateStatus("Setting up debug support...");
    m_guiManager->openEveBrowserForDebugging();
 }
 
-void 
+void
 CmsShowMain::setupSocket(unsigned int iSocket)
 {
    m_monitor = std::auto_ptr<TMonitor>(new TMonitor);
@@ -856,7 +856,7 @@ CmsShowMain::stopPlaying()
    }
 }
 
-void 
+void
 CmsShowMain::reachedEnd()
 {
    if(!m_isPlaying) m_guiManager->disableNext();
@@ -870,27 +870,27 @@ CmsShowMain::reachedEnd()
     */
 }
 
-void 
+void
 CmsShowMain::setBrightness(unsigned int value)
 {
    // Notes:
    // you can store the original colors by creating a clone of
    // (TObjArray*)gROOT->GetListOfColors() and restore the colors by
-   // assigning the vector with original values to the list of colors 
+   // assigning the vector with original values to the list of colors
    // that gROOT handles.
-   
+
    std::cout << "Setting brightness: " << value << std::endl;
-   
+
    if ( value > 5) {
       std::cout << "Wrong parameter for brightness. Ignored" << std::endl;
       return;
    }
-   
+
    TObjArray* colors = (TObjArray*)gROOT->GetListOfColors();
    for (int i = 0; i < colors->GetSize(); ++i ) {
       if ( TColor* color = dynamic_cast<TColor*>(colors->At(i)) ) {
 	 Float_t r(0);
-	 Float_t g(0); 
+	 Float_t g(0);
 	 Float_t b(0);
 	 color->GetRGB(r, g, b);
 	 if ( r < 0.01 && g < 0.01 && b < 0.01 ) continue; // skip black

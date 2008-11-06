@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRhoPhiZViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.39 2008/11/04 11:46:33 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.40 2008/11/06 19:49:23 amraktad Exp $
 //
 
 // system include files
@@ -90,15 +90,15 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
    //setup geometry projections
    m_rhoPhiGeomProjMgr = new TEveProjectionManager;
    //gEve->AddToListTree(m_rhoPhiGeomProjMgr,kTRUE);
-   
+
    m_rhoZGeomProjMgr = new TEveProjectionManager;
    m_rhoZGeomProjMgr->SetProjection(TEveProjection::kPT_RhoZ);
    //gEve->AddToListTree(m_rhoZGeomProjMgr,kTRUE);
 
    m_eveStore = new TEveElementList();
-   
-   //kTRUE tells it to reset the camera so we see everything 
-   //gEve->Redraw3D(kTRUE);  
+
+   //kTRUE tells it to reset the camera so we see everything
+   //gEve->Redraw3D(kTRUE);
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
@@ -107,13 +107,13 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
 
    //create a list of the available ViewManager's
    std::set<std::string> rpzBuilders;
-   
+
    std::vector<edmplugin::PluginInfo> available = FWRPZDataProxyBuilderFactory::get()->available();
    std::transform(available.begin(),
                   available.end(),
                   std::inserter(rpzBuilders,rpzBuilders.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
-   
+
    if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())) {
       available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())->second;
       std::transform(available.begin(),
@@ -121,7 +121,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
                      std::inserter(rpzBuilders,rpzBuilders.begin()),
                      boost::bind(&edmplugin::PluginInfo::name_,_1));
    }
-   
+
    for(std::set<std::string>::iterator it = rpzBuilders.begin(), itEnd=rpzBuilders.end();
        it!=itEnd;
        ++it) {
@@ -138,7 +138,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
                   available.end(),
                   std::inserter(rpzBuilders,rpzBuilders.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
-   
+
    if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZ2DDataProxyBuilderFactory::get()->category())) {
       available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())->second;
       std::transform(available.begin(),
@@ -146,7 +146,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
                      std::inserter(rpzBuilders,rpzBuilders.begin()),
                      boost::bind(&edmplugin::PluginInfo::name_,_1));
    }
-   
+
    for(std::set<std::string>::iterator it = rpzBuilders.begin(), itEnd=rpzBuilders.end();
        it!=itEnd;
        ++it) {
@@ -155,7 +155,7 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
       //std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilder[purpose]=std::make_pair(*it,false);
    }
-   
+
 }
 
 // FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
@@ -188,15 +188,15 @@ FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
 //
 // member functions
 //
-FWViewBase* 
+FWViewBase*
 FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
-   
-   //do geometry now so that when we open the first view we can tell it to 
+
+   //do geometry now so that when we open the first view we can tell it to
    // show the entire detector
    setupGeometry();
-   
+
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
                                                              kRhoPhiViewTypeName,
                                                              TEveProjection::kPT_RPhi) );
@@ -213,25 +213,25 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
         builderIter != m_builders.end(); ++builderIter )  {
       (*builderIter)->attachToRhoPhiView(pView);
    }
-   
+
    return pView.get();
 }
 
-FWViewBase* 
+FWViewBase*
 FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
 
-   //do geometry now so that when we open the first view we can tell it to 
+   //do geometry now so that when we open the first view we can tell it to
    // show the entire detector
    setupGeometry();
-   
+
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
                                                              kRhoZViewTypeName,
                                                              TEveProjection::kPT_RhoZ) );
    pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoZViews.push_back(pView);
-   for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(), 
+   for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(),
        itEnd = m_rhoZGeomProjMgr->EndChildren();
        it != itEnd;
        ++it) {
@@ -245,7 +245,7 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
    return pView.get();
 }
 
-void 
+void
 FWRhoPhiZViewManager::setupGeometry()
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
@@ -253,7 +253,7 @@ FWRhoPhiZViewManager::setupGeometry()
       makeMuonGeometryRhoPhi();
       makeTrackerGeometryRhoPhi();
    }
-   
+
    if ( m_rhoZGeom.empty() ) {
       makeMuonGeometryRhoZAdvance();
       makeTrackerGeometryRhoZ();
@@ -269,7 +269,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
       if(itFind->second.second) {
          //std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
          FWRPZDataProxyBuilder* builder = FWRPZDataProxyBuilderFactory::get()->create(itFind->second.first);
-         
+
          if(0!=builder) {
             boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
             builder->setItem(iItem);
@@ -286,11 +286,11 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             pB->setViews(&m_rhoPhiViews,&m_rhoZViews);
          }
       }
-      
-   }   
+
+   }
 }
 
-void 
+void
 FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
 {
   if(0==m_selectionManager) {
@@ -301,12 +301,12 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
 }
 
 
-void 
+void
 FWRhoPhiZViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
 }
-void 
+void
 FWRhoPhiZViewManager::modelChangesDone()
 {
    gEve->EnableRedraw();
@@ -349,7 +349,7 @@ FWRhoPhiZViewManager::selectionRemoved(TEveElement* iElement)
          }
       }
    }
-   
+
 }
 
 void
@@ -357,7 +357,7 @@ FWRhoPhiZViewManager::selectionCleared()
 {
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
-   }   
+   }
 }
 
 static bool removeFrom(std::vector<boost::shared_ptr<FWRhoPhiZView> >& iViews,
@@ -374,11 +374,11 @@ static bool removeFrom(std::vector<boost::shared_ptr<FWRhoPhiZView> >& iViews,
    return false;
 }
 
-void 
+void
 FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
 {
    //Only do this if we are NOT being called while FWRhoPhiZViewManager is being destroyed
-   if(!m_isBeingDestroyed) {      
+   if(!m_isBeingDestroyed) {
       if(! removeFrom(m_rhoPhiViews,iView) ) {
          removeFrom(m_rhoZViews,iView);
       }
@@ -391,7 +391,7 @@ FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
 void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
 {
    if ( ! detIdToGeo() ) return;
-   
+
    // rho-phi view
    TEveElementList* container = new TEveElementList( "MuonRhoPhi" );
    Int_t iWheel = 0;
@@ -414,9 +414,9 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
    m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
    m_rhoPhiGeomProjMgr->ImportElements(container);
    m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
-	   
+
    // set background geometry visibility parameters
-	
+
    TEveElementIter rhoPhiDT(m_rhoPhiGeomProjMgr,"MuonRhoPhi");
    if ( rhoPhiDT.current() ) {
       m_rhoPhiGeom.push_back( rhoPhiDT.current() );
@@ -439,7 +439,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
    TEveElementList* dtContainer = new TEveElementList( "DT" );
    container->AddElement( dtContainer );
-	   
+
    for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel ) {
       std::ostringstream s; s << "Wheel" << iWheel;
       TEveElementList*  cWheel  = new TEveElementList(s.str().c_str());
@@ -456,18 +456,18 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 	 }
       }
    }
-	   
+
    TEveElementList* cscContainer = new TEveElementList( "CSC" );
    container->AddElement( cscContainer );
    for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
       TEveElementList* cEndcap = 0;
-      if (iEndcap == 1) 
+      if (iEndcap == 1)
          cEndcap = new TEveElementList( "Forward" );
       else
          cEndcap = new TEveElementList( "Backward" );
       cscContainer->AddElement( cEndcap );
       for ( Int_t iStation=1; iStation<=4; ++iStation)
-      {		   
+      {
 	 std::ostringstream s; s << "Station" << iStation;
 	 TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
 	 cEndcap->AddElement( cStation );
@@ -479,7 +479,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber)
             {
 	       if (iStation>1 && iChamber>36) continue;
-	       Int_t iLayer = 0; // chamber 
+	       Int_t iLayer = 0; // chamber
 	       // exception is thrown if parameters are not correct and I keep
 	       // forgetting how many chambers we have in each ring.
 	       try {
@@ -487,7 +487,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 		  TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
 		  if ( shape )  cRing->AddElement( shape );
 	       }
-	       catch ( ... ) {} 
+	       catch ( ... ) {}
 	    }
 	 }
       }
@@ -497,7 +497,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
    m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( container );
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
-   
+
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
@@ -510,7 +510,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
 	 iter.next();
       }
    }
-	
+
    TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
@@ -533,7 +533,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
    TEveElementList* dtContainer = new TEveElementList( "DT" );
    container->AddElement( dtContainer );
-	   
+
    for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel ) {
       std::ostringstream s; s << "Wheel" << iWheel;
       TEveElementList* cWheel  = new TEveElementList( s.str().c_str() );
@@ -541,13 +541,13 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
       for ( Int_t iStation=1; iStation<=4; ++iStation) {
 	 std::ostringstream s; s << "Station" << iStation;
 	 double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
-	 
+
 	 for ( Int_t iSector=1; iSector<=14; ++iSector) {
 	    if (iStation<4 && iSector>12) continue;
 	    DTChamberId id(iWheel, iStation, iSector);
 	    TEveGeoShape* shape = detIdToGeo()->getShape( id.rawId() );
 	    if (! shape ) continue;
-	    estimateProjectionSizeDT( detIdToGeo()->getMatrix( id.rawId() ), 
+	    estimateProjectionSizeDT( detIdToGeo()->getMatrix( id.rawId() ),
 				      shape->GetShape(), min_rho, max_rho, min_z, max_z );
 	 }
 	 if ( min_rho > max_rho || min_z > max_z ) continue;
@@ -560,12 +560,12 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    container->AddElement( cscContainer );
    for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) {// 1=forward (+Z), 2=backward(-Z)
       TEveElementList* cEndcap = 0;
-      if (iEndcap == 1) 
+      if (iEndcap == 1)
 	cEndcap = new TEveElementList( "Forward" );
       else
 	cEndcap = new TEveElementList( "Backward" );
       cscContainer->AddElement( cEndcap );
-      for ( Int_t iStation=1; iStation<=4; ++iStation) {		   
+      for ( Int_t iStation=1; iStation<=4; ++iStation) {
 	 std::ostringstream s; s << "Station" << iStation;
 	 TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
 	 cEndcap->AddElement( cStation );
@@ -575,7 +575,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 	    double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 	    for ( Int_t iChamber=1; iChamber<=72; ++iChamber) {
 	       if (iStation>1 && iChamber>36) continue;
-	       Int_t iLayer = 0; // chamber 
+	       Int_t iLayer = 0; // chamber
 	       // exception is thrown if parameters are not correct and I keep
 	       // forgetting how many chambers we have in each ring.
 	       try {
@@ -589,7 +589,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 		  const TGeoHMatrix* matrix = manager->GetCurrentMatrix();
 		  estimateProjectionSizeCSC( matrix, shape->GetShape(), min_rho, max_rho, min_z, max_z );
 	       }
-	       catch ( ... ) {} 
+	       catch ( ... ) {}
 	    }
 	    if ( min_rho > max_rho || min_z > max_z ) continue;
 	    cStation->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
@@ -602,7 +602,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( container );
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
-   
+
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
@@ -617,7 +617,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 	 iter.next();
       }
    }
-   
+
    TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
@@ -644,7 +644,7 @@ void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, 
 
    // we will test 5 points on both sides ( +/- z)
    Double_t local[3], global[3];
-   
+
    local[0]=0; local[1]=0; local[2]=box->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
@@ -660,11 +660,11 @@ void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, 
    local[0]=box->GetDX(); local[1]=-box->GetDY(); local[2]=box->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-   
+
    local[0]=-box->GetDX(); local[1]=-box->GetDY(); local[2]=box->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-   
+
    local[0]=0; local[1]=0; local[2]=-box->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
@@ -680,7 +680,7 @@ void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, 
    local[0]=box->GetDX(); local[1]=-box->GetDY(); local[2]=-box->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-   
+
    local[0]=-box->GetDX(); local[1]=-box->GetDY(); local[2]=-box->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
@@ -696,11 +696,11 @@ void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix,
       shape->IsA()->Print();
       return;
    }
-   
+
    // we will test 3 points on both sides ( +/- z)
    // local z is along Rho
    Double_t local[3], global[3];
-   
+
    local[0]=0; local[1]=bb->GetDY(); local[2]=-bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
@@ -738,9 +738,9 @@ void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,
    if ( min_z > global[2] ) min_z = global[2];
    if ( max_z < global[2] ) max_z = global[2];
 }
-		 
-		 
-TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name, 
+
+
+TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
 							     double min_rho, double max_rho, double min_z, double max_z )
 {
    TEveTrans t;
@@ -748,19 +748,19 @@ TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
    t(2,1) = 0; t(2,2) = 1; t(2,3) = 0;
    t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
    t(1,4) = 0; t(2,4) = (min_rho+max_rho)/2; t(3,4) = (min_z+max_z)/2;
-   
+
    TEveGeoShape* shape = new TEveGeoShape(name);
    shape->SetTransMatrix(t.Array());
-   
+
    shape->SetRnrSelf(kTRUE);
    shape->SetRnrChildren(kTRUE);
-   TGeoBBox* box = new TGeoBBox( 0, (max_rho-min_rho)/2, (max_z-min_z)/2 ); 
+   TGeoBBox* box = new TGeoBBox( 0, (max_rho-min_rho)/2, (max_z-min_z)/2 );
    shape->SetShape( box );
    return shape;
 }
 
 
-std::vector<std::string> 
+std::vector<std::string>
 FWRhoPhiZViewManager::purposeForType(const std::string& iTypeName) const
 {
    std::vector<std::string> returnValue;
@@ -831,8 +831,8 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
 
    m_eveStore->AddElement(el);
 }
-   
-std::set<std::pair<std::string,std::string> > 
+
+std::set<std::pair<std::string,std::string> >
 FWRhoPhiZViewManager::supportedTypesAndPurpose() const
 {
    std::set<std::pair<std::string,std::string> > returnValue;
@@ -843,5 +843,5 @@ FWRhoPhiZViewManager::supportedTypesAndPurpose() const
                                         it->first));
    }
    return returnValue;
-   
+
 }

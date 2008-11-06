@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWSelectionManager
-// 
+//
 /**\class FWSelectionManager FWSelectionManager.h Fireworks/Core/interface/FWSelectionManager.h
 
  Description: Manages the list of selected Model items
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:45 EST 2008
-// $Id: FWSelectionManager.h,v 1.2 2008/01/24 00:30:07 chrjones Exp $
+// $Id: FWSelectionManager.h,v 1.3 2008/01/25 01:54:06 chrjones Exp $
 //
 
 // system include files
@@ -42,20 +42,20 @@ class FWSelectionManager
 
       // ---------- const member functions ---------------------
       const std::set<FWModelId>& selected() const;
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void clearSelection();
 
       sigc::signal<void, const FWSelectionManager&> selectionChanged_;
-   
+
    private:
       void finishedAllSelections();
       void select(const FWModelId& iId);
       void unselect(const FWModelId& iId);
       void itemChanged(const FWEventItem*);
-   
+
       FWSelectionManager(const FWSelectionManager&); // stop default
 
       const FWSelectionManager& operator=(const FWSelectionManager&); // stop default

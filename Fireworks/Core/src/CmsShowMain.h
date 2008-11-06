@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowMain
-// 
+//
 /**\class CmsShowMain CmsShowMain.h Fireworks/Core/interface/CmsShowMain.h
 
  Description: Displays an fwlite::Event in ROOT
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.7 2008/08/24 13:23:26 dmytro Exp $
+// $Id: CmsShowMain.h,v 1.8 2008/10/21 19:20:39 chrjones Exp $
 //
 
 // system include files
@@ -71,13 +71,13 @@ public:
 
   // ---------- const member functions ---------------------
   const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
-   
+
   //  void writeConfigurationFile(const std::string& iFileName) const;
   // ---------- static member functions --------------------
   static void   setAutoFieldMode(bool state) { m_autoField = state; }
   static bool   isAutoField() { return m_autoField; }
   static double getMagneticField();
-  static void   setMagneticField(double var);    
+  static void   setMagneticField(double var);
   static int    getFieldEstimates() { return m_numberOfFieldEstimates; }
   static void   guessFieldIsOn( bool guess );
   static double getCaloScale() { return m_caloScale; }
@@ -89,13 +89,13 @@ public:
 
   void registerPhysicsObject(const FWPhysicsObjectDesc&);
   void registerDetailView (const std::string &item_name, FWDetailView *view);
-   
+
   void notified(TSocket*);
 private:
   CmsShowMain(const CmsShowMain&); // stop default
-  
+
   const CmsShowMain& operator=(const CmsShowMain&); // stop default
-   
+
    void loadGeometry();
    void setupViewManagers();
    void setupConfiguration();
@@ -103,7 +103,7 @@ private:
    void setupDataHandling();
    void setupDebugSupport();
    void setupSocket(unsigned int);
-  
+
    void playForward();
    void playBackward();
    void stopPlaying();
@@ -125,19 +125,19 @@ private:
   std::string m_configFileName;
   std::string m_geomFileName;
   static bool   m_autoField;                   // data derived magnetif field state
-  static double m_magneticField;               
-  static int    m_numberOfFieldEstimates;      
-  static int    m_numberOfFieldIsOnEstimates;  
+  static double m_magneticField;
+  static int    m_numberOfFieldEstimates;
+  static int    m_numberOfFieldIsOnEstimates;
   static double m_caloScale;
-   
+
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
-   
+
    TTimer* m_playTimer;
    TTimer* m_playBackTimer;
    bool m_isPlaying;
    bool m_forward;
    Long_t m_playDelay;
-   
+
    std::auto_ptr<TMonitor> m_monitor;
 };
 

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CSGNumAction
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jun 26 12:49:09 EDT 2008
-// $Id$
+// $Id: CSGNumAction.cc,v 1.1 2008/06/29 13:18:33 chrjones Exp $
 //
 
 // system include files

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWItemSingleAccessor
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:44 EDT 2008
-// $Id: FWItemSingleAccessor.cc,v 1.1 2008/10/21 19:08:23 chrjones Exp $
+// $Id: FWItemSingleAccessor.cc,v 1.2 2008/11/06 19:01:35 amraktad Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ FWItemSingleAccessor::~FWItemSingleAccessor()
 //
 // member functions
 //
-void 
+void
 FWItemSingleAccessor::setWrapper(const ROOT::Reflex::Object& iWrapper)
 {
    if(0!=iWrapper.Address()) {
@@ -76,7 +76,7 @@ FWItemSingleAccessor::setWrapper(const ROOT::Reflex::Object& iWrapper)
    }
 }
 
-void 
+void
 FWItemSingleAccessor::reset()
 {
    m_data = 0;
@@ -85,7 +85,7 @@ FWItemSingleAccessor::reset()
 //
 // const member functions
 //
-const void* 
+const void*
 FWItemSingleAccessor::modelData(int iIndex) const
 {
    if(0==iIndex) {
@@ -94,31 +94,31 @@ FWItemSingleAccessor::modelData(int iIndex) const
    return 0;
 }
 
-const void* 
+const void*
 FWItemSingleAccessor::data() const
 {
    return m_data;
 }
 
-unsigned int 
+unsigned int
 FWItemSingleAccessor::size() const
 {
    return 0 == m_data? 0: 1;
 }
 
-const TClass* 
+const TClass*
 FWItemSingleAccessor::modelType() const
 {
    return m_type;
 }
 
-const TClass* 
+const TClass*
 FWItemSingleAccessor::type() const
 {
    return m_type;
 }
 
-bool 
+bool
 FWItemSingleAccessor::isCollection() const
 {
    return false;

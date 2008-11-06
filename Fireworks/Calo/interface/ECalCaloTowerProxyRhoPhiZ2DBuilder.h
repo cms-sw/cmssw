@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     ECalCaloTowerProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class ECalCaloTowerProxyRhoPhiZ2DBuilder ECalCaloTowerProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.6 2008/06/23 06:29:03 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.7 2008/06/23 22:56:46 dmytro Exp $
 //
 
 // system include files
@@ -53,8 +53,8 @@ class ECalCaloTowerProxyRhoPhiZ2DBuilder : public BaseCaloTowerProxyRhoPhiZ2DBui
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
       ECalCaloTowerProxyRhoPhiZ2DBuilder(const ECalCaloTowerProxyRhoPhiZ2DBuilder&); // stop default

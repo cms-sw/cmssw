@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     FWGlimpseEveJet
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id: FWGlimpseEveJet.cc,v 1.2 2008/07/09 18:23:39 chrjones Exp $
+// $Id: FWGlimpseEveJet.cc,v 1.3 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ FWGlimpseEveJet::~FWGlimpseEveJet()
 //
 // member functions
 //
-void 
+void
 FWGlimpseEveJet::setScale(float iScale)
 {
    //it appears that Reset resets the color as well so we need to set it back
@@ -77,7 +77,7 @@ FWGlimpseEveJet::setScale(float iScale)
    double height = m_jet->et()*iScale;
    TEveVector dir, pos;
    dir.Set(m_jet->px()/m_jet->p(), m_jet->py()/m_jet->p(), m_jet->pz()/m_jet->p());
-   
+
    dir *= height;
    pos.Set(0.0,0.0,0.0);
    // check availability of consituents
@@ -89,12 +89,12 @@ FWGlimpseEveJet::setScale(float iScale)
 	break;
      }
    double eta_size = 0.5;
-   double phi_size = 0.5;   
+   double phi_size = 0.5;
    if ( haveData ){
       eta_size = sqrt(m_jet->etaetaMoment());
       phi_size = sqrt(m_jet->phiphiMoment());
    }
-   
+
    double theta_size = fabs(getTheta(m_jet->eta()+eta_size)-getTheta(m_jet->eta()-eta_size));
    AddEllipticCone(pos, dir, theta_size*height, phi_size*height);
 

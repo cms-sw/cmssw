@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDetailViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.13 2008/04/07 21:37:38 dmytro Exp $
+// $Id: FWDetailViewManager.cc,v 1.14 2008/09/29 18:00:23 amraktad Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ FWDetailViewManager::~FWDetailViewManager()
 //
 // member functions
 //
-void FWDetailViewManager::registerDetailView (const std::string &item_name, 
+void FWDetailViewManager::registerDetailView (const std::string &item_name,
 					      FWDetailView *view)
 {
      m_viewers[item_name] = view;
@@ -91,10 +91,10 @@ void FWDetailViewManager::close_button ()
      frame = 0;
 }
 
-void 
+void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 {
-     printf("opening detail view for event item %s (%x), index %d\n", 
+     printf("opening detail view for event item %s (%x), index %d\n",
 	    id.item()->name().c_str(), (unsigned int)id.item(), id.index());
 
      // make a frame
@@ -119,7 +119,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      // gEve->AddElement(nv, gEve->GetViewers());
      ns = gEve->SpawnNewScene("Detailed view");
      nv->AddScene(ns);
-     hf->AddFrame(v->GetFrame(),new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY)); 
+     hf->AddFrame(v->GetFrame(),new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY));
      TGTextButton* exit_butt = new TGTextButton(frame, "Close");
      exit_butt->Resize(20, 20);
      exit_butt->Connect("Clicked()", "FWDetailViewManager", this, "close_button()");
@@ -128,7 +128,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      frame->SetIconName("Detail View Icon");
 
      // find the right viewer for this item
-     std::map<std::string, FWDetailView *>::iterator viewer = 
+     std::map<std::string, FWDetailView *>::iterator viewer =
 	  m_viewers.find(id.item()->name());
      if (viewer == m_viewers.end()) {
 	  std::cout << "FWDetailViewManager: don't know what detailed view to "
@@ -146,7 +146,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 //      light_set->SetLight(TGLLightSet::kLightRight	, false);
 //      light_set->SetLight(TGLLightSet::kLightMask	, false);
      light_set->SetLight(TGLLightSet::kLightSpecular	, false);
-     
+
      // run the viewer
      TEveElementList *list = 0;
      viewer->second->setTextView(text_view);
@@ -165,7 +165,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    nv->GetGLViewer()->CurrentCamera().Reset();
    // nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 2, 10, viewer->second->rotation_center, 0.5, 0 );
    nv->GetGLViewer()->UpdateScene();
-   
+
    frame->Layout();
    frame->MapSubwindows();
    //running the Layout after the MapSubwindows makes the sub areas render properly from the start
@@ -177,7 +177,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 //
 // const member functions
 //
-bool 
+bool
 FWDetailViewManager::haveDetailViewFor(const FWModelId& iId) const
 {
    return m_viewers.end() != m_viewers.find(iId.item()->name());

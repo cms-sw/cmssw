@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRhoPhiZViewManager
-// 
+//
 /**\class FWRhoPhiZViewManager FWRhoPhiZViewManager.h Fireworks/Core/interface/FWRhoPhiZViewManager.h
 
  Description: Manages the data and views for Rho/Phi and Rho/Z Views
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.23 2008/07/07 06:15:33 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.24 2008/11/03 11:50:01 amraktad Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ class TGLEmbeddedViewer;
 class TEvePad;
 class FWRPZDataProxyBuilderBase;
 
- 
+
 class TGeoHMatrix;
 class TGeoShape;
 class TEveGeoShape;
@@ -66,12 +66,12 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       FWViewBase* createRhoPhiView(TGFrame* iParent);
       FWViewBase* createRhoZView(TGFrame* iParent);
-   
+
       //connect to ROOT signals
       void selectionAdded(TEveElement*);
       void selectionRemoved(TEveElement*);
       void selectionCleared();
-     
+
    protected:
       virtual void modelChangesComing() ;
       virtual void modelChangesDone() ;
@@ -82,9 +82,9 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       const FWRhoPhiZViewManager& operator=(const FWRhoPhiZViewManager&); // stop default
 
       void makeProxyBuilderFor(const FWEventItem* iItem);
-   
-      void beingDestroyed(const FWViewBase*); 
-   
+
+      void beingDestroyed(const FWViewBase*);
+
       void setupGeometry();
       void makeMuonGeometryRhoPhi();
       void makeMuonGeometryRhoZ();
@@ -96,24 +96,24 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
       TEveGeoShape* makeShape( const char*, double, double, double, double );
 
-      
+
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
       std::vector<boost::shared_ptr<FWRPZDataProxyBuilderBase> > m_builders;
-    
+
       TEveProjectionManager* m_rhoPhiGeomProjMgr;
       TEveProjectionManager* m_rhoZGeomProjMgr;
       std::vector<TEveElement*> m_rhoPhiGeom;
       std::vector<TEveElement*> m_rhoZGeom;
-   
+
       std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoPhiViews;
       std::vector<boost::shared_ptr<FWRhoPhiZView> > m_rhoZViews;
-   
+
       TEveElementList* m_eveStore;
 
       TEveSelection* m_eveSelection;
-      
+
       FWSelectionManager* m_selectionManager;
      bool m_isBeingDestroyed;
 };

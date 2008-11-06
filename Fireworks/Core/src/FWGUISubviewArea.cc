@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGUISubviewArea
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.12 2008/07/24 23:08:57 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.13 2008/11/05 09:24:25 chrjones Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
 {
    //This doesn't seem to do anything
    //SetCleanup(kNoCleanup);
-   
+
    const unsigned int kIconHeight = 20;
    m_buttons = new TGHorizontalFrame(this);
    this->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandX));
@@ -59,7 +59,7 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    m_infoButton->Connect("Pressed()","FWGUISubviewArea",this,"selectButtonDown()");
    m_infoButton->Connect("Released()","FWGUISubviewArea",this,"selectButtonUp()");
    m_infoButton->SetToolTipText("Edit View");
-   
+
    //have to stop cleanup so that we don't delete the button which was clicked to tell us to delete
    //m_buttons->SetCleanup(kNoCleanup);
    m_swapButton= temp=new TGPictureButton(m_buttons, swapIcon());
@@ -81,14 +81,14 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    //There is a problem with undocking on OS X
    m_undockButton->SetEnabled(kFALSE);
 #endif
-   
+
    m_closeButton = temp = new TGPictureButton(m_buttons,closeIcon());
    temp->SetDisabledPicture(closeDisabledIcon());
    m_closeButton->SetToolTipText("Close view");
    m_closeButton->SetHeight(kIconHeight);
    m_buttons->AddFrame(m_closeButton, new TGLayoutHints(kLHintsRight|kLHintsTop|kLHintsExpandY));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
-   
+
    //Turn off until we can get this to work consistently correct
    m_closeButton->SetEnabled(kFALSE);
    //behavior of buttons depends on index
@@ -112,7 +112,7 @@ FWGUISubviewArea::~FWGUISubviewArea()
    m_infoButton->Disconnect("Pressed()",this,"selectButtonDown()");
    m_infoButton->Disconnect("Released()",this,"selectButtonUp()");
 
-   
+
    //delete m_swapButton;
    //delete m_undockButton;
    //HELP how do I get this to be deleted after we finish processing this GUI event?
@@ -138,33 +138,33 @@ FWGUISubviewArea::~FWGUISubviewArea()
 //
 // member functions
 //
-void 
+void
 FWGUISubviewArea::selectButtonDown()
 {
       selected_(index());
 }
 
-void 
+void
 FWGUISubviewArea::selectButtonUp()
 {
    unselected_(index());
 }
 
 
-void 
+void
 FWGUISubviewArea::setName(const std::string& iName)
 {
    m_label->SetText(iName.c_str());
 }
 
-void 
+void
 FWGUISubviewArea::unselect()
 {
    m_infoButton->SetDown(kFALSE);
 }
 
 
-void 
+void
 FWGUISubviewArea::enableDestructionButton(bool iState)
 {
    m_closeButton->SetEnabled(iState);
@@ -182,7 +182,7 @@ FWGUISubviewArea::swapToBigView()
    //We know the parent is a TGSplitFrame because the constructor requires it to be so
    TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
    p->SwitchToMain();
-   
+
    swappedToBigView_(index());
 }
 
@@ -202,11 +202,11 @@ FWGUISubviewArea::undock()
    TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
    m_undockedSwappableView = m_swapButton->IsEnabled();
    m_undockedDestructabledView = m_closeButton->IsEnabled();
-   
+
    m_swapButton->SetEnabled(kFALSE);
    m_closeButton->SetEnabled(kFALSE);
    m_undockButton->SetEnabled(kFALSE);
-   
+
    m_docked = false;
    if(index() == 0 ) {
       bigViewUndocked_();
@@ -214,9 +214,9 @@ FWGUISubviewArea::undock()
    p->Connect("Docked(TGFrame*)","FWGUISubviewArea",this,"beingDocked(TGFrame*)");
    p->ExtractFrame();
 
-}   
+}
 
-void 
+void
 FWGUISubviewArea::undockTo(Int_t x, Int_t y,
                            UInt_t width, UInt_t height)
 {
@@ -227,7 +227,7 @@ FWGUISubviewArea::undockTo(Int_t x, Int_t y,
 }
 
 
-void 
+void
 FWGUISubviewArea::beingDocked(TGFrame*)
 {
    m_swapButton->SetEnabled(m_undockedSwappableView);
@@ -245,7 +245,7 @@ FWGUISubviewArea::beingDocked(TGFrame*)
 //
 // const member functions
 //
-bool 
+bool
 FWGUISubviewArea::isSelected() const
 {
    return m_infoButton->IsDown();
@@ -254,7 +254,7 @@ FWGUISubviewArea::isSelected() const
 //
 // static member functions
 //
- const TGPicture * 
+ const TGPicture *
 FWGUISubviewArea::swapIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -270,7 +270,7 @@ FWGUISubviewArea::swapIcon()
    return s_icon;
 }
 
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::swapDisabledIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -286,7 +286,7 @@ FWGUISubviewArea::swapDisabledIcon()
    return s_icon;
 }
 
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::closeIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -301,7 +301,7 @@ FWGUISubviewArea::closeIcon()
    }
    return s_icon;
 }
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::closeDisabledIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -318,7 +318,7 @@ FWGUISubviewArea::closeDisabledIcon()
 }
 
 
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::undockIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -334,7 +334,7 @@ FWGUISubviewArea::undockIcon()
    return s_icon;
 }
 
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::undockDisabledIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -350,7 +350,7 @@ FWGUISubviewArea::undockDisabledIcon()
    return s_icon;
 }
 
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::infoIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -365,7 +365,7 @@ FWGUISubviewArea::infoIcon()
    return s_icon;
 }
 
-const TGPicture * 
+const TGPicture *
 FWGUISubviewArea::infoDisabledIcon()
 {
    static const TGPicture* s_icon = 0;
@@ -381,7 +381,7 @@ FWGUISubviewArea::infoDisabledIcon()
 }
 
 
-void 
+void
 FWGUISubviewArea::setIndex(unsigned int iIndex) {
    if(0==iIndex) {
       m_swapButton->SetEnabled(kFALSE);

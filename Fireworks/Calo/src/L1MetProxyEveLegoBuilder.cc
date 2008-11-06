@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1MetProxyEveLegoBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MetProxyEveLegoBuilder.cc,v 1.1 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1MetProxyEveLegoBuilder.cc,v 1.2 2008/11/04 20:29:24 amraktad Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ L1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    } else {
       tList->DestroyElements();
    }
-   
+
    // Get the particle map collection for L1EtMissParticles
    l1extra::L1EtMissParticleCollection const * mets=0;
    iItem->get(mets);
@@ -69,19 +69,19 @@ L1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
-      char title[1024]; 
+      char title[1024];
       sprintf(title,"L1 MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
       TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
       // mainLine->SetLineWidth(2);
       mainLine->SetLineColor(  iItem->defaultDisplayProperties().color() );
       mainLine->AddLine(-5.191, mets->at(i).phi(), 0.1, 5.191, mets->at(i).phi(), 0.1 );
       container->AddElement( mainLine );
-      
+
       double phi = mets->at(i).phi();
       phi = phi > 0 ? phi - M_PI : phi + M_PI;
       TEveStraightLineSet* secondLine = new TEveStraightLineSet( "MET opposite phi" );

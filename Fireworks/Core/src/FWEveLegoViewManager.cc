@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEveLegoViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.15 2008/08/24 13:24:50 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.16 2008/10/28 14:21:25 chrjones Exp $
 //
 
 // system include files
@@ -80,16 +80,16 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveLegoViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWEveLegoViewManager",this,"selectionCleared()");
     */
-   
+
    //create a list of the available ViewManager's
    std::set<std::string> builders;
-   
+
    std::vector<edmplugin::PluginInfo> available = FW3DLegoDataProxyBuilderFactory::get()->available();
    std::transform(available.begin(),
                   available.end(),
                   std::inserter(builders,builders.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
-   
+
    if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FW3DLegoDataProxyBuilderFactory::get()->category())) {
       available = edmplugin::PluginManager::get()->categoryToInfos().find(FW3DLegoDataProxyBuilderFactory::get()->category())->second;
       std::transform(available.begin(),
@@ -97,7 +97,7 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
                      std::inserter(builders,builders.begin()),
                      boost::bind(&edmplugin::PluginInfo::name_,_1));
    }
-   
+
    for(std::set<std::string>::iterator it = builders.begin(), itEnd=builders.end();
        it!=itEnd;
        ++it) {
@@ -105,7 +105,7 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
       std::string  purpose = it->substr(first,it->find_last_of('@')-first);
       m_typeToBuilders[purpose].push_back(*it);
    }
-   
+
 }
 
 FWEveLegoViewManager::~FWEveLegoViewManager()
@@ -133,9 +133,9 @@ FWEveLegoViewManager::initData()
    }
 }
 
-FWViewBase* 
+FWViewBase*
 FWEveLegoViewManager::buildView(TGFrame* iParent)
-{   
+{
    initData();
    boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, &m_elements) );
    view->beingDestroyed_.connect(boost::bind(&FWEveLegoViewManager::beingDestroyed,this,_1));
@@ -158,10 +158,10 @@ FWEveLegoViewManager::buildView(TGFrame* iParent)
    return view.get();
 }
 
-void 
+void
 FWEveLegoViewManager::beingDestroyed(const FWViewBase* iView)
 {
-   
+
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> >::iterator it
           =m_builders.begin(), itEnd = m_builders.end();
@@ -183,14 +183,14 @@ FWEveLegoViewManager::beingDestroyed(const FWViewBase* iView)
 
 
 /*
-void 
+void
 FWEveLegoViewManager::newEventAvailable()
 {
-  
+
    if(0==m_data || 0==m_views.size()) return;
-   
+
    // m_data = new TEveCaloDataHist(); // it's a smart object, so it will clean up
-   
+
    //   for ( std::vector<FWEveLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
    //	 proxy != m_modelProxies.end(); ++proxy ) {
    for ( unsigned int i = 0; i < m_modelProxies.size(); ++i ) {
@@ -204,14 +204,14 @@ FWEveLegoViewManager::newEventAvailable()
 	      printf("WARNING: proxy builder failed to initialize product for FWEveLegoViewManager. Ignored\n");
 	      proxy->ignore = true;
 	      continue;
-	   } 
+	   }
 	   TH2F* hist = dynamic_cast<TH2F*>(product);
 	   if ( hist ) {
 	      // hist->Dump();
 	      hist->Rebin2D(); // FIX ME
 	      unsigned int index = m_data->AddHistogram(hist);
 	      m_data->RefSliceInfo(index).Setup(hist->GetTitle(), 0., hist->GetFillColor());
-	      
+
 	      proxy->product = hist;
 	      continue;
 	   }
@@ -233,7 +233,7 @@ FWEveLegoViewManager::newEventAvailable()
    for ( unsigned int i = 0; i < m_views.size(); ++i ) m_views[i]->setMinEnergy();
 }
 */
-void 
+void
 FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
    if(0==m_selectionManager) {
@@ -256,10 +256,10 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                 // pal->SetLimits(0, data->GetMaxVal());
                 pal->SetLimits(0, 100);
                 pal->SetDefaultColor((Color_t)1000);
-                
+
                 m_lego->InitMainTrans();
                 m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
-                
+
                 m_lego->SetPalette(pal);
                 // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
                 m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
@@ -294,34 +294,34 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
    //iItem->itemChanged_.connect(boost::bind(&FWEveLegoViewManager::itemChanged,this,_1));
 }
 
-void 
+void
 FWEveLegoViewManager::newItem(const FWEventItem* iItem)
 {
    makeProxyBuilderFor(iItem);
 }
 
 /*
-void 
+void
 FWEveLegoViewManager::itemChanged(const FWEventItem*) {
    m_itemChanged=true;
 }
  */
-void 
+void
 FWEveLegoViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
 }
-void 
+void
 FWEveLegoViewManager::modelChangesDone()
 {
    /*
-   if ( m_itemChanged ) 
+   if ( m_itemChanged )
      newEventAvailable();
    else {
       std::for_each(m_views.begin(), m_views.end(),
 		    boost::bind(&FWEveLegoView::draw,_1, m_data) );
    }
-   
+
    m_itemChanged = false;
     */
    m_modelsHaveBeenMadeAtLeastOnce=true;
@@ -367,7 +367,7 @@ FWEveLegoViewManager::selectionRemoved(TEveElement* iElement)
          }
       }
    }
-   
+
 }
 
 void
@@ -375,10 +375,10 @@ FWEveLegoViewManager::selectionCleared()
 {
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
-   }   
+   }
 }
 
-std::vector<std::string> 
+std::vector<std::string>
 FWEveLegoViewManager::purposeForType(const std::string& iTypeName) const
 {
    std::vector<std::string> returnValue;
@@ -392,16 +392,16 @@ FWEveLegoViewManager::purposeForType(const std::string& iTypeName) const
             returnValue.push_back(it->first);
          }
       }
-      
+
    }
    return returnValue;
 }
 
-std::set<std::pair<std::string,std::string> > 
+std::set<std::pair<std::string,std::string> >
 FWEveLegoViewManager::supportedTypesAndPurpose() const
 {
    std::set<std::pair<std::string,std::string> > returnValue;
-   
+
    for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
        it != itEnd;
        ++it) {
@@ -411,8 +411,8 @@ FWEveLegoViewManager::supportedTypesAndPurpose() const
          returnValue.insert(std::make_pair(builderName->substr(0,builderName->find_first_of('@')),
                                            it->first));
       }
-      
+
    }
-   return returnValue;   
+   return returnValue;
 }
 

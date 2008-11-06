@@ -4,7 +4,7 @@
 //
 // Package:     Muons
 // Class  :     MuonsProxyEveLegoBuilder
-// 
+//
 /**\class MuonsProxyEveLegoBuilder MuonsProxyEveLegoBuilder.h Fireworks/Muons/interface/MuonsProxyEveLegoBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.h,v 1.3 2008/07/07 00:46:19 chrjones Exp $
+// $Id: MuonsProxyEveLegoBuilder.h,v 1.2 2008/07/08 06:59:21 dmytro Exp $
 //
 
 // system include files
@@ -34,10 +34,10 @@ class MuonsProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
-   
+
       // ---------- static member functions --------------------
    private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
 
       MuonsProxyEveLegoBuilder(const MuonsProxyEveLegoBuilder&); // stop default

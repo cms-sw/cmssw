@@ -25,8 +25,8 @@ std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, doubl
    double min =  100;
    double max = -100;
 
-   for ( std::vector<double>::const_iterator i = phis.begin(); 
-	 i != phis.end(); ++i ) 
+   for ( std::vector<double>::const_iterator i = phis.begin();
+	 i != phis.end(); ++i )
      {
 	double aphi = *i;
 	// make phi continuous around jet phi
@@ -35,9 +35,9 @@ std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, doubl
 	if ( aphi > max ) max = aphi;
 	if ( aphi < min ) min = aphi;
      }
-   
+
    if ( min > max ) return std::pair<double,double>(0,0);
-   
+
    return std::pair<double,double>(min,max);
 }
 
@@ -107,8 +107,8 @@ TEveGeoShape* fw::getShape( const char* name,
 }
 
 void fw::addRhoZEnergyProjection( TEveElement* container,
-			      double r_ecal, double z_ecal, 
-			      double theta_min, double theta_max, 
+			      double r_ecal, double z_ecal,
+			      double theta_min, double theta_max,
 			      double phi,
 			      Color_t color)
 {
@@ -132,13 +132,13 @@ void fw::addRhoZEnergyProjection( TEveElement* container,
       rgba[1] = c->GetGreen();
       rgba[2] = c->GetBlue();
    }
-   
+
    if ( fabs(r2 - r1) > 1 ) {
       TGeoBBox *sc_box = new TGeoBBox(0., fabs(r2-r1)/2, 1);
       TEveGeoShape *element = new TEveGeoShape("r-segment");
       element->SetShape(sc_box);
       TEveTrans &t = element->RefMainTrans();
-      t(1,4) = 0; 
+      t(1,4) = 0;
       t(2,4) = (r2+r1)/2;
       t(3,4) = fabs(z2)>fabs(z1) ? z2 : z1;
 
@@ -151,7 +151,7 @@ void fw::addRhoZEnergyProjection( TEveElement* container,
       TEveGeoShape *element = new TEveGeoShape("z-segment");
       element->SetShape(sc_box);
       TEveTrans &t = element->RefMainTrans();
-      t(1,4) = 0; 
+      t(1,4) = 0;
       t(2,4) = fabs(r2)>fabs(r1) ? r2 : r1;
       t(3,4) = (z2+z1)/2;
 
@@ -169,7 +169,7 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
      std::vector<DetId> v;
      int ieta = (int)rint(eta / 1.74e-2);
      // black magic for phi
-     int iphi = (int)rint(phi / 1.74e-2);  
+     int iphi = (int)rint(phi / 1.74e-2);
      if (iphi < 0)
 	  iphi = 360 + iphi;
      iphi += 10;
@@ -231,14 +231,14 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 void fw::addStraightLineSegment( TEveStraightLineSet * marker,
 				 reco::Candidate const * cand,
 				 double scale_factor)
-{  
+{
   double phi = cand->phi();
   double theta = cand->theta();
   double size = cand->pt() * scale_factor;
   marker->AddLine( 0, 0, 0, size * cos(phi)*sin(theta), size *sin(phi)*sin(theta), size*cos(theta));
 }
 
-double 
+double
 fw::estimate_field( const reco::Track& track )
 {
    if ( ! track.extra().isAvailable() ) return -1;

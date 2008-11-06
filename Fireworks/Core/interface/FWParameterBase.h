@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWParameterBase
-// 
+//
 /**\class FWParameterBase FWParameterBase.h Fireworks/Core/interface/FWParameterBase.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:35:15 EST 2008
-// $Id$
+// $Id: FWParameterBase.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
 //
 
 // system include files
@@ -39,12 +39,12 @@ class FWParameterBase : public FWConfigurable
       // ---------- const member functions ---------------------
       //virtual void addTo(FWConfiguration& ) const = 0;
       const std::string& name() const { return m_name; }
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       //virtual void setFrom(const FWConfiguration&) = 0;
-   
+
    private:
       FWParameterBase(const FWParameterBase&); // stop default
 

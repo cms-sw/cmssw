@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     GenParticleDetailView
-// 
+//
 /**\class GenParticleDetailView GenParticleDetailView.h Fireworks/Calo/interface/GenParticleDetailView.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: GenParticleDetailView.h,v 1.1 2008/03/20 04:00:27 jmuelmen Exp $
+// $Id: GenParticleDetailView.h,v 1.1 2008/05/22 05:36:33 srappocc Exp $
 //
 
 // system include files
@@ -31,11 +31,11 @@ class FWEventItem;
 class TEveElementList;
 
 class GenParticleDetailView : public FWDetailView {
-     
+
 public:
      GenParticleDetailView();
      virtual ~GenParticleDetailView();
-     
+
      virtual void build (TEveElementList **product, const FWModelId &id);
 
 protected:
@@ -46,19 +46,19 @@ protected:
 	vars[1] = rotation_center[1];
 	vars[2] = rotation_center[2];
      }
-   
+
 private:
      GenParticleDetailView(const GenParticleDetailView&); // stop default
      const GenParticleDetailView& operator=(const GenParticleDetailView&); // stop default
-     
+
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() { 
+     void resetCenter() {
 	rotation_center[0] = 0;
 	rotation_center[1] = 0;
 	rotation_center[2] = 0;
      }
-	
+
 };
 
 #endif

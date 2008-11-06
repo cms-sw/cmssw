@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     Context
-// 
+//
 /**\class Context Context.h Fireworks/Core/interface/Context.h
 
  Description: Central collection of all framework managers
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id$
+// $Id: Context.h,v 1.1 2008/10/21 19:06:56 chrjones Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ namespace fireworks {
       FWSelectionManager* selectionManager() const {
          return m_selectionManager;
       }
-      
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

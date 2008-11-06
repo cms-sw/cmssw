@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWSummaryManager
-// 
+//
 /**\class FWSummaryManager FWSummaryManager.h Fireworks/Core/interface/FWSummaryManager.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.2 2008/06/23 15:50:16 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.3 2008/07/08 20:13:50 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ class FWSummaryManager
 
       // ---------- member functions ---------------------------
 
-   
+
    private:
       FWSummaryManager(const FWSummaryManager&); // stop default
 

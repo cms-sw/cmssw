@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1MuonTrigProxyEveLegoBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.4 2008/11/06 19:49:22 amraktad Exp $
+// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.5 2008/11/06 20:18:43 amraktad Exp $
 //
 
 // system include files
@@ -80,12 +80,12 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
   } else {
     tList->DestroyElements();
   }
-   
+
   // Get the particle map collection for L1MuonParticles
   l1extra::L1MuonParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
   if(0==triggerColl) return;
-   
+
   // make a counter
   fw::NamedCounter counter("l1muontrigs");
   TColor* c = gROOT->GetColor( tList->GetMainColor() );
@@ -112,7 +112,7 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
     double eta = trigIt->eta();
     double phi = trigIt->phi();
 
-	
+
     // Fill eta and phi
     t(1,4) = eta;
     t(2,4) = phi;
@@ -131,7 +131,7 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
     tList->AddElement(container);
   }// end loop over em particle objects
 
-  
+
 
 }
 

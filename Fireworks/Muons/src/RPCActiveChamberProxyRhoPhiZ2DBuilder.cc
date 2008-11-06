@@ -39,7 +39,7 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, 
    build(iItem, product, false);
 }
 
-void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, 
+void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 					    TEveElementList** product,
 					    bool rhoPhiProjection)
 {
@@ -53,17 +53,17 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const RPCRecHitCollection* hits = 0;
    iItem->get(hits);
-   
+
    if(0 == hits ) {
       std::cout <<"failed to get RPC hits"<<std::endl;
       return;
    }
    unsigned int index = 0;
    const DetIdToMatrix* geom = iItem->getGeom();
-   for ( RPCRecHitCollection::id_iterator chamberId = hits->id_begin(); 
+   for ( RPCRecHitCollection::id_iterator chamberId = hits->id_begin();
 	 chamberId != hits->id_end(); ++chamberId, ++index )
      {
 	const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
@@ -74,7 +74,7 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	}
 
 	const unsigned int nBuffer = 1024;
-	char title[nBuffer]; 
+	char title[nBuffer];
 	snprintf(title, nBuffer,"RPC module %d", (*chamberId).rawId());
 	TEveCompound* rpcList = new TEveCompound(title, title);
         rpcList->OpenCompound();
@@ -99,18 +99,18 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	      pointSet->SetMarkerSize(3);
 	      pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
 	      rpcList->AddElement( pointSet );
-	
+
 	      RPCRecHitCollection::range  range = hits->get(*chamberId);
 	      for (RPCRecHitCollection::const_iterator hit = range.first;
 		   hit!=range.second; ++hit)
 		{
 		   Double_t localPoint[3];
 		   Double_t globalPoint[3];
-	     
+
 		   localPoint[0] = hit->localPosition().x();
 		   localPoint[1] = hit->localPosition().y();
 		   localPoint[2] = hit->localPosition().z();
-	     
+
 		   if ( (*chamberId).layer() == 1 && (*chamberId).station() < 3 ) localPoint[0] = -localPoint[0];
 		   matrix->LocalToMaster( localPoint, globalPoint );
 		   // printf("RPC id: %d \t(%0.2f,%0.2f,%0.2f)->(%0.2f,%0.2f,%0.2f)\n",
@@ -122,7 +122,7 @@ void RPCActiveChamberProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
      }
 }
 
-void 
+void
 RPCActiveChamberProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //NOTE: don't use ids() since they were never filled in in the build* calls
@@ -133,7 +133,7 @@ RPCActiveChamberProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEve
    //}
 }
 
-void 
+void
 RPCActiveChamberProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
@@ -145,7 +145,7 @@ RPCActiveChamberProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iEle
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 

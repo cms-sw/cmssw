@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoEveHistProxyBuilder
-// 
+//
 /**\class FW3DLegoEveHistProxyBuilder FW3DLegoEveHistProxyBuilder.h Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:06 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.h,v 1.1 2008/07/07 00:30:27 chrjones Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.h,v 1.2 2008/07/09 20:05:28 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class FW3DLegoEveHistProxyBuilder : public FW3DLegoDataProxyBuilder
       virtual void attach(TEveElement* iElement,
                           TEveCaloDataHist* iHist);
       virtual void build();
-   
+
    private:
       virtual void modelChangesImp(const FWModelIds&);
       virtual void itemChangedImp(const FWEventItem*);

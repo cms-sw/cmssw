@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWModelId
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 11:00:48 EST 2008
-// $Id: FWModelId.cc,v 1.1 2008/03/05 16:45:04 chrjones Exp $
+// $Id: FWModelId.cc,v 1.2 2008/03/11 22:09:17 chrjones Exp $
 //
 
 // system include files
@@ -64,12 +64,12 @@ FWModelId::~FWModelId()
 //
 // const member functions
 //
-void 
+void
 FWModelId::unselect() const { if(m_item) {m_item->unselect(m_index);}}
-void 
+void
 FWModelId::select() const { if(m_item) {m_item->select(m_index);}}
 
-void 
+void
 FWModelId::toggleSelect() const { if(m_item) {m_item->toggleSelect(m_index);}}
 
 //

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRPZDataProxyBuilderBase
-// 
+//
 /**\class FWRPZDataProxyBuilderBase FWRPZDataProxyBuilderBase.h Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:27 PDT 2008
-// $Id$
+// $Id: FWRPZDataProxyBuilderBase.h,v 1.1 2008/07/01 04:05:56 chrjones Exp $
 //
 
 // system include files
@@ -35,35 +35,35 @@ class FWRhoPhiZView;
 
 class FWRPZDataProxyBuilderBase
 {
-   
+
 public:
    FWRPZDataProxyBuilderBase();
    virtual ~FWRPZDataProxyBuilderBase();
-   
+
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void setItem(const FWEventItem* iItem);
 
    void itemChanged(const FWEventItem*);
    void itemBeingDestroyed(const FWEventItem*);
    void modelChanges(const FWModelIds&);
-   
+
    void setViews(std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoPhoViews,
                  std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoZViews);
-   
+
    void attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView>);
    void attachToRhoZView(boost::shared_ptr<FWRhoPhiZView>);
 
    float layer() const { return m_layer;}
 
-   static 
+   static
    void setUserData(const FWEventItem* iItem,
-                    TEveElementList* iElements, 
+                    TEveElementList* iElements,
                     std::vector<FWModelId>& iIds);
-   
+
 protected:
    std::vector<FWModelId>& ids() {return m_ids;}
    const FWEventItem* item() {return m_item;}
@@ -74,9 +74,9 @@ protected:
    virtual void applyChangesToAllModels(TEveElement* iElements);
 private:
    FWRPZDataProxyBuilderBase(const FWRPZDataProxyBuilderBase&); // stop default
-   
+
    const FWRPZDataProxyBuilderBase& operator=(const FWRPZDataProxyBuilderBase&); // stop default
-   
+
    virtual void itemChangedImp(const FWEventItem*) = 0;
    virtual void itemBeingDestroyedImp(const FWEventItem*) = 0;
    virtual void modelChangesImp(const FWModelIds&) = 0;
@@ -84,19 +84,19 @@ private:
    virtual TEveElementList* getRhoZProduct() const = 0;
    void addRhoPhiProj(TEveElement*);
    void addRhoZProj(TEveElement*);
-   
-   
+
+
    // ---------- member data --------------------------------
    const FWEventItem* m_item;
    std::vector<boost::shared_ptr<FWRhoPhiZView> >* m_rpviews;
    std::vector<boost::shared_ptr<FWRhoPhiZView> >* m_rzviews;
-   
+
    TEveElementList m_rhoPhiProjs;
    TEveElementList m_rhoZProjs;
    std::vector<FWModelId> m_ids;
-   
+
    float m_layer;
-   
+
    bool m_modelsChanged;
 };
 

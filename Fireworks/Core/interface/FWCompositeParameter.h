@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWCompositeParameter
-// 
+//
 /**\class FWCompositeParameter FWCompositeParameter.h Fireworks/Core/interface/FWCompositeParameter.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:37:04 EST 2008
-// $Id$
+// $Id: FWCompositeParameter.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
 //
 
 // system include files

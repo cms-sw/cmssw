@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEventItemsManager
-// 
+//
 /**\class FWEventItemsManager FWEventItemsManager.h Fireworks/Core/interface/FWEventItemsManager.h
 
  Description: Manages multiple FWEventItems
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.10 2008/08/15 06:38:41 jmuelmen Exp $
+// $Id: FWEventItemsManager.h,v 1.11 2008/10/21 19:22:16 chrjones Exp $
 //
 
 // system include files
@@ -50,7 +50,7 @@ class FWEventItemsManager : public FWConfigurable
       virtual ~FWEventItemsManager();
 
       typedef std::vector<FWEventItem*>::const_iterator const_iterator;
-   
+
       //configuration management interface
       void addTo(FWConfiguration&) const;
       void setFrom(const FWConfiguration&);
@@ -69,9 +69,9 @@ class FWEventItemsManager : public FWConfigurable
 
       void newEvent(const fwlite::Event* iEvent);
       void setGeom(const DetIdToMatrix* geom);
-   
+
       void setContext(fireworks::Context*);
-   
+
       sigc::signal<void, FWEventItem*> newItem_;
       sigc::signal<void> goingToClearItems_;
    private:
@@ -86,7 +86,7 @@ class FWEventItemsManager : public FWConfigurable
       FWModelChangeManager* m_changeManager;
       FWSelectionManager* m_selectionManager;
       fireworks::Context* m_context;
-   
+
       const fwlite::Event* m_event;
       const DetIdToMatrix *m_geom;
       boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;

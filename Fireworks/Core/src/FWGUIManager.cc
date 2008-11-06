@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGUIManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.75 2008/09/21 13:10:00 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.76 2008/11/05 09:26:54 chrjones Exp $
 //
 
 // system include files
@@ -128,11 +128,11 @@ m_tasks(new CmsShowTaskExecutor)
   m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
                                              this, _1) );
 
-  // These are only needed temporarilty to work around a problem which 
+  // These are only needed temporarilty to work around a problem which
   // Matevz has patched in a later version of the code
   TApplication::NeedGraphicsLibs();
   gApplication->InitializeGraphics();
-   
+
    TEveManager::Create(kFALSE);
 
    // gEve->SetUseOrphanage(kTRUE);
@@ -159,7 +159,7 @@ m_tasks(new CmsShowTaskExecutor)
 					       this);
      m_cmsShowMainFrame->SetWindowName("CmsShow");
      m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
-      
+
      getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
      getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
@@ -207,28 +207,28 @@ FWGUIManager::~FWGUIManager()
 //
 // member functions
 //
-void 
+void
 FWGUIManager::addFrameHoldingAView(TGFrame* iChild)
 {
-   (m_viewFrames.back())->AddFrame(iChild,new TGLayoutHints(kLHintsExpandX | 
+   (m_viewFrames.back())->AddFrame(iChild,new TGLayoutHints(kLHintsExpandX |
                                                             kLHintsExpandY) );
-   
+
    m_mainFrame->MapSubwindows();
    m_mainFrame->Layout();
-   
+
 }
 
-TGFrame* 
+TGFrame*
 FWGUIManager::parentForNextView()
 {
-   
+
    TGSplitFrame* splitParent=m_splitFrame;
    while( splitParent->GetFrame() || splitParent->GetSecond()) {
       if(! splitParent->GetSecond()) {
          if(splitParent == m_splitFrame) {
             //want to split vertically
             splitParent->SplitHorizontal();
-            //need to do a reasonable sizing 
+            //need to do a reasonable sizing
             //TODO CDJ: how do I determine the true size if layout hasn't run yet?
             int width = m_splitFrame->GetWidth();
             int height = m_splitFrame->GetHeight();
@@ -239,7 +239,7 @@ FWGUIManager::parentForNextView()
       }
       splitParent = splitParent->GetSecond();
    }
-   
+
    FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(),splitParent,m_splitFrame);
    hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
    hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
@@ -260,13 +260,13 @@ FWGUIManager::parentForNextView()
       }
    }
    (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
-   
+
    return m_viewFrames.back();
 }
 
 
-void 
-FWGUIManager::registerViewBuilder(const std::string& iName, 
+void
+FWGUIManager::registerViewBuilder(const std::string& iName,
                                   ViewBuildFunctor& iBuilder)
 {
    m_nameToViewBuilder[iName]=iBuilder;
@@ -274,15 +274,15 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
    action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName));
 }
 
-void 
-FWGUIManager::registerDetailView (const std::string &iItemName, 
+void
+FWGUIManager::registerDetailView (const std::string &iItemName,
                                   FWDetailView *iView)
 {
    m_detailViewManager->registerDetailView(iItemName,iView);
 }
 
 
-void 
+void
 FWGUIManager::createView(const std::string& iName)
 {
    NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
@@ -302,13 +302,13 @@ FWGUIManager::createView(const std::string& iName)
    m_viewBases.push_back(view);
 }
 
-void 
+void
 FWGUIManager::enableActions(bool enable)
 {
   m_cmsShowMainFrame->enableActions(enable);
 }
 
-void 
+void
 FWGUIManager::newFile(const TFile* iFile)
 {
    m_openFile = iFile;
@@ -342,12 +342,12 @@ FWGUIManager::getEventEntry()
   return m_cmsShowMainFrame->getEventEntry();
 }
 
-CSGContinuousAction* 
+CSGContinuousAction*
 FWGUIManager::playEventsAction()
 {
    return m_cmsShowMainFrame->playEventsAction();
 }
-CSGContinuousAction* 
+CSGContinuousAction*
 FWGUIManager::playEventsBackwardsAction()
 {
    return m_cmsShowMainFrame->playEventsBackwardsAction();
@@ -377,7 +377,7 @@ FWGUIManager::clearStatus()
    m_cmsShowMainFrame->clearStatusBar();
 }
 
-void 
+void
 FWGUIManager::selectByExpression()
 {
    FWModelExpressionSelector selector;
@@ -385,19 +385,19 @@ FWGUIManager::selectByExpression()
                    m_selectionExpressionEntry->GetText());
 }
 
-void 
+void
 FWGUIManager::unselectAll()
 {
    m_selectionManager->clearSelection();
 }
 
-void 
+void
 FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 {
    //open the modify window the first time someone selects something
    if (m_modelPopup == 0) createModelPopup();
 
-   
+
 #if defined(THIS_WILL_NEVER_BE_DEFINED)
    if(1 ==iSM.selected().size() ) {
       delete m_editableSelected;
@@ -424,7 +424,7 @@ FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 #endif
 }
 
-void 
+void
 FWGUIManager::processGUIEvents()
 {
    gSystem->ProcessEvents();
@@ -441,7 +441,7 @@ FWGUIManager::newItem(const FWEventItem* iItem)
 #endif
 }
 
-void 
+void
 FWGUIManager::addData()
 {
    if(0==m_dataAdder) {
@@ -456,7 +456,7 @@ FWGUIManager::addData()
 }
 
 
-void 
+void
 FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
 {
    m_viewFrames[0]->setIndex(iIndex);
@@ -483,11 +483,11 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
    f= boost::bind(&TGSplitFrame::CloseAndCollapse,p);
    m_tasks->addTask(f);
    m_tasks->startDoingTasks();
-   
+
    if(m_viewFrames[iIndex]->isSelected()) {
       if(0!= m_viewPopup) {refillViewPopup(0);}
    }
-   
+
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
    (*(m_viewBases.begin()+iIndex))->destroy();
    m_viewBases.erase(m_viewBases.begin()+iIndex);
@@ -498,7 +498,7 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
    }
 }
 
-void 
+void
 FWGUIManager::mainViewWasUndocked()
 {
    if(m_viewFrames.size()>1) {
@@ -508,7 +508,7 @@ FWGUIManager::mainViewWasUndocked()
    }
 }
 
-void 
+void
 FWGUIManager::mainViewWasDocked()
 {
    if(m_viewFrames.size()>1) {
@@ -516,10 +516,10 @@ FWGUIManager::mainViewWasDocked()
                m_viewFrames.end(),
                boost::bind(&FWGUISubviewArea::enableSwapButton,_1,true));
    }
-   
+
 }
 
-void 
+void
 FWGUIManager::viewSelected(unsigned int iSelIndex)
 {
    unsigned int index=0;
@@ -533,15 +533,15 @@ FWGUIManager::viewSelected(unsigned int iSelIndex)
    refillViewPopup(m_viewBases[iSelIndex]);
 }
 
-void 
+void
 FWGUIManager::viewUnselected(unsigned int iSelIndex)
 {
    if(m_viewPopup) {refillViewPopup(0);}
-}   
+}
 
 
-TGVerticalFrame* 
-FWGUIManager::createList(TGSplitFrame *p) 
+TGVerticalFrame*
+FWGUIManager::createList(TGSplitFrame *p)
 {
   TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
 
@@ -562,7 +562,7 @@ FWGUIManager::createList(TGSplitFrame *p)
    addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
   listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
-  
+
   FWListWidget* ltf = new FWListWidget(listFrame);
   listFrame->SetEditable(kFALSE);
   listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
@@ -590,7 +590,7 @@ FWGUIManager::createList(TGSplitFrame *p)
   /*
   TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
   {
-    
+
     TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
     m_selectionItemsComboBox = new TGComboBox(vf2,200);
     m_selectionItemsComboBox->Resize(200,20);
@@ -601,12 +601,12 @@ FWGUIManager::createList(TGSplitFrame *p)
     vf2->AddFrame(m_selectionRunExpressionButton);
     m_selectionRunExpressionButton->Connect("Clicked()","FWGUIManager",this,"selectByExpression()");
     vf->AddFrame(vf2);
-    
+
     m_unselectAllButton = new TGTextButton(vf,"Unselect All");
     m_unselectAllButton->Connect("Clicked()", "FWGUIManager",this,"unselectAll()");
     vf->AddFrame(m_unselectAllButton);
     m_unselectAllButton->SetEnabled(kFALSE);
-    
+
   }
   listFrame->AddFrame(vf);
    */
@@ -614,8 +614,8 @@ FWGUIManager::createList(TGSplitFrame *p)
   return listFrame;
 }
 
-TGMainFrame* 
-FWGUIManager::createViews(TGCompositeFrame *p) 
+TGMainFrame*
+FWGUIManager::createViews(TGCompositeFrame *p)
 {
   m_mainFrame = new TGMainFrame(p,600,450);
   m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
@@ -625,7 +625,7 @@ FWGUIManager::createViews(TGCompositeFrame *p)
   p->MapSubwindows();
   p->MapWindow();
   return m_mainFrame;
-}  
+}
 
 void
 FWGUIManager::createEDIFrame() {
@@ -707,9 +707,9 @@ void FWGUIManager::createHelpPopup ()
 {
      if (m_helpPopup == 0) {
 	  m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
-					     m_cmsShowMainFrame, 
+					     m_cmsShowMainFrame,
 					     800, 600);
-	  m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this, 
+	  m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this,
 			       "resetHelpPopup()");
 	  m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
      }
@@ -725,10 +725,10 @@ void FWGUIManager::resetHelpPopup ()
 void FWGUIManager::createShortcutPopup ()
 {
      if (m_shortcutPopup == 0) {
-	  m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html", 
+	  m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
 						 "Keyboard Shortcuts",
 						 m_cmsShowMainFrame, 800, 600);
-	  m_shortcutPopup->Connect("CloseWindow()", "FWGUIManager", this, 
+	  m_shortcutPopup->Connect("CloseWindow()", "FWGUIManager", this,
 				   "resetShortcutPopup()");
 	  m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
      }
@@ -741,7 +741,7 @@ void FWGUIManager::resetShortcutPopup ()
      m_shortcutPopup->UnmapWindow();
 }
 
-TGMainFrame *FWGUIManager::createTextView (TGTab *p) 
+TGMainFrame *FWGUIManager::createTextView (TGTab *p)
 {
      m_textViewTab = p;
      p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
@@ -751,11 +751,11 @@ TGMainFrame *FWGUIManager::createTextView (TGTab *p)
      //printf("current tab: %d\n", p->GetCurrent());
      m_textViewFrame[2] = p->AddTab("Tracking");
      //printf("current tab: %d\n", p->GetCurrent());
-     
+
      p->MapSubwindows();
      p->MapWindow();
      return m_mainFrame;
-}  
+}
 
 //
 // const member functions
@@ -767,11 +767,11 @@ FWGUIManager::getGUIManager()
   return m_guiManager;
 }
 
-void 
+void
 FWGUIManager::itemChecked(TObject* obj, Bool_t state)
 {
 }
-void 
+void
 FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x, Int_t y)
 {
    TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
@@ -780,23 +780,23 @@ FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x
    if(1==btn) {
       if(lib && lib->doSelection(mask&kKeyControlMask) ) {
          gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
-         
+
          //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
          // in the list
          //m_editor->DisplayElement(el);
       }
    }
 }
-void 
+void
 FWGUIManager::itemDblClicked(TGListTreeItem* item, Int_t btn)
 {
 }
-void 
+void
 FWGUIManager::itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask)
 {
 }
 
-void 
+void
 FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
 {
 }
@@ -807,9 +807,9 @@ FWGUIManager::promptForConfigurationFile()
    static const char* kSaveFileTypes[] = {"Fireworks Configuration files","*.fwc",
       "All Files","*",
    0,0};
-   
+
    static TString dir(".");
-   
+
    TGFileInfo fi;
    fi.fFileTypes = kSaveFileTypes;
    fi.fIniDir    = StrDup(dir);
@@ -826,7 +826,7 @@ FWGUIManager::promptForConfigurationFile()
    }
 }
 
-void 
+void
 FWGUIManager::exportImageOfMainView()
 {
    if(m_viewBases.size()) {
@@ -849,22 +849,22 @@ namespace {
    void recursivelyApplyToFrame(TGSplitFrame* iParent, Op& iOp) {
       if(0==iParent) { return;}
       //if it holds something OR is completely empty (because of undocking)
-      if(iParent->GetFrame() || 
+      if(iParent->GetFrame() ||
          (!iParent->GetFirst() && !iParent->GetSecond()) ) {
          iOp(iParent);
       } else {
          recursivelyApplyToFrame(iParent->GetFirst(),iOp);
-         recursivelyApplyToFrame(iParent->GetSecond(),iOp);         
+         recursivelyApplyToFrame(iParent->GetSecond(),iOp);
       }
    }
-   
+
    struct FrameAddTo {
       FWConfiguration* m_config;
       bool m_isFirst;
       FrameAddTo(FWConfiguration& iConfig) :
       m_config(&iConfig),
       m_isFirst(true) {}
-      
+
       void operator()(TGFrame* iFrame) {
          std::stringstream s;
          if(m_isFirst) {
@@ -874,7 +874,7 @@ namespace {
             s<< static_cast<int>(iFrame->GetWidth());
          }
          m_config->addValue(s.str());
-      }         
+      }
    };
 
    struct FrameSetFrom {
@@ -883,7 +883,7 @@ namespace {
       FrameSetFrom(const FWConfiguration* iConfig) :
       m_config(iConfig),
       m_index(0) {}
-      
+
       void operator()(TGFrame* iFrame) {
          if(0==iFrame) {return;}
          int width=0,height=0;
@@ -938,7 +938,7 @@ addWindowInfoTo(const TGFrame* iMain,
    }
 }
 
-void 
+void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
    FWConfiguration mainWindow(1);
@@ -969,9 +969,9 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       s<<ay;
       mainWindow.addKeyValue("y",FWConfiguration(s.str()));
    }
-   
+
    oTo.addKeyValue(kMainWindow,mainWindow,true);
-   
+
    FWConfiguration views(1);
    for(std::vector<FWViewBase* >::const_iterator it = m_viewBases.begin(),
        itEnd = m_viewBases.end();
@@ -982,14 +982,14 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       views.addKeyValue((*it)->typeName(), temp, true);
    }
    oTo.addKeyValue(kViews,views,true);
-   
+
    //remember the sizes in the view area
-   
+
    FWConfiguration viewArea(1);
    FrameAddTo frameAddTo(viewArea);
    recursivelyApplyToFrame(m_splitFrame,frameAddTo);
    oTo.addKeyValue(kViewArea,viewArea,true);
-   
+
    //remember if any views have been undocked and if so where they are
    FWConfiguration undocked(1);
    {
@@ -1016,7 +1016,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kUndocked,undocked,true);
-   
+
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
    {
@@ -1024,7 +1024,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          FWConfiguration temp(1);
          addWindowInfoTo(m_ediFrame, temp);
          controllers.addKeyValue(kCollectionController,temp,true);
-      }      
+      }
       if(0!=m_viewPopup && m_viewPopup->IsMapped()) {
          FWConfiguration temp(1);
          addWindowInfoTo(m_viewPopup, temp);
@@ -1034,7 +1034,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          FWConfiguration temp(1);
          addWindowInfoTo(m_modelPopup, temp);
          controllers.addKeyValue(kObjectController,temp,true);
-      }      
+      }
    }
    oTo.addKeyValue(kControllers,controllers,true);
 }
@@ -1051,7 +1051,7 @@ setWindowInfoFrom(const FWConfiguration& iFrom,
    iFrame->MoveResize(x,y,width,height);
 }
 
-void 
+void
 FWGUIManager::setFrom(const FWConfiguration& iFrom)
 {
    //first is main window
@@ -1090,7 +1090,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       }
       m_cmsShowMainFrame->Move(x,y);
    }
-   
+
    //now configure the views
    const FWConfiguration* views = iFrom.valueForKey(kViews);
    assert(0!=views);
@@ -1102,20 +1102,20 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
        ++it) {
       size_t n = m_viewBases.size();
       createView(it->first);
-      
+
       assert(n+1 == m_viewBases.size());
       m_viewBases.back()->setFrom(it->second);
    }
-   
+
    //now configure the view area
    const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
    assert(0!=viewArea);
-   
+
    FrameSetFrom frameSetFrom(viewArea);
    recursivelyApplyToFrame(m_splitFrame, frameSetFrom);
 
    m_splitFrame->Layout();
- 
+
    {
       int width = ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->GetWidth();
       int height;
@@ -1124,7 +1124,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->Resize(width, height);
    }
    m_cmsShowMainFrame->Layout();
-   
+
    //now handle undocked case
    const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
    if(0!=undocked) {
@@ -1145,7 +1145,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
          }
       }
    }
-   
+
    //handle controllers
    const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
    if(0!=controllers) {
@@ -1160,7 +1160,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
             std::cout <<"found controller "<<controllerName<<std::endl;
             if(controllerName == kCollectionController) {
                createEDIFrame();
-               setWindowInfoFrom(it->second,m_ediFrame);               
+               setWindowInfoFrom(it->second,m_ediFrame);
             } else if (controllerName == kViewController) {
                createViewPopup();
                setWindowInfoFrom(it->second, m_viewPopup);
@@ -1173,7 +1173,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    }
 }
 
-void 
+void
 FWGUIManager::openEveBrowserForDebugging() const
 {
    gEve->GetBrowser()->MapWindow();

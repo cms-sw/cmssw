@@ -4,7 +4,7 @@
 //
 // Package:     Muons
 // Class  :     MuonsProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class MuonsProxyRhoPhiZ2DBuilder MuonsProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/MuonsProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.7 2008/08/18 06:28:41 dmytro Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.8 2008/09/26 07:15:41 dmytro Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
-      
+
       static void addMatchInformation( const reco::Muon* muon,
 				       const FWEventItem* iItem,
 				       TEveTrack* track,
@@ -65,31 +65,31 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 				      const FWEventItem* iItem );
       static TEveVector firstMatch( const reco::Muon* muon,
 				    const FWEventItem* iItem );
-      
+
       static void buildMuon(const FWEventItem* iItem,
 			    const reco::Muon* muon,
 			    TEveElementList* tList,
 			    const fw::NamedCounter& counter,
 			    bool showEndcap,
 			    bool onlyTracks = false);
-   
+
       // ---------- member functions ---------------------------
-   
+
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
       static bool buggyMuon( const reco::Muon* muon,
 			     const DetIdToMatrix* geom );
-   
-      static void build(const FWEventItem* iItem, 
-			TEveElementList** product, 
+
+      static void build(const FWEventItem* iItem,
+			TEveElementList** product,
 			bool showEndcap,
 			bool onlyTracks = false);
-   
+
       MuonsProxyRhoPhiZ2DBuilder(const MuonsProxyRhoPhiZ2DBuilder&); // stop default
 
       const MuonsProxyRhoPhiZ2DBuilder& operator=(const MuonsProxyRhoPhiZ2DBuilder&); // stop default

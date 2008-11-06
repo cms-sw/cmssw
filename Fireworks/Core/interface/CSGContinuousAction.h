@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CSGContinuousAction
-// 
+//
 /**\class CSGContinuousAction CSGContinuousAction.h Fireworks/Core/interface/CSGContinuousAction.h
 
  Description: An action which continues over time (e.g. playing events)
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id: CSGContinuousAction.h,v 1.2 2008/08/18 06:23:29 dmytro Exp $
+// $Id: CSGContinuousAction.h,v 1.3 2008/11/05 09:10:25 chrjones Exp $
 //
 
 // system include files
@@ -28,16 +28,16 @@
 // forward declarations
 
 class CSGContinuousAction : public CSGAction {
-   
+
 public:
    CSGContinuousAction(CmsShowMainFrame *frame, const char *name);
    //virtual ~CSGContinuousAction();
-   
+
    // ---------- const member functions ---------------------
    bool isRunning() const;
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void createToolBarEntry(TGToolBar *iToolbar, const char *iImageFileName, const char* iRunningImageFileName);
    /*void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, const TGPicture* iRunningPic,
@@ -55,21 +55,21 @@ public:
                                 GContext_t norm = TGButton::GetDefaultGC()(),
                                 UInt_t option = 0);
    void stop();
-   
+
    sigc::signal<void> started_;
    sigc::signal<void> stopped_;
 
    //override
    virtual void globalEnable();
    virtual void globalDisable();
-   
+
    void switchMode();
 
 private:
    CSGContinuousAction(const CSGContinuousAction&); // stop default
-   
+
    const CSGContinuousAction& operator=(const CSGContinuousAction&); // stop default
-   
+
    // ---------- member data --------------------------------
    std::string m_imageFileName;
    std::string m_runningImageFileName;
@@ -79,12 +79,12 @@ private:
    const TGPicture* m_disabledPic;
    const TGPicture* m_runningUpPic;
    const TGPicture* m_runningDownPic;
-   
+
    FWCustomIconsButton* m_button;
-   
+
    bool m_isRunning;
-   
-   
+
+
 };
 
 

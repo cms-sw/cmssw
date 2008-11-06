@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     PatMuonsGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatMuonsGlimpseProxyBuilder.cc,v 1.1 2008/09/26 07:15:42 dmytro Exp $
+// $Id: PatMuonsGlimpseProxyBuilder.cc,v 1.2 2008/11/04 20:29:26 amraktad Exp $
 //
 
 // system include files
@@ -68,14 +68,14 @@ PatMuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** p
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Muon>* muons=0;
    iItem->get(muons);
    if(0==muons) return;
-   
+
    fw::NamedCounter counter("muon");
 
-   for(std::vector<pat::Muon>::const_iterator muon = muons->begin(); 
+   for(std::vector<pat::Muon>::const_iterator muon = muons->begin();
        muon != muons->end(); ++muon, ++counter) {
       char title[1024];
       sprintf(title,"Muon %d, Pt: %0.1f GeV",counter.index(),muon->pt());

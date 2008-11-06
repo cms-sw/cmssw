@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDoubleParameterSetter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWDoubleParameterSetter.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWDoubleParameterSetter.cc,v 1.2 2008/05/18 09:42:48 jmuelmen Exp $
 //
 
 // system include files
@@ -64,21 +64,21 @@ FWDoubleParameterSetter::~FWDoubleParameterSetter()
 // member functions
 //
 
-void 
+void
 FWDoubleParameterSetter::attach(FWParameterBase* iParam)
 {
    m_param = dynamic_cast<FWDoubleParameter*>(iParam);
    assert(0!=m_param);
 }
 
-TGFrame* 
+TGFrame*
 FWDoubleParameterSetter::build(TGFrame* iParent)
 {
    TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
-   
+
    // number entry widget
-   TGNumberFormat::ELimit limits = m_param->min()==m_param->max() ? 
-   TGNumberFormat::kNELNoLimits : 
+   TGNumberFormat::ELimit limits = m_param->min()==m_param->max() ?
+   TGNumberFormat::kNELNoLimits :
    ( m_param->min() > m_param->max()? TGNumberFormat::kNELLimitMin : TGNumberFormat::kNELLimitMinMax);
    double min = 0;
    double max = 1;
@@ -95,10 +95,10 @@ FWDoubleParameterSetter::build(TGFrame* iParent)
     limits,                           // specify limits
     min,                              // min value
     max);                             // max value
-    
+
     frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
     m_widget->Connect("ValueSet(Long_t)", "FWDoubleParameterSetter", this, "doUpdate(Long_t)");
-   
+
    // label
    frame->AddFrame(new TGLabel(frame,m_param->name().c_str()),
                    new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );

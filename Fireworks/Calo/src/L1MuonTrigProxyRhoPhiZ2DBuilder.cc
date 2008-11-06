@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1MuonTrigProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/11/04 20:21:39 amraktad Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::~L1MuonTrigProxyRhoPhiZ2DBuilder()
 //
 // mmuonber functions
 //
-void 
+void
 L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -78,12 +78,12 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
   } else {
     tList->DestroyElements();
   }
-   
+
   // Get the particle map collection for L1MuonParticles
   l1extra::L1MuonParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
   if(0==triggerColl) return;
-   
+
    double r_ecal = 126;
    fw::NamedCounter counter("l1muontrigs");
 
@@ -93,16 +93,16 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt ) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer, "L1 Muon %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
      double phi = trigIt->phi();
      double size = trigIt->pt();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(1);
       marker->SetLineStyle(7);
@@ -120,7 +120,7 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 }
 
 
-void 
+void
 L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -154,27 +154,27 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt ) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer, "L1 Muon %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
      double theta = trigIt->theta();
-      
+
      // distance from the origin of the jet centroid
      // energy is measured from this point
-     // if jet is made of a single tower, the length of the jet will 
+     // if jet is made of a single tower, the length of the jet will
      // be identical to legth of the displayed tower
-     double r(0); 
+     double r(0);
      if ( theta < transition_angle || M_PI-theta < transition_angle )
        r = z_ecal/fabs(cos(theta));
      else
        r = r_ecal/sin(theta);
-      
+
      double size = trigIt->pt();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(1);
       marker->SetLineStyle(7);

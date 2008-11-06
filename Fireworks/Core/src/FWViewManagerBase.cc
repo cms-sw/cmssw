@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWViewManagerBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.8 2008/05/18 09:42:48 jmuelmen Exp $
+// $Id: FWViewManagerBase.cc,v 1.9 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ FWViewManagerBase::~FWViewManagerBase()
 //
 // member functions
 //
-void* 
+void*
 FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
 				    const char* iNameOfClass)
 {
@@ -77,10 +77,10 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
    TClass *c = TClass::GetClass( iNameOfClass );
    if(0==c) {
       //try to load a macro of that name
-      
+
       //How can I tell if this succeeds or failes? error and value are always 0!
       // I could not make the non-compiled mechanism to work without seg-faults
-      // Int_t value = 
+      // Int_t value =
       gROOT->LoadMacro( (std::string(iNameOfClass)+".C+").c_str(), &error );
       c = TClass::GetClass( iNameOfClass );
       if(0==c ) {
@@ -97,20 +97,20 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
    return baseClassInst;
 }
 
-void 
+void
 FWViewManagerBase::modelChangesComingSlot()
 {
    //forward call to the virtual function
    this->modelChangesComing();
 }
-void 
+void
 FWViewManagerBase::modelChangesDoneSlot()
 {
    //forward call to the virtual function
    this->modelChangesDone();
 }
 
-void 
+void
 FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
 {
    assert(0!=iCM);
@@ -123,14 +123,14 @@ FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
 // const member functions
 //
 
-FWModelChangeManager& 
+FWModelChangeManager&
 FWViewManagerBase::changeManager() const
 {
    assert(m_changeManager != 0);
    return *m_changeManager;
 }
 
-const DetIdToMatrix* 
+const DetIdToMatrix*
 FWViewManagerBase::detIdToGeo() const
 {
    return m_detIdToGeo;

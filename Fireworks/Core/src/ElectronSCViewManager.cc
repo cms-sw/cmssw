@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     ElectronSCViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: ElectronSCViewManager.cc,v 1.3 2008/02/26 02:25:33 dmytro Exp $
+// $Id: ElectronSCViewManager.cc,v 1.4 2008/06/09 19:59:33 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ ElectronSCViewManager::ElectronSCViewManager():
      // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      nv->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
      nv->GetGLViewer()->SetClearColor(kBlack);
-     
+
      ns = gEve->SpawnNewScene("Electron");
      nv->AddScene(ns);
 //      m_projMgr = new TEveProjectionManager;
@@ -89,18 +89,18 @@ ElectronSCViewManager::~ElectronSCViewManager()
 //
 // member functions
 //
-void 
+void
 ElectronSCViewManager::newEventAvailable()
 {
    Double_t rotation_center[3] = { 0, 0, 0 };
 
-   for (std::vector<ElectronSCModelProxy>::iterator proxy = 
+   for (std::vector<ElectronSCModelProxy>::iterator proxy =
 	       m_modelProxies.begin();
 	  proxy != m_modelProxies.end(); ++proxy ) {
 	  proxy->builder->build( &(proxy->product) );
           proxy->builder->getCenter( rotation_center );
      }
-   
+
    // set default view
    TGLViewer* viewer = nv->GetGLViewer();
    if ( viewer ) {
@@ -110,18 +110,18 @@ ElectronSCViewManager::newEventAvailable()
       // viewer->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 5, 0, rotation_center, 0.5, 0 );
       viewer->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, rotation_center, 0.5, 0 );
    } else printf("cannot get GLViewer\n");
-   
+
    addElements();
 }
 
-void 
+void
 ElectronSCViewManager::newItem(const FWEventItem* iItem)
 {
      TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
      if(itFind != m_typeToBuilder.end()) {
 	  printf("ElectronSCViewManager: adding item... ");
-     	  ElectronsProxySCBuilder *builder = 
-	       reinterpret_cast<ElectronsProxySCBuilder *>( 
+     	  ElectronsProxySCBuilder *builder =
+	       reinterpret_cast<ElectronsProxySCBuilder *>(
 		    createInstanceOf(
 			 TClass::GetClass(typeid(ElectronsProxySCBuilder)),
 			 itFind->second.c_str()));
@@ -134,20 +134,20 @@ ElectronSCViewManager::newItem(const FWEventItem* iItem)
      }
 }
 
-void 
+void
 ElectronSCViewManager::registerProxyBuilder(const std::string& iType,
 					    const std::string& iBuilder)
 {
      m_typeToBuilder[iType] = iBuilder;
-     printf("ElectronSCViewManager: registering %s, %s\n", iType.c_str(), 
+     printf("ElectronSCViewManager: registering %s, %s\n", iType.c_str(),
 	    iBuilder.c_str());
 }
 
-void 
+void
 ElectronSCViewManager::modelChangesComing()
 {
 }
-void 
+void
 ElectronSCViewManager::modelChangesDone()
 {
    newEventAvailable();
@@ -169,7 +169,7 @@ void ElectronSCViewManager::addElements ()
 //      bool rpHasMoreChildren = m_projMgr->GetNChildren();
 //      int index = 0;
 //      while(++index < m_projMgr->GetNChildren()) {++itLastElement;}
-     
+
      for ( std::vector<ElectronSCModelProxy>::iterator proxy =
 		m_modelProxies.begin();
 	   proxy != m_modelProxies.end(); ++proxy )  {
@@ -181,7 +181,7 @@ void ElectronSCViewManager::addElements ()
 // 	  } else {
 // 	       ++itLastElement;
 // 	  }
-     }  
+     }
 }
 */
 

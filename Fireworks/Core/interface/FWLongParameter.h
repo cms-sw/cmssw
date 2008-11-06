@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWLongParameter
-// 
+//
 /**\class FWLongParameter FWLongParameter.h Fireworks/Core/interface/FWLongParameter.h
 
  Description: Provides access to a simple double parameter
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWLongParameter.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWLongParameter.h,v 1.1 2008/03/11 14:04:28 chrjones Exp $
 //
 
 // system include files
@@ -61,16 +61,16 @@ class FWLongParameter : public FWParameterBase
       long max() const {
          return m_max;
       }
-   
+
       virtual void addTo(FWConfiguration& ) const ;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       virtual void setFrom(const FWConfiguration&);
       void set(long);
-   
+
       sigc::signal<void,long> changed_;
-   
+
    private:
       FWLongParameter(const FWLongParameter&); // stop default
 

@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1MetProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1MetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 20:29:24 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ L1MetProxyRhoPhiZ2DBuilder::~L1MetProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 L1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -77,28 +77,28 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    // Get the particle map collection for L1EtMissParticles
    l1extra::L1EtMissParticleCollection const * mets=0;
    iItem->get(mets);
    if(0==mets) return;
 
    double r_ecal = 126;
-   
+
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer, "L1 MET: %0.1f GeV", mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(1);
       marker->SetLineStyle(2);
@@ -106,9 +106,9 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-      marker->AddLine( (r_ecal+size*0.9)*cos(phi+0.01), (r_ecal+size*0.9)*sin(phi+0.01), 0, 
+      marker->AddLine( (r_ecal+size*0.9)*cos(phi+0.01), (r_ecal+size*0.9)*sin(phi+0.01), 0,
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-      marker->AddLine( (r_ecal+size*0.9)*cos(phi-0.01), (r_ecal+size*0.9)*sin(phi-0.01), 0, 
+      marker->AddLine( (r_ecal+size*0.9)*cos(phi-0.01), (r_ecal+size*0.9)*sin(phi-0.01), 0,
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       container->AddElement(marker);
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
@@ -118,7 +118,7 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    }
 }
 
-void 
+void
 L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -131,19 +131,19 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    // Get the particle map collection for L1EtMissParticles
    l1extra::L1EtMissParticleCollection const * mets=0;
    iItem->get(mets);
    if(0==mets) return;
-   
+
    double r = 126;
-   
+
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer, "L1 MET: %0.1f GeV", mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
@@ -152,7 +152,7 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(1);
       marker->SetLineStyle(2);
@@ -170,5 +170,5 @@ L1MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       tList->AddElement(container);
    }
 }
-   
+
 REGISTER_FWRPZ2DDATAPROXYBUILDER(L1MetProxyRhoPhiZ2DBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWModelExpressionSelector
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.5 2008/08/21 21:10:50 chrjones Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.6 2008/08/22 16:55:58 chrjones Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ FWModelExpressionSelector::FWModelExpressionSelector()
 //
 // const member functions
 //
-bool 
+bool
 FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpression) const
 {
    using namespace fireworks::expression;
@@ -101,17 +101,17 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
       succeeded=false;
    }
    if(!succeeded) { return false;}
-   
-   
+
+
    FWChangeSentry sentry(*(iItem->changeManager()));
    for( unsigned int index = 0; index < iItem->size(); ++index ) {
       ROOT::Reflex::Object o(type, const_cast<void *>(iItem->modelData(index)));
-      
+
       if((*selectorPtr)(o)) {
          iItem->select(index);
       }
    }
-   
+
    return true;
 }
 

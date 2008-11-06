@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     PatJetProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatJetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/09/26 07:40:13 dmytro Exp $
+// $Id: PatJetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ PatJetProxyRhoPhiZ2DBuilder::~PatJetProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 PatJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -78,20 +78,20 @@ PatJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Jet>* jets=0;
    iItem->get(jets);
    if(0==jets) return;
 
    fw::NamedCounter counter("jet");
 
-   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); 
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet, ++counter) {
       CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi( iItem, &*jet, tList, counter );
    }
 }
 
-void 
+void
 PatJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -104,14 +104,14 @@ PatJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Jet>* jets=0;
    iItem->get(jets);
    if(0==jets) return;
 
    fw::NamedCounter counter("jet");
 
-   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); 
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet, ++counter) {
       CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoZ( iItem, &*jet, tList, counter );
    }

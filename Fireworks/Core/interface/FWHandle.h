@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWHandle
-// 
+//
 /**\class FWHandle FWHandle.h Fireworks/Core/interface/FWHandle.h
 
  Description: Used to get a particular data item from a FWEventItem
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 19:23:45 EST 2008
-// $Id$
+// $Id: FWHandle.h,v 1.1 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ class FWHandle
 	     iItem.data(edm::Wrapper<T>::productTypeInfo())
 					  );
       }
-      
+
    private:
       //FWHandle(const FWHandle&); // stop default
 

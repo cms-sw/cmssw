@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEveLegoView
-// 
+//
 /**\class FWEveLegoView FWEveLegoView.h Fireworks/Core/interface/FWEveLegoView.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.7 2008/06/28 22:20:54 dmytro Exp $
+// $Id: FWEveLegoView.h,v 1.8 2008/07/07 00:42:41 chrjones Exp $
 //
 
 // system include files
@@ -55,14 +55,14 @@ class FWEveLegoView : public FWViewBase
 
       // ---------- static member functions --------------------
       static const std::string& staticTypeName();
-   
+
       // ---------- member functions ---------------------------
       void finishSetup();
       //void draw(TEveCaloDataHist* data);
       virtual void setFrom(const FWConfiguration&);
-      // set energy thresholds from the parameters  
+      // set energy thresholds from the parameters
       void setMinEnergy();
-   
+
    private:
       FWEveLegoView(const FWEveLegoView&); // stop default
 
@@ -71,23 +71,23 @@ class FWEveLegoView : public FWViewBase
       void setMinEcalEnergy(double);
       void setMinHcalEnergy(double);
       void setCameras();
-   
+
       // ---------- member data --------------------------------
       TEvePad* m_pad;
       TEveViewer* m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveScene* m_scene;
       TEveCaloLego* m_lego;
-      
+
       // FWLongParameter m_range;
       //FWDoubleParameter m_minEcalEnergy;
       //FWDoubleParameter m_minHcalEnergy;
       //double m_minEcalEnergyInit;
       //double m_minHcalEnergyInit;
-      
+
       //TEveCaloData::SliceInfo_t* m_ecalSlice;
       //TEveCaloData::SliceInfo_t* m_hcalSlice;
-      
+
       TGLMatrix*  m_cameraMatrix;
       TGLMatrix*  m_cameraMatrixBase;
       TGLMatrix*  m_cameraMatrixRef;

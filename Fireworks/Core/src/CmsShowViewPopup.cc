@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowViewPopup
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.5 2008/07/16 03:07:03 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.6 2008/07/16 13:38:37 chrjones Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@
 //
 // constructors and destructor
 //
-CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWViewBase* v) : 
+CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWViewBase* v) :
 TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 {
   m_view = v;
@@ -62,7 +62,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
      m_saveImageButton->SetEnabled(kFALSE);
   }
   m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
-   
+
   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
   m_viewContentFrame = new TGCompositeFrame(this);
   m_setters.clear();
@@ -142,14 +142,14 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
   Resize(GetDefaultSize());
   MapSubwindows();
   Layout();
-}  
+}
 
 void
 CmsShowViewPopup::removeView() {
   //printf("Removed!\n");
 }
 
-void 
+void
 CmsShowViewPopup::saveImage()
 {
    if(m_view) {

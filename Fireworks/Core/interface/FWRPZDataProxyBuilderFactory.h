@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRPZDataProxyBuilderFactory
-// 
+//
 /**\class FWRPZDataProxyBuilderFactory FWRPZDataProxyBuilderFactory.h Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:37 EDT 2008
-// $Id$
+// $Id: FWRPZDataProxyBuilderFactory.h,v 1.1 2008/06/09 19:48:44 chrjones Exp $
 //
 
 // system include files

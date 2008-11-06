@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListMultipleModels
-// 
+//
 /**\class FWListMultipleModels FWListMultipleModels.h Fireworks/Core/interface/FWListMultipleModels.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:16 EDT 2008
-// $Id: FWListMultipleModels.h,v 1.1 2008/03/24 18:02:14 chrjones Exp $
+// $Id: FWListMultipleModels.h,v 1.2 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files

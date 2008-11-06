@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowTaskTimer
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Joshua Berger
 //         Created:  Fri Jul 25 11:49:12 EDT 2008
-// $Id$
+// $Id: CmsShowTaskTimer.cc,v 1.1 2008/07/25 23:57:11 chrjones Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ CmsShowTaskTimer::~CmsShowTaskTimer()
 //
 // member functions
 //
-Bool_t 
+Bool_t
 CmsShowTaskTimer::Notify()
 {
   m_taskExec->doNextTask();

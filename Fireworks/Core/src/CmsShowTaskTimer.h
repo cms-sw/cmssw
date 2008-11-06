@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowTaskTimer
-// 
+//
 /**\class CmsShowTaskTimer CmsShowTaskTimer.h Fireworks/Core/src/CmsShowTaskTimer.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Fri Jul 25 11:49:18 EDT 2008
-// $Id$
+// $Id: CmsShowTaskTimer.h,v 1.1 2008/07/25 23:57:11 chrjones Exp $
 //
 
 // system include files

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWConfigurableParameterizable
-// 
+//
 /**\class FWConfigurableParameterizable FWConfigurableParameterizable.h Fireworks/Core/interface/FWConfigurableParameterizable.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Mar 16 12:01:29 EDT 2008
-// $Id$
+// $Id: FWConfigurableParameterizable.h,v 1.1 2008/03/16 19:57:38 chrjones Exp $
 //
 
 // system include files

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListEventItemEditor
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:36:01 EST 2008
-// $Id: FWListEventItemEditor.cc,v 1.4 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWListEventItemEditor.cc,v 1.5 2008/09/22 20:13:33 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ TGedFrame(p, width, height, options | kVerticalFrame, back)
    vf->AddFrame(m_filterRunExpressionButton);
    m_filterRunExpressionButton->Connect("Clicked()","FWListEventItemEditor",this,"runFilter()");
    AddFrame(vf, new TGLayoutHints(kLHintsTop, 0, 0, 0, 0));
-   
+
    TGTextButton* removeItemButton = new TGTextButton(this,"Remove Item");
    removeItemButton->Connect("Clicked()", "FWListEventItemEditor",this,"removeItem()");
    AddFrame(removeItemButton, new TGLayoutHints(kLHintsTop,0,0,0,0));
@@ -93,7 +93,7 @@ FWListEventItemEditor::SetModel(TObject* iObj)
    m_item = dynamic_cast<FWListEventItem*>(iObj);
    if(0!=iObj) {
       assert(0!=m_item);
-      
+
       //m_filterExpression->SetText(m_item->eventItem()->filterExpression().c_str());
       FWGUIManager::getGUIManager()->updateEDI(m_item->eventItem());
    }

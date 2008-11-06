@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseDataProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.4 2008/07/07 00:26:05 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.5 2008/07/10 21:21:58 dmytro Exp $
 //
 
 // system include files
@@ -65,8 +65,8 @@ FWGlimpseDataProxyBuilder::~FWGlimpseDataProxyBuilder()
 //
 // member functions
 //
-void 
-FWGlimpseDataProxyBuilder::setHaveAWindow(bool iFlag) 
+void
+FWGlimpseDataProxyBuilder::setHaveAWindow(bool iFlag)
 {
    bool oldValue = m_haveViews;
 
@@ -83,7 +83,7 @@ FWGlimpseDataProxyBuilder::setHaveAWindow(bool iFlag)
    }
 }
 
-TEveElement* 
+TEveElement*
 FWGlimpseDataProxyBuilder::usedInScene()
 {
    return &m_elementHolder;
@@ -112,7 +112,7 @@ FWGlimpseDataProxyBuilder::itemChanged(const FWEventItem* iItem)
    m_modelsChanged=false;
 }
 
-void 
+void
 FWGlimpseDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
@@ -121,7 +121,7 @@ FWGlimpseDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 }
 
 static void
-setUserDataElementAndChildren(TEveElement* iElement, 
+setUserDataElementAndChildren(TEveElement* iElement,
                          void* iInfo)
 {
    iElement->SetUserData(iInfo);
@@ -169,7 +169,7 @@ FWGlimpseDataProxyBuilder::build()
    m_mustBuild=false;
 }
 
-void 
+void
 FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
    if(m_haveViews) {
@@ -182,21 +182,21 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
    }
 }
 
-void 
+void
 FWGlimpseDataProxyBuilder::applyChangesToAllModels()
 {
    applyChangesToAllModels(m_elementHolder.FirstChild());
    m_modelsChanged=false;
 }
 
-void 
+void
 FWGlimpseDataProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    FWModelIds ids(m_ids.begin(), m_ids.end());
    modelChanges(ids,iElements);
 }
 
-void 
+void
 FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds,
                                     TEveElement* iElements )
 {
@@ -207,11 +207,11 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds,
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
        it != itEnd;
        ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());         
+      assert(itElement != iElements->EndChildren());
       while(index < it->index()) {
          ++itElement;
          ++index;
-         assert(itElement != iElements->EndChildren());         
+         assert(itElement != iElements->EndChildren());
       }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);

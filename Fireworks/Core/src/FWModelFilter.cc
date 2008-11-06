@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWModelFilter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.7 2008/08/21 21:10:50 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.8 2008/08/22 16:55:58 chrjones Exp $
 //
 
 // system include files
@@ -72,15 +72,15 @@ FWModelFilter::~FWModelFilter()
 //
 // member functions
 //
-void 
+void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
    if(m_type != ROOT::Reflex::Type() && iExpression.size()) {
       using namespace fireworks::expression;
-      
+
       //Backwards compatibility with old format
       std::string temp = oldToNewFormat(iExpression);
-      
+
       //now setup the parser
       using namespace boost::spirit;
       reco::parser::SelectorPtr tmpPtr;
@@ -103,13 +103,13 @@ FWModelFilter::setExpression(const std::string& iExpression)
    }
 }
 
-void 
+void
 FWModelFilter::setClassName(const std::string& iClassName)
 {
    //NOTE: How do we handle the case where the filter was created before
    // the library for the class was loaded and therefore we don't have
    // a Reflex dictionary for it?
-   
+
    m_className = iClassName;
    m_type = ROOT::Reflex::Type::ByName(iClassName);
    setExpression(m_expression);
@@ -118,24 +118,24 @@ FWModelFilter::setClassName(const std::string& iClassName)
 //
 // const member functions
 //
-const std::string& 
+const std::string&
 FWModelFilter::expression() const
 {
    return m_expression;
 }
 
-bool 
+bool
 FWModelFilter::passesFilter(const void* iObject) const
 {
    if(m_expression.empty() || !m_selector.get()) {
       return true;
    }
-   
+
    ROOT::Reflex::Object o(m_type, const_cast<void *>(iObject));
-   return (*m_selector)(o);  
+   return (*m_selector)(o);
 }
 
-const bool 
+const bool
 FWModelFilter::trivialFilter() const
 {
    return m_expression.empty();

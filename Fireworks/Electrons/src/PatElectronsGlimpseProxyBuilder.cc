@@ -2,13 +2,13 @@
 //
 // Package:     Electron
 // Class  :     PatElectronsGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatElectronsGlimpseProxyBuilder.cc,v 1.1 2008/09/26 07:42:09 dmytro Exp $
+// $Id: PatElectronsGlimpseProxyBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -66,14 +66,14 @@ PatElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Electron>* electrons=0;
    iItem->get(electrons);
    if(0==electrons) return;
-   
+
    fw::NamedCounter counter("electron");
 
-   for(std::vector<pat::Electron>::const_iterator electron = electrons->begin(); 
+   for(std::vector<pat::Electron>::const_iterator electron = electrons->begin();
        electron != electrons->end(); ++electron, ++counter) {
       char title[1024];
       snprintf(title,1024,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());

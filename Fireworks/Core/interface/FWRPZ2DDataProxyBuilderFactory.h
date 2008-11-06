@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRPZ2DDataProxyBuilderFactory
-// 
+//
 /**\class FWRPZ2DDataProxyBuilderFactory FWRPZ2DDataProxyBuilderFactory.h Fireworks/Core/interface/FWRPZ2DDataProxyBuilderFactory.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:46 EDT 2008
-// $Id$
+// $Id: FWRPZ2DDataProxyBuilderFactory.h,v 1.1 2008/06/09 19:48:44 chrjones Exp $
 //
 
 // system include files

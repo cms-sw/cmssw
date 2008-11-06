@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     ElectronView
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: ElectronView.cc,v 1.2 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: ElectronView.cc,v 1.3 2008/09/29 18:00:23 amraktad Exp $
 //
 
 // system include files
@@ -84,7 +84,7 @@ void ElectronView::event ()
      nv->GetGLViewer()->SetClearColor(kBlack);
      ns = gEve->SpawnNewScene("Electron");
      nv->AddScene(ns);
-     frame->AddFrame(v->GetFrame(), 
+     frame->AddFrame(v->GetFrame(),
 		     new TGLayoutHints(kLHintsTop | kLHintsExpandX
 				       | kLHintsExpandY));
      TGTextButton* exit_butt = new TGTextButton(frame, "Eat flaming death");
@@ -96,7 +96,7 @@ void ElectronView::event ()
      frame->SetIconName("Ooogadooga-ICON");
      frame->MapSubwindows();
      frame->MapWindow();
-     
+
      TEveElementList *list = 0;
      ElectronsProxySCBuilder::the_electron_sc_proxy->build(&list);
      gEve->AddElement(list, ns);

@@ -2,7 +2,7 @@
 #define Fireworks_Electrons_ElectronsProxy3DBuilder_h
 // -*- C++ -*-
 //  Description: muon model proxy
-//  
+//
 //  Original Author: D.Kovalskyi
 //
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"

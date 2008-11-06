@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.4 2008/07/01 19:16:43 chrjones Exp $
+// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.5 2008/07/16 13:51:00 dmytro Exp $
 //
 
 // system include files
@@ -59,13 +59,13 @@ void HCalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
    hist->Reset();
    for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)
      (hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
-   
+
    if ( ! data ) data = new TEveCaloDataHist();
    if ( newHist ) {
       Int_t s = data->AddHistogram(hist);
       data->RefSliceInfo(s).Setup("HCAL", 0., iItem->defaultDisplayProperties().color());
    }
-   
+
    if ( m_calo3d == 0 ) {
       m_calo3d = new TEveCalo3D(data);
       m_calo3d->SetBarrelRadius(129);
@@ -77,7 +77,7 @@ void HCalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
    }
 }
 */
-std::string 
+std::string
 HCalCaloTowerProxy3DBuilder::histName() const
 {
    return "hcal3D";

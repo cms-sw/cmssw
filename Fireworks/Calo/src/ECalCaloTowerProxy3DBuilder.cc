@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.7 2008/07/16 13:51:00 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.8 2008/07/17 18:29:28 chrjones Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
       m_sliceIndex = m_data->AddHistogram(m_hist);
       m_data->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
    }
-   
+
    if ( m_calo3d == 0 ) {
       m_calo3d = new TEveCalo3D(m_data);
       m_calo3d->SetBarrelRadius(129);
@@ -87,13 +87,13 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
    }
 }
 
-std::string 
+std::string
 ECalCaloTowerProxy3DBuilder::histName() const
 {
    return "ecal3D";
 }
 
-void 
+void
 ECalCaloTowerProxy3DBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    FWRPZDataProxyBuilder::itemBeingDestroyedImp(iItem);
@@ -102,14 +102,14 @@ ECalCaloTowerProxy3DBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 }
 
 
-void 
+void
 ECalCaloTowerProxy3DBuilder::modelChanges(const FWModelIds& iIds,
                                           TEveElement* iElements )
 {
    applyChangesToAllModels(iElements);
 }
 
-void 
+void
 ECalCaloTowerProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(m_data && m_towers && item()) {
@@ -130,7 +130,7 @@ ECalCaloTowerProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
       }
       m_data->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       m_data->DataChanged();
-   }   
+   }
 }
 
 REGISTER_FWRPZDATAPROXYBUILDER(ECalCaloTowerProxy3DBuilder,CaloTowerCollection,"ECal");

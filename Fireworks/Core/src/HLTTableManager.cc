@@ -61,8 +61,8 @@ std::vector<std::string> HLTTableManager::GetTitles(int col)
      return ret;
 }
 
-void HLTTableManager::FillCells(int rowStart, int colStart, 
-				     int rowEnd, int colEnd, 
+void HLTTableManager::FillCells(int rowStart, int colStart,
+				     int rowEnd, int colEnd,
 				     std::vector<std::string> &ret)
 {
      ret.clear();
@@ -70,11 +70,11 @@ void HLTTableManager::FillCells(int rowStart, int colStart,
      for (int i = rowStart; i < rowEnd && i < NumberOfRows(); ++i) {
 	  const std::vector<std::string> &row = rows[i].str();
 	  if ((unsigned int)colEnd > row.size()) {
-	       ret.insert(ret.end(), 
+	       ret.insert(ret.end(),
 			  row.begin() + colStart, row.end());
 	       ret.insert(ret.end(), colEnd - row.size(), "");
 	  } else {
-	       ret.insert(ret.end(), 
+	       ret.insert(ret.end(),
 			  row.begin() + colStart, row.begin() + colEnd);
 	  }
      }

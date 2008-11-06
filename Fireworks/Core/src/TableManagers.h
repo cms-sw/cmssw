@@ -34,23 +34,23 @@ public:
      virtual void dump (FILE *);
      //void sort (int col, bool reset = false);
      // and has a utility for making a display frame
-     void MakeFrame (TGCompositeFrame *parent, int width, int height, 
+     void MakeFrame (TGCompositeFrame *parent, int width, int height,
 		     unsigned int layout);
      void Update (int rows = 5);
      void Selection (int row, int mask);
      void selectRows ();
      virtual int table_row_to_index (int) const { return 0; }
      virtual int index_to_table_row (int) const { return 0; }
-     virtual bool rowIsSelected(int row) const { 
+     virtual bool rowIsSelected(int row) const {
         return sel_indices.count(table_row_to_index(row));
      }
-     virtual bool rowIsVisible (int row) const { 
+     virtual bool rowIsVisible (int row) const {
         return vis_indices.count(table_row_to_index(row));
      }
-     virtual bool idxIsSelected (int idx) const { 
+     virtual bool idxIsSelected (int idx) const {
 	  return sel_indices.count(idx);
      }
-     virtual bool idxIsVisible (int idx) const { 
+     virtual bool idxIsVisible (int idx) const {
 	  return vis_indices.count(idx);
      }
      void setItem (FWEventItem *);
@@ -75,7 +75,7 @@ template <class Row> struct sort_asc {
      int i;
      bool order;
      FWTableManager *manager;
-     bool operator () (const Row &r1, const Row &r2) const 
+     bool operator () (const Row &r1, const Row &r2) const
 	  {
 	       // visible rows always win over invisible rows
 	       bool r1_vis = manager->idxIsVisible(r1.index);
@@ -118,8 +118,8 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
@@ -138,16 +138,16 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return "Electrons"; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<ElectronRow>	rows;
@@ -184,16 +184,16 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return "Muons"; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<MuonRow>	rows;
@@ -224,16 +224,16 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return "Jets"; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<JetRow>	rows;
@@ -276,16 +276,16 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return "Tracks"; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<TrackRow>	rows;
@@ -323,16 +323,16 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return "Vertices"; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<VertexRow>	rows;
@@ -376,16 +376,16 @@ public:
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return "HLT names"; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<HLTRow>	rows;
@@ -410,24 +410,24 @@ protected:
 };
 
 class L1TableManager : public FWTableManager {
-     
+
 public:
      L1TableManager () : title_("L1 objects") { }
      virtual int NumberOfRows() const;
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
      virtual std::vector<std::string> GetTitles(int col);
-     virtual void FillCells(int rowStart, int colStart, 
-			    int rowEnd, int colEnd, 
+     virtual void FillCells(int rowStart, int colStart,
+			    int rowEnd, int colEnd,
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
      const std::string		title () const { return title_; }
      void	setTitle (const std::string &t) { title_ = t; }
 
-     virtual int table_row_to_index (int i) const 
+     virtual int table_row_to_index (int i) const
 	  { return ::table_row_to_index(rows, i); }
-     virtual int index_to_table_row (int i) const 
+     virtual int index_to_table_row (int i) const
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<L1Row>		rows;

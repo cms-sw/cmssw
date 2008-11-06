@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     MuonPUViewManager
-// 
+//
 /**\class MuonPUViewManager MuonPUViewManager.h Fireworks/Core/interface/MuonPUViewManager.h
 
    Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: MuonPUViewManager.h,v 1.1 2008/03/07 04:01:56 tdaniels Exp $
+// $Id: MuonPUViewManager.h,v 1.2 2008/06/09 19:59:52 chrjones Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ class TEveViewer;
 struct MuonPUModelProxy {
   boost::shared_ptr<MuonsProxyPUBuilder>   builder;
   const FWEventItem                        *iItem;
-  TEveElementList                          *product; 
+  TEveElementList                          *product;
   MuonPUModelProxy () : product(0) { }
   MuonPUModelProxy (
 		    boost::shared_ptr<MuonsProxyPUBuilder> iBuilder) :
@@ -59,7 +59,7 @@ public:
      // ---------- member functions ---------------------------
      virtual void newEventAvailable();
      virtual void newItem(const FWEventItem*);
-     void registerProxyBuilder(const std::string&, 
+     void registerProxyBuilder(const std::string&,
 			       const std::string&);
      void addElements ();
 

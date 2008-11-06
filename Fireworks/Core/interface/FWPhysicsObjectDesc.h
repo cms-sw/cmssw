@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWPhysicsObjectDesc
-// 
+//
 /**\class FWPhysicsObjectDesc FWPhysicsObjectDesc.h Fireworks/Core/interface/FWPhysicsObjectDesc.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id: FWPhysicsObjectDesc.h,v 1.3 2008/03/19 15:18:05 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.h,v 1.4 2008/06/10 14:19:09 chrjones Exp $
 //
 
 // system include files
@@ -50,24 +50,24 @@ class FWPhysicsObjectDesc
 
       const TClass* type() const;
       const std::string& purpose() const;
-   
+
       const std::string& moduleLabel() const;
       const std::string& productInstanceLabel() const;
       const std::string& processName() const;
-   
+
       //objects with a larger layer number are draw on top of objects with a lower layer number
       unsigned int layer() const;
-   
+
       const std::string& filterExpression() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   
+
       void setLabels(const std::string& iModule,
                      const std::string& iProductInstance,
                      const std::string& iProcess);
       void setName(const std::string& iName);
-   
+
    private:
       //FWPhysicsObjectDesc(const FWPhysicsObjectDesc&); // stop default
 
@@ -78,13 +78,13 @@ class FWPhysicsObjectDesc
       const TClass* m_type;
       const std::string m_purpose;
       FWDisplayProperties m_displayProperties;
-   
+
       std::string m_moduleLabel;
       std::string m_productInstanceLabel;
       std::string m_processName;
-      
+
       unsigned int m_layer;
-   
+
       std::string m_filterExpression;
 };
 

@@ -23,7 +23,7 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
 {
   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
   TEveElementList * list = *product;
-     
+
   if (list == NULL) {
     list = new TEveElementList(item->name().c_str(), "Primary Vertices", true);
     *product = list;
@@ -32,14 +32,14 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
   } else {
     list->DestroyElements();
   }
-  
-  const reco::VertexCollection * vertices;  
+
+  const reco::VertexCollection * vertices;
   item->get(vertices);
   if (vertices == 0) {
      // std::cout <<"failed to get primary vertices" << std::endl;
     return;
   }
-  
+
   // actual 3D shape
   TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
 

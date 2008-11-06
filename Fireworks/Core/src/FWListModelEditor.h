@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListModelEditor
-// 
+//
 /**\class FWListModelEditor FWListModelEditor.h Fireworks/Core/interface/FWListModelEditor.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:24 EST 2008
-// $Id$
+// $Id: FWListModelEditor.h,v 1.1 2008/03/05 15:07:31 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class FWListModelEditor : public TGedFrame
       virtual ~FWListModelEditor();
 
       // ---------- const member functions ---------------------
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

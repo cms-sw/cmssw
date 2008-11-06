@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     register_dataproxybuilder_macro
-// 
+//
 /**
 
  Description: Adds needed methods to a ProxyBuilder
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 15:31:20 EDT 2008
-// $Id: register_dataproxybuilder_macro.h,v 1.1 2008/06/09 20:00:27 chrjones Exp $
+// $Id: register_dataproxybuilder_macro.h,v 1.2 2008/07/07 21:55:57 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ const std::string& purpose() const { return classPurpose();}\
 static const std::string& classTypeName();\
 static const std::string& classPurpose()\
 
-#define CONCATENATE_HIDDEN(a,b) a ## b 
+#define CONCATENATE_HIDDEN(a,b) a ## b
 #define CONCATENATE(a,b) CONCATENATE_HIDDEN(a,b)
 
 #define DEFINE_PROXYBUILDER_METHODS(_builder_,_type_,_purpose_)\

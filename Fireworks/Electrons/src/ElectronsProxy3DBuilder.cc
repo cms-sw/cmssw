@@ -22,12 +22,12 @@ ElectronsProxy3DBuilder::~ElectronsProxy3DBuilder()
 {
 }
 
-void ElectronsProxy3DBuilder::build (const FWEventItem* iItem, 
+void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 				     TEveElementList** product)
 {
      TEveElementList* tList = *product;
      // printf("Calling electron proxy\n");
-     
+
      if(0 == tList) {
 	  tList =  new TEveElementList(iItem->name().c_str(), "GSF Electrons", true);
 	  *product = tList;
@@ -36,17 +36,17 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
      } else {
 	  tList->DestroyElements();
      }
-     
+
      using reco::GsfElectronCollection;
      const GsfElectronCollection *electrons = 0;
      // printf("getting electrons\n");
      iItem->get(electrons);
      // printf("got electrons\n");
      ElectronsProxy3DBuilder::electrons = electrons;
-   
+
      if (electrons == 0) return;
      // printf("%d GSF electrons\n", electrons->size());
-   
+
      TEveTrackPropagator *propagator = new TEveTrackPropagator();
      propagator->SetMagField( -4.0);
      propagator->SetMaxR( 122 );

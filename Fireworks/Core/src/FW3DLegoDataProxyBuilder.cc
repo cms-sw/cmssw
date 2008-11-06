@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoDataProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.9 2008/07/10 21:21:58 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.10 2008/07/15 17:42:11 chrjones Exp $
 //
 
 // system include files
@@ -33,14 +33,14 @@ namespace fw3dlego
 {
   const double xbins[83] = {
            -5.191, -4.889,
-	   -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314, 
-	   -3.139, -2.964, -2.853, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830, 
-	   -1.740, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218, -1.131, -1.044, -0.957, 
-	   -0.870, -0.783, -0.696, -0.609, -0.522, -0.435, -0.348, -0.261, -0.174, -0.087,  
+	   -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314,
+	   -3.139, -2.964, -2.853, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830,
+	   -1.740, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218, -1.131, -1.044, -0.957,
+	   -0.870, -0.783, -0.696, -0.609, -0.522, -0.435, -0.348, -0.261, -0.174, -0.087,
 	   0.000,
 	    0.087,  0.174,  0.261,  0.348,  0.435,  0.522,  0.609,  0.696,  0.783,  0.870,
-	    0.957,  1.044,  1.131,  1.218,  1.305,  1.392,  1.479,  1.566,  1.653,  1.740,  
-	    1.830,  1.930,  2.043,  2.172,  2.322,  2.500,  2.650,  2.853,  2.964,  3.139,  
+	    0.957,  1.044,  1.131,  1.218,  1.305,  1.392,  1.479,  1.566,  1.653,  1.740,
+	    1.830,  1.930,  2.043,  2.172,  2.322,  2.500,  2.650,  2.853,  2.964,  3.139,
 	    3.314,  3.489,  3.664,  3.839,  4.013,  4.191,  4.363,  4.538,  4.716,
             4.889,  5.191
   };
@@ -95,7 +95,7 @@ FW3DLegoDataProxyBuilder::setItem(const FWEventItem* iItem)
 
 }
 
-void 
+void
 FW3DLegoDataProxyBuilder::itemChanged(const FWEventItem* iItem)
 {
    //std::cout <<"item changed "<<iItem->name()<<std::endl;
@@ -109,7 +109,7 @@ FW3DLegoDataProxyBuilder::itemChanged(const FWEventItem* iItem)
    m_modelsChanged=false;
 }
 
-void 
+void
 FW3DLegoDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
@@ -117,19 +117,19 @@ FW3DLegoDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
    itemBeingDestroyedImp(iItem);
 }
 
-void 
+void
 FW3DLegoDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
 {
 }
 
 
-void 
-FW3DLegoDataProxyBuilder::setHaveAWindow(bool iFlag) 
+void
+FW3DLegoDataProxyBuilder::setHaveAWindow(bool iFlag)
 {
    bool oldValue = m_haveViews;
-   
+
    m_haveViews=iFlag;
-   
+
    if(iFlag && !oldValue) {
       //this is our first view so may need to rerun our building
       if(m_mustBuild) {
@@ -146,7 +146,7 @@ FW3DLegoDataProxyBuilder::setHaveAWindow(bool iFlag)
 
 /*
 static void
-setUserDataElementAndChildren(TEveElement* iElement, 
+setUserDataElementAndChildren(TEveElement* iElement,
                               void* iInfo)
 {
    iElement->SetUserData(iInfo);
@@ -190,7 +190,7 @@ FW3DLegoDataProxyBuilder::build(TObject** iObject)
       *iObject = hist;
       return;
    }
-   
+
    TEveElementList* list = dynamic_cast<TEveElementList*>(*iObject);
    if ( ! *iObject || list ) build(m_item, &list);
    if ( list ) {
@@ -200,7 +200,7 @@ FW3DLegoDataProxyBuilder::build(TObject** iObject)
    }
 }
 */
-void 
+void
 FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
    if(m_haveViews) {
@@ -214,13 +214,13 @@ FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 
 /*
 static void
-changeElementAndChildren(TEveElement* iElement, 
+changeElementAndChildren(TEveElement* iElement,
                          const FWEventItem::ModelInfo& iInfo)
 {
    iElement->SetMainColor(iInfo.displayProperties().color());
    //for now, if selected make the item white
    if(iInfo.isSelected() xor iElement->GetSelectedLevel()==1) {
-      if(iInfo.isSelected()) {         
+      if(iInfo.isSelected()) {
          gEve->GetSelection()->AddElement(iElement);
       } else {
          gEve->GetSelection()->RemoveElement(iElement);
@@ -234,7 +234,7 @@ changeElementAndChildren(TEveElement* iElement,
       changeElementAndChildren(*itElement, iInfo);
    }
 }
-void 
+void
 FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
                                     TEveElement* iElements )
 {
@@ -246,11 +246,11 @@ FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
        it != itEnd;
        ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());         
+      assert(itElement != iElements->EndChildren());
       while(index < it->index()) {
          ++itElement;
          ++index;
-         assert(itElement != iElements->EndChildren());         
+         assert(itElement != iElements->EndChildren());
       }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);

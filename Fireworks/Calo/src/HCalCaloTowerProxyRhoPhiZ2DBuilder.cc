@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     HCalCaloTowerProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/07/01 19:16:43 chrjones Exp $
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/11/04 20:29:24 amraktad Exp $
 //
 
 // system include files
@@ -55,14 +55,14 @@ HCalCaloTowerProxyRhoPhiZ2DBuilder::~HCalCaloTowerProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
    ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoPhi", m_caloRhoPhi, false);
 }
 
-void 
+void
 HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {

@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     L1MetProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class L1MetProxyRhoPhiZ2DBuilder L1MetProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/L1MetProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: L1MetProxyRhoPhiZ2DBuilder.h,v 1.1 2008/06/24 07:42:16 dmytro Exp $
+// $Id: L1MetProxyRhoPhiZ2DBuilder.h,v 1.1 2008/07/16 13:50:59 dmytro Exp $
 //
 
 // system include files
@@ -40,16 +40,16 @@ class L1MetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   
+
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
-   
+
       L1MetProxyRhoPhiZ2DBuilder(const L1MetProxyRhoPhiZ2DBuilder&); // stop default
 
       const L1MetProxyRhoPhiZ2DBuilder& operator=(const L1MetProxyRhoPhiZ2DBuilder&); // stop default

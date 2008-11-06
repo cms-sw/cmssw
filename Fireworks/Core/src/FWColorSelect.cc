@@ -6,7 +6,7 @@
 		      col: initially selected colour (in Pixel_t)
 		     cols: a vector<Pixel_t> of colour values
 		       id: window ID
-		       
+
     After creation, connect to signal method ColorSelected(Pixel_t) in
     FWColorSelect to receive colour changes.
 */
@@ -32,7 +32,7 @@ FWColorFrame::FWColorFrame(const TGWindow *p, Pixel_t color, Int_t index) :
   fIndex = index;
   Resize(kCFWidth, kCFHeight);
 }
-  
+
 Bool_t FWColorFrame::HandleButton(Event_t *event)
 {
   if (event->fType == kButtonRelease)
@@ -75,12 +75,12 @@ void FWColorRow::DrawHighlight()
   GContext_t gc;
   if (fIsActive) gc = GetShadowGC()();
   else           gc = GetBlackGC()();
-  
+
   Int_t x = fSelectedIndex * (fCc.at(fSelectedIndex)->GetWidth() + kCFPadLeft + kCFPadRight) + kCFPadLeft;
   Int_t y = kCFPadBelow;
   Int_t w = fCc.at(fSelectedIndex)->GetWidth();
   Int_t h = fCc.at(fSelectedIndex)->GetHeight();
-  
+
   gVirtualX->DrawRectangle(fId, gc, x - kHLOffsetX, y - kHLOffsetY, w + kHLExtraWidth, h + kHLExtraHeight);
 }
 
@@ -123,12 +123,12 @@ FWColorPopup::FWColorPopup(const TGWindow *p, Pixel_t color) :
   wattr.fOverrideRedirect = kTRUE;
   gVirtualX->ChangeWindowAttributes(fId, &wattr);
   AddInput(kStructureNotifyMask); // to notify the client for structure (i.e. unmap) changes
-  
+
   fSelectedRow = 0;
   fSelectedIndex = -1;
   fSelectedColor = color;
   fLabel = 0;
-  
+
   fFirstRow = new FWColorRow(this, kFirstRow);
   fSecondRow = new FWColorRow(this, kSecondRow);
   fFirstRow->Connect("ColorChanged(Int_t)", "FWColorPopup", this, "ColorBookkeeping(Int_t)");
@@ -161,16 +161,16 @@ void FWColorPopup::InitContent(TGString *name, std::vector<Pixel_t> colors)
   fLabel = new TGLabel(this, name);
   fLabel->SetBackgroundColor(GetBackground());
   SetColors(colors);
-  
+
   AddFrame(fLabel, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, kCROffsetX, kCROffsetY, kCRPadAbove + 1, kCRPadBelow - 1));
   AddFrame(fFirstRow, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, kCROffsetX, kCROffsetY, kCRPadAbove, kCRPadBelow));
   AddFrame(fSecondRow, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY, kCROffsetX, kCROffsetY, kCRPadAbove, 2 * kCRPadBelow));
-  
+
   fFirstRow->MapSubwindows();
   fFirstRow->Resize(fFirstRow->GetDefaultSize());
-  
+
   fSecondRow->MapSubwindows();
-  fSecondRow->Resize(fSecondRow->GetDefaultSize()); 
+  fSecondRow->Resize(fSecondRow->GetDefaultSize());
 }
 
 void FWColorPopup::SetColors(std::vector<Pixel_t> colors)
@@ -216,7 +216,7 @@ void FWColorPopup::PlacePopup(Int_t x, Int_t y, UInt_t w, UInt_t h)
   MapSubwindows();
   Layout();
   MapRaised();
-  
+
   //find out if this is necessary
   gVirtualX->GrabPointer(fId, kButtonPressMask | kButtonReleaseMask | kPointerMotionMask, kNone, kNone);
 
@@ -272,7 +272,7 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
 {
   TGFrame::HandleButton(event);
   if (!IsEnabled()) return kTRUE;
-  
+
   if (event->fCode != kButton1) return kFALSE;
 
   if ((event->fType == kButtonPress) && HasFocus()) WantFocus();

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWParameterizable
-// 
+//
 /**\class FWParameterizable FWParameterizable.h Fireworks/Core/interface/FWParameterizable.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:35:23 EST 2008
-// $Id$
+// $Id: FWParameterizable.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ class FWParameterizable
       const_iterator end() const {
          return m_parameters.end();
       }
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

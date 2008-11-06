@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     ElectronsGlimpseProxyBuilder
-// 
+//
 /**\class ElectronsGlimpseProxyBuilder ElectronsGlimpseProxyBuilder.h Fireworks/Calo/interface/ElectronsGlimpseProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.h,v 1.1.2.1 2008/06/17 17:54:56 srappocc Exp $
+// $Id: ElectronsGlimpseProxyBuilder.h,v 1.1 2008/06/19 06:57:28 dmytro Exp $
 //
 
 // system include files
@@ -34,10 +34,10 @@ class ElectronsGlimpseProxyBuilder : public FWGlimpseDataProxyBuilder
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
-   
+
       // ---------- static member functions --------------------
    private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
 
       ElectronsGlimpseProxyBuilder(const ElectronsGlimpseProxyBuilder&); // stop default

@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     MuonsGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsGlimpseProxyBuilder.cc,v 1.7 2008/07/16 16:09:23 chrjones Exp $
+// $Id: MuonsGlimpseProxyBuilder.cc,v 1.8 2008/11/04 20:29:26 amraktad Exp $
 //
 
 // system include files
@@ -67,14 +67,14 @@ MuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::MuonCollection* muons=0;
    iItem->get(muons);
    if(0==muons) return;
-   
+
    fw::NamedCounter counter("muon");
 
-   for(reco::MuonCollection::const_iterator muon = muons->begin(); 
+   for(reco::MuonCollection::const_iterator muon = muons->begin();
        muon != muons->end(); ++muon, ++counter) {
       char title[1024];
       sprintf(title,"Muon %d, Pt: %0.1f GeV",counter.index(),muon->pt());

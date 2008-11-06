@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListModelEditor
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:28 EST 2008
-// $Id: FWListModelEditor.cc,v 1.3 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWListModelEditor.cc,v 1.4 2008/06/30 21:38:01 chrjones Exp $
 //
 
 // system include files
@@ -65,14 +65,14 @@ FWListModelEditor::~FWListModelEditor()
 //
 // member functions
 //
-void 
+void
 FWListModelEditor::SetModel(TObject* obj)
 {
    m_model = dynamic_cast<FWListModel*>(obj);
    m_showDetailViewButton->SetEnabled(m_model->hasDetailView());
 }
 
-void 
+void
 FWListModelEditor::openDetailView()
 {
    m_model->openDetailView();

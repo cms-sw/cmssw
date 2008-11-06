@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWConfigurationManager
-// 
+//
 /**\class FWConfigurationManager FWConfigurationManager.h Fireworks/Core/interface/FWConfigurationManager.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:38:41 EST 2008
-// $Id: FWConfigurationManager.h,v 1.1 2008/02/25 21:32:24 chrjones Exp $
+// $Id: FWConfigurationManager.h,v 1.2 2008/02/27 00:52:26 chrjones Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class FWConfigurationManager
       // ---------- const member functions ---------------------
       void setFrom(const FWConfiguration&) const;
       void to(FWConfiguration&) const;
-   
+
       void writeToFile(const std::string&) const;
       void readFromFile(const std::string&) const;
       // ---------- static member functions --------------------
@@ -47,7 +47,7 @@ class FWConfigurationManager
       // ---------- member functions ---------------------------
       ///does not take ownership
       void add(const std::string& iName, FWConfigurable*);
-   
+
    private:
       FWConfigurationManager(const FWConfigurationManager&); // stop default
 

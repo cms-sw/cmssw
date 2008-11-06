@@ -2,13 +2,13 @@
 //
 // Package:     Electron
 // Class  :     ElectronsGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.7 2008/07/16 16:09:24 chrjones Exp $
+// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.8 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -67,14 +67,14 @@ ElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::GsfElectronCollection* electrons=0;
    iItem->get(electrons);
    if(0==electrons) return;
-   
+
    fw::NamedCounter counter("electron");
 
-   for(reco::GsfElectronCollection::const_iterator electron = electrons->begin(); 
+   for(reco::GsfElectronCollection::const_iterator electron = electrons->begin();
        electron != electrons->end(); ++electron, ++counter) {
       char title[1024];
       snprintf(title,1024,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());

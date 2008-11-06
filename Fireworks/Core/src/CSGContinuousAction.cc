@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CSGContinuousAction
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:21:18 EDT 2008
-// $Id: CSGContinuousAction.cc,v 1.1 2008/07/30 15:41:24 chrjones Exp $
+// $Id: CSGContinuousAction.cc,v 1.2 2008/11/05 09:11:12 chrjones Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ m_isRunning(false)
 //
 // member functions
 //
-void 
+void
 CSGContinuousAction::createToolBarEntry(TGToolBar *iToolbar, const char *iImageFileName, const char* iRunningImageFileName)
 {
    m_imageFileName=iImageFileName;
@@ -74,7 +74,7 @@ CSGContinuousAction::createToolBarEntry(TGToolBar *iToolbar, const char *iImageF
    CSGAction::createToolBarEntry(iToolbar,iImageFileName);
 }
 
-void 
+void
 CSGContinuousAction::createCustomIconsButton(TGCompositeFrame* p,
                                              const TGPicture* upPic,
                                              const TGPicture* downPic,
@@ -91,11 +91,11 @@ CSGContinuousAction::createCustomIconsButton(TGCompositeFrame* p,
    m_disabledPic=disabledPic;
    m_runningUpPic=upRunningPic;
    m_runningDownPic=downRunningPic;
-   m_button = 
+   m_button =
    CSGAction::createCustomIconsButton(p,upPic,downPic,disabledPic,l,id,norm,option);
 }
 
-void 
+void
 CSGContinuousAction::switchMode()
 {
    if(!m_isRunning) {
@@ -116,7 +116,7 @@ CSGContinuousAction::switchMode()
    }
 }
 
-void 
+void
 CSGContinuousAction::stop()
 {
    m_isRunning=false;
@@ -129,16 +129,16 @@ CSGContinuousAction::stop()
 
       m_button->swapIcons(tUp,tDown,m_disabledPic);
    }
-}   
+}
 
 
-void 
+void
 CSGContinuousAction::globalEnable()
 {
    CSGAction::globalEnable();
 }
 
-void 
+void
 CSGContinuousAction::globalDisable()
 {
    if(!m_isRunning) {

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRPZDataProxyBuilder
-// 
+//
 /**\class FWRPZDataProxyBuilder FWRPZDataProxyBuilder.h Fireworks/Core/interface/FWRPZDataProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.12 2008/07/01 04:43:54 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.13 2008/07/09 20:03:43 chrjones Exp $
 //
 
 // system include files
@@ -44,14 +44,14 @@ class FWRPZDataProxyBuilder : public FWRPZDataProxyBuilderBase
 
       // ---------- const member functions ---------------------
       bool highPriority() const { return m_priority; }
-	
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void build();
 
       void setHighPriority( bool priority ){ m_priority = priority; }
-   
+
    protected:
       static TEveCalo3D* m_calo3d;
 
@@ -59,14 +59,14 @@ class FWRPZDataProxyBuilder : public FWRPZDataProxyBuilderBase
    virtual void itemBeingDestroyedImp(const FWEventItem*);
    virtual void modelChangesImp(const FWModelIds&);
 private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product) = 0 ;
 
 
       //abstract functions from the base class
       virtual TEveElementList* getRhoPhiProduct() const;
       virtual TEveElementList* getRhoZProduct() const;
-   
+
       FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder&); // stop default
 
       const FWRPZDataProxyBuilder& operator=(const FWRPZDataProxyBuilder&); // stop default
@@ -74,7 +74,7 @@ private:
       // ---------- member data --------------------------------
       bool m_priority;
       mutable TEveElementList* m_elements;
-   
+
       mutable bool m_needsUpdate;
 };
 

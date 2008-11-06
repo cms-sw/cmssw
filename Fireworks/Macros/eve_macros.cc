@@ -107,8 +107,8 @@ TGeoMatrix * get_transform( const TEveElement * element ) {
       TEveGeoNode * nc_node = const_cast<TEveGeoNode *>( node );
       if (nc_node->BeginParents() == nc_node->EndParents())
         return 0;
-     
-      // assume the firt parent is the good one, and check that the parent type is correct 
+
+      // assume the firt parent is the good one, and check that the parent type is correct
       node = dynamic_cast<const TEveGeoNode *>( * nc_node->BeginParents() );
       if (node == 0)
         return 0;
@@ -151,7 +151,7 @@ TEveGeoShape * clone( const TEveElement * element, TEveElement * parent /* = 0 *
 }
 
 // set an element's color and alpha, and possibly its children's up to levels levels deep
-void set_color( TEveElement * element, Color_t color, float alpha /* = 1.0 */, unsigned int levels /* = 0 */) 
+void set_color( TEveElement * element, Color_t color, float alpha /* = 1.0 */, unsigned int levels /* = 0 */)
 {
   if (not element)
     return;
@@ -235,13 +235,13 @@ void set_tracker_endcap_visibility( TEveElement * tracker, bool visibility )
 }
 
 // show Tracker's Endcaps
-void show_tracker_endcap( TEveElement * tracker ) 
+void show_tracker_endcap( TEveElement * tracker )
 {
   set_tracker_endcap_visibility( tracker, true );
 }
 
 // hide Tracker's Endcaps
-void hide_tracker_endcap( TEveElement * tracker ) 
+void hide_tracker_endcap( TEveElement * tracker )
 {
   set_tracker_endcap_visibility( tracker, false );
 }

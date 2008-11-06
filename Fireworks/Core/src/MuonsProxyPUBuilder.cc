@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     MuonsProxyPUBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyPUBuilder.cc,v 1.5 2008/11/03 11:50:02 amraktad Exp $
+// $Id: MuonsProxyPUBuilder.cc,v 1.6 2008/11/04 11:46:34 amraktad Exp $
 //
 
 // system include files
@@ -80,7 +80,7 @@ MuonsProxyPUBuilder::~MuonsProxyPUBuilder()
 //
 // member functions
 //
-void MuonsProxyPUBuilder::build (TEveElementList **product) 
+void MuonsProxyPUBuilder::build (TEveElementList **product)
 {
   /* Here we have the code imported from the Electron variant
    * Differences in implementation for proxy building
@@ -88,8 +88,8 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
    * Electrons implement both clusters and superclusters.  For muons, we want
    * something simpler in the ECAL: just the crystals hit.
    *
-   * For muons, we also don't need to focus so much on the ECAL/tracker border, but 
-   * also want to look into the muon system.  This means drawing in the hit segments 
+   * For muons, we also don't need to focus so much on the ECAL/tracker border, but
+   * also want to look into the muon system.  This means drawing in the hit segments
    * in the muon system and the hits in the tracking system.
    *
    * Johannes is working on an external function for drawing muons instead of electrons,
@@ -121,7 +121,7 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
   m_item->get(muons);
   // printf("got electrons\n");
   if (muons == 0) return;
-   
+
   const fwlite::Event *ev = m_item->getEvent();
   fwlite::Handle<EcalRecHitCollection> e_hits;
   fwlite::Handle<CaloTowerCollection> towers;
@@ -139,12 +139,12 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     {
       std::cout <<"Well fuck you very much, say the Cal Towers..." << std::endl;
     }
-  
+
   try {
     e_hits.getByLabel(*ev, "EcalRecHit", "EcalRecHitsEB");
     ehits = e_hits.ptr();
   }
-  catch (...) 
+  catch (...)
     {
       std::cout <<"no ehits are ECAL rechits are available, show only crystal location" << std::endl;
     }
@@ -152,13 +152,13 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     t_hits.getByLabel(*ev, "trackingRecHit");
     thits = t_hits.ptr();
   }
-  catch (...) 
+  catch (...)
     {
       std::cout <<"no thits are tracker rechits are available, show only crystal location" << std::endl;
     }
 
   /* Here's where we begin to diverge significantly from the electron things.
-   * For the electrons, we have a single TEveTrackPropagator, while for the 
+   * For the electrons, we have a single TEveTrackPropagator, while for the
    * muons we have 3.  So we're yoinking from MuonsProxy3DBuilder what we need
    */
 
@@ -185,10 +185,10 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
   int index=0;
   TEveRecTrack innerRecTrack;
   TEveRecTrack outerRecTrack;
-  
+
   //      t.fBeta = 1.;
-  //  printf("We have %d muons\n",muons->size()); 
-  
+  //  printf("We have %d muons\n",muons->size());
+
 
   for(reco::MuonCollection::const_iterator muon = muons->begin();
       muon != muons->end(); ++muon, ++index) {
@@ -201,7 +201,7 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     gEve->AddElement( muonList, tList );
 
     // These are the for the Eve side of things
-    
+
     innerRecTrack.fP = TEveVector( muon->p4().px(), muon->p4().py(), muon->p4().pz() );
     innerRecTrack.fV = TEveVector( muon->vertex().x(), muon->vertex().y(), muon->vertex().z() );
     innerRecTrack.fSign = muon->charge();
@@ -214,13 +214,13 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     catch(...) {
       std::cout << "outerPosition of trackRef unavailable, using final muon position instead" << std::endl;
     }
-    
+
     TEveTrack* innerTrack = 0;
     if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) >= 2 )
       innerTrack = new TEveTrack( &innerRecTrack, innerPropagator );
     else
       innerTrack = new TEveTrack( &innerRecTrack, innerShortPropagator );
-    
+
     innerTrack->SetMainColor( m_item->defaultDisplayProperties().color() );
     // For this display, we want to see only the "muons" that make it to the chambers
     if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) < 2 ) continue;
@@ -228,13 +228,13 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     muonList->AddElement(innerTrack);
 
     // get last two points of the innerTrack trajectory
-    // NOTE: if RECO is available we can use the stand alone muon track 
+    // NOTE: if RECO is available we can use the stand alone muon track
     //       inner most state as a starting point for the outter track
-    
+
     Double_t vx2, vy2, vz2, vx1, vy1, vz1;
     innerTrack->GetPoint( innerTrack->GetLastPoint(),   vx2, vy2, vz2);
     innerTrack->GetPoint( innerTrack->GetLastPoint()-1, vx1, vy1, vz1);
-    
+
     // So we now have the tracks, let's get the ECAL crystals of the hit
 
     Int_t nEtaEcal = 3;
@@ -242,21 +242,21 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     // Int_t nEtaHcal = 2;
     // Int_t nPhiHcal = 2;
 
-    // This is the original from the ElectronsProxySCBuilder.  Mine will be based on 
-    // the trackref. 
+    // This is the original from the ElectronsProxySCBuilder.  Mine will be based on
+    // the trackref.
 
-    tList->AddElement(fw::getEcalCrystals(ehits, *m_item->getGeom(), 
-					  (*muon).eta(), (*muon).phi(), 
+    tList->AddElement(fw::getEcalCrystals(ehits, *m_item->getGeom(),
+					  (*muon).eta(), (*muon).phi(),
 					  nEtaEcal, nPhiEcal));
 
 
-    /* Now this is what I WAS going to do for the HCAL, but I think a better idea is to 
+    /* Now this is what I WAS going to do for the HCAL, but I think a better idea is to
        try and get the HCAL towers directly and use that.
 
        The plan has changed.  Don't have HCAL RecHits.  So now what?
-       
-       Now the answer is this: we take the muon's position at the outside of tracker, 
-       and draw the CAL towers around that location.  We do have the XYZ coordinate of that 
+
+       Now the answer is this: we take the muon's position at the outside of tracker,
+       and draw the CAL towers around that location.  We do have the XYZ coordinate of that
        from Track.h, if that's included in the .root file input.
 
        Well then, we have muon eta phi and we can go ahead and grab the towers near that.
@@ -273,15 +273,15 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     std::cout << "Energy in the hcal: " << (*muon).calEnergy().had << std::endl;
     std::cout << "Energy in the outer hcal: " << (*muon).calEnergy().ho << std::endl;
 
-    /* This isn't quite ready yet.  According to Dima, there's a better way to do things that 
+    /* This isn't quite ready yet.  According to Dima, there's a better way to do things that
        might necessitate a thorough rewrite of both this, and what is called here:
 
-       tList->AddElement(fw::getHcalTowers(hhits, *m_item->getGeom(), 
+       tList->AddElement(fw::getHcalTowers(hhits, *m_item->getGeom(),
        (*muon).eta(), (*muon).phi(),
        nEtaHcal, nPhiHcal));
     */
     TEveTrack* outerTrack = 0;
-    
+
     // second track only for barrel for now
     if ( fabs(vz2) < 650 ) {
       outerRecTrack.fV = TEveVector(vx2,vy2,vz2);
@@ -298,7 +298,7 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
       //  << " sign " << outerRecTrack.fSign << std::endl;
       muonList->AddElement( outerTrack );
     }
-    
+
     // add muon segments
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
     Double_t localTrajectoryPoint[3];
@@ -313,7 +313,7 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
 	localTrajectoryPoint[0] = chamber->x;
 	localTrajectoryPoint[1] = chamber->y;
 	localTrajectoryPoint[2] = 0;
-	
+
 	   DetId id = chamber->id;
 	   const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
 	   TEveGeoShape* shape = m_item->getGeom()->getShape( chamber->id.rawId() );
@@ -322,11 +322,11 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
 	     shape->SetMainColor(m_item->defaultDisplayProperties().color());
 	     muonList->AddElement(shape);
 	   }
-	   
+
 	   if ( matrix ) {
 	     // make muon segment 20 cm long along local z-axis
 	     matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
-	     
+
 	     // add path marks to force outer propagator to follow the expected
 	     // track position
 	     if ( outerTrack ) {
@@ -335,10 +335,10 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
 	       mark.fV = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
 	       outerTrack->AddPathMark( mark );
 	     }
-	     
-	     // std::cout << "\t " << " vx " << globalTrajectoryPoint[0] << " vy " << globalTrajectoryPoint[1] << 
+
+	     // std::cout << "\t " << " vx " << globalTrajectoryPoint[0] << " vy " << globalTrajectoryPoint[1] <<
 	     //  " vz " << globalTrajectoryPoint[2] <<  std::endl;
-	     
+
 	     // add segments
 	     for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
 		   segment != chamber->segmentMatches.end(); ++segment )
@@ -349,23 +349,23 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
 		 Double_t globalSegmentOuterPoint[3];
 		 localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
 		 localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
-		 
+
 		 localSegmentOuterPoint[2] = 10;
 		 localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
 		 localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
-		 
+
 		 localSegmentInnerPoint[2] = -10;
 		 matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
 		 matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-		 
-		 segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2], 
+
+		 segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
 				     globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
 	       }
 	   }
       }
     if ( ! matches.empty() ) muonList->AddElement( segmentSet.release() );
     if (outerTrack) outerTrack->MakeTrack();
-    
-    
+
+
   }
 }

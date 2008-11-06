@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseView
-// 
+//
 /**\class FWGlimpseView FWGlimpseView.h Fireworks/Core/interface/FWGlimpseView.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.6 2008/09/22 19:20:58 amraktad Exp $
+// $Id: FWGlimpseView.h,v 1.7 2008/11/04 11:46:33 amraktad Exp $
 //
 
 // system include files
@@ -56,15 +56,15 @@ class FWGlimpseView : public FWViewBase
 
       // ---------- static member functions --------------------
       static const std::string& staticTypeName();
-   
+
       // ---------- member functions ---------------------------
       virtual void setFrom(const FWConfiguration&);
-   
+
    private:
       FWGlimpseView(const FWGlimpseView&); // stop default
 
       const FWGlimpseView& operator=(const FWGlimpseView&); // stop default
-   
+
       void updateScale( double scale );
       void showAxes( );
       void showCylinder( );
@@ -75,7 +75,7 @@ class FWGlimpseView : public FWViewBase
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveScene* m_scene;
       TEveGeoShape*  m_cylinder;
-      
+
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
       Double_t*  m_cameraFOV;

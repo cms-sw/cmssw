@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWItemTVirtualCollectionProxyAccessor
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id$
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.1 2008/10/21 19:08:23 chrjones Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor()
 //
 // member functions
 //
-void 
+void
 FWItemTVirtualCollectionProxyAccessor::setWrapper(const ROOT::Reflex::Object& iWrapper)
 {
    if(0!=iWrapper.Address()) {
@@ -82,32 +82,32 @@ FWItemTVirtualCollectionProxyAccessor::setWrapper(const ROOT::Reflex::Object& iW
    }
 }
 
-void 
+void
 FWItemTVirtualCollectionProxyAccessor::reset()
 {
    m_data=0;
    if(m_colProxy.get()) {
       m_colProxy->PopProxy();
-   }   
+   }
 }
 
 //
 // const member functions
 //
-const void* 
+const void*
 FWItemTVirtualCollectionProxyAccessor::modelData(int iIndex) const
 {
    if ( 0 == m_data) { return m_data; }
    return m_colProxy->At(iIndex);
 }
 
-const void* 
+const void*
 FWItemTVirtualCollectionProxyAccessor::data() const
 {
    return m_data;
 }
 
-unsigned int 
+unsigned int
 FWItemTVirtualCollectionProxyAccessor::size() const
 {
    if(m_data==0) {
@@ -116,19 +116,19 @@ FWItemTVirtualCollectionProxyAccessor::size() const
    return m_colProxy->Size();
 }
 
-const TClass* 
+const TClass*
 FWItemTVirtualCollectionProxyAccessor::modelType() const
 {
    return m_colProxy->GetValueClass();
 }
 
-const TClass* 
+const TClass*
 FWItemTVirtualCollectionProxyAccessor::type() const
 {
    return m_type;
 }
 
-bool 
+bool
 FWItemTVirtualCollectionProxyAccessor::isCollection() const
 {
    return true;

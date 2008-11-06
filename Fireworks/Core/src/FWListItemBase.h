@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListItemBase
-// 
+//
 /**\class FWListItemBase FWListItemBase.h Fireworks/Core/interface/FWListItemBase.h
 
  Description: Base class for items to be shown in the list tree
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 11 14:35:33 CDT 2008
-// $Id$
+// $Id: FWListItemBase.h,v 1.1 2008/03/11 23:15:55 chrjones Exp $
 //
 
 // system include files

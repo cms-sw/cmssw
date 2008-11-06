@@ -45,8 +45,8 @@ std::vector<std::string> JetTableManager::GetTitles(int col)
      return ret;
 }
 
-void JetTableManager::FillCells(int rowStart, int colStart, 
-				     int rowEnd, int colEnd, 
+void JetTableManager::FillCells(int rowStart, int colStart,
+				     int rowEnd, int colEnd,
 				     std::vector<std::string> &ret)
 {
      ret.clear();
@@ -55,11 +55,11 @@ void JetTableManager::FillCells(int rowStart, int colStart,
 	  if (i < NumberOfRows()) {
 	       const std::vector<std::string> &row = rows[i].str();
 	       if ((unsigned int)colEnd > row.size()) {
-		    ret.insert(ret.end(), 
+		    ret.insert(ret.end(),
 			       row.begin() + colStart, row.end());
 		    ret.insert(ret.end(), colEnd - row.size(), "");
 	       } else {
-		    ret.insert(ret.end(), 
+		    ret.insert(ret.end(),
 			       row.begin() + colStart, row.begin() + colEnd);
 	       }
 	  } else {

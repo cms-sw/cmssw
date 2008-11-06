@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWConfigurableParameterizable
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Mar 16 12:01:36 EDT 2008
-// $Id$
+// $Id: FWConfigurableParameterizable.cc,v 1.1 2008/03/16 19:57:38 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ FWConfigurableParameterizable::~FWConfigurableParameterizable()
 //
 // member functions
 //
-void 
+void
 FWConfigurableParameterizable::setFrom(const FWConfiguration& iFrom)
 {
    //need a way to handle versioning
@@ -68,13 +68,13 @@ FWConfigurableParameterizable::setFrom(const FWConfiguration& iFrom)
        it != itEnd;
        ++it) {
       (*it)->setFrom(iFrom);
-   }   
+   }
 }
 
 //
 // const member functions
 //
-void 
+void
 FWConfigurableParameterizable::addTo(FWConfiguration& oTo) const
 {
    for(const_iterator it =begin(), itEnd = end();

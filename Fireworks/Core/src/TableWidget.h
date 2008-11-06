@@ -5,7 +5,7 @@
 // TableWidget, a la Excel.
 // Copyright 2008 Cornell University, Ithaca, NY 14853. All rights reserved.
 // Author: Valentin Kuznetsov 07/05/2008 (dd/mm/yyyy)
- 
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -27,8 +27,8 @@
 #include <TGScrollBar.h>
 
 #include <TGTableLayout.h>
-#include <RQ_OBJECT.h> 
- 
+#include <RQ_OBJECT.h>
+
 
 class TableManager;
 //enum TableWidgetSortOrder {
@@ -36,18 +36,18 @@ class TableManager;
 //      m_desc= 1
 //};
 
-class TableWidget { 
-   RQ_OBJECT("TableWidget") 
+class TableWidget {
+   RQ_OBJECT("TableWidget")
 
-   public: 
+   public:
       TableWidget(TGCompositeFrame *p, TableManager* tm);
-      virtual ~TableWidget(); 
+      virtual ~TableWidget();
       void Init(int tabRows=5,     // number of shown rows
                 int tabCols=19,     // number of shown cols
                 int iRow=0,        // first shown row
                 int iCol=0,        // first shown column
-                int cellWidth=60, 
-                int cellHeight=25, 
+                int cellWidth=60,
+                int cellHeight=25,
                 int scrollWidth=18,
                 int scrollHeight=25);
      void Reinit (int tabRows = 5);
@@ -77,7 +77,7 @@ class TableWidget {
 //      TableWidget(const TableWidget& rhs); // stop default
 //      const TableWidget& operator=( const TableWidget& ); // stop default
 
-      TGCompositeFrame  *m_mainFrame; 
+      TGCompositeFrame  *m_mainFrame;
       TableManager      *m_tm;
 
       TGCompositeFrame  *m_tFrame, *m_hFrame;
@@ -118,6 +118,6 @@ class TableWidget {
 
       // colors
       Pixel_t m_titleColor,m_highlightTitleColor,m_highlightColor,m_cellColor,m_selectColor,m_textBlackColor,m_textWhiteColor;
-};             
+};
 
 #endif

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowMainFrame
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.19 2008/08/29 02:33:04 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.20 2008/11/05 09:29:24 chrjones Exp $
 //
 
 // system include files
@@ -56,11 +56,11 @@
 //
 // constructors and destructor
 //
-CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIManager *m) : 
+CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIManager *m) :
 TGMainFrame(p, w, h)
 {
    Connect("CloseWindow()","CmsShowMainFrame",this,"quit()");
-   
+
    m_manager = m;
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
@@ -97,7 +97,7 @@ TGMainFrame(p, w, h)
    addToActionMap(eventFilter);
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
-   m_goToFirst = goToFirst; 
+   m_goToFirst = goToFirst;
    m_playEvents = playEvents;
    m_playEventsBack = playEventsBack;
 
@@ -106,7 +106,7 @@ TGMainFrame(p, w, h)
    nextEvent->setToolTip("Goto next event");
    playEvents->setToolTip("Play events");
    playEventsBack->setToolTip("Play events backwards");
-   
+
    TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 12);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
@@ -115,16 +115,16 @@ TGMainFrame(p, w, h)
 
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
-   
+
    openData->createMenuEntry(fileMenu);
-   loadConfig->createMenuEntry(fileMenu); 
+   loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
-   
+
    exportImage->createMenuEntry(fileMenu);
    fileMenu->AddSeparator();
-   
+
    quit->createMenuEntry(fileMenu);
 
    openData->createShortcut(kKey_O, "CTRL");
@@ -133,14 +133,14 @@ TGMainFrame(p, w, h)
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT");
    exportImage->createShortcut(kKey_P, "CTRL");
    quit->createShortcut(kKey_Q, "CTRL");
-   
+
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    undo->createMenuEntry(editMenu);
    undo->createShortcut(kKey_Z, "CTRL");
    redo->createMenuEntry(editMenu);
    redo->createShortcut(kKey_Z, "CTRL+SHIFT");
-   editMenu->AddSeparator();   
+   editMenu->AddSeparator();
 
    cut->createMenuEntry(editMenu);
    cut->createShortcut(kKey_X, "CTRL");
@@ -148,7 +148,7 @@ TGMainFrame(p, w, h)
    copy->createShortcut(kKey_C, "CTRL");
    paste->createMenuEntry(editMenu);
    paste->createShortcut(kKey_V, "CTRL");
-      
+
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    nextEvent->createMenuEntry(viewMenu);
@@ -163,13 +163,13 @@ TGMainFrame(p, w, h)
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   
+
    showObjInsp->createMenuEntry(windowMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL");
    showEventDisplayInsp->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
    showAddCollection->createMenuEntry(windowMenu);
-   
+
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    help->createMenuEntry(helpMenu);
@@ -204,7 +204,7 @@ TGMainFrame(p, w, h)
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
    MapSubwindows();
    Layout();
-   MapWindow();   
+   MapWindow();
    //printf("this->GetWidth(): %d\n", this->GetWidth());
    /*TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
    tools->SetBackgroundColor(kBlack);*/
@@ -235,19 +235,19 @@ TGMainFrame(p, w, h)
                                        fClient->GetPicture(coreIcondir+"button-pause.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause-over.png"),
                                        new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-   
+
    fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
    // TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
    TGVerticalFrame *texts   = new TGVerticalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60,0,kBackgroundColor);
-   
+
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsExpandX,20,2,2,2));
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
-   
+
    TGHorizontalFrame *runInfo   = new TGHorizontalFrame(texts, fullbar->GetWidth() - tools->GetWidth(), 30, 0, kBackgroundColor);
    texts->AddFrame(runInfo, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,0,0,0,0));
    TGHorizontalFrame *evtFilter = new TGHorizontalFrame(texts, fullbar->GetWidth() - tools->GetWidth(), 30, 0, kBackgroundColor);
    texts->AddFrame(evtFilter, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,0,0,0,0));
-   
+
    //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
    TGLabel *runText = new TGLabel(runInfo, "Run");
    UInt_t maxWidth = runText->GetWidth();
@@ -273,19 +273,19 @@ TGMainFrame(p, w, h)
    m_timeText->SetBackgroundColor(kBackgroundColor);
    m_timeText->SetTextColor(kTextColor);
    runInfo->AddFrame(m_timeText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,5,0,0,0));
-   
+
    filterText->SetBackgroundColor(kBackgroundColor);
    filterText->SetTextColor(kTextColor);
    evtFilter->AddFrame(filterText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,maxWidth-filterText->GetWidth(),0,0,0));
    eventFilter->createTextEntry(evtFilter, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,0,0,0,0));
-   
+
    //Start disabled
    goToFirst->disable();
    previousEvent->disable();
    nextEvent->disable();
    playEvents->disable();
    playEventsBack->disable();
-   
+
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
    csArea->VSplit(200);
    csArea->GetFirst()->AddFrame(m_manager->createList(csArea->GetFirst()), new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
@@ -300,7 +300,7 @@ TGMainFrame(p, w, h)
    //   printf("Main frame size: %d, %d\n", this->GetWidth(), this->GetHeight());
    //   Resize(this->GetDefaultSize());
    Layout();
-   MapWindow();   
+   MapWindow();
 }
 
 // CmsShowMainFrame::CmsShowMainFrame(const CmsShowMainFrame& rhs)
@@ -332,7 +332,7 @@ void CmsShowMainFrame::addToActionMap(CSGAction *action) {
    m_actionList.push_back(action);
 }
 
-CSGAction* 
+CSGAction*
 CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
 {
    CSGAction* action(new CSGAction(this, iActionName.c_str()));
@@ -377,7 +377,7 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   // loadEvent gets called before the special cases [at beginning, at end, etc]
   // so we can enable all our event controls here
   m_nextEvent->enable();
-  m_previousEvent->enable(); 
+  m_previousEvent->enable();
   m_goToFirst->enable();
   m_playEvents->enable();
   m_playEventsBack->enable();
@@ -402,10 +402,10 @@ CmsShowMainFrame::getAction(const std::string& name)
 void
 CmsShowMainFrame::enableActions(bool enable)
 {
-   
+
   std::vector<CSGAction*>::iterator it_act;
   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-    if (enable) 
+    if (enable)
       (*it_act)->globalEnable();
     else
       (*it_act)->globalDisable();
@@ -417,7 +417,7 @@ CmsShowMainFrame::enableActions(bool enable)
   else {
     m_runEntry->disable();
     m_eventEntry->disable();
-  }    
+  }
 }
 
 void
@@ -443,7 +443,7 @@ CmsShowMainFrame::enablePrevious(bool enable)
 
 void
 CmsShowMainFrame::enableNext(bool enable)
-{ 
+{
   if (m_nextEvent != 0) {
      if (enable) {
         m_nextEvent->enable();
@@ -502,7 +502,7 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
       for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
          keycode = (*it_act)->getKeycode();
          modcode = (*it_act)->getModcode();
-         if ((event->fCode == (UInt_t)keycode) && 
+         if ((event->fCode == (UInt_t)keycode) &&
              ((event->fState == (UInt_t)modcode) ||
               (event->fState == (UInt_t)(modcode | kKeyMod2Mask)) ||
               (event->fState == (UInt_t)(modcode | kKeyLockMask)) ||
@@ -528,12 +528,12 @@ const std::vector<CSGAction *>& CmsShowMainFrame::getListOfActions() const {
    return m_actionList;
 }
 
-CSGAction* 
+CSGAction*
 CmsShowMainFrame::getRunEntry() const {
   return m_runEntry;
 }
 
-CSGAction* 
+CSGAction*
 CmsShowMainFrame::getEventEntry() const {
   return m_eventEntry;
 }

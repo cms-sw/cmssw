@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TracksProxy3DBuilder
-// 
+//
 /**\class TracksProxy3DBuilder TracksProxy3DBuilder.h Fireworks/Core/interface/TracksProxy3DBuilder.h
 
  Description: <one line class summary>
@@ -12,9 +12,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.18 2008/09/26 21:45:44 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.19 2008/09/26 22:00:32 dmytro Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@
 void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
-   
+
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"trackerMuons",true);
       *product = tList;
@@ -52,9 +52,9 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
 
     const reco::TrackCollection* tracks=0;
     iItem->get(tracks);
-    
+
     if(0 == tracks ) return;
-    
+
     TEveTrackPropagator* propagator = new TEveTrackPropagator();
 
    // if auto field estimation mode, do extra loop over the tracks.
@@ -86,18 +86,18 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
        boost::shared_ptr<TEveCompound> sentry(trkList,boost::mem_fn(&TEveCompound::CloseCompound));
        trkList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
        trkList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
-       
+
        TEveTrack* trk = prepareTrack( *it, propagator, trkList, iItem->defaultDisplayProperties().color() );
        trk->MakeTrack();
        trkList->AddElement( trk );
-       
+
        gEve->AddElement(trkList,tList);
       // printf("track pt: %.1f, eta: %0.1f => B: %0.2f T\n", it->pt(), it->eta(), fw::estimate_field(*it));
     }
 }
 
 TEveTrack*
-TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track, 
+TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track,
 						    TEveTrackPropagator* propagator,
 						    TEveElement* trackList,
 						    Color_t color)
@@ -113,63 +113,63 @@ TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track,
 }
 
 TEveTrack*
-TracksProxy3DBuilder::prepareTrack(const reco::Track& track, 
+TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 				      TEveTrackPropagator* propagator,
 				      TEveElement* trackList,
 				      Color_t color)
 {
-   // To make use of all available information, we have to order states 
+   // To make use of all available information, we have to order states
    // properly first. Propagator should take care of y=0 transition.
-   
+
    if ( ! track.extra().isAvailable() )
      return prepareSimpleTrack(track,propagator,trackList,color);
-   
+
    // we have 3 states for sure, bust some of them may overlap.
-   // POCA can be either initial point of trajector if we deal 
-   // with normal track or just one more state. So we need first 
+   // POCA can be either initial point of trajector if we deal
+   // with normal track or just one more state. So we need first
    // to decide where is the origin of the track.
-   
+
    bool outsideIn = ( track.innerPosition().x()*track.innerMomentum().x()+
 		      track.innerPosition().y()*track.outerMomentum().y() < 0 );
-   
+
    TEveRecTrack t;
    t.fBeta = 1.;
    t.fSign = track.charge();
 
    if ( outsideIn ) {
-      t.fV = TEveVector( track.innerPosition().x(), 
-			 track.innerPosition().y(), 
+      t.fV = TEveVector( track.innerPosition().x(),
+			 track.innerPosition().y(),
 			 track.innerPosition().z() );
-      t.fP = TEveVector( track.innerMomentum().x(), 
-			 track.innerMomentum().y(), 
+      t.fP = TEveVector( track.innerMomentum().x(),
+			 track.innerMomentum().y(),
 			 track.innerMomentum().z() );
    } else {
-      t.fV = TEveVector( track.vertex().x(), 
-			 track.vertex().y(), 
+      t.fV = TEveVector( track.vertex().x(),
+			 track.vertex().y(),
 			 track.vertex().z() );
-      t.fP = TEveVector( track.px(), 
-			 track.py(), 
+      t.fP = TEveVector( track.px(),
+			 track.py(),
 			 track.pz() );
    }
-   
+
    TEveTrack* trk = new TEveTrack(&t,propagator);
-   if ( outsideIn ) 
+   if ( outsideIn )
      trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
    trk->SetMainColor(color);
-   
+
    if ( !outsideIn ) {
       TEvePathMark mark( TEvePathMark::kDaughter );
-      mark.fV = TEveVector( track.innerPosition().x(), 
-			    track.innerPosition().y(), 
+      mark.fV = TEveVector( track.innerPosition().x(),
+			    track.innerPosition().y(),
 			    track.innerPosition().z() );
       trk->AddPathMark( mark );
    }
-   
+
    TEvePathMark mark1( TEvePathMark::kDecay );
-   mark1.fV = TEveVector( track.outerPosition().x(), 
-			  track.outerPosition().y(), 
+   mark1.fV = TEveVector( track.outerPosition().x(),
+			  track.outerPosition().y(),
 			  track.outerPosition().z() );
-   
+
    trk->AddPathMark( mark1 );
    return trk;
 }

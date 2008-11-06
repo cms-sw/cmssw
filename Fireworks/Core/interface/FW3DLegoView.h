@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoView
-// 
+//
 /**\class FW3DLegoView FW3DLegoView.h Fireworks/Core/interface/FW3DLegoView.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DLegoView.h,v 1.3 2008/03/07 09:06:48 dmytro Exp $
+// $Id: FW3DLegoView.h,v 1.4 2008/06/09 18:40:55 chrjones Exp $
 //
 
 // system include files
@@ -42,16 +42,16 @@ class FW3DLegoView : public FWViewBase
       // ---------- const member functions ---------------------
       TGFrame* frame() const;
       const std::string& typeName() const;
-     
+
       // ---------- static member functions --------------------
       static const std::string& staticTypeName();
-   
+
       // ---------- member functions ---------------------------
       void draw(THStack*);
 
       void DynamicCoordinates();
-      void connect(const char* receiver_class, void* receiver, const char* slot);   
-   
+      void connect(const char* receiver_class, void* receiver, const char* slot);
+
       virtual void saveImageTo(const std::string& iName) const;
 
    private:

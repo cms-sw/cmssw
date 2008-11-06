@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWPhysicsObjectDesc
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id: FWPhysicsObjectDesc.cc,v 1.3 2008/03/19 15:18:05 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.cc,v 1.4 2008/06/10 14:19:09 chrjones Exp $
 //
 
 // system include files
@@ -73,18 +73,18 @@ m_filterExpression(iFilterExpression)
 //
 // member functions
 //
-void 
+void
 FWPhysicsObjectDesc::setLabels(const std::string& iModule,
 		       const std::string& iProductInstance,
-		       const std::string& iProcess) 
+		       const std::string& iProcess)
 {
    m_moduleLabel = iModule;
    m_productInstanceLabel = iProductInstance;
    m_processName = iProcess;
 }
 
-void 
-FWPhysicsObjectDesc::setName(const std::string& iName) 
+void
+FWPhysicsObjectDesc::setName(const std::string& iName)
 {
    m_name = iName;
 }
@@ -92,49 +92,49 @@ FWPhysicsObjectDesc::setName(const std::string& iName)
 //
 // const member functions
 //
-const FWDisplayProperties& 
+const FWDisplayProperties&
 FWPhysicsObjectDesc::displayProperties() const
 {
    return m_displayProperties;
 }
 
-const std::string& 
+const std::string&
 FWPhysicsObjectDesc::name() const
 {
    return m_name;
 }
 
-const TClass* 
+const TClass*
 FWPhysicsObjectDesc::type() const
 {
    return m_type;
 }
 
-const std::string& 
+const std::string&
 FWPhysicsObjectDesc::purpose() const
 {
    return m_purpose;
 }
 
-const std::string& 
+const std::string&
 FWPhysicsObjectDesc::moduleLabel() const
 {
    return m_moduleLabel;
 }
-const std::string& 
+const std::string&
 FWPhysicsObjectDesc::productInstanceLabel() const
 {
    return m_productInstanceLabel;
 }
 
-const std::string& 
+const std::string&
 FWPhysicsObjectDesc::processName() const
 {
    return m_processName;
 }
 
 unsigned int
-FWPhysicsObjectDesc::layer() const 
+FWPhysicsObjectDesc::layer() const
 {
    return m_layer;
 }

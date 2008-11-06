@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRPZDataProxyBuilderBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.4 2008/07/15 18:01:21 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.5 2008/08/18 19:57:10 chrjones Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ FWRPZDataProxyBuilderBase::~FWRPZDataProxyBuilderBase()
 //
 // member functions
 //
-void 
+void
 FWRPZDataProxyBuilderBase::setItem(const FWEventItem* iItem)
 {
    m_item = iItem;
@@ -79,28 +79,28 @@ FWRPZDataProxyBuilderBase::setItem(const FWEventItem* iItem)
       m_item->changed_.connect(boost::bind(&FWRPZDataProxyBuilderBase::modelChanges,this,_1));
       m_item->goingToBeDestroyed_.connect(boost::bind(&FWRPZDataProxyBuilderBase::itemBeingDestroyed,this,_1));
       m_layer = m_item->layer();
-   }   
+   }
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::itemChanged(const FWEventItem* iItem)
 {
    //We want all views to get rid of these so we destroy the contents
    m_rhoPhiProjs.DestroyElements();
    m_rhoZProjs.DestroyElements();
-   
+
    itemChangedImp(iItem);
-   
+
    std::for_each(m_rpviews->begin(),m_rpviews->end(),
                  boost::bind(&FWRPZDataProxyBuilderBase::attachToRhoPhiView,
                              this,_1));
    std::for_each(m_rzviews->begin(),m_rzviews->end(),
                  boost::bind(&FWRPZDataProxyBuilderBase::attachToRhoZView,
-                             this,_1));   
+                             this,_1));
    m_modelsChanged=false;
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
@@ -112,8 +112,8 @@ FWRPZDataProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 }
 
 
- 
-void 
+
+void
 FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds,
              TEveElement* iElements )
 {
@@ -131,11 +131,11 @@ FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds,
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
        it != itEnd;
        ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());         
+      assert(itElement != iElements->EndChildren());
       while(index < it->index()) {
          ++itElement;
          ++index;
-         assert(itElement != iElements->EndChildren());         
+         assert(itElement != iElements->EndChildren());
       }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);
@@ -146,7 +146,7 @@ FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds,
 }
 
 
-void 
+void
 FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 {
    if(!m_rpviews->empty() || !m_rzviews->empty()) {
@@ -162,8 +162,8 @@ FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds)
                                 this,
                                 iIds,
                                 _1));
-      
-      
+
+
       modelChangesImp(iIds);
       m_modelsChanged=false;
    } else {
@@ -171,7 +171,7 @@ FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds)
    }
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::setViews(
               std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoPhoViews,
               std::vector<boost::shared_ptr<FWRhoPhiZView> >* iRhoZViews)
@@ -180,7 +180,7 @@ FWRPZDataProxyBuilderBase::setViews(
    m_rzviews=iRhoZViews;
    assert(0!=m_rpviews);
    assert(0!=m_rzviews);
-   
+
    std::for_each(m_rpviews->begin(),m_rpviews->end(),
                  boost::bind(&FWRPZDataProxyBuilderBase::attachToRhoPhiView,
                              this,_1));
@@ -189,14 +189,14 @@ FWRPZDataProxyBuilderBase::setViews(
                              this,_1));
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView> iView)
 {
    //std::cout <<"attachToRhoPhiView " << typeid(*this).name() <<std::endl;
    if(m_item && m_item->hasEvent()) {
       if(TEveElementList* prod = getRhoPhiProduct()) {
          addRhoPhiProj( iView->importElements(prod,layer()));
-      }  
+      }
       if(m_modelsChanged) {
          if(m_rhoPhiProjs.HasChildren()) {
             //it appears that passing iterators to 0 length vector to a set causes a crash
@@ -207,7 +207,7 @@ FWRPZDataProxyBuilderBase::attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView> i
    }
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::attachToRhoZView(boost::shared_ptr<FWRhoPhiZView> iView)
 {
    //std::cout <<"attachToRhoZView " << typeid(*this).name() <<std::endl;
@@ -215,7 +215,7 @@ FWRPZDataProxyBuilderBase::attachToRhoZView(boost::shared_ptr<FWRhoPhiZView> iVi
    if(m_item && m_item->hasEvent()) {
       if(TEveElementList* prod = getRhoZProduct()) {
          addRhoZProj( iView->importElements(prod,layer()));
-      }  
+      }
       if(m_modelsChanged) {
          if(m_rhoZProjs.HasChildren()) {
             applyChangesToAllModels(*(m_rhoZProjs.BeginChildren()));
@@ -225,7 +225,7 @@ FWRPZDataProxyBuilderBase::attachToRhoZView(boost::shared_ptr<FWRhoPhiZView> iVi
    }
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 {
    //it appears that passing iterators to 0 length vector to a set causes a crash
@@ -238,14 +238,14 @@ FWRPZDataProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::addRhoPhiProj(TEveElement* iElement)
 {
    //std::cout <<"addRhoPhiProj "<<iElement->NumChildren()<<std::endl;
    m_rhoPhiProjs.AddElement(iElement);
 }
 
-void 
+void
 FWRPZDataProxyBuilderBase::addRhoZProj(TEveElement* iElement)
 {
    //std::cout <<"addRhoZProj "<<iElement->NumChildren()<<std::endl;
@@ -263,7 +263,7 @@ FWRPZDataProxyBuilderBase::addRhoZProj(TEveElement* iElement)
 
 static
 void
-setUserDataElementAndChildren(TEveElement* iElement, 
+setUserDataElementAndChildren(TEveElement* iElement,
                               const void* iInfo)
 {
    iElement->SetUserData(const_cast<void*>(iInfo));
@@ -288,7 +288,7 @@ FWRPZDataProxyBuilderBase::setUserData(const FWEventItem* iItem,TEveElementList*
           it != itEnd;
           ++it,++itId,++index) {
          if(largestIndex<=index) {
-            *itId=FWModelId(iItem,index);            
+            *itId=FWModelId(iItem,index);
          }
          setUserDataElementAndChildren(*it,&(*itId));
       }

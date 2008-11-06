@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWViewBase
-// 
+//
 /**\class FWViewBase FWViewBase.h Fireworks/Core/interface/FWViewBase.h
 
  Description: Base class for all View instances
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.5 2008/06/25 21:58:29 chrjones Exp $
+// $Id: FWViewBase.h,v 1.6 2008/07/16 13:32:12 chrjones Exp $
 //
 
 // system include files
@@ -37,9 +37,9 @@ class FWViewBase : public FWConfigurableParameterizable
 
       // ---------- const member functions ---------------------
       virtual const std::string& typeName() const = 0;
-   
+
       virtual TGFrame* frame() const = 0;
-      
+
       virtual void saveImageTo(const std::string& iName) const = 0;
       void promptForSaveImageTo(TGFrame*) const;
       // ---------- static member functions --------------------

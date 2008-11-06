@@ -47,7 +47,7 @@ TableWidget::~TableWidget() {
    m_mainFrame->DeleteWindow();  // delete fMain
 }
 // Constructor
-TableWidget::TableWidget(TGCompositeFrame *frame,TableManager* tableMgr) 
+TableWidget::TableWidget(TGCompositeFrame *frame,TableManager* tableMgr)
    : m_mainFrame(frame), m_tm(tableMgr)
 {
    Init();
@@ -120,7 +120,7 @@ TableWidget::Init(int tabRows,
    m_hFrameHints = new TGLayoutHints(kLHintsBottom|kLHintsRight|kLHintsExpandX,m_cellWidth,m_scrollWidth);
    m_mainFrame->AddFrame(m_hSlider,m_hFrameHints);
 
-} 
+}
 
 void TableWidget::Reinit (int tabRows)
 {
@@ -132,15 +132,15 @@ void TableWidget::Reinit (int tabRows)
 // 	  m_tFrame->SetLayoutManager(m_tLayout);
 // 	  InitTableCells(startRow);
 //      }
-     UpdateTableCells(0, 0); 
-     m_vSlider->SetRange(m_scrollHeight * 
-			 std::max(m_tm->NumberOfRows() - m_tabRows + 1, 
+     UpdateTableCells(0, 0);
+     m_vSlider->SetRange(m_scrollHeight *
+			 std::max(m_tm->NumberOfRows() - m_tabRows + 1,
 				  0),
 			 m_scrollHeight);
 #if 0
-     m_tFrame->Resize(m_tFrame->GetWidth(), 
+     m_tFrame->Resize(m_tFrame->GetWidth(),
 		      (std::min(tabRows, 5) + 1) * m_cellHeight);
-     m_hFrame->Resize(m_hFrame->GetWidth(), 
+     m_hFrame->Resize(m_hFrame->GetWidth(),
 		      (std::min(tabRows, 5) + 1) * m_cellHeight);
 #endif
 }
@@ -198,7 +198,7 @@ TableWidget::UpdateTableCells(int iRow, int iCol)
 }
 void
 TableWidget::InitTableCells (int start_row)
-{ 
+{
    // Add rows/cols
    TGTextEntry *cell;
    TGFrame *rowCell;
@@ -218,8 +218,8 @@ TableWidget::InitTableCells (int start_row)
                cell->SetBackgroundColor(m_titleColor);
                cell->SetAlignment(kTextRight);
                cell->Connect("ProcessedEvent(Event_t*)","TableWidget",this,"OnTitleClick(Event_t*)");
-               TGTableLayoutHints* tloh = 
-                   new TGTableLayoutHints(col,col+1,row,row+1, 
+               TGTableLayoutHints* tloh =
+                   new TGTableLayoutHints(col,col+1,row,row+1,
                                           kLHintsCenterX|kLHintsCenterY
 // 					  |
 //                                           kLHintsExpandX|kLHintsExpandY|
@@ -238,8 +238,8 @@ TableWidget::InitTableCells (int start_row)
 	       rowCell->ChangeOptions(0);
                rowCell->Resize(m_cellWidth,m_cellHeight);
                rowCell->Connect("ProcessedEvent(Event_t*)","TableWidget",this,"OnRowClick(Event_t*)");
-               TGTableLayoutHints* tloh = 
-                   new TGTableLayoutHints(col,col+1,row,row+1, 
+               TGTableLayoutHints* tloh =
+                   new TGTableLayoutHints(col,col+1,row,row+1,
                                           kLHintsCenterX|kLHintsCenterY
 // 					  |
 //                                           kLHintsExpandX|kLHintsExpandY|
@@ -260,8 +260,8 @@ TableWidget::InitTableCells (int start_row)
                cell->Connect("ProcessedEvent(Event_t*)","TableWidget",this,"OnCellClick(Event_t*)");
 //               cell->Connect("DoubleClicked()","TableWidget",this,"OnCellDoubleClick()");
 //               cell->Connect("HandleDoubleClick(Event_t*)","TableWidget",this,"HandleDoubleClick(Event*)");
-               TGTableLayoutHints* tloh = 
-                   new TGTableLayoutHints(col,col+1,row,row+1, 
+               TGTableLayoutHints* tloh =
+                   new TGTableLayoutHints(col,col+1,row,row+1,
                                           kLHintsCenterX|kLHintsCenterY
 // 					  |
 //                                           kLHintsExpandX|kLHintsExpandY|
@@ -274,9 +274,9 @@ TableWidget::InitTableCells (int start_row)
                m_tCellIDVector.push_back(cell->GetId());
            }
        }
-   }        
+   }
    m_tFrame->Layout();
-} 
+}
 void
 TableWidget::OnHScroll(Int_t range)
 {
@@ -353,7 +353,7 @@ TableWidget::OnTitleClick(Event_t *event)
            ++rowIdx;
        }
    }
-   
+
 }
 void TableWidget::OnRowClick(Event_t *event)
 {
@@ -376,7 +376,7 @@ void TableWidget::OnCellClick(Event_t *event)
 //   }
    UInt_t cellID = event->fWindow;
 //   std::cout<<"OnCellClick, cellId="<<cellID<<" event type="<<event->fType<<" state="<<event->fState<<std::endl;
-   
+
    // Find row to highlight
    int id=0, rowId=-1;
    for(int row = 0; row < m_tabRows; ++row) {
@@ -414,7 +414,7 @@ void TableWidget::OnCellClick(Event_t *event)
 		  m_vSlider->SetPosition(pos + m_scrollHeight);
 	     break;
 	}
-	case 1: 
+	case 1:
 	{
 	     // Emit SIGNAL
 	     ULong_t mask = event->fState;
@@ -449,7 +449,7 @@ void TableWidget::OnCellDoubleClick()
 //{
 //   std::cout<<"HandleDoubleClick"<<std::endl;
 //}
-void TableWidget::HighlightRow(Int_t rowId, Pixel_t hColor) 
+void TableWidget::HighlightRow(Int_t rowId, Pixel_t hColor)
 {
    int id=0;
    for(int row = 0; row < m_tabRows; ++row) {
@@ -479,7 +479,7 @@ void TableWidget::HighlightRow(Int_t rowId, Pixel_t hColor)
        }
    }
 }
-void TableWidget::SelectRow(Int_t rowId, Mask_t mask, Pixel_t sColor) 
+void TableWidget::SelectRow(Int_t rowId, Mask_t mask, Pixel_t sColor)
 {
    // Be OS independent
    Mask_t altKey=kKeyMod2Mask;
@@ -543,7 +543,7 @@ void TableWidget::SelectRow(Int_t rowId, Mask_t mask, Pixel_t sColor)
    }
 }
 
-void TableWidget::SelectRows (const std::set<int> &rowIds, Pixel_t sColor) 
+void TableWidget::SelectRows (const std::set<int> &rowIds, Pixel_t sColor)
 {
      if(!sColor) sColor=m_selectColor;
      Pixel_t cellColor;

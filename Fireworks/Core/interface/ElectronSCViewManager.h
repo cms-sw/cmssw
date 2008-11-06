@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     ElectronSCViewManager
-// 
+//
 /**\class ElectronSCViewManager ElectronSCViewManager.h Fireworks/Core/interface/ElectronSCViewManager.h
 
    Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: ElectronSCViewManager.h,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
+// $Id: ElectronSCViewManager.h,v 1.3 2008/06/09 19:59:33 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ class TEveProjectionManager;
 /*
 struct ElectronSCModelProxy {
      boost::shared_ptr<ElectronsProxySCBuilder>   builder;
-     TEveElementList                           *product; 
+     TEveElementList                           *product;
      ElectronSCModelProxy () : product(0) { }
      ElectronSCModelProxy (
 	  boost::shared_ptr<ElectronsProxySCBuilder> iBuilder) :
@@ -56,7 +56,7 @@ public:
      // ---------- member functions ---------------------------
      virtual void newEventAvailable();
      virtual void newItem(const FWEventItem*);
-     void registerProxyBuilder(const std::string&, 
+     void registerProxyBuilder(const std::string&,
 			       const std::string&);
      void addElements ();
 

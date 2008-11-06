@@ -2,13 +2,13 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.15 2008/08/25 00:08:29 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.16 2008/08/30 18:33:09 dmytro Exp $
 //
 
 // hacks
@@ -82,7 +82,7 @@ CmsShowNavigator::~CmsShowNavigator()
 // member functions
 //
 void
-CmsShowNavigator::loadFile(const std::string& fileName) 
+CmsShowNavigator::loadFile(const std::string& fileName)
 {
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(fileName.c_str());
@@ -98,7 +98,7 @@ CmsShowNavigator::loadFile(const std::string& fileName)
       m_file->Close();
       delete m_file;
    }
-   
+
    gErrorIgnoreLevel = -1;
    m_file = newFile;
    newFileLoaded.emit(m_file);
@@ -109,7 +109,7 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    filterEventsAndReset(m_selection.c_str()); // first event is loaded at the end
 }
 
-void 
+void
 CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
 {
    m_nextFile = fileName;
@@ -128,29 +128,29 @@ Int_t
 CmsShowNavigator::realEntry(Int_t run, Int_t event) {
    m_event->fillFileIndex();
    edm::FileIndex::const_iterator i = m_event->fileIndex_.findEventPosition(run, 0, event, true);
-   if (m_event->fileIndex_.end() != i) 
+   if (m_event->fileIndex_.end() != i)
      return i->entry_;
    else
      return -1;
 }
-	
+
 void
 CmsShowNavigator::checkPosition() {
   if ( m_event->id() == m_firstID )
     atBeginning.emit();
   if ( m_event->id() == m_lastID)
     atEnd.emit();
-}      
-    
+}
+
 void
-CmsShowNavigator::nextEvent() 
+CmsShowNavigator::nextEvent()
 {
    if( ! m_nextFile.empty()) {
       loadFile(m_nextFile);
       m_nextFile.clear();
       return;
    }
-   if ( m_loopMode && 
+   if ( m_loopMode &&
        m_currentSelectedEntry == m_nEntries-1 ) {
       firstEvent();
       return;
@@ -238,7 +238,7 @@ CmsShowNavigator::goToEvent(CSGAction* action)
 void
 CmsShowNavigator::filterEvents(CSGAction* action)
 {
-   if ( action->getTextEntry() ) 
+   if ( action->getTextEntry() )
      filterEventsAndReset( action->getTextEntry()->GetText() );
 }
 
@@ -253,11 +253,11 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
 	  if (*i == 0)
 	       continue;
 	  boost::regex re(std::string("\\$") + (*i)->name());
-	  std::string new_sel = 
-	       boost::regex_replace(selection, re, 
+	  std::string new_sel =
+	       boost::regex_replace(selection, re,
 				    (*i)->m_fullBranchName + ".obj");
 // 	  printf("selection after applying s/%s/%s/: %s\n",
-// 		 (std::string("\\$") + (*i)->name()).c_str(), 
+// 		 (std::string("\\$") + (*i)->name()).c_str(),
 // 		 (*i)->moduleLabel().c_str(),
 // 		 new_sel.c_str());
 	  selection.swap(new_sel);
@@ -265,7 +265,7 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
 //      std::string s = selection;
 //      for (boost::sregex_iterator i = boost::sregex_iterator(s.begin(), s.end(), re),
 // 	       end;
-// 	  i != end; 
+// 	  i != end;
 // 	  ++i) {
 // 	  printf("%s\n", i->str(0).c_str());
 //      }
@@ -276,7 +276,7 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
 // 	  std::cout << "Selection requested: " << m_selection << std::endl;
 	  m_eventTree->Draw(">>list",m_selection.c_str());
 	  m_eventTree->SetEventList( m_eventList );
-     }	
+     }
      m_nEntries = m_event->size();
      if ( m_eventTree->GetEventList() ){
 	m_nEntries = m_eventList->GetN();

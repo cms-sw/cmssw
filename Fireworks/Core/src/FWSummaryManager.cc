@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWSummaryManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.3 2008/06/23 15:50:16 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.4 2008/07/08 20:13:51 chrjones Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ m_detailViewManager(dv)
                                              this, _1) );
    eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems,this));
 
-   
+
    m_listTree = iListTree;
    /*m_eventObjects =  new TEveElementList("Physics Objects");
    m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
@@ -89,7 +89,7 @@ FWSummaryManager::newItem(const FWEventItem* iItem)
                                               m_detailViewManager);
   lst->AddIntoListTree(m_listTree,
                        reinterpret_cast<TGListTreeItem*>(0));
-                     
+
    //lst->AddIntoListTree(m_listTree,m_eventObjects);
    //NOTE: Why didn't I call AddElement of m_eventObjects???  Because it will go in the wrong list tree?
    lst->IncDenyDestroy();
@@ -103,13 +103,13 @@ FWSummaryManager::removeAllItems()
    //m_eventObjects->DestroyElements();
 }
 
-void 
+void
 FWSummaryManager::selectionChanged(const FWSelectionManager& iSM)
 {
    //m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
 }
 
-void 
+void
 FWSummaryManager::changesDone()
 {
    m_listTree->ClearViewPort();

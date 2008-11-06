@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEveLegoViewManager
-// 
+//
 /**\class FWEveLegoViewManager FWEveLegoViewManager.h Fireworks/Core/interface/FWEveLegoViewManager.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.5 2008/07/07 00:44:13 chrjones Exp $
+// $Id: FWEveLegoViewManager.h,v 1.6 2008/07/07 02:15:45 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ struct FWEveLegoModelProxy
     builder(iBuilder),product(0),ignore(false){}
 };
 */
- 
+
 class FWEveLegoViewManager : public FWViewManagerBase
 {
 
@@ -72,7 +72,7 @@ class FWEveLegoViewManager : public FWViewManagerBase
       virtual void newItem(const FWEventItem*);
 
       FWViewBase* buildView(TGFrame* iParent);
-      
+
       //connect to ROOT signals
       void selectionAdded(TEveElement*);
       void selectionRemoved(TEveElement*);
@@ -86,12 +86,12 @@ class FWEveLegoViewManager : public FWViewManagerBase
       FWEveLegoViewManager(const FWEveLegoViewManager&); // stop default
 
       const FWEveLegoViewManager& operator=(const FWEveLegoViewManager&); // stop default
-   
+
       void makeProxyBuilderFor(const FWEventItem* iItem);
       void beingDestroyed(const FWViewBase*);
       //void itemChanged(const FWEventItem*);
       void initData();
-   
+
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
       TypeToBuilders m_typeToBuilders;
@@ -102,11 +102,11 @@ class FWEveLegoViewManager : public FWViewManagerBase
       TEveCaloDataHist* m_data;
       TEveCaloLego* m_lego;
       int  m_legoRebinFactor;
-      
+
       //bool m_itemChanged;
       TEveSelection* m_eveSelection;
       FWSelectionManager* m_selectionManager;
-   
+
      bool m_modelsHaveBeenMadeAtLeastOnce;
 };
 

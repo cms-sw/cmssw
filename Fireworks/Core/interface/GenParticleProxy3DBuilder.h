@@ -1,9 +1,9 @@
 #ifndef Fireworks_Muons_GenParticleProxy3DBuilder_h
 #define Fireworks_Muons_GenParticleProxy3DBuilder_h
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.h,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: GenParticleProxy3DBuilder.h,v 1.3 2008/07/05 22:56:33 dmytro Exp $
 //
 
 // system include files

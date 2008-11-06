@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     SiStripProxy3DBuilder
-// 
+//
 /**\class SiStripProxy3DBuilder SiStripProxy3DBuilder.h Fireworks/Core/interface/SiStripProxy3DBuilder.h
 
  Description: <one line class summary>
@@ -12,9 +12,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiStripProxy3DBuilder.cc,v 1.1 2008/08/20 23:59:52 dmytro Exp $
+// $Id: SiStripProxy3DBuilder.cc,v 1.2 2008/11/03 11:50:03 amraktad Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@
 void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
-   
+
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"SiStripCluster",true);
       *product = tList;
@@ -54,7 +54,7 @@ void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 
    const edmNew::DetSetVector<SiStripCluster>* clusters=0;
    iItem->get(clusters);
-    
+
    if(0 == clusters ) return;
    std::set<DetId> modules;
    int index=0;
@@ -72,7 +72,7 @@ void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       boost::shared_ptr<TEveCompound> sentry(list,boost::mem_fn(&TEveCompound::CloseCompound));
       list->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
-       
+
       if (iItem->getGeom()) {
 	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
 	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
@@ -83,18 +83,18 @@ void SiStripProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 	    list->AddElement(shape);
 	 }
       }
-       
+
       gEve->AddElement(list,tList);
    }
 }
 
-void 
+void
 SiStripProxy3DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
-void 
+void
 SiStripProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
@@ -103,7 +103,7 @@ SiStripProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 REGISTER_FWRPZDATAPROXYBUILDER(SiStripProxy3DBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip");

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CSGNumAction
-// 
+//
 /**\class CSGNumAction CSGNumAction.h Fireworks/Core/interface/CSGNumAction.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jun 26 12:49:02 EDT 2008
-// $Id$
+// $Id: CSGNumAction.h,v 1.1 2008/06/29 13:18:33 chrjones Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ class CSGNumAction
       void enable();
       void disable();
       void setNumber(Double_t num);
-      
+
       void activate();
       sigc::signal<void, double> activated;
 

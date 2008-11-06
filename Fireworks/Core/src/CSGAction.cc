@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CSGAction
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.8 2008/08/25 00:08:29 dmytro Exp $
+// $Id: CSGAction.cc,v 1.9 2008/11/05 09:16:08 chrjones Exp $
 //
 
 // system include files
@@ -109,7 +109,7 @@ void CSGAction::setToolTip(const std::string& tip) {
        it != itEnd;
        ++it) {
       (*it)->SetToolTipText(tip.c_str(), m_frame->getDelay());
-   }   
+   }
   if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
 
@@ -121,7 +121,7 @@ void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id
    m_buttons.push_back(textButton);
 }
 
-void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const char* text, Int_t id) 
+void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const char* text, Int_t id)
 {
    if (m_textEntry != 0) {
       delete m_textEntry;
@@ -131,7 +131,7 @@ void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const cha
    TQObject::Connect(m_textEntry, "ReturnPressed()", "CSGAction", this, "activate()");
 }
 
-void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHints* l, Int_t id) 
+void CSGAction::createNumberEntry(TGCompositeFrame* p, bool intType, TGLayoutHints* l, Int_t id)
 {
    if (m_numberEntry != 0) {
       delete m_numberEntry;
@@ -174,7 +174,7 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
 void CSGAction::createShortcut(UInt_t key, const char *mod) {
    Int_t keycode = gVirtualX->KeysymToKeycode((int)key);
    Int_t modcode;
-   
+
    TString scText;
    if (strcmp(mod, "CTRL") == 0) {
       modcode = kKeyControlMask;
@@ -182,7 +182,7 @@ void CSGAction::createShortcut(UInt_t key, const char *mod) {
    }
    else if (strcmp(mod, "CTRL+SHIFT") == 0) {
       modcode = kKeyControlMask | kKeyShiftMask;
-      scText = "<ctrl> <shift> "; 
+      scText = "<ctrl> <shift> ";
    }
    else {
       // Default to ALT for now
@@ -191,13 +191,13 @@ void CSGAction::createShortcut(UInt_t key, const char *mod) {
    }
    scText += keycodeToString(keycode);
    m_scCombo = scText;
-   
+
    int id = m_frame->GetId();
    gVirtualX->GrabKey(id, keycode, modcode, kTRUE);
    gVirtualX->GrabKey(id, keycode, modcode | kKeyMod2Mask, kTRUE);
    gVirtualX->GrabKey(id, keycode, modcode | kKeyLockMask, kTRUE);
    gVirtualX->GrabKey(id, keycode, modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
-   
+
    m_keycode = keycode;
    m_modcode = modcode;
    if (m_menu != 0) addSCToMenu();
@@ -208,7 +208,7 @@ void CSGAction::createMenuEntry(TGPopupMenu *menu) {
   if (!(menu->HasConnection("Activated(Int_t)"))) TQObject::Connect(menu, "Activated(Int_t)", "CSGConnector", m_connector, "handleMenu(Int_t)");
   menu->AddEntry(m_name.c_str(), m_entry);
   if (m_keycode != 0) addSCToMenu();
-}     
+}
 
 void CSGAction::createToolBarEntry(TGToolBar *toolbar, const char *filename) {
    m_toolBar = toolbar;
@@ -220,7 +220,7 @@ void CSGAction::createToolBarEntry(TGToolBar *toolbar, const char *filename) {
    TGButton* newButton = toolbar->AddButton(m_frame,m_tools,5);
    newButton->SetBackgroundColor(toolbar->GetBackground());
    newButton->ChangeOptions(0);
-   
+
    int size = toolbar->GetList()->GetSize();
    if (size == 1) {
       // First button in tool bar, so connect the bar
@@ -263,8 +263,8 @@ Bool_t CSGAction::resizeMenuEntry() {
    m_menu->DeleteEntry(m_entry);
    m_menu->AddEntry(realName, m_entry, 0, 0, current);
    return widthChanged;
-}  
- 
+}
+
 TGPopupMenu* CSGAction::getMenu() const {
    return m_menu;
 }
@@ -299,14 +299,14 @@ void CSGAction::disable() {
    disableImp();
 }
 
-void 
+void
 CSGAction::globalEnable()
 {
    m_globalEnabled=true;
    enableImp();
 }
 
-void 
+void
 CSGAction::globalDisable()
 {
    m_globalEnabled=false;
@@ -325,8 +325,8 @@ void CSGAction::enableImp() {
           it != itEnd;
           ++it) {
          (*it)->SetEnabled(kTRUE);
-      }   
-      
+      }
+
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
       if (m_keycode != 0) {
          int id = m_frame->GetId();
@@ -345,7 +345,7 @@ void CSGAction::disableImp() {
           it != itEnd;
           ++it) {
          (*it)->SetEnabled(kFALSE);
-      }   
+      }
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
       if (m_keycode != 0) {
          int id = m_frame->GetId();
@@ -362,7 +362,7 @@ void CSGAction::disableImp() {
 // static member functions
 //
 
-TString 
+TString
 CSGAction::keycodeToString(Int_t keycode) {
    int i;
    char letter;

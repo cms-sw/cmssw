@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.8 2008/07/17 10:11:32 dmytro Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.9 2008/07/17 23:02:41 dmytro Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ FWViewManagerBase(),
    f=boost::bind(&FWGlimpseViewManager::buildView,
                  this, _1);
    iGUIMgr->registerViewBuilder(FWGlimpseView::staticTypeName(), f);
-   
+
    /*
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
@@ -67,16 +67,16 @@ FWViewManagerBase(),
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWGlimpseViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWGlimpseViewManager",this,"selectionCleared()");
     */
-   
+
    //create a list of the available ViewManager's
    std::set<std::string> builders;
-   
+
    std::vector<edmplugin::PluginInfo> available = FWGlimpseDataProxyBuilderFactory::get()->available();
    std::transform(available.begin(),
                   available.end(),
                   std::inserter(builders,builders.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
-   
+
    if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWGlimpseDataProxyBuilderFactory::get()->category())) {
       available = edmplugin::PluginManager::get()->categoryToInfos().find(FWGlimpseDataProxyBuilderFactory::get()->category())->second;
       std::transform(available.begin(),
@@ -84,7 +84,7 @@ FWViewManagerBase(),
                      std::inserter(builders,builders.begin()),
                      boost::bind(&edmplugin::PluginInfo::name_,_1));
    }
-   
+
    for(std::set<std::string>::iterator it = builders.begin(), itEnd=builders.end();
        it!=itEnd;
        ++it) {
@@ -92,7 +92,7 @@ FWViewManagerBase(),
       std::string  purpose = it->substr(first,it->find_last_of('@')-first);
       m_typeToBuilders[purpose].push_back(*it);
    }
-   
+
 }
 
 FWGlimpseViewManager::~FWGlimpseViewManager()
@@ -102,7 +102,7 @@ FWGlimpseViewManager::~FWGlimpseViewManager()
 //
 // member functions
 //
-FWViewBase* 
+FWViewBase*
 FWGlimpseViewManager::buildView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
@@ -120,10 +120,10 @@ FWGlimpseViewManager::buildView(TGFrame* iParent)
    view->beingDestroyed_.connect(boost::bind(&FWGlimpseViewManager::beingDestroyed,this,_1));
    return view.get();
 }
-void 
+void
 FWGlimpseViewManager::beingDestroyed(const FWViewBase* iView)
 {
-   
+
    if(1 == m_views.size()) {
       for(std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> >::iterator it
           =m_builders.begin(), itEnd = m_builders.end();
@@ -140,10 +140,10 @@ FWGlimpseViewManager::beingDestroyed(const FWViewBase* iView)
          m_views.erase(it);
          return;
       }
-   }   
+   }
 }
 
-void 
+void
 FWGlimpseViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
    if(0==m_selectionManager) {
@@ -168,18 +168,18 @@ FWGlimpseViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
   }
 }
 
-void 
+void
 FWGlimpseViewManager::newItem(const FWEventItem* iItem)
 {
    makeProxyBuilderFor(iItem);
 }
 
-void 
+void
 FWGlimpseViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
 }
-void 
+void
 FWGlimpseViewManager::modelChangesDone()
 {
    gEve->EnableRedraw();
@@ -222,7 +222,7 @@ FWGlimpseViewManager::selectionRemoved(TEveElement* iElement)
          }
       }
    }
-   
+
 }
 
 void
@@ -230,10 +230,10 @@ FWGlimpseViewManager::selectionCleared()
 {
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
-   }   
+   }
 }
 
-std::vector<std::string> 
+std::vector<std::string>
 FWGlimpseViewManager::purposeForType(const std::string& iTypeName) const
 {
    std::vector<std::string> returnValue;
@@ -247,16 +247,16 @@ FWGlimpseViewManager::purposeForType(const std::string& iTypeName) const
             returnValue.push_back(it->first);
          }
       }
-      
+
    }
    return returnValue;
 }
 
-std::set<std::pair<std::string,std::string> > 
+std::set<std::pair<std::string,std::string> >
 FWGlimpseViewManager::supportedTypesAndPurpose() const
 {
    std::set<std::pair<std::string,std::string> > returnValue;
-   
+
    for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
        it != itEnd;
        ++it) {
@@ -266,8 +266,8 @@ FWGlimpseViewManager::supportedTypesAndPurpose() const
          returnValue.insert(std::make_pair(builderName->substr(0,builderName->find_first_of('@')),
                                            it->first));
       }
-      
+
    }
-   return returnValue;   
+   return returnValue;
 }
 

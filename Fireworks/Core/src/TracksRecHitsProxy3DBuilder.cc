@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TracksRecHitsProxy3DBuilder
-// 
+//
 /**\class TracksRecHitsProxy3DBuilder TracksRecHitsProxy3DBuilder.h Fireworks/Core/interface/TracksRecHitsProxy3DBuilder.h
 
  Description: <one line class summary>
@@ -12,10 +12,10 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.8 2008/08/20 23:52:36 dmytro Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.9 2008/11/03 11:50:02 amraktad Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -52,7 +52,7 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
     std::cout << "incorrect type" << std::endl;
     return;
   }
-  
+
   if(0 == tList) {
     tList =  new TEveElementList(iItem->name().c_str());
     *product = tList;
@@ -61,10 +61,10 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
   } else {
     tList->DestroyElements();
   }
-  
+
   const reco::TrackCollection* tracks=0;
   iItem->get(tracks);
-  
+
   if(0 == tracks ) return;
 
   int index=0;
@@ -73,7 +73,7 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
      try {
 	TEveElementList* trkList = new TEveElementList(Form("track%d",index));
 	gEve->AddElement(trkList,tList);
-	
+
 	for(trackingRecHit_iterator recIt = it->recHitsBegin(); recIt != it->recHitsEnd(); ++recIt){
 	   if((*recIt)->isValid()){
 	      DetId detid = (*recIt)->geographicalId();
@@ -94,16 +94,16 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 	std::cout << "Sorry, don't have the recHits for this event." << std::endl;
      }
   }
-  
+
 }
 
-void 
+void
 TracksRecHitsProxy3DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
-void 
+void
 TracksRecHitsProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
@@ -112,7 +112,7 @@ TracksRecHitsProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 

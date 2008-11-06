@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWViewBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.7 2008/07/24 15:02:03 jmuelmen Exp $
+// $Id: FWViewBase.cc,v 1.8 2008/07/24 15:13:27 jmuelmen Exp $
 //
 
 // system include files
@@ -58,7 +58,7 @@ FWViewBase::~FWViewBase()
 //
 // member functions
 //
-void 
+void
 FWViewBase::destroy()
 {
    beingDestroyed_(this);
@@ -67,7 +67,7 @@ FWViewBase::destroy()
 //
 // const member functions
 //
-void 
+void
 FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
 {
    static TString dir(".");
@@ -77,7 +77,7 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
       "JPEG",                    "*.jpg",
       "PNG",                     "*.png",
    0, 0};
-   
+
    TGFileInfo fi;
    fi.fFileTypes = kImageExportTypes;
    fi.fIniDir    = StrDup(dir);

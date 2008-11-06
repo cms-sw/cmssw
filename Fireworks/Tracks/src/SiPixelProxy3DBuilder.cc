@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     SiPixelProxy3DBuilder
-// 
+//
 /**\class SiPixelProxy3DBuilder SiPixelProxy3DBuilder.h Fireworks/Core/interface/SiPixelProxy3DBuilder.h
 
  Description: <one line class summary>
@@ -12,9 +12,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiPixelProxy3DBuilder.cc,v 1.1 2008/08/20 23:59:52 dmytro Exp $
+// $Id: SiPixelProxy3DBuilder.cc,v 1.2 2008/11/03 11:50:03 amraktad Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@
 void SiPixelProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
-   
+
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"SiPixelCluster",true);
       *product = tList;
@@ -53,7 +53,7 @@ void SiPixelProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 
    const SiPixelClusterCollectionNew* pixels=0;
    iItem->get(pixels);
-    
+
    if(0 == pixels ) return;
    int index(0);
    for(SiPixelClusterCollectionNew::const_iterator set = pixels->begin();
@@ -70,7 +70,7 @@ void SiPixelProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       boost::shared_ptr<TEveCompound> sentry(list,boost::mem_fn(&TEveCompound::CloseCompound));
       list->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       list->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
-       
+
       if (iItem->getGeom()) {
 	 // const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id );
 	 TEveGeoShape* shape = iItem->getGeom()->getShape( id );
@@ -81,18 +81,18 @@ void SiPixelProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 	    list->AddElement(shape);
 	 }
       }
-       
+
       gEve->AddElement(list,tList);
     }
 }
 
-void 
+void
 SiPixelProxy3DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
-void 
+void
 SiPixelProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
@@ -101,7 +101,7 @@ SiPixelProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 

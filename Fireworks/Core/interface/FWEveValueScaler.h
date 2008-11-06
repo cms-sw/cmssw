@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEveValueScaler
-// 
+//
 /**\class FWEveValueScaler FWEveValueScaler.h Fireworks/Core/interface/FWEveValueScaler.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jul  2 15:48:26 EDT 2008
-// $Id$
+// $Id: FWEveValueScaler.h,v 1.1 2008/07/04 23:38:34 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ class FWEveValueScaler
 
       // ---------- const member functions ---------------------
       float scale() const {return m_scale;}
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -44,7 +44,7 @@ class FWEveValueScaler
       void addElement(TEveElement* iElement);
       void removeElement(TEveElement* iElement);
       void removeElements();
-   
+
       void setScale(float);
    private:
       FWEveValueScaler(const FWEveValueScaler&); // stop default

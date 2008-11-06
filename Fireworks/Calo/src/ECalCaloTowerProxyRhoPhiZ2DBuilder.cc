@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.16 2008/07/16 13:51:00 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.17 2008/11/04 20:29:24 amraktad Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::~ECalCaloTowerProxyRhoPhiZ2DBuilder()
 // member functions
 //
 
-void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem, 
+void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
 						   TEveElementList** product,
 						   std::string name,
 						   TEveCalo3D*& calo3d,
@@ -99,7 +99,7 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
       Int_t s = data->AddHistogram(hist);
       data->RefSliceInfo(s).Setup(name.c_str(), 0., iItem->defaultDisplayProperties().color());
    }
-   
+
    if ( calo3d == 0 ) {
       calo3d = new TEveCalo3D(data);
       calo3d->SetBarrelRadius(129);
@@ -111,14 +111,14 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
    }
 }
 
-void 
+void
 ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 						TEveElementList** product)
 {
    buildCalo(iItem, product, "ecalRhoPhi", m_caloRhoPhi,true);
 }
 
-void 
+void
 ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -127,13 +127,13 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
    // NOTE:
    //       Here we assume 72 bins in phi. At high eta we have only 36 and at the
-   //       very end 18 bins. These large bins are splited among smaller bins 
-   //       decreasing energy in each entry by factor of 2 and 4 for 36 and 18 bin 
+   //       very end 18 bins. These large bins are splited among smaller bins
+   //       decreasing energy in each entry by factor of 2 and 4 for 36 and 18 bin
    //       cases. Other options will be implemented later
-   // 
+   //
    // http://ecal-od-software.web.cern.ch/ecal-od-software/documents/documents/cal_newedm_roadmap_v1_0.pdf
    // Eta mapping:
-   //   ieta - [-41,-1]+[1,41] - total 82 bins 
+   //   ieta - [-41,-1]+[1,41] - total 82 bins
    //   calo tower gives eta of the ceneter of each bin
    //   size:
    //      0.087 - [-20,-1]+[1,20]

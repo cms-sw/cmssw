@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     PatJetProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class PatJetProxyRhoPhiZ2DBuilder PatJetProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/PatJetProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: PatJetProxyRhoPhiZ2DBuilder.h,v 1.4 2008/06/09 19:54:03 chrjones Exp $
+// $Id: PatJetProxyRhoPhiZ2DBuilder.h,v 1.1 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // user include files
@@ -38,14 +38,14 @@ class PatJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   
+
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
-   
+
       PatJetProxyRhoPhiZ2DBuilder(const PatJetProxyRhoPhiZ2DBuilder&); // stop default
 
       const PatJetProxyRhoPhiZ2DBuilder& operator=(const PatJetProxyRhoPhiZ2DBuilder&); // stop default

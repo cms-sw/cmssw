@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRPZDataProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.18 2008/07/10 21:21:58 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.19 2008/10/28 14:20:46 chrjones Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ FWRPZDataProxyBuilder::~FWRPZDataProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FWRPZDataProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
    m_needsUpdate=true;
@@ -77,7 +77,7 @@ FWRPZDataProxyBuilder::itemChangedImp(const FWEventItem* iItem)
    }
 }
 
-void 
+void
 FWRPZDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    m_needsUpdate=false;
@@ -89,7 +89,7 @@ FWRPZDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
    }
 }
 
-TEveElementList* 
+TEveElementList*
 FWRPZDataProxyBuilder::getRhoPhiProduct() const
 {
    if(m_needsUpdate) {
@@ -98,7 +98,7 @@ FWRPZDataProxyBuilder::getRhoPhiProduct() const
    }
    return m_elements;
 }
-TEveElementList* 
+TEveElementList*
 FWRPZDataProxyBuilder::getRhoZProduct() const
 {
    if(m_needsUpdate) {
@@ -118,7 +118,7 @@ FWRPZDataProxyBuilder::build()
   }
 }
 
-void 
+void
 FWRPZDataProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
    //I'm not sure I want to update the 3D version

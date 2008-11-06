@@ -38,7 +38,7 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveEl
    build(iItem, product, false);
 }
 
-void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, 
+void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 					    TEveElementList** product,
 					    bool rhoPhiProjection)
 {
@@ -52,16 +52,16 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const DTRecSegment4DCollection* segments = 0;
    iItem->get(segments);
-   
+
    if(0 == segments ) {
       // std::cout <<"failed to get DT segments"<<std::endl;
       return;
    }
    unsigned int index = 0;
-   for (  DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin(); 
+   for (  DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin();
 	 chamberId != segments->id_end(); ++chamberId, ++index )
      {
 
@@ -79,7 +79,7 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
         gEve->AddElement( segmentSet, tList );
         segmentSet->AddElement( pointSet );
 	const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
-	
+
 	DTRecSegment4DCollection::range  range = segments->get(*chamberId);
 	const double segmentLength = 15;
 	for (DTRecSegment4DCollection::const_iterator segment = range.first;
@@ -91,7 +91,7 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     Double_t globalSegmentInnerPoint[3];
 	     Double_t globalSegmentCenterPoint[3];
 	     Double_t globalSegmentOuterPoint[3];
-	     
+
 	     if ( (rhoPhiProjection && ! segment->hasPhi() ) ||
 		  (! rhoPhiProjection && ! segment->hasZed() ) ) {
 		localSegmentInnerPoint[0] = 0;
@@ -101,23 +101,23 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 		pointSet->SetNextPoint( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2] );
 		continue;
 	     }
-	     
+
 	     localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
 	     localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
 	     localSegmentOuterPoint[2] = segmentLength*segment->localDirection().z();
-	     
+
 	     localSegmentCenterPoint[0] = segment->localPosition().x();
 	     localSegmentCenterPoint[1] = segment->localPosition().y();
 	     localSegmentCenterPoint[2] = 0;
-	     
+
 	     localSegmentInnerPoint[0] = segment->localPosition().x() - segmentLength*segment->localDirection().x();
 	     localSegmentInnerPoint[1] = segment->localPosition().y() - segmentLength*segment->localDirection().y();
 	     localSegmentInnerPoint[2] = - segmentLength*segment->localDirection().z();
-	     
+
 	     matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
 	     matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
 	     matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-		
+
 	     if ( globalSegmentInnerPoint[1] * globalSegmentOuterPoint[1] > 0 ) {
 		segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
 				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
@@ -133,7 +133,7 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
      }
 }
 
-void 
+void
 DTSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
@@ -145,7 +145,7 @@ DTSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElemen
    //}
 }
 
-void 
+void
 DTSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
@@ -157,7 +157,7 @@ DTSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWParameterBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:36:24 EST 2008
-// $Id$
+// $Id: FWParameterBase.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
 //
 
 // system include files

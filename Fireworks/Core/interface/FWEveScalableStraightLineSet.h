@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEveScalableStraightLineSet
-// 
+//
 /**\class FWEveScalableStraightLineSet FWEveScalableStraightLineSet.h Fireworks/Core/interface/FWEveScalableStraightLineSet.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 16:25:28 EDT 2008
-// $Id$
+// $Id: FWEveScalableStraightLineSet.h,v 1.1 2008/07/04 23:39:32 chrjones Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@ class FWEveScalableStraightLineSet : public TEveScalableStraightLineSet, public 
 
       // ---------- member functions ---------------------------
       void setScale(float);
-   
+
    private:
       FWEveScalableStraightLineSet(const FWEveScalableStraightLineSet&); // stop default
 

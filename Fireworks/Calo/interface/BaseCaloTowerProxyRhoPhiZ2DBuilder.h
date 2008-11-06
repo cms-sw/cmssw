@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     BaseCaloTowerProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class BaseCaloTowerProxyRhoPhiZ2DBuilder BaseCaloTowerProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/BaseCaloTowerProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar 12 21:32:49 CDT 2008
-// $Id: BaseCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.1 2008/03/13 03:02:01 chrjones Exp $
+// $Id: BaseCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.2 2008/07/01 04:43:54 chrjones Exp $
 //
 
 // system include files
@@ -42,8 +42,8 @@ protected:
       //need to special handle selection or other changes
       virtual void modelChanges(const FWModelIds&, TEveElement*);
       virtual void applyChangesToAllModels(TEveElement*);
-   
-   
+
+
    private:
       BaseCaloTowerProxyRhoPhiZ2DBuilder(const BaseCaloTowerProxyRhoPhiZ2DBuilder&); // stop default
 

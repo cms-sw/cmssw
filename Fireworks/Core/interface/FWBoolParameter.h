@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWBoolParameter
-// 
+//
 /**\class FWBoolParameter FWBoolParameter.h Fireworks/Core/interface/FWBoolParameter.h
 
  Description: Provides access to a simple bool parameter
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWBoolParameter.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWBoolParameter.h,v 1.1 2008/06/20 05:57:06 dmytro Exp $
 //
 
 // system include files
@@ -55,9 +55,9 @@ class FWBoolParameter : public FWParameterBase
       // ---------- member functions ---------------------------
       virtual void setFrom(const FWConfiguration&);
       void set(bool);
-   
+
       sigc::signal<void,bool> changed_;
-   
+
    private:
       FWBoolParameter(const FWBoolParameter&); // stop default
 

@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     PatJetGlimpseProxyBuilder
-// 
+//
 /**\class PatJetGlimpseProxyBuilder PatJetGlimpseProxyBuilder.h Fireworks/Calo/interface/PatJetGlimpseProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: PatJetGlimpseProxyBuilder.h,v 1.2 2008/06/26 00:27:16 dmytro Exp $
+// $Id: PatJetGlimpseProxyBuilder.h,v 1.1 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // system include files
@@ -34,10 +34,10 @@ class PatJetGlimpseProxyBuilder : public FWGlimpseDataProxyBuilder
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
-   
+
       // ---------- static member functions --------------------
    private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
 

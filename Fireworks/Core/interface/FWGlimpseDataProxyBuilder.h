@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseDataProxyBuilder
-// 
+//
 /**\class FWGlimpseDataProxyBuilder FWGlimpseDataProxyBuilder.h Fireworks/Core/interface/FWGlimpseDataProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.2 2008/07/04 23:55:39 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.3 2008/07/07 00:26:05 chrjones Exp $
 //
 
 // system include files
@@ -52,13 +52,13 @@ class FWGlimpseDataProxyBuilder
 
       void modelChanges(const FWModelIds&);
       void itemChanged(const FWEventItem*);
-   
+
       TEveElement* usedInScene();
-   
+
       void setScaler(FWEveValueScaler* iScaler) {
          m_scaler = iScaler;
       }
-   
+
       FWEveValueScaler* scaler() const {
          return m_scaler;
       }
@@ -66,12 +66,12 @@ class FWGlimpseDataProxyBuilder
       const FWEventItem* item() const {
          return m_item;
       }
-   
+
       std::vector<FWModelId>& ids() {
          return m_ids;
       }
    private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product) = 0 ;
 
 
@@ -91,7 +91,7 @@ class FWGlimpseDataProxyBuilder
       const FWEventItem* m_item;
       TEveElementList m_elementHolder;//Used as a smart pointer for the item created by the builder
       std::vector<FWModelId> m_ids;
-   
+
       bool m_modelsChanged;
       bool m_haveViews;
       FWEveValueScaler* m_scaler;

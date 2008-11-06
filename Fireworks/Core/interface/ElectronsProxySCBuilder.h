@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     ElectronsProxySCBuilder
-// 
+//
 /**\class ElectronsProxySCBuilder ElectronsProxySCBuilder.h Fireworks/Calo/interface/ElectronsProxySCBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronsProxySCBuilder.h,v 1.2.2.1 2008/03/06 18:46:10 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.h,v 1.3 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -31,21 +31,21 @@ class FWEventItem;
 class TEveElementList;
 
 class ElectronsProxySCBuilder {
-     
+
 public:
      ElectronsProxySCBuilder();
      virtual ~ElectronsProxySCBuilder();
-     
+
      // ---------- const member functions ---------------------
-     
+
      // ---------- static member functions --------------------
-     
+
      // ---------- member functions ---------------------------
-     
+
   //    virtual void buildRhoPhi(const FWEventItem* iItem,
 // 			      TEveElementList** product);
-     
-//      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+//      virtual void buildRhoZ(const FWEventItem* iItem,
 // 			    TEveElementList** product);
      void setItem (const FWEventItem *iItem) { m_item = iItem; }
      void build (TEveElementList **product);
@@ -56,20 +56,20 @@ public:
 	vars[2] = rotation_center[2];
      }
      static ElectronsProxySCBuilder *the_electron_sc_proxy;
-   
+
 private:
      ElectronsProxySCBuilder(const ElectronsProxySCBuilder&); // stop default
-     
+
      const ElectronsProxySCBuilder& operator=(const ElectronsProxySCBuilder&); // stop default
-     
+
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() { 
+     void resetCenter() {
 	rotation_center[0] = 0;
 	rotation_center[1] = 0;
 	rotation_center[2] = 0;
      }
-	
+
      Double_t rotation_center[3];
 };
 

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListItemBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 11 15:11:17 CDT 2008
-// $Id$
+// $Id: FWListItemBase.cc,v 1.1 2008/03/11 23:15:56 chrjones Exp $
 //
 
 // system include files

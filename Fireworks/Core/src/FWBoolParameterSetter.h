@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWBoolParameterSetter
-// 
+//
 /**\class FWBoolParameterSetter FWBoolParameterSetter.h Fireworks/Core/interface/FWBoolParameterSetter.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWBoolParameterSetter.h,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWBoolParameterSetter.h,v 1.1 2008/06/20 05:57:06 dmytro Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class FWBoolParameterSetter : public FWParameterSetterBase
       virtual void attach(FWParameterBase*) ;
       virtual TGFrame* build(TGFrame* iParent) ;
       void doUpdate();
-   
+
    private:
       FWBoolParameterSetter(const FWBoolParameterSetter&); // stop default
 

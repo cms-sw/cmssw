@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDisplayProperties
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jan  3 17:05:44 EST 2008
-// $Id: FWDisplayProperties.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWDisplayProperties.cc,v 1.2 2008/08/20 23:49:31 dmytro Exp $
 //
 
 // system include files
@@ -19,7 +19,7 @@
 #include "TROOT.h"
 FWDisplayProperties::FWDisplayProperties(const Color_t& iColor /*= kWhite*/,
 		    bool isVisible /*= true*/ ):
-m_isVisible(isVisible) 
+m_isVisible(isVisible)
 {
    setColor(iColor);
 }
@@ -30,6 +30,6 @@ void FWDisplayProperties::setColor(Color_t iColor) {
    if ( ! gROOT->GetColor(iColor) && iColor >= 100 ){
       m_color = TColor::GetColorDark(iColor-100);
       return;
-   } 
+   }
    m_color = iColor;
 }

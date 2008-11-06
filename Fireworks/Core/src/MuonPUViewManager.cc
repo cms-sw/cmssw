@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     MuonPUViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: MuonPUViewManager.cc,v 1.1 2008/03/07 04:01:59 tdaniels Exp $
+// $Id: MuonPUViewManager.cc,v 1.2 2008/06/09 19:59:52 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ MuonPUViewManager::MuonPUViewManager():
      // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      nv->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
      nv->GetGLViewer()->SetClearColor(kBlack);
-     
+
      ns = gEve->SpawnNewScene("Muon");
      nv->AddScene(ns);
 //      m_projMgr = new TEveProjectionManager;
@@ -90,35 +90,35 @@ MuonPUViewManager::~MuonPUViewManager()
 //
 // member functions
 //
-void 
+void
 MuonPUViewManager::newEventAvailable()
 {
   Double_t rotation_center[3] = { 0, 0, 0 };
-  
-  for (std::vector<MuonPUModelProxy>::iterator proxy = 
+
+  for (std::vector<MuonPUModelProxy>::iterator proxy =
 	 m_modelProxies.begin(); proxy != m_modelProxies.end(); ++proxy ) {
     // Account for differences in proxy builders:
     // ElectronsProxyPUBuilder::build(TEveElementList *product)
     // MuonsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList *product)
     proxy->builder->build( &(proxy->product) );
-    proxy->builder->getCenter( rotation_center ); 
+    proxy->builder->getCenter( rotation_center );
   }
-   
+
    // set default view
    TGLViewer* viewer = nv->GetGLViewer();
-   if ( !viewer ) printf("cannot get GLViewer\n"); 
-   
+   if ( !viewer ) printf("cannot get GLViewer\n");
+
    addElements();
 }
 
-void 
+void
 MuonPUViewManager::newItem(const FWEventItem* iItem)
 {
      TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
      if(itFind != m_typeToBuilder.end()) {
 	  printf("MuonPUViewManager: adding item... ");
-     	  MuonsProxyPUBuilder *builder = 
-	       reinterpret_cast<MuonsProxyPUBuilder *>( 
+     	  MuonsProxyPUBuilder *builder =
+	       reinterpret_cast<MuonsProxyPUBuilder *>(
 		    createInstanceOf(
 			 TClass::GetClass(typeid(MuonsProxyPUBuilder)),
 			 itFind->second.c_str()));
@@ -131,20 +131,20 @@ MuonPUViewManager::newItem(const FWEventItem* iItem)
      }
 }
 
-void 
+void
 MuonPUViewManager::registerProxyBuilder(const std::string& iType,
 					    const std::string& iBuilder)
 {
      m_typeToBuilder[iType] = iBuilder;
-     printf("MuonPUViewManager: registering %s, %s\n", iType.c_str(), 
+     printf("MuonPUViewManager: registering %s, %s\n", iType.c_str(),
 	    iBuilder.c_str());
 }
 
-void 
+void
 MuonPUViewManager::modelChangesComing()
 {
 }
-void 
+void
 MuonPUViewManager::modelChangesDone()
 {
    newEventAvailable();
@@ -166,7 +166,7 @@ void MuonPUViewManager::addElements ()
 //      bool rpHasMoreChildren = m_projMgr->GetNChildren();
 //      int index = 0;
 //      while(++index < m_projMgr->GetNChildren()) {++itLastElement;}
-     
+
      for ( std::vector<MuonPUModelProxy>::iterator proxy =
 		m_modelProxies.begin();
 	   proxy != m_modelProxies.end(); ++proxy )  {
@@ -178,7 +178,7 @@ void MuonPUViewManager::addElements ()
 // 	  } else {
 // 	       ++itLastElement;
 // 	  }
-     }  
+     }
 }
 #endif
 

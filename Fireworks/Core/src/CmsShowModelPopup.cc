@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowModelPopup
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.10 2008/07/15 15:24:48 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.11 2008/07/17 00:41:11 chrjones Exp $
 //
 
 // system include file
@@ -57,7 +57,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
 m_detailViewManager(iManager)
 {
   m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
-   
+
   SetCleanup(kDeepCleanup);
   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
   m_modelLabel = new TGLabel(objectFrame, " ");
@@ -114,14 +114,14 @@ m_detailViewManager(iManager)
 
   m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowModelPopup", this, "changeModelColor(Pixel_t)");
   m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
-   
-   
+
+
   SetWindowName("Object Display Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
   Layout();
   MapWindow();
-   
+
   fillModelPopup(*iSelMgr);
 }
 
@@ -169,7 +169,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
       if (it_mod != m_models.begin()) {
 	item = (*it_mod).item();
 	if (item->name() != prevItem->name()) multipleNames = true;
-	if (item->modelInfo((*it_mod).index()).displayProperties().color() != prevItem->modelInfo(prevId.index()).displayProperties().color()) 
+	if (item->modelInfo((*it_mod).index()).displayProperties().color() != prevItem->modelInfo(prevId.index()).displayProperties().color())
 	  multipleColors = true;
 	if (item->modelInfo((*it_mod).index()).displayProperties().isVisible() != prevItem->modelInfo(prevId.index()).displayProperties().isVisible())
 	  multipleVis = true;
@@ -179,7 +179,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
     }
     id = *m_models.begin();
     item = (*(m_models.begin())).item();
-    if (multipleNames) { 
+    if (multipleNames) {
        std::ostringstream s;
        s<<m_models.size()<<" objects";
       m_modelLabel->SetText(s.str().c_str());
@@ -201,7 +201,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
     //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
     m_destroyedConn = item->goingToBeDestroyed_.connect(boost::bind(&CmsShowModelPopup::disconnectAll, this));
     Layout();
-  }    
+  }
 }
 
 void
@@ -257,7 +257,7 @@ CmsShowModelPopup::toggleModelVisible(Bool_t on) {
   //  m_item->setDisplayProperties(m_model->index(), changeProperties);
 }
 
-void 
+void
 CmsShowModelPopup::openDetailedView()
 {
    m_detailViewManager->openDetailViewFor( *(m_models.begin()) );

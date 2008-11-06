@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWModelFilter
-// 
+//
 /**\class FWModelFilter FWModelFilter.h Fireworks/Core/interface/FWModelFilter.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.3 2008/08/01 13:43:15 chrjones Exp $
+// $Id: FWModelFilter.h,v 1.4 2008/08/21 21:10:50 chrjones Exp $
 //
 
 // system include files
@@ -41,9 +41,9 @@ class FWModelFilter
       // ---------- const member functions ---------------------
 
       const std::string& expression() const;
-   
+
       bool passesFilter(const void*) const;
-   
+
       const bool trivialFilter() const;
       // ---------- static member functions --------------------
 
@@ -51,7 +51,7 @@ class FWModelFilter
       /** Throws an FWExpressionException if there is a problem */
       void setExpression(const std::string& );
       void setClassName(const std::string& );
-   
+
    private:
       //FWModelFilter(const FWModelFilter&); // stop default
 
@@ -59,7 +59,7 @@ class FWModelFilter
 
       // ---------- member data --------------------------------
       std::string m_expression;
-      std::string m_className;   
+      std::string m_className;
       reco::parser::SelectorPtr m_selector;
       ROOT::Reflex::Type m_type;
 };

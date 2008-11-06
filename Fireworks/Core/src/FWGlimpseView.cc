@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseView
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.17 2008/11/04 20:29:25 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.18 2008/11/06 19:49:23 amraktad Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@
 //
 // constructors and destructor
 //
-FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list, 
+FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
                              FWEveValueScaler* iScaler):
  m_cylinder(0),
  m_cameraMatrix(0),
@@ -98,10 +98,10 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    //? ev->SetEventHandler(new TGlimpseEventHandler("Lego", ev->GetGLWidget(), ev));
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
-   if ( TGLPerspectiveCamera* camera = 
+   if ( TGLPerspectiveCamera* camera =
 	dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
      m_cameraFOV = &(camera->fFOV);
-     
+
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
    m_scene = ns;
    nv->AddScene(ns);
@@ -109,13 +109,13 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    gEve->AddElement(nv, gEve->GetViewers());
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
-   
+
 
    // create 3D axes
    TGLFont::EMode fontMode = TGLFont::kPixmap;
    Int_t fs = 14;
    Color_t fcol = kGray+1;
-   
+
    // X axis
    TEveStraightLineSet* xAxis = new TEveStraightLineSet( "GlimpseXAxis" );
    xAxis->SetPickable(kTRUE);
@@ -163,7 +163,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    zTxt->SetMainColor(fcol);
    gEve->AddElement(zTxt, ns);
 
-   
+
    // made detector outline in wireframe scene
 
    TEveScene* wns = gEve->SpawnNewScene(Form("Wireframe %s", staticTypeName().c_str()));
@@ -177,9 +177,9 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TGeoTube* tube = new TGeoTube(129,130,310);
    m_cylinder = fw::getShape("Detector outline", tube, kWhite);
    m_cylinder->SetPickable(kFALSE);
-   m_cylinder->SetMainColor(kGray+3);  
+   m_cylinder->SetMainColor(kGray+3);
    wns->AddElement(m_cylinder);
-   
+
    /*
    TGeoTrap* cube = new TGeoTrap(100,0,0,100,100,100,0,100,100,100,0);
    TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", cube, Color_t(TColor::GetColor("#202020")) );
@@ -223,20 +223,20 @@ FWGlimpseView::~FWGlimpseView()
    TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
    glviewer->fFrame=0;
    delete glviewer;
-   
+
    m_viewer->Destroy();
    m_scene->Destroy();
    //delete m_viewer;
 }
 
-void 
+void
 FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 {
    // take care of parameters
    FWConfigurableParameterizable::setFrom(iFrom);
-   
+
    // retrieve camera parameters
-   
+
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
@@ -248,7 +248,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(value->value());
       s>>((*m_cameraMatrix)[i]);
    }
-   
+
    // transformation matrix base
    assert(m_cameraMatrixBase);
    matrixName = "cameraMatrixBase";
@@ -261,8 +261,8 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
       s>>((*m_cameraMatrixBase)[i]);
    }
 
-     { 
-	assert ( m_cameraFOV );	
+     {
+	assert ( m_cameraFOV );
 	const FWConfiguration* value = iFrom.valueForKey( "Glimpse FOV" );
 	assert( value );
 	std::istringstream s(value->value());
@@ -274,26 +274,26 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 //
 // const member functions
 //
-TGFrame* 
+TGFrame*
 FWGlimpseView::frame() const
 {
    return m_embeddedViewer->GetFrame();
 }
 
-const std::string& 
+const std::string&
 FWGlimpseView::typeName() const
 {
    return staticTypeName();
 }
 
-void 
+void
 FWGlimpseView::addTo(FWConfiguration& iTo) const
 {
    // take care of parameters
    FWConfigurableParameterizable::addTo(iTo);
-   
+
    // store camera parameters
-   
+
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
@@ -304,7 +304,7 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
       osValue << (*m_cameraMatrix)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
    }
-   
+
    // transformation matrix base
    assert(m_cameraMatrixBase);
    matrixName = "cameraMatrixBase";
@@ -315,7 +315,7 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
       osValue << (*m_cameraMatrixBase)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
    }
-     { 
+     {
 	assert ( m_cameraFOV );
 	std::ostringstream osValue;
 	osValue << *m_cameraFOV;
@@ -323,7 +323,7 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
      }
 }
 
-void 
+void
 FWGlimpseView::saveImageTo(const std::string& iName) const
 {
    bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
@@ -332,15 +332,15 @@ FWGlimpseView::saveImageTo(const std::string& iName) const
    }
 }
 
-void 
-FWGlimpseView::updateScale( double scale ) 
-{ 
+void
+FWGlimpseView::updateScale( double scale )
+{
    m_scaler->setScale(scale);
 }
 
-void 
-FWGlimpseView::showAxes( ) 
-{ 
+void
+FWGlimpseView::showAxes( )
+{
    if ( m_showAxes.value() )
      m_embeddedViewer->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
    else
@@ -348,9 +348,9 @@ FWGlimpseView::showAxes( )
 }
 
 
-void 
-FWGlimpseView::showCylinder( ) 
-{ 
+void
+FWGlimpseView::showCylinder( )
+{
    if ( m_showCylinder.value() )
      m_cylinder->SetRnrState(kTRUE);
    else
@@ -362,7 +362,7 @@ FWGlimpseView::showCylinder( )
 //
 // static member functions
 //
-const std::string& 
+const std::string&
 FWGlimpseView::staticTypeName()
 {
    static std::string s_name("Glimpse");

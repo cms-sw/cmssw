@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowTaskExecutor
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:47 EDT 2008
-// $Id$
+// $Id: CmsShowTaskExecutor.cc,v 1.1 2008/07/12 00:32:58 chrjones Exp $
 //
 
 // system include files
@@ -56,13 +56,13 @@ CmsShowTaskExecutor::~CmsShowTaskExecutor()
 //
 // member functions
 //
-void 
+void
 CmsShowTaskExecutor::addTask(const TaskFunctor& iTask)
 {
    m_tasks.push_back(iTask);
 }
 
-void 
+void
 CmsShowTaskExecutor::startDoingTasks()
 {
    if(m_tasks.size()) {
@@ -70,7 +70,7 @@ CmsShowTaskExecutor::startDoingTasks()
    }
 }
 
-void 
+void
 CmsShowTaskExecutor::doNextTaskImp()
 {
    TaskFunctor f = m_tasks.front();
@@ -78,7 +78,7 @@ CmsShowTaskExecutor::doNextTaskImp()
    f();
 }
 
-bool 
+bool
 CmsShowTaskExecutor::moreTasksAvailable()
 {
    return !m_tasks.empty();

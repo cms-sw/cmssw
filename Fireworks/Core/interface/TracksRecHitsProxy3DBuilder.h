@@ -1,10 +1,10 @@
 #ifndef Fireworks_Muons_TracksRecHitsProxy3DBuilder_h
 #define Fireworks_Muons_TracksRecHitsProxy3DBuilder_h
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Original name
-// $Id: TracksRecHitsProxy3DBuilder.h,v 1.2 2008/06/09 19:54:02 chrjones Exp $
+// $Id: TracksRecHitsProxy3DBuilder.h,v 1.3 2008/08/20 23:52:36 dmytro Exp $
 // New version
 // $Id: TracksRecHitsProxy3DBuilder.h, v 1.0 2008 02/21 10:53:48 Tom Danielson
 // system include files

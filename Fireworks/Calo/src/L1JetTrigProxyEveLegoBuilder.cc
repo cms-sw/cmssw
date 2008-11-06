@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1JetTrigProxyEveLegoBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyEveLegoBuilder.cc,v 1.3 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1JetTrigProxyEveLegoBuilder.cc,v 1.4 2008/11/04 20:29:24 amraktad Exp $
 //
 
 // system include files
@@ -80,12 +80,12 @@ L1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** 
   } else {
     tList->DestroyElements();
   }
-   
+
   // Get the particle map collection for L1JetParticles
   l1extra::L1JetParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
   if(0==triggerColl) return;
-   
+
   // make a counter
   fw::NamedCounter counter("l1jettrigs");
   TColor* c = gROOT->GetColor( tList->GetMainColor() );
@@ -101,15 +101,15 @@ L1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** 
   trigEnd = triggerColl->end();
   const unsigned int nLineSegments = 6;
   const double jetRadius = 0.5;
-   
+
   // Loop over triggered objects and make some 4-vectors
   for ( ; jet != trigEnd; ++jet ) {
-      char title[1024]; 
+      char title[1024];
       sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
       TEveStraightLineSet* container = new TEveStraightLineSet( counter.str().c_str(), title );
       // container->SetLineWidth(4);
       container->SetLineColor(  iItem->defaultDisplayProperties().color() );
-      
+
       for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
 	 container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
 			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
@@ -121,7 +121,7 @@ L1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** 
       tList->AddElement(container);
   }// end loop over em particle objects
 
-  
+
 
 }
 

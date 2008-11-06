@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEventItem
-// 
+//
 /**\class FWEventItem FWEventItem.h Fireworks/Core/interface/FWEventItem.h
 
  Description: Stand in for a top level item in an Event
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.26 2008/08/21 21:11:36 chrjones Exp $
+// $Id: FWEventItem.h,v 1.27 2008/10/21 19:25:06 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,7 @@ class FWEventItem
          ModelInfo(const FWDisplayProperties& iProps, bool iIsSelected):
          m_displayProperties(iProps),
          m_isSelected(iIsSelected) {}
-         
+
          const FWDisplayProperties& displayProperties() const {
             return m_displayProperties;
          }
@@ -66,7 +66,7 @@ class FWEventItem
             return m_isSelected;
          }
       };
-   
+
       FWEventItem(fireworks::Context* iContext,
                   unsigned int iItemId,
                   boost::shared_ptr<FWItemAccessorBase> iAccessor,
@@ -82,9 +82,9 @@ class FWEventItem
 #endif
       const void* data(const std::type_info&) const;
       const FWDisplayProperties& defaultDisplayProperties() const;
-   
+
       unsigned int layer() const;
-   
+
       const std::string& filterExpression() const;
       /**Unique ID for the item. This number starts at 0 and increments by one for each
        new item.*/
@@ -97,15 +97,15 @@ class FWEventItem
       const std::string& moduleLabel() const;
       const std::string& productInstanceLabel() const;
       const std::string& processName() const;
-   
+
       const TClass* modelType() const;
       ModelInfo modelInfo(int iIndex) const; //return copy for now since want to be able to change visibility
       size_t size() const;
       const void* modelData(int iIndex) const;
       std::string modelName(int iIndex) const;
-   
+
       bool isCollection() const;
-   
+
       //convenience methods
       FWModelChangeManager* changeManager() const {
          return m_context->modelChangeManager();
@@ -115,11 +115,11 @@ class FWEventItem
       }
 
       bool hasEvent() const {return 0 != m_event; }
-   
+
       // hackery methods
       const fwlite::Event *getEvent () const { return  m_event; }
 
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -139,32 +139,32 @@ class FWEventItem
       void select(int iIndex) const;
       void toggleSelect(int iIndex) const;
       void setDisplayProperties(int iIndex, const FWDisplayProperties&) const;
-   
+
       void destroy() const;
       /** connect to this signal if you want to know when models held by the item change */
       mutable FWModelChangeSignal changed_;
-   
+
       /** connect to this signal if you want to know when the data underlying the item changes */
       mutable FWItemChangeSignal itemChanged_;
-   
-      /** connect to this signal if you want to know immediately when the data underlying the item changes 
+
+      /** connect to this signal if you want to know immediately when the data underlying the item changes
        only intended to be used by the FWSelectionManager
        */
       mutable FWItemChangeSignal preItemChanged_;
-   
+
       /** connect to this signal if you want to know that the default display properties of the item have changed.
        This is only useful if you are displaying these properties and not just the underlying models.*/
       mutable FWItemChangeSignal defaultDisplayPropertiesChanged_;
-   
+
       /** connect to this signal if you need to know that this item is going to be destroyed.
-       */ 
+       */
       mutable FWItemChangeSignal goingToBeDestroyed_;
    private:
       //FWEventItem(const FWEventItem&); // stop default
 
       //const FWEventItem& operator=(const FWEventItem&); // stop default
       void setData(const ROOT::Reflex::Object& ) const;
-   
+
       void getPrimaryData() const;
       void runFilter();
       // ---------- member data --------------------------------
@@ -185,7 +185,7 @@ class FWEventItem
       const fwlite::Event* m_event;
       ROOT::Reflex::Type m_wrapperType;
       const DetIdToMatrix* m_detIdToGeo;
-   
+
       FWModelFilter m_filter;
       sigc::connection m_shouldFilterConnection;
       mutable bool m_printedNoDataError;

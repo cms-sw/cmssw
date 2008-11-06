@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     BaseCaloTowerProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar 12 21:32:54 CDT 2008
-// $Id: BaseCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/03/13 03:02:01 chrjones Exp $
+// $Id: BaseCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/07/01 04:43:55 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::~BaseCaloTowerProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //for now, only if all items selected will will apply the action
@@ -68,7 +68,7 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveEle
    }
 }
 
-void 
+void
 BaseCaloTowerProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(ids().size() != 0 ) {
@@ -77,12 +77,12 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElemen
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 
 /*
-void 
+void
 BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEveElement* iElements)
 {
    //for now, only if all items selected will will apply the action
@@ -92,7 +92,7 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEv
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 */

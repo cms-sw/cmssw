@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     fwCintInterfaces
-// 
+//
 /**\class fwCintInterfaces fwCintInterfaces.h Fireworks/Core/interface/fwCintInterfaces.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 12 15:00:50 EDT 2008
-// $Id$
+// $Id: fwCintInterfaces.h,v 1.1 2008/06/12 20:07:50 chrjones Exp $
 //
 
 // system include files

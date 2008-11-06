@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWConfigurable
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:30 EST 2008
-// $Id$
+// $Id: FWConfigurable.cc,v 1.1 2008/02/25 21:32:25 chrjones Exp $
 //
 
 // system include files

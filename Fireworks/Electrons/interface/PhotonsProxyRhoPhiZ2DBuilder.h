@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     PhotonsProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class PhotonsProxyRhoPhiZ2DBuilder PhotonsProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/PhotonsProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: PhotonsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/06/09 19:54:04 chrjones Exp $
+// $Id: PhotonsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/09/21 13:16:22 jmuelmen Exp $
 //
 
 // system include files
@@ -44,8 +44,8 @@ class PhotonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
    private:

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGUIManager
-// 
+//
 /**\class FWGUIManager FWGUIManager.h Fireworks/Core/interface/FWGUIManager.h
 
  Description: Manages the GUI
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.39 2008/08/25 00:08:28 dmytro Exp $
+// $Id: FWGUIManager.h,v 1.40 2008/08/29 02:33:03 dmytro Exp $
 //
 
 // system include files
@@ -101,7 +101,7 @@ class FWGUIManager : public FWConfigurable
       //configuration management interface
       void addTo(FWConfiguration&) const;
       void setFrom(const FWConfiguration&);
-   
+
       TGVerticalFrame* createList(TGSplitFrame *p);
       TGMainFrame* createViews(TGCompositeFrame *p);
       TGMainFrame* createTextView(TGTab *p);
@@ -135,13 +135,13 @@ class FWGUIManager : public FWConfigurable
       // ---------- member functions ---------------------------
       void addFrameHoldingAView(TGFrame*);
       TGFrame* parentForNextView();
-   
+
       //have to use the portable syntax else the reflex code will not build
       typedef boost::function1<FWViewBase*,TGFrame*> ViewBuildFunctor;
-      void registerViewBuilder(const std::string& iName, 
+      void registerViewBuilder(const std::string& iName,
                               ViewBuildFunctor& iBuilder);
-   
-      void registerDetailView (const std::string &iItemName, 
+
+      void registerDetailView (const std::string &iItemName,
                                FWDetailView *iView);
       void createView(const std::string& iName);
 
@@ -166,11 +166,11 @@ class FWGUIManager : public FWConfigurable
       void itemDblClicked(TGListTreeItem* item, Int_t btn);
       void itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask);
       void itemBelowMouse(TGListTreeItem*, UInt_t);
-   
+
       sigc::signal<void, const std::string&> writeToConfigurationFile_;
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
-   
+
       void openEveBrowserForDebugging() const;
    private:
       FWGUIManager(const FWGUIManager&); // stop default
@@ -183,12 +183,12 @@ class FWGUIManager : public FWConfigurable
 
       void subviewWasSwappedToBig(unsigned int);
       void subviewIsBeingDestroyed(unsigned int);
-   
+
       void mainViewWasUndocked();
       void mainViewWasDocked();
       void viewSelected(unsigned int);
       void viewUnselected(unsigned int);
-   
+
       void exportImageOfMainView();
       void promptForConfigurationFile();
 
@@ -206,33 +206,33 @@ class FWGUIManager : public FWConfigurable
       // -1 - move backward
       //  0 - do nothing
       // -2 - start over
-      // -3 - stop event loop 
-   
+      // -3 - stop event loop
+
 
       TGPictureButton* m_homeButton;
       TGPictureButton* m_advanceButton;
       TGPictureButton* m_backwardButton;
       TGPictureButton* m_stopButton;
-   
+
       TGComboBox* m_selectionItemsComboBox;
       TGTextEntry* m_selectionExpressionEntry;
       TGTextButton* m_selectionRunExpressionButton;
       TGTextButton* m_unselectAllButton;
-   
+
       TGPopupMenu* m_fileMenu;
 
       CmsShowMainFrame* m_cmsShowMainFrame;
       TGMainFrame* m_mainFrame;
       TGSplitFrame* m_splitFrame;
       std::vector<FWGUISubviewArea*> m_viewFrames;
-      
+
       typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
       NameToViewBuilder m_nameToViewBuilder;
-  
+
       TGListTree* m_listTree;
       //TEveGedEditor* m_editor;
       //TEveElementList* m_views;
-   
+
       TEveElement* m_editableSelected;
 
       FWSummaryManager* m_summaryManager;
@@ -242,7 +242,7 @@ class FWGUIManager : public FWConfigurable
 
       FWDetailViewManager* m_detailViewManager;
       const FWViewManagerManager* m_viewManagerManager;
-   
+
       const TFile* m_openFile;
       FWGUIEventDataAdder* m_dataAdder;
 
@@ -250,15 +250,15 @@ class FWGUIManager : public FWConfigurable
       CmsShowEDI* m_ediFrame;
       CmsShowModelPopup* m_modelPopup;
       CmsShowViewPopup* m_viewPopup;
-     
+
      // help
      CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
-     
+
       TGTab		*m_textViewTab;
       TGCompositeFrame	*m_textViewFrame[3];
 
       sigc::connection m_modelChangeConn;
-   
+
       std::auto_ptr<CmsShowTaskExecutor> m_tasks;
 };
 

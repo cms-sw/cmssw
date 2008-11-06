@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListViewObjectEditor
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:57 CDT 2008
-// $Id: FWListViewObjectEditor.cc,v 1.4 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWListViewObjectEditor.cc,v 1.5 2008/07/15 02:00:13 chrjones Exp $
 //
 #if defined(THIS_IS_NOT_DEFINED)
 // system include files
@@ -36,7 +36,7 @@
 //
 // constructors and destructor
 //
-FWListViewObjectEditor::FWListViewObjectEditor(const TGWindow* p, 
+FWListViewObjectEditor::FWListViewObjectEditor(const TGWindow* p,
                                                Int_t width,
                                                Int_t height,
                                                UInt_t options,
@@ -76,7 +76,7 @@ FWListViewObjectEditor::SetModel(TObject* iView)
 {
    FWListViewObject* obj = dynamic_cast<FWListViewObject*>(iView);
    assert(0!=obj);
-   
+
    FWViewBase* view = obj->view();
 
    if (m_frame) {
@@ -98,7 +98,7 @@ FWListViewObjectEditor::SetModel(TObject* iView)
       m_frame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
       m_setters.push_back(ptr);
    }
-   
+
    MapSubwindows();
 }
 

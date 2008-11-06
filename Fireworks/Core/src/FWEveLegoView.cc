@@ -3,13 +3,13 @@
 //
 // Package:     Core
 // Class  :     FWEveLegoView
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.24 2008/09/29 18:00:23 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.25 2008/10/28 14:19:43 chrjones Exp $
 //
 
 // system include files
@@ -92,9 +92,9 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    nv->SetGLViewer(ev);
    nv->IncDenyDestroy();
-   
+
    // take care of cameras
-   // 
+   //
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    ev->SetEventHandler(new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev));
@@ -112,18 +112,18 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    nv->AddScene(ns);
    m_viewer=nv;
    gEve->AddElement(nv, gEve->GetViewers());
-   
+
    /*
    TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
    // pal->SetLimits(0, data->GetMaxVal());
    pal->SetLimits(0, 100);
    pal->SetDefaultColor((Color_t)1000);
-   
+
    m_lego = new TEveCaloLego();
    m_lego->InitMainTrans();
    m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
    m_lego->SetTopViewTowerColor(kWhite);
-   
+
    m_lego->SetPalette(pal);
    // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
    m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
@@ -173,7 +173,7 @@ FWEveLegoView::~FWEveLegoView()
    TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
    glviewer->fFrame=0;
    delete glviewer;
-   
+
    m_viewer->Destroy();
    m_scene->Destroy();
    //delete m_viewer;
@@ -203,7 +203,7 @@ FWEveLegoView::setCameras()
       *m_cameraMatrixBaseRef = *m_cameraMatrixBase;
       *m_orthoCameraMatrixRef = *m_orthoCameraMatrix;
       *m_orthoCameraZoomRef = m_orthoCameraZoom;
-      TEveLegoEventHandler* eh = 
+      TEveLegoEventHandler* eh =
 	   dynamic_cast<TEveLegoEventHandler*>(m_viewer->GetGLViewer()->GetEventHandler());
       if ( m_topView && eh ) {
 	 eh->Rotate(0,10000,kFALSE, kFALSE);
@@ -234,7 +234,7 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    //CDJ m_viewer->GetGLViewer()->RequestDraw();
 }
 
-void 
+void
 FWEveLegoView::setMinEcalEnergy(double value)
 {
    /*
@@ -255,7 +255,7 @@ FWEveLegoView::setMinEcalEnergy(double value)
     */
 }
 
-void 
+void
 FWEveLegoView::setMinHcalEnergy(double value)
 {
    /*
@@ -276,7 +276,7 @@ FWEveLegoView::setMinHcalEnergy(double value)
     */
 }
 
-void 
+void
 FWEveLegoView::setMinEnergy()
 {
    /*
@@ -286,17 +286,17 @@ FWEveLegoView::setMinEnergy()
 }
 #endif
 
-void 
+void
 FWEveLegoView::setFrom(const FWConfiguration& iFrom)
 {
    // take care of parameters
    FWConfigurableParameterizable::setFrom(iFrom);
-   
+
    // retrieve camera parameters
    m_cameraMatrix = new TGLMatrix();
    m_cameraMatrixBase = new TGLMatrix();
    m_orthoCameraMatrix = new TGLMatrix();
-   
+
 /*   // state
    std::string stateName("cameraState"); stateName += typeName();
    assert( 0!=iFrom.valueForKey(stateName) );
@@ -308,7 +308,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    else
      m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    // m_embeddedViewer->ResetCurrentCamera();
-*/   
+*/
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
@@ -320,7 +320,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(value->value());
       s>>((*m_cameraMatrix)[i]);
    }
-   
+
    // transformation matrix base
    assert(m_cameraMatrixBase);
    matrixName = "cameraMatrixBase";
@@ -338,7 +338,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    assert( 0!=iFrom.valueForKey(zoomName) );
    std::istringstream s(iFrom.valueForKey(zoomName)->value());
    s>>(m_orthoCameraZoom);
-   
+
    // transformation matrix
    assert(m_orthoCameraMatrix);
    std::string orthoMatrixName("orthoCameraMatrix");
@@ -363,26 +363,26 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
 //
 // const member functions
 //
-TGFrame* 
+TGFrame*
 FWEveLegoView::frame() const
 {
    return m_embeddedViewer->GetFrame();
 }
 
-const std::string& 
+const std::string&
 FWEveLegoView::typeName() const
 {
    return staticTypeName();
 }
 
-void 
+void
 FWEveLegoView::addTo(FWConfiguration& iTo) const
 {
    // take care of parameters
    FWConfigurableParameterizable::addTo(iTo);
-   
+
    // store camera parameters
-   
+
    // transformation matrix
    assert(m_cameraMatrixRef);
    std::string matrixName("cameraMatrix");
@@ -393,7 +393,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
       osValue << (*m_cameraMatrixRef)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
    }
-   
+
    // transformation matrix base
    assert(m_cameraMatrixBaseRef);
    matrixName = "cameraMatrixBase";
@@ -404,7 +404,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
       osValue << (*m_cameraMatrixBaseRef)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
    }
-   
+
    // zoom
    assert(m_orthoCameraZoomRef);
    std::ostringstream s;
@@ -415,12 +415,12 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
    // zoom
    s.str("");
    bool topView = false;
-   if ( dynamic_cast<TGLOrthoCamera*>( &(m_embeddedViewer->CurrentCamera()) ) ) 
+   if ( dynamic_cast<TGLOrthoCamera*>( &(m_embeddedViewer->CurrentCamera()) ) )
      topView = true;
    s << topView;
    name = "topView";
    iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
-   
+
    // transformation matrix
    assert(m_orthoCameraMatrixRef);
    std::string orthoMatrixName("orthoCameraMatrix");
@@ -433,7 +433,7 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
    }
 }
 
-void 
+void
 FWEveLegoView::saveImageTo(const std::string& iName) const
 {
    bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
@@ -446,7 +446,7 @@ FWEveLegoView::saveImageTo(const std::string& iName) const
 //
 // static member functions
 //
-const std::string& 
+const std::string&
 FWEveLegoView::staticTypeName()
 {
    static std::string s_name("3D Lego");

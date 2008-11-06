@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     FWGlimpseEveJet
-// 
+//
 /**\class FWGlimpseEveJet FWGlimpseEveJet.h Fireworks/Calo/interface/FWGlimpseEveJet.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FWGlimpseEveJet.h,v 1.3 2008/07/09 18:24:34 chrjones Exp $
+// $Id: FWGlimpseEveJet.h,v 1.4 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
 
       // ---------- member functions ---------------------------
       void setScale(float);
-   
+
       //Override these so that when the system changes color it gets
       // propagated to the 'Digit'
       void SetMainColor(Color_t);

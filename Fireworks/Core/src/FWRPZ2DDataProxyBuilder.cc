@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRPZ2DDataProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.13 2008/07/01 04:43:54 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.14 2008/10/28 14:17:14 chrjones Exp $
 //
 
 // system include files
@@ -72,8 +72,8 @@ FWRPZ2DDataProxyBuilder::~FWRPZ2DDataProxyBuilder()
 //
 // member functions
 //
- 
-void 
+
+void
 FWRPZ2DDataProxyBuilder::itemChangedImp(const FWEventItem*)
 {
    /* inheriting classes own the elements
@@ -88,7 +88,7 @@ FWRPZ2DDataProxyBuilder::itemChangedImp(const FWEventItem*)
    m_rhoZNeedsUpdate=true;
 }
 
-void 
+void
 FWRPZ2DDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    if(0!=m_rhoPhiElements) {
@@ -106,7 +106,7 @@ FWRPZ2DDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
    }
 }
 
-TEveElementList* 
+TEveElementList*
 FWRPZ2DDataProxyBuilder::getRhoPhiProduct() const
 {
    if(m_rhoPhiNeedsUpdate) {
@@ -116,7 +116,7 @@ FWRPZ2DDataProxyBuilder::getRhoPhiProduct() const
    return m_rhoPhiElements;
 }
 
-TEveElementList* 
+TEveElementList*
 FWRPZ2DDataProxyBuilder::getRhoZProduct() const
 {
    if(m_rhoZNeedsUpdate) {
@@ -146,7 +146,7 @@ FWRPZ2DDataProxyBuilder::buildRhoZ(TEveElementList** iObject)
   }
 }
 
-void 
+void
 FWRPZ2DDataProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
 }

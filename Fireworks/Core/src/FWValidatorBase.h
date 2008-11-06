@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWValidatorBase
-// 
+//
 /**\class FWValidatorBase FWValidatorBase.h Fireworks/Core/interface/FWValidatorBase.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:39 EDT 2008
-// $Id$
+// $Id: FWValidatorBase.h,v 1.1 2008/08/24 00:19:12 chrjones Exp $
 //
 
 // system include files
@@ -29,29 +29,29 @@
 // forward declarations
 
 class FWValidatorBase {
-   
+
 public:
    FWValidatorBase() {}
    virtual ~FWValidatorBase() {}
-   
+
    // ---------- const member functions ---------------------
-   //fills the vector with 
+   //fills the vector with
    // first: the full details about the substitution
    // second: exactly what should be inserted into the expression to complete the option
-   virtual void fillOptions(const char* iBegin, const char* iEnd, 
+   virtual void fillOptions(const char* iBegin, const char* iEnd,
                             std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const = 0;
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
-   
+
 private:
    FWValidatorBase(const FWValidatorBase&); // stop default
-   
+
    const FWValidatorBase& operator=(const FWValidatorBase&); // stop default
-   
+
    // ---------- member data --------------------------------
-   
+
 };
 
 

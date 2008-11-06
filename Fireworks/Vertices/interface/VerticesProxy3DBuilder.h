@@ -15,7 +15,7 @@ private:
     virtual void build (const FWEventItem* item, TEveElementList** product);
 
     // prevent default copy constructor and assignment operator
-    VerticesProxy3DBuilder (const VerticesProxy3DBuilder &); 
+    VerticesProxy3DBuilder (const VerticesProxy3DBuilder &);
     const VerticesProxy3DBuilder & operator=(const VerticesProxy3DBuilder &);
 };
 

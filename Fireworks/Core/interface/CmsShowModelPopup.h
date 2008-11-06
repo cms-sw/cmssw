@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowModelPopup
-// 
+//
 /**\class CmsShowModelPopup CmsShowModelPopup.h Fireworks/Core/interface/CmsShowModelPopup.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.5 2008/07/08 14:16:25 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.6 2008/07/08 17:47:00 chrjones Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ class CmsShowModelPopup : public TGTransientFrame
       void changeModelColor(Pixel_t pixel = 0x000000);
       void toggleModelVisible(Bool_t on = kTRUE);
       void openDetailedView();
-   
+
    private:
       CmsShowModelPopup(const CmsShowModelPopup&); // stop default
 
@@ -72,7 +72,7 @@ class CmsShowModelPopup : public TGTransientFrame
       sigc::connection m_modelChangedConn;
       sigc::connection m_destroyedConn;
       sigc::connection m_changes;
-   
+
       FWDetailViewManager* m_detailViewManager;
 };
 

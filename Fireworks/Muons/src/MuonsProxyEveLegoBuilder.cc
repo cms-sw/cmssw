@@ -2,13 +2,13 @@
 //
 // Package:     Muons
 // Class  :     MuonsProxyEveLegoBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.cc,v 1.5 2008/09/26 07:15:42 dmytro Exp $
+// $Id: MuonsProxyEveLegoBuilder.cc,v 1.6 2008/11/04 20:29:26 amraktad Exp $
 //
 
 // system include files
@@ -69,13 +69,13 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::MuonCollection* muons=0;
    iItem->get(muons);
    if(0 == muons ) return;
-   
+
    fw::NamedCounter counter("moun");
-   for ( reco::MuonCollection::const_iterator muon = muons->begin(); 
+   for ( reco::MuonCollection::const_iterator muon = muons->begin();
 	 muon != muons->end(); ++muon, ++counter )
      {
 	char title[1024];

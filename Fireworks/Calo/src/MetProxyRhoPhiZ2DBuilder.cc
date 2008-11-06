@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     MetProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/11/04 11:46:33 amraktad Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/11/06 19:49:22 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ MetProxyRhoPhiZ2DBuilder::~MetProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -78,24 +78,24 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::CaloMETCollection* mets=0;
    iItem->get(mets);
    if(0==mets) return;
 
    double r_ecal = 126;
-   
+
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer, "MET: %0.1f GeV", mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
       double phi = mets->at(i).phi();
       double min_phi = phi-M_PI/36/2;
       double max_phi = phi+M_PI/36/2;
@@ -114,13 +114,13 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
       const double dx = 0.9*size*0.05;
       const double dy = 0.9*size*cos(0.05);
-      marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, 
+      marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0,
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       marker->AddLine( dx*sin(phi) + (dy+r_ecal)*cos(phi), -dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-		       
+
       container->AddElement(marker);
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
@@ -129,7 +129,7 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    }
 }
 
-void 
+void
 MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -142,18 +142,18 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::CaloMETCollection* mets=0;
    iItem->get(mets);
    if(0==mets) return;
-   
+
    double r = 126;
-   
+
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer, "MET: %0.1f GeV", mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
@@ -162,7 +162,7 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
@@ -181,5 +181,5 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       tList->AddElement(container);
    }
 }
-   
+
 REGISTER_FWRPZ2DDATAPROXYBUILDER(MetProxyRhoPhiZ2DBuilder,reco::CaloMETCollection,"MET");

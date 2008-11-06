@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     changeElementAndChildren
-// 
+//
 /**\class changeElementAndChildren changeElementAndChildren.h Fireworks/Core/interface/changeElementAndChildren.h
 
  Description: function to change an element and all its children to match the ModelInfo
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 11 21:41:13 CDT 2008
-// $Id$
+// $Id: changeElementAndChildren.h,v 1.1 2008/03/12 02:53:25 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,6 @@
 // forward declarations
 class TEveElement;
 void
-changeElementAndChildren(TEveElement* iElement, 
+changeElementAndChildren(TEveElement* iElement,
                          const FWEventItem::ModelInfo& iInfo);
 #endif

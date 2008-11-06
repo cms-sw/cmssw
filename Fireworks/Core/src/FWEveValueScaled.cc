@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEveValueScaled
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 10:30:14 EDT 2008
-// $Id$
+// $Id: FWEveValueScaled.cc,v 1.1 2008/07/04 23:38:37 chrjones Exp $
 //
 
 // system include files

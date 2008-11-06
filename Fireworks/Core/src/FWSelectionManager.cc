@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWSelectionManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.6 2008/03/05 16:42:32 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.7 2008/07/10 21:21:58 dmytro Exp $
 //
 
 // system include files
@@ -64,19 +64,19 @@ m_wasChanged(false)
 //
 // member functions
 //
-void 
+void
 FWSelectionManager::clearSelection()
-{  
+{
    FWChangeSentry sentry(*m_changeManager);
    for(std::set<FWModelId>::iterator it = m_selection.begin(), itEnd = m_selection.end();
        it != itEnd;
        ++it) {
-      //NOTE: this will cause 
+      //NOTE: this will cause
       it->unselect();
    }
 }
 
-void 
+void
 FWSelectionManager::finishedAllSelections()
 {
    if(m_wasChanged) {
@@ -86,7 +86,7 @@ FWSelectionManager::finishedAllSelections()
    }
 }
 
-void 
+void
 FWSelectionManager::select(const FWModelId& iId)
 {
    bool changed = m_newSelection.insert(iId).second;
@@ -106,7 +106,7 @@ FWSelectionManager::select(const FWModelId& iId)
    }
 }
 
-void 
+void
 FWSelectionManager::unselect(const FWModelId& iId)
 {
    bool changed = (0 != m_newSelection.erase(iId));
@@ -120,7 +120,7 @@ FWSelectionManager::unselect(const FWModelId& iId)
    }
 }
 
-void 
+void
 FWSelectionManager::itemChanged(const FWEventItem* iItem)
 {
    assert(0!=iItem);
@@ -155,7 +155,7 @@ FWSelectionManager::itemChanged(const FWEventItem* iItem)
 //
 // const member functions
 //
-const std::set<FWModelId>& 
+const std::set<FWModelId>&
 FWSelectionManager::selected() const
 {
    return m_selection;

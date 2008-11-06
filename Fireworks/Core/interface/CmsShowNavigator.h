@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// 
+//
 /**\class CmsShowNavigator CmsShowNavigator.h Fireworks/Core/interface/CmsShowNavigator.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.9 2008/08/20 21:02:54 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.10 2008/08/25 00:08:28 dmytro Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ class CmsShowNavigator
       void filterEvents(CSGAction* action);
       void goToRun(CSGAction* action);
       void goToEvent(CSGAction* action);
-      
+
       bool autoRewind() const { return m_loopMode; }
       void setAutoRewind( bool mode ) { m_loopMode = mode; }
 
@@ -74,7 +74,7 @@ class CmsShowNavigator
       CmsShowNavigator(const CmsShowNavigator&); // stop default
 
       const CmsShowNavigator& operator=(const CmsShowNavigator&); // stop default
-   
+
       void filterEventsAndReset(const char* selection);
 
       // ---------- member data --------------------------------

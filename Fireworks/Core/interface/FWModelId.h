@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWModelId
-// 
+//
 /**\class FWModelId FWModelId.h Fireworks/Core/interface/FWModelId.h
 
  Description: identifies a particular model within an FWEventItem
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 12:44:26 EST 2008
-// $Id: FWModelId.h,v 1.3 2008/03/05 16:46:06 chrjones Exp $
+// $Id: FWModelId.h,v 1.4 2008/03/11 22:09:20 chrjones Exp $
 //
 
 // system include files
@@ -40,16 +40,16 @@ class FWModelId
       {
          return m_item == iRHS.m_item ? m_index<iRHS.m_index : m_item<iRHS.m_item;
       }
-   
-      const FWEventItem* item() const 
+
+      const FWEventItem* item() const
       {
          return m_item;
       }
-   
-      int index() const 
+
+      int index() const
       {
          return m_index;
-      } 
+      }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

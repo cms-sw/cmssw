@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWConfigurationManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.4 2008/03/14 03:23:02 chrjones Exp $
+// $Id: FWConfigurationManager.cc,v 1.5 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ FWConfigurationManager::add(const std::string& iName, FWConfigurable* iConf)
 //
 // const member functions
 //
-void 
+void
 FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const
 {
    assert(0!=iConfig.keyValues());
@@ -85,11 +85,11 @@ FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const
       itFound->second->setFrom(it->second);
    }
 }
-void 
+void
 FWConfigurationManager::to(FWConfiguration& oConfig) const
 {
    FWConfiguration config;
-   for(std::map<std::string,FWConfigurable*>::const_iterator it = m_configurables.begin(), 
+   for(std::map<std::string,FWConfigurable*>::const_iterator it = m_configurables.begin(),
        itEnd = m_configurables.end();
        it != itEnd;
        ++it) {
@@ -98,7 +98,7 @@ FWConfigurationManager::to(FWConfiguration& oConfig) const
    }
 }
 
-void 
+void
 FWConfigurationManager::writeToFile(const std::string& iName) const
 {
    ofstream file(iName.c_str());
@@ -115,39 +115,39 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
    file <<"FWConfiguration* fwConfig() {\n"
    <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
    <<"  FWConfiguration& "<<topName<<" = *"<<topName<<"_p;\n";
-   
+
    for(FWConfiguration::KeyValues::const_iterator it = top.keyValues()->begin();
        it != top.keyValues()->end();
        ++it) {
       addToCode(topName,it->first,it->second, file);
    }
-   file<<"\n  return "<<topName<<"_p;\n}\n"<<std::flush;   
+   file<<"\n  return "<<topName<<"_p;\n}\n"<<std::flush;
 }
 
-void 
+void
 FWConfigurationManager::readFromFile(const std::string& iName) const
 {
    Int_t error=0;
 
-   // Int_t value = 
+   // Int_t value =
    gROOT->LoadMacro( iName.c_str(), &error );
    if(0 != error) {
       std::string message("unable to load macro file ");
       message += iName;
       throw std::runtime_error(message.c_str());
    }
-   
+
    const std::string command("(Long_t)(fwConfig() )");
 
    error = 0;
    Long_t lConfig = gROOT->ProcessLineFast(command.c_str(),
                                            &error);
-   
+
    {
       //need to unload this macro so that we can load a new configuration
       // which uses the same function name in the macro
       Int_t error = 0;
-      gROOT->ProcessLineSync((std::string(".U ")+iName).c_str(), &error); 
+      gROOT->ProcessLineSync((std::string(".U ")+iName).c_str(), &error);
    }
    if(0 != error) {
       std::string message("unable to properly parse configuration file ");
@@ -155,7 +155,7 @@ FWConfigurationManager::readFromFile(const std::string& iName) const
       throw std::runtime_error(message.c_str());
    }
    std::auto_ptr<FWConfiguration> config( reinterpret_cast<FWConfiguration*>(lConfig) );
-   
+
    setFrom( *config);
 }
 

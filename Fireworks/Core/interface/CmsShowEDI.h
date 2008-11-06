@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowEDI
-// 
+//
 /**\class CmsShowEDI CmsShowEDI.h Fireworks/Core/interface/CmsShowEDI.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.3 2008/08/21 21:12:08 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.4 2008/08/24 00:29:50 chrjones Exp $
 //
 
 // system include files

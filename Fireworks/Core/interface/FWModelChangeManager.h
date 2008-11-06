@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWModelChangeManager
-// 
+//
 /**\class FWModelChangeManager FWModelChangeManager.h Fireworks/Core/interface/FWModelChangeManager.h
 
  Description: Manages propagating announcements of changes to Models to any interested party
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 17:37:49 EST 2008
-// $Id: FWModelChangeManager.h,v 1.2 2008/01/22 16:34:09 chrjones Exp $
+// $Id: FWModelChangeManager.h,v 1.3 2008/01/25 01:54:07 chrjones Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ class FWModelChangeManager
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   
+
       void beginChanges();
       void changed(const FWModelId&);
       void changed(const FWEventItem*);
@@ -51,7 +51,7 @@ class FWModelChangeManager
 
       sigc::signal<void> changeSignalsAreComing_;
       sigc::signal<void> changeSignalsAreDone_;
-   
+
       void newItemSlot(FWEventItem*);
    private:
       FWModelChangeManager(const FWModelChangeManager&); // stop default
@@ -69,7 +69,7 @@ class FWModelChangeManager
 class FWChangeSentry {
 public:
    FWChangeSentry(FWModelChangeManager& iM):
-   m_manager(&iM) 
+   m_manager(&iM)
    {m_manager->beginChanges();}
    ~FWChangeSentry()
    { m_manager->endChanges();}

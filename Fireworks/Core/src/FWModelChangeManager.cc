@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWModelChangeManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.8 2008/09/05 21:02:10 dmytro Exp $
+// $Id: FWModelChangeManager.cc,v 1.9 2008/09/22 20:11:39 chrjones Exp $
 //
 
 // system include files
@@ -62,17 +62,17 @@ FWModelChangeManager::~FWModelChangeManager()
 //
 // member functions
 //
-void 
+void
 FWModelChangeManager::beginChanges()
 {++m_depth;}
 
-void 
+void
 FWModelChangeManager::changed(const FWModelId& iID)
-{  
+{
    FWChangeSentry sentry(*this);
    assert(iID.item());
    assert(iID.item()->id() < m_changes.size());
-   m_changes[iID.item()->id()].insert(iID);   
+   m_changes[iID.item()->id()].insert(iID);
 }
 
 void
@@ -94,7 +94,7 @@ void sendChangeSignalsAreDone(FWModelChangeManager* iCM)
    iCM->changeSignalsAreDone_();
 }
 
-void 
+void
 FWModelChangeManager::endChanges()
 {
    assert(m_depth !=0);
@@ -163,7 +163,7 @@ FWModelChangeManager::endChanges()
    if (guard) sendChangeSignalsAreDone(this);
 }
 
-void 
+void
 FWModelChangeManager::newItemSlot(FWEventItem* iItem)
 {
    assert(0!=iItem);

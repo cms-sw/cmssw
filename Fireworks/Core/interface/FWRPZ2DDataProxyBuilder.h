@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRPZ2DDataProxyBuilder
-// 
+//
 /**\class FWRPZ2DDataProxyBuilder FWRPZ2DDataProxyBuilder.h Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.9 2008/06/25 22:23:36 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.10 2008/07/01 04:43:54 chrjones Exp $
 //
 
 // system include files
@@ -51,15 +51,15 @@ class FWRPZ2DDataProxyBuilder : public FWRPZDataProxyBuilderBase
       void buildRhoZ(TEveElementList** product);
 
       void setHighPriority( bool priority ){ m_priority = priority; }
-   
+
    protected:
       static TEveCalo3D* m_caloRhoPhi;
       static TEveCalo3D* m_caloRhoZ;
 
    private:
-      virtual void buildRhoPhi(const FWEventItem* iItem, 
+      virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product) = 0 ;
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product) = 0 ;
 
 
@@ -69,8 +69,8 @@ class FWRPZ2DDataProxyBuilder : public FWRPZDataProxyBuilderBase
       virtual void modelChangesImp(const FWModelIds&);
       virtual TEveElementList* getRhoPhiProduct() const;
       virtual TEveElementList* getRhoZProduct() const;
-   
-   
+
+
       FWRPZ2DDataProxyBuilder(const FWRPZ2DDataProxyBuilder&); // stop default
 
       const FWRPZ2DDataProxyBuilder& operator=(const FWRPZ2DDataProxyBuilder&); // stop default
@@ -80,7 +80,7 @@ class FWRPZ2DDataProxyBuilder : public FWRPZDataProxyBuilderBase
 
       mutable TEveElementList* m_rhoPhiElements;
       mutable TEveElementList* m_rhoZElements;
-   
+
       mutable bool m_rhoPhiNeedsUpdate;
       mutable bool m_rhoZNeedsUpdate;
 };

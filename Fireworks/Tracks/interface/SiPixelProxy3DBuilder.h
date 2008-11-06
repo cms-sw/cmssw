@@ -1,9 +1,9 @@
 #ifndef Fireworks_Tracks_SiPixelProxy3DBuilder_h
 #define Fireworks_Tracks_SiPixelProxy3DBuilder_h
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: SiPixelProxy3DBuilder.h,v 1.3 2008/07/20 18:28:02 dmytro Exp $
+// $Id: SiPixelProxy3DBuilder.h,v 1.1 2008/08/20 23:59:52 dmytro Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@ class SiPixelProxy3DBuilder : public FWRPZDataProxyBuilder
       SiPixelProxy3DBuilder(const SiPixelProxy3DBuilder&); // stop default
 
       const SiPixelProxy3DBuilder& operator=(const SiPixelProxy3DBuilder&); // stop default
-      
+
       void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
       void applyChangesToAllModels(TEveElement* iElements);
 };

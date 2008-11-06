@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDetailViewManager
-// 
+//
 /**\class FWDetailViewManager FWDetailViewManager.h Fireworks/Core/interface/FWDetailViewManager.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.4 2008/03/18 15:38:26 chrjones Exp $
+// $Id: FWDetailViewManager.h,v 1.5 2008/03/22 08:48:58 jmuelmen Exp $
 //
 
 // system include files

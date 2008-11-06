@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     MuonDetailView
-// 
+//
 /**\class MuonDetailView MuonDetailView.h Fireworks/Calo/interface/MuonDetailView.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonDetailView.h,v 1.1 2008/03/07 01:05:12 jmuelmen Exp $
+// $Id: MuonDetailView.h,v 1.1 2008/03/07 04:01:20 tdaniels Exp $
 //
 
 // system include files
@@ -32,11 +32,11 @@ class FWEventItem;
 class TEveElementList;
 
 class MuonDetailView : public FWDetailView {
-     
+
 public:
      MuonDetailView();
      virtual ~MuonDetailView();
-     
+
      virtual void build (TEveElementList **product, const FWModelId &id);
 
 protected:
@@ -48,19 +48,19 @@ protected:
 	vars[1] = rotation_center[1];
 	vars[2] = rotation_center[2];
      }
-   
+
 private:
      MuonDetailView(const MuonDetailView&); // stop default
      const MuonDetailView& operator=(const MuonDetailView&); // stop default
-     
+
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() { 
+     void resetCenter() {
 	rotation_center[0] = 0;
 	rotation_center[1] = 0;
 	rotation_center[2] = 0;
      }
-	
+
      Double_t rotation_center[3];
 };
 

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     expressionFormatHelpers
-// 
+//
 /**\class expressionFormatHelpers expressionFormatHelpers.h Fireworks/Core/src/expressionFormatHelpers.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 12:25:03 EDT 2008
-// $Id$
+// $Id: expressionFormatHelpers.h,v 1.1 2008/08/22 16:54:02 chrjones Exp $
 //
 
 // system include files

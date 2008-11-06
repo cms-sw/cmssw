@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     PatJetGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatJetGlimpseProxyBuilder.cc,v 1.1 2008/09/26 07:40:13 dmytro Exp $
+// $Id: PatJetGlimpseProxyBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -63,16 +63,16 @@ PatJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pro
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Jet>* jets=0;
    iItem->get(jets);
    if(0==jets) return;
-   
+
    fw::NamedCounter counter("jet");
 
-   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); 
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet, ++counter) {
-      char title[1024]; 
+      char title[1024];
       sprintf(title,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
       FWGlimpseEveJet* cone = new FWGlimpseEveJet(&(*jet),counter.str().c_str(),title);
       cone->SetPickable(kTRUE);

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListEventItemEditor
-// 
+//
 /**\class FWListEventItemEditor FWListEventItemEditor.h Fireworks/Core/interface/FWListEventItemEditor.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:35:59 EST 2008
-// $Id: FWListEventItemEditor.h,v 1.1 2008/03/05 15:07:31 chrjones Exp $
+// $Id: FWListEventItemEditor.h,v 1.2 2008/06/12 15:08:06 chrjones Exp $
 //
 
 // system include files

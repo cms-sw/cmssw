@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CSGConnector
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:15 CDT 2008
-// $Id: CSGConnector.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CSGConnector.cc,v 1.2 2008/11/05 09:19:37 chrjones Exp $
 //
 
 // system include files

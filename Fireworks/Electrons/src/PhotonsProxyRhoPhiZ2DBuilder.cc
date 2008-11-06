@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     PhotonsProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 11:46:35 amraktad Exp $
+// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/11/06 19:49:23 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ PhotonsProxyRhoPhiZ2DBuilder::~PhotonsProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -89,7 +89,7 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      for (reco::PhotonCollection::const_iterator photon = photons->begin();
 	  photon != photons->end(); ++photon,++counter) {
 	const unsigned int nBuffer = 1024;
-	char title[nBuffer]; 
+	char title[nBuffer];
 	snprintf(title, nBuffer, "Photon %d, Pt: %0.1f GeV",counter.index(), photon->pt());
 	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
         container->OpenCompound();
@@ -103,15 +103,15 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	   const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
 	   if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
 	}
-	
+
 	std::pair<double,double> phiRange = fw::getPhiRange( phis, photon->phi() );
-	TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1, 
-					   phiRange.first * 180 / M_PI - 0.5,  
-					   phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal 
+	TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1,
+					   phiRange.first * 180 / M_PI - 0.5,
+					   phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal
 	TEveGeoShape *sc = fw::getShape( "supercluster", sc_box, tList->GetMainColor() );
 	sc->SetPickable(kTRUE);
 	container->AddElement(sc);
-	
+
 	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
 	track->SetMainColor( iItem->defaultDisplayProperties().color() );
 	container->AddElement(track);
@@ -122,7 +122,7 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
 }
 
-void 
+void
 PhotonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					  TEveElementList** product)
 {
@@ -145,13 +145,13 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      for (reco::PhotonCollection::const_iterator photon = photons->begin();
 	  photon != photons->end(); ++photon, ++counter) {
 	const unsigned int nBuffer = 1024;
-	char title[nBuffer]; 
+	char title[nBuffer];
 	snprintf(title, nBuffer, "Photon %d, Pt: %0.1f GeV",counter.index(), photon->pt());
 	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
         container->OpenCompound();
         //guarantees that CloseCompound will be called no matter what happens
         boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-        
+
 	assert(photon->superCluster().isNonnull());
 	std::vector<DetId> detids = photon->superCluster()->getHitsByDetId();
 	double theta_max = 0;
@@ -166,14 +166,14 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	      if ( theta < theta_min ) theta_min = theta;
 	   }
 	}
-	
+
 	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
 	track->SetMainColor( iItem->defaultDisplayProperties().color() );
 	container->AddElement(track);
-	
+
 	// expand theta range by the size of a crystal to avoid segments of zero length
-	if ( theta_min <= theta_max ) 
-	  fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003, 
+	if ( theta_min <= theta_max )
+	  fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003,
 				       photon->phi(), iItem->defaultDisplayProperties().color() );
 	container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
 	container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );

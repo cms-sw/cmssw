@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWConfiguration
-// 
+//
 /**\class FWConfiguration FWConfiguration.h Fireworks/Core/interface/FWConfiguration.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:22 EST 2008
-// $Id: FWConfiguration.h,v 1.1 2008/02/25 21:32:24 chrjones Exp $
+// $Id: FWConfiguration.h,v 1.2 2008/03/14 03:20:28 chrjones Exp $
 //
 
 // system include files
@@ -38,20 +38,20 @@ class FWConfiguration
       virtual ~FWConfiguration();
 
       FWConfiguration(const FWConfiguration&); // stop default
-   
+
       const FWConfiguration& operator=(const FWConfiguration&); // stop default
-   
+
       typedef std::vector<std::pair< std::string, FWConfiguration> > KeyValues;
       typedef std::vector<std::string> StringValues;
-   
+
       // ---------- const member functions ---------------------
       const std::string& value(unsigned int iIndex=0) const;
       const FWConfiguration* valueForKey(const std::string& iKey) const;
       unsigned int version() const {return m_version;}
-   
+
       const KeyValues* keyValues() const { return m_keyValues.get(); }
       const StringValues* stringValues() const { return m_stringValues.get();}
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -59,13 +59,13 @@ class FWConfiguration
       FWConfiguration& addKeyValue(const std::string&, FWConfiguration&, bool iDoSwap=false);
       FWConfiguration& addValue(const std::string&);
       void swap(FWConfiguration& );
- 
-   
+
+
    private:
 
       // ---------- member data --------------------------------
 
-      boost::scoped_ptr<std::vector<std::string> > m_stringValues; 
+      boost::scoped_ptr<std::vector<std::string> > m_stringValues;
       boost::scoped_ptr<std::vector<std::pair< std::string, FWConfiguration> > > m_keyValues;
       unsigned int m_version;
 

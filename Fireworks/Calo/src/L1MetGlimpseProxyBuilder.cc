@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1MetGlimpseProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MetGlimpseProxyBuilder.cc,v 1.1 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1MetGlimpseProxyBuilder.cc,v 1.2 2008/11/04 20:29:24 amraktad Exp $
 //
 
 // system include files
@@ -62,22 +62,22 @@ L1MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    } else {
       tList->DestroyElements();
    }
-   
+
    // Get the particle map collection for L1EtMissParticles
    l1extra::L1EtMissParticleCollection const * mets=0;
    iItem->get(mets);
    if(0==mets) return;
-   
+
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
-      char title[1024]; 
+      char title[1024];
       sprintf(title,"L1 MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
@@ -92,7 +92,7 @@ L1MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
 
       tList->AddElement(container);
    }
-   
+
 }
 
 REGISTER_FWGLIMPSEDATAPROXYBUILDER(L1MetGlimpseProxyBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");

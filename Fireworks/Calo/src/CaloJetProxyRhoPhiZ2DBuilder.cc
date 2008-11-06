@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     CaloJetProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.19 2008/11/04 11:46:33 amraktad Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.20 2008/11/06 19:49:22 amraktad Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ CaloJetProxyRhoPhiZ2DBuilder::~CaloJetProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -78,20 +78,20 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
    if(0==jets) return;
 
    fw::NamedCounter counter("jet");
 
-   for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
+   for(reco::CaloJetCollection::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet, ++counter) {
       buildJetRhoPhi( iItem, &*jet, tList, counter);
    }
 }
 
-void 
+void
 CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -104,20 +104,20 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
    if(0==jets) return;
 
    fw::NamedCounter counter("jet");
 
-   for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
+   for(reco::CaloJetCollection::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet, ++counter) {
       buildJetRhoZ( iItem, &*jet, tList, counter);
    }
 }
-   
-   
+
+
 std::pair<int,int> CaloJetProxyRhoPhiZ2DBuilder::getiEtaRange( const reco::Jet& jet )
 {
    int min =  100;
@@ -132,14 +132,14 @@ std::pair<int,int> CaloJetProxyRhoPhiZ2DBuilder::getiEtaRange( const reco::Jet& 
 	   towers = patjet->getCaloConstituents();
       }
    }
-   
-   for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin(); 
-	 tower != towers.end(); ++tower ) 
+
+   for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin();
+	 tower != towers.end(); ++tower )
      {
 	unsigned int ieta = 41 + (*tower)->id().ieta();
 	if ( ieta > 40 ) --ieta;
 	assert( ieta <= 82 );
-	
+
 	if ( int(ieta) > max ) max = ieta;
 	if ( int(ieta) < min ) min = ieta;
      }
@@ -159,22 +159,22 @@ std::pair<double,double> CaloJetProxyRhoPhiZ2DBuilder::getPhiRange( const reco::
       }
    }
    std::vector<double> phis;
-   for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin(); 
+   for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin();
 	 tower != towers.end(); ++tower )
      phis.push_back( (*tower)->phi() );
-   
+
    return fw::getPhiRange( phis, jet.phi() );
 }
 
 void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi(const FWEventItem* iItem,
-						  const reco::Jet* jet, 
+						  const reco::Jet* jet,
 						  TEveElementList* tList,
 						  const fw::NamedCounter& counter)
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    const double r_ecal = 126;
    const unsigned int kBufferSize = 1024;
-   char title[kBufferSize]; 
+   char title[kBufferSize];
    snprintf(title,kBufferSize,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
    TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
    container->OpenCompound();
@@ -183,7 +183,7 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    std::pair<double,double> phiRange = getPhiRange( *jet );
    double min_phi = phiRange.first-M_PI/36/2;
    double max_phi = phiRange.second+M_PI/36/2;
-   
+
    double phi = jet->phi();
 
    double size = jet->et();
@@ -191,7 +191,7 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
    element->SetPickable(kTRUE);
    container->AddElement(element);
-      
+
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
    marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
@@ -205,7 +205,7 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    tList->AddElement(container);
 }
 
-   
+
 void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoZ(  const FWEventItem* iItem,
 						  const reco::Jet* jet,
 						  TEveElementList* tList,
@@ -222,33 +222,33 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoZ(  const FWEventItem* iItem,
    const double r_ecal = 126;
    const double transition_angle = atan(r_ecal/z_ecal);
    const unsigned int kBufferSize = 1024;
-   
-   char title[kBufferSize]; 
+
+   char title[kBufferSize];
    snprintf(title,kBufferSize,"Jet %d, Et: %0.1f GeV", counter.index(), jet->et());
    TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
    container->OpenCompound();
    //guarantees that CloseCompound will be called no matter what happens
    boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-   
+
    std::pair<int,int> iEtaRange = getiEtaRange( *jet );
-   
+
    double max_theta = thetaBins[iEtaRange.first].first;
    double min_theta = thetaBins[iEtaRange.second].second;;
-   
+
    double theta = jet->theta();
-      
+
    // distance from the origin of the jet centroid
    // energy is measured from this point
-   // if jet is made of a single tower, the length of the jet will 
+   // if jet is made of a single tower, the length of the jet will
    // be identical to legth of the displayed tower
-   double r(0); 
+   double r(0);
    if ( theta < transition_angle || M_PI-theta < transition_angle )
      r = z_ecal/fabs(cos(theta));
    else
      r = r_ecal/sin(theta);
-   
+
    double size = jet->et();
-      
+
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
    marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
@@ -256,12 +256,12 @@ void CaloJetProxyRhoPhiZ2DBuilder::buildJetRhoZ(  const FWEventItem* iItem,
    marker->AddLine(0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		   0., (jet->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
    container->AddElement( marker );
-   fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003, 
+   fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
 				jet->phi(), iItem->defaultDisplayProperties().color() );
 
    container->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
    container->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-   
+
    tList->AddElement(container);
 }
 

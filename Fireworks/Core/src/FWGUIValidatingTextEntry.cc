@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGUIValidatingTextEntry
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.3 2008/09/09 17:28:27 chrjones Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.4 2008/09/26 18:22:19 amraktad Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ m_validator(0)
    m_popup->Resize(m_popup->GetDefaultSize());
    m_list->GetContainer()->AddInput(kButtonPressMask | kButtonReleaseMask | kPointerMotionMask);
    m_list->SetEditDisabled(kEditDisable);
-   m_list->GetContainer()->Connect("KeyPressed(TGFrame*,UInt_t,UInt_t)", 
+   m_list->GetContainer()->Connect("KeyPressed(TGFrame*,UInt_t,UInt_t)",
                                    "FWGUIValidatingTextEntry", this,
                                    "keyPressedInPopup(TGFrame*,UInt_t,UInt_t)");
    m_list->GetContainer()->SetEditDisabled(kEditDisable);
@@ -80,19 +80,19 @@ FWGUIValidatingTextEntry::~FWGUIValidatingTextEntry()
 //
 // member functions
 //
-void 
+void
 FWGUIValidatingTextEntry::setValidator(FWValidatorBase* iValidator)
 {
    m_validator = iValidator;
 }
 
 
-Bool_t 
+Bool_t
 FWGUIValidatingTextEntry::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
    //STOLEN FROM TGComboBox.cxx
    TGLBEntry *e;
-   
+
    switch (GET_MSG(msg)) {
       case kC_COMMAND:
          switch (GET_SUBMSG(msg)) {
@@ -103,15 +103,15 @@ FWGUIValidatingTextEntry::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
                break;
          }
          break;
-         
+
       default:
          break;
    }
    return kTRUE;
-   
+
 }
 
-void 
+void
 FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask)
 {
    switch(keysym) {
@@ -152,14 +152,14 @@ namespace {
 }
 
 
-void 
+void
 FWGUIValidatingTextEntry::showOptions() {
 
    if(0!=m_validator) {
       const char* text = GetText();
       std::string subText(text,text+GetCursorPosition());
       //std::cout <<subText<<std::endl;
-      
+
       typedef std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > Options;
       m_validator->fillOptions(text, text+GetCursorPosition(), m_options);
       if(m_options.empty()) { return;}
@@ -183,23 +183,23 @@ FWGUIValidatingTextEntry::showOptions() {
          }
       }
       m_list->Select(0,kTRUE);
-      
+
       int ax,ay;
       Window_t wdummy;
       gVirtualX->TranslateCoordinates(GetId(), m_popup->GetParent()->GetId(),
                                       0, GetHeight(), ax, ay, wdummy);
-      
+
       //Wait to change focus for when the popup has already openned
       std::auto_ptr<TTimer> timer( new ChangeFocusTimer(m_list->GetContainer()) );
       timer->TurnOn();
       //NOTE: this call has its own internal GUI event loop and will not return
       // until the popup has been shut down
-      m_popup->PlacePopup(ax, ay, 
+      m_popup->PlacePopup(ax, ay,
                           GetWidth()-2, m_popup->GetDefaultHeight());
    }
 }
 
-void 
+void
 FWGUIValidatingTextEntry::hideOptions() {
    m_popup->EndPopup();
    fClient->NeedRedraw(this);
@@ -211,7 +211,7 @@ FWGUIValidatingTextEntry::insertTextOption(const std::string& iOption)
    long pos = GetCursorPosition();
    InsertText(iOption.c_str(), pos);
    SetCursorPosition(pos + iOption.size());
-   
+
 }
 
 //

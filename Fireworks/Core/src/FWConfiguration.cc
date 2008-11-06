@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWConfiguration
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:29 EST 2008
-// $Id: FWConfiguration.cc,v 1.1 2008/02/25 21:32:27 chrjones Exp $
+// $Id: FWConfiguration.cc,v 1.2 2008/03/14 03:20:28 chrjones Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ const FWConfiguration& FWConfiguration::operator=(const FWConfiguration& rhs)
 //
 // member functions
 //
-FWConfiguration& 
+FWConfiguration&
 FWConfiguration::addKeyValue(const std::string& iKey, const FWConfiguration& iConfig)
 {
    if( m_stringValues ) {
@@ -74,7 +74,7 @@ FWConfiguration::addKeyValue(const std::string& iKey, const FWConfiguration& iCo
    }
    return *this;
 }
-FWConfiguration& 
+FWConfiguration&
 FWConfiguration::addKeyValue(const std::string&iKey, FWConfiguration& iConfig, bool iDoSwap)
 {
    if( m_stringValues ) {
@@ -101,7 +101,7 @@ FWConfiguration::addKeyValue(const std::string&iKey, FWConfiguration& iConfig, b
    return *this;
 }
 
-FWConfiguration& 
+FWConfiguration&
 FWConfiguration::addValue(const std::string& iValue)
 {
    if( m_keyValues ) {
@@ -115,7 +115,7 @@ FWConfiguration::addValue(const std::string& iValue)
    return *this;
 }
 
-void 
+void
 FWConfiguration::swap(FWConfiguration& iRHS)
 {
    std::swap(m_version, iRHS.m_version);
@@ -126,7 +126,7 @@ FWConfiguration::swap(FWConfiguration& iRHS)
 //
 // const member functions
 //
-const std::string& 
+const std::string&
 FWConfiguration::value(unsigned int iIndex) const
 {
    if( not m_stringValues ) {
@@ -153,8 +153,8 @@ FWConfiguration::valueForKey(const std::string& iKey) const
    return &(itFind->second);
 }
 
-std::ostream& 
-operator<<(std::ostream& oTo, const FWConfiguration& iConfig) 
+std::ostream&
+operator<<(std::ostream& oTo, const FWConfiguration& iConfig)
 {
    oTo <<"FWConfiguration("<<iConfig.version()<<")\n";
    if(iConfig.stringValues()) {
@@ -174,7 +174,7 @@ operator<<(std::ostream& oTo, const FWConfiguration& iConfig)
    return oTo;
 }
 
-std::ostream& 
+std::ostream&
 addToCode(const std::string& iParentVariable,
           const std::string& iKey,
           const FWConfiguration& iConfig,
@@ -198,7 +198,7 @@ addToCode(const std::string& iParentVariable,
       }
    }
    oTo<<"  "<< iParentVariable<<".addKeyValue(\""<<iKey<<"\", "<<newVar<<");\n}\n";
-   
+
    return oTo;
 }
 

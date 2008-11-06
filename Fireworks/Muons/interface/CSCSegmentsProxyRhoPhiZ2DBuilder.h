@@ -4,11 +4,11 @@
 //
 // Package:     Muons
 // Class  :     CSCSegmentsProxyRhoPhiZ2DBuilder
-// 
 //
-// Original Author:  
+//
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CSCSegmentsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/07/06 00:49:26 dmytro Exp $
+// $Id: CSCSegmentsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/07/15 18:20:46 dmytro Exp $
 //
 
 // system include files
@@ -40,23 +40,23 @@ class CSCSegmentsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
-      static void build(const FWEventItem* iItem, 
+      static void build(const FWEventItem* iItem,
 			TEveElementList** product,
 			bool rhoPhiProjection);
       // ---------- member functions ---------------------------
       REGISTER_PROXYBUILDER_METHODS();
-   
+
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
-      virtual void modelChanges(const FWModelIds& iIds, 
+      virtual void modelChanges(const FWModelIds& iIds,
 				TEveElement* iElements);
       virtual void applyChangesToAllModels(TEveElement* iElements);
-   
+
       CSCSegmentsProxyRhoPhiZ2DBuilder(const CSCSegmentsProxyRhoPhiZ2DBuilder&); // stop default
 
       const CSCSegmentsProxyRhoPhiZ2DBuilder& operator=(const CSCSegmentsProxyRhoPhiZ2DBuilder&); // stop default

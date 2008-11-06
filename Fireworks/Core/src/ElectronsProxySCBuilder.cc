@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     ElectronsProxySCBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.15 2008/11/04 11:46:33 amraktad Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.16 2008/11/06 19:49:23 amraktad Exp $
 //
 
 // system include files
@@ -74,7 +74,7 @@ ElectronsProxySCBuilder::~ElectronsProxySCBuilder()
 //
 // member functions
 //
-void ElectronsProxySCBuilder::build (TEveElementList **product) 
+void ElectronsProxySCBuilder::build (TEveElementList **product)
 {
      // printf("calling ElectronsProxySCBuilder::buildRhoZ\n");
      TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
@@ -126,11 +126,11 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	h_hits.getByLabel(*ev, "ecalRecHit", "EcalRecHitsEB");
 	hits = h_hits.ptr();
      }
-     catch (...) 
+     catch (...)
      {
 	std::cout <<"no hits are ECAL rechits are available, show only crystal location" << std::endl;
      }
-    
+
      TEveTrackPropagator *propagator = new TEveTrackPropagator();
      propagator->SetMagField( -4.0);
      propagator->SetMaxR( 180 );
@@ -145,20 +145,20 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  printf("GsfTrack contains %d inner states, %d outer states\n",
 		 i->gsfTrack()->gsfExtra()->innerStateLocalParameters().size(),
 		 i->gsfTrack()->gsfExtra()->outerStateLocalParameters().size());
-	  std::vector<reco::GsfTrackExtra::LocalParameterVector> v_in = 
+	  std::vector<reco::GsfTrackExtra::LocalParameterVector> v_in =
 	       i->gsfTrack()->gsfExtra()->innerStateLocalParameters();
-	  std::vector<reco::GsfTrackExtra::LocalParameterVector> v_out = 
+	  std::vector<reco::GsfTrackExtra::LocalParameterVector> v_out =
 	       i->gsfTrack()->gsfExtra()->outerStateLocalParameters();
 	  for (int j = 0; j < std::max(v_out.size(), v_in.size()); ++j) {
-	       if (j < v_in.size()) 
-		    printf("v_in[%d]: %e\t%e\t%e\t%e\t%e\t\n", j, 
+	       if (j < v_in.size())
+		    printf("v_in[%d]: %e\t%e\t%e\t%e\t%e\t\n", j,
 			   v_in[j][0],
 			   v_in[j][1],
 			   v_in[j][2],
 			   v_in[j][3],
 			   v_in[j][4]);
-	       if (j < v_out.size()) 
-		    printf("v_out[%d]: %e\t%e\t%e\t%e\t%e\t\n", j, 
+	       if (j < v_out.size())
+		    printf("v_out[%d]: %e\t%e\t%e\t%e\t%e\t\n", j,
 			   v_out[j][0],
 			   v_out[j][1],
 			   v_out[j][2],
@@ -197,7 +197,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	       double size = 0.001; // default size
 	       if ( hits ){
 		  EcalRecHitCollection::const_iterator hit = hits->find(*k);
-		  if (hit != hits->end()) 
+		  if (hit != hits->end())
 		     size = hit->energy();
 	       }
 	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
@@ -218,7 +218,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 						shape->GetH2(), shape->GetBl2(), shape->GetTl2(),
 						shape->GetAlpha2()
 						);
-		  const TVector3 v(matrix->GetTranslation()[0], 
+		  const TVector3 v(matrix->GetTranslation()[0],
 				   matrix->GetTranslation()[1],
 				   matrix->GetTranslation()[2]);
 		  if (k->subdetId() == EcalBarrel) {
@@ -240,7 +240,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	       if ( ! crystal_shape ) crystal_shape = new TGeoBBox(1.1, 1.1, size / 2, 0);
 	       egs->SetShape(crystal_shape);
 	       Float_t rgba[4] = { 1, 0, 0, 1 };
-	       if (find(seed_detids.begin(), seed_detids.end(), *k) != 
+	       if (find(seed_detids.begin(), seed_detids.end(), *k) !=
 		   seed_detids.end()) {
 		    TColor* c = gROOT->GetColor(tList->GetMainColor());
 		    if (c) {
@@ -248,7 +248,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 			 rgba[1] = c->GetGreen();
 			 rgba[2] = c->GetBlue();
 		    }
-	       } 
+	       }
 	       egs->SetMainColorRGB(rgba[0], rgba[1], rgba[2]);
 	       egs->SetRnrSelf(true);
 	       egs->SetRnrChildren(true);
@@ -275,7 +275,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 */
 	  }
 	  tList->AddElement(container);
-	  TEvePointSet *trackpositionAtCalo = 
+	  TEvePointSet *trackpositionAtCalo =
 	       new TEvePointSet("sc trackpositionAtCalo", 1);
 	  trackpositionAtCalo->SetNextPoint(i->TrackPositionAtCalo().x(),
 					    i->TrackPositionAtCalo().y(),
@@ -287,7 +287,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  rotation_center[0] = i->TrackPositionAtCalo().x();
 	  rotation_center[1] = i->TrackPositionAtCalo().y();
 	  rotation_center[2] = i->TrackPositionAtCalo().z();
-	  TEvePointSet *scposition = 
+	  TEvePointSet *scposition =
 	       new TEvePointSet("sc position", 1);
 	  scposition->SetNextPoint(i->caloPosition().x(),
 				   i->caloPosition().y(),
@@ -304,7 +304,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	       sc.Perp(),
 	       sc.Eta() - i->deltaEtaSuperClusterTrackAtVtx(),
 	       sc.Phi() - i->deltaPhiSuperClusterTrackAtVtx());
-	  TEvePointSet *pinposition = 
+	  TEvePointSet *pinposition =
 	       new TEvePointSet("pin position", 1);
 	  pinposition->SetNextPoint(v_pin_intersection.x(),
 				    v_pin_intersection.y(),
@@ -313,7 +313,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  pinposition->SetMarkerSize(2);
 	  pinposition->SetMarkerColor(kCyan);
 	  tList->AddElement(pinposition);
-	  tList->AddElement(fw::getEcalCrystals(hits, *m_item->getGeom(), 
+	  tList->AddElement(fw::getEcalCrystals(hits, *m_item->getGeom(),
 						sc.Eta(), sc.Phi()));
      }
 }

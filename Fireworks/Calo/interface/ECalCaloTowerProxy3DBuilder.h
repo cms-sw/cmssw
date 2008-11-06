@@ -1,9 +1,9 @@
 #ifndef Fireworks_Calo_ECalCaloTowerProxy3DBuilder_h
 #define Fireworks_Calo_ECalCaloTowerProxy3DBuilder_h
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: ECalCaloTowerProxy3DBuilder.h,v 1.3 2008/07/01 19:16:43 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.h,v 1.4 2008/07/09 20:04:29 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class ECalCaloTowerProxy3DBuilder : public FWRPZDataProxyBuilder
       void handleHcal() {
          m_handleEcal=false;
       }
-   
+
       virtual std::string histName() const;
 
       void itemBeingDestroyedImp(const FWEventItem*);

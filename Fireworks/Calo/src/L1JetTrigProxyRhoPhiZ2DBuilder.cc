@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     L1JetTrigProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/07/16 13:51:00 dmytro Exp $
+// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/11/04 20:29:24 amraktad Exp $
 //
 //
 // system include files
@@ -64,7 +64,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::~L1JetTrigProxyRhoPhiZ2DBuilder()
 //
 // mjetber functions
 //
-void 
+void
 L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -81,7 +81,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
   } else {
     tList->DestroyElements();
   }
-   
+
 
 
   // Get the particle map collection for L1JetParticles
@@ -99,16 +99,16 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
      double phi = trigIt->phi();
      double size = trigIt->pt();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(2);
       marker->SetLineStyle(2);
@@ -126,7 +126,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 }
 
 
-void 
+void
 L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -143,7 +143,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
   } else {
     tList->DestroyElements();
   }
- 
+
 
 
   // Get the particle map collection for L1JetParticles
@@ -163,27 +163,27 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
       const unsigned int nBuffer = 1024;
-      char title[nBuffer]; 
+      char title[nBuffer];
       snprintf(title, nBuffer,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-      
+
      double theta = trigIt->theta();
-      
+
      // distance from the origin of the jet centroid
      // energy is measured from this point
-     // if jet is made of a single tower, the length of the jet will 
+     // if jet is made of a single tower, the length of the jet will
      // be identical to legth of the displayed tower
-     double r(0); 
+     double r(0);
      if ( theta < transition_angle || M_PI-theta < transition_angle )
        r = z_ecal/fabs(cos(theta));
      else
        r = r_ecal/sin(theta);
-      
+
      double size = trigIt->pt();
-      
+
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
       marker->SetLineWidth(2);
       marker->SetLineStyle(2);

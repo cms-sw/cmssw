@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoEveElementProxyBuilder
-// 
+//
 /**\class FW3DLegoEveElementProxyBuilder FW3DLegoEveElementProxyBuilder.h Fireworks/Core/interface/FW3DLegoEveElementProxyBuilder.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:18 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.1 2008/07/07 00:30:27 chrjones Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.2 2008/07/12 01:31:09 dmytro Exp $
 //
 
 // system include files
@@ -48,14 +48,14 @@ class FW3DLegoEveElementProxyBuilder : public FW3DLegoDataProxyBuilder
       virtual void itemChangedImp(const FWEventItem*);
       virtual void applyChangesToAllModels();
       virtual void modelChanges(const FWModelIds&, TEveElement*);
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
                          TEveElementList** product) = 0;
       FW3DLegoEveElementProxyBuilder(const FW3DLegoEveElementProxyBuilder&); // stop default
 
       const FW3DLegoEveElementProxyBuilder& operator=(const FW3DLegoEveElementProxyBuilder&); // stop default
 
       virtual void itemBeingDestroyedImp(const FWEventItem*);
-   
+
       // ---------- member data --------------------------------
       TEveElementList m_elementHolder;
 

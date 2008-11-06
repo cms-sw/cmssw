@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWParameterSetterBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.3 2008/06/29 13:10:03 chrjones Exp $
+// $Id: FWParameterSetterBase.cc,v 1.4 2008/07/15 02:01:01 chrjones Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ FWParameterSetterBase::~FWParameterSetterBase()
 // member functions
 //
 
-void 
+void
 FWParameterSetterBase::attach(FWParameterBase* iBase, FWParameterSetterEditorBase* iFrame)
 {
    m_frame=iFrame;
@@ -79,7 +79,7 @@ FWParameterSetterBase::attach(FWParameterBase* iBase, FWParameterSetterEditorBas
 //
 // const member functions
 //
-void 
+void
 FWParameterSetterBase::update() const
 {
   if (m_frame != 0)
@@ -101,17 +101,17 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
          std::cout << "PROGRAMMING ERROR: the type "<<typeid(*iParam).name()<< " is not known to REFLEX" <<std::endl;
       }
       assert(paramClass != ROOT::Reflex::Type() );
-      
+
       //the corresponding setter has the same name but with 'Setter' at the end
       std::string name = paramClass.Name(ROOT::Reflex::SCOPED);
       name += "Setter";
-      
+
       ROOT::Reflex::Type setterClass( ROOT::Reflex::Type::ByName( name ) );
       if(setterClass == ROOT::Reflex::Type() ) {
          std::cout << "PROGRAMMING ERROR: the type "<<name<< " is not known to REFLEX" <<std::endl;
       }
       assert(setterClass != ROOT::Reflex::Type());
-      
+
       s_paramToSetterMap[paramType]=setterClass;
       itFind = s_paramToSetterMap.find(paramType);
    }
@@ -119,7 +119,7 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
    //NOTE: for some odd reason Reflex 'Construct' uses 'malloc' to allocate the memory.  This means the object
    // can not be deleted using 'delete'!  So we must call Type::Destruct on the object
    ROOT::Reflex::Object setterObj = itFind->second.Construct();
-   
+
    //make it into the base class
    ROOT::Reflex::Type s_setterBaseType( ROOT::Reflex::Type::ByTypeInfo( typeid(FWParameterSetterBase) ) );
    assert(s_setterBaseType != ROOT::Reflex::Type());

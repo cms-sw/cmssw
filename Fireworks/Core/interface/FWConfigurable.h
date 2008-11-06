@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWConfigurable
-// 
+//
 /**\class FWConfigurable FWConfigurable.h Fireworks/Core/interface/FWConfigurable.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:35:47 EST 2008
-// $Id$
+// $Id: FWConfigurable.h,v 1.1 2008/02/25 21:32:24 chrjones Exp $
 //
 
 // system include files
@@ -35,12 +35,12 @@ class FWConfigurable
 
       // ---------- const member functions ---------------------
       virtual void addTo(FWConfiguration&) const = 0;
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       virtual void setFrom(const FWConfiguration&) = 0;
-   
+
    private:
       FWConfigurable(const FWConfigurable&); // stop default
 

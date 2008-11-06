@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWDataProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWDataProxyBuilder.cc,v 1.2 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FWDataProxyBuilder.cc,v 1.3 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ FWDataProxyBuilder::build(TObject** iObject)
 //
 // const member functions
 //
-const std::string 
+const std::string
 FWDataProxyBuilder::purpose() const
 {
    return std::string();

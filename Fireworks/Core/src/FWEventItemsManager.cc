@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEventItemsManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.14 2008/08/15 06:38:42 jmuelmen Exp $
+// $Id: FWEventItemsManager.cc,v 1.15 2008/10/21 19:22:08 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@
 //
 // constructors and destructor
 //
-FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager, 
+FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager,
 FWSelectionManager* iSelMgr):
 m_changeManager(iManager),
 m_selectionManager(iSelMgr),
@@ -76,7 +76,7 @@ FWEventItemsManager::~FWEventItemsManager()
 //
 // member functions
 //
-const FWEventItem* 
+const FWEventItem*
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
   m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(iItem.type()),
@@ -91,9 +91,9 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    return m_items.back();
 }
 
-void 
+void
 FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
-{    
+{
   FWChangeSentry sentry(*m_changeManager);
   m_event = iEvent;
   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
@@ -105,7 +105,7 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
   }
 }
 
-void 
+void
 FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
 {
      // cache the geometry (in case items are added later)
@@ -119,7 +119,7 @@ FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
   }
 }
 
-void 
+void
 FWEventItemsManager::clearItems()
 {
    goingToClearItems_();
@@ -129,7 +129,7 @@ FWEventItemsManager::clearItems()
       delete *it;
    }
    m_items.clear();
-}   
+}
 
 static const std::string kType("type");
 static const std::string kModuleLabel("moduleLabel");
@@ -143,7 +143,7 @@ static const std::string kFalse("f");
 static const std::string kLayer("layer");
 static const std::string kPurpose("purpose");
 
-void 
+void
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
 {
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
@@ -175,7 +175,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    }
 }
 
-void 
+void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {
    clearItems();
@@ -199,7 +199,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       std::istringstream is(sColor);
       Color_t color;
       is >> color;
-      
+
       FWDisplayProperties disp(color, isVisible);
 
       unsigned int layer;
@@ -224,13 +224,13 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
    }
 }
 
-void 
+void
 FWEventItemsManager::removeItem(const FWEventItem* iItem)
 {
    m_items[iItem->id()]=0;
 }
 
-void 
+void
 FWEventItemsManager::setContext(fireworks::Context* iContext)
 {
    m_context = iContext;
@@ -239,12 +239,12 @@ FWEventItemsManager::setContext(fireworks::Context* iContext)
 //
 // const member functions
 //
-FWEventItemsManager::const_iterator 
+FWEventItemsManager::const_iterator
 FWEventItemsManager::begin() const
 {
   return m_items.begin();
 }
-FWEventItemsManager::const_iterator 
+FWEventItemsManager::const_iterator
 FWEventItemsManager::end() const
 {
   return m_items.end();

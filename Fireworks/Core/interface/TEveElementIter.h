@@ -12,7 +12,7 @@
 
 class TEveElement;
 
-class TEveElementIter 
+class TEveElementIter
 {
    TPRegexp regexp;
    std::vector<TEveElement*> elements;

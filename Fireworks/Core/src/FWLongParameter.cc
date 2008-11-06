@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWLongParameter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:41 EST 2008
-// $Id: FWLongParameter.cc,v 1.1 2008/03/11 14:04:27 chrjones Exp $
+// $Id: FWLongParameter.cc,v 1.2 2008/09/27 16:55:02 dmytro Exp $
 //
 
 // system include files
@@ -67,7 +67,7 @@ FWLongParameter::~FWLongParameter()
 //
 // member functions
 //
-void 
+void
 FWLongParameter::setFrom(const FWConfiguration& iFrom)
 {
    if (const FWConfiguration* config = iFrom.valueForKey(name()) ) {
@@ -77,7 +77,7 @@ FWLongParameter::setFrom(const FWConfiguration& iFrom)
    changed_(m_value);
 }
 
-void 
+void
 FWLongParameter::set(long iValue)
 {
    m_value = iValue;
@@ -87,7 +87,7 @@ FWLongParameter::set(long iValue)
 //
 // const member functions
 //
-void 
+void
 FWLongParameter::addTo(FWConfiguration& iTo) const
 {
    std::ostringstream s;

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEveScalableStraightLineSet
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 16:25:33 EDT 2008
-// $Id$
+// $Id: FWEveScalableStraightLineSet.cc,v 1.1 2008/07/04 23:39:30 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 // constructors and destructor
 //
 FWEveScalableStraightLineSet::FWEveScalableStraightLineSet(const Text_t* iName,
-                                                           const Text_t* iTitle): 
+                                                           const Text_t* iTitle):
 TEveScalableStraightLineSet(iName,iTitle)
 {
 }

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoEveElementProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.1 2008/07/07 00:30:27 chrjones Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.2 2008/07/12 01:31:09 dmytro Exp $
 //
 
 // system include files
@@ -59,14 +59,14 @@ FW3DLegoEveElementProxyBuilder::~FW3DLegoEveElementProxyBuilder()
 // member functions
 //
 
-void 
+void
 FW3DLegoEveElementProxyBuilder::attach(TEveElement* iElement,
                                        TEveCaloDataHist* iHist)
 {
    iElement->AddElement(&m_elementHolder);
 }
 
-void 
+void
 FW3DLegoEveElementProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
    modelChanges(iIds,static_cast<TEveElementList*>(m_elementHolder.FirstChild()));
@@ -77,7 +77,7 @@ FW3DLegoEveElementProxyBuilder::itemChangedImp(const FWEventItem*)
 {
 }
 
-void 
+void
 FW3DLegoEveElementProxyBuilder::applyChangesToAllModels()
 {
    FWModelIds allIds(ids().begin(),ids().end());
@@ -86,7 +86,7 @@ FW3DLegoEveElementProxyBuilder::applyChangesToAllModels()
 
 
 static void
-setUserDataElementAndChildren(TEveElement* iElement, 
+setUserDataElementAndChildren(TEveElement* iElement,
                               void* iInfo)
 {
    iElement->SetUserData(iInfo);
@@ -154,7 +154,7 @@ FW3DLegoEveElementProxyBuilder::build()
     */
 }
 
-void 
+void
 FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
                                              TEveElement* iElements )
 {
@@ -166,11 +166,11 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
        it != itEnd;
        ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());         
+      assert(itElement != iElements->EndChildren());
       while(index < it->index()) {
          ++itElement;
          ++index;
-         assert(itElement != iElements->EndChildren());         
+         assert(itElement != iElements->EndChildren());
       }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);
@@ -180,7 +180,7 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
    }
 }
 
-void 
+void
 FW3DLegoEveElementProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    m_elementHolder.DestroyElements();

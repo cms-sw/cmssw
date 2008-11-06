@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWCompositeParameter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:57 EST 2008
-// $Id$
+// $Id: FWCompositeParameter.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
 //
 
 // system include files
@@ -64,28 +64,28 @@ FWCompositeParameter::~FWCompositeParameter()
 //
 // member functions
 //
-void 
+void
 FWCompositeParameter::setFrom(const FWConfiguration& iFrom)
 {
    //need a way to handle versioning
    const FWConfiguration* mine = iFrom.valueForKey(name());
    const FWConfiguration::KeyValues* keyVals = mine->keyValues();
-   
+
    assert(0!=mine);
    assert(mine->version()==m_version);
    assert(0 != keyVals);
-   
+
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;
        ++it) {
       (*it)->setFrom(*mine);
-   }   
+   }
 }
 
 //
 // const member functions
 //
-void 
+void
 FWCompositeParameter::addTo(FWConfiguration& oTo) const
 {
    FWConfiguration conf(m_version);
@@ -97,7 +97,7 @@ FWCompositeParameter::addTo(FWConfiguration& oTo) const
    }
 //   std::for_each(begin(), end(),
 //                 boost::bind(&FWParameterBase::addTo,_1,conf));
-   
+
    oTo.addKeyValue(name(),conf,true);
 }
 

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWItemAccessorFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id$
+// $Id: FWItemAccessorFactory.cc,v 1.1 2008/10/21 19:08:23 chrjones Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
 //
 // const member functions
 //
-boost::shared_ptr<FWItemAccessorBase> 
+boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
    //std::cout <<"accessFor "<<iClass->GetName()<<std::endl;
@@ -77,7 +77,7 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
       assert(iClass->GetTypeInfo());
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
-      
+
       //is this an object which has only one member item and that item is a container?
       if(dataType.DataMemberSize()==1) {
          ROOT::Reflex::Type memType( dataType.DataMemberAt(0).TypeOf() );

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRhoPhiZView
-// 
+//
 /**\class FWRhoPhiZView FWRhoPhiZView.h Fireworks/Core/interface/FWRhoPhiZView.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.12 2008/07/09 14:37:15 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.13 2008/09/27 16:57:59 dmytro Exp $
 //
 
 // system include files
@@ -78,7 +78,7 @@ class FWRhoPhiZView : public FWViewBase
       void updateCaloThresholds(TEveElement*);
       void updateCaloLines(TEveElement*);
       void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
-     
+
       FWRhoPhiZView(const FWRhoPhiZView&); // stop default
 
       const FWRhoPhiZView& operator=(const FWRhoPhiZView&); // stop default
@@ -94,7 +94,7 @@ class FWRhoPhiZView : public FWViewBase
       TEveScene* m_scene;
       double m_caloScale;
       TEveProjectionAxes* m_axes;
-   
+
       // parameters
       FWDoubleParameter  m_caloDistortion;
       FWDoubleParameter  m_muonDistortion;
@@ -106,7 +106,7 @@ class FWRhoPhiZView : public FWViewBase
       FWBoolParameter*   m_showEndcaps;
       //FWDoubleParameter  m_minEcalEnergy;
       //FWDoubleParameter  m_minHcalEnergy;
-      
+
       // camera parameters
       double* m_cameraZoom;
       TGLMatrix* m_cameraMatrix;

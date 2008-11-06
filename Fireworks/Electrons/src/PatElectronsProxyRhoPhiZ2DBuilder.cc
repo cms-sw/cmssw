@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     PatElectronsProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatElectronsProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/09/26 07:42:09 dmytro Exp $
+// $Id: PatElectronsProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ PatElectronsProxyRhoPhiZ2DBuilder::~PatElectronsProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 PatElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -91,7 +91,7 @@ PatElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      }
 }
 
-void 
+void
 PatElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					  TEveElementList** product)
 {

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoView
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DLegoView.cc,v 1.3 2008/03/07 09:06:49 dmytro Exp $
+// $Id: FW3DLegoView.cc,v 1.4 2008/06/09 18:50:04 chrjones Exp $
 //
 
 // system include files
@@ -40,10 +40,10 @@ FW3DLegoView::FW3DLegoView(TGFrame* iParent)
 {
    TRootEmbeddedCanvas* eCanvas = new TRootEmbeddedCanvas("legoCanvas", iParent);
    m_frame = eCanvas;
-   m_legoCanvas = eCanvas->GetCanvas(); 
-   
+   m_legoCanvas = eCanvas->GetCanvas();
+
    m_legoCanvas->SetFillColor(Color_t(kBlack));
-   
+
    // one way of connecting event processing function to a canvas
    // m_legoCanvas->AddExec("ex", "FW3DLegoView::DynamicCoordinates()");
 }
@@ -88,8 +88,8 @@ FW3DLegoView::draw(THStack* iStack)
    m_legoCanvas->cd();
    iStack->Draw("lego1 fb bb");
    m_legoCanvas->Modified();
-   m_legoCanvas->Update();   
-   
+   m_legoCanvas->Update();
+
 }
 
 
@@ -100,7 +100,7 @@ void FW3DLegoView::DynamicCoordinates()
    if (event != kButton1Down) return;
    std::cout << "Event: " << event << std::endl;
    gPad->GetCanvas()->FeedbackMode(kTRUE);
-   
+
    int px = gPad->GetEventX();
    int py = gPad->GetEventY();
    std::cout << px << "   " << py << std::endl;
@@ -109,19 +109,19 @@ void FW3DLegoView::DynamicCoordinates()
 //
 // const member functions
 //
-TGFrame* 
+TGFrame*
 FW3DLegoView::frame() const
 {
    return m_frame;
 }
 
-const std::string& 
+const std::string&
 FW3DLegoView::typeName() const
 {
    return staticTypeName();
 }
 
-void 
+void
 FW3DLegoView::saveImageTo(const std::string& iName) const
 {
 }
@@ -129,7 +129,7 @@ FW3DLegoView::saveImageTo(const std::string& iName) const
 //
 // static member functions
 //
-const std::string& 
+const std::string&
 FW3DLegoView::staticTypeName()
 {
    static std::string s_name("3D Lego");

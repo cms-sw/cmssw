@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDoubleParameterSetter
-// 
+//
 /**\class FWDoubleParameterSetter FWDoubleParameterSetter.h Fireworks/Core/interface/FWDoubleParameterSetter.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id$
+// $Id: FWDoubleParameterSetter.h,v 1.1 2008/03/11 02:43:55 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class FWDoubleParameterSetter : public FWParameterSetterBase
       virtual void attach(FWParameterBase*) ;
       virtual TGFrame* build(TGFrame* iParent) ;
       void doUpdate(Long_t);
-   
+
    private:
       FWDoubleParameterSetter(const FWDoubleParameterSetter&); // stop default
 

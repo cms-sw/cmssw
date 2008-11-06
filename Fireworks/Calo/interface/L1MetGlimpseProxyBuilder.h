@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     L1MetGlimpseProxyBuilder
-// 
+//
 /**\class L1MetGlimpseProxyBuilder L1MetGlimpseProxyBuilder.h Fireworks/Calo/interface/L1MetGlimpseProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: L1MetGlimpseProxyBuilder.h,v 1.1 2008/07/08 07:01:44 dmytro Exp $
+// $Id: L1MetGlimpseProxyBuilder.h,v 1.1 2008/07/16 13:50:59 dmytro Exp $
 //
 
 // system include files
@@ -34,10 +34,10 @@ class L1MetGlimpseProxyBuilder : public FWGlimpseDataProxyBuilder
 
       // ---------- const member functions ---------------------
       REGISTER_PROXYBUILDER_METHODS();
-   
+
       // ---------- static member functions --------------------
    private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
 
       L1MetGlimpseProxyBuilder(const L1MetGlimpseProxyBuilder&); // stop default

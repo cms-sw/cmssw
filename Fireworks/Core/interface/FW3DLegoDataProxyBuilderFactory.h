@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoDataProxyBuilderFactory
-// 
+//
 /**\class FW3DLegoDataProxyBuilderFactory FW3DLegoDataProxyBuilderFactory.h Fireworks/Core/interface/FW3DLegoDataProxyBuilderFactory.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id$
+// $Id: FW3DLegoDataProxyBuilderFactory.h,v 1.1 2008/06/09 19:48:45 chrjones Exp $
 //
 
 // system include files

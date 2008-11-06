@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     GenParticleProxy3DBuilder
-// 
+//
 /**\class GenParticleProxy3DBuilder GenParticleProxy3DBuilder.h Fireworks/Core/interface/GenParticleProxy3DBuilder.h
 
  Description: <one line class summary>
@@ -12,9 +12,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.6 2008/07/17 10:04:17 dmytro Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.7 2008/07/20 18:22:00 dmytro Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
        std::cout << "incorrect type" << std::endl;
        return;
     }
-       
+
     if(0 == tlist) {
       tlist =  new TEveTrackList(iItem->name().c_str());
       *product = tlist;
@@ -57,7 +57,7 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
       //get this from geometry, units are CM
       rnrStyle->SetMaxR(120.0);
       rnrStyle->SetMaxZ(300.0);
-      
+
       gEve->AddElement(tlist);
     } else {
       tlist->DestroyElements();
@@ -68,11 +68,11 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
      iItem->get(genParticles);
      //fwlite::Handle<reco::TrackCollection> tracks;
      //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
-     
+
      if(0 == genParticles ) return;
-    
+
     TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
-    
+
     int index=0;
     //cout <<"----"<<endl;
     TEveRecTrack t;
@@ -91,7 +91,7 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
       TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
       char s[1024];
       TParticlePDG* pID = m_pdg->GetParticle(it->pdgId());
-      if ( pID ) 
+      if ( pID )
 	  sprintf(s,"gen %s, Pt: %0.1f GeV", pID->GetName(), it->pt());
       else
 	  sprintf(s,"gen pdg %d, Pt: %0.1f GeV", it->pdgId(), it->pt());
@@ -105,7 +105,7 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
       //   <<it->pz()<<endl;
       //cout <<" *";
     }
-    
+
 }
 
 REGISTER_FWRPZDATAPROXYBUILDER(GenParticleProxy3DBuilder,reco::GenParticleCollection,"GenParticles");

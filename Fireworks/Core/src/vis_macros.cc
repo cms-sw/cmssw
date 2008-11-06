@@ -76,7 +76,7 @@ TGeoShape * get_shape( TEveElement * element ) {
   return 0;
 }
 // set an element's color and alpha, and possibly its children's up to levels levels deep
-void set_color( TEveElement * element, Color_t color, float alpha, unsigned int levels ) 
+void set_color( TEveElement * element, Color_t color, float alpha, unsigned int levels )
 {
   if (not element)
     return;
@@ -160,13 +160,13 @@ void set_tracker_endcap_visibility( TEveElement * tracker, bool visibility )
 }
 
 // show Tracker's Endcaps
-void show_tracker_endcap( TEveElement * tracker ) 
+void show_tracker_endcap( TEveElement * tracker )
 {
   set_tracker_endcap_visibility( tracker, true );
 }
 
 // hide Tracker's Endcaps
-void hide_tracker_endcap( TEveElement * tracker ) 
+void hide_tracker_endcap( TEveElement * tracker )
 {
   set_tracker_endcap_visibility( tracker, false );
 }

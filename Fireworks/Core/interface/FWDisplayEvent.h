@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDisplayEvent
-// 
+//
 /**\class FWDisplayEvent FWDisplayEvent.h Fireworks/Core/interface/FWDisplayEvent.h
 
  Description: Displays an fwlite::Event in ROOT
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.24 2008/06/09 20:22:14 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.25 2008/07/08 00:29:01 chrjones Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ class FWDisplayEvent
       int draw(const fwlite::Event& ) const;
 
       const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
-   
+
       void writeConfigurationFile(const std::string& iFileName) const;
       // ---------- static member functions --------------------
       static double getMagneticField() { return m_magneticField; }
@@ -72,7 +72,7 @@ class FWDisplayEvent
 
       // ---------- member functions ---------------------------
       int draw(const fwlite::Event& );
-      
+
       void registerPhysicsObject(const FWPhysicsObjectDesc&);
      void registerDetailView (const std::string &item_name, FWDetailView *view);
    private:

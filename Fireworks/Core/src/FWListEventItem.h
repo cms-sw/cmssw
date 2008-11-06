@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListEventItem
-// 
+//
 /**\class FWListEventItem FWListEventItem.h Fireworks/Core/interface/FWListEventItem.h
 
  Description: Adapter between the list view and a FWEventItem
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.9 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWListEventItem.h,v 1.10 2008/06/29 13:23:48 chrjones Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class FWListEventItem : public TEveElementList, public FWListItemBase
 
       // ---------- const member functions ---------------------
       FWEventItem* eventItem() const;
-   
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -56,12 +56,12 @@ class FWListEventItem : public TEveElementList, public FWListItemBase
 
       void openDetailViewFor(int index) const;
       virtual bool doSelection(bool iToggleSelection);
-   
+
    private:
       void itemChanged(const FWEventItem*);
       void modelsChanged( const std::set<FWModelId>& );
       void defaultDisplayPropertiesChanged(const FWEventItem*);
-   
+
       FWListEventItem(const FWListEventItem&); // stop default
 
       const FWListEventItem& operator=(const FWListEventItem&); // stop default

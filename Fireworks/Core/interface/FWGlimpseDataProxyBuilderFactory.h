@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseDataProxyBuilderFactory
-// 
+//
 /**\class FWGlimpseDataProxyBuilderFactory FWGlimpseDataProxyBuilderFactory.h Fireworks/Core/interface/FWGlimpseDataProxyBuilderFactory.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 20:13:55 EDT 2008
-// $Id: FWGlimpseDataProxyBuilderFactory.h,v 1.1 2008/06/09 19:48:45 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilderFactory.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files

@@ -44,8 +44,8 @@ void PatMuonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElem
    build(iItem, product, true);
 }
 
-void PatMuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, 
-					  TEveElementList** product, 
+void PatMuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
+					  TEveElementList** product,
 					  bool showEndcap,
 					  bool tracksOnly)
 {
@@ -59,17 +59,17 @@ void PatMuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Muon>* muons=0;
    iItem->get(muons);
-   
+
    if(0 == muons ) return;
-   
+
    // if auto field estimation mode, do extra loop over muons.
    if ( CmsShowMain::isAutoField() )
-     for ( std::vector<pat::Muon>::const_iterator muon = muons->begin(); 
+     for ( std::vector<pat::Muon>::const_iterator muon = muons->begin();
 	   muon != muons->end(); ++muon) {
-	if ( fabs( muon->eta() ) > 2.0 || muon->pt() < 3 || 
+	if ( fabs( muon->eta() ) > 2.0 || muon->pt() < 3 ||
 	     !muon->standAloneMuon().isAvailable()) continue;
 	double estimate = fw::estimate_field(*(muon->standAloneMuon()));
 	if ( estimate < 0 ) continue;

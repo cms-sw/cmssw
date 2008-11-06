@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoViewManager
-// 
+//
 /**\class FW3DLegoViewManager FW3DLegoViewManager.h Fireworks/Core/interface/FW3DLegoViewManager.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.11 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FW3DLegoViewManager.h,v 1.12 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -72,9 +72,9 @@ class FW3DLegoViewManager : public FWViewManagerBase
       FWViewBase* buildView(TGFrame* iParent);
 
       void exec3event(int event, int x, int y, TObject *selected);
-      void pixel2wc(const Int_t PixelX, const Int_t PixelY, 
+      void pixel2wc(const Int_t PixelX, const Int_t PixelY,
 		    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
-   
+
    protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();
@@ -85,7 +85,7 @@ class FW3DLegoViewManager : public FWViewManagerBase
       const FW3DLegoViewManager& operator=(const FW3DLegoViewManager&); // stop default
 
       void makeProxyBuilderFor(const FWEventItem* iItem);
-   
+
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
       TypeToBuilders m_typeToBuilders;

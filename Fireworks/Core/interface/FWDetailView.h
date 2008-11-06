@@ -13,7 +13,7 @@ public:
 
 public:
      TGTextView	*text_view;
-     Double_t 	rotation_center[3]; 
+     Double_t 	rotation_center[3];
 };
 
 #endif

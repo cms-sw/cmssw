@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     TrackDetailView
-// 
+//
 /**\class TrackDetailView TrackDetailView.h Fireworks/Calo/interface/TrackDetailView.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: TrackDetailView.h,v 1.1 2008/03/07 01:05:12 jmuelmen Exp $
+// $Id: TrackDetailView.h,v 1.1 2008/03/20 04:00:27 jmuelmen Exp $
 //
 
 // system include files
@@ -31,11 +31,11 @@ class FWEventItem;
 class TEveElementList;
 
 class TrackDetailView : public FWDetailView {
-     
+
 public:
      TrackDetailView();
      virtual ~TrackDetailView();
-     
+
      virtual void build (TEveElementList **product, const FWModelId &id);
 
 protected:
@@ -46,19 +46,19 @@ protected:
 	vars[1] = rotation_center[1];
 	vars[2] = rotation_center[2];
      }
-   
+
 private:
      TrackDetailView(const TrackDetailView&); // stop default
      const TrackDetailView& operator=(const TrackDetailView&); // stop default
-     
+
      // ---------- member data --------------------------------
      const FWEventItem* m_item;
-     void resetCenter() { 
+     void resetCenter() {
 	rotation_center[0] = 0;
 	rotation_center[1] = 0;
 	rotation_center[2] = 0;
      }
-	
+
 };
 
 #endif

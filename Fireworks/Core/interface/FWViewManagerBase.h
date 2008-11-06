@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWViewManagerBase
-// 
+//
 /**\class FWViewManagerBase FWViewManagerBase.h Fireworks/Core/interface/FWViewManagerBase.h
 
  Description: Base class for a Manger for a specific type of View
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.10 2008/06/10 19:26:21 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.11 2008/07/07 02:15:45 chrjones Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ class FWViewManagerBase
       // ---------- const member functions ---------------------
       /** returning an empty vector means this type can not be handled*/
       virtual std::vector<std::string> purposeForType(const std::string& iTypeName) const = 0;
-   
+
       virtual std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const = 0;
       // ---------- static member functions --------------------
 
@@ -52,16 +52,16 @@ class FWViewManagerBase
 
       void setGeom(const DetIdToMatrix* geom){ m_detIdToGeo = geom; }
       const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){ return m_detIdToGeo; }
-      
+
       void setChangeManager(FWModelChangeManager* iCM);
-      
+
 
       void modelChangesComingSlot();
       void modelChangesDoneSlot();
-   
+
    protected:
       FWViewManagerBase();
-      
+
       /**handles dynamic loading of a library or macro containing the class
        named iNameOfClass which inherits from iBaseClass.  The returned
        void* will correspond to the address of the 'BaseClass'
@@ -82,7 +82,7 @@ class FWViewManagerBase
 
       // ---------- member data --------------------------------
       const DetIdToMatrix* m_detIdToGeo;
-   
+
       FWModelChangeManager* m_changeManager;
 
 };

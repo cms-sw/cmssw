@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGlimpseDataProxyBuilderFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun  6 13:51:44 EDT 2008
-// $Id: FWGlimpseDataProxyBuilderFactory.cc,v 1.1 2008/06/09 19:48:44 chrjones Exp $
+// $Id: FWGlipmseDataProxyBuilderFactory.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
 //
 
 // system include files

@@ -5,8 +5,8 @@
 #include "TSystem.h"
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
-CmsShowHelpPopup::CmsShowHelpPopup (const std::string &filename, 
-				    const std::string &windowname, 
+CmsShowHelpPopup::CmsShowHelpPopup (const std::string &filename,
+				    const std::string &windowname,
 				    const TGWindow* p, UInt_t w, UInt_t h)
      : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h),
        m_helpHtml(new TGHtml(this, w, h))

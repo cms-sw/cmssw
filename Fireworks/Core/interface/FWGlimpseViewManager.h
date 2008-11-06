@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWGlimpseViewManager_h
 #define Fireworks_Core_FWGlimpseViewManager_h
 // -*- C++ -*-
-// $Id: FWGlimpseViewManager.h,v 1.2 2008/07/04 23:54:14 chrjones Exp $
+// $Id: FWGlimpseViewManager.h,v 1.3 2008/07/07 02:15:45 chrjones Exp $
 
 // system include files
 #include <string>
@@ -42,7 +42,7 @@ class FWGlimpseViewManager : public FWViewManagerBase
       virtual void newItem(const FWEventItem*);
 
       FWViewBase* buildView(TGFrame* iParent);
-      
+
       //connect to ROOT signals
       void selectionAdded(TEveElement*);
       void selectionRemoved(TEveElement*);
@@ -56,9 +56,9 @@ class FWGlimpseViewManager : public FWViewManagerBase
       FWGlimpseViewManager(const FWGlimpseViewManager&); // stop default
 
       const FWGlimpseViewManager& operator=(const FWGlimpseViewManager&); // stop default
-   
+
       void makeProxyBuilderFor(const FWEventItem* iItem);
-      void beingDestroyed(const FWViewBase*); 
+      void beingDestroyed(const FWViewBase*);
 
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
@@ -67,10 +67,10 @@ class FWGlimpseViewManager : public FWViewManagerBase
 
       std::vector<boost::shared_ptr<FWGlimpseView> > m_views;
       TEveElementList m_elements;
-      
+
       TEveSelection* m_eveSelection;
       FWSelectionManager* m_selectionManager;
-   
+
       FWEveValueScaler m_scaler;
 };
 

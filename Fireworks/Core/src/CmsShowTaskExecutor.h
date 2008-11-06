@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowTaskExecutor
-// 
+//
 /**\class CmsShowTaskExecutor CmsShowTaskExecutor.h Fireworks/Core/interface/CmsShowTaskExecutor.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:45 EDT 2008
-// $Id$
+// $Id: CmsShowTaskExecutor.h,v 1.1 2008/07/12 00:32:58 chrjones Exp $
 //
 
 // system include files
@@ -33,15 +33,15 @@ class CmsShowTaskExecutor : public CmsShowTaskExecutorBase {
 public:
    CmsShowTaskExecutor();
    virtual ~CmsShowTaskExecutor();
-   
+
    typedef boost::function0<void> TaskFunctor;
    // ---------- const member functions ---------------------
-   
+
    // ---------- static member functions --------------------
-   
+
    // ---------- member functions ---------------------------
    void addTask(const TaskFunctor& iTask);
-   
+
    void startDoingTasks();
 protected:
    virtual void doNextTaskImp();
@@ -49,9 +49,9 @@ protected:
 
 private:
    CmsShowTaskExecutor(const CmsShowTaskExecutor&); // stop default
-   
+
    const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&); // stop default
-   
+
    // ---------- member data --------------------------------
    std::deque<TaskFunctor> m_tasks;
 };

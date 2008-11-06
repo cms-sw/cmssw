@@ -18,7 +18,7 @@ const int LightTableWidget::m_cellHeight;
 const int LightTableWidget::m_titleColor;
 const TGGC *LightTableWidget::fgShadowGC;
 
-LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm, 
+LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm,
 				    int w, int h)
      : TGTextView(p, w, h),
        manager(tm)
@@ -31,7 +31,7 @@ LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm,
      p->AddFrame(this, hints);
 
      // add "shadow" GC, which is 60% as bright as default
-     if (fgShadowGC == 0) 
+     if (fgShadowGC == 0)
 	  fgShadowGC = gClient->GetResourcePool()->GetFrameShadowGC();
      invisibleGC = *fgShadowGC;
      invisibleGC.SetFont(fNormGC.GetFont());
@@ -42,7 +42,7 @@ LightTableWidget::~LightTableWidget ()
 
 }
 
-void LightTableWidget::SetTextColor (Color_t col) 
+void LightTableWidget::SetTextColor (Color_t col)
 {
      TColor *color = gROOT->GetColor(col);
      Pixel_t invisible = TColor::RGB2Pixel(Float_t(0.4 * color->GetRed()),
@@ -59,14 +59,14 @@ void LightTableWidget::display (int rows)
      std::vector<std::string> text;
      col_widths.clear();
      manager->format(text, col_widths, rows);
-     for (std::vector<std::string>::const_iterator i = text.begin(); 
+     for (std::vector<std::string>::const_iterator i = text.begin();
 	  i != text.end(); ++i) {
 	  AddLineFast(i->c_str());
      }
      Update();
 }
 
-void LightTableWidget::selectRows (const std::set<int> &rows, Mask_t mask, 
+void LightTableWidget::selectRows (const std::set<int> &rows, Mask_t mask,
 				   Pixel_t hcolor)
 {
      // this is easy: just redraw, DrawRegion() will ask the manager
@@ -88,8 +88,8 @@ Bool_t LightTableWidget::HandleButton(Event_t *event)
 	   fMousePos.fY = ToObjYCoord(fVisible.fY + event->fY);
 	   fMousePos.fX = ToObjXCoord(fVisible.fX + event->fX, fMousePos.fY);
 // 	   printf("click on line %d, col %d\n", fMousePos.fY, fMousePos.fX);
-	   if (fMousePos.fY >= manager->preamble() && 
-	       fMousePos.fY <= manager->NumberOfRows() + manager->preamble() - 1) 
+	   if (fMousePos.fY >= manager->preamble() &&
+	       fMousePos.fY <= manager->NumberOfRows() + manager->preamble() - 1)
 		manager->Selection(fMousePos.fY - manager->preamble(), event->fState);
 	   else if (fMousePos.fY == manager->preamble() - 2) {
 		for (int col = 0, i = 0; i < static_cast<int>(col_widths.size()); ++i) {
@@ -101,7 +101,7 @@ Bool_t LightTableWidget::HandleButton(Event_t *event)
 		     }
 		}
 	   }
-      } 
+      }
    } else if (event->fCode == kButton4) {
       // move three lines up
       if (fVisible.fY > 0) {
@@ -116,7 +116,7 @@ Bool_t LightTableWidget::HandleButton(Event_t *event)
          SetVsbPosition(fVisible.fY / fScrollVal.fY + 3);
          //Mark(fMousePos.fX, size.fY + 3);
       }
-   } 
+   }
 
 //    if (event->fType == kButtonRelease) {
 //       if (event->fCode == kButton1) {
@@ -189,7 +189,7 @@ void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
             }
 
 	    if (!manager->rowIsSelected(pos.fY - manager->preamble())) {
-		 if (pos.fY >= manager->preamble() && 
+		 if (pos.fY >= manager->preamble() &&
 		     !manager->rowIsVisible(pos.fY - manager->preamble())) {
 		      // "invisible" items are greyed out
 		      gVirtualX->DrawString(fCanvas->GetId(), invisibleGC(), Int_t(xoffset),
@@ -218,7 +218,7 @@ void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
    }
 }
 
-void LightTableManager::format (std::vector<std::string> &ret, 
+void LightTableManager::format (std::vector<std::string> &ret,
                                 std::vector<int> &col_width,
                                 int)
 {
@@ -247,11 +247,11 @@ void LightTableManager::format (std::vector<std::string> &ret,
 	  }
      }
      int total_len = 0;
-     for (unsigned int i = 0; i < col_width.size(); ++i) 
+     for (unsigned int i = 0; i < col_width.size(); ++i)
 	  total_len += col_width[i] + 1;
      char *const s = new char[total_len+2];
      char * const sEnd = s+total_len+1;
-     //      ret.push_back(std::string(total_len, '=')); 
+     //      ret.push_back(std::string(total_len, '='));
      if (title().length() != 0) {
 	  if ((total_len + title().length()) / 2 > 0)
 	       snprintf(s, total_len, "%*s", (total_len + title().length()) / 2,
@@ -259,7 +259,7 @@ void LightTableManager::format (std::vector<std::string> &ret,
 	  else snprintf(s, total_len, "%s", title().c_str());
 	  ret.push_back(s);
      }
-     //      ret.push_back(std::string(total_len, '-')); 
+     //      ret.push_back(std::string(total_len, '-'));
      char *p = s;
      if (print_idx) {
 	  p += snprintf(p, sEnd-p,"%*s", col_width[0] + 1, "idx");
@@ -270,11 +270,11 @@ void LightTableManager::format (std::vector<std::string> &ret,
 	  assert(p<=sEnd);
      }
      ret.push_back(s);
-     ret.push_back(std::string(total_len, '-')); 
+     ret.push_back(std::string(total_len, '-'));
      for (int row = 0; row < NumberOfRows(); ++row) {
 	  // 	  if (row == n_rows) {
 	  // 	       const char no_more[] = "more skipped";
-	  // 	       sprintf(s, "%*d %s", (total_len - sizeof(no_more)) / 2, 
+	  // 	       sprintf(s, "%*d %s", (total_len - sizeof(no_more)) / 2,
 	  // 		       NumberOfRows() - row, no_more);
 	  // 	       ret.push_back(s);
 	  // 	       break;
@@ -300,10 +300,10 @@ void LightTableManager::format (std::vector<std::string> &ret,
 	  ret.push_back(s);
      }
      delete [] s;
-     //      ret.push_back(std::string(total_len, '-')); 
+     //      ret.push_back(std::string(total_len, '-'));
 }
 
-void LightTableManager::sort (int col, bool reset) 
+void LightTableManager::sort (int col, bool reset)
 {
      int print_idx = m_print_index ? 1 : 0;
      col -= print_idx;
@@ -311,8 +311,8 @@ void LightTableManager::sort (int col, bool reset)
 	  return;
      if (reset) {
 	  sort_asc_ = true;
-	  sort_col_ = col; 
-     } else { 
+	  sort_col_ = col;
+     } else {
 	  if (sort_col_ == col) {
 	       sort_asc_ = not sort_asc_;
 	  } else {

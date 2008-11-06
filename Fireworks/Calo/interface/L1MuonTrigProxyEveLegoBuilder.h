@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     L1MuonTrigProxyEveLegoBuilder
-// 
+//
 /**\class L1MuonTrigProxyEveLegoBuilder L1MuonTrigProxyEveLegoBuilder.h Fireworks/Calo/interface/L1MuonTrigProxyEveLegoBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.h,v 1.1 2008/06/13 18:06:34 srappocc Exp $
+// $Id: L1MuonTrigProxyEveLegoBuilder.h,v 1.2 2008/07/07 00:46:19 chrjones Exp $
 //
 
 // system include files
@@ -38,9 +38,9 @@ class L1MuonTrigProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
 
       // ---------- static member functions --------------------
       REGISTER_PROXYBUILDER_METHODS();
-   
+
    private:
-      virtual void build(const FWEventItem* iItem, 
+      virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product);
 
       L1MuonTrigProxyEveLegoBuilder(const L1MuonTrigProxyEveLegoBuilder&); // stop default

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWRhoPhiZView
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.26 2008/10/28 14:18:40 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.27 2008/10/29 18:51:16 chrjones Exp $
 //
 
 #define private public
@@ -71,7 +71,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
       new_re->SetMainColor(iFrom->GetMainColor());
       if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(new_re) )
          poly->SetLineColor(dynamic_cast<TEvePolygonSetProjected*>(iFrom)->GetLineColor());
-      
+
    }
    else
    {
@@ -82,7 +82,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
    new_re->SetRnrSelf     (iFrom->GetRnrSelf());
    new_re->SetRnrChildren(iFrom->GetRnrChildren());
    iParent->AddElement(new_re);
-   
+
    for (TEveElement::List_i i=iFrom->BeginChildren(); i!=iFrom->EndChildren(); ++i)
       doReplication(iMgr,*i, new_re);
    return new_re;
@@ -123,7 +123,7 @@ m_cameraMatrix(0)
    m_projMgr->GetProjection()->SetPastFixRFac(0.0);
    m_projMgr->GetProjection()->SetPastFixZFac(0.0);
    */
-   
+
    //m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
    //m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
    if ( iProjType == TEveProjection::kPT_RPhi ) {
@@ -141,9 +141,9 @@ m_cameraMatrix(0)
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
-     
+
    gEve->AddToListTree(m_projMgr,kTRUE);
-   
+
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
      //                                        boost::bind(toFloat,_1)));
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
@@ -151,7 +151,7 @@ m_cameraMatrix(0)
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
    m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
-   
+
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad, 0);
    m_embeddedViewer=ev;
@@ -164,7 +164,7 @@ m_cameraMatrix(0)
       m_cameraMatrix = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
       camera->SetZoomMax(1e6);
    }
-   
+
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
    m_scene = ns;
    nv->AddScene(ns);
@@ -175,10 +175,10 @@ m_cameraMatrix(0)
    m_axes = new TEveProjectionAxes(m_projMgr);
    ns->AddElement(m_axes);
    gEve->AddToListTree(m_axes, kTRUE);
-   
+
    gEve->AddElement(m_projMgr,ns);
    //ev->ResetCurrentCamera();
-   m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));   
+   m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));
 }
 
 // FWRhoPhiZView::FWRhoPhiZView(const FWRhoPhiZView& rhs)
@@ -217,7 +217,7 @@ FWRhoPhiZView::~FWRhoPhiZView()
 //
 // member functions
 //
-void 
+void
 FWRhoPhiZView::doDistortion()
 {
    if ( m_projType == TEveProjection::kPT_RPhi ) {
@@ -230,12 +230,12 @@ FWRhoPhiZView::doDistortion()
       m_projMgr->GetProjection()->ChangePreScaleEntry(1,2,m_muonDistortion.value());
    }
    m_projMgr->UpdateName();
-   m_projMgr->ProjectChildren();   
+   m_projMgr->ProjectChildren();
    //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
    m_embeddedViewer->UpdateScene();
 }
 
-void 
+void
 FWRhoPhiZView::doCompression(bool flag)
 {
    m_projMgr->GetProjection()->SetUsePreScale(flag);
@@ -247,7 +247,7 @@ FWRhoPhiZView::doCompression(bool flag)
 }
 
 /*
-void 
+void
 FWRhoPhiZView::doZoom(double iValue)
 {
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( & (m_viewer->GetGLViewer()->CurrentCamera()) ) ) {
@@ -258,7 +258,7 @@ FWRhoPhiZView::doZoom(double iValue)
 }
 */
 
-void 
+void
 FWRhoPhiZView::resetCamera()
 {
    //this is needed to get EVE to transfer the TEveElements to GL so the camera reset will work
@@ -269,7 +269,7 @@ FWRhoPhiZView::resetCamera()
    m_embeddedViewer->ResetCurrentCamera();
 }
 
-void 
+void
 FWRhoPhiZView::destroyElements()
 {
    m_projMgr->DestroyElements();
@@ -278,7 +278,7 @@ FWRhoPhiZView::destroyElements()
                              m_projMgr,
                              _1));
 }
-void 
+void
 FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 {
    m_geom.push_back(doReplication(m_projMgr,iChild,m_projMgr));
@@ -288,7 +288,7 @@ FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 }
 
 //returns the new element created from this import
-TEveElement* 
+TEveElement*
 FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
 {
    float oldLayer = m_projMgr->GetCurrentDepth();
@@ -301,11 +301,11 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    TEveElement* lastChild = m_projMgr->LastChild();
    updateCalo( lastChild, true );
    updateCaloLines( lastChild );
-   
+
    return lastChild;
 }
 
-void 
+void
 FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
 {
    /*
@@ -321,7 +321,7 @@ FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
     */
 }
 
-void 
+void
 FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
 {
    TEveElementIter child(iParent);
@@ -345,7 +345,7 @@ FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
      }
 }
 
-void 
+void
 FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
 {
    TEveElementIter child(iParent);
@@ -364,12 +364,12 @@ FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
 }
 
 
-void 
+void
 FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
 {
    // take care of parameters
    FWConfigurableParameterizable::setFrom(iFrom);
-   
+
    // retrieve camera parameters
    // zoom
    assert(m_cameraZoom);
@@ -377,7 +377,7 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
    assert( 0!=iFrom.valueForKey(zoomName) );
    std::istringstream s(iFrom.valueForKey(zoomName)->value());
    s>>(*m_cameraZoom);
-   
+
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
@@ -396,24 +396,24 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
 //
 // const member functions
 //
-TGFrame* 
+TGFrame*
 FWRhoPhiZView::frame() const
 {
    return m_embeddedViewer->GetFrame();
 }
 
-const std::string& 
+const std::string&
 FWRhoPhiZView::typeName() const
 {
    return m_typeName;
 }
 
-void 
+void
 FWRhoPhiZView::addTo(FWConfiguration& iTo) const
 {
    // take care of parameters
    FWConfigurableParameterizable::addTo(iTo);
-   
+
    // store camera parameters
    // zoom
    assert(m_cameraZoom);
@@ -421,7 +421,7 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
    s<<(*m_cameraZoom);
    std::string name("cameraZoom");
    iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
-   
+
    // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
@@ -434,7 +434,7 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
    }
 }
 
-void 
+void
 FWRhoPhiZView::saveImageTo(const std::string& iName) const
 {
    bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
@@ -467,7 +467,7 @@ FWRhoPhiZView::updateCaloThresholdParameters()
 }
 
 
-void 
+void
 FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
 {
    if ( ! calo->GetData() ) return;
@@ -483,7 +483,7 @@ FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
    }
 }
 
-void FWRhoPhiZView::showProjectionAxes( ) 
+void FWRhoPhiZView::showProjectionAxes( )
 {
    if ( !m_axes ) return; // just in case
    if ( m_showProjectionAxes.value() )

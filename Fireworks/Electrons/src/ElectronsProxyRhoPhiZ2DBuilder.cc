@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     ElectronsProxyRhoPhiZ2DBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.15 2008/11/04 11:46:35 amraktad Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.16 2008/11/06 19:49:23 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ ElectronsProxyRhoPhiZ2DBuilder::~ElectronsProxyRhoPhiZ2DBuilder()
 //
 // member functions
 //
-void 
+void
 ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
@@ -92,7 +92,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
 }
 
-void 
+void
 ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					  TEveElementList** product)
 {
@@ -124,13 +124,13 @@ void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoPhi(const FWEventItem* iIte
 {
    const unsigned int nBuffer = 1024;
    const double r = 122;
-   char title[nBuffer]; 
+   char title[nBuffer];
    snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
    TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
    container->OpenCompound();
    //guarantees that CloseCompound will be called no matter what happens
    boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-   
+
    if ( electron->superCluster().isAvailable() ) {
       std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
       std::vector<double> phis;
@@ -139,14 +139,14 @@ void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoPhi(const FWEventItem* iIte
 	 if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
       }
       std::pair<double,double> phiRange = fw::getPhiRange( phis, electron->phi() );
-      TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1, 
-					 phiRange.first * 180 / M_PI - 0.5,  
-					 phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal 
+      TGeoBBox *sc_box = new TGeoTubeSeg(r - 1, r + 1, 1,
+					 phiRange.first * 180 / M_PI - 0.5,
+					 phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal
       TEveGeoShape *sc = fw::getShape( "supercluster", sc_box, tList->GetMainColor() );
       sc->SetPickable(kTRUE);
       container->AddElement(sc);
    }
-   
+
    TEveTrack* track(0);
    if ( electron->gsfTrack().isAvailable() )
      track = fw::getEveTrack( *(electron->gsfTrack()) );
@@ -167,13 +167,13 @@ void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoZ(const FWEventItem* iItem,
    const unsigned int nBuffer = 1024;
    double z_ecal = 302; // ECAL endcap inner surface
    double r_ecal = 122;
-   char title[nBuffer]; 
+   char title[nBuffer];
    snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
    TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
    container->OpenCompound();
    //guarantees that CloseCompound will be called no matter what happens
    boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-        
+
    if ( electron->superCluster().isAvailable() ) {
       double theta_max = 0;
       double theta_min = 10;
@@ -189,10 +189,10 @@ void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoZ(const FWEventItem* iItem,
 	 }
       }
       // expand theta range by the size of a crystal to avoid segments of zero length
-      fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003, 
+      fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003,
 				   electron->phi(), iItem->defaultDisplayProperties().color() );
    }
-   
+
    TEveTrack* track(0);
    if ( electron->gsfTrack().isAvailable() )
      track = fw::getEveTrack( *(electron->gsfTrack()) );
@@ -200,11 +200,11 @@ void ElectronsProxyRhoPhiZ2DBuilder::buildElectronRhoZ(const FWEventItem* iItem,
      track = fw::getEveTrack( *electron );
    track->SetMainColor( iItem->defaultDisplayProperties().color() );
    container->AddElement(track);
-   
+
    container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
    container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
    tList->AddElement(container);
 }
-   
+
 
 REGISTER_FWRPZ2DDATAPROXYBUILDER(ElectronsProxyRhoPhiZ2DBuilder,reco::PixelMatchGsfElectronCollection,"Electrons");

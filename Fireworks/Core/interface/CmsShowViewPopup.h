@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowViewPopup
-// 
+//
 /**\class CmsShowViewPopup CmsShowViewPopup.h Fireworks/Core/interface/CmsShowViewPopup.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.3 2008/07/15 02:01:01 chrjones Exp $
+// $Id: CmsShowViewPopup.h,v 1.4 2008/07/16 13:38:37 chrjones Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditor
       // ---------- member functions ---------------------------
       void reset(FWViewBase* iView);
       void removeView();
- 
+
       void saveImage();
    private:
       CmsShowViewPopup(const CmsShowViewPopup&); // stop default

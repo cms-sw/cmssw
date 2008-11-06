@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEveValueScaler
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 10:30:04 EDT 2008
-// $Id: FWEveValueScaler.cc,v 1.1.2.1 2008/07/08 10:02:34 jmuelmen Exp $
+// $Id: FWEveValueScaler.cc,v 1.2 2008/07/09 06:54:26 jmuelmen Exp $
 //
 
 // system include files
@@ -61,29 +61,29 @@ FWEveValueScaler::~FWEveValueScaler()
 //
 // member functions
 //
-void 
+void
 FWEveValueScaler::addElement(TEveElement* iElement)
 {
    FWEveValueScaled* scaled=dynamic_cast<FWEveValueScaled*> (iElement);
    assert(0!=scaled);
    m_scalables.AddElement(iElement);
-   
+
    scaled->setScale(m_scale);
    iElement->ElementChanged(kTRUE,kTRUE);
 }
 
-void 
+void
 FWEveValueScaler::removeElement(TEveElement* iElement)
 {
    m_scalables.RemoveElement(iElement);
 }
-void 
+void
 FWEveValueScaler::removeElements()
 {
    m_scalables.RemoveElements();
 }
 
-void 
+void
 FWEveValueScaler::setScale(float iScale)
 {
    if(iScale != m_scale) {

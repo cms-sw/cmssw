@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListModel
-// 
+//
 /**\class FWListModel FWListModel.h Fireworks/Core/interface/FWListModel.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.8 2008/03/18 15:38:04 chrjones Exp $
+// $Id: FWListModel.h,v 1.9 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files

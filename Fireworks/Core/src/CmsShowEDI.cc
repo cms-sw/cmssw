@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     CmsShowEDI
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  Joshua Berger  
+// Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.13 2008/08/27 13:28:45 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.14 2008/09/22 20:15:22 chrjones Exp $
 //
 
 // system include files
@@ -58,14 +58,14 @@
 //
 // constructors and destructor
 //
-CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr) : 
+CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr) :
 TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
 m_item(0),
 m_validator( new FWExpressionValidator)
 {
   m_selectionManager = selMgr;
   SetCleanup(kDeepCleanup);
-   
+
   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
   m_objectLabel = new TGLabel(objectFrame, " ");
   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_objectLabel->GetDefaultFontStruct());
@@ -116,7 +116,7 @@ m_validator( new FWExpressionValidator)
   m_isVisibleButton->SetEnabled(kFALSE);
   graphicsFrame->AddFrame(m_isVisibleButton);
   ediTabs->AddTab("Graphics", graphicsFrame);
-  
+
   // Filter tab
   TGVerticalFrame* filterFrame = new TGVerticalFrame(ediTabs, 200, 600);
   TGLabel* filterExpressionLabel = new TGLabel(filterFrame, "Expression:");
@@ -130,7 +130,7 @@ m_validator( new FWExpressionValidator)
   filterFrame->AddFrame(m_filterButton);
   m_filterError = new TGTextView(filterFrame);
   m_filterError->SetForegroundColor(gVirtualX->GetPixel(kRed));
-  m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground()); 
+  m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
   m_filterError->ChangeOptions(0);
   filterFrame->AddFrame(m_filterError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
   //taken from TGComboBox.cxx
@@ -146,7 +146,7 @@ m_validator( new FWExpressionValidator)
   selectFrame->AddFrame(m_selectExpressionEntry,new TGLayoutHints(kLHintsExpandX));
   m_selectButton = new TGTextButton(selectFrame, "Select");
   m_selectButton->SetEnabled(kFALSE);
-  selectFrame->AddFrame(m_selectButton);  
+  selectFrame->AddFrame(m_selectButton);
   TGHorizontal3DLine* selectSeperator1 = new TGHorizontal3DLine(selectFrame, 200, 5);
   selectFrame->AddFrame(selectSeperator1, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
   m_selectAllButton = new TGTextButton(selectFrame, "Select All");
@@ -154,11 +154,11 @@ m_validator( new FWExpressionValidator)
   selectFrame->AddFrame(m_selectAllButton);
    m_selectError = new TGTextView(selectFrame);
    m_selectError->SetForegroundColor(gVirtualX->GetPixel(kRed));
-   m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground()); 
+   m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    m_selectError->ChangeOptions(0);
    selectFrame->AddFrame(m_selectError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
    ediTabs->AddTab("Select", selectFrame);
-  
+
   // Data tab
   TGVerticalFrame* dataFrame = new TGVerticalFrame(ediTabs, 200, 600);
   TGLabel* nameLabel = new TGLabel(dataFrame, "Name:");
@@ -214,7 +214,7 @@ m_validator( new FWExpressionValidator)
   m_removeButton = new TGTextButton(dataFrame, "Remove Collection");
   m_removeButton->SetEnabled(kFALSE);
   dataFrame->AddFrame(m_removeButton);
-   
+
   ediTabs->AddTab("Data", dataFrame);
   AddFrame(ediTabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
@@ -226,9 +226,9 @@ m_validator( new FWExpressionValidator)
    m_selectButton->Connect("Clicked()", "CmsShowEDI", this, "runSelection()");
    m_removeButton->Connect("Clicked()", "CmsShowEDI", this, "removeItem()");
    m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
-   
-   
-   
+
+
+
    SetWindowName("Collection Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
@@ -319,11 +319,11 @@ CmsShowEDI::removeItem() {
   new TGMsgBox(gClient->GetDefaultRoot(),
                this,
                "Remove Collection Confirmation",
-               message.c_str(), 
+               message.c_str(),
                kMBIconExclamation,
                kMBCancel | kMBApply,
                &chosen);
-   if(kMBApply == chosen) { 
+   if(kMBApply == chosen) {
       m_item->destroy();
       m_item = 0;
       //make sure the ROOT global editor does not try to use this
@@ -361,7 +361,7 @@ CmsShowEDI::disconnectAll() {
       m_moduleEntry->SetText(0);
       m_instanceEntry->SetText(0);
       m_processEntry->SetText(0);
-      //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);                                                                                               
+      //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
       m_colorSelectWidget->SetEnabled(kFALSE);
       m_isVisibleButton->SetEnabled(kFALSE);
       m_filterExpressionEntry->SetEnabled(kFALSE);
@@ -372,7 +372,7 @@ CmsShowEDI::disconnectAll() {
       m_removeButton->SetEnabled(kFALSE);
    }
 }
-      
+
 void
 CmsShowEDI::changeItemColor(Pixel_t pixel) {
   Color_t color(TColor::GetColor(pixel));
@@ -409,7 +409,7 @@ void
 CmsShowEDI::runSelection() {
    FWModelExpressionSelector selector;
    const std::string selection(m_selectExpressionEntry->GetText());
-   if (m_item != 0){ 
+   if (m_item != 0){
       try {
          m_selectError->Clear();
          selector.select(m_item, selection);
@@ -429,7 +429,7 @@ CmsShowEDI::selectAll() {
   for (int i = 0; i < static_cast<int>(m_item->size()); i++) {
     m_item->select(i);
   }
-}  
+}
 //
 // const member functions
 //

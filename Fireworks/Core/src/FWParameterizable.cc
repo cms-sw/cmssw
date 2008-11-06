@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWParameterizable
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:36:27 EST 2008
-// $Id$
+// $Id: FWParameterizable.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ FWParameterizable::~FWParameterizable()
 //
 // member functions
 //
-void 
+void
 FWParameterizable::add(FWParameterBase* iParam)
 {
    m_parameters.push_back(iParam);

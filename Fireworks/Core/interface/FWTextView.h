@@ -37,19 +37,19 @@ class CmsShowMain;
 class FWTextViewHeader {
 public:
      void dump (FILE *) const;
-     void setContent (int run, int event, double met, double metPhi, 
-		      double sumEt, double mEtSig); 
+     void setContent (int run, int event, double met, double metPhi,
+		      double sumEt, double mEtSig);
      void update (TGTextView *) const; // one header serves multiple views
-     
+
 public:
      long int 		run, event;
      double 		met, metPhi, sumEt, mEtSig;
 };
 
 class FWTextViewPage {
-     RQ_OBJECT("FWTextViewPage") 
+     RQ_OBJECT("FWTextViewPage")
 public:
-     FWTextViewPage (const std::string &title, 
+     FWTextViewPage (const std::string &title,
 		     const std::vector<FWTableManager *> &tables,
 		     TGCompositeFrame *frame,
 		     TGTab *parent_tab,
@@ -66,7 +66,7 @@ public:
      void	copyToSelection ();
      void	dumpToPrinter ();
      static const TGPicture *copyIcon ();
-		     
+
 public:
      std::string			title;
      std::vector<FWTableManager *>	tables;
@@ -85,7 +85,7 @@ public:
 };
 
 class FWTextView {
-     RQ_OBJECT("FWTextView") 
+     RQ_OBJECT("FWTextView")
 public:
      FWTextView (CmsShowMain *, FWSelectionManager *, FWModelChangeManager *,
 		 FWGUIManager *);

@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     HCalCaloTowerProxy3DLegoBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxy3DLegoBuilder.cc,v 1.7 2008/07/07 00:32:35 chrjones Exp $
+// $Id: HCalCaloTowerProxy3DLegoBuilder.cc,v 1.8 2008/07/16 13:51:00 dmytro Exp $
 //
 
 // system include files
@@ -60,8 +60,8 @@ HCalCaloTowerProxy3DLegoBuilder::~HCalCaloTowerProxy3DLegoBuilder()
 //
 // member functions
 //
-void 
-HCalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem, 
+void
+HCalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
 				       TH2F** product)
 {
   if (0==*product) {
@@ -84,13 +84,13 @@ HCalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
 
 }
 
-void 
+void
 HCalCaloTowerProxy3DLegoBuilder::applyChangesToAllModels()
 {
    if(m_towers && item()) {
       m_hist->Reset();
       if(item()->defaultDisplayProperties().isVisible()) {
-         
+
          assert(item()->size() >= m_towers->size());
          unsigned int index=0;
          for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
@@ -99,7 +99,7 @@ HCalCaloTowerProxy3DLegoBuilder::applyChangesToAllModels()
             }
          }
       }
-   }   
+   }
 }
 
 //

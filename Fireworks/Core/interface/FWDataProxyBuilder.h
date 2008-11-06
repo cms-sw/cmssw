@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWDataProxyBuilder
-// 
+//
 /**\class FWDataProxyBuilder FWDataProxyBuilder.h Fireworks/Core/interface/FWDataProxyBuilder.h
 
  Description: Builds Proxies of Data used by a View
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 17:49:40 PST 2007
-// $Id: FWDataProxyBuilder.h,v 1.3 2008/01/07 05:48:45 chrjones Exp $
+// $Id: FWDataProxyBuilder.h,v 1.4 2008/06/09 19:54:02 chrjones Exp $
 //
 
 // system include files

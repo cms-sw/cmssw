@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWViewManagerManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.9 2008/07/08 00:26:17 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.10 2008/07/12 17:55:30 dmytro Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ FWViewManagerManager::~FWViewManagerManager()
 //
 // member functions
 //
-void 
+void
 FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
 {
    m_viewManagers.push_back(iManager);
@@ -74,7 +74,7 @@ FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
    }
 }
 
-void 
+void
 FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
 {
    if ( m_typeToItems.find(iItem->name()) != m_typeToItems.end() ) {
@@ -83,7 +83,7 @@ FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
    }
    m_typeToItems[iItem->name()]=iItem;
    iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem,this,_1));
-   
+
    //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
@@ -92,7 +92,7 @@ FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
    }
 }
 
-void 
+void
 FWViewManagerManager::removeEventItem(const FWEventItem* iItem)
 {
    std::map<std::string, const FWEventItem*>::iterator itr =
@@ -104,7 +104,7 @@ FWViewManagerManager::removeEventItem(const FWEventItem* iItem)
 //
 // const member functions
 //
-std::set<std::pair<std::string,std::string> > 
+std::set<std::pair<std::string,std::string> >
 FWViewManagerManager::supportedTypesAndPurpose() const
 {
    std::set<std::pair<std::string,std::string> > returnValue;

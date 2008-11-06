@@ -67,8 +67,8 @@ std::vector<std::string> MuonTableManager::GetTitles(int col)
      return ret;
 }
 
-void MuonTableManager::FillCells(int rowStart, int colStart, 
-				     int rowEnd, int colEnd, 
+void MuonTableManager::FillCells(int rowStart, int colStart,
+				     int rowEnd, int colEnd,
 				     std::vector<std::string> &ret)
 {
      ret.clear();
@@ -76,11 +76,11 @@ void MuonTableManager::FillCells(int rowStart, int colStart,
      for (int i = rowStart; i < rowEnd && i < NumberOfRows(); ++i) {
 	  const std::vector<std::string> &row = rows[i].str();
 	  if ((unsigned int)colEnd > row.size()) {
-	       ret.insert(ret.end(), 
+	       ret.insert(ret.end(),
 			  row.begin() + colStart, row.end());
 	       ret.insert(ret.end(), colEnd - row.size(), "");
 	  } else {
-	       ret.insert(ret.end(), 
+	       ret.insert(ret.end(),
 			  row.begin() + colStart, row.begin() + colEnd);
 	  }
      }

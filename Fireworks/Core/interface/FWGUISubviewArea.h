@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGUISubviewArea
-// 
+//
 /**\class FWGUISubviewArea FWGUISubviewArea.h Fireworks/Core/interface/FWGUISubviewArea.h
 
  Description: Manages the GUI area where a sub Subview is displayed
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.8 2008/07/24 23:08:57 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.9 2008/11/05 09:25:17 chrjones Exp $
 //
 
 // system include files
@@ -42,11 +42,11 @@ class FWGUISubviewArea : public TGVerticalFrame
       unsigned int index() const {
          return m_index;
       }
-   
+
       bool isDocked() const {
          return m_docked;
       }
-   
+
       bool isSelected() const;
       // ---------- static member functions --------------------
       static const TGPicture * swapIcon();
@@ -57,19 +57,19 @@ class FWGUISubviewArea : public TGVerticalFrame
       static const TGPicture * closeDisabledIcon();
       static const TGPicture * infoIcon();
       static const TGPicture * infoDisabledIcon();
-   
+
       // ---------- member functions ---------------------------
       void setName(const std::string&);
       void unselect();
       void swapToBigView();
       void destroy();
       void undock();
-   
+
       void undockTo(Int_t x, Int_t y,
                     UInt_t width, UInt_t height);
-   
+
       void beingDocked(TGFrame*);
-   
+
       void enableDestructionButton(bool);
       void setIndex(unsigned int iIndex);
       void enableSwapButton(bool);
@@ -77,10 +77,10 @@ class FWGUISubviewArea : public TGVerticalFrame
       sigc::signal<void,unsigned int> goingToBeDestroyed_;
       sigc::signal<void,unsigned int> selected_;
       sigc::signal<void,unsigned int> unselected_;
-   
+
       sigc::signal<void> bigViewUndocked_;
       sigc::signal<void> bigViewDocked_;
-   
+
       void selectButtonDown();
       void selectButtonUp();
    private:
@@ -97,7 +97,7 @@ class FWGUISubviewArea : public TGVerticalFrame
       TGButton* m_infoButton;
       TGCompositeFrame* m_buttons;
       TGLabel* m_label;
-   
+
       bool m_undockedSwappableView;
       bool m_undockedDestructabledView;
       bool m_docked;

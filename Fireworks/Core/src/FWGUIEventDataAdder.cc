@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWGUIEventDataAdder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.10 2008/07/17 00:51:23 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.11 2008/10/28 18:37:15 chrjones Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ class DataAdderTableManager : public LightTableManager {
 public:
    DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData):
    m_data(iData), m_selectedRow(-1) { dataChanged();}
-   
+
    virtual int NumberOfRows() const { return m_data->size();}
    virtual int NumberOfCols() const { return kNColumns;}
    virtual void Sort(int col, bool sortOrder);
@@ -79,7 +79,7 @@ public:
       returnValue.push_back("Process Name");
       return returnValue;
    }
-   virtual void FillCells(int rowStart, int colStart, 
+   virtual void FillCells(int rowStart, int colStart,
                           int rowEnd, int colEnd, std::vector<std::string>& oToFill)
    {
       oToFill.clear();
@@ -96,7 +96,7 @@ public:
          }
       }
    }
-   
+
    void Selection (int row, int mask) {
       if(mask == 4) {
          if( row == m_selectedRow) {
@@ -109,7 +109,7 @@ public:
    virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame) {return 0;}
    virtual void UpdateRowCell(int row, TGFrame *rowCell) {}
    virtual const std::string title() const { return "Viewable Collections"; }
-   
+
    int selectedRow() const {
       return m_selectedRow;
    }
@@ -117,7 +117,7 @@ public:
    virtual bool rowIsSelected(int row) const {
       return m_selectedRow == row;
    }
-   
+
    void dataChanged() {
       changeSelection(-1);
       m_row_to_index.clear();
@@ -145,9 +145,9 @@ private:
 
 namespace {
    template <typename TMap>
-   void doSort(int col, 
+   void doSort(int col,
                const std::vector<FWGUIEventDataAdder::Data>& iData,
-               TMap& iOrdered, 
+               TMap& iOrdered,
                std::vector<int>& oRowToIndex,
                int& ioSelectedRow)
    {
@@ -175,7 +175,7 @@ namespace {
    }
 }
 
-void 
+void
 DataAdderTableManager::Sort(int col, bool sortOrder)
 {
    if(sortOrder) {
@@ -195,7 +195,7 @@ DataAdderTableManager::Sort(int col, bool sortOrder)
 //
 // constructors and destructor
 //
-static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet, 
+static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet,
                                  unsigned int& oLabelWidth)
 {
    TGLayoutHints* returnValue = new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2);
@@ -210,7 +210,7 @@ static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TG
 }
 
 FWGUIEventDataAdder::FWGUIEventDataAdder(
-                                         UInt_t iWidth,UInt_t iHeight, 
+                                         UInt_t iWidth,UInt_t iHeight,
                                          FWEventItemsManager* iManager,
                                          TGFrame* iParent,
                                          const fwlite::Event* iEvent,
@@ -249,7 +249,7 @@ FWGUIEventDataAdder::~FWGUIEventDataAdder()
 //
 // member functions
 //
-void 
+void
 FWGUIEventDataAdder::addNewItem()
 {
    TClass* theClass = TClass::GetClass(m_type->GetText());
@@ -260,18 +260,18 @@ FWGUIEventDataAdder::addNewItem()
    if(moduleLabel.empty()) {
       return;
    }
-   
+
    const std::string name = m_name->GetText();
    if(name.empty()) {
       return;
    }
-   
+
    if ( m_manager->find( name ) ) {
-      std::cout << "Event item " << name << 
+      std::cout << "Event item " << name <<
 	" is already registered. Please use another name" << std::endl;
       return;
    }
-   
+
    FWPhysicsObjectDesc desc(name, theClass, m_purpose->GetText(),
                             FWDisplayProperties(),
                             moduleLabel,
@@ -281,15 +281,15 @@ FWGUIEventDataAdder::addNewItem()
    if (m_frame) m_frame->UnmapWindow();
 }
 
-void 
+void
 FWGUIEventDataAdder::show()
 {
-   // Map main frame 
+   // Map main frame
    if(0==m_frame) {
       createWindow();
       m_tableWidget->Reinit();
    }
-   m_frame->MapWindow(); 
+   m_frame->MapWindow();
 }
 
 void
@@ -313,12 +313,12 @@ void
 FWGUIEventDataAdder::createWindow()
 {
    m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
-   // m_frame->MapWindow(); 
+   // m_frame->MapWindow();
    //m_frame->SetCleanup(kDeepCleanup);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
-   
+
    unsigned int maxWidth = 0;
    std::vector<TGLayoutHints*> hints(6);
    std::vector<unsigned int> widths(6);
@@ -341,35 +341,35 @@ FWGUIEventDataAdder::createWindow()
    ++index;
    hints[index]=addToFrame(vf,"Process name:",m_processName,widths[index]);
    if(widths[index] > maxWidth) {maxWidth = widths[index];}
-   
+
    std::vector<unsigned int>::iterator itW = widths.begin();
    for(std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
        itH != itEnd;
        ++itH,++itW) {
       (*itH)->SetPadLeft(maxWidth - *itW);
    }
-   
+
    m_tableManager= new DataAdderTableManager(&m_useableData);
    m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
    m_tableWidget = new LightTableWidget(vf,m_tableManager,600,400);
    // vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   
+
    m_apply = new TGTextButton(vf,"Add Data");
    vf->AddFrame(m_apply, new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
    m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
-   
-   // Set a name to the main frame 
-   m_frame->SetWindowName("Add Collection"); 
-   
-   // Map all subwindows of main frame 
-   m_frame->MapSubwindows(); 
-   
-   // Initialize the layout algorithm 
-   m_frame->Layout();    
 
-   // Initialize the layout algorithm 
-   m_frame->Resize(m_frame->GetDefaultSize()); 
-   
+   // Set a name to the main frame
+   m_frame->SetWindowName("Add Collection");
+
+   // Map all subwindows of main frame
+   m_frame->MapSubwindows();
+
+   // Initialize the layout algorithm
+   m_frame->Layout();
+
+   // Initialize the layout algorithm
+   m_frame->Resize(m_frame->GetDefaultSize());
+
 }
 
 void
@@ -382,32 +382,32 @@ FWGUIEventDataAdder::update(const TFile* iFile, const fwlite::Event* iEvent)
    }
 }
 
-void 
+void
 FWGUIEventDataAdder::fillData(const TFile* iFile)
 {
    m_useableData.clear();
    if(0!=m_presentEvent) {
       static const std::string s_blank;
-      const std::vector<edm::BranchDescription>& branches = 
+      const std::vector<edm::BranchDescription>& branches =
       m_presentEvent->getBranchDescriptions();
       Data d;
-      
+
       //I'm not going to modify TFile but I need to see what it is holding
       TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
       assert(0!=eventsTree);
-      
+
       std::set<std::string> branchNamesInFile;
       TIter nextBranch(eventsTree->GetListOfBranches());
       while(TBranch* branch = static_cast<TBranch*>(nextBranch())) {
          branchNamesInFile.insert(branch->GetName());
       }
-      
-      
+
+
       for(std::vector<edm::BranchDescription>::const_iterator itBranch =
           branches.begin(), itEnd=branches.end();
           itBranch != itEnd;
           ++itBranch) {
-         if(itBranch->present() && 
+         if(itBranch->present() &&
             branchNamesInFile.end() != branchNamesInFile.find(itBranch->branchName())){
             std::set<std::pair<std::string,std::string> >::iterator itTP =
             m_typeAndPurpose.upper_bound(std::make_pair(itBranch->fullClassName(),s_blank));
@@ -429,13 +429,13 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
                ++itTP;
             }
          }
-      }      
+      }
       m_tableManager->dataChanged();
       m_tableWidget->Reinit();
    }
 }
 
-void 
+void
 FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 {
    if(-1 != iSelectedIndex) {

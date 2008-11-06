@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListModel
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.14 2008/07/15 14:57:45 chrjones Exp $
+// $Id: FWListModel.cc,v 1.15 2008/07/17 18:28:20 chrjones Exp $
 //
 
 // system include files
@@ -79,7 +79,7 @@ FWListModel::~FWListModel()
 //
 // member functions
 //
-bool 
+bool
 FWListModel::doSelection(bool iToggleSelection)
 {
    if(iToggleSelection) {
@@ -91,7 +91,7 @@ FWListModel::doSelection(bool iToggleSelection)
    return false;
 }
 
-bool 
+bool
 FWListModel::update(const FWDisplayProperties& iProps)
 {
    bool wasChanged=false;
@@ -107,7 +107,7 @@ FWListModel::update(const FWDisplayProperties& iProps)
 }
 
 
-void 
+void
 FWListModel::SetMainColor(Color_t iColor)
 {
    const FWEventItem* item = m_id.item();
@@ -117,7 +117,7 @@ FWListModel::SetMainColor(Color_t iColor)
 }
 
 
-Bool_t 
+Bool_t
 FWListModel::SetRnrState(Bool_t rnr)
 {
    //FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
@@ -125,16 +125,16 @@ FWListModel::SetRnrState(Bool_t rnr)
    const FWEventItem* item = m_id.item();
    FWDisplayProperties prop(item->modelInfo(m_id.index()).displayProperties().color(),rnr);
    item->setDisplayProperties(m_id.index(),prop);
-   return TEveElement::SetRnrState(rnr);   
+   return TEveElement::SetRnrState(rnr);
 }
 
-Bool_t 
+Bool_t
 FWListModel::CanEditMainColor() const
 {
    return kTRUE;
 }
 
-Bool_t 
+Bool_t
 FWListModel::SingleRnrState() const
 {
    return kTRUE;
@@ -143,13 +143,13 @@ FWListModel::SingleRnrState() const
 //
 // const member functions
 //
-void 
+void
 FWListModel::openDetailView() const
 {
      m_detailViewManager->openDetailViewFor(m_id);
 }
 
-bool 
+bool
 FWListModel::hasDetailView() const
 {
    return m_detailViewManager->haveDetailViewFor(m_id);

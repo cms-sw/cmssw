@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoViewManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.20 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.21 2008/07/07 00:30:03 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
    f=boost::bind(&FW3DLegoViewManager::buildView,
                  this, _1);
    iGUIMgr->registerViewBuilder(FW3DLegoView::staticTypeName(), f);
-   
+
 }
 
 // FW3DLegoViewManager::FW3DLegoViewManager(const FW3DLegoViewManager& rhs)
@@ -82,21 +82,21 @@ FW3DLegoViewManager::~FW3DLegoViewManager()
 //
 // member functions
 //
-FWViewBase* 
+FWViewBase*
 FW3DLegoViewManager::buildView(TGFrame* iParent)
 {
    if(0==m_stack) {
       m_stack = new THStack("LegoStack", "Calo tower lego plot");
       m_stack->SetMaximum(100);
-      
+
       m_background = new TH2F("bkgLego","Background distribution",
                               82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
       m_background->SetFillColor( Color_t(TColor::GetColor("#151515")) );
-      
+
       m_highlight  = new TH2F("highLego","Highlight distribution",
                               82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
       m_highlight->SetFillColor( kWhite );
-      
+
       m_highlight_map  = new TH2C("highLego","Highlight distribution",
                               82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
       m_background->Rebin2D();
@@ -113,12 +113,12 @@ FW3DLegoViewManager::buildView(TGFrame* iParent)
 
 }
 
-void 
+void
 FW3DLegoViewManager::newEventAvailable()
 {
-  
+
    if(0==m_stack || 0==m_views.size()) return;
-   
+
    m_highlight_map->Reset();
    m_highlight->Reset();
    for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
@@ -126,7 +126,7 @@ FW3DLegoViewManager::newEventAvailable()
       if ( proxy->ignore ) continue;
       bool firstTime = (proxy->product == 0);
       proxy->builder->build( &(proxy->product) );
-      
+
       if ( ! proxy->product ){
 	 printf("WARNING: proxy builder failed to initialize product for FW3DLegoViewManager. Ignored\n");
 	 proxy->ignore = true;
@@ -147,7 +147,7 @@ FW3DLegoViewManager::newEventAvailable()
 	 for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
 	       proxy != m_modelProxies.end(); ++proxy ) {
 	    if ( TH2F* product = dynamic_cast<TH2F*>(proxy->product) ) {
-	       m_highlight->SetBinContent(ix, iy, 
+	       m_highlight->SetBinContent(ix, iy,
 					  m_highlight->GetBinContent(ix,iy) + product->GetBinContent(ix,iy)
 					  );
 	       product->SetBinContent(ix,iy,0);
@@ -155,33 +155,33 @@ FW3DLegoViewManager::newEventAvailable()
 	 }
       }
    }
-   
+
   m_stack->GetHistogram()->GetXaxis()->SetTitle("#eta");
   m_stack->GetHistogram()->GetXaxis()->SetTitleColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetYaxis()->SetTitle("#phi");
   m_stack->GetHistogram()->GetYaxis()->SetTitleColor(Color_t(kYellow));
-  
+
   m_stack->GetHistogram()->GetXaxis()->SetLabelSize(0.03);
   m_stack->GetHistogram()->GetXaxis()->SetLabelColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetXaxis()->SetAxisColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetXaxis()->SetTickLength(0.02);
   m_stack->GetHistogram()->GetXaxis()->SetTitleOffset(1.2);
-   
+
   m_stack->GetHistogram()->GetYaxis()->SetLabelSize(0.03);
   m_stack->GetHistogram()->GetYaxis()->SetLabelColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetYaxis()->SetAxisColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetYaxis()->SetTickLength(0.02);
   m_stack->GetHistogram()->GetYaxis()->SetTitleOffset(1.2);
-  
+
   m_stack->GetHistogram()->GetZaxis()->SetTitle("Et, [GeV]");
   m_stack->GetHistogram()->GetZaxis()->SetTitleColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetZaxis()->SetLabelColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetZaxis()->SetAxisColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetZaxis()->SetLabelSize(0.03);
-  m_stack->GetHistogram()->GetZaxis()->SetTickLength(0.02); 
-   
+  m_stack->GetHistogram()->GetZaxis()->SetTickLength(0.02);
+
   m_stack->GetHistogram()->SetBit(TH1::kNoTitle);
-   
+
    std::for_each(m_views.begin(), m_views.end(),
                  boost::bind(&FW3DLegoView::draw,_1, m_stack) );
 }
@@ -194,7 +194,7 @@ FW3DLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
       for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
 	   builderName != itFind->second.end(); ++builderName )
       {
-         FW3DLegoDataProxyBuilder* builder = 
+         FW3DLegoDataProxyBuilder* builder =
          reinterpret_cast<FW3DLegoDataProxyBuilder*>(
                                                      createInstanceOf(TClass::GetClass(typeid(FW3DLegoDataProxyBuilder)),
                                                                       builderName->c_str())
@@ -208,18 +208,18 @@ FW3DLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
    }
 }
 
-void 
+void
 FW3DLegoViewManager::newItem(const FWEventItem* iItem)
 {
    makeProxyBuilderFor(iItem);
 }
 
- 
-void 
+
+void
 FW3DLegoViewManager::modelChangesComing()
 {
 }
-void 
+void
 FW3DLegoViewManager::modelChangesDone()
 {
    newEventAvailable();
@@ -236,13 +236,13 @@ void FW3DLegoViewManager::exec3event(int event, int x, int y, TObject *selected)
       printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
 	     event, x, y, selected->IsA()->GetName());
       if ( ! m_stack) return;
-      
+
       double zMax = 0.001;
       if ( projectedMode ) zMax = m_stack->GetMaximum();
       int selectedXbin(0), selectedYbin(0);
       double selectedX(0), selectedY(0), selectedZ(0), selectedValue(0);
-	 
-      // scan non-zero z 
+
+      // scan non-zero z
       int oldx(0), oldy(0);
       for ( double z = 0; z<zMax; z+=1) {
 	 Double_t wcX,wcY;
@@ -250,7 +250,7 @@ void FW3DLegoViewManager::exec3event(int event, int x, int y, TObject *selected)
 	 int xbin = m_stack->GetXaxis()->FindFixBin(wcX);
 	 int ybin = m_stack->GetYaxis()->FindFixBin(wcY);
 	 if (oldx == xbin && oldy == ybin) continue;
-	 oldx = xbin; 
+	 oldx = xbin;
 	 oldy = ybin;
 	 if ( xbin > m_stack->GetXaxis()->GetNbins() || ybin > m_stack->GetYaxis()->GetNbins() ) continue;
 	 double content = 0;
@@ -266,8 +266,8 @@ void FW3DLegoViewManager::exec3event(int event, int x, int y, TObject *selected)
 	 }
       }
       if ( selectedXbin > 0 && selectedYbin>0 )	{
-	 std::cout << "x=" << selectedX << ", y=" << selectedY << ", z=" << selectedZ << 
-	   ", xbin=" << selectedXbin << ", ybin=" << selectedYbin << ", Et: " <<  
+	 std::cout << "x=" << selectedX << ", y=" << selectedY << ", z=" << selectedZ <<
+	   ", xbin=" << selectedXbin << ", ybin=" << selectedYbin << ", Et: " <<
 	   selectedValue << std::endl;
 	 for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
 	       proxy != m_modelProxies.end(); ++proxy )
@@ -280,12 +280,12 @@ void FW3DLegoViewManager::exec3event(int event, int x, int y, TObject *selected)
    }
 }
 
-void FW3DLegoViewManager::pixel2wc(const Int_t pixelX, const Int_t pixelY, 
+void FW3DLegoViewManager::pixel2wc(const Int_t pixelX, const Int_t pixelY,
                                    Double_t& wcX, Double_t& wcY, const Double_t wcZ)
 {
    // we need to make Pixel to NDC to WC transformation with the following constraint:
    // - Pixel only gives 2 coordinates, so we don't know z coordinate in NDC
-   // - We know that in WC z has specific value (depending on what we want to use as 
+   // - We know that in WC z has specific value (depending on what we want to use as
    //   a selection point. In the case of the base of each bin, z(wc) = 0
    // we need to solve some simple linear equations to get what we need
    Double_t ndcX, ndcY;

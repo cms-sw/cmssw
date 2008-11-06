@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     expressionFormatHelpers
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 12:25:04 EDT 2008
-// $Id$
+// $Id: expressionFormatHelpers.cc,v 1.1 2008/08/22 16:54:02 chrjones Exp $
 //
 
 // system include files
@@ -28,10 +28,10 @@ namespace fireworks {
          //Backwards compatibility with old format: If find a $. or a () just remove them
          const std::string variable;
          static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
-         
+
          return boost::regex_replace(iExpression,reVarName,variable);
       }
-      
+
       long indexFromNewFormatToOldFormat(const std::string& iNewFormat,
                                          long iNewFormatIndex,
                                          const std::string& iOldFormat)
@@ -53,6 +53,6 @@ namespace fireworks {
             }
          }
          return itOld - iOldFormat.begin();
-      }      
+      }
    }
 }

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListMultipleModels
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:18 EDT 2008
-// $Id: FWListMultipleModels.cc,v 1.2 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWListMultipleModels.cc,v 1.3 2008/06/09 20:23:39 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ m_ids(iIDs)
 {
    const FWEventItem* item = m_ids.begin()->item();
    TEveElement::SetMainColor(item->modelInfo(m_ids.begin()->index()).displayProperties().color());
-   TEveElement::SetRnrState(item->modelInfo(m_ids.begin()->index()).displayProperties().isVisible());   
+   TEveElement::SetRnrState(item->modelInfo(m_ids.begin()->index()).displayProperties().isVisible());
 }
 
 // FWListMultipleModels::FWListMultipleModels(const FWListMultipleModels& rhs)
@@ -63,7 +63,7 @@ FWListMultipleModels::~FWListMultipleModels()
 //
 // member functions
 //
-void 
+void
 FWListMultipleModels::SetMainColor(Color_t iColor)
 {
    for(std::set<FWModelId>::iterator it = m_ids.begin(), itEnd=m_ids.end();
@@ -76,7 +76,7 @@ FWListMultipleModels::SetMainColor(Color_t iColor)
    }
 }
 
-Bool_t 
+Bool_t
 FWListMultipleModels::SetRnrState(Bool_t rnr)
 {
    for(std::set<FWModelId>::iterator it = m_ids.begin(), itEnd=m_ids.end();
@@ -91,19 +91,19 @@ FWListMultipleModels::SetRnrState(Bool_t rnr)
    return TEveElement::SetRnrState(rnr);
 }
 
-Bool_t 
+Bool_t
 FWListMultipleModels::CanEditMainColor() const
 {
    return kTRUE;
 }
 
-Bool_t 
+Bool_t
 FWListMultipleModels::SingleRnrState() const
 {
    return kTRUE;
 }
 
-bool 
+bool
 FWListMultipleModels::doSelection(bool)
 {
    return true;

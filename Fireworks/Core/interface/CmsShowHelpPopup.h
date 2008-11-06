@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     CmsShowHelpPopup
-// 
+//
 /**\class CmsShowHelpPopup CmsShowHelpPopup.h Fireworks/Core/interface/CmsShowHelpPopup.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowHelpPopup.h,v 1.1 2008/07/16 03:56:33 jmuelmen Exp $
+// $Id: CmsShowHelpPopup.h,v 1.2 2008/07/19 06:40:30 jmuelmen Exp $
 //
 
 // system include files
@@ -29,8 +29,8 @@ class TGHtml;
 
 class CmsShowHelpPopup : public TGTransientFrame {
 public:
-     CmsShowHelpPopup (const std::string &filename, 
-		       const std::string &windowname, const TGWindow* p = 0, 
+     CmsShowHelpPopup (const std::string &filename,
+		       const std::string &windowname, const TGWindow* p = 0,
 		       UInt_t w = 1, UInt_t h = 1);
      virtual ~CmsShowHelpPopup();
 

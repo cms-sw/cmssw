@@ -1,9 +1,9 @@
 #ifndef Fireworks_Calo_HCalCaloTowerProxy3DBuilder_h
 #define Fireworks_Calo_HCalCaloTowerProxy3DBuilder_h
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: HCalCaloTowerProxy3DBuilder.h,v 1.2 2008/06/23 06:29:03 dmytro Exp $
+// $Id: HCalCaloTowerProxy3DBuilder.h,v 1.3 2008/07/01 19:16:43 chrjones Exp $
 //
 
 // system include files

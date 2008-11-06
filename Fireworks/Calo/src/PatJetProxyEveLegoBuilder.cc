@@ -2,13 +2,13 @@
 //
 // Package:     Calo
 // Class  :     PatJetProxyEveLegoBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PatJetProxyEveLegoBuilder.cc,v 1.1 2008/09/26 07:40:13 dmytro Exp $
+// $Id: PatJetProxyEveLegoBuilder.cc,v 1.2 2008/11/04 20:29:25 amraktad Exp $
 //
 
 // system include files
@@ -76,11 +76,11 @@ PatJetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pro
    } else {
       tList->DestroyElements();
    }
-   
+
    const std::vector<pat::Jet>* jets=0;
    iItem->get(jets);
    if(0==jets) return;
-   
+
    fw::NamedCounter counter("jet");
    TColor* c = gROOT->GetColor( tList->GetMainColor() );
    Float_t rgba[4] = { 1, 0, 0, 1 };
@@ -92,17 +92,17 @@ PatJetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pro
 
    const unsigned int nLineSegments = 20;
    const double jetRadius = 0.5;
-   for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); 
+   for(std::vector<pat::Jet>::const_iterator jet = jets->begin();
        jet != jets->end(); ++jet, ++counter) {
       const unsigned int kBufferSize = 1024;
-      char title[kBufferSize]; 
+      char title[kBufferSize];
       snprintf(title,kBufferSize,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
       TEveStraightLineSet* container = new TEveStraightLineSet( counter.str().c_str(), title );
       // container->SetLineWidth(4);
       container->SetLineColor(  iItem->defaultDisplayProperties().color() );
       container->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
       container->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-      
+
       for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
 	 container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
 			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),

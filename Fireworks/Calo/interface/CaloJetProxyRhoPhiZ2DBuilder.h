@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     CaloJetProxyRhoPhiZ2DBuilder
-// 
+//
 /**\class CaloJetProxyRhoPhiZ2DBuilder CaloJetProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.4 2008/06/09 19:54:03 chrjones Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.5 2008/09/26 07:40:12 dmytro Exp $
 //
 
 // system include files
@@ -46,24 +46,24 @@ class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       static std::pair<int,int>        getiEtaRange( const reco::Jet& jet );
       static std::pair<double,double>  getPhiRange( const reco::Jet& jet );
       static double getTheta( double eta ) { return 2*atan(exp(-eta)); }
-      
+
       static void buildJetRhoPhi(const FWEventItem* iItem,
-				 const reco::Jet* jet, 
+				 const reco::Jet* jet,
 				 TEveElementList* tList,
 				 const fw::NamedCounter& counter);
-   
+
       static void buildJetRhoZ(  const FWEventItem* iItem,
-				 const reco::Jet* jet, 
+				 const reco::Jet* jet,
 				 TEveElementList* tList,
 				 const fw::NamedCounter& counter);
 
       // ---------- member functions ---------------------------
-   
+
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
                                TEveElementList** product);
-   
-      virtual void buildRhoZ(const FWEventItem* iItem, 
+
+      virtual void buildRhoZ(const FWEventItem* iItem,
                                TEveElementList** product);
 
       CaloJetProxyRhoPhiZ2DBuilder(const CaloJetProxyRhoPhiZ2DBuilder&); // stop default

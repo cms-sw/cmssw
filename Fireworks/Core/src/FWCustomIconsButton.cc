@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWCustomIconsButton
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:35 EDT 2008
-// $Id: FWCustomIconsButton.cc,v 1.1 2008/11/05 09:08:25 chrjones Exp $
+// $Id: FWCustomIconsButton.cc,v 1.2 2008/11/06 19:01:35 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ FWCustomIconsButton::~FWCustomIconsButton()
 //
 // member functions
 //
-void 
+void
 FWCustomIconsButton::swapIcons(const TGPicture*& iUpIcon,
                                const TGPicture*& iDownIcon,
                                const TGPicture*& iDisabledIcon)
@@ -89,7 +89,7 @@ FWCustomIconsButton::swapIcons(const TGPicture*& iUpIcon,
 //
 // const member functions
 //
-void 
+void
 FWCustomIconsButton::DoRedraw()
 {
    //ChangeOptions(0);
@@ -109,7 +109,7 @@ FWCustomIconsButton::DoRedraw()
          break;
       case kButtonDisabled:
       default:
-         m_disabledIcon->Draw(fId, fNormGC,x,y);  
+         m_disabledIcon->Draw(fId, fNormGC,x,y);
    }
 }
 

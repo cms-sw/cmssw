@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoDataProxyBuilder
-// 
+//
 /**\class FW3DLegoDataProxyBuilder FW3DLegoDataProxyBuilder.h Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h
 
  Description: <one line class summary>
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.8 2008/07/07 00:33:51 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.9 2008/07/09 20:06:17 chrjones Exp $
 //
 
 // system include files
@@ -56,34 +56,34 @@ class FW3DLegoDataProxyBuilder
       void setItem(const FWEventItem* iItem);
       void setHaveAWindow(bool iFlag);
       virtual void build() = 0;
-   
+
       //virtual void message( int type, int xbin, int ybin ){}
       void modelChanges(const FWModelIds&);
       void itemChanged(const FWEventItem*);
 
       virtual void attach(TEveElement* iElement,
                           TEveCaloDataHist* iHist)  = 0;
-   
+
    protected:
       int legoRebinFactor() const {return 1;}
       const FWEventItem* item() const { return m_item; }
       std::vector<FWModelId>& ids() {
          return m_ids;
       }
-   
+
       virtual void applyChangesToAllModels()=0;
    private:
         virtual void modelChangesImp(const FWModelIds&)=0;
         virtual void itemChangedImp(const FWEventItem*)=0;
         virtual void itemBeingDestroyedImp(const FWEventItem*);
       //virtual void build(const FWEventItem* iItem, TH2** product){}
-      //virtual void build(const FWEventItem* iItem, 
+      //virtual void build(const FWEventItem* iItem,
 	///		 TEveElementList** product){}
 
-   
+
       //Override this if you need to special handle selection or other changes
       virtual void itemBeingDestroyed(const FWEventItem*);
-      
+
       FW3DLegoDataProxyBuilder(const FW3DLegoDataProxyBuilder&); // stop default
 
       const FW3DLegoDataProxyBuilder& operator=(const FW3DLegoDataProxyBuilder&); // stop default

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWListViewObject
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:44 CDT 2008
-// $Id: FWListViewObject.cc,v 1.1 2008/03/11 02:45:43 chrjones Exp $
+// $Id: FWListViewObject.cc,v 1.2 2008/03/11 23:30:04 chrjones Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ FWListViewObject::~FWListViewObject()
 //
 // member functions
 //
-bool 
+bool
 FWListViewObject::doSelection(bool iToggleSelection)
 {
    return true;
@@ -70,7 +70,7 @@ FWListViewObject::doSelection(bool iToggleSelection)
 //
 // const member functions
 //
-Bool_t 
+Bool_t
 FWListViewObject::CanEditMainColor() const
 {
    return kFALSE;

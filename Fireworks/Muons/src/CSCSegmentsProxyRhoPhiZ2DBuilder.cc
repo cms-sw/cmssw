@@ -38,7 +38,7 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveE
    build(iItem, product, false);
 }
 
-void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, 
+void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 					    TEveElementList** product,
 					    bool rhoPhiProjection)
 {
@@ -52,16 +52,16 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
-   
+
    const CSCSegmentCollection* segments = 0;
    iItem->get(segments);
-   
+
    if(0 == segments ) {
       // std::cout <<"failed to get CSC segments"<<std::endl;
       return;
    }
    unsigned int index = 0;
-   for (  CSCSegmentCollection::id_iterator chamberId = segments->id_begin(); 
+   for (  CSCSegmentCollection::id_iterator chamberId = segments->id_begin();
 	 chamberId != segments->id_end(); ++chamberId, ++index )
      {
 	const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
@@ -82,7 +82,7 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
         gEve->AddElement( segmentSet, tList );
         segmentSet->AddElement( pointSet );
-	
+
 	CSCSegmentCollection::range  range = segments->get(*chamberId);
 	const double segmentLength = 15;
 	for (CSCSegmentCollection::const_iterator segment = range.first;
@@ -94,19 +94,19 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     Double_t globalSegmentInnerPoint[3];
 	     Double_t globalSegmentCenterPoint[3];
 	     Double_t globalSegmentOuterPoint[3];
-	     
+
 	     localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
 	     localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
 	     localSegmentOuterPoint[2] = segmentLength*segment->localDirection().z();
-	     
+
 	     localSegmentCenterPoint[0] = segment->localPosition().x();
 	     localSegmentCenterPoint[1] = segment->localPosition().y();
 	     localSegmentCenterPoint[2] = 0;
-	     
+
 	     localSegmentInnerPoint[0] = segment->localPosition().x() - segmentLength*segment->localDirection().x();
 	     localSegmentInnerPoint[1] = segment->localPosition().y() - segmentLength*segment->localDirection().y();
 	     localSegmentInnerPoint[2] = - segmentLength*segment->localDirection().z();
-	     
+
 	     matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
 	     matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
 	     matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
@@ -125,7 +125,7 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
      }
 }
 
-void 
+void
 CSCSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //NOTE: don't use ids() since they were never filled in in the build* calls
@@ -136,7 +136,7 @@ CSCSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveEleme
    //}
 }
 
-void 
+void
 CSCSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    //NOTE: don't use ids() since they may not have been filled in in the build* calls
@@ -148,7 +148,7 @@ CSCSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();      
+      iElements->ElementChanged();
    }
 }
 

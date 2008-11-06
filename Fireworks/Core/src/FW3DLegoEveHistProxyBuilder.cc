@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FW3DLegoEveHistProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.1 2008/07/07 00:30:27 chrjones Exp $
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.2 2008/07/09 20:05:27 chrjones Exp $
 //
 
 // system include files
@@ -60,14 +60,14 @@ FW3DLegoEveHistProxyBuilder::~FW3DLegoEveHistProxyBuilder()
 //
 // member functions
 //
-void 
+void
 FW3DLegoEveHistProxyBuilder::attach(TEveElement* iElement,
                                     TEveCaloDataHist* iHist)
 {
    m_data = iHist;
 }
 
-void 
+void
 FW3DLegoEveHistProxyBuilder::build()
 {
    build(item(),&m_hist);
@@ -78,7 +78,7 @@ FW3DLegoEveHistProxyBuilder::build()
    m_data->DataChanged();
 }
 
-void 
+void
 FW3DLegoEveHistProxyBuilder::modelChangesImp(const FWModelIds&)
 {
    applyChangesToAllModels();
@@ -86,13 +86,13 @@ FW3DLegoEveHistProxyBuilder::modelChangesImp(const FWModelIds&)
    m_data->DataChanged();
 }
 
-void 
+void
 FW3DLegoEveHistProxyBuilder::itemChangedImp(const FWEventItem*)
 {
-   
+
 }
 
-void 
+void
 FW3DLegoEveHistProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    m_hist->Reset();

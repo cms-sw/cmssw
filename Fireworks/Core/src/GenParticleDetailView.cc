@@ -14,7 +14,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
 
-GenParticleDetailView::GenParticleDetailView () 
+GenParticleDetailView::GenParticleDetailView ()
 {
 
 }
@@ -43,22 +43,22 @@ void GenParticleDetailView::build (TEveElementList **product, const FWModelId &i
      rnrStyle->SetMagField( -4.0);
      //get this from geometry, units are CM
      rnrStyle->SetMaxR(120.0);
-     rnrStyle->SetMaxZ(300.0);    
-     
+     rnrStyle->SetMaxZ(300.0);
+
      reco::GenParticleCollection const * genParticles=0;
      m_item->get(genParticles);
      //fwlite::Handle<reco::TrackCollection> tracks;
      //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
-     
+
      if(0 == genParticles ) return;
-     
+
      //  Original Commented out here
      //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
-     
+
      int index=0;
      //cout <<"----"<<endl;
      TEveRecTrack t;
-     
+
      t.fBeta = 1.;
      reco::GenParticleCollection::const_iterator it = genParticles->begin(),
        end = genParticles->end();
@@ -72,13 +72,13 @@ void GenParticleDetailView::build (TEveElementList **product, const FWModelId &i
 			    it->vy(),
 			    it->vz());
 	  t.fSign = it->charge();
-	  
+
 	  TEveElementList* genPartList = new TEveElementList(Form("genParticle%d",index));
-	  gEve->AddElement(genPartList,tList);  
+	  gEve->AddElement(genPartList,tList);
 	  TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
 	  genPart->SetMainColor(m_item->defaultDisplayProperties().color());
 	  genPart->MakeTrack();
 	  genPartList->AddElement(genPart);
-    
+
      }
 }

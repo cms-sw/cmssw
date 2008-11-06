@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWListViewObjectEditor
-// 
+//
 /**\class FWListViewObjectEditor FWListViewObjectEditor.h Fireworks/Core/interface/FWListViewObjectEditor.h
 
  Description: <one line class summary>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:56 CDT 2008
-// $Id: FWListViewObjectEditor.h,v 1.2 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWListViewObjectEditor.h,v 1.3 2008/07/15 02:00:13 chrjones Exp $
 //
 
 // system include files

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWEventItem
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.26 2008/09/26 07:08:58 dmytro Exp $
+// $Id: FWEventItem.cc,v 1.27 2008/10/21 19:25:06 chrjones Exp $
 //
 
 // system include files
@@ -59,11 +59,11 @@ m_printedNoDataError(false)
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
    assert(dataType != ROOT::Reflex::Type() );
-   
+
    std::string wrapperName = std::string("edm::Wrapper<")+dataType.Name(ROOT::Reflex::SCOPED)+" >";
    //std::cout <<wrapperName<<std::endl;
    m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
-   
+
    assert(m_wrapperType != ROOT::Reflex::Type());
    if(!m_accessor->isCollection()) {
       m_itemInfos.reserve(1);
@@ -98,8 +98,8 @@ FWEventItem::~FWEventItem()
 //
 // member functions
 //
-void 
-FWEventItem::setEvent(const fwlite::Event* iEvent) 
+void
+FWEventItem::setEvent(const fwlite::Event* iEvent)
 {
    if ( m_event != iEvent ) m_printedNoDataError = false;
    m_event = iEvent;
@@ -111,10 +111,10 @@ FWEventItem::setEvent(const fwlite::Event* iEvent)
    changeManager()->changed(this);
 }
 
-void 
+void
 FWEventItem::setLabels(const std::string& iModule,
 		       const std::string& iProductInstance,
-		       const std::string& iProcess) 
+		       const std::string& iProcess)
 {
    m_moduleLabel = iModule;
    m_productInstanceLabel = iProductInstance;
@@ -127,18 +127,18 @@ FWEventItem::setLabels(const std::string& iModule,
    changeManager()->changed(this);
 }
 
-void 
-FWEventItem::setName(const std::string& iName) 
+void
+FWEventItem::setName(const std::string& iName)
 {
   m_name = iName;
 }
 
-void 
+void
 FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
 {
    bool visChange = m_displayProperties.isVisible() != iProp.isVisible();
    bool colorChanged = m_displayProperties.color() != iProp.color();
-   
+
    if(!visChange && !colorChanged) {
       return;
    }
@@ -147,7 +147,7 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
    // to the previous state.
    // only the visible ones need to be marked as 'changed'
    FWChangeSentry sentry(*(changeManager()));
-   
+
    for(int index=0; index <static_cast<int>(size()); ++index) {
       FWDisplayProperties prp = m_itemInfos[index].displayProperties();
       bool vis=prp.isVisible();
@@ -169,7 +169,7 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
    defaultDisplayPropertiesChanged_(this);
 }
 
-void 
+void
 FWEventItem::setFilterExpression(const std::string& iExpression)
 {
    m_filter.setExpression(iExpression);
@@ -178,7 +178,7 @@ FWEventItem::setFilterExpression(const std::string& iExpression)
 
 void
 FWEventItem::runFilter()
-{   
+{
    m_shouldFilterConnection.block(true);
 
    if(m_accessor->isCollection() && m_accessor->data()) {
@@ -206,7 +206,7 @@ FWEventItem::runFilter()
    }
 }
 
-void 
+void
 FWEventItem::unselect(int iIndex) const
 {
    //check if this is a change
@@ -228,7 +228,7 @@ FWEventItem::select(int iIndex) const
       changeManager()->changed(id);
    }
 }
-void 
+void
 FWEventItem::toggleSelect(int iIndex) const
 {
    bool& sel = m_itemInfos.at(iIndex).m_isSelected;
@@ -240,7 +240,7 @@ FWEventItem::toggleSelect(int iIndex) const
    changeManager()->changed(id);
 }
 
-void 
+void
 FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps) const
 {
    FWDisplayProperties& prop = m_itemInfos.at(iIndex).m_displayProperties;
@@ -277,7 +277,7 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
 //
 // const member functions
 //
-const void* 
+const void*
 FWEventItem::data(const std::type_info& iInfo) const
 {
   using namespace ROOT::Reflex;
@@ -307,7 +307,7 @@ FWEventItem::data(const std::type_info& iInfo) const
 	    std::cerr << "Failed to get "<<name()<<" because branch does not exist in this file"<<std::endl;
 	    m_printedNoDataError = true;
 	 }
-         return 0;         
+         return 0;
       }
 //       printf("%s: wrapper address: 0x%x 0x%x 0x%x\n", name().c_str(), wrapper, &wrapper, *(int *)wrapper);
       std::string fullbranch_classname = (edm::TypeID(iInfo)).friendlyClassName();
@@ -349,7 +349,7 @@ FWEventItem::data(const std::type_info& iInfo) const
 }
 
 
-void 
+void
 FWEventItem::setData(const ROOT::Reflex::Object& iData) const
 {
    m_accessor->setWrapper(iData);
@@ -362,7 +362,7 @@ FWEventItem::setData(const ROOT::Reflex::Object& iData) const
    }
 }
 
-void 
+void
 FWEventItem::getPrimaryData() const
 {
    //if(0!=m_data) return;
@@ -370,55 +370,55 @@ FWEventItem::getPrimaryData() const
    this->data(*(m_type->GetTypeInfo()));
 }
 
-const FWDisplayProperties& 
+const FWDisplayProperties&
 FWEventItem::defaultDisplayProperties() const
 {
   return m_displayProperties;
 }
 
-unsigned int 
+unsigned int
 FWEventItem::layer() const
 {
    return m_layer;
 }
 
 
-unsigned int 
+unsigned int
 FWEventItem::id() const
 {
    return m_id;
 }
 
-const std::string& 
+const std::string&
 FWEventItem::name() const
 {
   return m_name;
 }
 
-const TClass* 
+const TClass*
 FWEventItem::type() const
 {
   return m_type;
 }
 
-const std::string& 
+const std::string&
 FWEventItem::purpose() const
 {
    return m_purpose;
 }
 
-const std::string& 
+const std::string&
 FWEventItem::moduleLabel() const
 {
   return m_moduleLabel;
 }
-const std::string& 
+const std::string&
 FWEventItem::productInstanceLabel() const
 {
   return m_productInstanceLabel;
 }
 
-const std::string& 
+const std::string&
 FWEventItem::processName() const
 {
   return m_processName;
@@ -444,26 +444,26 @@ FWEventItem::size() const
    return m_itemInfos.size();
 }
 
-bool 
+bool
 FWEventItem::isCollection() const
 {
    return m_accessor->isCollection();
 }
 
-const TClass* 
+const TClass*
 FWEventItem::modelType() const
 {
    return m_accessor->modelType();
 }
 
-const void* 
+const void*
 FWEventItem::modelData(int iIndex) const
 {
    getPrimaryData();
    return m_accessor->modelData(iIndex);
 }
 
-std::string 
+std::string
 FWEventItem::modelName(int iIndex) const
 {
    std::ostringstream s;
@@ -476,13 +476,13 @@ FWEventItem::modelName(int iIndex) const
    return s.str();
 }
 
-const std::string& 
+const std::string&
 FWEventItem::filterExpression() const
 {
    return m_filter.expression();
 }
 
-void 
+void
 FWEventItem::destroy() const
 {
    goingToBeDestroyed_(this);

@@ -2,13 +2,13 @@
 //
 // Package:     Core
 // Class  :     FWBoolParameterSetter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWBoolParameterSetter.cc,v 1.1 2008/06/20 05:57:06 dmytro Exp $
+// $Id: FWBoolParameterSetter.cc,v 1.2 2008/06/23 06:24:20 dmytro Exp $
 //
 
 // system include files
@@ -65,18 +65,18 @@ FWBoolParameterSetter::~FWBoolParameterSetter()
 // member functions
 //
 
-void 
+void
 FWBoolParameterSetter::attach(FWParameterBase* iParam)
 {
    m_param = dynamic_cast<FWBoolParameter*>(iParam);
    assert(0!=m_param);
 }
 
-TGFrame* 
+TGFrame*
 FWBoolParameterSetter::build(TGFrame* iParent)
 {
    TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
-   
+
    m_widget = new TGCheckButton(frame, m_param->name().c_str(), 0);
    m_widget->SetState( m_param->value() ? kButtonDown : kButtonUp );
    m_widget->Connect("Clicked()", "FWBoolParameterSetter", this, "doUpdate()");
