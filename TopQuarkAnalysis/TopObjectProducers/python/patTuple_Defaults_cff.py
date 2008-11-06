@@ -53,7 +53,7 @@ allLayer1Muons.embedStandAloneMuon   = True
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import allLayer1Jets
 
 allLayer1Jets.embedCaloTowers        = False
-
+allLayer1Jets.addTagInfoRefs         = True
 
 ## selection
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedLayer1Electrons
@@ -79,4 +79,4 @@ selectedLayer1Jets.cut      = cms.string('et > 15. & nConstituents > 0')
 from PhysicsTools.PatAlgos.selectionLayer1.metSelector_cfi import selectedLayer1METs
 
 selectedLayer1METs.src      = cms.InputTag("allLayer1METs")
-selectedLayer1METs.cut      = cms.string('et > 0.')
+selectedLayer1METs.cut      = cms.string('et >= 0.')
