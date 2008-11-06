@@ -4,14 +4,18 @@ import FWCore.ParameterSet.Config as cms
 #
 # J. Brooke, N. Leonardo
 #
-# These sequences assume RawToDigi has run
-# Note that the emulator configuration also needs to be supplied
-# Either from dummy ES producers, or DB
+# included here:
+# - emulator sequences
+# - specification of emulator inputs
+# - definition of validation sequences
+#
+# these sequences assume RawToDigi has run
+#
+# note that the emulator configuration also needs to be supplied
+#  either from dummy ES producers, or DB
+# note fake conditions for ECAL/HCAL - should be moved out of here
+#  and into Fake/FrontierConditions
 
-# ECAL sequence
-# requires ecalDigis only
-# fake conditions for ECAL/HCAL - should be moved out of here
-# and into Fake/rontierConditions
 from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff import *
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
@@ -79,8 +83,8 @@ valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 valHcalTriggerPrimitiveDigis.inputLabel = 'hcalDigis'
-valRctDigis.ecalDigisLabel = 'valEcalTriggerPrimitiveDigis'
-valRctDigis.hcalDigisLabel = 'valHcalTriggerPrimitiveDigis'
+valRctDigis.ecalDigisLabel = 'ecalDigis:EcalTriggerPrimitives'
+valRctDigis.hcalDigisLabel = 'hcalDigis'
 valGctDigis.inputLabel = 'gctDigis'
 #valDtTriggerPrimitiveDigis.inputLabel = 'muonDTDigis'
 valDttfDigis.DTDigi_Source = 'dttfDigis'
