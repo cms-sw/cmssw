@@ -6,6 +6,6 @@ pfTopProjection = cms.EDProducer("PFTopProjector",
     IsolatedElectrons = cms.InputTag("pfElectrons"),
     IsolatedMuons = cms.InputTag("pfMuons"),
     PFJets = cms.InputTag("pfJets"),
-    PFTaus = cms.InputTag("pfTaus"),
+    PFTaus = cms.InputTag("allLayer0Taus"),
     verbose = cms.untracked.bool(False)
 )
