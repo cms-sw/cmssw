@@ -51,7 +51,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   bool seeds(TrajectorySeedCollection &output, const edm::EventSetup& iSetup);
   void done();
 
-  bool goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer) const ;
+  bool goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer, const double & minRho) const ;
 
   std::pair<GlobalVector,int>
   pqFromHelixFit(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer, const edm::EventSetup& iSetup) const ;
