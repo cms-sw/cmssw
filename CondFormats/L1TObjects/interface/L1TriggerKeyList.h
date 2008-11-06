@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Feb 29 20:44:53 CET 2008
-// $Id: L1TriggerKeyList.h,v 1.1 2008/03/03 07:29:55 wsun Exp $
+// $Id: L1TriggerKeyList.h,v 1.2 2008/10/09 19:02:22 wsun Exp $
 //
 
 // system include files
@@ -50,6 +50,12 @@ class L1TriggerKeyList
       // Get payload token for configuration data
       std::string token( const std::string& recordType, // "record@type"
 			 const std::string& key ) const ;
+
+      const KeyToToken& tscKeyToTokenMap() const
+	{ return m_tscKeyToToken ; }
+
+      const RecordToKeyToToken& recordTypeToKeyToTokenMap() const
+	{ return m_recordKeyToken ; }
 
       // ---------- static member functions --------------------
 
