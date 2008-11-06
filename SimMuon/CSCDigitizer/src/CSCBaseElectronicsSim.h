@@ -27,7 +27,7 @@ class CSCLayer;
 class CSCChamberSpecs;
 class CSCDetectorHit;
 class CSCLayerGeometry;
-class CSCDetId;
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 class DetId;
 class PSimHit;
 
@@ -103,7 +103,7 @@ protected:
   virtual int channelIndex(int channel) const {return channel;}
 
   /// the CSCDetId corresponding to the current layer
-  CSCDetId layerId() const;
+  CSCDetId layerId() const {return theLayerId;}
 
   /// the average time-of-flight from the interaction point to the given detector
   double averageTimeOfFlight(const DetId & detId) const;
@@ -114,6 +114,7 @@ protected:
   const CSCChamberSpecs * theSpecs;
   const CSCLayerGeometry * theLayerGeometry;
   const CSCLayer * theLayer;  // the one currently being digitized
+  CSCDetId theLayerId;
 
   CSCSignalMap theSignalMap;
   CSCAnalogSignal theAmpResponse;
