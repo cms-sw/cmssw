@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/05/20 13:51:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/05 20:58:50 $
+ *  $Revision: 1.10.2.1 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -17,6 +17,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class LayerMeasurements;
 class Chi2MeasurementEstimator;
@@ -84,6 +85,8 @@ private:
   /// check some quantity and beam-spot compatibility and decide to continue
   bool passSelection(const TrajectoryStateOnSurface&) const;
 
+  void rescalingFactor(const TrackCand& staMuon);
+
   /// adjust the error matrix of the FTS
   void adjust(FreeTrajectoryState &) const;
 
@@ -108,6 +111,7 @@ private:
   };
 
   unsigned long long theCacheId_MT;
+  unsigned long long theCacheId_TG;
 
   std::string theCategory;
 
@@ -127,8 +131,6 @@ private:
 
   TrajectoryStateTransform* theTSTransformer;
 
-  edm::ParameterSet theConfig;
-
   double theMaxChi2;
 
   double theErrorRescaling;
@@ -136,6 +138,8 @@ private:
   bool theUseVertexStateFlag;
 
   bool theUpdateStateFlag;
+
+  bool theResetErrorFlag;
 
   bool theUseSecondMeasurementsFlag;
 
@@ -146,6 +150,12 @@ private:
   MuonErrorMatrix * theErrorMatrixAdjuster;
 
   bool theAdjustAtIp;
+
+  double theSigmaZ; 
+
+  edm::ParameterSet theConfig;
+
+  edm::Handle<reco::BeamSpot> theBeamSpot;
 
 };
 

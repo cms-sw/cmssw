@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/05/29 15:44:03 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/11/05 20:58:55 $
+ *  $Revision: 1.29.2.1 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -29,12 +29,13 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
+
 }
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
 }
@@ -53,6 +54,8 @@ TSGFromPropagation::~TSGFromPropagation()
 }
 
 void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, std::vector<TrajectorySeed> & result) {
+
+  if ( theResetErrorFlag ) rescalingFactor(staMuon);
 
   TrajectoryStateOnSurface staState = outerTkState(staMuon);
 
@@ -109,6 +112,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
                result.push_back(ts);
             }
        }
+     LogTrace(theCategory) << "result: "<<result.size();
      return;
     }
   }
@@ -140,9 +144,13 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theErrorRescaling = theConfig.getParameter<double>("ErrorRescaling");
 
+  theResetErrorFlag = theConfig.getParameter<bool>("ResetRescaling");
+
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
 
   theCacheId_MT = 0;
+
+  theCacheId_TG = 0;
 
   thePropagatorName = theConfig.getParameter<std::string>("Propagator");
 
@@ -159,6 +167,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   theUpdator = new KFUpdator();
 
   theTSTransformer = new TrajectoryStateTransform();
+
+  theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (!errorMatrixPset.empty()){
@@ -178,6 +188,8 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   bool measTrackerChanged = false;
 
+  iEvent.getByType(theBeamSpot);
+
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
   if ( newCacheId_MT != theCacheId_MT ) {
@@ -194,10 +206,21 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
      theTkLayerMeasurements = new LayerMeasurements(&*theMeasTracker);
   }
 
-  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
-  delete theNavigation;
-  theNavigation = new DirectTrackerNavigation(theTracker);
+  bool trackerGeomChanged = false;
 
+  unsigned long long newCacheId_TG = theService->eventSetup().get<TrackerRecoGeometryRecord>().cacheIdentifier();
+
+  if ( newCacheId_TG != theCacheId_TG ) {
+    LogTrace(theCategory) << "Tracker Reco Geometry changed!";
+    theCacheId_TG = newCacheId_TG;
+    theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
+    trackerGeomChanged = true;
+  }
+
+  if ( trackerGeomChanged && (&*theTracker) ) {
+    if ( theNavigation ) delete theNavigation;
+    theNavigation = new DirectTrackerNavigation(theTracker);
+  }
 }
 
 TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon) const {
@@ -215,8 +238,7 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
     innerTS = theTSTransformer->innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
   }
   //rescale the error
-  if (theErrorMatrixAdjuster && !theAdjustAtIp) adjust(innerTS);
-  else innerTS.rescaleError(theErrorRescaling);
+  adjust(innerTS);
 
   return  innerTS;
 
@@ -230,8 +252,7 @@ TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMu
   if ( theUseVertexStateFlag && staMuon.second->pt() > 1.0 ) {
     FreeTrajectoryState iniState = theTSTransformer->initialFreeState(*(staMuon.second), &*theService->magneticField());
     //rescale the error at IP
-    if (theErrorMatrixAdjuster && theAdjustAtIp){ adjust(iniState); }
-    else iniState.rescaleError(theErrorRescaling);
+    adjust(iniState); 
 
     StateOnTrackerBound fromInside(&*(theService->propagator("PropagatorWithMaterial")));
     result = fromInside(iniState);
@@ -309,11 +330,15 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
 bool TSGFromPropagation::passSelection(const TrajectoryStateOnSurface& tsos) const {
   if ( !theSelectStateFlag ) return true;
   else {
-     double theSigmaZ = 22;
-     return ( (zDis(tsos) < theSigmaZ) ); 
+     if ( theBeamSpot.isValid() ) {
+       return ( ( fabs(zDis(tsos) - theBeamSpot->z0() ) < theSigmaZ) );
+
+     } else {
+       return ( ( fabs(zDis(tsos)) < theSigmaZ) ); 
+//      double theDxyCut = 100;
+//      return ( (zDis(tsos) < theSigmaZ) && (dxyDis(tsos) < theDxyCut) );
+     }
   }
-//  double theDxyCut = 100;
-//  return ( (zDis(tsos) < theSigmaZ) && (dxyDis(tsos) < theDxyCut) );
 
 }
 
@@ -322,10 +347,26 @@ double TSGFromPropagation::dxyDis(const TrajectoryStateOnSurface& tsos) const {
 }
 
 double TSGFromPropagation::zDis(const TrajectoryStateOnSurface& tsos) const {
-  return fabs(tsos.globalPosition().z() - tsos.globalPosition().perp() * tsos.globalMomentum().z()/tsos.globalMomentum().perp());
+  return tsos.globalPosition().z() - tsos.globalPosition().perp() * tsos.globalMomentum().z()/tsos.globalMomentum().perp();
 }
 
+void TSGFromPropagation::rescalingFactor(const TrackCand& staMuon) {
+    float pt = (staMuon.second)->pt();
+    if ( pt < 13.0 ) theErrorRescaling = 3; 
+    else if ( pt < 30.0 ) theErrorRescaling = 5;
+    else theErrorRescaling = 10;
+    return;
+}
+
+
 void TSGFromPropagation::adjust(FreeTrajectoryState & state) const {
+
+  //rescale the error
+  if ( !theErrorMatrixAdjuster) {
+     state.rescaleError(theErrorRescaling);
+     return;
+  }
+
   CurvilinearTrajectoryError oMat = state.curvilinearError();
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.momentum());//FIXME with position
   MuonErrorMatrix::multiply(oMat, sfMat);
@@ -335,6 +376,12 @@ void TSGFromPropagation::adjust(FreeTrajectoryState & state) const {
 }
 
 void TSGFromPropagation::adjust(TrajectoryStateOnSurface & state) const {
+
+  if ( !theErrorMatrixAdjuster) {
+     state.rescaleError(theErrorRescaling);
+     return;
+  }
+
   CurvilinearTrajectoryError oMat = state.curvilinearError();
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.globalMomentum());//FIXME with position
   MuonErrorMatrix::multiply(oMat, sfMat);
