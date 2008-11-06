@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Nov  6 23:00:43 CET 2008
-// $Id$
+// $Id: L1O2OTestAnalyzer.cc,v 1.1 2008/11/06 23:12:22 wsun Exp $
 //
 //
 
@@ -136,7 +136,24 @@ L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        ESHandle< L1TriggerKey > pKey ;
        iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
 
-       std::cout << "Current TSC key = " << pKey->getTSCKey() << std::endl ;
+       // std::cout << "Current TSC key = " << pKey->getTSCKey() << std::endl ;
+       std::cout << "Current TSC key = " << pKey->tscKey() << std::endl ;
+
+       std::cout << "Current subsystem keys:" << std::endl ;
+       std::cout << "CSCTF " << pKey->subsystemKey( L1TriggerKey::kCSCTF )
+		 << std::endl ;
+       std::cout << "DTTF " << pKey->subsystemKey( L1TriggerKey::kDTTF )
+		 << std::endl ;
+       std::cout << "RPC " << pKey->subsystemKey( L1TriggerKey::kRPC )
+		 << std::endl ;
+       std::cout << "GMT " << pKey->subsystemKey( L1TriggerKey::kGMT )
+		 << std::endl ;
+       std::cout << "RCT " << pKey->subsystemKey( L1TriggerKey::kRCT )
+		 << std::endl ;
+       std::cout << "GCT " << pKey->subsystemKey( L1TriggerKey::kGCT )
+		 << std::endl ;
+       std::cout << "TSP0 " << pKey->subsystemKey( L1TriggerKey::kTSP0 )
+		 << std::endl ;
 
        const L1TriggerKey::RecordToKey& recKeyMap = pKey->recordToKeyMap() ;
        L1TriggerKey::RecordToKey::const_iterator iRec = recKeyMap.begin() ;
