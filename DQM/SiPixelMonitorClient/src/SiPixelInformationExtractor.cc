@@ -2037,7 +2037,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
       nevents_ = (bei->get("Pixel/EventInfo/processedEvents"))->getIntValue();
     }
     bei->cd();  
-    myfile_.open ("NoisyPixelList.txt");
+    myfile_.open ("NoisyPixelList.txt", ios::app);
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
   string currDir = bei->pwd();
