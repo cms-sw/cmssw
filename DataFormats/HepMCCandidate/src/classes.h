@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 
 namespace {
   namespace {
@@ -27,5 +28,10 @@ namespace {
     edm::Wrapper<std::vector<reco::FlavorHistory> > wvfh1;
     edm::ValueMap<reco::FlavorHistory> vmfh1;
     edm::Wrapper<edm::ValueMap<reco::FlavorHistory> > wvmfh1;
+    reco::FlavorHistoryEvent fhe1;
+    std::vector<reco::FlavorHistoryEvent> vfhe1;
+    edm::Wrapper<std::vector<reco::FlavorHistoryEvent> > wvfhe1;
+    edm::ValueMap<reco::FlavorHistoryEvent> vmfhe1;
+    edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent> > wvmfhe1;
   }
 }

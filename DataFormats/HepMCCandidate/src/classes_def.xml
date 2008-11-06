@@ -22,5 +22,10 @@
   <class name="edm::Wrapper<std::vector<reco::FlavorHistory> >" />
   <class name="edm::ValueMap<reco::FlavorHistory >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::FlavorHistory > >" />
+  <class name="reco::FlavorHistoryEvent" />
+  <class name="std::vector<reco::FlavorHistoryEvent>" />
+  <class name="edm::Wrapper<std::vector<reco::FlavorHistoryEvent> >" />
+  <class name="edm::ValueMap<reco::FlavorHistoryEvent >" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent > >" />
 </lcgdict>
  
