@@ -140,8 +140,6 @@ protected:
   friend class TrackingSlaveSD;
 };
 
-#include <iostream>
-inline std::ostream & operator<<(std::ostream & o, const PSimHit & hit) 
-{ return o << hit.detUnitId() << " " << hit.entryPoint() << " " << hit.tof(); }
+std::ostream & operator<<(std::ostream & o, const PSimHit & hit); 
 
 #endif // PSimHit_H
