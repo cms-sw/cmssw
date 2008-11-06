@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.15 2008/11/06 00:58:48 loizides Exp $
+#$Id: t0inject.sh,v 1.16 2008/11/06 14:21:47 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -12,7 +12,7 @@ export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
 #local run dir
 export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
 
-if test -d "/store/injectworker"; then
+if test -d "/opt/injectworker"; then
     export SMT0_BASE_DIR=/opt/injectworker/inject
     export SMT0_CONFIG=/opt/injectworker/.db.conf
     export SMT0_LOCAL_RUN_DIR=/store/injectworker
