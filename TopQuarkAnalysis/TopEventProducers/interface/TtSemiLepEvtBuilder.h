@@ -27,6 +27,8 @@ class TtSemiLepEvtBuilder : public edm::EDProducer {
 
  private:
 
+  int verbosity_;
+
   // hypothesis
   std::vector<edm::InputTag> hyps_;
   std::vector<edm::InputTag> keys_;  

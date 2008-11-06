@@ -1,14 +1,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiLepEvtBuilder.h"
 
-
 TtSemiLepEvtBuilder::TtSemiLepEvtBuilder(const edm::ParameterSet& cfg) :
-  hyps_    (cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
-  keys_    (cfg.getParameter<std::vector<edm::InputTag> >("keys")),
-  matches_ (cfg.getParameter<std::vector<edm::InputTag> >("matches")),
-  kinFit_  (cfg.getParameter<edm::ParameterSet>("kinFit")),
-  decay_   (cfg.getParameter<int>("decay")),
-  genEvt_  (cfg.getParameter<edm::InputTag>("genEvent"))
+  verbosity_(cfg.getParameter<int>("verbosity")),
+  hyps_     (cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
+  keys_     (cfg.getParameter<std::vector<edm::InputTag> >("keys")),
+  matches_  (cfg.getParameter<std::vector<edm::InputTag> >("matches")),
+  kinFit_   (cfg.getParameter<edm::ParameterSet>("kinFit")),
+  decay_    (cfg.getParameter<int>("decay")),
+  genEvt_   (cfg.getParameter<edm::InputTag>("genEvent"))
 {
   if( cfg.exists("kinFit") ) {
     // get parameter subsets for kinFit
@@ -97,6 +97,9 @@ TtSemiLepEvtBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<double> disc;
   evt.getByLabel(disc_, disc);
   event.setMvaDiscAndMethod((std::string&)*meth, *disc);
+
+  // print summary via MessageLogger for each event
+  if(verbosity_ > 0) event.print();
 
   // feed out 
   std::auto_ptr<TtSemiLeptonicEvent> pOut(new TtSemiLeptonicEvent);

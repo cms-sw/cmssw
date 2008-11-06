@@ -9,6 +9,13 @@ process = cms.Process("TEST")
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
+process.MessageLogger.categories.append('TtSemiLepEvtBuilder')
+process.MessageLogger.categories.append('TtSemiLepKinFitter')
+process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+    default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
+    TtSemiLepEvtBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    TtSemiLepKinFitter  = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+)
 
 #-------------------------------------------------
 # process configuration
@@ -61,6 +68,7 @@ process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
 
 ## std sequence to produce the ttSemiEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
+process.ttSemiLepEvent.verbosity = cms.int32(1)
 
 ## process path
 process.p = cms.Path(process.tqafLayer1  *

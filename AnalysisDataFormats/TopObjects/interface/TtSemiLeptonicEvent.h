@@ -88,6 +88,8 @@ class TtSemiLeptonicEvent {
   double fitChi2() const { return fitChi2_; }
   double fitProb() const { return fitProb_; }
 
+  void print();
+
  public:
 
   // set decay
