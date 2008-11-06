@@ -5,14 +5,17 @@
 //#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+
 #include <cmath>
 #include <iostream>
 #include <fstream>
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2008/10/28 20:05:11 $
-  * $Revision: 1.20 $
+  * $Date: 2008/10/29 23:37:34 $
+  * $Revision: 1.22 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -35,7 +38,7 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void setupNeighborParams(const edm::ParameterSet& ps, hotNeighborParams& N, char* type);
-  void done(); // overrides base class function
+  void done(std::map<HcalDetId, unsigned int>& myqual); 
   void clearME(); // overrides base class function
   void reset();
 

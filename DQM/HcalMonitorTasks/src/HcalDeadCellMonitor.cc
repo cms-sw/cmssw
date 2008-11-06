@@ -23,7 +23,6 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  
   if (fVerbosity>0)
     cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<endl;
 
@@ -383,19 +382,19 @@ void HcalDeadCellMonitor::createMaps(const HcalDbService& cond)
 
 /* ------------------------- */
 
-void HcalDeadCellMonitor::done()
+void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 {
   if (dump2database==0) 
     return;
 
-  // Dump to ascii file for database
+  // Dump to ascii file for database -- now taken care of through ChannelStatus objects
+  /*
   char buffer [1024];
-
-
+  
   ofstream fOutput("hcalDeadCells.txt", ios::out);
   sprintf (buffer, "# %15s %15s %15s %15s %8s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
   fOutput << buffer;
-
+  */
 
   int eta,phi;
   float binval;
@@ -459,18 +458,36 @@ void HcalDeadCellMonitor::done()
 	      HcalDetId myid((HcalSubdetector)(subdet), eta, phi, mydepth);
 	      if (!validDetId((HcalSubdetector)(subdet), eta, phi, mydepth))
 		continue;
+
 	      if (fVerbosity>0 && binval>deadmon_minErrorFlag_)
 		cout <<"Dead Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<endl;
 	      int value = 0;
 	      if (binval>deadmon_minErrorFlag_)
 		value=1;
+	      
+	      if (value==1)
+	      if (myqual.find(myid)==myqual.end())
+		{
+		  myqual[myid]=(value<<5);  // deadcell shifted to bit 5
+		}
+	      else
+		{
+		  int mask=(1<<5);
+		  if (value==1)
+		    myqual[myid] |=mask;
 
+		  else
+		    myqual[myid] &=~mask;
+		  if (value==1 && fVerbosity>1) cout <<"myqual = "<<std::hex<<myqual[myid]<<std::dec<<"  MASK = "<<std::hex<<mask<<std::dec<<endl;
+		}
+	      /*
 	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,(value<<5),int(myid.rawId()));
 	      fOutput<<buffer;
+	      */
 	    } // for (int d=0;d<6;++d) // loop over depth histograms
 	} // for (int iphi=1;iphi<=phiBins_;++iphi)
     } // for (int ieta=1;ieta<=etaBins_;++ieta)
-  fOutput.close();
+  //fOutput.close();
 
   return;
 

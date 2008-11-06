@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/10/29 23:38:24 $
- * $Revision: 1.88 $
+ * $Date: 2008/11/02 16:21:40 $
+ * $Revision: 1.89 $
  * \author W Fisher
  *
 */
@@ -29,6 +29,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   laserMon_ = NULL;
   expertMon_ = NULL;
 
+  // initialize hcal quality object
+  
+
   // All subdetectors assumed out of the run by default
   HBpresent_=0;
   HEpresent_=0;
@@ -47,7 +50,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   checkHE_=ps.getUntrackedParameter<bool>("checkHE", 1);  
   checkHO_=ps.getUntrackedParameter<bool>("checkHO", 1);  
   checkHF_=ps.getUntrackedParameter<bool>("checkHF", 1);   
-  
+
   evtSel_ = new HcalMonitorSelector(ps);
   
   dbe_ = Service<DQMStore>().operator->();
@@ -55,6 +58,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
+  dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file
+
   
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     if(debug_>0) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
@@ -317,6 +322,11 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     deadMon_->createMaps(*conditions_);
   if (hotMon_!=NULL)
     hotMon_->createMaps(*conditions_);
+
+
+  edm::ESHandle<HcalChannelQuality> p;
+  c.get<HcalChannelQualityRcd>().get(p);
+  chanquality_= new HcalChannelQuality(*p.product());
   return;
 } // HcalMonitorModule::beginJob(...)
 
@@ -383,14 +393,54 @@ void HcalMonitorModule::endJob(void) {
   if(pedMon_!=NULL) pedMon_->done();
   if(ledMon_!=NULL) ledMon_->done();
   if(laserMon_!=NULL) laserMon_->done();
-  if(hotMon_!=NULL) hotMon_->done();
-  if(deadMon_!=NULL) deadMon_->done();
+  if(hotMon_!=NULL) hotMon_->done(myquality_);
+  if(deadMon_!=NULL) deadMon_->done(myquality_);
   if(mtccMon_!=NULL) mtccMon_->done();
   if (tpMon_!=NULL) tpMon_->done();
   if (ctMon_!=NULL) ctMon_->done();
   if (beamMon_!=NULL) beamMon_->done();
   if (expertMon_!=NULL) expertMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
+
+  if (dump2database_)
+    {
+      std::vector<DetId> mydetids = chanquality_->getAllChannels();
+      HcalChannelQuality* newChanQual = new HcalChannelQuality();
+      for (unsigned int i=0;i<mydetids.size();++i)
+	{
+	  if (mydetids[i].det()!=4) continue; // not hcal
+	  //HcalDetId id(mydetids[i]);
+	  HcalDetId id=mydetids[i];
+	  // get original channel status item
+	  const HcalChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
+	  // make copy of status
+	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
+	  if (myquality_.find(id)!=myquality_.end())
+	    {
+
+	      // check dead cells
+	      if ((myquality_[id]>>5)&0x1)
+		  mystatus->setBit(5);
+	      else
+		mystatus->unsetBit(5);
+	      // check hot cells
+	      if ((myquality_[id]>>6)&0x1)
+		mystatus->setBit(6);
+	      else
+		mystatus->unsetBit(6);
+	    }
+	  newChanQual->addValues(*mystatus);
+	} // for (unsigned int i=0;...)
+      // Now dump out to text file
+      std::ostringstream file;
+      file <<"HcalDQMstatus_"<<irun_<<".txt";
+      std::ofstream outStream(file.str().c_str());
+      HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
+      /*
+      std::ofstream dumb("orig.txt");
+      HcalDbASCIIIO::dumpObject (dumb,(*chanquality_));
+      */
+    } // if (dump2databse_)
   return;
 }
 

@@ -409,19 +409,18 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
 
 /* ------------------------- */
 
-void HcalHotCellMonitor::done()
+void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 {
   if (dump2database==0) // don't do anything special unless specifically asked to dump db file
     return;
 
-  // Dump to ascii file for database
+  // Dump to ascii file for database -- now handled in Channel Status objects
+  /*
   char buffer [1024];
-
-
   ofstream fOutput("hcalHotCells.txt", ios::out);
   sprintf (buffer, "# %15s %15s %15s %15s %8s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
   fOutput << buffer;
-
+  */
 
   int eta,phi;
   float binval;
@@ -440,7 +439,7 @@ void HcalHotCellMonitor::done()
         {
           eta=ieta+int(etaMin_)-1;
           phi=iphi+int(phiMin_)-1;
-
+	  
           for (int d=0;d<6;++d)
             {
 	      binval=ProblemHotCellsByDepth[d]->getBinContent(ieta,iphi);
@@ -491,13 +490,27 @@ void HcalHotCellMonitor::done()
 	      if (binval>hotmon_minErrorFlag_)
 		value=1;
 
-	      
+	      if (myqual.find(myid)==myqual.end())
+		{
+		  myqual[myid]=(value<<6);  // hotcell shifted to bit 6
+		}
+	      else
+		{
+		  int mask=(1<<6);
+		  if (value==1)
+		    myqual[myid] |=mask;
+
+		  else
+		    myqual[myid] &=~mask;
+		}
+	      /*
 	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,int(value<<6),int(myid.rawId()));
 	      fOutput<<buffer;
+	      */
 	    } // for (int d=0;d<6;++d) // loop over depth histograms
 	} // for (int iphi=1;iphi<=phiBins_;++iphi)
     } // for (int ieta=1;ieta<=etaBins_;++ieta)
-  fOutput.close();
+  //fOutput.close();
 
   return;
 

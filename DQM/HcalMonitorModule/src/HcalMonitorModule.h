@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/10/15 20:04:26 $
- * $Revision: 1.35 $
+ * $Date: 2008/11/02 16:21:40 $
+ * $Revision: 1.36 $
  * \author W. Fisher
  *
 */
@@ -33,6 +33,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -53,6 +54,10 @@
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
+
+// Use to hold/get channel status
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
 #include <memory>
 #include <iostream>
@@ -210,16 +215,24 @@ public:
   bool checkHE_;
   bool checkHO_;
   bool checkHF_;
+  bool checkZDC_; // not yet implemented 
 
   // Determine which subdetectors are in the run (using FED info)
   int HBpresent_;
   int HEpresent_;
   int HOpresent_;
   int HFpresent_;
+  int ZDCpresent_; // need to implement
   MonitorElement* meHB_;
   MonitorElement* meHE_;
   MonitorElement* meHO_;
   MonitorElement* meHF_;
+  MonitorElement* meZDC_;
+
+  // myquality_ will store status values for each det ID I find
+  bool dump2database_;
+  std::map<HcalDetId, unsigned int> myquality_;
+  HcalChannelQuality* chanquality_;
 };
 
 #endif
