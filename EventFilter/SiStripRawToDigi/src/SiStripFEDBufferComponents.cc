@@ -423,10 +423,10 @@ namespace sistrip {
   {
     return ( !unlockedFromBit(internalFEDChannelNum) &&
 	     !outOfSyncFromBit(internalFEDChannelNum) &&
-	     !apvError(internalFEDChannelNum,0) &&
-	     !apvAddressError(internalFEDChannelNum,0) &&
-	     !apvError(internalFEDChannelNum,1) &&
-	     !apvAddressError(internalFEDChannelNum,1) );
+	     !apvErrorFromBit(internalFEDChannelNum,0) &&
+	     !apvAddressErrorFromBit(internalFEDChannelNum,0) &&
+	     !apvErrorFromBit(internalFEDChannelNum,1) &&
+	     !apvAddressErrorFromBit(internalFEDChannelNum,1) );
   }
 
   FEDFEHeader::~FEDFEHeader()

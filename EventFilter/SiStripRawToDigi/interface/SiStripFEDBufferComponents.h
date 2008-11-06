@@ -299,12 +299,20 @@ namespace sistrip {
 	{ return outOfSync(internalFEDChannelNum(internalFEUnitNum,internalChannelNum)); }
       //was there an internal APV error if it was in sync
       bool apvError(uint8_t internalFEDChannelNum, uint8_t apvNum) const
-	{ return ( !outOfSync(internalFEDChannelNum) && apvErrorFromBit(internalFEDChannelNum,apvNum) ); }
+	{
+          return ( !unlockedFromBit(internalFEDChannelNum) &&
+                   !outOfSyncFromBit(internalFEDChannelNum) &&
+                   apvErrorFromBit(internalFEDChannelNum,apvNum) );
+        }
       bool apvError(uint8_t internalFEUnitNum, uint8_t internalChannelNum, uint8_t apvNum) const
 	{ return apvError(internalFEDChannelNum(internalFEUnitNum,internalChannelNum),apvNum); }
       //was the APV address wrong if it was in sync (does not depend on APV internal error bit)
       bool apvAddressError(uint8_t internalFEDChannelNum, uint8_t apvNum) const
-	{ return ( !outOfSync(internalFEDChannelNum) && apvAddressErrorFromBit(internalFEDChannelNum,apvNum) ); }
+	{
+          return ( !unlockedFromBit(internalFEDChannelNum) &&
+                   !outOfSyncFromBit(internalFEDChannelNum) &&
+                   apvAddressErrorFromBit(internalFEDChannelNum,apvNum) );
+        }
       bool apvAddressError(uint8_t internalFEUnitNum, uint8_t internalChannelNum, uint8_t apvNum) const
 	{ return apvAddressError(internalFEDChannelNum(internalFEUnitNum,internalChannelNum),apvNum); }
   

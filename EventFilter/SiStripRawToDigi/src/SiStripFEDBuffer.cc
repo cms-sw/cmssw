@@ -102,7 +102,6 @@ namespace sistrip {
   {
     //check that all channels were unpacked properly
     if (lastValidChannel_ != FEDCH_PER_FED) return false;
-    if (!checkMajorityAddresses()) return false;
     //do checks from base class
     if (!FEDBufferBase::doChecks()) return false;
     return true;
@@ -187,15 +186,6 @@ namespace sistrip {
     //if no bad channels were found the they are all ok
     return true;
   }
-  
-  bool FEDBuffer::checkMajorityAddresses() const
-  {
-    for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-      if (!feGood(iFE)) continue;
-      if (majorityAddressErrorForFEUnit(iFE)) return false;
-    }
-    return true;
-  }
 
   bool FEDBuffer::checkFEUnitAPVAddresses() const
   {
@@ -242,20 +232,6 @@ namespace sistrip {
   {
     std::stringstream summary;
     summary << FEDBufferBase::checkSummary();
-    summary << "Check FE unit majority addresses: " << ( checkMajorityAddresses() ? "passed" : "FAILED" ) << std::endl;
-    if (!checkMajorityAddresses()) {
-      summary << "FEs with majority address error: ";
-      unsigned int badFEs = 0;
-      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
-	if (!feGood(iFE)) continue;
-	if (majorityAddressErrorForFEUnit(iFE)) {
-	  summary << uint16_t(iFE) << " ";
-	  badFEs++;
-	}
-      }
-      summary << std::endl;
-      summary << "Number of FE Units with bad addresses: " << badFEs << std::endl;
-    }
     summary << "Check channel status bits: " << ( checkAllChannelStatusBits() ? "passed" : "FAILED" ) << std::endl;
     if (!checkAllChannelStatusBits()) {
       summary << "Channels with errors: ";
@@ -472,6 +448,15 @@ namespace sistrip {
     return ( (daqSourceID() >= FEDNumbering::getSiStripFEDIds().first) &&
 	     (daqSourceID() <= FEDNumbering::getSiStripFEDIds().second) );
   }
+  
+  bool FEDBufferBase::checkMajorityAddresses() const
+  {
+    for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+      if (!feEnabled(iFE)) continue;
+      if (majorityAddressErrorForFEUnit(iFE)) return false;
+    }
+    return true;
+  }
 
   bool FEDBufferBase::doChecks() const
   {
@@ -485,7 +470,33 @@ namespace sistrip {
     summary << "Check header format valid: " << ( checkHeaderType() ? "passed" : "FAILED" ) << std::endl;
     summary << "Check readout mode valid: " << ( checkReadoutMode() ? "passed" : "FAILED" ) << std::endl;
     summary << "Check APVe address valid: " << ( checkAPVEAddressValid() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check FE unit majority addresses: " << ( checkMajorityAddresses() ? "passed" : "FAILED" ) << std::endl;
+    if (!checkMajorityAddresses()) {
+      summary << "FEs with majority address error: ";
+      unsigned int badFEs = 0;
+      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+	if (!feEnabled(iFE)) continue;
+	if (majorityAddressErrorForFEUnit(iFE)) {
+	  summary << uint16_t(iFE) << " ";
+	  badFEs++;
+	}
+      }
+      summary << std::endl;
+      summary << "Number of FE Units with bad addresses: " << badFEs << std::endl;
+    }
     summary << "Check for FE unit buffer overflows: " << ( checkNoFEOverflows() ? "passed" : "FAILED" ) << std::endl;
+    if (!checkNoFEOverflows()) {
+      summary << "FEs which overflowed: ";
+      unsigned int badFEs = 0;
+      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+	if (feOverflow(iFE)) {
+	  summary << uint16_t(iFE) << " ";
+	  badFEs++;
+	}
+      }
+      summary << std::endl;
+      summary << "Number of FE Units which overflowed: " << badFEs << std::endl;
+    }
     summary << "Check for S-Link CRC errors: " << ( checkNoSlinkCRCError() ? "passed" : "FAILED" ) << std::endl;
     summary << "Check for S-Link transmission error: " << ( checkNoSLinkTransmissionError() ? "passed" : "FAILED" ) << std::endl;
     summary << "Check CRC: " << ( checkCRC() ? "passed" : "FAILED" ) << std::endl;
