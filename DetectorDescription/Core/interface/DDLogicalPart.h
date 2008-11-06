@@ -7,7 +7,7 @@
 //class DDCompactViewImpl;
 //class DDSpecificsImpl;
 */ 
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 #include <string>
 #include <map>

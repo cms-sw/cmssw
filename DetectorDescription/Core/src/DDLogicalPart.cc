@@ -1,6 +1,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "LogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include <ostream>
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
