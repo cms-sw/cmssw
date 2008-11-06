@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.13 2008/10/29 00:21:02 loizides Exp $
+#$Id: t0inject.sh,v 1.14 2008/11/06 00:46:46 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -17,7 +17,7 @@ if test -d "/store/injectworker"; then
     export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
     export SMT0_LOCAL_RUN_DIR=/store/injectworker
     if test -e "/opt/copyworker/t0_control.sh"; then
-        source /opt/copyworker/t0_control.sh > /dev/null
+        source /opt/copyworker/t0_control.sh status > /dev/null
     fi
 fi
 
