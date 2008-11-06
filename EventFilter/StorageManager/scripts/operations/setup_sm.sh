@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.22 2008/10/11 16:09:06 loizides Exp $
+# $Id: setup_sm.sh,v 1.23 2008/11/06 14:22:37 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -38,7 +38,7 @@ fi
 modifykparams () {
 #    echo     5 > /proc/sys/vm/dirty_background_ratio
 #    echo    15 > /proc/sys/vm/dirty_ratio
-    echo   384 > /proc/sys/vm/lower_zone_protection
+    echo   256 > /proc/sys/vm/lower_zone_protection
     echo 16384 > /proc/sys/vm/min_free_kbytes
 #    echo 1 > /proc/sys/fs/xfs/error_level
 }
@@ -100,6 +100,7 @@ start () {
 
             startwantedservices
             modifykparams
+            mount -oro,remount /dev/sda1 /boot/
             ;;
         *)
             echo "Unknown host: $hname"
