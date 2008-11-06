@@ -14,5 +14,7 @@ HardwareMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Disable the FED level histograms
   DisableFEDHistograms = cms.untracked.bool(True),
   #Override previous two option and book and fill all histograms (so that files can be merged)
-  FillAllHistograms = cms.untracked.bool(False)
+  FillAllHistograms = cms.untracked.bool(False),
+  rootFile = cms.untracked.string(''),
+  buildAllHistograms = cms.untracked.bool(False)
 )
