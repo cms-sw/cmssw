@@ -764,7 +764,13 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       //	1) for 2 optional 0x2AAA and 0x5555 Words in the Trailer
       //    	2) for extra 4 frames in the new TMB trailer and
       //         for RPC raw hit data, if present
-      if( buf_1[1]==0x6E0C ) {
+      //
+      // If the scope data was enabled in readout, scope data markers (0x6B05
+      // and 0x6E05) appear before 0x6E0C, and the optional 0x2AAA and 0x5555
+      // trailer words are suppressed.  So far, we only have data with the
+      // empty scope content, so more corrections will be needed once
+      // non-empty scope data is available. -SV, 5 Nov 2008.
+      if( buf_1[1]==0x6E0C || buf_1[1]==0x6B05 ) {
         // RPW add 4 for TMB trailer
 	TMB_WordsExpected = TMB_WordsExpected + 4+ 2;	//
 	if( buf_1[0]==0x6E04 )
