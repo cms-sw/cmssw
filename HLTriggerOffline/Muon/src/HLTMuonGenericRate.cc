@@ -81,9 +81,9 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
     m_makeNtuple = true;
   if ( m_makeNtuple ) {
     theFile      = new TFile(theNtupleFileName.c_str(),"RECREATE");
-    TString vars = "eventNum:genMom:genPt:genEta:genPhi:pt1:eta1:phi1:";
-    vars        += "pt2:eta2:phi2:";
-    vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5:";
+    TString vars = "eventNum:motherId:ptGen:etaGen:phiGen:";
+    vars        += "ptL1:etaL1:phiL1:";
+    vars        += "ptL2:etaL2:phiL2:";
     vars        += "sumIso20:sumIso24:sumIso30";
     theNtuple    = new TNtuple("nt","data",vars);
   }
@@ -217,6 +217,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   // Get the HLT candidates //
   unsigned int numHltLabels = theHltCollectionLabels.size();
+  bool isIsolatedPath = ( numHltLabels == 4 ) ? true : false;
   vector< vector<RecoChargedCandidateRef> > hltCands(numHltLabels);
   for ( unsigned int i = 0; i < numHltLabels; i++ ) {
     tag = InputTag(theHltCollectionLabels[i],"",theHltProcessName);
@@ -328,20 +329,24 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	theNtupleParameters[7] = genMatches[i].l1Cand->phi();
       }
       for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
-	if ( genMatches[i].hltCands[j] ) {
-	  theNtupleParameters[(j*3+ 8)] = genMatches[i].hltCands[j]->pt();
-	  theNtupleParameters[(j*3+ 9)] = genMatches[i].hltCands[j]->eta();
-	  theNtupleParameters[(j*3+10)] = genMatches[i].hltCands[j]->phi();
-	  if ( j == 0 ) {
-	    TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
-	    const IsoDeposit &dep = (*depMap)[tk];
-	    theNtupleParameters[20] = dep.depositWithin(0.20);
-	    theNtupleParameters[21] = dep.depositWithin(0.24);
-	    theNtupleParameters[22] = dep.depositWithin(0.30);
-	  }
+	if ( j == 0 ) {
+	  theNtupleParameters[ 8] = genMatches[i].hltCands[j]->pt();
+	  theNtupleParameters[ 9] = genMatches[i].hltCands[j]->eta();
+	  theNtupleParameters[10] = genMatches[i].hltCands[j]->phi();
+	  TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
+	  const IsoDeposit &dep = (*depMap)[tk];
+	  theNtupleParameters[14] = dep.depositWithin(0.20);
+	  theNtupleParameters[15] = dep.depositWithin(0.24);
+	  theNtupleParameters[16] = dep.depositWithin(0.30);
+	}
+	if ( ( !isIsolatedPath && j == 1 ) ||
+	     (  isIsolatedPath && j == 2 ) ) {
+	  theNtupleParameters[11] = genMatches[i].hltCands[j]->pt();
+	  theNtupleParameters[12] = genMatches[i].hltCands[j]->eta();
+	  theNtupleParameters[13] = genMatches[i].hltCands[j]->phi();
 	}
       }
-      theNtuple->Fill(theNtupleParameters);
+      theNtuple->Fill(theNtupleParameters); 
     }
   }
   
