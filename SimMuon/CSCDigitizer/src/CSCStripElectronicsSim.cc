@@ -344,9 +344,6 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
                                            comparatorOutputs.end());
   comparators.put(range, layerId());
 
-  double startTime = theTimingOffset 
-                     - (sca_peak_bin-1) * sca_time_bin_size;
-
   //std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
   std::list<int> keyStrips = getKeyStripsFromMC();
   std::list<int> stripsToDo = channelsToRead(keyStrips, 3);
@@ -355,7 +352,7 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   for(std::list<int>::const_iterator stripItr = stripsToDo.begin();
       stripItr != stripsToDo.end(); ++stripItr)
   {
-    createDigi(*stripItr, startTime, stripDigis);
+    createDigi( *stripItr, find(*stripItr), stripDigis);
   }
 
   CSCStripDigiCollection::Range stripRange(stripDigis.begin(), stripDigis.end());
@@ -410,9 +407,8 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 }
 
 
-void CSCStripElectronicsSim::createDigi(int channel, float startTime, std::vector<CSCStripDigi> & result)
+void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & signal, std::vector<CSCStripDigi> & result)
 {
-  const CSCAnalogSignal & signal = find(channel);
   // fill in the sca information
   std::vector<int> scaCounts(nScaBins_);
 
@@ -421,7 +417,7 @@ void CSCStripElectronicsSim::createDigi(int channel, float startTime, std::vecto
 
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
     scaCounts[scaBin] = static_cast< int >
-      ( pedestal + signal.getValue(startTime+scaBin*sca_time_bin_size) * gain );
+      ( pedestal + signal.getValue(theSignalStartTime+scaBin*sca_time_bin_size) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
 

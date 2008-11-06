@@ -34,6 +34,10 @@ public:
 
   void setStripConditions(CSCStripConditions * cond) {theStripConditions = cond;}
 
+  CSCAnalogSignal makeNoiseSignal(int element);
+
+  void createDigi(int istrip, const CSCAnalogSignal & signal, std::vector<CSCStripDigi> & result);
+ 
 private:
   /// initialization for each layer
   void initParameters();
@@ -47,8 +51,6 @@ private:
 
   /// calculates the comparator reading, including saturation and offsets
   float comparatorReading(const CSCAnalogSignal & signal, float time) const;
-
-  CSCAnalogSignal makeNoiseSignal(int element);
 
   virtual float signalDelay(int element, float pos) const;
   
@@ -74,8 +76,6 @@ private:
 
 
   void selfTest() const;
-
-  void createDigi(int istrip, float startTime, std::vector<CSCStripDigi> & result);
 
   // saturation of the 12-bit ADC.  Max reading is 4095
   void doSaturation(CSCStripDigi & digi);
