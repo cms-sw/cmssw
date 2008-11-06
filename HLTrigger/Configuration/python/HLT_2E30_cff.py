@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V12 (CMSSW_3_0_X_2008-10-31-0200_HLT3)
+# /dev/CMSSW_3_0_0/pre0/HLT/V13 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V12')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V13')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1887,7 +1887,7 @@ hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
     CPE = cms.string( "PixelCPEGeneric" )
 )
 hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
-    ProductLabel = cms.untracked.string( "rawDataCollector" ),
+    ProductLabel = cms.InputTag( "rawDataCollector" ),
     MaxHolesInCluster = cms.untracked.uint32( 0 ),
     ClusterThreshold = cms.untracked.double( 5.0 ),
     SeedThreshold = cms.untracked.double( 3.0 ),
