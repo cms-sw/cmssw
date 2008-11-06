@@ -9,6 +9,7 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 #process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.load("RecoEgamma.EgammaPhotonProducers.photonSequence_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/relval/2008/6/22/RelVal-RelValSingleGammaPt35-1213986417-IDEAL_V2-2nd/0004/443BCAED-CB40-DD11-AB37-000423D6B48C.root')
@@ -51,6 +52,9 @@ process.photonIDAna = cms.EDAnalyzer("PhotonIDSimpleAnalyzer",
     createPhotonTTree  = cms.bool(False)
 )
 
-process.p = cms.Path(process.photonIDSequence*process.photonIDAna)
+#process.p = cms.Path(process.photonSequence*process.photonIDSequence*process.photonIDAna)
+process.p = cms.Path(process.photonSequence*process.photonIDSequence*process.photonIDAna)
 process.e = cms.EndPath(process.Out)
 
+process.PoolSource.fileNames = ['dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_7.root',
+'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_13.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_14.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_4.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_10.root','dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_5.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_20.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_38.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_12.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_29.root','dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_7.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_40.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_31.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_22.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_8.root']

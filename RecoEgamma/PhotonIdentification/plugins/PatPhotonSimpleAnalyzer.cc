@@ -161,12 +161,12 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
       //                fill histograms                    //
       ///////////////////////////////////////////////////////
       // PhotonID Variables
-      h_isoEcalRecHit_->Fill(currentPhoton.isolationEcalRecHit());
-      h_isoHcalRecHit_->Fill(currentPhoton.isolationHcalRecHit());
-      h_trk_pt_solid_ ->Fill(currentPhoton.isolationSolidTrkCone());
-      h_trk_pt_hollow_->Fill(currentPhoton.isolationHollowTrkCone());
-      h_ntrk_solid_->   Fill(currentPhoton.nTrkSolidCone());
-      h_ntrk_hollow_->  Fill(currentPhoton.nTrkHollowCone());
+      h_isoEcalRecHit_->Fill(currentPhoton.ecalRecHitSumConeDR04());
+      h_isoHcalRecHit_->Fill(currentPhoton.hcalTowerSumConeDR04());
+      h_trk_pt_solid_ ->Fill(currentPhoton.isolationTrkSolidConeDR04());
+      h_trk_pt_hollow_->Fill(currentPhoton.isolationTrkHollowConeDR04());
+      h_ntrk_solid_->   Fill(currentPhoton.nTrkSolidConeDR04());
+      h_ntrk_hollow_->  Fill(currentPhoton.nTrkHollowConeDR04());
       h_ebgap_->        Fill(currentPhoton.isEBGap());
       h_eeGap_->        Fill(currentPhoton.isEEGap()); 
       h_ebeeGap_->      Fill(currentPhoton.isEBEEGap());
@@ -193,12 +193,12 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
       //                fill TTree (optional)              //
       ///////////////////////////////////////////////////////
       if ( createPhotonTTree_ ) {
-	recPhoton.isolationEcalRecHit    = currentPhoton.isolationEcalRecHit();
-	recPhoton.isolationHcalRecHit    = currentPhoton.isolationHcalRecHit();
-	recPhoton.isolationSolidTrkCone  = currentPhoton.isolationSolidTrkCone();
-	recPhoton.isolationHollowTrkCone = currentPhoton.isolationHollowTrkCone();
-	recPhoton.nTrkSolidCone          = currentPhoton.nTrkSolidCone();
-	recPhoton.nTrkHollowCone         = currentPhoton.nTrkHollowCone();
+	recPhoton.isolationEcalRecHit    = currentPhoton.ecalRecHitSumConeDR04();
+	recPhoton.isolationHcalRecHit    = currentPhoton.hcalTowerSumConeDR04();
+	recPhoton.isolationSolidTrkCone  = currentPhoton.isolationTrkSolidConeDR04();
+	recPhoton.isolationHollowTrkCone = currentPhoton.isolationTrkHollowConeDR04();
+	recPhoton.nTrkSolidCone          = currentPhoton.nTrkSolidConeDR04();
+	recPhoton.nTrkHollowCone         = currentPhoton.nTrkHollowConeDR04();
 	recPhoton.isEBGap                = currentPhoton.isEBGap();
 	recPhoton.isEEGap                = currentPhoton.isEEGap();
 	recPhoton.isEBEEGap              = currentPhoton.isEBEEGap();
@@ -218,7 +218,7 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
 
       // Record whether it was near any module gap.
       // Very convoluted at the moment.
-      bool inAnyGap = currentPhoton.isEBEEGap() || (currentPhoton.isEBPho()&&currentPhoton.isEBGap()) || (currentPhoton.isEEPho()&&currentPhoton.isEEGap());
+      bool inAnyGap = currentPhoton.isEBEEGap() || (currentPhoton.isEB()&&currentPhoton.isEBGap()) || (currentPhoton.isEE()&&currentPhoton.isEEGap());
       if (inAnyGap) {
         h_photonInAnyGap_->Fill(1.0);
       } else {
