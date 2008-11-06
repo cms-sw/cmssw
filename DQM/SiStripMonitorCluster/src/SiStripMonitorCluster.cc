@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.45 2008/11/01 18:24:58 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.46 2008/11/06 10:39:23 giordano Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -551,8 +551,8 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid) 
 								   Parameters.getParameter<double>("ymin"),
 								   Parameters.getParameter<double>("ymax")
 								   );
-    dqmStore_->tag(mod_single.ClusterSignalOverNoise, detid);
-    mod_single.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
+    dqmStore_->tag(mod_single.ClusterSignalOverNoiseVsPos, detid);
+    mod_single.ClusterSignalOverNoiseVsPos->setAxisTitle("pos");
   }
   
   //ModuleLocalOccupancy
