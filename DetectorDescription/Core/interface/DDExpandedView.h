@@ -1,7 +1,7 @@
 #ifndef DDExpandedView_h
 #define DDExpandedView_h
 
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 #include <string>
 #include <map>

@@ -2,7 +2,7 @@
 #define DDSolid_h
 
 #include <stdexcept>
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 #include <utility>
 
