@@ -84,7 +84,7 @@ TtSemiLeptonicEvent::print()
   }
 
   // pass information to the MessageLogger
-  edm::LogInfo( "TtSemiLepEvtBuilder" ) 
+  edm::LogInfo( "TtSemiLeptonicEvent" ) 
     << "++++++++++++++++++++++++++++++++++++++++++++++ \n"
     << genEvtString << " \n"
     << " Number of available event hypotheses: " << nHyps << " \n"

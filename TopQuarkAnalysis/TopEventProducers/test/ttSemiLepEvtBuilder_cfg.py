@@ -9,11 +9,11 @@ process = cms.Process("TEST")
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('TtSemiLepEvtBuilder')
+process.MessageLogger.categories.append('TtSemiLeptonicEvent')
 process.MessageLogger.categories.append('TtSemiLepKinFitter')
 process.MessageLogger.cerr.INFO = cms.untracked.PSet(
     default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
-    TtSemiLepEvtBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    TtSemiLeptonicEvent = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     TtSemiLepKinFitter  = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
