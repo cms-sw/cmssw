@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/04/16 10:48:26 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/05 17:43:24 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -75,8 +75,6 @@ private:
   // quality test names
   std::string MeanCriterionName; 
   std::string SigmaCriterionName; 
-  // data type
-  std::string step;
 
   edm::ESHandle<DTGeometry> muonGeom;
 

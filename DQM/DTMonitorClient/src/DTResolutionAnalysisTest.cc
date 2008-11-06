@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/07 10:48:52 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/11/05 17:43:16 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -46,8 +46,6 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const edm::ParameterSet& ps){
   // quality test names
   MeanCriterionName = ps.getUntrackedParameter<string>("meanTestName","ResidualsMeanInRange"); 
   SigmaCriterionName = ps.getUntrackedParameter<string>("sigmaTestName","ResidualsSigmaInRange"); 
-  // data type
-  step = ps.getUntrackedParameter<string>("STEP", "STEP3");
   
  }
 
@@ -115,7 +113,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
       // Mean test 
 
       // get the histo
-      string name= "MeanTest_STEP3_W" + wh.str() + "_Sec" + sect.str();
+      string name= "MeanTest_W" + wh.str() + "_Sec" + sect.str();
       string theHisto= "DT/02-Segments/Wheel" +  wh.str() + "/Tests/" + name;
       MonitorElement * resMean_histo = dbe->get(theHisto);
       if(resMean_histo){
@@ -142,7 +140,7 @@ void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg
       // Sigma test
 
       // get the histo
-      name= "SigmaTest_STEP3_W" + wh.str() + "_Sec" + sect.str();
+      name= "SigmaTest_W" + wh.str() + "_Sec" + sect.str();
       theHisto= "DT/02-Segments/Wheel" +  wh.str() + "/Tests/" + name;
       MonitorElement * resSigma_histo = dbe->get(theHisto);
       if(resSigma_histo){
@@ -184,7 +182,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
 
   stringstream wheel; wheel <<wh;
   
-  string histoName =  "MeanSummaryRes_testFailed_" + step + "_W" + wheel.str();
+  string histoName =  "MeanSummaryRes_testFailed_W" + wheel.str();
   wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,1,15,11,1,12);
   wheelMeanHistos[wh]->setBinLabel(1,"Sector1",1);
   wheelMeanHistos[wh]->setBinLabel(2,"Sector2",1);
@@ -212,7 +210,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2); 
   
-  histoName =  "SigmaSummaryRes_testFailed_" + step + "_W" + wheel.str();
+  histoName =  "SigmaSummaryRes_testFailed_W" + wheel.str();
   wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,1,15,11,1,12);
   wheelSigmaHistos[wh]->setBinLabel(1,"Sector1",1);
   wheelSigmaHistos[wh]->setBinLabel(2,"Sector2",1);
@@ -241,7 +239,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
   
   if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes_testFailed_" + step;
+    string histoName =  "MeanSummaryRes_testFailed";
     wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,1,15,5,-2,3);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
@@ -266,7 +264,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   }
 
   if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
-    string histoName =  "SigmaSummaryRes_testFailed_" + step;
+    string histoName =  "SigmaSummaryRes_testFailed";
     wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,1,15,5,-2,3);
     wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
     wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
