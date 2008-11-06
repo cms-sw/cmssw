@@ -30,6 +30,7 @@ namespace {
     edm::Wrapper<edm::ValueMap<reco::FlavorHistory> > wvmfh1;
     reco::FlavorHistoryEvent fhe1;
     std::vector<reco::FlavorHistoryEvent> vfhe1;
+    edm::Wrapper<reco::FlavorHistoryEvent > wfhe1;
     edm::Wrapper<std::vector<reco::FlavorHistoryEvent> > wvfhe1;
     edm::ValueMap<reco::FlavorHistoryEvent> vmfhe1;
     edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent> > wvmfhe1;

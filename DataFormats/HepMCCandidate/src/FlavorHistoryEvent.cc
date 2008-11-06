@@ -13,6 +13,7 @@ void FlavorHistoryEvent::cache()
   // Set cached to false
   cached_ = false;
   nb_ = nc_ = 0;
+  highestFlavor_ = 0;
   // get iterators to the history vector
   const_iterator i = histories_.begin(),
     ibegin = histories_.begin(),
@@ -156,10 +157,10 @@ std::pair<double, int> FlavorHistoryEvent::calculateDR() const
   }
   
   // now find the highest flavor max DR
-  if ( highestFlavor >= 0 ) {
+  if ( highestFlavor > 0 ) {
     return std::pair<double,int>(maxDR[highestFlavor], highestFlavor);
   } else {
-    return std::pair<double,int>(-1.0, -1);
+    return std::pair<double,int>(-1.0, 0);
   }
   
 }
