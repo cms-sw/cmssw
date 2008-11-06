@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:44 EDT 2008
-// $Id$
+// $Id: FWItemSingleAccessor.cc,v 1.1 2008/10/21 19:08:23 chrjones Exp $
 //
 
 // system include files
+#include <assert.h>
 #include "Reflex/Object.h"
 
 // user include files

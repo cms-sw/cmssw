@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 23 13:05:35 EDT 2008
-// $Id$
+// $Id: FWCustomIconsButton.cc,v 1.1 2008/11/05 09:08:25 chrjones Exp $
 //
 
 // system include files
 #include <algorithm>
+#include <assert.h>
 #include "TGPicture.h"
 
 // user include files
