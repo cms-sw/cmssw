@@ -37,6 +37,7 @@
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
+     <MonElement name="charge"> </MonElement>
      <MonElement name="size">	</MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
