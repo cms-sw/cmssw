@@ -385,7 +385,7 @@ class PerfSuite:
     def cprootfile(self,dir,candle):
         cmds = ("cd %s" % dir,
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
-        self.runcmdSet(cmds)
+        self.runCmdSet(cmds)
     
     #############
     # Display errors in the G4 logfile
@@ -571,8 +571,7 @@ class PerfSuite:
     #def runPerfSuite(**opts):
     #then instead of using castordir variable, would use opts['castordir'] etc    
     def runPerfSuite(self,
-                     #castordir        = self._CASTOR_DIR,
-                     perfsuitedir     = os.getcwd(),
+                     castordir        = "/castor/cern.ch/cms/store/relval/performance/",
                      TimeSizeEvents   = 100        ,
                      IgProfEvents     = 5          ,
                      ValgrindEvents   = 1          ,
@@ -589,8 +588,8 @@ class PerfSuite:
                      candles          = Candles    ,
                      bypasshlt        = False      ,
                      runonspare       = True       ,
+                     perfsuitedir     = os.getcwd(),
                      logfile          = os.path.join(os.getcwd(),"cmsPerfSuite.log")):
-
         #Print a time stamp at the beginning:
     
         if not logfile == None:
@@ -845,14 +844,8 @@ def main(argv=[__name__]): #argv is a list of arguments.
      runonspare      ,
      outputdir       ,
      logfile         ) = suite.optionParse(argv)
-    print TimeSizeEvents
-    print IgProfEvents
-    print  ValgrindEvents  
-    print cmsScimark      
-    print cmsScimarkLarge 
-   
-    suite.runPerfSuite(
-                       perfsuitedir     = outputdir       ,
+     
+    suite.runPerfSuite(castordir        = castordir       ,
                        TimeSizeEvents   = TimeSizeEvents  ,
                        IgProfEvents     = IgProfEvents    ,
                        ValgrindEvents   = ValgrindEvents  ,
@@ -869,6 +862,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
                        candles          = candles         ,
                        bypasshlt        = bypasshlt       ,
                        runonspare       = runonspare      ,
+                       perfsuitedir     = outputdir       ,
                        logfile          = logfile         )
     
 if __name__ == "__main__":
