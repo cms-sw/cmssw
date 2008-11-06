@@ -430,12 +430,6 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	      triggerBit[it] = true;  
 	    }  
 	  }  
-	  else if(HLT_Mu3 == 1)
-	    {
-	      PrintOhltVariables(1,muon);
-	      PrintOhltVariables(2,muon);
-	      PrintOhltVariables(3,muon);
-	    }
 	}  
       }  
       

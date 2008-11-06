@@ -388,7 +388,7 @@ int main(int argc, char *argv[]){
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_4.root"); 
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_5.root"); 
       //    ProcFil.push_back(PPMUX_DIR+"ppmux_misAlCa_6.root"); 
-      //      ProcFil.push_back(PPMUX_DIR+"ppmux_2*.root");
+      //            ProcFil.push_back(PPMUX_DIR+"ppmux_2*.root");
     
       TabChain.push_back(new TChain("HltTree"));
       for (unsigned int ipfile = 0; ipfile < ProcFil.size(); ipfile++){
@@ -1718,8 +1718,11 @@ void BookMenu_SmallMenu(OHltMenu*  menu, double &iLumi, double &nBunches) {
   menu->AddHlt("HLT_IsoPhoton10_L1R","L1_SingleEG8","1",1,"","",1.5,0,1,0,0,0);
   menu->AddHlt("OpenHLT_IsoPhoton10_L1R","L1_SingleEG8","1",1,"","",1.5,0,1,0,0,0); 
 
-  menu->AddHlt("HLT_DoubleIsoEle10_LW_L1I","L1_DoubleIsoEG8","1",1,"","",1.5,2,0,0,0,0);
-  menu->AddHlt("OpenHLT_DoubleIsoEle10_LW_L1I","L1_DoubleIsoEG8","1",1,"","",1.5,2,0,0,0,0); 
+  menu->AddHlt("HLT_Photon15_L1R","L1_SingleEG10","1",1,"","",1.5,0,1,0,0,0); 
+  menu->AddHlt("OpenHLT_Photon15_L1R","L1_SingleEG10","1",1,"","",1.5,0,1,0,0,0);  
+
+  menu->AddHlt("HLT_DoubleEle5_SW_L1R","L1_DoubleEG5","1",1,"","",1.5,2,0,0,0,0);
+  menu->AddHlt("OpenHLT_DoubleEle5_SW_L1R","L1_DoubleEG5","1",1,"","",1.5,2,0,0,0,0); 
 
   menu->AddHlt("HLT_LooseIsoTau_MET30","L1_SingleTauJet80","1",1,"","",1.5,0,0,0,1,1);
   menu->AddHlt("OpenHLT_LooseIsoTau_MET30","L1_SingleTauJet80","1",1,"","",1.5,0,0,0,1,1); 
