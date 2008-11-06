@@ -3,7 +3,7 @@
 
 #include <utility>
 #include <string>
-#include <iostream>
+#include <iosfwd>
 #include <map>
 #include <vector>
 #include <stdexcept>
