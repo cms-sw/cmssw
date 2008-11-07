@@ -111,6 +111,10 @@ void Calibratable::reset() {
 	sim_isMC_ = false;
 
 	tb_isTB_ = false;
+	tb_eta_ = 0.0;
+	tb_phi_ = 0.0;
+	tb_run_ = 0; 
+	tb_pdg_ = 0;
 
 	sim_etaEcal_ = 0;
 	sim_etaHcal_ = 0;
@@ -153,11 +157,5 @@ void Calibratable::reset() {
 	cand_eta_ = 0;
 	cand_phi_ = 0;
 	cand_type_ = -1;
-
-	pfele_energyEvent_ = 0;
-	pfele_energyEcal_ = 0;
-	pfele_energyHcal_ = 0;
-	pfele_numEcal_ = 0;
-	pfele_numHcal_ = 0;
 
 }
