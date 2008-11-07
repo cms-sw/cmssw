@@ -1,19 +1,23 @@
 #!/bin/sh 
 
 echo "This script produces all the histograms and plots..."
-echo -e "Enter the REFERNCE.root and NEW.root files ([REFERNCE.root] [NEW.root]): "
-read reference new
+echo -e "Enter the REFERNCE.root file, the NEW.root file and the directory name/histo title([REFERNCE.root] [NEW.root] [title]): "
+read reference new title
 
 if [ -n "$reference" ]; then
     if [ -n "$new" ]; then
-	echo "processing "$reference" and "$new"."
+	if [ -n "$title"]; then
+	    echo "processing "$reference" and "$new"."
+	else 
+	    echo "Input not correct!!"
+	fi
     else 
-	echo "Enter two filenames!"
+	echo "Input not correct!!"
     fi
+else
+    echo "Input not correct!!"
 fi
 
-echo "Enter the name of the folder / histogram title: "
-read title
 if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
