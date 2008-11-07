@@ -6,7 +6,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 /* propagates the RecHit position from the original reference frame
    to the reference frame of another detector.
    Useful for algorithms like the DAF or the MTF	
@@ -15,7 +15,7 @@
 class TrackingRecHitPropagator {
 	public: 
 	TrackingRecHitPropagator(const MagneticField* magf){
-		thePropagator = new AnalyticalPropagator(magf, anyDirection, 1.6);
+		thePropagator = new AnalyticalPropagator(magf, anyDirection, 3.1);
 	};
 
 	~TrackingRecHitPropagator() {delete thePropagator;}
@@ -41,9 +41,14 @@ class TrackingRecHitPropagator {
 		ltem(3,4) = (updatedOriginal->parametersError())(0,1);
 		LocalTrajectoryError lte(ltem);
 		TrajectoryStateOnSurface hit_state(ltp, lte, propagated.surface(), propagated.magneticField());
+
 		TrajectoryStateOnSurface projected_hit_state = thePropagator->propagate(hit_state, det.surface());
+
+		if(!projected_hit_state.isValid())return InvalidTransientRecHit::build(updatedOriginal->det());
+		
 		LocalPoint p = projected_hit_state.localPosition();
 		LocalError e = projected_hit_state.localError().positionError();
+
 		return ResultingHit::build(p, e, &det, updatedOriginal->det(), updatedOriginal, this);
 	}
 	
