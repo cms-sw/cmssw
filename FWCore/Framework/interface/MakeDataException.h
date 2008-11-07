@@ -19,9 +19,8 @@ MakeDataException from within your Proxy
 E.g.
 \code
 if(outOfBoundsValue) {
-   throw MakeDataException<record_type, value_type>(
-                                                    " value out of bounds",
-                                                    iDataKey);
+   throw MakeDataException(" value out of bounds",
+                           MakeDataExceptionInfo<record_type, value_type>(iDataKey));
 }
 \endcode
 
@@ -29,7 +28,7 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.6 2005/09/01 23:30:49 wmtan Exp $
+// $Id: MakeDataException.h,v 1.7 2007/06/14 17:52:15 wmtan Exp $
 //
 
 // system include files
@@ -44,25 +43,40 @@ if(outOfBoundsValue) {
 // forward declarations
 namespace edm {
    namespace eventsetup {
-template< class RecordT, class DataT>
+
+class MakeDataExceptionInfoBase
+{
+public:
+  MakeDataExceptionInfoBase(const DataKey &iKey, const std::string& dataClassName, const std::string &recordClassName)
+  :key_(iKey),
+   dataClassName_(dataClassName),
+   recordClassName_(recordClassName)
+  {}
+  const DataKey &key() const {return key_;}
+  const std::string &dataClassName() const {return dataClassName_;}
+  const std::string &recordClassName() const {return recordClassName_;}
+private:
+  DataKey key_;
+  std::string dataClassName_;
+  std::string recordClassName_;
+};
+
+template <class RecordT, class DataT>
+class MakeDataExceptionInfo : public MakeDataExceptionInfoBase
+{
+public:
+  MakeDataExceptionInfo(const DataKey &iKey) 
+  : MakeDataExceptionInfoBase(iKey, 
+                              heterocontainer::HCTypeTagTemplate<DataT,DataKey>::className(), 
+                              heterocontainer::HCTypeTagTemplate<RecordT, EventSetupRecordKey>::className()) {}
+};
+
 class MakeDataException : public cms::Exception
 {
-
    public:
-      MakeDataException(const DataKey& iKey) : 
-	cms::Exception("MakeDataException"),
-        message_(standardMessage(iKey))
-      {
-	this->append(myMessage());
-      }
-
+      MakeDataException(const MakeDataExceptionInfoBase &info);  
       MakeDataException(const std::string& iAdditionalInfo,
-                     const DataKey& iKey) : 
-        message_(messageWithInfo(iKey, iAdditionalInfo))
-      {
-	this->append(this->myMessage());
-      }
-
+                        const MakeDataExceptionInfoBase& info);  
       ~MakeDataException() throw() {}
 
       // ---------- const member functions ---------------------
@@ -71,23 +85,9 @@ class MakeDataException : public cms::Exception
       }
    
       // ---------- static member functions --------------------
-      static std::string standardMessage(const DataKey& iKey) {
-         std::string returnValue = std::string("Error while making data ") 
-         +"\""
-         +heterocontainer::HCTypeTagTemplate<DataT,DataKey>::className() 
-         +"\" "
-         +"\""
-         +iKey.name().value()
-         +"\" "
-         +"in Record "
-         +heterocontainer::HCTypeTagTemplate<RecordT, EventSetupRecordKey>::className();
-         return returnValue;
-      }
-   
-      static std::string messageWithInfo(const DataKey& iKey,
-                                          const std::string& iInfo) {
-         return standardMessage(iKey) +"\n"+iInfo;
-      }
+      static std::string standardMessage(const MakeDataExceptionInfoBase& info); 
+      static std::string messageWithInfo(const MakeDataExceptionInfoBase& info,
+                                         const std::string& iInfo); 
    // ---------- member functions ---------------------------
 
    private:
@@ -97,7 +97,6 @@ class MakeDataException : public cms::Exception
 
       // ---------- member data --------------------------------
       std::string message_;
-      
 };
 
    }

@@ -51,7 +51,7 @@ class Dummy {};
 }
 using eventsetuprecord_t::Dummy;
 using eventsetuprecord_t::DummyRecord;
-typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+typedef edm::eventsetup::MakeDataException ExceptionType;
 typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
 
 class testEventsetupRecord: public CppUnit::TestFixture
@@ -192,7 +192,6 @@ void testEventsetupRecord::getTest()
                               "");
 
    ESHandle<Dummy> dummyPtr;
-   typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
    //dummyRecord.get(dummyPtr);
    CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
    //CDJ do this replace
@@ -201,7 +200,6 @@ void testEventsetupRecord::getTest()
    dummyRecord.add(dummyDataKey,
                     &dummyProxy);
 
-   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    //dummyRecord.get(dummyPtr);
    CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 
@@ -232,7 +230,6 @@ void testEventsetupRecord::getNodataExpTest()
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),"");
 
    ESHandle<Dummy> dummyPtr;
-   typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
    dummyRecord.get(dummyPtr);
    //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
 
@@ -249,7 +246,6 @@ void testEventsetupRecord::getExepTest()
    
    dummyRecord.add(dummyDataKey,&dummyProxy);
 
-   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    dummyRecord.get(dummyPtr);
    //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 }
@@ -267,7 +263,6 @@ void testEventsetupRecord::doGetTest()
    dummyRecord.add(dummyDataKey,
                    &dummyProxy);
    
-   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    //dummyRecord.doGet(dummyDataKey);
    CPPUNIT_ASSERT_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
    
@@ -300,7 +295,6 @@ void testEventsetupRecord::introspectionTest()
   dummyRecord.add(dummyDataKey,
                   &dummyProxy);
   
-  typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
   dummyRecord.fillRegisteredDataKeys(keys);
   CPPUNIT_ASSERT(1 == keys.size());
   
