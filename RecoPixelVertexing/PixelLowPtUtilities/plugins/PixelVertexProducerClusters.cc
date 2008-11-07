@@ -112,14 +112,9 @@ void PixelVertexProducerClusters::produce
   {
     vector<VertexHit> hits;
 
-    for(SiPixelRecHitCollection::id_iterator
-          id = thePixelHits->id_begin(); id!= thePixelHits->id_end(); id++)
+    for(SiPixelRecHitCollection::DataContainer::const_iterator recHit = thePixelHits->data().begin(), recHitEnd = thePixelHits->data().end();
+           recHit != recHitEnd; ++recHit)
     {
-      SiPixelRecHitCollection::range range = thePixelHits->get(*id);
-
-      // Take all hits
-      for(SiPixelRecHitCollection::const_iterator
-            recHit = range.first; recHit!= range.second; recHit++)
       if(recHit->isValid())
       if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
       {

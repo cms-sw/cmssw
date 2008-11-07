@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/15 23:25:23 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/05/15 17:50:46 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -891,19 +891,14 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     DetId detid = ((*it)->geographicalId());
 
     //loop over rechits-matched in the same subdetector
-    SiStripMatchedRecHit2DCollection::range 
-      rechitmatchedRange = rechitsmatched->get(detid);
-    SiStripMatchedRecHit2DCollection::const_iterator 
-      rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
-    SiStripMatchedRecHit2DCollection::const_iterator 
-      rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
-    SiStripMatchedRecHit2DCollection::const_iterator 
-      itermatched = rechitmatchedRangeIteratorBegin;
-    int numrechitmatched = 
-      rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;
-   
-    if (numrechitmatched > 0) {
-
+    SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedMatch = rechitsmatched->find(detid);
+      
+      if (rechitmatchedMatch != rechitsmatched->end()) {
+      SiStripMatchedRecHit2DCollection::DetSet rechitmatchedRange = *rechitmatchedMatch;
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.begin();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.end();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched = rechitmatchedRangeIteratorBegin;
+	
       for ( itermatched = rechitmatchedRangeIteratorBegin; 
 	    itermatched != rechitmatchedRangeIteratorEnd;
 	    ++itermatched) {
@@ -1140,14 +1135,12 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     //const PixelGeomDetUnit * theGeomDet = 
     //  dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId) );
     
-    SiPixelRecHitCollection::range pixelrechitRange = 
-      (recHitColl.product())->get(detId);
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = 
-      pixelrechitRange.first;
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = 
-      pixelrechitRange.second;
-    SiPixelRecHitCollection::const_iterator pixeliter = 
-      pixelrechitRangeIteratorBegin;
+    SiPixelRecHitCollection::const_iterator pixeldet = recHitColl->find(detId);
+    if (pixeldet == recHitColl->end()) continue;
+    SiPixelRecHitCollection::DetSet pixelrechitRange = *pixeldet;
+    SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+    SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd   = pixelrechitRange.end();
+    SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
     std::vector<PSimHit> matched;
     
     //----Loop over rechits for this detId
