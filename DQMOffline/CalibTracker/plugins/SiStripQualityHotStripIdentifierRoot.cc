@@ -26,18 +26,14 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " ctor ";  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
 
-  edm::ParameterSet pset=iConfig.getUntrackedParameter< edm::ParameterSet > ("ClusterSelection",edm::ParameterSet());
-  MinClusterWidth_=pset.getUntrackedParameter<uint32_t>("minWidth",1);
-  MaxClusterWidth_=pset.getUntrackedParameter<uint32_t>("maxWidth",1000);
-
-  edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " before opening file " << filename.c_str();  
   dqmStore_ = edm::Service<DQMStore>().operator->(); 
   dqmStore_->setVerbose(iConfig.getUntrackedParameter<uint32_t>("verbosity",0)); 
 
-  if(filename!="")
+  if(filename!=""){
+    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " before opening file " << filename.c_str();  
     dqmStore_->open(filename.c_str(), false, dirpath); 
-  edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " after opening file ";  
-
+    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " after opening file ";  
+  }
 }
 
 
@@ -46,8 +42,6 @@ SiStripQualityHotStripIdentifierRoot::~SiStripQualityHotStripIdentifierRoot(){
 }
 
 SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
-
-  bookHistos();
 
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<"SiStripQualityHotStripIdentifierRoot::getNewObject called"<<std::endl;
 
@@ -59,26 +53,43 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
     
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripHotStripAlgorithmFromClusterOccupancy"<<std::endl;
 
-    SiStripHotStripAlgorithmFromClusterOccupancy theIdentifier;
-    theIdentifier.setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
-    theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
-    theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
+    theIdentifier= new SiStripHotStripAlgorithmFromClusterOccupancy();
+    theIdentifier->setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
+    theIdentifier->setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
+    theIdentifier->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
+    theIdentifier->setOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
+    theIdentifier->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
 
+    bookHistos();
+  
     SiStripQuality* qobj = new SiStripQuality();
-    theIdentifier.extractBadStrips(qobj,ClusterPositionHistoMap);
+    theIdentifier->extractBadStrips(qobj,ClusterPositionHistoMap);
 
-    std::vector<uint32_t> stripOccupancy=theIdentifier.getStripOccupancy();
+    std::vector<double> stripOccupancy=theIdentifier->getStripOccupancy();
     
-    uint32_t xmin=*std::min_element(stripOccupancy.begin(),stripOccupancy.end());
-    uint32_t xmax=*std::max_element(stripOccupancy.begin(),stripOccupancy.end());
-    
-    TH1F hStripOccupancy("hStripOccupancy","hStripOccupancy",10000,xmin,xmax);
-    for(size_t idx=0;idx<stripOccupancy.size();++idx)
-      hStripOccupancy.Fill(stripOccupancy[idx]);
-    
-    TFile f("Occupancy.root","RECREATE");
-    hStripOccupancy.Write();
-    f.Close();
+    //*FIXME
+    //Dump the occupancy of flagged bad strips in an histogram
+    if(conf_.getUntrackedParameter<uint32_t>("OccupancyH_Nbin",0)!=0){
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] creating Occupancy histo"<<std::endl;
+      //uint32_t xmin=*std::min_element(stripOccupancy.begin(),stripOccupancy.end());
+      //uint32_t xmax=*std::max_element(stripOccupancy.begin(),stripOccupancy.end());
+
+      TFile f(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root").c_str(),"RECREATE");
+      
+      int nbin=conf_.getUntrackedParameter<uint32_t>("OccupancyH_Nbin",0);
+      double xmin=conf_.getUntrackedParameter<double>("OccupancyH_Xmin",0.);
+      double xmax=conf_.getUntrackedParameter<double>("OccupancyH_Xmax",0.);
+      TH1F hStripOccupancy("hStripOccupancy","hStripOccupancy",nbin,xmin,xmax);
+      for(size_t idx=0;idx<stripOccupancy.size();++idx){
+	LogDebug("SiStripQualityHotStripIdentifierRoot") <<" Occupancy " << stripOccupancy[idx] << " idx " << idx <<std::endl;
+	hStripOccupancy.Fill(stripOccupancy[idx]);
+      }
+
+      hStripOccupancy.Write();
+      f.Close();
+    }
+    //----------
+
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
 
     std::stringstream ss;  
@@ -120,14 +131,24 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   std::vector<MonitorElement*>::const_iterator iter=MEs.begin();
   std::vector<MonitorElement*>::const_iterator iterEnd=MEs.end();
 
+  edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
+  bool gotNentries=true;
+  if( parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)==0 && parameters.getUntrackedParameter<double>("OccupancyThreshold",0)!=0)
+    gotNentries=false;
+  edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries 
+						      << " number of " << parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)
+						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)<< std::endl;
+  
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
+    
+    if (!gotNentries && strstr(me_name.c_str(),"NumberOfClusterProfile__T")!=NULL && strstr(me_name.c_str(),"Total")==NULL ){
+      theIdentifier->setNumberOfEvents( (int) ((TProfile*)(*iter)->getTProfile())->GetBinEntries(1) );
+      gotNentries=true;
+    }
 
     if (strstr(me_name.c_str(),"ClusterPosition__det__")==NULL)
       continue;
-
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] histo " << me_name << std::endl;
-
 
     unsigned int detid;
     char title[128];

@@ -35,6 +35,9 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TClass.h"
+
+class SiStripHotStripAlgorithmFromClusterOccupancy;
+
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
 
 public:
@@ -73,5 +76,6 @@ private:
   unsigned short MinClusterWidth_, MaxClusterWidth_;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
+  SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;
 };
 #endif
