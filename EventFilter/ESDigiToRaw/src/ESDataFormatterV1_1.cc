@@ -1,9 +1,9 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "EventFilter/Utilities/interface/FEDHeader.h"
-#include "EventFilter/Utilities/interface/FEDTrailer.h"
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "EventFilter/FEDInterface/interface/FEDHeader.h"
+#include "EventFilter/FEDInterface/interface/FEDTrailer.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 #include "EventFilter/ESDigiToRaw/src/ESDataFormatterV1_1.h"
 

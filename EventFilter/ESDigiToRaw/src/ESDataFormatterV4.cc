@@ -1,5 +1,3 @@
-
-
 #include <vector>
 #include <map>
 #include <set>
@@ -8,13 +6,11 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "EventFilter/Utilities/interface/FEDHeader.h"
-#include "EventFilter/Utilities/interface/FEDTrailer.h"
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "EventFilter/FEDInterface/interface/FEDHeader.h"
+#include "EventFilter/FEDInterface/interface/FEDTrailer.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 #include "EventFilter/ESDigiToRaw/src/ESDataFormatterV4.h"
-
-
 
 using namespace std;
 using namespace edm;
@@ -129,113 +125,49 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
 	fedIdOptoRxFiber_[i][j][k] = false ; 
   }   
 
-//   int opto1[28][3] = {
-//     { 1,  2,  3},
-//     { 4,  5,  0},
-//     { 6,  7,  0},
-//     { 8,  9, 13},
-//     { 0,  0,  0},
-//     {10, 11, 12},
-//     { 0,  0,  0},
-//     {14, 15, 16},
-//     {17, 18,  0},
-//     {19, 20,  0},
-//     { 0,  0,  0},
-//     {21, 22, 26},
-//     {23, 24, 25},
-//     { 0,  0,  0},
-
-//     {27, 28, 29},
-//     {30, 31,  0},
-//     {32, 33,  0},
-//     {34, 35, 39},
-//     { 0,  0,  0},
-//     {36, 37, 38},
-//     { 0,  0,  0},
-//     {40, 41, 42},
-//     {43, 44,  0},
-//     {45, 46,  0},
-//     { 0,  0,  0},
-//     {47, 48, 52},
-//     {49, 50, 51},
-//     { 0,  0,  0}
-
-//   };
-
-//   int opto2[28][3] = {
-//     { 1,  2,  6},
-//     { 3,  4,  5},
-//     { 0,  0,  0},
-//     { 7,  8,  9},
-//     {10, 11,  0},
-//     {12, 13,  0},
-//     { 0,  0,  0},
-//     {14, 15, 19},
-//     {16, 17, 18},
-//     { 0,  0,  0},
-//     {20, 21, 22},
-//     {23, 24,  0},
-//     {25, 26,  0},
-//     { 0,  0,  0},
-
-//     {27, 28, 32},
-//     {29, 30, 31},
-//     { 0,  0,  0},
-//     {33, 34, 35},
-//     {36, 37,  0},
-//     {38, 39,  0},
-//     { 0,  0,  0},
-//     {40, 41, 45},
-//     {42, 43, 44},
-//     { 0,  0,  0},
-//     {46, 47, 48},
-//     {49, 50,  0},
-//     {51, 52,  0},
-//     { 0,  0,  0}
-//   };
-
   // read in look-up table
-  int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
+  int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   ifstream file;
   ESFEDIds_ = FEDNumbering::getPreShowerFEDIds();
   file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
-    try { 
-    int lines = 0 ; file >> lines;
-    for (int i=0; i<lines; ++i) {
+
+    file >> nLines;
+    
+    for (int i=0; i<nLines; ++i) {
       int fedId = -1; 
-      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
+      file >> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
+      
       fedId = fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed - 1 + ESFEDIds_.first;
       kchipId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = kchip;
-      paceId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = pace;
+      paceId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = pace - 1;
       bundleId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = bundle;
       fiberId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fiber;
       optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = optorx; 
-
+      
       if (fedId<ESFEDIds_.first || fedId>ESFEDIds_.second) { 
-	cout << "[ESDataFormatterV4::ESDataFormatterV4] : fedId value : " << fedId 
-	     << " out of ES range, at lookup table line : " << i << endl ; 
+	if (debug_) cout << "ESDataFormatterV4::ESDataFormatterV4 : fedId value : " << fedId 
+			 << " out of ES range, at lookup table line : " << i << endl; 
       } else if (optorx < 1 || optorx > 3) { 
-	cout << "[ESDataFormatterV4::ESDataFormatterV4] : optorx value : " << fedId 
-	     << " out of ES range, at lookup table line : " << i << endl ;	
+	if (debug_) cout << "ESDataFormatterV4::ESDataFormatterV4 : optorx value : " << optorx 
+			 << " out of ES range, at lookup table line : " << i << endl;	
       } else { // all good .. 
-	fedIdOptoRx_[fed-1][optorx-1] = true  ;
+	fedIdOptoRx_[fed-1][optorx-1] = true;
 	if (fiber>0 && fiber<13) { 
-	  fedIdOptoRxFiber_[fed-1][optorx-1][fiber-1] = true  ;
+	  fedIdOptoRxFiber_[fed-1][optorx-1][fiber-1] = true;
 	} else { 
-	cout << "[ESDataFormatterV4::ESDataFormatterV4] : fiber value : " << fiber
-	     << " out of ES range, at lookup table line : " << i << endl ;	  
+	  if (debug_) cout << "ESDataFormatterV4::ESDataFormatterV4 : fiber value : " << fiber
+			   << " out of ES range, at lookup table line : " << i << endl;	  
 	} 
       } 
+      
     }
-    } catch (std::exception& e) {
-      cout << "[ESDataFormatterV4::ESDataFormatterV4] Errors while reading in lookup table: " << e.what() << endl;
-    } 
-
-
+    
   } else {
-    cout<<"[ESDataFormatterV4::ESDataFormatterV4] : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
+    if (debug_) cout<<"ESDataFormatterV4::ESDataFormatterV4 : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
+
+  file.close();
 
 }
 
@@ -267,202 +199,195 @@ struct ltstrip : public binary_function<ESDataFormatterV4::Word64&, ESDataFormat
 
 
 FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis) {
-
+  
   int ts[3] = {0, 0, 0};
   Word32 word1, word2;
   Word64 word;
   int numberOfStrips = 0 ;
-
+  
   int optorx_ch_counts[3][12]; 
-
+  
   int kchip, pace, optorx, fiber ;
   map<int, vector<Word64> > map_data;
   vector<Word64> words;
-
+  
   vector<Word32> testVector ; 
-
+  
   set<pair<int,int>, ltfiber> set_of_kchip_fiber_in_optorx[3]; 
-
+  
   map_data.clear();
-
+  
   // clean optorx channel status fields:  
-  for(int i=0;i<3;++i) {
+  for(int i=0;i<3;++i)
     for(int j=0;j<12;++j)  
       optorx_ch_counts[i][j] = 0 ; 
-  } 
-
-
-    const DetDigis & detDigis = digis[fedId] ;
-
-    if (debug_) { 
-      cout << "ESDataFormatterV4::DigiToRaw : FEDID : " << fedId << " size of detDigis : " 
-	   << detDigis.size() << endl ;         
-    }
-
-    for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
-
-      const ESDataFrame& dataframe = (*it);
-      const ESDetId& detId = dataframe.id();
-
-      for (int is=0; is<dataframe.size(); ++is) ts[is] = dataframe.sample(is).adc();
-
-      kchip = kchipId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
-      pace  = paceId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
-
-      if (debug_) cout << "Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()
-		       <<" "<<detId.strip()<<" ("<<kchip<<","<<pace<<") "<<ts[2]<<" "<<ts[1]<<" "<<ts[0]<<endl;
-
-      word1 = (ts[1] << sADC1) | (ts[0] << sADC0);
-      word2 = (0xc << sHEAD) | (pace << sPACE) | ((detId.strip()-1) << sSTRIP)  | (ts[2] << sADC2);
-      word  = (Word64(word2) << 32 ) | Word64(word1);
-      
-      map_data[kchip].push_back(word);
-
-      optorx = optoId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
-      fiber = fiberId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
-
-      optorx_ch_counts[optorx-1][fiber-1]++; // increment number of strip hits on fiber status field ; 
-
-      set<pair<int,int>, ltfiber> & theSet = set_of_kchip_fiber_in_optorx[optorx-1]; 
-      theSet.insert(pair<int,int>(kchip,fiber)); 
-
-      // mark global strip number in this FED
-      ++numberOfStrips; 
-
-    }
-
-  int iopto; 
   
-
+  const DetDigis & detDigis = digis[fedId] ;
   
-
-  for(iopto=0; iopto<3; ++iopto) { 
-
+  if (debug_) { 
+    cout << "ESDataFormatterV4::DigiToRaw : FEDID : " << fedId << " size of detDigis : " 
+	 << detDigis.size() << endl ;         
+  }
+  
+  for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
+    
+    const ESDataFrame& dataframe = (*it);
+    const ESDetId& detId = dataframe.id();
+    
+    for (int is=0; is<dataframe.size(); ++is) ts[is] = dataframe.sample(is).adc();
+    
+    kchip = kchipId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
+    pace  = paceId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
+    
+    if (debug_) cout <<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()
+		     <<" "<<detId.strip()<<" ("<<kchip<<","<<pace<<") "<<ts[0]<<" "<<ts[1]<<" "<<ts[2]<<endl;
+    
+    word1 = (ts[1] << sADC1) | (ts[0] << sADC0);
+    word2 = (0xc << sHEAD) | (pace << sPACE) | ((detId.strip()-1) << sSTRIP)  | (ts[2] << sADC2);
+    word  = (Word64(word2) << 32 ) | Word64(word1);
+    
+    map_data[kchip].push_back(word);
+    
+    optorx = optoId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
+    fiber = fiberId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
+    
+    optorx_ch_counts[optorx-1][fiber-1]++; // increment number of strip hits on fiber status field ; 
+    
+    set<pair<int,int>, ltfiber> & theSet = set_of_kchip_fiber_in_optorx[optorx-1]; 
+    theSet.insert(pair<int,int>(kchip,fiber)); 
+    
+    // mark global strip number in this FED
+    ++numberOfStrips; 
+  }
+  
+  for(int iopto=0; iopto<3; ++iopto) { 
+    
     if (fedIdOptoRx_[fedId-ESFEDIds_.first][iopto]) { 
-
+      
       word2 = (0x6 << sOHEAD) | (kchip_ec_ << sOEMUKEC) | (kchip_bc_ << sOEMUTTCBC) ; 
       word1 = (kchip_ec_ << sOEMUTTCEC) ;
       word  = (Word64(word2) << 32 ) | Word64(word1);
       if (debug_) cout<<"OPTORX: "<<print(word)<<endl; 
       words.push_back(word); 
-
-      set<pair<int,int>, ltfiber> & theSet =  set_of_kchip_fiber_in_optorx[iopto]; 
-
+      
+      set<pair<int,int>, ltfiber> & theSet = set_of_kchip_fiber_in_optorx[iopto]; 
+      
       if (debug_) { 
 	cout << "ESDataFormatterV4::DigiToRaw : FEDID : " << fedId << " size of  set_of_kchip_fiber_in_optorx[" 
 	     << iopto << "] : "  
-	   << theSet.size() << endl ;         
+	     << theSet.size() << endl ;         
       }
-
+      
       set<pair<int,int>, ltfiber>::const_iterator kit = theSet.begin();
-
+      
       int ikchip = 0; 
-
+      
       while (kit != theSet.end()) { 
-
+	
 	const pair<int,int>& kchip_fiber = (*kit); 
-
+	
 	if (debug_) cout<<"KCHIP : "<<kchip_fiber.first << " FIBER: " << kchip_fiber.second << endl;
-
+	
 	if (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][kchip_fiber.second-1]) { 
-
-	word1 = (0 << sKFLAG1) | (0 << sKFLAG2) | (((kchip_fiber.first<<2) | 0x02) << sKID);
-	word2 = (0x9 << sKHEAD) | (kchip_ec_ << sKEC) | (kchip_bc_ << sKBC); 
-
-	word  = (Word64(word2) << 32 ) | Word64(word1);       
-	if (debug_) cout<<"KCHIP : "<<print(word)<<endl; 
-
-	words.push_back(word);
-
-	vector<Word64> & data = map_data[kchip_fiber.first];
-
-	 // sort against stripid field, as hardware gives this order to strip data : 
-	sort(data.begin(),data.end(),ltstrip());
-
-	for (unsigned int id=0; id<data.size(); ++id) {
-	  if (debug_) cout<<"Data  : "<<print(data[id])<<endl;
-	  words.push_back(data[id]);
-	}      
+	  
+	  // Set all PACEs enabled for MC 
+	  word1 = (0 << sKFLAG1) | (0x15 << sKFLAG2) | (((kchip_fiber.first<<2) | 0x02) << sKID);
+	  word2 = (0x9 << sKHEAD) | (kchip_ec_ << sKEC) | (kchip_bc_ << sKBC); 
+	  
+	  word  = (Word64(word2) << 32 ) | Word64(word1);       
+	  if (debug_) cout<<"KCHIP : "<<print(word)<<endl; 
+	  
+	  words.push_back(word);
+	  
+	  vector<Word64> & data = map_data[kchip_fiber.first];
+	  
+	  // sort against stripid field, as hardware gives this order to strip data : 
+	  sort(data.begin(), data.end(), ltstrip());
+	  
+	  for (unsigned int id=0; id<data.size(); ++id) {
+	    if (debug_) cout<<"Data  : "<<print(data[id])<<endl;
+	    words.push_back(data[id]);
+	  }      
 	}
 	++kit ; ++ikchip;      
-
+	
       }
     }
-
+    
   } 
-
+  
   int dataSize = (words.size() + 8) * sizeof(Word64);
-
+  
   vector<Word64> DCCwords;
-
+  
   word2 = (3 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
   word1 = (numberOfStrips << sDEL) | (0xff << sDERR) ;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-
+  
   word2 = (3 << sDHEAD) | (2 <<sDH);
   word1 = 0;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-
-  word2 = (3 << sDHEAD) | (3 <<sDH) | (4 << sDVMAJOR) | (0 << sDVMINOR); 
+  
+  word2 = (3 << sDHEAD) | (3 <<sDH) | (4 << sDVMAJOR) | (1 << sDVMINOR); 
   word1 = (orbit_number_ << sDORBIT);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
-
+  
   for(int iopto=0; iopto < 3; ++iopto ) { 
-  // N optorx module header word: 
-  word1 = 0;
-  if (fedIdOptoRx_[fedId-ESFEDIds_.first][iopto]) {
-    word2 = (3 << sDHEAD) | ((iopto+4) <<sDH) | (0x80 << sDOPTO) ; 
-    int ich = 0; 
-    for(ich=0;ich<4;++ich) { 
-      int chStatus = (optorx_ch_counts[iopto][ich+8]>0) ? 0xe : 0xd ;
-      chStatus = (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][ich+8]) ? chStatus : 0x00 ; 
-      word2 |= (chStatus  << (ich*4)); // 
-    }
-
-    for(ich=0;ich<8;++ich) {
-      int chStatus = (optorx_ch_counts[iopto][ich]>0) ? 0xe : 0xd ;
+    // N optorx module header word: 
+    word1 = 0;
+    if (fedIdOptoRx_[fedId-ESFEDIds_.first][iopto]) {
+      word2 = (3 << sDHEAD) | ((iopto+4) <<sDH) | (0x80 << sDOPTO) ; 
+      int ich = 0; 
+      for(ich=0;ich<4;++ich) { 
+	int chStatus = (optorx_ch_counts[iopto][ich+8]>0) ? 0xe : 0xd ;
+	chStatus = (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][ich+8]) ? chStatus : 0x00 ; 
+	word2 |= (chStatus  << (ich*4)); // 
+      }
+      
+      for(ich=0;ich<8;++ich) {
+	int chStatus = (optorx_ch_counts[iopto][ich]>0) ? 0xe : 0xd ;
       chStatus = (fedIdOptoRxFiber_[fedId-ESFEDIds_.first][iopto][ich]) ? chStatus : 0x00 ;
       word1 |= (chStatus  << (ich*4));     
-    }
-  } else
-    word2 = (3 << sDHEAD) | ((iopto+4) <<sDH) | (0x00 << sDOPTO) ;
-
-  word  = (Word64(word2) << 32 ) | Word64(word1);
-  DCCwords.push_back(word);
-
+      }
+    } else
+      word2 = (3 << sDHEAD) | ((iopto+4) <<sDH) | (0x00 << sDOPTO) ;
+    
+    word  = (Word64(word2) << 32 ) | Word64(word1);
+    DCCwords.push_back(word);
+    
   } 
-
+  
   // Output (data size in Bytes)
   FEDRawData * rawData = new FEDRawData(dataSize);
-
+  
   Word64 * w = reinterpret_cast<Word64* >(rawData->data());
   
   // header
   FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, lv1_, bx_, fedId); 
   w++;
-
+  
   // ES-DCC 
   for (unsigned int i=0; i<DCCwords.size(); ++i) {
     if (debug_) cout<<"DCC  : "<<print(DCCwords[i])<<endl;
     *w = DCCwords[i];
     w++;
   }
-
+  
   // event data
   for (unsigned int i=0; i<words.size(); ++i) {
     *w = words[i];
     w++;  
   }
-
+  
   // trailer
   FEDTrailer::set( reinterpret_cast<unsigned char*>(w), dataSize/sizeof(Word64), 
 		   evf::compute_crc(rawData->data(), dataSize),
 		   0, 0);
   w++;
-
+  
   return rawData;
 }
 

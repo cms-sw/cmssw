@@ -18,8 +18,8 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   label_ = ps.getParameter<string>("Label");
   instanceName_ = ps.getParameter<string>("InstanceES");
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
-  formatMajor_ = ps.getUntrackedParameter<int>("formatMajor",1);
-  formatMinor_ = ps.getUntrackedParameter<int>("formatMinor",1);
+  formatMajor_ = ps.getUntrackedParameter<int>("formatMajor", 4);
+  formatMinor_ = ps.getUntrackedParameter<int>("formatMinor", 1);
   lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
 
   counter_ = 0;
@@ -27,8 +27,8 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   kchip_bc_ = 0; 
 
   produces<FEDRawDataCollection>();
-
-  if (formatMajor_==4 && formatMinor_==0) 
+  
+  if (formatMajor_ == 4) 
     ESDataFormatter_ = new ESDataFormatterV4(ps);
   else 
     ESDataFormatter_ = new ESDataFormatterV1_1(ps);
@@ -41,23 +41,21 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
           fedId_[i][j][k][m] = -1;
 
   // read in look-up table
-  int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
+  int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   ifstream file;
   file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
-    try { 
-      int lines = 0 ; file >> lines;  
-      for (int i=0; i<lines; ++i) {
-	file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx ;
-	fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
-      } 
-    }catch (std::exception& e) { 
-      cout << "[ESDigiToRaw] Errors while reading in lookup table: " << e.what() << endl; 
+    
+    file >> nLines;
+    for (int i=0; i<nLines; ++i) {
+      file >> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx ;
+      fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
     }
   } else {
     cout<<"[ESDigiToRaw] Look up table file can not be found in "<<lookup_.fullPath().c_str() <<endl;
   }
 
+  file.close();
 }
 
 ESDigiToRaw::~ESDigiToRaw() {
@@ -73,7 +71,6 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   orbit_number_ = counter_ / LHC_BX_RANGE;
   bx_ = (counter_ % LHC_BX_RANGE);
    
-  //lv1_ = counter_;
   lv1_ = ev.id().event();
   kchip_ec_ = (lv1_ % KCHIP_EC_RANGE); 
   kchip_bc_ = (counter_ % KCHIP_BC_RANGE);
