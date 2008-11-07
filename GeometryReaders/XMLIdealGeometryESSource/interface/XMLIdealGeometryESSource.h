@@ -28,6 +28,7 @@ private:
     XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
     std::string rootNodeName_;
+    bool userNS_;
 };
 
 

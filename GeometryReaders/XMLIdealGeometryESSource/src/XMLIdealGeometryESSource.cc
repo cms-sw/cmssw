@@ -19,7 +19,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
     if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
       throw DDException ("XMLIdealGeometryESSource must have a root node name.");
     }
-
+    parser->getDDLSAX2FileHandler()->setUserNS(p.getUntrackedParameter<bool>("userControlledNamespace", false));
     DDRootDef::instance().set(DDName(rootNodeName_));
 
     int result2 = parser->parse(cf);
