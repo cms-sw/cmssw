@@ -1281,7 +1281,7 @@ if(first)
 //std::cout << " I am here " << std::endl ;
 
     // calculate region/bit information
-  for(int i = 0; i < PhiEtaMax; i++)
+  for(unsigned int i = 0; i < PhiEtaMax; i++)
 {
       Bool_t regFound       = kFALSE;
       Bool_t overFlowFound  = kFALSE;
