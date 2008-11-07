@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.38 2008/09/20 17:49:54 oehler Exp $
+// $Id: BaseJetProducer.cc,v 1.39 2008/10/03 18:47:36 oehler Exp $
 //--------------------------------------------
 #include <memory>
 #include <algorithm>
@@ -124,7 +124,10 @@ namespace cms
       if (mVertexCorrectedInput){
 	edm::Handle<reco::VertexCollection> thePrimaryVertexCollection;
 	e.getByLabel(mPVCollection,thePrimaryVertexCollection);
+	if ((*thePrimaryVertexCollection).size()>0){
 	vertex = (*thePrimaryVertexCollection)[0].position();
+	}
+	// no else needed, vertex already set to (0,0,0). 
       }
     }
     
