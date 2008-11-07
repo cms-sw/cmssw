@@ -7,6 +7,16 @@ GlobalMuonRefitter = cms.PSet(
     HitThreshold = cms.int32(1),
     MuonHitsOption = cms.int32(1),
     Chi2CutRPC = cms.double(1.0),
+
+    # muon station to be skipped
+    SkipStation		= cms.int32(-1),
+
+    # PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6
+    TrackerSkipSystem	= cms.int32(-1),
+
+    # layer, wheel, or disk depending on the system
+    TrackerSkipSection	= cms.int32(-1),
+
     Fitter = cms.string('KFFitterForRefitInsideOut'),
     DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
     TrackerRecHitBuilder = cms.string('WithTrackAngle'),

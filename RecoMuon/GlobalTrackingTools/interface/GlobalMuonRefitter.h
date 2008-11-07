@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2008/04/29 13:49:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/13 03:03:26 $
+ *  $Revision: 1.2 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -32,10 +32,9 @@ class MuonDetLayerMeasurements;
 class MuonServiceProxy;
 class Trajectory;
 
-class TrackTransformer;
 class TrajectoryFitter;
 
-class GlobalMuonRefitter : public TrackTransformer {
+class GlobalMuonRefitter {
 
   public:
 
@@ -52,6 +51,8 @@ class GlobalMuonRefitter : public TrackTransformer {
     typedef std::vector<Trajectory> TC;
     typedef TC::const_iterator TI;
 
+    enum subDetector { PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
@@ -63,12 +64,24 @@ class GlobalMuonRefitter : public TrackTransformer {
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
 
+    /// set the services needed by the TrackTransformer
+    void setServices(const edm::EventSetup&);
+
     /// build combined trajectory from sta Track and tracker RecHits
-    std::vector<Trajectory> refit(const reco::Track& globalTrack , const int theMuonHitsOption) const;
+    std::vector<Trajectory> refit(const reco::Track& globalTrack, const int theMuonHitsOption) const;
+
+    /// refit the track with a new set of RecHits
+    std::vector<Trajectory> transform(const reco::Track& newTrack,
+                                      const reco::TransientTrack track,
+                                      TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const;
+
+    // get rid of selected station RecHits
+    ConstRecHitContainer getRidOfSelectStationHits(ConstRecHitContainer hits) const;
+
 
   protected:
 
-    enum RefitDirection{inToOut,outToIn,undetermined};
+    enum RefitDirection{insideOut,outsideIn,undetermined};
     
     /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
     void checkMuonHits(const reco::Track&, ConstRecHitContainer&, 
@@ -95,7 +108,6 @@ class GlobalMuonRefitter : public TrackTransformer {
 
     MuonDetLayerMeasurements* theLayerMeasurements;
     const MuonServiceProxy* theService;
-    TrackTransformer* theTrackTransformer;
   
     int   theMuonHitsOption;
     float theProbCut;
@@ -104,7 +116,29 @@ class GlobalMuonRefitter : public TrackTransformer {
     float theCSCChi2Cut;
     float theRPCChi2Cut;
  
-    const edm::Event* theEvent;
+    int	  theSkipStation;
+    int   theTrackerSkipSystem;
+    int   theTrackerSkipSection;
+
+    unsigned long long theCacheId_TC;
+    unsigned long long theCacheId_GTG;
+    unsigned long long theCacheId_MG;
+    unsigned long long theCacheId_TRH;        
+
+    std::string thePropagatorName;
+  
+    bool theRPCInTheFit;
+
+    RefitDirection theRefitDirection;
+
+    std::string theFitterName;
+    edm::ESHandle<TrajectoryFitter> theFitter;
+  
+    std::string theTrackerRecHitBuilderName;
+    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  
+    std::string theMuonRecHitBuilderName;
+    edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
 };
 #endif
