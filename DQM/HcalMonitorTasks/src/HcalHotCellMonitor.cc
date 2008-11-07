@@ -1,6 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 
 #define OUT if(fverbosity_)cout
+#define BITSHIFT 6
 
 using namespace std;
 
@@ -492,11 +493,11 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 
 	      if (myqual.find(myid)==myqual.end())
 		{
-		  myqual[myid]=(value<<6);  // hotcell shifted to bit 6
+		  myqual[myid]=(value<<BITSHIFT);  // hotcell shifted to bit 6
 		}
 	      else
 		{
-		  int mask=(1<<6);
+		  int mask=(1<<BITSHIFT);
 		  if (value==1)
 		    myqual[myid] |=mask;
 
@@ -504,7 +505,7 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 		    myqual[myid] &=~mask;
 		}
 	      /*
-	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,int(value<<6),int(myid.rawId()));
+	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,int(value<<BITSHIFT),int(myid.rawId()));
 	      fOutput<<buffer;
 	      */
 	    } // for (int d=0;d<6;++d) // loop over depth histograms

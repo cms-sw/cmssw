@@ -1,6 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 
 #define OUT if(fverbosity_)cout
+#define BITSHIFT 5
 
 using namespace std;
 
@@ -468,11 +469,11 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	      if (value==1)
 	      if (myqual.find(myid)==myqual.end())
 		{
-		  myqual[myid]=(value<<5);  // deadcell shifted to bit 5
+		  myqual[myid]=(value<<BITSHIFT);  // deadcell shifted to bit 5
 		}
 	      else
 		{
-		  int mask=(1<<5);
+		  int mask=(1<<BITSHIFT);
 		  if (value==1)
 		    myqual[myid] |=mask;
 
@@ -481,7 +482,7 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 		  if (value==1 && fVerbosity>1) cout <<"myqual = "<<std::hex<<myqual[myid]<<std::dec<<"  MASK = "<<std::hex<<mask<<std::dec<<endl;
 		}
 	      /*
-	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,(value<<5),int(myid.rawId()));
+	      sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",eta,phi,mydepth,subdetname,(value<<BITSHIFT),int(myid.rawId()));
 	      fOutput<<buffer;
 	      */
 	    } // for (int d=0;d<6;++d) // loop over depth histograms
