@@ -59,6 +59,8 @@ namespace pos{
     const PixelHdwAddress& getHdwAddress(const PixelChannel& aChannel) const;
     const PixelHdwAddress& firstHdwAddress(const PixelModuleName& aModule) const;
     
+    const bool PixelNameTranslation::checkFor(const PixelROCName& aROC) const ; 
+
     const PixelChannel& getChannelForROC(const PixelROCName& aROC) const;
     std::set< PixelChannel > getChannelsOnModule(const PixelModuleName& aModule) const;
     

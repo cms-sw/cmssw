@@ -372,6 +372,17 @@ const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& a
 
 }
 
+const bool PixelNameTranslation::checkFor(const PixelROCName& aROC) const{ 
+  if (translationtable_.find(aROC)==translationtable_.end())
+    {
+      return false ;
+    }
+  else 
+    {
+      return true ;
+    }
+  }
+
 const PixelHdwAddress& PixelNameTranslation::getHdwAddress(const PixelChannel& aChannel) const
 {
   std::map<PixelChannel, PixelHdwAddress >::const_iterator channelHdwAddress_itr = channelTranslationTable_.find(aChannel);
