@@ -1627,12 +1627,13 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       string full_path = currDir + "/" + (*it);
       if(!Tier0Flag && detId==-1 && 
          ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
-	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos))){
+	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
 	   (full_path.find("NErrors")!=string::npos && me->getMean()>0.)){ 
           detId = getDetId(me);
+	  
 	  //cout<<"got a module with digis or errors and the detid is: "<<detId<<endl;
           for(int fedid=0; fedid<=40; ++fedid){
             SiPixelFrameConverter converter(theCablingMap.product(),fedid);
@@ -1642,6 +1643,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
               break;   
             }
           }
+	  
           if(fedId==-1) continue; 
           sipixelobjects::ElectronicIndex cabling; 
           SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
@@ -1685,7 +1687,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	}
       }else if(Tier0Flag && detId==-1 && 
                ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
-	        (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos))){
+	        (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
 	if((full_path.find("ndigis")!=string::npos && me->getMean()>0.) ||
