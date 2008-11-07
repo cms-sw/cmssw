@@ -21,8 +21,12 @@ def customise(process):
                                                          'drop triggerTriggerEvent_hltTriggerSummaryAOD_*_*',
                                                          'drop L1*_hltGtDigis_*_*',
                                                          'drop L1*_hltGctDigis_*_*')
-    
-    del process.RandomNumberGeneratorService.theSource
+    if hasattr(process,"RandomNumberGeneratorService"):
+        del process.RandomNumberGeneratorService.theSource
+    else:    
+        process.load("IOMC/RandomEngine/IOMC_cff")
+        del process.RandomNumberGeneratorService.theSource
+
     process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
 
     # Output definition for RAW
