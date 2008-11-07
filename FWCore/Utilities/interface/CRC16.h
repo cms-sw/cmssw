@@ -6,6 +6,7 @@
 // Do not modify without contacting Philipp Schieferdecker/Emilio Meschi 
 // It is in FWCore/Utilities to avoid dependencies on xdaq
 //
+#include <cassert>
 
 namespace evf
 {
