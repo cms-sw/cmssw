@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.5 2008/04/10 15:36:17 uberthon Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.6 2008/04/21 13:44:57 uberthon Exp $
 //
 
 // system include files
@@ -601,23 +601,23 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       bool hitInCommon = false;	   
       // loop over rphi hits
-      for (edm::RefVector<SiStripRecHit2DCollection>::const_iterator
+      for (std::vector<SiStripRecHit2D>::const_iterator
 	     hiter = strippyiter->rphiRecHits().begin();
 	   hiter != strippyiter->rphiRecHits().end();
 	   ++hiter) {
-	if ((*hiter)->geographicalId().rawId() == id  &&
-	    ((*hiter)->localPosition() - pos).mag() < 1e-10) {
+	if (hiter->geographicalId().rawId() == id  &&
+	    (hiter->localPosition() - pos).mag() < 1e-10) {
 	  hitInCommon = true;
 	  break;
 	}
       }
 
-      for (edm::RefVector<SiStripRecHit2DCollection>::const_iterator
+      for (std::vector<SiStripRecHit2D>::const_iterator
 	     hiter = strippyiter->stereoRecHits().begin();
 	   hiter != strippyiter->stereoRecHits().end();
 	   ++hiter) {
-	if ((*hiter)->geographicalId().rawId() == id  &&
-	    ((*hiter)->localPosition() - pos).mag() < 1e-10) {
+	if (hiter->geographicalId().rawId() == id  &&
+	    (hiter->localPosition() - pos).mag() < 1e-10) {
 	  hitInCommon = true;
 	  break;
 	}
@@ -881,10 +881,6 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHitsHandle;
   iEvent.getByLabel(siHitProducer_, siMatchedHitCollection_, matchedHitsHandle);
 
-  //  Declate the vector of detector ids  over the detector ids
-  const std::vector<DetId> idstereo = stereoHitsHandle->ids();
-
-
   /// loop again to get all info into myTree
 
   ////// get cluster
@@ -912,12 +908,12 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   LogDebug("") << " Looping over stereo hits " ;
 
+
   /////// Loop over Stereo Hits
   int myHits = 0 ;
-  for (std::vector<DetId>::const_iterator id = idstereo.begin();  id != idstereo.end();  ++id) {
-    // Get the hits on this detector id
-    SiStripRecHit2DCollection::range hits = stereoHitsHandle->get(*id);
-    for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+  for (SiStripRecHit2DCollection::DataContainer::const_iterator hit = stereoHitsHandle->data().begin(), hitend = stereoHitsHandle->data().end();
+          hit != hitend;  ++hit) {
+      DetId id(hit->geographicalId());
       if( (hit->geographicalId()).subdetId() == StripSubdetector::TIB  ||
 	  (hit->geographicalId()).subdetId() == StripSubdetector::TOB    ) {
 	GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
@@ -934,21 +930,21 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	string siDetName = "" ;
 	if( (hit->geographicalId()).subdetId() == StripSubdetector::TIB ){
 	  //	   siLayerNum = TIBDetId(rechit->geographicalID()).layer();
-	  siLayerNum = TIBDetId(*id).layer();
+	  siLayerNum = TIBDetId(id).layer();
 	  siDetNum = 1 ;
 	  siDetName = "TIB" ; 
 	} else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TOB ){
-	  siLayerNum = TOBDetId(*id).layer();
+	  siLayerNum = TOBDetId(id).layer();
 	  siDetNum = 2 ;
 	  siDetName = "TOB" ;
 	  // 		} else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TID ){
 	  // 	  // should we use side/wheel/ring/module/stereo() ?
-	  // 	  siLayerNum = TIDDetId(*id).wheel();
+	  // 	  siLayerNum = TIDDetId(id).wheel();
 	  // 	  siDetNum = 3 ;
 	  // 	  siDetName = "TID" ;
 	  // 	}else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TEC ){
 	  // 	  //choices are side/petal/wheel/ring/module/glued/stereo
-	  // 	  siLayerNum = TECDetId(*id).wheel();
+	  // 	  siLayerNum = TECDetId(id).wheel();
 	  // 	  siDetNum = 4 ;
 	  // 	  siDetName = "TEC" ;
 	}else {
@@ -1010,8 +1006,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  ++myHits ;
 	}
       } // end if this is the right subdetector
-    } // end loop over hits
-  } // end of loop over detectors
+  } // end loop over hits
   NStereoHits_ = myHits ;
 
   numSiStereoHits_->Fill(NStereoHits_);
@@ -1021,17 +1016,11 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   LogDebug("") << " Looping over Mono Hits " ;
   /////// Loop over Mono Hits
-  const std::vector<DetId> idmono = rphiHitsHandle->ids();
   myHits = 0 ;
-  for (std::vector<DetId>::const_iterator id = idmono.begin();  
-       id != idmono.end();  ++id) {
-
-    // Get the hits on this detector id
-    SiStripRecHit2DCollection::range hits = rphiHitsHandle->get(*id);
-
-
-    for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-
+  for (SiStripRecHit2DCollection::DataContainer::const_iterator hit = rphiHitsHandle->data().begin(), hitend = rphiHitsHandle->data().end();
+          hit != hitend;  ++hit) {
+      DetId id(hit->geographicalId());
+  
       if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
 	  (hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
 
@@ -1049,21 +1038,21 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	string siDetName = "" ;
 	if( (hit->geographicalId()).subdetId() == StripSubdetector::TIB ){
 	  //	   siLayerNum = TIBDetId(rechit->geographicalID()).layer();
-	  siLayerNum = TIBDetId(*id).layer();
+	  siLayerNum = TIBDetId(id).layer();
 	  siDetNum = 1 ;
 	  siDetName = "TIB" ; 
 	} else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TOB ){
-	  siLayerNum = TOBDetId(*id).layer();
+	  siLayerNum = TOBDetId(id).layer();
 	  siDetNum = 2 ;
 	  siDetName = "TOB" ;
 	  // 	} else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TID ){
 	  // 	  // should we use side/wheel/ring/module/stereo() ?
-	  // 	  siLayerNum = TIDDetId(*id).wheel();
+	  // 	  siLayerNum = TIDDetId(id).wheel();
 	  // 	  siDetNum = 3 ;
 	  // 	  siDetName = "TID" ;
 	  // 	}else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TEC ){
 	  // 	  //choices are side/petal/wheel/ring/module/glued/stereo
-	  // 	  siLayerNum = TECDetId(*id).wheel();
+	  // 	  siLayerNum = TECDetId(id).wheel();
 	  // 	  siDetNum = 4 ;
 	  // 	  siDetName = "TEC" 
 	  ;
@@ -1128,10 +1117,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//	LogDebug("")<< "end of myHits < myMaxHits " ;
       } // end if this is the right subdetector
       //      LogDebug("")<< "end of TIB/TOB check " ;
-    } // end loop over hits
-    //    LogDebug("")<< " end of loop over hits  " ;
-  } // end of loop over detectors
-  //  LogDebug("")<< " end of loop over detectors" ;
+  } // end loop over hits
+  //    LogDebug("")<< " end of loop over hits  " ;
   NMonoHits_ = myHits ;
   
   numSiMonoHits_->Fill(NMonoHits_);
@@ -1143,16 +1130,11 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   LogDebug("") << "  Loop over Matched Hits " ;
 
   /////// Loop over Matched Hits
-  const std::vector<DetId> idmatched = matchedHitsHandle->ids();
   myHits = 0 ;
-  for (std::vector<DetId>::const_iterator id = idmatched.begin();  id != idmatched.end();  ++id) {
-    
-    // Get the hits on this detector id
-    SiStripMatchedRecHit2DCollection::range hits = matchedHitsHandle->get(*id);
-
-    for (SiStripMatchedRecHit2DCollection::const_iterator hit = hits.first;  
-	 hit != hits.second;  ++hit) {
-      if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB  ||
+  for (SiStripMatchedRecHit2DCollection::DataContainer::const_iterator hit = matchedHitsHandle->data().begin(), hitend = matchedHitsHandle->data().end();
+          hit != hitend;  ++hit) {
+        DetId id(hit->geographicalId());
+        if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB  ||
    	  (hit->geographicalId()).subdetId() == StripSubdetector::TOB    ) {
    	GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
    	SiStripMatchedRecHit2D const rechit = *hit ;
@@ -1165,21 +1147,21 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    	Int_t siDetNum = 0 ; 
    	string siDetName = "" ;
    	if( (hit->geographicalId()).subdetId() == StripSubdetector::TIB ){
-   	  siLayerNum = TIBDetId(*id).layer();
+   	  siLayerNum = TIBDetId(id).layer();
    	  siDetNum = 1 ;
    	  siDetName = "TIB" ; 
    	} else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TOB ){
-   	  siLayerNum = TOBDetId(*id).layer();
+   	  siLayerNum = TOBDetId(id).layer();
    	  siDetNum = 2 ;
    	  siDetName = "TOB" ;
 	  //    	} else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TID ){
 	  //    	  // should we use side/wheel/ring/module/stereo() ?
-	  //    	  siLayerNum = TIDDetId(*id).wheel();
+	  //    	  siLayerNum = TIDDetId(id).wheel();
 	  //    	  siDetNum = 3 ;
 	  //    	  siDetName = "TID" ;
 	  //    	}else if ( (hit->geographicalId()).subdetId() == StripSubdetector::TEC ){
 	  //    	  //choices are side/petal/wheel/ring/module/glued/stereo
-	  //    	  siLayerNum = TECDetId(*id).wheel();
+	  //    	  siLayerNum = TECDetId(id).wheel();
 	  //    	  siDetNum = 4 ;
 	  //    	  siDetName = "TEC" ;
    	}else {
@@ -1241,8 +1223,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    	  ++myHits ;
    	}
       } // end if this is the right subdetector (TIB/TOB)
-    } // end loop over hits
-  } // end of loop over detectors
+  } // end loop over hits
   NMatchedHits_ = myHits ;
 
   numSiMatchedHits_->Fill(NMatchedHits_);
