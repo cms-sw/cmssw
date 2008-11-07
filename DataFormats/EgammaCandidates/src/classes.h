@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.27 2008/05/08 19:40:01 nancy Exp $
+// $Id: classes.h,v 1.28 2008/06/08 18:01:29 nancy Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -37,9 +37,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronIsoNumCollection.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidateAssociation.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -144,17 +141,6 @@ namespace {
 
     edm::Wrapper<reco::PhotonCandidateAssociation> pca1;
 
-    reco::PhotonIDCollection cc1;
-    edm::Wrapper<reco::PhotonIDCollection> wc1;
-    edm::Ref<reco::PhotonIDCollection> rc1;
-    edm::RefProd<reco::PhotonIDCollection> rpc1;
-    edm::RefVector<reco::PhotonIDCollection> rvc1;
-    
-    reco::PhotonIDAssociationCollection cc2;
-    edm::Wrapper<reco::PhotonIDAssociationCollection> wc2;
-    reco::PhotonIDAssociation vac1;
-    reco::PhotonIDAssociationRef vrc1;
-    reco::PhotonIDAssociationRefProd vrpc1;
-    reco::PhotonIDAssociationRefVector vrvc1;
+
   }
 }
