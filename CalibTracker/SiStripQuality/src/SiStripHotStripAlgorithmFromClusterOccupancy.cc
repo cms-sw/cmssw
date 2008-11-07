@@ -4,7 +4,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include <iostream>
 
 SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy(){
   LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::~SiStripHotStripAlgorithmFromClusterOccupancy] "<<std::endl;
@@ -26,6 +25,9 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     phisto._NEntries=phisto._th1f->GetEntries();
     detid=it->first;
     
+   if (edm::isDebugEnabled())
+     LogTrace("SiStripHotStrip") << "Analyzing detid " << detid<< std::endl;
+   
     pQuality=siStripQuality;
     badStripList.clear();
     iterativeSearch(phisto,badStripList);
@@ -38,15 +40,15 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
 
     SiStripQuality::Range range(badStripList.begin(),badStripList.end());
     if ( ! siStripQuality->put(detid,range) )
-      edm::LogError("SiStripHotStripAlgorithmFromClusterOccupancy")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] detid already exists"<<std::endl;
+      edm::LogError("SiStripHotStrip")<<"[SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips] detid already exists"<<std::endl;
   }
   siStripQuality->fillBadComponents();
-  LogTrace("SiStripHotStripAlgorithmFromClusterOccupancy") << ss.str() << std::endl;
+  LogTrace("SiStripHotStrip") << ss.str() << std::endl;
 }
 
   
 void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo,std::vector<unsigned int>& vect){
-  if (!histo._NEntries || histo._NEntries <MinNumEntries_)
+  if (!histo._NEntries || histo._NEntries <=MinNumEntries_ || histo._NEntries <= minNevents_)
     return;
   
   size_t startingSize=vect.size();
@@ -58,33 +60,40 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
   int MaxEntry=(int)histo._th1f->GetMaximum();
 
   std::vector<long double> vPoissonProbs(MaxEntry+1,0);
-  float meanVal=histo._NEntries/(Nbins-histo._NEmptyBins); 
+  long double meanVal=1.*histo._NEntries/(1.*Nbins-histo._NEmptyBins); 
   evaluatePoissonian(vPoissonProbs,meanVal);
 
   for (Int_t i=ibinStart; i<ibinStop; ++i){
     unsigned int entries= (unsigned int)histo._th1f->GetBinContent(i);
-    if (entries<MinNumEntriesPerStrip_)
+    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_)
       continue;
 
     if(diff<vPoissonProbs[entries]){
-      _StripOccupancy.push_back(entries);
+      _StripOccupancy.push_back(entries/(double) Nevents_);
       histo._th1f->SetBinContent(i,0.);
       histo._NEntries-=entries;
       histo._NEmptyBins++;
       if (edm::isDebugEnabled())
-	ss << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] rejecting strip " << i-1 << std::endl;
+	LogTrace("SiStripHotStrip")<< " rejecting strip " << i-1 << " value " << entries << " diff  " << diff << " prob " << vPoissonProbs[entries]<< std::endl;
       vect.push_back(pQuality->encode(i-1,1,0));
     }
   }
   if (edm::isDebugEnabled())
-    ss << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] Nbins="<< Nbins << " MaxEntry="<<MaxEntry << " meanVal=" << meanVal << " NEmptyBins="<<histo._NEmptyBins<< " NEntries=" << histo._NEntries << " " << histo._th1f->GetEntries()<< " startingSize " << startingSize << " vector.size " << vect.size() << std::endl;
+    LogTrace("SiStripHotStrip") << " [SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch] Nbins="<< Nbins << " MaxEntry="<<MaxEntry << " meanVal=" << meanVal << " NEmptyBins="<<histo._NEmptyBins<< " NEntries=" << histo._NEntries << " thEntries " << histo._th1f->GetEntries()<< " startingSize " << startingSize << " vector.size " << vect.size() << std::endl;
 
   if (vect.size()!=startingSize)
     iterativeSearch(histo,vect);
 }
 
-void SiStripHotStripAlgorithmFromClusterOccupancy::evaluatePoissonian(std::vector<long double>& vPoissonProbs, float& meanVal){
+void SiStripHotStripAlgorithmFromClusterOccupancy::evaluatePoissonian(std::vector<long double>& vPoissonProbs, long double& meanVal){
   for(size_t i=0;i<vPoissonProbs.size();++i){
     vPoissonProbs[i]= (i==0)?TMath::Poisson(i,meanVal):vPoissonProbs[i-1]+TMath::Poisson(i,meanVal);
   }
+}
+
+void SiStripHotStripAlgorithmFromClusterOccupancy::setNumberOfEvents(uint32_t Nevents){
+  Nevents_=Nevents;
+  minNevents_=occupancy_*Nevents_; 
+  if (edm::isDebugEnabled())                                                                                                                                                                          
+    LogTrace("SiStripHotStrip")<<" [SiStripHotStripAlgorithmFromClusterOccupancy::setNumberOfEvents] minNumber of Events per strip used to consider a strip bad" << minNevents_ << " for occupancy " << occupancy_ << std::endl;
 }

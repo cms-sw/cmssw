@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.2 2007/11/02 21:06:38 giordano Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.3 2008/11/04 16:31:30 giordano Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include <memory>
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #include "TMath.h"
 
@@ -37,14 +38,17 @@ public:
   typedef SiStrip::QualityHistosMap HistoMap;  
   
 
-  SiStripHotStripAlgorithmFromClusterOccupancy():prob_(1.E-7),MinNumEntries_(0),MinNumEntriesPerStrip_(0){};
+  SiStripHotStripAlgorithmFromClusterOccupancy():prob_(1.E-7),MinNumEntries_(0),MinNumEntriesPerStrip_(0),Nevents_(0),occupancy_(0)
+  {minNevents_=Nevents_*occupancy_;}
   virtual ~SiStripHotStripAlgorithmFromClusterOccupancy();
 
   void setProbabilityThreshold(long double prob){prob_=prob;}
   void setMinNumEntries(unsigned short m){MinNumEntries_=m;}
   void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
+  void setOccupancyThreshold(long double occupancy){occupancy_=occupancy;minNevents_=occupancy_*Nevents_;}
+  void setNumberOfEvents(uint32_t Nevents);
   void extractBadStrips(SiStripQuality*,HistoMap&);
-  std::vector<uint32_t> getStripOccupancy(){return _StripOccupancy;}
+  std::vector<double> getStripOccupancy(){return _StripOccupancy;}
   
  private:
 
@@ -57,14 +61,17 @@ public:
   };
 
   void iterativeSearch(pHisto&,std::vector<unsigned int>&);
-  void evaluatePoissonian(std::vector<long double>& , float& meanVal);
+  void evaluatePoissonian(std::vector<long double>& , long double& meanVal);
 
   long double prob_;
   unsigned short MinNumEntries_;
   unsigned short MinNumEntriesPerStrip_;
+  uint32_t Nevents_;
+  double minNevents_;
+  long double occupancy_;
 
   SiStripQuality *pQuality;
-  std::vector<uint32_t> _StripOccupancy;
+  std::vector<double> _StripOccupancy;
   std::stringstream ss;   
 };
 #endif
