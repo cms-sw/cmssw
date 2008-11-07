@@ -41,6 +41,7 @@ public:
 protected:
 
   virtual void                  initRun();
+  virtual bool                  filterHit(CaloG4Hit*, double);
 
 private:    
 
@@ -71,6 +72,7 @@ private:
   bool                          useBirk, useLayerWt;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, usePMTHit;
+  double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   G4int                         mumPDG, mupPDG; 
   std::vector<double>           layer0wt;
   std::vector<G4LogicalVolume*> hfLV;

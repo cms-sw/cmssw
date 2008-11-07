@@ -638,6 +638,10 @@ void CaloSD::clearHits() {
 
 void CaloSD::initRun() {}
 
+bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
+  return ((time <= tmaxHit) && (hit->getEnergyDeposit() > eminHit));
+}
+
 void CaloSD::storeHit(CaloG4Hit* hit) {
 
   if (previousID.trackID()<0) return;
@@ -670,7 +674,7 @@ std::pair<bool,bool> CaloSD::saveHit(CaloG4Hit* aHit) {
 #endif
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
-  if ( time <= tmaxHit && ((aHit->getEM())+(aHit->getHadr())) > eminHit ) {  
+  if (filterHit(aHit,time)) {
     save = true;
     slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, 
 		       aHit->getHadr()/GeV, time, tkID, aHit->getDepth());

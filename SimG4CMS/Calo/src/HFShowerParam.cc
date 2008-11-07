@@ -26,9 +26,11 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
   trackEM                 = m_HF.getParameter<bool>("TrackEM");
   bool useShowerLibrary   = m_HF.getParameter<bool>("UseShowerLibrary");
+  edMin                   = m_HF.getParameter<double>("EminLibrary");
   edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
 			   << useShowerLibrary << " P.E. per GeV " << pePerGeV
-			   << " and Track EM Flag " << trackEM;
+			   << " and Track EM Flag " << trackEM << " edMin "
+			   << edMin << " GeV";
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -73,6 +75,7 @@ void HFShowerParam::initRun(G4ParticleTable * theParticleTable) {
   LogDebug("HFShower") << "HFShowerParam: Particle code for e- = " << emPDG
 		       << " for e+ = " << epPDG << " for gamma = " << gammaPDG;
 #endif
+  if (showerLibrary) showerLibrary->initRun(theParticleTable);
 }
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
@@ -111,7 +114,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
       edep = (aStep->GetTotalEnergyDeposit())/GeV;
     }
     if (edep > 0) {
-      if (showerLibrary && kill) {
+      if (showerLibrary && kill && pin > edMin) {
 	std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill);
 	for (unsigned int i=0; i<hitSL.size(); i++) {
 	  hit.position = hitSL[i].position;
@@ -121,7 +124,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	  hits.push_back(hit);
 	}
       } else {
-	edep         *= 0.5*pePerGeV;
+	edep         *= pePerGeV;
 	double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
 	double time = fibre->tShift(hitPoint,1,false); // remaining part
 	hit.depth   = 1;
@@ -138,12 +141,9 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
       if (kill) {
 	track->SetTrackStatus(fStopAndKill);
 	G4TrackVector tv = *(aStep->GetSecondary());
-	//	edm::LogInfo("HFShower") << "Prestep Point " << preStepPoint->GetPosition() << " Volume "  << preStepPoint->GetPhysicalVolume() << " " << preStepPoint->GetPhysicalVolume()->GetName();
-	//	edm::LogInfo("HFShower") << "Poststep Point " << aStep->GetPostStepPoint()->GetPosition() << " Volume "  << aStep->GetPostStepPoint()->GetPhysicalVolume() << " " << aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName();
 	for (unsigned int kk=0; kk<tv.size(); kk++) {
 	  if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
 	    tv[kk]->SetTrackStatus(fStopAndKill);
-	  //	  edm::LogInfo("HFShower") << "Track " << kk << " ID " << tv[kk]->GetTrackID() << " " << tv[kk]->GetParentID() << " Position " << tv[kk]->GetPosition() << " Volume " << tv[kk]->GetVolume() << " " << tv[kk]->GetVolume()->GetName();
 	}
       }
 #ifdef DebugLog

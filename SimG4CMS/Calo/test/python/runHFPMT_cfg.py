@@ -38,10 +38,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         ),
         HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         )
     ),
     categories = cms.untracked.vstring('CaloSim', 

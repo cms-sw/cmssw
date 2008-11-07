@@ -81,6 +81,7 @@ protected:
   virtual void   update(const ::EndOfEvent *);
   virtual void   clearHits();
   virtual void   initRun();
+  virtual bool   filterHit(CaloG4Hit*, double);
 
 private:
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Anthony Moeller
 //         Created:  Wed Aug 27 10:18:19 CDT 2008
-// $Id: HFPMTHitAnalyzer.cc,v 1.3 2008/08/27 21:39:05 amoeller Exp $
+// $Id: HFPMTHitAnalyzer.cc,v 1.1 2008/10/29 18:58:10 sunanda Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //SimHits
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -69,9 +70,10 @@ void HFPMTHitAnalyzer::beginJob(const edm::EventSetup&) {
 
   TFileDirectory HFHitsDir = fs->mkdir("HFPMTHits");
   h_HFDepHit = HFHitsDir.make<TH1F>("Hit20", "Depths in HF", 20, 0., 20.);
-
+  h_HFDepHit->GetXaxis()->SetTitle("Depths in HF");
   TFileDirectory HFSourcePart = fs->mkdir("HFMCinfo");
   hHF_MC_e = HFSourcePart.make<TH1F>("MCEnergy","Energy of Generated Particle",1000,0.,500.);
+  hHF_MC_e->GetXaxis()->SetTitle("Energy of Generated Particle");
 
   //energy Histograms
   TFileDirectory HFPCaloHitEnergyDir = fs->mkdir("HFPCaloHitEnergy"); 
@@ -81,22 +83,31 @@ void HFPMTHitAnalyzer::beginJob(const edm::EventSetup&) {
     else             sprintf (sub, "(All)");
     sprintf (name,"Energy1%d",i); sprintf (title,"Energy in depth 1 %s",sub);
     hHF_e_1[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,500.);
+    hHF_e_1[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Energy2%d",i); sprintf (title,"Energy in depth 2 %s",sub);
     hHF_e_2[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,500.);
+    hHF_e_2[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Energy12%d",i); sprintf (title,"Energy in depths 1,2 %s",sub);
     hHF_e_12[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,500.);
+    hHF_e_12[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Em1%d",i); sprintf (title,"EM energy in depth 1 %s",sub);
     hHF_em_1[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,500.);
+    hHF_em_1[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Em2%d",i); sprintf (title,"EM energy in depth 2 %s",sub);
     hHF_em_2[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,500.);
+    hHF_em_2[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Em12%d",i); sprintf (title,"EM energy in depths 1,2 %s",sub);
     hHF_em_12[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,500.);
+    hHF_em_12[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Had1%d",i); sprintf (title,"Had energy in depth 1 %s",sub);
     hHF_had_1[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,0.1);
+    hHF_had_1[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Had2%d",i); sprintf (title,"Had energy in depth 2 %s",sub);
     hHF_had_2[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,0.1);
+    hHF_had_2[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Had12%d",i); sprintf (title,"Had energy in depths 1,2 %s",sub);
     hHF_had_12[i] = HFPCaloHitEnergyDir.make<TH1F>(name,title,1000,0.,0.1);
+    hHF_had_12[i]->GetXaxis()->SetTitle(title);
   }
 
   //Timing Histograms
@@ -107,16 +118,22 @@ void HFPMTHitAnalyzer::beginJob(const edm::EventSetup&) {
     else             sprintf (sub, "(All)");
     sprintf (name,"Time1Ewt%d",i); sprintf (title,"Time (energy weighted) in depth 1 %s",sub);
     hHF1_time_Ewt[i] = HFPCaloHitTimeDir.make<TH1F>(name,title,400,0.,400.);
+    hHF1_time_Ewt[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Time2Ewt%d",i); sprintf (title,"Time (energy weighted) in depth 2 %s",sub);
     hHF2_time_Ewt[i] = HFPCaloHitTimeDir.make<TH1F>(name,title,400,0.,400.);
+    hHF2_time_Ewt[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Time12Ewt%d",i); sprintf (title,"Time (energy weighted) in depths 1,2 %s",sub);
     hHF12_time_Ewt[i] = HFPCaloHitTimeDir.make<TH1F>(name,title,400,0.,400.);
+    hHF12_time_Ewt[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Time1%d",i); sprintf (title,"Time in depth 1 %s",sub);
     hHF1_time[i] = HFPCaloHitTimeDir.make<TH1F>(name,title,400,0.,400.);
+    hHF1_time[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Time2%d",i); sprintf (title,"Time in depth 2 %s",sub);
     hHF2_time[i] = HFPCaloHitTimeDir.make<TH1F>(name,title,400,0.,400.);
+    hHF2_time[i]->GetXaxis()->SetTitle(title);
     sprintf (name,"Time12%d",i); sprintf (title,"Time in depths 1,2 %s",sub);
     hHF12_time[i] = HFPCaloHitTimeDir.make<TH1F>(name,title,400,0.,400.);
+    hHF12_time[i]->GetXaxis()->SetTitle(title);
   }
 }
 
@@ -156,11 +173,13 @@ void HFPMTHitAnalyzer::analyzeHits (std::vector<PCaloHit>& hits,
   int nHit = hits.size();
   float energy1[3], energy2[3], energy12[3];
   float em1[3], had1[3], em2[3], had2[3], em12[3], had12[3];
-  for (int i=0; i>3; i++) {
+  for (int i=0; i<3; i++) {
     energy1[i] = energy2[i] = energy12[i] = 0;
     em1[i]     = em2[i]     = em12[i]     = 0;
     had1[i]    = had2[i]    = had12[i]    = 0;
   }
+  LogDebug("HFShower") << "HFPMTHitAnalyser::Entry " << event_no << " with "
+		       << nHit << " hits";
   for (int i=0; i<nHit; i++)   {
     double energy    = hits[i].energy();
     double em        = hits[i].energyEM();
@@ -169,6 +188,10 @@ void HFPMTHitAnalyzer::analyzeHits (std::vector<PCaloHit>& hits,
     uint32_t id_     = hits[i].id();
     uint16_t  pmtHit = hits[i].depth();
     if (pmtHit != 0) pmtHit = 1;
+    LogDebug("HFShower") << "HFPMTHitAnalyser::Hit " << i << " ID " << std::hex
+			 << id_ << std::dec <<" PMT " << pmtHit <<" E (e|h|t) "
+			 << em << " " << had << " " << energy <<  " Time " 
+			 << time;
 
     HcalDetId id   = HcalDetId(id_);
     int det        = id.det();
@@ -178,42 +201,42 @@ void HFPMTHitAnalyzer::analyzeHits (std::vector<PCaloHit>& hits,
     if (det ==  4) {
       
       if (subdet == static_cast<int>(HcalForward)) {
-	h_HFDepHit->Fill(double(depth));
+	h_HFDepHit->Fill(double(depth+10*pmtHit));
 	if (depth==1)  {
-	  energy1[pmtHit] += energy;
-	  em1[pmtHit]     += em;
-	  had1[pmtHit]    += had;
+	  energy1[pmtHit]  += energy;
+	  energy12[pmtHit] += energy;
+	  em1[pmtHit]      += em;
+	  em12[pmtHit]     += em;
+	  had1[pmtHit]     += had;
+	  had12[pmtHit]    += had;
+	  energy1[2]       += energy;
+	  energy12[2]      += energy;
+	  em1[2]           += em;
+	  em12[2]          += em;
+	  had1[2]          += had;
+	  had12[2]         += had;
 	  hHF1_time[pmtHit]->Fill(time);
-	  hHF1_time_Ewt[pmtHit]->Fill(time,energy);
-	  energy1[2] += energy;
-	  em1[2]     += em;
-	  had1[2]    += had;
 	  hHF1_time[2]->Fill(time);
+	  hHF1_time_Ewt[pmtHit]->Fill(time,energy);
 	  hHF1_time_Ewt[2]->Fill(time,energy);
 	}
 	if (depth==2) {
-	  energy2[pmtHit] += energy;
-	  em2[pmtHit]     += em;
-	  had2[pmtHit]    += had;
-	  hHF2_time[pmtHit]->Fill(time);
-	  hHF2_time_Ewt[pmtHit]->Fill(time,energy);
-	  energy2[2] += energy;
-	  em2[2]     += em;
-	  had2[2]    += had;
-	  hHF2_time[2]->Fill(time);
-	  hHF2_time_Ewt[2]->Fill(time,energy);
-	}
-	if(depth==1 || depth==2) {
+	  energy2[pmtHit]  += energy;
 	  energy12[pmtHit] += energy;
+	  em2[pmtHit]      += em;
 	  em12[pmtHit]     += em;
+	  had2[pmtHit]     += had;
 	  had12[pmtHit]    += had;
-	  hHF12_time[pmtHit]->Fill(time);
-	  hHF12_time_Ewt[pmtHit]->Fill(time,energy);
-	  energy12[2] += energy;
-	  em12[2]     += em;
-	  had12[2]    += had;
-	  hHF12_time[2]->Fill(time);
-	  hHF12_time_Ewt[2]->Fill(time,energy);
+	  energy2[2]       += energy;
+	  energy12[2]      += energy;
+	  em2[2]           += em;
+	  em12[2]          += em;
+	  had2[2]          += had;
+	  had12[2]         += had;
+	  hHF2_time[pmtHit]->Fill(time);
+	  hHF2_time[2]->Fill(time);
+	  hHF2_time_Ewt[pmtHit]->Fill(time,energy);
+	  hHF2_time_Ewt[2]->Fill(time,energy);
 	}
       }
     }
@@ -228,6 +251,11 @@ void HFPMTHitAnalyzer::analyzeHits (std::vector<PCaloHit>& hits,
     hHF_had_1[i]->Fill(had1[i]);
     hHF_had_2[i]->Fill(had2[i]);
     hHF_had_12[i]->Fill(had12[i]);
+    LogDebug("HFShower") << "HFPMTHitAnalyser:: Type " << i << " Energy 1|2| "
+			 << energy1[i] << " " << energy2[i] << " "
+			 << energy12[i] << " EM Energy 1|2| " << em1[i] << " "
+			 << em2[i] << " " << em12[i] << " Had Energy 1|2| "
+			 << had1[i] << " " << had2[i] << " " << had12[i];
   }
 }
 

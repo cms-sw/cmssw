@@ -50,6 +50,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
   usePMTHit        = m_HC.getParameter<bool>("UsePMTHits");
   betaThr          = m_HC.getParameter<double>("BetaThreshold");
+  eminHitHB        = m_HC.getParameter<double>("EminHitHB")*MeV;
+  eminHitHE        = m_HC.getParameter<double>("EminHitHE")*MeV;
+  eminHitHO        = m_HC.getParameter<double>("EminHitHO")*MeV;
+  eminHitHF        = m_HC.getParameter<double>("EminHitHF")*MeV;
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
@@ -76,7 +80,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   edm::LogInfo("HcalSim") << "HCalSD:: Suppression Flag " << suppressHeavy
 			  << " protons below " << kmaxProton << " MeV,"
 			  << " neutrons below " << kmaxNeutron << " MeV and"
-			  << " ions below " << kmaxIon << " MeV";
+			  << " ions below " << kmaxIon << " MeV\n"
+			  << "         Threshold for storing hits in HB: "
+			  << eminHitHB << " HE: " << eminHitHE << " HO: "
+			  << eminHitHO << " HF: " << eminHitHF;
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
@@ -388,6 +395,26 @@ void HCalSD::initRun() {
   if (showerParam)   showerParam->initRun(theParticleTable);
 }
 
+bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
+
+  double threshold=0;
+  DetId theId(aHit->getUnitID());
+  switch (theId.subdetId()) {
+  case HcalBarrel:
+    threshold = eminHitHB; break;
+  case HcalEndcap:
+    threshold = eminHitHE; break;
+  case HcalOuter:
+    threshold = eminHitHO; break;
+  case HcalForward:
+    threshold = eminHitHF; break;
+  default:
+    break;
+  }
+  return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > threshold));
+}
+
+
 uint32_t HCalSD::setDetUnitId (int det, G4ThreeVector pos, int depth, 
 			       int lay=1) { 
 
@@ -509,6 +536,8 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok);
 
   double etrack    = preStepPoint->GetKineticEnergy();
+  int    primaryID = setTrackID(aStep);
+  /*
   int    primaryID = 0;
   if (etrack >= energyCut) {
     primaryID    = theTrack->GetTrackID();
@@ -516,11 +545,11 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
     primaryID    = theTrack->GetParentID();
     if (primaryID == 0) primaryID = theTrack->GetTrackID();
   }
+  */
 
   // Reset entry point for new primary
   posGlobal = preStepPoint->GetPosition();
   resetForNewPrimary(posGlobal, etrack);
-  //  int primaryID = setTrackID(aStep);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
@@ -553,6 +582,11 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   //Now kill the current track
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
+    G4TrackVector tv = *(aStep->GetSecondary());
+    for (unsigned int kk=0; kk<tv.size(); kk++) {
+      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
+	tv[kk]->SetTrackStatus(fStopAndKill);
+    }
   }
 }
 

@@ -210,10 +210,11 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   double pin    = preStepPoint->GetTotalEnergy();
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 
+  double zoff   = std::abs(zint) - gpar[4];
 
   // if particle moves from interaction point or "backwards (halo)
   int backward = 0;
-  if(pz * zint < 0.) backward = 1;
+  if (pz * zint < 0.) backward = 1;
   
   double sphi   = sin(momDir.phi());
   double cphi   = cos(momDir.phi());
@@ -225,9 +226,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 		       << " of energy " << pin/GeV << " GeV"
 		       << "  dir.orts " << momDir.x() << ", " << momDir.y() 
 		       << ", " << momDir.z() << "  Pos x,y,z = " <<hitPoint.x()
-		       << "," << hitPoint.y() << "," << hitPoint.z() 
-		       << "   sphi,cphi,stheta,ctheta  = " << sphi << "," 
-		       << cphi << ", " << stheta << "," << ctheta ; 
+		       << "," << hitPoint.y() << "," << hitPoint.z() << " ("
+		       << zoff << ")   sphi,cphi,stheta,ctheta  = " << sphi 
+		       << ","  << cphi << ", " << stheta << "," << ctheta ; 
 #endif    
                        
   if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
@@ -250,16 +251,15 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
 #endif
-    double zv = std::abs(pe[i].z()); // abs local z  
+    double zv = zoff + std::abs(pe[i].z()); // abs local z  
     if (zv <= gpar[1] && pe[i].lambda() > 0 &&
-	(pe[i].z() >= 0 || pe[i].z() <= -gpar[0])) {
+	(pe[i].z() >= 0 || zv > gpar[0])) {
       int depth = 1;
       if(backward == 0) {            // fully valid only for "front" particles
 	if (pe[i].z() < 0) depth = 2;// with "front"-simulated shower lib.
-      }
-      else {                         // for "backward" particles - almost equal
+      } else {                       // for "backward" particles - almost equal
 	double r = G4UniformRand();  // share between L and S fibers
-        if(r > 0.5) depth = 2;
+        if (r > 0.5) depth = 2;
       } 
       
 
@@ -274,7 +274,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 
       G4ThreeVector pos = hitPoint + G4ThreeVector(xx,yy,zz);
 
-      if(backward == 0) zv = gpar[1] - zv;      // remaining distance to PMT !
+      if (backward == 0) zv = gpar[1] - zv;     // remaining distance to PMT !
 
       double r  = pos.perp();
       double p  = fibre->attLength(pe[i].lambda());
@@ -368,7 +368,7 @@ void HFShowerLibrary::getRecord(int type, int record) {
 		       << " of type " << type << " with " << nPhoton 
 		       << " photons";
   for (int j = 0; j < nPhoton; j++) 
-    LogDebug("HFShower") << "Photon " << j << photon[j];
+    LogDebug("HFShower") << "Photon " << j << " " << photon[j];
 #endif
 }
 
