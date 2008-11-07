@@ -11,8 +11,7 @@ CSCDigiSuppressor::CSCDigiSuppressor(const edm::ParameterSet& ps)
   theStripElectronicsSim(ps),
   theStripConditions(new CSCDbStripConditions(ps))
 {
-std::cout << "MAKE?" << std::endl;
-  produces<CSCStripDigiCollection>("MuonCSCSuppressedStripDigi");
+  produces<CSCStripDigiCollection>("MuonCSCStripDigi");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -27,7 +26,6 @@ std::cout << "MAKE?" << std::endl;
   theStripElectronicsSim.setRandomEngine(engine);
   theStripConditions->setRandomEngine(engine);
   theStripElectronicsSim.setStripConditions(theStripConditions);
-std::cout << "MADE" << std::endl;
 }
 
 
@@ -42,16 +40,15 @@ void CSCDigiSuppressor::produce(edm::Event& e, const edm::EventSetup& eventSetup
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
   e.getByLabel(theLCTTag, lcts);
-std::cout << "GOTLCT" << std::endl;
   std::auto_ptr<CSCStripDigiCollection> newStripDigis(new CSCStripDigiCollection());
 
   theStripConditions->initializeEvent(eventSetup);
-
 
   for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitItr = lcts->begin();
       detUnitItr != lcts->end(); ++detUnitItr)
   {
     const CSCDetId& id = (*detUnitItr).first;
+    std::cout << "LCT IN " << id <<std::endl;
     const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitItr).second;
     std::list<int> keyStrips;
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiItr = range.first;
@@ -62,9 +59,15 @@ std::cout << "GOTLCT" << std::endl;
     }
 
     fillDigis(id, keyStrips, *oldStripDigis, *newStripDigis);
+    // Don;t suppress real signal in ME1/A, but don't creat noise, either
+    if(id.station() == 1 && id.ring() == 1)
+    {
+      CSCDetId me1aId(id.endcap(), id.station(), 4, id.chamber(), 0);
+      fillDigis(me1aId, keyStrips, *oldStripDigis, *newStripDigis);
+    }
   }
 
-  e.put(newStripDigis, "MuonCSCSuppressedStripDigi");
+  e.put(newStripDigis, "MuonCSCStripDigi");
 }
 
 
@@ -72,38 +75,62 @@ void CSCDigiSuppressor::fillDigis(const CSCDetId & id, const std::list<int> & ke
                                        const CSCStripDigiCollection & oldStripDigis,
                                        CSCStripDigiCollection & newStripDigis)
 {
-std::cout << "FILLDIGIS" << std::endl;
   std::list<int> cfebs = cfebsToRead(id, keyStrips);
+  std::cout << "CFEBS TO READ FOR  " << id << ": ";
+  for(std::list<int>::const_iterator i = cfebs.begin(); i != cfebs.end(); ++i){
+    std::cout << *i << " " ;
+  }
+std::cout << std::endl;
   std::list<int> strips = stripsToRead(cfebs);
-  CSCStripDigiCollection::Range chamberDigis = oldStripDigis.get(id);
   // strips are sorted by layer
   for(int layer = 1; layer <= 6; ++layer)
   {
-std::cout << "LAYER" << layer << std::endl;
     // make a copy so we can mangle it
     std::list<int> layerStrips = strips;
     CSCDetId layerId(id.rawId()+layer);
+    std::vector<CSCStripDigi> newDigis;
     theStripElectronicsSim.setLayerId(layerId);
-
-    for(CSCStripDigiCollection::const_iterator digiItr = chamberDigis.first;
-        digiItr != chamberDigis.second; ++digiItr)
+    CSCStripDigiCollection::Range layerDigis = oldStripDigis.get(layerId);
+std::cout << "STRIPDIGI " << layerId << " " << layerDigis.second-layerDigis.first << std::endl;
+    for (std::vector<CSCStripDigi>::const_iterator digiItr=layerDigis.first; 
+         digiItr!=layerDigis.second; digiItr++) 
     {
       std::list<int>::iterator stripsToDoItr = std::find(layerStrips.begin(), layerStrips.end(), digiItr->getStrip());
+if(layerId.ring() == 4) {
+  std::cout << "RING4 " << " FOUND " << (stripsToDoItr != layerStrips.end()) << std::endl;
+}
+
       // if it's found, save the digi and check the strip off the list
-      if(stripsToDoItr != strips.end())
+      if(stripsToDoItr != layerStrips.end())
       {
-        newStripDigis.insertDigi(layerId, *digiItr);
+        newDigis.push_back(*digiItr);
         layerStrips.erase(stripsToDoItr);
+      }
+      else  
+      {
+        //std::cout << "SUPPRESSION IN " << layerId << " " << digiItr->getStrip() << std::endl;
       }
     }
 
     // whatever is left over needs to have its own noise generated
-    for(std::list<int>::iterator leftoverStripItr = layerStrips.begin();
-        leftoverStripItr != layerStrips.end(); ++leftoverStripItr)
+    // don't generate noise for ME1/A
+    if(layerId.ring() != 4) 
     {
-std::cout << "LEFTOVER " << *leftoverStripItr << std::endl;
-      CSCAnalogSignal noiseSignal = theStripElectronicsSim.makeNoiseSignal(*leftoverStripItr);
+      for(std::list<int>::iterator leftoverStripItr = layerStrips.begin();
+          leftoverStripItr != layerStrips.end(); ++leftoverStripItr)
+      {
+        CSCAnalogSignal noiseSignal = theStripElectronicsSim.makeNoiseSignal(*leftoverStripItr);
+        theStripElectronicsSim.createDigi(layerId, noiseSignal, newDigis);
+      }
     }
+
+    if(!newDigis.empty())
+    {
+      // copy the digis into the collection
+      CSCStripDigiCollection::Range digiRange(newDigis.begin(), newDigis.end()); 
+      newStripDigis.put(digiRange, layerId);
+    }
+      
   }
 }
 
