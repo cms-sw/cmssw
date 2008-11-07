@@ -3,6 +3,7 @@
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 
@@ -13,10 +14,13 @@ ESUnpackerV4::ESUnpackerV4(const ParameterSet& ps)
   debug_ = pset_.getUntrackedParameter<bool>("debugMode", false);
   lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
 
+  m1  = ~(~Word64(0) << 1);
   m2  = ~(~Word64(0) << 2);
   m4  = ~(~Word64(0) << 4);
   m5  = ~(~Word64(0) << 5);
+  m6  = ~(~Word64(0) << 6);
   m8  = ~(~Word64(0) << 8);
+  m12 = ~(~Word64(0) << 12);
   m16 = ~(~Word64(0) << 16);
   m32 = ~(~Word64(0) << 32);
 
@@ -46,21 +50,26 @@ ESUnpackerV4::ESUnpackerV4(const ParameterSet& ps)
 ESUnpackerV4::~ESUnpackerV4() {
 }
 
-void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiCollection & digis) {
+void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDataCollection & dccs, ESLocalRawDataCollection & kchips, ESDigiCollection & digis) {
   
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
   int dccWords = 6;
-  int head, kid, kFlag1, kFlag2, kBC, kEC, optoBC, optoEC, ttcEC;
+  int head, kid, kPACE[4], kFlag1, kFlag2, kBC, kEC, optoBC, optoEC, ttcEC;
   
+  ESDCCHeaderBlock ESDCCHeader;
+  ESDCCHeader.setFedId(fedId);
+
   // Event header
   const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); --header;
   bool moreHeaders = true;
   while (moreHeaders) {
     ++header;
     FEDHeader ESHeader( reinterpret_cast<const unsigned char*>(header) );
-    if ( !ESHeader.check() ) break; // throw exception?
-    if ( ESHeader.sourceID() != fedId) throw cms::Exception("PROBLEM in ESUnpackerV4 !");
+    if ( !ESHeader.check() ) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"ES : Failed header check !";
+      return;
+    }
 
     fedId_ = ESHeader.sourceID();
     lv1_   = ESHeader.lvl1ID();
@@ -75,6 +84,14 @@ void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESDig
     
     moreHeaders = ESHeader.moreHeaders();
   }
+  if ( fedId != fedId_) {
+    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data with source id " <<fedId_;
+    ESDCCHeader.setDCCErrors(1);
+    dccs.push_back(ESDCCHeader);
+    return;
+  }
+  ESDCCHeader.setLV1(lv1_);
+  ESDCCHeader.setBX(bx_);
 
   // Event trailer
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); ++trailer;
@@ -82,13 +99,28 @@ void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESDig
   while (moreTrailers) {
     --trailer;
     FEDTrailer ESTrailer(reinterpret_cast<const unsigned char*>(trailer));
-    if ( !ESTrailer.check()) { ++trailer; break; } // throw exception?
-    if ( ESTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM in ESUnpackerV4 !!");
+    if ( !ESTrailer.check()) { 
+      ++trailer; 
+      if (debug_) edm::LogWarning("Invalid Data")<<"ES : Failed trailer check !";
+      return;
+    } 
+    if ( ESTrailer.lenght() != nWords) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
+      ESDCCHeader.setDCCErrors(2);
+      dccs.push_back(ESDCCHeader);
+      return;
+    }
+    if ( ESTrailer.lenght() < 8) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
+      ESDCCHeader.setDCCErrors(3);
+      dccs.push_back(ESDCCHeader);
+      return;
+    }
 
     if (debug_)  {
       cout<<"[ESUnpackerV4]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
       if (ESTrailer.check())
-        cout<<". Length of the ES event: "<<ESTrailer.lenght()<<endl;
+	cout<<". Length of the ES event: "<<ESTrailer.lenght()<<endl;
       else cout<<" WARNING!, this is not a ES Trailer"<<endl;
     }
 
@@ -96,43 +128,102 @@ void ESUnpackerV4::interpretRawData(int fedId, const FEDRawData & rawData, ESDig
   }
 
   // DCC data
-  int count = 0;
+  vector<int> FEch_status;
+  int dccHeaderCount = 0;
+  int dccLineCount = 0;
+  int dccHead, dccLine;
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
     if (debug_) cout<<"DCC   : "<<print(*word)<<endl;
-
-    head = (*word >> 60) & m4;
-    if (head == 3) {
-      count++;
-    } else {
-      cout<<"WARNING ! ES-DCC data are not correct !"<<endl;
+    dccHead = (*word >> 60) & m4;
+    if (dccHead == 3) dccHeaderCount++;
+    dccLine = (*word >> 56) & m4;
+    dccLineCount++;
+    if (dccLine != dccLineCount) {
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header order is not correct !";
+      ESDCCHeader.setDCCErrors(4);
+      dccs.push_back(ESDCCHeader);
+      return; 
     }
+    if (dccLineCount == 2) {
+      runtype_   = (*word >>  0) & m4;
+      seqtype_   = (*word >>  4) & m4;
+      dac_       = (*word >>  8) & m12; 
+      gain_      = (*word >> 20) & m1;
+      precision_ = (*word >> 21) & m1;
+      trgtype_   = (*word >> 34) & m6;
 
-  } 
-  
+      ESDCCHeader.setRunType(runtype_);
+      ESDCCHeader.setSeqType(seqtype_);
+      ESDCCHeader.setTriggerType(trgtype_);
+      ESDCCHeader.setDAC(dac_);
+      ESDCCHeader.setGain(gain_);
+      ESDCCHeader.setPrecision(precision_);
+    }
+    if (dccLineCount == 4) optoRX0_  = (*word >> 48) & m8;
+    if (dccLineCount == 5) optoRX1_  = (*word >> 48) & m8;
+    if (dccLineCount == 6) optoRX2_  = (*word >> 48) & m8;
+    if (dccLineCount >=4) {
+      for (unsigned int j=0; j<12; ++j) {
+	FEch_[(dccLineCount-4)*12+j] = (*word >> (j*4)) & m4;
+	FEch_status.push_back(FEch_[(dccLineCount-4)*12+j]);
+      }
+    }
+  }
+  if (dccHeaderCount != 6) {
+    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
+    ESDCCHeader.setDCCErrors(5);
+    dccs.push_back(ESDCCHeader);
+    return;
+  }
+  ESDCCHeader.setOptoRX0(optoRX0_);
+  ESDCCHeader.setOptoRX1(optoRX1_);
+  ESDCCHeader.setOptoRX2(optoRX2_);
+  ESDCCHeader.setFEChannelStatus(FEch_status);
+
   // Event data
+  int opto = 0;
   for (const Word64* word=(header+dccWords+1); word!=trailer; ++word) {
     if (debug_) cout<<"Event : "<<print(*word)<<endl;
 
     head = (*word >> 60) & m4;
 
     if (head == 12) {
-      word2digi(kid, *word, digis);
+      word2digi(kid, kPACE, *word, digis);
     } else if (head == 9) {
-      kid    = (*word >> 0) & m16;
-      kFlag2 = (*word >> 16) & m8;
-      kFlag1 = (*word >> 24) & m8;
-      kBC    = (*word >> 32) & m16;
-      kEC    = (*word >> 48) & m8;
+      kid      = (*word >> 2) & 0x07ff;
+      kPACE[0] = (*word >> 16) & m1;
+      kPACE[1] = (*word >> 17) & m1;
+      kPACE[2] = (*word >> 18) & m1;
+      kPACE[3] = (*word >> 19) & m1;
+      kFlag2   = (*word >> 20) & m4;
+      kFlag1   = (*word >> 24) & m8;
+      kBC      = (*word >> 32) & m16;
+      kEC      = (*word >> 48) & m8;
+
+      ESKCHIPBlock ESKCHIP;
+      ESKCHIP.setId(kid);
+      ESKCHIP.setBC(kBC);
+      ESKCHIP.setEC(kEC);
+      ESKCHIP.setOptoBC(optoBC);
+      ESKCHIP.setOptoEC(optoEC);
+      ESKCHIP.setFlag1(kFlag1);
+      ESKCHIP.setFlag2(kFlag2);
+      kchips.push_back(ESKCHIP);
     } else if (head == 6) {
       ttcEC  = (*word >> 0) & m32;
       optoBC = (*word >> 32) & m16;
       optoEC = (*word >> 48) & m8;      
+      if (opto==0) ESDCCHeader.setOptoBC0(optoBC);
+      else if (opto==1) ESDCCHeader.setOptoBC1(optoBC);
+      else if (opto==2) ESDCCHeader.setOptoBC2(optoBC);
+      opto++;
     }
   }
 
+  dccs.push_back(ESDCCHeader);
 }
 
-void ESUnpackerV4::word2digi(int kid, const Word64 & word, ESDigiCollection & digis) 
+void ESUnpackerV4::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCollection & digis) 
 {
 
   int adc[3];
@@ -141,27 +232,30 @@ void ESUnpackerV4::word2digi(int kid, const Word64 & word, ESDigiCollection & di
   adc[2]    = (word >> 32) & m16;
   int strip = (word >> 48) & m5;
   int pace  = (word >> 53) & m2;
-
-  if (debug_) cout<<kid<<" "<<strip<<" "<<pace<<" "<<adc[2]<<" "<<adc[1]<<" "<<adc[0]<<endl;
+  if (kPACE[pace]==0) return;
+  if (debug_) cout<<kid<<" "<<strip<<" "<<pace<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<endl;
 
   int zside, plane, ix, iy;
   zside = zside_[kid-1][pace];
   plane = pl_[kid-1][pace];
   ix    = x_[kid-1][pace];
   iy    = y_[kid-1][pace];
-
+  
   if (debug_) cout<<"DetId : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip+1<<endl;
-
-  ESDetId detId(strip+1, ix, iy, plane, zside);
-  ESDataFrame df(detId);
-  df.setSize(3);
-
-  for (int i=0; i<3; i++) df.setSample(i, adc[i]);  
-
-  digis.push_back(df);
-
-  if (debug_) 
-    cout<<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()<<" "<<detId.strip()<<" ("<<kid<<","<<pace<<") "<<df.sample(0).adc()<<" "<<df.sample(1).adc()<<" "<<df.sample(2).adc()<<endl;
+  
+  if (ESDetId::validDetId(strip+1, ix, iy, plane, zside)) {
+    
+    ESDetId detId(strip+1, ix, iy, plane, zside);
+    ESDataFrame df(detId);
+    df.setSize(3);
+    
+    for (int i=0; i<3; i++) df.setSample(i, adc[i]);  
+    
+    digis.push_back(df);
+    
+    if (debug_) 
+      cout<<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()<<" "<<detId.strip()<<" ("<<kid<<","<<pace<<") "<<df.sample(0).adc()<<" "<<df.sample(1).adc()<<" "<<df.sample(2).adc()<<endl;
+  }
 
 }
 

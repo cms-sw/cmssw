@@ -13,6 +13,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "TBDataFormats/ESTBRawData/interface/ESDCCHeaderBlock.h"
+#include "TBDataFormats/ESTBRawData/interface/ESKCHIPBlock.h"
+#include "TBDataFormats/ESTBRawData/interface/ESRawDataCollections.h"
+#include "TBDataFormats/ESTBRawData/interface/ESLocalRawDataCollections.h"
 
 using namespace std;
 using namespace edm;
@@ -29,8 +33,8 @@ class ESUnpackerV4 {
   ESUnpackerV4(const ParameterSet& ps);
   ~ESUnpackerV4();
 
-  void interpretRawData(int fedId, const FEDRawData & rawData, ESDigiCollection & digis);
-  void word2digi(int kchip, const Word64 & word, ESDigiCollection & digis);
+  void interpretRawData(int fedId, const FEDRawData & rawData, ESRawDataCollection & dccs, ESLocalRawDataCollection & kchips, ESDigiCollection & digis);
+  void word2digi(int kchip, int kPACE[4], const Word64 & word, ESDigiCollection & digis);
 
   void setRunNumber(int i) {run_number_ = i;};
   void setOrbitNumber(int i) {orbit_number_ = i;};
@@ -47,7 +51,16 @@ class ESUnpackerV4 {
   int orbit_number_;
   int bx_;
   int lv1_;
+  int dac_;
+  int gain_;
+  int precision_;
+  int runtype_;
+  int seqtype_;
   int trgtype_;
+  int optoRX0_;
+  int optoRX1_;
+  int optoRX2_;
+  int FEch_[36];
 
   bool debug_;
   FileInPath lookup_;
@@ -56,9 +69,9 @@ class ESUnpackerV4 {
 
   protected :
 
-  Word64 m2, m4, m5, m8, m16, m32;
+  Word64 m1, m2, m4, m5, m6, m8, m12, m16, m32;
 
-  int zside_[1511][4], pl_[1511][4], x_[1511][4], y_[1511][4]; 
+   int zside_[4288][4], pl_[4288][4], x_[4288][4], y_[4288][4]; 
 
 };
 
