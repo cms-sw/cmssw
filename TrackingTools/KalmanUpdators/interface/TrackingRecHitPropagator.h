@@ -15,7 +15,7 @@
 class TrackingRecHitPropagator {
 	public: 
 	TrackingRecHitPropagator(const MagneticField* magf){
-		thePropagator = new AnalyticalPropagator(magf, anyDirection, 3.1);
+		thePropagator = new AnalyticalPropagator(magf, anyDirection, 1.6);
 	};
 
 	~TrackingRecHitPropagator() {delete thePropagator;}
