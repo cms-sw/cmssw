@@ -13,5 +13,6 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 
 #endif
