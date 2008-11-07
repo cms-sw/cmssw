@@ -4,6 +4,8 @@
 #include "TMath.h"
 #include "math.h"
 #include "TROOT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // -*- C++ -*-
 //
 // Package:    METAlgorithms
@@ -19,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.8 2008/10/23 17:13:24 xs32 Exp $
+// $Id: significanceAlgo.cc,v 1.2 2008/10/23 20:14:06 fblekman Exp $
 //
 //
 
@@ -45,7 +47,7 @@ metsig::ASignificance(const std::vector<SigInputObj>& EventVec, double &met_r, d
 {
   
   if(EventVec.size()<1) {
-    std::cerr << "Event Vector is empty!  Return -1:\n";
+    edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
     return(-1);
   }
   //=== Analytical Generation of Chisq Contours ===//

@@ -7,6 +7,8 @@
 #include "RecoMET/METAlgorithms/interface/SigInputObj.h"
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include <string>
 using namespace reco;
@@ -33,7 +35,7 @@ using namespace std;
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.1 2008/04/18 10:12:55 fblekman Exp $
+// $Id: SignCaloSpecificAlgo.cc,v 1.2 2008/08/01 09:16:46 fblekman Exp $
 //
 //
 reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalThreshold)
@@ -145,7 +147,7 @@ reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > t
 		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHF,metsig::PHI,calotower->et(),calotower->phi(),calotower->eta());
 		}
 		else{
-		  std::cerr << " HCAL tower cell not assigned to an HCAL subdetector!!!" << std::endl;
+		  edm::LogWarning("SignCaloSpecificAlgo") << " HCAL tower cell not assigned to an HCAL subdetector!!!" << std::endl;
 		}
 		// and book!
 		metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
@@ -173,7 +175,7 @@ reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > t
 		  
 		}
 		else{
-		  std::cerr << " ECAL tower cell not assigned to an ECAL subdetector!!!" << std::endl;
+		  edm::LogWarning("SignCaloSpecificAlgo") << " ECAL tower cell not assigned to an ECAL subdetector!!!" << std::endl;
 		}
 		metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
 		signInputVec.push_back(temp);
@@ -182,7 +184,7 @@ reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > t
 	      }
 	  }
 	if(wasused==0)
-	  std::cerr << "found non-assigned cell, " << std::endl;
+	  edm::LogWarning("SignCaloSpecificAlgo") << "found non-assigned cell, " << std::endl;
       }
     }
   }
