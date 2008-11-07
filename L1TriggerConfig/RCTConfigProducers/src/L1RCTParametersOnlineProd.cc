@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id$
+// $Id: L1RCTParametersOnlineProd.cc,v 1.1 2008/10/13 02:30:12 wsun Exp $
 //
 //
 
@@ -301,6 +301,8 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
      //~~~~~~~~~ Instantiate new L1RCTParameters object. ~~~~~~~~~
 
+     // Default objects for Lindsey 
+
      return boost::shared_ptr< L1RCTParameters >(
         new L1RCTParameters( eGammaLSB,
                              jetMETLSB,
@@ -318,10 +320,18 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
                              noiseVetoHB,
                              noiseVetoHEplus,
                              noiseVetoHEminus,
+			     false, // useLindsey
                              egammaEcalScaleFactors,
                              egammaHcalScaleFactors,
                              jetmetEcalScaleFactors,
-                             jetmetHcalScaleFactors ) ) ;
+                             jetmetHcalScaleFactors,
+			     std::vector<double>(),
+			     std::vector<double>(),
+			     std::vector<double>(),
+			     std::vector<double>(),
+			     std::vector<double>(),
+			     std::vector<double>()
+			     ) ) ;
 }
 
 //
