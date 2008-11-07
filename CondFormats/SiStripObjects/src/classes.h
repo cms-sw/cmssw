@@ -17,7 +17,24 @@ namespace {
   std::vector<FedChannelConnection>::const_iterator tmp1;
   std::vector< std::vector<FedChannelConnection> >::iterator tmp2;
   std::vector< std::vector<FedChannelConnection> >::const_iterator tmp3;
+  
+#ifdef SISTRIPCABLING_USING_NEW_STRUCTURE
+  
+  SiStripFedCabling::Feds                temp1;
+  SiStripFedCabling::FedsIter            temp2;
+  SiStripFedCabling::FedsIterRange       temp3;
+  SiStripFedCabling::FedsConstIter       temp4;
+  SiStripFedCabling::FedsConstIterRange  temp5;
+  SiStripFedCabling::Conns               temp6;
+  SiStripFedCabling::ConnsPair           temp7;
+  SiStripFedCabling::ConnsIter           temp8;
+  SiStripFedCabling::ConnsIterRange      temp9;
+  SiStripFedCabling::ConnsConstIter      temp10;
+  SiStripFedCabling::ConnsConstIterRange temp11;
+  SiStripFedCabling::Registry            temp12;
 
+#endif
+  
   std::vector<char>::iterator tmp4;
   std::vector<char>::const_iterator tmp5;
   std::vector< SiStripPedestals::DetRegistry >::iterator tmp6;

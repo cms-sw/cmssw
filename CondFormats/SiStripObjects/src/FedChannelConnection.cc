@@ -72,6 +72,14 @@ FedChannelConnection::FedChannelConnection() :
 
 // -----------------------------------------------------------------------------
 //
+bool operator< ( const FedChannelConnection& conn1, const FedChannelConnection& conn2 ) { 
+  if ( conn1.fedId() < conn2.fedId() ) { return true; }
+  else if ( conn1.fedId() == conn2.fedId() ) { return ( conn1.fedCh() < conn2.fedCh() ? true : false ); }
+  else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+//
 const uint16_t& FedChannelConnection::i2cAddr( const uint16_t& apv ) const { 
   if      ( apv == 0 ) { return apv0_; }
   else if ( apv == 1 ) { return apv1_; }
