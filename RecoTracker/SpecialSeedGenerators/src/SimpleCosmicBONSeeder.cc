@@ -197,6 +197,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
         std::vector<bool> middleOk(middleHits.size(), true);
         std::vector<bool> outerOk( outerHits.size(),  true);
 
+        size_t sizBefore = hitTriplets.size();
         /// Now actually filling in the charges for all the clusters
         int idx = 0;
         for (iOuterHit = outerHits.begin(), idx = 0; iOuterHit != outerHits.end(); ++idx, ++iOuterHit){
@@ -223,7 +224,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
             GlobalPoint  outerpos  = outerTTRH->globalPosition(); // this caches by itself
             bool         outerok   = outerOk[idx];
             if (outerok < goodHitsPerSeed_ - 2) {
-                if (tripletsVerbosity_ > 1) 
+                if (tripletsVerbosity_ > 2) 
                     std::cout << "Skipping at first hit: " << (outerok) << " < " << (goodHitsPerSeed_ - 2) << std::endl;
                 continue; 
             }
@@ -234,7 +235,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                 GlobalPoint  middlepos  = middleTTRH->globalPosition(); // this caches by itself
                 bool         middleok   = middleOk[idx];
                 if (outerok+middleok < goodHitsPerSeed_ - 1) {
-                    if (tripletsVerbosity_ > 1) 
+                    if (tripletsVerbosity_ > 2) 
                         std::cout << "Skipping at second hit: " << (outerok+middleok) << " < " << (goodHitsPerSeed_ - 1) << std::endl;
                     continue; 
                 }
@@ -245,12 +246,12 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                     GlobalPoint  innerpos  = innerTTRH->globalPosition(); // this caches by itself
                     bool         innerok   = innerOk[idx];
                     if (outerok+middleok+innerok < goodHitsPerSeed_) {
-                        if (tripletsVerbosity_ > 1) 
+                        if (tripletsVerbosity_ > 2) 
                             std::cout << "Skipping at third hit: " << (outerok+middleok+innerok) << " < " << (goodHitsPerSeed_) << std::endl;
                         continue;
                     } 
 
-                    if (tripletsVerbosity_ > 1) std::cout << "Trying seed with: " << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
+                    if (tripletsVerbosity_ > 2) std::cout << "Trying seed with: " << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
                     if (goodTriplet(innerpos,middlepos,outerpos,minRho)) {
                         OrderedHitTriplet oht(*iInnerHit,*iMiddleHit,*iOuterHit);
                         hitTriplets.push_back(oht);
@@ -260,21 +261,29 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                             edm::LogWarning("SimpleCosmicBONSeeder") << "Found too many triplets, bailing out.\n";
                             return false;
                         }
-                        if (tripletsVerbosity_ > 2) {
+                        if (tripletsVerbosity_ > 3) {
                             std::cout << " accepted seed #" << (hitTriplets.size()-1) << " w/: " 
                                 << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
                         }
-                        if (tripletsVerbosity_ == 1) {
+                        if (tripletsVerbosity_ == 2) {
                                 std::cout << " good seed #" << (hitTriplets.size()-1) << " w/: "     
                                     << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
                         }
-                        if (tripletsVerbosity_ > 2 && (helixVerbosity_ > 0)) { // debug the momentum here too
+                        if (tripletsVerbosity_ > 3 && (helixVerbosity_ > 0)) { // debug the momentum here too
                             pqFromHelixFit(innerpos,middlepos,outerpos,es); 
                         }
                     }
                 }
             }
         }
+        if ((tripletsVerbosity_ > 0) && (hitTriplets.size() > sizBefore)) {
+            std::cout << "                        iLss = " << layerTripletNames_[iLss - lss.begin()]
+                << " (" << (iLss - lss.begin()) << "): # = " 
+                << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() 
+                << ": Found " << (hitTriplets.size() - sizBefore) << " seeds [running total: " << hitTriplets.size() << "]"
+                << std::endl ;
+        }
+
     }
     //std::sort(hitTriplets.begin(),hitTriplets.end(),HigherInnerHit());
     return true;
@@ -321,7 +330,7 @@ void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<TransientTrackin
     std::vector<bool>::iterator       ok = oks.begin(), okStart = ok, okEnd = oks.end();
     while (start < end) {
         DetId lastid = (*start)->geographicalId();
-        for (it = start + 1; (it < end) && ((*it)->geographicalId() != lastid); ++it) {
+        for (it = start + 1; (it < end) && ((*it)->geographicalId() == lastid); ++it) {
             ++ok;
         }
         if ( (it - start) > maxHitsPerModule_[lastid.subdetId()] ) { 
@@ -330,6 +339,11 @@ void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<TransientTrackin
                           << " (threshold is " << maxHitsPerModule_[lastid.subdetId()] << ")" << std::endl;
             }
             std::fill(okStart,ok,false);
+        } else if (tripletsVerbosity_ > 0) {
+            if ( (it - start) > std::min(4,maxHitsPerModule_[lastid.subdetId()]/4) ) {
+                std::cerr << "SimpleCosmicBONSeeder: Not marking noisy module " << lastid.rawId() << ", it has " << (it-start) << " rechits"
+                          << " (threshold is " << maxHitsPerModule_[lastid.subdetId()] << ")" << std::endl;
+            }
         }
         start = it; okStart = ok;
     }
@@ -338,17 +352,17 @@ void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<TransientTrackin
 bool SimpleCosmicBONSeeder::goodTriplet(const GlobalPoint &inner, const GlobalPoint & middle, const GlobalPoint & outer, const double &minRho) const {
     float dyOM = outer.y() - middle.y(), dyIM = inner.y() - middle.y();
     if ((dyOM * dyIM > 0) && (fabs(dyOM)>10) && (fabs(dyIM)>10)) {
-        if (tripletsVerbosity_ > 1) std::cout << "  fail for non coherent dy" << std::endl;
+        if (tripletsVerbosity_ > 2) std::cout << "  fail for non coherent dy" << std::endl;
         return false;
     }
     float dzOM = outer.z() - middle.z(), dzIM = inner.z() - middle.z();
     if ((dzOM * dzIM > 0) && (fabs(dzOM)>50) && (fabs(dzIM)>50)) {
-        if (tripletsVerbosity_ > 1) std::cout << "  fail for non coherent dz" << std::endl;
+        if (tripletsVerbosity_ > 2) std::cout << "  fail for non coherent dz" << std::endl;
         return false;
     }
     FastCircle theCircle(inner,middle,outer);
     if (theCircle.rho() < minRho) {
-        if (tripletsVerbosity_ > 1) std::cout << "  fail for pt cut" << std::endl;
+        if (tripletsVerbosity_ > 2) std::cout << "  fail for pt cut" << std::endl;
         return false;
     }
     return true;
