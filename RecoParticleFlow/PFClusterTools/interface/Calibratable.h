@@ -56,10 +56,6 @@ public:
 	int cluster_numEcal_, cluster_numHcal_;
 	int type_;
 
-//	std::vector<CalibratableElement> cluster_ecal_;
-//	std::vector<CalibratableElement> cluster_hcal_;
-//	std::vector<CalibratableElement> rechits_ecal_;
-//	std::vector<CalibratableElement> rechits_hcal_;
 
 	void reset() {
 		energy_ = 0;
@@ -70,10 +66,6 @@ public:
 		cluster_numEcal_ = 0;
 		cluster_numHcal_ = 0;
 		type_ = -1;
-//		cluster_ecal_.clear();
-//		cluster_hcal_.clear();
-//		rechits_ecal_.clear();
-//		rechits_hcal_.clear();
 	}
 };
 /**
@@ -113,6 +105,8 @@ public:
 	bool sim_isMC_;
 	//test beam specific
 	bool tb_isTB_;
+	double tb_eta_, tb_phi_;
+	int tb_run_, tb_pdg_;
 	//leading track
 	double recotrk_numHits_, recotrk_quality_, recotrk_charge_;
 	double recotrk_etaEcal_, recotrk_phiEcal_;
@@ -139,9 +133,6 @@ public:
 	double cand_energyEvent_, cand_energyEcal_, cand_energyHcal_, cand_eta_,
 			cand_phi_;
 	int cand_type_;
-	//pf elements
-	double pfele_energyEvent_, pfele_energyEcal_, pfele_energyHcal_;
-	int pfele_numEcal_, pfele_numHcal_;
 
 	std::vector<CalibrationResultWrapper> calibrations_;
 
