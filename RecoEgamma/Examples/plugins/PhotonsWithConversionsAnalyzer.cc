@@ -289,7 +289,7 @@ void PhotonsWithConversionsAnalyzer::analyze( const edm::Event& e, const edm::Ev
       h_phoEta_->Fill( (*iPho).eta() );
       h_phoPhi_->Fill( (*iPho).phi() );
       
-      if ( !(*iPho).isConverted() ) continue;
+      if ( !(*iPho).hasConversionTracks() ) continue;
       //   std::cout << " This photons has " << (*iPho).conversions().size() << " conversions candidates " << std::endl;      
       std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
       
