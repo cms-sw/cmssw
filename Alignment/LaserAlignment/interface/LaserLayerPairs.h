@@ -4,8 +4,8 @@
 /** \class LaserLayerPairs
  *  find all (resonable) pairs of endcap layers
  *
- *  $Date: 2007/10/19 08:42:13 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/04 23:51:42 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -36,27 +36,6 @@ class LaserLayerPairs : public SeedLayerPairs
 	    const edm::EventSetup & iSetup);
 
  private:
-  // definition of the map
-  SiStripRecHit2DCollection::range rphi_pos_range1;
-  SiStripRecHit2DCollection::range rphi_pos_range2;
-  SiStripRecHit2DCollection::range rphi_pos_range3;
-  SiStripRecHit2DCollection::range rphi_pos_range4;
-  SiStripRecHit2DCollection::range rphi_pos_range5;
-  SiStripRecHit2DCollection::range rphi_pos_range6;
-  SiStripRecHit2DCollection::range rphi_pos_range7;
-  SiStripRecHit2DCollection::range rphi_pos_range8;
-  SiStripRecHit2DCollection::range rphi_pos_range9;
-
-  SiStripRecHit2DCollection::range rphi_neg_range1;
-  SiStripRecHit2DCollection::range rphi_neg_range2;
-  SiStripRecHit2DCollection::range rphi_neg_range3;
-  SiStripRecHit2DCollection::range rphi_neg_range4;
-  SiStripRecHit2DCollection::range rphi_neg_range5;
-  SiStripRecHit2DCollection::range rphi_neg_range6;
-  SiStripRecHit2DCollection::range rphi_neg_range7;
-  SiStripRecHit2DCollection::range rphi_neg_range8;
-  SiStripRecHit2DCollection::range rphi_neg_range9;
-
   TrackerLayerIdAccessor acc;
 
   LayerWithHits * lh1pos;

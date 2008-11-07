@@ -1,8 +1,8 @@
 /** \file ReadLaserRecHitAlgorithm.cc
  *  Algorithm to read RecHits from the LaserBeams
  *
- *  $Date: 2007/03/18 19:00:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/04 23:51:47 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -29,21 +29,18 @@ void ReadLaserRecHitAlgorithm::run(const SiStripRecHit2DCollection* input, const
   theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
   const TrackerGeometry& theTracker(*theTrackerGeometry);
 
-  // get vector of detunit ids
-  const std::vector<DetId> detIDs = input->ids();
-  //  std::cout<<detIDs.size()<<std::endl;
-    // loop over detunits
-  for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
-    unsigned int id = (*detunit_iterator).rawId();
+  for ( SiStripRecHit2DCollection::const_iterator detunit_iterator = input->begin(), detunit_end = input->end(); 
+            detunit_iterator != detunit_end; ++detunit_iterator) 
+  {
+    SiStripRecHit2DCollection::DetSet rechitRange = *detunit_iterator;
+    unsigned int id = detunit_iterator->detId();
 
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet((*detunit_iterator)));
+    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(DetId(id)));
 
-    edm::OwnVector<SiStripRecHit2D> collector; 
     if(id!=999999999){ //if is valid detector
-      SiStripRecHit2DCollection::range rechitRange = input->get((*detunit_iterator));
-      SiStripRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
+      SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = rechitRange.begin();
+      SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = rechitRange.end();
+      SiStripRecHit2DCollection::DetSet::const_iterator iter=rechitRangeIteratorBegin;
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2D const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
@@ -70,18 +67,16 @@ void ReadLaserRecHitAlgorithm::run(const SiStripRecHit2DCollection* input, const
 
 void ReadLaserRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input, const edm::EventSetup& theSetup)
 {
-  // get vector of detunit ids
-  const std::vector<DetId> detIDs = input->ids();
-  //  std::cout<<detIDs.size()<<std::endl;
     // loop over detunits
-  for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
-    unsigned int id = (*detunit_iterator).rawId();
-    edm::OwnVector<SiStripRecHit2D> collector; 
+  for ( SiStripMatchedRecHit2DCollection::const_iterator detunit_iterator = input->begin(), detunit_end = input->end(); 
+            detunit_iterator != detunit_end; ++detunit_iterator) 
+  {
+    SiStripMatchedRecHit2DCollection::DetSet rechitRange = *detunit_iterator;
+    unsigned int id = detunit_iterator->detId();
     if(id!=999999999){ //if is valid detector
-      SiStripMatchedRecHit2DCollection::range rechitRange = input->get((*detunit_iterator));
-      SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripMatchedRecHit2DCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripMatchedRecHit2DCollection::const_iterator iter=rechitRangeIteratorBegin;
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = rechitRange.begin();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = rechitRange.end();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator iter=rechitRangeIteratorBegin;
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripMatchedRecHit2D const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();

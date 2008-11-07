@@ -1,8 +1,8 @@
 /** \file LaserLayerPairs.cc
  *  
  *
- *  $Date: 2007/06/27 06:57:44 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 23:51:44 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -90,27 +90,6 @@ void LaserLayerPairs::init(const SiStripRecHit2DCollection & collstereo,
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-  // side = 1 for backward, 2 for forward TEC
-  rphi_pos_range1 = collrphi.get(acc.stripTECDisk(2,1)); // disc 1
-  rphi_pos_range2 = collrphi.get(acc.stripTECDisk(2,2)); // disc 2
-  rphi_pos_range3 = collrphi.get(acc.stripTECDisk(2,3)); // disc 3
-  rphi_pos_range4 = collrphi.get(acc.stripTECDisk(2,4)); // disc 4
-  rphi_pos_range5 = collrphi.get(acc.stripTECDisk(2,5)); // disc 5
-  rphi_pos_range6 = collrphi.get(acc.stripTECDisk(2,6)); // disc 6
-  rphi_pos_range7 = collrphi.get(acc.stripTECDisk(2,7)); // disc 7
-  rphi_pos_range8 = collrphi.get(acc.stripTECDisk(2,8)); // disc 8
-  rphi_pos_range9 = collrphi.get(acc.stripTECDisk(2,9)); // disc 9
-
-  rphi_neg_range1 = collrphi.get(acc.stripTECDisk(1,1)); // disc 1
-  rphi_neg_range2 = collrphi.get(acc.stripTECDisk(1,2)); // disc 2
-  rphi_neg_range3 = collrphi.get(acc.stripTECDisk(1,3)); // disc 3
-  rphi_neg_range4 = collrphi.get(acc.stripTECDisk(1,4)); // disc 4
-  rphi_neg_range5 = collrphi.get(acc.stripTECDisk(1,5)); // disc 5
-  rphi_neg_range6 = collrphi.get(acc.stripTECDisk(1,6)); // disc 6
-  rphi_neg_range7 = collrphi.get(acc.stripTECDisk(1,7)); // disc 7
-  rphi_neg_range8 = collrphi.get(acc.stripTECDisk(1,8)); // disc 8
-  rphi_neg_range9 = collrphi.get(acc.stripTECDisk(1,9)); // disc 9
-
   // get the discs
   const TECLayer * fposl1 = dynamic_cast<TECLayer*>(fpos[0]);
   const TECLayer * fposl2 = dynamic_cast<TECLayer*>(fpos[1]);
@@ -133,23 +112,24 @@ void LaserLayerPairs::init(const SiStripRecHit2DCollection & collstereo,
   const TECLayer * fnegl9 = dynamic_cast<TECLayer*>(fneg[8]);
 
   // Layers with hits
-  lh1pos = new LayerWithHits(fposl1, rphi_pos_range1);
-  lh2pos = new LayerWithHits(fposl2, rphi_pos_range2);
-  lh3pos = new LayerWithHits(fposl3, rphi_pos_range3);
-  lh4pos = new LayerWithHits(fposl4, rphi_pos_range4);
-  lh5pos = new LayerWithHits(fposl5, rphi_pos_range5);
-  lh6pos = new LayerWithHits(fposl6, rphi_pos_range6);
-  lh7pos = new LayerWithHits(fposl7, rphi_pos_range7);
-  lh8pos = new LayerWithHits(fposl8, rphi_pos_range8);
-  lh9pos = new LayerWithHits(fposl9, rphi_pos_range9);
+  // side = 1 for backward, 2 for forward TEC; second number is the disk (1-9)
+  lh1pos = new LayerWithHits(fposl1, collrphi, acc.stripTECDisk(2,1));
+  lh2pos = new LayerWithHits(fposl2, collrphi, acc.stripTECDisk(2,2));
+  lh3pos = new LayerWithHits(fposl3, collrphi, acc.stripTECDisk(2,3));
+  lh4pos = new LayerWithHits(fposl4, collrphi, acc.stripTECDisk(2,4));
+  lh5pos = new LayerWithHits(fposl5, collrphi, acc.stripTECDisk(2,5));
+  lh6pos = new LayerWithHits(fposl6, collrphi, acc.stripTECDisk(2,6));
+  lh7pos = new LayerWithHits(fposl7, collrphi, acc.stripTECDisk(2,7));
+  lh8pos = new LayerWithHits(fposl8, collrphi, acc.stripTECDisk(2,8));
+  lh9pos = new LayerWithHits(fposl9, collrphi, acc.stripTECDisk(2,9));
 
-  lh1neg = new LayerWithHits(fnegl1, rphi_neg_range1);
-  lh2neg = new LayerWithHits(fnegl2, rphi_neg_range2);
-  lh3neg = new LayerWithHits(fnegl3, rphi_neg_range3);
-  lh4neg = new LayerWithHits(fnegl4, rphi_neg_range4);
-  lh5neg = new LayerWithHits(fnegl5, rphi_neg_range5);
-  lh6neg = new LayerWithHits(fnegl6, rphi_neg_range6);
-  lh7neg = new LayerWithHits(fnegl7, rphi_neg_range7);
-  lh8neg = new LayerWithHits(fnegl8, rphi_neg_range8);
-  lh9neg = new LayerWithHits(fnegl9, rphi_neg_range9);
+  lh1neg = new LayerWithHits(fnegl1, collrphi, acc.stripTECDisk(1,1));
+  lh2neg = new LayerWithHits(fnegl2, collrphi, acc.stripTECDisk(1,2));
+  lh3neg = new LayerWithHits(fnegl3, collrphi, acc.stripTECDisk(1,3));
+  lh4neg = new LayerWithHits(fnegl4, collrphi, acc.stripTECDisk(1,4));
+  lh5neg = new LayerWithHits(fnegl5, collrphi, acc.stripTECDisk(1,5));
+  lh6neg = new LayerWithHits(fnegl6, collrphi, acc.stripTECDisk(1,6));
+  lh7neg = new LayerWithHits(fnegl7, collrphi, acc.stripTECDisk(1,7));
+  lh8neg = new LayerWithHits(fnegl8, collrphi, acc.stripTECDisk(1,8));
+  lh9neg = new LayerWithHits(fnegl9, collrphi, acc.stripTECDisk(1,9));
 }
