@@ -26,9 +26,6 @@ class ESDigiToRaw : public edm::EDProducer {
   void beginJob(const edm::EventSetup& es) ;
   void produce(edm::Event& e, const edm::EventSetup& es);
   void endJob() ;
-  
-/*   typedef long long Word64; */
-/*   typedef unsigned int Word32; */
 
   typedef uint32_t Word32;
   typedef uint64_t Word64;
