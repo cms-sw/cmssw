@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.16 2008/09/19 15:23:11 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.17 2008/09/20 13:40:40 flucke Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "TProfile.h"
 #include "TFile.h"
 #include "TTree.h"
-
+#include "TF1.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -187,7 +187,7 @@ private:
   void setSummaryBin(int bin, TH1* targetHist, TH1* sourceHist);
     
   float Fwhm(const TH1* hist);
-
+  void fitSumResiduals(const TH1 *hist);
   // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
   template <class OBJECT_TYPE>  
   int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
@@ -905,6 +905,11 @@ TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Aligna
 	v_levelProfiles[iComp].sumYResiduals_->Add(v_profiles[n].sumYResiduals_);
 	v_levelProfiles[iComp].sumNormYResiduals_->Add(v_profiles[n].sumNormYResiduals_);
       }
+      //add fit values to stat box
+      fitSumResiduals(v_levelProfiles[iComp].sumXResiduals_);
+      fitSumResiduals(v_levelProfiles[iComp].sumNormXResiduals_);
+      fitSumResiduals(v_levelProfiles[iComp].sumYResiduals_);
+      fitSumResiduals(v_levelProfiles[iComp].sumNormYResiduals_);
     } else {
       // nothing to be done for det or detunits
       continue;
@@ -1237,6 +1242,28 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     tree.Fill();
   }
 }
-
+void 
+TrackerOfflineValidation::fitSumResiduals(const TH1 *h)
+{
+  
+  try{
+    TH1*hist=0;
+    hist = const_cast<TH1*>(h);
+    float meantmp = hist->GetMean();
+    float rmstmp = hist->GetRMS();
+    TF1 *ftmp1= new TF1("ftmp1","gaus",meantmp-2*rmstmp, meantmp+2*rmstmp); 
+    hist->Fit("ftmp1","Q0LR");
+    float mean = ftmp1->GetParameter(1);
+    float sigma = ftmp1->GetParameter(2);
+    delete ftmp1;
+    TF1 *ftmp2= new TF1("ftmp2","gaus",mean-3*sigma,mean+3*sigma); 
+    hist->Fit("ftmp2","Q0LR");
+    delete ftmp2;
+    
+  }catch (cms::Exception const & e) {
+    std::cout << e.what() << std::endl;
+    std::cout <<"set values of fit to 9999" << std::endl;
+  }
+ }
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackerOfflineValidation);
