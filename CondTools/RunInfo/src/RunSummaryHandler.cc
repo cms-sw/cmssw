@@ -12,10 +12,6 @@
 #include<sstream>
 #include<vector>
 
-namespace {
-
-
-
 RunSummaryHandler::RunSummaryHandler(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","RunSummaryHandler")),
   // m_connect(pset.getUntrackedParameter<std::string>("OnlineConn","")),
@@ -109,8 +105,3 @@ void RunSummaryHandler::getNewObjects() {
 
  
 }
-}
-
-
-
-

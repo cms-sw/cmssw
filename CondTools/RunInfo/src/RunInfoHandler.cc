@@ -12,10 +12,6 @@
 #include<sstream>
 #include<vector>
 
-namespace {
-
-
-
 RunInfoHandler::RunInfoHandler(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","RunInfoHandler")),
   // m_connect(pset.getUntrackedParameter<std::string>("OnlineConn","")),
@@ -91,8 +87,4 @@ void RunInfoHandler::getNewObjects() {
 
  
 }
-}
-
-
-
 

@@ -14,10 +14,6 @@
 
 
 
-namespace {
-
-
-
 L1TriggerScalerHandler::L1TriggerScalerHandler(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","L1TriggerScalerHandler")),
   // m_connect(pset.getUntrackedParameter<std::string>("OnlineConn","")),
@@ -100,7 +96,6 @@ void L1TriggerScalerHandler::getNewObjects() {
   edm::LogInfo   ("L1TriggerScalerHandler") << "------- " << m_name << " - > getNewObjects" << std::endl;
 
  
-}
 }
 
 
