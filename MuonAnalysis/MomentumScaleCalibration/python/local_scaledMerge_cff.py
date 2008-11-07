@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
+    "file:/data2/demattia/Data/CSA08/SubSample/ZsubSample/ZsubSample.root",
     "file:/data2/demattia/Data/CSA08/Y/Filter_Y_0.root",
     "file:/data2/demattia/Data/CSA08/Y/Filter_Y_10.root",
     "file:/data2/demattia/Data/CSA08/Y/Filter_Y_11.root",
@@ -104,4 +105,4 @@ source = cms.Source(
     "file:/data2/demattia/Data/CSA08/Y/Filter_Y_99.root",
     "file:/data2/demattia/Data/CSA08/Y/Filter_Y_9.root"
     )
-                    )
+    )
