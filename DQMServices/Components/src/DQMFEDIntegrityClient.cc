@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2008/11/03 15:26:25 $
- * $Revision: 1.1 $
+ * $Date: 2008/11/03 15:44:51 $
+ * $Revision: 1.2 $
  * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -48,9 +48,9 @@ void DQMFEDIntegrityClient::initialize() {
 
 void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
 
-  NBINS = 820;
-  XMIN  =    0.;
-  XMAX  = 820.;
+  NBINS = 850;
+  XMIN  =   0.;
+  XMAX  = 850.;
 
   dbe_ = Service<DQMStore>().operator->();
 
@@ -64,20 +64,23 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   
   reportSummary = dbe_->bookFloat("reportSummary");
 
-  int nSubsystems = 7;
+  int nSubsystems = 11;
 
-  // initialize reportSummary to 1
   if(reportSummary) reportSummary->Fill(1.);
 
   dbe_->setCurrentFolder("FED/EventInfo/reportSummaryContents");
 
-  reportSummaryContent[0] = dbe_->bookFloat("CSC FEDs");
-  reportSummaryContent[1] = dbe_->bookFloat("DT FEDs");
-  reportSummaryContent[2] = dbe_->bookFloat("EB FEDs");
-  reportSummaryContent[3] = dbe_->bookFloat("EE FEDs");
-  reportSummaryContent[4] = dbe_->bookFloat("L1T FEDs");
-  reportSummaryContent[5] = dbe_->bookFloat("Pixel FEDs");
-  reportSummaryContent[6] = dbe_->bookFloat("Strip FEDs");
+  reportSummaryContent[0]  = dbe_->bookFloat("CSC FEDs");
+  reportSummaryContent[1]  = dbe_->bookFloat("DT FEDs");
+  reportSummaryContent[2]  = dbe_->bookFloat("EB FEDs");
+  reportSummaryContent[3]  = dbe_->bookFloat("EE FEDs");
+  reportSummaryContent[4]  = dbe_->bookFloat("HCAL FEDs");
+  reportSummaryContent[5]  = dbe_->bookFloat("HLT FEDs");
+  reportSummaryContent[6]  = dbe_->bookFloat("L1T FEDs");
+  reportSummaryContent[7]  = dbe_->bookFloat("L1TEMU FEDs");
+  reportSummaryContent[8]  = dbe_->bookFloat("Pixel FEDs");
+  reportSummaryContent[9]  = dbe_->bookFloat("RPC FEDs");
+  reportSummaryContent[10] = dbe_->bookFloat("SiStrip FEDs");
 
   // initialize reportSummaryContents to 1
   for (int i = 0; i < nSubsystems; ++i) {
@@ -87,17 +90,21 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
 
   dbe_->setCurrentFolder("FED/EventInfo");
 
-  reportSummaryMap = dbe_->book2D("reportSummaryMap", "FED Report Summary Map", 1, 1, 2, 7, 1, 8);
+  reportSummaryMap = dbe_->book2D("reportSummaryMap", "FED Report Summary Map", 1, 1, 2, 11, 1, 12);
   reportSummaryMap->setAxisTitle("", 1);
   reportSummaryMap->setAxisTitle("", 2);
-  reportSummaryMap->setBinLabel(1, "CSC", 2);
-  reportSummaryMap->setBinLabel(2, "DT", 2);
-  reportSummaryMap->setBinLabel(3, "EB", 2);
-  reportSummaryMap->setBinLabel(4, "EE", 2);
-  reportSummaryMap->setBinLabel(5, "L1T", 2);
-  reportSummaryMap->setBinLabel(6, "Pixel", 2);
-  reportSummaryMap->setBinLabel(7, "Strip", 2);
-  reportSummaryMap->setBinLabel(1, " ", 1);
+  reportSummaryMap->setBinLabel(11, "CSC",2);
+  reportSummaryMap->setBinLabel(10, "DT", 2);
+  reportSummaryMap->setBinLabel( 9, "EB", 2);
+  reportSummaryMap->setBinLabel( 8, "EE", 2);
+  reportSummaryMap->setBinLabel( 7, "HCAL",2);
+  reportSummaryMap->setBinLabel( 6, "HLT", 2);
+  reportSummaryMap->setBinLabel( 5, "L1T", 2);
+  reportSummaryMap->setBinLabel( 4, "L1TEMU",2);
+  reportSummaryMap->setBinLabel( 3, "Pixel", 2);
+  reportSummaryMap->setBinLabel( 2, "RPC",   2);
+  reportSummaryMap->setBinLabel( 1, "SiStrip",2);
+  reportSummaryMap->setBinLabel( 1, " ", 1);
 
 }
 
@@ -114,33 +121,40 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
   vector<string> entries;
   entries.push_back("CSC/FEDIntegrity/FEDEntries");
   entries.push_back("DT/FEDIntegrity_EvF/FEDEntries");
-  //  entries.push_back("DT/FEDIntegrity/FEDEntries");
   entries.push_back("EcalBarrel/FEDIntegrity/FEDEntries");
   entries.push_back("EcalEndcap/FEDIntegrity/FEDEntries");
-//  entries.push_back("L1T/FEDIntegrity/FEDEntries");
+  entries.push_back("Hcal/FEDIntegrity/FEDEntries");
+  entries.push_back("HLT/FEDIntegrity/FEDEntries");
+  entries.push_back("L1T/FEDIntegrity/FEDEntries");
+  entries.push_back("L1TEMU/FEDIntegrity/FEDEntries");
   entries.push_back("Pixel/FEDIntegrity/FEDEntries");
+  entries.push_back("RPC/FEDIntegrity/FEDEntries");
   entries.push_back("SiStrip/FEDIntegrity/FEDEntries");
 
   for(vector<string>::const_iterator ent = entries.begin();
                                       ent != entries.end(); ++ent) {
+
+    if( !(dbe_->get(*ent)) ) {
+      //      cout << ">> No histogram! <<" << endl;
+      continue;
+    }
 
     MonitorElement * me = dbe_->get(*ent);
 
     if (TH1F * rootHisto = me->getTH1F()) {
 
       int xmin  = 0;
-      int xmax  = 0;
       int Nbins = me->getNbinsX();
 
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      xmax = (int)rootHisto->GetXaxis()->GetXmax();
+      if(*ent == "L1T/FEDIntegrity/FEDEntries")  xmin = xmin + 800;
 
       for(int bin = 1; bin <= Nbins ; ++bin) {
 	int id = xmin+bin;
 	entry = rootHisto->GetBinContent(bin);
-	FedEntries->setBinContent(id, entry);
+	if(entry > 0.)  FedEntries->setBinContent(id, entry);
       }
 
     }
@@ -149,24 +163,38 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
 
   // FED Fatal
 
-  int nSubsystems = 7;
+  int nSubsystems = 11;
 
   vector<string> fatal;
   fatal.push_back("CSC/FEDIntegrity/FEDFatal");
   fatal.push_back("DT/FEDIntegrity_EvF/FEDFatal");
-  //  fatal.push_back("DT/FEDIntegrity/FEDFatal");
   fatal.push_back("EcalBarrel/FEDIntegrity/FEDFatal");
   fatal.push_back("EcalEndcap/FEDIntegrity/FEDFatal");
-//  fatal.push_back("L1T/FEDIntegrity/FEDFatal");
+  fatal.push_back("Hcal/FEDIntegrity/FEDFatal");
+  fatal.push_back("HLT/FEDIntegrity/FEDFatal");
+  fatal.push_back("L1T/FEDIntegrity/FEDFatal");
+  fatal.push_back("L1TEMU/FEDIntegrity/FEDFatal");
   fatal.push_back("Pixel/FEDIntegrity/FEDFatal");
+  fatal.push_back("RPC/FEDIntegrity/FEDFatal");
   fatal.push_back("SiStrip/FEDIntegrity/FEDFatal");
 
-  int k=0;
+  int k = 0, count = 0;
+
+  float sum = 0.;
+
   for(vector<string>::const_iterator fat = fatal.begin(); 
                                       fat != fatal.end(); ++fat) {
+
+    if( !(dbe_->get(*fat)) ) {
+      //      cout << ">> No histogram! <<" << endl;
+      reportSummaryContent[k]->Fill(-1);
+      reportSummaryMap->setBinContent(1, nSubsystems-k, -1);
+      k++;
+      continue;
+    }
+
     MonitorElement * me = dbe_->get(*fat);
-    //cout << "New Module!" << endl;
-    //cout << "Path : " << me->getFullname() << endl;
+    //    cout << "Path : " << me->getFullname() << endl;
 
     int Nfatal = 0;
     int Nbins  = me->getNbinsX();
@@ -179,70 +207,77 @@ void DQMFEDIntegrityClient::analyze(const Event& iEvent, const EventSetup& iSetu
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
+      if(*fat == "L1T/FEDIntegrity/FEDFatal") xmin = xmin + 800;
+
       xmax = (int)rootHisto->GetXaxis()->GetXmax();
-      //cout << "FED ID range : " << xmin << " - " << xmax << endl;
+      if(*fat == "L1T/FEDIntegrity/FEDFatal") xmax = xmax + 800;
+
+      //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
       for(int bin = 1; bin <= Nbins ; ++bin) {
 	int id = xmin+bin;
-	//	cout << "FED ID      : " << id << endl;
 	entry = rootHisto->GetBinContent(bin);
 	//	cout << "Bin content : " << entry << endl;
-	if(entry > 0) ++Nfatal;
-	FedFatal->setBinContent(id, entry);
+	if(entry > 0.) {
+	  ++Nfatal;
+	  FedFatal->setBinContent(id, entry);
+	}
       }
 
     }
 
-    //    cout << "Nfatal : " << Nfatal << endl;
-    //    cout << "Nbins  : " << Nbins  << endl;
-
     if(Nbins > 0) SummaryContent[k] = 1.-((float)Nfatal/(float)Nbins);
-    //cout << "Summary Content : " << SummaryContent[k] << endl;
+    //    cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
-    reportSummaryMap->setBinContent(1, k+1, SummaryContent[k]);
+    reportSummaryMap->setBinContent(1, nSubsystems-k, SummaryContent[k]);
+    sum = sum + SummaryContent[k];
+
     k++;
+    count++;
+
   }
 
-  float sum = 0.;
-
-  for(int i = 0; i < nSubsystems; ++i) {
-    sum = sum + SummaryContent[i];
-  }
-
-  if(nSubsystems > 0) reportSummary->Fill( sum/(float)nSubsystems );
+  if(count > 0)  reportSummary->Fill( sum/(float)count );
 
   // FED Non Fatal
 
   vector<string> nonfatal;
   nonfatal.push_back("CSC/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("DT/FEDIntegrity_EvF/FEDNonFatal");
-  //  nonfatal.push_back("DT/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("EcalBarrel/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("EcalEndcap/FEDIntegrity/FEDNonFatal");
-//  nonfatal.push_back("L1T/FEDIntegrity/FEDNonFatal");
+  nonfatal.push_back("Hcal/FEDIntegrity/FEDNonFatal");
+  nonfatal.push_back("HLT/FEDIntegrity/FEDNonFatal");
+  nonfatal.push_back("L1T/FEDIntegrity/FEDNonFatal");
+  nonfatal.push_back("L1TEMU/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("Pixel/FEDIntegrity/FEDNonFatal");
+  nonfatal.push_back("RPC/FEDIntegrity/FEDNonFatal");
   nonfatal.push_back("SiStrip/FEDIntegrity/FEDNonFatal");
 
   for(vector<string>::const_iterator non = nonfatal.begin(); 
                                       non != nonfatal.end(); ++non) {
+
+    if( !(dbe_->get(*non)) ) {
+      //      cout << ">> No histogram! <<" << endl;
+      continue;
+    }
 
     MonitorElement * me = dbe_->get(*non);
 
     if (TH1F * rootHisto = me->getTH1F()) {
 
       int xmin  = 0;
-      int xmax  = 0;
       int Nbins = me->getNbinsX();
 
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      xmax = (int)rootHisto->GetXaxis()->GetXmax();
+      if(*non == "L1T/FEDIntegrity/FEDNonFatal") xmin = xmin + 800;
 
       for(int bin = 1; bin <= Nbins ; ++bin) {
 	int id = xmin+bin;
 	entry = rootHisto->GetBinContent(bin);
-	FedNonFatal->setBinContent(id, entry);
+	if(entry > 0.) 	FedNonFatal->setBinContent(id, entry);
       }
 
     }
