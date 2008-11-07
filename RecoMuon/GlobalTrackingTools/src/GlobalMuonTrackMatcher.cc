@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/05/15 19:36:47 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/05/15 19:56:43 $
+ *  $Revision: 1.14 $
  *
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -229,20 +229,6 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     }
   }
  
-  if ( result.empty() ) {
-    LogDebug(category) << "MatchPos returned 0 results";
-    TrackCand returnVal;
-    double dR = 10.0;
-    for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
-      double tmpR = match_R_IP(sta,(*is).first);
-      if (tmpR < dR) {
-	dR = tmpR;
-	returnVal = (*is).first;
-      }
-    }
-    result.push_back(returnVal);
-  }
-
   return result;
  
 }
