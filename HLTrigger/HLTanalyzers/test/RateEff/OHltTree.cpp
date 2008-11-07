@@ -220,18 +220,21 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	      triggerBit[it] = true;       
 	    }       
 	  }       
-	}   
+	  //	  PrintOhltVariables(3,electron);	  
+	}
       }   
       
       else if (trignames[it].CompareTo("OpenHLT_DoubleEle5_SW_L1R") == 0) {      
 	if ( L1_DoubleEG5==1 ) { // L1 Seed      
-	  if(OpenHlt1ElectronPassed(5.,1,9999.,9999.)>=2) {      
+	  //	  if(OpenHlt1ElectronPassed(5.,1,9999.,9999.)>=2) {      
+	  if(OpenHlt1ElectronPassed(5.,0,9999.,9999.)>=2) {       
 	    triggerBitNoPrescale[it] = true;      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {      
 	      triggerBit[it] = true;      
 	    }      
 	  }      
-	}  
+	  //	      PrintOhltVariables(3,electron);          
+	}
       }  
       
       else if (trignames[it].CompareTo("OpenHLT_DoubleLooseIsoTau") == 0) { 
@@ -250,13 +253,15 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       else if (trignames[it].CompareTo("OpenHLT_Ele10_SW_L1R") == 0) {     
 	if ( L1_SingleEG8==1 ) { // L1 Seed     
 	  //PrintOhltVariables(3,electron);     
-	  if(OpenHlt1ElectronPassed(10.,1,9999.,9999.)>=1) {     
+	  //	  if(OpenHlt1ElectronPassed(10.,1,9999.,9999.)>=1) {     
+	  if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
 	    triggerBitNoPrescale[it] = true;     
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {     
 	      triggerBit[it] = true;     
 	    }     
 	  }     
-	} 
+	  //	  PrintOhltVariables(3,electron);
+	}
       } 
       
       else if (trignames[it].CompareTo("OpenHLT_FwdJet20") == 0) {      
@@ -280,7 +285,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	      triggerBit[it] = true;      
 	    }      
 	  }      
-	}       
+	  //	  PrintOhltVariables(3,photon); 
+	}
       }     
       
       else if (trignames[it].CompareTo("OpenHLT_Jet30") == 0) {   
@@ -442,7 +448,8 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	      triggerBit[it] = true;     
 	    }     
 	  }     
-	}      
+	  //	  PrintOhltVariables(3,photon);           
+	}
       }    
       
       
@@ -640,6 +647,10 @@ void OHltTree::PrintOhltVariables(int level, int type)
 	cout << "ohEleHiso["<<i<<"] = " << ohEleHiso[i] << endl;
 	cout << "ohEleTiso["<<i<<"] = " << ohEleTiso[i] << endl;
 	cout << "ohEleL1iso["<<i<<"] = " << ohEleL1iso[i] << endl;
+	cout << "ohEleHiso["<<i<<"]/ohEleEt["<<i<<"] = " << ohEleHiso[i]/ohEleEt[i] << endl;
+        cout << "ohEleNewSC["<<i<<"] = " << ohEleNewSC[i] << endl; 
+	cout << "ohElePixelSeeds["<<i<<"] = " << ohElePixelSeeds[i] << endl;
+
 	cout << "recoElecE["<<i<<"] = " << recoElecE[i] << endl;
 	cout << "recoElecEt["<<i<<"] = " << recoElecEt[i] << endl;
 	cout << "recoElecPt["<<i<<"] = " << recoElecPt[i] << endl;
