@@ -82,9 +82,13 @@ process.g4SimHits.CaloSD = cms.PSet(
     DetailedTiming = cms.untracked.bool(False),
     Verbosity = cms.untracked.int32(0),
     CheckHits = cms.untracked.int32(25),
+    BeamPosition = cms.untracked.double(0.0),
     CorrectTOFBeam = cms.untracked.bool(False),
-    UseMap = cms.untracked.bool(True),
-    EminTrack = cms.double(1.0)
+    UseMap    = cms.untracked.bool(True),
+    EminTrack = cms.double(1.0),
+    TmaxHit   = cms.double(1000.0),
+    HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
+    EminHits  = cms.vdouble(0.0,0.0,0.0,0.0)
 )
 process.g4SimHits.HCalSD.UseShowerLibrary = False
 process.g4SimHits.HCalSD.TestNumberingScheme = True
