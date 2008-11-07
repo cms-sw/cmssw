@@ -10,8 +10,8 @@ int lcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
 int lstyle[15] = {  1,  1,  1,  2,  1,  2,  3,  2,  3,  1,  3,  2,  1,  1,  2};
 int lwidth[15] = {  1,  1,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  2};
 
-void plotMomentum(char target[6], char list[10], char ene[6], char part[4],
-		  char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
+void plotMomentum(char target[6], char list[20], char ene[6], char part[4],
+		  char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
   
   setStyle();
   gStyle->SetOptLogy(1);
@@ -53,8 +53,8 @@ void plotMomentum(char target[6], char list[10], char ene[6], char part[4],
   }
 }
 
-void plotParticles(char target[6], char list[10], char ene[6], char part[4],
-		   char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
+void plotParticles(char target[6], char list[20], char ene[6], char part[4],
+		   char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
   
   gStyle->SetOptLogy(1);
   gStyle->SetTitleX(.1);
@@ -195,8 +195,8 @@ void plotParticles(char target[6], char list[10], char ene[6], char part[4],
 }
 
 
-void plotMultiplicity(char target[6], char list[10], char part[4], int ymax=25,
-		      char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
+void plotMultiplicity(char target[6], char list[20], char part[4], int ymax=25,
+		      char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -284,8 +284,8 @@ void plotMultiplicity(char target[6], char list[10], char part[4], int ymax=25,
   leg->Draw("same");
 }
 
-void plotMultiplicity(char target[6], char list[10], char ene[6], char part[4],
-		      char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
+void plotMultiplicity(char target[6], char list[20], char ene[6], char part[4],
+		      char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -341,8 +341,8 @@ void plotMultiplicity(char target[6], char list[10], char ene[6], char part[4],
   }
 }
 
-void plotTotalKE(char target[6], char list[10], char part[4], 
-		 char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
+void plotTotalKE(char target[6], char list[20], char part[4], 
+		 char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -433,8 +433,8 @@ void plotTotalKE(char target[6], char list[10], char part[4],
   leg->Draw("same");
 }
 
-void plotKE(char target[6], char list[10], char ene[6], char part[4],
-	    int typ=0, char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
+void plotKE(char target[6], char list[20], char ene[6], char part[4],
+	    int typ=0, char dir[12]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -470,7 +470,7 @@ void plotKE(char target[6], char list[10], char ene[6], char part[4],
     //    std::cout << ii << " (" << ctype << ") " << name << " " << hiKE[ii] <<"\n";
   }
 
-  TCanvas *c[20];
+  TCanvas *c[25];
   std::vector<std::string> types = types();
   for (unsigned int ii=0; ii<types.size(); ii++) {
     if      (ii == 0) sprintf (ctype, "All Particles");
@@ -498,19 +498,44 @@ void plotKE(char target[6], char list[10], char ene[6], char part[4],
     leg->SetTextSize(.036); leg->Draw("same");
   }
 
-  TLegend *leg = new TLegend(0.50, 0.75, 0.90, 0.90);
+  TLegend *leg1 = new TLegend(0.50, 0.75, 0.90, 0.90);
   if (typ == 0) sprintf (cname, "Kinetic Energy (GeV)");
   else          sprintf (cname, "Total Kinetic Energy (GeV)");
   hiKE[6]->GetXaxis()->SetTitle(cname);
   char hdr[120];
   sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
-  leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
+  leg1->SetHeader(hdr);  leg1->SetFillColor(10); leg1->SetMargin(0.45);
   sprintf(cname, "c_%s%s_%s_%sGeV_%s(Pion)", target,list,part,ene,pre);
-  leg->SetTextSize(.030); 
+  leg1->SetTextSize(.030); 
   c[19] = new TCanvas(cname, cname, 800, 500);
-  hiKE[6]->Draw(); sprintf (ctype, "%s", types[5].c_str()); leg->AddEntry(hiKE[6], ctype, "l");
-  hiKE[5]->Draw("same"); sprintf (ctype, "%s", types[4].c_str()); leg->AddEntry(hiKE[5], ctype, "l");
-  hiKE[4]->Draw("same"); sprintf (ctype, "%s", types[3].c_str()); leg->AddEntry(hiKE[4], ctype, "l"); leg->Draw("same");
+  hiKE[6]->Draw(); sprintf (ctype, "%s", types[5].c_str()); leg1->AddEntry(hiKE[6], ctype, "l");
+  hiKE[5]->Draw("same"); sprintf (ctype, "%s", types[4].c_str()); leg1->AddEntry(hiKE[5], ctype, "l");
+  hiKE[4]->Draw("same"); sprintf (ctype, "%s", types[3].c_str()); leg1->AddEntry(hiKE[4], ctype, "l"); leg->Draw("same");
+
+  TLegend *leg2 = new TLegend(0.50, 0.75, 0.90, 0.90);
+  if (typ == 0) sprintf (cname, "Kinetic Energy (GeV)");
+  else          sprintf (cname, "Total Kinetic Energy (GeV)");
+  hiKE[7]->GetXaxis()->SetTitle(cname);
+  sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
+  leg2->SetHeader(hdr);  leg2->SetFillColor(10); leg2->SetMargin(0.45);
+  sprintf(cname, "c_%s%s_%s_%sGeV_%s(Kaon)", target,list,part,ene,pre);
+  leg2->SetTextSize(.030); 
+  c[20] = new TCanvas(cname, cname, 800, 500);
+  hiKE[7]->Draw(); sprintf (ctype, "%s", types[6].c_str()); leg2->AddEntry(hiKE[7], ctype, "l");
+  hiKE[8]->Draw("same"); sprintf (ctype, "%s", types[7].c_str()); leg2->AddEntry(hiKE[8], ctype, "l");
+  hiKE[9]->Draw("same"); sprintf (ctype, "%s", types[8].c_str()); leg2->AddEntry(hiKE[9], ctype, "l"); leg2->Draw("same");
+
+  TLegend *leg3 = new TLegend(0.50, 0.75, 0.90, 0.90);
+  if (typ == 0) sprintf (cname, "Kinetic Energy (GeV)");
+  else          sprintf (cname, "Total Kinetic Energy (GeV)");
+  hiKE[12]->GetXaxis()->SetTitle(cname);
+  sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
+  leg3->SetHeader(hdr);  leg3->SetFillColor(10); leg3->SetMargin(0.45);
+  sprintf(cname, "c_%s%s_%s_%sGeV_%s(Nucleon)", target,list,part,ene,pre);
+  leg3->SetTextSize(.030); 
+  c[21] = new TCanvas(cname, cname, 800, 500);
+  hiKE[12]->Draw(); sprintf (ctype, "%s", types[11].c_str()); leg3->AddEntry(hiKE[12], ctype, "l");
+  hiKE[11]->Draw("same"); sprintf (ctype, "%s", types[10].c_str()); leg3->AddEntry(hiKE[11], ctype, "l"); leg3->Draw("same");
 }
 
 void printMeans(std::map<string, double> means) {
@@ -521,9 +546,9 @@ void printMeans(std::map<string, double> means) {
   }
 }
 
-std::map<string, double> getMean(char target[6], char list[10], char part[5], 
+std::map<string, double> getMean(char target[6], char list[20], char part[5], 
 				 char ene[6], char ctyp0[10]="Multi",
-				 char dir[8]="histo") {
+				 char dir[12]="histo") {
 
   std::vector<std::string> types = typesOld();
   std::map<string, double> means;

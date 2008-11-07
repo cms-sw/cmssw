@@ -23,15 +23,15 @@
 
 static unsigned int antiproton=12, proton=13, neutron=14, heavy=15, ions=16;
 
-void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int sav=0, int nMax=-1, bool debug=false) {
+void AnalyseH2TB(char element[6], char list[20], char ene[6], char part[4], int sav=0, int nMax=-1, bool debug=false) {
 
-  char *g4ver = "G4.9.1";
+  char *g4ver = "9.1.ref08Bertini";
   bool detail = true;
 
   int  energy = atoi(ene);
-  char fname[100];
+  char fname[120];
   sprintf (fname, "%s%s_%s_%sGeV.root", element, list, part, ene);
-  char ofile[100];
+  char ofile[130];
   sprintf (ofile, "histo/histo_%s", fname);
 
   double rhol = rhoL(element);
@@ -41,11 +41,11 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
   
   TFile *fout = new TFile(ofile, "recreate");
   TH1F *hiKE0[20], *hiKE1[20], *hiKE2[20], *hiCT0[20], *hiCT1[20], *hiCT2[20];
-  TH1I *hiMulti[20], *hiPT2[20], *hiEP2[4];
+  TH1I *hiMulti[20];
   TH1F *hiParticle[5][20], *hiTotalKE[20], *hiMomInclusive[20];
-  TH1F *hiSumP[20], *baryon1, *baryon2;
+  TH1F *hiSumP[20], *hiPT2[20], *hiEP2[4], *baryon1, *baryon2;
   TH1F *hProton[2], *hNeutron[2], *hHeavy[2], *hIon[2], *hBaryon[2];;
-  char name[60], title[160], ctype[20], ytitle[20];
+  char name[80], title[180], ctype[20], ytitle[20];
   double xbin;
 
   for (unsigned int ii=0; ii<=(types.size()); ii++) {
@@ -142,6 +142,18 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
     hiSumP[ii] = new TH1F (name, title, 6000, 0., 310.);
     if (debug) std::cout << "hiSumP[" << ii << "] = " << hiSumP[ii] << " " <<  name << " " << title << "\n";
   }
+  hiEP2[0] = new TH1F ("sumPX", "Sum px", 2000., -100., 100.);
+  hiEP2[0]->GetXaxis()->SetTitle("Momentum balance (x)");
+  hiEP2[0]->GetYaxis()->SetTitle("Events");
+  hiEP2[1] = new TH1F ("sumPY", "Sum py", 2000., -100., 100.);
+  hiEP2[1]->GetXaxis()->SetTitle("Momentum balance (y)");
+  hiEP2[1]->GetYaxis()->SetTitle("Events");
+  hiEP2[2] = new TH1F ("sumPZ", "Sum pz", 2000., -100., 100.);
+  hiEP2[2]->GetXaxis()->SetTitle("Momentum balance (z)");
+  hiEP2[2]->GetYaxis()->SetTitle("Events");
+  hiEP2[3] = new TH1F ("sumE",  "Sum E",  2000., -100., 100.);
+  hiEP2[3]->GetXaxis()->SetTitle("Energy balance");
+  hiEP2[3]->GetYaxis()->SetTitle("Events");
 
   if (detail) {
     for (int i=0; i<2; i++) {
@@ -223,6 +235,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	  sumPx[nct]   = 0.0; sumPy[nct] = 0.0; sumPz[nct] = 0.0;
 	}
 
+	double sumpx=0, sumpy=-energy, sumpz=0, sume=-energy;
 	int num = (*nsec)[0];
 	if (debug) std::cout << "Secondaries: " << num << "\n";
 	std::vector<double> partEne(num,0.0); 
@@ -232,14 +245,16 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	for (int k=0; k<(*nsec)[0]; k++) {
 	  int type = type((*mass)[k]);
 	  double m  = (((*mass)[k]) >=0 ? ((*mass)[k]): -((*mass)[k]));
-	  double pl = (*py)[k];
-	  double pt = ((*px)[k])*((*px)[k])+((*pz)[k])*((*pz)[k]);
+	  m        /= 1000.;
+	  double pl = ((*py)[k])/1000.;
+	  double p1 = ((*px)[k])/1000.;
+	  double p2 = ((*pz)[k])/1000.;
+	  double pt = (p1*p1 + p2*p2);
 	  double pp = (pt+pl*pl);
-	  double ke = (sqrt (pp + m*m) - m)/1000.;
+	  double ke = (sqrt (pp + m*m) - m);
 	  pp        = sqrt (pp);
 	  double cth= (pp == 0. ? -2. : (pl/pp));
-	  pp       /= 1000.0;
-	  pt        = sqrt(pt)/1000.;
+	  pt        = sqrt(pt);
 
 	  if      (type == proton)  pProton.push_back(ke);
 	  else if (type == neutron) pNeutron.push_back(ke);
@@ -247,6 +262,10 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	  else if (type == ions)    pIon.push_back(ke);
 	  if (type == proton || type == neutron || type == heavy) kBaryon += ke;
 
+	  sumpx += p1;
+	  sumpy += pl;
+	  sumpz += p2;
+	  sume  += (ke+m);
 	  partEne[k] = ke; partType[k] = type;
 	  hiMomInclusive[0]->Fill(pp);
 	  hiMomInclusive[type]->Fill(pp);
@@ -263,8 +282,10 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	  } else {
 	    hiKE2[0]->Fill(ke);
 	    hiCT2[0]->Fill(cth);
+	    hiPT2[0]->Fill(pt);
 	    hiKE2[type]->Fill(ke);
 	    hiCT2[type]->Fill(cth);
+	    hiPT2[type]->Fill(pt);
 	    counter[0]    += 1;
 	    counter[type] += 1;
 	    sumKE[0]      += ke;
@@ -283,7 +304,6 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	if( !isItElastic ) {
 	  for (unsigned int nct=0; nct<=(types.size()); nct++) {
 	    double sumP = std::sqrt(sumPx[nct]*sumPx[nct] + sumPy[nct]*sumPy[nct] + sumPz[nct]*sumPz[nct]);
-	    sumP = sumP/1000.0;       
 	    if(debug) {
 	      if(nct<1) sdt::cout <<  sumP << "   "; 
 	      else      sdt::cout << types[nct-1] << " " <<  sumP << "   "; 
@@ -296,6 +316,10 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	      for (unsigned int nct=0; nct<=types.size(); nct++) 
 		std::cout << "  [" << nct <<"]:" << counter[nct] << " KE " << sumKE[nct] << "\n";
 	    }
+	    hiEP2[0]->Fill(sumpx);
+	    hiEP2[1]->Fill(sumpy);
+	    hiEP2[2]->Fill(sumpz);
+	    hiEP2[3]->Fill(sume);
 	  }
 
 	  if (detail) {

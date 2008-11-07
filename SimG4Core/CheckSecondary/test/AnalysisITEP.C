@@ -20,7 +20,7 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
-void AnalyseITEP(char element[2], char list[10], char ene[6], char part[2]="p", int scan=1, char plot='Y') {
+void AnalyseITEP(char element[2], char list[20], char ene[6], char part[2]="p", int scan=1, char plot='Y') {
 
   static double massP = 938.272;
   static double massN = 939.565;
