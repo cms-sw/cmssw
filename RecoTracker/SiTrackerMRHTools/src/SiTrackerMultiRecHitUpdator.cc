@@ -80,9 +80,7 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::update( Tra
     }
     if (&((*iter)->det()->surface())!=&(tsos.surface())){
       TransientTrackingRecHit::RecHitPointer cloned = theHitPropagator->project<GenericProjectedRecHit2D>(*iter, *geomdet, tsos);
-      LogTrace("SiTrackerMultiRecHitUpdator") << "Projecting a hit from surface " << (*iter)->det()->surface().position() 
-					      << " to surface " << tsos.surface().position()  << " original global position " 
-					      << (*iter)->globalPosition() << " projected position " << cloned->globalPosition();
+
       if (cloned->isValid()) updatedcomponents.push_back(cloned);
     } else {
       TransientTrackingRecHit::RecHitPointer cloned = (*iter)->clone(tsos);
