@@ -96,6 +96,14 @@ const DDName DDXMLElement::getDDName(const std::string& defaultNS, const std::st
   if (aIndex < attributes_.size()
       && attributes_[aIndex].find(attname) != attributes_[aIndex].end()) { 
     std::string ns = defaultNS;
+    // For the user to fully control namespaces they must provide for 
+    // all name attributes something of the form, for example:
+    //        <Solid name="ns:name" ...
+    // If defaultNS is "!" (magic I don't like) then find and set
+    // the namespace properly.
+    if ( defaultNS == "!" ) {
+      ns = "";
+    } 
     const std::string & name = attributes_[aIndex].find(attname)->second;
     std::string rn = name;
     size_t foundColon= name.find(':');

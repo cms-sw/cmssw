@@ -117,8 +117,17 @@ class DDLSAX2Handler : public xercesc_2_7::DefaultHandler
   unsigned int    elementCount_;
   unsigned int    spaceCount_;
   bool            sawErrors_;
-
+  bool            userNS_;
   std::string getnmspace(const std::string& fname);
+
+ public:
+  /** This allows the DDLSAX2Handler and objects that inherit from it to set
+   ** the userNS_ flag to indicate 
+   **     false[default] use the filename of the file being handled as the DD namespace
+   **     true           assume ALL the "name" attributes have DD namespace specified.
+   **/
+  virtual void setUserNS(bool userns);
+
 };
 
 #endif

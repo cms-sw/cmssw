@@ -152,3 +152,7 @@ std::string DDLSAX2Handler::getnmspace(const std::string& fname)
     ret = fname.substr(0, j);
   return ret;
 }
+
+void DDLSAX2Handler::setUserNS(bool userns) { 
+  userNS_ = userns; 
+}
