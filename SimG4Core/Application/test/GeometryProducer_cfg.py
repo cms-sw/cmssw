@@ -47,11 +47,39 @@ process.m = cms.EDProducer("GeometryProducer",
         BirkC2 = cms.untracked.double(0.0568)
     ),
     HFShower = cms.PSet(
-        TrackEM = cms.bool(False),
-        CFibre = cms.double(0.5),
-        PEPerGeV = cms.double(0.25),
-        ProbMax = cms.double(0.7268),
-        PEPerGeVPMT = cms.double(1.0)
+        ProbMax         = cms.double(0.7268),
+        CFibre          = cms.double(0.5),
+        PEPerGeV        = cms.double(0.25),
+        TrackEM         = cms.bool(False),
+        UseShowerLibrary= cms.bool(False),
+        EminLibrary     = cms.double(5.0),
+        RefIndex        = cms.double(1.459),
+        Lambda1         = cms.double(280.0),
+        Lambda2         = cms.double(700.0),
+        Aperture        = cms.double(0.33),
+        ApertureTrapped = cms.double(0.22),
+        Gain            = cms.double(0.33),
+        CheckSurvive    = cms.bool(False)
+    ),
+    HFShowerLibrary = cms.PSet(
+        FileName        = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),
+        BackProbability = cms.double(0.2),
+        TreeEMID        = cms.string('emParticles'),
+        TreeHadID       = cms.string('hadParticles'),
+        Verbosity       = cms.untracked.bool(False),
+        BranchPost      = cms.untracked.string('_R.obj'),
+        BranchEvt       = cms.untracked.string('HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'),
+        BranchPre       = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
+    ),
+    HFShowerPMT = cms.PSet(
+        PEPerGeVPMT     = cms.double(1.0),
+        RefIndex        = cms.double(1.52),
+        Lambda1         = cms.double(280.0),
+        Lambda2         = cms.double(700.0),
+        Aperture        = cms.double(0.66),
+        ApertureTrapped = cms.double(0.22),
+        Gain            = cms.double(0.33),
+        CheckSurvive    = cms.bool(False)
     ),
     MagneticField = cms.PSet(
         delta = cms.double(1.0)
@@ -102,6 +130,10 @@ process.m = cms.EDProducer("GeometryProducer",
         UseHF = cms.untracked.bool(True),
         UseLayerWt = cms.untracked.bool(False),
         UseShowerLibrary = cms.bool(True),
+        EminHitHB = cms.double(0.0),
+        EminHitHE = cms.double(0.0),
+        EminHitHO = cms.double(0.0),
+        EminHitHF = cms.double(0.0),
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.142),
         BirkC1 = cms.double(0.0052),
@@ -110,16 +142,6 @@ process.m = cms.EDProducer("GeometryProducer",
     CaloTrkProcessing = cms.PSet(
         TestBeam = cms.bool(False),
         EminTrack = cms.double(0.01)
-    ),
-    HFShowerLibrary = cms.PSet(
-        BranchPost = cms.untracked.string('_R.obj'),
-        BranchEvt = cms.untracked.string('HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'),
-        TreeHadID = cms.string('hadParticles'),
-        Verbosity = cms.untracked.bool(False),
-        BackProbability = cms.double(0.2),
-        FileName = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),
-        TreeEMID = cms.string('emParticles'),
-        BranchPre = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
     ),
     CaloSD = cms.PSet(
         process.common_heavy_suppression,
@@ -131,18 +153,11 @@ process.m = cms.EDProducer("GeometryProducer",
         CorrectTOFBeam = cms.untracked.bool(False),
         UseMap = cms.untracked.bool(True),
         EminTrack = cms.double(1.0),
-        TmaxHit = cms.double(1000.0)
+        TmaxHit = cms.double(1000.0),
+	HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
+        EminHits  = cms.vdouble(0.0,0.0,0.0,0.0)
     ),
-    UseMagneticField = cms.bool(True),
-    HFCherenkov = cms.PSet(
-        RefIndex = cms.double(1.459),
-        Gain = cms.double(0.33),
-        Aperture = cms.double(0.33),
-        CheckSurvive = cms.bool(False),
-        Lambda1 = cms.double(280.0),
-        Lambda2 = cms.double(700.0),
-        ApertureTrapped = cms.double(0.22)
-    )
+    UseMagneticField = cms.bool(True)
 )
 
 process.p1 = cms.Path(process.m)
