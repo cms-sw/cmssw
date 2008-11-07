@@ -202,21 +202,17 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	 if ((tkLayer->subDetector()!=GeomDetEnumerators::PixelBarrel)&&
 	     (tkLayer->subDetector()!=GeomDetEnumerators::PixelEndcap)){
 	   
-	   
-	   StRange Range = (rphirecHits.product())->		  
-	     get((detid));
-	   MatRange MRange =(matchedrecHits.product())->		  
-	     get((detid));
+	    
+	   StDetMatch DetMatch = (rphirecHits.product())->find((detid));
+	   MatDetMatch MDetMatch =(matchedrecHits.product())->find((detid));
 	   
 		
-	   long int DetID=(Range.second!=Range.first)? detid:0;
+	   long int DetID=(DetMatch != rphirecHits->end())? detid:0;
 
-	   if (MRange.second!=MRange.first) {
-	     long int pii=(*MRange.first).monoHit()->geographicalId().rawId();
-	     StRange CRange = (rphirecHits.product())->		  
-	       get((pii));
-	     
-	     DetID=(CRange.second!=CRange.first)? pii:0;
+	   if ((MDetMatch != matchedrecHits->end()) && !MDetMatch->empty()) {
+	     long int pii = MDetMatch->begin()->monoHit()->geographicalId().rawId();
+	     StDetMatch CDetMatch = (rphirecHits.product())->find((pii));
+	     DetID=(CDetMatch != rphirecHits->end())? pii:0;
 	     
 	   }
 
@@ -224,9 +220,8 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	   
 	 }
 	 else{
-	   SiPixelRecHitCollection::range Range = (pixelHits.product())->
-	     get((detid));
-	   long int DetID=(Range.second!=Range.first)? detid:0;
+	   PiDetMatch DetMatch = (pixelHits.product())->find((detid));
+	   long int DetID=(DetMatch != pixelHits->end())? detid:0;
 	   temp.push_back(DetID);
 	
 	
@@ -271,22 +266,28 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TransientTrackingRecHit::ConstRecHitContainer glob_hits;
     OwnVector<TrackingRecHit> loc_hits;
     for (uint i=0;i<tripl.size();i++){
-      StRange Range1 = (rphirecHits.product())->get(tripl[i][0]);
-      StRange Range2 = (rphirecHits.product())->get(tripl[i][1]);
-      StRange Range3 = (rphirecHits.product())->get(tripl[i][2]);
+      StDetMatch DetMatch1 = (rphirecHits.product())->find(tripl[i][0]);
+      StDetMatch DetMatch2 = (rphirecHits.product())->find(tripl[i][1]);
+      StDetMatch DetMatch3 = (rphirecHits.product())->find(tripl[i][2]);
+      if ((DetMatch1 == rphirecHits->end()) ||
+          (DetMatch2 == rphirecHits->end()) ||
+          (DetMatch3 == rphirecHits->end()) )  continue;
+      StDetSet DetSet1 = *DetMatch1;
+      StDetSet DetSet2 = *DetMatch2;
+      StDetSet DetSet3 = *DetMatch3;
 
-      for (StIter it1=Range1.first;it1!=Range1.second;++it1){
+      for (StDetSet::const_iterator it1=DetSet1.begin();it1!=DetSet1.end();++it1){
 	GlobalPoint gp1=tracker_->idToDet(tripl[i][0])->surface().
 	  toGlobal(it1->localPosition());
 
 	bool tak1=isGsfTrack(gsfRecHits,&(*it1));
 	
-	for (StIter it2=Range2.first;it2!=Range2.second;++it2){
+	for (StDetSet::const_iterator it2=DetSet2.begin();it2!=DetSet2.end();++it2){
 	  GlobalPoint gp2=tracker_->idToDet(tripl[i][1])->surface().
 	    toGlobal(it2->localPosition());
 	  bool tak2=isGsfTrack(gsfRecHits,&(*it2));
 
-	  for (StIter it3=Range3.first;it3!=Range3.second;++it3){
+	  for (StDetSet::const_iterator it3=DetSet3.begin();it3!=DetSet3.end();++it3){
 	    //  ips++;
 	    GlobalPoint gp3=tracker_->idToDet(tripl[i][2])->surface().
 	      toGlobal(it3->localPosition());	 

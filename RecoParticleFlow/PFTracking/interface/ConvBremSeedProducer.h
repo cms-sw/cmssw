@@ -39,14 +39,14 @@ class TransientTrackingRecHitBuilder;
 class TrajectoryStateTransform;
 
 class ConvBremSeedProducer : public edm::EDProducer {
-  typedef SiStripRecHit2DCollection::range StRange;
-  typedef SiPixelRecHitCollection::range PiRange;  
-  typedef SiStripRecHit2DCollection::const_iterator StIter;
-  typedef SiPixelRecHitCollection::const_iterator PiIter;
-  typedef SiStripMatchedRecHit2DCollection::range MatRange;
-  typedef SiStripMatchedRecHit2DCollection::const_iterator MatIter;
+  typedef SiStripRecHit2DCollection::const_iterator StDetMatch;
+  typedef SiPixelRecHitCollection::const_iterator PiDetMatch;
+  typedef SiStripMatchedRecHit2DCollection::const_iterator MatDetMatch;
+  typedef SiStripRecHit2DCollection::DetSet        StDetSet;
+  typedef SiPixelRecHitCollection::DetSet          PiDetSet;
+  typedef SiStripMatchedRecHit2DCollection::DetSet MatDetSet;
   typedef GeometricSearchDet::DetWithState   DetWithState;
-  
+ 
  public:
   explicit ConvBremSeedProducer(const edm::ParameterSet&);
   ~ConvBremSeedProducer();
