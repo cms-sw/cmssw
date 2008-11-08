@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.16 2008/11/06 14:21:47 loizides Exp $
+#$Id: t0inject.sh,v 1.17 2008/11/06 15:02:12 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -69,7 +69,7 @@ start(){
     cd ${SMT0_LOCAL_RUN_DIR}/workdir
 
     #running with four instances should be enough
-    for i in `seq 1 4`; do
+    for i in `seq 1 16`; do
         inst=`expr $i - 1`
         export SMIW_RUNNUM=$inst
         echo "Starting $SMT0_IW instance $inst"
