@@ -11,8 +11,8 @@
   *     [5:4] Section (EM/HAD/Lumi)
   *     [3:0] Channel (depth)
   *
-  * $Date: 2007/07/25 17:38:14 $
-  * $Revision: 1.2 $
+  * $Date: 2008/06/25 22:13:29 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class HcalZDCDetId : public DetId {
@@ -26,7 +26,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HcalZDCDetId(uint32_t rawid);
   /** Constructor from section, eta sign, and depth/channel */
-  HcalZDCDetId(Section section, bool true_for_positive_eta, int depth);
+  HcalZDCDetId(Section section, bool true_for_positive_eta, int channel);
   /** Constructor from a generic cell id */
   HcalZDCDetId(const DetId& id);
   /** Assignment from a generic cell id */
@@ -36,9 +36,9 @@ public:
   int zside() const { return (id_&0x40)?(1):(-1); }
   /// get the section
   Section section() const { return (Section)((id_>>4)&0x3); }
-  /// get the depth
+  /// get the depth (currently equivalent to channel, but that's not correct)
   int depth() const { return id_&0xF; }
-  /// get the channel (equivalent to depth)
+  /// get the channel
   int channel() const { return id_&0xF; }
 
   uint32_t denseIndex() const ;
