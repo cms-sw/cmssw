@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.19 2008/03/03 20:22:36 rofierzy Exp $
+// $Id: HcalDbProducer.cc,v 1.20 2008/03/09 18:21:13 rofierzy Exp $
 //
 //
 
@@ -24,13 +24,12 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
-
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "HcalDbProducer.h"
 
@@ -50,6 +49,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::channelQualityCallback &
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::respCorrsCallback &
+			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback
 			  )
 		   );
@@ -160,6 +160,16 @@ void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL Pedestals set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fRecord) {
+  edm::ESHandle <HcalL1TriggerObjects> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Pedestals set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }

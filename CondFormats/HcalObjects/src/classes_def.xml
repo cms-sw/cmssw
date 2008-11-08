@@ -35,6 +35,9 @@
  <class name="HcalRespCorr"/>
  <class name="HcalRespCorrs"/>
 
+ <class name="HcalL1TriggerObject"/>
+ <class name="HcalL1TriggerObjects"/>
+
  <class pattern="*vector*"/>
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   

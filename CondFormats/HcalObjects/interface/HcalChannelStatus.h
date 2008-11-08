@@ -43,7 +43,7 @@ class HcalChannelStatus
     mStatus = mStatus&statadd;
   }
   
-  bool isBitSet(unsigned int bitnumber)
+  bool isBitSet(unsigned int bitnumber) const
   {
     uint32_t statadd = 0x1<<(bitnumber);
     return (mStatus&statadd)?(true):(false);

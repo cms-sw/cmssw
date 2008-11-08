@@ -2,12 +2,12 @@
 
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 namespace {
-  HcalPedestals mypeds;
+  HcalPedestals mypeds(false);
 }
 
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 namespace {
-  HcalPedestalWidths mywidths;
+  HcalPedestalWidths mywidths(false);
 }
 
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -48,5 +48,10 @@ namespace {
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 namespace {
   HcalRespCorrs mycorrs;
+}
+
+#include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
+namespace {
+  HcalL1TriggerObjects myL1trigs;
 }
 

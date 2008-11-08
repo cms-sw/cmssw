@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.23 2008/05/15 16:44:56 mansj Exp $
+// $Id: HcalDbService.cc,v 1.24 2008/07/07 10:12:49 andreasp Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -26,16 +26,16 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg)
   mQIEData(0),
   mElectronicsMap(0),
   mRespCorrs(0),
-  mPedestalInADC(cfg.getUntrackedParameter<bool>("PedestalInADC",false))
+  mL1TriggerObjects(0)
  {}
 
-bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const {
+bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, bool pedestalInADC) const {
   if (fObject) {
     const HcalPedestal* pedestal = getPedestal (fId);
     const HcalGain* gain = getGain (fId);
     const HcalRespCorr* respcorr = getHcalRespCorr (fId);
 
-    if (mPedestalInADC) {
+    if (pedestalInADC) {
       const HcalQIEShape* shape=getHcalShape();
       const HcalQIECoder* coder=getHcalCoder(fId);
       if (pedestal && gain && shape && coder && respcorr) {
@@ -66,6 +66,7 @@ void HcalDbService::buildCalibrations() {
   // we use the set of ids for pedestals as the master list
   if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs)) return;
   std::vector<DetId> ids=mPedestals->getAllChannels();
+  bool pedsInADC = mPedestals->isADC();
   // clear the calibrations set
   mCalibSet.clear();
   // loop!
@@ -74,7 +75,7 @@ void HcalDbService::buildCalibrations() {
   //  std::cout << " length of id-vector: " << ids.size() << std::endl;
   for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
     // make
-    bool ok=makeHcalCalibration(*id,&tool);
+    bool ok=makeHcalCalibration(*id,&tool,pedsInADC);
     // store
     if (ok) mCalibSet.setCalibrations(*id,tool);
     //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
@@ -82,31 +83,54 @@ void HcalDbService::buildCalibrations() {
   mCalibSet.sort();
 }
 
-bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject) const {
+void HcalDbService::buildCalibWidths() {
+  // we use the set of ids for pedestal widths as the master list
+  if ((!mPedestalWidths) || (!mGainWidths) || (!mQIEData) ) return;
+
+  std::vector<DetId> ids=mPedestalWidths->getAllChannels();
+  bool pedsInADC = mPedestalWidths->isADC();
+  // clear the calibrations set
+  mCalibWidthSet.clear();
+  // loop!
+  HcalCalibrationWidths tool;
+
+  //  std::cout << " length of id-vector: " << ids.size() << std::endl;
+  for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
+    // make
+    bool ok=makeHcalCalibrationWidth(*id,&tool,pedsInADC);
+    // store
+    if (ok) mCalibWidthSet.setCalibrationWidths(*id,tool);
+    //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
+  }
+  mCalibWidthSet.sort();
+}
+
+bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId, 
+					      HcalCalibrationWidths* fObject, bool pedestalInADC) const {
   if (fObject) {
-    const HcalPedestalWidth* pedestal = getPedestalWidth (fId);
-    const HcalGainWidth* gain = getGainWidth (fId);
-    if (mPedestalInADC) {
+    const HcalPedestalWidth* pedestalwidth = getPedestalWidth (fId);
+    const HcalGainWidth* gainwidth = getGainWidth (fId);
+    if (pedestalInADC) {
       const HcalQIEShape* shape=getHcalShape();
       const HcalQIECoder* coder=getHcalCoder(fId);
-      if (pedestal && gain && shape && coder) {
+      if (pedestalwidth && gainwidth && shape && coder) {
 	float pedTrueWidth[4];
 	for (int i=0; i<4; i++) {
-	  float x=pedestal->getWidth(i);
+	  float x=pedestalwidth->getWidth(i);
 	  // assume QIE is linear in low range and use x1=0 and x2=1
 	  // y = (y2-y1) * (x) [do not add any constant, only scale!]
 	  float y2=coder->charge(*shape,1,i);
 	  float y1=coder->charge(*shape,0,i);
 	  pedTrueWidth[i]=(y2-y1)*x;
 	}
-	*fObject = HcalCalibrationWidths (gain->getValues (), pedTrueWidth);
+	*fObject = HcalCalibrationWidths (gainwidth->getValues (), pedTrueWidth);
 	return true; 
       } 
     } else {
-      if (pedestal && gain) {
+      if (pedestalwidth && gainwidth) {
 	float pedestalWidth [4];
-	for (int i = 0; i < 4; i++) pedestalWidth [i] = pedestal->getWidth (i);
-	*fObject = HcalCalibrationWidths (gain->getValues (), pedestalWidth);
+	for (int i = 0; i < 4; i++) pedestalWidth [i] = pedestalwidth->getWidth (i);
+	*fObject = HcalCalibrationWidths (gainwidth->getValues (), pedestalWidth);
 	return true;
       }      
     }

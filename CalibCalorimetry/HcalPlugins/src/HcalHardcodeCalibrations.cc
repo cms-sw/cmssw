@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.14 2008/03/05 10:32:26 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.15 2008/07/15 12:59:11 rofierzy Exp $
 //
 //
 
@@ -12,13 +12,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
@@ -29,6 +22,9 @@
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
+
+
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -130,6 +126,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
+    if ((*objectName == "L1TriggerObjects") || (*objectName == "L1Trigger") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceL1TriggerObjects);
+      findingRecord <HcalL1TriggerObjectsRcd> ();
+    }
 
   }
 }
@@ -152,7 +152,7 @@ HcalHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecor
 
 std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const HcalPedestalsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestals-> ...";
-  std::auto_ptr<HcalPedestals> result (new HcalPedestals ());
+  std::auto_ptr<HcalPedestals> result (new HcalPedestals (false));
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
@@ -163,7 +163,7 @@ std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const H
 
 std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestalWidths-> ...";
-  std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths ());
+  std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths (false));
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
@@ -237,6 +237,22 @@ std::auto_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds (c
   }
   return result;
 }
+
+
+std::auto_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceL1TriggerObjects-> ...";
+  std::auto_ptr<HcalL1TriggerObjects> result (new HcalL1TriggerObjects ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalL1TriggerObject item(cell->rawId(),0., 1., 0);
+    result->addValues(item,h2mode_);
+  }
+  // add tag and algo values
+  result->setTagString("hardcoded");
+  result->setAlgoString("hardcoded");
+  return result;
+}
+
 
 
 

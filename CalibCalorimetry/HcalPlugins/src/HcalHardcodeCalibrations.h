@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.6 2007/05/11 14:53:04 mansj Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.7 2008/03/03 20:22:42 rofierzy Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -23,7 +23,7 @@ class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
 class HcalRespCorrsRcd;
 class HcalZSThresholdsRcd;
-
+class HcalL1TriggerObjectsRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -49,6 +49,8 @@ protected:
 
   std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
   std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
+  std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
+
   bool h2mode_;
 };
 

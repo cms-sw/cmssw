@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.6 2008/01/22 18:57:58 muzaffar Exp $
+// $Id: HcalTextCalibrations.cc,v 1.7 2008/03/03 20:22:44 rofierzy Exp $
 //
 //
 
@@ -15,14 +15,6 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
-
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
@@ -32,6 +24,7 @@
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 
 
 #include "HcalTextCalibrations.h"
@@ -83,6 +76,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
+    else if (objectName == "L1TriggerObjects") {
+      setWhatProduced (this, &HcalTextCalibrations::produceL1TriggerObjects);
+      findingRecord <HcalL1TriggerObjectsRcd> ();
+    }
     else if (objectName == "ElectronicsMap") {
       setWhatProduced (this, &HcalTextCalibrations::produceElectronicsMap);
       findingRecord <HcalElectronicsMapRcd> ();
@@ -90,7 +87,8 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
-		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap"
+		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
+		<< "ZSThresholds RespCorrs L1TriggerObjects"
 		<< std::endl;
     }
   }
@@ -114,7 +112,8 @@ HcalTextCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey
 
 template <class T>
 std::auto_ptr<T> produce_impl (const std::string& fFile) {
-  std::auto_ptr<T> result (new T ());
+  //  std::auto_ptr<T> result (new T ());
+  std::auto_ptr<T> result;
   std::ifstream inStream (fFile.c_str ());
   if (!inStream.good ()) {
     std::cerr << "HcalTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
@@ -158,6 +157,10 @@ std::auto_ptr<HcalZSThresholds> HcalTextCalibrations::produceZSThresholds (const
 
 std::auto_ptr<HcalRespCorrs> HcalTextCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
   return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"]);
+}
+
+std::auto_ptr<HcalL1TriggerObjects> HcalTextCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
+  return produce_impl<HcalL1TriggerObjects> (mInputs ["L1TriggerObjects"]);
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.37 2008/03/09 15:22:44 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.38 2008/03/12 13:11:45 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -220,8 +220,6 @@ bool dumpHcalSingleIntObject (std::ostream& fOutput, const T& fObject) {
 }
 
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {return getHcalObject (fInput, fObject, new HcalPedestal);}
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestals& fObject) {return dumpHcalObject (fOutput, fObject);}
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGains* fObject) {return getHcalObject (fInput, fObject, new HcalGain);}
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGains& fObject) {return dumpHcalObject (fOutput, fObject);}
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGainWidths* fObject) {return getHcalObject (fInput, fObject, new HcalGainWidth);}
@@ -231,13 +229,231 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRespCorrs* fObject) {re
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalChannelStatus); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject) {
-  if (!fObject) fObject = new HcalPedestalWidths;
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
+  //  if (!fObject) fObject = new HcalPedestals;
+  delete(fObject);
   char buffer [1024];
+
+  while (fInput.getline(buffer, 1024)) {
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    else {
+      if (items[0] == (std::string)"#U")
+	{
+	  if (items[1] == (std::string)"ADC") fObject = new HcalPedestals(true);
+	  else if (items[1] == (std::string)"fC") fObject = new HcalPedestals(false);
+	  else 
+	    {
+	      edm::LogWarning("Pedestal Unit Error") << "Unrecognized unit for pedestals. Assuming fC." << std::endl;
+	      fObject = new HcalPedestals(false);
+	    }
+	}
+      else
+	{
+	  edm::LogWarning("Pedestal Unit Missing") << "The unit for the pedestals is missing in the txt file. Assuming fC." << std::endl;
+	  fObject = new HcalPedestals(false);
+	}
+    }
+  }
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue;
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 8) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
+      continue;
+    }
+    DetId id = getId (items);
+    
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+//    else
+//      {
+	HcalPedestal* fCondObject = new HcalPedestal(id, atof (items [4].c_str()), atof (items [5].c_str()), 
+				       atof (items [6].c_str()), atof (items [7].c_str()));
+	fObject->addValues(*fCondObject);
+	delete fCondObject;
+	//      }
+  }
+  return true;
+}
+
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestals& fObject) {
+  char buffer [1024];
+  if (fObject.isADC() ) sprintf (buffer, "#U ADC  << this is the unit \n");
+  else  sprintf (buffer, "#U fC  << this is the unit \n");
+  fOutput << buffer;
+
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "DetId");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const float* values = fObject.getValues (*channel)->getValues ();
+    if (values) {
+      dumpId (fOutput, *channel);
+      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %10X\n",
+	       values[0], values[1], values[2], values[3], channel->rawId ());
+      fOutput << buffer;
+    }
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject) 
+{
+  if (!fObject) fObject = new HcalChannelQuality;
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 5) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, value" << std::endl;
+      continue;
+    }
+    DetId id = getId (items);
+    
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+//    else
+//      {
+    uint32_t mystatus;
+    sscanf(items[4].c_str(),"%X", &mystatus);
+    HcalChannelStatus* fCondObject = new HcalChannelStatus(id, mystatus); //atoi (items [4].c_str()) );
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+	//      }
+  }
+  return true;
+}
+
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject) {
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %15s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const int value = fObject.getValues (*channel)->getValue ();
+    dumpId (fOutput, *channel);
+    sprintf (buffer, " %15X %10X\n",
+	     value, channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject)
+{
+  if (!fObject) fObject = new HcalL1TriggerObjects;
+  char buffer [1024];
+
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') 
+      {
+	if (buffer [1] == 'T') // contains tag name
+	  {
+	    std::vector <std::string> items = splitString (std::string (buffer) );
+	    fObject->setTagString(items[1]);
+	  }
+	if (buffer [1] == 'A') // contains algo name
+	  {
+	    std::vector <std::string> items = splitString (std::string (buffer) );
+	    fObject->setAlgoString(items[1]);
+	  }
+	else continue; //ignore comment
+      }
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () < 7) { 
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 7 items: eta, phi, depth, subdet, pedestal, resp.corr.gain, flag" << std::endl;
+      continue;
+    }
+    DetId id = getId (items);
+    
+    HcalL1TriggerObject* fCondObject = new HcalL1TriggerObject(id, atof(items[4].c_str()), atof(items[5].c_str()), atoi(items[6].c_str()) );
+    
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+
+bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject)
+{
+  char buffer [1024];
+  //first print tag and algo
+  sprintf (buffer, "#T %s  << this is the tag name \n", fObject.getTagString().c_str() );
+  fOutput << buffer;
+  sprintf (buffer, "#A %s  << this is the algorithm name \n", fObject.getAlgoString().c_str() );
+  fOutput << buffer;
+
+  //then the values
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %13s %8s %10s\n", 
+	   "eta", "phi", "dep", "det", "ped", "respcorrgain", "flag",
+	   "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  //  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const HcalL1TriggerObject* item = fObject.getValues (*channel);
+    if (item) {
+      dumpId (fOutput, *channel);
+      sprintf (buffer, " %8.5f %8.5f %12d %10X\n",
+	       item->getPedestal(), item->getRespGain(), item->getFlag(), channel->rawId ());
+      fOutput << buffer;
+    }
+  }
+  return true;
+
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject) {
+  //  if (!fObject) fObject = new HcalPedestalWidths;
+  delete(fObject);
+  char buffer [1024];
+
+  while (fInput.getline(buffer, 1024)) {
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    else {
+      if (items[0] == (std::string)"#U")
+	{
+	  if (items[1] == (std::string)"ADC") fObject = new HcalPedestalWidths(true);
+	  else if (items[1] == (std::string)"fC") fObject = new HcalPedestalWidths(false);
+	  else 
+	    {
+	      edm::LogWarning("Pedestal Width Unit Error") << "Unrecognized unit for pedestal widths. Assuming fC." << std::endl;
+	      fObject = new HcalPedestalWidths(false);
+	    }
+	}
+      else
+	{
+	  edm::LogWarning("Pedestal Width Unit Missing") << "The unit for the pedestal widths is missing in the txt file. Assuming fC." << std::endl;
+	  fObject = new HcalPedestalWidths(false);
+	}
+    }
+  }
+
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
@@ -270,9 +486,13 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths& fObject) {
   char buffer [1024];
+  if (fObject.isADC() ) sprintf (buffer, "#U ADC  << this is the unit \n");
+  else  sprintf (buffer, "#U fC  << this is the unit \n");
+  fOutput << buffer;
+
   sprintf (buffer, "# %15s %15s %15s %15s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
 	   "eta", "phi", "dep", "det", 
-	   "sig_0_o", "sig_1_0", "sig_1_1", "sig_2_0", "sig_2_1", "sig_2_2", "sig_3_0", "sig_3_1", "sig_3_2", "sig_3_3", 
+	   "sig_0_0", "sig_1_0", "sig_1_1", "sig_2_0", "sig_2_1", "sig_2_2", "sig_3_0", "sig_3_1", "sig_3_2", "sig_3_3", 
 	   "DetId");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
@@ -292,6 +512,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
   return true;
 }
 
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -381,6 +603,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
   return true;
 }
 
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -436,44 +659,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
   return true;
 }
 
-//bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject) {
-//  char buffer [1024];
-//  while (fInput.getline(buffer, 1024)) {
-//    if (buffer [0] == '#') continue; //ignore comment
-//    std::vector <std::string> items = splitString (std::string (buffer));
-//    if (items.size () < 5) {
-//      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, GOOD/BAD/HOT/DEAD" << std::endl;
-//      continue;
-//    }
-//    HcalChannelQuality::Quality value (HcalChannelQuality::UNKNOWN);
-//    for (int i = 0; i < (int) HcalChannelQuality::END; i++) {
-//      if (items [4] == std::string (HcalChannelQuality::str ((HcalChannelQuality::Quality) i))) {
-//	value = (HcalChannelQuality::Quality) i;
-//      }
-//    }
-//    fObject->setChannel (getId (items).rawId (), value);
-//  }
-//  fObject->sort ();
-//  return true;
-//}
 
-//bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject) {
-//  char buffer [1024];
-//  sprintf (buffer, "# %15s %15s %15s %15s %8s\n", 
-//	   "eta", "phi", "dep", "det", 
-//	   "quality");
-//  fOutput << buffer;
-//  std::vector<unsigned long> channels = fObject.getAllChannels ();
-//  for (std::vector<unsigned long>::iterator channel = channels.begin ();
-//       channel !=  channels.end ();
-//       channel++) {
-//    DetId id ((uint32_t) *channel);
-//    dumpId (fOutput, id);
-//    sprintf (buffer, " %8s\n", HcalChannelQuality::str (fObject.quality (*channel)));
-//  }
-//  return true;
-//}
-
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {

@@ -514,14 +514,14 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   if(m_pedValflag>0) {
     fValPedestals = fOutputPedestals;
     fValPedestalWidths = fOutputPedestalWidths;
-    fRawPedestals = new HcalPedestals();
-    fRawPedestalWidths = new HcalPedestalWidths();
+    fRawPedestals = new HcalPedestals(m_pedsinADC);
+    fRawPedestalWidths = new HcalPedestalWidths(m_pedsinADC);
   }
   else {
     fRawPedestals = fOutputPedestals;
     fRawPedestalWidths = fOutputPedestalWidths;
-    fValPedestals = new HcalPedestals();
-    fValPedestalWidths = new HcalPedestalWidths();
+    fValPedestals = new HcalPedestals(m_pedsinADC);
+    fValPedestalWidths = new HcalPedestalWidths(m_pedsinADC);
   }
 
 // compute pedestal constants

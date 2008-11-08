@@ -3,6 +3,8 @@
 
 
 #include <cstring>
+#include <string>
+
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -13,11 +15,11 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>() {}
 
   //fill the chars and read them
-  void setTagString(char* fTag) {strncpy(mTag,fTag);}
-  void setAlgoString(char* fAlgo) {strncpy(mAlgo,fAlgo);}
+  void setTagString(std::string fTag) {strncpy(mTag,fTag.c_str(),128);}
+  void setAlgoString(std::string fAlgo) {strncpy(mAlgo,fAlgo.c_str(),128);}
 
-  char* getTagString() {return mTag;}
-  char* getAlgoString() {return mAlgo;}
+  std::string getTagString() const {return (std::string)mTag;}
+  std::string getAlgoString() const {return (std::string)mAlgo;}
 
  private:
   char mTag[128];

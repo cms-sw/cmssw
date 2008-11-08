@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalTextCalibrations.h,v 1.2 2006/01/10 19:29:40 fedor Exp $
+// $Id: HcalTextCalibrations.h,v 1.3 2008/03/03 20:22:48 rofierzy Exp $
 //
 //
 #include <map>
@@ -22,6 +22,7 @@ class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
 class HcalRespCorrsRcd;
 class HcalZSThresholdsRcd;
+class HcalL1TriggerObjectsRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -47,6 +48,7 @@ protected:
 
   std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
   std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
+  std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
  private:
   std::map <std::string, std::string> mInputs;
 };
