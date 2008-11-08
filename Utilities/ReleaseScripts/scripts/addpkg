@@ -3,7 +3,7 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.8 2008/03/12 17:59:04 dlange Exp $
+#  $Id: addpkg,v 1.9 2008/11/08 20:54:25 dlange Exp $
 #
 use strict;
 use Getopt::Long;
@@ -120,8 +120,12 @@ while(my $line = <IN>) {
   chomp $line;
 
   my ($tag, $package);
+  my @tpS=split(' ',$line);
+  next if (length(@tpS)<2);
+  $package=$tpS[0];
+  $tag=$tpS[1];
+
   ($package,$tag) = split(' ',$line);
-  next if (length(split(' ',$line)<2));
   if($tag =~ m#(.*)/(.*)#) { # exchange tag w/ package
     my $tt = $tag;
     $tag = $package;
