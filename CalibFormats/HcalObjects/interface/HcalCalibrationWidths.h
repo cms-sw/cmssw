@@ -1,12 +1,12 @@
 #ifndef HCAL_CALIBRATION_WIDTHS_H
-#define HCAL_CALIBRATION_WIDTHs_H
+#define HCAL_CALIBRATION_WIDTHS_H
 
 /** \class HcalCalibrationWidths
     
     Container for retrieving uncertainties of calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2005/12/15 23:37:59 $
-   $Revision: 1.4 $
+   $Date: 2006/04/13 22:40:40 $
+   $Revision: 1.5 $
 */
 class HcalCalibrationWidths {
  public:
