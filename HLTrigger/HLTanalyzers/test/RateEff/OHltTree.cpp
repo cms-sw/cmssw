@@ -66,9 +66,12 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 
     // We're running on unskimmed, unprescaled MC. _After_ getting the event but _before_ setting the 
     // L1->HLT association with SetMapL1BitOfStandardHLTPath, apply prescales to L1.
+    // Leave room for a switch in case we don't want to do prescaling (i.e. for data).
     int doMCPrescales = 1;
     if(doMCPrescales == 1)
       {
+	// Third argument should be set to 1 to apply deterministic prescales. Currrently this is the only option 
+	// implemented, but we may want to leave room for other prescaling algorithms (i.e. random prescales).
 	ApplyL1Prescales(map_L1Prescl,jentry,1);
       }
 
@@ -284,11 +287,10 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {      
 	      triggerBit[it] = true;      
 	    }      
-	  }      
-	  //	  PrintOhltVariables(3,photon); 
+	  }
 	}
       }     
-      
+    
       else if (trignames[it].CompareTo("OpenHLT_Jet30") == 0) {   
 	if( L1_SingleJet15==1) {      // L1 Seed   
 	  L1AssHLTBit[it] = true;  
@@ -448,7 +450,6 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	      triggerBit[it] = true;     
 	    }     
 	  }     
-	  //	  PrintOhltVariables(3,photon);           
 	}
       }    
       
@@ -777,7 +778,8 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
 	if( ohPhotTiso[i]<=Tiso )
 	  if( ohPhotEiso[i] < Eiso ) {
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
-		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) )
+		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 
+		(ohPhotHiso[i]/ohPhotEt[i] < 0.05) )
 	      rc++;
 	  }
   }
