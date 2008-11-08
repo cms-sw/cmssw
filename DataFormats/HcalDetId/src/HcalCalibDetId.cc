@@ -2,6 +2,8 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace std;
+
 HcalCalibDetId::HcalCalibDetId() : HcalOtherDetId() {
 }
 
@@ -10,16 +12,23 @@ HcalCalibDetId::HcalCalibDetId(uint32_t rawid) : HcalOtherDetId(rawid) {
 }
 
 HcalCalibDetId::HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int ctype) : HcalOtherDetId(HcalCalibration) {
+
   id_|=(CalibrationBox<<17); // Calibration Category, bits [17:19] (= "1" for CalibrationBox)
   id_|=(ctype&0xF)           // calibration channel type, bits [0:3]
-      |((iphi&0x1F)<<4)      // phi index, bits [4:10]
       |(((ieta+2)&0x7)<<11)     // eta index, bits [11:13]
       |((subdet&0x7)<<14);   // subdetector, bits [14:16]
+  if (subdet==4) id_|=((((((((iphi-1)&0x7E)+1)/18)*18)+1)&0x7F)<<4);      // phi index, bits [4:10] dphi = 18 for HF, values 1,19,37,55 (lower edge)
+  //if (subdet==4) id_|=(((((((((iphi-1)>>1)<<1)+1)/18)*18)+1)&0x7F)<<4);      // phi index, bits [4:10] dphi = 18 for HF, values 1,19,37,55 (lower edge)
+  //else if (subdet==1||subdet==2||subdet==3) id_|=((((((iphi+1)&0x7C)+71)%72)&0x7F)<<4);      // phi index, bits [4:10] dphi=4 for HBHEHO, values 3,7,...,71, (lower edge)
+  else if (subdet==1||subdet==2) id_|=(((((((iphi+1)>>2)&0x1F)<<2)+71)%72)<<4);      // phi index, bits [4:10] dphi=4 for HBHE, values 3,7,...,71, (lower edge)
+  else if (subdet==3&&ieta==0) id_|=( ((((((iphi+1)/6)*6)+71)%72)&0x7F) <<4);      // phi index, bits [4:10] dphi=6 for HO0, values 5,11,...,71, (lower edge)
+  else if (subdet==3&&ieta!=0) id_|=( ((((((iphi+1)/12)*12)+71)%72)&0x7F) <<4);      // phi index, bits [4:10] dphi=12 for HOP and HOM, values 11,23,,...,71, (lower edge)
+  else id_|=((iphi&0x7F)<<4);      // phi index, bits [4:10], simply allow all values from 0-127, shouldn't be any
 }
 
 HcalCalibDetId::HcalCalibDetId(int ieta, int iphi) : HcalOtherDetId(HcalCalibration) {
   id_|=(HOCrosstalk<<17); // Calibration Category, bits [17:19] (= "2" for HOX)
-  id_|=(iphi&0x3F)               // phi index, bits [0:6]
+  id_|=(iphi&0x7F)               // phi index, bits [0:6]
       |((abs(ieta)&0xF)<<7)     // eta index, bits [7:10]
       |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
 }
@@ -58,7 +67,7 @@ int HcalCalibDetId::ieta() const {
 }
 
 int HcalCalibDetId::iphi() const {
-  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x3F):((calibFlavor()==HOCrosstalk)?(id_&0x3F):(0));
+  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x7F):((calibFlavor()==HOCrosstalk)?(id_&0x7F):(0));
 }
 
 int HcalCalibDetId::zside() const {
