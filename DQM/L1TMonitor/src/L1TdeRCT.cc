@@ -440,15 +440,15 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitHfPlusTauEff2D_ =
-      dbe->book2D("rctBitHfPlusTauEff2D", "2D fine grain bit efficiency",
+      dbe->book2D("rctBitHfPlusTauEff2D", "2D HfPlusTau bit efficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitHfPlusTauIneff2D_ =
-      dbe->book2D("rctBitHfPlusTauIneff2D", "2D fine grain bit inefficiency",
+      dbe->book2D("rctBitHfPlusTauIneff2D", "2D HfPlusTau bit inefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitHfPlusTauOvereff2D_ =
-      dbe->book2D("rctBitHfPlusTauOvereff2D", "2D fine grain bit overefficiency",
+      dbe->book2D("rctBitHfPlusTauOvereff2D", "2D HfPlusTau bit overefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     dbe->setCurrentFolder(histFolder_+"BitData/ServiceData");
@@ -534,23 +534,23 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitEmulHfPlusTau2D_ =
-      dbe->book2D("rctBitEmulHfPlusTau2D", "2D fine grain bit from emulator",
+      dbe->book2D("rctBitEmulHfPlusTau2D", "2D HfPlusTau bit from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitDataHfPlusTau2D_ =
-      dbe->book2D("rctBitDataHfPlusTau2D", "2D fine grain bit from hardware",
+      dbe->book2D("rctBitDataHfPlusTau2D", "2D HfPlusTau bit from hardware",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitMatchedHfPlusTau2D_ =
-      dbe->book2D("rctBitMatchedHfPlusTau2D", "2D fine grain bit for matched hits",
+      dbe->book2D("rctBitMatchedHfPlusTau2D", "2D HfPlusTau bit for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitUnmatchedEmulHfPlusTau2D_ =
-      dbe->book2D("rctBitUnmatchedEmulHfPlusTau2D", "2D fine grain bit for unmatched emulator hits",
+      dbe->book2D("rctBitUnmatchedEmulHfPlusTau2D", "2D HfPlusTau bit for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctBitUnmatchedDataHfPlusTau2D_ =
-      dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D fine grain bit for unmatched hardware hits",
+      dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
 // for single channels
