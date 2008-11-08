@@ -1,7 +1,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.7 2008/07/15 20:14:26 rofierzy Exp $
+   $Id: HcalGenericDetId.cc,v 1.8 2008/07/22 15:31:31 mansj Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -199,12 +199,12 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
     {
       HcalZDCDetId tid(rawId() ); 
       zside = tid.zside();
-      depth = tid.depth();
+      channel = tid.channel();
 
       switch (tid.section() ) {
-      case HcalZDCDetId::EM:   index = (depth-1); break;
-      case HcalZDCDetId::HAD:  index = 5 + (depth-1); break;
-      case HcalZDCDetId::LUM:  index = 9 + (depth-1); break;
+      case HcalZDCDetId::EM:   index = (channel-1); break;
+      case HcalZDCDetId::HAD:  index = 5 + (channel-1); break;
+      case HcalZDCDetId::LUM:  index = 9 + (channel-1); break;
       default: break;
       }
       if (zside == -1) index += ZDChalf;
