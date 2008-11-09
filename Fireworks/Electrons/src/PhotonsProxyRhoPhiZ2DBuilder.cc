@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/11/06 19:49:23 amraktad Exp $
+// $Id: PhotonsProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/11/06 22:05:28 amraktad Exp $
 //
 
 // system include files
@@ -112,9 +112,9 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	sc->SetPickable(kTRUE);
 	container->AddElement(sc);
 
-	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
-	track->SetMainColor( iItem->defaultDisplayProperties().color() );
-	container->AddElement(track);
+// 	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
+// 	track->SetMainColor( iItem->defaultDisplayProperties().color() );
+// 	container->AddElement(track);
 	container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
 	container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 	tList->AddElement(container);
@@ -167,9 +167,9 @@ PhotonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	   }
 	}
 
-	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
-	track->SetMainColor( iItem->defaultDisplayProperties().color() );
-	container->AddElement(track);
+// 	TEveTrack* track = fw::getEveTrack( *(photon->gsfTrack()) );
+// 	track->SetMainColor( iItem->defaultDisplayProperties().color() );
+// 	container->AddElement(track);
 
 	// expand theta range by the size of a crystal to avoid segments of zero length
 	if ( theta_min <= theta_max )

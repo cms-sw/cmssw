@@ -738,6 +738,55 @@ FWConfiguration* fwConfig() {
 }
   topa.addKeyValue("CSC-segments", topaa);
 }
+{
+  FWConfiguration topaa(2);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::Photon>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("photons");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("RAW2DIGIRECOALCA");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("hadronicOverEm < 0.2");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("3");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Photons");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Photons", topaa);
+}
   top.addKeyValue("EventItems", topa);
 }
 {
@@ -754,6 +803,16 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("768");
   topaa.addKeyValue("height", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("65");
+  topaa.addKeyValue("x", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("16");
+  topaa.addKeyValue("y", topaaa);
+}
   topa.addKeyValue("main window", topaa);
 }
 {
@@ -769,6 +828,11 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.2");
   topaaa.addKeyValue("Muon compression", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show projection axes", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -883,6 +947,11 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.2");
   topaaa.addKeyValue("Muon compression", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show projection axes", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -1438,6 +1507,14 @@ FWConfiguration* fwConfig() {
   topaa.addValue("332");
   topaa.addValue("237");
   topa.addKeyValue("view area", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topa.addKeyValue("undocked views", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topa.addKeyValue("controllers", topaa);
 }
   top.addKeyValue("GUI", topa);
 }
