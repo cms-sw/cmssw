@@ -46,7 +46,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     # clone tag infos in the pat::Jet
     # watch out: these take lots of space!
     # usually the discriminators from the default algos suffice
-    addTagInfoRefs = cms.bool(False),
+    addTagInfoRefs = cms.bool(True),
     tagInfoModule  = cms.InputTag("layer0TagInfos"),
     tagInfoNames   = cms.vstring('secondaryVertexTagInfos','softElectronTagInfos','softMuonTagInfos','impactParameterTagInfos'),
 

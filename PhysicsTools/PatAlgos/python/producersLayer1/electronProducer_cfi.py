@@ -32,8 +32,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
 
     # Embedding of AOD items
     embedTrack        = cms.bool(False), ## whether to embed in AOD externally stored track (note: gsf electrons don't have a track)
-    embedGsfTrack     = cms.bool(False), ## whether to embed in AOD externally stored gsf track
-    embedSuperCluster = cms.bool(False), ## whether to embed in AOD externally stored supercluster
+    embedGsfTrack     = cms.bool(True), ## whether to embed in AOD externally stored gsf track
+    embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
 
     # resolution configurables
     addResolutions   = cms.bool(True),
