@@ -1,0 +1,107 @@
+## example cfg to dump HCAL conditions from the database
+## (can be also used to dump sqlite content or to test fake conditions reading in CMSSW)
+## Radek Ofierzynski, 9.11.2008
+
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("DUMP")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
+## specify which conditions you would like to dump to a text file in the "dump" vstring
+process.prod = cms.EDFilter("HcalDumpConditions",
+    dump = cms.untracked.vstring('Pedestals', 
+        'PedestalWidths', 
+        'Gains', 
+        'QIEData', 
+        'ElectronicsMap', 
+        'ChannelQuality', 
+        'GainWidths', 
+        'RespCorrs', 
+        'ZSThresholds'),
+    outFilePrefix = cms.untracked.string('DumpCond')
+)
+
+## specify for which run you would like to get the conditions in the "firstRun"
+process.source = cms.Source("EmptySource",
+    numberEventsInRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(1)
+)
+
+## specify which conditions should be taken for input, 
+## you can mix different es_sources as long as it's unique for each object
+# process.es_pool = cms.ESSource(
+#     "PoolDBESSource",
+#     process.CondDBSetup,
+#     timetype = cms.string('runnumber'),
+#     connect = cms.string('frontier://FrontierDev/CMS_COND_HCAL'),
+#     authenticationMethod = cms.untracked.uint32(0),
+#     toGet = cms.VPSet(
+#         cms.PSet(
+#             record = cms.string('HcalPedestalsRcd'),
+#             tag = cms.string('hcal_pedestals_fC_v3_mc')
+#             ), 
+#         cms.PSet(
+#             record = cms.string('HcalPedestalWidthsRcd'),
+#             tag = cms.string('hcal_widths_fC_v3_mc')
+#             ), 
+#         cms.PSet(
+#             record = cms.string('HcalGainsRcd'),
+#             tag = cms.string('hcal_gains_v2_physics_50_mc')
+#             ), 
+#         cms.PSet(
+#             record = cms.string('HcalQIEDataRcd'),
+#             tag = cms.string('qie_normalmode_v5_mc')
+#             ), 
+#         cms.PSet(
+#             record = cms.string('HcalElectronicsMapRcd'),
+#             tag = cms.string('official_emap_v5_080208_mc')
+#             )
+#         )
+# )
+# 
+# process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
+#     toGet = cms.untracked.vstring('GainWidths', 
+#         'channelQuality', 
+#         'ZSThresholds', 
+#         'RespCorrs')
+# )
+
+process.es_ascii = cms.ESSource("HcalTextCalibrations",
+    input = cms.VPSet(
+        cms.PSet(
+            object = cms.string('Pedestals'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v1_zdc.txt')
+            ), 
+        cms.PSet(
+            object = cms.string('PedestalWidths'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v1_zdc.txt')
+        ), 
+        cms.PSet(
+            object = cms.string('Gains'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_gains_v1_zdc.txt')
+        ), 
+        cms.PSet(
+            object = cms.string('GainWidths'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_gains_widths_v1.txt')
+        ), 
+        cms.PSet(
+            object = cms.string('QIEData'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v3_zdc.txt')
+        ), 
+        cms.PSet(
+            object = cms.string('ElectronicsMap'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/official_emap_v5_080208.txt')
+        ), 
+        cms.PSet(
+            object = cms.string('ChannelQuality'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_quality_v1.txt')
+        )
+        )
+)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+process.p = cms.Path(process.prod)
+
+

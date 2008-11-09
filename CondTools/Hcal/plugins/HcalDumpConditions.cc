@@ -29,6 +29,7 @@ R.Ofierzynski - 2.Oct. 2007
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -107,6 +108,8 @@ namespace edmtest
       dumpIt(new HcalRespCorrs, new HcalRespCorrsRcd, e,context,"RespCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end())
       dumpIt(new HcalZSThresholds, new HcalZSThresholdsRcd, e,context,"ZSThresholds");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end())
+      dumpIt(new HcalL1TriggerObjects, new HcalL1TriggerObjectsRcd, e,context,"L1TriggerObjects");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

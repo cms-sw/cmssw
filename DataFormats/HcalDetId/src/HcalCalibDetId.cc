@@ -2,8 +2,6 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace std;
-
 HcalCalibDetId::HcalCalibDetId() : HcalOtherDetId() {
 }
 
