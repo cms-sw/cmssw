@@ -4,7 +4,7 @@ dqmFEDIntegrity = cms.EDFilter("DQMFEDIntegrityClient")
 
 dqmQTestDQMFED = cms.EDFilter("QualityTester",
    prescaleFactor = cms.untracked.int32(1),
-   qtList = cms.untracked.FileInPath('DQMServices/Components/test/DQMFEDQualityTests.xml'),
+   qtList = cms.untracked.FileInPath('DQMServices/Components/data/DQMFEDQualityTests.xml'),
    getQualityTestsFromFile = cms.untracked.bool(True),
    qtestOnEndRun = cms.untracked.bool(True)
    )
