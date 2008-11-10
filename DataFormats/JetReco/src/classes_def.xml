@@ -112,5 +112,21 @@
   <class name="edm::reftobase::RefHolder<reco::GenJetRef>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
+
+
+  <class name="edm::Ptr<reco::Jet>" />
+  <class name="edm::PtrVector<reco::Jet>" />
+
+  <class name="edm::Ptr<reco::CaloJet>" />
+  <class name="edm::PtrVector<reco::CaloJet>" />
+
+  <class name="edm::Ptr<reco::PFJet>" />
+  <class name="edm::PtrVector<reco::PFJet>" />
+
+  <class name="edm::Ptr<reco::BasicJet>" />
+  <class name="edm::PtrVector<reco::BasicJet>" />
+
+  <class name="edm::Ptr<reco::GenJet>" />
+  <class name="edm::PtrVector<reco::GenJet>" />
   
 </lcgdict>

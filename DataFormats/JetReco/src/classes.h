@@ -24,6 +24,10 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
+
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ptr.h"
+
  
 using namespace reco;
 
@@ -114,6 +118,22 @@ namespace {
     edm::RefToBaseVector<reco::Jet> jrtbv;
     edm::Wrapper<edm::RefToBaseVector<reco::Jet> > jrtbv_w;
     edm::reftobase::BaseVectorHolder<reco::Jet> * bvhj_p;    // pointer since it's pure virtual
+
+    // Ptr stuff
+    edm::Ptr<reco::Jet> ptrj;
+    edm::PtrVector<reco::Jet> ptrvj;
+
+    edm::Ptr<reco::CaloJet> ptrcj;
+    edm::PtrVector<reco::CaloJet> ptrvcj;
+
+    edm::Ptr<reco::PFJet> ptrpfj;
+    edm::PtrVector<reco::PFJet> ptrvpfj;
+
+    edm::Ptr<reco::BasicJet> ptrbj;
+    edm::PtrVector<reco::BasicJet> ptrvbj;
+
+    edm::Ptr<reco::GenJet> ptrgj;
+    edm::PtrVector<reco::GenJet> ptrvgj;
   };
 }
 #endif
