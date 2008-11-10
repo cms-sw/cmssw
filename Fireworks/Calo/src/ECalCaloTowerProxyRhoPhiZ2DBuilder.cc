@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.17 2008/11/04 20:29:24 amraktad Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.18 2008/11/06 22:05:21 amraktad Exp $
 //
 
 // system include files
@@ -104,7 +104,6 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
       calo3d = new TEveCalo3D(data);
       calo3d->SetBarrelRadius(129);
       calo3d->SetEndCapPos(310);
-      calo3d->IncDenyDestroy();
       // gEve->AddElement(calo3d);
       //	(*product)->AddElement(calo3d);
       gEve->AddElement(calo3d, *product);

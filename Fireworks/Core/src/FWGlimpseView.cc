@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.18 2008/11/06 19:49:23 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.19 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -92,7 +92,6 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    nv->SetGLViewer(ev);
-   nv->IncDenyDestroy();
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    //? ev->SetEventHandler(new TGlimpseEventHandler("Lego", ev->GetGLWidget(), ev));
@@ -120,7 +119,6 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TEveStraightLineSet* xAxis = new TEveStraightLineSet( "GlimpseXAxis" );
    xAxis->SetPickable(kTRUE);
    xAxis->SetTitle("Energy Scale, 100 GeV, X-axis (LHC center)");
-   xAxis->IncDenyDestroy();
    xAxis->SetLineStyle(3);
    xAxis->SetLineColor(fcol);
    xAxis->AddLine(-100,0,0,100,0,0);
@@ -136,7 +134,6 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TEveStraightLineSet* yAxis = new TEveStraightLineSet( "GlimpseYAxis" );
    yAxis->SetPickable(kTRUE);
    yAxis->SetTitle("Energy Scale, 100 GeV, Y-axis (upward)");
-   yAxis->IncDenyDestroy();
    yAxis->SetLineColor(fcol);
    yAxis->SetLineStyle(3);
    yAxis->AddLine(0,-100,0,0,100,0);
@@ -152,7 +149,6 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TEveStraightLineSet* zAxis = new TEveStraightLineSet( "GlimpseZAxis" );
    zAxis->SetPickable(kTRUE);
    zAxis->SetTitle("Energy Scale, 100 GeV, Z-axis (west, along beam)");
-   zAxis->IncDenyDestroy();
    zAxis->SetLineColor(fcol);
    zAxis->AddLine(0,0,-100,0,0,100);
    gEve->AddElement(zAxis, ns);
@@ -193,7 +189,6 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
    outline->SetPickable(kTRUE);
    outline->SetTitle("100 GeV Energy Scale Cube");
-   outline->IncDenyDestroy();
    double size = 100;
    outline->SetLineColor( Color_t(TColor::GetColor("#202020")) );
    outline->AddLine(-size, -size, -size,  size, -size, -size);

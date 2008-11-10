@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.27 2008/10/29 18:51:16 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.28 2008/11/06 22:05:26 amraktad Exp $
 //
 
 #define private public
@@ -157,7 +157,6 @@ m_cameraMatrix(0)
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(iName.c_str());
    nv->SetGLViewer(ev);
-   nv->IncDenyDestroy();
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
       m_cameraZoom = & (camera->fZoom);
@@ -282,7 +281,6 @@ void
 FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 {
    m_geom.push_back(doReplication(m_projMgr,iChild,m_projMgr));
-   m_geom.back()->IncDenyDestroy();
    m_projMgr->AssertBBox();
    m_projMgr->ProjectChildrenRecurse(m_geom.back());
 }

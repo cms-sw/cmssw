@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.cc,v 1.6 2008/11/04 20:29:26 amraktad Exp $
+// $Id: MuonsProxyEveLegoBuilder.cc,v 1.7 2008/11/06 22:05:30 amraktad Exp $
 //
 
 // system include files
@@ -89,7 +89,6 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
 	muonList->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
 	TEvePointSet* points = new TEvePointSet("points");
 	gEve->AddElement(points, muonList);
-	points->IncDenyDestroy();
 	points->SetMarkerStyle(2);
 	points->SetMarkerSize(0.2);
 	if ( muon->track().isAvailable() && muon->track()->extra().isAvailable() ) {

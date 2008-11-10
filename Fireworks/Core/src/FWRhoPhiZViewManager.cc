@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.40 2008/11/06 19:49:23 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.41 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -606,10 +606,8 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
       m_rhoZGeom.push_back( rhoZDT.current() );
-      rhoZDT.current()->IncDenyDestroy();
       TEveElementIter iter(rhoZDT.current());
       while ( TEveElement* element = iter.current() ) {
-         element->IncDenyDestroy();
 	 element->SetMainTransparency(50);
 	 element->SetMainColor(Color_t(TColor::GetColor("#3f0000")));
 	 if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
@@ -621,7 +619,6 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    TEveElementIter rhoZCSC(m_rhoZGeomProjMgr,"CSC");
    if ( rhoZCSC.current() ) {
       m_rhoZGeom.push_back( rhoZCSC.current() );
-      rhoZCSC.current()->IncDenyDestroy();
       TEveElementIter iter(rhoZCSC.current());
       while ( iter.current() ) {
 	 iter.current()->SetMainTransparency(50);
@@ -779,18 +776,15 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
 {
    TEveElementList* list = new TEveElementList( "TrackerRhoZ" );
    list->SetPickable(kFALSE);
-   list->IncDenyDestroy();
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
-   ref->IncDenyDestroy();
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
    list->AddElement(ref);
    ref->SetNextPoint(0.,0.,0.);
    TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
    el->SetPickable(kFALSE);
-   el->IncDenyDestroy();
    list->AddElement(el);
    el->SetLineColor(Color_t(TColor::GetColor("#007f00")));
    el->AddLine(0, 123,-300, 0, 123, 300);
@@ -809,7 +803,6 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
 {
    TEveStraightLineSet* el = new TEveStraightLineSet( "TrackerRhoPhi" );
    el->SetPickable(kFALSE);
-   el->IncDenyDestroy();
    el->SetLineColor(Color_t(TColor::GetColor("#007f00")));
    const unsigned int nSegments = 100;
    const double r = 123;
@@ -820,7 +813,6 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
-   ref->IncDenyDestroy();
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
    el->AddElement(ref);

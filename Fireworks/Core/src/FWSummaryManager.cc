@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.4 2008/07/08 20:13:51 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -92,7 +92,6 @@ FWSummaryManager::newItem(const FWEventItem* iItem)
 
    //lst->AddIntoListTree(m_listTree,m_eventObjects);
    //NOTE: Why didn't I call AddElement of m_eventObjects???  Because it will go in the wrong list tree?
-   lst->IncDenyDestroy();
    //Need to hand this lst into some container so we can get rid of it, since it doesn't seem to go into
    // m_eventObjects
 }

@@ -1,4 +1,4 @@
-// @(#)root/eve:$Id: TEveBrowser.cxx 24156 2008-06-05 15:52:58Z matevz $
+// @(#)root/eve:$Id: FWListWidget.cc,v 1.1 2008/07/08 20:08:04 chrjones Exp $
 // Authors: Matevz Tadel & Alja Mrak-Tadel: 2006, 2007
 
 /*************************************************************************
@@ -326,7 +326,6 @@ void FWListWidget::ItemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mas
       {
          if (entry->GetParent())
          {
-            if (el->GetDenyDestroy() > 0 && el->GetNItems() == 1)
                throw(eh + "DestroyDenied set for this item.");
 
             TEveElement* parent = (TEveElement*) entry->GetParent()->GetUserData();
@@ -339,7 +338,6 @@ void FWListWidget::ItemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mas
          }
          else
          {
-            if (el->GetDenyDestroy() > 0)
                throw(eh + "DestroyDenied set for this top-level item.");
             gEve->RemoveFromListTree(el, fListTree, entry);
             gEve->Redraw3D();

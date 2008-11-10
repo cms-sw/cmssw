@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.76 2008/11/05 09:26:54 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.77 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -297,7 +297,6 @@ FWGUIManager::createView(const std::string& iName)
    FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
    lst->AddIntoListTree(m_listTree,m_views);
    //TODO: HACK should keep a hold of 'lst' and keep it so that if view is removed this goes as well
-   lst->IncDenyDestroy();
     */
    m_viewBases.push_back(view);
 }

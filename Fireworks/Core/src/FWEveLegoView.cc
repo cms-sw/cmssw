@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.25 2008/10/28 14:19:43 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.26 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -91,7 +91,6 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    m_embeddedViewer=ev;
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    nv->SetGLViewer(ev);
-   nv->IncDenyDestroy();
 
    // take care of cameras
    //
