@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
 
     TrackingParticle dummy10;
     TrackingParticleContainer dummy11;
@@ -31,5 +31,5 @@ namespace {
     std::vector<PSimHit>::const_iterator hcIt1;
     std::vector<PSimHit>::iterator hcIt2;
 
-  }
+  };
 }

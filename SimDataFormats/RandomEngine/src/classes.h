@@ -3,8 +3,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace { namespace {
-
+namespace { 
+  struct dictionary {
     edm::Wrapper<std::vector<RandomEngineState> > dummy1;
-  }
+  };
 }

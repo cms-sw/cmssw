@@ -8,7 +8,7 @@
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::JetFlavour                                 jf;
     reco::JetFlavourMatchingCollectionBase           jfmcb;
     reco::JetFlavourMatchingCollection               jfmc;
@@ -23,5 +23,5 @@ namespace {
     reco::JetMatchedPartonsRefProd                  jmprp;
     reco::JetMatchedPartonsRefVector                jmpv;
     edm::Wrapper<reco::JetMatchedPartonsCollection> wjmpc;
-  }
+  };
 }

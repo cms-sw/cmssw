@@ -43,8 +43,7 @@ namespace reco {
 }
 
 namespace {
-  namespace {
-
+  struct dictionary {
 
     reco::SecondaryVertexTagInfo::TrackData                             sv_td;
     reco::SecondaryVertexTagInfo::VertexData                            sv_vd;
@@ -214,5 +213,5 @@ namespace {
     edm::reftobase::RefHolder<reco::TauMassTagInfoRef>                          rbh_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
     edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoRef>                 rbh_tp;
-  }
+  };
 }

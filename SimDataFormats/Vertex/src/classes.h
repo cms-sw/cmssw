@@ -6,12 +6,12 @@
 #include <vector>
  
 namespace {
-namespace {
+  struct dictionary {
     SimVertex dummy33;
     std::vector<SimVertex> dummy333;
     edm::Wrapper<edm::SimVertexContainer> dummy33333;
     edm::SimVertexRef r1;
     edm::SimVertexRefVector rv1;
     edm::SimVertexRefProd rp1; 
-}
+  };
 }

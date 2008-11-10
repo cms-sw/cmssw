@@ -15,9 +15,9 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     math::XYZVector v1;
-    math::XYZVectorD vd1; 
+    math::XYZVectorD vd1;
     math::XYZVectorF vf1; 
     math::RhoEtaPhiVector v2;
     math::RhoEtaPhiVectorD vd2;
@@ -129,12 +129,12 @@ namespace {
     math::VectorF<6>::type vVf6;
     math::VectorF<7>::type vVf7;
 
-    //    math::Error<1>::type e1;
+  //    math::Error<1>::type e1;
     math::Error<2>::type e2;
     math::Error<3>::type e3;
     math::Error<4>::type e4;
     math::Error<5>::type e5;
-    math::Error<6>::type e6;
+    math::Error<6>::type e6; 
     math::Error<7>::type e7;
     
     //     math::ErrorD<1>::type ed1;
@@ -215,5 +215,5 @@ namespace {
     math::Matrix<10,10>::type mcw; 
     ROOT::Math::MatRepStd<double, 3 ,10> smdw;
     ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
-   }
+   };
 }

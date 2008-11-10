@@ -13,13 +13,13 @@
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     edm::Wrapper< std::vector<RPCDigiSimLink>  > RPCDigiSimLinkVector;
     edm::Wrapper< std::vector<edm::DetSet<RPCDigiSimLink> > > RPCDigiSimLinkVectorDetSet; 
     edm::Wrapper<RPCDigiSimLink> RPCDigiSimLinkWrapper;
     edm::Wrapper< edm::DetSet<RPCDigiSimLink> > RPCDigiSimLinkDetSetWrapper;
     edm::Wrapper< edm::DetSetVector<RPCDigiSimLink> > RPCDigiSimLinkDetSetVectorWrapper;
-  }
+  };
 }
 
 #endif // RPCDIGISIMLINK_CLASSES_H

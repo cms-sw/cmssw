@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     PSimHit dummy444;
     edm::PSimHitContainer sdummy777;
     edm::Wrapper<edm::PSimHitContainer> dummy7777;
@@ -15,5 +15,5 @@ namespace {
     TrackPSimHitRefToBaseVector rbv7;
     TrackPSimHitRefToBaseHolder rbh7; 
 
-  }
+  };
 }

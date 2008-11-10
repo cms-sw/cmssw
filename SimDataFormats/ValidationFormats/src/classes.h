@@ -8,7 +8,7 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<PGlobalSimHit::Vtx>                         dummy1;
     std::vector<PGlobalSimHit::Trk>                         dummy2;
     std::vector<PGlobalSimHit::CalHit>                      dummy3;
@@ -69,5 +69,5 @@ namespace {
     MaterialAccountingTrack                                 matrack;
     std::vector<MaterialAccountingTrack>                    matrack_v;
     edm::Wrapper<std::vector<MaterialAccountingTrack> >     matrack_w;
-  }
+  };
 }
