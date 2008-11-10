@@ -17,8 +17,6 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
 #include <iostream>
 
 using namespace std;
@@ -29,18 +27,22 @@ using namespace l1extra;
 
 typedef std::vector< edm::ParameterSet > Parameters;
 
+const int numCones = 5;
+double coneSizes[] = { 0.20, 0.24, 0.30, 0.35, 0.40 };
+const int numMinPtCuts = 5;
+double minPtCuts[] = { 0., 1.5, 2., 3., 5. };
+
+
 /// Constructor
 HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset, 
-					string triggerName )
+					string triggerName,
+					vector<string> moduleNames )
 {
 
-  theHltProcessName        = pset.getParameter<string>("HltProcessName");
+  theHltProcessName  = pset.getParameter<string>("HltProcessName");
   theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
+  theTriggerName     = triggerName;
 
-  theTriggerName = triggerName;
-  HLTConfigProvider hltConfig;
-  hltConfig.init(theHltProcessName);
-  vector<string> moduleNames = hltConfig.moduleLabels( triggerName );
   theHltCollectionLabels.clear();
   for ( size_t i = 0; i < moduleNames.size(); i++ ) {
     string module = moduleNames[i];
@@ -81,13 +83,22 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
     m_makeNtuple = true;
   if ( m_makeNtuple ) {
     theFile      = new TFile(theNtupleFileName.c_str(),"RECREATE");
-    TString vars = "eventNum:motherId:passL2Iso:passL3Iso";
+    TString vars = "eventNum:motherId:passL2Iso:passL3Iso:";
     vars        += "ptGen:etaGen:phiGen:";
     vars        += "ptL1:etaL1:phiL1:";
     vars        += "ptL2:etaL2:phiL2:";
     vars        += "ptL3:etaL3:phiL3:";
-    vars        += "sumIso20:sumIso24:sumIso30:sumIso35:sumIso40:";
-    vars        += "numDep20:numDep24:numDep30:numDep35:numDep40:";
+    for ( int i = 0; i < numCones; i++ ) {
+      int cone  = (int)(coneSizes[i]*100);
+      vars += Form("sumCaloIso%.2i:",cone);
+      vars += Form("numCaloIso%.2i:",cone);
+      for ( int j = 0; j < numMinPtCuts; j++ ) {
+	int ptCut = (int)(minPtCuts[j]*10);
+	vars += Form("sumTrackIso%.2i_%.2i:",ptCut,cone);
+	vars += Form("sumTrackIso%.2i_%.2i:",ptCut,cone);
+      }
+    }
+    vars.Resize( vars.Length() - 1 );
     theNtuple    = new TNtuple("nt","data",vars);
   }
 
@@ -314,54 +325,78 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
 
   //////////////////////////////////////////////////////////////////////////
-  // Fill ntuple & histograms
+  // Fill ntuple
     
   if ( m_makeNtuple ) {
-    Handle<reco::IsoDepositMap> depMap;
-    iEvent.getByLabel("hltL2MuonIsolations",depMap);
+    Handle<reco::IsoDepositMap> caloDepMap, trackDepMap;
+    iEvent.getByLabel("hltL2MuonIsolations",caloDepMap);
+    iEvent.getByLabel("hltL3MuonIsolations",trackDepMap);
+    IsoDeposit::Vetos vetos;
+    if ( isIsolatedPath )
+      for ( size_t i = 0; i < hltCands[2].size(); i++ ) {
+	TrackRef tk = hltCands[2][i]->get<TrackRef>();
+	vetos.push_back( (*trackDepMap)[tk].veto() );
+      }
     for ( size_t i = 0; i < genMatches.size(); i++ ) {
-      for ( int k = 0; k < 50; k++ ) theNtupleParameters[k] = -999;
-      theNtupleParameters[0] = theEventNumber;
-      theNtupleParameters[1] = (findMother(genMatches[i].genCand))->pdgId();
-      theNtupleParameters[4] = genMatches[i].genCand->pt();
-      theNtupleParameters[5] = genMatches[i].genCand->eta();
-      theNtupleParameters[6] = genMatches[i].genCand->phi();
+      for ( int k = 0; k < 50; k++ ) theNtuplePars[k] = -99;
+      theNtuplePars[0] = theEventNumber;
+      theNtuplePars[1] = (findMother(genMatches[i].genCand))->pdgId();
+      theNtuplePars[4] = genMatches[i].genCand->pt();
+      theNtuplePars[5] = genMatches[i].genCand->eta();
+      theNtuplePars[6] = genMatches[i].genCand->phi();
       if ( genMatches[i].l1Cand ) {
-	theNtupleParameters[7] = genMatches[i].l1Cand->pt();
-	theNtupleParameters[8] = genMatches[i].l1Cand->eta();
-	theNtupleParameters[9] = genMatches[i].l1Cand->phi();
+	theNtuplePars[7] = genMatches[i].l1Cand->pt();
+	theNtuplePars[8] = genMatches[i].l1Cand->eta();
+	theNtuplePars[9] = genMatches[i].l1Cand->phi();
       }
       for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
 	if ( genMatches[i].hltCands[j] ) {
 	  if ( j == 0 ) {
-	    theNtupleParameters[10] = genMatches[i].hltCands[j]->pt();
-	    theNtupleParameters[11] = genMatches[i].hltCands[j]->eta();
-	    theNtupleParameters[12] = genMatches[i].hltCands[j]->phi();
-	    const int numCones = 5;
-	    double coneSizes[] = {0.20,0.24,0.30,0.35,0.40};
-	    TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
-	    const IsoDeposit &dep = (*depMap)[tk];
-	    for ( int m = 0; m < numCones; m++ ) {
-	      double dr = coneSizes[m];
-	      std::pair<double,int> depInfo = dep.depositAndCountWithin(dr);
-	      theNtupleParameters[16+m]          = depInfo.first;
-	      theNtupleParameters[18+m+numCones] = depInfo.second;
+	    theNtuplePars[10] = genMatches[i].hltCands[j]->pt();
+	    theNtuplePars[11] = genMatches[i].hltCands[j]->eta();
+	    theNtuplePars[12] = genMatches[i].hltCands[j]->phi();
+	    if ( isIsolatedPath ) {
+	      TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
+	      const IsoDeposit &dep = (*caloDepMap)[tk];
+	      for ( int m = 0; m < numCones; m++ ) {
+		double dr = coneSizes[m];
+		std::pair<double,int> depInfo = dep.depositAndCountWithin(dr);
+		theNtuplePars[16+(1+numMinPtCuts)*2*m+0] = depInfo.first;
+		theNtuplePars[16+(1+numMinPtCuts)*2*m+1] = depInfo.second;
+	      }
 	    }
 	  }
 	  if ( ( !isIsolatedPath && j == 1 ) ||
 	       (  isIsolatedPath && j == 2 ) ) {
-	    theNtupleParameters[13] = genMatches[i].hltCands[j]->pt();
-	    theNtupleParameters[14] = genMatches[i].hltCands[j]->eta();
-	    theNtupleParameters[15] = genMatches[i].hltCands[j]->phi();
+	    theNtuplePars[13] = genMatches[i].hltCands[j]->pt();
+	    theNtuplePars[14] = genMatches[i].hltCands[j]->eta();
+	    theNtuplePars[15] = genMatches[i].hltCands[j]->phi();
+	    if ( isIsolatedPath ) {
+	      TrackRef tk = genMatches[i].hltCands[j]->get<TrackRef>();
+	      const IsoDeposit &dep = (*trackDepMap)[tk];
+	      for ( int m = 0; m < numCones; m++ ) {
+		for ( int n = 0; n < numMinPtCuts; n++ ) {
+		  double dr = coneSizes[m];
+		  double minPt = minPtCuts[n];
+		  std::pair<double,int> depInfo;
+		  depInfo = dep.depositAndCountWithin(dr, vetos, minPt);
+		  theNtuplePars[16+(1+numMinPtCuts)*2*m+2+2*n] =depInfo.first;
+		  theNtuplePars[16+(1+numMinPtCuts)*2*m+3+2*n] =depInfo.second;
+		}
+	      }
+	    }
 	  }
-	  if ( isIsolatedPath && j == 1 ) theNtupleParameters[2] = true;
-	  if ( isIsolatedPath && j == 3 ) theNtupleParameters[3] = true;
+	  if ( isIsolatedPath && j == 1 ) theNtuplePars[2] = true;
+	  if ( isIsolatedPath && j == 3 ) theNtuplePars[3] = true;
 	}
       }
-      theNtuple->Fill(theNtupleParameters); 
+      theNtuple->Fill(theNtuplePars); 
     }
   }
   
+  //////////////////////////////////////////////////////////////////////////
+  // Fill histograms
+    
   for ( size_t i = 0; i < genMatches.size(); i++ ) {
     double pt  = genMatches[i].genCand->pt();
     double eta = genMatches[i].genCand->eta();
