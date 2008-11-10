@@ -167,6 +167,33 @@ int CaloTower::numCrystals() const {
   return nC;
 }
 
+
+
+// Set the CaloTower status word from the number of bad/recovered/problematic
+// cells in HCAL and ECAL.
+
+void CaloTower::setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan, 
+				   uint numRecHcalChan,uint numRecEcalChan,
+				   uint numProbHcalChan,uint numProbEcalChan) {
+
+  // the check that the number of bad channels does not exceed 3(25) for
+  // hcal (ecal) is performed before setting the staus word in the producer.
+  // This is the only place where the flag is set.
+
+  twrStatusWord_ = 0x0;
+
+  twrStatusWord_ |= (numBadEcalChan);
+  twrStatusWord_ |= (numRecEcalChan << 5);
+  twrStatusWord_ |= (numProbEcalChan << 10); 
+  twrStatusWord_ |= (numBadHcalChan << 15);
+  twrStatusWord_ |= (numRecHcalChan << 17);
+  twrStatusWord_ |= (numProbHcalChan << 19);
+
+  return;
+}
+
+
+
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct) {
   return s << ct.id() << ":"  << ct.et()
 	   << " GeV ET (EM=" << ct.emEt() <<

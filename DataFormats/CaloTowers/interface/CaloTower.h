@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/08/29 16:45:28 $
-$Revision: 1.11 $
+$Date: 2008/09/22 08:43:48 $
+$Revision: 1.12 $
 \author J. Mans - Minnesota
 */
 
@@ -52,6 +52,14 @@ public:
   void addConstituents( const std::vector<DetId>& ids );
   void setEcalTime(int t) { ecalTime_ = t; };
   void setHcalTime(int t) { hcalTime_ = t; };
+
+  // set CaloTower status based on the number of
+  // bad/recovered/problematic cells in ECAL and HCAL
+
+  void setCaloTowerStatus(uint numBadHcalChan,uint numBadEcalChan, 
+			  uint numRecHcalChan,uint numRecEcalChan,
+			  uint numProbHcalChan,uint numProbEcalChan);
+
 
   // getters
   CaloTowerDetId id() const { return id_; }
@@ -123,9 +131,25 @@ public:
 
   int numCrystals() const; 
 
+  // methods to retrieve status information from the CaloTower:
+  // number of bad/recovered/problematic cells in the tower
+  // separately for ECAL and HCAL
+
+
+  uint numBadEcalCells() const { return (twrStatusWord_ & 0x1F); }
+  uint numRecoveredEcalCells() const { return ((twrStatusWord_ >> 5) & 0x1F); }
+  uint numProblematicEcalCells() const { return ((twrStatusWord_ >> 10) & 0x1F); }
+
+  uint numBadHcalCells() const { return ( (twrStatusWord_ >> 15)& 0x3); }
+  uint numRecoveredHcalCells() const { return ((twrStatusWord_ >> 17) & 0x3); }
+  uint numProblematicHcalCells() const { return ((twrStatusWord_ >> 19) & 0x3); }
+
+
 private:
   CaloTowerDetId id_;
  
+  uint32_t twrStatusWord_;
+
    // positions of assumed EM and HAD shower positions
    GlobalPoint emPosition_;
    GlobalPoint hadPosition_;
