@@ -1,0 +1,15 @@
+#!/usr/bin/expect
+set dir [lindex $argv 0]
+set username [lindex $argv 1]
+set password [lindex $argv 2]
+spawn cadaver https://cbernet.web.cern.ch:444/cbernet/BenchmarkOutput
+expect "Username:"
+send "$username\r"
+expect "Password:"
+send "$password\r"
+expect "dav:/cbernet/BenchmarkOutput/>"
+send "mkcol $dir\r"
+expect "dav:/cbernet/BenchmarkOutput/>"
+send "mput $dir/*\r"
+send "quit\r"
+expect eof

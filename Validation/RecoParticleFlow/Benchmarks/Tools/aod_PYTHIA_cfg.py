@@ -4,7 +4,7 @@ process = cms.Process("HLT")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(2000)
 )
 
 
@@ -13,7 +13,9 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.RandomNumberGeneratorService.theSource.initialSeed = 123
 
 #process.load("Validation.RecoParticleFlow.source_singleTau_cfi")
-process.load("Validation.RecoParticleFlow.source_ZToTauTau_cfi")
+#process.load("Validation.RecoParticleFlow.source_singleTau_highPt_cfi")
+process.load("Validation.RecoParticleFlow.source_diJets_cfi")
+#process.load("Validation.RecoParticleFlow.source_ZToTauTau_cfi")
 
 
 process.source.maxEventsToPrint = cms.untracked.int32(2)
