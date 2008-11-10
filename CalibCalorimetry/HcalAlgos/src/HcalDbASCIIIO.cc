@@ -234,28 +234,28 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& f
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
-  //  if (!fObject) fObject = new HcalPedestals;
-  delete(fObject);
+  if (!fObject) fObject = new HcalPedestals(false);
   char buffer [1024];
 
   while (fInput.getline(buffer, 1024)) {
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     else {
-      if (items[0] == (std::string)"#U")
+      if (items[0] == "#U")
 	{
-	  if (items[1] == (std::string)"ADC") fObject = new HcalPedestals(true);
-	  else if (items[1] == (std::string)"fC") fObject = new HcalPedestals(false);
+	  if (items[1] == (std::string)"ADC") fObject->setUnitADC(true);
+	    else if (items[1] == (std::string)"fC") fObject->setUnitADC(false);
 	  else 
 	    {
 	      edm::LogWarning("Pedestal Unit Error") << "Unrecognized unit for pedestals. Assuming fC." << std::endl;
-	      fObject = new HcalPedestals(false);
+	      fObject->setUnitADC(false);
 	    }
+	  break;
 	}
       else
 	{
-	  edm::LogWarning("Pedestal Unit Missing") << "The unit for the pedestals is missing in the txt file. Assuming fC." << std::endl;
-	  fObject = new HcalPedestals(false);
+	  edm::LogWarning("Pedestal Unit Missing") << "The unit for the pedestals is missing in the txt file." << std::endl;
+	  return false;
 	}
     }
   }
@@ -359,10 +359,11 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality&
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject)
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalL1TriggerObjects* fObject)
 {
   if (!fObject) fObject = new HcalL1TriggerObjects;
   char buffer [1024];
+  bool Tset = false; bool Aset = false;
 
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') 
@@ -371,15 +372,18 @@ bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject)
 	  {
 	    std::vector <std::string> items = splitString (std::string (buffer) );
 	    fObject->setTagString(items[1]);
+	    continue;
 	  }
 	if (buffer [1] == 'A') // contains algo name
 	  {
 	    std::vector <std::string> items = splitString (std::string (buffer) );
 	    fObject->setAlgoString(items[1]);
+	    continue;
 	  }
 	else continue; //ignore comment
       }
     std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
     if (items.size () < 7) { 
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 7 items: eta, phi, depth, subdet, pedestal, resp.corr.gain, flag" << std::endl;
       continue;
@@ -394,7 +398,7 @@ bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject)
   return true;
 }
 
-bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject)
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject)
 {
   char buffer [1024];
   //first print tag and algo
@@ -428,37 +432,41 @@ bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject)
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject) {
-  //  if (!fObject) fObject = new HcalPedestalWidths;
-  delete(fObject);
+  if (!fObject) fObject = new HcalPedestalWidths(false);
   char buffer [1024];
+  int linecounter = 0;
 
   while (fInput.getline(buffer, 1024)) {
+    linecounter++;
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     else {
       if (items[0] == (std::string)"#U")
 	{
-	  if (items[1] == (std::string)"ADC") fObject = new HcalPedestalWidths(true);
-	  else if (items[1] == (std::string)"fC") fObject = new HcalPedestalWidths(false);
+	  if (items[1] == (std::string)"ADC") fObject->setUnitADC(true); 
+	  else if (items[1] == (std::string)"fC") fObject->setUnitADC(false);
 	  else 
 	    {
 	      edm::LogWarning("Pedestal Width Unit Error") << "Unrecognized unit for pedestal widths. Assuming fC." << std::endl;
-	      fObject = new HcalPedestalWidths(false);
+	      fObject->setUnitADC(false);
 	    }
+	  break;
 	}
       else
 	{
-	  edm::LogWarning("Pedestal Width Unit Missing") << "The unit for the pedestal widths is missing in the txt file. Assuming fC." << std::endl;
-	  fObject = new HcalPedestalWidths(false);
+	  edm::LogWarning("Pedestal Width Unit Missing") << "The unit for the pedestal widths is missing in the txt file." << std::endl;
+	  return false;
 	}
     }
   }
 
   while (fInput.getline(buffer, 1024)) {
+    linecounter++;
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
     if (items.size () < 14) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line number: " << linecounter << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
       continue;
     }
     DetId id = getId (items);

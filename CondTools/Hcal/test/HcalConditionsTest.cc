@@ -88,8 +88,8 @@ namespace edmtest
 
     dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
     dumpIt(new HcalQIEData, new HcalQIEDataRcd, e,context,"QIEData");
-    dumpIt(new HcalPedestals, new HcalPedestalsRcd, e,context,"Pedestals");
-    dumpIt(new HcalPedestalWidths, new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
+    dumpIt(new HcalPedestals(false), new HcalPedestalsRcd, e,context,"Pedestals");
+    dumpIt(new HcalPedestalWidths(false), new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
     dumpIt(new HcalGains, new HcalGainsRcd, e,context,"Gains");
     dumpIt(new HcalGainWidths, new HcalGainWidthsRcd, e,context,"GainWidths");
     dumpIt(new HcalRespCorrs, new HcalRespCorrsRcd, e,context,"RespCorrs");

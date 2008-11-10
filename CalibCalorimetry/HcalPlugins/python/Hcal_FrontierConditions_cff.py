@@ -26,19 +26,17 @@ es_pool = cms.ESSource("PoolDBESSource",
         ), 
         cms.PSet(
             record = cms.string('HcalQIEDataRcd'),
-            tag = cms.string('qie_normalmode_v5_mc')
+            tag = cms.string('qie_normalmode_v6.01')
         ), 
         cms.PSet(
             record = cms.string('HcalElectronicsMapRcd'),
-            tag = cms.string('official_emap_v5_080208_mc')
+            tag = cms.string('official_emap_v7.00')
         )
      )
 )
 
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     toGet = cms.untracked.vstring('GainWidths', 
-        'ChannelQuality', 
-        'ZSThresholds', 
-        'RespCorrs')
+        'ZSThresholds')
 )
 

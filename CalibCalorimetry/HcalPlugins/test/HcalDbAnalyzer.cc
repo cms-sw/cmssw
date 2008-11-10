@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.20 2007/12/20 15:50:18 mansj Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.21 2008/03/07 10:16:00 rofierzy Exp $
 //
 //
 
@@ -130,8 +130,7 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   HcalDetId cell (HcalBarrel, 1, 1, 1);
   
   const HcalCalibrations& calibrations=pSetup->getHcalCalibrations(cell);
-  HcalCalibrationWidths widths;
-  pSetup->makeHcalCalibrationWidth (cell, &widths);
+  const HcalCalibrationWidths widths = pSetup->getHcalCalibrationWidths(cell);
   const HcalQIECoder* coder = pSetup->getHcalCoder (cell);
   const HcalQIEShape* shape = pSetup->getHcalShape ();
   

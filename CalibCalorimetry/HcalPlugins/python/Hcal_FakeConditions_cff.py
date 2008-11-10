@@ -22,7 +22,7 @@ es_ascii = cms.ESSource("HcalTextCalibrations",
         ), 
         cms.PSet(
             object = cms.string('QIEData'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v5.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2.txt')
         ), 
         cms.PSet(
             object = cms.string('GainWidths'),
@@ -30,7 +30,7 @@ es_ascii = cms.ESSource("HcalTextCalibrations",
         ), 
         cms.PSet(
             object = cms.string('ElectronicsMap'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/official_emap_v5_080208.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/official_emap_v7.00_081109.txt')
         ), 
         cms.PSet(
             object = cms.string('ChannelQuality'),
@@ -38,11 +38,15 @@ es_ascii = cms.ESSource("HcalTextCalibrations",
         ), 
         cms.PSet(
             object = cms.string('RespCorrs'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_default.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_trivial_HF0.7.txt')
         ), 
         cms.PSet(
             object = cms.string('ZSThresholds'),
             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_ZSthresholds_default.txt')
+        ),
+        cms.PSet(
+            object = cms.string('L1TriggerObjects'),
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_L1TriggerObject_trivial.txt')
         )
      )
 )

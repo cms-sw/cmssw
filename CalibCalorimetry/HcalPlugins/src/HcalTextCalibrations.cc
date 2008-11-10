@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.7 2008/03/03 20:22:44 rofierzy Exp $
+// $Id: HcalTextCalibrations.cc,v 1.8 2008/11/08 21:16:34 rofierzy Exp $
 //
 //
 
@@ -112,8 +112,24 @@ HcalTextCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey
 
 template <class T>
 std::auto_ptr<T> produce_impl (const std::string& fFile) {
-  //  std::auto_ptr<T> result (new T ());
-  std::auto_ptr<T> result;
+  std::auto_ptr<T> result (new T ());
+  //  std::auto_ptr<T> result;
+  std::ifstream inStream (fFile.c_str ());
+  if (!inStream.good ()) {
+    std::cerr << "HcalTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
+    throw cms::Exception("FileNotFound") << "Unable to open '" << fFile << "'" << std::endl;
+  }
+  if (!HcalDbASCIIIO::getObject (inStream, &*result)) {
+    std::cerr << "HcalTextCalibrations-> Can not read object from file '" << fFile << "'" << std::endl;
+    throw cms::Exception("ReadError") << "Can not read object from file '" << fFile << "'" << std::endl;
+  }
+  return result;
+}
+
+template <class T>
+std::auto_ptr<T> produce_impl (const std::string& fFile, const bool unit) {  // for pedestals and widths
+  std::auto_ptr<T> result (new T (unit));
+  //  std::auto_ptr<T> result;
   std::ifstream inStream (fFile.c_str ());
   if (!inStream.good ()) {
     std::cerr << "HcalTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
@@ -128,11 +144,11 @@ std::auto_ptr<T> produce_impl (const std::string& fFile) {
 
 
 std::auto_ptr<HcalPedestals> HcalTextCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  return produce_impl<HcalPedestals> (mInputs ["Pedestals"]);
+  return produce_impl<HcalPedestals> (mInputs ["Pedestals"], false);
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalTextCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"]);
+  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"], false);
 }
 
 std::auto_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd&) {

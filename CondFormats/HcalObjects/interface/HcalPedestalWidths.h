@@ -21,7 +21,7 @@ class HcalPedestalWidths: public HcalCondObjectContainer<HcalPedestalWidth>
   // are the units ADC ? (true=ADC, false=fC)
   bool isADC() const {return unitIsADC;}
   // set unit boolean
-  //  void setUnitADC(bool isADC) {unitIsADC = isADC;}
+  void setUnitADC(bool isADC) {unitIsADC = isADC;}
 
  private:
   bool unitIsADC;

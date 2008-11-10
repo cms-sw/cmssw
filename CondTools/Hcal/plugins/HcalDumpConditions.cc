@@ -95,9 +95,9 @@ namespace edmtest
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
       dumpIt(new HcalQIEData, new HcalQIEDataRcd, e,context,"QIEData");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end())
-      dumpIt(new HcalPedestals, new HcalPedestalsRcd, e,context,"Pedestals");
+      dumpIt(new HcalPedestals(false), new HcalPedestalsRcd, e,context,"Pedestals");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())
-      dumpIt(new HcalPedestalWidths, new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
+      dumpIt(new HcalPedestalWidths(false), new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end())
       dumpIt(new HcalGains, new HcalGainsRcd, e,context,"Gains");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end())

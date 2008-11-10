@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.7 2008/01/22 18:55:34 muzaffar Exp $
+// $Id: HcalDbXml.cc,v 1.8 2008/03/03 20:33:31 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -354,7 +354,7 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 			    const HcalPedestals& fObject) {
   float dummyError = 0.0001;
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
-  HcalPedestalWidths widths;
+  HcalPedestalWidths widths(fObject.isADC() );
   std::vector<DetId> channels = fObject.getAllChannels ();
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
