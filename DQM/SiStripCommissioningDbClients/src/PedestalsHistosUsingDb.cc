@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.16 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.17 2008/07/01 14:36:41 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -124,6 +124,12 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	  continue; 
 	}
 	
+        // Determine the pedestal shift to apply
+        uint32_t pedshift = 127;
+        for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
+          pedshift = anal->pedsMin()[iapv] < pedshift ? anal->pedsMin()[iapv] : pedshift;
+        }
+
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
 	  for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
@@ -131,7 +137,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	    static float high_threshold = 5.;
 	    static float low_threshold  = 2.;
 	    static bool  disable_strip  = false;
-	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr] ), 
+	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ), 
 					       high_threshold, 
 					       low_threshold, 
 					       anal->noise()[iapv][istr],
