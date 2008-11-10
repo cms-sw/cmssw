@@ -2,7 +2,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     HcalTestHistoClass theHcalTestHistoClass;
-  }
+  };
 }

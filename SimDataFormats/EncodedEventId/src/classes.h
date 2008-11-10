@@ -3,7 +3,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<EncodedEventId> dummy;
-  }
+  };
 }

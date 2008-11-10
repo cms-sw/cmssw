@@ -5,8 +5,8 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     PEcalTBInfo                 theInfo;
     edm::Wrapper<PEcalTBInfo>   theEcalTBInfo;
-  }
+  };
 }

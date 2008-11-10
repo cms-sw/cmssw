@@ -11,7 +11,7 @@
 #include <string>
 
 namespace {
-namespace {
+  struct dictionary {
  	CrossingFrame<PSimHit> dummy1;
 
  	CrossingFramePlaybackInfo dummy0;
@@ -33,5 +33,5 @@ namespace {
         edm::Wrapper<CrossingFrame<SimTrack> > dummy22;
         edm::Wrapper<CrossingFrame<SimVertex> > dummy23;
         edm::Wrapper<CrossingFrame<edm::HepMCProduct> > dummy24;
-}
+  };
 }

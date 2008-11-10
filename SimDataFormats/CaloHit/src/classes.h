@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     HFShowerLibraryEventInfo                             rv1;
     std::vector<HFShowerLibraryEventInfo>                v1;
     edm::Wrapper<std::vector<HFShowerLibraryEventInfo> > wc1;
@@ -15,5 +15,5 @@ namespace {
     PCaloHit                                             rv3;
     edm::PCaloHitContainer                               v3;
     edm::Wrapper<edm::PCaloHitContainer>                 wc3;
-  }
+  };
 }

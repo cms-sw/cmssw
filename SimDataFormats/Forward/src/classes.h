@@ -3,9 +3,9 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     TotemTestHistoClass                   theTotemTestHisto;
     edm::Wrapper<TotemTestHistoClass>     theTotemTestHistoClass;
     std::vector<TotemTestHistoClass::Hit> theHits;
-  } 
+  };
 }
