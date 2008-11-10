@@ -20,7 +20,7 @@
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
 namespace { 
-  namespace {
+  struct dictionary {
     std::vector<reco::BasicCluster> v11;
     reco::BasicClusterCollection v1;
     edm::Wrapper<reco::BasicClusterCollection> w1;
@@ -91,5 +91,5 @@ namespace {
     reco::HFEMClusterShapeAssociationRefProd vrp9;
     edm::Wrapper<reco::HFEMClusterShapeAssociationRefVector> wvrv9;
 
-  }
+  };
 }
