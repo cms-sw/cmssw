@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryTest")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("DetectorDescription.OfflineDBLoader.test.cmsIdealGeometryNoRPCSpecs_cfi")
 
 process.maxEvents = cms.untracked.PSet(
             input = cms.untracked.int32(1)
@@ -21,7 +21,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 process.load = cms.EDAnalyzer("OutputDDToDDL",
                             rotNumSeed = cms.int32(0),
-                            fileName = cms.untracked.string("fred.xml")
+                            fileName = cms.untracked.string("fredNoRPCSpecs.xml")
                             )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
