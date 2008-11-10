@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.18 2008/04/08 18:32:10 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.19 2008/05/22 10:49:43 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo
-  \version $Revision: 1.18 $
-  \date $Date: 2008/04/08 18:32:10 $
+  \version $Revision: 1.19 $
+  \date $Date: 2008/05/22 10:49:43 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -163,7 +163,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
             vvars.clear();
             for( unsigned int l=0; l<vars.size(); l++ ) {
               if( !vars[l].empty() ) {
-        	vvars.push_back( row[vars[l].c_str()].data<double>() );
+        	vvars.push_back( row[vars[l].c_str()].data<float>() );
               }
             }
             if( vvars.size() == 2 ) {

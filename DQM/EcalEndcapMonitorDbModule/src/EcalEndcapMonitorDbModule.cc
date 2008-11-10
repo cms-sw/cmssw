@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  *
- * $Date: 2008/04/08 15:06:26 $
- * $Revision: 1.11 $
+ * $Date: 2008/04/08 18:32:10 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -15,14 +15,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
-#include "SealKernel/IMessageService.h"
-#include "PluginManager/PluginManager.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 
 #include "CoralBase/Attribute.h"
+#include "CoralKernel/Context.h"
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 
@@ -87,28 +84,11 @@ void EcalEndcapMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
   std::cout << "EcalEndcapMonitorDbModule: icycle = " << icycle_ << std::endl;
 
   try {
-    seal::Handle<seal::Context> context = new seal::Context;
-    seal::PluginManager* pm = seal::PluginManager::get();
-    pm->initialise ();
-    seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader(context.get());
-
-    loader->load("SEAL/Services/MessageService");
-
-    std::vector<seal::Handle<seal::IMessageService> > v_msgSvc;
-    context->query(v_msgSvc);
-    if ( ! v_msgSvc.empty() ) {
-      seal::Handle<seal::IMessageService>& msgSvc = v_msgSvc.front();
-      msgSvc->setOutputLevel(seal::Msg::Error);
-      //msgSvc->setOutputLevel(seal::Msg::Debug);
-    }
-
-    loader->load("CORAL/Services/ConnectionService");
-
-    loader->load("CORAL/Services/EnvironmentAuthenticationService");
-
-    seal::IHandle<coral::IConnectionService> connectionService = context->query<coral::IConnectionService>("CORAL/Services/ConnectionService");
-
-    loader->load("CORAL/RelationalPlugins/oracle");
+    coral::Context& context = coral::Context::instance();
+    context.loadComponent("CORAL/Services/ConnectionService");
+    context.loadComponent("CORAL/Services/EnvironmentAuthenticationService");
+    coral::IHandle<coral::IConnectionService> connectionService = context.query<coral::IConnectionService>("CORAL/Services/ConnectionService");
+    context.loadComponent("CORAL/RelationalPlugins/oracle");
 
     // Set configuration parameters
     coral::IConnectionServiceConfiguration& config = connectionService->configuration();

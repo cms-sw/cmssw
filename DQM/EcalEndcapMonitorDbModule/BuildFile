@@ -4,8 +4,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=Foundation/PluginManager>
-<use name=Framework/SealKernel>
 <use name=RelationalAccess>
 <use name=rootcore>
 <use name=xerces-c>
@@ -17,8 +15,6 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
-  <use name=Foundation/PluginManager>
-  <use name=Framework/SealKernel>
   <use name=RelationalAccess>
   <use name=rootcore>
   <use name=xerces-c>
