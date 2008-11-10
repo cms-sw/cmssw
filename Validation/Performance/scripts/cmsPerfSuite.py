@@ -2,7 +2,7 @@
 import os, time, sys, re, glob, exceptions
 import optparse as opt
 import cmsRelRegress as crr
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, KeywordToCfi, CandFname, getVerFromLog
 import cmsRelValCmd,cmsCpuInfo
 
 class PerfSuite:
