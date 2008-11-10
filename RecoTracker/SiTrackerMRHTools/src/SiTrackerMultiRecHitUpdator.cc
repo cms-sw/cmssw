@@ -11,10 +11,11 @@
 
 SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
 							 const TrackingRecHitPropagator* hitpropagator,
+							 const float Chi2Cut,
 						         const std::vector<double>& anAnnealingProgram):
   theBuilder(builder),
   theHitPropagator(hitpropagator),
-  theChi2Cut(9.21),
+  theChi2Cut(Chi2Cut),
   theAnnealingProgram(anAnnealingProgram){}
 //theAnnealingStep(0),
 //theIsUpdating(true){}

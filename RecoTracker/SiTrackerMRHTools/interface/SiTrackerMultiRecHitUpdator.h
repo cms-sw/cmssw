@@ -25,6 +25,7 @@ class SiTrackerMultiRecHitUpdator{
   
   SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
 			      const TrackingRecHitPropagator* hitpropagator,
+			      const float Chi2Cut,
 			      const std::vector<double>& anAnnealingProgram);
   virtual ~SiTrackerMultiRecHitUpdator(){};
   

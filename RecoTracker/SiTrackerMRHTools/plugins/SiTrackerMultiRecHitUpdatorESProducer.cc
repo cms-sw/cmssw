@@ -24,6 +24,7 @@ SiTrackerMultiRecHitUpdatorESProducer::~SiTrackerMultiRecHitUpdatorESProducer() 
 boost::shared_ptr<SiTrackerMultiRecHitUpdator> 
 SiTrackerMultiRecHitUpdatorESProducer::produce(const MultiRecHitRecord & iRecord){ 
   std::vector<double> annealingProgram = pset_.getParameter<std::vector<double> >("AnnealingProgram");
+  float Chi2Cut=pset_.getParameter<double>("ChiSquareCut");
 
   edm::ESHandle<TransientTrackingRecHitBuilder> hbuilder;
   std::string sname = pset_.getParameter<std::string>("TTRHBuilder");
@@ -33,7 +34,7 @@ SiTrackerMultiRecHitUpdatorESProducer::produce(const MultiRecHitRecord & iRecord
   iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(hitpropagator, hhitpropagator);		
  
   //_updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(pDD.product(), pp, sp, mp, annealingProgram));
-   _updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(hbuilder.product(),hhitpropagator.product(),annealingProgram));
+  _updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(hbuilder.product(),hhitpropagator.product(), Chi2Cut, annealingProgram));
    // _updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(hhitpropagator.product(),annealingProgram));
   return _updator;
 }
