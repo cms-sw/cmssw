@@ -1229,13 +1229,13 @@ int SiPixelInformationExtractor::getDetId(MonitorElement * mE)
  if( rx.search(mEName) != -1 )
  {
   detId = rx.cap(3).toInt() ;
- } else {
-  cout << ACYellow << ACBold
-       << "[SiPixelInformationExtractor::getDetId()] "
-       << ACPlain
-       << "Could not extract detId from "
-       << mEName
-       << endl ;
+// } else {
+//  cout << ACYellow << ACBold
+//       << "[SiPixelInformationExtractor::getDetId()] "
+//       << ACPlain
+//       << "Could not extract detId from "
+//       << mEName
+//       << endl ;
  }
       
   return detId ;
@@ -1625,7 +1625,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       //checking for any digis or FED errors to decide if this module is in DAQ:  
       string full_path = currDir + "/" + (*it);
-      if(!Tier0Flag && detId==-1 && 
+      if(!Tier0Flag && detId==-1 && full_path.find("SUMOFF")==string::npos &&
          ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
 	  (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
         MonitorElement * me = bei->get(full_path);
@@ -1685,7 +1685,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	    //cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  }
 	}
-      }else if(Tier0Flag && detId==-1 && 
+      }else if(Tier0Flag && detId==-1 && full_path.find("SUMOFF")==string::npos && 
                ((full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) || 
 	        (full_path.find("NErrors")!=string::npos && full_path.find("SUMRAW")==string::npos && (getDetId(bei->get(full_path)) > 100)))){
         MonitorElement * me = bei->get(full_path);
