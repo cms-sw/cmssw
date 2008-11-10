@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("MuonAnalysis.MomentumScaleCalibration.local_CSA08_Y_cff")
+process.load("MuonAnalysis.MomentumScaleCalibration.local_CSA08_JPsi_cff")
 
 # Conflicts with Uniform magnetic field, because it delivers VolumeBasedMagneticField
 # process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -174,14 +174,14 @@ process.looper = cms.Looper(
     # ----------------------------------------------------------------
     ResolFitType = cms.int32(7),
     parResol = cms.vdouble(0.012, 0.0001, 0.000019, 0.0027,
-                           0.00043, 0.00049, 0.0000028, 0.000077,
-                           0.00011, 0.00025, -0.00000094, 0.000022),
+                           0.00043, 0.0041, 0.0000028, 0.000077,
+                           0.00011, 0.0018, -0.00000094, 0.000022),
     parResolFix = cms.vint32(0, 0, 0, 0,
                              0, 0, 0, 0,
                              0, 0, 0, 0),
     parResolOrder = cms.vint32(0, 0, 0, 0,
-                               0, 0, 0, 0,
-                               0, 0, 0, 0),
+                               1, 1, 1, 1,
+                               2, 2, 2, 2),
 
     # -------------------- #
     # Scale fit parameters #

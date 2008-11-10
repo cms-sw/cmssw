@@ -1,3 +1,7 @@
+/**
+ * This macro produces the probability distributions that can be used with standalone muons.
+ */
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
