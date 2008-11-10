@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("MuonAnalysis.MomentumScaleCalibration.Summer08_Z_cff")
+process.load("MuonAnalysis.MomentumScaleCalibration.local_CSA08_Y_cff")
 
 # Conflicts with Uniform magnetic field, because it delivers VolumeBasedMagneticField
 # process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -148,21 +148,40 @@ process.looper = cms.Looper(
     # parResolFix = cms.vint32(0, 0, 0, 0, 0, 0, 0),
     # parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0, 0),
 
-    # The theerteen parResol parameters of resolfittype=6 are respectively:
+    # The fifteen parResol parameters of resolfittype=6 are respectively:
     # constant of sigmaPt, Pt dep. of sigmaPt, Pt^2 dep. of sigmaPt;
+    # Pt^3 dep. of sigmaPt and Pt^4 dep. of sigmaPt;
     # constant of sigmaCotgTheta, 1/Pt dep. of sigmaCotgTheta, Eta dep. of
     # sigmaCotgTheta, Eta^2 dep of sigmaCotgTheta;
     # constant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
     # Eta^2 dep. of sigmaPhi.
     # ----------------------------------------------------------------
-    ResolFitType = cms.int32(6),
-    parResol = cms.vdouble(0.002, -0.0015, 0.000056, -0.00000085, 0.0000000046, -0.000027, 0.0037,
-                           0.005, 0.00027, 0.0000027, 0.000094,
-                           0.002, 0.00016, -0.00000051, 0.000022),
-    parResolFix = cms.vint32(0, 0, 0, 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0, 0),
-    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0, 0, 0,
-                               0, 0, 0, 0, 0, 0, 0),
+    # ResolFitType = cms.int32(6),
+    # parResol = cms.vdouble(0.002, -0.0015, 0.000056, -0.00000085, 0.0000000046, -0.000027, 0.0037,
+    #                        0.005, 0.00027, 0.0000027, 0.000094,
+    #                        0.002, 0.00016, -0.00000051, 0.000022),
+    # parResolFix = cms.vint32(0, 0, 0, 0, 0, 0, 0, 0,
+    #                          0, 0, 0, 0, 0, 0, 0),
+    # parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0, 0, 0,
+    #                            0, 0, 0, 0, 0, 0, 0),
+
+    # The twelve parResol parameters of resolfittype=7 are respectively:
+    # constant of sigmaPt, Pt dep. of sigmaPt;
+    # constant of sigmaCotgTheta, 1/Pt dep. of sigmaCotgTheta, Eta dep. of
+    # sigmaCotgTheta, Eta^2 dep of sigmaCotgTheta;
+    # constant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
+    # Eta^2 dep. of sigmaPhi.
+    # ----------------------------------------------------------------
+    ResolFitType = cms.int32(7),
+    parResol = cms.vdouble(0.012, 0.0001, 0.000019, 0.0027,
+                           0.00043, 0.00049, 0.0000028, 0.000077,
+                           0.00011, 0.00025, -0.00000094, 0.000022),
+    parResolFix = cms.vint32(0, 0, 0, 0,
+                             0, 0, 0, 0,
+                             0, 0, 0, 0),
+    parResolOrder = cms.vint32(0, 0, 0, 0,
+                               0, 0, 0, 0,
+                               0, 0, 0, 0),
 
     # -------------------- #
     # Scale fit parameters #
