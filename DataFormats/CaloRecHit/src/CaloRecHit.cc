@@ -1,10 +1,10 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 
-CaloRecHit::CaloRecHit() : energy_(0), time_(0) {
+CaloRecHit::CaloRecHit() : energy_(0), time_(0), flags_(0) {
 }
 
-CaloRecHit::CaloRecHit(const DetId& id, float energy, float time) : id_(id),energy_(energy), time_(time) {
+CaloRecHit::CaloRecHit(const DetId& id, float energy, float time) : id_(id),energy_(energy), time_(time), flags_(0) {
 }
 
 CaloRecHit::~CaloRecHit() {
@@ -22,7 +22,9 @@ void CaloRecHit::setFlagField(uint32_t value, int base, int width) {
   value&=masks[std::max(std::min(width,32),0)];
   value<<=std::max(std::min(base,31),0);
   // clear out the relevant bits
-  uint32_t clear=masks[std::max(std::min(width,32),0)]^0xFFFFFFFFu;
+  uint32_t clear=masks[std::max(std::min(width,32),0)];
+  clear=clear<<std::max(std::min(base,31),0);
+  clear^=0xFFFFFFFFu;
   flags_&=clear;
   flags_|=value;
 }
@@ -33,6 +35,6 @@ uint32_t CaloRecHit::flagField(int base, int width) const {
 
 
 std::ostream& operator<<(std::ostream& s, const CaloRecHit& hit) {
-  return s << hit.detid().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns";
+  return s << hit.detid().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns  flags=0x" << std::hex << hit.flags() << std::dec << " ";
 }
 
