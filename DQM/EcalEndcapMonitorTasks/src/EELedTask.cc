@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/08/11 17:47:13 $
- * $Revision: 1.39 $
+ * $Date: 2008/08/11 18:34:07 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -473,7 +473,8 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -492,19 +493,19 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( dccMap[ism].getRtHalf() == 0 ) {
+        if ( Numbers::RtHalf(id) == 0 ) {
 
           if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
 
-        } else if ( dccMap[ism].getRtHalf() == 1 ) {
+        } else if ( Numbers::RtHalf(id) == 1 ) {
 
           if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
 
         } else {
 
-          LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+          LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
         }
 
@@ -653,7 +654,8 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP &&
+           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -662,7 +664,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( dccMap[ism].getRtHalf() == 0 ) {
+      if ( Numbers::RtHalf(id) == 0 ) {
 
         if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
           meAmplMap = meAmplMapL1A_[ism-1];
@@ -675,7 +677,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
           meAmplPNMap = meAmplPNMapL2A_[ism-1];
         }
 
-      } else if ( dccMap[ism].getRtHalf() == 1 ) { 
+      } else if ( Numbers::RtHalf(id) == 1 ) { 
 
         if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
           meAmplMap = meAmplMapL1B_[ism-1];
@@ -690,7 +692,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+        LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
       }
 
@@ -713,17 +715,17 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( dccMap[ism].getRtHalf() == 0 ) {
+      if ( Numbers::RtHalf(id) == 0 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else if ( dccMap[ism].getRtHalf() == 1 ) {
+      } else if ( Numbers::RtHalf(id) == 1 ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
 
       } else {
 
-        LogWarning("EELedTask") << " RtHalf = " << dccMap[ism].getRtHalf();
+        LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
       }
 
