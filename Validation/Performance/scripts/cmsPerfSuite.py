@@ -346,7 +346,7 @@ class PerfSuite:
             os.system("mkdir -p %s" % rootdir)
         if not self._debug:
             cmd = "cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n %s >& ../minbias_for_pileup_generate.log" % (rootdir,str(10))
-            log.write(cmd)
+            self.logh.write(cmd)
             os.system(cmd)
         if not os.path.exists(rootdir + "/" + rootfile):
             self.logh.write("ERROR: We can not run QCD profiling please create root file %s to run QCD profiling.\n" % (rootdir + "/" + rootfile))
@@ -388,7 +388,7 @@ class PerfSuite:
         if self.runCmdSet(cmds):
             print "I caught that the file was not there!"
             cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents))
-            log.write(cmd)
+            self.logh.write(cmd)
             return os.system(cmd)
     
     #############
