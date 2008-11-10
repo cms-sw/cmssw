@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/06 18:02:33 $
- * $Revision: 1.90 $
+ * $Date: 2008/11/10 06:47:40 $
+ * $Revision: 1.91 $
  * \author W Fisher
  *
 */
@@ -979,10 +979,11 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	if (htr.isHistogramEvent()) continue;
 	
 	int firstFED =  FEDNumbering::getHcalFEDIds().first; 
-
-	for(int fchan=0; fchan<3; ++fchan)
+	
+	// Tease out HB and HE, which share HTRs in HBHE
+	for(int fchan=0; fchan<3; ++fchan) //0,1,2 are valid
 	  {
-	    for(int fib=0; fib<9; ++fib)
+	    for(int fib=1; fib<9; ++fib) //1...8 are valid
 	      {
 		HcalElectronicsId eid(fchan,fib,spigot,dccid-firstFED);
 		eid.setHTR(htr.readoutVMECrateId(),
