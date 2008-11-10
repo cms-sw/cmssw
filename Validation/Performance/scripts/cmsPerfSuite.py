@@ -540,7 +540,7 @@ class PerfSuite:
                         self.logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                     else:
                         self.logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-                        self.cprootfile(adir,candle,ValgrindEvents)              
+                        self.cprootfile(adir,candle,NumEvents)              
     
                 if self._unittest:
                     # Run cmsDriver.py
