@@ -16,8 +16,8 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2007/09/05 20:04:13 $
-  $Revision: 1.2 $
+  $Date: 2007/09/07 19:11:19 $
+  $Revision: 1.3 $
   \author E. Garcia - UIC
   */
    class IdealZDCTrapezoid: public CaloCellGeometry 
@@ -26,9 +26,8 @@ namespace calogeom {
 
 	 IdealZDCTrapezoid( const GlobalPoint& faceCenter,
 			    const CornersMgr*  mgr       ,
-			    const float*       parm        ) :  
-	    CaloCellGeometry ( faceCenter, mgr ) ,
-	    m_parms          ( parm )                   {}
+			    const double*      parm        ) :  
+	    CaloCellGeometry ( faceCenter, mgr, parm )  {}
 	 
 	virtual ~IdealZDCTrapezoid() {}
 
@@ -36,16 +35,12 @@ namespace calogeom {
 
 	virtual const CornersVec& getCorners() const;
 
-	const float an() const { return param()[0] ; }
-	const float dx() const { return param()[1] ; }
-	const float dy() const { return param()[2] ; }
-	const float dz() const { return param()[3] ; }
+	const double an() const { return param()[0] ; }
+	const double dx() const { return param()[1] ; }
+	const double dy() const { return param()[2] ; }
+	const double dz() const { return param()[3] ; }
     
      private:
-
-	const float* param() const { return m_parms ; }
-
-	const float* m_parms ;
   };
 
    std::ostream& operator<<( std::ostream& s , const IdealZDCTrapezoid& cell ) ;

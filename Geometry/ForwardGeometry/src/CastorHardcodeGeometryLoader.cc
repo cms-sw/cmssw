@@ -107,7 +107,7 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
   }
   GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
 
-  std::vector<float> zz ;
+  std::vector<double> zz ;
   zz.resize(3) ;
   zz.push_back( dx ) ;
   zz.push_back( dy ) ;
