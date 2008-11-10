@@ -387,10 +387,11 @@ class PerfSuite:
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
         if self.runCmdSet(cmds):
             self.logh.write("Since there was no ../%s_IgProf/%s_GEN,SIM.root file it will be generated first\n"%(candle,CandFname[candle]))
-            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s >& GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents))
+            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s --fileout %s_GEN,SIM.root >& %s_GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents),candle,candle)
             self.printFlush(cmd)
             cmdout=os.popen3(cmd)[2].read()
-            self.printFlush(cmdout)
+            if cmdout:
+                self.printFlush(cmdout)
             return cmdout
             
     #############
@@ -741,6 +742,18 @@ class PerfSuite:
     
             #Valgrind tests:
             if ValgrindEvents > 0:
+                #FIXME
+                #1-Could kill all cmsScimark jobs running on spare cores
+                # since the cpu load on the machine does not affect the Valgrind measurements.
+                #2-Could also launch different tests on different cores to parallelize:
+                #  a-Callgrind on QCD_80_120 on one core (unprofiled GEN,SIM, profile DIGI)
+                #  b-Callgrind on SingleMu on another core
+                #  c-Memcheck on QCD_80_120 on another core
+                #  d-Memcheck on SingleMu on another core
+                #  This could become a problem if one wants to launch the whole suite
+                #  as a separate thread on a certain core: catch this in the options.
+                #  if the --cpu is specified then no "parallelizing" of the valgrind part, this should be enough
+                
                 self.logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each\n" % ValgrindEvents)
                 self.printDate()
                 self.logh.flush()
