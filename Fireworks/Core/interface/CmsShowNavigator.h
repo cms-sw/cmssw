@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.10 2008/08/25 00:08:28 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.11 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -52,6 +52,7 @@ class CmsShowNavigator
       void nextEvent();
       void previousEvent();
       void firstEvent();
+      void lastEvent();
       void filterEvents(CSGAction* action);
       void goToRun(CSGAction* action);
       void goToEvent(CSGAction* action);

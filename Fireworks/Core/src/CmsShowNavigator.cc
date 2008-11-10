@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.16 2008/08/30 18:33:09 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.17 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // hacks
@@ -189,6 +189,15 @@ CmsShowNavigator::firstEvent()
   m_event->to(realEntry(m_currentSelectedEntry));
   newEvent.emit(*m_event);
   atBeginning.emit();
+}
+
+void
+CmsShowNavigator::lastEvent()
+{
+   m_currentSelectedEntry = m_nEntries-1;
+   m_event->to(realEntry(m_currentSelectedEntry));
+   newEvent.emit(*m_event);
+   atEnd.emit();
 }
 
 void
