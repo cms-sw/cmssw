@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.8 2008/09/18 20:57:51 klukas Exp $
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.9 2008/11/06 00:41:55 klukas Exp $
 //
 //
 
@@ -32,9 +32,10 @@
 #include "HLTriggerOffline/Muon/interface/HLTMuonOverlap.h"
 #include "HLTriggerOffline/Muon/interface/HLTMuonTime.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "TFile.h"
 #include "TDirectory.h"
-
 
 class MuonTriggerRateTimeAnalyzer : public edm::EDAnalyzer {
 
@@ -61,23 +62,35 @@ using namespace edm;
 
 MuonTriggerRateTimeAnalyzer::MuonTriggerRateTimeAnalyzer(const ParameterSet& pset)
 {
-
   vector<string> triggerNames = pset.getParameter< vector<string> >
                                 ("TriggerNames");
-  theNumberOfTriggers     = triggerNames.size();
-  for( int i = 0; i < theNumberOfTriggers; i++) {
-    HLTMuonGenericRate *analyzer = new HLTMuonGenericRate( pset, triggerNames[i] );
-    theTriggerAnalyzers.push_back( analyzer );
+  string theHltProcessName = pset.getParameter<string>("HltProcessName");
+
+  HLTConfigProvider hltConfig;
+  hltConfig.init(theHltProcessName);
+  vector<string> validTriggerNames = hltConfig.triggerNames();
+
+  for( size_t i = 0; i < triggerNames.size(); i++) {
+    bool isValidTriggerName = false;
+    for ( size_t j = 0; j < validTriggerNames.size(); j++ )
+      if ( triggerNames[i] == validTriggerNames[j] ) isValidTriggerName = true;
+    if ( !isValidTriggerName ) {}   
+    else {
+      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+      HLTMuonGenericRate *analyzer;
+      analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames );
+      theTriggerAnalyzers.push_back( analyzer );
+    }
   }
   theOverlapAnalyzer = new HLTMuonOverlap( pset );    
   theTimeAnalyzer    = new HLTMuonTime( pset );  
-  
+
+  theNumberOfTriggers = theTriggerAnalyzers.size();  
 }
 
 
 MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
 {
-  using namespace edm;
   vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
         thisAnalyzer != theTriggerAnalyzers.end(); 
@@ -99,7 +112,6 @@ MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
 void
 MuonTriggerRateTimeAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
-  using namespace edm;
   vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
 	thisAnalyzer != theTriggerAnalyzers.end(); ++thisAnalyzer )
@@ -130,7 +142,6 @@ MuonTriggerRateTimeAnalyzer::beginJob(const EventSetup&)
 
 void 
 MuonTriggerRateTimeAnalyzer::endJob() {
-  using namespace edm;
   vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
         thisAnalyzer != theTriggerAnalyzers.end(); 
