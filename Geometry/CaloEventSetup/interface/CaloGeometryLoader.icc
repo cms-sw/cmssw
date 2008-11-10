@@ -7,6 +7,8 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -29,6 +31,10 @@
 #include <vector>
 
 using namespace std;
+
+template <class T>
+const double 
+CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 
 template <class T>
 CaloGeometryLoader<T>::CaloGeometryLoader() 
@@ -54,14 +60,14 @@ template <class T>
 typename CaloGeometryLoader<T>::PtrType
 CaloGeometryLoader<T>::load( const DDCompactView*  cpv        ,
 			     const Alignments*     alignments ,
-			     const AlignTransform* global       ) 
+			     const Alignments*     globals       ) 
 {
    PtrType geom ( new T ) ;
 
    makeGeometry( cpv,
 		 dynamic_cast<T*>( geom.get() ),
 		 alignments,
-		 global ) ;
+		 globals ) ;
 
    return geom ;
 }
@@ -71,7 +77,7 @@ void
 CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 				     T*                    geom       ,
 				     const Alignments*     alignments ,
-				     const AlignTransform* global       )
+				     const Alignments*     globals      )
 {
    DDFilteredView fv0 ( *cpv ) ;
    fv0.addFilter( m_filter ) ;
@@ -79,6 +85,8 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
    fillNamedParams( fv0, geom ) ;
 
    geom->allocateCorners( T::k_NumberOfCellsForCorners ) ;
+   geom->allocatePar( ( geom->numberOfShapes() )*( geom->numberOfParametersPerShape() ),
+		      geom->numberOfParametersPerShape() ) ;
 
    DDFilteredView fv( *cpv ) ;
    fv.addFilter( m_filter ) ;
@@ -101,11 +109,11 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 			    fv.translation().Y(),
 			    fv.translation().Z()  ) ;
       const HepTransform3D ht3d ( hr,                        // only scale translation
-				  CaloCellGeometry::k_ScaleFromDDDtoGeant*h3v ) ;    
+				  k_ScaleFromDDDtoGeant*h3v ) ;    
 
       const DetId id ( getDetIdForDDDNode( fv ) ) ;
 
-      const unsigned int which ( whichTransform( id ) ) ;
+      const unsigned int which ( geom->alignmentTransformIndexLocal( id ) ) ;
 
       assert( 0 == alignments ||
 	      which < alignments->m_align.size() ) ;
@@ -113,21 +121,24 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
       const AlignTransform* at ( 0 == alignments ? 0 :
 				 &alignments->m_align[ which ] ) ;
 
-      assert( 0 == at || ( whichTransform( DetId( at->rawId() ) ) ==
-			   whichTransform( id ) ) ) ;
+      assert( 0 == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
+
+      const unsigned int gIndex ( geom->alignmentTransformIndexGlobal( id ) ) ;
+
+      const AlignTransform* globalT ( 0 == globals ? 0 :
+				      ( globals->m_align.size() > gIndex ? 
+					&globals->m_align[ gIndex ] : 0 ) ) ;
 
       const HepTransform3D atr ( 0 == at ? ht3d :
-				 ( 0 == global ? at->transform()*ht3d :
-				   global->transform()*at->transform()*ht3d ) ) ;
-//				 HepTransform3D( at->rotation(), 
-//						 at->translation()  )*ht3d ) ;
+				 ( 0 == globalT ? at->transform()*ht3d :
+				   globalT->transform()*at->transform()*ht3d ) ) ;
 
       fillGeom( geom, parameters, atr, id ) ;
    }
 
    assert( counter <= T::k_NumberOfCellsForCorners ) ;
 
-   extraStuff( geom ) ;
+   geom->initializeParms() ;
 }
 
 template <class T>

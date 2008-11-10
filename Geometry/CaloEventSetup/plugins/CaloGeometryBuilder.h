@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.h,v 1.2 2007/11/15 17:13:26 fabiocos Exp $
+// $Id: CaloGeometryBuilder.h,v 1.3 2008/04/21 22:14:19 heltsley Exp $
 //
 //
 
@@ -47,7 +47,6 @@ class CaloGeometryBuilder : public edm::ESProducer
 
       virtual ~CaloGeometryBuilder() {} ;
 
-      ReturnType produceIdeal(   const IdealGeometryRecord& iRecord ) ;
       ReturnType produceAligned( const CaloGeometryRecord&  iRecord ) ;
 
    private:

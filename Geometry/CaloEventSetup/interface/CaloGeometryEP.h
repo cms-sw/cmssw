@@ -44,8 +44,8 @@ class CaloGeometryEP : public edm::ESProducer
       virtual ~CaloGeometryEP<T>() {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 const Alignments*     alignPtr  ( 0 ) ;
-	 const AlignTransform* globalPtr ( 0 ) ;
+	 const Alignments* alignPtr  ( 0 ) ;
+	 const Alignments* globalPtr ( 0 ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
 	 {
 	    edm::ESHandle< Alignments >                                      alignments ;
@@ -57,10 +57,9 @@ class CaloGeometryEP : public edm::ESProducer
 
 	    edm::ESHandle< Alignments >                          globals   ;
 	    iRecord.template getRecord<GlobalPositionRcd>().get( globals ) ;
-    
-	    if( globals.isValid()                                    &&
-		T::whichGlobal() < globals.product()->m_align.size()    )
-	       globalPtr = &globals.product()->m_align[ T::whichGlobal() ] ;
+
+	    assert( globals.isValid() ) ;
+	    globalPtr = globals.product() ;
 	 }
 	 edm::ESHandle< DDCompactView > cpv ;
 	 iRecord.template getRecord<IdealGeometryRecord>().get( cpv ) ;

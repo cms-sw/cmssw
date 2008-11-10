@@ -33,22 +33,22 @@ class CaloGeometryLoader
       typedef CaloSubdetectorGeometry::ParVec    ParVec ;
       typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
+      static const double k_ScaleFromDDDtoGeant ;
+
       CaloGeometryLoader< T >() ;
 
       virtual ~CaloGeometryLoader< T >() {}
  
-      PtrType load( const DDCompactView*  cpv,
-		    const Alignments*     alignments = 0 ,
-		    const AlignTransform* global     = 0  ) ;  
+      PtrType load( const DDCompactView* cpv,
+		    const Alignments*    alignments = 0 ,
+		    const Alignments*    globals    = 0  ) ;  
 
    private:
-
-      unsigned int whichTransform( const DetId& id ) const ;
 
       void makeGeometry( const DDCompactView*  cpv        , 
 			 T*                    geom       ,
 			 const Alignments*     alignments ,
-			 const AlignTransform* global       ) ;
+			 const Alignments*     globals       ) ;
       
       void fillNamedParams( DDFilteredView fv,
 			    T*             geom ) ;
@@ -57,8 +57,6 @@ class CaloGeometryLoader
 		     const ParmVec&        pv ,
 		     const HepTransform3D& tr ,
 		     const DetId&          id    ) ;
-
-      void extraStuff( T* geom ) ;
 
       unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
 
