@@ -97,7 +97,7 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
   try {
 
     m_readStmt->setSQL("SELECT d.group_id, d.threshold_low, d.threshold_high, d.ratio_low, d.ratio_high, d.lut_conf_id  "
-		 "FROM fe_config_fgr_per_group_dat d "
+		 "FROM fe_fgr_per_group_dat d "
 		 "WHERE fgr_conf_id = :fgr_conf_id order by d.group_id ");
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
