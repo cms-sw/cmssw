@@ -28,7 +28,7 @@ HcalFrontEndId::HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfib
   else if (rbx.substr(0,3)=="HFP")  { num=18*4+12*6 + atoi(rbx.substr(3,2).c_str())-1; }
   else return;
 
-  hcalFrontEndId_|=(adc&0x7);
+  hcalFrontEndId_|=((adc+1)&0x7);
   hcalFrontEndId_|=((qie-1)&0x3)<<3;
   hcalFrontEndId_|=(fiberchannel&0x3)<<5;
   hcalFrontEndId_|=((rmfiber-1)&0x7)<<7;
