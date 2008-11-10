@@ -141,7 +141,9 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     ///\\\///type = "HO DataIntegrity Problem Zoo";
     ///\\\///HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
     ///\\\///labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
-    
+
+    meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
+    meEVT_->Fill(ievt_);    
 
     m_dbe->setCurrentFolder(baseFolder_ + "/HcalFEDChecking");
     
@@ -152,8 +154,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type="FEDFatal";
     fedFatal_ = m_dbe->book1D(type,type,32,699.5,731.5);
 
-    m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
-    type="DCC DataIntegrity Check";
+    m_dbe->setCurrentFolder(baseFolder_);
+    type="Readout Chain DataIntegrity Check";
     meDCC_DataIntegrityCheck_ = m_dbe->book2D(type,type,
 					      55,0,55,
 					      22,0,22);
@@ -609,12 +611,6 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meUnmappedTPDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
     meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
     meUnmappedTPDigis_->setAxisTitle("# of Events",2);
-
-    m_dbe->setCurrentFolder(baseFolder_ + "/ZZ DQM Diagnostics");
-
-
-    meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
-    meEVT_->Fill(ievt_);
 
     /* Disable these histos for now
        type = "Fiber 1 Orbit Message BCN";
