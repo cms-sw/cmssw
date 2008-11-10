@@ -52,10 +52,36 @@ std::string RPCRawDataCounts::print() const
   } 
   return str.str();
 }
-TH1D RPCRawDataCounts::recordTypeHisto(int fedId) const {
+
+
+void RPCRawDataCounts::recordTypeVector(int fedId, std::vector<double>& out) const {
+  out.clear();
+  IRT irt = theRecordTypes.find(fedId);
+  if (irt != theRecordTypes.end()) {
+    const vector<int> & v = irt->second;
+    for (int i=1; i<=9; ++i) {
+      out.push_back(double(i));
+      out.push_back(v[i]);
+    }
+  }
+}
+
+void RPCRawDataCounts::readoutErrorVector(std::vector<double>& out) const {
+  out.clear();
+  for (int i=1; i<9; ++i) {
+    IRE ire = theReadoutErrors.find(i);
+    if(ire != theReadoutErrors.end()) {
+     out.push_back(ire->first);
+     out.push_back(ire->second);
+    }
+  }
+}
+
+
+TH1F RPCRawDataCounts::recordTypeHisto(int fedId) const {
   std::ostringstream str;
   str <<"recordType_"<<fedId;
-  TH1D result(str.str().c_str(),str.str().c_str(),9, 0.5,9.5);
+  TH1F result(str.str().c_str(),str.str().c_str(),9, 0.5,9.5);
   IRT irt = theRecordTypes.find(fedId);
   if (irt != theRecordTypes.end()) {
     const vector<int> & v = irt->second;
@@ -63,10 +89,11 @@ TH1D RPCRawDataCounts::recordTypeHisto(int fedId) const {
   } 
   return result;
 }
-TH1D RPCRawDataCounts::readoutErrorHisto() const {
+
+TH1F RPCRawDataCounts::readoutErrorHisto() const {
   std::ostringstream str;
   str <<"readoutErrors";
-  TH1D result(str.str().c_str(),str.str().c_str(),8, 0.5,8.5);
+  TH1F result(str.str().c_str(),str.str().c_str(),8, 0.5,8.5);
   for (int i=1; i<9; ++i) {
     IRE ire = theReadoutErrors.find(i);
     if(ire != theReadoutErrors.end()) result.Fill(ire->first,ire->second);  
