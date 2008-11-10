@@ -36,7 +36,7 @@
 
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::RecoChargedCandidateCollection v1;
     edm::Wrapper<reco::RecoChargedCandidateCollection> w1;
     edm::Ref<reco::RecoChargedCandidateCollection> r1;
@@ -118,5 +118,5 @@ namespace {
     edm::Wrapper<reco::IsoDepositMap> w_idvm;
     
 
-  }
+  };
 }

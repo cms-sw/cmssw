@@ -35,7 +35,7 @@
 #include <map>
 
 namespace{ 
-  namespace {
+  struct dictionary {
 
   CSCWireDigi cWD_;
   CSCRPCDigi  cRD_;
@@ -116,5 +116,5 @@ namespace{
   edm::Wrapper<CSCALCTStatusDigiCollection> wALCTSD_;
 
 
-  }
+  };
 }
