@@ -27,8 +27,10 @@ public:
   void recordTypeVector(int fedid, std::vector<double>& out) const;
   void readoutErrorVector(std::vector<double>& out) const;
   
-  TH1F recordTypeHisto(int fedid) const;
-  TH1F readoutErrorHisto() const;
+  TH1F * recordTypeHisto(int fedid) const;
+  TH1F * readoutErrorHisto() const;
+
+  static std::string readoutErrorName(const ReadoutError & code); 
 
 private:
    std::map<int, std::vector<int> > theRecordTypes; 
