@@ -406,7 +406,7 @@ class PerfSuite:
     ##############
     # Filter lines in the valgrind report that match GEN,SIM
     #
-    def valFilterReport(self,dir,cmsver):
+    def valFilterReport(self,dir):
         cmds = ("cd %s" % dir,
                 "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp" % (self.cmssw_version),
                 "mv tmp SimulationCandles_%s.txt"                         % (self.cmssw_version))
