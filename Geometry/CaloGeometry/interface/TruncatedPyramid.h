@@ -23,13 +23,25 @@ class TruncatedPyramid : public CaloCellGeometry
 
       typedef std::vector< HepPlane3D > BoundaryVec ;
 
-      TruncatedPyramid( const CornersVec& corn  ) :
-	 CaloCellGeometry ( corn ) , 
-	 m_axis           ( axis() ) {} 
-/*,
-  m_bou            ( 0      ) {}*/
+      TruncatedPyramid( const CornersMgr*  cMgr ,
+			const GlobalPoint& fCtr ,
+			const GlobalPoint& bCtr ,
+			const GlobalPoint& cor1 ,
+			const double*      parV   ) :
+	 CaloCellGeometry ( fCtr, cMgr, parV ) ,
+	 m_axis           ( ( bCtr - fCtr ).unit() ) ,
+	 m_corOne         ( new HepPoint3D( cor1.x(), cor1.y(), cor1.z() ) )
+      {} 
 
-      virtual ~TruncatedPyramid() {}// delete m_bou ; }
+      TruncatedPyramid( const CornersVec& corn,
+			const double*     par  ) :
+	 CaloCellGeometry ( corn, par   ) , 
+	 m_axis           ( makeAxis() ) ,
+	 m_corOne         ( new HepPoint3D( corn[0].x(),
+					    corn[0].y(),
+					    corn[0].z()  ) )    {} 
+
+      virtual ~TruncatedPyramid() { delete m_corOne ; }
 
       virtual bool inside( const GlobalPoint& point ) const ;  
 
@@ -41,7 +53,7 @@ class TruncatedPyramid : public CaloCellGeometry
       const GlobalPoint getPosition( float depth ) const 
       { return CaloCellGeometry::getPosition() + depth*m_axis ; }
 
-      virtual const CornersVec& getCorners()       const { return CaloCellGeometry::getCorners() ; }
+      virtual const CornersVec& getCorners()       const ;
 
       // Return thetaAxis polar angle of axis of the crystal
       float getThetaAxis()                         const { return m_axis.theta() ; } 
@@ -57,11 +69,21 @@ class TruncatedPyramid : public CaloCellGeometry
 				 const HepTransform3D&       tr ,
 				 CornersVec&                 co   ) ;
 
-      /// print out the element, with an optional string prefix, maybe OVAL identifier
-      // why is this here with operator<< also? void dump( const char * prefix = "" ) const ;
+
+      static std::vector<HepPoint3D> localCorners( const double* pv,
+						   HepPoint3D&   ref ) ;
+      static std::vector<HepPoint3D> localCornersReflection( const double* pv,
+							     HepPoint3D&   ref ) ;
+
+      virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const ;
+
    private:
 
-      GlobalVector axis() 
+      static std::vector<HepPoint3D> localCornersSwap( const double* pv,
+						       HepPoint3D&   ref ) ;
+
+
+      GlobalVector makeAxis() 
       { 
 	 return GlobalVector( backCtr() -
 			      CaloCellGeometry::getPosition() ).unit() ;
@@ -79,7 +101,7 @@ class TruncatedPyramid : public CaloCellGeometry
       
       GlobalVector         m_axis ;
 
-//      mutable BoundaryVec* m_bou  ;
+      mutable HepPoint3D*  m_corOne ;
 };
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) ;

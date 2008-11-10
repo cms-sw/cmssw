@@ -154,3 +154,65 @@ CaloSubdetectorGeometry::allocatePar( ParVec::size_type n,
    m_parMgr = new ParMgr( n*m, m ) ;
 }
 
+void
+CaloSubdetectorGeometry::getInfoForDB( CaloSubdetectorGeometry::TrVec&  tVec ,
+				       CaloSubdetectorGeometry::IVec&   iVec ,   
+				       CaloSubdetectorGeometry::DimVec& dVec   )  const
+{
+   tVec.reserve( cellGeometries().size() ) ;
+   iVec.reserve( cellGeometries().size() ) ;
+   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
+
+   std::cout<<"in getinfo start"<<std::endl ;
+
+   for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
+   {
+      const ParVec& pv ( *ivv ) ;
+      for( ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv )
+      {
+	 dVec.push_back( *iv ) ;
+      }
+   }
+   std::cout<<"in getinfo after dims pushing"<<std::endl ;
+
+   bool first ( true ) ;
+   for( CellCont::const_iterator i ( cellGeometries().begin() ) ; 
+	i != cellGeometries().end() ; ++i )
+   {
+      HepTransform3D tr ( (*i)->getTransform( ( std::vector<HepPoint3D>* ) 0 ) ) ;
+
+      if( HepTransform3D() == tr ) // for preshower there is no rotation
+      {
+	 if( first ) std::cout<<"####################### translation"<<std::endl ;
+	 first = false ;
+	 const GlobalPoint& gp ( (*i)->getPosition() ) ; 
+	 tr = HepTranslate3D( gp.x(), gp.y(), gp.z() ) ;
+      }
+
+      tVec.push_back( tr ) ;
+
+      const double* par ( (*i)->param() ) ;
+
+      unsigned int ishape ( 9999 ) ;
+      for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv )
+      {
+	 bool ok ( true ) ;
+	 const double* pv ( &(*parVecVec()[ivv].begin() ) ) ;
+	 for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape() ; ++k )
+	 {
+	    ok = ok && ( par[k] == pv[k] ) ;
+	 }
+	 if( ok ) 
+	 {
+	    ishape = ivv ;
+	    break ;
+	 }
+      }
+      assert( 9999 != ishape ) ;
+
+      iVec.push_back( ishape ) ;
+   }
+   std::cout<<"in getinfo at end"<<std::endl ;
+
+   std::cout<<"ivec length = "<<iVec.size() <<", dimvec length="<<dVec.size()<<"tr length="<<tVec.size()<<std::endl;
+}

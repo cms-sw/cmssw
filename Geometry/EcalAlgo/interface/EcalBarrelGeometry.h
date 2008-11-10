@@ -26,7 +26,16 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       typedef EcalBarrelNumberingScheme NumberingScheme ;
 
+      typedef EBDetId DetIdType ;
+
       enum { k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing } ;
+
+      enum { k_NumberOfShapes = 17 } ;
+
+      enum { k_NumberOfParametersPerShape = 11 } ;
+
+      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
+      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
       EcalBarrelGeometry() ;
   
@@ -62,8 +71,20 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       static unsigned int numberOfAlignments() { return 36 ; }
 
-      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
+      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 
+      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+
+      static std::vector<HepPoint3D> localCorners( const double* pv, 
+						   unsigned int  i,
+						   HepPoint3D&   ref ) ;
+
+      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					const GlobalPoint& f2 ,
+					const GlobalPoint& f3 ,
+					CaloCellGeometry::CornersMgr* mgr,
+					const double*      parm ) ;
+					
    private:
       /** number of crystals in eta direction */
       int _nnxtalEta;

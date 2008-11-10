@@ -24,8 +24,8 @@ namespace calogeom {
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: 2007/09/07 19:08:34 $
-  $Revision: 1.4 $
+  $Date: 2007/10/21 16:07:34 $
+  $Revision: 1.5 $
   \author J. Mans - Minnesota
   */
    class IdealObliquePrism : public CaloCellGeometry 
@@ -34,9 +34,8 @@ namespace calogeom {
 
 	 IdealObliquePrism( const GlobalPoint& faceCenter, 
 			    const CornersMgr*  mgr       ,
-			    const float*       parm       ) : 
-	    CaloCellGeometry ( faceCenter, mgr ) ,
-	    m_parms          ( parm )               {}
+			    const double*      parm       ) : 
+	    CaloCellGeometry ( faceCenter, mgr, parm ) {}
 
 	 virtual ~IdealObliquePrism() {}
 
@@ -44,15 +43,11 @@ namespace calogeom {
 
 	 virtual bool inside( const GlobalPoint & point ) const ;  
 
-	 float dEta()  const { return param()[0] ; }
-	 float dPhi()  const { return param()[1] ; }
-	 float dz()    const { return param()[2] ; }
+	 double dEta()  const { return param()[0] ; }
+	 double dPhi()  const { return param()[1] ; }
+	 double dz()    const { return param()[2] ; }
 
       private:
-
-	 const float* param() const { return m_parms ; }
-
-	 const   float*      m_parms ;
    };
 
    std::ostream& operator<<( std::ostream& s , const IdealObliquePrism& cell ) ;

@@ -20,8 +20,16 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       typedef EcalPreshowerNumberingScheme NumberingScheme ;
       typedef CaloSubdetectorGeometry::ParVec ParVec ;
       typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
+      typedef ESDetId DetIdType ;
 
       enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing } ;
+
+      enum { k_NumberOfShapes = 2 } ;
+
+      enum { k_NumberOfParametersPerShape = 3 } ;
+
+      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
+      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
       EcalPreshowerGeometry() ;
   
@@ -41,9 +49,13 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       // Get closest cell
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 
+
       // Get closest cell in arbitrary plane (1 or 2)
       virtual DetId getClosestCellInPlane( const GlobalPoint& r     ,
 					   int                plane   ) const ;
+
+
+      virtual void initializeParms() ;
 
       static std::string hitString() { return "EcalHitsES" ; }
 
@@ -51,7 +63,19 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static unsigned int numberOfAlignments() { return 1 ; }
 
-      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
+      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+
+      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+
+      static std::vector<HepPoint3D> localCorners( const double* pv,
+						   unsigned int  i,
+						   HepPoint3D&   ref ) ;
+
+      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					const GlobalPoint& f2 ,
+					const GlobalPoint& f3 ,
+					CaloCellGeometry::CornersMgr* mgr,
+					const double*      parm ) ;
 
    private:
 
@@ -61,8 +85,8 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       /// number of crystals per module
       int _nnstrips; 
 
-      float _act_w,_waf_w,_pitch,_intra_lad_gap,_inter_lad_gap,_centre_gap;
-      float _zplane[2];
+      double _act_w,_waf_w,_pitch,_intra_lad_gap,_inter_lad_gap,_centre_gap;
+      double _zplane[2];
       
 };
 

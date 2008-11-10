@@ -1,3 +1,5 @@
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -13,12 +15,14 @@
 using namespace std;
 
 EcalBarrelGeometry::EcalBarrelGeometry() :
-   _nnxtalEta     ( 0 ) ,
-   _nnxtalPhi     ( 0 ) ,
-   _PhiBaskets    ( 0 ) ,
+   _nnxtalEta     ( 85 ) ,
+   _nnxtalPhi     ( 360 ) ,
+   _PhiBaskets    ( 18 ) ,
    m_borderMgr    ( 0 ),
    m_borderPtrVec ( 0 ) 
 {
+   const int neba[] = {25,45,65,85} ;
+   _EtaBaskets = std::vector<int>( &neba[0], &neba[3] ) ;
 }
 
 
@@ -28,6 +32,24 @@ EcalBarrelGeometry::~EcalBarrelGeometry()
    delete m_borderMgr ;
 }
 
+
+unsigned int
+EcalBarrelGeometry::alignmentTransformIndexLocal( const DetId& id )
+{
+   const CaloGenericDetId gid ( id ) ;
+
+   assert( gid.isEB() ) ;
+
+   unsigned int index ( EBDetId(id).ism() - 1 ) ;
+
+   return index ;
+}
+
+unsigned int
+EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& id )
+{
+   return (unsigned int)DetId::Ecal ;
+}
 // Get closest cell, etc...
 DetId 
 EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const 
@@ -290,8 +312,8 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 	    const double fr    ( dR*scale    ) ; // # crystal widths in dR
 	    const double frp   ( 1.05*fr + 1. ) ; // conservatively above fr 
 	    const double frm   ( 0.95*fr - 1. ) ; // conservatively below fr
-	    const int    idr   ( frp         ) ; // integerize
-	    const int    idr2p ( frp*frp     ) ;
+	    const int    idr   ( frp          ) ; // integerize
+	    const int    idr2p ( frp*frp      ) ;
 	    const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
 
 	    for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
@@ -350,8 +372,8 @@ EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
       const int iz       ( id.ieta()>0 ? 1 : -1 ) ;
       const EEDetId eeid ( EEDetId::idOuterRing( iPhi, iz ) ) ;
 
-      const int ix ( eeid.ix() ) ;
-      const int iy ( eeid.iy() ) ;
+//      const int ix ( eeid.ix() ) ;
+//      const int iy ( eeid.iy() ) ;
 
       const int iq ( eeid.iquadrant() ) ;
       const int xout ( 1==iq || 4==iq ? 1 : -1 ) ;
@@ -399,4 +421,25 @@ EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
       ptr = (*m_borderPtrVec)[ iPhi - 1 + ( 0>iz ? 0 : 360 ) ] ;
    }
    return ptr ;
+}
+
+std::vector<HepPoint3D> 
+EcalBarrelGeometry::localCorners( const double* pv, 
+				  unsigned int  i,
+				  HepPoint3D&   ref )
+{
+   return TruncatedPyramid::localCorners( pv, ref ) ;
+
+// ( 1 == i%2 ? TruncatedPyramid::localCorners( pv, ref ) :
+//	    TruncatedPyramid::localCornersReflection( pv, ref ) ) ;
+}
+
+CaloCellGeometry* 
+EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
+			     const GlobalPoint& f2 ,
+			     const GlobalPoint& f3 ,
+			     CaloCellGeometry::CornersMgr* mgr,
+			     const double*      parm ) 
+{
+   return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
 }

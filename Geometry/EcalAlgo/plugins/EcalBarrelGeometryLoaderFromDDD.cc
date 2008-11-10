@@ -16,34 +16,32 @@ using namespace std;
 typedef CaloGeometryLoader< EcalBarrelGeometry > EcalBGL ;
 
 template <>
-unsigned int 
-EcalBGL::whichTransform( const DetId& id ) const
-{
-   return ( EBDetId( id ).ism() - 1 ) ;
-}
-
-template <>
 void 
 EcalBGL::fillGeom( EcalBarrelGeometry*     geom ,
-		   const EcalBGL::ParmVec& pv ,
+		   const EcalBGL::ParmVec& vv ,
 		   const HepTransform3D&   tr ,
 		   const DetId&            id    )
 {
+   std::vector<double> pv ;
+   pv.reserve( vv.size() ) ;
+   for( unsigned int i ( 0 ) ; i != vv.size() ; ++i )
+   {
+      const double factor ( 1==i || 2==i || 6==i || 10==i ? 1 : k_ScaleFromDDDtoGeant ) ;
+      pv.push_back( factor*vv[i] ) ;
+   }
+
    CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
    corners.resize() ;
 
    TruncatedPyramid::createCorners( pv, tr, corners ) ;
 
-   TruncatedPyramid* cell ( new TruncatedPyramid( corners ) ) ;
+   const double* parmPtr ( CaloCellGeometry::getParmPtr( pv, 
+							 geom->parMgr(), 
+							 geom->parVecVec() ) ) ;
+
+   TruncatedPyramid* cell ( new TruncatedPyramid( corners , parmPtr ) ) ;
 
    geom->addCell( id, cell );
-}
-
-template <>
-void 
-EcalBGL::extraStuff( EcalBarrelGeometry* geom )
-{
-   // nothing for barrel
 }
 
 template <>

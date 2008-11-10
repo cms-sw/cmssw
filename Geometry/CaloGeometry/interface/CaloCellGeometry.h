@@ -4,6 +4,8 @@
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include <CLHEP/Geometry/Point3D.h>
+#include <CLHEP/Geometry/Transform3D.h>
 #include <vector>
 #include <string>
 
@@ -11,8 +13,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2007/09/21 06:08:05 $
-$Revision: 1.12 $
+$Date: 2007/09/26 19:26:58 $
+$Revision: 1.13 $
 \author J. Mans, P. Meridiani
 */
 
@@ -23,13 +25,11 @@ class CaloCellGeometry
       typedef EZArrayFL< GlobalPoint > CornersVec ;
       typedef EZMgrFL< GlobalPoint >   CornersMgr ;
 
-      typedef EZArrayFL<float>    ParVec ;
+      typedef EZArrayFL<double>   ParVec ;
       typedef std::vector<ParVec> ParVecVec ;
-      typedef EZMgrFL< float >    ParMgr ;
+      typedef EZMgrFL< double >   ParMgr ;
 
       enum CornersSize { k_cornerSize = 8 };
-
-      static const float k_ScaleFromDDDtoGeant ;
 
       virtual ~CaloCellGeometry() {}
       
@@ -44,23 +44,37 @@ class CaloCellGeometry
 
       bool emptyCorners() const { return m_corners.empty() ; }
 
+      const double* param() const { return m_parms ; }
 
-      static const float* getParmPtr( const std::vector<float>& vd  ,
-				      ParMgr*                   mgr ,
-				      ParVecVec&                pvv ) ;
+      static const double* checkParmPtr( const std::vector<double>& vd  ,
+					 ParVecVec&                 pvv ) ;
+
+      static const double* getParmPtr( const std::vector<double>& vd  ,
+				       ParMgr*                    mgr ,
+				       ParVecVec&                 pvv ) ;
+
+
+//----------- only needed by specific utility; overloaded when needed ----
+      virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const 
+      { return HepTransform3D() ; }
+//------------------------------------------------------------------------
 
    protected:
 
       CaloCellGeometry( CornersVec::const_reference gp ,
-			const CornersMgr*           mgr  ) :
+			const CornersMgr*           mgr,
+			const double*               par ) :
 	 m_refPoint ( gp  ),
-	 m_corners  ( mgr ) {}
+	 m_corners  ( mgr ),
+	 m_parms    ( par ) {}
 
-      CaloCellGeometry( const CornersVec& cv ) : 
+      CaloCellGeometry( const CornersVec& cv,
+			const double*     par ) : 
 	 m_refPoint ( GlobalPoint( 0.25*( cv[0].x() + cv[1].x() + cv[2].x() + cv[3].x() ),
 				   0.25*( cv[0].y() + cv[1].y() + cv[2].y() + cv[3].y() ),
 				   0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ) ), 
-	 m_corners  ( cv ) {}
+	 m_corners  ( cv ),
+	 m_parms    ( par ) {}
 
       CornersVec& setCorners() const { return m_corners ; }
 
@@ -69,6 +83,8 @@ class CaloCellGeometry
       const   GlobalPoint m_refPoint ;
 
       mutable CornersVec  m_corners ;
+
+      const double*        m_parms  ;
 };
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) ;

@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2008/06/26 14:44:54 $
-$Revision: 1.17 $
+$Date: 2008/08/27 15:52:42 $
+$Revision: 1.18 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -30,6 +30,10 @@ class CaloSubdetectorGeometry {
       typedef CaloCellGeometry::ParMgr    ParMgr ;
       typedef CaloCellGeometry::ParVec    ParVec ;
       typedef CaloCellGeometry::ParVecVec ParVecVec ;
+
+      typedef std::vector<HepTransform3D> TrVec  ;
+      typedef std::vector<unsigned int>   IVec   ;
+      typedef std::vector<double>         DimVec ;
 
       CaloSubdetectorGeometry() : 
 	 m_parMgr ( 0 ) ,
@@ -78,7 +82,19 @@ class CaloSubdetectorGeometry {
 
       ParMgr* parMgr() { return m_parMgr ; }
 
-      ParVecVec& parVecVec() { return m_parVecVec ; }
+      ParVecVec&       parVecVec()       { return m_parVecVec ; }
+      const ParVecVec& parVecVec() const { return m_parVecVec ; }
+      
+      virtual unsigned int numberOfShapes() const { return 1 ; }
+      virtual unsigned int numberOfParametersPerShape() const { return 1 ; }
+
+      virtual void fillDefaultNamedParameters() const { return ; }
+      
+      void getInfoForDB( TrVec&  trVector,
+			 IVec&   iVector,
+			 DimVec& dimVector   ) const ;
+
+      virtual void initializeParms() { return ; } 
 
    protected:
 

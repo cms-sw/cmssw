@@ -18,38 +18,32 @@ using namespace std;
 
 typedef CaloGeometryLoader< EcalEndcapGeometry > EcalEGL ;
 
-
-template <>
-unsigned int 
-EcalEGL::whichTransform( const DetId& id ) const
-{
-   const EEDetId eeid ( id ) ;
-   const int ix ( eeid.ix() ) ;
-   return ( ix/51 + ( eeid.zside()<0 ? 0 : 2 ) ) ;
-}
-
 template <>
 void 
 EcalEGL::fillGeom( EcalEndcapGeometry*     geom ,
-		   const EcalEGL::ParmVec& pv ,
+		   const EcalEGL::ParmVec& vv ,
 		   const HepTransform3D&   tr ,
 		   const DetId&            id     )
 {
+   std::vector<double> pv ;
+   pv.reserve( vv.size() ) ;
+   for( unsigned int i ( 0 ) ; i != vv.size() ; ++i )
+   {
+      const double factor ( 1==i || 2==i || 6==i || 10==i ? 1 : k_ScaleFromDDDtoGeant ) ;
+      pv.push_back( factor*vv[i] ) ;
+   }
+
    CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
    corners.resize() ;
 
    TruncatedPyramid::createCorners( pv, tr, corners ) ;
+   const double* parmPtr ( CaloCellGeometry::getParmPtr( pv, 
+							 geom->parMgr(), 
+							 geom->parVecVec() ) ) ;
 
-   TruncatedPyramid* cell ( new TruncatedPyramid( corners ) ) ;
+   TruncatedPyramid* cell ( new TruncatedPyramid( corners , parmPtr ) ) ;
 
    geom->addCell( id, cell );
-}
-
-template <>
-void 
-EcalEGL::extraStuff( EcalEndcapGeometry* geom )
-{
-   geom->initialize();
 }
 
 template <>

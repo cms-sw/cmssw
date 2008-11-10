@@ -28,7 +28,17 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       typedef EcalEndcapNumberingScheme NumberingScheme ;
 
+      typedef EEDetId DetIdType ;
+
       enum { k_NumberOfCellsForCorners = EEDetId::kSizeForDenseIndexing } ;
+
+      enum { k_NumberOfShapes = 1 } ;
+
+      enum { k_NumberOfParametersPerShape = 11 } ;
+
+
+      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
+      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
       EcalEndcapGeometry() ;
   
@@ -50,7 +60,7 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
 							  double             dR ) const ;
 
-      void initialize();
+      virtual void initializeParms() ;
 
       static std::string hitString() { return "EcalHitsEE" ; }
 
@@ -58,7 +68,19 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       static unsigned int numberOfAlignments() { return 4 ; }
 
-      static unsigned int whichGlobal() { return (unsigned int)DetId::Ecal ; } // global position record index
+      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+
+      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+
+      static std::vector<HepPoint3D> localCorners( const double* pv,
+						   unsigned int  i,
+						   HepPoint3D&   ref ) ;
+
+      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					const GlobalPoint& f2 ,
+					const GlobalPoint& f3 ,
+					CaloCellGeometry::CornersMgr* mgr,
+					const double*      parm ) ;
 
    private:
 

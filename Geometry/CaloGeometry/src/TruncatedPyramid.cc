@@ -5,6 +5,205 @@
 
 //----------------------------------------------------------------------
 
+HepTransform3D
+TruncatedPyramid::getTransform( std::vector<HepPoint3D>* lptr ) const 
+{
+   const GlobalPoint& p ( CaloCellGeometry::getPosition() ) ;
+   const HepPoint3D   gFront ( p.x(), p.y(), p.z() ) ;
+
+   HepPoint3D lFront ;
+   assert(                               0 != param() ) ;
+   std::vector<HepPoint3D> lc ( localCorners( param(), lFront ) ) ;
+
+   // figure out if reflection volume or not
+
+   HepPoint3D lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
+
+   assert( 0 != m_corOne ) ;
+
+   const double disl ( ( lFront - lc[0] ).mag() ) ;
+   const double disr ( ( lFront - lc[3] ).mag() ) ;
+   const double disg ( ( gFront - (*m_corOne) ).mag() ) ;
+
+   const double dell ( fabs( disg - disl ) ) ;
+   const double delr ( fabs( disg - disr ) ) ;
+
+   if( delr < dell ) // reflection volume if true
+   {
+//      lc = localCornersReflection( param(), lFront ) ;
+//      lBack  = 0.25*( lc[4] + lc[5] + lc[6] + lc[7] ) ;
+   }
+
+   const HepPoint3D lOne  ( lc[0] ) ;
+
+   const HepVector3D gAxis ( axis().x(), axis().y(), axis().z() ) ;
+
+   const double dz ( param()[0] ) ;
+
+
+   const HepPoint3D gBack ( gFront + 2*dz*gAxis ) ;
+   const HepPoint3D gOneT ( gFront + ( lOne - lFront ).mag()*( (*m_corOne) - gFront ).unit() ) ;
+
+   const double langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
+   const double gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
+   const double dangle ( langle - gangle ) ;
+
+   const HepPlane3D gPl ( gFront, gBack, gOneT ) ;
+   const HepPoint3D p2  ( gFront + gPl.normal().unit() ) ;
+
+   const HepPoint3D gOne ( gFront + HepRotate3D( dangle, gFront, p2 )*
+			   HepVector3D( gOneT - gFront ) ) ;
+
+   const HepTransform3D tr ( lFront , lBack , lOne ,
+			     gFront , gBack , gOne    ) ;
+
+   if( 0 != lptr ) (*lptr) = lc ;
+
+   return tr ;
+}
+
+const CaloCellGeometry::CornersVec& 
+TruncatedPyramid::getCorners() const 
+{
+   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+   if( co.uninitialized() ) 
+   {
+      CornersVec& corners ( setCorners() ) ;
+
+      std::vector<HepPoint3D> lc ;
+
+      const HepTransform3D tr ( getTransform( &lc ) ) ;
+
+      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+      {
+	 const HepPoint3D corn ( tr*lc[i] ) ;
+	 corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
+      }
+
+      delete m_corOne ; // no longer needed
+      m_corOne = 0 ;
+   }
+   return co ;
+}
+
+namespace truncPyr
+{
+   HepPoint3D refl( const HepPoint3D& p )
+   {
+      return HepPoint3D( -p.x(), p.y(), p.z() ) ;
+   }
+}
+
+std::vector<HepPoint3D>
+TruncatedPyramid::localCornersReflection( const double* pv,
+					  HepPoint3D&   ref )
+{
+   using namespace truncPyr ;
+
+   std::vector<HepPoint3D> lc ( localCorners( pv, ref ) ) ;
+   HepPoint3D tmp ;
+
+   tmp   = lc[0] ;
+   lc[0] = refl( lc[3] ) ;
+   lc[3] = refl( tmp   ) ;
+   tmp   = lc[1] ;
+   lc[1] = refl( lc[2] ) ;
+   lc[2] = refl( tmp   ) ;
+   tmp   = lc[4] ;
+   lc[4] = refl( lc[7] ) ;
+   lc[7] = refl( tmp   ) ;
+   tmp   = lc[5] ;
+   lc[5] = refl( lc[6] ) ;
+   lc[6] = refl( tmp   ) ;
+
+   ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+   return lc ;
+}
+
+std::vector<HepPoint3D>
+TruncatedPyramid::localCorners( const double* pv,
+				HepPoint3D&   ref )
+{
+   assert( 0 != pv ) ;
+
+   const double dz ( pv[0] ) ;
+   const double th ( pv[1] ) ;
+   const double ph ( pv[2] ) ;
+   const double h1 ( pv[3] ) ;
+   const double b1 ( pv[4] ) ;
+   const double t1 ( pv[5] ) ;
+   const double a1 ( pv[6] ) ;
+   const double h2 ( pv[7] ) ;
+   const double b2 ( pv[8] ) ;
+   const double t2 ( pv[9] ) ;
+   const double a2 ( pv[10]) ;
+  
+   const double ta1 ( tan( a1 ) ) ; // lower plane
+   const double ta2 ( tan( a2 ) ) ; // upper plane
+
+   const double tth   ( tan( th )       ) ;
+   const double tthcp ( tth * cos( ph ) ) ;
+   const double tthsp ( tth * sin( ph ) ) ;
+
+   const unsigned int off ( h1<h2 ? 0 :  4 ) ;
+
+   std::vector<HepPoint3D> lc ( 8, HepPoint3D(0,0,0) ) ;
+
+   lc[0+off] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
+   lc[1+off] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
+   lc[2+off] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, -dz*tthsp + h1 , -dz ); // (+,+,-)
+   lc[3+off] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, -dz*tthsp - h1 , -dz ); // (+,-,-)
+   lc[4-off] = HepPoint3D(  dz*tthcp - h2*ta2 - b2,  dz*tthsp - h2 ,  dz ); // (-,-,+)
+   lc[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2,  dz*tthsp + h2 ,  dz ); // (-,+,+)
+   lc[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2,  dz*tthsp + h2 ,  dz ); // (+,+,+)
+   lc[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2,  dz*tthsp - h2 ,  dz ); // (+,-,+)
+
+   HepPoint3D tmp ;
+
+   tmp   = lc[0] ;
+   lc[0] = lc[3] ;
+   lc[3] = tmp   ;
+   tmp   = lc[1] ;
+   lc[1] = lc[2] ;
+   lc[2] = tmp   ;
+   tmp   = lc[4] ;
+   lc[4] = lc[7] ;
+   lc[7] = tmp   ;
+   tmp   = lc[5] ;
+   lc[5] = lc[6] ;
+   lc[6] = tmp   ;
+
+   ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+
+   return lc ;
+}
+
+std::vector<HepPoint3D>
+TruncatedPyramid::localCornersSwap( const double* pv,
+				    HepPoint3D&   ref )
+{
+   std::vector<HepPoint3D> lc ( localCorners( pv, ref ) ) ;
+
+   HepPoint3D tmp ;
+   tmp   = lc[0] ;
+   lc[0] = lc[3] ;
+   lc[3] = tmp   ;
+   tmp   = lc[1] ;
+   lc[1] = lc[2] ;
+   lc[2] = tmp   ;
+   tmp   = lc[4] ;
+   lc[4] = lc[7] ;
+   lc[7] = tmp   ;
+   tmp   = lc[5] ;
+   lc[5] = lc[6] ;
+   lc[6] = tmp   ;
+
+   ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+
+   return lc ;
+}
+
+
 // the following function is static and a helper for the endcap & barrel loader classes
 // when initializing from DDD: fills corners vector from trap params plus transform
 
@@ -18,51 +217,25 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
    // to get the ordering right for fast sim, we have to use their convention
    // which were based on the old static geometry. Some gymnastics required here.
 
-   static const float kf ( CaloCellGeometry::k_ScaleFromDDDtoGeant ) ;
-
-   const double dz ( kf*pv[0] ) ;
-   const double th (    pv[1] ) ;
-   const double ph (    pv[2] ) ;
-   const double h1 ( kf*pv[3] ) ;
-   const double b1 ( kf*pv[4] ) ;
-   const double t1 ( kf*pv[5] ) ;
-   const double a1 (    pv[6] ) ;
-   const double h2 ( kf*pv[7] ) ;
-   const double b2 ( kf*pv[8] ) ;
-   const double t2 ( kf*pv[9] ) ;
-   const double a2 (    pv[10]) ;
-
-   std::vector<HepPoint3D> to ( 8, HepPoint3D(0,0,0) ) ;
+   const double dz ( pv[0] ) ;
+   const double h1 ( pv[3] ) ;
+   const double h2 ( pv[7] ) ;
    std::vector<HepPoint3D> ko ( 8, HepPoint3D(0,0,0) ) ;
-  
-   const double ta1 ( tan( a1 ) ) ; // lower plane
-   const double ta2 ( tan( a2 ) ) ; // upper plane
-
-   const double tth   ( tan( th )       ) ;
-   const double tthcp ( tth * cos( ph ) ) ;
-   const double tthsp ( tth * sin( ph ) ) ;
-
-   const unsigned int off ( h1<h2 ? 0 :  4 ) ;
-
-   to[0+off] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
-   to[1+off] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
-   to[2+off] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, -dz*tthsp + h1 , -dz ); // (+,+,-)
-   to[3+off] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, -dz*tthsp - h1 , -dz ); // (+,-,-)
-   to[4-off] = HepPoint3D(  dz*tthcp - h2*ta2 - b2,  dz*tthsp - h2 ,  dz ); // (-,-,+)
-   to[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2,  dz*tthsp + h2 ,  dz ); // (-,+,+)
-   to[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2,  dz*tthsp + h2 ,  dz ); // (+,+,+)
-   to[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2,  dz*tthsp - h2 ,  dz ); // (+,-,+)
-
-   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
-   {
-      ko[i] = tr * to[i] ; // apply transformation
-   }
 
    // if reflection, different things for barrel and endcap
    static const HepVector3D x ( 1, 0, 0 ) ;
    static const HepVector3D y ( 0, 1, 0 ) ;
    static const HepVector3D z ( 0, 0, 1 ) ;
    const bool refl ( ( ( tr*x ).cross( tr*y ) ).dot( tr*z ) < 0 ) ; // has reflection!
+
+
+   HepPoint3D tmp ;
+   std::vector<HepPoint3D> to ( localCornersSwap( &pv.front(), tmp ) ) ;
+
+   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+   {
+      ko[i] = tr * to[i] ; // apply transformation
+   }
 
    if( refl || 
        h1>h2  )
@@ -144,46 +317,6 @@ TruncatedPyramid::inside( const GlobalPoint& point ) const
    }
    return ans ;
 }
-
-/*   if( 0 == m_bou )
-   {
-      const CornersVec& cog ( getCorners() ) ;
-      std::vector<HepPoint3D> co ( 8, HepPoint3D(0,0,0) ) ;
-      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
-      {
-	 co[i] = HepPoint3D( cog[i].x(), cog[i].y(), cog[i].z() ) ;
-      }
-      m_bou = new BoundaryVec ;
-      m_bou->reserve( 6 ) ; // order is important for this function!
-      m_bou->push_back( HepPlane3D( co[0], co[1], co[2] ) ) ; // z<0
-      m_bou->push_back( HepPlane3D( co[6], co[5], co[4] ) ) ; // z>0
-      m_bou->push_back( HepPlane3D( co[0], co[4], co[5] ) ) ; // x<0
-      m_bou->push_back( HepPlane3D( co[2], co[6], co[7] ) ) ; // x>0
-      m_bou->push_back( HepPlane3D( co[0], co[3], co[7] ) ) ; // y<0
-      m_bou->push_back( HepPlane3D( co[1], co[5], co[6] ) ) ; // y>0
-   }
-   const BoundaryVec& b ( *m_bou ) ;
-
-   const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
-
-   return ( ( p - b[0].point(p) ).dot( p - b[1].point(p) ) <= 0 &&
-	    ( p - b[2].point(p) ).dot( p - b[3].point(p) ) <= 0 &&
-	    ( p - b[4].point(p) ).dot( p - b[5].point(p) ) <= 0    ) ;
-	    }*/
-/*
-void TruncatedPyramid::dump( const char * prefix ) const 
-{
-   std::cout << prefix << "Center: " <<  CaloCellGeometry::getPosition() << std::endl;
-   const float thetaaxis ( getThetaAxis() ) ;
-   const float phiaxis   ( getPhiAxis()   ) ;
-   std::cout << prefix << "Axis: " <<  thetaaxis << " " << phiaxis << std::endl ;
-   const CaloCellGeometry::CornerVec& corners ( getCorners() ) ;
-   for ( unsigned int  ci=0; ci != corners.size(); ++ci ) 
-   {
-      std::cout << prefix << "Corner: " << corners[ci] << std::endl;
-   }
-}
-*/
 //----------------------------------------------------------------------
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) 

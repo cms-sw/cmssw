@@ -1,3 +1,4 @@
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
@@ -6,8 +7,8 @@
 #include <CLHEP/Geometry/Plane3D.h>
 
 EcalEndcapGeometry::EcalEndcapGeometry() :
-   _nnmods ( 0 ) ,
-   _nncrys ( 0 ) ,
+   _nnmods ( 316 ) ,
+   _nncrys ( 25 ) ,
    m_borderMgr ( 0 ),
    m_borderPtrVec ( 0 ) 
 {
@@ -19,8 +20,25 @@ EcalEndcapGeometry::~EcalEndcapGeometry()
    delete m_borderMgr ;
 }
 
+unsigned int
+EcalEndcapGeometry::alignmentTransformIndexLocal( const DetId& id )
+{
+   const CaloGenericDetId gid ( id ) ;
+
+   assert( gid.isEE() ) ;
+   unsigned int index ( EEDetId(id).ix()/51 + ( EEDetId(id).zside()<0 ? 0 : 2 ) ) ;
+
+   return index ;
+}
+
+unsigned int
+EcalEndcapGeometry::alignmentTransformIndexGlobal( const DetId& id )
+{
+   return (unsigned int)DetId::Ecal ;
+}
+
 void 
-EcalEndcapGeometry::initialize()
+EcalEndcapGeometry::initializeParms()
 {
   zeP=0.;
   zeN=0.;
@@ -358,3 +376,20 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
    return ptr ;
 }
 
+std::vector<HepPoint3D> 
+EcalEndcapGeometry::localCorners( const double* pv,
+				  unsigned int  i,
+				  HepPoint3D&   ref )
+{
+   return ( TruncatedPyramid::localCorners( pv, ref ) ) ;
+}
+
+CaloCellGeometry* 
+EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
+			     const GlobalPoint& f2 ,
+			     const GlobalPoint& f3 ,
+			     CaloCellGeometry::CornersMgr* mgr,
+			     const double*      parm ) 
+{
+   return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
+}
