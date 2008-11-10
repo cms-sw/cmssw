@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/09/02 14:23:02 $
- * $Revision: 1.150 $
+ * $Date: 2008/09/04 08:51:04 $
+ * $Revision: 1.151 $
  * \author G. Della Ricca
  *
 */
@@ -1235,12 +1235,13 @@ void EESummaryClient::analyze(void) {
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
-      if(meIntegrity_[0] && mePedestalOnline_[0] && meLaserL1_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
+      if(meIntegrity_[0] && mePedestalOnline_[0] && meLaserL1_[0] && meLedL1_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
 
         float xval = 6;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
         float val_ls = meLaserL1_[0]->getBinContent(jx,jy);
+        float val_ld = meLedL1_[0]->getBinContent(jx,jy);
         float val_tm = meTiming_[0]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
 	// float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
@@ -1257,14 +1258,15 @@ void EESummaryClient::analyze(void) {
         if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
         if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
+        if(val_ld==2 || val_ld==3 || val_ld==4 || val_ld==5) val_ld=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
         if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
         else if(val_in==0) xval=0;
-        else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
-        else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
+        else if(val_po==0 || val_ls==0 || val_ld==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
+        else if(val_po==2 || val_ls==2 || val_ld==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
         bool validCry = false;
@@ -1314,12 +1316,13 @@ void EESummaryClient::analyze(void) {
 
       }
 
-      if(meIntegrity_[1] && mePedestalOnline_[1] && meLaserL1_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1]) {
+      if(meIntegrity_[1] && mePedestalOnline_[1] && meLaserL1_[1] && meLedL1_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1]) {
 
         float xval = 6;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
         float val_ls = meLaserL1_[1]->getBinContent(jx,jy);
+        float val_ld = meLedL1_[1]->getBinContent(jx,jy);
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
@@ -1336,14 +1339,15 @@ void EESummaryClient::analyze(void) {
         if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
         if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
         if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
+        if(val_ld==2 || val_ld==3 || val_ld==4 || val_ld==5) val_ld=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
         if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
 
         if(val_in==6) xval=6;
         else if(val_in==0) xval=0;
-        else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
-        else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
+        else if(val_po==0 || val_ls==0 || val_ld==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
+        else if(val_po==2 || val_ls==2 || val_ld==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
         bool validCry = false;
