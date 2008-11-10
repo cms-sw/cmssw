@@ -9,10 +9,11 @@
 */
 //
 // Author:      Zhen Xie
+// $Id$
 //
 #include <string>
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
+#include "CoralKernel/Context.h"
+#include "CoralKernel/IHandle.h"
 namespace coral{
   class IConnectionService;
   class IRelationalService;
@@ -35,15 +36,13 @@ namespace cond{
     //void close();
     coral::IConnectionService& connectionService();
     coral::IRelationalService& relationalService();
-    coral::IAuthenticationService& authenticationService() const;
-    const coral::IMonitoringReporter& monitoringReporter() const;
+    coral::IAuthenticationService& authenticationService() ;
+    const coral::IMonitoringReporter& monitoringReporter() ;
     coral::IWebCacheControl& webCacheControl();
     pool::IBlobStreamingService& blobStreamingService();
     cond::SessionConfiguration& configuration();
   private:
-    seal::Handle<seal::Context> m_context;
-    seal::Handle<seal::ComponentLoader> m_loader;
-    coral::IConnectionService* m_con;
+    //    coral::IHandle<coral::Context> m_context;
     SessionConfiguration* m_sessionConfig;
   };
 }//ns cond

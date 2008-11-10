@@ -1,8 +1,6 @@
 #include "SQLiteProxy.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 cond::SQLiteProxy::SQLiteProxy(const std::string& userconnect):cond::TechnologyProxy(userconnect){
 }

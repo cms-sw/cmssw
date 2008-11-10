@@ -11,7 +11,7 @@ namespace cond {
 
     public:
 
-    explicit SQLReport(const DBSession& session);
+    explicit SQLReport(DBSession& session);
 
     virtual ~SQLReport(){}
     
@@ -23,7 +23,7 @@ namespace cond {
 
     SQLReport();
 
-    const DBSession& m_session;
+    DBSession& m_session;
     
     std::stringstream m_report;
     
@@ -31,7 +31,7 @@ namespace cond {
 }
 
 inline
-cond::SQLReport::SQLReport(const DBSession& session):m_session(session),m_report(){
+cond::SQLReport::SQLReport(DBSession& session):m_session(session),m_report(){
 }
 
 #endif //  CondCoreDBCommon_SQLReport_H

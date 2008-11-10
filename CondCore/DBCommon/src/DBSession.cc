@@ -3,20 +3,19 @@
 // Class:      DBSession
 //
 // Author:      Zhen Xie
-//
-//seal includes
-#include "PluginManager/PluginManager.h"
-#include "SealKernel/IMessageService.h"
-#include "SealKernel/Property.h"
-#include "SealKernel/PropertyManager.h"
+// $Id$
+
 //coral includes
+
+#include "CoralKernel/IProperty.h"
+#include "CoralKernel/IPropertyManager.h"
+#include "CoralBase/MessageStream.h"
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 //pool includes
-#include "POOLCore/POOLContext.h"
-#include "RelationalStorageService/IBlobStreamingService.h"
+#include "POOLCore/IBlobStreamingService.h"
 //local includes
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
@@ -26,81 +25,47 @@
 #include <boost/filesystem/operations.hpp>
 //#include <iostream>
 cond::DBSession::DBSession(){ 
-  seal::PluginManager* pm = seal::PluginManager::get();
-  if ( ! pm ) {
-    throw cond::Exception( "Could not get the plugin manager instance" );
-  }
-  pm->initialise();
-  m_context=pool::POOLContext::context();
-  m_loader = new seal::ComponentLoader( m_context.get() );
   m_sessionConfig = new cond::SessionConfiguration;
 }
 cond::DBSession::~DBSession(){
   delete m_sessionConfig;
 }
 void cond::DBSession::open(){
-  m_loader->load("SEAL/Services/MessageService");
-  std::vector< seal::IHandle<seal::IMessageService> > v_msgSvc;
-  m_context->query( v_msgSvc );
-  if ( v_msgSvc.empty() ) {
-    throw cond::Exception( "could not locate the seal message service" );
-  }
   switch ( m_sessionConfig->messageLevel() ) {
   case cond::Error :
-    v_msgSvc.front()->setOutputLevel( seal::Msg::Error );
+    coral::MessageStream::setMsgVerbosity( coral::Error );
     break;
   case cond::Warning :
-    v_msgSvc.front()->setOutputLevel( seal::Msg::Warning );
+    coral::MessageStream::setMsgVerbosity( coral::Warning );
     break;
   case cond::Debug :
-    v_msgSvc.front()->setOutputLevel( seal::Msg::Debug );
+    coral::MessageStream::setMsgVerbosity( coral::Debug );
     break;
   case cond::Info :
-    v_msgSvc.front()->setOutputLevel( seal::Msg::Info );
+    coral::MessageStream::setMsgVerbosity( coral::Info );
     break;
-  default:
-    v_msgSvc.front()->setOutputLevel( seal::Msg::Error );
-  } 
+    //default:
+    //coral::MessageStream::setMsgVerbosity( coral:::Error );
+  }
   //load authentication service
-  std::vector< seal::IHandle<coral::IAuthenticationService> > v_authsvc;
   if( m_sessionConfig->authenticationMethod()== cond::XML ) {
-    m_loader->load( "COND/Services/XMLAuthenticationService" );
+    coral::Context::instance().loadComponent( "COND/Services/XMLAuthenticationService" );
     boost::filesystem::path authPath( m_sessionConfig->authName() );
     if(boost::filesystem::is_directory(m_sessionConfig->authName())){
       authPath /= boost::filesystem::path("authentication.xml");
     }
     std::string authName=authPath.string();
-    size_t nchildren=m_loader->context()->children();
-    for( size_t i=0; i<nchildren; ++i ){
-      seal::Handle<seal::PropertyManager> pmgr=m_loader->context()->child(i)->component<seal::PropertyManager>();
-      std::string scopeName=pmgr->scopeName();
-      //std::cout << "Scope: \"" << scopeName << "\"" << std::endl;
-      if( scopeName=="COND/Services/XMLAuthenticationService" ){
-        pmgr->property("AuthenticationFile")->set(authName);
-      }
-    }
+    coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authName);
   }else{
-    m_loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
+    coral::Context::instance().loadComponent( "CORAL/Services/EnvironmentAuthenticationService" );
   }
-  //if( m_sessionConfig->authenticationMethod()==cond::XML ){
-  //  }
-  m_context->query(v_authsvc);
-  if ( v_authsvc.empty() ) {
-    throw cond::Exception( "Could not locate authentication service" );
-  }
-  //load relational service
-  //m_loader->load( "CORAL/Services/RelationalService" );
-  //load connection service
-  m_loader->load( "CORAL/Services/ConnectionService" );
-  
-  m_con=m_context->query<coral::IConnectionService>( "CORAL/Services/ConnectionService" ).get();
-  if (! m_con ) {
-    throw cond::Exception( "could not locate the coral connection service" );
-  }
+ 
+  coral::Context::instance().loadComponent( "CORAL/Services/ConnectionService" );
+
   coral::IConnectionServiceConfiguration& conserviceConfig = connectionService().configuration();
   cond::ConnectionConfiguration* conConfig=m_sessionConfig->connectionConfiguration();
   if(m_sessionConfig->isSQLMonitoringOn()){
-    m_loader->load( "COND/Services/SQLMonitoringService");
+    coral::Context::instance().loadComponent( "COND/Services/SQLMonitoringService");
     conConfig->setMonitorLevel(coral::monitor::Trace);
   }
   if( conConfig ){
@@ -119,56 +84,36 @@ void cond::DBSession::open(){
     if( m_sessionConfig->hasBlobStreamService() ){
       std::string streamerName=m_sessionConfig->blobStreamerName();
       if(streamerName.empty()){
-        m_loader->load( "COND/Services/DefaultBlobStreamingService" );
+	coral::Context::instance().loadComponent( "COND/Services/DefaultBlobStreamingService" );
       }else{
-        m_loader->load(streamerName);
-      }
-      std::vector< seal::IHandle<pool::IBlobStreamingService> > v_blobsvc;
-      m_context->query( v_blobsvc );
-      if ( v_blobsvc.empty() ) {
-        throw cond::Exception( "could not locate the BlobStreamingService" );
+        coral::Context::instance().loadComponent(streamerName);
       }
     }
   }
 }
 coral::IConnectionService& 
 cond::DBSession::connectionService(){
-  return *m_con;
+  return *(coral::Context::instance().query<coral::IConnectionService>());
 }
 coral::IRelationalService& 
 cond::DBSession::relationalService(){
-  std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
-  m_context->query( v_svc );
-  if ( v_svc.empty() ) {
-    throw cond::Exception( "Could not locate the relational service" );
-  }
-  return *(v_svc.front().get());
+  return *(coral::Context::instance().query<coral::IRelationalService>());
 }
 coral::IAuthenticationService& 
-cond::DBSession::authenticationService() const{
-   std::vector< seal::IHandle<coral::IAuthenticationService> > v_svc;
-   m_context->query( v_svc );
-   if ( v_svc.empty() ) {
-     throw cond::Exception( "Could not locate the authentication service" );
-   }
-   return *(v_svc.front().get());
+cond::DBSession::authenticationService(){
+  return *(coral::Context::instance().query<coral::IAuthenticationService>());
 }
 const coral::IMonitoringReporter& 
-cond::DBSession::monitoringReporter() const{
-  return m_con->monitoringReporter();
+cond::DBSession::monitoringReporter(){
+  return coral::Context::instance().query<coral::IConnectionService>()->monitoringReporter();
 }
 coral::IWebCacheControl& 
 cond::DBSession::webCacheControl(){
-  return m_con->webCacheControl();
+  return coral::Context::instance().query<coral::IConnectionService>()->webCacheControl();
 }
 pool::IBlobStreamingService& 
 cond::DBSession::blobStreamingService(){
-  std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
-  m_context->query( v_svc );
-  if ( v_svc.empty() ) {
-    throw cond::Exception( "Could not locate the BlobStreamingService" );
-  }
-  return *(v_svc.front().get());
+  return *(coral::Context::instance().query<pool::IBlobStreamingService>());
 }
 cond::SessionConfiguration& 
 cond::DBSession::configuration(){

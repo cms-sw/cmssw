@@ -2,8 +2,7 @@
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbReflex.h"
-#include "SealBase/SharedLibrary.h"
-//#include "SealKernel/Exception.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
 //#include <iostream>
 namespace cond{
   TokenBuilder::TokenBuilder(): m_token(new pool::Token){
@@ -17,7 +16,9 @@ namespace cond{
 			 const std::string& className,
 			 const std::string& containerName,
 			 int pkcolumnValue){
-    seal::SharedLibrary::load( "lib" + dictLib + ".so" );
+
+    const boost::filesystem::path dict_path(dictLib);
+    edmplugin::SharedLibrary shared( dict_path );
     ROOT::Reflex::Type myclass=ROOT::Reflex::Type::ByName(className);
     m_token->setDb(fid);
     m_token->setClassID(pool::DbReflex::guid(myclass));
