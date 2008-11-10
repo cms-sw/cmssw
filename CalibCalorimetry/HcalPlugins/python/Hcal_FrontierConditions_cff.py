@@ -14,19 +14,31 @@ es_pool = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('HcalPedestalsRcd'),
-            tag = cms.string('hcal_pedestals_fC_v5_mc')
+            tag = cms.string('hcal_pedestals_fC_v6_mc')
         ), 
         cms.PSet(
             record = cms.string('HcalPedestalWidthsRcd'),
-            tag = cms.string('hcal_widths_fC_v5_mc')
+            tag = cms.string('hcal_widths_fC_v6_mc')
         ), 
         cms.PSet(
             record = cms.string('HcalGainsRcd'),
-            tag = cms.string('hcal_gains_v2_physics_50_mc')
+            tag = cms.string('hcal_gains_v3.01_physics_mc')
         ), 
         cms.PSet(
             record = cms.string('HcalQIEDataRcd'),
             tag = cms.string('qie_normalmode_v6.01')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalChannelQualityRcd'),
+            tag = cms.string('hcal_channelStatus_trivial_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalRespCorrsRcd'),
+            tag = cms.string('hcal_respcorr_trivial_v1.01_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalL1TriggerObjectsRcd'),
+            tag = cms.string('hcal_L1trigger_trivial_mc')
         ), 
         cms.PSet(
             record = cms.string('HcalElectronicsMapRcd'),

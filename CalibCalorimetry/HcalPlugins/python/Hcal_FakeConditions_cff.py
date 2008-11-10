@@ -10,11 +10,11 @@ es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(
         cms.PSet(
             object = cms.string('Pedestals'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v6_mc.txt')
         ), 
         cms.PSet(
             object = cms.string('PedestalWidths'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v5.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v6_mc.txt')
         ), 
         cms.PSet(
             object = cms.string('Gains'),
