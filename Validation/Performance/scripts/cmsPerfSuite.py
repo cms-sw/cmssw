@@ -387,10 +387,12 @@ class PerfSuite:
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
         if self.runCmdSet(cmds):
             print "I caught that the file was not there!"
-            cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents))
+            cmd = "cd %s ; cmsDriver.py %s -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents))
             self.logh.write(cmd)
-            return os.system(cmd)
-    
+            cmdout=os.popen3(cmd)[2].read()
+            self.logh.write(cmdout)
+            return cmdout
+            
     #############
     # Display errors in the G4 logfile
     #
