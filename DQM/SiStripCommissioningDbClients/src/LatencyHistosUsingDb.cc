@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.15 2008/07/18 12:10:33 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.16 2008/10/22 10:39:26 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -130,8 +130,28 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
       anal = dynamic_cast<SamplingAnalysis*>( it->second );
   }
   if(!anal) return false;
-  uint16_t latency = uint16_t(ceil(anal->maximum()/(-25.)));
-  float shift = anal->maximum()-(latency*(-25));
+  uint16_t globalLatency = uint16_t(ceil(anal->maximum()/(-25.)));
+  float globalShift = anal->maximum()-(globalLatency*(-25));
+
+  // Compute latency and PLL shift per partition... this is an option
+  uint16_t latency = globalLatency;
+  float shift[5] = {0.};
+  for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
+    if(dynamic_cast<SamplingAnalysis*>( it->second ) &&
+       dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::PARTITION       )
+      anal = dynamic_cast<SamplingAnalysis*>( it->second );
+      latency = uint16_t(ceil(anal->maximum()/(-25.)))>latency ? uint16_t(ceil(anal->maximum()/(-25.))) : latency;
+  }
+  for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
+    if(dynamic_cast<SamplingAnalysis*>( it->second ) &&
+       dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::PARTITION       )
+      anal = dynamic_cast<SamplingAnalysis*>( it->second );
+      shift[SiStripFecKey(anal->fecKey()).fecCrate()] = anal->maximum()-(latency*(-25));
+  }
+  if(!perPartition_) {
+    latency = globalLatency;
+    for(int i=0;i<5;i++) shift[i] = globalShift;
+  }
 
   // Take into account the minimum coarse delay to bring the coarse delay down
   // the same quantity is subtracted to the coarse delay of each APV 
@@ -187,7 +207,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
                                       0 ).key();
     SiStripFecKey fec_path = SiStripFecKey( fec_key );    
     // Do it!
-    float delay = desc->getDelayCoarse()*25+desc->getDelayFine()*25./24. + shift;
+    float delay = desc->getDelayCoarse()*25+desc->getDelayFine()*25./24. + shift[addr.fecCrate_];
     int delayCoarse = int(delay/25);
     int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
     if(delayFine==24) { delayFine=0; ++delayCoarse; }
@@ -264,7 +284,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
       int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
       // compute the FED delay
       // this is done by substracting the best (PLL) delay to the present value (from the db)
-      int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25. - round(shift) + offset);
+      int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25. - round(shift[iconn->fecCrate()]) + offset);
       fedDelayCoarse = (fedDelay/25)+1;
       fedDelayFine = fedDelayCoarse*25-fedDelay;
       if(fedDelayFine==25) { fedDelayFine = 0; --fedDelayCoarse; }
@@ -359,5 +379,10 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
     
 #endif
   
+}
+
+void LatencyHistosUsingDb::configure( const edm::ParameterSet& pset, const edm::EventSetup& es)
+{
+  perPartition_ = pset.getParameter<bool>("OptimizePerPartition");
 }
 

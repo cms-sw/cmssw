@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.6 2008/04/10 15:01:49 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.7 2008/05/06 12:38:06 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
@@ -23,6 +23,8 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
   virtual ~LatencyHistosUsingDb();
   
   virtual void uploadConfigurations();
+
+  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& );
   
  private:
   
@@ -31,6 +33,7 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
   
   void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
+  bool perPartition_;
 };
 
 #endif // DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H

@@ -70,7 +70,7 @@ void LatencyTask::book() {
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					 sistrip::APV_LATENCY, 
   					 sistrip::DET_KEY, 
-					 int(SiStripDetId(connection().detId()).subDetector()),
+					 connection().fecCrate(),
 					 sistrip::PARTITION, 
 					 0,
 					 sistrip::extrainfo::clusterCharge_).title(); 
@@ -129,7 +129,7 @@ void LatencyTask::book() {
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 			     sistrip::APV_LATENCY, 
                              sistrip::DET_KEY, 
-                             int(SiStripDetId(connection().detId()).subDetector()),
+                             connection().fecCrate(),
                              sistrip::PARTITION,
                              0,
                              sistrip::extrainfo::occupancy_).title(); 
