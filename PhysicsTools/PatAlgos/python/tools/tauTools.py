@@ -12,6 +12,7 @@ def switchToCaloTau(process,layers=[0,1]):
     process.tauMatch.src                 = cms.InputTag('allLayer0CaloTaus')
     process.tauGenJetMatch.src           = cms.InputTag('allLayer0CaloTaus')
     massSearchReplaceParam(process.patTrigMatch, 'src', cms.InputTag("allLayer0Taus"), cms.InputTag('allLayer0CaloTaus'))
+    massSearchReplaceParam(process.patTrigMatch_patTuple, 'src', cms.InputTag("allLayer0Taus"), cms.InputTag('allLayer0CaloTaus'))
     if layers.count(1) != 0:
         process.allLayer1Taus.tauSource      = cms.InputTag('allLayer0CaloTaus')
         process.allLayer1Taus.tauIDSources = cms.PSet(
