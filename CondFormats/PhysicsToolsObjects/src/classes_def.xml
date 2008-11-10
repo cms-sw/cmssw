@@ -13,6 +13,21 @@
 	</class>
 	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramD&gt;"/>
 
+	<class name="PhysicsTools::Calibration::Histogram2D&lt;float,float,float&gt;">
+		<field name="total" transient="true"/>
+		<field name="totalValid" transient="true"/>
+		<field name="rowTotal" transient="true"/>
+		<field name="columnTotal" transient="true"/>
+	</class>
+	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramF2D&gt;"/>
+	<class name="PhysicsTools::Calibration::Histogram2D&lt;double,double,double&gt;">
+		<field name="total" transient="true"/>
+		<field name="totalValid" transient="true"/>
+		<field name="rowTotal" transient="true"/>
+		<field name="columnTotal" transient="true"/>
+	</class>
+	<class name="std::vector&lt;PhysicsTools::Calibration::HistogramD2D&gt;"/>
+
 	<!-- MVAComputer -->
 	<class name="PhysicsTools::Calibration::BitSet"/>
 	<class name="PhysicsTools::Calibration::Matrix"/>
