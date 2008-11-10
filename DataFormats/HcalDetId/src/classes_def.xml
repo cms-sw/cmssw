@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="HcalElectronicsId"/>
+  <class name="HcalFrontEndId"/>
   <class name="HcalDetId"/>
   <class name="HcalTrigTowerDetId"/>
   <class name="HcalCalibDetId"/>
@@ -8,5 +9,6 @@
   <class name="HcalCastorDetId"/>
   <class name="CastorElectronicsId"/>
   <class name="std::vector<HcalElectronicsId>"/>
+  <class name="std::vector<HcalFrontEndId>"/>
   <class name="std::vector<CastorElectronicsId>"/>
 </lcgdict>
