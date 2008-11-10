@@ -14,7 +14,7 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
     		return vector<pair<const DetLayer*, vector<TM> > >();
 
   	vector<pair<const DetLayer*, vector<TM> > > result;
-  	result.reserve(vtm.size());
+	result.reserve(vtm.size());
 
 	vector<TM>::const_iterator start = vtm.begin();
 	//here we assume that the TM on the same detLayer are consecutive (as it should)
@@ -39,6 +39,7 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
   	}
 #ifdef debug_MeasurementByLayerGrouper_
 	//debug
+	
 	LogDebug("MeasurementByLayerGrouper|SiTrackerMultiRecHitUpdator") << "measurements divided by layer:";
 	for (vector<pair<const DetLayer*, vector<TM> > >::const_iterator iter = result.begin(); iter != result.end(); iter++){
 		LogTrace("MeasurementByLayerGrouper|SiTrackerMultiRecHitUpdator") << "DetLayer " << iter->first << " has " << iter->second.size() << " measurements"; 
@@ -46,7 +47,7 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
 #endif
 	
 	
-
+	//	LogDebug("MeasurementByLayerGrouper|SiTrackerMultiRecHitUpdator") <<"Measurement size "<<result.size();
 	return result;
 }
 
@@ -61,6 +62,7 @@ const DetLayer* MeasurementByLayerGrouper::getDetLayer(const TM& tm) const {
 	//to be revisited
 	
         if (tm.recHit()->det()==0){
+	  LogDebug("MeasurementByLayerGrouper") <<"This hit has no geomdet associated skipping... ";
 		return 0;
         }
 

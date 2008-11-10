@@ -16,40 +16,6 @@
 
  using namespace std;
 
-// #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-// #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-// #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-// #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-// #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-// #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
-// string giulioGetLayer(const DetId& detId){
-//         unsigned int iSubDet = detId.subdetId();
-// 	stringstream out;
-
-// 	if (iSubDet == PixelSubdetector::PixelBarrel){
-// 		PXBDetId pxbId(detId);
-// 		out << pxbId;
-//         } else if (iSubDet == PixelSubdetector::PixelEndcap){
-// 		PXFDetId pxfId(detId);
-// 		out << pxfId;
-// 	} else if (iSubDet == StripSubdetector::TIB){
-//                 TIBDetId  tibId(detId);
-// 		out << tibId;
-//         } else if (iSubDet == StripSubdetector::TID){
-//                 TIDDetId tidId(detId);
-// 		out << tidId;
-//         } else if (iSubDet == StripSubdetector::TOB){
-//                 TOBDetId tobId(detId);
-// 		out << tobId;
-//         } else if(iSubDet == StripSubdetector::TEC){
-//                 TECDetId tecId(detId);
-// 		out << tecId;
-//         }
-//         return out.str();
-	
-// }
-
 
 
 vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& traj) const{
@@ -72,6 +38,9 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 
 	//first layer
 	//  cout<<"DAFHitCollectionFromRecTrack: first layer"<<endl;
+
+	//add a protection if all the measurement are on the same layer
+	if(mol.size()<2)return vector<TrajectoryMeasurement>();
 
 	//it assumes that the measurements are sorted in the smoothing direction
 	//TrajectoryStateOnSurface current = (*(mol.begin()+1)).second.front().updatedState();
