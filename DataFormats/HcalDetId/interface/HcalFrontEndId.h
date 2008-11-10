@@ -23,7 +23,7 @@ class HcalFrontEndId {
   int rmFiber() const {return ((hcalFrontEndId_>>7)&0x7)+1;}
   int fiberChannel() const {return (hcalFrontEndId_>>5)&0x3;}
   int qieCard() const {return ((hcalFrontEndId_>>3)&0x3)+1;}
-  int adc() const {return hcalFrontEndId_&0x7;}
+  int adc() const {return (hcalFrontEndId_&0x7)-1;}
 
   private:
   uint32_t hcalFrontEndId_;
