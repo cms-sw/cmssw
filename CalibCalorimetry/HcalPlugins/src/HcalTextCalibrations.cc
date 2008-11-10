@@ -126,29 +126,14 @@ std::auto_ptr<T> produce_impl (const std::string& fFile) {
   return result;
 }
 
-template <class T>
-std::auto_ptr<T> produce_impl (const std::string& fFile, const bool unit) {  // for pedestals and widths
-  std::auto_ptr<T> result (new T (unit));
-  //  std::auto_ptr<T> result;
-  std::ifstream inStream (fFile.c_str ());
-  if (!inStream.good ()) {
-    std::cerr << "HcalTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
-    throw cms::Exception("FileNotFound") << "Unable to open '" << fFile << "'" << std::endl;
-  }
-  if (!HcalDbASCIIIO::getObject (inStream, &*result)) {
-    std::cerr << "HcalTextCalibrations-> Can not read object from file '" << fFile << "'" << std::endl;
-    throw cms::Exception("ReadError") << "Can not read object from file '" << fFile << "'" << std::endl;
-  }
-  return result;
-}
 
 
 std::auto_ptr<HcalPedestals> HcalTextCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  return produce_impl<HcalPedestals> (mInputs ["Pedestals"], false);
+  return produce_impl<HcalPedestals> (mInputs ["Pedestals"]);
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalTextCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"], false);
+  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"]);
 }
 
 std::auto_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd&) {

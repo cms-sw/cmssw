@@ -16,6 +16,7 @@ class HcalPedestalWidths: public HcalCondObjectContainer<HcalPedestalWidth>
 {
  public:
   //constructor definition: has to contain 
+  HcalPedestalWidths():HcalCondObjectContainer<HcalPedestalWidth>(), unitIsADC(false) {}
   HcalPedestalWidths(bool isADC):HcalCondObjectContainer<HcalPedestalWidth>(), unitIsADC(isADC) {}
 
   // are the units ADC ? (true=ADC, false=fC)
