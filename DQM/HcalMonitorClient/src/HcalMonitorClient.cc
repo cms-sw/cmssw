@@ -222,9 +222,9 @@ void HcalMonitorClient::removeAllME(){
   dbe_->removeContents(); 
   // remove directory (including subdirectories recursively)
   if(dbe_->dirExists("Collector"))
-     dbe_->rmdir("Collector");
+    dbe_->rmdir("Collector");
   if(dbe_->dirExists("Summary"))
-  dbe_->rmdir("Summary");
+    dbe_->rmdir("Summary");
 }
 
 //--------------------------------------------------------
@@ -449,8 +449,10 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
 
   // Need to increment summary client on every event, not just when prescale is called, since summary_client_ plots error rates/event.
-  if( summary_client_ )    summary_client_->incrementCounters(); 	// all this does is increment a counter
-
+  if( summary_client_ ) {
+    summary_client_->incrementCounters(); // All this does is increment a counter.
+    if (ievt_ ==1) {
+      summary_client_->analyze();}}        // Check if HBHE, HO, or HF is in the run at all.
   if ( runningStandalone_ || prescale()) return;
 
   else analyze();
