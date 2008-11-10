@@ -10,5 +10,6 @@ from HLTriggerOffline.JetMET.Validation.SingleJetValidation_cfi import *
 
 #HLTTauVal    = cms.Path(HLTTauRef+DoubleTauValidation+SingleTauValidation+SingleTauMETValidation+ElectronTauValidation+MuonTauValidation+L1TauVal)
 HLTJetMETVal    = cms.Path(HLTJetMETRef + SingleJetValidation)
+#HLTJetMETVal    = cms.Sequence(HLTJetMETRef + SingleJetValidation)
 
 

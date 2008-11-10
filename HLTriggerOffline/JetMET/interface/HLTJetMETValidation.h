@@ -46,76 +46,77 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   virtual void endJob() ;
 
 
-  //helper functions
-  bool match(const LV&,const LVColl&,double);
-  std::vector<double> calcEfficiency(int,int);
-  
-
-
-  /// InputTag of TriggerEventWithRefs to analyze
-  edm::InputTag triggerEventObject_;
-
-  //reference Collection
-  edm::InputTag refCollection_;
-  edm::InputTag refLeptonCollection_;
-    
+//JoCa  //helper functions
+//JoCa  bool match(const LV&,const LVColl&,double);
+//JoCa  std::vector<double> calcEfficiency(int,int);
+//JoCa  
+//JoCa
+//JoCa
+//JoCa  /// InputTag of TriggerEventWithRefs to analyze
+//JoCa  edm::InputTag triggerEventObject_;
+//JoCa
+//JoCa  //reference Collection
+//JoCa  edm::InputTag refCollection_;
+//JoCa  edm::InputTag refLeptonCollection_;
+//JoCa    
   //Just a tag for better file organization
   std::string triggerTag_;
-
-  //The four basic filters
-  edm::InputTag l1seedFilter_;
-  edm::InputTag l2filter_;
-  edm::InputTag l25filter_;
-  edm::InputTag l3filter_;
-
-
-  //electron filter
-  edm::InputTag electronFilter_;
-  //muon filter
-  edm::InputTag muonFilter_;
-
-
-  //Parameters
-  unsigned nTriggeredTaus_;
-  unsigned nTriggeredLeptons_;
-  bool doRefAnalysis_;
+//JoCa
+//JoCa  //The four basic filters
+//JoCa  edm::InputTag l1seedFilter_;
+//JoCa  edm::InputTag l2filter_;
+//JoCa  edm::InputTag l25filter_;
+//JoCa  edm::InputTag l3filter_;
+//JoCa
+//JoCa
+//JoCa  //electron filter
+//JoCa  edm::InputTag electronFilter_;
+//JoCa  //muon filter
+//JoCa  edm::InputTag muonFilter_;
+//JoCa
+//JoCa
+//JoCa  //Parameters
+//JoCa  unsigned nTriggeredTaus_;
+//JoCa  unsigned nTriggeredLeptons_;
+//JoCa  bool doRefAnalysis_;
   std::string outFile_;
-  std::string logFile_;
-  double matchDeltaRL1_;
-  double matchDeltaRHLT_;
-
-  //MonitorElements
-
-  /*Trigger Bits for Tau and Reference Trigger*/
-  MonitorElement *l1eteff;
-  MonitorElement *l2eteff;
-  MonitorElement *l25eteff;
-  MonitorElement *l3eteff;
-
-  MonitorElement *refEt;
-  MonitorElement *refEta;
-
-
-
-  MonitorElement *l1etaeff;
-  MonitorElement *l2etaeff;
-  MonitorElement *l25etaeff;
-  MonitorElement *l3etaeff;
- 
-
-  //Define Numbers 
-  int NRefEvents;
-  int NLeptonEvents;
-  int NLeptonEvents_Matched;
-  int NL1Events;
-  int NL1Events_Matched;
-  int NL2Events;
-  int NL2Events_Matched;
-  int NL25Events;
-  int NL25Events_Matched;
-  int NL3Events;
-  int NL3Events_Matched;
- 
+//JoCa  std::string logFile_;
+//JoCa  double matchDeltaRL1_;
+//JoCa  double matchDeltaRHLT_;
+//JoCa
+//JoCa  //MonitorElements
+//JoCa
+//JoCa  /*Trigger Bits for Tau and Reference Trigger*/
+  MonitorElement *test_histo;
+//JoCa  MonitorElement *l1eteff;
+//JoCa  MonitorElement *l2eteff;
+//JoCa  MonitorElement *l25eteff;
+//JoCa  MonitorElement *l3eteff;
+//JoCa
+//JoCa  MonitorElement *refEt;
+//JoCa  MonitorElement *refEta;
+//JoCa
+//JoCa
+//JoCa
+//JoCa  MonitorElement *l1etaeff;
+//JoCa  MonitorElement *l2etaeff;
+//JoCa  MonitorElement *l25etaeff;
+//JoCa  MonitorElement *l3etaeff;
+//JoCa 
+//JoCa
+//JoCa  //Define Numbers 
+//JoCa  int NRefEvents;
+//JoCa  int NLeptonEvents;
+//JoCa  int NLeptonEvents_Matched;
+//JoCa  int NL1Events;
+//JoCa  int NL1Events_Matched;
+//JoCa  int NL2Events;
+//JoCa  int NL2Events_Matched;
+//JoCa  int NL25Events;
+//JoCa  int NL25Events_Matched;
+//JoCa  int NL3Events;
+//JoCa  int NL3Events_Matched;
+//JoCa 
 
 };
 #endif
