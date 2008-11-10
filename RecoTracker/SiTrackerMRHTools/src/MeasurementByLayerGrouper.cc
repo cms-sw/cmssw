@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define debug_MeasurementByLayerGrouper_ 
+//#define debug_MeasurementByLayerGrouper_ 
 
 using namespace std;
 
@@ -40,7 +40,6 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
 #ifdef debug_MeasurementByLayerGrouper_
 	//debug
 	
-	LogDebug("MeasurementByLayerGrouper|SiTrackerMultiRecHitUpdator") << "measurements divided by layer:";
 	for (vector<pair<const DetLayer*, vector<TM> > >::const_iterator iter = result.begin(); iter != result.end(); iter++){
 		LogTrace("MeasurementByLayerGrouper|SiTrackerMultiRecHitUpdator") << "DetLayer " << iter->first << " has " << iter->second.size() << " measurements"; 
 	}
