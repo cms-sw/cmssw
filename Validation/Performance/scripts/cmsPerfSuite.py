@@ -382,12 +382,12 @@ class PerfSuite:
     #############
     # Copy root file from another candle's directory
     # ! Again this is messy. 
-    def cprootfile(self,dir,candle):
+    def cprootfile(self,dir,candle,NumOfEvents):
         cmds = ("cd %s" % dir,
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
         if self.runCmdSet(cmds):
             print "I caught that the file was not there!"
-            cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(ValgrindEvents))
+            cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi[candle],str(NumOfEvents))
             log.write(cmd)
             return os.system(cmd)
     
@@ -540,7 +540,7 @@ class PerfSuite:
                         self.logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle\n" % candle    )
                     else:
                         self.logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle\n" % candle)
-                        self.cprootfile(adir,candle)                
+                        self.cprootfile(adir,candle,ValgrindEvents)              
     
                 if self._unittest:
                     # Run cmsDriver.py
