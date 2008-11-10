@@ -2,6 +2,7 @@
 
 namespace cmsshow {
   extern const std::string sGotoFirstEvent;
+  extern const std::string sGotoLastEvent;
   extern const std::string sAddRhoPhi;
   extern const std::string sAddRhoZ;
   extern const std::string sAddLego;

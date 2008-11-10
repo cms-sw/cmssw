@@ -1,6 +1,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 const std::string cmsshow::sGotoFirstEvent = "Goto First Event";
+const std::string cmsshow::sGotoLastEvent = "Goto Last Event";
 const std::string cmsshow::sAddRhoPhi = "Rho Phi";
 const std::string cmsshow::sAddRhoZ = "Rho Z";
 const std::string cmsshow::sAddLego = "Lego";
