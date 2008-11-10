@@ -44,16 +44,47 @@ allLayer1Electrons.isoDeposits       = cms.PSet(
     hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers")
    #hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromHits")
     )
+allLayer1Electrons.addTrigMatch = True
+allLayer1Electrons.trigPrimMatch = cms.VInputTag(
+    cms.InputTag("electronTrigMatchHLTIsoEle15LWL1I"), 
+    cms.InputTag("electronTrigMatchHLTEle15LWL1R"), 
+    cms.InputTag("electronTrigMatchHLTDoubleIsoEle10LWL1I"), 
+    cms.InputTag("electronTrigMatchHLTDoubleEle5SWL1R")
+    )
 
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import allLayer1Muons
 
 allLayer1Muons.embedCombinedMuon     = True
 allLayer1Muons.embedStandAloneMuon   = True
+allLayer1Muons.addTrigMatch = True
+allLayer1Muons.trigPrimMatch = cms.VInputTag(
+    cms.InputTag("muonTrigMatchHLTIsoMu11"), 
+    cms.InputTag("muonTrigMatchHLTMu11"), 
+    cms.InputTag("muonTrigMatchHLTDoubleIsoMu3"), 
+    cms.InputTag("muonTrigMatchHLTDoubleMu3")
+    )
 
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import allLayer1Jets
 
 allLayer1Jets.embedCaloTowers        = False
 allLayer1Jets.addTagInfoRefs         = True
+allLayer1Jets.addTrigMatch = False
+
+from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import allLayer1Taus
+
+allLayer1Taus.addTrigMatch = True
+allLayer1Taus.trigPrimMatch = cms.VInputTag(
+    cms.InputTag("tauTrigMatchHLTLooseIsoTauMET30L1MET"), 
+    cms.InputTag("tauTrigMatchHLTDoubleIsoTauTrk3")
+    )
+
+from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import allLayer1METs
+
+allLayer1METs.addTrigMatch = False
+
+from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cfi import allLayer1Photons
+
+allLayer1Photons.addTrigMatch = False
 
 ## selection
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedLayer1Electrons

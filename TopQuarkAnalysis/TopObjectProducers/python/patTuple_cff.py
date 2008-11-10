@@ -9,7 +9,7 @@ from TopQuarkAnalysis.TopObjectProducers.patTuple_Reco_cff      import *
 from TopQuarkAnalysis.TopObjectProducers.patTuple_Defaults_cff  import *
 
 ## std sequence for tqafLayer1 production
-patTuple = cms.Sequence(patLayer0 *
+patTuple = cms.Sequence(patLayer0_patTuple *
                         patLayer1 *
                         patCaloTaus
                         )
