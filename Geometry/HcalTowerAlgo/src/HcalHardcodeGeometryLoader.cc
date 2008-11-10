@@ -251,7 +251,7 @@ HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
 
    if (subdet==HcalForward) 
    {
-      std::vector<float> hf ;
+      std::vector<double> hf ;
       hf.reserve(3) ;
       hf.push_back( deta ) ;
       hf.push_back( dphi_half ) ;
@@ -266,7 +266,7 @@ HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
    else 
    { 
       const double mysign ( isBarrel ? 1 : -1 ) ;
-      std::vector<float> hh ;
+      std::vector<double> hh ;
       hh.reserve(3) ;
       hh.push_back( deta ) ;
       hh.push_back( dphi_half ) ;

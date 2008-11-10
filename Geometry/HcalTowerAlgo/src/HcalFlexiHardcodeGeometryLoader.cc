@@ -267,7 +267,7 @@ namespace {
 	  double z = iside * param.rMin * sinh(etaCenter);
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<float> cellParams; cellParams.reserve (3);
+	  std::vector<double> cellParams; cellParams.reserve (3);
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
@@ -300,7 +300,7 @@ namespace {
 	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<float> cellParams; cellParams.reserve (3);
+	  std::vector<double> cellParams; cellParams.reserve (3);
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
@@ -334,7 +334,7 @@ namespace {
 	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<float> cellParams; cellParams.reserve (3);
+	  std::vector<double> cellParams; cellParams.reserve (3);
 	  cellParams.push_back (0.5 * (inner.eta() - outer.eta())); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half

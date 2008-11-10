@@ -94,7 +94,7 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   GlobalPoint point(x,y,z);
 
   const double mysign ( !alongZ ? 1 : -1 ) ;
-  std::vector<float> hh ;
+  std::vector<double> hh ;
   hh.reserve(3) ;
   hh.push_back( deta/2 ) ;
   hh.push_back( dphi_half ) ;
