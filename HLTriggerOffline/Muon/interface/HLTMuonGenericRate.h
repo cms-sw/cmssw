@@ -36,7 +36,8 @@ class HLTMuonGenericRate {
 public:
 
   /// Constructor
-  HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName);
+  HLTMuonGenericRate( const edm::ParameterSet& pset, std::string triggerName,
+		      std::vector<std::string> moduleNames );
 
   // Operations
   void            begin  ( );
@@ -64,7 +65,7 @@ private:
   // Data members
 
   bool    m_makeNtuple;
-  float   theNtupleParameters[50]; 
+  float   theNtuplePars[100]; 
   TNtuple *theNtuple;
   TFile   *theFile;
 
