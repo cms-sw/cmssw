@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/11/02 16:21:40 $
- * $Revision: 1.36 $
+ * $Date: 2008/11/06 18:02:33 $
+ * $Revision: 1.37 $
  * \author W. Fisher
  *
 */
@@ -113,7 +113,12 @@ public:
   // Check which subdetectors have FED data
   void CheckSubdetectorStatus(const FEDRawDataCollection& rawraw, 
 			      const HcalUnpackerReport& report, 
-			      const HcalElectronicsMap& emap);
+			      const HcalElectronicsMap& emap,
+			      const HBHEDigiCollection& hbhedigi,
+			      const HODigiCollection& hodigi,
+			      const HFDigiCollection& hfdigi
+			      //const ZDCDigiCollection& zdcdigi,
+			      );
     
  private:
   /********************************************************/

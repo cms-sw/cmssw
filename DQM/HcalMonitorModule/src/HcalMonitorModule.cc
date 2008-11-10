@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/11/02 16:21:40 $
- * $Revision: 1.89 $
+ * $Date: 2008/11/06 18:02:33 $
+ * $Revision: 1.90 $
  * \author W Fisher
  *
 */
@@ -543,24 +543,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       }
     }
 
-  // check which Subdetectors are on by seeing which are reading out FED data
-  // Assume subdetectors aren't present, unless we explicitly find otherwise
-  if ((checkHB_ && HBpresent_==0) ||
-      (checkHE_ && HEpresent_==0) ||
-      (checkHO_ && HOpresent_==0) ||
-      (checkHF_ && HFpresent_==0))
-  
-    CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
-    
-  // Case where all subdetectors have no raw data -- skip event
-  if ((checkHB_ && HBpresent_==0) &&
-      (checkHE_ && HEpresent_==0) &&
-      (checkHO_ && HOpresent_==0) &&
-      (checkHF_ && HFpresent_==0))
-    {
-      if (debug_>1) cout <<"<HcalMonitorModule::analyze>  No HCAL raw data found for event "<<ievt_<<endl;
-      return;
-    }
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
@@ -597,6 +579,25 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (digiOK_&&!ho_digi.isValid()) {
     digiOK_=false;
   }
+
+  // check which Subdetectors are on by seeing which are reading out FED data
+  // Assume subdetectors aren't present, unless we explicitly find otherwise
+  if ((checkHB_ && HBpresent_==0) ||
+      (checkHE_ && HEpresent_==0) ||
+      (checkHO_ && HOpresent_==0) ||
+      (checkHF_ && HFpresent_==0))
+  
+    CheckSubdetectorStatus(*rawraw,*report,*readoutMap_,*hbhe_digi, *ho_digi, *hf_digi);
+    
+  // Case where all subdetectors have no raw data -- skip event
+  if ((checkHB_ && HBpresent_==0) &&
+      (checkHE_ && HEpresent_==0) &&
+      (checkHO_ && HOpresent_==0) &&
+      (checkHF_ && HFpresent_==0))
+    {
+      if (debug_>1) cout <<"<HcalMonitorModule::analyze>  No HCAL raw data found for event "<<ievt_<<endl;
+      return;
+    }
 
   try{
     e.getByLabel(inputLabelDigi_,tp_digi);
@@ -915,7 +916,13 @@ bool HcalMonitorModule::prescale()
 
 void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawraw, 
 					       const HcalUnpackerReport& report, 
-					       const HcalElectronicsMap& emap)
+					       const HcalElectronicsMap& emap,
+					       const HBHEDigiCollection& hbhedigi,
+					       const HODigiCollection& hodigi,
+					       const HFDigiCollection& hfdigi
+					       //const ZDCDigiCollection& zdcdigi,
+
+					       )
 {
   vector<int> fedUnpackList;
   for (int i=FEDNumbering::getHcalFEDIds().first; 
@@ -939,7 +946,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
       // check for HF
       if (dccid>717 && dccid<724)
 	{
-	  if (HFpresent_==0)
+	  if (HFpresent_==0 && hfdigi.size()>0)
 	    {
 	      HFpresent_ = 1;
 	      meHF_->Fill(HFpresent_);
@@ -950,7 +957,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
       // check for HO
       if (dccid>723)
 	{
-	  if (HOpresent_==0)
+	  if (HOpresent_==0 && hodigi.size()>0)
 	    {
 	      HOpresent_ = 1;
 	      meHO_->Fill(HOpresent_);
