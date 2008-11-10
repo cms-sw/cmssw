@@ -6,7 +6,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<CLHEP::HepLorentzVector> dummy0;
-  }
+  };
 }

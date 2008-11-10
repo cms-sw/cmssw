@@ -12,7 +12,7 @@
 
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<CaloTower> v1;
     CaloTowerCollection c1;
     CaloTowerPtr p1;
@@ -27,5 +27,5 @@ namespace {
     edm::reftobase::RefVectorHolder<CaloTowerRefs> rbrhs;
    edm::Ptr<CaloTower> ptr;
    edm::PtrVector<CaloTower> ptrv;
-  }
+  };
 }
