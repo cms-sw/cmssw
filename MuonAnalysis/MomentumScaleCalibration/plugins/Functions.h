@@ -324,4 +324,75 @@ static smearFunctionBase * smearFunctionArray[] = {
   new smearFunctionType5
 };
 
+/**
+ * Resolution functions. </br>
+ * Need to use templates to make it works with both array and vector<double>.
+ */
+template <class T>
+class resolutionFunctionBase {
+ public:
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) = 0;
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) = 0;
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) = 0;
+  resolutionFunctionBase() {}
+  virtual ~resolutionFunctionBase() = 0;
+};
+template <class T> inline resolutionFunctionBase<T>::~resolutionFunctionBase() { }  // defined even though it's pure virtual; should be faster this way.
+
+// Resolution Type 1
+template <class T>
+class resolutionFunctionType1 : public resolutionFunctionBase<T> {
+ public:
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    return parval[0];
+  }
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return parval[1];
+  }
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return parval[2];
+  }
+};
+
+// Resolution Type 6
+template <class T>
+class resolutionFunctionType6 : public resolutionFunctionBase<T> {
+ public:
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    return( parval[0]+parval[1]*pt+parval[2]*pow(pt,2)+parval[3]*pow(pt,3)+parval[4]*pow(pt,4)+parval[5]*fabs(eta)+parval[6]*pow(eta,2) );
+  }
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( parval[11]+parval[12]/pt+parval[13]*fabs(eta)+parval[14]*pow(eta,2) );
+
+  }
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( parval[7]+parval[8]/pt+parval[9]*fabs(eta)+parval[10]*pow(eta,2) );
+  }
+};
+
+// ------------ ATTENTION ------------ //
+// Other functions are not put for now //
+// ----------------------------------- //
+
+// Defined globally...
+static resolutionFunctionBase<double *> * resolutionFunctionArray[] = {
+  0,
+  new resolutionFunctionType1<double *>,
+  0,
+  0,
+  0,
+  0,
+  new resolutionFunctionType6<double *>
+};
+
+static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[] = {
+  0,
+  new resolutionFunctionType1<vector<double> >,
+  0,
+  0,
+  0,
+  0,
+  new resolutionFunctionType6<vector<double> >
+};
+
 #endif // FUNCTIONS_H

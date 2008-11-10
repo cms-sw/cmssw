@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/10/29 09:23:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/04 12:58:33 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -101,12 +101,17 @@ vector<int> MuScleFitUtils::doResolFit;
 vector<int> MuScleFitUtils::doScaleFit;
 vector<int> MuScleFitUtils::doBackgroundFit;
 
+int MuScleFitUtils::minuitLoop_ = 0;
+TH1F* MuScleFitUtils::likelihoodInLoop_ = 0;
+
 int MuScleFitUtils::SmearType = 0;
 smearFunctionBase * MuScleFitUtils::smearFunction = 0;
 int MuScleFitUtils::BiasType  = 0;
 // No error, we take functions from the same group for bias and scale.
 scaleFunctionBase<vector<double> > * MuScleFitUtils::biasFunction = 0;
 int MuScleFitUtils::ResolFitType = 0;
+resolutionFunctionBase<double *> * MuScleFitUtils::resolutionFunction = 0;
+resolutionFunctionBase<vector<double> > * MuScleFitUtils::resolutionFunctionForVec = 0;
 int MuScleFitUtils::ScaleFitType = 0;
 scaleFunctionBase<double*> * MuScleFitUtils::scaleFunction = 0;
 int MuScleFitUtils::BgrFitType   = 0;
@@ -208,11 +213,11 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
   ResFound = false;
   pair <lorentzVector, lorentzVector> recMuFromBestRes; 
   double maxprob = -0.1; 
-  
+
   // Choose the best resonance using its mass probability
   // ----------------------------------------------------
-   for (vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {  
-     for (vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) { 
+  for (vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {  
+    for (vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) { 
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }
@@ -221,7 +226,7 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes (vector<reco::
       if ((*Muon1).p4().Pt()>3.0 && (*Muon2).p4().Pt()>3.0 &&
 	  abs((*Muon1).p4().Eta())<2.4 && abs((*Muon2).p4().Eta())<2.4) {
 	double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-	if (debug>1){
+	if (debug>1) {
 	  cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<endl;
 	  cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<endl;
 	  cout<<"mcomb "<<mcomb<<endl;}
@@ -636,75 +641,53 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   
   // Resolution parameters:
   // ----------------------
-  double sigma_pt1=0.;
-  double sigma_pt2=0.;
-  double sigma_phi1=0.;
-  double sigma_phi2=0.;
-  double sigma_cotgth1=0.;
-  double sigma_cotgth2=0.;
-  if (ResolFitType==1) {
-    sigma_pt1     = parval[0];
-    sigma_pt2     = parval[0];
-    sigma_phi1    = parval[1];
-    sigma_phi2    = parval[1];
-    sigma_cotgth1 = parval[2];
-    sigma_cotgth2 = parval[2];
-  } else if (ResolFitType==2) {
-    sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
-    sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
-    sigma_phi1    = parval[2];
-    sigma_phi2    = parval[2];
-    sigma_cotgth1 = parval[3];
-    sigma_cotgth2 = parval[3];
-  } else if (ResolFitType==3) {
-    sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
-    sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
-    sigma_phi1    = parval[2];
-    sigma_phi2    = parval[2];
-    sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
-    sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-  } else if (ResolFitType==4) { 
-    sigma_pt1     = parval[0]+parval[1]*fabs(eta1)+parval[5]*pt1;
-    sigma_pt2     = parval[0]+parval[1]*fabs(eta2)+parval[5]*pt2;
-    sigma_phi1    = parval[2];
-    sigma_phi2    = parval[2];
-    sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
-    sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-  } else if (ResolFitType==5) {
-    sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1;
-    sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2;
-    sigma_phi1    = parval[2]+parval[6]*pt1;
-    sigma_phi2    = parval[2]+parval[6]*pt2;
-    sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
-    sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-  } else if (ResolFitType==6) {
-//     sigma_pt1     = parval[0]+parval[1]*pt1+parval[2]*pow(pt1,2)+parval[3]*pow(pt1,3)+parval[4]*pow(pt1,4);
-//     sigma_pt2     = parval[0]+parval[1]*pt2+parval[2]*pow(pt2,2)+parval[3]*pow(pt2,3)+parval[4]*pow(pt2,4);
-//     sigma_phi1    = parval[5];
-//     sigma_phi2    = parval[5];
-//     sigma_cotgth1 = parval[6]+parval[7]*fabs(cos(theta1)/sin(theta1))+parval[8]*pow(fabs(cos(theta1)/sin(theta1)),2);
-//     sigma_cotgth2 = parval[6]+parval[7]*fabs(cos(theta2)/sin(theta2))+parval[8]*pow(fabs(cos(theta2)/sin(theta2)),2);
+//   double sigma_pt1=0.;
+//   double sigma_pt2=0.;
+//   double sigma_phi1=0.;
+//   double sigma_phi2=0.;
+//   double sigma_cotgth1=0.;
+//   double sigma_cotgth2=0.;
+//   } else if (ResolFitType==2) {
+//     sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
+//     sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
+//     sigma_phi1    = parval[2];
+//     sigma_phi2    = parval[2];
+//     sigma_cotgth1 = parval[3];
+//     sigma_cotgth2 = parval[3];
+//   } else if (ResolFitType==3) {
+//     sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
+//     sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
+//     sigma_phi1    = parval[2];
+//     sigma_phi2    = parval[2];
+//     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
+//     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
+//   } else if (ResolFitType==4) { 
+//     sigma_pt1     = parval[0]+parval[1]*fabs(eta1)+parval[5]*pt1;
+//     sigma_pt2     = parval[0]+parval[1]*fabs(eta2)+parval[5]*pt2;
+//     sigma_phi1    = parval[2];
+//     sigma_phi2    = parval[2];
+//     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
+//     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
+//   } else if (ResolFitType==5) {
+//     sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1;
+//     sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2;
+//     sigma_phi1    = parval[2]+parval[6]*pt1;
+//     sigma_phi2    = parval[2]+parval[6]*pt2;
+//     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
+//     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
 
-    // For simplicity we use parabolic descriptions for both pt and eta dependence
-    sigma_pt1     = parval[0]+parval[1]*pt1+parval[2]*pow(pt1,2)+parval[3]*pow(pt1,3)+parval[4]*pow(pt1,4)+parval[5]*eta1+parval[6]*pow(eta1,2);
-    sigma_pt2     = parval[0]+parval[1]*pt2+parval[2]*pow(pt2,2)+parval[3]*pow(pt2,3)+parval[4]*pow(pt2,4)+parval[5]*eta2+parval[6]*pow(eta2,2);
-    // For simplicity we use a parabolic fit for eta dependece
-    sigma_cotgth1 = parval[7]+parval[8]/pt1+parval[9]*eta1+parval[10]*pow(eta1,2);
-    sigma_cotgth2 = parval[7]+parval[8]/pt2+parval[9]*eta2+parval[10]*pow(eta2,2);
-    // This should be accurate
-    sigma_phi1    = parval[11]+parval[12]/pt1+parval[13]*eta1+parval[14]*pow(eta1,2);
-    sigma_phi2    = parval[11]+parval[12]/pt2+parval[13]*eta2+parval[14]*pow(eta2,2);
-  }
- 
-  // double sigma_theta1 = parval[3];
-  // double sigma_theta2 = parval[3];
+  double sigma_pt1 = resolutionFunction->sigmaPt( pt1,eta1,parval );
+  double sigma_pt2 = resolutionFunction->sigmaPt( pt2,eta2,parval );
+  double sigma_phi1 = resolutionFunction->sigmaPhi( pt1,eta1,parval );
+  double sigma_phi2 = resolutionFunction->sigmaPhi( pt2,eta2,parval );
+  double sigma_cotgth1 = resolutionFunction->sigmaCotgTh( pt1,eta1,parval );
+  double sigma_cotgth2 = resolutionFunction->sigmaCotgTh( pt2,eta2,parval );
 
-  //  double mass_res = sqrt(pow(dmdpt1*sigma_pt1,2)+pow(dmdpt2*sigma_pt2,2)+
-  //		        pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
-  //		        pow(dmdtheta1*sigma_theta1,2)+pow(dmdtheta2*sigma_theta2,2));
   double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2)+
-			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
-			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
+ 			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
+ 			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
+
+
   if (debug>19) { 
     cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2 
 	 << " phi2=" << phi2 << " cotgth2=" << cos(theta2)/sin(theta2) << endl; 
@@ -1232,7 +1215,17 @@ void MuScleFitUtils::minimizeLikelihood () {
     // OK, now do minimization if some parameter has been released
     // -----------------------------------------------------------
     if (somethingtodo) {
+// #ifdef DEBUG
+      minuitLoop_ = 0;
+      char name[50];
+      sprintf(name, "likelihoodInLoop_%d_%d", loopCounter, iorder);
+      likelihoodInLoop_ = new TH1F(name, "likelihood value in minuit loop", 10000, 0, 10000);
+      cout << "likelihoodInLoop_ created = " << likelihoodInLoop_ << endl;
+// #endif
       rmin.mnexcm ("mini", arglis, 0, ierror);
+// #ifdef DEBUG
+      likelihoodInLoop_->Write();
+// #endif
     }
     //if (ierror==0) {
     //  rmin.mnexcm ("migrad", arglis, 0, ierror);
@@ -1377,6 +1370,17 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
   if (MuScleFitUtils::debug>19)
     cout << "[MuScleFitUtils-likelihood]: End tree loop with likelihood value = " << fval << endl;
 
+//  #ifdef DEBUG
+  cout << "likelihoodInLoop_ = " << MuScleFitUtils::likelihoodInLoop_ << endl;
+  if( MuScleFitUtils::minuitLoop_ < 10000 ) {
+    if( MuScleFitUtils::likelihoodInLoop_ == 0 ) cout << "likelihoodInLoop_ = 0" << endl;
+    else {
+      ++MuScleFitUtils::minuitLoop_;
+      MuScleFitUtils::likelihoodInLoop_->SetBinContent(MuScleFitUtils::minuitLoop_, flike);
+    }
+  }
+  else cout << "minuitLoop over 100. Not filling histogram" << endl;
+//  #endif
 }
 
 

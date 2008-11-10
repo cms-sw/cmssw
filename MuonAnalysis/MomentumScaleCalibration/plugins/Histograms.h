@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/10/15 14:32:26 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/29 09:21:23 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -44,6 +44,7 @@ public:
   Histograms( TFile * outputFile, const TString & name ) :
     theWeight_(1),
     name_(name),
+    outputFile_(outputFile),
     histoDir_( outputFile->mkdir(name) ) {
     histoDir_->cd();
   };
@@ -91,6 +92,7 @@ public:
 protected:
   double theWeight_;
   TString name_;
+  TFile * outputFile_;
   TDirectory * histoDir_;
 
 private:
@@ -688,13 +690,14 @@ class HMassVSPart : public Histograms{
 /// A set of histograms for resolution
 class HResolutionVSPart : public Histograms{
  public:
-  HResolutionVSPart(TFile * outputFile, const TString & name) : Histograms(outputFile, name) {
-    // Kinematical variables
+  HResolutionVSPart(TFile * outputFile, const TString & name,
+                    const double & yMinEta = -1, const double & yMaxEta = 1) : Histograms(outputFile, name) {
 
+    // Kinematical variables
     hReso           = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
     hResoVSPt       = new TH2F (name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 4000, -1, 1);
     //hResoVSPt_prof  = new TProfile (name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
-    hResoVSEta      = new TH2F (name+"_ResoVSEta", "resolution VS eta", 30, -3, 3, 4000, -1, 1);
+    hResoVSEta      = new TH2F (name+"_ResoVSEta", "resolution VS eta", 30, -3, 3, 4000, yMinEta, yMaxEta);
     hResoVSTheta    = new TH2F (name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 4000, -1, 1);
     //hResoVSEta_prof = new TProfile (name+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
     hResoVSPhiPlus  = new TH2F (name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 4000, -1, 1);
@@ -796,8 +799,7 @@ class HResolutionVSPart : public Histograms{
     hAbsResoVSPt->Clear();
     hAbsResoVSEta->Clear();
     hAbsResoVSPhi->Clear();
-
- }
+  }
   
  public:
   TH1F* hReso;
@@ -886,6 +888,74 @@ class HLikelihoodVSPart : public Histograms{
   TProfile* hLikeVSEta_prof;
   TProfile* hLikeVSPhi_prof;
  
+};
+
+/**
+ * This histogram class fills a TProfile with the resolution evaluated from the resolution
+ * functions for single muon quantities. The resolution functions are used by MuScleFit to
+ * evaluate the mass resolution, which is the value seen by minuit and through it,
+ * corrections are evaluated.
+ * In the end we will compare the histograms filled by this class (from the resolution
+ * function, reflecting the parameters changes done by minuit) with those filled comparing
+ * recoMuons with genMuons (the real resolutions).
+ */
+class HFunctionResolution : public Histograms {
+ public:
+  HFunctionResolution(TFile * outputFile, const TString & name) : Histograms(outputFile, name) {
+    name_ = name;
+    hReso                = new TH1F( name+"_Reso", "resolution", 1000, 0, 1 );
+    hResoVSPt_prof       = new TProfile( name+"_ResoVSPt_prof", "resolution VS pt", 200, 0, 200, 0, 1);
+    hResoVSEta_prof      = new TProfile( name+"_ResoVSEta_prof", "resolution VS eta", 30, -3.2, 3.2, 0, 1);
+    //hResoVSTheta_prof    = new TProfile( name+"_ResoVSTheta_prof", "resolution VS theta", 30, 0, TMath::Pi(), 0, 1);
+    hResoVSPhiPlus_prof  = new TProfile( name+"_ResoVSPhiPlus_prof", "resolution VS phi mu+", 14, -3.2, 3.2, 0, 1);
+    hResoVSPhiMinus_prof = new TProfile( name+"_ResoVSPhiMinus_prof", "resolution VS phi mu-", 14, -3.2, 3.2, 0, 1);
+    hResoVSPhi_prof      = new TProfile( name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
+  }
+  ~HFunctionResolution() {}
+  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
+    hReso->Fill(resValue);
+    hResoVSPt_prof->Fill(p4.Pt(),resValue);
+    hResoVSEta_prof->Fill(p4.Eta(),resValue);
+    //hResoVSTheta_prof->Fill(p4.Theta(),resValue);
+    if(charge>0)
+      hResoVSPhiPlus_prof->Fill(p4.Phi(),resValue);
+    else if(charge<0)
+      hResoVSPhiMinus_prof->Fill(p4.Phi(),resValue);
+    hResoVSPhi_prof->Fill(p4.Phi(),resValue);
+  }
+
+  virtual void Write() {
+    if(histoDir_ != 0) histoDir_->cd();
+
+    hReso->Write();
+    hResoVSPt_prof->Write();
+    hResoVSEta_prof->Write();
+    //hResoVSTheta_prof->Write();
+    hResoVSPhiMinus_prof->Write();
+    hResoVSPhiPlus_prof->Write();
+    hResoVSPhi_prof->Write();
+
+    outputFile_->cd();
+  }
+  
+  virtual void Clear() {
+    hReso->Clear();
+    hResoVSPt_prof->Clear();
+    hResoVSEta_prof->Clear();
+    //hResoVSTheta_prof->Clear();
+    hResoVSPhiPlus_prof->Clear();
+    hResoVSPhiMinus_prof->Clear();
+    hResoVSPhi_prof->Clear();
+  }
+
+ protected:
+  TH1F* hReso;
+  TProfile* hResoVSPt_prof;
+  TProfile* hResoVSEta_prof;
+  //TProfile* hResoVSTheta_prof;
+  TProfile* hResoVSPhiMinus_prof;
+  TProfile* hResoVSPhiPlus_prof;
+  TProfile* hResoVSPhi_prof;
 };
 
 /**
