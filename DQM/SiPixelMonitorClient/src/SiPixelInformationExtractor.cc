@@ -1985,7 +1985,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
         myfile_<<"NAME: "<<outputname<<" , DETID: "<<detid<<" , OFFLINE: col,row: "<<offlineColumn<<","<<offlineRow<<"  \t , ONLINE: roc,col,row: "<<theRoc->idInDetUnit()<<","<<onlineColumn<<","<<onlineRow<< "  \t , fed,dcol,pixid,link: "<<realfedID<<","<<loc.dcol<<","<<loc.pxid<<","<<cabling.link << ", Noise fraction: " << Noise_frac << std::endl;;
       }
       for(std::map<int, int>::const_iterator nrc = myrocmap.begin(); nrc != myrocmap.end(); nrc++){
-	if((*nrc).second > 1){
+	if((*nrc).second > 0){
 	  n_noisyrocs_all++;
 	  if(detSubId == 2){
 	    n_noisyrocs_endcap++;
