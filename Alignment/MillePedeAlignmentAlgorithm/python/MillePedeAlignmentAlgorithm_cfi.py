@@ -51,15 +51,11 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     pedeReader = cms.PSet(
         readFile = cms.string('millepede.res'),
         # directory of 'readFile', if empty:
-	# take from pedeSteerer (inheriting from MillePedeAlignmentAlgorithm)
+        # take from pedeSteerer (inheriting from MillePedeAlignmentAlgorithm)
         fileDir = cms.untracked.string('')
     ),
 
-    readPedeInput = cms.bool(False), ## if true, following used to read in pede result as input
-    pedeReaderInput = cms.PSet(
-        fileDir = cms.untracked.string('./'),
-        readFile = cms.string('millepede.res')
-    ),
+    pedeReaderInputs = cms.VPSet(),
 
     TrajectoryFactory = cms.PSet(
         ReferenceTrajectoryFactory # from TrajectoryFactories

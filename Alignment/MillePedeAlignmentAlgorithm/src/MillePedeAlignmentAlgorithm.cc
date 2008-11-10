@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.40 $
- *  $Date: 2008/09/02 17:17:19 $
+ *  $Revision: 1.41 $
+ *  $Date: 2008/10/14 07:19:32 $
  *  (last update by $Author: flucke $)
  */
 
@@ -110,10 +110,13 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 
   // 2) If requested, directly read in and apply result of previous pede run,
   //    assuming that correction from 1) was also applied to create the result:
-  if (theConfig.getParameter<bool>("readPedeInput")) {
+  const std::vector<edm::ParameterSet> mprespset
+    (theConfig.getParameter<std::vector<edm::ParameterSet> >("pedeReaderInputs"));
+  for (std::vector<edm::ParameterSet>::const_iterator iSet = mprespset.begin(), iE = mprespset.end();
+       iSet != iE; ++iSet) {
     edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                              << "Apply MillePede constants defined by PSet 'pedeReaderInput'.";
-    this->readFromPede("pedeReaderInput", false); // false: do not erase SelectionUserVariables
+                              << "Apply MillePede constants defined by VPSet 'pedeReaderInputs'.";
+    this->readFromPede((*iSet), false); // false: do not erase SelectionUserVariables
     theAlignmentParameterStore->applyParameters();
     // Following needed to shut up later warning from checkAliParams? Test!
     // theAlignmentParameterStore->resetParameters();  FIXME
@@ -174,7 +177,7 @@ void MillePedeAlignmentAlgorithm::terminate()
   }
   
   if (this->isMode(myPedeReadBit)) {
-    if (!pedeOk || !this->readFromPede("pedeReader", true)) {
+    if (!pedeOk || !this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true)) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
                                  << "Problems running pede or reading result, but applying!";
     }
@@ -403,11 +406,11 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 }
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::readFromPede(const std::string &psetName, bool setUserVars)
+bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespset, bool setUserVars)
 {
   bool allEmpty = this->areEmptyParams(theAlignables);
-  
-  PedeReader reader(theConfig.getParameter<edm::ParameterSet>(psetName),
+
+  PedeReader reader(mprespset,
 		    *thePedeSteer, *thePedeLabels);
   std::vector<Alignable*> alis;
   bool okRead = reader.read(alis, setUserVars);

@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.17 $
-///  $Date: 2008/02/26 08:56:45 $
-///  (last update by $Author: mstoye $)
+///  $Revision: 1.18 $
+///  $Date: 2008/03/15 01:01:42 $
+///  (last update by $Author: flucke $)
 
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -104,7 +104,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 
   /// read pede input defined by 'psetName', flag to create/not create MillePedeVariables
-  bool readFromPede(const std::string &psetName, bool setUserVars);
+  bool readFromPede(const edm::ParameterSet &mprespset, bool setUserVars);
   bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
   unsigned int doIO(int loop) const;
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
