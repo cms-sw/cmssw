@@ -3,8 +3,8 @@
  *   TeV muon reconstructor:
  *
  *
- *   $Date: 2008/04/29 13:52:39 $
- *   $Revision: 1.1 $
+ *   $Date: 2008/05/13 02:25:45 $
+ *   $Revision: 1.3 $
  *
  *   \author  Piotr Traczyk (SINS Warsaw)
  */
@@ -95,8 +95,8 @@ TevMuonProducer::~TevMuonProducer() {
 void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   const string metname = "Muon|RecoMuon|TevMuonProducer";  
-  LogTrace(metname)<<endl<<endl<<endl;
-  LogTrace(metname)<<"TeV Muon Reconstruction started"<<endl;  
+  LogTrace(metname)<< endl << endl;
+  LogTrace(metname)<< "TeV Muon Reconstruction started" << endl;  
 
   // Update the services
   theService->update(eventSetup);
@@ -126,9 +126,6 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     reco::TrackRef::key_type trackIndex = 0;
     for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track!=glbTracks->end(); track++ , ++trackIndex) {
       reco::TrackRef glbRef(glbMuons,trackIndex);
-      
-      // FIXME temporary protection very energetic tracks crash the refitter...
-      if (track->pt()>10000.) continue;
       
       vector<Trajectory> refitted=theRefitter->refit(*track,theRefitIndex[ww]);
 
