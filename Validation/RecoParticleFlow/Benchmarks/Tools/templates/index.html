@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>$title</title>
+</head>
+<body class="index">
+<div id="title">
+<h1>$title</h1>
+</div>
+
+
+<div id="header">
+<h2>CMSSW</h2>      
+<h3>Release: $cmssw</h3>
+<pre>
+$showTags
+</pre>
+<h3>Run information:</h3>
+<table style="text-align: left; width: 500px;" border="1" cellpadding="2" cellspacing="0">
+
+<tbody>
+<tr>
+<td style="width: 100px;">Event source:</td>
+<td style="width: 100px;"><A href="$genConfig">$genConfig</A></td>
+</tr>
+<tr>
+<td style="width: 100px;">Fast sim:</td>
+
+<td style="width: 100px;"><A href="$simConfig">$simConfig</A></td>
+</tr>
+<tr>
+<td style="width: 100px;">Benchmark:</td>
+<td style="width: 100px;"><A href="$benchmarkConfig">$benchmarkConfig</A></td>
+</tr>
+<tr>
+
+<td style="width: 100px;">Macro:</td>
+<td style="width: 100px;"><A href="$macro">$macro</A></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div id="comments of the validator">
+<h2>Comments:</h2>
+<p>
+$comments
+</p>
+</div>
+
+
+<div id="images">
+<h2>Plots:</h2>
+<p>
+$images
+<br clear="ALL">
+</p>
+</div>
+
+<div id="trailer">
+<hr>
+<p>
+Particle Flow Validation. C. Bernet, Nov 2008
+</p>
+</div>
+
+</body>
+</html>
