@@ -9,7 +9,7 @@ muonTriggerRateTimeAnalyzer = cms.EDAnalyzer("MuonTriggerRateTimeAnalyzer",
     GenLabel  = cms.untracked.string('genParticles'),
     RecoLabel = cms.untracked.string('globalMuons'),
 
-    NtuplePath         = cms.untracked.string('hltSingleMuIso'),
+    NtuplePath         = cms.untracked.string('HLT_IsoMu9'),
     NtupleFileName     = cms.untracked.string(''),
     RootFileName       = cms.untracked.string(''),
 
