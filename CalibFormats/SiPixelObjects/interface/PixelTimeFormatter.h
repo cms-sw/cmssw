@@ -18,6 +18,7 @@ namespace pos{
   {
   public:
 
+    //---------------------------------------------------------------------------------
     PixelTimeFormatter(std::string source) 
     {
      origin_ = source ;
@@ -41,6 +42,7 @@ namespace pos{
   
     }
 
+    //---------------------------------------------------------------------------------
     static std::string getTime(void) 
     {
       char theDate[20] ;
@@ -62,6 +64,7 @@ namespace pos{
       return date ;
     }
 
+    //---------------------------------------------------------------------------------
     struct tm * getITime(void) 
     {
       struct tm *thisTime;
@@ -71,6 +74,7 @@ namespace pos{
       return thisTime ;
     }
 
+    //---------------------------------------------------------------------------------
     static std::string getmSecTime(void) 
     {
       char theDate[20] ;
@@ -84,6 +88,7 @@ namespace pos{
       return std::string(theDate) ;
     }
 
+    //---------------------------------------------------------------------------------
     struct timeval getImSecTime(void) 
     {
       struct timeval msecTime;
@@ -92,7 +97,38 @@ namespace pos{
       return msecTime ;
     }
     
-    //---------------------------------------------------------------
+    //---------------------------------------------------------------------------------
+    static double timeDiff(std::string firstTime, std::string secondTime)
+    {
+      time_t rawTime;
+      struct tm * rawTimeInfo;
+
+      int firstMonth  = atoi( firstTime.substr(0,2).c_str()) ;
+      int firstDay    = atoi( firstTime.substr(3,2).c_str()) ;
+      int firstYear   = atoi( firstTime.substr(6,4).c_str()) ;
+      int secondMonth = atoi(secondTime.substr(0,2).c_str()) ;
+      int secondDay   = atoi(secondTime.substr(3,2).c_str()) ;
+      int secondYear  = atoi(secondTime.substr(6,4).c_str()) ;
+  
+      time(&rawTime);
+      rawTimeInfo = localtime(&rawTime);
+      rawTimeInfo->tm_mon  = firstMonth - 1    ;
+      rawTimeInfo->tm_mday = firstDay	       ;
+      rawTimeInfo->tm_year = firstYear  - 1900 ;
+
+      time_t ft = mktime( rawTimeInfo ) ;
+
+      rawTimeInfo = localtime(&rawTime);
+      rawTimeInfo->tm_mon  = secondMonth - 1	;
+      rawTimeInfo->tm_mday = secondDay  	;
+      rawTimeInfo->tm_year = secondYear  - 1900 ;
+
+      time_t st = mktime( rawTimeInfo ) ;
+  
+      return difftime(ft, st) ;
+    }
+
+    //=================================================================================
     
     private:
     
