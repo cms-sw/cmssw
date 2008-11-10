@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.11 2008/11/05 09:27:58 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.12 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -98,6 +98,7 @@ private:
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
    CSGAction *m_goToFirst;
+   CSGAction *m_goToLast;
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
    TGStatusBar* m_statBar;

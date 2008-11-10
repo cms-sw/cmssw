@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.20 2008/11/05 09:29:24 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.21 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -79,6 +79,7 @@ TGMainFrame(p, w, h)
    CSGAction *paste = new CSGAction(this, cmsshow::sPaste.c_str());
    paste->disable();
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
+   CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
    CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
@@ -98,10 +99,12 @@ TGMainFrame(p, w, h)
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
+   m_goToLast = goToLast;
    m_playEvents = playEvents;
    m_playEventsBack = playEventsBack;
 
    goToFirst->setToolTip("Goto first event");
+   goToLast->setToolTip("Goto last event");
    previousEvent->setToolTip("Goto previous event");
    nextEvent->setToolTip("Goto next event");
    playEvents->setToolTip("Play events");
@@ -156,6 +159,7 @@ TGMainFrame(p, w, h)
    previousEvent->createMenuEntry(viewMenu);
    previousEvent->createShortcut(kKey_Left, "CTRL");
    goToFirst->createMenuEntry(viewMenu);
+   goToLast->createMenuEntry(viewMenu);
    playEvents->createMenuEntry(viewMenu);
    playEvents->createShortcut(kKey_Right, "CTRL+SHIFT");
    playEventsBack->createMenuEntry(viewMenu);
@@ -235,7 +239,11 @@ TGMainFrame(p, w, h)
                                        fClient->GetPicture(coreIcondir+"button-pause.png"),
                                        fClient->GetPicture(coreIcondir+"button-pause-over.png"),
                                        new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
-
+   goToLast->createCustomIconsButton(tools,fClient->GetPicture(coreIcondir+"button-gotolast.png"),
+                                      fClient->GetPicture(coreIcondir+"button-gotolast-over.png"),
+                                      fClient->GetPicture(coreIcondir+"button-gotolast-disabled.png"),
+                                      new TGLayoutHints(kLHintsCenterY | kLHintsLeft, 7,0,5,0));
+   
    fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
    // TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
    TGVerticalFrame *texts   = new TGVerticalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60,0,kBackgroundColor);
@@ -281,6 +289,7 @@ TGMainFrame(p, w, h)
 
    //Start disabled
    goToFirst->disable();
+   goToLast->disable();
    previousEvent->disable();
    nextEvent->disable();
    playEvents->disable();
@@ -379,6 +388,7 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   m_nextEvent->enable();
   m_previousEvent->enable();
   m_goToFirst->enable();
+   m_goToLast->enable();
   m_playEvents->enable();
   m_playEventsBack->enable();
 }
@@ -448,9 +458,11 @@ CmsShowMainFrame::enableNext(bool enable)
      if (enable) {
         m_nextEvent->enable();
         m_playEvents->enable();
+        m_goToLast->enable();
      } else {
         m_nextEvent->disable();
         m_playEvents->disable();
+        m_goToLast->disable();
         m_playEvents->stop();
      }
   }
