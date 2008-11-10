@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V17 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
+# /dev/CMSSW_3_0_0/pre0/HLT/V19 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V17')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V19')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -17,6 +17,34 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
   label = cms.string( "MCJetCorrectorIcone5" )
 )
 
+KFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "KFFittingSmoother" ),
+  Fitter = cms.string( "KFFitter" ),
+  Smoother = cms.string( "KFSmoother" ),
+  EstimateCut = cms.double( -1.0 ),
+  MinNumberOfHits = cms.int32( 5 ),
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+KFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "KFFitter" ),
+  Propagator = cms.string( "PropagatorWithMaterial" ),
+  Updator = cms.string( "KFUpdator" ),
+  Estimator = cms.string( "Chi2" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+KFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "KFSmoother" ),
+  Propagator = cms.string( "PropagatorWithMaterial" ),
+  Updator = cms.string( "KFUpdator" ),
+  Estimator = cms.string( "Chi2" ),
+  errorRescaling = cms.double( 100.0 ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -5562,6 +5590,18 @@ hltL3TrackCandidateFromL2 = cms.EDProducer( "CkfTrajectoryMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
+hltL3TkTracksFromL2 = cms.EDProducer( "TrackProducer",
+    TrajectoryInEvent = cms.bool( True ),
+    useHitsSplitting = cms.bool( False ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    alias = cms.untracked.string( "" ),
+    Fitter = cms.string( "KFFittingSmoother" ),
+    Propagator = cms.string( "PropagatorWithMaterial" ),
+    src = cms.InputTag( "hltL3TrackCandidateFromL2" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    AlgorithmName = cms.string( "undefAlgorithm" )
+)
 hltL3Muons = cms.EDProducer( "L3MuonProducer",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
     L3TrajBuilderParameters = cms.PSet( 
@@ -5616,23 +5656,16 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         OnDemand = cms.double( -1.0 )
       ),
       StateOnTrackerBoundOutPropagator = cms.string( "SmartPropagatorAny" ),
-      l3SeedLabel = cms.InputTag( "" ),
-      tkTrajLabel = cms.InputTag( "hltL3TrackCandidateFromL2" ),
+      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2" ),
       TkTrackBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
-      SeedGeneratorParameters = cms.PSet( 
-        ComponentName = cms.string( "TSGFromOrderedHits" ),
-        TTRHBuilder = cms.string( "WithTrackAngle" ),
-        OrderedHitsFactoryPSet = cms.PSet( 
-          ComponentName = cms.string( "StandardHitPairGenerator" ),
-          SeedingLayers = cms.string( "PixelLayerPairs" )
-        )
-      ),
       KFFitter = cms.string( "L3MuKFFitter" ),
       TransformerOutPropagator = cms.string( "SmartPropagatorAny" ),
       MatcherOutPropagator = cms.string( "SmartPropagator" ),
       TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
       MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
-      RefitRPCHits = cms.bool( True )
+      RefitRPCHits = cms.bool( True ),
+      ScaleTECxFactor = cms.double( -1.0 ),
+      ScaleTECyFactor = cms.double( -1.0 )
     ),
     ServiceParameters = cms.PSet( 
       UseMuonNavigation = cms.untracked.bool( True ),
@@ -9626,7 +9659,7 @@ HLTL2muonrecoNocandSequence = cms.Sequence( hltMuonDTDigis + hltDt1DRecHits + hl
 HLTL2muonrecoSequence = cms.Sequence( HLTL2muonrecoNocandSequence + hltL2MuonCandidates )
 HLTL2muonisorecoSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRegionalMuonsFEDs + hltEcalRegionalMuonsDigis + hltEcalRegionalMuonsWeightUncalibRecHit + hltEcalRegionalMuonsRecHitTmp + hltEcalRegionalMuonsRecHit + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForMuons + hltL2MuonIsolations )
 HLTL3muonTkCandidateSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL3TrajectorySeed + hltL3TrackCandidateFromL2 )
-HLTL3muonrecoNocandSequence = cms.Sequence( HLTL3muonTkCandidateSequence + hltL3Muons )
+HLTL3muonrecoNocandSequence = cms.Sequence( HLTL3muonTkCandidateSequence + hltL3TkTracksFromL2 + hltL3Muons )
 HLTL3muonrecoSequence = cms.Sequence( HLTL3muonrecoNocandSequence + hltL3MuonCandidates )
 HLTL3muonisorecoSequence = cms.Sequence( hltPixelTracks + hltL3MuonIsolations )
 HLTBCommonL2recoSequence = cms.Sequence( HLTDoCaloSequence + HLTDoJetRecoSequence + HLTDoHTRecoSequence )
