@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2008/11/03 15:44:51 $
- * $Revision: 1.2 $
+ * $Date: 2008/11/07 10:08:42 $
+ * $Revision: 1.3 $
  * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -54,12 +54,52 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
 
   dbe_ = Service<DQMStore>().operator->();
 
+  // ----------------------------------------------------------------------------------
   dbe_->setCurrentFolder("FED/FEDIntegrity");
 
   FedEntries  = dbe_->book1D("FedEntries",  "FED Entries",          NBINS, XMIN, XMAX);
   FedFatal    = dbe_->book1D("FedFatal",    "FED Fatal Errors",     NBINS, XMIN, XMAX);
   FedNonFatal = dbe_->book1D("FedNonFatal", "FED Non Fatal Errors", NBINS, XMIN, XMAX);
 
+  FedEntries->setAxisTitle( "", 1);
+  FedFatal->setAxisTitle(   "", 1);
+  FedNonFatal->setAxisTitle("", 1);
+
+  FedEntries->setAxisTitle( "", 2);
+  FedFatal->setAxisTitle(   "", 2);
+  FedNonFatal->setAxisTitle("", 2);
+
+  FedEntries->setBinLabel(11,  "PIXEL", 1);
+  FedEntries->setBinLabel(221, "SIST",  1);
+  FedEntries->setBinLabel(606, "EE",    1);
+  FedEntries->setBinLabel(628, "EB",    1);
+  FedEntries->setBinLabel(651, "EE",    1);
+  FedEntries->setBinLabel(716, "HCAL",  1);
+  FedEntries->setBinLabel(754, "CSC",   1);
+  FedEntries->setBinLabel(772, "DT",    1);
+  FedEntries->setBinLabel(804, "L1T",   1);
+
+  FedFatal->setBinLabel(11,  "PIXEL", 1);
+  FedFatal->setBinLabel(221, "SIST",  1);
+  FedFatal->setBinLabel(606, "EE",    1);
+  FedFatal->setBinLabel(628, "EB",    1);
+  FedFatal->setBinLabel(651, "EE",    1);
+  FedFatal->setBinLabel(716, "HCAL",  1);
+  FedFatal->setBinLabel(754, "CSC",   1);
+  FedFatal->setBinLabel(772, "DT",    1);
+  FedFatal->setBinLabel(804, "L1T",   1);
+
+  FedNonFatal->setBinLabel(11,  "PIXEL", 1);
+  FedNonFatal->setBinLabel(221, "SIST",  1);
+  FedNonFatal->setBinLabel(606, "EE",    1);
+  FedNonFatal->setBinLabel(628, "EB",    1);
+  FedNonFatal->setBinLabel(651, "EE",    1);
+  FedNonFatal->setBinLabel(716, "HCAL",  1);
+  FedNonFatal->setBinLabel(754, "CSC",   1);
+  FedNonFatal->setBinLabel(772, "DT",    1);
+  FedNonFatal->setBinLabel(804, "L1T",   1);
+
+  //-----------------------------------------------------------------------------------
   dbe_->setCurrentFolder("FED/EventInfo");
   
   reportSummary = dbe_->bookFloat("reportSummary");
@@ -91,20 +131,22 @@ void DQMFEDIntegrityClient::beginJob(const EventSetup& context) {
   dbe_->setCurrentFolder("FED/EventInfo");
 
   reportSummaryMap = dbe_->book2D("reportSummaryMap", "FED Report Summary Map", 1, 1, 2, 11, 1, 12);
+
   reportSummaryMap->setAxisTitle("", 1);
   reportSummaryMap->setAxisTitle("", 2);
-  reportSummaryMap->setBinLabel(11, "CSC",2);
-  reportSummaryMap->setBinLabel(10, "DT", 2);
-  reportSummaryMap->setBinLabel( 9, "EB", 2);
-  reportSummaryMap->setBinLabel( 8, "EE", 2);
-  reportSummaryMap->setBinLabel( 7, "HCAL",2);
-  reportSummaryMap->setBinLabel( 6, "HLT", 2);
-  reportSummaryMap->setBinLabel( 5, "L1T", 2);
-  reportSummaryMap->setBinLabel( 4, "L1TEMU",2);
-  reportSummaryMap->setBinLabel( 3, "Pixel", 2);
-  reportSummaryMap->setBinLabel( 2, "RPC",   2);
-  reportSummaryMap->setBinLabel( 1, "SiStrip",2);
-  reportSummaryMap->setBinLabel( 1, " ", 1);
+
+  reportSummaryMap->setBinLabel( 1, " ",       1);
+  reportSummaryMap->setBinLabel(11, "CSC",     2);
+  reportSummaryMap->setBinLabel(10, "DT",      2);
+  reportSummaryMap->setBinLabel( 9, "EB",      2);
+  reportSummaryMap->setBinLabel( 8, "EE",      2);
+  reportSummaryMap->setBinLabel( 7, "HCAL",    2);
+  reportSummaryMap->setBinLabel( 6, "HLT",     2);
+  reportSummaryMap->setBinLabel( 5, "L1T",     2);
+  reportSummaryMap->setBinLabel( 4, "L1TEMU",  2);
+  reportSummaryMap->setBinLabel( 3, "Pixel",   2);
+  reportSummaryMap->setBinLabel( 2, "RPC",     2);
+  reportSummaryMap->setBinLabel( 1, "SiStrip", 2);
 
 }
 
