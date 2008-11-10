@@ -116,7 +116,7 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
     else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LED){
       if(isLocal)  theHeader->      setRunType(EcalDCCHeaderBlock::LED_STD);
       else         theHeader->      setRunType(EcalDCCHeaderBlock::LED_GAP);
-    }
+      theSettings.wavelength = wavelengthInTTCCommand;    }
     
     else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_TESTPULSE){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_MGPA);
