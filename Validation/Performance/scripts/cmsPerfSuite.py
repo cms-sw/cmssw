@@ -385,7 +385,12 @@ class PerfSuite:
     def cprootfile(self,dir,candle):
         cmds = ("cd %s" % dir,
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
-        self.runCmdSet(cmds)
+        print "I did not catch the file was missing!"
+        if self.runCmdSet(cmds):
+            print "I caught that the file was not there!"
+            cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (rootdir,KeywordToCfi(candle),str(ValgrindEvents))
+            log.write(cmd)
+            return os.system(cmd)
     
     #############
     # Display errors in the G4 logfile
@@ -544,7 +549,7 @@ class PerfSuite:
                     self.testCmsDriver(cpu,adir,candle)
                 else:
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt)            
-                    if valgrind:
+                    if valgrind and candle == "QCD_80_120":
                         self.valFilterReport(adir)             
                     self.runCmsReport(cpu,adir,candle)
                     proflogs = []
