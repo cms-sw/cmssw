@@ -84,14 +84,21 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
-  PFCandidateRef myleadPFCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+  PFCandidateRef myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+  PFCandidateRef myleadPFNeutralCand=myPFTauElementsOperators.leadPFGammaCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
+  PFCandidateRef myleadPFCand;
+
   bool myleadPFCand_rectkavailable=false;
   double myleadPFCand_rectkDZ=0.;
   double myPFTau_refInnerPosition_x=0.;
   double myPFTau_refInnerPosition_y=0.;
   double myPFTau_refInnerPosition_z=0.;
-  if(myleadPFCand.isNonnull()){
-    myPFTau.setleadPFChargedHadrCand(myleadPFCand);
+
+  if(myleadPFNeutralCand.isNonnull())myPFTau.setleadPFNeutralCand(myleadPFNeutralCand); 
+  //Modification to consider leading neutral particle
+  if(myleadPFChargedCand.isNonnull()) {
+    myleadPFCand = myleadPFChargedCand;
+    myPFTau.setleadPFChargedHadrCand(myleadPFChargedCand);
     TrackRef myleadPFCand_rectk=(*myleadPFCand).trackRef();
     if(myleadPFCand_rectk.isNonnull()){
       myleadPFCand_rectkavailable=true;
@@ -112,7 +119,16 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       }
       myPFChargedHadrCands=myPFChargedHadrCandsbis;
     }
-    
+
+  }
+  if(!(myleadPFChargedCand.isNonnull()) && myleadPFNeutralCand.isNonnull()) {
+    myleadPFCand = myleadPFNeutralCand; 
+    myPFTau.setleadPFNeutralCand(myleadPFNeutralCand);
+  }
+   
+  if(myleadPFCand.isNonnull()){
+    myPFTau.setleadPFCand(myleadPFCand);
+    //    Taking  signal and isolation cone sizes
     double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
     double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
     double myECALSignalConeSize=myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
@@ -120,12 +136,17 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     double myHCALSignalConeSize=myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula,HCALSignalConeSize_min_,HCALSignalConeSize_max_);
     double myHCALIsolConeSize=myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula,HCALIsolConeSize_min_,HCALIsolConeSize_max_);     	
     
+    //Taking signal PFCandidates
     PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
     if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+
     else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_);
+
     myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
+
     mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,NeutrHadrCand_minPt_);
     myPFTau.setsignalPFNeutrHadrCands(mySignalPFNeutrHadrCands);
+
     mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
     myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
     
@@ -171,15 +192,15 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
     myPFTau.setisolationPFCands(myIsolPFCands);
     
-  }
-  
+
+  //Making the alternateLorentzVector, i.e. direction with only signal components
   math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
-  for (PFCandidateRefVector::const_iterator iGammaCand=myPFGammaCands.begin();iGammaCand!=myPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
-  for (PFCandidateRefVector::const_iterator iChargedHadrCand=myPFChargedHadrCands.begin();iChargedHadrCand!=myPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
+  for (PFCandidateRefVector::const_iterator iGammaCand=mySignalPFGammaCands.begin();iGammaCand!=mySignalPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
+  for (PFCandidateRefVector::const_iterator iChargedHadrCand=mySignalPFChargedHadrCands.begin();iChargedHadrCand!=mySignalPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
   myPFTau.setalternatLorentzVect(alternatLorentzVect);
   
   myPFTau.setVertex(math::XYZPoint(myPFTau_refInnerPosition_x,myPFTau_refInnerPosition_y,myPFTau_refInnerPosition_z));
-  
+  }  
   // set the leading, signal cone and isolation annulus Tracks (the initial list of Tracks was catched through a JetTracksAssociation object, not through the charged hadr. PFCandidates inside the PFJet ; the motivation for considering these objects is the need for checking that a selection by the charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.)
   TrackRef myleadTk=myPFTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
   myPFTau.setleadTrack(myleadTk);
@@ -221,8 +242,8 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
 
 
-
-  if(myleadPFCand.isNonnull()){
+  //Use the electron rejection only in case there is a charged leading pion
+  if(myleadPFChargedCand.isNonnull()){
     if (myleadPFCand->mva_e_pi()==1) {
       myElecPreid = true;
     }
