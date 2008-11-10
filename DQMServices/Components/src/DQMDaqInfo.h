@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id: DQMDaqInfo.h,v 1.2 2008/11/05 13:59:18 segoni Exp $
+// $Id: DQMDaqInfo.h,v 1.3 2008/11/07 22:11:29 segoni Exp $
 //
 //
 
@@ -64,7 +64,6 @@ private:
   std::ofstream  dataCertificationFile;
   
   DQMStore *dbe_;  
-  bool FedGranularity;
 
   enum subDetList { Pixel , SiStrip , ECAL , HCAL , DT , CSC , RPC };  
   
