@@ -14,6 +14,7 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauProducer.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationByIsolation.h"
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauDiscriminationAgainstElectron.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationByNeutralHadrons.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(PFRecoTauTagInfoProducer);
@@ -30,3 +31,4 @@ DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauTagInfoProducer);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauProducer);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationByIsolation);
 DEFINE_ANOTHER_FWK_MODULE(CaloRecoTauDiscriminationAgainstElectron);
+DEFINE_ANOTHER_FWK_MODULE(PFRecoTauDiscriminationByNeutralHadrons);
