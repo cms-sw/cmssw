@@ -187,7 +187,7 @@ void CompoundJetProducer::write_outputs( edm::Event & e,
 	transConstEnd = subjetFastjetConstituentIndices.end();
       for ( ; fastSubIt != transConstEnd; ++fastSubIt ) {
 	// Add a ptr to this constituent
-	if ( *fastSubIt >= 0 && *fastSubIt < fInputHandle->size() ) 
+	if ( *fastSubIt < static_cast<int>(fInputHandle->size()) ) 
 	  subjetConstituents.push_back(reco::CandidatePtr(fInputHandle, *fastSubIt));
       }
 
