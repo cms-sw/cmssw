@@ -16,8 +16,8 @@ HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
    lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
    firsttime = true;
 
-   rawPedsItem = new HcalPedestals();
-   rawWidthsItem = new HcalPedestalWidths();
+   rawPedsItem = new HcalPedestals(true);
+   rawWidthsItem = new HcalPedestalWidths(true);
    rawPedsItemfc = new HcalPedestals();
    rawWidthsItemfc = new HcalPedestalWidths();
 }
@@ -34,14 +34,14 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 
       if(verboseflag) std::cout << "Analyzing channel " << bunch_it->detid << std::endl;
       //pedestal constant is the mean
-      if(num[0][0]!=0) bunch_it->cap[0] /= bunch_it->num[0][0];
-      if(num[1][1]!=0) bunch_it->cap[1] /= bunch_it->num[1][1];
-      if(num[2][2]!=0) bunch_it->cap[2] /= bunch_it->num[2][2];
-      if(num[3][3]!=0) bunch_it->cap[3] /= bunch_it->num[3][3];
-      if(num[0][0]!=0) bunch_it->capfc[0] /= bunch_it->num[0][0];
-      if(num[1][1]!=0) bunch_it->capfc[1] /= bunch_it->num[1][1];
-      if(num[2][2]!=0) bunch_it->capfc[2] /= bunch_it->num[2][2];
-      if(num[3][3]!=0) bunch_it->capfc[3] /= bunch_it->num[3][3];
+      if(bunch_it->num[0][0]!=0) bunch_it->cap[0] /= bunch_it->num[0][0];
+      if(bunch_it->num[1][1]!=0) bunch_it->cap[1] /= bunch_it->num[1][1];
+      if(bunch_it->num[2][2]!=0) bunch_it->cap[2] /= bunch_it->num[2][2];
+      if(bunch_it->num[3][3]!=0) bunch_it->cap[3] /= bunch_it->num[3][3];
+      if(bunch_it->num[0][0]!=0) bunch_it->capfc[0] /= bunch_it->num[0][0];
+      if(bunch_it->num[1][1]!=0) bunch_it->capfc[1] /= bunch_it->num[1][1];
+      if(bunch_it->num[2][2]!=0) bunch_it->capfc[2] /= bunch_it->num[2][2];
+      if(bunch_it->num[3][3]!=0) bunch_it->capfc[3] /= bunch_it->num[3][3];
       //widths are the covariance matrix--assumed symmetric
       bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0])*(bunch_it->cap[0]);
       bunch_it->sig[1][1] = (bunch_it->prod[1][1]/bunch_it->num[1][1])-(bunch_it->cap[1])*(bunch_it->cap[1]);
