@@ -21,6 +21,9 @@ static const uint32_t masks[] = {
 void CaloRecHit::setFlagField(uint32_t value, int base, int width) {
   value&=masks[std::max(std::min(width,32),0)];
   value<<=std::max(std::min(base,31),0);
+  // clear out the relevant bits
+  uint32_t clear=masks[std::max(std::min(width,32),0)]^0xFFFFFFFFu;
+  flags_&=clear;
   flags_|=value;
 }
 
