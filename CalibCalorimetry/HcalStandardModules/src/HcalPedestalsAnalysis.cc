@@ -18,8 +18,8 @@ HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
 
    rawPedsItem = new HcalPedestals(true);
    rawWidthsItem = new HcalPedestalWidths(true);
-   rawPedsItemfc = new HcalPedestals();
-   rawWidthsItemfc = new HcalPedestalWidths();
+   rawPedsItemfc = new HcalPedestals(false);
+   rawWidthsItemfc = new HcalPedestalWidths(false);
 }
 
 
