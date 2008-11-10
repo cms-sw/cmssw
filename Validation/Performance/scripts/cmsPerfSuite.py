@@ -385,10 +385,9 @@ class PerfSuite:
     def cprootfile(self,dir,candle):
         cmds = ("cd %s" % dir,
                 "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,CandFname[candle]))
-        print "I did not catch the file was missing!"
         if self.runCmdSet(cmds):
             print "I caught that the file was not there!"
-            cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (rootdir,KeywordToCfi(candle),str(ValgrindEvents))
+            cmd = "cd %s ; cmsDriver.py %s_cfi -s GEN,SIM -n %s >& ../GEN_SIM_for_valgrind.log" % (dir,KeywordToCfi(candle),str(ValgrindEvents))
             log.write(cmd)
             return os.system(cmd)
     
