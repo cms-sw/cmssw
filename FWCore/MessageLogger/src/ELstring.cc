@@ -15,7 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include <cctype>
-
+#include <cstring>
 
 namespace edm
 {
