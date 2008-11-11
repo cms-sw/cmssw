@@ -7,7 +7,8 @@ mix = cms.EDFilter("DataMixingModule",
         ),
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
-        fileNames = cms.untracked.vstring('dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/CSA08/JetET30/GEN-SIM-RECO/CSA08_S156_v1/0002/000250F6-A72B-DD11-8904-00145E1D6204.root')
+        #fileNames = cms.untracked.vstring('dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/CSA08/JetET30/GEN-SIM-RECO/CSA08_S156_v1/0002/000250F6-A72B-DD11-8904-00145E1D6204.root')
+        fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mikeh/cms/promptreco.root')
     ),
     # Mixing Module parameters
     Label = cms.string(''),
@@ -15,20 +16,20 @@ mix = cms.EDFilter("DataMixingModule",
     bunchspace = cms.int32(25),
     minBunch = cms.int32(0),
     # Use digis?               
-    EcalMergeType = cms.string('RecHits'),  # set to "Digis" to merge digis
-    HcalMergeType = cms.string('RecHits'),
+    EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
+    HcalMergeType = cms.string('Digis'),
     #
     # Input Specifications:
     #
     SistripLabelSig = cms.InputTag("ZeroSuppressed"),
-    SistripdigiCollectionSig = cms.InputTag("SiStripDigis"),
+    SistripdigiCollectionSig = cms.InputTag("siStripDigis"),
                    #
-    pixeldigiCollectionSig = cms.InputTag("SiPixelDigis"),
+    pixeldigiCollectionSig = cms.InputTag("siPixelDigis"),
     #
     SistripLabelPile = cms.InputTag("ZeroSuppressed"),
-    SistripdigiCollectionPile = cms.InputTag("SiStripDigis"),
+    SistripdigiCollectionPile = cms.InputTag("siStripDigis"),
                    #
-    pixeldigiCollectionPile = cms.InputTag("SiPixelDigis"),
+    pixeldigiCollectionPile = cms.InputTag("siPixelDigis"),
                    #
     EBProducerSig = cms.InputTag("ecalRecHit"),
     EBrechitCollectionSig = cms.InputTag("EcalRecHitsEB"),                   
@@ -62,20 +63,28 @@ mix = cms.EDFilter("DataMixingModule",
     #
     # Calorimeter digis
     #
-    EBdigiCollectionSig = cms.InputTag("EBdigiCollection"),
-    EEdigiCollectionSig = cms.InputTag("EEdigiCollection"),
-    ESdigiCollectionSig = cms.InputTag("ESdigiCollection"),
-    HBHEdigiCollectionSig  = cms.InputTag("HBHEdigiCollection"),
-    HOdigiCollectionSig    = cms.InputTag("HOdigiCollection"),
-    HFdigiCollectionSig    = cms.InputTag("HFdigiCollection"),
+    EBdigiProducerSig = cms.InputTag("ecalDigis"),
+    EEdigiProducerSig = cms.InputTag("ecalDigis"),
+    ESdigiProducerSig = cms.InputTag("ecalPreshowerDigis"),
+    #
+    EBdigiProducerPile = cms.InputTag("ecalDigis"),
+    EEdigiProducerPile = cms.InputTag("ecalDigis"),
+    ESdigiProducerPile = cms.InputTag("ecalPreshowerDigis"),
+    #                   
+    EBdigiCollectionSig = cms.InputTag("ebDigis"),
+    EEdigiCollectionSig = cms.InputTag("eeDigis"),
+    ESdigiCollectionSig = cms.InputTag(""),
+    HBHEdigiCollectionSig  = cms.InputTag("hcalDigis"),
+    HOdigiCollectionSig    = cms.InputTag("hcalDigis"),
+    HFdigiCollectionSig    = cms.InputTag("hcalDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("ZDCdigiCollection"),          
     #
-    EBdigiCollectionPile = cms.InputTag("EBdigiCollection"),
-    EEdigiCollectionPile = cms.InputTag("EEdigiCollection"),
-    ESdigiCollectionPile = cms.InputTag("ESdigiCollection"),
-    HBHEdigiCollectionPile  = cms.InputTag("HBHEdigiCollection"),
-    HOdigiCollectionPile    = cms.InputTag("HOdigiCollection"),
-    HFdigiCollectionPile    = cms.InputTag("HFdigiCollection"),
+    EBdigiCollectionPile = cms.InputTag("ebDigis"),
+    EEdigiCollectionPile = cms.InputTag("eeDigis"),
+    ESdigiCollectionPile = cms.InputTag("ecalPreshowerDigis"),
+    HBHEdigiCollectionPile  = cms.InputTag("hcalDigis"),
+    HOdigiCollectionPile    = cms.InputTag("hcalDigis"),
+    HFdigiCollectionPile    = cms.InputTag("hcalDigis"),
     ZDCdigiCollectionPile   = cms.InputTag("ZDCdigiCollection"),          
     #  Signal
     CSCDigiTagSig = cms.InputTag("muonCSCDigis"),

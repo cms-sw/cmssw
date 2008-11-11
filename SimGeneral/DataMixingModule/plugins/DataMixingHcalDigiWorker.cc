@@ -55,13 +55,13 @@ namespace edm
 
     // Hcal 
 
-    HBHEdigiCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEProducerSig");
-    HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOProducerSig");
-    HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFProducerSig");
+    HBHEdigiCollectionSig_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionSig");
+    HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOdigiCollectionSig");
+    HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFdigiCollectionSig");
     ZDCdigiCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionSig");
-    HBHEdigiCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEProducerPile");
-    HOdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HOProducerPile");
-    HFdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HFProducerPile");
+    HBHEdigiCollectionPile_  = ps.getParameter<edm::InputTag>("HBHEdigiCollectionPile");
+    HOdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HOdigiCollectionPile");
+    HFdigiCollectionPile_    = ps.getParameter<edm::InputTag>("HFdigiCollectionPile");
     ZDCdigiCollectionPile_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionPile");
 
     HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
@@ -102,6 +102,7 @@ namespace edm
      HBHEDigis = pHBHEDigis.product(); // get a ptr to the product
      LogDebug("DataMixingHcalDigiWorker") << "total # HBHE digis: " << HBHEDigis->size();
    } 
+   //   else { cout << "NO HBHE Digis " << HBHEdigiCollectionSig_.label() << endl;}
    
  
    if (HBHEDigis)

@@ -45,12 +45,12 @@ namespace edm
 
     // declare the products to produce, retrieve
 
-    EBProducerSig_ = ps.getParameter<edm::InputTag>("EBProducerSig");
-    EEProducerSig_ = ps.getParameter<edm::InputTag>("EEProducerSig");
-    ESProducerSig_ = ps.getParameter<edm::InputTag>("ESProducerSig");
-    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBProducerPile");
-    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEProducerPile");
-    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESProducerPile");
+    EBProducerSig_ = ps.getParameter<edm::InputTag>("EBdigiProducerSig");
+    EEProducerSig_ = ps.getParameter<edm::InputTag>("EEdigiProducerSig");
+    ESProducerSig_ = ps.getParameter<edm::InputTag>("ESdigiProducerSig");
+    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBdigiProducerPile");
+    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEdigiProducerPile");
+    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESdigiProducerPile");
     EBdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EBdigiCollectionSig");
     EEdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EEdigiCollectionSig");
     ESdigiCollectionSig_ = ps.getParameter<edm::InputTag>("ESdigiCollectionSig");
@@ -95,11 +95,13 @@ namespace edm
      EBDigis = pEBDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
    }
-   
+   else { cout << "NO EBDigis! " << EBProducerSig_.label() << " " << EBdigiCollectionSig_.label() << endl;}
  
    if (EBDigis)
      {
        // loop over digis, storing them in a map so we can add pileup later
+
+
        for(EBDigiCollection::const_iterator it  = EBDigis->begin();	
 	   it != EBDigis->end(); ++it) {
 
@@ -153,10 +155,11 @@ namespace edm
      LogDebug("DataMixingEMDigiWorker") << "total # ES digis: " << ESDigis->size();
 #endif
    } 
-   
+
  
    if (ESDigis)
      {
+
        // loop over digis, storing them in a map so we can add pileup later
        for(ESDigiCollection::const_iterator it  = ESDigis->begin();	
 	   it != ESDigis->end(); ++it) {

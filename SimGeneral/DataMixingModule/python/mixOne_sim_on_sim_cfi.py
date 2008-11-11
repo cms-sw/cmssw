@@ -7,8 +7,7 @@ mix = cms.EDFilter("DataMixingModule",
         ),
         seed = cms.int32(1234567),
         type = cms.string('fixed'),
-#        fileNames = cms.untracked.vstring('dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/CSA08/JetET30/GEN-SIM-RECO/CSA08_S156_v1/0002/000250F6-A72B-DD11-8904-00145E1D6204.root')
-        fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/mikeh/cms/promptreco.root')
+        fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_8/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0003/06C16DFA-9182-DD11-A4CC-000423D6CA6E.root')
     ),
     # Mixing Module parameters
     Label = cms.string(''),
@@ -27,9 +26,9 @@ mix = cms.EDFilter("DataMixingModule",
     pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
     #
     SistripLabelPile = cms.InputTag("ZeroSuppressed"),
-    SistripdigiCollectionPile = cms.InputTag("siStripDigis"),
+    SistripdigiCollectionPile = cms.InputTag("simSiStripDigis"),
                    #
-    pixeldigiCollectionPile = cms.InputTag("siPixelDigis"),
+    pixeldigiCollectionPile = cms.InputTag("simSiPixelDigis"),
                    #
     EBProducerSig = cms.InputTag("ecalRecHit"),
     EBrechitCollectionSig = cms.InputTag("EcalRecHitsEB"),                   
@@ -69,24 +68,26 @@ mix = cms.EDFilter("DataMixingModule",
     EEdigiCollectionSig = cms.InputTag("eeDigis"),
     ESdigiProducerSig = cms.InputTag("simEcalPreshowerDigis"),
     ESdigiCollectionSig = cms.InputTag(""),
-    # 
-    EBdigiCollectionPile = cms.InputTag("ebDigis"),
-    EEdigiCollectionPile = cms.InputTag("eeDigis"),
-    ESdigiCollectionPile = cms.InputTag(""),
-    EBdigiProducerPile = cms.InputTag("ecalDigis"),
-    EEdigiProducerPile = cms.InputTag("ecalDigis"),
-    ESdigiProducerPile = cms.InputTag("ecalPreshowerDigis"),
-    #                   
-    #
     HBHEdigiCollectionSig  = cms.InputTag("simHcalDigis"),
     HOdigiCollectionSig    = cms.InputTag("simHcalDigis"),
     HFdigiCollectionSig    = cms.InputTag("simHcalDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("ZDCdigiCollection"),          
     #
-    HBHEdigiCollectionPile  = cms.InputTag("hcalDigis"),
-    HOdigiCollectionPile    = cms.InputTag("hcalDigis"),
-    HFdigiCollectionPile    = cms.InputTag("hcalDigis"),
+    EBdigiProducerPile = cms.InputTag("simEcalDigis"),
+    EBdigiCollectionPile = cms.InputTag("ebDigis"),
+    EEdigiProducerPile = cms.InputTag("simEcalDigis"),
+    EEdigiCollectionPile = cms.InputTag("eeDigis"),
+    ESdigiProducerPile = cms.InputTag("simEcalPreshowerDigis"),
+    ESdigiCollectionPile = cms.InputTag(""),
+    HBHEdigiCollectionPile  = cms.InputTag("simHcalDigis"),
+    HOdigiCollectionPile    = cms.InputTag("simHcalDigis"),
+    HFdigiCollectionPile    = cms.InputTag("simHcalDigis"),
     ZDCdigiCollectionPile   = cms.InputTag("ZDCdigiCollection"),          
+#ESDataFramesSorted "simEcalPreshowerDigis" "" "HLT"
+                   #HODataFramesSorted "simHcalDigis" "" "HLT"
+                   #HFDataFramesSorted "simHcalDigis" "" "HLT"
+                   #HBHEDataFramesSorted "simHcalDigis" "" "HLT"
+
     #  Signal
                    #
     CSCDigiTagSig = cms.InputTag("simMuonCSCDigis"),
@@ -98,13 +99,13 @@ mix = cms.EDFilter("DataMixingModule",
     DTdigiCollectionSig = cms.InputTag("simMuonDTDigis"),
     #  Pileup
                    #                   
-    CSCDigiTagPile = cms.InputTag("muonCSCDigis"),
+    CSCDigiTagPile = cms.InputTag("simMuonCSCDigis"),
     CSCwiredigiCollectionPile = cms.InputTag("muonCSCWireDigi"),
     CSCstripdigiCollectionPile = cms.InputTag("muonCSCStripDigi"),
-    RPCDigiTagPile = cms.InputTag("muonRPCDigis"),                   
-    RPCdigiCollectionPile = cms.InputTag("MuonRPCDigis"),
-    DTDigiTagPile = cms.InputTag("muonDTDigis"),
-    DTdigiCollectionPile = cms.InputTag("MuonDTDigis"),
+    RPCDigiTagPile = cms.InputTag("simMuonRPCDigis"),                   
+    RPCdigiCollectionPile = cms.InputTag("simMuonRPCDigis"),
+    DTDigiTagPile = cms.InputTag("simMuonDTDigis"),
+    DTdigiCollectionPile = cms.InputTag("simMuonDTDigis"),
                    #
     #
     #  Outputs

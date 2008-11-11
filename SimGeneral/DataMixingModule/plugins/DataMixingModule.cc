@@ -313,6 +313,8 @@ namespace edm
 
     // individual workers...
 
+    cout << "made it to put" << endl;
+
     // Ecal
     if(MergeEMDigis_) {EMDigiWorker_->putEM(e,ES);}
     else {EMWorker_->putEM(e);}
