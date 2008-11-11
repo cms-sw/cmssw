@@ -2,7 +2,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<EcalMGPASample> vMGPA_;
     std::vector<EcalFEMSample> vFEM_;
     std::vector<ESSample> vESSample_;
@@ -42,6 +42,6 @@ namespace {
     edm::Wrapper< edm::SortedCollection<EESrFlag> > theEESRFw_;
     edm::Wrapper< edm::SortedCollection<EcalPnDiodeDigi> > theEPNw_; 
     edm::Wrapper< edm::SortedCollection<EcalMatacqDigi> > theMDw_; 
- }
+ };
 }
 
