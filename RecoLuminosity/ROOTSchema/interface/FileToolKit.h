@@ -2,6 +2,7 @@
 #define __FILETOOLKIT_H__
 
 #include <vector>
+#include <string>
 
 class FileToolKit{
  public:
@@ -27,7 +28,7 @@ class FileToolKit{
   // String
   void Tokenize(const std::string& str,
 		std::vector< std::string >& tokens,
-		const std::string& delimiters = " ");
+		const std::string& delimiters = std::string(" "));
   
   // File system specific
   int MakeDir( std::string dirName, mode_t writeMode );
