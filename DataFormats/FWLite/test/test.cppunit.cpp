@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.6 2008/09/23 15:53:34 chrjones Exp $
+$Id: test.cppunit.cpp,v 1.7 2008/09/23 16:59:37 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -17,6 +17,8 @@ $Id: test.cppunit.cpp,v 1.6 2008/09/23 15:53:34 chrjones Exp $
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 static char* gArgV = 0;
+
+extern "C" char** environ;
 
 class testRefInROOT: public CppUnit::TestFixture
 {
@@ -47,7 +49,7 @@ public:
       
       char* argv[] = {"TestRunnerDataFormatsFWLite","/bin/bash","DataFormats/FWLite/test","RefTest.sh"};
       argv[0] = gArgV;
-      if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv) ) {
+      if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv, environ) ) {
         std::cerr <<"could not run script needed to make test files\n";
         ::exit(-1);
       }

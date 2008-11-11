@@ -22,11 +22,11 @@
 //   RunThis /bin/bash some_script.sh a b c
 //
 //
-// $Id:$
+// $Id: TestHelper.h,v 1.1 2005/11/21 15:39:02 paterno Exp $
 //------------------------------------------------------------
 
-int ptomaine(int argc, char* argv[]);
+int ptomaine(int argc, char* argv[], char** env);
 
-#define RUNTEST() int main(int argc, char* argv[]) { return ptomaine(argc, argv); }
+#define RUNTEST() extern "C" char** environ; int main(int argc, char* argv[]) { return ptomaine(argc, argv, environ); }
 
 #endif
