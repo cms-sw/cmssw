@@ -3,6 +3,7 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/TrackFitters>
+<use name=RecoMuon/TransientTrackingRecHit>
 
 <use name=CLHEP>
 <use name=root>

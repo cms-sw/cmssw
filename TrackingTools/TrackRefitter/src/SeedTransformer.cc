@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/11 14:30:28 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/08/11 14:54:49 $
+ *  $Revision: 1.4 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -40,6 +40,8 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -55,7 +57,7 @@ SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
 
   nMinRecHits = iConfig.getParameter<unsigned int>("NMinRecHits");
   errorRescale = iConfig.getParameter<double>("RescaleError");
-
+  useSubRecHits = iConfig.getParameter<bool>("UseSubRecHits");
 }
 
 SeedTransformer::~SeedTransformer() {
@@ -78,7 +80,7 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
 
   const string metname = "Reco|TrackingTools|SeedTransformer";
 
-  LogTrace(metname) << "  Number of valid RecHits:      " << aSeed.nHits() << endl;
+  LogTrace(metname) << " Number of valid RecHits:      " << aSeed.nHits() << endl;
 
   if( aSeed.nHits() < nMinRecHits ) {
     LogTrace(metname) << "    --- Too few RecHits, no refit performed! ---" << endl;
@@ -96,7 +98,15 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
   for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH) {
     if((*itRecHits).isValid()) {
       TransientTrackingRecHit::ConstRecHitPointer ttrh(theMuonRecHitBuilder->build(&(*itRecHits)));
-      recHits.push_back(ttrh);
+
+      if(useSubRecHits){
+	TransientTrackingRecHit::ConstRecHitContainer subHits =
+	  MuonTransientTrackingRecHitBreaker::breakInSubRecHits(ttrh,2);
+	copy(subHits.begin(),subHits.end(),back_inserter(recHits));
+      }
+      else{
+	recHits.push_back(ttrh);
+      }    
     }
   } // end for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH)
 
