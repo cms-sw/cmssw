@@ -258,6 +258,9 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			bool tauVetoOr = m_rcvdProtoJets.at(j).tauVeto();
 			bool ovrFlowOr = m_rcvdProtoJets.at(j).overFlow();
 
+			// Check for double counting (across eta=0 boundary)
+			bool doubleCountingVeto = false;
+
 			// Combine with the corresponding regions from
 			// the local array to make a 3x3 jet cluster 
 			unsigned column=1-localPhi0;
@@ -266,16 +269,25 @@ void L1GctHardwareJetFinder::findFinalClusters()
 				etCluster += m_inputRegions.at(index).et();
 				tauVetoOr |= m_inputRegions.at(index).tauVeto();
 				ovrFlowOr |= m_inputRegions.at(index).overFlow();
+
+				// Don't make a jet the neighbouring region across the eta=0
+				// boundary has larger et than the input proto-cluster
+				if ((localEta0==0) && (row==0) && (m_inputRegions.at(index).et() > et0)) {
+				  doubleCountingVeto = true;
+				}
+
 				++index;
 			}
 
-			// Store the new jet
-			unsigned eta = m_rcvdProtoJets.at(j).gctEta();
-			unsigned phi = m_rcvdProtoJets.at(j).gctPhi();
-			int16_t  bx  = m_rcvdProtoJets.at(j).bx();
+			if (!doubleCountingVeto) {
+			  // Store the new jet
+			  unsigned eta = m_rcvdProtoJets.at(j).gctEta();
+			  unsigned phi = m_rcvdProtoJets.at(j).gctPhi();
+			  int16_t  bx  = m_rcvdProtoJets.at(j).bx();
 
-			L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx);
-			m_clusters.at(j) = temp;
+			  L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx);
+			  m_clusters.at(j) = temp;
+			}
 
 		}
 	}
