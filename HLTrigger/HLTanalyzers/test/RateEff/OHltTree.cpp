@@ -244,7 +244,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
 	if ( L1_DoubleTauJet40==1 ) { // L1 Seed 
 	  L1AssHLTBit[it] = true; 
 	  //PrintOhltVariables(3,tau); 
-	  if(OpenHltTauPassed(20.,5.,0.,0,0.,0)>=2) { 
+	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=2) { 
 	    triggerBitNoPrescale[it] = true; 
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) { 
 	      triggerBit[it] = true; 
@@ -396,7 +396,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       else if (trignames[it].CompareTo("OpenHLT_LooseIsoTau_MET30") == 0) {        
 	if(L1_SingleTauJet80==1) {      // L1 Seed        
 	  L1AssHLTBit[it] = true;       
-	  if(OpenHltTauPassed(20.,5.,3.,1,15.,0)>=1  && recoMetCal>=30.) { 
+	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1  && recoMetCal>=30.) { 
 	    triggerBitNoPrescale[it] = true;         
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {         
 	      triggerBit[it] = true;       
@@ -408,7 +408,7 @@ void OHltTree::Loop( vector<int> * iCount, vector<int> * sPureCount, vector<int>
       else if (trignames[it].CompareTo("OpenHLT_LooseIsoTau_MET30_L1MET") == 0) {         
 	if(L1_TauJet30_ETM30==1) {      // L1 Seed
 	  L1AssHLTBit[it] = true;        
-	  if(OpenHltTauPassed(20.,5.,3.,1,15.,0)>=1  && recoMetCal>=30.) {  
+	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1  && recoMetCal>=30.) {  
 	    triggerBitNoPrescale[it] = true;          
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {          
 	      triggerBit[it] = true;        
