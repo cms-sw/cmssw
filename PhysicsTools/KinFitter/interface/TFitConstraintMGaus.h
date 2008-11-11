@@ -31,6 +31,7 @@ public :
 
   void setMassConstraint(Double_t Mass, Double_t Width);
 
+  virtual TString getInfoString();
   virtual void print(); 
 
 protected :
