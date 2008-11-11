@@ -8,6 +8,7 @@
 #include <spawn.h>
 #include <unistd.h>
 #include <ostream>
+#include <cstring>
 
 static std::string
 join (char **cmd)
