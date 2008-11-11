@@ -6,7 +6,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: MuonTimingExtractor.cc,v 1.1 2008/10/13 13:01:10 ptraczyk Exp $
+// $Id: MuonTimingExtractor.cc,v 1.2 2008/11/04 15:46:57 ptraczyk Exp $
 //
 //
 
@@ -338,7 +338,7 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
     diff=dsegm.at(i)-vertexTime;
     vertexTimeErr+=diff*diff*hitWeight.at(i);
     diff=dsegm.at(i)+2*dstnc.at(i)/30.-vertexTimeR;
-    vertexTimeErrR+=diff*diff*hitWeight.at(i);
+    vertexTimeRErr+=diff*diff*hitWeight.at(i);
   }
   vertexTimeErr=sqrt(vertexTimeErr/totalWeight);
   vertexTimeRErr=sqrt(vertexTimeRErr/totalWeight);
