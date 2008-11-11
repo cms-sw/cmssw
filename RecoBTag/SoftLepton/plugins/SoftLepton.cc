@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.21 2008/10/25 17:17:35 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.22 2008/10/25 17:33:56 fwyzard Exp $
 
 
 #include <memory>
@@ -44,8 +44,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -170,15 +168,6 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   std::vector<edm::RefToBase<reco::Track> > leptons;
   // try to access the input collection as a collection of Electrons, Muons or Tracks
   do { {
-    // look for vector<Electron>
-    Handle<reco::ElectronCollection> h_electrons;
-    event.getByLabel(m_leptons, h_electrons);
-    if (h_electrons.isValid()) {
-      for (reco::ElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
-        leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
-      break;
-    }
-  } { // else
     // look for vector<GsfElectron>
     Handle<reco::GsfElectronCollection> h_electrons;
     event.getByLabel(m_leptons, h_electrons);
@@ -211,7 +200,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       break;
     }
   } { // else
-    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
   } } while (false);
 
   // output collections
