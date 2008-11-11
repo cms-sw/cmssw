@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.22 2008/10/25 17:33:56 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.23 2008/11/11 14:11:10 fwyzard Exp $
 
 
 #include <memory>
@@ -71,6 +71,9 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace ROOT::Math::VectorUtil;
+
+typedef edm::View<reco::GsfElectron> GsfElectronView;
+typedef edm::View<reco::Muon>        MuonView;
 
 // ------------ static copy of the nominal beamspot --------------------------------------
 const reco::Vertex SoftLepton::s_nominalBeamSpot(
@@ -168,20 +171,20 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   std::vector<edm::RefToBase<reco::Track> > leptons;
   // try to access the input collection as a collection of Electrons, Muons or Tracks
   do { {
-    // look for vector<GsfElectron>
-    Handle<reco::GsfElectronCollection> h_electrons;
+    // look for View<GsfElectron>
+    Handle<GsfElectronView> h_electrons;
     event.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
-      for (reco::GsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+      for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
       break;
     }
   } { // else
-    // look for vetor<Muon>
-    Handle<reco::MuonCollection> h_muons;
+    // look for View<Muon>
+    Handle<MuonView> h_muons;
     event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
-      for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
+      for (MuonView::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
         if (muon->isGlobalMuon())
           leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
         else 
@@ -200,7 +203,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       break;
     }
   } { // else
-    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"edm::View<reco::GsfElectron>\", \"edm::View<reco::Muon>\", \"edm::View<reco::Track>\") not found";
   } } while (false);
 
   // output collections
