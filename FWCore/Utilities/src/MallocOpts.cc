@@ -6,14 +6,16 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id: MallocOpts.cc,v 1.6 2008/01/18 20:10:32 wmtan Exp $
+// $Id: MallocOpts.cc,v 1.7 2008/11/11 11:27:34 elmer Exp $
 //
 // ------------------ resetting malloc options -----------------------
 
 
 #include "FWCore/Utilities/interface/MallocOpts.h"
 
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
@@ -159,14 +161,22 @@ namespace edm
     error_message_.clear();
     changed_ = false;
 
+#ifdef M_MMAP_MAX
     if(mallopt(M_MMAP_MAX,values_.mmap_max_)<0)
       error_message_ += "Could not set M_MMAP_MAX\n"; 
+#endif
+#ifdef M_TRIM_THRESHOLD
     if(mallopt(M_TRIM_THRESHOLD,values_.trim_thr_)<0)
       error_message_ += "Could not set M_TRIM_THRESHOLD\n"; 
+#endif
+#ifdef M_TOP_PAD
     if(mallopt(M_TOP_PAD,values_.top_pad_)<0)
       error_message_ += "ERROR: Could not set M_TOP_PAD\n";
+#endif
+#ifdef M_MMAP_THRESHOLD
     if(mallopt(M_MMAP_THRESHOLD,values_.mmap_thr_)<0)
       error_message_ += "ERROR: Could not set M_MMAP_THRESHOLD\n";
+#endif
   }
 
   bool MallocOptionSetter::retrieveFromEnv()
