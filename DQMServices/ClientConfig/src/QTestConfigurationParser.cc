@@ -1,14 +1,14 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
 #include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
-
+#include <cstring>
 #include <stdexcept>         
 /** \file
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2007/01/31 18:57:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/15 08:20:22 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 using namespace xercesc;
