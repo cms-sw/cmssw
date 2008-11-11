@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 #include "TChain.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -26,13 +27,17 @@ using namespace std;
 TString mainNamePt("hResolPtGenVSMu");
 TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
 TString mainNamePhi("hResolPhiGenVSMu");
+// Use this with the ResolutionAnalyzer files
+// TString mainNamePt("PtResolutionGenVSMu");
+// TString mainNameCotgTheta("CotgThetaResolutionGenVSMu");
+// TString mainNamePhi("PhiResolutionGenVSMu");
 vector<TString> vecNames;
 
 TList *FileList;
 TFile *Target;
-void draw( TDirectory *target, TList *sourcelist );
+void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta );
 
-void Draw() {
+void Draw(const bool doHalfEta = false) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C
@@ -53,7 +58,7 @@ void Draw() {
   vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
   vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
 
-  gROOT->SetBatch(true);
+  //gROOT->SetBatch(true);
 //   gROOT->SetStyle("Plain");
 //   gStyle->SetCanvasColor(kWhite);
 //   gStyle->SetCanvasBorderMode(0);
@@ -70,10 +75,10 @@ void Draw() {
   // List of Files
   FileList->Add( TFile::Open("0_MuScleFit.root") );    // 1
 
-  draw( Target, FileList );
+  draw( Target, FileList, doHalfEta );
 }
 
-void draw( TDirectory *target, TList *sourcelist ) {
+void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta ) {
 
   //  cout << "Target path: " << target->GetPath() << endl;
   TString path( (char*)strstr( target->GetPath(), ":" ) );
@@ -108,35 +113,99 @@ void draw( TDirectory *target, TList *sourcelist ) {
         if( *namesIt == objName ) {
           cout << "found histogram: " << *namesIt << endl;
 
+          TDirectory * fits = (TDirectory*) target->Get("fits");
+          if( fits == 0 ) fits = target->mkdir("fits");
+
           // Perform different fits for different profiles
           TH2F *h2 = (TH2F*)obj;
 
-          target->cd();
           int xBins = h2->GetNbinsX();
-          if( xBins > 50 ) h2->RebinX(2);
+          if( xBins > 50 ) {
+            h2->RebinX(4);
+            xBins /= 4;
+          }
           TH1D * h1 = h2->ProjectionX();
-          h1->Clear();
+          // h1->Clear();
+          h1->Reset();
           h1->SetName(*namesIt+"_resol");
           TProfile * profile = h2->ProfileX();
-          for( int x=1; x<=xBins; ++x ) {
-            TH1D * temp = h2->ProjectionY("_px",x,x);
-            temp->Fit("gaus");
 
-            // double rms = temp->GetRMS();
-            // double rmsError = temp->GetRMSError();
-
-            double rms = temp->GetFunction("gaus")->GetParameter(2);
-            double rmsError = temp->GetFunction("gaus")->GetParError(2);
-
-            cout << "rms = " << rms << endl;
-            cout << "rms error = " << rmsError << endl;
-
-            h1->SetBinContent(x, rms);
-            h1->SetBinError(x, rmsError);
-            // h2->ProjectionY("_px",x,x)->Write();
+          // This is used to fit half eta, needed to get the resolution function by value
+          // with greater precision assuming symmetry in eta and putting all values in
+          // -3,0 (as if -fabs(eta) is used).
+          if( *namesIt == mainNamePt+"_ResoVSEta" && doHalfEta ) {
+            cout << mainNamePt+"_ResoVSEta" << endl;
+            cout << "bins%2 = " << xBins%2 << endl;
+            for( int x=1; x<=xBins/2; ++x ) {
+              stringstream fitNum;
+              fitNum << x;
+              TString fitName(*namesIt);
+              fitName += "_fit_"; 
+              TH1D * temp = h2->ProjectionY(fitName+fitNum.str(),x,x);
+              TH1D * temp2 = h2->ProjectionY(fitName+fitNum.str(),xBins+1-x,xBins+1-x);
+              temp->Add(temp2);
+              temp->Fit("gaus");
+              double rms = temp->GetFunction("gaus")->GetParameter(2);
+              double rmsError = temp->GetFunction("gaus")->GetParError(2);
+              cout << "rms = " << rms << endl;
+              cout << "rms error = " << rmsError << endl;
+              // Reverse x in the first half to the second half.
+              int xToFill = x;
+              // Bin 0 corresponds to bin=binNumber(the last bin, which is also considered in the loop).
+              if( *namesIt == mainNamePt+"_ResoVSEta" ) {
+                cout << mainNamePt+"_ResoVSEta" << endl;
+                if( x<xBins/2+1 ) xToFill = xBins+1 - x;
+              }
+              // cout << "x = " << x << ", xToFill = " << xToFill << endl;
+              // cout << "rms = " << rms << ", rmsError = " << rmsError << endl;
+              h1->SetBinContent(x, rms);
+              h1->SetBinError(x, rmsError);
+              h1->SetBinContent(xBins+1-x, 0);
+              h1->SetBinError(xBins+1-x, 0);
+              // h2->ProjectionY("_px",x,x)->Write();
+              fits->cd();
+              temp->Write();
+            }
+            target->cd();
+            profile->Write();
+            // for ( int i=1; i<=h1->GetNbinsX(); ++i ) {
+            //   cout << "bin["<<i<<"] = " << h1->GetBinContent(i) << endl;
+            // }
+            h1->Write();
           }
-          profile->Write();
-          h1->Write();
+          else {
+            for( int x=1; x<=xBins; ++x ) {
+              stringstream fitNum;
+              fitNum << x;
+              TString fitName(*namesIt);
+              fitName += "_fit_";
+              TH1D * temp = h2->ProjectionY(fitName+fitNum.str(),x,x);
+              temp->Fit("gaus");
+
+              // double rms = temp->GetRMS();
+              // double rmsError = temp->GetRMSError();
+
+              double rms = temp->GetFunction("gaus")->GetParameter(2);
+              double rmsError = temp->GetFunction("gaus")->GetParError(2);
+              if( rms != rms ) cout << "value is NaN: rms = " << rms << endl; 
+              if( rms == rms ) {
+
+                cout << "rms = " << rms << endl;
+                cout << "rms error = " << rmsError << endl;
+
+                // NaN is the only value different from itself. Infact NaN is "not a number"
+                // and it is not equal to any value, including itself.
+                h1->SetBinContent(x, rms);
+                h1->SetBinError(x, rmsError);
+              }
+              // h2->ProjectionY("_px",x,x)->Write();
+              fits->cd();
+              temp->Write();
+            }
+            target->cd();
+            profile->Write();
+            h1->Write();
+          }
         }
       }
     }
@@ -152,7 +221,7 @@ void draw( TDirectory *target, TList *sourcelist ) {
       // newdir is now the starting point of another round of merging
       // newdir still knows its depth within the target file via
       // GetPath(), so we can still figure out where we are in the recursion
-      draw( newdir, sourcelist );
+      draw( newdir, sourcelist, doHalfEta );
     }
     else {
       // object is of no type that we know or can handle
