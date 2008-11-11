@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.23 2008/11/11 14:11:10 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.24 2008/11/11 14:18:43 fwyzard Exp $
 
 
 #include <memory>
@@ -59,7 +59,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SoftLepton.h"
 
-enum {
+enum AxisType {
   AXIS_CALORIMETRIC             = 0,  // use the calorimietric jet axis
   AXIS_CHARGED_AVERAGE          = 1,  // refine jet axis using charged tracks: use a pT-weighted average of (eta, phi)
   AXIS_CHARGED_AVERAGE_NOLEPTON = 2,  // as above, without the tagging lepton track
@@ -95,6 +95,12 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_qualityCut(    iConfig.getParameter<double>( "leptonQualityCut" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
+  if (m_primaryVertex.label() == "nominal")
+    m_pvType = VERTEX_NOMINAL;
+  else if (m_primaryVertex.label() == "beamspot")
+    m_pvType = VERTEX_BEAMSPOT;
+  else
+    m_pvType = VERTEX_PRIMARY;
 }
 
 // ------------ d'tor --------------------------------------------------------------------
@@ -148,28 +154,31 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   
   // input primary vetex (optional, can be "nominal" or "beamspot")
   reco::Vertex vertex;
-  Handle<reco::VertexCollection> h_primaryVertex;
-  if (m_primaryVertex.label() == "nominal") {
+  if (m_pvType == VERTEX_NOMINAL) 
+  {
     vertex = s_nominalBeamSpot;
-  } else
-  if (m_primaryVertex.label() == "beamspot") {
+  } 
+  else if (m_pvType == VERTEX_BEAMSPOT) 
+  {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     event.getByType(recoBeamSpotHandle);
     vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
-  } else {
+  } 
+  else if (m_pvType == VERTEX_PRIMARY) 
+  {
+    Handle<reco::VertexCollection> h_primaryVertex;
     event.getByLabel(m_primaryVertex, h_primaryVertex);
-    if (h_primaryVertex->size()) {
+    if (not h_primaryVertex->empty())
       vertex = h_primaryVertex->front();
-    } else {
+    else
       // fall back to nominal beam spot
       vertex = s_nominalBeamSpot;
-    }
   }
 
   // input leptons (can be of different types)
   ProductID leptons_id;
   std::vector<edm::RefToBase<reco::Track> > leptons;
-  // try to access the input collection as a collection of Electrons, Muons or Tracks
+  // try to access the input collection as a collection of GsfElectrons, Muons or Tracks
   do { {
     // look for View<GsfElectron>
     Handle<GsfElectronView> h_electrons;

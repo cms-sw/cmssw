@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.3 2008/03/03 10:52:27 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.4 2008/08/27 11:15:58 fwyzard Exp $
 //
 
 // system include files
@@ -52,6 +52,12 @@ public:
       const std::vector<edm::RefToBase<reco::Track> > & leptons,
       const reco::Vertex              & primaryVertex
   ) const;
+
+  enum VertexType {
+    VERTEX_NOMINAL,         // nominal beamspot
+    VERTEX_BEAMSPOT,        // reconstructed beamspot
+    VERTEX_PRIMARY          // reconstructed primary vertex
+  };
 
 protected:
   GlobalVector refineJetAxis (
@@ -89,6 +95,9 @@ private:
   double        m_chi2Cut;
   double        m_qualityCut;
 
+  // vertex type
+  VertexType    m_pvType;
+  
   // nominal beam spot position
   static const reco::Vertex s_nominalBeamSpot;
 };
