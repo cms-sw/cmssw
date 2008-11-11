@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <time.h>
+#include <cstring>
 
 static double realNanoSecs (void)
 {
