@@ -272,6 +272,42 @@ void Histogram2D<Value_t, AxisX_t, AxisY_t>::setBinContent(
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram2D<Value_t, AxisX_t, AxisY_t>::normalizedXValue(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return binContent(bin2D(binX, binY)) / normalizationX(binY);
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram2D<Value_t, AxisX_t, AxisY_t>::normalizedYValue(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return binContent(bin2D(binX, binY)) / normalizationY(binX);
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram2D<Value_t, AxisX_t, AxisY_t>::normalizedXError(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return std::sqrt(binContent(bin2D(binX, binY))) / normalizationX(binY);
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
+Value_t Histogram2D<Value_t, AxisX_t, AxisY_t>::normalizedYError(
+						AxisX_t x, AxisY_t y) const
+{
+	int binX = findBinX(x);
+	int binY = findBinY(y);
+	return std::sqrt(binContent(bin2D(binX, binY))) / normalizationY(binX);
+}
+
+template<typename Value_t, typename AxisX_t, typename AxisY_t>
 void Histogram2D<Value_t, AxisX_t, AxisY_t>::fill(
 					AxisX_t x, AxisY_t y, Value_t weight)
 {
