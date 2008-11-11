@@ -53,11 +53,11 @@ process.looper = cms.Looper(
 
     # Likelihood settings
     # -------------------
-    maxLoopNumber = cms.untracked.int32(5),
+    maxLoopNumber = cms.untracked.int32(2),
     # Select which fits to do in which loop (0 = do not, 1 = do)
-    doResolFit =      cms.vint32(1, 0, 1, 0, 0),
-    doScaleFit =      cms.vint32(0, 1, 0, 1, 0),
-    doBackgroundFit = cms.vint32(0, 0, 0, 0, 0),
+    doResolFit =      cms.vint32(0, 0),
+    doScaleFit =      cms.vint32(1, 0),
+    doBackgroundFit = cms.vint32(0, 0),
 
     # Fit parameters and fix flags (1 = use par)
     # ==========================================
@@ -167,19 +167,39 @@ process.looper = cms.Looper(
 
     # The twelve parResol parameters of resolfittype=7 are respectively:
     # constant of sigmaPt, Pt dep. of sigmaPt;
+    # eta and eta^2 dep. of sigmaPt.
     # constant of sigmaCotgTheta, 1/Pt dep. of sigmaCotgTheta, Eta dep. of
     # sigmaCotgTheta, Eta^2 dep of sigmaCotgTheta;
     # constant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
     # Eta^2 dep. of sigmaPhi.
     # ----------------------------------------------------------------
-    ResolFitType = cms.int32(7),
-    parResol = cms.vdouble(0.012, 0.0001, 0.000019, 0.0027,
+    # ResolFitType = cms.int32(7),
+    # parResol = cms.vdouble(0.012, 0.0001, 0.000019, 0.0027,
+    #                        0.00043, 0.0041, 0.0000028, 0.000077,
+    #                        0.00011, 0.0018, -0.00000094, 0.000022),
+    # parResolFix = cms.vint32(0, 0, 0, 0,
+    #                          0, 0, 0, 0,
+    #                          0, 0, 0, 0),
+    # parResolOrder = cms.vint32(0, 0, 0, 0,
+    #                            1, 1, 1, 1,
+    #                            2, 2, 2, 2),
+
+    # The eleven parResol parameters of resolfittype=8 are respectively:
+    # constant of sigmaPt, Pt dep. of sigmaPt,
+    # scale of the eta dep. made by points with values derived from MuonGun.
+    # constant of sigmaCotgTheta, 1/Pt dep. of sigmaCotgTheta, Eta dep. of
+    # sigmaCotgTheta, Eta^2 dep of sigmaCotgTheta;
+    # constant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
+    # Eta^2 dep. of sigmaPhi.
+    # ----------------------------------------------------------------
+    ResolFitType = cms.int32(8),
+    parResol = cms.vdouble(0.012, 0.0001, 1.0,
                            0.00043, 0.0041, 0.0000028, 0.000077,
                            0.00011, 0.0018, -0.00000094, 0.000022),
-    parResolFix = cms.vint32(0, 0, 0, 0,
+    parResolFix = cms.vint32(0, 0, 0,
                              0, 0, 0, 0,
                              0, 0, 0, 0),
-    parResolOrder = cms.vint32(0, 0, 0, 0,
+    parResolOrder = cms.vint32(0, 0, 0,
                                1, 1, 1, 1,
                                2, 2, 2, 2),
 
@@ -190,10 +210,17 @@ process.looper = cms.Looper(
     # Fit a linear Pt scale correction with parameters:
     # Pt scale and Pt slope.
     # -------------------------------------------------
-    ScaleFitType = cms.int32(1),
-    parScaleOrder = cms.vint32(0,0),
-    parScaleFix = cms.vint32(0,0),
-    parScale = cms.vdouble(1.0, 0.0),
+    # ScaleFitType = cms.int32(1),
+    # parScaleOrder = cms.vint32(0,0),
+    # parScaleFix = cms.vint32(0,0),
+    # parScale = cms.vdouble(1.0, 0.0),
+
+    # Scale fit type=8: Pt offset and slope, Eta slope and quadratic term
+    # -------------------------------------------------------------------
+    ScaleFitType = cms.int32(8),
+    parScaleOrder = cms.vint32(0,0,0,0),
+    parScaleFix = cms.vint32(0,0,0,0),
+    parScale = cms.vdouble(1.0, -0.000000315315,0.0000147547,-0.00000836992),
 
     # The 8 parameters of ScaleFitType=13 are respectively:
     # Pt scale, Pt slope, Eta slope, Eta quadr., 
@@ -240,7 +267,7 @@ process.looper = cms.Looper(
     # The resonances are to be specified in this order:
     # Z0, Y(3S), Y(2S), Y(1S), Psi(2S), J/Psi
     # -------------------------------------------------
-    resfind = cms.vint32(1, 0, 0, 0, 0, 0),
+    resfind = cms.vint32(0, 0, 0, 0, 0, 1),
     FitStrategy = cms.int32(2),
 
     speedup = cms.bool(False)
