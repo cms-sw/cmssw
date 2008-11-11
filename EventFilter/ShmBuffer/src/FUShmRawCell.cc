@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <iomanip>
-
+#include <cstring>
 
 #define NSUPERFRAG_MAX   64
 #define NFED_MAX       1024

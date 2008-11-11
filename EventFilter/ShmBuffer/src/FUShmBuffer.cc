@@ -17,6 +17,9 @@
 #include <sstream>
 #include <fstream>
 
+#include <cstdlib>
+#include <cstring>
+
 #define SHM_DESCRIPTOR_KEYID           1 /* Id used on ftok for 1. shmget key */
 #define SHM_KEYID                      2 /* Id used on ftok for 2. shmget key */
 #define SEM_KEYID                      1 /* Id used on ftok for semget key    */
