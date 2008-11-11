@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/10 08:39:18 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/11 09:53:26 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -1754,6 +1754,87 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
     parname[9]  = "Phi res. 1/Pt sc.";
     parname[10] = "Phi res. Eta sc.";
     parname[11] = "Phi res. Eta^2 sc.";
+  } else if (ResolFitType==8) {
+    Start[0]   = parResol[0]; // 0.001
+    Start[1]   = parResol[1]; // 0.001
+    Start[2]   = parResol[2]; // 0.001
+    Start[3]   = parResol[3]; // 0.001
+    Start[4]   = parResol[4]; // 0.001
+    Start[5]   = parResol[5]; // 0.000001
+    Start[6]   = parResol[6]; // 0.001
+    Start[7]   = parResol[7]; // 0.001
+    Start[8]   = parResol[8]; // 0.001
+    Start[9]   = parResol[9]; // 0.001
+    Start[10]  = parResol[10]; // 0.001
+    Step[0]    = 0.002;
+    Step[1]    = 0.00002;
+    Step[2]    = 0.00002;
+    Step[3]    = 0.00002;
+    Step[4]    = 0.0002;
+    Step[5]    = 0.0000002;
+    Step[6]    = 0.000002;
+    Step[7]    = 0.00002;
+    Step[8]    = 0.0002;
+    Step[9]   = 0.00000002;
+    Step[10]   = 0.000002;
+    Mini[0]    = 0.0;
+    Mini[1]    = -0.01;
+    Mini[2]    = -0.001;
+    Mini[3]    = 0.0;
+    Mini[4]    = -0.001;
+    Mini[5]    = -0.001;
+    Mini[6]    = -0.00001;
+    Mini[7]    = 0.0;
+    Mini[8]    = -0.001;
+    Mini[9]   = -0.0001;
+    Mini[10]   = -0.0001;
+    if (MuonType==1) {
+      Maxi[0]    = 1.;
+      Maxi[1]    = 1.;
+      Maxi[2]    = 1.;
+      Maxi[3]    = 1.;
+      Maxi[4]    = 1.;
+      Maxi[5]    = 1.;
+      Maxi[6]    = 0.1;
+      Maxi[7]    = 1.;
+      Maxi[8]    = 1.;
+      Maxi[9]   = 1.;
+      Maxi[10]   = 1.;
+    } else {
+      Maxi[0]    = 0.1;
+      Maxi[1]    = 0.01;
+      Maxi[2]    = 0.01;
+      Maxi[3]    = 0.01;
+      Maxi[4]    = 0.01;
+      Maxi[5]    = 0.1;
+      Maxi[6]    = 0.01;
+      Maxi[7]    = 0.01;
+      Maxi[8]    = 0.01;
+      Maxi[9]   = 0.01;
+      Maxi[10]   = 0.01;
+    }
+    ind[0]      = parResolOrder[0];
+    ind[1]      = parResolOrder[1];
+    ind[2]      = parResolOrder[2];
+    ind[3]      = parResolOrder[3];
+    ind[4]      = parResolOrder[4];
+    ind[5]      = parResolOrder[5];
+    ind[6]      = parResolOrder[6];
+    ind[7]      = parResolOrder[7];
+    ind[8]      = parResolOrder[8];
+    ind[9]      = parResolOrder[9];
+    ind[10]     = parResolOrder[10];
+    parname[0]  = "Pt res. sc.";
+    parname[1]  = "Pt res. Pt sc.";
+    parname[2]  = "Pt res. Eta sc.";
+    parname[3]  = "Cth res. sc.";
+    parname[4]  = "Cth res. 1/Pt sc.";
+    parname[5]  = "Cth res. Eta sc.";
+    parname[6]  = "Cth res. Eta^2 sc.";
+    parname[7]  = "Phi res. sc.";
+    parname[8]  = "Phi res. 1/Pt sc.";
+    parname[9] = "Phi res. Eta sc.";
+    parname[10] = "Phi res. Eta^2 sc.";
   }
 
   int shift = parResol.size();

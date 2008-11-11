@@ -361,12 +361,11 @@ class resolutionFunctionType6 : public resolutionFunctionBase<T> {
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
     return( parval[0]+parval[1]*pt+parval[2]*pow(pt,2)+parval[3]*pow(pt,3)+parval[4]*pow(pt,4)+parval[5]*fabs(eta)+parval[6]*pow(eta,2) );
   }
-  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[11]+parval[12]/pt+parval[13]*fabs(eta)+parval[14]*pow(eta,2) );
-
-  }
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
     return( parval[7]+parval[8]/pt+parval[9]*fabs(eta)+parval[10]*pow(eta,2) );
+  }
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( parval[11]+parval[12]/pt+parval[13]*fabs(eta)+parval[14]*pow(eta,2) );
   }
 };
 
@@ -380,11 +379,51 @@ class resolutionFunctionType7 : public resolutionFunctionBase<T> {
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[8]+parval[9]/pt + parval[10]*fabs(eta)+parval[11]*pow(eta,2) );
+    return( parval[4]+parval[5]/pt + parval[6]*fabs(eta)+parval[7]*pow(eta,2) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[4]+parval[5]/pt + parval[6]*fabs(eta)+parval[7]*pow(eta,2) );
+    return( parval[8]+parval[9]/pt + parval[10]*fabs(eta)+parval[11]*pow(eta,2) );
+  }
+};
+
+// Resolution Type 8
+template <class T>
+class resolutionFunctionType8 : public resolutionFunctionBase<T> {
+ public:
+  // linear in pt and quadratic in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    return( parval[0]+parval[1]*pt + parval[2]*etaByPoints(eta) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( parval[3]+parval[4]/pt + parval[5]*fabs(eta)+parval[6]*pow(eta,2) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( parval[7]+parval[8]/pt + parval[9]*fabs(eta)+parval[10]*pow(eta,2) );
+  }
+protected:
+  /**
+   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   */
+  double etaByPoints(const double & inEta) {
+    Double_t eta = fabs(inEta);
+    if( 0. <= eta && eta <= 0.2 )      return 0.0120913;
+    else if( 0.2 < eta && eta <= 0.4 ) return 0.0122204;
+    else if( 0.4 < eta && eta <= 0.6 ) return 0.0136937;
+    else if( 0.6 < eta && eta <= 0.8 ) return 0.0142069;
+    else if( 0.8 < eta && eta <= 1.0 ) return 0.0177526;
+    else if( 1.0 < eta && eta <= 1.2 ) return 0.0243587;
+    else if( 1.2 < eta && eta <= 1.4 ) return 0.019994;
+    else if( 1.4 < eta && eta <= 1.6 ) return 0.0185132;
+    else if( 1.6 < eta && eta <= 1.8 ) return 0.0177141;
+    else if( 1.8 < eta && eta <= 2.0 ) return 0.0211577;
+    else if( 2.0 < eta && eta <= 2.2 ) return 0.0255051;
+    else if( 2.2 < eta && eta <= 2.4 ) return 0.0338104;
+    // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
+    else if( 2.4 < eta && eta <= 2.6 ) return 0.31;
+    return ( 0. );
   }
 };
 
@@ -401,7 +440,8 @@ static resolutionFunctionBase<double *> * resolutionFunctionArray[] = {
   0,
   0,
   new resolutionFunctionType6<double *>,
-  new resolutionFunctionType7<double *>
+  new resolutionFunctionType7<double *>,
+  new resolutionFunctionType8<double *>
 };
 
 static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[] = {
@@ -412,7 +452,8 @@ static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[]
   0,
   0,
   new resolutionFunctionType6<vector<double> >,
-  new resolutionFunctionType7<vector<double> >
+  new resolutionFunctionType7<vector<double> >,
+  new resolutionFunctionType8<vector<double> >
 };
 
 #endif // FUNCTIONS_H
