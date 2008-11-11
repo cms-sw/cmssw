@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id: DQMDaqInfo.h,v 1.3 2008/11/07 22:11:29 segoni Exp $
+// $Id: DQMDaqInfo.h,v 1.4 2008/11/10 17:49:45 segoni Exp $
 //
 //
 
@@ -59,15 +59,11 @@ private:
   virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
   virtual void endJob() ;
   
-  bool saveDCFile_;
-  std::string outputFile_;
-  std::ofstream  dataCertificationFile;
-  
   DQMStore *dbe_;  
 
-  enum subDetList { Pixel , SiStrip , ECAL , HCAL , DT , CSC , RPC };  
+  enum subDetList { Pixel , SiStrip , EcalBarrel, EcalEndcap , HCAL , DT , CSC , RPC };  
   
-  MonitorElement*  DaqFraction[7];
+  MonitorElement*  DaqFraction[8];
   
 };
 
