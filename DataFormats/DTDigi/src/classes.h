@@ -7,7 +7,7 @@
 #include <map>
 
 namespace{ 
-  namespace {
+  struct dictionary {
 
   DTDigi d;
   std::vector<DTDigi>  vv;
@@ -22,5 +22,5 @@ namespace{
   edm::Wrapper<DTDigiCollection> dw;
   edm::Wrapper<DTLocalTriggerCollection> tw;
 
-  }
+  };
 }

@@ -8,22 +8,12 @@
 #include <vector>
 
 namespace{ 
-  namespace {
+  struct dictionary {
     std::map<CSCDetId,std::pair<unsigned int,unsigned int> > dummycscdetid1;  
     std::map<CSCDetId,std::pair<unsigned long,unsigned long> > dummycscdetid2;  
-  }
-}
-
-namespace{ 
-  namespace {
     CSCRecHit2DCollection dc;
     edm::Wrapper<CSCRecHit2DCollection> dwc;
-  }
-}
-
-namespace{ 
-  namespace {
     CSCSegmentCollection seg;    
     edm::Wrapper<CSCSegmentCollection> dwc1;
-  }
+  };
 }
