@@ -5,6 +5,14 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+#if !defined(NSIG)
+#if defined(_NSIG)
+#define NSIG _NSIG
+#elif defined(__DARWIN_NSIG)
+#define NSIG __DARWIN_NSIG
+#endif
+#endif
+
 namespace edm {
 
     boost::mutex usr2_lock;
@@ -158,7 +166,7 @@ namespace edm {
 //    Swap it with the current sigset_t
       MUST_BE_ZERO(pthread_sigmask( SIG_SETMASK, &tmpset, &oldset ));
 //    Now see what's included in the set
-      for(int k=1; k<_NSIG; ++k) {
+      for(int k=1; k<NSIG; ++k) {
         std::cerr << "sigismember is " << sigismember( &tmpset, k )
                   << " for signal " << std::setw(2) << k
 #if defined(__linux__)
