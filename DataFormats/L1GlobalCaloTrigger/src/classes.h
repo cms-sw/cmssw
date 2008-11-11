@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     // internal collections
     L1GctInternEmCandCollection internEmColl;
     L1GctInternJetDataCollection internJetDataColl;
@@ -60,5 +60,5 @@ namespace {
     edm::Ref<L1GctEtMissCollection> etMissCollRef ;
     edm::Ref<L1GctEtTotalCollection> etTotCollRef ;
 
-  }
+  };
 }
