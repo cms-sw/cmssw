@@ -6,8 +6,8 @@
  *  strored in the reco::Tracks. The final result is a std::vector of Trajectories (objs of the type "Trajectory"), 
  *  which is loaded into the Event in a transient way
  *
- *  $Date: 2007/04/20 09:40:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/05 11:34:25 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -27,6 +27,7 @@ public:
   virtual ~TracksToTrajectories();
   
   // Operations
+  void endJob();
 
   /// Convert a reco::TrackCollection into std::vector<Trajectory>
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -37,6 +38,9 @@ public:
   
   edm::InputTag theTracksLabel;
   TrackTransformerBase *theTrackTransformer;
+
+  int theNTracks;
+  int theNFailures;
 };
 #endif
 
