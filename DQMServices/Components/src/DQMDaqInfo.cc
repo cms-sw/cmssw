@@ -35,49 +35,54 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
     std::pair<int,int> CSCRange     = FEDNumbering::getCSCFEDIds();
     std::pair<int,int> RPCRange     = FEDNumbering::getRPCFEDIds();
     std::pair<int,int> DTRange      = FEDNumbering::getDTFEDIds();
-    std::pair<int,int> HCALRange    = FEDNumbering::getHcalFEDIds();
+    std::pair<int,int> HcalRange    = FEDNumbering::getHcalFEDIds();
 
     std::pair<int,int> ECALBarrRange(610,645);
     std::pair<int,int> ECALEndcapRangeLow(601,609);
     std::pair<int,int> ECALEndcapRangeHigh(646,654);
   
+    std::pair<int,int> L1TRange    = FEDNumbering::getTriggerGTPFEDIds();
   
-    float  FedCount[8]={0., 0., 0., 0., 0., 0., 0., 0.};
-    float  NumberOfFeds[8];
+    float  FedCount[9]={0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    float  NumberOfFeds[9];
     NumberOfFeds[Pixel]   = PixelRange.second-PixelRange.first +1;
     NumberOfFeds[SiStrip] = TrackerRange.second-TrackerRange.first +1;
     NumberOfFeds[CSC]     = CSCRange.second-CSCRange.first  +1;
     NumberOfFeds[RPC]     = RPCRange.second-RPCRange.first  +1;
     NumberOfFeds[DT]      = DTRange.second-DTRange.first +1;
-    NumberOfFeds[HCAL]    = HCALRange.second-HCALRange.first +1;
+    NumberOfFeds[Hcal]    = HcalRange.second-HcalRange.first +1;
 
     NumberOfFeds[EcalBarrel]    = ECALBarrRange.second-ECALBarrRange.first ;
     NumberOfFeds[EcalEndcap]    = (ECALEndcapRangeLow.second-ECALEndcapRangeLow.first)+(ECALEndcapRangeHigh.second-ECALEndcapRangeHigh.first) ;
+
+    NumberOfFeds[L1T]    = L1TRange.second-L1TRange.first +1;
     
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
       int fedID=FedsInIds[fedItr];
+      
+
       if(fedID>=PixelRange.first   &  fedID<=PixelRange.second)    ++FedCount[Pixel]  ;
       if(fedID>=TrackerRange.first &  fedID<=TrackerRange.second)  ++FedCount[SiStrip];
       if(fedID>=CSCRange.first     &  fedID<=CSCRange.second)      ++FedCount[CSC]    ;
       if(fedID>=RPCRange.first     &  fedID<=RPCRange.second)      ++FedCount[RPC]    ;
       if(fedID>=DTRange.first      &  fedID<=DTRange.second)       ++FedCount[DT]     ;
-      if(fedID>=HCALRange.first    &  fedID<=HCALRange.second)     ++FedCount[HCAL]	; 
-      
-      if(fedID>=ECALBarrRange.first    &  fedID<=ECALBarrRange.second)     ++FedCount[EcalBarrel]   ;
-      
+      if(fedID>=HcalRange.first    &  fedID<=HcalRange.second)     ++FedCount[Hcal]	;       
+      if(fedID>=ECALBarrRange.first    &  fedID<=ECALBarrRange.second)     ++FedCount[EcalBarrel]   ;      
       if((fedID>=ECALEndcapRangeLow.first & fedID<=ECALEndcapRangeLow.second)
 	 ||(fedID>=ECALEndcapRangeHigh.first & fedID<=ECALEndcapRangeHigh.second)) ++FedCount[EcalEndcap]   ;
+      if(fedID>=L1TRange.first    &  fedID<=L1TRange.second)     ++FedCount[L1T]   ;
     
     }   
     
-    for(int detIndex=0; detIndex<8; ++detIndex) { 
+    for(int detIndex=0; detIndex<9; ++detIndex) { 
       DaqFraction[detIndex]->Fill( FedCount[detIndex]/NumberOfFeds[detIndex]);
     }
     
 
 
   }else{    
-    for(int detIndex=0; detIndex<8; ++detIndex)  DaqFraction[detIndex]->Fill(-1);               
+  
+    for(int detIndex=0; detIndex<9; ++detIndex)  DaqFraction[detIndex]->Fill(-1);               
     return; 
   }
   
@@ -128,7 +133,7 @@ DQMDaqInfo::beginJob(const edm::EventSetup& iSetup)
   subsystFolder="Hcal";  
   curentFolder=subsystFolder+commonFolder;
   dbe_->setCurrentFolder(curentFolder.c_str());
-  DaqFraction[HCAL]       = dbe_->bookFloat("HCALDaqFraction");
+  DaqFraction[Hcal]       = dbe_->bookFloat("HcalDaqFraction");
 
   subsystFolder="EcalBarrel";  
   curentFolder=subsystFolder+commonFolder;
@@ -139,6 +144,11 @@ DQMDaqInfo::beginJob(const edm::EventSetup& iSetup)
   curentFolder=subsystFolder+commonFolder;
   dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[EcalEndcap]       = dbe_->bookFloat("EcalEndDaqFraction");
+
+  subsystFolder="L1T";  
+  curentFolder=subsystFolder+commonFolder;
+  dbe_->setCurrentFolder(curentFolder.c_str());
+  DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
 
 
 }

@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id: DQMDaqInfo.h,v 1.4 2008/11/10 17:49:45 segoni Exp $
+// $Id: DQMDaqInfo.h,v 1.5 2008/11/11 14:41:40 segoni Exp $
 //
 //
 
@@ -61,9 +61,9 @@ private:
   
   DQMStore *dbe_;  
 
-  enum subDetList { Pixel , SiStrip , EcalBarrel, EcalEndcap , HCAL , DT , CSC , RPC };  
+  enum subDetList { Pixel, SiStrip, EcalBarrel, EcalEndcap, Hcal, DT, CSC, RPC, L1T };  
   
-  MonitorElement*  DaqFraction[8];
+  MonitorElement*  DaqFraction[9];
   
 };
 
