@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.9 2008/07/17 23:02:41 dmytro Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.10 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -231,25 +231,6 @@ FWGlimpseViewManager::selectionCleared()
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }
-}
-
-std::vector<std::string>
-FWGlimpseViewManager::purposeForType(const std::string& iTypeName) const
-{
-   std::vector<std::string> returnValue;
-   for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
-       it != itEnd;
-       ++it) {
-      for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
-	   builderName != it->second.end(); ++builderName )
-      {
-         if(iTypeName == builderName->substr(0,builderName->find_first_of('@'))) {
-            returnValue.push_back(it->first);
-         }
-      }
-
-   }
-   return returnValue;
 }
 
 std::set<std::pair<std::string,std::string> >

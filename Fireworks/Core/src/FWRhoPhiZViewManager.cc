@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.41 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.42 2008/11/10 18:07:57 amraktad Exp $
 //
 
 // system include files
@@ -756,21 +756,6 @@ TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
    return shape;
 }
 
-
-std::vector<std::string>
-FWRhoPhiZViewManager::purposeForType(const std::string& iTypeName) const
-{
-   std::vector<std::string> returnValue;
-
-   for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
-       it != itEnd;
-       ++it) {
-      if( iTypeName == it->second.first.substr(0,it->second.first.find_first_of('@'))) {
-         returnValue.push_back(it->first);
-      }
-   }
-   return returnValue;
-}
 
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
 {

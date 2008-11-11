@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.16 2008/10/28 14:21:25 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.17 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -376,25 +376,6 @@ FWEveLegoViewManager::selectionCleared()
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }
-}
-
-std::vector<std::string>
-FWEveLegoViewManager::purposeForType(const std::string& iTypeName) const
-{
-   std::vector<std::string> returnValue;
-   for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
-       it != itEnd;
-       ++it) {
-      for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
-	   builderName != it->second.end(); ++builderName )
-      {
-         if(iTypeName == builderName->substr(0,builderName->find_first_of('@'))) {
-            returnValue.push_back(it->first);
-         }
-      }
-
-   }
-   return returnValue;
 }
 
 std::set<std::pair<std::string,std::string> >

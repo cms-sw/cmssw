@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.24 2008/11/03 11:50:01 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.25 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -55,7 +55,6 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       virtual ~FWRhoPhiZViewManager();
 
       // ---------- const member functions ---------------------
-      std::vector<std::string> purposeForType(const std::string& iTypeName) const;
       std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const;
 
       // ---------- static member functions --------------------

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.11 2008/07/07 02:15:45 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.12 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -41,9 +41,6 @@ class FWViewManagerBase
       virtual ~FWViewManagerBase();
 
       // ---------- const member functions ---------------------
-      /** returning an empty vector means this type can not be handled*/
-      virtual std::vector<std::string> purposeForType(const std::string& iTypeName) const = 0;
-
       virtual std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const = 0;
       // ---------- static member functions --------------------
 
