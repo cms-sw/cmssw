@@ -32,13 +32,16 @@ void SiPixelHistoricInfoDQMClient::beginJob(const EventSetup& eventSetup) {
 
 void SiPixelHistoricInfoDQMClient::endRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   for (vector<string>::const_iterator iFile = inputFiles_.begin(); iFile!=inputFiles_.end(); ++iFile) {
-    unsigned int runNumberfromFilename = atoi(iFile->substr(iFile->find("Run",0)+3,5).data()); 
-    if (runNumberfromFilename==run.run()) {    
+    unsigned int runNumber=0; 
+    if (iFile->find("R0000",0)!=string::npos) runNumber = atoi(iFile->substr(iFile->find("R0000",0)+5,5).data()); 
+    else if (iFile->find("Run",0)!=string::npos) runNumber = atoi(iFile->substr(iFile->find("Run",0)+3,5).data()); 
+    else cout << "run number cannot be extracted from file name" << endl; 
+    
+    if (runNumber==run.run()) {    
       dbe_->open(iFile->data(), true);
     
       performanceSummary = new SiPixelPerformanceSummary();   
-      // no need to clear(); can printAll() to verify
-      performanceSummary->setRunNumber(runNumberfromFilename); 
+      performanceSummary->setRunNumber(runNumber); 
 
       retrieveMEs(); 
       fillPerformanceSummary(); 
@@ -46,7 +49,7 @@ void SiPixelHistoricInfoDQMClient::endRun(const edm::Run& run, const edm::EventS
   
       if (writeHisto_) {
         ostringstream endRunOutputFile; 
-        endRunOutputFile << outputDir_<<"/SiPixelHistoricInfoDQMClient_"<< runNumberfromFilename <<".root"; 
+        endRunOutputFile << outputDir_<<"/SiPixelHistoricInfoDQMClient_"<< runNumber <<".root"; 
         dbe_->save(endRunOutputFile.str()); 
       }
     }
@@ -134,11 +137,11 @@ void SiPixelHistoricInfoDQMClient::retrieveMEs() {
 	} 
 	if (noModules) noModules = false; 
       } 
-      else if (thePath.find("Layer_",0)!=string::npos && thePath.find("Ladder_",0)==string::npos || 
-               thePath.find("Disk_",0)!=string::npos && thePath.find("Blade_",0)==string::npos && 
-	                                                thePath.find("Panel_",0)==string::npos) {
+      else if (thePath.find("Layer_",0)!=string::npos || 
+               thePath.find("Disk_",0)!=string::npos && thePath.find("Panel_",0)==string::npos) {
 	if (useSummary_) {
-   	  uint32_t newMEdetID = getLayerDiskID(thePath); 	  
+   	  uint32_t newMEdetID = getSummaryRegionID(thePath); 
+	  if (printDebug_) cout << thePath.data() <<" in region "<< newMEdetID << endl; 	  
 
 	  size_t histnameLength;
   	  do {
@@ -206,63 +209,63 @@ void SiPixelHistoricInfoDQMClient::retrieveMEs() {
 } 
 
 
-uint32_t SiPixelHistoricInfoDQMClient::getLayerDiskID(string thePath) const {
-  uint32_t regionID = 100; 
-         if (thePath.find("Barrel",0)!=string::npos) { 
-    regionID += 0; 
-    string shell = thePath.substr(thePath.find("Shell",0)+6,2);     
-         if (shell.compare("mI")==0) regionID += 0; 
-    else if (shell.compare("mO")==0) regionID += 3; 
-    else if (shell.compare("pI")==0) regionID += 6; 
-    else if (shell.compare("pO")==0) regionID += 9;     
-    else cout << "Shell_" << shell.data() << "?!" << endl; 
-    string layer = thePath.substr(thePath.find("Layer",0)+6,1); 
-    regionID += (atoi(layer.data())-1); 
-  }
-  else if (thePath.find("Endcap",0)!=string::npos) { 
-    regionID += 12; 
-    string halfCylinder = thePath.substr(thePath.find("HalfCylinder",0)+13,2);     
-         if (halfCylinder.compare("mI")==0) regionID += 0; 
-    else if (halfCylinder.compare("mO")==0) regionID += 2; 
-    else if (halfCylinder.compare("pI")==0) regionID += 4; 
-    else if (halfCylinder.compare("pO")==0) regionID += 6; 
-    else cout << "HalfCylinder_" << halfCylinder.data() << "?!" << endl; 
-    string disk = thePath.substr(thePath.find("Disk",0)+5,1);     
-    regionID += (atoi(disk.data())-1); 
-  }
-  return regionID; 
-}
-
-
-uint32_t SiPixelHistoricInfoDQMClient::getLadderBladeID(string thePath) const {
-  uint32_t regionID = 1000; 
-         if (thePath.find("Barrel",0)!=string::npos) { 
-    regionID += 0; 
-    string shell = thePath.substr(thePath.find("Shell",0)+6,2);     
-         if (shell.compare("mI")==0) regionID +=   0; 
-    else if (shell.compare("mO")==0) regionID +=  48; 
-    else if (shell.compare("pI")==0) regionID +=  96; 
-    else if (shell.compare("pO")==0) regionID += 144;     
-    else cout << "Shell_" << shell.data() << "?!" << endl; 
-    string layer = thePath.substr(thePath.find("Layer",0)+6,1); 
-         if (layer.compare("1")==0) regionID +=  0; 
-    else if (layer.compare("2")==0) regionID += 10; 
-    else if (layer.compare("3")==0) regionID += 26; 
-    else cout << "Layer_" << layer.data() << "?!" << endl; 
-    string ladder = thePath.substr(thePath.find("Ladder",0)+7,2); 
-    regionID += (atoi(ladder.data())-1); 
-  }
-  else if (thePath.find("Endcap",0)!=string::npos) { 
-    regionID += 192; 
-    string halfCylinder = thePath.substr(thePath.find("HalfCylinder",0)+13,2);     
-         if (halfCylinder.compare("mI")==0) regionID +=  0; 
-    else if (halfCylinder.compare("mO")==0) regionID += 24; 
-    else if (halfCylinder.compare("pI")==0) regionID += 48; 
-    else if (halfCylinder.compare("pO")==0) regionID += 72; 
-    else cout << "HalfCylinder_" << halfCylinder.data() << "?!" << endl; 
-    string disk = thePath.substr(thePath.find("Disk",0)+5,1);     
-    string blade = thePath.substr(thePath.find("Blade",0)+6,2);     
-    regionID += (12*(atoi(disk.data())-1) + atoi(blade.data())-1); 
+uint32_t SiPixelHistoricInfoDQMClient::getSummaryRegionID(string thePath) const {
+  uint32_t regionID = 666; 
+       if (thePath.find("Ladder",0)==string::npos && thePath.find("Blade",0)==string::npos) { 
+    regionID = 100; 
+    	   if (thePath.find("Barrel",0)!=string::npos) { 
+      regionID += 0; 
+      string shell = thePath.substr(thePath.find("Shell",0)+6,2);     
+    	   if (shell.compare("mI")==0) regionID += 0; 
+      else if (shell.compare("mO")==0) regionID += 3; 
+      else if (shell.compare("pI")==0) regionID += 6; 
+      else if (shell.compare("pO")==0) regionID += 9;	  
+      else cout << "Shell_" << shell.data() << "?!" << endl; 
+      string layer = thePath.substr(thePath.find("Layer",0)+6,1); 
+      regionID += (atoi(layer.data())-1); 
+    }
+    else if (thePath.find("Endcap",0)!=string::npos) { 
+      regionID += 12; 
+      string halfCylinder = thePath.substr(thePath.find("HalfCylinder",0)+13,2);   
+    	   if (halfCylinder.compare("mI")==0) regionID += 0; 
+      else if (halfCylinder.compare("mO")==0) regionID += 2; 
+      else if (halfCylinder.compare("pI")==0) regionID += 4; 
+      else if (halfCylinder.compare("pO")==0) regionID += 6; 
+      else cout << "HalfCylinder_" << halfCylinder.data() << "?!" << endl; 
+      string disk = thePath.substr(thePath.find("Disk",0)+5,1);     
+      regionID += (atoi(disk.data())-1); 
+    }
+  } 
+  else if (thePath.find("Ladder",0)!=string::npos || thePath.find("Blade",0)!=string::npos) {
+    regionID = 1000; 
+    	   if (thePath.find("Barrel",0)!=string::npos) { 
+      regionID += 0; 
+      string shell = thePath.substr(thePath.find("Shell",0)+6,2);     
+    	   if (shell.compare("mI")==0) regionID +=   0; 
+      else if (shell.compare("mO")==0) regionID +=  48; 
+      else if (shell.compare("pI")==0) regionID +=  96; 
+      else if (shell.compare("pO")==0) regionID += 144;     
+      else cout << "Shell_" << shell.data() << "?!" << endl; 
+      string layer = thePath.substr(thePath.find("Layer",0)+6,1); 
+    	   if (layer.compare("1")==0) regionID +=  0; 
+      else if (layer.compare("2")==0) regionID += 10; 
+      else if (layer.compare("3")==0) regionID += 26; 
+      else cout << "Layer_" << layer.data() << "?!" << endl; 
+      string ladder = thePath.substr(thePath.find("Ladder",0)+7,2); 
+      regionID += (atoi(ladder.data())-1); 
+    }
+    else if (thePath.find("Endcap",0)!=string::npos) { 
+      regionID += 192; 
+      string halfCylinder = thePath.substr(thePath.find("HalfCylinder",0)+13,2);   
+    	   if (halfCylinder.compare("mI")==0) regionID +=  0; 
+      else if (halfCylinder.compare("mO")==0) regionID += 24; 
+      else if (halfCylinder.compare("pI")==0) regionID += 48; 
+      else if (halfCylinder.compare("pO")==0) regionID += 72; 
+      else cout << "HalfCylinder_" << halfCylinder.data() << "?!" << endl; 
+      string disk = thePath.substr(thePath.find("Disk",0)+5,1);     
+      string blade = thePath.substr(thePath.find("Blade",0)+6,2);     
+      regionID += (12*(atoi(disk.data())-1) + atoi(blade.data())-1); 
+    }
   }
   return regionID; 
 }
@@ -284,12 +287,6 @@ void SiPixelHistoricInfoDQMClient::getSummaryMEmeanRMSnBins(vector<MonitorElemen
 
 
 void SiPixelHistoricInfoDQMClient::fillPerformanceSummary() const {
-  if (useSummary_) fillPerformanceSummaryWithSummaryMEs(); 
-  else fillPerformanceSummaryWithModuleMEs(); 
-}
-
-
-void SiPixelHistoricInfoDQMClient::fillPerformanceSummaryWithSummaryMEs() const {
   for (map< uint32_t, vector<MonitorElement*> >::const_iterator iMEvec = mapOfdetIDtoMEs.begin(); 
        iMEvec!=mapOfdetIDtoMEs.end(); iMEvec++) {
     uint32_t theMEdetID = iMEvec->first;
@@ -301,154 +298,140 @@ void SiPixelHistoricInfoDQMClient::fillPerformanceSummaryWithSummaryMEs() const 
     } 
     for (vector<MonitorElement*>::const_iterator iME = theMEvector.begin(); iME!=theMEvector.end(); iME++) {
       string theMEname = (*iME)->getName(); 
-      
-      // from SiPixelMonitorRawData
-      if (theMEname.find("errorType")!=string::npos) { 
-	for (int v=25; v<40; v++) {
-	  int b = (*iME)->getTH1()->GetXaxis()->FindBin(v); 
-	  performanceSummary->setRawDataErrorType(theMEdetID, v-25, (*iME)->getBinContent(b)); 
-	}
-      }                          // emPtn = proportion of empty modules in a summary ME
-      // from SiPixelMonitorDigi 
-      if (theMEname.find("ndigis")!=string::npos && theMEname.find("FREQ")==string::npos) { 
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setNumberOfDigis(theMEdetID, avgMean, avgRMS, emPtn); 	
-      } 
-      if (theMEname.find("adc")!=string::npos) { 
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setADC(theMEdetID, avgMean, avgRMS, emPtn); 
-      } 
-      // from SiPixelMonitorCluster
-      if (theMEname.find("nclusters")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setNumberOfClusters(theMEdetID, avgMean, avgRMS, emPtn);
-      }
-      if (theMEname.find("charge")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setClusterCharge(theMEdetID, avgMean, avgRMS, emPtn);
-      } 
-      if (theMEname.find("size")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setClusterSize(theMEdetID, avgMean, avgRMS, emPtn);
-      } 
-      if (theMEname.find("sizeX")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setClusterSizeX(theMEdetID, avgMean, avgRMS, emPtn);
-      }
-      if (theMEname.find("sizeY")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setClusterSizeY(theMEdetID, avgMean, avgRMS, emPtn);
-      } 
-      // from SiPixelMonitorRecHit
-      if (theMEname.find("nRecHits")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setNumberOfRecHits(theMEdetID, avgMean, avgRMS, emPtn);
-      } 
-      // from SiPixelMonitorTrack
-      if (theMEname.find("residualX")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
-	performanceSummary->setResidualX(theMEdetID, avgMean, avgRMS, emPtn);
-      }
-      if (theMEname.find("residualY")!=string::npos) {
-	float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
-	performanceSummary->setResidualY(theMEdetID, avgMean, avgRMS, emPtn);
-      } 
-      // temporary solutions
-      if (theMEname.find("OccupancyMap")!=std::string::npos) { // entire barrel and entire endcap only
-	int nNoisyCells=0, nEmptyCells=0; 
-	for (int xBin=0; xBin<(*iME)->getNbinsX(); xBin++) {   // 1 pixel per bin
-	  for (int yBin=0; yBin<(*iME)->getNbinsY(); yBin++) { 
-	    if ((*iME)->getBinContent(xBin+1, yBin+1)>0.01*(*iME)->getEntries()) nNoisyCells++; 
-	    if ((*iME)->getBinContent(xBin+1, yBin+1)==.0 && (*iME)->getBinError(xBin+1, yBin+1)==0.0) nEmptyCells++; 
+  
+      if (useSummary_) { 
+      	// from SiPixelMonitorRawData
+      	if (theMEname.find("errorType")!=string::npos) { 
+	  for (int v=25; v<40; v++) {
+	    int b = (*iME)->getTH1()->GetXaxis()->FindBin(v); 
+	    performanceSummary->setRawDataErrorType(theMEdetID, v-25, (*iME)->getBinContent(b)); 
+	  }
+      	}			   // emPtn = proportion of empty modules in a summary ME
+      	// from SiPixelMonitorDigi 
+      	if (theMEname.find("ndigis")!=string::npos && theMEname.find("FREQ")==string::npos) { 
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setNumberOfDigis(theMEdetID, avgMean, avgRMS, emPtn);	  
+      	} 
+      	if (theMEname.find("adc")!=string::npos) { 
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setADC(theMEdetID, avgMean, avgRMS, emPtn); 
+      	} 
+      	// from SiPixelMonitorCluster
+      	if (theMEname.find("nclusters")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setNumberOfClusters(theMEdetID, avgMean, avgRMS, emPtn);
+      	}
+      	if (theMEname.find("charge")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setClusterCharge(theMEdetID, avgMean, avgRMS, emPtn);
+      	} 
+      	if (theMEname.find("size")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setClusterSize(theMEdetID, avgMean, avgRMS, emPtn);
+      	} 
+      	if (theMEname.find("sizeX")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setClusterSizeX(theMEdetID, avgMean, avgRMS, emPtn);
+      	}
+      	if (theMEname.find("sizeY")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setClusterSizeY(theMEdetID, avgMean, avgRMS, emPtn);
+      	} 
+      	// from SiPixelMonitorRecHit
+      	if (theMEname.find("nRecHits")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setNumberOfRecHits(theMEdetID, avgMean, avgRMS, emPtn);
+      	} 
+      	// from SiPixelMonitorTrack
+      	if (theMEname.find("residualX")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  getSummaryMEmeanRMSnBins(iME, avgMean, avgRMS, emPtn); 
+	  performanceSummary->setResidualX(theMEdetID, avgMean, avgRMS, emPtn);
+      	}
+      	if (theMEname.find("residualY")!=string::npos) {
+	  float avgMean=0.0, avgRMS=0.0, emPtn=0.0; 
+	  performanceSummary->setResidualY(theMEdetID, avgMean, avgRMS, emPtn);
+      	} 
+      	// temporary solutions
+      	if (theMEname.find("OccupancyMap")!=std::string::npos) { // entire barrel and entire endcap only
+	  int nNoisyCells=0, nEmptyCells=0; 
+	  for (int xBin=0; xBin<(*iME)->getNbinsX(); xBin++) {   // 1 pixel per bin
+	    for (int yBin=0; yBin<(*iME)->getNbinsY(); yBin++) { 
+	      if ((*iME)->getBinContent(xBin+1, yBin+1)>0.01*(*iME)->getEntries()) nNoisyCells++; 
+	      if ((*iME)->getBinContent(xBin+1, yBin+1)==.0 && (*iME)->getBinError(xBin+1, yBin+1)==0.0) nEmptyCells++; 
+	    } 
 	  } 
-	} 
-        performanceSummary->setNumberOfNoisCells(theMEdetID, float(nNoisyCells)); 
-        performanceSummary->setNumberOfDeadCells(theMEdetID, float(nEmptyCells)); 
+      	  performanceSummary->setNumberOfNoisCells(theMEdetID, float(nNoisyCells)); 
+      	  performanceSummary->setNumberOfDeadCells(theMEdetID, float(nEmptyCells)); 
+      	} 
+      	// performanceSummary->setNumberOfPixelHitsInTrackFit(theMEdetId, float(nPixelHits)); 
       } 
-      // performanceSummary->setNumberOfPixelHitsInTrackFit(theMEdetId, float(nPixelHits)); 
-    }
-  }
-}
-
-
-void SiPixelHistoricInfoDQMClient::fillPerformanceSummaryWithModuleMEs() const {
-  for (map< uint32_t, vector<MonitorElement*> >::const_iterator iMEvec = mapOfdetIDtoMEs.begin(); 
-       iMEvec!=mapOfdetIDtoMEs.end(); iMEvec++) {
-    uint32_t theMEdetID = iMEvec->first;
-    vector<MonitorElement*> theMEvector = iMEvec->second;
-    
-    if (printDebug_) { 
-      cout << theMEdetID << ":"; for (vector<MonitorElement*>::const_iterator iME = theMEvector.begin(); 
-      				      iME!=theMEvector.end(); iME++) cout << (*iME)->getName() << ","; cout << endl; 
-    } 
-    for (vector<MonitorElement*>::const_iterator iME = theMEvector.begin(); iME!=theMEvector.end(); iME++) {
-      string theMEname = (*iME)->getName(); 
-
-      // from SiPixelMonitorRawData
-      if (theMEname.find("errorType_siPixelDigis")!=string::npos) { 
-	for (int v=25; v<40; v++) {
-	  int b = (*iME)->getTH1()->GetXaxis()->FindBin(v); 
-	  performanceSummary->setRawDataErrorType(theMEdetID, v-25, (*iME)->getBinContent(b)); 
-	}
-      } 
-      // from SiPixelMonitorDigi 
-      if (theMEname.find("ndigis_siPixelDigis")!=string::npos && theMEname.find("FREQ")==string::npos) { 
-	performanceSummary->setNumberOfDigis(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      } 
-      if (theMEname.find("adc_siPixelDigis")!=string::npos) { 
-    	performanceSummary->setADC(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      }
-      // from SiPixelMonitorCluster
-      if (theMEname.find("nclusters_siPixelClusters")!=string::npos) {
-	performanceSummary->setNumberOfClusters(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      }
-      if (theMEname.find("charge_siPixelClusters")!=string::npos) {
-	performanceSummary->setClusterCharge(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      } 
-      if (theMEname.find("size_siPixelClusters")!=string::npos) {
-	performanceSummary->setClusterSize(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      } 
-      if (theMEname.find("sizeX_siPixelClusters")!=string::npos) {
-	performanceSummary->setClusterSizeX(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      }
-      if (theMEname.find("sizeY_siPixelClusters")!=string::npos) {
-	performanceSummary->setClusterSizeY(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      } 
-      // from SiPixelMonitorRecHit
-      if (theMEname.find("nRecHits_siPixelRecHits")!=string::npos) {
-	performanceSummary->setNumberOfRecHits(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      } 
-      // from SiPixelMonitorTrack
-      if (theMEname.find("residualX_siPixelTrackResiduals")!=string::npos) {
-	performanceSummary->setResidualX(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      }
-      if (theMEname.find("residualY_siPixelTrackResiduals")!=string::npos) {
-	performanceSummary->setResidualY(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
-      } 
-      // temporary solutions
-      if (theMEname.find("hitmap_siPixelClusters")!=std::string::npos || 
-          theMEname.find("hitmap_siPixelDigis")!=std::string::npos) { // if digi map exists, use it; else use cluster map
-	int nNoisyCells=0, nEmptyCells=0;                             //                     not use xypos_siPixelRecHits
-	for (int xBin=0; xBin<(*iME)->getNbinsX(); xBin++) {          // 4-1 pixel per bin
-	  for (int yBin=0; yBin<(*iME)->getNbinsY(); yBin++) { 
-	    if ((*iME)->getBinContent(xBin+1, yBin+1)>0.01*(*iME)->getEntries()) nNoisyCells++; 
-	    if ((*iME)->getBinContent(xBin+1, yBin+1)==.0 && (*iME)->getBinError(xBin+1, yBin+1)==0.0) nEmptyCells++; 
+      else {
+      	// from SiPixelMonitorRawData
+      	if (theMEname.find("errorType_siPixelDigis")!=string::npos) { 
+	  for (int v=25; v<40; v++) {
+	    int b = (*iME)->getTH1()->GetXaxis()->FindBin(v); 
+	    performanceSummary->setRawDataErrorType(theMEdetID, v-25, (*iME)->getBinContent(b)); 
+	  }
+      	} 
+      	// from SiPixelMonitorDigi 
+      	if (theMEname.find("ndigis_siPixelDigis")!=string::npos && theMEname.find("FREQ")==string::npos) { 
+	  performanceSummary->setNumberOfDigis(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	} 
+      	if (theMEname.find("adc_siPixelDigis")!=string::npos) { 
+    	  performanceSummary->setADC(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	}
+      	// from SiPixelMonitorCluster
+      	if (theMEname.find("nclusters_siPixelClusters")!=string::npos) {
+	  performanceSummary->setNumberOfClusters(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	}
+      	if (theMEname.find("charge_siPixelClusters")!=string::npos) {
+	  performanceSummary->setClusterCharge(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	} 
+      	if (theMEname.find("size_siPixelClusters")!=string::npos) {
+	  performanceSummary->setClusterSize(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	} 
+      	if (theMEname.find("sizeX_siPixelClusters")!=string::npos) {
+	  performanceSummary->setClusterSizeX(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	}
+      	if (theMEname.find("sizeY_siPixelClusters")!=string::npos) {
+	  performanceSummary->setClusterSizeY(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	} 
+      	// from SiPixelMonitorRecHit
+      	if (theMEname.find("nRecHits_siPixelRecHits")!=string::npos) {
+	  performanceSummary->setNumberOfRecHits(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	} 
+      	// from SiPixelMonitorTrack
+      	if (theMEname.find("residualX_siPixelTrackResiduals")!=string::npos) {
+	  performanceSummary->setResidualX(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	}
+      	if (theMEname.find("residualY_siPixelTrackResiduals")!=string::npos) {
+	  performanceSummary->setResidualY(theMEdetID, (*iME)->getMean(), (*iME)->getRMS(), (*iME)->getEntries()==0.0);
+      	} 
+      	// temporary solutions
+      	if (theMEname.find("hitmap_siPixelClusters")!=std::string::npos || 
+      	    theMEname.find("hitmap_siPixelDigis")!=std::string::npos) { // if digi map exists, use it; else use cluster map
+	  int nNoisyCells=0, nEmptyCells=0;				//		       not use xypos_siPixelRecHits
+	  for (int xBin=0; xBin<(*iME)->getNbinsX(); xBin++) {  	// 4-1 pixel per bin
+	    for (int yBin=0; yBin<(*iME)->getNbinsY(); yBin++) { 
+	      if ((*iME)->getBinContent(xBin+1, yBin+1)>0.01*(*iME)->getEntries()) nNoisyCells++; 
+	      if ((*iME)->getBinContent(xBin+1, yBin+1)==.0 && (*iME)->getBinError(xBin+1, yBin+1)==0.0) nEmptyCells++; 
+	    } 
 	  } 
-	} 
-        performanceSummary->setNumberOfNoisCells(theMEdetID, float(nNoisyCells)); 
-        performanceSummary->setNumberOfDeadCells(theMEdetID, float(nEmptyCells)); 
-      } 
-      // performanceSummary->setNumberOfPixelHitsInTrackFit(theMEdetId, float(nPixelHits)); 
-    }
+      	  performanceSummary->setNumberOfNoisCells(theMEdetID, float(nNoisyCells)); 
+      	  performanceSummary->setNumberOfDeadCells(theMEdetID, float(nEmptyCells)); 
+      	} 
+      	// performanceSummary->setNumberOfPixelHitsInTrackFit(theMEdetId, float(nPixelHits)); 
+      }
+    }   
   }
 }
 

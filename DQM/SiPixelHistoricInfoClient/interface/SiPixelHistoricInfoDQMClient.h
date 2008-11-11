@@ -28,14 +28,11 @@ private:
   void endRun(const edm::Run&, const edm::EventSetup&);
   void endJob();
 
-  uint32_t getLadderBladeID(std::string) const; 
-  uint32_t getLayerDiskID(std::string) const; 
+  uint32_t getSummaryRegionID(std::string) const; 
   void retrieveMEs();
+  void fillPerformanceSummary() const;
   void getSummaryMEmeanRMSnBins(std::vector<MonitorElement*>::const_iterator, 
                                 float&, float&, float&) const; 
-  void fillPerformanceSummaryWithSummaryMEs() const;
-  void fillPerformanceSummaryWithModuleMEs() const;
-  void fillPerformanceSummary() const;
   void writeDB() const; 
   void saveFile(std::string filename) const { dbe_->save(filename); };
 
