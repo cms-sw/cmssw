@@ -2,6 +2,7 @@
 #define CondFormats_PhysicsToolsObjects_Histogram_h
 
 #include <vector>
+#include <cmath>
 
 namespace PhysicsTools {
 namespace Calibration {
@@ -61,6 +62,11 @@ class Histogram {
 	Value_t value(Axis_t x) const { return binContent(findBin(x)); }
 	Value_t normalizedValue(Axis_t x) const
 	{ return binContent(findBin(x)) / normalization(); }
+
+	Value_t error(Axis_t x) const
+	{ return std::sqrt(binContent(findBin(x))); }
+	Value_t normalizedError(Axis_t x) const
+	{ return std::sqrt(binContent(findBin(x))) / normalization(); }
 
 	void setBinContent(int bin, Value_t value);
 	void fill(Axis_t x, Value_t weight = 1.0);

@@ -1,8 +1,9 @@
 #ifndef CondFormats_PhysicsToolsObjects_Histogram2D_h
 #define CondFormats_PhysicsToolsObjects_Histogram2D_h
 
-#include <vector>
 #include <utility>
+#include <vector>
+#include <cmath>
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 
@@ -76,6 +77,15 @@ class Histogram2D {
 	{ return binContent(findBin(x, y)) / normalizationX(findBinY(y)); }
 	Value_t normalizedYValue(AxisX_t x, AxisY_t y) const
 	{ return binContent(findBin(x, y)) / normalizationY(findBinX(x)); }
+
+	Value_t error(AxisX_t x, AxisY_t y) const
+	{ return std::sqrt(binContent(findBin(x, y))); }
+	Value_t normalizedError(AxisX_t x, AxisY_t y) const
+	{ return std::sqrt(binContent(findBin(x))) / normalization(); }
+	Value_t normalizedXError(AxisX_t x, AxisY_t y) const
+	{ return std::sqrt(binContent(findBin(x, y))) / normalizationX(findBinY(y)); }
+	Value_t normalizedYError(AxisX_t x, AxisY_t y) const
+	{ return std::sqrt(binContent(findBin(x, y))) / normalizationY(findBinX(x)); }
 
 	void setBinContent(int bin, Value_t value);
 	void setBinContent(int binX, int binY, Value_t value)
