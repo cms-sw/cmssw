@@ -1,8 +1,7 @@
 /* HLTJetMET Path Validation Analyzer
-Michail Bachtis
-University of Wisconsin - Madison
-bachtis@hep.wisc.edu
-Adapted for JetMET by Jochen Cammin <cammin@fnal.gov>
+Jochen Cammin
+University of Rochester
+cammin@fnal.gov
 */
 
 
@@ -52,8 +51,8 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 //JoCa  
 //JoCa
 //JoCa
-//JoCa  /// InputTag of TriggerEventWithRefs to analyze
-//JoCa  edm::InputTag triggerEventObject_;
+  /// InputTag of TriggerEventWithRefs to analyze
+  edm::InputTag triggerEventObject_;
 //JoCa
 //JoCa  //reference Collection
 //JoCa  edm::InputTag refCollection_;
@@ -62,6 +61,8 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   //Just a tag for better file organization
   std::string triggerTag_;
 //JoCa
+  edm::InputTag _reffilter;
+  edm::InputTag _probefilter;
 //JoCa  //The four basic filters
 //JoCa  edm::InputTag l1seedFilter_;
 //JoCa  edm::InputTag l2filter_;
@@ -88,6 +89,9 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 //JoCa
 //JoCa  /*Trigger Bits for Tau and Reference Trigger*/
   MonitorElement *test_histo;
+  MonitorElement *_meSingleJetPt;
+  MonitorElement *_meRefPt;
+  MonitorElement *_meProbePt;
 //JoCa  MonitorElement *l1eteff;
 //JoCa  MonitorElement *l2eteff;
 //JoCa  MonitorElement *l25eteff;
@@ -117,6 +121,9 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 //JoCa  int NL3Events;
 //JoCa  int NL3Events_Matched;
 //JoCa 
+
+  int NTag;
+  int NProbe;
 
 };
 #endif

@@ -17,6 +17,8 @@ SingleJetPathVal = cms.EDFilter("HLTJetMETValidation",
     DoReferenceAnalysis   = cms.untracked.bool(True),
     OutputFileName        = cms.untracked.string('test.root'),
     LogFileName           = cms.untracked.string('JetMETSingleJetValidation.log'),
+    RefFilter             = cms.untracked.InputTag("hltL1s1Level1jet15","","HLT"),
+    ProbeFilter           = cms.untracked.InputTag("hlt1jet30","","HLT"),
 #    MatchDeltaRL1         = cms.untracked.double(0.5),
 #    MatchDeltaRHLT        = cms.untracked.double(0.3)
 )

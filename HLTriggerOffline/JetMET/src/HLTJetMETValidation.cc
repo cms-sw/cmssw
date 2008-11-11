@@ -19,7 +19,10 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
 //JoCa  logFile_(ps.getUntrackedParameter<std::string>("LogFileName","log.txt")),
 //JoCa  matchDeltaRL1_(ps.getUntrackedParameter<double>("MatchDeltaRL1",0.3)),
 //JoCa  matchDeltaRHLT_(ps.getUntrackedParameter<double>("MatchDeltaRHLT",0.15))
+  triggerEventObject_(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject")),
   triggerTag_(ps.getUntrackedParameter<std::string>("DQMFolder","SingleJet")),
+  _reffilter(ps.getUntrackedParameter<edm::InputTag>("RefFilter")),
+  _probefilter(ps.getUntrackedParameter<edm::InputTag>("ProbeFilter")),
   outFile_(ps.getUntrackedParameter<std::string>("OutputFileName",""))
 {
 //JoCa  //initialize 
@@ -34,8 +37,9 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
 //JoCa  NL25Events_Matched=0;
 //JoCa  NL3Events=0;
 //JoCa  NL3Events_Matched=0;
-//JoCa
-//JoCa  
+  NTag = 0;
+  NProbe = 0;
+  
 //JoCa
   //Declare DQM Store
   DQMStore* store = &*edm::Service<DQMStore>();
@@ -45,6 +49,9 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
       //Create the histograms
       store->setCurrentFolder(triggerTag_);
       test_histo = store->book1D("test_histo","Test Histogram",100,0,100);
+      _meSingleJetPt= store->book1D("_meSingleJetPt","HLT Single Jet Pt",100,0,500);
+      _meRefPt= store->book1D("_meRefPt","HLT Reference Pt",100,0,500);
+      _meProbePt= store->book1D("_meProbePt","HLT Probe Pt",100,0,500);
 //JoCa      l1eteff = store->book1D("l1eteff","L1 Efficiency vs E_{t}",100,0,200);
 //JoCa      l2eteff = store->book1D("l2eteff","L2 Efficiency vs E_{t}",100,0,200);
 //JoCa      l25eteff = store->book1D("l25eteff","L25 Efficiency vs E_{t}",100,0,200);
@@ -79,6 +86,10 @@ HLTJetMETValidation::endJob()
   //Write DQM thing..
   if(outFile_.size()>0)
   if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outFile_);
+
+  printf("\n\n");
+  printf("NTag = %i\n",NTag);
+  printf("NProbe = %i\n",NProbe);
 
 
 //JoCa  //Write Log File
@@ -195,14 +206,58 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 //JoCa    }
 //JoCa
 //JoCa
-//JoCa  //get The triggerEvent
-//JoCa
-//JoCa
-//JoCa  Handle<TriggerEventWithRefs> trigEv;
-//JoCa  iEvent.getByLabel(triggerEventObject_,trigEv);
-//JoCa
-//JoCa  if (trigEv.isValid()) 
-//JoCa    {
+  //get The triggerEvent
+
+
+  Handle<TriggerEventWithRefs> trigEv;
+  iEvent.getByLabel(triggerEventObject_,trigEv);
+
+  if (trigEv.isValid()) {
+    printf("JoCa   found trigger information\n");
+  } else {
+    printf("JoCa   ERROR: no trigger information\n");
+  }
+
+  if (trigEv.isValid()) {
+    int trigsize = trigEv->size();
+    printf("JoCa  Number of filters = %i\n",trigsize);
+    for(int i=0; i<trigsize; i++){
+      cout << trigEv->filterTag(i) << endl;
+    }
+  }
+
+  // just a test: check if hlt1jet30 has been fired
+  size_t FLT_HLTREF = 0;
+  FLT_HLTREF = trigEv->filterIndex(_reffilter);
+  cout << "   FLT_HLTREF = " << FLT_HLTREF << endl;
+  size_t FLT_HLTPROBE = 0;
+  FLT_HLTPROBE = trigEv->filterIndex(_probefilter);
+  cout << "   FLT_HLTPROBE = " << FLT_HLTPROBE << endl;
+  
+  // first make sure that the reference trigger was fired
+  if (FLT_HLTREF != trigEv->size()){
+    NTag++;
+    // then count how often the probe trigger was fired
+    if (FLT_HLTPROBE != trigEv->size()){
+      NProbe++;
+
+
+      // now get the object's four vector information
+      size_t HLTProbeJetID = 0;
+      HLTProbeJetID =trigEv->filterIndex(_probefilter);
+
+      // VR* types defined in CMSSW/DataFormats/HLTReco/interface/TriggerRefsCollections.h
+      VRjet probejets;
+      // look in CMSSW/DataFormats/HLTReco/interface/TriggerTypeDefs.h
+      // for definition of trigger:: formats
+      trigEv->getObjects(HLTProbeJetID,trigger::TriggerJet,probejets);
+      cout << "     probejets.size = " << probejets.size() << endl;
+      for (int i=0; i < probejets.size(); i++){
+	cout << "  i = " << i << "    pt = " << (*probejets[i]).pt() << endl;
+      } // for (int i=0; i < probejets.size(); i++){
+    } // if (FLT_HLTPROBE != trigEv->size()){
+  } // if (FLT_HLTREF != trigEv->size()){
+
 //JoCa
 //JoCa      //LEPTONS 
 //JoCa      unsigned Leptons = 0;
