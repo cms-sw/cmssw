@@ -5,7 +5,7 @@
 #include <DataFormats/Common/interface/Wrapper.h>
 
 namespace {
-  namespace {
+  struct dictionary {
     EcalDCCHeaderBlock ERDC_;
     EcalDCCHeaderBlock::EcalDCCEventSettings ERDCSet_;
     std::vector< EcalDCCHeaderBlock > vERDC_;
@@ -18,5 +18,5 @@ namespace {
     edm::Wrapper<EcalListOfFEDSCollection> theFedscol_ ;
     EcalListOfFEDS t_EcalListOfFEDS;
     edm::Wrapper<EcalListOfFEDS> the_EcalListOfFEDS;
-  }
+  };
 }
