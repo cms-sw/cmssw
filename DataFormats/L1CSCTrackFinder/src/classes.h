@@ -6,10 +6,8 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
 
-namespace
-{
-  namespace
-    {
+namespace {
+  struct dictionary {
       csc::L1Track cL1TRK;
       csc::L1TrackId cL1TRKID;
       csctf::TrackStub cTrkStb;
@@ -31,5 +29,5 @@ namespace
       edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> > wTrkStb;
 
       edm::Wrapper<std::pair<int,std::vector<L1CSCSPStatusDigi> > > wL1CSCstatus;
-	}
+  };
 }

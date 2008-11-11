@@ -11,7 +11,7 @@
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     Vector2DBase<float,MeasurementTag> dummy7;
     Vector3DBase<float,MeasurementTag> dummy6;
     Vector2DBase<float,GlobalTag> dummy8;
@@ -30,5 +30,5 @@ namespace {
     Geom::Theta<double> dummy21;
     Basic2DVector<double> dummy22;
     Basic3DVector<double> dummy23;
-  }
+  };
 }

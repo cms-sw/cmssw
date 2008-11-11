@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<HcalQIESample> vQIE_;
     std::vector<HcalTriggerPrimitiveSample> vTPS_;
     
@@ -51,6 +51,6 @@ namespace {
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;
     edm::Wrapper<HcalLaserDigi> theLaserw_;
- }
+  };
 }
 

@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/SortedCollection.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<HBHERecHit> vHBHE_;
     std::vector<HORecHit> vHO_;
     std::vector<HFRecHit> vHF_;
@@ -60,6 +60,6 @@ namespace {
     edm::RefVector<ZDCRecHitCollection> theZDCrv_;
     edm::RefVector<CastorRecHitCollection> theCastorrv_;
     edm::RefVector<HcalCalibRecHitCollection> theCalibrv_;
-  }
+  };
 }
 

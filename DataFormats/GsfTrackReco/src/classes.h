@@ -15,7 +15,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::GsfTrackExtraCollection v4;
     edm::Wrapper<reco::GsfTrackExtraCollection> c4;
     edm::Ref<reco::GsfTrackExtraCollection> r4;
@@ -34,5 +34,5 @@ namespace {
     // RefToBase<reco::Track>
     edm::reftobase::Holder<reco::Track, reco::GsfTrackRef>  h_tk_gtkr;
     edm::reftobase::RefHolder<reco::GsfTrackRef>            rf_gtkr;
-  }
+  };
 }

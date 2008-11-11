@@ -4,9 +4,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-namespace {
+  struct dictionary {
     Measurement1D m;
     Measurement1DFloat f;
     edm::Wrapper<edm::ValueMap<Measurement1DFloat> > wvmf;
-}
+  };
 }

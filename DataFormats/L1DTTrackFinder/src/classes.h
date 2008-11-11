@@ -7,7 +7,7 @@
 #include <DataFormats/Common/interface/Wrapper.h>
 
 namespace{ 
-  namespace {
+  struct dictionary {
     L1MuDTChambPhDigi ph_S;
     L1MuDTChambThDigi th_S;
     L1MuDTTrackCand   tr_S;
@@ -23,5 +23,5 @@ namespace{
     edm::Wrapper<L1MuDTChambPhContainer> ph_W;
     edm::Wrapper<L1MuDTChambThContainer> th_W;
     edm::Wrapper<L1MuDTTrackContainer>   tr_W;
-  }
+  };
 }

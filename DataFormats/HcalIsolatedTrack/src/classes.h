@@ -2,7 +2,7 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
 namespace {
-  namespace {
+  struct dictionary {
 
     reco::IsolatedPixelTrackCandidate                                          ptc1;
     reco::IsolatedPixelTrackCandidateCollection                                ptc_c1;
@@ -22,5 +22,5 @@ namespace {
     edm::Wrapper<reco::EcalIsolatedParticleCandidateCollection>                  ptc_wc2;
     edm::reftobase::Holder<reco::Candidate, reco::EcalIsolatedParticleCandidateRef> ptc_h2;
 
-  }
+  };
 }
