@@ -32,6 +32,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 
-process.p = cms.Path(process.rpcunpacker*process.rpcDATAIntegrity*process.dqmSaver)
+process.p = cms.Path(process.rpcunpacker*process.rpcFEDIntegrity*process.dqmSaver)
 
 
