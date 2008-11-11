@@ -415,7 +415,9 @@ void SiPixelHistoricInfoReader::endJob() {
       if (variable_[0]) {
         for (int pBin=0; pBin<15; pBin++) {				  	   		       
           hisID = "errorType"; hisID += (pBin+25); hisID += "_"; hisID += *iDet;     
-          ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");	   		       
+          ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X"); 
+	  ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
+
         }								  	   		       
       } 
     } 
@@ -423,91 +425,112 @@ void SiPixelHistoricInfoReader::endJob() {
       if (variable_[1]) {
         hisID = "nDigis_"; hisID += *iDet;				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "nDigis_mFr_"; hisID += *iDet;			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[2]) {
         hisID = "adc_"; hisID += *iDet; 				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X"); 
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "adc_mFr_"; hisID += *iDet;				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[3]) {
         hisID = "nClusters_"; hisID += *iDet;				 
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "nClusters_mFr_"; hisID += *iDet;			    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[4]) {
         hisID = "charge_"; hisID += *iDet;				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "charge_mFr_"; hisID += *iDet;			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[5]) {
         hisID = "clusterSize_"; hisID += *iDet; 			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "clusterSize_mFr_"; hisID += *iDet;			    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[6]) {
         hisID = "clusterSizeX_"; hisID += *iDet;			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "clusterSizeX_mFr_"; hisID += *iDet;  		    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[7]) {
         hisID = "clusterSizeY_"; hisID += *iDet;			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "clusterSizeY_mFr_"; hisID += *iDet;  		    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[8]) {
         hisID = "nRecHits_"; hisID += *iDet;				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   														      
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "nRecHits_mFr_"; hisID += *iDet;			    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[9]) {
         hisID = "residualX_"; hisID += *iDet;				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   														      
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "residualX_mFr_"; hisID += *iDet;			    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       } 
       if (variable_[10]) {
         hisID = "residualY_"; hisID += *iDet;				       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
 
         hisID = "residualY_mFr_"; hisID += *iDet;			    	       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       }
       if (variable_[11]) {
         hisID = "nPixHitsTrk_"; hisID += *iDet; 			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       }
       if (variable_[12]) {
         hisID = "nNoisPixels_"; hisID += *iDet; 			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       }
       if (variable_[13]) {
         hisID = "nDeadPixels_"; hisID += *iDet; 			       
         ((TH1F*)AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");   		       
+        ((TH1F*)AllDetHistograms->FindObject(hisID))->Write();   		       
       }
     } 
   } 
-  if (makePlots_) plot(); 
-  
-  outputDirFile_->Write();
-  outputDirFile_->Close();
+  outputDirFile_->Write(); if (makePlots_) plot(); 
+  outputDirFile_->Close(); 
 }
 
 
