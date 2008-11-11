@@ -4,6 +4,7 @@
 #include <fstream>
 #include <list>
 
+#include "TROOT.h"
 #include "TH1D.h"
 #include "TF1.h"
 #include "TCanvas.h"
@@ -11,6 +12,37 @@
 #include "TFile.h"
 
 using namespace std;
+
+/**
+ * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+ */
+Double_t etaByPoints(Double_t * inEta, Double_t * par) {
+  Double_t sigmaPtVsEta = 0.;
+  Double_t eta = fabs(inEta[0]);
+  if( 0. <= eta && eta <= 0.2 ) sigmaPtVsEta = 0.0120913;
+  else if( 0.2 < eta && eta <= 0.4 ) sigmaPtVsEta = 0.0122204;
+  else if( 0.4 < eta && eta <= 0.6 ) sigmaPtVsEta = 0.0136937;
+  else if( 0.6 < eta && eta <= 0.8 ) sigmaPtVsEta = 0.0142069;
+  else if( 0.8 < eta && eta <= 1.0 ) sigmaPtVsEta = 0.0177526;
+  else if( 1.0 < eta && eta <= 1.2 ) sigmaPtVsEta = 0.0243587;
+  else if( 1.2 < eta && eta <= 1.4 ) sigmaPtVsEta = 0.019994;
+  else if( 1.4 < eta && eta <= 1.6 ) sigmaPtVsEta = 0.0185132;
+  else if( 1.6 < eta && eta <= 1.8 ) sigmaPtVsEta = 0.0177141;
+  else if( 1.8 < eta && eta <= 2.0 ) sigmaPtVsEta = 0.0211577;
+  else if( 2.0 < eta && eta <= 2.2 ) sigmaPtVsEta = 0.0255051;
+  else if( 2.2 < eta && eta <= 2.4 ) sigmaPtVsEta = 0.0338104;
+  // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
+  else if( 2.4 < eta && eta <= 2.6 ) sigmaPtVsEta = 0.31;
+  return ( par[0]*sigmaPtVsEta );
+}
+
+void myFunc()
+{
+  TF1 *f1 = new TF1("myFunc",etaByPoints,-2.5,0,1);
+  f1->SetParameter(0, 1);
+  f1->SetParNames("constant");
+  // f1->Draw();
+}
 
 /**
  * This function draws a histogram and a function on a canvas and adds a text box with the results of the fit.
@@ -167,10 +199,17 @@ int ResolFit( int fitFile = -1 ) {
   tempDir = (TDirectory*) inputFile.Get(mainPtName+"GenVSMu");
   h = (TH1D*) tempDir->Get(mainPtName+"GenVSMu_ResoVSEta_resol");
 
-  f = new TF1("f","pol2",-2.5,2.5);
+  // f = new TF1("f","pol2",-2.5,2.5);
+
+  // This call is needed in order to use myFunc in the fit.
+  myFunc();
+  f = (TF1*)gROOT->GetFunction("myFunc");
+  f->SetParameter(0,1.);
+
   if( fitFile == -1 ) {
     cout << "Fitting Pt resolution vs Eta" << endl;
-    h->Fit("f","R0");
+    // h->Fit("f","R0");
+    h->Fit("myFunc","R0");
   }
   else {
     setParameters(f, parameters);
@@ -178,7 +217,7 @@ int ResolFit( int fitFile = -1 ) {
 
   h->SetMinimum(0);
   h->SetMaximum(0.045);
-  h->GetXaxis()->SetTitle("eta");
+  h->GetXaxis()->SetTitle("#eta");
   h->GetYaxis()->SetTitleOffset(1.4);
   h->GetYaxis()->SetTitle("#sigma pt");
   draw(h,f);
