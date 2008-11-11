@@ -4,6 +4,7 @@
  */
 
 #include <IORawData/DTCommissioning/src/RawFile.h>
+#include <cstring>
 
 using namespace std;
 
