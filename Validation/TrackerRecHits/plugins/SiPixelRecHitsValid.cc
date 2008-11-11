@@ -41,7 +41,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
 {
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
   dbe_ = Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
+  //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
   Char_t histo[200];

@@ -58,7 +58,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
   dbe_ = Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
+  //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/SISTRIP");
 
   meNumTotRphi = dbe_->book1D("NumTotRphi","Num of RecHits rphi",100, 0, 10000);

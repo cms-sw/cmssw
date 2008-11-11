@@ -130,7 +130,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
 
   // Book histograms
   dbe_ = Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
+  //dbe_->showDirStructure();
 
   //float math_pi = 3.14159265;
   //float radtodeg = 180.0 / math_pi;
