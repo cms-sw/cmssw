@@ -86,7 +86,7 @@ string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
       regionStr += "Disk_"; regionStr += (localMEdetID+1); 
     }
   } 
-  else {
+  else if (localMEdetID>999 && localMEdetID<1288) {
     localMEdetID -= 1000; 
     if (localMEdetID<192) { 
       regionStr = "Barrel/"; 
@@ -110,6 +110,9 @@ string SiPixelHistoricInfoReader::getMEregionString(uint32_t detID) const {
       regionStr += "Blade_"; regionStr += (localMEdetID+1); 
     }
   }
+  else if (localMEdetID==666) regionStr = "Dummy detID=666"; 
+  else { regionStr = "Wrong detID="; regionStr += localMEdetID; } 
+  
   return regionStr.Data(); 
 }
 
