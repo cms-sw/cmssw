@@ -58,7 +58,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
     {
       if ( field_magnitude > 1.0 ) 
 	{
-	  templID_ = 1;
+	  templID_ = 10;
+	  
 	} 
       else 
 	{	 
@@ -72,6 +73,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   // Initialize template store to the selected ID [Morris, 6/25/08]
   
   templ_.pushfile( templID_ );
+  //cout << "templID_ = " << templID_ << endl;
+
 
   //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
