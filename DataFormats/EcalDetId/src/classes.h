@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     edm::EDCollection<EBDetId> vEBDI_;
     edm::EDCollection<EEDetId> vEEDI_;
     edm::EDCollection<EcalTrigTowerDetId> vETTDI_;
@@ -38,6 +38,6 @@ namespace {
     edm::Wrapper< edm::EDCollection<EcalScDetIdCollection> > theESCDIw_;
     edm::Wrapper< edm::EDCollection<EcalElectronicsId> > theEELIw_;
     edm::Wrapper< edm::EDCollection<EcalTriggerElectronicsId> > theETELIw_;
- }
+ };
 }
 

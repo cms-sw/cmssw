@@ -11,27 +11,19 @@
 #include <map>
 
 namespace{
-  namespace {
+  struct dictionary {
     std::map<DTLayerId,std::pair<unsigned int,unsigned int> > dummydtlayerid1;
     std::map<DTLayerId,std::pair<unsigned long,unsigned long> > dummydtlayerid2;
     std::map<DTSuperLayerId,std::pair<unsigned int,unsigned int> > dummyslayerid1;
     std::map<DTSuperLayerId,std::pair<unsigned long,unsigned long> > dummyslayerid2;
     std::map<DTChamberId,std::pair<unsigned int,unsigned int> > dummychamberid1;
     std::map<DTChamberId,std::pair<unsigned long,unsigned long> > dummychamberid2;
-  }
-}
 
-namespace{ 
-  namespace {
     DTRecHit1D rh1d;
     DTRecHit1DPair p;
     DTRecHitCollection c;
     edm::Wrapper<DTRecHitCollection> w;
-  }
-}
 
-namespace{ 
-  namespace {
     DTRecHit1D hh;
     std::vector<DTRecHit1D>  vhh;
     LocalPoint lp;
@@ -42,15 +34,10 @@ namespace{
     DTRecSegment2DCollection ds;
 
     edm::Wrapper<DTRecSegment2DCollection> dws;
-  }
-}
 
-
-namespace{
-  namespace {
     DTChamberRecSegment2D phi;
     DTRecSegment4D s4D;
     DTRecSegment4DCollection c4D;
     edm::Wrapper<DTRecSegment4DCollection> dws4D;
-  }
+  };
 }
