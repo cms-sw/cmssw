@@ -3,7 +3,7 @@
 #inputPath=/storage/data1/SiStrip/SiStripDQM/output/cruzet
 inputPath=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_TRACKER/DQM/SiStrip/jobs/output
 
-eval `scramv1 runtime -sh`
+ eval `scramv1 runtime -sh`
 
 cp dbfile_empty.db dbfile.db
 mkdir log
@@ -34,9 +34,9 @@ rm -rf TkMaps
 mkdir TkMaps
 cmsRun SiStripQualityStatistics_full.cfg > out
 cat out | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;print "";} if(doprint==1) print $0}' > BadStrips_x_IOV_all.txt
-mv TkMaps/* /storage/data2/SiStrip/quality/TkMaps_offline/
+mv TkMaps/* /storage/data2/SiStrip/quality/TkMaps_all/
 mv BadStrips_x_IOV_all.txt /storage/data2/SiStrip/quality
-cd /storage/data2/SiStrip/quality/TkMaps_offline/
+cd /storage/data2/SiStrip/quality/TkMaps_all/
 perl ~/public/createWPage.pl
 cd -
 
