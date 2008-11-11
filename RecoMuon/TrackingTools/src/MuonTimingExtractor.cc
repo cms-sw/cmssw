@@ -6,7 +6,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: MuonTimingExtractor.cc,v 1.2 2008/11/04 15:46:57 ptraczyk Exp $
+// $Id: MuonTimingExtractor.cc,v 1.3 2008/11/11 09:53:09 ptraczyk Exp $
 //
 //
 
@@ -264,13 +264,6 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
             
 	  if (tsos.first.isValid()) dist = tsos.second+posp.mag();
             
-	  if ((debug) || (fabs(dist)>1500.)) {
-	    cout << " Dist: " << dist << "   segm: " << segmLocalPos << "   hit: " << hitLocalPos;
-	    if (tsos.first.isValid()) cout << " traj: " << dtcham->toLocal(tsos.first.globalPosition()) << " path: " << tsos.second+posp.mag();
-	    cout << " Start: " << posp;
-	    cout << endl;
-	  }
-
 	  dstnc.push_back(dist);
 	  dsegm.push_back(t0_segm);
 	  left.push_back(hitSide);
