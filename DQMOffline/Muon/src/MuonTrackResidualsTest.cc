@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 10:57:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/21 12:07:47 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -142,13 +142,11 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 						   "ResidualsDistributionGaussianTest");
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
 	if(GaussianReport){
-	  cout<< "-------- histo : "<<(*histo).second[type]<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
+	  LogTrace(metname) << "-------- histo : "<<(*histo).second[type]<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
 	}
 	int BinNumber = type+1;
 	float mean = (*res_histo).getMean(1);
 	float sigma = (*res_histo).getRMS(1);
-	cout<<"mean: "<<mean<<endl;
-	cout<<"sigma: "<<sigma<<endl;
 	MeanHistos.find((*histo).first)->second->setBinContent(BinNumber, mean);	
 	SigmaHistos.find((*histo).first)->second->setBinContent(BinNumber, sigma);
       }
