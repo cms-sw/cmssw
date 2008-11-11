@@ -9,10 +9,10 @@
 //      Author    : Markus Frank
 //      
 //      ====================================================================
-//$Id: Guid.cpp,v 1.4 2005/05/12 11:19:17 frankb Exp $
+//$Id: Guid.cc,v 1.1 2007/12/28 20:05:01 wmtan Exp $
 #include "Guid.h"
 #include <cstdio>
-
+#include <cstring>
 #include "uuid/uuid.h"
 
 namespace edm {
