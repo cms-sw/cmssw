@@ -5,12 +5,13 @@ from Configuration.StandardSequences.VtxSmearedGauss_cff import *
 from Configuration.StandardSequences.Simulation_cff import *
 from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.Digi_cff import *
-
 from Configuration.StandardSequences.MagneticField_cff import *
-
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
-from Configuration.StandardSequences.FakeConditions_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+GlobalTag.globaltag = 'IDEAL_V9::All'
+
+
 from DQMServices.Core.DQM_cfg import *
 MessageLogger = cms.Service("MessageLogger")
 
