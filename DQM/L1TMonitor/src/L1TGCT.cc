@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/10/24 08:38:54 $
- * $Revision: 1.35 $
+ * $Date: 2008/10/28 14:16:16 $
+ * $Revision: 1.36 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.36  2008/10/28 14:16:16  tapper
+ * Tidied up and removed some unnecessary code.
+ *
  * Revision 1.35  2008/10/24 08:38:54  jbrooke
  * fix empty jet plots
  *
@@ -218,75 +221,63 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 
     dbe->setCurrentFolder("L1T/L1TGCT");
 
-    // GCT hardware quantities for experts
+    l1GctAllJetsEtEtaPhi_ = dbe->book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET RANK",
+					ETABINS, ETAMIN, ETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX);
     l1GctCenJetsEtEtaPhi_ = dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET RANK",
-					PHIBINS, PHIMIN, PHIMAX, 
-					ETABINS, ETAMIN, ETAMAX);
+					ETABINS, ETAMIN, ETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX); 
     l1GctForJetsEtEtaPhi_ = dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET RANK",
-					PHIBINS, PHIMIN, PHIMAX, 
-					ETABINS, ETAMIN, ETAMAX);
+					ETABINS, ETAMIN, ETAMAX,
+					PHIBINS, PHIMIN, PHIMAX); 
     l1GctTauJetsEtEtaPhi_ = dbe->book2D("TauJetsEtEtaPhi", "TAU JET RANK", 
-					PHIBINS, PHIMIN, PHIMAX, 
-					ETABINS, ETAMIN, ETAMAX);
+					ETABINS, ETAMIN, ETAMAX,
+					PHIBINS, PHIMIN, PHIMAX); 
     l1GctIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM RANK", 
-                                        PHIBINS, PHIMIN, PHIMAX, 		    
-                                        ETABINS, ETAMIN, ETAMAX);
+                                        ETABINS, ETAMIN, ETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX); 		    
     l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM RANK",
-                                           PHIBINS, PHIMIN, PHIMAX, 
-                                           ETABINS, ETAMIN, ETAMAX);
+                                           ETABINS, ETAMIN, ETAMAX,
+                                           PHIBINS, PHIMIN, PHIMAX); 
     l1GctCenJetsOccEtaPhi_ = dbe->book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
-					 PHIBINS, PHIMIN, PHIMAX, 
-					 ETABINS, ETAMIN, ETAMAX);
+					 ETABINS, ETAMIN, ETAMAX,
+                                         PHIBINS, PHIMIN, PHIMAX); 
     l1GctForJetsOccEtaPhi_ = dbe->book2D("ForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
-					 PHIBINS, PHIMIN, PHIMAX,
-					 ETABINS, ETAMIN, ETAMAX);
+					 ETABINS, ETAMIN, ETAMAX,
+					 PHIBINS, PHIMIN, PHIMAX);
     l1GctTauJetsOccEtaPhi_ = dbe->book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY",
-					 PHIBINS, PHIMIN, PHIMAX, 
-					 ETABINS, ETAMIN, ETAMAX);
+					 ETABINS, ETAMIN, ETAMAX,
+					 PHIBINS, PHIMIN, PHIMAX); 
     l1GctIsoEmOccEtaPhi_ = dbe->book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY",
-				       PHIBINS, PHIMIN, PHIMAX, 
-				       ETABINS, ETAMIN, ETAMAX);
+				       ETABINS, ETAMIN, ETAMAX,
+				       PHIBINS, PHIMIN, PHIMAX); 
     l1GctNonIsoEmOccEtaPhi_ = dbe->book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-					  PHIBINS, PHIMIN, PHIMAX, 
-					  ETABINS, ETAMIN, ETAMAX);
+					  ETABINS, ETAMIN, ETAMAX,
+					  PHIBINS, PHIMIN, PHIMAX); 
 
-    l1GctHFRing0PosEtaNegEta_ = dbe->book2D("HFRing0Corr", "HF RING0 CORRELATION NEG POS ETA",
-                                            PHIBINS, PHIMIN, PHIMAX, 
-                                            ETABINS, ETAMIN, ETAMAX);
     l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 CORRELATION NEG POS ETA",
-                                            PHIBINS, PHIMIN, PHIMAX, 
-                                            ETABINS, ETAMIN, ETAMAX);
-    l1GctHFRing0TowerCountPosEtaNegEta_ = dbe->book2D("HFRing0TowerCountCorr", "HF RING0 TOWER COUNT CORRELATION NEG POS ETA",
-                                                      PHIBINS, PHIMIN, PHIMAX, 
-                                                      ETABINS, ETAMIN, ETAMAX);
-
+                                            ETABINS, ETAMIN, ETAMAX,
+                                            PHIBINS, PHIMIN, PHIMAX); 
+    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 CORRELATION NEG POS ETA",
+                                            ETABINS, ETAMIN, ETAMAX,
+                                            PHIBINS, PHIMIN, PHIMAX); 
     l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION NEG POS ETA",
-                                                      PHIBINS, PHIMIN, PHIMAX, 
-                                                      ETABINS, ETAMIN, ETAMAX);
+                                                      ETABINS, ETAMIN, ETAMAX,
+                                                      PHIBINS, PHIMIN, PHIMAX);
+    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION NEG POS ETA",
+                                                      ETABINS, ETAMIN, ETAMAX,
+                                                      PHIBINS, PHIMIN, PHIMAX); 
 
-
-    // For Qtests need 1D eta and phi histograms (would be better if Qtests ran on 2D histograms too!)
-    l1GctCenJetsOccEta_  = dbe->book1D("CenJetsOccEta", "CENTRAL JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-    l1GctCenJetsOccPhi_  = dbe->book1D("CenJetsOccPhi", "CENTRAL JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
-    l1GctForJetsOccEta_  = dbe->book1D("ForJetsOccEta", "FORWARD JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-    l1GctForJetsOccPhi_  = dbe->book1D("ForJetsOccPhi", "FORWARD JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-    l1GctTauJetsOccEta_  = dbe->book1D("TauJetsOccEta", "TAU JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-    l1GctTauJetsOccPhi_  = dbe->book1D("TauJetsOccPhi", "TAU JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
-    l1GctIsoEmOccEta_    = dbe->book1D("IsoEmOccEta", "ISO EM ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-    l1GctIsoEmOccPhi_    = dbe->book1D("IsoEmOccPhi", "ISO EM PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
-    l1GctNonIsoEmOccEta_ = dbe->book1D("NonIsoEmOccEta", "NON-ISO EM ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-    l1GctNonIsoEmOccPhi_ = dbe->book1D("NonIsoEmOccPhi", "NON-ISO EM PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
-	
     //HF Ring stuff
-    l1GctHFRing0TowerCountPosEta_ = dbe->book1D("HFRing0TowerCountPosEta", "POS ETA RING0 HFRING BIT", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing0TowerCountNegEta_ = dbe->book1D("HFRing0TowerCountNegEta", "NEG ETA RING0 HFRING BIT", R3BINS, R3MIN, R3MAX);
     l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "POS ETA RING1 HFRING BIT", R3BINS, R3MIN, R3MAX);
     l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "NEG ETA RING1 HFRING BIT", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "POS ETA RING2 HFRING BIT", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "NEG ETA RING2 HFRING BIT", R3BINS, R3MIN, R3MAX);
 
-    l1GctHFRing0ETSumPosEta_ = dbe->book1D("HFRing0ETSumPosEta", "POS ETA RING0 ET SUM", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing0ETSumNegEta_ = dbe->book1D("HFRing0ETSumNegEta", "NEG ETA RING0 ET SUM", R3BINS, R3MIN, R3MAX);
     l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "POS ETA RING1 ET SUM", R3BINS, R3MIN, R3MAX);
     l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "NEG ETA RING1 ET SUM", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "POS ETA RING2 ET SUM", R3BINS, R3MIN, R3MAX);
+    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "NEG ETA RING2 ET SUM", R3BINS, R3MIN, R3MAX);
     l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "RING RATIO POS ETA", R5BINS, R5MIN, R5MAX);
     l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "RING RATIO NEG ETA", R5BINS, R5MIN, R5MAX);
     
@@ -303,51 +294,51 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtHad_     = dbe->book1D("EtHad", "TOTAL HAD E_{T}", R12BINS, R12MIN, R12MAX);
 
-    // More detailed EM quantities
-    l1GctIsoEmRankCand0_ = dbe->book1D("GctIsoEmRankCand0","ISO EM RANK CAND 0", R6BINS, R6MIN, R6MAX);
-    l1GctIsoEmRankCand1_ = dbe->book1D("GctIsoEmRankCand1","ISO EM RANK CAND 1", R6BINS, R6MIN, R6MAX);
-    l1GctIsoEmRankCand2_ = dbe->book1D("GctIsoEmRankCand2","ISO EM RANK CAND 2", R6BINS, R6MIN, R6MAX);
-    l1GctIsoEmRankCand3_ = dbe->book1D("GctIsoEmRankCand3","ISO EM RANK CAND 3", R6BINS, R6MIN, R6MAX);
+    // More detailed quantities
+    l1GctIsoEmRankCand0_ = dbe->book1D("IsoEmRankCand0","ISO EM RANK CAND 0", R6BINS, R6MIN, R6MAX);
+    l1GctIsoEmRankCand1_ = dbe->book1D("IsoEmRankCand1","ISO EM RANK CAND 1", R6BINS, R6MIN, R6MAX);
+    l1GctIsoEmRankCand2_ = dbe->book1D("IsoEmRankCand2","ISO EM RANK CAND 2", R6BINS, R6MIN, R6MAX);
+    l1GctIsoEmRankCand3_ = dbe->book1D("IsoEmRankCand3","ISO EM RANK CAND 3", R6BINS, R6MIN, R6MAX);
 
-    l1GctNonIsoEmRankCand0_ = dbe->book1D("GctNonIsoEmRankCand0","NON-ISO EM RANK CAND 0", R6BINS, R6MIN, R6MAX);
-    l1GctNonIsoEmRankCand1_ = dbe->book1D("GctNonIsoEmRankCand1","NON-ISO EM RANK CAND 1", R6BINS, R6MIN, R6MAX);
-    l1GctNonIsoEmRankCand2_ = dbe->book1D("GctNonIsoEmRankCand2","NON-ISO EM RANK CAND 2", R6BINS, R6MIN, R6MAX);
-    l1GctNonIsoEmRankCand3_ = dbe->book1D("GctNonIsoEmRankCand3","NON-ISO EM RANK CAND 3", R6BINS, R6MIN, R6MAX);
+    l1GctNonIsoEmRankCand0_ = dbe->book1D("NonIsoEmRankCand0","NON-ISO EM RANK CAND 0", R6BINS, R6MIN, R6MAX);
+    l1GctNonIsoEmRankCand1_ = dbe->book1D("NonIsoEmRankCand1","NON-ISO EM RANK CAND 1", R6BINS, R6MIN, R6MAX);
+    l1GctNonIsoEmRankCand2_ = dbe->book1D("NonIsoEmRankCand2","NON-ISO EM RANK CAND 2", R6BINS, R6MIN, R6MAX);
+    l1GctNonIsoEmRankCand3_ = dbe->book1D("NonIsoEmRankCand3","NON-ISO EM RANK CAND 3", R6BINS, R6MIN, R6MAX);
 
-    l1GctCenJetsRankCand0_ = dbe->book1D("GctCenJetsRankCand0","CEN JET RANK CAND 0", R6BINS, R6MIN, R6MAX);
-    l1GctCenJetsRankCand1_ = dbe->book1D("GctCenJetsRankCand1","CEN JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
-    l1GctCenJetsRankCand2_ = dbe->book1D("GctCenJetsRankCand2","CEN JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
-    l1GctCenJetsRankCand3_ = dbe->book1D("GctCenJetsRankCand3","CEN JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
+    l1GctCenJetsRankCand0_ = dbe->book1D("CenJetsRankCand0","CEN JET RANK CAND 0", R6BINS, R6MIN, R6MAX);
+    l1GctCenJetsRankCand1_ = dbe->book1D("CenJetsRankCand1","CEN JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
+    l1GctCenJetsRankCand2_ = dbe->book1D("CenJetsRankCand2","CEN JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
+    l1GctCenJetsRankCand3_ = dbe->book1D("CenJetsRankCand3","CEN JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
 
-    l1GctForJetsRankCand0_ = dbe->book1D("GctForJetsRankCand0","FOR JET RANK CAND 0", R6BINS, R6MIN, R6MAX);
-    l1GctForJetsRankCand1_ = dbe->book1D("GctForJetsRankCand1","FOR JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
-    l1GctForJetsRankCand2_ = dbe->book1D("GctForJetsRankCand2","FOR JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
-    l1GctForJetsRankCand3_ = dbe->book1D("GctForJetsRankCand3","FOR JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRankCand0_ = dbe->book1D("ForJetsRankCand0","FOR JET RANK CAND 0", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRankCand1_ = dbe->book1D("ForJetsRankCand1","FOR JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRankCand2_ = dbe->book1D("ForJetsRankCand2","FOR JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRankCand3_ = dbe->book1D("ForJetsRankCand3","FOR JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
 
-    l1GctTauJetsRankCand0_ = dbe->book1D("GctTauJetsRankCand0","TAU JET RANK CAND 0", R6BINS, R6MIN, R6MAX);
-    l1GctTauJetsRankCand1_ = dbe->book1D("GctTauJetsRankCand1","TAU JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
-    l1GctTauJetsRankCand2_ = dbe->book1D("GctTauJetsRankCand2","TAU JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
-    l1GctTauJetsRankCand3_ = dbe->book1D("GctTauJetsRankCand3","TAU JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRankCand0_ = dbe->book1D("TauJetsRankCand0","TAU JET RANK CAND 0", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRankCand1_ = dbe->book1D("TauJetsRankCand1","TAU JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRankCand2_ = dbe->book1D("TauJetsRankCand2","TAU JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRankCand3_ = dbe->book1D("TauJetsRankCand3","TAU JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
 
-    l1GctIsoEmRankDiff01_ = dbe->book1D("GctIsoEmRankDiffCand01","ISO EM RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctIsoEmRankDiff12_ = dbe->book1D("GctIsoEmRankDiffCand12","ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctIsoEmRankDiff23_ = dbe->book1D("GctIsoEmRankDiffCand23","ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctIsoEmRankDiff01_ = dbe->book1D("IsoEmRankDiffCand01","ISO EM RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctIsoEmRankDiff12_ = dbe->book1D("IsoEmRankDiffCand12","ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctIsoEmRankDiff23_ = dbe->book1D("IsoEmRankDiffCand23","ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
 
-    l1GctNonIsoEmRankDiff01_ = dbe->book1D("GctNonIsoEmRankDiffCand01","NON-ISO EM RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctNonIsoEmRankDiff12_ = dbe->book1D("GctNonIsoEmRankDiffCand12","NON-ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctNonIsoEmRankDiff23_ = dbe->book1D("GctNonIsoEmRankDiffCand23","NON-ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);    
+    l1GctNonIsoEmRankDiff01_ = dbe->book1D("NonIsoEmRankDiffCand01","NON-ISO EM RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctNonIsoEmRankDiff12_ = dbe->book1D("NonIsoEmRankDiffCand12","NON-ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctNonIsoEmRankDiff23_ = dbe->book1D("NonIsoEmRankDiffCand23","NON-ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);    
 
-    l1GctCenJetsRankDiff01_ = dbe->book1D("GctCenJetsRankDiffCand01","CEN JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctCenJetsRankDiff12_ = dbe->book1D("GctCenJetsRankDiffCand12","CEN JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctCenJetsRankDiff23_ = dbe->book1D("GctCenJetsRankDiffCand23","CEN JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctCenJetsRankDiff01_ = dbe->book1D("CenJetsRankDiffCand01","CEN JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctCenJetsRankDiff12_ = dbe->book1D("CenJetsRankDiffCand12","CEN JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctCenJetsRankDiff23_ = dbe->book1D("CenJetsRankDiffCand23","CEN JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
 
-    l1GctForJetsRankDiff01_ = dbe->book1D("GctForJetsRankDiffCand01","FOR JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctForJetsRankDiff12_ = dbe->book1D("GctForJetsRankDiffCand12","FOR JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctForJetsRankDiff23_ = dbe->book1D("GctForJetsRankDiffCand23","FOR JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctForJetsRankDiff01_ = dbe->book1D("ForJetsRankDiffCand01","FOR JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctForJetsRankDiff12_ = dbe->book1D("ForJetsRankDiffCand12","FOR JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctForJetsRankDiff23_ = dbe->book1D("ForJetsRankDiffCand23","FOR JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
 
-    l1GctTauJetsRankDiff01_ = dbe->book1D("GctTauJetsRankDiffCand01","TAU JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctTauJetsRankDiff12_ = dbe->book1D("GctTauJetsRankDiffCand12","TAU JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctTauJetsRankDiff23_ = dbe->book1D("GctTauJetsRankDiffCand23","TAU JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctTauJetsRankDiff01_ = dbe->book1D("TauJetsRankDiffCand01","TAU JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctTauJetsRankDiff12_ = dbe->book1D("TauJetsRankDiffCand12","TAU JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
+    l1GctTauJetsRankDiff23_ = dbe->book1D("TauJetsRankDiffCand23","TAU JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
 
   }
 
@@ -405,10 +396,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctCenJetsRank_->Fill(cj->rank());
       // only plot eta and phi maps for non-zero candidates
       if (cj->rank()) {
-        l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta(),cj->rank());
-        l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta());
-        l1GctCenJetsOccEta_->Fill(cj->regionId().ieta());
-        l1GctCenJetsOccPhi_->Fill(cj->regionId().iphi());
+        l1GctAllJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+        l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+        l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
       }
     }
     if ( l1CenJets->size()==4){
@@ -433,10 +423,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctForJetsRank_->Fill(fj->rank());
       // only plot eta and phi maps for non-zero candidates
       if (fj->rank()) {
-        l1GctForJetsEtEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta(),fj->rank());
-        l1GctForJetsOccEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta());
-        l1GctForJetsOccEta_->Fill(fj->regionId().ieta());
-        l1GctForJetsOccPhi_->Fill(fj->regionId().iphi());
+        l1GctAllJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+        l1GctForJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+        l1GctForJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
       }
     }
     if ( l1ForJets->size()==4){
@@ -460,10 +449,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctTauJetsRank_->Fill(tj->rank());
       // only plot eta and phi maps for non-zero candidates
       if (tj->rank()) {
-        l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta(),tj->rank());
-        l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta());
-        l1GctTauJetsOccEta_->Fill(tj->regionId().ieta());
-        l1GctTauJetsOccPhi_->Fill(tj->regionId().iphi());
+        l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi(),tj->rank());
+        l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().ieta(),tj->regionId().iphi());
       }
     }
     if (l1TauJets->size()==4){
@@ -514,16 +501,16 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (l1HFSums.isValid()) {
     for (L1GctHFRingEtSumsCollection::const_iterator hfs=l1HFSums->begin(); hfs!=l1HFSums->end(); hfs++){ 
       // Individual ring Et sums
-      l1GctHFRing0ETSumPosEta_->Fill(hfs->etSum(0));
-      l1GctHFRing0ETSumNegEta_->Fill(hfs->etSum(1));
-      l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(2));
-      l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(3));
+      l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(0));
+      l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(1));
+      l1GctHFRing2ETSumPosEta_->Fill(hfs->etSum(2));
+      l1GctHFRing2ETSumNegEta_->Fill(hfs->etSum(3));
       // Ratio of ring Et sums
       if (hfs->etSum(2)!=0) l1GctHFRingRatioPosEta_->Fill((hfs->etSum(0))/(hfs->etSum(2)));
       if (hfs->etSum(3)!=0) l1GctHFRingRatioNegEta_->Fill((hfs->etSum(1))/(hfs->etSum(3)));
       // Correlate positive and neagative eta
-      l1GctHFRing0PosEtaNegEta_->Fill(hfs->etSum(0),hfs->etSum(1));
-      l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(2),hfs->etSum(3));
+      l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(0),hfs->etSum(1));
+      l1GctHFRing2PosEtaNegEta_->Fill(hfs->etSum(2),hfs->etSum(3));
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1HFSums label was " << gctEnergySumsSource_ ;
@@ -533,13 +520,13 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (l1HFCounts.isValid()) {
     for (L1GctHFBitCountsCollection::const_iterator hfc=l1HFCounts->begin(); hfc!=l1HFCounts->end(); hfc++){ 
       // Individual ring counts
-      l1GctHFRing0TowerCountPosEta_->Fill(hfc->bitCount(0));
-      l1GctHFRing0TowerCountNegEta_->Fill(hfc->bitCount(1));
-      l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(2));
-      l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(3));
+      l1GctHFRing1TowerCountPosEta_->Fill(hfc->bitCount(0));
+      l1GctHFRing1TowerCountNegEta_->Fill(hfc->bitCount(1));
+      l1GctHFRing2TowerCountPosEta_->Fill(hfc->bitCount(2));
+      l1GctHFRing2TowerCountNegEta_->Fill(hfc->bitCount(3));
       // Correlate positive and negative eta
-      l1GctHFRing0TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0),hfc->bitCount(1));
-      l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2),hfc->bitCount(3));
+      l1GctHFRing1TowerCountPosEtaNegEta_->Fill(hfc->bitCount(0),hfc->bitCount(1));
+      l1GctHFRing2TowerCountPosEtaNegEta_->Fill(hfc->bitCount(2),hfc->bitCount(3));
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1HFCounts label was " << gctEnergySumsSource_ ;
@@ -551,10 +538,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctIsoEmRank_->Fill(ie->rank());
       // only plot eta and phi maps for non-zero candidates
       if (ie->rank()){ 
-        l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
-        l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta());
-        l1GctIsoEmOccEta_->Fill(ie->regionId().ieta());
-        l1GctIsoEmOccPhi_->Fill(ie->regionId().iphi());
+        l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi(),ie->rank());
+        l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().ieta(),ie->regionId().iphi());
       }
     }
     if (l1IsoEm->size()==4){
@@ -578,10 +563,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctNonIsoEmRank_->Fill(ne->rank());
       // only plot eta and phi maps for non-zero candidates
       if (ne->rank()){ 
-        l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
-        l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta());
-        l1GctNonIsoEmOccEta_->Fill(ne->regionId().ieta());
-        l1GctNonIsoEmOccPhi_->Fill(ne->regionId().iphi());
+        l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi(),ne->rank());
+        l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().ieta(),ne->regionId().iphi());
       }
     }
     if (l1NonIsoEm->size()==4){

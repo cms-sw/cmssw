@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/06/09 11:08:05 $
- * $Revision: 1.14 $
+ * $Date: 2008/09/21 14:33:12 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.14 2008/06/09 11:08:05 tapper Exp $
+ * $Id: L1TGCT.h,v 1.15 2008/09/21 14:33:12 jad Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.15  2008/09/21 14:33:12  jad
+ * updated HF Sums & Counts and added individual Jet Candidates and differences
+ *
  * Revision 1.14  2008/06/09 11:08:05  tapper
  * Removed electron sub-folders with histograms per eta and phi bin.
  *
@@ -117,6 +120,7 @@ private:
   DQMStore * dbe;
 
   // GCT stuff
+  MonitorElement* l1GctAllJetsEtEtaPhi_; 
   MonitorElement* l1GctCenJetsEtEtaPhi_; 
   MonitorElement* l1GctForJetsEtEtaPhi_;
   MonitorElement* l1GctTauJetsEtEtaPhi_;
@@ -128,18 +132,6 @@ private:
   MonitorElement* l1GctTauJetsOccEtaPhi_;  
   MonitorElement* l1GctIsoEmOccEtaPhi_;    
   MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
-
-  MonitorElement* l1GctCenJetsOccEta_;
-  MonitorElement* l1GctForJetsOccEta_;  
-  MonitorElement* l1GctTauJetsOccEta_;  
-  MonitorElement* l1GctIsoEmOccEta_;    
-  MonitorElement* l1GctNonIsoEmOccEta_; 
-
-  MonitorElement* l1GctCenJetsOccPhi_;
-  MonitorElement* l1GctForJetsOccPhi_;  
-  MonitorElement* l1GctTauJetsOccPhi_;  
-  MonitorElement* l1GctIsoEmOccPhi_;    
-  MonitorElement* l1GctNonIsoEmOccPhi_; 
 
   MonitorElement* l1GctCenJetsRank_;
   MonitorElement* l1GctForJetsRank_;
@@ -153,18 +145,18 @@ private:
   MonitorElement* l1GctEtHad_;
   
   //HF Rings stuff
-  MonitorElement* l1GctHFRing0PosEtaNegEta_;
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
-  MonitorElement* l1GctHFRing0TowerCountPosEtaNegEta_;
+  MonitorElement* l1GctHFRing2PosEtaNegEta_;
   MonitorElement* l1GctHFRing1TowerCountPosEtaNegEta_;
-  MonitorElement* l1GctHFRing0TowerCountPosEta_;
-  MonitorElement* l1GctHFRing0TowerCountNegEta_;
+  MonitorElement* l1GctHFRing2TowerCountPosEtaNegEta_;
   MonitorElement* l1GctHFRing1TowerCountPosEta_;
   MonitorElement* l1GctHFRing1TowerCountNegEta_;
-  MonitorElement* l1GctHFRing0ETSumPosEta_;
-  MonitorElement* l1GctHFRing0ETSumNegEta_;
+  MonitorElement* l1GctHFRing2TowerCountPosEta_;
+  MonitorElement* l1GctHFRing2TowerCountNegEta_;
   MonitorElement* l1GctHFRing1ETSumPosEta_;
   MonitorElement* l1GctHFRing1ETSumNegEta_;
+  MonitorElement* l1GctHFRing2ETSumPosEta_;
+  MonitorElement* l1GctHFRing2ETSumNegEta_;
   MonitorElement* l1GctHFRingRatioPosEta_;
   MonitorElement* l1GctHFRingRatioNegEta_;
 
