@@ -2,8 +2,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     PTrajectoryStateOnDet v1;
     LocalTrajectoryParameters p1;
-  }
+  };
 }

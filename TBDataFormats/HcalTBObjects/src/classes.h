@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
 
     edm::Wrapper<HcalTBTriggerData>   theTriggerData_;
     edm::Wrapper<HcalTBRunData>       theRunData_;
@@ -16,6 +16,6 @@ namespace {
     edm::Wrapper<HcalTBBeamCounters>  theBeamCountersData_;
     edm::Wrapper<HcalTBParticleId>    theParticleId_;
 
- }
+ };
 }
 

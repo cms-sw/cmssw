@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<TrajectorySeed> v1;
     TrajectorySeedCollection c1;
     edm::Wrapper<TrajectorySeedCollection> w1;
@@ -22,5 +22,5 @@ namespace {
     edm::reftobase::IndirectHolder<TrajectorySeed> ihs;
     edm::reftobase::Holder< TrajectorySeed, edm::Ref<TrajectorySeedCollection> > rbh;
     edm::reftobase::RefHolder< edm::Ref<TrajectorySeedCollection> > rbrh;
-  }
+  };
 }

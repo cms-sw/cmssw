@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     TrackCandidate tc;
     TrackCandidateCollection coll;
     edm::Wrapper<TrackCandidateCollection> TrackCandidateCollectionWrapper;
@@ -19,6 +19,6 @@ namespace {
     reco::TrackCandidateSeedAssociationRefProd rp5;
     reco::TrackCandidateSeedAssociationRefVector rv5;
 
-  }
+  };
 }
 

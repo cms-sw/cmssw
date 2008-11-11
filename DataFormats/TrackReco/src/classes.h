@@ -24,7 +24,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::TrackExtraCollection v3;
     edm::Wrapper<reco::TrackExtraCollection> c3;
     edm::Ref<reco::TrackExtraCollection> r3;
@@ -78,5 +78,5 @@ namespace {
     edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
     std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
 
-  }
+  };
 }

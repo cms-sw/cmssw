@@ -8,7 +8,7 @@
 #include <utility>
 
 namespace {
-  namespace {
+  struct dictionary {
     reco::Vertex rv1;
     std::vector<reco::Vertex> v1;
     edm::Wrapper<std::vector<reco::Vertex> > wc1;
@@ -22,5 +22,5 @@ namespace {
     edm::Ref<std::vector<reco::NuclearInteraction> > nr1;
     edm::RefProd<std::vector<reco::NuclearInteraction> > nrp1;
     edm::RefVector<std::vector<reco::NuclearInteraction> > nrvv1;
-  }
+  };
 }

@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
-  namespace {
+  struct dictionary {
     AlgebraicSymMatrix as;
 
     std::vector<TrackingRecHit*> v1;
@@ -25,5 +25,5 @@ namespace {
                              edm::ClonePolicy<TrackingRecHit> >::const_iterator> pr1;    
     std::auto_ptr<TrackingRecHitRef> ap1;
     edm::Wrapper<TrackingRecHitCollection> w1;
-  }
+  };
 }
