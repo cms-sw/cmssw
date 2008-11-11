@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/11/04 12:58:27 $
-//  $Revision: 1.9 $
+//  $Date: 2008/11/10 08:39:18 $
+//  $Revision: 1.10 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -876,7 +876,8 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ResolFitType==4 && MuScleFitUtils::parResol.size()!=6) ||
       (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
       (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>6) {
+      (MuScleFitUtils::ResolFitType==7 && MuScleFitUtils::parResol.size()!=12) ||
+      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>7) {
     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
     abort();
   }

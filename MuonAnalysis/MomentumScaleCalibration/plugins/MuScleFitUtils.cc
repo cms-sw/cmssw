@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/04 12:58:33 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/10 08:39:18 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -641,41 +641,6 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   
   // Resolution parameters:
   // ----------------------
-//   double sigma_pt1=0.;
-//   double sigma_pt2=0.;
-//   double sigma_phi1=0.;
-//   double sigma_phi2=0.;
-//   double sigma_cotgth1=0.;
-//   double sigma_cotgth2=0.;
-//   } else if (ResolFitType==2) {
-//     sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
-//     sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
-//     sigma_phi1    = parval[2];
-//     sigma_phi2    = parval[2];
-//     sigma_cotgth1 = parval[3];
-//     sigma_cotgth2 = parval[3];
-//   } else if (ResolFitType==3) {
-//     sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
-//     sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
-//     sigma_phi1    = parval[2];
-//     sigma_phi2    = parval[2];
-//     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
-//     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-//   } else if (ResolFitType==4) { 
-//     sigma_pt1     = parval[0]+parval[1]*fabs(eta1)+parval[5]*pt1;
-//     sigma_pt2     = parval[0]+parval[1]*fabs(eta2)+parval[5]*pt2;
-//     sigma_phi1    = parval[2];
-//     sigma_phi2    = parval[2];
-//     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
-//     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-//   } else if (ResolFitType==5) {
-//     sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1;
-//     sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2;
-//     sigma_phi1    = parval[2]+parval[6]*pt1;
-//     sigma_phi2    = parval[2]+parval[6]*pt2;
-//     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
-//     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
-
   double sigma_pt1 = resolutionFunction->sigmaPt( pt1,eta1,parval );
   double sigma_pt2 = resolutionFunction->sigmaPt( pt2,eta2,parval );
   double sigma_phi1 = resolutionFunction->sigmaPhi( pt1,eta1,parval );
@@ -1674,18 +1639,18 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
     ind[0]      = parResolOrder[0];
     ind[1]      = parResolOrder[1];
     ind[2]      = parResolOrder[2];
-    ind[3]      = parResolOrder[1];
-    ind[4]      = parResolOrder[2];
-    ind[5]      = parResolOrder[3];
-    ind[6]      = parResolOrder[4];
-    ind[7]      = parResolOrder[5];
-    ind[8]      = parResolOrder[6];
-    ind[9]      = parResolOrder[7];
-    ind[10]     = parResolOrder[8];
-    ind[11]     = parResolOrder[9];
-    ind[12]     = parResolOrder[10];
-    ind[13]     = parResolOrder[11];
-    ind[14]     = parResolOrder[12];
+    ind[3]      = parResolOrder[3];
+    ind[4]      = parResolOrder[4];
+    ind[5]      = parResolOrder[5];
+    ind[6]      = parResolOrder[6];
+    ind[7]      = parResolOrder[7];
+    ind[8]      = parResolOrder[8];
+    ind[9]      = parResolOrder[9];
+    ind[10]     = parResolOrder[10];
+    ind[11]     = parResolOrder[11];
+    ind[12]     = parResolOrder[12];
+    ind[13]     = parResolOrder[13];
+    ind[14]     = parResolOrder[14];
     parname[0]  = "Pt res. sc.";
     parname[1]  = "Pt res. Pt sc.";
     parname[2]  = "Pt res. Pt^2 sc.";
@@ -1701,6 +1666,94 @@ void MuScleFitUtils::setLikeParameters (double* Start, double* Step, double* Min
     parname[12] = "Phi res. 1/Pt sc.";
     parname[13] = "Phi res. Eta sc.";
     parname[14] = "Phi res. Eta^2 sc.";
+  } else if (ResolFitType==7) {
+    Start[0]   = parResol[0]; // 0.001
+    Start[1]   = parResol[1]; // 0.001
+    Start[2]   = parResol[2]; // 0.001
+    Start[3]   = parResol[3]; // 0.001
+    Start[4]   = parResol[4]; // 0.001
+    Start[5]   = parResol[5]; // 0.000001
+    Start[6]   = parResol[6]; // 0.001
+    Start[7]   = parResol[7]; // 0.001
+    Start[8]   = parResol[8]; // 0.001
+    Start[9]   = parResol[9]; // 0.001
+    Start[10]  = parResol[10]; // 0.001
+    Start[11]  = parResol[11]; // 0.001
+    Step[0]    = 0.002;
+    Step[1]    = 0.00002;
+    Step[2]    = 0.000002;
+    Step[3]    = 0.0002;
+    Step[4]    = 0.00002;
+    Step[5]    = 0.0002;
+    Step[6]    = 0.0000002;
+    Step[7]    = 0.000002;
+    Step[8]    = 0.00002;
+    Step[9]    = 0.0002;
+    Step[10]   = 0.00000002;
+    Step[11]   = 0.000002;
+    Mini[0]    = 0.0;
+    Mini[1]    = -0.01;
+    Mini[2]    = -0.001;
+    Mini[3]    = -0.0001;
+    Mini[4]    = 0.0;
+    Mini[5]    = -0.001;
+    Mini[6]    = -0.001;
+    Mini[7]    = -0.00001;
+    Mini[8]    = 0.0;
+    Mini[9]    = -0.001;
+    Mini[10]   = -0.0001;
+    Mini[11]   = -0.0001;
+    if (MuonType==1) {
+      Maxi[0]    = 1.;
+      Maxi[1]    = 1.;
+      Maxi[2]    = 1.;
+      Maxi[3]    = 1.;
+      Maxi[4]    = 1.;
+      Maxi[5]    = 1.;
+      Maxi[6]    = 1.;
+      Maxi[7]    = 0.1;
+      Maxi[8]    = 1.;
+      Maxi[9]    = 1.;
+      Maxi[10]   = 1.;
+      Maxi[11]   = 1.;
+    } else {
+      Maxi[0]    = 0.1;
+      Maxi[1]    = 0.01;
+      Maxi[2]    = 0.01;
+      Maxi[3]    = 0.01;
+      Maxi[4]    = 0.01;
+      Maxi[5]    = 0.01;
+      Maxi[6]    = 0.1;
+      Maxi[7]    = 0.01;
+      Maxi[8]    = 0.01;
+      Maxi[9]    = 0.01;
+      Maxi[10]   = 0.01;
+      Maxi[11]   = 0.01;
+    }
+    ind[0]      = parResolOrder[0];
+    ind[1]      = parResolOrder[1];
+    ind[2]      = parResolOrder[2];
+    ind[3]      = parResolOrder[3];
+    ind[4]      = parResolOrder[4];
+    ind[5]      = parResolOrder[5];
+    ind[6]      = parResolOrder[6];
+    ind[7]      = parResolOrder[7];
+    ind[8]      = parResolOrder[8];
+    ind[9]      = parResolOrder[9];
+    ind[10]     = parResolOrder[10];
+    ind[11]     = parResolOrder[11];
+    parname[0]  = "Pt res. sc.";
+    parname[1]  = "Pt res. Pt sc.";
+    parname[2]  = "Pt res. Eta sc.";
+    parname[3]  = "Pt res. Eta^2 sc.";
+    parname[4]  = "Cth res. sc.";
+    parname[5]  = "Cth res. 1/Pt sc.";
+    parname[6]  = "Cth res. Eta sc.";
+    parname[7]  = "Cth res. Eta^2 sc.";
+    parname[8]  = "Phi res. sc.";
+    parname[9]  = "Phi res. 1/Pt sc.";
+    parname[10] = "Phi res. Eta sc.";
+    parname[11] = "Phi res. Eta^2 sc.";
   }
 
   int shift = parResol.size();

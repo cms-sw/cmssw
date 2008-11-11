@@ -370,6 +370,24 @@ class resolutionFunctionType6 : public resolutionFunctionBase<T> {
   }
 };
 
+// Resolution Type 7
+template <class T>
+class resolutionFunctionType7 : public resolutionFunctionBase<T> {
+ public:
+  // linear in pt and quadratic in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    return( parval[0]+parval[1]*pt + parval[2]*fabs(eta)+parval[3]*pow(eta,2) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( parval[8]+parval[9]/pt + parval[10]*fabs(eta)+parval[11]*pow(eta,2) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( parval[4]+parval[5]/pt + parval[6]*fabs(eta)+parval[7]*pow(eta,2) );
+  }
+};
+
 // ------------ ATTENTION ------------ //
 // Other functions are not put for now //
 // ----------------------------------- //
@@ -382,7 +400,8 @@ static resolutionFunctionBase<double *> * resolutionFunctionArray[] = {
   0,
   0,
   0,
-  new resolutionFunctionType6<double *>
+  new resolutionFunctionType6<double *>,
+  new resolutionFunctionType7<double *>
 };
 
 static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[] = {
@@ -392,7 +411,8 @@ static resolutionFunctionBase<vector<double> > * resolutionFunctionArrayForVec[]
   0,
   0,
   0,
-  new resolutionFunctionType6<vector<double> >
+  new resolutionFunctionType6<vector<double> >,
+  new resolutionFunctionType7<vector<double> >
 };
 
 #endif // FUNCTIONS_H
