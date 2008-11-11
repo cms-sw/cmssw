@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string>
+#include <cstring>
 
 #include <IORawData/CSCTFCommissioning/src/SPReader.h>
 

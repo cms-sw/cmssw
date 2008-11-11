@@ -4,8 +4,8 @@
 #include <fstream>
 #include <cstdio>
 #include <unistd.h>
-
-
+#include <cstdlib>
+#include <cstring>
 
 FileReaderSP::FileReaderSP()
 {

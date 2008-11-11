@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cstdio>
 #include <unistd.h>
-
+#include <cstring>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 FileReaderSPNewFormat::FileReaderSPNewFormat()
