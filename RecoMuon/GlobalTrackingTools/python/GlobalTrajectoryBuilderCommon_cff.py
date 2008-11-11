@@ -25,7 +25,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-        RefitDirection = cms.string('insideOut'),
+        RefitDirection = cms.string('alongMomentum'),
         RefitRPCHits = cms.bool(True),
         DoPredictionsOnly = cms.bool(False)
     ),
