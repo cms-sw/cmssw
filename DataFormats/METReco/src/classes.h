@@ -21,7 +21,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     edm::Wrapper<reco::MET> dummy1;
     edm::Wrapper<reco::METCollection> dummy2;
     edm::Wrapper< std::vector<reco::MET> > dummy3;
@@ -60,5 +60,5 @@ namespace {
 
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
-  }
+  };
 }

@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     std::pair<uint16_t,uint16_t> patterncontainer;
     SiPixelCalibDigi::datacontainer calibdatacontainer;
     SiPixelCalibDigi calibdigiitself;
@@ -45,7 +45,7 @@ namespace {
     edm::Wrapper<edmNew::DetSetVector<SiPixelCalibDigi> > calibdigidetsetvec_bis;
     edm::Wrapper<edmNew::DetSetVector<SiPixelCalibDigiError> > calibdigierrdetsetvec_bis;
     
-  }
+  };
 }
 
 #endif // SIPIXELDIGI_CLASSES_H

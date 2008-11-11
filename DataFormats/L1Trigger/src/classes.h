@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace {
-  namespace {
+  struct dictionary {
 
      l1extra::L1EmParticleCollection emColl ;
      l1extra::L1JetParticleCollection jetColl ;
@@ -65,5 +65,5 @@ namespace {
 
      L1DataEmulRecord der;
      edm::Wrapper<L1DataEmulRecord> w_der;
-  }
+  };
 }

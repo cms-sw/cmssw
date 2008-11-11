@@ -5,7 +5,7 @@
 #include <map>
 
 namespace{ 
-  namespace {
+  struct dictionary {
 
   RPCDigi d;
   std::vector<RPCDigi>  vv;
@@ -14,5 +14,5 @@ namespace{
     
   edm::Wrapper<RPCDigiCollection> dw;
 
-  }
+  };
 }

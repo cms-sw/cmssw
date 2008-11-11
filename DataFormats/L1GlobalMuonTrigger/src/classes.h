@@ -5,7 +5,8 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace { namespace {
+namespace { 
+struct dictionary {
   // L1MuRegionalTriggers -> GMT
   std::vector<L1MuRegionalCand> dummy0;
   edm::Wrapper<std::vector<L1MuRegionalCand> > dummy1;
@@ -21,4 +22,5 @@ namespace { namespace {
   edm::Ref<std::vector<L1MuGMTCand> > dummy6;
 
   edm::RefProd<L1MuGMTReadoutCollection> dummy7;
-}}
+};
+}
