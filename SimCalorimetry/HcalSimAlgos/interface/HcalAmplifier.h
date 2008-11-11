@@ -2,6 +2,7 @@
 #define HcalSimAlgos_HcalAmplifier_h
   
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
@@ -22,6 +23,8 @@ public:
   virtual void amplify(CaloSamples & linearFrame) const;
 
   void setStartingCapId(int capId) {theStartingCapId = capId;}
+
+  void makeNoise (const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const;
 
 private:
   const HcalDbService * theDbService;
