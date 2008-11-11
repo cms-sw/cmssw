@@ -109,7 +109,7 @@ struct boostFuture {
   
 };
 
-inline unsigned int thread_self_tid() { return pthread_self();}
+inline pthread_t thread_self_tid() { return pthread_self();}
 
 
 
