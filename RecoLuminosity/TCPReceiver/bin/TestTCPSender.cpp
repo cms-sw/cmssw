@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <unistd.h>
+#include <cstring>
+#include <cstdlib>
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 

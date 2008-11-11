@@ -7,6 +7,7 @@
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include <iostream>
 #include <signal.h>
+#include <cstdlib>
 
 using std::cout;
 using std::endl;

@@ -21,6 +21,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#include <cstring>
+
 namespace HCAL_HLX{
 
   TCPReceiver::TCPReceiver(){
