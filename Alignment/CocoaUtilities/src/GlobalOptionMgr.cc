@@ -11,6 +11,7 @@
 #include <iomanip>
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include <cstdlib>
 
 GlobalOptionMgr* GlobalOptionMgr::theInstance = 0;
 
