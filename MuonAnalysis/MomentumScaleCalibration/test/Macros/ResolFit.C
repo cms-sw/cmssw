@@ -26,7 +26,7 @@ void draw(TH1D * h, TF1 * f) {
   f->Draw("same");
 
   // Text box with fit results
-  TPaveText * fitLabel = new TPaveText(0.65,0.3,0.85,0.5,"NDC");
+  TPaveText * fitLabel = new TPaveText(0.78,0.71,0.98,0.91,"NDC");
   fitLabel->SetBorderSize(1);
   fitLabel->SetTextAlign(12);
   fitLabel->SetTextSize(0.02);
@@ -122,7 +122,9 @@ void setParameters(TF1 * f, pair<list<double>, list<double> > & parameters) {
  */
 int ResolFit( int fitFile = -1 ) {
 
-  TString mainName("hResol");
+  TString mainPtName("PtResolution");
+  TString mainCotgThetaName("CotgThetaResolution");
+  TString mainPhiName("PhiResolution");
 
   // Read the values from the FitParameters.txt file if required
   pair<list<double>, list<double> > parameters;
@@ -138,9 +140,9 @@ int ResolFit( int fitFile = -1 ) {
   // Pt resolution
   // -------------
   // VS pt
-  TDirectory * tempDir = (TDirectory*) inputFile.Get(mainName+"PtGenVSMu");
-  TH1D * h = (TH1D*) tempDir->Get(mainName+"PtGenVSMu_ResoVSPt_resol");
-  TF1 *f = new TF1("f","pol4",0,100);
+  TDirectory * tempDir = (TDirectory*) inputFile.Get(mainPtName+"GenVSMu");
+  TH1D * h = (TH1D*) tempDir->Get(mainPtName+"GenVSMu_ResoVSPt_resol");
+  TF1 *f = new TF1("f","pol1",0,100);
 
   if( fitFile == -1 ) {
     cout << "Fitting Pt resolution vs Pt" << endl;
@@ -154,12 +156,16 @@ int ResolFit( int fitFile = -1 ) {
   }
 
   h->SetMinimum(0);
-  h->SetMaximum(0.1);
+  h->SetMaximum(0.045);
+  h->GetXaxis()->SetTitle("pt(GeV)");
+  h->GetYaxis()->SetTitleOffset(1.4);
+  h->GetYaxis()->SetTitle("#sigma pt");
   draw(h,f);
 
+  cout << "sigmapt vs eta" << endl;
   // VS eta
-  tempDir = (TDirectory*) inputFile.Get(mainName+"PtGenVSMu");
-  h = (TH1D*) tempDir->Get(mainName+"PtGenVSMu_ResoVSEta_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainPtName+"GenVSMu");
+  h = (TH1D*) tempDir->Get(mainPtName+"GenVSMu_ResoVSEta_resol");
 
   f = new TF1("f","pol2",-2.5,2.5);
   if( fitFile == -1 ) {
@@ -172,15 +178,18 @@ int ResolFit( int fitFile = -1 ) {
 
   h->SetMinimum(0);
   h->SetMaximum(0.045);
+  h->GetXaxis()->SetTitle("eta");
+  h->GetYaxis()->SetTitleOffset(1.4);
+  h->GetYaxis()->SetTitle("#sigma pt");
   draw(h,f);
 
   // CotgTheta resolution
   // --------------------
   // VS pt
-  tempDir = (TDirectory*) inputFile.Get(mainName+"CotgThetaGenVSMu");
-  h = (TH1D*) tempDir->Get(mainName+"CotgThetaGenVSMu_ResoVSPt_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainCotgThetaName+"GenVSMu");
+  h = (TH1D*) tempDir->Get(mainCotgThetaName+"GenVSMu_ResoVSPt_resol");
 
-  f = new TF1("f","[0]/x+[1]",0,100);
+  f = new TF1("f","[0]+[1]/x",0,100);
   if( fitFile == -1 ) {
     h->Fit("f","R0");
     cout << "Fitting CotgTheta resolution vs Pt" << endl;
@@ -192,13 +201,16 @@ int ResolFit( int fitFile = -1 ) {
   }
 
   h->SetMinimum(0);
-  h->SetMaximum(0.015);
+  h->SetMaximum(0.0014);
+  h->GetXaxis()->SetTitle("pt(GeV)");
+  h->GetYaxis()->SetTitleOffset(1.4);
+  h->GetYaxis()->SetTitle("#sigma cotg#theta");
   draw(h,f);
   // VS eta
-  tempDir = (TDirectory*) inputFile.Get(mainName+"CotgThetaGenVSMu");
-  h = (TH1D*) tempDir->Get(mainName+"CotgThetaGenVSMu_ResoVSEta_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainCotgThetaName+"GenVSMu");
+  h = (TH1D*) tempDir->Get(mainCotgThetaName+"GenVSMu_ResoVSEta_resol");
 
-  f = new TF1("f","pol2",-3,3);
+  f = new TF1("f","pol2",-2.5,2.5);
   if( fitFile == -1 ) {
     cout << "Fitting CotgTheta resolution vs Eta" << endl;
     h->Fit("f","R0");
@@ -208,16 +220,19 @@ int ResolFit( int fitFile = -1 ) {
   }
 
   h->SetMinimum(0);
-  h->SetMaximum(0.005);
+  h->SetMaximum(0.0035);
+  h->GetXaxis()->SetTitle("eta");
+  h->GetYaxis()->SetTitleOffset(1.4);
+  h->GetYaxis()->SetTitle("#sigma cotg#theta");
   draw(h,f);
 
   // Phi resolution
   // --------------
   // VS pt
-  tempDir = (TDirectory*) inputFile.Get(mainName+"PhiGenVSMu");
-  h = (TH1D*) tempDir->Get(mainName+"PhiGenVSMu_ResoVSPt_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainPhiName+"GenVSMu");
+  h = (TH1D*) tempDir->Get(mainPhiName+"GenVSMu_ResoVSPt_resol");
 
-  f = new TF1("f","[0]/x+[1]",0,100);
+  f = new TF1("f","[0]+[1]/x",0,100);
   if( fitFile == -1 ) {
     cout << "Fitting Phi resolution vs Pt" << endl;
     h->Fit("f","R0");
@@ -229,11 +244,14 @@ int ResolFit( int fitFile = -1 ) {
   }
 
   h->SetMinimum(0);
-  h->SetMaximum(0.003);
+  h->SetMaximum(0.001);
+  h->GetXaxis()->SetTitle("pt(GeV)");
+  h->GetYaxis()->SetTitleOffset(1.4);
+  h->GetYaxis()->SetTitle("#sigma #phi");
   draw(h,f);
   // VS eta
-  tempDir = (TDirectory*) inputFile.Get(mainName+"PhiGenVSMu");
-  h = (TH1D*) tempDir->Get(mainName+"PhiGenVSMu_ResoVSEta_resol");
+  tempDir = (TDirectory*) inputFile.Get(mainPhiName+"GenVSMu");
+  h = (TH1D*) tempDir->Get(mainPhiName+"GenVSMu_ResoVSEta_resol");
 
   f = new TF1("f","pol2",-2.4,2.4);
   if( fitFile == -1 ) {
@@ -245,7 +263,10 @@ int ResolFit( int fitFile = -1 ) {
   }
 
   h->SetMinimum(0);
-  h->SetMaximum(0.0005);
+  h->SetMaximum(0.005);
+  h->GetXaxis()->SetTitle("eta");
+  h->GetYaxis()->SetTitleOffset(1.4);
+  h->GetYaxis()->SetTitle("#sigma #phi");
   draw(h,f);
   return 0;
 }
