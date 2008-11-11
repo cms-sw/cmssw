@@ -11,12 +11,14 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_2_1_9'
+RefRelease='CMSSW_2_1_10'
 
 # startup and ideal sample list
-startupsamples= ['RelValQCD_Pt_80_120', 'RelValTTbar', 'RelValMinBias', 'RelValBJets_Pt_50_120', 'RelValQCD_Pt_3000_3500']
+#startupsamples= ['RelValQCD_Pt_80_120', 'RelValTTbar', 'RelValMinBias', 'RelValBJets_Pt_50_120', 'RelValQCD_Pt_3000_3500']
+startupsamples= ['RelValQCD_Pt_80_120','RelValMinBias', 'RelValQCD_Pt_3000_3500']
 
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_80_120', 'RelValQCD_Pt_3000_3500']
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_80_120', 'RelValQCD_Pt_3000_3500']
+idealsamples= ['RelValSingleMuPt100',  'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_80_120', 'RelValQCD_Pt_3000_3500']
 
 #startupsamples= ['RelValQCD_Pt_80_120']
 #idealsamples= ['RelValSingleMuPt10']
@@ -96,7 +98,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
             cmd='./DDSearchCLI.py  --input="find  dataset.createdate, dataset where dataset like *'
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
+#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
+            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
@@ -112,9 +115,23 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
                 filenames+='readFiles.extend( (\n'
                 for filename in os.popen(cmd2).readlines():
-                    filenames+=filename;
+                    filenames+=filename
                 filenames+='));\n'
-                filenames+='secFiles.extend( (               ) )'
+                cmd3='./DDSearchCLI.py  --input="find file.parent where dataset like'+ dataset +'"|grep ' + sample
+                filenames+='secFiles.extend( (\n'
+                first=True
+                for line in os.popen(cmd3).readlines():
+                    secfilename=line.strip()
+                    if first==True:
+                        filenames+="'"
+                        first=False
+                    else :
+                        filenames+=",\n'"
+                    filenames+=secfilename
+                    filenames+="'"
+                    
+                filenames+='));\n'
+#                filenames+='secFiles.extend( (               ) )'
                 cfgFileName=sample
                 cfgFile = open(cfgFileName+'.py' , 'w' )
                 cfgFile.write(filenames)
