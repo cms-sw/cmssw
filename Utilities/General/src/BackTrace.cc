@@ -60,6 +60,6 @@ void BackTrace::trace(std::ostream & out) const{
 #endif
 }  
 #else
-void BackTrace::trace(ostream & out) const {}
+void BackTrace::trace(std::ostream & out) const {}
 #endif
 
