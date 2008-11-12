@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
+#include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
