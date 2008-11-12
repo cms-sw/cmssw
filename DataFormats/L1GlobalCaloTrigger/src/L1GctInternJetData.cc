@@ -33,6 +33,26 @@ L1GctInternJetData::L1GctInternJetData(L1CaloRegionDetId rgn,
 }
 
 // 'named' constructors to avoid confusion
+
+// emulator calibrated jet ctor
+L1GctInternJetData L1GctInternJetData::fromEmulator(L1CaloRegionDetId rgn,
+						    int16_t bx,
+						    uint16_t et, 
+						    bool oflow,
+						    bool tauVeto,
+						    uint8_t eta,
+						    uint8_t phi,
+						    uint16_t rank) {
+  L1GctInternJetData d;
+
+  d.setType(emulator);
+  d.setRegionId(rgn);
+  d.setData(0, (oflow ? 1 : 0), et, eta, phi, (tauVeto ? 1 : 0), rank);
+  d.setBx(bx);
+
+  return d;
+}
+
 /// construct from "jet_cluster"
 L1GctInternJetData L1GctInternJetData::fromJetCluster(L1CaloRegionDetId rgn,
 						      uint16_t capBlock,

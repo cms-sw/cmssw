@@ -16,7 +16,7 @@ class L1GctInternJetData {
 
  public:
 
-  enum L1GctInternJetType { null, jet_cluster, jet_cluster_minimal, jet_precluster,gct_trig_object };
+  enum L1GctInternJetType { null, emulator, jet_cluster, jet_cluster_minimal, jet_precluster,gct_trig_object };
 
 public:
 
@@ -37,33 +37,44 @@ public:
 		     uint8_t rank);
 
   // 'named' constructors to avoid confusion
+
+  // emulator calibrated jet ctor
+  static L1GctInternJetData fromEmulator(L1CaloRegionDetId rgn,
+					 int16_t bx,
+					 uint16_t et, 
+					 bool overFlow, 
+					 bool tauVeto,
+					 uint8_t eta,
+					 uint8_t phi,
+					 uint16_t rank);
+				       
   /// construct from "jet_cluster"
   static L1GctInternJetData fromJetCluster(L1CaloRegionDetId rgn,
-		     uint16_t capBlock,
-		     uint16_t capIndex,
-		     int16_t bx,
-		     uint32_t data);
+					   uint16_t capBlock,
+					   uint16_t capIndex,
+					   int16_t bx,
+					   uint32_t data);
 
   /// construct from "jet_precluster"
   static L1GctInternJetData fromJetPreCluster(L1CaloRegionDetId rgn,
-		     uint16_t capBlock,
-		     uint16_t capIndex,
-		     int16_t bx,
-                     uint32_t data);
+					      uint16_t capBlock,
+					      uint16_t capIndex,
+					      int16_t bx,
+					      uint32_t data);
 
   /// construct from "jet_cluster_minimal"
   static L1GctInternJetData fromJetClusterMinimal(L1CaloRegionDetId rgn,
-		     uint16_t capBlock,
-		     uint16_t capIndex,
-		     int16_t bx,
-  		     uint32_t data);
-
+						  uint16_t capBlock,
+						  uint16_t capIndex,
+						  int16_t bx,
+						  uint32_t data);
+					 
   /// construct from "gct_trig_object"
   static L1GctInternJetData fromGctTrigObject(L1CaloRegionDetId rgn,
-		     uint16_t capBlock,
-		     uint16_t capIndex,
-		     int16_t bx,
-                     uint32_t data);
+					      uint16_t capBlock,
+					      uint16_t capIndex,
+					      int16_t bx,
+					      uint32_t data);
 
 
   /// destructor (virtual to prevent compiler warnings)
