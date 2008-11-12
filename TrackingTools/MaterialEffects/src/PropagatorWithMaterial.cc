@@ -11,10 +11,11 @@ PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
 						const float mass, 
 						const MagneticField * mf,
 						const float maxDPhi,
-						bool useRungeKutta) :
+						bool useRungeKutta,
+                                                float ptMin) :
   Propagator(dir),
   theGeometricalPropagator(),
-  theMEUpdator(new CombinedMaterialEffectsUpdator(mass)),
+  theMEUpdator(new CombinedMaterialEffectsUpdator(mass, ptMin)),
   theMaterialLocation(atDestination), field(mf),useRungeKutta_(useRungeKutta) {
   
   if(useRungeKutta_)    

@@ -6,8 +6,8 @@
  *  to a trajectory state. Uses radiation length from medium properties.
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:21:30 $
- *  $Revision: 1.2.2.1 $
+ *  $Date: 2007/05/09 14:11:35 $
+ *  $Revision: 1.3 $
  *  \author todorov, cerati
  */
 
@@ -25,8 +25,13 @@ class MultipleScatteringUpdator : public MaterialEffectsUpdator
   }
 
 public:
-  MultipleScatteringUpdator( float mass ) :
+  /// Specify assumed mass of particle for material effects.
+  /// If ptMin > 0, then the rms muliple scattering angle will be calculated taking into account the uncertainty
+  /// in the reconstructed track momentum. (By default, it is neglected). However, a lower limit on the possible
+  /// value of the track Pt will be applied at ptMin, to avoid the rms multiple scattering becoming too big.
+  MultipleScatteringUpdator( float mass, float ptMin=-1. ) :
     MaterialEffectsUpdator(mass),
+    thePtMin(ptMin),
     theLastDz(0.),
     theLastP(0.),
     theLastPropDir(alongMomentum),
@@ -49,6 +54,9 @@ protected:
   virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
 
 private:  
+
+  float thePtMin;
+
   mutable float theLastDz;
   mutable float theLastP;
   mutable PropagationDirection theLastPropDir;

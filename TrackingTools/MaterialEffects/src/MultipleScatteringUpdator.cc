@@ -1,6 +1,8 @@
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
+//#define DBG_MSU
+
 //
 // Computation of contribution of multiple scatterning to covariance matrix 
 //   of local parameters based on Highland formula for sigma(alpha) in plane.
@@ -39,8 +41,38 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     double radLen = mp.radLen()*xf;     // effective rad. length
     double sigt2 = 0.;                  // sigma(alpha)**2
     if (radLen > 0) {
+      // Calculated rms scattering angle squared.
       double a = (1. + 0.038*log(radLen))/(beta*p); a *= a;
       sigt2 = amscon*radLen*a;
+      if (thePtMin > 0) {
+#ifdef DBG_MSU
+        std::cout<<"Original rms scattering = "<<sqrt(sigt2);
+#endif
+        // Inflate estimated rms scattering angle, to take into account 
+        // that 1/p is not known precisely.
+        AlgebraicSymMatrix55 covMatrix = TSoS.localError().matrix();
+        double error2_QoverP = covMatrix(0,0);
+	// Formula valid for ultra-relativistic particles.
+//      sigt2 *= (1. + (p*p) * error2_QoverP);
+	// Exact formula
+        sigt2 *= (1. + (p*p) * error2_QoverP *
+		               (1. + 5*m*m/(e*e) + 3*m*m*beta*beta*error2_QoverP));
+#ifdef DBG_MSU
+	std::cout<<" new = "<<sqrt(sigt2);
+#endif
+	// Convert Pt constraint to P constraint, neglecting uncertainty in 
+	// track angle.
+	double pMin = thePtMin*(TSoS.globalMomentum().mag()/TSoS.globalMomentum().perp());       
+        // Use P constraint to calculate rms maximum scattering angle.
+        double betaMin = pMin/sqrt(pMin * pMin + m*m);
+        double a_max = (1. + 0.038*log(radLen))/(betaMin * pMin); a_max *= a_max;
+        double sigt2_max = amscon*radLen*a_max;
+        if (sigt2 > sigt2_max) sigt2 = sigt2_max;
+#ifdef DBG_MSU
+	std::cout<<" after P constraint ("<<pMin<<") = "<<sqrt(sigt2);
+	std::cout<<" for track with 1/p="<<1/p<<"+-"<<sqrt(error2_QoverP)<<std::endl;
+#endif
+      }
     }
     double sl = d.perp();
     double cl = d.z();

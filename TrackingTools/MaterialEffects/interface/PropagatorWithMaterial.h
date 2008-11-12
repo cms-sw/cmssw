@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 14:11:35 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/07/12 02:58:11 $
+ *  $Revision: 1.9 $
  *  \author todorov, cerati
  */
 
@@ -30,10 +30,14 @@ public:
    *  with explicit mass hypothesis.MaxDPhi is a cut on the max change in
    *  phi during state propagation. For propagation of very low pt tracks 
    *  (e.g. loopers), this cut can be loosened.
+   *  If ptMin > 0, then multiple scattering calculations will take into
+   *  account the uncertainty in the reconstructed track momentum, (by
+   *  default neglected), but assuming that the track Pt will never fall
+   *  below ptMin.
    */
   PropagatorWithMaterial (PropagationDirection dir, const float mass,  
 			  const MagneticField * mf=0,const float maxDPhi=1.6,
-			  bool useRungeKutta=false);
+			  bool useRungeKutta=false, float ptMin=-1.);
   /** Constructor with explicit propagator and material effects objects.
    */
   PropagatorWithMaterial(const Propagator& Propagator,
