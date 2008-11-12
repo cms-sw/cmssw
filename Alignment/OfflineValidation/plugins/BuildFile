@@ -25,50 +25,10 @@
 <use name=SimDataFormats/HepMCProduct>                                                                                
 <use name=SimTracker/TrackAssociation>
 
-<library file=MuonAlignmentAnalyzer.cc>
 <use name=CLHEP>
 <use name=root>
-<flags EDM_PLUGIN=1>
+<library file=*.cc name=AlignmentOfflinevalidationPlugins>
+   <use name=Alignment/OfflineValidation>
+   <flags EDM_PLUGIN=1> # redundant in plugins directory?
 </library>
-<library file=MuonGeometryIntoNtuples.cc>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-<library file=TrackerGeometryCompare.cc>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-<library file=TrackerGeometryIntoNtuples.cc>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-<library file=Tracker_OldtoNewConverter.cc>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-<library file=ValidationMisalignedTracker.cc>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-<library file=CosmicSplitterValidation.cc>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-
-
-
-<library file=TrackerOfflineValidation.cc>
-<use name=Alignment/OfflineValidation>
-<use name=CLHEP>
-<use name=root>
-<flags EDM_PLUGIN=1>
-</library>
-
-
 
