@@ -3,31 +3,17 @@
 #include <iomanip>
 
 //framework includes
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 
 #include "FWCore/Framework/interface/Event.h"
@@ -37,58 +23,37 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CSCGeometry/interface/CSCChamber.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
-//#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-// New Crazy idea
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
-#include "RecoMuon/GlobalMuonProducer/src/TevMuonProducer.h"
-
-using namespace std;
 using namespace edm;
 using namespace reco;
 
 
 ResidualRefitting::ResidualRefitting( const ParameterSet & cfg ) :
   outputFileName_		( cfg.getUntrackedParameter<string>("histoutputFile") ),
+  PropagatorSource_		( cfg.getParameter<std::string>("propagator")), 
   muons_     			( cfg.getParameter<InputTag>( "muons"		) ),
-/*  muonsRemake_			( cfg.getParameter<InputTag>("muonsRemake"	) ),			//This Feels Misalignment
+  muonsRemake_			( cfg.getParameter<InputTag>("muonsRemake"	) ),			//This Feels Misalignment
   muonsNoStation1_		( cfg.getParameter<InputTag>("muonsNoStation1") ),
   muonsNoStation2_		( cfg.getParameter<InputTag>("muonsNoStation2") ),
   muonsNoStation3_		( cfg.getParameter<InputTag>("muonsNoStation3") ),
   muonsNoStation4_		( cfg.getParameter<InputTag>("muonsNoStation4") ),
+
+/*
   muonsNoPXBLayer1_		( cfg.getParameter<InputTag>("muonsNoPXBLayer1"	) ),
   muonsNoPXBLayer2_		( cfg.getParameter<InputTag>("muonsNoPXBLayer1"	) ),
   muonsNoPXBLayer3_		( cfg.getParameter<InputTag>("muonsNoPXBLayer1"	) ),
@@ -115,37 +80,34 @@ ResidualRefitting::ResidualRefitting( const ParameterSet & cfg ) :
 }  //The constructor
 
 void ResidualRefitting::analyze(const Event& event, const EventSetup& eventSetup) {
-
-
-	printf("STARTING EVENT\n");
+	
+	if(debug_) printf("STARTING EVENT\n");
 	using namespace edm;
+
+	eventInfo_.evtNum_ = (int)event.id().run();
+	eventInfo_.runNum_ = (int)event.id().event();
 
 	// Generator Collection
 
 // The original muon collection that is sitting in memory
 	edm::Handle<MuonCollection> muons;
-	event.getByLabel( muons_, muons ); //set label to muons
 
-		
+	edm::Handle<TrackCollection> muonTracks;
+	edm::Handle<TrackCollection> muonsNoSt1;
+	edm::Handle<TrackCollection> muonsNoSt2;
+	edm::Handle<TrackCollection> muonsNoSt3;
+	edm::Handle<TrackCollection> muonsNoSt4;
 
+
+	event.getByLabel(muons_				, muons ); //set label to muons
+	event.getByLabel(muonsRemake_		, muonTracks);	
+	event.getByLabel(muonsNoStation1_	, muonsNoSt1);
+	event.getByLabel(muonsNoStation2_	, muonsNoSt2);
+	event.getByLabel(muonsNoStation3_	, muonsNoSt3);
+	event.getByLabel(muonsNoStation4_	, muonsNoSt4);
+	
+	
 /*
-// The new muoncollection from this fitting and misalingment scenario
-	edm::Handle<MuonCollection> muonsRemakeColl;
-	event.getByLabel(muonsRemake_, muonsRemakeColl);
-
-//	std::cout<<"Muon Collection No Station 1"<<std::endl;
-	edm::Handle<MuonCollection> muonsNoStation1Coll;
-	event.getByLabel(muonsNoStation1_, muonsNoStation1Coll);
-//	std::cout<<"Muon Collection No Station 2"<<std::endl;
-	edm::Handle<MuonCollection> muonsNoStation2Coll;
-	event.getByLabel(muonsNoStation2_, muonsNoStation2Coll);
-//	std::cout<<"Muon Collection No Station 3"<<std::endl;
-	edm::Handle<MuonCollection> muonsNoStation3Coll;
-	event.getByLabel(muonsNoStation3_, muonsNoStation3Coll);	
-//	std::cout<<"Muon Collection No Station 4"<<std::endl;
-	edm::Handle<MuonCollection> muonsNoStation4Coll;
-	event.getByLabel(muonsNoStation4_, muonsNoStation4Coll);
-
 //	std::cout<<"Muon Collection No PXB "<<std::endl;
 //Tracker Barrel Pixel Refits
 	edm::Handle<MuonCollection> muonsNoPXBLayer1Coll;
@@ -180,128 +142,123 @@ void ResidualRefitting::analyze(const Event& event, const EventSetup& eventSetup
 	event.getByLabel(muonsNoTOBLayer5_, muonsNoTOBLayer5Coll);
 	edm::Handle<MuonCollection> muonsNoTOBLayer6Coll;
 	event.getByLabel(muonsNoTOBLayer6_, muonsNoTOBLayer6Coll);
- 
+*/
 	//magnetic field information	
 	edm::ESHandle<MagneticField> field;
+	edm::ESHandle<GlobalTrackingGeometry> globalTrackingGeometry;
 	eventSetup.get<IdealMagneticFieldRecord>().get(field);
+	eventSetup.get<GlobalTrackingGeometryRecord>().get(globalTrackingGeometry);
+	eventSetup.get<TrackingComponentsRecord>().get( PropagatorSource_, thePropagator );
 	theField = &*field;
+	
+	
 	theService->update(eventSetup);
 
-//	std::cout<<"Going to zero storage"<<std::endl;
+//Zero storage
     zero_storage();
-  */
+
+  
 //Do the Gmr Muons from the unModified Collection
+
+/*
 	int iGmr = 0;
+	if ( (muons->end() - muons->begin()) > 0) printf("Data Dump:: Original GMR Muons\n");
 	for ( MuonCollection::const_iterator muon = muons->begin(); muon!=muons->end(); muon++, iGmr++) {
-
-		std::cout<<iGmr<<std::endl;
+		if ( iGmr >= ResidualRefitting::N_MAX_STORED) break; // error checking
+		if (!debug
 		
-//		if (debug_) {
-			printf("Data Dump:: Original GMR Muons\n");
-			dumpRecoMuonColl(muon);		
-//		}
+		dumpTrackRef(muon->combinedMuon(), "cmb"); 
+		dumpTrackRef(muon->standAloneMuon(), "sam");
+		dumpTrackRef(muon->track(), "trk");
+		
+
 	}
-	
-/*****************************************************************************************************************/
-/*
- * Do the Gmr Muons from the Rebuild collection 
- * This holds	1) p, pt, eta, phi
- *				2) info on sam rec hits
- *				3) Extrapolate to rec hits from GMR track with Rho and Z -- good for DTs and CSCs
+	storageGmrOld_.n_ = iGmr;
+	storageSamNew_.n_ = iGmr;
 */
-/*
-//Store the basic Muon information
-	if (debug_) std::cout<<"Global Muon sensitive to misalignment"<<std::endl;
+
+//Refitted muons
+	if (debug_) printf("Data Dump:: Rebuilt GMR Muon Track With TeV refitter default\n");
 	int iGmrRemake = 0;
-	for ( MuonCollection::const_iterator muon = muonsRemakeColl->begin(); muon!=muonsRemakeColl->end(); muon++, iGmrRemake++) {
+	for ( reco::TrackCollection::const_iterator muon = muonTracks->begin(); muon!=muonTracks->end(); muon++, iGmrRemake++) {
 		if ( iGmrRemake >= ResidualRefitting::N_MAX_STORED) break; // error checking
+			// from TrackInfoProducer/test/TrackInfoAnalyzerExample.cc
+	        reco::TrackRef trackref=reco::TrackRef(muonTracks,iGmrRemake);
 
-		if (debug_) {
-			printf("Data Dump:: Rebuilt GMR Muon Collection\n");
-			dumpRecoMuonColl(muon);		
-		}
-		
-		muonInfo(storageGmrNew_, muon->combinedMuon()	, iGmrRemake);	//Store combined global muon
-		muonInfo(storageSamNew_, muon->standAloneMuon()	, iGmrRemake);	//Store stand alone muon
-		muonInfo(storageTrkNew_, muon->track()			, iGmrRemake);	//Store tracker muon
+			if (debug_) dumpTrackRef(trackref, "gmr");
+			muonInfo(storageGmrNew_,trackref,iGmrRemake);
+
 	}
-	storageGmrNew_.n_			= iGmrRemake;
-	storageSamNew_.n_			= iGmrRemake;
-	storageTrkNew_.n_			= iGmrRemake;
-
-	ResidualRefitting::collectMuonRecHits(muonsRemakeColl, storageRecMuon_, storageTrackExtrapRec_);
-	ResidualRefitting::collectTrackerRecHits(muonsRemakeColl, storageTrackHit_, storageTrackExtrapTracker_);
-//Muon Rec Hits
-
-	
-	omitStation(muonsNoStation1Coll, storageGmrNoSt1_, storageSamNoSt1_, storageTrackExtrapRecNoSt1_, 1);
-	omitStation(muonsNoStation2Coll, storageGmrNoSt2_, storageSamNoSt2_, storageTrackExtrapRecNoSt2_, 2);
-	omitStation(muonsNoStation3Coll, storageGmrNoSt3_, storageSamNoSt3_, storageTrackExtrapRecNoSt3_, 3);
-	omitStation(muonsNoStation4Coll, storageGmrNoSt4_, storageSamNoSt4_, storageTrackExtrapRecNoSt4_, 4);																		
-	omitTrackerSystem(muonsNoPXBLayer1Coll, storageGmrNoPXBLayer1, storageTrkNoPXBLayer1, storageTrackNoPXBLayer1, ResidualRefitting::PXB);
-	omitTrackerSystem(muonsNoPXBLayer2Coll, storageGmrNoPXBLayer2, storageTrkNoPXBLayer2, storageTrackNoPXBLayer2, ResidualRefitting::PXB);
-	omitTrackerSystem(muonsNoPXBLayer3Coll, storageGmrNoPXBLayer3, storageTrkNoPXBLayer3, storageTrackNoPXBLayer3, ResidualRefitting::PXB);
+	storageGmrNew_.n_ = iGmrRemake;
 		
-	omitTrackerSystem(muonsNoTIBLayer1Coll, storageGmrNoTIBLayer1, storageTrkNoTIBLayer1, storageTrackNoTIBLayer1, ResidualRefitting::TIB);
-	omitTrackerSystem(muonsNoTIBLayer2Coll, storageGmrNoTIBLayer2, storageTrkNoTIBLayer2, storageTrackNoTIBLayer2, ResidualRefitting::TIB);
-	omitTrackerSystem(muonsNoTIBLayer3Coll, storageGmrNoTIBLayer3, storageTrkNoTIBLayer3, storageTrackNoTIBLayer3, ResidualRefitting::TIB);
-	omitTrackerSystem(muonsNoTIBLayer4Coll, storageGmrNoTIBLayer4, storageTrkNoTIBLayer4, storageTrackNoTIBLayer4, ResidualRefitting::TIB);
+
+
+	if (debug_) printf("muons Remake");
+	if (debug_) printf("-----------------------------------------\n");
+	CollectTrackHits(muonTracks, storageTrackExtrapRec_);
+
+
+	if (true) {
+		printf("muons No Station 1");
+		printf("-----------------------------------------\n");
+	}
+	NewTrackMeasurements(muonTracks, muonsNoSt1, storageTrackExtrapRecNoSt1_);
+
+	if (true) {
+		printf("muons No Station 2");
+		printf("-----------------------------------------\n");
+	}
+	NewTrackMeasurements(muonTracks, muonsNoSt2, storageTrackExtrapRecNoSt2_);
+
+	if (true) {
+		printf("muons No Station 3");
+		printf("-----------------------------------------\n");
+	}
+	NewTrackMeasurements(muonTracks, muonsNoSt3, storageTrackExtrapRecNoSt3_);
+
+	if (true) {
+		printf("muons No Station 4");
+		printf("-----------------------------------------\n");
+	}
+	NewTrackMeasurements(muonTracks, muonsNoSt4, storageTrackExtrapRecNoSt4_);
+
+
+//	dumpMuonRecHits(storageRecMuon_); 
 		
-	omitTrackerSystem(muonsNoTOBLayer1Coll, storageGmrNoTOBLayer1, storageTrkNoTOBLayer1, storageTrackNoTOBLayer1, ResidualRefitting::TOB);
-	omitTrackerSystem(muonsNoTOBLayer2Coll, storageGmrNoTOBLayer2, storageTrkNoTOBLayer2, storageTrackNoTOBLayer2, ResidualRefitting::TOB);
-	omitTrackerSystem(muonsNoTOBLayer3Coll, storageGmrNoTOBLayer3, storageTrkNoTOBLayer3, storageTrackNoTOBLayer3, ResidualRefitting::TOB);
-	omitTrackerSystem(muonsNoTOBLayer4Coll, storageGmrNoTOBLayer4, storageTrkNoTOBLayer4, storageTrackNoTOBLayer4, ResidualRefitting::TOB);
-	omitTrackerSystem(muonsNoTOBLayer5Coll, storageGmrNoTOBLayer5, storageTrkNoTOBLayer5, storageTrackNoTOBLayer5, ResidualRefitting::TOB);
-	omitTrackerSystem(muonsNoTOBLayer6Coll, storageGmrNoTOBLayer6, storageTrkNoTOBLayer6, storageTrackNoTOBLayer6, ResidualRefitting::TOB);
-
-	
-	dumpTrackHits(storageTrackHit_);
-
-
-//	omitTrackerSystem(muonsNoPXFColl, storageGmrNoPXF, storageTrkNoPXF, storageTrackNoPXF, ResidualRefitting::PXF);
-//	omitTrackerSystem(muonsNoTIDColl, storageGmrNoTID, storageTrkNoTID, storageTrackNoTID, ResidualRefitting::TID);
-//	omitTrackerSystem(muonsNoTECColl, storageGmrNoTEC, storageTrkNoTEC, storageTrackNoTEC, ResidualRefitting::TEC);
-
-*/
-/*  
-	dumpTrackExtrap(storageTrackExtrapRecNoSt1_);
-	dumpTrackExtrap(storageTrackExtrapRecNoSt2_);
-	dumpTrackExtrap(storageTrackExtrapRecNoSt3_);
-	dumpTrackExtrap(storageTrackExtrapRecNoSt4_);
-	dumpTrackExtrap(storageTrackExtrapTracker_);
-
-	dumpTrackExtrap(storageTrackNoPXBLayer1);
-	dumpTrackHits(storageTrackHit_);
-//	dumpMuonRecHits(storageRecMuon_);
-*/	
 /****************************************************************************************************************************************/
 
   
 /*
- *	This is a bastardization of Ivan's code that extrapolates to a cylinder.
+ *	extrapolates track to a cylinder.
+ *  commented for cosmic runs with no tracker in reco muons!!
  *
 */
 
-/*
-	int iGmrCyl = 0;
-	for (reco::MuonCollection::const_iterator muon = muonsRemakeColl->begin(); muon != muonsRemakeColl->end(); muon++, iGmrCyl++) {
 
-		ResidualRefitting::cylExtrapTrkSam(iGmrCyl, muon->standAloneMuon()	, samExtrap120_		, 120.);
-		ResidualRefitting::cylExtrapTrkSam(iGmrCyl, muon->track()			, trackExtrap120_	, 120.);
+	int iGmrCyl = 0;
+	for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); muon++, iGmrCyl++) {
+
+		dumpTrackRef(muon->combinedMuon(), "cmb"); 
+		dumpTrackRef(muon->standAloneMuon(), "sam");
+		dumpTrackRef(muon->track(), "trk");
+
+		cylExtrapTrkSam(iGmrCyl, muon->standAloneMuon()	, samExtrap120_		, 120.);
+		cylExtrapTrkSam(iGmrCyl, muon->track()			, trackExtrap120_	, 120.);
 
 	}
 	samExtrap120_.n_	 = iGmrCyl;
 	trackExtrap120_.n_	 = iGmrCyl; 
 
-	outputTree_ -> Fill();
-  	std::cout << "FILLING NTUPLE!" << std::endl;
 
-	std::cout << "Entries Recorded: " << outputTree_ -> GetEntries() << " Branch :: " << outputBranch_ -> GetEntries() <<		 std::endl<<std::endl;
-	
-*/
+	if (iGmrRemake > 0 || iGmrCyl > 0) {
+		outputTree_ -> Fill();
+	  	std::cout << "FILLING NTUPLE!" << std::endl;
+		std::cout << "Entries Recorded: " << outputTree_ -> GetEntries() << " Branch :: " << outputBranch_ -> GetEntries() <<  std::endl<<std::endl;
+	} else std::cout<<"no tracks -- no fill!\n"<<std::endl<<std::endl;
+
 //  /*************************************************************************************************************/
-//  //END OF ANALYSIS
-//  //END OF ANALYSIS
+//  //END OF ntuple dumper
+//  //END OF ntuple dumper
 //  /***********************************************************************************************************/
 }
 //end Analyze() main function
@@ -313,152 +270,299 @@ void ResidualRefitting::analyze(const Event& event, const EventSetup& eventSetup
 ResidualRefitting::~ResidualRefitting() {
   delete outputFile_;
 }
-// 
-// Store the Muon information for the Muon Rec Hits / refit with All stations THIS IS THE ONLY PLACE WHERE I STORE REC HITS
-// 
-void ResidualRefitting::collectMuonRecHits(edm::Handle<reco::MuonCollection> muonColl, ResidualRefitting::storage_hit& storeHit, ResidualRefitting::storage_trackExtrap& trackExtrap) {
+//
+// Track Collection Analysis
+//
+void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl, ResidualRefitting::storage_trackExtrap& trackExtrap) {
+
+	int iMuonHit = 0;
+	int iTrackHit= 0;
+	int numTracks= 0;	
+
+	for ( reco::TrackCollection::const_iterator muon = trackColl->begin(); muon!=trackColl->end(); muon++) {
+
+		int iTrack = muon - trackColl->begin();
+	    reco::TrackRef trackref=reco::TrackRef(trackColl,iTrack);
+		FreeTrajectoryState recoStart = ResidualRefitting::freeTrajStateMuon(trackref);
+
+		if (debug_) dumpTrackRef(trackref, "CollectTrackHits Track");
 	
-	int iGmrRemake = 0;
-	int iRecRemake = 0;
-	int iExtrap = 0;
-	if(debug_) printf("\nRemake Original GMR Muons as Collection\n");
-	for ( MuonCollection::const_iterator muon = muonColl->begin(); muon!=muonColl->end(); muon++, iGmrRemake++) {
-		if ( iExtrap >= ResidualRefitting::N_MAX_STORED_HIT) break; // error checking
+		for (trackingRecHit_iterator rec = muon->recHitsBegin(); rec != muon->recHitsEnd(); rec++) {
 
-
-// collect some information for track extrapolation
-		SteppingHelixPropagator inwardPropRec  ( theField, oppositeToMomentum );
-		SteppingHelixPropagator outwardPropRec ( theField, alongMomentum );
-	
-		FreeTrajectoryState recoStart = ResidualRefitting::freeTrajStateMuon(muon->combinedMuon());
-					
-//Begin the loop over the muon system rec hits	
-		if (debug_) printf ("Looping over SAM rec hits in the original Global Muon...\n");
-		for(trackingRecHit_iterator rec =  muon->standAloneMuon()->recHitsBegin();
-		 rec != muon->standAloneMuon()->recHitsEnd(); rec++, iRecRemake++) {
-
-
-	//Get Muon System Information		
+			int iRec = rec - muon->recHitsBegin();	
 			DetId detid = (*rec)->geographicalId(); 
-			if (detid.det() != DetId::Muon) {
-				std::cout<<"LOLZ! Not teh muon system"<<std::endl;
+
+			if (detid.det() != DetId::Muon && detid.det() != DetId::Tracker) {
+				if (debug_) printf("Rec Hit not from muon system or tracker... continuing...\n");
 				continue;
 			}
-			int systemMuon  = detid.subdetId(); // 1 DT; 2 CSC; 3 RPC
-			int endcap		= -999;
-			int station		= -999;
-			int ring		= -999;
-			int chamber		= -999;
-			int layer		= -999;
-			int superLayer  = -999;
-			double lpX		= -999;
-			double lpY		= -999;
-			double lpZ		= -999;
-			if ( systemMuon == MuonSubdetId::CSC) {
-				CSCDetId id(detid.rawId());
-				endcap		= id.endcap();
-				station		= id.station();
-				ring		= id.ring();
-				chamber		= id.chamber();
-				layer		= id.layer();
-				if (debug_)printf("%d System: CSC\n [endcap][station][ringN][chamber][layer]:[%d][%d][%d][%d][%d]\t",iRecRemake, endcap, station, ring, chamber, layer);
+//			numTracks++;
+// Get Local and Global Position of Hits	
 
-			}
-			else if ( systemMuon == MuonSubdetId::DT ) {
-				DTWireId id(detid.rawId());
-				station		= id.station();
-				layer		= id.layer();
-				superLayer	= id.superLayer();
-				if (debug_) std::cout<<iRecRemake<<" System: DT"<<std::endl;
-				
-			}
-			else if ( systemMuon == MuonSubdetId::RPC) {
-				RPCDetId id(detid.rawId());
-				station		= id.station();
-				if (debug_) std::cout<<iRecRemake<<"System: RPC"<<std::endl;
-			}
-			else printf("%d THIS ISN'T EVEN A MUON!!!!\n", iRecRemake);
-// Local Coordinates
 			LocalPoint lp = (*rec)->localPosition();
-			lpX	= lp.x();
-			lpY = lp.y();
-			lpZ = lp.z();
+			float lpX	= lp.x();
+			float lpY 	= lp.y();
+			float lpZ 	= lp.z();
 
-// Global Coordinates		
 			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
 				MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec).geographicalId())
 				,&(**rec)); 
 
 			GlobalPoint gp = mrhp->globalPosition();
-			double gpRecX = gp.x();
-			double gpRecY = gp.y();
-			double gpRecZ = gp.z();
-			double gpRecEta = gp.eta();
-			double gpRecPhi = gp.phi();
+			float gpRecX 	= gp.x();
+			float gpRecY 	= gp.y();
+			float gpRecZ 	= gp.z();
+			float gpRecEta 	= gp.eta();
+			float gpRecPhi 	= gp.phi();
+
+			if (detid.det() == DetId::Muon) {
 			
-						
+				int systemMuon  = detid.subdetId(); // 1 DT; 2 CSC; 3 RPC
+				int endcap		= -999;
+				int station		= -999;
+				int ring		= -999;
+				int chamber		= -999;
+				int layer		= -999;
+				int superLayer  = -999;
+				int wheel 		= -999;
+				int sector 		= -999;
+				if ( systemMuon == MuonSubdetId::CSC) {
+					CSCDetId id(detid.rawId());
+					endcap		= id.endcap();
+					station		= id.station();
+					ring		= id.ring();
+					chamber		= id.chamber();
+					layer		= id.layer();
+					if (debug_)printf("CSC\t[endcap][station][ringN][chamber][layer]:[%d][%d][%d][%d][%d]\t",
+						 endcap, station, ring, chamber, layer);
+
+				}
+				else if ( systemMuon == MuonSubdetId::DT ) {
+					DTWireId id(detid.rawId());
+					station		= id.station();
+					layer		= id.layer();
+					superLayer	= id.superLayer();
+					wheel		= id.wheel();
+					sector		= id.sector();
+					if (debug_) printf("DT \t[station][layer][superlayer]:[%d][%d][%d]\n", station,layer,superLayer);
+				
+				}
+				else if ( systemMuon == MuonSubdetId::RPC) {
+					RPCDetId id(detid.rawId());
+					station		= id.station();
+					if (debug_) printf("RPC\t[station]:[%d]\n", station);
+				}
+
 			
-			if (debug_) printf("Global Position\t\t\t x = %0.6f\t y = %0.6f\t z = %0.6f\n", gpRecX, gpRecY, gpRecZ);	
-//Store 
-			storeHit.muonLink_	[iRecRemake]	= iGmrRemake;			
-			storeHit.system_	[iRecRemake]	= systemMuon;
-			storeHit.endcap_	[iRecRemake]	= endcap;
-			storeHit.station_	[iRecRemake]	= station;
-			storeHit.ring_		[iRecRemake]	= ring;
-			storeHit.chamber_	[iRecRemake]	= chamber;
-			storeHit.layer_		[iRecRemake]	= layer;
-			storeHit.superLayer_[iRecRemake]	= superLayer;
+				storageRecMuon_.muonLink_	[iMuonHit]	= iTrack;			
+				storageRecMuon_.system_		[iMuonHit]	= systemMuon;
+				storageRecMuon_.endcap_		[iMuonHit]	= endcap;
+				storageRecMuon_.station_	[iMuonHit]	= station;
+				storageRecMuon_.ring_		[iMuonHit]	= ring;
+				storageRecMuon_.chamber_	[iMuonHit]	= chamber;
+				storageRecMuon_.layer_		[iMuonHit]	= layer;
+				storageRecMuon_.superLayer_	[iMuonHit]	= superLayer;
+				storageRecMuon_.wheel_		[iMuonHit]	= wheel;
+				storageRecMuon_.sector_		[iMuonHit]	= sector;
+		
+				storageRecMuon_.gpX_		[iMuonHit]	= gpRecX;
+				storageRecMuon_.gpY_		[iMuonHit]	= gpRecY;
+				storageRecMuon_.gpZ_		[iMuonHit]	= gpRecZ;
+				storageRecMuon_.gpEta_		[iMuonHit]	= gpRecEta;
+				storageRecMuon_.gpPhi_		[iMuonHit]	= gpRecPhi;
+				storageRecMuon_.lpX_		[iMuonHit]	= lpX;
+				storageRecMuon_.lpY_		[iMuonHit]	= lpY;
+				storageRecMuon_.lpZ_		[iMuonHit]	= lpZ;
+				iMuonHit++;
+	
+			}
+			else if (detid.det() == DetId::Tracker) {
+				
+				if (debug_) printf("Tracker\n");
 
-			storeHit.gpX_		[iRecRemake]	= gpRecX;
-			storeHit.gpY_		[iRecRemake]	= gpRecY;
-			storeHit.gpZ_		[iRecRemake]	= gpRecZ;
-			storeHit.gpEta_		[iRecRemake]	= gpRecEta;
-			storeHit.gpPhi_		[iRecRemake]	= gpRecPhi;
-			storeHit.lpX_		[iRecRemake]	= lpX;
-			storeHit.lpY_		[iRecRemake]	= lpY;
-			storeHit.lpZ_		[iRecRemake]	= lpZ;
+				StoreTrackerRecHits(detid, iTrack, iTrackHit);
 
+				storageTrackHit_.gpX_		[iTrackHit]	= gpRecX;
+				storageTrackHit_.gpY_		[iTrackHit]	= gpRecY;
+				storageTrackHit_.gpZ_		[iTrackHit]	= gpRecZ;
+				storageTrackHit_.gpEta_		[iTrackHit]	= gpRecEta;
+				storageTrackHit_.gpPhi_		[iTrackHit]	= gpRecPhi;
+				storageTrackHit_.lpX_		[iTrackHit]	= lpX;
+				storageTrackHit_.lpY_		[iTrackHit]	= lpY;
+				storageTrackHit_.lpZ_		[iTrackHit]	= lpZ;
+				iTrackHit++;
+			 }		
+			else printf("THIS CAN NOT HAPPEN\n");		
+			
+			trkExtrap(detid, numTracks, iTrack, iRec, recoStart, lp, trackExtrap);
+			numTracks++;
 
-			int pars[3] = {iExtrap, iGmrRemake, iRecRemake};
-			trkExtrap(trackExtrap, detid, pars, outwardPropRec, recoStart) ;
-			iExtrap++;
-			if ( iExtrap >= ResidualRefitting::N_MAX_STORED_HIT) {
-				std::cout << " TOO Rec Hits ONLY FIRST " << ResidualRefitting::N_MAX_STORED_HIT << " WILL BE STORED! " << std::endl;      
-				break;
-			} 
+			if (debug_) printf("\tLocal Positon:  \tx = %2.2f\ty = %2.2f\tz = %2.2f\n",lpX, lpY, lpZ);
+			if (debug_) printf("\tGlobal Position: \tx = %6.2f\ty = %6.2f\tz = %6.2f\teta = %4.2f\tphi = %3.2f\n",
+							gpRecX,gpRecY,gpRecZ,gpRecEta,gpRecPhi);
+				
 
 		}
 
 	}
-	storeHit.n_		= iRecRemake;
-	trackExtrap.n_	= iExtrap;
+
+	storageRecMuon_	.n_ 	= iMuonHit; 
+	storageTrackHit_.n_		= iTrackHit;
+	trackExtrap		.n_ 	= numTracks;
+
 }
 //
-// Store the Muon information for the Tracker Rec hits / refit with all tracker systems THIS IS THE ONLY PLACE WHERE THE TRACKER INFO IS STORED
+// Deal with Re-Fitted Track with some station omitted. 
 //
-void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> muonColl, ResidualRefitting::storage_trackHit& storeHit, ResidualRefitting::storage_trackExtrap& storeExtrap) {
+// This should take the new track, match it to its track before refitting with the hits dumped, and extrapolate out to the
+//  rec hits that were removed from the fit.  
+//
+//
 
-	int iGmr = 0; 
-	int iRec = 0;
-	int iExtrap = 0;
-	bool dump_ = debug_;
-	if (dump_) std::cout<<"In the collectTrackerRecHits function\n";
+void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig,
+	 edm::Handle<reco::TrackCollection> trackColl,  ResidualRefitting::storage_trackExtrap& trackExtrap) {
+
+	int numTracks 	= 0;	
+	int recCounter	= 0;
+
+	for ( reco::TrackCollection::const_iterator muon = trackColl->begin(); muon!=trackColl->end(); muon++) {
+
+		int iTrack = muon - trackColl->begin();	
 	
-	for ( MuonCollection::const_iterator muon = muonColl->begin(); muon != muonColl->end(); muon++, iGmr++) {
-	
-		if (debug_) dumpRecoMuonColl(muon); // dump the Gmr, Trk, and Sam  P, Pt, Eta, Phi
+	    reco::TrackRef trackref=reco::TrackRef(trackColl,iTrack);
+		FreeTrajectoryState recoStart = ResidualRefitting::freeTrajStateMuon(trackref);
 
-		SteppingHelixPropagator inwardProp  ( theField, oppositeToMomentum	);
-		SteppingHelixPropagator outwardProp ( theField, alongMomentum		);
-		FreeTrajectoryState recoStart = freeTrajStateMuon(muon->combinedMuon());
+		int iTrackLink =  MatchTrackWithRecHits(muon,trackCollOrig);
+		reco::TrackRef ref = TrackRef(trackCollOrig, iTrackLink);
 
-		
-		int subDetectorLast = -1;
-		for(trackingRecHit_iterator rec =  muon->track()->recHitsBegin(); 
-		 rec != muon->track()->recHitsEnd(); rec++) {
+		for (trackingRecHit_iterator rec1 = ref->recHitsBegin(); rec1!= ref->recHitsEnd(); rec1++, recCounter++) {
+
+			//int iRec = rec1 - ref->recHitsBegin();
 			
-			if (!(*rec)->isValid() ) continue;
-			DetId detid = (*rec)->geographicalId(); 
+			bool unbiasedRec = true;
+
+			for ( trackingRecHit_iterator rec2 = muon->recHitsBegin(); rec2!=muon->recHitsEnd();rec2++) {
+						
+				if (IsSameHit(rec1,rec2)) {
+					unbiasedRec = false;
+					break;
+				}
+			}
+			if (!unbiasedRec) continue;
+				
+			DetId detid = (*rec1)->geographicalId(); 
+
+			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
+				MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec1).geographicalId())
+				,&(**rec1)); 
+		
+			trkExtrap(detid, numTracks, iTrackLink, recCounter, recoStart, (*rec1)->localPosition(), trackExtrap);
+			numTracks++;	
+		
+		}	
+
+	}
+
+	trackExtrap.n_ = numTracks;
+
+}
+//
+// Find the original track that corresponds to the re-fitted track
+//
+int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt,
+	 edm::Handle<reco::TrackCollection> ref) {
+
+	if (debug_) printf("Matching a re-fitted track to the original track.\n");
+	
+	int TrackMatch = -1;
+
+	for (trackingRecHit_iterator rec = trackIt->recHitsBegin(); rec!=trackIt->recHitsEnd(); rec++) {
+		
+		bool foundMatch = false;
+		for (reco::TrackCollection::const_iterator refIt = ref->begin(); refIt!=ref->end(); refIt++) {
+		
+			int iTrackMatch = refIt - ref->begin();
+			if (foundMatch && TrackMatch !=iTrackMatch) break;
+			for (trackingRecHit_iterator recRef = refIt->recHitsBegin(); recRef!=refIt->recHitsEnd(); recRef++) {
+
+				if (!IsSameHit(rec,recRef)) continue;
+				
+				foundMatch = true;
+				TrackMatch = iTrackMatch;
+			//	printf("Rec hit match for original track %d\n", iTrackMatch);
+		
+			}
+		}
+		if (!foundMatch) {
+			printf("SOMETHING WENT WRONG! Could not match Track with original track!");
+			exit(1);
+		}
+		
+	}
+	if (debug_) printf("Rec hit match for original track %d\n", TrackMatch);
+
+//	reco::TrackRef trackref=reco::TrackRef(ref,TrackMatch);
+	return TrackMatch;
+}
+/*
+//
+// Match two tracks to see if one is a subset of the other
+//
+
+bool ResidualRefitting::TrackSubset(reco::TrackRef trackSub, reco::TrackRef trackTop) {
+
+	
+	bool matchAll = true;
+
+	for (trackingRecHit_iterator recSub = trackSub->recHitsBegin(); recSub!=trackSub->recHitsEnd(); recSub++) {
+
+		bool matchSub = false;
+
+
+		for (trackingRecHit_iterator recTop = trackTop->recHitsBegin(); recTop!=trackTop->recHitsEnd(); recTop++) {
+		
+			if ( recSub == recTop ) matchSub = true;
+			if (matchSub) break;
+
+		}
+		if (!matchSub) return false;
+
+	}
+
+	return matchAll;
+
+}
+*/
+
+//
+// Check to see if the rec hits are the same
+//
+bool ResidualRefitting::IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_iterator hit2) {
+
+	
+	double lpx1 = (*hit1)->localPosition().x();
+	double lpy1 = (*hit1)->localPosition().y();
+	double lpz1 = (*hit1)->localPosition().z();
+
+	double lpx2 = (*hit2)->localPosition().x();
+	double lpy2 = (*hit2)->localPosition().y();
+	double lpz2 = (*hit2)->localPosition().z();
+	if ( fabs( lpx1 - lpx2) > 1e-3) return false;
+//	printf("Match lpx...\n");
+	if ( fabs( lpy1 - lpy2) > 1e-3) return false;
+//	printf("Match lpy...\n");
+	if ( fabs( lpz1 - lpz2) > 1e-3) return false;
+//	printf("Match lpz...\n");
+
+	return true;
+
+}
+
+//
+// Store Tracker Rec Hits
+//
+void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
+
 
 			int detector	= -1;
 			int subdetector = -1;
@@ -472,38 +576,23 @@ void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> 
 			int side		= -1;
 			int wheel		= -1;
 			
-			
-			double gpX		= -99999;
-			double gpY		= -99999;
-			double gpZ		= -99999;
-			double gpEta	= -99999;
-			double gpPhi	= -99999;
-			double lpX		= -99999;
-			double lpY		= -99999;
-			double lpZ		= -99999;
-			
 //Detector Info
 
 			detector = detid.det();
 			subdetector = detid.subdetId();
 			
-			if (subdetector != subDetectorLast) {
-				subDetectorLast = subdetector;
-				if (dump_) std::cout<<std::endl;
-			}
-			
 			if (detector != DetId::Tracker) { 
 				std::cout<<"OMFG NOT THE TRACKER\n"<<std::endl;
-				continue;
+				return;
 			}
 
-			if (dump_) std::cout<<"Tracker:: ";
+			if (debug_) std::cout<<"Tracker:: ";
 			if (subdetector == ResidualRefitting::PXB) {
 				PXBDetId id(detid.rawId());
 				layer	= id.layer();
 				ladder	= id.ladder();
 				module	= id.module();
-				if (dump_)	std::cout	<<	"PXB"
+				if (debug_)	std::cout	<<	"PXB"
 										<<	"\tlayer = "	<< layer
 										<<	"\tladder = "	<< ladder
 										<<	"\tmodule = "	<< module;
@@ -516,7 +605,7 @@ void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> 
 				blade	= id.blade();
 				panel	= id.panel();
 				module	= id.module();
-				if (dump_)	std::cout	<<  "PXF"
+				if (debug_)	std::cout	<<  "PXF"
 										<<	"\tside = "		<< side
 										<<	"\tdisk = "		<< disk
 										<<	"\tblade = "	<< blade
@@ -528,7 +617,7 @@ void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> 
 				TIBDetId id(detid.rawId());
 				layer	= id.layer();
 				module	= id.module();
-				if (dump_)	std::cout	<< "TIB"
+				if (debug_)	std::cout	<< "TIB"
 										<< "\tlayer = "	<< layer
 										<< "\tmodule = "<< module;
 			}
@@ -537,7 +626,7 @@ void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> 
 				side	= id.side();
 				wheel	= id.wheel();
 				ring	= id.ring();
-				if (dump_)	std::cout	<<"TID"
+				if (debug_)	std::cout	<<"TID"
 										<< "\tside = "	<< side
 										<< "\twheel = "	<< wheel
 										<< "\tring = "	<< ring;
@@ -547,7 +636,7 @@ void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> 
 				TOBDetId id(detid.rawId());
 				layer	= id.layer();
 				module	= id.module();
-				if (dump_)	std::cout	<<"TOB"
+				if (debug_)	std::cout	<<"TOB"
 										<<"\tlayer = "	<< layer
 										<<"\tmodule = "	<< module;
 			
@@ -556,420 +645,84 @@ void ResidualRefitting::collectTrackerRecHits(edm::Handle<reco::MuonCollection> 
 				TECDetId id(detid.rawId());
 				ring	= id.ring();
 				module	= id.module();
-				if (dump_)	std::cout	<<"TEC"
+				if (debug_)	std::cout	<<"TEC"
 										<< "\tring = "	<< ring
 										<< "\tmodule = "<< module;
 			}
 
-//Global Point Info		
-			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
-			 MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec).geographicalId()), &(**rec)); 			
-				GlobalPoint gp = mrhp->globalPosition();							
-				gpX	= gp.x();
-				gpY	= gp.y();
-				gpZ	= gp.z();
-				gpEta = gp.eta();
-				gpPhi = gp.phi();
-				LocalPoint lp	= (*rec)->localPosition();
-				lpX = lp.x();
-				lpY = lp.y();
-				lpZ = lp.z();
-						
-			if (debug_)	std::cout	<< setprecision(2)
-//									<<  "Tracker Rec Hits: "
-									<<	"\tX = "		<< gpX
-//									<<	"\tY = "		<< gpY
-									<<	"\tZ = "		<< gpZ
-									<<  " \trho = "		<< sqrt( gpX * gpX + gpY * gpY )
-//									<<	"\tEta = "		<< gpEta
-//									<<	"\tPhi = "		<< gpPhi
-									<<std::endl;
-///////
-//
-///////
-					
-			storeHit.muonLink_		[iRec] = iGmr		;
-			storeHit.detector_		[iRec] =detector	;
-			storeHit.subdetector_	[iRec] =subdetector ;
-			storeHit.blade_			[iRec] =blade		;
-			storeHit.disk_			[iRec] =disk		;
-			storeHit.ladder_		[iRec] =ladder		;
-			storeHit.layer_			[iRec] =layer		;
-			storeHit.module_		[iRec] =module		;
-			storeHit.panel_			[iRec] =panel		;
-			storeHit.ring_			[iRec] =ring		;
-			storeHit.side_			[iRec] =side		;
-			storeHit.wheel_			[iRec] =wheel		;
-					
-			storeHit.gpX_			[iRec] = gpX;
-			storeHit.gpY_			[iRec] = gpY;
-			storeHit.gpZ_			[iRec] = gpZ;
-			storeHit.gpEta_			[iRec] = gpEta;
-			storeHit.gpPhi_			[iRec] = gpPhi;
-			storeHit.lpX_			[iRec] = lpX;
-			storeHit.lpY_			[iRec] = lpY;
-			storeHit.lpZ_			[iRec] = lpZ;
 
-			int pars[3] = {iExtrap, iGmr, iRec};
+//Do Storage
 
-			ResidualRefitting::trkExtrap(storeExtrap, detid, pars, outwardProp, recoStart);
-			if (dump_)	{
-				double xxTemp = storeExtrap.gpX_[iExtrap];
-				double yyTemp = storeExtrap.gpY_[iExtrap];
-				double zzTemp = storeExtrap.gpZ_[iExtrap];
-				
-				double rho1 = sqrt(gpX * gpX + gpY * gpY);
-				double rho2 = sqrt(xxTemp * xxTemp + yyTemp * yyTemp);
-						
-						
-				printf("\n\t\tRec Hits:\t z = %8.4f rho = %8.4f\n",gpZ, rho1 );
-				printf("\t\tExtrap:\t\t z = %8.4f rho = %8.4f\n\n",zzTemp, rho2 );
-			}
-									
-			iExtrap++;			
-			iRec++;
-			if ( iRec >= ResidualRefitting::N_MAX_STORED_HIT) { 
-				std::cout << "Too many rec hits... Give up while you still can!"<<std::endl;
-				break;
-			}
-		}				
-	}
-	storeHit.n_		= iRec;
-	storeExtrap.n_	= iExtrap;
-
-
+			storageTrackHit_.muonLink_		[iRec] =iTrack		;
+			storageTrackHit_.detector_		[iRec] =detector	;
+			storageTrackHit_.subdetector_	[iRec] =subdetector ;
+			storageTrackHit_.blade_			[iRec] =blade		;
+			storageTrackHit_.disk_			[iRec] =disk		;
+			storageTrackHit_.ladder_		[iRec] =ladder		;
+			storageTrackHit_.layer_			[iRec] =layer		;
+			storageTrackHit_.module_		[iRec] =module		;
+			storageTrackHit_.panel_			[iRec] =panel		;
+			storageTrackHit_.ring_			[iRec] =ring		;
+			storageTrackHit_.side_			[iRec] =side		;
+			storageTrackHit_.wheel_			[iRec] =wheel		;
+			
 }
+
 //
 // Store Muon info on P, Pt, eta, phi
 //
 void ResidualRefitting::muonInfo(ResidualRefitting::storage_muon& storeMuon, reco::TrackRef muon, int val) {
 
-		storeMuon.pt_ [val]		= muon->pt();
-        storeMuon.p_  [val]		= muon->p();
-        storeMuon.eta_[val]		= muon->eta();
-		storeMuon.phi_[val]		= muon->phi();
-		storeMuon.charge_[val]	= muon->charge();
-}
-//
-// Run code to get store muon information and omit startion infor for the muons
-// 
-void ResidualRefitting::omitStation(edm::Handle<reco::MuonCollection> funcMuons, ResidualRefitting::storage_muon& storeGmr, ResidualRefitting::storage_muon& storeSam,
-						ResidualRefitting::storage_trackExtrap& storeExtrap, int omitStation) {
 
-	if (debug_) std::cout<<"Global Muon sensitive to misalignment : no station "<<omitStation<<std::endl;
-
-	int iGmr = 0;
-	int iRec = 0;
-	int iExtrap = 0;
-	if(debug_) printf("\n Original GMR Muons as Collection\n");
-	for ( MuonCollection::const_iterator muon = funcMuons->begin(); muon!=funcMuons->end(); muon++, iGmr++) {
-		if ( iRec >= ResidualRefitting::N_MAX_STORED_HIT) break; // error checking
-		
-//Store Muon Information		
-		ResidualRefitting::muonInfo(storeGmr, muon->combinedMuon(), iGmr);
-		ResidualRefitting::muonInfo(storeSam, muon->standAloneMuon(), iGmr);
-
-//Helix propagator
-		SteppingHelixPropagator inwardPropRec  ( theField, oppositeToMomentum );
-		SteppingHelixPropagator outwardPropRec ( theField, alongMomentum );
-
-		FreeTrajectoryState recoStart = freeTrajStateMuon(muon->combinedMuon());//( innerPoint, innerVec, muon ->charge(), theField ); 
-	
-//Begin the loop over the muon system rec hits	
-		if (debug_) printf ("Looping over SAM rec hits in the original Global Muon...\n");
-		for(trackingRecHit_iterator rec =  muon->standAloneMuon()->recHitsBegin();
-		 rec != muon->standAloneMuon()->recHitsEnd(); rec++, iRec++) {
-
-
-	//Get Muon System Information		
-			DetId detid = (*rec)->geographicalId(); 
-			if (detid.det() != DetId::Muon) {
-				std::cout<<"OMFG Not a muon!\n"<<std::endl;
-				continue;
-			}
-			int systemMuon = detid.subdetId(); // 1 DT; 2 CSC; 3 RPC
-			int endcap		= -999;
-			int station		= -999;
-			int ring		= -999;
-			int chamber		= -999;
-			int layer		= -999;		
-			if ( systemMuon == MuonSubdetId::CSC) {
-				CSCDetId id(detid.rawId());
-				endcap		= id.endcap();
-				station		= id.station();
-				ring		= id.ring();
-				chamber		= id.chamber();
-				layer		= id.layer();
-				if (debug_)printf("%d System: CSC\t [endcap][station][ringN][chamber][layer]:[%d][%d][%d][%d][%d]\t",iRec, endcap, station, ring, chamber, layer);
-
-			}
-			else if ( systemMuon == MuonSubdetId::DT ) {
-				DTWireId id(detid.rawId());
-				station		= id.station();
-				if (debug_) std::cout<<iRec<<" System: DT"<<std::endl;
-				
-			}
-			else if ( systemMuon == MuonSubdetId::RPC) {
-				RPCDetId id(detid.rawId());
-				station		= id.station();
-				if (debug_) std::cout<<iRec<<"System: RPC"<<std::endl;
-			}
-			else printf("%d THIS ISN'T EVEN A MUON!!!!\n", iRec);
-			if (station != omitStation) continue;
-// Global Coordinates		
-			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
-				MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec).geographicalId())
-				,&(**rec)); 
-
-			GlobalPoint gp = mrhp->globalPosition();
-			double gpRecX = gp.x();
-			double gpRecY = gp.y();
-			double gpRecZ = gp.z();			
-//			double gpRecRho = sqrt ( gpRecX * gpRecX + gpRecY * gpRecY);
-			
-			
-			if (debug_) printf("Global Position\t\t\t x = %0.6f\t y = %0.6f\t z = %0.6f\n", gpRecX, gpRecY, gpRecZ);	
-
-			double gpExtrapX	= -99999;
-			double gpExtrapY	= -99999;
-			double gpExtrapZ	= -99999;
-			double gpExtrapEta	= -99999;
-			double gpExtrapPhi	= -99999;
-			double lpX			= -99999;
-			double lpY			= -99999;
-			const GeomDet* gdet = theService->trackingGeometry()->idToDet(detid);
-			
-			TrajectoryStateOnSurface surfTest =  outwardPropRec.propagate(recoStart, gdet->surface());
-			
-			if (surfTest.isValid()) {
-			
-				GlobalPoint globTest	= surfTest.globalPosition();		
-				gpExtrapX				= globTest.x();
-				gpExtrapY				= globTest.y();
-				gpExtrapZ				= globTest.z();
-				gpExtrapEta				= globTest.eta();
-				gpExtrapPhi				= globTest.phi();
-				lpX			= surfTest.localPosition().x();
-				lpY			= surfTest.localPosition().y();
-			}
-
-			if (debug_) std::cout	<<	"\t\t\t\t\tx = "<< gpExtrapX	
-									<<	"\ty = "		<< gpExtrapY	
-									<<	"\tz = "		<< gpExtrapZ	
-									<<	"\t phi = "		<< gpExtrapPhi	
-									<<	std::endl;
-			storeExtrap.muonLink_	[iExtrap] = iGmr	;
-			storeExtrap.recLink_	[iExtrap] = iRec	;
-			storeExtrap.gpX_		[iExtrap] = gpExtrapX	;
-			storeExtrap.gpY_		[iExtrap] = gpExtrapY	;
-			storeExtrap.gpZ_		[iExtrap] = gpExtrapZ	;
-			storeExtrap.gpEta_		[iExtrap] = gpExtrapEta	;
-			storeExtrap.gpPhi_		[iExtrap] = gpExtrapPhi	;	
-			storeExtrap.lpX_		[iExtrap] = lpX;
-			storeExtrap.lpY_		[iExtrap] = lpY;
-
-
-			iExtrap++;			
-			if ( iExtrap >= ResidualRefitting::N_MAX_STORED_HIT) {
-				std::cout << " TOO Rec Hits ONLY FIRST " << ResidualRefitting::N_MAX_STORED_HIT << " WILL BE STORED! " << std::endl;      
-				break;
-			} 
-			if (debug_)std::cout << iGmr  << "\t" << iRec <<"\t" << iExtrap<<std::endl;
-			
-			
-		}
-	}
-	storeGmr.n_ = iGmr;
-	storeSam.n_ = iGmr;
-	storeExtrap.n_ = iExtrap;
+	storeMuon.pt_ [val]			= muon->pt();
+    storeMuon.p_  [val]			= muon->p();
+    storeMuon.eta_[val]			= muon->eta();
+	storeMuon.phi_[val]			= muon->phi();
+	storeMuon.charge_[val]		= muon->charge();
+	storeMuon.numRecHits_[val]	= muon->numberOfValidHits();
+	storeMuon.chiSq_[val]		= muon->chi2();
+	storeMuon.ndf_[val]			= muon->ndof();
+	storeMuon.chiSqOvrNdf_[val]	= muon->normalizedChi2();
 
 }
-//
-// Go through the tracker system and calculate GMR extrapolation values for GMRs that are in the omitted station
-//
-void ResidualRefitting::omitTrackerSystem(edm::Handle<reco::MuonCollection> trkMuons, ResidualRefitting::storage_muon& storeGmr, ResidualRefitting::storage_muon& storeTrk,
-						ResidualRefitting::storage_trackExtrap& storeExtrap, int omitSystem) {
-
-	int iGmr = 0; 
-	int iRec = 0;
-	int iExtrap = 0;
-	bool dump_ = debug_;
-	if (dump_) std::cout<<"In the omitTrackerSystem function\n";
-	
-	
-	for ( MuonCollection::const_iterator muon = trkMuons->begin(); muon != trkMuons->end(); muon++, iGmr++) {
-	
-		if (debug_) dumpRecoMuonColl(muon); // dump the Gmr, Trk, and Sam  P, Pt, Eta, Phi
-		ResidualRefitting::muonInfo( storeGmr, muon->combinedMuon(), iGmr);
-		ResidualRefitting::muonInfo( storeTrk, muon->track()		, iGmr);
-
-		SteppingHelixPropagator inwardProp  ( theField, oppositeToMomentum	);
-		SteppingHelixPropagator outwardProp ( theField, alongMomentum		);
-		FreeTrajectoryState recoStart = freeTrajStateMuon(muon->combinedMuon());
-
-		
-		int subDetectorLast = -1;
-		for(trackingRecHit_iterator rec =  muon->track()->recHitsBegin(); 
-		 rec != muon->track()->recHitsEnd(); rec++, iRec++) {
-			
-			if (!(*rec)->isValid() ) continue;
-			DetId detid = (*rec)->geographicalId(); 
-
-			int detector	= -1;
-			int subdetector = -1;
-			int blade		= -1;
-			int disk		= -1;
-			int ladder		= -1;
-			int layer		= -1;
-			int module		= -1;
-			int panel		= -1;
-			int ring		= -1;
-			int side		= -1;
-			int wheel		= -1;
-			
-			
-			double gpX		= -1;
-			double gpY		= -1;
-			double gpZ		= -1;
-			double gpEta	= -1;
-			double gpPhi	= -1;
-			
-//Detector Info
-
-			detector = detid.det();
-			subdetector = detid.subdetId();
-			if (subdetector != omitSystem) continue;
-			
-			if (subdetector != subDetectorLast) {
-				subDetectorLast = subdetector;
-				if (dump_) std::cout<<std::endl;
-			}
-			
-			if (detector != DetId::Tracker) { 
-				std::cout<<"OMFG NOT THE TRACKER\n"<<std::endl;
-				continue;
-			}
-
-			if (dump_) std::cout<<"Tracker:: ";
-			if (subdetector == ResidualRefitting::PXB) {
-				PXBDetId id(detid.rawId());
-				layer	= id.layer();
-				ladder	= id.ladder();
-				module	= id.module();
-				if (dump_)	std::cout	<<	"PXB"
-										<<	"\tlayer = "	<< layer
-										<<	"\tladder = "	<< ladder
-										<<	"\tmodule = "	<< module;
-				
-			} 
-			else if (subdetector == ResidualRefitting::PXF) {
-				PXFDetId id(detid.rawId());
-				side	= id.side();
-				disk	= id.disk();
-				blade	= id.blade();
-				panel	= id.panel();
-				module	= id.module();
-				if (dump_)	std::cout	<<  "PXF"
-										<<	"\tside = "		<< side
-										<<	"\tdisk = "		<< disk
-										<<	"\tblade = "	<< blade
-										<<	"\tpanel = "	<< panel
-										<<	"\tmodule = "	<< module;
-							
-			}
-			else if (subdetector == ResidualRefitting::TIB) {
-				TIBDetId id(detid.rawId());
-				layer	= id.layer();
-				module	= id.module();
-				if (dump_)	std::cout	<< "TIB"
-										<< "\tlayer = "	<< layer
-										<< "\tmodule = "<< module;
-			}
-			else if (subdetector == ResidualRefitting::TID) {
-				TIDDetId id(detid.rawId());
-				side	= id.side();
-				wheel	= id.wheel();
-				ring	= id.ring();
-				if (dump_)	std::cout	<<"TID"
-										<< "\tside = "	<< side
-										<< "\twheel = "	<< wheel
-										<< "\tring = "	<< ring;
-			
-			}
-			else if (subdetector == ResidualRefitting::TOB) {
-				TOBDetId id(detid.rawId());
-				layer	= id.layer();
-				module	= id.module();
-				if (dump_)	std::cout	<<"TOB"
-										<<"\tlayer = "	<< layer
-										<<"\tmodule = "	<< module;
-			
-			}
-			else if (subdetector == ResidualRefitting::TEC) {
-				TECDetId id(detid.rawId());
-				ring	= id.ring();
-				module	= id.module();
-				if (dump_)	std::cout	<<"TEC"
-										<< "\tring = "	<< ring
-										<< "\tmodule = "<< module;
-			}
-
-//Global Point Info		
-			MuonTransientTrackingRecHit::MuonRecHitPointer mrhp =	
-			 MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((**rec).geographicalId()), &(**rec)); 			
-				GlobalPoint gp = mrhp->globalPosition();							
-				gpX	= gp.x();
-				gpY	= gp.y();
-				gpZ	= gp.z();
-				gpEta = gp.eta();
-				gpPhi = gp.phi();
-						
-			if (dump_)	std::cout	<< setprecision(2)
-//									<<	"\tX = "		<< gpX
-//									<<	"\tY = "		<< gpY
-									<<	"\tZ = "		<< gpZ
-									<<  " \trho = "		<< sqrt( gpX * gpX + gpY * gpY )
-//									<<	"\tEta = "		<< gpEta
-//									<<	"\tPhi = "		<< gpPhi
-									<< std::endl;
-///////
-//
-///////
-			int pars[3] = {iExtrap, iGmr, iRec};
-
-			trkExtrap(storeExtrap, detid, pars, outwardProp, recoStart);
-			iExtrap++;			
-		}				
-	}
-	storeGmr.n_		= iGmr;
-	storeTrk.n_		= iGmr;
-	storeExtrap.n_	= iExtrap;
-	
-}							
 // 
 // Fill a track extrapolation 
 // 
-void ResidualRefitting::trkExtrap(ResidualRefitting::storage_trackExtrap& storeTemp, DetId detid, int* pars, SteppingHelixPropagator prop, FreeTrajectoryState freeTrajState) {
+void ResidualRefitting::trkExtrap(DetId detid, int iTrk, int iTrkLink, int iRec,
+									FreeTrajectoryState freeTrajState,
+									LocalPoint recPoint,
+									storage_trackExtrap& storeTemp){
+
 	bool dump_ = debug_;
 	
 	if (dump_) std::cout<< "In the trkExtrap function"<<std::endl;
-	int		iTrk	= (pars[0]);
-	int		iGmr	= (pars[1]);
-	int		iRec	= (pars[2]);
 
-	double gpExtrapX	= -99999;
-	double gpExtrapY	= -99999;
-	double gpExtrapZ	= -99999;
-	double gpExtrapEta	= -99999;
-	double gpExtrapPhi	= -99999;
+	float gpExtrapX		= -99999;
+	float gpExtrapY		= -99999;
+	float gpExtrapZ		= -99999;
+	float gpExtrapEta	= -99999;
+	float gpExtrapPhi	= -99999;
 
-	double lpX			= -99999;
-	double lpY			= -99999;
-	double lpZ			= -99999;
+	float lpX			= -99999;
+	float lpY			= -99999;
+	float lpZ			= -99999;
+
+	//
+	// Get the local positions for the recHits
+	//
+
+	float recLpX = recPoint.x();
+	float recLpY = recPoint.y();
+	float recLpZ = recPoint.z();
+
+	float resX = -9999;
+	float resY = -9999;
+	float resZ = -9999;
 
 	const GeomDet* gdet = theService->trackingGeometry()->idToDet(detid);
 	
-	TrajectoryStateOnSurface surfTest =  prop.propagate(freeTrajState, gdet->surface());
+//	TrajectoryStateOnSurface surfTest =  prop.propagate(freeTrajState, gdet->surface());
+	TrajectoryStateOnSurface surfTest =  thePropagator->propagate(freeTrajState, gdet->surface());
 	
 	if (surfTest.isValid()) {
 	
@@ -984,10 +737,15 @@ void ResidualRefitting::trkExtrap(ResidualRefitting::storage_trackExtrap& storeT
 			lpX						= loc.x();
 			lpY						= loc.y();
 			lpZ						= loc.z();
+
+			resX = lpX - recLpX;
+			resY = lpY - recLpY;
+			resZ = lpZ - recLpZ;
+			
 		}
 
 	}
-	storeTemp.muonLink_	[iTrk] = iGmr		;
+	storeTemp.muonLink_	[iTrk] = iTrkLink	;
 	storeTemp.recLink_	[iTrk] = iRec		;
 	storeTemp.gpX_		[iTrk] = gpExtrapX	;
 	storeTemp.gpY_		[iTrk] = gpExtrapY	;
@@ -997,7 +755,102 @@ void ResidualRefitting::trkExtrap(ResidualRefitting::storage_trackExtrap& storeT
 	storeTemp.lpX_		[iTrk] = lpX		;
 	storeTemp.lpY_		[iTrk] = lpY		;
 	storeTemp.lpZ_		[iTrk] = lpZ		;
+	storeTemp.resX_		[iTrk] = resX		;
+	storeTemp.resY_		[iTrk] = resY		;
+	storeTemp.resZ_		[iTrk] = resZ		;
+	
+	printf("station: %d\tsector: %d\tresX storage: %4.2f\n", ReturnStation(detid), ReturnSector(detid), resX);
+
 }
+//
+// Return the station 
+//
+int ResidualRefitting::ReturnStation(DetId detid) {
+	
+	int endcap		= -999;
+	int station		= -999;
+	int ring		= -999;
+	int chamber		= -999;
+	int layer		= -999;
+	int superLayer  = -999;
+	int wheel 		= -999;
+	int sector 		= -999;
+
+	if (detid.det() == DetId::Muon) {
+	
+		int systemMuon  = detid.subdetId(); // 1 DT; 2 CSC; 3 RPC
+		if ( systemMuon == MuonSubdetId::CSC) {
+			CSCDetId id(detid.rawId());
+			endcap		= id.endcap();
+			station		= id.station();
+			ring		= id.ring();
+			chamber		= id.chamber();
+			layer		= id.layer();
+
+		}
+		else if ( systemMuon == MuonSubdetId::DT ) {
+			DTWireId id(detid.rawId());
+			station		= id.station();
+			layer		= id.layer();
+			superLayer	= id.superLayer();
+			wheel		= id.wheel();
+			sector		= id.sector();
+		
+		}
+		else if ( systemMuon == MuonSubdetId::RPC) {
+			RPCDetId id(detid.rawId());
+			station		= id.station();
+		}
+
+	}
+	
+	return station;		
+}
+//
+// Return the sector 
+//
+int ResidualRefitting::ReturnSector(DetId detid) {
+	
+	int endcap		= -999;
+	int station		= -999;
+	int ring		= -999;
+	int chamber		= -999;
+	int layer		= -999;
+	int superLayer  = -999;
+	int wheel 		= -999;
+	int sector 		= -999;
+
+	if (detid.det() == DetId::Muon) {
+	
+		int systemMuon  = detid.subdetId(); // 1 DT; 2 CSC; 3 RPC
+		if ( systemMuon == MuonSubdetId::CSC) {
+			CSCDetId id(detid.rawId());
+			endcap		= id.endcap();
+			station		= id.station();
+			ring		= id.ring();
+			chamber		= id.chamber();
+			layer		= id.layer();
+
+		}
+		else if ( systemMuon == MuonSubdetId::DT ) {
+			DTWireId id(detid.rawId());
+			station		= id.station();
+			layer		= id.layer();
+			superLayer	= id.superLayer();
+			wheel		= id.wheel();
+			sector		= id.sector();
+		
+		}
+		else if ( systemMuon == MuonSubdetId::RPC) {
+			RPCDetId id(detid.rawId());
+			station		= id.station();
+		}
+
+	}
+	
+	return sector;		
+}
+
 // 
 // Store the SAM and Track position info at a particular rho
 // 
@@ -1007,10 +860,11 @@ void ResidualRefitting::cylExtrapTrkSam(int recNum, reco::TrackRef track, Residu
 	Cylinder::RotationType rot;
 
 	Cylinder::CylinderPointer myCylinder = Cylinder::build(pos, rot, rho);
-	SteppingHelixPropagator inwardProp  ( theField, oppositeToMomentum );
-	SteppingHelixPropagator outwardProp ( theField, alongMomentum );
+//	SteppingHelixPropagator inwardProp  ( theField, oppositeToMomentum );
+//	SteppingHelixPropagator outwardProp ( theField, alongMomentum );
 	FreeTrajectoryState recoStart = freeTrajStateMuon(track);
-	TrajectoryStateOnSurface recoProp = outwardProp.propagate(recoStart, *myCylinder);
+//	TrajectoryStateOnSurface recoProp = outwardProp.propagate(recoStart, *myCylinder);
+	TrajectoryStateOnSurface recoProp = thePropagator->propagate(recoStart, *myCylinder);
 
 	double xVal		= -9999;
 	double yVal		= -9999;
@@ -1032,13 +886,25 @@ void ResidualRefitting::cylExtrapTrkSam(int recNum, reco::TrackRef track, Residu
 	storage.gpZ_	[recNum]	= zVal;
 	storage.gpEta_	[recNum]	= etaVal;
 	storage.gpPhi_	[recNum]	= phiVal;
+
+	float rhoVal = sqrt( xVal*xVal + yVal*yVal);
+
+	printf("Cylinder: rho = %4.2f\tphi = %4.2f\teta = %4.2f\n", rhoVal, phiVal, etaVal);
+	if (debug_) printf("Cylinder: rho = %4.2f\tphi = %4.2f\teta = %4.2f\n", rhoVal, phiVal, etaVal);
+
+
 }
+///////////////////////////////////////////////////////////////////////////////
+//Pre-Job junk
+///////////////////////////////////////////////////////////////////////////////
+
 //  
 // zero storage
 // 
 void ResidualRefitting::zero_storage() {
 	if (debug_)	printf("zero_storage\n");
 
+	zero_muon(&storageGmrOld_	);
 	zero_muon(&storageGmrNew_	);
 	zero_muon(&storageSamNew_	);
 	zero_muon(&storageTrkNew_	);
@@ -1142,7 +1008,8 @@ void ResidualRefitting::zero_storage() {
 		storageRecMuon_.ring_			[i]= -99999;
 		storageRecMuon_.chamber_		[i]= -99999;
 		storageRecMuon_.layer_			[i]= -99999;
-		storageRecMuon_.superLayer_		[i]= -99999;
+		storageRecMuon_.wheel_			[i]= -99999;
+		storageRecMuon_.sector_			[i]= -99999;
 		
 		storageRecMuon_.	gpX_		[i]= -99999;
 		storageRecMuon_.	gpY_		[i]= -99999;
@@ -1151,6 +1018,7 @@ void ResidualRefitting::zero_storage() {
 		storageRecMuon_.	gpPhi_		[i]= -99999;
 		storageRecMuon_.	lpX_		[i]= -99999;
 		storageRecMuon_.	lpY_		[i]= -99999;
+		storageRecMuon_.	lpZ_		[i]= -99999;
 //Tracker Rec Hits
 		
 		storageTrackHit_.muonLink_		[N_MAX_STORED_HIT] = -99999;
@@ -1184,10 +1052,14 @@ void ResidualRefitting::zero_muon(ResidualRefitting::storage_muon* str){
 	
 	for (int i = 0; i < ResidualRefitting::N_MAX_STORED; i++) {
     
-		str->pt_  [i] = -9999;
-		str->eta_ [i] = -9999;
-		str->p_   [i] = -9999;
-		str->phi_ [i] = -9999;	
+		str->pt_  			[i] = -9999;
+		str->eta_ 			[i] = -9999;
+		str->p_   			[i] = -9999;
+		str->phi_ 			[i] = -9999;	
+		str->numRecHits_ 	[i] = -9999;
+		str->chiSq_ 		[i] = -9999;
+		str->ndf_ 			[i] = -9999;
+		str->chiSqOvrNdf_ 	[i] = -9999;
 	}
 
 }
@@ -1209,6 +1081,9 @@ void ResidualRefitting::zero_trackExtrap(ResidualRefitting::storage_trackExtrap*
 		str->lpX_		[i] = -9999;
 		str->lpY_		[i] = -9999;
 		str->lpZ_		[i] = -9999;
+		str->resX_		[i] = -9999;
+		str->resY_		[i] = -9999;
+		str->resZ_		[i] = -9999;
 	}
 	
 }
@@ -1223,6 +1098,13 @@ void ResidualRefitting::beginJob( const EventSetup& ) {
 
 	outputTree_ = new TTree("outputTree","outputTree");
 
+	outputTree_->Branch("eventInfo",&eventInfo_,
+						"evtNum_/I:"
+						"runNum_/I"
+				);
+
+
+	ResidualRefitting::branchMuon(storageGmrOld_	, "gmrOld");
 	ResidualRefitting::branchMuon(storageGmrNew_	, "gmrNew");
 	ResidualRefitting::branchMuon(storageGmrNoSt1_	, "gmrNoSt1");
 	ResidualRefitting::branchMuon(storageGmrNoSt2_	, "gmrNoSt2");
@@ -1273,25 +1155,27 @@ void ResidualRefitting::beginJob( const EventSetup& ) {
 	outputBranch_ = outputTree_ -> Branch("recHitsNew", &storageRecMuon_, 
 
 		"n_/I:"
-		"muonLink_[100]/I:"
+		"muonLink_[1000]/I:"
 		
-		"system_[100]/I:"
-		"endcap_[100]/I:"
-		"station_[100]/I:"
-		"ring_[100]/I:"
-		"chamber_[100]/I:"
-		"layer_[100]/I:"
-		"superLayer_[100]/I:"
+		"system_[1000]/I:"
+		"endcap_[1000]/I:"
+		"station_[1000]/I:"
+		"ring_[1000]/I:"
+		"chamber_[1000]/I:"
+		"layer_[1000]/I:"
+		"superLayer_[1000]/I:"
+		"wheel_[1000]/I:"
+		"sector_[1000]/I:"
 		
 	
-		"gpX_[100]/F:"
-		"gpY_[100]/F:"
-		"gpZ_[100]/F:"
-		"gpEta_[100]/F:"
-		"gpPhi_[100]/F:"
-		"lpX_[100]/F:"
-		"lpY_[100]/F:"
-		"lpZ_[100]/F"
+		"gpX_[1000]/F:"
+		"gpY_[1000]/F:"
+		"gpZ_[1000]/F:"
+		"gpEta_[1000]/F:"
+		"gpPhi_[1000]/F:"
+		"lpX_[1000]/F:"
+		"lpY_[1000]/F:"
+		"lpZ_[1000]/F"
 		);
 		
 		
@@ -1299,27 +1183,27 @@ void ResidualRefitting::beginJob( const EventSetup& ) {
 	
 		"n_/I:"
 		
-		"muonLink_[100]/I:"
-		"detector_[100]/I:"
-		"subdetector_[100]/I:"
-		"blade_[100]/I:"
-		"disk_[100]/I:"
-		"ladder_[100]/I:"
-		"layer_[100]/I:"
-		"module_[100]/I:"
-		"panel_[100]/I:"
-		"ring_[100]/I:"
-		"side_[100]/I:"
-		"wheel_[100]/I:"
+		"muonLink_[1000]/I:"
+		"detector_[1000]/I:"
+		"subdetector_[1000]/I:"
+		"blade_[1000]/I:"
+		"disk_[1000]/I:"
+		"ladder_[1000]/I:"
+		"layer_[1000]/I:"
+		"module_[1000]/I:"
+		"panel_[1000]/I:"
+		"ring_[1000]/I:"
+		"side_[1000]/I:"
+		"wheel_[1000]/I:"
 				
-		"gpX_[100]/F:"
-		"gpY_[100]/F:"
-		"gpZ_[100]/F:"
-		"gpEta_[100]/F:"
-		"gpPhi_[100]/F:"
-		"lpX_[100]/F:"
-		"lpY_[100]/F:"
-		"lpZ_[100]/F"
+		"gpX_[1000]/F:"
+		"gpY_[1000]/F:"
+		"gpZ_[1000]/F:"
+		"gpEta_[1000]/F:"
+		"gpPhi_[1000]/F:"
+		"lpX_[1000]/F:"
+		"lpY_[1000]/F:"
+		"lpZ_[1000]/F"
 		);	
 		
 		
@@ -1358,32 +1242,39 @@ void ResidualRefitting::branchMuon(ResidualRefitting::storage_muon& storageTmp, 
 
 	outputBranch_ = outputTree_ -> Branch(branchName.c_str(), &storageTmp, 
 									"n_/I:"
-									"charge_[5]/I:"
-									"pt_[5]/F:"
-									"eta_[5]/F:"
-									"p_[5]/F:"
-									"phi_[5]/F"
+									"charge_[10]/I:"
+									"pt_[10]/F:"
+									"eta_[10]/F:"
+									"p_[10]/F:"
+									"phi_[10]/F:"
+									"numRecHits_[10]/I:"
+									"chiSq_[10]/F:"
+									"ndf_[10]/F:"
+									"chiSqOvrNdf_[10]/F"
 										
 										);
 
 }
 //
-// Set the Muon Branches
+// Set the Branches for Track Extrapolations
 //
 void ResidualRefitting::branchTrackExtrap(ResidualRefitting::storage_trackExtrap& storageTmp, std::string branchName){
 
 	outputBranch_ = outputTree_ -> Branch(branchName.c_str(), &storageTmp, 
 									"n_/I:"
-									"muonLink_[100]/I:"
-									"recLink_[100]/I:"
-									"gpX_[100]/F:"
-									"gpY_[100]/F:"
-									"gpZ_[100]/F:"
-									"gpEta_[100]/F:"
-									"gpPhi_[100]/F:"
-									"lpX_[100]/F:"
-									"lpY_[100]/F:"
-									"lpZ_[100]/F"
+									"muonLink_[1000]/I:"
+									"recLink_[1000]/I:"
+									"gpX_[1000]/F:"
+									"gpY_[1000]/F:"
+									"gpZ_[1000]/F:"
+									"gpEta_[1000]/F:"
+									"gpPhi_[1000]/F:"
+									"lpX_[1000]/F:"
+									"lpY_[1000]/F:"
+									"lpZ_[1000]/F:"
+									"resX_[1000]/F:"
+									"resY_[1000]/F:"
+									"resZ_[1000]/F"
 										
 									);
 
@@ -1420,17 +1311,21 @@ FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(reco::TrackRef muon){
 
 }
 
-// 
+///////////////////////////////////////////////////////////////////////////////// 
 // nTuple value Dumps
+/////////////////////////////////////////////////////////////////////////////////
+
 // 
 // dump Track Extrapolation
+//
 void ResidualRefitting::dumpTrackExtrap(ResidualRefitting::storage_trackExtrap track) {
 	std::cout<<"\n\nExtrapolation Dump:\n";
 	for (unsigned int i = 0; i < (unsigned int)track.n_; i++) {
 		
 //		double rho = sqrt( (float)track.gpX_[i] * (float)track.gpX_[i] + (float)track.gpY_[i] * (float)track.gpY_[i]  );
-		
-		printf ("%d\trecLink = %d", i,	(int)track.recLink_[i]	);
+
+		printf ("%d\tmuonLink= %d",i, (int)track.muonLink_[i]);		
+		printf ("\trecLink = %d", 	(int)track.recLink_[i]	);
 //		printf ("\tGlobal\tx = %0.3f"		,		(float)track.gpX_[i]	);
 //		printf ("\ty = %0.3f"		,		(float)track.gpY_[i]	);
 //		printf ("\tz = %0.3f"		,		(float)track.gpZ_[i]	);
@@ -1444,7 +1339,9 @@ void ResidualRefitting::dumpTrackExtrap(ResidualRefitting::storage_trackExtrap t
 	}
 	
 }
+//
 // dump Muon Rec Hits
+//
 void ResidualRefitting::dumpMuonRecHits(ResidualRefitting::storage_hit hit) {
 	std::cout<<"Muon Rec Hits Dump:\n";
 	for (unsigned int i = 0; i < (unsigned int)hit.n_; i++) {
@@ -1465,7 +1362,9 @@ void ResidualRefitting::dumpMuonRecHits(ResidualRefitting::storage_hit hit) {
 	}
 	
 }
+//
 // dump Tracker Rec Hits
+//
 void ResidualRefitting::dumpTrackHits(ResidualRefitting::storage_trackHit hit) {
 	std::cout<<"Tracker Rec Hits Dump:\n";
 	for (unsigned int i = 0; i < (unsigned int)hit.n_; i++) {
@@ -1487,39 +1386,22 @@ void ResidualRefitting::dumpTrackHits(ResidualRefitting::storage_trackHit hit) {
 	}
 	
 }
-// Dump p, pt, eta, phi for a muon
-void ResidualRefitting::dumpRecoMuonColl(reco::MuonCollection::const_iterator muon) {
+//
+//Dump a TrackRef 
+//
+void ResidualRefitting::dumpTrackRef(reco::TrackRef muon, std::string str) {
 
 	float pt = muon->pt();
 	float p  = muon->p  ();
 	float eta = muon->eta();
 	float phi = muon->phi();
-	printf("\tgmr: \tp = %0.0f \t pt = %0.0f \t eta = %0.2f \t phi = %0.2f\n", p, pt, eta, phi);
-
-	pt = muon->standAloneMuon()->pt();
-	p  = muon->standAloneMuon()->p  ();
-	eta = muon->standAloneMuon()->eta();
-	phi = muon->standAloneMuon()->phi();
-
-	printf("\tsam: \tp = %0.0f \t pt = %0.0f \t eta = %0.2f \t phi = %0.2f\n", p, pt, eta, phi);
-	
-	pt = muon->track()->pt();
-	p  = muon->track()->p();
-	eta = muon->track()->eta();
-	phi = muon->track()->phi();
-
-			
-	printf("\ttrk: \tp = %0.0f \t pt = %0.0f \t eta = %0.2f \t phi = %0.2f\n", p, pt, eta, phi);
-
-	pt = muon->combinedMuon()->pt();
-	p  = muon->combinedMuon()->p  ();
-	eta = muon->combinedMuon()->eta();
-	phi = muon->combinedMuon()->phi();
-
-	printf("\tcmb: \tp = %0.0f \t pt = %0.0f \t eta = %0.2f \t phi = %0.2f\n", p, pt, eta, phi);
-
+	printf("\t%s: \tp = %4.2f \t pt = %4.2f \t eta = %4.2f \t phi = %4.2f\n",str.c_str(), p, pt, eta, phi);
 
 }
 
-
 DEFINE_FWK_MODULE( ResidualRefitting );
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//Deprecated
+////////////////////////////////////////////////////////////////////////////////////////////

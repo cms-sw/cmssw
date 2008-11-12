@@ -13,26 +13,32 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+//#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+//#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
+class ResidualRefitting : public edm::EDAnalyzer{
 
-class ResidualRefitting : public edm::EDAnalyzer {
-
-	static const int N_MAX_STORED = 5;
-	static const int N_MAX_STORED_HIT = 100;
+	static const int N_MAX_STORED = 10;
+	static const int N_MAX_STORED_HIT = 1000;
 
 	static const int PXB = 1;
 	static const int PXF = 2;
@@ -44,19 +50,30 @@ class ResidualRefitting : public edm::EDAnalyzer {
 
  public:
 
-
 //	typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
 //	typedef std::vector< ConstTrajTrackPair >  ConstTrajTrackPairCollection;
+
+	typedef struct {
+		int evtNum_;
+		int runNum_;
+	} storage_event;
+
+	ResidualRefitting::storage_event eventInfo_;
+
  
 	typedef struct {
 
 		int n_;
     
-		int charge_[N_MAX_STORED];
-		float pt_  [N_MAX_STORED];
-		float eta_ [N_MAX_STORED];
-		float p_   [N_MAX_STORED];
-		float phi_ [N_MAX_STORED];
+		int 	charge_			[N_MAX_STORED];
+		float 	pt_  			[N_MAX_STORED];
+		float 	eta_ 			[N_MAX_STORED];
+		float 	p_  	 		[N_MAX_STORED];
+		float 	phi_ 			[N_MAX_STORED];
+		int 	numRecHits_ 	[N_MAX_STORED];
+		float 	chiSq_ 			[N_MAX_STORED];
+		float 	ndf_ 			[N_MAX_STORED];
+		float 	chiSqOvrNdf_ 	[N_MAX_STORED];
 	
 	} storage_muon; // Storage for standard muon information
 
@@ -72,6 +89,8 @@ class ResidualRefitting : public edm::EDAnalyzer {
 		int chamber_	[N_MAX_STORED_HIT];
 		int layer_		[N_MAX_STORED_HIT];
 		int superLayer_	[N_MAX_STORED_HIT];
+		int wheel_		[N_MAX_STORED_HIT];
+		int sector_		[N_MAX_STORED_HIT];
 		
 		float	gpX_		[N_MAX_STORED_HIT];
 		float	gpY_		[N_MAX_STORED_HIT];
@@ -99,6 +118,9 @@ class ResidualRefitting : public edm::EDAnalyzer {
 		float lpX_			[N_MAX_STORED_HIT];
 		float lpY_			[N_MAX_STORED_HIT];
 		float lpZ_			[N_MAX_STORED_HIT];
+		float resX_			[N_MAX_STORED_HIT];
+		float resY_			[N_MAX_STORED_HIT];
+		float resZ_			[N_MAX_STORED_HIT];
 	} storage_trackExtrap;
 		
 	typedef struct {
@@ -123,14 +145,15 @@ class ResidualRefitting : public edm::EDAnalyzer {
 		float gpZ_		[N_MAX_STORED_HIT];
 		float gpEta_	[N_MAX_STORED_HIT];
 		float gpPhi_	[N_MAX_STORED_HIT];
-		float	lpX_		[N_MAX_STORED_HIT];
-		float	lpY_		[N_MAX_STORED_HIT];
-		float	lpZ_		[N_MAX_STORED_HIT];
+		float lpX_		[N_MAX_STORED_HIT];
+		float lpY_		[N_MAX_STORED_HIT];
+		float lpZ_		[N_MAX_STORED_HIT];
 				
 	} storage_trackHit;
 		
 //Standard Muon info storage
-	ResidualRefitting::storage_muon	
+	ResidualRefitting::storage_muon
+	 storageGmrOld_	 ,	
 	 storageGmrNew_	 , storageSamNew_	, storageTrkNew_,
 	 storageGmrNoSt1_, storageSamNoSt1_	,
 	 storageGmrNoSt2_, storageSamNoSt2_	,
@@ -168,15 +191,17 @@ class ResidualRefitting : public edm::EDAnalyzer {
 			storageTrackNoPXF,
 			storageTrackNoTIBLayer1, storageTrackNoTIBLayer2, storageTrackNoTIBLayer3,storageTrackNoTIBLayer4,
 			storageTrackNoTID,
-			storageTrackNoTOBLayer1, storageTrackNoTOBLayer2, storageTrackNoTOBLayer3, storageTrackNoTOBLayer4, storageTrackNoTOBLayer5, storageTrackNoTOBLayer6,
+			storageTrackNoTOBLayer1, storageTrackNoTOBLayer2, storageTrackNoTOBLayer3,
+			storageTrackNoTOBLayer4, storageTrackNoTOBLayer5, storageTrackNoTOBLayer6,
 			storageTrackNoTEC;
-   
+  
+//
+// Start of the method declarations
+//
+ 
 	explicit ResidualRefitting( const edm::ParameterSet & );
 	~ResidualRefitting();
 	
-//	void ResidualRefitting::extrapToRho(double rho, MuonCollection muons);
-
-
 	virtual void analyze(const edm::Event&, const edm::EventSetup&);
 	virtual void beginJob(const edm::EventSetup& ) ;
 	virtual void endJob() ;
@@ -191,29 +216,49 @@ class ResidualRefitting : public edm::EDAnalyzer {
 
 //	void collectTrackRecExtrap(reco::MuonCollection::const_iterator muon, ResidualRefitting::storage_trackExtrap& storeTemp);
 	void muonInfo(ResidualRefitting::storage_muon& storeMuon, reco::TrackRef muon, int val);
-	void collectMuonRecHits(edm::Handle<reco::MuonCollection> muon, ResidualRefitting::storage_hit& storeHit, ResidualRefitting::storage_trackExtrap& trackExtrap);
-	void collectTrackerRecHits(edm::Handle<reco::MuonCollection> muon, ResidualRefitting::storage_trackHit& storeHit, ResidualRefitting::storage_trackExtrap& trackExtrap);
 	
-//Tracjectory Refitting
-	void omitStation(edm::Handle<reco::MuonCollection> funcMuons, ResidualRefitting::storage_muon& storeGmr, ResidualRefitting::storage_muon& storeSam,
-						ResidualRefitting::storage_trackExtrap& storeExtrap, int omitStation);
-	void omitTrackerSystem(edm::Handle<reco::MuonCollection> trkMuons, ResidualRefitting::storage_muon& storeGmr, ResidualRefitting::storage_muon& storeTrk,
-						ResidualRefitting::storage_trackExtrap& storeExtrap, int omitSystem);
-	void trkExtrap(ResidualRefitting::storage_trackExtrap& storeTemp, DetId detid, int* pars, SteppingHelixPropagator prop, FreeTrajectoryState freeTrajState);
+	void CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl, ResidualRefitting::storage_trackExtrap& trackExtrap);
+	void StoreTrackerRecHits(DetId detid, int iTrack, int iRec);
+	void NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig, edm::Handle<reco::TrackCollection> trackColl,
+	  ResidualRefitting::storage_trackExtrap& trackExtrap);
+	int MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt, edm::Handle<reco::TrackCollection> ref);
+	
+	bool IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_iterator hit2);
+
+
+	void trkExtrap(DetId detid, int iTrkLink, int iTrk, int iRec,
+					FreeTrajectoryState freeTrajState,
+					LocalPoint recPoint,
+					storage_trackExtrap& storeTemp);
+
 	void cylExtrapTrkSam(int recNum, reco::TrackRef track, ResidualRefitting::storage_trackExtrap& storage, double rho);
 
 //Simplifiying functions
 	FreeTrajectoryState freeTrajStateMuon(reco::TrackRef muon);//Returns a Free Trajectory State
 //Debug Data Dumps
-	void dumpRecoMuonColl(reco::MuonCollection::const_iterator muon); //
+//	void dumpRecoMuonColl(reco::MuonCollection::const_iterator muon); //
+//	void dumpRecoTrack(reco::TrackCollection::const_iterator muon);
+	void dumpTrackRef(reco::TrackRef muon, std::string str); 
 	void dumpTrackExtrap(ResidualRefitting::storage_trackExtrap track);
 	void dumpTrackHits(ResidualRefitting::storage_trackHit hit);
 	void dumpMuonRecHits(ResidualRefitting::storage_hit hit);
-	
 
+	int ReturnSector(DetId detid);
+	int ReturnStation(DetId detid);
+
+	
+// Deprecated Functions
+	void omitStation(edm::Handle<reco::MuonCollection> funcMuons, edm::Handle<reco::TrackCollection>,
+		ResidualRefitting::storage_muon& storeGmr, ResidualRefitting::storage_muon& storeSam,
+		ResidualRefitting::storage_trackExtrap& storeExtrap, int omitStation);
+	void omitTrackerSystem(edm::Handle<reco::MuonCollection> trkMuons, ResidualRefitting::storage_muon& storeGmr,
+		ResidualRefitting::storage_muon& storeTrk,
+		ResidualRefitting::storage_trackExtrap& storeExtrap, int omitSystem);
       
 	// output histogram file name
 	std::string outputFileName_;
+	//edm::InputTag PropagatorSource_;		
+	std::string PropagatorSource_;		
 
 	// names of product labels
 	edm::InputTag tracks_,
@@ -225,7 +270,6 @@ class ResidualRefitting : public edm::EDAnalyzer {
 	 muonsNoTID_,
 	 muonsNoTOBLayer1_, muonsNoTOBLayer2_, muonsNoTOBLayer3_, muonsNoTOBLayer4_, muonsNoTOBLayer5_, muonsNoTOBLayer6_,
 	 muonsNoTEC_;
-	
 //	   tjTag; 
 
 
@@ -239,8 +283,10 @@ class ResidualRefitting : public edm::EDAnalyzer {
 
 //	unsigned int nBins_;
   
-	const MagneticField * theField;
+	const MagneticField* theField;
+	const edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
 	MuonServiceProxy* theService;
+	edm::ESHandle<Propagator> thePropagator;
   
 };
 
