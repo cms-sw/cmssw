@@ -31,7 +31,10 @@ for (size_t i =0; i<m_fed_in.size(); i++){
 for (size_t i =0; i<m_current.size(); i++){
   std::cout<<"---> "<<m_current[i]<<std::endl;
   }
-
+ std::cout<<"correspondent intervall times (from run start) in microseconds B current in run: "<<std::endl;
+ for (size_t i =0; i<m_times_of_currents.size(); i++){
+   std::cout<<"---> "<<m_times_of_currents[i]<<std::endl;
+ }
   }
 
 

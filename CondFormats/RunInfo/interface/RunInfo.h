@@ -29,6 +29,7 @@ public:
   float m_min_current;
   float m_run_intervall_micros;
   std::vector<float> m_current;
+  std::vector<float> m_times_of_currents;
     
   RunInfo();
   virtual ~RunInfo(){};
