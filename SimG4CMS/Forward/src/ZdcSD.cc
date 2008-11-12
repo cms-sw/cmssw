@@ -111,7 +111,7 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
     std::cout<<"Zdc Cut Energy for Hits: "<<zdcHitEnergyCut<<std::endl;
     hits = showerLibrary->getHits(aStep, ok);
     
-    LogDebug("ForwardZdcSim") << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
+    LogDebug("ForwardSim") << "ZdcSD::getFromLibrary " <<hits.size() <<" hits for "
 			    << GetName() << " of " << primaryID << " with " 
 			    << theTrack->GetDefinition()->GetParticleName() << " of " 
 			      << preStepPoint->GetKineticEnergy()/GeV << " GeV";

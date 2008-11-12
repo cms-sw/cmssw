@@ -16,100 +16,61 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 ZdcShowerLibrary::ZdcShowerLibrary(std::string & name, const DDCompactView & cpv,
-				 edm::ParameterSet const & p) : zdc(0){
+				 edm::ParameterSet const & p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("ZdcShowerLibrary");
-  edm::FileInPath fp       = m_HS.getParameter<edm::FileInPath>("FileName");
-  std::string pTreeName    = fp.fullPath();
-  verbose                  = m_HS.getUntrackedParameter<bool>("Verbosity",false);
+  verbose                  = m_HS.getUntrackedParameter<int>("Verbosity",0);
 
-  if (pTreeName.find(".") == 0) pTreeName.erase(0,2);
-  const char* nfile = pTreeName.c_str();
-  zdc  = TFile::Open(nfile);
+  ienergyBin  = 50000; // 20 GeV bins 50,000 -- 100 GeV 10,000 -- 500 GeV 2,000, -- 5000 GeV 200  
+  ithetaBin   = 64;    // 3 degree theta binning                                                  
+  iphiBin     = 64;    // 3 degree phi binning                                                    
+  isideBin    = 1;     // side                                                                    
+  isectionBin = 1;     // section                                                                 
+  ichannelBin = 1;     // channel                                                                 
+  ixBin       =  10;   // x 1 cm bin                                                              
+  iyBin       =  10;   // y 1 cm bin                                                              
+  izBin       =  40;   // z 4 cm bin                                                              
+  iPIDBin     =  1;    // 1 bin part ID                                                           
 
-  if (!zdc->IsOpen()) { 
-    edm::LogError("ZDCShower") << "ZDCShowerLibrary: opening " << nfile 
-                               << " failed";
-    throw cms::Exception("Unknown", "ZDCShowerLibrary") 
-      << "Opening of " << pTreeName << " fails\n";
-  }else {
-    edm::LogInfo("ZDCShower") << "ZDCShowerLibrary: opening " << nfile
-			      << " successfully"; 
-  }
-
-  binInfo = (TH1I*)zdc-> Get("binInfo");
-  maxBitsInfo =(TH1I*)  zdc->Get("maxBitsInfo");
-  lutPartIDLut =(TH1I*)  zdc->Get("lutPartIDLut");
-  lutMatrixEAverage=(TH2I*)  zdc ->Get("lutMatrixEAverage");
-  lutMatrixESigma =(TH2I*)  zdc ->Get("lutMatrixESigma");
-  lutMatrixEDist  =(TH2I*)  zdc->Get("lutMatrixEDist");
-  randomGen = new TRandom();
-
-  if(!binInfo || !maxBitsInfo || !lutPartIDLut ||
-     !lutMatrixEAverage || ! lutMatrixESigma || !lutMatrixEDist){
-    edm::LogError("ZDCShowerLibrary") << "ZDCShowerLibrary: One of the LuT tablesis not "
-			      << "present in shower LuT input file";
-    throw cms::Exception("Unknown", "ZDCShowerLibrary")
-      << "One of the LuTs is abscent\n";
-  }
-
-  ienergyBin =  binInfo->GetBinContent(1);
-  ithetaBin =  binInfo->GetBinContent(2);
-  iphiBin = binInfo->GetBinContent(3);
-  isideBin =  binInfo->GetBinContent(4);
-  isectionBin = binInfo->GetBinContent(5);
-  ichannelBin = binInfo->GetBinContent(6);
-  ixBin =  binInfo->GetBinContent(7);
-  iyBin =  binInfo->GetBinContent(8);
-  izBin = binInfo->GetBinContent(9);
-  iPIDBin =  binInfo->GetBinContent(10);
-
-
-  std::cout<<"(##) Binning Information: "
-	   <<" energy: "<<ienergyBin
-	   <<" theta: "<<ithetaBin
-	   <<" phi: "<<iphiBin
-	   <<" side: "<<isideBin
-	   <<" section: "<<isectionBin
-	   <<" channel: "<<ichannelBin
-	   <<" X: "<<ixBin
-	   <<" Y: "<<iyBin
-	   <<" Z: "<<izBin
-	   <<" PID: "<<iPIDBin<<std::endl;
+  
+  LogDebug("ZdcShower") <<"(##) Binning Information: "
+                        <<" energy: "<<ienergyBin
+                        <<" theta: "<<ithetaBin
+                        <<" phi: "<<iphiBin
+                        <<" side: "<<isideBin
+                        <<" section: "<<isectionBin
+                        <<" channel: "<<ichannelBin
+                        <<" X: "<<ixBin
+                        <<" Y: "<<iyBin
+                        <<" Z: "<<izBin
+                        <<" PID: "<<iPIDBin;
   
 
-  maxBitsEnergy = maxBitsInfo->GetBinContent(1);
-  maxBitsTheta = maxBitsInfo->GetBinContent(2);
-  maxBitsPhi = maxBitsInfo->GetBinContent(3);
-  maxBitsSide = maxBitsInfo->GetBinContent(4);
-  maxBitsSection = maxBitsInfo->GetBinContent(5);
-  maxBitsChannel = maxBitsInfo->GetBinContent(6);
-  maxBitsX = maxBitsInfo->GetBinContent(7);
-  maxBitsY = maxBitsInfo->GetBinContent(8);
-  maxBitsZ = maxBitsInfo->GetBinContent(9);
-  maxBitsPID = maxBitsInfo->GetBinContent(10);
+  maxBitsEnergy  = 512; // energy            
+  maxBitsTheta   = 64;  // theta             
+  maxBitsPhi     = 64;  // phi               
+  maxBitsSide    = 2;   // detector side     
+  maxBitsSection = 4;   // detector section  
+  maxBitsChannel = 8;   // detector channel  
+  maxBitsX       = 16;  // X                 
+  maxBitsY       = 16;  // Y                 
+  maxBitsZ       = 32;  // Z                 
+  maxBitsPID     = 64;  // pid              
 
-  std::cout<<"(##) MaxBits Information: "
-	   <<" energy: "<<maxBitsEnergy 
-	   <<" theta: "<<maxBitsTheta
-	   <<" phi: "<< maxBitsPhi
-	   <<" side: "<< maxBitsSide
-	   <<" section: "<<maxBitsSection
-	   <<" channel: "<<maxBitsChannel
-	   <<" X: "<<maxBitsX
-	   <<" Y: "<<maxBitsY
-	   <<" Z: "<<maxBitsZ
-	   <<" PID: "<<maxBitsPID
-	   <<std::endl;
+  LogDebug("ZdcShower") <<"(##) MaxBits Information: "
+                        <<" energy: "<<maxBitsEnergy 
+                        <<" theta: "<<maxBitsTheta
+                        <<" phi: "<< maxBitsPhi
+                        <<" side: "<< maxBitsSide
+                        <<" section: "<<maxBitsSection
+                        <<" channel: "<<maxBitsChannel
+                        <<" X: "<<maxBitsX
+                        <<" Y: "<<maxBitsY
+                        <<" Z: "<<maxBitsZ
+                        <<" PID: "<<maxBitsPID;
  
 }
 
 ZdcShowerLibrary::~ZdcShowerLibrary() {
-  if (lutMatrixEAverage) delete lutMatrixEAverage;
-  if (lutMatrixESigma) delete lutMatrixESigma;
-  if (lutMatrixEDist) delete lutMatrixEDist;
-  if (lutPartIDLut) delete lutPartIDLut;
-  if (random) delete randomGen;
-  if (zdc) zdc->Close();
 }
 
 void ZdcShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
@@ -218,36 +179,24 @@ std::vector<ZdcShowerLibrary::Hit> ZdcShowerLibrary::getHits(G4Step * aStep, boo
 
     int dE = getEnergyFromLibrary(hitPoint,momDir,energy,parCode,section,side,channel);
 
-    if (parCode == emPDG ||
-	parCode == epPDG ||
-	parCode == gammaPDG ) {
+    int iparCode = encodePartID(parCode);
+    if ( iparCode == 0 ) {
       oneHit.DeEM  = dE; oneHit.DeHad = 0.;
     } else {
       oneHit.DeEM  = 0; oneHit.DeHad = dE;
     }
-
+    
     hits.push_back(oneHit);
     
-    std::cout<< "Generated Hits " << nHit 
-	     <<" original hit position " << hitPoint
-	     <<" position " << (hits[nHit].position) 
-	     <<" Depth " <<(hits[nHit].depth) 
-	     <<" side "<< side  
-	     <<" Time " <<(hits[nHit].time)
-	     <<" DetectorID " << (hits[nHit].detID)
-	     <<" Had Energy " << (hits[nHit].DeHad)
-	     <<" EM Energy  " << (hits[nHit].DeEM)
-	     <<std::endl;
-
     LogDebug("ZdcShower")<< "ZdcShowerLibrary:  Generated Hits " << nHit 
-			 <<" original hit position " << hitPoint
-			 <<" position " << (hits[nHit].position) 
-			 <<" Depth " <<(hits[nHit].depth) 
-			 <<" side "<< side  
-			 <<" Time " <<(hits[nHit].time)
-			 <<" DetectorID " << (hits[nHit].detID)
-			 <<" Had Energy " << (hits[nHit].DeHad)
-			 <<" EM Energy  " << (hits[nHit].DeEM);    
+                         <<" original hit position " << hitPoint
+                         <<" position " << (hits[nHit].position) 
+                         <<" Depth " <<(hits[nHit].depth) 
+                         <<" side "<< side  
+                         <<" Time " <<(hits[nHit].time)
+                         <<" DetectorID " << (hits[nHit].detID)
+                         <<" Had Energy " << (hits[nHit].DeHad)
+                         <<" EM Energy  " << (hits[nHit].DeEM);    
     nHit++;
   }
    return hits;
@@ -258,18 +207,16 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
 					   int parCode,HcalZDCDetId::Section section, bool side, int channel){
   int nphotons = 0;
  
-  std::cout<<"GetEnergy variables: *---> "
-	   <<" phi: "<<59.2956*momDir.phi()
-	   <<" theta: "<<59.2956*momDir.theta()
-	   <<" xin : "<<hitPoint.x()
-	   <<" yin : "<<hitPoint.y()
-	   <<" zin : "<<hitPoint.z()
-	   <<" en: " <<energy
-	   <<" section: "<<section
-	   <<" side: "<<side
-	   <<" partID: "<<parCode
-	   <<std::endl;
-
+  LogDebug("ZdcShower") <<"GetEnergy variables: *---> "
+                        <<" phi: "<<59.2956*momDir.phi()
+                        <<" theta: "<<59.2956*momDir.theta()
+                        <<" xin : "<<hitPoint.x()
+                        <<" yin : "<<hitPoint.y()
+                        <<" zin : "<<hitPoint.z()
+                        <<" en: " <<energy
+                        <<" section: "<<section
+                        <<" side: "<<side
+                        <<" partID: "<<parCode;
 
   int iphi   = int(59.2956*momDir.phi()/float(iphiBin));
   int itheta = int(59.2956*momDir.theta()/float(ithetaBin));
@@ -279,173 +226,60 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
   int ienergy = int(energy/float(ienergyBin));
   int isection = int(section);
   int iside = (side)? 1 : 2;     
-  int iparCode  = encodeParID(parCode);
+  int iparCode  = encodePartID(parCode);
 
-  std::cout<<"Binned variables: #---> "
-	   <<" iphi: "<<iphi
-	   <<" itheta: "<<itheta
-	   <<" ixin : "<<ixin
-	   <<" iyin : "<<iyin
-	   <<" izin : "<<izin
-	   <<" ien: " <<ienergy
-	   <<" isection: "<<isection
-	   <<" iside: "<<iside
-	   <<" iparcode "<<iparCode
-	   <<std::endl;
-    
-  iLutIndex1 = encode1(iphi,itheta,ixin,iyin,izin);
-  iLutIndex2 = encode2(ienergy,isection,iside,channel,iparCode);  
-
-  double eav  = lutMatrixEAverage->GetBinContent(iLutIndex1,iLutIndex2);
-  double esig = lutMatrixESigma ->GetBinContent(iLutIndex1,iLutIndex2);
-  double edis = lutMatrixEDist  ->GetBinContent(iLutIndex1,iLutIndex2);
+  LogDebug("ZdcShower") <<"Binned variables: #---> "
+                        <<" iphi: "<<iphi
+                        <<" itheta: "<<itheta
+                        <<" ixin : "<<ixin
+                        <<" iyin : "<<iyin
+                        <<" izin : "<<izin
+                        <<" ien: " <<ienergy
+                        <<" isection: "<<isection
+                        <<" iside: "<<iside
+                        <<" iparcode "<<iparCode;
   
-  nphotons = photonFluctuation(eav, esig,edis);
+  double eav, esig, edis = 0.;
 
-  std::cout<<" ########photons---->"<<nphotons<<std::endl;
+  if (/*int*/ iparCode==0){            // Jeff's fits here
+    eav = ((((((-0.0002*ixin-2*10e-13)*ixin+0.0022)*ixin+10e-11)*ixin-0.0217)*ixin-3*10e-10)*ixin+1)*
+      (((0.0001*iyin + 0.0056)*iyin + 0.0508)*iyin + 1)*44*pow(ienergy,0.99);       // EM
+    esig = (eav*eav)*((((((0.0005*ixin - 10e-12)*ixin - 0.0052)*ixin + 5*10e-11)*ixin + 0.032)*ixin - 
+                        2*10e-10)*ixin + 1)*(((0.0006*iyin + 0.0071)*iyin - 0.031)*iyin + 1)*26*pow(ienergy,0.54);  // EM
+    edis = 1.0;                    // this is for EM Gaussian Distributions
+  }else{                     
+    eav = ((((((-0.0002*ixin-2*10e-13)*ixin+0.0022)*ixin+10e-11)*ixin-0.0217)*ixin-3*10e-10)*ixin+1)*
+      (((0.0001*iyin + 0.0056)*iyin + 0.0508)*iyin + 1)*2.3*pow(ienergy,1.12);      // Hadronic
+    esig = (eav*eav)*((((((0.0005*ixin - 10e-12)*ixin - 0.0052)*ixin + 5*10e-11)*ixin + 0.032)*ixin - 
+                        2*10e-10)*ixin + 1)*(((0.0006*iyin + 0.0071)*iyin - 0.031)*iyin + 1)*1.2*pow(ienergy,0.93); // Hadronic
+    edis = 3.0;                    // this is for hadronic Landau Distributions 
+  }
+  
+  nphotons = photonFluctuation(eav,esig,edis);
+
+  LogDebug("ZdcShower") <<" ########photons---->"<<nphotons;
   return nphotons;
 }
 
 int ZdcShowerLibrary::photonFluctuation(double eav, double esig,double edis){
   int nphot=0;
   double efluct = 0.;
-  if(edis == 1.0)efluct = randomGen->Gaus(eav,esig);
-  if(edis == 2.0)efluct = randomGen->Landau(eav,esig);
+  if(edis == 1.0)efluct = CLHEP::RandGaussQ::shoot(eav,esig);
+  if(edis == 3.0)efluct = eav+esig*CLHEP::RandLandau::shoot(); // to be verified!!!!!!!!!!
   nphot = int(efluct);
   return nphot;
 }
 
-int ZdcShowerLibrary::encodeParID(int parID){
-  int partID = 0;
-  for(int i = 1; i <= maxBitsPID; i++){
-    partID = i;
-    if(parID==lutPartIDLut->GetBinContent(i))break;
-  }
-  return partID;
-}
-      
-void ZdcShowerLibrary::decode1(const unsigned long & lutidx,int& iphi, int& itheta, int& ix,int& iy, int& iz){
-  // todo: make dependent on maxBits variables
-  int iphisgn = (lutidx>>29)&1;
-  int ithsgn  = (lutidx>>28)&1;
-  int izsgn   = (lutidx>>27)&1;
-  int iysgn   = (lutidx>>26)&1;
-  int ixsgn   = (lutidx>>25)&1;
-  itheta = (lutidx>>19)&63;
-  iphi = (lutidx>>13)&63;
-  iz = (lutidx>>8)&31;
-  iy = (lutidx>>4)&15;
-  ix = (lutidx)&15;
+int ZdcShowerLibrary::encodePartID(int parCode){
 
-  if(ithsgn == 0)itheta*= -1;
-  if(iphisgn == 0)iphi*= -1;
-  if(izsgn == 0)iz*= -1;
-  if(iysgn == 0)iy*= -1;
-  if(ixsgn == 0)ix*= -1;
+  int iparCode = 1;
 
-  std::cout<<"    %d1: "
-	   <<iphi<<" "
-	   <<itheta<<" "
-	   <<ix<<" "
-	   <<iy<<" "
-	   <<iz<<" %"
-	   <<lutidx;//<<std::endl;
-  return;
-}
+  if (parCode == emPDG ||
+      parCode == epPDG ||
+      parCode == gammaPDG ) {
+    iparCode = 0;
+  } else { return iparCode; }
 
-void ZdcShowerLibrary::decode2(const unsigned long & lutidx,int& ien, int& isec, int& isid, int& icha, int& iparID){
-  // todo: make dependent on maxBits variables
-  ien = (lutidx>>12)&511;
-  iparID = (lutidx>>6)&63;
-  icha = (lutidx>>3)&7;
-  isec = (lutidx>>1)&3;
-  isid = 1 +(lutidx&1);
-
-  std::cout<<"    *d2: "
-           <<ien<<" "
-           <<isec<<" "
-	   <<isid<<" "
-	   <<icha<<" "
-	   <<iparID<<" *"
-	   <<lutidx;//<<std::endl;
-  return;
-}
-
-unsigned long ZdcShowerLibrary::encode1(int iphi, int itheta, int ix, int iy, int iz){
- // todo: make dependent on maxBits variables
- std::cout<<"    +e1: "
-	  <<iphi<<" "
-	  <<itheta<<" "
-	  <<ix<<" "
-	  <<iy<<" "
-	  <<iz<<" +";
-  int ixsgn = 1;
-  if(ix<0){
-    ix = -ix;
-    ixsgn = 0;
-  }
-  int iysgn = 1;
-  if(iy<0){
-    iy = -iy;
-    iysgn = 0;
-  }
-  int izsgn = 1;  
-  if(iz<0){
-    iz = -iz;
-    izsgn = 0;
-  }
-  int ithsgn = 1;
-  if(itheta<0){
-    itheta = -itheta;
-    ithsgn = 0;
-  }
-  int iphsgn = 1;
-  if(iphi<0){
-    iphi = -iphi;
-    iphsgn = 0;
-  }
-
-  unsigned long lutindex = (iphsgn&1)<<29;
-  lutindex += (ithsgn&1) <<28;
-  lutindex += (izsgn&1)  <<27;
-  lutindex += (iysgn&1)  <<26;
-  lutindex += (ixsgn&1)  <<25;    //bits 25
-  lutindex += (itheta&63)<<19;    //bits 19-24
-  lutindex += (iphi&63)  <<13;    //bits 13-18
-  lutindex += (iz&31)    <<8;     //bits  8-12
-  lutindex += (iy&15)    <<4;     //bits  4- 7
-  lutindex += (ix&15);            //bits  0- 3
-
-  std::cout<<lutindex;//<<std::endl;
-  int newiphi, newitheta, newix, newiy, newiz; 
-  decode1(lutindex, newiphi, newitheta, newix, newiy, newiz);    
-  return lutindex;
+  return iparCode;
 
 }
-
-unsigned long ZdcShowerLibrary::encode2(int ien, int isec, int isid, int icha, int iparID){
- // todo: make dependent on maxBits variables
-  unsigned long  lutindex = (ien&511)<<12;   //bits  12-20
-  lutindex += (iparID&63)<<6;                //bits  6-11
-  lutindex += (icha&7)   <<3;                //bits  3- 5
-  lutindex += (isec&3)   <<1;                //bits  1- 2
-  lutindex += ((isid-1)&1);                  //bits  0
-
-  std::cout<<"    ^e2: "
-           <<ien<<" "
-           <<isec<<" "
-	   <<isid<<" "
-	   <<icha<<" "
-	   <<iparID<<" ^"
-	   <<lutindex;//<<std::endl;
-
-  int newien, newisec, newisid, newicha, newipar; 
-  decode2(lutindex, newien, newisec, newisid, newicha, newipar);    
-  return lutindex;
-}
-
-
-
-
-
-

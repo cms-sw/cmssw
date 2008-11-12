@@ -15,11 +15,6 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
  
-//ROOT
-#include "TFile.h"
-#include "TH2I.h"
-#include "TRandom.h"
-
 #include <string>
 #include <memory>
 
@@ -33,19 +28,9 @@ public:
   //Constructor and Destructor
   ZdcShowerLibrary(std::string & name, const DDCompactView & cpv, edm::ParameterSet const & p);
   ~ZdcShowerLibrary();
-
- public:
-
-  TH1I* binInfo;
-  TH1I* maxBitsInfo;  
-  TH1I* lutPartIDLut; 
-  TH2I* lutMatrixEAverage;
-  TH2I* lutMatrixESigma;
-  TH2I* lutMatrixEDist;
   
-
-  TRandom* randomGen;
-
+ public:
+  
   struct Hit {
     Hit() {}
     G4ThreeVector             entryLocal;
@@ -61,26 +46,19 @@ public:
   void                        initRun(G4ParticleTable * theParticleTable);
   std::vector<Hit>            getHits(G4Step * aStep, bool & ok);
   int                         getEnergyFromLibrary(G4ThreeVector posHit, G4ThreeVector momDir, double energy,
-						   int parCode,HcalZDCDetId::Section section, bool side, int channel);
-  unsigned long               encode1(int iphi, int itheta, int ix, int iy, int iz);
-  unsigned long               encode2(int ien,  int isec,  int isid, int icha, int iparID);  
-  int                         encodeParID(int parID);
-  void              decode1(const unsigned long & lutidx, int& iphi,int& itheta, int& ix, int& iy, int& iz); 
-  void              decode2(const unsigned long & lutidx, int& ien, int& isec, int& isid, int& icha, int& iparID);
-  int               photonFluctuation(double eav, double esig,double edis);
-
-protected:
+                                                   int parCode,HcalZDCDetId::Section section, bool side, int channel);
+  int                         photonFluctuation(double eav, double esig,double edis);
+  int                         encodePartID(int parCode);
+  
+ protected:
 
 private:
 
-  TFile *                    zdc;
-  int                        ienergyBin,ithetaBin,iphiBin, isideBin, isectionBin, ichannelBin,ixBin ,iyBin, izBin, iPIDBin;
-  int                        maxBitsEnergy, maxBitsTheta, maxBitsPhi, maxBitsSide, maxBitsSection, maxBitsChannel, maxBitsX, maxBitsY, maxBitsZ, maxBitsPID;
-  bool                       verbose;
-  int                        emPDG, epPDG, gammaPDG;
-  int                        pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                        anuePDG, anumuPDG, anutauPDG, geantinoPDG;
-  unsigned long              iLutIndex1;
-  unsigned long              iLutIndex2;
+  int                         ienergyBin,ithetaBin,iphiBin, isideBin, isectionBin, ichannelBin,ixBin ,iyBin, izBin, iPIDBin;
+  int                         maxBitsEnergy, maxBitsTheta, maxBitsPhi, maxBitsSide, maxBitsSection, maxBitsChannel, maxBitsX, maxBitsY, maxBitsZ, maxBitsPID;
+  bool                        verbose;
+  int                         emPDG, epPDG, gammaPDG;
+  int                         pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
+  int                         anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 };
 #endif
