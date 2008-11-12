@@ -7,7 +7,6 @@ import FWCore.ParameterSet.Config as cms
 #         already written into the event.
 from RecoMET.METProducers.genMetCalo_cfi import *
 from RecoMET.METProducers.genMetCaloAndNonPrompt_cfi import *
-from RecoMET.METProducers.genMetAllVisible_cfi import *
 from RecoMET.METProducers.genMetTrue_cfi import *
 from RecoMET.METProducers.genMetFromGenJets_cfi import *
 #
@@ -16,5 +15,5 @@ from RecoMET.METProducers.genMetFromGenJets_cfi import *
 # needs genParticlesAllStableNoNu from that sequence
 # can't append them here explicitly because of scheduling problem
 #recoGenMET = cms.Sequence(genMet+genMetNoNuBSM*genMetIC5GenJets)
-recoGenMET = cms.Sequence(genMetCalo+genMetCaloAndNonPrompt+genMetAllVisible+genMetTrue*genMetIC5GenJets)
+recoGenMET = cms.Sequence(genMetCalo+genMetCaloAndNonPrompt+genMetTrue*genMetIC5GenJets)
 
