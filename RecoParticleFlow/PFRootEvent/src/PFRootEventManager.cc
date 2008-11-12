@@ -455,6 +455,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
   
@@ -584,6 +585,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
 
@@ -632,6 +634,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Electron parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
 
@@ -645,6 +648,7 @@ void PFRootEventManager::readOptions(const char* file,
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Conversions parameters: "
         <<err.what()<<". terminating."<<endl;
+    delete this;
     exit(1);
   }
 
@@ -1128,7 +1132,6 @@ PFRootEventManager::~PFRootEventManager() {
   }
 
   if(outEvent_) delete outEvent_;
-
 
   delete options_;
 
@@ -2545,6 +2548,7 @@ string PFRootEventManager::expand(const string& oldString) const {
 
   if(!directory) {
     cerr<<"please define environment variable $"<<env_variable<<endl;
+    delete this;
     exit(1);
   }
   string sdir = directory;
