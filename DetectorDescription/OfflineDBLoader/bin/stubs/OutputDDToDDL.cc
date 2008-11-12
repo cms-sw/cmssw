@@ -90,10 +90,10 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   (*xos_) << "</MaterialSection>" << std::endl;
 
   (*xos_) << "<RotationSection label=\"" << ns_ << "\">" << std::endl;
-  DDRotation rotn(DDName("IDENTITYDB","generatedForDB"));
+  DDRotation rotn(DDName("ID","gen"));
   if ( !rotn.isDefined().second ) {
     DDRotationMatrix* rotID = new DDRotationMatrix();
-    DDRotation mydr = DDrot (DDName("IDENTITYDB","generatedForDB"), rotID);
+    DDRotation mydr = DDrot (DDName("ID","gen"), rotID);
     out.rotation(mydr, *xos_);
   }
   DDRotation::iterator<DDRotation> rit(DDRotation::begin()), red(DDRotation::end());
