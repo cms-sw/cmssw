@@ -19,15 +19,37 @@
 #ifndef CSCDQM_Collection_H
 #define CSCDQM_Collection_H
 
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOMNodeList.hpp>
+
+#include <string>
+#include <map>
+
 namespace cscdqm {
 
-class Collection {
+  /**
+  * Type Definition Section
+  */
+  typedef std::map<std::string, std::string>     CoHistoProps;
+  typedef std::map<std::string, CoHistoProps>    CoHisto;
+  typedef std::map<std::string, CoHisto>         CoHistoMap;
+  
+  class Collection {
+
+    public:
+      
+      Collection(const std::string p_bookingFile);
+      
+    private:
+
+      void load();
+      
+      std::string bookingFile;
+      CoHistoMap  collection;
+
+  };
 
 
-
-};
-
-
-};
+}
 
 #endif
