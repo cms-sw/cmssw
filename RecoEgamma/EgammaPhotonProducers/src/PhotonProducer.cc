@@ -346,7 +346,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
     newCandidate.setShowerShapeVariables ( maxXtal.second, e1x5, e2x5,  e3x3, e5x5, covEtaEta,  covIetaIeta );
-    std::cout << " PhotonProducer e1x5 " << newCandidate.e1x5() << " e5x5 " <<   newCandidate.e5x5() << " max Xtal " << newCandidate.maxEnergyXtal() <<  std::endl;
+    //std::cout << " PhotonProducer e1x5 " << newCandidate.e1x5() << " e5x5 " <<   newCandidate.e5x5() << " max Xtal " << newCandidate.maxEnergyXtal() <<  std::endl;
 
     PhotonFiducialFlags fidFlags;
     PhotonIsolationVariables isolVarR03, isolVarR04;
@@ -379,11 +379,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     if ( newCandidate.nTrkHollowConeDR04()         > int(preselCutValues[3]) ) isLooseEM=false;
     if ( newCandidate.isolationTrkSolidConeDR04()  > preselCutValues[4] )      isLooseEM=false;
     if ( newCandidate.isolationTrkHollowConeDR04() > preselCutValues[5] )      isLooseEM=false;
-    
-    std::cout << " ecalRecHitSumDR04() " <<  newCandidate.ecalRecHitSumConeDR04() << " newCandidate.hcalTowerSumDR04() " << newCandidate.hcalTowerSumConeDR04() << std::endl;
-  
     if ( isLooseEM) {
-      std::cout << " ACCEPTED ecalRecHitSumDR04() " <<  newCandidate.ecalRecHitSumConeDR04() << " newCandidate.hcalTowerSumDR04() " << newCandidate.hcalTowerSumConeDR04() << std::endl;  
+    
     
       if ( validConversions_) {
 	
