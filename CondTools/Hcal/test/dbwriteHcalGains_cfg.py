@@ -23,7 +23,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('Gains'),
-        file = cms.FileInPath('CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50.txt')
+        file = cms.FileInPath('CondFormats/HcalObjects/data/gains-mc/HBflatmax8.5kV_brightened_HEflatmean7750Vmax8000V_HO8kV_real_HF1250V_withcorrections_080827.txt')
     ))
 )
 
@@ -33,7 +33,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('HcalGainsRcd'),
-        tag = cms.string('mytestgains')
+        tag = cms.string('hcal_gains_v3.01_physics_mc')
          ))
 )
 

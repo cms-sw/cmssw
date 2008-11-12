@@ -18,11 +18,11 @@ es_ascii = cms.ESSource("HcalTextCalibrations",
         ), 
         cms.PSet(
             object = cms.string('Gains'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/gains-mc/HBflatmax8.5kV_brightened_HEflatmean7750Vmax8000V_HO8kV_real_HF1250V_withcorrections_080827.txt')
         ), 
         cms.PSet(
             object = cms.string('QIEData'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2_fakeZDC.txt')
         ), 
         cms.PSet(
             object = cms.string('GainWidths'),

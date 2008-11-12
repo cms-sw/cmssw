@@ -22,8 +22,8 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('L1TriggerObjects'),
-        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_L1TriggerObject_trivial.txt')
+        object = cms.string('QIEData'),
+        file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2_fakeZDC.txt')
     ))
 )
 
@@ -32,13 +32,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalL1TriggerObjectsRcd'),
-        tag = cms.string('hcal_L1TriggerObject_trivial_mc')
+        record = cms.string('HcalQIEDataRcd'),
+        tag = cms.string('qie_normalmode_v6.01')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalL1TriggerObjectsPopConAnalyzer",
-    record = cms.string('HcalL1TriggerObjectsRcd'),
+process.mytest = cms.EDAnalyzer("HcalQIEDataPopConAnalyzer",
+    record = cms.string('HcalQIEDataRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

@@ -38,7 +38,7 @@ es_pool = cms.ESSource("PoolDBESSource",
         ), 
         cms.PSet(
             record = cms.string('HcalL1TriggerObjectsRcd'),
-            tag = cms.string('hcal_L1trigger_trivial_mc')
+            tag = cms.string('hcal_L1TriggerObjects_trivial_mc')
         ), 
         cms.PSet(
             record = cms.string('HcalElectronicsMapRcd'),

@@ -33,7 +33,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('HcalElectronicsMapRcd'),
-        tag = cms.string('mytestemap')
+        tag = cms.string('official_emap_v7.00')
          ))
 )
 

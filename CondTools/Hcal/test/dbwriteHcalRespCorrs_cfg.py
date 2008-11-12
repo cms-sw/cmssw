@@ -22,8 +22,8 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('L1TriggerObjects'),
-        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_L1TriggerObject_trivial.txt')
+        object = cms.string('RespCorrs'),
+        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_trivial_HF0.7.txt')
     ))
 )
 
@@ -32,13 +32,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalL1TriggerObjectsRcd'),
-        tag = cms.string('hcal_L1TriggerObject_trivial_mc')
+        record = cms.string('HcalRespCorrsRcd'),
+        tag = cms.string('hcal_respcorr_trivial_v1.01_mc')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalL1TriggerObjectsPopConAnalyzer",
-    record = cms.string('HcalL1TriggerObjectsRcd'),
+process.mytest = cms.EDAnalyzer("HcalRespCorrsPopConAnalyzer",
+    record = cms.string('HcalRespCorrsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

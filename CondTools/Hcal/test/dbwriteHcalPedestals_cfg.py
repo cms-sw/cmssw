@@ -23,7 +23,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('Pedestals'),
-        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt')
+        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v6_mc.txt')
     ))
 )
 
@@ -33,7 +33,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('HcalPedestalsRcd'),
-        tag = cms.string('mytest')
+        tag = cms.string('hcal_pedestals_fC_v6_mc')
          ))
 )
 

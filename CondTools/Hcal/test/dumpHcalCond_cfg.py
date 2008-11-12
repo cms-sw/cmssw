@@ -11,16 +11,16 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 ## specify which conditions you would like to dump to a text file in the "dump" vstring
 process.prod = cms.EDFilter("HcalDumpConditions",
     dump = cms.untracked.vstring(
-#        'Pedestals'
-#        ,'PedestalWidths' #
-#        'Gains' 
-#        ,'QIEData' #
-        'ElectronicsMap'
-#        ,'ChannelQuality' #
-#        ,'GainWidths' #
-#        ,'RespCorrs' #
-#        'L1TriggerObjects'
-#        ,'ZSThresholds'
+        'Pedestals'
+        ,'PedestalWidths' 
+        ,'Gains' 
+        ,'QIEData' 
+        ,'ElectronicsMap'
+        ,'ChannelQuality' 
+        ,'GainWidths' 
+        ,'RespCorrs' 
+        ,'L1TriggerObjects'
+        ,'ZSThresholds'
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
@@ -38,16 +38,38 @@ process.es_pool = cms.ESSource("PoolDBESSource",
      connect = cms.string('sqlite_file:testExample.db'),
      authenticationMethod = cms.untracked.uint32(0),
      toGet = cms.VPSet(
-         cms.PSet(
-             record = cms.string('HcalElectronicsMapRcd'),
-             tag = cms.string('mytestemap')
-#             record = cms.string('HcalL1TriggerObjectsRcd'),
-#             tag = cms.string('mytestL1trigger')
-#             record = cms.string('HcalPedestalsRcd'),
-#             tag = cms.string('mytest')
-#             record = cms.string('HcalGainsRcd'),
-#             tag = cms.string('mytestgains')
-             )
+        cms.PSet(
+            record = cms.string('HcalPedestalsRcd'),
+            tag = cms.string('hcal_pedestals_fC_v6_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalPedestalWidthsRcd'),
+            tag = cms.string('hcal_widths_fC_v6_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalGainsRcd'),
+            tag = cms.string('hcal_gains_v3.01_physics_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalQIEDataRcd'),
+            tag = cms.string('qie_normalmode_v6.01')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalChannelQualityRcd'),
+            tag = cms.string('hcal_channelStatus_trivial_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalRespCorrsRcd'),
+            tag = cms.string('hcal_respcorr_trivial_v1.01_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalL1TriggerObjectsRcd'),
+            tag = cms.string('hcal_L1TriggerObject_trivial_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalElectronicsMapRcd'),
+            tag = cms.string('official_emap_v7.00')
+        )
 )
 )
 
@@ -83,54 +105,52 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #             )
 #         )
 # )
-# 
-# process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-#     toGet = cms.untracked.vstring('GainWidths', 
-#         'channelQuality', 
-#         'ZSThresholds', 
-#         'RespCorrs')
-# )
 
-process.es_ascii = cms.ESSource("HcalTextCalibrations",
-     input = cms.VPSet(
-         cms.PSet(
-             object = cms.string('Pedestals'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt')
-             ), 
-         cms.PSet(
-             object = cms.string('PedestalWidths'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v5.txt')
-         ), 
-         cms.PSet(
-             object = cms.string('Gains'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_gains_v1.txt')
-         ), 
-         cms.PSet(
-             object = cms.string('GainWidths'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_gains_widths_v1.txt')
-         ), 
-         cms.PSet(
-             object = cms.string('QIEData'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2.txt')
-         ), 
+process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
+     toGet = cms.untracked.vstring('GainWidths', 
+         'ZSThresholds')
+ )
+
+#process.es_ascii = cms.ESSource("HcalTextCalibrations",
+#     input = cms.VPSet(
+#         cms.PSet(
+#             object = cms.string('Pedestals'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt')
+#             ), 
+#         cms.PSet(
+#             object = cms.string('PedestalWidths'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v5.txt')
+#         ), 
+#         cms.PSet(
+#             object = cms.string('Gains'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_gains_v1.txt')
+#         ), 
+#         cms.PSet(
+#             object = cms.string('GainWidths'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_gains_widths_v1.txt')
+#         ), 
+#         cms.PSet(
+#             object = cms.string('QIEData'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2_fakeZDC.txt')
+#         ), 
 #         cms.PSet(
 #             object = cms.string('ElectronicsMap'),
 #             file = cms.FileInPath('CondFormats/HcalObjects/data/official_emap_v7.00_081109.txt')
 #         ), 
-         cms.PSet(
-             object = cms.string('ChannelQuality'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
-         ),
-         cms.PSet(
-             object = cms.string('RespCorrs'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_trivial_HF0.7.txt')
-         ) ,
-         cms.PSet(
-             object = cms.string('L1TriggerObjects'),
-             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_L1TriggerObject_trivial.txt')
-         )
-         )
- )
+#         cms.PSet(
+#             object = cms.string('ChannelQuality'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
+#         ),
+#         cms.PSet(
+#             object = cms.string('RespCorrs'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_trivial_HF0.7.txt')
+#         ) ,
+#         cms.PSet(
+#             object = cms.string('L1TriggerObjects'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_L1TriggerObject_trivial.txt')
+#         )
+#         )
+# )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
