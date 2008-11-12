@@ -49,7 +49,6 @@ namespace cms
       std::string METtype;
       std::string alias;
       bool noHF;
-      bool geomCut;
       double globalThreshold;
       //CandidateCollection tempCol;
     };
