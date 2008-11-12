@@ -38,10 +38,16 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include <fstream>
 #include <iomanip>
 #include <iterator>
-
+#include "TH1.h"
+#include "TProfile.h"
 //
 // class decleration
 //
@@ -87,6 +93,10 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
 		   const CaloSubdetectorGeometry* geom ,
 		   const EBDetId&   id   , 
 		   std::fstream&    fOvr  );
+
+      TProfile* h_eta ;
+      TProfile* h_phi;
+
 };
 //
 // constants, enums and typedefs
@@ -104,6 +114,10 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
    //now do what ever initialization is needed
   pass_=0;
   //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
+  edm::Service<TFileService> fs;
+
+  h_eta = fs->make<TProfile>("iEta", "Eta vs iEta", 86*2*4, -86, 86, " " ) ;
+  h_phi = fs->make<TProfile>("iPhi", "Phi vs iPhi", 360*4, 1, 361, " " ) ;
 }
 
 
@@ -124,7 +138,6 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 //   typedef std::vector< CaloSubdetectorGeometry::DetIdSet::value_type > DetVec ;
    const DetSet base ( geom->CaloSubdetectorGeometry::getCells( gp, dR ) ) ;
    const DetSet over ( geom->getCells( gp, dR ) ) ;
-
    if( over == base )
    {
 /*
@@ -424,7 +437,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
    for( std::vector<DetId>::iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
    {
       ++n;
-//      std::cout<<"starting for cell i = "<<int(i-ids.begin())<<std::endl ;
       const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;
 
       ctrcor( det,
@@ -445,7 +457,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
       if( det == DetId::Ecal )
       {
-	 if (subdetn == EcalBarrel)
+	 if (subdetn == EcalBarrel )
 	 {
 	    f << "  // " << EBDetId(*i) << std::endl;
 	    
@@ -454,6 +466,15 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    f << "  // Checking getClosestCell for position " 
 	      << gp
 	      << std::endl;
+
+
+	    const EBDetId ebid ( id ) ;
+	    for(unsigned int j ( 0 ) ; j !=4 ; ++j )
+	    {
+	       const CaloCellGeometry::CornersVec& corn ( cell->getCorners() ) ;
+	       h_eta->Fill( ebid.ieta()*1. + 0.25*j, corn[j].eta() ) ;
+	       if( ebid.ieta()>0) h_phi->Fill( ebid.iphi()*1. + 0.25*j, corn[j].phi() ) ;
+	    }
 
 	    EBDetId closestCell ( geom->getClosestCell( gp ) ) ;
 
@@ -596,7 +617,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	 f << "  // Return position is " << closestCell << std::endl;
 	 if( closestCell != HcalDetId(*i) )
 	 {
-//	    std::cout<<"**help** for id="<<HcalDetId(*i)<< "; closest is "<<closestCell<<std::endl ;
 	    const double rr ( reco::deltaR( gp.eta(), gp.phi(), 
 					    geom->getGeometry( closestCell )->getPosition().eta(),
 					    geom->getGeometry( closestCell )->getPosition().phi()   ) ) ; 

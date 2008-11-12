@@ -21,6 +21,9 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 
+#include <Math/Transform3D.h>
+#include <Math/EulerAngles.h>
+
 //Forward declaration
 
 //
@@ -68,8 +71,6 @@ class CaloGeometryFromDBEP : public edm::ESProducer
 	 }
 
 //*********** this section to be replaced by call to get objects from db **********************
-	 std::cout<<"$$$$$$$$$$$$$$Producername = "<<T::producerName() <<std::endl;
-
 	 edm::ESHandle<CaloSubdetectorGeometry> pG ;
 	 iRecord.get( T::producerName(), pG ) ; 
 
@@ -79,9 +80,12 @@ class CaloGeometryFromDBEP : public edm::ESProducer
 	 DimVec dvec ;
 	 IVec   ivec ;
 
-	 pGptr->getInfoForDB( tvec, ivec, dvec ) ;
+	 // should tag with T::producerName() which is a std::string
 
+	 pGptr->getSummary( tvec, ivec, dvec ) ;
 //*********************************************************************************************
+
+	 const unsigned int nTrParm ( tvec.size()/T::k_NumberOfCellsForCorners ) ;
 
 	 assert( dvec.size() == T::k_NumberOfShapes * T::k_NumberOfParametersPerShape ) ;
 
@@ -100,7 +104,9 @@ class CaloGeometryFromDBEP : public edm::ESProducer
 	    DimVec dims ;
 	    dims.reserve( nPerShape ) ;
 
-	    DimVec::const_iterator dsrc ( dvec.begin() + ivec[i]*nPerShape ) ;
+	    const unsigned int indx ( ivec.size()==1 ? 0 : i ) ;
+
+	    DimVec::const_iterator dsrc ( dvec.begin() + ivec[indx]*nPerShape ) ;
 
 	    for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )
 	    {
@@ -139,9 +145,24 @@ class CaloGeometryFromDBEP : public edm::ESProducer
 	    const HepPoint3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
 	    const HepPoint3D lCor ( lc[0] ) ;
 
-	    const HepTransform3D atr ( 0 == at ? tvec[i] :
-				       ( 0 == gt ? at->transform()*tvec[i] :
-					 gt->transform()*at->transform()*tvec[i] ) ) ;
+	    const unsigned int jj ( i*nTrParm ) ;
+	    HepTransform3D tr ;
+	    const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
+	    const ROOT::Math::EulerAngles ea (
+	       6==nTrParm ?
+	       ROOT::Math::EulerAngles( tvec[jj+3], tvec[jj+4], tvec[jj+5] ) :
+	       ROOT::Math::EulerAngles() ) ;
+	    const ROOT::Math::Transform3D rt ( ea, tl ) ;
+	    double xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz;
+	    rt.GetComponents(xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz) ;
+	    tr = HepTransform3D( HepRep3x3( xx, xy, xz,
+					    yx, yy, yz,
+					    zx, zy, zz ), 
+				 Hep3Vector(dx,dy,dz)     );
+
+	    const HepTransform3D atr ( 0 == at ? tr :
+				       ( 0 == gt ? at->transform()*tr :
+					 gt->transform()*at->transform()*tr ) ) ;
 
 	    const HepPoint3D  gRef ( atr*lRef ) ;
 	    const GlobalPoint fCtr ( gRef.x(), gRef.y(), gRef.z() ) ;

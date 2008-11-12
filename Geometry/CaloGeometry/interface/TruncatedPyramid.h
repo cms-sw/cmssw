@@ -75,12 +75,12 @@ class TruncatedPyramid : public CaloCellGeometry
       static std::vector<HepPoint3D> localCornersReflection( const double* pv,
 							     HepPoint3D&   ref ) ;
 
+      static std::vector<HepPoint3D> localCornersSwap( const double* pv,
+						       HepPoint3D&   ref ) ;
+
       virtual HepTransform3D getTransform( std::vector<HepPoint3D>* lptr ) const ;
 
    private:
-
-      static std::vector<HepPoint3D> localCornersSwap( const double* pv,
-						       HepPoint3D&   ref ) ;
 
 
       GlobalVector makeAxis() 

@@ -1,6 +1,9 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
+#include <Math/Transform3D.h>
+#include <Math/EulerAngles.h>
+
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
 { 
    for( CellCont::iterator i ( m_cellG.begin() );
@@ -155,15 +158,13 @@ CaloSubdetectorGeometry::allocatePar( ParVec::size_type n,
 }
 
 void
-CaloSubdetectorGeometry::getInfoForDB( CaloSubdetectorGeometry::TrVec&  tVec ,
-				       CaloSubdetectorGeometry::IVec&   iVec ,   
-				       CaloSubdetectorGeometry::DimVec& dVec   )  const
+CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
+				     CaloSubdetectorGeometry::IVec&   iVec ,   
+				     CaloSubdetectorGeometry::DimVec& dVec   )  const
 {
-   tVec.reserve( cellGeometries().size() ) ;
-   iVec.reserve( cellGeometries().size() ) ;
+   tVec.reserve( cellGeometries().size()*numberOfTransformParms() ) ;
+   iVec.reserve( numberOfShapes()==1 ? 1 : cellGeometries().size() ) ;
    dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
-
-   std::cout<<"in getinfo start"<<std::endl ;
 
    for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
    {
@@ -173,9 +174,7 @@ CaloSubdetectorGeometry::getInfoForDB( CaloSubdetectorGeometry::TrVec&  tVec ,
 	 dVec.push_back( *iv ) ;
       }
    }
-   std::cout<<"in getinfo after dims pushing"<<std::endl ;
 
-   bool first ( true ) ;
    for( CellCont::const_iterator i ( cellGeometries().begin() ) ; 
 	i != cellGeometries().end() ; ++i )
    {
@@ -183,13 +182,26 @@ CaloSubdetectorGeometry::getInfoForDB( CaloSubdetectorGeometry::TrVec&  tVec ,
 
       if( HepTransform3D() == tr ) // for preshower there is no rotation
       {
-	 if( first ) std::cout<<"####################### translation"<<std::endl ;
-	 first = false ;
 	 const GlobalPoint& gp ( (*i)->getPosition() ) ; 
 	 tr = HepTranslate3D( gp.x(), gp.y(), gp.z() ) ;
       }
 
-      tVec.push_back( tr ) ;
+      const Hep3Vector  tt ( tr.getTranslation() ) ;
+      tVec.push_back( tt.x() ) ;
+      tVec.push_back( tt.y() ) ;
+      tVec.push_back( tt.z() ) ;
+      if( 6 == numberOfTransformParms() )
+      {
+	 const HepRotation rr ( tr.getRotation() ) ;
+	 const ROOT::Math::Transform3D rtr ( rr.xx(), rr.xy(), rr.xz(), tt.x(),
+					     rr.yx(), rr.yy(), rr.yz(), tt.y(),
+					     rr.zx(), rr.zy(), rr.zz(), tt.z()  ) ;
+	 ROOT::Math::EulerAngles ea ;
+	 rtr.GetRotation( ea ) ;
+	 tVec.push_back( ea.Phi() ) ;
+	 tVec.push_back( ea.Theta() ) ;
+	 tVec.push_back( ea.Psi() ) ;
+      }
 
       const double* par ( (*i)->param() ) ;
 
@@ -210,9 +222,7 @@ CaloSubdetectorGeometry::getInfoForDB( CaloSubdetectorGeometry::TrVec&  tVec ,
       }
       assert( 9999 != ishape ) ;
 
-      iVec.push_back( ishape ) ;
+      const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : cellGeometries().size() ) ; 
+      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
    }
-   std::cout<<"in getinfo at end"<<std::endl ;
-
-   std::cout<<"ivec length = "<<iVec.size() <<", dimvec length="<<dVec.size()<<"tr length="<<tVec.size()<<std::endl;
 }

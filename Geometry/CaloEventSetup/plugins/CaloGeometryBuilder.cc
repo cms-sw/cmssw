@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.8 2008/05/19 20:12:41 heltsley Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.9 2008/11/10 15:15:30 heltsley Exp $
 //
 //
 
@@ -81,21 +81,21 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
       {
 	 std::cout<< "Building EcalBarrel reconstruction geometry"<<std::endl;
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalBarrel reconstruction geometry";
-	 iRecord.getRecord<EcalBarrelGeometryRecord>().get("EcalBarrel", pG); 
+	 iRecord.getRecord<EcalBarrelGeometryRecord>().get("EcalBarrelTEST", pG); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
       }
       // look for Ecal Endcap
       else if ( (*ite) == "EcalEndcap" ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalEndcap reconstruction geometry";
-	 iRecord.getRecord<EcalEndcapGeometryRecord>().get("EcalEndcap", pG); 
+	 iRecord.getRecord<EcalEndcapGeometryRecord>().get("EcalEndcapTEST", pG); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
       }
       // look for Ecal Preshower
       else if ( (*ite) == "EcalPreshower" ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalPreshower reconstruction geometry";
-	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get("EcalPreshower", pG); 
+	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get("EcalPreshowerTEST", pG); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
       }
       // look for TOWER parts

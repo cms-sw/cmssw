@@ -77,7 +77,6 @@ EcalPreshowerGeometry::initializeParms()
    z2 /= (1.*n2) ;
    assert( 0 != z1 && 0 != z2 ) ;
    setzPlanes( z1, z2 ) ;
-   std::cout<<"=================z1 = "<<z1<<", z2="<<z2<<std::endl ;
 }
 
 // Get closest cell, etc...

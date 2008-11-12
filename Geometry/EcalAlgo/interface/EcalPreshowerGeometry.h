@@ -56,6 +56,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
 
       virtual void initializeParms() ;
+      virtual unsigned int numberOfTransformParms() const { return 3 ; }
 
       static std::string hitString() { return "EcalHitsES" ; }
 

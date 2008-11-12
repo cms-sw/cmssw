@@ -11,11 +11,15 @@ TruncatedPyramid::getTransform( std::vector<HepPoint3D>* lptr ) const
    const GlobalPoint& p ( CaloCellGeometry::getPosition() ) ;
    const HepPoint3D   gFront ( p.x(), p.y(), p.z() ) ;
 
+   const double dz ( param()[0] ) ;
+
    HepPoint3D lFront ;
    assert(                               0 != param() ) ;
-   std::vector<HepPoint3D> lc ( localCorners( param(), lFront ) ) ;
+   std::vector<HepPoint3D> lc ( 11.2 > dz ?
+				localCorners( param(), lFront ) :
+				localCornersSwap( param(), lFront )  ) ;
 
-   // figure out if reflection volume or not
+   // figure out if reflction volume or not
 
    HepPoint3D lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
 
@@ -28,30 +32,29 @@ TruncatedPyramid::getTransform( std::vector<HepPoint3D>* lptr ) const
    const double dell ( fabs( disg - disl ) ) ;
    const double delr ( fabs( disg - disr ) ) ;
 
-   if( delr < dell ) // reflection volume if true
+   if( 11.2<dz &&
+       delr < dell ) // reflection volume if true
    {
-//      lc = localCornersReflection( param(), lFront ) ;
-//      lBack  = 0.25*( lc[4] + lc[5] + lc[6] + lc[7] ) ;
+      lc = localCornersReflection( param(), lFront ) ;
+      lBack  = 0.25*( lc[4] + lc[5] + lc[6] + lc[7] ) ;
    }
 
    const HepPoint3D lOne  ( lc[0] ) ;
 
    const HepVector3D gAxis ( axis().x(), axis().y(), axis().z() ) ;
 
-   const double dz ( param()[0] ) ;
 
-
-   const HepPoint3D gBack ( gFront + 2*dz*gAxis ) ;
+   const HepPoint3D gBack ( gFront + (lBack-lFront).mag()*gAxis ) ;
    const HepPoint3D gOneT ( gFront + ( lOne - lFront ).mag()*( (*m_corOne) - gFront ).unit() ) ;
 
    const double langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
    const double gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
    const double dangle ( langle - gangle ) ;
 
-   const HepPlane3D gPl ( gFront, gBack, gOneT ) ;
+   const HepPlane3D gPl (  gFront, gOneT, gBack ) ;
    const HepPoint3D p2  ( gFront + gPl.normal().unit() ) ;
 
-   const HepPoint3D gOne ( gFront + HepRotate3D( dangle, gFront, p2 )*
+   const HepPoint3D gOne ( gFront + HepRotate3D( -dangle, gFront, p2 )*
 			   HepVector3D( gOneT - gFront ) ) ;
 
    const HepTransform3D tr ( lFront , lBack , lOne ,
@@ -102,19 +105,29 @@ TruncatedPyramid::localCornersReflection( const double* pv,
 
    std::vector<HepPoint3D> lc ( localCorners( pv, ref ) ) ;
    HepPoint3D tmp ;
-
+/*
    tmp   = lc[0] ;
-   lc[0] = refl( lc[3] ) ;
-   lc[3] = refl( tmp   ) ;
-   tmp   = lc[1] ;
-   lc[1] = refl( lc[2] ) ;
+   lc[0] = refl( lc[2] ) ;
    lc[2] = refl( tmp   ) ;
+   tmp   = lc[1] ;
+   lc[1] = refl( lc[3] ) ;
+   lc[3] = refl( tmp   ) ;
    tmp   = lc[4] ;
-   lc[4] = refl( lc[7] ) ;
-   lc[7] = refl( tmp   ) ;
-   tmp   = lc[5] ;
-   lc[5] = refl( lc[6] ) ;
+   lc[4] = refl( lc[6] ) ;
    lc[6] = refl( tmp   ) ;
+   tmp   = lc[5] ;
+   lc[5] = refl( lc[7] ) ;
+   lc[7] = refl( tmp   ) ;
+*/
+   lc[0] = refl( lc[0] ) ;
+   lc[1] = refl( lc[1] ) ;
+   lc[2] = refl( lc[2] ) ;
+   lc[3] = refl( lc[3] ) ;
+   lc[4] = refl( lc[4] ) ;
+   lc[5] = refl( lc[5] ) ;
+   lc[6] = refl( lc[6] ) ;
+   lc[7] = refl( lc[7] ) ;
+
 
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
    return lc ;
@@ -157,21 +170,6 @@ TruncatedPyramid::localCorners( const double* pv,
    lc[5-off] = HepPoint3D(  dz*tthcp + h2*ta2 - t2,  dz*tthsp + h2 ,  dz ); // (-,+,+)
    lc[6-off] = HepPoint3D(  dz*tthcp + h2*ta2 + t2,  dz*tthsp + h2 ,  dz ); // (+,+,+)
    lc[7-off] = HepPoint3D(  dz*tthcp - h2*ta2 + b2,  dz*tthsp - h2 ,  dz ); // (+,-,+)
-
-   HepPoint3D tmp ;
-
-   tmp   = lc[0] ;
-   lc[0] = lc[3] ;
-   lc[3] = tmp   ;
-   tmp   = lc[1] ;
-   lc[1] = lc[2] ;
-   lc[2] = tmp   ;
-   tmp   = lc[4] ;
-   lc[4] = lc[7] ;
-   lc[7] = tmp   ;
-   tmp   = lc[5] ;
-   lc[5] = lc[6] ;
-   lc[6] = tmp   ;
 
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 
@@ -230,7 +228,7 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
 
 
    HepPoint3D tmp ;
-   std::vector<HepPoint3D> to ( localCornersSwap( &pv.front(), tmp ) ) ;
+   std::vector<HepPoint3D> to ( localCorners( &pv.front(), tmp ) ) ;
 
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {

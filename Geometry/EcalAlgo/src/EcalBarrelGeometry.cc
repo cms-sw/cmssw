@@ -428,10 +428,12 @@ EcalBarrelGeometry::localCorners( const double* pv,
 				  unsigned int  i,
 				  HepPoint3D&   ref )
 {
-   return TruncatedPyramid::localCorners( pv, ref ) ;
+   const bool negz ( EBDetId::kSizeForDenseIndexing/2 >  i ) ;
+   const bool odd  ( 1 == i%2 ) ;
 
-// ( 1 == i%2 ? TruncatedPyramid::localCorners( pv, ref ) :
-//	    TruncatedPyramid::localCornersReflection( pv, ref ) ) ;
+   return ( ( ( negz  && !odd ) ||
+	      ( !negz && odd  )    ) ? TruncatedPyramid::localCornersReflection( pv, ref ) :
+	    TruncatedPyramid::localCornersSwap( pv, ref ) ) ;
 }
 
 CaloCellGeometry* 
