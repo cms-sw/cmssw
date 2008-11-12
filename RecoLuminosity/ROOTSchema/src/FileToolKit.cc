@@ -1,6 +1,6 @@
+#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
+
 // STL Headers
-#include <string>
-#include <vector>
 #include <fstream>
 
 // Linux
@@ -11,8 +11,6 @@
 // C
 #include <cerrno>
 #include <cstdio>
-
-#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
 
 void FileToolKit::Tokenize(const std::string& str,
 			   std::vector< std::string >& tokens,
