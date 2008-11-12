@@ -11,7 +11,14 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("histo.root")
+                                   )
+
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'sqlite_file:prova.db'
+process.CondDBCommon.DBParameters.messageLevel = 2
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.load("CalibTracker.SiPixelESProducers.SiPixelFakeGainESSource_cfi")
 
@@ -49,16 +56,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 process.prefer("PoolDBESSource")
 process.SiPixelCondObjAllPayloadsReader = cms.EDFilter("SiPixelCondObjAllPayloadsReader",
     process.SiPixelGainCalibrationServiceParameters,
-    payloadType = cms.string('HLT'),
-    fileName = cms.string('histos.root')
+    payloadType = cms.string('HLT')
 )
 
 #process.print = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.SiPixelCondObjAllPayloadsReader)
 #process.ep = cms.EndPath(process.print)
-process.CondDBCommon.connect = 'sqlite_file:prova.db'
-process.CondDBCommon.DBParameters.messageLevel = 2
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-
 

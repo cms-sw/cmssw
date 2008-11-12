@@ -9,7 +9,14 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("histo.root")
+                                   )
+
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'sqlite_file:prova.db'
+process.CondDBCommon.DBParameters.messageLevel = 2
+process.CondDBCommon.DBParameters.authenticationPath = ''
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -36,16 +43,13 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.prefer("PoolDBESSource")
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters,
-    fileName = cms.string('histos_HLT.root')
+    process.SiPixelGainCalibrationServiceParameters
 )
 
 #process.print = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.SiPixelCondObjForHLTReader)
 #process.ep = cms.EndPath(process.print)
-process.CondDBCommon.connect = 'sqlite_file:prova.db'
-process.CondDBCommon.DBParameters.messageLevel = 2
-process.CondDBCommon.DBParameters.authenticationPath = ''
+
 
 

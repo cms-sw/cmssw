@@ -11,10 +11,15 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("histo.root")
+                                   )
+
+
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'oracle://cms_orcoff_int2r/CMS_COND_PIXEL'
+process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X'
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.CondDBCommon.DBParameters.messageLevel = 3
+process.CondDBCommon.DBParameters.messageLevel = 1
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -53,13 +58,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.prefer("PoolDBESSource")
 process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
-    process.SiPixelGainCalibrationServiceParameters,
-    fileName = cms.string('histos_Offline.root')
+    process.SiPixelGainCalibrationServiceParameters
 )
 
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters,
-    fileName = cms.string('histos_HLT.root')
+    process.SiPixelGainCalibrationServiceParameters
 )
 
 process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")

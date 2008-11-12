@@ -69,17 +69,6 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
              
       }
 
-  std::cout<<"IsModuleBad should be true, 302123296: "<<  SiPixelBadModule_->IsModuleBad(302123296)<<std::endl;
-  std::cout<<"IsModuleBad should be false, 302195555: "<<  SiPixelBadModule_->IsModuleBad(302195555)<<std::endl;
-  std::cout<<"IsModuleBad should be false, 302125076: "<<  SiPixelBadModule_->IsModuleBad(302125076)<<std::endl;
-//   std::cout<<"IsModuleUsable should be false: "<<  SiPixelBadModule_->IsModuleUsable(302123296)<<std::endl;
-//   std::cout<<"IsModuleUsable should be true: "<<  SiPixelBadModule_->IsModuleUsable(302195555)<<std::endl;
-//   std::cout<<"IsRocBad should be true: "<<  SiPixelBadModule_->IsRocBad(302126364, 8)<<std::endl;
-//   std::cout<<"IsRocBad should be false: "<<  SiPixelBadModule_->IsRocBad(302126364, 5)<<std::endl;
-//   std::cout<<"IsRocBad should be true: "<<  SiPixelBadModule_->IsRocBad(302121992, 5)<<std::endl;
-//   std::cout<<"IsRocBad should be false: "<<  SiPixelBadModule_->IsRocBad(302121992, 8)<<std::endl;
-
-
    std::sort(disabledModules.begin(),disabledModules.end(),SiPixelQuality::BadComponentStrictWeakOrdering());
 
     for (size_t id=0;id<disabledModules.size();id++)

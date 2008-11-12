@@ -11,7 +11,15 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("histo.root")
+                                   )
+
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'oracle://cms_orcoff_int2r/CMS_COND_PIXEL'
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.CondDBCommon.DBParameters.messageLevel = 3
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -47,8 +55,7 @@ process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader"
 )
 
 process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters,
-    fileName = cms.string('histos_HLT_startup.root')
+    process.SiPixelGainCalibrationServiceParameters
 )
 
 process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")
@@ -59,8 +66,3 @@ process.SiPixelFedCablingMapAnalyzer = cms.EDAnalyzer("SiPixelFedCablingMapAnaly
 
 process.p = cms.Path(process.SiPixelCondObjOfflineReader*process.SiPixelCondObjForHLTReader)
 #process.ep = cms.EndPath(process.print)
-process.CondDBCommon.connect = 'oracle://cms_orcoff_int2r/CMS_COND_PIXEL'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.CondDBCommon.DBParameters.messageLevel = 3
-
-

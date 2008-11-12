@@ -44,7 +44,6 @@ public:
 
   ~SiPixelCondObjOfflineReader(){};
   virtual void beginJob( const edm::EventSetup& );
-  virtual void beginRun( const edm::Run& run, const edm::EventSetup& );
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
   virtual void endJob() ;
 
@@ -66,9 +65,8 @@ private:
   TH1F *_TH1F_Gains_all;
   TH1F *_TH1F_Pedestals_all;
   
-  std::string filename_;
-  TFile* fFile;
-
+  
+  
 };
 }
 #endif

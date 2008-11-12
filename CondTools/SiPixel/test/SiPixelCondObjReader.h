@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjReader.h,v 1.4 2006/11/09 13:20:04 chiochia Exp $
+// $Id: SiPixelCondObjReader.h,v 1.5 2008/03/25 22:11:55 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -60,9 +60,6 @@ private:
   TH1F *_TH1F_Pedestals_sum;
   TH1F *_TH1F_Gains_all;
   TH1F *_TH1F_Pedestals_all;
-
-  std::string filename_;
-  TFile* fFile;
 
 };
 }
