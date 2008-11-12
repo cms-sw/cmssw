@@ -37,7 +37,7 @@ Sequence='only_validation'
 IdealTag='IDEAL_V9'
 StartupTag='STARTUP_V7'
 
-# Refernce directory name (the macro will search for ReferenceSelection_Quality_Algo)
+# Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_V9_noPU'
 
 #Reference and new repository
@@ -46,7 +46,8 @@ NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/
 
 #Default Nevents
 defaultNevents ='-1'
-#Put here the number of event to be processed for specific samples (numbers should be strings):
+
+#Put here the number of event to be processed for specific samples (numbers must be strings):
 Events={ 'RelValQCD_Pt_3000_3500':'5000', 'RelValTTbar':'5000', 'RelValQCD_Pt_80_120':'5000', 'RelValBJets_Pt_50_120':'5000'}
 
 # template file names. Usually should not be changed.
@@ -68,6 +69,7 @@ def replace(map, filein, fileout):
             line = string.replace(line, old, new)
         fileout.write(line)
     fileout.close()
+    filein.close()
     
 ############################################
 
@@ -75,8 +77,6 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
-    templatecfgFile = open(cfg, 'r')
-    templatemacroFile = open(macro, 'r')
     print 'Tag: ' + GlobalTag
     NewSelection=GlobalTag +'_noPU'
     if( trackquality !=''):
@@ -94,6 +94,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     else:
         Tracks=Tracksname
     for sample in samples :
+        templatecfgFile = open(cfg, 'r')
+        templatemacroFile = open(macro, 'r')
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
@@ -101,7 +103,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
-            print cmd
+#            print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset
             if dataset!="":
