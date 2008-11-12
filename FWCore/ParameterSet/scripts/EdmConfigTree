@@ -1,13 +1,25 @@
 #!/bin/bash
 
-function findFile(){
-    # finds the first occurence of the sought file in CMSSW_SEARCH_PATH
-    # argument 1: the sought file
+# Deep-searches CMSSW config python files, and displays the tree structure of all imported files in it.
+# K. Banicz
 
-    IFS=:
-    for SEARCH_PATH in $CMSSW_SEARCH_PATH; do
-	[ -f $SEARCH_PATH/$1 ] && FOUND_FILE=$SEARCH_PATH/$1 && return 0
-    done    
+function findFileFor(){
+    # Return 0 if a file given by absolute path exists, or it converts a python name 
+    # to a file name and returns 0 if it finds it in CMSSW_SEARCH_PATH. 
+
+    # argument 1: the sought file, or the python name to seek the corresponding file for
+
+    local FILE_NAME
+    if [ ${1:0:1} == "/" ]; then
+	[ -f $1 ] && FOUND_FILE=$1 && return 0
+    else
+	FILE_NAME=$( echo $1 | sed -n -e 's:\([[:alnum:]_]\+\)[/.]\([[:alnum:]_]\+\)[/.]\([[:alnum:]_/.]\+\)$:\1/\2/python/\3:p' | sed -e 's:[\.]:/:g' ).py
+	IFS=:
+	for SEARCH_PATH in $CMSSW_SEARCH_PATH; do
+	    [ -f $SEARCH_PATH/$FILE_NAME ] && FOUND_FILE=$SEARCH_PATH/$FILE_NAME && return 0
+	done    
+    fi
+
 
     # Not found.
     FOUND_FILE=""
@@ -21,87 +33,140 @@ function findInFile(){
     # argument 2: the searched file
     # argument 3: the sought expression
 
-    local INDENT="$1	"
+    #
+    # Load 'import'-s and 'load'-s into an array (discard FWCore.ParameterSet as it leads to an infinite loop)
+    #
+    # sed'd regex below will extract the word in capital from the following example lines ('...' means any string):
+    #    import FINDS.THIS.WORD ...
+    #    from FINDS.THIS.WORD ...
+    #    execfile("FINDS/THIS/WORD")
+    #    process.load("FINDS.THIS/WORD")
+    # And the same things inside an 'exec' statement, too:
+    #    exec 'import FINDS.THIS.WORD ...'
+    #    exec "from FINDS.THIS.WORD ..."
+    #    exec 'execfile("FINDS/THIS/WORD")'
+    #    exec 'process.load("FINDS.THIS/WORD")'
+
+    IFS="
+"
+    local -a IMPORTS_AND_LOADS_ARRAY
+    IMPORTS_AND_LOADS_ARRAY=( $( sed -n -e "s:^[[:space:]]*\(exec[[:space:]]\+[\"']\)\?\(from[[:space:]]\+\|import[[:space:]]\+\|process\.load[[:space:]]*([[:space:]]*[\"']\|execfile[[:space:]]*([[:space:]]*[\"']\)[[:space:]]*\(\([^[:space:])\"'#]\+[/.]\)\+[^[:space:])\"'#]\+\).*:\3:p" $2 | grep -v "^FWCore.ParameterSet" ) )
 
     #
     # First list all occurrences in this file:
     #
     if [ ${#3} -ne 0 ]; then
-	grep $3 $2 | while read LINE_WITH_MATCH; do
-	    echo -n "$INDENT"
-	    echo "     $LINE_WITH_MATCH" | grep --color $3
-	done
+	if [ $EDMCONFIGTREE_TREE == "false" ]; then
+	    grep -H -n $3 $2
+	else
+	    grep $3 $2 | while read LINE_WITH_MATCH; do
+		if [ $EDMCONFIGTREE_COLOR == "false" ]; then
+		    [ ${#IMPORTS_AND_LOADS_ARRAY[@]} -gt 0 ] && echo -n "$1  |" || echo -n "$1  "
+		    echo "     $LINE_WITH_MATCH" | grep $3
+		else
+		    [ ${#IMPORTS_AND_LOADS_ARRAY[@]} -gt 0 ] && echo -n "$1  [0;34m|[0m" || echo -n "$1  "
+		    echo "     $LINE_WITH_MATCH" | grep --color $3
+		fi
+	    done
+	fi
     fi
 
     #
-    # Now find all 'include'-d files and search them too
+    # Now find all 'import'-ed and 'process.load'-ed files and search them too
     #
-
-    # We don't want descend into commented-out include files. Get rid of comments in four steps:
-    #   1) hide number signs (#)
-    #   2) use c preprocessor to remove /*multi-line*/ and //inline comments 
-    #   3) restore #s
-    #   4) remove #inline comments ( keeping in mind that a quoted # in a 'string' or "string" does not imply inline comment )
-    sed -e 's/N/Nn/g;s/#/NS/g' $2 | \
-	cpp -P -w  - - | \
-	sed -e 's/NS/#/g;s/Nn/N/g' | \
-	sed -e "s:^\(\(\([^\"'#]*\"[^\"]*\"[^\"'#]*\)\|\([^\"'#]*'[^']*'[^\"'#]*\)\)*\)#*.*$:\1:" | \
-	grep "include[[:space:]]*[\"'][[:alnum:]\./_-+~]\+[\"'][[:space:]]*$" | \
-	while read INCLUDE_LINE; do
-	    INCLUDED_FILE=$(echo $INCLUDE_LINE | sed -e "s:^\(.*\)include[[:space:]]*[\"']\([[:alnum:]\./_-+~]\+\)[\"'][[:space:]]*$:\2:")
-	    if findFile $INCLUDED_FILE; then
-		[ $SHOW_ABSOLUTE_PATH == "true" ] && NAME_TO_SHOW=FOUND_FILE || NAME_TO_SHOW=INCLUDED_FILE
-		echo "$INDENT [1;44m [0m [33m${!NAME_TO_SHOW%%*([^/])}[0m${!NAME_TO_SHOW##*/}"
-		findInFile $INDENT $FOUND_FILE $3
+    local I
+    for (( I=0; I<${#IMPORTS_AND_LOADS_ARRAY[@]}; I++ )); do
+	local PYTHON_NAME=${IMPORTS_AND_LOADS_ARRAY[$I]}
+	local INDENT
+	local II
+	((II=I+1))
+	if [ $EDMCONFIGTREE_TREE == "false" ]; then
+	    if findFileFor "$PYTHON_NAME"; then
+		[ $SHOW_ABSOLUTE_PATH == "true" ] && echo "$FOUND_FILE" || echo "$PYTHON_NAME"
+		findInFile "" "$FOUND_FILE" "$3"
 	    else
-		echo -n "$INDENT [1;44m [0m [33m${INCLUDED_FILE%%*([^/])}[0m${INCLUDED_FILE##*/} "
-                echo "[43m not found in CMSSW_SEARCH_PATH [0m"
+		echo "${PYTHON_NAME} *** not found in CMSSW_SEARCH_PATH ***"
 	    fi
+	else
+	    if findFileFor "$PYTHON_NAME"; then
+		[ $SHOW_ABSOLUTE_PATH == "true" ] && NAME_TO_SHOW=FOUND_FILE || NAME_TO_SHOW=PYTHON_NAME
+		if [ $EDMCONFIGTREE_COLOR == "false" ]; then
+		    echo "$1  |- ${!NAME_TO_SHOW}"
+		    [ $II -ge ${#IMPORTS_AND_LOADS_ARRAY[@]} ] && INDENT="$1   " || INDENT="$1  |"
+		else
+		    [[ $SHOW_ABSOLUTE_PATH == "true" || ${PYTHON_NAME:0:1} == "/" ]] && echo "$1  [1;44m [0m [33m${FOUND_FILE%%*([^/])}[0m${FOUND_FILE##*/}" || echo "$1  [1;44m [0m [33m${PYTHON_NAME%%*([^.])}[0m${PYTHON_NAME##*.}"
+		    [ $II -ge ${#IMPORTS_AND_LOADS_ARRAY[@]} ] && INDENT="$1   " || INDENT="$1  [0;34m|[0m"
+		fi
+		findInFile "$INDENT" "$FOUND_FILE" "$3"
+	    else
+		if [ $EDMCONFIGTREE_COLOR == "false" ]; then
+		    echo "$1  |- ${PYTHON_NAME} *** not found in CMSSW_SEARCH_PATH ***"
+		else
+		    [ ${PYTHON_NAME:0:1} == "/" ] && echo "$1  [1;44m [0m [33m${PYTHON_NAME%%*([^/])}[0m${PYTHON_NAME##*/}" || echo -n "$1  [1;44m [0m [33m${PYTHON_NAME%%*([^.])}[0m${PYTHON_NAME##*.} "
+		    echo "[43m not found in CMSSW_SEARCH_PATH [0m"
+		fi
+	    fi
+	fi
     done
-    
+
 }
 
+# Take care of the relevant shell variables.
+${EDMCONFIGTREE_COLOR:=true}
+${EDMCONFIGTREE_TREE:=true}
+[ $EDMCONFIGTREE_TREE == "false" ] && EDMCONFIGTREE_COLOR=false
+
+# Invoked with a wrong number of arguments. Give help.
 if [ $# -eq 0 ] || [ $# -gt 2 ]; then
-    echo "edmConfigTree displays the complete tree of include files in a given CMSSW configuration file,"
-    echo "and optionally searches them recursively for a regular expression."
-    echo
-    echo "Usage:"
-    echo "           [34medmConfigTree [regex] configuration_file[0m"
-    echo "               regex             :    regular expression, as with grep"
-    echo "               configuration_file:    CMSSW configuration file"
-    echo "                                      (Give absolute path to display included files' resolved absolute path.)"
-    echo "           Note that the shell variable CMSSW_SEARCH_PATH must be set before edmConfigTree is invoked."
-    echo
-    echo "Examples:"
-    echo "           Display the tree of all included files in EvtGen+DetSim+Digi.cfg:"
-    echo "                 [34medmConfigTree EvtGen+DetSim+Digi.cfg[0m"
-    echo "           Display with absolute paths the tree of all included files in EvtGen+DetSim+Digi.cfg:"
-    echo "                 [34medmConfigTree \$PWD/EvtGen+DetSim+Digi.cfg[0m"
-    echo "           Recursively search all included files for \"Verbosity\":"
-    echo "                 [34medmConfigTree Verbosity EvtGen+DetSim+Digi.cfg[0m"
-    echo "           Recursively search all included files for \"Time\" or \"time\":"
-    echo "                 [34medmConfigTree \"[Tt]ime\" EvtGen+DetSim+Digi.cfg[0m"
+    cat <<EOF
+edmConfigTree displays the complete tree of imported files in a given CMSSW configuration file,
+and optionally searches them recursively for a regular expression.
+
+Usage:
+           [34medmConfigTree [regex] configuration_file[0m
+               regex             :    regular expression, as with grep
+               configuration_file:    CMSSW configuration python file
+                                      (Give absolute path to display imported files' resolved absolute path.)
+
+           Note that the shell variable CMSSW_SEARCH_PATH must be set before edmConfigTree is invoked.
+
+           To suppress colors, set the shell variable EDMCONFIGTREE_COLOR=false
+           To suppress the tree structure (and the colors), set the shell variable EDMCONFIGTREE_TREE=false
+
+Examples:
+           Display the tree of all imported files in FullChainExample_cfg.py:
+                 [34medmConfigTree FullChainExample_cfg.py[0m
+           Display with absolute paths the tree of all imported files in FullChainExample_cfg.py:
+                 [34medmConfigTree /full/path/to/FullChainExample_cfg.py[0m
+           Recursively search all imported files for "Verbosity":
+                 [34medmConfigTree Verbosity FullChainExample_cfg.py[0m
+           Recursively search all imported files for "Time" or "time":
+                 [34medmConfigTree "[Tt]ime" FullChainExample_cfg.py[0m
+EOF
     exit 1
 fi
 
+# Exit if CMSSW_SEARCH_PATH is not set.
 if [ ${#CMSSW_SEARCH_PATH} -eq 0 ]; then
     echo "CMSSW_SEARCH_PATH is not set. Exiting."
     exit 1
 fi
 
-# set extglob for extended pattern matching features in parameter expansion
+# Set extglob for extended pattern matching features in parameter expansion.
 shopt -s extglob
 
+# If invoked with one argument, list files.
 if [ $# -eq 1 ]; then
     FILE=$1
     [ ${FILE:0:1} == "/" ] && SHOW_ABSOLUTE_PATH=true || SHOW_ABSOLUTE_PATH=false
-    echo " [1;44m [0m [33m${FILE%%*([^/])}[0m${FILE##*/}"
-    findInFile "" $1
+    [ $EDMCONFIGTREE_COLOR == "false" ] && echo "$FILE" || echo "[1;44m [0m [33m${FILE%%*([^/])}[0m${FILE##*/}"
+    findInFile " " $1
 fi
 
+# If invoked with two arguments, list files and search them.
 if [ $# -eq 2 ]; then
     FILE=$2
     [ ${FILE:0:1} == "/" ] && SHOW_ABSOLUTE_PATH=true || SHOW_ABSOLUTE_PATH=false
-    echo " [1;44m [0m [33m${FILE%%*([^/])}[0m${FILE##*/}"
-    findInFile "" $2 $1
+    [ $EDMCONFIGTREE_COLOR == "false" ] && echo "$FILE" || echo "[1;44m [0m [33m${FILE%%*([^/])}[0m${FILE##*/}"
+    findInFile " " $2 "$1"
 fi
