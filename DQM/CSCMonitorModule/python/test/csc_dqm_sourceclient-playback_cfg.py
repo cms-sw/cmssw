@@ -7,15 +7,16 @@ process = cms.Process("CSCDQM")
 #-------------------------------------------------
 
 process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
-process.load("DQMOffline.Muon.CSCMonitor_cfi")
 
 #-------------------------------------------------
 # Offline DQM Module Configuration
 #-------------------------------------------------
 
+process.load("DQMOffline.Muon.CSCMonitor_cfi")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.csc2DRecHits.readBadChambers = cms.bool(False)
 
 #----------------------------
 # Event Source
@@ -98,6 +99,7 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 # Sequences
 #--------------------------
 
+#process.p = cms.Path(process.dqmClient + process.dqmEnv + process.dqmSaver)
 process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmClient + process.dqmEnv + process.dqmSaver)
 
 

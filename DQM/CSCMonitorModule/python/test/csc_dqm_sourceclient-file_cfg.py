@@ -8,6 +8,16 @@ process = cms.Process("CSCDQM")
 
 process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
 
+#-------------------------------------------------
+# Offline DQM Module Configuration
+#-------------------------------------------------
+
+process.load("DQMOffline.Muon.CSCMonitor_cfi")
+process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.csc2DRecHits.readBadChambers = cms.bool(False)
+
 #----------------------------
 # Event Source
 #-----------------------------
@@ -133,7 +143,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "sqlite_file:/nfshome0/malgeri/public/globtag/CRZT210_V1H.db"
 #process.GlobalTag.connect = "frontier://FrontierDev/CMS_COND_CSC"
 process.GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRZT210_V1H::All"
+#process.GlobalTag.globaltag = "CRZT210_V1H::All"
+process.GlobalTag.globaltag = 'CRAFT_V3P::All'
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #--------------------------
@@ -147,6 +158,7 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmClient+process.dqmEnv+process.dqmSaver)
+#process.p = cms.Path(process.dqmClient + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmClient + process.dqmEnv + process.dqmSaver)
 
 
