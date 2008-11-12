@@ -2,64 +2,30 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 DQMDaqInfo::DQMDaqInfo(const edm::ParameterSet& iConfig)  
-{
-  
-   
+{   
 }
-
 
 DQMDaqInfo::~DQMDaqInfo()
 {  
 }
 
-
 void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
   
-  
-    
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   
   if( 0 != iSetup.find( recordKey ) ) {
     
     edm::ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
-  
-  
+   
     //const RunInfo* summaryFED=sumFED.product();
   
     std::vector<int> FedsInIds= sumFED->m_fed_in;   
-    
-      
-    std::pair<int,int> PixelRange   = FEDNumbering::getSiPixelFEDIds();;
-    std::pair<int,int> TrackerRange = FEDNumbering::getSiStripFEDIds();
-    std::pair<int,int> CSCRange     = FEDNumbering::getCSCFEDIds();
-    std::pair<int,int> RPCRange     = FEDNumbering::getRPCFEDIds();
-    std::pair<int,int> DTRange      = FEDNumbering::getDTFEDIds();
-    std::pair<int,int> HcalRange    = FEDNumbering::getHcalFEDIds();
 
-    std::pair<int,int> ECALBarrRange(610,645);
-    std::pair<int,int> ECALEndcapRangeLow(601,609);
-    std::pair<int,int> ECALEndcapRangeHigh(646,654);
-  
-    std::pair<int,int> L1TRange    = FEDNumbering::getTriggerGTPFEDIds();
-  
     float  FedCount[9]={0., 0., 0., 0., 0., 0., 0., 0., 0.};
-    float  NumberOfFeds[9];
-    NumberOfFeds[Pixel]   = PixelRange.second-PixelRange.first +1;
-    NumberOfFeds[SiStrip] = TrackerRange.second-TrackerRange.first +1;
-    NumberOfFeds[CSC]     = CSCRange.second-CSCRange.first  +1;
-    NumberOfFeds[RPC]     = RPCRange.second-RPCRange.first  +1;
-    NumberOfFeds[DT]      = DTRange.second-DTRange.first +1;
-    NumberOfFeds[Hcal]    = HcalRange.second-HcalRange.first +1;
-
-    NumberOfFeds[EcalBarrel]    = ECALBarrRange.second-ECALBarrRange.first ;
-    NumberOfFeds[EcalEndcap]    = (ECALEndcapRangeLow.second-ECALEndcapRangeLow.first)+(ECALEndcapRangeHigh.second-ECALEndcapRangeHigh.first) ;
-
-    NumberOfFeds[L1T]    = L1TRange.second-L1TRange.first +1;
     
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
-      int fedID=FedsInIds[fedItr];
-      
+      int fedID=FedsInIds[fedItr];     
 
       if(fedID>=PixelRange.first   &  fedID<=PixelRange.second)    ++FedCount[Pixel]  ;
       if(fedID>=TrackerRange.first &  fedID<=TrackerRange.second)  ++FedCount[SiStrip];
@@ -77,8 +43,6 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
     for(int detIndex=0; detIndex<9; ++detIndex) { 
       DaqFraction[detIndex]->Fill( FedCount[detIndex]/NumberOfFeds[detIndex]);
     }
-    
-
 
   }else{    
   
@@ -151,6 +115,32 @@ DQMDaqInfo::beginJob(const edm::EventSetup& iSetup)
   DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
 
 
+  PixelRange   = FEDNumbering::getSiPixelFEDIds();
+  TrackerRange = FEDNumbering::getSiStripFEDIds();
+  CSCRange     = FEDNumbering::getCSCFEDIds();
+  RPCRange.first  = 790;
+  RPCRange.second = 792;
+  DTRange.first   = 770;
+  DTRange.second  = 774;
+  HcalRange  = FEDNumbering::getHcalFEDIds();
+  L1TRange   = FEDNumbering::getTriggerGTPFEDIds();
+  ECALBarrRange.first  = 610;    
+  ECALBarrRange.second = 645;
+  ECALEndcapRangeLow.first   = 601;
+  ECALEndcapRangeLow.second  = 609;
+  ECALEndcapRangeHigh.first  = 646;
+  ECALEndcapRangeHigh.second = 654;
+
+  NumberOfFeds[Pixel]   = PixelRange.second-PixelRange.first +1;
+  NumberOfFeds[SiStrip] = TrackerRange.second-TrackerRange.first +1;
+  NumberOfFeds[CSC]     = CSCRange.second-CSCRange.first  +1;
+  NumberOfFeds[RPC]     = RPCRange.second-RPCRange.first  +1;
+  NumberOfFeds[DT]      = DTRange.second-DTRange.first +1;
+  NumberOfFeds[Hcal]    = HcalRange.second-HcalRange.first +1;  
+  NumberOfFeds[EcalBarrel]    = ECALBarrRange.second-ECALBarrRange.first +1 ;
+  NumberOfFeds[EcalEndcap]    = (ECALEndcapRangeLow.second-ECALEndcapRangeLow.first +1)+(ECALEndcapRangeHigh.second-ECALEndcapRangeHigh.first +1) ;
+  NumberOfFeds[L1T]    = L1TRange.second-L1TRange.first +1;
+
 }
 
 
@@ -167,6 +157,3 @@ DQMDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(DQMDaqInfo);
