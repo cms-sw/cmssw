@@ -316,9 +316,9 @@ coral::TimeStamp stop_time;
    ss>>fed>>val;
    std::cout <<" fed:: "<<fed<<"--> val:: "<<val<<std::endl; 
    // val bit 0 represents the status of the SLINK, but x1x1 means the SLINK is ON but NA or BROKEN (see mail of alex....)
+   if ( (val & 0001) ==1 && (val!=5) && (val!=7) )  temp_sum.m_fed_in.push_back(fed);
   
-   if ( (val <=5)  && (val & 0001 ) ==1 )  temp_sum.m_fed_in.push_back(fed);
-   if ( (val >=5) && (val & 0101 ) ==0  )  temp_sum.m_fed_in.push_back(fed);
+  
       } 
 
 
