@@ -16,7 +16,7 @@
 #include "G4GFlashSpot.hh"
 #include "G4ParticleTable.hh"
 
-//#define DebugLog
+#define DebugLog
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
@@ -73,6 +73,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   slave      = new CaloSlaveSD(name);
   currentID  = CaloHitID();
   previousID = CaloHitID();
+
+  primAncestor = 0;
+  cleanIndex = 0;
 
   //
   // Now attach the right detectors (LogicalVolumes) to me
@@ -164,7 +167,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 	primaryID  = trkInfo->getIDonCaloSurface();
       else
 	primaryID = 0;
-      
+
       if (primaryID == 0) {
         edm::LogWarning("CaloSim") << "CaloSD: Spot Problem with primaryID "
 				   << "**** set by force to  **** " 
@@ -224,12 +227,17 @@ void CaloSD::Initialize(G4HCofThisEvent * HCE) {
   //This initialization is performed at the beginning of an event
   //------------------------------------------------------------
   theHC = new CaloG4HitCollection(GetName(), collectionName[0]);
+
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
 }
 
 void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
+
+  // clean the hits for the last tracks
+
+  cleanHitCollection();
 
 #ifdef DebugLog
   LogDebug("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries()
@@ -292,6 +300,10 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
     primaryID = trkInfo->getIDonCaloSurface();	
   else
     primaryID = 0;
+
+#ifdef DebugLog
+  if (trkInfo) LogDebug("CaloSim") << "CaloSD: hit update from track Id on Calo Surface " << trkInfo->getIDonCaloSurface();
+#endif   
 
   if (primaryID == 0) {
     edm::LogWarning("CaloSim") << "CaloSD: Problem with primaryID **** set by "
@@ -411,7 +423,17 @@ CaloG4Hit* CaloSD::createNewHit() {
   else 
     LogDebug("CaloSim") << "NO process";
 #endif  
-  CaloG4Hit* aHit = new CaloG4Hit;
+  
+  CaloG4Hit* aHit;
+  if (reusehit.size() > 0) {
+    aHit = reusehit[0];
+    aHit->setEM(0.);
+    aHit->setHadr(0.);
+    reusehit.erase(reusehit.begin());
+  }  else { 
+    aHit = new CaloG4Hit;
+  }
+
   aHit->setID(currentID);
   aHit->setEntry(entrancePoint.x(),entrancePoint.y(),entrancePoint.z());
   aHit->setEntryLocal(entranceLocal.x(),entranceLocal.y(),entranceLocal.z());
@@ -624,6 +646,9 @@ void CaloSD::clearHits() {
 
   hitvec.erase (hitvec.begin(), hitvec.end()); 
   hitMap.erase (hitMap.begin(), hitMap.end());
+  //for (unsigned int i = 0; i<reusehit.size(); i++) { delete reusehit[i]; }
+  reusehit.clear();
+  cleanIndex = 0;
   previousID.reset();
   primIDSaved    = -99;
 #ifdef DebugLog
@@ -674,7 +699,7 @@ std::pair<bool,bool> CaloSD::saveHit(CaloG4Hit* aHit) {
 #endif
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
-  if (filterHit(aHit,time)) {
+  //if (filterHit(aHit,time)) {
     save = true;
     slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, 
 		       aHit->getHadr()/GeV, time, tkID, aHit->getDepth());
@@ -686,8 +711,86 @@ std::pair<bool,bool> CaloSD::saveHit(CaloG4Hit* aHit) {
 			<< aHit->getEM()/GeV << " GeV (EM) and " 
 			<< aHit->getHadr()/GeV << " GeV (Hadr)";
 #endif
-  }
+    //  }
   return std::pair<bool,bool>(ok,save);
 }
 
 void CaloSD::summarize() {}
+
+void CaloSD::update(const BeginOfTrack * trk) {
+
+  int primary = -1;
+  TrackInformation * trkInfo = (TrackInformation *)((*trk)()->GetUserInformation());
+  if ( trkInfo->isPrimary() ) { primary = (*trk)()->GetTrackID(); }
+
+#ifdef DebugLog
+  LogDebug("CaloSim") << "New track: isPrimary " << trkInfo->isPrimary() 
+                      << " primary ID = " << primary 
+                      << " primary ancestor ID " << primAncestor;
+#endif
+
+  // update the information if a different primary track ID 
+  
+  if (primary > 0 && primary != primAncestor) {
+    primAncestor = primary;
+
+    // clean the hits information
+    
+    if (theHC->entries()>0) {
+      cleanHitCollection();
+    }
+
+  }
+}
+
+void CaloSD::cleanHitCollection() {
+
+  if ( reusehit.size() == 0 ) { 
+    reusehit.reserve(theHC->entries()); 
+    itervec.reserve(theHC->entries());
+  }
+  std::vector<CaloG4Hit*>* theCollection = theHC->GetVector();
+  int addhit = 0;
+#ifdef DebugLog
+  LogDebug("CaloSim") << "CaloSD: Starting reusehit filling from index = " << cleanIndex;
+#endif
+
+  for (std::vector<CaloG4Hit*>::iterator iter=(theCollection->begin()+cleanIndex); iter<theCollection->end(); iter++) {
+    
+    CaloG4Hit* aHit = (*iter);
+    
+    // selection
+    
+    double time = aHit->getTimeSlice();
+    if (corrTOFBeam) time += correctT;
+    if (!filterHit(aHit,time)) {
+#ifdef DebugLog
+      LogDebug("CaloSim") << "CaloSD: dropped CaloG4Hit " << " " << *aHit; 
+#endif
+      
+      // create the list of hits to be reused
+      
+      reusehit.push_back(*iter);
+      itervec.push_back(iter);
+      addhit++;
+    }
+  }
+
+#ifdef DebugLog
+  LogDebug("CaloSim") << "CaloSD: Size of reusehit    = " << reusehit.size()  
+                      << " Number of added hit = " << addhit;
+#endif
+  if ( addhit>0 ) {
+    int offset = reusehit.size()-addhit;
+    for (int ii = addhit-1; ii>=0; ii--) {
+      if (useMap) {
+        CaloHitID theID = reusehit[offset+ii]->getID();
+        hitMap.erase(theID);
+      }
+      theCollection->erase(itervec[ii]);
+    }
+  }
+  itervec.clear();
+  cleanIndex = theHC->entries();
+  
+}

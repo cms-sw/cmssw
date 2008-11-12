@@ -12,6 +12,7 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
@@ -41,6 +42,7 @@ class CaloSD : public SensitiveCaloDetector,
                public G4VGFlashSensitiveDetector,
                public Observer<const BeginOfRun *>,    
                public Observer<const BeginOfEvent *>,
+               public Observer<const BeginOfTrack *>,
                public Observer<const EndOfTrack *>,
                public Observer<const EndOfEvent *> {
 
@@ -77,6 +79,7 @@ protected:
 
   virtual void   update(const BeginOfRun *);
   virtual void   update(const BeginOfEvent *);
+  virtual void   update(const BeginOfTrack * trk);
   virtual void   update(const EndOfTrack * trk);
   virtual void   update(const ::EndOfEvent *);
   virtual void   clearHits();
@@ -131,6 +134,11 @@ private:
 
   std::vector<CaloG4Hit*>         hitvec;
   std::map<int,TrackWithHistory*> tkMap;
+  int                    primAncestor;
+  int                    cleanIndex;
+  std::vector<CaloG4Hit*>         reusehit;
+  std::vector<std::vector<CaloG4Hit*>::iterator> itervec;
+  void                   cleanHitCollection();
 
 };
 
