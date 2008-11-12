@@ -314,9 +314,13 @@ coral::TimeStamp stop_time;
    std::stringstream ss(word);
    int fed; int val;
    ss>>fed>>val;
-   if ( (val % 2) ==1 ) temp_sum.m_fed_in.push_back(fed);
-   
-   } 
+   std::cout <<" fed:: "<<fed<<"--> val:: "<<val<<std::endl; 
+   // val bit 0 represents the status of the SLINK, but x1x1 means the SLINK is ON but NA or BROKEN (see mail of alex....)
+  
+   if ( (val <=5)  && (val & 0001 ) ==1 )  temp_sum.m_fed_in.push_back(fed);
+   if ( (val >=5) && (val & 0101 ) ==0  )  temp_sum.m_fed_in.push_back(fed);
+      } 
+
 
  for (size_t i =0; i<temp_sum.m_fed_in.size() ;i++){
    std::cout<< "fed in run" << temp_sum.m_fed_in[i] << std::endl; 
@@ -440,7 +444,7 @@ queryVI->setCondition( conditionVI , conditionData6 );
       for(size_t i=0; i< temp_sum.m_current.size(); i++){
 	std::cout<< "--> " << temp_sum.m_current[i] << std::endl;
 	if (tsize >1 && ( i < temp_sum.m_current.size()-1 )) { wi =  (time_curr[i] - time_curr[i+1])  ;
-	v_wi.push_back(wi);
+	temp_sum.m_times_of_currents.push_back(wi);
 	sumwixi+= wi * temp_sum.m_current[i] ;
 	sumwi += wi;
 	}  
@@ -448,8 +452,8 @@ queryVI->setCondition( conditionVI , conditionData6 );
 	max= std::max(max, temp_sum.m_current[i]);
       }
       
-      for (size_t i =0; i<v_wi.size(); i++){
-	std::cout<<"wi "<<v_wi[i]<<std::endl;
+      for (size_t i =0; i<temp_sum.m_times_of_currents.size(); i++){
+	std::cout<<"wi "<<temp_sum.m_times_of_currents[i]<<std::endl;
       }
       temp_sum.m_start_current=(temp_sum.m_current[0]) ;
       std::cout<< "--> " << "start cur  "<< temp_sum.m_start_current << std::endl;
