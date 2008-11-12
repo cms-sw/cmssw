@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2008/05/28 14:16:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/11/07 16:29:31 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -180,39 +180,37 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       }
 
   allRecHits = getRidOfSelectStationHits(allRecHitsTemp);  
-  
+  //    printHits(allRecHits);
   LogTrace(theCategory) << " Hits size: " << allRecHits.size() << endl;
 
-  // check and select muon measurements and
-  // measure occupancy in muon stations
-  checkMuonHits(globalTrack, allRecHits, fmsRecHits, stationHits);
-
-  // full track with all muon hits
-  vector <Trajectory>  globalTraj = transform(globalTrack, track, allRecHits);
-
-  if (!globalTraj.size()) {
-    LogTrace(theCategory) << "No trajectory from the TrackTransformer!" << endl;
-    return vector<Trajectory>();
-  }
-
-  LogTrace(theCategory) << " Initial trajectory state: " << globalTraj.front().lastMeasurement().updatedState().freeState()->parameters() << endl;
-    
-  //    printHits(allRecHits);
-
   vector <Trajectory> outputTraj;
-  
-  if (theMuonHitsOption == 1 ) 
-    outputTraj.push_back(globalTraj.front());
 
-  if (theMuonHitsOption == 2 ) 
-    outputTraj = transform(globalTrack, track, fmsRecHits);
+  if ((theMuonHitsOption == 1) || (theMuonHitsOption == 3)) {
+    // refit the full track with all muon hits
+    vector <Trajectory> globalTraj = transform(globalTrack, track, allRecHits);
 
-  if (theMuonHitsOption == 3 ) {
-    selectedRecHits = selectMuonHits(globalTraj.front(),stationHits);
-    LogTrace(theCategory) << " Selected hits size: " << selectedRecHits.size() << endl;  
-    outputTraj = transform(globalTrack, track, selectedRecHits);
-  }     
+    if (!globalTraj.size()) {
+      LogTrace(theCategory) << "No trajectory from the TrackTransformer!" << endl;
+      return vector<Trajectory>();
+    }
+
+    LogTrace(theCategory) << " Initial trajectory state: " 
+                          << globalTraj.front().lastMeasurement().updatedState().freeState()->parameters() << endl;
   
+    if (theMuonHitsOption == 1 )
+      outputTraj.push_back(globalTraj.front());
+    
+    if (theMuonHitsOption == 3 ) { 
+      checkMuonHits(globalTrack, allRecHits, stationHits);
+      selectedRecHits = selectMuonHits(globalTraj.front(),stationHits);
+      LogTrace(theCategory) << " Selected hits size: " << selectedRecHits.size() << endl;  
+      outputTraj = transform(globalTrack, track, selectedRecHits);
+    }     
+  } else if (theMuonHitsOption == 2 )  {
+      getFirstHits(globalTrack, allRecHits, fmsRecHits);
+      outputTraj = transform(globalTrack, track, fmsRecHits);
+    } 
+
   if (outputTraj.size()) {
     LogTrace(theCategory) << "Refitted pt: " << outputTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp() << endl;
     return outputTraj;
@@ -229,13 +227,15 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 //
 void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon, 
 				       ConstRecHitContainer& all,
-				       ConstRecHitContainer& first,
 				       std::vector<int>& hits) const {
 
   LogTrace(theCategory) << " GlobalMuonRefitter::checkMuonHits " << endl;
 
   int dethits[4];
   for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
+
+  MuonRecHitContainer dRecHits;
+  DetLayer* oldlayer = 0;
 
   // loop through all muon hits and calculate the maximum # of hits in each chamber
   for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++ ) {
@@ -252,7 +252,8 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       
     const DetLayer* layer = theService->detLayerGeometry()->idToLayer(id);
     
-    MuonRecHitContainer dRecHits = theLayerMeasurements->recHits(layer);
+//    if (layer!=oldlayer
+    dRecHits = theLayerMeasurements->recHits(layer);
       
     // get station of hit if it is in DT
     if ( id.subdetId() == MuonSubdetId::DT ) {
@@ -337,10 +338,28 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   for ( int i = 0; i < 4; i++ ) {
     LogTrace(theCategory) <<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i] <<endl; 
   }     
+  LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
   
   // check order of muon measurements
-  LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
+  if ( (all.size() > 1) &&
+       ( all.front()->globalPosition().mag() >
+	 all.back()->globalPosition().mag() ) ) {
+    LogTrace(theCategory)<< "reverse order: ";
+    stable_sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
+  }
+}
 
+
+//
+// Get the hits from the first muon station (containing hits)
+//
+void GlobalMuonRefitter::getFirstHits(const reco::Track& muon, 
+				       ConstRecHitContainer& all,
+				       ConstRecHitContainer& first) const {
+
+  LogTrace(theCategory) << " GlobalMuonRefitter::getFirstHits " << endl;
+
+  // check order of muon measurements
   if ( (all.size() > 1) &&
        ( all.front()->globalPosition().mag() >
 	 all.back()->globalPosition().mag() ) ) {
@@ -378,7 +397,6 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
     nexthit++;
     
     if ( ( nexthit != all.end()) && (*nexthit)->isValid() ) {
-      
       ConstMuonRecHitPointer immrh2 = dynamic_cast<const MuonTransientTrackingRecHit*>((*nexthit).get());
       DetId id2 = immrh2->geographicalId();
       
@@ -413,11 +431,11 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       return;
     }
   }
+
   // if none of the above is satisfied, return blank vector.
   first.clear();
 
   return; 
-
 }
 
 
@@ -489,12 +507,9 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
 	<< chi2ndf << " (" << chi2Cut << " chi2 threshold) " 
 	<< hits[station-1] << endl;
     }
-
   }
   
-  //
   // check order of rechits
-  //
   reverse(muonRecHits.begin(),muonRecHits.end());
   return muonRecHits;
 }
