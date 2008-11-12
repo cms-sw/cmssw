@@ -52,7 +52,7 @@ public:
 
   DQMStore* dbe_;
 
-  int FATAL_LIMIT;
+unsigned int FATAL_LIMIT;
 
   int  numOfFED_ ,  minFEDNum_ ,  maxFEDNum_ ;
   std::vector<std::string> histoName_; 

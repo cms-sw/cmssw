@@ -63,7 +63,7 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
   //  const RPCRawDataCounts * theCounts += *aCounts;
 
   vector<double> v1;
-  map<int,int> fedOccupancy;
+  map<int,double> fedOccupancy;
 
   MonitorElement * me;
 
@@ -75,7 +75,7 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
     if(fedOccupancy.find(fedId)== fedOccupancy.end() || fedOccupancy.size()==0) fedOccupancy[fedId]=0;
     
     //loop on errors
-    for (int err = 1 ; err<v1.size(); err +=2){//get onlz even elements of the vector
+    for (unsigned int err = 1 ; err<v1.size(); err +=2){//get onlz even elements of the vector
        fedOccupancy[fedId] += v1[err];
 
       if(err-1!=0 && err-1 <= FATAL_LIMIT){
@@ -93,9 +93,6 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
 
       if(me!=0) me->Fill(fedId, fedOccupancy[fedId] );
   }//end loop on all FEDs
-
-  
-
 }
 
 void RPCFEDIntegrity::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
