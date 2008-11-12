@@ -8,7 +8,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(3000)
 )
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('zMuMu_MCanalysis.root')
@@ -52,7 +52,7 @@ process.zMuMu_MCanalyzer = cms.EDFilter("ZMuMu_MCanalyzer",
     zMassMin = cms.untracked.double(20.0),
     zMassMax = cms.untracked.double(200.0),
     isomax = cms.untracked.double(3.0),
-    etamax = cms.untracked.double(2.5),
+    etamax = cms.untracked.double(2.0),
     ptmin = cms.untracked.double(20.0),
 )
 
