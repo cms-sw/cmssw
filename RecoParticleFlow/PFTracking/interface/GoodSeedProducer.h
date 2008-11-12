@@ -150,5 +150,8 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///B field
       math::XYZVector B_;
+
+      ///Use of Preshower clusters
+      bool usePreshower_;
 };
 #endif

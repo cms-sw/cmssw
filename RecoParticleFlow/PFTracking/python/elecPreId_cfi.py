@@ -33,7 +33,8 @@ elecpreid = cms.EDProducer("GoodSeedProducer",
     EOverPLead_minValue = cms.double(0.95),
     HOverPLead_maxValue = cms.double(0.05),
     HcalWindow=cms.double(0.184),                       
-    ClusterThreshold = cms.double(0.5)
+    ClusterThreshold = cms.double(0.5),
+    UsePreShower =cms.bool(False)                       
 )
 
 
