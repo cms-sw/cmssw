@@ -1,5 +1,5 @@
-#include "CondTools/SiPixel/interface/SiPixelDBErrorParametrization.h"
-#include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
+#include "CondTools/SiPixel/interface/SiPixelCPEGenericDBErrorParametrization.h"
+#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include <iostream>
 #include <cmath>
 
@@ -7,53 +7,53 @@ const float math_pi = 3.14159265;
 
 //These are the bin parameters -- they determine the width of the bins
 //998, 999 refer to bins where the 0 should always be returned
-const float SiPixelDBErrorParametrization::bx_a_min[3] = {1.525, 1.475, 1.425};
-const float SiPixelDBErrorParametrization::bx_a_max[3] = {1.725, 1.675, 1.625};
+const float SiPixelCPEGenericDBErrorParametrization::bx_a_min[3] = {1.525, 1.475, 1.425};
+const float SiPixelCPEGenericDBErrorParametrization::bx_a_max[3] = {1.725, 1.675, 1.625};
 
-const float SiPixelDBErrorParametrization::fx_a_min[2] = {0.165, 0.185};
-const float SiPixelDBErrorParametrization::fx_a_max[2] = {0.285, 0.465};
-const float SiPixelDBErrorParametrization::fx_b_min[2] = {998, 998};
-const float SiPixelDBErrorParametrization::fx_b_max[2] = {999, 999};
+const float SiPixelCPEGenericDBErrorParametrization::fx_a_min[2] = {0.165, 0.185};
+const float SiPixelCPEGenericDBErrorParametrization::fx_a_max[2] = {0.285, 0.465};
+const float SiPixelCPEGenericDBErrorParametrization::fx_b_min[2] = {998, 998};
+const float SiPixelCPEGenericDBErrorParametrization::fx_b_max[2] = {999, 999};
 
-const float SiPixelDBErrorParametrization::by_a_min[6] = {1.47078, 1.47078, 1.47078, 1.47078, 1.47078, 1.47078};
-const float SiPixelDBErrorParametrization::by_a_max[6] = {1.67078, 1.67078, 1.67078, 1.67078, 1.67078, 1.67078};
-const float SiPixelDBErrorParametrization::by_b_min[6] = {0.05, 0.15, 0.70, 0.95, 1.15, 1.20};
-const float SiPixelDBErrorParametrization::by_b_max[6] = {0.50, 0.90, 1.05, 1.15, 1.20, 1.40};
+const float SiPixelCPEGenericDBErrorParametrization::by_a_min[6] = {1.47078, 1.47078, 1.47078, 1.47078, 1.47078, 1.47078};
+const float SiPixelCPEGenericDBErrorParametrization::by_a_max[6] = {1.67078, 1.67078, 1.67078, 1.67078, 1.67078, 1.67078};
+const float SiPixelCPEGenericDBErrorParametrization::by_b_min[6] = {0.05, 0.15, 0.70, 0.95, 1.15, 1.20};
+const float SiPixelCPEGenericDBErrorParametrization::by_b_max[6] = {0.50, 0.90, 1.05, 1.15, 1.20, 1.40};
 	
-const float SiPixelDBErrorParametrization::fy_a_min[2] = {998, 998};
-const float SiPixelDBErrorParametrization::fy_a_max[2] = {999, 999};
-const float SiPixelDBErrorParametrization::fy_b_min[2] = {0.31, 0.31};
-const float SiPixelDBErrorParametrization::fy_b_max[2] = {0.39, 0.39};
+const float SiPixelCPEGenericDBErrorParametrization::fy_a_min[2] = {998, 998};
+const float SiPixelCPEGenericDBErrorParametrization::fy_a_max[2] = {999, 999};
+const float SiPixelCPEGenericDBErrorParametrization::fy_b_min[2] = {0.31, 0.31};
+const float SiPixelCPEGenericDBErrorParametrization::fy_b_max[2] = {0.39, 0.39};
 
 //Constants based on subpart 
-const float SiPixelDBErrorParametrization::errors_big_pix[4] = {0.0070, 0.0030, 0.0068, 0.0040};
-const int   SiPixelDBErrorParametrization::size_max[4]       = {5, 2, 1, 1};
+const float SiPixelCPEGenericDBErrorParametrization::errors_big_pix[4] = {0.0070, 0.0030, 0.0068, 0.0040};
+const int   SiPixelCPEGenericDBErrorParametrization::size_max[4]       = {5, 2, 1, 1};
 
 //Garbage is set to hold a place for bx_b, though we don't parametrize it the same way
 const float garbage[1] = {-9999.99};
 
-const float* SiPixelDBErrorParametrization::a_min[4] = {by_a_min, bx_a_min, fy_a_min, fx_a_min};
-const float* SiPixelDBErrorParametrization::a_max[4] = {by_a_max, bx_a_max, fy_a_max, fx_a_max};
-const float* SiPixelDBErrorParametrization::b_min[4] = {by_b_min, garbage,  fy_b_min, fx_b_min};
-const float* SiPixelDBErrorParametrization::b_max[4] = {by_b_max, garbage,  fy_b_max, fx_b_max};
+const float* SiPixelCPEGenericDBErrorParametrization::a_min[4] = {by_a_min, bx_a_min, fy_a_min, fx_a_min};
+const float* SiPixelCPEGenericDBErrorParametrization::a_max[4] = {by_a_max, bx_a_max, fy_a_max, fx_a_max};
+const float* SiPixelCPEGenericDBErrorParametrization::b_min[4] = {by_b_min, garbage,  fy_b_min, fx_b_min};
+const float* SiPixelCPEGenericDBErrorParametrization::b_max[4] = {by_b_max, garbage,  fy_b_max, fx_b_max};
 
 //Bin Sizes
-const int SiPixelDBErrorParametrization::part_bin_size[4]  = { 0, 240, 360, 400};
-const int SiPixelDBErrorParametrization::size_bin_size[4]  = {40,  40,  40,  40};
-const int SiPixelDBErrorParametrization::alpha_bin_size[4] = {10,   1,  10,   1};
-const int SiPixelDBErrorParametrization::beta_bin_size[4]  = { 1,  10,   1,  10};
+const int SiPixelCPEGenericDBErrorParametrization::part_bin_size[4]  = { 0, 240, 360, 400};
+const int SiPixelCPEGenericDBErrorParametrization::size_bin_size[4]  = {40,  40,  40,  40};
+const int SiPixelCPEGenericDBErrorParametrization::alpha_bin_size[4] = {10,   1,  10,   1};
+const int SiPixelCPEGenericDBErrorParametrization::beta_bin_size[4]  = { 1,  10,   1,  10};
 
-SiPixelDBErrorParametrization::SiPixelDBErrorParametrization(){}
+SiPixelCPEGenericDBErrorParametrization::SiPixelCPEGenericDBErrorParametrization(){}
 
-SiPixelDBErrorParametrization::~SiPixelDBErrorParametrization(){}
+SiPixelCPEGenericDBErrorParametrization::~SiPixelCPEGenericDBErrorParametrization(){}
 
-void SiPixelDBErrorParametrization::setDBAccess(const edm::EventSetup& es)
+void SiPixelCPEGenericDBErrorParametrization::setDBAccess(const edm::EventSetup& es)
 {
-	es.get<SiPixelCPEParmErrorsRcd>().get(errorsH);
+	es.get<SiPixelCPEGenericErrorParmRcd>().get(errorsH);
 }
 
 //The function which is called to return errX and errY. Used in CPEs.
-std::pair<float,float> SiPixelDBErrorParametrization::getError(const SiPixelCPEParmErrors* parmErrors,
+std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(const SiPixelCPEGenericErrorParm* parmErrors,
 	                                                      GeomDetType::SubDetector pixelPart,
 	                                                      int sizex, int sizey,
 	                                                      float alpha, float beta,
@@ -73,11 +73,11 @@ std::pair<float,float> SiPixelDBErrorParametrization::getError(const SiPixelCPEP
                           				     index(2, sizey, alpha, beta, bigInY)); //2 -- Fy
 			break;
 		default:
-			throw cms::Exception("PixelDBErrorParametrization::getError")
+			throw cms::Exception("PixelCPEGenericDBErrorParametrization::getError")
 				<< "Non-pixel detector type !!!" ;
 	}
 	
-	const SiPixelCPEParmErrors::DbVector & db_errors = parmErrors->errors();
+	const SiPixelCPEGenericErrorParm::DbVector & db_errors = parmErrors->errors();
 
 	if (bigInX && sizex == 1) errors.first  = element.first;
 	else                      errors.first  = db_errors[(int)element.first].sigma;
@@ -88,7 +88,7 @@ std::pair<float,float> SiPixelDBErrorParametrization::getError(const SiPixelCPEP
 }
 
 //The function which is called to return errX and errY. Used outside CPEs with access to ES.
-std::pair<float,float> SiPixelDBErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
+std::pair<float,float> SiPixelCPEGenericDBErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 	                                                      int sizex, int sizey,
 	                                                      float alpha, float beta,
 	                                                      bool bigInX, bool bigInY)
@@ -107,11 +107,11 @@ std::pair<float,float> SiPixelDBErrorParametrization::getError(GeomDetType::SubD
                           				     index(2, sizey, alpha, beta, bigInY)); //2 -- Fy
 			break;
 		default:
-			throw cms::Exception("PixelDBErrorParametrization::getError")
+			throw cms::Exception("PixelCPEGenericDBErrorParametrization::getError")
 				<< "Non-pixel detector type !!!" ;
 	}
 	
-	const SiPixelCPEParmErrors::DbVector & db_errors = errorsH->errors();
+	const SiPixelCPEGenericErrorParm::DbVector & db_errors = errorsH->errors();
 
 	if (bigInX && sizex == 1) errors.first  = element.first;
 	else                      errors.first  = db_errors[(int)element.first].sigma;
@@ -123,7 +123,7 @@ std::pair<float,float> SiPixelDBErrorParametrization::getError(GeomDetType::SubD
 
 
 
-float SiPixelDBErrorParametrization::index(int ind_subpart, int size, float alpha, float beta, bool big)
+float SiPixelCPEGenericDBErrorParametrization::index(int ind_subpart, int size, float alpha, float beta, bool big)
 {
 	//This is a check for big pixels. If it passes, the code returns a given error and the function ends.
 	if ( big && size == 1) return errors_big_pix[ind_subpart];

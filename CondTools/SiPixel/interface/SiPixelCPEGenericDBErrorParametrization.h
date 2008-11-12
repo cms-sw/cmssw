@@ -6,19 +6,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 
-class SiPixelDBErrorParametrization
+class SiPixelCPEGenericDBErrorParametrization
 {
   public:
 	
-	SiPixelDBErrorParametrization();
-	 ~SiPixelDBErrorParametrization();
+	SiPixelCPEGenericDBErrorParametrization();
+	 ~SiPixelCPEGenericDBErrorParametrization();
 
 	 void setDBAccess(const edm::EventSetup& es);
 	 
 	 std::pair<float,float>
-		 getError(const SiPixelCPEParmErrors* parmErrors,
+		 getError(const SiPixelCPEGenericErrorParm* parmErrors,
 			        GeomDetType::SubDetector pixelPart,
 			        int sizex, int sizey,
 			        float alpha, float beta,
@@ -36,7 +36,7 @@ class SiPixelDBErrorParametrization
 	 
   private:
 
-	 edm::ESHandle<SiPixelCPEParmErrors> errorsH;
+	 edm::ESHandle<SiPixelCPEGenericErrorParm> errorsH;
 	 
 	 static const float bx_a_min[3];
 	 static const float bx_a_max[3];

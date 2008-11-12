@@ -14,6 +14,12 @@
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
 
+#include "CondTools/SiPixel/test/SiPixelCPEGenericErrorParmReader.h"
+#include "CondTools/SiPixel/test/SiPixelCPEGenericErrorParmUploader.h"
+#include "CondTools/SiPixel/test/SiPixelFakeCPEGenericErrorParmSourceReader.h"
+#include "CondTools/SiPixel/test/SiPixelTemplateDBObjectReader.h"
+#include "CondTools/SiPixel/test/SiPixelTemplateDBObjectUploader.h"
+#include "CondTools/SiPixel/test/SiPixelFakeTemplateDBSourceReader.h"
 
 using cms::SiPixelCondObjBuilder;
 using cms::SiPixelCondObjReader;
@@ -41,3 +47,10 @@ DEFINE_ANOTHER_FWK_MODULE(SiPixelPerformanceSummaryBuilder);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelPerformanceSummaryReader);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelBadModuleByHandBuilder);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelBadModuleReader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelCPEGenericErrorParmReader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelCPEGenericErrorParmUploader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelFakeCPEGenericErrorParmSourceReader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelTemplateDBObjectReader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelTemplateDBObjectUploader);
+DEFINE_ANOTHER_FWK_MODULE(SiPixelFakeTemplateDBSourceReader);
+
