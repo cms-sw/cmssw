@@ -1,4 +1,4 @@
-#include "CondFormats/SiPixelObjects/interface/SiPixelCPEParmErrors.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPedestals.h"
 namespace{
@@ -44,7 +44,8 @@ namespace {
 }
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
-// &&& Not sure what we need for templates here.
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 

@@ -61,595 +61,569 @@ using namespace edm;
 #endif
 
 //**************************************************************** 
-//! This routine initializes the global template structures from 
-//! an external file template_summary_zpNNNN where NNNN are four  
-//! digits of filenum.                                           
-//! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
+//! This routine initializes the global template structures from an
+//! external file template_summary_zpNNNN where NNNN are four digits 
+//! \param dbobject - db storing multiple template calibrations
 //**************************************************************** 
-bool SiPixelTemplate::pushfile(int filenum)
+bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 {
-    // Add template stored in external file numbered filenum to theTemplateStore
+	// Add template stored in external dbobject to theTemplateStore
     
-    // Local variables 
-    int i, j, k, l;
+	// Local variables 
+	int i, j, k, l;
 	const char *tempfile;
 	char title[80];
-    char c;
+	char c;
 	const int code_version={11};
-	
 
+	// We must create a new object because dbobject must be a const and our stream must not be
+	SiPixelTemplateDBObject db = dbobject;
 
-//  Create a filename for this run 
-
-	//std::ostringstream tout;
-	//tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-	//std::string tempf = tout.str();
-	//tempfile = tempf.c_str();
-	
- std::ostringstream tout;
- tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
-      << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
- std::string tempf = tout.str();
- 
- // std::cout << "tempf = " << tempf << std::endl;
- edm::FileInPath file( tempf.c_str() );
- tempfile = (file.fullPath()).c_str();
- // std::cout << "tempfile = " << tempfile << std::endl;
-
-
-//  open the template file 
-
- std::ifstream in_file(tempfile, std::ios::in);
- 
- if(in_file.is_open()) {
- 
- // Create a local template storage entry
-	
+	// Create a local template storage entry
 	SiPixelTemplateStore theCurrentTemp;
-	
+
+	// Fill the template storage for each template calibration stored in the db
+	for(int m=0; m<db.numOfTempl(); ++m)
+	{
+			
 // Read-in a header string first and print it    
     
-    for (i=0; (c=in_file.get()) != '\n'; ++i) {
-       if(i < 79) {theCurrentTemp.head.title[i] = c;}
-    }
-	if(i > 78) {i=78;}
-	theCurrentTemp.head.title[i+1] ='\0';
-    LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
+		SiPixelTemplateDBObject::char2float temp;
+		for (int i=0; i<20; ++i) {
+			temp.f = db.sVector()[db.index()];
+			theCurrentTemp.head.title[4*i] = temp.c[0];
+			theCurrentTemp.head.title[4*i+1] = temp.c[1];
+			theCurrentTemp.head.title[4*i+2] = temp.c[2];
+			theCurrentTemp.head.title[4*i+3] = temp.c[3];
+			db.incrementIndex(1);
+		}
+		theCurrentTemp.head.title[79] = '\0';
+		LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
     
 // next, the header information     
     
-    in_file >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NByx >> theCurrentTemp.head.NBxx
-	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.Bbias 
+		db >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NByx >> theCurrentTemp.head.NBxx
+			 >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.Bbias 
 			 >> theCurrentTemp.head.Fbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
-			>> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
-			
-	if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
-	
-    LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
+			 >> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
+		
+		if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
+		
+		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
 		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
 		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", Barrel bias voltage " << theCurrentTemp.head.Bbias << ", FPix bias voltage " << theCurrentTemp.head.Fbias << ", temperature "
 		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
 		 << ", 1/2 threshold " << theCurrentTemp.head.s50 << ", Template Version " << theCurrentTemp.head.templ_version << ENDL;    
 			
-	if(theCurrentTemp.head.templ_version != code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << ", no template load" << ENDL; return false;}
+		if(theCurrentTemp.head.templ_version != code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << ", no template load" << ENDL; return false;}
 		 
 // next, loop over all barrel y-angle entries   
 
-    for (i=0; i < theCurrentTemp.head.NBy; ++i) {     
-    
-       in_file >> theCurrentTemp.entby[i].runnum >> theCurrentTemp.entby[i].costrk[0] 
-	           >> theCurrentTemp.entby[i].costrk[1] >> theCurrentTemp.entby[i].costrk[2]; 
+		for (i=0; i < theCurrentTemp.head.NBy; ++i) {     
 			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 1, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			db >> theCurrentTemp.entby[i].runnum >> theCurrentTemp.entby[i].costrk[0] 
+				 >> theCurrentTemp.entby[i].costrk[1] >> theCurrentTemp.entby[i].costrk[2]; 
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 1, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
-       theCurrentTemp.entby[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entby[i].costrk[2], (double)theCurrentTemp.entby[i].costrk[0]));
-	   
-	   theCurrentTemp.entby[i].cotalpha = theCurrentTemp.entby[i].costrk[0]/theCurrentTemp.entby[i].costrk[2];
-
-       theCurrentTemp.entby[i].beta = static_cast<float>(atan2((double)theCurrentTemp.entby[i].costrk[2], (double)theCurrentTemp.entby[i].costrk[1]));
-	   
-	   theCurrentTemp.entby[i].cotbeta = theCurrentTemp.entby[i].costrk[1]/theCurrentTemp.entby[i].costrk[2];
-    
-       in_file >> theCurrentTemp.entby[i].qavg >> theCurrentTemp.entby[i].pixmax >> theCurrentTemp.entby[i].symax >> theCurrentTemp.entby[i].dyone
-	           >> theCurrentTemp.entby[i].syone >> theCurrentTemp.entby[i].sxmax >> theCurrentTemp.entby[i].dxone >> theCurrentTemp.entby[i].sxone;
+			theCurrentTemp.entby[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entby[i].costrk[2], (double)theCurrentTemp.entby[i].costrk[0]));
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-    
-       in_file >> theCurrentTemp.entby[i].dytwo >> theCurrentTemp.entby[i].sytwo >> theCurrentTemp.entby[i].dxtwo 
-	           >> theCurrentTemp.entby[i].sxtwo >> theCurrentTemp.entby[i].qmin >> theCurrentTemp.entby[i].clsleny >> theCurrentTemp.entby[i].clslenx;
+			theCurrentTemp.entby[i].cotalpha = theCurrentTemp.entby[i].costrk[0]/theCurrentTemp.entby[i].costrk[2];
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 3, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			theCurrentTemp.entby[i].beta = static_cast<float>(atan2((double)theCurrentTemp.entby[i].costrk[2], (double)theCurrentTemp.entby[i].costrk[1]));
+			
+			theCurrentTemp.entby[i].cotbeta = theCurrentTemp.entby[i].costrk[1]/theCurrentTemp.entby[i].costrk[2];
+			
+			db >> theCurrentTemp.entby[i].qavg >> theCurrentTemp.entby[i].pixmax >> theCurrentTemp.entby[i].symax >> theCurrentTemp.entby[i].dyone
+				 >> theCurrentTemp.entby[i].syone >> theCurrentTemp.entby[i].sxmax >> theCurrentTemp.entby[i].dxone >> theCurrentTemp.entby[i].sxone;
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			
+			db >> theCurrentTemp.entby[i].dytwo >> theCurrentTemp.entby[i].sytwo >> theCurrentTemp.entby[i].dxtwo 
+				 >> theCurrentTemp.entby[i].sxtwo >> theCurrentTemp.entby[i].qmin >> theCurrentTemp.entby[i].clsleny >> theCurrentTemp.entby[i].clslenx;
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 3, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			
+			for (j=0; j<2; ++j) {
+				
+				db >> theCurrentTemp.entby[i].ypar[j][0] >> theCurrentTemp.entby[i].ypar[j][1] 
+					 >> theCurrentTemp.entby[i].ypar[j][2] >> theCurrentTemp.entby[i].ypar[j][3] >> theCurrentTemp.entby[i].ypar[j][4];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 4, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
-	   for (j=0; j<2; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].ypar[j][0] >> theCurrentTemp.entby[i].ypar[j][1] 
-	              >> theCurrentTemp.entby[i].ypar[j][2] >> theCurrentTemp.entby[i].ypar[j][3] >> theCurrentTemp.entby[i].ypar[j][4];
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 4, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			for (j=0; j<9; ++j) {
+				
+				for (k=0; k<TYSIZE; ++k) {db >> theCurrentTemp.entby[i].ytemp[j][k];}
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 5, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<2; ++j) {
+				
+				db >> theCurrentTemp.entby[i].xpar[j][0] >> theCurrentTemp.entby[i].xpar[j][1] 
+					 >> theCurrentTemp.entby[i].xpar[j][2] >> theCurrentTemp.entby[i].xpar[j][3] >> theCurrentTemp.entby[i].xpar[j][4];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 6, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
 			  
-	   }
-			  
-	   for (j=0; j<9; ++j) {
-    
-          for (k=0; k<TYSIZE; ++k) {in_file >> theCurrentTemp.entby[i].ytemp[j][k];}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 5, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-   			  
-	   for (j=0; j<2; ++j) {
-    
-		  in_file >> theCurrentTemp.entby[i].xpar[j][0] >> theCurrentTemp.entby[i].xpar[j][1] 
-	              >> theCurrentTemp.entby[i].xpar[j][2] >> theCurrentTemp.entby[i].xpar[j][3] >> theCurrentTemp.entby[i].xpar[j][4];
+			for (j=0; j<9; ++j) {
+				
+				for (k=0; k<TXSIZE; ++k) {db >> theCurrentTemp.entby[i].xtemp[j][k];} 
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 6, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-			  
-	   }
-			  
-	   for (j=0; j<9; ++j) {
-    
-	      for (k=0; k<TXSIZE; ++k) {in_file >> theCurrentTemp.entby[i].xtemp[j][k];} 
-		  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].yavg[j] >> theCurrentTemp.entby[i].yrms[j] >> theCurrentTemp.entby[i].ygx0[j] >> theCurrentTemp.entby[i].ygsig[j];
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].yavg[j] >> theCurrentTemp.entby[i].yrms[j] >> theCurrentTemp.entby[i].ygx0[j] >> theCurrentTemp.entby[i].ygsig[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 8, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 8, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-	   			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].yflpar[j][0] >> theCurrentTemp.entby[i].yflpar[j][1] >> theCurrentTemp.entby[i].yflpar[j][2] 
-				  >> theCurrentTemp.entby[i].yflpar[j][3] >> theCurrentTemp.entby[i].yflpar[j][4] >> theCurrentTemp.entby[i].yflpar[j][5];
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].yflpar[j][0] >> theCurrentTemp.entby[i].yflpar[j][1] >> theCurrentTemp.entby[i].yflpar[j][2] 
+					 >> theCurrentTemp.entby[i].yflpar[j][3] >> theCurrentTemp.entby[i].yflpar[j][4] >> theCurrentTemp.entby[i].yflpar[j][5];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 9, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 9, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-  	   }
-	   
-	  	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].xavg[j] >> theCurrentTemp.entby[i].xrms[j] >> theCurrentTemp.entby[i].xgx0[j] >> theCurrentTemp.entby[i].xgsig[j];
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].xavg[j] >> theCurrentTemp.entby[i].xrms[j] >> theCurrentTemp.entby[i].xgx0[j] >> theCurrentTemp.entby[i].xgsig[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 10, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 10, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].xflpar[j][0] >> theCurrentTemp.entby[i].xflpar[j][1] >> theCurrentTemp.entby[i].xflpar[j][2] 
-		          >> theCurrentTemp.entby[i].xflpar[j][3] >> theCurrentTemp.entby[i].xflpar[j][4] >> theCurrentTemp.entby[i].xflpar[j][5];
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].xflpar[j][0] >> theCurrentTemp.entby[i].xflpar[j][1] >> theCurrentTemp.entby[i].xflpar[j][2] 
+					 >> theCurrentTemp.entby[i].xflpar[j][3] >> theCurrentTemp.entby[i].xflpar[j][4] >> theCurrentTemp.entby[i].xflpar[j][5];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 11, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 11, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].chi2yavg[j] >> theCurrentTemp.entby[i].chi2ymin[j] >> theCurrentTemp.entby[i].chi2xavg[j] >> theCurrentTemp.entby[i].chi2xmin[j];
-
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 12, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].yavgc2m[j] >> theCurrentTemp.entby[i].yrmsc2m[j] >> theCurrentTemp.entby[i].ygx0c2m[j] >> theCurrentTemp.entby[i].ygsigc2m[j];
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].chi2yavg[j] >> theCurrentTemp.entby[i].chi2ymin[j] >> theCurrentTemp.entby[i].chi2xavg[j] >> theCurrentTemp.entby[i].chi2xmin[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 12, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 13, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   }
-	   
-	  	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].xavgc2m[j] >> theCurrentTemp.entby[i].xrmsc2m[j] >> theCurrentTemp.entby[i].xgx0c2m[j] >> theCurrentTemp.entby[i].xgsigc2m[j];
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].yavgc2m[j] >> theCurrentTemp.entby[i].yrmsc2m[j] >> theCurrentTemp.entby[i].ygx0c2m[j] >> theCurrentTemp.entby[i].ygsigc2m[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 13, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			}
 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-	   } 
-	   
-	   in_file >> theCurrentTemp.entby[i].yspare[0] >> theCurrentTemp.entby[i].yspare[1] >> theCurrentTemp.entby[i].yspare[2] >> theCurrentTemp.entby[i].yspare[3] >> theCurrentTemp.entby[i].yspare[4]
-	    >> theCurrentTemp.entby[i].yspare[5] >> theCurrentTemp.entby[i].yspare[6] >> theCurrentTemp.entby[i].yspare[7] >> theCurrentTemp.entby[i].yspare[8] >> theCurrentTemp.entby[i].yspare[9];
-
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-
-	   in_file >> theCurrentTemp.entby[i].xspare[0] >> theCurrentTemp.entby[i].xspare[1] >> theCurrentTemp.entby[i].xspare[2] >> theCurrentTemp.entby[i].xspare[3] >> theCurrentTemp.entby[i].xspare[4]
-	    >> theCurrentTemp.entby[i].xspare[5] >> theCurrentTemp.entby[i].xspare[6] >> theCurrentTemp.entby[i].xspare[7] >> theCurrentTemp.entby[i].xspare[8] >> theCurrentTemp.entby[i].xspare[9];
-
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 16, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
-    	   
-	}
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entby[i].xavgc2m[j] >> theCurrentTemp.entby[i].xrmsc2m[j] >> theCurrentTemp.entby[i].xgx0c2m[j] >> theCurrentTemp.entby[i].xgsigc2m[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			} 
+			
+			db >> theCurrentTemp.entby[i].yspare[0] >> theCurrentTemp.entby[i].yspare[1] >> theCurrentTemp.entby[i].yspare[2] >> theCurrentTemp.entby[i].yspare[3] >> theCurrentTemp.entby[i].yspare[4]
+				 >> theCurrentTemp.entby[i].yspare[5] >> theCurrentTemp.entby[i].yspare[6] >> theCurrentTemp.entby[i].yspare[7] >> theCurrentTemp.entby[i].yspare[8] >> theCurrentTemp.entby[i].yspare[9];
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			
+			db >> theCurrentTemp.entby[i].xspare[0] >> theCurrentTemp.entby[i].xspare[1] >> theCurrentTemp.entby[i].xspare[2] >> theCurrentTemp.entby[i].xspare[3] >> theCurrentTemp.entby[i].xspare[4]
+				 >> theCurrentTemp.entby[i].xspare[5] >> theCurrentTemp.entby[i].xspare[6] >> theCurrentTemp.entby[i].xspare[7] >> theCurrentTemp.entby[i].xspare[8] >> theCurrentTemp.entby[i].xspare[9];
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 16, no template load, run # " << theCurrentTemp.entby[i].runnum << ENDL; return false;}
+			
+		}
 	
 // next, loop over all barrel x-angle entries   
 
-  for (k=0; k < theCurrentTemp.head.NByx; ++k) { 
-
-    for (i=0; i < theCurrentTemp.head.NBxx; ++i) { 
-        
-       in_file >> theCurrentTemp.entbx[k][i].runnum >> theCurrentTemp.entbx[k][i].costrk[0] 
-	           >> theCurrentTemp.entbx[k][i].costrk[1] >> theCurrentTemp.entbx[k][i].costrk[2]; 
+		for (k=0; k < theCurrentTemp.head.NByx; ++k) { 
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 17, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+			for (i=0; i < theCurrentTemp.head.NBxx; ++i) { 
+        
+				db >> theCurrentTemp.entbx[k][i].runnum >> theCurrentTemp.entbx[k][i].costrk[0] 
+					 >> theCurrentTemp.entbx[k][i].costrk[1] >> theCurrentTemp.entbx[k][i].costrk[2]; 
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 17, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
-       theCurrentTemp.entbx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entbx[k][i].costrk[2], (double)theCurrentTemp.entbx[k][i].costrk[0]));
-	   
-	   theCurrentTemp.entbx[k][i].cotalpha = theCurrentTemp.entbx[k][i].costrk[0]/theCurrentTemp.entbx[k][i].costrk[2];
-
-       theCurrentTemp.entbx[k][i].beta = static_cast<float>(atan2((double)theCurrentTemp.entbx[k][i].costrk[2], (double)theCurrentTemp.entbx[k][i].costrk[1]));
-	   
-	   theCurrentTemp.entbx[k][i].cotbeta = theCurrentTemp.entbx[k][i].costrk[1]/theCurrentTemp.entbx[k][i].costrk[2];
-    
-       in_file >> theCurrentTemp.entbx[k][i].qavg >> theCurrentTemp.entbx[k][i].pixmax >> theCurrentTemp.entbx[k][i].symax >> theCurrentTemp.entbx[k][i].dyone
-	           >> theCurrentTemp.entbx[k][i].syone >> theCurrentTemp.entbx[k][i].sxmax >> theCurrentTemp.entbx[k][i].dxone >> theCurrentTemp.entbx[k][i].sxone;
-			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 18, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-    
-       in_file >> theCurrentTemp.entbx[k][i].dytwo >> theCurrentTemp.entbx[k][i].sytwo >> theCurrentTemp.entbx[k][i].dxtwo 
-	           >> theCurrentTemp.entbx[k][i].sxtwo >> theCurrentTemp.entbx[k][i].qmin >> theCurrentTemp.entbx[k][i].clsleny >> theCurrentTemp.entbx[k][i].clslenx;
-			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 19, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				theCurrentTemp.entbx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entbx[k][i].costrk[2], (double)theCurrentTemp.entbx[k][i].costrk[0]));
+				
+				theCurrentTemp.entbx[k][i].cotalpha = theCurrentTemp.entbx[k][i].costrk[0]/theCurrentTemp.entbx[k][i].costrk[2];
+				
+				theCurrentTemp.entbx[k][i].beta = static_cast<float>(atan2((double)theCurrentTemp.entbx[k][i].costrk[2], (double)theCurrentTemp.entbx[k][i].costrk[1]));
+				
+				theCurrentTemp.entbx[k][i].cotbeta = theCurrentTemp.entbx[k][i].costrk[1]/theCurrentTemp.entbx[k][i].costrk[2];
+				
+				db >> theCurrentTemp.entbx[k][i].qavg >> theCurrentTemp.entbx[k][i].pixmax >> theCurrentTemp.entbx[k][i].symax >> theCurrentTemp.entbx[k][i].dyone
+					 >> theCurrentTemp.entbx[k][i].syone >> theCurrentTemp.entbx[k][i].sxmax >> theCurrentTemp.entbx[k][i].dxone >> theCurrentTemp.entbx[k][i].sxone;
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 18, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				
+				db >> theCurrentTemp.entbx[k][i].dytwo >> theCurrentTemp.entbx[k][i].sytwo >> theCurrentTemp.entbx[k][i].dxtwo 
+					 >> theCurrentTemp.entbx[k][i].sxtwo >> theCurrentTemp.entbx[k][i].qmin >> theCurrentTemp.entbx[k][i].clsleny >> theCurrentTemp.entbx[k][i].clslenx;
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 19, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
 			  
-	   for (j=0; j<2; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].ypar[j][0] >> theCurrentTemp.entbx[k][i].ypar[j][1] 
-	              >> theCurrentTemp.entbx[k][i].ypar[j][2] >> theCurrentTemp.entbx[k][i].ypar[j][3] >> theCurrentTemp.entbx[k][i].ypar[j][4];
-			  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 20, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
+				for (j=0; j<2; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].ypar[j][0] >> theCurrentTemp.entbx[k][i].ypar[j][1] 
+						 >> theCurrentTemp.entbx[k][i].ypar[j][2] >> theCurrentTemp.entbx[k][i].ypar[j][3] >> theCurrentTemp.entbx[k][i].ypar[j][4];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 20, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
 			  
-	   for (j=0; j<9; ++j) {
-    
-	      for (l=0; l<TYSIZE; ++l) {in_file >> theCurrentTemp.entbx[k][i].ytemp[j][l];} 
-		  			
-		  if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 21, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-   			  
-	   for (j=0; j<2; ++j) {
-    
-		  in_file >> theCurrentTemp.entbx[k][i].xpar[j][0] >> theCurrentTemp.entbx[k][i].xpar[j][1] 
-	              >> theCurrentTemp.entbx[k][i].xpar[j][2] >> theCurrentTemp.entbx[k][i].xpar[j][3] >> theCurrentTemp.entbx[k][i].xpar[j][4];
+				for (j=0; j<9; ++j) {
+					
+					for (l=0; l<TYSIZE; ++l) {db >> theCurrentTemp.entbx[k][i].ytemp[j][l];} 
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 21, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<2; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].xpar[j][0] >> theCurrentTemp.entbx[k][i].xpar[j][1] 
+						 >> theCurrentTemp.entbx[k][i].xpar[j][2] >> theCurrentTemp.entbx[k][i].xpar[j][3] >> theCurrentTemp.entbx[k][i].xpar[j][4];
+					
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 22, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<9; ++j) {
+					
+					for (l=0; l<TXSIZE; ++l) {db >> theCurrentTemp.entbx[k][i].xtemp[j][l];} 
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 23, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].yavg[j] >> theCurrentTemp.entbx[k][i].yrms[j] >> theCurrentTemp.entbx[k][i].ygx0[j] >> theCurrentTemp.entbx[k][i].ygsig[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 24, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].yflpar[j][0] >> theCurrentTemp.entbx[k][i].yflpar[j][1] >> theCurrentTemp.entbx[k][i].yflpar[j][2] 
+						 >> theCurrentTemp.entbx[k][i].yflpar[j][3] >> theCurrentTemp.entbx[k][i].yflpar[j][4] >> theCurrentTemp.entbx[k][i].yflpar[j][5];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 25, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].xavg[j] >> theCurrentTemp.entbx[k][i].xrms[j] >> theCurrentTemp.entbx[k][i].xgx0[j] >> theCurrentTemp.entbx[k][i].xgsig[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 26, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
 			  
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 22, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].xflpar[j][0] >> theCurrentTemp.entbx[k][i].xflpar[j][1] >> theCurrentTemp.entbx[k][i].xflpar[j][2] 
+						 >> theCurrentTemp.entbx[k][i].xflpar[j][3] >> theCurrentTemp.entbx[k][i].xflpar[j][4] >> theCurrentTemp.entbx[k][i].xflpar[j][5];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 27, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
 			  
-	   for (j=0; j<9; ++j) {
-    
-          for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entbx[k][i].xtemp[j][l];} 
-		    			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 23, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].yavg[j] >> theCurrentTemp.entbx[k][i].yrms[j] >> theCurrentTemp.entbx[k][i].ygx0[j] >> theCurrentTemp.entbx[k][i].ygsig[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 24, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-	   			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].yflpar[j][0] >> theCurrentTemp.entbx[k][i].yflpar[j][1] >> theCurrentTemp.entbx[k][i].yflpar[j][2] 
-				  >> theCurrentTemp.entbx[k][i].yflpar[j][3] >> theCurrentTemp.entbx[k][i].yflpar[j][4] >> theCurrentTemp.entbx[k][i].yflpar[j][5];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 25, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-	   			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].xavg[j] >> theCurrentTemp.entbx[k][i].xrms[j] >> theCurrentTemp.entbx[k][i].xgx0[j] >> theCurrentTemp.entbx[k][i].xgsig[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 26, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].xflpar[j][0] >> theCurrentTemp.entbx[k][i].xflpar[j][1] >> theCurrentTemp.entbx[k][i].xflpar[j][2] 
-		          >> theCurrentTemp.entbx[k][i].xflpar[j][3] >> theCurrentTemp.entbx[k][i].xflpar[j][4] >> theCurrentTemp.entbx[k][i].xflpar[j][5];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 27, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].chi2yavg[j] >> theCurrentTemp.entbx[k][i].chi2ymin[j] >> theCurrentTemp.entbx[k][i].chi2xavg[j] >> theCurrentTemp.entbx[k][i].chi2xmin[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 28, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].yavgc2m[j] >> theCurrentTemp.entbx[k][i].yrmsc2m[j] >> theCurrentTemp.entbx[k][i].ygx0c2m[j] >> theCurrentTemp.entbx[k][i].ygsigc2m[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 29, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	  	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[k][i].xavgc2m[j] >> theCurrentTemp.entbx[k][i].xrmsc2m[j] >> theCurrentTemp.entbx[k][i].xgx0c2m[j] >> theCurrentTemp.entbx[k][i].xgsigc2m[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 30, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	   in_file >> theCurrentTemp.entbx[k][i].yspare[0] >> theCurrentTemp.entbx[k][i].yspare[1] >> theCurrentTemp.entbx[k][i].yspare[2] >> theCurrentTemp.entbx[k][i].yspare[3] >> theCurrentTemp.entbx[k][i].yspare[4]
-	    >> theCurrentTemp.entbx[k][i].yspare[5] >> theCurrentTemp.entbx[k][i].yspare[6] >> theCurrentTemp.entbx[k][i].yspare[7] >> theCurrentTemp.entbx[k][i].yspare[8] >> theCurrentTemp.entbx[k][i].yspare[9];
-			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-
-	   in_file >> theCurrentTemp.entbx[k][i].xspare[0] >> theCurrentTemp.entbx[k][i].xspare[1] >> theCurrentTemp.entbx[k][i].xspare[2] >> theCurrentTemp.entbx[k][i].xspare[3] >> theCurrentTemp.entbx[k][i].xspare[4]
-	    >> theCurrentTemp.entbx[k][i].xspare[5] >> theCurrentTemp.entbx[k][i].xspare[6] >> theCurrentTemp.entbx[k][i].xspare[7] >> theCurrentTemp.entbx[k][i].xspare[8] >> theCurrentTemp.entbx[k][i].xspare[9];
-			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 32, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
-    	   
-	}
-  }	
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].chi2yavg[j] >> theCurrentTemp.entbx[k][i].chi2ymin[j] >> theCurrentTemp.entbx[k][i].chi2xavg[j] >> theCurrentTemp.entbx[k][i].chi2xmin[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 28, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].yavgc2m[j] >> theCurrentTemp.entbx[k][i].yrmsc2m[j] >> theCurrentTemp.entbx[k][i].ygx0c2m[j] >> theCurrentTemp.entbx[k][i].ygsigc2m[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 29, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entbx[k][i].xavgc2m[j] >> theCurrentTemp.entbx[k][i].xrmsc2m[j] >> theCurrentTemp.entbx[k][i].xgx0c2m[j] >> theCurrentTemp.entbx[k][i].xgsigc2m[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 30, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				}
+				
+				db >> theCurrentTemp.entbx[k][i].yspare[0] >> theCurrentTemp.entbx[k][i].yspare[1] >> theCurrentTemp.entbx[k][i].yspare[2] >> theCurrentTemp.entbx[k][i].yspare[3] >> theCurrentTemp.entbx[k][i].yspare[4]
+					 >> theCurrentTemp.entbx[k][i].yspare[5] >> theCurrentTemp.entbx[k][i].yspare[6] >> theCurrentTemp.entbx[k][i].yspare[7] >> theCurrentTemp.entbx[k][i].yspare[8] >> theCurrentTemp.entbx[k][i].yspare[9];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				
+				db >> theCurrentTemp.entbx[k][i].xspare[0] >> theCurrentTemp.entbx[k][i].xspare[1] >> theCurrentTemp.entbx[k][i].xspare[2] >> theCurrentTemp.entbx[k][i].xspare[3] >> theCurrentTemp.entbx[k][i].xspare[4]
+					 >> theCurrentTemp.entbx[k][i].xspare[5] >> theCurrentTemp.entbx[k][i].xspare[6] >> theCurrentTemp.entbx[k][i].xspare[7] >> theCurrentTemp.entbx[k][i].xspare[8] >> theCurrentTemp.entbx[k][i].xspare[9];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 32, no template load, run # " << theCurrentTemp.entbx[k][i].runnum << ENDL; return false;}
+				
+			}
+		}	
     
 // next, loop over all forward y-angle entries   
-
-    for (i=0; i < theCurrentTemp.head.NFy; ++i) {     
-    
-       in_file >> theCurrentTemp.entfy[i].runnum >> theCurrentTemp.entfy[i].costrk[0] 
-	           >> theCurrentTemp.entfy[i].costrk[1] >> theCurrentTemp.entfy[i].costrk[2]; 
-			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 33, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-			  
-// Calculate the alpha, beta, and cot(beta) for this entry 
-
-       theCurrentTemp.entfy[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfy[i].costrk[2], (double)theCurrentTemp.entfy[i].costrk[0]));
-	   
-	   theCurrentTemp.entfy[i].cotalpha = theCurrentTemp.entfy[i].costrk[0]/theCurrentTemp.entfy[i].costrk[2];
-
-       theCurrentTemp.entfy[i].beta = static_cast<float>(atan2((double)theCurrentTemp.entfy[i].costrk[2], (double)theCurrentTemp.entfy[i].costrk[1]));
-	   
-	   theCurrentTemp.entfy[i].cotbeta = theCurrentTemp.entfy[i].costrk[1]/theCurrentTemp.entfy[i].costrk[2];
-    
-       in_file >> theCurrentTemp.entfy[i].qavg >> theCurrentTemp.entfy[i].pixmax >> theCurrentTemp.entfy[i].symax >> theCurrentTemp.entfy[i].dyone
-	           >> theCurrentTemp.entfy[i].syone >> theCurrentTemp.entfy[i].sxmax >> theCurrentTemp.entfy[i].dxone >> theCurrentTemp.entfy[i].sxone;
-    			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 34, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   
-       in_file >> theCurrentTemp.entfy[i].dytwo >> theCurrentTemp.entfy[i].sytwo >> theCurrentTemp.entfy[i].dxtwo 
-	           >> theCurrentTemp.entfy[i].sxtwo >> theCurrentTemp.entfy[i].qmin >> theCurrentTemp.entfy[i].clsleny >> theCurrentTemp.entfy[i].clslenx;
-			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 35, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-			  
-	   for (j=0; j<2; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].ypar[j][0] >> theCurrentTemp.entfy[i].ypar[j][1] 
-	              >> theCurrentTemp.entfy[i].ypar[j][2] >> theCurrentTemp.entfy[i].ypar[j][3] >> theCurrentTemp.entfy[i].ypar[j][4];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 36, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-			  
-	   }
-			  
-	   for (j=0; j<9; ++j) {
-    
-          for (l=0; l<TYSIZE; ++l) {in_file >> theCurrentTemp.entfy[i].ytemp[j][l];} 
-		  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 37, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-   			  
-	   for (j=0; j<2; ++j) {
-    
-		  in_file >> theCurrentTemp.entfy[i].xpar[j][0] >> theCurrentTemp.entfy[i].xpar[j][1] 
-	              >> theCurrentTemp.entfy[i].xpar[j][2] >> theCurrentTemp.entfy[i].xpar[j][3] >> theCurrentTemp.entfy[i].xpar[j][4];
-			  
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 38, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<9; ++j) {
-    
-          for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entfy[i].xtemp[j][l];} 
-		  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 39, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].yavg[j] >> theCurrentTemp.entfy[i].yrms[j] >> theCurrentTemp.entfy[i].ygx0[j] >> theCurrentTemp.entfy[i].ygsig[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 40, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-	   			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].yflpar[j][0] >> theCurrentTemp.entfy[i].yflpar[j][1] >> theCurrentTemp.entfy[i].yflpar[j][2]
-				  >> theCurrentTemp.entfy[i].yflpar[j][3] >> theCurrentTemp.entfy[i].yflpar[j][4] >> theCurrentTemp.entfy[i].yflpar[j][5];
- 			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 41, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].xavg[j] >> theCurrentTemp.entfy[i].xrms[j] >> theCurrentTemp.entfy[i].xgx0[j] >> theCurrentTemp.entfy[i].xgsig[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 42, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].xflpar[j][0] >> theCurrentTemp.entfy[i].xflpar[j][1] >> theCurrentTemp.entfy[i].xflpar[j][2] 
-		          >> theCurrentTemp.entfy[i].xflpar[j][3] >> theCurrentTemp.entfy[i].xflpar[j][4] >> theCurrentTemp.entfy[i].xflpar[j][5];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 43, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].chi2yavg[j] >> theCurrentTemp.entfy[i].chi2ymin[j] >> theCurrentTemp.entfy[i].chi2xavg[j] >> theCurrentTemp.entfy[i].chi2xmin[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 44, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].yavgc2m[j] >> theCurrentTemp.entfy[i].yrmsc2m[j] >> theCurrentTemp.entfy[i].ygx0c2m[j] >> theCurrentTemp.entfy[i].ygsigc2m[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 45, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-	   
-	  	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].xavgc2m[j] >> theCurrentTemp.entfy[i].xrmsc2m[j] >> theCurrentTemp.entfy[i].xgx0c2m[j] >> theCurrentTemp.entfy[i].xgsigc2m[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 46, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-	   }
-	   
-	   in_file >> theCurrentTemp.entfy[i].yspare[0] >> theCurrentTemp.entfy[i].yspare[1] >> theCurrentTemp.entfy[i].yspare[2] >> theCurrentTemp.entfy[i].yspare[3] >> theCurrentTemp.entfy[i].yspare[4]
-	    >> theCurrentTemp.entfy[i].yspare[5] >> theCurrentTemp.entfy[i].yspare[6] >> theCurrentTemp.entfy[i].yspare[7] >> theCurrentTemp.entfy[i].yspare[8] >> theCurrentTemp.entfy[i].yspare[9];
-			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 47, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-
-	   in_file >> theCurrentTemp.entfy[i].xspare[0] >> theCurrentTemp.entfy[i].xspare[1] >> theCurrentTemp.entfy[i].xspare[2] >> theCurrentTemp.entfy[i].xspare[3] >> theCurrentTemp.entfy[i].xspare[4]
-	    >> theCurrentTemp.entfy[i].xspare[5] >> theCurrentTemp.entfy[i].xspare[6] >> theCurrentTemp.entfy[i].xspare[7] >> theCurrentTemp.entfy[i].xspare[8] >> theCurrentTemp.entfy[i].xspare[9];
-			
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 48, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
-    	   
-	}
 	
+		for (i=0; i < theCurrentTemp.head.NFy; ++i) {     
+			
+			db >> theCurrentTemp.entfy[i].runnum >> theCurrentTemp.entfy[i].costrk[0] 
+				 >> theCurrentTemp.entfy[i].costrk[1] >> theCurrentTemp.entfy[i].costrk[2]; 
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 33, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			
+// Calculate the alpha, beta, and cot(beta) for this entry 
+			
+			theCurrentTemp.entfy[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfy[i].costrk[2], (double)theCurrentTemp.entfy[i].costrk[0]));
+			
+			theCurrentTemp.entfy[i].cotalpha = theCurrentTemp.entfy[i].costrk[0]/theCurrentTemp.entfy[i].costrk[2];
+			
+			theCurrentTemp.entfy[i].beta = static_cast<float>(atan2((double)theCurrentTemp.entfy[i].costrk[2], (double)theCurrentTemp.entfy[i].costrk[1]));
+			
+			theCurrentTemp.entfy[i].cotbeta = theCurrentTemp.entfy[i].costrk[1]/theCurrentTemp.entfy[i].costrk[2];
+			
+			db >> theCurrentTemp.entfy[i].qavg >> theCurrentTemp.entfy[i].pixmax >> theCurrentTemp.entfy[i].symax >> theCurrentTemp.entfy[i].dyone
+				 >> theCurrentTemp.entfy[i].syone >> theCurrentTemp.entfy[i].sxmax >> theCurrentTemp.entfy[i].dxone >> theCurrentTemp.entfy[i].sxone;
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 34, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			
+			db >> theCurrentTemp.entfy[i].dytwo >> theCurrentTemp.entfy[i].sytwo >> theCurrentTemp.entfy[i].dxtwo 
+				 >> theCurrentTemp.entfy[i].sxtwo >> theCurrentTemp.entfy[i].qmin >> theCurrentTemp.entfy[i].clsleny >> theCurrentTemp.entfy[i].clslenx;
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 35, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			
+			for (j=0; j<2; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].ypar[j][0] >> theCurrentTemp.entfy[i].ypar[j][1] 
+					 >> theCurrentTemp.entfy[i].ypar[j][2] >> theCurrentTemp.entfy[i].ypar[j][3] >> theCurrentTemp.entfy[i].ypar[j][4];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 36, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			  
+			}
+			
+			for (j=0; j<9; ++j) {
+				
+				for (l=0; l<TYSIZE; ++l) {db >> theCurrentTemp.entfy[i].ytemp[j][l];} 
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 37, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<2; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].xpar[j][0] >> theCurrentTemp.entfy[i].xpar[j][1] 
+					 >> theCurrentTemp.entfy[i].xpar[j][2] >> theCurrentTemp.entfy[i].xpar[j][3] >> theCurrentTemp.entfy[i].xpar[j][4];
+			  
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 38, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<9; ++j) {
+				
+				for (l=0; l<TXSIZE; ++l) {db >> theCurrentTemp.entfy[i].xtemp[j][l];} 
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 39, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].yavg[j] >> theCurrentTemp.entfy[i].yrms[j] >> theCurrentTemp.entfy[i].ygx0[j] >> theCurrentTemp.entfy[i].ygsig[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 40, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].yflpar[j][0] >> theCurrentTemp.entfy[i].yflpar[j][1] >> theCurrentTemp.entfy[i].yflpar[j][2]
+					 >> theCurrentTemp.entfy[i].yflpar[j][3] >> theCurrentTemp.entfy[i].yflpar[j][4] >> theCurrentTemp.entfy[i].yflpar[j][5];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 41, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].xavg[j] >> theCurrentTemp.entfy[i].xrms[j] >> theCurrentTemp.entfy[i].xgx0[j] >> theCurrentTemp.entfy[i].xgsig[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 42, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].xflpar[j][0] >> theCurrentTemp.entfy[i].xflpar[j][1] >> theCurrentTemp.entfy[i].xflpar[j][2] 
+					 >> theCurrentTemp.entfy[i].xflpar[j][3] >> theCurrentTemp.entfy[i].xflpar[j][4] >> theCurrentTemp.entfy[i].xflpar[j][5];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 43, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].chi2yavg[j] >> theCurrentTemp.entfy[i].chi2ymin[j] >> theCurrentTemp.entfy[i].chi2xavg[j] >> theCurrentTemp.entfy[i].chi2xmin[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 44, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].yavgc2m[j] >> theCurrentTemp.entfy[i].yrmsc2m[j] >> theCurrentTemp.entfy[i].ygx0c2m[j] >> theCurrentTemp.entfy[i].ygsigc2m[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 45, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			for (j=0; j<4; ++j) {
+				
+				db >> theCurrentTemp.entfy[i].xavgc2m[j] >> theCurrentTemp.entfy[i].xrmsc2m[j] >> theCurrentTemp.entfy[i].xgx0c2m[j] >> theCurrentTemp.entfy[i].xgsigc2m[j];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 46, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			}
+			
+			db >> theCurrentTemp.entfy[i].yspare[0] >> theCurrentTemp.entfy[i].yspare[1] >> theCurrentTemp.entfy[i].yspare[2] >> theCurrentTemp.entfy[i].yspare[3] >> theCurrentTemp.entfy[i].yspare[4]
+				 >> theCurrentTemp.entfy[i].yspare[5] >> theCurrentTemp.entfy[i].yspare[6] >> theCurrentTemp.entfy[i].yspare[7] >> theCurrentTemp.entfy[i].yspare[8] >> theCurrentTemp.entfy[i].yspare[9];
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 47, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			
+			db >> theCurrentTemp.entfy[i].xspare[0] >> theCurrentTemp.entfy[i].xspare[1] >> theCurrentTemp.entfy[i].xspare[2] >> theCurrentTemp.entfy[i].xspare[3] >> theCurrentTemp.entfy[i].xspare[4]
+				 >> theCurrentTemp.entfy[i].xspare[5] >> theCurrentTemp.entfy[i].xspare[6] >> theCurrentTemp.entfy[i].xspare[7] >> theCurrentTemp.entfy[i].xspare[8] >> theCurrentTemp.entfy[i].xspare[9];
+			
+			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 48, no template load, run # " << theCurrentTemp.entfy[i].runnum << ENDL; return false;}
+			
+		}
+		
 // next, loop over all forward x-angle entries   
 
-  for (k=0; k < theCurrentTemp.head.NFyx; ++k) { 
-  
-    for (i=0; i < theCurrentTemp.head.NFxx; ++i) {     
-    
-       in_file >> theCurrentTemp.entfx[k][i].runnum >> theCurrentTemp.entfx[k][i].costrk[0] 
-	           >> theCurrentTemp.entfx[k][i].costrk[1] >> theCurrentTemp.entfx[k][i].costrk[2]; 
+		for (k=0; k < theCurrentTemp.head.NFyx; ++k) { 
 			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 49, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-			   
+			for (i=0; i < theCurrentTemp.head.NFxx; ++i) {     
+				
+				db >> theCurrentTemp.entfx[k][i].runnum >> theCurrentTemp.entfx[k][i].costrk[0] 
+					 >> theCurrentTemp.entfx[k][i].costrk[1] >> theCurrentTemp.entfx[k][i].costrk[2]; 
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 49, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
-       theCurrentTemp.entfx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[0]));
-	   
-	   theCurrentTemp.entfx[k][i].cotalpha = theCurrentTemp.entfx[k][i].costrk[0]/theCurrentTemp.entfx[k][i].costrk[2];
-
-       theCurrentTemp.entfx[k][i].beta = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[1]));
-	   
-	   theCurrentTemp.entfx[k][i].cotbeta = theCurrentTemp.entfx[k][i].costrk[1]/theCurrentTemp.entfx[k][i].costrk[2];
-    
-       in_file >> theCurrentTemp.entfx[k][i].qavg >> theCurrentTemp.entfx[k][i].pixmax >> theCurrentTemp.entfx[k][i].symax >> theCurrentTemp.entfx[k][i].dyone
-	           >> theCurrentTemp.entfx[k][i].syone >> theCurrentTemp.entfx[k][i].sxmax >> theCurrentTemp.entfx[k][i].dxone >> theCurrentTemp.entfx[k][i].sxone;
-			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 50, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-    
-       in_file >> theCurrentTemp.entfx[k][i].dytwo >> theCurrentTemp.entfx[k][i].sytwo >> theCurrentTemp.entfx[k][i].dxtwo 
-	           >> theCurrentTemp.entfx[k][i].sxtwo >> theCurrentTemp.entfx[k][i].qmin >> theCurrentTemp.entfx[k][i].clsleny >> theCurrentTemp.entfx[k][i].clslenx;
-			
-       if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 51, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				theCurrentTemp.entfx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[0]));
+				
+				theCurrentTemp.entfx[k][i].cotalpha = theCurrentTemp.entfx[k][i].costrk[0]/theCurrentTemp.entfx[k][i].costrk[2];
+				
+				theCurrentTemp.entfx[k][i].beta = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[1]));
+				
+				theCurrentTemp.entfx[k][i].cotbeta = theCurrentTemp.entfx[k][i].costrk[1]/theCurrentTemp.entfx[k][i].costrk[2];
+				
+				db >> theCurrentTemp.entfx[k][i].qavg >> theCurrentTemp.entfx[k][i].pixmax >> theCurrentTemp.entfx[k][i].symax >> theCurrentTemp.entfx[k][i].dyone
+					 >> theCurrentTemp.entfx[k][i].syone >> theCurrentTemp.entfx[k][i].sxmax >> theCurrentTemp.entfx[k][i].dxone >> theCurrentTemp.entfx[k][i].sxone;
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 50, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				
+				db >> theCurrentTemp.entfx[k][i].dytwo >> theCurrentTemp.entfx[k][i].sytwo >> theCurrentTemp.entfx[k][i].dxtwo 
+					 >> theCurrentTemp.entfx[k][i].sxtwo >> theCurrentTemp.entfx[k][i].qmin >> theCurrentTemp.entfx[k][i].clsleny >> theCurrentTemp.entfx[k][i].clslenx;
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 51, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
 			  
-	   for (j=0; j<2; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].ypar[j][0] >> theCurrentTemp.entfx[k][i].ypar[j][1] 
-	              >> theCurrentTemp.entfx[k][i].ypar[j][2] >> theCurrentTemp.entfx[k][i].ypar[j][3] >> theCurrentTemp.entfx[k][i].ypar[j][4];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 52, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				for (j=0; j<2; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].ypar[j][0] >> theCurrentTemp.entfx[k][i].ypar[j][1] 
+						 >> theCurrentTemp.entfx[k][i].ypar[j][2] >> theCurrentTemp.entfx[k][i].ypar[j][3] >> theCurrentTemp.entfx[k][i].ypar[j][4];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 52, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+					
+				}
 			  
-	   }
+				for (j=0; j<9; ++j) {
+					
+					for (l=0; l<TYSIZE; ++l) {db >> theCurrentTemp.entfx[k][i].ytemp[j][l];} 
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 53, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<2; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].xpar[j][0] >> theCurrentTemp.entfx[k][i].xpar[j][1] 
+						 >> theCurrentTemp.entfx[k][i].xpar[j][2] >> theCurrentTemp.entfx[k][i].xpar[j][3] >> theCurrentTemp.entfx[k][i].xpar[j][4];
+					
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 54, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
 			  
-	   for (j=0; j<9; ++j) {
-    
-          for (l=0; l<TYSIZE; ++l) {in_file >> theCurrentTemp.entfx[k][i].ytemp[j][l];} 
-		  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 53, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-   			  
-	   for (j=0; j<2; ++j) {
-    
-		  in_file >> theCurrentTemp.entfx[k][i].xpar[j][0] >> theCurrentTemp.entfx[k][i].xpar[j][1] 
-	              >> theCurrentTemp.entfx[k][i].xpar[j][2] >> theCurrentTemp.entfx[k][i].xpar[j][3] >> theCurrentTemp.entfx[k][i].xpar[j][4];
+				for (j=0; j<9; ++j) {
+					
+					for (l=0; l<TXSIZE; ++l) {db >> theCurrentTemp.entfx[k][i].xtemp[j][l];} 
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 55, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].yavg[j] >> theCurrentTemp.entfx[k][i].yrms[j] >> theCurrentTemp.entfx[k][i].ygx0[j] >> theCurrentTemp.entfx[k][i].ygsig[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 56, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].yflpar[j][0] >> theCurrentTemp.entfx[k][i].yflpar[j][1] >> theCurrentTemp.entfx[k][i].yflpar[j][2] 
+						 >> theCurrentTemp.entfx[k][i].yflpar[j][3] >> theCurrentTemp.entfx[k][i].yflpar[j][4] >> theCurrentTemp.entfx[k][i].yflpar[j][5];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 57, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].xavg[j] >> theCurrentTemp.entfx[k][i].xrms[j] >> theCurrentTemp.entfx[k][i].xgx0[j] >> theCurrentTemp.entfx[k][i].xgsig[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 58, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
 			  
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 54, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].xflpar[j][0] >> theCurrentTemp.entfx[k][i].xflpar[j][1] >> theCurrentTemp.entfx[k][i].xflpar[j][2] 
+						 >> theCurrentTemp.entfx[k][i].xflpar[j][3] >> theCurrentTemp.entfx[k][i].xflpar[j][4] >> theCurrentTemp.entfx[k][i].xflpar[j][5];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 59, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
 			  
-	   for (j=0; j<9; ++j) {
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].chi2yavg[j] >> theCurrentTemp.entfx[k][i].chi2ymin[j] >> theCurrentTemp.entfx[k][i].chi2xavg[j] >> theCurrentTemp.entfx[k][i].chi2xmin[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 60, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].yavgc2m[j] >> theCurrentTemp.entfx[k][i].yrmsc2m[j] >> theCurrentTemp.entfx[k][i].ygx0c2m[j] >> theCurrentTemp.entfx[k][i].ygsigc2m[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 61, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				
+				for (j=0; j<4; ++j) {
+					
+					db >> theCurrentTemp.entfx[k][i].xavgc2m[j] >> theCurrentTemp.entfx[k][i].xrmsc2m[j] >> theCurrentTemp.entfx[k][i].xgx0c2m[j] >> theCurrentTemp.entfx[k][i].xgsigc2m[j];
+					
+					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 62, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				}
+				
+				db >> theCurrentTemp.entfx[k][i].yspare[0] >> theCurrentTemp.entfx[k][i].yspare[1] >> theCurrentTemp.entfx[k][i].yspare[2] >> theCurrentTemp.entfx[k][i].yspare[3] >> theCurrentTemp.entfx[k][i].yspare[4]
+					 >> theCurrentTemp.entfx[k][i].yspare[5] >> theCurrentTemp.entfx[k][i].yspare[6] >> theCurrentTemp.entfx[k][i].yspare[7] >> theCurrentTemp.entfx[k][i].yspare[8] >> theCurrentTemp.entfx[k][i].yspare[9];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 63, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				
+				db >> theCurrentTemp.entfx[k][i].xspare[0] >> theCurrentTemp.entfx[k][i].xspare[1] >> theCurrentTemp.entfx[k][i].xspare[2] >> theCurrentTemp.entfx[k][i].xspare[3] >> theCurrentTemp.entfx[k][i].xspare[4]
+					 >> theCurrentTemp.entfx[k][i].xspare[5] >> theCurrentTemp.entfx[k][i].xspare[6] >> theCurrentTemp.entfx[k][i].xspare[7] >> theCurrentTemp.entfx[k][i].xspare[8] >> theCurrentTemp.entfx[k][i].xspare[9];
+				
+				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 64, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
+				
+			}	
+		}
     
-          for (l=0; l<TXSIZE; ++l) {in_file >> theCurrentTemp.entfx[k][i].xtemp[j][l];} 
-		  			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 55, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].yavg[j] >> theCurrentTemp.entfx[k][i].yrms[j] >> theCurrentTemp.entfx[k][i].ygx0[j] >> theCurrentTemp.entfx[k][i].ygsig[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 56, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-	   			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].yflpar[j][0] >> theCurrentTemp.entfx[k][i].yflpar[j][1] >> theCurrentTemp.entfx[k][i].yflpar[j][2] 
-		          >> theCurrentTemp.entfx[k][i].yflpar[j][3] >> theCurrentTemp.entfx[k][i].yflpar[j][4] >> theCurrentTemp.entfx[k][i].yflpar[j][5];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 57, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].xavg[j] >> theCurrentTemp.entfx[k][i].xrms[j] >> theCurrentTemp.entfx[k][i].xgx0[j] >> theCurrentTemp.entfx[k][i].xgsig[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 58, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].xflpar[j][0] >> theCurrentTemp.entfx[k][i].xflpar[j][1] >> theCurrentTemp.entfx[k][i].xflpar[j][2] 
-		          >> theCurrentTemp.entfx[k][i].xflpar[j][3] >> theCurrentTemp.entfx[k][i].xflpar[j][4] >> theCurrentTemp.entfx[k][i].xflpar[j][5];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 59, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].chi2yavg[j] >> theCurrentTemp.entfx[k][i].chi2ymin[j] >> theCurrentTemp.entfx[k][i].chi2xavg[j] >> theCurrentTemp.entfx[k][i].chi2xmin[j];
-
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 60, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].yavgc2m[j] >> theCurrentTemp.entfx[k][i].yrmsc2m[j] >> theCurrentTemp.entfx[k][i].ygx0c2m[j] >> theCurrentTemp.entfx[k][i].ygsigc2m[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 61, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	  	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[k][i].xavgc2m[j] >> theCurrentTemp.entfx[k][i].xrmsc2m[j] >> theCurrentTemp.entfx[k][i].xgx0c2m[j] >> theCurrentTemp.entfx[k][i].xgsigc2m[j];
-			
-          if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 62, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-	   }
-	   
-	   in_file >> theCurrentTemp.entfx[k][i].yspare[0] >> theCurrentTemp.entfx[k][i].yspare[1] >> theCurrentTemp.entfx[k][i].yspare[2] >> theCurrentTemp.entfx[k][i].yspare[3] >> theCurrentTemp.entfx[k][i].yspare[4]
-	    >> theCurrentTemp.entfx[k][i].yspare[5] >> theCurrentTemp.entfx[k][i].yspare[6] >> theCurrentTemp.entfx[k][i].yspare[7] >> theCurrentTemp.entfx[k][i].yspare[8] >> theCurrentTemp.entfx[k][i].yspare[9];
-
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 63, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-
-	   in_file >> theCurrentTemp.entfx[k][i].xspare[0] >> theCurrentTemp.entfx[k][i].xspare[1] >> theCurrentTemp.entfx[k][i].xspare[2] >> theCurrentTemp.entfx[k][i].xspare[3] >> theCurrentTemp.entfx[k][i].xspare[4]
-	    >> theCurrentTemp.entfx[k][i].xspare[5] >> theCurrentTemp.entfx[k][i].xspare[6] >> theCurrentTemp.entfx[k][i].xspare[7] >> theCurrentTemp.entfx[k][i].xspare[8] >> theCurrentTemp.entfx[k][i].xspare[9];
-
-	   if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 64, no template load, run # " << theCurrentTemp.entfx[k][i].runnum << ENDL; return false;}
-    	   
-	}	
-  }
-    
-    in_file.close();
-	
 // Add this template to the store
 	
-	thePixelTemp.push_back(theCurrentTemp);
-	
+		thePixelTemp.push_back(theCurrentTemp);
+
+	}
 	return true;
-	
- } else {
- 
- // If file didn't open, report this
- 
-    LOGERROR("SiPixelTemplate") << "Error opening File" << tempfile << ENDL;
-	return false;
-	
- }
-	
+
 } // TempInit 
 
 
@@ -668,7 +642,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 //! \param fpix - (input) logical input indicating whether to use FPix templates (true) 
 //!               or Barrel templates (false)
 //! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
-//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)	if(filenum == 
 // ************************************************************************************************************ 
 bool SiPixelTemplate::interpolate(int id, bool fpix, float cotalpha, float cotbeta)
 {

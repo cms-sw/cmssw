@@ -1,9 +1,11 @@
 <lcgdict>
   
-  <class name="SiPixelCPEParmErrors" class_version="0"/>
-  <class name="SiPixelCPEParmErrors::DbEntry"/>
-  <class name="std::vector<SiPixelCPEParmErrors::DbEntry>"/> 
-  <class name="std::vector<SiPixelCPEParmErrors::DbEntryBinSize>"/>
+  <class name="SiPixelCPEGenericErrorParm" class_version="0"/>
+  <class name="SiPixelCPEGenericErrorParm::DbEntry"/>
+  <class name="std::vector<SiPixelCPEGenericErrorParm::DbEntry>"/> 
+  <class name="std::vector<SiPixelCPEGenericErrorParm::DbEntryBinSize>"/>
+
+  <class name="SiPixelTemplateDBObject" class_version="0"/>
 
   <class name="SiPixelGainCalibration" class_version="0"/>
   <class name="SiPixelGainCalibration::DetRegistry"/>
