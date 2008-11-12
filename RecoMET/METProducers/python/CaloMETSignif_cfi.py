@@ -11,7 +11,6 @@ metsignificance = cms.EDProducer("METProducer",
     METType = cms.string('CaloMETSignif'),
     alias = cms.string('RawCaloMETSignif'),
     noHF = cms.bool(False),
-    geomCut = cms.bool(False), 
     globalThreshold = cms.double(0.5),
     InputType = cms.string('CandidateCollection'),
       
