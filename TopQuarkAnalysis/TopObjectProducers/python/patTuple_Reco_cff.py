@@ -55,34 +55,10 @@ tauTrigMatchHLT2CaloTauPixel = cms.EDProducer("PATTrigMatcher",
     resolveByMatchQuality = cms.bool(False),
 )
 
-from PhysicsTools.PatAlgos.triggerLayer0.patTrigProducer_cfi import patHLTLooseIsoTauMET30L1MET
-
-tauTrigMatchHLTLooseIsoCaloTauMET30L1MET = cms.EDProducer("PATTrigMatcher",
-    src       = cms.InputTag("allLayer0CaloTaus"),
-    matched   = cms.InputTag("patHLTLooseIsoTauMET30L1MET"),
-    maxDPtRel = cms.double(1.0),
-    maxDeltaR = cms.double(0.2),
-    resolveAmbiguities    = cms.bool(True),
-    resolveByMatchQuality = cms.bool(False),
-)
-
-from PhysicsTools.PatAlgos.triggerLayer0.patTrigProducer_cfi import patHLTDoubleIsoTauTrk3
-
-tauTrigMatchHLTDoubleIsoCaloTauTrk3 = cms.EDProducer("PATTrigMatcher",
-    src       = cms.InputTag("allLayer0CaloTaus"),
-    matched   = cms.InputTag("patHLTDoubleIsoTauTrk3"),
-    maxDPtRel = cms.double(1.0),
-    maxDeltaR = cms.double(0.2),
-    resolveAmbiguities    = cms.bool(True),
-    resolveByMatchQuality = cms.bool(False),
-)
-
 ## standard sequence for triggerMatching
 tqafLayer0TrigMatch_withCaloTaus = cms.Sequence(
     patHLT1Tau * tauTrigMatchHLT1CaloTau +
-    patHLT2TauPixel * tauTrigMatchHLT2CaloTauPixel +
-    patHLTLooseIsoTauMET30L1MET * tauTrigMatchHLTLooseIsoCaloTauMET30L1MET +
-    patHLTDoubleIsoTauTrk3 * tauTrigMatchHLTDoubleIsoCaloTauTrk3
+    patHLT2TauPixel * tauTrigMatchHLT2CaloTauPixel
 )
 
 ## caloTau producer and selectors
@@ -101,9 +77,7 @@ selectedLayer1CaloTaus = PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi.s
 allLayer1CaloTaus.tauSource            = 'allLayer0CaloTaus'
 allLayer1CaloTaus.addTauID             = False
 allLayer1CaloTaus.trigPrimMatch        = cms.VInputTag(
-    cms.InputTag('tauTrigMatchHLT1CaloTau'),
-    cms.InputTag('tauTrigMatchHLTLooseIsoTauMET30L1MET'),
-    cms.InputTag('tauTrigMatchHLTDoubleIsoTauTrk3')
+    cms.InputTag('tauTrigMatchHLT1CaloTau')
     )
 allLayer1CaloTaus.genParticleMatch     =  'caloTauMatch'
 allLayer1CaloTaus.genJetMatch          =  'caloTauGenJetMatch'
