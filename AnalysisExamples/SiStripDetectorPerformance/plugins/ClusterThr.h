@@ -32,6 +32,12 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
 //Services
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
@@ -55,11 +61,9 @@
 namespace cms{
   class ClusterThr : public edm::EDAnalyzer
     {
-      
-    private:
-      
     public:
-      
+      typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;     
+      enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};      
       ClusterThr(const edm::ParameterSet& conf);
       
       ~ClusterThr();
@@ -77,42 +81,58 @@ namespace cms{
       void book();
 
       bool clusterizer(SiStripClusterInfo* siStripClusterInfo,float Thc,float Ths,float Thn,bool& passedSeed,bool& passedClus);
-
+      void trackStudy(const edm::EventSetup& es);
+      void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
       void fillTH1(float,TString,bool,float=0);
 
     private:
   
       edm::ParameterSet conf_;
-
-      const StripTopology* topol;
-      edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
-      edm::ESHandle<SiStripQuality> SiStripQuality_;
-
-      edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
-      edm::Handle< edmNew::DetSetVector<SiStripClusterInfo> >  dsvSiStripClusterInfo;
-
-      edm::Service<TFileService> fFile;
-
-      TString name;
       std::string fileName_;
-      edm::ParameterSet Parameters;
-      edm::ParameterSet ThC_, ThS_, ThN_;
+      edm::InputTag Cluster_src_;
 
-      THashList* Hlist;
-
-      int runNb;
-      int eventNb;
       int NoiseMode_;
+
+
+      std::vector<uint32_t> ModulesToBeExcluded_;
+      std::vector<std::string> subDets;
+      std::vector<uint32_t> layers;
+
+
+      edm::ParameterSet ThC_, ThS_, ThN_;
 
       double startThC_,stopThC_,stepThC_;
       double startThS_,stopThS_,stepThS_;
       double startThN_,stopThN_,stepThN_; 
 
-      edm::InputTag Cluster_src_;
+      const StripTopology* topol;
+      edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+      edm::ESHandle<SiStripQuality> SiStripQuality_;
 
-      std::vector<uint32_t> ModulesToBeExcluded_;
-      std::vector<std::string> subDets;
-      std::vector<uint32_t> layers;
+      edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
+      edm::Handle<reco::TrackCollection > trackCollection;
+      edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
+      edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
+      edm::Handle< edmNew::DetSetVector<SiStripClusterInfo> >  dsvSiStripClusterInfo;
+      std::vector<const SiStripCluster*> vPSiStripCluster;
+
+      edm::ESHandle<TrackerGeometry> tkgeom;
+      
+      bool tracksCollection_in_EventTree;
+      bool trackAssociatorCollection_in_EventTree;
+
+      edm::Service<TFileService> fFile;
+
+      TString name;
+ 
+      edm::ParameterSet Parameters;
+
+      THashList* Hlist;
+
+      int runNb;
+      int eventNb;
+      int countOn, countOff;
+
       std::map<std::string,int> cNum;
 
       static const int iNTs=3;

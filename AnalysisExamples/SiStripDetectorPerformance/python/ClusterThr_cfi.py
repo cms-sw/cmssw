@@ -4,6 +4,10 @@ import FWCore.ParameterSet.Config as cms
 ClusterThr = cms.EDFilter(
     "ClusterThr",
     Cluster_src = cms.InputTag('siStripClusters'),
+    TrackProducer = cms.string('TrackRefitter'),
+    TrackLabel    = cms.string(''),
+    TrajectoryInEvent = cms.bool(True),
+    
     ModulesToBeExcluded = cms.vuint32(),
 
     #Decide the SubDet to be analyzed    
@@ -31,7 +35,7 @@ ClusterThr = cms.EDFilter(
                     stopThS = cms.double(5),
                     stepThS = cms.double(0.25)
                     ),
-    ThN = cms.PSet( startThN = cms.double(1.5),
+    ThN = cms.PSet( startThN = cms.double(2),
                     stopThN = cms.double(2.5),
                     stepThN = cms.double(0.25)
                     ),
@@ -43,9 +47,9 @@ ClusterThr = cms.EDFilter(
                       xmin = cms.double(-0.5),
                       xmax = cms.double(10.5)
                       ),   
-    TH1ClusterStoN = cms.PSet( Nbinx= cms.int32(100),
+    TH1ClusterStoN = cms.PSet( Nbinx= cms.int32(50),
                        xmin= cms.double(-0.5),
-                       xmax= cms.double(299.5)
+                       xmax= cms.double(199.5)
                       ), 
     TH1ClusterWidth= cms.PSet( Nbinx= cms.int32(20),
                        xmin= cms.double(-0.5),

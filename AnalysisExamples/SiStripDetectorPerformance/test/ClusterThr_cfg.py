@@ -7,7 +7,7 @@ process.MessageLogger = cms.Service(
     debugModules = cms.untracked.vstring('ClusterThr'), 
                                          
     debug = cms.untracked.PSet(
-    threshold = cms.untracked.string('INFO')
+    threshold = cms.untracked.string('DEBUG')
     ),
     destinations = cms.untracked.vstring('debug')
     )
@@ -15,7 +15,7 @@ process.MessageLogger = cms.Service(
 #-------------------------------------------------
 # Magnetic Field
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #-------------------------------------------------
 # CMS Geometry
@@ -39,6 +39,14 @@ process.GlobalTag.globaltag = "CRUZET4_V2P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.load("AnalysisExamples.SiStripDetectorPerformance.ClusterThr_cfi")
+
+#-------------------------------------------------
+#TrackRefitter With Material
+#-------------------------------------------------
+process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
+# from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+process.TrackRefitter.src  = 'ctfWithMaterialTracksP5'
+process.TrackRefitter.TrajectoryInEvent = True
 
 
 #-------------------------------------------------
@@ -194,13 +202,17 @@ process.source = cms.Source("PoolSource",
         '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/173/BA055C49-33A1-DD11-B902-000423D99394.root'   
     )
                             )
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
 
+process.ctfWithMaterialTracksP5TkCntFilter = cms.EDFilter("TrackCountFilter",
+                                                          src = cms.InputTag('ctfWithMaterialTracksP5'),
+                                                          minNumber = cms.uint32(1) 
+                                                          )
 #-------------------------------------------------
 # Scheduling
 #-------------------------------------------------
 
 process.outP = cms.OutputModule("AsciiOutputModule")
 
-process.p = cms.Path(process.ClusterThr)
+process.p = cms.Path(process.ctfWithMaterialTracksP5TkCntFilter*process.TrackRefitter*process.ClusterThr)
 process.pout = cms.EndPath(process.outP)
