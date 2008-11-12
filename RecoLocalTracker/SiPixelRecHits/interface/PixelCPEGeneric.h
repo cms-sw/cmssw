@@ -31,6 +31,7 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "CondTools/SiPixel/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 // Already defined in the base class
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -62,7 +63,7 @@ class PixelCPEGeneric : public PixelCPEBase
 {
  public:
   // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField*, const SiPixelLorentzAngle *);
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, const SiPixelTemplateDBObject *);
   ~PixelCPEGeneric() {;}
 
   LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 
@@ -123,6 +124,9 @@ class PixelCPEGeneric : public PixelCPEBase
   bool inflate_errors;
   bool inflate_all_errors_no_trk_angle;
 
+	//--- DB Error Parametrization object
+	SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
+	
  protected:
   //--- These functions are no longer needed, yet they are declared 
   //--- pure virtual in the base class.

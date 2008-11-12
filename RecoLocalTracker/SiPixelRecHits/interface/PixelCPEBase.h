@@ -8,6 +8,7 @@
 // the Det angle to estimate the track impact angle.
 // Move geomCorrection to the concrete class. d.k. 06/06.
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
+// Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 //-----------------------------------------------------------------------------
 
 #include <utility>
@@ -37,14 +38,15 @@
 #endif
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include <ext/hash_map>
 
 class MagneticField;
-class SiPixelCPEParmErrors;
 class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelLorentzAngle * lorentzAngle = 0);// const SiPixelCPEParmErrors * parmErrors = 0, const SiPixelLorentzAngle * lorentzAngle = 0);
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, const SiPixelTemplateDBObject * templateDBobject = 0);
     
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
@@ -95,11 +97,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //--------------------------------------------------------------------------
   inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
 
-	//--------------------------------------------------------------------------
-	// Allow the database to be set/updated later.
-	//--------------------------------------------------------------------------
-	inline void setDBAccess(const SiPixelCPEParmErrors *parmErrors) const { parmErrors_ = parmErrors; }
-	
 	//--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
@@ -220,13 +217,15 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 //   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
 
-  mutable const   MagneticField * magfield_;          // magnetic field
+  mutable const MagneticField * magfield_;          // magnetic field
 
-	mutable const   SiPixelCPEParmErrors * parmErrors_;
-	
 	mutable const SiPixelLorentzAngle * lorentzAngle_;
-  
-  bool  alpha2Order;                          // switch on/off E.B effect.
+
+	mutable const SiPixelCPEGenericErrorParm * genErrorParm_;
+
+	mutable const SiPixelTemplateDBObject * templateDBobject_;
+
+	bool  alpha2Order;                          // switch on/off E.B effect.
 
 
   //---------------------------------------------------------------------------

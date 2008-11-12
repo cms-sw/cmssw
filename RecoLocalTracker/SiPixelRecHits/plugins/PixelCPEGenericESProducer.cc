@@ -37,8 +37,14 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
   ESHandle<SiPixelLorentzAngle> lorentzAngle;
   iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle );
+	
+	ESHandle<SiPixelCPEGenericErrorParm> genErrorParm;
+	iRecord.getRecord<SiPixelCPEGenericErrorParmRcd>().get(genErrorParm);
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(),lorentzAngle.product()) );
+	ESHandle<SiPixelTemplateDBObject> templateDBobject;
+	iRecord.getRecord<SiPixelTemplateDBObjectRcd>().get(templateDBobject);
+
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(),lorentzAngle.product(),genErrorParm.product(),templateDBobject.product()) );
 	//ToDo? Replace blah.product() with ESHandle
 	
   return cpe_;

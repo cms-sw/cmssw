@@ -38,8 +38,8 @@ const float micronsToCm = 1.0e-4;
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
-					   const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle) 
-  : PixelCPEBase(conf, mag, lorentzAngle)
+					   const MagneticField * mag, const SiPixelTemplateDBObject * templateDBobject) 
+  : PixelCPEBase(conf, mag, 0, 0, templateDBobject)
 {
   // &&& initialize the templates, etc.
   
@@ -76,9 +76,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 
   // Initialize template store to the selected ID [Morris, 6/25/08]
   
-  templ_.pushfile( templID_ );
+  templ_.pushfile( *templateDBobject_);
   cout << "templID_ = " << templID_ << endl;
-
 
   //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
@@ -260,7 +259,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       //cout << "Error from PixelTempReco2D" << endl;
 
       LogDebug("PixelCPETemplateReco::localPosition") <<
-	"reconstruction failed with error " << ierr << "\n";
+				"reconstruction failed with error " << ierr << "\n";
 
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift correction

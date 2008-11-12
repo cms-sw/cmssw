@@ -7,7 +7,8 @@
 //                                    09/09/07, replaced assert statements with throw cms::Exception 
 //                                              and fix an invalid pointer check in setTheDet function 
 //                                    09/21/07, implement caching of Lorentz drift direction
-// // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
+// change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
+// Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -39,7 +40,7 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle* lorentzAngle)
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     cotAlphaFromCluster_(-99999.0), cotBetaFromCluster_(-99999.0),
     probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0),
@@ -60,6 +61,12 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 
   //-- Magnetic Field
   magfield_ = mag;
+
+	//-- Error Parametriaztion from DB for CPE Generic
+	genErrorParm_ = genErrorParm;
+
+	//-- Template Calibration Object from DB
+	templateDBobject_ = templateDBobject;
 
   //-- Switch on/off E.B 
   alpha2Order = conf.getParameter<bool>("Alpha2Order");
@@ -507,9 +514,12 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 
 	Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
 	LocalVector Bfield = detFrame.toLocal(bfield);
-	if(lorentzAngle_ == 0){
-    	throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
-	}
+
+	//dfehling note: since we control the cpes, we should not thrown an
+	//exception; For example - template DO NOT NEED
+	//if(lorentzAngle_ == 0){
+	//	throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
+	//}
 	double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
 	float alpha2;
 	if (alpha2Order) {
