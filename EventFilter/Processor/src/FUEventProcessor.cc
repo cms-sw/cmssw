@@ -126,7 +126,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , wlScalers_(0)
   , asScalers_(0)
   , localLsIncludingTimeOuts_(0)
-  , lsTimeOut_(100)
+  , lsTimeOut_(105)
+  , firstLsTimeOut_(200)
   , residualTimeOut_(0)
   , lastLsTimedOut_(false)
   , lastLsWithEvents_(0)
@@ -327,14 +328,17 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
     {
       it = scalersComplete_.append();
       it->setField("instance",instance_);
-
+      it->setField("lsid", localLsIncludingTimeOuts_);
     }
   timeval tv;
   if(useLock) {
     gettimeofday(&tv,0);
     mwr->openBackDoor("DaqSource",residualTimeOut_);
+    string st = fsm_.stateName()->toString();
+    if(st!="Enabled" && st!="Configured" && st!="enabling" && st!="stopping") return false;
     residualTimeOut_ = lsTimeOut_.value_ ;
   }
+  bool localTimeOut = false;
   try{
     xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
     if(lsid) {
@@ -343,26 +347,38 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
       xdata::Boolean *to =  (xdata::Boolean*)ispace->find("lsTimedOut");
       if(to!=0)
 	{
-	  lumiSectionsTo_[rollingLsIndex_] = to->value_;
+	  localTimeOut = to->value_;
 	  if(to->value_)
 	    {
+	      if(lastLsTimedOut_)localLsIncludingTimeOuts_.value_++;
+	      else localLsIncludingTimeOuts_.value_ = ls;
 	      lastLsTimedOut_ = true; 
-	      if(ls==lastLsWithTimeOut_) //handle the case where more than one LS time out (no events coming)
-		  localLsIncludingTimeOuts_.value_++;
-	      else
-		localLsIncludingTimeOuts_.value_ = ls;
 	      lastLsWithTimeOut_ = ls;
 	    }
 	  else
 	    {
 	      lastLsWithEvents_ = ls;
-	      if(localLsIncludingTimeOuts_.value_==ls){
-		timeval tv1;
-		gettimeofday(&tv1,0);
-		residualTimeOut_ -= (tv1.tv_sec - tv.tv_sec); //adjust timeout to handle rest of LS where events come back
-		mwr->closeBackDoor("DaqSource"); 
-		return true;
-	      }
+	      if(lastLsTimedOut_)
+		{
+		  if(localLsIncludingTimeOuts_.value_ < (ls-1)) //cover timed out LS not yet accounted for when events return;
+		    for(localLsIncludingTimeOuts_.value_++; localLsIncludingTimeOuts_.value_ < ls; localLsIncludingTimeOuts_.value_++)
+		      {
+			if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
+			rollingLsIndex_--;
+			lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
+			lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
+											     evtProcessor_->totalEvents()-
+											     allPastLumiProcessed_);
+			fireScalersUpdate();
+		      }
+
+		  timeval tv1;
+		  gettimeofday(&tv1,0);
+		  residualTimeOut_ -= (tv1.tv_sec - tv.tv_sec); //adjust timeout to handle rest of LS where events come back
+		  mwr->closeBackDoor("DaqSource"); 
+		  lastLsTimedOut_ = false;
+		  return true;
+		}
 	      localLsIncludingTimeOuts_.value_ = ls;
 	      lastLsTimedOut_ = false; 
 	    }
@@ -382,9 +398,11 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
     }
     return false;
   }
-  it->setField("lsid", localLsIncludingTimeOuts_);
+
+
   if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
   rollingLsIndex_--;
+  lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
   lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
 								       evtProcessor_->totalEvents()-
 								       allPastLumiProcessed_);
@@ -395,6 +413,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
   if(useLock){
     mwr->closeBackDoor("DaqSource");
   }  
+
   trh_.formatReportTable(tr,descs_);
   if(trh_.checkLumiSection(ls))
     {
@@ -449,6 +468,8 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
+  unsigned int tempLsTO = lsTimeOut_.value_;
+  lsTimeOut_.value_ = firstLsTimeOut_;
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
     
@@ -505,6 +526,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   watching_ = true;
   residualTimeOut_ = lsTimeOut_.value_;
   startScalersWorkLoop();
+  lsTimeOut_.value_ = tempLsTO;
   localLog("-I- Start completed");
   return false;
 }
@@ -523,6 +545,7 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
       {
 	epMState_ = evtProcessor_->currentStateName();
 	reasonForFailedState_ = "EventProcessor stop timed out";
+	localLog(reasonForFailedState_);
 	fsm_.fireFailed(reasonForFailedState_,this);
 
       }
@@ -530,6 +553,7 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
   watching_ = false;
@@ -579,11 +603,13 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
     else
       {
 	reasonForFailedState_ = "EventProcessor stop timed out";
+	localLog(reasonForFailedState_);
 	fsm_.fireFailed(reasonForFailedState_,this);
       }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
+    localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
   watching_ = false;
@@ -971,7 +997,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   //version number, please update consistently with TAG
   *out << "<tr>"								<< endl;
   *out << "  <td colspan=\"5\" align=\"right\">"				<< endl;
-  *out << "    Version 1.4.0"							<< endl;
+  *out << "    Version 1.4.2"							<< endl;
   *out << "  </td>"								<< endl;
   *out << "</tr>"								<< endl;
 
@@ -1249,7 +1275,9 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
           *out << "    <td align=\"right\">";
           *out << tpr->getFirst(descs_[idesc]->moduleLabel());
           *out << "</td>"                                                       << endl;
-          *out << "    <td align=\"right\">";
+          *out << "    <td align=\"right\"";
+	  *out << (tpr->getAve(descs_[idesc]->moduleLabel())>1. ? "bgcolor=\"red\"" : "") 
+	       << ">";
           *out << tpr->getAve(descs_[idesc]->moduleLabel());
           *out << "</td>"                                                       << endl;
           *out << "    <td align=\"right\">";
@@ -1894,10 +1922,12 @@ bool FUEventProcessor::fireScalersUpdate()
   }
   catch(xdaq::exception::Exception &ex)
     {
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "exception when posting SOAP message to MonitorReceiver");
-	localLog("-W- exception when posting SOAP message to MonitorReceiver");
-	return false;
+      string message = "exception when posting SOAP message to MonitorReceiver";
+      message += ex.what();
+      LOG4CPLUS_WARN(getApplicationLogger(),message.c_str());
+      string lmessage = "-W- "+message;
+      localLog(lmessage);
+      return false;
    }
   delete appdesc; 
   delete ctxdsc;

@@ -204,6 +204,7 @@ namespace evf
     xdata::Table                     scalersComplete_;
     xdata::UnsignedInteger32         localLsIncludingTimeOuts_;
     xdata::UnsignedInteger32         lsTimeOut_;
+    unsigned int                     firstLsTimeOut_;
     unsigned int                     residualTimeOut_;
     bool                             lastLsTimedOut_; 
     unsigned int                     lastLsWithEvents_;

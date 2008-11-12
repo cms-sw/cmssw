@@ -1,3 +1,9 @@
+2008-11-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-04-02
+	* remove deadlock on forceHalt
+	* cover missed LSs for prolonged timeouts
+
 2008-11-03  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-04-01
