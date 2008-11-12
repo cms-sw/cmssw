@@ -5,6 +5,8 @@ from Calibration.EcalAlCaRecoProducers.electronIsolationSequence_cff import *
 from Calibration.EcalAlCaRecoProducers.ewkHLTFilter_cfi import *
 from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
 
+ewkHLTFilter.HLTPaths = ['HLT_LooseIsoEle15_LW_L1R']
+
 goodElectrons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
     src = cms.InputTag("pixelMatchGsfElectrons"),
