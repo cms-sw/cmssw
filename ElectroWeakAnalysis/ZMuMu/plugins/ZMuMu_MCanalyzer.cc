@@ -125,12 +125,12 @@ ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) :
   double ptRange[4] = {20.,40.,60.,100.};
 
   // general histograms
-  h_trackProbe_eta = fs->make<TH1D>("track probe eta","Eta of tracks",7,etaRange);
-  h_trackProbe_pt = fs->make<TH1D>("track probe pt","Pt of tracks",3,ptRange);
-  h_staProbe_eta = fs->make<TH1D>("standAlone probe eta","Eta of standAlone",7,etaRange);
-  h_staProbe_pt = fs->make<TH1D>("standAlone probe pt","Pt of standAlone",3,ptRange);
-  h_ProbeOk_eta = fs->make<TH1D>("probe ok eta","Eta of probe Ok",7,etaRange);
-  h_ProbeOk_pt = fs->make<TH1D>("probe ok pt","Pt of probe ok",3,ptRange);
+  h_trackProbe_eta = fs->make<TH1D>("trackProbeEta","Eta of tracks",7,etaRange);
+  h_trackProbe_pt = fs->make<TH1D>("trackProbePt","Pt of tracks",3,ptRange);
+  h_staProbe_eta = fs->make<TH1D>("standAloneProbeEta","Eta of standAlone",7,etaRange);
+  h_staProbe_pt = fs->make<TH1D>("standAloneProbePt","Pt of standAlone",3,ptRange);
+  h_ProbeOk_eta = fs->make<TH1D>("probeOkEta","Eta of probe Ok",7,etaRange);
+  h_ProbeOk_pt = fs->make<TH1D>("probeOkPt","Pt of probe ok",3,ptRange);
 
   // clear global counters
   nGlobalMuonsMatched_passed = 0;
@@ -205,7 +205,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       for (unsigned int j=0; j<trig0.size();j++) {
 	if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
       }
-      for (unsigned j=0; j<trig1.size();j++) {
+      for (unsigned int j=0; j<trig1.size();j++) {
 	if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
       }
       
@@ -213,7 +213,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       if(zMuMuMatch.isNonnull()) {  // ZMuMu matched
 	zMuMu_found = true;
 	nZMuMu_matched++;	
-	if (pt0>ptmin_ && pt1>ptmin_ && eta0<etamax_ && eta1 <etamax_ && mass >massMin_ && mass < massMax_ && (trig0found || trig1found)) { // kinematic and trigger cuts passed
+	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && mass < massMax_ && (trig0found || trig1found)) { // kinematic and trigger cuts passed
 	  nGlobalMuonsMatched_passed++; // first global Muon passed kine cuts 
 	  nGlobalMuonsMatched_passed++; // second global muon passsed kine cuts
 	  if (trkiso0<isoMax_) nGlobalMuonsMatched_passedIso++;       // first global muon passed the iso cut
@@ -224,18 +224,22 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	    if (trig0found && !trig1found) nMu0onlyTriggered++;
 	    if (trig1found && !trig0found) nMu1onlyTriggered++;
 	    // histograms vs eta and pt
-	    h_trackProbe_eta->Fill(eta0);
-	    h_trackProbe_eta->Fill(eta1);
-	    h_trackProbe_pt->Fill(pt0);
-	    h_trackProbe_pt->Fill(pt1);
-	    h_staProbe_eta->Fill(eta0);
-	    h_staProbe_eta->Fill(eta1);
-	    h_staProbe_pt->Fill(pt0);
-	    h_staProbe_pt->Fill(pt1);
-	    h_ProbeOk_eta->Fill(eta0);
-	    h_ProbeOk_eta->Fill(eta1);
-	    h_ProbeOk_pt->Fill(pt0);
-	    h_ProbeOk_pt->Fill(pt1);
+	    if (trig1found) {         // check efficiency of muon0 not imposing the trigger on it 
+	      h_trackProbe_eta->Fill(eta0);
+	      h_trackProbe_pt->Fill(pt0);
+	      h_staProbe_eta->Fill(eta0);
+	      h_staProbe_pt->Fill(pt0);
+	      h_ProbeOk_eta->Fill(eta0);
+	      h_ProbeOk_pt->Fill(pt0);
+	    }
+	    if (trig0found) {         // check efficiency of muon1 not imposing the trigger on it 
+	      h_trackProbe_eta->Fill(eta1);
+	      h_staProbe_eta->Fill(eta1);
+	      h_trackProbe_pt->Fill(pt1);
+	      h_staProbe_pt->Fill(pt1);
+	      h_ProbeOk_eta->Fill(eta1);
+	      h_ProbeOk_pt->Fill(pt1);
+	    }
 	  }
 	}
       } // end MC match
@@ -274,12 +278,12 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       if(zMuStandAloneMatch.isNonnull()) {  // ZMuStandAlone matched
 	zMuSta_found = true;
 	nZMuSta_matched++;	
-	if (pt0>ptmin_ && pt1>ptmin_ && eta0<etamax_ && eta1 <etamax_ && mass >massMin_ && 
+	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
 	    mass < massMax_ && trkiso0<isoMax_ && trkiso1 < isoMax_ && trig0found) { // all cuts and trigger passed
 	  nStaMuonsMatched_passedIso++;
 	  // histograms vs eta and pt
-	  h_staProbe_eta->Fill(eta0);
-	  h_staProbe_pt->Fill(pt0);
+	  h_staProbe_eta->Fill(eta1);
+	  h_staProbe_pt->Fill(pt1);
 	}
       } // end MC match
     }  // end loop on ZMuStandAlone cand
@@ -316,12 +320,12 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       if(zMuTrackMatch.isNonnull()) {  // ZMuTrack matched
 	zMuTrack_found = true;
 	nZMuTrk_matched++;
-	if (pt0>ptmin_ && pt1>ptmin_ && eta0<etamax_ && eta1 <etamax_ && mass >massMin_ && 
+	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
 	    mass < massMax_ && trkiso0<isoMax_ && trkiso1 < isoMax_ && trig0found) { // all cuts and trigger passed
 	  nTracksMuonsMatched_passedIso++;
 	  // histograms vs eta and pt
-	  h_trackProbe_eta->Fill(eta0);
-	  h_trackProbe_pt->Fill(pt0);
+	  h_trackProbe_eta->Fill(eta1);
+	  h_trackProbe_pt->Fill(pt1);
 	}
       }  // end MC match
     }  // end loop on ZMuTrack cand
@@ -483,10 +487,10 @@ void ZMuMu_MCanalyzer::endJob() {
   double eff_Iso = double(nGlobalMuonsMatched_passedIso)/nGlobalMuonsMatched_passed;
   double err_effIso = sqrt(eff_Iso*(1-eff_Iso)/nGlobalMuonsMatched_passed);
  
-  double n1_afterIso = 2*n2GlobalMuonsMatched_passedIso+nTracksMuonsMatched_passedIso;
-  double n2_afterIso = 2*n2GlobalMuonsMatched_passedIso+nStaMuonsMatched_passedIso;
-  double effSta_afterIso = 2*n2GlobalMuonsMatched_passedIso/n1_afterIso;
-  double effTrk_afterIso = 2*n2GlobalMuonsMatched_passedIso/n2_afterIso;
+  double n1_afterIso = 2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered+nTracksMuonsMatched_passedIso;
+  double n2_afterIso = 2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered+nStaMuonsMatched_passedIso;
+  double effSta_afterIso = (2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered)/n1_afterIso;
+  double effTrk_afterIso = (2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered)/n2_afterIso;
   double err_effsta_afterIso = sqrt(effSta_afterIso*(1-effSta_afterIso)/n1_afterIso);
   double err_efftrk_afterIso = sqrt(effTrk_afterIso*(1-effTrk_afterIso)/n2_afterIso);
  
