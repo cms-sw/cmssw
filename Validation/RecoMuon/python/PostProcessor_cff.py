@@ -89,9 +89,6 @@ postProcessorRecoMuon = cms.EDFilter("PostProcessor",
                              "Glb/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Glb/PullPhi_vs_Eta",
                              "Glb/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Glb/PullPt_vs_Pt  ",
                              "Glb/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Glb/PullPt_vs_Eta "),
-    # Leave outputFileName to be Null string 
-    # if don"t want to save histograms manually
-    # untracked string outputFileName = "" 
-    outputFileName = cms.untracked.string("Result.root")
+    outputFileName = cms.untracked.string("")
 )
 
