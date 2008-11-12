@@ -17,7 +17,7 @@ RunInfoHandler::RunInfoHandler(const edm::ParameterSet& pset) :
   // m_connect(pset.getUntrackedParameter<std::string>("OnlineConn","")),
  
   m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO")), 
-  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","XXXXXXX"))
+  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","MICKEY2MOUSE"))
 
 {
   m_connectionString= "oracle://cms_omds_lb/CMS_RUNINFO";
@@ -64,15 +64,23 @@ void RunInfoHandler::getNewObjects() {
  n_empty_run = snc- tagInfo().lastInterval.first - 1; 
 
   } 
-   
+ 
+// transfer fake run for 1 to since for the first time
+  if (tagInfo().size==0){
+ m_to_transfer.push_back(std::make_pair((RunInfo*) (r->Fake_RunInfo()),1));
+  }
+  
 
-   // reading from omds
-   RunInfoRead rn( m_connectionString, m_user, m_pass);
-
+  
    if (n_empty_run!=0) {
      m_to_transfer.push_back(std::make_pair((RunInfo*) (r->Fake_RunInfo()),tagInfo().lastInterval.first + 1));
    }
-  
+   
+
+// reading from omds
+   RunInfoRead rn( m_connectionString, m_user, m_pass);
+
+
   *r = rn.readData("RUNSESSION_PARAMETER", "STRING_VALUE",(int)snc );
    m_to_transfer.push_back(std::make_pair((RunInfo*)r,snc));
    std::ostringstream ss;
