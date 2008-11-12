@@ -40,6 +40,9 @@ process.load("SimCalorimetry.Configuration.ecalDigiSequence_cff")
 # ECAL digis validation sequence
 process.load("Validation.EcalDigis.ecalDigisValidationSequence_cff")
 
+# End of process
+process.load("Configuration.StandardSequences.EndOfProcess_cff")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2000)
 )
@@ -75,8 +78,9 @@ process.digis = cms.Sequence(process.mix*process.ecalDigiSequence*process.ecalDi
 process.p1 = cms.Path(process.simhits)
 process.p2 = cms.Path(process.digis)
 process.p4 = cms.Path(process.randomEngineStateProducer)
+process.p5 = cms.Path(process.endOfProcess)
 process.outpath = cms.EndPath(process.USER)
-process.schedule = cms.Schedule(process.p1,process.p2,process.p4,process.outpath)
+process.schedule = cms.Schedule(process.p1,process.p2,process.p4,process.p5,process.outpath)
 
 process.DQM.collectorHost = ''
 process.g4SimHits.Generator.HepMCProductLabel = 'source'

@@ -46,6 +46,9 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalLocalRecoSequence_cff")
 # ECAL rechits validation sequence
 process.load("Validation.EcalRecHits.ecalRecHitsValidationSequence_cff")
 
+# End of process
+process.load("Configuration.StandardSequences.EndOfProcess_cff")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2000)
 )
@@ -83,8 +86,9 @@ process.p1 = cms.Path(process.simhits)
 process.p2 = cms.Path(process.digis)
 process.p3 = cms.Path(process.rechits)
 process.p4 = cms.Path(process.randomEngineStateProducer)
+process.p5 = cms.Path(process.endOfProcess)
 process.outpath = cms.EndPath(process.USER)
-process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p4,process.outpath)
+process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p4,process.p5,process.outpath)
 
 process.DQM.collectorHost = ''
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
