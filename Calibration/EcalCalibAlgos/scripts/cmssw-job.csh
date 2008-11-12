@@ -1,5 +1,10 @@
 #!/bin/tcsh
 
+# cmssw wrapper for job submission
+# run cmssw and copy output and log to destdir 
+# 
+# $Id$
+
 set conffile = $1 
 set logfile  = $2
 set errfile  = $3
@@ -11,7 +16,7 @@ cd $workdir
 eval `scramv1 runtime -csh`
 
 limit coredumpsize 0
-
+setenv STAGE_SVCCLASS cmscaf
 #here to keep  log files
 echo "Running cmsRun  >& $logfile" $conffile 
 cmsRun $conffile >& $logfile
@@ -35,5 +40,5 @@ else
 endif
 
 
-rm $outfile 
-rm $logfile 
+rm -f $outfile 
+rm -f $logfile 
