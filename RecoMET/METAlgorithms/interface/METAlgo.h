@@ -26,7 +26,7 @@ class METAlgo
   METAlgo();
   virtual ~METAlgo();
   //virtual void run(const reco::CandidateCollection*, CommonMETData*,  double );
-  virtual void run(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*,  double, bool );
+  virtual void run(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*,  double );
  private:
 };
 
