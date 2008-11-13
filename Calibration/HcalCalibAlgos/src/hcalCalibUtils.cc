@@ -176,8 +176,8 @@ void getIEtaIPhiForHighestE(vector<TCell>& selectCells, Int_t& iEtaMostE, UInt_t
 //
 // Remove RecHits outside the 3x3 cluster and replace the  vector that will
 // be used in the minimization. Acts on "event" level.
-// This can not be done for iEta>20 due to segmentation => result should be restricted
-// to iEta<20. Attempted to minimize affect at the boundary...
+// This can not be done for iEta>20 due to segmentation => in principle the result should be restricted
+// to iEta<20. Attempted to minimize affect at the boundary without a sharp jump.
 
 void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE) {
     
@@ -187,44 +187,42 @@ void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
     
   for (vector<TCell>::iterator it=selectCells.begin(); it!=selectCells.end(); ++it) {
 
-
     Bool_t passDEta = false;
     Bool_t passDPhi = false;
 
     dEta = HcalDetId(it->id()).ieta() - iEtaMaxE;
     dPhi = HcalDetId(it->id()).iphi() - iPhiMaxE;
 
-    if (abs(dEta)<=1) passDEta = true;
-    if (dEta== 2 && iEtaMaxE==-1) passDEta = true;
-    if (dEta==-2 && iEtaMaxE== 1) passDEta = true;
-        
-    if (iEtaMaxE<=20) {
-      
+    if (dPhi >  36) dPhi -= 72;
+    if (dPhi < -36) dPhi += 72; 
+
+    if (abs(dEta)<=1 || (iEtaMaxE * HcalDetId(it->id()).ieta() == -1)) passDEta = true;
+
+    if (abs(iEtaMaxE)<=20) {
+
       if (abs(HcalDetId(it->id()).ieta())<=20) {
-	// phi boundary
-	if (abs(dPhi)==71 || abs(dPhi)<=1) passDPhi = true;
+	if (abs(dPhi)<=1) passDPhi = true;
       }
       else {
-	// phi segmentation in iEta>20 is different 
 	// iPhi is labelled by odd numbers
-
-	if (iEtaMaxE%2==0){
-	  if (abs(dPhi)<=1 || abs(dPhi)==71) passDPhi = true;
+	if (iPhiMaxE%2==0){
+	  if (abs(dPhi)<=1) passDPhi = true;
 	}
 	else {
-	  if (dPhi== -2 || dPhi==0 || dPhi==70) passDPhi = true;
+	  if (dPhi== -2 || dPhi==0) passDPhi = true;
 	}
       }
-    } // hottest cell wit iEta<=20
-    
+
+    } // if hottest cell with iEta<=20
+  
     else {      
       if (abs(HcalDetId(it->id()).ieta())<=20) {
-	if (abs(dPhi)<=1 || dPhi==-70 || dPhi==2)  passDPhi = true;
+	if (abs(dPhi)<=1 || dPhi==2)  passDPhi = true;
       }
       else {
-	if (abs(dPhi)<=2 || abs(dPhi)==70) passDPhi = true;
+	if (abs(dPhi)<=2) passDPhi = true;
       }
-    } // hottest cell wit iEta>20
+    } // if hottest cell with iEta>20
                  
     if (passDEta && passDPhi) filteredCells.push_back(*it);
   }
@@ -239,8 +237,8 @@ void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 // be used in the minimization. Acts on "event" level
 // In principle the ntuple should be produced with 5x5 already precelected
 //
-// Size for iEta>20 is 3x3, but the segmantation changes by x2.
-// There is som bias in the selection of towers near the boundary
+// Size for iEta>20 is 3x3, but the segmentation changes by x2 in phi.
+// There is some bias in the selection of towers near the boundary
 
 void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE) {
     
@@ -252,22 +250,17 @@ void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
  
     dEta = HcalDetId(it->id()).ieta() - iEtaMaxE;
     dPhi = HcalDetId(it->id()).iphi() - iPhiMaxE;
-        
-    if (dPhi== 71) dPhi =  1;
-    if (dPhi==-71) dPhi = -1;
+  
+    if (dPhi >  36) dPhi -= 72;
+    if (dPhi < -36) dPhi += 72; 
 
-    if (dPhi== 70) dPhi =  2;
-    if (dPhi==-70) dPhi = -2;   
+    bool passDPhi = (abs(dPhi)<3);
 
-                        
-    if (dEta== 2 && iEtaMaxE==-1) dEta =  1;
-    if (dEta==-2 && iEtaMaxE== 1) dEta = -1; 
+    bool passDEta = (abs(dEta)<3 || (iEtaMaxE * HcalDetId(it->id()).ieta() == -2) );  
+    // includes  +/- eta boundary 
 
-    if (dEta== 3 && iEtaMaxE==-2) dEta =  2;
-    if (dEta==-3 && iEtaMaxE== 2) dEta = -2; 
-      
-        
-    if (abs(dEta)<3 && abs(dPhi)<3) filteredCells.push_back(*it);
+    if (passDPhi && passDEta) filteredCells.push_back(*it);
+
   }
     
   selectCells = filteredCells;
