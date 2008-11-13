@@ -1,4 +1,4 @@
-*
+/*
 class: PFSpecificAlgo.cc
 description:  MET made from Particle Flow candidates
 authors: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
