@@ -38,13 +38,11 @@ class L1RCTProducer : public edm::EDProducer
   bool useEcalCosmicTiming;
   unsigned preSamples;
   unsigned postSamples;
-
-
 //Kludge the SOI for real data
   bool useMCAsInput;  
   int hfShift;
   int hbShift;
-    
 
+  bool useCorrectionsLindsey;
 };
 #endif

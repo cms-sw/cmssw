@@ -158,17 +158,30 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	}
       //std::cout << std::endl ;
 
-      // HCAL
+      
       //std::cout << "HCAL" << std::endl ;
+      
+      //HCAL -  positive eta
       for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
 	{
 	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
 	    {
-	      double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
+	      double etGeVPos = h_tpg->hcaletValue( ieta, irank ) ;
+	      hcalScale->setBin( irank, ieta, 1, etGeVPos ) ;
+	     
 
-	      hcalScale->setBin( irank, ieta, 1, etGeV ) ;
-	      hcalScale->setBin( irank, ieta, -1, etGeV ) ;
-	      //std::cout << etGeV << ", " ;
+	    }
+	  //std::cout << std::endl ;
+	}
+
+      //HCAL - negative eta
+      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
+	    {
+	      double etGeVNeg = h_tpg->hcaletValue( -ieta, irank ) ;
+	      hcalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
+
 	    }
 	  //std::cout << std::endl ;
 	}
