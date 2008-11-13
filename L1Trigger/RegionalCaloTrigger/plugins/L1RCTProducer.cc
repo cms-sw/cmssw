@@ -46,7 +46,10 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   useHcalCosmicTiming(conf.getParameter<bool>("useHcalCosmicTiming")),
   useEcalCosmicTiming(conf.getParameter<bool>("useEcalCosmicTiming")),
   preSamples(conf.getParameter<unsigned>("preSamples")),
-  postSamples(conf.getParameter<unsigned>("postSamples"))
+  postSamples(conf.getParameter<unsigned>("postSamples")),
+  useMCAsInput(conf.getParameter<bool>("UseMCAsInput")),
+  hfShift(conf.getParameter<int>("HFShift")),
+  hbShift(conf.getParameter<int>("HBShift"))
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
