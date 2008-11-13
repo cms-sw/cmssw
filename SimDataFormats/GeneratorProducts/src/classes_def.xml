@@ -1,4 +1,73 @@
 <lcgdict>
+	<!-- HepMC externals -->
+
+	<class name="HepMC::GenEvent"/>
+	<class name="HepMC::GenVertex"/>
+	<class name="HepMC::GenParticle">  
+		<field name="itsParticleData" transient="true"/>
+		<field name="itsDecayData" transient="true"/>
+	</class>
+	<class name="HepMC::WeightContainer"/> 
+	<class name="HepMC::FourVector"/>
+	<class name="HepMC::HeavyIon"/>
+	<class name="HepMC::PdfInfo"/>
+	<class name="HepMC::Flow">
+		<field name="m_particle_owner" transient="true"/>
+	</class>  
+	<class name="HepMC::Polarization"/>
+	<class name="HepMC::GenEvent::particle_iterator">
+		<field name="m_map_iterator" transient="true"/>
+	</class>
+	<class name="HepMC::GenEvent::particle_const_iterator">
+		<field name="m_map_iterator" transient="true"/>
+	</class>
+	<class name="HepMC::GenEvent::vertex_iterator">
+		<field name="m_map_iterator" transient="true"/>
+	</class>
+	<class name="HepMC::GenEvent::vertex_const_iterator">
+		<field name="m_map_iterator" transient="true"/>
+	</class>
+	<class name="std::vector<HepMC::GenParticle*>"/>
+	<!-- <class name="std::iterator<std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*& >"/> -->
+	<class pattern="std::iterator<std::forward_iterator_tag,HepMC::GenVertex*>"/>
+	<!-- <class name="std::iterator<std::forward_iterator_tag,HepMC::GenParticle*,int,HepMC::GenParticle**,HepMC::GenParticle*& >"/> -->
+	<class pattern="std::iterator<std::forward_iterator_tag,HepMC::GenParticle*>"/>
+	<!--
+		<class name="HepMC::GenVertex::edge_iterator">
+			<field name="m_set_iter" transient="true"/>
+		</class>
+	-->
+	<!-- <class name="_Rb_tree_iterator<HepMC::GenParticle*,HepMC::GenParticle* const&,HepMC::GenParticle* const*>"/> -->
+	<!-- <class pattern="*iterator<HepMC::GenParticle*>"/> -->
+	<!-- <class name="_Rb_tree_iterator<std::pair<const int,HepMC::GenVertex*>,const std::pair<const int,HepMC::GenVertex*>&,const std::pair<const int,HepMC::GenVertex*>*>"/> -->
+	<!-- <class pattern="*iterator<std::pair<*HepMC::GenVertex*>*>"/> -->
+	<!-- <class pattern="*iterator<std::pair<*HepMC::GenParticle*>*>"/> -->
+	<!-- <class name="HepPDT::ParticleID"/>-->
+	<!-- <class name="HepPDT::Quarks"/>-->
+	<!-- <class name="HepPDT::DecayDataT<HepMCConfig>"/> -->
+	<!-- <class name="HepPDT::ParticleDataT<HepMCConfig>"/> -->
+
+	<!-- HepMCProduct -->
+
+	<class name="edm::Wrapper<edm::HepMCProduct>"/>
+	<class name="edm::HepMCProduct"/>
+	<class name="edm::Ref<edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenVertex>::Find>"/>
+	<class name="edm::Ref<edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenParticle>::Find>"/>
+	<class name="edm::RefVector<edm::HepMCProduct,HepMC::GenVertex,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenVertex>::Find>"/>
+	<class name="edm::RefVector<edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait<edm::HepMCProduct,HepMC::GenParticle>::Find>"/>
+	<class name="std::map<int,HepMC::GenVertex*>"/>
+	<class name="std::pair<const int,HepMC::GenVertex*>"/>
+	<class name="std::map<int,HepMC::GenParticle*>"/> 
+	<class name="std::pair<const int,HepMC::GenParticle*>"/>
+	<class name="std::map< int,HepMC::GenVertex*,std::greater<int> >"/>
+
+	<!-- GenInfoProduct -->
+
+	<class name="edm::Wrapper<edm::GenInfoProduct>"/>
+	<class name="edm::GenInfoProduct"/>
+
+	<!-- LHE products -->
+
 	<class name="std::vector<std::pair<int, int> >"/>
 	<class name="lhef::HEPEUP::FiveVector"/>
 	<class name="std::vector<lhef::HEPEUP::FiveVector>"/>
@@ -12,4 +81,5 @@
 	<class name="LHEEventProduct"/>
 	<class name="edm::Wrapper<LHERunInfoProduct>"/>
 	<class name="edm::Wrapper<LHEEventProduct>"/>
+
 </lcgdict>
