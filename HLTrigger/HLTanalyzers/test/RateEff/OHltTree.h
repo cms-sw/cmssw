@@ -3512,91 +3512,91 @@ void OHltTree::ApplyL1Prescales(std::map<TString,int> map_Level1Prescl, int even
   if(L1_SingleMuOpen == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMuOpen")->second != 0))  
       L1_SingleMuOpen = 0;
   } it++; 
   if(L1_SingleMuBeamHalo == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleMuBeamHalo")->second != 0))  
       L1_SingleMuBeamHalo = 0;
   } it++; 
   if(L1_SingleEG2 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleEG2")->second != 0))  
       L1_SingleEG2 = 0;
   } it++; 
   if(L1_DoubleEG1 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleEG1")->second != 0))  
       L1_DoubleEG1 = 0;
   } it++; 
   if(L1_QuadJet15 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_QuadJet15")->second != 0))  
       L1_QuadJet15 = 0;
   } it++; 
   if(L1_QuadJet30 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_QuadJet30")->second != 0))  
       L1_QuadJet30 = 0;
   } it++; 
   if(L1_ETM30 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_ETM30")->second != 0))  
       L1_ETM30 = 0;
   } it++; 
   if(L1_EG5_TripleJet15 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_EG5_TripleJet15")->second != 0))  
       L1_EG5_TripleJet15 = 0;
   } it++; 
   if(L1_Mu3_TripleJet15 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_Mu3_TripleJet15")->second != 0))  
       L1_Mu3_TripleJet15 = 0;
   } it++; 
   if(L1_SingleJetCountsHFTow == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJetCountsHFTow")->second != 0))  
       L1_SingleJetCountsHFTow = 0;
   } it++; 
   if(L1_DoubleJetCountsHFTow == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleJetCountsHFTow")->second != 0))  
       L1_DoubleJetCountsHFTow = 0;
   } it++; 
   if(L1_SingleJetCountsHFRing0Sum3 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJetCountsHFRing0Sum3")->second != 0))  
       L1_SingleJetCountsHFRing0Sum3 = 0;
   } it++; 
   if(L1_DoubleJetCountsHFRing0Sum3 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleJetCountsHFRing0Sum3")->second != 0))  
       L1_DoubleJetCountsHFRing0Sum3 = 0;
   } it++; 
   if(L1_SingleJetCountsHFRing0Sum6 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_SingleJetCountsHFRing0Sum6")->second != 0))  
       L1_SingleJetCountsHFRing0Sum6 = 0;
   } it++; 
   if(L1_DoubleJetCountsHFRing0Sum6 == 1) {  
     iCountL1NoPrescale[it]++;   
  
-    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_VBF_QuadJet")->second != 0))  
+    if((deterministic == 1) && ((iCountL1NoPrescale[it]) % map_Level1Prescl.find("L1_DoubleJetCountsHFRing0Sum6")->second != 0))  
       L1_DoubleJetCountsHFRing0Sum6 = 0;  
   } it++; 
   if(L1_ZeroBias == 1) { 
