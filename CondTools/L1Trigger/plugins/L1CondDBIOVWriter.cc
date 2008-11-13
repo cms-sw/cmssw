@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.4 2008/09/19 19:25:05 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.5 2008/09/27 02:38:19 wsun Exp $
 //
 //
 
@@ -95,19 +95,25 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    L1TriggerKey::RecordToKey recordTypeToKeyMap ;
 
+   bool triggerKeyIOVUpdated = true ;
    if( !m_ignoreTriggerKey )
      {
-       // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey
-       // token
-       std::string keyToken = keyList->token( m_tscKey ) ;
+       // Do nothing if TSC key is null
+       if( !m_tscKey.empty() )
+	 {
+	   // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey
+	   // token
+	   std::string keyToken = keyList->token( m_tscKey ) ;
 
-       // Update IOV sequence for this token with since-time = new run 
-       m_writer.updateIOV( m_keyTag, keyToken, run ) ;
+	   // Update IOV sequence for this token with since-time = new run 
+	   triggerKeyIOVUpdated =
+	     m_writer.updateIOV( m_keyTag, keyToken, run ) ;
 
-       // Read current L1TriggerKey directly from ORCON using token
-       L1TriggerKey key = m_reader.readKey( keyToken ) ;
+	   // Read current L1TriggerKey directly from ORCON using token
+	   L1TriggerKey key = m_reader.readKey( keyToken ) ;
 
-       recordTypeToKeyMap = key.recordToKeyMap() ;
+	   recordTypeToKeyMap = key.recordToKeyMap() ;
+	 }
      }
    else
      {
@@ -123,33 +129,56 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 }
      }
 
-   // Loop over record@type in L1TriggerKey
-   L1TriggerKey::RecordToKey::const_iterator itr = recordTypeToKeyMap.begin() ;
-   L1TriggerKey::RecordToKey::const_iterator end = recordTypeToKeyMap.end() ;
+   // If L1TriggerKey IOV was already up to date, then so are all its
+   // sub-records.
+   if( triggerKeyIOVUpdated )
+     {
+       // Loop over record@type in L1TriggerKey
+       L1TriggerKey::RecordToKey::const_iterator itr =
+	 recordTypeToKeyMap.begin() ;
+       L1TriggerKey::RecordToKey::const_iterator end =
+	 recordTypeToKeyMap.end() ;
 
-   for( ; itr != end ; ++itr )
-   {
-      // Find payload token
-      std::string recordType = itr->first ;
-      std::string objectKey = itr->second ;
-      std::string payloadToken = keyList->token( recordType, objectKey ) ;
-      if( payloadToken.empty() )
-	{
-	  throw cond::Exception( "L1CondDBIOVWriter: empty payload token" ) ;
-	}
-      // assert( !payloadToken.empty() ) ;
+       for( ; itr != end ; ++itr )
+	 {
+	   // Do nothing if object key is null.
+	   std::string recordType = itr->first ;
+	   std::string objectKey = itr->second ;
+	   if( objectKey.empty() )
+	     {
+	       edm::LogVerbatim( "L1-O2O" )
+		 << "L1CondDBIOVWriter: empty object key for "
+		 << recordType << "; skipping this record." ;
+	     }
+	   else
+	     {
+	       // Find payload token
+	       std::string payloadToken = keyList->token( recordType,
+							  objectKey ) ;
+	       if( payloadToken.empty() )
+		 {
+		   throw cond::Exception(
+		     "L1CondDBIOVWriter: empty payload token" );
+		 }
+	       // assert( !payloadToken.empty() ) ;
 
-      // Find tag for IOV token
-      std::map<std::string, std::string >::const_iterator recordTypeToTagItr =
-	 m_recordTypeToTagMap.find( recordType ) ;
-      if( recordTypeToTagItr == m_recordTypeToTagMap.end() )
-	{
-	  throw cond::Exception( "L1CondDBIOVWriter: no tag for record@type "
-				 + recordType ) ;
-	}
+	       // Find tag for IOV token
+	       std::map<std::string, std::string >::const_iterator
+		 recordTypeToTagItr =
+		 m_recordTypeToTagMap.find( recordType ) ;
+	       if( recordTypeToTagItr == m_recordTypeToTagMap.end() )
+		 {
+		   throw cond::Exception(
+		     "L1CondDBIOVWriter: no tag for record@type " +
+		     recordType ) ;
+		 }
 
-      m_writer.updateIOV( recordTypeToTagItr->second, payloadToken, run ) ;
-   }
+	       m_writer.updateIOV( recordTypeToTagItr->second,
+				   payloadToken,
+				   run ) ;
+	     }
+	 }
+     }
 }
 
 
