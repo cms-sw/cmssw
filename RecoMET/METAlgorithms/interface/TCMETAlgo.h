@@ -16,14 +16,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
-
+#include "DataFormats/METReco/interface/MET.h"
 class TCMETAlgo 
 {
  public:
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  virtual void run(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*,  double );
+  reco::MET addInfo(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*, bool, double );
  private:
 };
 
