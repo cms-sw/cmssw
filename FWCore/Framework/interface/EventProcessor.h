@@ -6,7 +6,7 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-$Id: EventProcessor.h,v 1.68 2008/10/16 23:06:28 wmtan Exp $
+$Id: EventProcessor.h,v 1.69 2008/10/20 20:19:58 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,6 +16,7 @@ $Id: EventProcessor.h,v 1.68 2008/10/16 23:06:28 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
+#include "boost/thread/condition.hpp"
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/IEventProcessor.h"
