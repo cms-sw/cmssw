@@ -123,12 +123,31 @@ namespace cms
     //         the output into the Event.
     if( METtype == "CaloMET" ) 
     {
+      /*
+	//Old implementation (prior to 30X and 11/14/2008)  
       alg_.run(input, &output, globalThreshold); 
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
       calometcoll->push_back( calo.addInfo(input, output, noHF, globalThreshold) );
       event.put( calometcoll );
+      */
+      
+      //Run Basic MET Algorithm
+      alg_.run(input, &output, globalThreshold);
+      // Run CaloSpecific Algorithm
+      CaloSpecificAlgo calospecalgo;
+      CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
+      //Run algorithm to calculate CaloMET Significance and add to the CaloMET Object
+      SignCaloSpecificAlgo signcalospecalgo;
+      metsig::SignAlgoResolutions resolutions(conf_);
+      calomet.SetMetSignificance( signcalospecalgo.addSignificance(input,output,resolutions,noHF,globalThreshold) );
+      
+      std::auto_ptr<CaloMETCollection> calometcoll;
+      calometcoll.reset(new CaloMETCollection);
+      calometcoll->push_back( calomet ) ;
+      event.put( calometcoll );           
+
     }
     //-----------------------------------
     else if( METtype == "TCMET" )
