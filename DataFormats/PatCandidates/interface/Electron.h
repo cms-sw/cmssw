@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.16 2008/10/07 18:49:59 lowette Exp $
+// $Id: Electron.h,v 1.17 2008/10/08 11:44:30 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.16 2008/10/07 18:49:59 lowette Exp $
+  \version  $Id: Electron.h,v 1.17 2008/10/08 11:44:30 fronga Exp $
 */
 
 
@@ -112,6 +112,13 @@ namespace pat {
         std::cout << "The pat::Electron::setLeptonIDs() method is deprecated. Please use the setElectronIDs() one instead" << std::endl;
         setElectronIDs(ids);
       }
+      /// Store the cluster shape variables associated to the electron
+      void setClusterShapes ( float , float , float , float , float ) ;
+      float scSigmaEtaEta()   { return  scSigmaEtaEta_ ; }
+      float scSigmaIEtaIEta() { return  scSigmaIEtaIEta_ ; }  
+      float scE1x5()          { return  scE1x5_ ; }
+      float scE2x5Max()       { return  scE2x5Max_ ; }        
+      float scE5x5()          { return  scE5x5_ ; } 	      
 
     protected:
 
@@ -124,6 +131,12 @@ namespace pat {
       std::vector<reco::Track> track_;
       // ---- electron ID's holder ----
       std::vector<IdPair> electronIDs_;
+
+      float scSigmaEtaEta_ ;
+      float scSigmaIEtaIEta_ ; 
+      float scE1x5_ ;
+      float scE2x5Max_ ; 
+      float scE5x5_ ; 
 
   };
 
