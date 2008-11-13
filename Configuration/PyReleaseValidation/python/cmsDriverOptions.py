@@ -98,7 +98,7 @@ expertSettings.add_option("--filtername",
                           dest="filtername")
 
 expertSettings.add_option("--geometry",
-                          help="What geometry to use (from Configuration/StandardSequences). Default=Pilot2",
+                          help="What geometry to use (from Configuration/StandardSequences). Default=Ideal",
                           default=defaultOptions.geometry,
                           dest="geometry")
 
