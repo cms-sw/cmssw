@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.15 2008/11/01 20:25:06 chlebana Exp $
+// $Id: DataCertificationJetMET.cc,v 1.16 2008/11/08 14:54:02 hatake Exp $
 //
 //
 
@@ -39,11 +39,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
+// Some switches
 #define NJetAlgo 4
 #define NL3Flags 3
-
-#define DEBUG    1
-
+#define DEBUG    0
 #define METFIT   0
 
 //
@@ -140,12 +139,12 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   //          2: Chi2 test
 
   std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-  std::cout << "FileName           = " << filename    << std::endl;
+  if (DEBUG) std::cout << "FileName           = " << filename    << std::endl;
 
   std::string reffilename;
   if (testType>=1){
     reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-    std::cout << "Reference FileName = " << reffilename << std::endl;
+    if (DEBUG) std::cout << "Reference FileName = " << reffilename << std::endl;
   }
 
   // -- Current & Reference Run
@@ -155,11 +154,11 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   if (testType>=1) dbe->open(reffilename);
 
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
-  std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
+  if (DEBUG) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
 
   dbe->setCurrentFolder("/");
   std::string currDir = dbe->pwd();
-  std::cout << "--- Current Directory " << currDir << std::endl;
+  if (DEBUG) std::cout << "--- Current Directory " << currDir << std::endl;
 
   std::vector<std::string> subDirVec = dbe->getSubdirs();
 
@@ -187,7 +186,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       RunDir = *ic;
       RunNum = *ic;
     }
-    std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
+    if (DEBUG) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
     ind++;
   }
 
@@ -196,11 +195,11 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   //
   if (RunDir == "JetMET") {
     RunDir = "";
-    std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
+    if (DEBUG) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
   }
   RunNum.erase(0,4);
   RunNumber = atoi(RunNum.c_str());
-  std::cout << "--- >>" << RunNumber << "<<" << std::endl;
+  if (DEBUG) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
 
   //
   // Reference
@@ -209,38 +208,81 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
     if (RefRunDir == "JetMET") {
       RefRunDir = "";
-      std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
+      if (DEBUG) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
     }
     RefRunNum.erase(0,4);
     RefRunNumber = atoi(RefRunNum.c_str());
-    std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
+    if (DEBUG) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
 
   }
   //  ic++;
 
   //----------------------------------------------------------------
-  // Book histograms for data certification results
+  // Book integers/histograms for data certification results
   //----------------------------------------------------------------
 
-  // --- Save Data Certification results to the root file
-  //     We save both flags and values
-  std::cout << RunDir << std::endl;
-  dbe->setCurrentFolder(RunDir+"/JetMET/Data Certification/");    
-  MonitorElement* mJetDCFL1 = dbe->book1D("JetDCFLayer1", "Jet DC F L1", 1, 0, 1);
-  MonitorElement* mJetDCFL2 = dbe->book1D("JetDCFLayer2", "Jet DC F L2", NJetAlgo, 0, NJetAlgo);
-  MonitorElement* mJetDCFL3 = dbe->book1D("JetDCFLayer3", "Jet DC F L3", NJetAlgo*NL3Flags, 0, NJetAlgo*NL3Flags);
+  std::string Jet_Tag_L2[NJetAlgo];
+  Jet_Tag_L2[0] = "JetMET_Jet_ICone";
+  Jet_Tag_L2[1] = "JetMET_Jet_SISCone";
+  Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
+  Jet_Tag_L2[3] = "JetMET_Jet_JPT";
 
-  MonitorElement* mJetDCVL1 = dbe->book1D("JetDCVLayer1", "Jet DC V L1", NJetAlgo, 0, NJetAlgo);
-  MonitorElement* mJetDCVL2 = dbe->book1D("JetDCVLayer2", "Jet DC V L2", NJetAlgo, 0, NJetAlgo);
-  MonitorElement* mJetDCVL3 = dbe->book1D("JetDCVLayer3", "Jet DC V L3", NJetAlgo*NL3Flags, 0, NJetAlgo*NL3Flags);
+  std::string Jet_Tag_L3[NJetAlgo][NL3Flags];
+  Jet_Tag_L3[0][0] = "JetMET_Jet_ICone_Barrel";
+  Jet_Tag_L3[0][1] = "JetMET_Jet_ICone_EndCap";
+  Jet_Tag_L3[0][2] = "JetMET_Jet_ICone_Forward";
+  Jet_Tag_L3[1][0] = "JetMET_Jet_SISCone_Barrel";
+  Jet_Tag_L3[1][1] = "JetMET_Jet_SISCone_EndCap";
+  Jet_Tag_L3[1][2] = "JetMET_Jet_SISCone_Forward";
+  Jet_Tag_L3[2][0] = "JetMET_Jet_PFlow_Barrel";
+  Jet_Tag_L3[2][1] = "JetMET_Jet_PFlow_EndCap";
+  Jet_Tag_L3[2][2] = "JetMET_Jet_PFlow_Forward";
+  Jet_Tag_L3[3][0] = "JetMET_Jet_JPT_Barrel";
+  Jet_Tag_L3[3][1] = "JetMET_Jet_JPT_EndCap";
+  Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
 
-  MonitorElement* mMETDCFL1 = dbe->book2D("METDCFLayer1", "MET DC F L1", 3,0,3,500,0.,500.);
-  MonitorElement* mMETDCFL2 = dbe->book2D("METDCFLayer2", "MET DC F L2", 3,0,3,500,0.,500.);
-  MonitorElement* mMETDCFL3 = dbe->book2D("METDCFLayer3", "MET DC F L3", 3,0,3,500,0.,500.);
+  if (DEBUG) std::cout << RunDir << std::endl;
+  dbe->setCurrentFolder(RunDir+"/JetMET/EventInfo/Certification/");    
 
-  MonitorElement* mMETDCVL1 = dbe->book2D("METDCVLayer1", "MET DC V L1", 3,0,3,500,0.,500.);
-  MonitorElement* mMETDCVL2 = dbe->book2D("METDCVLayer2", "MET DC V L2", 3,0,3,500,0.,500.);
-  MonitorElement* mMETDCVL3 = dbe->book2D("METDCVLayer3", "MET DC V L3", 3,0,3,500,0.,500.);
+  //
+  // Layer 1
+  //---------
+  MonitorElement* mJetDCFL1 = dbe->bookInt("JetMET_Jet");
+  MonitorElement* mMETDCFL1 = dbe->bookInt("JetMET_MET");
+
+  //
+  // Layer 2
+  //---------
+  MonitorElement* mJetDCFL2[10];
+  int iL2JetTags=0;
+  for (int itag=0; itag<=NJetAlgo; itag++){
+    mJetDCFL2[iL2JetTags] = dbe->bookInt(Jet_Tag_L2[itag]);
+    iL2JetTags++;
+  }
+
+  //MonitorElement* mMETDCFL2[10];
+  //int iL2METTags=0;
+  //mMETDCFL2[iL2METTags] = dbe->bookInt("JetMET_MET");
+  //iL2METTags++;
+
+  //
+  // Layer 3
+  //---------
+  MonitorElement* mJetDCFL3[20];
+  int iL3JetTags=0;
+  for (int ialg=0; ialg<NJetAlgo; ialg++){
+    for (int idet=0; idet<3; idet++){
+      mJetDCFL3[iL3JetTags]= dbe->bookInt(Jet_Tag_L3[ialg][idet]);
+      iL3JetTags++;
+    }
+  }
+
+  MonitorElement* mMETDCFL3[20];
+  int iL3METTags=0;
+  mMETDCFL3[iL3METTags]= dbe->bookInt("JetMET_MET_All");
+  iL3METTags++;
+  mMETDCFL3[iL3METTags]= dbe->bookInt("JetMET_MET_NoHF");
+  iL3METTags++;
 
   //----------------------------------------------------------------
   // Data certification starts
@@ -263,33 +305,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   test_Pt_EndCap  = test_Phi_EndCap  = 0;
   test_Pt_Forward = test_Phi_Forward = 0;
 
-  Int_t Jet_DCF_L1[NJetAlgo];
+  Int_t Jet_DCF_L1;
   Int_t Jet_DCF_L2[NJetAlgo];
   Int_t Jet_DCF_L3[NJetAlgo][NL3Flags];
-
-  std::string Jet_Tag_L1[2];
-  Jet_Tag_L1[0]    = "JetMET_Jet";
-  Jet_Tag_L1[1]    = "JetMET_MET";
-
-  std::string Jet_Tag_L2[NJetAlgo];
-  Jet_Tag_L2[0] = "JetMET_Jet_ICone";
-  Jet_Tag_L2[1] = "JetMET_Jet_SISCone";
-  Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
-  Jet_Tag_L2[3] = "JetMET_Jet_JPT";
-
-  std::string Jet_Tag_L3[NJetAlgo][NL3Flags];
-  Jet_Tag_L3[0][0] = "JetMET_Jet_ICone_Barrel";
-  Jet_Tag_L3[0][1] = "JetMET_Jet_ICone_EndCap";
-  Jet_Tag_L3[0][2] = "JetMET_Jet_ICone_Forward";
-  Jet_Tag_L3[1][0] = "JetMET_Jet_SISCone_Barrel";
-  Jet_Tag_L3[1][1] = "JetMET_Jet_SISCone_EndCap";
-  Jet_Tag_L3[1][2] = "JetMET_Jet_SISCone_Forward";
-  Jet_Tag_L3[2][0] = "JetMET_Jet_PFlow_Barrel";
-  Jet_Tag_L3[2][1] = "JetMET_Jet_PFlow_EndCap";
-  Jet_Tag_L3[2][2] = "JetMET_Jet_PFlow_Forward";
-  Jet_Tag_L3[3][0] = "JetMET_Jet_JPT_Barrel";
-  Jet_Tag_L3[3][1] = "JetMET_Jet_JPT_EndCap";
-  Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
   
   std::string refHistoName;
   std::string newHistoName;
@@ -429,8 +447,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }
     }
      
-    //    meRef = dbe->get(refHistoName+"EnergyFractionHadronic");
-    //    meNew = dbe->get(newHistoName+"EnergyFractionHadronic");
     meRef = dbe->get(refHistoName+"HFrac");
     meNew = dbe->get(newHistoName+"HFrac");
     if ((meRef) && (meNew)) {
@@ -460,14 +476,13 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     if ( (test_Pt     > 0.95) && (test_Eta          > 0.95) && 
 	 (test_Phi    > 0.95) && (test_Constituents > 0.95) && 
 	 (test_HFrac  > 0.95) )  {      
-
       Jet_DCF_L2[iAlgo] = 1;
-      // --- Fill DC results histogram
-      mJetDCFL2->Fill(iAlgo);
     } else {
       Jet_DCF_L2[iAlgo] = 0;
     }
-
+    // --- Fill DC results histogram
+    mJetDCFL2[iAlgo]->Fill(Jet_DCF_L2[iAlgo]);
+      
     // ----------------
     // --- Layer 3
     // --- Barrel
@@ -599,34 +614,37 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
     if ( (test_Pt_Barrel > 0.95) && (test_Phi_Barrel > 0.95) ) {
       Jet_DCF_L3[iAlgo][0] = 1;
-      // --- Fill DC results histogram
-      mJetDCFL3->Fill(iAlgo+0*NL3Flags);
     } else {
       Jet_DCF_L3[iAlgo][0] = 0;
     }
+    mJetDCFL3[iAlgo*NL3Flags+0]->Fill(Jet_DCF_L3[iAlgo][0]);
+
     if ( (test_Pt_EndCap > 0.95) && (test_Phi_EndCap > 0.95) ) {
       Jet_DCF_L3[iAlgo][1] = 1;
-      // --- Fill DC results histogram
-      mJetDCFL3->Fill(iAlgo+1*NL3Flags);
     } else {
       Jet_DCF_L3[iAlgo][1] = 0;
     }
+    // --- Fill DC results histogram
+    mJetDCFL3[iAlgo*NL3Flags+1]->Fill(Jet_DCF_L3[iAlgo][1]);
+
     if ( (test_Pt_Forward > 0.95) && (test_Phi_Forward > 0.95) ) {
       Jet_DCF_L3[iAlgo][2] = 1;
-      // --- Fill DC results histogram
-      mJetDCFL3->Fill(iAlgo+2*NL3Flags);
     } else {
       Jet_DCF_L3[iAlgo][2] = 0;
     }
+    // --- Fill DC results histogram
+    mJetDCFL3[iAlgo*NL3Flags+2]->Fill(Jet_DCF_L3[iAlgo][2]);
 
   }
   // --- End of loop over jet algorithms
-  int allOK = 1;
-  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {   
-    if (Jet_DCF_L1[iAlgo] == 0) allOK = 0;
-  }
-  if (allOK == 1) mJetDCFL1->Fill(1);
 
+  // Layer 1
+  //---------
+  Jet_DCF_L1= 1;
+  for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {   
+    if (Jet_DCF_L2[iAlgo] == 0) Jet_DCF_L1 = 0;
+  }
+  mJetDCFL1->Fill(Jet_DCF_L1);
 
   // JET Data Certification Results
   if (DEBUG) {
@@ -634,7 +652,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     //
     //--- Layer 1
     //
-    printf("%6d %15d %-35s %10d\n",RunNumber,0,"JetMET", allOK);
+    printf("%6d %15d %-35s %10d\n",RunNumber,0,"JetMET", Jet_DCF_L1);
     //
     //--- Layer 2
     //
@@ -869,11 +887,12 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
         fitfun1_CaloMEyNoHF_LS[LS]=(TF1*)g1->Clone();
         fitfun2_CaloMEyNoHF_LS[LS]=(TF1*)g2->Clone();
       }
-    }
-  }
+    } // METFIT
+
+  }   // loop over LS
 
   //----------------------------------------------------------------
-  //--- Print out data certification summary
+  //--- Apply data certification algorithm
   //----------------------------------------------------------------
 
   double chisq_threshold_run     = 500.;
@@ -884,7 +903,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   double MEyRMS_threshold   = 10.;
   int    minEntry        = 5;
 
-  //verbose=1;
   if (verbose) {
     std::cout << std::endl;
     if (METFIT)
@@ -894,8 +912,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   }
   //
   // Entire run
+  //-----------------------------------
   for (int i=0;i<4;i++){
-    if (METFIT) {
+    if (METFIT) { //---------- MET fits ----------
       int nmean=1;
       if (fitfun[i]->GetNumberFreeParameters()==3) nmean=4;
       if (verbose)
@@ -921,7 +940,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 	JetMET_MEy_NoHF[0]=data_certificate_metfit(fitfun[i]->GetChisquare()/double(fitfun[i]->GetNDF()),
 						fitfun[i]->GetParameter(nmean),
 						chisq_threshold_run,MEy_threshold);
-    } else { // no MET fits
+    } else { //----------- no MET fits ----------
       if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",hMExy[i]->GetName(),hMExy[i]->GetMean(),hMExy[i]->GetRMS());
       if (i==0)
@@ -938,14 +957,17 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 						MEy_threshold,MEyRMS_threshold);      
     }
   }
-  //verbose=0;
+
   //
   // Each lumi section
   // (LS=0 assigned to the entire run)
+  //-----------------------------------
   for (int LS=1; LS<500; LS++){
+
+    //----- CaloMEx ------------------------------
     if (CaloMEx_LS[LS]->GetSum()>0.) {
 
-      if (METFIT) {
+      if (METFIT) { //---------- MET fits ----------
 	int nmean=1;
 	if (fitfun_CaloMEx_LS[LS]->GetNumberFreeParameters()==3) nmean=4;
 	if (verbose)
@@ -958,13 +980,14 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 	JetMET_MEx_All[LS]=data_certificate_metfit(fitfun_CaloMEx_LS[LS]->GetChisquare()/double(fitfun_CaloMEx_LS[LS]->GetNDF()),
 						   fitfun_CaloMEx_LS[LS]->GetParameter(nmean),
 						   chisq_threshold_lumisec,MEx_threshold);
-      } else {
+      } else { //----------- no MET fits ----------
 	if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEx_LS[LS]->GetName(),CaloMEx_LS[LS]->GetMean(),CaloMEx_LS[LS]->GetRMS());
 	JetMET_MEx_All[LS]=data_certificate_met(CaloMEx_LS[LS]->GetMean(),CaloMEx_LS[LS]->GetRMS(),MEx_threshold,MExRMS_threshold);
       }
 
     }
+    //----- CaloMEy ------------------------------
     if (CaloMEy_LS[LS]->GetSum()>0.) {
 
       if (METFIT) {
@@ -980,13 +1003,15 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       JetMET_MEy_All[LS]=data_certificate_metfit(fitfun_CaloMEy_LS[LS]->GetChisquare()/double(fitfun_CaloMEy_LS[LS]->GetNDF()),
                                           fitfun_CaloMEy_LS[LS]->GetParameter(nmean),
                                           chisq_threshold_lumisec,MEy_threshold);
-      } else {
+      } else { //----------- no MET fits ----------
 	if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEy_LS[LS]->GetName(),CaloMEy_LS[LS]->GetMean(),CaloMEy_LS[LS]->GetRMS());
 	JetMET_MEy_All[LS]=data_certificate_met(CaloMEy_LS[LS]->GetMean(),CaloMEy_LS[LS]->GetRMS(),MEy_threshold,MEyRMS_threshold);
       }
       
     }
+
+    //----- CaloMExNoHF ------------------------------
     if (CaloMExNoHF_LS[LS]->GetSum()>0.) {
 
       if (METFIT) {
@@ -1002,7 +1027,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 	JetMET_MEx_NoHF[LS]=data_certificate_metfit(fitfun_CaloMExNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMExNoHF_LS[LS]->GetNDF()),
 						    fitfun_CaloMExNoHF_LS[LS]->GetParameter(nmean),
 						    chisq_threshold_lumisec,MEx_threshold);
-      } else {
+      } else { //----------- no MET fits ----------
 	if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",CaloMExNoHF_LS[LS]->GetName(),CaloMExNoHF_LS[LS]->GetMean(),CaloMExNoHF_LS[LS]->GetRMS());
 	JetMET_MEx_NoHF[LS]=data_certificate_met(CaloMExNoHF_LS[LS]->GetMean(),CaloMExNoHF_LS[LS]->GetRMS(),
@@ -1010,6 +1035,8 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }
       
     }
+
+    //----- CaloMEyNoHF ------------------------------
     if (CaloMEyNoHF_LS[LS]->GetSum()>0.) {
 
       if (METFIT) {
@@ -1025,7 +1052,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 	JetMET_MEy_NoHF[LS]=data_certificate_metfit(fitfun_CaloMEyNoHF_LS[LS]->GetChisquare()/double(fitfun_CaloMEyNoHF_LS[LS]->GetNDF()),
 						    fitfun_CaloMEyNoHF_LS[LS]->GetParameter(nmean),
 						    chisq_threshold_lumisec,MEy_threshold);
-      }  else {
+      }  else { //----------- no MET fits ----------
 	if (verbose)
 	printf("| %-30s | %8.3f | %8.3f |\n",CaloMEyNoHF_LS[LS]->GetName(),CaloMEyNoHF_LS[LS]->GetMean(),CaloMEyNoHF_LS[LS]->GetRMS());
 	JetMET_MEy_NoHF[LS]=data_certificate_met(CaloMEyNoHF_LS[LS]->GetMean(),CaloMEyNoHF_LS[LS]->GetRMS(),
@@ -1034,22 +1061,32 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
     }
   } // loop over LS
-  //verbose=0;
 
   //
-  // Data certification format
-  std::cout << std::endl;
-  printf("   run,       lumi-sec, tag name,                                   output\n");
-  int LS_LAST=-1;
+  // Final MET data certification algorithm
+  //----------------------------------------
   for (int LS=0; LS<nLSBins; LS++){
     JetMET_MET_All[LS] = JetMET_MEx_All[LS] * JetMET_MEy_All[LS];
     JetMET_MET_NoHF[LS]= JetMET_MEx_NoHF[LS]* JetMET_MEy_NoHF[LS];
     JetMET_MET[LS]     = JetMET_MET_All[LS] * JetMET_MET_NoHF[LS];
 
-    // -- Fill the DC Result Histograms    
-    mMETDCFL2->Fill(0,LS,JetMET_MET_All[LS]);
-    mMETDCFL2->Fill(1,LS,JetMET_MET_NoHF[LS]);
-    mMETDCFL2->Fill(2,LS,JetMET_MET[LS]);
+    // -- Fill the DC Result Histograms (entire run)
+    if (LS==0){
+    mMETDCFL1->Fill(JetMET_MET[LS]);
+    mMETDCFL3[0]->Fill(JetMET_MET_All[LS]);
+    mMETDCFL3[1]->Fill(JetMET_MET_NoHF[LS]);
+    }
+
+  }
+
+  //
+  // Final MET data certification algorithm
+  //----------------------------------------
+  if (DEBUG) {
+  std::cout << std::endl;
+  printf("   run,       lumi-sec, tag name,                                   output\n");
+  int LS_LAST=-1;
+  for (int LS=0; LS<nLSBins; LS++){
 
     if (LS==0){                                                                              // For entire run,
       printf("%6d %15d %-35s %10d\n",RunNumber,LS,"JetMET_MET",     JetMET_MET[LS]);         // always print out.
@@ -1075,13 +1112,11 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       }    
     }      // LS==0
   }        // for LS
-
   std::cout << std::endl;
+  }
 
   // -- 
-
-  dbe->rmdir(RefRunDir); // Delete reference plots from DQMStore
-
+  //dbe->rmdir(RefRunDir); // Delete reference plots from DQMStore
   // --
   
 }
@@ -1097,10 +1132,10 @@ DataCertificationJetMET::endJob() {
   bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
   std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
 
-  std::cout << ">>> endJob " << outputFile << std:: endl;
+  if (DEBUG) std::cout << ">>> endJob " << outputFile << std:: endl;
 
   if(outputFile){
-    //    dbe->showDirStructure();
+    //dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 }
