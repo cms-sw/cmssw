@@ -13,7 +13,7 @@
 //
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.16 2008/11/08 14:54:02 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.17 2008/11/13 07:59:03 hatake Exp $
 //
 //
 
@@ -242,13 +242,13 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
 
   if (DEBUG) std::cout << RunDir << std::endl;
-  dbe->setCurrentFolder(RunDir+"/JetMET/EventInfo/Certification/");    
+  dbe->setCurrentFolder("/JetMET/EventInfo/Certification/");    
 
   //
   // Layer 1
   //---------
-  MonitorElement* mJetDCFL1 = dbe->bookInt("JetMET_Jet");
-  MonitorElement* mMETDCFL1 = dbe->bookInt("JetMET_MET");
+  MonitorElement* mJetDCFL1 = dbe->bookFloat("JetMET_Jet");
+  MonitorElement* mMETDCFL1 = dbe->bookFloat("JetMET_MET");
 
   //
   // Layer 2
@@ -256,13 +256,13 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   MonitorElement* mJetDCFL2[10];
   int iL2JetTags=0;
   for (int itag=0; itag<=NJetAlgo; itag++){
-    mJetDCFL2[iL2JetTags] = dbe->bookInt(Jet_Tag_L2[itag]);
+    mJetDCFL2[iL2JetTags] = dbe->bookFloat(Jet_Tag_L2[itag]);
     iL2JetTags++;
   }
 
   //MonitorElement* mMETDCFL2[10];
   //int iL2METTags=0;
-  //mMETDCFL2[iL2METTags] = dbe->bookInt("JetMET_MET");
+  //mMETDCFL2[iL2METTags] = dbe->bookFloat("JetMET_MET");
   //iL2METTags++;
 
   //
@@ -272,16 +272,16 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   int iL3JetTags=0;
   for (int ialg=0; ialg<NJetAlgo; ialg++){
     for (int idet=0; idet<3; idet++){
-      mJetDCFL3[iL3JetTags]= dbe->bookInt(Jet_Tag_L3[ialg][idet]);
+      mJetDCFL3[iL3JetTags]= dbe->bookFloat(Jet_Tag_L3[ialg][idet]);
       iL3JetTags++;
     }
   }
 
   MonitorElement* mMETDCFL3[20];
   int iL3METTags=0;
-  mMETDCFL3[iL3METTags]= dbe->bookInt("JetMET_MET_All");
+  mMETDCFL3[iL3METTags]= dbe->bookFloat("JetMET_MET_All");
   iL3METTags++;
-  mMETDCFL3[iL3METTags]= dbe->bookInt("JetMET_MET_NoHF");
+  mMETDCFL3[iL3METTags]= dbe->bookFloat("JetMET_MET_NoHF");
   iL3METTags++;
 
   //----------------------------------------------------------------
@@ -481,7 +481,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       Jet_DCF_L2[iAlgo] = 0;
     }
     // --- Fill DC results histogram
-    mJetDCFL2[iAlgo]->Fill(Jet_DCF_L2[iAlgo]);
+    mJetDCFL2[iAlgo]->Fill(double(Jet_DCF_L2[iAlgo]));
       
     // ----------------
     // --- Layer 3
@@ -617,7 +617,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
     } else {
       Jet_DCF_L3[iAlgo][0] = 0;
     }
-    mJetDCFL3[iAlgo*NL3Flags+0]->Fill(Jet_DCF_L3[iAlgo][0]);
+    mJetDCFL3[iAlgo*NL3Flags+0]->Fill(double(Jet_DCF_L3[iAlgo][0]));
 
     if ( (test_Pt_EndCap > 0.95) && (test_Phi_EndCap > 0.95) ) {
       Jet_DCF_L3[iAlgo][1] = 1;
@@ -625,7 +625,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       Jet_DCF_L3[iAlgo][1] = 0;
     }
     // --- Fill DC results histogram
-    mJetDCFL3[iAlgo*NL3Flags+1]->Fill(Jet_DCF_L3[iAlgo][1]);
+    mJetDCFL3[iAlgo*NL3Flags+1]->Fill(double(Jet_DCF_L3[iAlgo][1]));
 
     if ( (test_Pt_Forward > 0.95) && (test_Phi_Forward > 0.95) ) {
       Jet_DCF_L3[iAlgo][2] = 1;
@@ -633,7 +633,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
       Jet_DCF_L3[iAlgo][2] = 0;
     }
     // --- Fill DC results histogram
-    mJetDCFL3[iAlgo*NL3Flags+2]->Fill(Jet_DCF_L3[iAlgo][2]);
+    mJetDCFL3[iAlgo*NL3Flags+2]->Fill(double(Jet_DCF_L3[iAlgo][2]));
 
   }
   // --- End of loop over jet algorithms
@@ -644,7 +644,7 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {   
     if (Jet_DCF_L2[iAlgo] == 0) Jet_DCF_L1 = 0;
   }
-  mJetDCFL1->Fill(Jet_DCF_L1);
+  mJetDCFL1->Fill(double(Jet_DCF_L1));
 
   // JET Data Certification Results
   if (DEBUG) {
@@ -1072,9 +1072,9 @@ DataCertificationJetMET::beginJob(const edm::EventSetup&)
 
     // -- Fill the DC Result Histograms (entire run)
     if (LS==0){
-    mMETDCFL1->Fill(JetMET_MET[LS]);
-    mMETDCFL3[0]->Fill(JetMET_MET_All[LS]);
-    mMETDCFL3[1]->Fill(JetMET_MET_NoHF[LS]);
+    mMETDCFL1->Fill(double(JetMET_MET[LS]));
+    mMETDCFL3[0]->Fill(double(JetMET_MET_All[LS]));
+    mMETDCFL3[1]->Fill(double(JetMET_MET_NoHF[LS]));
     }
 
   }
