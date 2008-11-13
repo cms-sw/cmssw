@@ -44,7 +44,12 @@ FrameConversion::FrameConversion( const PixelBarrelName & name, int rocIdInDetUn
     colOffset = 8*LocalPixel::numColsInRoc-colOffset-1;
     switch(name.moduleType()) {
       //case(PixelModuleName::v1x8) : { rowOffset =   LocalPixel::numRowsInRoc-rowOffset-1; break; }
-      case(PixelModuleName::v1x8) : { slopeRow = -1; break; } // d.k. 23/10/08
+      case(PixelModuleName::v1x8) : { 
+	slopeRow = -1;  // d.k. 23/10/08 
+	slopeCol = 1;   // d.k. 13/11/08
+	colOffset = rocIdInDetUnit * LocalPixel::numColsInRoc;  // d.k. 13/11/08
+	break; 
+      } 
       default:                      { rowOffset = 2*LocalPixel::numRowsInRoc-rowOffset-1; break; }
     }
   } 
