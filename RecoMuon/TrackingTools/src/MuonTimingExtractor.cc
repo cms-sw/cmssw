@@ -6,7 +6,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: MuonTimingExtractor.cc,v 1.3 2008/11/11 09:53:09 ptraczyk Exp $
+// $Id: MuonTimingExtractor.cc,v 1.4 2008/11/11 09:56:05 ptraczyk Exp $
 //
 //
 
@@ -164,11 +164,18 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
 	const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
 	TimeMeasurement thisHit;
 
+	std::pair< TrajectoryStateOnSurface, double> tsos;
+	tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
+
+        double dist;            
+	if (tsos.first.isValid()) dist = tsos.second+posp.mag(); 
+	  else dist = dtcell->toGlobal(hiti->localPosition()).mag();
+
 	thisHit.driftCell = hiti->geographicalId();
 	if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
 	thisHit.isPhi = phi;
 	thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
-	thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
+	thisHit.distIP = dist;
 	thisHit.station = station;
 	tms.push_back(thisHit);
       }
@@ -252,19 +259,13 @@ MuonTimingExtractor::fillTiming(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  DTChamberId chamberId(id.rawId());
 	  const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
 
-	  double dist = tm->distIP;
 	  double layerZ  = dtcham->toLocal(dtcell->position()).z();
 	  double segmLocalPos = b+layerZ*a;
 	  double hitLocalPos = tm->posInLayer;
 	  int hitSide = -tm->isLeft*2+1;
 	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
             
-	  std::pair< TrajectoryStateOnSurface, double> tsos;
-	  tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
-            
-	  if (tsos.first.isValid()) dist = tsos.second+posp.mag();
-            
-	  dstnc.push_back(dist);
+	  dstnc.push_back(tm->distIP);
 	  dsegm.push_back(t0_segm);
 	  left.push_back(hitSide);
 	  hitWeight.push_back(((double)seg.size()-2.)/(double)seg.size());
