@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/07/03 14:29:00 $
- * $Revision: 1.18 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.19 $
  *
  */
 
@@ -38,6 +38,7 @@
 /**/typedef IdealGeometryRecord MyCaloGeometryRecord;
 #endif
 
+#define ML_DEBUG
 
 using namespace cms;
 using namespace edm;
@@ -75,10 +76,14 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   localReco_(ps.getParameter<bool>("LocalReco")),
   weights_(ps.getParameter<vector<double> >("weights")),
   tpInGeV_(ps.getParameter<bool>("tpInGeV")),
+  firstFIRSample_(ps.getParameter<int>("ecalDccZs1stSample")),
   ievt_(0),
   allHists_(false),
   histDir_(ps.getParameter<string>("histDir")){
-  
+
+  //FIR ZS weights
+  configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
+
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   
@@ -244,7 +249,15 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
   
   meLiTtf_ = book2D("EcalLowInterestTriggerTowerFlagMap",
-		    "Low interest trigger tower flags "
+		    "Low interest trigger tower flags;"
+		    "iPhi;"
+		    "iEta;"
+		    "Event count",
+		    72, 1, 73,
+		    38, -19, 19);
+  
+  meMiTtf_ = book2D("EcalMidInterestTriggerTowerFlagMap",
+		    "Mid interest trigger tower flags;"
 		    "iPhi;"
 		    "iEta;"
 		    "Event count",
@@ -253,8 +266,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
   
   meHiTtf_ = book2D("EcalHighInterestTriggerTowerFlagMap",
-		    "High interest trigger tower flags "
-		    "1 distribution;"
+		    "High interest trigger tower flags;"
 		    "iPhi;"
 		    "iEta;"
 		    "Event count",
@@ -288,6 +300,20 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		      "(rec E of crystal without deposited energy)",
 		      100, ebMinNoise, ebMaxNoise);
 
+  meEbLiZsFir_   = book1D("zsEbLiFIRemu",
+			  "Emulated ouput of ZS FIR filter for EB "
+			  "low interest crystals;"
+			  "ADC count*4;"
+			  "Event count",
+			  60, -30, 30);
+  
+  meEbHiZsFir_   = book1D("zsEbHiFIRemu",
+			  "Emulated ouput of ZS FIR filter for EB "
+			  "high interest crystals;"
+			  "ADC count*4;"
+			  "Event count",
+			  60, -30, 30);
+  
   meEbSimE_ = book1D("hEbSimE", "EB hit crystal simulated energy",
 		     100, -1., 2.5);
  
@@ -323,6 +349,20 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		      "(rec E of crystal without deposited energy);"
 		      "E (GeV); Event count",
 		      200, eeMinNoise, eeMaxNoise);
+
+  meEeLiZsFir_   = book1D("zsEeLiFIRemu",
+			  "Emulated ouput of ZS FIR filter for EE "
+			  "low interest crystals;"
+			  "ADC count*4;"
+			  "Event count",
+			  60, -30, 30);
+
+  meEeHiZsFir_   = book1D("zsEeHiFIRemu",
+			  "Emulated ouput of ZS FIR filter for EE "
+			  "high interest crystals;"
+			  "ADC count*4;"
+			  "Event count",
+			  60, -30, 30);
   
   meEeSimE_ = book1D("hEeSimE", "EE hit crystal simulated energy",
 		     100, -1., 2.5);
@@ -486,11 +526,28 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
              << "[0," << nEeY -1 << "]\n";
     }
     //    cout << "EE zs Energy computation...";
-      if(localReco_){
-        eeEnergies[iZ0][iX0][iY0].recE = frame2Energy(frame);
-      }
-      fill(meChOcc_, iX0 + iZ0*310, iY0);
-    } //next ZS digi.
+    if(localReco_){
+      eeEnergies[iZ0][iX0][iY0].recE = frame2Energy(frame);
+    }
+    fill(meChOcc_, iX0 + iZ0*310, iY0);
+    
+    EESrFlagCollection::const_iterator srf
+      = eeSrFlags_->find(readOutUnitOf(frame.id()));
+    
+    if(srf == eeSrFlags_->end()){
+	throw cms::Exception("EcalSelectiveReadoutValidation")
+	  << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+    }
+      
+    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+			 == EcalSrFlag::SRF_FULL);
+      
+    if(highInterest){
+      fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+    } else{
+      fill(meEeLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+    }
+  } //next ZS digi.
   
   for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
     for(int iX0=0; iX0<nEeX; ++iX0){
@@ -621,6 +678,22 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
         ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
       }
       fill(meChOcc_, iEta0+120, iPhi0);
+      EBSrFlagCollection::const_iterator srf
+	= ebSrFlags_->find(readOutUnitOf(frame.id()));
+      
+      if(srf == ebSrFlags_->end()){
+	throw cms::Exception("EcalSelectiveReadoutValidation")
+	  << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+      }
+      
+      bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+			   == EcalSrFlag::SRF_FULL);
+      
+      if(highInterest){
+	fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      } else{
+	fill(meEbLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      }
   } //next EB digi
 
   if(!localReco_){
@@ -681,7 +754,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
     if(flag == EcalSrFlag::SRF_ZS1){ 
       fill(meZs1Tt_, iPhi, iEta);
     }
-    if(flag == EcalSrFlag::SRF_FULL){ 
+    if(flag == EcalSrFlag::SRF_FULL){
       fill(meFullRoTt_, iPhi, iEta);
     }
     if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
@@ -716,8 +789,22 @@ EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
 #if (CMSSW_COMPAT_VERSION>=210)
   ecalScale.setEventSetup(es) ;
 #endif
+
+  //  std::cout << __FILE__ << __LINE__
+  //	    << "n TP: " << tps_->size() <<std::endl;
+  
   for(EcalTrigPrimDigiCollection::const_iterator it = tps_->begin();
       it != tps_->end(); ++it){
+    //    for(int i = 0; i < it->size(); ++i){
+    //  double v = (*it)[i].raw() & 0xFF;
+    //  if(v>0) std::cout << v << " " << i << std::endl;
+    //}
+    //    if(it->compressedEt() > 0){
+    //  std::cout << "---------> " << it->id().ieta() << ", "
+    //		<< it->id().iphi() << ", "
+    //		<< it->compressedEt() << std::endl;
+    //}
+    
     //const int iTcc = elecMap_->TCCid(it->id());
     //const int iTT = elecMap_->iTT(it->id());
     double tpEt;
@@ -741,7 +828,9 @@ EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
     if((it->ttFlag() & 0x3) == 0){
       fill(meLiTtf_, iPhi, iEta);
     }
-
+    if((it->ttFlag() & 0x3) == 1){ 
+      fill(meMiTtf_, iPhi, iEta);
+    }
     if((it->ttFlag() & 0x3) == 3){ 
       fill(meHiTtf_, iPhi, iEta);
     }
@@ -1153,7 +1242,7 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
 }
  
 void EcalSelectiveReadoutValidation::printAvailableHists(){
-   LogInfo log("EcalSelectiveReadout");
+   LogInfo log("HistoList");
    log << "Avalailable histograms (DQM monitor elements): \n";
    for(map<string, string>::iterator it = availableHistList_.begin();
        it != availableHistList_.end();
@@ -1185,4 +1274,118 @@ double EcalSelectiveReadoutValidation::getEeEventSize(double nReadXtals) const{
   }
   return getDccOverhead(EE)*nEeDccs + nReadXtals*getBytesPerCrystal()
     + ruHeaderPayload;
+}
+
+//------
+
+//This implementation  assumes that int is coded on at least 28-bits,
+//which in pratice should be always true.
+int
+EcalSelectiveReadoutValidation::dccZsFIR(const EcalDataFrame& frame,
+					 const std::vector<int>& firWeights,
+					 int firstFIRSample,
+					 bool* saturated){
+  const int nFIRTaps = 6;
+  //FIR filter weights:
+  const vector<int>& w = firWeights;
+  
+  //accumulator used to compute weighted sum of samples
+  int acc = 0;
+  bool gain12saturated = false;
+  const int gain12 = 0x01; 
+  const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
+  //LogDebug("DccFir") << "DCC FIR operation: ";
+  int iWeight = 0;
+  for(int iSample=firstFIRSample-1;
+      iSample<lastFIRSample; ++iSample, ++iWeight){
+    if(iSample>=0 && iSample < frame.size()){
+      EcalMGPASample sample(frame[iSample]);
+      if(sample.gainId()!=gain12) gain12saturated = true;
+      LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
+			 << "*(" << w[iWeight] << ")";
+      acc+=sample.adc()*w[iWeight];
+    } else{
+      edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
+	": Not enough samples in data frame or 'ecalDccZs1stSample' module "
+	"parameter is not valid...";
+    }
+  }
+  LogTrace("DccFir") << "\n";
+  //discards the 8 LSBs 
+  //(shift operator cannot be used on negative numbers because
+  // the result depends on compilator implementation)
+  acc = (acc>=0)?(acc >> 8):-(-acc >> 8);
+  //ZS passed if weighted sum acc above ZS threshold or if
+  //one sample has a lower gain than gain 12 (that is gain 12 output
+  //is saturated)
+
+  LogTrace("DccFir") << "acc: " << acc << "\n"
+    		     << "saturated: " << (gain12saturated?"yes":"no") << "\n";
+
+  if(saturated){
+    *saturated = gain12saturated;
+  }
+  
+  return gain12saturated?numeric_limits<int>::max():acc;
+}
+
+std::vector<int>
+EcalSelectiveReadoutValidation::getFIRWeights(const std::vector<double>&
+					      normalizedWeights){
+  const int nFIRTaps = 6;
+  vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
+  const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
+  for(unsigned i=0; i < min((size_t)nFIRTaps,normalizedWeights.size()); ++i){ 
+    firWeights[i] = lround(normalizedWeights[i] * (1<<10));
+    if(abs(firWeights[i])>maxWeight){//overflow
+      firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
+    }
+  }
+  return firWeights;
+}
+
+void
+EcalSelectiveReadoutValidation::configFirWeights(vector<double> weightsForZsFIR){
+  bool notNormalized  = false;
+  bool notInt = false;
+  for(unsigned i=0; i < weightsForZsFIR.size(); ++i){
+    if(weightsForZsFIR[i] > 1.) notNormalized = true;
+    if((int)weightsForZsFIR[i]!=weightsForZsFIR[i]) notInt = true;
+  }
+  if(notInt && notNormalized){
+    throw cms::Exception("InvalidParameter")
+      << "weigtsForZsFIR paramater values are not valid: they "
+      << "must either be integer and uses the hardware representation "
+      << "of the weights or less or equal than 1 and used the normalized "
+      << "representation.";
+  }
+  LogInfo log("DccFir");
+  if(notNormalized){
+    firWeights_ = vector<int>(weightsForZsFIR.size());
+    for(unsigned i = 0; i< weightsForZsFIR.size(); ++i){
+      firWeights_[i] = (int)weightsForZsFIR[i];
+    }
+  } else{
+    firWeights_ = getFIRWeights(weightsForZsFIR);
+  }
+
+  log << "Input weights for FIR: ";
+  for(unsigned i = 0; i < weightsForZsFIR.size(); ++i){ 
+    log << weightsForZsFIR[i] << "\t";
+  }
+  
+  double s2 = 0.;
+  log << "\nActual FIR weights: ";
+  for(unsigned i = 0; i < firWeights_.size(); ++i){
+    log << firWeights_[i] << "\t";
+    s2 += firWeights_[i]*firWeights_[i];
+  }
+
+  s2 = sqrt(s2);
+  log << "\nNormalized FIR weights after hw representation rounding: ";
+  for(unsigned i = 0; i < firWeights_.size(); ++i){
+    log << firWeights_[i] / (double)(1<<10) << "\t";
+  }
+  
+  log <<"\nFirst FIR sample: " << firstFIRSample_;
 }

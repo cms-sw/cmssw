@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2008/07/02 07:54:28 $
- * $Revision: 1.4 $
+ * $Date: 2008/07/03 14:29:00 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -204,12 +204,15 @@ private:
   int iEta2cIndex(int iEta) const{
     return (iEta<0)?iEta+85:iEta+84;
   }
-
+  
   /** Converts a std CMSSW crystal phi index to a c-array index (starting from
    * zero and without hole).
    */
   int iPhi2cIndex(int iPhi) const{
-    return iPhi-1;
+    //    return iPhi-1;
+    int iPhi0 = iPhi - 11;
+    if(iPhi0<0) iPhi0 += 360;
+    return iPhi0;
   }
 
   /** Converts a std CMSSW crystal x or y index to a c-array index (starting
@@ -253,7 +256,10 @@ private:
    * @return index in numbering 0...71
    */
   int iTTPhi2cIndex(int iPhi) const{
-    return iPhi-1;
+    //    return iPhi-1;
+    int iPhi0 = iPhi - 3;
+    if(iPhi0<0) iPhi0 += 72;
+    return iPhi0;
   }
 
   /** Retrieves the endcap supercrystal containing a given crysal
@@ -273,6 +279,29 @@ private:
   EcalScDetId readOutUnitOf(const EEDetId& xtalId) const;
   //@}
 
+  /** Emulates the DCC zero suppression FIR filter. If one of the time sample
+   * is not in gain 12, numeric_limits<int>::max() is returned.
+   * @param frame data frame
+   * @param firWeights TAP weights
+   * @param firstFIRSample index (starting from 1) of the first time
+   * sample to be used in the filter
+   * @param saturated if not null, *saturated is set to true if all the time
+   * sample are not in gain 12 and set to false otherwise.
+   * @return FIR output or numeric_limits<int>::max().
+   */
+  static int dccZsFIR(const EcalDataFrame& frame,
+		      const std::vector<int>& firWeights,
+		      int firstFIRSample,
+		      bool* saturated = 0);
+  
+
+  /** Computes the ZS FIR filter weights from the normalized weights.
+   * @param normalizedWeights the normalized weights
+   * @return the computed ZS filter weights.
+   */
+  static std::vector<int> getFIRWeights(const std::vector<double>&
+					normalizedWeights);
+  
   //@{
   /** Wrappers to the book methods of the DQMStore DQM
    *  histogramming interface.
@@ -459,9 +488,16 @@ private:
   MonitorElement* meForcedTt_;
 
   MonitorElement* meLiTtf_;
+  MonitorElement* meMiTtf_;
   MonitorElement* meHiTtf_;
 
   MonitorElement* meTpMap_;
+
+  MonitorElement* meEbLiZsFir_;
+  MonitorElement* meEbHiZsFir_;
+
+  MonitorElement* meEeLiZsFir_;
+  MonitorElement* meEeHiZsFir_;
   
   //@}
 
@@ -487,9 +523,19 @@ private:
    */
   std::vector<double> weights_;
 
+  /** Weights to be used for the ZS FIR filter
+   */
+  std::vector<int> firWeights_;
+  
   /** Switch for uncompressing TP value
    */
   bool tpInGeV_;
+
+  /** Time position of the first sample to use in zero suppession FIR
+   * filter. Numbering starts at 0.
+   */
+  int firstFIRSample_;
+
   
   /** ECAL barrel read channel count
    */
@@ -579,6 +625,13 @@ private:
    * (registered by the registerHist method), including disabled one.
    */
   void printAvailableHists();
+
+  /** Configure DCC ZS FIR weights. Heuristic is used to determine
+   * if input weights are normalized weights or integer weights in
+   * the hardware representation.
+   * @param weightsForZsFIR weights from configuration file
+   */
+  void configFirWeights(std::vector<double> weightsForZsFIR);
   
 private:
   /** Used to sort crystal by decrasing simulated energy.
@@ -592,6 +645,8 @@ private:
 	      > validation->ebEnergies[b.first][b.second].simE);
     }
   };
+
+  void myAna();
 };
 
 #endif //EcalSelectiveReadoutValidation_H not defined
