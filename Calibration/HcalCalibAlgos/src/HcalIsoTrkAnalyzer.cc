@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.9 2008/07/18 14:46:07 safronov Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.10 2008/10/20 08:09:24 kodolova Exp $
 //
 //
 
@@ -561,6 +561,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      
 	      int DIPHI = MaxHit.iphihitm - (hhit->id()).iphi();
 	      DIPHI = DIPHI>36 ? 72-DIPHI : DIPHI;
+	      DIPHI = DIPHI<-36 ? 72+DIPHI : DIPHI;
 	      
 	      int numbercell=0;
 	      if(AxB_=="3x3") numbercell = 1;
