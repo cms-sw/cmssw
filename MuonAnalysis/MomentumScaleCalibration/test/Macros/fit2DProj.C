@@ -12,6 +12,8 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <cmath>
+using namespace std;
 
 /// Small function to simplify the creation of text in the TPaveText
 TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0) {
@@ -43,7 +45,7 @@ void setTPaveText(const TF1 * fit, TPaveText * paveText) {
 }
 
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, int fitType, TFile * outputFile, const double & xDisplace = 0.);
-void macroPlot(TString name);
+void macroPlot( TString name, const TString & nameFile1 = "0_MuScleFit.root", const TString & nameFile2 = "4_MuScleFit.root", const TString & title = "" );
 
 Double_t gaussian(Double_t *x, Double_t *par);
 Double_t lorentzian(Double_t *x, Double_t *par);
@@ -82,11 +84,14 @@ Double_t lorentzianPlusLinear(Double_t *x, Double_t *par) {
     TMath::Max(1.e-10,((x[0]-par[2])*(x[0]-par[2])+.25*par[1]*par[1])))+par[3]+par[4]*x[0];
 }
 
+/**
+ * This function fits TH2F slices with a selected fitType function (gaussian, lorentz, ...)
+ */
 TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, int fitType, TFile * outputFile, const double & xDisplace) {
 
   //Read the TH2 from file
   TFile *inputFile = new TFile(path);
-  TH2 * histo = (TH2*) inputFile->Get(name);; 
+  TH2 * histo = (TH2*) inputFile->Get(name);
   if (rebin > 0) histo->RebinX(rebin);
 
   //Declare some variables
@@ -107,20 +112,23 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, i
   for (int i=1; i<=(histo->GetXaxis()->GetNbins());i++) {
 
     //Project on Y (set name and title)
-    char str[100];
-    sprintf(str,"%i",i);
-    TString iS(str);
-    nameY = name + "_" + iS;
-    cout << "nameY  " << nameY << endl;
-    histoY = histo->ProjectionY(nameY, i, i);
-    //histoY->Rebin(25); //<----------------------for pt reso and Z mass
-    char title[80];
-    double x= histo->GetXaxis()->GetBinCenter(i);
-    //sprintf(title,"Projection of bin=%i",i);
-    sprintf(title,"Projection of x=%f",x);
-    histoY->SetTitle(title);
+    stringstream number;
+    number << i;
+    TString numberString(number.str());
+    nameY = name + "_" + numberString;
+    // cout << "nameY  " << nameY << endl;
 
-    if (histoY ->GetEntries() > minEntries) {
+    histoY = histo->ProjectionY(nameY, i, i);
+
+    double xBin = histo->GetXaxis()->GetBinCenter(i);
+    stringstream xBinString;
+    xBinString << xBin;
+    TString title("Projection of x = ");
+    title += xBinString.str();
+
+    histoY->SetName(title);
+
+    if (histoY->GetEntries() > minEntries) {
       //Make the dirty work!
       TF1 *fit;
       if(fitType == 1){
@@ -139,21 +147,9 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, i
       double *par = fit->GetParameters();
       double *err = fit->GetParErrors();
 
-      //if(par[2]>150 || par[2]<50 || err[2]>5)
-      //	continue;
-      //if(err[1]>0.005) //<----------------useful for reso pt
-      //continue;
-      //if(err[1]>0.00005) //<----------------useful for reso phi
-      //continue;
-      //if(err[2]>0.0002) //<----------------useful for reso phi
-      //continue;
-      //if(err[2]>0.5) 
-      //continue;
-
       // Only for check
       TCanvas *c = new TCanvas(nameY, nameY);
 
-      //histoY->GetXaxis()->SetRangeUser(80,110);
       histoY->Draw();
       fit->Draw("same");
       fileOut->cd();
@@ -183,21 +179,21 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, i
   double x[nn],ym[nn],e[nn],eym[nn];
   double yw[nn],eyw[nn],yc[nn];
 
-  cout << "number of bins = " << nn << endl;
-  cout << "Values:" << endl;
+  // cout << "number of bins = " << nn << endl;
+  // cout << "Values:" << endl;
 
   for (int j=0;j<nn;j++){
-    cout << "xCenter["<<j<<"] = " << Xcenter[j] << endl;
+    // cout << "xCenter["<<j<<"] = " << Xcenter[j] << endl;
     x[j]=Xcenter[j]+xDisplace;
-    cout << "Fmass["<<j<<"] = " << Fmass[j] << endl;
+    // cout << "Fmass["<<j<<"] = " << Fmass[j] << endl;
     ym[j]=Fmass[j];
-    cout << "Emass["<<j<<"] = " << Emass[j] << endl;
+    // cout << "Emass["<<j<<"] = " << Emass[j] << endl;
     eym[j]=Emass[j];
-    cout << "Fwidth["<<j<<"] = " << Fwidth[j] << endl;
+    // cout << "Fwidth["<<j<<"] = " << Fwidth[j] << endl;
     yw[j]=Fwidth[j];
-    cout << "Ewidth["<<j<<"] = " << Ewidth[j] << endl;
+    // cout << "Ewidth["<<j<<"] = " << Ewidth[j] << endl;
     eyw[j]=Ewidth[j];
-    cout << "Fchi2["<<j<<"] = " << Fchi2[j] << endl;
+    // cout << "Fchi2["<<j<<"] = " << Fchi2[j] << endl;
     yc[j]=Fchi2[j];
     e[j]=0;
   }
@@ -228,19 +224,19 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebin, i
   // grW->Write();
   TCanvas * c2 = new TCanvas(name+"_M",name+"_M");
   c2->cd();
-  grM->Draw("Ap");
+  grM->Draw("AP");
   c2->Write();
 //  grM->Write();
   TCanvas * c3 = new TCanvas(name+"_C",name+"_C");
   c3->cd();
-  grC->Draw("Ap");
+  grC->Draw("AP");
   c3->Write();
 //  grC->Write();
 
 //  file->Close();
 
   //return grW;
-  cout << "grM = " << grM << endl;
+  // cout << "grM = " << grM << endl;
   return grM;
 }
 
@@ -249,16 +245,16 @@ TF1* gaussianFit(TH1* histoY){
 
   // Fit slices projected along Y from bins in X 
   //TF1 *fit = new TF1(name,gaussian,9,10,3);
-  //TF1 *fit = new TF1(name,gaussian,2,4,3);
-  TF1 *fit = new TF1(name,gaussian,60,120,3);
+  TF1 *fit = new TF1(name,gaussian,2,4,3); // JPsi
+  // TF1 *fit = new TF1(name,gaussian,60,120,3);
   //TF1 *fit = new TF1(name,gaussian,-1,1,3);
 
   fit->SetParameters(histoY->GetMaximum(),histoY->GetRMS(),histoY->GetMean());
-  //fit->SetParLimits(1,0.01,1);
-  //fit->SetParLimits(2,3.09,3.15);
-//   fit->SetParLimits(1, 40, 60);
-//   fit->SetParLimits(2, 0.01, 100);
-//   fit->SetParLimits(3, 88, 92);
+  fit->SetParLimits(1,0.01,1);
+  fit->SetParLimits(2,3.09,3.15);
+  //   fit->SetParLimits(1, 40, 60);
+  //   fit->SetParLimits(2, 0.01, 100);
+  //   fit->SetParLimits(3, 88, 92);
   fit->SetParNames("norm","width","mean");
   fit->SetLineWidth(2);
 
@@ -272,12 +268,18 @@ TF1* gaussianFit(TH1* histoY){
   //fit->SetParameters(10,0.05,3.1);
   //fit->SetParameters(100,2,91);
   // histoY -> Fit(name,"0","",9.2,9.8);
-  //histoY -> Fit(name,"0","",3,3.2);
-  histoY -> Fit(name,"0","",60,120);
+  histoY->Fit(name,"0","",3.0,3.2); // JPsi
+  // histoY -> Fit(name,"R0"); // JPsi
+  //histoY -> Fit(name,"0","",60,120); // Z
   //histoY -> Fit(name,"0","",-0.025,0.025);
   //histoY -> Fit(name,"0","",-0.002,0.002); //eta,phi,cotghtheta VS phi
   //histoY -> Fit(name,"0","",-0.004,0.004); //cotgtheta vs eta
   return fit;
+
+//   histoY->Fit("gaus", "0", "", 2.9, 3.2);
+//   TF1 * retFunc = histoY->GetFunction("gaus");
+//   cout << "retFunc = " << retFunc << endl;
+//   return histoY->GetFunction("gaus");
 }
 
 TF1* lorentzianFit(TH1* histoY){
@@ -301,17 +303,18 @@ TF1* linLorentzianFit(TH1* histoY){
   fit->SetParNames("norm","width","mean","offset","slope");
   fit->SetParLimits(1,-10,10);
   //fit->SetParLimits(2,85,95);
-  fit->SetParLimits(2,90,93);
+  //fit->SetParLimits(2,90,93);
+  fit->SetParLimits(2,2,4);
   fit->SetParLimits(3,0,100);
   fit->SetParLimits(4,-1,0);
   fit->SetLineWidth(2);
-  histoY -> Fit(name,"0","",85,97);
+  //histoY -> Fit(name,"0","",85,97);
+  histoY -> Fit(name,"0","",2,4);
   return fit;
 }
 
 /****************************************************************************************/
-
-void macroPlot(TString name){
+void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title ) {
 
   gROOT->SetBatch(true);
 
@@ -319,8 +322,11 @@ void macroPlot(TString name){
   TFile *outputFile = new TFile("filegraph.root","RECREATE");
 
   setTDRStyle();
-  TGraphErrors *grM_1 = fit2DProj(name,"1_MuScleFit.root",100,4,1, outputFile);
-  TGraphErrors *grM_2 = fit2DProj(name,"2_MuScleFit.root",100,4,1, outputFile);
+
+//   TGraphErrors *grM_1 = fit2DProj(name,nameFile1,100,4,1, outputFile);
+//   TGraphErrors *grM_2 = fit2DProj(name,nameFile2,100,4,1, outputFile);
+  TGraphErrors *grM_1 = fit2DProj(name,nameFile1,100,2,1, outputFile);
+  TGraphErrors *grM_2 = fit2DProj(name,nameFile2,100,2,1, outputFile);
 
   TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
   c->SetGridx();
@@ -329,21 +335,32 @@ void macroPlot(TString name){
   grM_1->SetMarkerColor(1);
   grM_2->SetMarkerColor(2);
  
+  TString xAxisTitle;
+
   double x[2],y[2];
   //x[0]=3.5; x[1]=8.5;      //<------useful for reso VS pt
   //y[0]=0.04; y[1]= -0.04;  //<------useful for pt reso 
   if( name.Contains("Eta") ) {
     x[0]=-3; x[1]=3;       //<------useful for reso VS eta
+    xAxisTitle = "#eta";
   }
   //y[0]=0; y[1]= 0.01;       //<------useful for cotgth reso 
   // x[0]=-3.15; x[1]=3.15; //<------useful for reso VS phi
   else {
     x[0] = 0.; x[1] = 200;
+    xAxisTitle = "pt(GeV)";
   }
-  y[0]=80; y[1]=100; //<------useful for Z mass 
+  //y[0]=80; y[1]=100; //<------useful for Z mass 
+  y[0]=0.; y[1]=6.; //<------useful for JPsi mass 
+
+  // This is used to have a canvas containing both histogram points
   TGraph *gr = new TGraph(2,x,y);
   gr->SetMarkerStyle(8);
   gr->SetMarkerColor(108);
+  gr->GetYaxis()->SetTitle("Mass(GeV)   ");
+  gr->GetYaxis()->SetTitleOffset(1);
+  gr->GetXaxis()->SetTitle(xAxisTitle);
+  gr->SetTitle(title);
 
   // Text for the fits
   TPaveText * paveText1 = new TPaveText(0.20,0.15,0.49,0.35,"NDC");
@@ -357,6 +374,20 @@ void macroPlot(TString name){
   paveText2->SetTextSize(0.02);
   paveText2->SetBorderSize(1);
 
+  /*****************PARABOLIC FIT (ETA)********************/
+  if( name.Contains("Eta") ) {
+    TF1 *fit1 = new TF1("fit1","pol2",-3.2,3.2);
+    fit1->SetLineWidth(2);
+    fit1->SetLineColor(1);
+    grM_1->Fit("fit1","R");
+    setTPaveText(fit1, paveText1);
+
+    TF1 *fit2 = new TF1("fit2","pol0",-3.2,3.2);
+    fit2->SetLineWidth(2);
+    fit2->SetLineColor(2);
+    grM_2->Fit("fit2","R");
+    setTPaveText(fit2, paveText2);
+  }
   /*****************SINUSOIDAL FIT (PHI)********************/
   if( name.Contains("Phi") ) {
     TF1 *fit1 = new TF1("fit1",sinusoidal,-3.2,3.2,3);
