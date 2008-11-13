@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.7 2008/09/18 01:31:04 loizides Exp $
+# $Id: smCleanupFiles.pl,v 1.8 2008/10/12 14:28:32 loizides Exp $
 
 use strict;
 use DBI;
