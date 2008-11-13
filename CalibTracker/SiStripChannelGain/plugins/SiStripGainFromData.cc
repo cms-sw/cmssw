@@ -73,7 +73,7 @@ using namespace reco;
 using namespace std;
 using namespace __gnu_cxx;
 
-struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Thickness; double MPV; double Gain; double PreviousGain;};
+struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Phi; float Thickness; double MPV; double Gain; double PreviousGain;};
 
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
@@ -136,6 +136,13 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH2F*        MPV_Vs_EtaTEC1;
       TH2F*        MPV_Vs_EtaTEC2;
 
+      TH2F*        MPV_Vs_PhiTIB;
+      TH2F*        MPV_Vs_PhiTID;
+      TH2F*        MPV_Vs_PhiTOB;
+      TH2F*        MPV_Vs_PhiTEC;
+      TH2F*        MPV_Vs_PhiTEC1;
+      TH2F*        MPV_Vs_PhiTEC2;
+
       TH2F*        Charge_Vs_PathTIB;
       TH2F*        Charge_Vs_PathTID;
       TH2F*        Charge_Vs_PathTOB;
@@ -150,6 +157,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1F*        MPV_Vs_PathTEC1;
       TH1F*        MPV_Vs_PathTEC2;
 
+      TH2F*        MPV_Vs_Phi;
       TH2F*        MPV_Vs_Eta;
       TH2F*        MPV_Vs_R;
 
@@ -356,6 +364,14 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       MPV_Vs_EtaTEC1             = new TH2F ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 600, 0, 600);
       MPV_Vs_EtaTEC2             = new TH2F ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 600, 0, 600);
 
+      MPV_Vs_PhiTIB              = new TH2F ("MPV_Vs_PhiTIB"     , "MPV_Vs_PhiTIB" , 50, -3.2, 3.2, 600, 0, 600);
+      MPV_Vs_PhiTID              = new TH2F ("MPV_Vs_PhiTID"     , "MPV_Vs_PhiTID" , 50, -3.2, 3.2, 600, 0, 600);
+      MPV_Vs_PhiTOB              = new TH2F ("MPV_Vs_PhiTOB"     , "MPV_Vs_PhiTOB" , 50, -3.2, 3.2, 600, 0, 600);
+      MPV_Vs_PhiTEC              = new TH2F ("MPV_Vs_PhiTEC"     , "MPV_Vs_PhiTEC" , 50, -3.2, 3.2, 600, 0, 600);
+      MPV_Vs_PhiTEC1             = new TH2F ("MPV_Vs_PhiTEC1"    , "MPV_Vs_PhiTEC1", 50, -3.2, 3.2, 600, 0, 600);
+      MPV_Vs_PhiTEC2             = new TH2F ("MPV_Vs_PhiTEC2"    , "MPV_Vs_PhiTEC2", 50, -3.2, 3.2, 600, 0, 600);
+
+
       MPV_Vs_PathTIB             = new TH1F ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,250,0.2,1.4);
       MPV_Vs_PathTID             = new TH1F ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,250,0.2,1.4);
       MPV_Vs_PathTOB             = new TH1F ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,250,0.2,1.4);
@@ -363,6 +379,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       MPV_Vs_PathTEC1            = new TH1F ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,250,0.2,1.4);
       MPV_Vs_PathTEC2            = new TH1F ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,250,0.2,1.4);
 
+      MPV_Vs_Phi                 = new TH2F ("MPV_Vs_Phi", "MPV_Vs_Phi", 50, -3.2, 3.2  , 600, 0, 600);
       MPV_Vs_Eta                 = new TH2F ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0  , 600, 0, 600);
       MPV_Vs_R                   = new TH2F ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 600, 0, 600);
 /*   
@@ -429,7 +446,8 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
           const StripTopology& Topo     = DetUnit->specificTopology();	
           unsigned int         NAPV     = Topo.nstrips()/128;
-	
+
+          double Phi   = DetUnit->position().basicVector().phi();	
           double Eta   = DetUnit->position().basicVector().eta();
           double R     = DetUnit->position().basicVector().transverse();
           double Thick = DetUnit->surface().bounds().thickness();
@@ -444,6 +462,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
                 APV->Gain          = -1;
                 APV->PreviousGain  = 1;
                 APV->Eta           = Eta;
+                APV->Phi           = Phi;
                 APV->R             = R;
                 APV->Thickness     = Thick;
 
@@ -517,6 +536,8 @@ SiStripGainFromData::algoEndJob() {
          unsigned int tmp_SEvent = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(4));
          unsigned int tmp_ERun   = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(6));
          unsigned int tmp_EEvent = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(7));
+
+         if(SRun==0)SRun = tmp_SRun;
 
               if(tmp_SRun< SRun){SRun=tmp_SRun; SEvent=tmp_SEvent;}
          else if(tmp_SRun==SRun && tmp_SEvent<SEvent){SEvent=tmp_SEvent;}
@@ -602,6 +623,14 @@ SiStripGainFromData::algoEndJob() {
             if(APV->Thickness<0.04)		    MPV_Vs_EtaTEC1->Fill(APV->Eta,APV->MPV);
             if(APV->Thickness>0.04)                 MPV_Vs_EtaTEC2->Fill(APV->Eta,APV->MPV);
             }
+            MPV_Vs_Phi->Fill(APV->Phi,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TIB)  MPV_Vs_PhiTIB ->Fill(APV->Phi,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TID)  MPV_Vs_PhiTID ->Fill(APV->Phi,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TOB)  MPV_Vs_PhiTOB ->Fill(APV->Phi,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TEC){ MPV_Vs_PhiTEC ->Fill(APV->Phi,APV->MPV);
+            if(APV->Thickness<0.04)                 MPV_Vs_PhiTEC1->Fill(APV->Phi,APV->MPV); 
+            if(APV->Thickness>0.04)                 MPV_Vs_PhiTEC2->Fill(APV->Phi,APV->MPV); 
+            }
 
 //            double Eta_R = (APV->R*20.0)+APV->Eta;
 //            MPV_vs_10RplusEta ->Fill(Eta_R,APV->MPV);           
@@ -627,6 +656,7 @@ SiStripGainFromData::algoEndJob() {
       unsigned int GOOD = 0;
       unsigned int BAD  = 0;
       double MPVmean = MPVs->GetMean();
+      MPVmean = 300;
       for(hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
 
          stAPVGain*   APV = it->second;
@@ -807,6 +837,19 @@ SiStripGainFromData::algoEndJob() {
          stAPVGain* APV = *it;
          fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       }
+
+      std::vector<int> DetIdOfBuggedAPV;
+      fprintf(Gains,"----------------------------------------------------------------------\n");
+      for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
+         stAPVGain* APV = *it;
+         if(APV->MPV>0 && APV->MPV<200){
+            bool tmpBug = false;
+            for(int b=0;b<DetIdOfBuggedAPV.size()&&!tmpBug;b++){if(DetIdOfBuggedAPV[b]==APV->DetId)tmpBug=true;}
+            if(!tmpBug){fprintf(Gains,"%i,\n",APV->DetId);DetIdOfBuggedAPV.push_back(APV->DetId);}
+         }
+      }
+      
+
       fclose(Gains);
 
 //      delete [] FitResults;
