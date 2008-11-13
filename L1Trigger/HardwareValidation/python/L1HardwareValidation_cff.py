@@ -84,7 +84,7 @@ valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 valHcalTriggerPrimitiveDigis.inputLabel = 'hcalDigis'
 valRctDigis.ecalDigisLabel = 'ecalDigis:EcalTriggerPrimitives'
-valRctDigis.hcalDigisLabel = 'valHcalTriggerPrimitiveDigis'
+valRctDigis.hcalDigisLabel = 'hcalDigis'
 valGctDigis.inputLabel = 'gctDigis'
 #valDtTriggerPrimitiveDigis.inputLabel = 'muonDTDigis'
 valDttfDigis.DTDigi_Source = 'dttfDigis'
@@ -104,6 +104,12 @@ valGmtDigis.RPCbCandidates = cms.InputTag("gtDigis","RPCb")
 valGmtDigis.RPCfCandidates = cms.InputTag("gtDigis","RPCf")
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
+
+#Eumlator settings
+valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
+#EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+#HcalTPGCoderULUT.read_Ascii_LUTs = True
+#HcalTPGCoderULUT.inputLUTs = 'DQM/L1TMonitor/data/CRAFTPhysicsV2.dat'
 
 # the comparator module
 # parameters are specified in cfi
