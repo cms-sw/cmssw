@@ -46,7 +46,7 @@ class fitUtilities{
   double getGaussPar(std::string s)   ;
   double getGaussParErr(std::string s);
 
-  double getFitChi() {return chi2GausS;}
+  double getFitChi()  {return chi2GausS;}
   int    getFitnDof() {return nDofGausS;}
  
  private:
