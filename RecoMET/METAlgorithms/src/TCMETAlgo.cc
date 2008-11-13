@@ -9,11 +9,18 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include <cmath>
 #include <iostream>
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
+
+
 
 using namespace std;
 using namespace reco;
-
+using namespace math;
 //------------------------------------------------------------------------
 // Default Constructer
 //----------------------------------
@@ -38,7 +45,7 @@ TCMETAlgo::~TCMETAlgo() {}
 // symmetrically distributed about the origin.)
 //----------------------------------
 
-void TCMETAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *tcmet, double globalThreshold) 
+reco::MET TCMETAlgo::addInfo(edm::Handle<edm::View<Candidate> > input, CommonMETData *TCMETData, bool NoHF, double globalThreshold) 
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
@@ -61,11 +68,16 @@ void TCMETAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *tcm
 	sum_ey += et*sin(phi);
       }
   }
-  tcmet->mex   = -sum_ex;
-  tcmet->mey   = -sum_ey;
-  tcmet->mez   = -sum_ez;
-  tcmet->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
-  tcmet->sumet = sum_et;
-  tcmet->phi   = atan2( -sum_ey, -sum_ex ); 
-//------------------------------------------------------------------------
+  TCMETData->mex   = -sum_ex;
+  TCMETData->mey   = -sum_ey;
+  TCMETData->mez   = -sum_ez;
+  TCMETData->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  TCMETData->sumet = sum_et;
+  TCMETData->phi   = atan2( -sum_ey, -sum_ex ); 
 
+  XYZTLorentzVector p4( TCMETData->mex , TCMETData->mey , 0, TCMETData->met);
+  XYZPointD vtx(0,0,0);
+  MET tcmet(TCMETData->sumet, p4, vtx);
+  return tcmet;
+//------------------------------------------------------------------------
+}
