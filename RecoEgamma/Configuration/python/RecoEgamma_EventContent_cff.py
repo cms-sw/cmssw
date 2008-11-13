@@ -71,8 +71,6 @@ RecoEgammaAOD = cms.PSet(
         'keep recoConversions_conversions_*_*', 
         'keep recoTracks_ckfOutInTracksFromConversions_*_*', 
         'keep recoTracks_ckfInOutTracksFromConversions_*_*',
-        'keep *_photonCutBasedIDLooseLabel_*_*',
-        'keep *_photonCutBasedIDTightLabel_*_*'
         'keep *_PhotonIDProd_*_*'
   )                                                                 
                                   
