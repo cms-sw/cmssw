@@ -1,12 +1,7 @@
-//
-// Package:    CondCore/DBCommon
-// Class:      DBSession
-//
-// Author:      Zhen Xie
-// $Id$
-
+// $Id: DBSession.cc,v 1.24 2008/11/10 16:09:19 xiezhen Exp $
 //coral includes
-
+#include "CoralKernel/Context.h"
+#include "CoralKernel/IHandle.h"
 #include "CoralKernel/IProperty.h"
 #include "CoralKernel/IPropertyManager.h"
 #include "CoralBase/MessageStream.h"
@@ -33,19 +28,23 @@ cond::DBSession::~DBSession(){
 void cond::DBSession::open(){
   switch ( m_sessionConfig->messageLevel() ) {
   case cond::Error :
-    coral::MessageStream::setMsgVerbosity( coral::Error );
-    break;
+    { coral::MessageStream::setMsgVerbosity( coral::Error );
+      break;
+    }
   case cond::Warning :
-    coral::MessageStream::setMsgVerbosity( coral::Warning );
-    break;
+    { coral::MessageStream::setMsgVerbosity( coral::Warning );
+      break;
+    }
   case cond::Debug :
-    coral::MessageStream::setMsgVerbosity( coral::Debug );
-    break;
+    { coral::MessageStream::setMsgVerbosity( coral::Debug );
+      break;
+    }
   case cond::Info :
-    coral::MessageStream::setMsgVerbosity( coral::Info );
-    break;
-    //default:
-    //coral::MessageStream::setMsgVerbosity( coral:::Error );
+    { coral::MessageStream::setMsgVerbosity( coral::Info );
+      break;
+    }
+  default:
+    { coral::MessageStream::setMsgVerbosity( coral::Error ); }
   }
   //load authentication service
   if( m_sessionConfig->authenticationMethod()== cond::XML ) {
@@ -84,7 +83,7 @@ void cond::DBSession::open(){
     if( m_sessionConfig->hasBlobStreamService() ){
       std::string streamerName=m_sessionConfig->blobStreamerName();
       if(streamerName.empty()){
-	coral::Context::instance().loadComponent( "COND/Services/DefaultBlobStreamingService" );
+	coral::Context::instance().loadComponent( "COND/Services/TBufferBlobStreamingService" );
       }else{
         coral::Context::instance().loadComponent(streamerName);
       }
@@ -104,7 +103,7 @@ cond::DBSession::authenticationService(){
   return *(coral::Context::instance().query<coral::IAuthenticationService>());
 }
 const coral::IMonitoringReporter& 
-cond::DBSession::monitoringReporter(){
+cond::DBSession::monitoringReporter() const{
   return coral::Context::instance().query<coral::IConnectionService>()->monitoringReporter();
 }
 coral::IWebCacheControl& 

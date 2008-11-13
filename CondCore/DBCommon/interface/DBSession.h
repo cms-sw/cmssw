@@ -9,11 +9,11 @@
 */
 //
 // Author:      Zhen Xie
-// $Id$
+// $Id: DBSession.h,v 1.9 2008/11/10 16:09:19 xiezhen Exp $
 //
 #include <string>
-#include "CoralKernel/Context.h"
-#include "CoralKernel/IHandle.h"
+//#include "CoralKernel/Context.h"
+//#include "CoralKernel/IHandle.h"
 namespace coral{
   class IConnectionService;
   class IRelationalService;
@@ -37,7 +37,7 @@ namespace cond{
     coral::IConnectionService& connectionService();
     coral::IRelationalService& relationalService();
     coral::IAuthenticationService& authenticationService() ;
-    const coral::IMonitoringReporter& monitoringReporter() ;
+    const coral::IMonitoringReporter& monitoringReporter() const;
     coral::IWebCacheControl& webCacheControl();
     pool::IBlobStreamingService& blobStreamingService();
     cond::SessionConfiguration& configuration();
