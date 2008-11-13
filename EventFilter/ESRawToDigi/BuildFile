@@ -2,12 +2,11 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/FEDRawData>
-<use name=TBDataFormats/ESTBRawData>
+<use name=DataFormats/EcalRawData>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=rootrflx>
 <use name=rootcore>
-<use name=TBDataFormats/HcalTBObjects>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=EventFilterESRawToDigi>
@@ -15,10 +14,9 @@
    <use name=DataFormats/EcalDetId>
    <use name=DataFormats/EcalRecHit>
    <use name=DataFormats/FEDRawData>
-   <use name=TBDataFormats/ESTBRawData>
+   <use name=DataFormats/EcalRawData>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=rootrflx>
    <use name=rootcore>
-   <use name=TBDataFormats/HcalTBObjects>
 </export>

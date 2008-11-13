@@ -13,10 +13,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "TBDataFormats/ESTBRawData/interface/ESDCCHeaderBlock.h"
-#include "TBDataFormats/ESTBRawData/interface/ESKCHIPBlock.h"
-#include "TBDataFormats/ESTBRawData/interface/ESRawDataCollections.h"
-#include "TBDataFormats/ESTBRawData/interface/ESLocalRawDataCollections.h"
+#include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
+#include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 using namespace std;
 using namespace edm;

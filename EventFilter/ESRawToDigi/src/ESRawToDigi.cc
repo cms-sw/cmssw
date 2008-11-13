@@ -4,8 +4,8 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h" 
-#include "TBDataFormats/ESTBRawData/interface/ESDCCHeaderBlock.h"
-#include "TBDataFormats/ESTBRawData/interface/ESKCHIPBlock.h"
+#include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
+#include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
 
 #include <iostream>
 
