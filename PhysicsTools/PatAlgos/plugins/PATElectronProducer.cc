@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.18 2008/10/07 19:11:23 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.19 2008/10/19 21:11:56 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -115,7 +115,11 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     useUserData_ = true;
   }
 
-
+  // electron ID configurables
+  addElecShapes_        = iConfig.getParameter<bool>("addElectronShapes" );
+  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
+  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
+   
   // produces vector of muons
   produces<std::vector<Electron> >();
 
@@ -162,6 +166,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
      }
   }
   
+  //prepare electron cluster shapes extraction
+  std::auto_ptr<EcalClusterLazyTools> lazyTools_;
+  if (addElecShapes_) {
+    lazyTools_ .reset(new EcalClusterLazyTools( iEvent , iSetup , reducedBarrelRecHitCollection_ , reducedEndcapRecHitCollection_ ));  
+   }
+
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
   for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
     // construct the Electron from the ref -> save ref to original object
@@ -228,6 +238,18 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
     if ( useUserData_ ) {
       userDataHelper_.add( anElectron, iEvent, iSetup );
+    }
+    
+    //  add electron shapes info
+    if (addElecShapes_) {
+	std::vector<float> covariances = lazyTools_->covariances(*(itElectron->superCluster()->seed())) ;
+	std::vector<float> localCovariances = lazyTools_->localCovariances(*(itElectron->superCluster()->seed())) ;
+	float scSigmaEtaEta = sqrt(covariances[0]) ;
+	float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
+	float scE1x5 = lazyTools_->e1x5(*(itElectron->superCluster()->seed()))  ;
+	float scE2x5Max = lazyTools_->e2x5Max(*(itElectron->superCluster()->seed()))  ;
+	float scE5x5 = lazyTools_->e5x5(*(itElectron->superCluster()->seed())) ;
+	anElectron.setClusterShapes(scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5Max,scE5x5) ;
     }
     
     // add sel to selected

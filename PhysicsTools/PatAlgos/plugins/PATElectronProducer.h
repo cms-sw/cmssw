@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.11 2008/09/30 21:33:05 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.10 2008/09/01 14:35:48 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.11 2008/09/30 21:33:05 srappocc Exp $
 */
 
 
@@ -36,6 +36,8 @@
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include <string>
 
@@ -95,6 +97,13 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
+      
+      //Add electron Cluster Shapes
+      bool         addElecShapes_;
+      //For the Cluster Shape reading
+      edm::InputTag reducedBarrelRecHitCollection_;
+      edm::InputTag reducedEndcapRecHitCollection_;
+      
   };
 
 
