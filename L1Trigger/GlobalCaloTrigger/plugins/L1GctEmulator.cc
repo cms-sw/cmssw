@@ -50,6 +50,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctJetCandCollection>("cenJets");
   produces<L1GctJetCandCollection>("forJets");
   produces<L1GctJetCandCollection>("tauJets");
+  produces<L1GctInternJetDataCollection>();
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
@@ -221,6 +222,8 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection(m_gct->getForwardJets() ) );
     std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection(m_gct->getTauJets() ) );
 
+    std::auto_ptr<L1GctInternJetDataCollection> internalJetResult(new L1GctInternJetDataCollection(m_gct->getInternalJets() ) );
+
     // create the energy sum digis
     std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
     std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
@@ -240,6 +243,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     e.put(cenJetResult,"cenJets");
     e.put(forJetResult,"forJets");
     e.put(tauJetResult,"tauJets");
+    e.put(internalJetResult);
     e.put(etTotResult);
     e.put(etHadResult);
     e.put(etMissResult);

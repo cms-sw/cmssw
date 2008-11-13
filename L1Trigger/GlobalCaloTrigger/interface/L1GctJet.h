@@ -52,6 +52,7 @@ public:
   
   // get rawsum and position bits
   uint16_t rawsum()const { return m_rawsum; }
+  L1CaloRegionDetId id() const { return m_id(); }
   bool tauVeto()const { return m_tauVeto; }
 
   /// get overflow

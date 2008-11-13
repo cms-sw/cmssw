@@ -2,6 +2,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetData.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -214,6 +215,24 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
   }
 }
 
+/// get output jets in raw format - to be stored in the event
+std::vector< L1GctInternJetData > L1GctJetFinderBase::getInternalJets() const {
+
+  std::vector< L1GctInternJetData > result;
+  for (RawJetVector::const_iterator jet=m_outputJetsPipe.contents.begin();
+       jet!=m_outputJetsPipe.contents.end(); jet++) {
+    result.push_back( L1GctInternJetData::fromEmulator(jet->id(),
+						       jet->bx(),
+						       jet->calibratedEt(m_jetEtCalLuts.at(jet->rctEta())), 
+						       jet->overFlow(), 
+						       jet->tauVeto(),
+						       jet->hwEta(),
+						       jet->hwPhi(),
+						       jet->rank(m_jetEtCalLuts.at(jet->rctEta())) ) );
+  }
+  return result;
+
+}
 
 // PROTECTED METHODS BELOW
 /// fetch the protoJets from neighbour jetFinder

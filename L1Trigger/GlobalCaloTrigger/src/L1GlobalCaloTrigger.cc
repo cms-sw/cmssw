@@ -597,6 +597,19 @@ L1GctJetCandCollection L1GlobalCaloTrigger::getTauJets() const {
   return theJetFinalStage->getTauJets(); 
 }
 
+/// all jets from jetfinders in raw format
+L1GctInternJetDataCollection L1GlobalCaloTrigger::getInternalJets() const {
+  L1GctInternJetDataCollection allJets, jfJets;
+
+  // Loop over jetfinders, find the internal jets and add them to the list
+  for (unsigned jf=0; jf<theJetFinders.size(); jf++) {
+    jfJets = theJetFinders.at(jf)->getInternalJets();
+    allJets.insert(allJets.end(), jfJets.begin(), jfJets.end());
+  }
+
+  return allJets;
+}
+
 // total Et output
 L1GctEtTotalCollection L1GlobalCaloTrigger::getEtSumCollection() const {
   L1GctEtTotalCollection result(m_numOfBx);

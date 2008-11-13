@@ -152,6 +152,9 @@ public:
   /// tau jet outputs to GT
   L1GctJetCandCollection getTauJets() const;
   
+  /// all jets from jetfinders in raw format
+  L1GctInternJetDataCollection getInternalJets() const;
+
   /// Total Et output to GT
   L1GctEtTotalCollection getEtSumCollection() const;
   

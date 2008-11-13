@@ -18,6 +18,7 @@
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
+class L1GctInternJetData;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
 class L1CaloRegion;
@@ -155,6 +156,9 @@ public:
 
   /// get output jets in raw format
   RawJetVector getRawJets() const { return m_outputJetsPipe.contents; } 
+
+  /// get output jets in raw format - to be stored in the event
+  std::vector< L1GctInternJetData > getInternalJets() const;
 
   /// Return pointers to calibration LUTs
   const lutPtrVector getJetEtCalLuts() const { return m_jetEtCalLuts; }
