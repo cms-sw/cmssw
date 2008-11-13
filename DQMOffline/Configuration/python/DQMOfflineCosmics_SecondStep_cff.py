@@ -8,6 +8,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
+from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 
-DQMOfflineCosmics_SecondStep = cms.Sequence(ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient)
+DQMOfflineCosmics_SecondStep = cms.Sequence(ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client)
 

@@ -10,9 +10,10 @@ from DQMOffline.EGamma.cosmicPhotonAnalyzer_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.CSCMonitorModule.test.csc_dqm_sourceclient_offline_cff import *
+from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 
-DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_cosmics_source*egammaCosmicPhotonMonitors*dtSources*cscSources)
+DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_cosmics_source*egammaCosmicPhotonMonitors*dtSources*cscSources*rpcTier0Source)
 
 # this is a TEMPORARY HUGLY hack until the L1TGMT gets fixed
-#DQMOffline.remove(l1tgmt)
+#DQMOfflineCosmics.remove(l1tgmt)
 
