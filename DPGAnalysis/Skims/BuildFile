@@ -16,6 +16,9 @@
 <use name=DataFormats/RPCRecHit>
 <use name=DataFormats/EcalDetId>
 <use name=Geometry/EcalMapping>
+
+<use name=DataFormats/L1Trigger>
+
 <use name=root>
 
 <use name=DataFormats/HcalRecHit>
