@@ -10,3 +10,18 @@
 <use name=CondCore/MetaDataService>
 <flags EDM_PLUGIN=1>
 </library>
+<library file="XMLAuthenticationService.cc" name=CondCoreDBCommonXMLAuthenticationService>
+ <use name=xerces-c>
+ <flags EDM_PLUGIN=1>
+</library>
+<library file="SQLMonitoringService.cc" name=CondCoreDBCommonSQLMonitoringService>
+ <flags EDM_PLUGIN=1>
+</library>
+<library file="DefaultBlobStreamingService.cc PrimitivesContainerStreamer.cc " name=CondCoreDBCommonDefaultBlobStreamingService>
+ <use name=rootrflx>
+ <flags EDM_PLUGIN=1>
+</library>
+<library file="TBufferBlobStreamingService.cc TBufferBlobStreamer.cc" name=CondCoreDBCommonTBufferBlobStreamingService>
+ <use name=rootrflx>	
+ <flags EDM_PLUGIN=1>
+</library>

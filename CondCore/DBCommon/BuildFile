@@ -1,11 +1,16 @@
 <use name=boost>
+<use name=CoralCommon>
+<use name=CoralKernel>
 <use name=RelationalAccess>
 <use name=DataSvc>
 <use name=Collection>
 <use name=ObjectRelationalAccess>
 <use name=FWCore/Framework>
 <export>
+  <use name=boost>
   <use name=FWCore/Framework>
+  <use name=CoralCommon>
+  <use name=CoralKernel>
   <use name=RelationalAccess>
   <use name=ObjectRelationalAccess>
   <use name=DataSvc>
