@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/11/11 09:53:26 $
-//  $Revision: 1.11 $
+//  $Date: 2008/11/11 15:50:11 $
+//  $Revision: 1.12 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -748,13 +748,21 @@ void MuScleFit::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //Reconstructed muon kinematics
   //-----------------------------
   outputFile->cd();
-  mapHisto["hRecBestMu"]      = new HParticle ("hRecBestMu");
-  mapHisto["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc"); 
+  // If no Z is required, use a smaller mass range.
+  double minMass = 0.;
+  double maxMass = 200.;
+  if( MuScleFitUtils::resfind[0] != 1 ) {
+    maxMass = 30.;
+  }
+  mapHisto["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass);
+  mapHisto["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
   mapHisto["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
-  mapHisto["hRecBestRes"]     = new HParticle   ("hRecBestRes");
-  mapHisto["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc"); 
-  mapHisto["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu");
+  mapHisto["hRecBestRes"]     = new HParticle   ("hRecBestRes", minMass, maxMass);
+  mapHisto["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
+  // If not finding Z, use a smaller mass window
+  vector<int>::const_iterator resFindIt = MuScleFitUtils::resfind.begin();
+  mapHisto["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
   
   // Likelihood values VS muon variables
   // -------------------------------------

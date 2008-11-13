@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/10/29 09:21:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/11/10 08:39:18 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -104,26 +104,26 @@ private:
 // -----------------------------------------------------
 class HParticle : public Histograms {
  public:
-  HParticle (const TString & name) :
+  HParticle (const TString & name, const double & minMass = 0., const double & maxMass = 200.) :
     Histograms(name),
     // Kinematical variables
     hPt(     new TH1F (name+"_Pt", "transverse momentum", 100, 0, 100) ),
     hEta(    new TH1F (name+"_Eta", "pseudorapidity", 60, -6, 6) ),
     hPhi(    new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2) ),
-    hMass(   new TH1F (name+"_Mass", "mass", 40000, 0, 200) ),
+    hMass(   new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass) ),
     // hMass_fine = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
     hNumber( new TH1F (name+"_Number", "number", 20, -0.5, 19.5) )
   {}
 
   /// Constructor that puts the histograms inside a TDirectory
-  HParticle (TFile* outputFile, const TString & name) :
+  HParticle (TFile* outputFile, const TString & name, const double & minMass = 0., const double & maxMass = 200.) :
     Histograms(outputFile, name)
   {
     // Kinematical variables
     hPt =     new TH1F (name+"_Pt", "transverse momentum", 100, 0, 100);
     hEta =    new TH1F (name+"_Eta", "pseudorapidity", 60, -6, 6);
     hPhi =    new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2);
-    hMass =   new TH1F (name+"_Mass", "mass", 40000, 0, 200);
+    hMass =   new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
     // hMass_fine = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
     hNumber = new TH1F (name+"_Number", "number", 20, -0.5, 19.5);
   }
@@ -191,24 +191,37 @@ class HParticle : public Histograms {
 // ---------------------------------------------------
 class HDelta : public Histograms {
  public:
-  HDelta (const TString & name) {
-    name_=name;
-
+  HDelta (const TString & name) :
+    Histograms(name),
     // Kinematical variables
     // ---------------------
-    hEta    = new TH1F (name+"_Eta", "pseudorapidity", 100, -6, 6);
-    hPhi    = new TH1F (name+"_Phi", "phi angle", 100,0,3.2);
-    hTheta  = new TH1F (name+"_Theta", "theta angle", 100,-3.2,3.2);
-    hCotgTheta  = new TH1F (name+"_CotgTheta", "cotangent theta angle", 100,-3.2,3.2);
-    hDeltaR = new TH1F (name+"_DeltaR","DeltaR", 400, 0, 1 );
-   }
-  
+    hEta( new TH1F (name+"_DeltaEta", "#Delta#eta", 100, 0, 6) ),
+    hEtaSign( new TH1F (name+"_DeltaEtaSign", "#Delta#eta with sign", 100, -6, 6) ),
+    hPhi( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
+    hTheta( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
+    hCotgTheta( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
+    hDeltaR( new TH1F (name+"_DeltaR","#Delta R", 400, 0, 1 ) )
+  {}
+
+  HDelta (TFile* outputFile, const TString & name) :
+    Histograms(outputFile, name),
+    // Kinematical variables
+    // ---------------------
+    hEta( new TH1F (name+"_DeltaEta", "#Delta#eta", 100, 0, 6) ),
+    hEtaSign( new TH1F (name+"_DeltaEtaSign", "#Delta#eta with sign", 100, 0, 6) ),
+    hPhi( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
+    hTheta( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
+    hCotgTheta( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
+    hDeltaR( new TH1F (name+"_DeltaR","#DeltaR", 400, 0, 1 ) )
+  {}
+
   HDelta (const TString & name, TFile* file) {
     name_ = name;
-    hEta       = (TH1F *) file->Get(name+"_Eta");
-    hPhi       = (TH1F *) file->Get(name+"_Phi");
-    hTheta     = (TH1F *) file->Get(name+"_Theta");
-    hCotgTheta = (TH1F *) file->Get(name+"_CotgTheta");
+    hEta       = (TH1F *) file->Get(name+"_DeltaEta");
+    hEtaSign   = (TH1F *) file->Get(name+"_DeltaEtaSign");
+    hPhi       = (TH1F *) file->Get(name+"_DeltaPhi");
+    hTheta     = (TH1F *) file->Get(name+"_DeltaTheta");
+    hCotgTheta = (TH1F *) file->Get(name+"_DeltaCotgTheta");
     hDeltaR    = (TH1F *) file->Get(name+"_DeltaR");
    }
 
@@ -231,7 +244,8 @@ class HDelta : public Histograms {
   }
 
   virtual void Fill (const HepLorentzVector & momentum1, const HepLorentzVector & momentum2) {
-    hEta->Fill(momentum1.eta()-momentum2.eta());
+    hEta->Fill(fabs( momentum1.eta()-momentum2.eta() ));
+    hEtaSign->Fill(momentum1.eta()-momentum2.eta());
     hPhi->Fill(MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()));
     hTheta->Fill(momentum1.theta()-momentum2.theta());
     hCotgTheta->Fill(1/(TMath::Tan(momentum1.theta()))-1/(TMath::Tan(momentum2.theta())));
@@ -241,7 +255,10 @@ class HDelta : public Histograms {
   }
   
   virtual void Write() {
+    if(histoDir_ != 0) histoDir_->cd();
+
     hEta->Write();
+    hEtaSign->Write();
     hPhi->Write();
     hTheta->Write();
     hCotgTheta->Write();
@@ -250,6 +267,7 @@ class HDelta : public Histograms {
   
   virtual void Clear() {
     hEta->Clear();
+    hEtaSign->Clear();
     hPhi->Clear();
     hTheta->Clear();
     hDeltaR->Clear();
@@ -258,6 +276,7 @@ class HDelta : public Histograms {
   
  public:
   TH1F* hEta;
+  TH1F* hEtaSign;
   TH1F* hPhi;
   TH1F* hTheta;
   TH1F* hCotgTheta;
@@ -582,19 +601,19 @@ class HPartVSPt : public Histograms{
 
 class HMassVSPart : public Histograms{
  public:
-  HMassVSPart(const TString & name){
+  HMassVSPart( const TString & name, const double & minMass = 0., const double & maxMass = 150. ) {
     name_ = name;
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt     = new TH2F (name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., 200., 6000, 0, 150.);
-    hMassVSEta    = new TH2F (name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, 0, 150.);
-    hMassVSPhiPlus    = new TH2F (name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, 0, 150.);
-    hMassVSPhiMinus    = new TH2F (name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, 0, 150.);
-    //hMassVSPt_prof     = new TProfile (name+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., 0, 150.);
-    //hMassVSEta_prof    = new TProfile (name+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., 0, 150.);
-    //hMassVSPhiPlus_prof    = new TProfile (name+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 0, 150.);
-    //hMassVSPhiMinus_prof    = new TProfile (name+"_MassVSPhiMinus_prof", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 0, 150.);
+    hMassVSPt     = new TH2F (name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., 200., 6000, minMass, maxMass);
+    hMassVSEta    = new TH2F (name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass);
+    hMassVSPhiPlus    = new TH2F (name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass);
+    hMassVSPhiMinus    = new TH2F (name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass);
+    //hMassVSPt_prof     = new TProfile (name+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., minMass, maxMass);
+    //hMassVSEta_prof    = new TProfile (name+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., minMass, maxMass);
+    //hMassVSPhiPlus_prof    = new TProfile (name+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, minMass, maxMass);
+    //hMassVSPhiMinus_prof    = new TProfile (name+"_MassVSPhiMinus_prof", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, minMass, maxMass);
    }
   
   HMassVSPart(const TString & name, TFile* file){

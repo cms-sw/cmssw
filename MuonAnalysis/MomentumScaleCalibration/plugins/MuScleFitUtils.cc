@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/11/11 09:53:26 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/11 15:50:11 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -1185,7 +1185,7 @@ void MuScleFitUtils::minimizeLikelihood () {
       char name[50];
       sprintf(name, "likelihoodInLoop_%d_%d", loopCounter, iorder);
       likelihoodInLoop_ = new TH1F(name, "likelihood value in minuit loop", 10000, 0, 10000);
-      cout << "likelihoodInLoop_ created = " << likelihoodInLoop_ << endl;
+      // cout << "likelihoodInLoop_ created = " << likelihoodInLoop_ << endl;
 // #endif
       rmin.mnexcm ("mini", arglis, 0, ierror);
 // #ifdef DEBUG
@@ -1336,7 +1336,7 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
     cout << "[MuScleFitUtils-likelihood]: End tree loop with likelihood value = " << fval << endl;
 
 //  #ifdef DEBUG
-  cout << "likelihoodInLoop_ = " << MuScleFitUtils::likelihoodInLoop_ << endl;
+  // cout << "likelihoodInLoop_ = " << MuScleFitUtils::likelihoodInLoop_ << endl;
   if( MuScleFitUtils::minuitLoop_ < 10000 ) {
     if( MuScleFitUtils::likelihoodInLoop_ == 0 ) cout << "likelihoodInLoop_ = 0" << endl;
     else {
@@ -1344,7 +1344,7 @@ extern "C" void likelihood (int& npar, double* grad, double& fval, double* xval,
       MuScleFitUtils::likelihoodInLoop_->SetBinContent(MuScleFitUtils::minuitLoop_, flike);
     }
   }
-  else cout << "minuitLoop over 100. Not filling histogram" << endl;
+  else cout << "minuitLoop over 10000. Not filling histogram" << endl;
 //  #endif
 }
 
