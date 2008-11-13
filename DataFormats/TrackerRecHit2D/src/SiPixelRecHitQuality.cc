@@ -26,8 +26,11 @@ SiPixelRecHitQuality::Packing::Packing()
     // &&& throw an exception?
   }
 
-  probX_units    = 0.0625;
-  probY_units    = 0.0625;
+  probX_units    = 1.25;
+  probY_units    = 1.25;
+  probX_1_over_log_units = 1.0 / log( probX_units );
+  probY_1_over_log_units = 1.0 / log( probY_units );
+
   cotAlpha_units = 1.0/16;
   cotBeta_units  = 1.0/16;
 

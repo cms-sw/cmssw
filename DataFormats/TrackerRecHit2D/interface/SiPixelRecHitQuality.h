@@ -28,11 +28,13 @@ class SiPixelRecHitQuality {
     QualWordType  probX_mask;
     int           probX_shift;
     float         probX_units;
+    double        probX_1_over_log_units;
     char          probX_width;
     //
     QualWordType  probY_mask;
     int           probY_shift;
     float         probY_units;
+    double        probY_1_over_log_units;
     char          probY_width;
     //
     QualWordType  cotAlpha_mask;
@@ -72,19 +74,22 @@ class SiPixelRecHitQuality {
       return raw * cotBeta_units;
     }
     //--- Template fit probability, in X and Y directions
-    //    To pack: int raw = - log_10(prob)/prob_units   (prob_units = 0.0625)
-    //    Unpack : prob = 10^{-raw*prob_units}
+    //    To pack: int raw = - log(prob)/log(prob_units)
+    //    Unpack : prob = prob_units^{-raw}
     //
     inline float probabilityX( QualWordType qualWord ) const     {
       int raw = (qualWord >> probX_shift) & probX_mask;
-      float prob = pow(10.0, (double)-raw * probX_units);
+      float prob = pow( probX_units, (double)( -raw)) ;
+      // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
     inline float probabilityY( QualWordType qualWord ) const     {
       int raw = (qualWord >> probY_shift) & probY_mask;
-      float prob = pow(10.0, (double)-raw * probY_units);
+      float prob = pow( probY_units, (double)( -raw)) ;
+      // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
+    //
     //--- Charge `bin' (0,1,2,3 ~ charge, qBin==4 is unphysical, qBin=5,6,7 = unused)
     inline int qBin( QualWordType qualWord ) const     {
       return (qualWord >> qBin_shift) & qBin_mask;
@@ -117,15 +122,20 @@ class SiPixelRecHitQuality {
       qualWord &= ((raw & cotBeta_mask) << cotBeta_shift);
     }
     
-    
+
     inline void setProbabilityX( float prob, QualWordType & qualWord ) {
-      int raw = (int) (prob/probX_units);     // convert to integer units
+      double draw = - log( (double) prob ) * probX_1_over_log_units;
+      unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
+      // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord &= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityY( float prob, QualWordType & qualWord ) {
-      int raw = (int) (prob/probY_units);     // convert to integer units
+      double draw = - log( (double) prob ) * probY_1_over_log_units;
+      unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
+      // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord &= ((raw & probY_mask) << probY_shift);
     }
+
     
     inline void setQBin( int qbin, QualWordType & qualWord ) {
       qualWord &= ((qbin & qBin_mask) << qBin_shift);
