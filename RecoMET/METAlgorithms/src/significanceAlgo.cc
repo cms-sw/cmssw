@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.3 2008/11/07 12:10:09 fblekman Exp $
+// $Id: significanceAlgo.cc,v 1.5 2008/11/10 06:25:16 dlange Exp $
 //
 //
 
@@ -47,7 +47,7 @@ metsig::ASignificance(const std::vector<SigInputObj>& EventVec, double &met_r, d
 {
   
   if(EventVec.size()<1) {
-    edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
+    //edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
     return(-1);
   }
   //=== Analytical Generation of Chisq Contours ===//
