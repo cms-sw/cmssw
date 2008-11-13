@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.7 2008/10/10 11:11:41 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.8 2008/10/13 02:01:18 wsun Exp $
 //
 //
 
@@ -140,41 +140,51 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
 	  for( ; it != end ; ++it )
 	    {
-	      // Check key is new before writing
-	      if( oldKeyList->token( it->first, it->second ) == "" ||
-		  m_overwriteKeys )
+	      // Do nothing if object key is null.
+	      if( it->second.empty() )
 		{
-		  // Write data to ORCON with no IOV
-		  token = m_writer.writePayload( iSetup, it->first ) ;
-
-		  if( !token.empty() )
-		    {
-		      // Record token in L1TriggerKeyList
-		      if( !keyList )
-			{
-			  keyList = new L1TriggerKeyList( *oldKeyList ) ;
-			}
-
-		      if( !( keyList->addKey( it->first,
-					      it->second,
-					      token,
-					      m_overwriteKeys ) ) )
-			{
-			  // This should never happen because of the check
-			  // above, but just in case....
-			  throw cond::Exception(
-			    "L1CondDBPayloadWriter: subsystem key "
-			    + it->second + " for " + it->first
-			    + " already in L1TriggerKeyList" ) ;
-			}
-		    }
+		  edm::LogVerbatim( "L1-O2O" )
+		    << "L1CondDBPayloadWriter: empty object key for "
+		    << it->first << "; skipping this record." ;
 		}
 	      else
 		{
-		  edm::LogVerbatim( "L1-O2O" )
-		    << "L1CondDBPayloadWriter: subsystem key "
-		    << it->second << " for " << it->first
-		    << " already in L1TriggerKeyList" ;
+		  // Check key is new before writing
+		  if( oldKeyList->token( it->first, it->second ) == "" ||
+		      m_overwriteKeys )
+		    {
+		      // Write data to ORCON with no IOV
+		      token = m_writer.writePayload( iSetup, it->first ) ;
+
+		      if( !token.empty() )
+			{
+			  // Record token in L1TriggerKeyList
+			  if( !keyList )
+			    {
+			      keyList = new L1TriggerKeyList( *oldKeyList ) ;
+			    }
+
+			  if( !( keyList->addKey( it->first,
+						  it->second,
+						  token,
+						  m_overwriteKeys ) ) )
+			    {
+			      // This should never happen because of the check
+			      // above, but just in case....
+			      throw cond::Exception(
+				"L1CondDBPayloadWriter: subsystem key "
+				+ it->second + " for " + it->first
+				+ " already in L1TriggerKeyList" ) ;
+			    }
+			}
+		    }
+		  else
+		    {
+		      edm::LogVerbatim( "L1-O2O" )
+			<< "L1CondDBPayloadWriter: object key "
+			<< it->second << " for " << it->first
+			<< " already in L1TriggerKeyList" ;
+		    }
 		}
 	    }
 	}
