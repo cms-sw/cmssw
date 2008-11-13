@@ -15,7 +15,7 @@
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
-//#include "DataFormats/METObjects/interface/METCollection.h"
+#include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -26,7 +26,7 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats//Common/interface/View.h"
+#include "DataFormats/Common/interface/View.h"
 
 using namespace edm;
 using namespace std;
@@ -63,6 +63,8 @@ namespace cms
       produces<GenMETCollection>().setBranchAlias(alias.c_str());
     else if (METtype == "CaloMETSignif")
       produces<CaloMETCollection>().setBranchAlias(alias.c_str());
+    else if (METtype == "TCMET" )
+      produces<METCollection>().setBranchAlias(alias.c_str());
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
   }
@@ -104,7 +106,9 @@ namespace cms
     */
     //-----------------------------------
     // Step C2: Invoke the MET algorithm, which runs on any CandidateCollection input. 
-    alg_.run(input, &output, globalThreshold);
+
+    //    alg_.run(input, &output, globalThreshold);   // No need to run this for all METTypes!
+ 
     //-----------------------------------
     // Step D: Invoke the specific "afterburner", which adds information
     //         depending on the input type, given via the config parameter.
@@ -112,6 +116,7 @@ namespace cms
     //         the output into the Event.
     if( METtype == "CaloMET" ) 
     {
+      alg_.run(input, &output, globalThreshold); 
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
@@ -119,8 +124,18 @@ namespace cms
       event.put( calometcoll );
     }
     //-----------------------------------
+    else if( METtype == "TCMET" )
+      {
+	TCMETAlgo tcmetalgorithm;
+	std::auto_ptr<METCollection> tcmetcoll;
+	tcmetcoll.reset(new METCollection);
+	tcmetcoll->push_back( tcmetalgorithm.addInfo(input,output,noHF, globalThreshold) );
+	event.put( tcmetcoll );
+      }
+    //-----------------------------------
     else if( METtype == "GenMET" ) 
     {
+      alg_.run(input, &output, globalThreshold); 
       GenSpecificAlgo gen;
       std::auto_ptr<GenMETCollection> genmetcoll;
       genmetcoll.reset (new GenMETCollection);
@@ -130,6 +145,7 @@ namespace cms
     //-----------------------------------
     else if( METtype == "CaloMETSignif" ) 
     {
+      alg_.run(input, &output, globalThreshold); 
       SignCaloSpecificAlgo calo;
       // first calculate all standard info. Then over-write the values used by the significance:
       std::auto_ptr<CaloMETCollection> calometcoll; 
@@ -141,6 +157,7 @@ namespace cms
     //-----------------------------------
     else
     {
+      alg_.run(input, &output, globalThreshold); 
       LorentzVector p4( output.mex, output.mey, 0.0, output.met);
       Point vtx(0,0,0);
       MET met( output.sumet, p4, vtx );
