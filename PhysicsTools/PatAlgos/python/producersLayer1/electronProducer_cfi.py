@@ -97,6 +97,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         eidRobustTight = cms.InputTag("patElectronIds","eidRobustTight"),
         eidLoose       = cms.InputTag("patElectronIds","eidLoose"),
         eidTight       = cms.InputTag("patElectronIds","eidTight"),
+        eidRobustHighEnergy = cms.InputTag("patElectronIds","eidRobustHighEnergy"),
     ),
 
     # Trigger matching configurables
