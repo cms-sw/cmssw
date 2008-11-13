@@ -15,7 +15,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id$
+// $Id: SignCaloSpecificAlgo.h,v 1.1 2008/04/18 10:12:55 fblekman Exp $
 //
 //
 // 
@@ -34,7 +34,7 @@ class SignCaloSpecificAlgo
   typedef std::vector <const reco::Candidate*> TowerCollection;
   reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
 
-    
+  double addSignificance(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
   
 };
 
