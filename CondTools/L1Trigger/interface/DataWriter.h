@@ -88,7 +88,9 @@ class DataWriter : public DataManager
 			 edm::RunNumber_t sinceRun = 0 ) ;
 
       // Append IOV with sinceRun to IOV sequence with given tag
-      void updateIOV( const std::string& tag,
+      // Return value is true if IOV was updated; false if IOV was already
+      // up to date.
+      bool updateIOV( const std::string& tag,
 		      const std::string& payloadToken,
 		      const edm::RunNumber_t sinceRun ) ;
 

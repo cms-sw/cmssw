@@ -270,7 +270,7 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 				 << " TAG " << tag << " SINCE " << sinceRun ;
 }
 
-void
+bool
 DataWriter::updateIOV( const std::string& tag,
 		       const std::string& payloadToken,
 		       const edm::RunNumber_t sinceRun )
@@ -300,6 +300,8 @@ DataWriter::updateIOV( const std::string& tag,
 	editor->create( globalSince, timetype ) ;
       }
 
+    bool iovUpdated = true ;
+
     if( sinceRun == globalSince || requireMapping )
       {
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
@@ -318,6 +320,7 @@ DataWriter::updateIOV( const std::string& tag,
 	  }
 	else
 	  {
+	    iovUpdated = false ;
 	    edm::LogVerbatim( "L1-O2O" ) << "IOV already up to date." ;
 	  }
       }
@@ -336,6 +339,8 @@ DataWriter::updateIOV( const std::string& tag,
     {
        addMappings( tag, tagToken ) ;
     }
+
+    return iovUpdated ;
 }
 
 
