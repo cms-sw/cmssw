@@ -8,5 +8,13 @@
    <class name="edm::Wrapper<EcalListOfFEDS>"/>
    <class name="std::vector<EcalListOfFEDS>"/>
    <class name="edm::Wrapper<std::vector<EcalListOfFEDS> >"/>
+   <class name="ESDCCHeaderBlock"/>
+   <class name="std::vector<ESDCCHeaderBlock>"/>
+   <class name="edm::SortedCollection<ESDCCHeaderBlock,edm::StrictWeakOrdering<ESDCCHeaderBlock> >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<ESDCCHeaderBlock,edm::StrictWeakOrdering<ESDCCHeaderBlock> > >" />
+   <class name="ESKCHIPBlock"/>
+   <class name="std::vector<ESKCHIPBlock>"/>
+   <class name="edm::SortedCollection<ESKCHIPBlock,edm::StrictWeakOrdering<ESKCHIPBlock> >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<ESKCHIPBlock,edm::StrictWeakOrdering<ESKCHIPBlock> > >" />
 
 </lcgdict>
