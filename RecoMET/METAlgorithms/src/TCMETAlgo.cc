@@ -45,7 +45,7 @@ TCMETAlgo::~TCMETAlgo() {}
 // symmetrically distributed about the origin.)
 //----------------------------------
 
-reco::MET TCMETAlgo::addInfo(edm::Handle<edm::View<Candidate> > input, CommonMETData *TCMETData, bool NoHF, double globalThreshold) 
+reco::MET TCMETAlgo::addInfo(edm::Handle<edm::View<Candidate> > input, CommonMETData TCMETData, bool NoHF , double globalThreshold)
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
@@ -68,16 +68,16 @@ reco::MET TCMETAlgo::addInfo(edm::Handle<edm::View<Candidate> > input, CommonMET
 	sum_ey += et*sin(phi);
       }
   }
-  TCMETData->mex   = -sum_ex;
-  TCMETData->mey   = -sum_ey;
-  TCMETData->mez   = -sum_ez;
-  TCMETData->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
-  TCMETData->sumet = sum_et;
-  TCMETData->phi   = atan2( -sum_ey, -sum_ex ); 
+  TCMETData.mex   = -sum_ex;
+  TCMETData.mey   = -sum_ey;
+  TCMETData.mez   = -sum_ez;
+  TCMETData.met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  TCMETData.sumet = sum_et;
+  TCMETData.phi   = atan2( -sum_ey, -sum_ex ); 
 
-  XYZTLorentzVector p4( TCMETData->mex , TCMETData->mey , 0, TCMETData->met);
+  XYZTLorentzVector p4( TCMETData.mex , TCMETData.mey , 0, TCMETData.met);
   XYZPointD vtx(0,0,0);
-  MET tcmet(TCMETData->sumet, p4, vtx);
+  MET tcmet(TCMETData.sumet, p4, vtx);
   return tcmet;
 //------------------------------------------------------------------------
 }

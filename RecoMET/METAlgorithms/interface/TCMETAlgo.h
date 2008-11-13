@@ -23,7 +23,7 @@ class TCMETAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  reco::MET addInfo(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*, bool, double );
+  reco::MET addInfo(edm::Handle<edm::View<reco::Candidate> >, CommonMETData tcmet, bool NoHF, double globaleThreshold);
  private:
 };
 
