@@ -17,6 +17,5 @@ hltL3Muons.L3TrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 from FastSimulation.Muons.TSGFromL2_cfi import *
 from FastSimulation.Muons.TrackCandidateFromL2_cfi import *
 from FastSimulation.Muons.HLTL3TkMuons_cfi import *
-hltL3TrackCandidateFromL2 = cms.Sequence(hltL3CandidateFromL2+hltL3TkMuons)
 
 
