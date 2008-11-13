@@ -13,6 +13,7 @@
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
