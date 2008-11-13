@@ -17,7 +17,7 @@ from RecoMET.METProducers.HTMET_cfi import *
 from RecoMET.METProducers.CaloMETSignif_cfi import *
 #sequence metreco = {met, metsig, htMetIC5, htMetMC5}
 metreco = cms.Sequence(
-        met+metsignificance+metNoHF+metHO+metNoHFHO+
+        met+metNoHF+metHO+metNoHFHO+
             calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
             htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5
             )
