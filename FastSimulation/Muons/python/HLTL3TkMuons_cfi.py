@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-hltL3TkMuons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-hltL3TkMuons.src = 'hltL3CandidateFromL2'
-hltL3TkMuons.TTRHBuilder = 'WithoutRefit'
-hltL3TkMuons.Fitter = 'KFFittingSmoother'
-hltL3TkMuons.Propagator = 'PropagatorWithMaterial'
-hltL3TkMuons.beamSpot = 'offlineBeamSpot'
-
+hltL3TkTracksFromL2 = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltL3TkTracksFromL2.src = 'hltL3TrackCandidateFromL2'
+hltL3TkTracksFromL2.TTRHBuilder = 'WithoutRefit'
+hltL3TkTracksFromL2.Fitter = 'HLTKFFittingSmoother'
+hltL3TkTracksFromL2.Propagator = 'PropagatorWithMaterial'
+hltL3TkTracksFromL2.beamSpot = 'offlineBeamSpot'
