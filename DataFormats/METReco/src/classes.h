@@ -70,7 +70,7 @@ namespace {
     edm::reftobase::RefHolder<reco::METRef> dummy22;
     edm::reftobase::RefHolder<reco::CaloMETRef> dummy23;
     edm::reftobase::RefHolder<reco::GenMETRef> dummy24;
-
+    edm::reftobase::RefHolder<reco::PFMETRef> dummy25;
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
   };
