@@ -3,6 +3,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <string>
 
 class TrackingRegion;
 class OrderedHitsGenerator;
@@ -29,6 +30,8 @@ private:
   OrderedHitsGenerator * theHitsGenerator;
   edm::ParameterSet theConfig; //  temporary 
   SeedComparitor * theComparitor;
+  std::string thePropagatorLabel;
+  bool theUseFastHelix;
   double theBOFFMomentum;
 
 };

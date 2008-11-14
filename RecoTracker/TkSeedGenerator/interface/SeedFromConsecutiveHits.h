@@ -21,6 +21,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/shared_ptr.hpp>
+#include <string>
 
 class DetLayer;
 class SeedFromConsecutiveHits{
@@ -32,6 +33,8 @@ class SeedFromConsecutiveHits{
     const GlobalError& vertexErr,
     const edm::EventSetup& es,
     float ptMin,
+    std::string thePropagatorLabel="PropagatorWithMaterial",
+    bool   theUseFastHelix=true,
     double theBOFFMomentum=-1.0);
   
   virtual  ~SeedFromConsecutiveHits(){};
