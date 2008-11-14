@@ -14,14 +14,13 @@ import string
 RefRelease='CMSSW_2_1_10'
 
 # startup and ideal sample list
-#startupsamples= ['RelValQCD_Pt_80_120', 'RelValTTbar', 'RelValMinBias', 'RelValBJets_Pt_50_120', 'RelValQCD_Pt_3000_3500']
-startupsamples= ['RelValQCD_Pt_80_120','RelValMinBias', 'RelValQCD_Pt_3000_3500']
+#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValBJets_Pt_50_120', 'RelValQCD_Pt_3000_3500']
+startupsamples= ['RelValMinBias', 'RelValQCD_Pt_3000_3500']
 
-#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_80_120', 'RelValQCD_Pt_3000_3500']
-idealsamples= ['RelValSingleMuPt100',  'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_80_120', 'RelValQCD_Pt_3000_3500']
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500']
+idealsamples= ['RelValSingleMuPt1','RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500']
 
-#startupsamples= ['RelValQCD_Pt_80_120']
-#idealsamples= ['RelValSingleMuPt10']
+
 
 # track algorithm name and quality. Can be a list.
 Algos= ['']
@@ -99,7 +98,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
-            cmd='./DDSearchCLI.py  --input="find  dataset.createdate, dataset where dataset like *'
+            cmd='./DDSearchCLI.py  --limit -1 --input="find  dataset.createdate, dataset where dataset like *'
 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
             cmd+='|grep '+sample+'|sort|tail -1| cut -d "," -f2 '
@@ -119,7 +118,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 for filename in os.popen(cmd2).readlines():
                     filenames+=filename
                 filenames+='));\n'
-                cmd3='./DDSearchCLI.py  --input="find file.parent where dataset like'+ dataset +'"|grep ' + sample
+                cmd3='./DDSearchCLI.py  --limit -1 --input="find file.parent where dataset like'+ dataset +'"|grep ' + sample
                 filenames+='secFiles.extend( (\n'
                 first=True
                 for line in os.popen(cmd3).readlines():
