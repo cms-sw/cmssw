@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.25 2008/11/06 15:46:33 loizides Exp $
+# $Id: setup_sm.sh,v 1.26 2008/11/14 06:59:43 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -29,6 +29,7 @@ case $hname in
         ;;
     srv-C2D05-02)
         nname=node_cmsdisk1
+        ;;
     srv-c2c06-* | srv-C2C06-*)
         nname="nottobeused"
         ;;
