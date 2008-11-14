@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.8 2008/07/07 00:42:41 chrjones Exp $
+// $Id: FWEveLegoView.h,v 1.9 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,8 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
+
 #include "TEveCaloData.h"
 
 // forward declarations
@@ -74,10 +76,9 @@ class FWEveLegoView : public FWViewBase
 
       // ---------- member data --------------------------------
       TEvePad* m_pad;
-      TEveViewer* m_viewer;
+      FWEvePtr<TEveViewer> m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
-      TEveScene* m_scene;
-      TEveCaloLego* m_lego;
+      FWEvePtr<TEveScene> m_scene;
 
       // FWLongParameter m_range;
       //FWDoubleParameter m_minEcalEnergy;

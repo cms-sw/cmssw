@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.3 2008/07/07 00:26:05 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWGlimpseDataProxyBuilderFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 class FWEventItem;
@@ -89,7 +90,7 @@ class FWGlimpseDataProxyBuilder
 
       // ---------- member data --------------------------------
       const FWEventItem* m_item;
-      TEveElementList m_elementHolder;//Used as a smart pointer for the item created by the builder
+      FWEvePtr<TEveElementList> m_elementHolder;//Used as a smart pointer for the item created by the builder
       std::vector<FWModelId> m_ids;
 
       bool m_modelsChanged;

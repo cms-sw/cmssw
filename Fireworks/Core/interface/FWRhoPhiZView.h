@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.13 2008/09/27 16:57:59 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.14 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
+#include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
 class TEvePad;
@@ -85,15 +86,15 @@ class FWRhoPhiZView : public FWViewBase
 
       // ---------- member data --------------------------------
       TEvePad* m_pad;
-      TEveViewer* m_viewer;
+      FWEvePtr<TEveViewer> m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
-      TEveProjectionManager* m_projMgr;
+      FWEvePtr<TEveProjectionManager> m_projMgr;
       TEveProjection::EPType_e m_projType;
       std::vector<TEveElement*> m_geom;
       std::string m_typeName;
-      TEveScene* m_scene;
+      FWEvePtr<TEveScene> m_scene;
       double m_caloScale;
-      TEveProjectionAxes* m_axes;
+      FWEvePtr<TEveProjectionAxes> m_axes;
 
       // parameters
       FWDoubleParameter  m_caloDistortion;

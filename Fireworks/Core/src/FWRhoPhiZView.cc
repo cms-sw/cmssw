@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.28 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.29 2008/11/10 18:07:57 amraktad Exp $
 //
 
 #define private public
@@ -99,7 +99,7 @@ FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TE
 m_projType(iProjType),
 m_typeName(iName),
 m_caloScale(1),
-m_axes(0),
+m_axes(),
 m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
 m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
 m_showProjectionAxes(this,"Show projection axes", false),
@@ -113,7 +113,7 @@ m_showEndcaps(0),
 m_cameraZoom(0),
 m_cameraMatrix(0)
 {
-   m_projMgr = new TEveProjectionManager;
+   m_projMgr.reset(new TEveProjectionManager);
    m_projMgr->SetProjection(iProjType);
    //m_projMgr->GetProjection()->SetFixedRadius(700);
    /*
@@ -142,7 +142,7 @@ m_cameraMatrix(0)
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
 
-   gEve->AddToListTree(m_projMgr,kTRUE);
+   gEve->AddToListTree(m_projMgr.get(),kTRUE);
 
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
      //                                        boost::bind(toFloat,_1)));
@@ -165,17 +165,17 @@ m_cameraMatrix(0)
    }
 
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
-   m_scene = ns;
+   m_scene.reset(ns);
    nv->AddScene(ns);
-   m_viewer=nv;
+   m_viewer.reset(nv);
    //this is needed so if a TEveElement changes this view will be informed
    gEve->AddElement(nv, gEve->GetViewers());
 
-   m_axes = new TEveProjectionAxes(m_projMgr);
-   ns->AddElement(m_axes);
-   gEve->AddToListTree(m_axes, kTRUE);
+   m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
+   ns->AddElement(m_axes.get());
+   gEve->AddToListTree(m_axes.get(), kTRUE);
 
-   gEve->AddElement(m_projMgr,ns);
+   gEve->AddElement(m_projMgr.get(),ns);
    //ev->ResetCurrentCamera();
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRhoPhiZView::showProjectionAxes,this));
 }
@@ -190,15 +190,16 @@ FWRhoPhiZView::~FWRhoPhiZView()
    //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
    // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
    // delete fFrame in its destructor
+   m_axes.destroyElement();
+   m_projMgr.destroyElement();
+   m_scene.destroyElement();
+
    TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
    glviewer->fFrame=0;
    delete glviewer;
-   m_viewer->Destroy();
+   m_viewer.destroyElement();
    //delete m_viewer;
    //delete m_projMgr;
-   m_projMgr->Destroy();
-   m_scene->Destroy();
-   m_axes->Destroy();
 }
 
 //
@@ -274,13 +275,13 @@ FWRhoPhiZView::destroyElements()
    m_projMgr->DestroyElements();
    std::for_each(m_geom.begin(),m_geom.end(),
                  boost::bind(&TEveProjectionManager::AddElement,
-                             m_projMgr,
+                             m_projMgr.get(),
                              _1));
 }
 void
 FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 {
-   m_geom.push_back(doReplication(m_projMgr,iChild,m_projMgr));
+   m_geom.push_back(doReplication(m_projMgr.get(),iChild,m_projMgr.get()));
    m_projMgr->AssertBBox();
    m_projMgr->ProjectChildrenRecurse(m_geom.back());
 }
@@ -292,7 +293,7 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    float oldLayer = m_projMgr->GetCurrentDepth();
    m_projMgr->SetCurrentDepth(iLayer);
    //make sure current depth is reset even if an exception is thrown
-   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
+   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
                                                    boost::bind(&TEveProjectionManager::SetCurrentDepth,
                                                                _1,oldLayer));
    m_projMgr->ImportElements(iChildren);
@@ -444,8 +445,8 @@ FWRhoPhiZView::saveImageTo(const std::string& iName) const
 void
 FWRhoPhiZView::updateScaleParameters()
 {
-   updateCalo(m_projMgr);
-   updateCaloLines(m_projMgr);
+   updateCalo(m_projMgr.get());
+   updateCaloLines(m_projMgr.get());
    //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
    m_embeddedViewer->UpdateScene();
 }
@@ -453,7 +454,7 @@ FWRhoPhiZView::updateScaleParameters()
 void
 FWRhoPhiZView::updateCaloParameters()
 {
-   updateCalo(m_projMgr);
+   updateCalo(m_projMgr.get());
    //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
    m_embeddedViewer->UpdateScene();
 }

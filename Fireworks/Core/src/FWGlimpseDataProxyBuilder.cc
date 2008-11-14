@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.5 2008/07/10 21:21:58 dmytro Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.6 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@
 // constructors and destructor
 //
 FWGlimpseDataProxyBuilder::FWGlimpseDataProxyBuilder():
-  m_item(0), m_modelsChanged(false), m_haveViews(false), m_scaler(0), m_mustBuild(true)
+  m_item(0), m_elementHolder(new TEveElementList), m_modelsChanged(false), m_haveViews(false), m_scaler(0), m_mustBuild(true)
 {
 }
 
@@ -86,7 +86,7 @@ FWGlimpseDataProxyBuilder::setHaveAWindow(bool iFlag)
 TEveElement*
 FWGlimpseDataProxyBuilder::usedInScene()
 {
-   return &m_elementHolder;
+   return m_elementHolder.get();
 }
 
 
@@ -116,7 +116,7 @@ void
 FWGlimpseDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
-   m_elementHolder.RemoveElements();
+   m_elementHolder->RemoveElements();
    m_ids.clear();
 }
 
@@ -138,14 +138,14 @@ FWGlimpseDataProxyBuilder::build()
 {
   if(0!= m_item) {
      TEveElementList* newElements=0;
-     bool notFirstTime = m_elementHolder.NumChildren();
+     bool notFirstTime = m_elementHolder->NumChildren();
      if(notFirstTime) {
         //we know the type since it is enforced in this routine so static_cast is safe
-        newElements = static_cast<TEveElementList*>(*(m_elementHolder.BeginChildren()));
+        newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
      }
      build(m_item, &newElements);
      if(!notFirstTime && newElements) {
-        m_elementHolder.AddElement(newElements);
+        m_elementHolder->AddElement(newElements);
      }
 
      if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
@@ -173,8 +173,8 @@ void
 FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
    if(m_haveViews) {
-      if(0!=m_elementHolder.NumChildren()) {
-         modelChanges(iIds,*(m_elementHolder.BeginChildren()));
+      if(0!=m_elementHolder->NumChildren()) {
+         modelChanges(iIds,*(m_elementHolder->BeginChildren()));
       }
       m_modelsChanged=false;
    }else {
@@ -185,7 +185,7 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 void
 FWGlimpseDataProxyBuilder::applyChangesToAllModels()
 {
-   applyChangesToAllModels(m_elementHolder.FirstChild());
+   applyChangesToAllModels(m_elementHolder->FirstChild());
    m_modelsChanged=false;
 }
 

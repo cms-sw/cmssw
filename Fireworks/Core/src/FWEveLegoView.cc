@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.26 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.27 2008/11/10 18:07:57 amraktad Exp $
 //
 
 // system include files
@@ -107,9 +107,9 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    }
 
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
-   m_scene = ns;
+   m_scene.reset(ns);
    nv->AddScene(ns);
-   m_viewer=nv;
+   m_viewer.reset(nv);
    gEve->AddElement(nv, gEve->GetViewers());
 
    /*
@@ -173,8 +173,8 @@ FWEveLegoView::~FWEveLegoView()
    glviewer->fFrame=0;
    delete glviewer;
 
-   m_viewer->Destroy();
-   m_scene->Destroy();
+   m_viewer.destroyElement();
+   m_scene.destroyElement();
    //delete m_viewer;
 }
 
