@@ -1,7 +1,7 @@
 /**
-    $Date: 2008/11/14 11:40:34 $
-    $Revision: 1.6 $
-    $Id: IMACalibBlock.cc,v 1.6 2008/11/14 11:40:34 presotto Exp $ 
+    $Date: 2008/11/14 11:41:32 $
+    $Revision: 1.7 $
+    $Id: IMACalibBlock.cc,v 1.7 2008/11/14 11:41:32 presotto Exp $ 
     \author $Author: presotto $
 */
 
@@ -136,7 +136,7 @@ IMACalibBlock::solve (int usingBlockSolver, double min, double max)
      }
    }
  fillMap(result);
- return ;
+ return 0;
 }
 
 
