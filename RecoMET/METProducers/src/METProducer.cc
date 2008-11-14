@@ -121,6 +121,7 @@ namespace cms
     //         depending on the input type, given via the config parameter.
     //         Also, after the specific algorithm has been called, store
     //         the output into the Event.
+
     if( METtype == "CaloMET" ) 
     {
       /*
@@ -135,19 +136,21 @@ namespace cms
       
       //Run Basic MET Algorithm
       alg_.run(input, &output, globalThreshold);
+
       // Run CaloSpecific Algorithm
       CaloSpecificAlgo calospecalgo;
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
+
       //Run algorithm to calculate CaloMET Significance and add to the CaloMET Object
       SignCaloSpecificAlgo signcalospecalgo;
       metsig::SignAlgoResolutions resolutions(conf_);
       calomet.SetMetSignificance( signcalospecalgo.addSignificance(input,output,resolutions,noHF,globalThreshold) );
-      
+
+      //Store CaloMET object in CaloMET collection 
       std::auto_ptr<CaloMETCollection> calometcoll;
       calometcoll.reset(new CaloMETCollection);
       calometcoll->push_back( calomet ) ;
       event.put( calometcoll );           
-
     }
     //-----------------------------------
     else if( METtype == "TCMET" )
@@ -155,7 +158,7 @@ namespace cms
 	TCMETAlgo tcmetalgorithm;
 	std::auto_ptr<METCollection> tcmetcoll;
 	tcmetcoll.reset(new METCollection);
-	tcmetcoll->push_back( tcmetalgorithm.addInfo(input,output,noHF, globalThreshold) );
+	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_) ) ;
 	event.put( tcmetcoll );
       }
     //----------------------------------
