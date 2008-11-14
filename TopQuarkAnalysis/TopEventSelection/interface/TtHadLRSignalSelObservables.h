@@ -40,7 +40,7 @@ class TtHadLRSignalSelObservables{
   struct CompareET {
     bool operator()( pat::Jet j1, pat::Jet j2 ) const
     {
-      return j1.recJet().et() > j2.recJet().et();
+      return j1.et() > j2.et();
     }
   };
   

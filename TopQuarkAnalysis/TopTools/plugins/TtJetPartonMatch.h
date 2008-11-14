@@ -81,8 +81,10 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
     if(nJets_>=(int)partons.size()){ if((int)ij==nJets_) break; }
     else{ if(ij==partons.size()) break; }
-    pat::JetType jet = (*topJets)[ij].recJet();
-    jets.push_back( jet );
+    // why are these no pat::Jets? This will explode 
+    // once the caloJets are not in anymore!
+    const pat::JetType* jet = dynamic_cast<const pat::JetType*>((*topJets)[ij].originalObject());
+    jets.push_back( *jet );
   }
 
   // do the matching with specified parameters

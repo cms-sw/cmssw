@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # tqaf layer1 default sequence for fastsim
 #
 
-## extra includes for fastsim
-from PhysicsTools.PatAlgos.famos.famosSequences_cff import *
+## extra includes for fastsim not needed anymore?
+## from PhysicsTools.PatAlgos.famos.famosSequences_cff import *
 
 
 #-----------------------------------------------------------------
