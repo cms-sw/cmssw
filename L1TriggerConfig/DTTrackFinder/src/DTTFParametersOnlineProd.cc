@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Oct  3 00:26:52 CEST 2008
-// $Id: DTTFParametersOnlineProd.cc,v 1.1 2008/10/13 03:24:50 wsun Exp $
+// $Id: DTTFParametersOnlineProd.cc,v 1.2 2008/11/10 08:30:43 troco Exp $
 //
 //
 
@@ -153,7 +153,7 @@ DTTFParametersOnlineProd::newObject( const std::string& objectKey )
 	 crateMaskL[ icrate ] = std::strtol( crateMask.c_str(), &pEnd, 16 ) ;
 	 crateMaskR[ icrate ] = std::strtol( pEnd, (char **)NULL, 16 ) ;
 	 std::cout << "Crate " << icrate << " masks"
-		   << " L: " << std::hex << crateMaskL[ icrate ] ;
+		   << " L: " << std::hex << crateMaskL[ icrate ]
 	           << " R: " << std::hex << crateMaskR[ icrate ] << std::endl ;
        }
 
