@@ -12,6 +12,9 @@
 
 #include <vector>
 #include <string>
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -23,7 +26,7 @@ class TCMETAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  reco::MET addInfo(edm::Handle<edm::View<reco::Candidate> >, CommonMETData tcmet, bool NoHF, double globaleThreshold);
+  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig);
  private:
 };
 
