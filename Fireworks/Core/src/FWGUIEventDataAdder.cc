@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.11 2008/10/28 18:37:15 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.12 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,9 @@
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/FWLite/interface/Event.h"
+
+//Had to hide this type from Cint
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 //
 // constants, enums and typedefs
 //
@@ -215,11 +218,11 @@ FWGUIEventDataAdder::FWGUIEventDataAdder(
                                          TGFrame* iParent,
                                          const fwlite::Event* iEvent,
                                          const TFile* iFile,
-const std::set<std::pair<std::string,std::string> >& iTypeAndPurpose):
+                                         const FWTypeToRepresentations& iTypeAndReps):
 m_manager(iManager),
 m_presentEvent(0),
 m_parentFrame(iParent),
-m_typeAndPurpose(iTypeAndPurpose)
+m_typeAndReps( new FWTypeToRepresentations(iTypeAndReps))
 {
    createWindow();
    update(iFile,iEvent);
@@ -232,6 +235,7 @@ m_typeAndPurpose(iTypeAndPurpose)
 
 FWGUIEventDataAdder::~FWGUIEventDataAdder()
 {
+   delete m_typeAndReps;
 }
 
 //
@@ -403,18 +407,30 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
       }
 
 
+      std::set<std::string> purposes;
       for(std::vector<edm::BranchDescription>::const_iterator itBranch =
           branches.begin(), itEnd=branches.end();
           itBranch != itEnd;
           ++itBranch) {
          if(itBranch->present() &&
             branchNamesInFile.end() != branchNamesInFile.find(itBranch->branchName())){
-            std::set<std::pair<std::string,std::string> >::iterator itTP =
-            m_typeAndPurpose.upper_bound(std::make_pair(itBranch->fullClassName(),s_blank));
+            const std::vector<FWRepresentationInfo>& infos = m_typeAndReps->representationsForType(itBranch->fullClassName());
+            
             //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
-            while(itTP != m_typeAndPurpose.end() &&
-                  itTP->first == itBranch->fullClassName()) {
-               d.purpose_ = itTP->second;
+            //the infos list can contain multiple items with the same purpose so we will just find
+            // the unique ones
+            purposes.clear();
+            for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(),
+                itInfoEnd = infos.end();
+                itInfo != itInfoEnd;
+                ++itInfo) {
+               purposes.insert(itInfo->purpose());
+            }
+            for(std::set<std::string>::const_iterator itPurpose = purposes.begin(),
+                itEnd = purposes.end();
+                itPurpose != itEnd;
+                ++itPurpose) {
+               d.purpose_ = *itPurpose;
                d.type_ = itBranch->fullClassName();
                d.moduleLabel_ = itBranch->moduleLabel();
                d.productInstanceLabel_ = itBranch->productInstanceName();
@@ -426,7 +442,6 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
                <<d.productInstanceLabel_<<" "
                <<d.processName_<<std::endl;
                 */
-               ++itTP;
             }
          }
       }

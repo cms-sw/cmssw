@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.12 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWViewManagerBase.h,v 1.13 2008/11/11 15:21:44 chrjones Exp $
 //
 
 // system include files
@@ -27,12 +27,16 @@
 
 // user include files
 
+//Needed for gccxml
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
 // forward declarations
 class FWEventItem;
 class TClass;
 class DetIdToMatrix;
 class FWModelId;
 class FWModelChangeManager;
+class FWTypeToRepresentations;
 
 class FWViewManagerBase
 {
@@ -41,7 +45,7 @@ class FWViewManagerBase
       virtual ~FWViewManagerBase();
 
       // ---------- const member functions ---------------------
-      virtual std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const = 0;
+      virtual FWTypeToRepresentations supportedTypesAndRepresentations() const = 0;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

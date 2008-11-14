@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.10 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.11 2008/11/11 15:21:45 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,10 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 
 #include "Fireworks/Core/interface/FWGlimpseDataProxyBuilderFactory.h"
+
+#include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
 
 //
 // constants, enums and typedefs
@@ -233,10 +237,10 @@ FWGlimpseViewManager::selectionCleared()
    }
 }
 
-std::set<std::pair<std::string,std::string> >
-FWGlimpseViewManager::supportedTypesAndPurpose() const
+FWTypeToRepresentations
+FWGlimpseViewManager::supportedTypesAndRepresentations() const
 {
-   std::set<std::pair<std::string,std::string> > returnValue;
+   FWTypeToRepresentations returnValue;
 
    for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
        it != itEnd;
@@ -244,8 +248,9 @@ FWGlimpseViewManager::supportedTypesAndPurpose() const
       for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
 	   builderName != it->second.end(); ++builderName )
       {
-         returnValue.insert(std::make_pair(builderName->substr(0,builderName->find_first_of('@')),
-                                           it->first));
+         returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
+                                                                                                              builderName->substr(0,builderName->find_first_of('@')),
+                                                                                                              it->first)));
       }
 
    }

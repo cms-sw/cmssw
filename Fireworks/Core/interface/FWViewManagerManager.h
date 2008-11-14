@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.7 2008/07/12 17:55:29 dmytro Exp $
+// $Id: FWViewManagerManager.h,v 1.8 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 class FWViewManagerBase;
 class FWEventItem;
 class FWModelChangeManager;
+class FWTypeToRepresentations;
 
 class FWViewManagerManager
 {
@@ -41,7 +42,7 @@ class FWViewManagerManager
       virtual ~FWViewManagerManager();
 
       // ---------- const member functions ---------------------
-      std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const;
+      FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
       // ---------- static member functions --------------------
 

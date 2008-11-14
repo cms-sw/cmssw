@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.10 2008/07/12 17:55:30 dmytro Exp $
+// $Id: FWViewManagerManager.cc,v 1.11 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,8 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
 //
 // constants, enums and typedefs
 //
@@ -104,15 +106,15 @@ FWViewManagerManager::removeEventItem(const FWEventItem* iItem)
 //
 // const member functions
 //
-std::set<std::pair<std::string,std::string> >
-FWViewManagerManager::supportedTypesAndPurpose() const
+FWTypeToRepresentations
+FWViewManagerManager::supportedTypesAndRepresentations() const
 {
-   std::set<std::pair<std::string,std::string> > returnValue;
+   FWTypeToRepresentations returnValue;
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
-      std::set<std::pair<std::string,std::string> > v = (*itVM)->supportedTypesAndPurpose();
-      returnValue.insert(v.begin(),v.end());
+      FWTypeToRepresentations v = (*itVM)->supportedTypesAndRepresentations();
+      returnValue.insert(v);
    }
    return returnValue;
 }

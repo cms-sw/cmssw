@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.2 2008/07/08 00:25:27 chrjones Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@ class TGTransientFrame;
 class TGTextEntry;
 class TGTextButton;
 class TFile;
+class FWTypeToRepresentations;
 namespace fwlite {
    class Event;
 }
@@ -46,7 +47,7 @@ public:
                        FWEventItemsManager*, TGFrame*,
                        const fwlite::Event*,
                        const TFile*,
-                       const std::set<std::pair<std::string,std::string> >& iTypeAndPurpose);
+                       const FWTypeToRepresentations& iTypeAndReps);
    virtual ~FWGUIEventDataAdder();
 
    struct Data {
@@ -95,7 +96,7 @@ private:
    LightTableWidget* m_tableWidget;
    TGTextButton* m_apply;
 
-   std::set<std::pair<std::string,std::string> > m_typeAndPurpose;
+   FWTypeToRepresentations* m_typeAndReps;
    std::vector<Data> m_useableData;
 };
 

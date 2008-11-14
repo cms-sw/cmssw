@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWGlimpseViewManager_h
 #define Fireworks_Core_FWGlimpseViewManager_h
 // -*- C++ -*-
-// $Id: FWGlimpseViewManager.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWGlimpseViewManager.h,v 1.5 2008/11/11 15:21:44 chrjones Exp $
 
 // system include files
 #include <string>
@@ -33,7 +33,7 @@ class FWGlimpseViewManager : public FWViewManagerBase
       virtual ~FWGlimpseViewManager();
 
       // ---------- const member functions ---------------------
-      std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const;
+      FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
       // ---------- static member functions --------------------
 

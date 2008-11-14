@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.25 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.26 2008/11/11 15:21:44 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       virtual ~FWRhoPhiZViewManager();
 
       // ---------- const member functions ---------------------
-      std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const;
+      FWTypeToRepresentations supportedTypesAndRepresentations() const;
 
       // ---------- static member functions --------------------
 

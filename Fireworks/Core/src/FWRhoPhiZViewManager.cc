@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.42 2008/11/10 18:07:57 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.43 2008/11/11 15:21:45 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,9 @@
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
+
+#include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 
 #include <sstream>
 
@@ -809,15 +812,16 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    m_eveStore->AddElement(el);
 }
 
-std::set<std::pair<std::string,std::string> >
-FWRhoPhiZViewManager::supportedTypesAndPurpose() const
+FWTypeToRepresentations
+FWRhoPhiZViewManager::supportedTypesAndRepresentations() const
 {
-   std::set<std::pair<std::string,std::string> > returnValue;
+   FWTypeToRepresentations returnValue;
    for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
        it != itEnd;
        ++it) {
-      returnValue.insert(std::make_pair(it->second.first.substr(0,it->second.first.find_first_of('@')),
-                                        it->first));
+      returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>( new FWEDProductRepresentationChecker(
+                                                                                                           it->second.first.substr(0,it->second.first.find_first_of('@')),
+                                                                                                           it->first)));
    }
    return returnValue;
 
