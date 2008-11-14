@@ -141,7 +141,7 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
 //   std::cout << " gid: " << gd->geographicalID();
 //   std::cout << " type: " << gd->type() << std::endl;
 //  static CmsTrackerStringToEnum ctste;
-  std::cout << "shape = " << gd->shape()<<"; name = "<<gd->name().name()<<"; parameter number = "<<gd->params().size()<<std::endl;
+//  std::cout << "shape = " << gd->shape()<<"; name = "<<gd->name().name()<<"; parameter number = "<<gd->params().size()<<std::endl;
   PGeometricDet::Item item;
   DDTranslation tran = gd->translation();
   DDRotationMatrix rot = gd->rotation();

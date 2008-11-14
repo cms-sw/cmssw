@@ -176,7 +176,19 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   // constructor.
   _fromDD = false;
   _ddd = std::vector<int>(); // basically empty nav_type!
-  _params = (onePGD._params);
+  if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
+    _params.push_back(onePGD._params0);
+    _params.push_back(onePGD._params1);
+    _params.push_back(onePGD._params2);
+    _params.push_back(onePGD._params3);
+    _params.push_back(onePGD._params4);
+    _params.push_back(onePGD._params5);
+    _params.push_back(onePGD._params6);
+    _params.push_back(onePGD._params7);
+    _params.push_back(onePGD._params8);
+    _params.push_back(onePGD._params9);
+    _params.push_back(onePGD._params10);
+  }
   _trans = DDTranslation(onePGD._x, onePGD._y, onePGD._z);
   _phi = onePGD._phi;//_trans.Phi();
   _rho = onePGD._rho;//_trans.Rho();
