@@ -125,16 +125,9 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") val_hist1[nh1]->SetLineWidth(2); 
    
       //Legend
-      TLegend *leg = new TLegend(0.50, 0.91, 0.76, 0.99, "","brNDC");
+      TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
-      leg->SetFillStyle(1001); //
-      leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
-      leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
-
-      //Legend
-      TLegend *leg = new TLegend(0.50, 0.91, 0.76, 0.99, "","brNDC");
-      leg->SetBorderSize(2);
-      leg->SetFillStyle(1001); //
+      leg->SetFillStyle(1001); 
       leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
       leg->AddEntry(val_hist1[nh1],"CMSSW_"+val_vers,"l");
 
@@ -195,21 +188,26 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       val_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
       val_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
-      if (StatSwitch != "Stat" && StatSwitch != "Statrv"){
-	ref_prof[npi]->SetStats(kFALSE);   
-	val_prof[npi]->SetStats(kFALSE); 
-      }
+      //Legend
+      TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      leg->SetBorderSize(2);
+      leg->SetFillStyle(1001); 
 
-      ref_prof[npi]->SetTitle("");
-      ref_prof[npi]->SetErrorOption("");
-
-      val_prof[npi]->SetTitle("");
-      val_prof[npi]->SetErrorOption("");
-
-      ref_prof[npi]->GetXaxis()->SetTitle(xAxisTitle);
-      
       //Ordinary profiles
       if (DimSwitch == "PR"){
+	ref_prof[npi]->SetTitle("");
+	ref_prof[npi]->SetErrorOption("");
+	
+	val_prof[npi]->SetTitle("");
+	val_prof[npi]->SetErrorOption("");
+	
+	ref_prof[npi]->GetXaxis()->SetTitle(xAxisTitle);
+
+	if (StatSwitch != "Stat" && StatSwitch != "Statrv"){
+	  ref_prof[npi]->SetStats(kFALSE);   
+	  val_prof[npi]->SetStats(kFALSE); 
+	}
+
 	ref_prof[npi]->SetLineColor(41);
 	ref_prof[npi]->SetLineStyle(1);     
 	ref_prof[npi]->SetLineWidth(1); 
@@ -225,14 +223,25 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
 	val_prof[npi]->SetMarkerSize(1.0);  
 
 	ref_prof[npi]->Draw("hist pl");   
-	val_prof[npi]->Draw("hist pl same");   	     
+	val_prof[npi]->Draw("hist pl same");
+
+	leg->AddEntry(ref_prof[npi],"CMSSW_"+ref_vers,"pl");
+	leg->AddEntry(val_prof[npi],"CMSSW_"+val_vers,"pl");   	     
       }
       //Wide profiles
       else if (DimSwitch == "PRwide"){
 	ref_fp[npi] = ref_prof[npi]->ProjectionX();    
 	val_fp[npi] = val_prof[npi]->ProjectionX();
 	
+	ref_fp[npi]->SetTitle("");
+	val_fp[npi]->SetTitle("");
+
 	ref_fp[npi]->GetXaxis()->SetTitle(xAxisTitle);
+
+	if (StatSwitch != "Stat" && StatSwitch != "Statrv"){
+	  ref_fp[npi]->SetStats(kFALSE);   
+	  val_fp[npi]->SetStats(kFALSE); 
+	}   
 	
 	int nbins = ref_fp[npi]->GetNbinsX();
 	for (int j = 1; j < nbins; j++) {
@@ -254,14 +263,12 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
 	val_fp[npi]->SetMarkerSize(0.5);
 	
 	ref_fp[npi]->Draw("p9");   
-	val_fp[npi]->Draw("p9same");   
+	val_fp[npi]->Draw("p9same");
+	
+	leg->AddEntry(ref_fp[npi],"CMSSW_"+ref_vers,"lp");
+	leg->AddEntry(val_fp[npi],"CMSSW_"+val_vers,"lp");
+	
       }
-      
-      TLegend *leg = new TLegend(0.78, 0.82, 0.98, 0.97, "","brNDC");    
-      leg->SetBorderSize(2);
-      leg->SetFillStyle(1001); 
-      leg->AddEntry(ref_prof[npi],"CMSSW_"+ref_vers,"pl");
-      leg->AddEntry(val_prof[npi],"CMSSW_"+val_vers,"pl");
       
       leg->Draw("");   
       
