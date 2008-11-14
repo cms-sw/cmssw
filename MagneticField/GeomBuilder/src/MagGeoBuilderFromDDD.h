@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2008/03/10 16:26:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/29 14:32:01 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -25,6 +25,7 @@ class MagESector;
 class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
+  class AutoMagneticFieldESProducer;
 }
 
 
@@ -57,6 +58,8 @@ private:
   friend class TestMagVolume;
   friend class MagGeometry;
   friend class magneticfield::VolumeBasedMagneticFieldESProducer;
+  friend class magneticfield::AutoMagneticFieldESProducer;
+
 
   std::vector<MagVolume6Faces*> barrelVolumes() const;  
   std::vector<MagVolume6Faces*> endcapVolumes() const;
