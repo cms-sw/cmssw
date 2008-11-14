@@ -20,13 +20,15 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  1 16:46:56 EDT 2007
-// $Id$
+// $Id: ParameterSetDescriptionFiller.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
+
+#include <string>
 
 // forward declarations
 
@@ -40,8 +42,8 @@ template< typename T>
       //virtual ~ParameterSetDescriptionFiller();
 
       // ---------- const member functions ---------------------
-      virtual void fill(ParameterSetDescription& iDesc) const {
-        T::fillDescription(iDesc);
+      virtual void fill(ParameterSetDescription& iDesc, std::string const& moduleLabel) const {
+        T::fillDescription(iDesc, moduleLabel);
       }
       // ---------- static member functions --------------------
 

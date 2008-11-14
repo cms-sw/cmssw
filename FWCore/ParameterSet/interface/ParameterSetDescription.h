@@ -16,80 +16,67 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:18:40 EDT 2007
-// $Id$
+// $Id: ParameterSetDescription.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
 //
 
-// system include files
-#include <vector>
-#include <boost/shared_ptr.hpp>
-
-// user include files
-
-// forward declarations
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionTemplate.h"
 
+#include <boost/shared_ptr.hpp>
+#include <vector>
+
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
 namespace edm {
-class ParameterSetDescription
-{
+  class ParameterSetDescription
+  {
 
-   public:
-      typedef std::vector<boost::shared_ptr<ParameterDescription> > Parameters;
-      typedef Parameters::const_iterator parameter_const_iterator;
+  public:
+    typedef std::vector<boost::shared_ptr<ParameterDescription> > Parameters;
+    typedef Parameters::const_iterator parameter_const_iterator;
         
-      ParameterSetDescription();
-      virtual ~ParameterSetDescription();
+    ParameterSetDescription();
+    virtual ~ParameterSetDescription();
 
-      ///allow any parameter label/value pairs
-      void setAllowAnything();
+    ///allow any parameter label/value pairs
+    void setAllowAnything();
       
-      /**This is set only for parameterizables which have not set their descriptions.
-        This should only be called to allow backwards compatibility.
-        */
-      void setUnknown();
+    // This is set only for parameterizables which have not set their descriptions.
+    // This should only be called to allow backwards compatibility.
+    void setUnknown();
       
-      template<class T>
-        void add(const std::string& iLabel) {
-          parameters_.push_back( boost::shared_ptr<ParameterDescription>(new ParameterDescriptionTemplate<T>(iLabel,true) ) );
-        }
+    template<class T>
+      boost::shared_ptr<ParameterDescription> add(const std::string& iLabel, T const& value) {
+      boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, true, value));
+      parameters_.push_back(ptr);
+      return ptr;
+    }
 
-      template<class T>
-        void addUntracked(const std::string& iLabel) {
-          parameters_.push_back( new ParameterDescriptionTemplate<T>(iLabel,false) );
-        }
-      // ---------- const member functions ---------------------
-      //Throws a cms::Exception if invalid
-      void validate(const edm::ParameterSet& ) const;
+    template<class T>
+    boost::shared_ptr<ParameterDescription> addUntracked(const std::string& iLabel, T const& value) {
+      boost::shared_ptr<ParameterDescription> ptr(new ParameterDescriptionTemplate<T>(iLabel, false, value));
+      parameters_.push_back(ptr);
+      return ptr;
+    }
 
-      
-      bool anythingAllowed() const {
-        return anythingAllowed_;
-      }
-      
-      bool isUnknown() const {
-        return unknown_;
-      }
-      
-      parameter_const_iterator parameter_begin() const {
-        return parameters_.begin();
-      }
-      parameter_const_iterator parameter_end() const {
-        return parameters_.end();
-      }
-      // ---------- static member functions --------------------
+    //Throws a cms::Exception if invalid
+    void validate(const edm::ParameterSet& ) const;
 
-      // ---------- member functions ---------------------------
+    bool anythingAllowed() const { return anythingAllowed_; }
+    bool isUnknown() const { return unknown_; }
 
-   private:
-      //ParameterSetDescription(const ParameterSetDescription&); // stop default
+    parameter_const_iterator parameter_begin() const {
+      return parameters_.begin();
+    }
 
-      //const ParameterSetDescription& operator=(const ParameterSetDescription&); // stop default
+    parameter_const_iterator parameter_end() const {
+      return parameters_.end();
+    }
 
-      // ---------- member data --------------------------------
-        bool anythingAllowed_;
-        bool unknown_;
-        Parameters parameters_;
-};
+  private:
 
+    bool anythingAllowed_;
+    bool unknown_;
+    Parameters parameters_;
+  };
 }
 #endif

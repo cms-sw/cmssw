@@ -26,6 +26,8 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace edmtest {
 
   //--------------------------------------------------------------------
@@ -89,8 +91,18 @@ namespace edmtest {
     virtual ~IntProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
-    static void fillDescription(edm::ParameterSetDescription& iDesc) {
-      iDesc.add<int>("ivalue");
+    static void fillDescription(edm::ParameterSetDescription& iDesc,
+                                std::string const& moduleLabel) {
+      iDesc.setAllowAnything();
+
+      iDesc.add<int>("ivalue", 1);
+
+      boost::shared_ptr<edm::ParameterDescription> parDescription;
+      parDescription = iDesc.add<edm::ParameterSet>("subpset", edm::ParameterSet());
+      boost::shared_ptr<edm::ParameterSetDescription> subPsetDescription = 
+        parDescription->parameterSetDescription();
+
+      subPsetDescription->add<int>("xvalue", 11);
     }
   private:
     int value_;
@@ -119,8 +131,6 @@ namespace edmtest {
     virtual ~Int16_tProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
-    static void fillDescription(edm::ParameterSetDescription& iDesc) {
-    }
   private:
     boost::int16_t value_;
     boost::uint16_t uvalue_;
@@ -749,9 +759,6 @@ namespace edmtest {
     virtual ~ProdigalProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
-    static void fillDescription(edm::ParameterSetDescription& iDesc) {
-      //iDesc.add<std::string>("label");
-    }
   private:
     std::string label_;
   };

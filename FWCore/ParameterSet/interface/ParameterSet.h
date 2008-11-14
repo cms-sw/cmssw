@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.43 2008/03/12 19:55:51 wmtan Exp $
+// $Id: ParameterSet.h,v 1.44 2008/05/27 19:28:58 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -43,6 +43,7 @@ namespace edm {
     Entry const& retrieve(std::string const&) const;
 
     Entry const* const retrieveUntracked(std::string const&) const;
+    Entry const* const retrieveUnknown(std::string const&) const;
     void insert(bool ok_to_replace, std::string const& , Entry const&);
     void augment(ParameterSet const& from); 
     // encode

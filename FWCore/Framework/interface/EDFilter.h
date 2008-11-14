@@ -8,7 +8,7 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.19 2008/02/07 22:33:08 wmtan Exp $
+$Id: EDFilter.h,v 1.20 2008/06/24 23:25:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,6 +17,8 @@ $Id: EDFilter.h,v 1.19 2008/02/07 22:33:08 wmtan Exp $
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+
+#include <string>
 
 namespace edm {
 
@@ -28,7 +30,8 @@ namespace edm {
     
     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0) {}
     virtual ~EDFilter();
-    static void fillDescription(edm::ParameterSetDescription&);
+    static void fillDescription(edm::ParameterSetDescription& iDesc,
+                                std::string const& moduleLabel);
 
   protected:
     // The returned pointer will be null unless the this is currently

@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <memory>
@@ -52,6 +53,11 @@ namespace edm {
     std::auto_ptr<Worker> worker;
     try {
        pre(md);
+
+       ParameterSetDescription psetDescription;
+       UserType::fillDescription(psetDescription, md.moduleLabel());
+       psetDescription.validate(*p.pset_);
+
        std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));
        post(md);

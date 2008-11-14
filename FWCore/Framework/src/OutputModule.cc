@@ -407,10 +407,11 @@ namespace edm {
   }
   
   void
-  OutputModule::fillDescription(ParameterSetDescription& iDesc) {
+  OutputModule::fillDescription(edm::ParameterSetDescription& iDesc,
+                                std::string const& moduleLabel) {
     iDesc.setUnknown();
   }
-  
+
   void
   OutputModule::updateBranchParents(EventPrincipal const& ep) {
     for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {

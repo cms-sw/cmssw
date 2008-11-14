@@ -28,6 +28,8 @@ output stream.
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
+#include <string>
+
 namespace edm {
 
   typedef edm::detail::CachedProducts::handle_t Trig;
@@ -60,7 +62,8 @@ namespace edm {
     SelectionsArray const& keptProducts() const {return keptProducts_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
-    static void fillDescription(edm::ParameterSetDescription&);
+    static void fillDescription(edm::ParameterSetDescription& iDesc,
+                                std::string const& moduleLabel);
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 

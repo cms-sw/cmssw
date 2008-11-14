@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.15 2008/01/11 20:30:08 wmtan Exp $
+$Id: EDProducer.cc,v 1.16 2008/01/15 06:51:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -106,7 +106,8 @@ namespace edm {
   }
 
   void
-  EDProducer::fillDescription(ParameterSetDescription& iDesc) {
+  EDProducer::fillDescription(edm::ParameterSetDescription& iDesc,
+                              std::string const& moduleLabel) {
     iDesc.setUnknown();
   }
 }

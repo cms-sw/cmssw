@@ -18,7 +18,7 @@ and query the component for its allowed ParameterSetDescription.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  1 16:46:53 EDT 2007
-// $Id$
+// $Id: ParameterSetDescriptionFillerBase.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,8 @@ and query the component for its allowed ParameterSetDescription.
 
 // forward declarations
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+
+#include <string>
 
 namespace edm {
 class ParameterSetDescriptionFillerBase
@@ -37,7 +39,7 @@ class ParameterSetDescriptionFillerBase
       virtual ~ParameterSetDescriptionFillerBase();
 
       // ---------- const member functions ---------------------
-      virtual void fill(ParameterSetDescription&) const = 0;
+      virtual void fill(ParameterSetDescription& iDesc, std::string const& moduleLabel) const = 0;
   
       // ---------- static member functions --------------------
 

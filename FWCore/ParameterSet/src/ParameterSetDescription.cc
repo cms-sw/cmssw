@@ -8,88 +8,72 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 31 15:30:35 EDT 2007
-// $Id: ParameterSetDescription.cc,v 1.2 2008/01/18 20:10:28 wmtan Exp $
+// $Id: ParameterSetDescription.cc,v 1.3 2008/10/08 22:13:36 wmtan Exp $
 //
 
-// system include files
-
-// user include files
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 namespace edm {
-//
-// constructors and destructor
-//
+
   ParameterSetDescription::ParameterSetDescription():
   anythingAllowed_(false),
-  unknown_(false)
-{
-}
-
-// ParameterSetDescription::ParameterSetDescription(const ParameterSetDescription& rhs)
-// {
-//    // do actual copying here;
-// }
-
-ParameterSetDescription::~ParameterSetDescription()
-{
-}
-
-//
-// assignment operators
-//
-// const ParameterSetDescription& ParameterSetDescription::operator=(const ParameterSetDescription& rhs)
-// {
-//   //An exception safe implementation is
-//   ParameterSetDescription temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-void 
-ParameterSetDescription::setAllowAnything()
-{
-  anythingAllowed_ = true;
-}
-
-void 
-ParameterSetDescription::setUnknown()
-{
-  unknown_ = true;
-}
-
-//
-// const member functions
-//
-void
-ParameterSetDescription::validate(const edm::ParameterSet& ) const
-{ 
-  //do nothing for now
-  return;
-  /*
-  //Change this to 'not unknown_' when you want to enforce that all
-  // parameterizables must declare their parameters
-  if (unknown_) {
-    return;
+  unknown_(false) {
   }
-  if( not anythingAllowed() ) {
-    throw edm::Exception(errors::Configuration);
-  }
-   */
-}
 
-//
-// static member functions
-//
+  ParameterSetDescription::~ParameterSetDescription() {
+  }
+
+  void 
+  ParameterSetDescription::setAllowAnything()
+  {
+    anythingAllowed_ = true;
+  }
+
+  void 
+  ParameterSetDescription::setUnknown()
+  {
+    unknown_ = true;
+  }
+
+  void
+  ParameterSetDescription::validate(const edm::ParameterSet& pset) const
+  {
+    if (unknown_ || anythingAllowed()) return;
+
+    for (parameter_const_iterator pdesc = parameter_begin(),
+                                  pend = parameter_end();
+         pdesc != pend;
+         ++pdesc) {
+      (*pdesc)->validate(pset);
+    }
+
+    std::vector<std::string> psetNames = pset.getParameterNames();
+    for (std::vector<std::string>::const_iterator iter = psetNames.begin(),
+	                                          iEnd = psetNames.end();
+         iter != iEnd;
+         ++iter) {
+      if (*iter == std::string("@module_label") ||
+          *iter == std::string("@module_type")) continue;
+
+      std::string const& parameterName = *iter;
+
+      bool foundMatchingParameter = false;
+      for (parameter_const_iterator pdesc = parameter_begin(),
+                                    pend = parameter_end();
+           pdesc != pend;
+           ++pdesc) {
+        if (parameterName == (*pdesc)->label()) {
+          Entry const* entry = pset.retrieveUnknown(parameterName);
+          if (entry->typeCode() == (*pdesc)->type() &&
+              entry->isTracked() == (*pdesc)->isTracked()) {
+            foundMatchingParameter = true;
+          }
+        }
+      }
+      if (!foundMatchingParameter) {
+        throw edm::Exception(errors::Configuration)
+          << "Unexpected parameter \"" << parameterName << "\" was defined.  It could be a typo";
+      }
+    }
+  }
 }

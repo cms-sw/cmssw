@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.35 2007/10/11 06:37:15 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.36 2007/11/11 00:24:43 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -150,6 +150,13 @@ namespace edm {
     }
     return &it->second;
   }  // retrieve()
+
+  Entry const* const
+  ParameterSet::retrieveUnknown(std::string const& name) const {
+    table::const_iterator  it = tbl_.find(name);
+    if (it == tbl_.end()) return 0;
+    return &it->second;
+  }
 
   // ----------------------------------------------------------------------
 

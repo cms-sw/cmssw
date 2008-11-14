@@ -16,79 +16,98 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id: ParameterDescription.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
+// $Id: ParameterDescription.h,v 1.2 2008/03/12 19:55:51 wmtan Exp $
 //
 
-// system include files
+#include <boost/shared_ptr.hpp>
 #include <string>
-
-// user include files
-
-// forward declarations
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include <vector>
 
 namespace edm {
+
+  class ParameterSet;
+  class ParameterSetDescription;
+
+  // The values of this enumeration match the values
+  // defined in the ParameterSet Entry class, to make
+  // comparisons easier.
   enum ParameterTypes {
-    k_uint32,    k_vuint32,
-    k_int32,     k_vint32,
-    k_uint64,    k_vuint64,
-    k_int64,     k_vint64,
-    k_string,    k_vstring,
-    k_bool,      k_vbool,
-    k_double,    k_vdouble,
-    k_PSet,      k_VPSet,
-    k_FileInPath,
-    k_InputTag,  k_VInputTag,
-    k_EventID,   k_VEventID,
-    k_LuminosityBlockID,   k_VLuminosityBlockID,
-    k_numParameterTypes
+    k_int32 = 'I',
+    k_vint32 = 'i',
+    k_uint32 = 'U',
+    k_vuint32 = 'u',
+    k_int64 = 'L',
+    k_vint64 = 'l',
+    k_uint64 = 'X',
+    k_vuint64 = 'x',
+    k_double = 'D',
+    k_vdouble = 'd',
+    k_bool = 'B',
+    k_vbool = 'b',
+    k_string = 'S',
+    k_vstring = 's',
+    k_EventID = 'E',
+    k_VEventID = 'e',
+    k_LuminosityBlockID = 'M',
+    k_VLuminosityBlockID = 'm',
+    k_InputTag = 't',
+    k_VInputTag = 'v',
+    k_FileInPath = 'F',
+    k_PSet = 'P',
+    k_VPSet = 'p'
   };
-  std::string parameterTypeEnumToString(ParameterTypes);
-  
-    struct ParameterTypeToEnum {
-      template <class T>
-      static ParameterTypes toEnum();
-    };
-  
-class ParameterDescription
-{
 
-   public:
-      virtual ~ParameterDescription();
+  std::string parameterTypeEnumToString(ParameterTypes iType);
 
-      // ---------- const member functions ---------------------
-      virtual void validate(const ParameterSet&) const = 0;
-  
-      const std::string& label() const {
-        return label_;
-      }
+  struct ParameterTypeToEnum {
+    template <class T>
+    static ParameterTypes toEnum();
+  };
 
-      ParameterTypes type() const {
-        return type_;
-      }
-      
-      bool isTracked() const {
-        return isTracked_;
-      }
-      // ---------- static member functions --------------------
+  class ParameterDescription
+  {
+  public:
+    virtual ~ParameterDescription();
 
-      // ---------- member functions ---------------------------
+    void validate(const ParameterSet& pset) const;
+
+    const std::string& label() const { return label_; }
+    ParameterTypes type() const { return type_; }
+    bool isTracked() const { return isTracked_; }
+
+    // Need to define something like this that returns the value in a
+    // string although we probably want to format the string in python
+    // for use in python configurations
+    // void defaultValue(std::string& value) const { defaultValue_(value); }
+
+    boost::shared_ptr<ParameterSetDescription> parameterSetDescription()
+      { return parameterSetDescription_; }
+
+    boost::shared_ptr<std::vector<ParameterSetDescription> > parameterSetDescriptions()
+      { return parameterSetDescriptions_; }
+
+    void throwParameterNotDefined() const;
 
   protected:
-      ParameterDescription(const std::string& iLabel,
-                           bool isTracked,
-                           ParameterTypes iType);
+    ParameterDescription(const std::string& iLabel,
+                         bool isTracked,
+                         ParameterTypes iType);
 
-   private:
-      ParameterDescription(const ParameterDescription&); // stop default
+  private:
+    ParameterDescription(const ParameterDescription&); // stop default
+    const ParameterDescription& operator=(const ParameterDescription&); // stop default
 
-      const ParameterDescription& operator=(const ParameterDescription&); // stop default
+    virtual void validate_(const ParameterSet& pset) const = 0;
+    void validateParameterSetDescription(const ParameterSet& pset) const;
+    void validateParameterSetDescriptions(const ParameterSet& pset) const;
+    // virtual void defaultValue_(std::string& value) const = 0;
 
-      // ---------- member data --------------------------------
-      std::string label_;
-      ParameterTypes type_;
-      bool isTracked_;
-};
+    std::string label_;
+    ParameterTypes type_;
+    bool isTracked_;
 
+    boost::shared_ptr<ParameterSetDescription> parameterSetDescription_;
+    boost::shared_ptr<std::vector<ParameterSetDescription> > parameterSetDescriptions_;
+  };
 }
 #endif
