@@ -18,7 +18,6 @@
  */
 
 // system include files
-#include <string>
 #include <vector>
 
 #include <boost/cstdint.hpp>
@@ -66,7 +65,10 @@ enum L1GtObject
     HTT,
     JetCounts,
     HfBitCounts,
-    HfRingEtSums
+    HfRingEtSums,
+    TechTrig,
+    Castor,
+    BPTX
 };
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/
