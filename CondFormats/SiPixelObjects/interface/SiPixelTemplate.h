@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v5.00)
+//  SiPixelTemplate.h (v5.02)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -25,6 +25,8 @@
 //  Change interpolate method to return false boolean if track angles are outside of range
 //  Add template info and method for truncation information
 //  Change to allow template sizes to be changed at compile time
+//  Fix bug in track angle checking
+//  Accommodate Dave's new DB pushfile which overloads the old method (file input)
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -53,7 +55,10 @@
 #include<vector>
 #include<cassert>
 #include "boost/multi_array.hpp"
+
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#endif
 
 typedef boost::multi_array<float, 3> array_3d;
 
@@ -168,7 +173,12 @@ struct SiPixelTemplateStore { //!< template storage structure
 class SiPixelTemplate {
  public:
   SiPixelTemplate() {id_current = -1; index_id = -1; cota_current = 0.; cotb_current = 0.; fpix_current=false;} //!< Default constructor
+  bool pushfile(int filenum);     // load the private store with info from the 
+                                  // file with the index (int) filenum
+								  
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
   bool pushfile(const SiPixelTemplateDBObject& dbobject);     // load the private store with info from db
+#endif
   
   // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
   bool interpolate(int id, bool fpix, float cotalpha, float cotbeta);
@@ -251,6 +261,7 @@ class SiPixelTemplate {
   float cotb_current;       //!< current cot beta
   float abs_cotb;           //!< absolute value of cot beta
   bool fpix_current;        //!< current pix detector (false for BPix, true for FPix)
+  bool success;             //!< true if cotalpha, cotbeta are inside of the acceptance (dynamically loaded)
   
   
   // Keep results of last interpolation to return through member functions
