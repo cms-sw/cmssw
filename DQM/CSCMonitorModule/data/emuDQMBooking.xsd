@@ -1,74 +1,97 @@
-<?xml version="1.0" encoding="utf-8" ?>
-  
-<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://www.phys.ufl.edu/cms/emu/dqm"
-            xmlns="http://www.phys.ufl.edu/cms/emu/dqm"
-            elementFormDefault="qualified">
-  
-  <xs:element name="booking">
-    <xs:complexType>
-      <xs:all>
-        <xs:element name="Definition" maxOccurs="0" minOccurs="unbounded" type="DefinitionType"/>
-        <xs:element name="Histogram" maxOccurs="0" minOccurs="unbounded" type="HistogramType"/>
-      </xs:all>
-    </xs:complexType>
-  </xs:element>
-  
-  <xs:complexType name="DefinitionType">
-    <xs:complexContent>
-      <xs:extension base="BaseHistogramType">
-        <xs:attribute name="id" type="xs:ID" use="required"/>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  
-  <xs:complexType name="HistogramType">
-    <xs:complexContent>
-      <xs:extension base="BaseHistogramType">
-        <xs:element name="Name" type="xs:ID"/>
-        <xs:element name="dref" type="xs:IDREF"/>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  
-  <xs:complexType name="BaseHistogramType">
-    <xs:all>
-      <xs:element name="Prefix" type="xs:string"/>
-      <xs:element name="Type" type="xs:string"/>
-      <xs:element name="XBins" type="xs:integer"/>
-      <xs:element name="XMax" type="xs:integer"/>
-      <xs:element name="XMin" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="Descr" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="Folder" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="LabelsOption" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetErrorOption" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetGridx" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetGridy" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLabelSizeX" type="xs:double"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLabelSizeY" type="xs:double"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLabelSizeZ" type="xs:double"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLeftMargin" type="xs:double"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLogx" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLogy" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetLogz" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetMaximum" type="xs:double"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetMinimum" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetNdivisionsX" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetNdivisionsY" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetOptStat" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetOption" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetRightMargin" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetStats" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetTitleOffset" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetXLabels" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="SetYLabels" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="Title" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="XTitle" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="YBins" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="YMax" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="YMin" type="xs:integer"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="YTitle" type="xs:string"/>
-    </xs:all>
-  </xs:complexType>
-  
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.phys.ufl.edu/cms/emu/dqm" targetNamespace="http://www.phys.ufl.edu/cms/emu/dqm" elementFormDefault="qualified">
+
+	<xs:element name="Booking">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Definition" type="DefinitionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="Histogram" type="HistogramType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:complexType name="DefinitionType">
+		<xs:complexContent>
+			<xs:extension base="BaseHistogramType">
+				<xs:attribute name="id" type="xs:ID" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="HistogramType">
+		<xs:complexContent>
+			<xs:extension base="BaseHistogramType">
+				<xs:sequence>
+					<xs:element name="Name" type="xs:ID"/>
+				</xs:sequence>
+				<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="BaseHistogramType">
+		<xs:sequence>
+			<xs:element name="Prefix" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="CSC"/>
+						<xs:enumeration value="DDU"/>
+						<xs:enumeration value="EMU"/>
+						<xs:enumeration value="EventInfo"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Type" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="h1"/>
+						<xs:enumeration value="h2"/>
+						<xs:enumeration value="hp"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="XBins" type="xs:integer" minOccurs="0"/>
+			<xs:element name="XMax" type="xs:integer" minOccurs="0"/>
+			<xs:element name="XMin" type="xs:integer" minOccurs="0"/>
+			<xs:element name="Descr" type="xs:string" minOccurs="0"/>
+			<xs:element name="Folder" type="xs:string" minOccurs="0"/>
+			<xs:element name="LabelsOption" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetErrorOption" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetGridx" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetGridy" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetLabelSizeX" type="xs:double" minOccurs="0"/>
+			<xs:element name="SetLabelSizeY" type="xs:double" minOccurs="0"/>
+			<xs:element name="SetLabelSizeZ" type="xs:double" minOccurs="0"/>
+			<xs:element name="SetLeftMargin" type="xs:double" minOccurs="0"/>
+			<xs:element name="SetLogx" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetLogy" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetLogz" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetMaximum" type="xs:double" minOccurs="0"/>
+			<xs:element name="SetMinimum" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetNdivisionsX" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetNdivisionsY" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetOptStat" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetOption" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetRightMargin" type="xs:integer" minOccurs="0"/>
+			<xs:element name="SetStats" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:byte">
+						<xs:enumeration value="0"/>
+						<xs:enumeration value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="SetTitleOffset" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetXLabels" type="xs:string" minOccurs="0"/>
+			<xs:element name="SetYLabels" type="xs:string" minOccurs="0"/>
+			<xs:element name="Title" type="xs:string" minOccurs="0"/>
+			<xs:element name="XTitle" type="xs:string" minOccurs="0"/>
+			<xs:element name="YBins" type="xs:integer" minOccurs="0"/>
+			<xs:element name="YMax" type="xs:integer" minOccurs="0"/>
+			<xs:element name="YMin" type="xs:integer" minOccurs="0"/>
+			<xs:element name="YTitle" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
 </xs:schema>

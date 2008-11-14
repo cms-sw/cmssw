@@ -22,79 +22,55 @@
 #include <iostream>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#define LOG_ERROR       LogError()
+#define LOG_WARN        LogWarn()
+#define LOG_INFO        LogInfo()
+#define LOG_DEBUG       ((!edm::MessageDrop::instance()->debugEnabled) ? \
+                        LogDebugger() : LogDebugger(true))
+#define LOG_COUT        LogCout()
+
 namespace cscdqm {
 
-  typedef enum LogType { 
-    ERROR, 
-    WARNING, 
-    INFO, 
-    DEBUG 
+  class LogInfo : public edm::LogInfo {
+    public: LogInfo() : edm::LogInfo("") { }
   };
 
-class Logger {
-  public:
+  class LogWarn : public edm::LogWarning {
+    public: LogWarn() : edm::LogWarning("") { }
+  };
 
-    explicit Logger(LogType type){ this->type = type; }
+  class LogError : public edm::LogError {
+    public: LogError() : edm::LogError("") { }
+  };
 
-    template< class T >
-    Logger& operator<< (T const & t) { 
-      switch(type) {
-        case ERROR:
-          edm::LogError("Error") << t;
-          break;
-        case WARNING:
-          edm::LogWarning("Warning") << t;
-          break;
-        case INFO:
-          edm::LogInfo("Info") << t;
-          break;
-        case DEBUG:
-          LogDebug("Debug") << t;
-          break;
+  class LogDebugger : public edm::LogDebug_ {
+    public: 
+      LogDebugger() : edm::LogDebug_() { }
+      LogDebugger(const bool& b) : edm::LogDebug_("", __FILE__, __LINE__) { }
+  };
+
+  class LogCout {
+    public:
+
+      LogCout() {}
+
+      template< class T >
+      LogCout& operator<< (T const & t) { 
+        std::cout << t;
+        return *this; 
       }
-      return *this; 
-    }
 
-    Logger& operator<< (std::ostream&(*f)(std::ostream&)) { 
-      switch(type) {
-        case ERROR:
-          edm::LogError ("Error") << f;
-          break;
-        case WARNING:
-          edm::LogWarning ("Warning") << f;
-          break;
-        case INFO:
-          edm::LogInfo ("Info") << f;
-          break;
-        case DEBUG:
-          LogDebug ("Debug") << f;
-          break;
+      LogCout& operator<< (std::ostream&(*f)(std::ostream&)) { 
+        std::cout << f;
+        return *this; 
       }
-      return *this; 
-    }
 
-    Logger& operator<< (std::ios_base&(*f)(std::ios_base&) ) { 
-      switch(type) {
-        case ERROR:
-          edm::LogError ("Error") << f;
-          break;
-        case WARNING:
-          edm::LogWarning ("Warning") << f;
-          break;
-        case INFO:
-          edm::LogInfo ("Info") << f;
-          break;
-        case DEBUG:
-          LogDebug ("Debug") << f;
-          break;
-      }
-      return *this; 
-    }     
+      LogCout& operator<< (std::ios_base&(*f)(std::ios_base&) ) { 
+        std::cout << f;
+        return *this; 
+      }     
 
-  private:
-
-    LogType type;
-};
+  };
 
 }
 
