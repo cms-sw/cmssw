@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
 
 using namespace std;
@@ -26,7 +27,7 @@ class SiPixelFedCablingMapWriter : public edm::EDAnalyzer {
   virtual void endJob( );
   virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
  private:
-  SiPixelFedCablingMap * cabling;
+  SiPixelFedCablingTree * cabling;
   string record_;
   string pixelToFedAssociator_;
 };
@@ -55,12 +56,15 @@ SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter(){
 
 void SiPixelFedCablingMapWriter::beginJob( const edm::EventSetup& iSetup ) {
    edm::LogInfo("BeginJob method ");
+   std::cout << "-------HERE-----------" << endl;
    cabling = SiPixelFedCablingMapBuilder(pixelToFedAssociator_).produce(iSetup);
+   std::cout << "-------HERE2-----------" << endl;
    edm::LogInfo("PRINTING MAP:") << cabling->print(3) << endl;
    edm::LogInfo("BeginJob method .. end");
 }
 
 void SiPixelFedCablingMapWriter::endJob( ) {
+  SiPixelFedCablingMap * result = new SiPixelFedCablingMap(cabling);
   LogInfo("Now NEW writing to DB");
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -70,13 +74,13 @@ void SiPixelFedCablingMapWriter::endJob( ) {
 
   try {
     if( mydbservice->isNewTagRequest(record_) ){
-      mydbservice->createNewIOV<SiPixelFedCablingMap>( cabling, 
+      mydbservice->createNewIOV<SiPixelFedCablingMap>( result, 
 						       mydbservice->beginOfTime(),
 						       mydbservice->endOfTime(), 
 						       record_);
     }else{
       mydbservice->appendSinceTime<SiPixelFedCablingMap>( 
-          cabling, 
+          result, 
 	  mydbservice->currentTime(), 
 	  record_);
     }

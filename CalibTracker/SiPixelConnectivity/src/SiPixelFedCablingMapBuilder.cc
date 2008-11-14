@@ -21,6 +21,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "CalibTracker/SiPixelConnectivity/interface/PixelToLNKAssociateFromAscii.h"
 
 #include <bitset>
 
@@ -34,7 +35,7 @@ SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string & associat
 { }
 
 
-SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup)
+SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSetup& setup)
 {
   FEDNumbering fednum;
 //  TRange<int> fedIds = fednum.getSiPixelFEDIds();
@@ -44,10 +45,13 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
 
   edm::ESHandle<PixelToFEDAssociate> associator;
   setup.get<TrackerDigiGeometryRecord>().get(theAssociatorName,associator);
+//   PixelToFEDAssociate * associator = new PixelToLNKAssociateFromAscii("pixelToLNK.ascii");
+
+  
   const PixelToFEDAssociate & name2fed = *associator; 
   
   string version = name2fed.version();
-  SiPixelFedCablingMap * result = new SiPixelFedCablingMap(version);
+  SiPixelFedCablingTree * result = new SiPixelFedCablingTree(version);
 
 
   LogDebug("read tracker geometry...");
