@@ -1,7 +1,7 @@
 /**
-    $Date: 2008/09/05 08:55:42 $
-    $Revision: 1.4 $
-    $Id: IMACalibBlock.cc,v 1.4 2008/09/05 08:55:42 govoni Exp $ 
+    $Date: 2008/09/11 15:22:43 $
+    $Revision: 1.5 $
+    $Id: IMACalibBlock.cc,v 1.5 2008/09/11 15:22:43 govoni Exp $ 
     \author $Author: govoni $
 */
 
@@ -42,12 +42,14 @@ IMACalibBlock::Fill (std::map<int,double>::const_iterator MapBegin,
                      double pSubtract,
                      double sigma)
 {
+//  std::cerr<<"\n\nfaccio il fill!\n";
   double inverror = 1./sigma ; 
   //LP fist loop over energies
   for (std::map<int,double>::const_iterator itMap1 =MapBegin ; 
        itMap1 !=MapEnd ; 
        ++itMap1)
     {
+//      std::cerr<<"numero "<<itMap1->first<<" vale "<<itMap1->second<<"\t"; 
       for (std::map<int,double>::const_iterator itMap2 = itMap1 ; 
       itMap2 !=MapEnd ; 
       ++itMap2)  
@@ -99,6 +101,44 @@ IMACalibBlock::complete ()
 int
 IMACalibBlock::solve (int usingBlockSolver, double min, double max)
 {
+<<<<<<< IMACalibBlock.cc
+ complete () ;
+// TH1F vettore ("vettore","vettore",10,-0.1,9.9);
+// TH1F matrice ("matrice","matrice",100,-0.1,99.9);
+ CLHEP::HepMatrix kaliMatrix (m_numberOfElements,m_numberOfElements) ;
+// for (std::vector<double>::iterator it = m_kaliVector.begin();
+//		 it!= m_kaliVector.end();++it)
+//	 vettore.Fill(it-m_kaliVector.begin(),*it);
+ riempiMtr (m_kaliMatrix , kaliMatrix) ;
+// for (std::vector<double>::iterator it = m_kaliMatrix.begin();
+//		 it!= m_kaliMatrix.end();++it)
+//	 matrice.Fill(it-m_kaliMatrix.begin(),*it);
+//  TFile f ("fileInteressante.root","RECREATE");
+//  vettore.Write();
+// matrice.Write();
+ CLHEP::HepVector kaliVector (m_numberOfElements) ;
+ riempiVtr (m_kaliVector , kaliVector) ;
+ //PG linear system solution
+ CLHEP::HepVector result = CLHEP::solve (kaliMatrix,kaliVector) ;
+  for (int i = 0 ; i < kaliVector.num_row () ; ++i)
+ if (result.normsq () < min * kaliVector.num_row () ||
+     result.normsq () > max * kaliVector.num_row ()) 
+   {
+   if (usingBlockSolver)  
+     {
+        edm::LogWarning ("IML") << "using  blocSlover " << std::endl ;
+        BlockSolver() (kaliMatrix,kaliVector,result) ;
+     }
+   else 
+     {
+       edm::LogWarning ("IML") <<"coeff out of range " <<std::endl;
+       for (int i = 0 ; i < kaliVector.num_row () ; ++i)
+             result[i] = 1. ;
+     }
+   }
+ fillMap(result);
+ return ;
+=======
   complete () ;
  
   int returnCode = 0 ;
@@ -127,6 +167,7 @@ IMACalibBlock::solve (int usingBlockSolver, double min, double max)
     }
   fillMap (result) ;
   return returnCode ;
+>>>>>>> 1.5
 }
 
 

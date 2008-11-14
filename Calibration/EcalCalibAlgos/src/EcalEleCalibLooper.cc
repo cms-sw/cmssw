@@ -9,7 +9,6 @@
 #include "Calibration/EcalCalibAlgos/interface/EcalEleCalibLooper.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-//LP includes to read/write the original coeff
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -17,16 +16,16 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
-//DS verify all these include
+//
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "Calibration/EcalCalibAlgos/interface/MatrixFillMap.h"
+#include "Calibration/EcalCalibAlgos/interface/ClusterFillMap.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TFile.h"
-//DS LogMessages
-#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 
 
@@ -37,15 +36,10 @@
 EcalEleCalibLooper::EcalEleCalibLooper (const edm::ParameterSet& iConfig) :
       m_barrelAlCa (iConfig.getParameter<edm::InputTag> ("alcaBarrelHitCollection")) ,
       m_endcapAlCa (iConfig.getParameter<edm::InputTag> ("alcaEndcapHitCollection")) ,
-      m_recoWindowSide (iConfig.getParameter<int> ("recoWindowSide")) ,
+      m_recoWindowSidex (iConfig.getParameter<int> ("recoWindowSidex")) ,
+      m_recoWindowSidey (iConfig.getParameter<int> ("recoWindowSidey")) ,
       m_etaWidth (iConfig.getParameter<int> ("etaWidth")) ,
- //PG fin dove andare a cercare cristalli da aggiungere a pSubtract
- //PG fuori dalla regione da calibrare     
-      //m_etaBorder (iConfig.getParameter<int> ("etaBorder")) ,
       m_phiWidthEB (iConfig.getParameter<int> ("phiWidthEB")) ,
- //PG fin dove andare a cercare cristalli da aggiungere a pSubtract
- //PG fuori dalla regione da calibrare (ci vuole anche per EE)    
-      //m_phiBorderEB (iConfig.getParameter<int> ("phiBorderEB")) ,
       m_etaStart (etaShifter (iConfig.getParameter<int> ("etaStart"))) , 
       m_etaEnd (etaShifter (iConfig.getParameter<int> ("etaEnd"))) ,
       m_phiStartEB (iConfig.getParameter<int> ("phiStartEB")) , 
@@ -53,90 +47,50 @@ EcalEleCalibLooper::EcalEleCalibLooper (const edm::ParameterSet& iConfig) :
       m_radStart (iConfig.getParameter<int> ("radStart")) , 
       m_radEnd (iConfig.getParameter<int> ("radEnd")) ,
       m_radWidth (iConfig.getParameter<int> ("radWidth")) ,
- //PG fin dove andare a cercare cristalli da aggiungere a pSubtract
- //PG fuori dalla regione da calibrare     
-      //m_radBorder (iConfig.getParameter<int> ("radBorder")),
       m_phiStartEE (iConfig.getParameter<int> ("phiStartEE")) ,
       m_phiEndEE (iConfig.getParameter<int> ("phiEndEE")) ,
       m_phiWidthEE (iConfig.getParameter<int> ("phiWidthEE")) ,
-//PG per applicare tagli al punto di impatto
-//PG sulla faccia frontale del cristallo, importante per il testbeam      
-//FIXME      m_halfXBand (iConfig.getParameter<double> ("halfXBand")) ,
-//FIXME      m_halfYBand (iConfig.getParameter<double> ("halfYBand")) ,
       m_maxSelectedNumPerXtal (iConfig.getParameter<int> ("maxSelectedNumPerCrystal")) ,  
       m_minEnergyPerCrystal (iConfig.getParameter<double> ("minEnergyPerCrystal")),
       m_maxEnergyPerCrystal (iConfig.getParameter<double> ("maxEnergyPerCrystal")) ,
       m_minCoeff (iConfig.getParameter<double> ("minCoeff")) ,
       m_maxCoeff (iConfig.getParameter<double> ("maxCoeff")) ,
       m_usingBlockSolver (iConfig.getParameter<int> ("usingBlockSolver")) ,
-      //m_minAccept (iConfig.getParameter<double> ("minAccept")) ,
-      //m_maxAccept (iConfig.getParameter<double> ("maxAccept")) ,
       m_loops (iConfig.getParameter<int> ("loops")),
       m_ElectronLabel (iConfig.getParameter<edm::InputTag> ("electronLabel"))
-  //Controls the parameters and their conversions
 {
-   edm::LogInfo ("IML") << "[EcalEleCalibLooper][ctor] asserts" ;
-   assert ( (m_radEnd - m_radStart)%m_radWidth == 0) ; 
-   assert ( (m_etaEnd-m_etaStart)%m_etaWidth == 0) ; 
-   assert (m_etaStart >=0 && m_etaStart < 170);
-   assert (m_etaEnd >= m_etaStart && m_etaEnd <= 170);
-//        assert (m_phiStartEB >=0 && m_phiStartEB < 360);
-//        assert (m_phiEndEB >= m_phiStartEB && m_phiEndEB <= 360);
-//PG questi due si possono sostituire con 
-//PG m_phiStartEE %= 360 ;
-//PG if (m_phiStartEE < 0) m_phiStartEE += 360 ;
-//PG ed analogo per l'end, credo
-//        assert (m_phiStartEE >=0); // || m_phiStartEE < 360);
-//        assert (m_phiEndEE >=0); // m_phiStartEE || m_phiEndEE < 360);
-   assert (m_radStart >=0 && m_radStart <= 50);
-   assert (m_radEnd >= m_radStart && m_radEnd <= 50);
-   edm::LogInfo ("IML") << "[EcalEleCalibLooper][ctor] entering " ;
-   //PG FIXME questi posso farli direttamente con barrelcells
-   int index;
-   for (int a=0; a<170; ++a)
-     for (int b=0; b<360; ++b)
-       {
-         index = EBDetId::unhashIndex (a*360+b).rawId ();
-         m_recalibMap[index] = 1. ;
-         m_xtalNumOfHits[index] = 0 ;
-       }
-   for (int i=0; i<100; ++i)
-    for (int j=0; j<100; ++j)
-      {
-        if (EEDetId::validDetId (i+1, j+1, 1))
-          {
-            index = EEDetId (i+1, j+1, 1).rawId ();
-            m_xtalNumOfHits[index]=0;          
-            m_recalibMap[index] = 1. ;
-          }
-        if (EEDetId::validDetId (i+1, j+1, -1))
-          {
-            index = EEDetId (i+1, j+1, -1).rawId ();
-            m_recalibMap[index]= 1. ;
-            m_xtalNumOfHits[index]=0;
-          }
-      }
-   edm::LogInfo ("IML") << "[EcalEleCalibLooper][ctor] region definition" ;
-   EBRegionDefinition () ;
-   EERegionDefinition () ;
+  edm::LogInfo ("IML") << "[EcalEleCalibLooper][ctor] asserts" ;
+  assert (!((m_etaEnd - m_etaStart )%m_etaWidth)); 
+
+  assert (m_etaStart >=0 && m_etaStart <= 171);
+  assert (m_etaEnd >= m_etaStart && m_etaEnd <= 171);
+  assert ( (m_radEnd - m_radStart)%m_radWidth == 0) ; 
+  assert (m_radStart >=0 && m_radStart <= 50);
+  assert (m_radEnd >= m_radStart && m_radEnd <= 50);
+  edm::LogInfo ("IML") << "[EcalEleCalibLooper][ctor] entering " ;
+  edm::LogInfo ("IML") << "[EcalEleCalibLooper][ctor] region definition" ;
+  EBRegionDefinition () ;
+  EERegionDefinition () ;
 ///Graphs to ckeck the region definition
-   TH2F * EBRegion = new TH2F ("EBRegion","EBRegion",170,0,170,360,0,360) ;
-   for (int eta = 0; eta<170; ++eta)
-      for (int phi = 0; phi <360; ++phi){
-   	EBRegion->Fill (eta, phi,m_xtalRegionId[EBDetId::unhashIndex(eta*360+phi).rawId()] );
-       }
-   TH2F * EERegion = new TH2F ("EERegion", "EERegion",100,0,100,100,0,100);
-   for (int x = 0; x<100; ++x)
-      for (int y = 0; y<100;++y){
-	   if(EEDetId::validDetId(x+1,y+1,1))
-       	     EERegion->Fill(x,y,m_xtalRegionId[EEDetId(x+1,y+1,-1).rawId()]);
+  TH2F * EBRegion = new TH2F ("EBRegion","EBRegion",170,0,170,360,0,360) ;
+  for (int eta = 0; eta<170; ++eta)
+     for (int phi = 0; phi <360; ++phi){
+  	EBRegion->Fill (eta, phi,m_xtalRegionId[EBDetId::unhashIndex(eta*360+phi).rawId()] );
       }
-          
-   TFile out ("EBZone.root", "recreate");
-     EBRegion->Write ();
-     EERegion->Write ();
-     out.Close ();
-   ///End of Graphs
+  TH2F * EERegion = new TH2F ("EERegion", "EERegion",100,0,100,100,0,100);
+  for (int x = 0; x<100; ++x)
+     for (int y = 0; y<100;++y){
+   if(EEDetId::validDetId(x+1,y+1,1))
+      	     EERegion->Fill(x,y,m_xtalRegionId[EEDetId(x+1,y+1,-1).rawId()]);
+     }
+         
+  TFile out ("EBZone.root", "recreate");
+    EBRegion->Write ();
+    EERegion->Write ();
+  out.Close ();
+  delete EERegion;
+  delete EBRegion;
+  ///End of Graphs
 
   //PG build the calibration algorithms for the regions
   //PG ------------------------------------------------
@@ -165,6 +119,19 @@ EcalEleCalibLooper::EcalEleCalibLooper (const edm::ParameterSet& iConfig) :
           exit (1) ;    
         }    
     } //PG loop over the regions set
+  std::string mapFiller = iConfig.getParameter<std::string> ("FillType");
+  if (mapFiller == "Cluster") m_MapFiller= new ClusterFillMap (
+	m_recoWindowSidex ,m_recoWindowSidey ,
+        m_xtalRegionId ,m_minEnergyPerCrystal ,
+        m_maxEnergyPerCrystal , m_xtalPositionInRegion ,
+        & m_barrelMap ,
+        & m_endcapMap ); 
+  if (mapFiller == "Matrix") m_MapFiller = new MatrixFillMap (
+	m_recoWindowSidex ,m_recoWindowSidey ,
+        m_xtalRegionId , m_minEnergyPerCrystal ,
+        m_maxEnergyPerCrystal , m_xtalPositionInRegion ,
+        & m_barrelMap ,
+        & m_endcapMap); 
  } //end ctor
 
 
@@ -190,12 +157,22 @@ EcalEleCalibLooper::~EcalEleCalibLooper ()
 void 
 EcalEleCalibLooper::beginOfJob (const edm::EventSetup & iSetup) 
 {
-  edm::LogInfo ("IML") << "[EcalEleCalibLooper][beginOfJob]" ;
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord> ().get (geoHandle);
-  const CaloGeometry& geometry = *geoHandle;
-  m_barrelCells = geometry.getValidDetIds (DetId::Ecal, EcalBarrel);
-  m_endcapCells = geometry.getValidDetIds (DetId::Ecal, EcalEndcap);
+ edm::LogInfo ("IML") << "[EcalEleCalibLooper][beginOfJob]" ;
+ edm::ESHandle<CaloGeometry> geoHandle;
+ iSetup.get<CaloGeometryRecord> ().get (geoHandle);
+ const CaloGeometry& geometry = *geoHandle;
+ m_barrelCells = geometry.getValidDetIds (DetId::Ecal, EcalBarrel);
+ m_endcapCells = geometry.getValidDetIds (DetId::Ecal, EcalEndcap);
+ for (std::vector<DetId>::const_iterator barrelIt=m_barrelCells.begin();
+       barrelIt!=m_barrelCells.end();++barrelIt){
+          m_barrelMap[*barrelIt]=1;
+          m_xtalNumOfHits[barrelIt->rawId()]=0;
+         }
+ for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
+       endcapIt!=m_endcapCells.end();++endcapIt){
+          m_endcapMap[*endcapIt]=1;
+          m_xtalNumOfHits[endcapIt->rawId()]=0;
+         }
 }
 
 
@@ -210,7 +187,7 @@ void EcalEleCalibLooper::startingNewLoop (unsigned int ciclo)
   for (std::vector<VEcalCalibBlock *>::iterator calibBlock = m_EcalCalibBlocks.begin () ;
        calibBlock != m_EcalCalibBlocks.end () ;
        ++calibBlock) 
-    (*calibBlock)->reset () ;
+          (*calibBlock)->reset ();
   for (std::map<int,int>::iterator it= m_xtalNumOfHits.begin();
        it!=m_xtalNumOfHits.end();
        ++it)
@@ -228,15 +205,17 @@ edm::EDLooper::Status
 EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
                              const edm::EventSetup&) 
 {
+ //take the collection of recHits in the barrel
  const EBRecHitCollection* barrelHitsCollection = 0;
  edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
  iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
  barrelHitsCollection = barrelRecHitsHandle.product () ;
  if (!barrelRecHitsHandle.isValid ()) {
      edm::LogError ("reading") << "[EcalEleCalibLooper] barrel rec hits not found" ;
-     return  kContinue ;//maybe FIXME not with a kContinue but a skip only on the barrel part;
+     return  kContinue ;
     }
 
+ //take the collection of rechis in the endcap
  const EERecHitCollection * endcapHitsCollection = 0 ;
  edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
  iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
@@ -255,39 +234,22 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
    }
 
  //Start the loop over the electrons 
- for (eleIterator eleIt = pElectrons->begin ();
+ for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin ();
       eleIt != pElectrons->end ();
       ++eleIt )
    {
      double pSubtract = 0 ;
      double pTk = 0 ;
-     DetId Max = findMaxHit (eleIt->superCluster ()->getHitsByDetId (), 
-                             barrelHitsCollection,  endcapHitsCollection) ;
-     // Continues if the findMaxHit doesn't find anything
-     if (Max.det()==0) continue; 
-
+     std::map<int , double> xtlMap;
+     DetId Max = m_MapFiller->fillMap(eleIt->superCluster ()->getHitsByDetId (), 
+                           barrelHitsCollection,endcapHitsCollection, xtlMap,pSubtract);
      if (m_maxSelectedNumPerXtal > 0 && 
         m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue;
      ++m_xtalNumOfHits[Max.rawId()];
-     std::map<int , double> xtlMap;
-     int blockIndex =  m_xtalRegionId[Max.rawId ()] ;
+     if (m_xtalRegionId[Max.rawId()]==-1) continue;
      pTk = eleIt->trackMomentumAtVtx ().R ();
-     if  ( Max.subdetId () == EcalBarrel  )
-       {
-         EBDetId EBmax = Max;
-         if (EBregionCheck (etaShifter (EBmax.ieta ()), EBmax.iphi ()-1)) continue;//IN the future FIXME
-         fillEBMap (EBmax, barrelHitsCollection, xtlMap,
-                    blockIndex, pSubtract );
-       }
-     else 
-       {
-         EEDetId EEmax = Max;
-	       if (EEregionCheck (EEmax.ix ()-1, EEmax.iy ()-1)) continue ;
-         fillEEMap (EEmax, endcapHitsCollection, xtlMap,
-                    blockIndex, pSubtract ) ;
-         pSubtract += eleIt->superCluster ()->preshowerEnergy () ;          
-       }
-     m_EcalCalibBlocks.at (blockIndex)->Fill (xtlMap.begin (), xtlMap.end (),pTk,pSubtract) ;
+     m_EcalCalibBlocks.at (m_xtalRegionId[Max.rawId()])->Fill (xtlMap.begin (), 
+		                                   xtlMap.end (),pTk,pSubtract) ;
    } //End of the loop over the electron collection
 
   return  kContinue;
@@ -321,10 +283,10 @@ edm::EDLooper::Status EcalEleCalibLooper::endOfLoop (const edm::EventSetup& dumb
           EBDetId ee (*barrelIt);
           int index= barrelIt->rawId();
           if(m_xtalRegionId[index]==-1)continue;
-          m_recalibMap[index] *= 
+          m_barrelMap[*barrelIt] *= 
               m_EcalCalibBlocks.at(m_xtalRegionId[index])->at(m_xtalPositionInRegion[index]);
-          EBcoeffEnd->Fill(m_recalibMap[index]);
-          EBcoeffMap->Fill(ee.ieta(),ee.iphi(),m_recalibMap[index]);
+          EBcoeffEnd->Fill(m_barrelMap[*barrelIt]);
+          EBcoeffMap->Fill(ee.ieta(),ee.iphi(),m_barrelMap[*barrelIt]);
         } //PG loop over phi
 
   // loop over the EndCap to get the recalib coefficients
@@ -336,17 +298,17 @@ edm::EDLooper::Status EcalEleCalibLooper::endOfLoop (const edm::EventSetup& dumb
      if (ee.zside()>0) 
         { 
           if (m_xtalRegionId[index]==-1) continue ;
-          m_recalibMap[index] *= 
+          m_endcapMap[*endcapIt] *= 
              m_EcalCalibBlocks.at (m_xtalRegionId[index])->at (m_xtalPositionInRegion[index]);
-          EEPcoeffEnd->Fill (m_recalibMap[index]) ;
-          EEPcoeffMap->Fill (ee.ix(),ee.iy(),m_recalibMap[index]) ;
+          EEPcoeffEnd->Fill (m_endcapMap[*endcapIt]) ;
+          EEPcoeffMap->Fill (ee.ix(),ee.iy(),m_endcapMap[*endcapIt]) ;
         }
       else
         {
-          m_recalibMap[index] *= 
+          m_endcapMap[*endcapIt] *= 
             m_EcalCalibBlocks.at (m_xtalRegionId[index])->at (m_xtalPositionInRegion[index]);
-          EEMcoeffEnd->Fill (m_recalibMap[index]) ;
-          EEMcoeffMap->Fill (ee.ix(),ee.iy(),m_recalibMap[index]) ;
+          EEMcoeffEnd->Fill (m_endcapMap[*endcapIt]) ;
+          EEMcoeffMap->Fill (ee.ix(),ee.iy(),m_endcapMap[*endcapIt]) ;
         }
     } // loop over the EndCap to get the recalib coefficients
 
@@ -362,6 +324,12 @@ edm::EDLooper::Status EcalEleCalibLooper::endOfLoop (const edm::EventSetup& dumb
   EEMcoeffEnd->Write () ;
   EEMcoeffMap->Write () ;
   zout.Close () ;
+  delete EBcoeffEnd;
+  delete EBcoeffMap;
+  delete EEPcoeffEnd;
+  delete EEMcoeffEnd;
+  delete EEPcoeffMap;
+  delete EEMcoeffMap;
   if (iCounter < m_loops-1 ) return kContinue ;
   else return kStop; 
 }
@@ -385,16 +353,15 @@ EcalEleCalibLooper::endOfJob ()
        ++barrelIt) 
    {
      EBDetId eb (*barrelIt);
-     barrelWriter.writeLine (eb,m_recalibMap[barrelIt->rawId()]);
+     barrelWriter.writeLine (eb,m_barrelMap[*barrelIt]);
    }
  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin ();
       endcapIt!=m_endcapCells.end ();
       ++endcapIt) 
    {
      EEDetId ee (*endcapIt);
-     endcapWriter.writeLine (ee,m_recalibMap[endcapIt->rawId()]);
+     endcapWriter.writeLine (ee,m_endcapMap[*endcapIt]);
    }
-
  edm::LogInfo ("IML") << "[InvMatrixCalibLooper][endOfJob] Exiting" ;    
 }
 
@@ -611,142 +578,10 @@ int EcalEleCalibLooper::EEregionCheck (const int ics, const int ips)  const
 //Shifts eta in other coordinates (from 0 to 170)
 inline int EcalEleCalibLooper::etaShifter (const int etaOld) const
    {
+     assert (etaOld);
      if (etaOld < 0) return etaOld + 85;
      else if (etaOld > 0) return etaOld + 84;
    }
 
 
 //--------------------------------------------
-
-
-//!find the most energetic Xtal
-DetId  EcalEleCalibLooper::findMaxHit (const std::vector<DetId> & v1,
-				    const EBRecHitCollection* EBhits,
-				    const EERecHitCollection* EEhits) 
-{
- double currEnergy = 0.;
- DetId maxHit;
- for (std::vector<DetId>::const_iterator idsIt = v1.begin () ; 
-      idsIt != v1.end () ; ++idsIt)
-   {
-    if (idsIt->subdetId () == EcalBarrel) 
-       {              
-         EBRecHitCollection::const_iterator itrechit;
-         itrechit = EBhits->find (*idsIt) ;
-         if (itrechit == EBhits->end () )
-           {
-            edm::LogWarning("IML") <<"max hit not found";
-            continue;
-           }
-         if (itrechit->energy () > currEnergy)
-           {
-             currEnergy = itrechit->energy () ;
-             maxHit= *idsIt ;
-           }
-       } //barrel part ends
-    else 
-       {     
-         EERecHitCollection::const_iterator itrechit;
-         itrechit = EEhits->find (*idsIt) ;
-         if (itrechit == EEhits->end () )
-           {
-             edm::LogWarning("IML") <<"max hit not found";
-             continue;
-           }
-              
-         if (itrechit->energy () > currEnergy)
-           {
-            currEnergy=itrechit->energy ();
-            maxHit= *idsIt;
-           }
-       } //ends the barrel part
-    } //end of the loop over the detId
- return maxHit;
-}
-
-
-//---------------------------------------------------
-
-
-//!Fills the map to be sent to the IMACalibBlock
-void EcalEleCalibLooper::fillEBMap (EBDetId EBmax,
-                const EcalRecHitCollection * barrelHitsCollection,
-                std::map<int,double> & EBxtlMap,
-                int EBNumberOfRegion, double & pSubtract )
-{
- int curr_eta;
- int curr_phi;
- double dummy;
- pSubtract=0;
-//Maybe updated differently for eta and phi
- for (int ii = 0 ; ii < m_recoWindowSide ; ++ii)
-  for (int ij = 0 ; ij < m_recoWindowSide ; ++ij)
-    {
-     //PG CMS official reference system
-     curr_eta = EBmax.ieta () - m_recoWindowSide / 2 + ii ;
-     curr_phi = EBmax.iphi () - m_recoWindowSide / 2 + ij ;
-     if (abs (curr_eta) > 85) continue;
-     //Skpis over the zero between EB+ and EB-
-    if (curr_eta * EBmax.ieta () <= 0) 
-       {
-         if (EBmax.ieta () > 0) --curr_eta ; 
-         else curr_eta++; 
-       }
-     if (curr_phi < 1) curr_phi += 360;
-     if (curr_phi >= 360) curr_phi -= 360;
-     if (EBDetId::validDetId (curr_eta,curr_phi))
-      {
-       EBDetId det = EBDetId (curr_eta,curr_phi,EBDetId::ETAPHIMODE);
-       EcalRecHitCollection::const_iterator curr_recHit = barrelHitsCollection->find (det) ;
-       if (curr_recHit == barrelHitsCollection->end ()) continue;
-       dummy = curr_recHit->energy () ;
-       if ( dummy > m_minEnergyPerCrystal && dummy < m_maxEnergyPerCrystal)
-            dummy *= m_recalibMap[det.rawId ()] ;     
-       else continue;
-       if (m_xtalRegionId[det.rawId ()] == EBNumberOfRegion)
-            EBxtlMap[m_xtalPositionInRegion[det.rawId ()]] = dummy ;
-       else pSubtract += dummy;
-//PG FIXME qui bisognera' inserire il ctrl per non essere troppo lontano, il bordo insomma
-      }
-    }
-}
-
-//---------------------------------------------------
-
-
-//!Fills the map to be sent to the calibBlock for the endcap
-void EcalEleCalibLooper::fillEEMap (EEDetId EEmax,
-                const EcalRecHitCollection * endcapHitsCollection,
-                std::map<int,double> & EExtlMap,
-                int EENumberOfRegion, double & pSubtract )
-  
-{
- int curr_x=0;
- int curr_y=0;
- double dummy=0.;
- pSubtract=0;
- int ecalZone=EEmax.zside();
- //Loop on the energy reconstruction window
- for (int ii=0;ii<m_recoWindowSide;++ii)
- for (int ij=0;ij<m_recoWindowSide;++ij)
-  {
-     curr_x=EEmax.ix ()-m_recoWindowSide/2+ii;
-     curr_y=EEmax.iy ()-m_recoWindowSide/2+ij;
-     if (EEDetId::validDetId (curr_x,curr_y,EEmax.zside ()))
-     {
-      EEDetId det = EEDetId (curr_x,curr_y,ecalZone,EEDetId::XYMODE);
-      EcalRecHitCollection::const_iterator curr_recHit = endcapHitsCollection->find (det) ;
-      if (curr_recHit == endcapHitsCollection->end ()) continue;
-      dummy = curr_recHit->energy () ;
-      if ( dummy < m_minEnergyPerCrystal || dummy > m_maxEnergyPerCrystal ) continue ; 
-      dummy *= m_recalibMap[det.rawId ()] ;     
-       if (m_xtalRegionId[det.rawId ()] == EENumberOfRegion)
-            EExtlMap[m_xtalPositionInRegion[det.rawId ()]] = dummy ;
-      else pSubtract += dummy;
-      //PG FIXME qui bisognera' inserire il ctrl per non essere troppo lontano, il bordo insomma
-     } 
-   } //PG loop on the energy reconstruction window
- } 
-   
-
-
