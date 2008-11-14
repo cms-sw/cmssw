@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_0_0/pre3/HLT/V1 (CMSSW_3_0_0_pre2_HLT1)
+# /dev/CMSSW_3_0_0/pre3/HLT/V5 (CMSSW_3_0_0_pre2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V1')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V5')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -18,10 +18,10 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
   label = cms.string( "MCJetCorrectorIcone5" )
 )
 
-KFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
-  ComponentName = cms.string( "KFFittingSmoother" ),
-  Fitter = cms.string( "KFFitter" ),
-  Smoother = cms.string( "KFSmoother" ),
+hltKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltKFFittingSmoother" ),
+  Fitter = cms.string( "hltKFFitter" ),
+  Smoother = cms.string( "hltKFSmoother" ),
   EstimateCut = cms.double( -1.0 ),
   MinNumberOfHits = cms.int32( 5 ),
   RejectTracks = cms.bool( True ),
@@ -29,16 +29,16 @@ KFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   NoInvalidHitsBeginEnd = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-KFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
-  ComponentName = cms.string( "KFFitter" ),
+hltKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "hltKFFitter" ),
   Propagator = cms.string( "PropagatorWithMaterial" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
-KFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
-  ComponentName = cms.string( "KFSmoother" ),
+hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "hltKFSmoother" ),
   Propagator = cms.string( "PropagatorWithMaterial" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
@@ -5110,7 +5110,8 @@ hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     )
 )
 hltMuonRPCDigis = cms.EDProducer( "RPCUnpackingModule",
-    InputLabel = cms.untracked.InputTag( "rawDataCollector" )
+    InputLabel = cms.untracked.InputTag( "rawDataCollector" ),
+    doSynchro = cms.bool( False )
 )
 hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
     rpcDigiLabel = cms.InputTag( "hltMuonRPCDigis" ),
@@ -5600,7 +5601,7 @@ hltL3TkTracksFromL2 = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "" ),
-    Fitter = cms.string( "KFFittingSmoother" ),
+    Fitter = cms.string( "hltKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL3TrackCandidateFromL2" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
