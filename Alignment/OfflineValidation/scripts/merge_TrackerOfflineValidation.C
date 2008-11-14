@@ -15,7 +15,8 @@ set by the user.
 */
 
 
-#include <string.h>
+#include <string>
+#include <utility>
 #include "TChain.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -24,43 +25,47 @@ set by the user.
 #include "TString.h"
 #include <map>
 #include "Riostream.h"
-
+#include "TF1.h"
 
 
 
 TString histPathName;
-bool copiedTree = false;
-Bool_t moduleLevelHistsTransient = false;
-Bool_t lCoorHistOn = false;
-Bool_t yCoorHistOn = false;
-
+bool copiedTree_ = false;
+Bool_t moduleLevelHistsTransient_ = true;
+Bool_t lCoorHistOn_ = false;
+Bool_t yCoorHistOn_ = false;
+Bool_t useFit_ = false;
 struct TreeVariables{
-  TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(),
-		   meanY_(), meanNormY_(),
-		   rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
-		   rmsY_(), rmsNormY_(), 
-		   posR_(), posPhi_(), posEta_(),
-		   posX_(), posY_(), posZ_(),
-		   entries_(), moduleId_(), subDetId_(),
-		   layer_(), side_(), rod_(),ring_(), 
-		   petal_(),blade_(), panel_(), outerInner_(),
-		   isDoubleSide_(),
-		   histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_(), 
-		   histNameY_(), histNameNormY_() {} 
-  Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
-    meanY_,meanNormY_, 
-    rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
-    rmsY_, rmsNormY_,
-    posR_, posPhi_, posEta_,                     //global coordiantes    
-    posX_, posY_, posZ_;             //global coordiantes 
-  UInt_t  entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
-    layer_, side_, rod_, 
-    ring_, petal_, 
-    blade_, panel_, 
-    outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
-  Bool_t isDoubleSide_;
-  std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_,
-    histNameY_, histNameNormY_; 
+  TreeVariables():  meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(),
+		     meanY_(), meanNormY_(),chi2PerDof_(),
+		     rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
+		     rmsY_(), rmsNormY_(), sigmaX_(),sigmaNormX_(),
+		     fitMeanX_(),  fitSigmaX_(),fitMeanNormX_(),fitSigmaNormX_(),
+		     posR_(), posPhi_(), posEta_(),
+		     posX_(), posY_(), posZ_(),
+		      numberOfUnderflows_(), numberOfOverflows_(),numberOfOutliers_(),
+		     entries_(), moduleId_(), subDetId_(),
+		     layer_(), side_(), rod_(),ring_(), 
+		     petal_(),blade_(), panel_(), outerInner_(),
+		     isDoubleSide_(),
+		     histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_(), 
+                     histNameY_(), histNameNormY_() {} 
+   Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
+      meanY_,meanNormY_, chi2PerDof_,
+      rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
+      rmsY_, rmsNormY_,sigmaX_,sigmaNormX_,
+      fitMeanX_,  fitSigmaX_,fitMeanNormX_,fitSigmaNormX_,
+      posR_, posPhi_, posEta_,                     //global coordiantes    
+      posX_, posY_, posZ_,             //global coordiantes 
+      numberOfUnderflows_, numberOfOverflows_,numberOfOutliers_;
+    UInt_t  entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
+      layer_, side_, rod_, 
+      ring_, petal_, 
+      blade_, panel_, 
+      outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
+    Bool_t isDoubleSide_;
+    std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_,
+       histNameY_, histNameNormY_;  
 
   TString  histPathLocalX_, histPathNormLocalX_, histPathX_, histPathNormX_,  histPathY_, histPathNormY_;
 };
@@ -68,13 +73,14 @@ struct TreeVariables{
 std::map<unsigned int,TreeVariables> map_;
 void MergeRootfile( TDirectory *target, TList *sourcelist );
 void RewriteTree( TDirectory *target,TTree *tree,std::map<unsigned int,TreeVariables> map_);
+std::pair<float,float>  fitResiduals(const TH1 *h,float meantmp,float rmstmp);
 //void RewriteTree(std::map<unsigned int,TreeVariables> map_);
 
 void hadd() {
   
   TList *FileList;
   TFile *Target;
-  Target = TFile::Open( "merge_output.root", "RECREATE" );
+  Target = TFile::Open( "$TMPDIR/ValidationCRAFT_CosmicTF_10hits_2hits2d_p5GeV.root", "RECREATE" );
   TString inputFileName="";
   Int_t nEvt;
   Bool_t fileOk_=true;
@@ -111,8 +117,11 @@ void hadd() {
       Target->cd("TrackerOfflineValidation");
       TTree *tree = new TTree("TkOffVal","TkOffVal");
       RewriteTree(Target,tree,map_);
-      tree->Write();
+      std::cout<<"try to write out tree"<<std::endl;
+      //tree->Write();
+      std::cout<<"written out tree"<<std::endl;
       Target->SaveSelf(kTRUE);
+      std::cout<<"target saveself"<<std::endl;
       Target->Close();
     } 
     
@@ -161,7 +170,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	if(histPathName.Contains("h_yprime_residuals"))map_[moduleId].histPathY_= histPathName;
 	if(histPathName.Contains("h_normyprimeresiduals"))map_[moduleId].histPathNormY_= histPathName;
 
-	moduleLevelHistsTransient=true;
+	moduleLevelHistsTransient_ = false;
       }
       
       //cout << "Merging histogram " << obj->GetName() << endl;
@@ -186,7 +195,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
     }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
       
-      if (!copiedTree)	{
+      if (!copiedTree_)	{
 	//get tree structure and 'const' entries for each module once ('constant' means not effected by merging)
 	TTree* tree =(TTree*)obj;
 	TreeVariables treeMem_;
@@ -210,13 +219,13 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	tree->SetBranchAddress("isDoubleSide",&treeMem_.isDoubleSide_);
 	tree->SetBranchAddress("histNameX",&treeMem_.histNameX_);
 	tree->SetBranchAddress("histNameNormX",&treeMem_.histNameX_);
-
+	
 	//if residuals for y coordiantarte are present in file
-	if (tree->GetBranch("histNameLocalY"))
+	if (tree->GetBranch("histNameY"))
 	  {
-	    tree->SetBranchAddress("histNameLocalX",&treeMem_.histNameLocalX_);
-	    tree->SetBranchAddress("histNameNormLocalX",&treeMem_.histNameNormLocalX_);
-	    yCoorHistOn=true;
+	    tree->SetBranchAddress("histNameY",&treeMem_.histNameY_);
+	    tree->SetBranchAddress("histNameNormY",&treeMem_.histNameNormY_);
+	    yCoorHistOn_ = true;
 	  }
 	
 	//if residuals for local coordiantartes are present in file
@@ -224,11 +233,17 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	  {
 	    tree->SetBranchAddress("histNameLocalX",&treeMem_.histNameLocalX_);
 	    tree->SetBranchAddress("histNameNormLocalX",&treeMem_.histNameNormLocalX_);
-	    lCoorHistOn=true;
+	    lCoorHistOn_ = true;
 	  }
 
+	if (tree->GetBranch("fitMeanX"))
+	  {
+	    useFit_ = true;
+	  }
+
+
 	Long64_t nentries = tree->GetEntriesFast();
-	for (Long64_t jentry=1; jentry<nentries+1;jentry++) {
+	for (Long64_t jentry=0; jentry<nentries;jentry++) {
 	 
 	  tree->GetEntry(jentry);
 
@@ -252,7 +267,15 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	  map_[treeMem_.moduleId_].histNameNormX_= treeMem_.histNameNormX_;
 	  
 	  //if residuals for local coordinates are present in file
-	  if (tree->GetBranch("histNameLocalX"))
+	  	if (tree->GetBranch("histNameLocalX"))
+	  {
+	    map_[treeMem_.moduleId_].histNameLocalX_ = treeMem_.histNameLocalX_;
+	    map_[treeMem_.moduleId_].histNameNormLocalX_ = treeMem_.histNameNormLocalX_
+
+	      }
+	   
+	  //if residuals for y coordinates are present in file
+	  if (tree->GetBranch("histNameY"))
 	    {
 	      map_[treeMem_.moduleId_].histNameY_= treeMem_.histNameY_;
 	      map_[treeMem_.moduleId_].histNameNormY_= treeMem_.histNameY_;
@@ -304,20 +327,21 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVariables> map_)
 
 {
-  if (moduleLevelHistsTransient){
-   
+  
     TreeVariables treeVar_;
 
+    if (!moduleLevelHistsTransient_){
     tree->Branch("moduleId",&treeVar_.moduleId_,"modulId/i");
     tree->Branch("subDetId",&treeVar_.subDetId_,"subDetId/i");
     tree->Branch("entries",&treeVar_.entries_,"entries/i");
-    
+  
     tree->Branch("meanX",&treeVar_.meanX_,"meanX/F");
     tree->Branch("rmsX",&treeVar_.rmsX_,"rmsX/F");
     tree->Branch("meanNormX",&treeVar_.meanNormX_,"meanNormX/F");
     tree->Branch("rmsNormX",&treeVar_.rmsNormX_,"rmsNormX/F");
-
-    if ( lCoorHistOn ){
+   
+    
+    if ( lCoorHistOn_ ){
       tree->Branch("meanLocalX",&treeVar_.meanLocalX_,"meanLocalX/F");
       tree->Branch("rmsLocalX",&treeVar_.rmsLocalX_,"rmsLocalX/F");
       tree->Branch("meanNormLocalX",&treeVar_.meanNormLocalX_,"meanNormLocalX/F");
@@ -326,7 +350,7 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
       tree->Branch("histNameNormLocalX",&treeVar_.histNameNormLocalX_,"histNameNormLocalX/b");
     }
 
-    if ( yCoorHistOn ){
+    if ( yCoorHistOn_ ){
       tree->Branch("meanY",&treeVar_.meanY_,"meanY/F");
       tree->Branch("rmsY",&treeVar_.rmsY_,"rmsY/F");
       tree->Branch("meanNormY",&treeVar_.meanNormY_,"meanNormY/F");
@@ -335,7 +359,19 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
       tree->Branch("histNameNormY",&treeVar_.histNameNormY_,"histNameNormY/b");
     }
 
-
+    if (useFit_) {
+      
+      tree->Branch("fitMeanX",&treeVar_.fitMeanX_,"fitMeanX/F"); 
+      tree->Branch("fitSigmaX",&treeVar_.fitSigmaX_,"fitSigmaX/F");
+      tree->Branch("fitMeanNormX",&treeVar_.fitMeanNormX_,"fitMeanNormX/F"); 
+      tree->Branch("fitSigmaNormX",&treeVar_.fitSigmaNormX_,"fitSigmaNormX/F");
+    }
+    
+    tree->Branch("numberOfUnderflows",&treeVar_.numberOfUnderflows_,"numberOfUnderflows/I");
+    tree->Branch("numberOfOverflows",&treeVar_.numberOfOverflows_,"numberOfOverflows/I");
+    tree->Branch("numberOfOutliers",&treeVar_.numberOfOutliers_,"numberOfOutliers/I");
+    tree->Branch("chi2PerDof",&treeVar_.chi2PerDof_,"chi2PerDof/F");
+   
     tree->Branch("posPhi",&treeVar_.posPhi_,"posPhi/F");
     tree->Branch("posEta",&treeVar_.posEta_,"posEta/F");
     tree->Branch("posR",&treeVar_.posR_,"posR/F");
@@ -369,18 +405,47 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
       treeVar_.meanX_ = h->GetMean(); //get mean value from histogram 
       treeVar_.rmsX_ = h->GetRMS();   //get RMS value from histogram
     
-    
+      int numberOfBins=h->GetNbinsX();
+      treeVar_.numberOfUnderflows_ = h->GetBinContent(0);
+      treeVar_.numberOfOverflows_ = h->GetBinContent(numberOfBins+1);
+      treeVar_.numberOfOutliers_ =  h->GetBinContent(0)+h->GetBinContent(numberOfBins+1);
+     
+      
+      if(h->GetEntries()>0){
+	double stats[20];
+	h->GetStats(stats);
+	treeVar_.chi2PerDof_ = stats[3]/(stats[0]-1);
+      }
+      
+      
+      if (useFit_) {
+
+	//call fit function which returns mean and sigma from the fit
+	//for absolute residuals
+	std::pair<float,float> fitResult1 = fitResiduals(h, h->GetMean(), h->GetRMS());
+	treeVar_.fitMeanX_=fitResult1.first;
+	treeVar_.fitSigmaX_=fitResult1.second;
+      }
+      
       target->GetObject(it->second.histPathNormX_,h);    //get  histogram path for Xprime-residuum from map
       treeVar_.meanNormX_ = h->GetMean(); //get mean value from histogram 
       treeVar_.rmsNormX_ = h->GetRMS();   //get RMS value from histogram
+      
+      if (useFit_) {
 
-    
+	//call fit function which returns mean and sigma from the fit
+	//for normalized residuals
+	std::pair<float,float> fitResult2 = fitResiduals(h, h->GetMean(), h->GetRMS());
+	treeVar_.fitMeanNormX_=fitResult2.first;
+	treeVar_.fitSigmaNormX_=fitResult2.second;
+	
+      }
       //if present in local coordinates
-      if (lCoorHistOn){
+      if (lCoorHistOn_){
 	target->GetObject(it->second.histPathLocalX_, h);  //get  histogram path for ordinary residuum from map
 	treeVar_.meanLocalX_ = h->GetMean();      //get mean value from histogram
 	treeVar_.rmsLocalX_ = h->GetRMS();        //get RMS value from histogram
-    
+
 	target->GetObject(it->second.histPathNormLocalX_,h); //get histogram path for normalized residuum from map
 	treeVar_.meanNormLocalX_ = h->GetMean();//get mean value from histogram
 	treeVar_.rmsNormLocalX_ = h->GetRMS(); //get RMS value from histogram
@@ -388,7 +453,7 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
       }
 
       //if y coordinate is present in the file
-      if ( yCoorHistOn ){
+      if ( yCoorHistOn_ ){
 	target->GetObject(it->second.histPathY_, h);  //get  histogram path for ordinary residuum from map
 	treeVar_.meanY_ = h->GetMean();      //get mean value from histogram
 	treeVar_.rmsY_ = h->GetRMS();        //get RMS value from histogram
@@ -399,7 +464,7 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
    
       }
 
-    
+      
       //get 'constant' values from map ('constant' means not effected by merging)
       treeVar_.moduleId_=it->first;             //get module Id 
       treeVar_.subDetId_= it->second.subDetId_;
@@ -418,14 +483,38 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
       treeVar_.panel_= it->second.panel_;
       treeVar_.outerInner_= it->second.outerInner_;
       treeVar_.isDoubleSide_= it->second.isDoubleSide_;
-
       tree->Fill();
-   
+    
     } 
-   
-    delete h;
-  }else cout<<"Warning: Could not merge tree, histograms on module level are not present."<<endl;
-  //target->Write();
- 
-
+   cout << "left for loop"<< endl;  
+  }//else cout<<"Warning: Could not merge tree, histograms on module level are not present."<<endl;
+    //target->Write();
 }
+ 
+std::pair<float,float>  fitResiduals(const TH1 *h,float meantmp,float rmstmp)
+{
+  cout << "enter fit methode"<< endl;
+  std::pair<float,float> fitResult;
+  
+    TH1*hist=0;
+    hist = const_cast<TH1*>(h);
+    TF1 *ftmp1= new TF1("ftmp1","gaus",meantmp-2*rmstmp, meantmp+2*rmstmp); 
+    hist->Fit("ftmp1","QLR");
+    float mean = ftmp1->GetParameter(1);
+    float sigma = ftmp1->GetParameter(2);
+    delete ftmp1;
+    TF1 *ftmp2= new TF1("ftmp2","gaus",mean-3*sigma,mean+3*sigma); 
+    hist->Fit("ftmp2","Q0LR");
+    fitResult.first = ftmp2->GetParameter(1);
+    fitResult.second = ftmp2->GetParameter(2);
+    delete ftmp2;
+    /*
+    std::cout << e.what() << std::endl;
+    std::cout <<"set values of fit to 9999" << std::endl;
+    fitResult.first = 9999.;
+    fitResult.second = 9999.;
+    */
+  return fitResult;
+}
+
+

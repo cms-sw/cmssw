@@ -12,7 +12,10 @@ TrackerOfflineValidation = cms.EDFilter("TrackerOfflineValidation",
     moduleLevelHistsTransient = cms.bool(False),
     stripYResiduals           = cms.bool(False),                                        
     overlappOn                = cms.bool(False),                                      
-    useFwhm                   = cms.bool(True),                                        
+    useFwhm                   = cms.bool(True),
+    useFit                    = cms.bool(False),
+    useCombinedTrajectory     = cms.bool(False),
+    useOverflowForRMS         = cms.bool(False),
     # Normalized X Residuals, normal local coordinates (Strip)
     TH1NormXResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)

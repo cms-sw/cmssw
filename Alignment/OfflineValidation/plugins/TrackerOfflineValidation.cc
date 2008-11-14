@@ -23,6 +23,7 @@
 #include <map>
 #include <sstream>
 #include <math.h>
+#include <utility>
 
 // ROOT includes
 #include "TH1.h"
@@ -31,6 +32,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TF1.h"
+#include "TStyle.h"
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -108,11 +111,13 @@ private:
   
   struct TreeVariables{
     TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(),
-		     meanY_(), meanNormY_(),
+		     meanY_(), meanNormY_(),chi2PerDof_(),
 		     rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
-		     rmsY_(), rmsNormY_(), 
+		     rmsY_(), rmsNormY_(), sigmaX_(),sigmaNormX_(),
+		     fitMeanX_(),  fitSigmaX_(),fitMeanNormX_(),fitSigmaNormX_(),
 		     posR_(), posPhi_(), posEta_(),
 		     posX_(), posY_(), posZ_(),
+		      numberOfUnderflows_(), numberOfOverflows_(),numberOfOutliers_(),
 		     entries_(), moduleId_(), subDetId_(),
 		     layer_(), side_(), rod_(),ring_(), 
 		     petal_(),blade_(), panel_(), outerInner_(),
@@ -121,11 +126,13 @@ private:
                      histNameY_(), histNameNormY_() {} 
     void clear() { *this = TreeVariables(); }
     Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
-      meanY_,meanNormY_, 
+      meanY_,meanNormY_, chi2PerDof_,
       rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
-      rmsY_, rmsNormY_,
+      rmsY_, rmsNormY_,sigmaX_,sigmaNormX_,
+      fitMeanX_,  fitSigmaX_,fitMeanNormX_,fitSigmaNormX_,
       posR_, posPhi_, posEta_,                     //global coordiantes    
-      posX_, posY_, posZ_;             //global coordiantes 
+      posX_, posY_, posZ_,             //global coordiantes 
+      numberOfUnderflows_, numberOfOverflows_,numberOfOutliers_;
     UInt_t  entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
       layer_, side_, rod_, 
       ring_, petal_, 
@@ -187,7 +194,8 @@ private:
   void setSummaryBin(int bin, TH1* targetHist, TH1* sourceHist);
     
   float Fwhm(const TH1* hist);
-  void fitSumResiduals(const TH1 *hist);
+  std::pair<float,float> fitResiduals(const TH1 *hist,float meantmp,float rmstmp);
+void fitSumResiduals(const TH1 *hist);
   // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
   template <class OBJECT_TYPE>  
   int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
@@ -206,7 +214,8 @@ private:
   bool overlappOn_;
   bool stripYResiduals_;
   bool useFwhm_;
-
+  bool useFit_;
+  bool useOverflowForRMS_;
   std::map< std::pair<uint32_t, uint32_t >, TH1*> hOverlappResidual;
 
   // a vector to keep track which pointers should be deleted at the very end
@@ -253,7 +262,11 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
   : parset_(iConfig), bareTkGeomPtr_(0), lCoorHistOn_(parset_.getParameter<bool>("localCoorHistosOn")),
     moduleLevelHistsTransient_(parset_.getParameter<bool>("moduleLevelHistsTransient")),
     overlappOn_(parset_.getParameter<bool>("overlappOn")), 
-    stripYResiduals_(parset_.getParameter<bool>("stripYResiduals")), useFwhm_(parset_.getParameter<bool>("useFwhm"))
+    stripYResiduals_(parset_.getParameter<bool>("stripYResiduals")), 
+    useFwhm_(parset_.getParameter<bool>("useFwhm")),
+    useFit_(parset_.getParameter<bool>("useFit")),
+    useOverflowForRMS_(parset_.getParameter<bool>("useOverflowForRMS"))
+  
 {
    //now do what ever initialization is needed
 }
@@ -703,6 +716,7 @@ TrackerOfflineValidation::getHistStructFromMap(const DetId& detid)
 void
 TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if (useOverflowForRMS_)TH1::StatOverflows(kTRUE);
   this->checkBookHists(iSetup); // check whether hists are are booked and do so if not yet done
   
   //using namespace edm;
@@ -834,7 +848,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     } // end overlappOn
 
   }
-  
+  if (useOverflowForRMS_) TH1::StatOverflows(kFALSE);  
 }
 
 
@@ -857,13 +871,13 @@ TrackerOfflineValidation::endJob()
   this->fillTree(*tree, mTidResiduals_ ,treeMem, *tkGeom_);
   this->fillTree(*tree, mTobResiduals_ ,treeMem, *tkGeom_);
   this->fillTree(*tree, mTecResiduals_ ,treeMem, *tkGeom_);
-
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
   vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],
 				     vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
 
   // Collate Information for Subdetectors
   // create summary histogramms recursively
+ 
   std::vector<TrackerOfflineValidation::SummaryContainer > vTrackerprofiles;
   this->collateSummaryHists((*fs),(aliTracker), 0, aliobjid, vTrackerprofiles);
    
@@ -1045,6 +1059,8 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
       }
     }
   }
+
+  
   return sumContainer;
 
 }
@@ -1109,10 +1125,22 @@ TrackerOfflineValidation::bookTree(TTree &tree, struct TrackerOfflineValidation:
   tree.Branch("entries",&treeMem.entries_,"entries/i");
   tree.Branch("meanX",&treeMem.meanX_,"meanX/F");
   tree.Branch("rmsX",&treeMem.rmsX_,"rmsX/F");
-  tree.Branch("meanY",&treeMem.meanY_,"meanY/F");
-  tree.Branch("rmsY",&treeMem.rmsY_,"rmsY/F");
+  tree.Branch("sigmaX",&treeMem.sigmaX_,"sigmaX/F");
+  tree.Branch("sigmaNormX",&treeMem.sigmaNormX_,"sigmaNormX/F"); 
   tree.Branch("meanNormX",&treeMem.meanNormX_,"meanNormX/F");
   tree.Branch("rmsNormX",&treeMem.rmsNormX_,"rmsNormX/F");
+  if (useFit_) {
+  tree.Branch("fitMeanX",&treeMem.fitMeanX_,"fitMeanX/F"); 
+  tree.Branch("fitSigmaX",&treeMem.fitSigmaX_,"fitSigmaX/F");
+  tree.Branch("fitMeanNormX",&treeMem.fitMeanNormX_,"fitMeanNormX/F"); 
+  tree.Branch("fitSigmaNormX",&treeMem.fitSigmaNormX_,"fitSigmaNormX/F");
+  }
+  tree.Branch("numberOfUnderflows",&treeMem.numberOfUnderflows_,"numberOfUnderflows/I");
+  tree.Branch("numberOfOverflows",&treeMem.numberOfOverflows_,"numberOfOverflows/I");
+  tree.Branch("numberOfOutliers",&treeMem.numberOfOutliers_,"numberOfOutliers/I");
+  tree.Branch("chi2PerDof",&treeMem.chi2PerDof_,"chi2PerDof/F");
+  tree.Branch("meanY",&treeMem.meanY_,"meanY/F");
+  tree.Branch("rmsY",&treeMem.rmsY_,"rmsY/F");
   // if (stripYResiduals_==false), these stay empty for strip, but we need it in tree for pixel
   tree.Branch("meanNormY",&treeMem.meanNormY_,"meanNormY/F");
   tree.Branch("rmsNormY",&treeMem.rmsNormY_,"rmsNormY/F");
@@ -1206,13 +1234,36 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     treeMem.entries_ = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX_ = it->second.ResXprimeHisto->GetMean();
     treeMem.rmsX_ = it->second.ResXprimeHisto->GetRMS();
+    //treeMem.sigmaX_ = Fwhm(it->second.ResXprimeHisto)/2.355;
+    if (useFit_) {
+      
+      //call fit function which returns mean and sigma from the fit
+      //for absolute residuals
+       std::pair<float,float> fitResult1 = fitResiduals(it->second.ResXprimeHisto, it->second.ResXprimeHisto->GetMean(), it->second.ResXprimeHisto->GetRMS());
+       treeMem.fitMeanX_=fitResult1.first;
+       treeMem.fitSigmaX_=fitResult1.second;
+       //for normalized residuals
+       std::pair<float,float> fitResult2 = fitResiduals(it->second.NormResXprimeHisto, it->second.NormResXprimeHisto->GetMean(), it->second.NormResXprimeHisto->GetRMS());
+       treeMem.fitMeanNormX_=fitResult2.first;
+       treeMem.fitSigmaNormX_=fitResult2.second;
 
+    }
+
+    int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
+    treeMem.numberOfUnderflows_ = it->second.ResXprimeHisto->GetBinContent(0);
+    treeMem.numberOfOverflows_ = it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
+    treeMem.numberOfOutliers_ =  it->second.ResXprimeHisto->GetBinContent(0)+it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
     treeMem.meanNormX_ = it->second.NormResXprimeHisto->GetMean();
     treeMem.rmsNormX_ = it->second.NormResXprimeHisto->GetRMS();
-    
-    treeMem.histNameX_=it->second.ResXprimeHisto->GetName();
-    treeMem.histNameNormX_=it->second.NormResXprimeHisto->GetName();
+    double stats[20];
+    if(it->second.NormResXprimeHisto->GetEntries()>0){
+      it->second.NormResXprimeHisto->GetStats(stats);
+      treeMem.chi2PerDof_ = stats[3]/(stats[0]-1);
+    }
+    treeMem.sigmaNormX_ = Fwhm(it->second.NormResXprimeHisto)/2.355;
+    treeMem.histNameX_= it->second.ResXprimeHisto->GetName();
+    treeMem.histNameNormX_= it->second.NormResXprimeHisto->GetName();
     
 
     // fill tree variables in local coordinates if set in cfg
@@ -1242,6 +1293,33 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     tree.Fill();
   }
 }
+
+std::pair<float,float> 
+TrackerOfflineValidation::fitResiduals(const TH1 *h,float meantmp,float rmstmp)
+{
+  std::pair<float,float> fitResult;
+  try{
+    TH1*hist=0;
+    hist = const_cast<TH1*>(h);
+    TF1 *ftmp1= new TF1("ftmp1","gaus",meantmp-2*rmstmp, meantmp+2*rmstmp); 
+    hist->Fit("ftmp1","Q0LR");
+    float mean = ftmp1->GetParameter(1);
+    float sigma = ftmp1->GetParameter(2);
+    delete ftmp1;
+    TF1 *ftmp2= new TF1("ftmp2","gaus",mean-3*sigma,mean+3*sigma); 
+    hist->Fit("ftmp2","Q0LR");
+    fitResult.first = ftmp2->GetParameter(1);
+    fitResult.second = ftmp2->GetParameter(2);
+    delete ftmp2;
+  }catch (cms::Exception const & e) {
+    std::cout << e.what() << std::endl;
+    std::cout <<"set values of fit to 9999" << std::endl;
+    fitResult.first = 9999.;
+    fitResult.second = 9999.;
+  }
+   return fitResult;
+}
+
 void 
 TrackerOfflineValidation::fitSumResiduals(const TH1 *h)
 {
