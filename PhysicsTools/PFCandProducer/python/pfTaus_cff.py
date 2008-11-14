@@ -12,7 +12,7 @@ allLayer0Taus.discriminators = cms.VPSet(
       cms.PSet( discriminator=cms.InputTag("pfRecoTauDiscriminationByIsolationHighEfficiency"),selectionCut=cms.double(0.5))
    )
 
-pfRecoTauTagInfoProducer.PFCandidateProducer = cms.string('pfNoMuonsNoPileUp:PFCandidates')
+pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoMuonsNoPileUp:PFCandidates'
 
 
 pfTauSequence = cms.Sequence(
