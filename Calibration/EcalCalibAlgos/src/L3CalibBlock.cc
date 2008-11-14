@@ -1,8 +1,8 @@
 /**
-    $Date: 2008/02/25 17:53:28 $
-    $Revision: 1.2 $
-    $Id: L3CalibBlock.cc,v 1.2 2008/02/25 17:53:28 malberti Exp $ 
-    \author $Author: malberti $
+   $Date: 2008/09/05 08:55:42 $
+    $Revision: 1.3 $
+    $Id: L3CalibBlock.cc,v 1.3 2008/09/05 08:55:42 govoni Exp $ 
+    \author $Author: govoni $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/L3CalibBlock.h"

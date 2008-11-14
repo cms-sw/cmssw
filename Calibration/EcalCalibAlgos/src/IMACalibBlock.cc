@@ -1,8 +1,8 @@
 /**
-    $Date: 2008/09/11 15:22:43 $
-    $Revision: 1.5 $
-    $Id: IMACalibBlock.cc,v 1.5 2008/09/11 15:22:43 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/11/14 11:40:34 $
+    $Revision: 1.6 $
+    $Id: IMACalibBlock.cc,v 1.6 2008/11/14 11:40:34 presotto Exp $ 
+    \author $Author: presotto $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
@@ -101,7 +101,6 @@ IMACalibBlock::complete ()
 int
 IMACalibBlock::solve (int usingBlockSolver, double min, double max)
 {
-<<<<<<< IMACalibBlock.cc
  complete () ;
 // TH1F vettore ("vettore","vettore",10,-0.1,9.9);
 // TH1F matrice ("matrice","matrice",100,-0.1,99.9);
@@ -138,36 +137,6 @@ IMACalibBlock::solve (int usingBlockSolver, double min, double max)
    }
  fillMap(result);
  return ;
-=======
-  complete () ;
- 
-  int returnCode = 0 ;
-  CLHEP::HepMatrix kaliMatrix (m_numberOfElements,m_numberOfElements) ;
-  riempiMtr (m_kaliMatrix , kaliMatrix) ;
-  CLHEP::HepVector kaliVector (m_numberOfElements) ;
-  riempiVtr (m_kaliVector , kaliVector) ;
-  //PG linear system solution
-  CLHEP::HepVector result = CLHEP::solve (kaliMatrix,kaliVector) ;
-  if (result.normsq () < min * kaliMatrix.num_row () ||
-      result.normsq () > max * kaliMatrix.num_row ()) 
-    {
-      if (usingBlockSolver)  
-        {
-//           edm::LogWarning ("IML") << "using  blockSlover " << std::endl ;
-           BlockSolver() (kaliMatrix,kaliVector,result) ;
-           returnCode = 1 ;
-        }
-      else 
-        {
-//          edm::LogWarning ("IML") <<"coeff out of range " <<std::endl;
-          for (int i = 0 ; i < kaliVector.num_row () ; ++i)
-                result[i] = 1. ;
-          returnCode = 2 ;
-        }
-    }
-  fillMap (result) ;
-  return returnCode ;
->>>>>>> 1.5
 }
 
 
