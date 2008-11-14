@@ -23,6 +23,8 @@ SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(
   OrderedHitsGenerator *ohg, const edm::ParameterSet & cfg,
   SeedComparitor * asc)
   : theHitsGenerator(ohg), theConfig(cfg), theComparitor(asc), 
+    thePropagatorLabel(cfg.existsAs<std::string>("propagator") ? cfg.getParameter<std::string>("propagator") : "PropagatorWithMaterial"),
+    theUseFastHelix(cfg.existsAs<bool>("UseFastHelix") ? cfg.getParameter<bool>("UseFastHelix") : true),
     theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : -1.0)
 { }
 
@@ -47,7 +49,7 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
     const SeedingHitSet & hits =  hitss[iHits];
     if (!theComparitor || theComparitor->compatible( hits, es) ) {
       SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es, 
-                                            region.ptMin(), theBOFFMomentum);
+                                            region.ptMin(), thePropagatorLabel, theUseFastHelix, theBOFFMomentum);
       if(seedfromhits.isValid()) {
         seedCollection.push_back( seedfromhits.TrajSeed() );
       }
