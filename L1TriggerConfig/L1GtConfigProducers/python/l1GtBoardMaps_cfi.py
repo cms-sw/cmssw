@@ -112,7 +112,89 @@ l1GtBoardMaps = cms.ESProducer("L1GtBoardMapsTrivialProducer",
                                3, 3, 3, 3, 
                                4, 4, 4, 4, 
                                5, 5, 5, 5, 
-                               6, 6, 6, 6)
+                               6, 6, 6, 6),
+    
+    # detailed input configuration for PSB (objects pro channel) 
+    PsbInput = cms.VPSet(
+                         cms.PSet(
+                                  Slot = cms.int32(9),
+                                  Ch0 = cms.vstring('TechTrig'),
+                                  Ch1 = cms.vstring('TechTrig'),
+                                  Ch2 = cms.vstring(),
+                                  Ch3 = cms.vstring(),
+                                  Ch4 = cms.vstring(),
+                                  Ch5 = cms.vstring(),
+                                  Ch6 = cms.vstring(),
+                                  Ch7 = cms.vstring()
+                                  ), 
+                         cms.PSet(
+                                  Slot = cms.int32(13),
+                                  Ch0 = cms.vstring('ForJet', 'ForJet'),
+                                  Ch1 = cms.vstring('ForJet', 'ForJet'),
+                                  Ch2 = cms.vstring('CenJet', 'CenJet'),
+                                  Ch3 = cms.vstring('CenJet', 'CenJet'),
+                                  Ch4 = cms.vstring('NoIsoEG', 'NoIsoEG'),
+                                  Ch5 = cms.vstring('NoIsoEG', 'NoIsoEG'),
+                                  Ch6 = cms.vstring('IsoEG', 'IsoEG'),
+                                  Ch7 = cms.vstring('IsoEG', 'IsoEG')
+                                  ),                                  
+                         cms.PSet(
+                                  Slot = cms.int32(14),
+                                  Ch0 = cms.vstring(),
+                                  Ch1 = cms.vstring(),
+                                  Ch2 = cms.vstring('HfBitCounts', 'HfRingEtSums'),
+                                  Ch3 = cms.vstring(),
+                                  Ch4 = cms.vstring('ETT','HTT'),
+                                  Ch5 = cms.vstring('ETM', 'ETM'),
+                                  Ch6 = cms.vstring('TauJet', 'TauJet'),
+                                  Ch7 = cms.vstring('TauJet', 'TauJet')
+                                  ),
+                         cms.PSet(
+                                  Slot = cms.int32(15),
+                                  Ch0 = cms.vstring(),
+                                  Ch1 = cms.vstring(),
+                                  Ch2 = cms.vstring(),
+                                  Ch3 = cms.vstring(),
+                                  Ch4 = cms.vstring(),
+                                  Ch5 = cms.vstring(),
+                                  Ch6 = cms.vstring(),
+                                  Ch7 = cms.vstring()
+                                  ),
+                         cms.PSet(
+                                  Slot = cms.int32(19),
+                                  Ch0 = cms.vstring(),
+                                  Ch1 = cms.vstring(),
+                                  Ch2 = cms.vstring(),
+                                  Ch3 = cms.vstring(),
+                                  Ch4 = cms.vstring(),
+                                  Ch5 = cms.vstring(),
+                                  Ch6 = cms.vstring(),
+                                  Ch7 = cms.vstring()
+                                  ),
+                         cms.PSet(
+                                  Slot = cms.int32(20),
+                                  Ch0 = cms.vstring(),
+                                  Ch1 = cms.vstring(),
+                                  Ch2 = cms.vstring(),
+                                  Ch3 = cms.vstring(),
+                                  Ch4 = cms.vstring(),
+                                  Ch5 = cms.vstring(),
+                                  Ch6 = cms.vstring(),
+                                  Ch7 = cms.vstring()
+                                  ),
+                         cms.PSet(
+                                  Slot = cms.int32(21),
+                                  Ch0 = cms.vstring(),
+                                  Ch1 = cms.vstring(),
+                                  Ch2 = cms.vstring(),
+                                  Ch3 = cms.vstring(),
+                                  Ch4 = cms.vstring(),
+                                  Ch5 = cms.vstring(),
+                                  Ch6 = cms.vstring(),
+                                  Ch7 = cms.vstring()
+                                  )
+                        ) 
+    
 )
 
 

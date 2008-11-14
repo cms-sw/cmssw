@@ -1,11 +1,11 @@
-#ifndef L1GtConfigProducers_L1GtBoardMapsTester_h
-#define L1GtConfigProducers_L1GtBoardMapsTester_h
+#ifndef L1GtConfigProducers_L1GtPsbSetupTester_h
+#define L1GtConfigProducers_L1GtPsbSetupTester_h
 
 /**
- * \class L1GtBoardMapsTester
+ * \class L1GtPsbSetupTester
  *
  *
- * Description: test analyzer for various mappings of the L1 GT boards.
+ * Description: test analyzer for the setup of L1 GT PSB boards.
  *
  * Implementation:
  *    <TODO: enter implementation details>
@@ -30,19 +30,19 @@
 // forward declarations
 
 // class declaration
-class L1GtBoardMapsTester : public edm::EDAnalyzer
+class L1GtPsbSetupTester : public edm::EDAnalyzer
 {
 
 public:
 
     // constructor
-    explicit L1GtBoardMapsTester(const edm::ParameterSet&);
+    explicit L1GtPsbSetupTester(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1GtBoardMapsTester();
+    virtual ~L1GtPsbSetupTester();
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 };
 
-#endif /*L1GtConfigProducers_L1GtBoardMapsTester_h*/
+#endif /*L1GtConfigProducers_L1GtPsbSetupTester_h*/

@@ -1,14 +1,14 @@
 /**
  * \class L1GtBoardMapsTester
- * 
- * 
- * Description: test analyzer for various mappings of the L1 GT boards.  
+ *
+ *
+ * Description: test analyzer for various mappings of the L1 GT boards.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -18,15 +18,10 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtBoardMapsTester.h"
 
 // system include files
-#include <map>
 #include <iomanip>
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -57,7 +52,7 @@ void L1GtBoardMapsTester::analyze(
     edm::ESHandle< L1GtBoardMaps > l1GtBM ;
     evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM ) ;
 
-    l1GtBM->printGtBoardMaps(std::cout);
+    l1GtBM->print(std::cout);
     std::cout << std::endl;
 
     // print for simplicity the individual maps

@@ -22,22 +22,83 @@
 #include "boost/shared_ptr.hpp"
 
 #include <string>
-#include <vector>
 
 // user include files
 //   base class
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 // forward declarations
+
+//
+
+std::vector<L1GtObject> chInputObjects(
+        const std::vector<std::string>& chInputStrings)
+{
+    std::vector<L1GtObject> chInputObjectsV;
+    chInputObjectsV.reserve(chInputStrings.size());
+
+    L1GtObject obj;
+
+    for (std::vector<std::string>::const_iterator itObj =
+            chInputStrings.begin(); itObj != chInputStrings.end(); ++itObj) {
+
+        if ((*itObj) == "Mu") {
+            obj = Mu;
+        }
+        else if ((*itObj) == "NoIsoEG") {
+            obj = NoIsoEG;
+        }
+        else if ((*itObj) == "IsoEG") {
+            obj = IsoEG;
+        }
+        else if ((*itObj) == "CenJet") {
+            obj = CenJet;
+        }
+        else if ((*itObj) == "ForJet") {
+            obj = ForJet;
+        }
+        else if ((*itObj) == "TauJet") {
+            obj = TauJet;
+        }
+        else if ((*itObj) == "ETM") {
+            obj = ETM;
+        }
+        else if ((*itObj) == "ETT") {
+            obj = ETT;
+        }
+        else if ((*itObj) == "HTT") {
+            obj = HTT;
+        }
+        else if ((*itObj) == "JetCounts") {
+            obj = JetCounts;
+        }
+        else if ((*itObj) == "HfBitCounts") {
+            obj = HfBitCounts;
+        }
+        else if ((*itObj) == "HfRingEtSums") {
+            obj = HfRingEtSums;
+        }
+        else if ((*itObj) == "TechTrig") {
+            obj = TechTrig;
+        }
+        else {
+            throw cms::Exception("Configuration")
+                    << "\nError: no such L1 GT object: " << (*itObj) << "\n"
+                    << "\n       Can not define the mapping of the L1 GT boards.     \n"
+                    << std::endl;
+
+        }
+
+        chInputObjectsV.push_back(obj);
+    }
+
+    return chInputObjectsV;
+}
 
 // constructor(s)
 L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterSet& parSet)
@@ -154,6 +215,10 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
     }
 
 
+    // detailed input configuration for PSB
+    std::vector<edm::ParameterSet> psbInput = parSet.getParameter<std::vector<
+            edm::ParameterSet> > ("PsbInput");
+
     // reserve space for L1 GT boards
     m_gtBoardMaps.reserve(boardList.size());
 
@@ -207,7 +272,8 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
         gtBoard.setGtBitEvmActiveBoards(activeBoardsEvmRecord.at(posVec));
 
         // set board slot
-        gtBoard.setGtBoardSlot(boardSlotMap.at(posVec));
+        int boardSlot = boardSlotMap.at(posVec);
+        gtBoard.setGtBoardSlot(boardSlot);
 
         // set board hex fragment name in hw record
         gtBoard.setGtBoardHexName(boardHexNameMap.at(posVec));
@@ -301,6 +367,83 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
 
         }
 
+        if (boardType == PSB) {
+
+            std::map<int, std::vector<L1GtObject> > inputPsbChannels;
+
+            std::vector<std::string> chStrings;
+            chStrings.reserve(2); // most channels have 2 objects
+
+            std::vector<L1GtObject>  chObjects;
+
+            for (std::vector<edm::ParameterSet>::const_iterator itPSet =
+                    psbInput.begin(); itPSet != psbInput.end(); ++itPSet) {
+
+                //
+                int slot = itPSet->getParameter<int> ("Slot");
+
+                if (slot == boardSlot) {
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch0");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[0] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch1");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[1] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch2");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[2] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch3");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[3] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch4");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[4] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch5");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[5] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch6");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[6] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+
+                    chStrings = itPSet->getParameter<std::vector<std::string> > (
+                            "Ch7");
+                    chObjects = chInputObjects(chStrings);
+                    inputPsbChannels[7] = chObjects;
+                    chStrings.clear();
+                    chObjects.clear();
+                }
+            }
+
+            gtBoard.setGtInputPsbChannels(inputPsbChannels);
+        }
+
         // push the board in the vector
         m_gtBoardMaps.push_back(gtBoard);
 
@@ -336,3 +479,4 @@ boost::shared_ptr<L1GtBoardMaps> L1GtBoardMapsTrivialProducer::produceBoardMaps(
 
     return pL1GtBoardMaps ;
 }
+
