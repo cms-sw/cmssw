@@ -265,13 +265,12 @@ famosElectronSequence = cms.Sequence(
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 photons.barrelEcalHits = cms.InputTag("caloRecHits","EcalRecHitsEB")
 photons.endcapEcalHits = cms.InputTag("caloRecHits","EcalRecHitsEE")
+photons.isolationSumsCalculatorSet.barrelEcalRecHitProducer = 'caloRecHits'
+photons.isolationSumsCalculatorSet.endcapEcalRecHitProducer = 'caloRecHits'
 photons.hbheModule = 'caloRecHits'
 photons.hbheInstance = ''
 photons.pixelSeedProducer = 'electronGSPixelSeeds'
 from RecoEgamma.PhotonIdentification.photonId_cff import *
-PhotonIDProd.barrelEcalRecHitProducer = 'caloRecHits'
-PhotonIDProd.endcapEcalRecHitProducer = 'caloRecHits'
-PhotonIDProd.HcalRecHitProducer = 'caloRecHits'
 
 famosPhotonSequence = cms.Sequence(
     photonSequence+
