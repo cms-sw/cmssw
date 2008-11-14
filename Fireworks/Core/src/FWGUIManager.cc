@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.77 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.78 2008/11/10 18:07:57 amraktad Exp $
 //
 
 // system include files
@@ -83,6 +83,9 @@
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
+
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+
 //
 // constants, enums and typedefs
 //
@@ -185,6 +188,12 @@ m_tasks(new CmsShowTaskExecutor)
 
 FWGUIManager::~FWGUIManager()
 {
+   for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
+       it != itEnd;
+       ++it) {
+      (*it)->destroy();
+   }
+   
    delete m_summaryManager;
    delete m_detailViewManager;
    delete m_editableSelected;
@@ -449,7 +458,7 @@ FWGUIManager::addData()
                                             m_cmsShowMainFrame,
                                             m_presentEvent,
                                             m_openFile,
-                                            m_viewManagerManager->supportedTypesAndPurpose());
+                                            m_viewManagerManager->supportedTypesAndRepresentations());
    }
    m_dataAdder->show();
 }
