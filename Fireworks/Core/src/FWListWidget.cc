@@ -1,4 +1,4 @@
-// @(#)root/eve:$Id: FWListWidget.cc,v 1.1 2008/07/08 20:08:04 chrjones Exp $
+// @(#)root/eve:$Id: FWListWidget.cc,v 1.2 2008/11/10 18:07:57 amraktad Exp $
 // Authors: Matevz Tadel & Alja Mrak-Tadel: 2006, 2007
 
 /*************************************************************************
@@ -192,9 +192,9 @@ FWListWidget::~FWListWidget()
    // Should un-register editor, all items and list-tree from gEve ... eventually.
 
    delete fListTree;
-   delete fLTCanvas;
+   //delete fLTCanvas;
    //delete fLTFrame;
-   delete fFrame;
+   //delete fFrame;
 }
 
 //______________________________________________________________________________
