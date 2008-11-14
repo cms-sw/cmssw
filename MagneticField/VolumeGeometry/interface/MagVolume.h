@@ -39,7 +39,7 @@ public:
   const MagneticFieldProvider<float>* provider() const {return theProvider;}
 
   /// Access to volume faces
-  virtual std::vector<VolumeSide> faces() const = 0;
+  virtual const std::vector<VolumeSide>& faces() const = 0;
 
   virtual ::GlobalVector inTesla ( const ::GlobalPoint& gp) const {
     return fieldInTesla( gp);

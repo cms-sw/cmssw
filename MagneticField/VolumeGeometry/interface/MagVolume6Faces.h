@@ -9,8 +9,8 @@
  *  inside() is implemented by checking that the given point is on the 
  *  correct side of each of the surfaces sides.
  *
- *  $Date: 2008/03/29 14:10:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/09 16:20:49 $
+ *  $Revision: 1.3 $
  *  \author T. Todorov, N. Amapane
  */
 
@@ -37,7 +37,7 @@ public:
   virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const;
 
   /// Access to volume faces
-  std::vector<VolumeSide> faces() const {return theFaces;}
+  virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
 
   //--> These are used for debugging purposes only
   std::string name;

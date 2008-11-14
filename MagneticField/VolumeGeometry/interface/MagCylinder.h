@@ -24,7 +24,7 @@ public:
   virtual bool inside( const LocalPoint& lp, double tolerance=0.) const;
 
   /// Access to volume faces
-  const std::vector<VolumeSide>& faces() const {return theFaces;}
+  virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
 
   //-- FIXME
   std::string name;
