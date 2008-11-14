@@ -1,11 +1,11 @@
 /** \file
  *
- *  $Date: 2006/10/27 01:35:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/29 11:55:26 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
-#include "MagneticField/UniformEngine/src/UniformMagneticFieldESProducer.h"
+#include "MagneticField/UniformEngine/plugins/UniformMagneticFieldESProducer.h"
 #include "MagneticField/UniformEngine/src/UniformMagneticField.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
