@@ -68,6 +68,16 @@ import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltMumuPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
 hltMumukPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRegionalPi0FEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRegionalPi0Digis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRegionalPi0WeightUncalibRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+hltEcalRegionalPi0RecHitTmp = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+#import FastSimulation.HighLevelTrigger.DummyModule_cfi
+#hltEcalRegionalPi0RecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 #
 # Tracker = Pixel and Strip
 #

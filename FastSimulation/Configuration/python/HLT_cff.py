@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_0_0/pre0/HLT/V19 (CMSSW_3_0_X_2008-10-31-0200_HLT4)
+# /dev/CMSSW_3_0_0/pre3/HLT/V1 (CMSSW_3_0_0_pre2_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,11 +28,12 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_0_0/pre0/HLT/V19')
+  tableName = cms.string('/dev/CMSSW_3_0_0/pre3/HLT/V1')
 )
 
 SiStripQualityFakeESSource = cms.ESSource( "SiStripQualityFakeESSource" )
 MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
+  appendToDataLabel = cms.string( "" ),
   tagName = cms.string( "CMSSW_152_iterativeCone5" ),
   label = cms.string( "MCJetCorrectorIcone5" )
 )
@@ -7285,7 +7286,7 @@ hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
 )
 hltL1sAlCaEcalPi0 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20  OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25" ),
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
     L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
@@ -7293,28 +7294,38 @@ hltL1sAlCaEcalPi0 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPreAlCaEcalPi0 = cms.EDFilter( "HLTPrescaler" )
 hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
-    barrelHits = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+    barrelHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEB' ),
+    endcapHits = cms.InputTag( 'hltEcalRegionalPi0RecHit','EcalRecHitsEE' ),
     pi0BarrelHitCollection = cms.string( "pi0EcalRecHitsEB" ),
-    gammaCandEtaSize = cms.int32( 9 ),
-    gammaCandPhiSize = cms.int32( 21 ),
+    pi0EndcapHitCollection = cms.string( "pi0EcalRecHitsEE" ),
     clusSeedThr = cms.double( 0.5 ),
+    clusSeedThrEndCap = cms.double( 1.0 ),
     clusEtaSize = cms.int32( 3 ),
     clusPhiSize = cms.int32( 3 ),
     selePtGammaOne = cms.double( 0.9 ),
     selePtGammaTwo = cms.double( 0.9 ),
-    selePtPi0 = cms.double( 2.5 ),
+    selePtPi0 = cms.double( 2.0 ),
     seleMinvMaxPi0 = cms.double( 0.22 ),
     seleMinvMinPi0 = cms.double( 0.06 ),
     seleXtalMinEnergy = cms.double( 0.0 ),
     seleNRHMax = cms.int32( 1000 ),
-    seleS4S9GammaOne = cms.double( 0.85 ),
-    seleS4S9GammaTwo = cms.double( 0.85 ),
-    selePi0Iso = cms.double( 0.5 ),
+    seleS4S9GammaOne = cms.double( 0.8 ),
+    seleS4S9GammaTwo = cms.double( 0.8 ),
+    selePi0Iso = cms.double( 1.0 ),
     selePi0BeltDR = cms.double( 0.2 ),
     selePi0BeltDeta = cms.double( 0.05 ),
+    selePtGammaEndCap = cms.double( 0.8 ),
+    selePtPi0EndCap = cms.double( 2.0 ),
+    seleS4S9GammaEndCap = cms.double( 0.85 ),
+    seleMinvMaxPi0EndCap = cms.double( 0.3 ),
+    seleMinvMinPi0EndCap = cms.double( 0.05 ),
+    ptMinForIsolationEndCap = cms.double( 0.5 ),
+    selePi0IsoEndCap = cms.double( 1.0 ),
     ParameterLogWeighted = cms.bool( True ),
     ParameterX0 = cms.double( 0.89 ),
     ParameterT0_barl = cms.double( 5.7 ),
+    ParameterT0_endc = cms.double( 3.1 ),
+    ParameterT0_endcPresh = cms.double( 1.2 ),
     ParameterW0 = cms.double( 4.2 ),
     l1IsolatedTag = cms.InputTag( 'l1extraParticles','Isolated' ),
     l1NonIsolatedTag = cms.InputTag( 'l1extraParticles','NonIsolated' ),
@@ -7322,7 +7333,7 @@ hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     debugLevel = cms.int32( 0 ),
     storeIsoClusRecHit = cms.bool( True ),
     ptMinForIsolation = cms.double( 0.9 ),
-    ptMinEMObj = cms.double( 5.0 ),
+    ptMinEMObj = cms.double( 2.0 ),
     EMregionEtaMargin = cms.double( 0.25 ),
     EMregionPhiMargin = cms.double( 0.4 )
 )
@@ -7415,6 +7426,7 @@ HLTEJetElectronSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1I
 HLTE3Jet30ElectronSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1IsoSingleEJet30L1MatchFilter + hltL1IsoEJetSingleEEt5Filter + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedElectronHcalIsol + hltL1IsoEJetSingleEEt5HcalIsolFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTPixelMatchElectronL1IsoSequence + hltL1IsoEJetSingleEEt5PixelMatchFilter + HLTPixelMatchElectronL1IsoTrackingSequence + hltL1IsoEJetSingleEEt5EoverpFilter + HLTL1IsoElectronsRegionalRecoTrackerSequence + hltL1IsoElectronTrackIsol + hltL1IsoEJetSingleEEt5TrackIsolFilter )
 HLTL3PixelIsolFilterSequence = cms.Sequence( HLTDoLocalPixelSequence + hltPixelTracking + hltPixelVertices + hltIsolPixelTrackProd + hltIsolPixelTrackFilter )
 HLTIsoTrRegFEDSelection = cms.Sequence( hltSiStripRegFED + hltEcalRegFED + hltSubdetFED )
+HLTDoRegionalPi0EcalSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRegionalPi0FEDs + hltEcalRegionalPi0Digis + hltEcalRegionalPi0WeightUncalibRecHit + hltEcalRegionalPi0RecHitTmp + hltEcalRegionalPi0RecHit + hltEcalPreshowerRecHit )
 
 HLTriggerFirstPath = cms.Path( HLTBeginSequence + hltGetRaw + hltPreFirstPath + hltBoolFirstPath + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_L1Jet15 = cms.Path( HLTBeginSequence + hltL1sL1Jet15 + hltPreL1Jet15 + cms.SequencePlaceholder("HLTEndSequence") )
@@ -7565,7 +7577,7 @@ HLT_CSCBeamHaloRing2or3 = cms.Path( HLTBeginSequence + hltL1sCSCBeamHaloRing2or3
 HLT_TrackerCosmics = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreTrackerCosmics + cms.SequencePlaceholder("HLTEndSequence") )
 AlCa_IsoTrack = cms.Path( HLTBeginSequence + hltL1sAlCaIsoTrack + hltPreAlCaIsoTrack + HLTL3PixelIsolFilterSequence + HLTIsoTrRegFEDSelection + cms.SequencePlaceholder("HLTEndSequence") )
 AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalDigis + hltEcalWeightUncalibRecHit + hltEcalRecHit + hltAlCaPhiSymStream + cms.SequencePlaceholder("HLTEndSequence") )
-AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0 + hltPreAlCaEcalPi0 + HLTDoRegionalEgammaEcalSequence + hltAlCaPi0RegRecHits + cms.SequencePlaceholder("HLTEndSequence") )
+AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0 + hltPreAlCaEcalPi0 + HLTDoRegionalPi0EcalSequence + hltAlCaPi0RegRecHits + cms.SequencePlaceholder("HLTEndSequence") )
 HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
 HLTAnalyzerEndpath = cms.EndPath( hltL1gtTrigReport + hltTrigReport )
 

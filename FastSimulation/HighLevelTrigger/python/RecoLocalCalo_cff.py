@@ -10,6 +10,9 @@ import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 hltHoreco = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
 import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 hltHfreco = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
+import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
+hltEcalRegionalPi0RecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
+
 hltEcalPreshowerRecHit.OutputRecHitCollections = ['EcalRecHitsES']
 hltEcalPreshowerRecHit.InputRecHitCollectionTypes = [1]
 hltEcalPreshowerRecHit.InputRecHitCollections = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsES"))
