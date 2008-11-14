@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtBoardMaps
- * 
- * 
- * Description: map of the L1 GT boards.  
+ *
+ *
+ * Description: map of the L1 GT boards.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -19,7 +19,7 @@
 
 // system include files
 #include <vector>
-#include <ostream>
+#include <iosfwd>
 
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
@@ -48,7 +48,11 @@ public:
     }
 
     void setGtBoardMaps(const std::vector<L1GtBoard>&);
-    void printGtBoardMaps(std::ostream&) const;
+    void print(std::ostream&) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtBoardMaps&);
+
 
 public:
 

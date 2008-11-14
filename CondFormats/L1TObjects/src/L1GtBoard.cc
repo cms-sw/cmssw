@@ -36,10 +36,9 @@ L1GtBoard::L1GtBoard()
 
 }
 
-L1GtBoard::L1GtBoard(const L1GtBoardType& gtBoardTypeValue)
+L1GtBoard::L1GtBoard(const L1GtBoardType& gtBoardTypeValue) :
+    m_gtBoardType(gtBoardTypeValue)
 {
-
-    m_gtBoardType = gtBoardTypeValue;
 
     m_gtBoardIndex = -1;
 
@@ -56,11 +55,10 @@ L1GtBoard::L1GtBoard(const L1GtBoardType& gtBoardTypeValue)
 
 }
 
-L1GtBoard::L1GtBoard(const L1GtBoardType& gtBoardTypeValue, const int& gtBoardIndexValue)
+L1GtBoard::L1GtBoard(const L1GtBoardType& gtBoardTypeValue,
+        const int& gtBoardIndexValue) :
+    m_gtBoardType(gtBoardTypeValue), m_gtBoardIndex(gtBoardIndexValue)
 {
-
-    m_gtBoardType = gtBoardTypeValue;
-    m_gtBoardIndex = gtBoardIndexValue;
 
     m_gtPositionDaqRecord = -1;
     m_gtPositionEvmRecord = -1;
@@ -85,19 +83,21 @@ L1GtBoard::~L1GtBoard()
 L1GtBoard::L1GtBoard(const L1GtBoard& gtb)
 {
 
-    m_gtBoardType = gtb.gtBoardType();
-    m_gtBoardIndex = gtb.gtBoardIndex();
+    m_gtBoardType = gtb.m_gtBoardType;
+    m_gtBoardIndex = gtb.m_gtBoardIndex;
 
-    m_gtPositionDaqRecord = gtb.gtPositionDaqRecord();
-    m_gtPositionEvmRecord = gtb.gtPositionEvmRecord();
+    m_gtPositionDaqRecord = gtb.m_gtPositionDaqRecord;
+    m_gtPositionEvmRecord = gtb.m_gtPositionEvmRecord;
 
-    m_gtBitDaqActiveBoards = gtb.gtBitDaqActiveBoards();
-    m_gtBitEvmActiveBoards = gtb.gtBitEvmActiveBoards();
+    m_gtBitDaqActiveBoards = gtb.m_gtBitDaqActiveBoards;
+    m_gtBitEvmActiveBoards = gtb.m_gtBitEvmActiveBoards;
 
-    m_gtBoardSlot = gtb.gtBoardSlot();
-    m_gtBoardHexName = gtb.gtBoardHexName();
+    m_gtBoardSlot = gtb.m_gtBoardSlot;
+    m_gtBoardHexName = gtb.m_gtBoardHexName;
 
-    m_gtQuadInPsb = gtb.gtQuadInPsb();
+    m_gtQuadInPsb = gtb.m_gtQuadInPsb;
+
+    m_gtInputPsbChannels = gtb.m_gtInputPsbChannels;
 
 }
 
@@ -107,19 +107,20 @@ L1GtBoard::L1GtBoard& L1GtBoard::operator=(const L1GtBoard& gtb)
 
     if ( this != &gtb ) {
 
-        m_gtBoardType = gtb.gtBoardType();
-        m_gtBoardIndex = gtb.gtBoardIndex();
+        m_gtBoardType = gtb.m_gtBoardType;
+        m_gtBoardIndex = gtb.m_gtBoardIndex;
 
-        m_gtPositionDaqRecord = gtb.gtPositionDaqRecord();
-        m_gtPositionEvmRecord = gtb.gtPositionEvmRecord();
+        m_gtPositionDaqRecord = gtb.m_gtPositionDaqRecord;
+        m_gtPositionEvmRecord = gtb.m_gtPositionEvmRecord;
 
-        m_gtBitDaqActiveBoards = gtb.gtBitDaqActiveBoards();
-        m_gtBitEvmActiveBoards = gtb.gtBitEvmActiveBoards();
+        m_gtBitDaqActiveBoards = gtb.m_gtBitDaqActiveBoards;
+        m_gtBitEvmActiveBoards = gtb.m_gtBitEvmActiveBoards;
 
-        m_gtBoardSlot = gtb.gtBoardSlot();
-        m_gtBoardHexName = gtb.gtBoardHexName();
+        m_gtBoardSlot = gtb.m_gtBoardSlot;
+        m_gtBoardHexName = gtb.m_gtBoardHexName;
 
-        m_gtQuadInPsb = gtb.gtQuadInPsb();
+        m_gtQuadInPsb = gtb.m_gtQuadInPsb;
+        m_gtInputPsbChannels = gtb.m_gtInputPsbChannels;
 
     }
 
@@ -131,39 +132,43 @@ L1GtBoard::L1GtBoard& L1GtBoard::operator=(const L1GtBoard& gtb)
 bool L1GtBoard::operator==(const L1GtBoard& gtb) const
 {
 
-    if (m_gtBoardType != gtb.gtBoardType()) {
+    if (m_gtBoardType != gtb.m_gtBoardType) {
         return false;
     }
 
-    if (m_gtBoardIndex != gtb.gtBoardIndex()) {
+    if (m_gtBoardIndex != gtb.m_gtBoardIndex) {
         return false;
     }
 
-    if (m_gtPositionDaqRecord != gtb.gtPositionDaqRecord()) {
+    if (m_gtPositionDaqRecord != gtb.m_gtPositionDaqRecord) {
         return false;
     }
 
-    if (m_gtPositionEvmRecord != gtb.gtPositionEvmRecord()) {
+    if (m_gtPositionEvmRecord != gtb.m_gtPositionEvmRecord) {
         return false;
     }
 
-    if (m_gtBitDaqActiveBoards != gtb.gtBitDaqActiveBoards()) {
+    if (m_gtBitDaqActiveBoards != gtb.m_gtBitDaqActiveBoards) {
         return false;
     }
 
-    if (m_gtBitEvmActiveBoards != gtb.gtBitEvmActiveBoards()) {
+    if (m_gtBitEvmActiveBoards != gtb.m_gtBitEvmActiveBoards) {
         return false;
     }
 
-    if (m_gtBoardSlot != gtb.gtBoardSlot()) {
+    if (m_gtBoardSlot != gtb.m_gtBoardSlot) {
         return false;
     }
 
-    if (m_gtBoardHexName != gtb.gtBoardHexName()) {
+    if (m_gtBoardHexName != gtb.m_gtBoardHexName) {
         return false;
     }
 
-    if (m_gtQuadInPsb != gtb.gtQuadInPsb()) {
+    if (m_gtQuadInPsb != gtb.m_gtQuadInPsb) {
+        return false;
+    }
+
+    if (m_gtInputPsbChannels != gtb.m_gtInputPsbChannels) {
         return false;
     }
 
@@ -260,6 +265,12 @@ void L1GtBoard::setGtQuadInPsb(const std::vector<L1GtPsbQuad>& gtQuadInPsbValue)
     m_gtQuadInPsb = gtQuadInPsbValue;
 }
 
+// set detailed input configuration for PSB (objects pro channel)
+// int: channel number
+void L1GtBoard::setGtInputPsbChannels(const std::map<int, std::vector<L1GtObject> >& gtInputPsbChannelsValue) {
+    m_gtInputPsbChannels = gtInputPsbChannelsValue;
+}
+
 // get the board ID
 const boost::uint16_t L1GtBoard::gtBoardId() const
 {
@@ -309,9 +320,9 @@ std::string L1GtBoard::gtBoardName() const
             }
             break;
         default: {
-
-                // do nothing here
-                // TODO throw exception instead of returning empty string?
+            //edm::LogWarning("L1GtBoard") << "\n\nError: no such board type" <<  m_gtBoardType
+            //<< " in enum L1GtBoardType from L1GtFwd\n\n" << std::endl;
+            gtBoardNameValue = "ERROR";
             }
             break;
     }
@@ -340,7 +351,7 @@ void L1GtBoard::print(std::ostream& myCout) const
 
     if (m_gtBoardType == PSB) {
         myCout
-        << "PSB Input per Cable: "
+        << "PSB Input per Cable: DEPRECATED"
         << std::endl;
     }
 
@@ -403,8 +414,116 @@ void L1GtBoard::print(std::ostream& myCout) const
 
         myCout << "       " << objType << " ";
     }
+    myCout << std::endl;
+
+    if (m_gtBoardType == PSB) {
+        myCout
+        << "Input objects pro channel:";
+    }
+
+    for (std::map<int, std::vector<L1GtObject> >::const_iterator cIt =
+            m_gtInputPsbChannels.begin(); cIt != m_gtInputPsbChannels.end(); ++cIt) {
+
+        myCout << "\n  Channel " << cIt->first << " (" << (cIt->second).size() << " objects): ";
+
+        for (std::vector<L1GtObject>::const_iterator itObj =
+                (cIt->second).begin(); itObj != (cIt->second).end(); ++itObj) {
+
+            switch (*itObj) {
+                case Mu: {
+                    myCout << " Mu ";
+                }
+
+                    break;
+                case NoIsoEG: {
+                    myCout << " NoIsoEG ";
+                }
+
+                    break;
+                case IsoEG: {
+                    myCout << " IsoEG ";
+                }
+
+                    break;
+                case CenJet: {
+                    myCout << " CenJet ";
+                }
+
+                    break;
+                case ForJet: {
+                    myCout << " ForJet ";
+                }
+
+                    break;
+                case TauJet: {
+                    myCout << " TauJet ";
+                }
+
+                    break;
+                case ETM: {
+                    myCout << " ETM ";
+                }
+
+                    break;
+                case ETT: {
+                    myCout << " ETT ";
+                }
+
+                    break;
+                case HTT: {
+                    myCout << " HTT ";
+                }
+
+                    break;
+                case JetCounts: {
+                    myCout << " JetCounts ";
+                }
+
+                    break;
+                case HfBitCounts: {
+                    myCout << " HfBitCounts ";
+                }
+
+                    break;
+                case HfRingEtSums: {
+                    myCout << " HfRingEtSums ";
+                }
+
+                    break;
+                case TechTrig: {
+                    myCout << " TechTrig ";
+                }
+
+                    break;
+                case Castor: {
+                    myCout << " Castor ";
+                }
+
+                    break;
+                case BPTX: {
+                    myCout << " BPTX ";
+                }
+
+                    break;
+                default: {
+                    myCout << " ERROR: Unknown type " << (*itObj);
+                }
+                    break;
+            }
+        }
+
+    }
+
 
     myCout << std::endl;
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtBoard& result)
+{
+    result.print(os);
+    return os;
+
 }
 
 // number of InfiniCables per board

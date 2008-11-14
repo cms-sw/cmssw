@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtBoard
- * 
- * 
- * Description: class for L1 GT board.  
+ *
+ *
+ * Description: class for L1 GT board.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -20,11 +20,13 @@
 // system include files
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/cstdint.hpp>
 
 // user include files
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 
@@ -144,6 +146,14 @@ public:
 
     void setGtQuadInPsb(const std::vector<L1GtPsbQuad>&);
 
+    /// get / set detailed input configuration for PSB (objects pro channel)
+    /// int: channel number
+    const std::map<int, std::vector<L1GtObject> >& gtInputPsbChannels() const {
+        return m_gtInputPsbChannels;
+    }
+
+    void setGtInputPsbChannels(const std::map<int, std::vector<L1GtObject> >&);
+
     /// get the board ID
     const boost::uint16_t gtBoardId() const;
 
@@ -152,6 +162,10 @@ public:
 
     /// print board
     void print(std::ostream& myCout) const;
+
+    /// output stream operator
+    friend std::ostream& operator<<(std::ostream&, const L1GtBoard&);
+
 
 private:
 
@@ -182,9 +196,14 @@ private:
     /// gives the bits written for each GT board in the Board_Id
     int m_gtBoardHexName;
 
-    /// L1 quadruplet (4x16 bits)(cable) in the PSB input
     /// valid for PSB only
+    /// L1 quadruplet (4x16 bits)(cable) in the PSB input
     std::vector<L1GtPsbQuad> m_gtQuadInPsb;
+
+    /// valid for PSB only
+    /// detailed input configuration for PSB (objects pro channel)
+    /// int: channel number
+    std::map<int, std::vector<L1GtObject> > m_gtInputPsbChannels;
 
 };
 

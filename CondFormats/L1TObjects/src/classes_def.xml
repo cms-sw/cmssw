@@ -70,6 +70,9 @@
   <class name="L1GtBoardMaps"/>
   <class name="std::vector<L1GtBoard>"/>
   <class name="std::vector<L1GtPsbQuad>"/>
+  <class name="L1GtPsbConfig"/>
+  <class name="std::vector<L1GtPsbConfig>"/>
+  <class name="L1GtPsbSetup"/>  
   <class name="L1GtCondition"/>
   <class name="L1GtMuonTemplate"/>
   <class name="L1GtMuonTemplate::ObjectParameter"/>

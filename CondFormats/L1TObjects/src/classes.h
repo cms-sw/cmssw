@@ -33,6 +33,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
+#include "CondFormats/L1TObjects/interface/L1GtPsbConfig.h"
+#include "CondFormats/L1TObjects/interface/L1GtPsbSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"

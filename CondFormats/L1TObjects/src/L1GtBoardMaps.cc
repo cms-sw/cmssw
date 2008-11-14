@@ -47,7 +47,7 @@ void L1GtBoardMaps::setGtBoardMaps(const std::vector<L1GtBoard>& gtBoardMapsValu
 
 }
 
-void L1GtBoardMaps::printGtBoardMaps(std::ostream& myCout) const
+void L1GtBoardMaps::print(std::ostream& myCout) const
 {
     myCout <<  "\nL1 GT board map" << std::endl;
 
@@ -275,7 +275,7 @@ void L1GtBoardMaps::printGtBoardHexNameMap(std::ostream& myCout) const
 void L1GtBoardMaps::printGtQuadToPsbMap(std::ostream& myCout) const
 {
 
-    myCout << "\nL1 GT \"cables to PSB\" input map (4x16 bits per cable) " << std::endl;
+    myCout << "\nL1 GT \"cables to PSB\" input map (4x16 bits per cable) - DEPRECATED" << std::endl;
 
     int nrBoards = 0;
     int nrCable = 0;
@@ -359,6 +359,14 @@ void L1GtBoardMaps::printGtQuadToPsbMap(std::ostream& myCout) const
     << std::endl;
 
     myCout << std::endl;
+
+}
+
+// output stream operator
+std::ostream& operator<<(std::ostream& os, const L1GtBoardMaps& result)
+{
+    result.print(os);
+    return os;
 
 }
 
