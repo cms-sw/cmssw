@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.24 2008/11/06 14:44:05 loizides Exp $
+# $Id: setup_sm.sh,v 1.25 2008/11/06 15:46:33 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -21,6 +21,14 @@ fi
 hname=`hostname | cut -d. -f1`;
 nname="node"`echo $hname | cut -d- -f3` 
 case $hname in
+    cmsdisk0)
+        nname="nottobeused"
+        ;;
+    srv-S2C17-01)
+        nname=node_cms-tier0-stage
+        ;;
+    srv-C2D05-02)
+        nname=node_cmsdisk1
     srv-c2c06-* | srv-C2C06-*)
         nname="nottobeused"
         ;;
@@ -72,10 +80,8 @@ start () {
             return 0;
             ;;
         srv-S2C17-01)
-            nname=node_cms-tier0-stage
             ;;
         srv-C2D05-02)
-            nname=node_cmsdisk1
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
                 if test -z "`mount | grep $sn`"; then
@@ -167,11 +173,9 @@ stop () {
             return 0;
             ;;
         srv-S2C17-01)
-            nname=node_cms-tier0-stage
             stopworkers
             ;;
         srv-C2D05-02)
-            nname=node_cmsdisk1
             stopworkers
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
@@ -231,10 +235,8 @@ status () {
             return 0;
             ;;
         srv-S2C17-01)
-            nname=node_cms-tier0-stage
             ;;
         srv-C2D05-02)
-            nname=node_cmsdisk1
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
                 printmstat $i $sn
