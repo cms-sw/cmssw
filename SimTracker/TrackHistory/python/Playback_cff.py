@@ -26,4 +26,4 @@ from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 trackingTruth = cms.Sequence(mix * doAllDigi * trackingParticles)
 
 # reconstruction
-playback = cms.Sequence(RawToDigi + trackingTruth + reconstruction)
+playback = cms.Sequence(RawToDigi * trackingTruth * reconstruction)
